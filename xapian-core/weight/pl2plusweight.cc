@@ -24,6 +24,7 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include "weightinternal.h"
 
 #include "serialise-double.h"
 
@@ -131,6 +132,12 @@ PL2PlusWeight::name() const
 }
 
 string
+PL2PlusWeight::short_name() const
+{
+    return "pl2plus";
+}
+
+string
 PL2PlusWeight::serialise() const
 {
     string result = serialise_double(param_c);
@@ -184,6 +191,22 @@ double
 PL2PlusWeight::get_maxextra() const
 {
     return 0;
+}
+
+PL2PlusWeight *
+PL2PlusWeight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::PL2PlusWeight();
+    double k = 1.0;
+    double delta = 0.8;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "pl2pls");
+    if (!Xapian::Weight::Internal::double_param(&p, &delta))
+	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "pl2plus");
+    if (*p)
+	Xapian::Weight::Internal::parameter_error("Extra data after parameter", "pl2plus");
+    return new Xapian::PL2PlusWeight(k, delta);
 }
 
 }

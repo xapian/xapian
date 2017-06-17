@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include "weightinternal.h"
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -30,7 +31,9 @@
 
 #include "xapian/error.h"
 
+#include <cerrno>
 #include <cmath>
+#include <cstdlib>
 
 using namespace std;
 
@@ -124,6 +127,12 @@ string
 LMWeight::name() const
 {
     return "Xapian::LMWeight";
+}
+
+string
+LMWeight::short_name() const
+{
+    return "lm";
 }
 
 string
@@ -254,6 +263,48 @@ LMWeight::get_maxextra() const
 	return get_query_length() * log(extra_weight);
     }
     return 0;
+}
+
+static bool
+type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
+{
+    char *end;
+    errno = 0;
+    int v = strtol(*p, &end, 10);
+    if (*p == end || errno || v < 1 || v > 5)
+	return false;
+    *p = end;
+    static const Xapian::Weight::type_smoothing smooth_tab[5] = {
+	Xapian::Weight::TWO_STAGE_SMOOTHING,
+	Xapian::Weight::DIRICHLET_SMOOTHING,
+	Xapian::Weight::ABSOLUTE_DISCOUNT_SMOOTHING,
+	Xapian::Weight::JELINEK_MERCER_SMOOTHING,
+	Xapian::Weight::DIRICHLET_PLUS_SMOOTHING
+    };
+    *ptr_val = smooth_tab[v - 1];
+    return true;
+}
+
+LMWeight *
+LMWeight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::LMWeight();
+    double param_log_ = 0;
+    Xapian::Weight::type_smoothing type = Xapian::Weight::TWO_STAGE_SMOOTHING;
+    double smoothing1 = 0.7;
+    double smoothing2 = 2000;
+    if (!Xapian::Weight::Internal::double_param(&p, &param_log_))
+	Xapian::Weight::Internal::parameter_error("Parameter 1 (log) is invalid", "lm");
+    if (*p && !type_smoothing_param(&p, &type))
+	Xapian::Weight::Internal::parameter_error("Parameter 2 (smoothing_type) is invalid", "lm");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &smoothing1))
+	Xapian::Weight::Internal::parameter_error("Parameter 3 (smoothing1) is invalid", "lm");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &smoothing2))
+	Xapian::Weight::Internal::parameter_error("Parameter 4 (smoothing2) is invalid", "lm");
+    if (*p)
+	Xapian::Weight::Internal::parameter_error("Extra data after parameter 4", "lm");
+    return new Xapian::LMWeight(param_log_, type, smoothing1, smoothing2);
 }
 
 }

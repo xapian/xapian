@@ -236,6 +236,25 @@ namespace Xapian {
 
 }
 
+%define WARN_CSHARP_COVARIANT_RET 842 %enddef
+
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BB2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BM25PlusWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BM25Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BoolWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::CoordWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::DLHWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::DPHWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::IfB2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::IneB2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::InL2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::LMWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::PL2PlusWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::PL2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::TfIdfWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::TradWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::Weight::create_from_parameters;
+
 %include ../generic/except.i
 %include ../xapian-headers.i
 %include ../fake_dbfactory.i

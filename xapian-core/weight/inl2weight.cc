@@ -22,6 +22,7 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include "weightinternal.h"
 
 #include "serialise-double.h"
 
@@ -88,6 +89,12 @@ InL2Weight::name() const
 }
 
 string
+InL2Weight::short_name() const
+{
+    return "inl2";
+}
+
+string
 InL2Weight::serialise() const
 {
     return serialise_double(param_c);
@@ -134,6 +141,19 @@ double
 InL2Weight::get_maxextra() const
 {
     return 0;
+}
+
+InL2Weight *
+InL2Weight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::InL2Weight();
+    double k = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "inl2");
+    if (*p)
+	Xapian::Weight::Internal::parameter_error("Extra data after parameter", "inl2");
+    return new Xapian::InL2Weight(k);
 }
 
 }

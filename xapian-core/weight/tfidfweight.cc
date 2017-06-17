@@ -111,6 +111,12 @@ TfIdfWeight::name() const
 }
 
 string
+TfIdfWeight::short_name() const
+{
+    return "tfidf";
+}
+
+string
 TfIdfWeight::serialise() const
 {
     string result = serialise_double(param_slope);
@@ -236,6 +242,14 @@ TfIdfWeight::get_wtn(double wt, char c) const
     (void)c;
     AssertEq(c, 'n');
     return wt;
+}
+
+TfIdfWeight *
+TfIdfWeight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::TfIdfWeight();
+    return new Xapian::TfIdfWeight(p);
 }
 
 }

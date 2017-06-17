@@ -4,7 +4,7 @@
 /* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
- * Copyright (C) 2016 Vivek Pal
+ * Copyright (C) 2016,2017 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 
 #include <string>
 
+#include <xapian/registry.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -315,6 +316,28 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	return stats_needed & UNIQUE_TERMS;
     }
 
+    /** Return the appropriate weighting scheme object.
+     *
+     *  @param scheme 		the string containing a weighting scheme name
+     *				and may also contain the parameters required
+     *				by that weighting scheme. E.g. "bm25 1.0 0.8"
+     *  @param reg		Xapian::Registry object to allow users to add
+     *				their own custom weighting schemes
+     *				(default: standard registry).
+     */
+    static const Weight * create(const std::string & scheme,
+				 const Registry & reg = Registry());
+
+    /** Return the parameterised weighting scheme object.
+     *
+     * @param params 		the pointer to the string containing parameter
+     *				values for a weighting scheme
+     */
+    virtual Weight * create_from_parameters(const char * params) const;
+
+    /** Return the short name of the weighting scheme. E.g. "bm25". */
+    virtual std::string short_name() const;
+
   protected:
     /** Don't allow copying.
      *
@@ -388,6 +411,7 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     BoolWeight() { }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BoolWeight * unserialise(const std::string & serialised) const;
@@ -400,6 +424,8 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    BoolWeight * create_from_parameters(const char * params) const;
 };
 
 /// Xapian::Weight subclass implementing the tf-idf weighting scheme.
@@ -531,6 +557,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     std::string name() const;
 
+    std::string short_name() const;
+
     std::string serialise() const;
     TfIdfWeight * unserialise(const std::string & serialised) const;
 
@@ -542,6 +570,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    TfIdfWeight * create_from_parameters(const char * params) const;
 };
 
 
@@ -635,6 +665,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BM25Weight * unserialise(const std::string & serialised) const;
@@ -647,6 +678,8 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    BM25Weight * create_from_parameters(const char * params) const;
 };
 
 /// Xapian::Weight subclass implementing the BM25+ probabilistic formula.
@@ -751,6 +784,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BM25PlusWeight * unserialise(const std::string & serialised) const;
@@ -763,6 +797,8 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    BM25PlusWeight * create_from_parameters(const char * params) const;
 };
 
 /** Xapian::Weight subclass implementing the traditional probabilistic formula.
@@ -812,6 +848,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     TradWeight * unserialise(const std::string & serialised) const;
@@ -824,6 +861,8 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    TradWeight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the InL2 weighting scheme.
@@ -885,6 +924,7 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     InL2Weight * unserialise(const std::string & serialised) const;
@@ -897,6 +937,8 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    InL2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the IfB2 weighting scheme.
@@ -958,6 +1000,7 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     IfB2Weight * unserialise(const std::string & serialised) const;
@@ -970,6 +1013,8 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    IfB2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the IneB2 weighting scheme.
@@ -1029,6 +1074,7 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     IneB2Weight * unserialise(const std::string & serialised) const;
@@ -1041,6 +1087,8 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    IneB2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the BB2 weighting scheme.
@@ -1105,6 +1153,7 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BB2Weight * unserialise(const std::string & serialised) const;
@@ -1117,6 +1166,8 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    BB2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the DLH weighting scheme, which is a representative
@@ -1162,6 +1213,7 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     DLHWeight * unserialise(const std::string & serialised) const;
@@ -1174,6 +1226,8 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    DLHWeight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the PL2 weighting scheme.
@@ -1240,6 +1294,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     PL2Weight * unserialise(const std::string & serialised) const;
@@ -1252,6 +1307,8 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    PL2Weight * create_from_parameters(const char * params) const;
 };
 
 /// Xapian::Weight subclass implementing the PL2+ probabilistic formula.
@@ -1318,6 +1375,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     PL2PlusWeight * unserialise(const std::string & serialised) const;
@@ -1330,6 +1388,8 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    PL2PlusWeight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the DPH weighting scheme.
@@ -1378,6 +1438,7 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     DPHWeight * unserialise(const std::string & serialised) const;
@@ -1390,6 +1451,8 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    DPHWeight * create_from_parameters(const char * params) const;
 };
 
 
@@ -1483,6 +1546,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     LMWeight * unserialise(const std::string & serialised) const;
@@ -1494,6 +1558,8 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 
     double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const;
     double get_maxextra() const;
+
+    LMWeight * create_from_parameters(const char * params) const;
 };
 
 /** Xapian::Weight subclass implementing Coordinate Matching.
@@ -1514,6 +1580,7 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
     CoordWeight() { }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     CoordWeight * unserialise(const std::string & serialised) const;
@@ -1525,6 +1592,8 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
 
     double get_sumextra(Xapian::termcount, Xapian::termcount) const;
     double get_maxextra() const;
+
+    CoordWeight * create_from_parameters(const char * params) const;
 };
 
 }

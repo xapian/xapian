@@ -405,6 +405,10 @@ class ExceptionalWeight : public Xapian::Weight {
 	return "ExceptionalWeight";
     }
 
+    string short_name() const {
+	return "excep";
+    }
+
     Weight * clone() const {
 	if (fail == CLONE)
 	    throw bad_alloc();
