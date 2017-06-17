@@ -126,45 +126,46 @@ DocumentSet::DocumentSet()
 {
 }
 
-unsigned int
+doccount
 DocumentSet::size() const
 {
-    LOGCALL(API, int, "DocumentSet::size", NO_ARGS);
+    LOGCALL(API, doccount, "DocumentSet::size", NO_ARGS);
     return internal->size();
 }
 
-unsigned int
+doccount
 DocumentSet::Internal::size() const
 {
-    return docs.size();
+    return documents.size();
 }
 
 void
-DocumentSet::add_document(const Document &doc)
+DocumentSet::add_document(const Document &document)
 {
-    LOGCALL_VOID(API, "DocumentSet::add_document", doc);
-    internal->add_document(doc);
+    LOGCALL_VOID(API, "DocumentSet::add_document", document);
+    internal->add_document(document);
 }
 void
-DocumentSet::Internal::add_document(const Document &doc)
+DocumentSet::Internal::add_document(const Document &document)
 {
-    docs.push_back(doc);
+    documents.push_back(document);
 }
 
-Document
-DocumentSet::operator[](doccount i)
+const Document&
+DocumentSet::operator[](doccount i) const
 {
     return internal->get_document(i);
 }
 
-Document
-DocumentSet::Internal::get_document(doccount i)
+const Document&
+DocumentSet::Internal::get_document(doccount i) const
 {
-    return docs[i];
+    return documents[i];
 }
 
 DocumentSet::~DocumentSet()
 {
+    LOGCALL_DTOR(API, "DocumentSet");
 }
 
 class PointTermIterator : public TermIterator::Internal {

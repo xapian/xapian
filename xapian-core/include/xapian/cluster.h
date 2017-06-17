@@ -65,17 +65,17 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
     ~DocumentSet();
 
     /// Return the size of the DocumentSet
-    unsigned int size() const;
+    Xapian::doccount size() const;
 
     /// Return the Document in the DocumentSet at index i
-    Xapian::Document operator[](Xapian::doccount i);
+    const Xapian::Document& operator[](Xapian::doccount i) const;
 
     /** Add a new Document to the DocumentSet
      *
-     *  @param doc	Document object that is to be added to
-     *			the DocumentSet
+     *  @param document		Document object that is to be added to
+     *				the DocumentSet
      */
-    void add_document(const Document &doc);
+    void add_document(const Document &document);
 };
 
 /** Base class for TermListGroup

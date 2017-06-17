@@ -128,7 +128,8 @@ class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
     void operator=(const Internal &);
 
     /// Vector storing the documents for this DocumentSet
-    std::vector<Xapian::Document> docs;
+    std::vector<Xapian::Document> documents;
+
   public:
     /// Constructor
     Internal() {}
@@ -137,17 +138,17 @@ class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
     ~Internal() {}
 
     /// Returns the size of the DocumentSet
-    unsigned int size() const;
+    Xapian::doccount size() const;
 
     /** Returns the Document at the index 'i' in the DocumentSet
      *
      * @params  i	Index of required document
      */
-    Xapian::Document get_document(Xapian::doccount i);
+    const Xapian::Document& get_document(Xapian::doccount i) const;
 
-    /** Add a new Xapian::Document to the DocumentSet
+    /** Add a new Document to the DocumentSet
      *
-     * @params  doc	Xapian::Document to be added
+     * @params  document	Document to be added
      */
-    void add_document(const Xapian::Document &doc);
+    void add_document(const Xapian::Document &document);
 };
