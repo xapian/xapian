@@ -57,7 +57,7 @@ TermListGroup::TermListGroup(const MSet &docs)
     LOGCALL_CTOR(API, "TermListGroup", docs);
     for (MSetIterator it = docs.begin(); it != docs.end(); ++it)
 	add_document(it.get_document());
-    docs_num = docs.size();
+    num_of_documents = docs.size();
 }
 
 doccount
@@ -96,7 +96,7 @@ doccount
 TermListGroup::get_doccount() const
 {
     LOGCALL(API, doccount, "TermListGroup::get_doccount", NO_ARGS);
-    return docs_num;
+    return num_of_documents;
 }
 
 doccount

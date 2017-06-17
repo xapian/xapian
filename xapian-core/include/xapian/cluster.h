@@ -84,9 +84,6 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
  */
 class XAPIAN_VISIBILITY_DEFAULT FreqSource
     : public Xapian::Internal::opt_intrusive_base {
-
-  private:
-
     /// Don't allow assignment.
     void operator=(const FreqSource &);
 
@@ -94,7 +91,6 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
     FreqSource(const FreqSource &);
 
   public:
-
     /// Constructor
     FreqSource() {}
 
@@ -103,7 +99,7 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
 
     /** Return the term frequency of a particular term 'tname'
      *
-     *  @param tname	The term for which we return the frequency value
+     *  @param tname	The term for which to return the frequency weight
      */
     virtual doccount get_termfreq(const std::string &tname) const = 0;
 
@@ -139,9 +135,7 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
  *  This returns 1 as the term frequency for any term
  */
 class XAPIAN_VISIBILITY_DEFAULT DummyFreqSource : public FreqSource {
-
   public:
-
     /// Return the value 1 as a dummy term frequency
     doccount get_termfreq(const std::string &) const;
 
@@ -153,23 +147,20 @@ class XAPIAN_VISIBILITY_DEFAULT DummyFreqSource : public FreqSource {
  *  frequency
  */
 class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
-
-  private:
-
     /** Map of the terms and its corresponding term frequencies.
      *  The term frequency of a term stands for the number of documents it indexes
      */
     std::unordered_map<std::string, doccount> termfreq;
 
     /// Number of documents added to the termlist
-    doccount docs_num;
+    doccount num_of_documents;
 
     /** Add a single document and calculates its corresponding term frequencies
      *
-     *  @param doc	Adds a document and updates the TermListGroup based on the
-     *			terms found in the document
+     *  @param document		Adds a document and updates the TermListGroup based on the
+     *				terms found in the document
      */
-    void add_document(const Document &doc);
+    void add_document(const Document &document);
 
   public:
     /** Constructor
@@ -179,9 +170,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
     explicit TermListGroup(const MSet &docs);
 
     /** Return the number of documents that the term 'tname' exists in
-     *  or the number of documents that a certain term indexes
      *
-     *  @param tname	The term for which we return the frequency value
+     *  @param tname	The term for which to return the frequency weight
      */
     doccount get_termfreq(const std::string &tname) const;
 
