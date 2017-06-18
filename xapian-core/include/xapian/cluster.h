@@ -102,7 +102,7 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
 
     /** Return the term frequency of a particular term 'tname'
      *
-     *  @param tname	The term for which to return the frequency weight
+     *  @param tname	The term for which to return the term frequency
      */
     virtual doccount get_termfreq(const std::string &tname) const = 0;
 
@@ -160,8 +160,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
 
     /** Add a single document and calculates its corresponding term frequencies
      *
-     *  @param document		Adds a document and updates the TermListGroup based on the
-     *				terms found in the document
+     *  @param document 	Adds a document and updates the TermListGroup
+     *				based on the terms found in the document
      */
     void add_document(const Document &document);
 
@@ -174,7 +174,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
 
     /** Return the number of documents that the term 'tname' exists in
      *
-     *  @param tname	The term for which to return the frequency weight
+     *  @param tname	The term for which to return the term frequency
      */
     doccount get_termfreq(const std::string &tname) const;
 
