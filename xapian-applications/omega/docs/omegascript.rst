@@ -418,6 +418,11 @@ $prettyurl{URL}
 	URL for displaying to the user (rather than in links), but which should
 	still work if copied and pasted.
 
+$qid{TEXT}
+	unique ID for the query TEXT which would be usually taken from $query.
+	This command uses MD5 hashing algorithm to produce a 128-bit hash for
+	the given query text which is used as a unique ID.
+
 $query[{PREFIX}]
 	list of query strings for prefix PREFIX.  Any tab characters in the
 	query strings are converted to spaces before adding them to the list
