@@ -52,8 +52,9 @@ RoundRobin::cluster(const MSet &mset)
 	i++;
     }
 
-    for (const Point& point : points)
-	cset.add_to_cluster(point, i % num_of_clusters);
+    unsigned int size = points.size();
+    for (i = 0; i < size; ++i)
+	cset.add_to_cluster(points[i], i % num_of_clusters);
 
     return cset;
 }
