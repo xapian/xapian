@@ -542,7 +542,7 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
   public:
     /** Constructor
      *
-     *  @param num_of_clusters_		Number of required clusters
+     *  @param num_of_clusters_ 	Number of required clusters
      */
     RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
 
@@ -557,7 +557,7 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
  *  This clusterer implements the K-Means clustering algorithm
  */
 class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
-    /// Contains the initialized points that are to be clustered
+    /// Contains the initialised points that are to be clustered
     std::vector<Point> points;
 
     /// Specifies that the clusterer needs to form 'k' clusters
@@ -566,15 +566,16 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     /// Specifies the maximum number of iterations that KMeans will have
     unsigned int max_iters;
 
-    /** Initialize 'k' clusters by randomly selecting 'k' centroids
+    /** Initialise 'k' clusters by randomly selecting 'k' centroids
      *  and assigning them to different clusters
      *
-     *	@param cset	ClusterSet object to be initialized by assigning
-     *			centroids to each cluster
+     *  @param cset		ClusterSet object to be initialised by assigning
+     *				centroids to each cluster
+     *  @param num_of_points	Number of points passed to clusterer
      */
-    void initialize_clusters(ClusterSet &cset);
+    void initialise_clusters(ClusterSet &cset, unsigned int num_of_points);
 
-    /** Initialize the 'Points' to be fed into the Clusterer with the DocumentSource.
+    /** Initialise the 'Points' to be fed into the Clusterer with the DocumentSource.
      *  The TF-IDF weights for the points are calculated and stored within the
      *  Points to be used later during distance calculations
      *
@@ -582,7 +583,7 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *			used to create document vectors that are represented
      *			as Point objects
      */
-    void initialize_points(const MSet &docs);
+    void initialise_points(const MSet &docs);
 
   public:
     /** Constructor specifying number of clusters and maximum iterations

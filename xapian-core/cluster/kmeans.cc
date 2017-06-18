@@ -27,8 +27,7 @@
 #include "xapian/error.h"
 #include "omassert.h"
 
-#include <climits>
-#include <random>
+#include <limits>
 #include <set>
 #include <unordered_map>
 #include <vector>
@@ -59,24 +58,17 @@ KMeans::get_description() const
 }
 
 void
-KMeans::initialize_clusters(ClusterSet &cset)
+KMeans::initialise_clusters(ClusterSet &cset, unsigned int num_of_points)
 {
     LOGCALL_VOID(API, "KMeans::initialize_clusters", cset);
-    // Since we are using the Mersenne Twister 19937 pseudo-random number
-    // generator, the period will be greater than the value of k
-    // (period of mt19937 >> k). So we do not need to check whether
-    // the same point has been selected more than once
-    mt19937 generator;
-    generator.seed(random_device()());
-    uniform_int_distribution<mt19937::result_type> random(0, points.size() - 1);
     for (unsigned int i = 0; i < k; ++i) {
-	int x = random(generator);
+	unsigned int x = (i * num_of_points) / k;
 	cset.add_cluster(Cluster(Centroid(points[x])));
     }
 }
 
 void
-KMeans::initialize_points(const MSet &source)
+KMeans::initialise_points(const MSet &source)
 {
     LOGCALL_VOID(API, "KMeans::initialize_points", source);
     TermListGroup tlg(source);
@@ -91,9 +83,9 @@ KMeans::cluster(const MSet &mset)
     unsigned int size = mset.size();
     if (k >= size)
 	k = size;
-    initialize_points(mset);
+    initialise_points(mset);
     ClusterSet cset;
-    initialize_clusters(cset);
+    initialise_clusters(cset, size);
     CosineDistance distance;
     vector<Centroid> previous_centroids;
     for (unsigned int i = 0; i < max_iters; ++i) {
@@ -101,7 +93,7 @@ KMeans::cluster(const MSet &mset)
 	// closest cluster centroid
 	cset.clear_clusters();
 	for (unsigned int j = 0; j < size; ++j) {
-	    double closest_cluster_distance = HUGE_VAL;
+	    double closest_cluster_distance = numeric_limits<double>::max();
 	    unsigned int closest_cluster = 0;
 	    for (unsigned int c = 0; c < k; ++c) {
 		const Centroid& centroid = cset[c].get_centroid();
