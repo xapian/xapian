@@ -378,11 +378,11 @@ Cluster::Internal::get_documents() const
 Point&
 Cluster::operator[](Xapian::doccount i)
 {
-    return internal->get_index(i);
+    return internal->get_point(i);
 }
 
 Point&
-Cluster::Internal::get_index(Xapian::doccount i)
+Cluster::Internal::get_point(Xapian::doccount i)
 {
     return cluster_docs[i];
 }
@@ -390,11 +390,11 @@ Cluster::Internal::get_index(Xapian::doccount i)
 const Point&
 Cluster::operator[](Xapian::doccount i) const
 {
-    return internal->get_index(i);
+    return internal->get_point(i);
 }
 
 const Point&
-Cluster::Internal::get_index(Xapian::doccount i) const
+Cluster::Internal::get_point(Xapian::doccount i) const
 {
     return cluster_docs[i];
 }
@@ -434,16 +434,16 @@ ClusterSet::size() const
 }
 
 void
-ClusterSet::Internal::add_cluster(const Cluster &c)
+ClusterSet::Internal::add_cluster(const Cluster &cluster)
 {
-    clusters.push_back(c);
+    clusters.push_back(cluster);
 }
 
 void
-ClusterSet::add_cluster(const Cluster &c)
+ClusterSet::add_cluster(const Cluster &cluster)
 {
-    LOGCALL_VOID(API, "ClusterSet::add_cluster", c);
-    internal->add_cluster(c);
+    LOGCALL_VOID(API, "ClusterSet::add_cluster", cluster);
+    internal->add_cluster(cluster);
 }
 
 Cluster&
@@ -458,24 +458,36 @@ ClusterSet::operator[](doccount i)
     return internal->get_cluster(i);
 }
 
-void
-ClusterSet::Internal::add_to_cluster(const Point &x, unsigned int i)
+const Cluster&
+ClusterSet::Internal::get_cluster(doccount i) const
 {
-    clusters[i].add_point(x);
+    return clusters[i];
+}
+
+const Cluster&
+ClusterSet::operator[](doccount i) const
+{
+    return internal->get_cluster(i);
 }
 
 void
-ClusterSet::add_to_cluster(const Point &x, unsigned int i)
+ClusterSet::Internal::add_to_cluster(const Point &point, unsigned int index)
 {
-   LOGCALL_VOID(API, "ClusterSet::add_to_cluster", x | i);
-   internal->add_to_cluster(x, i);
+    clusters[index].add_point(point);
+}
+
+void
+ClusterSet::add_to_cluster(const Point &point, unsigned int index)
+{
+   LOGCALL_VOID(API, "ClusterSet::add_to_cluster", point | index);
+   internal->add_to_cluster(point, index);
 }
 
 void
 ClusterSet::Internal::recalculate_centroids()
 {
-    for (vector<Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
-	(*it).recalculate();
+    for (auto&& cluster : clusters)
+	cluster.recalculate();
 }
 
 void

@@ -38,6 +38,7 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
      *  clusterers
      */
     std::vector<Cluster> clusters;
+
   public:
     /// Constructor
     Internal() {}
@@ -49,13 +50,16 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
     void add_cluster(const Cluster &cluster);
 
     /// Add the point the the cluster at position 'index'
-    void add_to_cluster(const Point &x, unsigned int index);
+    void add_to_cluster(const Point &point, unsigned int index);
 
     /// Return the number of clusters
     Xapian::doccount size() const;
 
     /// Return the cluster at index 'i'
     Cluster& get_cluster(Xapian::doccount i);
+
+    /// Return the cluster at index 'i'
+    const Cluster& get_cluster(Xapian::doccount i) const;
 
     /// clear all the Clusters in the ClusterSet
     void clear_clusters();
@@ -99,10 +103,10 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
     void clear();
 
     /// Return the point at the given index in the cluster
-    Point& operator[](Xapian::doccount i);
+    Point& get_point(Xapian::doccount i);
 
     /// Return the point at the given index in the cluster
-    const Point& operator[](Xapian::doccount i) const;
+    const Point& get_point(Xapian::doccount i) const;
 
     /// Return the documents that are contained within the cluster
     DocumentSet get_documents() const;

@@ -393,9 +393,7 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 /** Class for storing the results returned by the Clusterer
  */
 class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
-
   public:
-
     class Internal;
     /// @private @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
@@ -422,32 +420,28 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
 
     /** Add a cluster to the cluster set
      *
-     *  @param c	Cluster object which is to be added
-     *			to the ClusterSet
+     *  @param cluster		Cluster object which is to be added
+     *				to the ClusterSet
      */
-    void add_cluster(const Cluster &c);
-
-    /** Return the Cluster at position 'index'
-     *
-     *  @param index	The index of the required Cluster within the
-     *			ClusterSet
-     */
-    Cluster get_cluster(unsigned int index) const;
+    void add_cluster(const Cluster &cluster);
 
     /** Add the point the the cluster at position 'index'
      *
-     *  @param x	Point object which needs to be added to
+     *  @param point	Point object which needs to be added to
      *			a Cluster within the ClusterSet
      *  @param index	Index of the Cluster within the ClusterSet to
      *			which the Point is to be added
      */
-    void add_to_cluster(const Point &x, unsigned int index);
+    void add_to_cluster(const Point &point, unsigned int index);
 
     /// Return the number of clusters
     Xapian::doccount size() const;
 
     /// Return the cluster at index 'i'
     Cluster& operator[](Xapian::doccount i);
+
+    /// Return the cluster at index 'i'
+    const Cluster& operator[](Xapian::doccount i) const;
 
     /// Clear all the clusters in the ClusterSet
     void clear_clusters();
