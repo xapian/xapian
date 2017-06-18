@@ -196,7 +196,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
 
     /** Set the weight 'weight' to the mapping of a term
      *
-     *  @param term	Term for which the weight is supposed
+     *  @param term 	Term for which the weight is supposed
      *			to be changed
      *  @param weight	The weight to which the mapping of the
      *			term is to be set
@@ -231,7 +231,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
     /** Add the weight 'weight' to the mapping of a term
      *
      *  @param term	Term to which the weight is to be added
-     *  @param value	Weight which has to be added to the existing
+     *  @param weight	Weight which has to be added to the existing
      *			mapping of the term
      */
     void add_weight(const std::string &term, double weight);
@@ -276,12 +276,12 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
 
   public:
     /** Constructor
-     *  Initialize the point with terms and corresponding TF-IDF weights
+     *  Initialise the point with terms and corresponding TF-IDF weights
      *
      *  @param tlg		TermListGroup object which provides the term
-     *				frequencies which is used for TF-IDF weight calulations
-     *  @param document		The Document object over which the Point object
-     *				will be initialized
+     *				frequencies. It is used for TF-IDF weight calulations
+     *  @param document 	The Document object over which the Point object
+     *				will be initialised
      */
     Point(const TermListGroup &tlg, const Document &document);
 
@@ -299,7 +299,7 @@ class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
     /** Constructor with Point argument
      *
      *  @param point	Point object to which Centroid object is
-     *			initialized. The document vector and the
+     *			initialised. The document vector and the
      *			magnitude are made equal
      */
     explicit Centroid(const Point &point);
@@ -319,7 +319,7 @@ class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
     void recalc_magnitude();
 };
 
-/** Class to represents a Cluster which contains Points and
+/** Class to represents a Cluster which contains Points and Centroid
  *  of the Cluster
  */
 class XAPIAN_VISIBILITY_DEFAULT Cluster {

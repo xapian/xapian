@@ -326,7 +326,7 @@ Centroid::divide(double cluster_size)
     for (it = weights.begin(); it != weights.end(); ++it) {
 	double new_weight = it->second / cluster_size;
 	it->second = new_weight;
-	magnitude += it->second * it->second;
+	magnitude += new_weight * new_weight;
     }
 }
 
