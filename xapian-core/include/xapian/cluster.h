@@ -68,6 +68,9 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
     Xapian::doccount size() const;
 
     /// Return the Document in the DocumentSet at index i
+    Xapian::Document& operator[](Xapian::doccount i);
+
+    /// Return the Document in the DocumentSet at index i
     const Xapian::Document& operator[](Xapian::doccount i) const;
 
     /** Add a new Document to the DocumentSet

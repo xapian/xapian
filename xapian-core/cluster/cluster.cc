@@ -151,6 +151,18 @@ DocumentSet::Internal::add_document(const Document &document)
     documents.push_back(document);
 }
 
+Document&
+DocumentSet::operator[](doccount i)
+{
+    return internal->get_document(i);
+}
+
+Document&
+DocumentSet::Internal::operator[](doccount i)
+{
+    return documents[i];
+}
+
 const Document&
 DocumentSet::operator[](doccount i) const
 {
