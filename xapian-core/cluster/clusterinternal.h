@@ -147,10 +147,10 @@ class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
     /// Returns the size of the DocumentSet
     Xapian::doccount size() const;
 
-    /** Returns the Document at the index 'i' in the DocumentSet
-     *
-     * @params  i	Index of required document
-     */
+    /// Returns the Document at the index 'i' in the DocumentSet
+    Xapian::Document& get_document(Xapian::doccount i);
+
+    /// Returns the Document at the index 'i' in the DocumentSet
     const Xapian::Document& get_document(Xapian::doccount i) const;
 
     /** Add a new Document to the DocumentSet

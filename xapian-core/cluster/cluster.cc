@@ -158,7 +158,7 @@ DocumentSet::operator[](doccount i)
 }
 
 Document&
-DocumentSet::Internal::operator[](doccount i)
+DocumentSet::Internal::get_document(doccount i)
 {
     return documents[i];
 }
@@ -275,7 +275,7 @@ PointType::set_weight(const string &term, double weight)
 termcount
 PointType::termlist_size() const
 {
-    LOGCALL(API, int, "PointType::termlist_size", NO_ARGS);
+    LOGCALL(API, termcount, "PointType::termlist_size", NO_ARGS);
     return weights.size();
 }
 
