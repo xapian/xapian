@@ -128,7 +128,6 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
 /** Internal class for DocumentSet
  */
 class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
-  private:
     /// Copies are not allowed.
     Internal(const Internal &);
 

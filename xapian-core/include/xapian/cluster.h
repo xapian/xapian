@@ -75,7 +75,7 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
 
     /** Add a new Document to the DocumentSet
      *
-     *  @param document		Document object that is to be added to
+     *  @param document 	Document object that is to be added to
      *				the DocumentSet
      */
     void add_document(const Document &document);
