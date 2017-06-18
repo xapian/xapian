@@ -458,9 +458,7 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
 /** Base class for calculating the similarity between documents
  */
 class XAPIAN_VISIBILITY_DEFAULT Similarity {
-
   public:
-
     /// Destructor
     virtual ~Similarity();
 
@@ -478,9 +476,7 @@ class XAPIAN_VISIBILITY_DEFAULT Similarity {
 /** Class for calculating the cosine distance between two documents
  */
 class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
-
   public:
-
     /** Calculates and returns the cosine similarity using the
      *  formula  cos(theta) = a.b/(|a|*|b|)
      */
