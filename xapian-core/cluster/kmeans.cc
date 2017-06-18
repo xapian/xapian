@@ -62,19 +62,16 @@ void
 KMeans::initialize_clusters(ClusterSet &cset)
 {
     LOGCALL_VOID(API, "KMeans::initialize_clusters", cset);
-    int size = docs.size();
     // Since we are using the Mersenne Twister 19937 pseudo-random number
     // generator, the period will be greater than the value of k
     // (period of mt19937 >> k). So we do not need to check whether
     // the same point has been selected more than once
     mt19937 generator;
     generator.seed(random_device()());
-    uniform_int_distribution<mt19937::result_type> random(0, size - 1);
+    uniform_int_distribution<mt19937::result_type> random(0, points.size() - 1);
     for (unsigned int i = 0; i < k; ++i) {
 	int x = random(generator);
-	Centroid centroid(docs[x]);
-	Cluster initial_cluster(centroid);
-	cset.add_cluster(initial_cluster);
+	cset.add_cluster(Cluster(Centroid(points[x])));
     }
 }
 
@@ -83,11 +80,8 @@ KMeans::initialize_points(const MSet &source)
 {
     LOGCALL_VOID(API, "KMeans::initialize_points", source);
     TermListGroup tlg(source);
-    for (MSetIterator it = source.begin(); it != source.end(); ++it) {
-	Point p;
-	p.initialize(tlg, it.get_document());
-	docs.push_back(p);
-    }
+    for (MSetIterator it = source.begin(); it != source.end(); ++it)
+	points.push_back(Point(tlg, it.get_document()));
 }
 
 ClusterSet
@@ -107,17 +101,17 @@ KMeans::cluster(const MSet &mset)
 	// closest cluster centroid
 	cset.clear_clusters();
 	for (unsigned int j = 0; j < size; ++j) {
-	    double closest_cluster_distance = INT_MAX;
+	    double closest_cluster_distance = HUGE_VAL;
 	    unsigned int closest_cluster = 0;
 	    for (unsigned int c = 0; c < k; ++c) {
-		Centroid& centroid = cset[c].get_centroid();
-		double dist = distance.similarity(docs[j], centroid);
+		const Centroid& centroid = cset[c].get_centroid();
+		double dist = distance.similarity(points[j], centroid);
 		if (closest_cluster_distance > dist) {
 		    closest_cluster_distance = dist;
 		    closest_cluster = c;
 		}
 	    }
-	    cset.add_to_cluster(docs[j], closest_cluster);
+	    cset.add_to_cluster(points[j], closest_cluster);
 	}
 
 	// Remember the previous centroids
@@ -131,7 +125,7 @@ KMeans::cluster(const MSet &mset)
 	// Check whether we have converged
 	bool has_converged = true;
 	for (unsigned int j = 0; j < k; ++j) {
-	    Centroid centroid = cset[j].get_centroid();
+	    const Centroid& centroid = cset[j].get_centroid();
 	    double dist = distance.similarity(previous_centroids[j], centroid);
 	    // If distance between any two centroids has changed by
 	    // more than the threshold, then KMeans hasn't converged

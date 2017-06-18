@@ -490,9 +490,7 @@ class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
  */
 class XAPIAN_VISIBILITY_DEFAULT Clusterer
     : public Xapian::Internal::opt_intrusive_base {
-
   public:
-
     /// Destructor
     virtual ~Clusterer();
 
@@ -538,12 +536,10 @@ class XAPIAN_VISIBILITY_DEFAULT Clusterer
  *  0 <= i < N; where N is the number of documents
  */
 class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
-
     /// Number of clusters to be formed by the clusterer
     unsigned int num_of_clusters;
 
   public:
-
     /** Constructor
      *
      *  @param num_of_clusters_		Number of required clusters
@@ -561,9 +557,8 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
  *  This clusterer implements the K-Means clustering algorithm
  */
 class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
-
     /// Contains the initialized points that are to be clustered
-    std::vector<Point> docs;
+    std::vector<Point> points;
 
     /// Specifies that the clusterer needs to form 'k' clusters
     unsigned int k;
@@ -590,7 +585,6 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     void initialize_points(const MSet &docs);
 
   public:
-
     /** Constructor specifying number of clusters and maximum iterations
      *
      *  @param k_		Number of required clusters
