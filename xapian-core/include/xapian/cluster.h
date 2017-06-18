@@ -344,10 +344,10 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /** Constructor
      *
-     *  @param centroid		The centroid of the cluster object is
+     *  @param centroid 	The centroid of the cluster object is
      *				assigned to 'centroid'
      */
-    Cluster(const Centroid &centroid);
+    explicit Cluster(const Centroid &centroid);
 
     /// Constructor
     Cluster();
@@ -360,12 +360,12 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /** Add a document to the Cluster
      *
-     *  @param document		The Point object representing the document which
-     *				needs to be added to the cluster
+     *  @param point	The Point object representing the document which
+     *			needs to be added to the cluster
      */
     void add_point(const Point &point);
 
-    /// Clear the cluster values
+    /// Clear the cluster weights
     void clear();
 
     /// Return the point at the given index in the cluster
@@ -382,7 +382,7 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /** Set the centroid of the Cluster to 'centroid'
      *
-     *  @param centroid		Centroid object for the Cluster
+     *  @param centroid 	Centroid object for the Cluster
      */
     void set_centroid(const Centroid &centroid);
 
@@ -423,7 +423,7 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
 
     /** Add a cluster to the cluster set
      *
-     *  @param cluster		Cluster object which is to be added
+     *  @param cluster  	Cluster object which is to be added
      *				to the ClusterSet
      */
     void add_cluster(const Cluster &cluster);

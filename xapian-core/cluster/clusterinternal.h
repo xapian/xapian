@@ -27,7 +27,6 @@
 /** Internal class for ClusterSet
  */
 class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
-  private:
     /// Copies are not allowed
     Internal(const Internal &);
 
@@ -46,10 +45,10 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
     /// Destructor
     ~Internal() {}
 
-    /// Add a cluster to the cluster set
+    /// Add a cluster to the ClusterSet
     void add_cluster(const Cluster &cluster);
 
-    /// Add the point the the cluster at position 'index'
+    /// Add the point to the cluster at position 'index'
     void add_to_cluster(const Point &point, unsigned int index);
 
     /// Return the number of clusters
@@ -61,10 +60,10 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
     /// Return the cluster at index 'i'
     const Cluster& get_cluster(Xapian::doccount i) const;
 
-    /// clear all the Clusters in the ClusterSet
+    /// Clear all the clusters in the ClusterSet
     void clear_clusters();
 
-    /** Recalculate the centroids for all the centroids
+    /** Recalculate the centroids for all the clusters
      *  in the ClusterSet
      */
     void recalculate_centroids();
@@ -73,7 +72,6 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
 /** Internal class for Cluster
  */
 class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
-  private:
     /// Copies are not allowed
     Internal(const Internal &);
 
@@ -87,16 +85,19 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
     Centroid centroid;
 
   public:
+    /// Constructor that initialises cluster with centroid
     Internal(const Centroid &centroid_) : centroid(centroid_) {}
 
+    /// Constructor
     Internal() {}
 
+    /// Destructor
     ~Internal() {}
 
     /// Returns size of the cluster
     Xapian::doccount size() const;
 
-    /// Add a document to the Cluster
+    /// Add a document to the cluster
     void add_point(const Point &point);
 
     /// Clear the cluster values
