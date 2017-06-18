@@ -54,7 +54,7 @@ DEFINE_TESTCASE(cosine_distance1, backend)
     // Check whether two different vectors gives a distance such that
     // 0 <= distance <= 1
     distance = d.similarity(x1, x2);
-    TEST_REL(distance, >=, 0);
+    TEST_REL(distance, >, 0);
     TEST_REL(distance, <=, 1);
 
     return true;
