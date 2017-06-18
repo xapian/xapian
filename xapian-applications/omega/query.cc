@@ -69,6 +69,7 @@
 #include "values.h"
 #include "weight.h"
 #include "expand.h"
+#include "md5wrap.h"
 
 #include <xapian.h>
 
@@ -976,6 +977,7 @@ CMD_pack,
 CMD_percentage,
 CMD_prettyterm,
 CMD_prettyurl,
+CMD_qid,
 CMD_query,
 CMD_querydescription,
 CMD_queryterms,
@@ -1108,6 +1110,7 @@ T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary strin
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
 T(prettyurl,	   1, 1, N, 0), // pretty version of URL
+T(qid,		   1, 1, N, 0), // query ID for entered query
 T(query,	   0, 1, N, Q), // query
 T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
 T(queryterms,	   0, 0, N, Q), // list of query terms
@@ -1167,6 +1170,18 @@ write_all(int fd, const char * buf, size_t count)
 	count -= r;
     }
     return 0;
+}
+
+static void trim_string(string & s)
+{
+    string::size_type first_non_whitespace = s.find_first_not_of(' ');
+    if (first_non_whitespace == string::npos) {
+	s.resize(0);
+	return;
+    }
+    string::size_type first_index = first_non_whitespace;
+    string::size_type last_index = s.find_last_not_of(' ');
+    s = s.substr(first_index, last_index - first_index + 1);
 }
 
 static string
@@ -1940,6 +1955,19 @@ eval(const string &fmt, const vector<string> &param)
 		value = args[0];
 		url_prettify(value);
 		break;
+	    case CMD_qid: {
+		string qstr = args[0];
+		trim_string(qstr);
+		string md5, hexhash;
+		md5_string(qstr.c_str(), md5);
+		for (size_t i = 0; i < md5.size(); ++i) {
+		    char buf[16];
+		    sprintf(buf, "%02x", static_cast<unsigned char>(md5[i]));
+		    hexhash += buf;
+		}
+		value = hexhash;
+		break;
+	    }
 	    case CMD_query: {
 		pair<multimap<string, string>::const_iterator,
 		     multimap<string, string>::const_iterator> r;
