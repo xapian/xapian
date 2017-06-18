@@ -71,17 +71,14 @@ FeatureList::Internal::compute_statistics(const Xapian::Query & letor_query,
 void
 FeatureList::Internal::compute_termfreq()
 {
-    std::map<std::string, long int> tf;
+    std::map<std::string, Xapian::termcount> tf;
 
     Xapian::TermIterator docterms = featurelist_doc.termlist_begin();
     for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin();
 	 qt != featurelist_query.get_terms_end(); ++qt) {
 	docterms.skip_to(*qt);
-	if (docterms != featurelist_doc.termlist_end() && *qt == *docterms) {
+	if (docterms != featurelist_doc.termlist_end() && *qt == *docterms)
 	    tf[*qt] = docterms.get_wdf();
-	} else {
-	    tf[*qt] = 0;
-	}
     }
     std::swap(termfreq, tf);
 }
@@ -95,7 +92,8 @@ FeatureList::Internal::compute_inverse_doc_freq()
 	 qt != featurelist_query.get_terms_end(); ++qt) {
 	Xapian::doccount totaldocs = featurelist_db.get_doccount();
 	Xapian::doccount df = featurelist_db.get_termfreq(*qt);
-	idf[*qt] = (df == 0) ? 0 : log10((double)totaldocs / (double)(1 + df));
+	if (df != 0)
+	    idf[*qt] = log10((double)totaldocs / (double)(1 + df));
     }
     std::swap(inverse_doc_freq, idf);
 }
@@ -103,9 +101,10 @@ FeatureList::Internal::compute_inverse_doc_freq()
 void
 FeatureList::Internal::compute_doc_length()
 {
-    std::map<std::string, long int> len;
+    std::map<std::string, Xapian::termcount> len;
 
-    long int temp_count = 0;
+    Xapian::termcount title_len = 0;
+    Xapian::termcount whole_len = 0;
     Xapian::TermIterator dt = featurelist_doc.termlist_begin();
     // reach the iterator to the start of the title terms i.e. prefix "S"
     dt.skip_to("S");
@@ -114,18 +113,19 @@ FeatureList::Internal::compute_doc_length()
 	    // We've reached the end of the S-prefixed terms.
 	    break;
 	}
-	temp_count += dt.get_wdf();
+	title_len += dt.get_wdf();
     }
-    len["title"] = temp_count;
-    len["whole"] = featurelist_db.get_doclength(featurelist_doc.get_docid());
-    len["body"] = len["whole"] - len["title"];
+    len["title"] = title_len;
+    whole_len = featurelist_db.get_doclength(featurelist_doc.get_docid());
+    len["whole"] = whole_len;
+    len["body"] = whole_len - title_len;
     std::swap(doc_length, len);
 }
 
 void
 FeatureList::Internal::compute_collection_length()
 {
-    std::map<std::string, long int> len;
+    std::map<std::string, Xapian::termcount> len;
 
     if (!featurelist_db.get_metadata("collection_len_title").empty() &&
 	    !featurelist_db.get_metadata("collection_len_body").empty() &&
@@ -134,16 +134,18 @@ FeatureList::Internal::compute_collection_length()
 	len["body"] = atol(featurelist_db.get_metadata("collection_len_body").c_str());
 	len["whole"] = atol(featurelist_db.get_metadata("collection_len_whole").c_str());
     } else {
-	long int temp_count = 0;
+	Xapian::termcount title_len = 0;
+	Xapian::termcount whole_len = 0;
 	Xapian::TermIterator dt = featurelist_db.allterms_begin("S");
 	for ( ; dt != featurelist_db.allterms_end("S"); ++dt) {
 	    //  because we don't want the unique terms so we want their
 	    // original frequencies and i.e. the total size of the title collection.
-	    temp_count += featurelist_db.get_collection_freq(*dt);
+	    title_len += featurelist_db.get_collection_freq(*dt);
 	}
-	len["title"] = temp_count;
-	len["whole"] = featurelist_db.get_avlength() * featurelist_db.get_doccount();
-	len["body"] = len["whole"] - len["title"];
+	len["title"] = title_len;
+	whole_len = featurelist_db.get_avlength() * featurelist_db.get_doccount();
+	len["whole"] = whole_len;
+	len["body"] = whole_len - title_len;
     }
     std::swap(collection_length, len);
 }
@@ -151,11 +153,13 @@ FeatureList::Internal::compute_collection_length()
 void
 FeatureList::Internal::compute_collection_termfreq()
 {
-    std::map<std::string, long int> tf;
+    std::map<std::string, Xapian::termcount> tf;
 
     for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin();
 	 qt != featurelist_query.get_terms_end(); ++qt) {
-	tf[*qt] = featurelist_db.get_collection_freq(*qt);
+	Xapian::termcount coll_tf = featurelist_db.get_collection_freq(*qt);
+	if (coll_tf != 0)
+	    tf[*qt] = coll_tf;
     }
     std::swap(collection_termfreq, tf);
 }

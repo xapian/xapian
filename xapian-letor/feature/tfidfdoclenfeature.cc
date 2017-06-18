@@ -29,7 +29,7 @@ using namespace std;
 
 namespace Xapian {
 
-std::string
+string
 TfIdfDoclenFeature::name() const
 {
     return "TfIdfDoclenFeature";
@@ -38,40 +38,95 @@ TfIdfDoclenFeature::name() const
 vector<double>
 TfIdfDoclenFeature::get_values() const
 {
-    LOGCALL(API, std::vector<double>, "TfIdfDoclenFeature::get_values", NO_ARGS);
+    LOGCALL(API, vector<double>, "TfIdfDoclenFeature::get_values", NO_ARGS);
 
     vector<double> values;
     double value = 0;
+    double doc_len = 0;
+    map<string, Xapian::termcount>::const_iterator doc_len_iterator =
+	    doc_length.find("title");
+    if (doc_len_iterator != doc_length.end())
+	doc_len = (double)doc_len_iterator->second;
+    else
+	doc_len = 0;
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
-	    value += log10(1 + ((double)((termfreq.find(*qt)->second)
-			* (inverse_doc_freq.find(*qt))->second)
-			/ (1 + (double)(doc_length.find("title")->second))));
+	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
+	    double tf = 0;
+	    double idf = 0;
+	    map<string, Xapian::termcount>::const_iterator tf_iterator =
+		    termfreq.find(*qt);
+	    map<string, double>::const_iterator idf_iterator =
+		    inverse_doc_freq.find(*qt);
+	    if (tf_iterator != termfreq.end())
+		tf = (double)tf_iterator->second;
+	    else
+		tf = 0;
+	    if (idf_iterator != inverse_doc_freq.end())
+		idf = idf_iterator->second;
+	    else
+		idf = 0;
+	    value += log10(1 + ((tf * idf) / (1 + doc_len)));
+	}
 	else
 	    value += 0;
     }
     values.push_back(value);
     value = 0;
+    doc_len_iterator = doc_length.find("body");
+    if (doc_len_iterator != doc_length.end())
+	doc_len = (double)doc_len_iterator->second;
+    else
+	doc_len = 0;
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
-	    value += log10(1 + ((double)((termfreq.find(*qt)->second)
-			* (inverse_doc_freq.find(*qt)->second))
-			/ (1 + (double)(doc_length.find("body")->second))));
+	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
+	    double tf = 0;
+	    double idf = 0;
+	    map<string, Xapian::termcount>::const_iterator tf_iterator =
+		    termfreq.find(*qt);
+	    map<string, double>::const_iterator idf_iterator =
+		    inverse_doc_freq.find(*qt);
+	    if (tf_iterator != termfreq.end())
+		tf = (double)tf_iterator->second;
+	    else
+		tf = 0;
+	    if (idf_iterator != inverse_doc_freq.end())
+		idf = idf_iterator->second;
+	    else
+		idf = 0;
+	    value += log10(1 + ((tf * idf) / (1 + doc_len)));
+	}
 	else
 	    value += 0;
     }
     values.push_back(value);
     value = 0;
+    doc_len_iterator = doc_length.find("whole");
+    if (doc_len_iterator != doc_length.end())
+	doc_len = (double)doc_len_iterator->second;
+    else
+	doc_len = 0;
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	value += log10(1 + ((double)((termfreq.find(*qt)->second)
-			* (inverse_doc_freq.find(*qt)->second))
-			/ (1 + (double)(doc_length.find("whole")->second))));
+	double tf = 0;
+	double idf = 0;
+	map<string, Xapian::termcount>::const_iterator tf_iterator =
+		termfreq.find(*qt);
+	map<string, double>::const_iterator idf_iterator =
+		inverse_doc_freq.find(*qt);
+	if (tf_iterator != termfreq.end())
+	    tf = (double)tf_iterator->second;
+	else
+	    tf = 0;
+	if (idf_iterator != inverse_doc_freq.end())
+	    idf = idf_iterator->second;
+	else
+	    idf = 0;
+	value += log10(1 + ((tf * idf) / (1 + doc_len)));
     }
     values.push_back(value);
 

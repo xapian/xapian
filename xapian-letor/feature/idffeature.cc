@@ -29,7 +29,7 @@ using namespace std;
 
 namespace Xapian {
 
-std::string
+string
 IdfFeature::name() const
 {
     return "IdfFeature";
@@ -38,15 +38,21 @@ IdfFeature::name() const
 vector<double>
 IdfFeature::get_values() const
 {
-    LOGCALL(API, std::vector<double>, "IdfFeature::get_values", NO_ARGS);
+    LOGCALL(API, vector<double>, "IdfFeature::get_values", NO_ARGS);
 
     vector<double> values;
     double value = 0;
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
-	    value += log10(1 + inverse_doc_freq.find(*qt)->second);
+	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
+	    map<string, double>::const_iterator idf_iterator =
+		    inverse_doc_freq.find(*qt);
+	    if (idf_iterator != inverse_doc_freq.end())
+		value += log10(1 + idf_iterator->second);
+	    else
+		value += 0;
+	}
 	else
 	    value += 0;
     }
@@ -55,8 +61,14 @@ IdfFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
-	    value += log10(1 + inverse_doc_freq.find(*qt)->second);
+	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
+	    map<string, double>::const_iterator idf_iterator =
+		    inverse_doc_freq.find(*qt);
+	    if (idf_iterator != inverse_doc_freq.end())
+		value += log10(1 + idf_iterator->second);
+	    else
+		value += 0;
+	}
 	else
 	    value += 0;
     }
@@ -65,7 +77,12 @@ IdfFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	value += log10(1 + inverse_doc_freq.find(*qt)->second);
+	map<string, double>::const_iterator idf_iterator =
+		inverse_doc_freq.find(*qt);
+	if (idf_iterator != inverse_doc_freq.end())
+	    value += log10(1 + idf_iterator->second);
+	else
+	    value += 0;
     }
     values.push_back(value);
 

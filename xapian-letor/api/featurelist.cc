@@ -22,9 +22,9 @@
 #include <config.h>
 
 #include "xapian-letor/featurelist.h"
-#include "featurelist_internal.h"
 #include "xapian-letor/feature.h"
 #include "xapian-letor/featurevector.h"
+#include "featurelist_internal.h"
 
 #include "debuglog.h"
 
@@ -54,7 +54,7 @@ FeatureList::~FeatureList()
 {
     LOGCALL_DTOR(API, "FeatureList");
     for (Feature* it : internal->feature)
-	delete (it);
+	delete it;
     internal->feature.clear();
 }
 
@@ -106,12 +106,12 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	// All stats are computed and stored in the corresponding variables.
 	internal->compute_statistics(letor_query, letor_db, doc);
 	for (Feature* it : internal->feature) {
-	    (it)->set_database(letor_db);
-	    (it)->set_query(letor_query);
-	    (it)->set_doc(doc);
+	    it->set_database(letor_db);
+	    it->set_query(letor_query);
+	    it->set_doc(doc);
 	    // Populates the Feature with required stats
 	    internal->populate_feature(it);
-	    const vector<double>& values = (it)->get_values();
+	    const vector<double>& values = it->get_values();
 	    // Append feature values
 	    fvals.insert(fvals.end(), values.begin(), values.end());
 	}
@@ -119,7 +119,7 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	// Weight is added as a feature by default.
 	fvals.push_back(wt);
 	Xapian::docid did = doc.get_docid();
-	// construct a FeatureVector object using did & fvals
+	// construct a FeatureVector object using did and vals.
 	Xapian::FeatureVector fv(did, fvals);
 	fvec.push_back(fv);
     }

@@ -29,7 +29,7 @@ using namespace std;
 
 namespace Xapian {
 
-std::string
+string
 TfDoclenCollTfCollLenFeature::name() const
 {
     return "TfDoclenCollTfCollLenFeature";
@@ -38,43 +38,110 @@ TfDoclenCollTfCollLenFeature::name() const
 vector<double>
 TfDoclenCollTfCollLenFeature::get_values() const
 {
-    LOGCALL(API, std::vector<double>, "TfDoclenCollTfCollLenFeature::get_values", NO_ARGS);
+    LOGCALL(API, vector<double>, "TfDoclenCollTfCollLenFeature::get_values", NO_ARGS);
 
     vector<double> values;
     double value = 0;
+    double coll_len = 0;
+    double doc_len = 0;
+    map<string, termcount>::const_iterator coll_len_iterator
+	     = collection_length.find("title");
+    if (coll_len_iterator != collection_length.end())
+	coll_len = (double)coll_len_iterator->second;
+    else
+	coll_len = 0;
+    map<string, termcount>::const_iterator doc_len_iterator
+	     = doc_length.find("title");
+    if (doc_len_iterator != doc_length.end())
+	doc_len = (double)doc_len_iterator->second;
+    else
+	doc_len = 0;
 
-    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+    for (TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
-	    value += log10(1 + (((double)termfreq.find(*qt)->second
-			 * (double)collection_length.find("title")->second)
-		       / (double)(1 + ((double)doc_length.find("title")->second
-			* (double)collection_termfreq.find(*qt)->second))));
+	    double tf = 0;
+	    double coll_tf = 0;
+	    map<string, termcount>::const_iterator tf_iterator =
+		    termfreq.find(*qt);
+	    map<string, termcount>::const_iterator coll_tf_iterator =
+		    collection_termfreq.find(*qt);
+	    if (tf_iterator != termfreq.end())
+		tf = (double)tf_iterator->second;
+	    else
+		tf = 0;
+	    if (coll_tf_iterator != collection_termfreq.end())
+		coll_tf = (double)coll_tf_iterator->second;
+	    else
+		coll_tf = 0;
+	    value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
 	} else
 	    value += 0;
     }
     values.push_back(value);
     value = 0;
+    coll_len_iterator = collection_length.find("body");
+    if (coll_len_iterator != collection_length.end())
+	coll_len = (double)coll_len_iterator->second;
+    else
+	coll_len = 0;
+    doc_len_iterator = doc_length.find("body");
+    if (doc_len_iterator != doc_length.end())
+	doc_len = (double)doc_len_iterator->second;
+    else
+	doc_len = 0;
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
-	    value += log10(1 + (((double)termfreq.find(*qt)->second
-			 * (double)collection_length.find("body")->second)
-			/ (double)(1 + ((double)doc_length.find("body")->second
-			* (double)collection_termfreq.find(*qt)->second))));
+	    double tf = 0;
+	    double coll_tf = 0;
+	    map<string, termcount>::const_iterator tf_iterator =
+		    termfreq.find(*qt);
+	    map<string, termcount>::const_iterator coll_tf_iterator =
+		    collection_termfreq.find(*qt);
+	    if (tf_iterator != termfreq.end())
+		tf = (double)tf_iterator->second;
+	    else
+		tf = 0;
+	    if (coll_tf_iterator != collection_termfreq.end())
+		coll_tf = (double)coll_tf_iterator->second;
+	    else
+		coll_tf = 0;
+	    value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
 	} else
 	    value += 0;
     }
     values.push_back(value);
     value = 0;
+    coll_len_iterator = collection_length.find("whole");
+    if (coll_len_iterator != collection_length.end())
+	coll_len = (double)coll_len_iterator->second;
+    else
+	coll_len = 0;
+    doc_len_iterator = doc_length.find("whole");
+    if (doc_len_iterator != doc_length.end())
+	doc_len = (double)doc_len_iterator->second;
+    else
+	doc_len = 0;
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	value += log10(1 + (((double)termfreq.find(*qt)->second
-			 * (double)collection_length.find("whole")->second)
-		       / (double)(1 + ((double)doc_length.find("whole")->second
-			* (double)collection_termfreq.find(*qt)->second))));
+	double tf = 0;
+	double coll_tf = 0;
+	map<string, termcount>::const_iterator tf_iterator =
+		termfreq.find(*qt);
+	map<string, termcount>::const_iterator coll_tf_iterator =
+		collection_termfreq.find(*qt);
+	if (tf_iterator != termfreq.end())
+	    tf = (double)tf_iterator->second;
+	else
+	    tf = 0;
+	if (coll_tf_iterator != collection_termfreq.end())
+	    coll_tf = (double)coll_tf_iterator->second;
+	else
+	    coll_tf = 0;
+	value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
     }
     values.push_back(value);
 

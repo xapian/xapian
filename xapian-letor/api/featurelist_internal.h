@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef FEATURE_INTERNAL_H
-#define FEATURE_INTERNAL_H
+#ifndef XAPIAN_LETOR_INCLUDED_FEATURE_INTERNAL_H
+#define XAPIAN_LETOR_INCLUDED_FEATURE_INTERNAL_H
 
 #include "xapian-letor/featurelist.h"
 
@@ -57,24 +57,24 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
     Document featurelist_doc;
 
     /// Frequency of the Query Terms in the specified documents.
-    std::map<std::string, long int> termfreq;
+    std::map<std::string, Xapian::termcount> termfreq;
 
     /// Inverse Document Frequency of Query terms in the database.
     std::map<std::string, double> inverse_doc_freq;
 
     /// Length of the document as number of "terms"
-    std::map<std::string, long int> doc_length;
+    std::map<std::string, Xapian::termcount> doc_length;
 
     /** Length of the collection in number of terms for different parts like
      * 'title', 'body' and 'whole'.
      */
-    std::map<std::string, long int> collection_length;
+    std::map<std::string, Xapian::termcount> collection_length;
 
     /// Frequency of the Query Terms in the whole database
-    std::map<std::string, long int> collection_termfreq;
+    std::map<std::string, Xapian::termcount> collection_termfreq;
 
     /** This method finds the frequency of the query terms in the
-     *  specified documents. This method is a helping method and
+     *  specified documents. This method is a helper method and
      *  statistics gathered through this method are used in
      *  feature value calculation. This information is stored in termfreq.
      */
@@ -147,7 +147,7 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      */
     void set_doc(const Xapian::Document & doc);
 
-    public:
+  public:
 
     /** Vector containing Feature pointer objects.
      *  Each will be used to return feature value.
@@ -167,4 +167,4 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 
 }
 
-#endif // FEATURE_INTERNAL_H
+#endif // XAPIAN_LETOR_INCLUDED_FEATURE_INTERNAL_H

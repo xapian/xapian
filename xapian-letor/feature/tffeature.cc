@@ -29,7 +29,7 @@ using namespace std;
 
 namespace Xapian {
 
-std::string
+string
 TfFeature::name() const
 {
     return "TfFeature";
@@ -38,15 +38,21 @@ TfFeature::name() const
 vector<double>
 TfFeature::get_values() const
 {
-    LOGCALL(API, std::vector<double>, "TfFeature::get_values", NO_ARGS);
+    LOGCALL(API, vector<double>, "TfFeature::get_values", NO_ARGS);
 
     vector<double> values;
     double value = 0;
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
-	    value += log10(1 + termfreq.find(*qt)->second);
+	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
+	    map<string, Xapian::termcount>::const_iterator tf_iterator =
+		    termfreq.find(*qt);
+	    if (tf_iterator != termfreq.end())
+		value += log10(1 + tf_iterator->second);
+	    else
+		value += 0;
+	}
 	else
 	    value += 0;
     }
@@ -55,8 +61,14 @@ TfFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
-	    value += log10(1 + termfreq.find(*qt)->second);
+	if ((*qt).substr(0, 1) != "S" || (*qt).substr(1, 1) != "S") {
+	    map<string, Xapian::termcount>::const_iterator tf_iterator =
+		    termfreq.find(*qt);
+	    if (tf_iterator != termfreq.end())
+		value += log10(1 + tf_iterator->second);
+	    else
+		value += 0;
+	}
 	else
 	    value += 0;
     }
@@ -65,7 +77,13 @@ TfFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	value += log10(1 + termfreq.find(*qt)->second);
+	map<string, Xapian::termcount>::const_iterator tf_iterator =
+		termfreq.find(*qt);
+	if (tf_iterator != termfreq.end())
+	    value += log10(1 + tf_iterator->second);
+	else
+	    value += 0;
+
     }
     values.push_back(value);
 
