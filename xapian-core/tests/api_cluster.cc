@@ -43,9 +43,8 @@ DEFINE_TESTCASE(cosine_distance1, backend)
     Xapian::TermListGroup tlg(matches);
     Xapian::Document doc1 = matches[0].get_document();
     Xapian::Document doc2 = matches[1].get_document();
-    Xapian::Point x1, x2;
-    x1.initialize(tlg, doc1);
-    x2.initialize(tlg, doc2);
+    Xapian::Point x1(tlg, doc1);
+    Xapian::Point x2(tlg, doc2);
 
     // Check whether same vector gives zero distance
     Xapian::CosineDistance d;
