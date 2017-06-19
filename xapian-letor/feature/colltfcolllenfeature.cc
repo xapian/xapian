@@ -42,9 +42,8 @@ CollTfCollLenFeature::get_values() const
 
     vector<double> values;
     double value = 0;
-    double coll_len = 0;
-    map<string, Xapian::termcount>::const_iterator coll_len_iterator =
-	    collection_length.find("title");
+    double coll_len;
+    auto coll_len_iterator = collection_length.find("title");
     if (coll_len_iterator != collection_length.end())
 	coll_len = (double)coll_len_iterator->second;
     else
@@ -52,18 +51,17 @@ CollTfCollLenFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
-	    map<string, Xapian::termcount>::const_iterator coll_tf_iterator =
-		    collection_termfreq.find(*qt);
+	if (is_title_term((*qt))) {
+	    auto coll_tf_iterator = collection_termfreq.find(*qt);
 	    if (coll_tf_iterator != collection_termfreq.end()) {
 		value += log10(1 + (coll_len /
 				    (double)(1 + coll_tf_iterator->second)));
-	    }
-	    else
+	    } else {
 		value += log10(1 + coll_len);
-	}
-	else
+	    }
+	} else {
 	    value += 0;
+	}
     }
     values.push_back(value);
     value = 0;
@@ -75,18 +73,17 @@ CollTfCollLenFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
-	    map<string, Xapian::termcount>::const_iterator coll_tf_iterator =
-		    collection_termfreq.find(*qt);
+	if (!is_title_term((*qt))) {
+	    auto coll_tf_iterator = collection_termfreq.find(*qt);
 	    if (coll_tf_iterator != collection_termfreq.end()) {
 		value += log10(1 + (coll_len /
 				    (double)(1 + coll_tf_iterator->second)));
-	    }
-	    else
+	    } else {
 		value += log10(1 + coll_len);
-	}
-	else
+	    }
+	} else {
 	    value += 0;
+	}
     }
     values.push_back(value);
     value = 0;
@@ -98,14 +95,13 @@ CollTfCollLenFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	map<string, Xapian::termcount>::const_iterator coll_tf_iterator =
-		collection_termfreq.find(*qt);
+	auto coll_tf_iterator = collection_termfreq.find(*qt);
 	if (coll_tf_iterator != collection_termfreq.end()) {
 	    value += log10(1 + (coll_len /
 				 (double)(1 + coll_tf_iterator->second)));
-	}
-	else
+	} else {
 	    value += log10(1 + coll_len);
+	}
     }
     values.push_back(value);
 

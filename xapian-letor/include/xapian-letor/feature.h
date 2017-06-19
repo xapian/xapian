@@ -28,6 +28,7 @@
 #include <xapian/visibility.h>
 
 #include "letor_error.h"
+#include "stringutils.h"
 
 #include <string>
 #include <limits>
@@ -99,6 +100,16 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     /// A bitmask of the statistics this Feature needs.
     stat_flags stats_needed;
 
+    /** A helper function for feature->get_value()
+     *
+     *  Checks if the term belongs to the title or is stemmed from the title.
+     */
+    inline bool
+    is_title_term(const std::string& term) const
+    {
+	return startswith(term, 'S') || startswith(term, "ZS");
+    }
+
   public:
     /// Default constructor
     Feature();
@@ -107,47 +118,61 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     virtual ~Feature();
 
     /** Specify the database to use for feature building.
+     *
      *  This will be used by FeatureList::Internal class.
      */
     void set_database(const Xapian::Database & db);
 
     /** Specify the query to use for feature building.
+     *
      *  This will be used by FeatureList::Internal class.
-     * @param query  Xapian::Query which has to be queried
-     * @exception Xapian::InvalidArgumentError will be thrown if an empty
-     *  query is supplied
+     *
+     *  @param query  Xapian::Query which has to be queried
      */
     void set_query(const Xapian::Query & query);
 
     /** Specify the document to use for feature building.
+     *
      *  This will be used by FeatureList::Internal class.
      */
     void set_doc(const Xapian::Document & doc);
 
-    /** Sets the termfrequency that is going to be used for Feature building.
+    /** Sets the termfrequency that is going to be used for
+     *  Feature building.
+     *
      *  This is used by FeatureList::Internal while populating Statistics.
      */
     void set_termfreq(const std::map<std::string, Xapian::termcount> &tf);
 
-    /** Sets the inverse_doc_freq that is going to be used for Feature building.
+    /** Sets the inverse_doc_freq that is going to be used for
+     *  Feature building.
+     *
      *  This is used by FeatureList::Internal while populating Statistics.
      */
     void set_inverse_doc_freq(const std::map<std::string, double> & idf);
 
     /** Sets the doc_length that is going to be used for Feature building.
+     *
      *  This is used by FeatureList::Internal while populating Statistics.
      */
-    void set_doc_length(const std::map<std::string, Xapian::termcount> & doc_len);
+    void set_doc_length(const std::map<std::string,
+			Xapian::termcount> & doc_len);
 
-    /** Sets the collection_length that is going to be used for Feature building.
+    /** Sets the collection_length that is going to be used for
+     *  Feature building.
+     *
      *  This is used by FeatureList::Internal while populating Statistics.
      */
-    void set_collection_length(const std::map<std::string, Xapian::termcount> & collection_len);
+    void set_collection_length(const std::map<std::string,
+			       Xapian::termcount> & collection_len);
 
-    /** Sets the collection_termfreq that is going to be used for Feature building.
+    /** Sets the collection_termfreq that is going to be used
+     *  for Feature building.
+     *
      *  This is used by FeatureList::Internal while populating Statistics.
      */
-    void set_collection_termfreq(const std::map<std::string, Xapian::termcount> & collection_tf);
+    void set_collection_termfreq(const std::map<std::string,
+				 Xapian::termcount> & collection_tf);
 
     /// Returns the stats needed by a subclass
     stat_flags get_stats(){
@@ -167,6 +192,7 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 
     /// Don't allow copying.
     Feature(const Feature & o) = delete;
+
 };
 
 /** Feature subclass returning feature value calculated as:

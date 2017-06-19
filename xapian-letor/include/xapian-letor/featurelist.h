@@ -63,8 +63,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
      *      features.push_back(new IdfFeature());
      *
      * Note: Weight of a document assigned by Xapian Weighting scheme is added
-     *       as a feature by default. Hence, even in case of empty initialisation,
-     *       Weight will be used as a deafult feature.
+     *       as a feature by default. Hence, even in case of
+     *       empty initialisation, Weight will be used as a deafult feature.
      */
     FeatureList(const std::vector<Feature*> & f);
 
@@ -77,15 +77,19 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
     /// Destructor
     ~FeatureList();
 
-    /** Returns a vector of FeatureVectors for each document in the MSet for a given query.
+    /** Returns a vector of FeatureVectors for each document in the MSet for
+     *  a given query.
      *
-     *  @ param  mset        MSet for which the vector<FeatureVector> is to be returned
-     *  @ param  letor_query Query for which the vector<FeatureVector> is to be returned
+     *  @ param  mset        MSet for which the vector<FeatureVector>
+     *			     is to be returned
+     *  @ param  letor_query Query for which the vector<FeatureVector>
+     *                       is to be returned
      *  @ param  letor_db    Corresponding Database
      */
-    std::vector<Xapian::FeatureVector> create_feature_vectors(const Xapian::MSet & mset,
-							     const Xapian::Query & letor_query,
-							     const Xapian::Database & letor_db) const;
+    std::vector<Xapian::FeatureVector>
+    create_feature_vectors(const Xapian::MSet & mset,
+			   const Xapian::Query & letor_query,
+			   const Xapian::Database & letor_db) const;
 
   private:
 

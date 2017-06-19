@@ -42,16 +42,14 @@ TfDoclenCollTfCollLenFeature::get_values() const
 
     vector<double> values;
     double value = 0;
-    double coll_len = 0;
-    double doc_len = 0;
-    map<string, termcount>::const_iterator coll_len_iterator
-	     = collection_length.find("title");
+    double coll_len;
+    double doc_len;
+    auto coll_len_iterator = collection_length.find("title");
     if (coll_len_iterator != collection_length.end())
 	coll_len = (double)coll_len_iterator->second;
     else
 	coll_len = 0;
-    map<string, termcount>::const_iterator doc_len_iterator
-	     = doc_length.find("title");
+    auto doc_len_iterator = doc_length.find("title");
     if (doc_len_iterator != doc_length.end())
 	doc_len = (double)doc_len_iterator->second;
     else
@@ -59,13 +57,11 @@ TfDoclenCollTfCollLenFeature::get_values() const
 
     for (TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S") {
-	    double tf = 0;
-	    double coll_tf = 0;
-	    map<string, termcount>::const_iterator tf_iterator =
-		    termfreq.find(*qt);
-	    map<string, termcount>::const_iterator coll_tf_iterator =
-		    collection_termfreq.find(*qt);
+	if (is_title_term((*qt))) {
+	    double tf;
+	    double coll_tf;
+	    auto tf_iterator = termfreq.find(*qt);
+	    auto coll_tf_iterator = collection_termfreq.find(*qt);
 	    if (tf_iterator != termfreq.end())
 		tf = (double)tf_iterator->second;
 	    else
@@ -75,8 +71,9 @@ TfDoclenCollTfCollLenFeature::get_values() const
 	    else
 		coll_tf = 0;
 	    value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
-	} else
+	} else {
 	    value += 0;
+	}
     }
     values.push_back(value);
     value = 0;
@@ -93,13 +90,11 @@ TfDoclenCollTfCollLenFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S") {
-	    double tf = 0;
-	    double coll_tf = 0;
-	    map<string, termcount>::const_iterator tf_iterator =
-		    termfreq.find(*qt);
-	    map<string, termcount>::const_iterator coll_tf_iterator =
-		    collection_termfreq.find(*qt);
+	if (!is_title_term((*qt))) {
+	    double tf;
+	    double coll_tf;
+	    auto tf_iterator = termfreq.find(*qt);
+	    auto coll_tf_iterator = collection_termfreq.find(*qt);
 	    if (tf_iterator != termfreq.end())
 		tf = (double)tf_iterator->second;
 	    else
@@ -109,8 +104,9 @@ TfDoclenCollTfCollLenFeature::get_values() const
 	    else
 		coll_tf = 0;
 	    value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
-	} else
+	} else {
 	    value += 0;
+	}
     }
     values.push_back(value);
     value = 0;
@@ -127,12 +123,10 @@ TfDoclenCollTfCollLenFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	double tf = 0;
-	double coll_tf = 0;
-	map<string, termcount>::const_iterator tf_iterator =
-		termfreq.find(*qt);
-	map<string, termcount>::const_iterator coll_tf_iterator =
-		collection_termfreq.find(*qt);
+	double tf;
+	double coll_tf;
+	auto tf_iterator = termfreq.find(*qt);
+	auto coll_tf_iterator = collection_termfreq.find(*qt);
 	if (tf_iterator != termfreq.end())
 	    tf = (double)tf_iterator->second;
 	else

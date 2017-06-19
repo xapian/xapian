@@ -103,13 +103,12 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	std::vector<double> fvals;
-	// All stats are computed and stored in the corresponding variables.
-	internal->compute_statistics(letor_query, letor_db, doc);
+	internal->set_data(letor_query, letor_db, doc);
 	for (Feature* it : internal->feature) {
 	    it->set_database(letor_db);
 	    it->set_query(letor_query);
 	    it->set_doc(doc);
-	    // Populates the Feature with required stats
+	    // Computes and Populates the Feature with required stats.
 	    internal->populate_feature(it);
 	    const vector<double>& values = it->get_values();
 	    // Append feature values
@@ -119,9 +118,10 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	// Weight is added as a feature by default.
 	fvals.push_back(wt);
 	Xapian::docid did = doc.get_docid();
-	// construct a FeatureVector object using did and vals.
+	// construct a FeatureVector object using did and fvals.
 	Xapian::FeatureVector fv(did, fvals);
 	fvec.push_back(fv);
+	internal->clear_stats();
     }
     normalise(fvec);
     return fvec;
