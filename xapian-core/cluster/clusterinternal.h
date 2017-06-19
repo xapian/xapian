@@ -86,7 +86,7 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// Constructor that initialises cluster with centroid
-    Internal(const Centroid &centroid_) : centroid(centroid_) {}
+    explicit Internal(const Centroid &centroid_) : centroid(centroid_) {}
 
     /// Constructor
     Internal() {}
