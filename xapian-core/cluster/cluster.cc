@@ -299,7 +299,7 @@ Point::Point(const TermListGroup &tlg, const Document &document_)
 	/** If term is not a stemmed term or the term indexes only one
 	 *  one document, do not compute TF-IDF scores for them
 	 */
-	if (wdf < 1 || term[0] != 'Z' || termfreq <= 1)
+	if (wdf < 1 || termfreq <= 1)
 	    continue;
 
 	double tf = 1 + log((double)wdf);
