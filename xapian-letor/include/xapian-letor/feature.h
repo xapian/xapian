@@ -188,10 +188,10 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
   private:
 
     /// Don't allow assignment.
-    void operator=(const Feature &) = delete;
+    void operator=(const Feature &);
 
     /// Don't allow copying.
-    Feature(const Feature & o) = delete;
+    Feature(const Feature & o);
 
 };
 

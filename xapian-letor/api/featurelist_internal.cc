@@ -109,7 +109,8 @@ FeatureList::Internal::compute_doc_length()
 	title_len += dt.get_wdf();
     }
     len["title"] = title_len;
-    Xapian::termcount whole_len = featurelist_db.get_doclength(featurelist_doc.get_docid());
+    Xapian::termcount whole_len =
+	    featurelist_db.get_doclength(featurelist_doc.get_docid());
     len["whole"] = whole_len;
     len["body"] = whole_len - title_len;
     std::swap(doc_length, len);
@@ -123,9 +124,12 @@ FeatureList::Internal::compute_collection_length()
     if (!featurelist_db.get_metadata("collection_len_title").empty() &&
 	    !featurelist_db.get_metadata("collection_len_body").empty() &&
 	    !featurelist_db.get_metadata("collection_len_whole").empty()) {
-	len["title"] = atol(featurelist_db.get_metadata("collection_len_title").c_str());
-	len["body"] = atol(featurelist_db.get_metadata("collection_len_body").c_str());
-	len["whole"] = atol(featurelist_db.get_metadata("collection_len_whole").c_str());
+	len["title"] =
+	    atol(featurelist_db.get_metadata("collection_len_title").c_str());
+	len["body"] =
+	    atol(featurelist_db.get_metadata("collection_len_body").c_str());
+	len["whole"] =
+	    atol(featurelist_db.get_metadata("collection_len_whole").c_str());
     } else {
 	Xapian::termcount title_len = 0;
 	Xapian::TermIterator dt = featurelist_db.allterms_begin("S");
@@ -135,7 +139,8 @@ FeatureList::Internal::compute_collection_length()
 	    title_len += featurelist_db.get_collection_freq(*dt);
 	}
 	len["title"] = title_len;
-	Xapian::termcount whole_len = featurelist_db.get_avlength() * featurelist_db.get_doccount();
+	Xapian::termcount whole_len = featurelist_db.get_avlength() *
+		featurelist_db.get_doccount();
 	len["whole"] = whole_len;
 	len["body"] = whole_len - title_len;
     }
@@ -161,7 +166,7 @@ FeatureList::Internal::populate_feature(Feature *feature_)
 {
     stat_flags stats_needed = stat_flags(feature_->get_stats());
     if (stats_needed & TERM_FREQUENCY) {
-	if(termfreq.empty())
+	if (termfreq.empty())
 	    compute_termfreq();
 	feature_->set_termfreq(termfreq);
     }
@@ -176,7 +181,7 @@ FeatureList::Internal::populate_feature(Feature *feature_)
 	feature_->set_doc_length(doc_length);
     }
     if (stats_needed & COLLECTION_LENGTH) {
-	if(collection_length.empty())
+	if (collection_length.empty())
 	    compute_collection_length();
 	feature_->set_collection_length(collection_length);
     }
