@@ -296,9 +296,9 @@ Point::Point(const TermListGroup &tlg, const Document &document_)
 	string term = *it;
 	double termfreq = tlg.get_termfreq(term);
 
-	/** If term is not a stemmed term or the term indexes only one
-	 *  one document, do not compute TF-IDF scores for them
-	 */
+	/// If term frequency of the term is lesser than or equal
+	/// to 1 or wdf is lesser than 1, we do not consider this
+	/// term for document vector calculations
 	if (wdf < 1 || termfreq <= 1)
 	    continue;
 
