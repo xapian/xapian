@@ -24,6 +24,7 @@
 #include "xapian-letor/feature.h"
 
 #include "debuglog.h"
+#include "stringutils.h"
 
 using namespace std;
 
@@ -33,6 +34,16 @@ string
 TfDoclenCollTfCollLenFeature::name() const
 {
     return "TfDoclenCollTfCollLenFeature";
+}
+
+/** A helper function for feature->get_value()
+ *
+ *  Checks if the term belongs to the title or is stemmed from the title.
+ */
+inline bool
+is_title_term(const std::string& term)
+{
+    return startswith(term, 'S') || startswith(term, "ZS");
 }
 
 vector<double>
@@ -71,8 +82,6 @@ TfDoclenCollTfCollLenFeature::get_values() const
 	    else
 		coll_tf = 0;
 	    value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
-	} else {
-	    value += 0;
 	}
     }
     values.push_back(value);
@@ -104,8 +113,6 @@ TfDoclenCollTfCollLenFeature::get_values() const
 	    else
 		coll_tf = 0;
 	    value += log10(1 + ((tf * coll_len) / (1 + (doc_len * coll_tf))));
-	} else {
-	    value += 0;
 	}
     }
     values.push_back(value);

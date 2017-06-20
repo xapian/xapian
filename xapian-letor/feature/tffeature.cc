@@ -24,6 +24,7 @@
 #include "xapian-letor/feature.h"
 
 #include "debuglog.h"
+#include "stringutils.h"
 
 using namespace std;
 
@@ -33,6 +34,16 @@ string
 TfFeature::name() const
 {
     return "TfFeature";
+}
+
+/** A helper function for feature->get_value()
+ *
+ *  Checks if the term belongs to the title or is stemmed from the title.
+ */
+inline bool
+is_title_term(const std::string& term)
+{
+    return startswith(term, 'S') || startswith(term, "ZS");
 }
 
 vector<double>
@@ -49,10 +60,6 @@ TfFeature::get_values() const
 	    auto tf_iterator = termfreq.find(*qt);
 	    if (tf_iterator != termfreq.end())
 		value += log10(1 + tf_iterator->second);
-	    else
-		value += 0;
-	} else {
-	    value += 0;
 	}
     }
     values.push_back(value);
@@ -64,10 +71,6 @@ TfFeature::get_values() const
 	    auto tf_iterator = termfreq.find(*qt);
 	    if (tf_iterator != termfreq.end())
 		value += log10(1 + tf_iterator->second);
-	    else
-		value += 0;
-	} else {
-	    value += 0;
 	}
     }
     values.push_back(value);
@@ -78,8 +81,6 @@ TfFeature::get_values() const
 	auto tf_iterator = termfreq.find(*qt);
 	if (tf_iterator != termfreq.end())
 	    value += log10(1 + tf_iterator->second);
-	else
-	    value += 0;
     }
     values.push_back(value);
 

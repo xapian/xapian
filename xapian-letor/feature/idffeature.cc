@@ -24,6 +24,7 @@
 #include "xapian-letor/feature.h"
 
 #include "debuglog.h"
+#include "stringutils.h"
 
 using namespace std;
 
@@ -33,6 +34,16 @@ string
 IdfFeature::name() const
 {
     return "IdfFeature";
+}
+
+/** A helper function for feature->get_value()
+ *
+ *  Checks if the term belongs to the title or is stemmed from the title.
+ */
+inline bool
+is_title_term(const std::string& term)
+{
+    return startswith(term, 'S') || startswith(term, "ZS");
 }
 
 vector<double>
@@ -49,10 +60,6 @@ IdfFeature::get_values() const
 	    auto idf_iterator = inverse_doc_freq.find(*qt);
 	    if (idf_iterator != inverse_doc_freq.end())
 		value += log10(1 + idf_iterator->second);
-	    else
-		value += 0;
-	} else {
-	    value += 0;
 	}
     }
     values.push_back(value);
@@ -64,10 +71,6 @@ IdfFeature::get_values() const
 	    auto idf_iterator = inverse_doc_freq.find(*qt);
 	    if (idf_iterator != inverse_doc_freq.end())
 		value += log10(1 + idf_iterator->second);
-	    else
-		value += 0;
-	} else {
-	    value += 0;
 	}
     }
     values.push_back(value);
@@ -78,8 +81,6 @@ IdfFeature::get_values() const
 	auto idf_iterator = inverse_doc_freq.find(*qt);
 	if (idf_iterator != inverse_doc_freq.end())
 	    value += log10(1 + idf_iterator->second);
-	else
-	    value += 0;
     }
     values.push_back(value);
 

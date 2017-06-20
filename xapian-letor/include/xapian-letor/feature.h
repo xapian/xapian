@@ -28,7 +28,6 @@
 #include <xapian/visibility.h>
 
 #include "letor_error.h"
-#include "stringutils.h"
 
 #include <string>
 #include <limits>
@@ -99,16 +98,6 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 
     /// A bitmask of the statistics this Feature needs.
     stat_flags stats_needed;
-
-    /** A helper function for feature->get_value()
-     *
-     *  Checks if the term belongs to the title or is stemmed from the title.
-     */
-    inline bool
-    is_title_term(const std::string& term) const
-    {
-	return startswith(term, 'S') || startswith(term, "ZS");
-    }
 
   public:
     /// Default constructor
@@ -192,7 +181,6 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 
     /// Don't allow copying.
     Feature(const Feature & o);
-
 };
 
 /** Feature subclass returning feature value calculated as:
