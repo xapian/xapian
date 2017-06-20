@@ -164,7 +164,7 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 				 Xapian::termcount> & collection_tf);
 
     /// Returns the stats needed by a subclass
-    stat_flags get_stats(){
+    stat_flags get_stats() {
 	return stats_needed;
     }
 
