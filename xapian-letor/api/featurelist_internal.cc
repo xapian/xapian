@@ -122,8 +122,8 @@ FeatureList::Internal::compute_collection_length()
     std::map<std::string, Xapian::termcount> len;
 
     if (!featurelist_db.get_metadata("collection_len_title").empty() &&
-	    !featurelist_db.get_metadata("collection_len_body").empty() &&
-	    !featurelist_db.get_metadata("collection_len_whole").empty()) {
+	!featurelist_db.get_metadata("collection_len_body").empty() &&
+	!featurelist_db.get_metadata("collection_len_whole").empty()) {
 	len["title"] =
 	    atol(featurelist_db.get_metadata("collection_len_title").c_str());
 	len["body"] =

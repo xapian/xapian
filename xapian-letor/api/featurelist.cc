@@ -108,7 +108,7 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	    it->set_database(letor_db);
 	    it->set_query(letor_query);
 	    it->set_doc(doc);
-	    // Computes and Populates the Feature with required stats.
+	    // Computes and populates the Feature with required stats.
 	    internal->populate_feature(it);
 	    const vector<double>& values = it->get_values();
 	    // Append feature values

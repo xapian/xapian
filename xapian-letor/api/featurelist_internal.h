@@ -177,7 +177,7 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 			    const Xapian::Database & db,
 			    const Xapian::Document & doc);
 
-    /// Computes and Populates the stats needed by a Feature.
+    /// Computes and populates the stats needed by a Feature.
     void populate_feature(Feature *feature_);
 
     /// Clears all the stats.
