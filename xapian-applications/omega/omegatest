@@ -432,13 +432,16 @@ printf '$last$if{$cgi{ERR},$seterror{$cgi{ERR}}}$msize$if{$error,!$error!}' > "$
 testcase '11' P=text
 testcase '11!boo!' P=text ERR=boo
 
-# Feature tests for $qid{}
-printf '$qid{$cgi{qtext}}' > "$TEST_TEMPLATE"
-testcase '098f6bcd4621d373cade4e832627b4f6' qtext="test"
-testcase '098f6bcd4621d373cade4e832627b4f6' qtext="test "
-testcase '098f6bcd4621d373cade4e832627b4f6' qtext=" test"
-testcase 'b4c216e4da73d1d01277ef46d0514821' qtext="simple query"
-testcase 'd41d8cd98f00b204e9800998ecf8427e' qtext=""
+# Feature tests for $hash{}
+printf '$hash{md5,$cgi{text}}' > "$TEST_TEMPLATE"
+testcase '098f6bcd4621d373cade4e832627b4f6' text="test"
+testcase '098f6bcd4621d373cade4e832627b4f6' text="test "
+testcase '098f6bcd4621d373cade4e832627b4f6' text=" test"
+testcase 'b4c216e4da73d1d01277ef46d0514821' text="simple query"
+testcase 'd41d8cd98f00b204e9800998ecf8427e' text=""
+
+printf '$hash{sha-1,$cgi{text}}' > "$TEST_TEMPLATE"
+testcase '' text ="test"
 
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"

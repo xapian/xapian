@@ -933,6 +933,7 @@ CMD_fmt,
 CMD_freq,
 CMD_ge,
 CMD_gt,
+CMD_hash,
 CMD_highlight,
 CMD_hit,
 CMD_hitlist,
@@ -1066,6 +1067,7 @@ T(fmt,		   0, 0, N, 0), // name of current format
 T(freq,		   1, 1, N, 0), // frequency of a term
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
+T(hash,            2, 2, N, 0), // hash a string using the specified hash function
 T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
 T(hit,		   0, 0, N, 0), // hit number of current mset entry (0-based)
 T(hitlist,	   1, 1, 0, M), // display hitlist using format in argument
@@ -1110,7 +1112,6 @@ T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary strin
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
 T(prettyurl,	   1, 1, N, 0), // pretty version of URL
-T(qid,		   1, 1, N, 0), // query ID for entered query
 T(query,	   0, 1, N, Q), // query
 T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
 T(queryterms,	   0, 0, N, Q), // list of query terms
@@ -1566,6 +1567,24 @@ eval(const string &fmt, const vector<string> &param)
 		if (string_to_int(args[0]) > string_to_int(args[1]))
 		    value = "true";
 		break;
+	    case CMD_hash: {
+		string hash = args[0];
+		string data = args[1];
+		std::transform(hash.begin(), hash.end(), hash.begin(), ::tolower);
+		value = "";
+		if (hash == "md5") {
+		    trim_string(data);
+		    string md5, hexhash;
+		    md5_string(data.c_str(), md5);
+		    for (size_t i = 0; i < md5.size(); ++i) {
+			char buf[16];
+			sprintf(buf, "%02x", static_cast<unsigned char>(md5[i]));
+			hexhash += buf;
+		    }
+		    value = hexhash;
+		}
+		break;
+	    }
 	    case CMD_highlight: {
 		string bra, ket;
 		if (args.size() > 2) {
@@ -1955,19 +1974,6 @@ eval(const string &fmt, const vector<string> &param)
 		value = args[0];
 		url_prettify(value);
 		break;
-	    case CMD_qid: {
-		string qstr = args[0];
-		trim_string(qstr);
-		string md5, hexhash;
-		md5_string(qstr.c_str(), md5);
-		for (size_t i = 0; i < md5.size(); ++i) {
-		    char buf[16];
-		    sprintf(buf, "%02x", static_cast<unsigned char>(md5[i]));
-		    hexhash += buf;
-		}
-		value = hexhash;
-		break;
-	    }
 	    case CMD_query: {
 		pair<multimap<string, string>::const_iterator,
 		     multimap<string, string>::const_iterator> r;
