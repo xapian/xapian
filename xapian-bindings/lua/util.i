@@ -104,7 +104,7 @@ class luaMatchDecider : public Xapian::MatchDecider {
 	}
 
 	SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
-	if (lua_pcall(L, 1, 1, 0) != 0){
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isboolean(L, -1)) {
@@ -142,7 +142,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	}
 
 	lua_pushlstring(L, (char *)word.c_str(), word.length());
-	if (lua_pcall(L, 1, 1, 0) != 0){
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isstring(L, -1)) {
@@ -161,7 +161,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	if (lua_pcall(L, 0, 1, 0) != 0){
+	if (lua_pcall(L, 0, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isstring(L, -1)) {
@@ -202,7 +202,7 @@ class luaKeyMaker : public Xapian::KeyMaker {
 	}
 
 	SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
-	if (lua_pcall(L, 1, 1, 0) != 0){
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isstring(L, -1)) {
@@ -244,7 +244,7 @@ class luaValueRangeProcessor : public Xapian::ValueRangeProcessor {
 	lua_pushlstring(L, (char *)begin.c_str(), begin.length());
 	lua_pushlstring(L, (char *)end.c_str(), end.length());
 
-	if (lua_pcall(L, 2, 1, 0) != 0){
+	if (lua_pcall(L, 2, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isnumber(L, -1)) {
@@ -336,7 +336,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
 
 	SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
 	SWIG_NewPointerObj(L, &wt, SWIGTYPE_p_Xapian__Weight, 0);
-	if (lua_pcall(L, 2, 1, 0) != 0){
+	if (lua_pcall(L, 2, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
     }
@@ -357,7 +357,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
     if (lua_isfunction(L, $input)) {
 	$1 = new lua##CLASS(L);
     } else {
-	if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, $descriptor(NS::CLASS *), 0))){
+	if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, $descriptor(NS::CLASS *), 0))) {
 	    SWIG_fail;
 	}
     }

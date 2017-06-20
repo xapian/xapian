@@ -36,7 +36,7 @@ struct PrettyOStream {
     S & os;
 
     PrettyOStream(S & os_) : os(os_) { }
-    template <typename T> PrettyOStream & operator|(const T & t){
+    template <typename T> PrettyOStream & operator|(const T & t) {
 	os << ", ";
 	return *this << t;
     }
