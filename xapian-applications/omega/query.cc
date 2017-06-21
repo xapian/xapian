@@ -1172,18 +1172,6 @@ write_all(int fd, const char * buf, size_t count)
     return 0;
 }
 
-static void trim_string(string & s)
-{
-    string::size_type first_non_whitespace = s.find_first_not_of(' ');
-    if (first_non_whitespace == string::npos) {
-	s.resize(0);
-	return;
-    }
-    string::size_type first_index = first_non_whitespace;
-    string::size_type last_index = s.find_last_not_of(' ');
-    s = s.substr(first_index, last_index - first_index + 1);
-}
-
 static string
 eval(const string &fmt, const vector<string> &param)
 {
@@ -1570,9 +1558,7 @@ eval(const string &fmt, const vector<string> &param)
 		string hash = args[0];
 		string data = args[1];
 		std::transform(hash.begin(), hash.end(), hash.begin(), ::tolower);
-		value = "";
 		if (hash == "md5") {
-		    trim_string(data);
 		    string md5, hexhash;
 		    md5_string(data.c_str(), md5);
 		    for (size_t i = 0; i < md5.size(); ++i) {
