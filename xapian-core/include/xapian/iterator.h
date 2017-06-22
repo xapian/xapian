@@ -61,12 +61,12 @@ inline void iterator_rewind(Xapian::MSetIterator & it) {
 }
 
 /** @internal Is the iterator at the start? */
-inline void iterator_rewound(Xapian::ESetIterator & it) const {
+inline bool iterator_rewound(Xapian::ESetIterator & it) {
     return it.off_from_end == it.eset.size();
 }
 
 /** @internal Is the iterator at the start? */
-inline void iterator_rewound(Xapian::MSetIterator & it) const {
+inline bool iterator_rewound(Xapian::MSetIterator & it) {
     return it.off_from_end == it.mset.size();
 }
 
