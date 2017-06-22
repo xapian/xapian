@@ -22,51 +22,65 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
-#include "feature_internal.h"
 
 #include "debuglog.h"
+#include "stringutils.h"
 
 using namespace std;
 
 namespace Xapian {
 
-std::string
+string
 IdfFeature::name() const
 {
     return "IdfFeature";
 }
 
+/** A helper function for feature->get_value()
+ *
+ *  Checks if the term belongs to the title or is stemmed from the title.
+ */
+inline bool
+is_title_term(const std::string& term)
+{
+    return startswith(term, 'S') || startswith(term, "ZS");
+}
+
 vector<double>
 IdfFeature::get_values() const
 {
-    LOGCALL(API, std::vector<double>, "IdfFeature::get_values", NO_ARGS);
-
-    Query query = Feature::internal->feature_query;
-    map<string, double> idf = Feature::internal->inverse_doc_freq();
+    LOGCALL(API, vector<double>, "IdfFeature::get_values", NO_ARGS);
 
     vector<double> values;
     double value = 0;
 
-    for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
-	    value += log10(1 + idf[*qt]);
-	else
-	    value += 0;
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
+	if (is_title_term((*qt))) {
+	    auto idf_iterator = inverse_doc_freq.find(*qt);
+	    if (idf_iterator != inverse_doc_freq.end())
+		value += log10(1 + idf_iterator->second);
+	}
     }
     values.push_back(value);
     value = 0;
 
-    for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
-	    value += log10(1 + idf[*qt]);
-	else
-	    value += 0;
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
+	if (!is_title_term((*qt))) {
+	    auto idf_iterator = inverse_doc_freq.find(*qt);
+	    if (idf_iterator != inverse_doc_freq.end())
+		value += log10(1 + idf_iterator->second);
+	}
     }
     values.push_back(value);
     value = 0;
 
-    for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	value += log10(1 + idf[*qt]);
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
+	auto idf_iterator = inverse_doc_freq.find(*qt);
+	if (idf_iterator != inverse_doc_freq.end())
+	    value += log10(1 + idf_iterator->second);
     }
     values.push_back(value);
 

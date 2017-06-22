@@ -39,8 +39,11 @@ namespace Xapian {
 
 /// Class defining list of features to be used for constructing FeatureVector
 class XAPIAN_VISIBILITY_DEFAULT FeatureList {
-    /// Vector containing Feature pointer objects. Each will be used to return feature value.
-    std::vector<Feature *> feature;
+  protected:
+    /// @internal Class representing the FeatureList internals.
+    class Internal;
+    /// @internal Reference counted internals.
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
 
@@ -60,8 +63,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
      *      features.push_back(new IdfFeature());
      *
      * Note: Weight of a document assigned by Xapian Weighting scheme is added
-     *       as a feature by default. Hence, even in case of empty initialisation,
-     *       Weight will be used as a deafult feature.
+     *       as a feature by default. Hence, even in case of
+     *       empty initialisation, Weight will be used as a deafult feature.
      */
     FeatureList(const std::vector<Feature*> & f);
 
@@ -74,15 +77,19 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
     /// Destructor
     ~FeatureList();
 
-    /** Returns a vector of FeatureVectors for each document in the MSet for a given query.
+    /** Returns a vector of FeatureVectors for each document in the MSet for
+     *  a given query.
      *
-     *  @ param  mset        MSet for which the vector<FeatureVector> is to be returned
-     *  @ param  letor_query Query for which the vector<FeatureVector> is to be returned
+     *  @ param  mset        MSet for which the vector<FeatureVector>
+     *			     is to be returned
+     *  @ param  letor_query Query for which the vector<FeatureVector>
+     *                       is to be returned
      *  @ param  letor_db    Corresponding Database
      */
-    std::vector<Xapian::FeatureVector> create_feature_vectors(const Xapian::MSet & mset,
-							     const Xapian::Query & letor_query,
-							     const Xapian::Database & letor_db) const;
+    std::vector<Xapian::FeatureVector>
+    create_feature_vectors(const Xapian::MSet & mset,
+			   const Xapian::Query & letor_query,
+			   const Xapian::Database & letor_db) const;
 
   private:
 
