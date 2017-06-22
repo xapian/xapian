@@ -11,3 +11,4 @@ The following documents are available:
  * `CGI Parameters <cgiparams.html>`_
  * `OmegaScript <omegascript.html>`_
  * `Term Prefixes <termprefixes.html>`_
+ * `Log Data Postprocessing <postprocessing.html>`_
