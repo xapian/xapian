@@ -106,7 +106,7 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 </div>
 </div>
 </td>
-<td><b><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
+<td><b><a href="$html{omega.cgi?FMT=$url{clicklog}&QUERYID=$url{$hash{md5,$query}}&DOCID=$url{$id}&URL=$url{$field{url}}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
 <small>$snippet{$field{sample}}</small><br>
 <a href="$html{$field{url}}">$html{$field{url}}</a><br>
 <small>
@@ -153,3 +153,4 @@ $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 </body>
 </html>
 $log{query.log}
+$log{search.log,$hash{md5,$query}	$csv{$query, 1}	$hitlist{$id$.}	$topdoc}

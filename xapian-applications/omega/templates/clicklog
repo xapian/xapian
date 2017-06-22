@@ -1,0 +1,3 @@
+$httpheader{Status, 302 Found}
+$httpheader{Location, $cgi{URL}}
+$log{clicks.log,$cgi{QUERYID}	$cgi{DOCID}}
