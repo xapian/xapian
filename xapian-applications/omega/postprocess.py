@@ -1,4 +1,5 @@
-# Postprocess click data files for obtaining the final clickstream log file.
+# Postprocess click data files for obtaining the final clickstream log file
+# and generate Query file for Xapian Letor module from it.
 #
 # Copyright (C) 2017 Vivek Pal
 #
@@ -103,3 +104,15 @@ try:
                     writer.writerow(row1)
 except IOError:
         print "Could not read files."
+
+# Generate Query file formatted as per Xapian Letor documentation.
+try:
+    with open('log/final.log', 'r') as s:
+        with open('log/query.txt', 'w+') as w:
+            reader = csv.DictReader(s, delimiter = '\t')
+            writer = csv.writer(w)
+
+            for row in reader:
+                writer.writerow([row['QueryID'],row['Query']])
+except IOError:
+    print "Could not read file."
