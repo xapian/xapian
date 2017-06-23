@@ -1,4 +1,4 @@
-# Preprocess click data files for obtaining the final clickstream log file.
+# Postprocess click data files for obtaining the final clickstream log file.
 #
 # Copyright (C) 2017 Vivek Pal
 #
