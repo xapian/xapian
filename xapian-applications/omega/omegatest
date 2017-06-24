@@ -439,7 +439,7 @@ testcase 'b4c216e4da73d1d01277ef46d0514821' text="simple query"
 testcase 'd41d8cd98f00b204e9800998ecf8427e' text=""
 
 printf '$hash{sha-1,$cgi{text}}' > "$TEST_TEMPLATE"
-testcase '' text ="test"
+testcase '' text="test"
 
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
