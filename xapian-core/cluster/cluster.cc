@@ -295,9 +295,9 @@ Point::Point(const TermListGroup &tlg, const Document &document_)
 	string term = *it;
 	double termfreq = tlg.get_termfreq(term);
 
-	// If the term doesn't exist within the document or
-	// exists in only one document within the MSet, then the
-	// terms are not used for document vector calculations
+	// If the term exists in only one document within the MSet,
+	// or if it is a filter term, then these terms are not used
+	// for document vector calculations
 	if (wdf < 1 || termfreq <= 1)
 	    continue;
 

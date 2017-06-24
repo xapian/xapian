@@ -204,7 +204,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
     void set_weight(const std::string &term, double weight);
 
   public:
-    /// Constructor
+    /// Default constructor
     PointType() { magnitude = 0; }
 
     /// Return a TermIterator to the beginning of the termlist
@@ -293,7 +293,7 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
 */
 class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
   public:
-    // Constructor
+    /// Default constructor
     Centroid();
 
     /** Constructor with Point argument
@@ -349,7 +349,7 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
      */
     explicit Cluster(const Centroid &centroid);
 
-    /// Default Constructor
+    /// Default constructor
     Cluster();
 
     /// Destructor
