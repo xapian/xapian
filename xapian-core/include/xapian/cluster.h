@@ -469,7 +469,7 @@ class XAPIAN_VISIBILITY_DEFAULT Similarity {
      */
     virtual double similarity(const PointType &a, const PointType &b) const = 0;
 
-    /// Returns description of the similarity metric being used
+    /// Returns a string describing the similarity metric being used
     virtual std::string get_description() const = 0;
 };
 
@@ -482,7 +482,7 @@ class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
      */
     double similarity(const PointType &a, const PointType &b) const;
 
-    /// Returns the description of Cosine Similarity
+    /// Return a string describing this object
     std::string get_description() const;
 };
 
