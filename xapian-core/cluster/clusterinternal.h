@@ -21,7 +21,6 @@
 
 #include <xapian/intrusive_ptr.h>
 
-#include <unordered_map>
 #include <vector>
 
 /** Internal class for ClusterSet

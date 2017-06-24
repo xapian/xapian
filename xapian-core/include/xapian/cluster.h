@@ -349,13 +349,13 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
      */
     explicit Cluster(const Centroid &centroid);
 
-    /// Constructor
+    /// Default Constructor
     Cluster();
 
     /// Destructor
     ~Cluster();
 
-    /// Returns size of the cluster
+    /// Return size of the cluster
     Xapian::doccount size() const;
 
     /** Add a document to the Cluster
@@ -415,20 +415,20 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
      */
     ClusterSet& operator=(const ClusterSet &other);
 
-    /// Constructor
+    /// Default constructor
     ClusterSet();
 
     /// Destructor
     ~ClusterSet();
 
-    /** Add a cluster to the cluster set
+    /** Add a cluster to the ClusterSet
      *
      *  @param cluster  	Cluster object which is to be added
      *				to the ClusterSet
      */
     void add_cluster(const Cluster &cluster);
 
-    /** Add the point the the cluster at position 'index'
+    /** Add the point to the cluster at position 'index'
      *
      *  @param point	Point object which needs to be added to
      *			a Cluster within the ClusterSet
@@ -449,7 +449,7 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     /// Clear all the clusters in the ClusterSet
     void clear_clusters();
 
-    /** Recalculate the centroids for all the centroids
+    /** Recalculate the centroid for all the clusters
      *  in the ClusterSet
      */
     void recalculate_centroids();
