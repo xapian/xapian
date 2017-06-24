@@ -94,7 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource
     FreqSource(const FreqSource &);
 
   public:
-    /// Constructor
+    /// Default constructor
     FreqSource() {}
 
     /// Destructor
@@ -168,7 +168,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
   public:
     /** Constructor
      *
-     *  @params docs	MSet object used to construct the TermListGroup
+     *  @param docs	MSet object used to construct the TermListGroup
      */
     explicit TermListGroup(const MSet &docs);
 

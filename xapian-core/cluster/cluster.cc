@@ -80,15 +80,14 @@ TermListGroup::add_document(const Document &document)
     LOGCALL_VOID(API, "TermListGroup::add_document", document);
 
     TermIterator titer(document.termlist_begin());
-    TermIterator end(document.termlist_end());
 
-    for (; titer != end; ++titer) {
+    for (; titer != document.termlist_end(); ++titer) {
 	unordered_map<string, doccount>::iterator i;
 	i = termfreq.find(*titer);
 	if (i == termfreq.end())
 	    termfreq[*titer] = 1;
 	else
-	    i->second += 1;
+	    ++i->second;
     }
 }
 
