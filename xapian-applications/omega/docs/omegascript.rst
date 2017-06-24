@@ -222,10 +222,10 @@ $fmt
 $freq{term}
 	frequency of a term
 
-$hash{TEXT[,HASH}
+$hash{TEXT[,HASH]}
     unique ID for ``TEXT`` string using the hashing algorithm specified by
-    ``HASH`` which defaults to MD5 hashing algorithm. Currently, this command
-    only supports MD5 which yields a 128-bit hash sequence of 32 hexadecimal
+    ``HASH`` which defaults to MD5. Currently, this command only supports
+    MD5 which yields a 128-bit hash sequence serialised as 32 hexadecimal
     characters.
 
 $highlight{TEXT,LIST[,OPEN[,CLOSE]]}

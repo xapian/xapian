@@ -1558,7 +1558,6 @@ eval(const string &fmt, const vector<string> &param)
 		string data = args[0];
 		string hash = "md5";
 		if (args.size() > 1) hash = args[1];
-		std::transform(hash.begin(), hash.end(), hash.begin(), ::tolower);
 		if (hash == "md5") {
 		    string md5, hexhash;
 		    md5_string(data.c_str(), md5);
