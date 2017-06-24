@@ -502,7 +502,7 @@ class XAPIAN_VISIBILITY_DEFAULT Clusterer
      */
     virtual ClusterSet cluster(const MSet &mset) = 0;
 
-    /// Returns a description of the clusterer being used
+    /// Returns a string describing the clusterer being used
     virtual std::string get_description() const = 0;
 
     /** Start reference counting this object.
@@ -544,12 +544,16 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
      *
      *  @param num_of_clusters_ 	Number of required clusters
      */
-    RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
+    explicit RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
 
-    /// Implements the RoundRobin clustering
+    /** Implements the RoundRobin clustering
+     *
+     *  @param mset    MSet object containing the documents that are to
+     *                 be clustered
+     */
     ClusterSet cluster(const MSet &mset);
 
-    /// Returns the description of the clusterer
+    /// Return a string describing this object
     std::string get_description() const;
 };
 
@@ -566,24 +570,24 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     /// Specifies the maximum number of iterations that KMeans will have
     unsigned int max_iters;
 
-    /** Initialise 'k' clusters by randomly selecting 'k' centroids
-     *  and assigning them to different clusters
+    /** Initialise 'k' clusters by selecting 'k' centroids and assigning
+     *  them to different clusters
      *
      *  @param cset		ClusterSet object to be initialised by assigning
      *				centroids to each cluster
      *  @param num_of_points	Number of points passed to clusterer
      */
-    void initialise_clusters(ClusterSet &cset, unsigned int num_of_points);
+    void initialise_clusters(ClusterSet &cset, Xapian::doccount num_of_points);
 
-    /** Initialise the 'Points' to be fed into the Clusterer with the DocumentSource.
-     *  The TF-IDF weights for the points are calculated and stored within the
-     *  Points to be used later during distance calculations
+    /** Initialise the Points to be fed into the Clusterer with the MSet object
+     *  'source'. The TF-IDF weights for the documents are calculated and stored
+     *  within the Points to be used later during distance calculations
      *
-     *  @param docs	MSet object containing the documents which will be
+     *  @param source	MSet object containing the documents which will be
      *			used to create document vectors that are represented
      *			as Point objects
      */
-    void initialise_points(const MSet &docs);
+    void initialise_points(const MSet &source);
 
   public:
     /** Constructor specifying number of clusters and maximum iterations
@@ -594,11 +598,15 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      */
     explicit KMeans(unsigned int k_, unsigned int max_iters_ = 0);
 
-    /// Implements the KMeans clustering algorithm
+    /** Implements the KMeans clustering algorithm
+     *
+     *  @param mset    MSet object containing the documents that are to
+     *                 be clustered
+     */
     ClusterSet cluster(const MSet &mset);
 
-    /// Returns the description of the clusterer
+    /// Return a string describing this object
     std::string get_description() const;
 };
 }
-#endif
+#endif // XAPIAN_INCLUDED_CLUSTER_H

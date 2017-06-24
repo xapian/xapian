@@ -22,14 +22,11 @@
 #include <config.h>
 
 #include "xapian/cluster.h"
+#include "xapian/error.h"
 
 #include "debuglog.h"
-#include "xapian/error.h"
-#include "omassert.h"
 
 #include <limits>
-#include <set>
-#include <unordered_map>
 #include <vector>
 
 // Threshold value for checking convergence in KMeans
@@ -44,7 +41,8 @@ using namespace Xapian;
 using namespace std;
 
 KMeans::KMeans(unsigned int k_, unsigned int max_iters_)
-    : k(k_) {
+    : k(k_)
+{
     LOGCALL_CTOR(API, "KMeans", k_ | max_iters_);
     max_iters = (max_iters_ == 0) ? MAX_ITERS : max_iters_;
     if (k_ == 0)
@@ -58,9 +56,12 @@ KMeans::get_description() const
 }
 
 void
-KMeans::initialise_clusters(ClusterSet &cset, unsigned int num_of_points)
+KMeans::initialise_clusters(ClusterSet &cset, doccount num_of_points)
 {
-    LOGCALL_VOID(API, "KMeans::initialize_clusters", cset);
+    LOGCALL_VOID(API, "KMeans::initialise_clusters", cset | num_of_points);
+    // Initial centroids are selected by picking points at roughly even
+    // intervals within the MSet. This is cheap and helps pick diverse
+    // elements since the MSet is usually sorted by some sort of key
     for (unsigned int i = 0; i < k; ++i) {
 	unsigned int x = (i * num_of_points) / k;
 	cset.add_cluster(Cluster(Centroid(points[x])));
@@ -70,7 +71,7 @@ KMeans::initialise_clusters(ClusterSet &cset, unsigned int num_of_points)
 void
 KMeans::initialise_points(const MSet &source)
 {
-    LOGCALL_VOID(API, "KMeans::initialize_points", source);
+    LOGCALL_VOID(API, "KMeans::initialise_points", source);
     TermListGroup tlg(source);
     for (MSetIterator it = source.begin(); it != source.end(); ++it)
 	points.push_back(Point(tlg, it.get_document()));
@@ -80,7 +81,7 @@ ClusterSet
 KMeans::cluster(const MSet &mset)
 {
     LOGCALL(API, ClusterSet, "KMeans::cluster", mset);
-    unsigned int size = mset.size();
+    doccount size = mset.size();
     if (k >= size)
 	k = size;
     initialise_points(mset);
@@ -114,7 +115,7 @@ KMeans::cluster(const MSet &mset)
 	// Recalculate the centroids for current iteration
 	cset.recalculate_centroids();
 
-	// Check whether we have converged
+	// Check whether centroids have converged
 	bool has_converged = true;
 	for (unsigned int j = 0; j < k; ++j) {
 	    const Centroid& centroid = cset[j].get_centroid();
