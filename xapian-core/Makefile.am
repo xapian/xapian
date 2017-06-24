@@ -121,6 +121,7 @@ endif
 include api/Makefile.mk
 include bin/Makefile.mk
 include backends/Makefile.mk
+include cluster/Makefile.mk
 include common/Makefile.mk
 include examples/Makefile.mk
 include expand/Makefile.mk

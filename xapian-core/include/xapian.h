@@ -81,6 +81,9 @@
 #include <xapian/valuesetmatchdecider.h>
 #include <xapian/weight.h>
 
+// Clustering
+#include <xapian/cluster.h>
+
 // Stemming
 #include <xapian/stem.h>
 
