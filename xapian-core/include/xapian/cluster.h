@@ -58,7 +58,7 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
      */
     void operator=(const DocumentSet &other);
 
-    /// Constructor
+    /// Default constructor
     DocumentSet();
 
     /// Destructor
