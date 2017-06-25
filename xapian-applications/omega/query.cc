@@ -1066,7 +1066,7 @@ T(fmt,		   0, 0, N, 0), // name of current format
 T(freq,		   1, 1, N, 0), // frequency of a term
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
-T(hash,		   2, 2, N, 0), // hash a string using the specified hash function
+T(hash,		   1, 2, N, 0), // hash a string using the specified hash function
 T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
 T(hit,		   0, 0, N, 0), // hit number of current mset entry (0-based)
 T(hitlist,	   1, 1, 0, M), // display hitlist using format in argument
