@@ -28,6 +28,7 @@
 /api_anydb.h
 /api_backend.h
 /api_closedb.h
+/api_cluster.h
 /api_collapse.h
 /api_collated.h
 /api_collated.stamp
