@@ -1,5 +1,4 @@
-# Postprocess click data files for obtaining the final clickstream log file
-# and generate Query file for Xapian Letor module from it.
+# Postprocess click data files.
 #
 # Copyright (C) 2017 Vivek Pal
 #
@@ -18,101 +17,166 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-from ast import literal_eval
-from sys import argv
+"""Postprocesses search and clicks data files.
 
+Generates the final clickstream log file and Query file for Xapian Letor
+module from that log file.
+"""
+
+import argparse
+import collections
 import csv
+import sys
 
-script_name, search_log, clicks_log = argv
+parser = argparse.ArgumentParser(
+    description='''Postprocess click data files.
 
-try:
-    with open(search_log, 'r') as s:
-        with open('log/clickstream.log', 'w+') as f:
-            reader = csv.reader(s, delimiter = '\t')
-            writer = csv.writer(f, delimiter = '\t', quoting = csv.QUOTE_MINIMAL)
+    This script generates the final clickstream log file from input search and
+    click log files and creates Query file that can be used by Xapian Letor
+    module for generating its training files.
 
-            for row in reader:
+    Expects two log files named "search.log" and "clicks.log" in a directory
+    named "log" as two arguments.
+    ''', formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument("search_log", type=str, default="log/search.log",
+                    help="Path to the search.log file.")
+parser.add_argument("clicks_log", type=str, default="log/search.log",
+                    help="Path to the clicks.log file.")
+args = parser.parse_args()
+
+
+def generate_final_log(search_log, clicks_log):
+    """Generates Query file formatted as per Xapian Letor documentation.
+
+    Input Args:
+        search_log (str): Path to the search.log file.
+        clicks_log (str): Path to the clicks.log file.
+
+    Example (tab-delimited) entries in search_log:
+
+    821f03288846297c2cf43c34766a38f7	"book"	45,36,14,54,42,52,2,3,15,32	0
+    d41d8cd98f00b204e9800998ecf8427e	""		0
+    d41d8cd98f00b204e9800998ecf8427e	""		0
+    098f6bcd4621d373cade4e832627b4f6	"test"	45,36,14,54,42,52,2,3,15,32	0
+
+    Example (tab-delimited) entries in clicks_log:
+
+    821f03288846297c2cf43c34766a38f7	54
+    821f03288846297c2cf43c34766a38f7	54
+    098f6bcd4621d373cade4e832627b4f6	42
+
+    Example (tab-delimited) entries in final.log:
+
+    QueryID	Query	Hits	Offset	Clicks
+    821f03288846297c2cf43c34766a38f7	book	['45', '36', '14', '54', '42',\
+    '52', '2', '3', '15', '32']	0	['0', '0', '0', '2', '0', '0', '0', '0',\
+    '0', '0']
+    098f6bcd4621d373cade4e832627b4f6	test	['45', '36', '14', '54', '42',\
+    '52', '2', '3', '15', '32']	0	['0', '0', '0', '0', '1', '0', '0', '0',\
+    '0', '0']
+
+    Note: Values in these entries are all of type str.
+    """
+    with open(search_log, 'r') as f, open(clicks_log, 'r') as g:
+        with open('log/final.log', 'w+') as h:
+            reader1 = csv.reader(f, delimiter='\t')
+            reader2 = csv.reader(g, delimiter='\t')
+            writer = csv.writer(h, delimiter='\t')
+
+            # Add headers to final log file
+            writer.writerow(["QueryID", "Query", "Hits", "Offset", "Clicks"])
+
+            qid_to_clicks = collections.defaultdict(dict)
+            did_to_count = {}
+
+            QUERYID, QUERY, HITS = 0, 1, 2
+            DOCID = 1
+
+            # Build map: qid_to_clicks = {qid: {did: click_count}}
+            for row2 in reader2:
+                qid, did = row2[QUERYID], row2[DOCID]
+
+                did_to_count = qid_to_clicks[qid]
+
+                # Check if did is already present in did_to_count
+                if did in did_to_count:
+                    # Update did_to_count[did]
+                    click_count = int(did_to_count[did])
+                    click_count += 1
+                    did_to_count[did] = str(click_count)
+                else:
+                    did_to_count[did] = '1'
+
+                qid_to_clicks[qid] = did_to_count
+
+            f.seek(0)
+
+            clicklist = []
+
+            for row in reader1:
                 # Skip rows with empty Query string
-                if row[1] == '':
+                if row[QUERY] == '':
                     continue
-                # Remove an extra ',' character at the end of the Hitlist string
-                hits = row[2]
-                hits = hits[:-2]
-                row[2] = hits
 
-                # Add Clicks column
-                row.append(row[2])
-
-                # Convert Hitlist from string to list
-                hits = row[2]
+                # Convert Hitlist from str to list
+                hits = row[HITS]
                 hits = hits.strip().split(',')
-                row[2] = hits
+                row[HITS] = hits
 
-                # Convert Clicks from string to list
-                clicks = row[4]
-                clicks = clicks.strip().split(',')
-                row[4] = clicks
+                clicklist = hits[:]
 
-                # Initialise Clicks list elements to zero
-                for i in range(len(row[4])):
-                    row[4][i] = str(0)
+                # Update clicklist with click values stored in map.
+                if row[QUERYID] in qid_to_clicks:
+                    did_to_count = qid_to_clicks[row[QUERYID]]
+                    for index, did in enumerate(clicklist):
+                        if did in did_to_count:
+                            clicklist[index] = did + ':' + did_to_count[did]
+                        else:
+                            clicklist[index] = did + ':' + '0'
 
+                row.append(clicklist)
                 writer.writerow(row)
-except IOError:
-        print "Could not read files."
+    return
+
+
+def generate_query_file(final_log, query_file):
+    """Generates Query file formatted as per Xapian Letor documentation.
+
+    Input Args:
+        final_log (string): Path to final.log file.
+        query_file (string): Path to query.txt file.
+
+    Example (tab-delimited) entries in final.log:
+
+    QueryID	Query	Hits	Offset	Clicks
+    821f03288846297c2cf43c34766a38f7	book	['45', '36', '14', '54', '42',\
+    '52', '2', '3', '15', '32']	0	['0', '0', '0', '2', '0', '0', '0', '0',\
+    '0', '0']
+    098f6bcd4621d373cade4e832627b4f6	test	['45', '36', '14', '54', '42',\
+    '52', '2', '3', '15', '32']	0	['0', '0', '0', '0', '1', '0', '0', '0',\
+    '0', '0']
+
+    Example (comma-delimited) entries in query.txt:
+
+    821f03288846297c2cf43c34766a38f7,book
+    098f6bcd4621d373cade4e832627b4f6,test
+    """
+    with open(final_log, 'r') as s, open(query_file, 'w+') as w:
+        reader = csv.DictReader(s, delimiter='\t')
+        writer = csv.writer(w)
+
+        for row in reader:
+            writer.writerow([row['QueryID'], row['Query']])
+    return
+
+
+# Require no less than 3 command line arguments.
+if len(sys.argv) != 3:
+    print("Not enough arguments.", file=sys.stderr)
+    sys.exit(1)
 
 try:
-    with open('log/clickstream.log', 'r+') as s:
-        with open(clicks_log, 'r') as f:
-            with open('log/final.log', 'w+') as w:
-                reader1 = csv.reader(s, delimiter = '\t')
-
-                # Store the contents of clicks_log in a list object
-                reader2 = list(csv.reader(f, delimiter = '\t'))
-
-                writer = csv.writer(w, delimiter = '\t', quoting = csv.QUOTE_MINIMAL)
-
-                # Add headers to final log file
-                writer.writerow(["QueryID", "Query", "Hits", "Offset", "Clicks"])
-
-                for row1 in reader1:
-                    # Convert column 3 and column 5 values to list type
-                    l2 = literal_eval(row1[2])
-                    l4 = literal_eval(row1[4])
-
-                    for row2 in reader2:
-                        docid = ""
-                        # Find matching query IDs in clickstream.log and clicks_log
-                        if row1[0] == row2[0]:
-                            docid = row2[1]
-
-                        index = -1
-                        # Find the index of clicked doc ID in "Hits" list
-                        for i in range(len(l2)):
-                            if docid == l2[i]:
-                                index = i
-                        # Update the count representing the number of clicks made
-                        # on clicked document from "Hits" list
-                        for j in range(len(l4)):
-                            if j == index:
-                                count = int(l4[index])
-                                count = count + 1
-                                l4[j] = str(count)
-                    # Update "Clicks" list with updated values
-                    row1[4] = l4
-                    # Write the contents of row iterator to the final log file
-                    writer.writerow(row1)
-except IOError:
-        print "Could not read files."
-
-# Generate Query file formatted as per Xapian Letor documentation.
-try:
-    with open('log/final.log', 'r') as s:
-        with open('log/query.txt', 'w+') as w:
-            reader = csv.DictReader(s, delimiter = '\t')
-            writer = csv.writer(w)
-
-            for row in reader:
-                writer.writerow([row['QueryID'],row['Query']])
-except IOError:
-    print "Could not read file."
+    generate_final_log(sys.argv[1], sys.argv[2])
+    generate_query_file('log/final.log', 'log/query.txt')
+except IOError as e:
+    print(e, file=sys.stderr)
