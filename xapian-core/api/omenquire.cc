@@ -39,6 +39,7 @@
 #include "expand/esetinternal.h"
 #include "expand/expandweight.h"
 #include "exp10.h"
+#include "matcher/msetcmp.h"
 #include "matcher/multimatch.h"
 #include "omassert.h"
 #include "api/omenquireinternal.h"
@@ -182,12 +183,24 @@ MSet::fetch_(Xapian::doccount first, Xapian::doccount last) const
     internal->fetch_items(first, last);
 }
 
+void
+MSet::set_item_weight(Xapian::doccount i, double wt)
+{
+    internal->set_item_weight(i, wt);
+}
+
 int
 MSet::convert_to_percent(double wt) const
 {
     LOGCALL(API, int, "Xapian::MSet::convert_to_percent", wt);
     Assert(internal.get() != 0);
     RETURN(internal->convert_to_percent_internal(wt));
+}
+
+void
+MSet::sort_by_relevance()
+{
+    internal->sort_by_relevance();
 }
 
 Xapian::doccount
@@ -450,6 +463,31 @@ MSet::Internal::read_docs() const
     }
     /* Clear list of requested but not fetched documents. */
     requested_docs.clear();
+}
+
+void
+MSet::Internal::set_item_weight(Xapian::doccount i, double wt_)
+{
+    // max_attained is updated assuming that set_item_weight is called on every
+    // MSet item from 0 up. While assigning new weights max_attained is updated
+    // as the maximum of the new weights set till Xapian::doccount i.
+    if (i == 0)
+	max_attained = wt_;
+    else
+	max_attained = max(max_attained, wt_);
+    // Ideally the max_possible should be the maximum possible weight that
+    // can be assigned by the reranking algorithm, but since it is not always
+    // possible to calculate the max possible weight for a reranking algorithm
+    // we use this approach.
+    max_possible = max(max_possible, max_attained);
+    items[i].wt = wt_;
+}
+
+void
+MSet::Internal::sort_by_relevance()
+{
+    std::sort(items.begin(), items.end(),
+	      get_msetcmp_function(Enquire::Internal::REL, true, false));
 }
 
 // MSetIterator

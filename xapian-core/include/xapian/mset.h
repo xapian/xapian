@@ -31,6 +31,7 @@
 
 #include <xapian/attributes.h>
 #include <xapian/document.h>
+#include <xapian/error.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/stem.h>
 #include <xapian/types.h>
@@ -46,6 +47,11 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     // Helper function for fetch() methods.
     void fetch_(Xapian::doccount first, Xapian::doccount last) const;
+
+    /* See the note about correct usage in the docstring for
+     * Xapian::Internal::MSet::set_item_weight(Xapian::doccount i, double wt)
+     */
+    void set_item_weight(Xapian::doccount i, double wt);
 
   public:
     /// Class representing the MSet internals.
@@ -73,6 +79,42 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /// Destructor.
     ~MSet();
+
+    /** Assigns new weights and updates MSet.
+     *
+     *  Dereferencing the Iterator should return a double.
+     *
+     *  The weights returned by the iterator are assigned to elements of
+     *  the MSet in rank order.
+     *
+     *  @param begin	Begin iterator.
+     *  @param end	End iterator.
+     *
+     *  @exception Xapian::InvalidArgument is thrown if the total number of
+     *		   elements in the input doesn't match the total number of
+     *		   documents in MSet.
+     */
+    template <typename Iterator>
+    void replace_weights(Iterator first, Iterator last)
+    {
+	if (last - first != size()) {
+	    throw Xapian::InvalidArgumentError("Number of weights assigned "
+					       "doesn't match the number of "
+					       "items");
+	}
+	Xapian::doccount i = 0;
+	while (first != last) {
+	    set_item_weight(i, *first);
+	    ++i;
+	    ++first;
+	}
+    }
+
+    /** Sorts the list of documents in MSet according to their weights.
+     *
+     *  Use after calling MSet::replace_weights.
+     */
+    void sort_by_relevance();
 
     /** Convert a weight to a percentage.
      *

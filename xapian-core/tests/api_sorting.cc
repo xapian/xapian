@@ -319,3 +319,54 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     );
     return true;
 }
+
+DEFINE_TESTCASE(replace_weights1, backend) {
+    Xapian::Database mydb(get_database("apitest_onedoc"));
+    Xapian::Enquire enquire(mydb);
+    enquire.set_query(Xapian::Query("word"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    // old_max_possible, max_attained = 0.269763689697702
+    double old_max_possible = mymset.get_max_possible();
+    const double new_weight = 0.125;
+    static const double weights[] = {new_weight};
+    mymset.replace_weights(begin(weights), end(weights));
+    Xapian::MSetIterator i = mymset.begin();
+    TEST(i != mymset.end());
+    TEST_EQUAL_DOUBLE(i.get_weight(), new_weight);
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), new_weight);
+    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), old_max_possible);
+    return true;
+}
+
+DEFINE_TESTCASE(replace_weights2, backend) {
+    Xapian::Database mydb(get_database("apitest_onedoc"));
+    Xapian::Enquire enquire(mydb);
+    enquire.set_query(Xapian::Query("word"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    static const double weights[] = {1.0, 2.0};
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   mymset.replace_weights(begin(weights), end(weights)));
+    return true;
+}
+
+DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("word"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    // old max_possible = 1.17367567757238, max_attained = 1.04648168717725
+    static const Xapian::docid docids[] = {*mymset[0], *mymset[1]};
+    static const double weights[] = {1.18, 1.19};
+    mymset.replace_weights(begin(weights), end(weights));
+    mymset.sort_by_relevance();
+    // The order of documents should have been reversed.
+    int k = 1;
+    for (Xapian::MSetIterator m = mymset.begin(); m != mymset.end();
+	 ++m, --k) {
+	TEST_EQUAL(*m, docids[k]);
+	TEST_EQUAL_DOUBLE(m.get_weight(), weights[k]);
+    }
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), weights[1]);
+    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), weights[1]);
+    return true;
+}

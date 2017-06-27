@@ -313,6 +313,24 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	/** Fetch items specified into the document cache.
 	 */
 	void fetch_items(Xapian::doccount first, Xapian::doccount last) const;
+
+	/** Updates the weight corresponding to the document indexed at
+	 *  position i with wt_.
+	 *
+	 *  Updates the max_possible and max_attained for the MSet.
+	 *
+	 *  set_item_weight must be called to update the weight of every
+	 *  document in MSet in the same order as that of the documents present
+	 *  in MSet to avoid miscalculation of max_attained and max_possible.
+	 *
+	 *  @param i	position of the document in MSet whose weight is being
+	 *		updated.
+	 *  @param wt_  new weight assigned to the document.
+	 */
+	void set_item_weight(Xapian::doccount i, double wt_);
+
+	/// Sorts the MSet::Internal::items by their corresponding weights.
+	void sort_by_relevance();
 };
 
 class RSet::Internal : public Xapian::Internal::intrusive_base {
