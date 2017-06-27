@@ -9,3 +9,6 @@
 /xapian_wrap.cc
 /xapian_wrap.d
 /xapian.la
+/smoketest.lua.log
+/smoketest.lua.trs
+/test-suite.log
