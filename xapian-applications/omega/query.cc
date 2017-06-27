@@ -1066,7 +1066,7 @@ T(fmt,		   0, 0, N, 0), // name of current format
 T(freq,		   1, 1, N, 0), // frequency of a term
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
-T(hash,		   1, 2, N, 0), // hash a string using the specified hash function
+T(hash,		   2, 2, N, 0), // hash a string using the specified hash function
 T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
 T(hit,		   0, 0, N, 0), // hit number of current mset entry (0-based)
 T(hitlist,	   1, 1, 0, M), // display hitlist using format in argument
@@ -1556,8 +1556,9 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_hash: {
 		string data = args[0];
-		string hash = "md5";
-		if (args.size() > 1) hash = args[1];
+		string hash = args[1];
+		std::transform(hash.begin(), hash.end(), hash.begin(), ::tolower);
+		bool flag = false;
 		if (hash == "md5") {
 		    string md5, hexhash;
 		    md5_string(data.c_str(), md5);
@@ -1567,6 +1568,10 @@ eval(const string &fmt, const vector<string> &param)
 			hexhash += buf;
 		    }
 		    value = hexhash;
+		    flag = true;
+		}
+		if (flag != true) {
+		    throw Xapian::InvalidOperationError("Hashing algorithm is invalid");
 		}
 		break;
 	    }

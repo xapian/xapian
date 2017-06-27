@@ -433,7 +433,7 @@ testcase '11' P=text
 testcase '11!boo!' P=text ERR=boo
 
 # Feature tests for $hash{}
-printf '$hash{$cgi{text}}' > "$TEST_TEMPLATE"
+printf '$hash{$cgi{text},md5}' > "$TEST_TEMPLATE"
 testcase '098f6bcd4621d373cade4e832627b4f6' text="test"
 testcase 'b4c216e4da73d1d01277ef46d0514821' text="simple query"
 testcase 'd41d8cd98f00b204e9800998ecf8427e' text=""
