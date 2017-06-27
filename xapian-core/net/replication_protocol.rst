@@ -108,7 +108,7 @@ the future):
 
    - If a list of blocks:
 
-     - The blocksize in use (for glass, divided by 2048).
+     - The blocksize in use (for glass, divided by GLASS_MIN_BLOCKSIZE).
 
      - A list of items:
 

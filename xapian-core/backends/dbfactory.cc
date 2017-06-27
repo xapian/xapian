@@ -40,6 +40,7 @@
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 # include "glass/glass_database.h"
+# include "glass/glass_defs.h"
 #endif
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 # include "inmemory/inmemory_database.h"
@@ -59,10 +60,11 @@ check_if_single_file_db(const struct stat & sb, const string & path,
 {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (!S_ISREG(sb.st_mode)) return false;
-    // Look at the size as a clue - if it's 0 or not a multiple of 2048,
-    // then it's not a single-file glass database.  If it is, peek at the start
-    // of the file to determine which it is.
-    if (sb.st_size == 0 || sb.st_size % 2048 != 0) return false;
+    // Look at the size as a clue - if it's 0 or not a multiple of
+    // GLASS_MIN_BLOCKSIZE, then it's not a single-file glass database.  If it
+    // is, peek at the start of the file to determine which it is.
+    if (sb.st_size == 0 || sb.st_size % GLASS_MIN_BLOCKSIZE != 0)
+	return false;
     int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
     if (fd != -1) {
 	char magic_buf[14];

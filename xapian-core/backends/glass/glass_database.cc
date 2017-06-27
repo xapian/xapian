@@ -117,8 +117,10 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 	return;
     }
 
-    // Block size must in the range 2048..65536, and a power of two.
-    if (block_size < 2048 || block_size > 65536 ||
+    // Block size must in the range GLASS_MIN_BLOCKSIZE..GLASS_MAX_BLOCKSIZE
+    // and a power of two.
+    if (block_size < GLASS_MIN_BLOCKSIZE ||
+	block_size > GLASS_MAX_BLOCKSIZE ||
 	(block_size & (block_size - 1)) != 0) {
 	block_size = GLASS_DEFAULT_BLOCKSIZE;
     }

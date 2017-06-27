@@ -29,6 +29,8 @@
 
 #include "gnu_getopt.h"
 
+#include "backends/glass/glass_defs.h"
+
 using namespace std;
 
 #define PROG_NAME "xapian-compact"
@@ -129,14 +131,19 @@ main(int argc, char **argv)
 	    case 'b': {
 		char *p;
 		block_size = strtoul(optarg, &p, 10);
-		if (block_size <= 64 && (*p == 'K' || *p == 'k')) {
+		if (block_size <= GLASS_MAX_BLOCKSIZE / 1024 &&
+		    (*p == 'K' || *p == 'k')) {
 		    ++p;
 		    block_size *= 1024;
 		}
-		if (*p || block_size < 2048 || block_size > 65536 ||
+		if (*p ||
+		    block_size < GLASS_MIN_BLOCKSIZE ||
+		    block_size > GLASS_MAX_BLOCKSIZE ||
 		    (block_size & (block_size - 1)) != 0) {
 		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for blocksize, must be a power of 2 between 2K and 64K"
+			 << "' passed for blocksize, must be a power of 2 between "
+			 << (GLASS_MIN_BLOCKSIZE / 1024) << "K and "
+			 << (GLASS_MAX_BLOCKSIZE / 1024) << "K"
 			 << endl;
 		    exit(1);
 		}

@@ -25,6 +25,7 @@
 
 #include "debuglog.h"
 #include "fd.h"
+#include "glass_defs.h"
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
@@ -387,7 +388,7 @@ static const uint4 compress_min_tab[] = {
 void
 GlassVersion::create(unsigned blocksize)
 {
-    AssertRel(blocksize,>=,2048);
+    AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
     uuid_generate(uuid);
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
 	root[table_no].init(blocksize, compress_min_tab[table_no]);
@@ -399,7 +400,7 @@ namespace Glass {
 void
 RootInfo::init(unsigned blocksize_, uint4 compress_min_)
 {
-    AssertRel(blocksize_,>=,2048);
+    AssertRel(blocksize_,>=,GLASS_MIN_BLOCKSIZE);
     root = 0;
     level = 0;
     num_entries = 0;
@@ -438,7 +439,7 @@ RootInfo::unserialise(const char ** p, const char * end)
     sequential = val & 0x02;
     root_is_fake = val & 0x01;
     blocksize <<= 11;
-    AssertRel(blocksize,>=,2048);
+    AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
     return true;
 }
 

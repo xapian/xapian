@@ -60,7 +60,8 @@ class RootInfo {
     bool get_root_is_fake() const { return root_is_fake; }
     bool get_sequential() const { return sequential; }
     unsigned get_blocksize() const {
-	AssertRel(blocksize,>=,2048);
+	AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
+	AssertRel(blocksize,<=,GLASS_MAX_BLOCKSIZE);
 	return blocksize;
     }
     uint4 get_compress_min() const { return compress_min; }
@@ -72,7 +73,8 @@ class RootInfo {
     void set_sequential(bool f) { sequential = f; }
     void set_root(glass_block_t root_) { root = root_; }
     void set_blocksize(unsigned b) {
-	AssertRel(b,>=,2048);
+	AssertRel(b,>=,GLASS_MIN_BLOCKSIZE);
+	AssertRel(b,<=,GLASS_MAX_BLOCKSIZE);
 	blocksize = b;
     }
     void set_free_list(const std::string & s) { fl_serialised = s; }

@@ -23,6 +23,7 @@
 
 #include "glass_changes.h"
 
+#include "glass_defs.h"
 #include "glass_replicate_internal.h"
 #include "fd.h"
 #include "io_utils.h"
@@ -239,7 +240,7 @@ GlassChanges::check(const string & changes_file)
 	// Changed block.
 	if (v > 5)
 	    throw Xapian::DatabaseError("Changes file - bad block size");
-	unsigned block_size = 2048 << v;
+	unsigned block_size = GLASS_MIN_BLOCKSIZE << v;
 	uint4 block_number;
 	if (!unpack_uint(&p, end, &block_number))
 	    throw Xapian::DatabaseError("Changes file - bad block number");

@@ -1779,7 +1779,7 @@ GlassTable::create_and_open(int flags_, const RootInfo & root_info)
     close();
 
     unsigned int block_size_ = root_info.get_blocksize();
-    Assert(block_size_ >= 2048);
+    Assert(block_size_ >= GLASS_MIN_BLOCKSIZE);
     Assert(block_size_ <= BYTE_PAIR_RANGE);
     // Must be a power of two.
     Assert((block_size_ & (block_size_ - 1)) == 0);
