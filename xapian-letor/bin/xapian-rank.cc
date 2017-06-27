@@ -192,12 +192,10 @@ try {
     }
 
     cout << "Docids before re-ranking by LTR model:" << endl;
-    int rank = 0;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-
 	Xapian::Document doc = i.get_document();
-	Xapian::docid did = doc.get_docid();
-	cout << "Rank " << ++rank << ": " << did << endl;
+	string data = doc.get_data();
+	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
     }
 
     // Initialise Ranker object with ListNETRanker instance, db path and query.
@@ -207,13 +205,15 @@ try {
     ranker->set_query(query);
 
     // Get vector of re-ranked docids
-    std::vector<Xapian::docid> ranked_docids = ranker->rank(mset, model_metadata_key);
+    ranker->rank(mset, model_metadata_key);
 
-    cout << "Docids after re-ranking by LTR model:" << endl;
-    rank = 0;
-    for (auto&& did : ranked_docids)
-	cout << "Rank " << ++rank << ": " << did << endl;
+    cout << "Docids after re-ranking by LTR model:\n" << endl;
 
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	Xapian::Document doc = i.get_document();
+	string data = doc.get_data();
+	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
+    }
     delete ranker;
 
     cout << flush;
