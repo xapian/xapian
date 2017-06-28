@@ -15,9 +15,9 @@ for generating its training files.
 The two functions defined in ``postprocess.py`` are:
 
 - ``postprocess.generate_final_log(search_log, clicks_log, final_log)``
-	
+
     Generates the final log file.
-    
+
     **Parameters:**
         - **search_log:** Path to the search.log file.
         - **clicks_log:** Path to the clicks.log file.
@@ -26,7 +26,7 @@ The two functions defined in ``postprocess.py`` are:
 - ``postprocess.generate_query_file(final_log, query_file)``
 
     Generates the query file formatted as per Xapian Letor documentation_.
-	
+
     **Parameters:**
         - **final_log:** Path to save final.log file.
         - **query_file:** Path to save query.txt file.
