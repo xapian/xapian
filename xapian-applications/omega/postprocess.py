@@ -28,29 +28,28 @@ import collections
 import csv
 import sys
 
-parser = argparse.ArgumentParser(
-    description='''Postprocess click data files.
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='''Postprocess click data files.
 
-    This script generates the final clickstream log file from input search and
-    click log files and creates Query file that can be used by Xapian Letor
-    module for generating its training files.
-
-    Expects two log files named "search.log" and "clicks.log" in a directory
-    named "log" as two arguments.
-    ''', formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument("search_log", type=str, default="log/search.log",
-                    help="Path to the search.log file.")
-parser.add_argument("clicks_log", type=str, default="log/search.log",
-                    help="Path to the clicks.log file.")
-args = parser.parse_args()
+        This script generates the final clickstream log file from input search and
+        click log files and creates Query file that can be used by Xapian Letor
+        module for generating its training files.
+        ''', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("search_log", type=str, help="Path to the search.log file.")
+    parser.add_argument("clicks_log", type=str, help="Path to the clicks.log file.")
+    parser.add_argument("final_log", type=str, help="Path to save final.log file.")
+    parser.add_argument("query_file", type=str, help="Path to save query.txt file.")
+    args = parser.parse_args()
 
 
-def generate_final_log(search_log, clicks_log):
-    """Generates Query file formatted as per Xapian Letor documentation.
+def generate_final_log(search_log, clicks_log, final_log):
+    """Generates the final log file.
 
     Input Args:
         search_log (str): Path to the search.log file.
         clicks_log (str): Path to the clicks.log file.
+        final_log (str): Path to the final.log file.
 
     Example (tab-delimited) entries in search_log:
 
@@ -68,75 +67,82 @@ def generate_final_log(search_log, clicks_log):
     Example (tab-delimited) entries in final.log:
 
     QueryID Query   Hits    Offset  Clicks
-    821f03288846297c2cf43c34766a38f7    book    ['45', '36', '14', '54', '42',\
-    '52', '2', '3', '15', '32'] 0   ['45:0', '36:0', '14:0', '54:2', '42:0',\
-    '52:0', '2:0', '3:0', '15:0', '32:0']
-    098f6bcd4621d373cade4e832627b4f6    test    ['45', '36', '14', '54', '42',\
-    '52', '2', '3', '15', '32'] 0   ['45:0', '36:0', '14:0', '54:0', '42:1',\
-    '52:0', '2:0', '3:0', '15:0', '32:0']
+    821f03288846297c2cf43c34766a38f7    book    ['45', '36', '14', '54', '42', '52', '2', '3', '15', '32'] 0   ['45:0', '36:0', '14:0', '54:2', '42:0', '52:0', '2:0', '3:0', '15:0', '32:0']
+    098f6bcd4621d373cade4e832627b4f6    test    ['45', '36', '14', '54', '42','52', '2', '3', '15', '32'] 0   ['45:0', '36:0', '14:0', '54:0', '42:1', '52:0', '2:0', '3:0', '15:0', '32:0']
 
     Note: Values in these entries are all of type str.
     """
-    with open(search_log, 'r') as f, open(clicks_log, 'r') as g:
-        with open('log/final.log', 'w+') as h:
-            reader1 = csv.reader(f, delimiter='\t')
-            reader2 = csv.reader(g, delimiter='\t')
-            writer = csv.writer(h, delimiter='\t')
+    QUERYID, QUERY, HITS = 0, 1, 2
+    DOCID = 1
 
-            # Add headers to final log file
-            writer.writerow(["QueryID", "Query", "Hits", "Offset", "Clicks"])
+    qid_to_clicks = collections.defaultdict(dict)
+    did_to_count = {}
+    clicklist = []
 
-            qid_to_clicks = collections.defaultdict(dict)
-            did_to_count = {}
+    with open(clicks_log, 'r') as clicks_f:
+        clicks_reader = csv.reader(clicks_f, delimiter='\t')
 
-            QUERYID, QUERY, HITS = 0, 1, 2
-            DOCID = 1
+        # Build map: qid_to_clicks = {qid: {did: click_count}}
+        for row in clicks_reader:
+            qid, did = row[QUERYID], row[DOCID]
 
-            # Build map: qid_to_clicks = {qid: {did: click_count}}
-            for row2 in reader2:
-                qid, did = row2[QUERYID], row2[DOCID]
+            did_to_count = qid_to_clicks[qid]
 
-                did_to_count = qid_to_clicks[qid]
+            # Check if did is already present in did_to_count
+            if did in did_to_count:
+                # Update did_to_count[did]
+                click_count = did_to_count[did]
+                click_count += 1
+                did_to_count[did] = click_count
+            else:
+                did_to_count[did] = 1
 
-                # Check if did is already present in did_to_count
-                if did in did_to_count:
-                    # Update did_to_count[did]
-                    click_count = int(did_to_count[did])
-                    click_count += 1
-                    did_to_count[did] = str(click_count)
-                else:
-                    did_to_count[did] = '1'
+            qid_to_clicks[qid] = did_to_count
+            print(qid_to_clicks[qid])
 
-                qid_to_clicks[qid] = did_to_count
+    with open(search_log, 'r') as search_f, open(final_log, 'w+') as final_f:
+        search_reader = csv.reader(search_f, delimiter='\t')
+        writer = csv.writer(final_f, delimiter='\t')
 
-            f.seek(0)
+        # Add headers to final log file
+        writer.writerow(["QueryID", "Query", "Hits", "Offset", "Clicks"])
 
-            clicklist = []
+        queries = []
 
-            for row in reader1:
-                # Skip rows with empty Query string
-                if row[QUERY] == '':
-                    continue
+        for row in search_reader:
+            # Skip rows with empty Query string
+            if row[QUERY] == '':
+                continue
 
-                # Convert Hitlist from str to list
-                hits = row[HITS]
-                hits = hits.strip().split(',')
-                row[HITS] = hits
+            # Avoid duplicate entries
+            if row[QUERY] in queries:
+                continue
+            else:
+                queries.append(row[QUERY])
 
-                clicklist = hits[:]
+            # Convert Hitlist from str to list
+            hits = row[HITS]
+            hits = hits.strip().split(',')
+            row[HITS] = hits
 
-                # Update clicklist with click values stored in map.
-                if row[QUERYID] in qid_to_clicks:
-                    did_to_count = qid_to_clicks[row[QUERYID]]
-                    for index, did in enumerate(clicklist):
-                        if did in did_to_count:
-                            clicklist[index] = did + ':' + did_to_count[did]
-                        else:
-                            clicklist[index] = did + ':' + '0'
+            clicklist = hits[:]
 
-                row.append(clicklist)
-                writer.writerow(row)
-    return
+            # Update clicklist with click values stored in map.
+            if row[QUERYID] in qid_to_clicks:
+                did_to_count = qid_to_clicks[row[QUERYID]]
+                for index, did in enumerate(clicklist):
+                    if did in did_to_count:
+                        clicklist[index] = did + ':' + str(did_to_count[did])
+                    else:
+                        clicklist[index] = did + ':' + '0'
+            else:
+                for index, did in enumerate(clicklist):
+                    clicklist[index] = did + ':' + '0'
+
+            print(clicklist)
+            row.append(clicklist)
+            print(type(row[2]))
+            writer.writerow(row)
 
 
 def generate_query_file(final_log, query_file):
@@ -149,12 +155,8 @@ def generate_query_file(final_log, query_file):
     Example (tab-delimited) entries in final.log:
 
     QueryID	Query	Hits	Offset	Clicks
-    821f03288846297c2cf43c34766a38f7	book	['45', '36', '14', '54', '42',\
-    '52', '2', '3', '15', '32']	0	['45:0', '36:0', '14:0', '54:2', '42:0',\
-    '52:0', '2:0', '3:0', '15:0', '32:0']
-    098f6bcd4621d373cade4e832627b4f6	test	['45', '36', '14', '54', '42',\
-    '52', '2', '3', '15', '32']	0	['45:0', '36:0', '14:0', '54:0', '42:1',\
-    '52:0', '2:0', '3:0', '15:0', '32:0']
+    821f03288846297c2cf43c34766a38f7	book	['45', '36', '14', '54', '42', '52', '2', '3', '15', '32']	0	['45:0', '36:0', '14:0', '54:2', '42:0', '52:0', '2:0', '3:0', '15:0', '32:0']
+    098f6bcd4621d373cade4e832627b4f6	test	['45', '36', '14', '54', '42', '52', '2', '3', '15', '32']	0	['45:0', '36:0', '14:0', '54:0', '42:1', '52:0', '2:0', '3:0', '15:0', '32:0']
 
     Example (comma-delimited) entries in query.txt:
 
@@ -167,16 +169,10 @@ def generate_query_file(final_log, query_file):
 
         for row in reader:
             writer.writerow([row['QueryID'], row['Query']])
-    return
 
-
-# Require no less than 3 command line arguments.
-if len(sys.argv) != 3:
-    print("Not enough arguments.", file=sys.stderr)
-    sys.exit(1)
-
-try:
-    generate_final_log(sys.argv[1], sys.argv[2])
-    generate_query_file('log/final.log', 'log/query.txt')
-except IOError as e:
-    print(e, file=sys.stderr)
+if __name__ == '__main__':
+    try:
+        generate_final_log(args.search_log, args.clicks_log, args.final_log)
+        generate_query_file(args.final_log, args.query_file)
+    except IOError as e:
+        print(e, file=sys.stderr)
