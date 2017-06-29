@@ -222,10 +222,11 @@ $fmt
 $freq{term}
 	frequency of a term
 
-$hash{TEXT[,HASH]}
+$hash{TEXT,HASH}
     unique ID for ``TEXT`` string using the hashing algorithm specified by
-    ``HASH``. Currently, this command only supports MD5 which yields a 128-bit
-    hash sequence serialised as 32 hexadecimal characters.
+    ``HASH`` which must be a lowercase string. Currently, this command only
+    supports MD5 which yields a 128-bit hash sequence serialised as 32
+    hexadecimal characters.
 
 $highlight{TEXT,LIST[,OPEN[,CLOSE]]}
 	html escape string (<>&, etc) and highlight any terms from ``LIST``
