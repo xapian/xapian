@@ -1558,7 +1558,6 @@ eval(const string &fmt, const vector<string> &param)
 		string data = args[0];
 		string hash = args[1];
 		std::transform(hash.begin(), hash.end(), hash.begin(), ::tolower);
-		bool flag = false;
 		if (hash == "md5") {
 		    string md5, hexhash;
 		    md5_string(data.c_str(), md5);
@@ -1568,10 +1567,9 @@ eval(const string &fmt, const vector<string> &param)
 			hexhash += buf;
 		    }
 		    value = hexhash;
-		    flag = true;
 		}
-		if (flag != true) {
-		    throw Xapian::InvalidOperationError("Hashing algorithm is invalid");
+		else {
+		    throw "Unknown hash function: " + hash;
 		}
 		break;
 	    }

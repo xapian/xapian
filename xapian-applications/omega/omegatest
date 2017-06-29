@@ -437,9 +437,10 @@ printf '$hash{$cgi{text},md5}' > "$TEST_TEMPLATE"
 testcase '098f6bcd4621d373cade4e832627b4f6' text="test"
 testcase 'b4c216e4da73d1d01277ef46d0514821' text="simple query"
 testcase 'd41d8cd98f00b204e9800998ecf8427e' text=""
+testcase '3302c94d3500c3f695b7e09b7acd420d' text=" test "
 
-printf '$hash{$cgi{text},sha-1}' > "$TEST_TEMPLATE"
-testcase '' text="test"
+printf '$hash{$cgi{text},invalidhash}' > "$TEST_TEMPLATE"
+testcase 'Exception: Unknown hash function: invalidhash' text="test"
 
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
