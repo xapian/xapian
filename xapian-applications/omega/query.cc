@@ -1557,7 +1557,6 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_hash: {
 		string data = args[0];
 		string hash = args[1];
-		std::transform(hash.begin(), hash.end(), hash.begin(), ::tolower);
 		if (hash == "md5") {
 		    string md5, hexhash;
 		    md5_string(data.c_str(), md5);
