@@ -69,6 +69,7 @@
 #include "values.h"
 #include "weight.h"
 #include "expand.h"
+#include "md5wrap.h"
 
 #include <xapian.h>
 
@@ -932,6 +933,7 @@ CMD_fmt,
 CMD_freq,
 CMD_ge,
 CMD_gt,
+CMD_hash,
 CMD_highlight,
 CMD_hit,
 CMD_hitlist,
@@ -1064,6 +1066,7 @@ T(fmt,		   0, 0, N, 0), // name of current format
 T(freq,		   1, 1, N, 0), // frequency of a term
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
+T(hash,		   2, 2, N, 0), // hash a string using the specified hash function
 T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
 T(hit,		   0, 0, N, 0), // hit number of current mset entry (0-based)
 T(hitlist,	   1, 1, 0, M), // display hitlist using format in argument
@@ -1551,6 +1554,23 @@ eval(const string &fmt, const vector<string> &param)
 		if (string_to_int(args[0]) > string_to_int(args[1]))
 		    value = "true";
 		break;
+	    case CMD_hash: {
+		string data = args[0];
+		string hash = args[1];
+		if (hash == "md5") {
+		    string md5, hexhash;
+		    md5_string(data.c_str(), md5);
+		    for (size_t i = 0; i < md5.size(); ++i) {
+			char buf[16];
+			sprintf(buf, "%02x", static_cast<unsigned char>(md5[i]));
+			hexhash += buf;
+		    }
+		    value = hexhash;
+		} else {
+		    throw "Unknown hash function: " + hash;
+		}
+		break;
+	    }
 	    case CMD_highlight: {
 		string bra, ket;
 		if (args.size() > 2) {
