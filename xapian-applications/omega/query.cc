@@ -1566,8 +1566,7 @@ eval(const string &fmt, const vector<string> &param)
 			hexhash += buf;
 		    }
 		    value = hexhash;
-		}
-		else {
+		} else {
 		    throw "Unknown hash function: " + hash;
 		}
 		break;
