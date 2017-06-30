@@ -44,14 +44,12 @@ check-@PERCENT@:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
 
 ## --disable-shared as shared builds fail for me on x86-64 Debian etch.
-## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.  This looks
-## like it was fixed in ccache 3.0, but only by not caching, so disabling
-## explicitly here is harmless.  If ccache starts to support --coverage
-## (3.3.3 doesn't) then we could reasonably just require ccache >= 3.0 is
-## used, as 3.0 was released on 2010-06-20.
+## If you're using ccache, you need ccache >= 3.0, released 2010-06-20 (older
+## versions don't handle --coverage properly).  You need ccache >= 3.2.2 to
+## actually cache compilations with --coverage - older 3.x just disables
+## caching for them.
 COVERAGE_CONFIGURE = \
-    $(srcdir)/configure CXXFLAGS='-O0 --coverage' \
-    --disable-shared CCACHE_DISABLE=1 VALGRIND=
+    $(srcdir)/configure CXXFLAGS='-O0 --coverage' --disable-shared VALGRIND=
 
 coverage-reconfigure: distclean
 	$(COVERAGE_CONFIGURE)

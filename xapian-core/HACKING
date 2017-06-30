@@ -270,7 +270,8 @@ targets (all in the `xapian-core` directory):
 
   * `make coverage-reconfigure`: reruns configure in the source tree.  See
     Makefile.am for details of the configure options used and why they
-    are needed.
+    are needed.  If you're using ccache, make sure it's at least version
+    3.0, and ideally at least 3.2.2.
 
   * `make coverage-reconfigure-maintainer-mode`: does the same thing, except
     the tree is configured in "maintainer mode", which is what you want if
