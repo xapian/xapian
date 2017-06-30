@@ -51,7 +51,7 @@ check-@PERCENT@:
 ## used, as 3.0 was released on 2010-06-20.
 COVERAGE_CONFIGURE = \
     $(srcdir)/configure CXXFLAGS='-O0 --coverage' \
-    --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
+    --disable-shared CCACHE_DISABLE=1 VALGRIND=
 
 coverage-reconfigure: distclean
 	$(COVERAGE_CONFIGURE)
