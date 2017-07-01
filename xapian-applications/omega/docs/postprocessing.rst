@@ -13,7 +13,7 @@ search and click log files which can be used to train click models for clickstre
 data mining. It also creates a Query file that can be used by Xapian Letor module
 for generating its training files.
 
-The two functions defined in ``postprocess.py`` are:
+The two functions defined in ``postprocess`` are:
 
 - ``postprocess.generate_combined_log(search_log, clicks_log, final_log)``
 
