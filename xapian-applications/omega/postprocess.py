@@ -66,7 +66,7 @@ def generate_combined_log(search_log, clicks_log, final_log):
 
     Example (comma-delimited) entries in final.log:
 
-    QueryID Query   Hits    Offset  Clicks
+    QueryID,Query,Hits,Offset,Clicks
     821f03288846297c2cf43c34766a38f7,book,"45,36,14,54,42,52,2,3,15,32",0,"45:0,36:0,14:0,54:2,42:0,52:0,2:0,3:0,15:0,32:0"
     098f6bcd4621d373cade4e832627b4f6,test,"35,47,31,14,45,19,50,43,30,44",0,"35:1,47:0,31:0,14:0,45:0,19:0,50:0,43:0,30:0,44:0"
     """
@@ -151,7 +151,7 @@ def generate_query_file(final_log, query_file):
 
     Example (tab-delimited) entries in final.log:
 
-    QueryID	Query	Hits	Offset	Clicks
+    QueryID	Query,Hits,Offset,Clicks
     821f03288846297c2cf43c34766a38f7,book,"45,36,14,54,42,52,2,3,15,32",0,"45:0,36:0,14:0,54:2,42:0,52:0,2:0,3:0,15:0,32:0"
     098f6bcd4621d373cade4e832627b4f6,test,"35,47,31,14,45,19,50,43,30,44",0,"35:1,47:0,31:0,14:0,45:0,19:0,50:0,43:0,30:0,44:0"
 
