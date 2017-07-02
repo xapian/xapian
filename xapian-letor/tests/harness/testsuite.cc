@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,10 +29,10 @@
 #endif
 #include "fdtracker.h"
 #include "testrunner.h"
+#include "safeerrno.h"
 #include "safeunistd.h"
 
 #ifdef HAVE_VALGRIND
-# include "safeerrno.h"
 # include <valgrind/memcheck.h>
 # include <sys/types.h>
 # include "safefcntl.h"
@@ -56,8 +56,8 @@
 #include <exception>
 #ifdef USE_RTTI
 # include <typeinfo>
-# ifdef __GNUC__
-#  include <cxxabi.h> // Added in GCC 3.1 which is now required.
+# ifdef HAVE_CXXABI_H
+#  include <cxxabi.h>
 # endif
 #endif
 
@@ -510,6 +510,16 @@ test_driver::runtest(const test_desc *test)
 		    out << col_yellow << " C++ FAILED TO CATCH " << errclass << col_reset;
 		    return SKIP;
 		}
+		if (errclass == "NetworkError" &&
+		    strcmp(err.get_error_string(), strerror(ECHILD)) == 0) {
+		    // ECHILD suggests we've run out of processes, and that's
+		    // much more likely to be a system issue than a Xapian bug.
+		    //
+		    // We also see apparently spurious ECHILD on Debian
+		    // buildds sometimes: https://bugs.debian.org/681941
+		    out << col_yellow << " ECHILD in network code" << col_reset;
+		    return SKIP;
+		}
 		out << " " << col_red << err.get_description() << col_reset;
 		write_and_clear_tout();
 		return FAIL;
@@ -524,7 +534,7 @@ test_driver::runtest(const test_desc *test)
 		out << "std::exception";
 #else
 		const char * name = typeid(e).name();
-# ifdef __GNUC__
+# ifdef HAVE_CXXABI_H__
 		// __cxa_demangle() apparently requires GCC >= 3.1.
 		// Demangle the name which GCC returns for type_info::name().
 		int status;

@@ -385,6 +385,12 @@ AH_BOTTOM(
 ])
 
 AC_DEFINE([XAPIAN_LIB_BUILD], [1], [Workaround for avoiding sub-header included error])
+AC_DEFINE([BUILD_BACKEND_GLASS], [1], [Workaround for avoiding setting the conditionals])
+AC_DEFINE([BUILD_BACKEND_INMEMORY], [1], [Workaround for avoiding setting the conditionals])
+AC_DEFINE([BUILD_BACKEND_REMOTE], [1], [Workaround for avoiding setting the conditionals])
+AM_CONDITIONAL([BUILD_BACKEND_GLASS], true)
+AM_CONDITIONAL([BUILD_BACKEND_INMEMORY], true)
+AM_CONDITIONAL([BUILD_BACKEND_REMOTE], true)
 
 AC_SUBST([AM_CXXFLAGS])
 
@@ -445,6 +451,75 @@ fi
 
 if test -n "$VALGRIND" ; then
   AC_DEFINE([HAVE_VALGRIND], [1], [Define if a suitable valgrind is installed])
+fi
+
+REMOTE_LIBS=
+if true ; then
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+#ifdef __WIN32__
+#error WIN32
+#endif
+  ]])], [win32=no], [win32=yes])
+
+  case $host_os-$win32 in
+    *-yes )
+      dnl For mingw and msvc we have an alternative implementation which
+      dnl doesn't need fork() or socketpair().
+      dnl
+      dnl We need -lws2_32 for getaddrinfo(), etc.
+      REMOTE_LIBS=-lws2_32
+      dnl Vista is needed for the AI_ADDRCONFIG flag to getaddrinfo().
+      AC_DEFINE([WINVER], [0x600],
+		[Version of Windows to assume (0x600 => Vista).])
+      AC_DEFINE([_WIN32_WINNT], [WINVER],
+		[Version of Windows to assume.])
+      ;;
+    *djgpp* | *msdos* )
+      dnl DJGPP has a dummy implementation of fork which always fails.
+      dnl
+      dnl For disk-based backend, use flock() for locking, which doesn't need
+      dnl fork() or socketpair().
+      AC_DEFINE([FLINTLOCK_USE_FLOCK], 1, [Define to use flock() for flint-compatible locking])
+      dnl If someone actually wanted remote backend support, then DJGPP has a
+      dnl pthreads port, so using threads like we do on Windows would make more
+      dnl sense.
+      enable_backend_remote=no
+      ;;
+    *)
+      dnl On Unix, we need fork and socketpair for the remotebackend.
+      SAVE_LIBS=$LIBS
+      AC_CHECK_FUNCS([fork], [], [
+	AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      dnl Check if -lsocket is required for socketpair (Solaris needs it).
+      dnl And on Haiku it's in -lnetwork.
+      AC_SEARCH_LIBS([socketpair], [socket network], [], [
+	AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      AC_DEFINE([HAVE_SOCKETPAIR], [1],
+		[Define to 1 if you have the 'socketpair' function.])
+      dnl Check if extra libraries are needed for getaddrinfo or inet_ntop()
+      dnl (e.g. on Solaris).
+      dnl
+      dnl We're currently assuming that any system that is worth trying to
+      dnl support has getaddrinfo() and inet_ntop(), since these are the
+      dnl standard route for supporting IPv6, and that's pretty much essential
+      dnl for platforms to support now.
+      AC_SEARCH_LIBS([getaddrinfo], [nsl socket], [], [
+	AC_MSG_ERROR([getaddrinfo() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      AC_SEARCH_LIBS([inet_ntop], [nsl socket], [], [
+	AC_MSG_ERROR([inet_ntop() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      REMOTE_LIBS=$LIBS
+      LIBS=$SAVE_LIBS
+      ;;
+  esac
+
+  if test "$enable_backend_remote" = yes ; then
+    TYPE_SOCKLEN_T
+    XAPIAN_LIBS="$XAPIAN_LIBS $REMOTE_LIBS"
+  fi
 fi
 
 dnl If eatmydata is installed, we run the testsuite under it to speed it up.

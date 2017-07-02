@@ -53,27 +53,69 @@ class BackendManager {
     void index_files_to_database(Xapian::WritableDatabase & database,
 				 const std::vector<std::string> & files);
 
+  protected:
     bool create_dir_if_needed(const std::string &dirname);
 
-    /// Proxy method implementing get_database().
-    Xapian::Database do_get_database(const std::vector<std::string> &files);
+    /** Virtual method implementing get_database().
+     *
+     *  If we just called this get_database() then each subclass which
+     *  defined it would also need to un-hide the non-virtual overloaded method
+     *  with "using get_database(const std::string&);" or similar.
+     */
+    virtual Xapian::Database do_get_database(const std::vector<std::string> &files);
 
-    /// Proxy method implementing get_database_path().
-    std::string do_get_database_path(const std::vector<std::string> &files);
+    /** Virtual method implementing get_database_path().
+     *
+     *  If we just called this get_database_path() then each subclass which
+     *  defined it would also need to un-hide the non-virtual overloaded method
+     *  with "using get_database_path(const std::string&);" or similar.
+     */
+    virtual std::string do_get_database_path(const std::vector<std::string> &files);
 
-    /// Returns path to an indexed Xapian::WritableDatabase
-    std::string createdb(const std::vector<std::string> &files);
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+    /// Get a writable inmemory database instance.
+    Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &files);
+#endif
+
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    /// Get a remote database instance using xapian-progsrv.
+    Xapian::Database getdb_remoteprog(const std::vector<std::string> &files);
+
+    /// Get a writable remote database instance using xapian-progsrv.
+    Xapian::WritableDatabase getwritedb_remoteprog(const std::vector<std::string> &files);
+
+    /// Get a remote database instance using xapian-tcpsrv.
+    Xapian::Database getdb_remotetcp(const std::vector<std::string> &files);
+
+    /// Get a writable remote database instance using xapian-tcpsrv.
+    Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &files);
+#endif
+
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+  protected:
+    std::string createdb_glass(const std::vector<std::string> &files);
+
+  public:
+    /// Get a writable glass database instance.
+    Xapian::WritableDatabase getwritedb_glass(const std::string & name,
+					      const std::vector<std::string> &files);
+
+    /// Get the path of a writable glass database instance.
+    std::string getwritedb_glass_path(const std::string & name);
+#endif
 
   public:
     /// Constructor - set up default state.
     BackendManager() { }
 
-    /// Destructor
-    ~BackendManager();
+    /** We have virtual methods and want to be able to delete derived classes
+     *  using a pointer to the base class, so we need a virtual destructor.
+     */
+    virtual ~BackendManager();
 
     /** Get the database type currently in use.
      */
-    std::string get_dbtype() const;
+    virtual std::string get_dbtype() const;
 
     /** Set the directory to store data in.
      */
@@ -89,17 +131,52 @@ class BackendManager {
     /// Get a database instance of the current type, single file case.
     Xapian::Database get_database(const std::string &file);
 
+    /** Get a database instance of the current type, generated case.
+     *
+     * @param dbname	The name of the database (base on your testcase name).
+     * @param gen	Generator function - should index data to the empty
+     *			WritableDatabase provided.
+     * @param arg	String argument to pass to @a gen - it's up to you how
+     *			to make use of this (or just ignore it if you don't need
+     *			it).
+     */
+    Xapian::Database get_database(const std::string &dbname,
+				  void (*gen)(Xapian::WritableDatabase&,
+					      const std::string &),
+				  const std::string &arg);
+
     /// Get the path of a database instance, if such a thing exists.
     std::string get_database_path(const std::vector<std::string> &files);
 
     /// Get the path of a database instance, if such a thing exists (single file case).
     std::string get_database_path(const std::string &file);
 
+    /// Get the path of a generated database instance.
+    std::string get_database_path(const std::string &dbname,
+				  void (*gen)(Xapian::WritableDatabase&,
+					      const std::string &),
+				  const std::string &arg);
+
+    /// Get a writable database instance.
+    virtual Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
+
+    /// Get the path of a writable database instance, if such a thing exists.
+    virtual std::string get_writable_database_path(const std::string & name);
+
+    /// Get a remote database instance with the specified timeout.
+    virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
+
+    /// Create a Database object for the last opened WritableDatabase.
+    virtual Xapian::Database get_writable_database_as_database();
+
+    /// Create a WritableDatabase object for the last opened WritableDatabase.
+    virtual Xapian::WritableDatabase get_writable_database_again();
+
     /** Called after each test, to perform any necessary cleanup.
      *
      *  May be called more than once for a given test in some cases.
      */
-    void clean_up();
+    virtual void clean_up();
 
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();

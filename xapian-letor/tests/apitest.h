@@ -31,4 +31,10 @@ Xapian::Database get_database(const std::string &db1, const std::string &db2);
 
 std::string get_database_path(const std::string &db);
 
+Xapian::Database get_database(const std::string &db,
+			      void (*gen)(Xapian::WritableDatabase&,
+					  const std::string &),
+			      const std::string &arg = std::string());
+
+
 #endif // XAPIAN_INCLUDED_APITEST_H
