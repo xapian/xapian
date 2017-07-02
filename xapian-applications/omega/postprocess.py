@@ -28,20 +28,6 @@ import collections
 import csv
 import sys
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='''Postprocess click data files.
-
-        This script generates the final clickstream log file from input search and
-        click log files and creates Query file that can be used by Xapian Letor
-        module for generating its training files.
-        ''', formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("search_log", type=str, help="Path to the search.log file.")
-    parser.add_argument("clicks_log", type=str, help="Path to the clicks.log file.")
-    parser.add_argument("final_log", type=str, help="Path to save final.log file.")
-    parser.add_argument("query_file", type=str, help="Path to save query.txt file.")
-    args = parser.parse_args()
-
 
 def generate_combined_log(search_log, clicks_log, final_log):
     """Generates the final log file.
@@ -78,7 +64,7 @@ def generate_combined_log(search_log, clicks_log, final_log):
     clicklist = []
 
     with open(clicks_log, 'r') as clicks_f:
-        clicks_reader = csv.reader(clicks_f, delimiter=',')
+        clicks_reader = csv.reader(clicks_f)
 
         # Build map: qid_to_clicks = {qid: {did: click_count}}
         for row in clicks_reader:
@@ -96,8 +82,8 @@ def generate_combined_log(search_log, clicks_log, final_log):
             qid_to_clicks[qid] = did_to_count
 
     with open(search_log, 'r') as search_f, open(final_log, 'w+') as final_f:
-        search_reader = csv.reader(search_f, delimiter=',')
-        writer = csv.writer(final_f, delimiter=',')
+        search_reader = csv.reader(search_f)
+        writer = csv.writer(final_f)
 
         # Add headers to final log file
         writer.writerow(["QueryID", "Query", "Hits", "Offset", "Clicks"])
@@ -130,8 +116,10 @@ def generate_combined_log(search_log, clicks_log, final_log):
                         clicklist[index] = '%s:%i' % (did, did_to_count[did])
                     else:
                         clicklist[index] = did + ':0'
-            elif not clicklist:
+            else:
                 for index, did in enumerate(clicklist):
+                    if clicklist[index] == '':
+                        continue
                     clicklist[index] = did + ':0'
 
             # Serialise "Hits" and "Clicks"
@@ -151,7 +139,7 @@ def generate_query_file(final_log, query_file):
 
     Example (tab-delimited) entries in final.log:
 
-    QueryID	Query,Hits,Offset,Clicks
+    QueryID,Query,Hits,Offset,Clicks
     821f03288846297c2cf43c34766a38f7,book,"45,36,14,54,42,52,2,3,15,32",0,"45:0,36:0,14:0,54:2,42:0,52:0,2:0,3:0,15:0,32:0"
     098f6bcd4621d373cade4e832627b4f6,test,"35,47,31,14,45,19,50,43,30,44",0,"35:1,47:0,31:0,14:0,45:0,19:0,50:0,43:0,30:0,44:0"
 
@@ -161,11 +149,35 @@ def generate_query_file(final_log, query_file):
     098f6bcd4621d373cade4e832627b4f6,test
     """
     with open(final_log, 'r') as s, open(query_file, 'w+') as w:
-        reader = csv.DictReader(s, delimiter=',')
+        reader = csv.DictReader(s)
         writer = csv.writer(w)
 
         for row in reader:
             writer.writerow([row['QueryID'], row['Query']])
+
+
+def test():
+    pass
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='''Postprocess click data files.
+
+        This script generates the final clickstream log file from input search and
+        click log files and creates Query file that can be used by Xapian Letor
+        module for generating its training files.
+        ''', formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("search_log", type=str, help="Path to the search.log file.")
+    parser.add_argument("clicks_log", type=str, help="Path to the clicks.log file.")
+    parser.add_argument("final_log", type=str, help="Path to save final.log file.")
+    parser.add_argument("query_file", type=str, help="Path to save query.txt file.")
+    parser.add_argument("--test", type=test, action='store_true', help="Run tests for this script.")
+    args = parser.parse_args()
+
+if args.test:
+    test()
+
 
 if __name__ == '__main__':
     try:
