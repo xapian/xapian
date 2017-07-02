@@ -3,6 +3,14 @@ EXTRA_DIST +=\
 
 noinst_HEADERS +=\
 	harness/backendmanager.h\
+	harness/backendmanager_glass.h\
+	harness/backendmanager_inmemory.h\
+	harness/backendmanager_local.h\
+	harness/backendmanager_multi.h\
+	harness/backendmanager_remote.h\
+	harness/backendmanager_remoteprog.h\
+	harness/backendmanager_remotetcp.h\
+	harness/backendmanager_singlefile.h\
 	harness/cputimer.h\
 	harness/fdtracker.h\
 	harness/index_utils.h\
@@ -15,6 +23,7 @@ noinst_HEADERS +=\
 
 testharness_sources =\
 	harness/backendmanager.cc\
+	harness/backendmanager_multi.cc\
 	harness/cputimer.cc\
 	harness/fdtracker.cc\
 	harness/index_utils.cc\
@@ -31,3 +40,14 @@ testharness_sources += ../common/str.cc
 utestharness_sources =\
 	harness/fdtracker.cc\
 	harness/utestsuite.cc
+
+testharness_sources +=\
+	harness/backendmanager_glass.cc\
+	harness/backendmanager_singlefile.cc
+
+testharness_sources += harness/backendmanager_inmemory.cc
+
+testharness_sources +=\
+	harness/backendmanager_remote.cc\
+	harness/backendmanager_remoteprog.cc\
+	harness/backendmanager_remotetcp.cc

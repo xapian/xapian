@@ -85,7 +85,7 @@ EXTRA_DIST +=\
 	testdata/apitest_allterms4.txt
 
 remove-cached-databases:
-	rm -rf .letor-db
+	rm -rf .glass .multiglass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 

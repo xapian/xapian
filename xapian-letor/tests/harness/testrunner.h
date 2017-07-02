@@ -52,6 +52,10 @@ class TestRunner {
      */
     bool use_backend(const std::string & backend_name);
 
+    /** Set the property flags to those for the named backend.
+     */
+    void set_properties_for_backend(const std::string & backend_name);
+
     /** Run the tests with the specified backend.
      */
     void do_tests_for_backend(BackendManager * manager);
@@ -59,6 +63,20 @@ class TestRunner {
   protected:
     enum {
 	BACKEND		= 0x00000001,
+	REMOTE		= 0x00000002,
+	TRANSACTIONS	= 0x00000004,
+	POSITIONAL	= 0x00000008,
+	WRITABLE	= 0x00000010,
+	SPELLING	= 0x00000020,
+	METADATA	= 0x00000040,
+	SYNONYMS	= 0x00000080,
+	REPLICAS	= 0x00000100,
+	VALUESTATS	= 0x00000200,
+	GENERATED	= 0x00000400,
+	MULTI		= 0x00000800,
+	SINGLEFILE	= 0x00001000,
+	INMEMORY	= 0x00002000,
+	GLASS		= 0x00004000,
     };
 
   public:
