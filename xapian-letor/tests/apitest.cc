@@ -59,6 +59,24 @@ get_database_path(const string &dbname)
     return backendmanager->get_database_path(dbname);
 }
 
+string
+get_database_path(const std::string &dbname,
+		  void (*gen)(Xapian::WritableDatabase&,
+			      const std::string &),
+		  const std::string &arg)
+{
+    return backendmanager->get_database_path(dbname, gen, arg);
+}
+
+Xapian::Database
+get_database(const std::string &dbname,
+	     void (*gen)(Xapian::WritableDatabase&,
+			 const std::string &),
+	     const std::string &arg)
+{
+    return backendmanager->get_database(dbname, gen, arg);
+}
+
 class ApiTestRunner : public TestRunner
 {
   public:

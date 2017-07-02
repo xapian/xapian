@@ -447,6 +447,47 @@ if test -n "$VALGRIND" ; then
   AC_DEFINE([HAVE_VALGRIND], [1], [Define if a suitable valgrind is installed])
 fi
 
+REMOTE_LIBS=
+if true ; then
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+#ifdef __WIN32__
+#error WIN32
+#endif
+  ]])], [win32=no], [win32=yes])
+
+  case $host_os-$win32 in
+    *-yes )
+      dnl For mingw and msvc we have an alternative implementation which
+      dnl doesn't need fork() or socketpair().
+      ;;
+    *djgpp* | *msdos* )
+      dnl DJGPP has a dummy implementation of fork which always fails.
+      dnl
+      dnl If someone actually wanted remote backend support, then DJGPP has a
+      dnl pthreads port, so using threads like we do on Windows would make more
+      dnl sense.
+      enable_backend_remote=no
+      ;;
+    *)
+      dnl On Unix, we need fork and socketpair for the remotebackend.
+      SAVE_LIBS=$LIBS
+      AC_CHECK_FUNCS([fork], [], [
+	AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      dnl Check if -lsocket is required for socketpair (Solaris needs it).
+      dnl And on Haiku it's in -lnetwork.
+      AC_SEARCH_LIBS([socketpair], [socket network], [], [
+	AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      AC_DEFINE([HAVE_SOCKETPAIR], [1],
+		[Define to 1 if you have the 'socketpair' function.])
+      REMOTE_LIBS=$LIBS
+      LIBS=$SAVE_LIBS
+      ;;
+  esac
+
+fi
+
 dnl If eatmydata is installed, we run the testsuite under it to speed it up.
 dnl If EATMYDATA is set to an empty value, then skip this check and don't use
 dnl eatmydata.
