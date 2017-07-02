@@ -172,7 +172,7 @@ if __name__ == '__main__':
     parser.add_argument("clicks_log", type=str, help="Path to the clicks.log file.")
     parser.add_argument("final_log", type=str, help="Path to save final.log file.")
     parser.add_argument("query_file", type=str, help="Path to save query.txt file.")
-    parser.add_argument("--test", type=test, action='store_true', help="Run tests for this script.")
+    parser.add_argument("--test", type=test, help="Run tests for this script.")
     args = parser.parse_args()
 
 if args.test:
