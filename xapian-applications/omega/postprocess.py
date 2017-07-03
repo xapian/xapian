@@ -39,22 +39,22 @@ def generate_combined_log(search_log, clicks_log, final_log):
 
     Example (comma-delimited) entries in search_log:
 
-    821f03288846297c2cf43c34766a38f7,"book","45,36,14,54,42,52,2,3,15,32",0
+    821f03288846297c2cf43c34766a38f7,"book","45,54",0
     d41d8cd98f00b204e9800998ecf8427e,"","".0
     d41d8cd98f00b204e9800998ecf8427e,"",""0
-    098f6bcd4621d373cade4e832627b4f6,"test","45,36,14,54,42,52,2,3,15,32",0
+    098f6bcd4621d373cade4e832627b4f6,"test","35,47",0
 
     Example (comma-delimited) entries in clicks_log:
 
     821f03288846297c2cf43c34766a38f7,54
     821f03288846297c2cf43c34766a38f7,54
-    098f6bcd4621d373cade4e832627b4f6,42
+    098f6bcd4621d373cade4e832627b4f6,35
 
     Example (comma-delimited) entries in final.log:
 
     QueryID,Query,Hits,Offset,Clicks
-    821f03288846297c2cf43c34766a38f7,book,"45,36,14,54,42,52,2,3,15,32",0,"45:0,36:0,14:0,54:2,42:0,52:0,2:0,3:0,15:0,32:0"
-    098f6bcd4621d373cade4e832627b4f6,test,"35,47,31,14,45,19,50,43,30,44",0,"35:1,47:0,31:0,14:0,45:0,19:0,50:0,43:0,30:0,44:0"
+    821f03288846297c2cf43c34766a38f7,book,"45,54",0,"45:0,54:2"
+    098f6bcd4621d373cade4e832627b4f6,test,"35,47",0,"35:1,47:0"
     """
     QUERYID, QUERY, HITS = 0, 1, 2
     DOCID = 1
@@ -102,9 +102,12 @@ def generate_combined_log(search_log, clicks_log, final_log):
             queries.add(row[QUERY])
 
             # Convert Hitlist from str to list
-            hits = row[HITS]
-            hits = hits.strip().split(',')
-            row[HITS] = hits
+            if not row[HITS]:
+                hits = []
+            else:
+                hits = row[HITS]
+                hits = hits.strip().split(',')
+                row[HITS] = hits
 
             clicklist = hits[:]
 
@@ -118,8 +121,6 @@ def generate_combined_log(search_log, clicks_log, final_log):
                         clicklist[index] = did + ':0'
             else:
                 for index, did in enumerate(clicklist):
-                    if clicklist[index] == '':
-                        continue
                     clicklist[index] = did + ':0'
 
             # Serialise "Hits" and "Clicks"
@@ -140,8 +141,8 @@ def generate_query_file(final_log, query_file):
     Example (tab-delimited) entries in final.log:
 
     QueryID,Query,Hits,Offset,Clicks
-    821f03288846297c2cf43c34766a38f7,book,"45,36,14,54,42,52,2,3,15,32",0,"45:0,36:0,14:0,54:2,42:0,52:0,2:0,3:0,15:0,32:0"
-    098f6bcd4621d373cade4e832627b4f6,test,"35,47,31,14,45,19,50,43,30,44",0,"35:1,47:0,31:0,14:0,45:0,19:0,50:0,43:0,30:0,44:0"
+    821f03288846297c2cf43c34766a38f7,book,"45,54",0,"45:0,54:2"
+    098f6bcd4621d373cade4e832627b4f6,test,"35,47",0,"35:1,47:0"
 
     Example (comma-delimited) entries in query.txt:
 
@@ -156,9 +157,43 @@ def generate_query_file(final_log, query_file):
             writer.writerow([row['QueryID'], row['Query']])
 
 
-def test():
-    pass
+def test_combined_log():
+    test_search_log = 'log-testdata/search.log'
+    test_clicks_log = 'log-testdata/clicks.log'
+    test_final_log = 'log-testdata/final.log'
 
+    generate_combined_log(test_search_log, test_clicks_log, test_final_log)
+
+    # Test entries in final.log are correct.
+    with open(test_final_log, 'r') as final_f:
+        reader = csv.reader(final_f)
+
+        # Skip header row.
+        next(final_f)
+
+        for i, row in enumerate(reader):
+            if i == 0:
+                assert row == ['821f03288846297c2cf43c34766a38f7',
+                              'book', '45,54', '0', '45:0,54:2'], "Incorrect entry in final.log"
+            if i == 1:
+                assert row == ['098f6bcd4621d373cade4e832627b4f6',
+                              'test', '35,47', '0', '35:1,47:0'], "Incorrect entry in final.log"
+
+def test_query_file():
+    test_final_log = 'log-testdata/final.log'
+    test_query_file = 'log-testdata/query.txt'
+
+    generate_query_file(test_final_log, test_query_file)
+
+    # Test entries in query.txt are correct.
+    with open(test_query_file, 'r') as query_f:
+        reader = csv.reader(query_f)
+
+        for i, row in enumerate(query_f):
+            if i == 0:
+                assert row == '821f03288846297c2cf43c34766a38f7,book\n', "Incorrect entry in query.txt"
+            if i == 1:
+                assert row == '098f6bcd4621d373cade4e832627b4f6,test\n', "Incorrect entry in query.txt"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -172,16 +207,15 @@ if __name__ == '__main__':
     parser.add_argument("clicks_log", type=str, help="Path to the clicks.log file.")
     parser.add_argument("final_log", type=str, help="Path to save final.log file.")
     parser.add_argument("query_file", type=str, help="Path to save query.txt file.")
-    parser.add_argument("--test", type=test, help="Run tests for this script.")
+    parser.add_argument("--test", help="Run tests for this script.", action='store_true')
     args = parser.parse_args()
 
-if args.test:
-    test()
-
-
-if __name__ == '__main__':
     try:
         generate_combined_log(args.search_log, args.clicks_log, args.final_log)
         generate_query_file(args.final_log, args.query_file)
     except IOError as e:
         print(e, file=sys.stderr)
+
+    if args.test:
+        test_combined_log()
+        test_query_file()
