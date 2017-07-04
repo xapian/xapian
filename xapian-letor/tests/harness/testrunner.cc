@@ -26,7 +26,12 @@
 
 #include "testsuite.h"
 #include "backendmanager.h"
-
+#include "backendmanager_glass.h"
+#include "backendmanager_inmemory.h"
+#include "backendmanager_multi.h"
+#include "backendmanager_remoteprog.h"
+#include "backendmanager_remotetcp.h"
+#include "backendmanager_singlefile.h"
 #include "stringutils.h"
 #include <iostream>
 
@@ -49,12 +54,50 @@ TestRunner::use_backend(const string & backend_name)
 }
 
 void
+TestRunner::set_properties_for_backend(const string & backend_name)
+{
+    /// A description of the properties which a particular backend supports.
+    struct BackendProperties {
+	const char * name;
+	unsigned properties;
+    };
+
+    /// A list of the properties of each backend.
+    static const BackendProperties backend_properties[] = {
+	{ "none", 0 },
+	{ "inmemory", INMEMORY|
+	    BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	{ "glass", GLASS|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
+	    SYNONYMS|REPLICAS|VALUESTATS|GENERATED },
+	{ "multi_glass", MULTI|
+	    BACKEND|POSITIONAL|VALUESTATS },
+	{ "remoteprog_glass", REMOTE|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	{ "remotetcp_glass", REMOTE|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	{ "singlefile_glass", SINGLEFILE|
+	    BACKEND|POSITIONAL|VALUESTATS },
+	{ NULL, 0 }
+    };
+
+    for (const BackendProperties * i = backend_properties; i->name; ++i) {
+	if (backend_name == i->name) {
+	    properties = i->properties;
+	    return;
+	}
+    }
+    throw Xapian::InvalidArgumentError("Unknown backend " + backend_name);
+}
+
+void
 TestRunner::do_tests_for_backend(BackendManager * manager)
 {
     string backend_name = manager->get_dbtype();
     if (use_backend(backend_name)) {
 	backendmanager = manager;
 	backendmanager->set_datadir(srcdir + "/testdata/");
+	set_properties_for_backend(backend_name);
 	cout << "Running tests with backend \"" << backendmanager->get_dbtype() << "\"..." << endl;
 	result_so_far = max(result_so_far, run());
     }
@@ -74,6 +117,44 @@ TestRunner::run_tests(int argc, char ** argv)
 	    do_tests_for_backend(&m);
 	}
 
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+	{
+	    BackendManagerInMemory m;
+	    do_tests_for_backend(&m);
+	}
+#endif
+
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	{
+	    BackendManagerGlass m;
+	    do_tests_for_backend(&m);
+	}
+
+	{
+	    BackendManagerSingleFile m("glass");
+	    do_tests_for_backend(&m);
+	}
+#endif
+
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	{
+	    BackendManagerMulti m("glass");
+	    do_tests_for_backend(&m);
+	}
+#endif
+
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	{
+	    BackendManagerRemoteProg m("glass");
+	    do_tests_for_backend(&m);
+	}
+	{
+	    BackendManagerRemoteTcp m("glass");
+	    do_tests_for_backend(&m);
+	}
+#endif
+#endif
     } catch (const Xapian::Error &e) {
 	cerr << "\nTest harness failed with " << e.get_description() << endl;
 	return 1;
