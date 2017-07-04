@@ -133,6 +133,21 @@ build_it() {
       overrides='PYTHON_VERSIONS=dummy' ;;
   esac
 
+  # libxapian30 (i.e. 1.4.x) is built with C++ "v5" ABI in stretch and newer
+  # and in xenial and newer, so append "v4" to the soname for backports to
+  # older versions so upgrades with the backport installed work cleanly.
+  case $PKG:$VERSION in
+  xapian-core:1.4.*)
+    case $CODENAME in
+    squeeze|wheezy|jessie|precise|trusty)
+	perl -i -e 'while (<>) { print; last if /^libxapian_soversion:=/ } while (<>) { print; last unless /\\$/ } print "libxapian_soversion:=\$(libxapian_soversion)v4\n"; while (<>) { print }' debian/rules
+	sed -i 's/^\(Package: libxapian@LIBXAPIAN_SOVERSION@\)\(.*\)/\1\2\nConflicts: libxapian30\2\nReplaces: libxapian30\2/' debian/control.in
+	dch -a 'debian/control.in,debian/rules: Add v4 suffix to soname. (Closes: #863705)'
+      ;;
+    esac
+    ;;
+  esac
+
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in
     '')
       echo 'Failed to grep debian/rules'
