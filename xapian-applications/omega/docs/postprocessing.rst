@@ -10,7 +10,7 @@ Log data includes
 Further processing of this raw data is handled by the ``postprocess``
 script. This script generates the final clickstream log file from the input
 search and click log files which can be used to train click models for clickstream
-data mining. It also creates a Query file that can be used by Xapian Letor module
+data mining. It also creates a query file that can be used by Xapian Letor module
 for generating its training files.
 
 The two functions defined in ``postprocess`` are:
