@@ -140,9 +140,9 @@ build_it() {
   xapian-core:1.4.*)
     case $CODENAME in
     squeeze|wheezy|jessie|precise|trusty)
-	perl -i -e 'while (<>) { print; last if /^libxapian_soversion:=/ } while (<>) { print; last unless /\\$/ } print "libxapian_soversion:=\$(libxapian_soversion)v4\n"; while (<>) { print }' debian/rules
-	sed -i 's/^\(Package: libxapian@LIBXAPIAN_SOVERSION@\)\(.*\)/\1\2\nConflicts: libxapian30\2\nReplaces: libxapian30\2/' debian/control.in
-	dch -a 'debian/control.in,debian/rules: Add v4 suffix to soname. (Closes: #863705)'
+      perl -i -e 'while (<>) { print; last if /^libxapian_soversion:=/ } while (<>) { print; last unless /\\$/ } print "libxapian_soversion:=\$(libxapian_soversion)v4\n"; while (<>) { print }' debian/rules
+      sed -i 's/^\(Package: libxapian@LIBXAPIAN_SOVERSION@\)\(.*\)/\1\2\nConflicts: libxapian30\2\nReplaces: libxapian30\2/' debian/control.in
+      dch -a 'debian/control.in,debian/rules: Add v4 suffix to soname. (Closes: #863705)'
       ;;
     esac
     ;;
