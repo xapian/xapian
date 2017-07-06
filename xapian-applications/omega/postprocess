@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 # Postprocess click data files.
 #
 # Copyright (C) 2017 Vivek Pal
@@ -20,7 +20,7 @@
 
 """Postprocesses search and clicks data files.
 
-Generates the final clickstream log file and Query file for Xapian Letor
+Generates the final clickstream log file and query file for Xapian Letor
 module from that log file.
 """
 
@@ -29,6 +29,7 @@ import collections
 import csv
 import os
 import sys
+import tempfile
 
 
 def generate_combined_log(search_log, clicks_log, final_log):
@@ -160,76 +161,73 @@ def generate_query_file(final_log, query_file):
 
 
 def test_functions():
-    with open('test_search.log', 'w+') as test_search:
+    try:
+        test_search = tempfile.NamedTemporaryFile(delete=True)
+
         test_search.write('821f03288846297c2cf43c34766a38f7,"book","45,54",0\n')
         test_search.write('821f03288846297c2cf43c34766a38f7,"book","45,54",0\n')
         test_search.write('d41d8cd98f00b204e9800998ecf8427e,"","",0\n')
         test_search.write('098f6bcd4621d373cade4e832627b4f6,"test","35,47",0\n')
 
-    with open('test_clicks.log', 'w+') as test_clicks:
+        test_search.flush()
+
+        test_clicks = tempfile.NamedTemporaryFile(delete=True)
+
         test_clicks.write('821f03288846297c2cf43c34766a38f7,54\n')
         test_clicks.write('821f03288846297c2cf43c34766a38f7,54\n')
         test_clicks.write('098f6bcd4621d373cade4e832627b4f6,35\n')
+        test_clicks.flush()
 
-    generate_combined_log('test_search.log', 'test_clicks.log', 'test_final.log')
+        test_final = tempfile.NamedTemporaryFile(delete=True)
 
-    # Test entries in final.log are correct.
-    with open('test_final.log', 'r') as final_f:
-        reader = csv.reader(final_f)
+        generate_combined_log(test_search.name, test_clicks.name, test_final.name)
 
-        # Skip header row.
-        next(final_f)
+        test_final.flush()
 
-        for i, row in enumerate(reader):
-            if i == 0:
-                assert row == ['821f03288846297c2cf43c34766a38f7',
-                              'book', '45,54', '0', '45:0,54:2'], "Incorrect entry in final.log"
-            if i == 1:
-                assert row == ['098f6bcd4621d373cade4e832627b4f6',
-                              'test', '35,47', '0', '35:1,47:0'], "Incorrect entry in final.log"
+        # Test entries in final.log are correct.
+        with open(test_final.name, 'r') as final_f:
+            reader = csv.reader(final_f)
 
-    generate_query_file('test_final.log', 'test_query.txt')
+            # Skip header row.
+            next(final_f)
 
-    # Test entries in query.txt are correct.
-    with open('test_query.txt', 'r') as query_f:
-        reader = csv.reader(query_f)
+            for i, row in enumerate(reader):
+                if i == 0:
+                    assert row == ['821f03288846297c2cf43c34766a38f7',
+                                  'book', '45,54', '0', '45:0,54:2'], "Incorrect entry in final.log"
+                if i == 1:
+                    assert row == ['098f6bcd4621d373cade4e832627b4f6',
+                                  'test', '35,47', '0', '35:1,47:0'], "Incorrect entry in final.log"
 
-        for i, row in enumerate(query_f):
-            if i == 0:
-                assert row == '821f03288846297c2cf43c34766a38f7,book\n', "Incorrect entry in query.txt"
-            if i == 1:
-                assert row == '098f6bcd4621d373cade4e832627b4f6,test\n', "Incorrect entry in query.txt"
+        test_query = tempfile.NamedTemporaryFile(delete=True)
 
-    # Safely delete test log files.
-    try:
-        os.remove('test_search.log')
-    except OSError as e:
-        print("Error: %s - %s." % (e.filename,e.strerror))
+        generate_query_file(test_final.name, test_query.name)
 
-    try:
-        os.remove('test_clicks.log')
-    except OSError as e:
-        print("Error: %s - %s." % (e.filename,e.strerror))
+        test_query.flush()
 
-    try:
-        os.remove('test_final.log')
-    except OSError as e:
-        print("Error: %s - %s." % (e.filename,e.strerror))
+        # Test entries in query.txt are correct.
+        with open(test_query.name, 'r') as query_f:
+            reader = csv.reader(query_f)
 
-    try:
-        os.remove('test_query.txt')
-    except OSError as e:
-        print("Error: %s - %s." % (e.filename,e.strerror))
+            for i, row in enumerate(reader):
+                if i == 0:
+                    assert row == ['821f03288846297c2cf43c34766a38f7','book'], "Incorrect entry in query.txt"
+                if i == 1:
+                    assert row == ['098f6bcd4621d373cade4e832627b4f6','test'], "Incorrect entry in query.txt"
+    finally:
+        # Close all files to safely delete them.
+        test_search.close()
+        test_clicks.close()
+        test_final.close()
+        test_query.close()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='''Postprocess click data files.
-
-        This script generates the final clickstream log file from input search and
-        click log files and creates Query file that can be used by Xapian Letor
-        module for generating its training files.
-        ''', formatter_class=argparse.RawTextHelpFormatter)
+        description='''Postprocess click data files. This script generates the
+        final clickstream log file from input search and click log files and
+        creates query file that can be used by the Xapian Letor module for
+        generating its training files.''')
     parser.add_argument("search_log", type=str, help="Path to the search.log file.")
     parser.add_argument("clicks_log", type=str, help="Path to the clicks.log file.")
     parser.add_argument("final_log", type=str, help="Path to save final.log file.")
@@ -237,11 +235,12 @@ if __name__ == '__main__':
     parser.add_argument("--test", help="Run tests for this script.", action='store_true')
     args = parser.parse_args()
 
+    if args.test:
+        test_functions()
+        exit()
+
     try:
         generate_combined_log(args.search_log, args.clicks_log, args.final_log)
         generate_query_file(args.final_log, args.query_file)
     except IOError as e:
-        print(e, file=sys.stderr)
-
-    if args.test:
-        test_functions()
+        print >> sys.stderr, e
