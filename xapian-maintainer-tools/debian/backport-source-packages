@@ -31,20 +31,41 @@ UBUNTU_CODENAMES='artful zesty yakkety xenial trusty'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
-case $1 in
--v)
-  V_OPT="$1$2"
+BUILD_INT=1
+HELP_RC=
+while true ; do
+  case $1 in
+  -v)
+    V_OPT="$1$2"
+    shift
+    ;;
+  -v*)
+    V_OPT=$1
+    ;;
+  -b)
+    BUILD_INT=$2
+    shift
+    ;;
+  -b*)
+    BUILD_INT=`expr substr "$1" 2 9999`
+    ;;
+  --help)
+    HELP_RC=0
+    break
+    ;;
+  -*)
+    HELP_RC=1
+    break
+    ;;
+  *)
+    break
+    ;;
+  esac
   shift
-  shift
-  ;;
--v*)
-  V_OPT=$1
-  shift
-  ;;
-esac
+done
 
-if [ x"$1" = x--help -o $# -lt 2 ] ; then
-  echo "Usage: $0 [-v <last uploaded version>] SOURCE_PKG VERSION [CODENAME...]"
+if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
+  echo "Usage: $0 [-v <last uploaded version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
   echo
   echo "e.g.: $0 xapian-core 1.2.15-1 precise"
   echo 'If no codenames are specified, the default is to backport for all of them.'
@@ -54,7 +75,7 @@ if [ x"$1" = x--help -o $# -lt 2 ] ; then
   echo "    $UBUNTU_CODENAMES"
   echo "And the magic values which expand to the above lists:"
   echo "    debian ubuntu"
-  exit 0
+  exit ${HELP_RC:-1}
 fi
 
 PKG=$1
@@ -231,23 +252,23 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # Debian 8 (jessie) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
 stretch)
-  BACKPORT_SUFFIX='~bpo9+1' ;;
+  BACKPORT_SUFFIX="~bpo9+$BUILD_INT" ;;
 jessie)
-  BACKPORT_SUFFIX='~bpo8+1' ;;
+  BACKPORT_SUFFIX="~bpo8+$BUILD_INT" ;;
 wheezy)
-  BACKPORT_SUFFIX='~bpo7+1' ;;
+  BACKPORT_SUFFIX="~bpo7+$BUILD_INT" ;;
 squeeze)
-  BACKPORT_SUFFIX='~bpo60+1' ;;
+  BACKPORT_SUFFIX="~bpo60+$BUILD_INT" ;;
 *)
   if [ x"$ubuntu" = x0 ] ; then
-    echo "Debian codename '$CODENAME' not mapped to a ~bpoN+1 suffix"
+    echo "Debian codename '$CODENAME' not mapped to a ~bpoN suffix"
     exit 1
   fi
   case $CODENAME in
   trusty|xenial|yakkety|zesty)
-    BACKPORT_SUFFIX=".99$CODENAME" ;;
+    BACKPORT_SUFFIX=".99$CODENAME+$BUILD_INT" ;;
   *)
-    BACKPORT_SUFFIX=".999$CODENAME" ;;
+    BACKPORT_SUFFIX=".999$CODENAME+$BUILD_INT" ;;
   esac
   ;;
 esac
