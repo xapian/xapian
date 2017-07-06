@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,9 +26,8 @@ set -e
 
 MIRROR=http://httpredir.debian.org/debian/
 
-# Can't backport direct to squeeze from stretch
-DEBIAN_CODENAMES='jessie wheezy'
-UBUNTU_CODENAMES='zesty yakkety xenial trusty precise'
+DEBIAN_CODENAMES='stretch jessie wheezy'
+UBUNTU_CODENAMES='artful zesty yakkety xenial trusty'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
@@ -118,7 +117,7 @@ build_it() {
     xapian-bindings:trusty:*)
       # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
-    xapian-bindings:xenial:*|xapian-bindings:yakkety:*|xapian-bindings:zesty:*)
+    xapian-bindings:xenial:*|xapian-bindings:yakkety:*|xapian-bindings:zesty:*|xapian-bindings:artful:*)
       # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
       # to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
@@ -226,10 +225,13 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # package to avoid conflicts with the package in unstable.
 # For Ubuntu we add ".99$CODENAME" since it should sort
 # before any other modification (and since dapper, Ubuntu codenames are
-# allocated alphabetically).  For Debian releases, we use
+# allocated alphabetically).  To handle the wrapping from zesty to artful,
+# we add ".999$CODENAME" for artful and later.  For Debian releases, we use
 # backports.org-compatible package versions - e.g. we append "~bpo8+1" for
 # Debian 8 (jessie) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
+stretch)
+  BACKPORT_SUFFIX='~bpo9+1' ;;
 jessie)
   BACKPORT_SUFFIX='~bpo8+1' ;;
 wheezy)
@@ -241,7 +243,13 @@ squeeze)
     echo "Debian codename '$CODENAME' not mapped to a ~bpoN+1 suffix"
     exit 1
   fi
-  BACKPORT_SUFFIX=".99$CODENAME" ;;
+  case $CODENAME in
+  trusty|xenial|yakkety|zesty)
+    BACKPORT_SUFFIX=".99$CODENAME" ;;
+  *)
+    BACKPORT_SUFFIX=".999$CODENAME" ;;
+  esac
+  ;;
 esac
 
 # Unpack distribution tarballs, and put the debian control files into place,
