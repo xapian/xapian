@@ -330,6 +330,13 @@ QUOTELOOP:  while (1) {
 	    }
 	}
     }
+    if (!defined $msg &&
+	$fnm !~ /xapian-check-patch|ChangeLog/) {
+	if (/^\+.*?\b(xapain|the the|initialsing|deafult|peform|ipv5|outputing|acessor|comptibility)\b/i ||
+	    /^\+.*?\b(and and)\b/) {
+	    $msg = "Typo '$1':";
+	}
+    }
     if (defined $msg) {
 	print "$fnm:$lineno: $type: $msg";
 	if ($msg =~ /:$/) {
