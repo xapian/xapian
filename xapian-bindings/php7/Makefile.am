@@ -12,7 +12,7 @@ LOG_COMPILER = \
 # using dl() which would make our test fail).
 AM_LOG_FLAGS = -n -d safe_mode=off -d enable_dl=on \
 	-d extension_dir='$(abs_builddir)/.libs' \
-	-d include_path='php7$(PHP_PATH_SEPARATOR)$(srcdir)/php7'
+	-d include_path='php7$(PHP7_PATH_SEPARATOR)$(srcdir)/php7'
 
 installcheck-local:
 	$(MAKE) check AM_LOG_FLAGS=
