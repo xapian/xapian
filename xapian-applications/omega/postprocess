@@ -24,6 +24,8 @@ Generates the final clickstream log file and query file for Xapian Letor
 module from that log file.
 """
 
+from __future__ import print_function
+
 import argparse
 import collections
 import csv
@@ -36,9 +38,9 @@ def generate_combined_log(search_log, clicks_log, final_log):
     """Generates the final log file.
 
     Input Args:
-        search_log (str): Path to the search.log file.
-        clicks_log (str): Path to the clicks.log file.
-        final_log (str): Path to the final.log file.
+        search_log (str): Path to the search log file.
+        clicks_log (str): Path to the clicks log file.
+        final_log (str): Path to the final log file.
 
     Example (comma-delimited) entries in search_log:
 
@@ -53,7 +55,7 @@ def generate_combined_log(search_log, clicks_log, final_log):
     821f03288846297c2cf43c34766a38f7,54
     098f6bcd4621d373cade4e832627b4f6,35
 
-    Example (comma-delimited) entries in final.log:
+    Example (comma-delimited) entries in final_log:
 
     QueryID,Query,Hits,Offset,Clicks
     821f03288846297c2cf43c34766a38f7,book,"45,54",0,"45:0,54:2"
@@ -138,16 +140,16 @@ def generate_query_file(final_log, query_file):
     """Generates query file formatted as per Xapian Letor documentation.
 
     Input Args:
-        final_log (string): Path to final.log file.
-        query_file (string): Path to query.txt file.
+        final_log (string): Path to final log file.
+        query_file (string): Path to query file.
 
-    Example (comma-delimited) entries in final.log:
+    Example (comma-delimited) entries in final_log:
 
     QueryID,Query,Hits,Offset,Clicks
     821f03288846297c2cf43c34766a38f7,book,"45,54",0,"45:0,54:2"
     098f6bcd4621d373cade4e832627b4f6,test,"35,47",0,"35:1,47:0"
 
-    Example (comma-delimited) entries in query.txt:
+    Example (comma-delimited) entries in query_file:
 
     821f03288846297c2cf43c34766a38f7,book
     098f6bcd4621d373cade4e832627b4f6,test
@@ -184,7 +186,7 @@ def test_functions():
 
         test_final.flush()
 
-        # Test entries in final.log are correct.
+        # Test entries in final log are correct.
         with open(test_final.name, 'r') as final_f:
             reader = csv.reader(final_f)
 
@@ -205,7 +207,7 @@ def test_functions():
 
         test_query.flush()
 
-        # Test entries in query.txt are correct.
+        # Test entries in query file are correct.
         with open(test_query.name, 'r') as query_f:
             reader = csv.reader(query_f)
 
@@ -216,18 +218,32 @@ def test_functions():
                     assert row == ['098f6bcd4621d373cade4e832627b4f6','test'], "Incorrect entry in query.txt"
     finally:
         # Close all files to safely delete them.
-        test_search.close()
-        test_clicks.close()
-        test_final.close()
-        test_query.close()
+        try:
+            test_search.close()
+        except IOError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
+        try:
+            test_clicks.close()
+        except IOError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
+        try:
+            test_final.close()
+        except IOError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
+        try:
+            test_query.close()
+        except IOError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='''Postprocess click data files. This script generates the
-        final clickstream log file from input search and click log files and
-        creates query file that can be used by the Xapian Letor module for
-        generating its training files.''')
+        description='''Postprocess click data files.
+
+This script generates the final clickstream log file from input search and
+click log files and creates query file that can be used by the Xapian Letor
+module for generating its training files.''',
+formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("search_log", type=str, help="Path to the search.log file.")
     parser.add_argument("clicks_log", type=str, help="Path to the clicks.log file.")
     parser.add_argument("final_log", type=str, help="Path to save final.log file.")
@@ -243,4 +259,4 @@ if __name__ == '__main__':
         generate_combined_log(args.search_log, args.clicks_log, args.final_log)
         generate_query_file(args.final_log, args.query_file)
     except IOError as e:
-        print >> sys.stderr, e
+        print(e, file=sys.stderr)
