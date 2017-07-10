@@ -36,7 +36,8 @@ check_SCRIPTS = runtest
 noinst_HEADERS = apitest.h
 
 collated_apitest_sources = \
- api_generated.cc
+ api_generated.cc \
+ api_letor.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
@@ -82,7 +83,9 @@ EXTRA_DIST +=\
 	valgrind.supp \
 	testdata/apitest_rset.txt \
 	testdata/apitest_phrase.txt \
-	testdata/apitest_allterms4.txt
+	testdata/apitest_allterms4.txt \
+	testdata/qrel.txt \
+	testdata/query.txt
 
 remove-cached-databases:
 	rm -rf .glass .multiglass .replicatmp .singlefileglass .stub
