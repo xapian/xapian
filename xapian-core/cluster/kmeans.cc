@@ -56,6 +56,13 @@ KMeans::get_description() const
 }
 
 void
+KMeans::set_stopper(const Stopper *stopper_)
+{
+    LOGCALL_VOID(API, "KMeans::set_stopper", stopper_);
+    stopper = stopper_;
+}
+
+void
 KMeans::initialise_clusters(ClusterSet &cset, doccount num_of_points)
 {
     LOGCALL_VOID(API, "KMeans::initialise_clusters", cset | num_of_points);
@@ -72,7 +79,7 @@ void
 KMeans::initialise_points(const MSet &source)
 {
     LOGCALL_VOID(API, "KMeans::initialise_points", source);
-    TermListGroup tlg(source);
+    TermListGroup tlg(source, stopper.get());
     for (MSetIterator it = source.begin(); it != source.end(); ++it)
 	points.push_back(Point(tlg, it.get_document()));
 }

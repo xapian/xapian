@@ -52,11 +52,16 @@ Clusterer::~Clusterer()
     LOGCALL_DTOR(API, "Clusterer");
 }
 
-TermListGroup::TermListGroup(const MSet &docs)
+TermListGroup::TermListGroup()
 {
-    LOGCALL_CTOR(API, "TermListGroup", docs);
+    LOGCALL_CTOR(API, "TermListGroup", NO_ARGS);
+}
+
+TermListGroup::TermListGroup(const MSet &docs, const Stopper *stopper = NULL)
+{
+    LOGCALL_CTOR(API, "TermListGroup", docs | stopper);
     for (MSetIterator it = docs.begin(); it != docs.end(); ++it)
-	add_document(it.get_document());
+	add_document(it.get_document(), stopper);
     num_of_documents = docs.size();
 }
 
@@ -75,17 +80,23 @@ DummyFreqSource::get_doccount() const
 }
 
 void
-TermListGroup::add_document(const Document &document)
+TermListGroup::add_document(const Document &document, const Stopper *stopper = NULL)
 {
-    LOGCALL_VOID(API, "TermListGroup::add_document", document);
+    LOGCALL_VOID(API, "TermListGroup::add_document", document | stopper);
 
     TermIterator titer(document.termlist_begin());
 
     for (; titer != document.termlist_end(); ++titer) {
+	const string &term = *titer;
+
+	// Remove stopwords by using the Xapian::Stopper object
+	if (stopper && (*stopper)(term))
+	    continue;
+
 	unordered_map<string, doccount>::iterator i;
-	i = termfreq.find(*titer);
+	i = termfreq.find(term);
 	if (i == termfreq.end())
-	    termfreq[*titer] = 1;
+	    termfreq[term] = 1;
 	else
 	    ++i->second;
     }
