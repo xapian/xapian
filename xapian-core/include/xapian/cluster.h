@@ -33,9 +33,32 @@
 #include <xapian/visibility.h>
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace Xapian {
+
+/// Stopper subclass which checks for both stemmed and unstemmed stopwords
+class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
+    std::unordered_set<std::string> stop_words;
+    Xapian::Stem stemmer;
+
+  public:
+    /** Constructor
+     *
+     *  @param stemmer	The Xapian::Stem object to set.
+     */
+    explicit StemStopper(const Xapian::Stem &stemmer);
+
+    std::string get_description() const;
+
+    bool operator()(const std::string & term) const {
+	return stop_words.find(term) != stop_words.end();
+    }
+
+    /// Add a single stop word and its stemmed equivalent
+    void add(const std::string &term);
+};
 
 /** Class representing a set of documents in a cluster
  */

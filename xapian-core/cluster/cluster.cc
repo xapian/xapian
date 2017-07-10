@@ -616,3 +616,30 @@ Cluster::Internal::recalculate()
     }
     centroid.divide(size());
 }
+
+StemStopper::StemStopper(const Stem &stemmer_)
+{
+    LOGCALL_CTOR(API, "StemStopper", stemmer_);
+    stemmer = stemmer_;
+}
+
+string
+StemStopper::get_description() const
+{
+    string desc("Xapian::StemStopper(");
+    unordered_set<string>::const_iterator i;
+    for (i = stop_words.begin(); i != stop_words.end(); ++i) {
+	if (i != stop_words.begin()) desc += ' ';
+	desc += *i;
+    }
+    desc += ')';
+    return desc;
+}
+
+void
+StemStopper::add(const string &term)
+{
+    LOGCALL_VOID(API, "StemStopper::add", term);
+    stop_words.insert(term);
+    stop_words.insert('Z' + stemmer(term));
+}
