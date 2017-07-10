@@ -123,14 +123,43 @@ DEFINE_TESTCASE(ranker1, generated) {
     Xapian::prepare_training_file(a, "query.txt", "qrel.txt", 10);
     ranker->set_database_path(a);
     ranker->set_query(Xapian::Query("lions"));
-    ranker->train_model("training-data.txt","");
+    ranker->train_model("training-data.txt", "");
     Xapian::docid doc1 = *mymset[0];
     Xapian::docid doc2 = *mymset[1];
     ranker->rank(mymset, "");
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
     delete ranker;
-    ranker = new Xapian::SVMRanker();
+
+    return true;
+}
+
+DEFINE_TESTCASE(ranker2, generated) {
+    Xapian::Ranker *ranker = new Xapian::SVMRanker();
+    string a = get_database_path("apitest_ranker1",
+				       gen_uniqterms_gt_doclen_db);
+    Xapian::Enquire enquire((Xapian::Database(a)));
+    enquire.set_query(Xapian::Query("lions"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    string query ="20001 'lions'";
+    string qrel = "20001 Q0 1 1\n20001 Q0 2 2";
+    std::ofstream myfile;
+    myfile.open("query.txt");
+    myfile << query;
+    myfile.close();
+    myfile.open("qrel.txt");
+    myfile << qrel;
+    myfile.close();
+    Xapian::prepare_training_file(a, "query.txt", "qrel.txt", 10);
+    ranker->set_database_path(a);
+    ranker->set_query(Xapian::Query("lions"));
+    ranker->train_model("training-data.txt", "");
+    Xapian::docid doc1 = *mymset[0];
+    Xapian::docid doc2 = *mymset[1];
+    ranker->rank(mymset, "");
+    TEST_EQUAL(doc2, *mymset[0]);
+    TEST_EQUAL(doc1, *mymset[1]);
+    delete ranker;
 
     return true;
 }

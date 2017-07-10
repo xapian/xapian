@@ -2,4 +2,5 @@
 extern bool test_assign_db_path1();
 extern bool test_assign_db_path2();
 extern bool test_ranker1();
+extern bool test_ranker2();
 extern bool test_createfeaturevector1();
