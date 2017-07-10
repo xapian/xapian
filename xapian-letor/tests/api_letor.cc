@@ -182,5 +182,6 @@ DEFINE_TESTCASE(createfeaturevector1, generated)
     TEST_EQUAL(fv.size(), 2);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     TEST_EQUAL(fv[1].get_fcount(), 19);
+
     return true;
 }
