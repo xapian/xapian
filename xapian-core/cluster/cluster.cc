@@ -88,6 +88,11 @@ TermListGroup::add_document(const Document &document, const Stopper *stopper)
 	if (stopper && (*stopper)(term))
 	    continue;
 
+	// Remove unstemmed terms since document vector should
+	// contain only stemmed terms
+	if (term[0] != 'Z')
+	    continue;
+
 	unordered_map<string, doccount>::iterator i;
 	i = termfreq.find(term);
 	if (i == termfreq.end())
