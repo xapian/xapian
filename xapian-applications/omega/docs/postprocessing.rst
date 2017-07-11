@@ -56,7 +56,7 @@ Log Data Format
 
   1. **QueryID** - an identifier for each query.
   2. **Query** - text of the query (when the search button is clicked on). This field may be empty (e.g. when search button is clicked without any query text entered) in which case **Hits** will also be empty.
-  3. **Hits** - a list of Xapian docid of all documents displayed in the seach results.
+  3. **Hits** - a list of Xapian docid of all documents displayed in the search results.
   4. **Offset** - document number of the first document on the current page of hit list (starting from 0).
 
   Some example entries in ``search_log``::
@@ -68,7 +68,7 @@ Log Data Format
 ``clicks_log`` file: Each line in this file has two fields as follows:
 
   1. **QueryID** - an identifier for each query.
-  2. **Hit** - the Xapian docid of a document that was clicked from the seach results.
+  2. **Hit** - the Xapian docid of a document that was clicked from the search results.
 
   Some example entries in ``clicks_log``::
 
@@ -80,7 +80,7 @@ Log Data Format
 
   1. **QueryID** - an identifier for each query.
   2. **Query** - text of the query (when the search button is clicked on).
-  3. **Hits** - a list of Xapian docid of all documents displayed in the seach results.
+  3. **Hits** - a list of Xapian docid of all documents displayed in the search results.
   4. **Offset** - document number on the current page of hit list (starting from 0).
   5. **Clicks** - a list of Xapian docid with the number of times the corresponding document was clicked.
 
