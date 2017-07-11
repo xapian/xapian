@@ -331,8 +331,11 @@ QUOTELOOP:  while (1) {
 	}
     }
     if (!defined $msg &&
-	$fnm !~ /xapian-check-patch|ChangeLog/) {
-	if (/^\+.*?\b(xapain|the the|initialsing|deafult|peform|ipv5|outputing|acessor|comptibility)\b/i ||
+	$fnm !~ /xapian-check-patch|ChangeLog|NEWS/) {
+	if (/^\+.*?\b(xapain|the the|initialsing|ipv5|outputing)\b/i ||
+	    # Cases which just need to be the prefix of a word
+	    /^\+.*?\b((?:deafult|peform|acessor|comptib|seach|seperat|separater)[a-z]*\b)/i ||
+	    # Case-sensitive cases
 	    /^\+.*?\b(and and)\b/) {
 	    $msg = "Typo '$1':";
 	}
