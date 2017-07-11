@@ -407,4 +407,5 @@ BackendManagerRemoteTcp::clean_up()
     }
 #endif
 }
-#endif
+
+#endif // XAPIAN_HAS_REMOTE_BACKEND

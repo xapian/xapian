@@ -44,4 +44,5 @@ BackendManagerInMemory::get_writable_database(const string &,
 {
     return getwritedb_inmemory(vector<string>(1, file));
 }
-#endif
+
+#endif // XAPIAN_HAS_INMEMORY_BACKEND

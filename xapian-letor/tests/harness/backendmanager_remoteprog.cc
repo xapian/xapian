@@ -104,4 +104,5 @@ BackendManagerRemoteProg::get_writable_database_again()
 #endif
     return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
 }
-#endif
+
+#endif // XAPIAN_HAS_REMOTE_BACKEND

@@ -65,4 +65,5 @@ BackendManagerGlass::get_writable_database_again()
     return Xapian::WritableDatabase(".glass/" + last_wdb_name,
 				    Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS);
 }
-#endif
+
+#endif // XAPIAN_HAS_GLASS_BACKEND

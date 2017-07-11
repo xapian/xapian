@@ -100,4 +100,5 @@ BackendManagerRemote::get_writable_database_again_args()
 
     return args;
 }
-#endif
+
+#endif // XAPIAN_HAS_REMOTE_BACKEND

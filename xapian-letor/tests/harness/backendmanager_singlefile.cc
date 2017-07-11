@@ -105,4 +105,5 @@ BackendManagerSingleFile::get_writable_database(const string &, const string &)
 {
     throw Xapian::UnimplementedError("Single-file databases don't support writing");
 }
-#endif
+
+#endif // XAPIAN_HAS_GLASS_BACKEND
