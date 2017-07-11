@@ -1,3 +1,40 @@
+up to: d092c9abefe1978c13e33811aa71bdceebb14684
+
+Omega 1.4.5 (2017-07-11):
+
+general:
+
+documentation:
+
+* Fix typo in docs.
+
+indexers:
+
+* omindex:
+
+  + Check file size before calling libmagic to get the mime type, since
+    reading the file size is a much cheaper check and we can skip the
+    libmagic test if the file is empty or larger than the specified
+    maximum size.  Patch from caiyulun.
+
+* scriptindex:
+
+omega:
+
+* New $seterror command to set the error message.  Implemented by Gaurav Arora.
+
+* Make $highlight more efficient.  Patch from Vivek Pal.
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.4.4 (2017-04-19):
 
 indexers:
@@ -63,7 +100,7 @@ indexers:
 
   + Recognise application/x-rpm as alternative type since libmagic reports this
     rather than application/x-redhat-package-manager.
-    
+
   + Use official MIME type application/vnd.debian.binary-package for debian
     packages.  We used to map .deb and .udeb to application/x-debian-package,
     but in 2014 (after we added that support for .deb) an official type was

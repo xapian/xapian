@@ -1,3 +1,53 @@
+up to: 5f591380bfc5e9bcf0fd065905bf56bc5ebab8bf
+
+Xapian-bindings 1.4.5 (2017-07-11):
+
+Documentation:
+
+* HACKING: Add details of Debian PHP7 packages to install for development.
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+* Fix JNI code to be compatible with Java 6 and earlier, where the final
+  parameter of SetByteArrayRegion() was not const.  This also seems to affect
+  GCJ (prior to it being removed from the GCC tree).  The incompatibility was
+  introduced in 1.4.4.
+
+Lua:
+
+Perl:
+
+PHP:
+
+PHP7:
+
+* Fix PHP7 "make check" to use right path separator.  It was using the PHP5
+  one, which in general is going to be the same but we won't have probed for
+  that unless we're also building the PHP5 bindings, which means "make check"
+  failed for PHP7 unless you also had the PHP5 bindings enabled.
+
+Python:
+
+Python3:
+
+* Fix "make check" under Python 3.2, which was broken in 1.4.4 because Python
+  3.2 doesn't support the u'foo' syntax.
+
+Ruby:
+
+* Fix dependency generation for Ruby SWIG command, only relevant at all if
+  you configure with --enable-maintainer-mode.
+
+Tcl:
+
 Xapian-bindings 1.4.4 (2017-04-19):
 
 General:
