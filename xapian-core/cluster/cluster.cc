@@ -57,7 +57,7 @@ TermListGroup::TermListGroup()
     LOGCALL_CTOR(API, "TermListGroup", NO_ARGS);
 }
 
-TermListGroup::TermListGroup(const MSet &docs, const Stopper *stopper = NULL)
+TermListGroup::TermListGroup(const MSet &docs, const Stopper *stopper)
 {
     LOGCALL_CTOR(API, "TermListGroup", docs | stopper);
     for (MSetIterator it = docs.begin(); it != docs.end(); ++it)
@@ -80,7 +80,7 @@ DummyFreqSource::get_doccount() const
 }
 
 void
-TermListGroup::add_document(const Document &document, const Stopper *stopper = NULL)
+TermListGroup::add_document(const Document &document, const Stopper *stopper)
 {
     LOGCALL_VOID(API, "TermListGroup::add_document", document | stopper);
 
