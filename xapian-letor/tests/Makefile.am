@@ -36,7 +36,7 @@ check_SCRIPTS = runtest
 noinst_HEADERS = apitest.h
 
 collated_apitest_sources = \
- api_generated.cc\
+ api_generated.cc \
  api_letor.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
@@ -49,7 +49,7 @@ BUILT_SOURCES =
 
 if MAINTAINER_MODE
 BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
- api_generated.cc api_letor.cc
+ api_generated.cc
 
 api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the

@@ -105,7 +105,7 @@ gen_uniqterms_gt_doclen_db(Xapian::WritableDatabase& db, const string&)
 }
 
 DEFINE_TESTCASE(ranker1, generated) {
-    Xapian::Ranker *ranker = new Xapian::ListNETRanker();
+    Xapian::ListNETRanker ranker;
     string a = get_database_path("apitest_ranker1",
 				       gen_uniqterms_gt_doclen_db);
     Xapian::Enquire enquire((Xapian::Database(a)));
@@ -121,21 +121,20 @@ DEFINE_TESTCASE(ranker1, generated) {
     myfile << qrel;
     myfile.close();
     Xapian::prepare_training_file(a, "query.txt", "qrel.txt", 10);
-    ranker->set_database_path(a);
-    ranker->set_query(Xapian::Query("lions"));
-    ranker->train_model("training-data.txt", "");
+    ranker.set_database_path(a);
+    ranker.set_query(Xapian::Query("lions"));
+    ranker.Ranker::train_model("training-data.txt", "");
     Xapian::docid doc1 = *mymset[0];
     Xapian::docid doc2 = *mymset[1];
-    ranker->rank(mymset, "");
+    ranker.rank(mymset, "");
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
-    delete ranker;
 
     return true;
 }
 
 DEFINE_TESTCASE(ranker2, generated) {
-    Xapian::Ranker *ranker = new Xapian::SVMRanker();
+    Xapian::SVMRanker ranker;
     string a = get_database_path("apitest_ranker1",
 				       gen_uniqterms_gt_doclen_db);
     Xapian::Enquire enquire((Xapian::Database(a)));
@@ -151,15 +150,14 @@ DEFINE_TESTCASE(ranker2, generated) {
     myfile << qrel;
     myfile.close();
     Xapian::prepare_training_file(a, "query.txt", "qrel.txt", 10);
-    ranker->set_database_path(a);
-    ranker->set_query(Xapian::Query("lions"));
-    ranker->train_model("training-data.txt", "");
+    ranker.set_database_path(a);
+    ranker.set_query(Xapian::Query("lions"));
+    ranker.Ranker::train_model("training-data.txt", "");
     Xapian::docid doc1 = *mymset[0];
     Xapian::docid doc2 = *mymset[1];
-    ranker->rank(mymset, "");
+    ranker.rank(mymset, "");
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
-    delete ranker;
 
     return true;
 }
