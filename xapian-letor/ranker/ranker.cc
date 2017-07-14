@@ -387,7 +387,7 @@ Ranker::train_model(const std::string & input_filename, const std::string & mode
 {
     LOGCALL_VOID(API, "Ranker::train_model", input_filename | model_key);
     vector<FeatureVector> list_fvecs = load_list_fvecs(input_filename);
-    train_model(list_fvecs);
+    train(list_fvecs);
     save_model_to_metadata(model_key);
 }
 
