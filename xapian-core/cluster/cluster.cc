@@ -52,11 +52,6 @@ Clusterer::~Clusterer()
     LOGCALL_DTOR(API, "Clusterer");
 }
 
-TermListGroup::TermListGroup()
-{
-    LOGCALL_CTOR(API, "TermListGroup", NO_ARGS);
-}
-
 TermListGroup::TermListGroup(const MSet &docs, const Stopper *stopper)
 {
     LOGCALL_CTOR(API, "TermListGroup", docs | stopper);

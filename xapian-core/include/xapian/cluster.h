@@ -175,9 +175,6 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
      */
     explicit TermListGroup(const MSet &docs, const Stopper *stopper = NULL);
 
-    /// Default constructor
-    TermListGroup();
-
     /** Return the number of documents that the term 'tname' exists in
      *
      *  @param tname	The term for which to return the term frequency
