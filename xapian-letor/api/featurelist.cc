@@ -98,6 +98,8 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 				    const Xapian::Database & letor_db) const
 {
     LOGCALL(API, std::vector<FeatureVector>, "FeatureList::create_feature_vectors", mset | letor_query | letor_db);
+    if (mset.empty())
+	return vector<FeatureVector>();
     std::vector<FeatureVector> fvec;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
