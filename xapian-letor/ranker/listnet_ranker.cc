@@ -119,8 +119,8 @@ updateParameters(vector<double> &new_parameters, const vector<double> &gradient,
 }
 
 void
-ListNETRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data) {
-    LOGCALL_VOID(API, "ListNETRanker::train_model", training_data);
+ListNETRanker::train(const std::vector<Xapian::FeatureVector> & training_data) {
+    LOGCALL_VOID(API, "ListNETRanker::train", training_data);
     size_t fvv_len = training_data.size();
     int feature_cnt = -1;
     if (fvv_len != 0) {

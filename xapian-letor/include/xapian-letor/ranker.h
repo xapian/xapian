@@ -193,7 +193,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
   protected:
     /// Method to train the model. Overridden in ranker subclass.
     virtual void
-    train_model(const std::vector<Xapian::FeatureVector> & training_data) = 0;
+    train(const std::vector<Xapian::FeatureVector> & training_data) = 0;
 
     /** Method to save model as db metadata. Overridden in ranker subclass.
      *
@@ -257,7 +257,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      *
      * @exception LetorInternalError will be thrown if training data is null.
      */
-    void train_model(const std::vector<Xapian::FeatureVector> & training_data);
+    void train(const std::vector<Xapian::FeatureVector> & training_data);
 
     /** Method to save ListNET model as db metadata.
      *
@@ -317,7 +317,7 @@ class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
      *
      *  @exception LetorInternalError will be thrown if training data is null.
      */
-    void train_model(const std::vector<Xapian::FeatureVector> & training_data);
+    void train(const std::vector<Xapian::FeatureVector> & training_data);
 
     /** Method to save SVMRanker model as db metadata.
      *

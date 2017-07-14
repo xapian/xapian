@@ -66,9 +66,9 @@ get_non_zero_num(const Xapian::FeatureVector & fv_non_zero)
 }
 
 void
-SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
+SVMRanker::train(const std::vector<Xapian::FeatureVector> & training_data)
 {
-    LOGCALL_VOID(API, "SVMRanker::train_model", training_data);
+    LOGCALL_VOID(API, "SVMRanker::train", training_data);
     struct svm_parameter param;
     param.svm_type = 4;         //nu-SVR
     param.kernel_type = 0;      //linear Kernel
