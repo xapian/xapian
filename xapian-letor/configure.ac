@@ -463,7 +463,9 @@ if true ; then
     *djgpp* | *msdos* )
       dnl DJGPP has a dummy implementation of fork which always fails.
       dnl
-      dnl fork() or socketpair().
+      dnl If someone actually wanted remote backend support, then DJGPP has a
+      dnl pthreads port, so using threads like we do on Windows would make more
+      dnl sense.
       enable_backend_remote=no
       ;;
     *)
