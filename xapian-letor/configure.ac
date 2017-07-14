@@ -459,12 +459,10 @@ if true ; then
     *-yes )
       dnl For mingw and msvc we have an alternative implementation which
       dnl doesn't need fork() or socketpair().
-      dnl
       ;;
     *djgpp* | *msdos* )
       dnl DJGPP has a dummy implementation of fork which always fails.
       dnl
-      dnl For disk-based backend, use flock() for locking, which doesn't need
       dnl fork() or socketpair().
       enable_backend_remote=no
       ;;
