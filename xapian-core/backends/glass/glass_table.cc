@@ -46,7 +46,6 @@
 #include "glass_version.h"
 
 #include "debuglog.h"
-#include "errno_to_string.h"
 #include "filetests.h"
 #include "io_utils.h"
 #include "pack.h"
@@ -1673,9 +1672,8 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
 	    }
 	    string message((rev == 0) ? "Couldn't create " : "Couldn't open ");
 	    message += name;
-	    message += GLASS_TABLE_EXTENSION" read/write: ";
-	    errno_to_string(errno, message);
-	    throw Xapian::DatabaseOpeningError(message);
+	    message += GLASS_TABLE_EXTENSION" read/write";
+	    throw Xapian::DatabaseOpeningError(message, errno);
 	}
     }
 
@@ -1987,9 +1985,8 @@ GlassTable::do_open_to_read(const RootInfo * root_info,
 	    }
 	    string message("Couldn't open ");
 	    message += name;
-	    message += GLASS_TABLE_EXTENSION" to read: ";
-	    errno_to_string(errno, message);
-	    throw Xapian::DatabaseOpeningError(message);
+	    message += GLASS_TABLE_EXTENSION" to read";
+	    throw Xapian::DatabaseOpeningError(message, errno);
 	}
     }
 
