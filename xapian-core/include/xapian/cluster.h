@@ -40,15 +40,16 @@ namespace Xapian {
 
 /// Stopper subclass which checks for both stemmed and unstemmed stopwords
 class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
-    std::unordered_set<std::string> stop_words;
-    Xapian::Stem stemmer;
-
   public:
+    /// Stemming strategies
+    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
+
     /** Constructor
      *
      *  @param stemmer	The Xapian::Stem object to set.
+     *  @param strategy The stemming strategy to be used.
      */
-    explicit StemStopper(const Xapian::Stem &stemmer);
+    explicit StemStopper(const Xapian::Stem &stemmer, stem_strategy strategy = STEM_SOME);
 
     std::string get_description() const;
 
@@ -58,6 +59,11 @@ class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
 
     /// Add a single stop word and its stemmed equivalent
     void add(const std::string &term);
+
+  private:
+    stem_strategy stem_action;
+    std::unordered_set<std::string> stop_words;
+    Xapian::Stem stemmer;
 };
 
 /** Class representing a set of documents in a cluster

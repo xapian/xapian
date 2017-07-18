@@ -30,28 +30,27 @@
 #include "testutils.h"
 
 static void
-make_generated_db(Xapian::WritableDatabase &db, const std::string &)
+make_stemmed_cluster_db(Xapian::WritableDatabase &db, const std::string &)
 {
-    const std::unordered_set<std::string>
-    test_strings({"This line is about a cluster. Cluster is important and is everywhere",
-		  "We need to search for special cluster. Cluster cluster cluster",
-		  "Computer cluster is a special example of a cluster. Used to search fast",
-		  "Another example of cluster is a star cluster. Star cluster has a lot of stars"});
+    static const char* const test_strings[] = {
+	"This line is about a cluster. Cluster is important and is everywhere",
+	"We need to search for special cluster. Cluster cluster cluster",
+	"Computer cluster is a special example of a cluster. Used to search fast",
+	"Another example of cluster is a star cluster. Star cluster has a lot of stars"
+    };
 
     Xapian::TermGenerator indexer;
     Xapian::Stem stemmer("english");
     indexer.set_stemmer(stemmer);
-
-    for (std::unordered_set<std::string>::const_iterator it = test_strings.begin(); it != test_strings.end(); ++it)
-    {
+    for (const std::string& document_data : test_strings) {
 	Xapian::Document document;
-	const std::string &document_data = *it;
 	document.set_data(document_data);
 	indexer.set_document(document);
 	indexer.index_text(document_data);
 	db.add_document(document);
     }
 }
+
 /** Test for cosine distance
  *  Cosine distance = 1 - (cosine of the angle between two vectors).
  *  Thus, if two vectors are equal, the distance between them will be zero
@@ -59,7 +58,7 @@ make_generated_db(Xapian::WritableDatabase &db, const std::string &)
  */
 DEFINE_TESTCASE(cosine_distance1, generated)
 {
-    Xapian::Database db = get_database("cosine_distance1", make_generated_db);
+    Xapian::Database db = get_database("stemmed_cluster", make_stemmed_cluster_db);
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("cluster"));
 
@@ -89,7 +88,7 @@ DEFINE_TESTCASE(cosine_distance1, generated)
  */
 DEFINE_TESTCASE(round_robin1, generated)
 {
-    Xapian::Database db = get_database("round_robin1", make_generated_db);
+    Xapian::Database db = get_database("stemmed_cluster", make_stemmed_cluster_db);
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query("cluster"));
     Xapian::MSet matches = enq.get_mset(0, 4);
@@ -102,5 +101,39 @@ DEFINE_TESTCASE(round_robin1, generated)
 	Xapian::DocumentSet d = cset[i].get_documents();
 	TEST(d.size() != 0);
     }
+    return true;
+}
+
+DEFINE_TESTCASE(stem_stopper1, backend)
+{
+    Xapian::Stem stemmer("english");
+    // By default, stemming strategy used is STEM_SOME
+    Xapian::StemStopper stopper(stemmer);
+    std::string term = "the";
+    stopper.add(term);
+    TEST(stopper(term));
+    TEST(stopper('Z' + stemmer(term)));
+    term = "cluster";
+    TEST(!stopper(term));
+    TEST(!stopper('Z' + stemmer(term)));
+
+    Xapian::StemStopper stopper_all_z(stemmer, Xapian::StemStopper::STEM_ALL_Z);
+    Xapian::StemStopper stopper_all(stemmer, Xapian::StemStopper::STEM_ALL);
+    term = "because";
+    stopper_all.add(term);
+    stopper_all_z.add(term);
+    TEST(!stopper_all_z(term));
+    TEST(!stopper_all_z(stemmer(term)));
+    TEST(stopper_all_z('Z' + stemmer(term)));
+    TEST(!stopper_all(term));
+    TEST(!stopper_all('Z' + stemmer(term)));
+    TEST(stopper_all(stemmer(term)));
+
+    Xapian::StemStopper stopper_none(stemmer, Xapian::StemStopper::STEM_NONE);
+    term = "and";
+    stopper_none.add(term);
+    TEST(stopper_none(term));
+    TEST(!stopper_none('Z' + stemmer(term)));
+
     return true;
 }

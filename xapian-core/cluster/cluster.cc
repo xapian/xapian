@@ -618,10 +618,10 @@ Cluster::Internal::recalculate()
     centroid.divide(size());
 }
 
-StemStopper::StemStopper(const Stem &stemmer_)
+StemStopper::StemStopper(const Stem &stemmer_, stem_strategy strategy)
+    : stem_action(strategy), stemmer(stemmer_)
 {
-    LOGCALL_CTOR(API, "StemStopper", stemmer_);
-    stemmer = stemmer_;
+    LOGCALL_CTOR(API, "StemStopper", stemmer_ | strategy);
 }
 
 string
@@ -641,6 +641,19 @@ void
 StemStopper::add(const string &term)
 {
     LOGCALL_VOID(API, "StemStopper::add", term);
-    stop_words.insert(term);
-    stop_words.insert('Z' + stemmer(term));
+    switch (stem_action) {
+	case STEM_NONE:
+	    stop_words.insert(term);
+	    break;
+	case STEM_ALL_Z:
+	    stop_words.insert('Z' + stemmer(term));
+	    break;
+	case STEM_ALL:
+	    stop_words.insert(stemmer(term));
+	    break;
+	case STEM_SOME:
+	    stop_words.insert(term);
+	    stop_words.insert('Z' + stemmer(term));
+	    break;
+    }
 }
