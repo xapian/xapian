@@ -44,6 +44,19 @@ END
 }
 
 my ($fnm, $lineno);
+my %count;
+
+sub diagnostic {
+    my ($type, $msg, $fullline) = @_;
+    print "$fnm:$lineno: $type: $msg";
+    if ($msg =~ /:$/) {
+	print " $fullline";
+    } else {
+	print "\n";
+    }
+    ++$count{$type};
+}
+
 my $add_lines = 0;
 my $del_lines = 0;
 my $files = 0;
@@ -53,7 +66,7 @@ my $check_trailing = 0;
 my $check_space_tab = 0;
 my $in_comment = 0;
 my $lang;
-my %count;
+my $last_first_char = '';
 while (<>) {
     my $type = 'error';
     if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
@@ -341,13 +354,7 @@ QUOTELOOP:  while (1) {
 	}
     }
     if (defined $msg) {
-	print "$fnm:$lineno: $type: $msg";
-	if ($msg =~ /:$/) {
-	    print " $fullline";
-	} else {
-	    print "\n";
-	}
-	++$count{$type};
+	diagnostic($type, $msg, $fullline);
     }
     my $first_char = substr($fullline, 0, 1);
     if ($first_char eq ' ') {
@@ -357,7 +364,14 @@ QUOTELOOP:  while (1) {
 	++$add_lines;
     } elsif ($first_char eq '-') {
 	++$del_lines;
+    } elsif ($first_char eq '\\') {
+	# "\ No newline at end of file" - if preceded by a "+" line, this means
+	# that the patch leaves the file missing a newline at the end.
+	if ($last_first_char eq '+') {
+	    diagnostic('error', 'No newline at end of file', undef);
+	}
     }
+    $last_first_char = $first_char;
 }
 if (scalar keys %count) {
     for (sort keys %count) {
