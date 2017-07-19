@@ -53,11 +53,11 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:m";
     static const struct option long_opts[] = {
-	{ "db",     required_argument, 0, 'd' },
-	{ "msize",  required_argument, 0, 'm' },
-	{ "help",   no_argument, 0, OPT_HELP },
-	{ "version",    no_argument, 0, OPT_VERSION },
-	{ NULL,     0, 0, 0}
+	{ "db",		required_argument, 0, 'd' },
+	{ "msize",	required_argument, 0, 'm' },
+	{ "help",	no_argument, 0, OPT_HELP },
+	{ "version",	no_argument, 0, OPT_VERSION },
+	{ NULL,		0, 0, 0}
     };
 
     int msize = 10;

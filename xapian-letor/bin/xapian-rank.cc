@@ -72,14 +72,14 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:f:m:s:p:b:h:v";
     static const struct option long_opts[] = {
-	{ "db",     required_argument, 0, 'd' },
-	{ "msize",  required_argument, 0, 'm' },
-	{ "stemmer",    required_argument, 0, 's' },
-	{ "prefix", required_argument, 0, 'p' },
-	{ "boolean-prefix", required_argument, 0, 'b' },
-	{ "help",   no_argument, 0, OPT_HELP },
-	{ "version",    no_argument, 0, OPT_VERSION },
-	{ NULL,     0, 0, 0}
+	{ "db",			required_argument, 0, 'd' },
+	{ "msize",		required_argument, 0, 'm' },
+	{ "stemmer",		required_argument, 0, 's' },
+	{ "prefix",		required_argument, 0, 'p' },
+	{ "boolean-prefix",	required_argument, 0, 'b' },
+	{ "help",		no_argument, 0, OPT_HELP },
+	{ "version",		no_argument, 0, OPT_VERSION },
+	{ NULL,			0, 0, 0}
     };
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
@@ -90,8 +90,8 @@ try {
 
     string db_path;
     Xapian::QueryParser parser;
-    parser.add_prefix("title","S");
-    parser.add_prefix("subject","S");
+    parser.add_prefix("title", "S");
+    parser.add_prefix("subject", "S");
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
