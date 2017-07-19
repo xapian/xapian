@@ -182,6 +182,48 @@ DEFINE_TESTCASE(svm_ranker, generated)
     return true;
 }
 
+DEFINE_TESTCASE(listmle_ranker, generated)
+{
+    Xapian::ListMLERanker ranker;
+    TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
+    string db_path = get_database_path("apitest_listmle_ranker",
+				       db_index_two_documents);
+    Xapian::Enquire enquire((Xapian::Database(db_path)));
+    enquire.set_query(Xapian::Query("lions"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string query = data_directory + "query.txt";
+    string qrel = data_directory + "qrel.txt";
+    string training = "listmle_ranker_training.txt";
+    Xapian::prepare_training_file(db_path, query, qrel, 10, training);
+    ranker.set_database_path(db_path);
+    TEST_EQUAL(ranker.get_database_path(), db_path);
+    ranker.set_query(Xapian::Query("lions"));
+    ranker.train_model(training);
+    Xapian::docid doc1 = *mymset[0];
+    Xapian::docid doc2 = *mymset[1];
+    ranker.rank(mymset);
+    TEST_EQUAL(doc2, *mymset[0]);
+    TEST_EQUAL(doc1, *mymset[1]);
+    mymset = enquire.get_mset(0, 10);
+    ranker.train_model(training, "ListMLE_Ranker");
+    ranker.rank(mymset, "ListMLE_Ranker");
+    TEST_EQUAL(doc2, *mymset[0]);
+    TEST_EQUAL(doc1, *mymset[1]);
+    TEST_EXCEPTION(Xapian::LetorInternalError,
+		   ranker.score(query, qrel, "ListMLE_Ranker",
+				"scorer_output.txt", 10, ""));
+    TEST_EXCEPTION(Xapian::FileNotFoundError,
+		   ranker.score("", qrel, "ListMLE_Ranker",
+				"scorer_output.txt", 10));
+    TEST_EXCEPTION(Xapian::FileNotFoundError,
+		   ranker.score(qrel, "", "ListMLE_Ranker",
+				"scorer_output.txt", 10));
+    ranker.score(query, qrel, "ListMLE_Ranker", "scorer_output.txt", 10);
+
+    return true;
+}
+
 DEFINE_TESTCASE(featurename, !backend)
 {
     Xapian::TfDoclenCollTfCollLenFeature feature1;
