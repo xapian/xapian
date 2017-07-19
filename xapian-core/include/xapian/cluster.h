@@ -28,6 +28,7 @@
 #endif
 
 #include <xapian/mset.h>
+#include <xapian/queryparser.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -162,15 +163,17 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
      *
      *  @param document 	Adds a document and updates the TermListGroup
      *				based on the terms found in the document
+     *  @param stopper		Xapian::Stopper object to identify stopwords
      */
-    void add_document(const Document &document);
+    void add_document(const Document &document, const Stopper *stopper = NULL);
 
   public:
     /** Constructor
      *
      *  @param docs	MSet object used to construct the TermListGroup
+     *  @param stopper	Xapian::Stopper object to identify stopwords
      */
-    explicit TermListGroup(const MSet &docs);
+    explicit TermListGroup(const MSet &docs, const Stopper *stopper = NULL);
 
     /** Return the number of documents that the term 'tname' exists in
      *
@@ -570,6 +573,9 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     /// Specifies the maximum number of iterations that KMeans will have
     unsigned int max_iters;
 
+    /// Pointer to stopper object for identifying stopwords
+    Xapian::Internal::opt_intrusive_ptr<const Xapian::Stopper> stopper;
+
     /** Initialise 'k' clusters by selecting 'k' centroids and assigning
      *  them to different clusters
      *
@@ -604,6 +610,14 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *                 be clustered
      */
     ClusterSet cluster(const MSet &mset);
+
+    /** Set the Xapian::Stopper object to be used for identifying stopwords.
+     *  Stopwords are discarded while calculating term frequency for terms
+     *
+     *  @param stop	The Stopper object to set (default NULL, which means no
+     *			stopwords)
+     */
+    void set_stopper(const Xapian::Stopper *stop = NULL);
 
     /// Return a string describing this object
     std::string get_description() const;
