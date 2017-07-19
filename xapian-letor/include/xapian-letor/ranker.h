@@ -354,6 +354,67 @@ class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
 };
 
+class XAPIAN_VISIBILITY_DEFAULT ListMLERanker: public Ranker {
+    /// Ranker parameters
+    std::vector<double> parameters;
+    /// Learning rate (Default is 0.001)
+    double learning_rate;
+    /// Number of iterations (Default is 10)
+    int iterations;
+
+    /** Method to train the model.
+     *
+     * @exception LetorInternalError will be thrown if training data is null.
+     */
+    void train(const std::vector<Xapian::FeatureVector> & training_data);
+
+    /** Method to save ListMLE model as db metadata.
+     *
+     *  ListMLE model file gets stored with each parameter value in a new line.
+     *	 e.g.
+     *
+     *  0.000920817564536697
+     *  0.000920817564536697
+     *  0
+     *  -1.66533453693773e-19
+     *
+     *  @param model_key	Metadata key using which model is to be stored.
+     */
+    void save_model_to_metadata(const std::string & model_key);
+
+    /** Method to load model from an external file.
+     *
+     *  @param model_key         Metadata key using which model is to be
+     *				 loaded.
+     *
+     *  @exception LetorInternalError will be thrown if no model exists
+     *  	   corresponding to the supplied key
+     */
+    void load_model_from_metadata(const std::string & model_key);
+
+    /** Method to re-rank a std::vector<Xapian::FeatureVector> by using the
+     *  model.
+     *
+     *  @param fvv	vector<FeatureVector> that will be re-ranked.
+     *
+     *  @exception	LetorInternalError will be thrown if model file
+     *			is not compatible.
+     */
+    std::vector<Xapian::FeatureVector>
+    rank_fvv(const std::vector<Xapian::FeatureVector> & fvv) const;
+
+  public:
+    /* Construct ListMLE instance
+     * @param learn_rate       Learning rate
+     * @param num_interations  Number of iterations
+     */
+    explicit ListMLERanker(double learn_rate = 0.001,
+			    int num_interations = 10):
+	 learning_rate(learn_rate), iterations(num_interations) { }
+
+    /// Destructor
+    ~ListMLERanker();
+};
 }
 
 #endif /* RANKER_H */
