@@ -612,7 +612,8 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     ClusterSet cluster(const MSet &mset);
 
     /** Set the Xapian::Stopper object to be used for identifying stopwords.
-     *  Stopwords are discarded while calculating term frequency for terms
+     *
+     *  Stopwords are discarded while calculating term frequency for terms.
      *
      *  @param stop	The Stopper object to set (default NULL, which means no
      *			stopwords)
