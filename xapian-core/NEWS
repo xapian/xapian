@@ -4396,7 +4396,7 @@ API:
 * Remove "experimental" marker from Database::check().  We've not had any
   negative feedback on the current API.
 
-* Databse::check() now checks that doccount <= last_docid.
+* Database::check() now checks that doccount <= last_docid.
 
 * Database::compact() on a WritableDatabase with uncommitted changes could
   produce a corrupted output.  We now throw Xapian::InvalidOperationError in
