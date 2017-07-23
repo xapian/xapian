@@ -83,7 +83,9 @@ EXTRA_DIST +=\
 	valgrind.supp \
 	testdata/apitest_rset.txt \
 	testdata/apitest_phrase.txt \
-	testdata/apitest_allterms4.txt
+	testdata/apitest_allterms4.txt \
+	testdata/qrel.txt \
+	testdata/query.txt
 
 remove-cached-databases:
 	rm -rf .glass .multiglass .replicatmp .singlefileglass .stub

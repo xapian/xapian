@@ -22,5 +22,7 @@
 /perflog.xml
 /submitperftest
 /zlib-vg.so
-/training-data.txt
+/listnet_ranker_training.txt
+/svm_ranker_training.txt
 /api_letor.h
+/scorer_output.txt
