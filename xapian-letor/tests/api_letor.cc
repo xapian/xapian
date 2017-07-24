@@ -85,7 +85,6 @@ DEFINE_TESTCASE(createfeaturevector, generated)
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("lions"));
     Xapian::MSet mset;
-    TEST(mset.empty());
     vector<Xapian::FeatureVector> fv =
 	    fl.create_feature_vectors(mset, Xapian::Query("lions"), db);
     TEST(fv.empty());
@@ -108,9 +107,9 @@ DEFINE_TESTCASE(listnet_ranker, generated)
     Xapian::Enquire enquire((Xapian::Database(db_path)));
     enquire.set_query(Xapian::Query("lions"));
     Xapian::MSet mymset = enquire.get_mset(0, 10);
-    std::string src_dir_prefix = test_driver::get_srcdir() + "/testdata/";
-    Xapian::prepare_training_file(db_path, src_dir_prefix + "query.txt",
-				  src_dir_prefix + "qrel.txt", 10,
+    std::string data_directory = test_driver::get_srcdir() + "/testdata/";
+    Xapian::prepare_training_file(db_path, data_directory + "query.txt",
+				  data_directory + "qrel.txt", 10,
 				  "listnet_ranker_training.txt");
     ranker.set_database_path(db_path);
     TEST_EQUAL(ranker.get_database_path(), db_path);
@@ -127,16 +126,16 @@ DEFINE_TESTCASE(listnet_ranker, generated)
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
     TEST_EXCEPTION(Xapian::LetorInternalError,
-		   ranker.score(src_dir_prefix + "query.txt", src_dir_prefix +
+		   ranker.score(data_directory + "query.txt", data_directory +
 				"qrel.txt", "ListNet_Ranker",
 				"scorer_output.txt", 10, ""));
     TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score("", src_dir_prefix + "qrel.txt",
+		   ranker.score("", data_directory + "qrel.txt",
 				"ListNet_Ranker", "scorer_output.txt", 10));
     TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score(src_dir_prefix + "qrel.txt", "",
+		   ranker.score(data_directory + "qrel.txt", "",
 				"ListNet_Ranker", "scorer_output.txt", 10));
-    ranker.score(src_dir_prefix + "query.txt", src_dir_prefix + "qrel.txt",
+    ranker.score(data_directory + "query.txt", data_directory + "qrel.txt",
 		 "ListNet_Ranker", "scorer_output.txt", 10);
 
     return true;
@@ -151,9 +150,9 @@ DEFINE_TESTCASE(svm_ranker, generated)
     Xapian::Enquire enquire((Xapian::Database(db_path)));
     enquire.set_query(Xapian::Query("lions"));
     Xapian::MSet mymset = enquire.get_mset(0, 10);
-    std::string src_dir_prefix = test_driver::get_srcdir() + "/testdata/";
-    Xapian::prepare_training_file(db_path, src_dir_prefix + "query.txt",
-				  src_dir_prefix + "qrel.txt", 10,
+    std::string data_directory = test_driver::get_srcdir() + "/testdata/";
+    Xapian::prepare_training_file(db_path, data_directory + "query.txt",
+				  data_directory + "qrel.txt", 10,
 				  "svm_ranker_training.txt");
     ranker.set_database_path(db_path);
     TEST_EQUAL(ranker.get_database_path(), db_path);
@@ -170,16 +169,16 @@ DEFINE_TESTCASE(svm_ranker, generated)
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
     TEST_EXCEPTION(Xapian::LetorInternalError,
-		   ranker.score(src_dir_prefix + "query.txt", src_dir_prefix +
+		   ranker.score(data_directory + "query.txt", data_directory +
 				"qrel.txt", "ListNet_Ranker",
 				"scorer_output.txt", 10, ""));
     TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score("", src_dir_prefix + "qrel.txt",
+		   ranker.score("", data_directory + "qrel.txt",
 				"ListNet_Ranker", "scorer_output.txt", 10));
     TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score(src_dir_prefix + "qrel.txt", "",
+		   ranker.score(data_directory + "qrel.txt", "",
 				"ListNet_Ranker", "scorer_output.txt", 10));
-    ranker.score(src_dir_prefix + "query.txt", src_dir_prefix + "qrel.txt",
+    ranker.score(data_directory + "query.txt", data_directory + "qrel.txt",
 		 "ListNet_Ranker", "scorer_output.txt", 10);
 
     return true;
