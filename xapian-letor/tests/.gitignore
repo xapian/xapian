@@ -19,10 +19,10 @@
 /api_collated.stamp
 /api_generated.cc
 /api_generated.h
+/api_letor.h
 /perflog.xml
 /submitperftest
 /zlib-vg.so
 /listnet_ranker_training.txt
-/svm_ranker_training.txt
-/api_letor.h
 /scorer_output.txt
+/svm_ranker_training.txt
