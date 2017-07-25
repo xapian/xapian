@@ -87,7 +87,7 @@ namespace Xapian {
 			  const std::string & query_file,
 			  const std::string & qrel_file,
 			  Xapian::doccount msetsize,
-			  const std::string & filename = "training-data.txt",
+			  const std::string & filename,
 			  const Xapian::FeatureList & flist = FeatureList());
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base {
