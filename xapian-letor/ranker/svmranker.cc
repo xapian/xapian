@@ -45,6 +45,18 @@ Proceedings of the eighth ACM SIGKDD international conference on Knowledge disco
 using namespace std;
 using namespace Xapian;
 
+static void
+clear_svm_problem(svm_problem *problem)
+{
+    delete [] problem->y;
+    problem->y = NULL;
+    for (int i = 0; i < problem->l; ++i) {
+	delete [] problem->x[i];
+    }
+    delete [] problem->x;
+    problem->x = NULL;
+}
+
 SVMRanker::SVMRanker()
 {
     LOGCALL_CTOR(API, "SVMRanker", NO_ARGS);
@@ -143,6 +155,9 @@ SVMRanker::train(const std::vector<Xapian::FeatureVector> & training_data)
 	close(fd);
 	std::remove(templ);
     }
+    svm_free_and_destroy_model(&trainmodel);
+    clear_svm_problem(&prob);
+    svm_destroy_param(&param);
     if (this->model_data.empty()) {
 	throw LetorInternalError("SVM model empty. Training failed.");
     }
@@ -224,6 +239,8 @@ SVMRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const
 	test[non_zero_flag].index = -1;
 	test[non_zero_flag].value = -1;
 	testfvv[i].set_score(svm_predict(model, test));
+	delete [] test;
     }
+    svm_free_and_destroy_model(&model);
     return testfvv;
 }
