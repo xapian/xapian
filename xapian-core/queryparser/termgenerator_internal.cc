@@ -267,18 +267,22 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    if (strategy == TermGenerator::STEM_NONE ||
 		!stemmer.internal.get()) return true;
 
-	    if (strategy == TermGenerator::STEM_SOME) {
-		if (current_stop_mode == TermGenerator::STOP_STEMMED &&
-		    (*stopper)(term))
-		    return true;
-
-		// Note, this uses the lowercased term, but that's OK as we
-		// only want to avoid stemming terms starting with a digit.
-		if (!should_stem(term)) return true;
+	    // Note, this uses the lowercased term, but that's OK as we
+	    // only want to avoid stemming terms starting with a digit.
+	    if (strategy == TermGenerator::STEM_SOME && !should_stem(term)) {
+		return true;
 	    }
 
 	    // Add stemmed form without positional information.
 	    const string& stem = stemmer(term);
+
+	    // Stop stemmed term which belongs to stopword list.
+	    if (strategy == TermGenerator::STEM_SOME) {
+		if (current_stop_mode == TermGenerator::STOP_STEMMED &&
+		    (*stopper)(stem))
+		    return true;
+	    }
+
 	    if (rare(stem.empty())) return true;
 	    string stemmed_term;
 	    if (strategy != TermGenerator::STEM_ALL) {
