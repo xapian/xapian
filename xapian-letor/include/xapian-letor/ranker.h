@@ -68,7 +68,7 @@ namespace Xapian {
      *				It should be selected depending on the qrel
      *				file and database size.
      *  @param  filename	Filename path where the training file has to
-     *				be stored. Default is "./training-data.txt".
+     *				be stored.
      *  @param  flist		Xapian::FeatureList object defining what set
      *				of features to use for preparing the training
      *				file. It is initialised by DEFAULT set of
@@ -126,7 +126,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *  Model file is saved as DB metadata.
      *
      *  @param  input_filename   Path to training file.
-     *				 Default is "./training-data.txt".
+     *
      *  @param  model_key	 Metadata key using which the model is to be
      *				 loaded. If no model_key is supplied, ranker
      *				 subclass uses its default key
@@ -135,7 +135,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *  @exception FileNotFoundError will be thrown if file not found at
      *		   supplied path
      */
-    void train_model(const std::string & input_filename = "training-data.txt",
+    void train_model(const std::string & input_filename,
 		     const std::string & model_key = std::string());
 
     /** Ranking function.
