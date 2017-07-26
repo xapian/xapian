@@ -46,15 +46,15 @@ using namespace std;
 using namespace Xapian;
 
 static void
-clear_svm_problem(svm_problem problem)
+clear_svm_problem(svm_problem *problem)
 {
-    delete [] problem.y;
-    problem.y = NULL;
-    for (int i = 0; i < problem.l; i++) {
-	delete [] problem.x[i];
+    delete [] problem->y;
+    problem->y = NULL;
+    for (int i = 0; i < problem->l; i++) {
+	delete [] problem->x[i];
     }
-    delete [] problem.x;
-    problem.x = NULL;
+    delete [] problem->x;
+    problem->x = NULL;
 }
 
 SVMRanker::SVMRanker()
@@ -156,7 +156,7 @@ SVMRanker::train(const std::vector<Xapian::FeatureVector> & training_data)
 	std::remove(templ);
     }
     svm_free_and_destroy_model(&trainmodel);
-    clear_svm_problem(prob, fvv_len);
+    clear_svm_problem(&prob);
     svm_destroy_param(&param);
     if (this->model_data.empty()) {
 	throw LetorInternalError("SVM model empty. Training failed.");
