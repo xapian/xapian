@@ -46,14 +46,12 @@ using namespace std;
 using namespace Xapian;
 
 static void
-clear_svm_problem(svm_problem problem, int n)
+clear_svm_problem(svm_problem problem)
 {
     delete [] problem.y;
     problem.y = NULL;
-    for (int i = 0; i < n;i++)
-    {
+    for (int i = 0; i < problem.l; i++) {
 	delete [] problem.x[i];
-	problem.x[i] = NULL;
     }
     delete [] problem.x;
     problem.x = NULL;
