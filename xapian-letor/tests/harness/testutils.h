@@ -82,7 +82,7 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	    expected_exception += 8;\
 	if (verbose)\
 	    tout << "Expecting exception " << expected_exception << endl;\
-	try {b;FAIL_TEST(TESTCASE_LOCN(Expected #a));}\
+	try { b; FAIL_TEST(TESTCASE_LOCN(Expected #a)); }\
 	catch (const a &e) {\
 	    if (verbose)\
 		tout << "Caught expected " << expected_exception\

@@ -63,7 +63,7 @@ indexers:
 
   + Recognise application/x-rpm as alternative type since libmagic reports this
     rather than application/x-redhat-package-manager.
-    
+
   + Use official MIME type application/vnd.debian.binary-package for debian
     packages.  We used to map .deb and .udeb to application/x-debian-package,
     but in 2014 (after we added that support for .deb) an official type was
