@@ -265,7 +265,7 @@ QUOTELOOP:  while (1) {
 	if (m!^\+.*\H.*\h\)!) {
 	    diagnostic('error', "Whitespace before ')'", $fullline);
 	}
-	if (m!^\+.*; (\w+)([-+]{2})\)!) {
+	if (m!^\+.*;\s*(\w+)([-+]{2})\)!) {
 	    diagnostic('error', "Prefer '$2$1' to '$1$2'", $fullline);
 	}
 	if (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
