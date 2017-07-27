@@ -49,7 +49,7 @@
 struct WinsockInitializer {
     WinsockInitializer() {
 	WSADATA wsadata;
-	int wsaerror = WSAStartup(MAKEWORD(2,2), &wsadata);
+	int wsaerror = WSAStartup(MAKEWORD(2, 2), &wsadata);
 	// FIXME - should we check the returned information in wsadata to check
 	// that we have a version of winsock which is recent enough for us?
 

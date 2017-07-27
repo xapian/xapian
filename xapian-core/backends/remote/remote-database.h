@@ -250,7 +250,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void add_spelling(const std::string&, Xapian::termcount) const;
 
-    void remove_spelling(const std::string&,  Xapian::termcount freqdec) const;
+    void remove_spelling(const std::string&, Xapian::termcount freqdec) const;
 
     int get_backend_info(string * path) const {
 	if (path) *path = context;
