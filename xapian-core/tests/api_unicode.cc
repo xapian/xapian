@@ -422,7 +422,7 @@ DEFINE_TESTCASE(utf8convert1, !backend) {
 
 DEFINE_TESTCASE(unicodepredicates1, !backend) {
     const unsigned wordchars[] = {
-	// DECIMAL_DIGIT_NUMER
+	// DECIMAL_DIGIT_NUMBER
 	'0', '7', '9',
 	// LOWERCASE_LETTER
 	'a', 'z', 0x250, 0x251, 0x271, 0x3d7,
