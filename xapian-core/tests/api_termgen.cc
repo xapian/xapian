@@ -878,3 +878,26 @@ DEFINE_TESTCASE(tg_max_word_length1, !backend) {
 
     return true;
 }
+
+DEFINE_TESTCASE(stop_stemmed_terms, !backend) {
+    Xapian::TermGenerator termgen;
+    termgen.set_stemmer(Xapian::Stem("en"));
+
+    Xapian::Document doc;
+    termgen.set_document(doc);
+
+    array<const char *, 3> x = {{"bowl", "a", "an"}};
+    Xapian::SimpleStopper *stopper = new Xapian::SimpleStopper(x.begin(), x.end());
+    termgen.set_stopper(stopper->release());
+
+    termgen.set_stopper_strategy(termgen.STOP_STEMMED);
+    termgen.set_stemming_strategy(termgen.STEM_SOME);
+
+    termgen.index_text("cups bowls mugs");
+
+    TEST_STRINGS_EQUAL(format_doc_termlist(doc),
+		       "Zcup:1 Zmug:1 bowls[2] cups[1] mugs[3]");
+
+    return true;
+
+}
