@@ -11,7 +11,7 @@ EXTRA_DIST +=\
 
 if MAINTAINER_MODE
 unicode/unicode-data.cc: unicode/uniParse.tcl unicode/UnicodeData.txt
-	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData.txt 9.0.0 unicode/unicode-data.cc
+	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData.txt 10.0.0 unicode/unicode-data.cc
 
 unicode/c_istab.h: unicode/gen_c_istab
 	$(PERL) $(srcdir)/unicode/gen_c_istab unicode/c_istab.h

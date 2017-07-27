@@ -1,5 +1,5 @@
-UnicodeData.txt is for Unicode 9.0.0, downloaded from:
-http://www.unicode.org/Public/9.0.0/ucd/UnicodeData.txt
+UnicodeData.txt is for Unicode 10.0.0, downloaded from:
+http://www.unicode.org/Public/10.0.0/ucd/UnicodeData.txt
 
 Copyright and licensing information from http://www.unicode.org/copyright.html
 follows:
@@ -29,7 +29,7 @@ OR SOFTWARE.
 
     COPYRIGHT AND PERMISSION NOTICE
 
-    Copyright © 1991-2016 Unicode, Inc. All rights reserved.
+    Copyright © 1991-2017 Unicode, Inc. All rights reserved.
 Distributed under the Terms of Use in http://www.unicode.org/copyright.html.
 
     Permission is hereby granted, free of charge, to any person obtaining

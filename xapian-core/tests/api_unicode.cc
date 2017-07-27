@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -276,6 +276,20 @@ DEFINE_TESTCASE(unicode1, !backend) {
     // U+1F989 "OWL"
     TEST_EQUAL(Unicode::get_category(0x1F989), Unicode::OTHER_SYMBOL);
 
+    // Added in Unicode 10.0.0:
+    // U+20BF "BITCOIN SIGN"
+    TEST_EQUAL(Unicode::get_category(0x20BF), Unicode::CURRENCY_SYMBOL);
+    // U+23FF "OBSERVER EYE SYMBOL"
+    TEST_EQUAL(Unicode::get_category(0x23FF), Unicode::OTHER_SYMBOL);
+    // U+1032D "OLD ITALIC LETTER YE"
+    TEST_EQUAL(Unicode::get_category(0x1032D), Unicode::OTHER_LETTER);
+    // U+11A34 "ZANABAZAR SQUARE SIGN VIRAMA"
+    TEST_EQUAL(Unicode::get_category(0x11A34), Unicode::NON_SPACING_MARK);
+    // U+1F6F8 "FLYING SAUCER"
+    TEST_EQUAL(Unicode::get_category(0x1F6F8), Unicode::OTHER_SYMBOL);
+    // U+1F9E6 "SOCKS"
+    TEST_EQUAL(Unicode::get_category(0x1F9E6), Unicode::OTHER_SYMBOL);
+
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -424,6 +438,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
     const unsigned wordchars[] = {
 	// DECIMAL_DIGIT_NUMBER
 	'0', '7', '9',
+	0x11D51, // (added in Unicode 10.0.0)
 	// LOWERCASE_LETTER
 	'a', 'z', 0x250, 0x251, 0x271, 0x3d7,
 	0x242, // (added in Unicode 5.0.0)
@@ -438,13 +453,18 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	// OTHER_LETTER
 	0x8bb, // Added in Unicode 9.0.0
 	0xc80, // Added in Unicode 9.0.0
+	0x312e, // Added in Unicode 10.0.0
 	0x10345,
-	// MODIFIER_LETTER (added in Unicode 5.1.0)
-	0x2ec, 0x374,
+	// MODIFIER_LETTER
+	0x2ec, // Added in Unicode 5.1.0
+	0x374, // Added in Unicode 5.1.0
+	0x16fe1, // Added in Unicode 10.0.0
 	// NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
 	0x651,
 	0x487, // Added in Unicode 5.1.0
 	0x8db, // Added in Unicode 9.0.0
+	0x8db, // Added in Unicode 10.0.0
+	0x11d47, // Added in Unicode 10.0.0
 	0
     };
     const unsigned currency[] = {
@@ -454,6 +474,8 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x20ba,
 	// CURRENCY_SYMBOL (added in Unicode 8.0.0)
 	0x20be,
+	// CURRENCY_SYMBOL (added in Unicode 10.0.0)
+	0x20bf,
 	0
     };
     const unsigned whitespace[] = {
@@ -469,6 +491,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	// OTHER_SYMBOL
 	0xd4f, // Added in Unicode 9.0.0
 	0x1f093, // Added in Unicode 5.1.0
+	0x1f263, // Added in Unicode 10.0.0
 	// FORMAT
 	0x61c, // Added in Unicode 6.3.0
 	0x8e2, // Added in Unicode 9.0.0
