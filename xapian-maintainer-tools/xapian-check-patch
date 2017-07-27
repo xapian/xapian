@@ -238,6 +238,9 @@ QUOTELOOP:  while (1) {
 	if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
 	    diagnostic('error', "'$1' not followed by exactly one space", $fullline);
 	}
+	if (m!;[^\s\\]!) {
+	    diagnostic('error', "Missing space after ';'", $fullline);
+	}
 	if (m!^\+.*[^(;]\s;!) {
 	    # Stuff like this is OK: for ( ; ; ) {
 	    # though for that exact case I'd suggest: while (true) {
