@@ -106,7 +106,8 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 </div>
 </div>
 </td>
-<td><b><a href="$if{$opt{clicklog},$html{$or{$env{SCRIPT_NAME},omega.cgi}?FMT=$url{clicklog}&QUERYID=$url{$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}&DOCID=$url{$id}&URL=$url{$field{url}}},$html{$field{url}}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
+$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}
+<td><b><a href="$if{$opt{clicklog},$html{$or{$env{SCRIPT_NAME},omega.cgi}?FMT=$url{clicklog}&QUERYID=$opt{queryid}&DOCID=$url{$id}&URL=$url{$field{url}}},$html{$field{url}}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
 <small>$snippet{$field{sample}}</small><br>
 <a href="$html{$field{url}}">$html{$field{url}}</a><br>
 <small>
@@ -153,4 +154,4 @@ $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 </body>
 </html>
 $log{query.log}
-$if{$opt{clicklog},$log{search.log,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}$.$csv{$query,1}$.$csv{$hitlist{$id$if{$ne{$hit,$sub{$last,1}},$.}},1}$.$topdoc}}
+$if{$opt{clicklog},$log{search.log,$opt{queryid}$.$csv{$query,1}$.$csv{$hitlist{$id$if{$ne{$hit,$sub{$last,1}},$.}},1}$.$topdoc}}
