@@ -146,11 +146,21 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /** Set the stopper strategy.
      *
+     *  The method controls how the stopper is used.  It was added in Xapian
+     *  1.4.1.
+     *
+     *  You need to also call @a set_stopper() for this to have any effect.
+     *
      *  @param strategy The strategy to use - possible values are:
-     *   - STOP_NONE:     Disable stopper for both the stemmed and unstemmed form
-     *          of the word (Don't use the stopper).
-     *   - STOP_ALL:      Enable stopper for both forms of the word.
-     *   - STOP_STEMMED:  Enable stopper for the stemmed form of the word.
+     *   - STOP_NONE:     Don't use the stopper.
+     *   - STOP_ALL:      If a word is identified as a stop word, skip it
+     *			  completely.
+     *   - STOP_STEMMED:  If a word is identified as a stop word, index its
+     *			  unstemmed form but skip the stem.  Unstemmed forms
+     *			  are indexed with positional information by default,
+     *			  so this allows searches for phrases containing
+     *			  stopwords to be supported.  (This is the default
+     *			  mode).
      */
     void set_stopper_strategy(stop_strategy strategy);
 
