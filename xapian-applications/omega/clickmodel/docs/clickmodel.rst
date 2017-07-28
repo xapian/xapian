@@ -28,7 +28,7 @@ relatively simpler. It contains the set of attractiveness and satisfactoriness
 parameters, which both depend on a query and a document.
 
 .. _paper: http://dl.acm.org/citation.cfm?id=1526711
-__ paper_ 
+__ paper_
 
 Training the SDBN model
 =======================
