@@ -22,8 +22,8 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef XAPIAN_ALIGNMENT_CAST_H
-#define XAPIAN_ALIGNMENT_CAST_H
+#ifndef XAPIAN_INCLUDED_ALIGNMENT_CAST_H
+#define XAPIAN_INCLUDED_ALIGNMENT_CAST_H
 
 #include <type_traits>
 
@@ -55,4 +55,4 @@ alignment_cast(U ptr)
     return static_cast<T>(static_cast<void*>(ptr));
 }
 
-#endif /* XAPIAN_ALIGNMENT_CAST_H */
+#endif /* XAPIAN_INCLUDED_ALIGNMENT_CAST_H */
