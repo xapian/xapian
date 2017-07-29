@@ -67,40 +67,6 @@ calculateInnerProduct(vector<double> & parameters,
     return inner_product;
 }
 
-/*
-loss function: negative log Likelihood
-the equation (9) in the paper
-
-static double
-negativeLogLikelihood(vector<FeatureVector> sorted_feature_vectors,
-		      vector<double> new_parameters) {
-
-    size_t list_length = sorted_feature_vectors.size();
-    //top 1 probability
-    double first_place_in_ground_truth;
-    double expsum = 0.0;
-    if (list_length != 0) {
-	//Also use top 1 probability, so we need the first one in the ground
-	//truth.
-	//Should be put into init?
-	first_place_in_ground_truth =
-		exp(calculateInnerProduct(new_parameters,
-					  sorted_feature_vectors[0].get_fvals()
-					  ));
-    }
-    else{
-	printf("the feature_vectors is null in ListMLERanker:logLikelihood\n");
-	exit(1);
-    }
-
-    for (size_t i = 0; i < list_length; ++i) {
-	expsum += exp(calculateInnerProduct(new_parameters,
-		      sorted_feature_vectors[i].get_fvals()));
-    }
-    return log(expsum) - log(first_place_in_ground_truth);
-}
-*/
-
 static vector<double>
 calculateGradient(vector<FeatureVector> & sorted_feature_vectors,
 		  vector<double> & new_parameters) {
