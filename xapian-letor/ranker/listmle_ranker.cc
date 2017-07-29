@@ -21,7 +21,7 @@
  */
 
 /*
-ListNET is adapted from the paper:
+ListMLE is adapted from the paper:
 Fen Xia, Tie-Yan Liu, Jue Wang, Wensheng Zhang, Hang Li
 et al. "Listwise Approach to Learning to Rank - Theory and Algorithm."
 */
@@ -185,14 +185,14 @@ ListMLERanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
     LOGCALL(API, std::vector<FeatureVector>, "ListMLERanker::rank_fvv", fvv);
     std::vector<FeatureVector> testfvv = fvv;
     for (size_t i = 0; i < testfvv.size(); ++i) {
-	double listnet_score = 0;
+	double listmle_score = 0;
 	std::vector<double> fvals = testfvv[i].get_fvals();
 	if (fvals.size() != parameters.size())
 	    throw LetorInternalError("Model incompatible. Make sure that you are using "
 				     "the same set of Features using which the model was created.");
 	for (size_t j = 0; j < fvals.size(); ++j)
-	    listnet_score += fvals[j] * parameters[j];
-	testfvv[i].set_score(listnet_score);
+	    listmle_score += fvals[j] * parameters[j];
+	testfvv[i].set_score(listmle_score);
     }
     return testfvv;
 }
