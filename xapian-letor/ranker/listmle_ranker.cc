@@ -48,12 +48,10 @@ ListMLERanker::~ListMLERanker() {
     LOGCALL_DTOR(API, "ListMLERanker");
 }
 
-struct labelComparer {
-    bool operator()(const FeatureVector & firstfv,
-		    const FeatureVector& secondfv) const {
-	return firstfv.get_label() > secondfv.get_label();
-    }
-};
+static bool labelComparer(const FeatureVector & firstfv,
+			  const FeatureVector& secondfv) {
+    return firstfv.get_label() > secondfv.get_label();
+}
 
 static double
 calculateInnerProduct(vector<double> & parameters,
@@ -61,7 +59,6 @@ calculateInnerProduct(vector<double> & parameters,
 
     double inner_product = 0.0;
     for (size_t i = 0; i < parameters.size(); ++i) {
-	//the feature start from 1, while the parameters strat from 0
 	inner_product += parameters[i] * feature_sets[i];
     }
     return inner_product;
@@ -88,12 +85,7 @@ calculateGradient(vector<FeatureVector> & sorted_feature_vectors,
     }
 
     for (size_t i = 0; i < list_length; ++i) {
-	//Not convenient, but in order to get the feature,
-	//I have to run the ranklist loop first.
-	//Need to see whether the fvals could be a vector
 	vector<double> feature_sets = sorted_feature_vectors[i].get_fvals();
-
-	//for each feature in special feature vector
 	for (size_t j = 0; j < feature_sets.size() - 1; ++j) {
 	    gradient[j] += feature_sets[j] * exponents[i] / expsum;
 	}
@@ -115,31 +107,21 @@ static void
 updateParameters(vector<double> & new_parameters, vector<double> & gradient,
 		 double & learning_rate) {
     size_t num = new_parameters.size();
-    if (num != gradient.size()) {
-	printf("the size between base new_parameters and gradient is not "
-	       "match in listnet::updateParameters\n");
-	printf("the size of new_parameters: %zu\n", num);
-	printf("the size of gradient: %zu\n", gradient.size());
-    }
-    else {
-	for (size_t i = 0; i < num; ++i) {
+    for (size_t i = 0; i < num; ++i) {
 	    new_parameters[i] -= gradient[i] * learning_rate;
-	}
     }
 }
 
+/* Updates new_parameters after calculating the gradient.
+ * new_parameters(w) is updated as: w = w - gradient * learningRate
+ */
 static void
 batchLearning(vector<FeatureVector> feature_vectors,
 	      vector<double> & new_parameters, double learning_rate) {
 
-    //ListMLE need to use the ground truth, so sort before train
-    sort(feature_vectors.begin(), feature_vectors.end(), labelComparer());
-
-    //compute gradient
+    sort(feature_vectors.begin(), feature_vectors.end(), labelComparer);
     vector<double> gradient = calculateGradient(feature_vectors,
 						new_parameters);
-
-    //update parameters: w = w - gradient * learningRate
     updateParameters(new_parameters, gradient, learning_rate);
 
 }
@@ -155,7 +137,6 @@ ListMLERanker::train(const vector<FeatureVector> & training_data) {
 	new_parameters.push_back(0.0);
     }
 
-    //iterations
     for (int iter_num = 1; iter_num < iterations; ++iter_num) {
 	batchLearning(training_data, new_parameters, learning_rate);
     }
