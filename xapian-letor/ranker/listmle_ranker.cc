@@ -188,8 +188,9 @@ ListMLERanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
 	double listmle_score = 0;
 	std::vector<double> fvals = testfvv[i].get_fvals();
 	if (fvals.size() != parameters.size())
-	    throw LetorInternalError("Model incompatible. Make sure that you are using "
-				     "the same set of Features using which the model was created.");
+	    throw LetorInternalError("Model incompatible. Make sure that you "
+				     "are using the same set of Features using "
+				     "which the model was created.");
 	for (size_t j = 0; j < fvals.size(); ++j)
 	    listmle_score += fvals[j] * parameters[j];
 	testfvv[i].set_score(listmle_score);
