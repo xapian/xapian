@@ -181,8 +181,8 @@ ListMLERanker::load_model_from_metadata(const string & model_key) {
 }
 
 std::vector<FeatureVector>
-ListNETRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
-    LOGCALL(API, std::vector<FeatureVector>, "ListNETRanker::rank_fvv", fvv);
+ListMLERanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
+    LOGCALL(API, std::vector<FeatureVector>, "ListMLERanker::rank_fvv", fvv);
     std::vector<FeatureVector> testfvv = fvv;
     for (size_t i = 0; i < testfvv.size(); ++i) {
 	double listnet_score = 0;
