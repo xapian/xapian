@@ -78,8 +78,8 @@ calculateGradient(vector<FeatureVector> & sorted_feature_vectors,
 
     for (size_t i = 0; i < list_length; ++i) {
 	double temp = exp(calculateInnerProduct(
-			  new_parameters,
-			  sorted_feature_vectors[i].get_fvals()));
+			      new_parameters,
+			      sorted_feature_vectors[i].get_fvals()));
 	exponents.push_back(temp);
 	expsum += temp;
     }
@@ -108,7 +108,7 @@ updateParameters(vector<double> & new_parameters, vector<double> & gradient,
 		 double & learning_rate) {
     size_t num = new_parameters.size();
     for (size_t i = 0; i < num; ++i) {
-	    new_parameters[i] -= gradient[i] * learning_rate;
+	new_parameters[i] -= gradient[i] * learning_rate;
     }
 }
 
@@ -180,32 +180,18 @@ ListMLERanker::load_model_from_metadata(const string & model_key) {
     swap(parameters, loaded_parameters);
 }
 
-vector<FeatureVector>
-ListMLERanker::rank_fvv(const vector<FeatureVector> & fvv) const {
-
-    vector<FeatureVector> testfvv = fvv;
-    size_t testfvvsize = testfvv.size();
-
-    vector<double> new_parameters = this->parameters;
-    size_t parameters_size = new_parameters.size();
-
-    for (size_t i = 0; i < testfvvsize; ++i) {
-
-	double listnet_score = 0.0;
-
-	vector<double> fvals = testfvv[i].get_fvals();
-	size_t fvalsize = fvals.size();
-
-	if (fvalsize != parameters_size) {
-	    throw Xapian::InvalidArgumentError(
-			"Number of fvals don't match the number of ListNet "
-			"parameters\n");
-	}
-
-	for (size_t j = 0; j < fvalsize; ++j) {
-	    listnet_score += fvals[j] * new_parameters[j];
-	}
-
+std::vector<FeatureVector>
+ListNETRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
+    LOGCALL(API, std::vector<FeatureVector>, "ListNETRanker::rank_fvv", fvv);
+    std::vector<FeatureVector> testfvv = fvv;
+    for (size_t i = 0; i < testfvv.size(); ++i) {
+	double listnet_score = 0;
+	std::vector<double> fvals = testfvv[i].get_fvals();
+	if (fvals.size() != parameters.size())
+	    throw LetorInternalError("Model incompatible. Make sure that you are using "
+				     "the same set of Features using which the model was created.");
+	for (size_t j = 0; j < fvals.size(); ++j)
+	    listnet_score += fvals[j] * parameters[j];
 	testfvv[i].set_score(listnet_score);
     }
     return testfvv;
