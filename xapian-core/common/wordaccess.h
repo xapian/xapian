@@ -22,8 +22,8 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef XAPIAN_INCLUDED_UNALIGNED_H
-#define XAPIAN_INCLUDED_UNALIGNED_H
+#ifndef XAPIAN_INCLUDED_WORDACCESS_H
+#define XAPIAN_INCLUDED_WORDACCESS_H
 
 #include <cstdint>
 #include <type_traits>
@@ -163,4 +163,4 @@ unaligned_write2(unsigned char *ptr, T value)
     do_unaligned_write<T, uint16_t>(ptr, value);
 }
 
-#endif // XAPIAN_INCLUDED_UNALIGNED_H
+#endif // XAPIAN_INCLUDED_WORDACCESS_H

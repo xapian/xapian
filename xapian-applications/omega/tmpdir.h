@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_OMEGA_INCLUDED_TMPDIR_H
-#define XAPIAN_OMEGA_INCLUDED_TMPDIR_H
+#ifndef OMEGA_INCLUDED_TMPDIR_H
+#define OMEGA_INCLUDED_TMPDIR_H
 
 #include <string>
 
@@ -67,4 +67,4 @@ inline std::string get_tmpfile(const std::string & leaf) {
  */
 void remove_tmpdir();
 
-#endif // XAPIAN_OMEGA_INCLUDED_TMPDIR_H
+#endif // OMEGA_INCLUDED_TMPDIR_H
