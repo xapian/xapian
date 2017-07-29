@@ -88,7 +88,7 @@ $list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;
 <table>
 $if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
 $hitlist{<tr><td valign=top>
-$if{$opt{clicklog},$set{docurl,$field{url}}}
+$set{docurl,$field{url}}
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
 <div title="$percentage%" style='float:left;width:60px;height:10px;border:1px solid black;margin-top:4px;'>
 <div style='width:$div{$mul{$percentage,6},10}px; height:10px; background-color: red;'>
