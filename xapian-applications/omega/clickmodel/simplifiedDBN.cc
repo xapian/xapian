@@ -113,9 +113,14 @@ SimplifiedDBN::buildSessions(string logfile)
 	while (ss >> std::ws) {
 	    string columnElement;
 	    if (ss.peek() == '"') {
-		ss >> quoted(columnElement);
-		string discard;
-		getline(ss, discard, ',');
+		int pos = ss.tellg();
+		ss.seekg(pos + 1);
+		char ch;
+		while (ss.get(ch)) {
+		    if (ch == '"')
+			break;
+		    columnElement += ch;
+		}
 	    } else {
 		getline(ss, columnElement, ',');
 	    }
