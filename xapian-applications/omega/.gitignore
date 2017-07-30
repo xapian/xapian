@@ -54,3 +54,5 @@
 /namedents.h
 /my-html-tok.h
 /*.1
+/clickmodel/.deps
+/clickmodel/.dirstamp
