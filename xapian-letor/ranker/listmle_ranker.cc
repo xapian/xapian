@@ -44,19 +44,22 @@ et al. "Listwise Approach to Learning to Rank - Theory and Algorithm."
 using namespace std;
 using namespace Xapian;
 
-ListMLERanker::~ListMLERanker() {
+ListMLERanker::~ListMLERanker()
+{
     LOGCALL_DTOR(API, "ListMLERanker");
 }
 
-static bool labelComparer(const FeatureVector & firstfv,
-			  const FeatureVector& secondfv) {
+static bool
+label_comparer(const FeatureVector& firstfv,
+	       const FeatureVector& secondfv)
+{
     return firstfv.get_label() > secondfv.get_label();
 }
 
 static double
-calculateInnerProduct(vector<double> & parameters,
-		      vector<double> feature_sets) {
-
+calculate_inner_product(const vector<double>& parameters,
+			const vector<double>& feature_sets)
+{
     double inner_product = 0.0;
     for (size_t i = 0; i < parameters.size(); ++i) {
 	inner_product += parameters[i] * feature_sets[i];
@@ -65,9 +68,9 @@ calculateInnerProduct(vector<double> & parameters,
 }
 
 static vector<double>
-calculateGradient(vector<FeatureVector> & sorted_feature_vectors,
-		  vector<double> & new_parameters) {
-
+calculate_gradient(const vector<FeatureVector>& sorted_feature_vectors,
+		   const vector<double>& new_parameters)
+{
     //need to be optimized,how to get the length of the features
     vector<double> gradient(sorted_feature_vectors[0].get_fcount(), 0);
 
@@ -77,7 +80,7 @@ calculateGradient(vector<FeatureVector> & sorted_feature_vectors,
     double expsum = 0.0;
 
     for (size_t i = 0; i < list_length; ++i) {
-	double temp = exp(calculateInnerProduct(
+	double temp = exp(calculate_inner_product(
 			      new_parameters,
 			      sorted_feature_vectors[i].get_fvals()));
 	exponents.push_back(temp);
@@ -97,15 +100,16 @@ calculateGradient(vector<FeatureVector> & sorted_feature_vectors,
     for (size_t i = 0; i < first_place_in_ground_truth_feature_sets.size() - 1;
 	 ++i) {
 	gradient[i] -= first_place_in_ground_truth_feature_sets[i];
-
     }
 
     return gradient;
 }
 
 static void
-updateParameters(vector<double> & new_parameters, vector<double> & gradient,
-		 double & learning_rate) {
+update_parameters(vector<double>& new_parameters,
+		  const vector<double>& gradient,
+		  const double& learning_rate)
+{
     size_t num = new_parameters.size();
     for (size_t i = 0; i < num; ++i) {
 	new_parameters[i] -= gradient[i] * learning_rate;
@@ -116,19 +120,24 @@ updateParameters(vector<double> & new_parameters, vector<double> & gradient,
  * new_parameters(w) is updated as: w = w - gradient * learningRate
  */
 static void
-batchLearning(vector<FeatureVector> feature_vectors,
-	      vector<double> & new_parameters, double learning_rate) {
-
-    sort(feature_vectors.begin(), feature_vectors.end(), labelComparer);
-    vector<double> gradient = calculateGradient(feature_vectors,
+batch_learning(vector<FeatureVector> feature_vectors,
+	       vector<double> & new_parameters,
+	       const double& learning_rate)
+{
+    sort(feature_vectors.begin(), feature_vectors.end(), label_comparer);
+    vector<double> gradient = calculate_gradient(feature_vectors,
 						new_parameters);
-    updateParameters(new_parameters, gradient, learning_rate);
-
+    update_parameters(new_parameters, gradient, learning_rate);
 }
 
 void
-ListMLERanker::train(const vector<FeatureVector> & training_data) {
-
+ListMLERanker::train(const vector<FeatureVector>& training_data)
+{
+    LOGCALL_VOID(API, "ListMLERanker::train", training_data);
+    if (training_data.empty()) {
+	throw Xapian::InvalidArgumentError("Training data is empty."
+					   "Check the training file");
+    }
     int feature_cnt = training_data[0].get_fcount();
 
     //initialize the parameters for neural network
@@ -138,14 +147,15 @@ ListMLERanker::train(const vector<FeatureVector> & training_data) {
     }
 
     for (int iter_num = 1; iter_num < iterations; ++iter_num) {
-	batchLearning(training_data, new_parameters, learning_rate);
+	batch_learning(training_data, new_parameters, learning_rate);
     }
 
     swap(parameters, new_parameters);
 }
 
 void
-ListMLERanker::save_model_to_metadata(const string & model_key) {
+ListMLERanker::save_model_to_metadata(const string& model_key)
+{
     LOGCALL_VOID(API, "ListMLERanker::save_model_to_metadata", model_key);
     WritableDatabase letor_db(get_database_path());
     string key = model_key;
@@ -159,7 +169,8 @@ ListMLERanker::save_model_to_metadata(const string & model_key) {
 }
 
 void
-ListMLERanker::load_model_from_metadata(const string & model_key) {
+ListMLERanker::load_model_from_metadata(const string& model_key)
+{
     LOGCALL_VOID(API, "ListMLERanker::load_model_from_metadata", model_key);
     Database letor_db(get_database_path());
     string key = model_key;
@@ -181,7 +192,8 @@ ListMLERanker::load_model_from_metadata(const string & model_key) {
 }
 
 std::vector<FeatureVector>
-ListMLERanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
+ListMLERanker::rank_fvv(const std::vector<FeatureVector>& fvv) const
+{
     LOGCALL(API, std::vector<FeatureVector>, "ListMLERanker::rank_fvv", fvv);
     std::vector<FeatureVector> testfvv = fvv;
     for (size_t i = 0; i < testfvv.size(); ++i) {
@@ -189,8 +201,8 @@ ListMLERanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
 	std::vector<double> fvals = testfvv[i].get_fvals();
 	if (fvals.size() != parameters.size())
 	    throw LetorInternalError("Model incompatible. Make sure that you "
-				     "are using the same set of Features using "
-				     "which the model was created.");
+				     "are using the same set of Features "
+				     "using which the model was created.");
 	for (size_t j = 0; j < fvals.size(); ++j)
 	    listmle_score += fvals[j] * parameters[j];
 	testfvv[i].set_score(listmle_score);

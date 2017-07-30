@@ -362,16 +362,17 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker: public Ranker {
     /// Number of iterations (Default is 10)
     int iterations;
 
-    /** Method to train the model.
+    /** Train the model.
      *
-     * @exception LetorInternalError will be thrown if training data is null.
+     * @exception InvalidArgumentError will be thrown if training_data is
+     *            empty.
      */
     void train(const std::vector<Xapian::FeatureVector> & training_data);
 
-    /** Method to save ListMLE model as db metadata.
+    /** Save ListMLE model as db metadata.
      *
      *  ListMLE model file gets stored with each parameter value in a new line.
-     *	 e.g.
+     *	e.g.
      *
      *  0.000920817564536697
      *  0.000920817564536697
@@ -382,7 +383,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker: public Ranker {
      */
     void save_model_to_metadata(const std::string & model_key);
 
-    /** Method to load model from an external file.
+    /** Load model from an external file.
      *
      *  @param model_key         Metadata key using which model is to be
      *				 loaded.
@@ -392,7 +393,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker: public Ranker {
      */
     void load_model_from_metadata(const std::string & model_key);
 
-    /** Method to re-rank a std::vector<Xapian::FeatureVector> by using the
+    /** Re-rank a std::vector<Xapian::FeatureVector> by using the
      *  model.
      *
      *  @param fvv	vector<FeatureVector> that will be re-ranked.
@@ -405,8 +406,8 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker: public Ranker {
 
   public:
     /* Construct ListMLE instance
-     * @param learn_rate       Learning rate
-     * @param num_interations  Number of iterations
+     * @param learn_rate       Learning rate (Default is 0.001)
+     * @param num_interations  Number of iterations (Default is 10)
      */
     explicit ListMLERanker(double learn_rate = 0.001,
 			    int num_interations = 10):
