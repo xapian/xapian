@@ -54,7 +54,7 @@ BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Custom
 BreakBeforeInheritanceComma: false
 BreakBeforeTernaryOperators: false
-BreakConstructorInitializersBeforeComma: true
+BreakConstructorInitializersBeforeComma: false
 BreakStringLiterals: true
 ColumnLimit:     80
 # Don't wrap copyright statements in comments.
