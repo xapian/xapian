@@ -103,7 +103,8 @@ PointerAlignment: Left
 ReflowComments:  false
 # FIXME: Sort out configuration for sorting includes.
 SortIncludes:    false
-SortUsingDeclarations: true
+# FIXME: Only supported by newer clang-format
+#SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: false
 SpaceBeforeAssignmentOperators: true
