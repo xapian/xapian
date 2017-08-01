@@ -26,6 +26,7 @@
 class SvgParser : public HtmlParser {
     enum { OTHER, TEXT, METADATA, TITLE, KEYWORDS, AUTHOR } state;
     string dc_tag;
+
   public:
     SvgParser() : state(OTHER) { }
     void process_text(const string &text);

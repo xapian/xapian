@@ -72,19 +72,23 @@ main()
 	AtomParser p;
 	p.parse(tests[i].html);
 	if (tests[i].dump != p.dump) {
-	    cout << "DUMP " << i << ": [" << p.dump << "] != [" << tests[i].dump << "]" << endl;
+	    cout << "DUMP " << i << ": [" << p.dump << "] != [" << tests[i].dump
+		 << "]" << endl;
 	    exit(1);
 	}
 	if (tests[i].title != p.title) {
-	    cout << "TITLE " << i << ": [" << p.title << "] != [" << tests[i].title << "]" << endl;
+	    cout << "TITLE " << i << ": [" << p.title << "] != ["
+		 << tests[i].title << "]" << endl;
 	    exit(1);
 	}
 	if (tests[i].keywords != p.keywords) {
-	    cout << "KEYWORDS " << i << ": [" << p.keywords << "] != [" << tests[i].keywords << "]" << endl;
+	    cout << "KEYWORDS " << i << ": [" << p.keywords << "] != ["
+		 << tests[i].keywords << "]" << endl;
 	    exit(1);
 	}
 	if (tests[i].author != p.author) {
-	    cout << "AUTHOR " << i << ": [" << p.author << "] != [" << tests[i].author << "]" << endl;
+	    cout << "AUTHOR " << i << ": [" << p.author << "] != ["
+		 << tests[i].author << "]" << endl;
 	    exit(1);
 	}
     }

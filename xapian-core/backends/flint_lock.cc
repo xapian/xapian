@@ -385,7 +385,9 @@ no_ofd_support:
 	execl("/bin/cat", "/bin/cat", static_cast<void*>(NULL));
 	// Emulate cat ourselves (we try to avoid this to reduce VM overhead).
 	char ch;
-	while (read(0, &ch, 1) != 0) { /* Do nothing */ }
+	while (read(0, &ch, 1) != 0) {
+	    /* Do nothing */
+	}
 	_exit(0);
     }
 

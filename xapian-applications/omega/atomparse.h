@@ -28,6 +28,7 @@ class AtomParser : public HtmlParser {
     enum { OTHER, TITLE, AUTHOR, KEYWORDS, TEXT } state;
     bool in_entry, is_ignored;
     string type;
+
   public:
     AtomParser() : state(OTHER), in_entry(false), is_ignored(false) { }
     void process_text(const string &text);

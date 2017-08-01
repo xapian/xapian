@@ -85,4 +85,4 @@ void decode_length_and_check(const char ** p, const char *end,
 void decode_length_and_check(const char ** p, const char *end,
 			     unsigned long long & out);
 
-#endif //XAPIAN_INCLUDED_LENGTH_H
+#endif // XAPIAN_INCLUDED_LENGTH_H

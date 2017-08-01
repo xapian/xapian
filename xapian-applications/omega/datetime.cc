@@ -108,4 +108,3 @@ parse_datetime(const string & s)
 
     return timegm(&t);
 }
-
