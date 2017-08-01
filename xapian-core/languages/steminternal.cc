@@ -460,7 +460,6 @@ int SnowballStemImplementation::len_utf8(const symbol * v) {
 void SnowballStemImplementation::debug(int number, int line_count) {
     int i;
     int limit = SIZE(p);
-    /*if (number >= 0) printf("%3d (line %4d): '", number, line_count);*/
     if (number >= 0) printf("%3d (line %4d): [%d]'", number, line_count, limit);
     for (i = 0; i <= limit; ++i) {
         if (lb == i) printf("{");
