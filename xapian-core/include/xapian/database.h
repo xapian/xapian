@@ -259,6 +259,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/// Get the average length of the documents in the database.
 	Xapian::doclength get_avlength() const;
 
+	/// Get the total length of all the documents in the database.
+	Xapian::totallength get_total_length() const;
+
 	/// Get the number of documents in the database indexed by a given term.
 	Xapian::doccount get_termfreq(const std::string & tname) const;
 

@@ -126,7 +126,7 @@ class GlassVersion {
     Xapian::doccount doccount;
 
     /// The total of the lengths of all documents in the database.
-    totlen_t total_doclen;
+    Xapian::totallength total_doclen;
 
     /// Greatest document id ever used in this database.
     Xapian::docid last_docid;
@@ -225,7 +225,7 @@ class GlassVersion {
 
     Xapian::doccount get_doccount() const { return doccount; }
 
-    totlen_t get_total_doclen() const { return total_doclen; }
+    Xapian::totallength get_total_doclen() const { return total_doclen; }
 
     Xapian::docid get_last_docid() const { return last_docid; }
 

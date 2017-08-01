@@ -770,10 +770,10 @@ ChertDatabase::get_lastdocid() const
     RETURN(stats.get_last_docid());
 }
 
-totlen_t
+Xapian::totallength
 ChertDatabase::get_total_length() const
 {
-    LOGCALL(DB, totlen_t, "ChertDatabase::get_total_length", NO_ARGS);
+    LOGCALL(DB, Xapian::totallength, "ChertDatabase::get_total_length", NO_ARGS);
     RETURN(stats.get_total_doclen());
 }
 

@@ -111,7 +111,7 @@ check_chert_table(const char * tablename, const string& dir,
 		have_metainfo_key = true;
 		cursor->read_tag();
 		// Check format of the METAINFO key.
-		totlen_t total_doclen;
+		Xapian::totallength total_doclen;
 		Xapian::docid last_docid;
 		Xapian::termcount doclen_lbound;
 		Xapian::termcount doclen_ubound;

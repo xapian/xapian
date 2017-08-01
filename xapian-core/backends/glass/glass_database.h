@@ -247,7 +247,7 @@ class GlassDatabase : public Xapian::Database::Internal {
 	//@{
 	Xapian::doccount get_doccount() const;
 	Xapian::docid get_lastdocid() const;
-	totlen_t get_total_length() const;
+	Xapian::totallength get_total_length() const;
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::termcount get_unique_terms(Xapian::docid did) const;
 	void get_freqs(const string & term,

@@ -1,7 +1,7 @@
 /** @file xapian/types.h
  *  @brief typedefs for Xapian
  */
-/* Copyright (C) 2007,2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2007,2010,2011,2013,2014,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -131,6 +131,9 @@ const valueno BAD_VALUENO = 0xffffffff;
  *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 typedef XAPIAN_REVISION_TYPE rev;
+
+/** The total length of all documents in a database. */
+typedef XAPIAN_TOTALLENGTH_TYPE totallength;
 
 }
 

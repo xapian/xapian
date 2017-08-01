@@ -34,7 +34,4 @@ typedef uint16_t uint2;
 typedef uint32_t uint4;
 typedef uint64_t uint8;
 
-/// Integer type used to hold the total length of all documents in a database.
-typedef uint8 totlen_t;
-
 #endif // XAPIAN_INCLUDED_INTERNALTYPES_H

@@ -37,7 +37,7 @@ class ChertDatabaseStats {
     ChertDatabaseStats(const ChertDatabaseStats &);
 
     /// The total of the lengths of all documents in the database.
-    totlen_t total_doclen;
+    Xapian::totallength total_doclen;
 
     /// Greatest document id ever used in this database.
     Xapian::docid last_docid;
@@ -56,7 +56,7 @@ class ChertDatabaseStats {
 	: total_doclen(0), last_docid(0), doclen_lbound(0), doclen_ubound(0),
 	  wdf_ubound(0) { }
 
-    totlen_t get_total_doclen() const { return total_doclen; }
+    Xapian::totallength get_total_doclen() const { return total_doclen; }
 
     Xapian::docid get_last_docid() const { return last_docid; }
 

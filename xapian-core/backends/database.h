@@ -121,7 +121,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	virtual Xapian::docid get_lastdocid() const = 0;
 
 	/** Return the total length of all documents in this database. */
-	virtual totlen_t get_total_length() const = 0;
+	virtual Xapian::totallength get_total_length() const = 0;
 
 	/** Get the length of a given document.
 	 *

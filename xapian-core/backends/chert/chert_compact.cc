@@ -197,7 +197,7 @@ merge_postlists(Xapian::Compactor * compactor,
 		vector<ChertTable*>::const_iterator e,
 		Xapian::docid last_docid)
 {
-    totlen_t tot_totlen = 0;
+    Xapian::totallength tot_totlen = 0;
     Xapian::termcount doclen_lbound = static_cast<Xapian::termcount>(-1);
     Xapian::termcount wdf_ubound = 0;
     Xapian::termcount doclen_ubound = 0;
@@ -241,7 +241,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	    doclen_ubound_tmp += wdf_ubound_tmp;
 	    doclen_ubound = max(doclen_ubound, doclen_ubound_tmp);
 
-	    totlen_t totlen = 0;
+	    Xapian::totallength totlen = 0;
 	    if (!unpack_uint_last(&data, end, &totlen)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }

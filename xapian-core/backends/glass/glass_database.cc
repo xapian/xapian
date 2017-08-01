@@ -717,10 +717,10 @@ GlassDatabase::get_lastdocid() const
     RETURN(version_file.get_last_docid());
 }
 
-totlen_t
+Xapian::totallength
 GlassDatabase::get_total_length() const
 {
-    LOGCALL(DB, totlen_t, "GlassDatabase::get_total_length", NO_ARGS);
+    LOGCALL(DB, Xapian::totallength, "GlassDatabase::get_total_length", NO_ARGS);
     RETURN(version_file.get_total_doclen());
 }
 

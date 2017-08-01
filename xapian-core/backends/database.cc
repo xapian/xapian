@@ -86,7 +86,7 @@ Database::Internal::get_doclength_upper_bound() const
 {
     // Not a very tight bound in general, but this is only a fall-back for
     // backends which don't store these stats.
-    return min(get_total_length(), totlen_t(Xapian::termcount(-1)));
+    return min(get_total_length(), Xapian::totallength(Xapian::termcount(-1)));
 }
 
 Xapian::termcount
