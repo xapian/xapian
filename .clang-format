@@ -49,7 +49,8 @@ BraceWrapping:
   BeforeCatch:     false
   BeforeElse:      false
   IndentBraces:    false
-  SplitEmptyFunctionBody: true
+  # Needs > clang-format 3.8, and seems to default to true.
+  # SplitEmptyFunctionBody: true
 BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Custom
 BreakBeforeInheritanceComma: false
