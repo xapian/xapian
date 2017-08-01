@@ -66,6 +66,7 @@ my $check_trailing = 0;
 my $check_space_tab = 0;
 my $in_comment = 0;
 my $lang;
+my $header_guard_macro;
 my $last_first_char = '';
 while (<>) {
     if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
@@ -74,6 +75,7 @@ while (<>) {
 	$lineno = 1;
 	$lang = undef;
 	$in_comment = 0;
+	$header_guard_macro = undef;
 	# Don't know!
 	$want_tabs = -1;
 	if ($fnm =~ /\.cc$/) {
@@ -357,6 +359,77 @@ QUOTELOOP:  while (1) {
 	}
 	if (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
 	    diagnostic('error', "added/changed line has comment without whitespace before the text", $fullline);
+	}
+	if ($lineno == 1 && m!^\+!) {
+	    if (m!^/\*\* \@file (\S+)!) {
+		my $at_file = $1;
+		if (length $fnm == length $at_file ||
+		    (length $fnm > length $at_file && substr($fnm, -length $at_file - 1, 1) eq '/') &&
+		    substr($fnm, -length $at_file) eq $at_file) {
+		    # @file matches
+		} else {
+		    diagnostic('error', "\@file doesn't match filename", $fullline);
+		}
+	    } else {
+		diagnostic('error', "\@file missing", $fullline);
+	    }
+	}
+	if ($lang eq 'h') {
+	    if (m!^\+\s*#\s*(ifndef|define|endif\s*/[*/])\s+((?:[A-Z]+_INCLUDED)?_?\w+_[Hh]\b)!) {
+		my ($type, $guard) = ($1, $2);
+		my $expected_guard;
+		if (!defined $header_guard_macro) {
+		    if ($type eq 'ifndef') {
+			$header_guard_macro = [$type, $guard];
+			my $expected_guard = uc $fnm;
+			$expected_guard =~ s![-.]!_!g;
+			my $cut;
+			if (length($expected_guard) > length($guard) &&
+			    substr($expected_guard, -length($guard) - 1, 1) eq '/' &&
+			    substr($expected_guard, -length($guard)) eq $guard) {
+			    $cut = -1;
+			} else {
+			    for my $i (1 .. length($guard)) {
+				my $ch_e = substr($expected_guard, -$i, 1);
+				my $ch_g = substr($guard, -$i, 1);
+				next if ($ch_e eq $ch_g);
+				last if ($ch_e ne '/' || $ch_g ne '_');
+				$cut = $i;
+			    }
+			}
+			if (!defined $cut) {
+			    diagnostic('error', "include guard macro should match filename", $fullline);
+			}
+			my $prefix = 'XAPIAN_INCLUDED_';
+			if ($fnm =~ m!.*omega/(?:.*/)?!) {
+			    $prefix = 'OMEGA_INCLUDED_';
+			}
+			#} elsif ($fnm =~ s!.*xapian-core/.*/!!) {
+			# $expected_guard = "XAPIAN_INCLUDED_" . $expected_guard;
+			#} elsif ($fnm =~ s!.*xapian-letor/.*/!!) {
+			#$expected_guard = "XAPIAN_INCLUDED_" . $expected_guard;
+			if (defined $cut && $cut == -1) {
+			    diagnostic('error', "include guard macro should use prefix '$prefix'", $fullline);
+			} elsif (defined $cut && substr($guard, 0, length($guard) - $cut + 1) ne $prefix) {
+			    diagnostic('error', "include guard macro should use prefix '$prefix'", $fullline);
+			} elsif ($guard !~ /^\Q$prefix\E/) {
+			    diagnostic('error', "include guard macro should use prefix '$prefix'", $fullline);
+			}
+		    }
+		} else {
+		    if (!($type eq 'define' && $header_guard_macro->[0] ne 'ifndef')) {
+			my $expected_guard = $header_guard_macro->[1];
+			$header_guard_macro->[0] = $type;
+			if ($guard ne $expected_guard) {
+			    diagnostic('error', "include guard macro should be $expected_guard", $fullline);
+			}
+		    }
+		}
+	    }
+	} else {
+	    if (m!^\+\s*#\s*define\s+[A-Z]\+_INCLUDED_!) {
+		diagnostic('error', "include guard macro defined in non-header", $fullline);
+	    }
 	}
     } elsif (defined $lang && $lang eq 'py') {
 	if (/;\s*$/) {
