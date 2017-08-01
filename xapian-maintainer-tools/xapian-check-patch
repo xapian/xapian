@@ -135,7 +135,7 @@ while (<>) {
 	s!/\*([A-Za-z_][A-Za-z_0-9]*)\*/([,)])!$1$2!g;
 
 	# Check for comments without a space before the comment text.
-	if (m!\s/[*/]{1,2}[A-Za-z0-9]!) {
+	if (m!^\+.*\s/[*/]{1,2}[A-Za-z0-9]!) {
 	    diagnostic('error', "Missing space between comment characters and comment text", $fullline);
 	}
 
@@ -255,7 +255,7 @@ QUOTELOOP:  while (1) {
 	if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
 	    diagnostic('error', "'$1' not followed by exactly one space", $fullline);
 	}
-	if (m!;[^\s\\]!) {
+	if (m!^\+.*;[^\s\\]!) {
 	    diagnostic('error', "Missing space after ';'", $fullline);
 	}
 	if (m!^\+.*[^(;]\s;!) {
