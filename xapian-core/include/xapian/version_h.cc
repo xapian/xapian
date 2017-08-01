@@ -1,5 +1,8 @@
-// version_h.cc - template used by configure to generate xapian/version.h
-// (for portability, files run through $CXXCPP must have extension .c .cc or .C)
+/** @file version_h.cc
+ * @brief Template used by configure to generate xapian/version.h
+ *
+ * (For portability, files run through $CXXCPP must have extension .c .cc or .C)
+ */
 #include <config.h>
 const char * dummy[] = {
 "/** @file version.h",
