@@ -1,6 +1,6 @@
 /* utf8convert.cc: convert a string to UTF-8 encoding.
  *
- * Copyright (C) 2006,2007,2008,2010,2013 Olly Betts
+ * Copyright (C) 2006,2007,2008,2010,2013,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -170,10 +170,10 @@ convert_to_utf8(string & text, const string & charset)
 	size_t start = 0;
 	for (string::const_iterator i = text.begin(); i != text.end(); ++i) {
 	    static const unsigned cp1252_to_unicode[32] = {
-		0x20ac,    129, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
-		0x02c6, 0x2030, 0x0160, 0x2039, 0x0152,    141, 0x017d,    143,
-		   144, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
-		0x02dc, 0x2122, 0x0161, 0x203a, 0x0153,    157, 0x017e, 0x0178
+		0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
+		0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008d, 0x017d, 0x008f,
+		0x0090, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
+		0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x009d, 0x017e, 0x0178
 	    };
 	    unsigned ch = static_cast<unsigned char>(*i);
 	    if (ch - 128 < sizeof(cp1252_to_unicode) / sizeof(*cp1252_to_unicode))
