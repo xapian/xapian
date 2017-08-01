@@ -403,7 +403,7 @@ RemoteDatabase::get_lastdocid() const
     return lastdocid;
 }
 
-totlen_t
+Xapian::totallength
 RemoteDatabase::get_total_length() const
 {
     if (!cached_stats_valid) update_stats();

@@ -65,7 +65,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     mutable Xapian::termcount doclen_ubound;
 
     /// The total length of all documents in this database.
-    mutable totlen_t total_length;
+    mutable Xapian::totallength total_length;
 
     /// Has positional information?
     mutable bool has_positional_info;
@@ -207,7 +207,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Get the last used docid.
     Xapian::docid get_lastdocid() const;
 
-    totlen_t get_total_length() const;
+    Xapian::totallength get_total_length() const;
 
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::termcount get_unique_terms(Xapian::docid did) const;

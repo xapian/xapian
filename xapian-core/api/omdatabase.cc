@@ -289,7 +289,7 @@ Database::get_avlength() const
 {
     LOGCALL(API, Xapian::doclength, "Database::get_avlength", NO_ARGS);
     Xapian::doccount docs = 0;
-    totlen_t totlen = 0;
+    Xapian::totallength totlen = 0;
 
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
@@ -301,6 +301,17 @@ Database::get_avlength() const
 
     if (docs == 0) RETURN(0.0);
     RETURN(totlen / double(docs));
+}
+
+Xapian::totallength
+Database::get_total_length() const
+{
+    LOGCALL(API, Xapian::totallength, "Database::get_total_length", NO_ARGS);
+    Xapian::totallength total_length = 0;
+    for (auto&& sub_db : internal) {
+	total_length += sub_db->get_total_length();
+    }
+    RETURN(total_length);
 }
 
 Xapian::doccount

@@ -84,20 +84,25 @@ DEFINE_TESTCASE(totaldoclen1, writable) {
     doc2.add_posting("bar", 1, 2000000000);
     db.add_document(doc2);
     TEST_EQUAL(db.get_avlength(), 2000000000);
+    TEST_EQUAL(db.get_total_length(), 4000000000ull);
     db.commit();
     TEST_EQUAL(db.get_avlength(), 2000000000);
+    TEST_EQUAL(db.get_total_length(), 4000000000ull);
     for (int i = 0; i != 20; ++i) {
 	Xapian::Document doc3;
 	doc3.add_posting("count" + str(i), 1, 2000000000);
 	db.add_document(doc3);
     }
     TEST_EQUAL(db.get_avlength(), 2000000000);
+    TEST_EQUAL(db.get_total_length(), 44000000000ull);
     db.commit();
     TEST_EQUAL(db.get_avlength(), 2000000000);
+    TEST_EQUAL(db.get_total_length(), 44000000000ull);
     if (get_dbtype() != "inmemory") {
 	// InMemory doesn't support get_writable_database_as_database().
 	Xapian::Database dbr = get_writable_database_as_database();
 	TEST_EQUAL(dbr.get_avlength(), 2000000000);
+	TEST_EQUAL(dbr.get_total_length(), 44000000000ull);
     }
     return true;
 }

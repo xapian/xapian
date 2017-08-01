@@ -84,7 +84,7 @@ class Weight::Internal {
 
   public:
     /** Total length of all documents in the collection. */
-    totlen_t total_length;
+    Xapian::totallength total_length;
 
     /** Number of documents in the collection. */
     Xapian::doccount collection_size;
