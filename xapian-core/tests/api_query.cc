@@ -219,9 +219,18 @@ DEFINE_TESTCASE(loosenear1, backend) {
 // Regression test for bug fixed in 1.4.4 and 1.2.25.
 DEFINE_TESTCASE(notandor1, backend) {
     Xapian::Database db(get_database("etext"));
-    Xapian::Query q =
-	Xapian::Query("the") &~ (Xapian::Query("friedrich") &
-		(Xapian::Query("day") | Xapian::Query("night")));
+    Xapian::Query q(
+	Xapian::Query::OP_AND_NOT,
+	Xapian::Query("the"),
+	Xapian::Query(
+	    Xapian::Query::OP_AND,
+	    Xapian::Query("friedrich"),
+	    Xapian::Query(
+		Xapian::Query::OP_OR,
+		Xapian::Query("day"),
+		Xapian::Query("night"))
+	    )
+	);
     Xapian::Enquire enq(db);
     enq.set_query(q);
 
