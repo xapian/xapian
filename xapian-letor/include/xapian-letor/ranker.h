@@ -354,7 +354,7 @@ class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
 };
 
-class XAPIAN_VISIBILITY_DEFAULT ListMLERanker: public Ranker {
+class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
     /// Ranker parameters
     std::vector<double> parameters;
     /// Learning rate (Default is 0.001)
@@ -367,11 +367,11 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker: public Ranker {
      * @exception InvalidArgumentError will be thrown if training_data is
      *            empty.
      */
-    void train(const std::vector<Xapian::FeatureVector> & training_data);
+    void train(const std::vector<Xapian::FeatureVector>& training_data);
 
     /** Save ListMLE model as db metadata.
      *
-     *  ListMLE model file gets stored with each parameter value in a new line.
+     *  ListMLE model gets stored with each parameter value in a new line.
      *	e.g.
      *
      *  0.000920817564536697
@@ -381,28 +381,28 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker: public Ranker {
      *
      *  @param model_key	Metadata key using which model is to be stored.
      */
-    void save_model_to_metadata(const std::string & model_key);
+    void save_model_to_metadata(const std::string& model_key);
 
-    /** Load model from an external file.
+    /** Load model from db metadata.
      *
      *  @param model_key         Metadata key using which model is to be
      *				 loaded.
      *
-     *  @exception LetorInternalError will be thrown if no model exists
+     *  @exception InvalidArgumentError will be thrown if no model exists
      *  	   corresponding to the supplied key
      */
-    void load_model_from_metadata(const std::string & model_key);
+    void load_model_from_metadata(const std::string& model_key);
 
     /** Re-rank a std::vector<Xapian::FeatureVector> by using the
      *  model.
      *
      *  @param fvv	vector<FeatureVector> that will be re-ranked.
      *
-     *  @exception	LetorInternalError will be thrown if model file
+     *  @exception	InvalidArgumentError will be thrown if model file
      *			is not compatible.
      */
     std::vector<Xapian::FeatureVector>
-    rank_fvv(const std::vector<Xapian::FeatureVector> & fvv) const;
+    rank_fvv(const std::vector<Xapian::FeatureVector>& fvv) const;
 
   public:
     /* Construct ListMLE instance
@@ -410,8 +410,8 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker: public Ranker {
      * @param num_interations  Number of iterations (Default is 10)
      */
     explicit ListMLERanker(double learn_rate = 0.001,
-			    int num_interations = 10):
-	 learning_rate(learn_rate), iterations(num_interations) { }
+			    int num_interations = 10)
+	: learning_rate(learn_rate), iterations(num_interations) { }
 
     /// Destructor
     ~ListMLERanker();

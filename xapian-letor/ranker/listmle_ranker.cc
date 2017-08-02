@@ -1,6 +1,12 @@
 /** @file listmle_ranker.cc
  *  @brief Implementation of ListMLERanker
  */
+
+/* ListMLE is adapted from the paper:
+ * Fen Xia, Tie-Yan Liu, Jue Wang, Wensheng Zhang, Hang Li
+ * et al. "Listwise Approach to Learning to Rank - Theory and Algorithm."
+ */
+
 /* Copyright (C) 2014 Hanxiao Sun
  * Copyright (C) 2016 Ayush Tomar
  *
@@ -20,11 +26,6 @@
  * USA
  */
 
-/*
-ListMLE is adapted from the paper:
-Fen Xia, Tie-Yan Liu, Jue Wang, Wensheng Zhang, Hang Li
-et al. "Listwise Approach to Learning to Rank - Theory and Algorithm."
-*/
 #include <config.h>
 
 #include "xapian-letor/ranker.h"
@@ -71,7 +72,7 @@ static vector<double>
 calculate_gradient(const vector<FeatureVector>& sorted_feature_vectors,
 		   const vector<double>& new_parameters)
 {
-    //need to be optimized,how to get the length of the features
+    // Need to be optimized,how to get the length of the features
     vector<double> gradient(sorted_feature_vectors[0].get_fcount(), 0);
 
     size_t list_length = sorted_feature_vectors.size();
@@ -80,11 +81,10 @@ calculate_gradient(const vector<FeatureVector>& sorted_feature_vectors,
     double expsum = 0.0;
 
     for (size_t i = 0; i < list_length; ++i) {
-	double temp = exp(calculate_inner_product(
-			      new_parameters,
-			      sorted_feature_vectors[i].get_fvals()));
-	exponents.push_back(temp);
-	expsum += temp;
+	const auto& fvals = sorted_feature_vectors[i].get_fvals();
+	double exponent = exp(calculate_inner_product(new_parameters, fvals));
+	exponents.push_back(exponent);
+	expsum += exponent;
     }
 
     for (size_t i = 0; i < list_length; ++i) {
@@ -108,7 +108,7 @@ calculate_gradient(const vector<FeatureVector>& sorted_feature_vectors,
 static void
 update_parameters(vector<double>& new_parameters,
 		  const vector<double>& gradient,
-		  const double& learning_rate)
+		  double learning_rate)
 {
     size_t num = new_parameters.size();
     for (size_t i = 0; i < num; ++i) {
@@ -122,11 +122,10 @@ update_parameters(vector<double>& new_parameters,
 static void
 batch_learning(vector<FeatureVector> feature_vectors,
 	       vector<double> & new_parameters,
-	       const double& learning_rate)
+	       double learning_rate)
 {
     sort(feature_vectors.begin(), feature_vectors.end(), label_comparer);
-    vector<double> gradient = calculate_gradient(feature_vectors,
-						new_parameters);
+    const auto& gradient = calculate_gradient(feature_vectors, new_parameters);
     update_parameters(new_parameters, gradient, learning_rate);
 }
 
@@ -134,13 +133,11 @@ void
 ListMLERanker::train(const vector<FeatureVector>& training_data)
 {
     LOGCALL_VOID(API, "ListMLERanker::train", training_data);
-    if (training_data.empty()) {
-	throw Xapian::InvalidArgumentError("Training data is empty."
-					   "Check the training file");
-    }
+    if (training_data.empty())
+	throw InvalidArgumentError("Cannot train: no training data");
     int feature_cnt = training_data[0].get_fcount();
 
-    //initialize the parameters for neural network
+    // Initialize the parameters for neural network
     vector<double> new_parameters;
     for (int feature_num = 0; feature_num < feature_cnt; ++feature_num) {
 	new_parameters.push_back(0.0);
@@ -180,7 +177,9 @@ ListMLERanker::load_model_from_metadata(const string& model_key)
     string model_data = letor_db.get_metadata(key);
     // Throw exception if no model data associated with key
     if (model_data.empty()) {
-	throw LetorInternalError("No model found. Check key.");
+	throw InvalidArgumentError("No model found. Either model has not been "
+				   "stored as db metadata or wrong model_key "
+				   "has been provided.");
     }
     vector<double> loaded_parameters;
     const char *ptr = model_data.data();
@@ -198,11 +197,12 @@ ListMLERanker::rank_fvv(const std::vector<FeatureVector>& fvv) const
     std::vector<FeatureVector> testfvv = fvv;
     for (size_t i = 0; i < testfvv.size(); ++i) {
 	double listmle_score = 0;
-	std::vector<double> fvals = testfvv[i].get_fvals();
+	const auto& fvals = testfvv[i].get_fvals();
 	if (fvals.size() != parameters.size())
-	    throw LetorInternalError("Model incompatible. Make sure that you "
-				     "are using the same set of Features "
-				     "using which the model was created.");
+	    throw InvalidArgumentError("Model incompatible. Make sure that "
+				       "you are using the same set of "
+				       "Features using which the model "
+				       "was created.");
 	for (size_t j = 0; j < fvals.size(); ++j)
 	    listmle_score += fvals[j] * parameters[j];
 	testfvv[i].set_score(listmle_score);
