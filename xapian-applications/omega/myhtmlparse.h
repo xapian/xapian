@@ -50,16 +50,16 @@ class MyHtmlParser : public HtmlParser {
 	void parse_html(const string &text, const string &charset_,
 			bool charset_from_meta_);
 	void ignore_metarobots() { ignoring_metarobots = true; }
-	MyHtmlParser() :
-		pending_space(0),
-		in_script_tag(false),
-		in_style_tag(false),
-		indexing_allowed(true),
-		ignoring_metarobots(false),
-		charset_from_meta(false),
-		description_as_sample(false),
-		created(time_t(-1)),
-		target(&dump) { }
+	MyHtmlParser()
+	    : pending_space(0),
+	      in_script_tag(false),
+	      in_style_tag(false),
+	      indexing_allowed(true),
+	      ignoring_metarobots(false),
+	      charset_from_meta(false),
+	      description_as_sample(false),
+	      created(time_t(-1)),
+	      target(&dump) { }
 
 	void reset() {
 	    pending_space = 0;
