@@ -704,8 +704,8 @@ class GlassTable {
 		block_capacity = Glass::BLOCK_CAPACITY;
 	    using Glass::DIR_START;
 	    using Glass::D2;
-	    max_item_size = (block_size - DIR_START - block_capacity * D2)
-		/ block_capacity;
+	    max_item_size =
+		(block_size - DIR_START - block_capacity * D2) / block_capacity;
 	    // Make sure we don't exceed the limit imposed by the format.
 	    if (max_item_size > Glass::MAX_ITEM_SIZE)
 		max_item_size = Glass::MAX_ITEM_SIZE;
