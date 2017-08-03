@@ -191,8 +191,9 @@ class PointTermIterator : public TermIterator::Internal {
     termcount size;
     bool started;
   public:
-    PointTermIterator(const unordered_map<string, double> &termlist) :
-    i(termlist.begin()), end(termlist.end()), size(termlist.size()), started(false)
+    PointTermIterator(const unordered_map<string, double> &termlist)
+	: i(termlist.begin()), end(termlist.end()),
+	  size(termlist.size()), started(false)
     {}
     termcount get_approx_size() const { return size; }
     termcount get_wdf() const { throw UnimplementedError("PointIterator doesn't support get_wdf()"); }
