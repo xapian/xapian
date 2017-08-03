@@ -372,15 +372,18 @@ DEFINE_TESTCASE(testlock1, glass) {
     return true;
 }
 
-struct MyMatchDecider : public Xapian::MatchDecider {
+class CheckMatchDecider : public Xapian::MatchDecider {
     mutable bool called;
 
-    MyMatchDecider() : called(false) { }
+  public:
+    CheckMatchDecider() : called(false) { }
 
     bool operator()(const Xapian::Document &) const {
 	called = true;
 	return true;
     }
+
+    bool was_called() const { return called; }
 };
 
 /// Test Xapian::MatchDecider with remote backend fails.
@@ -389,12 +392,12 @@ DEFINE_TESTCASE(matchdecider4, remote) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("paragraph"));
 
-    MyMatchDecider mdecider;
+    CheckMatchDecider mdecider;
     Xapian::MSet mset;
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	mset = enquire.get_mset(0, 10, NULL, &mdecider));
-    TEST(!mdecider.called);
+    TEST(!mdecider.was_called());
 
     return true;
 }
