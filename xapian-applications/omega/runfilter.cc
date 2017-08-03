@@ -1,7 +1,7 @@
 /** @file runfilter.cc
  * @brief Run an external filter and capture its output in a std::string.
- *
- * Copyright (C) 2003,2006,2007,2009,2010,2011,2013,2015 Olly Betts
+ */
+/* Copyright (C) 2003,2006,2007,2009,2010,2011,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
