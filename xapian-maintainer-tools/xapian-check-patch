@@ -363,6 +363,19 @@ QUOTELOOP:  while (1) {
 	if (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
 	    diagnostic('error', "added/changed line has comment without whitespace before the text", $fullline);
 	}
+	if ($fnm !~ m!/(?:md5|posixy_wrapper|perftest)\.cc$! &&
+	    m,^\+.*[^\w\.>]([a-z][a-z0-9]*[A-Z]\w*),) {
+	    my $symbol = $1;
+	    if ($symbol eq 'gzFile' || $symbol eq 'uInt' || $symbol =~ /^(?:de|in)flate[A-Z]/) {
+		# Whitelist symbols from APIs we use.
+	    } elsif ($symbol =~ /^[gs]et[A-Z]$/) {
+		# For now, allow setD(), etc.
+	    } elsif ($symbol =~ /^h(?:File|Read|Write|Pipe|Client)$/ || $symbol eq 'fdwCtrlType' || $symbol eq 'pShutdownSocket') {
+		# Platform specific names, allow for now.
+	    } else {
+		diagnostic('error', "camelCase identifier '$1' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names", $fullline);
+	    }
+	}
 	if ($lineno == 1 && m!^\+!) {
 	    if (m!^/\*\* \@file (\S+)!) {
 		my $at_file = $1;
