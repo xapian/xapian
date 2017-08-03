@@ -903,22 +903,22 @@ DEFINE_TESTCASE(replacedoc1, writable) {
     db.replace_document(did, doc2);
 
     Xapian::Document doc3 = db.get_document(did);
-    Xapian::TermIterator tIter = doc3.termlist_begin();
-    TEST_EQUAL(*tIter, "bar");
-    Xapian::PositionIterator pIter = tIter.positionlist_begin();
-    TEST_EQUAL(*pIter, 4);
-    ++tIter;
-    TEST_EQUAL(*tIter, "foo");
-    Xapian::PositionIterator qIter = tIter.positionlist_begin();
-    TEST_EQUAL(*qIter, 1);
-    ++qIter;
-    TEST_EQUAL(*qIter, 5);
-    ++tIter;
-    TEST_EQUAL(*tIter, "pipco");
-    Xapian::PositionIterator rIter = tIter.positionlist_begin();
-    TEST_EQUAL(*rIter, 2);
-    ++tIter;
-    TEST_EQUAL(tIter, doc3.termlist_end());
+    Xapian::TermIterator t_iter = doc3.termlist_begin();
+    TEST_EQUAL(*t_iter, "bar");
+    Xapian::PositionIterator p_iter = t_iter.positionlist_begin();
+    TEST_EQUAL(*p_iter, 4);
+    ++t_iter;
+    TEST_EQUAL(*t_iter, "foo");
+    Xapian::PositionIterator q_iter = t_iter.positionlist_begin();
+    TEST_EQUAL(*q_iter, 1);
+    ++q_iter;
+    TEST_EQUAL(*q_iter, 5);
+    ++t_iter;
+    TEST_EQUAL(*t_iter, "pipco");
+    Xapian::PositionIterator r_iter = t_iter.positionlist_begin();
+    TEST_EQUAL(*r_iter, 2);
+    ++t_iter;
+    TEST_EQUAL(t_iter, doc3.termlist_end());
     return true;
 }
 
@@ -955,22 +955,22 @@ DEFINE_TESTCASE(replacedoc2, writable) {
     TEST_EQUAL(db.get_doccount(), 1);
 
     Xapian::Document doc3 = db.get_document(did);
-    Xapian::TermIterator tIter = doc3.termlist_begin();
-    TEST_EQUAL(*tIter, "bar");
-    Xapian::PositionIterator pIter = tIter.positionlist_begin();
-    TEST_EQUAL(*pIter, 4);
-    ++tIter;
-    TEST_EQUAL(*tIter, "foo");
-    Xapian::PositionIterator qIter = tIter.positionlist_begin();
-    TEST_EQUAL(*qIter, 1);
-    ++qIter;
-    TEST_EQUAL(*qIter, 5);
-    ++tIter;
-    TEST_EQUAL(*tIter, "pipco");
-    Xapian::PositionIterator rIter = tIter.positionlist_begin();
-    TEST_EQUAL(*rIter, 2);
-    ++tIter;
-    TEST_EQUAL(tIter, doc3.termlist_end());
+    Xapian::TermIterator t_iter = doc3.termlist_begin();
+    TEST_EQUAL(*t_iter, "bar");
+    Xapian::PositionIterator p_iter = t_iter.positionlist_begin();
+    TEST_EQUAL(*p_iter, 4);
+    ++t_iter;
+    TEST_EQUAL(*t_iter, "foo");
+    Xapian::PositionIterator q_iter = t_iter.positionlist_begin();
+    TEST_EQUAL(*q_iter, 1);
+    ++q_iter;
+    TEST_EQUAL(*q_iter, 5);
+    ++t_iter;
+    TEST_EQUAL(*t_iter, "pipco");
+    Xapian::PositionIterator r_iter = t_iter.positionlist_begin();
+    TEST_EQUAL(*r_iter, 2);
+    ++t_iter;
+    TEST_EQUAL(t_iter, doc3.termlist_end());
 
     did = db.add_document(doc1);
     TEST_EQUAL(did, 31771);
