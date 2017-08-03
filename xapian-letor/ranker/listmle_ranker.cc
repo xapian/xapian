@@ -1,10 +1,10 @@
 /** @file listmle_ranker.cc
  *  @brief Implementation of ListMLERanker
- */
-
-/* ListMLE is adapted from the paper:
- * Fen Xia, Tie-Yan Liu, Jue Wang, Wensheng Zhang, Hang Li
- * et al. "Listwise Approach to Learning to Rank - Theory and Algorithm."
+ *
+ *  ListMLE is adapted from the paper:
+ *  Fen Xia, Tie-Yan Liu, Jue Wang, Wensheng Zhang, Hang Li
+ *  et al. "Listwise Approach to Learning to Rank - Theory and Algorithm."
+ *  http://icml2008.cs.helsinki.fi/papers/167.pdf
  */
 
 /* Copyright (C) 2014 Hanxiao Sun
@@ -72,7 +72,6 @@ static vector<double>
 calculate_gradient(const vector<FeatureVector>& sorted_feature_vectors,
 		   const vector<double>& new_parameters)
 {
-    // Need to be optimized,how to get the length of the features
     vector<double> gradient(sorted_feature_vectors[0].get_fcount(), 0);
 
     size_t list_length = sorted_feature_vectors.size();
@@ -175,11 +174,8 @@ ListMLERanker::load_model_from_metadata(const string& model_key)
 	key = "ListMLE.model.default";
     }
     string model_data = letor_db.get_metadata(key);
-    // Throw exception if no model data associated with key
     if (model_data.empty()) {
-	throw InvalidArgumentError("No model found. Either model has not been "
-				   "stored as db metadata or wrong model_key "
-				   "has been provided.");
+	throw InvalidArgumentError("No model found. Check key.");
     }
     vector<double> loaded_parameters;
     const char *ptr = model_data.data();
