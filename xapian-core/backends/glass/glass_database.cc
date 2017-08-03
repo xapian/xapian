@@ -297,8 +297,8 @@ GlassDatabase::get_changeset_revisions(const string & path,
 {
     FD fd(posixy_open(path.c_str(), O_RDONLY | O_CLOEXEC));
     if (fd < 0) {
-	string message = string("Couldn't open changeset ")
-		+ path + " to read";
+	string message = string("Couldn't open changeset ") +
+		path + " to read";
 	throw Xapian::DatabaseError(message, errno);
     }
 
@@ -309,8 +309,8 @@ GlassDatabase::get_changeset_revisions(const string & path,
 	throw Xapian::DatabaseError("Changeset too short at " + path);
     if (memcmp(start, CHANGES_MAGIC_STRING,
 	       CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
-	string message = string("Changeset at ")
-		+ path + " does not contain valid magic string";
+	string message = string("Changeset at ") +
+		path + " does not contain valid magic string";
 	throw Xapian::DatabaseError(message);
     }
     start += CONST_STRLEN(CHANGES_MAGIC_STRING);
@@ -320,8 +320,8 @@ GlassDatabase::get_changeset_revisions(const string & path,
 	throw Xapian::DatabaseError("Couldn't read a valid version number for "
 				    "changeset at " + path);
     if (changes_version != CHANGES_VERSION)
-	throw Xapian::DatabaseError("Don't support version of changeset at "
-				    + path);
+	throw Xapian::DatabaseError("Don't support version of changeset at " +
+				    path);
 
     if (!unpack_uint(&start, end, startrev))
 	throw Xapian::DatabaseError("Couldn't read a valid start revision from "

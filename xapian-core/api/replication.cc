@@ -641,8 +641,8 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 	    case -1:
 		throw_connection_closed_unexpectedly();
 	    default:
-		throw NetworkError("Unknown replication protocol message ("
-				   + str(type) + ")");
+		throw NetworkError("Unknown replication protocol message (" +
+				   str(type) + ")");
 	}
     }
 #else
