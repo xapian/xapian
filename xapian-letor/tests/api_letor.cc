@@ -194,7 +194,7 @@ DEFINE_TESTCASE(listmle_ranker, generated)
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "query.txt";
     string qrel = data_directory + "qrel.txt";
-    string training = test_driver::get_srcdir() +
+    string training = test_driver::get_srcdir() + "/" +
 	    "listmle_ranker_training.txt";
     Xapian::prepare_training_file(db_path, query, qrel, 10, training);
     ranker.set_database_path(db_path);
