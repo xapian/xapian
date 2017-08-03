@@ -632,7 +632,7 @@ DEFINE_TESTCASE(topercent2, backend) {
     return true;
 }
 
-class myExpandFunctor : public Xapian::ExpandDecider {
+class EvenParityExpandFunctor : public Xapian::ExpandDecider {
     public:
 	bool operator()(const string & tname) const {
 	    unsigned long sum = 0;
@@ -659,7 +659,7 @@ DEFINE_TESTCASE(expandfunctor1, backend) {
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    myExpandFunctor myfunctor;
+    EvenParityExpandFunctor myfunctor;
 
     Xapian::ESet myeset_orig = enquire.get_eset(1000, myrset);
     unsigned int neweset_size = 0;

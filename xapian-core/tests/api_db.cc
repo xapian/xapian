@@ -470,12 +470,16 @@ DEFINE_TESTCASE(multierrhandler1, backend) {
 }
 #endif
 
-class myMatchDecider : public Xapian::MatchDecider {
-    public:
-	bool operator()(const Xapian::Document &doc) const {
-	    // Note that this is not recommended usage of get_data()
-	    return doc.get_data().find("This is") != string::npos;
-	}
+class GrepMatchDecider : public Xapian::MatchDecider {
+    string needle;
+  public:
+    explicit GrepMatchDecider(const string& needle_)
+	: needle(needle_) {}
+
+    bool operator()(const Xapian::Document &doc) const {
+	// Note that this is not recommended usage of get_data()
+	return doc.get_data().find(needle) != string::npos;
+    }
 };
 
 // Test Xapian::MatchDecider functor.
@@ -484,7 +488,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
 
-    myMatchDecider myfunctor;
+    GrepMatchDecider myfunctor("This is");
 
     Xapian::MSet mymset = enquire.get_mset(0, 100, 0, &myfunctor);
 
@@ -613,7 +617,7 @@ DEFINE_TESTCASE(matchdecider2, backend && !remote) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
 
-    myMatchDecider myfunctor;
+    GrepMatchDecider myfunctor("This is");
 
     Xapian::MSet mymset = enquire.get_mset(0, 100, 0, NULL, &myfunctor);
 
@@ -640,15 +644,6 @@ DEFINE_TESTCASE(matchdecider2, backend && !remote) {
     return true;
 }
 
-class myMatchDecider2 : public Xapian::MatchDecider {
-    public:
-	bool operator()(const Xapian::Document &doc) const {
-	    // Note that this is not recommended usage of get_data()
-	    return doc.get_data().find("We produce") == string::npos;
-	}
-};
-
-
 // Regression test for lower bound using functor, sorting and collapsing.
 DEFINE_TESTCASE(matchdecider3, backend && !remote) {
     Xapian::Database db(get_database("etext"));
@@ -657,7 +652,7 @@ DEFINE_TESTCASE(matchdecider3, backend && !remote) {
     enquire.set_collapse_key(12);
     enquire.set_sort_by_value(11, true);
 
-    myMatchDecider2 myfunctor;
+    GrepMatchDecider myfunctor("We produce");
 
     Xapian::MSet mset1 = enquire.get_mset(0, 2, 0, NULL, &myfunctor);
     Xapian::MSet mset2 = enquire.get_mset(0, 1000, 0, NULL, &myfunctor);
