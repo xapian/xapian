@@ -68,6 +68,7 @@ my $in_comment = 0;
 my $lang;
 my $header_guard_macro;
 my $last_first_char = '';
+my $in_ternary;
 while (<>) {
     if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
 	++$files;
@@ -76,6 +77,7 @@ while (<>) {
 	$lang = undef;
 	$in_comment = 0;
 	$header_guard_macro = undef;
+	$in_ternary = 0;
 	# Don't know!
 	$want_tabs = -1;
 	if ($fnm =~ /\.cc$/) {
@@ -393,6 +395,19 @@ QUOTELOOP:  while (1) {
 	    } else {
 		diagnostic('error', "\@file missing", $fullline);
 	    }
+	}
+	if (/^\+.*\b(?:class|struct)\b.*:\s*$/) {
+	    diagnostic('error', "Inheritance list split after ':', should be before");
+	}
+	# Try to distinguish ternary operator (?:) correctly split after ":" vs
+	# constructor initialiser list incorrectly split after ":".
+	my $last_in_ternary = $in_ternary;
+	$in_ternary = / \?(?: |$)/;
+	if (!$last_in_ternary && !$in_ternary && /^\+.*\)\s*:\s*$/) {
+	    diagnostic('error', "Constructor initialiser list split after ':', should be before");
+	}
+	if (m,^\+\s+([-+/%^]|[&|]{2})\s,) {
+	    diagnostic('error', "Expression split before operator '$1', should be after");
 	}
 	if ($lang eq 'h') {
 	    if (m!^\+\s*#\s*(ifndef|define|endif\s*/[*/])\s+((?:[A-Z]+_INCLUDED)?_?\w+_[Hh]\b)!) {
