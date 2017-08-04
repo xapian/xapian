@@ -371,14 +371,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
 
     /** Save ListMLE model as db metadata.
      *
-     *  ListMLE model gets stored with serialised value of each parameter in
-     *  a new line.
-     *	e.g.
-     *
-     *  0.000920817564536697
-     *  0.000920817564536697
-     *  0
-     *  -1.66533453693773e-19
+     *  The model is serialised as a binary blob.
      *
      *  @param model_key	Metadata key using which model is to be stored.
      */
