@@ -85,7 +85,8 @@ EXTRA_DIST +=\
 	testdata/apitest_phrase.txt \
 	testdata/apitest_allterms4.txt \
 	testdata/qrel.txt \
-	testdata/query.txt
+	testdata/query.txt \
+	testdata/training_data.txt
 
 remove-cached-databases:
 	rm -rf .glass .multiglass .replicatmp .singlefileglass .stub

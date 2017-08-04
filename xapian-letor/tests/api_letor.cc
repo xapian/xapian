@@ -22,6 +22,10 @@
 
 #include "api_letor.h"
 
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+
 #include <xapian.h>
 #include <xapian-letor.h>
 
@@ -98,6 +102,47 @@ DEFINE_TESTCASE(createfeaturevector, generated)
     return true;
 }
 
+DEFINE_TESTCASE(preparetrainingfile, generated)
+{
+    string db_path = get_database_path("apitest_listnet_ranker",
+				       db_index_two_documents);
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string query = data_directory + "query.txt";
+    string qrel = data_directory + "qrel.txt";
+    string training_data = data_directory + "training_data.txt";
+    Xapian::prepare_training_file(db_path, query, qrel, 10,
+				  "training_output.txt");
+    ifstream if1(training_data);
+    ifstream if2("training_output.txt");
+    string file1;
+    string file2;
+    while (getline(if1, file1)) {
+	TEST(getline(if2, file2));
+	istringstream iss1(file1);
+	istringstream iss2(file2);
+	string temp1;
+	string temp2;
+	int i = 0;
+	while ((iss1 >> temp1) && (iss2 >> temp2)) {
+	    if (i == 0 || i == 1 || i == 21) {
+		TEST_EQUAL(temp1, temp2);
+	    } else {
+		size_t t1 = temp1.find_first_of(':');
+		size_t t2 = temp2.find_first_of(':');
+		TEST(abs(stod(temp1.substr(t1 + 1)) -
+			 stod(temp2.substr(t2 + 1))) <
+		     0.001);
+	    }
+	    i++;
+	}
+	TEST_REL(i, ==, 22);
+	TEST(!(iss2 >> temp2));
+    }
+    TEST(!getline(if2, file2));
+
+    return true;
+}
+
 DEFINE_TESTCASE(listnet_ranker, generated)
 {
     Xapian::ListNETRanker ranker;
@@ -110,19 +155,18 @@ DEFINE_TESTCASE(listnet_ranker, generated)
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "query.txt";
     string qrel = data_directory + "qrel.txt";
-    Xapian::prepare_training_file(db_path, query, qrel, 10,
-				  "listnet_ranker_training.txt");
+    string training_data = data_directory + "training_data.txt";
     ranker.set_database_path(db_path);
     TEST_EQUAL(ranker.get_database_path(), db_path);
     ranker.set_query(Xapian::Query("lions"));
-    ranker.train_model("listnet_ranker_training.txt");
+    ranker.train_model(training_data);
     Xapian::docid doc1 = *mymset[0];
     Xapian::docid doc2 = *mymset[1];
     ranker.rank(mymset);
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
     mymset = enquire.get_mset(0, 10);
-    ranker.train_model("listnet_ranker_training.txt", "ListNet_Ranker");
+    ranker.train_model(training_data, "ListNet_Ranker");
     ranker.rank(mymset, "ListNet_Ranker");
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
@@ -152,19 +196,18 @@ DEFINE_TESTCASE(svm_ranker, generated)
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "query.txt";
     string qrel = data_directory + "qrel.txt";
-    Xapian::prepare_training_file(db_path, query, qrel, 10,
-				  "svm_ranker_training.txt");
+    string training_data = data_directory + "training_data.txt";
     ranker.set_database_path(db_path);
     TEST_EQUAL(ranker.get_database_path(), db_path);
     ranker.set_query(Xapian::Query("lions"));
-    ranker.train_model("svm_ranker_training.txt");
+    ranker.train_model(training_data);
     Xapian::docid doc1 = *mymset[0];
     Xapian::docid doc2 = *mymset[1];
     ranker.rank(mymset);
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
     mymset = enquire.get_mset(0, 10);
-    ranker.train_model("svm_ranker_training.txt", "SVM_Ranker");
+    ranker.train_model(training_data, "SVM_Ranker");
     ranker.rank(mymset, "SVM_Ranker");
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
@@ -194,19 +237,18 @@ DEFINE_TESTCASE(listmle_ranker, generated)
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "query.txt";
     string qrel = data_directory + "qrel.txt";
-    string training = "listmle_ranker_training.txt";
-    Xapian::prepare_training_file(db_path, query, qrel, 10, training);
+    string training_data = data_directory + "training_data.txt";
     ranker.set_database_path(db_path);
     TEST_EQUAL(ranker.get_database_path(), db_path);
     ranker.set_query(Xapian::Query("lions"));
-    ranker.train_model(training);
+    ranker.train_model(training_data);
     Xapian::docid doc1 = *mymset[0];
     Xapian::docid doc2 = *mymset[1];
     ranker.rank(mymset);
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
     mymset = enquire.get_mset(0, 10);
-    ranker.train_model(training, "ListMLE_Ranker");
+    ranker.train_model(training_data, "ListMLE_Ranker");
     ranker.rank(mymset, "ListMLE_Ranker");
     TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
