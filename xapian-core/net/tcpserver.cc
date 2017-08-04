@@ -405,9 +405,9 @@ CtrlHandler(DWORD fdwCtrlType)
     // However, it appears closesocket() does.  This is much easier than trying
     // to setup a non-blocking accept().
     if (!pShutdownSocket || closesocket(*pShutdownSocket) == SOCKET_ERROR) {
-       // We failed to close the socket, so just let the OS handle the
-       // event in the default way.
-       return FALSE;
+	// We failed to close the socket, so just let the OS handle the
+	// event in the default way.
+	return FALSE;
     }
 
     pShutdownSocket = NULL;

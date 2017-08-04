@@ -363,7 +363,7 @@ InMemoryAllDocsPostList::next(double /*w_min*/)
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     Assert(!at_end());
     do {
-       ++did;
+	++did;
     } while (did <= db->termlists.size() && !db->termlists[did - 1].is_valid);
     return NULL;
 }
