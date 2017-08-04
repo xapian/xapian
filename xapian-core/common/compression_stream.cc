@@ -60,7 +60,7 @@ CompressionStream::compress(const char* buf, size_t* p_size) {
     }
     deflate_zstream->avail_in = static_cast<uInt>(size);
     deflate_zstream->next_in =
-       reinterpret_cast<Bytef*>(const_cast<char*>(buf));
+	reinterpret_cast<Bytef*>(const_cast<char*>(buf));
     deflate_zstream->next_out = reinterpret_cast<Bytef*>(out);
     deflate_zstream->avail_out = static_cast<uInt>((size - 1));
     int zerr = deflate(deflate_zstream, Z_FINISH);
@@ -82,7 +82,7 @@ CompressionStream::decompress_chunk(const char* p, int len, string & buf)
     Bytef blk[8192];
 
     inflate_zstream->next_in =
-       reinterpret_cast<Bytef*>(const_cast<char*>(p));
+	reinterpret_cast<Bytef*>(const_cast<char*>(p));
     inflate_zstream->avail_in = static_cast<uInt>(len);
 
     while (true) {

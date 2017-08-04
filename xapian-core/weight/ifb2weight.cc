@@ -33,7 +33,7 @@ using namespace std;
 namespace Xapian {
 
 IfB2Weight::IfB2Weight(double c)
-   : param_c(c)
+    : param_c(c)
 {
     if (param_c <= 0)
 	throw Xapian::InvalidArgumentError("Parameter c is invalid.");

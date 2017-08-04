@@ -195,9 +195,9 @@ FeatureList::Internal::populate_feature(Feature *feature_)
 void
 FeatureList::Internal::clear_stats()
 {
-   termfreq.clear();
-   inverse_doc_freq.clear();
-   doc_length.clear();
-   collection_length.clear();
-   collection_termfreq.clear();
+    termfreq.clear();
+    inverse_doc_freq.clear();
+    doc_length.clear();
+    collection_length.clear();
+    collection_termfreq.clear();
 }

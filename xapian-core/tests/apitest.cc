@@ -91,13 +91,13 @@ get_writable_database(const string &dbname)
 Xapian::WritableDatabase
 get_named_writable_database(const std::string &name, const std::string &source)
 {
-   return backendmanager->get_writable_database("dbw__" + name, source);
+    return backendmanager->get_writable_database("dbw__" + name, source);
 }
 
 std::string
 get_named_writable_database_path(const std::string &name)
 {
-   return backendmanager->get_writable_database_path("dbw__" + name);
+    return backendmanager->get_writable_database_path("dbw__" + name);
 }
 
 Xapian::Database

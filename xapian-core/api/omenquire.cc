@@ -684,10 +684,11 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 }
 
 class ByQueryIndexCmp {
- private:
+  private:
     typedef map<string, unsigned int> tmap_t;
     const tmap_t &tmap;
- public:
+
+  public:
     explicit ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {}
     bool operator()(const string &left,
 		    const string &right) const {

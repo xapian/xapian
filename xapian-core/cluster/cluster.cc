@@ -201,7 +201,7 @@ class PointTermIterator : public TermIterator::Internal {
     doccount get_termfreq() const { throw UnimplementedError("PointIterator doesn't support get_termfreq()"); }
     Internal * next();
     termcount positionlist_count() const {
-	 throw UnimplementedError("PointTermIterator doesn't support positionlist_count()");
+	throw UnimplementedError("PointTermIterator doesn't support positionlist_count()");
     }
     bool at_end() const;
     PositionIterator positionlist_begin() const {
@@ -497,8 +497,8 @@ ClusterSet::Internal::add_to_cluster(const Point &point, unsigned int index)
 void
 ClusterSet::add_to_cluster(const Point &point, unsigned int index)
 {
-   LOGCALL_VOID(API, "ClusterSet::add_to_cluster", point | index);
-   internal->add_to_cluster(point, index);
+    LOGCALL_VOID(API, "ClusterSet::add_to_cluster", point | index);
+    internal->add_to_cluster(point, index);
 }
 
 void

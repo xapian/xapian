@@ -32,12 +32,12 @@ test_scalability(double (*func)(unsigned), unsigned n, double threshold)
     // Increase the number of tests until we take a reliably measurable amount
     // of time.
     do {
-       time1 = func(n);
-       tout << "Test with " << n << " repetitions took " << time1 << " secs\n";
-       unsigned n_new = n * 10;
-       if (n_new < n)
-	   SKIP_TEST("Can't count enough repetitions to be able to time test");
-       n = n_new;
+	time1 = func(n);
+	tout << "Test with " << n << " repetitions took " << time1 << " secs\n";
+	unsigned n_new = n * 10;
+	if (n_new < n)
+	    SKIP_TEST("Can't count enough repetitions to be able to time test");
+	n = n_new;
     } while (time1 <= 0.001);
 
     double time10 = func(n);
