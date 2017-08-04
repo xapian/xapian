@@ -246,6 +246,10 @@ QUOTELOOP:  while (1) {
 	diagnostic('error', "Broken Doxygen command: whitespace between '\@' and '$1'", $fullline);
     }
     if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+	if ($check_space_tab && /^\+( (?:|  |    |      ))[^ \t#].*(?:[^)];|[^);,])\n/) {
+	    # Exclude lines ending ');', ')', or ',' to avoid reporting for wrapped function arguments.
+	    diagnostic('error', "line indented by ".length($1)." spaces", $fullline);
+	}
 	if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
 	    diagnostic('error', "'$1' not followed by exactly one space", $fullline);
 	}
