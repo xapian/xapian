@@ -46,6 +46,9 @@ using namespace std;
 using namespace Xapian;
 
 static void
+empty_function(const char*) {}
+
+static void
 clear_svm_problem(svm_problem *problem)
 {
     delete [] problem->y;
@@ -81,6 +84,7 @@ void
 SVMRanker::train(const std::vector<Xapian::FeatureVector> & training_data)
 {
     LOGCALL_VOID(API, "SVMRanker::train", training_data);
+    svm_set_print_string_function(&empty_function);
     struct svm_parameter param;
     param.svm_type = 4;         //nu-SVR
     param.kernel_type = 0;      //linear Kernel
