@@ -110,12 +110,11 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
     string training_data = data_directory + "training_data.txt";
     Xapian::prepare_training_file(db_path, query, qrel, 10,
 				  "training_output.txt");
-    std::ifstream file(training_data);
-    std::string file1((std::istreambuf_iterator<char>(file)),
+    std::ifstream if1(training_data);
+    std::string file1((std::istreambuf_iterator<char>(if1)),
 			(std::istreambuf_iterator<char>()));
-    file.clear();
-    file = std::ifstream("training_output.txt");
-    std::string file2((std::istreambuf_iterator<char>(file)),
+    std::ifstream if2("training_output.txt");
+    std::string file2((std::istreambuf_iterator<char>(if2)),
 			(std::istreambuf_iterator<char>()));
     TEST_EQUAL(file1, file2);
 
