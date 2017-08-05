@@ -107,6 +107,8 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
     string qrel = data_directory + "qrel.txt";
     Xapian::prepare_training_file(db_path, query, qrel, 10,
 				  "training_output.txt");
+
+    return true;
 }
 
 DEFINE_TESTCASE(listnet_ranker, generated)
