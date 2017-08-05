@@ -22,6 +22,8 @@
 
 #include "api_letor.h"
 
+#include <fstream>
+
 #include <xapian.h>
 #include <xapian-letor.h>
 
@@ -105,8 +107,17 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "query.txt";
     string qrel = data_directory + "qrel.txt";
+    string training_data = data_directory + "training_data.txt";
     Xapian::prepare_training_file(db_path, query, qrel, 10,
 				  "training_output.txt");
+    std::ifstream file(training_data);
+    std::string file1((std::istreambuf_iterator<char>(file)),
+			(std::istreambuf_iterator<char>()));
+    file.clear();
+    file = std::ifstream("training_output.txt");
+    std::string file2((std::istreambuf_iterator<char>(file)),
+			(std::istreambuf_iterator<char>()));
+    TEST_EQUAL(file1, file2);
 
     return true;
 }
