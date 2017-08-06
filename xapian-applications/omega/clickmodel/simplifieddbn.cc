@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "simplifiedDBN.h"
+#include "simplifieddbn.h"
 
 #include <algorithm>
 #include <iomanip>
