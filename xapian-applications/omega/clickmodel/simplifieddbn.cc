@@ -113,7 +113,7 @@ SimplifiedDBN::build_sessions(string logfile)
 	vector<string> row_data;
 
 	while (ss >> std::ws) {
-	    string columnElement;
+	    string column_element;
 	    if (ss.peek() == '"') {
 		int pos = ss.tellg();
 		ss.seekg(pos + 1);
@@ -121,12 +121,12 @@ SimplifiedDBN::build_sessions(string logfile)
 		while (ss.get(ch)) {
 		    if (ch == '"')
 			break;
-		    columnElement += ch;
+		    column_element += ch;
 		}
 	    } else {
-		getline(ss, columnElement, ',');
+		getline(ss, column_element, ',');
 	    }
-	    row_data.push_back(columnElement);
+	    row_data.push_back(column_element);
 	}
 
 	string qid = row_data[0];
