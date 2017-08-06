@@ -69,6 +69,7 @@ $if{$opt{topterms},
  </div>
 }
 <br>
+$if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
 $if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a><br>}
 $or{$html{$error},
 $if{$eq{$msize,0},
@@ -86,7 +87,6 @@ $if{$not{$msizeexact},
 $list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
 <br><small>Search took $time seconds</small>
 <table>
-$if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
 $hitlist{<tr><td valign=top>
 $set{clickurl,$if{$opt{clicklog},$or{$env{SCRIPT_NAME},omega.cgi}?FMT=clicklog&DB=$url{$dbname}&QUERYID=$opt{queryid}&DOCID=$url{$id}&URL=$url{$field{url}},$field{url}}}
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
