@@ -51,6 +51,58 @@ make_stemmed_cluster_db(Xapian::WritableDatabase &db, const std::string &)
     }
 }
 
+/** Round Robin clusterer:
+ *  This clusterer is a minimal clusterer which will cluster documents as -
+ *  ith document goes to the (i % k)th cluster where k is the number of clusters and
+ *  0 <= i < N; where N is the number of documents
+ */
+class RoundRobin : public Xapian::Clusterer {
+    /// Number of clusters to be formed by the clusterer
+    unsigned int num_of_clusters;
+
+  public:
+    /** Constructor
+     *
+     *  @param num_of_clusters_ 	Number of required clusters
+     */
+    explicit RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
+
+    /** Implements the RoundRobin clustering
+     *
+     *  @param mset    MSet object containing the documents that are to
+     *                 be clustered
+     */
+    Xapian::ClusterSet cluster(const Xapian::MSet &mset);
+
+    std::string get_description() const {
+	return "RoundRobin()";
+    }
+};
+
+Xapian::ClusterSet
+RoundRobin::cluster(const Xapian::MSet &mset)
+{
+    Xapian::TermListGroup tlg(mset);
+    Xapian::ClusterSet cset;
+    std::vector<Xapian::Point> points;
+
+    for (Xapian::MSetIterator it = mset.begin(); it != mset.end(); ++it)
+	points.push_back(Xapian::Point(tlg, it.get_document()));
+
+    unsigned int i = 0;
+    while (i < num_of_clusters) {
+	Xapian::Cluster cluster_rr;
+	cset.add_cluster(cluster_rr);
+	i++;
+    }
+
+    unsigned int size = points.size();
+    for (i = 0; i < size; ++i)
+	cset.add_to_cluster(points[i], i % num_of_clusters);
+
+    return cset;
+}
+
 /** Test for cosine distance
  *  Cosine distance = 1 - (cosine of the angle between two vectors).
  *  Thus, if two vectors are equal, the distance between them will be zero
@@ -94,7 +146,7 @@ DEFINE_TESTCASE(round_robin1, generated)
     Xapian::MSet matches = enq.get_mset(0, 4);
 
     int num_clusters = 3;
-    Xapian::RoundRobin rr(num_clusters);
+    RoundRobin rr(num_clusters);
     Xapian::ClusterSet cset = rr.cluster(matches);
     int size = cset.size();
     for (int i = 0; i < size; ++i) {

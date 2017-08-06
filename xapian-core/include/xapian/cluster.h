@@ -562,33 +562,6 @@ class XAPIAN_VISIBILITY_DEFAULT Clusterer
     }
 };
 
-/** Round Robin clusterer:
- *  This clusterer is a minimal clusterer which will cluster documents as -
- *  ith document goes to the (i % k)th cluster where k is the number of clusters and
- *  0 <= i < N; where N is the number of documents
- */
-class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
-    /// Number of clusters to be formed by the clusterer
-    unsigned int num_of_clusters;
-
-  public:
-    /** Constructor
-     *
-     *  @param num_of_clusters_ 	Number of required clusters
-     */
-    explicit RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
-
-    /** Implements the RoundRobin clustering
-     *
-     *  @param mset    MSet object containing the documents that are to
-     *                 be clustered
-     */
-    ClusterSet cluster(const MSet &mset);
-
-    /// Return a string describing this object
-    std::string get_description() const;
-};
-
 /** Kmeans clusterer:
  *  This clusterer implements the K-Means clustering algorithm
  */
