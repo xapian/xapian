@@ -1,4 +1,4 @@
-/** @file simplifiedDBN.h
+/** @file simplifieddbn.h
  * @brief SimplifiedDBN class - the Simplified DBN click model.
  */
 /* Copyright (C) 2017 Vivek Pal
@@ -18,12 +18,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <array>
 #include <map>
 #include <string>
 #include <vector>
 
 using namespace std;
+
+enum {
+    PARAM_ATTR_PROB,
+    PARAM_SAT_PROB,
+    PARAM_COUNT_
+};
 
 /** 
  * SimplifiedDBN class implementing the SDBN click model.
@@ -35,27 +40,26 @@ using namespace std;
  * conference on World wide web (WWW '09). 
  */
 class SimplifiedDBN {
-	///
-	map<string, map<string, map<char, double>>> urlRelevances;
-    public:
-	/// Return the name of the click model.
-	string name();
+    map<string, map<string, double[PARAM_COUNT_]>> url_relevances;
+  public:
+    /// Return the name of the click model.
+    string name();
 
-	/** Build and return search sessions from the input log file.
-	 *
-	 * @param logfile	Path to the final log file.
-	 */
-	vector<vector<string>> buildSessions(string logfile);
+    /** Build and return search sessions from the input log file.
+     *
+     * @param logfile		Path to the final log file.
+     */
+    vector<vector<string>> build_sessions(string logfile);
 
-	/** Train the model.
-	 *
-	 * @param sessions	List of all sessions.
-	 */
-	void train(vector<vector<string>> &sessions);
+    /** Train the model.
+     *
+     * @param sessions 		List of all sessions.
+     */
+    void train(vector<vector<string>> &sessions);
 
-	/** Return predicted relevance of each document in a session.
-	 *
-	 * @param sessions	List of all sessions.
-	 */
-	vector<int> get_predicted_relevances(vector<vector<string>> &sessions);
+    /** Return predicted relevance of each document in a session.
+     *
+     * @param sessions		List of all sessions.
+     */
+    vector<int> get_predicted_relevances(vector<vector<string>> &sessions);
 };
