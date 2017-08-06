@@ -153,7 +153,6 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
 						     file1_data[j][i].size() -
 						     t)).c_str());
 	    TEST(abs(number1 - number2) < 0.001);
-
 	}
     }
 
