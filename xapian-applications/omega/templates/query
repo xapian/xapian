@@ -88,7 +88,7 @@ $list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;
 <table>
 $if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
 $hitlist{<tr><td valign=top>
-$if{$opt{clicklog},$set{clicklogurl,$html{$or{$env{SCRIPT_NAME},omega.cgi}?FMT=clicklog&DB=$url{$dbname}&QUERYID=$opt{queryid}&DOCID=$url{$id}&URL=$url{$field{url}}}}}
+$if{$opt{clicklog},$set{clickurl,$or{$env{SCRIPT_NAME},omega.cgi}?FMT=clicklog&DB=$url{$dbname}&QUERYID=$opt{queryid}&DOCID=$url{$id}&URL=$url{$field{url}}},$set{clickurl,$html{$field{url}}}}
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
 <div title="$percentage%" style='float:left;width:60px;height:10px;border:1px solid black;margin-top:4px;'>
 <div style='width:$div{$mul{$percentage,6},10}px; height:10px; background-color: red;'>
@@ -108,9 +108,9 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 </div>
 </div>
 </td>
-<td><b><a href="$if{$opt{clicklog},$opt{clicklogurl},$html{$field{url}}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
+<td><b><a href="$html{$opt{clickurl}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
 <small>$snippet{$field{sample}}</small><br>
-<a href="$if{$opt{clicklog},$opt{clicklogurl},$html{$field{url}}}">$html{$field{url}}</a><br>
+<a href="$html{$opt{clickurl}}">$prettyurl{$html{$field{url}}}</a><br>
 <small>
 matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
