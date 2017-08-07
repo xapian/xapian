@@ -108,7 +108,7 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 </td>
 <td><b><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
 <small>$snippet{$field{sample}}</small><br>
-<a href="$html{$field{url}}">$html{$field{url}}</a><br>
+<a href="$html{$field{url}}">$html{$prettyurl{$field{url}}}</a><br>
 <small>
 matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
