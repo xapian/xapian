@@ -56,7 +56,7 @@ make_stemmed_cluster_db(Xapian::WritableDatabase &db, const std::string &)
  *  ith document goes to the (i % k)th cluster where k is the number of clusters and
  *  0 <= i < N; where N is the number of documents
  */
-class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Xapian::Clusterer {
+class RoundRobin : public Xapian::Clusterer {
     /// Number of clusters to be formed by the clusterer
     unsigned int num_of_clusters;
 
