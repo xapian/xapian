@@ -170,7 +170,6 @@ def test_functions():
         test_search.write('821f03288846297c2cf43c34766a38f7,"book","45,54",0\n')
         test_search.write('d41d8cd98f00b204e9800998ecf8427e,"","",0\n')
         test_search.write('098f6bcd4621d373cade4e832627b4f6,"test","35,47",0\n')
-
         test_search.flush()
 
         test_clicks = tempfile.NamedTemporaryFile(delete=True)
@@ -181,10 +180,12 @@ def test_functions():
         test_clicks.flush()
 
         test_final = tempfile.NamedTemporaryFile(delete=True)
-
         generate_combined_log(test_search.name, test_clicks.name, test_final.name)
-
         test_final.flush()
+
+        test_query = tempfile.NamedTemporaryFile(delete=True)
+        generate_query_file(test_final.name, test_query.name)
+        test_query.flush()
 
         # Test entries in final log are correct.
         with open(test_final.name, 'r') as final_f:
@@ -200,12 +201,6 @@ def test_functions():
                 if i == 1:
                     assert row == ['098f6bcd4621d373cade4e832627b4f6',
                                   'test', '35,47', '0', '35:1,47:0'], "Incorrect entry in final.log"
-
-        test_query = tempfile.NamedTemporaryFile(delete=True)
-
-        generate_query_file(test_final.name, test_query.name)
-
-        test_query.flush()
 
         # Test entries in query file are correct.
         with open(test_query.name, 'r') as query_f:
