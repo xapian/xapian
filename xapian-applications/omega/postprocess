@@ -96,8 +96,8 @@ def generate_combined_log(search_log, clicks_log, final_log):
         queries = set()
 
         for row in search_reader:
-            # Skip rows with empty Query string
-            if row[QUERY] == '':
+            # Skip rows with empty Query string or empty Hitlist
+            if row[QUERY] == '' or row[HITS] == "":
                 continue
 
             # Avoid duplicate entries
