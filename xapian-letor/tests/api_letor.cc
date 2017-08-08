@@ -112,47 +112,28 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
     string training_data = data_directory + "training_data.txt";
     Xapian::prepare_training_file(db_path, query, qrel, 10,
 				  "training_output.txt");
-    string file1;
     ifstream if1(training_data);
-    vector<vector<string> > file1_data;
-    while (getline(if1, file1)) {
-	istringstream iss(file1);
-	vector<string> temp;
-	string temp_string;
-	while (iss >> temp_string) {
-	    temp.push_back(temp_string);
-	}
-	file1_data.push_back(temp);
-    }
     ifstream if2("training_output.txt");
+    string file1;
     string file2;
-    vector<vector<string> > file2_data;
-    while (getline(if2, file2)) {
-	istringstream iss(file2);
-	vector<string> temp;
-	string temp_string;
-	while (iss >> temp_string) {
-	    temp.push_back(temp_string);
-	}
-	file2_data.push_back(temp);
-    }
-    TEST_EQUAL(file1_data.size(), file2_data.size());
-    for (size_t j = 0; j < file1_data.size(); ++j) {
-	TEST_EQUAL(file1_data[j].size(), 22);
-	TEST_EQUAL(file2_data[j].size(), 22);
-	TEST_EQUAL(file1_data[j][0], file1_data[j][0]);
-	TEST_EQUAL(file1_data[j][1], file1_data[j][1]);
-	TEST_EQUAL(file1_data[j][21], file1_data[j][21]);
-	for (size_t i = 1; i < 21; ++i) {
-	    size_t t = file1_data[j][i].find_first_of(":");
-	    double number1 = stod((file1_data[j][i].substr(t + 1,
-						     file1_data[j][i].size() -
-						     t)).c_str());
-	    t = file2_data[j][i].find_first_of(":");
-	    double number2 = stod((file1_data[j][i].substr(t + 1,
-						     file1_data[j][i].size() -
-						     t)).c_str());
-	    TEST(abs(number1 - number2) < 0.001);
+    while (getline(if1, file1) && getline(if2, file2)) {
+	istringstream iss1(file1);
+	istringstream iss2(file2);
+	string temp1;
+	string temp2;
+	int i = 0;
+	while ((iss1 >> temp1) && (iss2 >> temp2)) {
+	    if (i == 0 || i == 1 || i == 21) {
+		TEST_EQUAL(temp1, temp2);
+	    }
+	    else {
+		size_t t1 = temp1.find_first_of(':');
+		size_t t2 = temp2.find_first_of(':');
+		TEST(abs(stod(temp1.substr(t1 + 1)) -
+			 stod(temp2.substr(t2 + 1))) <
+		     0.001);
+	    }
+	    i++;
 	}
     }
 
