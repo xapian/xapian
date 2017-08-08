@@ -116,7 +116,11 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
     ifstream if2("training_output.txt");
     string file1;
     string file2;
-    while (getline(if1, file1) && getline(if2, file2)) {
+    while (getline(if1, file1)) {
+	 if (!getline(if2, file2)) {
+	     throw Xapian::InternalError("File Generated with incorrect "
+					 "inputs");
+	 }
 	istringstream iss1(file1);
 	istringstream iss2(file2);
 	string temp1;
@@ -135,6 +139,18 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
 	    }
 	    i++;
 	}
+	if (i < 22) {
+	    throw Xapian::InternalError("File Generated with incorrect "
+					"inputs");
+	}
+	if (iss2 >> temp2) {
+	    throw Xapian::InternalError("File Generated with incorrect "
+					"inputs");
+	}
+    }
+    if (getline(if2, file2)) {
+	throw Xapian::InternalError("File Generated with incorrect "
+				    "inputs");
     }
 
     return true;
