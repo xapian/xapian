@@ -22,9 +22,9 @@
 
 #include "api_letor.h"
 
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
-#include <stdlib.h>
 
 #include <xapian.h>
 #include <xapian-letor.h>
@@ -117,10 +117,7 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
     string file1;
     string file2;
     while (getline(if1, file1)) {
-	 if (!getline(if2, file2)) {
-	     throw Xapian::InternalError("File Generated with incorrect "
-					 "inputs");
-	 }
+	 TEST(getline(if2, file2));
 	istringstream iss1(file1);
 	istringstream iss2(file2);
 	string temp1;
@@ -129,8 +126,7 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
 	while ((iss1 >> temp1) && (iss2 >> temp2)) {
 	    if (i == 0 || i == 1 || i == 21) {
 		TEST_EQUAL(temp1, temp2);
-	    }
-	    else {
+	    } else {
 		size_t t1 = temp1.find_first_of(':');
 		size_t t2 = temp2.find_first_of(':');
 		TEST(abs(stod(temp1.substr(t1 + 1)) -
@@ -139,19 +135,10 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
 	    }
 	    i++;
 	}
-	if (i < 22) {
-	    throw Xapian::InternalError("File Generated with incorrect "
-					"inputs");
-	}
-	if (iss2 >> temp2) {
-	    throw Xapian::InternalError("File Generated with incorrect "
-					"inputs");
-	}
+	TEST(!(i < 22));
+	TEST(!(iss2 >> temp2));
     }
-    if (getline(if2, file2)) {
-	throw Xapian::InternalError("File Generated with incorrect "
-				    "inputs");
-    }
+    TEST(!getline(if2, file2));
 
     return true;
 }
