@@ -623,6 +623,7 @@ gen_subdbwithoutpos1_db(Xapian::WritableDatabase& db, const string&)
     Xapian::Document doc;
     doc.add_term("this");
     doc.add_term("paragraph");
+    doc.add_term("wibble", 5);
     db.add_document(doc);
 }
 
@@ -654,6 +655,11 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
     Xapian::Enquire enq3(db);
     enq3.set_query(q);
     Xapian::MSet mset3 = enq3.get_mset(0, 10);
+    TEST_EQUAL(mset3.size(), 3);
+
+    // Regression test for https://trac.xapian.org/ticket/752
+    enq3.set_query((Xapian::Query("this") & q) | Xapian::Query("wibble"));
+    mset3 = enq3.get_mset(0, 10);
     TEST_EQUAL(mset3.size(), 3);
 
     return true;
