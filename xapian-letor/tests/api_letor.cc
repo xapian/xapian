@@ -135,7 +135,7 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
 	    }
 	    i++;
 	}
-	TEST(!(i < 22));
+	TEST_REL(i, ==, 22);
 	TEST(!(iss2 >> temp2));
     }
     TEST(!getline(if2, file2));
