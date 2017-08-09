@@ -123,10 +123,12 @@ struct ComparePostListTermFreqAscending {
 
 class Context {
   protected:
+    QueryOptimiser* qopt;
+
     vector<PostList*> pls;
 
   public:
-    explicit Context(size_t reserve);
+    Context(QueryOptimiser* qopt_, size_t reserve);
 
     ~Context();
 
@@ -142,43 +144,59 @@ class Context {
 	return pls.size();
     }
 
-    void reset();
+    void shrink(size_t new_size);
 };
 
-Context::Context(size_t reserve) {
+Context::Context(QueryOptimiser* qopt_, size_t reserve)
+    : qopt(qopt_)
+{
     pls.reserve(reserve);
 }
 
 void
-Context::reset()
+Context::shrink(size_t new_size)
 {
-    for_each(pls.begin(), pls.end(), delete_ptr<PostList>());
-    pls.clear();
+    AssertRel(new_size, <=, pls.size());
+    if (new_size >= pls.size())
+	return;
+
+    const PostList * hint_pl = qopt->get_hint_postlist();
+    for (auto&& i = pls.begin() + new_size; i != pls.end(); ++i) {
+	const PostList * pl = *i;
+	if (rare(pl == hint_pl)) {
+	    // We were about to delete qopt's hint - instead tell qopt to take
+	    // ownership.
+	    qopt->take_hint_ownership();
+	    hint_pl = NULL;
+	} else {
+	    delete pl;
+	}
+    }
+    pls.resize(new_size);
 }
 
 Context::~Context()
 {
-    reset();
+    shrink(0);
 }
 
 class OrContext : public Context {
   public:
-    explicit OrContext(size_t reserve) : Context(reserve) { }
+    OrContext(QueryOptimiser* qopt_, size_t reserve)
+	: Context(qopt_, reserve) { }
 
     /// Select the best set_size postlists from the last out_of added.
-    void select_elite_set(QueryOptimiser * qopt,
-			  size_t set_size, size_t out_of);
+    void select_elite_set(size_t set_size, size_t out_of);
 
     /// Select the set_size postlists with the highest term frequency.
-    void select_most_frequent(QueryOptimiser * qopt, size_t set_size);
+    void select_most_frequent(size_t set_size);
 
-    PostList * postlist(QueryOptimiser* qopt);
-    PostList * postlist_max(QueryOptimiser* qopt);
+    PostList * postlist();
+    PostList * postlist_max();
 };
 
 void
-OrContext::select_elite_set(QueryOptimiser * qopt,
-			    size_t set_size, size_t out_of)
+OrContext::select_elite_set(size_t set_size, size_t out_of)
 {
     // Call recalc_maxweight() as otherwise get_maxweight()
     // may not be valid before next() or skip_to()
@@ -186,40 +204,20 @@ OrContext::select_elite_set(QueryOptimiser * qopt,
     for_each(begin, pls.end(), mem_fun(&PostList::recalc_maxweight));
 
     nth_element(begin, begin + set_size - 1, pls.end(), CmpMaxOrTerms());
-    const PostList * hint_pl = qopt->get_hint_postlist();
-    for_each(begin + set_size, pls.end(),
-	[&qopt, &hint_pl](const PostList * p) {
-	    if (rare(p == hint_pl)) {
-		qopt->take_hint_ownership();
-		hint_pl = NULL;
-	    } else {
-		delete p;
-	    }
-	});
-    pls.resize(pls.size() - out_of + set_size);
+    shrink(pls.size() - out_of + set_size);
 }
 
 void
-OrContext::select_most_frequent(QueryOptimiser * qopt, size_t set_size)
+OrContext::select_most_frequent(size_t set_size)
 {
     vector<PostList*>::iterator begin = pls.begin();
     nth_element(begin, begin + set_size - 1, pls.end(),
 		ComparePostListTermFreqAscending());
-    const PostList * hint_pl = qopt->get_hint_postlist();
-    for_each(begin + set_size, pls.end(),
-	[&qopt, &hint_pl](const PostList * p) {
-	    if (rare(p == hint_pl)) {
-		qopt->take_hint_ownership();
-		hint_pl = NULL;
-	    } else {
-		delete p;
-	    }
-	});
-    pls.resize(set_size);
+    shrink(set_size);
 }
 
 PostList *
-OrContext::postlist(QueryOptimiser* qopt)
+OrContext::postlist()
 {
     Assert(!pls.empty());
 
@@ -265,7 +263,7 @@ OrContext::postlist(QueryOptimiser* qopt)
 }
 
 PostList *
-OrContext::postlist_max(QueryOptimiser* qopt)
+OrContext::postlist_max()
 {
     Assert(!pls.empty());
 
@@ -288,13 +286,14 @@ OrContext::postlist_max(QueryOptimiser* qopt)
 
 class XorContext : public Context {
   public:
-    explicit XorContext(size_t reserve) : Context(reserve) { }
+    XorContext(QueryOptimiser* qopt_, size_t reserve)
+	: Context(qopt_, reserve) { }
 
-    PostList * postlist(QueryOptimiser* qopt);
+    PostList * postlist();
 };
 
 PostList *
-XorContext::postlist(QueryOptimiser* qopt)
+XorContext::postlist()
 {
     Xapian::doccount db_size = qopt->db_size;
     PostList * pl;
@@ -325,13 +324,14 @@ class AndContext : public Context {
     list<PosFilter> pos_filters;
 
   public:
-    explicit AndContext(size_t reserve) : Context(reserve) { }
+    AndContext(QueryOptimiser* qopt_, size_t reserve)
+	: Context(qopt_, reserve) { }
 
     void add_pos_filter(Query::op op_,
 			size_t n_subqs,
 			Xapian::termcount window);
 
-    PostList * postlist(QueryOptimiser* qopt);
+    PostList * postlist();
 };
 
 PostList *
@@ -367,7 +367,7 @@ AndContext::add_pos_filter(Query::op op_,
 }
 
 PostList *
-AndContext::postlist(QueryOptimiser* qopt)
+AndContext::postlist()
 {
     if (pls.empty()) {
 	// This case only happens if this sub-database has no positional data
@@ -997,7 +997,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	qopt->in_synonym = (op == Query::OP_SYNONYM);
     }
 
-    OrContext ctx(0);
+    OrContext ctx(qopt, 0);
     AutoPtr<TermList> t(qopt->db.open_allterms(pattern));
     Xapian::termcount expansions_left = max_expansion;
     // If there's no expansion limit, set expansions_left to the maximum
@@ -1031,7 +1031,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	// with the remote backend.  Perhaps we should split creating the lazy
 	// postlist from registering the term for stats.
 	if (ctx.size() > max_expansion)
-	    ctx.select_most_frequent(qopt, max_expansion);
+	    ctx.select_most_frequent(max_expansion);
     }
 
     if (factor != 0.0) {
@@ -1048,9 +1048,9 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	RETURN(new EmptyPostList);
 
     if (op == Query::OP_MAX)
-	RETURN(ctx.postlist_max(qopt));
+	RETURN(ctx.postlist_max());
 
-    PostList * pl = ctx.postlist(qopt);
+    PostList * pl = ctx.postlist();
     if (op == Query::OP_OR)
 	RETURN(pl);
 
@@ -1236,7 +1236,7 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
     }
 
     if (elite_set_size && elite_set_size < subqueries.size()) {
-	ctx.select_elite_set(qopt, elite_set_size, subqueries.size());
+	ctx.select_elite_set(elite_set_size, subqueries.size());
 	// FIXME: not right!
     }
 }
@@ -1245,18 +1245,18 @@ PostList *
 QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(MATCH, PostList *, "QueryBranch::do_synonym", qopt | factor);
-    OrContext ctx(subqueries.size());
+    OrContext ctx(qopt, subqueries.size());
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
 	// we're just like a normal OR query.
 	do_or_like(ctx, qopt, 0.0);
-	return ctx.postlist(qopt);
+	return ctx.postlist();
     }
 
     bool old_in_synonym = qopt->in_synonym;
     qopt->in_synonym = true;
     do_or_like(ctx, qopt, 0.0);
-    PostList * pl = ctx.postlist(qopt);
+    PostList * pl = ctx.postlist();
     qopt->in_synonym = old_in_synonym;
 
     // We currently assume wqf is 1 for calculating the synonym's weight
@@ -1273,19 +1273,19 @@ PostList *
 QueryBranch::do_max(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(MATCH, PostList *, "QueryBranch::do_max", qopt | factor);
-    OrContext ctx(subqueries.size());
+    OrContext ctx(qopt, subqueries.size());
     do_or_like(ctx, qopt, factor);
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
 	// we're just like a normal OR query.
-	RETURN(ctx.postlist(qopt));
+	RETURN(ctx.postlist());
     }
 
     // We currently assume wqf is 1 for calculating the OP_MAX's weight
     // since conceptually the OP_MAX is one "virtual" term.  If we were
     // to combine multiple occurrences of the same OP_MAX expansion into
     // a single instance with wqf set, we would want to track the wqf.
-    RETURN(ctx.postlist_max(qopt));
+    RETURN(ctx.postlist_max());
 }
 
 Xapian::Query::op
@@ -1462,9 +1462,9 @@ PostingIterator::Internal *
 QueryAndLike::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndLike::postlist", qopt | factor);
-    AndContext ctx(subqueries.size());
+    AndContext ctx(qopt, subqueries.size());
     postlist_sub_and_like(ctx, qopt, factor);
-    RETURN(ctx.postlist(qopt));
+    RETURN(ctx.postlist());
 }
 
 void
@@ -1570,9 +1570,9 @@ PostingIterator::Internal *
 QueryOr::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryOr::postlist", qopt | factor);
-    OrContext ctx(subqueries.size());
+    OrContext ctx(qopt, subqueries.size());
     do_or_like(ctx, qopt, factor);
-    RETURN(ctx.postlist(qopt));
+    RETURN(ctx.postlist());
 }
 
 void
@@ -1587,9 +1587,9 @@ QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndNot::postlist", qopt | factor);
     // FIXME: Combine and-like side with and-like stuff above.
     AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
-    OrContext ctx(subqueries.size() - 1);
+    OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, 0.0, 0, 1);
-    AutoPtr<PostList> r(ctx.postlist(qopt));
+    AutoPtr<PostList> r(ctx.postlist());
     RETURN(new AndNotPostList(l.release(), r.release(),
 			      qopt->matcher, qopt->db_size));
 }
@@ -1598,9 +1598,9 @@ PostingIterator::Internal *
 QueryXor::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryXor::postlist", qopt | factor);
-    XorContext ctx(subqueries.size());
+    XorContext ctx(qopt, subqueries.size());
     postlist_sub_xor(ctx, qopt, factor);
-    RETURN(ctx.postlist(qopt));
+    RETURN(ctx.postlist());
 }
 
 void
@@ -1620,9 +1620,9 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndMaybe::postlist", qopt | factor);
     // FIXME: Combine and-like side with and-like stuff above.
     AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
-    OrContext ctx(subqueries.size() - 1);
+    OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, factor, 0, 1);
-    AutoPtr<PostList> r(ctx.postlist(qopt));
+    AutoPtr<PostList> r(ctx.postlist());
     RETURN(new AndMaybePostList(l.release(), r.release(),
 				qopt->matcher, qopt->db_size));
 }
@@ -1665,7 +1665,7 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
     if (!qopt->db.has_positions()) {
 	// No positions in this subdatabase so this matches nothing,
 	// which means the whole andcontext matches nothing.
-	ctx.reset();
+	ctx.shrink(0);
 	return;
     }
 
@@ -1704,9 +1704,9 @@ PostingIterator::Internal *
 QueryEliteSet::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryEliteSet::postlist", qopt | factor);
-    OrContext ctx(subqueries.size());
+    OrContext ctx(qopt, subqueries.size());
     do_or_like(ctx, qopt, factor, set_size);
-    RETURN(ctx.postlist(qopt));
+    RETURN(ctx.postlist());
 }
 
 void
