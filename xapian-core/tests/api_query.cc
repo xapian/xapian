@@ -660,7 +660,7 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
     // Regression test for https://trac.xapian.org/ticket/752
     enq3.set_query((Xapian::Query("this") & q) | Xapian::Query("wibble"));
     mset3 = enq3.get_mset(0, 10);
-    TEST_EQUAL(mset3.size(), 3);
+    TEST_EQUAL(mset3.size(), 4);
 
     return true;
 }
