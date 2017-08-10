@@ -117,7 +117,7 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
     string file1;
     string file2;
     while (getline(if1, file1)) {
-	 TEST(getline(if2, file2));
+	TEST(getline(if2, file2));
 	istringstream iss1(file1);
 	istringstream iss2(file2);
 	string temp1;
