@@ -228,7 +228,7 @@ the STL - to enable this, define _GLIBCXX_DEBUG when building Xapian:
   ./configure CPPFLAGS=-D_GLIBCXX_DEBUG
 
 For documentation of this option, see:
-http://gcc.gnu.org/onlinedocs/libstdc++/debug.html
+https://gcc.gnu.org/onlinedocs/libstdc++/manual/debug_mode.html
 
 Note: all C++ code must be compiled with this defined or you'll get problems.
 Xapian's API headers include a check that the same setting is used when
