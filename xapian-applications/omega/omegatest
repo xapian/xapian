@@ -392,7 +392,7 @@ printf '$cgi{Search}|$cgi{Type}|$cgi{Search Type}' > "$TEST_TEMPLATE"
 testcase 'Discover-List||' 'Search Type=Discover-List'
 
 printf '$cgiparams' > "$TEST_TEMPLATE"
-# We can't test the "no cgi parmeters" case via testcase, as it passes a
+# We can't test the "no cgi parameters" case via testcase, as it passes a
 # "dummy" parameter if there aren't any real ones.
 #testcase ""
 testcase "" =1
