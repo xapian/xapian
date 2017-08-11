@@ -201,7 +201,7 @@ Speeding up the testsuite with eatmydata
 The testsuite does a lot of small database operations, and the calls to fsync,
 fdatasync, etc which Xapian makes by default can slow down testsuite runs
 substantially.  There's a handy LD_PRELOAD library called eatmydata
-(http://www.flamingspork.com/projects/libeatmydata/), which can help here, by
+(https://www.flamingspork.com/projects/libeatmydata/), which can help here, by
 turning fsync and related calls into no-ops.
 
 You need a version of eatmydata with the eatmydata wrapper script (version 37
@@ -243,7 +243,7 @@ inlining, etc):
 
   ./configure CXXFLAGS='-O0 -g'
 
-To use gdb (http://www.gnu.org/software/gdb/), no special build options are
+To use gdb (https://www.gnu.org/software/gdb/), no special build options are
 required, but make sure you compile with debugging information (on by default
 for GCC).  You'll probably find debugging easier if you compile without
 optimisation (with optimisation, line numbers in error messages can be
@@ -485,12 +485,12 @@ On Mac OS X, if you're using macports you'll want the following:
   * texlive-basic (for makeindex in configure)
   * texlive-latex-extra (latex style)
 
-Alternatively, you can install MacTeX from http://www.tug.org/mactex/ instead
+Alternatively, you can install MacTeX from https://www.tug.org/mactex/ instead
 of texlive, texlive-basic and texlive-latex-extra.
 
 The homebrew texlive package only supports 32 bit systems, so even if you're
 using homebrew, you'll probably want to install MacTeX from
-http://www.tug.org/mactex/ instead.
+https://www.tug.org/mactex/ instead.
 
 Autotools versions
 ------------------
@@ -939,7 +939,7 @@ Here's an incomplete list of things to avoid:
   The autoconf manual has some useful information about writing portable
   shell code (most of it not specific to autoconf)::
 
-    http://www.gnu.org/software/autoconf/manual/autoconf.html#Portable-Shell
+    https://www.gnu.org/software/autoconf/manual/autoconf.html#Portable-Shell
 
 * Don't use "include" - it's not present in BSD make (at least some versions
   have ".include" instead, but that doesn't really seem to help...)  Automake
