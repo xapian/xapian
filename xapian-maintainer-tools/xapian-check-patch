@@ -83,6 +83,7 @@ while (<>) {
 	if ($fnm =~ /\.cc$/) {
 	    if ($fnm !~ m!\b(?:cdb|portability/)! &&
 		$fnm !~ m!\bcommon/getopt\.cc$! &&
+		$fnm !~ m!\bomega/md5\.cc$! &&
 		$fnm !~ m!\bcommon/msvc_dirent\.cc$!) {
 		$lang = 'c++';
 		$want_tabs = 1 unless ($fnm =~ m!\blanguages/steminternal\.cc$!);
