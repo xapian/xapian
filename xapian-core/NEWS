@@ -1,8 +1,14 @@
-up to: 282b3fada96fe1d7d7351da4b518a5560e575c2d
+up to: 5586a09d69b2ec27b456720b1e6bdd8046f0e3a5
 
-Xapian-core 1.4.5 (2017-07-27):
+Xapian-core 1.4.5 (2017-08-11):
 
 API:
+
+* Add Database::get_total_length() method.  Previously you had to calculate
+  this from get_avlength() and get_doccount(), and take into account rounding
+  issues.  And even then you can't reliably get the exact value when total
+  length is large as a double's mantissa has more limited precision than an
+  unsigned long long.
 
 * Add Xapian::iterator_rewound() for bidirectional iterators, to test if the
   iterator is at the start (useful for testing whether we're done when
@@ -17,6 +23,10 @@ testsuite:
 
 matcher:
 
+* Fix use after free of QueryOptimiser hint in certain cases involving
+  multiple databases only some of which have positional information.
+  This bug was introduced by changes in xapian-core 1.4.3.  Fixes #752,
+  reported and analysed by Robert Stepanek.
 
 glass backend:
 
@@ -40,6 +50,10 @@ documentation:
   set_default_op() weren't updated to reflect this.
 
 * Document OP_MAX and OP_WILDCARD.
+
+* Fix documentation of TermGenerator stop_strategy values STOP_ALL and
+  STOP_STEMMED.  Reported by Matthieu Gautier in #750.  Thanks to Gaurav Arora
+  for additional investigation.
 
 * Fix "IPv5" -> "IPv6" comment typo.  Noted by James Clarke
 

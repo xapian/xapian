@@ -1,6 +1,6 @@
-up to: d092c9abefe1978c13e33811aa71bdceebb14684
+up to: 809556e12c6b421dea7385fe657ba83aa3c2ac91
 
-Omega 1.4.5 (2017-07-11):
+Omega 1.4.5 (2017-08-11):
 
 general:
 
@@ -19,6 +19,10 @@ indexers:
 
 * scriptindex:
 
+  + Reject index scripts with multiple "unique" actions.  We don't handle this
+    case sensibly, and it doesn't seem like it really has a use, so better to
+    give an error for people who do this inadvertently.
+
 omega:
 
 * New $seterror command to set the error message.  Implemented by Gaurav Arora.
@@ -26,6 +30,11 @@ omega:
 * Make $highlight more efficient.  Patch from Vivek Pal.
 
 templates:
+
+* query: Use $prettyurl for the URL shown at the end of each match (previously
+  we only used it on the URL shown as a fallback when the document has no
+  title).  Split off from changes by Vivek Pal in
+  https://github.com/xapian/xapian/pull/161
 
 testsuite:
 
