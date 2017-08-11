@@ -93,7 +93,7 @@ try {
 	total_title_len += db.get_collection_freq(*t);
     }
 
-    Xapian::termcount total_len = db.get_avlength() * db.get_doccount();
+    Xapian::totallength total_len = db.get_total_length();
 
     db.set_metadata("collection_len_title", str(total_title_len));
     db.set_metadata("collection_len_body", str(total_len - total_title_len));
