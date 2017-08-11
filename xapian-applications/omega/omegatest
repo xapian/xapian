@@ -442,6 +442,14 @@ testcase '3302c94d3500c3f695b7e09b7acd420d' text=" test "
 printf '$hash{$cgi{text},invalidhash}' > "$TEST_TEMPLATE"
 testcase 'Exception: Unknown hash function: invalidhash' text="test"
 
+# Feature tests of scriptindex.
+printf 'uuid : boolean=Q unique=Q\nguid : boolean=G unique=G' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null < /dev/null ; then
+    echo "scriptindex didn't reject 'unique' action being used more than once"
+    failed=`expr $failed + 1`
+fi
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
