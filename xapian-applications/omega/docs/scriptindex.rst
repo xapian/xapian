@@ -83,7 +83,9 @@ unique[=PREFIX]
 	replaced (or deleted if the new record is otherwise empty).  You should
 	also index the field as a boolean field using the same prefix so that
 	the old record can be found.  In Omega, Q is reserved for use as the
-	prefix of a unique term.
+	prefix of a unique term.  You can use ``unique`` at most once in each
+        index script (this is only enforced since Omega 1.4.5, but older
+        versions didn't handle multiple instances usefully).
 
 value=VALUESLOT
 	add as a Xapian document value in slot VALUESLOT.  Values can be used
