@@ -49,7 +49,7 @@ class SimplifiedDBN {
      *
      * @param logfile		Path to the final log file.
      */
-    vector<vector<string>> build_sessions(string logfile);
+    vector<vector<string>> build_sessions(const string logfile);
 
     /** Train the model.
      *
@@ -61,5 +61,5 @@ class SimplifiedDBN {
      *
      * @param sessions		List of all sessions.
      */
-    vector<int> get_predicted_relevances(vector<vector<string>> &sessions);
+    vector<int> get_predicted_relevances(const vector<vector<string>> &sessions);
 };

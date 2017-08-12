@@ -92,7 +92,7 @@ get_click_list(const vector<vector<string>> &sessions)
 }
 
 vector<vector<string>>
-SimplifiedDBN::build_sessions(string logfile)
+SimplifiedDBN::build_sessions(const string logfile)
 {
     ifstream file;
     file.open(logfile, ios::in);
@@ -150,7 +150,7 @@ SimplifiedDBN::build_sessions(string logfile)
 void
 SimplifiedDBN::train(vector<vector<string>> &sessions)
 {
-    map<string, map<string, map<char, array<double, 2>>>> url_rel_fractions;
+    map<string, map<string, map<char, double[PARAM_COUNT_]>>> url_rel_fractions;
 
     for (size_t i = 0; i < sessions.size(); ++i) {
 	string qid = sessions[i][QID];
@@ -165,12 +165,8 @@ SimplifiedDBN::train(vector<vector<string>> &sessions)
 	    if (clicks[j] != 0)
 		last_clicked_pos = j;
 
-	vector<int> session_clicks;
-	for (int x = 0; x <= last_clicked_pos + 1; ++x)
-	    session_clicks.push_back(clicks[x]);
-
-	for (size_t k = 0; k < session_clicks.size(); ++k) {
-	    if (session_clicks[k] != 0) {
+	for (int k = 0; k <= last_clicked_pos; ++k) {
+	    if (clicks[k] != 0) {
 		url_rel_fractions[qid][docids[k]]['a'][1] += 1;
 		if (int(k) == last_clicked_pos)
 		    url_rel_fractions[qid][docids[k]]['s'][1] += 1;
@@ -184,30 +180,28 @@ SimplifiedDBN::train(vector<vector<string>> &sessions)
 
     for (auto i = url_rel_fractions.begin(); i != url_rel_fractions.end(); ++i) {
 	string qid = i->first;
-	for (auto j = i->second.begin(); j != i->second.end(); ++j) {
-	    auto rel_fractions = j->second;
-	    url_relevances[qid][j->first][PARAM_ATTR_PROB] = rel_fractions['a'][1] /
-							    (rel_fractions['a'][1] +
-							     rel_fractions['a'][0]);
-	    url_relevances[qid][j->first][PARAM_SAT_PROB] = rel_fractions['s'][1] /
-							    (rel_fractions['s'][1] +
-							     rel_fractions['s'][0]);
+	for (auto&& j : i->second) {
+	    url_relevances[qid][j.first][PARAM_ATTR_PROB] = j.second['a'][1] /
+							   (j.second['a'][1] +
+							    j.second['a'][0]);
+	    url_relevances[qid][j.first][PARAM_SAT_PROB] = j.second['s'][1] /
+							  (j.second['s'][1] +
+							   j.second['s'][0]);
 	}
     }
 }
 
 vector<int>
-SimplifiedDBN::get_predicted_relevances(vector<vector<string>> &sessions)
+SimplifiedDBN::get_predicted_relevances(const vector<vector<string>> &sessions)
 {
     vector<int> relevances;
-    double a, s;
 
     vector<string> docids = get_docid_list(sessions);
 
     for (size_t i = 0; i < docids.size(); ++i) {
-	a = url_relevances[sessions[i][QID]][docids[i]][PARAM_ATTR_PROB];
-	s = url_relevances[sessions[i][QID]][docids[i]][PARAM_SAT_PROB];
-	relevances.push_back(a * s);
+	double attr_prob = url_relevances[sessions[i][QID]][docids[i]][PARAM_ATTR_PROB];
+	double sat_prob = url_relevances[sessions[i][QID]][docids[i]][PARAM_SAT_PROB];
+	relevances.push_back(attr_prob * sat_prob);
     }
     return relevances;
 }
