@@ -1,7 +1,7 @@
 /** @file smallvector.cc
  * @brief Append only vector of Xapian PIMPL objects
  */
-/* Copyright (C) 2012,2013,2014 Olly Betts
+/* Copyright (C) 2012,2013,2014,2017 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -33,7 +33,7 @@ void
 Xapian::SmallVector_::do_reserve(std::size_t n)
 {
     void ** blk = new void* [n];
-    if (c > sizeof(p) / sizeof(*p)) {
+    if (is_external()) {
 	std::copy(static_cast<void **>(p[0]),
 		  static_cast<void **>(p[1]),
 		  blk);
@@ -45,4 +45,10 @@ Xapian::SmallVector_::do_reserve(std::size_t n)
 	p[1] = blk + c;
     }
     p[0] = blk;
+}
+
+void
+Xapian::SmallVector_::do_free()
+{
+    delete [] static_cast<void**>(p[0]);
 }

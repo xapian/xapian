@@ -1,7 +1,7 @@
 /** @file smallvector.h
  * @brief Append only vector of Xapian PIMPL objects
  */
-/* Copyright (C) 2012,2013,2014 Olly Betts
+/* Copyright (C) 2012,2013,2014,2017 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -30,14 +30,81 @@
 namespace Xapian {
 
 class SmallVector_ {
+    std::size_t c;
+
+    void * p[2];
+
+    static const std::size_t INTERNAL_CAPACITY = sizeof(p) / sizeof(*p);
+
   public:
     SmallVector_() : c(0) { }
 
-  protected:
-    std::size_t c;
-    void * p[2];
+    explicit SmallVector_(std::size_t n) : c(0) {
+	reserve(n);
+    }
 
+    std::size_t size() const {
+	if (!is_external())
+	    return c;
+	void * const * b = static_cast<void * const *>(p[0]);
+	void * const * e = static_cast<void * const *>(p[1]);
+	return e - b;
+    }
+
+    std::size_t capacity() const {
+	return is_external() ? c : INTERNAL_CAPACITY;
+    }
+
+    bool empty() const {
+	return is_external() ? p[0] == p[1] : c == 0;
+    }
+
+    void reserve(std::size_t n) {
+	if (n > INTERNAL_CAPACITY && n > c) {
+	    do_reserve(n);
+	    c = n;
+	}
+    }
+
+    void do_free();
+
+  protected:
     void do_reserve(std::size_t n);
+
+    void do_clear() {
+	if (is_external())
+	    do_free();
+	c = 0;
+    }
+
+    /// Return true if storage is external to the object.
+    bool is_external() const {
+	return c > INTERNAL_CAPACITY;
+    }
+
+    void * const * do_begin() const {
+	return is_external() ? static_cast<void * const *>(p[0]) : p;
+    }
+
+    void * const * do_end() const {
+	return is_external() ? static_cast<void * const *>(p[1]) : p + c;
+    }
+
+    void do_push_back(void* elt) {
+	std::size_t cap = capacity();
+	if (size() == cap) {
+	    cap *= 2;
+	    do_reserve(cap);
+	    c = cap;
+	}
+	if (c >= INTERNAL_CAPACITY) {
+	    void ** e = static_cast<void **>(p[1]);
+	    *e++ = elt;
+	    p[1] = static_cast<void*>(e);
+	} else {
+	    p[c++] = elt;
+	}
+    }
 };
 
 /** Vector of Xapian PIMPL objects.
@@ -52,7 +119,7 @@ class SmallVector_ {
  *  std::vector<Xapian::Foo> would.
  */
 template<typename T>
-class SmallVector : private SmallVector_ {
+class SmallVector : public SmallVector_ {
   public:
     typedef std::size_t size_type;
     class const_iterator {
@@ -86,37 +153,18 @@ class SmallVector : private SmallVector_ {
     SmallVector() : SmallVector_() { }
 
     // Create an empty SmallVector with n elements reserved.
-    explicit SmallVector(size_type n) : SmallVector_() {
-	reserve(n);
-    }
+    explicit SmallVector(size_type n) : SmallVector_(n) { }
 
     ~SmallVector() {
 	clear();
     }
 
     const_iterator begin() const {
-	return const_iterator(c > sizeof(p) / sizeof(*p) ?
-			      static_cast<void * const *>(p[0]) :
-			      p);
+	return const_iterator(do_begin());
     }
 
     const_iterator end() const {
-	return const_iterator(c > sizeof(p) / sizeof(*p) ?
-			      static_cast<void * const *>(p[1]) :
-			      p + c);
-    }
-
-    size_type size() const {
-	return c > sizeof(p) / sizeof(*p) ?
-	       static_cast<void**>(p[1]) - static_cast<void**>(p[0]) : c;
-    }
-
-    size_type capacity() const {
-	return c > sizeof(p) / sizeof(*p) ? c : sizeof(p) / sizeof(*p);
-    }
-
-    bool empty() const {
-	return c > sizeof(p) / sizeof(*p) ? p[0] == p[1] : c == 0;
+	return const_iterator(do_end());
     }
 
     void clear() {
@@ -124,35 +172,13 @@ class SmallVector : private SmallVector_ {
 	    if ((*i).internal.get() && --(*i).internal->_refs == 0)
 		delete (*i).internal.get();
 
-	if (c > sizeof(p) / sizeof(*p))
-	    delete [] static_cast<typename T::Internal**>(p[0]);
-
-	c = 0;
-    }
-
-    void reserve(size_type n) {
-	if (n > sizeof(p) / sizeof(*p) && n > c) {
-	    do_reserve(n);
-	    c = n;
-	}
+	do_clear();
     }
 
     void push_back(const T & elt) {
-	size_type cap = capacity();
-	if (size() == cap) {
-	    cap *= 2;
-	    do_reserve(cap);
-	    c = cap;
-	}
+	do_push_back(static_cast<void*>(elt.internal.get()));
 	if (elt.internal.get())
 	    ++elt.internal->_refs;
-	if (c >= sizeof(p) / sizeof(*p)) {
-	    void ** e = static_cast<void **>(p[1]);
-	    *e++ = static_cast<void*>(elt.internal.get());
-	    p[1] = static_cast<void*>(e);
-	} else {
-	    p[c++] = elt.internal.get();
-	}
     }
 
     T operator[](size_type idx) const {
