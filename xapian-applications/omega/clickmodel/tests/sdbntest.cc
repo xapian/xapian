@@ -73,9 +73,9 @@ int main() {
 	    result = sdbn.build_sessions(sessions_tests[i].logfile);
 	} catch (std::exception &ex) {
 	    cout << ex.what() << endl;
-	    exit(1);
+	    continue;
 	}
-	
+
 	for (auto&& x : result) {
 	    if (x[QID] != sessions_tests[i].sessions.qid) {
 		cerr << "Query ID mismatch occurred. "
@@ -99,13 +99,18 @@ int main() {
     }
 
     // Train Simplified DBN model on a dummy training file.
-    vector<vector<string>>
-    training_sessions = sdbn.build_sessions(sample_log3);
+    vector<vector<string>> training_sessions;
+    try {
+	training_sessions = sdbn.build_sessions(sample_log3);
+    } catch (std::exception &ex) {
+	cout << ex.what() << endl;
+	exit(1);
+    }
 
     sdbn.train(training_sessions);
 
     vector<vector<double>>
-    expected_relevances = {{0.166, 0.166, 0.166, 0.444, 0}, 
+    expected_relevances = {{0.166, 0.166, 0.166, 0.444, 0},
 			   {0.444, 0, 0, 0, 0}};
 
     // Tests for SimplifiedDBN::get_predicted_relevances. 
@@ -120,7 +125,7 @@ int main() {
 
 	for (size_t j = 0; j < expected_relevances[i].size(); ++j) {
 	    if (!almost_equal(predicted_relevances[j], expected_relevances[i][j])) {
-		cerr << "Relevances do not match." << endl;		
+		cerr << "Relevances do not match." << endl;
 		cout << "Expected: " << expected_relevances[i][j];
 		cout << " Received: " << predicted_relevances[j] << endl;
 		exit(1);
