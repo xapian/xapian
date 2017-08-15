@@ -117,7 +117,7 @@ dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
 
-check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
+check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test sdbntest urlenctest utf8converttest
 dist_check_SCRIPTS = omegatest
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
@@ -125,6 +125,7 @@ TESTS =	atomparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	omegatest\
+	sdbntest$(EXEEXT)\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
 
@@ -222,6 +223,9 @@ urlenctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 csvesctest_SOURCES = csvesctest.cc csvescape.cc
 csvesctest_LDADD = $(NO_INSTALL)
+
+sdbntest_SOURCES = clickmodel/tests/sdbntest.cc clickmodel/simplifieddbn.cc
+sdbntest_LDADD = $(NO_INSTALL)
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
 jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)

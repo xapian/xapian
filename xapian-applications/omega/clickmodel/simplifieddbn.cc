@@ -43,59 +43,60 @@ SimplifiedDBN::name()
 }
 
 static vector<string>
-get_docid_list(const vector<vector<string>> &sessions)
+get_docid_list(const vector<string> &session)
 {
     vector<string> docids;
     string docid;
-    for (size_t i = 0; i < sessions.size(); ++i) {
-	for (size_t j = 0; j <= sessions[i][DOCIDS].length(); ++j) {
-	    if (sessions[i][DOCIDS][j] != ',' && sessions[i][1][j] != '\0') {
-		docid += sessions[i][DOCIDS][j];
-	    } else {
-		docids.push_back(docid);
-		docid.clear();
-	    }
+    for (size_t j = 0; j <= session[DOCIDS].length(); ++j) {
+	char ch = session[DOCIDS][j];
+	if (ch != ',' && ch != '\0') {
+	    docid += ch;
+	} else {
+	    docids.push_back(docid);
+	    docid.clear();
 	}
     }
     return docids;
 }
 
 static vector<int>
-get_click_list(const vector<vector<string>> &sessions)
+get_click_list(const vector<string> &session)
 {
     vector<int> clicks;
     string clickstring, clickcount;
     int click = 0;
-    for (size_t i = 0; i < sessions.size(); ++i) {
-	for (size_t j = 0; j <= sessions[i][CLICKS].length(); ++j) {
-	    if (sessions[i][CLICKS][j] == '\0') {
-		clicks.push_back(click);
-	    } else if (sessions[i][CLICKS][j] != ',') {
-		// Get clickstring of the form "docid:click_count".
-		clickstring += sessions[i][CLICKS][j];
 
-		// Get click count string.
-		int delimiter_pos = clickstring.find(':');
-		clickcount = clickstring.substr(delimiter_pos + 1,
-			     clickstring.length() - 1 - delimiter_pos);
+    for (size_t j = 0; j <= session[CLICKS].length(); ++j) {
+	char ch = session[CLICKS][j];
+	if (ch != ',' && ch != '\0') {
+	    // Get clickstring of the form "docid:click_count".
+	    clickstring += session[CLICKS][j];
 
-		// Convert click count string to an integer.
-		stringstream ss(clickcount);
-		ss >> click;
-	    } else {
-		clickstring.clear();
-		clicks.push_back(click);
-	    }
+	    // Get click count string.
+	    size_t delimiter_pos = clickstring.find(':');
+	    clickcount = clickstring.substr(delimiter_pos + 1);
+
+	    // Convert click count string to an integer.
+	    stringstream ss(clickcount);
+	    ss >> click;
+	} else {
+	    clicks.push_back(click);
+	    clickstring.clear();
 	}
     }
     return clicks;
 }
 
 vector<vector<string>>
-SimplifiedDBN::build_sessions(const string logfile)
+SimplifiedDBN::build_sessions(const string &logfile)
 {
     ifstream file;
     file.open(logfile, ios::in);
+
+    if (!file) {
+	cerr << "ERROR: Specified file " << logfile;
+	throw runtime_error(" does not exist.");
+    }
 
     string line;
 
@@ -124,6 +125,10 @@ SimplifiedDBN::build_sessions(const string logfile)
 		    column_element += ch;
 		}
 	    } else {
+		if (ss.peek() == ',') {
+		    int pos = ss.tellg();
+		    ss.seekg(pos + 1);
+		}
 		getline(ss, column_element, ',');
 	    }
 	    row_data.push_back(column_element);
@@ -155,15 +160,23 @@ SimplifiedDBN::train(vector<vector<string>> &sessions)
     for (size_t i = 0; i < sessions.size(); ++i) {
 	string qid = sessions[i][QID];
 
-	vector<string> docids = get_docid_list(sessions);
+	vector<string> docids = get_docid_list(sessions[i]);
 
-	vector<int> clicks = get_click_list(sessions);
+	vector<int> clicks = get_click_list(sessions[i]);
 
 	int last_clicked_pos = clicks.size() - 1;
 
 	for (size_t j = 0; j < clicks.size(); ++j)
 	    if (clicks[j] != 0)
 		last_clicked_pos = j;
+
+	// Initialise some values.
+	for (int k = 0; k <= last_clicked_pos; ++k) {
+	    url_rel_fractions[qid][docids[k]]['a'][0] = 1.0;
+	    url_rel_fractions[qid][docids[k]]['a'][1] = 1.0;
+	    url_rel_fractions[qid][docids[k]]['s'][0] = 1.0;
+	    url_rel_fractions[qid][docids[k]]['s'][1] = 1.0;
+	}
 
 	for (int k = 0; k <= last_clicked_pos; ++k) {
 	    if (clicks[k] != 0) {
@@ -191,16 +204,16 @@ SimplifiedDBN::train(vector<vector<string>> &sessions)
     }
 }
 
-vector<int>
-SimplifiedDBN::get_predicted_relevances(const vector<vector<string>> &sessions)
+vector<double>
+SimplifiedDBN::get_predicted_relevances(const vector<string> &session)
 {
-    vector<int> relevances;
+    vector<double> relevances;
 
-    vector<string> docids = get_docid_list(sessions);
+    vector<string> docids = get_docid_list(session);
 
     for (size_t i = 0; i < docids.size(); ++i) {
-	double attr_prob = url_relevances[sessions[i][QID]][docids[i]][PARAM_ATTR_PROB];
-	double sat_prob = url_relevances[sessions[i][QID]][docids[i]][PARAM_SAT_PROB];
+	double attr_prob = url_relevances[session[QID]][docids[i]][PARAM_ATTR_PROB];
+	double sat_prob = url_relevances[session[QID]][docids[i]][PARAM_SAT_PROB];
 	relevances.push_back(attr_prob * sat_prob);
     }
     return relevances;
