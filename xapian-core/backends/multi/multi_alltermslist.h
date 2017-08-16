@@ -1,7 +1,7 @@
 /** @file multi_alltermslist.h
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2011 Olly Betts
+/* Copyright (C) 2007,2008,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,12 @@
 
 #include "backends/alltermslist.h"
 
-#include "backends/database.h"
-
 #include <string>
 #include <vector>
+
+namespace Xapian {
+class Database;
+}
 
 /// Class for merging AllTermsList objects from subdatabases.
 class MultiAllTermsList : public AllTermsList {
@@ -44,8 +46,7 @@ class MultiAllTermsList : public AllTermsList {
 
   public:
     /// Constructor.
-    MultiAllTermsList(const std::vector<Xapian::Internal::intrusive_ptr<Xapian::Database::Internal> > & dbs,
-		      const std::string & prefix);
+    MultiAllTermsList(const Xapian::Database& db, const std::string& prefix);
 
     /// Destructor.
     ~MultiAllTermsList();

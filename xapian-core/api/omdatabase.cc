@@ -224,7 +224,7 @@ Database::allterms_begin(const std::string & prefix) const
     } else if (internal.size() == 1) {
 	tl = internal[0]->open_allterms(prefix);
     } else {
-	tl = new MultiAllTermsList(internal, prefix);
+	tl = new MultiAllTermsList(*this, prefix);
     }
     RETURN(TermIterator(tl));
 }

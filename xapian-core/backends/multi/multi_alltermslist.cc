@@ -1,7 +1,7 @@
 /** @file multi_alltermslist.cc
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,14 +22,15 @@
 
 #include "multi_alltermslist.h"
 
+#include <xapian/database.h>
 #include <xapian/error.h>
 
+#include "backends/database.h"
 #include "omassert.h"
 
 #include <algorithm>
 
 using namespace std;
-using Xapian::Internal::intrusive_ptr;
 
 /// Comparison functor which orders TermList* by ascending term name.
 struct CompareTermListsByTerm {
@@ -43,16 +44,15 @@ template<class CLASS> struct delete_ptr {
     void operator()(CLASS *p) const { delete p; }
 };
 
-MultiAllTermsList::MultiAllTermsList(const vector<intrusive_ptr<Xapian::Database::Internal> > & dbs,
-				     const string & prefix)
+MultiAllTermsList::MultiAllTermsList(const Xapian::Database& db,
+				     const string& prefix)
 {
     // The 0 and 1 cases should be handled by our caller.
-    AssertRel(dbs.size(), >=, 2);
-    termlists.reserve(dbs.size());
+    AssertRel(db.internal.size(), >=, 2);
+    termlists.reserve(db.internal.size());
     try {
-	vector<intrusive_ptr<Xapian::Database::Internal> >::const_iterator i;
-	for (i = dbs.begin(); i != dbs.end(); ++i) {
-	    termlists.push_back((*i)->open_allterms(prefix));
+	for (auto&& sub_db : db.internal) {
+	    termlists.push_back(sub_db->open_allterms(prefix));
 	}
     } catch (...) {
 	for_each(termlists.begin(), termlists.end(), delete_ptr<TermList>());
