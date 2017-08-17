@@ -30,13 +30,6 @@ enum {
     PARAM_COUNT_
 };
 
-enum {
-    PARAM_ATTR_PROB_[2],
-    PARAM_SAT_PROB_[2],
-    PARAM_COUNT__
-};
-
-
 /** 
  * SimplifiedDBN class implementing the SDBN click model.
  *
