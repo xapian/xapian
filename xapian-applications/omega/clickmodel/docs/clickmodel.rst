@@ -43,24 +43,33 @@ A few example entries in ``final.log``:
 	821f03288846297c2cf43c34766a38f7,book,"45,54",0,"45:0,54:2"
 	098f6bcd4621d373cade4e832627b4f6,test,"35,47",0,"35:1,47:0"
 
-``SimplifiedDBN`` class provides train function that takes a search session
-as its input:
-
-	``void SimplifiedDBN::train(vector<vector<string>> &sessions)``
+``SimplifiedDBN`` class provides ``train`` function that takes a list of search
+sessions as its input.
 
 To generate search sessions from the log data file, ``SimplifiedDBN`` class
-also provides a separate function which takes the path to the log data file
-as its input:
+also provides ``build_sessions`` function which takes the path to the log data
+file as its input and returns a list of generated sessions.
 
-	``vector<vector<string>> SimplifiedDBN::buildSessions(string logfile)``
+The training process basically involves learning the values of attractiveness
+and satisfactoriness parameters modelled by SDBN for each pair of query and
+a corresponding document from the list of retrieved documents in search result.
 
 Predicting the Document Relevance
 =================================
 
-``SimplifiedDBN`` class provides a function to get the predicted relevance of
-all documents in a search session based on the trained SDBN model:
+``SimplifiedDBN`` class provides ``get_predicted_relevances`` function to get
+the predicted relevance of all documents in a given search session based on
+the trained SDBN model.
 
-	vector<int> get_predicted_relevances(vector<vector<string>> &sessions);
+Use ``build_sessions`` function to generate a list of search sessions from an
+input log data file as described above and then pass any particular search
+session from the list for which you want the predicted relevances of the
+documents in that session to ``get_predicted_relevances``function which creates
+a list of those predicted relevances.
 
-It takes a search session as its input and returns a list of predicted relevances
-of each document in that search session.
+Predicted relevances are the estimations of the relevance of each document in
+a given session based on a trained model with their values ranging from 0.0 to
+1.0. The relevance of the document is the probability that the user is satisfied
+given that he examined and clicked on the document in the list of search results
+presented to them by a search engine. An ideal search engine would show documents
+with higher relevance on the top of search results.

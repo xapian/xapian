@@ -30,6 +30,13 @@ enum {
     PARAM_COUNT_
 };
 
+enum {
+    PARAM_ATTR_PROB_[2],
+    PARAM_SAT_PROB_[2],
+    PARAM_COUNT__
+};
+
+
 /** 
  * SimplifiedDBN class implementing the SDBN click model.
  *
@@ -40,24 +47,31 @@ enum {
  * conference on World wide web (WWW '09). 
  */
 class SimplifiedDBN {
-    map<string, map<string, double[PARAM_COUNT_]>> url_relevances;
+    /// Relevances of documents corresponding to a query in a search session.
+    map<string, map<string, double[PARAM_COUNT_]>> doc_relevances;
   public:
     /// Return the name of the click model.
     string name();
 
-    /** Build and return search sessions from the input log file.
+    /** Builds search sessions from the input log file and returns a list
+     * of generated sessions. Each session contains three values: queryid,
+     * a list of documents in the search result and a list of count of clicks
+     * made on each document in the search result.
      *
      * @param logfile		Path to the final log file.
      */
     vector<vector<string>> build_sessions(const string &logfile);
 
-    /** Train the model.
+    /** Trains the model i.e. learning the values of attractiveness
+     * and satisfactoriness parameters modelled by the click model.
      *
      * @param sessions 		List of all sessions.
      */
-    void train(vector<vector<string>> &sessions);
+    void train(const vector<vector<string>> &sessions);
 
-    /** Return predicted relevance of each document in a session.
+    /** Return predicted relevance of each document in a session i.e. the
+     * estimations of the relevance of each document in a given session based
+     * on a trained model. Values ranging from 0.0 to 1.0.
      *
      * @param sessions		List of all sessions.
      */

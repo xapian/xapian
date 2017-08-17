@@ -58,13 +58,13 @@ static sessions_testcase sessions_tests[] = {
 };
 
 static bool
-almost_equal(const double &x, const double &y,
-			 const double epsilon = 0.001) {
-    return (abs(x - y) < epsilon) ? true : false;
+almost_equal(double x, double y, double epsilon = 0.001) {
+    return (abs(x - y) < epsilon);
 }
 
 int main() {
     SimplifiedDBN sdbn;
+    int failure_count = 0;
 
     // Tests for SimplifiedDBN::build_sessions method.
     for (size_t i = 0; i < sizeof(sessions_tests) / sizeof(sessions_tests[0]); ++i) {
@@ -73,6 +73,8 @@ int main() {
 	    result = sdbn.build_sessions(sessions_tests[i].logfile);
 	} catch (std::exception &ex) {
 	    cout << ex.what() << endl;
+	    ++failure_count;
+	    // Specified file doesn't exist. Skip subsequent tests.
 	    continue;
 	}
 
@@ -81,21 +83,26 @@ int main() {
 		cerr << "Query ID mismatch occurred. "
 		     << "Expected: " << sessions_tests[i].sessions.qid
 		     << " Received: "<< x[QID] << endl;
-		exit(1);
+		++failure_count;
 	    }
 	    if (x[DOCIDS] != sessions_tests[i].sessions.docids) {
 		cerr << "Doc ID(s) mismatch occurred. "
 		     << "Expected: " << sessions_tests[i].sessions.docids
-		     << " Received: "<< x[DOCIDS] << endl;
-		exit(1);
+		     << " Received: " << x[DOCIDS] << endl;
+		++failure_count;
 	    }
 	    if (x[CLICKS] != sessions_tests[i].sessions.clicks) {
 		cerr << "Clicks mismatch occurred. "
 		     << "Expected: " << sessions_tests[i].sessions.clicks
-		     << " Received: "<< x[CLICKS] << endl;
-		exit(1);
+		     << " Received: " << x[CLICKS] << endl;
+		++failure_count;
 	    }
 	}
+    }
+
+    if (failure_count != 0) {
+	cout << "Total failures occurred: " << failure_count << endl;
+	exit(1);
     }
 
     // Train Simplified DBN model on a dummy training file.
@@ -113,6 +120,8 @@ int main() {
     expected_relevances = {{0.166, 0.166, 0.166, 0.444, 0},
 			   {0.444, 0, 0, 0, 0}};
 
+    failure_count = 0;
+
     // Tests for SimplifiedDBN::get_predicted_relevances. 
     for (size_t i = 0; i < training_sessions.size(); ++i) {
 	vector<double>
@@ -120,7 +129,9 @@ int main() {
 
 	if (predicted_relevances.size() != expected_relevances[i].size()) {
 	    cerr << "Relevance lists sizes do not match." << endl;
-	    exit(1);
+	    ++failure_count;
+	    // Skip subsequent tests.
+	    continue;
 	}
 
 	for (size_t j = 0; j < expected_relevances[i].size(); ++j) {
@@ -131,5 +142,10 @@ int main() {
 		exit(1);
 	    }
 	}
+    }
+
+    if (failure_count != 0) {
+	cout << "Total failures occurred: " << failure_count << endl;
+	exit(1);
     }
 }

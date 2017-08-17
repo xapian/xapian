@@ -24,7 +24,6 @@
 
 #include <algorithm>
 #include <iomanip>
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -152,9 +151,9 @@ SimplifiedDBN::build_sessions(const string &logfile)
 }
 
 void
-SimplifiedDBN::train(vector<vector<string>> &sessions)
+SimplifiedDBN::train(const vector<vector<string>> &sessions)
 {
-    map<string, map<string, map<char, double[PARAM_COUNT_]>>> url_rel_fractions;
+    map<string, map<string, map<char, double[PARAM_COUNT_]>>> doc_rel_fractions;
 
     for (size_t i = 0; i < sessions.size(); ++i) {
 	string qid = sessions[i][QID];
@@ -171,32 +170,32 @@ SimplifiedDBN::train(vector<vector<string>> &sessions)
 
 	// Initialise some values.
 	for (int k = 0; k <= last_clicked_pos; ++k) {
-	    url_rel_fractions[qid][docids[k]]['a'][0] = 1.0;
-	    url_rel_fractions[qid][docids[k]]['a'][1] = 1.0;
-	    url_rel_fractions[qid][docids[k]]['s'][0] = 1.0;
-	    url_rel_fractions[qid][docids[k]]['s'][1] = 1.0;
+	    doc_rel_fractions[qid][docids[k]]['a'][0] = 1.0;
+	    doc_rel_fractions[qid][docids[k]]['a'][1] = 1.0;
+	    doc_rel_fractions[qid][docids[k]]['s'][0] = 1.0;
+	    doc_rel_fractions[qid][docids[k]]['s'][1] = 1.0;
 	}
 
 	for (int k = 0; k <= last_clicked_pos; ++k) {
 	    if (clicks[k] != 0) {
-		url_rel_fractions[qid][docids[k]]['a'][1] += 1;
+		doc_rel_fractions[qid][docids[k]]['a'][1] += 1;
 		if (int(k) == last_clicked_pos)
-		    url_rel_fractions[qid][docids[k]]['s'][1] += 1;
+		    doc_rel_fractions[qid][docids[k]]['s'][1] += 1;
 		else
-		    url_rel_fractions[qid][docids[k]]['s'][0] += 1;
+		    doc_rel_fractions[qid][docids[k]]['s'][0] += 1;
 	    } else {
-		url_rel_fractions[qid][docids[k]]['a'][0] += 1;
+		doc_rel_fractions[qid][docids[k]]['a'][0] += 1;
 	    }
 	}
     }
 
-    for (auto i = url_rel_fractions.begin(); i != url_rel_fractions.end(); ++i) {
+    for (auto i = doc_rel_fractions.begin(); i != doc_rel_fractions.end(); ++i) {
 	string qid = i->first;
 	for (auto&& j : i->second) {
-	    url_relevances[qid][j.first][PARAM_ATTR_PROB] = j.second['a'][1] /
+	    doc_relevances[qid][j.first][PARAM_ATTR_PROB] = j.second['a'][1] /
 							   (j.second['a'][1] +
 							    j.second['a'][0]);
-	    url_relevances[qid][j.first][PARAM_SAT_PROB] = j.second['s'][1] /
+	    doc_relevances[qid][j.first][PARAM_SAT_PROB] = j.second['s'][1] /
 							  (j.second['s'][1] +
 							   j.second['s'][0]);
 	}
@@ -211,8 +210,8 @@ SimplifiedDBN::get_predicted_relevances(const vector<string> &session)
     vector<string> docids = get_docid_list(session);
 
     for (size_t i = 0; i < docids.size(); ++i) {
-	double attr_prob = url_relevances[session[QID]][docids[i]][PARAM_ATTR_PROB];
-	double sat_prob = url_relevances[session[QID]][docids[i]][PARAM_SAT_PROB];
+	double attr_prob = doc_relevances[session[QID]][docids[i]][PARAM_ATTR_PROB];
+	double sat_prob = doc_relevances[session[QID]][docids[i]][PARAM_SAT_PROB];
 	relevances.push_back(attr_prob * sat_prob);
     }
     return relevances;
