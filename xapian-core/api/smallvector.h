@@ -199,6 +199,14 @@ class SmallVector : public SmallVector_ {
     T operator[](size_type idx) const {
 	return begin()[idx];
     }
+
+    T front() const {
+	return *(begin());
+    }
+
+    T back() const {
+	return end()[-1];
+    }
 };
 
 }
