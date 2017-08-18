@@ -32,6 +32,9 @@
 void
 Xapian::SmallVector_::do_reserve(std::size_t n)
 {
+    // Logic error or size_t wrapping.
+    if (rare(n <= c))
+	throw std::bad_alloc();
     void ** blk = new void* [n];
     if (is_external()) {
 	std::copy(static_cast<void **>(p[0]),
@@ -45,6 +48,7 @@ Xapian::SmallVector_::do_reserve(std::size_t n)
 	p[1] = blk + c;
     }
     p[0] = blk;
+    c = n;
 }
 
 void

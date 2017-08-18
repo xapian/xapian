@@ -75,7 +75,6 @@ class SmallVector_ {
     void reserve(std::size_t n) {
 	if (n > INTERNAL_CAPACITY && n > c) {
 	    do_reserve(n);
-	    c = n;
 	}
     }
 
@@ -106,9 +105,7 @@ class SmallVector_ {
     void do_push_back(void* elt) {
 	std::size_t cap = capacity();
 	if (size() == cap) {
-	    cap *= 2;
-	    do_reserve(cap);
-	    c = cap;
+	    do_reserve(cap * 2);
 	}
 	if (c >= INTERNAL_CAPACITY) {
 	    void ** e = static_cast<void **>(p[1]);
