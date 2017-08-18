@@ -25,7 +25,9 @@
 #ifndef XAPIAN_INCLUDED_SMALLVECTOR_H
 #define XAPIAN_INCLUDED_SMALLVECTOR_H
 
+#include <algorithm>
 #include <cstddef> // For std::size_t
+#include <cstring> // For std::memcpy
 
 namespace Xapian {
 
@@ -38,6 +40,17 @@ class SmallVector_ {
 
   public:
     SmallVector_() : c(0) { }
+
+    // Prevent inadvertent copying.
+    SmallVector_(const SmallVector_&) = delete;
+
+    // Prevent inadvertent copying.
+    void operator=(const SmallVector_&) = delete;
+
+    SmallVector_(SmallVector_&& o) noexcept : SmallVector_() {
+	std::memcpy(p, o.p, sizeof(p));
+	std::swap(c, o.c);
+    }
 
     explicit SmallVector_(std::size_t n) : c(0) {
 	reserve(n);
@@ -154,6 +167,8 @@ class SmallVector : public SmallVector_ {
 
     // Create an empty SmallVector with n elements reserved.
     explicit SmallVector(size_type n) : SmallVector_(n) { }
+
+    SmallVector(SmallVector&& o) noexcept : SmallVector_(o) { }
 
     ~SmallVector() {
 	clear();
