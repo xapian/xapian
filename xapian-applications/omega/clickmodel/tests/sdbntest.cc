@@ -54,7 +54,7 @@ static sessions_testcase sessions_tests[] = {
     {sample_log1, {"821f03288846297c2cf43c34766a38f7",
 		   "45,36,14,54,42",
 		   "45:0,36:0,14:0,54:2,42:0"}},
-    {sample_log2,{}}
+    {sample_log2, {"","",""}}
 };
 
 static bool
@@ -80,29 +80,24 @@ int main() {
 
 	for (auto&& x : result) {
 	    if (x[QID] != sessions_tests[i].sessions.qid) {
-		cerr << "Query ID mismatch occurred. "
+		cerr << "ERROR: Query ID mismatch occurred. " << endl
 		     << "Expected: " << sessions_tests[i].sessions.qid
 		     << " Received: "<< x[QID] << endl;
 		++failure_count;
 	    }
 	    if (x[DOCIDS] != sessions_tests[i].sessions.docids) {
-		cerr << "Doc ID(s) mismatch occurred. "
+		cerr << "ERROR: Doc ID(s) mismatch occurred. " << endl
 		     << "Expected: " << sessions_tests[i].sessions.docids
 		     << " Received: " << x[DOCIDS] << endl;
 		++failure_count;
 	    }
 	    if (x[CLICKS] != sessions_tests[i].sessions.clicks) {
-		cerr << "Clicks mismatch occurred. "
+		cerr << "ERROR: Clicks mismatch occurred. " << endl
 		     << "Expected: " << sessions_tests[i].sessions.clicks
 		     << " Received: " << x[CLICKS] << endl;
 		++failure_count;
 	    }
 	}
-    }
-
-    if (failure_count != 0) {
-	cout << "Total failures occurred: " << failure_count << endl;
-	exit(1);
     }
 
     // Train Simplified DBN model on a dummy training file.
@@ -111,7 +106,7 @@ int main() {
 	training_sessions = sdbn.build_sessions(sample_log3);
     } catch (std::exception &ex) {
 	cout << ex.what() << endl;
-	exit(1);
+	++failure_count;
     }
 
     sdbn.train(training_sessions);
@@ -120,15 +115,13 @@ int main() {
     expected_relevances = {{0.166, 0.166, 0.166, 0.444, 0},
 			   {0.444, 0, 0, 0, 0}};
 
-    failure_count = 0;
-
     // Tests for SimplifiedDBN::get_predicted_relevances. 
     for (size_t i = 0; i < training_sessions.size(); ++i) {
 	vector<double>
 	predicted_relevances = sdbn.get_predicted_relevances(training_sessions[i]);
 
 	if (predicted_relevances.size() != expected_relevances[i].size()) {
-	    cerr << "Relevance lists sizes do not match." << endl;
+	    cerr << "ERROR: Relevance lists sizes do not match." << endl;
 	    ++failure_count;
 	    // Skip subsequent tests.
 	    continue;
@@ -136,10 +129,10 @@ int main() {
 
 	for (size_t j = 0; j < expected_relevances[i].size(); ++j) {
 	    if (!almost_equal(predicted_relevances[j], expected_relevances[i][j])) {
-		cerr << "Relevances do not match." << endl;
-		cout << "Expected: " << expected_relevances[i][j];
-		cout << " Received: " << predicted_relevances[j] << endl;
-		exit(1);
+		cerr << "ERROR: Relevances do not match." << endl
+		     << "Expected: " << expected_relevances[i][j]
+		     << " Received: " << predicted_relevances[j] << endl;
+		++failure_count;
 	    }
 	}
     }
