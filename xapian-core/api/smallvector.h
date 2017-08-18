@@ -120,7 +120,7 @@ class SmallVector_ {
     }
 };
 
-/** Vector of Xapian PIMPL objects.
+/** Vector of Xapian PIMPL internal objects.
  *
  *  A notable feature is that if the vector holds <= 2 objects, there's no
  *  extra storage - the two internal pointers are held in the two
@@ -129,48 +129,24 @@ class SmallVector_ {
  *
  *  This means that for the fairly common cases of pair-wise Query operators
  *  and Database objects with one or two subdatabases, we use less space than
- *  std::vector<Xapian::Foo> would.
+ *  std::vector<Xapian::Foo::Internal*> would.
  */
-template<typename T>
-class SmallVector : public SmallVector_ {
+template<typename TI>
+class SmallVectorI : public SmallVector_ {
   public:
     typedef std::size_t size_type;
-    class const_iterator {
-	void * const * ptr;
 
-      public:
-	const_iterator() { }
+    typedef TI*const* const_iterator;
 
-	explicit const_iterator(void * const * ptr_) : ptr(ptr_) { }
+    // Create an empty SmallVectorI.
+    SmallVectorI() : SmallVector_() { }
 
-	const_iterator & operator++() { ++ptr; return *this; }
+    // Create an empty SmallVectorI with n elements reserved.
+    explicit SmallVectorI(size_type n) : SmallVector_(n) { }
 
-	const_iterator operator++(int) { return const_iterator(ptr++); }
+    SmallVectorI(SmallVectorI&& o) noexcept : SmallVector_(o) { }
 
-	T operator*() const {
-	    return T(static_cast<typename T::Internal*>(*ptr));
-	}
-
-	T operator[](size_type idx) const {
-	    return T(static_cast<typename T::Internal*>(ptr[idx]));
-	}
-
-	bool operator==(const const_iterator& o) const { return ptr == o.ptr; }
-
-	bool operator!=(const const_iterator& o) const { return !(*this == o); }
-
-	const_iterator operator+(int n) { return const_iterator(ptr + n); }
-    };
-
-    // Create an empty SmallVector.
-    SmallVector() : SmallVector_() { }
-
-    // Create an empty SmallVector with n elements reserved.
-    explicit SmallVector(size_type n) : SmallVector_(n) { }
-
-    SmallVector(SmallVector&& o) noexcept : SmallVector_(o) { }
-
-    ~SmallVector() {
+    ~SmallVectorI() {
 	clear();
     }
 
@@ -184,16 +160,97 @@ class SmallVector : public SmallVector_ {
 
     void clear() {
 	for (const_iterator i = begin(); i != end(); ++i)
-	    if ((*i).internal.get() && --(*i).internal->_refs == 0)
-		delete (*i).internal.get();
+	    if ((*i) && --(*i)->_refs == 0)
+		delete *i;
 
 	do_clear();
     }
 
+    void push_back(TI* elt) {
+	do_push_back(static_cast<void*>(elt));
+	if (elt)
+	    ++elt->_refs;
+    }
+
+    TI* operator[](size_type idx) const {
+	return begin()[idx];
+    }
+
+    TI* front() const {
+	return *(begin());
+    }
+
+    TI* back() const {
+	return end()[-1];
+    }
+};
+
+/** Vector of Xapian PIMPL objects.
+ *
+ *  A notable feature is that if the vector holds <= 2 objects, there's no
+ *  extra storage - the two internal pointers are held in the two
+ *  pointers which otherwise point to the first and just after the last
+ *  element.
+ *
+ *  This means that for the fairly common cases of pair-wise Query operators
+ *  and Database objects with one or two subdatabases, we use less space than
+ *  std::vector<Xapian::Foo> would.
+ */
+template<typename T>
+class SmallVector : public SmallVectorI<typename T::Internal> {
+    typedef SmallVectorI<typename T::Internal> super;
+
+  public:
+    typedef std::size_t size_type;
+
+    class const_iterator {
+	typename super::const_iterator ptr;
+
+      public:
+	const_iterator() : ptr(nullptr) { }
+
+	explicit const_iterator(typename super::const_iterator ptr_)
+	    : ptr(ptr_) { }
+
+	const_iterator & operator++() { ++ptr; return *this; }
+
+	const_iterator operator++(int) { return const_iterator(ptr++); }
+
+	T operator*() const {
+	    return T(*ptr);
+	}
+
+	T operator[](size_type idx) const {
+	    return T(ptr[idx]);
+	}
+
+	bool operator==(const const_iterator& o) const { return ptr == o.ptr; }
+
+	bool operator!=(const const_iterator& o) const { return !(*this == o); }
+
+	const_iterator operator+(int n) { return const_iterator(ptr + n); }
+
+	const_iterator operator-(int n) { return const_iterator(ptr - n); }
+    };
+
+    // Create an empty SmallVector.
+    SmallVector() { }
+
+    // Create an empty SmallVector with n elements reserved.
+    explicit SmallVector(size_type n) : super(n) { }
+
+    const_iterator begin() const {
+	return const_iterator(super::begin());
+    }
+
+    const_iterator end() const {
+	return const_iterator(super::end());
+    }
+
+    using super::push_back;
+
     void push_back(const T & elt) {
-	do_push_back(static_cast<void*>(elt.internal.get()));
-	if (elt.internal.get())
-	    ++elt.internal->_refs;
+	push_back(elt.internal.get());
     }
 
     T operator[](size_type idx) const {
