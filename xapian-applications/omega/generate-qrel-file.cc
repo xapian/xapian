@@ -108,13 +108,13 @@ int main(int argc, char **argv) {
 
     sdbn.train(sessions);
 
-    vector<double> doc_relevances;
-
     // Extract doc relevances and doc ids from each session and write
     // to the qrel file in the required format.
     for (auto&& session : sessions) {
+	vector<double>
 	doc_relevances = sdbn.get_predicted_relevances(session);
-	vector<string> docids = get_docid_list(session);
+	vector<string>
+	docids = get_docid_list(session);
 
 	auto rel = doc_relevances.begin();
 	auto docid = docids.begin();
