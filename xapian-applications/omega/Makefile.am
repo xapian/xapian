@@ -114,7 +114,7 @@ AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
 dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
-bin_PROGRAMS = omindex scriptindex omindex-list
+bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
 
 check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test sdbntest urlenctest utf8converttest
@@ -203,6 +203,9 @@ scriptindex_LDADD = $(XAPIAN_LIBS)
 
 omindex_list_SOURCES = common/getopt.cc omindex-list.cc
 omindex_list_LDADD = $(XAPIAN_LIBS)
+
+generate_qrel_file_SOURCES = generate-qrel-file.cc clickmodel/simplifieddbn.cc
+generate_qrel_file_LDADD = $(XAPIAN_LIBS)
 
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
  myhtmlparse.cc utf8convert.cc common/keyword.cc datetime.cc timegm.cc
