@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
     try {
 	sessions = sdbn.build_sessions(final_log_file);
     } catch (std::exception &ex) {
-	cout << ex.what() << endl;
+	cerr << ex.what() << endl;
 	exit(1);
     }
 
@@ -116,18 +116,12 @@ int main(int argc, char **argv) {
 	vector<string>
 	docids = get_docid_list(session);
 
-	auto rel = doc_relevances.begin();
-	auto docid = docids.begin();
+	auto reliter = doc_relevances.begin();
+	auto dociter = docids.begin();
 
-	while (rel != doc_relevances.end() || docid != docids.end()) {
-	    file_q << session[0] << ' ' << "Q0"
-	    << ' ' << *docid << ' ' << *rel << ' ' << endl;
-
-	    if (rel != doc_relevances.end())
-		++rel;
-	    if (docid != docids.end())
-		++docid;
-	}
+	for (; reliter != doc_relevances.end() && dociter != docids.end(); ++reliter, ++dociter)
+	    file_q << session[0] << ' ' << "Q0 " << *dociter << ' ' << *reliter
+		   << ' ' << endl;
     }
 
     file_q.close();
