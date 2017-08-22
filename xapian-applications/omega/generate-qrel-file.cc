@@ -23,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "gnu_getopt.h"
@@ -44,24 +45,6 @@ static void help() {
 
 #define OPT_HELP 1
 #define DOCIDS 1
-
-static vector<string>
-get_docid_list(const vector<string> &session)
-{
-    vector<string> docids;
-    string docid;
-    for (size_t j = 0; j <= session[DOCIDS].length(); ++j) {
-	char ch = session[DOCIDS][j];
-	if (ch != ',' && ch != '\0') {
-	    docid += ch;
-	} else {
-	    docids.push_back(docid);
-	    docid.clear();
-	}
-    }
-    return docids;
-}
-
 
 int main(int argc, char **argv) {
     const char * opts = "";
@@ -111,17 +94,14 @@ int main(int argc, char **argv) {
     // Extract doc relevances and doc ids from each session and write
     // to the qrel file in the required format.
     for (auto&& session : sessions) {
-	vector<double>
-	doc_relevances = sdbn.get_predicted_relevances(session);
-	vector<string>
-	docids = get_docid_list(session);
+	vector<pair<string, double>>
+	docid_relevances = sdbn.get_predicted_relevances(session);
 
-	auto reliter = doc_relevances.begin();
-	auto dociter = docids.begin();
+	auto reliter = docid_relevances.begin();
 
-	for (; reliter != doc_relevances.end() && dociter != docids.end(); ++reliter, ++dociter)
-	    file_q << session[0] << ' ' << "Q0 " << *dociter << ' ' << *reliter
-		   << ' ' << endl;
+	for (; reliter != docid_relevances.end(); ++reliter)
+	    file_q << session[0] << ' ' << "Q0 " << (*reliter).first << ' '
+		   << (*reliter).second << ' ' << endl;
     }
 
     file_q.close();

@@ -27,6 +27,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -202,17 +203,17 @@ SimplifiedDBN::train(const vector<vector<string>> &sessions)
     }
 }
 
-vector<double>
+vector<pair<string, double>>
 SimplifiedDBN::get_predicted_relevances(const vector<string> &session)
 {
-    vector<double> relevances;
+    vector<pair<string, double>> docid_relevances;
 
     vector<string> docids = get_docid_list(session);
 
     for (size_t i = 0; i < docids.size(); ++i) {
 	double attr_prob = doc_relevances[session[QID]][docids[i]][PARAM_ATTR_PROB];
 	double sat_prob = doc_relevances[session[QID]][docids[i]][PARAM_SAT_PROB];
-	relevances.push_back(attr_prob * sat_prob);
+	docid_relevances.push_back(make_pair(docids[i], attr_prob * sat_prob));
     }
-    return relevances;
+    return docid_relevances;
 }

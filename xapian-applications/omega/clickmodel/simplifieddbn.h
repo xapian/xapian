@@ -20,6 +20,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -68,5 +69,5 @@ class SimplifiedDBN {
      *
      * @param sessions		List of all sessions.
      */
-    vector<double> get_predicted_relevances(const vector<string> &session);
+    vector<pair<string, double>> get_predicted_relevances(const vector<string> &session);
 };
