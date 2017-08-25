@@ -179,7 +179,8 @@ DEFINE_TESTCASE(listnet_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListNet_Ranker",
 				"scorer_output.txt", 10));
-    ranker.score(query, qrel, "ListNet_Ranker", "scorer_output.txt", 10);
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output.txt", 10);
+    ranker.score(query, qrel, "ListNet_Ranker", "err_output.txt", 10, "ERRScore");
 
     return true;
 }
@@ -220,7 +221,8 @@ DEFINE_TESTCASE(svm_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "SVM_Ranker",
 				"scorer_output.txt", 10));
-    ranker.score(query, qrel, "SVM_Ranker", "scorer_output.txt", 10);
+    ranker.score(query, qrel, "SVM_Ranker", "ndcg_output.txt", 10);
+    ranker.score(query, qrel, "SVM_Ranker", "err_output.txt", 10, "ERRScore");
 
     return true;
 }
@@ -261,7 +263,8 @@ DEFINE_TESTCASE(listmle_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListMLE_Ranker",
 				"scorer_output.txt", 10));
-    ranker.score(query, qrel, "ListMLE_Ranker", "scorer_output.txt", 10);
+    ranker.score(query, qrel, "ListMLE_Ranker", "ndcg_output.txt", 10);
+    ranker.score(query, qrel, "ListMLE_Ranker", "err_output.txt", 10, "ERRScore");
 
     return true;
 }
@@ -280,6 +283,29 @@ DEFINE_TESTCASE(featurename, !backend)
     TEST_EQUAL(feature4.name(), "TfFeature");
     TEST_EQUAL(feature5.name(), "TfIdfDoclenFeature");
     TEST_EQUAL(feature6.name(), "CollTfCollLenFeature");
+
+    return true;
+}
+
+DEFINE_TESTCASE(err_scorer, !backend)
+{
+    /* Derived from the example mentioned in the blogpost
+     * https://lingpipe-blog.com/2010/03/09/chapelle-metzler-zhang-grinspan-2009-expected-reciprocal-rank-for-graded-relevance/
+     */
+    vector<Xapian::FeatureVector> fvv;
+    Xapian::FeatureVector temp1;
+    Xapian::FeatureVector temp2;
+    Xapian::FeatureVector temp3;
+    temp1.set_label(3);
+    fvv.push_back(temp1);
+    temp2.set_label(2);
+    fvv.push_back(temp2);
+    temp3.set_label(4);
+    fvv.push_back(temp3);
+    Xapian::ERRScore err;
+    double err_score = err.score(fvv);
+
+    TEST(abs(err_score - 0.63) < 0.01);
 
     return true;
 }
