@@ -23,6 +23,8 @@
 #include <utility>
 #include <vector>
 
+#include "session.h"
+
 using namespace std;
 
 enum {
@@ -54,20 +56,20 @@ class SimplifiedDBN {
      *
      * @param logfile		Path to the final log file.
      */
-    vector<vector<string>> build_sessions(const string &logfile);
+    vector<Session> build_sessions(const string &logfile);
 
     /** Trains the model i.e. learning the values of attractiveness
      * and satisfactoriness parameters modelled by the click model.
      *
      * @param sessions 		List of all sessions.
      */
-    void train(const vector<vector<string>> &sessions);
+    void train(const vector<Session> &sessions);
 
     /** Return predicted relevance of each document in a session i.e. the
      * estimations of the relevance of each document in a given session based
      * on a trained model. Values ranging from 0.0 to 1.0.
      *
-     * @param sessions		List of all sessions.
+     * @param sessions		Session class object representing a session.
      */
-    vector<pair<string, double>> get_predicted_relevances(const vector<string> &session);
+    vector<pair<string, double>> get_predicted_relevances(const Session &session);
 };

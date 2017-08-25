@@ -142,7 +142,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
  xlsxparse.h opendocparse.h msxmlparse.h timegm.h csvescape.h\
- portability/mkdtemp.h clickmodel/simplifieddbn.h
+ portability/mkdtemp.h clickmodel/simplifieddbn.h clickmodel/session.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\

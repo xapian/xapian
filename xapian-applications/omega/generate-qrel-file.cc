@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 
     SimplifiedDBN sdbn;
 
-    vector<vector<string>> sessions;
+    vector<Session> sessions;
     try {
 	sessions = sdbn.build_sessions(final_log_file);
     } catch (std::exception &ex) {
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 	auto reliter = docid_relevances.begin();
 
 	for (; reliter != docid_relevances.end(); ++reliter)
-	    file_q << session[0] << ' ' << "Q0 " << (*reliter).first << ' '
+	    file_q << session.get_qid() << ' ' << "Q0 " << (*reliter).first << ' '
 		   << (*reliter).second << ' ' << endl;
     }
 

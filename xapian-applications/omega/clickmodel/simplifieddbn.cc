@@ -43,12 +43,12 @@ SimplifiedDBN::name()
 }
 
 static vector<string>
-get_docid_list(const vector<string> &session)
+get_docid_list(const string &str_docids)
 {
     vector<string> docids;
     string docid;
-    for (size_t j = 0; j <= session[DOCIDS].length(); ++j) {
-	char ch = session[DOCIDS][j];
+    for (size_t j = 0; j <= str_docids.length(); ++j) {
+	char ch = str_docids[j];
 	if (ch != ',' && ch != '\0') {
 	    docid += ch;
 	} else {
@@ -60,17 +60,17 @@ get_docid_list(const vector<string> &session)
 }
 
 static vector<int>
-get_click_list(const vector<string> &session)
+get_click_list(const string &str_clicks)
 {
     vector<int> clicks;
     string clickstring, clickcount;
     int click = 0;
 
-    for (size_t j = 0; j <= session[CLICKS].length(); ++j) {
-	char ch = session[CLICKS][j];
+    for (size_t j = 0; j <= str_clicks.length(); ++j) {
+	char ch = str_clicks[j];
 	if (ch != ',' && ch != '\0') {
 	    // Get clickstring of the form "docid:click_count".
-	    clickstring += session[CLICKS][j];
+	    clickstring += str_clicks[j];
 
 	    // Get click count string.
 	    size_t delimiter_pos = clickstring.find(':');
@@ -87,7 +87,7 @@ get_click_list(const vector<string> &session)
     return clicks;
 }
 
-vector<vector<string>>
+vector<Session>
 SimplifiedDBN::build_sessions(const string &logfile)
 {
     ifstream file;
@@ -102,8 +102,7 @@ SimplifiedDBN::build_sessions(const string &logfile)
     // Skip the first line.
     getline(file, line);
 
-    vector<vector<string>> sessions;
-    vector<string> session_entry;
+    vector<Session> sessions;
 
     // Start reading file from the second line.
     while (getline(file, line)) {
@@ -138,13 +137,9 @@ SimplifiedDBN::build_sessions(const string &logfile)
 	string docids = row_data[2];
 	string clicks = row_data[4];
 
-	session_entry.push_back(qid);
-	session_entry.push_back(docids);
-	session_entry.push_back(clicks);
-
-	sessions.push_back(session_entry);
-
-	session_entry.clear();
+	Session s;
+	s.create_session(qid, docids, clicks);
+	sessions.push_back(s);
     }
 
     file.close();
@@ -152,16 +147,16 @@ SimplifiedDBN::build_sessions(const string &logfile)
 }
 
 void
-SimplifiedDBN::train(const vector<vector<string>> &sessions)
+SimplifiedDBN::train(const vector<Session> &sessions)
 {
     map<string, map<string, map<char, double[PARAM_COUNT_]>>> doc_rel_fractions;
 
-    for (size_t i = 0; i < sessions.size(); ++i) {
-	string qid = sessions[i][QID];
+    for (auto&& session : sessions) {
+	string qid = session.get_qid();
 
-	vector<string> docids = get_docid_list(sessions[i]);
+	vector<string> docids = get_docid_list(session.get_docids());
 
-	vector<int> clicks = get_click_list(sessions[i]);
+	vector<int> clicks = get_click_list(session.get_clicks());
 
 	int last_clicked_pos = clicks.size() - 1;
 
@@ -204,15 +199,15 @@ SimplifiedDBN::train(const vector<vector<string>> &sessions)
 }
 
 vector<pair<string, double>>
-SimplifiedDBN::get_predicted_relevances(const vector<string> &session)
+SimplifiedDBN::get_predicted_relevances(const Session &session)
 {
     vector<pair<string, double>> docid_relevances;
 
-    vector<string> docids = get_docid_list(session);
+    vector<string> docids = get_docid_list(session.get_docids());
 
     for (size_t i = 0; i < docids.size(); ++i) {
-	double attr_prob = doc_relevances[session[QID]][docids[i]][PARAM_ATTR_PROB];
-	double sat_prob = doc_relevances[session[QID]][docids[i]][PARAM_SAT_PROB];
+	double attr_prob = doc_relevances[session.get_qid()][docids[i]][PARAM_ATTR_PROB];
+	double sat_prob = doc_relevances[session.get_qid()][docids[i]][PARAM_SAT_PROB];
 	docid_relevances.push_back(make_pair(docids[i], attr_prob * sat_prob));
     }
     return docid_relevances;

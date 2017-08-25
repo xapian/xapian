@@ -68,7 +68,7 @@ int main() {
 
     // Tests for SimplifiedDBN::build_sessions method.
     for (size_t i = 0; i < sizeof(sessions_tests) / sizeof(sessions_tests[0]); ++i) {
-	vector<vector<string>> result;
+	vector<Session> result;
 	try {
 	    result = sdbn.build_sessions(sessions_tests[i].logfile);
 	} catch (std::exception &ex) {
@@ -79,29 +79,29 @@ int main() {
 	}
 
 	for (auto&& x : result) {
-	    if (x[QID] != sessions_tests[i].sessions.qid) {
+	    if (x.get_qid() != sessions_tests[i].sessions.qid) {
 		cerr << "ERROR: Query ID mismatch occurred. " << endl
 		     << "Expected: " << sessions_tests[i].sessions.qid
-		     << " Received: "<< x[QID] << endl;
+		     << " Received: "<< x.get_qid() << endl;
 		++failure_count;
 	    }
-	    if (x[DOCIDS] != sessions_tests[i].sessions.docids) {
+	    if (x.get_docids() != sessions_tests[i].sessions.docids) {
 		cerr << "ERROR: Doc ID(s) mismatch occurred. " << endl
 		     << "Expected: " << sessions_tests[i].sessions.docids
-		     << " Received: " << x[DOCIDS] << endl;
+		     << " Received: " << x.get_docids() << endl;
 		++failure_count;
 	    }
-	    if (x[CLICKS] != sessions_tests[i].sessions.clicks) {
+	    if (x.get_clicks() != sessions_tests[i].sessions.clicks) {
 		cerr << "ERROR: Clicks mismatch occurred. " << endl
 		     << "Expected: " << sessions_tests[i].sessions.clicks
-		     << " Received: " << x[CLICKS] << endl;
+		     << " Received: " << x.get_clicks() << endl;
 		++failure_count;
 	    }
 	}
     }
 
     // Train Simplified DBN model on a dummy training file.
-    vector<vector<string>> training_sessions;
+    vector<Session> training_sessions;
     try {
 	training_sessions = sdbn.build_sessions(sample_log3);
     } catch (std::exception &ex) {
@@ -111,30 +111,46 @@ int main() {
 
     sdbn.train(training_sessions);
 
-    vector<vector<double>>
-    expected_relevances = {{0.166, 0.166, 0.166, 0.444, 0},
-			   {0.444, 0, 0, 0, 0}};
+    pair<string, double> relevance11 ("45", 0.166);
+    pair<string, double> relevance12 ("36", 0.166);
+    pair<string, double> relevance13 ("14", 0.166);
+    pair<string, double> relevance14 ("54", 0.444);
+    pair<string, double> relevance15 ("42", 0);
 
+    pair<string, double> relevance21 ("35", 0.444);
+    pair<string, double> relevance22 ("47", 0);
+    pair<string, double> relevance23 ("31", 0);
+    pair<string, double> relevance24 ("14", 0);
+    pair<string, double> relevance25 ("45", 0);
+
+    vector<vector<pair<string, double>>>
+    expected_relevances = {{relevance11, relevance12, relevance13,
+			    relevance14, relevance15},
+			   {relevance21, relevance22, relevance23,
+			    relevance24, relevance25}};
+
+    int k = 0;
     // Tests for SimplifiedDBN::get_predicted_relevances. 
-    for (size_t i = 0; i < training_sessions.size(); ++i) {
-	vector<double>
-	predicted_relevances = sdbn.get_predicted_relevances(training_sessions[i]);
+    for (auto&& session : training_sessions) {
+	vector<pair<string, double>>
+	predicted_relevances = sdbn.get_predicted_relevances(session);
 
-	if (predicted_relevances.size() != expected_relevances[i].size()) {
+	if (predicted_relevances.size() != expected_relevances[k].size()) {
 	    cerr << "ERROR: Relevance lists sizes do not match." << endl;
 	    ++failure_count;
 	    // Skip subsequent tests.
 	    continue;
 	}
 
-	for (size_t j = 0; j < expected_relevances[i].size(); ++j) {
-	    if (!almost_equal(predicted_relevances[j], expected_relevances[i][j])) {
+	for (size_t j = 0; j < expected_relevances[k].size(); ++j) {
+	    if (!almost_equal(predicted_relevances[j].second, expected_relevances[k][j].second)) {
 		cerr << "ERROR: Relevances do not match." << endl
-		     << "Expected: " << expected_relevances[i][j]
-		     << " Received: " << predicted_relevances[j] << endl;
+		     << "Expected: " << expected_relevances[k][j].second
+		     << " Received: " << predicted_relevances[j].second << endl;
 		++failure_count;
 	    }
 	}
+	++k;
     }
 
     if (failure_count != 0) {
