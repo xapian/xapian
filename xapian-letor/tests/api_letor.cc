@@ -179,7 +179,8 @@ DEFINE_TESTCASE(listnet_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListNet_Ranker",
 				"scorer_output.txt", 10));
-    ranker.score(query, qrel, "ListNet_Ranker", "scorer_output.txt", 10);
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output.txt", 10);
+    ranker.score(query, qrel, "ListNet_Ranker", "err_output.txt", 10, "ERRScore");
 
     return true;
 }
@@ -220,7 +221,8 @@ DEFINE_TESTCASE(svm_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "SVM_Ranker",
 				"scorer_output.txt", 10));
-    ranker.score(query, qrel, "SVM_Ranker", "scorer_output.txt", 10);
+    ranker.score(query, qrel, "SVM_Ranker", "ndcg_output.txt", 10);
+    ranker.score(query, qrel, "SVM_Ranker", "err_output.txt", 10, "ERRScore");
 
     return true;
 }
@@ -261,7 +263,8 @@ DEFINE_TESTCASE(listmle_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListMLE_Ranker",
 				"scorer_output.txt", 10));
-    ranker.score(query, qrel, "ListMLE_Ranker", "scorer_output.txt", 10);
+    ranker.score(query, qrel, "ListMLE_Ranker", "ndcg_output.txt", 10);
+    ranker.score(query, qrel, "ListMLE_Ranker", "err_output.txt", 10, "ERRScore");
 
     return true;
 }

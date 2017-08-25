@@ -404,6 +404,8 @@ Ranker::score(const string & query_file, const string & qrel_file,
     Xapian::Internal::intrusive_ptr<Scorer> scorer;
     if (scorer_type == "NDCGScore") {
 	scorer = new NDCGScore();
+    } else if(scorer_type == "ERRScore") {
+	scorer = new ERRScore();
     } else {
 	throw LetorInternalError("Invalid Scorer type.");
     }

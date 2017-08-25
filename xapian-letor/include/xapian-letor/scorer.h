@@ -68,6 +68,19 @@ class XAPIAN_VISIBILITY_DEFAULT NDCGScore: public Scorer {
 
 };
 
+/// ERRScore class
+class XAPIAN_VISIBILITY_DEFAULT ERRScore: public Scorer {
+  public:
+    /// Default constructor
+    ERRScore();
+
+    /// Destructor
+    ~ERRScore();
+
+    double score(const std::vector<FeatureVector> & fvv) const;
+
+};
+
 }
 
 #endif /* SCORER_H */

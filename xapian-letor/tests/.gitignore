@@ -23,8 +23,9 @@
 /perflog.xml
 /submitperftest
 /zlib-vg.so
+/err_output.txt
 /listmle_ranker_training.txt
 /listnet_ranker_training.txt
-/scorer_output.txt
+/ndcg_output.txt
 /svm_ranker_training.txt
 /training_output.txt
