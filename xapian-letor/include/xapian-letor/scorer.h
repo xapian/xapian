@@ -68,7 +68,11 @@ class XAPIAN_VISIBILITY_DEFAULT NDCGScore: public Scorer {
 
 };
 
-/// ERRScore class
+/** ERRScore class
+ *  ERR Score is adapted from the paper: goo.gl/Cs3ydQ
+ *  Chapelle, Metzler, Zhang, Grinspan (2009)
+ *  Expected Reciprocal Rank for Graded Relevance
+ */
 class XAPIAN_VISIBILITY_DEFAULT ERRScore: public Scorer {
   public:
     /// Default constructor

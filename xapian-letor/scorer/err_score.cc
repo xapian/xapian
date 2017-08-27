@@ -1,5 +1,9 @@
 /** @file err_score.cc
  *  @brief Implementation of ERRScore
+ *
+ *  ERR Score is adapted from the paper: goo.gl/Cs3ydQ
+ *  Chapelle, Metzler, Zhang, Grinspan (2009)
+ *  Expected Reciprocal Rank for Graded Relevance
  */
 /* Copyright (C) 2014 Hanxiao Sun
  *
@@ -41,24 +45,6 @@ ERRScore::~ERRScore()
     LOGCALL_DTOR(API, "ERRScore");
 }
 
-static vector<double>
-get_labels(vector<Xapian::FeatureVector> fvv)
-{
-    LOGCALL_STATIC(API, vector<double>, "get_labels", fvv);
-    size_t fvvsize = fvv.size();
-    vector<double> labels;
-
-    for (size_t i = 0; i < fvvsize; ++i) {
-	labels.push_back(fvv[i].get_label());
-    }
-
-    return labels;
-}
-
-/* test the err_Score() use the data from goo.gl/LxEmPZ
- * input:[3,2,4]
- * output:0.63
- */
 double
 ERRScore::score(const std::vector<FeatureVector> & fvv) const
 {
@@ -67,7 +53,19 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
     // hard code for the a five-point scale, the 16 means 2^(5-1)
     int MAX_LABEL = 16;
 
-    std::vector<double> labels = get_labels(fvv);
+    std::vector<double> labels;
+    double max_label = fvv[0].get_label();
+
+    for (size_t i = 0; i < fvv.size(); ++i) {
+	double label = fvv[i].get_label();
+	labels.push_back(fvv[i].get_label());
+	max_label = max(max_label, label);
+    }
+
+    for (size_t i = 0; i < fvv.size(); ++i) {
+	labels[i] = round((labels[i] * 4) / max_label);
+    }
+
     int length = labels.size();
 
     // compute the satisfaction probability for lable of each doc in the ranking

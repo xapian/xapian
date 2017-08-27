@@ -286,3 +286,24 @@ DEFINE_TESTCASE(featurename, !backend)
 
     return true;
 }
+
+DEFINE_TESTCASE(err_scorer, !backend)
+{
+    // demonstrating the example mentioned in the paper goo.gl/Cs3ydQ
+    vector<Xapian::FeatureVector> fvv;
+    Xapian::FeatureVector temp1;
+    Xapian::FeatureVector temp2;
+    Xapian::FeatureVector temp3;
+    temp1.set_label(3);
+    fvv.push_back(temp1);
+    temp2.set_label(2);
+    fvv.push_back(temp2);
+    temp3.set_label(4);
+    fvv.push_back(temp3);
+    Xapian::ERRScore err;
+    double err_score = err.score(fvv);
+
+    TEST(abs(err_score - 0.63) < 0.01);
+
+    return true;
+}
