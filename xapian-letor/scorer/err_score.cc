@@ -1,7 +1,7 @@
 /** @file err_score.cc
  *  @brief Implementation of ERRScore
  *
- *  ERR Score is adapted from the paper: goo.gl/Cs3ydQ
+ *  ERR Score is adapted from the paper: http://olivier.chapelle.cc/pub/err.pdf
  *  Chapelle, Metzler, Zhang, Grinspan (2009)
  *  Expected Reciprocal Rank for Graded Relevance
  */
@@ -50,42 +50,44 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 {
     LOGCALL(API, double, "ERRScore::score", fvv);
 
-    // hard code for the a five-point scale, the 16 means 2^(5-1)
-    int MAX_LABEL = 16;
+    int MAX_PROB = 16;
 
-    std::vector<double> labels;
+    int length = fvv.size();
+
+    double vector_intermediate[length];
     double max_label = fvv[0].get_label();
 
-    for (size_t i = 0; i < fvv.size(); ++i) {
+    // store the labels set the by the user in vector_intermediate.
+    for (int i = 0; i < length; ++i) {
 	double label = fvv[i].get_label();
-	labels.push_back(fvv[i].get_label());
+	vector_intermediate[i] = label;
 	max_label = max(max_label, label);
     }
 
-    for (size_t i = 0; i < fvv.size(); ++i) {
-	labels[i] = round((labels[i] * 4) / max_label);
-    }
-
-    int length = labels.size();
-
-    // compute the satisfaction probability for lable of each doc in the ranking
+    // normalize the labels to an integer from 0 to 4 because we are using
+    // a grade point system where each document is graded from 0 to 4.
     for (int i = 0; i < length; ++i) {
-	labels[i] = (pow(2, labels[i]) - 1) / MAX_LABEL;
+	vector_intermediate[i] = round((vector_intermediate[i] * 4) /
+				       max_label);
     }
 
-    double err_score = labels[0];
+    // compute the satisfaction probability for label of each doc in the ranking.
+    for (int i = 0; i < length; ++i) {
+	vector_intermediate[i] = (pow(2, vector_intermediate[i]) - 1) /
+				  MAX_PROB;
+    }
 
-    // compute the accumulated probability for each doc which user will stop at
-    for (int i = 1; i < length; ++i) {
+    double p = 1;
+    double err_score = 0;
 
-	// single stop probability
-	double temp_err = (1.0 / (i + 1.0)) * labels[i];
-
-	// for users
-	for (int j = i - 1; j >= 0; --j) {
-	    temp_err *= (1 - labels[j]);
-	}
-	err_score += temp_err;
+    /* compute the accumulated probability p for each doc
+     * that the user will stop at.
+     * err_score = summation for each doc
+     * ((satisfaction probability * p) / rank)
+     */
+    for (int i = 0; i < length; ++i) {
+	err_score = err_score + (vector_intermediate[i] * p / (i + 1));
+	p = p * (1 - vector_intermediate[i]);
     }
 
     return err_score;

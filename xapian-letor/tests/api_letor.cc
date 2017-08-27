@@ -289,7 +289,7 @@ DEFINE_TESTCASE(featurename, !backend)
 
 DEFINE_TESTCASE(err_scorer, !backend)
 {
-    // demonstrating the example mentioned in the paper goo.gl/Cs3ydQ
+    // demonstrating the example mentioned in the blogpost goo.gl/Cs3ydQ
     vector<Xapian::FeatureVector> fvv;
     Xapian::FeatureVector temp1;
     Xapian::FeatureVector temp2;
