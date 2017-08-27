@@ -50,30 +50,38 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 {
     LOGCALL(API, double, "ERRScore::score", fvv);
 
+    /* 2^(gmax) where gmax is the max of all the relevance grades.
+     * since a 5 point grade sytem is used, possible relevance grades are
+     * {0, 1, 2, 3, 4}, gmax = 4. For more information refer to section 4 of
+     * the paper http://olivier.chapelle.cc/pub/err.pdf
+     */
     int MAX_PROB = 16;
 
     int length = fvv.size();
 
-    double vector_intermediate[length];
+    /* used to store values which change from labels to
+     * satisfaction probability
+     */
+    double intermediate_values[length];
     double max_label = fvv[0].get_label();
 
-    // store the labels set the by the user in vector_intermediate.
+    // store the labels set the by the user in intermediate_values.
     for (int i = 0; i < length; ++i) {
 	double label = fvv[i].get_label();
-	vector_intermediate[i] = label;
+	intermediate_values[i] = label;
 	max_label = max(max_label, label);
     }
 
     // normalize the labels to an integer from 0 to 4 because we are using
     // a grade point system where each document is graded from 0 to 4.
     for (int i = 0; i < length; ++i) {
-	vector_intermediate[i] = round((vector_intermediate[i] * 4) /
+	intermediate_values[i] = round((intermediate_values[i] * 4) /
 				       max_label);
     }
 
     // compute the satisfaction probability for label of each doc in the ranking.
     for (int i = 0; i < length; ++i) {
-	vector_intermediate[i] = (pow(2, vector_intermediate[i]) - 1) /
+	intermediate_values[i] = (pow(2, intermediate_values[i]) - 1) /
 				  MAX_PROB;
     }
 
@@ -86,8 +94,8 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
      * ((satisfaction probability * p) / rank)
      */
     for (int i = 0; i < length; ++i) {
-	err_score = err_score + (vector_intermediate[i] * p / (i + 1));
-	p = p * (1 - vector_intermediate[i]);
+	err_score = err_score + (intermediate_values[i] * p / (i + 1));
+	p = p * (1 - intermediate_values[i]);
     }
 
     return err_score;
