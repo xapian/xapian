@@ -64,7 +64,7 @@ the trained SDBN model.
 Use ``build_sessions`` function to generate a list of search sessions from an
 input log data file as described above and then pass any particular search
 session from the list for which you want the predicted relevances of the
-documents in that session to ``get_predicted_relevances``function which creates
+documents in that session to ``get_predicted_relevances`` function which creates
 a list of those predicted relevances.
 
 Predicted relevances are the estimations of the relevance of each document in
