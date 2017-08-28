@@ -244,10 +244,10 @@ qtestcase '(VALUE_RANGE 0 2015 201501~ AND_NOT Len)' DATEVALUE=0 START=20150101 
 
 # If faketime is available and works, test cases where the output depends on
 # "now".
-if [ "`faketime '1980-12-08' date +%Y 2>&1`" = 1980 ] ; then
+if [ "`faketime -f '1980-12-08 00:00:00' date +%Y 2>&1`" = 1980 ] ; then
     TZ=UTC
     export TZ
-    FAKETIME=faketime
+    FAKETIME='faketime -f'
     FAKE_NOW='2015-11-28 06:07:08'
     qtestcase 'VALUE_RANGE 0 20151127060709 20151128060708' DATEVALUE=0 SPAN=1
 
