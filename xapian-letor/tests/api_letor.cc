@@ -289,7 +289,9 @@ DEFINE_TESTCASE(featurename, !backend)
 
 DEFINE_TESTCASE(err_scorer, !backend)
 {
-    // demonstrating the example mentioned in the blogpost goo.gl/Cs3ydQ
+    /* Derived from the example mentioned in the blogpost
+     * https://lingpipe-blog.com/2010/03/09/chapelle-metzler-zhang-grinspan-2009-expected-reciprocal-rank-for-graded-relevance/
+     */
     vector<Xapian::FeatureVector> fvv;
     Xapian::FeatureVector temp1;
     Xapian::FeatureVector temp2;

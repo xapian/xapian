@@ -45,18 +45,20 @@ ERRScore::~ERRScore()
     LOGCALL_DTOR(API, "ERRScore");
 }
 
+void
+ERRScore::set_max_grade(int max_grade_)
+{
+    LOGCALL_VOID(API, "ERRScore::set_max_grade", max_grade_);
+    max_grade = max_grade_;
+}
+
 double
 ERRScore::score(const std::vector<FeatureVector> & fvv) const
 {
     LOGCALL(API, double, "ERRScore::score", fvv);
-
-    /* 2^(gmax) where gmax is the max of all the relevance grades.
-     * since a 5 point grade sytem is used, possible relevance grades are
-     * {0, 1, 2, 3, 4}, gmax = 4. For more information refer to section 4 of
-     * the paper http://olivier.chapelle.cc/pub/err.pdf
-     */
-    int MAX_PROB = 16;
-
+    if (fvv.empty()) {
+	throw Xapian::InvalidArgumentError("Empty argument supplied");
+    }
     int length = fvv.size();
 
     /* used to store values which change from labels to
@@ -65,37 +67,46 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
     double intermediate_values[length];
     double max_label = fvv[0].get_label();
 
-    // store the labels set the by the user in intermediate_values.
+    // store the labels set	by the user in intermediate_values.
     for (int i = 0; i < length; ++i) {
 	double label = fvv[i].get_label();
 	intermediate_values[i] = label;
 	max_label = max(max_label, label);
     }
 
-    // normalize the labels to an integer from 0 to 4 because we are using
-    // a grade point system where each document is graded from 0 to 4.
-    for (int i = 0; i < length; ++i) {
-	intermediate_values[i] = round((intermediate_values[i] * 4) /
-				       max_label);
+    /* All the powers of 2 from 0 to max_grade as calculated and stored to
+     * optimize the calculation of satisfaction probability.
+     */
+    double powers_of_two[max_grade + 1];
+    powers_of_two[0] = 1;
+    for (int i = 1; i <= max_grade; ++i) {
+	powers_of_two[i] = 2 * powers_of_two[i - 1];
     }
 
-    // compute the satisfaction probability for label of each doc in the ranking.
-    for (int i = 0; i < length; ++i) {
-	intermediate_values[i] = (pow(2, intermediate_values[i]) - 1) /
-				  MAX_PROB;
-    }
-
+    // Accumulated probability, which is updated for each document.
     double p = 1;
     double err_score = 0;
+    for (int rank = 1; rank <= length; ++rank) {
+	// Normalize the label to an relevance grade from 0 to max_grade.
+	intermediate_values[rank - 1] = round((intermediate_values[rank - 1] *
+					      max_grade) / max_label);
 
-    /* compute the accumulated probability p for each doc
-     * that the user will stop at.
-     * err_score = summation for each doc
-     * ((satisfaction probability * p) / rank)
-     */
-    for (int i = 0; i < length; ++i) {
-	err_score = err_score + (intermediate_values[i] * p / (i + 1));
-	p = p * (1 - intermediate_values[i]);
+	/* Compute the probability of relevance for the document.
+	 * Probability of relevance is calculated in accordance with the gain
+	 * function for the Discounted Cumulative Gain in the paper:
+	 * http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.74.9057&rep=rep1&type=pdf
+	 */
+	intermediate_values[rank - 1] = (powers_of_two[
+					 (int)intermediate_values[rank - 1]] -
+					 1) / powers_of_two[max_grade];
+
+       /* err_score = summation over all the documents
+	* ((satisfaction probability * p) / rank).
+	* Expected Reciprocal Rank(err_score) is calculated in accordance with
+	* algorithm 2 in the paper http://olivier.chapelle.cc/pub/err.pdf
+	*/
+	err_score = err_score + (p * intermediate_values[rank - 1] / rank);
+	p = p * (1 - intermediate_values[rank - 1]);
     }
 
     return err_score;

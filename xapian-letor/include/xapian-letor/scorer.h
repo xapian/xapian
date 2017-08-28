@@ -65,22 +65,41 @@ class XAPIAN_VISIBILITY_DEFAULT NDCGScore: public Scorer {
     ~NDCGScore();
 
     double score(const std::vector<FeatureVector> & fvv) const;
+
 };
 
-/** ERRScore class
- *  ERR Score is adapted from the paper: goo.gl/Cs3ydQ
+/** Expected Reciprocal Rank(ERR) Scorer.
+ *  ERR Scorer is adapted from the paper:
+ *  http://olivier.chapelle.cc/pub/err.pdf
  *  Chapelle, Metzler, Zhang, Grinspan (2009)
  *  Expected Reciprocal Rank for Graded Relevance
  */
-class XAPIAN_VISIBILITY_DEFAULT ERRScore: public Scorer {
+class XAPIAN_VISIBILITY_DEFAULT ERRScore : public Scorer {
+    /* max_grade is the maximum grade that a label can be mapped to.
+     * The relevance label that user sets for the documents can be arbitary
+     * and huge. Computing the probability of relevance for the documents,
+     * which involves computing pow(2, label), can be time consuming.
+     * To reduce the time complexity the labels are mapped to a smaller space
+     * i.e. {0, 1, 2,...., max_grade}.
+     * By default max_grade is 4.
+     */
+    int max_grade = 4;
+
   public:
     /// Default constructor
     ERRScore();
+
+    /// Function to set max_grade
+    void set_max_grade(int max_grade_);
+
+    /// Function that returns the value set for max_grade.
+    int get_max_grade();
 
     /// Destructor
     ~ERRScore();
 
     double score(const std::vector<FeatureVector> & fvv) const;
+
 };
 
 }
