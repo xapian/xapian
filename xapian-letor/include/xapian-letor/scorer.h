@@ -89,11 +89,7 @@ class XAPIAN_VISIBILITY_DEFAULT ERRScore : public Scorer {
     /// Default constructor
     ERRScore();
 
-    /// Function to set max_grade
-    void set_max_grade(int max_grade_);
-
-    /// Function that returns the value set for max_grade.
-    int get_max_grade();
+    ERRScore(int max_grade_);
 
     /// Destructor
     ~ERRScore();

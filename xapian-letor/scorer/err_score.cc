@@ -45,10 +45,9 @@ ERRScore::~ERRScore()
     LOGCALL_DTOR(API, "ERRScore");
 }
 
-void
-ERRScore::set_max_grade(int max_grade_)
+ERRScore::ERRScore(int max_grade_)
 {
-    LOGCALL_VOID(API, "ERRScore::set_max_grade", max_grade_);
+    LOGCALL_CTOR(API, "ERRScore", max_grade_);
     max_grade = max_grade_;
 }
 
