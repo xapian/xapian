@@ -100,8 +100,8 @@ int main(int argc, char **argv) {
 	auto reliter = docid_relevances.begin();
 
 	for (; reliter != docid_relevances.end(); ++reliter)
-	    file_q << session.get_qid() << ' ' << "Q0 " << (*reliter).first << ' '
-		   << (*reliter).second << ' ' << endl;
+	    file_q << session.get_qid() << " Q0 " << (*reliter).first << ' '
+		   << (*reliter).second << endl;
     }
 
     file_q.close();
