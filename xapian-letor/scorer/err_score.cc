@@ -67,18 +67,10 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 	max_label = max(max_label, label);
     }
 
-    /* All the powers of 2 from 0 to max_grade as calculated and stored to
-     * optimize the calculation of satisfaction probability.
-     */
-    double powers_of_two[(int)max_label + 1];
-    powers_of_two[0] = 1;
-    for (int i = 1; i <= max_label; ++i) {
-	powers_of_two[i] = 2 * powers_of_two[i - 1];
-    }
-
     // Accumulated probability, which is updated for each document.
     double p = 1;
     double err_score = 0;
+    int max_value = exp2((int)max_label);
     for (int rank = 1; rank <= length; ++rank) {
 
 	/* Compute the probability of relevance for the document.
@@ -86,9 +78,8 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 	 * function for the Discounted Cumulative Gain in the paper:
 	 * http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.74.9057&rep=rep1&type=pdf
 	 */
-	intermediate_values[rank - 1] = (powers_of_two[
-					 (int)intermediate_values[rank - 1]] -
-					 1) / powers_of_two[(int)max_label];
+	intermediate_values[rank - 1] = (exp2(intermediate_values[rank - 1]) -
+					 1) / max_value;
 
        /* err_score = summation over all the documents
 	* ((satisfaction probability * p) / rank).
