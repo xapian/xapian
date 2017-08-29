@@ -70,7 +70,7 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
     // Accumulated probability, which is updated for each document.
     double p = 1;
     double err_score = 0;
-    int max_value = exp2((int)max_label);
+    int max_value = exp2(max_label);
     for (int rank = 1; rank <= length; ++rank) {
 
 	/* Compute the probability of relevance for the document.
