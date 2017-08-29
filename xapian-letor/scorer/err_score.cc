@@ -35,6 +35,11 @@ using namespace std;
 
 using namespace Xapian;
 
+ERRScore::ERRScore()
+{
+    LOGCALL_CTOR(API, "ERRScore", NO_ARGS);
+}
+
 ERRScore::~ERRScore()
 {
     LOGCALL_DTOR(API, "ERRScore");
@@ -65,9 +70,9 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
     /* All the powers of 2 from 0 to max_grade as calculated and stored to
      * optimize the calculation of satisfaction probability.
      */
-    double powers_of_two[max_grade + 1];
+    double powers_of_two[(int)max_label + 1];
     powers_of_two[0] = 1;
-    for (int i = 1; i <= max_grade; ++i) {
+    for (int i = 1; i <= max_label; ++i) {
 	powers_of_two[i] = 2 * powers_of_two[i - 1];
     }
 
@@ -75,9 +80,6 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
     double p = 1;
     double err_score = 0;
     for (int rank = 1; rank <= length; ++rank) {
-	// Normalize the label to an relevance grade from 0 to max_grade.
-	intermediate_values[rank - 1] = round((intermediate_values[rank - 1] *
-					      max_grade) / max_label);
 
 	/* Compute the probability of relevance for the document.
 	 * Probability of relevance is calculated in accordance with the gain
@@ -86,12 +88,14 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 	 */
 	intermediate_values[rank - 1] = (powers_of_two[
 					 (int)intermediate_values[rank - 1]] -
-					 1) / powers_of_two[max_grade];
+					 1) / powers_of_two[(int)max_label];
 
        /* err_score = summation over all the documents
 	* ((satisfaction probability * p) / rank).
 	* Expected Reciprocal Rank(err_score) is calculated in accordance with
 	* algorithm 2 in the paper http://olivier.chapelle.cc/pub/err.pdf
+	* The paper assumes discrete relevances but continous relevances can
+	* be scored using this scorer.
 	*/
 	err_score = err_score + (p * intermediate_values[rank - 1] / rank);
 	p = p * (1 - intermediate_values[rank - 1]);
