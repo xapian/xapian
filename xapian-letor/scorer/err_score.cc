@@ -35,20 +35,9 @@ using namespace std;
 
 using namespace Xapian;
 
-ERRScore::ERRScore()
-{
-    LOGCALL_CTOR(API, "ERRScore", NO_ARGS);
-}
-
 ERRScore::~ERRScore()
 {
     LOGCALL_DTOR(API, "ERRScore");
-}
-
-ERRScore::ERRScore(int max_grade_)
-{
-    LOGCALL_CTOR(API, "ERRScore", max_grade_);
-    max_grade = max_grade_;
 }
 
 double

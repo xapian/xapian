@@ -81,15 +81,15 @@ class XAPIAN_VISIBILITY_DEFAULT ERRScore : public Scorer {
      * which involves computing pow(2, label), can be time consuming.
      * To reduce the time complexity the labels are mapped to a smaller space
      * i.e. {0, 1, 2,...., max_grade}.
-     * By default max_grade is 4.
      */
-    int max_grade = 4;
+    int max_grade;
 
   public:
-    /// Default constructor
-    ERRScore();
-
-    ERRScore(int max_grade_);
+    /** Construct an ERRScore.
+     *  @param max_grade_ max_grade value for the ERRScore.
+     *                    By default max_grade is set to 4.
+     */
+    explicit ERRScore(int max_grade_ = 4) : max_grade(max_grade_) { }
 
     /// Destructor
     ~ERRScore();
