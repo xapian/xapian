@@ -23,7 +23,6 @@
 #include "multi_alltermslist.h"
 
 #include <xapian/database.h>
-#include <xapian/error.h>
 
 #include "backends/database.h"
 #include "omassert.h"
@@ -40,29 +39,30 @@ struct CompareTermListsByTerm {
     }
 };
 
-template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) const { delete p; }
-};
-
 MultiAllTermsList::MultiAllTermsList(const Xapian::Database& db,
 				     const string& prefix)
+    : count(0), termlists(new TermList*[db.internal.size()])
 {
     // The 0 and 1 cases should be handled by our caller.
     AssertRel(db.internal.size(), >=, 2);
-    termlists.reserve(db.internal.size());
     try {
 	for (auto&& sub_db : db.internal) {
-	    termlists.push_back(sub_db->open_allterms(prefix));
+	    termlists[count] = sub_db->open_allterms(prefix);
+	    ++count;
 	}
     } catch (...) {
-	for_each(termlists.begin(), termlists.end(), delete_ptr<TermList>());
+	while (count)
+	    delete termlists[--count];
+	delete [] termlists;
 	throw;
     }
 }
 
 MultiAllTermsList::~MultiAllTermsList()
 {
-    for_each(termlists.begin(), termlists.end(), delete_ptr<TermList>());
+    while (count)
+	delete termlists[--count];
+    delete [] termlists;
 }
 
 string
@@ -74,14 +74,26 @@ MultiAllTermsList::get_termname() const
 Xapian::doccount
 MultiAllTermsList::get_termfreq() const
 {
-    if (termlists.empty()) return 0;
-    vector<TermList *>::const_iterator i = termlists.begin();
-    Xapian::doccount total_tf = (*i)->get_termfreq();
-    while (++i != termlists.end()) {
-	if ((*i)->get_termname() == current_term)
-	    total_tf += (*i)->get_termfreq();
+    if (current_termfreq == 0 && count != 0) {
+	while (true) {
+	    TermList * tl = termlists[0];
+	    if (tl->get_termname() != current_term)
+		break;
+	    current_termfreq += tl->get_termfreq();
+	    pop_heap(termlists, termlists + count,
+		     CompareTermListsByTerm());
+	    tl->next();
+	    if (tl->at_end()) {
+		delete tl;
+		if (--count == 0)
+		    break;
+	    } else {
+		push_heap(termlists, termlists + count,
+			  CompareTermListsByTerm());
+	    }
+	}
     }
-    return total_tf;
+    return current_termfreq;
 }
 
 TermList *
@@ -90,45 +102,38 @@ MultiAllTermsList::next()
     if (current_term.empty()) {
 	// Make termlists into a heap so that the one (or one of the ones) with
 	// earliest sorting term is at the top of the heap.
-	vector<TermList*>::iterator i = termlists.begin();
-	while (i != termlists.end()) {
-	    (*i)->next();
-	    if ((*i)->at_end()) {
-		delete *i;
-		i = termlists.erase(i);
-	    } else {
-		++i;
+	size_t j = 0;
+	for (size_t i = 0; i != count; ++i) {
+	    TermList* tl = termlists[i];
+	    tl->next();
+	    if (!tl->at_end()) {
+		if (i != j)
+		    swap(termlists[i], termlists[j]);
+		++j;
 	    }
 	}
-	make_heap(termlists.begin(), termlists.end(),
+	while (count > j)
+	    delete termlists[--count];
+	make_heap(termlists, termlists + count,
 		  CompareTermListsByTerm());
     } else {
-	// Advance to the next termname.
-	do {
-	    TermList * tl = termlists.front();
-	    pop_heap(termlists.begin(), termlists.end(),
-		     CompareTermListsByTerm());
-	    tl->next();
-	    if (tl->at_end()) {
-		delete tl;
-		termlists.pop_back();
-	    } else {
-		termlists.back() = tl;
-		push_heap(termlists.begin(), termlists.end(),
-			  CompareTermListsByTerm());
-	    }
-	} while (!termlists.empty() &&
-		 termlists.front()->get_termname() == current_term);
+	// Skip over current_term if we haven't already.
+	if (current_termfreq == 0)
+	    (void)get_termfreq();
     }
 
-    if (termlists.size() <= 1) {
-	if (termlists.empty()) return NULL;
-	TermList * tl = termlists[0];
-	termlists.clear();
-	return tl;
+    current_termfreq = 0;
+
+    if (count <= 1) {
+	if (count == 0) {
+	    current_term = std::string();
+	    return NULL;
+	}
+	count = 0;
+	return termlists[0];
     }
 
-    current_term = termlists.front()->get_termname();
+    current_term = termlists[0]->get_termname();
     return NULL;
 }
 
@@ -138,32 +143,38 @@ MultiAllTermsList::skip_to(const std::string &term)
     // Assume the skip is likely to be a long distance, and rebuild the heap
     // from scratch.  FIXME: It would be useful to profile this against an
     // approach more like that next() uses if this ever gets heavy use.
-    vector<TermList*>::iterator i = termlists.begin();
-    while (i != termlists.end()) {
-	(*i)->skip_to(term);
-	if ((*i)->at_end()) {
-	    delete *i;
-	    i = termlists.erase(i);
-	} else {
-	    ++i;
+    size_t j = 0;
+    for (size_t i = 0; i != count; ++i) {
+	TermList* tl = termlists[i];
+	tl->skip_to(term);
+	if (!tl->at_end()) {
+	    if (i != j)
+		swap(termlists[i], termlists[j]);
+	    ++j;
 	}
     }
+    while (count > j)
+	delete termlists[--count];
 
-    if (termlists.size() <= 1) {
-	if (termlists.empty()) return NULL;
-	TermList * tl = termlists[0];
-	termlists.clear();
-	return tl;
+    current_termfreq = 0;
+
+    if (count <= 1) {
+	if (count == 0) {
+	    current_term = std::string();
+	    return NULL;
+	}
+	count = 0;
+	return termlists[0];
     }
 
-    make_heap(termlists.begin(), termlists.end(), CompareTermListsByTerm());
+    make_heap(termlists, termlists + count, CompareTermListsByTerm());
 
-    current_term = termlists.front()->get_termname();
+    current_term = termlists[0]->get_termname();
     return NULL;
 }
 
 bool
 MultiAllTermsList::at_end() const
 {
-    return termlists.empty();
+    return count == 0 && current_term.empty();
 }

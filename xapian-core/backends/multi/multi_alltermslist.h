@@ -24,7 +24,6 @@
 #include "backends/alltermslist.h"
 
 #include <string>
-#include <vector>
 
 namespace Xapian {
 class Database;
@@ -38,11 +37,21 @@ class MultiAllTermsList : public AllTermsList {
     /// Don't allow copying.
     MultiAllTermsList(const MultiAllTermsList &);
 
-    /// Current termname (or empty if we haven't started yet).
+    /** Current termname.
+     *
+     *  If current_term.empty(), then either we haven't started yet (and
+     *  count != 0) or we've reached the end (and count == 0).
+     */
     std::string current_term;
 
-    /// Vector of sub-termlists which we use as a heap.
-    std::vector<TermList *> termlists;
+    /// Current termfreq (or 0 if not yet calculated).
+    mutable Xapian::doccount current_termfreq;
+
+    /// Number of TermList* entries in @a termlists.
+    mutable size_t count;
+
+    /// Sub-termlists which we use as a heap.
+    TermList** termlists;
 
   public:
     /// Constructor.
