@@ -1007,8 +1007,6 @@ DEFINE_TESTCASE(allterms1, backend) {
     TEST_EQUAL(*ati, "one");
     TEST_EQUAL(ati.get_termfreq(), 1);
 
-    Xapian::TermIterator ati2 = ati;
-
     ati++;
     TEST(ati != db.allterms_end());
     if (verbose) {
@@ -1021,25 +1019,10 @@ DEFINE_TESTCASE(allterms1, backend) {
     TEST(*ati == "three");
     TEST(ati.get_termfreq() == 3);
 
-#if 0
-    TEST(ati2 != db.allterms_end());
-    TEST(*ati2 == "one");
-    TEST(ati2.get_termfreq() == 1);
-#endif
-
     ++ati;
-#if 0
-    ++ati2;
-#endif
     TEST(ati != db.allterms_end());
     TEST(*ati == "two");
     TEST(ati.get_termfreq() == 2);
-
-#if 0
-    TEST(ati2 != db.allterms_end());
-    TEST(*ati2 == "three");
-    TEST(ati2.get_termfreq() == 3);
-#endif
 
     ati++;
     TEST(ati == db.allterms_end());
