@@ -205,11 +205,7 @@ Database::termlist_begin(Xapian::docid did) const
 	// where we're only dealing with a single database.
 	tl = internal[0]->open_term_list(did);
     } else {
-	Assert(multiplier != 0);
-	Xapian::doccount n = (did - 1) % multiplier; // which actual database
-	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
-
-	tl = new MultiTermList(internal[n]->open_term_list(m), *this, n);
+	tl = new MultiTermList(*this, did);
     }
     RETURN(TermIterator(tl));
 }

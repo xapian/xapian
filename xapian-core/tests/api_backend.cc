@@ -1561,3 +1561,26 @@ DEFINE_TESTCASE(estimaterounding1, backend) {
     TEST_EQUAL(mset.get_matches_estimated() % 10, 0);
     return true;
 }
+
+/** Check that a TermIterator returns the correct termfreqs.
+ *
+ *  Prior to 1.5.0, the termfreq was approximated in the multidatabase case.
+ */
+DEFINE_TESTCASE(termitertf1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::TermIterator t = db.termlist_begin(2);
+
+    t.skip_to("mset");
+    TEST_EQUAL(*t, "mset");
+    TEST_EQUAL(t.get_termfreq(), 1);
+
+    t.skip_to("paragraph");
+    TEST_EQUAL(*t, "paragraph");
+    TEST_EQUAL(t.get_termfreq(), 5);
+
+    t.skip_to("queri");
+    TEST_EQUAL(*t, "queri");
+    TEST_EQUAL(t.get_termfreq(), 3);
+
+    return true;
+}
