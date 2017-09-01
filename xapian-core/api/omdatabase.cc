@@ -34,7 +34,6 @@
 
 #include "omassert.h"
 #include "debuglog.h"
-#include "api/leafpostlist.h"
 #include "backends/alltermslist.h"
 #include "backends/multi/multi_alltermslist.h"
 #include "backends/multi/multi_postlist.h"
@@ -170,7 +169,24 @@ Database::postlist_begin(const string &tname) const
     if (rare(internal.empty()))
 	RETURN(PostingIterator());
 
-    RETURN(PostingIterator(new MultiPostList(*this, tname)));
+    vector<LeafPostList *> pls;
+    try {
+	vector<intrusive_ptr<Database::Internal> >::const_iterator i;
+	for (i = internal.begin(); i != internal.end(); ++i) {
+	    pls.push_back((*i)->open_post_list(tname));
+	    pls.back()->next();
+	}
+	Assert(pls.begin() != pls.end());
+    } catch (...) {
+	vector<LeafPostList *>::iterator i;
+	for (i = pls.begin(); i != pls.end(); ++i) {
+	    delete *i;
+	    *i = 0;
+	}
+	throw;
+    }
+
+    RETURN(PostingIterator(new MultiPostList(pls, *this)));
 }
 
 TermIterator
