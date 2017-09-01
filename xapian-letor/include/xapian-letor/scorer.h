@@ -52,7 +52,6 @@ class XAPIAN_VISIBILITY_DEFAULT Scorer : public Xapian::Internal::intrusive_base
 
     /// Don't allow copying.
     Scorer(const Scorer & o);
-
 };
 
 /// NDCGScore class
@@ -65,7 +64,6 @@ class XAPIAN_VISIBILITY_DEFAULT NDCGScore: public Scorer {
     ~NDCGScore();
 
     double score(const std::vector<FeatureVector> & fvv) const;
-
 };
 
 /** Expected Reciprocal Rank(ERR) Scorer.
@@ -83,9 +81,7 @@ class XAPIAN_VISIBILITY_DEFAULT ERRScore : public Scorer {
     ~ERRScore();
 
     double score(const std::vector<FeatureVector> & fvv) const;
-
 };
-
 }
 
 #endif /* SCORER_H */
