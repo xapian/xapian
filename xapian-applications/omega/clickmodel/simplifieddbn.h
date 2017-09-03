@@ -44,7 +44,7 @@ enum {
  */
 class SimplifiedDBN {
     /// Relevances of documents corresponding to a query in a search session.
-    map<string, map<string, double[PARAM_COUNT_]>> doc_relevances;
+    map<string, map<string, map<int, double>>> doc_relevances;
   public:
     /// Return the name of the click model.
     string name();

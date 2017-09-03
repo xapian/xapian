@@ -149,7 +149,7 @@ SimplifiedDBN::build_sessions(const string &logfile)
 void
 SimplifiedDBN::train(const vector<Session> &sessions)
 {
-    map<string, map<string, map<char, double[PARAM_COUNT_]>>> doc_rel_fractions;
+    map<string, map<string, map<int, map<int, double>>>> doc_rel_fractions;
 
     for (auto&& session : sessions) {
 	string qid = session.get_qid();
@@ -166,21 +166,21 @@ SimplifiedDBN::train(const vector<Session> &sessions)
 
 	// Initialise some values.
 	for (int k = 0; k <= last_clicked_pos; ++k) {
-	    doc_rel_fractions[qid][docids[k]]['a'][0] = 1.0;
-	    doc_rel_fractions[qid][docids[k]]['a'][1] = 1.0;
-	    doc_rel_fractions[qid][docids[k]]['s'][0] = 1.0;
-	    doc_rel_fractions[qid][docids[k]]['s'][1] = 1.0;
+	    doc_rel_fractions[qid][docids[k]][PARAM_ATTR_PROB][0] = 1.0;
+	    doc_rel_fractions[qid][docids[k]][PARAM_ATTR_PROB][1] = 1.0;
+	    doc_rel_fractions[qid][docids[k]][PARAM_SAT_PROB][0] = 1.0;
+	    doc_rel_fractions[qid][docids[k]][PARAM_SAT_PROB][1] = 1.0;
 	}
 
 	for (int k = 0; k <= last_clicked_pos; ++k) {
 	    if (clicks[k] != 0) {
-		doc_rel_fractions[qid][docids[k]]['a'][1] += 1;
+		doc_rel_fractions[qid][docids[k]][PARAM_ATTR_PROB][1] += 1;
 		if (int(k) == last_clicked_pos)
-		    doc_rel_fractions[qid][docids[k]]['s'][1] += 1;
+		    doc_rel_fractions[qid][docids[k]][PARAM_SAT_PROB][1] += 1;
 		else
-		    doc_rel_fractions[qid][docids[k]]['s'][0] += 1;
+		    doc_rel_fractions[qid][docids[k]][PARAM_SAT_PROB][0] += 1;
 	    } else {
-		doc_rel_fractions[qid][docids[k]]['a'][0] += 1;
+		doc_rel_fractions[qid][docids[k]][PARAM_ATTR_PROB][0] += 1;
 	    }
 	}
     }
@@ -188,12 +188,12 @@ SimplifiedDBN::train(const vector<Session> &sessions)
     for (auto i = doc_rel_fractions.begin(); i != doc_rel_fractions.end(); ++i) {
 	string qid = i->first;
 	for (auto&& j : i->second) {
-	    doc_relevances[qid][j.first][PARAM_ATTR_PROB] = j.second['a'][1] /
-							   (j.second['a'][1] +
-							    j.second['a'][0]);
-	    doc_relevances[qid][j.first][PARAM_SAT_PROB] = j.second['s'][1] /
-							  (j.second['s'][1] +
-							   j.second['s'][0]);
+	    doc_relevances[qid][j.first][PARAM_ATTR_PROB] = j.second[PARAM_ATTR_PROB][1] /
+							   (j.second[PARAM_ATTR_PROB][1] +
+							    j.second[PARAM_ATTR_PROB][0]);
+	    doc_relevances[qid][j.first][PARAM_SAT_PROB] = j.second[PARAM_SAT_PROB][1] /
+							  (j.second[PARAM_SAT_PROB][1] +
+							   j.second[PARAM_SAT_PROB][0]);
 	}
     }
 }
