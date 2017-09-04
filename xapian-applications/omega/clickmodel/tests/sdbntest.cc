@@ -46,9 +46,11 @@ struct sessions_testcase {
     const sessions_items sessions;
 };
 
-string sample_log1 = "test1.log";
-string sample_log2 = "test2.log";
-string sample_log3 = "test3.log";
+char *p = getenv("srcdir");
+
+string sample_log1 = string(p) + "/clickmodel/testdata/test1.log";
+string sample_log2 = string(p) + "/clickmodel/testdata/test2.log";
+string sample_log3 = string(p) + "/clickmodel/testdata/test3.log";
 
 static sessions_testcase sessions_tests[] = {
     {sample_log1, {"821f03288846297c2cf43c34766a38f7",
