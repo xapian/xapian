@@ -57,9 +57,7 @@ ExactPhrasePostList::~ExactPhrasePostList()
 void
 ExactPhrasePostList::start_position_list(unsigned i)
 {
-    unsigned index = order[i];
-    poslists[i] = terms[index]->read_position_list();
-    poslists[i]->index = index;
+    poslists[i] = terms[order[i]]->read_position_list();
 }
 
 class TermCompare {
@@ -89,46 +87,46 @@ ExactPhrasePostList::test_doc()
     // "ripe mango" when the only occurrence of 'mango' in the current document
     // is at position 0.
     start_position_list(0);
-    poslists[0]->skip_to(poslists[0]->index);
-    if (poslists[0]->at_end()) RETURN(false);
+    if (!poslists[0]->skip_to(order[0]))
+	RETURN(false);
 
     // If we get here, we'll need to read the positionlists for at least two
     // terms, so check the true positionlist length for the two terms with the
     // lowest wdf and if necessary swap them so the true shorter one is first.
     start_position_list(1);
-    if (poslists[0]->get_size() > poslists[1]->get_size()) {
-	poslists[1]->skip_to(poslists[1]->index);
-	if (poslists[1]->at_end()) RETURN(false);
+    if (poslists[0]->get_approx_size() > poslists[1]->get_approx_size()) {
+	if (!poslists[1]->skip_to(order[1]))
+	    RETURN(false);
 	swap(poslists[0], poslists[1]);
+	swap(order[0], order[1]);
     }
 
     unsigned read_hwm = 1;
-    Xapian::termpos idx0 = poslists[0]->index;
-    do {
-	Xapian::termpos base = poslists[0]->get_position() - idx0;
-	unsigned i = 1;
-	while (true) {
-	    if (i > read_hwm) {
-		read_hwm = i;
-		start_position_list(i);
-		// FIXME: consider comparing with poslist[0] and swapping
-		// if less common.  Should we allow for the number of positions
-		// we've read from poslist[0] already?
-	    }
-	    Xapian::termpos idx = poslists[i]->index;
-	    Xapian::termpos required = base + idx;
-	    poslists[i]->skip_to(required);
-	    if (poslists[i]->at_end()) RETURN(false);
-	    Xapian::termpos got = poslists[i]->get_position();
-	    if (got == required) {
-		if (++i == terms.size()) RETURN(true);
-		continue;
-	    }
-	    poslists[0]->skip_to(got - idx + idx0);
-	    break;
+    Xapian::termpos idx0 = order[0];
+    Xapian::termpos base = poslists[0]->get_position() - idx0;
+    unsigned i = 1;
+    while (true) {
+	if (i > read_hwm) {
+	    read_hwm = i;
+	    start_position_list(i);
+	    // FIXME: consider comparing with poslist[0] and swapping
+	    // if less common.  Should we allow for the number of positions
+	    // we've read from poslist[0] already?
 	}
-    } while (!poslists[0]->at_end());
-    RETURN(false);
+	Xapian::termpos idx = order[i];
+	Xapian::termpos required = base + idx;
+	if (!poslists[i]->skip_to(required))
+	    RETURN(false);
+	Xapian::termpos got = poslists[i]->get_position();
+	if (got == required) {
+	    if (++i == terms.size()) RETURN(true);
+	    continue;
+	}
+	if (!poslists[0]->skip_to(got - idx + idx0))
+	    RETURN(false);
+	base = poslists[0]->get_position() - idx0;
+	i = 1;
+    }
 }
 
 Xapian::termcount

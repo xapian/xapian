@@ -44,16 +44,15 @@ PositionIterator::PositionIterator(Internal *internal_) : internal(internal_)
     Assert(internal);
     ++internal->_refs;
     try {
-	internal->next();
+	if (!internal->next()) {
+	    decref();
+	    internal = NULL;
+	}
     } catch (...) {
 	// The destructor only runs if the constructor completes, so we have to
 	// take care of cleaning up for ourselves here.
 	decref();
 	throw;
-    }
-    if (internal->at_end()) {
-	decref();
-	internal = NULL;
     }
 }
 
@@ -90,8 +89,7 @@ PositionIterator::operator++()
 {
     LOGCALL(API, PositionIterator &, "PositionIterator::operator++", NO_ARGS);
     Assert(internal);
-    internal->next();
-    if (internal->at_end()) {
+    if (!internal->next()) {
 	decref();
 	internal = NULL;
     }
@@ -103,8 +101,7 @@ PositionIterator::skip_to(Xapian::termpos pos)
 {
     LOGCALL_VOID(API, "PositionIterator::skip_to", pos);
     if (internal) {
-	internal->skip_to(pos);
-	if (internal->at_end()) {
+	if (!internal->skip_to(pos)) {
 	    decref();
 	    internal = NULL;
 	}
