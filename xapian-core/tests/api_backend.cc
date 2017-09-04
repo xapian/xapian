@@ -735,36 +735,36 @@ DEFINE_TESTCASE(ordecay2, generated) {
 static void
 make_orcheck_db(Xapian::WritableDatabase &db, const string &)
 {
-    static const int t1[6] = {2, 4, 6, 8, 10, 0};
-    static const int t2[11] = {6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
-    static const int t3[11] = {3, 7, 8, 11, 12, 13, 14, 15, 16, 17, 0};
+    static const unsigned t1[] = {2, 4, 6, 8, 10};
+    static const unsigned t2[] = {6, 7, 8, 11, 12, 13, 14, 15, 16, 17};
+    static const unsigned t3[] = {3, 7, 8, 11, 12, 13, 14, 15, 16, 17};
 
     for (unsigned i = 1; i <= 17; ++i) {
 	Xapian::Document doc;
 	db.replace_document(i, doc);
     }
-    for (const int * p = t1; *p != 0; ++p) {
-	Xapian::Document doc(db.get_document(*p));
+    for (unsigned i : t1) {
+	Xapian::Document doc(db.get_document(i));
 	doc.add_term("T1");
-	db.replace_document(*p, doc);
+	db.replace_document(i, doc);
     }
-    for (const int * p = t2; *p != 0; ++p) {
-	Xapian::Document doc(db.get_document(*p));
+    for (unsigned i : t2) {
+	Xapian::Document doc(db.get_document(i));
 	doc.add_term("T2");
-	if (*p < 17) {
+	if (i < 17) {
 	    doc.add_term("T2_lowfreq");
 	}
 	doc.add_value(2, "1");
-	db.replace_document(*p, doc);
+	db.replace_document(i, doc);
     }
-    for (const int * p = t3; *p != 0; ++p) {
-	Xapian::Document doc(db.get_document(*p));
+    for (unsigned i : t3) {
+	Xapian::Document doc(db.get_document(i));
 	doc.add_term("T3");
-	if (*p < 17) {
+	if (i < 17) {
 	    doc.add_term("T3_lowfreq");
 	}
 	doc.add_value(3, "1");
-	db.replace_document(*p, doc);
+	db.replace_document(i, doc);
     }
 }
 
