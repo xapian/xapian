@@ -47,7 +47,6 @@ struct sessions_testcase {
 };
 
 char *p = getenv("srcdir");
-
 string sample_log1 = string(p) + "/clickmodel/testdata/test1.log";
 string sample_log2 = string(p) + "/clickmodel/testdata/test2.log";
 string sample_log3 = string(p) + "/clickmodel/testdata/test3.log";
