@@ -57,15 +57,13 @@ class OrPositionList : public PositionList {
 	pls.push_back(poslist);
     }
 
-    Xapian::termcount get_size() const;
+    Xapian::termcount get_approx_size() const;
 
     Xapian::termpos get_position() const;
 
-    void next();
+    bool next();
 
-    void skip_to(Xapian::termpos termpos);
-
-    bool at_end() const;
+    bool skip_to(Xapian::termpos termpos);
 };
 
 #endif // XAPIAN_INCLUDED_ORPOSITIONLIST_H

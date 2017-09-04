@@ -47,6 +47,7 @@
 #include "valuestreamdocument.h"
 #include "weight/weightinternal.h"
 
+#include <xapian/error.h>
 #include <xapian/matchspy.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 

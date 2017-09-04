@@ -31,6 +31,8 @@
 #include "omassert.h"
 #include "valuestreamdocument.h"
 
+#include "xapian/error.h"
+
 // NB don't prune - even with one sublist we still translate docids...
 
 MergePostList::~MergePostList()

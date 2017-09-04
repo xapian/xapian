@@ -139,9 +139,9 @@ ChertPositionList::read_data(const ChertTable * table, Xapian::docid did,
 }
 
 Xapian::termcount
-ChertPositionList::get_size() const
+ChertPositionList::get_approx_size() const
 {
-    LOGCALL(DB, Xapian::termcount, "ChertPositionList::get_size", NO_ARGS);
+    LOGCALL(DB, Xapian::termcount, "ChertPositionList::get_approx_size", NO_ARGS);
     RETURN(size);
 }
 
@@ -153,50 +153,38 @@ ChertPositionList::get_position() const
     RETURN(current_pos);
 }
 
-void
+bool
 ChertPositionList::next()
 {
-    LOGCALL_VOID(DB, "ChertPositionList::next", NO_ARGS);
+    LOGCALL(DB, bool, "ChertPositionList::next", NO_ARGS);
     if (rare(!have_started)) {
 	have_started = true;
-	return;
+	return true;
     }
     if (current_pos == last) {
-	last = 0;
-	current_pos = 1;
-	return;
+	return false;
     }
     current_pos = rd.decode_interpolative_next();
+    return true;
 }
 
-void
+bool
 ChertPositionList::skip_to(Xapian::termpos termpos)
 {
-    LOGCALL_VOID(DB, "ChertPositionList::skip_to", termpos);
+    LOGCALL(DB, bool, "ChertPositionList::skip_to", termpos);
     have_started = true;
     if (termpos >= last) {
 	if (termpos == last) {
 	    current_pos = last;
-	    return;
+	    return true;
 	}
-	last = 0;
-	current_pos = 1;
-	return;
+	return false;
     }
     while (current_pos < termpos) {
 	if (current_pos == last) {
-	    last = 0;
-	    current_pos = 1;
-	    return;
+	    return false;
 	}
 	current_pos = rd.decode_interpolative_next();
     }
-}
-
-bool
-ChertPositionList::at_end() const
-{
-    LOGCALL(DB, bool, "ChertPositionList::at_end", NO_ARGS);
-    Assert(have_started);
-    RETURN(current_pos > last);
+    return true;
 }

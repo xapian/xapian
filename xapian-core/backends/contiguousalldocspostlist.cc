@@ -27,6 +27,8 @@
 #include "omassert.h"
 #include "str.h"
 
+#include "xapian/error.h"
+
 using namespace std;
 
 Xapian::doccount
