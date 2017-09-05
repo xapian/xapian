@@ -159,7 +159,7 @@ ChertPositionList::next()
     LOGCALL(DB, bool, "ChertPositionList::next", NO_ARGS);
     if (rare(!have_started)) {
 	have_started = true;
-	return true;
+	return current_pos <= last;
     }
     if (current_pos == last) {
 	return false;
