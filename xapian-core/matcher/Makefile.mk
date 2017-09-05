@@ -7,6 +7,7 @@ noinst_HEADERS +=\
 	matcher/externalpostlist.h\
 	matcher/extraweightpostlist.h\
 	matcher/localsubmatch.h\
+	matcher/matchtimeout.h\
 	matcher/maxpostlist.h\
 	matcher/mergepostlist.h\
 	matcher/msetcmp.h\
