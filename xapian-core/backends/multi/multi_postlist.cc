@@ -69,6 +69,7 @@ MultiPostList::get_termfreq_min() const
     Assert(false);
     return 0;
 }
+
 Xapian::doccount
 MultiPostList::get_termfreq_max() const
 {
