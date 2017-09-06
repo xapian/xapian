@@ -511,6 +511,7 @@ test_driver::runtest(const test_desc *test)
 		    return SKIP;
 		}
 		if (errclass == "NetworkError" &&
+		    err.get_error_string() != NULL &&
 		    strcmp(err.get_error_string(), strerror(ECHILD)) == 0) {
 		    // ECHILD suggests we've run out of processes, and that's
 		    // much more likely to be a system issue than a Xapian bug.
