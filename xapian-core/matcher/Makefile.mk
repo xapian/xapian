@@ -26,7 +26,8 @@ noinst_HEADERS +=\
 	matcher/synonympostlist.h\
 	matcher/valuegepostlist.h\
 	matcher/valuerangepostlist.h\
-	matcher/valuestreamdocument.h
+	matcher/valuestreamdocument.h\
+	matcher/wrapperpostlist.h
 
 EXTRA_DIST +=\
 	matcher/Makefile
@@ -63,4 +64,5 @@ lib_src +=\
 	matcher/synonympostlist.cc\
 	matcher/valuegepostlist.cc\
 	matcher/valuerangepostlist.cc\
-	matcher/valuestreamdocument.cc
+	matcher/valuestreamdocument.cc\
+	matcher/wrapperpostlist.cc
