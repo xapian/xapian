@@ -315,8 +315,8 @@ esac
 swig_git_commit_hash=2c910e47ae788412b95e356c99cef5862808bf9a
 
 # Commit hashes to use for common in omega and letor respectively:
-omega_common_commit_hash=bddcf54435286b0363efff94f22529093e85fc89
-letor_common_commit_hash=bddcf54435286b0363efff94f22529093e85fc89
+omega_common_commit_hash=b310f9988f63cdc15b48323f9ac42f6b08c3a36c
+letor_common_commit_hash=b310f9988f63cdc15b48323f9ac42f6b08c3a36c
 
 if [ ! -d .git ] ; then
   echo "$0: No '.git' directory found - this script should be run from a"
