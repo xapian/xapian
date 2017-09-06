@@ -30,6 +30,7 @@
 #include "xapian/document.h"
 #include "xapian/enquire.h"
 #include "xapian/query.h"
+#include "xapian/rset.h"
 #include "xapian/keymaker.h"
 
 #include <algorithm>
@@ -331,20 +332,6 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
 	/// Sorts the MSet::Internal::items by their corresponding weights.
 	void sort_by_relevance();
-};
-
-class RSet::Internal : public Xapian::Internal::intrusive_base {
-    friend class Xapian::RSet;
-
-    private:
-	/// Items in the relevance set.
-	set<Xapian::docid> items;
-
-    public:
-	const set<Xapian::docid> & get_items() const { return items; }
-
-	/// Return a string describing this object.
-	string get_description() const;
 };
 
 }

@@ -507,9 +507,12 @@ DEFINE_TESTCASE(rset3, !backend) {
 // Regression test - RSet::get_description() gave a malformed answer in 1.0.7.
 DEFINE_TESTCASE(rset4, !backend) {
     Xapian::RSet rset;
+    TEST_STRINGS_EQUAL(rset.get_description(), "RSet()");
+    rset.add_document(2);
+    // In 1.0.7 this gave: RSet(RSet(RSet::Internal(, 2))
+    TEST_STRINGS_EQUAL(rset.get_description(), "RSet(2)");
     rset.add_document(1);
-    // In 1.0.7 this gave: RSet(RSet(RSet::Internal(, 1))
-    TEST_STRINGS_EQUAL(rset.get_description(), "RSet(RSet::Internal(1))");
+    TEST_STRINGS_EQUAL(rset.get_description(), "RSet(1,2)");
     return true;
 }
 

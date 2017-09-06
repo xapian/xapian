@@ -34,6 +34,7 @@
 #include "localsubmatch.h"
 #include "omassert.h"
 #include "api/omenquireinternal.h"
+#include "api/rsetinternal.h"
 #include "realtime.h"
 
 #include "api/emptypostlist.h"
@@ -76,46 +77,6 @@ const Xapian::Enquire::Internal::sort_setting VAL =
 const Xapian::Enquire::Internal::sort_setting VAL_REL =
 	Xapian::Enquire::Internal::VAL_REL;
 #endif
-
-/** Split an RSet into several sub rsets, one for each database.
- *
- *  @param rset The RSet to split.
- *  @param number_of_subdbs The number of sub databases which exist.
- *  @param subrsets Vector of RSets which will the sub rsets will be placed in.
- *                  This should be empty when the function is called.
- */
-static void
-split_rset_by_db(const Xapian::RSet * rset,
-		 Xapian::doccount number_of_subdbs,
-		 vector<Xapian::RSet> & subrsets)
-{
-    LOGCALL_STATIC_VOID(MATCH, "split_rset_by_db", rset | number_of_subdbs | subrsets);
-    if (rset && !rset->empty()) {
-	if (number_of_subdbs == 1) {
-	    // The common case of a single database is easy to handle.
-	    subrsets.push_back(*rset);
-	} else {
-	    // Can't just use vector::resize() here, since that creates N
-	    // copies of the same RSet!
-	    subrsets.reserve(number_of_subdbs);
-	    for (size_t i = 0; i < number_of_subdbs; ++i) {
-		subrsets.push_back(Xapian::RSet());
-	    }
-
-	    const set<Xapian::docid> & rsetitems = rset->internal->get_items();
-	    set<Xapian::docid>::const_iterator j;
-	    for (j = rsetitems.begin(); j != rsetitems.end(); ++j) {
-		Xapian::doccount local_docid = (*j - 1) / number_of_subdbs + 1;
-		Xapian::doccount subdatabase = (*j - 1) % number_of_subdbs;
-		subrsets[subdatabase].add_document(local_docid);
-	    }
-	}
-    } else {
-	// NB vector::resize() creates N copies of the same empty RSet.
-	subrsets.resize(number_of_subdbs);
-    }
-    Assert(subrsets.size() == number_of_subdbs);
-}
 
 /** Prepare some SubMatches.
  *
@@ -222,7 +183,11 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 
     Xapian::doccount number_of_subdbs = db.internal.size();
     vector<Xapian::RSet> subrsets;
-    split_rset_by_db(omrset, number_of_subdbs, subrsets);
+    if (omrset && omrset->internal.get()) {
+	omrset->internal->shard(number_of_subdbs, subrsets);
+    } else {
+	subrsets.resize(number_of_subdbs);
+    }
 
     for (size_t i = 0; i != number_of_subdbs; ++i) {
 	Xapian::Database::Internal *subdb = db.internal[i].get();

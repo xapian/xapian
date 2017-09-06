@@ -51,59 +51,8 @@ class ExpandDecider;
 class KeyMaker;
 class MatchSpy;
 class Query;
+class RSet;
 class Weight;
-
-/** A relevance set (R-Set).
- *  This is the set of documents which are marked as relevant, for use
- *  in modifying the term weights, and in performing query expansion.
- */
-class XAPIAN_VISIBILITY_DEFAULT RSet {
-    public:
-	/// Class holding details of RSet
-	class Internal;
-
-	/// @private @internal Reference counted internals.
-	Xapian::Internal::intrusive_ptr<Internal> internal;
-
-	/// Copy constructor
-	RSet(const RSet &rset);
-
-	/// Assignment operator
-	void operator=(const RSet &rset);
-
-	/// Default constructor
-	RSet();
-
-	/// Destructor
-	~RSet();
-
-	/** The number of documents in this R-Set */
-	Xapian::doccount size() const;
-
-	/** Test if this R-Set is empty */
-	bool empty() const;
-
-	/// Add a document to the relevance set.
-	void add_document(Xapian::docid did);
-
-	/// Add a document to the relevance set.
-	void add_document(const Xapian::MSetIterator & i) { add_document(*i); }
-
-	/// Remove a document from the relevance set.
-	void remove_document(Xapian::docid did);
-
-	/// Remove a document from the relevance set.
-	void remove_document(const Xapian::MSetIterator & i) { remove_document(*i); }
-
-	/// Test if a given document in the relevance set.
-	bool contains(Xapian::docid did) const;
-
-	/// Test if a given document in the relevance set.
-	bool contains(const Xapian::MSetIterator & i) const { return contains(*i); }
-
-	/// Return a string describing this object.
-	std::string get_description() const;
-};
 
 /** Base class for matcher decision functor.
  */

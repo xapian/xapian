@@ -10,6 +10,7 @@ noinst_HEADERS +=\
 	api/queryinternal.h\
 	api/queryvector.h\
 	api/replication.h\
+	api/rsetinternal.h\
 	api/smallvector.h\
 	api/termlist.h\
 	api/vectortermlist.h
@@ -41,6 +42,7 @@ lib_src +=\
 	api/queryinternal.cc\
 	api/registry.cc\
 	api/replication.cc\
+	api/rset.cc\
 	api/smallvector.cc\
 	api/sortable-serialise.cc\
 	api/termiterator.cc\

@@ -28,6 +28,7 @@
 #include "backends/database.h"
 #include "debuglog.h"
 #include "api/omenquireinternal.h"
+#include "api/rsetinternal.h"
 #include "expandweight.h"
 #include "omassert.h"
 #include "ortermlist.h"
@@ -73,7 +74,7 @@ build_termlist_tree(const Xapian::Database &db, const RSet & rset)
 {
     Assert(!rset.empty());
 
-    const set<Xapian::docid> & docids = rset.internal->get_items();
+    const set<Xapian::docid> & docids = rset.internal->docs;
 
     vector<TermList*> termlists;
     termlists.reserve(docids.size());
