@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -300,6 +300,8 @@ RANDOM_ACCESS_ITERATOR_METHODS(Xapian, ESetIterator, std::string, get_term)
 %include <xapian/eset.h>
 
 STANDARD_IGNORES(Xapian, RSet)
+
+%include <xapian/rset.h>
 
 STANDARD_IGNORES(Xapian, Enquire)
 
