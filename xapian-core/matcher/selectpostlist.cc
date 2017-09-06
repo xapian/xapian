@@ -1,8 +1,7 @@
-/* selectpostlist.cc: Parent class for classes which only return selected docs
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007,2010,2011,2012,2013 Olly Betts
+/** @file selectpostlist.cc
+ * @brief Base class for classes which filter another PostList
+ */
+/* Copyright 2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,53 +15,103 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <config.h>
+
 #include "selectpostlist.h"
 
-#include "debuglog.h"
 #include "omassert.h"
 
-PostList *
+bool
+SelectPostList::vet(double w_min)
+{
+    if (pl->at_end()) {
+	delete pl;
+	pl = NULL;
+	return true;
+    }
+
+    // We assume the positional test is expensive compared to calculating the
+    // weight.
+    if (w_min <= 0.0) {
+	cached_weight = -HUGE_VAL;
+    } else {
+	cached_weight = pl->get_weight();
+	if (cached_weight < w_min)
+	    return false;
+    }
+    return test_doc();
+}
+
+double
+SelectPostList::get_weight() const
+{
+    return cached_weight >= 0 ? cached_weight : pl->get_weight();
+}
+
+bool
+SelectPostList::at_end() const
+{
+    return pl == NULL;
+}
+
+PostList*
 SelectPostList::next(double w_min)
 {
-    LOGCALL(MATCH, PostList *, "SelectPostList::next", w_min);
     do {
-	PostList *p = source->next(w_min);
-	(void)p;
-	Assert(p == NULL); // AND should never prune
-	wt = -1;
-    } while (!source->at_end() && (!check_weight(w_min) || !test_doc()));
-    RETURN(NULL);
+	PostList* res = pl->next(w_min);
+	// We don't expect the underlying PostList to prune - for positional
+	// matching it's MultiAndPostList, and that runs out when its first
+	// child runs out.
+	Assert(res == NULL);
+	// Suppress "set but not unused" warnings.
+	(void)res;
+    } while (!vet(w_min));
+    return NULL;
 }
 
-PostList *
+PostList*
 SelectPostList::skip_to(Xapian::docid did, double w_min)
 {
-    LOGCALL(MATCH, PostList *, "SelectPostList::skip_to", did | w_min);
-    if (did > get_docid()) {
-	PostList *p = source->skip_to(did, w_min);
-	(void)p;
-	Assert(p == NULL); // AND should never prune
-	wt = -1;
-	if (!source->at_end() && (!check_weight(w_min) || !test_doc()))
-	    RETURN(SelectPostList::next(w_min));
+    if (did > pl->get_docid()) {
+	PostList* res = pl->skip_to(did, w_min);
+	// We don't expect the underlying PostList to prune - for positional
+	// matching it's MultiAndPostList, and that runs out when its first
+	// child runs out.
+	Assert(res == NULL);
+	// Suppress "set but not unused" warnings.
+	(void)res;
+	if (!vet(w_min)) {
+	    // Advance to the next match.
+	    return SelectPostList::next(w_min);
+	}
     }
-    RETURN(NULL);
+    return NULL;
 }
 
-PostList *
-SelectPostList::check(Xapian::docid did, double w_min, bool &valid)
+PostList*
+SelectPostList::check(Xapian::docid did, double w_min, bool& valid)
 {
-    LOGCALL(MATCH, PostList *, "SelectPostList::check", did | w_min | valid);
-    PostList *p = source->check(did, w_min, valid);
-    (void)p;
-    Assert(p == NULL); // AND should never prune
-    wt = -1;
-    if (valid && !source->at_end() && (!check_weight(w_min) || !test_doc()))
-	valid = false;
-    RETURN(NULL);
+    PostList* res = pl->check(did, w_min, valid);
+    // We don't expect the underlying PostList to prune - for positional
+    // matching it's MultiAndPostList, and that runs out when its first
+    // child runs out.
+    Assert(res == NULL);
+    // Suppress "set but not unused" warnings.
+    (void)res;
+    if (valid) {
+	// For check() we can simply indicate !valid if the vetting fails.
+	valid = vet(w_min);
+    }
+    return NULL;
+}
+
+Xapian::doccount
+SelectPostList::get_termfreq_min() const
+{
+    // In general, it's possible no documents get selected.  Subclasses where
+    // that's known not to be the case should provide their own implementation.
+    return 0;
 }

@@ -202,7 +202,7 @@ NearPostList::get_termfreq_est() const
     // It's hard to estimate how many times the postlist will match as it
     // depends a lot on the terms and window, but usually it will occur
     // significantly less often than the individual terms.
-    return source->get_termfreq_est() / 2;
+    return pl->get_termfreq_est() / 2;
 }
 
 TermFreqs
@@ -212,7 +212,7 @@ NearPostList::get_termfreq_est_using_stats(
     LOGCALL(MATCH, TermFreqs, "NearPostList::get_termfreq_est_using_stats", stats);
     // No idea how to estimate this - do the same as get_termfreq_est() for
     // now.
-    TermFreqs result(source->get_termfreq_est_using_stats(stats));
+    TermFreqs result(pl->get_termfreq_est_using_stats(stats));
     result.termfreq /= 2;
     result.reltermfreq /= 2;
     RETURN(result);
@@ -224,7 +224,7 @@ NearPostList::get_description() const
     string m = "(Near ";
     m += str(window);
     m += ' ';
-    m += source->get_description();
+    m += pl->get_description();
     m += ")";
     return m;
 }

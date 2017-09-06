@@ -155,7 +155,7 @@ ExactPhrasePostList::get_termfreq_est() const
     // PhrasePostList, as a very rough heuristic to represent the fact that the
     // words must occur exactly in order, and phrases are therefore rarer than
     // near matches and (non-exact) phrase matches.
-    return source->get_termfreq_est() / 4;
+    return pl->get_termfreq_est() / 4;
 }
 
 TermFreqs
@@ -165,7 +165,7 @@ ExactPhrasePostList::get_termfreq_est_using_stats(
     LOGCALL(MATCH, TermFreqs, "ExactPhrasePostList::get_termfreq_est_using_stats", stats);
     // No idea how to estimate this - do the same as get_termfreq_est() for
     // now.
-    TermFreqs result(source->get_termfreq_est_using_stats(stats));
+    TermFreqs result(pl->get_termfreq_est_using_stats(stats));
     result.termfreq /= 4;
     result.reltermfreq /= 4;
     RETURN(result);
@@ -174,5 +174,5 @@ ExactPhrasePostList::get_termfreq_est_using_stats(
 string
 ExactPhrasePostList::get_description() const
 {
-    return "(ExactPhrase " + source->get_description() + ")";
+    return "(ExactPhrase " + pl->get_description() + ")";
 }

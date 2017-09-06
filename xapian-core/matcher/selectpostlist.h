@@ -1,8 +1,7 @@
 /** @file selectpostlist.h
- * @brief Parent class for classes which only return selected docs
+ * @brief Base class for classes which filter another PostList
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright 2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,72 +15,42 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_SELECTPOSTLIST_H
-#define OM_HGUARD_SELECTPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_SELECTPOSTLIST_H
+#define XAPIAN_INCLUDED_SELECTPOSTLIST_H
 
-#include "api/postlist.h"
+#include "wrapperpostlist.h"
 
-/** A postlist parent class for classes which only return selected docs
- *  from a source postlist (e.g. NEAR and PHRASE)
- */
-class SelectPostList : public PostList {
-    private:
-	// Prevent copying
-	SelectPostList(const SelectPostList &);
-	SelectPostList & operator=(const SelectPostList &);
+#include <cmath>
 
-	inline bool check_weight(double w_min) {
-	    return w_min == 0.0 || SelectPostList::get_weight() >= w_min;
-	}
+/// Base class for classes which filter another PostList
+class SelectPostList : public WrapperPostList {
+    /// Used to avoid calculating the weight twice for a given document.
+    double cached_weight = -HUGE_VAL;
 
-    protected:
-	PostList *source;
-	mutable double wt;
+    /// Check if the current document is suitable.
+    bool vet(double w_min);
 
-	/** Subclasses should override test_doc() with a method which returns
-	 *  true if a document meets the appropriate criterion, false in not
-	 */
-	virtual bool test_doc() = 0;
-    public:
-	PostList *next(double w_min);
-	PostList *skip_to(Xapian::docid did, double w_min);
-	PostList *check(Xapian::docid did, double w_min, bool &valid);
+  protected:
+    /// Check if the current document should be selected.
+    virtual bool test_doc() = 0;
 
-	// pass all these through to the underlying source PostList
-	Xapian::doccount get_termfreq_max() const { return source->get_termfreq_max(); }
-	Xapian::doccount get_termfreq_min() const { return 0; }
-	double get_maxweight() const { return source->get_maxweight(); }
-	Xapian::docid get_docid() const { return source->get_docid(); }
-	double get_weight() const {
-	    if (wt < 0.0)
-		wt = source->get_weight();
-	    return wt;
-	}
-	Xapian::termcount get_doclength() const { return source->get_doclength(); }
-	Xapian::termcount get_unique_terms() const { return source->get_unique_terms(); }
-	double recalc_maxweight() { return source->recalc_maxweight(); }
-	PositionList * read_position_list() { return source->read_position_list(); }
-	PositionList * open_position_list() const { return source->open_position_list(); }
-	bool at_end() const { return source->at_end(); }
+  public:
+    explicit SelectPostList(PostList* pl_) : WrapperPostList(pl_) { }
 
-	Xapian::termcount count_matching_subqs() const {
-	    return source->count_matching_subqs();
-	}
+    double get_weight() const;
 
-	std::string get_description() const;
+    bool at_end() const;
 
-	explicit SelectPostList(PostList *source_) : source(source_), wt(-1) { }
-	~SelectPostList() { delete source; }
+    PostList* next(double w_min);
+
+    PostList* skip_to(Xapian::docid did, double w_min);
+
+    PostList* check(Xapian::docid did, double w_min, bool& valid);
+
+    Xapian::doccount get_termfreq_min() const;
 };
 
-inline std::string
-SelectPostList::get_description() const
-{
-    return "(Select " + source->get_description() + ")";
-}
-
-#endif /* OM_HGUARD_SELECTPOSTLIST_H */
+#endif // XAPIAN_INCLUDED_SELECTPOSTLIST_H

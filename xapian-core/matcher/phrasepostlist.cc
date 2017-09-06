@@ -107,7 +107,7 @@ PhrasePostList::get_termfreq_est() const
     // It's hard to estimate how many times the phrase will occur as
     // it depends a lot on the phrase, but usually the phrase will
     // occur significantly less often than the individual terms.
-    return source->get_termfreq_est() / 3;
+    return pl->get_termfreq_est() / 3;
 }
 
 TermFreqs
@@ -117,7 +117,7 @@ PhrasePostList::get_termfreq_est_using_stats(
     LOGCALL(MATCH, TermFreqs, "PhrasePostList::get_termfreq_est_using_stats", stats);
     // No idea how to estimate this - do the same as get_termfreq_est() for
     // now.
-    TermFreqs result(source->get_termfreq_est_using_stats(stats));
+    TermFreqs result(pl->get_termfreq_est_using_stats(stats));
     result.termfreq /= 3;
     result.reltermfreq /= 3;
     RETURN(result);
@@ -129,7 +129,7 @@ PhrasePostList::get_description() const
     string m = "(Phrase ";
     m += str(window);
     m += ' ';
-    m += source->get_description();
+    m += pl->get_description();
     m += ")";
     return m;
 }
