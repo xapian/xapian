@@ -124,7 +124,10 @@ OrPosPostList::skip_to(Xapian::docid did, double w_min)
 std::string
 OrPosPostList::get_description() const
 {
-    return pl->get_description();
+    string desc = "OrPosPostList(";
+    desc += pl->get_description();
+    desc += ')';
+    return desc;
 }
 
 Xapian::termcount
