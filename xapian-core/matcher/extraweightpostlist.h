@@ -1,9 +1,7 @@
 /** @file extraweightpostlist.h
- * @brief add on extra weight contribution
+ * @brief PostList which adds on a term-independent weight contribution
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
- * Copyright 2003,2004,2007,2009,2011,2014 Olly Betts
+/* Copyright 2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,106 +15,56 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_EXTRAWEIGHTPOSTLIST_H
-#define OM_HGUARD_EXTRAWEIGHTPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_EXTRAWEIGHTPOSTLIST_H
+#define XAPIAN_INCLUDED_EXTRAWEIGHTPOSTLIST_H
 
-#include "omassert.h"
-#include "postlisttree.h"
+#include "wrapperpostlist.h"
 
 namespace Xapian {
-    class Weight;
+class Weight;
 }
 
-/// A postlist which adds on an extra weight contribution
-class ExtraWeightPostList : public PostList {
-    private:
-	PostList * pl;
-	Xapian::Weight * wt;
-	PostListTree * matcher;
-	double max_weight;
+class PostListTree;
 
-    public:
-	Xapian::doccount get_termfreq_max() const {
-	    return pl->get_termfreq_max();
-	}
-	Xapian::doccount get_termfreq_min() const {
-	    return pl->get_termfreq_min();
-	}
-	Xapian::doccount get_termfreq_est() const {
-	    return pl->get_termfreq_est();
-	}
+/// PostList which adds on a term-independent weight contribution
+class ExtraWeightPostList : public WrapperPostList {
+    /// Don't allow assignment.
+    void operator=(const ExtraWeightPostList&) = delete;
 
-	Xapian::docid get_docid() const { return pl->get_docid(); }
+    /// Don't allow copying.
+    ExtraWeightPostList(const ExtraWeightPostList&) = delete;
 
-	double get_weight() const {
-	    /* Second parameter of get_sumextra is number of unique terms in doc, which has been put
-	     * to maintain consistency with get_sumpart, As of now none of weighting scheme is using
-	     * it. Current 0 is being passed, change it to pl->get_unique_terms() in case you
-	     * need access uniq_terms. */
-	    double sumextra = wt->get_sumextra(pl->get_doclength(), 0);
-	    AssertRel(sumextra, <=, max_weight);
-	    return pl->get_weight() + sumextra;
-	}
+    Xapian::Weight* weight;
 
-	double recalc_maxweight() {
-	    return pl->recalc_maxweight() + max_weight;
-	}
+    PostListTree* pltree;
 
-	PostList *next(double w_min) {
-	    PostList *p = pl->next(w_min - max_weight);
-	    if (p) {
-		delete pl;
-		pl = p;
-		if (matcher) matcher->force_recalc();
-	    }
-	    return NULL;
-	}
+    double max_extra;
 
-	PostList *skip_to(Xapian::docid did, double w_min) {
-	    PostList *p = pl->skip_to(did, w_min - max_weight);
-	    if (p) {
-		delete pl;
-		pl = p;
-		if (matcher) matcher->force_recalc();
-	    }
-	    return NULL;
-	}
+  public:
+    ExtraWeightPostList(PostList* pl_,
+			Xapian::Weight* weight_,
+			PostListTree* pltree_)
+	: WrapperPostList(pl_),
+	  weight(weight_),
+	  pltree(pltree_),
+	  max_extra(weight->get_maxextra()) {}
 
-	bool at_end() const { return pl->at_end(); }
+    ~ExtraWeightPostList() {
+	delete weight;
+    }
 
-	std::string get_description() const {
-	    return "( ExtraWeight " + pl->get_description() + " )";
-	}
+    double get_weight() const;
 
-	/** Return the document length of the document the current term
-	 *  comes from.
-	 */
-	virtual Xapian::termcount get_doclength() const {
-	    return pl->get_doclength();
-	}
+    double recalc_maxweight();
 
-	virtual Xapian::termcount get_unique_terms() const {
-	    return pl->get_unique_terms();
-	}
+    PostList* next(double w_min);
 
-	ExtraWeightPostList(PostList * pl_, Xapian::Weight *wt_,
-			    PostListTree *matcher_)
-	    : pl(pl_), wt(wt_), matcher(matcher_),
-	      max_weight(wt->get_maxextra())
-	{ }
+    PostList* skip_to(Xapian::docid, double w_min);
 
-	~ExtraWeightPostList() {
-	    delete pl;
-	    delete wt;
-	}
-
-	Xapian::termcount count_matching_subqs() const {
-	    return pl->count_matching_subqs();
-	}
+    std::string get_description() const;
 };
 
-#endif /* OM_HGUARD_EXTRAWEIGHTPOSTLIST_H */
+#endif // XAPIAN_INCLUDED_EXTRAWEIGHTPOSTLIST_H

@@ -48,6 +48,7 @@ lib_src +=\
 	matcher/collapser.cc\
 	matcher/exactphrasepostlist.cc\
 	matcher/externalpostlist.cc\
+	matcher/extraweightpostlist.cc\
 	matcher/localsubmatch.cc\
 	matcher/maxpostlist.cc\
 	matcher/mergepostlist.cc\
