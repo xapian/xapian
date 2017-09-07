@@ -23,6 +23,8 @@
 #define XAPIAN_INCLUDED_MATCHTIMEOUT_H
 
 #ifdef HAVE_TIMER_CREATE
+#include "realtime.h"
+
 #include <signal.h>
 #include <time.h>
 #include "safeunistd.h" // For _POSIX_* feature test macros.
