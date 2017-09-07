@@ -11,7 +11,9 @@ endif
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
-CLEANFILES =
+# If tests are run under valgrind and the test is killed at the wrong moment
+# then a log file is left behind.
+CLEANFILES = .valgrind.log.*
 
 libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 
