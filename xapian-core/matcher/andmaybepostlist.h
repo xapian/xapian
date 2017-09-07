@@ -68,8 +68,6 @@ class AndMaybePostList : public BranchPostList {
 
 	Xapian::docid get_docid() const;
 	double get_weight() const;
-	double get_maxweight() const;
-
 	double recalc_maxweight();
 
 	PostList *next(double w_min);
@@ -87,7 +85,7 @@ class AndMaybePostList : public BranchPostList {
 
 	AndMaybePostList(PostList *left_,
 			 PostList *right_,
-			 MultiMatch *matcher_,
+			 PostListTree *matcher_,
 			 Xapian::doccount dbsize_)
 		: BranchPostList(left_, right_, matcher_),
 		  dbsize(dbsize_), lhead(0), rhead(0)
@@ -98,17 +96,17 @@ class AndMaybePostList : public BranchPostList {
 	/// Constructor for use by decomposing OrPostList
 	AndMaybePostList(PostList *left_,
 			 PostList *right_,
-			 MultiMatch *matcher_,
+			 PostListTree *matcher_,
 			 Xapian::doccount dbsize_,
 			 Xapian::docid lhead_,
 			 Xapian::docid rhead_)
 		: BranchPostList(left_, right_, matcher_),
 		  dbsize(dbsize_), lhead(lhead_), rhead(rhead_)
 	{
-	    // Initialise the maxweights from the kids so we can avoid forcing
-	    // a full maxweight recalc
-	    lmax = l->get_maxweight();
-	    rmax = r->get_maxweight();
+	    // FIXME: recalc_maxweight() ought to get called from above after a
+	    // prune.
+	    lmax = l->recalc_maxweight();
+	    rmax = r->recalc_maxweight();
 	}
 
 	/** Synchronise the RHS to the LHS after construction.

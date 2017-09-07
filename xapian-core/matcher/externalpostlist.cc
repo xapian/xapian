@@ -33,7 +33,7 @@ using namespace std;
 ExternalPostList::ExternalPostList(const Xapian::Database & db,
 				   Xapian::PostingSource *source_,
 				   double factor_,
-				   MultiMatch * matcher)
+				   PostListTree * matcher)
     : source(source_), source_is_owned(false), current(0), factor(factor_)
 {
     Assert(source);
@@ -74,16 +74,6 @@ ExternalPostList::get_termfreq_max() const
     return source->get_termfreq_max();
 }
 
-double
-ExternalPostList::get_maxweight() const
-{
-    LOGCALL(MATCH, double, "ExternalPostList::get_maxweight", NO_ARGS);
-    // source will be NULL here if we've reached the end.
-    if (source == NULL) RETURN(0.0);
-    if (factor == 0.0) RETURN(0.0);
-    RETURN(factor * source->get_maxweight());
-}
-
 Xapian::docid
 ExternalPostList::get_docid() const
 {
@@ -118,7 +108,11 @@ ExternalPostList::get_unique_terms() const
 double
 ExternalPostList::recalc_maxweight()
 {
-    return ExternalPostList::get_maxweight();
+    LOGCALL(MATCH, double, "ExternalPostList::recalc_maxweight", NO_ARGS);
+    // source will be NULL here if we've reached the end.
+    if (source == NULL) RETURN(0.0);
+    if (factor == 0.0) RETURN(0.0);
+    RETURN(factor * source->get_maxweight());
 }
 
 PositionList *

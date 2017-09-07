@@ -27,7 +27,7 @@
 
 #include "api/postlist.h"
 
-class MultiMatch;
+class PostListTree;
 class ValueStreamDocument;
 
 /** A postlist comprising postlists from different databases merged together.
@@ -49,7 +49,7 @@ class MergePostList : public PostList {
 	 *  tree changes such that the maximum weights need to be
 	 *  recalculated.
 	 */
-	MultiMatch *matcher;
+	PostListTree *matcher;
 
 	/** Document proxy used for valuestream caching.
 	 *
@@ -70,8 +70,6 @@ class MergePostList : public PostList {
 	const string * get_sort_key() const;
 	const string * get_collapse_key() const;
 
-	double get_maxweight() const;
-
 	double recalc_maxweight();
 
 	PostList *next(double w_min);
@@ -91,7 +89,7 @@ class MergePostList : public PostList {
 	Xapian::termcount count_matching_subqs() const;
 
 	MergePostList(const std::vector<PostList *> & plists_,
-		      MultiMatch *matcher_,
+		      PostListTree *matcher_,
 		      ValueStreamDocument & vsdoc_)
 	    : plists(plists_), current(-1), matcher(matcher_), vsdoc(vsdoc_)
 	{ }

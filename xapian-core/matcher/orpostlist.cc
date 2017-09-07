@@ -36,7 +36,7 @@
 
 OrPostList::OrPostList(PostList *left_,
 		       PostList *right_,
-		       MultiMatch *matcher_,
+		       PostListTree *matcher_,
 		       Xapian::doccount dbsize_)
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), lvalid(false), rvalid(false),
@@ -355,14 +355,6 @@ OrPostList::get_weight() const
     RETURN(l->get_weight() + r->get_weight());
 }
 
-// only called if we are doing a probabilistic operation
-double
-OrPostList::get_maxweight() const
-{
-    LOGCALL(MATCH, double, "OrPostList::get_maxweight", NO_ARGS);
-    RETURN(lmax + rmax);
-}
-
 double
 OrPostList::recalc_maxweight()
 {
@@ -373,7 +365,7 @@ OrPostList::recalc_maxweight()
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     minmax = std::min(lmax, rmax);
-    RETURN(OrPostList::get_maxweight());
+    RETURN(lmax + rmax);
 }
 
 bool

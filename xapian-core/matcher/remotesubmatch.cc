@@ -60,7 +60,7 @@ RemoteSubMatch::start_match(Xapian::doccount first,
 }
 
 PostList *
-RemoteSubMatch::get_postlist(MultiMatch * matcher,
+RemoteSubMatch::get_postlist(PostListTree * matcher,
 			     Xapian::termcount * total_subqs_ptr)
 {
     LOGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist", matcher | total_subqs_ptr);

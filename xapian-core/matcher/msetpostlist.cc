@@ -50,26 +50,6 @@ MSetPostList::get_termfreq_max() const
     RETURN(mset_internal->matches_upper_bound);
 }
 
-double
-MSetPostList::get_maxweight() const
-{
-    LOGCALL(MATCH, double, "MSetPostList::get_maxweight", NO_ARGS);
-    // If we've not started, return max_possible from our MSet so that this
-    // value gets used to set max_possible in the combined MSet.
-    if (cursor == -1) RETURN(mset_internal->max_possible);
-
-    // If the MSet is sorted in descending weight order, then the maxweight we
-    // can return from now on is the weight of the current item.
-    if (decreasing_relevance) {
-	// FIXME: This is actually a reduction in the maxweight...
-	if (at_end()) RETURN(0);
-	RETURN(mset_internal->items[cursor].wt);
-    }
-
-    // Otherwise max_attained is the best answer we can give.
-    RETURN(mset_internal->max_attained);
-}
-
 Xapian::docid
 MSetPostList::get_docid() const
 {
@@ -118,7 +98,20 @@ double
 MSetPostList::recalc_maxweight()
 {
     LOGCALL(MATCH, double, "MSetPostList::recalc_maxweight", NO_ARGS);
-    RETURN(MSetPostList::get_maxweight());
+    // If we've not started, return max_possible from our MSet so that this
+    // value gets used to set max_possible in the combined MSet.
+    if (cursor == -1) RETURN(mset_internal->max_possible);
+
+    // If the MSet is sorted in descending weight order, then the maxweight we
+    // can return from now on is the weight of the current item.
+    if (decreasing_relevance) {
+	// FIXME: This is actually a reduction in the maxweight...
+	if (at_end()) RETURN(0);
+	RETURN(mset_internal->items[cursor].wt);
+    }
+
+    // Otherwise max_attained is the best answer we can give.
+    RETURN(mset_internal->max_attained);
 }
 
 PostList *

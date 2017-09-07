@@ -64,12 +64,6 @@ LeafPostList::set_termweight(const Xapian::Weight * weight_)
 }
 
 double
-LeafPostList::get_maxweight() const
-{
-    return weight ? weight->get_maxpart() : 0;
-}
-
-double
 LeafPostList::get_weight() const
 {
     if (!weight) return 0;
@@ -88,7 +82,7 @@ LeafPostList::get_weight() const
 double
 LeafPostList::recalc_maxweight()
 {
-    return LeafPostList::get_maxweight();
+    return weight ? weight->get_maxpart() : 0;
 }
 
 TermFreqs

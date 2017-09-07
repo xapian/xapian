@@ -22,8 +22,8 @@
 #ifndef XAPIAN_INCLUDED_SYNONYMPOSTLIST_H
 #define XAPIAN_INCLUDED_SYNONYMPOSTLIST_H
 
-#include "multimatch.h"
 #include "api/postlist.h"
+#include "postlisttree.h"
 
 /** A postlist comprising several postlists SYNONYMed together.
  *
@@ -42,7 +42,7 @@ class SynonymPostList : public PostList {
      *  This object needs to be notified when the tree changes such that the
      *  maximum weights need to be recalculated.
      */
-    MultiMatch * matcher;
+    PostListTree * matcher;
 
     /// Weighting object used for calculating the synonym weights.
     const Xapian::Weight * wt;
@@ -65,7 +65,7 @@ class SynonymPostList : public PostList {
     Xapian::termcount doclen_lower_bound;
 
   public:
-    SynonymPostList(PostList * subtree_, MultiMatch * matcher_,
+    SynonymPostList(PostList * subtree_, PostListTree * matcher_,
 		    Xapian::termcount doclen_lower_bound_)
 	: subtree(subtree_), matcher(matcher_), wt(NULL),
 	  want_doclength(false), want_wdf(false), want_unique_terms(false),
@@ -85,7 +85,6 @@ class SynonymPostList : public PostList {
     PostList *skip_to(Xapian::docid did, double w_min);
 
     double get_weight() const;
-    double get_maxweight() const;
     double recalc_maxweight();
 
     // The following methods just call through to the subtree.

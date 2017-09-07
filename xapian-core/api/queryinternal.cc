@@ -74,19 +74,22 @@ namespace Xapian {
 namespace Internal {
 
 /** Class providing an operator which sorts postlists to select max or terms.
- *  This returns true if a has a (strictly) greater termweight than b,
- *  unless a or b contain no documents, in which case the other one is
- *  selected.
+ *  This returns true if a has a (strictly) greater termweight than b.
+ *
+ *  Using this comparator will tend to result in multiple calls to
+ *  recalc_maxweight() for each of the subqueries (we use it with nth_element
+ *  which should be O(n)) - perhaps it'd be better to call recalc_maxweight()
+ *  once and then sort on that.
  */
 struct CmpMaxOrTerms {
     /** Return true if and only if a has a strictly greater termweight than b. */
-    bool operator()(const PostList *a, const PostList *b) {
+    bool operator()(PostList *a, PostList *b) {
 #if (defined(__i386__) && !defined(__SSE_MATH__)) || \
     defined(__mc68000__) || defined(__mc68010__) || \
     defined(__mc68020__) || defined(__mc68030__)
 	// On some architectures, most common of which is x86, floating point
 	// values are calculated and stored in registers with excess precision.
-	// If the two get_maxweight() calls below return identical values in a
+	// If the two recalc_maxweight() calls below return identical values in a
 	// register, the excess precision may be dropped for one of them but
 	// not the other (e.g. because the compiler saves the first calculated
 	// weight to memory while calculating the second, then reloads it to
@@ -104,11 +107,11 @@ struct CmpMaxOrTerms {
 	// match that on other architectures with the same double format (which
 	// is desirable), and actually has less overhead than rounding both
 	// results to float (which is another approach which works).
-	volatile double a_max_wt = a->get_maxweight();
-	volatile double b_max_wt = b->get_maxweight();
+	volatile double a_max_wt = a->recalc_maxweight();
+	volatile double b_max_wt = b->recalc_maxweight();
 	return a_max_wt > b_max_wt;
 #else
-	return a->get_maxweight() > b->get_maxweight();
+	return a->recalc_maxweight() > b->recalc_maxweight();
 #endif
     }
 };
@@ -198,11 +201,7 @@ class OrContext : public Context {
 void
 OrContext::select_elite_set(size_t set_size, size_t out_of)
 {
-    // Call recalc_maxweight() as otherwise get_maxweight()
-    // may not be valid before next() or skip_to()
     vector<PostList*>::iterator begin = pls.begin() + pls.size() - out_of;
-    for_each(begin, pls.end(), mem_fun(&PostList::recalc_maxweight));
-
     nth_element(begin, begin + set_size - 1, pls.end(), CmpMaxOrTerms());
     shrink(pls.size() - out_of + set_size);
 }

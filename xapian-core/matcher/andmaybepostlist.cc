@@ -164,21 +164,13 @@ AndMaybePostList::get_weight() const
     RETURN(l->get_weight());
 }
 
-// only called if we are doing a probabilistic operation
-double
-AndMaybePostList::get_maxweight() const
-{
-    LOGCALL(MATCH, double, "AndMaybePostList::get_maxweight", NO_ARGS);
-    RETURN(lmax + rmax);
-}
-
 double
 AndMaybePostList::recalc_maxweight()
 {
     LOGCALL(MATCH, double, "AndMaybePostList::recalc_maxweight", NO_ARGS);
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
-    RETURN(AndMaybePostList::get_maxweight());
+    RETURN(lmax + rmax);
 }
 
 bool

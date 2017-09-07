@@ -24,8 +24,8 @@
 #ifndef OM_HGUARD_EXTRAWEIGHTPOSTLIST_H
 #define OM_HGUARD_EXTRAWEIGHTPOSTLIST_H
 
-#include "multimatch.h"
 #include "omassert.h"
+#include "postlisttree.h"
 
 namespace Xapian {
     class Weight;
@@ -36,7 +36,7 @@ class ExtraWeightPostList : public PostList {
     private:
 	PostList * pl;
 	Xapian::Weight * wt;
-	MultiMatch * matcher;
+	PostListTree * matcher;
 	double max_weight;
 
     public:
@@ -62,10 +62,6 @@ class ExtraWeightPostList : public PostList {
 	    return pl->get_weight() + sumextra;
 	}
 
-	double get_maxweight() const {
-	    return pl->get_maxweight() + max_weight;
-	}
-
 	double recalc_maxweight() {
 	    return pl->recalc_maxweight() + max_weight;
 	}
@@ -75,7 +71,7 @@ class ExtraWeightPostList : public PostList {
 	    if (p) {
 		delete pl;
 		pl = p;
-		if (matcher) matcher->recalc_maxweight();
+		if (matcher) matcher->force_recalc();
 	    }
 	    return NULL;
 	}
@@ -85,7 +81,7 @@ class ExtraWeightPostList : public PostList {
 	    if (p) {
 		delete pl;
 		pl = p;
-		if (matcher) matcher->recalc_maxweight();
+		if (matcher) matcher->force_recalc();
 	    }
 	    return NULL;
 	}
@@ -108,7 +104,7 @@ class ExtraWeightPostList : public PostList {
 	}
 
 	ExtraWeightPostList(PostList * pl_, Xapian::Weight *wt_,
-			    MultiMatch *matcher_)
+			    PostListTree *matcher_)
 	    : pl(pl_), wt(wt_), matcher(matcher_),
 	      max_weight(wt->get_maxextra())
 	{ }

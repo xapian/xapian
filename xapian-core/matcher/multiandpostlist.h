@@ -22,9 +22,9 @@
 #ifndef XAPIAN_INCLUDED_MULTIANDPOSTLIST_H
 #define XAPIAN_INCLUDED_MULTIANDPOSTLIST_H
 
-#include "multimatch.h"
 #include "omassert.h"
 #include "api/postlist.h"
+#include "postlisttree.h"
 
 #include <algorithm>
 
@@ -64,7 +64,7 @@ class MultiAndPostList : public PostList {
     Xapian::doccount db_size;
 
     /// Pointer to the matcher object, so we can report pruning.
-    MultiMatch *matcher;
+    PostListTree *matcher;
 
     /// Calculate the new minimum weight for sub-postlist n.
     double new_min(double w_min, size_t n) {
@@ -77,7 +77,7 @@ class MultiAndPostList : public PostList {
 	if (res) {
 	    delete plist[n];
 	    plist[n] = res;
-	    matcher->recalc_maxweight();
+	    matcher->force_recalc();
 	}
     }
 
@@ -87,7 +87,7 @@ class MultiAndPostList : public PostList {
 	if (res) {
 	    delete plist[n];
 	    plist[n] = res;
-	    matcher->recalc_maxweight();
+	    matcher->force_recalc();
 	}
     }
 
@@ -98,7 +98,7 @@ class MultiAndPostList : public PostList {
 	if (res) {
 	    delete plist[n];
 	    plist[n] = res;
-	    matcher->recalc_maxweight();
+	    matcher->force_recalc();
 	}
     }
 
@@ -117,7 +117,7 @@ class MultiAndPostList : public PostList {
      */
     template <class RandomItor>
     MultiAndPostList(RandomItor pl_begin, RandomItor pl_end,
-		     MultiMatch * matcher_, Xapian::doccount db_size_)
+		     PostListTree * matcher_, Xapian::doccount db_size_)
 	: did(0), n_kids(pl_end - pl_begin), plist(NULL), max_wt(NULL),
 	  max_total(0), db_size(db_size_), matcher(matcher_)
     {
@@ -133,7 +133,7 @@ class MultiAndPostList : public PostList {
     /** Construct as the decay product of an OrPostList or AndMaybePostList. */
     MultiAndPostList(PostList *l, PostList *r,
 		     double lmax, double rmax,
-		     MultiMatch * matcher_, Xapian::doccount db_size_)
+		     PostListTree * matcher_, Xapian::doccount db_size_)
 	: did(0), n_kids(2), plist(NULL), max_wt(NULL),
 	  max_total(lmax + rmax), db_size(db_size_), matcher(matcher_)
     {
@@ -162,8 +162,6 @@ class MultiAndPostList : public PostList {
 
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
-
-    double get_maxweight() const;
 
     Xapian::docid get_docid() const;
 

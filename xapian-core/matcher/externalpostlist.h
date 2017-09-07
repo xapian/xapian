@@ -28,7 +28,7 @@ namespace Xapian {
     class PostingSource;
 }
 
-class MultiMatch;
+class PostListTree;
 
 class ExternalPostList : public PostList {
     /// Disallow copying.
@@ -54,7 +54,7 @@ class ExternalPostList : public PostList {
     ExternalPostList(const Xapian::Database & db,
 		     Xapian::PostingSource *source_,
 		     double factor_,
-		     MultiMatch * matcher);
+		     PostListTree * matcher);
 
     ~ExternalPostList();
 
@@ -63,8 +63,6 @@ class ExternalPostList : public PostList {
     Xapian::doccount get_termfreq_est() const;
 
     Xapian::doccount get_termfreq_max() const;
-
-    double get_maxweight() const;
 
     Xapian::docid get_docid() const;
 

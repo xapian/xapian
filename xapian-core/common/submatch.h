@@ -28,7 +28,7 @@
 #include "api/postlist.h"
 #include "xapian/weight.h"
 
-class MultiMatch;
+class PostListTree;
 
 class SubMatch : public Xapian::Internal::intrusive_base {
   public:
@@ -75,7 +75,7 @@ class SubMatch : public Xapian::Internal::intrusive_base {
 			     Xapian::Weight::Internal & total_stats) = 0;
 
     /// Get PostList.
-    virtual PostList * get_postlist(MultiMatch *matcher,
+    virtual PostList * get_postlist(PostListTree *matcher,
 				    Xapian::termcount * total_subqs_ptr) = 0;
 };
 

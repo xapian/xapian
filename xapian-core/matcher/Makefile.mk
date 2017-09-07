@@ -20,6 +20,7 @@ noinst_HEADERS +=\
 	matcher/orpospostlist.h\
 	matcher/orpostlist.h\
 	matcher/phrasepostlist.h\
+	matcher/postlisttree.h\
 	matcher/queryoptimiser.h\
 	matcher/remotesubmatch.h\
 	matcher/selectpostlist.h\

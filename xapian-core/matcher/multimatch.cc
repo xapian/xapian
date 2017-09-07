@@ -40,6 +40,7 @@
 #include "api/emptypostlist.h"
 #include "branchpostlist.h"
 #include "mergepostlist.h"
+#include "postlisttree.h"
 
 #include "backends/document.h"
 
@@ -216,14 +217,16 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
 	    is_remote[i] = true;
 	} else {
-	    smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+	    smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight,
+				       db.has_positions());
 	    subdb->readahead_for_query(query);
 	}
 #else
 	// Avoid unused parameter warnings.
 	(void)have_sorter;
 	(void)have_mdecider;
-	smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+	smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight,
+				   db.has_positions());
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	leaves.push_back(smatch);
     }
@@ -231,24 +234,6 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     stats.set_query(query);
     prepare_sub_matches(leaves, stats);
     stats.set_bounds_from_db(db);
-}
-
-double
-MultiMatch::getorrecalc_maxweight(PostList *pl)
-{
-    LOGCALL(MATCH, double, "MultiMatch::getorrecalc_maxweight", pl);
-    double wt;
-    if (recalculate_w_max) {
-	LOGLINE(MATCH, "recalculating max weight");
-	wt = pl->recalc_maxweight();
-	recalculate_w_max = false;
-    } else {
-	wt = pl->get_maxweight();
-	LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
-	AssertEqDoubleParanoid(wt, pl->recalc_maxweight());
-    }
-    LOGLINE(MATCH, "max possible doc weight = " << wt);
-    RETURN(wt);
 }
 
 void
@@ -289,6 +274,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	leaf->start_match(0, first + maxitems, first + check_at_least, stats);
     }
 
+    PostListTree pltree;
+
     // Get postlists and term info
     vector<PostList *> postlists;
     Xapian::termcount total_subqs = 0;
@@ -298,7 +285,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // documents it returns (because it wasn't asked for more documents).
     Xapian::doccount definite_matches_not_seen = 0;
     for (size_t i = 0; i != leaves.size(); ++i) {
-	PostList * pl = leaves[i]->get_postlist(this, &total_subqs);
+	PostList * pl = leaves[i]->get_postlist(&pltree, &total_subqs);
 	if (is_remote[i]) {
 	    if (pl->get_termfreq_min() > first + maxitems) {
 		LOGLINE(MATCH, "Found " <<
@@ -317,15 +304,13 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     ++vsdoc._refs;
     Xapian::Document doc(&vsdoc);
 
-    // Get a single combined postlist
-    AutoPtr<PostList> pl;
     if (postlists.size() == 1) {
-	pl.reset(postlists.front());
+	pltree.set_postlist(postlists[0]);
     } else {
-	pl.reset(new MergePostList(postlists, this, vsdoc));
+	pltree.set_postlist(new MergePostList(postlists, &pltree, vsdoc));
     }
 
-    LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
+    LOGLINE(MATCH, "pl = (" << pltree.get_description() << ")");
 
     // Empty result set
     Xapian::doccount docs_matched = 0;
@@ -337,20 +322,19 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     vector<Xapian::Internal::MSetItem> items;
 
     // maximum weight a document could possibly have
-    const double max_possible = pl->recalc_maxweight();
+    const double max_possible = pltree.recalc_maxweight();
 
-    LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
-    recalculate_w_max = false;
+    LOGLINE(MATCH, "pl = (" << pltree.get_description() << ")");
 
-    Xapian::doccount matches_upper_bound = pl->get_termfreq_max();
+    Xapian::doccount matches_upper_bound = pltree.get_termfreq_max();
     Xapian::doccount matches_lower_bound = 0;
-    Xapian::doccount matches_estimated   = pl->get_termfreq_est();
+    Xapian::doccount matches_estimated   = pltree.get_termfreq_est();
 
     if (mdecider == NULL) {
 	// If we have a match decider, the lower bound must be
 	// set to 0 as we could discard all hits.  Otherwise set it to the
 	// minimum number of entries which the postlist could return.
-	matches_lower_bound = pl->get_termfreq_min();
+	matches_lower_bound = pltree.get_termfreq_min();
     }
 
     // Prepare the matchspy
@@ -367,7 +351,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // Check if any results have been asked for (might just be wanting
     // maxweight).
     if (check_at_least == 0) {
-	pl.reset(NULL);
 	Xapian::doccount uncollapsed_lower_bound = matches_lower_bound;
 	if (collapse_max) {
 	    // Lower bound must be set to no more than collapse_max, since it's
@@ -438,33 +421,30 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     while (true) {
 	bool pushback;
 
-	if (rare(recalculate_w_max)) {
+	if (rare(pltree.recalc_needed())) {
 	    if (min_weight > 0.0) {
-		if (rare(getorrecalc_maxweight(pl.get()) < min_weight)) {
+		if (rare(pltree.recalc_maxweight() < min_weight)) {
 		    LOGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		    break;
 		}
 	    }
 	}
 
-	PostList * pl_copy = pl.get();
-	if (rare(next_handling_prune(pl_copy, min_weight, this))) {
-	    (void)pl.release();
-	    pl.reset(pl_copy);
+	if (rare(pltree.next(min_weight))) {
 	    LOGLINE(MATCH, "*** REPLACING ROOT");
 
 	    if (min_weight > 0.0) {
 		// No need for a full recalc (unless we've got to do one
 		// because of a prune elsewhere) - we're just switching to a
 		// subtree.
-		if (rare(getorrecalc_maxweight(pl.get()) < min_weight)) {
+		if (rare(pltree.recalc_maxweight() < min_weight)) {
 		    LOGLINE(MATCH, "*** TERMINATING EARLY (2)");
 		    break;
 		}
 	    }
 	}
 
-	if (rare(pl->at_end())) {
+	if (rare(pltree.at_end())) {
 	    LOGLINE(MATCH, "Reached end of potential matches");
 	    break;
 	}
@@ -475,7 +455,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	double wt = 0.0;
 	bool calculated_weight = false;
 	if (sort_by != VAL || min_weight > 0.0) {
-	    wt = pl->get_weight();
+	    wt = pltree.get_weight();
 	    if (wt < min_weight) {
 		LOGLINE(MATCH, "Rejecting potential match due to insufficient weight");
 		continue;
@@ -483,7 +463,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    calculated_weight = true;
 	}
 
-	Xapian::docid did = pl->get_docid();
+	Xapian::docid did = pltree.get_docid();
 	vsdoc.set_document(did);
 	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
@@ -492,7 +472,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
 
 	if (sort_by != REL) {
-	    const string * ptr = pl->get_sort_key();
+	    const string * ptr = pltree.get_sort_key();
 	    if (ptr) {
 		new_item.sort_key = *ptr;
 	    } else if (sorter) {
@@ -511,7 +491,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    // processing needed.
 		    LOGLINE(MATCH, "Making note of match item which sorts lower than min_item");
 		    ++docs_matched;
-		    if (!calculated_weight) wt = pl->get_weight();
+		    if (!calculated_weight) wt = pltree.get_weight();
 		    if (matchspy) {
 			matchspy->operator()(doc, wt);
 		    }
@@ -522,7 +502,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    // We've seen enough items - we can drop this one.
 		    LOGLINE(MATCH, "Dropping candidate which sorts lower than min_item");
 		    // FIXME: hmm, match decider might have rejected this...
-		    if (!calculated_weight) wt = pl->get_weight();
+		    if (!calculated_weight) wt = pltree.get_weight();
 		    if (wt > greatest_wt) goto new_greatest_weight;
 		    continue;
 		}
@@ -548,7 +528,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		}
 		if (matchspy) {
 		    if (!calculated_weight) {
-			wt = pl->get_weight();
+			wt = pltree.get_weight();
 			new_item.wt = wt;
 			calculated_weight = true;
 		    }
@@ -559,7 +539,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	if (!calculated_weight) {
 	    // we didn't calculate the weight above, but now we will need it
-	    wt = pl->get_weight();
+	    wt = pltree.get_weight();
 	    new_item.wt = wt;
 	}
 
@@ -568,7 +548,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// Perform collapsing on key if requested.
 	if (collapser) {
 	    collapse_result res;
-	    res = collapser.process(new_item, pl.get(), vsdoc, mcmp);
+	    res = collapser.process(new_item, pltree.get_collapse_key(), vsdoc,
+				    mcmp);
 	    if (res == REJECTED) {
 		// If we're sorting by relevance primarily, then we throw away
 		// the lower weighted document anyway.
@@ -655,7 +636,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			}
 		    }
 		}
-		if (rare(getorrecalc_maxweight(pl.get()) < min_weight)) {
+		if (rare(pltree.recalc_maxweight() < min_weight)) {
 		    LOGLINE(MATCH, "*** TERMINATING EARLY (3)");
 		    break;
 		}
@@ -694,7 +675,7 @@ new_greatest_weight:
 	    } else
 #endif
 	    {
-		greatest_wt_subqs_matched = pl->count_matching_subqs();
+		greatest_wt_subqs_matched = pltree.count_matching_subqs();
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 		greatest_wt_subqs_db_num = UINT_MAX;
 #endif
@@ -724,9 +705,6 @@ new_greatest_weight:
 	    }
 	}
     }
-
-    // done with posting list tree
-    pl.reset(NULL);
 
     double percent_scale = 0;
     if (!items.empty() && greatest_wt > 0) {

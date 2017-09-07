@@ -50,8 +50,6 @@ class OrPostList : public BranchPostList {
 
 	Xapian::docid get_docid() const;
 	double get_weight() const;
-	double get_maxweight() const;
-
 	double recalc_maxweight();
 
 	PostList *next(double w_min);
@@ -75,7 +73,7 @@ class OrPostList : public BranchPostList {
 
 	OrPostList(PostList * left_,
 		   PostList * right_,
-		   MultiMatch * matcher_,
+		   PostListTree * matcher_,
 		   Xapian::doccount dbsize_);
 
 	/** get_wdf() for OR postlists returns the sum of the wdfs of the

@@ -33,6 +33,7 @@
 #include <map>
 
 class LeafPostList;
+class PostListTree;
 
 class LocalSubMatch : public SubMatch {
     /// Don't allow assignment.
@@ -62,17 +63,22 @@ class LocalSubMatch : public SubMatch {
     /// Weight object (used as a factory by calling create on it).
     const Xapian::Weight * wt_factory;
 
+    /// Do any of the subdatabases have positional information?
+    bool full_db_has_positions;
+
   public:
     /// Constructor.
     LocalSubMatch(const Xapian::Database::Internal *db_,
 		  const Xapian::Query & query_,
 		  Xapian::termcount qlen_,
 		  const Xapian::RSet & rset_,
-		  const Xapian::Weight *wt_factory_)
+		  const Xapian::Weight *wt_factory_,
+		  bool full_db_has_positions_)
 	: stats(NULL), query(query_), qlen(qlen_), db(db_), rset(rset_),
-	  wt_factory(wt_factory_)
+	  wt_factory(wt_factory_),
+	  full_db_has_positions(full_db_has_positions_)
     {
-	LOGCALL_CTOR(MATCH, "LocalSubMatch", db_ | query_ | qlen_ | rset_ | wt_factory_);
+	LOGCALL_CTOR(MATCH, "LocalSubMatch", db_ | query_ | qlen_ | rset_ | wt_factory_ | full_db_has_positions_);
     }
 
     /// Fetch and collate statistics.
@@ -85,12 +91,12 @@ class LocalSubMatch : public SubMatch {
 		     Xapian::Weight::Internal & total_stats);
 
     /// Get PostList.
-    PostList * get_postlist(MultiMatch *matcher,
+    PostList * get_postlist(PostListTree *matcher,
 			    Xapian::termcount * total_subqs_ptr);
 
     /** Convert a postlist into a synonym postlist.
      */
-    PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
+    PostList * make_synonym_postlist(PostList * or_pl, PostListTree * matcher,
 				     double factor);
 
     LeafPostList * open_post_list(const std::string& term,

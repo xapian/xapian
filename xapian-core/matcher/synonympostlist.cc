@@ -97,13 +97,6 @@ SynonymPostList::get_weight() const
 }
 
 double
-SynonymPostList::get_maxweight() const
-{
-    LOGCALL(MATCH, double, "SynonymPostList::get_maxweight", NO_ARGS);
-    RETURN(wt->get_maxpart());
-}
-
-double
 SynonymPostList::recalc_maxweight()
 {
     LOGCALL(MATCH, double, "SynonymPostList::recalc_maxweight", NO_ARGS);
@@ -114,7 +107,7 @@ SynonymPostList::recalc_maxweight()
 	subtree->recalc_maxweight();
 	have_calculated_subtree_maxweights = true;
     }
-    RETURN(SynonymPostList::get_maxweight());
+    RETURN(wt->get_maxpart());
 }
 
 Xapian::termcount

@@ -63,8 +63,6 @@ class ValueRangePostList : public PostList {
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
 
-    double get_maxweight() const;
-
     Xapian::docid get_docid() const;
 
     double get_weight() const;

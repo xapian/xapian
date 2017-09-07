@@ -60,7 +60,7 @@ class LeafPostList : public PostList {
 
     /** Set the weighting scheme to use during matching.
      *
-     *  If this isn't called, get_weight() and get_maxweight() will both
+     *  If this isn't called, get_weight() and recalc_maxweight() will both
      *  return 0.
      *
      *  You should not call this more than once on a particular object.
@@ -97,7 +97,6 @@ class LeafPostList : public PostList {
     Xapian::doccount get_termfreq_max() const;
     Xapian::doccount get_termfreq_est() const;
 
-    double get_maxweight() const;
     double get_weight() const;
     double recalc_maxweight();
 

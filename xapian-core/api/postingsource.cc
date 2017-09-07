@@ -30,7 +30,7 @@
 
 #include "backends/database.h"
 #include "backends/document.h"
-#include "matcher/multimatch.h"
+#include "matcher/postlisttree.h"
 
 #include "xapian/document.h"
 #include "xapian/error.h"
@@ -52,11 +52,11 @@ PostingSource::~PostingSource() { }
 void
 PostingSource::set_maxweight(double max_weight)
 {
-    if (usual(matcher_)) {
-	MultiMatch * multimatch = static_cast<MultiMatch*>(matcher_);
-	multimatch->recalc_maxweight();
-    }
     max_weight_ = max_weight;
+    if (usual(matcher_)) {
+	PostListTree* pltree = static_cast<PostListTree*>(matcher_);
+	pltree->force_recalc();
+    }
 }
 
 double

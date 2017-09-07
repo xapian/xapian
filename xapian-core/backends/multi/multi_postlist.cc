@@ -88,15 +88,6 @@ MultiPostList::get_termfreq_est() const
     return 0;
 }
 
-double
-MultiPostList::get_maxweight() const
-{
-    // MultiPostList is only used by PostingIterator which should never call
-    // this method.
-    Assert(false);
-    return 0;
-}
-
 Xapian::docid
 MultiPostList::get_docid() const
 {

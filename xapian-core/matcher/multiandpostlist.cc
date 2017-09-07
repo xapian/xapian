@@ -140,12 +140,6 @@ MultiAndPostList::get_termfreq_est_using_stats(
 		     static_cast<Xapian::termcount>(collfreqest + 0.5)));
 }
 
-double
-MultiAndPostList::get_maxweight() const
-{
-    return max_total;
-}
-
 Xapian::docid
 MultiAndPostList::get_docid() const
 {

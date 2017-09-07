@@ -69,7 +69,7 @@ class RemoteSubMatch : public SubMatch {
 		     Xapian::Weight::Internal & total_stats);
 
     /// Get PostList.
-    PostList * get_postlist(MultiMatch * matcher,
+    PostList * get_postlist(PostListTree * matcher,
 			    Xapian::termcount * total_subqs_ptr);
 
     /// Get percentage factor - only valid after get_postlist().

@@ -104,12 +104,6 @@ ValueRangePostList::get_termfreq_max() const
     return db->get_value_freq(slot);
 }
 
-double
-ValueRangePostList::get_maxweight() const
-{
-    return 0;
-}
-
 Xapian::docid
 ValueRangePostList::get_docid() const
 {

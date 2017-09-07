@@ -27,7 +27,7 @@
 #include "api/postlist.h"
 
 class LeafPostList;
-class MultiMatch;
+class PostListTree;
 namespace Xapian {
 class Weight;
 }
@@ -63,15 +63,16 @@ class QueryOptimiser {
 
     Xapian::doccount db_size;
 
-    MultiMatch * matcher;
+    PostListTree * matcher;
 
     QueryOptimiser(const Xapian::Database::Internal & db_,
 		   LocalSubMatch & localsubmatch_,
-		   MultiMatch * matcher_)
+		   PostListTree * matcher_,
+		   bool full_db_has_positions_)
 	: localsubmatch(localsubmatch_), total_subqs(0),
 	  hint(0), hint_owned(false),
 	  need_positions(false), in_synonym(false),
-	  full_db_has_positions(matcher_->full_db_has_positions()),
+	  full_db_has_positions(full_db_has_positions_),
 	  db(db_), db_size(db.get_doccount()),
 	  matcher(matcher_) { }
 

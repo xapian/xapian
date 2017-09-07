@@ -60,7 +60,7 @@ AndNotPostList::advance_to_next_match(double w_min, PostList *ret)
 
 AndNotPostList::AndNotPostList(PostList *left_,
 			       PostList *right_,
-			       MultiMatch *matcher_,
+			       PostListTree *matcher_,
 			       Xapian::doccount dbsize_)
 	: BranchPostList(left_, right_, matcher_),
 	  lhead(0), rhead(0), dbsize(dbsize_)
@@ -175,14 +175,6 @@ AndNotPostList::get_weight() const
 {
     LOGCALL(MATCH, double, "AndNotPostList::get_weight", NO_ARGS);
     RETURN(l->get_weight());
-}
-
-// only called if we are doing a probabilistic AND NOT
-double
-AndNotPostList::get_maxweight() const
-{
-    LOGCALL(MATCH, double, "AndNotPostList::get_maxweight", NO_ARGS);
-    RETURN(l->get_maxweight());
 }
 
 double

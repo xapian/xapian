@@ -49,8 +49,6 @@ class AndNotPostList : public BranchPostList {
 
 	Xapian::docid get_docid() const;
 	double get_weight() const;
-	double get_maxweight() const;
-
 	double recalc_maxweight();
 
 	PostList *next(double w_min);
@@ -68,7 +66,7 @@ class AndNotPostList : public BranchPostList {
 
 	AndNotPostList(PostList *left,
 		       PostList *right,
-		       MultiMatch *matcher_,
+		       PostListTree *matcher_,
 		       Xapian::doccount dbsize_);
 
 	PostList *sync_and_skip_to(Xapian::docid id,

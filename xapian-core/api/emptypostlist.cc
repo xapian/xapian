@@ -52,12 +52,6 @@ EmptyPostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal &) co
     return TermFreqs();
 }
 
-double
-EmptyPostList::get_maxweight() const
-{
-    return 0;
-}
-
 Xapian::docid
 EmptyPostList::get_docid() const
 {
@@ -93,7 +87,7 @@ EmptyPostList::at_end() const
 double
 EmptyPostList::recalc_maxweight()
 {
-    return EmptyPostList::get_maxweight();
+    return 0;
 }
 
 PostList *

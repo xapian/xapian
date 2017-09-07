@@ -66,9 +66,6 @@ class MultiPostList : public PostList {
     /// Get an estimate of the number of documents indexed by this term.
     Xapian::doccount get_termfreq_est() const;
 
-    /// Return an upper bound on what get_weight() can return.
-    double get_maxweight() const;
-
     /// Return the current docid.
     Xapian::docid get_docid() const;
 

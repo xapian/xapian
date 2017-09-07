@@ -22,11 +22,10 @@
 #ifndef XAPIAN_INCLUDED_MAXPOSTLIST_H
 #define XAPIAN_INCLUDED_MAXPOSTLIST_H
 
-#include "multimatch.h"
 #include "api/postlist.h"
-#include <algorithm>
+#include "postlisttree.h"
 
-class MultiMatch;
+#include <algorithm>
 
 /// N-way OR postlist with wt=max(wt_i).
 class MaxPostList : public PostList {
@@ -45,14 +44,11 @@ class MaxPostList : public PostList {
     /// Array of pointers to sub-postlists.
     PostList ** plist;
 
-    /// Cached answer to get_maxweight.
-    double max_cached;
-
     /// The number of documents in the database.
     Xapian::doccount db_size;
 
     /// Pointer to the matcher object, so we can report pruning.
-    MultiMatch *matcher;
+    PostListTree *matcher;
 
     /// Erase a sub-postlist.
     void erase_sublist(size_t i) {
@@ -61,7 +57,7 @@ class MaxPostList : public PostList {
 	for (size_t j = i; j < n_kids; ++j) {
 	    plist[j] = plist[j + 1];
 	}
-	matcher->recalc_maxweight();
+	matcher->force_recalc();
     }
 
   public:
@@ -70,9 +66,9 @@ class MaxPostList : public PostList {
      */
     template <class RandomItor>
     MaxPostList(RandomItor pl_begin, RandomItor pl_end,
-		MultiMatch * matcher_, Xapian::doccount db_size_)
+		PostListTree * matcher_, Xapian::doccount db_size_)
 	: did(0), n_kids(pl_end - pl_begin), plist(NULL),
-	  max_cached(0), db_size(db_size_), matcher(matcher_)
+	  db_size(db_size_), matcher(matcher_)
     {
 	plist = new PostList * [n_kids];
 	std::copy(pl_begin, pl_end, plist);
@@ -88,8 +84,6 @@ class MaxPostList : public PostList {
 
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
-
-    double get_maxweight() const;
 
     Xapian::docid get_docid() const;
 

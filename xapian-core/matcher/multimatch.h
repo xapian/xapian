@@ -62,22 +62,11 @@ class MultiMatch
 	/// Weighting scheme
 	const Xapian::Weight * weight;
 
-	/** Internal flag to note that w_max needs to be recalculated
-	 *  while query is running.
-	 */
-	bool recalculate_w_max;
-
 	/** Is each sub-database remote? */
 	vector<bool> is_remote;
 
 	/// The matchspies to use.
 	const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies;
-
-	/** get the maxweight that the postlist pl may return, calling
-	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.
-	 *  Must only be called on the top of the postlist tree.
-	 */
-	double getorrecalc_maxweight(PostList *pl);
 
 	/// Copying is not permitted.
 	MultiMatch(const MultiMatch &);
@@ -129,13 +118,6 @@ class MultiMatch
 		      Xapian::Weight::Internal & stats,
 		      const Xapian::MatchDecider * mdecider,
 		      const Xapian::KeyMaker * sorter);
-
-	/** Called by postlists to indicate that they've rearranged themselves
-	 *  and the maxweight now possible is smaller.
-	 */
-	void recalc_maxweight() {
-	    recalculate_w_max = true;
-	}
 
 	bool full_db_has_positions() const {
 	    return db.has_positions();

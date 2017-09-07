@@ -188,7 +188,7 @@ LocalSubMatch::start_match(Xapian::doccount first,
 }
 
 PostList *
-LocalSubMatch::get_postlist(MultiMatch * matcher,
+LocalSubMatch::get_postlist(PostListTree * matcher,
 			    Xapian::termcount * total_subqs_ptr)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", matcher | total_subqs_ptr);
@@ -200,7 +200,7 @@ LocalSubMatch::get_postlist(MultiMatch * matcher,
     // LocalSubMatch::open_post_list() for each term in the query.
     PostList * pl;
     {
-	QueryOptimiser opt(*db, *this, matcher);
+	QueryOptimiser opt(*db, *this, matcher, full_db_has_positions);
 	pl = query.internal->postlist(&opt, 1.0);
 	*total_subqs_ptr = opt.get_total_subqs();
     }
@@ -219,7 +219,7 @@ LocalSubMatch::get_postlist(MultiMatch * matcher,
 }
 
 PostList *
-LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
+LocalSubMatch::make_synonym_postlist(PostList * or_pl, PostListTree * matcher,
 				     double factor)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", or_pl | matcher | factor);

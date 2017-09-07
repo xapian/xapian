@@ -47,12 +47,6 @@ WrapperPostList::get_termfreq_est_using_stats(
     return pl->get_termfreq_est_using_stats(stats);
 }
 
-double
-WrapperPostList::get_maxweight() const
-{
-    return pl->get_maxweight();
-}
-
 Xapian::docid
 WrapperPostList::get_docid() const
 {

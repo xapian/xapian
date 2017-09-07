@@ -58,7 +58,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
     /** The object to inform of maxweight changes.
      *
      *  We store this as a (void*) to avoid needing to declare an internal
-     *  type in an external header.  It's actually (MultiMatch *).
+     *  type in an external header.  It's actually (PostListTree *).
      */
     void * matcher_;
 

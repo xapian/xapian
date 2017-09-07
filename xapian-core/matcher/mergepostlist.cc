@@ -56,7 +56,7 @@ MergePostList::next(double w_min)
 	++current;
 	if (unsigned(current) >= plists.size()) break;
 	vsdoc.new_subdb(current);
-	if (matcher) matcher->recalc_maxweight();
+	if (matcher) matcher->force_recalc();
     }
     LOGVALUE(MATCH, current);
     RETURN(NULL);
@@ -151,13 +151,6 @@ MergePostList::get_collapse_key() const
     LOGCALL(MATCH, const string *, "MergePostList::get_collapse_key", NO_ARGS);
     Assert(current != -1);
     RETURN(plists[current]->get_collapse_key());
-}
-
-double
-MergePostList::get_maxweight() const
-{
-    LOGCALL(MATCH, double, "MergePostList::get_maxweight", NO_ARGS);
-    RETURN(w_max);
 }
 
 double

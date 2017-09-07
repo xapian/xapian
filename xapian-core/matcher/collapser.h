@@ -1,7 +1,7 @@
 /** @file collapser.h
  * @brief Collapse documents with the same collapse key during the match.
  */
-/* Copyright (C) 2009,2011 Olly Betts
+/* Copyright (C) 2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -132,16 +132,16 @@ class Collapser {
 
     /** Handle a new MSetItem.
      *
-     *  @param item		The new item.
-     *  @param postlist		PostList to try to get collapse key from
-     *				(this happens for a remote match).
-     *  @param doc		Document for getting values.
-     *  @param mcmp		MSetItem comparison functor.
+     *  @param item	The new item.
+     *  @param key_ptr	If non-NULL, points to the collapse key (this happens
+     *			for a remote match).
+     *  @param doc	Document for getting values.
+     *  @param mcmp	MSetItem comparison functor.
      *
      *  @return How @a item was handled: EMPTY, ADDED, REJECTED or REPLACED.
      */
     collapse_result process(Xapian::Internal::MSetItem & item,
-			    PostList * postlist,
+			    const std::string* key_ptr,
 			    Xapian::Document::Internal & vsdoc,
 			    const MSetCmp & mcmp);
 

@@ -170,13 +170,6 @@ MultiXorPostList::get_termfreq_est_using_stats(
 		     Xapian::termcount(Pc_est * stats.total_term_count)));
 }
 
-double
-MultiXorPostList::get_maxweight() const
-{
-    LOGCALL(MATCH, double, "MultiXorPostList::get_maxweight", NO_ARGS);
-    RETURN(max_total);
-}
-
 Xapian::docid
 MultiXorPostList::get_docid() const
 {
@@ -245,7 +238,7 @@ double
 MultiXorPostList::recalc_maxweight()
 {
     LOGCALL(MATCH, double, "MultiXorPostList::recalc_maxweight", NO_ARGS);
-    max_total = plist[0]->recalc_maxweight();
+    double max_total = plist[0]->recalc_maxweight();
     double min_max = max_total;
     for (size_t i = 1; i < n_kids; ++i) {
 	double new_max = plist[i]->recalc_maxweight();
@@ -274,7 +267,7 @@ MultiXorPostList::next(double w_min)
 	    if (res) {
 		delete plist[i];
 		plist[i] = res;
-		matcher->recalc_maxweight();
+		matcher->force_recalc();
 	    }
 
 	    if (plist[i]->at_end()) {
@@ -323,7 +316,7 @@ MultiXorPostList::skip_to(Xapian::docid did_min, double w_min)
 	    if (res) {
 		delete plist[i];
 		plist[i] = res;
-		matcher->recalc_maxweight();
+		matcher->force_recalc();
 	    }
 
 	    if (plist[i]->at_end()) {

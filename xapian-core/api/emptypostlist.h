@@ -41,7 +41,6 @@ class EmptyPostList : public PostList {
 
     TermFreqs get_termfreq_est_using_stats(const Xapian::Weight::Internal &) const;
 
-    double get_maxweight() const;
     Xapian::docid get_docid() const;
     Xapian::termcount get_doclength() const;
     Xapian::termcount get_unique_terms() const;

@@ -62,8 +62,6 @@ class MSetPostList : public PostList {
 
     Xapian::doccount get_termfreq_max() const;
 
-    double get_maxweight() const;
-
     Xapian::docid get_docid() const;
 
     double get_weight() const;

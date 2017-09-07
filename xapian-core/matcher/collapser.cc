@@ -1,7 +1,7 @@
 /** @file collapser.cc
  * @brief Collapse documents with the same collapse key during the match.
  */
-/* Copyright (C) 2009,2011 Olly Betts
+/* Copyright (C) 2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,14 +68,13 @@ CollapseData::add_item(const Xapian::Internal::MSetItem & item,
 
 collapse_result
 Collapser::process(Xapian::Internal::MSetItem & item,
-		   PostList * postlist,
+		   const string* key_ptr,
 		   Xapian::Document::Internal & vsdoc,
 		   const MSetCmp & mcmp)
 {
     ++docs_considered;
-    // The postlist will supply the collapse key for a remote match.
-    const string * key_ptr = postlist->get_collapse_key();
     if (key_ptr) {
+	// key_ptr supplies the collapse key for a remote match.
 	item.collapse_key = *key_ptr;
     } else {
 	// Otherwise use the Document object to get the value.

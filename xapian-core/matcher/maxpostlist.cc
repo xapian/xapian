@@ -113,12 +113,6 @@ MaxPostList::get_termfreq_est_using_stats(
 		     Xapian::termcount(Pc_est * stats.total_term_count));
 }
 
-double
-MaxPostList::get_maxweight() const
-{
-    return max_cached;
-}
-
 Xapian::docid
 MaxPostList::get_docid() const
 {
@@ -186,11 +180,11 @@ MaxPostList::at_end() const
 double
 MaxPostList::recalc_maxweight()
 {
-    max_cached = plist[0]->recalc_maxweight();
+    double result = plist[0]->recalc_maxweight();
     for (size_t i = 1; i < n_kids; ++i) {
-	max_cached = std::max(max_cached, plist[i]->recalc_maxweight());
+	result = std::max(result, plist[i]->recalc_maxweight());
     }
-    return max_cached;
+    return result;
 }
 
 PostList *
@@ -220,7 +214,7 @@ MaxPostList::next(double w_min)
 	    }
 
 	    if (res)
-		matcher->recalc_maxweight();
+		matcher->force_recalc();
 
 	    cur_did = plist[i]->get_docid();
 	}
@@ -260,7 +254,7 @@ MaxPostList::skip_to(Xapian::docid did_min, double w_min)
 	    }
 
 	    if (res)
-		matcher->recalc_maxweight();
+		matcher->force_recalc();
 
 	    cur_did = plist[i]->get_docid();
 	}

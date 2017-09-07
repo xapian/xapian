@@ -73,9 +73,6 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
     virtual TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
 
-    /// Return an upper bound on what get_weight() can return.
-    virtual double get_maxweight() const = 0;
-
     /// Return the current docid.
     virtual Xapian::docid get_docid() const = 0;
 
@@ -112,8 +109,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
 
     /** Recalculate the upper bound on what get_weight() can return.
      *
-     *  If the tree has pruned, get_maxweight() may use cached values.  Calling
-     *  this method instead forces a full recalculation.
+     *  The maximum weight that get_weight() can return can decrease as the
+     *  match progresses (typically when the PostList tree prunes) - calling
+     *  this method calculates a current upper bound.
      *
      *  Note that this method may be called after the postlist has reached the
      *  end.  In this situation, the method should return 0.
