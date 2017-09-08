@@ -734,6 +734,19 @@ test_driver::parse_command_line(int argc, char **argv)
 {
     argv0 = argv[0];
 
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	if (getenv("XAPIAN_TESTSUITE_VALGRIND") != NULL) {
+	    // Open the valgrind log file, and unlink it.
+	    char fname[64];
+	    sprintf(fname, ".valgrind.log.%lu",
+		    static_cast<unsigned long>(getpid()));
+	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK|O_CLOEXEC);
+	    if (vg_log_fd != -1) unlink(fname);
+	}
+    }
+#endif
+
 #ifndef __WIN32__
     {
 	bool colourise = true;
@@ -801,19 +814,6 @@ test_driver::parse_command_line(int argc, char **argv)
 	test_names.push_back(string(argv[optind]));
 	optind++;
     }
-
-#ifdef HAVE_VALGRIND
-    if (RUNNING_ON_VALGRIND) {
-	if (getenv("XAPIAN_TESTSUITE_VALGRIND") != NULL) {
-	    // Open the valgrind log file, and unlink it.
-	    char fname[64];
-	    sprintf(fname, ".valgrind.log.%lu",
-		    static_cast<unsigned long>(getpid()));
-	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK|O_CLOEXEC);
-	    if (vg_log_fd != -1) unlink(fname);
-	}
-    }
-#endif
 }
 
 int
