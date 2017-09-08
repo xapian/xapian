@@ -24,6 +24,7 @@
 
 #include "omassert.h"
 #include "postlisttree.h"
+#include "str.h"
 
 double
 ExtraWeightPostList::get_weight() const
