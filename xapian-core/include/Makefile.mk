@@ -34,6 +34,7 @@ xapianinclude_HEADERS =\
 	include/xapian/query.h\
 	include/xapian/queryparser.h\
 	include/xapian/registry.h\
+	include/xapian/rset.h\
 	include/xapian/stem.h\
 	include/xapian/termgenerator.h\
 	include/xapian/termiterator.h\
