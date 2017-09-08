@@ -33,7 +33,7 @@ SelectPostList::vet(double w_min)
 	return true;
     }
 
-    // We assume the positional test is expensive compared to calculating the
+    // We assume that test_doc() is expensive compared to calculating the
     // weight.
     if (w_min <= 0.0) {
 	cached_weight = -HUGE_VAL;
@@ -61,13 +61,11 @@ PostList*
 SelectPostList::next(double w_min)
 {
     do {
-	PostList* res = pl->next(w_min);
-	// We don't expect the underlying PostList to prune - for positional
-	// matching it's MultiAndPostList, and that runs out when its first
-	// child runs out.
-	Assert(res == NULL);
-	// Suppress "set but not unused" warnings.
-	(void)res;
+	PostList* result = pl->next(w_min);
+	if (result) {
+	    delete pl;
+	    pl = result;
+	}
     } while (!vet(w_min));
     return NULL;
 }
@@ -76,13 +74,11 @@ PostList*
 SelectPostList::skip_to(Xapian::docid did, double w_min)
 {
     if (did > pl->get_docid()) {
-	PostList* res = pl->skip_to(did, w_min);
-	// We don't expect the underlying PostList to prune - for positional
-	// matching it's MultiAndPostList, and that runs out when its first
-	// child runs out.
-	Assert(res == NULL);
-	// Suppress "set but not unused" warnings.
-	(void)res;
+	PostList* result = pl->skip_to(did, w_min);
+	if (result) {
+	    delete pl;
+	    pl = result;
+	}
 	if (!vet(w_min)) {
 	    // Advance to the next match.
 	    return SelectPostList::next(w_min);
@@ -94,13 +90,11 @@ SelectPostList::skip_to(Xapian::docid did, double w_min)
 PostList*
 SelectPostList::check(Xapian::docid did, double w_min, bool& valid)
 {
-    PostList* res = pl->check(did, w_min, valid);
-    // We don't expect the underlying PostList to prune - for positional
-    // matching it's MultiAndPostList, and that runs out when its first
-    // child runs out.
-    Assert(res == NULL);
-    // Suppress "set but not unused" warnings.
-    (void)res;
+    PostList* result = pl->check(did, w_min, valid);
+    if (result) {
+	delete pl;
+	pl = result;
+    }
     if (valid) {
 	// For check() we can simply indicate !valid if the vetting fails.
 	valid = vet(w_min);

@@ -74,6 +74,7 @@
 #include <xapian/mset.h>
 #include <xapian/expanddecider.h>
 #include <xapian/keymaker.h>
+#include <xapian/matchdecider.h>
 #include <xapian/matchspy.h>
 #include <xapian/postingsource.h>
 #include <xapian/query.h>

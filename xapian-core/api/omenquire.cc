@@ -60,8 +60,6 @@ using Xapian::Internal::TradEWeight;
 
 namespace Xapian {
 
-MatchDecider::~MatchDecider() { }
-
 namespace Internal {
 
 // Methods for Xapian::MSetItem

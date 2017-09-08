@@ -39,6 +39,7 @@
 
 #include "api/emptypostlist.h"
 #include "branchpostlist.h"
+#include "deciderpostlist.h"
 #include "mergepostlist.h"
 #include "postlisttree.h"
 
@@ -50,6 +51,7 @@
 #include "valuestreamdocument.h"
 #include "weight/weightinternal.h"
 
+#include <xapian/matchdecider.h>
 #include <xapian/matchspy.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
@@ -274,6 +276,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	leaf->start_match(0, first + maxitems, first + check_at_least, stats);
     }
 
+    ValueStreamDocument vsdoc(db);
+    ++vsdoc._refs;
+    Xapian::Document doc(&vsdoc);
+
     PostListTree pltree;
 
     // Get postlists and term info
@@ -295,14 +301,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		definite_matches_not_seen += pl->get_termfreq_min();
 		definite_matches_not_seen -= first + maxitems;
 	    }
+	} else if (mdecider) {
+	    pl = new DeciderPostList(pl, mdecider, &vsdoc);
 	}
 	postlists.push_back(pl);
     }
     Assert(!postlists.empty());
-
-    ValueStreamDocument vsdoc(db);
-    ++vsdoc._refs;
-    Xapian::Document doc(&vsdoc);
 
     if (postlists.size() == 1) {
 	pltree.set_postlist(postlists[0]);
@@ -327,15 +331,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     LOGLINE(MATCH, "pl = (" << pltree.get_description() << ")");
 
     Xapian::doccount matches_upper_bound = pltree.get_termfreq_max();
-    Xapian::doccount matches_lower_bound = 0;
+    Xapian::doccount matches_lower_bound = pltree.get_termfreq_min();
     Xapian::doccount matches_estimated   = pltree.get_termfreq_est();
-
-    if (mdecider == NULL) {
-	// If we have a match decider, the lower bound must be
-	// set to 0 as we could discard all hits.  Otherwise set it to the
-	// minimum number of entries which the postlist could return.
-	matches_lower_bound = pltree.get_termfreq_min();
-    }
 
     // Prepare the matchspy
     Xapian::MatchSpy *matchspy = NULL;
@@ -372,11 +369,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   0);
 	return;
     }
-
-    // Number of documents considered by a decider.
-    Xapian::doccount decider_considered = 0;
-    // Number of documents denied by the decider.
-    Xapian::doccount decider_denied = 0;
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
@@ -513,19 +505,14 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    }
 	}
 
-	// Use the match spy and/or decision functors (if specified).
-	if (matchspy != NULL || mdecider != NULL) {
+	// Use the match spy (if specified).
+	if (matchspy != NULL) {
 	    const unsigned int multiplier = db.internal.size();
 	    Assert(multiplier != 0);
 	    Xapian::doccount n = (did - 1) % multiplier; // which actual database
 	    // If the results are from a remote database, then the functor will
 	    // already have been applied there so we can skip this step.
 	    if (!is_remote[n]) {
-		++decider_considered;
-		if (mdecider && !mdecider->operator()(doc)) {
-		    ++decider_denied;
-		    continue;
-		}
 		if (matchspy) {
 		    if (!calculated_weight) {
 			wt = pltree.get_weight();
@@ -825,6 +812,10 @@ new_greatest_weight:
 		    matches_lower_bound = max(docs_matched, matches_lower_bound);
 		}
 	    }
+
+	    Xapian::doccount decider_denied = mdecider->docs_denied_;
+	    Xapian::doccount decider_considered =
+		mdecider->docs_allowed_ + mdecider->docs_denied_;
 
 	    // The estimate for the number of hits can be modified by
 	    // multiplying it by the rate at which the match decider has

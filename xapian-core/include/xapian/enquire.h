@@ -49,36 +49,11 @@ class Document;
 class ErrorHandler;
 class ExpandDecider;
 class KeyMaker;
+class MatchDecider;
 class MatchSpy;
 class Query;
 class RSet;
 class Weight;
-
-/** Base class for matcher decision functor.
- */
-class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
-	/// Don't allow assignment.
-	void operator=(const MatchDecider &);
-
-	/// Don't allow copying.
-	MatchDecider(const MatchDecider &);
-
-    public:
-	/// Default constructor
-	MatchDecider() { }
-
-	/** Decide whether we want this document to be in the MSet.
-	 *
-	 *  @param doc	The document to test.
-	 *
-	 *  @return true if the document is acceptable, or false if the document
-	 *  should be excluded from the MSet.
-	 */
-	virtual bool operator()(const Xapian::Document &doc) const = 0;
-
-	/// Destructor.
-	virtual ~MatchDecider();
-};
 
 /** This class provides an interface to the information retrieval
  *  system for the purpose of searching.

@@ -1,7 +1,7 @@
 /** @file valuestreamdocument.h
  * @brief A document which gets its values from a ValueStreamManager.
  */
-/* Copyright (C) 2009,2011,2014 Olly Betts
+/* Copyright (C) 2009,2011,2014,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
 
 #include "backends/document.h"
+#include "backends/multi.h"
 #include "backends/valuelist.h"
 #include "omassert.h"
 #include "xapian/database.h"
@@ -53,13 +54,18 @@ class ValueStreamDocument : public Xapian::Document::Internal {
 
     ~ValueStreamDocument();
 
+    void set_shard_document(Xapian::docid shard_did) {
+	if (did != shard_did) {
+	    did = shard_did;
+	    delete doc;
+	    doc = NULL;
+	}
+    }
+
     void set_document(Xapian::docid did_) {
-	// did needs to be the document id in the sub-database.
-	size_t multiplier = db.internal.size();
-	did = (did_ - 1) / multiplier + 1;
-	AssertEq(current, (did_ - 1) % multiplier);
-	delete doc;
-	doc = NULL;
+	AssertEq(current, shard_number(did_, db.internal.size()));
+	// Get the document id in the sub-database.
+	set_shard_document(shard_docid(did_, db.internal.size()));
     }
 
     // Optimise away the virtual call when the matcher wants to know a value.

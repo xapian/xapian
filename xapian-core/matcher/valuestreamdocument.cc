@@ -1,7 +1,7 @@
 /** @file valuestreamdocument.cc
  * @brief A document which gets its values from a ValueStreamManager.
  */
-/* Copyright (C) 2009,2011,2014 Olly Betts
+/* Copyright (C) 2009,2011,2014,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +48,8 @@ ValueStreamDocument::new_subdb(int n)
     AssertRel(size_t(n),<,db.internal.size());
     current = unsigned(n);
     database = db.internal[n];
+    // Ensure set_document()'s "same docid" check doesn't misfire.
+    did = 0;
     clear_valuelists(valuelists);
 }
 

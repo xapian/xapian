@@ -303,9 +303,11 @@ STANDARD_IGNORES(Xapian, RSet)
 
 %include <xapian/rset.h>
 
-STANDARD_IGNORES(Xapian, Enquire)
-
 SUBCLASSABLE(Xapian, MatchDecider)
+
+%include <xapian/matchdecider.h>
+
+STANDARD_IGNORES(Xapian, Enquire)
 
 #ifdef XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
 /* Instantiating the template we're going to use avoids SWIG wrapping uses
