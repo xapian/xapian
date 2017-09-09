@@ -41,8 +41,7 @@ typedef enum {
 class CollapseData {
     /** Currently kept MSet entries for this value of the collapse key.
      *
-     *  If collapse_max > 1, then this is a min-heap once items.size()
-     *  reaches collapse_max.
+     *  If collapse_max > 1, then this is a min-heap once collapse_count > 0.
      *
      *  FIXME: We expect collapse_max to be small, so perhaps we should
      *  preallocate space for that many entries and/or allocate space in
