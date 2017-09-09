@@ -42,6 +42,7 @@
 #include "deciderpostlist.h"
 #include "mergepostlist.h"
 #include "postlisttree.h"
+#include "spymaster.h"
 
 #include "backends/document.h"
 
@@ -121,32 +122,6 @@ prepare_sub_matches(vector<intrusive_ptr<SubMatch> > & leaves,
 	// Use blocking IO on subsequent passes, so that we don't go into
 	// a tight loop.
 	nowait = false;
-    }
-}
-
-/// Class which applies several match spies in turn.
-class MultipleMatchSpy : public Xapian::MatchSpy {
-  private:
-    /// List of match spies to call, in order.
-    const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies;
-
-  public:
-    explicit
-    MultipleMatchSpy(const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies_)
-	    : spies(spies_) {}
-
-    /** Implementation of virtual operator().
-     *
-     *  This implementation calls all the spies in turn.
-     */
-    void operator()(const Xapian::Document &doc, double wt);
-};
-
-void
-MultipleMatchSpy::operator()(const Xapian::Document &doc, double wt) {
-    LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
-    for (auto i : spies) {
-	(*i)(doc, wt);
     }
 }
 
@@ -334,16 +309,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_lower_bound = pltree.get_termfreq_min();
     Xapian::doccount matches_estimated   = pltree.get_termfreq_est();
 
-    // Prepare the matchspy
-    Xapian::MatchSpy *matchspy = NULL;
-    MultipleMatchSpy multispy(matchspies);
-    if (!matchspies.empty()) {
-	if (matchspies.size() == 1) {
-	    matchspy = matchspies[0].get();
-	} else {
-	    matchspy = &multispy;
-	}
-    }
+    SpyMaster spymaster(&matchspies, &is_remote);
 
     // Check if any results have been asked for (might just be wanting
     // maxweight).
@@ -484,9 +450,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    LOGLINE(MATCH, "Making note of match item which sorts lower than min_item");
 		    ++docs_matched;
 		    if (!calculated_weight) wt = pltree.get_weight();
-		    if (matchspy) {
-			matchspy->operator()(doc, wt);
-		    }
+		    spymaster(doc, wt, did);
 		    if (wt > greatest_wt) goto new_greatest_weight;
 		    continue;
 		}
@@ -505,23 +469,14 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    }
 	}
 
-	// Use the match spy (if specified).
-	if (matchspy != NULL) {
-	    const unsigned int multiplier = db.internal.size();
-	    Assert(multiplier != 0);
-	    Xapian::doccount n = (did - 1) % multiplier; // which actual database
-	    // If the results are from a remote database, then the functor will
-	    // already have been applied there so we can skip this step.
-	    if (!is_remote[n]) {
-		if (matchspy) {
-		    if (!calculated_weight) {
-			wt = pltree.get_weight();
-			new_item.wt = wt;
-			calculated_weight = true;
-		    }
-		    matchspy->operator()(doc, wt);
-		}
+	// Apply any MatchSpy objects.
+	if (spymaster) {
+	    if (!calculated_weight) {
+		wt = pltree.get_weight();
+		new_item.wt = wt;
+		calculated_weight = true;
 	    }
+	    spymaster(doc, wt, did);
 	}
 
 	if (!calculated_weight) {

@@ -25,6 +25,7 @@ noinst_HEADERS +=\
 	matcher/queryoptimiser.h\
 	matcher/remotesubmatch.h\
 	matcher/selectpostlist.h\
+	matcher/spymaster.h\
 	matcher/synonympostlist.h\
 	matcher/valuegepostlist.h\
 	matcher/valuerangepostlist.h\
