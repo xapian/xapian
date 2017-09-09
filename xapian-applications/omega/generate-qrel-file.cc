@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "gnu_getopt.h"
+#include "getopt.h"
 
 #include <clickmodel/simplifieddbn.h>
 
