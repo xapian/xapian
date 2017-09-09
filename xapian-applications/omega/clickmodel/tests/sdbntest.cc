@@ -46,10 +46,15 @@ struct sessions_testcase {
     const sessions_items sessions;
 };
 
-char *p = getenv("srcdir");
-string sample_log1 = string(p) + "/clickmodel/testdata/test1.log";
-string sample_log2 = string(p) + "/clickmodel/testdata/test2.log";
-string sample_log3 = string(p) + "/clickmodel/testdata/test3.log";
+static string get_srcdir() {
+    char *p = getenv("srcdir");
+    if (!p) return ".";
+    return string(p);
+}
+
+string sample_log1 = get_srcdir() + "/clickmodel/testdata/test1.log";
+string sample_log2 = get_srcdir() + "/clickmodel/testdata/test2.log";
+string sample_log3 = get_srcdir() + "/clickmodel/testdata/test3.log";
 
 static sessions_testcase sessions_tests[] = {
     {sample_log1, {"821f03288846297c2cf43c34766a38f7",
