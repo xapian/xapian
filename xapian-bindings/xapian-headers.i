@@ -24,7 +24,9 @@
 /* Ignore these functions: */
 %ignore Xapian::iterator_rewind;
 %ignore Xapian::iterator_valid;
-%ignore Xapian::sortable_serialise_;
+
+/* Ignore anything ending in an underscore, which is for internal use only: */
+%rename("$ignore", regexmatch$name="_$") "";
 
 /* A class which can usefully be subclassed in the target language. */
 %define SUBCLASSABLE(NS, CLASS)
@@ -206,7 +208,6 @@ STANDARD_IGNORES(Xapian, Registry)
 
 STANDARD_IGNORES(Xapian, Query)
 %ignore Xapian::Query::Internal;
-%ignore Xapian::InvertedQuery_;
 %ignore operator Query;
 %ignore *::operator&(const Xapian::Query &, const Xapian::InvertedQuery_ &);
 %ignore *::operator~;
@@ -386,11 +387,6 @@ STANDARD_IGNORES(Xapian, Weight)
  */
 %ignore Xapian::Weight::Weight(const Weight &);
 %ignore Xapian::Weight::clone;
-%ignore Xapian::Weight::clone_;
-%ignore Xapian::Weight::init_;
-%ignore Xapian::Weight::get_sumpart_needs_doclength_;
-%ignore Xapian::Weight::get_sumpart_needs_uniqueterms_;
-%ignore Xapian::Weight::get_sumpart_needs_wdf_;
 %ignore Xapian::Weight::serialise;
 %ignore Xapian::Weight::unserialise;
 %include <xapian/weight.h>
@@ -407,7 +403,6 @@ SUBCLASSABLE(Xapian, PostingSource)
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::PostingSource;
 SUBCLASSABLE(Xapian, ValuePostingSource)
 SUBCLASSABLE(Xapian, ValueWeightPostingSource)
-%ignore Xapian::PostingSource::register_matcher_;
 %ignore Xapian::PostingSource::unserialise_with_registry;
 %include <xapian/postingsource.h>
 
@@ -425,7 +420,6 @@ INPUT_ITERATOR_METHODS(Xapian, LatLongCoordsIterator, LatLongCoord, get_coord)
 STANDARD_IGNORES(Xapian, Database)
 STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
-%ignore Xapian::Database::get_document_lazily_;
 %ignore Xapian::Database::check(const std::string &, int, std::ostream *);
 %ignore Xapian::Database::check(int fd, int, std::ostream *);
 %include <xapian/database.h>
