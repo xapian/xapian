@@ -39,12 +39,6 @@ class DeciderPostList : public SelectPostList {
     /// The document to test.
     Xapian::Document doc;
 
-    /// Number of documents considered.
-    Xapian::doccount considered = 0;
-
-    /// Number of document denied.
-    Xapian::doccount denied = 0;
-
     /// Test the current with the MatchDecider.
     bool test_doc();
 
