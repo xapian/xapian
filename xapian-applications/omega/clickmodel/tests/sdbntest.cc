@@ -70,6 +70,7 @@ almost_equal(double x, double y, double epsilon = 0.001) {
 
 int main() {
     SimplifiedDBN sdbn;
+
     int failure_count = 0;
 
     // Tests for SimplifiedDBN::build_sessions method.
