@@ -26,7 +26,7 @@
 #include "api/omenquireinternal.h"
 #include "api/postlist.h"
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 /// Enumeration reporting how a document was handled by the Collapser.
@@ -86,7 +86,7 @@ class CollapseData {
 /// The Collapser class tracks collapse keys and the documents they match.
 class Collapser {
     /// Map from collapse key values to the items we're keeping for them.
-    std::map<std::string, CollapseData> table;
+    std::unordered_map<std::string, CollapseData> table;
 
     /// How many items we're currently keeping in @a table.
     Xapian::doccount entry_count;
