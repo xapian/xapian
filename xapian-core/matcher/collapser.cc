@@ -87,8 +87,7 @@ Collapser::process(Xapian::Internal::MSetItem & item,
 	return EMPTY;
     }
 
-    map<string, CollapseData>::iterator oldkey;
-    oldkey = table.find(item.collapse_key);
+    auto oldkey = table.find(item.collapse_key);
     if (oldkey == table.end()) {
 	// We've not seen this collapse key before.
 	table.insert(make_pair(item.collapse_key, CollapseData(item)));
@@ -111,7 +110,7 @@ Xapian::doccount
 Collapser::get_collapse_count(const string & collapse_key, int percent_cutoff,
 			      double min_weight) const
 {
-    map<string, CollapseData>::const_iterator key = table.find(collapse_key);
+    auto key = table.find(collapse_key);
     // If a collapse key is present in the MSet, it must be in our table.
     Assert(key != table.end());
 
@@ -146,8 +145,7 @@ Collapser::get_matches_lower_bound() const
     // many documents.
 #if 0
     Xapian::doccount max_kept = 0;
-    map<string, CollapseData>::const_iterator i;
-    for (i = table.begin(); i != table.end(); ++i) {
+    for (auto i = table.begin(); i != table.end(); ++i) {
 	if (i->second.get_collapse_count() > max_kept) {
 	    max_kept = i->second.get_collapse_count();
 	    if (max_kept == collapse_max) {
