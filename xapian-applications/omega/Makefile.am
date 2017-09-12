@@ -204,7 +204,8 @@ scriptindex_LDADD = $(XAPIAN_LIBS)
 omindex_list_SOURCES = common/getopt.cc omindex-list.cc
 omindex_list_LDADD = $(XAPIAN_LIBS)
 
-generate_qrel_file_SOURCES = generate-qrel-file.cc clickmodel/simplifieddbn.cc
+generate_qrel_file_SOURCES = generate-qrel-file.cc clickmodel/simplifieddbn.cc\
+ common/getopt.cc
 generate_qrel_file_LDADD = $(XAPIAN_LIBS)
 
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
