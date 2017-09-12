@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014,2016 Olly Betts
+ * Copyright 2009,2011,2014,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,14 +24,12 @@
 
 #include "synonympostlist.h"
 
-#include "branchpostlist.h"
 #include "debuglog.h"
 #include "omassert.h"
 
 SynonymPostList::~SynonymPostList()
 {
     delete wt;
-    delete subtree;
 }
 
 void
@@ -49,8 +47,7 @@ SynonymPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "SynonymPostList::next", w_min);
     (void)w_min;
-    next_handling_prune(subtree, 0, matcher);
-    RETURN(NULL);
+    RETURN(WrapperPostList::next(0.0));
 }
 
 PostList *
@@ -58,8 +55,7 @@ SynonymPostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "SynonymPostList::skip_to", did | w_min);
     (void)w_min;
-    skip_to_handling_prune(subtree, did, 0, matcher);
-    RETURN(NULL);
+    RETURN(WrapperPostList::skip_to(did, 0.0));
 }
 
 double
@@ -104,58 +100,10 @@ SynonymPostList::recalc_maxweight()
     // Call recalc_maxweight on the subtree once, to ensure that the maxweights
     // are initialised.
     if (!have_calculated_subtree_maxweights) {
-	subtree->recalc_maxweight();
+	pl->recalc_maxweight();
 	have_calculated_subtree_maxweights = true;
     }
     RETURN(wt->get_maxpart());
-}
-
-Xapian::termcount
-SynonymPostList::get_wdf() const {
-    LOGCALL(MATCH, Xapian::termcount, "SynonymPostList::get_wdf", NO_ARGS);
-    RETURN(subtree->get_wdf());
-}
-
-Xapian::doccount
-SynonymPostList::get_termfreq_min() const {
-    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_min", NO_ARGS);
-    RETURN(subtree->get_termfreq_min());
-}
-
-Xapian::doccount
-SynonymPostList::get_termfreq_est() const {
-    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_est", NO_ARGS);
-    RETURN(subtree->get_termfreq_est());
-}
-
-Xapian::doccount
-SynonymPostList::get_termfreq_max() const {
-    LOGCALL(MATCH, Xapian::doccount, "SynonymPostList::get_termfreq_max", NO_ARGS);
-    RETURN(subtree->get_termfreq_max());
-}
-
-Xapian::docid
-SynonymPostList::get_docid() const {
-    LOGCALL(MATCH, Xapian::docid, "SynonymPostList::get_docid", NO_ARGS);
-    RETURN(subtree->get_docid());
-}
-
-Xapian::termcount
-SynonymPostList::get_doclength() const {
-    LOGCALL(MATCH, Xapian::termcount, "SynonymPostList::get_doclength", NO_ARGS);
-    RETURN(subtree->get_doclength());
-}
-
-Xapian::termcount
-SynonymPostList::get_unique_terms() const {
-    LOGCALL(MATCH, Xapian::termcount, "SynonymPostList::get_unique_terms", NO_ARGS);
-    RETURN(subtree->get_unique_terms());
-}
-
-bool
-SynonymPostList::at_end() const {
-    LOGCALL(MATCH, bool, "SynonymPostList::at_end", NO_ARGS);
-    RETURN(subtree->at_end());
 }
 
 Xapian::termcount
@@ -167,5 +115,8 @@ SynonymPostList::count_matching_subqs() const
 std::string
 SynonymPostList::get_description() const
 {
-    return "(Synonym " + subtree->get_description() + ")";
+    string desc = "SynonymPostList(";
+    desc += pl->get_description();
+    desc += ')';
+    return desc;
 }

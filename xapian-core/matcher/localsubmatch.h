@@ -96,8 +96,7 @@ class LocalSubMatch : public SubMatch {
 
     /** Convert a postlist into a synonym postlist.
      */
-    PostList * make_synonym_postlist(PostList * or_pl, PostListTree * matcher,
-				     double factor);
+    PostList * make_synonym_postlist(PostList * or_pl, double factor);
 
     LeafPostList * open_post_list(const std::string& term,
 				  Xapian::termcount wqf,

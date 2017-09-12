@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014 Olly Betts
+ * Copyright 2009,2011,2014,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,28 +22,18 @@
 #ifndef XAPIAN_INCLUDED_SYNONYMPOSTLIST_H
 #define XAPIAN_INCLUDED_SYNONYMPOSTLIST_H
 
-#include "api/postlist.h"
-#include "postlisttree.h"
+#include "wrapperpostlist.h"
 
 /** A postlist comprising several postlists SYNONYMed together.
  *
  *  This postlist returns all postings in the OR of the sub postlists, but
  *  returns weights as if they represented a single term.  The term frequency
  *  portion of the weight is approximated.
+ *
+ *  The wrapped postlist starts as an OR of all the sub-postlists being
+ *  joined with Synonym, but may decay into something else.
  */
-class SynonymPostList : public PostList {
-    /** The subtree, which starts as an OR of all the sub-postlists being
-     *  joined with Synonym, but may decay into something else.
-     */
-    PostList * subtree;
-
-    /** The object which is using this postlist to perform a match.
-     *
-     *  This object needs to be notified when the tree changes such that the
-     *  maximum weights need to be recalculated.
-     */
-    PostListTree * matcher;
-
+class SynonymPostList : public WrapperPostList {
     /// Weighting object used for calculating the synonym weights.
     const Xapian::Weight * wt;
 
@@ -65,9 +55,8 @@ class SynonymPostList : public PostList {
     Xapian::termcount doclen_lower_bound;
 
   public:
-    SynonymPostList(PostList * subtree_, PostListTree * matcher_,
-		    Xapian::termcount doclen_lower_bound_)
-	: subtree(subtree_), matcher(matcher_), wt(NULL),
+    SynonymPostList(PostList * subtree, Xapian::termcount doclen_lower_bound_)
+	: WrapperPostList(subtree), wt(NULL),
 	  want_doclength(false), want_wdf(false), want_unique_terms(false),
 	  have_calculated_subtree_maxweights(false),
 	  doclen_lower_bound(doclen_lower_bound_) { }
@@ -87,18 +76,9 @@ class SynonymPostList : public PostList {
     double get_weight() const;
     double recalc_maxweight();
 
-    // The following methods just call through to the subtree.
-    Xapian::termcount get_wdf() const;
-    Xapian::doccount get_termfreq_min() const;
-    Xapian::doccount get_termfreq_est() const;
-    Xapian::doccount get_termfreq_max() const;
     // Note - we don't need to implement get_termfreq_est_using_stats()
     // because a synonym when used as a child of a synonym will be optimised
     // to an OR.
-    Xapian::docid get_docid() const;
-    Xapian::termcount get_doclength() const;
-    Xapian::termcount get_unique_terms() const;
-    bool at_end() const;
 
     Xapian::termcount count_matching_subqs() const;
 

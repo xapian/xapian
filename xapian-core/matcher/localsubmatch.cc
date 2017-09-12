@@ -219,17 +219,16 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 }
 
 PostList *
-LocalSubMatch::make_synonym_postlist(PostList * or_pl, PostListTree * matcher,
-				     double factor)
+LocalSubMatch::make_synonym_postlist(PostList * or_pl, double factor)
 {
-    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", or_pl | matcher | factor);
+    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", or_pl | factor);
     if (rare(or_pl->get_termfreq_max() == 0)) {
 	// or_pl is an EmptyPostList or equivalent.
 	return or_pl;
     }
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
     Xapian::termcount len_lb = db->get_doclength_lower_bound();
-    AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher, len_lb));
+    AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, len_lb));
     AutoPtr<Xapian::Weight> wt(wt_factory->clone());
 
     TermFreqs freqs;
