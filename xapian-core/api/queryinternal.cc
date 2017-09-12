@@ -1619,6 +1619,10 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndMaybe::postlist", qopt | factor);
     // FIXME: Combine and-like side with and-like stuff above.
     AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
+    if (factor == 0.0) {
+	// An unweighted OP_AND_MAYBE can be replaced with its left branch.
+	RETURN(l.release());
+    }
     OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, factor, 0, 1);
     AutoPtr<PostList> r(ctx.postlist());
