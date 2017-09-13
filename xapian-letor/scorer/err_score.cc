@@ -45,6 +45,12 @@ ERRScore::~ERRScore()
     LOGCALL_DTOR(API, "ERRScore");
 }
 
+static bool
+comp (FeatureVector i, FeatureVector j)
+{
+    return i.get_label() < j.get_label();
+}
+
 double
 ERRScore::score(const std::vector<FeatureVector> & fvv) const
 {
@@ -53,18 +59,12 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 	return 0;
     }
     size_t length = fvv.size();
-    double max_label = fvv[0].get_label();
-
-    // store the labels set	by the user in intermediate_values.
-    for (size_t i = 0; i < length; ++i) {
-	double label = fvv[i].get_label();
-	max_label = max(max_label, label);
-    }
+    FeatureVector max_label = *std::max_element(fvv.begin(), fvv.end(), comp);
+    double max_value = exp2(max_label.get_label());
 
     // Accumulated probability, which is updated for each document.
     double p = 1;
     double err_score = 0;
-    double max_value = exp2(max_label);
     for (size_t rank = 1; rank <= length; ++rank) {
 	/* Compute the probability of relevance for the document.
 	 * Probability of relevance is calculated in accordance with the gain
