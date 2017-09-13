@@ -76,14 +76,23 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
     /// Return the current docid.
     virtual Xapian::docid get_docid() const = 0;
 
-    /// Return the length of current document.
-    virtual Xapian::termcount get_doclength() const = 0;
-    /* FIXME: Once flint has been retired, we should probably strip out
-     * PostList::get_doclength() and just fetch it from the DB directly.
+    /** Return the length of current document.
+     *
+     *  Only needed for postlists which get put in a PostingIterator or derive
+     *  from LeafPostList.
+     *
+     *  The default implementation throws Xapian::InvalidOperationError.
      */
+    virtual Xapian::termcount get_doclength() const;
 
-    /// Return the number of unique terms in the current document.
-    virtual Xapian::termcount get_unique_terms() const = 0;
+    /** Return the number of unique terms in the current document.
+     *
+     *  Only needed for postlists which get put in a PostingIterator or derive
+     *  from LeafPostList.
+     *
+     *  The default implementation throws Xapian::InvalidOperationError.
+     */
+    virtual Xapian::termcount get_unique_terms() const;
 
     /** Return the wdf for the document at the current position.
      *

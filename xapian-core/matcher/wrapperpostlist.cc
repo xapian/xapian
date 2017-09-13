@@ -53,18 +53,6 @@ WrapperPostList::get_docid() const
     return pl->get_docid();
 }
 
-Xapian::termcount
-WrapperPostList::get_doclength() const
-{
-    return pl->get_doclength();
-}
-
-Xapian::termcount
-WrapperPostList::get_unique_terms() const
-{
-    return pl->get_unique_terms();
-}
-
 double
 WrapperPostList::get_weight() const
 {

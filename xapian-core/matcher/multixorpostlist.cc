@@ -176,46 +176,6 @@ MultiXorPostList::get_docid() const
     return did;
 }
 
-Xapian::termcount
-MultiXorPostList::get_doclength() const
-{
-    Assert(did);
-    Xapian::termcount doclength = 0;
-    bool doclength_set = false;
-    for (size_t i = 0; i < n_kids; ++i) {
-	if (plist[i]->get_docid() == did) {
-	    if (doclength_set) {
-		AssertEq(doclength, plist[i]->get_doclength());
-	    } else {
-		doclength = plist[i]->get_doclength();
-		doclength_set = true;
-	    }
-	}
-    }
-    Assert(doclength_set);
-    return doclength;
-}
-
-Xapian::termcount
-MultiXorPostList::get_unique_terms() const
-{
-    Assert(did);
-    Xapian::termcount unique_terms = 0;
-    bool unique_terms_set = false;
-    for (size_t i = 0; i < n_kids; ++i) {
-	if (plist[i]->get_docid() == did) {
-	    if (unique_terms_set) {
-		AssertEq(unique_terms, plist[i]->get_unique_terms());
-	    } else {
-		unique_terms = plist[i]->get_unique_terms();
-		unique_terms_set = true;
-	    }
-	}
-    }
-    Assert(unique_terms_set);
-    return unique_terms;
-}
-
 double
 MultiXorPostList::get_weight() const
 {

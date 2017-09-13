@@ -490,46 +490,6 @@ OrPostList::get_description() const
 }
 
 Xapian::termcount
-OrPostList::get_doclength() const
-{
-    LOGCALL(MATCH, Xapian::termcount, "OrPostList::get_doclength", NO_ARGS);
-    Xapian::termcount doclength;
-
-    Assert(lhead != 0 && rhead != 0); // check we've started
-    if (lhead > rhead) {
-	doclength = r->get_doclength();
-	LOGLINE(MATCH, "OrPostList::get_doclength() [right docid=" << rhead <<
-		       "] = " << doclength);
-    } else {
-	doclength = l->get_doclength();
-	LOGLINE(MATCH, "OrPostList::get_doclength() [left docid=" << lhead <<
-		       "] = " << doclength);
-    }
-
-    RETURN(doclength);
-}
-
-Xapian::termcount
-OrPostList::get_unique_terms() const
-{
-    LOGCALL(MATCH, Xapian::termcount, "OrPostList::get_unique_terms", NO_ARGS);
-    Xapian::termcount unique_terms;
-
-    Assert(lhead != 0 && rhead != 0); // check we've started
-    if (lhead > rhead) {
-	unique_terms = r->get_unique_terms();
-	LOGLINE(MATCH, "OrPostList::get_unique_terms() [right docid=" << rhead <<
-		       "] = " << unique_terms);
-    } else {
-	unique_terms = l->get_unique_terms();
-	LOGLINE(MATCH, "OrPostList::get_unique_terms() [left docid=" << lhead <<
-		       "] = " << unique_terms);
-    }
-
-    RETURN(unique_terms);
-}
-
-Xapian::termcount
 OrPostList::get_wdf() const
 {
     LOGCALL(MATCH, Xapian::termcount, "OrPostList::get_wdf", NO_ARGS);

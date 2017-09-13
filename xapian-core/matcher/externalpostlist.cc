@@ -91,20 +91,6 @@ ExternalPostList::get_weight() const
     RETURN(factor * source->get_weight());
 }
 
-Xapian::termcount
-ExternalPostList::get_doclength() const
-{
-    Assert(false);
-    return 0;
-}
-
-Xapian::termcount
-ExternalPostList::get_unique_terms() const
-{
-    Assert(false);
-    return 0;
-}
-
 double
 ExternalPostList::recalc_maxweight()
 {

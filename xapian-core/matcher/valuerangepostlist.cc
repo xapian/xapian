@@ -119,20 +119,6 @@ ValueRangePostList::get_weight() const
     return 0;
 }
 
-Xapian::termcount
-ValueRangePostList::get_doclength() const
-{
-    Assert(db);
-    return 0;
-}
-
-Xapian::termcount
-ValueRangePostList::get_unique_terms() const
-{
-    Assert(db);
-    return 0;
-}
-
 double
 ValueRangePostList::recalc_maxweight()
 {

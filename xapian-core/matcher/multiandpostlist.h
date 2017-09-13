@@ -165,10 +165,6 @@ class MultiAndPostList : public PostList {
 
     Xapian::docid get_docid() const;
 
-    Xapian::termcount get_doclength() const;
-
-    Xapian::termcount get_unique_terms() const;
-
     double get_weight() const;
 
     bool at_end() const;

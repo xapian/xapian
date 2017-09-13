@@ -59,18 +59,6 @@ class OrPostList : public BranchPostList {
 
 	std::string get_description() const;
 
-	/** Return the document length of the document the current term
-	 *  comes from.
-	 *
-	 *  This is obtained by asking the subpostlist which contains the
-	 *  current document for the document length.  If both subpostlists
-	 *  are valid, the left one is asked.
-	 */
-	virtual Xapian::termcount get_doclength() const;
-
-	/// Return the number of unique terms in the document.
-	virtual Xapian::termcount get_unique_terms() const;
-
 	OrPostList(PostList * left_,
 		   PostList * right_,
 		   PostListTree * matcher_,
