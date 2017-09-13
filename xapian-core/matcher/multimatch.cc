@@ -27,7 +27,6 @@
 
 #include "multimatch.h"
 
-#include "autoptr.h"
 #include "collapser.h"
 #include "debuglog.h"
 #include "submatch.h"
@@ -37,14 +36,10 @@
 #include "api/rsetinternal.h"
 #include "realtime.h"
 
-#include "api/emptypostlist.h"
-#include "branchpostlist.h"
 #include "deciderpostlist.h"
 #include "mergepostlist.h"
 #include "postlisttree.h"
 #include "spymaster.h"
-
-#include "backends/document.h"
 
 #include "matchtimeout.h"
 #include "msetcmp.h"
@@ -52,8 +47,6 @@
 #include "valuestreamdocument.h"
 #include "weight/weightinternal.h"
 
-#include <xapian/matchdecider.h>
-#include <xapian/matchspy.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -65,8 +58,6 @@
 #include <cfloat> // For DBL_EPSILON.
 #include <climits> // For UINT_MAX.
 #include <vector>
-#include <map>
-#include <set>
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
