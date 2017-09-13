@@ -46,7 +46,7 @@ ERRScore::~ERRScore()
 }
 
 static bool
-comp (FeatureVector i, FeatureVector j)
+comp(FeatureVector i, FeatureVector j)
 {
     return i.get_label() < j.get_label();
 }
