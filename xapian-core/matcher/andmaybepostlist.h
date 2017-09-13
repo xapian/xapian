@@ -1,13 +1,7 @@
 /** @file andmaybepostlist.h
- * @brief Merged postlist: items from one list, weights from both
- *
- * AND MAYBE of two posting lists
- * A AND MAYBE B is logically just A, but we keep B around for weight purposes
+ * @brief PostList class implementing Query::OP_AND_MAYBE
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2009,2011,2017 Olly Betts
- * Copyright 2009 Lemur Consulting Ltd
+/* Copyright 2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,108 +15,92 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
+#ifndef XAPIAN_INCLUDED_ANDMAYBEPOSTLIST_H
+#define XAPIAN_INCLUDED_ANDMAYBEPOSTLIST_H
 
-#ifndef OM_HGUARD_ANDMAYBEPOSTLIST_H
-#define OM_HGUARD_ANDMAYBEPOSTLIST_H
+#include "postlisttree.h"
+#include "wrapperpostlist.h"
 
-#include "branchpostlist.h"
+/// PostList class implementing Query::OP_AND_MAYBE
+class AndMaybePostList : public WrapperPostList {
+    /// Right-hand side of OP_MAYBE.
+    PostList* r;
 
-/** A postlist with weights modified by another postlist.
- *
- *  This postlist returns a posting if and only if it is in the left
- *  sub-postlist.
- *
- *  If the posting does not occur in the right postlist, the weight for the
- *  posting is simply that in the left postlist.  If the posting occurs in
- *  both postlists, the weight for the posting is the sum of the weights in
- *  the sub-postlists.
- *
- *  This type of postlist is useful for specifying a set of terms which
- *  must appear in the query result: these terms can be specified as the
- *  left hand argument, with the rest of the query being on the right hand
- *  side, and having the effect of modifying the weights.
- *
- *  The postlist is also used as a "decay product" of other postlist types
- *  during the match process: when a postlist can no longer cause a
- *  document to enter the mset on its own, but can influence relative
- *  rankings, it may be combined using one of these.
- */
-class AndMaybePostList : public BranchPostList {
-    private:
-	Xapian::doccount dbsize; // only need in case we decay to an AndPostList
-	Xapian::docid lhead, rhead;
-	double lmax, rmax;
+    /// Current docid from WrapperPostList's pl.
+    Xapian::docid pl_did = 0;
 
-	PostList * process_next_or_skip_to(double w_min, PostList *ret);
-    public:
-	Xapian::doccount get_termfreq_max() const;
-	Xapian::doccount get_termfreq_min() const;
-	Xapian::doccount get_termfreq_est() const;
+    /// Current docid from @a r (or 0).
+    Xapian::docid r_did = 0;
 
-	TermFreqs get_termfreq_est_using_stats(
-	    const Xapian::Weight::Internal & stats) const;
+    /// Current max weight from WrapperPostList's pl.
+    double pl_max;
 
-	Xapian::docid get_docid() const;
-	double get_weight() const;
-	double recalc_maxweight();
+    /// Current max weight from @a r.
+    double r_max;
 
-	PostList *next(double w_min);
-	PostList *skip_to(Xapian::docid did, double w_min);
-	bool at_end() const;
+    /** Total number of documents in the database.
+     *
+     *  Only used if we decay to AND.
+     */
+    Xapian::doccount db_size;
 
-	std::string get_description() const;
+    PostListTree* pltree;
 
-	/** Return the document length of the document the current term
-	 *  comes from.
-	 */
-	virtual Xapian::termcount get_doclength() const;
+    /// Does @a r match at the current position?
+    bool maybe_matches() const { return pl_did == r_did; }
 
-	virtual Xapian::termcount get_unique_terms() const;
+    PostList* decay_to_and(Xapian::docid did,
+			   double w_min,
+			   bool* valid_ptr = NULL);
 
-	AndMaybePostList(PostList *left_,
-			 PostList *right_,
-			 PostListTree *matcher_,
-			 Xapian::doccount dbsize_)
-		: BranchPostList(left_, right_, matcher_),
-		  dbsize(dbsize_), lhead(0), rhead(0)
-	{
-	    // lmax and rmax will get initialised by a recalc_maxweight
-	}
+  public:
+    AndMaybePostList(PostList* left, PostList* right,
+		     PostListTree* pltree_, Xapian::doccount db_size_)
+	: WrapperPostList(left), r(right), db_size(db_size_), pltree(pltree_)
+    {}
 
-	/// Constructor for use by decomposing OrPostList
-	AndMaybePostList(PostList *left_,
-			 PostList *right_,
-			 PostListTree *matcher_,
-			 Xapian::doccount dbsize_,
-			 Xapian::docid lhead_,
-			 Xapian::docid rhead_)
-		: BranchPostList(left_, right_, matcher_),
-		  dbsize(dbsize_), lhead(lhead_), rhead(rhead_)
-	{
-	    // FIXME: recalc_maxweight() ought to get called from above after a
-	    // prune.
-	    lmax = l->recalc_maxweight();
-	    rmax = r->recalc_maxweight();
-	}
+    /// Construct as decay product from OrPostList.
+    AndMaybePostList(PostList* left,
+		     PostList* right,
+		     PostListTree* pltree_,
+		     Xapian::doccount db_size_,
+		     Xapian::docid lhead,
+		     Xapian::docid rhead)
+	: WrapperPostList(left), r(right), pl_did(lhead), r_did(rhead),
+	  db_size(db_size_), pltree(pltree_)
+    {
+	// This should cause recalc_maxweight() to be called on the tree and
+	// that should set pl_max and r_max.
+	pltree->force_recalc();
+	// However, it seems that next(), etc can be called before that
+	// happens, so we need to recalc here explicitly.
+	(void)AndMaybePostList::recalc_maxweight();
+    }
 
-	/** Synchronise the RHS to the LHS after construction.
-	 *  Used after constructing from a decomposing OrPostList
-	 */
-	PostList * sync_rhs(double w_min);
+    ~AndMaybePostList() { delete r; }
 
-	/** get_wdf() for ANDMAYBE postlists returns the sum of the wdfs of the
-	 *  sub postlists which are at the current document - this is desirable
-	 *  when the ANDMAYBE is part of a synonym.
-	 */
-	Xapian::termcount get_wdf() const;
+    Xapian::docid get_docid() const;
 
-	Xapian::termcount count_matching_subqs() const;
+    double get_weight() const;
 
-	void gather_position_lists(OrPositionList* orposlist);
+    double recalc_maxweight();
+
+    PostList* next(double w_min);
+
+    PostList* skip_to(Xapian::docid did, double w_min);
+
+    PostList* check(Xapian::docid did, double w_min, bool& valid);
+
+    std::string get_description() const;
+
+    Xapian::termcount get_wdf() const;
+
+    Xapian::termcount count_matching_subqs() const;
+
+    void gather_position_lists(OrPositionList* orposlist);
 };
 
-#endif /* OM_HGUARD_ANDMAYBEPOSTLIST_H */
+#endif // XAPIAN_INCLUDED_ANDMAYBEPOSTLIST_H

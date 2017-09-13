@@ -64,28 +64,60 @@ OrPostList::next(double w_min)
 		skip_to_handling_prune(ret, newdocid, w_min, matcher);
 	    } else {
 		LOGLINE(MATCH, "OR -> AND MAYBE (1)");
-		AndMaybePostList * ret2 =
-		    new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
-		ret = ret2;
-		// Advance the AndMaybePostList unless the old RHS postlist was
-		// already ahead of the current docid.
 		if (rhead <= lhead) {
+		    ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
 		    next_handling_prune(ret, w_min, matcher);
 		} else {
-		    handle_prune(ret, ret2->sync_rhs(w_min));
+		    // The old RHS postlist was already ahead of the current
+		    // docid, so just advance the LHS.
+		    bool l_valid;
+		    ret = l->check(rhead, w_min, l_valid);
+		    if (l_valid) {
+			if (ret) {
+			    delete l;
+			    l = ret;
+			}
+			if (l->at_end()) {
+			    ret = r->next(w_min);
+			    if (!ret) {
+				ret = r;
+				r = NULL;
+			    }
+			    return ret;
+			}
+			lhead = l->get_docid();
+		    }
+		    ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
 		}
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    LOGLINE(MATCH, "OR -> AND MAYBE (2)");
-	    AndMaybePostList * ret2 =
-		    new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
-	    ret = ret2;
 	    if (lhead <= rhead) {
+		ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
 		next_handling_prune(ret, w_min, matcher);
 	    } else {
-		handle_prune(ret, ret2->sync_rhs(w_min));
+		// The old LHS postlist was already ahead of the current
+		// docid, so just advance the RHS.
+		bool r_valid;
+		ret = r->check(rhead, w_min, r_valid);
+		if (r_valid) {
+		    if (ret) {
+			delete r;
+			r = ret;
+		    }
+		    if (r->at_end()) {
+			ret = l->next(w_min);
+			if (!ret) {
+			    ret = l;
+			    l = NULL;
+			}
+			return ret;
+		    }
+		    rhead = r->get_docid();
+		}
+		ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
 	    }
 	}
 
@@ -140,20 +172,56 @@ OrPostList::skip_to(Xapian::docid did, double w_min)
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
 		LOGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (1)");
-		AndMaybePostList * ret2 =
-			new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
-		ret = ret2;
-		handle_prune(ret, ret2->sync_rhs(w_min));
+		if (rhead > lhead) {
+		    // The old RHS postlist was already ahead of the current
+		    // docid, so just advance the LHS.
+		    bool l_valid;
+		    ret = l->check(rhead, w_min, l_valid);
+		    if (l_valid) {
+			if (ret) {
+			    delete l;
+			    l = ret;
+			}
+			if (l->at_end()) {
+			    ret = r->skip_to(did, w_min);
+			    if (!ret) {
+				ret = r;
+				r = NULL;
+			    }
+			    return ret;
+			}
+			lhead = l->get_docid();
+		    }
+		}
+		ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
 		did = std::max(did, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    LOGLINE(MATCH, "OR -> AND MAYBE (in skip_to) (2)");
-	    AndMaybePostList * ret2 =
-		    new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
-	    ret = ret2;
-	    handle_prune(ret, ret2->sync_rhs(w_min));
+	    if (lhead > rhead) {
+		// The old LHS postlist was already ahead of the current
+		// docid, so just advance the RHS.
+		bool r_valid;
+		ret = r->check(lhead, w_min, r_valid);
+		if (r_valid) {
+		    if (ret) {
+			delete r;
+			r = ret;
+		    }
+		    if (r->at_end()) {
+			ret = l->skip_to(did, w_min);
+			if (!ret) {
+			    ret = l;
+			    l = NULL;
+			}
+			return ret;
+		    }
+		    rhead = r->get_docid();
+		}
+	    }
+	    ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
 	    did = std::max(did, lhead);
 	}
 
@@ -205,18 +273,56 @@ OrPostList::check(Xapian::docid did, double w_min, bool &valid)
 		did = std::max(did, std::max(lhead, rhead));
 	    } else {
 		LOGLINE(MATCH, "OR -> AND MAYBE (in check) (1)");
-		AndMaybePostList * ret2 = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
-		ret = ret2;
-		handle_prune(ret, ret2->sync_rhs(w_min));
+		if (rhead > lhead) {
+		    // The old RHS postlist was already ahead of the current
+		    // docid, so just advance the LHS.
+		    bool l_valid;
+		    ret = l->check(rhead, w_min, l_valid);
+		    if (l_valid) {
+			if (ret) {
+			    delete l;
+			    l = ret;
+			}
+			if (l->at_end()) {
+			    ret = r->skip_to(did, w_min);
+			    if (!ret) {
+				ret = r;
+				r = NULL;
+			    }
+			    return ret;
+			}
+			lhead = l->get_docid();
+		    }
+		}
+		ret = new AndMaybePostList(r, l, matcher, dbsize, rhead, lhead);
 		did = std::max(did, rhead);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    LOGLINE(MATCH, "OR -> AND MAYBE (in check) (2)");
-	    AndMaybePostList * ret2 = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
-	    ret = ret2;
-	    handle_prune(ret, ret2->sync_rhs(w_min));
+	    if (lhead > rhead) {
+		// The old LHS postlist was already ahead of the current
+		// docid, so just advance the RHS.
+		bool r_valid;
+		ret = r->check(lhead, w_min, r_valid);
+		if (r_valid) {
+		    if (ret) {
+			delete r;
+			r = ret;
+		    }
+		    if (r->at_end()) {
+			ret = l->skip_to(did, w_min);
+			if (!ret) {
+			    ret = l;
+			    l = NULL;
+			}
+			return ret;
+		    }
+		    rhead = r->get_docid();
+		}
+	    }
+	    ret = new AndMaybePostList(l, r, matcher, dbsize, lhead, rhead);
 	    did = std::max(did, lhead);
 	}
 
