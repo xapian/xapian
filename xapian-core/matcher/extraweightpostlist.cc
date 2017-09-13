@@ -47,7 +47,8 @@ ExtraWeightPostList::get_weight() const
      * calculating the number of unique terms for the existing weighting
      * schemes for which get_maxextra() returns non-zero.
      */
-    double sum_extra = weight->get_sumextra(pl->get_doclength(), 0.0);
+    Xapian::docid did = pl->get_docid();
+    double sum_extra = weight->get_sumextra(db->get_doclength(did), 0.0);
     AssertRel(sum_extra,<=,max_extra);
     return pl->get_weight() + sum_extra;
 }

@@ -37,6 +37,8 @@ class ExtraWeightPostList : public WrapperPostList {
     /// Don't allow copying.
     ExtraWeightPostList(const ExtraWeightPostList&) = delete;
 
+    const Xapian::Database::Internal* db;
+
     Xapian::Weight* weight;
 
     PostListTree* pltree;
@@ -45,9 +47,11 @@ class ExtraWeightPostList : public WrapperPostList {
 
   public:
     ExtraWeightPostList(PostList* pl_,
+			const Xapian::Database::Internal* db_,
 			Xapian::Weight* weight_,
 			PostListTree* pltree_)
 	: WrapperPostList(pl_),
+	  db(db_),
 	  weight(weight_),
 	  pltree(pltree_),
 	  max_extra(weight->get_maxextra()) {}
