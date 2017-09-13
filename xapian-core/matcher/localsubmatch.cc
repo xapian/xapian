@@ -227,8 +227,7 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, double factor)
 	return or_pl;
     }
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
-    Xapian::termcount len_lb = db->get_doclength_lower_bound();
-    AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, len_lb));
+    AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, db));
     AutoPtr<Xapian::Weight> wt(wt_factory->clone());
 
     TermFreqs freqs;

@@ -24,6 +24,8 @@
 
 #include "wrapperpostlist.h"
 
+#include "backends/database.h"
+
 /** A postlist comprising several postlists SYNONYMed together.
  *
  *  This postlist returns all postings in the OR of the sub postlists, but
@@ -51,15 +53,18 @@ class SynonymPostList : public WrapperPostList {
     /// Flag indicating if we've called recalc_maxweight on the subtree yet.
     bool have_calculated_subtree_maxweights;
 
+    const Xapian::Database::Internal* db;
+
     /// Lower bound on doclength in the subdatabase we're working over.
     Xapian::termcount doclen_lower_bound;
 
   public:
-    SynonymPostList(PostList * subtree, Xapian::termcount doclen_lower_bound_)
+    SynonymPostList(PostList * subtree, const Xapian::Database::Internal* db_)
 	: WrapperPostList(subtree), wt(NULL),
 	  want_doclength(false), want_wdf(false), want_unique_terms(false),
 	  have_calculated_subtree_maxweights(false),
-	  doclen_lower_bound(doclen_lower_bound_) { }
+	  db(db_),
+	  doclen_lower_bound(db->get_doclength_lower_bound()) { }
 
     ~SynonymPostList();
 
