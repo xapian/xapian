@@ -175,10 +175,11 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *  is, @a valid is set to true.  If it isn't, it sets @a valid to
      *  false, and leaves the position unspecified (and hence the result of
      *  calling methods which depend on the current position, such as
-     *  get_docid(), are also unspecified).  In this state, next() will
-     *  advance to the first matching position after @a docid, and skip_to()
-     *  will act as it would if the position was the first matching position
-     *  after @a docid.
+     *  get_docid() and at_end(), are also unspecified).  In this state, next()
+     *  will advance to the first matching position after @a docid, and
+     *  skip_to() will act as it would if the position was the first matching
+     *  position after @a docid.  If @a valid is set to false, then NULL must
+     *  be returned (pruning in this situation doesn't make sense).
      *
      *  The default implementation calls skip_to().
      */
