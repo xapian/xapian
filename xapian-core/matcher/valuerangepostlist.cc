@@ -153,13 +153,6 @@ ValueRangePostList::read_position_list()
     return NULL;
 }
 
-PositionList *
-ValueRangePostList::open_position_list() const
-{
-    Assert(db);
-    return NULL;
-}
-
 PostList *
 ValueRangePostList::next(double)
 {

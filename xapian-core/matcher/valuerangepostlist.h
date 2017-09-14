@@ -77,8 +77,6 @@ class ValueRangePostList : public PostList {
 
     PositionList * read_position_list();
 
-    PositionList * open_position_list() const;
-
     PostList * next(double w_min);
 
     PostList * skip_to(Xapian::docid, double w_min);
