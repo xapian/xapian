@@ -107,12 +107,6 @@ ExternalPostList::read_position_list()
     return NULL;
 }
 
-PositionList *
-ExternalPostList::open_position_list() const
-{
-    return NULL;
-}
-
 PostList *
 ExternalPostList::update_after_advance() {
     LOGCALL(MATCH, PostList *, "ExternalPostList::update_after_advance", NO_ARGS);
