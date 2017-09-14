@@ -1,9 +1,7 @@
-/* mergepostlist.cc: merge postlists from different databases
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2008,2009,2011,2015,2016 Olly Betts
- * Copyright 2007,2009 Lemur Consulting Ltd
+/** @file mergepostlist.cc
+ * @brief PostList class implementing Query::OP_AND_NOT
+ */
+/* Copyright 2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,177 +15,128 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <config.h>
+
 #include "mergepostlist.h"
 
-#include "multimatch.h"
-#include "api/emptypostlist.h"
-#include "branchpostlist.h"
-#include "debuglog.h"
-#include "omassert.h"
+#include "backends/multi.h"
 #include "valuestreamdocument.h"
-
-// NB don't prune - even with one sublist we still translate docids...
 
 MergePostList::~MergePostList()
 {
-    LOGCALL_DTOR(MATCH, "MergePostList");
-    std::vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); ++i) {
-	delete *i;
-    }
-}
-
-PostList *
-MergePostList::next(double w_min)
-{
-    LOGCALL(MATCH, PostList *, "MergePostList::next", w_min);
-    LOGVALUE(MATCH, current);
-    if (current == -1) current = 0;
-    while (true) {
-	// FIXME: should skip over Remote matchers which aren't ready yet
-	// and come back to them later...
-	next_handling_prune(plists[current], w_min, matcher);
-	if (!plists[current]->at_end()) break;
-	++current;
-	if (unsigned(current) >= plists.size()) break;
-	vsdoc.new_subdb(current);
-	if (matcher) matcher->force_recalc();
-    }
-    LOGVALUE(MATCH, current);
-    RETURN(NULL);
-}
-
-PostList *
-MergePostList::skip_to(Xapian::docid did, double w_min)
-{
-    LOGCALL(MATCH, PostList *, "MergePostList::skip_to", did | w_min);
-    (void)did;
-    (void)w_min;
-    // MergePostList doesn't return documents in docid order, so skip_to
-    // isn't a meaningful operation.
-    throw Xapian::InvalidOperationError("MergePostList doesn't support skip_to");
-}
-
-Xapian::termcount
-MergePostList::get_wdf() const
-{
-    LOGCALL(MATCH, Xapian::termcount, "MergePostList::get_wdf", NO_ARGS);
-    RETURN(plists[current]->get_wdf());
-}
-
-Xapian::doccount
-MergePostList::get_termfreq_max() const
-{
-    LOGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_max", NO_ARGS);
-    // sum of termfreqs for all children
-    Xapian::doccount total = 0;
-    vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); ++i) {
-	total += (*i)->get_termfreq_max();
-    }
-    RETURN(total);
+    pl = NULL;
+    for (Xapian::doccount i = 0; i != n_shards; ++i)
+	delete shard_pls[i];
 }
 
 Xapian::doccount
 MergePostList::get_termfreq_min() const
 {
-    LOGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_min", NO_ARGS);
-    // sum of termfreqs for all children
-    Xapian::doccount total = 0;
-    vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); ++i) {
-	total += (*i)->get_termfreq_min();
-    }
-    RETURN(total);
+    Xapian::doccount result = 0;
+    for (Xapian::doccount i = 0; i != n_shards; ++i)
+	result += shard_pls[i]->get_termfreq_min();
+    return result;
+}
+
+Xapian::doccount
+MergePostList::get_termfreq_max() const
+{
+    Xapian::doccount result = 0;
+    for (Xapian::doccount i = 0; i != n_shards; ++i)
+	result += shard_pls[i]->get_termfreq_max();
+    return result;
 }
 
 Xapian::doccount
 MergePostList::get_termfreq_est() const
 {
-    LOGCALL(MATCH, Xapian::doccount, "MergePostList::get_termfreq_est", NO_ARGS);
-    // sum of termfreqs for all children
-    Xapian::doccount total = 0;
-    vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); ++i) {
-	total += (*i)->get_termfreq_est();
-    }
-    RETURN(total);
+    Xapian::doccount result = 0;
+    for (Xapian::doccount i = 0; i != n_shards; ++i)
+	result += shard_pls[i]->get_termfreq_est();
+    return result;
 }
 
 Xapian::docid
 MergePostList::get_docid() const
 {
-    LOGCALL(MATCH, Xapian::docid, "MergePostList::get_docid", NO_ARGS);
-    Assert(current != -1);
-    // FIXME: this needs fixing so we can prune plists - see MultiPostlist
-    // for code which does this...
-    RETURN((plists[current]->get_docid() - 1) * plists.size() + current + 1);
+    return unshard(WrapperPostList::get_docid(), shard, n_shards);
 }
 
-double
-MergePostList::get_weight() const
-{
-    LOGCALL(MATCH, double, "MergePostList::get_weight", NO_ARGS);
-    Assert(current != -1);
-    RETURN(plists[current]->get_weight());
-}
-
-const string *
+const string*
 MergePostList::get_sort_key() const
 {
-    LOGCALL(MATCH, const string *, "MergePostList::get_sort_key", NO_ARGS);
-    Assert(current != -1);
-    RETURN(plists[current]->get_sort_key());
+    return pl->get_sort_key();
 }
 
-const string *
+const string*
 MergePostList::get_collapse_key() const
 {
-    LOGCALL(MATCH, const string *, "MergePostList::get_collapse_key", NO_ARGS);
-    Assert(current != -1);
-    RETURN(plists[current]->get_collapse_key());
-}
-
-double
-MergePostList::recalc_maxweight()
-{
-    LOGCALL(MATCH, double, "MergePostList::recalc_maxweight", NO_ARGS);
-    w_max = 0;
-    vector<PostList *>::iterator i;
-    for (i = plists.begin(); i != plists.end(); ++i) {
-	double w = (*i)->recalc_maxweight();
-	if (w > w_max) w_max = w;
-    }
-    RETURN(w_max);
+    return pl->get_collapse_key();
 }
 
 bool
 MergePostList::at_end() const
 {
-    LOGCALL(MATCH, bool, "MergePostList::at_end", NO_ARGS);
-    Assert(current != -1);
-    RETURN(unsigned(current) >= plists.size());
+    return shard == n_shards;
+}
+
+double
+MergePostList::recalc_maxweight()
+{
+    double result = 0;
+    for (Xapian::doccount i = 0; i != n_shards; ++i) {
+	result = max(result, shard_pls[i]->recalc_maxweight());
+    }
+    return result;
+}
+
+TermFreqs
+MergePostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal&) const
+{
+    // We're only called by PostListTree which never calls this method.
+    Assert(false);
+    return TermFreqs();
+}
+
+PostList*
+MergePostList::next(double w_min)
+{
+    while (true) {
+	PostList* result = pl->next(w_min);
+	if (result) {
+	    delete pl;
+	    pl = result;
+	    shard_pls[shard] = pl;
+	}
+	if (!pl->at_end() || ++shard == n_shards) {
+	    break;
+	}
+	// Move on to the next database.
+	vsdoc.new_subdb(shard);
+	pl = shard_pls[shard];
+    }
+    return NULL;
+}
+
+PostList*
+MergePostList::skip_to(Xapian::docid, double)
+{
+    // We're only called by PostListTree which never calls this method.
+    Assert(false);
+    return NULL;
 }
 
 string
 MergePostList::get_description() const
 {
-    string desc = "( Merge ";
-    vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); ++i) {
-	desc += (*i)->get_description() + " ";
+    string desc = "MergePostList(";
+    for (Xapian::doccount i = 0; i != n_shards; ++i) {
+	desc += shard_pls[i]->get_description();
+	desc += ',';
     }
-    return desc + ")";
-}
-
-Xapian::termcount
-MergePostList::count_matching_subqs() const
-{
-    LOGCALL(MATCH, Xapian::termcount, "MergePostList::count_matching_subqs", NO_ARGS);
-    RETURN(plists[current]->count_matching_subqs());
+    desc.back() = ')';
+    return desc;
 }

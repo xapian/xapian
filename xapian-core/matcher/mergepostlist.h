@@ -1,10 +1,7 @@
 /** @file mergepostlist.h
- * @brief merge postlists from different databases
+ * @brief PostList class for searching multiple databases together
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2009,2011,2015,2016 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
+/* Copyright 2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,75 +15,72 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_MERGEPOSTLIST_H
-#define OM_HGUARD_MERGEPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_MERGEPOSTLIST_H
+#define XAPIAN_INCLUDED_MERGEPOSTLIST_H
 
-#include "api/postlist.h"
+#include "wrapperpostlist.h"
 
-class PostListTree;
 class ValueStreamDocument;
 
-/** A postlist comprising postlists from different databases merged together.
- */
-class MergePostList : public PostList {
-    private:
-	// Prevent copying
-	MergePostList(const MergePostList &);
-	MergePostList & operator=(const MergePostList &);
+/// PostList class for searching multiple databases together.
+class MergePostList : public WrapperPostList {
+    /// The postlists for the shards.
+    PostList** shard_pls;
 
-	double w_max;
+    /// The number of shards.
+    Xapian::doccount n_shards;
 
-	vector<PostList *> plists;
+    /** The current shard.
+     *
+     *  We're at_end() when shard == n_shards.
+     */
+    Xapian::doccount shard = 0;
 
-	int current;
+    /** Document proxy used for valuestream caching.
+     *
+     *  Each time we move to a new shard we must notify this object so it can
+     *  invalidate any cached valuestreams (which are specific to the shard).
+     */
+    ValueStreamDocument& vsdoc;
 
-	/** The object which is using this postlist to perform
-	 *  a match.  This object needs to be notified when the
-	 *  tree changes such that the maximum weights need to be
-	 *  recalculated.
-	 */
-	PostListTree *matcher;
+  public:
+    MergePostList(PostList** pls,
+		  Xapian::doccount n_shards_,
+		  ValueStreamDocument& vsdoc_)
+	: WrapperPostList(pls[0]),
+	  shard_pls(pls),
+	  n_shards(n_shards_),
+	  vsdoc(vsdoc_) {}
 
-	/** Document proxy used for valuestream caching.
-	 *
-	 *  We need to notify this when the subdatabase changes, as then the
-	 *  cached valuestreams need to be cleared as they will be for the
-	 *  wrong subdatabase.
-	 */
-	ValueStreamDocument & vsdoc;
+    ~MergePostList();
 
-    public:
-	Xapian::termcount get_wdf() const;
-	Xapian::doccount get_termfreq_max() const;
-	Xapian::doccount get_termfreq_min() const;
-	Xapian::doccount get_termfreq_est() const;
+    Xapian::doccount get_termfreq_min() const;
 
-	Xapian::docid get_docid() const;
-	double get_weight() const;
-	const string * get_sort_key() const;
-	const string * get_collapse_key() const;
+    Xapian::doccount get_termfreq_max() const;
 
-	double recalc_maxweight();
+    Xapian::doccount get_termfreq_est() const;
 
-	PostList *next(double w_min);
-	PostList *skip_to(Xapian::docid did, double w_min);
-	bool at_end() const;
+    Xapian::docid get_docid() const;
 
-	string get_description() const;
+    const string* get_sort_key() const;
 
-	Xapian::termcount count_matching_subqs() const;
+    const string* get_collapse_key() const;
 
-	MergePostList(const std::vector<PostList *> & plists_,
-		      PostListTree *matcher_,
-		      ValueStreamDocument & vsdoc_)
-	    : plists(plists_), current(-1), matcher(matcher_), vsdoc(vsdoc_)
-	{ }
+    bool at_end() const;
 
-	~MergePostList();
+    double recalc_maxweight();
+
+    TermFreqs get_termfreq_est_using_stats(
+	    const Xapian::Weight::Internal& stats) const;
+
+    PostList* next(double w_min);
+
+    PostList* skip_to(Xapian::docid did, double w_min);
+
+    std::string get_description() const;
 };
 
-#endif /* OM_HGUARD_MERGEPOSTLIST_H */
+#endif // XAPIAN_INCLUDED_MERGEPOSTLIST_H

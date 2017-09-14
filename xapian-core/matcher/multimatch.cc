@@ -246,10 +246,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     ++vsdoc._refs;
     Xapian::Document doc(&vsdoc);
 
-    PostListTree pltree;
-
     // Get postlists and term info
     vector<PostList *> postlists;
+    PostListTree pltree;
     Xapian::termcount total_subqs = 0;
     // Keep a count of matches which we know exist, but we won't see.  This
     // occurs when a submatch is remote, and returns a lower bound on the
@@ -274,10 +273,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
     Assert(!postlists.empty());
 
-    if (postlists.size() == 1) {
+    Xapian::doccount n_shards = postlists.size();
+    if (n_shards == 1) {
 	pltree.set_postlist(postlists[0]);
     } else {
-	pltree.set_postlist(new MergePostList(postlists, &pltree, vsdoc));
+	pltree.set_postlist(new MergePostList(&postlists[0], n_shards, vsdoc));
     }
 
     LOGLINE(MATCH, "pl = (" << pltree.get_description() << ")");
