@@ -112,7 +112,7 @@ export GLIBCXX_FORCE_NEW
 XAPIAN_TESTSUITE_VALGRIND=1
 export XAPIAN_TESTSUITE_VALGRIND
 
-vg_opts='--log-file=.valgrind.log.%p --leak-resolution=high'
+vg_opts='--log-file=.valgrind.log.%p --child-silent-after-fork=yes --leak-resolution=high'
 vg_opts="$vg_opts --suppressions=$srcdir/valgrind.supp"
 if test -n "$EATMYDATA" ; then
     echo "Running test '$@' under eatmydata and valgrind"
