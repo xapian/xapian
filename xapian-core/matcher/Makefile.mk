@@ -1,7 +1,6 @@
 noinst_HEADERS +=\
 	matcher/andmaybepostlist.h\
 	matcher/andnotpostlist.h\
-	matcher/branchpostlist.h\
 	matcher/collapser.h\
 	matcher/deciderpostlist.h\
 	matcher/exactphrasepostlist.h\
@@ -46,7 +45,6 @@ EXTRA_DIST +=\
 lib_src +=\
 	matcher/andmaybepostlist.cc\
 	matcher/andnotpostlist.cc\
-	matcher/branchpostlist.cc\
 	matcher/collapser.cc\
 	matcher/deciderpostlist.cc\
 	matcher/exactphrasepostlist.cc\

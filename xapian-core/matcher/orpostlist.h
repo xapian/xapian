@@ -1,11 +1,7 @@
 /** @file orpostlist.h
- * @brief OR of two posting lists
+ * @brief PostList class implementing Query::OP_OR
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2009,2010,2011,2017 Olly Betts
- * Copyright 2009 Lemur Consulting Ltd
- * Copyright 2010 Richard Boulton
+/* Copyright 2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,60 +15,99 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_ORPOSTLIST_H
-#define OM_HGUARD_ORPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_ORPOSTLIST_H
+#define XAPIAN_INCLUDED_ORPOSTLIST_H
 
-#include "branchpostlist.h"
+#include "api/postlist.h"
 
-/** A postlist comprising two postlists ORed together.
- *
- *  This postlist returns a posting if it is in either of the sub-postlists.
- *  The weight for a posting is the sum of the weights of the sub-postings,
- *  if both exist, or the sum of the single sub-posting which exists
- *  otherwise.
- */
-class OrPostList : public BranchPostList {
-    private:
-	Xapian::docid lhead, rhead;
-	bool lvalid, rvalid;
-	double lmax, rmax, minmax;
-	Xapian::doccount dbsize;
-    public:
-	Xapian::doccount get_termfreq_max() const;
-	Xapian::doccount get_termfreq_min() const;
-	Xapian::doccount get_termfreq_est() const;
-	TermFreqs get_termfreq_est_using_stats(
-	    const Xapian::Weight::Internal & stats) const;
+class PostListTree;
 
-	Xapian::docid get_docid() const;
-	double get_weight() const;
-	double recalc_maxweight();
+/// PostList class implementing Query::OP_OR
+class OrPostList : public PostList {
+    /// Don't allow assignment.
+    void operator=(const OrPostList&) = delete;
 
-	PostList *next(double w_min);
-	PostList *skip_to(Xapian::docid did, double w_min);
-	PostList *check(Xapian::docid did, double w_min, bool &valid);
-	bool at_end() const;
+    /// Don't allow copying.
+    OrPostList(const OrPostList&) = delete;
 
-	std::string get_description() const;
+    /** Left side.
+     *
+     *  We optimise assuming this side is more frequent, and so creators should
+     *  try to set this side to the side with the higher estimated term
+     *  frequency.
+     */
+    PostList* l;
 
-	OrPostList(PostList * left_,
-		   PostList * right_,
-		   PostListTree * matcher_,
-		   Xapian::doccount dbsize_);
+    /// Right side.
+    PostList* r;
 
-	/** get_wdf() for OR postlists returns the sum of the wdfs of the
-	 *  sub postlists which are at the current document - this is desirable
-	 *  when the OR is part of a synonym.
-	 */
-	Xapian::termcount get_wdf() const;
+    Xapian::docid l_did = 0;
 
-	Xapian::termcount count_matching_subqs() const;
+    Xapian::docid r_did = 0;
 
-	void gather_position_lists(OrPositionList* orposlist);
+    double l_max = 0;
+
+    double r_max = 0;
+
+    /** Total number of documents in the database. */
+    Xapian::doccount db_size;
+
+    PostListTree* pltree;
+
+    PostList* decay_to_and(Xapian::docid did,
+			   double w_min,
+			   bool* valid_ptr = NULL);
+
+    PostList* decay_to_andmaybe(PostList* left,
+				PostList* right,
+				Xapian::docid did,
+				double w_min,
+				bool* valid_ptr = NULL);
+
+  public:
+    OrPostList(PostList* left, PostList* right,
+	       PostListTree* pltree_, Xapian::doccount db_size_)
+	: l(left), r(right), db_size(db_size_), pltree(pltree_)
+    {}
+
+    ~OrPostList() {
+	delete l;
+	delete r;
+    }
+
+    Xapian::doccount get_termfreq_min() const;
+
+    Xapian::doccount get_termfreq_max() const;
+
+    Xapian::doccount get_termfreq_est() const;
+
+    TermFreqs get_termfreq_est_using_stats(
+	    const Xapian::Weight::Internal& stats) const;
+
+    Xapian::docid get_docid() const;
+
+    double get_weight() const;
+
+    bool at_end() const;
+
+    double recalc_maxweight();
+
+    PostList* next(double w_min);
+
+    PostList* skip_to(Xapian::docid did, double w_min);
+
+    PostList* check(Xapian::docid did, double w_min, bool& valid);
+
+    std::string get_description() const;
+
+    Xapian::termcount get_wdf() const;
+
+    Xapian::termcount count_matching_subqs() const;
+
+    void gather_position_lists(OrPositionList* orposlist);
 };
 
-#endif /* OM_HGUARD_ORPOSTLIST_H */
+#endif // XAPIAN_INCLUDED_ORPOSTLIST_H

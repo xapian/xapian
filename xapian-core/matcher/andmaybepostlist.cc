@@ -110,7 +110,8 @@ AndMaybePostList::next(double w_min)
 PostList*
 AndMaybePostList::skip_to(Xapian::docid did, double w_min)
 {
-    if (did <= pl_did)
+    // skip_to(pl_did) happens after decay from OR
+    if (did < pl_did)
 	return NULL;
 
     if (w_min > pl_max) {
