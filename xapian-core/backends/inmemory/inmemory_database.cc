@@ -621,11 +621,12 @@ InMemoryDatabase::positionlist_count(Xapian::docid did,
     }
     const InMemoryDoc &doc = termlists[did - 1];
 
-    vector<InMemoryTermEntry>::const_iterator i;
-    for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
-	if (i->tname == tname) {
-	    return i->positions.size();
-	}
+    InMemoryTermEntry temp;
+    temp.tname = tname;
+    auto t = lower_bound(doc.terms.begin(), doc.terms.end(),
+			 temp, InMemoryTermEntryLessThan());
+    if (t != doc.terms.end() && t->tname == tname) {
+	return t->positions.size();
     }
     return 0;
 }
@@ -638,11 +639,12 @@ InMemoryDatabase::open_position_list(Xapian::docid did,
     if (usual(doc_exists(did))) {
 	const InMemoryDoc &doc = termlists[did - 1];
 
-	vector<InMemoryTermEntry>::const_iterator i;
-	for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
-	    if (i->tname == tname) {
-		return new InMemoryPositionList(i->positions);
-	    }
+	InMemoryTermEntry temp;
+	temp.tname = tname;
+	auto t = lower_bound(doc.terms.begin(), doc.terms.end(),
+			     temp, InMemoryTermEntryLessThan());
+	if (t != doc.terms.end() && t->tname == tname) {
+	    return new InMemoryPositionList(t->positions);
 	}
     }
     return new InMemoryPositionList(false);
@@ -730,13 +732,16 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 	Assert(t != postlists.end());
 	t->second.collection_freq -= i->wdf;
 	--t->second.term_freq;
-	vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
-	while (posting != t->second.docs.end()) {
-	    // Just zero out erased doc ids - otherwise we need to erase
-	    // in a vector (inefficient) and we break any posting lists
-	    // iterating over this posting list.
-	    if (posting->did == did) posting->valid = false;
-	    ++posting;
+
+	// Just invalidate erased doc ids - otherwise we need to erase
+	// in a vector (inefficient) and we break any posting lists
+	// iterating over this posting list.
+	InMemoryPosting temp;
+	temp.did = did;
+	auto p = lower_bound(t->second.docs.begin(), t->second.docs.end(),
+			     temp, InMemoryPostingLessThan());
+	if (p != t->second.docs.end() && p->did == did) {
+	    p->valid = false;
 	}
     }
     termlists[did - 1].terms.clear();
@@ -781,13 +786,16 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 	Assert(t != postlists.end());
 	t->second.collection_freq -= i->wdf;
 	--t->second.term_freq;
-	vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
-	while (posting != t->second.docs.end()) {
-	    // Just invalidate erased doc ids - otherwise we need to erase
-	    // in a vector (inefficient) and we break any posting lists
-	    // iterating over this posting list.
-	    if (posting->did == did) posting->valid = false;
-	    ++posting;
+
+	// Just invalidate erased doc ids - otherwise we need to erase
+	// in a vector (inefficient) and we break any posting lists
+	// iterating over this posting list.
+	InMemoryPosting temp;
+	temp.did = did;
+	auto p = lower_bound(t->second.docs.begin(), t->second.docs.end(),
+			     temp, InMemoryPostingLessThan());
+	if (p != t->second.docs.end() && p->did == did) {
+	    p->valid = false;
 	}
     }
 
