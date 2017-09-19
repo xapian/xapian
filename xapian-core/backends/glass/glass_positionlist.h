@@ -24,12 +24,12 @@
 
 #include <xapian/types.h>
 
-#include "autoptr.h"
 #include "bitstream.h"
 #include "glass_lazytable.h"
 #include "pack.h"
 #include "backends/positionlist.h"
 
+#include <memory>
 #include <string>
 
 using namespace std;
@@ -95,7 +95,7 @@ class GlassPositionList : public PositionList {
     Xapian::termcount size;
 
     /// Cursor for locating multiple entries efficiently.
-    AutoPtr<GlassCursor> cursor;
+    unique_ptr<GlassCursor> cursor;
 
     /// Have we started iterating yet?
     bool have_started;

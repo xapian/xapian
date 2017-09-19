@@ -47,8 +47,8 @@
 #include "str.h"
 #include "unicode/description_append.h"
 
-#include "autoptr.h"
 #include <fstream>
+#include <memory>
 #include <string>
 
 using namespace std;
@@ -482,7 +482,7 @@ DatabaseReplica::Internal::possibly_make_offline_live()
 {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     string replica_path(get_replica_path(live_id ^ 1));
-    AutoPtr<DatabaseReplicator> replicator;
+    unique_ptr<DatabaseReplicator> replicator;
     try {
 	replicator.reset(DatabaseReplicator::open(replica_path));
     } catch (const Xapian::DatabaseError &) {
@@ -553,7 +553,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 			++(info->fullcopy_count);
 		    string replica_uuid;
 		    {
-			AutoPtr<DatabaseReplicator> replicator(
+			unique_ptr<DatabaseReplicator> replicator(
 				DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
 			replica_uuid = replicator->get_uuid();
 		    }
@@ -597,7 +597,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 		    // Open a replicator for the live path, and apply the
 		    // changeset.
 		    {
-			AutoPtr<DatabaseReplicator> replicator(
+			unique_ptr<DatabaseReplicator> replicator(
 				DatabaseReplicator::open(replica_path));
 
 			// Ignore the returned revision number, since we are
@@ -617,7 +617,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 		}
 
 		{
-		    AutoPtr<DatabaseReplicator> replicator(
+		    unique_ptr<DatabaseReplicator> replicator(
 			    DatabaseReplicator::open(get_replica_path(live_id ^ 1)));
 
 		    offline_revision = replicator->

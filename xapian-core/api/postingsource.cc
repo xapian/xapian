@@ -26,8 +26,6 @@
 #define XAPIAN_DEPRECATED(X) X
 #include "xapian/postingsource.h"
 
-#include "autoptr.h"
-
 #include "backends/database.h"
 #include "backends/document.h"
 #include "matcher/postlisttree.h"
@@ -42,6 +40,7 @@
 #include "str.h"
 
 #include <cfloat>
+#include <memory>
 
 using namespace std;
 
@@ -357,7 +356,8 @@ ValueMapPostingSource::get_weight() const
 ValueMapPostingSource *
 ValueMapPostingSource::clone() const
 {
-    AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(get_slot()));
+    unique_ptr<ValueMapPostingSource> res(
+	    new ValueMapPostingSource(get_slot()));
     map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {
 	res->add_mapping(i->first, i->second);
@@ -396,7 +396,7 @@ ValueMapPostingSource::unserialise(const string &s) const
 
     Xapian::valueno new_slot;
     decode_length(&p, end, new_slot);
-    AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(new_slot));
+    unique_ptr<ValueMapPostingSource> res(new ValueMapPostingSource(new_slot));
     res->set_default_weight(unserialise_double(&p, end));
     while (p != end) {
 	size_t keylen;

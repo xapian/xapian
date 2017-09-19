@@ -33,7 +33,7 @@
 #include "serialise-double.h"
 #include "weight/weightinternal.h"
 
-#include "autoptr.h"
+#include <memory>
 #include <set>
 #include <string>
 
@@ -190,7 +190,7 @@ unserialise_mset(const char * p, const char * p_end)
 	swap(items.back().sort_key, sort_key);
     }
 
-    AutoPtr<Xapian::Weight::Internal> stats;
+    unique_ptr<Xapian::Weight::Internal> stats;
     if (p != p_end) {
 	stats.reset(new Xapian::Weight::Internal());
 	unserialise_stats(string(p, p_end - p), *(stats.get()));

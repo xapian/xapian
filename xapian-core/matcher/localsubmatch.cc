@@ -36,7 +36,7 @@
 
 #include "xapian/error.h"
 
-#include "autoptr.h"
+#include <memory>
 #include <map>
 #include <string>
 
@@ -205,7 +205,7 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 	*total_subqs_ptr = opt.get_total_subqs();
     }
 
-    AutoPtr<Xapian::Weight> extra_wt(wt_factory->clone());
+    unique_ptr<Xapian::Weight> extra_wt(wt_factory->clone());
     // Only uses term-independent stats.
     extra_wt->init_(*stats, qlen);
     if (extra_wt->get_maxextra() != 0.0) {
@@ -227,8 +227,8 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, double factor)
 	return or_pl;
     }
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
-    AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, db));
-    AutoPtr<Xapian::Weight> wt(wt_factory->clone());
+    unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, db));
+    unique_ptr<Xapian::Weight> wt(wt_factory->clone());
 
     TermFreqs freqs;
     // Avoid calling get_termfreq_est_using_stats() if the database is empty

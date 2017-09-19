@@ -23,8 +23,6 @@
 
 #include <config.h>
 
-#include "autoptr.h"
-
 #include <xapian/constants.h>
 #include <xapian/error.h>
 #include <xapian/positioniterator.h>
@@ -50,6 +48,7 @@
 #include <algorithm>
 #include <cstdlib> // For abs().
 #include <cstring>
+#include <memory>
 #include <vector>
 
 using namespace std;
@@ -570,7 +569,7 @@ Database::get_spelling_suggestion(const string &word,
 {
     LOGCALL(API, string, "Database::get_spelling_suggestion", word | max_edit_distance);
     if (word.size() <= 1) return string();
-    AutoPtr<TermList> merger;
+    unique_ptr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_termlist(word);
 	LOGLINE(SPELLING, "Sub db " << i << " tl = " << (void*)tl);
@@ -675,7 +674,7 @@ TermIterator
 Database::spellings_begin() const
 {
     LOGCALL(API, TermIterator, "Database::spellings_begin", NO_ARGS);
-    AutoPtr<TermList> merger;
+    unique_ptr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_wordlist();
 	if (tl) {
@@ -693,7 +692,7 @@ TermIterator
 Database::synonyms_begin(const std::string &term) const
 {
     LOGCALL(API, TermIterator, "Database::synonyms_begin", term);
-    AutoPtr<TermList> merger;
+    unique_ptr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_synonym_termlist(term);
 	if (tl) {
@@ -711,7 +710,7 @@ TermIterator
 Database::synonym_keys_begin(const std::string &prefix) const
 {
     LOGCALL(API, TermIterator, "Database::synonym_keys_begin", prefix);
-    AutoPtr<TermList> merger;
+    unique_ptr<TermList> merger;
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_synonym_keylist(prefix);
 	if (tl) {

@@ -26,8 +26,8 @@
 #include "xapian/error.h"
 #include "xapian/types.h"
 
-#include "autoptr.h"
 #include <algorithm>
+#include <memory>
 #include <queue>
 
 #include <cstdio>
@@ -841,7 +841,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	}
     }
 
-    AutoPtr<GlassVersion> version_file_out;
+    unique_ptr<GlassVersion> version_file_out;
     if (single_file) {
 	if (destdir) {
 	    fd = open(destdir, O_RDWR|O_CREAT|O_BINARY|O_CLOEXEC, 0666);

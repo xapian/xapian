@@ -47,9 +47,9 @@
 #include "weight/weightinternal.h"
 
 #include <algorithm>
-#include "autoptr.h"
 #include <cfloat>
 #include <cmath>
+#include <memory>
 #include <vector>
 
 using namespace std;
@@ -530,7 +530,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	check_at_least = max(check_at_least, maxitems);
     }
 
-    AutoPtr<Xapian::Weight::Internal> stats(new Xapian::Weight::Internal);
+    unique_ptr<Xapian::Weight::Internal> stats(new Xapian::Weight::Internal);
     ::MultiMatch match(db, query, qlen, rset,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,

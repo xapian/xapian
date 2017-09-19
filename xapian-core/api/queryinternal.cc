@@ -47,7 +47,6 @@
 #include "serialise-double.h"
 #include "termlist.h"
 
-#include "autoptr.h"
 #include "debuglog.h"
 #include "omassert.h"
 #include "str.h"
@@ -56,6 +55,7 @@
 #include <algorithm>
 #include <functional>
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -375,8 +375,8 @@ AndContext::postlist()
 	return new EmptyPostList;
     }
 
-    AutoPtr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
-					      qopt->matcher, qopt->db_size));
+    unique_ptr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
+						 qopt->matcher, qopt->db_size));
 
     // Sort the positional filters to try to apply them in an efficient order.
     // FIXME: We need to figure out what that is!  Try applying lowest cf/tf
@@ -997,7 +997,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
     }
 
     OrContext ctx(qopt, 0);
-    AutoPtr<TermList> t(qopt->db.open_allterms(pattern));
+    unique_ptr<TermList> t(qopt->db.open_allterms(pattern));
     Xapian::termcount expansions_left = max_expansion;
     // If there's no expansion limit, set expansions_left to the maximum
     // value Xapian::termcount can hold.
@@ -1585,10 +1585,10 @@ QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndNot::postlist", qopt | factor);
     // FIXME: Combine and-like side with and-like stuff above.
-    AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
+    unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
     OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, 0.0, 0, 1);
-    AutoPtr<PostList> r(ctx.postlist());
+    unique_ptr<PostList> r(ctx.postlist());
     RETURN(new AndNotPostList(l.release(), r.release(),
 			      qopt->matcher, qopt->db_size));
 }
@@ -1618,14 +1618,14 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndMaybe::postlist", qopt | factor);
     // FIXME: Combine and-like side with and-like stuff above.
-    AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
+    unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
     if (factor == 0.0) {
 	// An unweighted OP_AND_MAYBE can be replaced with its left branch.
 	RETURN(l.release());
     }
     OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, factor, 0, 1);
-    AutoPtr<PostList> r(ctx.postlist());
+    unique_ptr<PostList> r(ctx.postlist());
     RETURN(new AndMaybePostList(l.release(), r.release(),
 				qopt->matcher, qopt->db_size));
 }
@@ -1637,7 +1637,7 @@ QueryFilter::postlist(QueryOptimiser * qopt, double factor) const
     // FIXME: Combine and-like stuff, like QueryOptimiser.
     AssertEq(subqueries.size(), 2);
     PostList * pls[2];
-    AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
+    unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
     pls[1] = subqueries[1].internal->postlist(qopt, 0.0);
     pls[0] = l.release();
     RETURN(new MultiAndPostList(pls, pls + 2, qopt->matcher, qopt->db_size));

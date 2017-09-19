@@ -36,7 +36,7 @@
 #include "api/termlist.h"
 #include "unicode/description_append.h"
 
-#include "autoptr.h"
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -153,7 +153,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
     Assert(ebound == 0);
     Assert(items.empty());
 
-    AutoPtr<TermList> tree(build_termlist_tree(db, rset));
+    unique_ptr<TermList> tree(build_termlist_tree(db, rset));
     Assert(tree.get());
 
     bool is_heap = false;

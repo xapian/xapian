@@ -26,7 +26,6 @@
 #include "safeerrno.h"
 #include <signal.h>
 
-#include "autoptr.h"
 #include "backends/inmemory/inmemory_positionlist.h"
 #include "net_postlist.h"
 #include "net_termlist.h"
@@ -42,6 +41,7 @@
 #include "stringutils.h" // For STRINGIZE().
 #include "weight/weightinternal.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -122,7 +122,7 @@ RemoteDatabase::open_metadata_keylist(const std::string &prefix) const
     send_message(MSG_METADATAKEYLIST, prefix);
 
     string message;
-    AutoPtr<NetworkTermList> tlist(
+    unique_ptr<NetworkTermList> tlist(
 	new NetworkTermList(0, doccount,
 			    intrusive_ptr<const RemoteDatabase>(this),
 			    0));
@@ -164,7 +164,7 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH message received", context);
     }
 
-    AutoPtr<NetworkTermList> tlist(
+    unique_ptr<NetworkTermList> tlist(
 	new NetworkTermList(doclen, doccount,
 			    intrusive_ptr<const RemoteDatabase>(this),
 			    did));
@@ -197,7 +197,7 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 
     send_message(MSG_ALLTERMS, prefix);
 
-    AutoPtr<NetworkTermList> tlist(
+    unique_ptr<NetworkTermList> tlist(
 	new NetworkTermList(0, doccount,
 			    intrusive_ptr<const RemoteDatabase>(this),
 			    0));

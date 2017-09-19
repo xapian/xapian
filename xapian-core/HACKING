@@ -624,10 +624,6 @@ Use of C++ Features
 
   * Standard header ``<streambuf>`` (GCC < 3.0 only has ``<streambuf.h>``).
 
-  * Working auto_ptr in header ``<memory>`` (some old version of some compiler
-    had a buggy implementation - the details are lost to history, but it may
-    have been GCC 2.95, or perhaps EGCS).
-
 * RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
   library most likely indicates a design flaw, and you should avoid use
   of these features.  Where necessary, you can use a technique similar to

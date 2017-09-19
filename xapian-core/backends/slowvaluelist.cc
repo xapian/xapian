@@ -28,7 +28,7 @@
 
 #include "xapian/error.h"
 
-#include "autoptr.h"
+#include <memory>
 
 using namespace std;
 
@@ -69,7 +69,7 @@ SlowValueList::next()
 	    void * d = db->open_document(current_did, true);
 	    if (!d)
 		continue;
-	    AutoPtr<Xapian::Document::Internal>
+	    unique_ptr<Xapian::Document::Internal>
 		doc(static_cast<Xapian::Document::Internal*>(d));
 	    string value = doc->get_value(slot);
 	    if (!value.empty()) {
@@ -114,7 +114,7 @@ SlowValueList::check(Xapian::docid did)
     try {
 	void * d = db->open_document(current_did, true);
 	if (d) {
-	    AutoPtr<Xapian::Document::Internal>
+	    unique_ptr<Xapian::Document::Internal>
 		doc(static_cast<Xapian::Document::Internal*>(d));
 	    current_value = doc->get_value(slot);
 	    if (!current_value.empty()) return true;

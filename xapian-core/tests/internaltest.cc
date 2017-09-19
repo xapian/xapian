@@ -32,7 +32,6 @@
 
 using namespace std;
 
-#include "autoptr.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -130,72 +129,6 @@ static bool test_refcnt2()
     rcp = rcp;
 
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
-
-    return true;
-}
-
-// Class for testing AutoPtr<>.
-class test_autoptr {
-    bool &deleted;
-  public:
-    test_autoptr(bool &deleted_) : deleted(deleted_) {
-	tout << "test_autoptr constructor\n";
-    }
-    ~test_autoptr() {
-	deleted = true;
-	tout << "test_autoptr destructor\n";
-    }
-};
-
-// Test autoptr self-assignment.
-static bool test_autoptr1()
-{
-    bool deleted = false;
-
-    test_autoptr * raw_ptr = new test_autoptr(deleted);
-    {
-	AutoPtr<test_autoptr> ptr(raw_ptr);
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-	TEST(!deleted);
-
-	ptr.reset(ptr.release());
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-	TEST(!deleted);
-
-	ptr.swap(ptr);
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-	TEST(!deleted);
-
-	swap(ptr, ptr);
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-	TEST(!deleted);
-    }
-
-    TEST(deleted);
-
-    deleted = false;
-    raw_ptr = new test_autoptr(deleted);
-
-    bool deleted2 = false;
-    test_autoptr * raw_ptr2 = new test_autoptr(deleted2);
-    AutoPtr<test_autoptr> ptr(raw_ptr2);
-
-    TEST_EQUAL(ptr.get(), raw_ptr2);
-    TEST(!deleted);
-    TEST(!deleted2);
-
-    ptr.reset(raw_ptr);
-    TEST_EQUAL(ptr.get(), raw_ptr);
-    TEST(!deleted);
-    TEST(deleted2);
-
-    ptr.reset();
-    TEST_EQUAL(ptr.get(), static_cast<test_autoptr*>(0));
-    TEST(deleted);
 
     return true;
 }
@@ -560,7 +493,6 @@ static const test_desc tests[] = {
     TESTCASE(exception1),
     TESTCASE(refcnt1),
     TESTCASE(refcnt2),
-    TESTCASE(autoptr1),
     TESTCASE(stringcomp1),
     TESTCASE(temporarydtor1),
     TESTCASE(static_assert1),

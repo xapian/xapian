@@ -34,7 +34,7 @@
 #include "xapian/valueiterator.h"
 
 #include <algorithm>
-#include "autoptr.h"
+#include <memory>
 
 using namespace Glass;
 using namespace std;
@@ -272,7 +272,7 @@ class ValueUpdater {
 	    last_allowed_did = GLASS_MAX_DOCID;
 	    Assert(tag.empty());
 	    new_first_did = 0;
-	    AutoPtr<GlassCursor> cursor(table->cursor_get());
+	    unique_ptr<GlassCursor> cursor(table->cursor_get());
 	    if (cursor->find_entry(make_valuechunk_key(slot, did))) {
 		// We found an exact match, so the first docid is the one
 		// we looked for.

@@ -1,7 +1,6 @@
 noinst_HEADERS +=\
 	common/alignment_cast.h\
 	common/append_filename_arg.h\
-	common/autoptr.h\
 	common/bitstream.h\
 	common/closefrom.h\
 	common/compression_stream.h\

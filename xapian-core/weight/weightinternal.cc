@@ -31,7 +31,7 @@
 #include "str.h"
 #include "api/termlist.h"
 
-#include "autoptr.h"
+#include <memory>
 #include <set>
 
 using namespace std;
@@ -105,7 +105,7 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	// The query is likely to contain far fewer terms than the documents,
 	// and we can skip the document's termlist, so look for each query term
 	// in the document.
-	AutoPtr<TermList> tl(subdb.open_term_list(did));
+	unique_ptr<TermList> tl(subdb.open_term_list(did));
 	map<string, TermFreqs>::iterator i;
 	for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
 	    const string & term = i->first;

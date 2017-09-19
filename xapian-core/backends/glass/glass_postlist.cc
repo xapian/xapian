@@ -425,7 +425,7 @@ PostlistChunkWriter::flush(GlassTable *table)
 	     * it.  Need to rewrite the next chunk as the first
 	     * chunk.
 	     */
-	    AutoPtr<GlassCursor> cursor(table->cursor_get());
+	    unique_ptr<GlassCursor> cursor(table->cursor_get());
 
 	    if (!cursor->find_entry(orig_key)) {
 		throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
@@ -503,7 +503,7 @@ PostlistChunkWriter::flush(GlassTable *table)
 	if (is_last_chunk) {
 	    LOGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
 	    // Update the previous chunk's is_last_chunk flag.
-	    AutoPtr<GlassCursor> cursor(table->cursor_get());
+	    unique_ptr<GlassCursor> cursor(table->cursor_get());
 
 	    /* Should not find the key we just deleted, but should
 	     * find the previous chunk. */
@@ -1025,7 +1025,7 @@ GlassPostListTable::get_chunk(const string &tname,
     string key = make_key(tname, did);
 
     // Find the right chunk
-    AutoPtr<GlassCursor> cursor(cursor_get());
+    unique_ptr<GlassCursor> cursor(cursor_get());
 
     (void)cursor->find_entry(key);
     Assert(!cursor->after_end());
@@ -1285,7 +1285,7 @@ GlassPostListTable::get_used_docid_range(Xapian::docid & first,
 					 Xapian::docid & last) const
 {
     LOGCALL(DB, Xapian::docid, "GlassPostListTable::get_used_docid_range", "&first, &used");
-    AutoPtr<GlassCursor> cur(cursor_get());
+    unique_ptr<GlassCursor> cur(cursor_get());
     if (!cur->find_entry(pack_glass_postlist_key(string()))) {
 	// Empty database.
 	first = last = 0;

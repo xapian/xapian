@@ -33,7 +33,7 @@
 #include "api/leafpostlist.h"
 #include "omassert.h"
 
-#include "autoptr.h"
+#include <memory>
 #include <map>
 #include <string>
 
@@ -54,7 +54,7 @@ class GlassPostList;
 
 class GlassPostListTable : public GlassTable {
 	/// PostList for looking up document lengths.
-	mutable AutoPtr<GlassPostList> doclen_pl;
+	mutable unique_ptr<GlassPostList> doclen_pl;
 
     public:
 	/** Create a new table object.
@@ -156,7 +156,7 @@ class GlassPostList : public LeafPostList {
 	bool is_at_end;
 
 	/// Cursor pointing to current chunk of postlist.
-	AutoPtr<GlassCursor> cursor;
+	unique_ptr<GlassCursor> cursor;
 
 	/// The first document id in this chunk.
 	Xapian::docid first_did_in_chunk;

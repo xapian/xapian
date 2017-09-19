@@ -66,8 +66,8 @@
 #include <sys/types.h>
 
 #include <algorithm>
-#include "autoptr.h"
 #include <cstdlib>
+#include <memory>
 #include <string>
 
 using namespace std;
@@ -871,7 +871,7 @@ GlassDatabase::open_position_list(Xapian::docid did, const string & term) const
 {
     Assert(did != 0);
 
-    AutoPtr<GlassPositionList> poslist(new GlassPositionList);
+    unique_ptr<GlassPositionList> poslist(new GlassPositionList);
     if (!poslist->read_data(&position_table, did, term)) {
 	// As of 1.1.0, we don't check if the did and term exist - we just
 	// return an empty positionlist.  If the user really needs to know,
@@ -1505,7 +1505,7 @@ GlassWritableDatabase::open_position_list(Xapian::docid did, const string & term
 {
     Assert(did != 0);
 
-    AutoPtr<GlassPositionList> poslist(new GlassPositionList);
+    unique_ptr<GlassPositionList> poslist(new GlassPositionList);
 
     string data;
     if (inverter.get_positionlist(did, term, data)) {

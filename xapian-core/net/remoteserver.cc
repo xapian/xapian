@@ -33,8 +33,8 @@
 #include "safeerrno.h"
 #include <signal.h>
 #include <cstdlib>
+#include <memory>
 
-#include "autoptr.h"
 #include "length.h"
 #include "matcher/multimatch.h"
 #include "noreturn.h"
@@ -457,7 +457,7 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     decode_length_and_check(&p, p_end, len);
-    AutoPtr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
+    unique_ptr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
     p += len;
 
     // Unserialise the RSet object.
@@ -504,7 +504,7 @@ RemoteServer::msg_query(const string &message_in)
     decode_length(&p, p_end, check_at_least);
 
     message.erase(0, message.size() - (p_end - p));
-    AutoPtr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
+    unique_ptr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
     unserialise_stats(message, *(total_stats.get()));
     total_stats->set_bounds_from_db(*db);
 

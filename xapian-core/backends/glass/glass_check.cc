@@ -28,9 +28,9 @@
 #include "unicode/description_append.h"
 #include "xapian/constants.h"
 
-#include "autoptr.h"
 #include <climits>
 #include <cstring>
+#include <memory>
 #include <ostream>
 
 using namespace Glass;
@@ -269,7 +269,7 @@ GlassTableCheck::check(const char * tablename, const string & path, int fd,
     filename += tablename;
     filename += '.';
 
-    AutoPtr<GlassTableCheck> B(
+    unique_ptr<GlassTableCheck> B(
 	    fd < 0 ?
 	    new GlassTableCheck(tablename, filename, false, out) :
 	    new GlassTableCheck(tablename, fd, offset_, false, out));

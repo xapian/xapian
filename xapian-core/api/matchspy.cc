@@ -29,10 +29,10 @@
 #include <xapian/registry.h>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
-#include "autoptr.h"
 #include "debuglog.h"
 #include "noreturn.h"
 #include "omassert.h"
@@ -316,7 +316,7 @@ TermIterator
 ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 {
     Assert(internal.get());
-    AutoPtr<StringAndFreqTermList> termlist(new StringAndFreqTermList);
+    unique_ptr<StringAndFreqTermList> termlist(new StringAndFreqTermList);
     get_most_frequent_items(termlist->values, internal->values, maxvalues);
     termlist->init();
     return Xapian::TermIterator(termlist.release());

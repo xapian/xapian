@@ -39,7 +39,7 @@
 #include <xapian.h>
 
 #include "filetests.h"
-#include "autoptr.h"
+#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -88,12 +88,12 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
     }
 
     // Check the btree structure.
-    AutoPtr<GlassTable> table(
+    unique_ptr<GlassTable> table(
 	    GlassTableCheck::check(tablename, db_dir, fd, offset_,
 				   version_file, opts, out));
 
     // Now check the glass structures inside the btree.
-    AutoPtr<GlassCursor> cursor(table->cursor_get());
+    unique_ptr<GlassCursor> cursor(table->cursor_get());
 
     size_t errors = 0;
 
