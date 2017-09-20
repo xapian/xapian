@@ -454,10 +454,22 @@ GlassValueManager::replace_document(Xapian::docid did,
 				    const Xapian::Document &doc,
 				    map<Xapian::valueno, ValueStats> & value_stats)
 {
-    // Load the values into the document from the database, if they haven't
-    // been already.  (If we don't do this before deleting the old values,
-    // replacing a document with itself will lose the values.)
-    doc.internal->need_values();
+    if (doc.get_docid() == did) {
+	// If we're replacing a document with itself, but the optimisation for
+	// this higher up hasn't kicked in (e.g. because we've added/replaced
+	// a document since this one was read) and the values haven't changed,
+	// then the call to delete_document() below will remove the values
+	// before the subsequent add_document() can read them.
+	//
+	// The simplest way to handle this is to force the document to read its
+	// values, which we only need to do this is the docid matches.  Note that
+	// this check can give false positives as we don't also check the
+	// database, so for example replacing document 4 in one database with
+	// document 4 from another will unnecessarily trigger this, but forcing
+	// the values to be read is fairly harmless, and this is unlikely to be
+	// a common case.
+	doc.internal->need_values();
+    }
     delete_document(did, value_stats);
     add_document(did, doc, value_stats);
 }
