@@ -46,7 +46,6 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
-
     /** Default constructor. Initializes vector<Feature*> with ALL Feature
      * sub-classes available in "feature.h".
      *
@@ -80,11 +79,11 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
     /** Returns a vector of FeatureVectors for each document in the MSet for
      *  a given query.
      *
-     *  @ param  mset        MSet for which the vector<FeatureVector>
-     *			     is to be returned
-     *  @ param  letor_query Query for which the vector<FeatureVector>
-     *                       is to be returned
-     *  @ param  letor_db    Corresponding Database
+     *  @param  mset		MSet for which the vector<FeatureVector>
+     *				is to be returned
+     *  @param  letor_query	Query for which the vector<FeatureVector>
+     *				is to be returned
+     *  @param  letor_db	Corresponding Database
      */
     std::vector<Xapian::FeatureVector>
     create_feature_vectors(const Xapian::MSet & mset,
@@ -92,10 +91,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
 			   const Xapian::Database & letor_db) const;
 
   private:
-
     /// Perform query-level normalisation of FeatureVectors.
     void normalise(std::vector<FeatureVector> & fvec) const;
-
 };
 
 }

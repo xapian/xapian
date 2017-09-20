@@ -38,7 +38,6 @@ class FeatureVector::Internal : public Xapian::Internal::intrusive_base
     double score_;
     std::vector<double> fvals_;
     Xapian::docid did_;
-
 };
 
 }

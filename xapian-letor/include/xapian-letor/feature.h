@@ -37,7 +37,6 @@
 #include <cstring>
 #include <vector>
 
-
 namespace Xapian {
 
 /// Abstract base class for features in learning to rank
@@ -175,7 +174,6 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     virtual std::string name() const = 0;
 
   private:
-
     /// Don't allow assignment.
     void operator=(const Feature &);
 
@@ -213,8 +211,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfFeature : public Feature {
  */
 class XAPIAN_VISIBILITY_DEFAULT TfDoclenFeature : public Feature {
   public:
-    TfDoclenFeature()
-    {
+    TfDoclenFeature() {
 	need_stat(TERM_FREQUENCY);
 	need_stat(DOCUMENT_LENGTH);
     }
@@ -230,8 +227,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfDoclenFeature : public Feature {
  */
 class XAPIAN_VISIBILITY_DEFAULT IdfFeature : public Feature {
   public:
-    IdfFeature()
-    {
+    IdfFeature() {
 	need_stat(INVERSE_DOCUMENT_FREQUENCY);
     }
     std::vector<double> get_values() const;
@@ -249,8 +245,7 @@ class XAPIAN_VISIBILITY_DEFAULT IdfFeature : public Feature {
  */
 class XAPIAN_VISIBILITY_DEFAULT CollTfCollLenFeature : public Feature {
   public:
-    CollTfCollLenFeature()
-    {
+    CollTfCollLenFeature() {
 	need_stat(COLLECTION_TERM_FREQ);
 	need_stat(COLLECTION_LENGTH);
     }
@@ -270,8 +265,7 @@ class XAPIAN_VISIBILITY_DEFAULT CollTfCollLenFeature : public Feature {
  */
 class XAPIAN_VISIBILITY_DEFAULT TfIdfDoclenFeature : public Feature {
   public:
-    TfIdfDoclenFeature()
-    {
+    TfIdfDoclenFeature() {
 	need_stat(TERM_FREQUENCY);
 	need_stat(DOCUMENT_LENGTH);
 	need_stat(INVERSE_DOCUMENT_FREQUENCY);
@@ -291,8 +285,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfDoclenFeature : public Feature {
  */
 class XAPIAN_VISIBILITY_DEFAULT TfDoclenCollTfCollLenFeature : public Feature {
   public:
-    TfDoclenCollTfCollLenFeature()
-    {
+    TfDoclenCollTfCollLenFeature() {
 	need_stat(TERM_FREQUENCY);
 	need_stat(DOCUMENT_LENGTH);
 	need_stat(COLLECTION_TERM_FREQ);

@@ -37,58 +37,58 @@
 
 namespace Xapian {
 
-    /** Utility function that prepares the training data.
-     *
-     *  The training data file is used to train a model which in turn will be used to
-     *  assign scores to the documents based of Learning-to-Rank model.
-     *
-     *  The file is created in the standard format of Letor training file
-     *  as below:
-     *
-     *  0 qid:102 1:0.130742 2:0.000000 3:0.333333 4:0.000000 ... 18:0.750000
-     *            19:1.000000 #docid = 13566007
-     *  1 qid:102 1:0.593640 2:1.000000 3:0.000000 4:0.000000 ... 18:0.500000
-     *            19:0.000000 #docid = 0740276
-     *
-     *  where first column is relevance judgement of the document with docid as
-     *  shown in the last column. The second column is query id and in between
-     *  there are 19 feature values.
-     *
-     *  @param  db_path	Path to Xapian::Database to be used.
-     *  @param  query_file      Here you have to give a path to the file
-     *				(in free text form) containing training queries
-     *				in specified format.
-     *  @param  qrel_file       Here supply the path to the qrel file
-     *				(in free text form) containing the relevance
-     *				judgements for the queries in the training
-     *				file. This file should be in standard format
-     *				specified.
-     *  @param  msetsize	This is the mset size used for the first
-     *				retrieval for training queries.
-     *				It should be selected depending on the qrel
-     *				file and database size.
-     *  @param  filename	Filename path where the training file has to
-     *				be stored.
-     *  @param  flist		Xapian::FeatureList object defining what set
-     *				of features to use for preparing the training
-     *				file. It is initialised by DEFAULT set of
-     *				Features by default. To use a custom set of
-     *				features, pass a customised Xapian::FeatureList
-     *				object.
-     *
-     *  @exception FileNotFoundError will be thrown if file not found at
-     *		   supplied path
-     *  @exception LetorParseError will be thrown if query file or qrel file
-     *		   could not be parsed
-     */
-    XAPIAN_VISIBILITY_DEFAULT
-    void
-    prepare_training_file(const std::string & db_path,
-			  const std::string & query_file,
-			  const std::string & qrel_file,
-			  Xapian::doccount msetsize,
-			  const std::string & filename,
-			  const Xapian::FeatureList & flist = FeatureList());
+/** Utility function that prepares the training data.
+ *
+ *  The training data file is used to train a model which in turn will be used
+ *  to assign scores to the documents based of Learning-to-Rank model.
+ *
+ *  The file is created in the standard format of Letor training file
+ *  as below:
+ *
+ *  0 qid:102 1:0.130742 2:0.000000 3:0.333333 4:0.000000 ... 18:0.750000
+ *            19:1.000000 #docid = 13566007
+ *  1 qid:102 1:0.593640 2:1.000000 3:0.000000 4:0.000000 ... 18:0.500000
+ *            19:0.000000 #docid = 0740276
+ *
+ *  where first column is relevance judgement of the document with docid as
+ *  shown in the last column. The second column is query id and in between
+ *  there are 19 feature values.
+ *
+ *  @param  db_path	Path to Xapian::Database to be used.
+ *  @param  query_file	Here you have to give a path to the file
+ *			(in free text form) containing training queries
+ *			in specified format.
+ *  @param  qrel_file	Here supply the path to the qrel file
+ *			(in free text form) containing the relevance
+ *			judgements for the queries in the training
+ *			file. This file should be in standard format
+ *			specified.
+ *  @param  msetsize	This is the mset size used for the first
+ *			retrieval for training queries.
+ *			It should be selected depending on the qrel
+ *			file and database size.
+ *  @param  filename	Filename path where the training file has to
+ *			be stored.
+ *  @param  flist	Xapian::FeatureList object defining what set
+ *			of features to use for preparing the training
+ *			file. It is initialised by DEFAULT set of
+ *			Features by default. To use a custom set of
+ *			features, pass a customised Xapian::FeatureList
+ *			object.
+ *
+ *  @exception FileNotFoundError will be thrown if file not found at
+ *	       supplied path
+ *  @exception LetorParseError will be thrown if query file or qrel file
+ *	       could not be parsed
+ */
+XAPIAN_VISIBILITY_DEFAULT
+void
+prepare_training_file(const std::string & db_path,
+		      const std::string & query_file,
+		      const std::string & qrel_file,
+		      Xapian::doccount msetsize,
+		      const std::string & filename,
+		      const Xapian::FeatureList & flist = FeatureList());
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base {
     /// Path to Xapian::Database instance to be used.
@@ -241,7 +241,6 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
 
     /// Don't allow copying.
     Ranker(const Ranker & o);
-
 };
 
 /// ListNet Ranker class
@@ -300,12 +299,11 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      * @param num_interations  Number of iterations
      */
     explicit ListNETRanker(double learn_rate = 0.001,
-			    int num_interations = 15):
-	 learning_rate(learn_rate), iterations(num_interations) { }
+			    int num_interations = 15)
+	: learning_rate(learn_rate), iterations(num_interations) { }
 
     /// Destructor
     ~ListNETRanker();
-
 };
 
 /// SVMRanker class
@@ -349,9 +347,9 @@ class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
      */
     /// Constructor
     SVMRanker();
+
     /// Destructor
     ~SVMRanker();
-
 };
 
 class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
@@ -410,6 +408,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
     /// Destructor
     ~ListMLERanker();
 };
+
 }
 
 #endif /* RANKER_H */

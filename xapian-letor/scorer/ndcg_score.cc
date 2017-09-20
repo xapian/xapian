@@ -61,9 +61,9 @@ NDCGScore::score(const std::vector<FeatureVector> & fvv) const {
     for (auto&& v : fvv) {
 	labels.push_back(v.get_label());
     }
-    //DCG score of original ranking
+    // DCG score of original ranking
     double DCG = get_dcg(labels);
-    //DCG score of ideal ranking
+    // DCG score of ideal ranking
     sort(labels.begin(), labels.begin() + labels.size(), std::greater<double>());
     double iDCG = get_dcg(labels);
 

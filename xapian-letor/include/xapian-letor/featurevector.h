@@ -23,7 +23,6 @@
 #ifndef FEATURE_VECTOR_H
 #define FEATURE_VECTOR_H
 
-
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
@@ -42,7 +41,6 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
-
     /// Default constructor.
     FeatureVector();
 
@@ -90,8 +88,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
     /// Get individual feature value from vector of fvals, by index.
     double get_feature_value(int index) const;
-
 };
 
 }
+
 #endif /* FEATURE_VECTOR_H */
