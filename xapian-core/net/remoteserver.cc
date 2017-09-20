@@ -192,6 +192,7 @@ RemoteServer::run()
 		&RemoteServer::msg_openmetadatakeylist,
 		&RemoteServer::msg_freqs,
 		&RemoteServer::msg_uniqueterms,
+		&RemoteServer::msg_positionlistcount,
 	    };
 
 	    string message;
@@ -305,6 +306,27 @@ RemoteServer::msg_positionlist(const string &message)
     }
 
     send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_positionlistcount(const string &message)
+{
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    Xapian::docid did;
+    decode_length(&p, p_end, did);
+
+    // This is kind of clumsy, but what the public API requires.
+    Xapian::termcount result = 0;
+    Xapian::TermIterator termit = db->termlist_begin(did);
+    if (termit != db->termlist_end(did)) {
+	string term(p, p_end - p);
+	termit.skip_to(term);
+	if (termit != db->termlist_end(did)) {
+	    result = termit.positionlist_count();
+	}
+    }
+    send_message(REPLY_POSITIONLISTCOUNT, encode_length(result));
 }
 
 void

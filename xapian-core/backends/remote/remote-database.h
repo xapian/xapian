@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -123,6 +123,13 @@ class RemoteDatabase : public Xapian::Database::Internal {
     double timeout;
 
   public:
+    /** Get the length of the position list.
+     *
+     *  Extra method for RemoteDatabase.
+     */
+    Xapian::termcount positionlist_count(Xapian::docid did,
+					 const std::string& term) const;
+
     /// Send a keep-alive message.
     void keep_alive();
 

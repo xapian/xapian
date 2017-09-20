@@ -183,11 +183,7 @@ dbcheck(const Xapian::Database & db,
 	    string posrepr2 = positions_to_string(it2, t2.positionlist_end(), &tc2);
 	    TEST_EQUAL(posrepr, posrepr2);
 	    TEST_EQUAL(tc1, tc2);
-	    try {
-		TEST_EQUAL(tc1, t.positionlist_count());
-	    } catch (const Xapian::UnimplementedError &) {
-		// positionlist_count() isn't implemented for remote databases.
-	    }
+	    TEST_EQUAL(tc1, t.positionlist_count());
 
 	    // Make a representation of the posting.
 	    if (!posrepr.empty()) {

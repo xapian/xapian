@@ -1,7 +1,7 @@
 /** @file remoteserver.h
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2014,2017 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -121,6 +121,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     // get positionlist
     void msg_positionlist(const std::string &message);
+
+    // get positionlist count
+    void msg_positionlistcount(const std::string &message);
 
     // get write access
     void msg_writeaccess(const std::string & message);

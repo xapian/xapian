@@ -621,14 +621,10 @@ DEFINE_TESTCASE(positfromtermit1, positional) {
     Xapian::PositionIterator p = t.positionlist_begin();
     TEST_NOT_EQUAL(p, t.positionlist_end());
 
-    try {
-	TEST_EQUAL(t.positionlist_count(), 1);
-	t.skip_to("on");
-	TEST_NOT_EQUAL(t, db.termlist_end(7));
-	TEST_EQUAL(t.positionlist_count(), 2);
-    } catch (const Xapian::UnimplementedError &) {
-	SKIP_TEST("TermList::positionlist_count() not yet implemented for this backend");
-    }
+    TEST_EQUAL(t.positionlist_count(), 1);
+    t.skip_to("on");
+    TEST_NOT_EQUAL(t, db.termlist_end(7));
+    TEST_EQUAL(t.positionlist_count(), 2);
 
     return true;
 }

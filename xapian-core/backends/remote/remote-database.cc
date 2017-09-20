@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -103,6 +103,27 @@ RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 	    update_stats(MSG_WRITEACCESS);
 	}
     }
+}
+
+Xapian::termcount
+RemoteDatabase::positionlist_count(Xapian::docid did,
+				   const std::string& term) const
+{
+    if (cached_stats_valid && !has_positional_info)
+	return 0;
+
+    send_message(MSG_POSITIONLISTCOUNT, encode_length(did) + term);
+
+    string message;
+    get_message(message, REPLY_POSITIONLISTCOUNT);
+    const char * p = message.data();
+    const char * p_end = p + message.size();
+    Xapian::termcount count;
+    decode_length(&p, p_end, count);
+    if (p != p_end) {
+	throw Xapian::NetworkError("Bad REPLY_POSITIONLISTCOUNT message received", context);
+    }
+    return count;
 }
 
 void

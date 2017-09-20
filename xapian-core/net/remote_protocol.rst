@@ -183,6 +183,14 @@ Since positions must be strictly monotonically increasing, we encode
 values can still be encoded compactly. The first position is encoded as
 its true value.
 
+Positionlist count
+------------------
+
+-  ``MSG_POSITIONLISTCOUNT I<document id> <term name>``
+-  ``REPLY_POSITIONLISTCOUNT I<count>``
+
+Get the length of the positionlist without fetching the list itself.
+
 Postlist
 --------
 

@@ -1,7 +1,7 @@
 /* net_termlist.cc
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -117,7 +117,7 @@ NetworkTermList::at_end() const
 Xapian::termcount
 NetworkTermList::positionlist_count() const
 {
-    throw Xapian::UnimplementedError("NetworkTermList::positionlist_count() not implemented");
+    return this_db->positionlist_count(did, get_termname());
 }
 
 Xapian::PositionIterator
