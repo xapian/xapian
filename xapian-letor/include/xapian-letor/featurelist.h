@@ -19,8 +19,8 @@
  * USA
  */
 
-#ifndef FEATURE_LIST_H
-#define FEATURE_LIST_H
+#ifndef FEATURELIST_H
+#define FEATURELIST_H
 
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
@@ -97,4 +97,4 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
 
 }
 
-#endif // FEATURE_LIST_H
+#endif // FEATURELIST_H

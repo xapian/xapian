@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef XAPIAN_LETOR_INCLUDED_FEATURE_INTERNAL_H
-#define XAPIAN_LETOR_INCLUDED_FEATURE_INTERNAL_H
+#ifndef XAPIAN_LETOR_INCLUDED_FEATURELIST_INTERNAL_H
+#define XAPIAN_LETOR_INCLUDED_FEATURELIST_INTERNAL_H
 
 #include "xapian-letor/featurelist.h"
 
@@ -186,4 +186,4 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 
 }
 
-#endif // XAPIAN_LETOR_INCLUDED_FEATURE_INTERNAL_H
+#endif // XAPIAN_LETOR_INCLUDED_FEATURELIST_INTERNAL_H

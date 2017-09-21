@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef FEATURE_VECTOR_INTERNAL_H
-#define FEATURE_VECTOR_INTERNAL_H
+#ifndef FEATUREVECTOR_INTERNAL_H
+#define FEATUREVECTOR_INTERNAL_H
 
 #include "xapian-letor/featurevector.h"
 
@@ -42,4 +42,4 @@ class FeatureVector::Internal : public Xapian::Internal::intrusive_base
 
 }
 
-#endif // FEATURE_VECTOR_INTERNAL_H
+#endif // FEATUREVECTOR_INTERNAL_H
