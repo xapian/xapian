@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013,2014,2015,2016 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,6 +85,85 @@ DEFINE_TESTCASE(document2, !backend) {
     // The return value is uninitialised, so running under valgrind this
     // will fail reliably prior to the fix.
     TEST_EQUAL(doc.get_docid(), 0);
+    return true;
+}
+
+/// Feature tests for Document::clear_terms().
+DEFINE_TESTCASE(documentclearterms1, !backend) {
+    {
+	Xapian::Document doc;
+	doc.add_boolean_term("Hlocalhost");
+	doc.add_term("hello");
+	doc.add_term("there", 2);
+	doc.add_posting("positional", 1);
+	doc.add_posting("information", 2, 3);
+	TEST_EQUAL(doc.termlist_count(), 5);
+	TEST(doc.termlist_begin() != doc.termlist_end());
+	doc.clear_terms();
+	TEST_EQUAL(doc.termlist_count(), 0);
+	TEST(doc.termlist_begin() == doc.termlist_end());
+	// Test clear_terms() when there are no terms.
+	doc.clear_terms();
+	TEST_EQUAL(doc.termlist_count(), 0);
+	TEST(doc.termlist_begin() == doc.termlist_end());
+    }
+
+    {
+	// Test clear_terms() when there have never been any terms.
+	Xapian::Document doc;
+	doc.clear_terms();
+	TEST_EQUAL(doc.termlist_count(), 0);
+	TEST(doc.termlist_begin() == doc.termlist_end());
+    }
+
+    return true;
+}
+
+/// Feature tests for Document::clear_values().
+DEFINE_TESTCASE(documentclearvalues1, !backend) {
+    {
+	Xapian::Document doc;
+	doc.add_value(37, "hello");
+	doc.add_value(42, "world");
+	TEST_EQUAL(doc.values_count(), 2);
+	TEST(doc.values_begin() != doc.values_end());
+	doc.clear_values();
+	TEST_EQUAL(doc.values_count(), 0);
+	TEST(doc.values_begin() == doc.values_end());
+	// Test clear_values() when there are no values.
+	doc.clear_values();
+	TEST_EQUAL(doc.values_count(), 0);
+	TEST(doc.values_begin() == doc.values_end());
+    }
+
+    {
+	// Test clear_values() when there have never been any values.
+	Xapian::Document doc;
+	doc.clear_values();
+	TEST_EQUAL(doc.values_count(), 0);
+	TEST(doc.termlist_begin() == doc.termlist_end());
+    }
+
+    return true;
+}
+
+/// Feature tests for errors for empty terms.
+DEFINE_TESTCASE(documentemptyterm1, !backend) {
+    Xapian::Document doc;
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.add_boolean_term(string()));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.add_term(string()));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.add_posting(string(), 1));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.add_posting(string(), 2, 3));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.remove_term(string()));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.remove_posting(string(), 1));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.remove_posting(string(), 2, 3));
     return true;
 }
 
