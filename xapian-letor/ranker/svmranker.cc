@@ -86,8 +86,8 @@ SVMRanker::train(const std::vector<Xapian::FeatureVector> & training_data)
     LOGCALL_VOID(API, "SVMRanker::train", training_data);
     svm_set_print_string_function(&empty_function);
     struct svm_parameter param;
-    param.svm_type = 4;         // nu-SVR
-    param.kernel_type = 0;      // linear Kernel
+    param.svm_type = NU_SVR;
+    param.kernel_type = LINEAR;
     param.degree = 3;           // parameter for poly Kernel, default 3
     param.gamma = 0;            // parameter for poly/rbf/sigmoid Kernel, default 1/num_features
     param.coef0 = 0;            // parameter for poly/sigmoid Kernel, default 0
