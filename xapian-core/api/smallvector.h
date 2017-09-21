@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <cstddef> // For std::size_t
 #include <cstring> // For std::memcpy
+#include <type_traits>
 
 namespace Xapian {
 
