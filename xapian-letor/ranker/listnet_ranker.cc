@@ -1,5 +1,11 @@
 /** @file listnet_ranker.cc
  *  @brief Implementation of ListNetRanker
+ *
+ *  ListNET is adapted from the paper:
+ *  Cao, Zhe, et al. "Learning to rank: from pairwise approach to listwise
+ *  approach."
+ *  Proceedings of the 24th international conference on Machine learning. ACM,
+ *  2007.
  */
 /* Copyright (C) 2014 Hanxiao Sun
  * Copyright (C) 2016 Ayush Tomar
@@ -20,11 +26,6 @@
  * USA
  */
 
-/*
-ListNET is adapted from the paper:
-Cao, Zhe, et al. "Learning to rank: from pairwise approach to listwise approach."
-Proceedings of the 24th international conference on Machine learning. ACM, 2007.
-*/
 #include <config.h>
 
 #include "xapian-letor/ranker.h"
