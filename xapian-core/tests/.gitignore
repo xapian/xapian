@@ -6,6 +6,8 @@
 /.deps
 /.libs
 /.replicatmp
+/iostream3/.deps
+/iostream3/.dirstamp
 /apitest
 /internaltest
 /queryparsertest

@@ -135,9 +135,12 @@ apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
 apitest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 apitest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
-stemtest_SOURCES = stemtest.cc $(testharness_sources)
+stemtest_SOURCES = stemtest.cc \
+ iostream3/zfstream.cc iostream3/zfstream.h \
+ $(testharness_sources)
 stemtest_LDFLAGS = $(NO_INSTALL) $(ldflags)
-stemtest_LDADD = ../libgetopt.la ../$(libxapian_la)
+# $(XAPIAN_LIBS) only needed for -lz
+stemtest_LDADD = ../libgetopt.la ../$(libxapian_la) $(XAPIAN_LIBS)
 
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
 internaltest_LDFLAGS = $(NO_INSTALL) $(ldflags)
