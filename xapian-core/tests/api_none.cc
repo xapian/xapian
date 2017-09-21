@@ -822,13 +822,24 @@ DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
     Xapian::Document doc;
     doc.set_data("\xc0\x80\xf5\x80\x80\x80\xfe\xff");
     TEST_EQUAL(doc.get_description(),
-	      "Document(data='\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff')");
+	      "Document(docid=0, data=\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff)");
     doc.set_data(string("\x00\x1f", 2));
     TEST_EQUAL(doc.get_description(),
-	      "Document(data='\\x00\\x1f')");
+	      "Document(docid=0, data=\\x00\\x1f)");
     // Check that backslashes are encoded so output isn't ambiguous.
     doc.set_data("back\\slash");
     TEST_EQUAL(doc.get_description(),
-	      "Document(data='back\\x5cslash')");
+	      "Document(docid=0, data=back\\x5cslash)");
+    return true;
+}
+
+DEFINE_TESTCASE(orphaneddoctermitor1, !backend) {
+    Xapian::TermIterator t;
+    {
+	Xapian::Document doc;
+	doc.add_term("foo");
+	t = doc.termlist_begin();
+    }
+    TEST_EQUAL(*t, "foo");
     return true;
 }

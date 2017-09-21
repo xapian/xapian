@@ -29,13 +29,12 @@
 #include "pack.h"
 
 #include <string>
-#include <vector>
 
 using namespace std;
 
 void
 GlassPositionListTable::pack(string & s,
-			     const vector<Xapian::termpos> & vec) const
+			     const Xapian::VecCOW<Xapian::termpos> & vec) const
 {
     LOGCALL_VOID(DB, "GlassPositionListTable::pack", s | vec);
     Assert(!vec.empty());

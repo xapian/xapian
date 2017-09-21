@@ -1251,7 +1251,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 
 	if (!modifying || document.internal->terms_modified()) {
 	    bool pos_modified = !modifying ||
-				document.internal->term_positions_modified();
+				document.internal->positions_modified();
 	    intrusive_ptr<const GlassWritableDatabase> ptrtothis(this);
 	    GlassTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();

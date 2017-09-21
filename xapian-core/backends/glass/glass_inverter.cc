@@ -36,7 +36,7 @@ void
 Inverter::store_positions(const GlassPositionListTable & position_table,
 			  Xapian::docid did,
 			  const string & tname,
-			  const vector<Xapian::termpos> & posvec,
+			  const Xapian::VecCOW<Xapian::termpos> & posvec,
 			  bool modifying)
 {
     string s;
@@ -71,8 +71,7 @@ Inverter::set_positionlist(const GlassPositionListTable & position_table,
 			   const Xapian::TermIterator & term,
 			   bool modifying)
 {
-    const std::vector<Xapian::termpos> * ptr;
-    ptr = term.internal->get_vector_termpos();
+    auto ptr = term.internal->get_vec_termpos();
     if (ptr) {
 	if (!ptr->empty()) {
 	    store_positions(position_table, did, tname, *ptr, modifying);
@@ -81,7 +80,12 @@ Inverter::set_positionlist(const GlassPositionListTable & position_table,
     } else {
 	Xapian::PositionIterator pos = term.positionlist_begin();
 	if (pos != term.positionlist_end()) {
-	    vector<Xapian::termpos> posvec(pos, Xapian::PositionIterator());
+	    Xapian::VecCOW<Xapian::termpos> posvec;
+	    posvec.reserve(term.positionlist_count());
+	    while (pos != term.positionlist_end()) {
+		posvec.push_back(*pos);
+		++pos;
+	    }
 	    store_positions(position_table, did, tname, posvec, modifying);
 	    return;
 	}

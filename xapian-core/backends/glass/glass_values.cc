@@ -27,7 +27,7 @@
 #include "glass_postlist.h"
 #include "glass_termlist.h"
 #include "debuglog.h"
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 #include "pack.h"
 
 #include "xapian/error.h"
@@ -468,7 +468,7 @@ GlassValueManager::replace_document(Xapian::docid did,
 	// document 4 from another will unnecessarily trigger this, but forcing
 	// the values to be read is fairly harmless, and this is unlikely to be
 	// a common case.
-	doc.internal->need_values();
+	doc.internal->ensure_values_fetched();
     }
     delete_document(did, value_stats);
     add_document(did, doc, value_stats);

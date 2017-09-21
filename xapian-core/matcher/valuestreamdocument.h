@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
 #define XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
 
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 #include "backends/multi.h"
 #include "backends/valuelist.h"
 #include "omassert.h"
@@ -70,14 +70,14 @@ class ValueStreamDocument : public Xapian::Document::Internal {
 
     // Optimise away the virtual call when the matcher wants to know a value.
     std::string get_value(Xapian::valueno slot) const {
-	return ValueStreamDocument::do_get_value(slot);
+	return ValueStreamDocument::fetch_value(slot);
     }
 
-  private:
+  protected:
     /** Implementation of virtual methods @{ */
-    std::string do_get_value(Xapian::valueno slot) const;
-    void do_get_all_values(std::map<Xapian::valueno, std::string> & values_) const;
-    std::string do_get_data() const;
+    std::string fetch_value(Xapian::valueno slot) const;
+    void fetch_all_values(std::map<Xapian::valueno, std::string> & values_) const;
+    std::string fetch_data() const;
     /** @} */
 };
 

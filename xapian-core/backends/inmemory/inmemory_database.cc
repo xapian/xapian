@@ -45,30 +45,30 @@ using std::make_pair;
 using Xapian::Internal::intrusive_ptr;
 
 inline void
-InMemoryTerm::add_posting(const InMemoryPosting & post)
+InMemoryTerm::add_posting(InMemoryPosting&& post)
 {
     // Add document to right place in list
     vector<InMemoryPosting>::iterator p;
     p = lower_bound(docs.begin(), docs.end(),
 		    post, InMemoryPostingLessThan());
     if (p == docs.end() || InMemoryPostingLessThan()(post, *p)) {
-	docs.insert(p, post);
+	docs.insert(p, std::move(post));
     } else if (!p->valid) {
-	*p = post;
+	*p = std::move(post);
     } else {
 	(*p).merge(post);
     }
 }
 
 inline void
-InMemoryDoc::add_posting(const InMemoryTermEntry & post)
+InMemoryDoc::add_posting(InMemoryTermEntry&& post)
 {
     // Add document to right place in list
     vector<InMemoryTermEntry>::iterator p;
     p = lower_bound(terms.begin(), terms.end(),
 		    post, InMemoryTermEntryLessThan());
     if (p == terms.end() || InMemoryTermEntryLessThan()(post, *p)) {
-	terms.insert(p, post);
+	terms.insert(p, std::move(post));
     } else {
 	(*p).merge(post);
     }
@@ -170,7 +170,7 @@ PositionList *
 InMemoryPostList::read_position_list()
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    mypositions.set_data(pos->positions);
+    mypositions.assign(pos->positions.copy());
     return &mypositions;
 }
 
@@ -178,7 +178,7 @@ PositionList *
 InMemoryPostList::open_position_list() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    return new InMemoryPositionList(pos->positions);
+    return new InMemoryPositionList(pos->positions.copy());
 }
 
 Xapian::termcount
@@ -647,7 +647,7 @@ InMemoryDatabase::open_position_list(Xapian::docid did,
 	    return new InMemoryPositionList(t->positions);
 	}
     }
-    return new InMemoryPositionList(false);
+    return new InMemoryPositionList();
 }
 
 void
@@ -901,7 +901,7 @@ void InMemoryDatabase::make_posting(InMemoryDoc * doc,
     posting.valid = true;
 
     // Now record the posting
-    postlists[tname].add_posting(posting);
+    postlists[tname].add_posting(std::move(posting));
 
     // Make the termentry
     InMemoryTermEntry termentry;
@@ -912,7 +912,7 @@ void InMemoryDatabase::make_posting(InMemoryDoc * doc,
     termentry.wdf = wdf;
 
     // Now record the termentry
-    doc->add_posting(termentry);
+    doc->add_posting(std::move(termentry));
 }
 
 bool

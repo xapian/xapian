@@ -26,6 +26,7 @@
 #define OM_HGUARD_INMEMORY_DATABASE_H
 
 #include "api/leafpostlist.h"
+#include "api/smallvector.h"
 #include "api/termlist.h"
 #include "backends/backends.h"
 #include "backends/database.h"
@@ -47,36 +48,40 @@ class InMemoryPosting {
     public:
 	Xapian::docid did;
 	bool valid;
-	vector<Xapian::termpos> positions; // Sorted vector of positions
+	Xapian::VecCOW<Xapian::termpos> positions; // Sorted vector of positions
 	Xapian::termcount wdf;
 
 	// Merge two postings (same term/doc pair, new positional info)
 	void merge(const InMemoryPosting & post) {
 	    Assert(did == post.did);
 
-	    positions.insert(positions.end(),
-			     post.positions.begin(),
-			     post.positions.end());
-	    // FIXME - inefficient - use merge (and list<>)?
-	    sort(positions.begin(), positions.end());
+	    positions.reserve(positions.size() + post.positions.size());
+	    for (auto&& pos : post.positions) {
+		positions.push_back(pos);
+	    }
+	    inplace_merge(positions.begin(),
+			  positions.begin() + post.positions.size(),
+			  positions.end());
 	}
 };
 
 class InMemoryTermEntry {
     public:
 	string tname;
-	vector<Xapian::termpos> positions; // Sorted vector of positions
+	Xapian::VecCOW<Xapian::termpos> positions; // Sorted vector of positions
 	Xapian::termcount wdf;
 
 	// Merge two postings (same term/doc pair, new positional info)
 	void merge(const InMemoryTermEntry & post) {
 	    Assert(tname == post.tname);
 
-	    positions.insert(positions.end(),
-			     post.positions.begin(),
-			     post.positions.end());
-	    // FIXME - inefficient - use merge (and list<>)?
-	    sort(positions.begin(), positions.end());
+	    positions.reserve(positions.size() + post.positions.size());
+	    for (auto&& pos : post.positions) {
+		positions.push_back(pos);
+	    }
+	    inplace_merge(positions.begin(),
+			  positions.begin() + post.positions.size(),
+			  positions.end());
 	}
 };
 
@@ -111,7 +116,7 @@ class InMemoryTerm {
 
 	InMemoryTerm() : term_freq(0), collection_freq(0) {}
 
-	void add_posting(const InMemoryPosting & post);
+	void add_posting(InMemoryPosting&& post);
 };
 
 /// Class representing a document and the terms indexing it.
@@ -128,7 +133,7 @@ class InMemoryDoc {
 	// Initialise specifying validity.
 	explicit InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
 
-	void add_posting(const InMemoryTermEntry & post);
+	void add_posting(InMemoryTermEntry&& post);
 };
 
 class InMemoryDatabase;

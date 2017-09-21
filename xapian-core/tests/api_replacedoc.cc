@@ -192,7 +192,7 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     // Modify a document taken from the database.
     Xapian::Document doc4(db.get_document(1));
     Xapian::Document doc3a(db.get_document(1)); // need this one later
-    doc3a.termlist_count(); // Pull the document termlist into memory.
+    doc3a.add_boolean_term("takeaway"); // Pull the document termlist into memory.
     doc4.add_term("takeaway", 1);
     db.replace_document(1, doc4);
     dbcheck(db, 1, 1);

@@ -23,7 +23,7 @@
 
 #include "backends/valuelist.h"
 
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 
 /// Iteration over values in a document.
 class DocumentValueList : public ValueList {
@@ -40,11 +40,11 @@ class DocumentValueList : public ValueList {
      *
      *  If we haven't started yet, this will be set to: doc->values.end()
      */
-    Xapian::Document::Internal::document_values::const_iterator it;
+    std::map<Xapian::valueno, std::string>::const_iterator it;
 
   public:
     explicit DocumentValueList(const Xapian::Internal::intrusive_ptr<Xapian::Document::Internal> & doc_)
-	: doc(doc_), it(doc->values.end()) { }
+	: doc(doc_), it(doc->values->end()) { }
 
     Xapian::docid get_docid() const;
 

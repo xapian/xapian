@@ -24,6 +24,8 @@
 
 #include <xapian/types.h>
 
+#include "api/smallvector.h"
+
 #include <string>
 #include <vector>
 
@@ -57,7 +59,7 @@ class BitWriter {
     }
 
     /// Perform interpolative encoding of pos elements between j and k.
-    void encode_interpolative(const std::vector<Xapian::termpos> &pos, int j, int k);
+    void encode_interpolative(const Xapian::VecCOW<Xapian::termpos> &pos, int j, int k);
 };
 
 /// Read a stream created by BitWriter.

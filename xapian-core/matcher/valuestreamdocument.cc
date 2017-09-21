@@ -54,7 +54,7 @@ ValueStreamDocument::new_subdb(int n)
 }
 
 string
-ValueStreamDocument::do_get_value(Xapian::valueno slot) const
+ValueStreamDocument::fetch_value(Xapian::valueno slot) const
 {
 #ifdef XAPIAN_ASSERTIONS_PARANOID
     if (!doc) {
@@ -93,19 +93,19 @@ ValueStreamDocument::do_get_value(Xapian::valueno slot) const
 }
 
 void
-ValueStreamDocument::do_get_all_values(map<Xapian::valueno, string> & v) const
+ValueStreamDocument::fetch_all_values(map<Xapian::valueno, string> & v) const
 {
     if (!doc) {
 	doc = database->open_document(did, true);
     }
-    doc->do_get_all_values(v);
+    doc->fetch_all_values(v);
 }
 
 string
-ValueStreamDocument::do_get_data() const
+ValueStreamDocument::fetch_data() const
 {
     if (!doc) {
 	doc = database->open_document(did, true);
     }
-    return doc->do_get_data();
+    return doc->fetch_data();
 }

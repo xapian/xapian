@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_INMEMORY_DOCUMENT_H
 
 #include "backends/database.h"
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 
 /// A document read from a InMemoryDatabase.
 class InMemoryDocument : public Xapian::Document::Internal {
@@ -39,11 +39,11 @@ class InMemoryDocument : public Xapian::Document::Internal {
     InMemoryDocument(const Xapian::Database::Internal *db, Xapian::docid did_)
 	: Xapian::Document::Internal(db, did_) { }
 
-  public:
+  protected:
     /** Implementation of virtual methods @{ */
-    string do_get_value(Xapian::valueno slot) const;
-    void do_get_all_values(map<Xapian::valueno, string> & values_) const;
-    string do_get_data() const;
+    string fetch_value(Xapian::valueno slot) const;
+    void fetch_all_values(map<Xapian::valueno, string> & values_) const;
+    string fetch_data() const;
     /** @} */
 };
 

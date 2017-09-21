@@ -22,7 +22,7 @@
 
 #include "slowvaluelist.h"
 
-#include "document.h"
+#include "documentinternal.h"
 #include "str.h"
 #include "unicode/description_append.h"
 

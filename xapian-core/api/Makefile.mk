@@ -1,10 +1,9 @@
 noinst_HEADERS +=\
-	api/documentterm.h\
+	api/documenttermlist.h\
 	api/documentvaluelist.h\
 	api/editdistance.h\
 	api/emptypostlist.h\
 	api/leafpostlist.h\
-	api/maptermlist.h\
 	api/omenquireinternal.h\
 	api/postlist.h\
 	api/queryinternal.h\
@@ -12,6 +11,7 @@ noinst_HEADERS +=\
 	api/replication.h\
 	api/rsetinternal.h\
 	api/smallvector.h\
+	api/terminfo.h\
 	api/termlist.h\
 	api/vectortermlist.h
 
@@ -22,6 +22,7 @@ lib_src +=\
 	api/compactor.cc\
 	api/constinfo.cc\
 	api/decvalwtsource.cc\
+	api/documenttermlist.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
 	api/emptypostlist.cc\
@@ -45,6 +46,7 @@ lib_src +=\
 	api/rset.cc\
 	api/smallvector.cc\
 	api/sortable-serialise.cc\
+	api/terminfo.cc\
 	api/termiterator.cc\
 	api/termlist.cc\
 	api/valueiterator.cc\

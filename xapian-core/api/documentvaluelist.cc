@@ -22,7 +22,7 @@
 
 #include "documentvaluelist.h"
 
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 #include "omassert.h"
 #include "str.h"
 #include "unicode/description_append.h"
@@ -54,14 +54,14 @@ DocumentValueList::get_value() const
 bool
 DocumentValueList::at_end() const
 {
-    return it == doc->values.end();
+    return it == doc->values->end();
 }
 
 void
 DocumentValueList::next()
 {
-    if (it == doc->values.end()) {
-	it = doc->values.begin();
+    if (it == doc->values->end()) {
+	it = doc->values->begin();
     } else {
 	++it;
     }
@@ -70,7 +70,7 @@ DocumentValueList::next()
 void
 DocumentValueList::skip_to(Xapian::docid slot)
 {
-    it = doc->values.lower_bound(slot);
+    it = doc->values->lower_bound(slot);
 }
 
 string

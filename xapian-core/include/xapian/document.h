@@ -110,8 +110,13 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 */
 	void add_value(Xapian::valueno slot, const std::string &value);
 
-	/// Remove any value with the given number.
-	void remove_value(Xapian::valueno slot);
+	/** Remove any value with the given number.
+	 *
+	 *  @param slot		The value slot to remove any value from.
+	 */
+	void remove_value(Xapian::valueno slot) {
+	    add_value(slot, std::string());
+	}
 
 	/// Remove all values associated with the document.
 	void clear_values();

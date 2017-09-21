@@ -24,7 +24,7 @@
 #include "glass_docdata.h"
 #include "glass_values.h"
 #include "backends/database.h"
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 
 /// A document read from a GlassDatabase.
 class GlassDocument : public Xapian::Document::Internal {
@@ -51,11 +51,11 @@ class GlassDocument : public Xapian::Document::Internal {
 	: Xapian::Document::Internal(db, did_),
 	  value_manager(value_manager_), docdata_table(docdata_table_) { }
 
-  public:
+  protected:
     /** Implementation of virtual methods @{ */
-    string do_get_value(Xapian::valueno slot) const;
-    void do_get_all_values(map<Xapian::valueno, string> & values_) const;
-    string do_get_data() const;
+    string fetch_value(Xapian::valueno slot) const;
+    void fetch_all_values(map<Xapian::valueno, string> & values_) const;
+    string fetch_data() const;
     /** @} */
 };
 

@@ -1,5 +1,5 @@
 /** @file smallvector.h
- * @brief Append only vector of Xapian PIMPL objects
+ * @brief Custom vector implementations using small vector optimisation
  */
 /* Copyright (C) 2012,2013,2014,2017 Olly Betts
  *
@@ -30,6 +30,265 @@
 #include <cstring> // For std::memcpy
 
 namespace Xapian {
+
+/** Suitable for "simple" type T.
+ *
+ *  If sizeof(T) > 2 * sizeof(T*) this isn't going to work, and it's not very
+ *  useful when sizeof(T) == 2 * sizeof(T*) as you can only store a single
+ *  element inline.
+ *
+ *  Offers optional Copy-On-Write functionality - if COW is true, then copying
+ *  a Vec with external data only makes a copy of that data if you attempt
+ *  to modify it.  Current COW is only supported for integral types T.
+ */
+template<typename T,
+	 bool COW = false,
+	 typename = std::enable_if_t<!COW || std::is_integral<T>::value>>
+class Vec {
+    std::size_t c;
+
+    static constexpr std::size_t INTERNAL_CAPACITY = 2 * sizeof(T*) / sizeof(T);
+
+    union {
+	T v[INTERNAL_CAPACITY];
+	struct {
+	    T* b;
+	    T* e;
+	};
+    } u;
+
+    struct Vec_to_copy {
+	const Vec& ref;
+	explicit Vec_to_copy(const Vec& o) : ref(o) {}
+    };
+
+  public:
+    typedef std::size_t size_type;
+
+    typedef const T* const_iterator;
+
+    typedef T* iterator;
+
+    Vec() : c(0) { }
+
+    // Prevent inadvertent copying.
+    Vec(const Vec&) = delete;
+
+    Vec(const Vec_to_copy& o) {
+	do_copy_from(o.ref);
+    }
+
+    // Prevent inadvertent copying.
+    void operator=(const Vec&) = delete;
+
+    void operator=(const Vec_to_copy& o) {
+	clear();
+	do_copy_from(o.ref);
+    }
+
+    Vec_to_copy copy() const {
+	return Vec_to_copy(*this);
+    }
+
+    Vec(Vec&& o) noexcept : Vec() {
+	std::memcpy(&u, &o.u, sizeof(u));
+	std::swap(c, o.c);
+    }
+
+    void operator=(Vec&& o) {
+	clear();
+	u = o.u;
+	std::swap(c, o.c);
+    }
+
+    explicit Vec(size_type n) : c(0) {
+	reserve(n);
+    }
+
+    ~Vec() {
+	clear();
+    }
+
+    size_type size() const {
+	return is_external() ? u.e - u.b : c;
+    }
+
+    size_type capacity() const {
+	return is_external() ? c : INTERNAL_CAPACITY;
+    }
+
+    bool empty() const {
+	return is_external() ? u.b == u.e : c == 0;
+    }
+
+    void reserve(size_type n) {
+	if (n > capacity()) {
+	    do_reserve(n);
+	}
+    }
+
+    const_iterator cbegin() const {
+	return is_external() ? u.b : u.v;
+    }
+
+    const_iterator cend() const {
+	return is_external() ? u.e : u.v + c;
+    }
+
+    const_iterator begin() const {
+	return cbegin();
+    }
+
+    const_iterator end() const {
+	return cend();
+    }
+
+    iterator begin() {
+	// FIXME: This is a bit eager - non-const begin() is often invoked when
+	// no modification is needed, but doing it lazily is a bit tricky as
+	// the pointer will change when we COW.
+	if (COW && is_external() && u.b[-1] > 0) {
+	    do_cow();
+	}
+	return is_external() ? u.b : u.v;
+    }
+
+    iterator end() {
+	if (COW && is_external() && u.b[-1] > 0) {
+	    do_cow();
+	}
+	return is_external() ? u.e : u.v + c;
+    }
+
+    void push_back(T elt) {
+	auto cap = capacity();
+	if (size() == cap) {
+	    do_reserve(cap * 2);
+	}
+	if (c >= INTERNAL_CAPACITY) {
+	    if (COW && u.b[-1] > 0)
+		do_cow();
+	    *(u.e++) = elt;
+	} else {
+	    u.v[c++] = elt;
+	}
+    }
+
+    void pop_back() {
+	if (is_external()) {
+	    --u.e;
+	} else {
+	    --c;
+	}
+    }
+
+    void clear() {
+	if (is_external())
+	    do_free();
+	c = 0;
+    }
+
+    void erase(const_iterator it) {
+	auto end_it = end();
+	while (true) {
+	    T* p = const_cast<T*>(it);
+	    ++it;
+	    if (it == end_it)
+		break;
+	    *p = *it;
+	}
+	if (is_external()) {
+	    --u.e;
+	} else {
+	    --c;
+	}
+    }
+
+    void insert(const_iterator pos, const T& elt) {
+	push_back(T());
+	T* p = const_cast<T*>(end());
+	while (--p != pos) {
+	    *p = p[-1];
+	}
+	*(const_cast<T*>(pos)) = elt;
+    }
+
+    const T& operator[](size_type idx) const {
+	return begin()[idx];
+    }
+
+    T& operator[](size_type idx) {
+	if (COW && is_external() && u.b[-1] > 0) {
+	    do_cow();
+	}
+	return const_cast<T&>(begin()[idx]);
+    }
+
+    const T& front() const {
+	return *(begin());
+    }
+
+    const T& back() const {
+	return end()[-1];
+    }
+
+  protected:
+    void do_free() {
+	if (!COW || u.b[-1] == 0)
+	    delete [] (u.b - COW);
+	else
+	    --u.b[-1];
+    }
+
+    void do_reserve(size_type n) {
+	// Logic error or size_t wrapping.
+	if (rare(COW ? n < c : n <= c))
+	    throw std::bad_alloc();
+	T* blk = new T[n + COW];
+	if (COW)
+	    *blk++ = 0;
+	if (is_external()) {
+	    u.e = std::copy(u.b, u.e, blk);
+	    do_free();
+	} else {
+	    u.e = std::copy(u.v, u.v + c, blk);
+	}
+	u.b = blk;
+	c = n;
+    }
+
+    void do_cow() {
+	T* blk = new T[c + 1];
+	*blk++ = 0;
+	u.e = std::copy(u.b, u.e, blk);
+	--u.b[-1];
+	u.b = blk;
+    }
+
+    void do_copy_from(const Vec& o) {
+	if (!o.is_external()) {
+	    u = o.u;
+	    c = o.c;
+	} else if (COW) {
+	    u = o.u;
+	    c = o.c;
+	    ++u.b[-1];
+	} else {
+	    T* blk = new T[o.c];
+	    u.e = std::copy(o.u.b, o.u.e, blk);
+	    u.b = blk;
+	    c = o.c;
+	}
+    }
+
+    /// Return true if storage is external to the object.
+    bool is_external() const noexcept {
+	return c > INTERNAL_CAPACITY;
+    }
+};
+
+template<typename T>
+using VecCOW = Vec<T, true>;
 
 class SmallVector_ {
     std::size_t c;
@@ -78,9 +337,9 @@ class SmallVector_ {
 	}
     }
 
+  protected:
     void do_free();
 
-  protected:
     void do_reserve(std::size_t n);
 
     void do_clear() {

@@ -1,8 +1,7 @@
 /** @file inmemory_positionlist.h
- * @brief Iterate positions in an inmemory db
+ * @brief PositionList from an InMemory DB or a Document object
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2008,2009,2011 Olly Betts
+/* Copyright 2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,73 +15,65 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_INMEMORY_POSITIONLIST_H
-#define OM_HGUARD_INMEMORY_POSITIONLIST_H
+#ifndef XAPIAN_INCLUDED_INMEMORY_POSITIONLIST_H
+#define XAPIAN_INCLUDED_INMEMORY_POSITIONLIST_H
 
-#include <xapian/types.h>
-#include <xapian/error.h>
-
-#include <vector>
+#include "api/smallvector.h"
 #include "backends/positionlist.h"
-#include "api/documentterm.h"
 
-using namespace std;
+/// PositionList from an InMemory DB or a Document object.
+class InMemoryPositionList : public PositionList {
+    /// Sorted list of term positions.
+    Xapian::VecCOW<Xapian::termpos> positions;
 
-/** A position list in a inmemory database. */
-class InMemoryPositionList : public PositionList
-{
-    private:
-	/// The list of positions.
-	vector<Xapian::termpos> positions;
+    /** Current index into @a positions.
+     *
+     *  Or size_t(-1) if we've not yet started.
+     */
+    size_t index = size_t(-1);
 
-	/// Position of iteration through positions
-	vector<Xapian::termpos>::const_iterator mypos;
+    /// Don't allow assignment.
+    void operator=(const InMemoryPositionList&) = delete;
 
-	/// True if we have started iterating
-	bool iterating_in_progress;
+    /// Don't allow copying.
+    InMemoryPositionList(const InMemoryPositionList&) = delete;
 
-	/// Copying is not allowed.
-	InMemoryPositionList(const InMemoryPositionList &);
+  public:
+    /// Construct with an empty position list.
+    InMemoryPositionList() {}
 
-	/// Assignment is not allowed.
-	void operator=(const InMemoryPositionList &);
+    /// Move construct with positional data.
+    explicit
+    InMemoryPositionList(Xapian::VecCOW<Xapian::termpos>&& positions_)
+	: positions(std::move(positions_)) {}
 
-    public:
-	/// Default constructor.
-	InMemoryPositionList() : iterating_in_progress(false) { }
+    /// Construct with copied positional data.
+    explicit
+    InMemoryPositionList(const Xapian::VecCOW<Xapian::termpos>& positions_)
+	: positions(positions_.copy()) {}
 
-	/// Construct an empty InMemoryPositionList.
-	explicit InMemoryPositionList(bool)
-	    : mypos(positions.begin()), iterating_in_progress(false) { }
+    /// Move assign positional data.
+    void assign(Xapian::VecCOW<Xapian::termpos>&& positions_) {
+	positions = std::move(positions_);
+	index = size_t(-1);
+    }
 
-	/// Construct, fill list with data, and move the position to the start.
-	explicit
-	InMemoryPositionList(const OmDocumentTerm::term_positions & positions_);
+    /// Assign copied positional data.
+    void assign(const Xapian::VecCOW<Xapian::termpos>& positions_) {
+	positions = positions_.copy();
+	index = size_t(-1);
+    }
 
-	/// Fill list with data, and move the position to the start.
-	void set_data(const OmDocumentTerm::term_positions & positions_);
+    Xapian::termcount get_approx_size() const;
 
-	/// Gets size of position list.
-	Xapian::termcount get_approx_size() const;
+    Xapian::termpos get_position() const;
 
-	/// Gets current position.
-	Xapian::termpos get_position() const;
+    bool next();
 
-	/** Move to the next item in the list.
-	 *  Either next() or skip_to() must be called before any other
-	 *  methods.
-	 */
-	bool next();
-
-	/** Move to the next item in the list.
-	 *  Either next() or skip_to() must be called before any other
-	 *  methods.
-	 */
-	bool skip_to(Xapian::termpos termpos);
+    bool skip_to(Xapian::termpos termpos);
 };
 
-#endif /* OM_HGUARD_INMEMORY_POSITIONLIST_H */
+#endif // XAPIAN_INCLUDED_INMEMORY_POSITIONLIST_H

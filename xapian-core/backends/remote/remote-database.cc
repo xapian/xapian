@@ -26,6 +26,7 @@
 #include "safeerrno.h"
 #include <signal.h>
 
+#include "api/smallvector.h"
 #include "backends/inmemory/inmemory_positionlist.h"
 #include "net_postlist.h"
 #include "net_termlist.h"
@@ -278,7 +279,7 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
 {
     send_message(MSG_POSITIONLIST, encode_length(did) + term);
 
-    vector<Xapian::termpos> positions;
+    Xapian::VecCOW<Xapian::termpos> positions;
 
     string message;
     char type;
@@ -294,7 +295,7 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
     if (type != REPLY_DONE)
 	throw_bad_message(context);
 
-    return new InMemoryPositionList(positions);
+    return new InMemoryPositionList(std::move(positions));
 }
 
 bool
@@ -346,7 +347,7 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
     if (type != REPLY_DONE)
 	throw_bad_message(context);
 
-    return new RemoteDocument(this, did, doc_data, values);
+    return new RemoteDocument(this, did, doc_data, std::move(values));
 }
 
 bool

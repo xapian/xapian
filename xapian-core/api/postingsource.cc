@@ -27,7 +27,7 @@
 #include "xapian/postingsource.h"
 
 #include "backends/database.h"
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 #include "matcher/postlisttree.h"
 
 #include "xapian/document.h"

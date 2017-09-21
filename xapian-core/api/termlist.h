@@ -21,8 +21,9 @@
 #ifndef XAPIAN_INCLUDED_TERMLIST_H
 #define XAPIAN_INCLUDED_TERMLIST_H
 
+#include "api/smallvector.h"
+
 #include <string>
-#include <vector>
 
 #include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
@@ -94,15 +95,15 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Return the length of the position list for the current position.
     virtual Xapian::termcount positionlist_count() const = 0;
 
-    /** Get pointer to vector<termpos> if that's the internal representation.
+    /** Get pointer to VecCOW<termpos> if that's the internal representation.
      *
      *  This avoids unnecessary copying of positions in the common cases - the
      *  case it doesn't help with is adding a document back with unmodified
      *  positions *AND* a different docid, which is an unusual thing to do.
      *
-     *  @return Pointer to vector<termpos> or NULL.
+     *  @return Pointer to VecCOW<termpos> or NULL.
      */
-    virtual const std::vector<Xapian::termpos> * get_vector_termpos() const;
+    virtual const Xapian::VecCOW<Xapian::termpos> * get_vec_termpos() const;
 
     /// Return a PositionIterator for the current position.
     virtual Xapian::PositionIterator positionlist_begin() const = 0;

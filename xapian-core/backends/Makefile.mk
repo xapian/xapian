@@ -5,7 +5,7 @@ noinst_HEADERS +=\
 	backends/contiguousalldocspostlist.h\
 	backends/database.h\
 	backends/databasereplicator.h\
-	backends/document.h\
+	backends/documentinternal.h\
 	backends/flint_lock.h\
 	backends/multi.h\
 	backends/multivaluelist.h\
@@ -24,6 +24,7 @@ lib_src +=\
 	backends/database.cc\
 	backends/databasereplicator.cc\
 	backends/dbfactory.cc\
+	backends/documentinternal.cc\
 	backends/slowvaluelist.cc\
 	backends/valuelist.cc
 

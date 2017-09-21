@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_REMOTE_DOCUMENT_H
 
 #include "backends/database.h"
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 
 /// A document read from a RemoteDatabase.
 class RemoteDocument : public Xapian::Document::Internal {
@@ -35,25 +35,21 @@ class RemoteDocument : public Xapian::Document::Internal {
     /// RemoteDocument::open_document() needs to call our private constructor.
     friend class RemoteDatabase;
 
-    /** Private constructor - only called by RemoteDocument::open_document().
+    /** Private constructor - only called by RemoteDatabase::open_document().
      *
      *  @param values_	The values to set - passed by non-const reference, and
      *			may be modified by the call.
      */
     RemoteDocument(const Xapian::Database::Internal *db, Xapian::docid did_,
 		   const string & data_,
-		   map<Xapian::valueno, string> &values_)
-	: Xapian::Document::Internal(db, did_)
-    {
-	set_data(data_);
-	set_all_values(values_);
-    }
+		   map<Xapian::valueno, string>&& values_)
+	: Xapian::Document::Internal(db, did_, data_, std::move(values_)) {}
 
-  public:
+  protected:
     /** Implementation of virtual methods @{ */
-    string do_get_value(Xapian::valueno slot) const;
-    void do_get_all_values(map<Xapian::valueno, string> & values_) const;
-    string do_get_data() const;
+    string fetch_value(Xapian::valueno slot) const;
+    void fetch_all_values(map<Xapian::valueno, string> & values_) const;
+    string fetch_data() const;
     /** @} */
 };
 

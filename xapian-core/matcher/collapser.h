@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_COLLAPSER_H
 #define XAPIAN_INCLUDED_COLLAPSER_H
 
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 #include "msetcmp.h"
 #include "api/omenquireinternal.h"
 #include "api/postlist.h"

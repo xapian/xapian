@@ -37,9 +37,9 @@ TermIterator::Internal::accumulate_stats(Xapian::Internal::ExpandStats &) const
     Assert(false);
 }
 
-// Default implementation for when the positions aren't in vector<termpos>.
-const std::vector<Xapian::termpos> *
-TermIterator::Internal::get_vector_termpos() const
+// Default implementation for when the positions aren't in VecCOW<termpos>.
+const Xapian::VecCOW<Xapian::termpos> *
+TermIterator::Internal::get_vec_termpos() const
 {
     return NULL;
 }
