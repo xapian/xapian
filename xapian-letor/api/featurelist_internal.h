@@ -1,4 +1,4 @@
-/** @file feature_internal.h
+/** @file featurelist_internal.h
  * @brief Internals of Feature class
  */
 /* Copyright (C) 2012 Parth Gupta
