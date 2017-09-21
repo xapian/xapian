@@ -1327,7 +1327,7 @@ DEFINE_TESTCASE(eliteset2, backend) {
     TEST_EQUAL(mymset1, mymset2);
     // query lengths differ so mset weights not the same (with some weighting
     // parameters)
-    //test_mset_order_equal(mymset1, mymset2);
+    // test_mset_order_equal(mymset1, mymset2);
 
     return true;
 }
@@ -1712,7 +1712,7 @@ DEFINE_TESTCASE(qlen1, backend) {
     enquire.set_query(q2);
     Xapian::MSet mset2 = enquire.get_mset(0, 2);
     // Check the weights
-    //TEST(mset1.begin().get_weight() < mset2.begin().get_weight());
+    // TEST(mset1.begin().get_weight() < mset2.begin().get_weight());
     TEST(mset1.begin().get_weight() == mset2.begin().get_weight());
     return true;
 }

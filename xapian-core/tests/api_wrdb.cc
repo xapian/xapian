@@ -124,7 +124,7 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 1);
     TEST_EQUAL(iter2.get_wdf(), 1);
-    //TEST_EQUAL(iter1.get_termfreq(), 0);
+    // TEST_EQUAL(iter1.get_termfreq(), 0);
     TEST_EQUAL(iter2.get_termfreq(), 1);
 
     iter1++;
@@ -135,7 +135,7 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 4);
     TEST_EQUAL(iter2.get_wdf(), 4);
-    //TEST_EQUAL(iter1.get_termfreq(), 0);
+    // TEST_EQUAL(iter1.get_termfreq(), 0);
     TEST_EQUAL(iter2.get_termfreq(), 1);
 
     iter1++;
@@ -178,19 +178,19 @@ DEFINE_TESTCASE(adddoc2, writable) {
     iter2 = doc2.termlist_begin();
     TEST(iter2 != doc2.termlist_end());
     TEST_EQUAL(*iter2, "bag");
-    //TEST_EQUAL(iter2.get_termfreq(), 0);
+    // TEST_EQUAL(iter2.get_termfreq(), 0);
     iter2++;
     TEST(iter2 != doc2.termlist_end());
     TEST_EQUAL(*iter2, "bar");
-    //TEST_EQUAL(iter2.get_termfreq(), 0);
+    // TEST_EQUAL(iter2.get_termfreq(), 0);
     iter2++;
     TEST(iter2 != doc2.termlist_end());
     TEST_EQUAL(*iter2, "bat");
-    //TEST_EQUAL(iter2.get_termfreq(), 0);
+    // TEST_EQUAL(iter2.get_termfreq(), 0);
     iter2++;
     TEST(iter2 != doc2.termlist_end());
     TEST_EQUAL(*iter2, "foo");
-    //TEST_EQUAL(iter2.get_termfreq(), 0);
+    // TEST_EQUAL(iter2.get_termfreq(), 0);
     iter2++;
     TEST(iter2 == doc2.termlist_end());
 
@@ -206,7 +206,7 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 0);
     TEST_EQUAL(iter2.get_wdf(), 0);
     TEST_EQUAL(iter1.get_termfreq(), 1);
-    //TEST_EQUAL(iter2.get_termfreq(), 0);
+    // TEST_EQUAL(iter2.get_termfreq(), 0);
     TEST(iter1.positionlist_begin() == iter1.positionlist_end());
     TEST(iter2.positionlist_begin() == iter2.positionlist_end());
 
@@ -219,7 +219,7 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 9);
     TEST_EQUAL(iter2.get_wdf(), 9);
     TEST_EQUAL(iter1.get_termfreq(), 2);
-    //TEST_EQUAL(iter2.get_termfreq(), 0);
+    // TEST_EQUAL(iter2.get_termfreq(), 0);
 
     Xapian::PositionIterator pi1;
     pi1 = iter1.positionlist_begin();
@@ -238,7 +238,7 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 0);
     TEST_EQUAL(iter2.get_wdf(), 0);
     TEST_EQUAL(iter1.get_termfreq(), 1);
-    //TEST_EQUAL(iter2.get_termfreq(), 0);
+    // TEST_EQUAL(iter2.get_termfreq(), 0);
     TEST(iter1.positionlist_begin() == iter1.positionlist_end());
     TEST(iter2.positionlist_begin() == iter2.positionlist_end());
 
@@ -251,7 +251,7 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST_EQUAL(iter1.get_wdf(), 0);
     TEST_EQUAL(iter2.get_wdf(), 0);
     TEST_EQUAL(iter1.get_termfreq(), 2);
-    //TEST_EQUAL(iter2.get_termfreq(), 0);
+    // TEST_EQUAL(iter2.get_termfreq(), 0);
 
     Xapian::PositionIterator temp1 = iter1.positionlist_begin();
     pi1 = temp1;

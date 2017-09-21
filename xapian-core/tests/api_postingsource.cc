@@ -323,8 +323,8 @@ DEFINE_TESTCASE(externalsource4, backend && !remote) {
     enq.set_query(Xapian::Query(&src));
     enq.set_weighting_scheme(Xapian::BoolWeight());
 
-    //mset = enq.get_mset(0, 5);
-    //mset_expect_order(mset, 1, 2, 3, 4, 5);
+    // mset = enq.get_mset(0, 5);
+    // mset_expect_order(mset, 1, 2, 3, 4, 5);
 
     return true;
 }

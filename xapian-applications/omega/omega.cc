@@ -114,7 +114,7 @@ try {
     option["stemmer"] = DEFAULT_STEM_LANGUAGE;
 
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
-    //setvbuf(stdout, NULL, _IOLBF, 0);
+    // setvbuf(stdout, NULL, _IOLBF, 0);
 
     const char * method = getenv("REQUEST_METHOD");
     if (method == NULL) {
