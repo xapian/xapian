@@ -27,6 +27,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 #include <xapian.h>
 #include "testsuite.h"
