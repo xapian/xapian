@@ -106,7 +106,7 @@ class Cursor {
 
 	void set_n(uint4 n) {
 	    Assert(data);
-	    //Assert(refs() == 1);
+	    // Assert(refs() == 1);
 	    *alignment_cast<uint4*>(data + 4) = n;
 	}
 

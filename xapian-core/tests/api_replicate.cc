@@ -431,12 +431,12 @@ DEFINE_TESTCASE(replicate2, replicas) {
 	// Replication should do a full copy, since one of the needed
 	// changesets is missing.
 
-	//FIXME - the following tests are commented out because the backends
-	//don't currently tidy up old changesets correctly.
-	//TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
-	//check_equal_dbs(masterpath, replicapath);
-	//TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
-	//check_equal_dbs(masterpath, replica2path);
+	// FIXME - the following tests are commented out because the backends
+	// don't currently tidy up old changesets correctly.
+	// TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
+	// check_equal_dbs(masterpath, replicapath);
+	// TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
+	// check_equal_dbs(masterpath, replica2path);
 
 	// We need this inner scope to we close the replicas before we remove
 	// the temporary directory on Windows.
