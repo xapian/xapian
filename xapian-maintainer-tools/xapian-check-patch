@@ -403,17 +403,17 @@ QUOTELOOP:  while (1) {
 	    }
 	}
 	if (/^\+.*\b(?:class|struct)\b.*:\s*$/) {
-	    diagnostic('error', "Inheritance list split after ':', should be before");
+	    diagnostic('error', "Inheritance list split after ':', should be before", $fullline);
 	}
 	# Try to distinguish ternary operator (?:) correctly split after ":" vs
 	# constructor initialiser list incorrectly split after ":".
 	my $last_in_ternary = $in_ternary;
 	$in_ternary = / \?(?: |$)/;
 	if (!$last_in_ternary && !$in_ternary && /^\+.*\)\s*:\s*$/) {
-	    diagnostic('error', "Constructor initialiser list split after ':', should be before");
+	    diagnostic('error', "Constructor initialiser list split after ':', should be before", $fullline);
 	}
 	if (m,^\+\s+([-+/%^]|[&|]{2})\s,) {
-	    diagnostic('error', "Expression split before operator '$1', should be after");
+	    diagnostic('error', "Expression split before operator '$1', should be after", $fullline);
 	}
 	if ($lang eq 'h') {
 	    if (m!^\+\s*#\s*(ifndef|define|endif\s*/[*/])\s+((?:[A-Z]+_INCLUDED)?_?\w+_[Hh]\b)!) {
