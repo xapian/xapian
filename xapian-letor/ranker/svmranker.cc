@@ -92,14 +92,14 @@ SVMRanker::train(const std::vector<Xapian::FeatureVector> & training_data)
     param.gamma = 0;            // parameter for poly/rbf/sigmoid Kernel, default 1/num_features
     param.coef0 = 0;            // parameter for poly/sigmoid Kernel, default 0
     param.nu = 0.5;             // parameter for nu-SVC/one-class SVM/nu-SVR, default 0.5
-    param.cache_size = 100;     // default 40mb
+    param.cache_size = 100;     // default 40MB
     param.C = 1;                // penalty parameter, default 1
     param.eps = 1e-3;           // stopping criteria, default 1e-3
     param.p = 0.1;              // parameter for e -SVR, default 0.1
     param.shrinking = 1;        // use the shrinking heuristics
     param.probability = 0;      // probability estimates
     param.nr_weight = 0;        // parameter for C-SVCl
-    param.weight_label = NULL;  // parameter flor C-SVC
+    param.weight_label = NULL;  // parameter for C-SVC
     param.weight = NULL;        // parameter for c-SVC
 
     int fvv_len = training_data.size();

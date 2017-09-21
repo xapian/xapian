@@ -63,7 +63,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
      *
      * Note: Weight of a document assigned by Xapian Weighting scheme is added
      *       as a feature by default. Hence, even in case of
-     *       empty initialisation, Weight will be used as a deafult feature.
+     *       empty initialisation, Weight will be used as a default feature.
      */
     FeatureList(const std::vector<Feature*> & f);
 
