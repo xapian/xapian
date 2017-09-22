@@ -989,24 +989,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @param flags	What to set the limit for (default:
      *			FLAG_WILDCARD|FLAG_PARTIAL, setting the limit for both
      *			wildcards and partial terms).
+     *
+     *  @since 1.3.3
      */
     void set_max_expansion(Xapian::termcount max_expansion,
 			   int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR,
 			   unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
-
-    /** Specify the maximum expansion of a wildcard.
-     *
-     *  If any wildcard expands to more than @a max_expansion terms, an
-     *  exception will be thrown.
-     *
-     *  This method is provided for API compatibility with Xapian 1.2.x and is
-     *  deprecated - replace it with:
-     *
-     *  set_max_wildcard_expansion(max_expansion,
-     *				   Xapian::Query::WILDCARD_LIMIT_ERROR,
-     *				   Xapian::QueryParser::FLAG_WILDCARD);
-     */
-    XAPIAN_DEPRECATED(void set_max_wildcard_expansion(Xapian::termcount));
 
     /** Parse a query.
      *
