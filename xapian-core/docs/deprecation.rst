@@ -219,8 +219,8 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       out, probably during the 1.4.x release series.  There's some further
                                                       thoughts at https://trac.xapian.org/ticket/3#comment:8
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.5      1.5.0  ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and
-                  variables                           1.2.23.
+1.3.5      1.5.0  ``Xapian::ValuePostingSource``      Use the respective getter and setter methods instead, added in 1.3.5 and
+                  public member variables             1.2.23.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.6      1.5.0  Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
                                                       ``Xapian::Query`` from ``operator()()``.
