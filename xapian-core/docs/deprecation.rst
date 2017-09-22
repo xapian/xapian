@@ -242,9 +242,6 @@ Bindings
 ========== ====== ======== ============================ ======================================================================
 Deprecated Remove Language Feature name                 Upgrade suggestion and comments
 ========== ====== ======== ============================ ======================================================================
-1.2.5      1.5.0  Python   MSet.items                   Iterate the MSet object itself instead.
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.2.5      1.5.0  Python   ESet.items                   Iterate the ESet object itself instead.
 ========== ====== ======== ============================ ======================================================================
 
 Omega
@@ -612,6 +609,10 @@ Removed Language Feature name                 Upgrade suggestion and comments
 1.3.0   Python   Non-pythonic iterators       Use the pythonic iterators instead.
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.3.0   Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of function)
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.5.0   Python   MSet.items                   Iterate the MSet object itself instead.
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.5.0   Python   ESet.items                   Iterate the ESet object itself instead.
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
