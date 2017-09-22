@@ -277,7 +277,6 @@ main(int argc, char **argv)
 	{ "overwrite",	no_argument,		NULL, 'o' },
 	{ "duplicates",	required_argument,	NULL, 'd' },
 	{ "no-delete",	no_argument,		NULL, 'p' },
-	{ "preserve-nonduplicates",	no_argument,	NULL, 'p' },
 	{ "db",		required_argument,	NULL, 'D' },
 	{ "url",	required_argument,	NULL, 'U' },
 	{ "mime-type",	required_argument,	NULL, 'M' },
@@ -327,8 +326,7 @@ main(int argc, char **argv)
 "Options:\n"
 "  -d, --duplicates          set duplicate handling ('ignore' or 'replace')\n"
 "  -p, --no-delete           skip the deletion of documents corresponding to\n"
-"                            deleted files (--preserve-nonduplicates is a\n"
-"                            deprecated alias for --no-delete)\n"
+"                            deleted files\n"
 "  -e, --empty-docs=ARG      how to handle documents we extract no text from:\n"
 "                            ARG can be index, warn (issue a diagnostic and\n"
 "                            index), or skip.  (default: warn)\n"
