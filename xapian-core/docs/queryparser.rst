@@ -135,10 +135,11 @@ enable it, and tell the QueryParser which database to expand wildcards
 from using the ``QueryParser::set_database(database)`` method.
 
 You can limit the number of terms a wildcard will expand to by
-calling ``Xapian::QueryParser::set_max_wildcard_expansion()``. If a
-wildcard expands to more terms than that number, an exception will be
-thrown. The exception may be thrown by the QueryParser, or later when
-Enquire handles the query. The default is not to limit the expansion.
+calling ``Xapian::QueryParser::set_max_expansion()``.  This supports
+several different modes, and can also be used to limit expansion
+performed via ``FLAG_PARTIAL`` - see the API documentation for
+details.  By default, there's no limit on wildcard expansion and
+``FLAG_PARTIAL`` expands to the most frequent 100 terms.
 
 Partially entered query matching
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
