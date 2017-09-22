@@ -63,7 +63,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
     RSet();
 
     /** @private @internal Wrap an existing Internal. */
-    RSet(Internal* internal_);
+    explicit RSet(Internal* internal_);
 
     /// Destructor.
     ~RSet();

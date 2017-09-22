@@ -408,7 +408,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	return (*this = Query(1.0 / factor, *this));
     }
 
-    /** @private @internal */
+    /// @private @internal Wrap an existing Internal.
     explicit Query(Internal * internal_) : internal(internal_) { }
 
     /** Construct with just an operator.
