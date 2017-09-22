@@ -476,10 +476,6 @@ $set{OPT,VALUE}
 	  stemming).
 	* stem_all - if "true", then tell the query parser to stem all words,
 	  even capitalised ones.
-	* spelling - if "true", then the query parser spelling correction
-	  feature is enabled and ``$suggestion`` can be used.  Deprecated -
-	  use flag_spelling_correction instead (which was added in version
-	  1.2.5).
 	* fieldnames - if set to a non-empty value then the document data is
 	  parsed with each line being the value of a field, and the names
 	  are taken from entries in the list in fieldnames.  So

@@ -352,8 +352,6 @@ set_probabilistic(const string &oldp)
 
     try {
 	unsigned default_flags = read_qp_flags("flag_", 0);
-	if (option["spelling"] == "true")
-	    default_flags |= qp.FLAG_SPELLING_CORRECTION;
 
 	vector<Xapian::Query> queries;
 	queries.reserve(probabilistic_query.size());
