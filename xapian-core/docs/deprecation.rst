@@ -219,8 +219,6 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       out, probably during the 1.4.x release series.  There's some further
                                                       thoughts at https://trac.xapian.org/ticket/3#comment:8
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.3      1.5.0  |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.4      1.5.0  ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The
                   ``set_block_size()``,               ``Xapian::Compact`` is now just a subclassable functor class to allow
                   ``set_renumber()``,                 access to progress messages and control over merging of user metadata.
@@ -507,6 +505,11 @@ Removed Feature name                        Upgrade suggestion and comments
                                             1.3.5) instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.5.0   |flush|                             Use ``Xapian::WritableDatabase::commit()`` instead (available since 1.1.0).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.  The exact equivalent of
+                                            ``set_max_wildcard_expansion(n)`` is
+                                            ``set_max_expansion(n, Xapian::Query::WILDCARD_LIMIT_ERROR,
+                                            Xapian::QueryParser::FLAG_WILDCARD)``
 ======= =================================== ==================================================================================
 
 

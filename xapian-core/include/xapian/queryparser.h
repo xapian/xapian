@@ -1231,14 +1231,6 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     std::string get_description() const;
 };
 
-inline void
-QueryParser::set_max_wildcard_expansion(Xapian::termcount max_expansion)
-{
-    set_max_expansion(max_expansion,
-		      Xapian::Query::WILDCARD_LIMIT_ERROR,
-		      FLAG_WILDCARD);
-}
-
 /// @private @internal Helper for sortable_serialise().
 XAPIAN_VISIBILITY_DEFAULT
 size_t XAPIAN_NOTHROW(sortable_serialise_(double value, char * buf));
