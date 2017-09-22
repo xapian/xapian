@@ -27,6 +27,7 @@
 #error "Never use <xapian/cluster.h> directly; include <xapian.h> instead."
 #endif
 
+#include <xapian/attributes.h>
 #include <xapian/mset.h>
 #include <xapian/queryparser.h>
 #include <xapian/types.h>
@@ -243,7 +244,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
     TermIterator termlist_begin() const;
 
     /// Return a TermIterator to the end of the termlist
-    TermIterator termlist_end() const {
+    TermIterator XAPIAN_NOTHROW(termlist_end() const) {
 	return TermIterator(NULL);
     }
 
