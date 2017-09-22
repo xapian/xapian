@@ -1556,13 +1556,12 @@ def test_compactor():
         db2.add_document(doc2)
         db2.commit()
 
+        db_to_compact = xapian.Database()
+        db_to_compact.add_database(xapian.Database(db1path))
+        db_to_compact.add_database(xapian.Database(db2path))
         # Compact with the default compactor
         # Metadata conflicts are resolved by picking the first value
-        c = xapian.Compactor()
-        c.add_source(db1path)
-        c.add_source(db2path)
-        c.set_destdir(db3path)
-        c.compact()
+        db_to_compact.compact(db3path)
 
         db3 = xapian.Database(db3path)
         expect([(item.term, item.termfreq) for item in db3.allterms()],
@@ -1589,10 +1588,10 @@ def test_compactor():
                 return ','.join(vals)
 
         c = MyCompactor()
-        c.add_source(db1path)
-        c.add_source(db2path)
-        c.set_destdir(db3path)
-        c.compact()
+        db_to_compact = xapian.Database()
+        db_to_compact.add_database(xapian.Database(db1path))
+        db_to_compact.add_database(xapian.Database(db2path))
+        db_to_compact.compact(db3path, 0, 0, c)
         log = '\n'.join(c.log)
         # Check we got some messages in the log
         expect('Starting postlist' in log, True)

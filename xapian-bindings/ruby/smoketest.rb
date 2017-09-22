@@ -277,11 +277,10 @@ class XapianSmoketest < Test::Unit::TestCase
 
         # Compact with the default compactor
         # Metadata conflicts are resolved by picking the first value
-        c = Xapian::Compactor.new()
-        c.add_source(db1path)
-        c.add_source(db2path)
-        c.set_destdir(db3path)
-        c.compact()
+        db_to_compact = Xapian::Database.new()
+        db_to_compact.add_database(Xapian::Database::new(db1path))
+        db_to_compact.add_database(Xapian::Database::new(db2path))
+        db_to_compact.compact(db3path)
 
         db3 = Xapian::Database.new(db3path)
         #assert_equal([(item.term, item.termfreq) for item in db3.allterms()],
