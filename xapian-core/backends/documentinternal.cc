@@ -23,6 +23,7 @@
 #include "backends/documentinternal.h"
 
 #include "api/documenttermlist.h"
+#include "str.h"
 #include "unicode/description_append.h"
 
 using namespace std;
