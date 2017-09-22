@@ -228,9 +228,9 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 1.3.3      1.5.0  |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.4      1.5.0  ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The
-                  ``set_block_size()``,               ``Xapian::Compact`` is now just a subclassable functor class to allow
-                  ``set_renumber()``,                 access to progress messages and control over merging of user metadata.
-                  ``set_multipass()``,
+                  ``set_block_size()``,               ``Xapian::Compactor`` class is now just a subclassable functor class to
+                  ``set_renumber()``,                 allow access to progress messages and control over merging of user
+                  ``set_multipass()``,                metadata.
                   ``set_compaction_level()``,
                   ``set_destdir()``, ``add_source()`
                   and ``compact()``.
