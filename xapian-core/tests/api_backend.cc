@@ -24,7 +24,6 @@
 
 #include "api_backend.h"
 
-#define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
 #include "backendmanager.h"
@@ -403,7 +402,7 @@ DEFINE_TESTCASE(matchdecider4, remote) {
 }
 
 /** Check that replacing an unmodified document doesn't increase the automatic
- *  flush counter.  Regression test for bug fixed in 1.1.4/1.0.18.
+ *  commit counter.  Regression test for bug fixed in 1.1.4/1.0.18.
  */
 DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
     // The inmemory backend doesn't batch changes, so there's nothing to
@@ -436,14 +435,14 @@ DEFINE_TESTCASE(replacedoc7, writable && !inmemory && !remote) {
     Xapian::Database rodb(get_writable_database_as_database());
     TEST_EQUAL(rodb.get_doccount(), 1);
 
-    db.flush();
+    db.commit();
     TEST(rodb.reopen());
 
     TEST_EQUAL(rodb.get_doccount(), 2);
     return true;
 }
 
-/** Check that replacing a document deleted since the last flush works.
+/** Check that replacing a document deleted since the last commit works.
  *  Prior to 1.1.4/1.0.18, this failed to update the collection frequency and
  *  wdf, and caused an assertion failure when assertions were enabled.
  */
@@ -462,7 +461,7 @@ DEFINE_TESTCASE(replacedoc8, writable) {
 	doc.add_term("takeaway", 2);
 	db.replace_document(1, doc);
     }
-    db.flush();
+    db.commit();
     TEST_EQUAL(db.get_collection_freq("takeaway"), 2);
     Xapian::PostingIterator p = db.postlist_begin("takeaway");
     TEST(p != db.postlist_end("takeaway"));

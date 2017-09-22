@@ -232,9 +232,6 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 1.3.5      1.5.0  ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and
                   variables                           1.2.23.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  |flush|                             Use ``Xapian::WritableDatabase::commit()`` instead (available since
-                                                      1.1.0).
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.6      1.5.0  Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
                                                       ``Xapian::Query`` from ``operator()()``.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
@@ -508,6 +505,8 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.5.0   ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in
                                             1.3.5) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |flush|                             Use ``Xapian::WritableDatabase::commit()`` instead (available since 1.1.0).
 ======= =================================== ==================================================================================
 
 
