@@ -238,7 +238,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
 
   public:
     /// Default constructor
-    PointType() { magnitude = 0; }
+    PointType() : magnitude(0.0) {}
 
     /// Return a TermIterator to the beginning of the termlist
     TermIterator termlist_begin() const;
