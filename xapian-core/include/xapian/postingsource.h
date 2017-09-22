@@ -28,7 +28,6 @@
 
 #include <xapian/attributes.h>
 #include <xapian/database.h>
-#include <xapian/deprecated.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/postingiterator.h>
 #include <xapian/types.h>
@@ -399,87 +398,27 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
  *  ValuePostingSource::init() if they know a tighter bound on the weight.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
-    // We want to give a deprecation warning for uses of the members from user
-    // code, but we also want to be able to inline functions to access them,
-    // without those functions generating deprecated warnings.  To achieve
-    // this, we make the old names references to members with a "real_" prefix
-    // and then use the latter in the inlined accessor functions.  The
-    // constructor initialises all the references to point to their "real_"
-    // counterparts.
-    Xapian::Database real_db;
+    Xapian::Database db;
 
-    Xapian::valueno real_slot;
+    Xapian::valueno slot;
 
-    Xapian::ValueIterator real_value_it;
+    Xapian::ValueIterator value_it;
 
-    bool real_started;
+    bool started;
 
-    Xapian::doccount real_termfreq_min;
+    Xapian::doccount termfreq_min;
 
-    Xapian::doccount real_termfreq_est;
+    Xapian::doccount termfreq_est;
 
-    Xapian::doccount real_termfreq_max;
-
-  protected:
-    /** The database we're reading values from.
-     *
-     *  @deprecated Use @a get_database() in preference.
-     */
-    XAPIAN_DEPRECATED(Xapian::Database& db);
-
-    /** The slot we're reading values from.
-     *
-     *  @deprecated Use @a get_slot() in preference.
-     */
-    XAPIAN_DEPRECATED(Xapian::valueno& slot);
-
-    /** Value stream iterator.
-     *
-     *  @deprecated Use @a get_value() in preference to *value_it, and other
-     *  methods of ValuePostingSource in preference to calling methods of
-     *  value_it.
-     */
-    XAPIAN_DEPRECATED(Xapian::ValueIterator& value_it);
-
-    /** Flag indicating if we've started (true if we have).
-     *
-     *  @deprecated Use @a get_started() in preference.
-     */
-    XAPIAN_DEPRECATED(bool& started);
-
-    /** A lower bound on the term frequency.
-     *
-     *  Subclasses should set this if they are overriding the next(), skip_to()
-     *  or check() methods to return fewer documents.
-     *
-     *  @deprecated Use @a set_termfreq_min() in preference.
-     */
-    XAPIAN_DEPRECATED(Xapian::doccount& termfreq_min);
-
-    /** An estimate of the term frequency.
-     *
-     *  Subclasses should set this if they are overriding the next(), skip_to()
-     *  or check() methods.
-     *
-     *  @deprecated Use @a set_termfreq_est() in preference.
-     */
-    XAPIAN_DEPRECATED(Xapian::doccount& termfreq_est);
-
-    /** An upper bound on the term frequency.
-     *
-     *  Subclasses should set this if they are overriding the next(), skip_to()
-     *  or check() methods.
-     *
-     *  @deprecated Use @a set_termfreq_max() in preference.
-     */
-    XAPIAN_DEPRECATED(Xapian::doccount& termfreq_max);
+    Xapian::doccount termfreq_max;
 
   public:
     /** Construct a ValuePostingSource.
      *
      *  @param slot_ The value slot to read values from.
      */
-    explicit ValuePostingSource(Xapian::valueno slot_);
+    explicit XAPIAN_NOTHROW(ValuePostingSource(Xapian::valueno slot_))
+	: slot(slot_) {}
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;
@@ -499,19 +438,19 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *
      *  Added in 1.2.23 and 1.3.5.
      */
-    Xapian::Database get_database() const { return real_db; }
+    Xapian::Database get_database() const { return db; }
 
     /** The slot we're reading values from.
      *
      *  Added in 1.2.23 and 1.3.5.
      */
-    Xapian::valueno get_slot() const { return real_slot; }
+    Xapian::valueno get_slot() const { return slot; }
 
     /** Read current value.
      *
      *  Added in 1.2.23 and 1.3.5.
      */
-    std::string get_value() const { return *real_value_it; }
+    std::string get_value() const { return *value_it; }
 
     /** End the iteration.
      *
@@ -520,15 +459,15 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  Added in 1.2.23 and 1.3.5.
      */
     void done() {
-	real_value_it = real_db.valuestream_end(real_slot);
-	real_started = true;
+	value_it = db.valuestream_end(slot);
+	started = true;
     }
 
     /** Flag indicating if we've started (true if we have).
      *
      *  Added in 1.2.23 and 1.3.5.
      */
-    bool get_started() const { return real_started; }
+    bool get_started() const { return started; }
 
     /** Set a lower bound on the term frequency.
      *
@@ -538,7 +477,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  Added in 1.2.23 and 1.3.5.
      */
     void set_termfreq_min(Xapian::doccount termfreq_min_) {
-	real_termfreq_min = termfreq_min_;
+	termfreq_min = termfreq_min_;
     }
 
     /** An estimate of the term frequency.
@@ -549,7 +488,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  Added in 1.2.23 and 1.3.5.
      */
     void set_termfreq_est(Xapian::doccount termfreq_est_) {
-	real_termfreq_est = termfreq_est_;
+	termfreq_est = termfreq_est_;
     }
 
     /** An upper bound on the term frequency.
@@ -560,7 +499,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  Added in 1.2.23 and 1.3.5.
      */
     void set_termfreq_max(Xapian::doccount termfreq_max_) {
-	real_termfreq_max = termfreq_max_;
+	termfreq_max = termfreq_max_;
     }
 
     std::string get_description() const;

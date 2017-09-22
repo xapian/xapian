@@ -22,8 +22,6 @@
 
 #include <config.h>
 
-// We need to be able to set deprecated members of ValuePostingSource.
-#define XAPIAN_DEPRECATED(X) X
 #include "xapian/postingsource.h"
 
 #include "backends/database.h"
@@ -116,51 +114,38 @@ PostingSource::get_description() const
     return "Xapian::PostingSource subclass";
 }
 
-
-ValuePostingSource::ValuePostingSource(Xapian::valueno slot_)
-	: real_slot(slot_),
-	  db(real_db),
-	  slot(real_slot),
-	  value_it(real_value_it),
-	  started(real_started),
-	  termfreq_min(real_termfreq_min),
-	  termfreq_est(real_termfreq_est),
-	  termfreq_max(real_termfreq_max)
-{
-}
-
 Xapian::doccount
 ValuePostingSource::get_termfreq_min() const
 {
-    return real_termfreq_min;
+    return termfreq_min;
 }
 
 Xapian::doccount
 ValuePostingSource::get_termfreq_est() const
 {
-    return real_termfreq_est;
+    return termfreq_est;
 }
 
 Xapian::doccount
 ValuePostingSource::get_termfreq_max() const
 {
-    return real_termfreq_max;
+    return termfreq_max;
 }
 
 void
 ValuePostingSource::next(double min_wt)
 {
-    if (!real_started) {
-	real_started = true;
-	real_value_it = real_db.valuestream_begin(real_slot);
+    if (!started) {
+	started = true;
+	value_it = db.valuestream_begin(slot);
     } else {
-	++real_value_it;
+	++value_it;
     }
 
-    if (real_value_it == real_db.valuestream_end(real_slot)) return;
+    if (value_it == db.valuestream_end(slot)) return;
 
     if (min_wt > get_maxweight()) {
-	real_value_it = real_db.valuestream_end(real_slot);
+	value_it = db.valuestream_end(slot);
 	return;
     }
 }
@@ -168,63 +153,63 @@ ValuePostingSource::next(double min_wt)
 void
 ValuePostingSource::skip_to(Xapian::docid min_docid, double min_wt)
 {
-    if (!real_started) {
-	real_started = true;
-	real_value_it = real_db.valuestream_begin(real_slot);
+    if (!started) {
+	started = true;
+	value_it = db.valuestream_begin(slot);
 
-	if (real_value_it == real_db.valuestream_end(real_slot)) return;
+	if (value_it == db.valuestream_end(slot)) return;
     }
 
     if (min_wt > get_maxweight()) {
-	real_value_it = real_db.valuestream_end(real_slot);
+	value_it = db.valuestream_end(slot);
 	return;
     }
-    real_value_it.skip_to(min_docid);
+    value_it.skip_to(min_docid);
 }
 
 bool
 ValuePostingSource::check(Xapian::docid min_docid, double min_wt)
 {
-    if (!real_started) {
-	real_started = true;
-	real_value_it = real_db.valuestream_begin(real_slot);
+    if (!started) {
+	started = true;
+	value_it = db.valuestream_begin(slot);
 
-	if (real_value_it == real_db.valuestream_end(real_slot)) return true;
+	if (value_it == db.valuestream_end(slot)) return true;
     }
 
     if (min_wt > get_maxweight()) {
-	real_value_it = real_db.valuestream_end(real_slot);
+	value_it = db.valuestream_end(slot);
 	return true;
     }
-    return real_value_it.check(min_docid);
+    return value_it.check(min_docid);
 }
 
 bool
 ValuePostingSource::at_end() const
 {
-    return real_started && real_value_it == real_db.valuestream_end(real_slot);
+    return started && value_it == db.valuestream_end(slot);
 }
 
 Xapian::docid
 ValuePostingSource::get_docid() const
 {
-    return real_value_it.get_docid();
+    return value_it.get_docid();
 }
 
 void
 ValuePostingSource::init(const Database & db_)
 {
-    real_db = db_;
-    real_started = false;
+    db = db_;
+    started = false;
     set_maxweight(DBL_MAX);
     try {
-	real_termfreq_max = real_db.get_value_freq(real_slot);
-	real_termfreq_est = real_termfreq_max;
-	real_termfreq_min = real_termfreq_max;
+	termfreq_max = db.get_value_freq(slot);
+	termfreq_est = termfreq_max;
+	termfreq_min = termfreq_max;
     } catch (const Xapian::UnimplementedError &) {
-	real_termfreq_max = real_db.get_doccount();
-	real_termfreq_est = real_termfreq_max / 2;
-	real_termfreq_min = 0;
+	termfreq_max = db.get_doccount();
+	termfreq_est = termfreq_max / 2;
+	termfreq_min = 0;
     }
 }
 

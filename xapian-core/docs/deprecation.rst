@@ -219,9 +219,6 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       out, probably during the 1.4.x release series.  There's some further
                                                       thoughts at https://trac.xapian.org/ticket/3#comment:8
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.5      1.5.0  ``Xapian::ValuePostingSource``      Use the respective getter and setter methods instead, added in 1.3.5 and
-                  public member variables             1.2.23.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.6      1.5.0  Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
                                                       ``Xapian::Query`` from ``operator()()``.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
@@ -510,6 +507,9 @@ Removed Feature name                        Upgrade suggestion and comments
         ``set_compaction_level()``,
         ``set_destdir()``, ``add_source()`
         and ``compact()``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::ValuePostingSource``      Use the respective getter and setter methods instead, added in 1.3.5 and 1.2.23.
+        public member variables
 ======= =================================== ==================================================================================
 
 
