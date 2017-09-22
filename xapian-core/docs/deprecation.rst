@@ -235,8 +235,8 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                   ``set_destdir()``, ``add_source()`
                   and ``compact()``.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.5      1.5.0  ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and
-                  variables                           1.2.23.
+1.3.5      1.5.0  ``Xapian::ValuePostingSource``      Use the respective getter and setter methods instead, added in 1.3.5 and
+                  public member variables             1.2.23.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.5      1.5.0  ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in
                                                       1.3.5) instead.
