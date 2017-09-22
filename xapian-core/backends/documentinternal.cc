@@ -23,8 +23,11 @@
 #include "backends/documentinternal.h"
 
 #include "api/documenttermlist.h"
+#include "api/documentvaluelist.h"
 #include "str.h"
 #include "unicode/description_append.h"
+
+#include "xapian/valueiterator.h"
 
 using namespace std;
 
@@ -98,6 +101,20 @@ Document::Internal::open_term_list() const
 	return NULL;
 
     return database->open_term_list(did);
+}
+
+Xapian::ValueIterator
+Document::Internal::values_begin() const
+{
+    if (!values && database.get()) {
+	values.reset(new map<Xapian::valueno, string>());
+	fetch_all_values(*values);
+    }
+
+    if (!values || values->empty())
+	return Xapian::ValueIterator();
+
+    return Xapian::ValueIterator(new DocumentValueList(this));
 }
 
 string

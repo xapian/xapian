@@ -381,6 +381,8 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	return values->size();
     }
 
+    Xapian::ValueIterator values_begin() const;
+
     /// Return a string describing this object.
     std::string get_description() const;
 };

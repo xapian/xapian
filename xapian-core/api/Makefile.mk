@@ -22,6 +22,7 @@ lib_src +=\
 	api/compactor.cc\
 	api/constinfo.cc\
 	api/decvalwtsource.cc\
+	api/document.cc\
 	api/documenttermlist.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
@@ -33,7 +34,6 @@ lib_src +=\
 	api/leafpostlist.cc\
 	api/matchspy.cc\
 	api/omdatabase.cc\
-	api/omdocument.cc\
 	api/omenquire.cc\
 	api/positioniterator.cc\
 	api/postingiterator.cc\
