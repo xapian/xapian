@@ -531,7 +531,8 @@ $set{OPT,VALUE}
 	* flag_partial
 	* flag_phrase
 	* flag_pure_not
-	* flag_spelling_correction
+	* flag_spelling_correction (see ``$suggestion`` for suggested
+	  correction)
 	* flag_synonym
 	* flag_wildcard
 
@@ -665,10 +666,10 @@ $substr{STRING,START[,LENGTH]}
 	"STRING" whether N is positive, negative or zero.
 
 $suggestion
-	if ``$set{spelling,true}`` was done before the query was parsed, then
-	``$suggestion`` will return any suggested spelling corrected version
-	of the query string.  If there are no spelling corrections, it will
-	return an empty string.
+        if ``$set{flag_spelling_correction,true}`` was done before the query
+        was parsed, then ``$suggestion`` will return any suggested spelling
+        corrected version of the query string.  If there are no spelling
+        corrections, it will return an empty string.
 
 $terms[{PREFIX}]
         list of query terms matching the current hit.  The ability to specify a
