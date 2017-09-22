@@ -510,8 +510,8 @@ def test_newdocument_iter():
         terms.append(termitem.term)
         wdfs.append(termitem.wdf)
         expect_exception(xapian.InvalidOperationError,
-                         "Can't get term frequency from a document termlist "
-                         "which is not associated with a database.",
+                         "get_termfreq() not valid for a TermIterator from a "
+                         "Document which is not associated with a database",
                          getattr, termitem, 'termfreq')
         positers.append([pos for pos in termitem.positer])
 
