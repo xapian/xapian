@@ -76,57 +76,7 @@ class CmpByFirstUsed {
 
 namespace Xapian {
 
-class Compactor::Internal : public Xapian::Internal::intrusive_base {
-    friend class Compactor;
-
-    string destdir_compat;
-    size_t block_size;
-    unsigned flags;
-
-    vector<string> srcdirs_compat;
-
-  public:
-    Internal() : block_size(8192), flags(FULL) { }
-};
-
-Compactor::Compactor() : internal(new Compactor::Internal()) { }
-
 Compactor::~Compactor() { }
-
-void
-Compactor::set_block_size(size_t block_size)
-{
-    internal->block_size = block_size;
-}
-
-void
-Compactor::set_flags_(unsigned flags, unsigned mask)
-{
-    internal->flags = (internal->flags & mask) | flags;
-}
-
-void
-Compactor::set_destdir(const string & destdir)
-{
-    internal->destdir_compat = destdir;
-}
-
-void
-Compactor::add_source(const string & srcdir)
-{
-    internal->srcdirs_compat.push_back(srcdir);
-}
-
-void
-Compactor::compact()
-{
-    Xapian::Database src;
-    for (auto srcdir : internal->srcdirs_compat) {
-	src.add_database(Xapian::Database(srcdir));
-    }
-    src.compact(internal->destdir_compat, internal->flags,
-		internal->block_size, *this);
-}
 
 void
 Compactor::set_status(const string & table, const string & status)

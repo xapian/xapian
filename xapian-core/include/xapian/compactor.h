@@ -28,8 +28,6 @@
 #endif
 
 #include <xapian/constants.h>
-#include <xapian/deprecated.h>
-#include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
 #include <string>
 
@@ -41,9 +39,6 @@ class Database;
  */
 class XAPIAN_VISIBILITY_DEFAULT Compactor {
   public:
-    /// Class containing the implementation.
-    class Internal;
-
     /** Compaction level. */
     typedef enum {
 	/** Don't split items unnecessarily. */
@@ -55,93 +50,9 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
 	FULLER = 2
     } compaction_level;
 
-  private:
-    /// @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
-
-    void set_flags_(unsigned flags, unsigned mask = 0);
-
-  public:
-    Compactor();
+    Compactor() {}
 
     virtual ~Compactor();
-
-    /** Set the block size to use for tables in the output database.
-     *
-     *  @param block_size	The block size to use.  Valid block sizes are
-     *				currently powers of two between 2048 and 65536,
-     *				with the default being 8192, but the valid
-     *				sizes and default may change in the future.
-     */
-    XAPIAN_DEPRECATED(void set_block_size(size_t block_size));
-
-    /** Set whether to preserve existing document id values.
-     *
-     *  @param renumber	The default is true, which means that document ids will
-     *			be renumbered - currently by applying the same offset
-     *			to all the document ids in a particular source
-     *			database.
-     *
-     *			If false, then the document ids must be unique over all
-     *			source databases.  Currently the ranges of document ids
-     *			in each source must not overlap either, though this
-     *			restriction may be removed in the future.
-     */
-    XAPIAN_DEPRECATED(void set_renumber(bool renumber)) {
-	set_flags_(renumber ? 0 : DBCOMPACT_NO_RENUMBER,
-		   ~unsigned(DBCOMPACT_NO_RENUMBER));
-    }
-
-    /** Set whether to merge postlists in multiple passes.
-     *
-     *  @param multipass	If true and merging more than 3 databases,
-     *  merge the postlists in multiple passes, which is generally faster but
-     *  requires more disk space for temporary files.  By default we don't do
-     *  this.
-     */
-    XAPIAN_DEPRECATED(void set_multipass(bool multipass)) {
-	set_flags_(multipass ? DBCOMPACT_MULTIPASS : 0,
-		   ~unsigned(DBCOMPACT_MULTIPASS));
-    }
-
-    /** Set the compaction level.
-     *
-     *  @param compaction Available values are:
-     *  - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
-     *  - Xapian::Compactor::FULL     - Split items whenever it saves space
-     *    (the default).
-     *  - Xapian::Compactor::FULLER   - Allow oversize items to save more space
-     *    (not recommended if you ever plan to update the compacted database).
-     */
-    XAPIAN_DEPRECATED(void set_compaction_level(compaction_level compaction)) {
-	set_flags_(compaction, ~unsigned(STANDARD|FULL|FULLER));
-    }
-
-    /** Set where to write the output.
-     *
-     *  @deprecated Use Database::compact(destdir[, compactor]) instead.
-     *
-     *  @param destdir	Output path.  This can be the same as an input if that
-     *			input is a stub database (in which case the database(s)
-     *			listed in the stub will be compacted to a new database
-     *			and then the stub will be atomically updated to point
-     *			to this new database).
-     */
-    XAPIAN_DEPRECATED(void set_destdir(const std::string & destdir));
-
-    /** Add a source database.
-     *
-     *  @deprecated Use Database::compact(destdir[, compactor]) instead.
-     *
-     *  @param srcdir	The path to the source database to add.
-     */
-    XAPIAN_DEPRECATED(void add_source(const std::string & srcdir));
-
-    /** Perform the actual compaction/merging operation.
-     *
-     *  @deprecated Use Database::compact(destdir[, compactor]) instead.
-     */
-    XAPIAN_DEPRECATED(void compact());
 
     /** Update progress.
      *

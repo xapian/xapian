@@ -219,14 +219,6 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       out, probably during the 1.4.x release series.  There's some further
                                                       thoughts at https://trac.xapian.org/ticket/3#comment:8
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.4      1.5.0  ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The
-                  ``set_block_size()``,               ``Xapian::Compactor`` class is now just a subclassable functor class to
-                  ``set_renumber()``,                 allow access to progress messages and control over merging of user
-                  ``set_multipass()``,                metadata.
-                  ``set_compaction_level()``,
-                  ``set_destdir()``, ``add_source()`
-                  and ``compact()``.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.5      1.5.0  ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and
                   variables                           1.2.23.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
@@ -510,6 +502,14 @@ Removed Feature name                        Upgrade suggestion and comments
                                             ``set_max_wildcard_expansion(n)`` is
                                             ``set_max_expansion(n, Xapian::Query::WILDCARD_LIMIT_ERROR,
                                             Xapian::QueryParser::FLAG_WILDCARD)``
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The
+        ``set_block_size()``,               ``Xapian::Compactor`` class is now just a subclassable functor class to
+        ``set_renumber()``,                 allow access to progress messages and control over merging of user
+        ``set_multipass()``,                metadata.
+        ``set_compaction_level()``,
+        ``set_destdir()``, ``add_source()`
+        and ``compact()``.
 ======= =================================== ==================================================================================
 
 
