@@ -160,12 +160,6 @@ wrapped like so for Python 3:
    the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
    decide which to call).
 
-The following were deprecated in the C++ API before the Python 3 bindings saw
-a stable release, so are not wrapped for Python 3:
-
- * `Xapian::Auto::open_stub()`
- * `Xapian::InMemory::open()`
-
 The version of the bindings in use is available as `xapian.__version__` (as
 recommended by PEP 396).  This may not be the same as `xapian.version_string()`
 as the latter is the version of xapian-core (the C++ library) in use.

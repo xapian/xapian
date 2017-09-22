@@ -103,9 +103,9 @@ def test_all():
     # Check database factory functions are wrapped as expected:
 
     expect_exception(xapian.DatabaseOpeningError, None,
-                     xapian.open_stub, "nosuchdir/nosuchdb")
+                     xapian.Database, "nosuchdir/nosuchdb", xapian.DB_BACKEND_STUB)
     expect_exception(xapian.DatabaseOpeningError, None,
-                     xapian.open_stub, "nosuchdir/nosuchdb", xapian.DB_OPEN)
+                     xapian.WritableDatabase, "nosuchdir/nosuchdb", xapian.DB_OPEN|xapian.DB_BACKEND_STUB)
 
     expect_exception(xapian.NetworkError, None,
                      xapian.remote_open, "/bin/false", "")

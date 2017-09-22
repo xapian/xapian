@@ -26,26 +26,8 @@
 
 namespace Xapian {
 
-/* Lie to SWIG that Auto, etc are classes with static methods rather than
-   namespaces so it wraps it as we want in C# and Java. */
-class Auto {
-  private:
-    Auto();
-    ~Auto();
-  public:
-    static
-    Database open_stub(const string & file);
-};
-
-class InMemory {
-  private:
-    InMemory();
-    ~InMemory();
-  public:
-    static
-    WritableDatabase open();
-};
-
+/* Lie to SWIG that this namespace is a class with static methods so that
+ * it wraps as we want in C# and Java. */
 class Remote {
   private:
     Remote();

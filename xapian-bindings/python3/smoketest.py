@@ -103,15 +103,7 @@ def test_all():
     expect_query(xapian.Query(xapian.Query.OP_VALUE_RANGE, 0, b'1', b'4'),
                  "VALUE_RANGE 0 1 4")
 
-    # Check database factory functions are wrapped as expected (or not wrapped
-    # in the first cases):
-
-    expect_exception(AttributeError,
-            lambda msg: msg.find("has no attribute 'open_stub'") != -1,
-            lambda : xapian.open_stub(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError,
-            lambda msg: msg.find("has no attribute 'open_stub'") != -1,
-            lambda : xapian.open_stub(b"nosuchdir/nosuchdb", xapian.DB_OPEN))
+    # Check database factory functions are wrapped as expected:
 
     expect_exception(xapian.DatabaseOpeningError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_STUB))

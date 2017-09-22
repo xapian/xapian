@@ -9,7 +9,6 @@ LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(RUN_CSHARP)
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
-	generated-csharp/Auto.cs \
 	generated-csharp/BB2Weight.cs \
 	generated-csharp/BM25PlusWeight.cs\
 	generated-csharp/BM25Weight.cs \
@@ -35,7 +34,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/IfB2Weight.cs \
 	generated-csharp/IneB2Weight.cs \
 	generated-csharp/InL2Weight.cs \
-	generated-csharp/InMemory.cs \
 	generated-csharp/KeyMaker.cs \
 	generated-csharp/LMWeight.cs \
 	generated-csharp/LatLongCoord.cs \

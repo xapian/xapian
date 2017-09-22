@@ -31,7 +31,6 @@ SmokeTest: SmokeTest.class
 	$(JAVAC) $(JAVACFLAGS) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
 
 XAPIAN_SWIG_JAVA_SRCS=\
-	org/xapian/Auto.java\
 	org/xapian/BB2Weight.java\
 	org/xapian/BM25PlusWeight.java\
 	org/xapian/BM25Weight.java\
@@ -57,7 +56,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/IfB2Weight.java\
 	org/xapian/IneB2Weight.java\
 	org/xapian/InL2Weight.java\
-	org/xapian/InMemory.java\
 	org/xapian/KeyMaker.java\
 	org/xapian/LMWeight.java \
 	org/xapian/LatLongCoord.java\

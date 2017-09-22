@@ -6,7 +6,7 @@
 # Originally based on smoketest.php from the PHP4 bindings.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008,2009,2010,2011,2016 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2016,2017 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ class XapianSmoketest < Test::Unit::TestCase
     @doc.add_posting(@stem.call("there"), 5)
     @doc.add_term("XYzzy")
 
-    @db = Xapian::inmemory_open()
+    @db = Xapian::WritableDatabase.new("", Xapian::DB_BACKEND_INMEMORY)
     @db.add_document(@doc)
 
     @enq = Xapian::Enquire.new(@db)

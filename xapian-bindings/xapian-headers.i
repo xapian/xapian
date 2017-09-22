@@ -440,20 +440,6 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 
 #else
 
-#ifdef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
-%ignore Xapian::InMemory::open;
-%ignore Xapian::Auto::open_stub;
-#else
-
-%rename("inmemory_open") Xapian::InMemory::open;
-
-#ifndef SWIGPHP
-/* PHP renames this to auto_open_stub() in php/php.i. */
-%rename("open_stub") Xapian::Auto::open_stub;
-#endif
-
-#endif
-
 %rename("remote_open") Xapian::Remote::open;
 %rename("remote_open_writable") Xapian::Remote::open_writable;
 

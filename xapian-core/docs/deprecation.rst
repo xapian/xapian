@@ -219,12 +219,6 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       out, probably during the 1.4.x release series.  There's some further
                                                       thoughts at https://trac.xapian.org/ticket/3#comment:8
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.2      1.5.0  ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2)
-                                                      instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.2      1.5.0  ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_CHERT`` flag (new in
-                                                      1.3.2) instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.3      1.5.0  |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.4      1.5.0  ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The
@@ -237,9 +231,6 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.5      1.5.0  ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and
                   variables                           1.2.23.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.5      1.5.0  ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in
-                                                      1.3.5) instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.6      1.5.0  |flush|                             Use ``Xapian::WritableDatabase::commit()`` instead (available since
                                                       1.1.0).
@@ -511,6 +502,15 @@ Removed Feature name                        Upgrade suggestion and comments
 1.3.5   ``Xapian::DBCHECK_SHOW_BITMAP``     Use ``Xapian::DBCHECK_SHOW_FREELIST`` (added in 1.3.2) instead.
                                             ``Xapian::DBCHECK_SHOW_BITMAP`` was added in 1.3.0, so has never been in a stable
                                             release.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   The Chert backend                   Use the Glass backend instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_GLASS`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in
+                                            1.3.5) instead.
 ======= =================================== ==================================================================================
 
 

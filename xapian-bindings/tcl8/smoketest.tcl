@@ -1,6 +1,6 @@
 # Simple test that we can load the xapian module and run a simple test
 #
-# Copyright (C) 2004,2006,2009,2011 Olly Betts
+# Copyright (C) 2004,2006,2009,2011,2017 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -59,7 +59,7 @@ doc add_posting [stem apply "anybody"] 3
 doc add_posting [stem apply "out"] 4
 doc add_posting [stem apply "there"] 5
 
-xapian::WritableDatabase db [xapian::inmemory_open]
+xapian::WritableDatabase db "" $xapian::DB_BACKEND_INMEMORY
 db add_document doc
 if { [db get_doccount] != 1 } {
     puts stderr "Unexpected db.get_doccount()"
