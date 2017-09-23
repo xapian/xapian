@@ -307,8 +307,8 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
     }
     TEST(gone);
 
-    // Test reference counting works, and that a VRP with automatic storage
-    // works OK.
+    // Test reference counting works, and that a RangeProcessor with automatic
+    // storage works OK.
     {
 	TestRangeProcessor rp_auto(gone_auto);
 	TEST(!gone_auto);
@@ -334,7 +334,7 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
     }
     TEST(gone_auto);
 
-    // Regression test for initial implementation, where ~opt_instrusive_ptr()
+    // Regression test for initial implementation, where ~opt_intrusive_ptr()
     // checked the reference of the object, which may have already been deleted
     // if it wasn't been reference counted.
     {
@@ -875,7 +875,7 @@ DEFINE_TESTCASE(subclassablerefcount8, !backend) {
     }
     TEST(gone_auto);
 
-    // Regression test for initial implementation, where ~opt_instrusive_ptr()
+    // Regression test for initial implementation, where ~opt_intrusive_ptr()
     // checked the reference of the object, which may have already been deleted
     // if it wasn't been reference counted.
     {
