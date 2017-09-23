@@ -455,6 +455,26 @@ def test_userstem():
     parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)
     expect_query(parser.parse_query(b'color television'), '(clr@1 OR tlvsn@2)')
 
+def test_internal_enums_not_wrapped():
+    leaf_constants = [c for c in dir(xapian.Query) if c.startswith('LEAF_')]
+    expect(leaf_constants, [])
+
+def test_internals_not_wrapped():
+    internals = []
+    for c in dir(xapian):
+        # Skip Python stuff like __file__ and __version__.
+        if c.startswith('__'): continue
+        if c.endswith('_'): internals.append(c)
+        # Skip non-classes
+        if not c[0].isupper(): continue
+        cls = eval('xapian.' + c)
+        if type(cls) != type(object): continue
+        for m in dir(cls):
+            if m.startswith('__'): continue
+            if m.endswith('_'): internals.append(c + '.' + m)
+
+    expect(internals, [])
+
 def test_zz9_check_leaks():
     import gc
     gc.collect()
