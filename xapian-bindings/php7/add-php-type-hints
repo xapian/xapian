@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 # Add PHP type hints for classes.
 #
-# Copyright (C) 2011,2012 Olly Betts
+# Copyright (C) 2011,2012,2017 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -61,6 +61,8 @@ while (<>) {
 	# OK!
     } elsif (s/(function get_eset\(.*)(\$edecider\b)/$1XapianExpandDecider $2/) {
 	s/(function get_eset\(.*)(\$(?:om)?rset\b)/$1XapianRSet $2/;
+	# OK!
+    } elsif (s/(function add_rangeprocessor\()(\$r)/$1XapianRangeProcessor $2/) {
 	# OK!
     } elsif (s/(function add_valuerangeprocessor\()(\$v)/$1XapianValueRangeProcessor $2/) {
 	# OK!
