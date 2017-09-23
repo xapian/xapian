@@ -380,6 +380,12 @@ package Xapian::Stopper;
 sub CLONE_SKIP { 1 }
 package Xapian::SimpleStopper;
 sub CLONE_SKIP { 1 }
+package Xapian::RangeProcessor;
+sub CLONE_SKIP { 1 }
+package Xapian::DateRangeProcessor;
+sub CLONE_SKIP { 1 }
+package Xapian::NumberRangeProcessor;
+sub CLONE_SKIP { 1 }
 package Xapian::ValueRangeProcessor;
 sub CLONE_SKIP { 1 }
 package Xapian::StringValueRangeProcessor;
