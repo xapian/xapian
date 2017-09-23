@@ -13,7 +13,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 73 };
+BEGIN { plan tests => 107 };
 use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -69,10 +69,15 @@ ok( my $enq = $database->enquire( $query ) );
 ok( $qp->parse_query("one two many") );
 
 $qp = new Xapian::QueryParser();
+my $rp;
+ok( $rp = new Xapian::RangeProcessor(1) );
+$qp->add_rangeprocessor($rp);
+$qp->add_boolean_prefix("test", "XTEST");
+my $qpo = new Xapian::QueryParser();
 my $vrp;
 ok( $vrp = new Xapian::StringValueRangeProcessor(1) );
-$qp->add_valuerangeprocessor($vrp);
-$qp->add_boolean_prefix("test", "XTEST");
+$qpo->add_valuerangeprocessor($vrp);
+$qpo->add_boolean_prefix("test", "XTEST");
 
 my $pair;
 foreach $pair (
@@ -93,9 +98,30 @@ foreach $pair (
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
     is( $query->get_description(), "Query($res)" );
+    $query = $qpo->parse_query($str);
+    is( $query->get_description(), "Query($res)" );
 }
 
 $qp = new Xapian::QueryParser();
+
+my $rp1 = new Xapian::DateRangeProcessor(1);
+my $rp2 = new Xapian::NumberRangeProcessor(2);
+my $rp3 = new Xapian::RangeProcessor(3);
+my $rp4 = new Xapian::NumberRangeProcessor(4, '$', Xapian::RP_REPEATED);
+my $rp5 = new Xapian::NumberRangeProcessor(5, 'kg', Xapian::RP_REPEATED|Xapian::RP_SUFFIX);
+my $rp6 = new Xapian::RangeProcessor(6, 'country:');
+my $rp7 = new Xapian::RangeProcessor(7, ':name', Xapian::RP_SUFFIX);
+$qp->add_rangeprocessor( $rp1 );
+$qp->add_rangeprocessor( $rp2 );
+$qp->add_rangeprocessor( $rp4 );
+$qp->add_rangeprocessor( $rp5 );
+$qp->add_rangeprocessor( $rp6 );
+$qp->add_rangeprocessor( $rp7 );
+$qp->add_rangeprocessor( $rp3 );
+
+$qp->add_boolean_prefix("test", "XTEST");
+
+$qpo = new Xapian::QueryParser();
 
 my $vrp1 = new Xapian::DateValueRangeProcessor(1);
 my $vrp2 = new Xapian::NumberValueRangeProcessor(2);
@@ -104,15 +130,16 @@ my $vrp4 = new Xapian::NumberValueRangeProcessor(4, '$');
 my $vrp5 = new Xapian::NumberValueRangeProcessor(5, 'kg', 0);
 my $vrp6 = new Xapian::StringValueRangeProcessor(6, 'country:');
 my $vrp7 = new Xapian::StringValueRangeProcessor(7, ':name', 0);
-$qp->add_valuerangeprocessor( $vrp1 );
-$qp->add_valuerangeprocessor( $vrp2 );
-$qp->add_valuerangeprocessor( $vrp4 );
-$qp->add_valuerangeprocessor( $vrp5 );
-$qp->add_valuerangeprocessor( $vrp6 );
-$qp->add_valuerangeprocessor( $vrp7 );
-$qp->add_valuerangeprocessor( $vrp3 );
+$qpo->add_valuerangeprocessor( $vrp1 );
+$qpo->add_valuerangeprocessor( $vrp2 );
+$qpo->add_valuerangeprocessor( $vrp4 );
+$qpo->add_valuerangeprocessor( $vrp5 );
+$qpo->add_valuerangeprocessor( $vrp6 );
+$qpo->add_valuerangeprocessor( $vrp7 );
+$qpo->add_valuerangeprocessor( $vrp3 );
 
-$qp->add_boolean_prefix("test", "XTEST");
+$qpo->add_boolean_prefix("test", "XTEST");
+
 foreach $pair (
     [ 'a..b', 'VALUE_RANGE 3 a b' ],
     [ '1..12', "VALUE_RANGE 2 \\xa0 \\xae" ],
@@ -135,13 +162,22 @@ foreach $pair (
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
     is( $query->get_description(), "Query($res)" );
+    $query = $qpo->parse_query($str);
+    is( $query->get_description(), "Query($res)" );
 }
 
 $qp = new Xapian::QueryParser();
 
 {
+  my $rpdate = new Xapian::DateRangeProcessor(1, Xapian::RP_DATE_PREFER_MDY, 1960);
+  $qp->add_rangeprocessor( $rpdate );
+}
+
+$qpo = new Xapian::QueryParser();
+
+{
   my $vrpdate = new Xapian::DateValueRangeProcessor(1, 1, 1960);
-  $qp->add_valuerangeprocessor( $vrpdate );
+  $qpo->add_valuerangeprocessor( $vrpdate );
 }
 
 foreach $pair (
@@ -151,6 +187,8 @@ foreach $pair (
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
+    is( $query->get_description(), "Query($res)" );
+    $query = $qpo->parse_query($str);
     is( $query->get_description(), "Query($res)" );
 }
 
