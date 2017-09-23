@@ -366,6 +366,15 @@ sub set_stopper {
 }
 %}
 
+%feature("shadow") Xapian::QueryParser::add_rangeprocessor
+%{
+sub add_rangeprocessor {
+    my ($self, $rproc) = @_;
+    push @{$self{_rproc}}, $rproc;
+    Xapianc::QueryParser_add_rangeprocessor( @_ );
+}
+%}
+
 %feature("shadow") Xapian::QueryParser::add_valuerangeprocessor
 %{
 sub add_valuerangeprocessor {
