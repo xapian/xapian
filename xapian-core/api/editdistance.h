@@ -41,7 +41,7 @@
  *			If the true edit distance is > max_distance, any
  *			value > max_distance may be returned instead (which
  *			allows the edit distance algorithm to avoid work for
- *			poor matces).
+ *			poor matches).
  *
  *  @return The edit distance from one item to the other.
  */
