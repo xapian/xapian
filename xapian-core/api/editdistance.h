@@ -2,7 +2,7 @@
  * @brief Edit distance calculation algorithm.
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007,2008 Olly Betts
+ * Copyright (C) 2007,2008,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 
 #ifndef XAPIAN_INCLUDED_EDITDISTANCE_H
 #define XAPIAN_INCLUDED_EDITDISTANCE_H
+
+#include <vector>
 
 /** Calculate the edit distance between two sequences.
  *
@@ -48,5 +50,17 @@
 int edit_distance_unsigned(const unsigned* ptr1, int len1,
 			   const unsigned* ptr2, int len2,
 			   int max_distance);
+
+/** Cheaply calculate a lower bound on edit distance.
+ *
+ *  This is a lower bound on what edit_distance_unsigned() would return.
+ *
+ *  @param a	first sequence
+ *  @param b	second sequence
+ *
+ *  @return A lower bound on the edit distance between @a a and @a b.
+ */
+int freq_edit_lower_bound(const std::vector<unsigned>& a,
+			  const std::vector<unsigned>& b);
 
 #endif // XAPIAN_INCLUDED_EDITDISTANCE_H

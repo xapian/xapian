@@ -47,7 +47,6 @@
 
 #include <algorithm>
 #include <cstdlib> // For abs().
-#include <cstring>
 #include <memory>
 #include <vector>
 
@@ -522,41 +521,6 @@ Database::get_description() const
 {
     /// @todo display contents of the database
     return "Database()";
-}
-
-// We sum the character frequency histogram absolute differences to compute a
-// lower bound on the edit distance.  Rather than counting each Unicode code
-// point uniquely, we use an array with VEC_SIZE elements and tally code points
-// modulo VEC_SIZE which can only reduce the bound we calculate.
-//
-// There will be a trade-off between how good the bound is and how large and
-// array is used (a larger array takes more time to clear and sum over).  The
-// value 64 is somewhat arbitrary - it works as well as 128 for the testsuite
-// but that may not reflect real world performance.  FIXME: profile and tune.
-
-#define VEC_SIZE 64
-
-static int
-freq_edit_lower_bound(const vector<unsigned> & a, const vector<unsigned> & b)
-{
-    int vec[VEC_SIZE];
-    memset(vec, 0, sizeof(vec));
-    vector<unsigned>::const_iterator i;
-    for (i = a.begin(); i != a.end(); ++i) {
-	++vec[(*i) % VEC_SIZE];
-    }
-    for (i = b.begin(); i != b.end(); ++i) {
-	--vec[(*i) % VEC_SIZE];
-    }
-    unsigned int total = 0;
-    for (size_t j = 0; j < VEC_SIZE; ++j) {
-	total += abs(vec[j]);
-    }
-    // Each insertion or deletion adds at most 1 to total.  Each transposition
-    // doesn't change it at all.  But each substitution can change it by 2 so
-    // we need to divide it by 2.  Rounding up is OK, since the odd change must
-    // be due to an actual edit.
-    return (total + 1) / 2;
 }
 
 // Word must have a trigram score at least this close to the best score seen

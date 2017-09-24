@@ -10,7 +10,7 @@
  *  http://berghel.net/publications/asm/asm.php
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007,2008,2009 Olly Betts
+ * Copyright (C) 2007,2008,2009,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 
 using namespace std;
 
@@ -212,4 +213,39 @@ edit_distance_unsigned(const unsigned * ptr1, int len1,
 		       int max_distance)
 {
     return seqcmp_editdist<unsigned>(ptr1, len1, ptr2, len2, max_distance);
+}
+
+// We sum the character frequency histogram absolute differences to compute a
+// lower bound on the edit distance.  Rather than counting each Unicode code
+// point uniquely, we use an array with VEC_SIZE elements and tally code points
+// modulo VEC_SIZE which can only reduce the bound we calculate.
+//
+// There will be a trade-off between how good the bound is and how large and
+// array is used (a larger array takes more time to clear and sum over).  The
+// value 64 is somewhat arbitrary - it works as well as 128 for the testsuite
+// but that may not reflect real world performance.  FIXME: profile and tune.
+
+#define VEC_SIZE 64
+
+int
+freq_edit_lower_bound(const vector<unsigned> & a, const vector<unsigned> & b)
+{
+    int vec[VEC_SIZE];
+    memset(vec, 0, sizeof(vec));
+    vector<unsigned>::const_iterator i;
+    for (i = a.begin(); i != a.end(); ++i) {
+	++vec[(*i) % VEC_SIZE];
+    }
+    for (i = b.begin(); i != b.end(); ++i) {
+	--vec[(*i) % VEC_SIZE];
+    }
+    unsigned int total = 0;
+    for (size_t j = 0; j < VEC_SIZE; ++j) {
+	total += abs(vec[j]);
+    }
+    // Each insertion or deletion adds at most 1 to total.  Each transposition
+    // doesn't change it at all.  But each substitution can change it by 2 so
+    // we need to divide it by 2.  Rounding up is OK, since the odd change must
+    // be due to an actual edit.
+    return (total + 1) / 2;
 }
