@@ -55,10 +55,10 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
     size_t length = fvv.size();
     FeatureVector max_label = *max_element(fvv.begin(), fvv.end(),
 					   [](FeatureVector x,
-					   FeatureVector y) {
-					       return x.get_label() <
-						      y.get_label();
-					   });
+					      FeatureVector y) {
+						  return x.get_label() <
+							 y.get_label();
+					      });
     double max_value = exp2(max_label.get_label());
 
     // Accumulated probability, which is updated for each document.
@@ -70,8 +70,8 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 	 * function for the Discounted Cumulative Gain in the paper:
 	 * http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.74.9057&rep=rep1&type=pdf
 	 */
-	double relevance_probability = (exp2(fvv[rank - 1].get_label()) -
-		1) / max_value;
+	auto label = fvv[rank - 1].get_label();
+	double relevance_probability = (exp2(label) - 1) / max_value;
 
 	/* err_score = summation over all the documents
 	* ((satisfaction probability * p) / rank).
