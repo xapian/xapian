@@ -548,9 +548,7 @@ Database::get_spelling_suggestion(const string &word,
     if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
-    // Extra brackets needed to avoid this being misparsed as a function
-    // prototype.
-    vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
+    vector<unsigned> utf32_word{Utf8Iterator(word), Utf8Iterator()};
 
     vector<unsigned> utf32_term;
 
