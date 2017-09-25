@@ -34,6 +34,7 @@ lib_src +=\
 	api/keymaker.cc\
 	api/leafpostlist.cc\
 	api/matchspy.cc\
+	api/msetiterator.cc\
 	api/result.cc\
 	api/omdatabase.cc\
 	api/omenquire.cc\

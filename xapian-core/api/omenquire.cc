@@ -395,64 +395,6 @@ MSet::Internal::sort_by_relevance()
 	      get_msetcmp_function(Enquire::Internal::REL, true, false));
 }
 
-// MSetIterator
-
-Xapian::docid
-MSetIterator::operator*() const
-{
-    Assert(mset.internal.get());
-    Xapian::doccount size = mset.internal->items.size();
-    Xapian::doccount index = size - off_from_end;
-    AssertRel(index,<,size);
-    return mset.internal->items[index].get_docid();
-}
-
-Document
-MSetIterator::get_document() const
-{
-    Assert(mset.internal.get());
-    Xapian::doccount size = mset.internal->items.size();
-    Xapian::doccount index = size - off_from_end;
-    AssertRel(index,<,size);
-    return mset.internal->get_doc_by_index(index);
-}
-
-double
-MSetIterator::get_weight() const
-{
-    Assert(mset.internal.get());
-    Xapian::doccount size = mset.internal->items.size();
-    Xapian::doccount index = size - off_from_end;
-    AssertRel(index,<,size);
-    return mset.internal->items[index].get_weight();
-}
-
-std::string
-MSetIterator::get_collapse_key() const
-{
-    Assert(mset.internal.get());
-    Xapian::doccount size = mset.internal->items.size();
-    Xapian::doccount index = size - off_from_end;
-    AssertRel(index,<,size);
-    return mset.internal->items[index].get_collapse_key();
-}
-
-Xapian::doccount
-MSetIterator::get_collapse_count() const
-{
-    Assert(mset.internal.get());
-    Xapian::doccount size = mset.internal->items.size();
-    Xapian::doccount index = size - off_from_end;
-    AssertRel(index,<,size);
-    return mset.internal->items[index].get_collapse_count();
-}
-
-string
-MSetIterator::get_description() const
-{
-    return "Xapian::MSetIterator(" + str(mset.size() - off_from_end) + ")";
-}
-
 // Methods for Xapian::Enquire::Internal
 
 Enquire::Internal::Internal(const Database &db_)
