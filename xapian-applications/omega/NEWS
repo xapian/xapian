@@ -1,3 +1,9 @@
+Omega 1.2.25 (2017-09-25):
+
+documentation:
+
+* Suggest DOCIDORDER=X for DONT_CARE.
+
 Omega 1.2.24 (2016-09-16):
 
 build system:

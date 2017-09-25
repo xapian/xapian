@@ -1,3 +1,69 @@
+Xapian-core 1.2.25 (2017-09-25):
+
+API:
+
+* QueryParser: Fix handling of CJK query over multiple prefixes.  Previously
+  all the n-gram terms were AND-ed together - now we AND together for each
+  prefix, then OR the results.  Fixes #719, reported by Aaron Li.
+
+* Database::get_avlength(): Avoid unnecessary rounding of intermediate
+  values.
+
+matcher:
+
+* Fix incorrect results due to uninitialised memory.  The array holding max
+  weight values in MultiAndPostList is never initialised if the operator is
+  unweighted, but the values are still used to calculate the max weight to pass
+  to subqueries, leading to incorrect results.  This can be observed with an OR
+  under an unweighted AND (e.g. OR under AND on the right side of AND_NOT).
+  The fix applied is to simply default initialise this array, which should lead
+  to a max weight of 0.0 being passed on to subqueries.  Bug reported in
+  notmuch by Kirill A. Shutemov, and forwarded by David Bremner.
+
+brass backend:
+
+* Fix allterms with prefix on brass with uncommitted changes.  Brass aims to
+  flush just the relevant postlist changes in this case but the end of the
+  range to flush was wrong, so we'd only actually flush changes for a term
+  exactly matching the prefix.  Fixes #721.
+
+* Fix potential SEGV with corrupt value stats.
+
+chert backend:
+
+* Fix potential SEGV with corrupt value stats.
+
+documentation:
+
+* Correct "Query::feature_flag" -> "QueryParser::feature_flag".  Fixes #747,
+  reported by James Aylett.
+
+portability:
+
+* Add '#include <sys/time.h>' for struct timeval, fixing a build failure with
+  musl libc on Gentoo, reported by Janko on IRC.  This issue only affected
+  the 1.2 branch.
+
+* Fix to build on platforms without SOCK_CLOEXEC.  This issue only affected
+  the 1.2 branch.
+
+* Disable volatile workaround for excess precision SEGV for SSE - previously it
+  was only being disabled for SSE2.
+
+* When building for x86 using a compiler where we don't know how to disable
+  use of 387 FP instructions, we now run remote servers for the testsuite under
+  valgrind --tool=none, like we do when --disable-sse is explicitly specified.
+
+* Also check <errno.h> for sys_nerr and sys_errlist.  This is probably a more
+  common location for them than Linux's <stdio.h> (even on Linux the man page
+  says they're in <errno.h> but that doesn't match reality).
+
+* configure: Probe for <cxxabi.h>.  GCC added this header in GCC 3.1, which
+  is the oldest version we aim to support for 1.2.x so we've just assumed it
+  was available if __GNUC__ was defined.  However, clang lies and defines
+  __GNUC__ yet doesn't seem to reliably provide <cxxabi.h>, so we need to probe
+  for it.
+
 Xapian-core 1.2.24 (2016-09-16):
 
 brass backend:

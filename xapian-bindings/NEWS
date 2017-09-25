@@ -1,3 +1,10 @@
+Xapian-bindings 1.2.25 (2017-09-25):
+
+Java:
+
+* Disable parallel make for java subdirectory as it causes random build
+  failures.  Reported by Lucas Nussbaum in https://bugs.debian.org/848733
+
 Xapian-bindings 1.2.24 (2016-09-16):
 
 Documentation:
