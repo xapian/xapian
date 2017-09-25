@@ -52,23 +52,26 @@ static string get_srcdir() {
     return string(p);
 }
 
-string sample_log1 = get_srcdir() + "/clickmodel/testdata/test1.log";
-string sample_log2 = get_srcdir() + "/clickmodel/testdata/test2.log";
-string sample_log3 = get_srcdir() + "/clickmodel/testdata/test3.log";
-
-static sessions_testcase sessions_tests[] = {
-    {sample_log1, {"821f03288846297c2cf43c34766a38f7",
-		   "45,36,14,54,42",
-		   "45:0,36:0,14:0,54:2,42:0"}},
-    {sample_log2, {"","",""}}
-};
-
 static bool
 almost_equal(double x, double y, double epsilon = 0.001) {
     return (abs(x - y) < epsilon);
 }
 
 int main() {
+    string srcdir = get_srcdir();
+
+    string sample_log1 = srcdir + "/clickmodel/testdata/test1.log";
+    string sample_log2 = srcdir + "/clickmodel/testdata/test2.log";
+    string sample_log3 = srcdir + "/clickmodel/testdata/test3.log";
+
+
+    sessions_testcase sessions_tests[] = {
+	{sample_log1, {"821f03288846297c2cf43c34766a38f7",
+		       "45,36,14,54,42",
+		       "45:0,36:0,14:0,54:2,42:0"}},
+	{sample_log2, {"","",""}}
+    };
+
     SimplifiedDBN sdbn;
 
     int failure_count = 0;
