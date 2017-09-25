@@ -289,8 +289,8 @@ AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
   XTC_save_CXXFLAGS=$CXXFLAGS
   CXXFLAGS="$CXXFLAGS $1"
   AC_TRY_COMPILE([], [],
-		 [$2="${$2} $1"
-		  CXXFLAGS=$XTC_save_CXXFLAGS
+		 [CXXFLAGS=$XTC_save_CXXFLAGS
+		  $2="${$2} $1"
 		  $3],
 		 [CXXFLAGS=$XTC_save_CXXFLAGS
 		  $4])
