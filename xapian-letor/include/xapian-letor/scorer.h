@@ -65,6 +65,22 @@ class XAPIAN_VISIBILITY_DEFAULT NDCGScore: public Scorer {
     double score(const std::vector<FeatureVector> & fvv) const;
 };
 
+/** Expected Reciprocal Rank(ERR) Scorer.
+ *  ERR Scorer is adapted from the paper:
+ *  http://olivier.chapelle.cc/pub/err.pdf
+ *  Chapelle, Metzler, Zhang, Grinspan (2009)
+ *  Expected Reciprocal Rank for Graded Relevance
+ */
+class XAPIAN_VISIBILITY_DEFAULT ERRScore : public Scorer {
+  public:
+    /// Default constructor
+    ERRScore();
+
+    /// Destructor
+    ~ERRScore();
+
+    double score(const std::vector<FeatureVector> & fvv) const;
+};
 }
 
 #endif /* SCORER_H */
