@@ -344,7 +344,7 @@ Xapian::Document::Internal *
 Database::Internal::collect_document(Xapian::docid did) const
 {
     // Open the document lazily - collect document is only called by
-    // Enquire::Internal::read_doc() for a given MSetItem, so we know that the
+    // Enquire::Internal::read_doc() for a given Result, so we know that the
     // document already exists.
     return open_document(did, true);
 }

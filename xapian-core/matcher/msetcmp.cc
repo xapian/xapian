@@ -1,5 +1,5 @@
 /** @file msetcmp.cc
- * @brief MSetItem comparison functions and functors.
+ * @brief Result comparison functions and functors.
  */
 /* Copyright (C) 2006,2009,2013 Olly Betts
  *
@@ -29,77 +29,72 @@
 // Order by did.  Helper comparison template function, which is used as the
 // last fallback by the others.
 template<bool FORWARD_DID, bool CHECK_DID_ZERO> inline bool
-msetcmp_by_did(const Xapian::Internal::MSetItem &a,
-	       const Xapian::Internal::MSetItem &b)
+msetcmp_by_did(const Result& a, const Result& b)
 {
     if (FORWARD_DID) {
 	if (CHECK_DID_ZERO) {
 	    // We want dummy did 0 to compare worse than any other.
-	    if (a.did == 0) return false;
-	    if (b.did == 0) return true;
+	    if (a.get_docid() == 0) return false;
+	    if (b.get_docid() == 0) return true;
 	}
-	return (a.did < b.did);
+	return (a.get_docid() < b.get_docid());
     } else {
-	return (a.did > b.did);
+	return (a.get_docid() > b.get_docid());
     }
 }
 
 // Order by relevance, then docid.
 template<bool FORWARD_DID> bool
-msetcmp_by_relevance(const Xapian::Internal::MSetItem &a,
-		     const Xapian::Internal::MSetItem &b)
+msetcmp_by_relevance(const Result& a, const Result& b)
 {
-    if (a.wt > b.wt) return true;
-    if (a.wt < b.wt) return false;
+    if (a.get_weight() > b.get_weight()) return true;
+    if (a.get_weight() < b.get_weight()) return false;
     return msetcmp_by_did<FORWARD_DID, true>(a, b);
 }
 
 // Order by value, then docid.
 template<bool FORWARD_VALUE, bool FORWARD_DID> bool
-msetcmp_by_value(const Xapian::Internal::MSetItem &a,
-		 const Xapian::Internal::MSetItem &b)
+msetcmp_by_value(const Result& a, const Result& b)
 {
     if (!FORWARD_VALUE) {
 	// We want dummy did 0 to compare worse than any other.
-	if (a.did == 0) return false;
-	if (b.did == 0) return true;
+	if (a.get_docid() == 0) return false;
+	if (b.get_docid() == 0) return true;
     }
-    if (a.sort_key > b.sort_key) return FORWARD_VALUE;
-    if (a.sort_key < b.sort_key) return !FORWARD_VALUE;
+    if (a.get_sort_key() > b.get_sort_key()) return FORWARD_VALUE;
+    if (a.get_sort_key() < b.get_sort_key()) return !FORWARD_VALUE;
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
 }
 
 // Order by value, then relevance, then docid.
 template<bool FORWARD_VALUE, bool FORWARD_DID> bool
-msetcmp_by_value_then_relevance(const Xapian::Internal::MSetItem &a,
-				const Xapian::Internal::MSetItem &b)
+msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 {
     if (!FORWARD_VALUE) {
 	// two special cases to make min_item compares work when did == 0
-	if (a.did == 0) return false;
-	if (b.did == 0) return true;
+	if (a.get_docid() == 0) return false;
+	if (b.get_docid() == 0) return true;
     }
-    if (a.sort_key > b.sort_key) return FORWARD_VALUE;
-    if (a.sort_key < b.sort_key) return !FORWARD_VALUE;
-    if (a.wt > b.wt) return true;
-    if (a.wt < b.wt) return false;
+    if (a.get_sort_key() > b.get_sort_key()) return FORWARD_VALUE;
+    if (a.get_sort_key() < b.get_sort_key()) return !FORWARD_VALUE;
+    if (a.get_weight() > b.get_weight()) return true;
+    if (a.get_weight() < b.get_weight()) return false;
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
 }
 
 // Order by relevance, then value, then docid.
 template<bool FORWARD_VALUE, bool FORWARD_DID> bool
-msetcmp_by_relevance_then_value(const Xapian::Internal::MSetItem &a,
-				const Xapian::Internal::MSetItem &b)
+msetcmp_by_relevance_then_value(const Result& a, const Result& b)
 {
     if (!FORWARD_VALUE) {
 	// two special cases to make min_item compares work when did == 0
-	if (a.did == 0) return false;
-	if (b.did == 0) return true;
+	if (a.get_docid() == 0) return false;
+	if (b.get_docid() == 0) return true;
     }
-    if (a.wt > b.wt) return true;
-    if (a.wt < b.wt) return false;
-    if (a.sort_key > b.sort_key) return FORWARD_VALUE;
-    if (a.sort_key < b.sort_key) return !FORWARD_VALUE;
+    if (a.get_weight() > b.get_weight()) return true;
+    if (a.get_weight() < b.get_weight()) return false;
+    if (a.get_sort_key() > b.get_sort_key()) return FORWARD_VALUE;
+    if (a.get_sort_key() < b.get_sort_key()) return !FORWARD_VALUE;
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
 }
 

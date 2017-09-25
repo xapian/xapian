@@ -55,7 +55,7 @@ MSetPostList::get_docid() const
 {
     LOGCALL(MATCH, Xapian::docid, "MSetPostList::get_docid", NO_ARGS);
     Assert(cursor != -1);
-    RETURN(mset_internal->items[cursor].did);
+    RETURN(mset_internal->items[cursor].get_docid());
 }
 
 double
@@ -63,7 +63,7 @@ MSetPostList::get_weight() const
 {
     LOGCALL(MATCH, double, "MSetPostList::get_weight", NO_ARGS);
     Assert(cursor != -1);
-    RETURN(mset_internal->items[cursor].wt);
+    RETURN(mset_internal->items[cursor].get_weight());
 }
 
 const string *
@@ -71,7 +71,7 @@ MSetPostList::get_sort_key() const
 {
     LOGCALL(MATCH, const string *, "MSetPostList::get_sort_key", NO_ARGS);
     Assert(cursor != -1);
-    RETURN(&mset_internal->items[cursor].sort_key);
+    RETURN(&mset_internal->items[cursor].get_sort_key());
 }
 
 const string *
@@ -79,7 +79,7 @@ MSetPostList::get_collapse_key() const
 {
     LOGCALL(MATCH, const string *, "MSetPostList::get_collapse_key", NO_ARGS);
     Assert(cursor != -1);
-    RETURN(&mset_internal->items[cursor].collapse_key);
+    RETURN(&mset_internal->items[cursor].get_collapse_key());
 }
 
 double
@@ -95,7 +95,7 @@ MSetPostList::recalc_maxweight()
     if (decreasing_relevance) {
 	// FIXME: This is actually a reduction in the maxweight...
 	if (at_end()) RETURN(0);
-	RETURN(mset_internal->items[cursor].wt);
+	RETURN(mset_internal->items[cursor].get_weight());
     }
 
     // Otherwise max_attained is the best answer we can give.
@@ -112,11 +112,11 @@ MSetPostList::next(double w_min)
 	// MSet items are in decreasing weight order, so if the current item
 	// doesn't have enough weight, none of the remaining items will, so
 	// skip straight to the end.
-	if (!at_end() && mset_internal->items[cursor].wt < w_min)
+	if (!at_end() && mset_internal->items[cursor].get_weight() < w_min)
 	    cursor = mset_internal->items.size();
     } else {
 	// Otherwise, skip to the next entry with enough weight.
-	while (!at_end() && mset_internal->items[cursor].wt < w_min)
+	while (!at_end() && mset_internal->items[cursor].get_weight() < w_min)
 	    ++cursor;
     }
     RETURN(NULL);

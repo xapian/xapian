@@ -29,13 +29,13 @@
 using namespace std;
 
 collapse_result
-CollapseData::add_item(const Xapian::Internal::MSetItem & item,
+CollapseData::add_item(const Result& item,
 		       Xapian::doccount collapse_max, const MSetCmp & mcmp,
-		       Xapian::Internal::MSetItem & old_item)
+		       Result& old_item)
 {
     if (items.size() < collapse_max) {
 	items.push_back(item);
-	items.back().collapse_key = string();
+	items.back().set_collapse_key(string());
 	return ADDED;
     }
 
@@ -51,11 +51,12 @@ CollapseData::add_item(const Xapian::Internal::MSetItem & item,
 
     if (mcmp(items.front(), item)) {
 	// If this is the "best runner-up", update next_best_weight.
-	if (item.wt > next_best_weight) next_best_weight = item.wt;
+	if (item.get_weight() > next_best_weight)
+	    next_best_weight = item.get_weight();
 	return REJECTED;
     }
 
-    next_best_weight = items.front().wt;
+    next_best_weight = items.front().get_weight();
 
     items.push_back(item);
     push_heap(items.begin(), items.end(), mcmp);
@@ -67,7 +68,7 @@ CollapseData::add_item(const Xapian::Internal::MSetItem & item,
 }
 
 collapse_result
-Collapser::process(Xapian::Internal::MSetItem & item,
+Collapser::process(Result& item,
 		   const string* key_ptr,
 		   Xapian::Document::Internal & vsdoc,
 		   const MSetCmp & mcmp)
@@ -75,22 +76,22 @@ Collapser::process(Xapian::Internal::MSetItem & item,
     ++docs_considered;
     if (key_ptr) {
 	// key_ptr supplies the collapse key for a remote match.
-	item.collapse_key = *key_ptr;
+	item.set_collapse_key(*key_ptr);
     } else {
 	// Otherwise use the Document object to get the value.
-	item.collapse_key = vsdoc.get_value(slot);
+	item.set_collapse_key(vsdoc.get_value(slot));
     }
 
-    if (item.collapse_key.empty()) {
+    if (item.get_collapse_key().empty()) {
 	// We don't collapse items with an empty collapse key.
 	++no_collapse_key;
 	return EMPTY;
     }
 
-    auto oldkey = table.find(item.collapse_key);
+    auto oldkey = table.find(item.get_collapse_key());
     if (oldkey == table.end()) {
 	// We've not seen this collapse key before.
-	table.insert(make_pair(item.collapse_key, CollapseData(item)));
+	table.insert(make_pair(item.get_collapse_key(), CollapseData(item)));
 	++entry_count;
 	return ADDED;
     }

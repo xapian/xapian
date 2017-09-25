@@ -60,25 +60,6 @@ using Xapian::Internal::TradEWeight;
 
 namespace Xapian {
 
-namespace Internal {
-
-// Methods for Xapian::MSetItem
-
-string
-MSetItem::get_description() const
-{
-    string description;
-
-    description = str(did) + ", " + str(wt) + ", " +
-	    collapse_key;
-
-    description = "Xapian::MSetItem(" + description + ")";
-
-    return description;
-}
-
-}
-
 // Methods for Xapian::MSet
 
 MSet::MSet() : internal(new MSet::Internal)
@@ -367,10 +348,9 @@ MSet::Internal::get_description() const
 	    "max_possible=" + str(max_possible) + ", " +
 	    "max_attained=" + str(max_attained);
 
-    for (vector<Xapian::Internal::MSetItem>::const_iterator i = items.begin();
-	 i != items.end(); ++i) {
+    for (auto&& item : items) {
 	if (!description.empty()) description += ", ";
-	description += i->get_description();
+	description += item.get_description();
     }
 
     description += ")";
@@ -405,7 +385,7 @@ MSet::Internal::set_item_weight(Xapian::doccount i, double wt_)
     // possible to calculate the max possible weight for a reranking algorithm
     // we use this approach.
     max_possible = max(max_possible, max_attained);
-    items[i].wt = wt_;
+    items[i].set_weight(wt_);
 }
 
 void
@@ -424,7 +404,7 @@ MSetIterator::operator*() const
     Xapian::doccount size = mset.internal->items.size();
     Xapian::doccount index = size - off_from_end;
     AssertRel(index,<,size);
-    return mset.internal->items[index].did;
+    return mset.internal->items[index].get_docid();
 }
 
 Document
@@ -444,7 +424,7 @@ MSetIterator::get_weight() const
     Xapian::doccount size = mset.internal->items.size();
     Xapian::doccount index = size - off_from_end;
     AssertRel(index,<,size);
-    return mset.internal->items[index].wt;
+    return mset.internal->items[index].get_weight();
 }
 
 std::string
@@ -454,7 +434,7 @@ MSetIterator::get_collapse_key() const
     Xapian::doccount size = mset.internal->items.size();
     Xapian::doccount index = size - off_from_end;
     AssertRel(index,<,size);
-    return mset.internal->items[index].collapse_key;
+    return mset.internal->items[index].get_collapse_key();
 }
 
 Xapian::doccount
@@ -464,7 +444,7 @@ MSetIterator::get_collapse_count() const
     Xapian::doccount size = mset.internal->items.size();
     Xapian::doccount index = size - off_from_end;
     AssertRel(index,<,size);
-    return mset.internal->items[index].collapse_count;
+    return mset.internal->items[index].get_collapse_count();
 }
 
 string
@@ -689,23 +669,23 @@ Enquire::Internal::get_description() const
 // Private methods for Xapian::Enquire::Internal
 
 void
-Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
+Enquire::Internal::request_doc(const Result& item) const
 {
     unsigned int multiplier = db.internal.size();
 
-    Xapian::docid realdid = (item.did - 1) / multiplier + 1;
-    Xapian::doccount dbnumber = (item.did - 1) % multiplier;
+    Xapian::docid realdid = (item.get_docid() - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (item.get_docid() - 1) % multiplier;
 
     db.internal[dbnumber]->request_document(realdid);
 }
 
 Document
-Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
+Enquire::Internal::read_doc(const Result& item) const
 {
     unsigned int multiplier = db.internal.size();
 
-    Xapian::docid realdid = (item.did - 1) / multiplier + 1;
-    Xapian::doccount dbnumber = (item.did - 1) % multiplier;
+    Xapian::docid realdid = (item.get_docid() - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (item.get_docid() - 1) % multiplier;
 
     Xapian::Document::Internal *doc;
     doc = db.internal[dbnumber]->collect_document(realdid);
@@ -713,12 +693,12 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 }
 
 Document
-Enquire::Internal::get_document(const Xapian::Internal::MSetItem &item) const
+Enquire::Internal::get_document(const Result& item) const
 {
     unsigned int multiplier = db.internal.size();
 
-    Xapian::docid realdid = (item.did - 1) / multiplier + 1;
-    Xapian::doccount dbnumber = (item.did - 1) % multiplier;
+    Xapian::docid realdid = (item.get_docid() - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (item.get_docid() - 1) % multiplier;
 
     // We know the doc exists, so open lazily.
     return Document(db.internal[dbnumber]->open_document(realdid, true));

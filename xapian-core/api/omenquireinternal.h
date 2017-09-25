@@ -39,6 +39,7 @@
 #include <set>
 #include <unordered_map>
 
+#include "result.h"
 #include "weight/weightinternal.h"
 
 using namespace std;
@@ -49,69 +50,6 @@ class MultiMatch;
 namespace Xapian {
 
 class TermIterator;
-
-namespace Internal {
-
-/** An item resulting from a query.
- *  This item contains the document id, and the weight calculated for
- *  the document.
- */
-class MSetItem {
-    public:
-	MSetItem(double wt_, Xapian::docid did_)
-		: wt(wt_), did(did_), collapse_count(0) {}
-
-	MSetItem(double wt_, Xapian::docid did_, const string &key_)
-		: wt(wt_), did(did_), collapse_key(key_), collapse_count(0) {}
-
-	MSetItem(double wt_, Xapian::docid did_, const string &key_,
-		 Xapian::doccount collapse_count_)
-		: wt(wt_), did(did_), collapse_key(key_),
-		  collapse_count(collapse_count_) {}
-
-	void swap(MSetItem & o) {
-	    std::swap(wt, o.wt);
-	    std::swap(did, o.did);
-	    std::swap(collapse_key, o.collapse_key);
-	    std::swap(collapse_count, o.collapse_count);
-	    std::swap(sort_key, o.sort_key);
-	}
-
-	/** Weight calculated. */
-	double wt;
-
-	/** Document id. */
-	Xapian::docid did;
-
-	/** Value which was used to collapse upon.
-	 *
-	 *  If the collapse option is not being used, this will always
-	 *  have a null value.
-	 *
-	 *  If the collapse option is in use, this will contain the collapse
-	 *  key's value for this particular item.  If the key is not present
-	 *  for this item, the value will be a null string.  Only one instance
-	 *  of each key value (apart from the null string) will be present in
-	 *  the items in the returned Xapian::MSet.
-	 */
-	string collapse_key;
-
-	/** Count of collapses done on collapse_key so far
-	 *
-	 * This is normally 0, and goes up for each collapse done
-	 * It is not necessarily an indication of how many collapses
-	 * might be done if an exhaustive match was done
-	 */
-	Xapian::doccount collapse_count;
-
-	/** Used when sorting by value. */
-	string sort_key;
-
-	/// Return a string describing this object.
-	string get_description() const;
-};
-
-}
 
 /** Internals of enquire system.
  *  This allows the implementation of Xapian::Enquire to be hidden and reference
@@ -175,13 +113,13 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 
 	/** Request a document from the database.
 	 */
-	void request_doc(const Xapian::Internal::MSetItem &item) const;
+	void request_doc(const Result& item) const;
 
 	/** Read a previously requested document from the database.
 	 */
-	Xapian::Document read_doc(const Xapian::Internal::MSetItem &item) const;
+	Xapian::Document read_doc(const Result& item) const;
 
-	Xapian::Document get_document(const Xapian::Internal::MSetItem &item) const;
+	Xapian::Document get_document(const Result& item) const;
 
 	void set_query(const Query & query_, termcount qlen_);
 	const Query & get_query() const;
@@ -233,7 +171,7 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	Xapian::Weight::Internal * stats;
 
 	/// A list of items comprising the (selected part of the) MSet.
-	vector<Xapian::Internal::MSetItem> items;
+	vector<Result> items;
 
 	/// Rank of first item in MSet.
 	Xapian::doccount firstitem;
@@ -277,7 +215,7 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	     Xapian::doccount uncollapsed_estimated_,
 	     double max_possible_,
 	     double max_attained_,
-	     vector<Xapian::Internal::MSetItem> &items_,
+	     vector<Result>& items_,
 	     double percent_factor_)
 		: percent_factor(percent_factor_),
 		  stats(NULL),

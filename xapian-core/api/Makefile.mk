@@ -4,6 +4,7 @@ noinst_HEADERS +=\
 	api/editdistance.h\
 	api/emptypostlist.h\
 	api/leafpostlist.h\
+	api/result.h\
 	api/omenquireinternal.h\
 	api/postlist.h\
 	api/queryinternal.h\
@@ -33,6 +34,7 @@ lib_src +=\
 	api/keymaker.cc\
 	api/leafpostlist.cc\
 	api/matchspy.cc\
+	api/result.cc\
 	api/omdatabase.cc\
 	api/omenquire.cc\
 	api/positioniterator.cc\

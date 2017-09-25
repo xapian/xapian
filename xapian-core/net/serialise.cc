@@ -131,15 +131,14 @@ serialise_mset(const Xapian::MSet &mset)
     result += serialise_double(mset.internal->percent_factor);
 
     result += encode_length(mset.size());
-    for (size_t i = 0; i != mset.size(); ++i) {
-	const Xapian::Internal::MSetItem & item = mset.internal->items[i];
-	result += serialise_double(item.wt);
-	result += encode_length(item.did);
-	result += encode_length(item.sort_key.size());
-	result += item.sort_key;
-	result += encode_length(item.collapse_key.size());
-	result += item.collapse_key;
-	result += encode_length(item.collapse_count);
+    for (auto&& item : mset.internal->items) {
+	result += serialise_double(item.get_weight());
+	result += encode_length(item.get_docid());
+	result += encode_length(item.get_sort_key().size());
+	result += item.get_sort_key();
+	result += encode_length(item.get_collapse_key().size());
+	result += item.get_collapse_key();
+	result += encode_length(item.get_collapse_count());
     }
 
     if (mset.internal->stats)
@@ -170,7 +169,7 @@ unserialise_mset(const char * p, const char * p_end)
 
     double percent_factor = unserialise_double(&p, p_end);
 
-    vector<Xapian::Internal::MSetItem> items;
+    vector<Result> items;
     size_t msize;
     decode_length(&p, p_end, msize);
     while (msize-- > 0) {
@@ -186,8 +185,8 @@ unserialise_mset(const char * p, const char * p_end)
 	p += len;
 	Xapian::doccount collapse_cnt;
 	decode_length(&p, p_end, collapse_cnt);
-	items.push_back(Xapian::Internal::MSetItem(wt, did, key, collapse_cnt));
-	swap(items.back().sort_key, sort_key);
+	items.emplace_back(wt, did, std::move(key), collapse_cnt,
+			   std::move(sort_key));
     }
 
     unique_ptr<Xapian::Weight::Internal> stats;

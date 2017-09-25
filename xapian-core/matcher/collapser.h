@@ -47,7 +47,7 @@ class CollapseData {
      *  preallocate space for that many entries and/or allocate space in
      *  larger blocks to divvy up?
      */
-    std::vector<Xapian::Internal::MSetItem> items;
+    std::vector<Result> items;
 
     /// The highest weight of a document we've rejected.
     double next_best_weight;
@@ -56,25 +56,25 @@ class CollapseData {
     Xapian::doccount collapse_count;
 
   public:
-    /// Construct with the given MSetItem @a item.
-    explicit CollapseData(const Xapian::Internal::MSetItem & item)
+    /// Construct with the given Result @a item.
+    explicit CollapseData(const Result& item)
 	: items(1, item), next_best_weight(0), collapse_count(0) {
-	items[0].collapse_key = std::string();
+	items[0].set_collapse_key(std::string());
     }
 
-    /** Handle a new MSetItem with this collapse key value.
+    /** Handle a new Result with this collapse key value.
      *
      *  @param item		The new item.
      *  @param collapse_max	Max no. of items for each collapse key value.
-     *  @param mcmp		MSetItem comparison functor.
+     *  @param mcmp		Result comparison functor.
      *  @param[out] old_item	Replaced item (when REPLACED is returned).
      *
      *  @return How @a item was handled: ADDED, REJECTED or REPLACED.
      */
-    collapse_result add_item(const Xapian::Internal::MSetItem & item,
+    collapse_result add_item(const Result& item,
 			     Xapian::doccount collapse_max,
 			     const MSetCmp & mcmp,
-			     Xapian::Internal::MSetItem & old_item);
+			     Result& old_item);
 
     /// The highest weight of a document we've rejected.
     double get_next_best_weight() const { return next_best_weight; }
@@ -119,7 +119,7 @@ class Collapser {
 
   public:
     /// Replaced item when REPLACED is returned by @a collapse().
-    Xapian::Internal::MSetItem old_item;
+    Result old_item;
 
     Collapser(Xapian::valueno slot_, Xapian::doccount collapse_max_)
 	: entry_count(0), no_collapse_key(0), dups_ignored(0),
@@ -129,17 +129,17 @@ class Collapser {
     /// Return true if collapsing is active for this match.
     operator bool() const { return collapse_max != 0; }
 
-    /** Handle a new MSetItem.
+    /** Handle a new Result.
      *
      *  @param item	The new item.
      *  @param key_ptr	If non-NULL, points to the collapse key (this happens
      *			for a remote match).
      *  @param doc	Document for getting values.
-     *  @param mcmp	MSetItem comparison functor.
+     *  @param mcmp	Result comparison functor.
      *
      *  @return How @a item was handled: EMPTY, ADDED, REJECTED or REPLACED.
      */
-    collapse_result process(Xapian::Internal::MSetItem & item,
+    collapse_result process(Result& item,
 			    const std::string* key_ptr,
 			    Xapian::Document::Internal & vsdoc,
 			    const MSetCmp & mcmp);

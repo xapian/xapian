@@ -1,5 +1,5 @@
 /** @file msetcmp.h
- * @brief MSetItem comparison functions and functors.
+ * @brief Result comparison functions and functors.
  */
 /* Copyright (C) 2006,2007,2011 Olly Betts
  *
@@ -25,21 +25,19 @@
 
 #include "api/omenquireinternal.h"
 
-// typedef for MSetItem comparison function.
-typedef bool (* mset_cmp)(const Xapian::Internal::MSetItem &,
-			  const Xapian::Internal::MSetItem &);
+// typedef for Result comparison function.
+typedef bool (* mset_cmp)(const Result&, const Result&);
 
 /// Select the appropriate msetcmp function.
 mset_cmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by, bool sort_forward, bool sort_value_forward);
 
-/// MSetItem comparison functor.
+/// Result comparison functor.
 class MSetCmp {
     mset_cmp fn;
   public:
     explicit MSetCmp(mset_cmp fn_) : fn(fn_) { }
-    /// Return true if MSetItem a should be ranked above MSetItem b.
-    bool operator()(const Xapian::Internal::MSetItem &a,
-		    const Xapian::Internal::MSetItem &b) const {
+    /// Return true if Result a should be ranked above Result b.
+    bool operator()(const Result& a, const Result& b) const {
 	return fn(a, b);
     }
 };

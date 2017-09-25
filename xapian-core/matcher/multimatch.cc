@@ -289,7 +289,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     unsigned greatest_wt_subqs_db_num = UINT_MAX;
 #endif
-    vector<Xapian::Internal::MSetItem> items;
+    vector<Result> items;
 
     // maximum weight a document could possibly have
     const double max_possible = pltree.recalc_maxweight();
@@ -334,7 +334,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Tracks the minimum item currently eligible for the MSet - we compare
     // candidate items against this.
-    Xapian::Internal::MSetItem min_item(0.0, 0);
+    Result min_item(0.0, 0);
 
     // Minimum weight an item must have to be worth considering.
     double min_weight = weight_cutoff;
@@ -415,7 +415,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Xapian::docid did = pltree.get_docid();
 	vsdoc.set_document(did);
 	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
-	Xapian::Internal::MSetItem new_item(wt, did);
+	Result new_item(wt, did);
 	if (check_at_least > maxitems && timeout.timed_out()) {
 	    check_at_least = maxitems;
 	}
@@ -423,17 +423,17 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (sort_by != REL) {
 	    const string * ptr = pltree.get_sort_key();
 	    if (ptr) {
-		new_item.sort_key = *ptr;
+		new_item.set_sort_key(*ptr);
 	    } else if (sorter) {
-		new_item.sort_key = (*sorter)(doc);
+		new_item.set_sort_key((*sorter)(doc));
 	    } else {
-		new_item.sort_key = vsdoc.get_value(sort_key);
+		new_item.set_sort_key(vsdoc.get_value(sort_key));
 	    }
 
 	    // We're sorting by value (in part at least), so compare the item
 	    // against the lowest currently in the proto-mset.  If sort_by is
-	    // VAL, then new_item.wt won't yet be set, but that doesn't
-	    // matter since it's not used by the sort function.
+	    // VAL, then new_item.get_weight() won't yet be set, but that
+	    // doesn't matter since it's not used by the sort function.
 	    if (!mcmp(new_item, min_item)) {
 		if (mdecider == NULL && !collapser) {
 		    // Document was definitely suitable for mset - no more
@@ -464,7 +464,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (spymaster) {
 	    if (!calculated_weight) {
 		wt = pltree.get_weight();
-		new_item.wt = wt;
+		new_item.set_weight(wt);
 		calculated_weight = true;
 	    }
 	    spymaster(doc, wt, did);
@@ -473,7 +473,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (!calculated_weight) {
 	    // we didn't calculate the weight above, but now we will need it
 	    wt = pltree.get_weight();
-	    new_item.wt = wt;
+	    new_item.set_weight(wt);
 	}
 
 	pushback = true;
@@ -497,24 +497,23 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		// the MSet can't be empty.
 		Assert(!items.empty());
 
-		const Xapian::Internal::MSetItem & old_item =
-		    collapser.old_item;
+		const Result& old_item = collapser.old_item;
 		// This is one of the best collapse_max potential MSet entries
 		// with this key which we've seen so far.  Check if the
 		// entry with this key which it displaced might still be in the
 		// proto-MSet.  If it might be, we need to check through for
 		// it.
-		double old_wt = old_item.wt;
+		double old_wt = old_item.get_weight();
 		if (old_wt >= min_weight && mcmp(old_item, min_item)) {
 		    // Scan through (unsorted) MSet looking for entry.
 		    // FIXME: more efficient way than just scanning?
-		    Xapian::docid olddid = old_item.did;
-		    vector<Xapian::Internal::MSetItem>::iterator i;
+		    Xapian::docid olddid = old_item.get_docid();
+		    vector<Result>::iterator i;
 		    for (i = items.begin(); i != items.end(); ++i) {
-			if (i->did == olddid) {
+			if (i->get_docid() == olddid) {
 			    LOGLINE(MATCH, "collapse: removing " <<
 					   olddid << ": " <<
-					   new_item.collapse_key);
+					   new_item.get_collapse_key());
 			    // We can replace an arbitrary element in O(log N)
 			    // but have to do it by hand (in this case the new
 			    // elt is bigger, so we just swap down the tree).
@@ -539,10 +538,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    is_heap = true;
 		    make_heap(items.begin(), items.end(), mcmp);
 		} else {
-		    push_heap<vector<Xapian::Internal::MSetItem>::iterator,
+		    push_heap<vector<Result>::iterator,
 			      MSetCmp>(items.begin(), items.end(), mcmp);
 		}
-		pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
+		pop_heap<vector<Result>::iterator,
 			 MSetCmp>(items.begin(), items.end(), mcmp);
 		items.pop_back();
 
@@ -562,10 +561,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 				if (leaves.size() == 1) break;
 			    }
 			}
-			if (min_item.wt > min_weight) {
+			if (min_item.get_weight() > min_weight) {
 			    LOGLINE(MATCH, "Setting min_weight to " <<
-				    min_item.wt << " from " << min_weight);
-			    min_weight = min_item.wt;
+				    min_item.get_weight() << " from " << min_weight);
+			    min_weight = min_item.get_weight();
 			}
 		    }
 		}
@@ -619,17 +618,17 @@ new_greatest_weight:
 		    min_weight = w;
 		    if (!is_heap) {
 			is_heap = true;
-			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
+			make_heap<vector<Result>::iterator,
 				  MSetCmp>(items.begin(), items.end(), mcmp);
 		    }
-		    while (!items.empty() && items.front().wt < min_weight) {
-			pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
+		    while (!items.empty() && items.front().get_weight() < min_weight) {
+			pop_heap<vector<Result>::iterator,
 				 MSetCmp>(items.begin(), items.end(), mcmp);
-			Assert(items.back().wt < min_weight);
+			Assert(items.back().get_weight() < min_weight);
 			items.pop_back();
 		    }
 #ifdef XAPIAN_ASSERTIONS_PARANOID
-		    vector<Xapian::Internal::MSetItem>::const_iterator i;
+		    vector<Result>::const_iterator i;
 		    for (i = items.begin(); i != items.end(); ++i) {
 			Assert(i->wt >= min_weight);
 		    }
@@ -662,17 +661,17 @@ new_greatest_weight:
 	    double min_wt = percent_cutoff_factor / percent_scale;
 	    if (!is_heap) {
 		is_heap = true;
-		make_heap<vector<Xapian::Internal::MSetItem>::iterator,
+		make_heap<vector<Result>::iterator,
 			  MSetCmp>(items.begin(), items.end(), mcmp);
 	    }
-	    while (!items.empty() && items.front().wt < min_wt) {
-		pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
+	    while (!items.empty() && items.front().get_weight() < min_wt) {
+		pop_heap<vector<Result>::iterator,
 			 MSetCmp>(items.begin(), items.end(), mcmp);
-		Assert(items.back().wt < min_wt);
+		Assert(items.back().get_weight() < min_wt);
 		items.pop_back();
 	    }
 #ifdef XAPIAN_ASSERTIONS_PARANOID
-	    vector<Xapian::Internal::MSetItem>::const_iterator j;
+	    vector<Result>::const_iterator j;
 	    for (j = items.begin(); j != items.end(); ++j) {
 		Assert(j->wt >= min_wt);
 	    }
@@ -866,7 +865,7 @@ new_greatest_weight:
 	    // unwanted elements end up at the end of items, which means
 	    // that the call to erase() to remove them doesn't have to copy
 	    // any elements.
-	    vector<Xapian::Internal::MSetItem>::reverse_iterator nth;
+	    vector<Result>::reverse_iterator nth;
 	    nth = items.rbegin() + first;
 	    nth_element(items.rbegin(), nth, items.rend(), mcmp);
 	    // Erase the trailing "first" elements
@@ -886,8 +885,8 @@ new_greatest_weight:
     sort(items.begin(), items.end(), mcmp);
 
     if (!items.empty()) {
-	LOGLINE(MATCH, "min weight in mset = " << items.back().wt);
-	LOGLINE(MATCH, "max weight in mset = " << items[0].wt);
+	LOGLINE(MATCH, "min weight in mset = " << items.back().get_weight());
+	LOGLINE(MATCH, "max weight in mset = " << items[0].get_weight());
     }
 
     AssertRel(matches_estimated,>=,matches_lower_bound);
@@ -910,13 +909,13 @@ new_greatest_weight:
 	if (percent_scale > 0.0)
 	    min_wt = percent_cutoff_factor / percent_scale;
 	Xapian::doccount entries = collapser.entries();
-	vector<Xapian::Internal::MSetItem>::iterator i;
+	vector<Result>::iterator i;
 	for (i = items.begin(); i != items.end(); ++i) {
 	    // Skip entries without a collapse key.
-	    if (i->collapse_key.empty()) continue;
+	    if (i->get_collapse_key().empty()) continue;
 
 	    // Set collapse_count appropriately.
-	    i->collapse_count = collapser.get_collapse_count(i->collapse_key, percent_cutoff, min_wt);
+	    i->set_collapse_count(collapser.get_collapse_count(i->get_collapse_key(), percent_cutoff, min_wt));
 	    if (--entries == 0) {
 		// Stop once we've processed all items with collapse keys.
 		break;
