@@ -4,6 +4,10 @@ documentation:
 
 * Suggest DOCIDORDER=X for DONT_CARE.
 
+portability:
+
+* Fix GCC -Wimplicit-fallthrough warning.
+
 Omega 1.2.24 (2016-09-16):
 
 build system:

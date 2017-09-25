@@ -66,7 +66,7 @@ static int my_snprintf(char *str, size_t size, const char *format, ...)
 static Xapian::Query
 date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 {
-    char buf[10];
+    char buf[18];
     my_snprintf(buf, 10, "D%04d%02d", y1, m1);
     vector<Xapian::Query> v;
 
@@ -75,10 +75,11 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     if (y1 == y2 && m1 == m2 && d2 < d_last) {
 	d_end = d2;
     }
+    if (d_end > 31) d_end = 31;
     // Deal with any initial partial month
     if (d1 > 1 || d_end < d_last) {
     	for ( ; d1 <= d_end ; d1++) {
-	    my_snprintf(buf + 7, 3, "%02d", d1);
+	    my_snprintf(buf + 7, 11, "%02d", d1);
 	    v.push_back(Xapian::Query(buf));
 	}
     } else {
@@ -92,7 +93,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 
     int m_last = (y1 < y2) ? 12 : m2 - 1;
     while (++m1 <= m_last) {
-	my_snprintf(buf + 5, 5, "%02d", m1);
+	my_snprintf(buf + 5, 11, "%02d", m1);
 	buf[0] = 'M';
 	v.push_back(Xapian::Query(buf));
     }
@@ -106,18 +107,18 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	my_snprintf(buf + 1, 9, "%04d", y2);
 	buf[0] = 'M';
 	for (m1 = 1; m1 < m2; m1++) {
-	    my_snprintf(buf + 5, 5, "%02d", m1);
+	    my_snprintf(buf + 5, 11, "%02d", m1);
 	    v.push_back(Xapian::Query(buf));
 	}
     }
 	
-    my_snprintf(buf + 5, 5, "%02d", m2);
+    my_snprintf(buf + 5, 11, "%02d", m2);
 
     // Deal with any final partial month
     if (d2 < last_day(y2, m2)) {
 	buf[0] = 'D';
     	for (d1 = 1 ; d1 <= d2; d1++) {
-	    my_snprintf(buf + 7, 3, "%02d", d1);
+	    my_snprintf(buf + 7, 11, "%02d", d1);
 	    v.push_back(Xapian::Query(buf));
 	}
     } else {
