@@ -64,6 +64,8 @@ portability:
   __GNUC__ yet doesn't seem to reliably provide <cxxabi.h>, so we need to probe
   for it.
 
+* Fix GCC -Wimplicit-fallthrough warning.
+
 Xapian-core 1.2.24 (2016-09-16):
 
 brass backend:

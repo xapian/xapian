@@ -486,6 +486,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 	// Fall through to first enabled case, so order the remaining cases
 	// by preference.
 #ifdef XAPIAN_HAS_CHERT_BACKEND
+	// FALLTHRU
 	case CHERT:
 	    internal.push_back(new ChertWritableDatabase(path, action, 8192));
 	    break;
