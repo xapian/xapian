@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012,2014,2016 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@
 #include <string>
 #include <vector>
 
+#include "api/smallvector.h"
+
+#include "xapian/cluster.h"
 #include "xapian/intrusive_ptr.h"
 #include "xapian/types.h"
 
@@ -259,6 +262,22 @@ operator<<(PrettyOStream<S> &ps, const std::vector<T> & v) {
     return ps;
 }
 
+template<class S, typename T>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const Xapian::Vec<T>& v) {
+    ps.os << "Vec(" << v.size() << ')';
+    // FIXME: could show first up to N elements.
+    return ps;
+}
+
+template<class S, typename T>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const Xapian::VecCOW<T>& v) {
+    ps.os << "VecCOW(" << v.size() << ')';
+    // FIXME: could show first up to N elements.
+    return ps;
+}
+
 namespace Xapian {
     class ExpandDecider;
     class LatLongMetric;
@@ -290,10 +309,16 @@ operator<<(PrettyOStream<S> &ps, const C &) {\
     return ps;\
 }
 
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Centroid)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Cluster)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ClusterSet)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::LatLongMetric)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Point)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::PointType)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::TermListGroup)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats)

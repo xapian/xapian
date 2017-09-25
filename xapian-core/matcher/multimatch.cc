@@ -630,7 +630,7 @@ new_greatest_weight:
 #ifdef XAPIAN_ASSERTIONS_PARANOID
 		    vector<Result>::const_iterator i;
 		    for (i = items.begin(); i != items.end(); ++i) {
-			Assert(i->wt >= min_weight);
+			Assert(i->get_weight() >= min_weight);
 		    }
 #endif
 		}
@@ -673,7 +673,7 @@ new_greatest_weight:
 #ifdef XAPIAN_ASSERTIONS_PARANOID
 	    vector<Result>::const_iterator j;
 	    for (j = items.begin(); j != items.end(); ++j) {
-		Assert(j->wt >= min_wt);
+		Assert(j->get_weight() >= min_wt);
 	    }
 #endif
 	}
