@@ -11,7 +11,7 @@ env:
   global:
     # Tell bootstrap where to clone ./common from
     - XAPIAN_COMMON_CLONE_URL=https://github.com/xapian/xapian.git
-    - HOMEBREW_PACKAGES='help2man graphviz pngcrush libmagic pcre libsvm lua mono python3'
+    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libmagic pcre libsvm lua mono python3'
 matrix:
   include:
     - compiler: gcc
@@ -61,10 +61,6 @@ matrix:
     - os: osx
       before_install:
         - brew update
-        - brew install bison
-        # Work-around crash in doxygen 1.8.13 XML backend:
-        # https://github.com/xapian/xapian/pull/132
-        - brew install doxygen --HEAD
         # "brew install" unhelpfully errors out if any package listed is
         # already installed and up-to-date, but travis change what's installed
         # by default from time to time so it's brittle to just filter out those
