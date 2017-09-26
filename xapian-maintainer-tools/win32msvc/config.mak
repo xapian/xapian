@@ -18,7 +18,7 @@
 VERSION_SUFFIX=
 
 # Set to empty to skip dependency generation for headers, e.g.:
-#  % name NMAKE_HEADERS=
+#  % nmake NMAKE_HEADERS=
 NMAKE_HEADERS=nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" HEADERS
 
 !IF "$(OS)" == "Windows_NT"
