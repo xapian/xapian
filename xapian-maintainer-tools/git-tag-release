@@ -85,7 +85,7 @@ git clone ../swig
 echo "Building release tarballs"
 ./bootstrap
 ./configure
-time make -sj8
+time make -sj8 CXXFLAGS='-O2 -g -Wno-error=deprecated-declarations'
 time make -sj8 distcheck
 cd ..
 
