@@ -9,6 +9,8 @@ Revision history for Perl extension Search::Xapian.
 	  SWIG-based bindings in xapian-bindings 1.4.x.
 	- Avoid perl -W in tests as that seems to break recent versions of
 	  Test::More.
+	- Suppress dummy warning using undef value when building against
+	  xapian-core 1.4.x.
 
 1.2.24.0  Fri Sep 16 01:46:36 UTC 2016
 	[Changes contributed by Nick Morrott]

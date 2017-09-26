@@ -226,7 +226,7 @@ if ($xver !~ /^\Q$BASEVERSION\E(?:_(?:svn|git)[0-9]+)?$/) {
 	unlink "Makefile";
 	die $msg;
     }
-    warn "Warning: $msg";
+    warn "Warning: $msg" if defined $msg;
 }
 
 my @bad;
