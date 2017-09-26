@@ -66,6 +66,11 @@ portability:
 
 * Fix GCC -Wimplicit-fallthrough warning.
 
+* Always initialise StringValueRangeProcessor's prefix flag.  It was never
+  actually used when uninitialised, but the implicitly generated copy
+  constructor will copy its uninitialised value, which results in a warning
+  with newer GCC.
+
 Xapian-core 1.2.24 (2016-09-16):
 
 brass backend:
