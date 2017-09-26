@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.2.24.0';
+our $VERSION = '1.2.25.0';
 
 use Exporter 'import';
 
