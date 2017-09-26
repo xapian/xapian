@@ -38,11 +38,19 @@ void
 WritableDatabase::flush()
    CODE:
 	try {
-	    THIS->flush();
+	    THIS->commit();
 	} catch (...) {
 	    handle_exception();
 	}
 
+void
+WritableDatabase::commit()
+   CODE:
+	try {
+	    THIS->commit();
+	} catch (...) {
+	    handle_exception();
+	}
 
 void
 WritableDatabase::begin_transaction(flushed = NO_INIT)

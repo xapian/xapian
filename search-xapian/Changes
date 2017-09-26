@@ -2,6 +2,8 @@ Revision history for Perl extension Search::Xapian.
 
 1.2.25.0  Tue Sep 26 02:06:18 UTC 2017
 	[Changes contributed by Olly Betts]
+	- Wrap WritableDatabase::commit(), which is the preferred name for
+	  WritableDatabase::flush().
 	- Fix long SEE ALSO lines by putting a newline after each comma in the
 	  SEE ALSO lists, fixing warnings from man such as:
 	  <standard input>:109: warning [p 1, 8.0i]: can't break line
