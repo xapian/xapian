@@ -7,6 +7,8 @@ Revision history for Perl extension Search::Xapian.
 	  <standard input>:109: warning [p 1, 8.0i]: can't break line
 	- Backport some improvements to the POD documentation from the
 	  SWIG-based bindings in xapian-bindings 1.4.x.
+	- Avoid perl -W in tests as that seems to break recent versions of
+	  Test::More.
 
 1.2.24.0  Fri Sep 16 01:46:36 UTC 2016
 	[Changes contributed by Nick Morrott]
