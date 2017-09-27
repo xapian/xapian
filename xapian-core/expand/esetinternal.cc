@@ -1,7 +1,7 @@
 /** @file esetinternal.cc
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010,2011,2013,2016 Olly Betts
+/* Copyright (C) 2008,2010,2011,2013,2016,2017 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -266,21 +266,29 @@ ESet::get_description() const
 std::string
 ESetIterator::operator*() const
 {
-    return (eset.internal->items.end() - off_from_end)->term;
+    Assert(off_from_end != 0);
+    AssertRel(off_from_end, <=, eset.internal->items.size());
+    return (eset.internal->items.end() - off_from_end)->get_term();
 }
 
 double
 ESetIterator::get_weight() const
 {
-    return (eset.internal->items.end() - off_from_end)->wt;
+    Assert(off_from_end != 0);
+    AssertRel(off_from_end, <=, eset.internal->items.size());
+    return (eset.internal->items.end() - off_from_end)->get_weight();
 }
 
 std::string
 ESetIterator::get_description() const
 {
     string desc = "ESetIterator(";
-    if (eset.internal.get())
-	desc += str(eset.internal->items.size() - off_from_end);
+    if (off_from_end == 0) {
+	desc += "end";
+    } else {
+	// ESet::size() handles eset.internal.get() == NULL for us.
+	desc += str(eset.size() - off_from_end);
+    }
     desc += ')';
     return desc;
 }

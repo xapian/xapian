@@ -40,7 +40,6 @@ namespace Xapian {
 
 /// Class combining a term and its expand weight.
 class ExpandTerm {
-    friend class Xapian::ESetIterator;
     friend class Xapian::ESet::Internal;
 
     /// The expand weight calculated for this term.
@@ -66,6 +65,10 @@ class ExpandTerm {
 	if (wt < o.wt) return false;
 	return term > o.term;
     }
+
+    std::string get_term() const { return term; }
+
+    double get_weight() const { return wt; }
 
     /// Return a string describing this object.
     std::string get_description() const;
