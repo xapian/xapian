@@ -32,9 +32,10 @@ using namespace std;
 # include "safeerrno.h"
 
 # include <io.h>
-// __STDC_SECURE_LIB__ doesn't appear to be publicly documented, but appears
-// to be a good idea.  We cribbed this test from the python sources - see, for
-// example, http://svn.python.org/view?rev=47223&view=rev
+// __STDC_SECURE_LIB__ doesn't appear to be publicly documented, but including
+// in this check appears to be a good idea.  We cribbed this test from the
+// python sources - see, for example,
+// https://github.com/python/cpython/commit/74c3ea0a0f6599da7dd9a502b5a66aeb9512d8c3
 # if defined _MSC_VER && _MSC_VER >= 1400 && defined __STDC_SECURE_LIB__
 #  include <cstdlib> // For _set_invalid_parameter_handler(), etc.
 #  include <crtdbg.h> // For _CrtSetReportMode, etc.
