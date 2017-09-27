@@ -38,11 +38,11 @@
 #include "debuglog.h"
 #include "expand/esetinternal.h"
 #include "expand/expandweight.h"
-#include "exp10.h"
 #include "matcher/msetcmp.h"
 #include "matcher/multimatch.h"
 #include "omassert.h"
 #include "api/omenquireinternal.h"
+#include "roundestimate.h"
 #include "str.h"
 #include "weight/weightinternal.h"
 
@@ -159,40 +159,12 @@ MSet::get_matches_lower_bound() const
 Xapian::doccount
 MSet::get_matches_estimated() const
 {
-    Assert(internal.get() != 0);
-
     // Doing this here avoids calculating if the estimate is never looked at,
     // though does mean we recalculate if this method is called more than once.
-
-    Xapian::doccount m = internal->matches_lower_bound;
-    Xapian::doccount M = internal->matches_upper_bound;
-    Xapian::doccount e = internal->matches_estimated;
-
-    Xapian::doccount D = M - m;
-    if (D == 0 || e == 0) {
-	// Estimate is exact or zero.  A zero but non-exact estimate can happen
-	// with get_mset(0, 0).
-	return e;
-    }
-
-    Xapian::doccount r = Xapian::doccount(exp10(int(log10(D))) + 0.5);
-    while (r > e) r /= 10;
-
-    Xapian::doccount R = e / r * r;
-    if (R < m) {
-	R += r;
-    } else if (R > M) {
-	R -= r;
-    } else if (R < e && r % 2 == 0 && e - R == r / 2) {
-	// Round towards the centre of the range.
-	if (e - m < M - e) {
-	    R += r;
-	}
-    }
-
-    // If it all goes pear-shaped, just stick to the original estimate.
-    if (R < m || R > M) R = e;
-    return R;
+    Assert(internal.get() != 0);
+    return round_estimate(internal->matches_lower_bound,
+			  internal->matches_upper_bound,
+			  internal->matches_estimated);
 }
 
 Xapian::doccount
