@@ -15,6 +15,10 @@ testsuite:
   .valgrind.log.* file for every remote testcase run.  This option was added in
   valgrind 3.3.0 which is already the minimum version we support.
 
+* Delete .valgrind.log.* on "make clean" - if tests are run under valgrind and
+  the test is killed at just the wrong moment then a log file may be left
+  behind.
+
 matcher:
 
 * Fix incorrect results due to uninitialised memory.  The array holding max
