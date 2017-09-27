@@ -1,10 +1,13 @@
-up to: 809556e12c6b421dea7385fe657ba83aa3c2ac91
+up to: 741cb46f1acfe0035bac8c2b797f053defebda92
 
-Omega 1.4.5 (2017-08-11):
+Omega 1.4.5 (2017-09-25):
 
 general:
 
 documentation:
+
+* Direct users towards $set{flag_spelling_correction,true} rather than the
+  deprecated $set{spelling,true} (which is slated for removal in 1.5.0).
 
 * Fix typo in docs.
 
@@ -37,6 +40,13 @@ templates:
   https://github.com/xapian/xapian/pull/161
 
 testsuite:
+
+* omegatest: Tell faketime to freeze the clock - previously the clock ran on
+  from the specified fake time, and on a slow and/or heavily loaded machine a
+  test taking more than a second might fail due to this.
+
+* Start adding feature tests for scriptindex (so far, checking that multiple
+  'unique' actions causes an error).
 
 build system:
 

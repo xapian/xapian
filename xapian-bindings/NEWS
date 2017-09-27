@@ -1,12 +1,16 @@
-up to: 5f591380bfc5e9bcf0fd065905bf56bc5ebab8bf
+up to: 7a1553f92304683309db944bbb794d8f2bdc3f78
 
-Xapian-bindings 1.4.5 (2017-07-11):
+Xapian-bindings 1.4.5 (2017-09-25):
 
 Documentation:
 
 * HACKING: Add details of Debian PHP7 packages to install for development.
 
 General:
+
+* Use a pattern match to ignore methods meant for internal use only rather
+  than having to list them all - they're consistently named to end with an
+  underscore.
 
 Packaging:
 
@@ -23,11 +27,32 @@ Java:
 
 Lua:
 
+* Support subclassing of RangeProcessor in Lua.
+
 Perl:
+
+* Add CLONE_SKIP to RangeProcessor and subclases to avoid double deletion
+  if the Perl threads module is in use.
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Use RangeProcessor instead of ValueRangeProcessor in perl examples, as
+  ValueRangeProcessor is now deprecated.
 
 PHP:
 
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Add type hints to QueryParser::add_rangeprocessor().
+
 PHP7:
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Add type hints to QueryParser::add_rangeprocessor().
 
 * Fix PHP7 "make check" to use right path separator.  It was using the PHP5
   one, which in general is going to be the same but we won't have probed for
@@ -41,10 +66,13 @@ Python3:
 * Fix "make check" under Python 3.2, which was broken in 1.4.4 because Python
   3.2 doesn't support the u'foo' syntax.
 
+* Copy over Python2 check which aims to catch any internal functions, methods,
+  constants, etc which have accidentally been wrapped.
+
 Ruby:
 
-* Fix dependency generation for Ruby SWIG command, only relevant at all if
-  you configure with --enable-maintainer-mode.
+* Fix dependency generation for Ruby SWIG command (only relevant at all if
+  you configure with --enable-maintainer-mode).
 
 Tcl:
 

@@ -1,6 +1,6 @@
-up to: 5586a09d69b2ec27b456720b1e6bdd8046f0e3a5
+up to: f9325f59b81ed4dce20c3c935ebb6e6e32ee61d5
 
-Xapian-core 1.4.5 (2017-08-11):
+Xapian-core 1.4.5 (2017-09-27):
 
 API:
 
@@ -18,15 +18,47 @@ API:
   rather than turning it into a string and including it in the exception
   message.
 
+* WritableDatabase::replace_document(): when passed a Document object which
+  came from a database and has unmodified values, we used to always read
+  those values into a memory structure.  Now we only do this if the document
+  is being replaced to the same document ID which it came from, which should
+  make other cases a bit more efficient.
+
+* Enquire::get_eset(): When approximating term frequencies we now round to the
+  nearest integer - previously we always rounded down.
+
 testsuite:
 
+* Improve Xapian::Document test coverage.
+
+* Pass --child-silent-after-fork=yes to valgrind which stops us creating a
+  .valgrind.log.* file for every remote testcase run.  This option was added in
+  valgrind 3.3.0 which is already the minimum version we support.
+
+* Open and unlink valgrind log before option parsing so we no longer leave a
+  log file behind if there's an error parsing options or for options like
+  --help which report and exit.
+
+* Delete .valgrind.log.* on "make clean" - if tests are run under valgrind and
+  the test is killed at just the wrong moment then a log file may be left
+  behind.
+
+* Fix the NetworkError with ECHILD check added in 1.4.4 - this will no longer
+  segfault if the test harness catches a NetworkError without an error string.
 
 matcher:
+
+* Iterating of positions has been sped up, which means phrase matching is now
+  faster (by a little over 5% in some simple tests).
 
 * Fix use after free of QueryOptimiser hint in certain cases involving
   multiple databases only some of which have positional information.
   This bug was introduced by changes in xapian-core 1.4.3.  Fixes #752,
   reported and analysed by Robert Stepanek.
+
+* An unweighted OP_AND_MAYBE is now optimised to just its left branch - the
+  other branch or branches only contribute weight, so can be completely ignored
+  when the operator is unweighted.
 
 glass backend:
 
@@ -39,6 +71,9 @@ remote backend:
 
 inmemory backend:
 
+* Use binary chop instead of linear search in all places where we're searching
+  for a term or document - we weren't taking advantage of the sorted order
+  everywhere.
 
 build system:
 
@@ -58,6 +93,24 @@ documentation:
 * Fix "IPv5" -> "IPv6" comment typo.  Noted by James Clarke
 
 * HACKING: Update link to C++ FAQ.
+
+* deprecation.html: Improve descriptions of several deprecated features.
+
+* QueryParser::set_max_expansion() is now discussed in the API documentation
+  instead of the deprecated set_max_wildcard_expansion().
+
+* Clarify PostList::check() API documentation:  If valid is set to false, then
+  NULL must be returned (pruning in this situation doesn't make sense) and
+  at_end() shouldn't be called (because it implicitly depends on the current
+  position being valid).
+
+* HACKING:
+
+  + Update re -Wold-style-cast which we enabled and then had to disable again.
+
+  + Update URL for libstdc++'s debug mode.
+
+  + Update several URLs to use https.
 
 tools:
 
@@ -83,6 +136,10 @@ portability:
   AF_INET and SOCK_STREAM defined.  Fixes
   https://github.com/xapian/xapian/pull/154, reported by Po-Chuan Hsieh
   (alternative fix applied was suggested by James Aylett).
+
+* configure: Fixed the probe for whether the test harness can use RTTI with
+  IBM's xlC compiler (which defaults to not generating RTTI).  Previously the
+  probe would always think RTTI was available.
 
 packaging:
 
