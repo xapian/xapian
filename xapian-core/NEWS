@@ -9,6 +9,12 @@ API:
 * Database::get_avlength(): Avoid unnecessary rounding of intermediate
   values.
 
+testsuite:
+
+* Pass --child-silent-after-fork=yes to valgrind which stops us creating a
+  .valgrind.log.* file for every remote testcase run.  This option was added in
+  valgrind 3.3.0 which is already the minimum version we support.
+
 matcher:
 
 * Fix incorrect results due to uninitialised memory.  The array holding max
