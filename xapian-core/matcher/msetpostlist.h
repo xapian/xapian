@@ -23,7 +23,7 @@
 
 #include "xapian/enquire.h"
 
-#include "api/omenquireinternal.h"
+#include "api/msetinternal.h"
 #include "api/postlist.h"
 
 /** PostList returning entries from an MSet.

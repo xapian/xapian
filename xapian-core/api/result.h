@@ -54,7 +54,7 @@ class Result {
     Result(double weight_, Xapian::docid did_)
 	: weight(weight_), did(did_) {}
 
-    /// Constructor used by unserialise_mset().
+    /// Constructor used by MSet::Internal::unserialise().
     Result(double weight_, Xapian::docid did_,
 	   std::string&& collapse_key_,
 	   Xapian::doccount collapse_count_,

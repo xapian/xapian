@@ -27,6 +27,7 @@
 
 #include "multimatch.h"
 
+#include "api/msetinternal.h"
 #include "collapser.h"
 #include "debuglog.h"
 #include "submatch.h"
@@ -217,7 +218,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     if (query.empty()) {
 	mset = Xapian::MSet();
-	mset.internal->firstitem = first;
+	mset.internal->set_first(first);
 	return;
     }
 
@@ -322,7 +323,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   matches_upper_bound,
 					   uncollapsed_lower_bound,
 					   matches_estimated,
-					   max_possible, greatest_wt, items,
+					   max_possible, greatest_wt,
+					   std::move(items),
 					   0);
 	return;
     }
@@ -931,6 +933,7 @@ new_greatest_weight:
 				       uncollapsed_upper_bound,
 				       uncollapsed_lower_bound,
 				       uncollapsed_estimated,
-				       max_possible, greatest_wt, items,
+				       max_possible, greatest_wt,
+				       std::move(items),
 				       percent_scale * 100.0);
 }

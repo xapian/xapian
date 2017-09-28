@@ -1,7 +1,7 @@
 /** @file  mset.h
  *  @brief Class representing a list of search results
  */
-/* Copyright (C) 2015,2016 Olly Betts
+/* Copyright (C) 2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,8 +48,17 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     // Helper function for fetch() methods.
     void fetch_(Xapian::doccount first, Xapian::doccount last) const;
 
-    /* See the note about correct usage in the docstring for
-     * Xapian::Internal::MSet::set_item_weight(Xapian::doccount i, double wt)
+    /** Update the weight corresponding to the document indexed at
+     *  position i with wt.
+     *
+     *  The MSet's max_possible and max_attained are also updated.
+     *
+     *  This method must be called to update the weight of every document in
+     *  the MSet for i = 0 to mset.size() - 1 in ascending order to avoid
+     *  miscalculation of max_attained and max_possible.
+     *
+     *  @param i	MSet index to update
+     *  @param wt	new weight to assign to the document at index @a i
      */
     void set_item_weight(Xapian::doccount i, double wt);
 
@@ -145,6 +154,12 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     /** Get the termfreq of a term.
      *
      *  @return The number of documents @a term occurs in.
+     *
+     *  Since 1.5.0, this method returns 0 if called on an MSet which is
+     *  not associated with a database (which is consistent with
+     *  Database::get_termfreq() returning 0 when called on a Database
+     *  with no sub-databases); in earlier versions,
+     *  Xapian::InvalidOperationError was thrown in this case.
      */
     Xapian::doccount get_termfreq(const std::string & term) const;
 
@@ -152,6 +167,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *
      *  @return	The maximum weight that @a term could have contributed to a
      *		document.
+     *
+     *  Since 1.5.0, this method returns 0.0 if called on an MSet which is
+     *  not associated with a database, or with a term which wasn't present
+     *  in the query (since in both cases the term contributes no weight to any
+     *  matching documents); in earlier versions, Xapian::InvalidOperationError
+     *  was thrown for the first case, and Xapian::InvalidArgumentError for the
+     *  second.
      */
     double get_termweight(const std::string & term) const;
 

@@ -1502,6 +1502,7 @@ DEFINE_TESTCASE(qterminfo1, backend) {
 		    Xapian::Query(Xapian::Query::OP_OR,
 			    Xapian::Query(term2),
 			    Xapian::Query(term3)));
+    myquery = myquery &~ Xapian::Query("Boolean");
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
@@ -1526,12 +1527,13 @@ DEFINE_TESTCASE(qterminfo1, backend) {
     TEST_EQUAL(mymset1a.get_termweight(term3), 0);
 
     TEST_EQUAL(mymset1a.get_termfreq(stemmer("banana")), 1);
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   mymset1a.get_termweight(stemmer("banana")));
+    TEST_EQUAL(mymset1a.get_termweight(stemmer("banana")), 0.0);
 
     TEST_EQUAL(mymset1a.get_termfreq("sponge"), 0);
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   mymset1a.get_termweight("sponge"));
+    TEST_EQUAL(mymset1a.get_termweight(stemmer("sponge")), 0.0);
+
+    TEST_EQUAL(mymset1a.get_termfreq("Boolean"), 0);
+    TEST_EQUAL(mymset1a.get_termweight("Boolean"), 0.0);
 
     return true;
 }

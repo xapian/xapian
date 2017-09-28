@@ -35,6 +35,7 @@
 #include <cstdlib>
 #include <memory>
 
+#include "api/msetinternal.h"
 #include "length.h"
 #include "matcher/multimatch.h"
 #include "noreturn.h"
@@ -532,7 +533,7 @@ RemoteServer::msg_query(const string &message_in)
 
     Xapian::MSet mset;
     match.get_mset(first, maxitems, check_at_least, mset, *(total_stats.get()), 0, 0);
-    mset.internal->stats = total_stats.release();
+    mset.internal->set_stats(total_stats.release());
 
     message.resize(0);
     for (auto i : matchspies) {
@@ -540,7 +541,7 @@ RemoteServer::msg_query(const string &message_in)
 	message += encode_length(spy_results.size());
 	message += spy_results;
     }
-    message += serialise_mset(mset);
+    message += mset.internal->serialise();
     send_message(REPLY_RESULTS, message);
 }
 

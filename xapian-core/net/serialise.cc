@@ -26,7 +26,6 @@
 #include <xapian/valueiterator.h>
 
 #include "omassert.h"
-#include "api/omenquireinternal.h"
 #include "api/rsetinternal.h"
 #include "length.h"
 #include "serialise.h"
@@ -105,109 +104,6 @@ unserialise_stats(const string &s, Xapian::Weight::Internal & stat)
 						  collfreq,
 						  max_part)));
     }
-}
-
-string
-serialise_mset(const Xapian::MSet &mset)
-{
-    string result;
-
-    result += encode_length(mset.get_firstitem());
-    // Send back the raw matches_* values.  MSet::get_matches_estimated()
-    // rounds the estimate lazily, but MSetPostList::get_termfreq_est()
-    // returns the estimate, and the raw estimate is better for that.
-    //
-    // It is also cleaner that a round-trip through serialisation gives you an
-    // object which is as close to the original as possible.
-    result += encode_length(mset.internal->matches_lower_bound);
-    result += encode_length(mset.internal->matches_estimated);
-    result += encode_length(mset.internal->matches_upper_bound);
-    result += encode_length(mset.get_uncollapsed_matches_lower_bound());
-    result += encode_length(mset.get_uncollapsed_matches_estimated());
-    result += encode_length(mset.get_uncollapsed_matches_upper_bound());
-    result += serialise_double(mset.get_max_possible());
-    result += serialise_double(mset.get_max_attained());
-
-    result += serialise_double(mset.internal->percent_factor);
-
-    result += encode_length(mset.size());
-    for (auto&& item : mset.internal->items) {
-	result += serialise_double(item.get_weight());
-	result += encode_length(item.get_docid());
-	result += encode_length(item.get_sort_key().size());
-	result += item.get_sort_key();
-	result += encode_length(item.get_collapse_key().size());
-	result += item.get_collapse_key();
-	result += encode_length(item.get_collapse_count());
-    }
-
-    if (mset.internal->stats)
-	result += serialise_stats(*(mset.internal->stats));
-
-    return result;
-}
-
-Xapian::MSet
-unserialise_mset(const char * p, const char * p_end)
-{
-    Xapian::doccount firstitem;
-    decode_length(&p, p_end, firstitem);
-    Xapian::doccount matches_lower_bound;
-    decode_length(&p, p_end, matches_lower_bound);
-    Xapian::doccount matches_estimated;
-    decode_length(&p, p_end, matches_estimated);
-    Xapian::doccount matches_upper_bound;
-    decode_length(&p, p_end, matches_upper_bound);
-    Xapian::doccount uncollapsed_lower_bound;
-    decode_length(&p, p_end, uncollapsed_lower_bound);
-    Xapian::doccount uncollapsed_estimated;
-    decode_length(&p, p_end, uncollapsed_estimated);
-    Xapian::doccount uncollapsed_upper_bound;
-    decode_length(&p, p_end, uncollapsed_upper_bound);
-    double max_possible = unserialise_double(&p, p_end);
-    double max_attained = unserialise_double(&p, p_end);
-
-    double percent_factor = unserialise_double(&p, p_end);
-
-    vector<Result> items;
-    size_t msize;
-    decode_length(&p, p_end, msize);
-    while (msize-- > 0) {
-	double wt = unserialise_double(&p, p_end);
-	Xapian::docid did;
-	decode_length(&p, p_end, did);
-	size_t len;
-	decode_length_and_check(&p, p_end, len);
-	string sort_key(p, len);
-	p += len;
-	decode_length_and_check(&p, p_end, len);
-	string key(p, len);
-	p += len;
-	Xapian::doccount collapse_cnt;
-	decode_length(&p, p_end, collapse_cnt);
-	items.emplace_back(wt, did, std::move(key), collapse_cnt,
-			   std::move(sort_key));
-    }
-
-    unique_ptr<Xapian::Weight::Internal> stats;
-    if (p != p_end) {
-	stats.reset(new Xapian::Weight::Internal());
-	unserialise_stats(string(p, p_end - p), *(stats.get()));
-    }
-
-    Xapian::MSet mset;
-    mset.internal = new Xapian::MSet::Internal(
-				       firstitem,
-				       matches_upper_bound,
-				       matches_lower_bound,
-				       matches_estimated,
-				       uncollapsed_upper_bound,
-				       uncollapsed_lower_bound,
-				       uncollapsed_estimated,
-				       max_possible, max_attained,
-				       items, percent_factor);
-    mset.internal->stats = stats.release();
-    return mset;
 }
 
 string

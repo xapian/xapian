@@ -35,8 +35,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <map>
-#include <set>
 #include <unordered_map>
 
 #include "result.h"
@@ -113,13 +111,9 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 
 	/** Request a document from the database.
 	 */
-	void request_doc(const Result& item) const;
+	void request_doc(Xapian::docid did) const;
 
-	/** Read a previously requested document from the database.
-	 */
-	Xapian::Document read_doc(const Result& item) const;
-
-	Xapian::Document get_document(const Result& item) const;
+	Xapian::Document get_document(Xapian::docid did) const;
 
 	void set_query(const Query & query_, termcount qlen_);
 	const Query & get_query() const;
@@ -137,139 +131,6 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 	Xapian::doccount get_termfreq(const string &tname) const;
 
 	string get_description() const;
-};
-
-class MSet::Internal : public Xapian::Internal::intrusive_base {
-    public:
-	/// Factor to multiply weights by to convert them to percentages.
-	double percent_factor;
-
-    private:
-	/** The set of documents which have been requested but not yet
-	 *  collected.
-	 */
-	mutable set<Xapian::doccount> requested_docs;
-
-	/// Cache of documents, indexed by MSet index.
-	mutable map<Xapian::doccount, Xapian::Document> indexeddocs;
-
-	/// Read and cache the documents so far requested.
-	void read_docs() const;
-
-	/// Copy not allowed
-	Internal(const Internal &);
-	/// Assignment not allowed
-	void operator=(const Internal &);
-
-	mutable std::unordered_map<std::string, double> snippet_bg_relevance;
-
-    public:
-	/// Xapian::Enquire reference, for getting documents.
-	Xapian::Internal::intrusive_ptr<const Enquire::Internal> enquire;
-
-	/** Provides the term frequency and weight for each term in the query. */
-	Xapian::Weight::Internal * stats;
-
-	/// A list of items comprising the (selected part of the) MSet.
-	vector<Result> items;
-
-	/// Rank of first item in MSet.
-	Xapian::doccount firstitem;
-
-	Xapian::doccount matches_lower_bound;
-
-	Xapian::doccount matches_estimated;
-
-	Xapian::doccount matches_upper_bound;
-
-	Xapian::doccount uncollapsed_lower_bound;
-
-	Xapian::doccount uncollapsed_estimated;
-
-	Xapian::doccount uncollapsed_upper_bound;
-
-	double max_possible;
-
-	double max_attained;
-
-	Internal()
-		: percent_factor(0),
-		  stats(NULL),
-		  firstitem(0),
-		  matches_lower_bound(0),
-		  matches_estimated(0),
-		  matches_upper_bound(0),
-		  uncollapsed_lower_bound(0),
-		  uncollapsed_estimated(0),
-		  uncollapsed_upper_bound(0),
-		  max_possible(0),
-		  max_attained(0) {}
-
-	/// Note: destroys parameter items.
-	Internal(Xapian::doccount firstitem_,
-	     Xapian::doccount matches_upper_bound_,
-	     Xapian::doccount matches_lower_bound_,
-	     Xapian::doccount matches_estimated_,
-	     Xapian::doccount uncollapsed_upper_bound_,
-	     Xapian::doccount uncollapsed_lower_bound_,
-	     Xapian::doccount uncollapsed_estimated_,
-	     double max_possible_,
-	     double max_attained_,
-	     vector<Result>& items_,
-	     double percent_factor_)
-		: percent_factor(percent_factor_),
-		  stats(NULL),
-		  firstitem(firstitem_),
-		  matches_lower_bound(matches_lower_bound_),
-		  matches_estimated(matches_estimated_),
-		  matches_upper_bound(matches_upper_bound_),
-		  uncollapsed_lower_bound(uncollapsed_lower_bound_),
-		  uncollapsed_estimated(uncollapsed_estimated_),
-		  uncollapsed_upper_bound(uncollapsed_upper_bound_),
-		  max_possible(max_possible_),
-		  max_attained(max_attained_) {
-	    std::swap(items, items_);
-	}
-
-	~Internal() { delete stats; }
-
-	/// get a document by index in MSet, via the cache.
-	Xapian::Document get_doc_by_index(Xapian::doccount index) const;
-
-	/// Converts a weight to a percentage weight
-	int convert_to_percent_internal(double wt) const;
-
-	std::string snippet(const std::string & text, size_t length,
-			    const Xapian::Stem & stemmer,
-			    unsigned flags,
-			    const std::string & hi_start,
-			    const std::string & hi_end,
-			    const std::string & omit) const;
-
-	/// Return a string describing this object.
-	string get_description() const;
-
-	/** Fetch items specified into the document cache.
-	 */
-	void fetch_items(Xapian::doccount first, Xapian::doccount last) const;
-
-	/** Updates the weight corresponding to the document indexed at
-	 *  position i with wt_.
-	 *
-	 *  Updates the max_possible and max_attained for the MSet.
-	 *
-	 *  set_item_weight must be called to update the weight of every
-	 *  document in MSet in the same order as that of the documents present
-	 *  in MSet to avoid miscalculation of max_attained and max_possible.
-	 *
-	 *  @param i	position of the document in MSet whose weight is being
-	 *		updated.
-	 *  @param wt_  new weight assigned to the document.
-	 */
-	void set_item_weight(Xapian::doccount i, double wt_);
-
-	/// Sorts the MSet::Internal::items by their corresponding weights.
-	void sort_by_relevance();
 };
 
 }

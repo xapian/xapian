@@ -67,7 +67,7 @@ RemoteSubMatch::get_postlist(PostListTree * matcher,
     (void)matcher;
     Xapian::MSet mset;
     db->get_mset(mset, matchspies);
-    percent_factor = mset.internal->percent_factor;
+    percent_factor = mset.internal->get_percent_scale_factor();
     // For remote databases we report percent_factor rather than counting the
     // number of subqueries.
     (void)total_subqs_ptr;

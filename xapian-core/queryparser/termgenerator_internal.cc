@@ -22,7 +22,7 @@
 
 #include "termgenerator_internal.h"
 
-#include "api/omenquireinternal.h"
+#include "api/msetinternal.h"
 #include "api/queryinternal.h"
 
 #include <xapian/document.h>
@@ -728,7 +728,7 @@ MSet::Internal::snippet(const string & text,
 		    ++i;
 		}
 
-		relevance = check_term(loose_terms, stats, term, max_tw);
+		relevance = check_term(loose_terms, stats.get(), term, max_tw);
 		if (relevance) {
 		    // Matched unstemmed term.
 		    highlight = 1;
@@ -737,7 +737,7 @@ MSet::Internal::snippet(const string & text,
 
 		string stem = "Z";
 		stem += stemmer(term);
-		relevance = check_term(loose_terms, stats, stem, max_tw);
+		relevance = check_term(loose_terms, stats.get(), stem, max_tw);
 		if (relevance) {
 		    // Matched stemmed term.
 		    highlight = 1;

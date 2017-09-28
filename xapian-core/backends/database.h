@@ -456,20 +456,17 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	virtual Xapian::docid replace_document(const string & unique_term,
 					       const Xapian::Document & document);
 
-	/** Request and later collect a document from the database.
-	 *  Multiple documents can be requested with request_document(),
-	 *  and then collected with collect_document().  Allows the backend
-	 *  to optimise (e.g. the remote backend can start requests for all
-	 *  the documents so they fetch in parallel).
+	/** Request a document from the database.
+	 *  Multiple documents can be requested with request_document().
+	 *  Allows the backend
+	 *  to optimise (currently prefetch hints for disk-based DBs, but
+	 *  the remote backend could potentially use this to pipeline
+	 *  sending documents).
 	 *
-	 *  If a backend doesn't support this, request_document() can be a
-	 *  no-op and collect_document() the same as open_document().
+	 *  If a backend doesn't support this, request_document() can do
+	 *  nothing (which is what the default implementation does).
 	 */
-	//@{
 	virtual void request_document(Xapian::docid /*did*/) const;
-
-	virtual Xapian::Document::Internal * collect_document(Xapian::docid did) const;
-	//@}
 
 	/** Write a set of changesets to a file descriptor.
 	 *

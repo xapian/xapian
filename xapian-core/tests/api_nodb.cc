@@ -553,11 +553,13 @@ DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
     return true;
 }
 
-// Test that asking for the termfreq on an empty mset raises an exception.
+// Test that requesting termfreq or termweight on an empty mset returns 0.
+// New behaviour as of 1.5.0 - previously both methods threw
+// Xapian::InvalidOperationError.
 DEFINE_TESTCASE(emptymset1, !backend) {
     Xapian::MSet emptymset;
-    TEST_EXCEPTION(Xapian::InvalidOperationError,
-		   emptymset.get_termfreq("foo"));
+    TEST_EQUAL(emptymset.get_termfreq("foo"), 0);
+    TEST_EQUAL(emptymset.get_termweight("foo"), 0.0);
     return true;
 }
 

@@ -340,15 +340,6 @@ Database::Internal::request_document(Xapian::docid /*did*/) const
 {
 }
 
-Xapian::Document::Internal *
-Database::Internal::collect_document(Xapian::docid did) const
-{
-    // Open the document lazily - collect document is only called by
-    // Enquire::Internal::read_doc() for a given Result, so we know that the
-    // document already exists.
-    return open_document(did, true);
-}
-
 void
 Database::Internal::write_changesets_to_fd(int, const string &, bool, ReplicationInfo *)
 {

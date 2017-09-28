@@ -22,7 +22,7 @@
 
 #include "xapian/mset.h"
 
-#include "omenquireinternal.h"
+#include "msetinternal.h"
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -48,7 +48,7 @@ MSetIterator::get_document() const
     auto size = mset.internal->items.size();
     Assert(off_from_end != 0);
     AssertRel(off_from_end, <=, size);
-    RETURN(mset.internal->get_doc_by_index(size - off_from_end));
+    RETURN(mset.internal->get_document(size - off_from_end));
 }
 
 double

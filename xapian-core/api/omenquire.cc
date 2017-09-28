@@ -40,6 +40,7 @@
 #include "expand/expandweight.h"
 #include "matcher/msetcmp.h"
 #include "matcher/multimatch.h"
+#include "msetinternal.h"
 #include "omassert.h"
 #include "api/omenquireinternal.h"
 #include "roundestimate.h"
@@ -59,313 +60,6 @@ using Xapian::Internal::Bo1EWeight;
 using Xapian::Internal::TradEWeight;
 
 namespace Xapian {
-
-// Methods for Xapian::MSet
-
-MSet::MSet() : internal(new MSet::Internal)
-{
-}
-
-MSet::~MSet()
-{
-}
-
-MSet::MSet(const MSet & other) : internal(other.internal)
-{
-}
-
-MSet &
-MSet::operator=(const MSet &other)
-{
-    internal = other.internal;
-    return *this;
-}
-
-void
-MSet::fetch_(Xapian::doccount first, Xapian::doccount last) const
-{
-    LOGCALL_VOID(API, "Xapian::MSet::fetch_", first | last);
-    Assert(internal.get() != 0);
-    internal->fetch_items(first, last);
-}
-
-void
-MSet::set_item_weight(Xapian::doccount i, double wt)
-{
-    internal->set_item_weight(i, wt);
-}
-
-int
-MSet::convert_to_percent(double wt) const
-{
-    LOGCALL(API, int, "Xapian::MSet::convert_to_percent", wt);
-    Assert(internal.get() != 0);
-    RETURN(internal->convert_to_percent_internal(wt));
-}
-
-void
-MSet::sort_by_relevance()
-{
-    internal->sort_by_relevance();
-}
-
-Xapian::doccount
-MSet::get_termfreq(const string &tname) const
-{
-    LOGCALL(API, Xapian::doccount, "Xapian::MSet::get_termfreq", tname);
-    Assert(internal.get() != 0);
-    if (usual(internal->stats)) {
-	Xapian::doccount termfreq;
-	if (internal->stats->get_stats(tname, termfreq))
-	    RETURN(termfreq);
-    }
-    if (internal->enquire.get() == 0) {
-	throw InvalidOperationError("Can't get termfreq from an MSet which is not derived from a query.");
-    }
-    RETURN(internal->enquire->get_termfreq(tname));
-}
-
-double
-MSet::get_termweight(const string &tname) const
-{
-    LOGCALL(API, double, "Xapian::MSet::get_termweight", tname);
-    Assert(internal.get() != 0);
-    if (!internal->stats) {
-	throw InvalidOperationError("Can't get termweight from an MSet which is not derived from a query.");
-    }
-    double termweight;
-    if (!internal->stats->get_termweight(tname, termweight)) {
-	string msg = tname;
-	msg += ": termweight not available";
-	throw InvalidArgumentError(msg);
-    }
-    RETURN(termweight);
-}
-
-Xapian::doccount
-MSet::get_firstitem() const
-{
-    Assert(internal.get() != 0);
-    return internal->firstitem;
-}
-
-Xapian::doccount
-MSet::get_matches_lower_bound() const
-{
-    Assert(internal.get() != 0);
-    return internal->matches_lower_bound;
-}
-
-Xapian::doccount
-MSet::get_matches_estimated() const
-{
-    // Doing this here avoids calculating if the estimate is never looked at,
-    // though does mean we recalculate if this method is called more than once.
-    Assert(internal.get() != 0);
-    return round_estimate(internal->matches_lower_bound,
-			  internal->matches_upper_bound,
-			  internal->matches_estimated);
-}
-
-Xapian::doccount
-MSet::get_matches_upper_bound() const
-{
-    Assert(internal.get() != 0);
-    return internal->matches_upper_bound;
-}
-
-Xapian::doccount
-MSet::get_uncollapsed_matches_lower_bound() const
-{
-    Assert(internal.get() != 0);
-    return internal->uncollapsed_lower_bound;
-}
-
-Xapian::doccount
-MSet::get_uncollapsed_matches_estimated() const
-{
-    Assert(internal.get() != 0);
-    return internal->uncollapsed_estimated;
-}
-
-Xapian::doccount
-MSet::get_uncollapsed_matches_upper_bound() const
-{
-    Assert(internal.get() != 0);
-    return internal->uncollapsed_upper_bound;
-}
-
-double
-MSet::get_max_possible() const
-{
-    Assert(internal.get() != 0);
-    return internal->max_possible;
-}
-
-double
-MSet::get_max_attained() const
-{
-    Assert(internal.get() != 0);
-    return internal->max_attained;
-}
-
-string
-MSet::snippet(const string & text,
-	      size_t length,
-	      const Xapian::Stem & stemmer,
-	      unsigned flags,
-	      const string & hi_start,
-	      const string & hi_end,
-	      const string & omit) const
-{
-    Assert(internal.get() != 0);
-    return internal->snippet(text, length, stemmer, flags,
-			     hi_start, hi_end, omit);
-}
-
-Xapian::doccount
-MSet::size() const
-{
-    Assert(internal.get() != 0);
-    return internal->items.size();
-}
-
-string
-MSet::get_description() const
-{
-    Assert(internal.get() != 0);
-    return "Xapian::MSet(" + internal->get_description() + ")";
-}
-
-int
-MSet::Internal::convert_to_percent_internal(double wt) const
-{
-    LOGCALL(MATCH, int, "Xapian::MSet::Internal::convert_to_percent_internal", wt);
-    if (percent_factor == 0) RETURN(100);
-
-    // Excess precision on x86 can result in a difference here.
-    double v = wt * percent_factor + 100.0 * DBL_EPSILON;
-    int pcent = static_cast<int>(v);
-    LOGLINE(MATCH, "wt = " << wt << ", max_possible = " << max_possible <<
-		   " =>  pcent = " << pcent);
-    if (pcent > 100) pcent = 100;
-    if (pcent < 0) pcent = 0;
-    if (pcent == 0 && wt > 0) pcent = 1;
-
-    RETURN(pcent);
-}
-
-Document
-MSet::Internal::get_doc_by_index(Xapian::doccount index) const
-{
-    LOGCALL(MATCH, Document, "Xapian::MSet::Internal::get_doc_by_index", index);
-    index += firstitem;
-    map<Xapian::doccount, Document>::const_iterator doc;
-    doc = indexeddocs.find(index);
-    if (doc != indexeddocs.end()) {
-	RETURN(doc->second);
-    }
-    if (index < firstitem || index >= firstitem + items.size()) {
-	throw RangeError("The mset returned from the match does not contain the document at index " + str(index));
-    }
-    Assert(enquire.get());
-    if (!requested_docs.empty()) {
-	// There's already a pending request, so handle that.
-	read_docs();
-	// Maybe we just fetched the doc we want.
-	doc = indexeddocs.find(index);
-	if (doc != indexeddocs.end()) {
-	    RETURN(doc->second);
-	}
-    }
-
-    RETURN(enquire->get_document(items[index - firstitem]));
-}
-
-void
-MSet::Internal::fetch_items(Xapian::doccount first, Xapian::doccount last) const
-{
-    LOGCALL_VOID(MATCH, "Xapian::MSet::Internal::fetch_items", first | last);
-    if (enquire.get() == 0) {
-	throw InvalidOperationError("Can't fetch documents from an MSet which is not derived from a query.");
-    }
-    if (items.empty()) return;
-    if (last > items.size() - 1)
-	last = items.size() - 1;
-    for (Xapian::doccount i = first; i <= last; ++i) {
-	map<Xapian::doccount, Document>::const_iterator doc;
-	doc = indexeddocs.find(i);
-	if (doc == indexeddocs.end()) {
-	    /* We don't have the document cached */
-	    set<Xapian::doccount>::const_iterator s;
-	    s = requested_docs.find(i);
-	    if (s == requested_docs.end()) {
-		/* We haven't even requested it yet - do so now. */
-		enquire->request_doc(items[i - firstitem]);
-		requested_docs.insert(i);
-	    }
-	}
-    }
-}
-
-string
-MSet::Internal::get_description() const
-{
-    string description = "Xapian::MSet::Internal(";
-
-    description += "firstitem=" + str(firstitem) + ", " +
-	    "matches_lower_bound=" + str(matches_lower_bound) + ", " +
-	    "matches_estimated=" + str(matches_estimated) + ", " +
-	    "matches_upper_bound=" + str(matches_upper_bound) + ", " +
-	    "max_possible=" + str(max_possible) + ", " +
-	    "max_attained=" + str(max_attained);
-
-    for (auto&& item : items) {
-	if (!description.empty()) description += ", ";
-	description += item.get_description();
-    }
-
-    description += ")";
-
-    return description;
-}
-
-void
-MSet::Internal::read_docs() const
-{
-    set<Xapian::doccount>::const_iterator i;
-    for (i = requested_docs.begin(); i != requested_docs.end(); ++i) {
-	indexeddocs[*i] = enquire->read_doc(items[*i - firstitem]);
-	LOGLINE(MATCH, "stored doc at index " << *i << " is " << indexeddocs[*i]);
-    }
-    /* Clear list of requested but not fetched documents. */
-    requested_docs.clear();
-}
-
-void
-MSet::Internal::set_item_weight(Xapian::doccount i, double wt_)
-{
-    // max_attained is updated assuming that set_item_weight is called on every
-    // MSet item from 0 up. While assigning new weights max_attained is updated
-    // as the maximum of the new weights set till Xapian::doccount i.
-    if (i == 0)
-	max_attained = wt_;
-    else
-	max_attained = max(max_attained, wt_);
-    // Ideally the max_possible should be the maximum possible weight that
-    // can be assigned by the reranking algorithm, but since it is not always
-    // possible to calculate the max possible weight for a reranking algorithm
-    // we use this approach.
-    max_possible = max(max_possible, max_attained);
-    items[i].set_weight(wt_);
-}
-
-void
-MSet::Internal::sort_by_relevance()
-{
-    std::sort(items.begin(), items.end(),
-	      get_msetcmp_function(Enquire::Internal::REL, true, false));
-}
 
 // Methods for Xapian::Enquire::Internal
 
@@ -437,7 +131,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     match.get_mset(first, maxitems, check_at_least, retval,
 		   *(stats.get()), mdecider, sorter.get());
     if (first_orig != first && retval.internal.get()) {
-	retval.internal->firstitem = first_orig;
+	retval.internal->set_first(first_orig);
     }
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
@@ -446,10 +140,10 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // retrieve the documents.  This is set here explicitly to avoid having
     // to pass it into the matcher, which gets messy particularly in the
     // networked case.
-    retval.internal->enquire = this;
+    retval.internal->set_enquire(this);
 
-    if (!retval.internal->stats) {
-	retval.internal->stats = stats.release();
+    if (!retval.internal->get_stats()) {
+	retval.internal->set_stats(stats.release());
     }
 
     RETURN(retval);
@@ -583,36 +277,23 @@ Enquire::Internal::get_description() const
 // Private methods for Xapian::Enquire::Internal
 
 void
-Enquire::Internal::request_doc(const Result& item) const
+Enquire::Internal::request_doc(Xapian::docid did) const
 {
     unsigned int multiplier = db.internal.size();
 
-    Xapian::docid realdid = (item.get_docid() - 1) / multiplier + 1;
-    Xapian::doccount dbnumber = (item.get_docid() - 1) % multiplier;
+    Xapian::docid realdid = (did - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (did - 1) % multiplier;
 
     db.internal[dbnumber]->request_document(realdid);
 }
 
 Document
-Enquire::Internal::read_doc(const Result& item) const
+Enquire::Internal::get_document(Xapian::docid did) const
 {
     unsigned int multiplier = db.internal.size();
 
-    Xapian::docid realdid = (item.get_docid() - 1) / multiplier + 1;
-    Xapian::doccount dbnumber = (item.get_docid() - 1) % multiplier;
-
-    Xapian::Document::Internal *doc;
-    doc = db.internal[dbnumber]->collect_document(realdid);
-    return Document(doc);
-}
-
-Document
-Enquire::Internal::get_document(const Result& item) const
-{
-    unsigned int multiplier = db.internal.size();
-
-    Xapian::docid realdid = (item.get_docid() - 1) / multiplier + 1;
-    Xapian::doccount dbnumber = (item.get_docid() - 1) % multiplier;
+    Xapian::docid realdid = (did - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (did - 1) % multiplier;
 
     // We know the doc exists, so open lazily.
     return Document(db.internal[dbnumber]->open_document(realdid, true));

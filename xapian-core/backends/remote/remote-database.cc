@@ -26,6 +26,7 @@
 #include "safeerrno.h"
 #include <signal.h>
 
+#include "api/msetinternal.h"
 #include "api/smallvector.h"
 #include "backends/inmemory/inmemory_positionlist.h"
 #include "net_postlist.h"
@@ -724,7 +725,7 @@ RemoteDatabase::get_mset(Xapian::MSet &mset,
 	p += len;
 	i->merge_results(spyresults);
     }
-    mset = unserialise_mset(p, p_end);
+    mset.internal->unserialise(p, p_end);
 }
 
 void

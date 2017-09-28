@@ -28,7 +28,6 @@
 
 namespace Xapian {
     class Document;
-    class MSet;
     class RSet;
 }
 
@@ -47,23 +46,6 @@ std::string serialise_stats(const Xapian::Weight::Internal &stats);
  *  @param stats	The stats object to unserialise to.
  */
 void unserialise_stats(const std::string &s, Xapian::Weight::Internal &stats);
-
-/** Serialise a Xapian::MSet object.
- *
- *  @param mset		The object to serialise.
- *
- *  @return		The serialisation of the Xapian::MSet object.
- */
-std::string serialise_mset(const Xapian::MSet &mset);
-
-/** Unserialise a serialised Xapian::MSet object.
- *
- *  @param p	 Pointer to the start of the string to unserialise.
- *  @param p_end Pointer to the end of the string to unserialise.
- *
- *  @return	The unserialised Xapian::MSet object.
- */
-Xapian::MSet unserialise_mset(const char * p, const char * p_end);
 
 /** Serialise a Xapian::RSet object.
  *
