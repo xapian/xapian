@@ -211,6 +211,14 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
+1.3.0      1.5.0  ``Xapian::timeout`` typedef         Use ``unsigned`` instead, which should also work with older Xapian
+                                                      releases.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.0      1.5.0  ``Xapian::percent`` typedef         Use ``int`` instead, which should also work with older Xapian releases.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.0      1.5.0  ``Xapian::weight`` typedef          Use ``double`` instead, which should also work with older Xapian
+                                                      releases.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.1      1.5.0  ``Xapian::ErrorHandler``            We feel the current ErrorHandler API doesn't work at the right level (it
                                                       only works in Enquire, whereas you should be able to handle errors at
                                                       the Database level too) and we can't find any evidence that people are
@@ -447,12 +455,6 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method instead.
         ``Enquire::get_mset()``
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.0   ``Xapian::timeout`` typedef         Use ``unsigned`` instead, which should also work with older Xapian releases.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.0   ``Xapian::percent`` typedef         Use ``int`` instead, which should also work with older Xapian releases.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.0   ``Xapian::weight`` typedef          Use ``double`` instead, which should also work with older Xapian releases.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``Xapian::Query::unserialise()``    To be compatible with older and newer Xapian, you can catch both exceptions.
 	throws
