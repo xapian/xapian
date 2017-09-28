@@ -28,6 +28,7 @@
 #endif
 
 #include <xapian/attributes.h>
+#include <xapian/deprecated.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/query.h>
 #include <xapian/termiterator.h>
