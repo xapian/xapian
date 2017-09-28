@@ -25,7 +25,6 @@
 # error "Never use <xapian/types.h> directly; include <xapian.h> instead."
 #endif
 
-#include <xapian/deprecated.h>
 #include <xapian/version.h>
 
 namespace Xapian {
@@ -58,13 +57,6 @@ typedef unsigned XAPIAN_DOCID_BASE_TYPE docid;
  */
 typedef double doclength;
 
-/** The percentage score for a document in an MSet.
- *
- *  @deprecated This type is deprecated as of Xapian 1.3.0 - use the standard
- *  type int instead, which should work with older Xapian too.
- */
-XAPIAN_DEPRECATED(typedef int percent);
-
 /** A counts of terms.
  *
  *  This is used to hold values such as the Within Document Frequency (wdf).
@@ -89,16 +81,6 @@ typedef unsigned termpos;
  */
 typedef int termpos_diff; /* FIXME: can overflow. */
 
-/** A timeout value in milliseconds.
- *
- *  There are 1000 milliseconds in a second, so for example, to set a
- *  timeout of 5 seconds use 5000.
- *
- *  @deprecated This type is deprecated as of Xapian 1.3.0 - use unsigned
- *  instead, which should work with older Xapian too.
- */
-XAPIAN_DEPRECATED(typedef unsigned timeout);
-
 /** The number for a value slot in a document.
  *
  *  Value slot numbers are unsigned and (currently) a 32-bit quantity, with
@@ -113,13 +95,6 @@ typedef unsigned valueno;
  *  for "difference_type".
  */
 typedef int valueno_diff; /* FIXME: can overflow. */
-
-/** The weight of a document or term.
- *
- *  @deprecated This type is deprecated as of Xapian 1.3.0 - use the standard
- *  C++ type double instead, which should work with older Xapian too.
- */
-XAPIAN_DEPRECATED(typedef double weight);
 
 /** Reserved value to indicate "no valueno". */
 const valueno BAD_VALUENO = 0xffffffff;
