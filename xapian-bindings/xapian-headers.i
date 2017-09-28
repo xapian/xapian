@@ -284,7 +284,7 @@ STANDARD_IGNORES(Xapian, MSet)
 	return (*self)[i];
     }
 
-    Xapian::percent get_document_percentage(Xapian::doccount i) const {
+    int get_document_percentage(Xapian::doccount i) const {
 	return self->convert_to_percent((*self)[i]);
     }
 }
