@@ -874,7 +874,7 @@ DEFINE_TESTCASE(msetfirst2, backend) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("paragraph"));
     Xapian::MSet mset;
-    // Before the fix, this tried to allocated too much memory.
+    // Before the fix, this tried to allocate too much memory.
     mset = enquire.get_mset(0xfffffff0, 1);
     TEST_EQUAL(mset.get_firstitem(), 0xfffffff0);
     // Check that the number of documents gets clamped too.
