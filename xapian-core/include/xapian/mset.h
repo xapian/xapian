@@ -204,7 +204,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Prefetch hint a range of items.
      *
-     *  For a remote database, this may start a pipelined fetched of the
+     *  For a remote database, this may start a pipelined fetch of the
      *  requested documents from the remote server.
      *
      *  For a disk-based database, this may send prefetch hints to the
@@ -216,7 +216,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Prefetch hint a single MSet item.
      *
-     *  For a remote database, this may start a pipelined fetched of the
+     *  For a remote database, this may start a pipelined fetch of the
      *  requested documents from the remote server.
      *
      *  For a disk-based database, this may send prefetch hints to the
@@ -228,7 +228,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Prefetch hint the whole MSet.
      *
-     *  For a remote database, this may start a pipelined fetched of the
+     *  For a remote database, this may start a pipelined fetch of the
      *  requested documents from the remote server.
      *
      *  For a disk-based database, this may send prefetch hints to the
