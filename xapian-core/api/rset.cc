@@ -38,7 +38,7 @@ RSet::operator=(const RSet& o)
     return *this;
 }
 
-RSet::RSet() : internal(0) {}
+RSet::RSet() {}
 
 RSet::RSet(Internal* internal_) : internal(internal_) {}
 
