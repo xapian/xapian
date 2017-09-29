@@ -771,9 +771,9 @@ API:
 
 * Fix handling of a self-initialised PIMPL object (e.g. Xapian::Query q(q);).
   Previously the uninitialised pointer was copied to itself, resulting in
-  undefined behaviour when the object was used to destroyed.  This isn't
-  something you'd see in normal code, but it's a cheap check which can probably
-  be optimised away by the compiler (GCC 6 does).
+  undefined behaviour when the object was used.  This isn't something you'd see
+  in normal code, but it's a cheap check which can probably be optimised away
+  by the compiler (GCC 6 does).
 
 testsuite:
 
