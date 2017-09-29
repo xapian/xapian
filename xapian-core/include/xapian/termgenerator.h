@@ -50,7 +50,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// @private @internal Class representing the TermGenerator internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
+    Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
 
     /// Copy constructor.
     TermGenerator(const TermGenerator & o);

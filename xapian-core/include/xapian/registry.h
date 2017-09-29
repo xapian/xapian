@@ -51,7 +51,7 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
 
   private:
     /// @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
+    Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
 
   public:
     /** Copy constructor.

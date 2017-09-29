@@ -26,6 +26,8 @@
 #include "api/msetinternal.h"
 #include "api/postlist.h"
 
+using Xapian::Internal::intrusive_ptr_nonnull;
+
 /** PostList returning entries from an MSet.
  *
  *  This class is used with the remote backend.  We perform a match on the
@@ -43,7 +45,7 @@ class MSetPostList : public PostList {
     int cursor;
 
     /// The MSet::Internal object which we're returning entries from.
-    Xapian::Internal::intrusive_ptr<Xapian::MSet::Internal> mset_internal;
+    intrusive_ptr_nonnull<Xapian::MSet::Internal> mset_internal;
 
     /** Is the sort order such the relevance decreases down the MSet?
      *
