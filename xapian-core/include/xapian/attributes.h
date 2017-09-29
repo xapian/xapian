@@ -1,7 +1,7 @@
 /** @file attributes.h
  * @brief Compiler attribute macros
  */
-// Copyright (C) 2012,2013,2014,2015 Olly Betts
+// Copyright (C) 2012,2013,2014,2015,2017 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -45,8 +45,10 @@
 // __attribute__((__pure__)) is available from GCC 2.96 onwards.
 # define XAPIAN_PURE_FUNCTION __attribute__((__pure__))
 // __attribute__((__nothrow__)) is available from GCC 3.3 onwards.
+// __attribute__((__nonnull__(a,b,c))) is also available from GCC 3.3 onwards.
 # if __GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
 #  define XAPIAN_NOTHROW(D) D XAPIAN_NOEXCEPT __attribute__((__nothrow__))
+#  define XAPIAN_NONNULL(LIST) __attribute__((__nonnull__ LIST))
 # endif
 #else
 /** A function which does not examine any values except its arguments and has
@@ -71,6 +73,17 @@
 #ifndef XAPIAN_NOTHROW
 /** A function or method which will never throw an exception. */
 # define XAPIAN_NOTHROW(D) D XAPIAN_NOEXCEPT
+#endif
+
+#ifndef XAPIAN_NONNULL
+/** Annotate function parameters which should be non-NULL pointers.
+ *
+ *  Use like so:
+ *
+ *  int foo(char* p) XAPIAN_NONNULL((1));
+ *  int bar(char* p, const char *q) XAPIAN_NONNULL((1,2));
+ */
+# define XAPIAN_NONNULL(LIST)
 #endif
 
 #endif // XAPIAN_INCLUDED_ATTRIBUTES_H
