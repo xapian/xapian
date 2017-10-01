@@ -1,6 +1,6 @@
-up to: f9325f59b81ed4dce20c3c935ebb6e6e32ee61d5
+up to: b70653aa3ef0acaa7c83e3f3d804c7d273aa99a2
 
-Xapian-core 1.4.5 (2017-09-27):
+Xapian-core 1.4.5 (2017-10-01):
 
 API:
 
@@ -94,7 +94,12 @@ documentation:
 
 * HACKING: Update link to C++ FAQ.
 
-* deprecation.html: Improve descriptions of several deprecated features.
+* deprecation.html:
+
+  + Move deprecated typedefs to the "to be removed" list - they'd been
+    accidentally added to the "removed" list.
+
+  + Improve descriptions of several deprecated features.
 
 * QueryParser::set_max_expansion() is now discussed in the API documentation
   instead of the deprecated set_max_wildcard_expansion().

@@ -1,6 +1,6 @@
-up to: 7a1553f92304683309db944bbb794d8f2bdc3f78
+up to: 0bb6171c66709dd23ec0b8c897937aa789d530e9
 
-Xapian-bindings 1.4.5 (2017-09-25):
+Xapian-bindings 1.4.5 (2017-10-01):
 
 Documentation:
 
@@ -11,6 +11,11 @@ General:
 * Use a pattern match to ignore methods meant for internal use only rather
   than having to list them all - they're consistently named to end with an
   underscore.
+
+* Stop using deprecated Xapian::percent typedef in bindings-specific code.
+  Deprecation warnings are suppressed when building the bindings (because the
+  bindings usually still need to wrap deprecated C++ features) so this probably
+  has no user-visible consequences.
 
 Packaging:
 
