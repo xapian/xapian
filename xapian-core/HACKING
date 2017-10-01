@@ -1169,21 +1169,12 @@ like so:
 
     class Foo {
       public:
-        // This fails to compile with GCC 3.3.5, so don't do this!
+        // This failed to compile with GCC 3.3.5.
         XAPIAN_DEPRECATED(int old_inline_method()) { return 42; }
     };
 
-Xapian 1.3.x and later require at least GCC 4.7, so you can just use the
-approach above.  Xapian 1.2.x aims to support GCC 3.1 and later, so in the
-unlikely event of needing to adjust deprecation markers in 1.2.x, you need to
-rewrite the above like so:
-
-    class Foo {
-      public:
-        XAPIAN_DEPRECATED(int old_inline_method());
-    };
-
-    inline int Foo::old_inline_method() { return 42; }
+Xapian 1.3.x and later require at least GCC 4.7, so you can now just use the
+approach above.
 
 Submitting Patches:
 ===================
