@@ -191,7 +191,7 @@ private:
 
 public:
 
-    intrusive_ptr_nonnull( T * p) XAPIAN_NONNULL((1)) : px( p )
+    intrusive_ptr_nonnull( T * p) XAPIAN_NONNULL() : px( p )
     {
         ++px->_refs;
     }
@@ -219,7 +219,7 @@ public:
         return *this;
     }
 
-    intrusive_ptr_nonnull & operator=(T * rhs) XAPIAN_NONNULL((1))
+    intrusive_ptr_nonnull & operator=(T * rhs) XAPIAN_NONNULL()
     {
         this_type(rhs).swap(*this);
         return *this;
