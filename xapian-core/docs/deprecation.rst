@@ -233,6 +233,10 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 1.3.2      1.5.0  ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_CHERT`` flag (new in
                                                       1.3.2) instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.2      1.5.0  ``Xapian::Enquire::get_eset()``     Use ``Xapian::Enquire::set_expansion_scheme()`` to specify the algorithm
+                  overloaded form taking ``k``        which ``get_eset()`` should use, along with any parameters (added in
+                  parameter.                          1.3.2).
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.3      1.5.0  |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.4      1.5.0  ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The
