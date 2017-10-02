@@ -554,40 +554,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	    return get_eset(maxitems, omrset, 0, edecider);
 	}
 
-	/** Get the expand set for the given rset.
-	 *
-	 *  @param maxitems  the maximum number of items to return.
-	 *  @param rset      the relevance set to use when performing
-	 *		     the expand operation.
-	 *  @param flags     zero or more of these values |-ed together:
-	 *		      - Xapian::Enquire::INCLUDE_QUERY_TERMS query
-	 *			terms may be returned from expand
-	 *		      - Xapian::Enquire::USE_EXACT_TERMFREQ for multi
-	 *			dbs, calculate the exact termfreq; otherwise an
-	 *			approximation is used which can greatly improve
-	 *			efficiency, but still returns good results.
-	 *  @param k	     the parameter k in the query expansion algorithm
-	 *		     (default is 1.0)
-	 *  @param edecider  a decision functor to use to decide whether a
-	 *		     given term should be put in the ESet
-	 *
-	 *  @param min_wt    the minimum weight for included terms
-	 *
-	 *  @return	     An ESet object containing the results of the
-	 *		     expand.
-	 *
-	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 */
-	XAPIAN_DEPRECATED(ESet get_eset(Xapian::termcount maxitems,
-			  const RSet & rset,
-			  int flags,
-			  double k,
-			  const Xapian::ExpandDecider * edecider = NULL,
-			  double min_wt = 0.0) const) {
-	    set_expansion_scheme("trad", k);
-	    return get_eset(maxitems, rset, flags, edecider, min_wt);
-	}
-
 	/** Get terms which match a given document, by document id.
 	 *
 	 *  This method returns the terms in the current query which match

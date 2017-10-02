@@ -306,7 +306,8 @@ DEFINE_TESTCASE(expandweights1, backend) {
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
 
     // Test non-default k too.
-    eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ, 2.0);
+    enquire.set_expansion_scheme("trad", 2.0);
+    eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
     TEST_EQUAL(eset.size(), 3);
     TEST_REL(eset.get_ebound(), >=, eset.size());
     TEST_EQUAL_DOUBLE(eset[0].get_weight(), 5.88109547674955);
@@ -475,7 +476,8 @@ DEFINE_TESTCASE(expandweights8, backend) {
     myrset.add_document(*(++i));
 
     // Set expand_k to 1.0 and min_wt to 0
-    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 1.0, 0, 0);
+    enquire.set_expansion_scheme("trad", 1.0);
+    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 0);
     if (!startswith(get_dbtype(), "multi")) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.

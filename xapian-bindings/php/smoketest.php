@@ -226,7 +226,7 @@ class testexpanddecider extends XapianExpandDecider {
 $enquire = new XapianEnquire($db);
 $rset = new XapianRSet();
 $rset->add_document(1);
-$eset = $enquire->get_eset(10, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, new testexpanddecider());
+$eset = $enquire->get_eset(10, $rset, XapianEnquire::USE_EXACT_TERMFREQ, new testexpanddecider());
 foreach ($eset->begin() as $t) {
     if ($t[0] === 'a') {
 	print "XapianExpandDecider was not used\n";
@@ -244,7 +244,7 @@ if ($min_wt >= 1.9) {
     print "ESet min weight too high for testcase\n";
     exit(1);
 }
-$eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, NULL, 1.9);
+$eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ, NULL, 1.9);
 $min_wt = 0;
 foreach ($eset->begin() as $i => $dummy) {
     $min_wt = $i->get_weight();
