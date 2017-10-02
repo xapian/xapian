@@ -219,6 +219,10 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                                                       out, probably during the 1.4.x release series.  There's some further
                                                       thoughts at https://trac.xapian.org/ticket/3#comment:8
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.2      1.5.0  ``Xapian::Enquire::get_eset()``     Use ``Xapian::Enquire::set_expansion_scheme()`` to specify the algorithm
+                  overloaded form taking ``k``        which ``get_eset()`` should use, along with any parameters (added in
+                  parameter.                          1.3.2).
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.6      1.5.0  Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
                                                       ``Xapian::Query`` from ``operator()()`` (added in 1.3.6).
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
