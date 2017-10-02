@@ -219,7 +219,7 @@ public:
         return *this;
     }
 
-    intrusive_ptr_nonnull & operator=(T * rhs)
+    intrusive_ptr_nonnull & operator=(T * rhs) XAPIAN_NONNULL((1))
     {
         this_type(rhs).swap(*this);
         return *this;
