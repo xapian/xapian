@@ -28,6 +28,7 @@
 #include "matcher/msetcmp.h"
 #include "roundestimate.h"
 #include "serialise-double.h"
+#include "str.h"
 #include "unicode/description_append.h"
 
 #include <cfloat>
