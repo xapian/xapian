@@ -184,9 +184,6 @@ CONSTANT(int, Xapian, DOC_ASSUME_VALID);
  * them. */
 /* %include <xapian/error.h> */
 
-/* ErrorHandler isn't currently wrapped. */
-/* %include <xapian/errorhandler.h> */
-
 INPUT_ITERATOR_METHODS(Xapian, PositionIterator, Xapian::termpos, get_termpos)
 %include <xapian/positioniterator.h>
 
@@ -327,10 +324,6 @@ STANDARD_IGNORES(Xapian, Enquire)
     }
 }
 #endif
-
-/* We don't wrap ErrorHandler, so ignore the optional ErrorHandler parameter.
- */
-%ignore Enquire(const Database &, ErrorHandler *);
 
 %include <xapian/enquire.h>
 

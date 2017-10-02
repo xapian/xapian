@@ -319,12 +319,6 @@ Enquire::Enquire(const Database &databases)
     LOGCALL_CTOR(API, "Enquire", databases);
 }
 
-Enquire::Enquire(const Database &databases, ErrorHandler *)
-    : internal(new Internal(databases))
-{
-    LOGCALL_CTOR(API, "Enquire", databases | Literal("errorhandler"));
-}
-
 Enquire::~Enquire()
 {
     LOGCALL_DTOR(API, "Enquire");

@@ -719,7 +719,7 @@ docs.
 =item Unwrapped classes
 
 The following Xapian classes are not yet wrapped:
-ErrorHandler, user-defined Weight subclasses.
+user-defined Weight subclasses.
 
 =back
 

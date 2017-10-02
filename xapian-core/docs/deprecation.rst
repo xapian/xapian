@@ -211,14 +211,6 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.3.1      1.5.0  ``Xapian::ErrorHandler``            We feel the current ErrorHandler API doesn't work at the right level (it
-                                                      only works in Enquire, whereas you should be able to handle errors at
-                                                      the Database level too) and we can't find any evidence that people are
-                                                      actually using it.  So we've made the API a no-op and marked it as
-                                                      deprecated.  The hope is to replace it with something better thought
-                                                      out, probably during the 1.4.x release series.  There's some further
-                                                      thoughts at https://trac.xapian.org/ticket/3#comment:8
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.6      1.5.0  Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
                                                       ``Xapian::Query`` from ``operator()()`` (added in 1.3.6).
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
@@ -508,6 +500,10 @@ Removed Feature name                        Upgrade suggestion and comments
 1.5.0   ``Xapian::Enquire::get_eset()``     Use ``Xapian::Enquire::set_expansion_scheme()`` to specify the algorithm which
         overloaded form taking ``k``        ``get_eset()`` should use, along with any parameters (added in 1.3.2).
         parameter.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::ErrorHandler``            This API was a no-op in 1.4.x, so you can just remove any lingering uses.  Longer
+                                            term we hope to replace it with a better thought out version.  You can find more
+                                            information at https://trac.xapian.org/ticket/3#comment:8
 ======= =================================== ==================================================================================
 
 

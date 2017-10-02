@@ -54,7 +54,6 @@
 
 // Exceptions
 #include <xapian/error.h>
-#include <xapian/errorhandler.h>
 
 // Access to databases, documents, etc.
 #include <xapian/database.h>

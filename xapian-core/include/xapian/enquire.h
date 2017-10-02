@@ -46,7 +46,6 @@ namespace Xapian {
 
 class Database;
 class Document;
-class ErrorHandler;
 class ExpandDecider;
 class KeyMaker;
 class MatchDecider;
@@ -96,28 +95,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  empty Database object is supplied.
 	 */
 	explicit Enquire(const Database &database);
-
-	/** Create a Xapian::Enquire object.
-	 *
-	 *  This specification cannot be changed once the Xapian::Enquire is
-	 *  opened: you must create a new Xapian::Enquire object to access a
-	 *  different database, or set of databases.
-	 *
-	 *  The database supplied must have been initialised (ie, must not be
-	 *  the result of calling the Database::Database() constructor).  If
-	 *  you need to handle a situation where you have no databases
-	 *  gracefully, a database created with DB_BACKEND_INMEMORY can be
-	 *  passed here to provide a completely empty database.
-	 *
-	 *  @param database Specification of the database or databases to
-	 *	   use.
-	 *  @param errorhandler_  This parameter is deprecated (since Xapian
-	 *	   1.3.1), and as of 1.3.5 it's ignored completely.
-	 *
-	 *  @exception Xapian::InvalidArgumentError will be thrown if an
-	 *  empty Database object is supplied.
-	 */
-	XAPIAN_DEPRECATED_EX(Enquire(const Database &database, ErrorHandler * errorhandler_));
 
 	/** Close the Xapian::Enquire object.
 	 */

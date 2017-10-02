@@ -30,7 +30,6 @@ lib_src +=\
 	api/editdistance.cc\
 	api/emptypostlist.cc\
 	api/error.cc\
-	api/errorhandler.cc\
 	api/expanddecider.cc\
 	api/keymaker.cc\
 	api/leafpostlist.cc\
