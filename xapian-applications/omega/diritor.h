@@ -38,8 +38,6 @@
 #include <magic.h>
 #include <zlib.h>
 
-#include "common/noreturn.h"
-
 #include "loadfile.h"
 #include "runfilter.h" // For class ReadError.
 
@@ -120,7 +118,8 @@ class DirectoryIterator {
 	return (entry != NULL);
     }
 
-    XAPIAN_NORETURN(void next_failed() const);
+    [[noreturn]]
+    void next_failed() const;
 
     const char * leafname() const { return entry->d_name; }
 

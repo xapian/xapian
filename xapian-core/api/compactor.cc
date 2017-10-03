@@ -42,7 +42,6 @@
 #include "backends/database.h"
 #include "debuglog.h"
 #include "leafpostlist.h"
-#include "noreturn.h"
 #include "omassert.h"
 #include "filetests.h"
 #include "fileutils.h"
@@ -96,11 +95,7 @@ Compactor::resolve_duplicate_metadata(const string & key,
 
 }
 
-XAPIAN_NORETURN(
-    static void
-    backend_mismatch(const Xapian::Database & db, int backend1,
-		     const string &dbpath2, int backend2)
-);
+[[noreturn]]
 static void
 backend_mismatch(const Xapian::Database & db, int backend1,
 		 const string &dbpath2, int backend2)

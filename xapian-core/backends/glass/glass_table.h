@@ -32,7 +32,6 @@
 #include "glass_defs.h"
 
 #include "io_utils.h"
-#include "noreturn.h"
 #include "omassert.h"
 #include "str.h"
 #include "stringutils.h"
@@ -721,7 +720,8 @@ class GlassTable {
 	}
 
 	/// Throw an exception indicating that the database is closed.
-	XAPIAN_NORETURN(static void throw_database_closed());
+	[[noreturn]]
+	static void throw_database_closed();
 
 	string get_path() const {
 	    return name + GLASS_TABLE_EXTENSION;
@@ -733,7 +733,8 @@ class GlassTable {
 	int delete_kt();
 	void read_block(uint4 n, byte *p) const;
 	void write_block(uint4 n, const byte *p, bool appending = false) const;
-	XAPIAN_NORETURN(void set_overwritten() const);
+	[[noreturn]]
+	void set_overwritten() const;
 	void block_to_cursor(Glass::Cursor *C_, int j, uint4 n) const;
 	void alter();
 	void compact(byte *p);

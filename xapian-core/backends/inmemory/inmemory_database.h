@@ -38,7 +38,6 @@
 #include "inmemory_positionlist.h"
 #include "internaltypes.h"
 #include "omassert.h"
-#include "noreturn.h"
 
 using namespace std;
 
@@ -353,7 +352,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 				      const string & tname) const;
     TermList * open_allterms(const string & prefix) const;
 
-    XAPIAN_NORETURN(static void throw_database_closed());
+    [[noreturn]]
+    static void throw_database_closed();
 
     int get_backend_info(string * path) const {
 	if (path) *path = string();

@@ -22,14 +22,11 @@
 
 #include "length.h"
 
-#include "noreturn.h"
-
-XAPIAN_NORETURN(static void throw_network_error(const char * msg));
-
 #ifndef XAPIAN_UNITTEST
 
 #include "xapian/error.h"
 
+[[noreturn]]
 static void
 throw_network_error(const char * msg)
 {
@@ -47,6 +44,7 @@ class Xapian_NetworkError {
     const char * get_description() const { return msg; }
 };
 
+[[noreturn]]
 static void
 throw_network_error(const char * msg)
 {

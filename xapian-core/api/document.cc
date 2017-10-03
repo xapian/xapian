@@ -26,14 +26,13 @@
 
 #include "backends/documentinternal.h"
 #include "net/serialise.h"
-#include "noreturn.h"
 #include "str.h"
 
 #include "xapian/error.h"
 
 using namespace std;
 
-XAPIAN_NORETURN(static void throw_invalid_arg_empty_term());
+[[noreturn]]
 static void
 throw_invalid_arg_empty_term()
 {

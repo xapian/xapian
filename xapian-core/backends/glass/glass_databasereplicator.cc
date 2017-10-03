@@ -35,7 +35,6 @@
 #include "fd.h"
 #include "internaltypes.h"
 #include "io_utils.h"
-#include "noreturn.h"
 #include "pack.h"
 #include "posixy_wrapper.h"
 #include "net/remoteconnection.h"
@@ -46,7 +45,7 @@
 
 #include <algorithm>
 
-XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
+[[noreturn]]
 static void
 throw_connection_closed_unexpectedly()
 {

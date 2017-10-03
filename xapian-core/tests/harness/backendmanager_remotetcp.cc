@@ -48,7 +48,6 @@
 # include <cstdlib> // For free().
 #endif
 
-#include "noreturn.h"
 #include "str.h"
 
 #include <string>
@@ -228,7 +227,7 @@ try_next_port:
 
 #elif defined __WIN32__
 
-XAPIAN_NORETURN(static void win32_throw_error_string(const char * str));
+[[noreturn]]
 static void win32_throw_error_string(const char * str)
 {
     string msg(str);

@@ -22,7 +22,6 @@
 #define XAPIAN_INCLUDED_SERIALISE_ERROR_H
 
 #include <string>
-#include "noreturn.h"
 
 // Forward class declarations:
 
@@ -50,9 +49,9 @@ std::string serialise_error(const Xapian::Error &e);
  *				context will be noted in the Error's @a msg
  *				field.
  */
-XAPIAN_NORETURN(
+[[noreturn]]
 void unserialise_error(const std::string &error_string,
 		       const std::string &prefix,
-		       const std::string &new_context));
+		       const std::string &new_context);
 
 #endif

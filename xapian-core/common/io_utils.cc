@@ -32,7 +32,6 @@
 
 #include <xapian/error.h>
 
-#include "noreturn.h"
 #include "omassert.h"
 #include "str.h"
 
@@ -154,10 +153,9 @@ io_write(int fd, const char * p, size_t n)
     }
 }
 
-XAPIAN_NORETURN(
-	static void throw_block_error(const char * s, off_t b, int e = 0));
+[[noreturn]]
 static void
-throw_block_error(const char * s, off_t b, int e)
+throw_block_error(const char * s, off_t b, int e = 0)
 {
     std::string m = s;
     m += str(b);

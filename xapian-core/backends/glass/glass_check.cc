@@ -136,9 +136,9 @@ void GlassTableCheck::report_block(int m, int n, const byte * p) const
     *out << endl;
 }
 
-XAPIAN_NORETURN(static void failure(const char *msg, uint4 n, int c = 0));
+[[noreturn]]
 static void
-failure(const char *msg, uint4 n, int c)
+failure(const char *msg, uint4 n, int c = 0)
 {
     string e = "Block ";
     e += str(n);

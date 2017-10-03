@@ -151,7 +151,6 @@ noinst_HEADERS +=\
 	common/gnu_getopt.h\
 	common/keyword.h\
 	common/msvc_dirent.h\
-	common/noreturn.h\
 	common/omassert.h\
 	common/realtime.h\
 	common/safedirent.h\

@@ -38,7 +38,6 @@
 #include "omassert.h"
 #include "realtime.h"
 #include "net/remoteconnection.h"
-#include "noreturn.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
 #include "safesysstat.h"
@@ -60,7 +59,7 @@ using namespace Xapian;
 "# Do not manually edit - replication operations may regenerate this file.\n"
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
+[[noreturn]]
 static void
 throw_connection_closed_unexpectedly()
 {

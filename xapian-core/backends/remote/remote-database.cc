@@ -31,7 +31,6 @@
 #include "backends/inmemory/inmemory_positionlist.h"
 #include "net_postlist.h"
 #include "net_termlist.h"
-#include "noreturn.h"
 #include "remote-document.h"
 #include "omassert.h"
 #include "realtime.h"
@@ -54,14 +53,14 @@
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
-XAPIAN_NORETURN(static void throw_bad_message(const string & context));
+[[noreturn]]
 static void
 throw_bad_message(const string & context)
 {
     throw Xapian::NetworkError("Bad message received", context);
 }
 
-XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
+[[noreturn]]
 static void
 throw_connection_closed_unexpectedly()
 {

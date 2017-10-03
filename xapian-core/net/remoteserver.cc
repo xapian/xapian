@@ -38,7 +38,6 @@
 #include "api/msetinternal.h"
 #include "length.h"
 #include "matcher/multimatch.h"
-#include "noreturn.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "serialise.h"
@@ -48,7 +47,7 @@
 #include "stringutils.h"
 #include "weight/weightinternal.h"
 
-XAPIAN_NORETURN(static void throw_read_only());
+[[noreturn]]
 static void
 throw_read_only()
 {

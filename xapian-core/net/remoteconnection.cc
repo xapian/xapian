@@ -36,7 +36,6 @@
 #include "debuglog.h"
 #include "fd.h"
 #include "filetests.h"
-#include "noreturn.h"
 #include "omassert.h"
 #include "posixy_wrapper.h"
 #include "realtime.h"
@@ -47,14 +46,14 @@ using namespace std;
 
 #define CHUNKSIZE 4096
 
-XAPIAN_NORETURN(static void throw_database_closed());
+[[noreturn]]
 static void
 throw_database_closed()
 {
     throw Xapian::DatabaseError("Database has been closed");
 }
 
-XAPIAN_NORETURN(static void throw_network_error_insane_message_length());
+[[noreturn]]
 static void
 throw_network_error_insane_message_length()
 {

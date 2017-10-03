@@ -41,8 +41,6 @@
 #include "glass_defs.h"
 #include "backends/valuestats.h"
 
-#include "noreturn.h"
-
 #include "xapian/compactor.h"
 #include "xapian/constants.h"
 
@@ -290,7 +288,8 @@ class GlassDatabase : public Xapian::Database::Internal {
 	void readahead_for_query(const Xapian::Query &query);
 	//@}
 
-	XAPIAN_NORETURN(void throw_termlist_table_close_exception() const);
+	[[noreturn]]
+	void throw_termlist_table_close_exception() const;
 
 	int get_backend_info(string * path) const {
 	    if (path) *path = db_dir;

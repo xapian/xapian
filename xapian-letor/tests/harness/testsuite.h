@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_TESTSUITE_H
 #define OM_HGUARD_TESTSUITE_H
 
-#include "noreturn.h"
-
 #ifndef XAPIAN_UNITTEST
 # include "output.h"
 # define UNITTEST_CHECK_EXCEPTION
@@ -147,7 +145,8 @@ class test_driver {
 	 */
 	static void parse_command_line(int argc, char **argv);
 
-	XAPIAN_NORETURN(static void usage());
+	[[noreturn]]
+	static void usage();
 
 	static int run(const test_desc *tests);
 

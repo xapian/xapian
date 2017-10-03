@@ -42,7 +42,6 @@
 #include "editdistance.h"
 #include "expand/ortermlist.h"
 #include "internaltypes.h"
-#include "noreturn.h"
 #include "pack.h"
 
 #include <algorithm>
@@ -53,19 +52,19 @@
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
-XAPIAN_NORETURN(static void docid_zero_invalid());
+[[noreturn]]
 static void docid_zero_invalid()
 {
     throw Xapian::InvalidArgumentError("Document ID 0 is invalid");
 }
 
-XAPIAN_NORETURN(static void no_subdatabases());
+[[noreturn]]
 static void no_subdatabases()
 {
     throw Xapian::InvalidOperationError("No subdatabases");
 }
 
-XAPIAN_NORETURN(static void empty_metadata_key());
+[[noreturn]]
 static void empty_metadata_key()
 {
     throw Xapian::InvalidArgumentError("Empty metadata keys are invalid");

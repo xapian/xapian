@@ -30,8 +30,6 @@
 # include <sys/types.h>
 #endif
 
-#include "noreturn.h"
-
 class FlintLock {
     std::string filename;
 #if defined __CYGWIN__ || defined __WIN32__
@@ -104,10 +102,10 @@ class FlintLock {
     void release();
 
     /// Throw Xapian::DatabaseLockError.
-    XAPIAN_NORETURN(
+    [[noreturn]]
     void throw_databaselockerror(FlintLock::reason why,
 				 const std::string & db_dir,
-				 const std::string & explanation) const);
+				 const std::string & explanation) const;
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H

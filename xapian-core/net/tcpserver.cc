@@ -31,7 +31,6 @@
 #include "safenetdb.h"
 #include "safesyssocket.h"
 
-#include "noreturn.h"
 #include "remoteconnection.h"
 #include "resolver.h"
 #include "str.h"
@@ -311,8 +310,7 @@ TcpServer::run_once()
 
 extern "C" {
 
-XAPIAN_NORETURN(static void on_SIGTERM(int /*sig*/));
-
+[[noreturn]]
 static void
 on_SIGTERM(int /*sig*/)
 {

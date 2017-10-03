@@ -65,7 +65,6 @@
 # include <xapian/error.h>
 #endif
 #include "filetests.h"
-#include "noreturn.h"
 #include "stringutils.h"
 
 using namespace std;
@@ -179,7 +178,7 @@ static void * sigaddr = NULL;
 extern "C" {
 
 #if defined HAVE_SIGACTION && defined SA_SIGINFO
-XAPIAN_NORETURN(static void handle_sig(int signum_, siginfo_t *si, void *));
+[[noreturn]]
 static void handle_sig(int signum_, siginfo_t *si, void *)
 {
     // Disable all our signal handlers to avoid problems if the signal
@@ -206,7 +205,7 @@ static void handle_sig(int signum_, siginfo_t *si, void *)
 
 #else
 
-XAPIAN_NORETURN(static void handle_sig(int signum_));
+[[noreturn]]
 static void handle_sig(int signum_)
 {
     // Disable all our signal handlers to avoid problems if the signal

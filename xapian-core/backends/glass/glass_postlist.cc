@@ -27,7 +27,6 @@
 #include "glass_cursor.h"
 #include "glass_database.h"
 #include "debuglog.h"
-#include "noreturn.h"
 #include "pack.h"
 #include "str.h"
 #include "unicode/description_append.h"
@@ -138,7 +137,7 @@ using Glass::PostlistChunkWriter;
 // Static functions
 
 /// Report an error when reading the posting list.
-XAPIAN_NORETURN(static void report_read_error(const char * position));
+[[noreturn]]
 static void report_read_error(const char * position)
 {
     if (position == 0) {

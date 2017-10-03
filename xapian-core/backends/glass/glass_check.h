@@ -26,7 +26,6 @@
 #define OM_HGUARD_GLASS_CHECK_H
 
 #include "glass_table.h"
-#include "noreturn.h"
 
 #include <iosfwd>
 #include <string>

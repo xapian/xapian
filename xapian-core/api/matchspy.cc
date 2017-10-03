@@ -34,7 +34,6 @@
 #include <vector>
 
 #include "debuglog.h"
-#include "noreturn.h"
 #include "omassert.h"
 #include "net/length.h"
 #include "stringutils.h"
@@ -85,7 +84,7 @@ MatchSpy::get_description() const {
     return "Xapian::MatchSpy()";
 }
 
-XAPIAN_NORETURN(static void unsupported_method());
+[[noreturn]]
 static void unsupported_method() {
     throw Xapian::InvalidOperationError("Method not supported for this type of termlist");
 }
