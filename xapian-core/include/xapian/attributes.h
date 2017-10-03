@@ -45,9 +45,13 @@
 // __attribute__((__pure__)) is available from GCC 2.96 onwards.
 # define XAPIAN_PURE_FUNCTION __attribute__((__pure__))
 // __attribute__((__nothrow__)) is available from GCC 3.3 onwards.
-// __attribute__((__nonnull__(a,b,c))) is also available from GCC 3.3 onwards.
 # if __GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
 #  define XAPIAN_NOTHROW(D) D XAPIAN_NOEXCEPT __attribute__((__nothrow__))
+# endif
+// __attribute__((__nonnull__(a,b,c))) is also available from GCC 3.3 onwards,
+// but it seems to be buggy in GCC 4.8 so only enable it for versions after
+// that.  Always enable for clang, which currently pretends to be GCC 4.2.
+# if  __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8) || defined __clang__
 #  define XAPIAN_NONNULL(LIST) __attribute__((__nonnull__ LIST))
 # endif
 #else
