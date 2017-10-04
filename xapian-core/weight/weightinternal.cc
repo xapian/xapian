@@ -26,7 +26,6 @@
 #include "xapian/enquire.h"
 
 #include "omassert.h"
-#include "api/omenquireinternal.h"
 #include "api/rsetinternal.h"
 #include "str.h"
 #include "api/termlist.h"
