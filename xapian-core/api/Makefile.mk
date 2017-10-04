@@ -3,9 +3,9 @@ noinst_HEADERS +=\
 	api/documentvaluelist.h\
 	api/editdistance.h\
 	api/emptypostlist.h\
+	api/enquireinternal.h\
 	api/leafpostlist.h\
 	api/result.h\
-	api/omenquireinternal.h\
 	api/postlist.h\
 	api/queryinternal.h\
 	api/queryvector.h\
@@ -29,6 +29,7 @@ lib_src +=\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
 	api/emptypostlist.cc\
+	api/enquire.cc\
 	api/error.cc\
 	api/expanddecider.cc\
 	api/keymaker.cc\
@@ -38,7 +39,6 @@ lib_src +=\
 	api/msetiterator.cc\
 	api/result.cc\
 	api/omdatabase.cc\
-	api/omenquire.cc\
 	api/positioniterator.cc\
 	api/postingiterator.cc\
 	api/postingsource.cc\

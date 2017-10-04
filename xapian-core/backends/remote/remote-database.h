@@ -24,7 +24,7 @@
 
 #include "backends/backends.h"
 #include "backends/database.h"
-#include "api/omenquireinternal.h"
+#include "api/enquireinternal.h"
 #include "api/queryinternal.h"
 #include "net/remoteconnection.h"
 #include "backends/valuestats.h"

@@ -21,8 +21,8 @@
 #ifndef XAPIAN_INCLUDED_MSETINTERNAL_H
 #define XAPIAN_INCLUDED_MSETINTERNAL_H
 
+#include "enquireinternal.h"
 #include "net/serialise.h"
-#include "omenquireinternal.h"
 #include "result.h"
 #include "weight/weightinternal.h"
 

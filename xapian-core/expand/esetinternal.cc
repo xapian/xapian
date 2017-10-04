@@ -27,7 +27,6 @@
 #include "xapian/expanddecider.h"
 #include "backends/database.h"
 #include "debuglog.h"
-#include "api/omenquireinternal.h"
 #include "api/rsetinternal.h"
 #include "expandweight.h"
 #include "omassert.h"

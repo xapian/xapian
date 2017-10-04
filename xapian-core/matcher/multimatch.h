@@ -24,6 +24,7 @@
 #ifndef OM_HGUARD_MULTIMATCH_H
 #define OM_HGUARD_MULTIMATCH_H
 
+#include "api/enquireinternal.h"
 #include "submatch.h"
 
 #include <vector>

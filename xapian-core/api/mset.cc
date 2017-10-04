@@ -223,7 +223,7 @@ MSet::Internal::fetch(Xapian::doccount first_, Xapian::doccount last) const
     if (first_ <= last) {
 	Xapian::doccount n = last - first_;
 	for (Xapian::doccount i = 0; i <= n; ++i) {
-	    enquire->request_doc(items[i].get_docid());
+	    enquire->request_document(items[i].get_docid());
 	}
     }
 }

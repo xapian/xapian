@@ -473,12 +473,11 @@ DEFINE_TESTCASE(poscollapse2, !backend) {
     return true;
 }
 
-// regression test of querying an uninitialised database: should report an
-// error; used to segfault with 1.0.0.
+// Regression test: query on an uninitialised database segfaulted with 1.0.0.
+// As of 1.5.0, this is just handled as an empty database.
 DEFINE_TESTCASE(uninitdb1, !backend) {
     Xapian::Database db;
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   Xapian::Enquire enq(db));
+    Xapian::Enquire enq(db);
     return true;
 }
 

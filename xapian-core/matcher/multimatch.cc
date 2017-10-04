@@ -33,7 +33,7 @@
 #include "submatch.h"
 #include "localsubmatch.h"
 #include "omassert.h"
-#include "api/omenquireinternal.h"
+#include "api/enquireinternal.h"
 #include "api/rsetinternal.h"
 #include "realtime.h"
 

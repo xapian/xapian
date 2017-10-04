@@ -48,11 +48,20 @@
 # if __GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
 #  define XAPIAN_NOTHROW(D) D XAPIAN_NOEXCEPT __attribute__((__nothrow__))
 # endif
-// __attribute__((__nonnull__(a,b,c))) is also available from GCC 3.3 onwards,
-// but it seems to be buggy in GCC 4.8 so only enable it for versions after
-// that.  Always enable for clang, which currently pretends to be GCC 4.2.
-# if  __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8) || defined __clang__
-#  define XAPIAN_NONNULL(LIST) __attribute__((__nonnull__ LIST))
+
+// We don't enable XAPIAN_NONNULL when building the library because that
+// results in warnings when we check the parameter really isn't NULL, and we
+// ought to still do that as (a) not all compilers support such annotations,
+// and (b) even those that do don't actually prevent you from passing NULL.
+# ifndef XAPIAN_LIB_BUILD
+// __attribute__((__nonnull__(a,b,c))) is available from GCC 3.3 onwards, but
+// seems to be buggy in GCC 4.8 so only enable it for versions after that.
+// It's also supported by clang, which we have to check for separately as
+// current versions pretend to be GCC 4.2.
+#  if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8) || \
+      defined __clang__
+#   define XAPIAN_NONNULL(LIST) __attribute__((__nonnull__ LIST))
+#  endif
 # endif
 #else
 /** A function which does not examine any values except its arguments and has

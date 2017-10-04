@@ -2,7 +2,7 @@
 /** @file xapian-head.i
  * @brief Header for SWIG interface file for Xapian.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,6 +78,15 @@ using namespace std;
 #define XAPIAN_PURE_FUNCTION
 #define XAPIAN_NOEXCEPT
 #define XAPIAN_NOTHROW(D) D
+
+// This works around buggy behaviour in SWIG's preprocessor, and only works
+// because we currently only use XAPIAN_NONNULL() with an empty argument:
+//
+// https://github.com/swig/swig/pull/1111
+//
+// The correct version is:
+// #define XAPIAN_NONNULL(L)
+#define XAPIAN_NONNULL()
 
 // Ignore these which SWIG seems to add pointless type entries for due them
 // being used in the SWIG typemap for std::pair.

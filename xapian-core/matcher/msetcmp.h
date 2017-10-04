@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_MSETCMP_H
 #define XAPIAN_INCLUDED_MSETCMP_H
 
-#include "api/omenquireinternal.h"
+#include "api/enquireinternal.h"
 
 class Result;
 

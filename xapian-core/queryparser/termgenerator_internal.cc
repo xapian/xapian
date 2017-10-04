@@ -665,7 +665,7 @@ MSet::Internal::snippet(const string & text,
     unordered_map<string, double> loose_terms;
     list<string> wildcards;
     size_t longest_phrase = 0;
-    check_query(enquire->get_query(), exact_phrases, loose_terms,
+    check_query(enquire->query, exact_phrases, loose_terms,
 		wildcards, longest_phrase);
 
     vector<double> exact_phrases_relevance;
