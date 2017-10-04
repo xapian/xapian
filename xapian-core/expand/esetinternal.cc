@@ -225,7 +225,7 @@ ESet::Internal::get_description() const
     return desc;
 }
 
-ESet::ESet() { }
+ESet::ESet() : internal(new ESet::Internal) {}
 
 ESet::ESet(const ESet & o) : internal(o.internal) { }
 
@@ -241,14 +241,12 @@ ESet::~ESet() { }
 Xapian::doccount
 ESet::size() const
 {
-    if (!internal.get()) return 0;
     return internal->items.size();
 }
 
 Xapian::termcount
 ESet::get_ebound() const
 {
-    if (!internal.get()) return 0;
     return internal->ebound;
 }
 
@@ -256,8 +254,6 @@ std::string
 ESet::get_description() const
 {
     string desc = "ESet(";
-    if (internal.get())
-	desc += internal->get_description();
     desc += ')';
     return desc;
 }
@@ -286,8 +282,7 @@ ESetIterator::get_description() const
     if (off_from_end == 0) {
 	desc += "end";
     } else {
-	// ESet::size() handles eset.internal.get() == NULL for us.
-	desc += str(eset.size() - off_from_end);
+	desc += str(eset.internal->items.size() - off_from_end);
     }
     desc += ')';
     return desc;

@@ -181,7 +181,6 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 
     bool use_exact_termfreq(flags & Enquire::USE_EXACT_TERMFREQ);
     Xapian::ESet eset;
-    eset.internal = new Xapian::ESet::Internal;
 
     if (eweightname == "bo1") {
 	Bo1EWeight bo1eweight(db, rset.size(), use_exact_termfreq);
