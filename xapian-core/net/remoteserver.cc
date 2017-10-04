@@ -28,6 +28,7 @@
 #include "xapian/error.h"
 #include "xapian/matchspy.h"
 #include "xapian/query.h"
+#include "xapian/rset.h"
 #include "xapian/valueiterator.h"
 
 #include "safeerrno.h"

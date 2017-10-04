@@ -25,6 +25,8 @@
 
 #include "api/omenquireinternal.h"
 
+class Result;
+
 // typedef for Result comparison function.
 typedef bool (* mset_cmp)(const Result&, const Result&);
 

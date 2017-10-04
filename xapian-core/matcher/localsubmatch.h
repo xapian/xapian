@@ -28,6 +28,7 @@
 #include "api/queryinternal.h"
 #include "submatch.h"
 #include "xapian/enquire.h"
+#include "xapian/rset.h"
 #include "xapian/weight.h"
 
 #include <map>

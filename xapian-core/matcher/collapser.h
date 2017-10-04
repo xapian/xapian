@@ -25,6 +25,7 @@
 #include "msetcmp.h"
 #include "api/omenquireinternal.h"
 #include "api/postlist.h"
+#include "api/result.h"
 
 #include <unordered_map>
 #include <vector>

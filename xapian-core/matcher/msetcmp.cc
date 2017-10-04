@@ -20,7 +20,10 @@
  */
 
 #include <config.h>
+
 #include "msetcmp.h"
+
+#include "api/result.h"
 
 /* We use templates to generate the 14 different comparison functions
  * which we need.  This avoids having to write them all out by hand.
