@@ -31,6 +31,7 @@
 #include "str.h"
 #include "unicode/description_append.h"
 
+#include <algorithm>
 #include <cfloat>
 #include <string>
 
