@@ -320,7 +320,13 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 # endif
 #endif
 
-    /// Begin iterator for terms in the query object.
+    /** Begin iterator for terms in the query object.
+     *
+     *  The iterator returns terms in ascending query position order, and
+     *  will return the same term in each unique position it occurs in.
+     *  If you want the terms in sorted order and without duplicates, see
+     *  get_unique_terms_begin().
+     */
     const TermIterator get_terms_begin() const;
 
     /// End iterator for terms in the query object.
@@ -331,6 +337,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     /** Begin iterator for unique terms in the query object.
      *
      *  Terms are sorted and terms with the same name removed from the list.
+     *
+     *  If you want the terms in ascending query position order, see
+     *  get_terms_begin().
      */
     const TermIterator get_unique_terms_begin() const;
 
