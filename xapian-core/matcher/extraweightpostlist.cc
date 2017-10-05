@@ -26,6 +26,8 @@
 #include "postlisttree.h"
 #include "str.h"
 
+using namespace std;
+
 double
 ExtraWeightPostList::get_weight() const
 {

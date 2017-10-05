@@ -22,13 +22,15 @@
 
 #include "orpospostlist.h"
 
+using namespace std;
+
 PositionList *
 OrPosPostList::read_position_list()
 {
     return position_list.gather(pl);
 }
 
-std::string
+string
 OrPosPostList::get_description() const
 {
     string desc = "OrPosPostList(";

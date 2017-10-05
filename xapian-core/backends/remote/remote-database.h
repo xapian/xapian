@@ -71,10 +71,10 @@ class RemoteDatabase : public Xapian::Database::Internal {
     mutable bool has_positional_info;
 
     /// The UUID of the remote database.
-    mutable string uuid;
+    mutable std::string uuid;
 
     /// The context to return with any error messages
-    string context;
+    std::string context;
 
     mutable bool cached_stats_valid;
 
@@ -105,19 +105,19 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *	@param writable	Is this a WritableDatabase?
      *	@param flags	Xapian::DB_RETRY_LOCK or 0.
      */
-    RemoteDatabase(int fd, double timeout_, const string & context_,
+    RemoteDatabase(int fd, double timeout_, const std::string& context_,
 		   bool writable, int flags);
 
     /// Receive a message from the server.
-    reply_type get_message(string & message, reply_type required_type = REPLY_MAX) const;
+    reply_type get_message(std::string& message, reply_type required_type = REPLY_MAX) const;
 
     /// Send a message to the server.
-    void send_message(message_type type, const string & data) const;
+    void send_message(message_type type, const std::string& data) const;
 
     /// Close the socket
     void do_close();
 
-    bool get_posting(Xapian::docid &did, double &w, string &value);
+    bool get_posting(Xapian::docid& did, double& w, std::string& value);
 
     /// The timeout value used in network communications, in seconds.
     double timeout;
@@ -165,7 +165,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   int percent_cutoff, double weight_cutoff,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,
-		   const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
+		   const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
 
     /** Get the stats from the remote server.
      *
@@ -181,7 +181,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// Get the MSet from the remote server.
     void get_mset(Xapian::MSet &mset,
-		  const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
+		  const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
 
     /// Get remote metadata key list.
     TermList * open_metadata_keylist(const std::string & prefix) const;
@@ -190,7 +190,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     TermList * open_term_list(Xapian::docid did) const;
 
     /// Iterate all terms.
-    TermList * open_allterms(const string & prefix) const;
+    TermList * open_allterms(const std::string& prefix) const;
 
     bool has_positions() const;
 
@@ -198,12 +198,12 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void close();
 
-    LeafPostList * open_post_list(const string & tname) const;
+    LeafPostList * open_post_list(const std::string& tname) const;
 
-    Xapian::doccount read_post_list(const string &term, NetworkPostList & pl) const;
+    Xapian::doccount read_post_list(const std::string& term, NetworkPostList & pl) const;
 
     PositionList * open_position_list(Xapian::docid did,
-				      const string & tname) const;
+				      const std::string& tname) const;
 
     /// Get a remote document.
     Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
@@ -220,9 +220,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
     /// Check if term exists.
-    bool term_exists(const string & tname) const;
+    bool term_exists(const std::string& tname) const;
 
-    void get_freqs(const string & term,
+    void get_freqs(const std::string& term,
 		   Xapian::doccount * termfreq_ptr,
 		   Xapian::termcount * collfreq_ptr) const;
 
@@ -234,7 +234,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     Xapian::termcount get_doclength_lower_bound() const;
     Xapian::termcount get_doclength_upper_bound() const;
-    Xapian::termcount get_wdf_upper_bound(const string & term) const;
+    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
 
     void commit();
 
@@ -251,15 +251,15 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     std::string get_uuid() const;
 
-    string get_metadata(const string & key) const;
+    std::string get_metadata(const std::string& key) const;
 
-    void set_metadata(const string & key, const string & value);
+    void set_metadata(const std::string& key, const std::string& value);
 
     void add_spelling(const std::string&, Xapian::termcount) const;
 
     void remove_spelling(const std::string&, Xapian::termcount freqdec) const;
 
-    int get_backend_info(string * path) const {
+    int get_backend_info(std::string* path) const {
 	if (path) *path = context;
 	return BACKEND_REMOTE;
     }

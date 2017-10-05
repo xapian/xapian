@@ -24,6 +24,8 @@
 
 #include "multiandpostlist.h"
 
+using namespace std;
+
 PostList*
 AndMaybePostList::decay_to_and(Xapian::docid did,
 			       double w_min,

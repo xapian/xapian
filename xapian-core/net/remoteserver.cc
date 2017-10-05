@@ -48,6 +48,8 @@
 #include "stringutils.h"
 #include "weight/weightinternal.h"
 
+using namespace std;
+
 [[noreturn]]
 static void
 throw_read_only()
@@ -58,11 +60,11 @@ throw_read_only()
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
 
-RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
+RemoteServer::RemoteServer(const vector<string>& dbpaths,
 			   int fdin_, int fdout_,
 			   double active_timeout_, double idle_timeout_,
 			   bool writable_)
-    : RemoteConnection(fdin_, fdout_, std::string()),
+    : RemoteConnection(fdin_, fdout_, string()),
       db(NULL), wdb(NULL), writable(writable_),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
@@ -79,7 +81,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 	context = dbpaths[0];
 
 	if (!writable) {
-	    vector<std::string>::const_iterator i(dbpaths.begin());
+	    vector<string>::const_iterator i(dbpaths.begin());
 	    for (++i; i != dbpaths.end(); ++i) {
 		db->add_database(Xapian::Database(*i));
 		context += ' ';

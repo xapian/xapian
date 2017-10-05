@@ -22,6 +22,8 @@
 
 #include "andnotpostlist.h"
 
+using namespace std;
+
 Xapian::doccount
 AndNotPostList::get_termfreq_min() const
 {

@@ -51,13 +51,13 @@ class RemoteSubMatch : public SubMatch {
     double percent_factor;
 
     /// The matchspies to use.
-    const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies;
+    const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies;
 
   public:
     /// Constructor.
     RemoteSubMatch(RemoteDatabase *db_,
 		   bool decreasing_relevance_,
-		   const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
+		   const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
 
     /// Fetch and collate statistics.
     bool prepare_match(bool nowait, Xapian::Weight::Internal & total_stats);

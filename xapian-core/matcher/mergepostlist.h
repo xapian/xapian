@@ -65,9 +65,9 @@ class MergePostList : public WrapperPostList {
 
     Xapian::docid get_docid() const;
 
-    const string* get_sort_key() const;
+    const std::string* get_sort_key() const;
 
-    const string* get_collapse_key() const;
+    const std::string* get_collapse_key() const;
 
     bool at_end() const;
 

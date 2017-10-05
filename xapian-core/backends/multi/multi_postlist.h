@@ -52,7 +52,7 @@ class MultiPostList : public PostList {
 
   public:
     /// Constructor.
-    MultiPostList(const Xapian::Database& db, const string& term);
+    MultiPostList(const Xapian::Database& db, const std::string& term);
 
     /// Destructor.
     ~MultiPostList();

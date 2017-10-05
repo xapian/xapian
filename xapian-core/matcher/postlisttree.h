@@ -77,11 +77,11 @@ class PostListTree {
 	return pl->get_weight();
     }
 
-    const string* get_sort_key() const {
+    const std::string* get_sort_key() const {
 	return pl->get_sort_key();
     }
 
-    const string* get_collapse_key() const {
+    const std::string* get_collapse_key() const {
 	return pl->get_collapse_key();
     }
 
@@ -105,7 +105,7 @@ class PostListTree {
 	return pl->count_matching_subqs();
     }
 
-    string get_description() const {
+    std::string get_description() const {
 	return pl->get_description();
     }
 };

@@ -25,6 +25,8 @@
 #include "backends/multi.h"
 #include "valuestreamdocument.h"
 
+using namespace std;
+
 MergePostList::~MergePostList()
 {
     pl = NULL;

@@ -28,6 +28,8 @@
 #include "backends/remote/remote-database.h"
 #include "weight/weightinternal.h"
 
+using namespace std;
+
 RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_,
 			       bool decreasing_relevance_,
 			       const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies_)

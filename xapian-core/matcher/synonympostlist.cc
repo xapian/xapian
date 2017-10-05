@@ -27,6 +27,8 @@
 #include "debuglog.h"
 #include "omassert.h"
 
+using namespace std;
+
 SynonymPostList::~SynonymPostList()
 {
     delete wt;
@@ -121,7 +123,7 @@ SynonymPostList::count_matching_subqs() const
     return 1;
 }
 
-std::string
+string
 SynonymPostList::get_description() const
 {
     string desc = "SynonymPostList(";

@@ -32,6 +32,8 @@
 #include "xapian/query.h"
 #include "xapian/weight.h"
 
+using std::vector;
+
 class MultiMatch
 {
     private:
