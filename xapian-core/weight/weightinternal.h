@@ -28,7 +28,7 @@
 #include "xapian/error.h"
 #include "xapian/query.h"
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "internaltypes.h"
 #include "omassert.h"
 

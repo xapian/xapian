@@ -30,7 +30,7 @@
 
 using namespace std;
 
-RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_,
+RemoteSubMatch::RemoteSubMatch(const RemoteDatabase *db_,
 			       bool decreasing_relevance_,
 			       const vector<opt_ptr_spy>& matchspies_)
 	: db(db_),

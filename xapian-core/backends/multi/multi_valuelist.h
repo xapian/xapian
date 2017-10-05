@@ -1,7 +1,7 @@
-/** @file multivaluelist.h
+/** @file multi_valuelist.h
  * @brief Class for merging ValueList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,14 +21,45 @@
 #ifndef XAPIAN_INCLUDED_MULTIVALUELIST_H
 #define XAPIAN_INCLUDED_MULTIVALUELIST_H
 
-#include "valuelist.h"
+#include "backends/valuelist.h"
 
-#include "database.h"
+#include "backends/databaseinternal.h"
 
 #include <string>
-#include <vector>
 
-struct SubValueList;
+struct SubValueList {
+    ValueList * valuelist;
+    unsigned db_idx;
+
+    SubValueList(ValueList * vl, unsigned db_idx_)
+	: valuelist(vl), db_idx(db_idx_) { }
+
+    ~SubValueList() {
+	delete valuelist;
+    }
+
+    void skip_to(Xapian::docid did, size_t n_shards) {
+	// Translate did from merged docid.
+	did = (did - db_idx - 2 + n_shards) / n_shards + 1;
+	valuelist->skip_to(did);
+    }
+
+    Xapian::docid get_docid() const {
+	return valuelist->get_docid();
+    }
+
+    Xapian::docid get_merged_docid(unsigned n_shards) const {
+	return (valuelist->get_docid() - 1) * n_shards + db_idx + 1;
+    }
+
+    std::string get_value() const { return valuelist->get_value(); }
+
+    void next() {
+	valuelist->next();
+    }
+
+    bool at_end() const { return valuelist->at_end(); }
+};
 
 /// Class for merging ValueList objects from subdatabases.
 class MultiValueList : public ValueList {
@@ -39,19 +70,23 @@ class MultiValueList : public ValueList {
     MultiValueList(const MultiValueList &);
 
     /// Current docid (or 0 if we haven't started yet).
-    Xapian::docid current_docid;
+    Xapian::docid current_docid = 0;
 
-    /// Vector of sub-valuelists which we use as a heap.
-    std::vector<SubValueList *> valuelists;
+    /// Number of SubValueList* entries in valuelists.
+    size_t count;
+
+    /// Array of sub-valuelists which we use as a heap.
+    SubValueList** valuelists;
 
     /// The value slot we're iterating over.
     Xapian::valueno slot;
 
-    size_t multiplier;
+    size_t n_shards;
 
   public:
     /// Constructor.
-    MultiValueList(const std::vector<Xapian::Internal::intrusive_ptr<Xapian::Database::Internal> > & dbs,
+    MultiValueList(size_t n_shards_,
+		   SubValueList** valuelists_,
 		   Xapian::valueno slot_);
 
     /// Destructor.

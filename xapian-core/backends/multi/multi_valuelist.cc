@@ -1,7 +1,7 @@
 /** @file multi_valuelist.cc
  * @brief Class for merging ValueList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "backends/multivaluelist.h"
+#include "multi_valuelist.h"
 
 #include <xapian/error.h>
 
@@ -30,40 +30,6 @@
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
-
-struct SubValueList {
-    ValueList * valuelist;
-    unsigned db_idx;
-
-    SubValueList(ValueList * vl, unsigned db_idx_)
-	: valuelist(vl), db_idx(db_idx_) { }
-
-    ~SubValueList() {
-	delete valuelist;
-    }
-
-    void skip_to(Xapian::docid did, size_t multiplier) {
-	// Translate did from merged docid.
-	did = (did - db_idx - 2 + multiplier) / multiplier + 1;
-	valuelist->skip_to(did);
-    }
-
-    Xapian::docid get_docid() const {
-	return valuelist->get_docid();
-    }
-
-    Xapian::docid get_merged_docid(unsigned multiplier) const {
-	return (valuelist->get_docid() - 1) * multiplier + db_idx + 1;
-    }
-
-    std::string get_value() const { return valuelist->get_value(); }
-
-    void next() {
-	valuelist->next();
-    }
-
-    bool at_end() const { return valuelist->at_end(); }
-};
 
 /// Comparison functor which orders SubValueList* by ascending docid.
 struct CompareSubValueListsByDocId {
@@ -77,34 +43,21 @@ struct CompareSubValueListsByDocId {
     }
 };
 
-template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) const { delete p; }
-};
-
-MultiValueList::MultiValueList(const vector<intrusive_ptr<Xapian::Database::Internal> > & dbs,
+MultiValueList::MultiValueList(size_t n_shards_,
+			       SubValueList** valuelists_,
 			       Xapian::valueno slot_)
-    : current_docid(0), slot(slot_), multiplier(dbs.size())
+    : count(n_shards_),
+      valuelists(valuelists_),
+      slot(slot_),
+      n_shards(n_shards_)
 {
-    // The 0 and 1 cases should be handled by our caller.
-    AssertRel(multiplier, >=, 2);
-    valuelists.reserve(multiplier);
-    try {
-	unsigned db_idx = 0;
-	vector<intrusive_ptr<Xapian::Database::Internal> >::const_iterator i;
-	for (i = dbs.begin(); i != dbs.end(); ++i) {
-	    ValueList * vl = (*i)->open_value_list(slot);
-	    valuelists.push_back(new SubValueList(vl, db_idx));
-	    ++db_idx;
-	}
-    } catch (...) {
-	for_each(valuelists.begin(), valuelists.end(), delete_ptr<SubValueList>());
-	throw;
-    }
 }
 
 MultiValueList::~MultiValueList()
 {
-    for_each(valuelists.begin(), valuelists.end(), delete_ptr<SubValueList>());
+    while (count)
+	delete valuelists[--count];
+    delete [] valuelists;
 }
 
 Xapian::docid
@@ -118,7 +71,7 @@ std::string
 MultiValueList::get_value() const
 {
     Assert(!at_end());
-    return valuelists.front()->get_value();
+    return valuelists[0]->get_value();
 }
 
 Xapian::valueno
@@ -130,7 +83,7 @@ MultiValueList::get_valueno() const
 bool
 MultiValueList::at_end() const
 {
-    return valuelists.empty();
+    return count == 0;
 }
 
 void
@@ -139,39 +92,41 @@ MultiValueList::next()
     if (current_docid == 0) {
 	// Make valuelists into a heap so that the one (or one of the ones) with
 	// earliest sorting term is at the top of the heap.
-	vector<SubValueList *>::iterator i = valuelists.begin();
-	while (i != valuelists.end()) {
-	    (*i)->next();
-	    if ((*i)->at_end()) {
-		SubValueList * vl = NULL;
-		swap(vl, *i);
-		i = valuelists.erase(i);
-		delete vl;
+	size_t j = 0;
+	for (size_t i = 0; i != count; ++i) {
+	    valuelists[i]->next();
+	    if (valuelists[i]->at_end()) {
+		delete valuelists[i];
+		valuelists[i] = 0;
 	    } else {
-		++i;
+		if (i != j)
+		    swap(valuelists[i], valuelists[j]);
+		++j;
 	    }
 	}
-	if (rare(valuelists.empty()))
+	count = j;
+	if (rare(count == 0))
 	    return;
-	make_heap(valuelists.begin(), valuelists.end(),
+
+	make_heap(valuelists, valuelists + count,
 		  CompareSubValueListsByDocId());
     } else {
 	// Advance to the next docid.
-	pop_heap(valuelists.begin(), valuelists.end(),
+	pop_heap(valuelists, valuelists + count,
 		 CompareSubValueListsByDocId());
-	SubValueList * vl = valuelists.back();
+	SubValueList * vl = valuelists[count - 1];
 	vl->next();
 	if (vl->at_end()) {
 	    delete vl;
-	    valuelists.pop_back();
-	    if (valuelists.empty()) return;
+	    if (--count == 0)
+		return;
 	} else {
-	    push_heap(valuelists.begin(), valuelists.end(),
+	    push_heap(valuelists, valuelists + count,
 		      CompareSubValueListsByDocId());
 	}
     }
 
-    current_docid = valuelists.front()->get_merged_docid(multiplier);
+    current_docid = valuelists[0]->get_merged_docid(n_shards);
 }
 
 void
@@ -180,24 +135,25 @@ MultiValueList::skip_to(Xapian::docid did)
     // Assume the skip is likely to be a long distance, and rebuild the heap
     // from scratch.  FIXME: It would be useful to profile this against an
     // approach more like that next() uses if this ever gets heavy use.
-    vector<SubValueList*>::iterator i = valuelists.begin();
-    while (i != valuelists.end()) {
-	(*i)->skip_to(did, multiplier);
-	if ((*i)->at_end()) {
-	    SubValueList * vl = NULL;
-	    swap(vl, *i);
-	    i = valuelists.erase(i);
-	    delete vl;
+    size_t j = 0;
+    for (size_t i = 0; i != count; ++i) {
+	valuelists[i]->skip_to(did, n_shards);
+	if (valuelists[i]->at_end()) {
+	    delete valuelists[i];
+	    valuelists[i] = 0;
 	} else {
-	    ++i;
+	    if (i != j)
+		swap(valuelists[i], valuelists[j]);
+	    ++j;
 	}
     }
+    count = j;
+    if (rare(count == 0))
+	return;
 
-    if (valuelists.empty()) return;
+    make_heap(valuelists, valuelists + count, CompareSubValueListsByDocId());
 
-    make_heap(valuelists.begin(), valuelists.end(), CompareSubValueListsByDocId());
-
-    current_docid = valuelists.front()->get_merged_docid(multiplier);
+    current_docid = valuelists[0]->get_merged_docid(n_shards);
 }
 
 bool

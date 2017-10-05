@@ -1,8 +1,7 @@
-/* database.cc: Database::Internal base class.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2014,2016 Olly Betts
+/** @file databaseinternal.cc
+ * @brief Virtual base class for Database internals
+ */
+/* Copyright 2003,2004,2006,2007,2008,2009,2011,2014,2015,2017 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -17,19 +16,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <config.h>
 
-#include "database.h"
-
-#include "xapian/error.h"
+#include "databaseinternal.h"
 
 #include "api/leafpostlist.h"
 #include "omassert.h"
 #include "slowvaluelist.h"
+#include "xapian/error.h"
 
 #include <algorithm>
 #include <string>
@@ -39,19 +36,26 @@ using Xapian::Internal::intrusive_ptr;
 
 namespace Xapian {
 
-Database::Internal::~Internal()
+[[noreturn]]
+static void invalid_operation(const char* msg)
 {
+    throw InvalidOperationError(msg);
+}
+
+Database::Internal::size_type
+Database::Internal::size() const
+{
+    return 1;
 }
 
 void
 Database::Internal::keep_alive()
 {
-    // For the normal case of local databases, nothing needs to be done.
+    // No-op except for remote databases.
 }
 
-
 void
-Database::Internal::readahead_for_query(const Xapian::Query &)
+Database::Internal::readahead_for_query(const Xapian::Query &) const
 {
 }
 
@@ -102,12 +106,15 @@ Database::Internal::get_wdf_upper_bound(const string & term) const
 // Discard any exceptions - we're called from the destructors of derived
 // classes so we can't safely throw.
 void
-Database::Internal::dtor_called()
+Database::Internal::dtor_called_()
 {
     try {
 	if (transaction_active()) {
-	    cancel_transaction();
-	} else if (transaction_state == TRANSACTION_NONE) {
+	    end_transaction(false);
+	} else {
+	    // TRANSACTION_READONLY and TRANSACTION_UNIMPLEMENTED should be
+	    // handled by the inlined dtor_called() wrapper.
+	    AssertEq(state, TRANSACTION_NONE);
 	    commit();
 	}
     } catch (...) {
@@ -119,92 +126,131 @@ Database::Internal::dtor_called()
 void
 Database::Internal::commit()
 {
-    // Writable databases should override this method.
-    Assert(false);
+    // Writable databases should override this method, but this can get called
+    // if a read-only shard gets added to a WritableDatabase.
+    invalid_operation("WritableDatabase::commit() called with a read-only shard");
 }
 
 void
 Database::Internal::cancel()
 {
-    // Writable databases should override this method.
-    Assert(false);
+    // Writable databases should override this method, but this can get called
+    // if a read-only shard gets added to a WritableDatabase.
+    invalid_operation("WritableDatabase::cancel() called with a read-only shard");
 }
 
 void
 Database::Internal::begin_transaction(bool flushed)
 {
-    if (transaction_state != TRANSACTION_NONE) {
-	if (transaction_state == TRANSACTION_UNIMPLEMENTED)
-	    throw Xapian::UnimplementedError("This backend doesn't implement transactions");
-	throw InvalidOperationError("Cannot begin transaction - transaction already in progress");
+    if (state != TRANSACTION_NONE) {
+	if (transaction_active()) {
+	    invalid_operation("WritableDatabase::begin_transaction(): already "
+			      "in a transaction");
+	}
+	if (read_only()) {
+	    invalid_operation("WritableDatabase::begin_transaction(): called "
+			      "with a read-only shard");
+	}
+	throw UnimplementedError("This backend doesn't implement transactions");
     }
     if (flushed) {
-	// N.B. Call commit() before we set transaction_state since commit()
-	// isn't allowing during a transaction.
+	// N.B. Call commit() before we set state since commit() isn't allowed
+	// during a transaction.
 	commit();
-	transaction_state = TRANSACTION_FLUSHED;
+	state = TRANSACTION_FLUSHED;
     } else {
-	transaction_state = TRANSACTION_UNFLUSHED;
+	state = TRANSACTION_UNFLUSHED;
     }
 }
 
 void
-Database::Internal::commit_transaction()
+Database::Internal::end_transaction(bool do_commit)
 {
     if (!transaction_active()) {
-	if (transaction_state == TRANSACTION_UNIMPLEMENTED)
-	    throw Xapian::UnimplementedError("This backend doesn't implement transactions");
-	throw InvalidOperationError("Cannot commit transaction - no transaction currently in progress");
+	if (state != TRANSACTION_NONE) {
+	    if (read_only()) {
+		invalid_operation(do_commit ?
+				  "WritableDatabase::commit_transaction(): "
+				  "called with a read-only shard" :
+				  "WritableDatabase::cancel_transaction(): "
+				  "called with a read-only shard");
+	    }
+	    throw UnimplementedError("This backend doesn't implement transactions");
+	}
+	invalid_operation(do_commit ?
+			  "WritableDatabase::commit_transaction(): not in a "
+			  "transaction" :
+			  "WritableDatabase::cancel_transaction(): not in a "
+			  "transaction");
     }
-    bool flushed = (transaction_state == TRANSACTION_FLUSHED);
-    transaction_state = TRANSACTION_NONE;
-    // N.B. Call commit() after we clear transaction_state since commit()
-    // isn't allowing during a transaction.
-    if (flushed) commit();
-}
 
-void
-Database::Internal::cancel_transaction()
-{
-    if (!transaction_active()) {
-	if (transaction_state == TRANSACTION_UNIMPLEMENTED)
-	    throw Xapian::UnimplementedError("This backend doesn't implement transactions");
-	throw InvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
+    auto old_state = state;
+    state = TRANSACTION_NONE;
+    if (!do_commit) {
+	cancel();
+    } else if (old_state == TRANSACTION_FLUSHED) {
+	// N.B. Call commit() after we clear state since commit() isn't
+	// allowed during a transaction.
+	commit();
     }
-    transaction_state = TRANSACTION_NONE;
-    cancel();
 }
 
 Xapian::docid
 Database::Internal::add_document(const Xapian::Document &)
 {
-    // Writable databases should override this method.
-    Assert(false);
-    return 0;
+    // Writable databases should override this method, but this can get called
+    // if a read-only shard gets added to a WritableDatabase.
+    invalid_operation("WritableDatabase::add_document() called with a "
+		      "read-only shard");
 }
 
 void
 Database::Internal::delete_document(Xapian::docid)
 {
-    // Writable databases should override this method.
-    Assert(false);
+    // Writable databases should override this method, but this can get called
+    // if a read-only shard gets added to a WritableDatabase.
+    invalid_operation("WritableDatabase::delete_document() called with a "
+		      "read-only shard");
 }
 
 void
-Database::Internal::delete_document(const string & unique_term)
+Database::Internal::delete_document(const string& unique_term)
 {
     // Default implementation - overridden for remote databases
-    intrusive_ptr<LeafPostList> pl(open_post_list(unique_term));
-    while (pl->next(), !pl->at_end()) {
-	delete_document(pl->get_docid());
+
+    if (read_only()) {
+	// This can happen if a read-only shard gets added to a
+	// WritableDatabase.
+	invalid_operation("WritableDatabase::delete_document() called with a "
+			  "read-only shard");
     }
+
+    intrusive_ptr<PostList> pl(open_post_list(unique_term));
+
+    // We want this operation to be atomic if possible, so if we aren't in a
+    // transaction and the backend supports transactions, temporarily enter an
+    // unflushed transaction.
+    auto old_state = state;
+    if (state != TRANSACTION_UNIMPLEMENTED)
+	state = TRANSACTION_UNFLUSHED;
+    try {
+	while (pl->next(), !pl->at_end()) {
+	    delete_document(pl->get_docid());
+	}
+    } catch (...) {
+	state = old_state;
+	throw;
+    }
+    state = old_state;
 }
 
 void
 Database::Internal::replace_document(Xapian::docid, const Xapian::Document &)
 {
-    // Writable databases should override this method.
-    Assert(false);
+    // Writable databases should override this method, but this can get called
+    // if a read-only shard gets added to a WritableDatabase.
+    invalid_operation("WritableDatabase::replace_document() called with a "
+		      "read-only shard");
 }
 
 Xapian::docid
@@ -212,16 +258,37 @@ Database::Internal::replace_document(const string & unique_term,
 				     const Xapian::Document & document)
 {
     // Default implementation - overridden for remote databases
-    intrusive_ptr<LeafPostList> pl(open_post_list(unique_term));
+
+    if (read_only()) {
+	// This can happen if a read-only shard gets added to a
+	// WritableDatabase.
+	invalid_operation("WritableDatabase::replace_document() called with a "
+			  "read-only shard");
+    }
+
+    intrusive_ptr<PostList> pl(open_post_list(unique_term));
     pl->next();
     if (pl->at_end()) {
 	return add_document(document);
     }
     Xapian::docid did = pl->get_docid();
-    replace_document(did, document);
-    while (pl->next(), !pl->at_end()) {
-	delete_document(pl->get_docid());
+
+    // We want this operation to be atomic if possible, so if we aren't in a
+    // transaction and the backend supports transactions, temporarily enter an
+    // unflushed transaction.
+    auto old_state = state;
+    if (state != TRANSACTION_UNIMPLEMENTED)
+	state = TRANSACTION_UNFLUSHED;
+    try {
+	replace_document(did, document);
+	while (pl->next(), !pl->at_end()) {
+	    delete_document(pl->get_docid());
+	}
+    } catch (...) {
+	state = old_state;
+	throw;
     }
+    state = old_state;
     return did;
 }
 
@@ -264,7 +331,7 @@ Database::Internal::add_spelling(const string &, Xapian::termcount) const
     throw Xapian::UnimplementedError("This backend doesn't implement spelling correction");
 }
 
-void
+Xapian::termcount
 Database::Internal::remove_spelling(const string &, Xapian::termcount) const
 {
     throw Xapian::UnimplementedError("This backend doesn't implement spelling correction");
@@ -312,8 +379,8 @@ Database::Internal::get_metadata(const string &) const
     return string();
 }
 
-TermList *
-Database::Internal::open_metadata_keylist(const string &) const
+TermList*
+Database::Internal::open_metadata_keylist(const string&) const
 {
     // Only implemented for some database backends - others will simply report
     // there being no metadata keys.
@@ -321,7 +388,7 @@ Database::Internal::open_metadata_keylist(const string &) const
 }
 
 void
-Database::Internal::set_metadata(const string &, const string &)
+Database::Internal::set_metadata(const string&, const string&)
 {
     throw Xapian::UnimplementedError("This backend doesn't implement metadata");
 }
@@ -336,12 +403,12 @@ Database::Internal::reopen()
 }
 
 void
-Database::Internal::request_document(Xapian::docid /*did*/) const
+Database::Internal::request_document(Xapian::docid) const
 {
 }
 
 void
-Database::Internal::write_changesets_to_fd(int, const string &, bool, ReplicationInfo *)
+Database::Internal::write_changesets_to_fd(int, const string&, bool, ReplicationInfo*)
 {
     throw Xapian::UnimplementedError("This backend doesn't provide changesets");
 }
@@ -359,7 +426,7 @@ Database::Internal::get_uuid() const
 }
 
 void
-Database::Internal::invalidate_doc_object(Xapian::Document::Internal *) const
+Database::Internal::invalidate_doc_object(Xapian::Document::Internal*) const
 {
     // Do nothing, by default.
 }

@@ -29,7 +29,7 @@
 #include "api/smallvector.h"
 #include "api/termlist.h"
 #include "backends/backends.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "backends/valuestats.h"
 #include <map>
 #include <vector>
@@ -338,8 +338,10 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     bool term_exists(const string & tname) const;
     bool has_positions() const;
 
-    LeafPostList * open_post_list(const string & tname) const;
+    PostList * open_post_list(const string & tname) const;
+    LeafPostList* open_leaf_post_list(const string& term) const;
     TermList * open_term_list(Xapian::docid did) const;
+    TermList * open_term_list_direct(Xapian::docid did) const;
     Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 
     std::string get_metadata(const std::string & key) const;
@@ -359,6 +361,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	if (path) *path = string();
 	return BACKEND_INMEMORY;
     }
+
+    std::string get_description() const;
 };
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */

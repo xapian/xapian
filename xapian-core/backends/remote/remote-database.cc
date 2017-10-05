@@ -70,12 +70,15 @@ throw_connection_closed_unexpectedly()
 RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 			       const string & context_, bool writable,
 			       int flags)
-	: link(fd, fd, context_),
-	  context(context_),
-	  cached_stats_valid(),
-	  mru_valstats(),
-	  mru_slot(Xapian::BAD_VALUENO),
-	  timeout(timeout_)
+    : Xapian::Database::Internal(writable ?
+				 TRANSACTION_NONE :
+				 TRANSACTION_READONLY),
+      link(fd, fd, context_),
+      context(context_),
+      cached_stats_valid(),
+      mru_valstats(),
+      mru_slot(Xapian::BAD_VALUENO),
+      timeout(timeout_)
 {
 #ifndef __WIN32__
     // It's simplest to just ignore SIGPIPE.  We'll still know if the
@@ -84,15 +87,6 @@ RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
     }
 #endif
-
-    if (!writable) {
-	// Transactions only make sense when writing, so flag them as
-	// "unimplemented" so that our destructor doesn't call dtor_called()
-	// since that might try to call commit() which will cause a message to
-	// be sent to the remote server and probably an InvalidOperationError
-	// exception message to be returned.
-	transaction_state = TRANSACTION_UNIMPLEMENTED;
-    }
 
     update_stats(MSG_MAX);
 
@@ -213,6 +207,12 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 }
 
 TermList *
+RemoteDatabase::open_term_list_direct(Xapian::docid did) const
+{
+    return RemoteDatabase::open_term_list(did);
+}
+
+TermList *
 RemoteDatabase::open_allterms(const string & prefix) const {
     // Ensure that total_length and doccount are up-to-date.
     if (!cached_stats_valid) update_stats();
@@ -245,8 +245,14 @@ RemoteDatabase::open_allterms(const string & prefix) const {
     return tlist.release();
 }
 
+PostList *
+RemoteDatabase::open_post_list(const string& term) const
+{
+    return RemoteDatabase::open_leaf_post_list(term);
+}
+
 LeafPostList *
-RemoteDatabase::open_post_list(const string &term) const
+RemoteDatabase::open_leaf_post_list(const string& term) const
 {
     return new NetworkPostList(intrusive_ptr<const RemoteDatabase>(this), term);
 }
@@ -434,7 +440,9 @@ RemoteDatabase::get_total_length() const
 bool
 RemoteDatabase::term_exists(const string & tname) const
 {
-    Assert(!tname.empty());
+    if (tname.empty()) {
+	return get_doccount() != 0;
+    }
     send_message(MSG_TERMEXISTS, tname);
     string message;
     reply_type type = get_message(message);
@@ -607,13 +615,12 @@ RemoteDatabase::send_message(message_type type, const string &message) const
 void
 RemoteDatabase::do_close()
 {
-    // In the constructor, we set transaction_state to
-    // TRANSACTION_UNIMPLEMENTED if we aren't writable so that we can check
-    // it here.
-    bool writable = (transaction_state != TRANSACTION_UNIMPLEMENTED);
+    bool writable = !read_only();
 
-    // Only call dtor_called() if we're writable.
-    if (writable) dtor_called();
+    // The dtor hasn't really been called!  FIXME: This works, but means any
+    // exceptions from end_transaction()/commit() are swallowed, which is
+    // not entirely desirable.
+    dtor_called();
 
     // If we're writable, wait for a confirmation of the close, so we know that
     // changes have been written and flushed, and the database write lock
@@ -635,7 +642,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 			 int percent_cutoff, double weight_cutoff,
 			 const Xapian::Weight *wtscheme,
 			 const Xapian::RSet &omrset,
-			 const vector<opt_ptr_spy>& matchspies)
+			 const vector<opt_ptr_spy>& matchspies) const
 {
     string tmp = query.serialise();
     string message = encode_length(tmp.size());
@@ -682,7 +689,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 }
 
 bool
-RemoteDatabase::get_remote_stats(bool nowait, Xapian::Weight::Internal &out)
+RemoteDatabase::get_remote_stats(bool nowait, Xapian::Weight::Internal &out) const
 {
     if (nowait && !link.ready_to_read()) return false;
 
@@ -697,7 +704,7 @@ void
 RemoteDatabase::send_global_stats(Xapian::doccount first,
 				  Xapian::doccount maxitems,
 				  Xapian::doccount check_at_least,
-				  const Xapian::Weight::Internal &stats)
+				  const Xapian::Weight::Internal &stats) const
 {
     string message = encode_length(first);
     message += encode_length(maxitems);
@@ -708,7 +715,7 @@ RemoteDatabase::send_global_stats(Xapian::doccount first,
 
 void
 RemoteDatabase::get_mset(Xapian::MSet &mset,
-			 const vector<opt_ptr_spy>& matchspies)
+			 const vector<opt_ptr_spy>& matchspies) const
 {
     string message;
     get_message(message, REPLY_RESULTS);
@@ -852,17 +859,37 @@ RemoteDatabase::add_spelling(const string & word,
     send_message(MSG_ADDSPELLING, data);
 }
 
-void
+Xapian::termcount
 RemoteDatabase::remove_spelling(const string & word,
 				Xapian::termcount freqdec) const
 {
     string data = encode_length(freqdec);
     data += word;
     send_message(MSG_REMOVESPELLING, data);
+
+    string message;
+    get_message(message, REPLY_REMOVESPELLING);
+    const char * p = message.data();
+    const char * p_end = p + message.size();
+    Xapian::termcount result;
+    decode_length(&p, p_end, result);
+    if (p != p_end) {
+	throw Xapian::NetworkError("Bad REPLY_REMOVESPELLING message received", context);
+    }
+    return result;
 }
 
 bool
 RemoteDatabase::locked() const
 {
     throw Xapian::UnimplementedError("Database::locked() not implemented for remote backend");
+}
+
+string
+RemoteDatabase::get_description() const
+{
+    string desc = "Remote(context=";
+    desc += context;
+    desc += ')';
+    return desc;
 }

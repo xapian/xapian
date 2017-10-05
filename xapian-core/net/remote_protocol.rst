@@ -1,9 +1,9 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 39.0* of the protocol used by Xapian's
-remote backend. The major protocol version increased to 39 in Xapian
-1.3.3.
+This document describes *version 40.0* of the protocol used by Xapian's
+remote backend. The major protocol version increased to 40 in Xapian
+1.5.0.
 
 .. , and the minor protocol version to 1 in Xapian 1.2.4.
 
@@ -290,4 +290,4 @@ Remove spelling
 ---------------
 
 -  ``MSG_REMOVESPELLING I<freqdec> <word>``
-
+-  ``REPLY_REMOVESPELLING I<result>``

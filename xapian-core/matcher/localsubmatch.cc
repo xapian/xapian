@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 
 #include "localsubmatch.h"
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "debuglog.h"
 #include "api/emptypostlist.h"
 #include "extraweightpostlist.h"
@@ -246,7 +246,7 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, double factor)
     RETURN(res.release());
 }
 
-LeafPostList *
+PostList *
 LocalSubMatch::open_post_list(const string& term,
 			      Xapian::termcount wqf,
 			      double factor,
@@ -255,7 +255,7 @@ LocalSubMatch::open_post_list(const string& term,
 			      QueryOptimiser * qopt,
 			      bool lazy_weight)
 {
-    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
+    LOGCALL(MATCH, PostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
 
     bool weighted = (factor != 0.0 && !term.empty());
 
@@ -270,7 +270,8 @@ LocalSubMatch::open_post_list(const string& term,
 		// term indexes all documents, we can replace it with the
 		// MatchAll postlist, which is especially efficient if there
 		// are no gaps in the docids.
-		pl = db->open_post_list(string());
+		pl = db->open_leaf_post_list(string());
+
 		// Set the term name so the postlist looks up the correct term
 		// frequencies - this is necessary if the weighting scheme
 		// needs collection frequency or reltermfreq (termfreq would be
@@ -285,8 +286,9 @@ LocalSubMatch::open_post_list(const string& term,
 	const LeafPostList * hint = qopt->get_hint_postlist();
 	if (hint)
 	    pl = hint->open_nearby_postlist(term);
-	if (!pl)
-	    pl = db->open_post_list(term);
+	if (!pl) {
+	    pl = db->open_leaf_post_list(term);
+	}
 	qopt->set_hint_postlist(pl);
     }
 

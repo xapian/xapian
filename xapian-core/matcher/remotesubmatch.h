@@ -39,7 +39,7 @@ class RemoteSubMatch : public SubMatch {
     RemoteSubMatch(const RemoteSubMatch &);
 
     /// The remote database.
-    RemoteDatabase *db;
+    const RemoteDatabase *db;
 
     /** Is the sort order such the relevance decreases down the MSet?
      *
@@ -57,7 +57,7 @@ class RemoteSubMatch : public SubMatch {
 
   public:
     /// Constructor.
-    RemoteSubMatch(RemoteDatabase *db_,
+    RemoteSubMatch(const RemoteDatabase *db_,
 		   bool decreasing_relevance_,
 		   const std::vector<opt_ptr_spy>& matchspies);
 

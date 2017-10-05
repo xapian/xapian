@@ -37,7 +37,7 @@ class AllTermsList : public TermList {
 
   public:
     /// Return approximate size of this termlist.
-    virtual Xapian::termcount get_approx_size() const;
+    virtual Xapian::termcount get_approx_size() const = 0;
 
     /// Return the termname at the current position.
     virtual std::string get_termname() const = 0;

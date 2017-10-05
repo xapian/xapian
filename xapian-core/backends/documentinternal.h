@@ -27,7 +27,7 @@
 
 #include "api/terminfo.h"
 #include "api/termlist.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 
 #include <map>
 #include <memory>

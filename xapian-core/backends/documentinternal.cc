@@ -140,13 +140,10 @@ Document::Internal::get_description() const
 	desc += ']';
     }
 
-    // FIXME: No Database::Internal::get_description() method currently
-#if 0
     if (database.get()) {
 	desc += ", db=";
 	desc += database->get_description();
     }
-#endif
 
     desc += ')';
 

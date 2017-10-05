@@ -21,6 +21,8 @@
 #include <config.h>
 
 #include "valuestreamdocument.h"
+
+#include "backends/multi/multi_database.h"
 #include "omassert.h"
 
 using namespace std;
@@ -45,9 +47,11 @@ void
 ValueStreamDocument::new_subdb(int n)
 {
     AssertRel(n,>,0);
-    AssertRel(size_t(n),<,db.internal.size());
+    AssertRel(size_t(n),<,n_shards);
     current = unsigned(n);
-    database = db.internal[n];
+    // This method should only be called for a MultiDatabase.
+    auto multidb = static_cast<MultiDatabase*>(db.internal.get());
+    database = multidb->shards[n];
     // Ensure set_document()'s "same docid" check doesn't misfire.
     did = 0;
     clear_valuelists(valuelists);
@@ -56,12 +60,6 @@ ValueStreamDocument::new_subdb(int n)
 string
 ValueStreamDocument::fetch_value(Xapian::valueno slot) const
 {
-#ifdef XAPIAN_ASSERTIONS_PARANOID
-    if (!doc) {
-	doc = database->open_document(did, true);
-    }
-#endif
-
     pair<map<Xapian::valueno, ValueList *>::iterator, bool> ret;
     ret = valuelists.insert(make_pair(slot, static_cast<ValueList*>(NULL)));
     ValueList * vl;
@@ -72,7 +70,6 @@ ValueStreamDocument::fetch_value(Xapian::valueno slot) const
     } else {
 	vl = ret.first->second;
 	if (!vl) {
-	    AssertEqParanoid(string(), doc->get_value(slot));
 	    return string();
 	}
     }
@@ -82,13 +79,10 @@ ValueStreamDocument::fetch_value(Xapian::valueno slot) const
 	    delete vl;
 	    ret.first->second = NULL;
 	} else if (vl->get_docid() == did) {
-	    Assert(vl);
-	    string v = vl->get_value();
-	    AssertEq(v, doc->get_value(slot));
-	    return v;
+	    return vl->get_value();
 	}
     }
-    AssertEqParanoid(string(), doc->get_value(slot));
+
     return string();
 }
 

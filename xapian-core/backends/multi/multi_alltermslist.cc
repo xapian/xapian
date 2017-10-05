@@ -24,7 +24,7 @@
 
 #include <xapian/database.h>
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -39,23 +39,9 @@ struct CompareTermListsByTerm {
     }
 };
 
-MultiAllTermsList::MultiAllTermsList(const Xapian::Database& db,
-				     const string& prefix)
-    : count(0), termlists(new TermList*[db.internal.size()])
+MultiAllTermsList::MultiAllTermsList(size_t count_, TermList** termlists_)
+    : count(count_), termlists(termlists_)
 {
-    // The 0 and 1 cases should be handled by our caller.
-    AssertRel(db.internal.size(), >=, 2);
-    try {
-	for (auto&& sub_db : db.internal) {
-	    termlists[count] = sub_db->open_allterms(prefix);
-	    ++count;
-	}
-    } catch (...) {
-	while (count)
-	    delete termlists[--count];
-	delete [] termlists;
-	throw;
-    }
 }
 
 MultiAllTermsList::~MultiAllTermsList()
@@ -63,6 +49,14 @@ MultiAllTermsList::~MultiAllTermsList()
     while (count)
 	delete termlists[--count];
     delete [] termlists;
+}
+
+Xapian::termcount
+MultiAllTermsList::get_approx_size() const
+{
+    // This should never get called.
+    Assert(false);
+    return 0;
 }
 
 string

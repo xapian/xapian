@@ -24,6 +24,7 @@ EXTRA_DIST +=\
 lib_src +=\
 	api/compactor.cc\
 	api/constinfo.cc\
+	api/database.cc\
 	api/decvalwtsource.cc\
 	api/document.cc\
 	api/documenttermlist.cc\
@@ -39,7 +40,6 @@ lib_src +=\
 	api/mset.cc\
 	api/msetiterator.cc\
 	api/result.cc\
-	api/omdatabase.cc\
 	api/positioniterator.cc\
 	api/postingiterator.cc\
 	api/postingsource.cc\

@@ -1,7 +1,7 @@
 /* inmemory_alltermslist.cc
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,15 @@
 #include "inmemory_alltermslist.h"
 
 #include "stringutils.h"
+
+Xapian::termcount
+InMemoryAllTermsList::get_approx_size() const
+{
+    // This may be an over-estimate due to deleted entries, and we may be
+    // restricted to a prefix, but we only use this value to build a balanced
+    // or-tree, and it'll do a decent job for that.
+    return tmap->size();
+}
 
 string
 InMemoryAllTermsList::get_termname() const

@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_REMOTE_DATABASE_H
 
 #include "backends/backends.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "api/enquireinternal.h"
 #include "api/queryinternal.h"
 #include "net/remoteconnection.h"
@@ -167,29 +167,31 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   int percent_cutoff, double weight_cutoff,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,
-		   const std::vector<opt_ptr_spy>& matchspies);
+		   const std::vector<opt_ptr_spy>& matchspies) const;
 
     /** Get the stats from the remote server.
      *
      *  @return	true if we got the remote stats; false if we should try again.
      */
-    bool get_remote_stats(bool nowait, Xapian::Weight::Internal &out);
+    bool get_remote_stats(bool nowait, Xapian::Weight::Internal &out) const;
 
     /// Send the global stats to the remote server.
     void send_global_stats(Xapian::doccount first,
 			   Xapian::doccount maxitems,
 			   Xapian::doccount check_at_least,
-			   const Xapian::Weight::Internal &stats);
+			   const Xapian::Weight::Internal &stats) const;
 
     /// Get the MSet from the remote server.
     void get_mset(Xapian::MSet &mset,
-		  const std::vector<opt_ptr_spy>& matchspies);
+		  const std::vector<opt_ptr_spy>& matchspies) const;
 
     /// Get remote metadata key list.
     TermList * open_metadata_keylist(const std::string & prefix) const;
 
     /// Get remote termlist.
     TermList * open_term_list(Xapian::docid did) const;
+
+    TermList * open_term_list_direct(Xapian::docid did) const;
 
     /// Iterate all terms.
     TermList * open_allterms(const std::string& prefix) const;
@@ -200,7 +202,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void close();
 
-    LeafPostList * open_post_list(const std::string& tname) const;
+    PostList* open_post_list(const std::string& term) const;
+
+    LeafPostList* open_leaf_post_list(const std::string& term) const;
 
     Xapian::doccount read_post_list(const std::string& term, NetworkPostList & pl) const;
 
@@ -257,9 +261,10 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void set_metadata(const std::string& key, const std::string& value);
 
-    void add_spelling(const std::string&, Xapian::termcount) const;
+    void add_spelling(const std::string& word, Xapian::termcount freqinc) const;
 
-    void remove_spelling(const std::string&, Xapian::termcount freqdec) const;
+    Xapian::termcount remove_spelling(const std::string& word,
+				      Xapian::termcount freqdec) const;
 
     int get_backend_info(std::string* path) const {
 	if (path) *path = context;
@@ -267,6 +272,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
     }
 
     bool locked() const;
+
+    std::string get_description() const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H

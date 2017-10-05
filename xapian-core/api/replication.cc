@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "xapian/error.h"
 #include "xapian/version.h"
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "backends/databasereplicator.h"
 #include "debuglog.h"
 #include "filetests.h"
@@ -83,7 +83,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 			  0.0);
 	return;
     }
-    if (db.internal.size() != 1) {
+    if (db.internal->size() != 1) {
 	throw Xapian::InvalidOperationError("DatabaseMaster needs to be pointed at exactly one subdatabase");
     }
 
@@ -99,14 +99,14 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 	decode_length_and_check(&ptr, end, uuid_length);
 	string request_uuid(ptr, uuid_length);
 	ptr += uuid_length;
-	string db_uuid = db.internal[0]->get_uuid();
+	string db_uuid = db.internal->get_uuid();
 	if (request_uuid != db_uuid) {
 	    need_whole_db = true;
 	}
 	revision.assign(ptr, end - ptr);
     }
 
-    db.internal[0]->write_changesets_to_fd(fd, revision, need_whole_db, info);
+    db.internal->write_changesets_to_fd(fd, revision, need_whole_db, info);
 }
 
 string
@@ -137,6 +137,9 @@ class DatabaseReplica::Internal : public Xapian::Internal::intrusive_base {
      *  This needs to be mutable because it is sometimes lazily opened.
      */
     mutable WritableDatabase live_db;
+
+    /// Do we need to heal the replica?
+    bool live_db_corrupt = false;
 
     /** Do we have an offline database currently?
      *
@@ -331,7 +334,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	    // If the database is too corrupt to open, force a full copy so we
 	    // auto-heal from this condition.  Instance seen in the wild was
 	    // that the replica had all files truncated to size 0.
-	    live_db.internal.push_back(NULL);
+	    live_db_corrupt = true;
 	}
 	// FIXME: simplify all this?
 	ifstream stub(stub_path.c_str());
@@ -350,17 +353,27 @@ string
 DatabaseReplica::Internal::get_revision_info() const
 {
     LOGCALL(REPLICA, string, "DatabaseReplica::Internal::get_revision_info", NO_ARGS);
-    if (live_db.internal.empty())
-	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
-    if (live_db.internal.size() != 1)
-	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+    if (live_db_corrupt) {
+	RETURN(string());
+    }
 
-    if (live_db.internal[0].get() == NULL) RETURN(string());
+    switch (live_db.internal->size()) {
+	case 0:
+	    live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
+	    break;
+	case 1:
+	    // OK
+	    break;
+	default:
+	    throw Xapian::InvalidOperationError("DatabaseReplica needs to be "
+						"pointed at exactly one "
+						"subdatabase");
+    }
 
-    string uuid = (live_db.internal[0])->get_uuid();
+    string uuid = live_db.get_uuid();
     string buf = encode_length(uuid.size());
     buf += uuid;
-    buf += (live_db.internal[0])->get_revision_info();
+    buf += live_db.internal->get_revision_info();
     RETURN(buf);
 }
 
@@ -479,6 +492,7 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     // Open the database first, so that if there's a problem, an exception
     // will be thrown before we make the new database live.
     live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);
+    live_db_corrupt = false;
     update_stub_database();
     remove_offline_db();
     return true;
@@ -574,6 +588,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 		    }
 		    // Now the replicator is closed, open the live db again.
 		    live_db = WritableDatabase(replica_path, Xapian::DB_OPEN);
+		    live_db_corrupt = false;
 		    RETURN(true);
 		}
 

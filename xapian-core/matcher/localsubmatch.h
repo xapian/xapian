@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_LOCALSUBMATCH_H
 #define XAPIAN_INCLUDED_LOCALSUBMATCH_H
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "debuglog.h"
 #include "api/leafpostlist.h"
 #include "api/queryinternal.h"
@@ -99,13 +99,13 @@ class LocalSubMatch : public SubMatch {
      */
     PostList * make_synonym_postlist(PostList * or_pl, double factor);
 
-    LeafPostList * open_post_list(const std::string& term,
-				  Xapian::termcount wqf,
-				  double factor,
-				  bool need_positions,
-				  bool in_synonym,
-				  QueryOptimiser * qopt,
-				  bool lazy_weight);
+    PostList * open_post_list(const std::string& term,
+			      Xapian::termcount wqf,
+			      double factor,
+			      bool need_positions,
+			      bool in_synonym,
+			      QueryOptimiser * qopt,
+			      bool lazy_weight);
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

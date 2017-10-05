@@ -28,6 +28,7 @@
 #include "multimatch.h"
 
 #include "api/msetinternal.h"
+#include "backends/multi/multi_database.h"
 #include "collapser.h"
 #include "debuglog.h"
 #include "submatch.h"
@@ -144,14 +145,14 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  sort_value_forward(sort_value_forward_),
 	  time_limit(time_limit_),
 	  weight(weight_),
-	  is_remote(db.internal.size()),
+	  is_remote(db.internal->size()),
 	  matchspies(matchspies_)
 {
     LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | time_limit_| stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
     Assert(!query.empty());
 
-    Xapian::doccount number_of_subdbs = db.internal.size();
+    Xapian::doccount number_of_subdbs = db.internal->size();
     vector<Xapian::RSet> subrsets;
     if (omrset && omrset->internal.get()) {
 	omrset->internal->shard(number_of_subdbs, subrsets);
@@ -160,14 +161,18 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     }
 
     for (size_t i = 0; i != number_of_subdbs; ++i) {
-	Xapian::Database::Internal *subdb = db.internal[i].get();
+	const Xapian::Database::Internal *subdb = db.internal.get();
+	if (number_of_subdbs > 1) {
+	    auto multidb = static_cast<const MultiDatabase*>(subdb);
+	    subdb = multidb->shards[i];
+	}
 	Assert(subdb);
 	intrusive_ptr<SubMatch> smatch;
 
 	// There is currently only one special case, for network databases.
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	if (subdb->get_backend_info(NULL) == BACKEND_REMOTE) {
-	    RemoteDatabase *rem_db = static_cast<RemoteDatabase*>(subdb);
+	    auto rem_db = static_cast<const RemoteDatabase*>(subdb);
 	    if (have_sorter) {
 		throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
 	    }
@@ -602,7 +607,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 new_greatest_weight:
 	    greatest_wt = wt;
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    const unsigned int multiplier = db.internal.size();
+	    const unsigned int multiplier = db.internal->size();
 	    unsigned int db_num = (did - 1) % multiplier;
 	    if (is_remote[db_num]) {
 		// Note that the greatest weighted document came from a remote

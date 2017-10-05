@@ -23,7 +23,7 @@
 
 #include "glass_docdata.h"
 #include "glass_values.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "backends/documentinternal.h"
 
 /// A document read from a GlassDatabase.

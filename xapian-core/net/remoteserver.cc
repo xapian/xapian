@@ -798,5 +798,6 @@ RemoteServer::msg_removespelling(const string & message)
     const char *p_end = p + message.size();
     Xapian::termcount freqdec;
     decode_length(&p, p_end, freqdec);
-    wdb->remove_spelling(string(p, p_end - p), freqdec);
+    auto result = wdb->remove_spelling(string(p, p_end - p), freqdec);
+    send_message(REPLY_REMOVESPELLING, encode_length(result));
 }

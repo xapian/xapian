@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@
 #include "safefcntl.h"
 
 #include "backends/backends.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "debuglog.h"
 #include "leafpostlist.h"
 #include "omassert.h"
@@ -53,6 +53,8 @@
 #include "backends/glass/glass_database.h"
 #include "backends/glass/glass_version.h"
 #endif
+
+#include "backends/multi/multi_database.h"
 
 #include <xapian/constants.h>
 #include <xapian/database.h>
@@ -97,11 +99,11 @@ Compactor::resolve_duplicate_metadata(const string & key,
 
 [[noreturn]]
 static void
-backend_mismatch(const Xapian::Database & db, int backend1,
+backend_mismatch(const Xapian::Database::Internal* db, int backend1,
 		 const string &dbpath2, int backend2)
 {
     string dbpath1;
-    db.internal[0]->get_backend_info(&dbpath1);
+    db->get_backend_info(&dbpath1);
     string msg = "All databases must be the same type ('";
     msg += dbpath1;
     msg += "' is ";
@@ -144,47 +146,55 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	flags |= DBCOMPACT_SINGLE_FILE;
     }
 
-    int backend = BACKEND_UNKNOWN;
-    for (const auto& it : internal) {
-	string srcdir;
-	int type = it->get_backend_info(&srcdir);
-	// Check destdir isn't the same as any source directory, unless it
-	// is a stub database.
-	if (!compact_to_stub && srcdir == destdir)
-	    throw Xapian::InvalidArgumentError("destination may not be the same as any source database, unless it is a stub database");
-	switch (type) {
-	    case BACKEND_GLASS:
-		if (backend != type && backend != BACKEND_UNKNOWN) {
-		    backend_mismatch(*this, backend, srcdir, type);
-		}
-		backend = type;
-		break;
-	    default:
-		throw Xapian::DatabaseError("Only glass databases can be compacted");
-	}
-    }
-
+    auto n_shards = internal->size();
     Xapian::docid tot_off = 0;
     Xapian::docid last_docid = 0;
 
     vector<Xapian::docid> offset;
     vector<pair<Xapian::docid, Xapian::docid> > used_ranges;
-    vector<Xapian::Database::Internal *> internals;
-    offset.reserve(internal.size());
-    used_ranges.reserve(internal.size());
-    internals.reserve(internal.size());
+    vector<const Xapian::Database::Internal*> internals;
+    offset.reserve(n_shards);
+    used_ranges.reserve(n_shards);
+    internals.reserve(n_shards);
 
-    for (const auto& i : internal) {
-	Xapian::Database::Internal * db = i.get();
-	internals.push_back(db);
+    if (n_shards > 1) {
+	auto multi_db = static_cast<MultiDatabase*>(internal.get());
+	for (auto&& db : multi_db->shards) {
+	    internals.push_back(db);
+	}
+    } else {
+	internals.push_back(internal.get());
+    }
+
+    int backend = BACKEND_UNKNOWN;
+    for (auto&& shard : internals) {
+	string srcdir;
+	int type = shard->get_backend_info(&srcdir);
+	// Check destdir isn't the same as any source directory, unless it
+	// is a stub database.
+	if (!compact_to_stub && srcdir == destdir) {
+	    throw InvalidArgumentError("destination may not be the same as "
+				       "any source database, unless it is a "
+				       "stub database");
+	}
+	switch (type) {
+	    case BACKEND_GLASS:
+		if (backend != type && backend != BACKEND_UNKNOWN) {
+		    backend_mismatch(internals[0], backend, srcdir, type);
+		}
+		backend = type;
+		break;
+	    default:
+		throw DatabaseError("Only glass databases can be compacted");
+	}
 
 	Xapian::docid first = 0, last = 0;
 
 	// "Empty" databases might have spelling or synonym data so can't
 	// just be completely ignored.
-	Xapian::doccount num_docs = db->get_doccount();
+	Xapian::doccount num_docs = shard->get_doccount();
 	if (num_docs != 0) {
-	    db->get_used_docid_range(first, last);
+	    shard->get_used_docid_range(first, last);
 
 	    if (renumber && first) {
 		// Prune any unused docids off the start of this source
@@ -196,9 +206,9 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	    }
 
 #ifdef XAPIAN_ASSERTIONS
-	    LeafPostList * pl = db->open_post_list(string());
+	    PostList* pl = shard->open_post_list(string());
 	    pl->next();
-	    // This test should never fail, since db->get_doccount() is
+	    // This test should never fail, since shard->get_doccount() is
 	    // non-zero!
 	    Assert(!pl->at_end());
 	    AssertEq(pl->get_docid(), first);
@@ -215,32 +225,31 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	offset.push_back(tot_off);
 	if (renumber)
 	    tot_off += last;
-	else if (last_docid < db->get_lastdocid())
-	    last_docid = db->get_lastdocid();
+	else if (last_docid < shard->get_lastdocid())
+	    last_docid = shard->get_lastdocid();
 	used_ranges.push_back(make_pair(first, last));
     }
 
     if (renumber)
 	last_docid = tot_off;
 
-    if (!renumber && internal.size() > 1) {
+    if (!renumber && n_shards > 1) {
 	// We want to process the sources in ascending order of first
 	// docid.  So we create a vector "order" with ascending integers
-	// and then sort so the indirected order is right.  Then we reorder
-	// the vectors into that order and check the ranges are disjoint.
+	// and then sort so the indirected order is right.
 	vector<size_t> order;
-	order.reserve(internal.size());
-	for (size_t i = 0; i < internal.size(); ++i)
+	order.reserve(n_shards);
+	for (size_t i = 0; i < n_shards; ++i)
 	    order.push_back(i);
 
 	sort(order.begin(), order.end(), CmpByFirstUsed(used_ranges));
 
-	// Reorder the vectors to be in ascending of first docid, and
-	// set all the offsets to 0.
-	vector<Xapian::Database::Internal *> internals_;
-	internals_.reserve(internal.size());
+	// Now use order to reorder internals to be in ascending order by first
+	// docid, and while we're at it check the ranges are disjoint.
+	vector<const Xapian::Database::Internal*> internals_;
+	internals_.reserve(n_shards);
 	vector<pair<Xapian::docid, Xapian::docid> > used_ranges_;
-	used_ranges_.reserve(internal.size());
+	used_ranges_.reserve(n_shards);
 
 	Xapian::docid last_start = 0, last_end = 0;
 	for (size_t j = 0; j != order.size(); ++j) {

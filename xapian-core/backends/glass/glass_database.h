@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@
 #define OM_HGUARD_GLASS_DATABASE_H
 
 #include "backends/backends.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "glass_changes.h"
 #include "glass_docdata.h"
 #include "glass_inverter.h"
@@ -59,6 +59,8 @@ class GlassDatabase : public Xapian::Database::Internal {
     friend class GlassPostList;
     friend class GlassAllTermsList;
     friend class GlassAllDocsPostList;
+    friend class GlassSpellingWordsList;
+    friend class GlassSynonymTermList;
     private:
 	/** Directory to store databases in.
 	 */
@@ -260,12 +262,14 @@ class GlassDatabase : public Xapian::Database::Internal {
 	bool term_exists(const string & tname) const;
 	bool has_positions() const;
 
-	LeafPostList * open_post_list(const string & tname) const;
+	PostList * open_post_list(const string & tname) const;
+	LeafPostList* open_leaf_post_list(const string& term) const;
 	ValueList * open_value_list(Xapian::valueno slot) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 
 	PositionList * open_position_list(Xapian::docid did, const string & term) const;
 	TermList * open_term_list(Xapian::docid did) const;
+	TermList * open_term_list_direct(Xapian::docid did) const;
 	TermList * open_allterms(const string & prefix) const;
 
 	TermList * open_spelling_termlist(const string & word) const;
@@ -285,7 +289,7 @@ class GlassDatabase : public Xapian::Database::Internal {
 	string get_uuid() const;
 
 	void request_document(Xapian::docid /*did*/) const;
-	void readahead_for_query(const Xapian::Query &query);
+	void readahead_for_query(const Xapian::Query &query) const;
 	//@}
 
 	[[noreturn]]
@@ -309,12 +313,14 @@ class GlassDatabase : public Xapian::Database::Internal {
 	static void compact(Xapian::Compactor * compactor,
 			    const char * destdir,
 			    int fd,
-			    const std::vector<Xapian::Database::Internal *> & sources,
+			    const std::vector<const Xapian::Database::Internal*>& sources,
 			    const std::vector<Xapian::docid> & offset,
 			    size_t block_size,
 			    Xapian::Compactor::compaction_level compaction,
 			    unsigned flags,
 			    Xapian::docid last_docid);
+
+	std::string get_description() const;
 };
 
 /** A writable glass database.
@@ -416,14 +422,17 @@ class GlassWritableDatabase : public GlassDatabase {
 	bool term_exists(const string & tname) const;
 	bool has_positions() const;
 
-	LeafPostList * open_post_list(const string & tname) const;
+	PostList * open_post_list(const string & tname) const;
+	LeafPostList* open_leaf_post_list(const string& term) const;
 	ValueList * open_value_list(Xapian::valueno slot) const;
 	PositionList * open_position_list(Xapian::docid did, const string & term) const;
 	TermList * open_term_list(Xapian::docid did) const;
+	TermList * open_term_list_direct(Xapian::docid did) const;
 	TermList * open_allterms(const string & prefix) const;
 
 	void add_spelling(const string & word, Xapian::termcount freqinc) const;
-	void remove_spelling(const string & word, Xapian::termcount freqdec) const;
+	Xapian::termcount remove_spelling(const string & word,
+					  Xapian::termcount freqdec) const;
 	TermList * open_spelling_wordlist() const;
 
 	TermList * open_synonym_keylist(const string & prefix) const;

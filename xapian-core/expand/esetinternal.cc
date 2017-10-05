@@ -25,7 +25,8 @@
 
 #include "xapian/enquire.h"
 #include "xapian/expanddecider.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
+#include "backends/multi.h"
 #include "debuglog.h"
 #include "api/rsetinternal.h"
 #include "expandweight.h"
@@ -33,6 +34,7 @@
 #include "ortermlist.h"
 #include "str.h"
 #include "api/termlist.h"
+#include "termlistmerger.h"
 #include "unicode/description_append.h"
 
 #include <memory>
@@ -59,12 +61,6 @@ template<class CLASS> struct delete_ptr {
     void operator()(CLASS *p) const { delete p; }
 };
 
-struct CompareTermListSizeAscending {
-    bool operator()(const TermList *a, const TermList *b) const {
-	return a->get_approx_size() > b->get_approx_size();
-    }
-};
-
 /** Build a tree of binary TermList objects like QueryOptimiser does for
  *  OrPostList objects.
  */
@@ -79,56 +75,11 @@ build_termlist_tree(const Xapian::Database &db, const RSet & rset)
     termlists.reserve(docids.size());
 
     try {
-	const size_t multiplier = db.internal.size();
-	set<Xapian::docid>::const_iterator i;
-	for (i = docids.begin(); i != docids.end(); ++i) {
-	    Xapian::docid realdid = (*i - 1) / multiplier + 1;
-	    Xapian::doccount dbnumber = (*i - 1) % multiplier;
-
-	    // Push NULL first to avoid leaking the new TermList if push_back()
-	    // throws.
-	    termlists.push_back(0);
-	    termlists.back() = db.internal[dbnumber]->open_term_list(realdid);
+	for (Xapian::docid did : docids) {
+	    termlists.push_back(db.internal->open_term_list_direct(did));
 	}
-
 	Assert(!termlists.empty());
-	if (termlists.size() == 1) return termlists[0];
-
-	// Make termlists into a heap so that the longest termlist is at the
-	// top of the heap.
-	make_heap(termlists.begin(), termlists.end(),
-		  CompareTermListSizeAscending());
-
-	// Now build a tree of binary TermList objects.  The algorithm used to
-	// build the tree is like that used to build an optimal Huffman coding
-	// tree.  If we called next() repeatedly, this arrangement would
-	// minimise the number of method calls.  Generally we don't actually do
-	// that, but this arrangement is still likely to be a good one, and it
-	// does minimise the work in the worst case.
-	while (true) {
-	    AssertRel(termlists.size(), >=, 2);
-	    // We build the tree such that at each branch:
-	    //
-	    //   l.get_approx_size() >= r.get_approx_size()
-	    //
-	    // We do this so that the OrTermList class can be optimised
-	    // assuming that this is the case.
-	    TermList * r = termlists.front();
-	    pop_heap(termlists.begin(), termlists.end(),
-		     CompareTermListSizeAscending());
-	    termlists.pop_back();
-	    TermList * l = termlists.front();
-
-	    TermList * pl = new OrTermList(l, r);
-
-	    if (termlists.size() == 1) return pl;
-
-	    pop_heap(termlists.begin(), termlists.end(),
-		     CompareTermListSizeAscending());
-	    termlists.back() = pl;
-	    push_heap(termlists.begin(), termlists.end(),
-		      CompareTermListSizeAscending());
-	}
+	return make_termlist_merger(termlists);
     } catch (...) {
 	for_each(termlists.begin(), termlists.end(), delete_ptr<TermList>());
 	throw;

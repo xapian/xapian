@@ -399,12 +399,11 @@ InMemoryAllDocsPostList::get_description() const
 // Actual database class //
 ///////////////////////////
 
+// Updates are applied immediately so we can't support transactions.
 InMemoryDatabase::InMemoryDatabase()
-	: totdocs(0), totlen(0), positions_present(false), closed(false)
+    : Xapian::Database::Internal(TRANSACTION_UNIMPLEMENTED),
+      totdocs(0), totlen(0), positions_present(false), closed(false)
 {
-    // Updates are applied immediately so we can't support transactions.
-    transaction_state = TRANSACTION_UNIMPLEMENTED;
-
     // We keep an empty entry in postlists for convenience of implementing
     // allterms iteration and returning a PostList for an absent term.
     postlists.insert(make_pair(string(), InMemoryTerm()));
@@ -436,22 +435,28 @@ InMemoryDatabase::close()
     closed = true;
 }
 
-LeafPostList *
-InMemoryDatabase::open_post_list(const string & tname) const
+PostList*
+InMemoryDatabase::open_post_list(const string& term) const
+{
+    return InMemoryDatabase::open_leaf_post_list(term);
+}
+
+LeafPostList*
+InMemoryDatabase::open_leaf_post_list(const string& term) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    if (tname.empty()) {
+    if (term.empty()) {
 	intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }
-    map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    map<string, InMemoryTerm>::const_iterator i = postlists.find(term);
     if (i == postlists.end() || i->second.term_freq == 0) {
 	i = postlists.begin();
 	// Check that our dummy entry for string() is present.
 	Assert(i->first.empty());
     }
     intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
-    return new InMemoryPostList(ptrtothis, i->second, tname);
+    return new InMemoryPostList(ptrtothis, i->second, term);
 }
 
 bool
@@ -565,6 +570,12 @@ InMemoryDatabase::open_term_list(Xapian::docid did) const
     }
     return new InMemoryTermList(intrusive_ptr<const InMemoryDatabase>(this), did,
 				termlists[did - 1], doclengths[did - 1]);
+}
+
+TermList *
+InMemoryDatabase::open_term_list_direct(Xapian::docid did) const
+{
+    return InMemoryDatabase::open_term_list(did);
 }
 
 Xapian::Document::Internal *
@@ -919,7 +930,9 @@ bool
 InMemoryDatabase::term_exists(const string & tname) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    Assert(!tname.empty());
+    if (tname.empty()) {
+	return totdocs != 0;
+    }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end()) return false;
     return (i->second.term_freq != 0);
@@ -945,4 +958,10 @@ void
 InMemoryDatabase::throw_database_closed()
 {
     throw Xapian::DatabaseError("Database has been closed");
+}
+
+string
+InMemoryDatabase::get_description() const
+{
+    return "InMemory";
 }
