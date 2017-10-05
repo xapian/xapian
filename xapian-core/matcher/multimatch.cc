@@ -149,7 +149,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 {
     LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | time_limit_| stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
-    if (query.empty()) return;
+    Assert(!query.empty());
 
     Xapian::doccount number_of_subdbs = db.internal.size();
     vector<Xapian::RSet> subrsets;
@@ -216,11 +216,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | Literal("mset") | stats | Literal("mdecider") | Literal("sorter"));
     AssertRel(check_at_least,>=,maxitems);
 
-    if (query.empty()) {
-	mset = Xapian::MSet();
-	mset.internal->set_first(first);
-	return;
-    }
+    Assert(!query.empty());
 
     Assert(!leaves.empty());
 

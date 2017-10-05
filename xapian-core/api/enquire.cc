@@ -257,6 +257,12 @@ Enquire::Internal::get_mset(doccount first,
 			    const RSet* rset,
 			    const MatchDecider* mdecider) const
 {
+    if (query.empty()) {
+	MSet mset;
+	mset.internal->set_first(first);
+	return mset;
+    }
+
     if (percent_threshold && (sort_by == VAL || sort_by == VAL_REL)) {
 	throw Xapian::UnimplementedError("Use of a percentage cutoff while "
 					 "sorting primary by value isn't "
