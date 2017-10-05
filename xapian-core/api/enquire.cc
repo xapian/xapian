@@ -348,7 +348,7 @@ Enquire::Internal::get_matching_terms_begin(docid did) const
 
     // Reorder by term, secondary sort by position.
     sort(query_terms.begin(), query_terms.end(),
-	 [](term_and_pos& a, term_and_pos& b) {
+	 [](const term_and_pos& a, const term_and_pos& b) {
 	     int cmp = a.term.compare(b.term);
 	     return cmp ? cmp < 0 : a.pos < b.pos;
 	 });
@@ -380,7 +380,7 @@ Enquire::Internal::get_matching_terms_begin(docid did) const
 
     // Reorder by ascending query position.
     sort(query_terms.begin(), query_terms.end(),
-	 [](term_and_pos& a, term_and_pos& b) {
+	 [](const term_and_pos& a, const term_and_pos& b) {
 	     return a.pos < b.pos;
 	 });
 
