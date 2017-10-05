@@ -635,7 +635,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 			 int percent_cutoff, double weight_cutoff,
 			 const Xapian::Weight *wtscheme,
 			 const Xapian::RSet &omrset,
-			 const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies)
+			 const vector<opt_ptr_spy>& matchspies)
 {
     string tmp = query.serialise();
     string message = encode_length(tmp.size());
@@ -708,7 +708,7 @@ RemoteDatabase::send_global_stats(Xapian::doccount first,
 
 void
 RemoteDatabase::get_mset(Xapian::MSet &mset,
-			 const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies)
+			 const vector<opt_ptr_spy>& matchspies)
 {
     string message;
     get_message(message, REPLY_RESULTS);

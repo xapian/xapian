@@ -32,7 +32,7 @@ using namespace std;
 
 RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_,
 			       bool decreasing_relevance_,
-			       const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies_)
+			       const vector<opt_ptr_spy>& matchspies_)
 	: db(db_),
 	  decreasing_relevance(decreasing_relevance_),
 	  matchspies(matchspies_)

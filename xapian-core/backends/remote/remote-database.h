@@ -133,6 +133,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Send a keep-alive message.
     void keep_alive();
 
+    typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
+
     /** Set the query
      *
      * @param query			The query.
@@ -165,7 +167,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   int percent_cutoff, double weight_cutoff,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,
-		   const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
+		   const std::vector<opt_ptr_spy>& matchspies);
 
     /** Get the stats from the remote server.
      *
@@ -181,7 +183,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// Get the MSet from the remote server.
     void get_mset(Xapian::MSet &mset,
-		  const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
+		  const std::vector<opt_ptr_spy>& matchspies);
 
     /// Get remote metadata key list.
     TermList * open_metadata_keylist(const std::string & prefix) const;

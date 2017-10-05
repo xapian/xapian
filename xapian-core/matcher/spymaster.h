@@ -28,14 +28,16 @@
 #include <vector>
 
 class SpyMaster {
+    typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
+
     /// The MatchSpy objects to apply.
-    const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>>* spies;
+    const std::vector<opt_ptr_spy>* spies;
 
     /// Which shards are remote.
     const std::vector<bool>* is_remote;
 
   public:
-    SpyMaster(const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>>* spies_,
+    SpyMaster(const std::vector<opt_ptr_spy>* spies_,
 	      const std::vector<bool>* is_remote_)
 	: spies(spies_->empty() ? NULL : spies_), is_remote(is_remote_)
     {}
