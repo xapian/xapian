@@ -1,6 +1,4 @@
-up to: 0bb6171c66709dd23ec0b8c897937aa789d530e9
-
-Xapian-bindings 1.4.5 (2017-10-01):
+Xapian-bindings 1.4.5 (2017-10-16):
 
 Documentation:
 
@@ -17,18 +15,12 @@ General:
   bindings usually still need to wrap deprecated C++ features) so this probably
   has no user-visible consequences.
 
-Packaging:
-
-Portability:
-
-CSharp:
-
 Java:
 
 * Fix JNI code to be compatible with Java 6 and earlier, where the final
   parameter of SetByteArrayRegion() was not const.  This also seems to affect
-  GCJ (prior to it being removed from the GCC tree).  The incompatibility was
-  introduced in 1.4.4.
+  GCJ (though GCJ was removed in GCC 7).  The incompatibility was introduced in
+  1.4.4.
 
 Lua:
 
@@ -64,8 +56,6 @@ PHP7:
   that unless we're also building the PHP5 bindings, which means "make check"
   failed for PHP7 unless you also had the PHP5 bindings enabled.
 
-Python:
-
 Python3:
 
 * Fix "make check" under Python 3.2, which was broken in 1.4.4 because Python
@@ -78,8 +68,6 @@ Ruby:
 
 * Fix dependency generation for Ruby SWIG command (only relevant at all if
   you configure with --enable-maintainer-mode).
-
-Tcl:
 
 Xapian-bindings 1.4.4 (2017-04-19):
 

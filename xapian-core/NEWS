@@ -1,13 +1,11 @@
-up to: b70653aa3ef0acaa7c83e3f3d804c7d273aa99a2
-
-Xapian-core 1.4.5 (2017-10-01):
+Xapian-core 1.4.5 (2017-10-16):
 
 API:
 
 * Add Database::get_total_length() method.  Previously you had to calculate
-  this from get_avlength() and get_doccount(), and take into account rounding
-  issues.  And even then you can't reliably get the exact value when total
-  length is large as a double's mantissa has more limited precision than an
+  this from get_avlength() and get_doccount(), taking into account rounding
+  issues.  But even then you couldn't reliably get the exact value when total
+  length is large since a double's mantissa has more limited precision than an
   unsigned long long.
 
 * Add Xapian::iterator_rewound() for bidirectional iterators, to test if the
@@ -60,15 +58,6 @@ matcher:
   other branch or branches only contribute weight, so can be completely ignored
   when the operator is unweighted.
 
-glass backend:
-
-
-chert backend:
-
-
-remote backend:
-
-
 inmemory backend:
 
 * Use binary chop instead of linear search in all places where we're searching
@@ -77,6 +66,9 @@ inmemory backend:
 
 build system:
 
+* xapian-core.pc: Specify Libs.private in pkgconfig file, which is needed for
+  static linking, and probably also for shared libraries on platforms without
+  DT_NEEDED or something equivalent.  Fixes #751, reported by Matthieu Gautier.
 
 documentation:
 
@@ -90,11 +82,20 @@ documentation:
   STOP_STEMMED.  Reported by Matthieu Gautier in #750.  Thanks to Gaurav Arora
   for additional investigation.
 
+* net/remote_protocol.rst: Update the current version of the remote protocol
+  version (39 not 38).  The differences between the two are only in the Query
+  and MSet serialisations which aren't documented in detail here.
+
+* Link get_unique_terms_begin() and get_terms_begin() API documentation -
+  the cross-referencing is useful in itself, but also helps to highlight
+  the difference between the two.
+
 * Fix "IPv5" -> "IPv6" comment typo.  Noted by James Clarke
 
-* HACKING: Update link to C++ FAQ.
-
 * deprecation.html:
+
+  + Add deprecated Enquire::get_eset() overload - this was marked as deprecated
+    in the header file, but hadn't been added here.
 
   + Move deprecated typedefs to the "to be removed" list - they'd been
     accidentally added to the "removed" list.
@@ -113,15 +114,12 @@ documentation:
 
   + Update re -Wold-style-cast which we enabled and then had to disable again.
 
-  + Update URL for libstdc++'s debug mode.
+  + Update links to C++ FAQ and libstdc++'s debug mode.
 
   + Update several URLs to use https.
 
-tools:
-
-
-examples:
-
+  + The 1.2 release branch has now been retired, so remove 1.2-specific
+    backporting tips.
 
 portability:
 
@@ -145,9 +143,6 @@ portability:
 * configure: Fixed the probe for whether the test harness can use RTTI with
   IBM's xlC compiler (which defaults to not generating RTTI).  Previously the
   probe would always think RTTI was available.
-
-packaging:
-
 
 debug code:
 

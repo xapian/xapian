@@ -1,8 +1,4 @@
-up to: 144118a19b7ca202657a8d098c7882e93654e328
-
-Omega 1.4.5 (2017-10-01):
-
-general:
+Omega 1.4.5 (2017-10-16):
 
 documentation:
 
@@ -45,14 +41,8 @@ testsuite:
   from the specified fake time, and on a slow and/or heavily loaded machine a
   test taking more than a second might fail due to this.
 
-* Start adding feature tests for scriptindex (so far, checking that multiple
-  'unique' actions causes an error).
-
-build system:
-
-portability:
-
-packaging:
+* Start adding feature tests for scriptindex (so far, checking that specifying
+  multiple 'unique' actions results in an error).
 
 Omega 1.4.4 (2017-04-19):
 
