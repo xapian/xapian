@@ -510,11 +510,8 @@ Autotools versions
 
 * automake 1.15 is used to generate snapshots and releases.
 
-  automake 1.12.2 is a hard minimum requirement.  This version fixes a
-  security issue (CVE-2012-3386) in the generated `make distcheck` rules.
-
-  automake 1.12 is needed to support using LOG_COMPILER to specify a testsuite
-  driver (used by xapian-bindings).
+  automake 1.13 is a hard minimum requirement, needed for
+  `AC_CONFIG_MACRO_DIRS`.
 
 * libtool 2.4.6 is used to generate snapshots and releases.
 

@@ -38,13 +38,13 @@ dnl Where xapian-letor.h, etc go.  In development release append "/xapian-1.3".
 incdir=$includedir
 AC_SUBST([incdir])
 
-AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.13 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR([ranker/ranker.cc])
 
 AC_CONFIG_HEADERS([config.h])
 
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4])
 
 LT_PREREQ([2.2.8])
 LT_INIT

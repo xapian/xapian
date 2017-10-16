@@ -9,12 +9,12 @@ AC_INIT([xapian-bindings], project_version, [https://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
-AM_INIT_AUTOMAKE([1.12.2 parallel-tests -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE([1.13 parallel-tests -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
 AC_CONFIG_SRCDIR([xapian-headers.i])
 
 AC_CONFIG_HEADERS([config.h])
 
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4])
 
 dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
 dnl successfully link the SWIG generated modules.  The link always fails on

@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = 1.5 subdir-objects
-ACLOCAL_AMFLAGS = -I m4
+AUTOMAKE_OPTIONS = subdir-objects
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building

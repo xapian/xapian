@@ -6,8 +6,6 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-ACLOCAL_AMFLAGS = -I m4
-
 EXTRA_DIST = fake_dbfactory.i xapian-head.i xapian-headers.i generic/except.i \
     generic/generate-generic-exceptions \
     swig-depcomp \

@@ -91,12 +91,12 @@ elif test -n "$CCC" ; then
 fi
 
 dnl See HACKING document for details of the reasons for required versions.
-AM_INIT_AUTOMAKE([1.11 -Wportability tar-ustar no-dist-gzip dist-xz std-options])
+AM_INIT_AUTOMAKE([1.13 -Wportability tar-ustar no-dist-gzip dist-xz std-options])
 AC_CONFIG_SRCDIR([matcher/multiandpostlist.cc])
 
 AC_CONFIG_HEADERS([config.h])
 
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4])
 
 dnl Use libtool to manage our libraries.
 LT_PREREQ([2.2.8])

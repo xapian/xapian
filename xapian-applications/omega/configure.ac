@@ -3,13 +3,13 @@ dnl Process this file with autoconf to produce a configure script.
 m4_define([project_version], [1.4.0])
 AC_INIT([xapian-omega], project_version, [https://xapian.org/bugs])
 AC_PREREQ([2.63])
-AM_INIT_AUTOMAKE([1.11 -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE([1.13 -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
 
 AC_CONFIG_SRCDIR([omega.cc])
 
 AC_CONFIG_HEADERS([config.h])
 
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4])
 
 LT_PREREQ([2.2.6])
 LT_INIT

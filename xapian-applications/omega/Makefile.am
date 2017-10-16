@@ -6,8 +6,6 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-ACLOCAL_AMFLAGS = -I m4
-
 SUBDIRS = . docs
 
 my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.tokens
