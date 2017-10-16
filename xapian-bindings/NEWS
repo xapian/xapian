@@ -1,3 +1,74 @@
+Xapian-bindings 1.4.5 (2017-10-16):
+
+Documentation:
+
+* HACKING: Add details of Debian PHP7 packages to install for development.
+
+General:
+
+* Use a pattern match to ignore methods meant for internal use only rather
+  than having to list them all - they're consistently named to end with an
+  underscore.
+
+* Stop using deprecated Xapian::percent typedef in bindings-specific code.
+  Deprecation warnings are suppressed when building the bindings (because the
+  bindings usually still need to wrap deprecated C++ features) so this probably
+  has no user-visible consequences.
+
+Java:
+
+* Fix JNI code to be compatible with Java 6 and earlier, where the final
+  parameter of SetByteArrayRegion() was not const.  This also seems to affect
+  GCJ (though GCJ was removed in GCC 7).  The incompatibility was introduced in
+  1.4.4.
+
+Lua:
+
+* Support subclassing of RangeProcessor in Lua.
+
+Perl:
+
+* Add CLONE_SKIP to RangeProcessor and subclases to avoid double deletion
+  if the Perl threads module is in use.
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Use RangeProcessor instead of ValueRangeProcessor in perl examples, as
+  ValueRangeProcessor is now deprecated.
+
+PHP:
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Add type hints to QueryParser::add_rangeprocessor().
+
+PHP7:
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Add type hints to QueryParser::add_rangeprocessor().
+
+* Fix PHP7 "make check" to use right path separator.  It was using the PHP5
+  one, which in general is going to be the same but we won't have probed for
+  that unless we're also building the PHP5 bindings, which means "make check"
+  failed for PHP7 unless you also had the PHP5 bindings enabled.
+
+Python3:
+
+* Fix "make check" under Python 3.2, which was broken in 1.4.4 because Python
+  3.2 doesn't support the u'foo' syntax.
+
+* Copy over Python2 check which aims to catch any internal functions, methods,
+  constants, etc which have accidentally been wrapped.
+
+Ruby:
+
+* Fix dependency generation for Ruby SWIG command (only relevant at all if
+  you configure with --enable-maintainer-mode).
+
 Xapian-bindings 1.4.4 (2017-04-19):
 
 General:

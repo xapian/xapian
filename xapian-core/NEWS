@@ -1,3 +1,160 @@
+Xapian-core 1.4.5 (2017-10-16):
+
+API:
+
+* Add Database::get_total_length() method.  Previously you had to calculate
+  this from get_avlength() and get_doccount(), taking into account rounding
+  issues.  But even then you couldn't reliably get the exact value when total
+  length is large since a double's mantissa has more limited precision than an
+  unsigned long long.
+
+* Add Xapian::iterator_rewound() for bidirectional iterators, to test if the
+  iterator is at the start (useful for testing whether we're done when
+  iterating backwards).
+
+* DatabaseOpeningError exceptions now provide errno via get_error_string()
+  rather than turning it into a string and including it in the exception
+  message.
+
+* WritableDatabase::replace_document(): when passed a Document object which
+  came from a database and has unmodified values, we used to always read
+  those values into a memory structure.  Now we only do this if the document
+  is being replaced to the same document ID which it came from, which should
+  make other cases a bit more efficient.
+
+* Enquire::get_eset(): When approximating term frequencies we now round to the
+  nearest integer - previously we always rounded down.
+
+testsuite:
+
+* Improve Xapian::Document test coverage.
+
+* Pass --child-silent-after-fork=yes to valgrind which stops us creating a
+  .valgrind.log.* file for every remote testcase run.  This option was added in
+  valgrind 3.3.0 which is already the minimum version we support.
+
+* Open and unlink valgrind log before option parsing so we no longer leave a
+  log file behind if there's an error parsing options or for options like
+  --help which report and exit.
+
+* Delete .valgrind.log.* on "make clean" - if tests are run under valgrind and
+  the test is killed at just the wrong moment then a log file may be left
+  behind.
+
+* Fix the NetworkError with ECHILD check added in 1.4.4 - this will no longer
+  segfault if the test harness catches a NetworkError without an error string.
+
+matcher:
+
+* Iterating of positions has been sped up, which means phrase matching is now
+  faster (by a little over 5% in some simple tests).
+
+* Fix use after free of QueryOptimiser hint in certain cases involving
+  multiple databases only some of which have positional information.
+  This bug was introduced by changes in xapian-core 1.4.3.  Fixes #752,
+  reported and analysed by Robert Stepanek.
+
+* An unweighted OP_AND_MAYBE is now optimised to just its left branch - the
+  other branch or branches only contribute weight, so can be completely ignored
+  when the operator is unweighted.
+
+inmemory backend:
+
+* Use binary chop instead of linear search in all places where we're searching
+  for a term or document - we weren't taking advantage of the sorted order
+  everywhere.
+
+build system:
+
+* xapian-core.pc: Specify Libs.private in pkgconfig file, which is needed for
+  static linking, and probably also for shared libraries on platforms without
+  DT_NEEDED or something equivalent.  Fixes #751, reported by Matthieu Gautier.
+
+documentation:
+
+* Document that QueryParser::set_default_op() supports OP_MAX - this
+  has been the case since OP_MAX was added, but the API docs for
+  set_default_op() weren't updated to reflect this.
+
+* Document OP_MAX and OP_WILDCARD.
+
+* Fix documentation of TermGenerator stop_strategy values STOP_ALL and
+  STOP_STEMMED.  Reported by Matthieu Gautier in #750.  Thanks to Gaurav Arora
+  for additional investigation.
+
+* net/remote_protocol.rst: Update the current version of the remote protocol
+  version (39 not 38).  The differences between the two are only in the Query
+  and MSet serialisations which aren't documented in detail here.
+
+* Link get_unique_terms_begin() and get_terms_begin() API documentation -
+  the cross-referencing is useful in itself, but also helps to highlight
+  the difference between the two.
+
+* Fix "IPv5" -> "IPv6" comment typo.  Noted by James Clarke
+
+* deprecation.html:
+
+  + Add deprecated Enquire::get_eset() overload - this was marked as deprecated
+    in the header file, but hadn't been added here.
+
+  + Move deprecated typedefs to the "to be removed" list - they'd been
+    accidentally added to the "removed" list.
+
+  + Improve descriptions of several deprecated features.
+
+* QueryParser::set_max_expansion() is now discussed in the API documentation
+  instead of the deprecated set_max_wildcard_expansion().
+
+* Clarify PostList::check() API documentation:  If valid is set to false, then
+  NULL must be returned (pruning in this situation doesn't make sense) and
+  at_end() shouldn't be called (because it implicitly depends on the current
+  position being valid).
+
+* HACKING:
+
+  + Update re -Wold-style-cast which we enabled and then had to disable again.
+
+  + Update links to C++ FAQ and libstdc++'s debug mode.
+
+  + Update several URLs to use https.
+
+  + The 1.2 release branch has now been retired, so remove 1.2-specific
+    backporting tips.
+
+portability:
+
+* Also check <errno.h> for sys_nerr and sys_errlist.  This is probably a more
+  common location for them than Linux's <stdio.h> (even on Linux the man page
+  says they're in <errno.h> but that doesn't match reality).
+
+* Use $(CC) not $(CC_FOR_BUILD) to build zlib-vg.so.  The test for whether we
+  need it is based on the host OS, so it makes more sense to use the host
+  compiler to build it when cross compiling.
+
+* On Hurd F_GETLK currently always fails with errno set to ENOSYS - treat this
+  the same way as ENOLCK.  This fixes the testsuite on GNU Hurd, broken since
+  the addition on Database::locked() in 1.4.3.
+
+* Add missing #include "safesyssocket.h", needed on at least FreeBSD to get
+  AF_INET and SOCK_STREAM defined.  Fixes
+  https://github.com/xapian/xapian/pull/154, reported by Po-Chuan Hsieh
+  (alternative fix applied was suggested by James Aylett).
+
+* configure: Fixed the probe for whether the test harness can use RTTI with
+  IBM's xlC compiler (which defaults to not generating RTTI).  Previously the
+  probe would always think RTTI was available.
+
+debug code:
+
+* Fix some incorrect class/method names in debug logging.
+
+* Stop disabling ccache for coverage builds as ccache 3.2.2 now supports
+  caching compilations with --coverage, and they work as far back as ccache 3.0
+  (caching is automatically disabled by these older versions).
+
+* Drop --enable-quiet from in COVERAGE_CONFIGURE - this option no longer does
+  anything since 1.3.1.
+
 Xapian-core 1.4.4 (2017-04-19):
 
 API:

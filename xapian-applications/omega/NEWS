@@ -1,3 +1,49 @@
+Omega 1.4.5 (2017-10-16):
+
+documentation:
+
+* Direct users towards $set{flag_spelling_correction,true} rather than the
+  deprecated $set{spelling,true} (which is slated for removal in 1.5.0).
+
+* Fix typo in docs.
+
+indexers:
+
+* omindex:
+
+  + Check file size before calling libmagic to get the mime type, since
+    reading the file size is a much cheaper check and we can skip the
+    libmagic test if the file is empty or larger than the specified
+    maximum size.  Patch from caiyulun.
+
+* scriptindex:
+
+  + Reject index scripts with multiple "unique" actions.  We don't handle this
+    case sensibly, and it doesn't seem like it really has a use, so better to
+    give an error for people who do this inadvertently.
+
+omega:
+
+* New $seterror command to set the error message.  Implemented by Gaurav Arora.
+
+* Make $highlight more efficient.  Patch from Vivek Pal.
+
+templates:
+
+* query: Use $prettyurl for the URL shown at the end of each match (previously
+  we only used it on the URL shown as a fallback when the document has no
+  title).  Split off from changes by Vivek Pal in
+  https://github.com/xapian/xapian/pull/161
+
+testsuite:
+
+* omegatest: Tell faketime to freeze the clock - previously the clock ran on
+  from the specified fake time, and on a slow and/or heavily loaded machine a
+  test taking more than a second might fail due to this.
+
+* Start adding feature tests for scriptindex (so far, checking that specifying
+  multiple 'unique' actions results in an error).
+
 Omega 1.4.4 (2017-04-19):
 
 indexers:
