@@ -425,7 +425,9 @@ class SmallVectorI : public SmallVector_ {
     }
 
     void push_back(TI* elt) {
-	do_push_back(static_cast<void*>(elt));
+	// Cast away potential const-ness in TI.  We can only try to modify an
+	// element after casting to TI*, so this is const-safe overall.
+	do_push_back(const_cast<void*>(static_cast<const void*>(elt)));
 	if (elt)
 	    ++elt->_refs;
     }
