@@ -84,7 +84,7 @@ check_at_least() {
   for v in $v2 ; do
     shift
     if [ "$1" != "$v" ] ; then
-      if [ "$1" -lt "$v" ] ; then
+      if [ -z "$1" ] || [ "$1" -lt "$v" ] ; then
 	IFS=$save_IFS
 	return 1
       fi
