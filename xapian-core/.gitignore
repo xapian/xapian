@@ -23,6 +23,7 @@
 /.libs
 /autom4te*.cache
 /depcomp
+/installable
 /m4/libtool.m4
 /m4/lt*.m4
 /missing
