@@ -105,6 +105,8 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
     out << "remote :" << BackendManager::get_xapian_progsrv_command()
 	<< ' ' << get_database_path("apitest_simpledata") << endl;
     out.close();
+    tout << "remote :" << BackendManager::get_xapian_progsrv_command()
+	<< ' ' << get_database_path("apitest_simpledata") << endl;
 
     try {
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
