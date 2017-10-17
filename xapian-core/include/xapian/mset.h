@@ -106,7 +106,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     template <typename Iterator>
     void replace_weights(Iterator first, Iterator last)
     {
-	if (last - first != size()) {
+	auto delta = last - first;
+	if (delta < 0 || Xapian::doccount(delta) != size()) {
 	    throw Xapian::InvalidArgumentError("Number of weights assigned "
 					       "doesn't match the number of "
 					       "items");
