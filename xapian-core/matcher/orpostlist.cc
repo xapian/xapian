@@ -327,7 +327,11 @@ template<typename T>
 static void
 estimate_or_assuming_indep(double a, double b, double n, T& res)
 {
-    res = static_cast<T>(a + b - (a * b / n) + 0.5);
+    if (rare(n == 0.0)) {
+	res = 0;
+    } else {
+	res = static_cast<T>(a + b - (a * b / n) + 0.5);
+    }
 }
 
 Xapian::doccount
