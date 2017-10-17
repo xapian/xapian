@@ -278,9 +278,10 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    # On atreus, javac keeps going into memory eating loops, so don't try to
-    # build the java bindings.
-    $log = `../xapian/configure --enable-quiet --enable-maintainer-mode --without-java 2>&1`;
+    # On the old server, javac kept going into memory eating loops, so we
+    # skipped the java bindings.  Reenable for now...
+    #$log = `../xapian/configure --enable-quiet --enable-maintainer-mode --without-java 2>&1`;
+    $log = `../xapian/configure --enable-quiet --enable-maintainer-mode 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** configure failed for '$tag':";
