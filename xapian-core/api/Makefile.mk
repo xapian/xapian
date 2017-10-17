@@ -5,6 +5,7 @@ noinst_HEADERS +=\
 	api/emptypostlist.h\
 	api/enquireinternal.h\
 	api/leafpostlist.h\
+	api/msetinternal.h\
 	api/result.h\
 	api/postlist.h\
 	api/queryinternal.h\
