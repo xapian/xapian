@@ -46,7 +46,7 @@ if (scalar @ARGV && $ARGV[0] eq '--force') {
 my $work = "/home/olly/tmp/xapian-git-snapshot";
 # Add ccache's directory first so we'll use it if it is installed.
 $ENV{PATH} = "/usr/lib/ccache:/home/olly/install/bin:/usr/bin:/bin";
-my $repourl = '/home/xapian-git/xapian/';
+my $repourl = '/home/xapian-git-write/xapian';
 my $webbase = '/srv/www';
 
 # Create the work directory first, since we need it to exist so we can create
