@@ -350,7 +350,9 @@ foreach my $tag (@ARGV) {
     print SIZELOG "$tag\trev=$revision\tunstripped_so=$unstripped_so\tstripped_so=$stripped_so\n";
     close SIZELOG;
 
-    $log = `make -s distcheck VALGRIND= 2>&1`;
+    # Need to set LD_LIBRARY_PATH so that e.g. omega run from omegatest finds
+    # a suitable "libxapian.so".
+    $log = `env LD_LIBRARY_PATH="\`pwd\`"/xapian-core/.libs make -s distcheck VALGRIND= 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** make distcheck failed for '$tag':";
