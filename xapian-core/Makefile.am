@@ -69,16 +69,19 @@ coverage-check:
 
 # We want to clean out build tree paths from the copy of xapian-config we
 # install, mostly in the interests of facilitating reproducible builds.
+bin_SCRIPTS = installable/xapian-config
+
+# Create the installable version in a subdirectory.  It's not made executable
+# until install time, which hopefully should avoid people trying to use it when
+# building against an uninstalled xapian-core.
+installable/xapian-config: xapian-config
+	$(MKDIR_P) installable
+	$(SED) '/##UNINSTONLYBEGIN/,/##UNINSTONLYEND/d' xapian-config > installable/xapian-config.tmp
+	mv installable/xapian-config.tmp installable/xapian-config
+
+CLEANFILES += installable/xapian-config
+
 noinst_SCRIPTS = xapian-config
-
-install-exec-local: xapian-config
-	$(MKDIR_P) "$(DESTDIR)$(bindir)"
-	$(SED) '/##UNINSTONLYBEGIN/,/##UNINSTONLYEND/d' xapian-config > tmp.xc
-	$(INSTALL_SCRIPT) tmp.xc "$(DESTDIR)$(bindir)$$dir/`echo xapian-config|$(SED) -e '$(transform)'`"
-	rm -f tmp.xc
-
-uninstall-local:
-	rm -f "$(DESTDIR)$(bindir)$$dir/xapian-config"
 
 DISTCLEANFILES += xapian-config
 
