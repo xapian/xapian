@@ -702,14 +702,14 @@ dnl  contains an snprintf equivalent to sprintf, i.e., one that ignores the
 dnl  size argument.  Thus, the use of snprintf with early libc4 leads to
 dnl  serious security problems.
 dnl
-dnl It also warns that glibc < 2.0.6 (and presumably other pre-C90
+dnl It also warns that glibc < 2.0.6 (and presumably other pre-C99
 dnl implementations) return -1 when truncating so check that we get the
-dnl ISO C90 semantics for the returned length when truncating.  If we
+dnl ISO C99 semantics for the returned length when truncating.  If we
 dnl have a working snprintf but with non-ISO return semantics, handle
 dnl that case separately as it may still be useful in many cases.
 dnl
 dnl mingw has _snprintf so check for that too.
-AC_MSG_CHECKING([for working ISO C90 conforming snprintf])
+AC_MSG_CHECKING([for working ISO C99 conforming snprintf])
 ac_cv_func_snprintf_noniso=no
 for func in snprintf _snprintf ; do
   AC_RUN_IFELSE([
@@ -745,7 +745,7 @@ done
 AC_MSG_RESULT([$ac_cv_func_snprintf])
 case $ac_cv_func_snprintf in
   no)
-    AC_MSG_CHECKING([for working non-ISO C90 conforming snprintf])
+    AC_MSG_CHECKING([for working non-ISO C99 conforming snprintf])
     AC_MSG_RESULT([$ac_cv_func_snprintf_noniso])
     if test no != "$ac_cv_func_snprintf_noniso" ; then
       AC_DEFINE_UNQUOTED([SNPRINTF], [$ac_cv_func_snprintf_noniso],
