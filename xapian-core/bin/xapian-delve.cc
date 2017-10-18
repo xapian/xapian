@@ -91,6 +91,8 @@ show_db_stats(Database &db)
 	cout << db.get_revision() << endl;
     } catch (const Xapian::InvalidOperationError& e) {
 	cout << e.get_description() << endl;
+    } catch (const Xapian::UnimplementedError& e) {
+	cout << e.get_description() << endl;
     }
     cout << "currently open for writing = ";
     try {
