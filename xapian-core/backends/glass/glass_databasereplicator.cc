@@ -56,7 +56,6 @@ throw_connection_closed_unexpectedly()
 using namespace std;
 using namespace Xapian;
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
 static const char * dbnames =
 	"/postlist." GLASS_TABLE_EXTENSION "\0"
 	"/docdata." GLASS_TABLE_EXTENSION "\0\0"
@@ -64,7 +63,6 @@ static const char * dbnames =
 	"/position." GLASS_TABLE_EXTENSION "\0"
 	"/spelling." GLASS_TABLE_EXTENSION "\0"
 	"/synonym." GLASS_TABLE_EXTENSION;
-#endif
 
 GlassDatabaseReplicator::GlassDatabaseReplicator(const string & db_dir_)
     : db_dir(db_dir_)
@@ -126,7 +124,6 @@ GlassDatabaseReplicator::process_changeset_chunk_version(string & buf,
 							 RemoteConnection & conn,
 							 double end_time) const
 {
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
 
@@ -170,11 +167,6 @@ GlassDatabaseReplicator::process_changeset_chunk_version(string & buf,
     }
 
     buf.erase(0, size);
-#else
-    (void)buf;
-    (void)conn;
-    (void)end_time;
-#endif
 }
 
 void
@@ -184,7 +176,6 @@ GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table,
 							RemoteConnection & conn,
 							double end_time) const
 {
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
 
@@ -221,13 +212,6 @@ GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table,
 
     io_write_block(fd, buf.data(), changeset_blocksize, block_number);
     buf.erase(0, changeset_blocksize);
-#else
-    (void)table;
-    (void)v;
-    (void)buf;
-    (void)conn;
-    (void)end_time;
-#endif
 }
 
 string
@@ -236,7 +220,7 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 						   bool valid) const
 {
     LOGCALL(DB, string, "GlassDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
+
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);
     string explanation;
@@ -349,12 +333,6 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     commit();
 
     RETURN(buf);
-#else
-    (void)conn;
-    (void)end_time;
-    (void)valid;
-    RETURN(string());
-#endif
 }
 
 string
