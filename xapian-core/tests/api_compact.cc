@@ -590,7 +590,7 @@ DEFINE_TESTCASE(compacttofd1, glass) {
     string outdbpath = get_named_writable_database_path("compacttofd1out");
     rm_rf(outdbpath);
 
-    int fd = open(outdbpath.c_str(), O_CREAT|O_RDWR, 0666);
+    int fd = open(outdbpath.c_str(), O_CREAT|O_RDWR|O_BINARY, 0666);
     TEST(fd != -1);
     indb.compact(fd);
 
@@ -612,7 +612,7 @@ DEFINE_TESTCASE(compacttofd2, glass) {
     string outdbpath = get_named_writable_database_path("compacttofd2out");
     rm_rf(outdbpath);
 
-    int fd = open(outdbpath.c_str(), O_CREAT|O_RDWR, 0666);
+    int fd = open(outdbpath.c_str(), O_CREAT|O_RDWR|O_BINARY, 0666);
     TEST(fd != -1);
     TEST(lseek(fd, 8192, SEEK_SET) == 8192);
     indb.compact(fd);
@@ -621,7 +621,7 @@ DEFINE_TESTCASE(compacttofd2, glass) {
     TEST(close(fd) == -1);
     TEST(errno == EBADF);
 
-    fd = open(outdbpath.c_str(), O_RDONLY, 0666);
+    fd = open(outdbpath.c_str(), O_RDONLY|O_BINARY, 0666);
     TEST(fd != -1);
 
     // Test that the database wasn't just written to the start of the file.
