@@ -1553,17 +1553,16 @@ eval(const string &fmt, const vector<string> &param)
 		    value = "true";
 		break;
 	    case CMD_hash: {
-		string data = args[0];
-		string hash = args[1];
+		const string& data = args[0];
+		const string& hash = args[1];
 		if (hash == "md5") {
-		    string md5, hexhash;
+		    string md5;
 		    md5_string(data, md5);
-		    for (size_t i = 0; i < md5.size(); ++i) {
-			char buf[16];
-			sprintf(buf, "%02x", static_cast<unsigned char>(md5[i]));
-			hexhash += buf;
+		    value.reserve(md5.size() * 2);
+		    for (unsigned char byte : md5) {
+			value += "0123456789abcdef"[byte >> 4];
+			value += "0123456789abcdef"[byte & 0x0f];
 		    }
-		    value = hexhash;
 		} else {
 		    throw "Unknown hash function: " + hash;
 		}
