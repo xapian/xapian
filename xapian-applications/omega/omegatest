@@ -439,6 +439,10 @@ testcase 'b4c216e4da73d1d01277ef46d0514821' text="simple query"
 testcase 'd41d8cd98f00b204e9800998ecf8427e' text=""
 testcase '3302c94d3500c3f695b7e09b7acd420d' text=" test "
 
+# Regression test - original implementation truncated data at first zero byte.
+printf '$hash{$cgi{text}$chr{0},md5}' > "$TEST_TEMPLATE"
+testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
+
 printf '$hash{$cgi{text},invalidhash}' > "$TEST_TEMPLATE"
 testcase 'Exception: Unknown hash function: invalidhash' text="test"
 

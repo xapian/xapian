@@ -1557,7 +1557,7 @@ eval(const string &fmt, const vector<string> &param)
 		string hash = args[1];
 		if (hash == "md5") {
 		    string md5, hexhash;
-		    md5_string(data.c_str(), md5);
+		    md5_string(data, md5);
 		    for (size_t i = 0; i < md5.size(); ++i) {
 			char buf[16];
 			sprintf(buf, "%02x", static_cast<unsigned char>(md5[i]));
