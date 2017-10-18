@@ -495,10 +495,10 @@ Removed Feature name                        Upgrade suggestion and comments
         ``Enquire::get_mset()``
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``Xapian::Query::unserialise()``    To be compatible with older and newer Xapian, you can catch both exceptions.
-	throws
-	``Xapian::SerialisationError`` not
-	``Xapian::InvalidArgumentError``
-	for errors in serialised data
+        throws
+        ``Xapian::SerialisationError`` not
+        ``Xapian::InvalidArgumentError``
+        for errors in serialised data
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.2   The Brass backend                   Use the Glass backend instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
