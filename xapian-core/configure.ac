@@ -1204,7 +1204,7 @@ if test yes = "$GXX"; then
 
   if test no != "$enable_visibility"; then
     dnl GCC doesn't support symbol visibility on all platforms (e.g. it isn't
-    dnl on mingw).
+    dnl supported on mingw).
     AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
     if echo 'int bar() __attribute__((visibility("default"))); int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
       AC_MSG_RESULT([yes])
@@ -1325,7 +1325,7 @@ AH_BOTTOM(
 /* With Sun CC 5.13 (Studio 12.4) on Solaris 11.2, <math.h> seems to get
  * implicitly included somehow before <cmath>, and compilation fails due
  * to 'std::exception' colliding with 'struct exception'.  It's not clear
- * how to avoid this, so just define the making macro which <cmath> does
+ * how to avoid this, so just define the same magic macro which <cmath> does
  * before it includes <math.h>.
  */
 #ifdef __SUNPRO_CC
