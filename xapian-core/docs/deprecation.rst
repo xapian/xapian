@@ -52,7 +52,9 @@ of this file, will describe possible alternatives to the deprecated feature.
 If you want to disable deprecation warnings temporarily, you can do so
 by passing ``"-DXAPIAN_DEPRECATED(X)=X"`` to the compiler (the quotes are
 needed to protect the brackets from the shell).  If your build system uses
-make, you might do this like so::
+make, you might do this like so:
+
+.. code-block:: sh
 
     make 'CPPFLAGS="-DXAPIAN_DEPRECATED(X)=X"'
 
