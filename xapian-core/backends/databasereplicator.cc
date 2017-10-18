@@ -30,7 +30,7 @@
 #include "debuglog.h"
 #include "filetests.h"
 
-#ifdef XAPIAN_HAS_GLASS_BACKEND
+#if defined XAPIAN_HAS_GLASS_BACKEND && defined XAPIAN_HAS_REMOTE_BACKEND
 # include "glass/glass_databasereplicator.h"
 #endif
 
@@ -49,7 +49,11 @@ DatabaseReplicator::open(const string & path)
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (file_exists(path + "/iamglass")) {
+# ifdef XAPIAN_HAS_REMOTE_BACKEND
 	return new GlassDatabaseReplicator(path);
+# else
+	throw FeatureUnavailableError("Replication disabled");
+# endif
     }
 #endif
 
