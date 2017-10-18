@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016,2017 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -106,17 +106,26 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	<< ' ' << get_database_path("apitest_simpledata") << endl;
     out.close();
 
-    {
+    try {
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
+    } catch (Xapian::FeatureUnavailableError&) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	throw;
+#endif
     }
-    {
+
+    try {
 	Xapian::Database db(dbpath);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
+    } catch (Xapian::FeatureUnavailableError&) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	throw;
+#endif
     }
 
     out.open(dbpath);
@@ -134,21 +143,28 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB)
     );
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+# define EXPECTED_EXCEPTION Xapian::DatabaseOpeningError
+#else
+# define EXPECTED_EXCEPTION Xapian::FeatureUnavailableError
+#endif
+
     out.open(dbpath);
     TEST(out.is_open());
     out << "remote foo" << endl;
     out.close();
 
     // Quietly ignored prior to 1.4.1.
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(EXPECTED_EXCEPTION,
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB)
     );
 
     // Quietly ignored prior to 1.4.1.
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(EXPECTED_EXCEPTION,
 	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB)
     );
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     out.open(dbpath);
     TEST(out.is_open());
     out << "remote [::1]:80" << endl;
@@ -179,6 +195,7 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	// So we test the message instead of the error string for portability.
 	TEST(e.get_msg().find("host ::1") != string::npos);
     }
+#endif
 
     out.open(dbpath);
     TEST(out.is_open());
@@ -188,13 +205,13 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 
     // 1.4.0 threw:
     // NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(EXPECTED_EXCEPTION,
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
     );
 
     // 1.4.0 threw:
     // NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(EXPECTED_EXCEPTION,
 	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB);
     );
 
