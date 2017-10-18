@@ -442,7 +442,7 @@ portability:
   too.
 
 * Use __builtin_clz() with compilers which support it to speed up encoding
-  and especially decoding of positional data.  This speed up phrase searching
+  and especially decoding of positional data.  This speeds up phrase searching
   by ~0.5% in a simple test.
 
 * Check signed right shift behaviour at compile time - we can use a test on a
