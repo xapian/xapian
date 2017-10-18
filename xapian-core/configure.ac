@@ -768,23 +768,38 @@ dnl ***************************
 
 dnl Check which database backends should be built.
 
-AC_DEFUN([XAPIAN_BACKEND_ENABLE],
+AC_DEFUN([_XAPIAN_BACKEND_ENABLE],
   [AC_ARG_ENABLE([backend_$1],
-    [AS_HELP_STRING([--enable-backend-$1], [build the $1 database backend [default=yes]])],
+    [AS_HELP_STRING([--enable-backend-$1], [build the $1 database backend [default=$3]])],
     [case $enableval in
       yes|no) ;;
       *) AC_MSG_ERROR([Invalid option: '--enable-backend-$1=$enableval']) ;;
-    esac], [enable_backend_$1=yes])
+    esac], [enable_backend_$1=$2])
+  ])
+
+AC_DEFUN([XAPIAN_BACKEND_ENABLE],
+  [_XAPIAN_BACKEND_ENABLE([$1],
+    m4_default([$2], [yes]),
+    m4_default([$3], [yes]))
   ])
 
 dnl When adding a new backend, update INSTALL too.
 XAPIAN_BACKEND_ENABLE([chert])
 XAPIAN_BACKEND_ENABLE([glass])
 XAPIAN_BACKEND_ENABLE([inmemory])
-XAPIAN_BACKEND_ENABLE([remote])
+default_enable_backend_remote=yes
+case $host_os in
+  *djgpp* | *msdos* )
+    dnl We don't currently support the remote backend on this platform so
+    dnl disable it by default.
+    default_enable_backend_remote=no
+    ;;
+esac
+XAPIAN_BACKEND_ENABLE([remote], [$default_enable_backend_remote], [yes (except for MSDOS)])
 
 use_proc_for_uuid=0
 use_win32_uuid_api=0
+win32_need_lws2_32=0
 case $enable_backend_chert$enable_backend_glass in
 *yes*)
   dnl We use zlib for compressing tags in chert/glass.  We could
@@ -815,6 +830,8 @@ case $enable_backend_chert$enable_backend_glass in
   case $host_os in
     *mingw* | *cygwin*) dnl Use built-in API.
       use_win32_uuid_api=1
+      dnl We need -lws2_32 for htonl(), etc.
+      win32_need_lws2_32=1
       ;;
     *)
       dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
@@ -864,26 +881,35 @@ case $enable_backend_chert$enable_backend_glass in
 	      [Define to 1 if you have the 'uuid_unparse_lower' function.])
     ])
   LIBS=$SAVE_LIBS
+
+  case $host_os in
+    *djgpp* | *msdos* )
+      dnl DJGPP has a dummy implementation of fork which always fails.
+      dnl
+      dnl For disk-based backends, use flock() for locking, which doesn't need
+      dnl fork() or socketpair().
+      AC_DEFINE([FLINTLOCK_USE_FLOCK], 1, [Define to use flock() for flint-compatible locking])
+      ;;
+  esac
   ;;
 esac
 AM_CONDITIONAL([USE_PROC_FOR_UUID], [test "$use_proc_for_uuid" = 1])
 AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
-REMOTE_LIBS=
-if test "$enable_backend_remote" = yes ; then
-  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #ifdef __WIN32__
 #error WIN32
 #endif
-  ]])], [win32=no], [win32=yes])
+]])], [win32=no], [win32=yes])
 
+if test "$enable_backend_remote" = yes ; then
   case $host_os-$win32 in
     *-yes )
       dnl For mingw and msvc we have an alternative implementation which
       dnl doesn't need fork() or socketpair().
       dnl
       dnl We need -lws2_32 for getaddrinfo(), etc.
-      REMOTE_LIBS=-lws2_32
+      win32_need_lws2_32=1
       dnl Vista is needed for the AI_ADDRCONFIG flag to getaddrinfo().
       AC_DEFINE([WINVER], [0x600],
 		[Version of Windows to assume (0x600 => Vista).])
@@ -891,15 +917,11 @@ if test "$enable_backend_remote" = yes ; then
 		[Version of Windows to assume.])
       ;;
     *djgpp* | *msdos* )
-      dnl DJGPP has a dummy implementation of fork which always fails.
-      dnl
-      dnl For disk-based backend, use flock() for locking, which doesn't need
-      dnl fork() or socketpair().
-      AC_DEFINE([FLINTLOCK_USE_FLOCK], 1, [Define to use flock() for flint-compatible locking])
-      dnl If someone actually wanted remote backend support, then DJGPP has a
+      dnl DJGPP has a dummy implementation of fork which always fails.  If
+      dnl someone actually wanted remote backend support, then DJGPP has a
       dnl pthreads port, so using threads like we do on Windows would make more
       dnl sense.
-      enable_backend_remote=no
+      AC_MSG_ERROR([The remote backend is not currently supported on this platform.])
       ;;
     *)
       dnl On Unix, we need fork and socketpair for the remotebackend.
@@ -927,15 +949,16 @@ if test "$enable_backend_remote" = yes ; then
       AC_SEARCH_LIBS([inet_ntop], [nsl socket], [], [
 	AC_MSG_ERROR([inet_ntop() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
       ])
-      REMOTE_LIBS=$LIBS
+      XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
       LIBS=$SAVE_LIBS
       ;;
   esac
 
-  if test "$enable_backend_remote" = yes ; then
-    TYPE_SOCKLEN_T
-    XAPIAN_LIBS="$XAPIAN_LIBS $REMOTE_LIBS"
-  fi
+  TYPE_SOCKLEN_T
+fi
+
+if test "$win32_need_lws2_32" = 1 ; then
+  XAPIAN_LIBS="$XAPIAN_LIBS -lws2_32"
 fi
 
 AC_ARG_ENABLE([visibility],
