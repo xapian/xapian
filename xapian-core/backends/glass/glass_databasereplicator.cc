@@ -56,6 +56,7 @@ throw_connection_closed_unexpectedly()
 using namespace std;
 using namespace Xapian;
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 static const char * dbnames =
 	"/postlist." GLASS_TABLE_EXTENSION "\0"
 	"/docdata." GLASS_TABLE_EXTENSION "\0\0"
@@ -63,6 +64,7 @@ static const char * dbnames =
 	"/position." GLASS_TABLE_EXTENSION "\0"
 	"/spelling." GLASS_TABLE_EXTENSION "\0"
 	"/synonym." GLASS_TABLE_EXTENSION;
+#endif
 
 GlassDatabaseReplicator::GlassDatabaseReplicator(const string & db_dir_)
     : db_dir(db_dir_)
