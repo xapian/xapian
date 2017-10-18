@@ -60,12 +60,16 @@ void cp_R(const std::string &src, const std::string &dest) {
     // whether we want to create a directory or a file (which makes no sense
     // when copying a directory, but that's how xcopy seems to work!)
     mkdir(dest.c_str());
-    string cmd("xcopy /E /Y");
+    string cmd("xcopy /E /q /Y");
 #else
     string cmd("cp -R");
 #endif
     if (!append_filename_argument(cmd, src)) return;
     if (!append_filename_argument(cmd, dest)) return;
+#ifdef __WIN32__
+    // xcopy reports how many files it copied, even with /q.
+    cmd += " >nul";
+#endif
     checked_system(cmd);
 #ifndef __WIN32__
     // Allow write access to the copy (to deal with builds where srcdir is
