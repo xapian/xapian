@@ -9,9 +9,7 @@ noinst_PROGRAMS =
 if BUILD_BACKEND_CHERT_OR_GLASS
 bin_PROGRAMS +=\
 	bin/xapian-check\
-	bin/xapian-compact\
-	bin/xapian-replicate\
-	bin/xapian-replicate-server
+	bin/xapian-compact
 
 if BUILD_BACKEND_CHERT
 noinst_PROGRAMS +=\
@@ -22,20 +20,22 @@ if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-check.1\
 	bin/xapian-compact.1\
-	bin/xapian-delve.1\
-	bin/xapian-replicate.1\
-	bin/xapian-replicate-server.1
+	bin/xapian-delve.1
 endif
 endif
 
 if BUILD_BACKEND_REMOTE
 bin_PROGRAMS +=\
 	bin/xapian-progsrv\
+	bin/xapian-replicate\
+	bin/xapian-replicate-server\
 	bin/xapian-tcpsrv
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-progsrv.1\
+	bin/xapian-replicate.1\
+	bin/xapian-replicate-server.1\
 	bin/xapian-tcpsrv.1
 endif
 endif
