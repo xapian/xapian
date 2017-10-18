@@ -438,7 +438,7 @@ void
 GlassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 {
     LOGCALL_VOID(DB, "GlassDatabase::send_whole_database", conn | end_time);
-
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     // Send the current revision number in the header.
     string buf;
     string uuid = get_uuid();
@@ -470,6 +470,10 @@ GlassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 	}
 	p += len + 1;
     } while (*p);
+#else
+    (void)conn;
+    (void)end_time;
+#endif
 }
 
 void
