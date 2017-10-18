@@ -347,7 +347,11 @@ DEFINE_TESTCASE(testlock1, chert || glass) {
 	rdb = get_writable_database_as_database();
 	TEST(db.locked());
 	TEST(db_as_database.locked());
-	TEST(rdb.locked());
+	try {
+	    TEST(rdb.locked());
+	} catch (const Xapian::UnimplementedError&) {
+	    SKIP_TEST("Database::locked() not supported on this platform");
+	}
 	db_as_database = rdb;
 	TEST(db.locked());
 	TEST(db_as_database.locked());
