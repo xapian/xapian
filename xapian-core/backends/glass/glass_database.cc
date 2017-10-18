@@ -485,7 +485,7 @@ GlassDatabase::write_changesets_to_fd(int fd,
 				      ReplicationInfo * info)
 {
     LOGCALL_VOID(DB, "GlassDatabase::write_changesets_to_fd", fd | revision | need_whole_db | info);
-
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
     glass_revision_number_t start_rev_num = 0;
     string start_uuid = get_uuid();
@@ -601,6 +601,12 @@ GlassDatabase::write_changesets_to_fd(int fd,
 	}
     }
     conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), 0.0);
+#else
+    (void)fd;
+    (void)revision;
+    (void)need_whole_db;
+    (void)info;
+#endif
 }
 
 void
