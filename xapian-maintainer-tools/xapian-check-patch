@@ -360,7 +360,7 @@ QUOTELOOP:  while (1) {
 		diagnostic('error', "Should have exactly one space after '$op'", $fullline);
 	    }
 	}
-	if (/;;\s*$/) {
+	if (/^\+.*;;\s*$/) {
 	    diagnostic('error', "Extra ';' at end of line", $fullline);
 	}
 	if (m@^\+[^#]*?[^#\h] +(,|->)@) {
@@ -473,7 +473,7 @@ QUOTELOOP:  while (1) {
 	    }
 	}
     } elsif (defined $lang && $lang eq 'py') {
-	if (/;\s*$/) {
+	if (/^\+.*;\s*$/) {
 	    diagnostic('error', "';' at end of line of python code", $fullline);
 	}
     }
