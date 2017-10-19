@@ -454,6 +454,17 @@ if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null < /dev/null ; then
     failed=`expr $failed + 1`
 fi
 
+# Test we check for hash's argument being an integer (new in 1.4.6).
+printf 'url : hash=37.3 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+    | grep -q "Index action 'hash' takes an integer argument" ; then
+    : # OK
+else
+    echo "scriptindex didn't reject 'hash' with a non-integer argument"
+    failed=`expr $failed + 1`
+fi
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then

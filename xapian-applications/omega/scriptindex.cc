@@ -219,6 +219,7 @@ parse_index_script(const string &filename)
 			if (action == "hash") {
 			    code = Action::HASH;
 			    arg = OPT;
+			    takes_integer_argument = true;
 			}
 			break;
 		    case 'i':
