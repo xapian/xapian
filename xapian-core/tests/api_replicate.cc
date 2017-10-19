@@ -50,6 +50,8 @@
 
 using namespace std;
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+
 static void rmtmpdir(const string & path) {
     rm_rf(path);
 }
@@ -265,11 +267,14 @@ struct unset_max_changesets_helper_ {
 // testcase, even if this one exits with an exception.
 #define UNSET_MAX_CHANGESETS_AFTERWARDS unset_max_changesets_helper_ ezlxq
 
+#endif
+
 // #######################################################################
 // # Tests start here
 
 // Basic test of replication functionality.
 DEFINE_TESTCASE(replicate1, replicas) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
@@ -341,11 +346,13 @@ DEFINE_TESTCASE(replicate1, replicas) {
     }
 
     rmtmpdir(tempdir);
+#endif
     return true;
 }
 
 // Test replication from a replicated copy.
 DEFINE_TESTCASE(replicate2, replicas) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     SKIP_TEST_FOR_BACKEND("glass"); // Glass doesn't currently support this.
     UNSET_MAX_CHANGESETS_AFTERWARDS;
 
@@ -443,9 +450,11 @@ DEFINE_TESTCASE(replicate2, replicas) {
     }
 
     rmtmpdir(tempdir);
+#endif
     return true;
 }
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 static void
 replicate_with_brokenness(Xapian::DatabaseMaster & master,
 			  Xapian::DatabaseReplica & replica,
@@ -485,9 +494,11 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 	}
     }
 }
+#endif
 
 // Test changesets which are truncated (and therefore invalid).
 DEFINE_TESTCASE(replicate3, replicas) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
@@ -533,11 +544,13 @@ DEFINE_TESTCASE(replicate3, replicas) {
     }
 
     rmtmpdir(tempdir);
+#endif
     return true;
 }
 
 // Tests for max_changesets
 DEFINE_TESTCASE(replicate4, replicas) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
@@ -630,12 +643,14 @@ DEFINE_TESTCASE(replicate4, replicas) {
     }
 
     rmtmpdir(tempdir);
+#endif
     return true;
 }
 
 
 // Tests for max_changesets
 DEFINE_TESTCASE(replicate5, replicas) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     SKIP_TEST_FOR_BACKEND("chert");
     UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
@@ -762,11 +777,13 @@ DEFINE_TESTCASE(replicate5, replicas) {
     }
 
     rmtmpdir(tempdir);
+#endif
     return true;
 }
 
 /// Test --full-copy option.
 DEFINE_TESTCASE(replicate6, replicas) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
@@ -827,11 +844,13 @@ DEFINE_TESTCASE(replicate6, replicas) {
     }
 
     rmtmpdir(tempdir);
+#endif
     return true;
 }
 
 /// Test healing a corrupt replica (new in 1.3.5).
 DEFINE_TESTCASE(replicate7, replicas) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
@@ -908,5 +927,6 @@ DEFINE_TESTCASE(replicate7, replicas) {
     }
 
     rmtmpdir(tempdir);
+#endif
     return true;
 }
