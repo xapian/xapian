@@ -479,7 +479,7 @@ else
     failed=`expr $failed + 1`
 fi
 
-rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
+rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE" "$TEST_INPUT"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
     exit 0
