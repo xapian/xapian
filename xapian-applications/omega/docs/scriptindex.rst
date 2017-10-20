@@ -56,6 +56,8 @@ hash[=LENGTH]
 	a long URL is hashed (short URLs are left as-is).  You can use this
 	same scheme in scriptindex.  LENGTH defaults to 239, which if you
 	index with prefix "U" produces url terms compatible with omindex.
+        If specified, LENGTH must be at least 6 (because the hash takes 6
+        characters).
 
 index[=PREFIX]
 	split text into words and index probabilistically (with prefix PREFIX

@@ -22,6 +22,8 @@
 #include <config.h>
 #include "hashterm.h"
 
+#include <cassert>
+
 using namespace std;
 
 /* Hash is computed as an unsigned long, and then converted to a
@@ -60,6 +62,7 @@ hash_string(const string &s)
 string
 hash_long_term(const string &term, unsigned int max_length)
 {
+    assert(max_length >= HASH_LEN);
     if (term.length() <= max_length) return term;
     string result(term);
     max_length -= HASH_LEN;
