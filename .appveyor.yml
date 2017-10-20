@@ -20,7 +20,7 @@ install:
       if ($env:TOOLCHAIN -eq "mingw") {
         $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
       } elseif ($env:TOOLCHAIN -eq "cygwin") {
-        $env:PATH="C:\cygwin\bin;$env:PATH"
+        $env:PATH="C:\cygwin64\bin;$env:PATH"
       } else {
         $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
         $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
@@ -29,9 +29,7 @@ install:
   - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
     # 'msys-libmagic-dev'
-  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin\setup-x86.exe -qnNdO -R C:/cygwin -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P file-devel -P libpcre-devel
-  - if "%TOOLCHAIN%"=="cygwin" bash -c "/usr/bin/rebase-trigger full"
-  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin\setup-x86.exe
+  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P file-devel -P libpcre-devel
     ## #  - bash -c 'mkdir -p /www/example/products'
     ## #  - bash -c 'ls -ld / /www /www/example /www/example/products'
     ## #  - bash -c 'ls -l /www/example/products'
