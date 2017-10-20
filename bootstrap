@@ -590,7 +590,7 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ;
     #
     # Use --force so that we update files if autoconf, automake, or libtool
     # has been upgraded.
-    ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
+    ${AUTORECONF-autoreconf} --verbose --install --force "$d" || autoreconf_rc=$?
   fi
   if [ -f "$d/INSTALL.preserved-by-bootstrap" ] ; then
     mv -f "$d/INSTALL.preserved-by-bootstrap" "$d/INSTALL"
