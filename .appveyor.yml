@@ -7,10 +7,10 @@ environment:
     AUTOMATED_TESTING: 1
   matrix:
   # - TOOLCHAIN: mingw
-  - TOOLCHAIN: cygwin
+  # - TOOLCHAIN: cygwin
   - TOOLCHAIN: msvc
     VSVER: 14
-    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\zlib\zlib.1.2.8.8\include LDFLAGS=-LC:\zlib\zlib.1.2.8.8
+    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\usr\include LDFLAGS=-LC:\mingw\usr\lib
 platform:
   - x86
 install:
@@ -40,10 +40,10 @@ install:
     ## #  - bash -c 'ls -l /www/example/products'
   - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" x86
-  - if "%TOOLCHAIN%"=="msvc" nuget install pcre -Verbosity quiet -Version 8.33.0.1 -OutputDirectory C:\pcre
-  - if "%TOOLCHAIN%"=="msvc" dir c:\pcre
-  - if "%TOOLCHAIN%"=="msvc" nuget install zlib -Version 1.2.8.8 -OutputDirectory C:\zlib
-  - if "%TOOLCHAIN%"=="msvc" dir c:\zlib\zlib.1.2.8.8
+  - if "%TOOLCHAIN%"=="msvc" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
+  - if "%TOOLCHAIN%"=="msvc" type "c:\mingw\msys\1.0\etc\fstab"
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'mingw-get install libz-dev'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'find /mingw -name \*zlib\* -o -name \*libz\*'
 build_script:
 # 'xapian-applications/omega'
   - bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS'
