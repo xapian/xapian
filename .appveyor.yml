@@ -3,32 +3,45 @@ branches:
   - appveyor
 skip_tags: true
 environment:
-  AUTOMATED_TESTING: 1
+  global:
+    AUTOMATED_TESTING: 1
+  matrix:
+  - TOOLCHAIN: mingw
+  - TOOLCHAIN: cygwin
+  - TOOLCHAIN: msvc
+    VSVER: 14
 platform:
   - x86
 install:
   - bash --version
   - bash -c 'date -u; uname -a'
-  - set PATH=C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;%PATH%
-##   - C:\cygwin\setup-x86.exe -qnNdO -R C:/cygwin -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P file-devel -P libpcre-devel
-## # -P wget
-##   - set PATH=C:\cygwin\bin;%PATH%
-##   - echo %PATH%
-##   - bash --version
-##   - bash -c 'uname -a'
-## #  - bash -c 'mkdir -p /www/example/products'
-## #  - bash -c 'ls -ld / /www /www/example /www/example/products'
-## #  - bash -c 'ls -l /www/example/products'
-## #  - bash -c 'echo "test text document" | tee /www/example/products/text.txt'
-## #  - bash -c 'echo "<html><head><title>HTML Title</title><body>test HTML document</body></html>" | tee /www/example/products/html.htm'
-## #  - bash -c 'wget http://easychair.org/publications/easychair-libreoffice.docx -O /www/example/products/example.docx'
-## #  - bash -c 'wget https://www.fpsct.org/uploaded/FHS/Library/How_to_use_Wikipedia_effectively.doc -O /www/example/products/sample.doc'
-## #  - bash -c 'ls -l /www/example/products'
-  - echo %PATH%
-  - bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
-  - type c:\mingw\msys\1.0\etc\fstab
-  - bash -c 'mingw-get install libz-dev'
-# 'msys-libmagic-dev'
+  - ps: >-
+      if ($env:TOOLCHAIN -eq "mingw") {
+        $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
+        bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
+        type "c:\mingw\msys\1.0\etc\fstab"
+        bash -c 'mingw-get install libz-dev'
+        # 'msys-libmagic-dev'
+      } elseif ($env:TOOLCHAIN -eq "cygwin") {
+        C:\cygwin\setup-x86.exe -qnNdO -R C:/cygwin -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P file-devel -P libpcre-devel
+        $env:PATH="C:\cygwin\bin;$env:PATH"
+        ## #  - bash -c 'mkdir -p /www/example/products'
+        ## #  - bash -c 'ls -ld / /www /www/example /www/example/products'
+        ## #  - bash -c 'ls -l /www/example/products'
+        ## #  - bash -c 'echo "test text document" | tee /www/example/products/text.txt'
+        ## #  - bash -c 'echo "<html><head><title>HTML Title</title><body>test HTML document</body></html>" | tee /www/example/products/html.htm'
+        ## #  - bash -c 'wget http://easychair.org/publications/easychair-libreoffice.docx -O /www/example/products/example.docx'
+        ## #  - bash -c 'wget https://www.fpsct.org/uploaded/FHS/Library/How_to_use_Wikipedia_effectively.doc -O /www/example/products/sample.doc'
+        ## #  - bash -c 'ls -l /www/example/products'
+      } else {
+        $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
+        $env:CC="cl"
+        $env:CXX="cl"
+        $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
+        "$env:VSCOMNTOOLS\..\..\VC\vcvarsall.bat" x86
+        nuget install pcre -Verbosity quiet -Version 8.33.0.1 -OutputDirectory C:\pcre
+        nuget install zlib -Verbosity quiet -OutputDirectory C:\zlib
+      }
 build_script:
   - bash -c 'time ./bootstrap xapian-core'
 # 'xapian-applications/omega'
