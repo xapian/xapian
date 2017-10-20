@@ -22,8 +22,6 @@ install:
         $env:PATH="C:\cygwin\bin;$env:PATH"
       } else {
         $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
-        $env:CC="cl"
-        $env:CXX="cl"
         $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
@@ -45,7 +43,8 @@ install:
 build_script:
   - bash -c 'time ./bootstrap xapian-core'
 # 'xapian-applications/omega'
-  - bash -c 'time ./configure --disable-documentation'
+  - if "%TOOLCHAIN%"!="msvc" bash -c 'time ./configure --disable-documentation'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC=cl CXX=cl'
   - bash -c 'cat xapian-core/config.h'
   - bash -c 'time make -k -j2' < nul
 test_script:
