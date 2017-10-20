@@ -506,6 +506,8 @@ if lazy_build libtool libtool 2.4.6 \
   export ACLOCAL
   #ACLOCAL_PATH=$instdir/share/aclocal
   #export ACLOCAL_PATH
+else
+  ACLOCAL="${ACLOCAL-aclocal} -I `which libtool|sed 's!/bin/[^/]*$!/share/aclocal!'`"
 fi
 if [ "$1" = "--deps=libmagic" ] ; then
     shift
