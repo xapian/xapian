@@ -10,7 +10,7 @@ environment:
   - TOOLCHAIN: cygwin
   - TOOLCHAIN: msvc
     VSVER: 14
-    CONFIGURE_OPTS: CC=cl CXX=cl
+    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\zlib\include LDFLAGS=-LC:\zlib
 platform:
   - x86
 install:
@@ -30,6 +30,8 @@ install:
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
     # 'msys-libmagic-dev'
   - if "%TOOLCHAIN%"=="cygwin" C:\cygwin\setup-x86.exe -qnNdO -R C:/cygwin -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P file-devel -P libpcre-devel
+  - if "%TOOLCHAIN%"=="cygwin" bash -c "/usr/bin/rebase-trigger full"
+  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin\setup-x86.exe
     ## #  - bash -c 'mkdir -p /www/example/products'
     ## #  - bash -c 'ls -ld / /www /www/example /www/example/products'
     ## #  - bash -c 'ls -l /www/example/products'
@@ -41,7 +43,9 @@ install:
   - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" x86
   - if "%TOOLCHAIN%"=="msvc" nuget install pcre -Verbosity quiet -Version 8.33.0.1 -OutputDirectory C:\pcre
+  - if "%TOOLCHAIN%"=="msvc" dir c:\pcre
   - if "%TOOLCHAIN%"=="msvc" nuget install zlib -Verbosity quiet -OutputDirectory C:\zlib
+  - if "%TOOLCHAIN%"=="msvc" dir c:\zlib
 build_script:
 # 'xapian-applications/omega'
   - bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS'
