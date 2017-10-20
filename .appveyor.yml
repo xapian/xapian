@@ -10,7 +10,7 @@ environment:
   - TOOLCHAIN: cygwin
   - TOOLCHAIN: msvc
     VSVER: 14
-    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\zlib\include LDFLAGS=-LC:\zlib
+    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\zlib\zlib.1.2.8.8\include LDFLAGS=-LC:\zlib\zlib.1.2.8.8
 platform:
   - x86
 install:
@@ -29,7 +29,7 @@ install:
   - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
     # 'msys-libmagic-dev'
-  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P file-devel -P libpcre-devel
+  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P file-devel -P libpcre-devel -P zlib-devel
     ## #  - bash -c 'mkdir -p /www/example/products'
     ## #  - bash -c 'ls -ld / /www /www/example /www/example/products'
     ## #  - bash -c 'ls -l /www/example/products'
@@ -42,8 +42,8 @@ install:
   - if "%TOOLCHAIN%"=="msvc" call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" x86
   - if "%TOOLCHAIN%"=="msvc" nuget install pcre -Verbosity quiet -Version 8.33.0.1 -OutputDirectory C:\pcre
   - if "%TOOLCHAIN%"=="msvc" dir c:\pcre
-  - if "%TOOLCHAIN%"=="msvc" nuget install zlib -Verbosity quiet -OutputDirectory C:\zlib
-  - if "%TOOLCHAIN%"=="msvc" dir c:\zlib
+  - if "%TOOLCHAIN%"=="msvc" nuget install zlib -Version 1.2.8.8 -OutputDirectory C:\zlib
+  - if "%TOOLCHAIN%"=="msvc" dir c:\zlib\zlib.1.2.8.8
 build_script:
 # 'xapian-applications/omega'
   - bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS'
