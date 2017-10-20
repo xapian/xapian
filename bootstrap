@@ -498,6 +498,11 @@ if lazy_build libtool libtool 2.4.6 \
     ; then
   LIBTOOLIZE=$instdir/bin/libtoolize
   export LIBTOOLIZE
+  # If we're using system automake then we need to set ACLOCAL_PATH so that
+  # aclocal finds libtool's macros.  If we installed our own automake, then
+  # it's harmless to set it, as it's the default location to look in.
+  ACLOCAL_PATH=$instdir/share/aclocal
+  export ACLOCAL_PATH
 fi
 if [ "$1" = "--deps=libmagic" ] ; then
     shift
