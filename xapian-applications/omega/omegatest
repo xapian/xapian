@@ -37,6 +37,8 @@ printf '$querydescription' > "$TEST_TEMPLATE"
 
 TEST_INDEXSCRIPT=test-indexscript
 
+TEST_INPUT=test-input
+
 OMEGA_CONFIG_FILE=test-omega.conf
 export OMEGA_CONFIG_FILE
 cat > "$OMEGA_CONFIG_FILE" <<__END__
@@ -463,6 +465,34 @@ if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
 else
     echo "scriptindex didn't reject 'hash' with a non-integer argument"
     failed=`expr $failed + 1`
+fi
+
+# Test we check for hash's argument is greater than 6.
+printf 'url : hash=4 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
+
+printf 'url=http://xapian.org' > $TEST_INPUT
+rm -rf "$TEST_DB"
+
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < $TEST_INPUT  \
+     |  grep -q "Index action 'hash' takes an integer argument greater than 6" ; then
+    : # OK
+else
+    echo "scriptindex didn't warn 'hash' with a integer argument less than 6"
+    failed=`expr $failed + 1`
+fi
+
+# Test we don't put warning for hash's argument is greater than 6.
+printf 'url : hash=10 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
+
+printf 'url=http://xapian.org' > $TEST_INPUT
+rm -rf "$TEST_DB"
+
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < $TEST_INPUT  \
+     |  grep -q "Index action 'hash' takes an integer argument greater than 6" ; then
+    echo "scriptindex warn with 'hash' with a integer argument greater than 6"
+    failed=`expr $failed + 1`
+else
+    : # OK
 fi
 
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
