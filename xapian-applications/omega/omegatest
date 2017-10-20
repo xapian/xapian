@@ -586,6 +586,24 @@ else
     failed=`expr $failed + 1`
 fi
 
+# The 'hash' action should require its argument is >= 6, so test 5 is rejected.
+printf 'url : hash=5 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null > /dev/null 2>&1 ; then
+    echo "scriptindex didn't reject 'hash=5'"
+    failed=`expr $failed + 1`
+fi
+
+# And that 6 is accepted.
+printf 'url : hash=6 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if echo 'url=http://xapian.org' | $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1 ; then
+    : # OK
+else
+    echo "scriptindex rejected 'hash=6'"
+    failed=`expr $failed + 1`
+fi
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then

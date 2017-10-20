@@ -102,6 +102,7 @@ public:
 	: action(action_), num_arg(num), string_arg(arg) { }
     type get_action() const { return action; }
     int get_num_arg() const { return num_arg; }
+    void set_num_arg(int num) { num_arg = num; }
     const string & get_string_arg() const { return string_arg; }
 };
 
@@ -361,6 +362,20 @@ parse_index_script(const string &filename)
 			    boolmap[val] = Action::UNIQUE;
 			actions.push_back(Action(code, val));
 			break;
+		    case Action::HASH: {
+			actions.push_back(Action(code, val));
+			auto& obj = actions.back();
+			auto max_length = obj.get_num_arg();
+			if (max_length == 0) {
+			    obj.set_num_arg(MAX_SAFE_TERM_LENGTH - 1);
+			} else if (max_length < 6) {
+			    cerr << filename << ':' << line_no
+				 << ": Index action 'hash' takes an integer "
+				    "argument which must be at least 6" << endl;
+			    exit(1);
+			}
+			break;
+		    }
 		    case Action::BOOLEAN:
 			boolmap[val] = Action::BOOLEAN;
 			/* FALLTHRU */
@@ -543,8 +558,6 @@ index_file(const char *fname, istream &stream,
 		    }
 		    case Action::HASH: {
 			unsigned int max_length = i->get_num_arg();
-			if (max_length == 0)
-			    max_length = MAX_SAFE_TERM_LENGTH - 1;
 			if (value.length() > max_length)
 			    value = hash_long_term(value, max_length);
 			break;
