@@ -38,7 +38,7 @@ install:
         $env:CC="cl"
         $env:CXX="cl"
         $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
-        "$env:VSCOMNTOOLS\..\..\VC\vcvarsall.bat" x86
+        $env:VSCOMNTOOLS\..\..\VC\vcvarsall.bat x86
         nuget install pcre -Verbosity quiet -Version 8.33.0.1 -OutputDirectory C:\pcre
         nuget install zlib -Verbosity quiet -OutputDirectory C:\zlib
       }
