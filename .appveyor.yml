@@ -52,7 +52,7 @@ build_script:
   - bash -c 'cp /mingw/include/zlib.h /mingw/include/zconf.h xapian-core/'
   - bash -c 'env'
   #- bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS || cat xapian-core/config.log'
-  - bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="cl -nologo" LDADD="-link /mingw/lib/libz.a" || cat xapian-core/config.log'
+  - bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="cl -nologo" CPPFLAGS=-I. LDADD="-link /mingw/lib/libz.a" || cat xapian-core/config.log'
   - bash -c 'cat xapian-core/config.h'
   - bash -c 'time make -k -j2' < nul
 test_script:
