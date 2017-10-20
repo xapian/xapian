@@ -11,7 +11,7 @@ environment:
   #   CONFIGURE_OPTS: --disable-backend-remote
   - TOOLCHAIN: msvc
     VSVER: 14
-    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-I.
+    CONFIGURE_OPTS: 'CC="cl -nologo" CXX="cl -nologo" LDADD="-link /mingw/lib/libz.a"'
     #CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\include
 platform:
   - x86
