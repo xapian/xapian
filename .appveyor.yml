@@ -8,9 +8,10 @@ environment:
   matrix:
   # - TOOLCHAIN: mingw
   # - TOOLCHAIN: cygwin
+  #   CONFIGURE_OPTS: --disable-backend-remote
   - TOOLCHAIN: msvc
     VSVER: 14
-    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\usr\include LDFLAGS=-LC:\mingw\usr\lib
+    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\include LDFLAGS=-LC:\mingw\lib
 platform:
   - x86
 install:
