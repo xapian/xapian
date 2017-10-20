@@ -38,11 +38,11 @@ install:
     ## #  - bash -c 'wget http://easychair.org/publications/easychair-libreoffice.docx -O /www/example/products/example.docx'
     ## #  - bash -c 'wget https://www.fpsct.org/uploaded/FHS/Library/How_to_use_Wikipedia_effectively.doc -O /www/example/products/sample.doc'
     ## #  - bash -c 'ls -l /www/example/products'
+  - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" x86
   - if "%TOOLCHAIN%"=="msvc" nuget install pcre -Verbosity quiet -Version 8.33.0.1 -OutputDirectory C:\pcre
   - if "%TOOLCHAIN%"=="msvc" nuget install zlib -Verbosity quiet -OutputDirectory C:\zlib
 build_script:
-  - bash -c 'time ./bootstrap xapian-core'
 # 'xapian-applications/omega'
   - bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS'
   - bash -c 'cat xapian-core/config.h'
