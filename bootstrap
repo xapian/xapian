@@ -36,7 +36,6 @@ set -e
 
 # The variables which specify the autotools to use.
 autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
-#autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL ACLOCAL_PATH LIBTOOLIZE"
 
 # Tool for downloading a file from a URL (currently wget or curl).
 FETCH_URL_TOOL=
@@ -504,8 +503,8 @@ if lazy_build libtool libtool 2.4.6 \
   # it's harmless to set it, as it's the default location to look in.
   ACLOCAL="${ACLOCAL-aclocal} -I $instdir/share/aclocal"
   export ACLOCAL
-  #ACLOCAL_PATH=$instdir/share/aclocal
-  #export ACLOCAL_PATH
+else
+  ACLOCAL="${ACLOCAL-aclocal} -I `which libtool|sed 's!/bin/[^/]*$!/share/aclocal!'`"
 fi
 if [ "$1" = "--deps=libmagic" ] ; then
     shift
@@ -598,7 +597,7 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ;
     #
     # Use --force so that we update files if autoconf, automake, or libtool
     # has been upgraded.
-    ${AUTORECONF-autoreconf} --verbose --install --force "$d" || autoreconf_rc=$?
+    ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
   fi
   if [ -f "$d/INSTALL.preserved-by-bootstrap" ] ; then
     mv -f "$d/INSTALL.preserved-by-bootstrap" "$d/INSTALL"
