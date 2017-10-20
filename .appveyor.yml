@@ -11,7 +11,8 @@ environment:
   #   CONFIGURE_OPTS: --disable-backend-remote
   - TOOLCHAIN: msvc
     VSVER: 14
-    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\include LDFLAGS=-LC:\mingw\lib
+    CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-I.
+    #CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\include
 platform:
   - x86
 install:
@@ -47,10 +48,21 @@ install:
   - if "%TOOLCHAIN%"=="msvc" bash -c 'find /mingw -name \*zlib\* -o -name \*libz\*'
 build_script:
 # 'xapian-applications/omega'
-  - bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS'
+  - bash -c 'cp /mingw/lib/libz.a xapian-core/zlib.lib'
+  - bash -c 'cp /mingw/include/zlib.h /mingw/include/zconf.h xapian-core/'
+  - bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS || cat xapian-core/config.log'
   - bash -c 'cat xapian-core/config.h'
   - bash -c 'time make -k -j2' < nul
 test_script:
   - bash -c 'time make -k check VERBOSE=1' < nul
 #  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
 #  - bash -c 'xapian-core/bin/xapian-delve omtest.db'
+#
+#  /mingw/bin/zlib1.dll
+#  /mingw/include/zlib.h
+#  /mingw/lib/libz.a
+#  /mingw/lib/libz.dll.a
+#  /mingw/mingw32/include/zlib.h
+#  /mingw/mingw32/lib/libz.a
+#  /mingw/mingw32/lib/libz.dll.a
+#  /mingw/share/doc/gcc/5.3.0/zlib
