@@ -1273,6 +1273,7 @@ retry:
 	    result[0] = 'S';
 	    r = 1;
 	} else {
+retry:
 	    r = read(fds[1], result, sizeof(result));
 	    if (r == -1) {
 		// Error.
