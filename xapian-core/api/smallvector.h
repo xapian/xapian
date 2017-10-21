@@ -297,7 +297,7 @@ class SmallVector_ {
 
     void * p[2];
 
-    static const std::size_t INTERNAL_CAPACITY = sizeof(p) / sizeof(*p);
+    static constexpr std::size_t INTERNAL_CAPACITY = sizeof(p) / sizeof(*p);
 
   public:
     SmallVector_() : c(0) { }
