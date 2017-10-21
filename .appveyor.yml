@@ -30,7 +30,6 @@ install:
   - dir c:\msys64\usr\bin
   - dir c:\msys64\mingw32\bin
   - dir c:\msys64\mingw64\bin
-  - bash -c 'find c:/ -iname mingw-get.\*'
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
@@ -46,12 +45,12 @@ install:
     ## #  - bash -c 'ls -l /www/example/products'
   - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'mingw-get install libz-dev'
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'find /mingw -name \*zlib\* -o -name \*libz\*'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'wget -O zlib-1.2.8-1-mingw32-dev.tar.lzma http://prdownloads.sourceforge.net/mingw/zlib-1.2.8-1-mingw32-dev.tar.lzma?download'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'tar -xvf ../zlib-1.2.8-1-mingw32-dev.tar.lzma'
 build_script:
 # 'xapian-applications/omega'
-  - bash -c 'cp /mingw/lib/libz.a xapian-core/zlib.lib'
-  - bash -c 'cp /mingw/include/zlib.h /mingw/include/zconf.h xapian-core/'
+  - bash -c 'cp lib/libz.a xapian-core/zlib.lib'
+  - bash -c 'cp include/zlib.h include/zconf.h xapian-core/'
   - bash -c 'env'
   #- bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS || cat xapian-core/config.log'
   - bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="cl -nologo" CPPFLAGS=-I. LIBS="-link /mingw/lib/libz.a" || cat xapian-core/config.log'
