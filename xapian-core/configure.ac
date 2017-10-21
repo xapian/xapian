@@ -637,7 +637,7 @@ if test -n "${VALGRIND-unset}" ; then
     rm -f $vglogwild
     if $VALGRIND --log-file="$vglog" --child-silent-after-fork=yes -q true 2>&AS_MESSAGE_LOG_FD ; then
       for f in $vglogwild ; do
-        case $f in
+	case $f in
 	$vglog*) VALGRIND= ;;
 	esac
       done
