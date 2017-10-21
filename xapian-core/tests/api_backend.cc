@@ -1257,6 +1257,7 @@ DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
     }
 
     if (result[0] == 'y') {
+retry:
 	struct timeval tv;
 	tv.tv_sec = 3;
 	tv.tv_usec = 0;
@@ -1268,12 +1269,18 @@ DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
 	    // Timed out.
 	    result[0] = 'T';
 	    r = 1;
+	} else if (sr == -1) {
+	    if (errno == EINTR || errno == EAGAIN)
+		goto retry;
+	    tout << "select() failed with errno=" << errno << ": " << strerror(errno) << endl;
+	    result[0] = 'S';
+	    r = 1;
 	} else {
 	    r = read(fds[1], result, sizeof(result));
 	    if (r == -1) {
 		// Error.
-		tout << "errno=" << errno << ": " << strerror(errno) << endl;
-		result[0] = 'E';
+		tout << "read failed with errno=" << errno << ": " << strerror(errno) << endl;
+		result[0] = 'R';
 		r = 1;
 	    } else if (r == 0) {
 		// EOF.
