@@ -1019,7 +1019,13 @@ AC_CHECK_DECL([fdatasync(int)], [
 
 AC_CHECK_FUNCS([fsync])
 AC_CHECK_FUNCS([posix_fadvise])
-AC_CHECK_FUNCS([ftruncate])
+if test "$win32" = no ; then
+  dnl ftruncate() under Wine seems to be buggy and sometimes fails, though
+  dnl a cut-down reproducer seems fine.  For now just avoid ftruncate()
+  dnl entirely on this platform - we'll fallback to lseek() + write() of a
+  dnl single zero byte, which is pretty efficient.
+  AC_CHECK_FUNCS([ftruncate])
+fi
 
 dnl HP-UX has pread and pwrite, but they don't work!  Apparently this problem
 dnl manifests when largefile support is enabled, and we definitely want that
