@@ -35,12 +35,6 @@ using namespace std;
  */
 #define QUAD_EARTH_RADIUS_METRES 6372797.6
 
-/** Set M_PI if it's not already set.
- */
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 LatLongMetric::~LatLongMetric()
 {
 }
