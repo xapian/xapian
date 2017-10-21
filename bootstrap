@@ -242,19 +242,22 @@ END
 
     cd "$basename"
 
-    if [ ! -f "../../patches/$package/series" ] ; then
+    series="../../patches/$package/series"
+    if [ ! -f "$series" ] ; then
       cat <<END >&2
 No patch series file 'patches/$package/series' - if there are no patches,
 this should just be an empty file.
 END
       exit 1
     fi
-    echo "Applying patches from $package/series"
-    sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "../../patches/$package/series" | \
-	while read p ; do
-      echo "Applying patch $package/$p"
-      patch -p1 < "../../patches/$package/$p"
-    done
+    if [ -s "$series" ] ; then
+      echo "Applying patches from $package/series"
+      sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" | \
+	  while read p ; do
+	echo "Applying patch $package/$p"
+	patch -p1 < "../../patches/$package/$p"
+      done
+    fi
 
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
