@@ -387,7 +387,7 @@ use_shell_after_all:
 	int r = select(fd + 1, &readfds, NULL, NULL, &tv);
 	if (r <= 0) {
 	    if (r < 0) {
-		if (errno == EINTR) {
+		if (errno == EINTR || errno == EAGAIN) {
 		    // select() interrupted by a signal, so retry.
 		    continue;
 		}

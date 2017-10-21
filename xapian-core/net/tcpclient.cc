@@ -122,7 +122,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 		struct timeval tv;
 		RealTime::to_timeval(timeout_connect, &tv);
 		retval = select(fd + 1, 0, &fdset, &fdset, &tv);
-	    } while (retval < 0 && errno == EINTR);
+	    } while (retval < 0 && (errno == EINTR || errno == EAGAIN));
 
 	    if (retval <= 0) {
 		int saved_errno = errno;
