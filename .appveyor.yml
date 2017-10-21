@@ -11,7 +11,7 @@ environment:
   #   CONFIGURE_OPTS: --disable-backend-remote
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    VSVER: 15
+    VSVER: 14
     CONFIGURE_OPTS: 'CC="cl -nologo" CXX="cl -nologo" LDADD="-link /mingw/lib/libz.a"'
     #CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\include
 platform:
@@ -28,7 +28,7 @@ install:
         $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
         $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
       }
-  - bash -c 'env|sort'
+  - bash -c 'env'
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
