@@ -20,7 +20,7 @@
 #ifndef XAPIAN_INCLUDED_ATTRIBUTES_H
 #define XAPIAN_INCLUDED_ATTRIBUTES_H
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || defined _MSC_VER
 // C++11 has noexcept(true) for marking a function which shouldn't throw.
 //
 // You need a C++11 compiler to build Xapian, but we still support using a
@@ -78,8 +78,8 @@
  */
 # define XAPIAN_PURE_FUNCTION
 
-# if defined _MSC_VER && __cplusplus < 201103L
-#  define XAPIAN_NOTHROW(D) __declspec(nothrow) D XAPIAN_NOEXCEPT
+# if defined _MSC_VER
+// FIXME: doesn't work! #  define XAPIAN_NOTHROW(D) __declspec(nothrow) D XAPIAN_NOEXCEPT
 # endif
 #endif
 
