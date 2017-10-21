@@ -367,8 +367,15 @@ AC_CHECK_DECLS([log2(double)], [], [],
 [#include <cmath>
 using namespace std;])
 
-dnl exp10() is a GNU libc extension.  Darwin provides __exp10().
-AC_CHECK_FUNCS([exp10 __exp10])
+dnl exp10() is a GNU libc extension.
+AC_CHECK_DECLS([exp10(double)], [], [],
+[#include <cmath>
+using namespace std;])
+
+dnl Darwin provides __exp10().
+AC_CHECK_DECLS([__exp10(double)], [], [],
+[#include <cmath>
+using namespace std;])
 
 dnl GCC provides __builtin_exp10() (but notably clang doesn't currently).
 dnl On mingw, __builtin_exp10() causes GCC to generate a call to exp10() which
