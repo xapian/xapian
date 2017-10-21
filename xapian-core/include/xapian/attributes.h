@@ -20,7 +20,7 @@
 #ifndef XAPIAN_INCLUDED_ATTRIBUTES_H
 #define XAPIAN_INCLUDED_ATTRIBUTES_H
 
-#if __cplusplus >= 201103L || defined _MSC_VER
+#if __cplusplus >= 201103L || (defined _MSC_VER && _MSC_VER >= 1900)
 // C++11 has noexcept(true) for marking a function which shouldn't throw.
 //
 // You need a C++11 compiler to build Xapian, but we still support using a
