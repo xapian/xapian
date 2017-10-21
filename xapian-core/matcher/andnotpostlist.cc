@@ -22,6 +22,8 @@
 
 #include "andnotpostlist.h"
 
+#include <algorithm>
+
 using namespace std;
 
 Xapian::doccount

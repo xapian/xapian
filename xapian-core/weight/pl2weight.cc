@@ -29,6 +29,8 @@
 
 #include "xapian/error.h"
 
+#include <algorithm>
+
 using namespace std;
 
 namespace Xapian {
