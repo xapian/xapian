@@ -131,7 +131,8 @@ inline void sleep(double t) {
 	if (delta <= 0.0)
 	    return;
 	to_timeval(delta, &tv);
-    } while (select(0, NULL, NULL, NULL, &tv) < 0 && errno == EINTR);
+    } while (select(0, NULL, NULL, NULL, &tv) < 0 &&
+	     (errno == EINTR || errno == EAGAIN));
 # endif
 #else
     double delta = t - RealTime::now();

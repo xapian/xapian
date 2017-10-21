@@ -183,8 +183,11 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	    if (select_result == 0)
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
 
-	    // EINTR means select was interrupted by a signal.
-	    if (errno != EINTR)
+	    // EINTR means select was interrupted by a signal.  The Linux
+	    // select(2) man page says: "Portable programs may wish to check
+	    // for EAGAIN and loop, just as with EINTR" and that seems to be
+	    // necessary for cygwin at least.
+	    if (errno != EINTR && errno != EAGAIN)
 		throw Xapian::NetworkError("select failed during read", context, errno);
 	}
     }
