@@ -24,11 +24,13 @@ install:
       } elseif ($env:TOOLCHAIN -eq "cygwin") {
         $env:PATH="C:\cygwin64\bin;$env:PATH"
       } else {
-        $env:PATH="c:\msys64\bin;C:\msys64\1.0\bin;$env:PATH"
+        $env:PATH="c:\msys64\usr\bin;$env:PATH"
       }
   - bash -c 'env'
-  - dir c:\
-  - dir c:\msys64
+  - dir c:\msys64\usr\bin
+  - dir c:\msys64\mingw32
+  - dir c:\msys64\mingw64
+  - dir c:\tools
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
