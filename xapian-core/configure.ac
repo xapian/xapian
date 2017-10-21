@@ -855,6 +855,7 @@ case $enable_backend_glass in
 	dnl provides these functions in its libc.
 	win32_need_lws2_32=1
       fi
+      XAPIAN_LIBS="$XAPIAN_LIBS rpcrt4.lib"
       ;;
     *)
       dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
@@ -975,7 +976,7 @@ if test "$enable_backend_remote" = yes ; then
 fi
 
 if test "$win32_need_lws2_32" = 1 ; then
-  XAPIAN_LIBS="$XAPIAN_LIBS -lws2_32"
+  XAPIAN_LIBS="$XAPIAN_LIBS ws2_32.lib"
 fi
 
 AC_ARG_ENABLE([visibility],

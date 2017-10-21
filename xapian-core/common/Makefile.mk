@@ -76,7 +76,6 @@ endif
 if USE_WIN32_UUID_API
 lib_src +=\
 	common/win32_uuid.cc
-lib_ldflags += -lrpcrt4
 endif
 
 if USE_PROC_FOR_UUID
