@@ -911,7 +911,7 @@ AM_CONDITIONAL([USE_PROC_FOR_UUID], [test "$use_proc_for_uuid" = 1])
 AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
-#ifdef __WIN32__
+#if defined __WIN32__ || defined _WIN32
 #error WIN32
 #endif
 ]])], [win32=no], [win32=yes])
@@ -1337,6 +1337,11 @@ AH_BOTTOM(
 
 /* Tell MSVC we don't want max() and min() macros defined. */
 # define NOMINMAX
+#endif
+
+/* MSVC defines _WIN32 but not __WIN32__. */
+#if !defined __WIN32__ && defined _WIN32 && !defined _WIN64
+# define __WIN32__
 #endif
 
 /* _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4, but it
