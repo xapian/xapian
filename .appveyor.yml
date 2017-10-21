@@ -10,6 +10,7 @@ environment:
   # - TOOLCHAIN: cygwin
   #   CONFIGURE_OPTS: --disable-backend-remote
   - TOOLCHAIN: msvc
+    VSVER: 17
     CONFIGURE_OPTS: 'CC="cl -nologo" CXX="cl -nologo" LDADD="-link /mingw/lib/libz.a"'
     #CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\include
 platform:
@@ -33,8 +34,8 @@ install:
     ## #  - bash -c 'wget https://www.fpsct.org/uploaded/FHS/Library/How_to_use_Wikipedia_effectively.doc -O /www/example/products/sample.doc'
     ## #  - bash -c 'ls -l /www/example/products'
   - bash -c 'time ./bootstrap xapian-core'
-  - if "%TOOLCHAIN%"=="msvc" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
   - if "%TOOLCHAIN%"=="msvc" set PATH=C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;%PATH%
+  - if "%TOOLCHAIN%"=="msvc" call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" x86
   - if "%TOOLCHAIN%"=="msvc" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="msvc" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="msvc" bash -c 'mingw-get install libz-dev'
