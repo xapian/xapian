@@ -271,6 +271,12 @@ AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #endif
 ]])], [win32=no], [win32=yes])
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef _MSC_VER
+#error MSVC
+#endif
+]])], [msvc=no], [msvc=yes])
+
 XAPIAN_LDFLAGS=
 XAPIAN_LIBS=
 AC_SUBST([XAPIAN_LDFLAGS])
@@ -855,7 +861,11 @@ case $enable_backend_glass in
 	dnl provides these functions in its libc.
 	win32_need_lws2_32=1
       fi
-      XAPIAN_LIBS="$XAPIAN_LIBS rpcrt4.lib"
+      if test $msvc = no ; then
+	XAPIAN_LIBS="$XAPIAN_LIBS -lrpcrt4"
+      else
+	XAPIAN_LIBS="$XAPIAN_LIBS rpcrt4.lib"
+      fi
       ;;
     *)
       dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
@@ -976,7 +986,11 @@ if test "$enable_backend_remote" = yes ; then
 fi
 
 if test "$win32_need_lws2_32" = 1 ; then
-  XAPIAN_LIBS="$XAPIAN_LIBS ws2_32.lib"
+  if test $msvc = no ; then
+    XAPIAN_LIBS="$XAPIAN_LIBS -lws2_32"
+  else
+    XAPIAN_LIBS="$XAPIAN_LIBS ws2_32.lib"
+  fi
 fi
 
 AC_ARG_ENABLE([visibility],
