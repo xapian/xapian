@@ -6,9 +6,8 @@ environment:
   global:
     AUTOMATED_TESTING: 1
   matrix:
-  - TOOLCHAIN: mingw
-  - TOOLCHAIN: cygwin
-    # CONFIGURE_OPTS: --disable-backend-remote
+  # - TOOLCHAIN: mingw
+  # - TOOLCHAIN: cygwin
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     CONFIGURE_OPTS: CC="cl -nologo" CXX="cl -nologo" CPPFLAGS=-I$PWD/include LIBS="-link $PWD/lib/libz.a"
