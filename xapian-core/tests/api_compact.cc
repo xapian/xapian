@@ -594,7 +594,10 @@ DEFINE_TESTCASE(compacttofd1, glass) {
     TEST(fd != -1);
     indb.compact(fd);
 
-    // Confirm that the fd was closed by Xapian.
+    // Confirm that the fd was closed by Xapian.  Set errno first to workaround
+    // a bug in Wine's msvcrt.dll which fails to set errno in this case:
+    // https://bugs.winehq.org/show_bug.cgi?id=43902
+    errno = EBADF;
     TEST(close(fd) == -1);
     TEST(errno == EBADF);
 
@@ -617,7 +620,10 @@ DEFINE_TESTCASE(compacttofd2, glass) {
     TEST(lseek(fd, 8192, SEEK_SET) == 8192);
     indb.compact(fd);
 
-    // Confirm that the fd was closed by Xapian.
+    // Confirm that the fd was closed by Xapian.  Set errno first to workaround
+    // a bug in Wine's msvcrt.dll which fails to set errno in this case:
+    // https://bugs.winehq.org/show_bug.cgi?id=43902
+    errno = EBADF;
     TEST(close(fd) == -1);
     TEST(errno == EBADF);
 
