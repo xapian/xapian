@@ -28,9 +28,8 @@ install:
       }
   - bash -c 'env'
   - dir c:\msys64\usr\bin
-  - dir c:\msys64\mingw32
-  - dir c:\msys64\mingw64
-  - dir c:\tools
+  - dir c:\msys64\mingw32\bin
+  - dir c:\msys64\mingw64\bin
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
@@ -46,8 +45,6 @@ install:
     ## #  - bash -c 'ls -l /www/example/products'
   - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
-  - if "%TOOLCHAIN%"=="msvc" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
-  - if "%TOOLCHAIN%"=="msvc" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="msvc" bash -c 'mingw-get install libz-dev'
   - if "%TOOLCHAIN%"=="msvc" bash -c 'find /mingw -name \*zlib\* -o -name \*libz\*'
 build_script:
