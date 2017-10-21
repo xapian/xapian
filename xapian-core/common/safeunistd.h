@@ -49,6 +49,9 @@
 // process.h is needed for getpid().
 # include <process.h>
 
+// direct.h is needed for rmdir().
+# include <direct.h>
+
 #endif
 
 // Under mingw we probably don't need to provide our own sleep().
