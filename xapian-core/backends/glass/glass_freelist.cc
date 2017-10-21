@@ -30,6 +30,10 @@
 #include "wordaccess.h"
 #include <cstring>
 
+#ifdef _MSC_VER
+# include <intrin.h> // For __popcnt() etc.
+#endif
+
 using namespace std;
 using namespace Glass;
 
