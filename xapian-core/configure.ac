@@ -426,6 +426,7 @@ AC_CHECK_DECLS([__builtin_clz, __builtin_clzl, __builtin_clzll], [], [], [ ])
 AC_CHECK_DECLS([__builtin_ctz, __builtin_ctzl, __builtin_ctzll], [], [], [ ])
 AC_CHECK_DECLS([__builtin_expect], [], [], [ ])
 AC_CHECK_DECLS([__builtin_popcount, __builtin_popcountl, __builtin_popcountll], [], [], [ ])
+AC_CHECK_DECLS([__popcnt, __popcnt64], [], [], [#include <intrin.h>])
 
 dnl Check for time functions.
 AC_CHECK_FUNCS([clock_gettime sleep nanosleep gettimeofday ftime])
