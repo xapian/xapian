@@ -46,7 +46,7 @@ install:
   - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
   - if "%TOOLCHAIN%"=="msvc" bash -c 'wget -O zlib-1.2.8-1-mingw32-dev.tar.lzma http://prdownloads.sourceforge.net/mingw/zlib-1.2.8-1-mingw32-dev.tar.lzma?download'
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'tar -xvf ../zlib-1.2.8-1-mingw32-dev.tar.lzma'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'tar -xvf zlib-1.2.8-1-mingw32-dev.tar.lzma'
 build_script:
 # 'xapian-applications/omega'
   - bash -c 'cp lib/libz.a xapian-core/zlib.lib'
