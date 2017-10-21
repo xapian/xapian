@@ -1320,8 +1320,11 @@ esac
 AC_SUBST([FP_EXCESS_PRECISION])
 
 AH_BOTTOM(
-[/* Disable stupid MSVC "performance" warning for converting int to bool. */
+[/* Disable stupid MSVC warnings. */
 #ifdef _MSC_VER
+/* Passing an empty parameter to a single parameter macro. */
+# pragma warning(disable:4003)
+/* A "performance" warning for converting int to bool. */
 # pragma warning(disable:4800)
 #endif
 
