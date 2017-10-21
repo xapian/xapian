@@ -1328,6 +1328,11 @@ AH_BOTTOM(
 # pragma warning(disable:4800)
 #endif
 
+/* Tell MSVC we want M_PI, etc defined. */
+#ifdef _MSC_VER
+# define _USE_MATH_DEFINES
+#endif
+
 /* _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4, but it
  * shouldn't cause a problem to define it where it's not supported and some
  * distros may have backported support, so hardcoding version checks is
