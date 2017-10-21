@@ -6,13 +6,12 @@ environment:
   global:
     AUTOMATED_TESTING: 1
   matrix:
-  # - TOOLCHAIN: mingw
-  # - TOOLCHAIN: cygwin
-  #   CONFIGURE_OPTS: --disable-backend-remote
+  - TOOLCHAIN: mingw
+  - TOOLCHAIN: cygwin
+    # CONFIGURE_OPTS: --disable-backend-remote
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    CONFIGURE_OPTS: 'CC="cl -nologo" CXX="cl -nologo" LDADD="-link c:\projects\xapian\lib\libz.a"'
-    #CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\include
+    CONFIGURE_OPTS: 'CC="cl -nologo" CXX="cl -nologo" CPPFLAGS=-I$PWD/include LIBS="-link $PWD/lib/libz.a"'
 platform:
   - x86
 install:
@@ -51,8 +50,7 @@ install:
 build_script:
 # 'xapian-applications/omega'
   - bash -c 'env'
-  #- bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS || cat xapian-core/config.log'
-  - bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="cl -nologo" CPPFLAGS=-I$PWD/include LIBS="-link $PWD/lib/libz.a" || cat xapian-core/config.log'
+  - bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS || cat xapian-core/config.log'
   - bash -c 'cat xapian-core/config.h'
   - bash -c 'time make -k -j2' < nul
 test_script:
