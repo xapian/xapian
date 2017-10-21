@@ -11,7 +11,6 @@ environment:
   #   CONFIGURE_OPTS: --disable-backend-remote
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    VSVER: 14
     CONFIGURE_OPTS: 'CC="cl -nologo" CXX="cl -nologo" LDADD="-link /mingw/lib/libz.a"'
     #CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\include
 platform:
@@ -25,10 +24,11 @@ install:
       } elseif ($env:TOOLCHAIN -eq "cygwin") {
         $env:PATH="C:\cygwin64\bin;$env:PATH"
       } else {
-        $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
-        $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
+        $env:PATH="c:\msys64\bin;C:\msys64\1.0\bin;$env:PATH"
       }
   - bash -c 'env'
+  - dir c:\
+  - dir c:\msys64
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
@@ -43,7 +43,7 @@ install:
     ## #  - bash -c 'wget https://www.fpsct.org/uploaded/FHS/Library/How_to_use_Wikipedia_effectively.doc -O /www/example/products/sample.doc'
     ## #  - bash -c 'ls -l /www/example/products'
   - bash -c 'time ./bootstrap xapian-core'
-  - if "%TOOLCHAIN%"=="msvc" call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" x86
+  - if "%TOOLCHAIN%"=="msvc" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
   - if "%TOOLCHAIN%"=="msvc" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="msvc" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="msvc" bash -c 'mingw-get install libz-dev'
