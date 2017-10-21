@@ -10,6 +10,7 @@ environment:
   # - TOOLCHAIN: cygwin
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    am_cv_prog_cc_c_o: no
 platform:
   - x86
 install:
