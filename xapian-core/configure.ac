@@ -265,6 +265,12 @@ if $GREP '^#define _LARGE_FILES 1$' confdefs.h > /dev/null 2>&1 ; then
 fi
 AC_SUBST([abi_affecting_cxxflags])
 
+AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+#if defined __WIN32__ || defined _WIN32
+#error WIN32
+#endif
+]])], [win32=no], [win32=yes])
+
 XAPIAN_LDFLAGS=
 XAPIAN_LIBS=
 AC_SUBST([XAPIAN_LDFLAGS])
@@ -910,12 +916,6 @@ case $enable_backend_glass in
 esac
 AM_CONDITIONAL([USE_PROC_FOR_UUID], [test "$use_proc_for_uuid" = 1])
 AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
-
-AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
-#if defined __WIN32__ || defined _WIN32
-#error WIN32
-#endif
-]])], [win32=no], [win32=yes])
 
 if test "$enable_backend_remote" = yes ; then
   case $host_os-$win32 in
