@@ -839,11 +839,14 @@ case $enable_backend_glass in
 
   dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
 
-  case $host_os in
-    *mingw* | *cygwin*) dnl Use built-in API.
+  case $host_os-$win32 in
+    *-yes | *cygwin*) dnl Use built-in win32 API.
       use_win32_uuid_api=1
-      dnl We need -lws2_32 for htonl(), etc.
-      win32_need_lws2_32=1
+      if test $win32 = yes ; then
+	dnl We need -lws2_32 for htonl(), etc, but not for Cygwin which
+	dnl provides these functions in its libc.
+	win32_need_lws2_32=1
+      fi
       ;;
     *)
       dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
