@@ -11,7 +11,7 @@ environment:
   #   CONFIGURE_OPTS: --disable-backend-remote
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    CONFIGURE_OPTS: 'CC="cl -nologo" CXX="cl -nologo" LDADD="-link /mingw/lib/libz.a"'
+    CONFIGURE_OPTS: 'CC="cl -nologo" CXX="cl -nologo" LDADD="-link c:\projects\xapian\lib\libz.a"'
     #CONFIGURE_OPTS: CC=cl CXX=cl CPPFLAGS=-IC:\mingw\include
 platform:
   - x86
@@ -28,8 +28,8 @@ install:
       }
   - bash -c 'env'
   - dir c:\msys64\usr\bin
-  - dir c:\msys64\mingw32\bin
-  - dir c:\msys64\mingw64\bin
+    #- dir c:\msys64\mingw32\bin
+    #- dir c:\msys64\mingw64\bin
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
@@ -47,25 +47,15 @@ install:
   - if "%TOOLCHAIN%"=="msvc" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
   - if "%TOOLCHAIN%"=="msvc" bash -c 'wget -O zlib-1.2.8-1-mingw32-dev.tar.lzma http://prdownloads.sourceforge.net/mingw/zlib-1.2.8-1-mingw32-dev.tar.lzma?download'
   - if "%TOOLCHAIN%"=="msvc" bash -c 'tar -xvf zlib-1.2.8-1-mingw32-dev.tar.lzma'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'ls -lR include lib mingw32'
 build_script:
 # 'xapian-applications/omega'
-  - bash -c 'cp lib/libz.a xapian-core/zlib.lib'
-  - bash -c 'cp include/zlib.h include/zconf.h xapian-core/'
   - bash -c 'env'
   #- bash -c 'time ./configure --disable-documentation $CONFIGURE_OPTS || cat xapian-core/config.log'
-  - bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="cl -nologo" CPPFLAGS=-I. LIBS="-link /mingw/lib/libz.a" || cat xapian-core/config.log'
+  - bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="cl -nologo" CPPFLAGS=-Ic:\projects\xapian\include LIBS="-link c:\projects\xapian\lib\libz.a" || cat xapian-core/config.log'
   - bash -c 'cat xapian-core/config.h'
   - bash -c 'time make -k -j2' < nul
 test_script:
   - bash -c 'time make -k check VERBOSE=1' < nul
 #  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
 #  - bash -c 'xapian-core/bin/xapian-delve omtest.db'
-#
-#  /mingw/bin/zlib1.dll
-#  /mingw/include/zlib.h
-#  /mingw/lib/libz.a
-#  /mingw/lib/libz.dll.a
-#  /mingw/mingw32/include/zlib.h
-#  /mingw/mingw32/lib/libz.a
-#  /mingw/mingw32/lib/libz.dll.a
-#  /mingw/share/doc/gcc/5.3.0/zlib
