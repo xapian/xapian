@@ -664,6 +664,9 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
     enq3.set_query(q);
     Xapian::MSet mset3 = enq3.get_mset(0, 10);
     TEST_EQUAL(mset3.size(), 3);
+    // Regression test for bug introduced in 1.4.3 which led to a division by
+    // zero and then (at least on Linux) we got 1% here.
+    TEST_EQUAL(mset3[0].get_percent(), 100);
 
     // Regression test for https://trac.xapian.org/ticket/752
     enq3.set_query((Xapian::Query("this") & q) | Xapian::Query("wibble"));

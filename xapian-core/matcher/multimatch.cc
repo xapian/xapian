@@ -253,7 +253,13 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // documents it returns (because it wasn't asked for more documents).
     Xapian::doccount definite_matches_not_seen = 0;
     for (size_t i = 0; i != leaves.size(); ++i) {
-	PostList * pl = leaves[i]->get_postlist(&pltree, &total_subqs);
+	// Pick the highest total subqueries answer amongst the subdatabases,
+	// as the query to postlist conversion doesn't recurse into positional
+	// queries for shards that don't have positional data when at least one
+	// other shard does.
+	Xapian::termcount total_subqs_i = 0;
+	PostList * pl = leaves[i]->get_postlist(&pltree, &total_subqs_i);
+	total_subqs = max(total_subqs, total_subqs_i);
 	if (is_remote[i]) {
 	    if (pl->get_termfreq_min() > first + maxitems) {
 		LOGLINE(MATCH, "Found " <<
