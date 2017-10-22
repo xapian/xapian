@@ -2,7 +2,7 @@
  * @brief Xapian::DLHWeight class - The DLH weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013, 2014 Aarsh Shah
- * Copyright (C) 2016 Olly Betts
+ * Copyright (C) 2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,6 +42,12 @@ DLHWeight::init(double factor)
 {
     // Avoid warnings about unused private member.
     (void)lower_bound;
+
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
 
     double wdf_upper = get_wdf_upper_bound();
     if (wdf_upper == 0) {

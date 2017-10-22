@@ -1,7 +1,7 @@
 /** @file tradweight.cc
  * @brief Xapian::TradWeight class - the "traditional" probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011,2012,2014,2015 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,6 +44,12 @@ TradWeight::clone() const
 void
 TradWeight::init(double factor)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     Xapian::doccount tf = get_termfreq();
 
     double tw = 0;

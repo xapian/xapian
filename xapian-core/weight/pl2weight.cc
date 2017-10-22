@@ -58,6 +58,12 @@ PL2Weight::clone() const
 void
 PL2Weight::init(double factor_)
 {
+    if (factor_ == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     // lower_bound is really factor.
     lower_bound = factor_;
 

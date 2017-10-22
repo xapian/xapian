@@ -56,6 +56,12 @@ IfB2Weight::clone() const
 void
 IfB2Weight::init(double factor)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     double wdfn_upper = get_wdf_upper_bound();
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
