@@ -59,6 +59,12 @@ PL2Weight::clone() const
 void
 PL2Weight::init(double factor_)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     factor = factor_;
 
     if (get_wdf_upper_bound() == 0) {

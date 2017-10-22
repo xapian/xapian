@@ -2,7 +2,7 @@
  * @brief Xapian::PL2PlusWeight class - the PL2+ weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013 Aarsh Shah
- * Copyright (C) 2013,2014,2016 Olly Betts
+ * Copyright (C) 2013,2014,2016,2017 Olly Betts
  * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -63,6 +63,12 @@ PL2PlusWeight::clone() const
 void
 PL2PlusWeight::init(double factor_)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     factor = factor_;
 
     if (get_wdf_upper_bound() == 0) {

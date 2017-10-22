@@ -2,7 +2,7 @@
  * @brief Xapian::DPHWeight class - The DPH weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013, 2014 Aarsh Shah
- * Copyright (C) 2016 Olly Betts
+ * Copyright (C) 2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,12 @@ DPHWeight::clone() const
 void
 DPHWeight::init(double factor)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     double F = get_collection_freq();
     double N = get_collection_size();
     double wdf_lower = 1.0;

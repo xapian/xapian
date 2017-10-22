@@ -3,7 +3,7 @@
  */
 /* Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
- * Copyright (C) 2016 Olly Betts
+ * Copyright (C) 2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,6 +100,12 @@ TfIdfWeight::clone() const
 void
 TfIdfWeight::init(double factor_)
 {
+    if (factor_ == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     wqf_factor = get_wqf() * factor_;
     idfn = get_idfn(normalizations[1]);
 }

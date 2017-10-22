@@ -2,7 +2,7 @@
  * @brief Xapian::BB2Weight class - the BB2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013,2014 Aarsh Shah
- * Copyright (C) 2014,2015,2016 Olly Betts
+ * Copyright (C) 2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,6 +63,12 @@ BB2Weight::clone() const
 void
 BB2Weight::init(double factor)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     double wdfn_upper = get_wdf_upper_bound();
 
     if (wdfn_upper == 0) {
