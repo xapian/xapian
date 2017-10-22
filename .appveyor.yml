@@ -2,6 +2,7 @@ branches:
   only:
   - appveyor
 skip_tags: true
+clone_depth: 20
 environment:
   global:
     AUTOMATED_TESTING: 1
