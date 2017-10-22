@@ -44,7 +44,7 @@ build_script:
 # 'xapian-applications/omega'
   - bash -c 'env'
   - if not "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation'
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="cl -nologo" CXXFLAGS=-EHsc CPPFLAGS=-I$PWD/include LDFLAGS=-L$PWD/lib || cat xapian-core/config.log'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS=-EHsc CPPFLAGS=-I$PWD/include LDFLAGS=-L$PWD/lib || cat xapian-core/config.log'
   - bash -c 'cat xapian-core/config.h'
   - bash -c 'xapian-core/libtool --config'
   - bash -c 'time make -k -j2' < nul
