@@ -261,7 +261,9 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 		}
 	    }
 
-	    if ((flags & FLAG_SPELLING) && prefix.empty())
+	    // MSVC seems to need "this->" on member variables in this
+	    // situation.
+	    if ((this->flags & FLAG_SPELLING) && prefix.empty())
 		db.add_spelling(term);
 
 	    if (strategy == TermGenerator::STEM_NONE ||
