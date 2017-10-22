@@ -1655,8 +1655,13 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
     }
 
     if (!qopt->db.has_positions()) {
-	// No positions in this subdatabase so this matches nothing,
-	// which means the whole andcontext matches nothing.
+	// No positions in this subdatabase so this matches nothing, which
+	// means the whole andcontext matches nothing.
+	//
+	// Bailing out here means we don't recurse deeper and that means we
+	// don't call QueryOptimiser::inc_total_subqs() for leaf postlists in
+	// the phrase, but at least one shard will count them, and the matcher
+	// takes the highest answer (since 1.4.6).
 	ctx.shrink(0);
 	return;
     }
