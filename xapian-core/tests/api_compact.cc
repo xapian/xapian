@@ -596,7 +596,7 @@ DEFINE_TESTCASE(compacttofd1, glass) {
     // https://bugs.winehq.org/show_bug.cgi?id=43902
     errno = EBADF;
     TEST(close(fd) == -1);
-    TEST(errno == EBADF);
+    TEST_EQUAL(errno, EBADF);
 
     Xapian::Database outdb(outdbpath);
 
@@ -622,7 +622,7 @@ DEFINE_TESTCASE(compacttofd2, glass) {
     // https://bugs.winehq.org/show_bug.cgi?id=43902
     errno = EBADF;
     TEST(close(fd) == -1);
-    TEST(errno == EBADF);
+    TEST_EQUAL(errno, EBADF);
 
     fd = open(outdbpath.c_str(), O_RDONLY|O_BINARY, 0666);
     TEST(fd != -1);
