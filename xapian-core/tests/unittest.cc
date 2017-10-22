@@ -81,6 +81,9 @@ using namespace std;
 #include "../api/error.cc"
 #include "../api/sortable-serialise.cc"
 
+// fileutils.cc uses opendir(), etc though not in a function we currently test.
+#include "../common/msvc_dirent.cc"
+
 // Stub replacement, which doesn't deal with escaping or producing valid UTF-8.
 // The full implementation needs Xapian::Utf8Iterator and
 // Xapian::Unicode::append_utf8().
