@@ -257,6 +257,7 @@ DEFINE_TESTCASE(compactmerge1, glass) {
     for (const char * suffix :
 	    { "", "/postlist", "/termlist.", "/docdata.glass" }) {
 	tout.str(string());
+	tout << "Trying suffix '" << suffix << "'" << endl;
 	string arg = outdbpath;
 	arg += suffix;
 	TEST_EQUAL(Xapian::Database::check(arg, 0, &tout), 0);
