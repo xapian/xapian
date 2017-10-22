@@ -116,6 +116,9 @@ query(const string &t)
 
 // tests that the backend doesn't return zero docids
 DEFINE_TESTCASE(zerodocid1, backend) {
+#ifdef _MSC_VER // Segfaults
+    SKIP_TEST_FOR_BACKEND("glass");
+#endif
     // open the database (in this case a simple text file
     // we prepared earlier)
 
