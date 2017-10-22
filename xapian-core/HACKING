@@ -1108,7 +1108,7 @@ There are several variants of Assert:
   and AssertEqParanoid.
 
 - CompileTimeAssert(P) -- this has now been removed, since we require C++11
-  support from the compuiler, and C++11 added ``static_assert``.
+  support from the compiler, and C++11 added ``static_assert``.
 
 Marking Features as Deprecated
 ==============================
