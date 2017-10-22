@@ -98,6 +98,8 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIRS([m4])
 
+AM_PROG_AR
+
 dnl Use libtool to manage our libraries.
 LT_PREREQ([2.2.8])
 dnl Default to only building shared libraries.
