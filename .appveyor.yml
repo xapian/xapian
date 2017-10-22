@@ -39,12 +39,12 @@ install:
   - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
   - if "%TOOLCHAIN%"=="msvc" bash -c 'wget -O zlib-1.2.8-1-mingw32-dev.tar.lzma http://prdownloads.sourceforge.net/mingw/zlib-1.2.8-1-mingw32-dev.tar.lzma?download'
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'tar -xvf zlib-1.2.8-1-mingw32-dev.tar.lzma && mv lib/libz.a lib/z.lib'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'tar -xvf zlib-1.2.8-1-mingw32-dev.tar.lzma'
 build_script:
 # 'xapian-applications/omega'
   - bash -c 'env'
   - if not "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation'
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="cl -nologo" CXXFLAGS=-EHsc CPPFLAGS=-I$PWD/include LIBS="-link $PWD/lib/z.lib" || cat xapian-core/config.log'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="cl -nologo" CXXFLAGS=-EHsc CPPFLAGS=-I$PWD/include LDFLAGS=-L$PWD/lib || cat xapian-core/config.log'
   - bash -c 'cat xapian-core/config.h'
   - bash -c 'time make -k -j2' < nul
 test_script:
