@@ -58,6 +58,7 @@ your PATH.
 END
 	exit 1
       fi
+      # Sanity check by hashing empty input.
       r=`:|eval "$SHA1SUM_TOOL"`
       [ X"$r" != Xda39a3ee5e6b4b0d3255bfef95601890afd80709 ] || break
     done
