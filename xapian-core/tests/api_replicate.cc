@@ -41,11 +41,12 @@
 #include "testutils.h"
 #include "unixcmds.h"
 
-#include <stdlib.h> // For setenv() or putenv() or _putenv_s()
 #include <sys/types.h>
 
 #include <cstdlib>
 #include <string>
+
+#include <stdlib.h> // For setenv() or putenv() or _putenv_s()
 
 using namespace std;
 
