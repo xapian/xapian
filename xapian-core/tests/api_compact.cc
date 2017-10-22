@@ -257,6 +257,7 @@ DEFINE_TESTCASE(compactmerge1, chert || glass) {
     for (const char * suffix :
 	    { "", "/postlist", "/termlist.", "/docdata.glass" }) {
 	tout.str(string());
+	tout << "Trying suffix '" << suffix << "'" << endl;
 	string arg = outdbpath;
 	if (endswith(suffix, ".glass") && get_dbtype() != "glass") {
 	    suffix = "/record.DB";
