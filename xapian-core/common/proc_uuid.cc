@@ -5,7 +5,7 @@
  * cross-build a UUID library.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2013,2015,2016 Olly Betts
+ * Copyright (C) 2013,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,17 +48,16 @@ const size_t UUID_STRING_SIZE = 36;
 void
 uuid_generate(uuid_t uu)
 {
-    char buf[37];
+    char buf[UUID_STRING_SIZE];
     int fd = open("/proc/sys/kernel/random/uuid", O_RDONLY);
     if (rare(fd == -1)) {
 	throw Xapian::DatabaseCreateError("Opening UUID generator failed", errno);
     }
-    if (read(fd, buf, 36) != 36) {
+    if (read(fd, buf, UUID_STRING_SIZE) != UUID_STRING_SIZE) {
 	close(fd);
 	throw Xapian::DatabaseCreateError("Generating UUID failed");
     }
     close(fd);
-    buf[36] = '\0';
     uuid_parse(buf, uu);
 }
 
@@ -80,6 +79,7 @@ void uuid_unparse_lower(const uuid_t uu, char * out)
 	if ((0x2a8 >> i) & 1)
 	   *out++ = '-';
     }
+    out[UUID_STRING_SIZE] = '\0';
 }
 
 void uuid_clear(uuid_t uu)
