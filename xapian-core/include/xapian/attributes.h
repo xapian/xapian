@@ -20,7 +20,7 @@
 #ifndef XAPIAN_INCLUDED_ATTRIBUTES_H
 #define XAPIAN_INCLUDED_ATTRIBUTES_H
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || (defined _MSC_VER && _MSC_VER >= 1900)
 // C++11 has noexcept(true) for marking a function which shouldn't throw.
 //
 // You need a C++11 compiler to build Xapian, but we still support using a
@@ -40,6 +40,7 @@
 #endif
 
 #ifdef __GNUC__
+
 // __attribute__((__const__)) is available at least as far back as GCC 2.95.
 # define XAPIAN_CONST_FUNCTION __attribute__((__const__))
 // __attribute__((__pure__)) is available from GCC 2.96 onwards.
@@ -48,7 +49,9 @@
 # if __GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
 #  define XAPIAN_NOTHROW(D) D XAPIAN_NOEXCEPT __attribute__((__nothrow__))
 # endif
+
 #else
+
 /** A function which does not examine any values except its arguments and has
  *  no effects except its return value.
  *
@@ -63,9 +66,6 @@
  */
 # define XAPIAN_PURE_FUNCTION
 
-# ifdef _MSC_VER
-#  define XAPIAN_NOTHROW(D) __declspec(nothrow) D XAPIAN_NOEXCEPT
-# endif
 #endif
 
 #ifndef XAPIAN_NOTHROW
