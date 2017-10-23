@@ -22,16 +22,11 @@
 
 #include "unixcmds.h"
 
-#include <cstring>
 #include <string>
 #include <cstdlib>
 #include <sys/types.h>
 #include "safeunistd.h"
 #include "safefcntl.h"
-
-#ifdef __WIN32__
-# include "safewindows.h"
-#endif
 
 #include "append_filename_arg.h"
 #include "filetests.h"
