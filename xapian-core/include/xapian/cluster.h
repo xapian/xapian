@@ -313,7 +313,7 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
      *
      *  @param tlg		TermListGroup object which provides the term
      *				frequencies.  It is used for TF-IDF weight
-     *				calulations
+     *				calculations
      *  @param document		The Document object over which the Point object
      *				will be initialised
      */
