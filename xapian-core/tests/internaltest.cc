@@ -264,22 +264,6 @@ static bool test_temporarydtor1()
     return true;
 }
 
-static bool test_static_assert1()
-{
-    // These tests aren't so useful now we're using C++11 static_assert(),
-    // but it's not a bad idea to sanity check it.
-    static_assert(true, "true");
-    static_assert(1, "1");
-    static_assert(-1, "-1");
-    static_assert(42, "42");
-    static_assert(sizeof(char) == 1, "sizeof(char) == 1");
-
-    // FIXME: We should test cases which should fail, but these are hard to
-    // check with our current test framework.
-
-    return true;
-}
-
 /// Test pack_uint_preserving_sort()
 static bool test_pack_uint_preserving_sort1()
 {
@@ -585,7 +569,6 @@ static const test_desc tests[] = {
     TESTCASE(autoptr1),
     TESTCASE(stringcomp1),
     TESTCASE(temporarydtor1),
-    TESTCASE(static_assert1),
     TESTCASE(pack_uint_preserving_sort1),
     TESTCASE(pack_uint_preserving_sort2),
     TESTCASE(chartype1),
