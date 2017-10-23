@@ -144,7 +144,7 @@ internaltest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 unittest_SOURCES = unittest.cc $(utestharness_sources)
 unittest_LDFLAGS = $(NO_INSTALL) $(ldflags)
-unittest_LDADD = ../libgetopt.la
+unittest_LDADD = ../libgetopt.la $(XAPIAN_LIBS)
 
 BUILT_SOURCES =
 
