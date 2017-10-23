@@ -40,8 +40,7 @@ install:
     ## #  - bash -c 'ls -l /www/example/products'
   - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'wget -O zlib-1.2.8-1-mingw32-dev.tar.lzma http://prdownloads.sourceforge.net/mingw/zlib-1.2.8-1-mingw32-dev.tar.lzma?download'
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'tar -xvf zlib-1.2.8-1-mingw32-dev.tar.lzma'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'wget https://zlib.net/zlib-1.2.11.tar.gz && mkdir zlib && cd zlib && tar --strip-components=1 -xvf ../zlib-1.2.11.tar.gz && nmake -f win32/Makefile.msc'
 build_script:
 # 'xapian-applications/omega'
   - bash -c 'env'
@@ -49,7 +48,7 @@ build_script:
     # -O2
     # -Zi doesn't seem to work with mingw gdb, and also doesn't work with parallel make (-FS sounds like it doesn't fully solve the problem).
     # -Z7 also doesn't seem to work with mingw gdb.
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --enable-static --disable-shared --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc" CPPFLAGS=-I$PWD/include AR=lib LDFLAGS=-L$PWD/lib || cat xapian-core/config.log'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --enable-static --disable-shared --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc" CPPFLAGS=-I$PWD/zlib AR=lib LDFLAGS=-L$PWD/zlib || cat xapian-core/config.log'
   # - bash -c 'cat xapian-core/config.h'
   # - bash -c 'xapian-core/libtool --config'
   - bash -c 'time make -k -j2' < nul
