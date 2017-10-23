@@ -41,6 +41,8 @@ autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
 FETCH_URL_TOOL=
 
 check_sha1sum() {
+  # This function is expected to be used in 'if' so we can't rely on set -e
+  # being in effect here.
   checksum=$1
   tarball=$2
 
@@ -77,6 +79,8 @@ END
 }
 
 check_at_least() {
+  # This function is expected to be used in 'if' so we can't rely on set -e
+  # being in effect here.
   v1=$1
   v2=$2
   save_IFS=$IFS
@@ -97,6 +101,8 @@ check_at_least() {
 }
 
 lazy_build() {
+  # This function is expected to be used in 'if' so we can't rely on set -e
+  # being in effect here.
   package=$1
   binary=$2
   version=$3
@@ -214,7 +220,8 @@ END
     esac
     rm -f download.tmp
     echo "Downloading <$url>"
-    $FETCH_URL_TOOL "$url" > download.tmp && mv download.tmp "$tarball"
+    $FETCH_URL_TOOL "$url" > download.tmp || exit $?
+    mv download.tmp "$tarball"
   fi
 
   if [ -f "$stamp" ] ; then
@@ -234,14 +241,14 @@ END
 
     case $ext in
     tar.xz)
-      ${XZ-xz} -dc "$tarball"| tar xf - ;;
+      ${XZ-xz} -dc "$tarball"| tar xf - || exit $? ;;
     tar.bz2)
-      bzip2 -dc "$tarball"| tar xf - ;;
+      bzip2 -dc "$tarball"| tar xf - || exit $?  ;;
     *)
-      gzip -dc "$tarball"| tar xf - ;;
+      gzip -dc "$tarball"| tar xf - || exit $? ;;
     esac
 
-    cd "$basename"
+    cd "$basename" || exit $?
 
     series="../../patches/$package/series"
     if [ ! -f "$series" ] ; then
@@ -256,21 +263,21 @@ END
       sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" | \
 	  while read p ; do
 	echo "Applying patch $package/$p"
-	patch -p1 < "../../patches/$package/$p"
+	patch -p1 < "../../patches/$package/$p" || exit $?
       done
     fi
 
     if test -n "$AUTOCONF" ; then
-      ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
+      ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF" || exit $?
     else
-      ./configure --prefix "$instdir"
+      ./configure --prefix "$instdir" || exit $?
     fi
-    make
-    make install
-    cd ..
-    rm -rf "$basename"
+    make || exit $?
+    make install || exit $?
+    cd .. || exit $?
+    rm -rf "$basename" || exit $?
 
-    touch "$stamp"
+    touch "$stamp" || exit $?
   fi
   return 0
 }
