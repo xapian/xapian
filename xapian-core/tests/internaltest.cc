@@ -211,15 +211,6 @@ static bool test_static_assert1()
     // FIXME: We should test cases which should fail, but these are hard to
     // check with our current test framework.
 
-    STATIC_ASSERT_UNSIGNED_TYPE(bool);
-    STATIC_ASSERT_UNSIGNED_TYPE(unsigned char);
-    STATIC_ASSERT_UNSIGNED_TYPE(unsigned short);
-    STATIC_ASSERT_UNSIGNED_TYPE(unsigned int);
-    STATIC_ASSERT_UNSIGNED_TYPE(unsigned long);
-
-    // FIXME: We should test cases which should fail, but these are hard to
-    // check with our current test framework.
-
     STATIC_ASSERT_TYPE_DOMINATES(unsigned long, unsigned long);
     STATIC_ASSERT_TYPE_DOMINATES(unsigned int, unsigned int);
     STATIC_ASSERT_TYPE_DOMINATES(unsigned short, unsigned short);

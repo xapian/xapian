@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,9 @@
 #include <algorithm>
 #include <climits>
 #include <string>
+#ifdef __WIN32__
+# include <type_traits>
+#endif
 
 #include "debuglog.h"
 #include "fd.h"
@@ -64,7 +67,8 @@ throw_network_error_insane_message_length()
 inline void
 update_overlapped_offset(WSAOVERLAPPED & overlapped, DWORD n)
 {
-    STATIC_ASSERT_UNSIGNED_TYPE(DWORD); // signed overflow is undefined.
+    // Signed overflow is undefined so check DWORD is unsigned.
+    static_assert(std::is_unsigned<DWORD>::value, "Type DWORD should be unsigned");
     overlapped.Offset += n;
     if (overlapped.Offset < n) ++overlapped.OffsetHigh;
 }

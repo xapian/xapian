@@ -1,7 +1,7 @@
 /** @file pack.h
  * @brief Pack types into strings and unpack them again.
  */
-/* Copyright (C) 2009,2015,2016 Olly Betts
+/* Copyright (C) 2009,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 #include <cstring>
 #include <string>
+#include <type_traits>
 
 #include "omassert.h"
 
@@ -87,8 +88,7 @@ template<class U>
 inline void
 pack_uint_last(std::string & s, U value)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 
     while (value) {
 	s += char(value & 0xff);
@@ -106,8 +106,7 @@ template<class U>
 inline bool
 unpack_uint_last(const char ** p, const char * end, U * result)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
     Assert(result);
 
     const char * ptr = *p;
@@ -157,8 +156,7 @@ template<class U>
 inline void
 pack_uint_preserving_sort(std::string & s, U value)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     // The clz() functions are undefined for 0, so handle the smallest band
@@ -207,8 +205,7 @@ template<class U>
 inline bool
 unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     Assert(result);
@@ -272,8 +269,7 @@ template<class U>
 inline void
 pack_uint(std::string & s, U value)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 
     while (value >= 128) {
 	s += static_cast<char>(static_cast<unsigned char>(value) | 0x80);
@@ -304,8 +300,7 @@ template<class U>
 inline bool
 unpack_uint(const char ** p, const char * end, U * result)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 
     const char * ptr = *p;
     Assert(ptr);
