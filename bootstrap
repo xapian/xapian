@@ -267,13 +267,17 @@ END
       done
     fi
 
+    echo "Configuring $package"
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF" || exit $?
     else
       ./configure --prefix "$instdir" || exit $?
     fi
+    echo "Building $package"
     make || exit $?
+    echo "Installing $package"
     make install || exit $?
+    echo "Done installing $package"
     cd .. || exit $?
     rm -rf "$basename" || exit $?
 
