@@ -578,7 +578,7 @@ DEFINE_TESTCASE(topercent1, backend) {
 
 // tests the percentage values returned
 DEFINE_TESTCASE(topercent2, backend) {
-#ifndef _MSC_VER // FIXME: debug why this segfaults under MSVC
+#ifndef _MSC_VER // FIXME: glass backend segfaults under MSVC
     BackendManagerLocal local_manager;
     local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
     Xapian::Enquire localenq(local_manager.get_database("apitest_simpledata"));
