@@ -8,10 +8,10 @@ environment:
   global:
     AUTOMATED_TESTING: 1
   matrix:
-  - TOOLCHAIN: mingw
-  - TOOLCHAIN: cygwin
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  - TOOLCHAIN: mingw
+  - TOOLCHAIN: cygwin
 platform:
   - x86
   # Not really useful unless we actually do 64-bit builds there
