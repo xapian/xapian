@@ -842,6 +842,8 @@ case $enable_backend_glass in
   case $host_os in
     *mingw* | *cygwin*) dnl Use built-in API.
       use_win32_uuid_api=1
+      AC_DEFINE([USE_WIN32_UUID_API], [1],
+		[Define to 1 to use UuidCreate(), etc])
       dnl We need -lws2_32 for htonl(), etc.
       win32_need_lws2_32=1
       ;;
