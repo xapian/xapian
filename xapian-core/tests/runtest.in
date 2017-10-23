@@ -91,7 +91,8 @@ if test -z "$VALGRIND" ; then
     if test -n "$EATMYDATA" ; then
 	echo "Running test '$@' under eatmydata"
     fi
-    exec $EATMYDATA /c/msys64/mingw32/bin/gdb.exe --return-child-result --batch -ex run -ex bt --args "$@"
+    exec $EATMYDATA "$@"
+    #exec $EATMYDATA /c/msys64/mingw32/bin/gdb.exe --return-child-result --batch -ex run -ex bt --args "$@"
     exit 1
 fi
 
