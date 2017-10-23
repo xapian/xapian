@@ -47,12 +47,11 @@ build_script:
   - bash -c 'env'
   - if not "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation'
     # -O2
-    # Can't use make -j2 with -Zi; could use -Z7 instead, or perhaps -Zi -FS
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc -Od -Zi" CPPFLAGS=-I$PWD/include AR=lib LDFLAGS=-L$PWD/lib || cat xapian-core/config.log'
+    # -Zi doesn't seem to work with mingw gdb, and also doesn't work with parallel make (-FS sounds like it doesn't fully solve the problem).
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc -Od -Z7" CPPFLAGS=-I$PWD/include AR=lib LDFLAGS=-L$PWD/lib || cat xapian-core/config.log'
   # - bash -c 'cat xapian-core/config.h'
   # - bash -c 'xapian-core/libtool --config'
-  # - bash -c 'time make -k -j2' < nul
-  - bash -c 'time make -k' < nul
+  - bash -c 'time make -k -j2' < nul
 test_script:
   - bash -c 'time make -k check VERBOSE=1' < nul
 #  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
