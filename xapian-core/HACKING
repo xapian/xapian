@@ -995,7 +995,7 @@ Here's an incomplete list of things to avoid:
 
   However, this rule still has a problem - if the xapian_wrap.cc and
   xapian_wrap.h files are removed, but the xapian_wrap.stamp file is not, the
-  .cc and .h files will not be regenerated.   There is no simple solution to
+  .cc and .h files will not be regenerated.  There is no simple solution to
   this, but the following is a recipe taken from the automake manual which
   works.  For details of *why* it works, see the section in the automake manual
   titled "Multiple Outputs"::
