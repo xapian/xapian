@@ -1341,9 +1341,12 @@ AH_BOTTOM(
 # pragma warning(disable:4800)
 #endif
 
-/* Tell MSVC we want M_PI, etc defined. */
 #ifdef _MSC_VER
+/* Tell MSVC we want M_PI, etc defined. */
 # define _USE_MATH_DEFINES
+
+/* Tell MSVC we don't want max() and min() macros defined. */
+# define NOMINMAX
 #endif
 
 /* MSVC defines _WIN32 but not __WIN32__. */

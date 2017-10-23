@@ -90,10 +90,6 @@ endswith(const std::string & s, const std::string & sfx)
     return endswith(s, sfx.data(), sfx.size());
 }
 
-#ifdef min
-# undef min
-#endif
-
 inline std::string::size_type
 common_prefix_length(const std::string &a, const std::string &b)
 {
