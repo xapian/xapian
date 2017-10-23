@@ -40,6 +40,7 @@
 #endif
 
 #ifdef __GNUC__
+
 // __attribute__((__const__)) is available at least as far back as GCC 2.95.
 # define XAPIAN_CONST_FUNCTION __attribute__((__const__))
 // __attribute__((__pure__)) is available from GCC 2.96 onwards.
@@ -63,7 +64,9 @@
 #   define XAPIAN_NONNULL(LIST) __attribute__((__nonnull__ LIST))
 #  endif
 # endif
+
 #else
+
 /** A function which does not examine any values except its arguments and has
  *  no effects except its return value.
  *
@@ -78,9 +81,6 @@
  */
 # define XAPIAN_PURE_FUNCTION
 
-# if defined _MSC_VER
-// FIXME: doesn't work! #  define XAPIAN_NOTHROW(D) __declspec(nothrow) D XAPIAN_NOEXCEPT
-# endif
 #endif
 
 #ifndef XAPIAN_NOTHROW
