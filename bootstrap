@@ -114,17 +114,21 @@ lazy_build() {
       ;;
     *)
       if [ -n $binary ] ; then
-	# Check if a new enough version is already installed.
-	version_installed=`"$binary" --version 2>/dev/null|sed '1,1 s/.* //p;d'`
-	if [ -n "$version_installed" ] ; then
-	  # Fast track equality.
-	  if [ "$version_installed" = "$version" ] ; then
-	    echo "$binary $version_installed installed, exactly what's needed"
-	    return 1
-	  fi
-	  if check_at_least "$version_installed" "$version" ; then
-	    echo "$binary $version_installed installed >= $version required"
-	    return 1
+	if [ -s "../patches/$package/series" ] ; then
+	  echo "There are patches to apply to $package so it has to be built"
+	else
+	  # Check if a new enough version is already installed.
+	  version_installed=`"$binary" --version 2>/dev/null|sed '1,1 s/.* //p;d'`
+	  if [ -n "$version_installed" ] ; then
+	    # Fast track equality.
+	    if [ "$version_installed" = "$version" ] ; then
+	      echo "$binary $version_installed installed, exactly what's needed"
+	      return 1
+	    fi
+	    if check_at_least "$version_installed" "$version" ; then
+	      echo "$binary $version_installed installed >= $version required"
+	      return 1
+	    fi
 	  fi
 	fi
       fi
