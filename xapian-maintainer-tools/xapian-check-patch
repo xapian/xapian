@@ -231,7 +231,7 @@ QUOTELOOP:  while (1) {
     if (!$want_tabs and /^\+ *\t/) {
 	diagnostic('error', "added/changed line uses tab for indentation rather than spaces", $fullline);
     }
-    if ((!defined $lang || $lang ne 'changelog') && /^([-+]).*\bFIX(?:ME)\b/) {
+    if ((!defined $lang || $lang ne 'changelog') && $fullline =~ /^([-+]).*\bFIX(?:ME)\b/) {
 	# Break up the string in the regexp above and messages below to avoid
 	# this triggering on its own code!
 	if ($1 eq '-') {
