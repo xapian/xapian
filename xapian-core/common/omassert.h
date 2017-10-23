@@ -132,21 +132,4 @@ bool within_DBL_EPSILON(double a, double b);
 # define AssertEqDoubleParanoid(A,B) (void)0
 #endif
 
-/** Assert at compile-time that integer type T1 can hold any value which
- *  integer type T2 can.
- *
- *  NB Doesn't currently work reliably for type bool (which is typically
- *  incorrectly treated as equivalent to unsigned char or unsigned int).
- *
- *  If T1 is unsigned, T2 must be unsigned and have no more bits.
- *
- *  If T1 is signed, then T2 must have no more bits (if also signed) or
- *  fewer bits (if unsigned).
- */
-#define STATIC_ASSERT_TYPE_DOMINATES(T1, T2) \
-    static_assert(static_cast<T1>(-1) > 0 ? \
-	(static_cast<T2>(-1) > 0 && sizeof(T1) >= sizeof(T2)) : \
-	(sizeof(T1) >= sizeof(T2) + (static_cast<T2>(-1) > 0)), \
-	"Type " #T1 " doesn't dominate type " #T2)
-
 #endif // XAPIAN_INCLUDED_OMASSERT_H
