@@ -57,7 +57,8 @@ build_script:
   # - bash -c 'xapian-core/libtool --config'
   - bash -c 'time make -k -j2' < nul
 test_script:
-  - bash -c 'time make -k -C xapian-core/tests check-none check-inmemory VERBOSE=1' < nul
+  - if not "%TOOLCHAIN%"=="msvc" bash -c 'time make -k check VERBOSE=1' < nul
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'time make -k -C xapian-core/tests check-none check-inmemory VERBOSE=1' < nul
   # - bash -c 'time make -k check VERBOSE=1' < nul
 #  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
 #  - bash -c 'xapian-core/bin/xapian-delve omtest.db'
