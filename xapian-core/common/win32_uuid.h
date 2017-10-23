@@ -21,6 +21,10 @@
 #ifndef XAPIAN_INCLUDED_WIN32_UUID_H
 #define XAPIAN_INCLUDED_WIN32_UUID_H
 
+#if !defined USE_WIN32_UUID_API
+# error Including win32_uuid.h but USE_WIN32_UUID_API not defined
+#endif
+
 #if !defined __CYGWIN__ && !defined __WIN32__
 # error Including win32_uuid.h, but neither __CYGWIN__ nor __WIN32__ defined!
 #endif
