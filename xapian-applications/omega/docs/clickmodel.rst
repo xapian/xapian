@@ -11,7 +11,7 @@ Introduction
 
 Clicks in web search reflect user interests in retrieved documents and by the
 use of various methods, clicks can be used to improve search results. Click
-models are one such methods. These are probabilistic graphical models that
+models are one such method. These are probabilistic graphical models that
 make user clicks easier to understand, define and quantify.
 
 There are various kinds of click models among which the dynamic bayesian

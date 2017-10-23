@@ -18,10 +18,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+ #ifndef OMEGA_INCLUDED_SESSION_H
+ #define OMEGA_INCLUDED_SESSION_H
+
 #include <string>
 #include <vector>
-
-using namespace std;
 
 #define QID 0
 #define DOCIDS 1
@@ -32,7 +33,7 @@ using namespace std;
  */
 class Session {
     /// Each session contains data elements stored as std::string.
-    vector<string> session;
+    std::vector<std::string> session;
   public:
     /** Creates a new session with the given data elements.
      *
@@ -40,18 +41,20 @@ class Session {
      * @param docids		Document ids in the search session.
      * @param clicks		Click information corresponding to the docids.
      */
-    void create_session (string qid, string docids, string clicks) {
+    void create_session (std::string qid, std::string docids, std::string clicks) {
 	session.push_back(qid);
 	session.push_back(docids);
 	session.push_back(clicks);
     }
 
     /// Retrieve the query id of the session.
-    string get_qid() const { return session[QID]; }
+    std::string get_qid() const { return session[QID]; }
 
     /// Retrieve the docids string of the session.
-    string get_docids()	const { return session[DOCIDS]; }
+    std::string get_docids() const { return session[DOCIDS]; }
 
     /// Retrieve the clicks string of the session.
-    string get_clicks() const { return session[CLICKS]; }
+    std::string get_clicks() const { return session[CLICKS]; }
 };
+
+#endif // OMEGA_INCLUDED_SESSION_H

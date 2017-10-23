@@ -18,14 +18,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#ifndef OMEGA_INCLUDED_SIMPLIFIEDDBN_H
+#define OMEGA_INCLUDED_SIMPLIFIEDDBN_H
+
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "session.h"
-
-using namespace std;
 
 enum {
     PARAM_ATTR_PROB,
@@ -44,10 +45,10 @@ enum {
  */
 class SimplifiedDBN {
     /// Relevances of documents corresponding to a query in a search session.
-    map<string, map<string, map<int, double>>> doc_relevances;
+    std::map<std::string, std::map<std::string, std::map<int, double>>> doc_relevances;
   public:
     /// Return the name of the click model.
-    string name();
+    std::string name();
 
     /** Builds search sessions from the input log file and returns a list
      * of generated sessions. Each session contains three values: queryid,
@@ -56,14 +57,14 @@ class SimplifiedDBN {
      *
      * @param logfile		Path to the final log file.
      */
-    vector<Session> build_sessions(const string &logfile);
+    std::vector<Session> build_sessions(const std::string &logfile);
 
     /** Trains the model i.e. learning the values of attractiveness
      * and satisfactoriness parameters modelled by the click model.
      *
      * @param sessions 		List of all sessions.
      */
-    void train(const vector<Session> &sessions);
+    void train(const std::vector<Session> &sessions);
 
     /** Return predicted relevance of each document in a session i.e. the
      * estimations of the relevance of each document in a given session based
@@ -71,5 +72,7 @@ class SimplifiedDBN {
      *
      * @param sessions		Session class object representing a session.
      */
-    vector<pair<string, double>> get_predicted_relevances(const Session &session);
+    std::vector<std::pair<std::string, double>> get_predicted_relevances(const Session &session);
 };
+
+#endif // OMEGA_INCLUDED_SIMPLIFIEDDBN_H
