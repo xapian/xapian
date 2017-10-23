@@ -273,7 +273,7 @@ io_tmp_rename(const std::string & tmp_file, const std::string & real_file)
     // We retry on EXDEV a few times as some older Linux kernels are buggy and
     // fail with EXDEV when the two files are on the same device (as they
     // always ought to be when this function is used).  Don't retry forever in
-    // case someone calls this with files one different devices.
+    // case someone calls this with files on different devices.
     //
     // We're not sure exactly which kernels are buggy in this way, but there's
     // discussion here: http://www.spinics.net/lists/linux-nfs/msg17306.html
