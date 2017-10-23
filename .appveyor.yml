@@ -8,13 +8,13 @@ environment:
   global:
     AUTOMATED_TESTING: 1
   matrix:
-  # - TOOLCHAIN: mingw
-  # - TOOLCHAIN: cygwin
+  - TOOLCHAIN: mingw
+  - TOOLCHAIN: cygwin
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 platform:
   - x86
-  # - x64
+  - x64
 install:
   - bash -c 'date -u; uname -a'
   - ps: >-
