@@ -1,7 +1,7 @@
 /** @file str.cc
  * @brief Convert types to std::string
  */
-/* Copyright (C) 2009,2012,2015 Olly Betts
+/* Copyright (C) 2009,2012,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <cstdio> // For snprintf() or sprintf().
 #include <cstdlib> // For abort().
 #include <string>
+#include <type_traits>
 
 using namespace std;
 
@@ -35,7 +36,7 @@ template<class T>
 inline string
 tostring_unsigned(T value)
 {
-    STATIC_ASSERT_UNSIGNED_TYPE(T);
+    static_assert(std::is_unsigned<T>::value, "Unsigned type required");
     // Special case single digit positive numbers.
     // FIXME: is this actually worthwhile?
     if (value < 10) return string(1, '0' + char(value));

@@ -132,10 +132,6 @@ bool within_DBL_EPSILON(double a, double b);
 # define AssertEqDoubleParanoid(A,B) (void)0
 #endif
 
-/** Assert at compile-time that type TYPE is unsigned. */
-#define STATIC_ASSERT_UNSIGNED_TYPE(TYPE) \
-    static_assert(static_cast<TYPE>(-1) > 0, "Type " #TYPE " not unsigned")
-
 /** Assert at compile-time that integer type T1 can hold any value which
  *  integer type T2 can.
  *
