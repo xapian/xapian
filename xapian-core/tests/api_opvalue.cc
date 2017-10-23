@@ -122,6 +122,39 @@ DEFINE_TESTCASE(valuerange5, generated) {
     return true;
 }
 
+static void
+make_singularvalue_db(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    db.add_document(doc);
+    doc.add_value(0, "SINGULAR");
+    db.add_document(doc);
+    db.add_document(doc);
+}
+
+// Check handling of bounds when bounds are equal.
+DEFINE_TESTCASE(valuerange6, generated) {
+    Xapian::Database db = get_database("singularvalue", make_singularvalue_db);
+
+    Xapian::Enquire enq(db);
+
+    Xapian::Query query(Xapian::Query::OP_VALUE_RANGE, 0, "SATSUMA", "SLOE");
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 2);
+    TEST_EQUAL(mset.get_matches_estimated(), 2);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 2);
+
+    Xapian::Query query2(Xapian::Query::OP_VALUE_RANGE, 0, "PEACH", "PLUM");
+    enq.set_query(query2);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
+    return true;
+}
+
 // Feature test for Query::OP_VALUE_GE.
 DEFINE_TESTCASE(valuege1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
