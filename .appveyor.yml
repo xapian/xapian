@@ -14,6 +14,7 @@ environment:
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 platform:
   - x86
+  # - x64
 install:
   - bash -c 'date -u; uname -a'
   - ps: >-
@@ -45,7 +46,8 @@ build_script:
 # 'xapian-applications/omega'
   - bash -c 'env'
   - if not "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation'
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS=-EHsc CPPFLAGS=-I$PWD/include AR=lib LDFLAGS=-L$PWD/lib || cat xapian-core/config.log'
+    # -O2
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc -Od -Zi" CPPFLAGS=-I$PWD/include AR=lib LDFLAGS=-L$PWD/lib || cat xapian-core/config.log'
   # - bash -c 'cat xapian-core/config.h'
   # - bash -c 'xapian-core/libtool --config'
   - bash -c 'time make -k -j2' < nul
