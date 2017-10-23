@@ -106,7 +106,7 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
 
     /** Add a new Document to the DocumentSet
      *
-     *  @param document 	Document object that is to be added to
+     *  @param document		Document object that is to be added to
      *				the DocumentSet
      */
     void add_document(const Document &document);
@@ -191,7 +191,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
 
     /** Add a single document and calculates its corresponding term frequencies
      *
-     *  @param document 	Adds a document and updates the TermListGroup
+     *  @param document		Adds a document and updates the TermListGroup
      *				based on the terms found in the document
      *  @param stopper		Xapian::Stopper object to identify stopwords
      */
@@ -229,7 +229,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
 
     /** Set the weight 'weight' to the mapping of a term
      *
-     *  @param term 	Term for which the weight is supposed
+     *  @param term	Term for which the weight is supposed
      *			to be changed
      *  @param weight	The weight to which the mapping of the
      *			term is to be set
@@ -312,8 +312,9 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
      *  Initialise the point with terms and corresponding TF-IDF weights
      *
      *  @param tlg		TermListGroup object which provides the term
-     *				frequencies. It is used for TF-IDF weight calulations
-     *  @param document 	The Document object over which the Point object
+     *				frequencies.  It is used for TF-IDF weight
+     *				calulations
+     *  @param document		The Document object over which the Point object
      *				will be initialised
      */
     Point(const TermListGroup &tlg, const Document &document);
@@ -377,7 +378,7 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /** Constructor
      *
-     *  @param centroid 	The centroid of the cluster object is
+     *  @param centroid		The centroid of the cluster object is
      *				assigned to 'centroid'
      */
     explicit Cluster(const Centroid &centroid);
@@ -415,7 +416,7 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /** Set the centroid of the Cluster to 'centroid'
      *
-     *  @param centroid 	Centroid object for the Cluster
+     *  @param centroid		Centroid object for the Cluster
      */
     void set_centroid(const Centroid &centroid);
 
@@ -456,8 +457,7 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
 
     /** Add a cluster to the ClusterSet
      *
-     *  @param cluster  	Cluster object which is to be added
-     *				to the ClusterSet
+     *  @param cluster	Cluster object which is to be added to the ClusterSet
      */
     void add_cluster(const Cluster &cluster);
 
@@ -482,9 +482,7 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     /// Clear all the clusters in the ClusterSet
     void clear_clusters();
 
-    /** Recalculate the centroid for all the clusters
-     *  in the ClusterSet
-     */
+    /** Recalculate the centroid for all the clusters in the ClusterSet */
     void recalculate_centroids();
 };
 

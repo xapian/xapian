@@ -79,6 +79,7 @@ removedir(const string &dirname)
 	throw Xapian::DatabaseError("Cannot remove directory '" + dirname + "'", errno);
     }
 }
+
 #ifdef __WIN32__
 /// Return true iff a path starts with a drive letter.
 static bool

@@ -318,20 +318,19 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /** Return the appropriate weighting scheme object.
      *
-     *  @param scheme 		the string containing a weighting scheme name
-     *				and may also contain the parameters required
-     *				by that weighting scheme. E.g. "bm25 1.0 0.8"
-     *  @param reg		Xapian::Registry object to allow users to add
-     *				their own custom weighting schemes
-     *				(default: standard registry).
+     *  @param scheme	the string containing a weighting scheme name and may
+     *			also contain the parameters required by that weighting
+     *			scheme. E.g. "bm25 1.0 0.8"
+     *  @param reg	Xapian::Registry object to allow users to add their own
+     *			custom weighting schemes (default: standard registry).
      */
     static const Weight * create(const std::string & scheme,
 				 const Registry & reg = Registry());
 
     /** Return the parameterised weighting scheme object.
      *
-     * @param params 		the pointer to the string containing parameter
-     *				values for a weighting scheme
+     * @param params	the pointer to the string containing parameter values
+     *			for a weighting scheme
      */
     virtual Weight * create_from_parameters(const char * params) const;
 

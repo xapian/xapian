@@ -278,7 +278,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      *				 loaded.
      *
      *  @exception LetorInternalError will be thrown if no model exists
-     *  	   corresponding to the supplied key
+     *		   corresponding to the supplied key
      */
     void load_model_from_metadata(const std::string & model_key);
 
@@ -381,7 +381,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
      *				 loaded.
      *
      *  @exception InvalidArgumentError will be thrown if no model exists
-     *  	   corresponding to the supplied key
+     *		   corresponding to the supplied key
      */
     void load_model_from_metadata(const std::string& model_key);
 

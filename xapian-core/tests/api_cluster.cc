@@ -63,7 +63,7 @@ class RoundRobin : public Xapian::Clusterer {
   public:
     /** Constructor
      *
-     *  @param num_of_clusters_ 	Number of required clusters
+     *  @param num_of_clusters_		Number of required clusters
      */
     explicit RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
 
