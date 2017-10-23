@@ -14,7 +14,8 @@ environment:
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 platform:
   - x86
-  - x64
+  # Not really useful unless we actually do 64-bit builds there
+  # - x64
 install:
   - bash -c 'date -u; uname -a'
   - ps: >-
