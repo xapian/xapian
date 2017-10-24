@@ -121,14 +121,9 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
 	    }
 	    // Get the final result of the read.
-	    if (!GetOverlappedResult(hin, &overlapped, &received, FALSE)) {
-		int last_error = GetLastError();
-		if (last_error != ERROR_BROKEN_PIPE)
-		    throw Xapian::NetworkError("Failed to get overlapped result",
-					       context, -last_error);
-		// Treat ERROR_BROKEN_PIPE as EOF.
-		received = 0;
-	    }
+	    if (!GetOverlappedResult(hin, &overlapped, &received, FALSE))
+		throw Xapian::NetworkError("Failed to get overlapped result",
+					   context, -int(GetLastError()));
 	}
 
 	if (received == 0) {
