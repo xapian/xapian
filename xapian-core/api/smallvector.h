@@ -295,13 +295,9 @@ using VecCOW = Vec<T, true>;
 class SmallVector_ {
     std::size_t c;
 
-    void * p[2];
+    static constexpr std::size_t INTERNAL_CAPACITY = 2;
 
-#ifndef _MSC_VER
-    static constexpr std::size_t INTERNAL_CAPACITY = sizeof(p) / sizeof(*p);
-#else
-    static constexpr std::size_t INTERNAL_CAPACITY = 2; // Argh!
-#endif
+    void * p[INTERNAL_CAPACITY];
 
   public:
     SmallVector_() : c(0) { }

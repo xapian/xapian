@@ -498,14 +498,20 @@ if lazy_build libtool libtool 2.4.6 \
     ; then
   LIBTOOLIZE=$instdir/bin/libtoolize
   export LIBTOOLIZE
-  # If we're using system automake then we need to set ACLOCAL_PATH so that
-  # aclocal finds libtool's macros.  If we installed our own automake, then
-  # it's harmless to set it, as it's the default location to look in.
-  ACLOCAL="${ACLOCAL-aclocal} -I $instdir/share/aclocal"
-  export ACLOCAL
+  libtool_aclocal=$instdir/share/aclocal
 else
-  ACLOCAL="${ACLOCAL-aclocal} -I `which libtool|sed 's!/bin/[^/]*$!/share/aclocal!'`"
+  libtool_aclocal=`which libtool|sed 's!/bin/[^/]*$!/share/aclocal!'`
 fi
+# If the aclocal we're using is in a different prefix to the libtool we're
+# using, we probably need to tell aclocal where to look for our libtool's
+# macros.  Our directory may already by specified by other means, but it's
+# fairly harmless to specify an explicit -I for a directory which is searched
+# anyway - at worst it changes the search order.
+if [ "`${ACLOCAL-aclocal} --print-ac-dir`" != "$libtool_aclocal" ] ; then
+  ACLOCAL="${ACLOCAL-aclocal} -I $libtool_aclocal"
+  export ACLOCAL
+fi
+
 if [ "$1" = "--deps=libmagic" ] ; then
     shift
     lazy_build file '' 5.25 \

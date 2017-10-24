@@ -49,4 +49,3 @@ $hdr->append('');
 $hdr->append("#define LANGSTRING \"" . join(" ", @langs) . "\"");
 
 $hdr->write();
-print "Done\n";
