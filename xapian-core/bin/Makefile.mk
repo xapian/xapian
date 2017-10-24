@@ -79,7 +79,6 @@ endif
 if USE_WIN32_UUID_API
 bin_xapian_inspect_SOURCES +=\
 	common/win32_uuid.cc
-bin_xapian_inspect_LDADD += -lrpcrt4
 endif
 
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc

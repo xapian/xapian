@@ -93,6 +93,8 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIR([m4])
 
+AM_PROG_AR
+
 dnl Use libtool to manage our libraries.
 LT_PREREQ([2.2.8])
 dnl Default to only building shared libraries.
@@ -259,6 +261,18 @@ if $GREP '^#define _LARGE_FILES 1$' confdefs.h > /dev/null 2>&1 ; then
   abi_affecting_cxxflags=-D_LARGE_FILES
 fi
 AC_SUBST([abi_affecting_cxxflags])
+
+AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+#if defined __WIN32__ || defined _WIN32
+#error WIN32
+#endif
+]])], [win32=no], [win32=yes])
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef _MSC_VER
+#error MSVC
+#endif
+]])], [msvc=no], [msvc=yes])
 
 XAPIAN_LDFLAGS=
 XAPIAN_LIBS=
@@ -835,13 +849,17 @@ case $enable_backend_chert$enable_backend_glass in
 
   dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
 
-  case $host_os in
-    *mingw* | *cygwin*) dnl Use built-in API.
+  case $host_os-$win32 in
+    *-yes | *cygwin*) dnl Use built-in win32 API.
       use_win32_uuid_api=1
       AC_DEFINE([USE_WIN32_UUID_API], [1],
 		[Define to 1 to use UuidCreate(), etc])
-      dnl We need -lws2_32 for htonl(), etc.
-      win32_need_lws2_32=1
+      if test $win32 = yes ; then
+	dnl We need -lws2_32 for htonl(), etc, but not for Cygwin which
+	dnl provides these functions in its libc.
+	win32_need_lws2_32=1
+      fi
+      XAPIAN_LIBS="$XAPIAN_LIBS -lrpcrt4"
       ;;
     *)
       dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
@@ -905,12 +923,6 @@ case $enable_backend_chert$enable_backend_glass in
 esac
 AM_CONDITIONAL([USE_PROC_FOR_UUID], [test "$use_proc_for_uuid" = 1])
 AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
-
-AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
-#ifdef __WIN32__
-#error WIN32
-#endif
-]])], [win32=no], [win32=yes])
 
 if test "$enable_backend_remote" = yes ; then
   case $host_os-$win32 in
@@ -1337,6 +1349,11 @@ AH_BOTTOM(
 
 /* Tell MSVC we don't want max() and min() macros defined. */
 # define NOMINMAX
+#endif
+
+/* MSVC defines _WIN32 but not __WIN32__. */
+#if !defined __WIN32__ && defined _WIN32 && !defined _WIN64
+# define __WIN32__
 #endif
 
 /* _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4, but it
