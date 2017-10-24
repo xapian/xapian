@@ -17,7 +17,6 @@ platform:
   # Not really useful unless we actually do 64-bit builds there
   # - x64
 install:
-  - bash -c 'date -u; uname -a'
   - ps: >-
       if ($env:TOOLCHAIN -eq "mingw") {
         $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
@@ -26,21 +25,9 @@ install:
       } else {
         $env:PATH="c:\msys64\usr\bin;$env:PATH"
       }
-  - bash -c 'wget https://survex.com/~olly/xapian-core-tests-dotglass.tar.xz'
-  - bash -c 'tar xvf xapian-core-tests-dotglass.tar.xz'
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
-  - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
-    # 'msys-libmagic-dev'
-  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P file-devel -P libpcre-devel -P zlib-devel
-    ## #  - bash -c 'mkdir -p /www/example/products'
-    ## #  - bash -c 'ls -ld / /www /www/example /www/example/products'
-    ## #  - bash -c 'ls -l /www/example/products'
-    ## #  - bash -c 'echo "test text document" | tee /www/example/products/text.txt'
-    ## #  - bash -c 'echo "<html><head><title>HTML Title</title><body>test HTML document</body></html>" | tee /www/example/products/html.htm'
-    ## #  - bash -c 'wget http://easychair.org/publications/easychair-libreoffice.docx -O /www/example/products/example.docx'
-    ## #  - bash -c 'wget https://www.fpsct.org/uploaded/FHS/Library/How_to_use_Wikipedia_effectively.doc -O /www/example/products/sample.doc'
-    ## #  - bash -c 'ls -l /www/example/products'
+  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P file-devel -P zlib-devel
   - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat"
   - if "%TOOLCHAIN%"=="msvc" bash -c 'wget https://zlib.net/zlib-1.2.11.tar.gz && tar -xf zlib-1.2.11.tar.gz && mv zlib-1.2.11 zlib'
@@ -48,19 +35,9 @@ install:
   - if "%TOOLCHAIN%"=="msvc" nmake -f win32\Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" cd ..
 build_script:
-# 'xapian-applications/omega'
-  - bash -c 'env'
   - if not "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation'
-    # -O2
-    # -Zi doesn't seem to work with mingw gdb, and also doesn't work with parallel make (-FS sounds like it doesn't fully solve the problem).
-    # -Z7 also doesn't seem to work with mingw gdb.
   - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc" CPPFLAGS=-I$PWD/zlib AR=lib LDFLAGS=-L$PWD/zlib || cat xapian-core/config.log'
-  # - bash -c 'cat xapian-core/config.h'
-  # - bash -c 'xapian-core/libtool --config'
   - bash -c 'time make -k -j2' < nul
 test_script:
   - if not "%TOOLCHAIN%"=="msvc" bash -c 'time make -k check VERBOSE=1' < nul
   - if "%TOOLCHAIN%"=="msvc" bash -c 'time make -k -C xapian-core/tests check-none check-inmemory VERBOSE=1' < nul
-#  - bash -c 'time make -k check VERBOSE=1' < nul
-#  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
-#  - bash -c 'xapian-core/bin/xapian-delve omtest.db'
