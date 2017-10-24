@@ -8,10 +8,10 @@ environment:
   global:
     AUTOMATED_TESTING: 1
   matrix:
+  # - TOOLCHAIN: mingw
+  # - TOOLCHAIN: cygwin
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-  - TOOLCHAIN: mingw
-  - TOOLCHAIN: cygwin
 platform:
   - x86
   # Not really useful unless we actually do 64-bit builds there
@@ -26,6 +26,8 @@ install:
       } else {
         $env:PATH="c:\msys64\usr\bin;$env:PATH"
       }
+  - bash -c 'wget https://survex.com/~olly/xapian-core-tests-dotglass.tar.xz'
+  - bash -c 'tar xvf xapian-core-tests-dotglass.tar.xz'
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" type "c:\mingw\msys\1.0\etc\fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
@@ -57,8 +59,9 @@ build_script:
   # - bash -c 'xapian-core/libtool --config'
   - bash -c 'time make -k -j2' < nul
 test_script:
+  - bash -c 'xapian-core/bin/xapian-delve.exe xapian-core/tests/.glass/db=etext'
   - if not "%TOOLCHAIN%"=="msvc" bash -c 'time make -k check VERBOSE=1' < nul
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'time make -k -C xapian-core/tests check-none check-inmemory VERBOSE=1' < nul
-  # - bash -c 'time make -k check VERBOSE=1' < nul
+  # - if "%TOOLCHAIN%"=="msvc" bash -c 'time make -k -C xapian-core/tests check-none check-inmemory VERBOSE=1' < nul
+  - bash -c 'time make -k check VERBOSE=1' < nul
 #  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
 #  - bash -c 'xapian-core/bin/xapian-delve omtest.db'
