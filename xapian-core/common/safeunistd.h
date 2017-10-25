@@ -35,17 +35,6 @@
 // work on large files.
 # include <io.h>
 
-# ifdef lseek
-#  undef lseek
-# endif
-
-# ifdef off_t
-#  undef off_t
-# endif
-
-# define lseek(FD, OFF, WHENCE) _lseeki64(FD, OFF, WHENCE)
-# define off_t __int64
-
 // process.h is needed for getpid().
 # include <process.h>
 

@@ -28,7 +28,7 @@
 // configure time, but MSVC doesn't use configure so we have to put the
 // magic somewhere else - i.e. here!
 
-#ifdef _MSC_VER
+#if 0 //def _MSC_VER
 // MSVC needs to call _stati64() instead of stat() and the struct which holds
 // the information is "struct _stati64" instead of "struct stat" so we just
 // use #define to replace both in one go.  We also want to use _fstati64()
