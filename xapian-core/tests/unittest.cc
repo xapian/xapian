@@ -95,9 +95,6 @@ using namespace std;
 // fileutils.cc uses opendir(), etc though not in a function we currently test.
 #include "../common/msvc_dirent.cc"
 
-// The UUID code uses hexdigit().
-#include "../api/constinfo.cc"
-
 // Stub replacement, which doesn't deal with escaping or producing valid UTF-8.
 // The full implementation needs Xapian::Utf8Iterator and
 // Xapian::Unicode::append_utf8().
