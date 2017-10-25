@@ -528,6 +528,8 @@ index_file(const char *fname, istream &stream,
 			unsigned int max_length = i->get_num_arg();
 			if (max_length == 0)
 			    max_length = MAX_SAFE_TERM_LENGTH - 1;
+			if (max_length < 6)
+			    cout << " Warning: Index action 'hash' takes an integer argument greater than 6"<< endl;
 			if (value.length() > max_length)
 			    value = hash_long_term(value, max_length);
 			break;
