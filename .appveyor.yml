@@ -8,8 +8,6 @@ environment:
   global:
     AUTOMATED_TESTING: 1
   matrix:
-  - TOOLCHAIN: mingw
-  - TOOLCHAIN: cygwin
   - TOOLCHAIN: msvc
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 platform:
@@ -39,5 +37,4 @@ build_script:
   - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc" CPPFLAGS=-I$PWD/zlib AR=lib LDFLAGS=-L$PWD/zlib || cat xapian-core/config.log'
   - bash -c 'time make -k -j2' < nul
 test_script:
-  - if not "%TOOLCHAIN%"=="msvc" bash -c 'time make -k check VERBOSE=1' < nul
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'time make -k -C xapian-core/tests check-none check-inmemory VERBOSE=1' < nul
+  - bash -c 'time make -k check VERBOSE=1' < nul
