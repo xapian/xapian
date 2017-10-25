@@ -80,7 +80,7 @@ void uuid_unparse_lower(const uuid_t uu, char * out)
 	if ((0x2a8 >> i) & 1)
 	   *out++ = '-';
     }
-    out[UUID_STRING_SIZE] = '\0';
+    *out = '\0';
 }
 
 void uuid_clear(uuid_t uu)
