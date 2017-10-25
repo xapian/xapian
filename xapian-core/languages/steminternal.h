@@ -33,30 +33,6 @@ typedef unsigned char symbol;
 
 #define HEAD (2*sizeof(int))
 
-inline int
-SIZE(const symbol* p)
-{
-    return alignment_cast<const int *>(p)[-1];
-}
-
-inline void
-SET_SIZE(symbol* p, int n)
-{
-    alignment_cast<int *>(p)[-1] = n;
-}
-
-inline int
-CAPACITY(const symbol* p)
-{
-    return alignment_cast<const int *>(p)[-2];
-}
-
-inline void
-SET_CAPACITY(symbol* p, int n)
-{
-    alignment_cast<int *>(p)[-2] = n;
-}
-
 typedef int (*among_function)(Xapian::StemImplementation *);
 
 struct among {
@@ -66,13 +42,9 @@ struct among {
     int result;		/* result of the lookup */
 };
 
-extern symbol * create_s();
-
 inline void lose_s(symbol * p) {
     if (p) std::free(reinterpret_cast<char *>(p) - HEAD);
 }
-
-extern int skip_utf8(const symbol * p, int c, int lb, int l, int n);
 
 namespace Xapian {
 
@@ -82,6 +54,36 @@ class SnowballStemImplementation : public StemImplementation {
   protected:
     symbol * p;
     int c, l, lb, bra, ket;
+
+    static int
+    SIZE(const symbol* p)
+    {
+	return alignment_cast<const int *>(p)[-1];
+    }
+
+    static void
+    SET_SIZE(symbol* p, int n)
+    {
+	alignment_cast<int *>(p)[-1] = n;
+    }
+
+    static int
+    CAPACITY(const symbol* p)
+    {
+	return alignment_cast<const int *>(p)[-2];
+    }
+
+    static void
+    SET_CAPACITY(symbol* p, int n)
+    {
+	alignment_cast<int *>(p)[-2] = n;
+    }
+
+    static int skip_utf8(const symbol * p, int c, int lb, int l, int n);
+
+    static symbol * increase_size(symbol * p, int n);
+
+    static symbol * create_s();
 
     int get_utf8(int * slot);
     int get_b_utf8(int * slot);
