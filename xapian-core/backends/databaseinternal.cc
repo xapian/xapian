@@ -147,7 +147,7 @@ Database::Internal::begin_transaction(bool flushed)
 	    invalid_operation("WritableDatabase::begin_transaction(): already "
 			      "in a transaction");
 	}
-	if (read_only()) {
+	if (is_read_only()) {
 	    invalid_operation("WritableDatabase::begin_transaction(): called "
 			      "with a read-only shard");
 	}
@@ -168,7 +168,7 @@ Database::Internal::end_transaction(bool do_commit)
 {
     if (!transaction_active()) {
 	if (state != TRANSACTION_NONE) {
-	    if (read_only()) {
+	    if (is_read_only()) {
 		invalid_operation(do_commit ?
 				  "WritableDatabase::commit_transaction(): "
 				  "called with a read-only shard" :
@@ -218,7 +218,7 @@ Database::Internal::delete_document(const string& unique_term)
 {
     // Default implementation - overridden for remote databases
 
-    if (read_only()) {
+    if (is_read_only()) {
 	// This can happen if a read-only shard gets added to a
 	// WritableDatabase.
 	invalid_operation("WritableDatabase::delete_document() called with a "
@@ -259,7 +259,7 @@ Database::Internal::replace_document(const string & unique_term,
 {
     // Default implementation - overridden for remote databases
 
-    if (read_only()) {
+    if (is_read_only()) {
 	// This can happen if a read-only shard gets added to a
 	// WritableDatabase.
 	invalid_operation("WritableDatabase::replace_document() called with a "

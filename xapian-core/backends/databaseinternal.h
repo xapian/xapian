@@ -84,7 +84,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     transaction_state state;
 
     /// Test if this shard is read-only.
-    bool read_only() const {
+    bool is_read_only() const {
 	return state == TRANSACTION_READONLY;
     }
 

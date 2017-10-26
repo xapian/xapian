@@ -140,7 +140,7 @@ Database::add_database_(const Database& o, bool read_only)
     // db.add_database(WritableDatabase("two.db"));
     //
     // The first add_database() assigns the internal across, so at the second
-    // call internal->read_only() returns false but read_only is true.
+    // call internal->is_read_only() returns false but read_only is true.
     //
     // I'm not entirely convinced the extra complexity required to make this
     // work is worthwhile.  We catch static violations such as this at compile
@@ -157,7 +157,7 @@ Database::add_database_(const Database& o, bool read_only)
     //
     // But performing WritableDatabase actions using such a WritableDatabase
     // should now throw InvalidOperationError.
-    if (!internal->read_only() && read_only) {
+    if (!internal->is_read_only() && read_only) {
 	throw InvalidArgumentError("Database::add_database(): Can't add a "
 				   "Database to a WritableDatabase");
     }

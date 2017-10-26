@@ -615,7 +615,7 @@ RemoteDatabase::send_message(message_type type, const string &message) const
 void
 RemoteDatabase::do_close()
 {
-    bool writable = !read_only();
+    bool writable = !is_read_only();
 
     // The dtor hasn't really been called!  FIXME: This works, but means any
     // exceptions from end_transaction()/commit() are swallowed, which is

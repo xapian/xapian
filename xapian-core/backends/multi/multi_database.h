@@ -50,7 +50,7 @@ class MultiDatabase : public Xapian::Database::Internal {
 
     size_type size() const;
 
-    void reserve(size_type size) { shards.reserve(size); }
+    void reserve(size_type new_size) { shards.reserve(new_size); }
 
     void push_back(Xapian::Database::Internal* shard) {
 	shards.push_back(shard);
