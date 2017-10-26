@@ -298,7 +298,7 @@ testcase '' P=text a="    ABC #test_comment " b="ABC"
 
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
-rm -f "$TEST_DB"
+rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
 text=This is some text.
 host=example.org
