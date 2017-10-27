@@ -465,6 +465,36 @@ else
     failed=`expr $failed + 1`
 fi
 
+# Test we give a helpful error for an action with a digit in (regression
+# test for fix in 1.4.6).
+#
+# This used to give the confusing:
+# Unknown index action ''
+printf 'url : index4' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+    | grep -q "Unknown index action 'index4'" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected error for bad index action with a digit"
+    failed=`expr $failed + 1`
+fi
+
+# Test we give a helpful error if an = sign is missed out before an optional
+# numeric argument (regression test for fix in 1.4.6).
+#
+# This used to give the confusing:
+# Unknown index action ''
+printf 'url : hash 42' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+    | grep -q "Unknown index action '42'" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected error for a missing equals sign"
+    failed=`expr $failed + 1`
+fi
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then

@@ -166,7 +166,7 @@ parse_index_script(const string &filename)
 	map<string, Action::type> boolmap;
 	j = i;
 	while (j != s.end()) {
-	    i = find_if(j, s.end(), [](char ch) { return !C_isalpha(ch); });
+	    i = find_if(j, s.end(), [](char ch) { return !C_isalnum(ch); });
 	    string action(s, j - s.begin(), i - j);
 	    Action::type code = Action::BAD;
 	    enum {NO, OPT, YES} arg = NO;
