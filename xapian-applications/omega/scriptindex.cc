@@ -259,9 +259,16 @@ parse_index_script(const string &filename)
 		     << ": Unknown index action '" << action << "'" << endl;
 		exit(1);
 	    }
+	    auto i_after_action = i;
 	    i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 
 	    if (i != s.end() && *i == '=') {
+		if (i != i_after_action) {
+		    cout << filename << ':' << line_no
+			 << ": warning: putting spaces between the action and "
+			    "'=' is deprecated." << endl;
+		}
+
 		if (arg == NO) {
 		    cout << filename << ':' << line_no
 			 << ": Index action '" << action
@@ -270,6 +277,11 @@ parse_index_script(const string &filename)
 		}
 		++i;
 		j = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
+		if (i != j) {
+		    cout << filename << ':' << line_no
+			 << ": warning: putting spaces between '=' and the "
+			    "argument is deprecated." << endl;
+		}
 		i = find_if(j, s.end(), [](char ch) { return C_isspace(ch); });
 		string val(j, i);
 		if (takes_integer_argument) {
