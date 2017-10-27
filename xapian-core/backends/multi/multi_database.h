@@ -42,11 +42,11 @@ class MultiDatabase : public Xapian::Database::Internal {
     Xapian::SmallVectorI<Xapian::Database::Internal> shards;
 
   public:
-    explicit MultiDatabase(size_type reserve, bool read_only)
+    explicit MultiDatabase(size_type reserve_size, bool read_only)
 	: Xapian::Database::Internal(read_only ?
 				     TRANSACTION_READONLY :
 				     TRANSACTION_NONE),
-	  shards(reserve) {}
+	  shards(reserve_size) {}
 
     size_type size() const;
 
