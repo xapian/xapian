@@ -37,6 +37,8 @@ printf '$querydescription' > "$TEST_TEMPLATE"
 
 TEST_INDEXSCRIPT=test-indexscript
 
+TEST_INPUT=test-inut
+
 OMEGA_CONFIG_FILE=test-omega.conf
 export OMEGA_CONFIG_FILE
 cat > "$OMEGA_CONFIG_FILE" <<__END__
@@ -465,7 +467,19 @@ else
     failed=`expr $failed + 1`
 fi
 
-rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
+# Test we check for hash's argument being an integer (new in 1.4.6).
+printf 'url : field= unhtml' > "$TEST_INDEXSCRIPT"
+printf 'url=xapian.org' > "$TEST_INPUT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < $TEST_INPUT \
+    | grep -q "Index action 'field' takes next action as argument" ; then
+    : # OK
+else
+    echo "scriptindex didn't warn about 'field' takes next action as argument"
+    failed=`expr $failed + 1`
+fi
+
+rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE" "$TEST_INPUT"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
     exit 0

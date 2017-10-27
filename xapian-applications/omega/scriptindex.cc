@@ -96,7 +96,7 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 const char * action_names[] = {
     "bad", "new",
     "boolean", "date", "field", "hash", "index", "indexnopos", "load", "lower",
-    "spell", "truncate", "unhtml", "unique", "value", "valuenumeric", "weight"
+    "spell", "truncate", "unhtml", "unique", "value", "valuenumeric", "weight", '\0'
 };
 
 // For debugging:
@@ -302,6 +302,15 @@ parse_index_script(const string &filename)
 			     << ": Warning: Index action '" << action
 			     << "' takes an integer argument" << endl;
 		    }
+		}
+		int iter = 0;
+		while (action_names[iter] != '\0') {
+		    if (val == (action_names[iter])) {
+			cout << filename << ':' << line_no
+			     << ": Warning: Index action '" << action
+			     << "' takes next action as argument" << endl;
+		    }
+		    iter++;
 		}
 		switch (code) {
 		    case Action::INDEX:
