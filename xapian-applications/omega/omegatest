@@ -495,6 +495,32 @@ else
     failed=`expr $failed + 1`
 fi
 
+# Test we warn about spaces before and after '='.
+#
+# This has never been documented as supported, and was deprecated in 1.4.6
+# because it resulted in this quietly using hash as the field name, which is
+# probably not what was intended:
+#
+# url : field= hash boolean=Q unique=Q
+printf 'url : field= hash boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+    | grep -q "warning: putting spaces between '=' and the argument is deprecated" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected warning for space after '='"
+    failed=`expr $failed + 1`
+fi
+printf 'url : field =link' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+    | grep -q "warning: putting spaces between the action and '=' is deprecated" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected warning for space before '='"
+    failed=`expr $failed + 1`
+fi
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then

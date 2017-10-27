@@ -15,6 +15,17 @@ Here's an example::
  ref : field=ref boolean=Q unique=Q
  type : field=type boolean=XT
 
+Don't put spaces around the ``=`` separating an action and its argument -
+current versions allow spaces here (though this was never documented as
+supported) but it leads to a missing argument quietly swallowing the next
+action rather than using an empty value or giving an error, e.g. this takes
+``hash`` as the field name, which is unlikely to be what was intended::
+
+ url : field= hash boolean=Q unique=Q
+
+Since 1.4.6 a deprecation warning is emitted for spaces before or after the
+``=``.
+
 The actions are:
 
 boolean[=PREFIX]
