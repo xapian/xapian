@@ -60,31 +60,6 @@ static int addcount;
 static int repcount;
 static int delcount;
 
-inline static bool
-p_space(unsigned int c)
-{
-    return C_isspace(c);
-}
-
-inline static bool
-p_notspace(unsigned int c)
-{
-    return !C_isspace(c);
-}
-
-inline static bool
-p_notalpha(unsigned int c)
-{
-    return !C_isalpha(c);
-}
-
-// Characters allowed as second or subsequent characters in a fieldname
-inline static bool
-p_notfieldnamechar(unsigned int c)
-{
-    return !C_isalnum(c) && c != '_';
-}
-
 inline bool
 prefix_needs_colon(const string & prefix, unsigned ch)
 {
@@ -162,7 +137,7 @@ parse_index_script(const string &filename)
 	vector<Action> actions;
 	string::const_iterator i, j;
 	const string &s = line;
-	i = find_if(s.begin(), s.end(), p_notspace);
+	i = find_if(s.begin(), s.end(), [](char ch) { return !C_isspace(ch); });
 	if (i == s.end() || *i == '#') continue;
 	while (true) {
 	    if (!C_isalnum(*i)) {
@@ -170,13 +145,14 @@ parse_index_script(const string &filename)
 		     << ": field name must start with alphanumeric" << endl;
 		exit(1);
 	    }
-	    j = find_if(i, s.end(), p_notfieldnamechar);
+	    j = find_if(i, s.end(),
+			[](char ch) { return !C_isalnum(ch) && ch != '_'; });
 	    fields.push_back(string(i, j));
-	    i = find_if(j, s.end(), p_notspace);
+	    i = find_if(j, s.end(), [](char ch) { return !C_isspace(ch); });
 	    if (i == s.end()) break;
 	    if (*i == ':') {
 		++i;
-		i = find_if(i, s.end(), p_notspace);
+		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 		break;
 	    }
 	    if (i == j) {
@@ -190,7 +166,7 @@ parse_index_script(const string &filename)
 	map<string, Action::type> boolmap;
 	j = i;
 	while (j != s.end()) {
-	    i = find_if(j, s.end(), p_notalpha);
+	    i = find_if(j, s.end(), [](char ch) { return !C_isalpha(ch); });
 	    string action(s, j - s.begin(), i - j);
 	    Action::type code = Action::BAD;
 	    enum {NO, OPT, YES} arg = NO;
@@ -283,7 +259,7 @@ parse_index_script(const string &filename)
 		     << ": Unknown index action '" << action << "'" << endl;
 		exit(1);
 	    }
-	    i = find_if(i, s.end(), p_notspace);
+	    i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 
 	    if (i != s.end() && *i == '=') {
 		if (arg == NO) {
@@ -293,8 +269,8 @@ parse_index_script(const string &filename)
 		    exit(1);
 		}
 		++i;
-		j = find_if(i, s.end(), p_notspace);
-		i = find_if(j, s.end(), p_space);
+		j = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
+		i = find_if(j, s.end(), [](char ch) { return C_isspace(ch); });
 		string val(j, i);
 		if (takes_integer_argument) {
 		    if (val.find('.') != string::npos) {
@@ -351,7 +327,7 @@ parse_index_script(const string &filename)
 		    default:
 			actions.push_back(Action(code, val));
 		}
-		i = find_if(i, s.end(), p_notspace);
+		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 	    } else {
 		if (arg == YES) {
 		    cout << filename << ':' << line_no
