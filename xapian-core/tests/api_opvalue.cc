@@ -134,23 +134,138 @@ make_singularvalue_db(Xapian::WritableDatabase &db, const string &)
 
 // Check handling of bounds when bounds are equal.
 DEFINE_TESTCASE(valuerange6, generated) {
+    const auto OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
     Xapian::Database db = get_database("singularvalue", make_singularvalue_db);
 
     Xapian::Enquire enq(db);
 
-    Xapian::Query query(Xapian::Query::OP_VALUE_RANGE, 0, "SATSUMA", "SLOE");
+    Xapian::Query query;
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SATSUMA", "SLOE");
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 0);
     TEST_EQUAL(mset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mset.get_matches_estimated(), 2);
     TEST_EQUAL(mset.get_matches_upper_bound(), 2);
 
-    Xapian::Query query2(Xapian::Query::OP_VALUE_RANGE, 0, "PEACH", "PLUM");
-    enq.set_query(query2);
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "PEACH", "PLUM");
+    enq.set_query(query);
     mset = enq.get_mset(0, 0);
     TEST_EQUAL(mset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mset.get_matches_estimated(), 0);
     TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "PEACH", "PEACH");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "PEACH", "PEACHERINE");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SING", "SINGULARITY");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 2);
+    TEST_EQUAL(mset.get_matches_estimated(), 2);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 2);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SING", "SINGULAR");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 2);
+    TEST_EQUAL(mset.get_matches_estimated(), 2);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 2);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SINGULAR", "SINGULARITY");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 2);
+    TEST_EQUAL(mset.get_matches_estimated(), 2);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 2);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SINGULAR", "SINGULAR");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 2);
+    TEST_EQUAL(mset.get_matches_estimated(), 2);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 2);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SINGULARITY", "SINGULARITY");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SINGULARITY", "SINGULARITIES");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SINGULARITY", "SINNER");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SINGULARITY", "ZEBRA");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "SINGE", "SINGER");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
+    return true;
+}
+
+static void
+make_valprefixbounds_db(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    db.add_document(doc);
+    doc.add_value(0, "ZERO");
+    db.add_document(doc);
+    doc.add_value(0, string("ZERO\0", 5));
+    db.add_document(doc);
+}
+
+// Check handling of bounds when low is a prefix of high.
+DEFINE_TESTCASE(valuerange7, generated) {
+    const auto OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
+    Xapian::Database db = get_database("valprefixbounds", make_valprefixbounds_db);
+
+    Xapian::Enquire enq(db);
+
+    Xapian::Query query;
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "ZAP", "ZOO");
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 2);
+    TEST_EQUAL(mset.get_matches_estimated(), 2);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 2);
+
+    query = Xapian::Query(OP_VALUE_RANGE, 0, "ZAP", "ZERO");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 1);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 2);
 
     return true;
 }
