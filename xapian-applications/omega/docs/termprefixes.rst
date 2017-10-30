@@ -24,8 +24,8 @@ reserved for standard meanings but currently unallocated).
 X starts a multi-capital letter user-defined prefix.  If you want a prefix for
 something without a standard prefix, you create your own starting with an X
 (e.g. XSHOESIZE).  The prefix ends with the first non-capital.  If the term
-you're prefixing starts with a capital, add a ":" between prefix and term to
-resolve ambiguity about where the prefix ends and the term begins.
+you're prefixing starts with a capital letter or ":", add a ":" between prefix
+and term to resolve ambiguity about where the prefix ends and the term begins.
 
 Here's the current allocation list:
 

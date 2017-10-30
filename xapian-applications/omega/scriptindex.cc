@@ -63,7 +63,7 @@ static int delcount;
 inline bool
 prefix_needs_colon(const string & prefix, unsigned ch)
 {
-    if (!C_isupper(ch)) return false;
+    if (!C_isupper(ch) && ch != ':') return false;
     string::size_type len = prefix.length();
     return (len > 1 && prefix[len - 1] != ':');
 }

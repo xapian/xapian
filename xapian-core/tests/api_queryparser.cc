@@ -188,6 +188,7 @@ static const test test_or_queries[] = {
     { "category:Foo", "0 * XCAT:Foo" },
     { "category:foo", "0 * XCATfoo" },
     { "category:\xc3\x96oo", "0 * XCAT\xc3\x96oo" },
+    { "category::colon", "0 * XCAT::colon" },
     // Feature tests for quoted boolean terms:
     { "category:\"Hello world\"", "0 * XCAT:Hello world" },
     { "category:\"literal \"\"\"", "0 * XCATliteral \"" },
