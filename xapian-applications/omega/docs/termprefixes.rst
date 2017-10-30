@@ -93,7 +93,7 @@ have a 'material' field, which records what each object is primarily made of.
 So a sundial might be 'material=Stone', a letter might be 'material=paper',
 etc.  There's no standard prefix for 'material', so you might allocate ``XM``.
 If you lowercase the field contents, you can avoid having to add a colon to
-seprated the prefix and content, so documents would be indexed by terms such as
+separate the prefix and content, so documents would be indexed by terms such as
 ``XMstone``` or ``XMpaper``.
 
 If you're indexing using scriptindex, and have a field in the input file
