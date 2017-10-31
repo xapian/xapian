@@ -543,6 +543,35 @@ else
     failed=`expr $failed + 1`
 fi
 
+# Feature tests for datevalue command scriptindex.
+printf 'DATE : field parsedate=%%Y%%m%%d valuepacked=13\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+DATE=19891204
+END
+printf '$field{DATE,1}|$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
+testcase '19891204|628732800|1989-12-04' P=text
+
+# Feature tests for datevalue command scriptindex where format contains space.
+printf 'DATE : field parsedate="%%Y%%m%%d %%T" valuepacked=13\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+DATE=20161202 12:04:22.000000
+END
+printf '$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
+testcase '1480680262|2016-12-02' P=text
+
+# Feature tests for quoted argument.
+printf 'DATE : field="  spaces  " date="yyyymmdd"\nTEXT: index\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+DATE=19891204
+TEXT=This is sample text.
+NEXT=work
+END
+printf '$freq{D19891204}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
+testcase '1|19891204' P=text
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
