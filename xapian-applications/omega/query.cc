@@ -1547,15 +1547,20 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_fmt:
 		value = fmtname;
 		break;
-	    case CMD_freq:
-		try {
-		    value = str(mset.get_termfreq(args[0]));
-		} catch (const Xapian::InvalidOperationError&) {
-		    // An MSet will raise this error if it's empty and not
-		    // associated with a search.
-		    value = str(db.get_termfreq(args[0]));
+	    case CMD_freq: {
+		const string& term = args[0];
+		Xapian::doccount termfreq = 0;
+		if (done_query) {
+		    termfreq = mset.get_termfreq(term);
 		}
+		if (termfreq == 0) {
+		    // We want $freq to work before the match is run, and we
+		    // don't want using it to force the match to run.
+		    termfreq = db.get_termfreq(term);
+		}
+		value = str(termfreq);
 		break;
+	    }
 	    case CMD_ge:
 		if (string_to_int(args[0]) >= string_to_int(args[1]))
 		    value = "true";
