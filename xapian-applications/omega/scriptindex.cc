@@ -38,7 +38,6 @@
 #include "safeerrno.h"
 #include <cstdio>
 #include <ctime>
-#include "safeunistd.h"
 
 #include "commonhelp.h"
 #include "hashterm.h"
@@ -769,19 +768,10 @@ try {
 
     parse_index_script(argv[1]);
 
-    // Open the database.
-    Xapian::WritableDatabase database;
-    while (true) {
-	try {
-	    database = Xapian::WritableDatabase(argv[0], database_mode);
-	    break;
-	} catch (const Xapian::DatabaseLockError &) {
-	    // Sleep and retry if we get a Xapian::DatabaseLockError - this
-	    // just means that another process is updating the database.
-	    cout << "Database locked ... retrying" << endl;
-	    sleep(1);
-	}
-    }
+    // Open the database.  If another process is currently updating the
+    // database, wait for the lock to become available.
+    auto flags = database_mode | Xapian::DB_RETRY_LOCK;
+    Xapian::WritableDatabase database(argv[0], flags);
 
     Xapian::TermGenerator indexer;
     indexer.set_stemmer(stemmer);
