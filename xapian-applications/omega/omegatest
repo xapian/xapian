@@ -558,6 +558,17 @@ END
 printf '$freq{D19891204}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
 testcase '1|19891204' P=text
 
+# Test we warn about useless actions.
+printf 'date : field parsedate=%%Y%%m%%d' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+    | grep -q "Warning: Index action 'parsedate' has no effect" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected warning for useless 'parsedate'"
+    failed=`expr $failed + 1`
+fi
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
