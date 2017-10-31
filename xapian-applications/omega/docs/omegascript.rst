@@ -666,7 +666,7 @@ $suggestion
         corrections, it will return an empty string.
 
 $termprefix{TERM}
-        return the prefix (if any) from a term.
+        return the prefix (if any) from a term.  Added in Omega 1.4.6.
 
 $terms[{PREFIX}]
         list of query terms matching the current hit.  The ability to specify a
@@ -729,7 +729,7 @@ $unpack{BINARYSTRING}
          $date{$unpack{$value{0}}}
 
 $unprefix{TERM}
-        remove the prefix (if any) from a term.
+        remove the prefix (if any) from a term.  Added in Omega 1.4.6.
 
 $unstem{TERM}
 	maps a stemmed term to a list of the unstemmed forms of it used in
