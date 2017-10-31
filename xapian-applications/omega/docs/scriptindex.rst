@@ -4,6 +4,9 @@ Index scripts
 
 The basic format is one or more field names followed by a colon, followed by
 one or more actions.  Some actions take an optional or required parameter.
+Since Omega 1.4.6, the parameter value can be enclosed in double quotes
+(which is necessary if it contains whitespace).
+
 The actions are applied in the specified order to each field listed, and
 fields can be listed in several lines.
 
@@ -75,6 +78,16 @@ load
 lower
 	lowercase the text (useful for generating boolean terms)
 
+parsedate=FORMAT
+        parse the text as a date string using ``strptime()`` with the format
+        specified by ``FORMAT``, and set the text to the result as a Unix
+        ``time_t`` (seconds since 1970), which can then be fed into ``date``
+        or ``valuepacked``, for example::
+
+         last_update : parsedate="%Y%m%d %T" field=lastmod valuepacked=0
+
+        ``parsedate`` was added in Omega 1.4.6.
+
 spell
         Generate spelling correction data for any ``index`` or ``indexnopos``
         actions in the remainder of this list of actions.
@@ -105,9 +118,20 @@ value=VALUESLOT
 
 valuenumeric=VALUESLOT
         Like value=VALUESLOT, this adds as a Xapian document value in slot
-        VALUESLOT, but it encodes it for numeric sorting using
+        VALUESLOT, but it first encodes for numeric sorting using
         Xapian::sortable_serialise().  Values set with this action can be
         used for numeric sorting of the MSet.
+
+valuepacked=VALUESLOT
+        Like value=VALUESLOT, this adds as a Xapian document value in slot
+        VALUESLOT, but it first encodes as a 4 byte big-endian binary string.
+        If the input is a Unix time_t value, the resulting slot can be used for
+        date range filtering and to sort the MSet by date.  Can be used in
+        combination with ``parsedate``, for example::
+
+         last_update : parsedate="%Y%m%d %T" field=lastmod valuepacked=0
+
+        ``valuepacked`` was added in Omega 1.4.6.
 
 weight=FACTOR
 	set the weighting factor to FACTOR (an integer) for any ``index`` or

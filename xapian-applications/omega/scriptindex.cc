@@ -43,9 +43,12 @@
 #include "hashterm.h"
 #include "loadfile.h"
 #include "myhtmlparse.h"
+#include "str.h"
 #include "stringutils.h"
+#include "timegm.h"
 #include "utf8truncate.h"
 #include "utils.h"
+#include "values.h"
 
 #include "gnu_getopt.h"
 
@@ -70,7 +73,8 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 const char * action_names[] = {
     "bad", "new",
     "boolean", "date", "field", "hash", "index", "indexnopos", "load", "lower",
-    "spell", "truncate", "unhtml", "unique", "value", "valuenumeric", "weight"
+    "parsedate", "spell", "truncate", "unhtml", "unique", "value",
+    "valuenumeric", "valuepacked", "weight"
 };
 
 // For debugging:
@@ -81,7 +85,8 @@ public:
     typedef enum {
 	BAD, NEW,
 	BOOLEAN, DATE, FIELD, HASH, INDEX, INDEXNOPOS, LOAD, LOWER,
-	SPELL, TRUNCATE, UNHTML, UNIQUE, VALUE, VALUENUMERIC, WEIGHT
+	PARSEDATE, SPELL, TRUNCATE, UNHTML, UNIQUE, VALUE,
+	VALUENUMERIC, VALUEPACKED, WEIGHT
     } type;
 private:
     type action;
@@ -213,6 +218,12 @@ parse_index_script(const string &filename)
 			    code = Action::LOAD;
 			}
 			break;
+		    case 'p':
+			if (action == "parsedate") {
+			    code = Action::PARSEDATE;
+			    arg = YES;
+			}
+			break;
 		    case 's':
 			if (action == "spell") {
 			    code = Action::SPELL;
@@ -240,6 +251,10 @@ parse_index_script(const string &filename)
 			    takes_integer_argument = true;
 			} else if (action == "valuenumeric") {
 			    code = Action::VALUENUMERIC;
+			    arg = YES;
+			    takes_integer_argument = true;
+			} else if (action == "valuepacked") {
+			    code = Action::VALUEPACKED;
 			    arg = YES;
 			    takes_integer_argument = true;
 			}
@@ -281,8 +296,22 @@ parse_index_script(const string &filename)
 			 << ": warning: putting spaces between '=' and the "
 			    "argument is deprecated." << endl;
 		}
-		i = find_if(j, s.end(), [](char ch) { return C_isspace(ch); });
-		string val(j, i);
+		string val;
+		if (j != s.end() && *j == '"') {
+		    // Quoted argument.
+		    ++j;
+		    i = find(j, s.end(), '"');
+		    if (i == s.end()) {
+			cout << filename << ':' << line_no << ": No closing quote" << endl;
+			exit(1);
+		    }
+		    val.assign(j, i);
+		    ++i;
+		} else {
+		    // Unquoted argument.
+		    i = find_if(j, s.end(), [](char ch) { return C_isspace(ch); });
+		    val.assign(j, i);
+		}
 		if (takes_integer_argument) {
 		    if (val.find('.') != string::npos) {
 			cout << filename << ':' << line_no
@@ -611,6 +640,35 @@ again:
 				      Xapian::sortable_serialise(dbl));
 			break;
 		    }
+		    case Action::VALUEPACKED: {
+			uint32_t word = 0;
+			if (value.empty() || !C_isdigit(value[0])) {
+			    // strtoul() accepts leading whitespace and negated
+			    // values, neither of which we want to allow.
+			    errno = EINVAL;
+			} else {
+			    errno = 0;
+			    char* q;
+			    word = strtoul(value.c_str(), &q, 10);
+			    if (!errno && *q != '\0') {
+				// Trailing characters after converted value.
+				errno = EINVAL;
+			    }
+			}
+			if (errno) {
+			    cout << fname << ':' << line_no << ": Warning: "
+				    "valuepacked \"" << value << "\" ";
+			    if (errno == ERANGE) {
+				cout << "out of range";
+			    } else {
+				cout << "not an unsigned integer";
+			    }
+			    cout << endl;
+			}
+			int valueslot = i->get_num_arg();
+			doc.add_value(valueslot, int_to_binary_string(word));
+			break;
+		    }
 		    case Action::DATE: {
 			const string & type = i->get_string_arg();
 			string yyyymmdd;
@@ -632,6 +690,29 @@ again:
 			yyyymmdd.resize(4);
 			// Year (YYYY)
 			doc.add_boolean_term("Y" + yyyymmdd);
+			break;
+		    }
+		    case Action::PARSEDATE: {
+			string dateformat = i->get_string_arg();
+			struct tm tm;
+			memset(&tm, 0, sizeof(tm));
+			auto ret = strptime(value.c_str(), dateformat.c_str(), &tm);
+			if (ret == NULL) {
+			    cout << fname << ':' << line_no << ": Warning: "
+				    "\"" << value << "\" doesn't match format "
+				    "\"" << dateformat << '\"' << endl;
+			    break;
+			}
+
+			if (*ret != '\0') {
+			    cout << fname << ':' << line_no << ": Warning: "
+				    "\"" << value << "\" not fully matched by "
+				    "format \"" << dateformat << "\" "
+				    "(\"" << ret << "\" left over) but "
+				    "indexing anyway" << endl;
+			}
+
+			value = str(timegm(&tm));
 			break;
 		    }
 		    default:
