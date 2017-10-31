@@ -446,6 +446,28 @@ testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
 printf '$hash{$cgi{text},invalidhash}' > "$TEST_TEMPLATE"
 testcase 'Exception: Unknown hash function: invalidhash' text="test"
 
+# Feature tests for termprefix and unprefix.
+printf '$termprefix{$cgi{B}}|$unprefix{$cgi{B}}' > "$TEST_TEMPLATE"
+testcase '|' B=''
+testcase '|something' B='something'
+testcase '|42' B='42'
+testcase '|3bad' B='3bad'
+testcase '|&something' B='&something'
+testcase '|:something' B=':something'
+testcase 'H|example.org' B='Hexample.org'
+testcase 'K|tag' B='Ktag'
+testcase 'K|Capital' B='KCapital'
+testcase 'K|:colon-tag' B='K:colon-tag'
+testcase 'K|:Capital' B='K:Capital'
+testcase 'XCOLOUR|red' B='XCOLOURred'
+testcase 'XPUNC|:colon' B='XPUNC::colon'
+testcase 'XPUNC|internal:colon' B='XPUNC:internal:colon'
+testcase 'XPUNC|:Colon' B='XPUNC::Colon'
+testcase 'XCASE|Upper' B='XCASE:Upper'
+testcase 'XCASE|TITLE' B='XCASE:TITLE'
+testcase 'XNUM|42' B='XNUM42'
+testcase 'XNUM|3bad' B='XNUM3bad'
+
 # Feature tests of scriptindex.
 printf 'uuid : boolean=Q unique=Q\nguid : boolean=G unique=G' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
