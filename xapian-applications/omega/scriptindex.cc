@@ -396,6 +396,7 @@ parse_index_script(const string &filename)
 	    switch (action) {
 		case Action::HASH:
 		case Action::LOWER:
+		case Action::PARSEDATE:
 		case Action::SPELL:
 		case Action::TRUNCATE:
 		case Action::UNHTML:
