@@ -296,13 +296,28 @@ RemoteDatabase::close()
     do_close();
 }
 
-// Currently lazy is used when fetching documents from the MSet, and in three
-// cases in multimatch.cc.  One of the latter is when using a MatchDecider,
-// which we don't support with the remote backend currently.  The others are
-// for the sort key and collapse key which in the remote cases are fetched
-// during the remote match and passed across with the MSet.  So we can safely
-// ignore "lazy" here for now without any performance penalty during the match
-// process.
+// Currently lazy is used:
+//
+// * To implement API flag Xapian::DOC_ASSUME_VALID which can be specified when
+//   calling method Database::get_document()
+//
+// * To read values for backends without streamed values in SlowValueList
+//
+// * If you call get_data(), values_begin() or values_count() on a Document
+//   object passed to a KeyMaker, MatchDecider, MatchSpy during the match
+//
+// The first is relevant to the remote backend, but doesn't happen during
+// the match.
+//
+// SlowValueList is used with the remote backend, but not to read values
+// during the match.
+//
+// KeyMaker and MatchSpy happens on the server with the remote backend, so
+// they aren't relevant here.
+//
+// So the cases which are relevant to the remote backend don't matter during
+// the match, and so we can ignore the lazy flag here without affecting matcher
+// performance.
 Xapian::Document::Internal *
 RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 {
