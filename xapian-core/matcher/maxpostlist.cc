@@ -24,7 +24,6 @@
 #include "maxpostlist.h"
 
 #include "debuglog.h"
-#include "multimatch.h"
 #include "omassert.h"
 
 using namespace std;

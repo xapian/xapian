@@ -24,7 +24,6 @@
 #include "multixorpostlist.h"
 
 #include "debuglog.h"
-#include "multimatch.h"
 #include "omassert.h"
 
 #include <algorithm>
