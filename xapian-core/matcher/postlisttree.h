@@ -41,10 +41,6 @@ class PostListTree {
 	pl = pl_;
     }
 
-    bool recalc_needed() const {
-	return !use_cached_max_weight;
-    }
-
     double recalc_maxweight() {
 	if (!use_cached_max_weight) {
 	    use_cached_max_weight = true;
@@ -85,20 +81,32 @@ class PostListTree {
 	return pl->get_collapse_key();
     }
 
-    bool at_end() const {
-	return pl->at_end();
-    }
-
-    /// Return true if top-level prune happened.
+    /// Return false if we're done.
     bool next(double w_min) {
+	if (rare(!use_cached_max_weight) && w_min > 0.0) {
+	    if (recalc_maxweight() < w_min) {
+		// We can't now achieve w_min so we're done.
+		return false;
+	    }
+	}
+
 	PostList* result = pl->next(w_min);
-	if (result) {
+	if (rare(result)) {
 	    delete pl;
 	    pl = result;
-	    use_cached_max_weight = false;
-	    return true;
 	}
-	return false;
+	if (rare(pl->at_end()))
+	    return false;
+
+	if (rare(result) && w_min > 0.0) {
+	    use_cached_max_weight = false;
+	    if (recalc_maxweight() < w_min) {
+		// We can't now achieve w_min so we're done.
+		return false;
+	    }
+	}
+
+	return true;
     }
 
     Xapian::termcount count_matching_subqs() const {

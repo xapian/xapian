@@ -379,30 +379,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     while (true) {
 	bool pushback;
 
-	if (rare(pltree.recalc_needed())) {
-	    if (min_weight > 0.0) {
-		if (rare(pltree.recalc_maxweight() < min_weight)) {
-		    LOGLINE(MATCH, "*** TERMINATING EARLY (1)");
-		    break;
-		}
-	    }
-	}
-
-	if (rare(pltree.next(min_weight))) {
-	    LOGLINE(MATCH, "*** REPLACING ROOT");
-
-	    if (min_weight > 0.0) {
-		// No need for a full recalc (unless we've got to do one
-		// because of a prune elsewhere) - we're just switching to a
-		// subtree.
-		if (rare(pltree.recalc_maxweight() < min_weight)) {
-		    LOGLINE(MATCH, "*** TERMINATING EARLY (2)");
-		    break;
-		}
-	    }
-	}
-
-	if (rare(pltree.at_end())) {
+	if (!pltree.next(min_weight)) {
 	    LOGLINE(MATCH, "Reached end of potential matches");
 	    break;
 	}
