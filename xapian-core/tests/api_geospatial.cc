@@ -313,11 +313,13 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     i1 = g1.begin();
     TEST(i1 != g1.end());
     TEST_EQUAL((*i1).serialise(), c1.serialise());
-    TEST_EQUAL((*(i1++)).serialise(), c1.serialise());
+    TEST_EQUAL((*i1).serialise(), c1.serialise());
+    ++i1;
     TEST(i1 != g1.end());
     TEST_EQUAL((*i1).serialise(), c2.serialise());
     i1 = g1.begin();
-    TEST_EQUAL((*(++i1)).serialise(), c2.serialise());
+    ++i1;
+    TEST_EQUAL((*i1).serialise(), c2.serialise());
     TEST(i1 != g1.end());
     ++i1;
     TEST(i1 == g1.end());

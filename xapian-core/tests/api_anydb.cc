@@ -1008,9 +1008,10 @@ DEFINE_TESTCASE(reversebool1, backend) {
 	Xapian::MSetIterator i = mymset1.begin();
 	Xapian::MSetIterator j = mymset3.end();
 	for ( ; i != mymset1.end(); ++i) {
+	    --j;
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
-	    TEST_EQUAL(*i, *--j);
+	    TEST_EQUAL(*i, *j);
 	}
     }
 
@@ -1057,7 +1058,8 @@ DEFINE_TESTCASE(reversebool2, backend) {
 	for (j = mymset3.begin(); j != mymset3.end(); ++j) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
-	    TEST_EQUAL(*--i, *j);
+	    --i;
+	    TEST_EQUAL(*i, *j);
 	}
     }
 
