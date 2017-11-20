@@ -571,6 +571,9 @@ NEXT=work
 END
 printf '$freq{D19891204}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
 testcase '1|19891204' P=text
+# Use $time to force the match to run.
+printf '$if{$time,$freq{D19891204}}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
+testcase '1|19891204' P=
 
 # Test we warn about useless actions.
 printf 'date : field parsedate=%%Y%%m%%d' > "$TEST_INDEXSCRIPT"
