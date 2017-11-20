@@ -1550,7 +1550,14 @@ eval(const string &fmt, const vector<string> &param)
 		const string& term = args[0];
 		Xapian::doccount termfreq = 0;
 		if (done_query) {
-		    termfreq = mset.get_termfreq(term);
+		    try {
+			termfreq = mset.get_termfreq(term);
+		    } catch (const Xapian::InvalidOperationError&) {
+			// In 1.4.x and earlier, InvalidOperationError is
+			// thrown if the MSet is empty and not associated with
+			// an Enquire object.  In 1.5.0 and later, a termfreq
+			// of 0 is returned for this case.
+		    }
 		}
 		if (termfreq == 0) {
 		    // We want $freq to work before the match is run, and we
