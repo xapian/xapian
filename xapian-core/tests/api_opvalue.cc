@@ -231,6 +231,15 @@ DEFINE_TESTCASE(valuerange6, generated) {
     TEST_EQUAL(mset.get_matches_estimated(), 0);
     TEST_EQUAL(mset.get_matches_upper_bound(), 0);
 
+    // Check no assertions when slot is empty.  Regression test for bug
+    // introduced and fixed between 1.4.5 and 1.4.6.
+    query = Xapian::Query(OP_VALUE_RANGE, 1, "MONK", "MONKEY");
+    enq.set_query(query);
+    mset = enq.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+
     return true;
 }
 

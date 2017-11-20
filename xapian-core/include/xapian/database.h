@@ -345,9 +345,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  in the slot.
      *
      *  @param slot The value slot to examine.
-     *
-     *  @exception Xapian::UnimplementedError The frequency of the value isn't
-     *		   available for this database type.
      */
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 
@@ -355,9 +352,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *
      *  If there are no values stored in the given value slot, this will return
      *  an empty string.
-     *
-     *  If the lower bound isn't available for the given database type, this
-     *  will return the lowest possible bound - the empty string.
      *
      *  @param slot The value slot to examine.
      */
@@ -369,9 +363,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  an empty string.
      *
      *  @param slot The value slot to examine.
-     *
-     *  @exception Xapian::UnimplementedError The upper bound of the values
-     *		   isn't available for this database type.
      */
     std::string get_value_upper_bound(Xapian::valueno slot) const;
 
