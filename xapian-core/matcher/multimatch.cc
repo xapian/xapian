@@ -219,7 +219,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     const Xapian::KeyMaker *sorter)
 {
     LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | Literal("mset") | stats | Literal("mdecider") | Literal("sorter"));
-    AssertRel(check_at_least,>=,maxitems);
+    AssertRel(check_at_least,>=,first + maxitems);
 
     Assert(!query.empty());
 
@@ -402,8 +402,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	vsdoc.set_document(did);
 	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Result new_item(wt, did);
-	if (check_at_least > maxitems && timeout.timed_out()) {
-	    check_at_least = maxitems;
+	if (check_at_least > first + maxitems && timeout.timed_out()) {
+	    check_at_least = first + maxitems;
 	}
 
 	if (sort_by != REL) {

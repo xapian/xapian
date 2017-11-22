@@ -282,9 +282,9 @@ Enquire::Internal::get_mset(doccount first,
     {
 	Xapian::doccount docs = db.get_doccount();
 	first = min(first, docs);
-	maxitems = min(maxitems, docs);
+	maxitems = min(maxitems, docs - first);
 	checkatleast = min(checkatleast, docs);
-	checkatleast = max(checkatleast, maxitems);
+	checkatleast = max(checkatleast, first + maxitems);
     }
 
     unique_ptr<Xapian::Weight::Internal> stats(new Xapian::Weight::Internal);
