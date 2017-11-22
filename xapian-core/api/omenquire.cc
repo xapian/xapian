@@ -562,9 +562,9 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     {
 	Xapian::doccount docs = db.get_doccount();
 	first = min(first, docs);
-	maxitems = min(maxitems, docs);
+	maxitems = min(maxitems, docs - first);
 	check_at_least = min(check_at_least, docs);
-	check_at_least = max(check_at_least, maxitems);
+	check_at_least = max(check_at_least, first + maxitems);
     }
 
     AutoPtr<Xapian::Weight::Internal> stats(new Xapian::Weight::Internal);
