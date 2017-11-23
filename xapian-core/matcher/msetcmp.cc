@@ -103,7 +103,7 @@ msetcmp_by_relevance_then_value(const Xapian::Internal::MSetItem &a,
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
 }
 
-static mset_cmp mset_cmp_table[] = {
+static const mset_cmp mset_cmp_table[] = {
     // Xapian::Enquire::Internal::REL
     msetcmp_by_relevance<false>,
     0,
