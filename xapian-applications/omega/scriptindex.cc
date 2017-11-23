@@ -109,14 +109,14 @@ static void
 report_useless_action(const string &file, size_t line, size_t pos,
 		      const string &action)
 {
-    cout << file << ':' << line;
-    if (pos != string::npos) cout << ':' << pos;
-    cout << ": Warning: Index action '" << action << "' has no effect" << endl;
+    cerr << file << ':' << line;
+    if (pos != string::npos) cerr << ':' << pos;
+    cerr << ": Warning: Index action '" << action << "' has no effect" << endl;
 
     static bool given_left_to_right_warning = false;
     if (!given_left_to_right_warning) {
 	given_left_to_right_warning = true;
-	cout << file << ':' << line
+	cerr << file << ':' << line
 	     << ": Warning: Note that actions are executed from left to right"
 	     << endl;
     }
@@ -129,7 +129,7 @@ parse_index_script(const string &filename)
 {
     ifstream script(filename.c_str());
     if (!script.is_open()) {
-	cout << filename << ": " << strerror(errno) << endl;
+	cerr << filename << ": " << strerror(errno) << endl;
 	exit(1);
     }
     string line;
@@ -145,7 +145,7 @@ parse_index_script(const string &filename)
 	if (i == s.end() || *i == '#') continue;
 	while (true) {
 	    if (!C_isalnum(*i)) {
-		cout << filename << ':' << line_no
+		cerr << filename << ':' << line_no
 		     << ": field name must start with alphanumeric" << endl;
 		exit(1);
 	    }
@@ -160,7 +160,7 @@ parse_index_script(const string &filename)
 		break;
 	    }
 	    if (i == j) {
-		cout << filename << ':' << line_no
+		cerr << filename << ':' << line_no
 		     << ": bad character '" << *j << "' in fieldname" << endl;
 		exit(1);
 	    }
@@ -269,7 +269,7 @@ parse_index_script(const string &filename)
 		}
 	    }
 	    if (code == Action::BAD) {
-		cout << filename << ':' << line_no
+		cerr << filename << ':' << line_no
 		     << ": Unknown index action '" << action << "'" << endl;
 		exit(1);
 	    }
@@ -278,13 +278,13 @@ parse_index_script(const string &filename)
 
 	    if (i != s.end() && *i == '=') {
 		if (i != i_after_action) {
-		    cout << filename << ':' << line_no
+		    cerr << filename << ':' << line_no
 			 << ": warning: putting spaces between the action and "
 			    "'=' is deprecated." << endl;
 		}
 
 		if (arg == NO) {
-		    cout << filename << ':' << line_no
+		    cerr << filename << ':' << line_no
 			 << ": Index action '" << action
 			 << "' doesn't take an argument" << endl;
 		    exit(1);
@@ -292,7 +292,7 @@ parse_index_script(const string &filename)
 		++i;
 		j = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 		if (i != j) {
-		    cout << filename << ':' << line_no
+		    cerr << filename << ':' << line_no
 			 << ": warning: putting spaces between '=' and the "
 			    "argument is deprecated." << endl;
 		}
@@ -302,7 +302,7 @@ parse_index_script(const string &filename)
 		    ++j;
 		    i = find(j, s.end(), '"');
 		    if (i == s.end()) {
-			cout << filename << ':' << line_no << ": No closing quote" << endl;
+			cerr << filename << ':' << line_no << ": No closing quote" << endl;
 			exit(1);
 		    }
 		    val.assign(j, i);
@@ -314,7 +314,7 @@ parse_index_script(const string &filename)
 		}
 		if (takes_integer_argument) {
 		    if (val.find('.') != string::npos) {
-			cout << filename << ':' << line_no
+			cerr << filename << ':' << line_no
 			     << ": Warning: Index action '" << action
 			     << "' takes an integer argument" << endl;
 		    }
@@ -351,7 +351,7 @@ parse_index_script(const string &filename)
 			break;
 		    case Action::UNIQUE:
 			if (had_unique) {
-			    cout << filename << ':' << line_no
+			    cerr << filename << ':' << line_no
 				<< ": Index action 'unique' used more than "
 				   "once" << endl;
 			    exit(1);
@@ -370,7 +370,7 @@ parse_index_script(const string &filename)
 		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 	    } else {
 		if (arg == YES) {
-		    cout << filename << ':' << line_no
+		    cerr << filename << ':' << line_no
 			 << ": Index action '" << action
 			 << "' must have an argument" << endl;
 		    exit(1);
@@ -414,13 +414,13 @@ parse_index_script(const string &filename)
 	map<string, Action::type>::const_iterator boolpfx;
 	for (boolpfx = boolmap.begin(); boolpfx != boolmap.end(); ++boolpfx) {
 	    if (boolpfx->second == Action::UNIQUE) {
-		cout << filename << ':' << line_no
+		cerr << filename << ':' << line_no
 		     << ": Warning: Index action 'unique=" << boolpfx->first
 		     << "' without 'boolean=" << boolpfx->first << "'" << endl;
 		static bool given_doesnt_imply_boolean_warning = false;
 		if (!given_doesnt_imply_boolean_warning) {
 		    given_doesnt_imply_boolean_warning = true;
-		    cout << filename << ':' << line_no
+		    cerr << filename << ':' << line_no
 			 << ": Warning: Note 'unique' doesn't implicitly add "
 			    "a boolean term" << endl;
 		}
@@ -440,7 +440,7 @@ parse_index_script(const string &filename)
     }
 
     if (index_spec.empty()) {
-	cout << filename << ": No rules found in index script" << endl;
+	cerr << filename << ": No rules found in index script" << endl;
 	exit(1);
     }
 }
@@ -468,7 +468,7 @@ index_file(const char *fname, istream &stream,
 
 	    string::size_type eq = line.find('=');
 	    if (eq == string::npos && !line.empty()) {
-		cout << fname << ':' << line_no << ": expected = somewhere "
+		cerr << fname << ':' << line_no << ": expected = somewhere "
 		    "in this line" << endl;
 		// FIXME: die or what?
 	    }
@@ -589,7 +589,7 @@ index_file(const char *fname, istream &stream,
 		    case Action::UNIQUE: {
 			// If there's no text, just issue a warning.
 			if (value.empty()) {
-			    cout << fname << ':' << line_no
+			    cerr << fname << ':' << line_no
 				 << ": Ignoring UNIQUE action on empty text"
 				 << endl;
 			    break;
@@ -617,8 +617,8 @@ again:
 			    }
 			} catch (const Xapian::Error &e) {
 			    // Hmm, what happened?
-			    cout << "Caught exception in UNIQUE!" << endl;
-			    cout << "E: " << e.get_description() << endl;
+			    cerr << "Caught exception in UNIQUE!" << endl;
+			    cerr << "E: " << e.get_description() << endl;
 			    database.commit();
 			    goto again;
 			}
@@ -633,7 +633,7 @@ again:
 			char * end;
 			double dbl = strtod(value.c_str(), &end);
 			if (*end) {
-			    cout << fname << ':' << line_no << ": Warning: "
+			    cerr << fname << ':' << line_no << ": Warning: "
 				    "Trailing characters in VALUENUMERIC: '"
 				 << value << "'" << endl;
 			}
@@ -657,14 +657,14 @@ again:
 			    }
 			}
 			if (errno) {
-			    cout << fname << ':' << line_no << ": Warning: "
+			    cerr << fname << ':' << line_no << ": Warning: "
 				    "valuepacked \"" << value << "\" ";
 			    if (errno == ERANGE) {
-				cout << "out of range";
+				cerr << "out of range";
 			    } else {
-				cout << "not an unsigned integer";
+				cerr << "not an unsigned integer";
 			    }
-			    cout << endl;
+			    cerr << endl;
 			}
 			int valueslot = i->get_num_arg();
 			doc.add_value(valueslot, int_to_binary_string(word));
@@ -699,14 +699,14 @@ again:
 			memset(&tm, 0, sizeof(tm));
 			auto ret = strptime(value.c_str(), dateformat.c_str(), &tm);
 			if (ret == NULL) {
-			    cout << fname << ':' << line_no << ": Warning: "
+			    cerr << fname << ':' << line_no << ": Warning: "
 				    "\"" << value << "\" doesn't match format "
 				    "\"" << dateformat << '\"' << endl;
 			    break;
 			}
 
 			if (*ret != '\0') {
-			    cout << fname << ':' << line_no << ": Warning: "
+			    cerr << fname << ':' << line_no << ": Warning: "
 				    "\"" << value << "\" not fully matched by "
 				    "format \"" << dateformat << "\" "
 				    "(\"" << ret << "\" left over) but "
@@ -755,11 +755,11 @@ again:
 		    if (verbose) cout << "Replace: " << docid << endl;
 		    repcount ++;
 		} catch (const Xapian::Error &e) {
-		    cout << "E: " << e.get_description() << endl;
+		    cerr << "E: " << e.get_description() << endl;
 		    // Possibly the document was deleted by another
 		    // process in the meantime...?
 		    docid = database.add_document(doc);
-		    cout << "Replace failed, adding as new: " << docid << endl;
+		    cerr << "Replace failed, adding as new: " << docid << endl;
 		}
 	    } else {
 		docid = database.add_document(doc);
@@ -874,7 +874,7 @@ try {
 	    if (stream) {
 		index_file(argv[i], stream, database, indexer);
 	    } else {
-		cout << "Can't open file " << argv[i] << endl;
+		cerr << "Can't open file " << argv[i] << endl;
 	    }
 	}
     }
@@ -882,12 +882,12 @@ try {
     cout << "records (added, replaced, deleted) = (" << addcount << ", "
 	 << repcount << ", " << delcount << ")" << endl;
 } catch (const Xapian::Error &error) {
-    cout << "Exception: " << error.get_description() << endl;
+    cerr << "Exception: " << error.get_description() << endl;
     exit(1);
 } catch (const std::bad_alloc &) {
-    cout << "Exception: std::bad_alloc" << endl;
+    cerr << "Exception: std::bad_alloc" << endl;
     exit(1);
 } catch (...) {
-    cout << "Unknown Exception" << endl;
+    cerr << "Unknown Exception" << endl;
     exit(1);
 }
