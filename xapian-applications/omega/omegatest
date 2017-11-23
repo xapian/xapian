@@ -457,7 +457,7 @@ testcase 'XNUM|3bad' B='XNUM3bad'
 # Feature tests of scriptindex.
 printf 'uuid : boolean=Q unique=Q\nguid : boolean=G unique=G' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null < /dev/null ; then
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null < /dev/null 2>&1; then
     echo "scriptindex didn't reject 'unique' action being used more than once"
     failed=`expr $failed + 1`
 fi
@@ -465,7 +465,7 @@ fi
 # Test we check for hash's argument being an integer (new in 1.4.6).
 printf 'url : hash=37.3 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
     | grep -q "Index action 'hash' takes an integer argument" ; then
     : # OK
 else
@@ -480,7 +480,7 @@ fi
 # Unknown index action ''
 printf 'url : index4' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
     | grep -q "Unknown index action 'index4'" ; then
     : # OK
 else
@@ -495,7 +495,7 @@ fi
 # Unknown index action ''
 printf 'url : hash 42' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
     | grep -q "Unknown index action '42'" ; then
     : # OK
 else
@@ -512,7 +512,7 @@ fi
 # url : field= hash boolean=Q unique=Q
 printf 'url : field= hash boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
     | grep -q "warning: putting spaces between '=' and the argument is deprecated" ; then
     : # OK
 else
@@ -521,7 +521,7 @@ else
 fi
 printf 'url : field =link' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
     | grep -q "warning: putting spaces between the action and '=' is deprecated" ; then
     : # OK
 else
@@ -541,7 +541,7 @@ testcase '19891204|628732800|1989-12-04' P=text
 # Feature tests for datevalue command scriptindex where format contains space.
 printf 'DATE : field parsedate="%%Y%%m%%d %%T" valuepacked=13\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1 <<'END'
 DATE=20161202 12:04:22.000000
 END
 printf '$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
@@ -564,7 +564,7 @@ testcase '1|19891204' P=
 # Test we warn about useless actions.
 printf 'date : field parsedate=%%Y%%m%%d' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
     | grep -q "Warning: Index action 'parsedate' has no effect" ; then
     : # OK
 else
