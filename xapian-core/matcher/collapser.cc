@@ -30,7 +30,7 @@ using namespace std;
 
 collapse_result
 CollapseData::add_item(const Result& item,
-		       Xapian::doccount collapse_max, const MSetCmp & mcmp,
+		       Xapian::doccount collapse_max, MSetCmp mcmp,
 		       Result& old_item)
 {
     if (items.size() < collapse_max) {
@@ -71,7 +71,7 @@ collapse_result
 Collapser::process(Result& item,
 		   const string* key_ptr,
 		   Xapian::Document::Internal & vsdoc,
-		   const MSetCmp & mcmp)
+		   MSetCmp mcmp)
 {
     ++docs_considered;
     if (key_ptr) {

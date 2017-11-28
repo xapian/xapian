@@ -1,7 +1,7 @@
 /** @file msetcmp.h
- * @brief Result comparison functions and functors.
+ * @brief Result comparison functions.
  */
-/* Copyright (C) 2006,2007,2011 Olly Betts
+/* Copyright (C) 2006,2007,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,20 +28,11 @@
 class Result;
 
 // typedef for Result comparison function.
-typedef bool (* mset_cmp)(const Result&, const Result&);
+typedef bool (* MSetCmp)(const Result&, const Result&);
 
 /// Select the appropriate msetcmp function.
-mset_cmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by, bool sort_forward, bool sort_value_forward);
-
-/// Result comparison functor.
-class MSetCmp {
-    mset_cmp fn;
-  public:
-    explicit MSetCmp(mset_cmp fn_) : fn(fn_) { }
-    /// Return true if Result a should be ranked above Result b.
-    bool operator()(const Result& a, const Result& b) const {
-	return fn(a, b);
-    }
-};
+MSetCmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by,
+			     bool sort_forward,
+			     bool sort_value_forward);
 
 #endif // XAPIAN_INCLUDED_MSETCMP_H

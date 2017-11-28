@@ -73,7 +73,7 @@ class CollapseData {
      */
     collapse_result add_item(const Result& item,
 			     Xapian::doccount collapse_max,
-			     const MSetCmp & mcmp,
+			     MSetCmp mcmp,
 			     Result& old_item);
 
     /// The highest weight of a document we've rejected.
@@ -140,7 +140,7 @@ class Collapser {
     collapse_result process(Result& item,
 			    const std::string* key_ptr,
 			    Xapian::Document::Internal & vsdoc,
-			    const MSetCmp & mcmp);
+			    MSetCmp mcmp);
 
     Xapian::doccount get_collapse_count(const std::string & collapse_key,
 					int percent_cutoff,
