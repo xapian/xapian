@@ -530,11 +530,11 @@ RemoteServer::msg_query(const string &message_in)
 
     message.erase(0, message.size() - (p_end - p));
     unique_ptr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
-    unserialise_stats(message, *(total_stats.get()));
+    unserialise_stats(message, *total_stats);
     total_stats->set_bounds_from_db(*db);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, *(total_stats.get()), 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, *total_stats, 0, 0);
     mset.internal->set_stats(total_stats.release());
 
     message.resize(0);
