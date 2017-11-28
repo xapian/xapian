@@ -784,7 +784,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 {
     struct table_list {
 	// The "base name" of the table.
-	const char * name;
+	char name[9];
 	// The type.
 	Glass::table_type type;
 	// Create tables after position lazily.
