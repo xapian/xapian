@@ -41,7 +41,7 @@ class QueryOptimiser {
 
     LocalSubMatch & localsubmatch;
 
-    /** How many leaf subqueries there are.
+    /** How many weighted leaf subqueries there are.
      *
      *  Used for scaling percentages when the highest weighted document doesn't
      *  "match all terms".
