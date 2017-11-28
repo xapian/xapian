@@ -1261,6 +1261,18 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([yes])
       AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
       dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
+
+      dnl If available, enable -fvisibility-inlines-hidden too, which results
+      dnl in inline functions in API classes being marked as hidden so that
+      dnl they get bound at link time inside the library reducing the number
+      dnl of relocations needed at library load time.
+      AC_MSG_CHECKING([if $CXX -fvisibility-inlines-hidden works])
+      if echo 'int bar() __attribute__((visibility("default"))); int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -fvisibility-inlines-hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+	AC_MSG_RESULT([yes])
+	AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility-inlines-hidden"
+      else
+	AC_MSG_RESULT([no])
+      fi
     else
       AC_MSG_RESULT([no])
     fi
