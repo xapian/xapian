@@ -861,8 +861,11 @@ DEFINE_TESTCASE(pctcutoff3, backend) {
     for (Xapian::MSetIterator i = mset1.begin(); i != mset1.end(); ++i) {
 	int new_percent = mset1.convert_to_percent(i);
 	if (new_percent != percent) {
+	    tout.str(string());
+	    tout << "Testing " << percent << "% cutoff" << endl;
 	    enquire.set_cutoff(percent);
 	    Xapian::MSet mset2 = enquire.get_mset(0, 10);
+	    TEST_EQUAL(mset2.back().get_percent(), percent);
 	    TEST_EQUAL(mset2.size(), i.get_rank());
 	    percent = new_percent;
 	}
@@ -1550,6 +1553,11 @@ DEFINE_TESTCASE(qterminfo2, backend) {
 
     string term1 = stemmer("paragraph");
     string term2 = stemmer("another");
+
+    enquire.set_query(Xapian::Query(term1));
+    Xapian::MSet mset0 = enquire.get_mset(0, 10);
+
+    TEST_NOT_EQUAL(mset0.get_termweight("paragraph"), 0);
 
     Xapian::Query query(Xapian::Query::OP_AND_NOT, term1,
 	    Xapian::Query(Xapian::Query::OP_AND, term1, term2));
