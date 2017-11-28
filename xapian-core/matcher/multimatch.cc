@@ -894,7 +894,7 @@ new_greatest_weight:
 	double min_wt = 0.0;
 	if (percent_scale > 0.0)
 	    min_wt = percent_cutoff_factor / percent_scale;
-	Xapian::doccount entries = collapser.entries();
+	Xapian::doccount entries = collapser.get_entries();
 	vector<Result>::iterator i;
 	for (i = items.begin(); i != items.end(); ++i) {
 	    // Skip entries without a collapse key.

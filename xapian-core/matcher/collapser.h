@@ -150,7 +150,7 @@ class Collapser {
 
     Xapian::doccount get_dups_ignored() const { return dups_ignored; }
 
-    Xapian::doccount entries() const { return entry_count; }
+    Xapian::doccount get_entries() const { return entry_count; }
 
     Xapian::doccount get_matches_lower_bound() const;
 
