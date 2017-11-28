@@ -24,14 +24,14 @@
 #include "api/postlist.h"
 
 class PostListTree {
-    PostList* pl;
+    PostList* pl = NULL;
 
     bool use_cached_max_weight = false;
 
     double max_weight;
 
   public:
-    PostListTree() : pl(NULL) {}
+    PostListTree() {}
 
     ~PostListTree() {
 	delete pl;

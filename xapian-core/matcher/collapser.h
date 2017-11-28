@@ -89,27 +89,27 @@ class Collapser {
     std::unordered_map<std::string, CollapseData> table;
 
     /// How many items we're currently keeping in @a table.
-    Xapian::doccount entry_count;
+    Xapian::doccount entry_count = 0;
 
     /** How many documents have we seen without a collapse key?
      *
      *  We use this statistic to improve matches_lower_bound.
      */
-    Xapian::doccount no_collapse_key;
+    Xapian::doccount no_collapse_key = 0;
 
     /** How many documents with duplicate collapse keys we have ignored.
      *
      *  We use this statistic to improve matches_estimated (by considering
      *  the rate of collapsing) and matches_upper_bound.
      */
-    Xapian::doccount dups_ignored;
+    Xapian::doccount dups_ignored = 0;
 
     /** How many documents we've considered for collapsing.
      *
      *  We use this statistic to improve matches_estimated (by considering
      *  the rate of collapsing).
      */
-    Xapian::doccount docs_considered;
+    Xapian::doccount docs_considered = 0;
 
     /** The value slot we're getting collapse keys from. */
     Xapian::valueno slot;
@@ -122,9 +122,7 @@ class Collapser {
     Result old_item;
 
     Collapser(Xapian::valueno slot_, Xapian::doccount collapse_max_)
-	: entry_count(0), no_collapse_key(0), dups_ignored(0),
-	  docs_considered(0), slot(slot_), collapse_max(collapse_max_),
-	  old_item(0, 0) { }
+	: slot(slot_), collapse_max(collapse_max_), old_item(0, 0) { }
 
     /// Return true if collapsing is active for this match.
     operator bool() const { return collapse_max != 0; }
