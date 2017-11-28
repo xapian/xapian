@@ -30,7 +30,7 @@ using namespace std;
 
 collapse_result
 CollapseData::add_item(const Xapian::Internal::MSetItem & item,
-		       Xapian::doccount collapse_max, const MSetCmp & mcmp,
+		       Xapian::doccount collapse_max, MSetCmp mcmp,
 		       Xapian::Internal::MSetItem & old_item)
 {
     if (items.size() < collapse_max) {
@@ -70,7 +70,7 @@ collapse_result
 Collapser::process(Xapian::Internal::MSetItem & item,
 		   PostList * postlist,
 		   Xapian::Document::Internal & vsdoc,
-		   const MSetCmp & mcmp)
+		   MSetCmp mcmp)
 {
     ++docs_considered;
     // The postlist will supply the collapse key for a remote match.
