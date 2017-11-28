@@ -44,10 +44,10 @@ ValueStreamDocument::~ValueStreamDocument()
 }
 
 void
-ValueStreamDocument::new_subdb(int n)
+ValueStreamDocument::new_shard(size_t n)
 {
     AssertRel(n,>,0);
-    AssertRel(size_t(n),<,n_shards);
+    AssertRel(n,<,n_shards);
     current = unsigned(n);
     // This method should only be called for a MultiDatabase.
     auto multidb = static_cast<MultiDatabase*>(db.internal.get());

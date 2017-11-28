@@ -116,8 +116,8 @@ MergePostList::next(double w_min)
 	if (!pl->at_end() || ++shard == n_shards) {
 	    break;
 	}
-	// Move on to the next database.
-	vsdoc.new_subdb(shard);
+	// Move on to the next shard.
+	vsdoc.new_shard(shard);
 	pl = shard_pls[shard];
     }
     return NULL;

@@ -66,7 +66,7 @@ class ValueStreamDocument : public Xapian::Document::Internal {
     explicit ValueStreamDocument(const Xapian::Database& db_)
 	: ValueStreamDocument(db_, db_.internal->size()) {}
 
-    void new_subdb(int n);
+    void new_shard(size_t n);
 
     ~ValueStreamDocument();
 
