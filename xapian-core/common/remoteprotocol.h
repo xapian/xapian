@@ -56,8 +56,8 @@
 
 /** Message types (client -> server).
  *
- *  When modifying this list, you probably need to update the array of function
- *  pointers in net/remoteserver.cc too.
+ *  When modifying this list, you probably need to update the switch statement
+ *  in net/remoteserver.cc too.
  */
 enum message_type {
     MSG_ALLTERMS,		// All Terms
