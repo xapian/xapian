@@ -163,94 +163,94 @@ RemoteServer::run()
 	    switch (type) {
 		case MSG_ALLTERMS:
 		    msg_allterms(message);
-		    return;
+		    continue;
 		case MSG_COLLFREQ:
 		    msg_collfreq(message);
-		    return;
+		    continue;
 		case MSG_DOCUMENT:
 		    msg_document(message);
-		    return;
+		    continue;
 		case MSG_TERMEXISTS:
 		    msg_termexists(message);
-		    return;
+		    continue;
 		case MSG_TERMFREQ:
 		    msg_termfreq(message);
-		    return;
+		    continue;
 		case MSG_VALUESTATS:
 		    msg_valuestats(message);
-		    return;
+		    continue;
 		case MSG_KEEPALIVE:
 		    msg_keepalive(message);
-		    return;
+		    continue;
 		case MSG_DOCLENGTH:
 		    msg_doclength(message);
-		    return;
+		    continue;
 		case MSG_QUERY:
 		    msg_query(message);
-		    return;
+		    continue;
 		case MSG_TERMLIST:
 		    msg_termlist(message);
-		    return;
+		    continue;
 		case MSG_POSITIONLIST:
 		    msg_positionlist(message);
-		    return;
+		    continue;
 		case MSG_POSTLIST:
 		    msg_postlist(message);
-		    return;
+		    continue;
 		case MSG_REOPEN:
 		    msg_reopen(message);
-		    return;
+		    continue;
 		case MSG_UPDATE:
 		    msg_update(message);
-		    return;
+		    continue;
 		case MSG_ADDDOCUMENT:
 		    msg_adddocument(message);
-		    return;
+		    continue;
 		case MSG_CANCEL:
 		    msg_cancel(message);
-		    return;
+		    continue;
 		case MSG_DELETEDOCUMENTTERM:
 		    msg_deletedocumentterm(message);
-		    return;
+		    continue;
 		case MSG_COMMIT:
 		    msg_commit(message);
-		    return;
+		    continue;
 		case MSG_REPLACEDOCUMENT:
 		    msg_replacedocument(message);
-		    return;
+		    continue;
 		case MSG_REPLACEDOCUMENTTERM:
 		    msg_replacedocumentterm(message);
-		    return;
+		    continue;
 		case MSG_DELETEDOCUMENT:
 		    msg_deletedocument(message);
-		    return;
+		    continue;
 		case MSG_WRITEACCESS:
 		    msg_writeaccess(message);
-		    return;
+		    continue;
 		case MSG_GETMETADATA:
 		    msg_getmetadata(message);
-		    return;
+		    continue;
 		case MSG_SETMETADATA:
 		    msg_setmetadata(message);
-		    return;
+		    continue;
 		case MSG_ADDSPELLING:
 		    msg_addspelling(message);
-		    return;
+		    continue;
 		case MSG_REMOVESPELLING:
 		    msg_removespelling(message);
-		    return;
+		    continue;
 		case MSG_METADATAKEYLIST:
 		    msg_metadatakeylist(message);
-		    return;
+		    continue;
 		case MSG_FREQS:
 		    msg_freqs(message);
-		    return;
+		    continue;
 		case MSG_UNIQUETERMS:
 		    msg_uniqueterms(message);
-		    return;
+		    continue;
 		case MSG_POSITIONLISTCOUNT:
 		    msg_positionlistcount(message);
-		    return;
+		    continue;
 		default: {
 		    // MSG_GETMSET - used during a conversation.
 		    // MSG_SHUTDOWN - handled by get_message().
