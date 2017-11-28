@@ -46,6 +46,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     Internal * internal;
 
     /// @private @internal Wrap an existing Internal.
+    XAPIAN_VISIBILITY_INTERNAL
     explicit PostingIterator(Internal *internal_);
 
     /// Copy constructor.

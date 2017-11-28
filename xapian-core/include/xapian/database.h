@@ -147,6 +147,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     explicit Database(int fd, int flags = 0);
 
     /// @private @internal Wrap an existing Internal.
+    XAPIAN_VISIBILITY_INTERNAL
     explicit Database(Internal* internal) XAPIAN_NONNULL();
 
     /// Destructor.
@@ -951,6 +952,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 			      int block_size = 0);
 
     /** @private @internal Create a WritableDatabase given its internals. */
+    XAPIAN_VISIBILITY_INTERNAL
     explicit WritableDatabase(Database::Internal* internal_)
 	: Database(internal_) {}
 

@@ -261,6 +261,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param wqf_	  The within-query-frequency of @a term.
      *  @param factor	  Any scaling factor (e.g. from OP_SCALE_WEIGHT).
      */
+    XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       const std::string & term, Xapian::termcount wqf_,
 	       double factor);
@@ -275,6 +276,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param reltermfreq The reltermfreq to use.
      *  @param collection_freq The collection frequency to use.
      */
+    XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       double factor, Xapian::doccount termfreq,
 	       Xapian::doccount reltermfreq, Xapian::termcount collection_freq);
@@ -285,6 +287,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param stats	  Source of statistics.
      *  @param query_len_ Query length.
      */
+    XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_);
 
     /** @private @internal Return true if the document length is needed.
@@ -343,6 +346,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  This would ideally be private, but that causes a compilation error
      *  with GCC 4.1 (which appears to be a bug).
      */
+    XAPIAN_VISIBILITY_INTERNAL
     Weight(const Weight &);
 
     /// The number of documents in the collection.

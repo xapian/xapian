@@ -1,7 +1,7 @@
 /** @file visibility.h
  * @brief Define XAPIAN_VISIBILITY macro.
  */
-// Copyright (C) 2007,2010,2014 Olly Betts
+// Copyright (C) 2007,2010,2014,2017 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,8 +27,10 @@
 #if defined XAPIAN_ENABLE_VISIBILITY && defined __GNUC__ && (__GNUC__ >= 4)
 // GCC 3.4 has visibility support, but it's a bit buggy so we require 4.0.
 # define XAPIAN_VISIBILITY_DEFAULT __attribute__((visibility("default")))
+# define XAPIAN_VISIBILITY_INTERNAL __attribute__((visibility("internal")))
 #else
 # define XAPIAN_VISIBILITY_DEFAULT
+# define XAPIAN_VISIBILITY_INTERNAL
 #endif
 
 #endif

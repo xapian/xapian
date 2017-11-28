@@ -47,6 +47,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     Internal * internal;
 
     /** @private @internal Wrap an existing Internal. */
+    XAPIAN_VISIBILITY_INTERNAL
     explicit ValueIterator(Internal *internal_);
 
     /// Copy constructor.
