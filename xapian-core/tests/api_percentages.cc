@@ -255,7 +255,7 @@ DEFINE_TESTCASE(topercent5, backend) {
     // It would be odd if the non-existent term was worth more, but in 1.0.x
     // the top hit got 4% in this testcase.  In 1.2.x it gets 50%, which is
     // better, but >50% would be more natural.
-    TEST(mset[0].get_percent() >= 50);
+    TEST_REL(mset[0].get_percent(), >=, 50);
     return true;
 }
 
