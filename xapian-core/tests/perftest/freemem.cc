@@ -85,7 +85,7 @@ get_free_physical_memory()
 #elif defined CTL_VM && (defined VM_TOTAL || defined VM_METER)
     /* FreeBSD: */
     struct vmtotal vm_info;
-    int mib[2] = {
+    static const int mib[2] = {
 	CTL_VM,
 #ifdef VM_TOTAL
 	VM_TOTAL
@@ -146,7 +146,7 @@ get_total_physical_memory()
 #elif defined CTL_VM && (defined VM_TOTAL || defined VM_METER)
     /* FreeBSD: */
     struct vmtotal vm_info;
-    int mib[2] = {
+    static const int mib[2] = {
 	CTL_VM,
 #ifdef VM_TOTAL
 	VM_TOTAL

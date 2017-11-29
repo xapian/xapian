@@ -52,7 +52,7 @@ int
 main(int argc, char **argv)
 {
     const char * opts = "I:p:o";
-    const struct option long_opts[] = {
+    static const struct option long_opts[] = {
 	{"interface",	required_argument,	0, 'I'},
 	{"port",	required_argument,	0, 'p'},
 	{"one-shot",	no_argument,		0, 'o'},

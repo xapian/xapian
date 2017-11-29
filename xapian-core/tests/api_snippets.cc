@@ -172,7 +172,7 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     enquire.set_weighting_scheme(Xapian::BoolWeight());
     Xapian::Stem stem("en");
 
-    static const char * words[] = { "do", "we", "have" };
+    static const char * const words[] = { "do", "we", "have" };
     Xapian::Query q(Xapian::Query::OP_PHRASE, words, words + 3);
     enquire.set_query(q);
     Xapian::MSet mset = enquire.get_mset(0, 6);

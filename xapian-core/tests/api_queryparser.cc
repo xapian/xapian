@@ -1289,7 +1289,7 @@ static const test test_stop_queries[] = {
 
 DEFINE_TESTCASE(qp_stopper1, !backend) {
     Xapian::QueryParser qp;
-    const char * stopwords[] = { "a", "an", "the" };
+    static const char * const stopwords[] = { "a", "an", "the" };
     Xapian::SimpleStopper stop(stopwords, stopwords + 3);
     qp.set_stopper(&stop);
     qp.set_default_op(Xapian::Query::OP_AND);
@@ -2179,7 +2179,7 @@ DEFINE_TESTCASE(qp_fieldproc3, !backend) {
 
 DEFINE_TESTCASE(qp_stoplist1, !backend) {
     Xapian::QueryParser qp;
-    const char * stopwords[] = { "a", "an", "the" };
+    static const char * const stopwords[] = { "a", "an", "the" };
     Xapian::SimpleStopper stop(stopwords, stopwords + 3);
     qp.set_stopper(&stop);
 

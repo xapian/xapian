@@ -765,7 +765,7 @@ test_driver::parse_command_line(int argc, char **argv)
     }
 #endif
 
-    const struct option long_opts[] = {
+    static const struct option long_opts[] = {
 	{"verbose",		no_argument, 0, 'v'},
 	{"abort-on-error",	no_argument, 0, 'o'},
 	{"help",		no_argument, 0, 'h'},

@@ -55,7 +55,7 @@ struct synonym1_data_type {
 };
 
 #define NOQ Xapian::Query::MatchNothing
-static synonym1_data_type synonym1_data[] = {
+static const synonym1_data_type synonym1_data[] = {
     {
 	// Single term - all 33 results should be same weight.
 	33, 0, 1,
