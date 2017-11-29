@@ -573,7 +573,7 @@ DEFINE_TESTCASE(msize1, generated) {
     enq.set_collapse_key(0);
     enq.set_query(Xapian::Query("K1"));
 
-    Xapian::MSet mset = enq.get_mset(0, 10, 1000);
+    Xapian::MSet mset = enq.get_mset(0, 60);
     Xapian::doccount lb = mset.get_matches_lower_bound();
     Xapian::doccount ub = mset.get_matches_upper_bound();
     Xapian::doccount est = mset.get_matches_estimated();
@@ -588,7 +588,7 @@ DEFINE_TESTCASE(msize1, generated) {
     TEST_EQUAL(lb2, est2);
     TEST_EQUAL(est, est2);
 
-    Xapian::MSet mset3 = enq.get_mset(0, 60);
+    Xapian::MSet mset3 = enq.get_mset(0, 10, 1000);
     Xapian::doccount lb3 = mset3.get_matches_lower_bound();
     Xapian::doccount ub3 = mset3.get_matches_upper_bound();
     Xapian::doccount est3 = mset3.get_matches_estimated();
@@ -623,7 +623,7 @@ DEFINE_TESTCASE(msize2, generated) {
     enq.set_collapse_key(0);
     enq.set_query(Xapian::Query("K1"));
 
-    Xapian::MSet mset = enq.get_mset(0, 10, 1000);
+    Xapian::MSet mset = enq.get_mset(0, 60);
     Xapian::doccount lb = mset.get_matches_lower_bound();
     Xapian::doccount ub = mset.get_matches_upper_bound();
     Xapian::doccount est = mset.get_matches_estimated();
@@ -638,7 +638,7 @@ DEFINE_TESTCASE(msize2, generated) {
     TEST_EQUAL(lb2, est2);
     TEST_EQUAL(est, est2);
 
-    Xapian::MSet mset3 = enq.get_mset(0, 60);
+    Xapian::MSet mset3 = enq.get_mset(0, 10, 1000);
     Xapian::doccount lb3 = mset3.get_matches_lower_bound();
     Xapian::doccount ub3 = mset3.get_matches_upper_bound();
     Xapian::doccount est3 = mset3.get_matches_estimated();
