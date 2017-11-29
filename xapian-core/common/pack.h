@@ -140,8 +140,6 @@ inline int do_clz(unsigned long long value) { return __builtin_clzll(value); }
 
 /** Append an encoded unsigned integer to a string, preserving the sort order.
  *
- *  [Glass and newer variant]
- *
  *  The appended string data will sort in the same order as the unsigned
  *  integer being encoded.
  *
@@ -191,8 +189,6 @@ pack_uint_preserving_sort(std::string & s, U value)
 }
 
 /** Decode an "sort preserved" unsigned integer from a string.
- *
- *  [Glass and newer variant]
  *
  *  The unsigned integer must have been encoded with
  *  pack_uint_preserving_sort().
