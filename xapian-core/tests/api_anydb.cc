@@ -2222,7 +2222,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
     Xapian::Enquire enq(db);
     Xapian::QueryParser qp;
 
-    static const char * queries[] = {
+    static const char * const queries[] = {
 	"pad",
 	"milk fridge",
 	"leave milk on fridge",
@@ -2231,16 +2231,15 @@ DEFINE_TESTCASE(scaleweight1, backend) {
 	"leave \"milk on fridge\"",
 	"notpresent",
 	"leave \"milk notpresent\"",
-	NULL
     };
     static const double multipliers[] = {
 	-1000000, -2.5, -1, -0.5, 0, 0.5, 1, 2.5, 1000000,
 	0, 0
     };
 
-    for (const char **qstr = queries; *qstr; ++qstr) {
+    for (auto qstr : queries) {
 	tout.str(string());
-	Xapian::Query query1 = qp.parse_query(*qstr);
+	Xapian::Query query1 = qp.parse_query(qstr);
 	tout << "query1: " << query1.get_description() << endl;
 	for (const double *multp = multipliers; multp[0] != multp[1]; ++multp) {
 	    double mult = *multp;

@@ -1254,15 +1254,13 @@ DEFINE_TESTCASE(checkstatsweight3, backend && !remote && !multi) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     Xapian::TermIterator a;
-    static const char * testcases[] = {
+    static const char * const testcases[] = {
 	"a", // a* matches all documents, but no term matches all.
 	"pa", // Expands to only "paragraph", matching 5.
 	"zulu", // No matches.
 	"th", // Term "this" matches all documents.
-	NULL
     };
-    for (const char ** p = testcases; *p; ++p) {
-	const char * pattern = *p;
+    for (auto pattern : testcases) {
 	Xapian::Query q(Xapian::Query::OP_WILDCARD, pattern);
 	tout << q.get_description() << endl;
 	enquire.set_query(q);
@@ -1476,7 +1474,9 @@ DEFINE_TESTCASE(boolweight1, !backend) {
 DEFINE_TESTCASE(coordweight1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(Xapian::CoordWeight());
-    const char * terms[] = { "this", "line", "paragraph", "rubbish" };
+    static const char * const terms[] = {
+	"this", "line", "paragraph", "rubbish"
+    };
     Xapian::Query query(Xapian::Query::OP_OR,
 			terms, terms + sizeof(terms) / sizeof(terms[0]));
     enquire.set_query(query);

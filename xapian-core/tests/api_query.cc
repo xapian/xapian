@@ -169,7 +169,7 @@ DEFINE_TESTCASE(possubqueries1, writable) {
 DEFINE_TESTCASE(xor3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
 
-    const char * subqs[] = {
+    static const char * const subqs[] = {
 	"hack", "which", "paragraph", "is", "return"
     };
     // Document where the subqueries run out *does* match XOR:
@@ -273,7 +273,7 @@ DEFINE_TESTCASE(queryintro1, !backend) {
 DEFINE_TESTCASE(phrasealldocs1, backend) {
     Xapian::Database db = get_database("apitest_declen");
     Xapian::Query q;
-    const char * phrase[] = { "this", "is", "the" };
+    static const char * const phrase[] = { "this", "is", "the" };
     q = Xapian::Query(q.OP_AND_NOT,
 	    Xapian::Query("paragraph"),
 	    Xapian::Query(q.OP_PHRASE, phrase, phrase + 3));

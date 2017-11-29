@@ -1692,15 +1692,15 @@ DEFINE_TESTCASE(sortrel1, backend) {
     enquire.set_sort_by_value(1, true);
     enquire.set_query(Xapian::Query("woman"));
 
-    const Xapian::docid order1[] = { 1,2,3,4,5,6,7,8,9 };
-    const Xapian::docid order2[] = { 2,1,3,6,5,4,7,9,8 };
-    const Xapian::docid order3[] = { 3,2,1,6,5,4,9,8,7 };
-    const Xapian::docid order4[] = { 7,8,9,4,5,6,1,2,3 };
-    const Xapian::docid order5[] = { 9,8,7,6,5,4,3,2,1 };
-    const Xapian::docid order6[] = { 7,9,8,6,5,4,2,1,3 };
-    const Xapian::docid order7[] = { 7,9,8,6,5,4,2,1,3 };
-    const Xapian::docid order8[] = { 2,6,7,1,5,9,3,4,8 };
-    const Xapian::docid order9[] = { 7,6,2,9,5,1,8,4,3 };
+    static const Xapian::docid order1[] = { 1,2,3,4,5,6,7,8,9 };
+    static const Xapian::docid order2[] = { 2,1,3,6,5,4,7,9,8 };
+    static const Xapian::docid order3[] = { 3,2,1,6,5,4,9,8,7 };
+    static const Xapian::docid order4[] = { 7,8,9,4,5,6,1,2,3 };
+    static const Xapian::docid order5[] = { 9,8,7,6,5,4,3,2,1 };
+    static const Xapian::docid order6[] = { 7,9,8,6,5,4,2,1,3 };
+    static const Xapian::docid order7[] = { 7,9,8,6,5,4,2,1,3 };
+    static const Xapian::docid order8[] = { 2,6,7,1,5,9,3,4,8 };
+    static const Xapian::docid order9[] = { 7,6,2,9,5,1,8,4,3 };
 
     Xapian::MSet mset;
     size_t i;
@@ -1817,7 +1817,7 @@ DEFINE_TESTCASE(netstats1, remote) {
     BackendManagerLocal local_manager;
     local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
 
-    const char * words[] = { "paragraph", "word" };
+    static const char * const words[] = { "paragraph", "word" };
     Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
     const size_t MSET_SIZE = 10;
 
@@ -1918,7 +1918,9 @@ class MyWeight : public Xapian::Weight {
 DEFINE_TESTCASE(userweight1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(MyWeight());
-    const char * query[] = { "this", "line", "paragraph", "rubbish" };
+    static const char * const query[] = {
+	"this", "line", "paragraph", "rubbish"
+    };
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, query,
 				    query + sizeof(query) / sizeof(query[0])));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);

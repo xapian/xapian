@@ -207,7 +207,7 @@ DEFINE_TESTCASE(serialise_query1, !backend) {
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Query((hello@1 OR world@1))");
 
-    static const char * phrase[] = { "shaken", "not", "stirred" };
+    static const char * const phrase[] = { "shaken", "not", "stirred" };
     q = Xapian::Query(q.OP_PHRASE, phrase, phrase + 3);
     q = Xapian::Query(q.OP_OR, Xapian::Query("007"), q);
     q = Xapian::Query(q.OP_SCALE_WEIGHT, q, 3.14);

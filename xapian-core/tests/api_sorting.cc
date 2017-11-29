@@ -35,7 +35,7 @@ DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
     enquire.set_query(Xapian::Query("woman"));
 
     {
-	const int keys[] = { 3, 1 };
+	static const int keys[] = { 3, 1 };
 	Xapian::MultiValueKeyMaker sorter(keys, keys + 2);
 
 	enquire.set_sort_by_key(&sorter, true);
@@ -275,7 +275,7 @@ DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
 }
 
 DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
-    const int keys[] = { 0, 1, 2, 3 };
+    static const int keys[] = { 0, 1, 2, 3 };
     Xapian::MultiValueKeyMaker sorter(keys, keys + 4);
 
     Xapian::Document doc;

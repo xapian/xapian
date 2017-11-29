@@ -1374,7 +1374,7 @@ DEFINE_TESTCASE(phraseorneartoand1, writable) {
     Xapian::Enquire enquire(db);
     Xapian::MSet mymset;
 
-    const char * q1[] = { "all", "1" };
+    static const char * const q1[] = { "all", "1" };
     enquire.set_query(Xapian::Query(Xapian::Query::OP_PHRASE, q1, q1 + 2));
     mymset = enquire.get_mset(0, 10);
     TEST_EQUAL(2, mymset.size());
@@ -1383,7 +1383,7 @@ DEFINE_TESTCASE(phraseorneartoand1, writable) {
     mymset = enquire.get_mset(0, 10);
     TEST_EQUAL(2, mymset.size());
 
-    const char * q2[] = { "1", "2" };
+    static const char * const q2[] = { "1", "2" };
     enquire.set_query(Xapian::Query(Xapian::Query::OP_PHRASE, q2, q2 + 2));
     mymset = enquire.get_mset(0, 10);
     TEST_EQUAL(0, mymset.size());
