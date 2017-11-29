@@ -65,8 +65,9 @@ msetcmp_by_value(const Result& a, const Result& b)
 	if (a.get_docid() == 0) return false;
 	if (b.get_docid() == 0) return true;
     }
-    if (a.get_sort_key() > b.get_sort_key()) return FORWARD_VALUE;
-    if (a.get_sort_key() < b.get_sort_key()) return !FORWARD_VALUE;
+    int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
+    if (sort_cmp > 0) return FORWARD_VALUE;
+    if (sort_cmp < 0) return !FORWARD_VALUE;
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
 }
 
@@ -79,8 +80,9 @@ msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 	if (a.get_docid() == 0) return false;
 	if (b.get_docid() == 0) return true;
     }
-    if (a.get_sort_key() > b.get_sort_key()) return FORWARD_VALUE;
-    if (a.get_sort_key() < b.get_sort_key()) return !FORWARD_VALUE;
+    int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
+    if (sort_cmp > 0) return FORWARD_VALUE;
+    if (sort_cmp < 0) return !FORWARD_VALUE;
     if (a.get_weight() > b.get_weight()) return true;
     if (a.get_weight() < b.get_weight()) return false;
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
@@ -97,8 +99,9 @@ msetcmp_by_relevance_then_value(const Result& a, const Result& b)
     }
     if (a.get_weight() > b.get_weight()) return true;
     if (a.get_weight() < b.get_weight()) return false;
-    if (a.get_sort_key() > b.get_sort_key()) return FORWARD_VALUE;
-    if (a.get_sort_key() < b.get_sort_key()) return !FORWARD_VALUE;
+    int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
+    if (sort_cmp > 0) return FORWARD_VALUE;
+    if (sort_cmp < 0) return !FORWARD_VALUE;
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
 }
 
