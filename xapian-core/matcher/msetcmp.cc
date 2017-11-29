@@ -66,8 +66,9 @@ msetcmp_by_value(const Xapian::Internal::MSetItem &a,
 	if (a.did == 0) return false;
 	if (b.did == 0) return true;
     }
-    if (a.sort_key > b.sort_key) return FORWARD_VALUE;
-    if (a.sort_key < b.sort_key) return !FORWARD_VALUE;
+    int sort_cmp = a.sort_key.compare(b.sort_key);
+    if (sort_cmp > 0) return FORWARD_VALUE;
+    if (sort_cmp < 0) return !FORWARD_VALUE;
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
 }
 
@@ -81,8 +82,9 @@ msetcmp_by_value_then_relevance(const Xapian::Internal::MSetItem &a,
 	if (a.did == 0) return false;
 	if (b.did == 0) return true;
     }
-    if (a.sort_key > b.sort_key) return FORWARD_VALUE;
-    if (a.sort_key < b.sort_key) return !FORWARD_VALUE;
+    int sort_cmp = a.sort_key.compare(b.sort_key);
+    if (sort_cmp > 0) return FORWARD_VALUE;
+    if (sort_cmp < 0) return !FORWARD_VALUE;
     if (a.wt > b.wt) return true;
     if (a.wt < b.wt) return false;
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
@@ -100,8 +102,9 @@ msetcmp_by_relevance_then_value(const Xapian::Internal::MSetItem &a,
     }
     if (a.wt > b.wt) return true;
     if (a.wt < b.wt) return false;
-    if (a.sort_key > b.sort_key) return FORWARD_VALUE;
-    if (a.sort_key < b.sort_key) return !FORWARD_VALUE;
+    int sort_cmp = a.sort_key.compare(b.sort_key);
+    if (sort_cmp > 0) return FORWARD_VALUE;
+    if (sort_cmp < 0) return !FORWARD_VALUE;
     return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
 }
 
