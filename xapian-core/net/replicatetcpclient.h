@@ -56,6 +56,7 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
      *  To help avoid accidentally trying to use member variables or call other
      *  methods which do, this method has been deliberately made "static".
      */
+    XAPIAN_VISIBILITY_INTERNAL
     static int open_socket(const std::string & hostname, int port,
 			   double timeout_connect);
 
