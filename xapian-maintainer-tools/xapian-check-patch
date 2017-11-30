@@ -169,6 +169,21 @@ while (<>) {
     s!  +\\$! \\!;
 
     if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c') && !(/^[-+]\s*\#/)) {
+	if (substr($_, 0, 1) eq '+') {
+	    my $expandedline = '';
+	    for my $i (1..length($fullline) - 1) {
+		my $ch = substr($fullline, $i, 1);
+		if ($ch eq "\t") {
+		    $expandedline .= ('.' x (8 - length($expandedline) % 8));
+		} else {
+		    $expandedline .= $ch;
+		}
+	    }
+	    chomp($expandedline);
+	    if (length($expandedline) > 80) {
+		diagnostic('error', "Line extends beyond column 80 (to column ".length($expandedline).")", $fullline);
+	    }
+	}
 	if (m,^\+\s+LOGCALL(?:_[A-Z0-9]+)*\([^"]*"[^"]*(?<!operator)\(,) {
 	    diagnostic('error', "Don't include parentheses in debug logging method/class name", $fullline);
 	}
