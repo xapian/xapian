@@ -103,16 +103,6 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
     /// Return the weight contribution for the current position.
     virtual double get_weight() const = 0;
 
-    virtual const std::string * get_sort_key() const;
-
-    /** If the collapse key is already known, return it.
-     *
-     *  This is implemented by MSetPostList (and MergePostList).  Other
-     *  subclasses rely on the default implementation which just returns
-     *  NULL.
-     */
-    virtual const std::string * get_collapse_key() const;
-
     /// Return true if the current position is past the last entry in this list.
     virtual bool at_end() const = 0;
 

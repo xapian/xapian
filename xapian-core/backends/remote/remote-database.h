@@ -139,41 +139,43 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *
      * @param query			The query.
      * @param qlen			The query length.
+     * @param collapse_key		The value number to collapse matches on.
      * @param collapse_max		Max number of items with the same key
      *					to leave after collapsing (0 for don't
      *					collapse).
-     * @param collapse_key		The value number to collapse matches on.
      * @param order			Sort order for docids.
      * @param sort_key			The value number to sort on.
      * @param sort_by			Which order to apply sorts in.
      * @param sort_value_forward	Sort order for values.
      * @param time_limit_		Seconds to reduce check_at_least after
      *					(or <= 0 for no limit).
-     * @param percent_cutoff		Percentage cutoff.
-     * @param weight_cutoff		Weight cutoff.
+     * @param percent_threshold		Lower bound on percentage score.
+     * @param weight_threshold		Lower bound on weight.
      * @param wtscheme			Weighting scheme.
      * @param omrset			The rset.
      * @param matchspies                The matchspies to use.
      */
     void set_query(const Xapian::Query& query,
 		   Xapian::termcount qlen,
-		   Xapian::doccount collapse_max,
 		   Xapian::valueno collapse_key,
+		   Xapian::doccount collapse_max,
 		   Xapian::Enquire::docid_order order,
 		   Xapian::valueno sort_key,
 		   Xapian::Enquire::Internal::sort_setting sort_by,
 		   bool sort_value_forward,
 		   double time_limit,
-		   int percent_cutoff, double weight_cutoff,
+		   int percent_threshold, double weight_threshold,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,
 		   const std::vector<opt_ptr_spy>& matchspies) const;
 
     /** Get the stats from the remote server.
      *
+     *  @param block	If true, block waiting for answer (and return true).
+     *
      *  @return	true if we got the remote stats; false if we should try again.
      */
-    bool get_remote_stats(bool nowait, Xapian::Weight::Internal &out) const;
+    bool get_remote_stats(bool block, Xapian::Weight::Internal &out) const;
 
     /// Send the global stats to the remote server.
     void send_global_stats(Xapian::doccount first,
@@ -182,8 +184,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 			   const Xapian::Weight::Internal &stats) const;
 
     /// Get the MSet from the remote server.
-    void get_mset(Xapian::MSet &mset,
-		  const std::vector<opt_ptr_spy>& matchspies) const;
+    Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) const;
 
     /// Get remote metadata key list.
     TermList * open_metadata_keylist(const std::string & prefix) const;

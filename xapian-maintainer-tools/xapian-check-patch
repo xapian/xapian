@@ -98,7 +98,8 @@ while (<>) {
 	} elsif ($fnm =~ /\.h$/) {
 	    if ($fnm !~ m!\binclude/xapian/intrusive_ptr\.h! &&
 		$fnm !~ m!\blanguages/compiler/! &&
-		$fnm !~ m!\bcommon/msvc_dirent\.h$!) {
+		$fnm !~ m!\bcommon/msvc_dirent\.h$! &&
+		$fnm !~ m!\bmatcher/heap\.h$!) {
 		$lang = 'h';
 		$want_tabs = 1 unless ($fnm =~ m!/omega/cdb!);
 	    }

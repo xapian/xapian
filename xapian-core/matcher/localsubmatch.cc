@@ -162,31 +162,6 @@ LazyWeight::get_maxextra() const
     throw Xapian::InvalidOperationError("LazyWeight::get_maxextra()");
 }
 
-bool
-LocalSubMatch::prepare_match(bool nowait,
-			     Xapian::Weight::Internal & total_stats)
-{
-    LOGCALL(MATCH, bool, "LocalSubMatch::prepare_match", nowait | total_stats);
-    (void)nowait;
-    Assert(db);
-    total_stats.accumulate_stats(*db, rset);
-    RETURN(true);
-}
-
-void
-LocalSubMatch::start_match(Xapian::doccount first,
-			   Xapian::doccount maxitems,
-			   Xapian::doccount check_at_least,
-			   Xapian::Weight::Internal & total_stats)
-{
-    LOGCALL_VOID(MATCH, "LocalSubMatch::start_match", first | maxitems | check_at_least | total_stats);
-    (void)first;
-    (void)maxitems;
-    (void)check_at_least;
-    // Store a pointer to the total stats to use when building the Query tree.
-    stats = &total_stats;
-}
-
 PostList *
 LocalSubMatch::get_postlist(PostListTree * matcher,
 			    Xapian::termcount * total_subqs_ptr)
@@ -207,7 +182,7 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 
     unique_ptr<Xapian::Weight> extra_wt(wt_factory->clone());
     // Only uses term-independent stats.
-    extra_wt->init_(*stats, qlen);
+    extra_wt->init_(*total_stats, qlen);
     if (extra_wt->get_maxextra() != 0.0) {
 	// There's a term-independent weight contribution, so we combine the
 	// postlist tree with an ExtraWeightPostList which adds in this
@@ -236,10 +211,10 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, double factor)
     // FIXME: it would be nicer to handle an empty database higher up, though
     // we need to catch the case where all the non-empty subdatabases have
     // failed, so we can't just push this right up to the start of get_mset().
-    if (usual(stats->collection_size != 0)) {
-	freqs = or_pl->get_termfreq_est_using_stats(*stats);
+    if (usual(total_stats->collection_size != 0)) {
+	freqs = or_pl->get_termfreq_est_using_stats(*total_stats);
     }
-    wt->init_(*stats, qlen, factor,
+    wt->init_(*total_stats, qlen, factor,
 	      freqs.termfreq, freqs.reltermfreq, freqs.collfreq);
 
     res->set_weight(wt.release());
@@ -295,25 +270,25 @@ LocalSubMatch::open_post_list(const string& term,
     if (lazy_weight) {
 	// Term came from a wildcard, but we may already have that term in the
 	// query anyway, so check before accumulating its TermFreqs.
-	map<string, TermFreqs>::iterator i = stats->termfreqs.find(term);
-	if (i == stats->termfreqs.end()) {
+	map<string, TermFreqs>::iterator i = total_stats->termfreqs.find(term);
+	if (i == total_stats->termfreqs.end()) {
 	    Xapian::doccount sub_tf;
 	    Xapian::termcount sub_cf;
 	    db->get_freqs(term, &sub_tf, &sub_cf);
-	    stats->termfreqs.insert(make_pair(term, TermFreqs(sub_tf, 0, sub_cf)));
+	    total_stats->termfreqs.insert({term, TermFreqs(sub_tf, 0, sub_cf)});
 	}
     }
 
     if (weighted) {
 	Xapian::Weight * wt = wt_factory->clone();
 	if (!lazy_weight) {
-	    wt->init_(*stats, qlen, term, wqf, factor);
-	    stats->set_max_part(term, wt->get_maxpart());
+	    wt->init_(*total_stats, qlen, term, wqf, factor);
+	    total_stats->set_max_part(term, wt->get_maxpart());
 	} else {
 	    // Delay initialising the actual weight object, so that we can
 	    // gather stats for the terms lazily expanded from a wildcard
 	    // (needed for the remote database case).
-	    wt = new LazyWeight(pl, wt, stats, qlen, wqf, factor);
+	    wt = new LazyWeight(pl, wt, total_stats, qlen, wqf, factor);
 	}
 	pl->set_termweight(wt);
     }

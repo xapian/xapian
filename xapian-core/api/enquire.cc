@@ -25,7 +25,7 @@
 
 #include "expand/esetinternal.h"
 #include "expand/expandweight.h"
-#include "matcher/multimatch.h"
+#include "matcher/matcher.h"
 #include "msetinternal.h"
 #include "vectortermlist.h"
 #include "weight/weightinternal.h"
@@ -288,33 +288,41 @@ Enquire::Internal::get_mset(doccount first,
     }
 
     unique_ptr<Xapian::Weight::Internal> stats(new Xapian::Weight::Internal);
-    ::MultiMatch match(db,
-		       query,
-		       query_length,
-		       rset,
-		       collapse_max,
-		       collapse_key,
-		       percent_threshold,
-		       weight_threshold,
-		       order,
-		       sort_key,
-		       sort_by,
-		       sort_val_reverse,
-		       time_limit,
-		       *stats,
-		       weight.get(),
-		       matchspies,
-		       (sort_functor.get() != NULL),
-		       (mdecider != NULL));
+    ::Matcher match(db,
+		    query,
+		    query_length,
+		    rset,
+		    *stats,
+		    weight.get(),
+		    (sort_functor.get() != NULL),
+		    (mdecider != NULL),
+		    collapse_key,
+		    collapse_max,
+		    percent_threshold,
+		    weight_threshold,
+		    order,
+		    sort_key,
+		    sort_by,
+		    sort_val_reverse,
+		    time_limit,
+		    matchspies);
 
-    MSet mset;
-    match.get_mset(first,
-		   maxitems,
-		   checkatleast,
-		   mset,
-		   *stats,
-		   mdecider,
-		   sort_functor.get());
+    MSet mset = match.get_mset(first,
+			       maxitems,
+			       checkatleast,
+			       *stats,
+			       mdecider,
+			       sort_functor.get(),
+			       collapse_key,
+			       collapse_max,
+			       percent_threshold,
+			       weight_threshold,
+			       order,
+			       sort_key,
+			       sort_by,
+			       sort_val_reverse,
+			       time_limit,
+			       matchspies);
 
     if (first_orig != first && mset.internal.get()) {
 	mset.internal->set_first(first_orig);

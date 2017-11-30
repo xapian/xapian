@@ -26,25 +26,26 @@
 #include "api/result.h"
 #include "omassert.h"
 
-/* We use templates to generate the 14 different comparison functions
- * which we need.  This avoids having to write them all out by hand.
+/* We use templates to generate all the different comparison functions which we
+ * need, which avoids having to write them all out by hand.
  */
 
-// Order by did.  Helper comparison template function, which is used as the
-// last fallback by the others.
-template<bool FORWARD_DID, bool CHECK_DID_ZERO> inline bool
-msetcmp_by_did(const Result& a, const Result& b)
+// Order by docid, inlined.  Used as the last fallback by the others.
+template<bool FORWARD_DID> inline bool
+msetcmp_by_docid_inline(const Result& a, const Result& b)
 {
     if (FORWARD_DID) {
-	if (CHECK_DID_ZERO) {
-	    // We want dummy did 0 to compare worse than any other.
-	    if (a.get_docid() == 0) return false;
-	    if (b.get_docid() == 0) return true;
-	}
 	return (a.get_docid() < b.get_docid());
     } else {
 	return (a.get_docid() > b.get_docid());
     }
+}
+
+// Order by docid, used when relevance is always 0.
+template<bool FORWARD_DID> bool
+msetcmp_by_docid(const Result& a, const Result& b)
+{
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by relevance, then docid.
@@ -53,56 +54,41 @@ msetcmp_by_relevance(const Result& a, const Result& b)
 {
     if (a.get_weight() > b.get_weight()) return true;
     if (a.get_weight() < b.get_weight()) return false;
-    return msetcmp_by_did<FORWARD_DID, true>(a, b);
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by value, then docid.
 template<bool FORWARD_VALUE, bool FORWARD_DID> bool
 msetcmp_by_value(const Result& a, const Result& b)
 {
-    if (!FORWARD_VALUE) {
-	// We want dummy did 0 to compare worse than any other.
-	if (a.get_docid() == 0) return false;
-	if (b.get_docid() == 0) return true;
-    }
     int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
     if (sort_cmp > 0) return FORWARD_VALUE;
     if (sort_cmp < 0) return !FORWARD_VALUE;
-    return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by value, then relevance, then docid.
 template<bool FORWARD_VALUE, bool FORWARD_DID> bool
 msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 {
-    if (!FORWARD_VALUE) {
-	// two special cases to make min_item compares work when did == 0
-	if (a.get_docid() == 0) return false;
-	if (b.get_docid() == 0) return true;
-    }
     int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
     if (sort_cmp > 0) return FORWARD_VALUE;
     if (sort_cmp < 0) return !FORWARD_VALUE;
     if (a.get_weight() > b.get_weight()) return true;
     if (a.get_weight() < b.get_weight()) return false;
-    return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by relevance, then value, then docid.
 template<bool FORWARD_VALUE, bool FORWARD_DID> bool
 msetcmp_by_relevance_then_value(const Result& a, const Result& b)
 {
-    if (!FORWARD_VALUE) {
-	// two special cases to make min_item compares work when did == 0
-	if (a.get_docid() == 0) return false;
-	if (b.get_docid() == 0) return true;
-    }
     if (a.get_weight() > b.get_weight()) return true;
     if (a.get_weight() < b.get_weight()) return false;
     int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
     if (sort_cmp > 0) return FORWARD_VALUE;
     if (sort_cmp < 0) return !FORWARD_VALUE;
-    return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 MSetCmp
@@ -111,6 +97,11 @@ get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by,
 		     bool sort_val_reverse)
 {
     switch (sort_by) {
+	case Xapian::Enquire::Internal::DOCID:
+	    if (sort_forward)
+		return msetcmp_by_docid<true>;
+	    else
+		return msetcmp_by_docid<false>;
 	case Xapian::Enquire::Internal::REL:
 	    if (sort_forward)
 		return msetcmp_by_relevance<true>;

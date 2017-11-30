@@ -21,6 +21,7 @@
 #ifndef XAPIAN_INCLUDED_RESULT_H
 #define XAPIAN_INCLUDED_RESULT_H
 
+#include "backends/multi.h"
 #include "xapian/types.h"
 
 #include <string>
@@ -83,6 +84,10 @@ class Result {
     void set_collapse_key(const std::string& k) { collapse_key = k; }
 
     void set_sort_key(const std::string& k) { sort_key = k; }
+
+    void unshard_docid(Xapian::doccount shard, Xapian::doccount n_shards) {
+	did = unshard(did, shard, n_shards);
+    }
 
     std::string get_description() const;
 };

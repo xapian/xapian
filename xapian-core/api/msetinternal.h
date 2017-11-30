@@ -35,7 +35,7 @@
 #include <unordered_map>
 #include <vector>
 
-class MSetPostList;
+class Matcher;
 
 namespace Xapian {
 
@@ -43,7 +43,7 @@ namespace Xapian {
 class MSet::Internal : public Xapian::Internal::intrusive_base {
     friend class MSet;
     friend class MSetIterator;
-    friend class ::MSetPostList;
+    friend class ::Matcher;
 
     /// Don't allow assignment.
     void operator=(const Internal &) = delete;
@@ -128,6 +128,10 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
     void set_item_weight(Xapian::doccount i, double weight);
 
     int convert_to_percent(double weight) const;
+
+    void unshard_docids(Xapian::doccount shard, Xapian::doccount n_shards);
+
+    void merge_stats(const Internal* o);
 
     std::string snippet(const std::string & text, size_t length,
 			const Xapian::Stem & stemmer,

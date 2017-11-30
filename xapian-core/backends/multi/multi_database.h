@@ -26,7 +26,7 @@
 #include "backends/databaseinternal.h"
 #include "backends/valuelist.h"
 
-class MultiMatch;
+class Matcher;
 class ValueStreamDocument;
 
 namespace Xapian {
@@ -35,7 +35,7 @@ struct ReplicationInfo;
 
 /// Sharded database backend.
 class MultiDatabase : public Xapian::Database::Internal {
-    friend class MultiMatch;
+    friend class Matcher;
     friend class ValueStreamDocument;
     friend class Xapian::Database;
 

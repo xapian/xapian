@@ -38,7 +38,7 @@
 
 #include "api/msetinternal.h"
 #include "length.h"
-#include "matcher/multimatch.h"
+#include "matcher/matcher.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "serialise.h"
@@ -510,14 +510,14 @@ RemoteServer::msg_query(const string &message_in)
 
     double time_limit = unserialise_double(&p, p_end);
 
-    int percent_cutoff = *p++;
-    if (percent_cutoff < 0 || percent_cutoff > 100) {
-	throw Xapian::NetworkError("bad message (percent_cutoff)");
+    int percent_threshold = *p++;
+    if (percent_threshold < 0 || percent_threshold > 100) {
+	throw Xapian::NetworkError("bad message (percent_threshold)");
     }
 
-    double weight_cutoff = unserialise_double(&p, p_end);
-    if (weight_cutoff < 0) {
-	throw Xapian::NetworkError("bad message (weight_cutoff)");
+    double weight_threshold = unserialise_double(&p, p_end);
+    if (weight_threshold < 0) {
+	throw Xapian::NetworkError("bad message (weight_threshold)");
     }
 
     // Unserialise the Weight object.
@@ -561,10 +561,12 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     Xapian::Weight::Internal local_stats;
-    MultiMatch match(*db, query, qlen, &rset, collapse_max, collapse_key,
-		     percent_cutoff, weight_cutoff, order,
-		     sort_key, sort_by, sort_value_forward, time_limit,
-		     local_stats, wt.get(), matchspies, false, false);
+    Matcher matcher(*db, query, qlen, &rset, local_stats, wt.get(),
+		    false, false,
+		    collapse_key, collapse_max,
+		    percent_threshold, weight_threshold,
+		    order, sort_key, sort_by, sort_value_forward, time_limit,
+		    matchspies);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
@@ -586,8 +588,15 @@ RemoteServer::msg_query(const string &message_in)
     unserialise_stats(message, *total_stats);
     total_stats->set_bounds_from_db(*db);
 
-    Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, *total_stats, 0, 0);
+    Xapian::MSet mset = matcher.get_mset(first, maxitems, check_at_least,
+					 *total_stats, 0, 0,
+					 collapse_key, collapse_max,
+					 percent_threshold, weight_threshold,
+					 order,
+					 sort_key, sort_by, sort_value_forward,
+					 time_limit, matchspies);
+    // FIXME: The local side already has these stats, except for the maxpart
+    // information.
     mset.internal->set_stats(total_stats.release());
 
     message.resize(0);

@@ -86,6 +86,10 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      */
     MSet();
 
+    /** @private @internal Wrap an existing Internal. */
+    XAPIAN_VISIBILITY_INTERNAL
+    explicit MSet(Internal* internal_);
+
     /// Destructor.
     ~MSet();
 

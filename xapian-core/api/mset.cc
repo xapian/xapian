@@ -50,6 +50,8 @@ MSet::operator=(const MSet& o)
 
 MSet::MSet() : internal(new MSet::Internal) {}
 
+MSet::MSet(Internal* internal_) : internal(internal_) {}
+
 MSet::~MSet() {}
 
 void
@@ -264,7 +266,7 @@ MSet::Internal::convert_to_percent(double weight) const
 	// issues - maybe we ought to carry through the matching and total
 	// number of subqueries and calculate using those instead.
 	//
-	// There are corresponding hacks in matcher/multimatch.cc.
+	// There are corresponding hacks in matcher/matcher.cc.
 	percent = int(weight * percent_scale_factor + 100.0 * DBL_EPSILON);
 	if (percent <= 0) {
 	    // Make any non-zero weight give a non-zero percentage.
@@ -279,6 +281,36 @@ MSet::Internal::convert_to_percent(double weight) const
     return percent;
 }
 
+void
+MSet::Internal::unshard_docids(Xapian::doccount shard,
+			       Xapian::doccount n_shards)
+{
+    for (auto& result : items) {
+	result.unshard_docid(shard, n_shards);
+    }
+}
+
+void
+MSet::Internal::merge_stats(const Internal* o)
+{
+    if (snippet_bg_relevance.empty()) {
+	snippet_bg_relevance = o->snippet_bg_relevance;
+    } else {
+	Assert(snippet_bg_relevance == o->snippet_bg_relevance);
+    }
+    matches_lower_bound += o->matches_lower_bound;
+    matches_estimated += o->matches_estimated;
+    matches_upper_bound += o->matches_upper_bound;
+    uncollapsed_lower_bound += o->uncollapsed_lower_bound;
+    uncollapsed_estimated += o->uncollapsed_estimated;
+    uncollapsed_upper_bound += o->uncollapsed_upper_bound;
+    max_possible = max(max_possible, o->max_possible);
+    if (o->max_attained > max_attained) {
+	max_attained = o->max_attained;
+	percent_scale_factor = o->percent_scale_factor;
+    }
+}
+
 string
 MSet::Internal::serialise() const
 {
@@ -286,8 +318,8 @@ MSet::Internal::serialise() const
 
     result += encode_length(first);
     // Send back the raw matches_* values.  MSet::get_matches_estimated()
-    // rounds the estimate lazily, but MSetPostList::get_termfreq_est()
-    // returns the estimate, and the raw estimate is better for that.
+    // rounds the estimate lazily, but when we merge MSet objects we really
+    // want to merge based on the raw estimates.
     //
     // It is also cleaner that a round-trip through serialisation gives you an
     // object which is as close to the original as possible.

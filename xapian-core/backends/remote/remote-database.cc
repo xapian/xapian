@@ -647,14 +647,14 @@ RemoteDatabase::do_close()
 void
 RemoteDatabase::set_query(const Xapian::Query& query,
 			 Xapian::termcount qlen,
-			 Xapian::doccount collapse_max,
 			 Xapian::valueno collapse_key,
+			 Xapian::doccount collapse_max,
 			 Xapian::Enquire::docid_order order,
 			 Xapian::valueno sort_key,
 			 Xapian::Enquire::Internal::sort_setting sort_by,
 			 bool sort_value_forward,
 			 double time_limit,
-			 int percent_cutoff, double weight_cutoff,
+			 int percent_threshold, double weight_threshold,
 			 const Xapian::Weight *wtscheme,
 			 const Xapian::RSet &omrset,
 			 const vector<opt_ptr_spy>& matchspies) const
@@ -672,8 +672,8 @@ RemoteDatabase::set_query(const Xapian::Query& query,
     message += char('0' + sort_by);
     message += char('0' + sort_value_forward);
     message += serialise_double(time_limit);
-    message += char(percent_cutoff);
-    message += serialise_double(weight_cutoff);
+    message += char(percent_threshold);
+    message += serialise_double(weight_threshold);
 
     tmp = wtscheme->name();
     message += encode_length(tmp.size());
@@ -704,9 +704,10 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 }
 
 bool
-RemoteDatabase::get_remote_stats(bool nowait, Xapian::Weight::Internal &out) const
+RemoteDatabase::get_remote_stats(bool block,
+				 Xapian::Weight::Internal& out) const
 {
-    if (nowait && !link.ready_to_read()) return false;
+    if (!block && !link.ready_to_read()) return false;
 
     string message;
     get_message(message, REPLY_STATS);
@@ -728,9 +729,8 @@ RemoteDatabase::send_global_stats(Xapian::doccount first,
     send_message(MSG_GETMSET, message);
 }
 
-void
-RemoteDatabase::get_mset(Xapian::MSet &mset,
-			 const vector<opt_ptr_spy>& matchspies) const
+Xapian::MSet
+RemoteDatabase::get_mset(const vector<opt_ptr_spy>& matchspies) const
 {
     string message;
     get_message(message, REPLY_RESULTS);
@@ -746,7 +746,9 @@ RemoteDatabase::get_mset(Xapian::MSet &mset,
 	p += len;
 	i->merge_results(spyresults);
     }
+    Xapian::MSet mset;
     mset.internal->unserialise(p, p_end);
+    return mset;
 }
 
 void

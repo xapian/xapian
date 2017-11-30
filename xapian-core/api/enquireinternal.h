@@ -46,7 +46,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
     friend class MSet::Internal;
 
   public:
-    typedef enum { REL, VAL, VAL_REL, REL_VAL } sort_setting;
+    typedef enum { REL, VAL, VAL_REL, REL_VAL, DOCID } sort_setting;
 
   private:
     Xapian::Database db;
