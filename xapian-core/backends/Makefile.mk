@@ -53,6 +53,7 @@ endif
 # 7) Write the backend code!
 
 include backends/glass/Makefile.mk
+include backends/honey/Makefile.mk
 include backends/inmemory/Makefile.mk
 include backends/multi/Makefile.mk
 include backends/remote/Makefile.mk

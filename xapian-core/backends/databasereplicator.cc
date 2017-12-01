@@ -57,6 +57,8 @@ DatabaseReplicator::open(const string & path)
     }
 #endif
 
+    // FIXME: Replication of honey databases.
+
     if (file_exists(path + "/iamchert")) {
 	throw FeatureUnavailableError("Chert backend no longer supported");
     }

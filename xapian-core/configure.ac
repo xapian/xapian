@@ -812,6 +812,7 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
 
 dnl When adding a new backend, update INSTALL too.
 XAPIAN_BACKEND_ENABLE([glass])
+XAPIAN_BACKEND_ENABLE([honey])
 XAPIAN_BACKEND_ENABLE([inmemory])
 default_enable_backend_remote=yes
 case $host_os in
@@ -826,9 +827,9 @@ XAPIAN_BACKEND_ENABLE([remote], [$default_enable_backend_remote], [yes (except f
 use_proc_for_uuid=0
 use_win32_uuid_api=0
 win32_need_lws2_32=0
-case $enable_backend_glass in
+case $enable_backend_glass$enable_backend_honey in
 *yes*)
-  dnl We use zlib for compressing tags in glass.  We could
+  dnl We use zlib for compressing tags in glass and honey.  We could
   dnl automatically disable support if zlib isn't found, but overall that
   dnl probably does more harm than good - it's most likely that someone just
   dnl forgot to install the -dev package for zlib.
@@ -873,7 +874,7 @@ case $enable_backend_glass in
 	dnl -luuid.
 	SAVE_LIBS=$LIBS
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for glass (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for glass and honey backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	if test x != x"$LIBS" ; then
 	  XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
@@ -897,7 +898,7 @@ case $enable_backend_glass in
 	      ;;
 	    *)
 	      AC_MSG_RESULT([no])
-	      AC_MSG_ERROR([Failed to find a way to generate UUIDs, required for glass backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	      AC_MSG_ERROR([Failed to find a way to generate UUIDs, required for glass and honey backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	      ;;
 	  esac
 	], [ ])
@@ -1005,10 +1006,11 @@ dnl Turn off compilation of anything that we don't have the requirements for
 dnl Set conditionals to specify what we compile
 
 AM_CONDITIONAL([BUILD_BACKEND_GLASS], [test yes = "$enable_backend_glass"])
+AM_CONDITIONAL([BUILD_BACKEND_HONEY], [test yes = "$enable_backend_honey"])
 AM_CONDITIONAL([BUILD_BACKEND_INMEMORY], [test yes = "$enable_backend_inmemory"])
 AM_CONDITIONAL([BUILD_BACKEND_REMOTE], [test yes = "$enable_backend_remote"])
 AM_CONDITIONAL([BUILD_BACKEND_TOOLS],
-  [test no != "$enable_backend_glass"])
+  [test nono != "$enable_backend_glass$enable_backend_honey"])
 
 dnl Decide if we should use the zlib-vg.so LD_PRELOAD hack.
 use_zlib_vg=no
@@ -1477,7 +1479,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _git123 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in GLASS INMEMORY REMOTE ; do
+for backend in GLASS HONEY INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

@@ -1,7 +1,7 @@
 /** @file constants.h
  * @brief Constants in the Xapian namespace
  */
-/* Copyright (C) 2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -187,6 +187,19 @@ const int DB_BACKEND_STUB	 = 0x300;
  *  This provides an equivalent to Xapian::InMemory::open() in Xapian 1.2.
  */
 const int DB_BACKEND_INMEMORY	 = 0x400;
+
+/** Use the honey backend.
+ *
+ *  When opening a WritableDatabase, this means create a honey database if a
+ *  new database is created.  If there's an existing database (of any type)
+ *  at the specified path, this flag has no effect.
+ *
+ *  When opening a Database, this flag means to only open it if it's a honey
+ *  database.  There's rarely a good reason to do this - it's mostly provided
+ *  as equivalent functionality to that provided by the namespaced open()
+ *  functions in Xapian 1.2.
+ */
+const int DB_BACKEND_HONEY	 = 0x500;
 
 #ifdef XAPIAN_LIB_BUILD
 /** @internal Bit mask for backend codes. */

@@ -179,6 +179,13 @@ const char * dummy[] = {
 "/* #undef XAPIAN_HAS_GLASS_BACKEND */",
 #endif
 "",
+"/// XAPIAN_HAS_HONEY_BACKEND Defined if the honey backend is enabled.",
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+"#define XAPIAN_HAS_HONEY_BACKEND 1",
+#else
+"/* #undef XAPIAN_HAS_HONEY_BACKEND */",
+#endif
+"",
 "/// XAPIAN_HAS_INMEMORY_BACKEND Defined if the inmemory backend is enabled.",
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 "#define XAPIAN_HAS_INMEMORY_BACKEND 1",

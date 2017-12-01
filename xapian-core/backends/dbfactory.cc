@@ -42,6 +42,10 @@
 # include "glass/glass_database.h"
 # include "glass/glass_defs.h"
 #endif
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+# include "honey/honey_database.h"
+# include "honey/honey_defs.h"
+#endif
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 # include "inmemory/inmemory_database.h"
 #endif
@@ -132,6 +136,16 @@ open_stub(Database &db, const string &file)
 	    continue;
 #else
 	    throw FeatureUnavailableError("Glass backend disabled");
+#endif
+	}
+
+	if (type == "honey") {
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+	    resolve_relative_path(line, file);
+	    db.add_database(Database(new HoneyDatabase(line)));
+	    continue;
+#else
+	    throw FeatureUnavailableError("Honey backend disabled");
 #endif
 	}
 
@@ -342,6 +356,13 @@ Database::Database(const string& path, int flags)
 #else
 	    throw FeatureUnavailableError("Glass backend disabled");
 #endif
+	case DB_BACKEND_HONEY:
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+	    internal.push_back(new HoneyDatabase(path));
+	    return;
+#else
+	    throw FeatureUnavailableError("Honey backend disabled");
+#endif
 	case DB_BACKEND_STUB:
 	    open_stub(*this, path);
 	    return;
@@ -387,6 +408,13 @@ Database::Database(const string& path, int flags)
     }
 #endif
 
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+    if (file_exists(path + "/iamhoney")) {
+	internal.push_back(new HoneyDatabase(path));
+	return;
+    }
+#endif
+
     // Check for "stub directories".
     string stub_file = path;
     stub_file += "/XAPIANDB";
@@ -398,6 +426,11 @@ Database::Database(const string& path, int flags)
 #ifndef XAPIAN_HAS_GLASS_BACKEND
     if (file_exists(path + "/iamglass")) {
 	throw FeatureUnavailableError("Glass backend disabled");
+    }
+#endif
+#ifndef XAPIAN_HAS_HONEY_BACKEND
+    if (file_exists(path + "/iamhoney")) {
+	throw FeatureUnavailableError("Honey backend disabled");
     }
 #endif
     if (file_exists(path + "/iamchert")) {
@@ -426,7 +459,8 @@ database_factory(int fd, int flags)
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     int type = flags & DB_BACKEND_MASK_;
     switch (type) {
-	case 0: case DB_BACKEND_GLASS:
+	case 0:
+	case DB_BACKEND_GLASS:
 	    return new GlassDatabase(fd);
     }
 #else
@@ -482,6 +516,9 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 #else
 		throw FeatureUnavailableError("Glass backend disabled");
 #endif
+	    } else if (file_exists(path + "/iamhoney")) {
+		// Existing honey DB.
+		throw InvalidOperationError("Honey backend doesn't support updating existing databases");
 	    } else if (file_exists(path + "/iamchert")) {
 		// Existing chert DB.
 		throw FeatureUnavailableError("Chert backend no longer supported");
@@ -512,6 +549,8 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	    internal = new GlassWritableDatabase(path, flags, block_size);
 	    return;
 #endif
+	case DB_BACKEND_HONEY:
+	    throw InvalidArgumentError("Honey backend doesn't support updating existing databases");
 	case DB_BACKEND_CHERT:
 	    throw FeatureUnavailableError("Chert backend no longer supported");
 	case DB_BACKEND_INMEMORY:
