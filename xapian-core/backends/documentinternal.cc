@@ -40,16 +40,18 @@ Document::Internal::ensure_terms_fetched() const
 	return;
 
     terms.reset(new map<string, TermInfo>());
+    termlist_size = 0;
     if (!database.get())
 	return;
 
     unique_ptr<TermList> t(database->open_term_list(did));
     while (t->next(), !t->at_end()) {
+	++termlist_size;
 	auto&& r = terms->emplace(make_pair(t->get_termname(),
 					    TermInfo(t->get_wdf())));
 	TermInfo& term = r.first->second;
 	for (auto p = t->positionlist_begin(); p != PositionIterator(); ++p) {
-	    term.add_position(*p);
+	    term.append_position(*p);
 	}
     }
 }

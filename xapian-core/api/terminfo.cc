@@ -22,13 +22,24 @@
 
 #include "terminfo.h"
 
-void
-TermInfo::add_position(Xapian::termpos termpos)
+#include "omassert.h"
+
+bool
+TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
 {
+    if (rare(deleted)) {
+	wdf = wdf_inc;
+	deleted = false;
+	positions.push_back(termpos);
+	return true;
+    }
+
+    wdf += wdf_inc;
+
     // Optimise the common case of adding positions in ascending order.
     if (positions.empty() || termpos > positions.back()) {
 	positions.push_back(termpos);
-	return;
+	return false;
     }
 
     // We keep positions sorted, so use lower_bound() which can binary chop to
@@ -38,11 +49,14 @@ TermInfo::add_position(Xapian::termpos termpos)
     if (i == positions.cend() || *i != termpos) {
 	positions.insert(i, termpos);
     }
+    return false;
 }
 
 bool
 TermInfo::remove_position(Xapian::termpos termpos)
 {
+    Assert(!deleted);
+
     if (rare(positions.empty()))
 	return false;
 
