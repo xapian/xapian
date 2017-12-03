@@ -89,6 +89,9 @@ class MapTermList : public TermList {
 		Assert(!at_end());
 		++it;
 	    }
+	    while (it != it_end && it->second.is_deleted()) {
+		++it;
+	    }
 	    return NULL;
 	}
 
@@ -97,6 +100,9 @@ class MapTermList : public TermList {
 		++it;
 	    }
 	    started = true;
+	    while (it != it_end && it->second.is_deleted()) {
+		++it;
+	    }
 	    return NULL;
 	}
 

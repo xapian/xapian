@@ -911,3 +911,32 @@ DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
 	      "Document(data='back\\x5cslash')");
     return true;
 }
+
+/** Test removal of terms from a document while iterating over them.
+ *
+ *  Prior to 1.5.0 and 1.4.6 the underlying iterator was invalidated when
+ *  preinc == false, leading to undefined behaviour (typically a segmentation
+ *  fault).
+ */
+DEFINE_TESTCASE(deletewhileiterating1, !backend) {
+    for (bool preinc : { false, true }) {
+	Xapian::Document doc;
+	Xapian::TermGenerator indexer;
+	indexer.set_document(doc);
+	indexer.index_text("Pull the rug out from under ourselves", 1, "S");
+	Xapian::TermIterator term_iterator = doc.termlist_begin();
+	term_iterator.skip_to("S");
+	while (term_iterator != doc.termlist_end()) {
+	    const string& term = *term_iterator;
+	    if (!startswith(term, "S")) {
+		break;
+	    }
+	    if (preinc) ++term_iterator;
+	    doc.remove_term(term);
+	    if (!preinc) ++term_iterator;
+	}
+	TEST_EQUAL(doc.termlist_count(), 0);
+	TEST(doc.termlist_begin() == doc.termlist_end());
+    }
+    return true;
+}

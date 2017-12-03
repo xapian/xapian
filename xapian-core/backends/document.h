@@ -71,6 +71,14 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	/// The terms (and their frequencies and positions) in this document.
 	mutable document_terms terms;
 
+	/** The number of distinct terms in @a terms.
+	 *
+	 *  Only valid when terms_here is true.
+	 *
+	 *  This may be less than terms.size() if any terms have been deleted.
+	 */
+	mutable Xapian::termcount termlist_size;
+
     protected:
 	/** The document ID of the document in that database.
 	 *
