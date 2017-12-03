@@ -104,6 +104,6 @@ GlassTermListTable::set_termlist(Xapian::docid did,
 	    --termlist_size;
 	}
     }
-    Assert(termlist_size == 0);
+    AssertEq(termlist_size, 0);
     add(make_key(did), tag);
 }
