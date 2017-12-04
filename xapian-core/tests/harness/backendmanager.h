@@ -30,15 +30,7 @@
 #ifdef __WIN32__
 // Under __WIN32__ we want \ path separators since we pass this path to
 // CreateProcess().
-# ifdef _MSC_VER
-#  ifdef DEBUG
-#   define XAPIAN_BIN_PATH "..\\win32\\Debug\\"
-#  else
-#   define XAPIAN_BIN_PATH "..\\win32\\Release\\"
-#  endif
-# else
-#  define XAPIAN_BIN_PATH "..\\bin\\" // mingw
-# endif
+# define XAPIAN_BIN_PATH "..\\bin\\"
 # define EXE_SUFFIX ".exe"
 #else
 # define XAPIAN_BIN_PATH "../bin/"
