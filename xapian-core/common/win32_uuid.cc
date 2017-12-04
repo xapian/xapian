@@ -2,7 +2,7 @@
  * @brief Provide UUID functions compatible with libuuid from util-linux-ng.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2013,2015,2016 Olly Betts
+ * Copyright (C) 2013,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,9 +39,6 @@ using namespace std;
 
 /// The size of a UUID in bytes.
 const size_t UUID_SIZE = 16;
-
-/// The size of a UUID string in bytes (not including trailing '\0').
-const size_t UUID_STRING_SIZE = 36;
 
 void
 uuid_generate(uuid_t uu)
