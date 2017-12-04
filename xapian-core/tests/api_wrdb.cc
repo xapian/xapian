@@ -1949,3 +1949,58 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 
     return true;
 }
+
+//Test removal of specific prefix terms from the document, incrementing the iterator before deleting the term from document.
+DEFINE_TESTCASE(testprefixedtermsremoval_iteratebeforedeletion, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::TermGenerator indexer;
+    Xapian::Document doc;
+    indexer.set_database(db);
+    indexer.set_document(doc);
+    indexer.index_text("But other predicted events did occur, such as a sharp fall in the pound and rising inflation.", 1, "NA");
+    db.commit();
+    Xapian::TermIterator term_iterator_end = doc.termlist_end();
+    Xapian::TermIterator term_iterator = doc.termlist_begin();
+    term_iterator.skip_to("NA");
+    while (term_iterator != term_iterator_end) {
+	const string& term = *term_iterator;
+	if (startswith(term, "NA")) {
+	    ++term_iterator;
+	    doc.remove_term(term);
+	} else {
+	    break;
+	}
+    }
+    Xapian::TermIterator tlist = db.allterms_begin("NA");
+    Xapian::TermIterator tlist_end = db.allterms_end("NA");
+    TEST(tlist == tlist_end);
+    return true;
+}
+
+
+//Test removal of specific prefix terms from the document, incrementing the iterator after deleting the term from document.
+DEFINE_TESTCASE(testprefixedtermsremoval_iterateafterdeletion, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::TermGenerator indexer;
+    Xapian::Document doc;
+    indexer.set_database(db);
+    indexer.set_document(doc);
+    indexer.index_text("But other predicted events did occur, such as a sharp fall in the pound and rising inflation.", 1, "NA");
+    db.commit();
+    Xapian::TermIterator term_iterator_end = doc.termlist_end();
+    Xapian::TermIterator term_iterator = doc.termlist_begin();
+    term_iterator.skip_to("NA");
+    while (term_iterator != term_iterator_end) {
+	const string& term = *term_iterator;
+	if (startswith(term, "NA")) {
+	    doc.remove_term(term);
+	    ++term_iterator;
+	} else {
+	    break;
+	}
+    }
+    Xapian::TermIterator tlist = db.allterms_begin("NA");
+    Xapian::TermIterator tlist_end = db.allterms_end("NA");
+    TEST(tlist == tlist_end);
+    return true;
+}
