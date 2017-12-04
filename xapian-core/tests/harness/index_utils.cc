@@ -171,7 +171,14 @@ FileIndexer::next_file()
     string filename;
     if (!datadir.empty()) {
 	filename = datadir;
-	if (!endswith(datadir, '/')) filename += '/';
+	bool need_slash = true;
+	for (char dir_sep : DIR_SEPS_LIST) {
+	    if (filename.back() == dir_sep) {
+		need_slash = false;
+		break;
+	    }
+	}
+	if (need_slash) filename += '/';
     }
     filename += *file++;
     filename += ".txt";
