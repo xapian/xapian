@@ -582,6 +582,63 @@ DEFINE_TESTCASE(compactmultipass1, glass) {
     return true;
 }
 
+#ifdef __WIN32__
+# include "safeerrno.h"
+
+# include <io.h>
+// __STDC_SECURE_LIB__ doesn't appear to be publicly documented, but including
+// in this check appears to be a good idea.  We cribbed this test from the
+// python sources - see, for example,
+// https://github.com/python/cpython/commit/74c3ea0a0f6599da7dd9a502b5a66aeb9512d8c3
+# if defined _MSC_VER && _MSC_VER >= 1400 && defined __STDC_SECURE_LIB__
+#  include <cstdlib> // For _set_invalid_parameter_handler(), etc.
+#  include <crtdbg.h> // For _CrtSetReportMode, etc.
+
+/** A dummy invalid parameter handler which ignores the error. */
+static void dummy_handler(const wchar_t*,
+			  const wchar_t*,
+			  const wchar_t*,
+			  unsigned int,
+			  uintptr_t)
+{
+}
+
+// Recent versions of MSVC call an "_invalid_parameter_handler" if a
+// CRT function receives an invalid parameter.  However, there are cases
+// where this is totally reasonable.  To avoid the application dying,
+// you just need to instantiate the MSVCIgnoreInvalidParameter class in
+// the scope where you want MSVC to ignore invalid parameters.
+class MSVCIgnoreInvalidParameter {
+    _invalid_parameter_handler old_handler;
+    int old_report_mode;
+
+  public:
+    MSVCIgnoreInvalidParameter() {
+	// Install a dummy handler to avoid the program dying.
+	old_handler = _set_invalid_parameter_handler(dummy_handler);
+	// Make sure that no dialog boxes appear.
+	old_report_mode = _CrtSetReportMode(_CRT_ASSERT, 0);
+    }
+
+    ~MSVCIgnoreInvalidParameter() {
+	// Restore the previous settings.
+	_set_invalid_parameter_handler(old_handler);
+	_CrtSetReportMode(_CRT_ASSERT, old_report_mode);
+    }
+};
+# else
+// Mingw seems to be free of this insanity, so for this and older MSVC versions
+// define a dummy class to allow MSVCIgnoreInvalidParameter to be used
+// unconditionally.
+struct MSVCIgnoreInvalidParameter {
+    // Provide an explicit constructor so this isn't a POD struct - this seems
+    // to prevent GCC warning about an unused variable whenever we instantiate
+    // this class.
+    MSVCIgnoreInvalidParameter() { }
+};
+# endif
+#endif
+
 // Test compacting to an fd.
 DEFINE_TESTCASE(compacttofd1, glass) {
     Xapian::Database indb(get_database("apitest_simpledata"));
@@ -596,8 +653,13 @@ DEFINE_TESTCASE(compacttofd1, glass) {
     // a bug in Wine's msvcrt.dll which fails to set errno in this case:
     // https://bugs.winehq.org/show_bug.cgi?id=43902
     errno = EBADF;
-    TEST(close(fd) == -1);
-    TEST_EQUAL(errno, EBADF);
+    {
+#ifdef __WIN32__
+	MSVCIgnoreInvalidParameter invalid_fd_in_close_is_expected;
+#endif
+	TEST(close(fd) == -1);
+	TEST_EQUAL(errno, EBADF);
+    }
 
     Xapian::Database outdb(outdbpath);
 
