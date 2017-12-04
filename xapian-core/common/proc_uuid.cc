@@ -74,12 +74,13 @@ uuid_parse(const char * in, uuid_t uu)
 void uuid_unparse_lower(const uuid_t uu, char * out)
 {
     for (unsigned i = 0; i != UUID_SIZE; ++i) {
-	sprintf(out, "%02x", uu[i]);
-	out += 2;
+	unsigned char ch = uu[i];
+	*out++ = "0123456789abcdef"[ch >> 4];
+	*out++ = "0123456789abcdef"[ch & 0x0f];
 	if ((0x2a8 >> i) & 1)
 	   *out++ = '-';
     }
-    out[UUID_STRING_SIZE] = '\0';
+    *out = '\0';
 }
 
 void uuid_clear(uuid_t uu)
