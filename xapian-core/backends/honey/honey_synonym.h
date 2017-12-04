@@ -1,5 +1,5 @@
-/** @file glass_synonym.h
- * @brief Synonym data for a glass database.
+/** @file honey_synonym.h
+ * @brief Synonym data for a honey database.
  */
 /* Copyright (C) 2005,2007,2008,2009,2011,2014,2016 Olly Betts
  *
@@ -18,25 +18,25 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_SYNONYM_H
-#define XAPIAN_INCLUDED_GLASS_SYNONYM_H
+#ifndef XAPIAN_INCLUDED_HONEY_SYNONYM_H
+#define XAPIAN_INCLUDED_HONEY_SYNONYM_H
 
 #include <xapian/types.h>
 
 #include "backends/alltermslist.h"
 #include "backends/database.h"
-#include "glass_lazytable.h"
+#include "honey_lazytable.h"
 #include "api/termlist.h"
 
 #include <set>
 #include <string>
 
-namespace Glass {
+namespace Honey {
     class RootInfo;
 }
-using Glass::RootInfo;
+using Honey::RootInfo;
 
-class GlassSynonymTable : public GlassLazyTable {
+class HoneySynonymTable : public HoneyLazyTable {
     /// The last term which was updated.
     mutable std::string last_term;
 
@@ -44,19 +44,19 @@ class GlassSynonymTable : public GlassLazyTable {
     mutable std::set<std::string> last_synonyms;
 
   public:
-    /** Create a new GlassSynonymTable object.
+    /** Create a new HoneySynonymTable object.
      *
      *  This method does not create or open the table on disk - you
      *  must call the create() or open() methods respectively!
      *
-     *  @param dbdir		The directory the glass database is stored in.
+     *  @param dbdir		The directory the honey database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    GlassSynonymTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("synonym", dbdir + "/synonym.", readonly) { }
+    HoneySynonymTable(const std::string & dbdir, bool readonly)
+	: HoneyLazyTable("synonym", dbdir + "/synonym.", readonly) { }
 
-    GlassSynonymTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("synonym", fd, offset_, readonly) { }
+    HoneySynonymTable(int fd, off_t offset_, bool readonly)
+	: HoneyLazyTable("synonym", fd, offset_, readonly) { }
 
     // Merge in batched-up changes.
     void merge_changes();
@@ -91,7 +91,7 @@ class GlassSynonymTable : public GlassLazyTable {
      */
     TermList * open_termlist(const std::string & term);
 
-    /** Override methods of GlassTable.
+    /** Override methods of HoneyTable.
      *
      *  NB: these aren't virtual, but we always call them on the subclass in
      *  cases where it matters.
@@ -99,30 +99,30 @@ class GlassSynonymTable : public GlassLazyTable {
      */
 
     bool is_modified() const {
-	return !last_term.empty() || GlassTable::is_modified();
+	return !last_term.empty() || HoneyTable::is_modified();
     }
 
     void flush_db() {
 	merge_changes();
-	GlassTable::flush_db();
+	HoneyTable::flush_db();
     }
 
-    void cancel(const RootInfo & root_info, glass_revision_number_t rev) {
+    void cancel(const RootInfo & root_info, honey_revision_number_t rev) {
 	discard_changes();
-	GlassTable::cancel(root_info, rev);
+	HoneyTable::cancel(root_info, rev);
     }
 
     // @}
 };
 
-class GlassCursor;
+class HoneyCursor;
 
-class GlassSynonymTermList : public AllTermsList {
+class HoneySynonymTermList : public AllTermsList {
     /// Copying is not allowed.
-    GlassSynonymTermList(const GlassSynonymTermList &);
+    HoneySynonymTermList(const HoneySynonymTermList &);
 
     /// Assignment is not allowed.
-    void operator=(const GlassSynonymTermList &);
+    void operator=(const HoneySynonymTermList &);
 
     /// Keep a reference to our database to stop it being deleted.
     Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
@@ -130,14 +130,14 @@ class GlassSynonymTermList : public AllTermsList {
     /** A cursor which runs through the synonym table reading termnames from
      *  the keys.
      */
-    GlassCursor * cursor;
+    HoneyCursor * cursor;
 
     /// The prefix to restrict the terms to.
     string prefix;
 
   public:
-    GlassSynonymTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
-		      GlassCursor * cursor_,
+    HoneySynonymTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
+		      HoneyCursor * cursor_,
 		      const string & prefix_)
 	    : database(database_), cursor(cursor_), prefix(prefix_)
     {
@@ -153,7 +153,7 @@ class GlassSynonymTermList : public AllTermsList {
     }
 
     /// Destructor.
-    ~GlassSynonymTermList();
+    ~HoneySynonymTermList();
 
     /** Returns the current termname.
      *
@@ -178,4 +178,4 @@ class GlassSynonymTermList : public AllTermsList {
     bool at_end() const;
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_SYNONYM_H
+#endif // XAPIAN_INCLUDED_HONEY_SYNONYM_H

@@ -1,5 +1,5 @@
-/** @file glass_alltermslist.h
- * @brief A termlist containing all terms in a glass database.
+/** @file honey_alltermslist.h
+ * @brief A termlist containing all terms in a honey database.
  */
 /* Copyright (C) 2005,2007,2008,2009,2010,2011 Olly Betts
  *
@@ -19,29 +19,29 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_ALLTERMSLIST_H
-#define XAPIAN_INCLUDED_GLASS_ALLTERMSLIST_H
+#ifndef XAPIAN_INCLUDED_HONEY_ALLTERMSLIST_H
+#define XAPIAN_INCLUDED_HONEY_ALLTERMSLIST_H
 
 #include "backends/alltermslist.h"
-#include "glass_database.h"
-#include "glass_postlist.h"
+#include "honey_database.h"
+#include "honey_postlist.h"
 
-class GlassCursor;
+class HoneyCursor;
 
-class GlassAllTermsList : public AllTermsList {
+class HoneyAllTermsList : public AllTermsList {
     /// Copying is not allowed.
-    GlassAllTermsList(const GlassAllTermsList &);
+    HoneyAllTermsList(const HoneyAllTermsList &);
 
     /// Assignment is not allowed.
-    void operator=(const GlassAllTermsList &);
+    void operator=(const HoneyAllTermsList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::intrusive_ptr<const GlassDatabase> database;
+    Xapian::Internal::intrusive_ptr<const HoneyDatabase> database;
 
     /** A cursor which runs through the postlist table reading termnames from
      *  the keys.
      */
-    GlassCursor * cursor;
+    HoneyCursor * cursor;
 
     /// The termname at the current position.
     std::string current_term;
@@ -64,12 +64,12 @@ class GlassAllTermsList : public AllTermsList {
     void read_termfreq_and_collfreq() const;
 
   public:
-    GlassAllTermsList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_,
+    HoneyAllTermsList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> database_,
 		      const std::string & prefix_)
 	: database(database_), cursor(NULL), prefix(prefix_), termfreq(0) { }
 
     /// Destructor.
-    ~GlassAllTermsList();
+    ~HoneyAllTermsList();
 
     /** Returns the current termname.
      *
@@ -102,4 +102,4 @@ class GlassAllTermsList : public AllTermsList {
     bool at_end() const;
 };
 
-#endif /* XAPIAN_INCLUDED_GLASS_ALLTERMSLIST_H */
+#endif /* XAPIAN_INCLUDED_HONEY_ALLTERMSLIST_H */

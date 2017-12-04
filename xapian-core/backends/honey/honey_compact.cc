@@ -1,5 +1,5 @@
-/** @file glass_compact.cc
- * @brief Compact a glass database, or merge and compact several.
+/** @file honey_compact.cc
+ * @brief Compact a honey database, or merge and compact several.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
@@ -26,9 +26,9 @@
 #include "xapian/error.h"
 #include "xapian/types.h"
 
-#include "autoptr.h"
 #include <algorithm>
 #include <iostream>
+#include <memory>
 #include <queue>
 
 #include <cstdio>
@@ -38,11 +38,11 @@
 
 #include "backends/flint_lock.h"
 #include "compression_stream.h"
-#include "glass_database.h"
-#include "glass_defs.h"
-#include "glass_table.h"
-#include "glass_cursor.h"
-#include "glass_version.h"
+#include "honey_database.h"
+#include "honey_defs.h"
+#include "honey_table.h"
+#include "honey_cursor.h"
+#include "honey_version.h"
 #include "filetests.h"
 #include "internaltypes.h"
 #include "pack.h"
@@ -55,7 +55,7 @@ using namespace std;
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
 // the same name in other flint-derived backends.
-namespace GlassCompact {
+namespace HoneyCompact {
 
 static inline bool
 is_user_metadata_key(const string & key)
@@ -283,12 +283,12 @@ class SSTable {
     mutable std::string last_key;
     SSIndex index;
     off_t root = -1;
-    glass_tablesize_t num_entries;
+    honey_tablesize_t num_entries;
     bool lazy;
 
   public:
     SSTable(const char*, const std::string& path_, bool read_only_, bool lazy_ = false)
-	: path(path_ + GLASS_TABLE_EXTENSION),
+	: path(path_ + HONEY_TABLE_EXTENSION),
 	  read_only(read_only_),
 	  num_entries(0),
 	  lazy(lazy_)
@@ -359,7 +359,7 @@ class SSTable {
 	fh.flush();
     }
 
-    void commit(glass_revision_number_t, RootInfo* root_info) {
+    void commit(honey_revision_number_t, RootInfo* root_info) {
 	if (root < 0)
 	    throw Xapian::InvalidOperationError("root not set");
 
@@ -448,7 +448,7 @@ class SSTable {
 template<typename T> class PostlistCursor;
 
 template<>
-class PostlistCursor<GlassTable&> : private GlassCursor {
+class PostlistCursor<HoneyTable&> : private HoneyCursor {
     Xapian::docid offset;
 
   public:
@@ -456,15 +456,15 @@ class PostlistCursor<GlassTable&> : private GlassCursor {
     Xapian::docid firstdid;
     Xapian::termcount tf, cf;
 
-    PostlistCursor(GlassTable *in, Xapian::docid offset_)
-	: GlassCursor(in), offset(offset_), firstdid(0)
+    PostlistCursor(HoneyTable *in, Xapian::docid offset_)
+	: HoneyCursor(in), offset(offset_), firstdid(0)
     {
 	find_entry(string());
 	next();
     }
 
     bool next() {
-	if (!GlassCursor::next()) return false;
+	if (!HoneyCursor::next()) return false;
 	// We put all chunks into the non-initial chunk form here, then fix up
 	// the first chunk for each term in the merged database as we merge.
 	read_tag();
@@ -641,13 +641,13 @@ encode_valuestats(Xapian::doccount freq,
     return value;
 }
 
-// U : vector<GlassTable*>::const_iterator
+// U : vector<HoneyTable*>::const_iterator
 template<typename T, typename U> void
 merge_postlists(Xapian::Compactor * compactor,
 		T * out, vector<Xapian::docid>::const_iterator offset,
 		U b, U e)
 {
-    typedef decltype(**b) table_type; // E.g. GlassTable
+    typedef decltype(**b) table_type; // E.g. HoneyTable
     typedef PostlistCursor<table_type> cursor_type;
     typedef PostlistCursorGt<cursor_type> gt_type;
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
@@ -826,7 +826,7 @@ merge_postlists(Xapian::Compactor * compactor,
 		while (++i != tags.end()) {
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
-		    out->add(pack_glass_postlist_key(term, i->first), tag);
+		    out->add(pack_honey_postlist_key(term, i->first), tag);
 		}
 	    }
 	    tags.clear();
@@ -848,8 +848,8 @@ merge_postlists(Xapian::Compactor * compactor,
 template<typename T> struct MergeCursor;
 
 template<>
-struct MergeCursor<GlassTable&> : public GlassCursor {
-    explicit MergeCursor(GlassTable *in) : GlassCursor(in) {
+struct MergeCursor<HoneyTable&> : public HoneyCursor {
+    explicit MergeCursor(const HoneyTable *in) : HoneyCursor(in) {
 	find_entry(string());
 	next();
     }
@@ -896,11 +896,11 @@ struct CursorGt {
     }
 };
 
-// U : vector<GlassTable*>::const_iterator
+// U : vector<HoneyTable*>::const_iterator
 template<typename T, typename U> void
 merge_spellings(T* out, U b, U e)
 {
-    typedef decltype(**b) table_type; // E.g. GlassTable
+    typedef decltype(**b) table_type; // E.g. HoneyTable
     typedef MergeCursor<table_type> cursor_type;
     typedef CursorGt<cursor_type> gt_type;
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
@@ -1006,11 +1006,11 @@ merge_spellings(T* out, U b, U e)
     }
 }
 
-// U : vector<GlassTable*>::const_iterator
+// U : vector<HoneyTable*>::const_iterator
 template<typename T, typename U> void
 merge_synonyms(T* out, U b, U e)
 {
-    typedef decltype(**b) table_type; // E.g. GlassTable
+    typedef decltype(**b) table_type; // E.g. HoneyTable
     typedef MergeCursor<table_type> cursor_type;
     typedef CursorGt<cursor_type> gt_type;
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
@@ -1191,21 +1191,21 @@ multimerge_postlists(Xapian::Compactor * compactor,
 template<typename T> class PositionCursor;
 
 template<>
-class PositionCursor<GlassTable&> : private GlassCursor {
+class PositionCursor<HoneyTable&> : private HoneyCursor {
     Xapian::docid offset;
 
   public:
     string key;
     Xapian::docid firstdid;
 
-    PositionCursor(GlassTable *in, Xapian::docid offset_)
-	: GlassCursor(in), offset(offset_), firstdid(0) {
+    PositionCursor(const HoneyTable *in, Xapian::docid offset_)
+	: HoneyCursor(in), offset(offset_), firstdid(0) {
 	find_entry(string());
 	next();
     }
 
     bool next() {
-	if (!GlassCursor::next()) return false;
+	if (!HoneyCursor::next()) return false;
 	read_tag();
 	const char * d = current_key.data();
 	const char * e = d + current_key.size();
@@ -1283,7 +1283,7 @@ template<typename T, typename U> void
 merge_positions(T* out, const vector<U*> & inputs,
 		const vector<Xapian::docid> & offset)
 {
-    typedef decltype(*inputs[0]) table_type; // E.g. GlassTable
+    typedef decltype(*inputs[0]) table_type; // E.g. HoneyTable
     typedef PositionCursor<table_type> cursor_type;
     typedef PositionCursorGt<cursor_type> gt_type;
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
@@ -1319,7 +1319,7 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 	auto in = inputs[i];
 	if (in->empty()) continue;
 
-	GlassCursor cur(in);
+	HoneyCursor cur(in);
 	cur.find_entry(string());
 
 	string key;
@@ -1352,10 +1352,10 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 
 }
 
-using namespace GlassCompact;
+using namespace HoneyCompact;
 
 void
-GlassDatabase::compact(Xapian::Compactor * compactor,
+HoneyDatabase::compact(Xapian::Compactor * compactor,
 		       const char * destdir,
 		       int fd,
 		       const vector<Xapian::Database::Internal*> & sources,
@@ -1367,21 +1367,21 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 {
     struct table_list {
 	// The "base name" of the table.
-	const char * name;
+	char name[9];
 	// The type.
-	Glass::table_type type;
+	Honey::table_type type;
 	// Create tables after position lazily.
 	bool lazy;
     };
 
     static const table_list tables[] = {
 	// name		type			lazy
-	{ "postlist",	Glass::POSTLIST,	false },
-	{ "docdata",	Glass::DOCDATA,		true },
-	{ "termlist",	Glass::TERMLIST,	false },
-	{ "position",	Glass::POSITION,	true },
-	{ "spelling",	Glass::SPELLING,	true },
-	{ "synonym",	Glass::SYNONYM,		true }
+	{ "postlist",	Honey::POSTLIST,	false },
+	{ "docdata",	Honey::DOCDATA,		true },
+	{ "termlist",	Honey::TERMLIST,	false },
+	{ "position",	Honey::POSITION,	true },
+	{ "spelling",	Honey::SPELLING,	true },
+	{ "synonym",	Honey::SYNONYM,		true }
     };
     const table_list * tables_end = tables +
 	(sizeof(tables) / sizeof(tables[0]));
@@ -1398,7 +1398,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
     if (single_file) {
 	for (size_t i = 0; i != sources.size(); ++i) {
-	    GlassDatabase * db = static_cast<GlassDatabase*>(sources[i]);
+	    auto db = static_cast<const HoneyDatabase*>(sources[i]);
 	    if (db->has_uncommitted_changes()) {
 		const char * m =
 		    "Can't compact from a WritableDatabase with uncommitted "
@@ -1409,10 +1409,10 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	}
     }
 
-    if (block_size < GLASS_MIN_BLOCKSIZE ||
-	block_size > GLASS_MAX_BLOCKSIZE ||
+    if (block_size < HONEY_MIN_BLOCKSIZE ||
+	block_size > HONEY_MAX_BLOCKSIZE ||
 	(block_size & (block_size - 1)) != 0) {
-	block_size = GLASS_DEFAULT_BLOCKSIZE;
+	block_size = HONEY_DEFAULT_BLOCKSIZE;
     }
 
     FlintLock lock(destdir ? destdir : "");
@@ -1424,7 +1424,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	}
     }
 
-    AutoPtr<GlassVersion> version_file_out;
+    unique_ptr<HoneyVersion> version_file_out;
     if (single_file) {
 	if (destdir) {
 	    fd = open(destdir, O_RDWR|O_CREAT|O_BINARY|O_CLOEXEC, 0666);
@@ -1432,22 +1432,22 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		throw Xapian::DatabaseCreateError("open() failed", errno);
 	    }
 	}
-	version_file_out.reset(new GlassVersion(fd));
+	version_file_out.reset(new HoneyVersion(fd));
     } else {
 	fd = -1;
-	version_file_out.reset(new GlassVersion(destdir));
+	version_file_out.reset(new HoneyVersion(destdir));
     }
 
     version_file_out->create(block_size);
     for (size_t i = 0; i != sources.size(); ++i) {
-	GlassDatabase * db = static_cast<GlassDatabase*>(sources[i]);
+	auto db = static_cast<const HoneyDatabase*>(sources[i]);
 	version_file_out->merge_stats(db->version_file);
     }
 
     string fl_serialised;
 #if 0
     if (single_file) {
-	GlassFreeList fl;
+	HoneyFreeList fl;
 	fl.set_first_unused_block(1); // FIXME: Assumption?
 	fl.pack(fl_serialised);
     }
@@ -1485,29 +1485,29 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
 	off_t in_size = 0;
 
-	vector<GlassTable*> inputs;
+	vector<const HoneyTable*> inputs;
 	inputs.reserve(sources.size());
 	size_t inputs_present = 0;
 	for (auto src : sources) {
-	    GlassDatabase * db = static_cast<GlassDatabase*>(src);
-	    GlassTable * table;
+	    auto db = static_cast<const HoneyDatabase*>(src);
+	    const HoneyTable * table;
 	    switch (t->type) {
-		case Glass::POSTLIST:
+		case Honey::POSTLIST:
 		    table = &(db->postlist_table);
 		    break;
-		case Glass::DOCDATA:
+		case Honey::DOCDATA:
 		    table = &(db->docdata_table);
 		    break;
-		case Glass::TERMLIST:
+		case Honey::TERMLIST:
 		    table = &(db->termlist_table);
 		    break;
-		case Glass::POSITION:
+		case Honey::POSITION:
 		    table = &(db->position_table);
 		    break;
-		case Glass::SPELLING:
+		case Honey::SPELLING:
 		    table = &(db->spelling_table);
 		    break;
-		case Glass::SYNONYM:
+		case Honey::SYNONYM:
 		    table = &(db->synonym_table);
 		    break;
 		default:
@@ -1542,7 +1542,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	}
 
 	// If any inputs lack a termlist table, suppress it in the output.
-	if (t->type == Glass::TERMLIST && inputs_present != sources.size()) {
+	if (t->type == Honey::TERMLIST && inputs_present != sources.size()) {
 	    if (inputs_present != 0) {
 		if (compactor) {
 		    string m = str(inputs_present);
@@ -1564,7 +1564,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
 	SSTable * out;
 	if (single_file) {
-//	    out = new GlassTable(t->name, fd, version_file_out->get_offset(),
+//	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
 //				 false, false);
 	    out = NULL;
 	} else {
@@ -1583,7 +1583,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	if (compaction == compactor->FULLER) out->set_max_item_size(1);
 
 	switch (t->type) {
-	    case Glass::POSTLIST: {
+	    case Honey::POSTLIST: {
 		if (multipass && inputs.size() > 3) {
 		    multimerge_postlists(compactor, out, destdir,
 					 inputs, offset);
@@ -1593,13 +1593,13 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		}
 		break;
 	    }
-	    case Glass::SPELLING:
+	    case Honey::SPELLING:
 		merge_spellings(out, inputs.begin(), inputs.end());
 		break;
-	    case Glass::SYNONYM:
+	    case Honey::SYNONYM:
 		merge_synonyms(out, inputs.begin(), inputs.end());
 		break;
-	    case Glass::POSITION:
+	    case Honey::POSITION:
 		merge_positions(out, inputs, offset);
 		break;
 	    default:
@@ -1620,7 +1620,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	    if (single_file) {
 		db_size = file_size(fd);
 	    } else {
-		db_size = file_size(dest + GLASS_TABLE_EXTENSION);
+		db_size = file_size(dest + HONEY_TABLE_EXTENSION);
 	    }
 	    if (errno == 0) {
 		if (single_file) {

@@ -23,6 +23,8 @@
 
 #include "internaltypes.h"
 
+#define SST_SEARCH
+
 /// Honey table extension.
 #define HONEY_TABLE_EXTENSION "honey"
 

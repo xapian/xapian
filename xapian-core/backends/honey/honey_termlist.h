@@ -1,5 +1,5 @@
-/** @file glass_termlist.h
- * @brief A TermList in a glass database.
+/** @file honey_termlist.h
+ * @brief A TermList in a honey database.
  */
 /* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
  *
@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_TERMLIST_H
-#define XAPIAN_INCLUDED_GLASS_TERMLIST_H
+#ifndef XAPIAN_INCLUDED_HONEY_TERMLIST_H
+#define XAPIAN_INCLUDED_HONEY_TERMLIST_H
 
 #include <string>
 
@@ -33,20 +33,20 @@ namespace Xapian {
     }
 }
 
-#include "glass_database.h"
+#include "honey_database.h"
 #include "api/termlist.h"
-#include "glass_table.h"
+#include "honey_table.h"
 
-/// A TermList in a glass database.
-class GlassTermList : public TermList {
+/// A TermList in a honey database.
+class HoneyTermList : public TermList {
     /// Don't allow assignment.
-    void operator=(const GlassTermList &);
+    void operator=(const HoneyTermList &);
 
     /// Don't allow copying.
-    GlassTermList(const GlassTermList &);
+    HoneyTermList(const HoneyTermList &);
 
     /// The database we're reading data from.
-    Xapian::Internal::intrusive_ptr<const GlassDatabase> db;
+    Xapian::Internal::intrusive_ptr<const HoneyDatabase> db;
 
     /// The document id that this TermList is for.
     Xapian::docid did;
@@ -83,19 +83,19 @@ class GlassTermList : public TermList {
     mutable Xapian::doccount current_termfreq;
 
   public:
-    /// Create a new GlassTermList object for document @a did_ in DB @a db_
-    GlassTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
+    /// Create a new HoneyTermList object for document @a did_ in DB @a db_
+    HoneyTermList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> db_,
 		  Xapian::docid did_);
 
     /** Return the length of this document.
      *
-     *  This is a non-virtual method, used by GlassDatabase.
+     *  This is a non-virtual method, used by HoneyDatabase.
      */
     Xapian::termcount get_doclength() const;
 
     /** Return approximate size of this termlist.
      *
-     *  For a GlassTermList, this value will always be exact.
+     *  For a HoneyTermList, this value will always be exact.
      */
     Xapian::termcount get_approx_size() const;
 
@@ -123,7 +123,7 @@ class GlassTermList : public TermList {
      *  or check() must be called before any methods which need the context of
      *  the current position.
      *
-     *  @return Always returns 0 for a GlassTermList.
+     *  @return Always returns 0 for a HoneyTermList.
      */
     TermList * next();
 
@@ -139,4 +139,4 @@ class GlassTermList : public TermList {
     Xapian::PositionIterator positionlist_begin() const;
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_TERMLIST_H
+#endif // XAPIAN_INCLUDED_HONEY_TERMLIST_H

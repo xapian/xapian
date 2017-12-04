@@ -1,5 +1,5 @@
-/** @file glass_valuelist.h
- * @brief Glass class for value streams.
+/** @file honey_valuelist.h
+ * @brief Honey class for value streams.
  */
 /* Copyright (C) 2007,2008,2009,2011 Olly Betts
  *
@@ -18,40 +18,40 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_VALUELIST_H
-#define XAPIAN_INCLUDED_GLASS_VALUELIST_H
+#ifndef XAPIAN_INCLUDED_HONEY_VALUELIST_H
+#define XAPIAN_INCLUDED_HONEY_VALUELIST_H
 
 #include "backends/valuelist.h"
-#include "glass_values.h"
+#include "honey_values.h"
 
-class GlassCursor;
-class GlassDatabase;
+class HoneyCursor;
+class HoneyDatabase;
 
-/// Glass class for value streams.
-class GlassValueList : public Xapian::ValueIterator::Internal {
+/// Honey class for value streams.
+class HoneyValueList : public Xapian::ValueIterator::Internal {
     /// Don't allow assignment.
-    void operator=(const GlassValueList &);
+    void operator=(const HoneyValueList &);
 
     /// Don't allow copying.
-    GlassValueList(const GlassValueList &);
+    HoneyValueList(const HoneyValueList &);
 
-    GlassCursor * cursor;
+    HoneyCursor * cursor;
 
-    Glass::ValueChunkReader reader;
+    Honey::ValueChunkReader reader;
 
     Xapian::valueno slot;
 
-    Xapian::Internal::intrusive_ptr<const GlassDatabase> db;
+    Xapian::Internal::intrusive_ptr<const HoneyDatabase> db;
 
     /// Update @a reader to use the chunk currently pointed to by @a cursor.
     bool update_reader();
 
   public:
-    GlassValueList(Xapian::valueno slot_,
-		   Xapian::Internal::intrusive_ptr<const GlassDatabase> db_)
+    HoneyValueList(Xapian::valueno slot_,
+		   Xapian::Internal::intrusive_ptr<const HoneyDatabase> db_)
 	: cursor(NULL), slot(slot_), db(db_) { }
 
-    ~GlassValueList();
+    ~HoneyValueList();
 
     Xapian::docid get_docid() const;
 
@@ -70,4 +70,4 @@ class GlassValueList : public Xapian::ValueIterator::Internal {
     std::string get_description() const;
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_VALUELIST_H
+#endif // XAPIAN_INCLUDED_HONEY_VALUELIST_H

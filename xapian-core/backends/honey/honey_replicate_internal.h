@@ -1,5 +1,5 @@
-/** @file glass_replicate_internal.h
- * @brief Internal definitions for glass database replication
+/** @file honey_replicate_internal.h
+ * @brief Internal definitions for honey database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009,2014 Olly Betts
@@ -20,16 +20,16 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_REPLICATE_INTERNAL_H
-#define XAPIAN_INCLUDED_GLASS_REPLICATE_INTERNAL_H
+#ifndef XAPIAN_INCLUDED_HONEY_REPLICATE_INTERNAL_H
+#define XAPIAN_INCLUDED_HONEY_REPLICATE_INTERNAL_H
 
 // Magic string used to recognise a changeset file.
-#define CHANGES_MAGIC_STRING "GlassChanges"
+#define CHANGES_MAGIC_STRING "HoneyChanges"
 
 // The current version of changeset files.
 // 1  - initial implementation
 // 2  - compressed changesets
-// 3  - store (block_size / GLASS_MIN_BLOCKSIZE)
+// 3  - store (block_size / HONEY_MIN_BLOCKSIZE)
 // 4  - reworked for switch from base files to version file
 #define CHANGES_VERSION 4u
 
@@ -37,4 +37,4 @@
 // revision number) will fit in this much space.
 #define REASONABLE_CHANGESET_SIZE 1024
 
-#endif /* XAPIAN_INCLUDED_GLASS_REPLICATE_INTERNAL_H */
+#endif /* XAPIAN_INCLUDED_HONEY_REPLICATE_INTERNAL_H */

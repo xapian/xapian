@@ -1,5 +1,5 @@
-/** @file glass_databasereplicator.h
- * @brief Support for glass database replication
+/** @file honey_databasereplicator.h
+ * @brief Support for honey database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009,2010,2011,2014 Olly Betts
@@ -20,13 +20,13 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_DATABASEREPLICATOR_H
-#define XAPIAN_INCLUDED_GLASS_DATABASEREPLICATOR_H
+#ifndef XAPIAN_INCLUDED_HONEY_DATABASEREPLICATOR_H
+#define XAPIAN_INCLUDED_HONEY_DATABASEREPLICATOR_H
 
 #include "backends/databasereplicator.h"
-#include "glass_defs.h"
+#include "honey_defs.h"
 
-class GlassDatabaseReplicator : public Xapian::DatabaseReplicator {
+class HoneyDatabaseReplicator : public Xapian::DatabaseReplicator {
     private:
 	/** Path of database.
 	 */
@@ -36,7 +36,7 @@ class GlassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	 *
 	 *  The corresponding entry is -1 if that table is not yet opened.
 	 */
-	mutable int fds[Glass::MAX_];
+	mutable int fds[Honey::MAX_];
 
 	/** Process a chunk which holds a version file.
 	 */
@@ -47,7 +47,7 @@ class GlassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	/** Process a chunk which holds a list of changed blocks in the
 	 *  database.
 	 */
-	void process_changeset_chunk_blocks(Glass::table_type table,
+	void process_changeset_chunk_blocks(Honey::table_type table,
 					    unsigned v,
 					    std::string & buf,
 					    RemoteConnection & conn,
@@ -56,9 +56,9 @@ class GlassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	void commit() const;
 
     public:
-	explicit GlassDatabaseReplicator(const std::string & db_dir_);
+	explicit HoneyDatabaseReplicator(const std::string & db_dir_);
 
-	~GlassDatabaseReplicator();
+	~HoneyDatabaseReplicator();
 
 	/** Virtual methods of DatabaseReplicator. */
 	//@{
@@ -71,4 +71,4 @@ class GlassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	//@}
 };
 
-#endif /* XAPIAN_INCLUDED_GLASS_DATABASEREPLICATOR_H */
+#endif /* XAPIAN_INCLUDED_HONEY_DATABASEREPLICATOR_H */

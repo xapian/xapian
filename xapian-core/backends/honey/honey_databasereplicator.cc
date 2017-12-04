@@ -1,5 +1,5 @@
-/** @file glass_databasereplicator.cc
- * @brief Support for glass database replication
+/** @file honey_databasereplicator.cc
+ * @brief Support for honey database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
@@ -22,20 +22,19 @@
 
 #include <config.h>
 
-#include "glass_databasereplicator.h"
+#include "honey_databasereplicator.h"
 
 #include "xapian/error.h"
 
 #include "../flint_lock.h"
-#include "glass_defs.h"
-#include "glass_replicate_internal.h"
-#include "glass_version.h"
+#include "honey_defs.h"
+#include "honey_replicate_internal.h"
+#include "honey_version.h"
 #include "compression_stream.h"
 #include "debuglog.h"
 #include "fd.h"
 #include "internaltypes.h"
 #include "io_utils.h"
-#include "noreturn.h"
 #include "pack.h"
 #include "posixy_wrapper.h"
 #include "net/remoteconnection.h"
@@ -46,7 +45,7 @@
 
 #include <algorithm>
 
-XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
+[[noreturn]]
 static void
 throw_connection_closed_unexpectedly()
 {
@@ -57,23 +56,23 @@ using namespace std;
 using namespace Xapian;
 
 static const char * dbnames =
-	"/postlist." GLASS_TABLE_EXTENSION "\0"
-	"/docdata." GLASS_TABLE_EXTENSION "\0\0"
-	"/termlist." GLASS_TABLE_EXTENSION "\0"
-	"/position." GLASS_TABLE_EXTENSION "\0"
-	"/spelling." GLASS_TABLE_EXTENSION "\0"
-	"/synonym." GLASS_TABLE_EXTENSION;
+	"/postlist." HONEY_TABLE_EXTENSION "\0"
+	"/docdata." HONEY_TABLE_EXTENSION "\0\0"
+	"/termlist." HONEY_TABLE_EXTENSION "\0"
+	"/position." HONEY_TABLE_EXTENSION "\0"
+	"/spelling." HONEY_TABLE_EXTENSION "\0"
+	"/synonym." HONEY_TABLE_EXTENSION;
 
-GlassDatabaseReplicator::GlassDatabaseReplicator(const string & db_dir_)
+HoneyDatabaseReplicator::HoneyDatabaseReplicator(const string & db_dir_)
     : db_dir(db_dir_)
 {
     std::fill_n(fds, sizeof(fds) / sizeof(fds[0]), -1);
 }
 
 void
-GlassDatabaseReplicator::commit() const
+HoneyDatabaseReplicator::commit() const
 {
-    for (size_t i = 0; i != Glass::MAX_; ++i) {
+    for (size_t i = 0; i != Honey::MAX_; ++i) {
 	int fd = fds[i];
 	if (fd >= 0) {
 	    io_sync(fd);
@@ -85,9 +84,9 @@ GlassDatabaseReplicator::commit() const
     }
 }
 
-GlassDatabaseReplicator::~GlassDatabaseReplicator()
+HoneyDatabaseReplicator::~HoneyDatabaseReplicator()
 {
-    for (size_t i = 0; i != Glass::MAX_; ++i) {
+    for (size_t i = 0; i != Honey::MAX_; ++i) {
 	int fd = fds[i];
 	if (fd >= 0) {
 	    close(fd);
@@ -96,13 +95,13 @@ GlassDatabaseReplicator::~GlassDatabaseReplicator()
 }
 
 bool
-GlassDatabaseReplicator::check_revision_at_least(const string & rev,
+HoneyDatabaseReplicator::check_revision_at_least(const string & rev,
 						 const string & target) const
 {
-    LOGCALL(DB, bool, "GlassDatabaseReplicator::check_revision_at_least", rev | target);
+    LOGCALL(DB, bool, "HoneyDatabaseReplicator::check_revision_at_least", rev | target);
 
-    glass_revision_number_t rev_val;
-    glass_revision_number_t target_val;
+    honey_revision_number_t rev_val;
+    honey_revision_number_t target_val;
 
     const char * ptr = rev.data();
     const char * end = ptr + rev.size();
@@ -120,14 +119,14 @@ GlassDatabaseReplicator::check_revision_at_least(const string & rev,
 }
 
 void
-GlassDatabaseReplicator::process_changeset_chunk_version(string & buf,
+HoneyDatabaseReplicator::process_changeset_chunk_version(string & buf,
 							 RemoteConnection & conn,
 							 double end_time) const
 {
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
 
-    glass_revision_number_t rev;
+    honey_revision_number_t rev;
     if (!unpack_uint(&ptr, end, &rev))
 	throw NetworkError("Invalid revision in changeset");
 
@@ -159,7 +158,7 @@ GlassDatabaseReplicator::process_changeset_chunk_version(string & buf,
 	io_sync(fd);
     }
     string version_file = db_dir;
-    version_file += "/iamglass";
+    version_file += "/iamhoney";
     if (!io_tmp_rename(tmpfile, version_file)) {
 	string msg("Couldn't create new version file ");
 	msg += version_file;
@@ -170,7 +169,7 @@ GlassDatabaseReplicator::process_changeset_chunk_version(string & buf,
 }
 
 void
-GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table,
+HoneyDatabaseReplicator::process_changeset_chunk_blocks(Honey::table_type table,
 							unsigned v,
 							string & buf,
 							RemoteConnection & conn,
@@ -179,7 +178,7 @@ GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table,
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
 
-    unsigned int changeset_blocksize = GLASS_MIN_BLOCKSIZE << v;
+    unsigned int changeset_blocksize = HONEY_MIN_BLOCKSIZE << v;
     if (changeset_blocksize > 65536 ||
 	(changeset_blocksize & (changeset_blocksize - 1))) {
 	throw NetworkError("Invalid blocksize in changeset");
@@ -193,7 +192,7 @@ GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table,
     int fd = fds[table];
     if (fd == -1) {
 	string db_path = db_dir;
-	db_path += dbnames + table * (11 + CONST_STRLEN(GLASS_TABLE_EXTENSION));
+	db_path += dbnames + table * (11 + CONST_STRLEN(HONEY_TABLE_EXTENSION));
 	fd = posixy_open(db_path.c_str(), O_WRONLY | O_CREAT | O_CLOEXEC, 0666);
 	if (fd == -1) {
 	    string msg = "Failed to open ";
@@ -215,11 +214,11 @@ GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table,
 }
 
 string
-GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
+HoneyDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 						   double end_time,
 						   bool valid) const
 {
-    LOGCALL(DB, string, "GlassDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);
+    LOGCALL(DB, string, "HoneyDatabaseReplicator::apply_changeset_from_conn", conn | end_time | valid);
 
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);
@@ -253,8 +252,8 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     if (changes_version != CHANGES_VERSION)
 	throw NetworkError("Unsupported changeset version");
 
-    glass_revision_number_t startrev;
-    glass_revision_number_t endrev;
+    honey_revision_number_t startrev;
+    honey_revision_number_t endrev;
 
     if (!unpack_uint(&ptr, end, &startrev))
 	throw NetworkError("Couldn't read a valid start revision from changeset");
@@ -272,7 +271,7 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	// If the database was not known to be valid, we cannot
 	// reliably determine its revision number, so must skip this
 	// check.
-	GlassVersion version_file(db_dir);
+	HoneyVersion version_file(db_dir);
 	version_file.read();
 	if (startrev != version_file.get_revision())
 	    throw NetworkError("Changeset supplied is for wrong revision number");
@@ -303,8 +302,8 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	// 11111111 - last chunk
 	// 11111110 - version file
 	// 00BBBTTT - table block:
-	//   Block size = (GLASS_MIN_BLOCKSIZE<<BBB) BBB=0..5
-	//   Table TTT=0..(Glass::MAX_-1)
+	//   Block size = (HONEY_MIN_BLOCKSIZE<<BBB) BBB=0..5
+	//   Table TTT=0..(Honey::MAX_-1)
 	unsigned char chunk_type = *ptr++;
 	if (chunk_type == 0xff)
 	    break;
@@ -315,9 +314,9 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	    continue;
 	}
 	size_t table_code = (chunk_type & 0x07);
-	if (table_code >= Glass::MAX_)
+	if (table_code >= Honey::MAX_)
 	    throw NetworkError("Bad table code in changeset file");
-	Glass::table_type table = static_cast<Glass::table_type>(table_code);
+	Honey::table_type table = static_cast<Honey::table_type>(table_code);
 	unsigned char v = (chunk_type >> 3) & 0x0f;
 
 	// Process the chunk
@@ -337,10 +336,10 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 }
 
 string
-GlassDatabaseReplicator::get_uuid() const
+HoneyDatabaseReplicator::get_uuid() const
 {
-    LOGCALL(DB, string, "GlassDatabaseReplicator::get_uuid", NO_ARGS);
-    GlassVersion version_file(db_dir);
+    LOGCALL(DB, string, "HoneyDatabaseReplicator::get_uuid", NO_ARGS);
+    HoneyVersion version_file(db_dir);
     try {
 	version_file.read();
     } catch (const Xapian::DatabaseError &) {

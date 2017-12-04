@@ -1,5 +1,5 @@
-/** @file glass_lazytable.h
- * @brief Subclass of GlassTable for deriving lazy tables from.
+/** @file honey_lazytable.h
+ * @brief Subclass of HoneyTable for deriving lazy tables from.
  */
 /* Copyright (C) 2009,2013,2014,2015,2016 Olly Betts
  *
@@ -18,12 +18,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_LAZYTABLE_H
-#define XAPIAN_INCLUDED_GLASS_LAZYTABLE_H
+#ifndef XAPIAN_INCLUDED_HONEY_LAZYTABLE_H
+#define XAPIAN_INCLUDED_HONEY_LAZYTABLE_H
 
-#include "glass_table.h"
+#include "honey_table.h"
 
-class GlassLazyTable : public GlassTable {
+class HoneyLazyTable : public HoneyTable {
   public:
     /** Create a new lazy table.
      *
@@ -31,11 +31,11 @@ class GlassLazyTable : public GlassTable {
      *  @param path_		The path for the table.
      *  @param readonly		true if the table is read-only, else false.
      */
-    GlassLazyTable(const char * name_, const std::string & path_, bool readonly)
-	: GlassTable(name_, path_, readonly, true) { }
+    HoneyLazyTable(const char * name_, const std::string & path_, bool readonly)
+	: HoneyTable(name_, path_, readonly, true) { }
 
-    GlassLazyTable(const char * name_, int fd, off_t offset_, bool readonly)
-	: GlassTable(name_, fd, offset_, readonly, true) { }
+    HoneyLazyTable(const char * name_, int fd, off_t offset_, bool readonly)
+	: HoneyTable(name_, fd, offset_, readonly, true) { }
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_LAZYTABLE_H
+#endif // XAPIAN_INCLUDED_HONEY_LAZYTABLE_H

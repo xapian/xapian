@@ -1,5 +1,5 @@
-/** @file glass_freelist.h
- * @brief Glass freelist
+/** @file honey_freelist.h
+ * @brief Honey freelist
  */
 /* Copyright 2014 Olly Betts
  *
@@ -19,15 +19,15 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_FREELIST_H
-#define XAPIAN_INCLUDED_GLASS_FREELIST_H
+#ifndef XAPIAN_INCLUDED_HONEY_FREELIST_H
+#define XAPIAN_INCLUDED_HONEY_FREELIST_H
 
-#include "glass_defs.h"
+#include "honey_defs.h"
 #include "pack.h"
 
-class GlassTable;
+class HoneyTable;
 
-class GlassFLCursor {
+class HoneyFLCursor {
   public:
     /// Block number of current freelist chunk.
     uint4 n;
@@ -35,17 +35,17 @@ class GlassFLCursor {
     /// Current offset in block.
     unsigned c;
 
-    GlassFLCursor() : n(0), c(0) { }
+    HoneyFLCursor() : n(0), c(0) { }
 
-    bool operator==(const GlassFLCursor & o) const {
+    bool operator==(const HoneyFLCursor & o) const {
 	return n == o.n && c == o.c;
     }
 
-    bool operator!=(const GlassFLCursor & o) const {
+    bool operator!=(const HoneyFLCursor & o) const {
 	return !(*this == o);
     }
 
-    void swap(GlassFLCursor &o) {
+    void swap(HoneyFLCursor &o) {
 	std::swap(n, o.n);
 	std::swap(c, o.c);
     }
@@ -63,21 +63,21 @@ class GlassFLCursor {
     }
 };
 
-class GlassFreeList {
-    GlassFreeList(const GlassFreeList &);
+class HoneyFreeList {
+    HoneyFreeList(const HoneyFreeList &);
 
-    void operator=(const GlassFreeList &);
+    void operator=(const HoneyFreeList &);
 
-    void read_block(const GlassTable * B, uint4 n, byte * p);
+    void read_block(const HoneyTable * B, uint4 n, byte * p);
 
-    void write_block(const GlassTable * B, uint4 n, byte * p, uint4 rev);
+    void write_block(const HoneyTable * B, uint4 n, byte * p, uint4 rev);
 
   protected:
     uint4 revision;
 
     uint4 first_unused_block;
 
-    GlassFLCursor fl, fl_end, flw;
+    HoneyFLCursor fl, fl_end, flw;
 
     bool flw_appending;
 
@@ -89,7 +89,7 @@ class GlassFreeList {
     byte * pw;
 
   public:
-    GlassFreeList() {
+    HoneyFreeList() {
 	revision = 0;
 	first_unused_block = 0;
 	flw_appending = false;
@@ -102,16 +102,16 @@ class GlassFreeList {
 	flw_appending = false;
     }
 
-    ~GlassFreeList() { delete [] p; delete [] pw; }
+    ~HoneyFreeList() { delete [] p; delete [] pw; }
 
     bool empty() const { return fl == fl_end; }
 
-    uint4 get_block(const GlassTable * B, uint4 block_size,
+    uint4 get_block(const HoneyTable * B, uint4 block_size,
 		    uint4 * blk_to_free = NULL);
 
-    uint4 walk(const GlassTable *B, uint4 block_size, bool inclusive);
+    uint4 walk(const HoneyTable *B, uint4 block_size, bool inclusive);
 
-    void mark_block_unused(const GlassTable * B, uint4 block_size, uint4 n);
+    void mark_block_unused(const HoneyTable * B, uint4 block_size, uint4 n);
 
     uint4 get_revision() const { return revision; }
     void set_revision(uint4 revision_) { revision = revision_; }
@@ -121,7 +121,7 @@ class GlassFreeList {
     // Used when compacting to a single file.
     void set_first_unused_block(uint4 base) { first_unused_block = base; }
 
-    void commit(const GlassTable * B, uint4 block_size);
+    void commit(const HoneyTable * B, uint4 block_size);
 
     void pack(std::string & buf) {
 	pack_uint(buf, revision);
@@ -149,7 +149,7 @@ class GlassFreeList {
     }
 };
 
-class GlassFreeListChecker {
+class HoneyFreeListChecker {
     // FIXME: uint_fast32_t is probably a good choice.
     typedef unsigned long elt_type;
 
@@ -158,13 +158,13 @@ class GlassFreeListChecker {
     elt_type * bitmap;
 
     // Prevent copying
-    GlassFreeListChecker(const GlassFreeListChecker&);
-    GlassFreeListChecker& operator=(const GlassFreeListChecker&);
+    HoneyFreeListChecker(const HoneyFreeListChecker&);
+    HoneyFreeListChecker& operator=(const HoneyFreeListChecker&);
 
   public:
-    explicit GlassFreeListChecker(const GlassFreeList & fl);
+    explicit HoneyFreeListChecker(const HoneyFreeList & fl);
 
-    ~GlassFreeListChecker() {
+    ~HoneyFreeListChecker() {
 	delete [] bitmap;
     }
 
@@ -182,4 +182,4 @@ class GlassFreeListChecker {
     uint4 count_set_bits(uint4 * p_first_bad_blk) const;
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_FREELIST_H
+#endif // XAPIAN_INCLUDED_HONEY_FREELIST_H

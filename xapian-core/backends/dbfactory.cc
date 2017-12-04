@@ -358,7 +358,7 @@ Database::Database(const string& path, int flags)
 #endif
 	case DB_BACKEND_HONEY:
 #ifdef XAPIAN_HAS_HONEY_BACKEND
-	    internal.push_back(new HoneyDatabase(path));
+	    internal = new HoneyDatabase(path);
 	    return;
 #else
 	    throw FeatureUnavailableError("Honey backend disabled");
@@ -410,7 +410,7 @@ Database::Database(const string& path, int flags)
 
 #ifdef XAPIAN_HAS_HONEY_BACKEND
     if (file_exists(path + "/iamhoney")) {
-	internal.push_back(new HoneyDatabase(path));
+	internal = new HoneyDatabase(path);
 	return;
     }
 #endif

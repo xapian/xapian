@@ -7,6 +7,7 @@ using namespace std;
 void
 HoneyDatabase::readahead_for_query(const Xapian::Query& query) const
 {
+    (void)query;
     // FIXME: Implement - pre-read the start of the postlist table?
 }
 
@@ -31,12 +32,14 @@ HoneyDatabase::get_total_length() const
 Xapian::termcount
 HoneyDatabase::get_doclength(Xapian::docid did) const
 {
+    (void)did;
     return 0; // FIXME
 }
 
 Xapian::termcount
 HoneyDatabase::get_unique_terms(Xapian::docid did) const
 {
+    (void)did;
     return 0; // FIXME
 }
 
@@ -45,24 +48,30 @@ HoneyDatabase::get_freqs(const string& term,
 			 Xapian::doccount* termfreq_ptr,
 			 Xapian::termcount* collfreq_ptr) const 
 {
+    (void)term;
+    (void)termfreq_ptr;
+    (void)collfreq_ptr;
     // FIXME
 }
 
 Xapian::doccount
 HoneyDatabase::get_value_freq(Xapian::valueno slot) const
 {
+    (void)slot;
     return 0; // FIXME
 }
 
 string
-HoneyDatabase::get_value_lower_bound(valueno slot) const
+HoneyDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
+    (void)slot;
     return string(); // FIXME
 }
 
 string
-HoneyDatabase::get_value_upper_bound(valueno slot) const
+HoneyDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
+    (void)slot;
     return string(); // FIXME
 }
 
@@ -109,7 +118,7 @@ HoneyDatabase::open_leaf_post_list(const string& term) const
 }
 
 ValueList*
-HoneyDatabase::open_value_list(valueno slot) const
+HoneyDatabase::open_value_list(Xapian::valueno slot) const
 {
 
 }

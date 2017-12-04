@@ -1,4 +1,4 @@
-/** @file glass_inverter.h
+/** @file honey_inverter.h
  * @brief Inverter class which "inverts the file".
  */
 /* Copyright (C) 2009,2010,2013,2014 Olly Betts
@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_INVERTER_H
-#define XAPIAN_INCLUDED_GLASS_INVERTER_H
+#ifndef XAPIAN_INCLUDED_HONEY_INVERTER_H
+#define XAPIAN_INCLUDED_HONEY_INVERTER_H
 
 #include "xapian/types.h"
 
@@ -31,8 +31,8 @@
 #include "str.h"
 #include "xapian/error.h"
 
-class GlassPostListTable;
-class GlassPositionListTable;
+class HoneyPostListTable;
+class HoneyPositionListTable;
 
 namespace Xapian {
 class TermIterator;
@@ -43,11 +43,11 @@ const Xapian::termcount DELETED_POSTING = Xapian::termcount(-1);
 
 /** Class which "inverts the file". */
 class Inverter {
-    friend class GlassPostListTable;
+    friend class HoneyPostListTable;
 
     /// Class for storing the changes in frequencies for a term.
     class PostingChanges {
-	friend class GlassPostListTable;
+	friend class HoneyPostListTable;
 
 	/// Change in term frequency,
 	Xapian::termcount_diff tf_delta;
@@ -117,7 +117,7 @@ class Inverter {
     /// Buffered changes to positional data.
     std::map<std::string, std::map<Xapian::docid, std::string> > pos_changes;
 
-    void store_positions(const GlassPositionListTable & position_table,
+    void store_positions(const HoneyPositionListTable & position_table,
 			 Xapian::docid did,
 			 const std::string & tname,
 			 const std::vector<Xapian::termpos> & posvec,
@@ -169,7 +169,7 @@ class Inverter {
 	}
     }
 
-    void set_positionlist(const GlassPositionListTable & position_table,
+    void set_positionlist(const HoneyPositionListTable & position_table,
 			  Xapian::docid did,
 			  const std::string & tname,
 			  const Xapian::TermIterator & term,
@@ -182,7 +182,7 @@ class Inverter {
 			  const std::string & term,
 			  std::string & s) const;
 
-    bool has_positions(const GlassPositionListTable & position_table) const;
+    bool has_positions(const HoneyPositionListTable & position_table) const;
 
     void clear() {
 	doclen_changes.clear();
@@ -214,22 +214,22 @@ class Inverter {
     }
 
     /// Flush document length changes.
-    void flush_doclengths(GlassPostListTable & table);
+    void flush_doclengths(HoneyPostListTable & table);
 
     /// Flush postlist changes for @a term.
-    void flush_post_list(GlassPostListTable & table, const std::string & term);
+    void flush_post_list(HoneyPostListTable & table, const std::string & term);
 
     /// Flush postlist changes for all terms.
-    void flush_all_post_lists(GlassPostListTable & table);
+    void flush_all_post_lists(HoneyPostListTable & table);
 
     /// Flush postlist changes for all terms which start with @a pfx.
-    void flush_post_lists(GlassPostListTable & table, const std::string & pfx);
+    void flush_post_lists(HoneyPostListTable & table, const std::string & pfx);
 
     /// Flush all postlist table changes.
-    void flush(GlassPostListTable & table);
+    void flush(HoneyPostListTable & table);
 
     /// Flush position changes.
-    void flush_pos_lists(GlassPositionListTable & table);
+    void flush_pos_lists(HoneyPositionListTable & table);
 
     bool get_deltas(const std::string & term,
 		    Xapian::termcount_diff & tf_delta,
@@ -245,4 +245,4 @@ class Inverter {
     }
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_INVERTER_H
+#endif // XAPIAN_INCLUDED_HONEY_INVERTER_H

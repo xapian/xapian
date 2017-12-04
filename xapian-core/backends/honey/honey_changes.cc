@@ -1,5 +1,5 @@
-/** @file glass_changes.cc
- * @brief Glass changesets
+/** @file honey_changes.cc
+ * @brief Honey changesets
  */
 /* Copyright 2014,2016 Olly Betts
  *
@@ -21,10 +21,10 @@
 
 #include <config.h>
 
-#include "glass_changes.h"
+#include "honey_changes.h"
 
-#include "glass_defs.h"
-#include "glass_replicate_internal.h"
+#include "honey_defs.h"
+#include "honey_replicate_internal.h"
 #include "fd.h"
 #include "io_utils.h"
 #include "pack.h"
@@ -41,7 +41,7 @@
 
 using namespace std;
 
-GlassChanges::~GlassChanges()
+HoneyChanges::~HoneyChanges()
 {
     if (changes_fd >= 0) {
 	::close(changes_fd);
@@ -51,9 +51,9 @@ GlassChanges::~GlassChanges()
     }
 }
 
-GlassChanges *
-GlassChanges::start(glass_revision_number_t old_rev,
-		    glass_revision_number_t rev,
+HoneyChanges *
+HoneyChanges::start(honey_revision_number_t old_rev,
+		    honey_revision_number_t rev,
 		    int flags)
 {
     if (rev == 0) {
@@ -98,18 +98,18 @@ GlassChanges::start(glass_revision_number_t old_rev,
     io_write(changes_fd, header.data(), header.size());
     // FIXME: save the block stream as a single zlib stream...
 
-    // bool compressed = CHANGES_VERSION != 1; FIXME: always true for glass, but make optional?
+    // bool compressed = CHANGES_VERSION != 1; FIXME: always true for honey, but make optional?
     return this;
 }
 
 void
-GlassChanges::write_block(const char * p, size_t len)
+HoneyChanges::write_block(const char * p, size_t len)
 {
     io_write(changes_fd, p, len);
 }
 
 void
-GlassChanges::commit(glass_revision_number_t new_rev, int flags)
+HoneyChanges::commit(honey_revision_number_t new_rev, int flags)
 {
     if (changes_fd < 0)
 	return;
@@ -152,7 +152,7 @@ GlassChanges::commit(glass_revision_number_t new_rev, int flags)
     // before new_rev.  If max_changesets is unchanged from the previous
     // commit and nothing went wrong, exactly one changeset file should be
     // deleted.
-    glass_revision_number_t stop_changeset = new_rev - max_changesets;
+    honey_revision_number_t stop_changeset = new_rev - max_changesets;
     while (oldest_changeset < stop_changeset) {
 	changes_file.resize(changes_stem.size());
 	changes_file += str(oldest_changeset);
@@ -162,7 +162,7 @@ GlassChanges::commit(glass_revision_number_t new_rev, int flags)
 }
 
 void
-GlassChanges::check(const string & changes_file)
+HoneyChanges::check(const string & changes_file)
 {
     FD fd(posixy_open(changes_file.c_str(), O_RDONLY | O_CLOEXEC, 0666));
     if (fd < 0) {
@@ -185,7 +185,7 @@ GlassChanges::check(const string & changes_file)
     }
     const char * end = buf + n;
 
-    glass_revision_number_t old_rev, rev;
+    honey_revision_number_t old_rev, rev;
     if (!unpack_uint(&p, end, &old_rev))
 	throw Xapian::DatabaseError("Changes file has bad old_rev");
     if (!unpack_uint(&p, end, &rev))
@@ -215,7 +215,7 @@ GlassChanges::check(const string & changes_file)
 	}
 	if (v == 0xfe) {
 	    // Version file.
-	    glass_revision_number_t version_rev;
+	    honey_revision_number_t version_rev;
 	    if (!unpack_uint(&p, end, &version_rev))
 		throw Xapian::DatabaseError("Changes file - bad version file revision");
 	    if (rev != version_rev)
@@ -240,7 +240,7 @@ GlassChanges::check(const string & changes_file)
 	// Changed block.
 	if (v > 5)
 	    throw Xapian::DatabaseError("Changes file - bad block size");
-	unsigned block_size = GLASS_MIN_BLOCKSIZE << v;
+	unsigned block_size = HONEY_MIN_BLOCKSIZE << v;
 	uint4 block_number;
 	if (!unpack_uint(&p, end, &block_number))
 	    throw Xapian::DatabaseError("Changes file - bad block number");

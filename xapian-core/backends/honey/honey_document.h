@@ -1,5 +1,5 @@
-/** @file glass_document.h
- * @brief A document read from a GlassDatabase.
+/** @file honey_document.h
+ * @brief A document read from a HoneyDatabase.
  */
 /* Copyright (C) 2008,2009,2010,2011 Olly Betts
  *
@@ -18,36 +18,36 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_DOCUMENT_H
-#define XAPIAN_INCLUDED_GLASS_DOCUMENT_H
+#ifndef XAPIAN_INCLUDED_HONEY_DOCUMENT_H
+#define XAPIAN_INCLUDED_HONEY_DOCUMENT_H
 
-#include "glass_docdata.h"
-#include "glass_values.h"
+#include "honey_docdata.h"
+#include "honey_values.h"
 #include "backends/database.h"
 #include "backends/document.h"
 
-/// A document read from a GlassDatabase.
-class GlassDocument : public Xapian::Document::Internal {
+/// A document read from a HoneyDatabase.
+class HoneyDocument : public Xapian::Document::Internal {
     /// Don't allow assignment.
-    void operator=(const GlassDocument &);
+    void operator=(const HoneyDocument &);
 
     /// Don't allow copying.
-    GlassDocument(const GlassDocument &);
+    HoneyDocument(const HoneyDocument &);
 
     /// Used for lazy access to document values.
-    const GlassValueManager *value_manager;
+    const HoneyValueManager *value_manager;
 
     /// Used for lazy access to document data.
-    const GlassDocDataTable *docdata_table;
+    const HoneyDocDataTable *docdata_table;
 
-    /// GlassDatabase::open_document() needs to call our private constructor.
-    friend class GlassDatabase;
+    /// HoneyDatabase::open_document() needs to call our private constructor.
+    friend class HoneyDatabase;
 
-    /// Private constructor - only called by GlassDatabase::open_document().
-    GlassDocument(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db,
+    /// Private constructor - only called by HoneyDatabase::open_document().
+    HoneyDocument(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db,
 		  Xapian::docid did_,
-		  const GlassValueManager *value_manager_,
-		  const GlassDocDataTable *docdata_table_)
+		  const HoneyValueManager *value_manager_,
+		  const HoneyDocDataTable *docdata_table_)
 	: Xapian::Document::Internal(db, did_),
 	  value_manager(value_manager_), docdata_table(docdata_table_) { }
 
@@ -59,4 +59,4 @@ class GlassDocument : public Xapian::Document::Internal {
     /** @} */
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_DOCUMENT_H
+#endif // XAPIAN_INCLUDED_HONEY_DOCUMENT_H

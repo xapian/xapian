@@ -1,5 +1,5 @@
-/** @file glass_synonym.cc
- * @brief Synonym data for a glass database.
+/** @file honey_synonym.cc
+ * @brief Synonym data for a honey database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2011 Olly Betts
  *
@@ -19,11 +19,11 @@
  */
 
 #include <config.h>
-#include "glass_synonym.h"
+#include "honey_synonym.h"
 
 #include "xapian/error.h"
 
-#include "glass_cursor.h"
+#include "honey_cursor.h"
 #include "debuglog.h"
 #include "stringutils.h"
 #include "api/vectortermlist.h"
@@ -40,7 +40,7 @@ using namespace std;
 #define MAGIC_XOR_VALUE 96
 
 void
-GlassSynonymTable::merge_changes()
+HoneySynonymTable::merge_changes()
 {
     if (last_term.empty()) return;
 
@@ -63,7 +63,7 @@ GlassSynonymTable::merge_changes()
 }
 
 void
-GlassSynonymTable::add_synonym(const string & term, const string & synonym)
+HoneySynonymTable::add_synonym(const string & term, const string & synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -89,7 +89,7 @@ GlassSynonymTable::add_synonym(const string & term, const string & synonym)
 }
 
 void
-GlassSynonymTable::remove_synonym(const string & term, const string & synonym)
+HoneySynonymTable::remove_synonym(const string & term, const string & synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -115,7 +115,7 @@ GlassSynonymTable::remove_synonym(const string & term, const string & synonym)
 }
 
 void
-GlassSynonymTable::clear_synonyms(const string & term)
+HoneySynonymTable::clear_synonyms(const string & term)
 {
     // We don't actually ever need to merge_changes() here, but it's quite
     // likely that someone might clear_synonyms() and then add_synonym() for
@@ -131,7 +131,7 @@ GlassSynonymTable::clear_synonyms(const string & term)
 }
 
 TermList *
-GlassSynonymTable::open_termlist(const string & term)
+HoneySynonymTable::open_termlist(const string & term)
 {
     vector<string> synonyms;
 
@@ -165,16 +165,16 @@ GlassSynonymTable::open_termlist(const string & term)
 
 ///////////////////////////////////////////////////////////////////////////
 
-GlassSynonymTermList::~GlassSynonymTermList()
+HoneySynonymTermList::~HoneySynonymTermList()
 {
-    LOGCALL_DTOR(DB, "GlassSynonymTermList");
+    LOGCALL_DTOR(DB, "HoneySynonymTermList");
     delete cursor;
 }
 
 string
-GlassSynonymTermList::get_termname() const
+HoneySynonymTermList::get_termname() const
 {
-    LOGCALL(DB, string, "GlassSynonymTermList::get_termname", NO_ARGS);
+    LOGCALL(DB, string, "HoneySynonymTermList::get_termname", NO_ARGS);
     Assert(cursor);
     Assert(!cursor->current_key.empty());
     Assert(!at_end());
@@ -182,21 +182,21 @@ GlassSynonymTermList::get_termname() const
 }
 
 Xapian::doccount
-GlassSynonymTermList::get_termfreq() const
+HoneySynonymTermList::get_termfreq() const
 {
-    throw Xapian::InvalidOperationError("GlassSynonymTermList::get_termfreq() not meaningful");
+    throw Xapian::InvalidOperationError("HoneySynonymTermList::get_termfreq() not meaningful");
 }
 
 Xapian::termcount
-GlassSynonymTermList::get_collection_freq() const
+HoneySynonymTermList::get_collection_freq() const
 {
-    throw Xapian::InvalidOperationError("GlassSynonymTermList::get_collection_freq() not meaningful");
+    throw Xapian::InvalidOperationError("HoneySynonymTermList::get_collection_freq() not meaningful");
 }
 
 TermList *
-GlassSynonymTermList::next()
+HoneySynonymTermList::next()
 {
-    LOGCALL(DB, TermList *, "GlassSynonymTermList::next", NO_ARGS);
+    LOGCALL(DB, TermList *, "HoneySynonymTermList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -209,9 +209,9 @@ GlassSynonymTermList::next()
 }
 
 TermList *
-GlassSynonymTermList::skip_to(const string &tname)
+HoneySynonymTermList::skip_to(const string &tname)
 {
-    LOGCALL(DB, TermList *, "GlassSynonymTermList::skip_to", tname);
+    LOGCALL(DB, TermList *, "HoneySynonymTermList::skip_to", tname);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge(tname)) {
@@ -226,8 +226,8 @@ GlassSynonymTermList::skip_to(const string &tname)
 }
 
 bool
-GlassSynonymTermList::at_end() const
+HoneySynonymTermList::at_end() const
 {
-    LOGCALL(DB, bool, "GlassSynonymTermList::at_end", NO_ARGS);
+    LOGCALL(DB, bool, "HoneySynonymTermList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

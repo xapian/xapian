@@ -1,5 +1,5 @@
-/** @file glass_metadata.cc
- * @brief Access to metadata for a glass database.
+/** @file honey_metadata.cc
+ * @brief Access to metadata for a honey database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
@@ -21,9 +21,9 @@
 
 #include <config.h>
 
-#include "glass_metadata.h"
+#include "honey_metadata.h"
 
-#include "glass_cursor.h"
+#include "honey_cursor.h"
 
 #include "backends/database.h"
 #include "debuglog.h"
@@ -35,28 +35,28 @@
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
-GlassMetadataTermList::GlassMetadataTermList(
+HoneyMetadataTermList::HoneyMetadataTermList(
 	intrusive_ptr<const Xapian::Database::Internal> database_,
-	GlassCursor * cursor_,
+	HoneyCursor * cursor_,
 	const string &prefix_)
 	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
 {
-    LOGCALL_CTOR(DB, "GlassMetadataTermList", database_ | cursor_ | prefix_);
+    LOGCALL_CTOR(DB, "HoneyMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
     // Seek to the first key before the first metadata key.
     cursor->find_entry_lt(prefix);
 }
 
-GlassMetadataTermList::~GlassMetadataTermList()
+HoneyMetadataTermList::~HoneyMetadataTermList()
 {
-    LOGCALL_DTOR(DB, "GlassMetadataTermList");
+    LOGCALL_DTOR(DB, "HoneyMetadataTermList");
     delete cursor;
 }
 
 string
-GlassMetadataTermList::get_termname() const
+HoneyMetadataTermList::get_termname() const
 {
-    LOGCALL(DB, string, "GlassMetadataTermList::get_termname", NO_ARGS);
+    LOGCALL(DB, string, "HoneyMetadataTermList::get_termname", NO_ARGS);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
     Assert(startswith(cursor->current_key, prefix));
@@ -64,21 +64,21 @@ GlassMetadataTermList::get_termname() const
 }
 
 Xapian::doccount
-GlassMetadataTermList::get_termfreq() const
+HoneyMetadataTermList::get_termfreq() const
 {
-    throw Xapian::InvalidOperationError("GlassMetadataTermList::get_termfreq() not meaningful");
+    throw Xapian::InvalidOperationError("HoneyMetadataTermList::get_termfreq() not meaningful");
 }
 
 Xapian::termcount
-GlassMetadataTermList::get_collection_freq() const
+HoneyMetadataTermList::get_collection_freq() const
 {
-    throw Xapian::InvalidOperationError("GlassMetadataTermList::get_collection_freq() not meaningful");
+    throw Xapian::InvalidOperationError("HoneyMetadataTermList::get_collection_freq() not meaningful");
 }
 
 TermList *
-GlassMetadataTermList::next()
+HoneyMetadataTermList::next()
 {
-    LOGCALL(DB, TermList *, "GlassMetadataTermList::next", NO_ARGS);
+    LOGCALL(DB, TermList *, "HoneyMetadataTermList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -91,9 +91,9 @@ GlassMetadataTermList::next()
 }
 
 TermList *
-GlassMetadataTermList::skip_to(const string &key)
+HoneyMetadataTermList::skip_to(const string &key)
 {
-    LOGCALL(DB, TermList *, "GlassMetadataTermList::skip_to", key);
+    LOGCALL(DB, TermList *, "HoneyMetadataTermList::skip_to", key);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
@@ -108,8 +108,8 @@ GlassMetadataTermList::skip_to(const string &key)
 }
 
 bool
-GlassMetadataTermList::at_end() const
+HoneyMetadataTermList::at_end() const
 {
-    LOGCALL(DB, bool, "GlassMetadataTermList::at_end", NO_ARGS);
+    LOGCALL(DB, bool, "HoneyMetadataTermList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

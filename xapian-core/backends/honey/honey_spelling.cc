@@ -1,5 +1,5 @@
-/** @file glass_spelling.cc
- * @brief Spelling correction data for a glass database.
+/** @file honey_spelling.cc
+ * @brief Spelling correction data for a honey database.
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015 Olly Betts
  *
@@ -24,7 +24,7 @@
 #include <xapian/types.h>
 
 #include "expand/expandweight.h"
-#include "glass_spelling.h"
+#include "honey_spelling.h"
 #include "omassert.h"
 #include "expand/ortermlist.h"
 #include "pack.h"
@@ -38,11 +38,11 @@
 #include <set>
 #include <string>
 
-using namespace Glass;
+using namespace Honey;
 using namespace std;
 
 void
-GlassSpellingTable::merge_changes()
+HoneySpellingTable::merge_changes()
 {
     map<fragment, set<string> >::const_iterator i;
     for (i = termlist_deltas.begin(); i != termlist_deltas.end(); ++i) {
@@ -111,7 +111,7 @@ GlassSpellingTable::merge_changes()
 }
 
 void
-GlassSpellingTable::toggle_fragment(fragment frag, const string & word)
+HoneySpellingTable::toggle_fragment(fragment frag, const string & word)
 {
     map<fragment, set<string> >::iterator i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
@@ -127,7 +127,7 @@ GlassSpellingTable::toggle_fragment(fragment frag, const string & word)
 }
 
 void
-GlassSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
+HoneySpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 {
     if (word.size() <= 1) return;
 
@@ -162,7 +162,7 @@ GlassSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 }
 
 void
-GlassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
+HoneySpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 {
     if (word.size() <= 1) return;
 
@@ -206,7 +206,7 @@ GlassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 }
 
 void
-GlassSpellingTable::toggle_word(const string & word)
+HoneySpellingTable::toggle_word(const string & word)
 {
     fragment buf;
     // Head:
@@ -256,7 +256,7 @@ struct TermListGreaterApproxSize {
 };
 
 TermList *
-GlassSpellingTable::open_termlist(const string & word)
+HoneySpellingTable::open_termlist(const string & word)
 {
     // This should have been handled by Database::get_spelling_suggestion().
     AssertRel(word.size(),>,1);
@@ -277,14 +277,14 @@ GlassSpellingTable::open_termlist(const string & word)
 	buf[1] = word[0];
 	buf[2] = word[1];
 	if (get_exact_entry(string(buf), data))
-	    pq.push(new GlassSpellingTermList(data));
+	    pq.push(new HoneySpellingTermList(data));
 
 	// Tail:
 	buf[0] = 'T';
 	buf[1] = word[word.size() - 2];
 	buf[2] = word[word.size() - 1];
 	if (get_exact_entry(string(buf), data))
-	    pq.push(new GlassSpellingTermList(data));
+	    pq.push(new HoneySpellingTermList(data));
 
 	if (word.size() <= 4) {
 	    // We also generate 'bookends' for two, three, and four character
@@ -296,7 +296,7 @@ GlassSpellingTable::open_termlist(const string & word)
 	    buf[1] = word[0];
 	    buf[3] = '\0';
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new GlassSpellingTermList(data));
+		pq.push(new HoneySpellingTermList(data));
 	}
 	if (word.size() > 2) {
 	    // Middles:
@@ -304,7 +304,7 @@ GlassSpellingTable::open_termlist(const string & word)
 	    for (size_t start = 0; start <= word.size() - 3; ++start) {
 		memcpy(buf.data + 1, word.data() + start, 3);
 		if (get_exact_entry(string(buf), data))
-		    pq.push(new GlassSpellingTermList(data));
+		    pq.push(new HoneySpellingTermList(data));
 	    }
 
 	    if (word.size() == 3) {
@@ -315,13 +315,13 @@ GlassSpellingTable::open_termlist(const string & word)
 		buf[1] = word[1];
 		buf[2] = word[0];
 		if (get_exact_entry(string(buf), data))
-		    pq.push(new GlassSpellingTermList(data));
+		    pq.push(new HoneySpellingTermList(data));
 		// ABC -> ACB
 		buf[1] = word[0];
 		buf[2] = word[2];
 		buf[3] = word[1];
 		if (get_exact_entry(string(buf), data))
-		    pq.push(new GlassSpellingTermList(data));
+		    pq.push(new HoneySpellingTermList(data));
 	    }
 	} else {
 	    Assert(word.size() == 2);
@@ -333,17 +333,17 @@ GlassSpellingTable::open_termlist(const string & word)
 	    buf[1] = word[1];
 	    buf[2] = word[0];
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new GlassSpellingTermList(data));
+		pq.push(new HoneySpellingTermList(data));
 	    buf[0] = 'T';
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new GlassSpellingTermList(data));
+		pq.push(new HoneySpellingTermList(data));
 	}
 
 	if (pq.empty()) return NULL;
 
 	// Build up an OrTermList tree by combine leaves and/or branches in
 	// pairs.  The tree is balanced by the approximated sizes of the leaf
-	// GlassSpellingTermList objects - the way the tree is built are very
+	// HoneySpellingTermList objects - the way the tree is built are very
 	// similar to how an optimal Huffman code is often constructed.
 	//
 	// Balancing the tree like this should tend to minimise the amount of
@@ -372,7 +372,7 @@ GlassSpellingTable::open_termlist(const string & word)
 }
 
 Xapian::doccount
-GlassSpellingTable::get_word_frequency(const string & word) const
+HoneySpellingTable::get_word_frequency(const string & word) const
 {
     map<string, Xapian::termcount>::const_iterator i;
     i = wordfreq_changes.find(word);
@@ -399,7 +399,7 @@ GlassSpellingTable::get_word_frequency(const string & word) const
 ///////////////////////////////////////////////////////////////////////////
 
 Xapian::termcount
-GlassSpellingTermList::get_approx_size() const
+HoneySpellingTermList::get_approx_size() const
 {
     // This is only used to decide how to build a OR-tree of TermList objects
     // so we just need to return "sizes" which are ordered roughly correctly.
@@ -407,31 +407,31 @@ GlassSpellingTermList::get_approx_size() const
 }
 
 std::string
-GlassSpellingTermList::get_termname() const
+HoneySpellingTermList::get_termname() const
 {
     return current_term;
 }
 
 Xapian::termcount
-GlassSpellingTermList::get_wdf() const
+HoneySpellingTermList::get_wdf() const
 {
     return 1;
 }
 
 Xapian::doccount
-GlassSpellingTermList::get_termfreq() const
+HoneySpellingTermList::get_termfreq() const
 {
     return 1;
 }
 
 Xapian::termcount
-GlassSpellingTermList::get_collection_freq() const
+HoneySpellingTermList::get_collection_freq() const
 {
     return 1;
 }
 
 TermList *
-GlassSpellingTermList::next()
+HoneySpellingTermList::next()
 {
     if (p == data.size()) {
 	p = 0;
@@ -453,28 +453,28 @@ GlassSpellingTermList::next()
 }
 
 TermList *
-GlassSpellingTermList::skip_to(const string & term)
+HoneySpellingTermList::skip_to(const string & term)
 {
     while (!data.empty() && current_term < term) {
-	(void)GlassSpellingTermList::next();
+	(void)HoneySpellingTermList::next();
     }
     return NULL;
 }
 
 bool
-GlassSpellingTermList::at_end() const
+HoneySpellingTermList::at_end() const
 {
     return data.empty();
 }
 
 Xapian::termcount
-GlassSpellingTermList::positionlist_count() const
+HoneySpellingTermList::positionlist_count() const
 {
-    throw Xapian::UnimplementedError("GlassSpellingTermList::positionlist_count() not implemented");
+    throw Xapian::UnimplementedError("HoneySpellingTermList::positionlist_count() not implemented");
 }
 
 Xapian::PositionIterator
-GlassSpellingTermList::positionlist_begin() const
+HoneySpellingTermList::positionlist_begin() const
 {
-    throw Xapian::UnimplementedError("GlassSpellingTermList::positionlist_begin() not implemented");
+    throw Xapian::UnimplementedError("HoneySpellingTermList::positionlist_begin() not implemented");
 }

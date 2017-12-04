@@ -1,7 +1,7 @@
-/** @file glass_spellingwordslist.h
+/** @file honey_spellingwordslist.h
  * @brief A termlist containing all words which are spelling targets.
  */
-/* Copyright (C) 2005,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2005,2008,2009,2010,2011,2017 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -19,28 +19,29 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_HGUARD_GLASS_SPELLINGWORDSLIST_H
-#define XAPIAN_HGUARD_GLASS_SPELLINGWORDSLIST_H
+#ifndef XAPIAN_HGUARD_HONEY_SPELLINGWORDSLIST_H
+#define XAPIAN_HGUARD_HONEY_SPELLINGWORDSLIST_H
 
 #include "backends/alltermslist.h"
-#include "backends/database.h"
-#include "glass_spelling.h"
-#include "glass_cursor.h"
+#include "honey_spelling.h"
+#include "honey_cursor.h"
 
-class GlassSpellingWordsList : public AllTermsList {
+class HoneyDatabase;
+
+class HoneySpellingWordsList : public AllTermsList {
     /// Copying is not allowed.
-    GlassSpellingWordsList(const GlassSpellingWordsList &);
+    HoneySpellingWordsList(const HoneySpellingWordsList &);
 
     /// Assignment is not allowed.
-    void operator=(const GlassSpellingWordsList &);
+    void operator=(const HoneySpellingWordsList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
+    Xapian::Internal::intrusive_ptr<const HoneyDatabase> database;
 
     /** A cursor which runs through the spelling table reading termnames from
      *  the keys.
      */
-    GlassCursor * cursor;
+    HoneyCursor * cursor;
 
     /** The term frequency of the term at the current position.
      *
@@ -54,8 +55,8 @@ class GlassSpellingWordsList : public AllTermsList {
     void read_termfreq() const;
 
   public:
-    GlassSpellingWordsList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
-			   GlassCursor * cursor_)
+    HoneySpellingWordsList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> database_,
+			   HoneyCursor * cursor_)
 	    : database(database_), cursor(cursor_), termfreq(0) {
 	// Seek to the entry before the first key with a "W" prefix, so the
 	// first next() will advance us to the first such entry.
@@ -63,7 +64,9 @@ class GlassSpellingWordsList : public AllTermsList {
     }
 
     /// Destructor.
-    ~GlassSpellingWordsList();
+    ~HoneySpellingWordsList();
+
+    Xapian::termcount get_approx_size() const;
 
     /** Returns the current termname.
      *
@@ -96,4 +99,4 @@ class GlassSpellingWordsList : public AllTermsList {
     bool at_end() const;
 };
 
-#endif /* XAPIAN_HGUARD_GLASS_SPELLINGWORDSLIST_H */
+#endif /* XAPIAN_HGUARD_HONEY_SPELLINGWORDSLIST_H */

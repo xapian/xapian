@@ -1,5 +1,5 @@
-/** @file glass_values.cc
- * @brief GlassValueManager class
+/** @file honey_values.cc
+ * @brief HoneyValueManager class
  */
 /* Copyright (C) 2008,2009,2010,2011,2012,2016 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
@@ -21,11 +21,11 @@
 
 #include <config.h>
 
-#include "glass_values.h"
+#include "honey_values.h"
 
-#include "glass_cursor.h"
-#include "glass_postlist.h"
-#include "glass_termlist.h"
+#include "honey_cursor.h"
+#include "honey_postlist.h"
+#include "honey_termlist.h"
 #include "debuglog.h"
 #include "backends/document.h"
 #include "pack.h"
@@ -36,7 +36,7 @@
 #include <algorithm>
 #include "autoptr.h"
 
-using namespace Glass;
+using namespace Honey;
 using namespace std;
 
 // FIXME:
@@ -130,7 +130,7 @@ ValueChunkReader::skip_to(Xapian::docid target)
 }
 
 void
-GlassValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
+HoneyValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
 			     const string & val)
 {
     map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
@@ -142,7 +142,7 @@ GlassValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
 }
 
 void
-GlassValueManager::remove_value(Xapian::docid did, Xapian::valueno slot)
+HoneyValueManager::remove_value(Xapian::docid did, Xapian::valueno slot)
 {
     map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
     i = changes.find(slot);
@@ -153,11 +153,11 @@ GlassValueManager::remove_value(Xapian::docid did, Xapian::valueno slot)
 }
 
 Xapian::docid
-GlassValueManager::get_chunk_containing_did(Xapian::valueno slot,
+HoneyValueManager::get_chunk_containing_did(Xapian::valueno slot,
 					    Xapian::docid did,
 					    string &chunk) const
 {
-    LOGCALL(DB, Xapian::docid, "GlassValueManager::get_chunk_containing_did", slot | did | chunk);
+    LOGCALL(DB, Xapian::docid, "HoneyValueManager::get_chunk_containing_did", slot | did | chunk);
     if (!cursor.get())
 	cursor.reset(postlist_table->cursor_get());
     if (!cursor.get()) RETURN(0);
@@ -193,10 +193,10 @@ GlassValueManager::get_chunk_containing_did(Xapian::valueno slot,
 
 static const size_t CHUNK_SIZE_THRESHOLD = 2000;
 
-namespace Glass {
+namespace Honey {
 
 class ValueUpdater {
-    GlassPostListTable * table;
+    HoneyPostListTable * table;
 
     Xapian::valueno slot;
 
@@ -240,7 +240,7 @@ class ValueUpdater {
     }
 
   public:
-    ValueUpdater(GlassPostListTable * table_, Xapian::valueno slot_)
+    ValueUpdater(HoneyPostListTable * table_, Xapian::valueno slot_)
 	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
 
     ~ValueUpdater() {
@@ -269,10 +269,10 @@ class ValueUpdater {
 	    last_allowed_did = 0;
 	}
 	if (last_allowed_did == 0) {
-	    last_allowed_did = GLASS_MAX_DOCID;
+	    last_allowed_did = HONEY_MAX_DOCID;
 	    Assert(tag.empty());
 	    new_first_did = 0;
-	    AutoPtr<GlassCursor> cursor(table->cursor_get());
+	    AutoPtr<HoneyCursor> cursor(table->cursor_get());
 	    if (cursor->find_entry(make_valuechunk_key(slot, did))) {
 		// We found an exact match, so the first docid is the one
 		// we looked for.
@@ -323,7 +323,7 @@ class ValueUpdater {
 }
 
 void
-GlassValueManager::merge_changes()
+HoneyValueManager::merge_changes()
 {
     if (termlist_table->is_open()) {
 	map<Xapian::docid, string>::const_iterator i;
@@ -343,7 +343,7 @@ GlassValueManager::merge_changes()
 	map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
 	for (i = changes.begin(); i != changes.end(); ++i) {
 	    Xapian::valueno slot = i->first;
-	    Glass::ValueUpdater updater(postlist_table, slot);
+	    Honey::ValueUpdater updater(postlist_table, slot);
 	    const map<Xapian::docid, string> & slot_changes = i->second;
 	    map<Xapian::docid, string>::const_iterator j;
 	    for (j = slot_changes.begin(); j != slot_changes.end(); ++j) {
@@ -355,7 +355,7 @@ GlassValueManager::merge_changes()
 }
 
 void
-GlassValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
+HoneyValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 				map<Xapian::valueno, ValueStats> & value_stats)
 {
     // FIXME: Use BitWriter and interpolative coding?  Or is it not worthwhile
@@ -406,7 +406,7 @@ GlassValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 }
 
 void
-GlassValueManager::delete_document(Xapian::docid did,
+HoneyValueManager::delete_document(Xapian::docid did,
 				   map<Xapian::valueno, ValueStats> & value_stats)
 {
     Assert(termlist_table->is_open());
@@ -450,7 +450,7 @@ GlassValueManager::delete_document(Xapian::docid did,
 }
 
 void
-GlassValueManager::replace_document(Xapian::docid did,
+HoneyValueManager::replace_document(Xapian::docid did,
 				    const Xapian::Document &doc,
 				    map<Xapian::valueno, ValueStats> & value_stats)
 {
@@ -463,7 +463,7 @@ GlassValueManager::replace_document(Xapian::docid did,
 }
 
 string
-GlassValueManager::get_value(Xapian::docid did, Xapian::valueno slot) const
+HoneyValueManager::get_value(Xapian::docid did, Xapian::valueno slot) const
 {
     map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
     i = changes.find(slot);
@@ -486,7 +486,7 @@ GlassValueManager::get_value(Xapian::docid did, Xapian::valueno slot) const
 }
 
 void
-GlassValueManager::get_all_values(map<Xapian::valueno, string> & values,
+HoneyValueManager::get_all_values(map<Xapian::valueno, string> & values,
 				  Xapian::docid did) const
 {
     Assert(values.empty());
@@ -494,7 +494,7 @@ GlassValueManager::get_all_values(map<Xapian::valueno, string> & values,
 	// Either the database has been closed, or else there's no termlist table.
 	// Check if the postlist table is open to determine which is the case.
 	if (!postlist_table->is_open())
-	    GlassTable::throw_database_closed();
+	    HoneyTable::throw_database_closed();
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
     }
     map<Xapian::docid, string>::const_iterator i = slots.find(did);
@@ -520,9 +520,9 @@ GlassValueManager::get_all_values(map<Xapian::valueno, string> & values,
 }
 
 void
-GlassValueManager::get_value_stats(Xapian::valueno slot) const
+HoneyValueManager::get_value_stats(Xapian::valueno slot) const
 {
-    LOGCALL_VOID(DB, "GlassValueManager::get_value_stats", slot);
+    LOGCALL_VOID(DB, "HoneyValueManager::get_value_stats", slot);
     // Invalidate the cache first in case an exception is thrown.
     mru_slot = Xapian::BAD_VALUENO;
     get_value_stats(slot, mru_valstats);
@@ -530,9 +530,9 @@ GlassValueManager::get_value_stats(Xapian::valueno slot) const
 }
 
 void
-GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
+HoneyValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
 {
-    LOGCALL_VOID(DB, "GlassValueManager::get_value_stats", slot | Literal("[stats]"));
+    LOGCALL_VOID(DB, "HoneyValueManager::get_value_stats", slot | Literal("[stats]"));
     // Invalidate the cache first in case an exception is thrown.
     mru_slot = Xapian::BAD_VALUENO;
 
@@ -563,9 +563,9 @@ GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 }
 
 void
-GlassValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stats)
+HoneyValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stats)
 {
-    LOGCALL_VOID(DB, "GlassValueManager::set_value_stats", value_stats);
+    LOGCALL_VOID(DB, "HoneyValueManager::set_value_stats", value_stats);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     for (i = value_stats.begin(); i != value_stats.end(); ++i) {
 	string key = make_valuestats_key(i->first);

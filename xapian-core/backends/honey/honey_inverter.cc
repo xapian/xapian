@@ -1,4 +1,4 @@
-/** @file glass_inverter.cc
+/** @file honey_inverter.cc
  * @brief Inverter class which "inverts the file".
  */
 /* Copyright (C) 2009,2013 Olly Betts
@@ -20,10 +20,10 @@
 
 #include <config.h>
 
-#include "glass_inverter.h"
+#include "honey_inverter.h"
 
-#include "glass_postlist.h"
-#include "glass_positionlist.h"
+#include "honey_postlist.h"
+#include "honey_positionlist.h"
 
 #include "api/termlist.h"
 
@@ -33,7 +33,7 @@
 using namespace std;
 
 void
-Inverter::store_positions(const GlassPositionListTable & position_table,
+Inverter::store_positions(const HoneyPositionListTable & position_table,
 			  Xapian::docid did,
 			  const string & tname,
 			  const vector<Xapian::termpos> & posvec,
@@ -65,7 +65,7 @@ Inverter::store_positions(const GlassPositionListTable & position_table,
 }
 
 void
-Inverter::set_positionlist(const GlassPositionListTable & position_table,
+Inverter::set_positionlist(const HoneyPositionListTable & position_table,
 			   Xapian::docid did,
 			   const string & tname,
 			   const Xapian::TermIterator & term,
@@ -126,14 +126,14 @@ Inverter::get_positionlist(Xapian::docid did,
 }
 
 bool
-Inverter::has_positions(const GlassPositionListTable & position_table) const
+Inverter::has_positions(const HoneyPositionListTable & position_table) const
 {
     if (pos_changes.empty())
 	return !position_table.empty();
 
     // FIXME: Can we cheaply keep track of some things to make this more
     // efficient?  E.g. how many sets and deletes we had in total perhaps.
-    glass_tablesize_t changes = 0;
+    honey_tablesize_t changes = 0;
     map<string, map<Xapian::docid, string> >::const_iterator i;
     for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {
 	const map<Xapian::docid, string> & m = i->second;
@@ -151,14 +151,14 @@ Inverter::has_positions(const GlassPositionListTable & position_table) const
 }
 
 void
-Inverter::flush_doclengths(GlassPostListTable & table)
+Inverter::flush_doclengths(HoneyPostListTable & table)
 {
     table.merge_doclen_changes(doclen_changes);
     doclen_changes.clear();
 }
 
 void
-Inverter::flush_post_list(GlassPostListTable & table, const string & term)
+Inverter::flush_post_list(HoneyPostListTable & table, const string & term)
 {
     map<string, PostingChanges>::iterator i;
     i = postlist_changes.find(term);
@@ -170,7 +170,7 @@ Inverter::flush_post_list(GlassPostListTable & table, const string & term)
 }
 
 void
-Inverter::flush_all_post_lists(GlassPostListTable & table)
+Inverter::flush_all_post_lists(HoneyPostListTable & table)
 {
     map<string, PostingChanges>::const_iterator i;
     for (i = postlist_changes.begin(); i != postlist_changes.end(); ++i) {
@@ -180,7 +180,7 @@ Inverter::flush_all_post_lists(GlassPostListTable & table)
 }
 
 void
-Inverter::flush_post_lists(GlassPostListTable & table, const string & pfx)
+Inverter::flush_post_lists(HoneyPostListTable & table, const string & pfx)
 {
     if (pfx.empty())
 	return flush_all_post_lists(table);
@@ -211,14 +211,14 @@ Inverter::flush_post_lists(GlassPostListTable & table, const string & pfx)
 }
 
 void
-Inverter::flush(GlassPostListTable & table)
+Inverter::flush(HoneyPostListTable & table)
 {
     flush_doclengths(table);
     flush_all_post_lists(table);
 }
 
 void
-Inverter::flush_pos_lists(GlassPositionListTable & table)
+Inverter::flush_pos_lists(HoneyPositionListTable & table)
 {
     map<string, map<Xapian::docid, string> >::const_iterator i;
     for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {

@@ -1,5 +1,5 @@
-/** @file glass_termlisttable.h
- * @brief Subclass of GlassTable which holds termlists.
+/** @file honey_termlisttable.h
+ * @brief Subclass of HoneyTable which holds termlists.
  */
 /* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
  *
@@ -18,13 +18,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_TERMLISTTABLE_H
-#define XAPIAN_INCLUDED_GLASS_TERMLISTTABLE_H
+#ifndef XAPIAN_INCLUDED_HONEY_TERMLISTTABLE_H
+#define XAPIAN_INCLUDED_HONEY_TERMLISTTABLE_H
 
 #include <xapian/constants.h>
 #include <xapian/types.h>
 
-#include "glass_table.h"
+#include "honey_table.h"
 #include "pack.h"
 
 #include <string>
@@ -33,7 +33,7 @@ namespace Xapian {
 class Document;
 }
 
-class GlassTermListTable : public GlassTable {
+class HoneyTermListTable : public HoneyTable {
   public:
     static std::string make_key(Xapian::docid did) {
 	std::string key;
@@ -41,20 +41,20 @@ class GlassTermListTable : public GlassTable {
 	return key;
     }
 
-    /** Create a new GlassTermListTable object.
+    /** Create a new HoneyTermListTable object.
      *
      *  This method does not create or open the table on disk - you
      *  must call the create() or open() methods respectively!
      *
-     *  @param dbdir	    The directory the glass database is stored in.
+     *  @param dbdir	    The directory the honey database is stored in.
      *  @param readonly	    true if we're opening read-only, else false.
      *  @param lazy_	    Don't create a termlist if there isn't one.
      */
-    GlassTermListTable(const std::string & dbdir, bool readonly, bool lazy_)
-	: GlassTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
+    HoneyTermListTable(const std::string & dbdir, bool readonly, bool lazy_)
+	: HoneyTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
 
-    GlassTermListTable(int fd, off_t offset_, bool readonly, bool lazy_)
-	: GlassTable("termlist", fd, offset_, readonly, lazy_) { }
+    HoneyTermListTable(int fd, off_t offset_, bool readonly, bool lazy_)
+	: HoneyTable("termlist", fd, offset_, readonly, lazy_) { }
 
     /** Set the termlist data for document @a did.
      *
@@ -74,4 +74,4 @@ class GlassTermListTable : public GlassTable {
     void delete_termlist(Xapian::docid did) { del(make_key(did)); }
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_TERMLISTTABLE_H
+#endif // XAPIAN_INCLUDED_HONEY_TERMLISTTABLE_H

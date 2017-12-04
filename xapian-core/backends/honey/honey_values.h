@@ -1,5 +1,5 @@
-/** @file glass_values.h
- * @brief GlassValueManager class
+/** @file honey_values.h
+ * @brief HoneyValueManager class
  */
 /* Copyright (C) 2008,2009,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_VALUES_H
-#define XAPIAN_INCLUDED_GLASS_VALUES_H
+#ifndef XAPIAN_INCLUDED_HONEY_VALUES_H
+#define XAPIAN_INCLUDED_HONEY_VALUES_H
 
 #include "pack.h"
 #include "backends/valuestats.h"
@@ -32,9 +32,9 @@
 #include <map>
 #include <string>
 
-class GlassCursor;
+class HoneyCursor;
 
-namespace Glass {
+namespace Honey {
 
 /** Generate a key for a value stream chunk. */
 inline std::string
@@ -70,11 +70,11 @@ namespace Xapian {
     class Document;
 }
 
-class GlassPostListTable;
-class GlassTermListTable;
+class HoneyPostListTable;
+class HoneyTermListTable;
 struct ValueStats;
 
-class GlassValueManager {
+class HoneyValueManager {
     /** The value number for the most recently used value statistics.
      *
      *  Set to Xapian::BAD_VALUENO if no value statistics are currently
@@ -85,15 +85,15 @@ class GlassValueManager {
     /** The most recently used value statistics. */
     mutable ValueStats mru_valstats;
 
-    GlassPostListTable * postlist_table;
+    HoneyPostListTable * postlist_table;
 
-    GlassTermListTable * termlist_table;
+    HoneyTermListTable * termlist_table;
 
     std::map<Xapian::docid, std::string> slots;
 
     std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
 
-    mutable AutoPtr<GlassCursor> cursor;
+    mutable AutoPtr<HoneyCursor> cursor;
 
     void add_value(Xapian::docid did, Xapian::valueno slot,
 		   const std::string & val);
@@ -110,9 +110,9 @@ class GlassValueManager {
     void get_value_stats(Xapian::valueno slot, ValueStats & stats) const;
 
   public:
-    /** Create a new GlassValueManager object. */
-    GlassValueManager(GlassPostListTable * postlist_table_,
-		      GlassTermListTable * termlist_table_)
+    /** Create a new HoneyValueManager object. */
+    HoneyValueManager(HoneyPostListTable * postlist_table_,
+		      HoneyTermListTable * termlist_table_)
 	: mru_slot(Xapian::BAD_VALUENO),
 	  postlist_table(postlist_table_),
 	  termlist_table(termlist_table_) { }
@@ -174,7 +174,7 @@ class GlassValueManager {
     }
 };
 
-namespace Glass {
+namespace Honey {
 
 class ValueChunkReader {
     const char *p;
@@ -207,4 +207,4 @@ class ValueChunkReader {
 
 }
 
-#endif // XAPIAN_INCLUDED_GLASS_VALUES_H
+#endif // XAPIAN_INCLUDED_HONEY_VALUES_H

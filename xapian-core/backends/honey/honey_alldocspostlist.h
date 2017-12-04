@@ -1,5 +1,5 @@
-/** @file glass_alldocspostlist.h
- * @brief A PostList which iterates over all documents in a GlassDatabase.
+/** @file honey_alldocspostlist.h
+ * @brief A PostList which iterates over all documents in a HoneyDatabase.
  */
 /* Copyright (C) 2006,2007,2008,2009 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
@@ -19,25 +19,27 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_ALLDOCSPOSTLIST_H
-#define XAPIAN_INCLUDED_GLASS_ALLDOCSPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_HONEY_ALLDOCSPOSTLIST_H
+#define XAPIAN_INCLUDED_HONEY_ALLDOCSPOSTLIST_H
 
 #include <string>
 
-#include "glass_postlist.h"
+#include "honey_postlist.h"
 
-class GlassAllDocsPostList : public GlassPostList {
+class HoneyDatabase;
+
+class HoneyAllDocsPostList : public HoneyPostList {
     /// Don't allow assignment.
-    void operator=(const GlassAllDocsPostList &);
+    void operator=(const HoneyAllDocsPostList &);
 
     /// Don't allow copying.
-    GlassAllDocsPostList(const GlassAllDocsPostList &);
+    HoneyAllDocsPostList(const HoneyAllDocsPostList &);
 
     /// The number of documents in the database.
     Xapian::doccount doccount;
 
   public:
-    GlassAllDocsPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
+    HoneyAllDocsPostList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> db_,
 			 Xapian::doccount doccount_);
 
     Xapian::doccount get_termfreq() const;
@@ -53,4 +55,4 @@ class GlassAllDocsPostList : public GlassPostList {
     std::string get_description() const;
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_ALLDOCSPOSTLIST_H
+#endif // XAPIAN_INCLUDED_HONEY_ALLDOCSPOSTLIST_H

@@ -1,5 +1,5 @@
-/** @file glass_freelist.cc
- * @brief Glass freelist
+/** @file honey_freelist.cc
+ * @brief Honey freelist
  */
 /* Copyright 2014,2015,2016 Olly Betts
  *
@@ -21,9 +21,9 @@
 
 #include <config.h>
 
-#include "glass_freelist.h"
+#include "honey_freelist.h"
 
-#include "glass_table.h"
+#include "honey_table.h"
 #include "xapian/error.h"
 
 #include "omassert.h"
@@ -31,14 +31,14 @@
 #include <cstring>
 
 using namespace std;
-using namespace Glass;
+using namespace Honey;
 
 // Allow forcing the freelist to be shorter to tickle bugs.
 // FIXME: Sort out a way we can set this dynamically while running the
 // testsuite.
-#ifdef GLASS_FREELIST_SIZE
+#ifdef HONEY_FREELIST_SIZE
 # define FREELIST_END_ \
-    (8 + (GLASS_FREELIST_SIZE < 3 ? 3 : GLASS_FREELIST_SIZE) * 4)
+    (8 + (HONEY_FREELIST_SIZE < 3 ? 3 : HONEY_FREELIST_SIZE) * 4)
 # define FREELIST_END (FREELIST_END_ < 2048 ? FREELIST_END_ : 2048)
 #else
 # define FREELIST_END block_size
@@ -56,7 +56,7 @@ const unsigned C_BASE = 8;
 const uint4 UNUSED = static_cast<uint4>(-1);
 
 void
-GlassFreeList::read_block(const GlassTable * B, uint4 n, byte * ptr)
+HoneyFreeList::read_block(const HoneyTable * B, uint4 n, byte * ptr)
 {
 #ifdef SST_SEARCH
     (void)B; (void)n; (void)ptr;
@@ -68,7 +68,7 @@ GlassFreeList::read_block(const GlassTable * B, uint4 n, byte * ptr)
 }
 
 void
-GlassFreeList::write_block(const GlassTable * B, uint4 n, byte * ptr, uint4 rev)
+HoneyFreeList::write_block(const HoneyTable * B, uint4 n, byte * ptr, uint4 rev)
 {
 #ifdef SST_SEARCH
     (void)B; (void)n; (void)ptr; (void)rev;
@@ -81,7 +81,7 @@ GlassFreeList::write_block(const GlassTable * B, uint4 n, byte * ptr, uint4 rev)
 }
 
 uint4
-GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
+HoneyFreeList::get_block(const HoneyTable *B, uint4 block_size,
 			 uint4 * blk_to_free)
 {
     if (fl == fl_end) {
@@ -136,7 +136,7 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
 }
 
 uint4
-GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
+HoneyFreeList::walk(const HoneyTable *B, uint4 block_size, bool inclusive)
 {
     if (fl == fl_end) {
 	// It's expected that the caller checks !empty() first.
@@ -183,7 +183,7 @@ GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
 }
 
 void
-GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 blk)
+HoneyFreeList::mark_block_unused(const HoneyTable * B, uint4 block_size, uint4 blk)
 {
     // If the current flw block is full, we need to call get_block(), and if
     // the returned block is the last entry in its freelist block, that block
@@ -213,7 +213,7 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
 	// just use blk as the next block in the freelist chain.
 	uint4 n = get_block(B, block_size, &blk_to_free);
 	aligned_write4(pw + flw.c, n);
-#ifdef GLASS_FREELIST_SIZE
+#ifdef HONEY_FREELIST_SIZE
 	if (block_size != FREELIST_END) {
 	    memset(pw + FREELIST_END, 0, block_size - FREELIST_END);
 	}
@@ -238,11 +238,11 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
 }
 
 void
-GlassFreeList::commit(const GlassTable * B, uint4 block_size)
+HoneyFreeList::commit(const HoneyTable * B, uint4 block_size)
 {
     if (pw && flw.c != 0) {
 	memset(pw + flw.c, 255, FREELIST_END - flw.c - 4);
-#ifdef GLASS_FREELIST_SIZE
+#ifdef HONEY_FREELIST_SIZE
 	if (block_size != FREELIST_END) {
 	    memset(pw + FREELIST_END, 0xaa, block_size - FREELIST_END);
 	}
@@ -258,7 +258,7 @@ GlassFreeList::commit(const GlassTable * B, uint4 block_size)
     }
 }
 
-GlassFreeListChecker::GlassFreeListChecker(const GlassFreeList & fl)
+HoneyFreeListChecker::HoneyFreeListChecker(const HoneyFreeList & fl)
 {
     const unsigned BITS_PER_ELT = sizeof(elt_type) * 8;
     const elt_type ALL_BITS = static_cast<elt_type>(-1);
@@ -276,7 +276,7 @@ GlassFreeListChecker::GlassFreeListChecker(const GlassFreeList & fl)
 }
 
 uint4
-GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
+HoneyFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 {
     const unsigned BITS_PER_ELT = sizeof(elt_type) * 8;
     uint4 c = 0;

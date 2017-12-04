@@ -1,5 +1,5 @@
-/** @file glass_docdata.h
- * @brief Subclass of GlassTable which holds document data.
+/** @file honey_docdata.h
+ * @brief Subclass of HoneyTable which holds document data.
  */
 /* Copyright (C) 2007,2008,2009,2010,2014,2016 Olly Betts
  *
@@ -18,17 +18,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_DOCDATA_H
-#define XAPIAN_INCLUDED_GLASS_DOCDATA_H
+#ifndef XAPIAN_INCLUDED_HONEY_DOCDATA_H
+#define XAPIAN_INCLUDED_HONEY_DOCDATA_H
 
 #include <xapian/types.h>
 
-#include "glass_lazytable.h"
+#include "honey_lazytable.h"
 #include "pack.h"
 
 #include <string>
 
-class GlassDocDataTable : public GlassLazyTable {
+class HoneyDocDataTable : public HoneyLazyTable {
   public:
     static std::string make_key(Xapian::docid did) {
 	std::string key;
@@ -36,19 +36,19 @@ class GlassDocDataTable : public GlassLazyTable {
 	return key;
     }
 
-    /** Create a new GlassDocDataTable object.
+    /** Create a new HoneyDocDataTable object.
      *
      *  This method does not create or open the table on disk - you
      *  must call the create() or open() methods respectively!
      *
-     *  @param dbdir	    The directory the glass database is stored in.
+     *  @param dbdir	    The directory the honey database is stored in.
      *  @param readonly     true if we're opening read-only, else false.
      */
-    GlassDocDataTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("docdata", dbdir + "/docdata.", readonly) { }
+    HoneyDocDataTable(const std::string & dbdir, bool readonly)
+	: HoneyLazyTable("docdata", dbdir + "/docdata.", readonly) { }
 
-    GlassDocDataTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("docdata", fd, offset_, readonly) { }
+    HoneyDocDataTable(int fd, off_t offset_, bool readonly)
+	: HoneyLazyTable("docdata", fd, offset_, readonly) { }
 
     /** Get the document data for document @a did.
      *
@@ -107,4 +107,4 @@ class GlassDocDataTable : public GlassLazyTable {
     }
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_DOCDATA_H
+#endif // XAPIAN_INCLUDED_HONEY_DOCDATA_H

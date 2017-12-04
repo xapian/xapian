@@ -1,4 +1,4 @@
-/* glass_positionlist.cc: A position list in a glass database.
+/* honey_positionlist.cc: A position list in a honey database.
  *
  * Copyright (C) 2004,2005,2006,2008,2009,2010,2013 Olly Betts
  *
@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "glass_positionlist.h"
+#include "honey_positionlist.h"
 
 #include <xapian/types.h>
 
@@ -29,15 +29,14 @@
 #include "pack.h"
 
 #include <string>
-#include <vector>
 
 using namespace std;
 
 void
 GlassPositionListTable::pack(string & s,
-			     const vector<Xapian::termpos> & vec) const
+			     const Xapian::VecCOW<Xapian::termpos> & vec) const
 {
-    LOGCALL_VOID(DB, "GlassPositionListTable::pack", s | vec);
+    LOGCALL_VOID(DB, "HoneyPositionListTable::pack", s | vec);
     Assert(!vec.empty());
 
     pack_uint(s, vec.back());
@@ -52,10 +51,10 @@ GlassPositionListTable::pack(string & s,
 }
 
 Xapian::termcount
-GlassPositionListTable::positionlist_count(Xapian::docid did,
+HoneyPositionListTable::positionlist_count(Xapian::docid did,
 					   const string & term) const
 {
-    LOGCALL(DB, Xapian::termcount, "GlassPositionListTable::positionlist_count", did | term);
+    LOGCALL(DB, Xapian::termcount, "HoneyPositionListTable::positionlist_count", did | term);
 
     string data;
     if (!get_exact_entry(make_key(did, term), data)) {
@@ -83,9 +82,9 @@ GlassPositionListTable::positionlist_count(Xapian::docid did,
 ///////////////////////////////////////////////////////////////////////////
 
 bool
-GlassPositionList::read_data(const string & data)
+HoneyPositionList::read_data(const string & data)
 {
-    LOGCALL(DB, bool, "GlassPositionList::read_data", data);
+    LOGCALL(DB, bool, "HoneyPositionList::read_data", data);
 
     have_started = false;
 
@@ -121,79 +120,67 @@ GlassPositionList::read_data(const string & data)
 }
 
 bool
-GlassPositionList::read_data(const GlassTable * table, Xapian::docid did,
+HoneyPositionList::read_data(const HoneyTable * table, Xapian::docid did,
 			     const string & tname)
 {
-    LOGCALL(DB, bool, "GlassPositionList::read_data", table | did | tname);
+    LOGCALL(DB, bool, "HoneyPositionList::read_data", table | did | tname);
     if (!cursor.get()) {
 	cursor.reset(table->cursor_get());
     }
     if (cursor.get() &&
-	cursor->find_exact(GlassPositionListTable::make_key(did, tname))) {
+	cursor->find_exact(HoneyPositionListTable::make_key(did, tname))) {
 	RETURN(read_data(cursor->current_tag));
     }
     RETURN(read_data(string()));
 }
 
 Xapian::termcount
-GlassPositionList::get_size() const
+HoneyPositionList::get_approx_size() const
 {
-    LOGCALL(DB, Xapian::termcount, "GlassPositionList::get_size", NO_ARGS);
+    LOGCALL(DB, Xapian::termcount, "HoneyPositionList::get_size", NO_ARGS);
     RETURN(size);
 }
 
 Xapian::termpos
-GlassPositionList::get_position() const
+HoneyPositionList::get_position() const
 {
-    LOGCALL(DB, Xapian::termpos, "GlassPositionList::get_position", NO_ARGS);
+    LOGCALL(DB, Xapian::termpos, "HoneyPositionList::get_position", NO_ARGS);
     Assert(have_started);
     RETURN(current_pos);
 }
 
-void
-GlassPositionList::next()
+bool
+HoneyPositionList::next()
 {
-    LOGCALL_VOID(DB, "GlassPositionList::next", NO_ARGS);
+    LOGCALL(DB, bool, "HoneyPositionList::next", NO_ARGS);
     if (rare(!have_started)) {
 	have_started = true;
-	return;
+	return current_pos <= last;
     }
     if (current_pos == last) {
-	last = 0;
-	current_pos = 1;
-	return;
+	return false;
     }
     current_pos = rd.decode_interpolative_next();
+    return true;
 }
 
-void
-GlassPositionList::skip_to(Xapian::termpos termpos)
+bool
+HoneyPositionList::skip_to(Xapian::termpos termpos)
 {
-    LOGCALL_VOID(DB, "GlassPositionList::skip_to", termpos);
+    LOGCALL(DB, bool, "HoneyPositionList::skip_to", termpos);
     have_started = true;
     if (termpos >= last) {
 	if (termpos == last) {
 	    current_pos = last;
-	    return;
+	    return true;
 	}
-	last = 0;
-	current_pos = 1;
-	return;
+	return false;
     }
     while (current_pos < termpos) {
 	if (current_pos == last) {
-	    last = 0;
-	    current_pos = 1;
-	    return;
+	    return false;
 	}
 	current_pos = rd.decode_interpolative_next();
     }
-}
-
-bool
-GlassPositionList::at_end() const
-{
-    LOGCALL(DB, bool, "GlassPositionList::at_end", NO_ARGS);
-    Assert(have_started);
-    RETURN(current_pos > last);
+    return true;
 }

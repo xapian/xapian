@@ -1,5 +1,5 @@
-/** @file glass_metadata.h
- * @brief Access to metadata for a glass database.
+/** @file honey_metadata.h
+ * @brief Access to metadata for a honey database.
  */
 /* Copyright (C) 2005,2007,2008,2009,2011 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
@@ -19,44 +19,44 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_METADATA_H
-#define XAPIAN_INCLUDED_GLASS_METADATA_H
+#ifndef XAPIAN_INCLUDED_HONEY_METADATA_H
+#define XAPIAN_INCLUDED_HONEY_METADATA_H
 
 #include <xapian/intrusive_ptr.h>
 #include <xapian/database.h>
 #include <xapian/types.h>
 
 #include "backends/alltermslist.h"
-#include "glass_table.h"
+#include "honey_table.h"
 #include "api/termlist.h"
 
 #include <string>
 
-class GlassCursor;
+class HoneyCursor;
 
-class GlassMetadataTermList : public AllTermsList {
+class HoneyMetadataTermList : public AllTermsList {
     /// Copying is not allowed.
-    GlassMetadataTermList(const GlassMetadataTermList &);
+    HoneyMetadataTermList(const HoneyMetadataTermList &);
 
     /// Assignment is not allowed.
-    void operator=(const GlassMetadataTermList &);
+    void operator=(const HoneyMetadataTermList &);
 
     /// Keep a reference to our database to stop it being deleted.
     Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
 
     /** A cursor which runs through the postlist table reading metadata keys.
      */
-    GlassCursor * cursor;
+    HoneyCursor * cursor;
 
     /** The prefix that all returned keys must have.
      */
     std::string prefix;
 
   public:
-    GlassMetadataTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
-			  GlassCursor * cursor_, const std::string &prefix_);
+    HoneyMetadataTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
+			  HoneyCursor * cursor_, const std::string &prefix_);
 
-    ~GlassMetadataTermList();
+    ~HoneyMetadataTermList();
 
     /** Returns the current termname.
      *
@@ -67,13 +67,13 @@ class GlassMetadataTermList : public AllTermsList {
 
     /** Return the term frequency for the term at the current position.
      *
-     *  Not meaningful for a GlassMetadataTermList.
+     *  Not meaningful for a HoneyMetadataTermList.
      */
     Xapian::doccount get_termfreq() const;
 
     /** Return the collection frequency for the term at the current position.
      *
-     *  Not meaningful for a GlassMetadataTermList.
+     *  Not meaningful for a HoneyMetadataTermList.
      */
     Xapian::termcount get_collection_freq() const;
 
@@ -87,4 +87,4 @@ class GlassMetadataTermList : public AllTermsList {
     bool at_end() const;
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_METADATA_H
+#endif // XAPIAN_INCLUDED_HONEY_METADATA_H

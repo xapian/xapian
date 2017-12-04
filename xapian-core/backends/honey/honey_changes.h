@@ -1,5 +1,5 @@
-/** @file glass_changes.h
- * @brief Glass changesets
+/** @file honey_changes.h
+ * @brief Honey changesets
  */
 /* Copyright 2014 Olly Betts
  *
@@ -19,13 +19,13 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_CHANGES_H
-#define XAPIAN_INCLUDED_GLASS_CHANGES_H
+#ifndef XAPIAN_INCLUDED_HONEY_CHANGES_H
+#define XAPIAN_INCLUDED_HONEY_CHANGES_H
 
-#include "glass_defs.h"
+#include "honey_defs.h"
 #include <string>
 
-class GlassChanges {
+class HoneyChanges {
     /// File descriptor to write changeset to (or -1 for none).
     int changes_fd;
 
@@ -37,25 +37,25 @@ class GlassChanges {
      *  to be sent a full copy of the database (which can be more efficient if
      *  a lot has changed).
      */
-    glass_revision_number_t max_changesets;
+    honey_revision_number_t max_changesets;
 
     /** The oldest changeset which might exist on disk.
      *
      *  Used to optimise removal of old changesets by giving us a point to
      *  start looking for ones to delete.
      */
-    glass_revision_number_t oldest_changeset;
+    honey_revision_number_t oldest_changeset;
 
   public:
-    explicit GlassChanges(const std::string & db_dir)
+    explicit HoneyChanges(const std::string & db_dir)
 	: changes_fd(-1),
 	  changes_stem(db_dir + "/changes"),
 	  oldest_changeset(0) { }
 
-    ~GlassChanges();
+    ~HoneyChanges();
 
-    GlassChanges * start(glass_revision_number_t old_rev,
-			 glass_revision_number_t rev,
+    HoneyChanges * start(honey_revision_number_t old_rev,
+			 honey_revision_number_t rev,
 			 int flags);
 
     void write_block(const char * p, size_t len);
@@ -64,17 +64,17 @@ class GlassChanges {
 	write_block(s.data(), s.size());
     }
 
-    void set_oldest_changeset(glass_revision_number_t rev) {
+    void set_oldest_changeset(honey_revision_number_t rev) {
 	oldest_changeset = rev;
     }
 
-    glass_revision_number_t get_oldest_changeset() const {
+    honey_revision_number_t get_oldest_changeset() const {
 	return oldest_changeset;
     }
 
-    void commit(glass_revision_number_t new_rev, int flags);
+    void commit(honey_revision_number_t new_rev, int flags);
 
     static void check(const std::string & changes_file);
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_CHANGES_H
+#endif // XAPIAN_INCLUDED_HONEY_CHANGES_H

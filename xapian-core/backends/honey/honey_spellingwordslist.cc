@@ -1,7 +1,7 @@
-/** @file glass_spellingwordslist.cc
- * @brief Iterator for the spelling correction words in a glass database.
+/** @file honey_spellingwordslist.cc
+ * @brief Iterator for the spelling correction words in a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,25 +22,34 @@
 
 #include <config.h>
 
-#include "glass_spellingwordslist.h"
+#include "honey_spellingwordslist.h"
 
 #include "xapian/error.h"
 #include "xapian/types.h"
 
 #include "debuglog.h"
+#include "honey_database.h"
 #include "pack.h"
 #include "stringutils.h"
 
-GlassSpellingWordsList::~GlassSpellingWordsList()
+HoneySpellingWordsList::~HoneySpellingWordsList()
 {
-    LOGCALL_DTOR(DB, "GlassSpellingWordsList");
+    LOGCALL_DTOR(DB, "HoneySpellingWordsList");
     delete cursor;
 }
 
-string
-GlassSpellingWordsList::get_termname() const
+Xapian::termcount
+HoneySpellingWordsList::get_approx_size() const
 {
-    LOGCALL(DB, string, "GlassSpellingWordsList::get_termname", NO_ARGS);
+    // This is an over-estimate, but we only use this value to build a balanced
+    // or-tree, and it'll do a decent enough job for that.
+    return database->spelling_table.get_entry_count();
+}
+
+string
+HoneySpellingWordsList::get_termname() const
+{
+    LOGCALL(DB, string, "HoneySpellingWordsList::get_termname", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
@@ -49,9 +58,9 @@ GlassSpellingWordsList::get_termname() const
 }
 
 Xapian::doccount
-GlassSpellingWordsList::get_termfreq() const
+HoneySpellingWordsList::get_termfreq() const
 {
-    LOGCALL(DB, Xapian::doccount, "GlassSpellingWordsList::get_termfreq", NO_ARGS);
+    LOGCALL(DB, Xapian::doccount, "HoneySpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
@@ -67,15 +76,15 @@ GlassSpellingWordsList::get_termfreq() const
 }
 
 Xapian::termcount
-GlassSpellingWordsList::get_collection_freq() const
+HoneySpellingWordsList::get_collection_freq() const
 {
-    throw Xapian::InvalidOperationError("GlassSpellingWordsList::get_collection_freq() not meaningful");
+    throw Xapian::InvalidOperationError("HoneySpellingWordsList::get_collection_freq() not meaningful");
 }
 
 TermList *
-GlassSpellingWordsList::next()
+HoneySpellingWordsList::next()
 {
-    LOGCALL(DB, TermList *, "GlassSpellingWordsList::next", NO_ARGS);
+    LOGCALL(DB, TermList *, "HoneySpellingWordsList::next", NO_ARGS);
     Assert(!at_end());
 
     cursor->next();
@@ -88,9 +97,9 @@ GlassSpellingWordsList::next()
 }
 
 TermList *
-GlassSpellingWordsList::skip_to(const string &tname)
+HoneySpellingWordsList::skip_to(const string &tname)
 {
-    LOGCALL(DB, TermList *, "GlassSpellingWordsList::skip_to", tname);
+    LOGCALL(DB, TermList *, "HoneySpellingWordsList::skip_to", tname);
     Assert(!at_end());
 
     if (!cursor->find_entry_ge("W" + tname)) {
@@ -105,8 +114,8 @@ GlassSpellingWordsList::skip_to(const string &tname)
 }
 
 bool
-GlassSpellingWordsList::at_end() const
+HoneySpellingWordsList::at_end() const
 {
-    LOGCALL(DB, bool, "GlassSpellingWordsList::at_end", NO_ARGS);
+    LOGCALL(DB, bool, "HoneySpellingWordsList::at_end", NO_ARGS);
     RETURN(cursor->after_end());
 }

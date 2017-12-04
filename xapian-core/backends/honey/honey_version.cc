@@ -50,8 +50,8 @@
 using namespace std;
 
 /// Honey format version (date of change):
-#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2017,8,15)
-// 2017,08,15 1.5.0 New Honey backend
+#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2017,12,5)
+// 2017,12,5 1.5.0 New Honey backend
 
 /// Convert date <-> version number.  Dates up to 2141-12-31 fit in 2 bytes.
 #define DATE_TO_VERSION(Y,M,D) \

@@ -82,8 +82,6 @@ class RootInfo {
 
 }
 
-using Honey::RootInfo;
-
 /** The HoneyVersion class manages the revision files.
  *
  *  The "iamhoney" file (currently) contains a "magic" string identifying
@@ -94,8 +92,8 @@ using Honey::RootInfo;
 class HoneyVersion {
     honey_revision_number_t rev;
 
-    RootInfo root[Honey::MAX_];
-    RootInfo old_root[Honey::MAX_];
+    Honey::RootInfo root[Honey::MAX_];
+    Honey::RootInfo old_root[Honey::MAX_];
 
     /** The UUID of this database.
      *
@@ -189,11 +187,11 @@ class HoneyVersion {
 
     honey_revision_number_t get_revision() const { return rev; }
 
-    const RootInfo & get_root(Honey::table_type tbl) const {
+    const Honey::RootInfo& get_root(Honey::table_type tbl) const {
 	return root[tbl];
     }
 
-    RootInfo * root_to_set(Honey::table_type tbl) {
+    Honey::RootInfo* root_to_set(Honey::table_type tbl) {
 	return &root[tbl];
     }
 

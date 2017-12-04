@@ -1,5 +1,5 @@
-/** @file glass_termlisttable.cc
- * @brief Subclass of GlassTable which holds termlists.
+/** @file honey_termlisttable.cc
+ * @brief Subclass of HoneyTable which holds termlists.
  */
 /* Copyright (C) 2007,2008,2009,2010 Olly Betts
  *
@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "glass_termlisttable.h"
+#include "honey_termlisttable.h"
 
 #include <xapian/document.h>
 #include <xapian/error.h>
@@ -36,11 +36,11 @@
 using namespace std;
 
 void
-GlassTermListTable::set_termlist(Xapian::docid did,
+HoneyTermListTable::set_termlist(Xapian::docid did,
 				 const Xapian::Document & doc,
 				 Xapian::termcount doclen)
 {
-    LOGCALL_VOID(DB, "GlassTermListTable::set_termlist", did | doc | doclen);
+    LOGCALL_VOID(DB, "HoneyTermListTable::set_termlist", did | doc | doclen);
 
     string tag;
     pack_uint(tag, doclen);

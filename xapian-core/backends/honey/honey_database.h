@@ -24,6 +24,8 @@
 
 #include "backends/databaseinternal.h"
 
+#include "honey_version.h"
+
 /// Database using honey backend.
 class HoneyDatabase : public Xapian::Database::Internal {
     /// Don't allow assignment.
@@ -32,7 +34,15 @@ class HoneyDatabase : public Xapian::Database::Internal {
     /// Don't allow copying.
     HoneyDatabase(const HoneyDatabase&) = delete;
 
+    /// Path of the directory.
+    std::string path;
+
+    /// Version file ("iamhoney").
+    HoneyVersion version_file;
+
   public:
+    HoneyDatabase(const std::string& path_);
+
     void readahead_for_query(const Xapian::Query& query) const;
 
     Xapian::doccount get_doccount() const;

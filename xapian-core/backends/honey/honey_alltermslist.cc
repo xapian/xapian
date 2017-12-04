@@ -1,4 +1,4 @@
-/* glass_alltermslist.cc: A termlist containing all terms in a glass database.
+/* honey_alltermslist.cc: A termlist containing all terms in a honey database.
  *
  * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
  *
@@ -20,17 +20,17 @@
 
 #include <config.h>
 
-#include "glass_alltermslist.h"
-#include "glass_postlist.h"
+#include "honey_alltermslist.h"
+#include "honey_postlist.h"
 
 #include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
 
 void
-GlassAllTermsList::read_termfreq_and_collfreq() const
+HoneyAllTermsList::read_termfreq_and_collfreq() const
 {
-    LOGCALL_VOID(DB, "GlassAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
+    LOGCALL_VOID(DB, "HoneyAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 
@@ -39,28 +39,28 @@ GlassAllTermsList::read_termfreq_and_collfreq() const
     cursor->read_tag();
     const char *p = cursor->current_tag.data();
     const char *pend = p + cursor->current_tag.size();
-    GlassPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
+    HoneyPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
 }
 
-GlassAllTermsList::~GlassAllTermsList()
+HoneyAllTermsList::~HoneyAllTermsList()
 {
-    LOGCALL_DTOR(DB, "GlassAllTermsList");
+    LOGCALL_DTOR(DB, "HoneyAllTermsList");
     delete cursor;
 }
 
 string
-GlassAllTermsList::get_termname() const
+HoneyAllTermsList::get_termname() const
 {
-    LOGCALL(DB, string, "GlassAllTermsList::get_termname", NO_ARGS);
+    LOGCALL(DB, string, "HoneyAllTermsList::get_termname", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     RETURN(current_term);
 }
 
 Xapian::doccount
-GlassAllTermsList::get_termfreq() const
+HoneyAllTermsList::get_termfreq() const
 {
-    LOGCALL(DB, Xapian::doccount, "GlassAllTermsList::get_termfreq", NO_ARGS);
+    LOGCALL(DB, Xapian::doccount, "HoneyAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -68,9 +68,9 @@ GlassAllTermsList::get_termfreq() const
 }
 
 Xapian::termcount
-GlassAllTermsList::get_collection_freq() const
+HoneyAllTermsList::get_collection_freq() const
 {
-    LOGCALL(DB, Xapian::termcount, "GlassAllTermsList::get_collection_freq", NO_ARGS);
+    LOGCALL(DB, Xapian::termcount, "HoneyAllTermsList::get_collection_freq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
@@ -78,9 +78,9 @@ GlassAllTermsList::get_collection_freq() const
 }
 
 TermList *
-GlassAllTermsList::next()
+HoneyAllTermsList::next()
 {
-    LOGCALL(DB, TermList *, "GlassAllTermsList::next", NO_ARGS);
+    LOGCALL(DB, TermList *, "HoneyAllTermsList::next", NO_ARGS);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
@@ -93,7 +93,7 @@ GlassAllTermsList::next()
 	if (prefix.empty()) {
 	    (void)cursor->find_entry_ge(string("\x00\xff", 2));
 	} else {
-	    const string & key = pack_glass_postlist_key(prefix);
+	    const string & key = pack_honey_postlist_key(prefix);
 	    if (cursor->find_entry_ge(key)) {
 		// The exact term we asked for is there, so just copy it rather
 		// than wasting effort unpacking it from the key.
@@ -134,9 +134,9 @@ first_time:
 }
 
 TermList *
-GlassAllTermsList::skip_to(const string &term)
+HoneyAllTermsList::skip_to(const string &term)
 {
-    LOGCALL(DB, TermList *, "GlassAllTermsList::skip_to", term);
+    LOGCALL(DB, TermList *, "HoneyAllTermsList::skip_to", term);
     Assert(!at_end());
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
@@ -147,7 +147,7 @@ GlassAllTermsList::skip_to(const string &term)
 	Assert(cursor); // The postlist table isn't optional.
     }
 
-    string key = pack_glass_postlist_key(term);
+    string key = pack_honey_postlist_key(term);
     if (cursor->find_entry_ge(key)) {
 	// The exact term we asked for is there, so just copy it rather than
 	// wasting effort unpacking it from the key.
@@ -175,8 +175,8 @@ GlassAllTermsList::skip_to(const string &term)
 }
 
 bool
-GlassAllTermsList::at_end() const
+HoneyAllTermsList::at_end() const
 {
-    LOGCALL(DB, bool, "GlassAllTermsList::at_end", NO_ARGS);
+    LOGCALL(DB, bool, "HoneyAllTermsList::at_end", NO_ARGS);
     RETURN(cursor && cursor->after_end());
 }

@@ -1,5 +1,5 @@
-/** @file glass_valuelist.cc
- * @brief Glass class for value streams.
+/** @file honey_valuelist.cc
+ * @brief Honey class for value streams.
  */
 /* Copyright (C) 2007,2008,2009 Olly Betts
  *
@@ -20,18 +20,18 @@
 
 #include <config.h>
 
-#include "glass_valuelist.h"
+#include "honey_valuelist.h"
 
-#include "glass_cursor.h"
-#include "glass_database.h"
+#include "honey_cursor.h"
+#include "honey_database.h"
 #include "omassert.h"
 #include "str.h"
 
-using namespace Glass;
+using namespace Honey;
 using namespace std;
 
 bool
-GlassValueList::update_reader()
+HoneyValueList::update_reader()
 {
     Xapian::docid first_did = docid_from_key(slot, cursor->current_key);
     if (!first_did) return false;
@@ -42,39 +42,39 @@ GlassValueList::update_reader()
     return true;
 }
 
-GlassValueList::~GlassValueList()
+HoneyValueList::~HoneyValueList()
 {
     delete cursor;
 }
 
 Xapian::docid
-GlassValueList::get_docid() const
+HoneyValueList::get_docid() const
 {
     Assert(!at_end());
     return reader.get_docid();
 }
 
 Xapian::valueno
-GlassValueList::get_valueno() const
+HoneyValueList::get_valueno() const
 {
     return slot;
 }
 
 std::string
-GlassValueList::get_value() const
+HoneyValueList::get_value() const
 {
     Assert(!at_end());
     return reader.get_value();
 }
 
 bool
-GlassValueList::at_end() const
+HoneyValueList::at_end() const
 {
     return cursor == NULL;
 }
 
 void
-GlassValueList::next()
+HoneyValueList::next()
 {
     if (!cursor) {
 	cursor = db->get_postlist_cursor();
@@ -98,7 +98,7 @@ GlassValueList::next()
 }
 
 void
-GlassValueList::skip_to(Xapian::docid did)
+HoneyValueList::skip_to(Xapian::docid did)
 {
     if (!cursor) {
 	cursor = db->get_postlist_cursor();
@@ -130,7 +130,7 @@ GlassValueList::skip_to(Xapian::docid did)
 }
 
 bool
-GlassValueList::check(Xapian::docid did)
+HoneyValueList::check(Xapian::docid did)
 {
     if (!cursor) {
 	cursor = db->get_postlist_cursor();
@@ -163,9 +163,9 @@ GlassValueList::check(Xapian::docid did)
 }
 
 string
-GlassValueList::get_description() const
+HoneyValueList::get_description() const
 {
-    string desc("GlassValueList(slot=");
+    string desc("HoneyValueList(slot=");
     desc += str(slot);
     desc += ')';
     return desc;

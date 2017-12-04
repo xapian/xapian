@@ -1,5 +1,5 @@
-/** @file glass_spelling.h
- * @brief Spelling correction data for a glass database.
+/** @file honey_spelling.h
+ * @brief Spelling correction data for a honey database.
  */
 /* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
  *
@@ -18,12 +18,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_SPELLING_H
-#define XAPIAN_INCLUDED_GLASS_SPELLING_H
+#ifndef XAPIAN_INCLUDED_HONEY_SPELLING_H
+#define XAPIAN_INCLUDED_HONEY_SPELLING_H
 
 #include <xapian/types.h>
 
-#include "glass_lazytable.h"
+#include "honey_lazytable.h"
 #include "api/termlist.h"
 
 #include <map>
@@ -31,7 +31,7 @@
 #include <string>
 #include <cstring> // For memcpy() and memcmp().
 
-namespace Glass {
+namespace Honey {
 
 class RootInfo;
 
@@ -58,11 +58,11 @@ struct fragment {
 
 }
 
-using Glass::RootInfo;
+using Honey::RootInfo;
 
-class GlassSpellingTable : public GlassLazyTable {
+class HoneySpellingTable : public HoneyLazyTable {
     void toggle_word(const std::string & word);
-    void toggle_fragment(Glass::fragment frag, const std::string & word);
+    void toggle_fragment(Honey::fragment frag, const std::string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
 
@@ -74,25 +74,25 @@ class GlassSpellingTable : public GlassLazyTable {
      *  we don't need to store an additional add/remove flag for every
      *  word.
      */
-    std::map<Glass::fragment, std::set<std::string> > termlist_deltas;
+    std::map<Honey::fragment, std::set<std::string> > termlist_deltas;
 
     /** Used to track an upper bound on wordfreq. */
     Xapian::termcount wordfreq_upper_bound = 0;
 
   public:
-    /** Create a new GlassSpellingTable object.
+    /** Create a new HoneySpellingTable object.
      *
      *  This method does not create or open the table on disk - you
      *  must call the create() or open() methods respectively!
      *
-     *  @param dbdir		The directory the glass database is stored in.
+     *  @param dbdir		The directory the honey database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    GlassSpellingTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("spelling", dbdir + "/spelling.", readonly) { }
+    HoneySpellingTable(const std::string & dbdir, bool readonly)
+	: HoneyLazyTable("spelling", dbdir + "/spelling.", readonly) { }
 
-    GlassSpellingTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("spelling", fd, offset_, readonly) { }
+    HoneySpellingTable(int fd, off_t offset_, bool readonly)
+	: HoneyLazyTable("spelling", fd, offset_, readonly) { }
 
     /** Merge in batched-up changes.
      *
@@ -111,7 +111,7 @@ class GlassSpellingTable : public GlassLazyTable {
 	wordfreq_upper_bound = ub;
     }
 
-    /** Override methods of GlassTable.
+    /** Override methods of HoneyTable.
      *
      *  NB: these aren't virtual, but we always call them on the subclass in
      *  cases where it matters.
@@ -119,29 +119,29 @@ class GlassSpellingTable : public GlassLazyTable {
      */
 
     bool is_modified() const {
-	return !wordfreq_changes.empty() || GlassTable::is_modified();
+	return !wordfreq_changes.empty() || HoneyTable::is_modified();
     }
 
     /** Returns updated wordfreq upper bound. */
     Xapian::termcount flush_db() {
 	merge_changes();
-	GlassTable::flush_db();
+	HoneyTable::flush_db();
 	return wordfreq_upper_bound;
     }
 
-    void cancel(const RootInfo & root_info, glass_revision_number_t rev) {
+    void cancel(const RootInfo & root_info, honey_revision_number_t rev) {
 	// Discard batched-up changes.
 	wordfreq_changes.clear();
 	termlist_deltas.clear();
 
-	GlassTable::cancel(root_info, rev);
+	HoneyTable::cancel(root_info, rev);
     }
 
     // @}
 };
 
 /** The list of words containing a particular trigram. */
-class GlassSpellingTermList : public TermList {
+class HoneySpellingTermList : public TermList {
     /// The encoded data.
     std::string data;
 
@@ -152,14 +152,14 @@ class GlassSpellingTermList : public TermList {
     std::string current_term;
 
     /// Copying is not allowed.
-    GlassSpellingTermList(const GlassSpellingTermList &);
+    HoneySpellingTermList(const HoneySpellingTermList &);
 
     /// Assignment is not allowed.
-    void operator=(const GlassSpellingTermList &);
+    void operator=(const HoneySpellingTermList &);
 
   public:
     /// Constructor.
-    explicit GlassSpellingTermList(const std::string & data_)
+    explicit HoneySpellingTermList(const std::string & data_)
 	: data(data_), p(0) { }
 
     Xapian::termcount get_approx_size() const;
@@ -183,4 +183,4 @@ class GlassSpellingTermList : public TermList {
     Xapian::PositionIterator positionlist_begin() const;
 };
 
-#endif // XAPIAN_INCLUDED_GLASS_SPELLING_H
+#endif // XAPIAN_INCLUDED_HONEY_SPELLING_H
