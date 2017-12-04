@@ -27,7 +27,7 @@
 
 #include "api/terminfo.h"
 #include "api/termlist.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 
 #include <map>
 #include <memory>
@@ -69,6 +69,14 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  whereas existing iterators remain valid for std::map<>.
      */
     mutable std::unique_ptr<std::map<std::string, TermInfo>> terms;
+
+    /** The number of distinct terms in @a terms.
+     *
+     *  Only valid when terms is non-NULL.
+     *
+     *  This may be less than terms.size() if any terms have been deleted.
+     */
+    mutable Xapian::termcount termlist_size;
 
     /** Are there any changes to term positions in @a terms?
      *
@@ -237,10 +245,11 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 
 	auto i = terms->find(term);
 	if (i == terms->end()) {
+	    ++termlist_size;
 	    terms->emplace(make_pair(term, TermInfo(wdf_inc)));
 	} else {
-	    if (wdf_inc)
-		i->second += wdf_inc;
+	    if (i->second.increase_wdf(wdf_inc))
+		++termlist_size;
 	}
     }
 
@@ -252,9 +261,13 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	if (i == terms->end()) {
 	    return false;
 	}
-	if (!positions_modified_)
-	    positions_modified_ = !i->second.get_positions()->empty();
-	terms->erase(i);
+	if (!i->second.get_positions()->empty()) {
+	    positions_modified_ = true;
+	}
+	if (!i->second.remove()) {
+	    return false;
+	}
+	--termlist_size;
 	return true;
     }
 
@@ -267,12 +280,12 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 
 	auto i = terms->find(term);
 	if (i == terms->end()) {
-	    i = terms->emplace(make_pair(term, TermInfo(wdf_inc))).first;
-	} else {
-	    if (wdf_inc)
-		i->second += wdf_inc;
+	    ++termlist_size;
+	    terms->emplace(term, TermInfo(wdf_inc, term_pos));
+	    return;
 	}
-	i->second.add_position(term_pos);
+	if (i->second.add_position(wdf_inc, term_pos))
+	    ++termlist_size;
     }
 
     enum remove_posting_result { OK, NO_TERM, NO_POS };
@@ -285,14 +298,14 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	ensure_terms_fetched();
 
 	auto i = terms->find(term);
-	if (i == terms->end()) {
+	if (i == terms->end() || i->second.is_deleted()) {
 	    return remove_posting_result::NO_TERM;
 	}
 	if (!i->second.remove_position(term_pos)) {
 	    return remove_posting_result::NO_POS;
 	}
 	if (wdf_dec)
-	    i->second -= wdf_dec;
+	    i->second.decrease_wdf(wdf_dec);
 	positions_modified_ = true;
 	return remove_posting_result::OK;
     }
@@ -302,12 +315,14 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	if (!terms) {
 	    if (database.get()) {
 		terms.reset(new map<string, TermInfo>());
+		termlist_size = 0;
 	    } else {
 		// We didn't come from a database, so there are no unfetched
 		// terms to clear.
 	    }
 	} else {
 	    terms->clear();
+	    termlist_size = 0;
 	    // Assume there was positional data if there's any in the database.
 	    positions_modified_ = database.get() && database->has_positions();
 	}
@@ -316,7 +331,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Return the number of distinct terms in this document.
     Xapian::termcount termlist_count() const {
 	if (terms)
-	    return terms->size();
+	    return termlist_size;
 
 	if (!database.get())
 	    return 0;

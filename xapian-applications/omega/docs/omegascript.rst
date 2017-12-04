@@ -667,6 +667,9 @@ $suggestion
         corrected version of the query string.  If there are no spelling
         corrections, it will return an empty string.
 
+$termprefix{TERM}
+        return the prefix (if any) from a term.  Added in Omega 1.4.6.
+
 $terms[{PREFIX}]
         list of query terms matching the current hit.  The ability to specify a
         prefix was added in Omega 1.3.5.  If no prefix is specified (i.e.
@@ -726,6 +729,9 @@ $unpack{BINARYSTRING}
 	converts a 4 byte big-endian binary string to a number, for example::
 
          $date{$unpack{$value{0}}}
+
+$unprefix{TERM}
+        remove the prefix (if any) from a term.  Added in Omega 1.4.6.
 
 $unstem{TERM}
 	maps a stemmed term to a list of the unstemmed forms of it used in

@@ -36,7 +36,7 @@ using namespace std;
 #define PROG_DESC "Xapian command line search tool"
 
 // Stopwords:
-static const char * sw[] = {
+static const char * const sw[] = {
     "a", "about", "an", "and", "are", "as", "at",
     "be", "by",
     "en",
@@ -49,7 +49,7 @@ static const char * sw[] = {
 };
 
 struct qp_flag { const char * s; unsigned f; };
-static qp_flag flag_tab[] = {
+static const qp_flag flag_tab[] = {
     { "auto_multiword_synonyms", Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS },
     { "auto_synonyms", Xapian::QueryParser::FLAG_AUTO_SYNONYMS },
     { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
@@ -71,7 +71,7 @@ inline bool operator<(const qp_flag & f1, const qp_flag & f2) {
 }
 
 struct qp_op { const char * s; unsigned f; };
-static qp_op op_tab[] = {
+static const qp_op op_tab[] = {
     { "and", Xapian::Query::OP_AND },
     { "elite_set", Xapian::Query::OP_ELITE_SET },
     { "max", Xapian::Query::OP_MAX },
@@ -104,7 +104,7 @@ enum {
 };
 
 struct wt { const char * s; int f; };
-static wt wt_tab[] = {
+static const wt wt_tab[] = {
     { "bb2",	WEIGHT_BB2 },
     { "bm25",	WEIGHT_BM25 },
     { "bm25+",	WEIGHT_BM25PLUS },

@@ -38,15 +38,17 @@
 #include "safeerrno.h"
 #include <cstdio>
 #include <ctime>
-#include "safeunistd.h"
 
 #include "commonhelp.h"
 #include "hashterm.h"
 #include "loadfile.h"
 #include "myhtmlparse.h"
+#include "str.h"
 #include "stringutils.h"
+#include "timegm.h"
 #include "utf8truncate.h"
 #include "utils.h"
+#include "values.h"
 
 #include "gnu_getopt.h"
 
@@ -60,35 +62,10 @@ static int addcount;
 static int repcount;
 static int delcount;
 
-inline static bool
-p_space(unsigned int c)
-{
-    return C_isspace(c);
-}
-
-inline static bool
-p_notspace(unsigned int c)
-{
-    return !C_isspace(c);
-}
-
-inline static bool
-p_notalpha(unsigned int c)
-{
-    return !C_isalpha(c);
-}
-
-// Characters allowed as second or subsequent characters in a fieldname
-inline static bool
-p_notfieldnamechar(unsigned int c)
-{
-    return !C_isalnum(c) && c != '_';
-}
-
 inline bool
 prefix_needs_colon(const string & prefix, unsigned ch)
 {
-    if (!C_isupper(ch)) return false;
+    if (!C_isupper(ch) && ch != ':') return false;
     string::size_type len = prefix.length();
     return (len > 1 && prefix[len - 1] != ':');
 }
@@ -96,7 +73,8 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 const char * action_names[] = {
     "bad", "new",
     "boolean", "date", "field", "hash", "index", "indexnopos", "load", "lower",
-    "spell", "truncate", "unhtml", "unique", "value", "valuenumeric", "weight"
+    "parsedate", "spell", "truncate", "unhtml", "unique", "value",
+    "valuenumeric", "valuepacked", "weight"
 };
 
 // For debugging:
@@ -107,7 +85,8 @@ public:
     typedef enum {
 	BAD, NEW,
 	BOOLEAN, DATE, FIELD, HASH, INDEX, INDEXNOPOS, LOAD, LOWER,
-	SPELL, TRUNCATE, UNHTML, UNIQUE, VALUE, VALUENUMERIC, WEIGHT
+	PARSEDATE, SPELL, TRUNCATE, UNHTML, UNIQUE, VALUE,
+	VALUENUMERIC, VALUEPACKED, WEIGHT
     } type;
 private:
     type action;
@@ -123,6 +102,7 @@ public:
 	: action(action_), num_arg(num), string_arg(arg) { }
     type get_action() const { return action; }
     int get_num_arg() const { return num_arg; }
+    void set_num_arg(int num) { num_arg = num; }
     const string & get_string_arg() const { return string_arg; }
 };
 
@@ -130,14 +110,14 @@ static void
 report_useless_action(const string &file, size_t line, size_t pos,
 		      const string &action)
 {
-    cout << file << ':' << line;
-    if (pos != string::npos) cout << ':' << pos;
-    cout << ": Warning: Index action '" << action << "' has no effect" << endl;
+    cerr << file << ':' << line;
+    if (pos != string::npos) cerr << ':' << pos;
+    cerr << ": Warning: Index action '" << action << "' has no effect" << endl;
 
     static bool given_left_to_right_warning = false;
     if (!given_left_to_right_warning) {
 	given_left_to_right_warning = true;
-	cout << file << ':' << line
+	cerr << file << ':' << line
 	     << ": Warning: Note that actions are executed from left to right"
 	     << endl;
     }
@@ -150,7 +130,7 @@ parse_index_script(const string &filename)
 {
     ifstream script(filename.c_str());
     if (!script.is_open()) {
-	cout << filename << ": " << strerror(errno) << endl;
+	cerr << filename << ": " << strerror(errno) << endl;
 	exit(1);
     }
     string line;
@@ -162,25 +142,26 @@ parse_index_script(const string &filename)
 	vector<Action> actions;
 	string::const_iterator i, j;
 	const string &s = line;
-	i = find_if(s.begin(), s.end(), p_notspace);
+	i = find_if(s.begin(), s.end(), [](char ch) { return !C_isspace(ch); });
 	if (i == s.end() || *i == '#') continue;
 	while (true) {
 	    if (!C_isalnum(*i)) {
-		cout << filename << ':' << line_no
+		cerr << filename << ':' << line_no
 		     << ": field name must start with alphanumeric" << endl;
 		exit(1);
 	    }
-	    j = find_if(i, s.end(), p_notfieldnamechar);
+	    j = find_if(i, s.end(),
+			[](char ch) { return !C_isalnum(ch) && ch != '_'; });
 	    fields.push_back(string(i, j));
-	    i = find_if(j, s.end(), p_notspace);
+	    i = find_if(j, s.end(), [](char ch) { return !C_isspace(ch); });
 	    if (i == s.end()) break;
 	    if (*i == ':') {
 		++i;
-		i = find_if(i, s.end(), p_notspace);
+		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 		break;
 	    }
 	    if (i == j) {
-		cout << filename << ':' << line_no
+		cerr << filename << ':' << line_no
 		     << ": bad character '" << *j << "' in fieldname" << endl;
 		exit(1);
 	    }
@@ -190,7 +171,7 @@ parse_index_script(const string &filename)
 	map<string, Action::type> boolmap;
 	j = i;
 	while (j != s.end()) {
-	    i = find_if(j, s.end(), p_notalpha);
+	    i = find_if(j, s.end(), [](char ch) { return !C_isalnum(ch); });
 	    string action(s, j - s.begin(), i - j);
 	    Action::type code = Action::BAD;
 	    enum {NO, OPT, YES} arg = NO;
@@ -238,6 +219,12 @@ parse_index_script(const string &filename)
 			    code = Action::LOAD;
 			}
 			break;
+		    case 'p':
+			if (action == "parsedate") {
+			    code = Action::PARSEDATE;
+			    arg = YES;
+			}
+			break;
 		    case 's':
 			if (action == "spell") {
 			    code = Action::SPELL;
@@ -267,6 +254,10 @@ parse_index_script(const string &filename)
 			    code = Action::VALUENUMERIC;
 			    arg = YES;
 			    takes_integer_argument = true;
+			} else if (action == "valuepacked") {
+			    code = Action::VALUEPACKED;
+			    arg = YES;
+			    takes_integer_argument = true;
 			}
 			break;
 		    case 'w':
@@ -279,26 +270,52 @@ parse_index_script(const string &filename)
 		}
 	    }
 	    if (code == Action::BAD) {
-		cout << filename << ':' << line_no
+		cerr << filename << ':' << line_no
 		     << ": Unknown index action '" << action << "'" << endl;
 		exit(1);
 	    }
-	    i = find_if(i, s.end(), p_notspace);
+	    auto i_after_action = i;
+	    i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 
 	    if (i != s.end() && *i == '=') {
+		if (i != i_after_action) {
+		    cerr << filename << ':' << line_no
+			 << ": warning: putting spaces between the action and "
+			    "'=' is deprecated." << endl;
+		}
+
 		if (arg == NO) {
-		    cout << filename << ':' << line_no
+		    cerr << filename << ':' << line_no
 			 << ": Index action '" << action
 			 << "' doesn't take an argument" << endl;
 		    exit(1);
 		}
 		++i;
-		j = find_if(i, s.end(), p_notspace);
-		i = find_if(j, s.end(), p_space);
-		string val(j, i);
+		j = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
+		if (i != j) {
+		    cerr << filename << ':' << line_no
+			 << ": warning: putting spaces between '=' and the "
+			    "argument is deprecated." << endl;
+		}
+		string val;
+		if (j != s.end() && *j == '"') {
+		    // Quoted argument.
+		    ++j;
+		    i = find(j, s.end(), '"');
+		    if (i == s.end()) {
+			cerr << filename << ':' << line_no << ": No closing quote" << endl;
+			exit(1);
+		    }
+		    val.assign(j, i);
+		    ++i;
+		} else {
+		    // Unquoted argument.
+		    i = find_if(j, s.end(), [](char ch) { return C_isspace(ch); });
+		    val.assign(j, i);
+		}
 		if (takes_integer_argument) {
 		    if (val.find('.') != string::npos) {
-			cout << filename << ':' << line_no
+			cerr << filename << ':' << line_no
 			     << ": Warning: Index action '" << action
 			     << "' takes an integer argument" << endl;
 		    }
@@ -335,7 +352,7 @@ parse_index_script(const string &filename)
 			break;
 		    case Action::UNIQUE:
 			if (had_unique) {
-			    cout << filename << ':' << line_no
+			    cerr << filename << ':' << line_no
 				<< ": Index action 'unique' used more than "
 				   "once" << endl;
 			    exit(1);
@@ -345,16 +362,30 @@ parse_index_script(const string &filename)
 			    boolmap[val] = Action::UNIQUE;
 			actions.push_back(Action(code, val));
 			break;
+		    case Action::HASH: {
+			actions.push_back(Action(code, val));
+			auto& obj = actions.back();
+			auto max_length = obj.get_num_arg();
+			if (max_length == 0) {
+			    obj.set_num_arg(MAX_SAFE_TERM_LENGTH - 1);
+			} else if (max_length < 6) {
+			    cerr << filename << ':' << line_no
+				 << ": Index action 'hash' takes an integer "
+				    "argument which must be at least 6" << endl;
+			    exit(1);
+			}
+			break;
+		    }
 		    case Action::BOOLEAN:
 			boolmap[val] = Action::BOOLEAN;
 			/* FALLTHRU */
 		    default:
 			actions.push_back(Action(code, val));
 		}
-		i = find_if(i, s.end(), p_notspace);
+		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 	    } else {
 		if (arg == YES) {
-		    cout << filename << ':' << line_no
+		    cerr << filename << ':' << line_no
 			 << ": Index action '" << action
 			 << "' must have an argument" << endl;
 		    exit(1);
@@ -380,6 +411,7 @@ parse_index_script(const string &filename)
 	    switch (action) {
 		case Action::HASH:
 		case Action::LOWER:
+		case Action::PARSEDATE:
 		case Action::SPELL:
 		case Action::TRUNCATE:
 		case Action::UNHTML:
@@ -397,13 +429,13 @@ parse_index_script(const string &filename)
 	map<string, Action::type>::const_iterator boolpfx;
 	for (boolpfx = boolmap.begin(); boolpfx != boolmap.end(); ++boolpfx) {
 	    if (boolpfx->second == Action::UNIQUE) {
-		cout << filename << ':' << line_no
+		cerr << filename << ':' << line_no
 		     << ": Warning: Index action 'unique=" << boolpfx->first
 		     << "' without 'boolean=" << boolpfx->first << "'" << endl;
 		static bool given_doesnt_imply_boolean_warning = false;
 		if (!given_doesnt_imply_boolean_warning) {
 		    given_doesnt_imply_boolean_warning = true;
-		    cout << filename << ':' << line_no
+		    cerr << filename << ':' << line_no
 			 << ": Warning: Note 'unique' doesn't implicitly add "
 			    "a boolean term" << endl;
 		}
@@ -423,7 +455,7 @@ parse_index_script(const string &filename)
     }
 
     if (index_spec.empty()) {
-	cout << filename << ": No rules found in index script" << endl;
+	cerr << filename << ": No rules found in index script" << endl;
 	exit(1);
     }
 }
@@ -451,7 +483,7 @@ index_file(const char *fname, istream &stream,
 
 	    string::size_type eq = line.find('=');
 	    if (eq == string::npos && !line.empty()) {
-		cout << fname << ':' << line_no << ": expected = somewhere "
+		cerr << fname << ':' << line_no << ": expected = somewhere "
 		    "in this line" << endl;
 		// FIXME: die or what?
 	    }
@@ -526,8 +558,6 @@ index_file(const char *fname, istream &stream,
 		    }
 		    case Action::HASH: {
 			unsigned int max_length = i->get_num_arg();
-			if (max_length == 0)
-			    max_length = MAX_SAFE_TERM_LENGTH - 1;
 			if (value.length() > max_length)
 			    value = hash_long_term(value, max_length);
 			break;
@@ -572,7 +602,7 @@ index_file(const char *fname, istream &stream,
 		    case Action::UNIQUE: {
 			// If there's no text, just issue a warning.
 			if (value.empty()) {
-			    cout << fname << ':' << line_no
+			    cerr << fname << ':' << line_no
 				 << ": Ignoring UNIQUE action on empty text"
 				 << endl;
 			    break;
@@ -600,8 +630,8 @@ again:
 			    }
 			} catch (const Xapian::Error &e) {
 			    // Hmm, what happened?
-			    cout << "Caught exception in UNIQUE!" << endl;
-			    cout << "E: " << e.get_description() << endl;
+			    cerr << "Caught exception in UNIQUE!" << endl;
+			    cerr << "E: " << e.get_description() << endl;
 			    database.commit();
 			    goto again;
 			}
@@ -616,12 +646,41 @@ again:
 			char * end;
 			double dbl = strtod(value.c_str(), &end);
 			if (*end) {
-			    cout << fname << ':' << line_no << ": Warning: "
+			    cerr << fname << ':' << line_no << ": Warning: "
 				    "Trailing characters in VALUENUMERIC: '"
 				 << value << "'" << endl;
 			}
 			doc.add_value(i->get_num_arg(),
 				      Xapian::sortable_serialise(dbl));
+			break;
+		    }
+		    case Action::VALUEPACKED: {
+			uint32_t word = 0;
+			if (value.empty() || !C_isdigit(value[0])) {
+			    // strtoul() accepts leading whitespace and negated
+			    // values, neither of which we want to allow.
+			    errno = EINVAL;
+			} else {
+			    errno = 0;
+			    char* q;
+			    word = strtoul(value.c_str(), &q, 10);
+			    if (!errno && *q != '\0') {
+				// Trailing characters after converted value.
+				errno = EINVAL;
+			    }
+			}
+			if (errno) {
+			    cerr << fname << ':' << line_no << ": Warning: "
+				    "valuepacked \"" << value << "\" ";
+			    if (errno == ERANGE) {
+				cerr << "out of range";
+			    } else {
+				cerr << "not an unsigned integer";
+			    }
+			    cerr << endl;
+			}
+			int valueslot = i->get_num_arg();
+			doc.add_value(valueslot, int_to_binary_string(word));
 			break;
 		    }
 		    case Action::DATE: {
@@ -645,6 +704,29 @@ again:
 			yyyymmdd.resize(4);
 			// Year (YYYY)
 			doc.add_boolean_term("Y" + yyyymmdd);
+			break;
+		    }
+		    case Action::PARSEDATE: {
+			string dateformat = i->get_string_arg();
+			struct tm tm;
+			memset(&tm, 0, sizeof(tm));
+			auto ret = strptime(value.c_str(), dateformat.c_str(), &tm);
+			if (ret == NULL) {
+			    cerr << fname << ':' << line_no << ": Warning: "
+				    "\"" << value << "\" doesn't match format "
+				    "\"" << dateformat << '\"' << endl;
+			    break;
+			}
+
+			if (*ret != '\0') {
+			    cerr << fname << ':' << line_no << ": Warning: "
+				    "\"" << value << "\" not fully matched by "
+				    "format \"" << dateformat << "\" "
+				    "(\"" << ret << "\" left over) but "
+				    "indexing anyway" << endl;
+			}
+
+			value = str(timegm(&tm));
 			break;
 		    }
 		    default:
@@ -686,11 +768,11 @@ again:
 		    if (verbose) cout << "Replace: " << docid << endl;
 		    repcount ++;
 		} catch (const Xapian::Error &e) {
-		    cout << "E: " << e.get_description() << endl;
+		    cerr << "E: " << e.get_description() << endl;
 		    // Possibly the document was deleted by another
 		    // process in the meantime...?
 		    docid = database.add_document(doc);
-		    cout << "Replace failed, adding as new: " << docid << endl;
+		    cerr << "Replace failed, adding as new: " << docid << endl;
 		}
 	    } else {
 		docid = database.add_document(doc);
@@ -781,19 +863,10 @@ try {
 
     parse_index_script(argv[1]);
 
-    // Open the database.
-    Xapian::WritableDatabase database;
-    while (true) {
-	try {
-	    database = Xapian::WritableDatabase(argv[0], database_mode);
-	    break;
-	} catch (const Xapian::DatabaseLockError &) {
-	    // Sleep and retry if we get a Xapian::DatabaseLockError - this
-	    // just means that another process is updating the database.
-	    cout << "Database locked ... retrying" << endl;
-	    sleep(1);
-	}
-    }
+    // Open the database.  If another process is currently updating the
+    // database, wait for the lock to become available.
+    auto flags = database_mode | Xapian::DB_RETRY_LOCK;
+    Xapian::WritableDatabase database(argv[0], flags);
 
     Xapian::TermGenerator indexer;
     indexer.set_stemmer(stemmer);
@@ -814,7 +887,7 @@ try {
 	    if (stream) {
 		index_file(argv[i], stream, database, indexer);
 	    } else {
-		cout << "Can't open file " << argv[i] << endl;
+		cerr << "Can't open file " << argv[i] << endl;
 	    }
 	}
     }
@@ -822,12 +895,12 @@ try {
     cout << "records (added, replaced, deleted) = (" << addcount << ", "
 	 << repcount << ", " << delcount << ")" << endl;
 } catch (const Xapian::Error &error) {
-    cout << "Exception: " << error.get_description() << endl;
+    cerr << "Exception: " << error.get_description() << endl;
     exit(1);
 } catch (const std::bad_alloc &) {
-    cout << "Exception: std::bad_alloc" << endl;
+    cerr << "Exception: std::bad_alloc" << endl;
     exit(1);
 } catch (...) {
-    cout << "Unknown Exception" << endl;
+    cerr << "Unknown Exception" << endl;
     exit(1);
 }

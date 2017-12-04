@@ -23,6 +23,7 @@
 
 #include "backends/documentinternal.h"
 #include "backends/multi.h"
+#include "backends/multi/multi_database.h"
 #include "backends/valuelist.h"
 #include "omassert.h"
 #include "xapian/database.h"
@@ -42,15 +43,30 @@ class ValueStreamDocument : public Xapian::Document::Internal {
 
     Xapian::Database db;
 
-    size_t current;
+    size_t current = 0;
 
-    mutable Xapian::Document::Internal * doc;
+    size_t n_shards;
+
+    mutable Xapian::Document::Internal * doc = NULL;
+
+    /** Private constructor.
+     *
+     *  This is an implementation detail - the public constructor forwards to
+     *  this constructor so we can use n_shards_ to init our parent class.
+     */
+    ValueStreamDocument(const Xapian::Database& db_, size_t n_shards_)
+	: Internal(n_shards_ == 1 ?
+		   db_.internal.get() :
+		   static_cast<MultiDatabase*>(db_.internal.get())->shards[0],
+		   0),
+	  db(db_),
+	  n_shards(n_shards_) {}
 
   public:
-    explicit ValueStreamDocument(const Xapian::Database & db_)
-	: Internal(db_.internal[0], 0), db(db_), current(0), doc(NULL) { }
+    explicit ValueStreamDocument(const Xapian::Database& db_)
+	: ValueStreamDocument(db_, db_.internal->size()) {}
 
-    void new_subdb(int n);
+    void new_shard(size_t n);
 
     ~ValueStreamDocument();
 
@@ -63,9 +79,8 @@ class ValueStreamDocument : public Xapian::Document::Internal {
     }
 
     void set_document(Xapian::docid did_) {
-	AssertEq(current, shard_number(did_, db.internal.size()));
-	// Get the document id in the sub-database.
-	set_shard_document(shard_docid(did_, db.internal.size()));
+	AssertEq(current, shard_number(did_, n_shards));
+	set_shard_document(shard_docid(did_, n_shards));
     }
 
     // Optimise away the virtual call when the matcher wants to know a value.

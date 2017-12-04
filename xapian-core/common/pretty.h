@@ -346,7 +346,7 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
     return ps;
 }
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 
 template<class S>
 inline PrettyOStream<S> &

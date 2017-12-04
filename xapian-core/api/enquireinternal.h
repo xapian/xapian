@@ -21,8 +21,7 @@
 #ifndef XAPIAN_INCLUDED_ENQUIREINTERNAL_H
 #define XAPIAN_INCLUDED_ENQUIREINTERNAL_H
 
-#include "backends/database.h"
-#include "backends/multi.h"
+#include "backends/databaseinternal.h"
 #include "xapian/constants.h"
 #include "xapian/database.h"
 #include "xapian/enquire.h"
@@ -47,7 +46,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
     friend class MSet::Internal;
 
   public:
-    typedef enum { REL, VAL, VAL_REL, REL_VAL } sort_setting;
+    typedef enum { REL, VAL, VAL_REL, REL_VAL, DOCID } sort_setting;
 
   private:
     Xapian::Database db;
@@ -112,9 +111,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
     }
 
     void request_document(docid did) const {
-	auto n_shards = db.internal.size();
-	auto shard = shard_number(did, n_shards);
-	return db.internal[shard]->request_document(shard_docid(did, n_shards));
+	db.internal->request_document(did);
     }
 };
 

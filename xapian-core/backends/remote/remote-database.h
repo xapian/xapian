@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_REMOTE_DATABASE_H
 
 #include "backends/backends.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "api/enquireinternal.h"
 #include "api/queryinternal.h"
 #include "net/remoteconnection.h"
@@ -139,57 +139,60 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *
      * @param query			The query.
      * @param qlen			The query length.
+     * @param collapse_key		The value number to collapse matches on.
      * @param collapse_max		Max number of items with the same key
      *					to leave after collapsing (0 for don't
      *					collapse).
-     * @param collapse_key		The value number to collapse matches on.
      * @param order			Sort order for docids.
      * @param sort_key			The value number to sort on.
      * @param sort_by			Which order to apply sorts in.
      * @param sort_value_forward	Sort order for values.
      * @param time_limit_		Seconds to reduce check_at_least after
      *					(or <= 0 for no limit).
-     * @param percent_cutoff		Percentage cutoff.
-     * @param weight_cutoff		Weight cutoff.
+     * @param percent_threshold		Lower bound on percentage score.
+     * @param weight_threshold		Lower bound on weight.
      * @param wtscheme			Weighting scheme.
      * @param omrset			The rset.
      * @param matchspies                The matchspies to use.
      */
     void set_query(const Xapian::Query& query,
 		   Xapian::termcount qlen,
-		   Xapian::doccount collapse_max,
 		   Xapian::valueno collapse_key,
+		   Xapian::doccount collapse_max,
 		   Xapian::Enquire::docid_order order,
 		   Xapian::valueno sort_key,
 		   Xapian::Enquire::Internal::sort_setting sort_by,
 		   bool sort_value_forward,
 		   double time_limit,
-		   int percent_cutoff, double weight_cutoff,
+		   int percent_threshold, double weight_threshold,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,
-		   const std::vector<opt_ptr_spy>& matchspies);
+		   const std::vector<opt_ptr_spy>& matchspies) const;
 
     /** Get the stats from the remote server.
      *
+     *  @param block	If true, block waiting for answer (and return true).
+     *
      *  @return	true if we got the remote stats; false if we should try again.
      */
-    bool get_remote_stats(bool nowait, Xapian::Weight::Internal &out);
+    bool get_remote_stats(bool block, Xapian::Weight::Internal &out) const;
 
     /// Send the global stats to the remote server.
     void send_global_stats(Xapian::doccount first,
 			   Xapian::doccount maxitems,
 			   Xapian::doccount check_at_least,
-			   const Xapian::Weight::Internal &stats);
+			   const Xapian::Weight::Internal &stats) const;
 
     /// Get the MSet from the remote server.
-    void get_mset(Xapian::MSet &mset,
-		  const std::vector<opt_ptr_spy>& matchspies);
+    Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) const;
 
     /// Get remote metadata key list.
     TermList * open_metadata_keylist(const std::string & prefix) const;
 
     /// Get remote termlist.
     TermList * open_term_list(Xapian::docid did) const;
+
+    TermList * open_term_list_direct(Xapian::docid did) const;
 
     /// Iterate all terms.
     TermList * open_allterms(const std::string& prefix) const;
@@ -200,7 +203,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void close();
 
-    LeafPostList * open_post_list(const std::string& tname) const;
+    PostList* open_post_list(const std::string& term) const;
+
+    LeafPostList* open_leaf_post_list(const std::string& term) const;
 
     Xapian::doccount read_post_list(const std::string& term, NetworkPostList & pl) const;
 
@@ -257,9 +262,10 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void set_metadata(const std::string& key, const std::string& value);
 
-    void add_spelling(const std::string&, Xapian::termcount) const;
+    void add_spelling(const std::string& word, Xapian::termcount freqinc) const;
 
-    void remove_spelling(const std::string&, Xapian::termcount freqdec) const;
+    Xapian::termcount remove_spelling(const std::string& word,
+				      Xapian::termcount freqdec) const;
 
     int get_backend_info(std::string* path) const {
 	if (path) *path = context;
@@ -267,6 +273,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
     }
 
     bool locked() const;
+
+    std::string get_description() const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H

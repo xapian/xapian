@@ -58,18 +58,6 @@ PostingIterator::Internal::get_wdf() const
     throw Xapian::InvalidOperationError("get_wdf() not meaningful for this PostingIterator");
 }
 
-const string *
-PostingIterator::Internal::get_sort_key() const
-{
-    return NULL;
-}
-
-const string *
-PostingIterator::Internal::get_collapse_key() const
-{
-    return NULL;
-}
-
 PositionList *
 PostList::read_position_list()
 {

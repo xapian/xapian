@@ -197,7 +197,7 @@ struct s_options {
   void(*func)();
   const char *message;
 };
-int    OptInit(char**,struct s_options*,FILE*);
+int    OptInit(char**,const struct s_options*,FILE*);
 int    OptNArgs(void);
 char  *OptArg(int);
 void   OptErr(int);
@@ -1529,7 +1529,7 @@ int main(int argc, char **argv)
   static int mhflag = 0;
   static int nolinenosflag = 0;
   static int noResort = 0;
-  static struct s_options options[] = {
+  static const struct s_options options[] = {
     {OPT_FLAG, "b", (void*)&basisflag, 0, "Print only the basis in report."},
     {OPT_FLAG, "c", (void*)&compress, 0, "Don't compress the action table."},
     {OPT_FSTR, "D", 0, handle_D_option, "Define an %ifdef macro."},
@@ -1784,7 +1784,7 @@ static char *msort(
 }
 /************************ From the file "option.c" **************************/
 static char **argv;
-static struct s_options *op;
+static const struct s_options *op;
 static FILE *errstream;
 
 #define ISOPT(X) ((X)[0]=='-'||(X)[0]=='+'||strchr((X),'=')!=0)
@@ -1956,7 +1956,7 @@ static int handleswitch(int i, FILE *err)
   return errcnt;
 }
 
-int OptInit(char **a, struct s_options *o, FILE *err)
+int OptInit(char **a, const struct s_options *o, FILE *err)
 {
   int errcnt = 0;
   argv = a;

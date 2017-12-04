@@ -22,6 +22,7 @@
 
 #include "collapser.h"
 
+#include "heap.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -29,93 +30,168 @@
 using namespace std;
 
 collapse_result
-CollapseData::add_item(const Result& item,
-		       Xapian::doccount collapse_max, const MSetCmp & mcmp,
-		       Result& old_item)
+CollapseData::check_item(const vector<Result>& results,
+			 const Result& result,
+			 Xapian::doccount collapse_max, MSetCmp mcmp,
+			 Xapian::doccount& old_item)
 {
     if (items.size() < collapse_max) {
-	items.push_back(item);
-	items.back().set_collapse_key(string());
-	return ADDED;
+	return ADD;
     }
 
-    // We already have collapse_max items better than item so we need to
+    // We already have collapse_max items better than result so we need to
     // eliminate the lowest ranked.
     if (collapse_count == 0 && collapse_max != 1) {
 	// Be lazy about calling make_heap - if we see <= collapse_max
 	// items with a particular collapse key, we never need to use
 	// the heap.
-	make_heap(items.begin(), items.end(), mcmp);
+	Heap::make(items.begin(), items.end(),
+		[&](pair<Xapian::doccount, Xapian::docid> a,
+		    pair<Xapian::doccount, Xapian::docid> b) {
+		    return mcmp(results[a.first], results[b.first]);
+		});
     }
     ++collapse_count;
 
-    if (mcmp(items.front(), item)) {
-	// If this is the "best runner-up", update next_best_weight.
-	if (item.get_weight() > next_best_weight)
-	    next_best_weight = item.get_weight();
-	return REJECTED;
+    Xapian::doccount old_item_candidate = items.front().first;
+    const Result& old_result = results[old_item_candidate];
+    if (items.front().second != old_result.get_docid()) {
+	// The previous result with this collapse key we were going to replace
+	// has been pushed out of the protomset by higher ranking results.
+	//
+	// Awkwardly that means we don't know its exact weight, but we
+	// only need next_best_weight to know if we can zero collapse_count
+	// when there's a percentage cut-off, so setting it to an overestimate
+	// is OK, and it's not critically important as it makes no difference
+	// at all unless there's a percentage cut-off set.
+	//
+	// For now use the new result's weight.  FIXME: The lowest weight in
+	// the current MSet would be a tighter bound if we're sorting primarily
+	// by weight (if we're not, then is next_best_weight useful at all?)
+	// We could also check other entries in items to find an upper bound
+	// weight.
+	next_best_weight = result.get_weight();
+
+	return REPLACE;
     }
 
-    next_best_weight = items.front().get_weight();
+    if (mcmp(old_result, result)) {
+	// If this is the "best runner-up", update next_best_weight.
+	if (result.get_weight() > next_best_weight)
+	    next_best_weight = result.get_weight();
+	return REJECT;
+    }
 
-    items.push_back(item);
-    push_heap(items.begin(), items.end(), mcmp);
-    pop_heap(items.begin(), items.end(), mcmp);
-    swap(old_item, items.back());
-    items.pop_back();
+    old_item = old_item_candidate;
+    next_best_weight = old_result.get_weight();
 
-    return REPLACED;
+    items.front() = { old_item, result.get_docid() };
+    Heap::replace(items.begin(), items.end(),
+	    [&](pair<Xapian::doccount, Xapian::docid> a,
+		pair<Xapian::doccount, Xapian::docid> b) {
+		return mcmp(results[a.first], results[b.first]);
+	    });
+
+    return REPLACE;
+}
+
+void
+CollapseData::set_item(Xapian::doccount item)
+{
+    AssertEq(items.size(), 1);
+    AssertEq(items[0].first, 0);
+    items[0].first = item;
+}
+
+void
+CollapseData::add_item(const vector<Result>& results,
+		       Xapian::doccount item,
+		       Xapian::doccount collapse_max,
+		       MSetCmp mcmp)
+{
+    const Result& result = results[item];
+    if (items.size() < collapse_max) {
+	items.emplace_back(item, result.get_docid());
+	return;
+    }
+
+    items.front() = { item, result.get_docid() };
+    Heap::replace(items.begin(), items.end(),
+	    [&](pair<Xapian::doccount, Xapian::docid> a,
+		pair<Xapian::doccount, Xapian::docid> b) {
+		return mcmp(results[a.first], results[b.first]);
+	    });
 }
 
 collapse_result
-Collapser::process(Result& item,
-		   const string* key_ptr,
-		   Xapian::Document::Internal & vsdoc,
-		   const MSetCmp & mcmp)
+Collapser::check(Result& result,
+		 Xapian::Document::Internal& vsdoc)
 {
+    ptr = NULL;
     ++docs_considered;
-    if (key_ptr) {
-	// key_ptr supplies the collapse key for a remote match.
-	item.set_collapse_key(*key_ptr);
-    } else {
-	// Otherwise use the Document object to get the value.
-	item.set_collapse_key(vsdoc.get_value(slot));
-    }
+    result.set_collapse_key(vsdoc.get_value(slot));
 
-    if (item.get_collapse_key().empty()) {
-	// We don't collapse items with an empty collapse key.
+    if (result.get_collapse_key().empty()) {
+	// We don't collapse results with an empty collapse key.
 	++no_collapse_key;
 	return EMPTY;
     }
 
-    auto oldkey = table.find(item.get_collapse_key());
-    if (oldkey == table.end()) {
+    // Use dummy value 0 for item - if process() is called, this will get
+    // updated to the appropriate value, and if it isn't then the docid won't
+    // match and we'll know the item isn't in the current proto-mset.
+    auto r = table.emplace(result.get_collapse_key(),
+			   CollapseData(0, result.get_docid()));
+    ptr = &r.first->second;
+    if (r.second) {
 	// We've not seen this collapse key before.
-	table.insert(make_pair(item.get_collapse_key(), CollapseData(item)));
 	++entry_count;
-	return ADDED;
+	return NEW;
     }
 
     collapse_result res;
-    CollapseData & collapse_data = oldkey->second;
-    res = collapse_data.add_item(item, collapse_max, mcmp, old_item);
-    if (res == ADDED) {
+    CollapseData& collapse_data = *ptr;
+    res = collapse_data.check_item(results, result, collapse_max, mcmp,
+				   old_item);
+    if (res == ADD) {
 	++entry_count;
-    } else if (res == REJECTED || res == REPLACED) {
+    } else if (res == REJECT || res == REPLACE) {
 	++dups_ignored;
     }
     return res;
 }
 
+void
+Collapser::process(collapse_result action,
+		   Xapian::doccount item)
+{
+    switch (action) {
+	case NEW:
+	    // We've not seen this collapse key before.
+	    Assert(ptr);
+	    ptr->set_item(item);
+	    return;
+	case ADD: {
+	    Assert(ptr);
+	    ptr->add_item(results, item, collapse_max, mcmp);
+	    break;
+	}
+	default:
+	    // Shouldn't be called for other actions.
+	    Assert(false);
+    }
+}
+
 Xapian::doccount
-Collapser::get_collapse_count(const string & collapse_key, int percent_cutoff,
+Collapser::get_collapse_count(const string & collapse_key,
+			      int percent_threshold,
 			      double min_weight) const
 {
     auto key = table.find(collapse_key);
     // If a collapse key is present in the MSet, it must be in our table.
     Assert(key != table.end());
 
-    if (!percent_cutoff) {
+    if (!percent_threshold) {
 	// The recorded collapse_count is correct.
 	return key->second.get_collapse_count();
     }
@@ -156,4 +232,28 @@ Collapser::get_matches_lower_bound() const
     }
     return matches_lower_bound + (collapse_max - max_kept);
 #endif
+}
+
+void
+Collapser::finalise(double min_weight, int percent_threshold)
+{
+    if (table.empty() || results.empty())
+	return;
+
+    // We need to fill in collapse_count values in results using the
+    // information stored in table.
+    Xapian::doccount todo = entry_count;
+    for (Result& result : results) {
+	const string& key = result.get_collapse_key();
+	if (key.empty())
+	    continue;
+
+	// Fill in collapse_count.
+	result.set_collapse_count(get_collapse_count(key, percent_threshold,
+						     min_weight));
+	if (--todo == 0) {
+	    // Terminate early if we've handled all non-empty entries.
+	    break;
+	}
+    }
 }

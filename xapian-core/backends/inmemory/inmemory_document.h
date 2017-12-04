@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_INMEMORY_DOCUMENT_H
 #define XAPIAN_INCLUDED_INMEMORY_DOCUMENT_H
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "backends/documentinternal.h"
 
 /// A document read from a InMemoryDatabase.

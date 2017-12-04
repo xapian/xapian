@@ -55,10 +55,12 @@ class MultiAllTermsList : public AllTermsList {
 
   public:
     /// Constructor.
-    MultiAllTermsList(const Xapian::Database& db, const std::string& prefix);
+    MultiAllTermsList(size_t count_, TermList** termlists_);
 
     /// Destructor.
     ~MultiAllTermsList();
+
+    Xapian::termcount get_approx_size() const;
 
     /// Return the termname at the current position.
     std::string get_termname() const;

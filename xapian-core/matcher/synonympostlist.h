@@ -24,7 +24,7 @@
 
 #include "wrapperpostlist.h"
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 
 /** A postlist comprising several postlists SYNONYMed together.
  *

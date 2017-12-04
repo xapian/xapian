@@ -73,7 +73,7 @@ int
 main(int argc, char **argv)
 {
     const char * opts = "h:p:m:i:r:t:ofqv";
-    const struct option long_opts[] = {
+    static const struct option long_opts[] = {
 	{"host",	required_argument,	0, 'h'},
 	{"port",	required_argument,	0, 'p'},
 	{"master",	required_argument,	0, 'm'},

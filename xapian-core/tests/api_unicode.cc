@@ -435,7 +435,7 @@ DEFINE_TESTCASE(utf8convert1, !backend) {
 }
 
 DEFINE_TESTCASE(unicodepredicates1, !backend) {
-    const unsigned wordchars[] = {
+    static const unsigned wordchars[] = {
 	// DECIMAL_DIGIT_NUMBER
 	'0', '7', '9',
 	0x11D51, // (added in Unicode 10.0.0)
@@ -467,7 +467,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x11d47, // Added in Unicode 10.0.0
 	0
     };
-    const unsigned currency[] = {
+    static const unsigned currency[] = {
 	// CURRENCY_SYMBOL
 	'$', 0xa3,
 	// CURRENCY_SYMBOL (added in Unicode 6.2.0)
@@ -478,14 +478,14 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x20bf,
 	0
     };
-    const unsigned whitespace[] = {
+    static const unsigned whitespace[] = {
 	// CONTROL
 	'\t', '\n', '\f', '\r',
 	// SPACE_SEPARATOR
 	' ',
 	0
     };
-    const unsigned other[] = {
+    static const unsigned other[] = {
 	// DASH_PUNCTUATION (added in Unicode 5.1.0)
 	0x5be,
 	// OTHER_SYMBOL

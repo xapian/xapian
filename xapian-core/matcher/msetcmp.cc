@@ -1,7 +1,7 @@
 /** @file msetcmp.cc
- * @brief Result comparison functions and functors.
+ * @brief Result comparison functions.
  */
-/* Copyright (C) 2006,2009,2013 Olly Betts
+/* Copyright (C) 2006,2009,2013,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,26 +24,28 @@
 #include "msetcmp.h"
 
 #include "api/result.h"
+#include "omassert.h"
 
-/* We use templates to generate the 14 different comparison functions
- * which we need.  This avoids having to write them all out by hand.
+/* We use templates to generate all the different comparison functions which we
+ * need, which avoids having to write them all out by hand.
  */
 
-// Order by did.  Helper comparison template function, which is used as the
-// last fallback by the others.
-template<bool FORWARD_DID, bool CHECK_DID_ZERO> inline bool
-msetcmp_by_did(const Result& a, const Result& b)
+// Order by docid, inlined.  Used as the last fallback by the others.
+template<bool FORWARD_DID> inline bool
+msetcmp_by_docid_inline(const Result& a, const Result& b)
 {
     if (FORWARD_DID) {
-	if (CHECK_DID_ZERO) {
-	    // We want dummy did 0 to compare worse than any other.
-	    if (a.get_docid() == 0) return false;
-	    if (b.get_docid() == 0) return true;
-	}
 	return (a.get_docid() < b.get_docid());
     } else {
 	return (a.get_docid() > b.get_docid());
     }
+}
+
+// Order by docid, used when relevance is always 0.
+template<bool FORWARD_DID> bool
+msetcmp_by_docid(const Result& a, const Result& b)
+{
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by relevance, then docid.
@@ -52,79 +54,103 @@ msetcmp_by_relevance(const Result& a, const Result& b)
 {
     if (a.get_weight() > b.get_weight()) return true;
     if (a.get_weight() < b.get_weight()) return false;
-    return msetcmp_by_did<FORWARD_DID, true>(a, b);
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by value, then docid.
 template<bool FORWARD_VALUE, bool FORWARD_DID> bool
 msetcmp_by_value(const Result& a, const Result& b)
 {
-    if (!FORWARD_VALUE) {
-	// We want dummy did 0 to compare worse than any other.
-	if (a.get_docid() == 0) return false;
-	if (b.get_docid() == 0) return true;
-    }
-    if (a.get_sort_key() > b.get_sort_key()) return FORWARD_VALUE;
-    if (a.get_sort_key() < b.get_sort_key()) return !FORWARD_VALUE;
-    return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
+    int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
+    if (sort_cmp > 0) return FORWARD_VALUE;
+    if (sort_cmp < 0) return !FORWARD_VALUE;
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by value, then relevance, then docid.
 template<bool FORWARD_VALUE, bool FORWARD_DID> bool
 msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 {
-    if (!FORWARD_VALUE) {
-	// two special cases to make min_item compares work when did == 0
-	if (a.get_docid() == 0) return false;
-	if (b.get_docid() == 0) return true;
-    }
-    if (a.get_sort_key() > b.get_sort_key()) return FORWARD_VALUE;
-    if (a.get_sort_key() < b.get_sort_key()) return !FORWARD_VALUE;
+    int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
+    if (sort_cmp > 0) return FORWARD_VALUE;
+    if (sort_cmp < 0) return !FORWARD_VALUE;
     if (a.get_weight() > b.get_weight()) return true;
     if (a.get_weight() < b.get_weight()) return false;
-    return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by relevance, then value, then docid.
 template<bool FORWARD_VALUE, bool FORWARD_DID> bool
 msetcmp_by_relevance_then_value(const Result& a, const Result& b)
 {
-    if (!FORWARD_VALUE) {
-	// two special cases to make min_item compares work when did == 0
-	if (a.get_docid() == 0) return false;
-	if (b.get_docid() == 0) return true;
-    }
     if (a.get_weight() > b.get_weight()) return true;
     if (a.get_weight() < b.get_weight()) return false;
-    if (a.get_sort_key() > b.get_sort_key()) return FORWARD_VALUE;
-    if (a.get_sort_key() < b.get_sort_key()) return !FORWARD_VALUE;
-    return msetcmp_by_did<FORWARD_DID, FORWARD_VALUE>(a, b);
+    int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
+    if (sort_cmp > 0) return FORWARD_VALUE;
+    if (sort_cmp < 0) return !FORWARD_VALUE;
+    return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
-static mset_cmp mset_cmp_table[] = {
-    // Xapian::Enquire::Internal::REL
-    msetcmp_by_relevance<false>,
-    0,
-    msetcmp_by_relevance<true>,
-    0,
-    // Xapian::Enquire::Internal::VAL
-    msetcmp_by_value<false, false>,
-    msetcmp_by_value<true, false>,
-    msetcmp_by_value<false, true>,
-    msetcmp_by_value<true, true>,
-    // Xapian::Enquire::Internal::VAL_REL
-    msetcmp_by_value_then_relevance<false, false>,
-    msetcmp_by_value_then_relevance<true, false>,
-    msetcmp_by_value_then_relevance<false, true>,
-    msetcmp_by_value_then_relevance<true, true>,
-    // Xapian::Enquire::Internal::REL_VAL
-    msetcmp_by_relevance_then_value<false, false>,
-    msetcmp_by_relevance_then_value<true, false>,
-    msetcmp_by_relevance_then_value<false, true>,
-    msetcmp_by_relevance_then_value<true, true>
-};
-
-mset_cmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by, bool sort_forward, bool sort_value_forward) {
-    if (sort_by == Xapian::Enquire::Internal::REL) sort_value_forward = false;
-    return mset_cmp_table[sort_by * 4 + sort_forward * 2 + sort_value_forward];
+MSetCmp
+get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by,
+		     bool sort_forward,
+		     bool sort_val_reverse)
+{
+    switch (sort_by) {
+	case Xapian::Enquire::Internal::DOCID:
+	    if (sort_forward)
+		return msetcmp_by_docid<true>;
+	    else
+		return msetcmp_by_docid<false>;
+	case Xapian::Enquire::Internal::REL:
+	    if (sort_forward)
+		return msetcmp_by_relevance<true>;
+	    else
+		return msetcmp_by_relevance<false>;
+	case Xapian::Enquire::Internal::VAL:
+	    if (sort_forward) {
+		if (sort_val_reverse) {
+		    return msetcmp_by_value<true, true>;
+		} else {
+		    return msetcmp_by_value<false, true>;
+		}
+	    } else {
+		if (sort_val_reverse) {
+		    return msetcmp_by_value<true, false>;
+		} else {
+		    return msetcmp_by_value<false, false>;
+		}
+	    }
+	case Xapian::Enquire::Internal::VAL_REL:
+	    if (sort_forward) {
+		if (sort_val_reverse) {
+		    return msetcmp_by_value_then_relevance<true, true>;
+		} else {
+		    return msetcmp_by_value_then_relevance<false, true>;
+		}
+	    } else {
+		if (sort_val_reverse) {
+		    return msetcmp_by_value_then_relevance<true, false>;
+		} else {
+		    return msetcmp_by_value_then_relevance<false, false>;
+		}
+	    }
+	default:
+	    // Must be REL_VAL, but handle with "default" to avoid warnings
+	    // about falling off the end of the function.
+	    AssertEq(sort_by, Xapian::Enquire::Internal::REL_VAL);
+	    if (sort_forward) {
+		if (sort_val_reverse) {
+		    return msetcmp_by_relevance_then_value<true, true>;
+		} else {
+		    return msetcmp_by_relevance_then_value<false, true>;
+		}
+	    } else {
+		if (sort_val_reverse) {
+		    return msetcmp_by_relevance_then_value<true, false>;
+		} else {
+		    return msetcmp_by_relevance_then_value<false, false>;
+		}
+	    }
+    }
 }

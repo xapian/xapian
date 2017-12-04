@@ -25,6 +25,8 @@
 
 #include <xapian/database.h>
 
+using Xapian::Internal::intrusive_ptr_nonnull;
+
 /** Adapter class for a TermList in a multidatabase.
  *
  *  Most methods just forward to @a real_termlist, but @a get_termfreq()
@@ -41,11 +43,11 @@ class MultiTermList : public TermList {
     TermList* real_termlist;
 
     /// The multidatabase.
-    Xapian::Database db;
+    intrusive_ptr_nonnull<const Xapian::Database::Internal> db;
 
   public:
     /// Constructor.
-    MultiTermList(const Xapian::Database& db, Xapian::docid did);
+    MultiTermList(const Xapian::Database::Internal* db_, TermList* real_termlist_);
 
     /// Destructor.
     ~MultiTermList();

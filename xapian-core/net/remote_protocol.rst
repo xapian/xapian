@@ -1,9 +1,9 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 39.0* of the protocol used by Xapian's
-remote backend. The major protocol version increased to 39 in Xapian
-1.3.3.
+This document describes *version 40.0* of the protocol used by Xapian's
+remote backend. The major protocol version increased to 40 in Xapian
+1.5.0.
 
 .. , and the minor protocol version to 1 in Xapian 1.2.4.
 
@@ -152,7 +152,7 @@ opening greeting given above.
 Query
 -----
 
--  ``MSG_QUERY L<serialised Xapian::Query object> I<query length> I<collapse max> [I<collapse key number> (if collapse_max non-zero)] <docid order> I<sort key number> <sort by> B<sort value forward> F<time limit> <percent cutoff> F<weight cutoff> <serialised Xapian::Weight object> <serialised Xapian::RSet object> [L<serialised Xapian::MatchSpy object>...]``
+-  ``MSG_QUERY L<serialised Xapian::Query object> I<query length> I<collapse max> [I<collapse key number> (if collapse_max non-zero)] <docid order> I<sort key number> <sort by> B<sort value forward> F<time limit> <percent threshold> F<weight threshold> <serialised Xapian::Weight object> <serialised Xapian::RSet object> [L<serialised Xapian::MatchSpy object>...]``
 -  ``REPLY_STATS <serialised Stats object>``
 -  ``MSG_GETMSET I<first> I<max items> I<check at least> <serialised global Stats object>``
 -  ``REPLY_RESULTS L<the result of calling serialise_results() on each Xapian::MatchSpy> <serialised Xapian::MSet object>``
@@ -290,4 +290,4 @@ Remove spelling
 ---------------
 
 -  ``MSG_REMOVESPELLING I<freqdec> <word>``
-
+-  ``REPLY_REMOVESPELLING I<result>``

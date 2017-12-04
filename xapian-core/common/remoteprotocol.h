@@ -49,14 +49,15 @@
 // 37: 1.3.1 Prefix-compress termlists.
 // 38: 1.3.2 Stats serialisation now includes collection freq, and more...
 // 39: 1.3.3 New query operator OP_WILDCARD; sort keys in serialised MSet.
-// 39.1: 1.5.0 MSG_POSITIONLISTCOUNT added.
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 39
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
+// 39.1: pre-1.5.0 MSG_POSITIONLISTCOUNT added.
+// 40: 1.5.0 REPLY_REMOVESPELLING added.
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 40
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
  *
- *  When modifying this list, you probably need to update the array of function
- *  pointers in net/remoteserver.cc too.
+ *  When modifying this list, you probably need to update the switch statement
+ *  in net/remoteserver.cc too.
  */
 enum message_type {
     MSG_ALLTERMS,		// All Terms
@@ -120,6 +121,7 @@ enum reply_type {
     REPLY_FREQS,		// Get termfreq and collfreq
     REPLY_UNIQUETERMS,		// Get number of unique terms in doc
     REPLY_POSITIONLISTCOUNT,	// Get PositionList length
+    REPLY_REMOVESPELLING,	// Remove a spelling
     REPLY_MAX
 };
 

@@ -47,7 +47,7 @@
 #endif
 // Even if none of the above get included, we still need a definition of
 // Database::Internal.
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 
 #include <fstream>
 #include <string>
@@ -321,12 +321,13 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 	throw DatabaseOpeningError(file + ':' + str(line_no) + ": Bad line");
     }
 
-    if (db.internal.empty()) {
+    if (db.internal->size() == 0) {
 	throw DatabaseOpeningError(file + ": No databases listed");
     }
 }
 
-Database::Database(const string &path, int flags)
+Database::Database(const string& path, int flags)
+    : Database()
 {
     LOGCALL_CTOR(API, "Database", path|flags);
 
@@ -336,7 +337,7 @@ Database::Database(const string &path, int flags)
 	    throw FeatureUnavailableError("Chert backend no longer supported");
 	case DB_BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	    internal.push_back(new GlassDatabase(path));
+	    internal = new GlassDatabase(path);
 	    return;
 #else
 	    throw FeatureUnavailableError("Glass backend disabled");
@@ -346,7 +347,7 @@ Database::Database(const string &path, int flags)
 	    return;
 	case DB_BACKEND_INMEMORY:
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	    internal.push_back(new InMemoryDatabase());
+	    internal = new InMemoryDatabase();
 	    return;
 #else
 	    throw FeatureUnavailableError("Inmemory backend disabled");
@@ -364,7 +365,7 @@ Database::Database(const string &path, int flags)
 	if (check_if_single_file_db(statbuf, path, &fd)) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	    // Single file glass format.
-	    internal.push_back(new GlassDatabase(fd));
+	    internal = new GlassDatabase(fd);
 	    return;
 #else
 	    throw FeatureUnavailableError("Glass backend disabled");
@@ -381,7 +382,7 @@ Database::Database(const string &path, int flags)
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (file_exists(path + "/iamglass")) {
-	internal.push_back(new GlassDatabase(path));
+	internal = new GlassDatabase(path);
 	return;
     }
 #endif
@@ -409,9 +410,16 @@ Database::Database(const string &path, int flags)
     throw DatabaseOpeningError("Couldn't detect type of database");
 }
 
-Database::Database(int fd, int flags)
+/** Helper factory function.
+ *
+ *  This allows us to initialise Database::internal via the constructor's
+ *  initialiser list, which we want to be able to do as Database::internal
+ *  is an intrusive_ptr_nonnull, so we can't set it to NULL in the initialiser
+ *  list and then fill it in later in the constructor body.
+ */
+static Database::Internal*
+database_factory(int fd, int flags)
 {
-    LOGCALL_CTOR(API, "Database", fd|flags);
     if (rare(fd < 0))
 	throw InvalidArgumentError("fd < 0");
 
@@ -419,8 +427,7 @@ Database::Database(int fd, int flags)
     int type = flags & DB_BACKEND_MASK_;
     switch (type) {
 	case 0: case DB_BACKEND_GLASS:
-	    internal.push_back(new GlassDatabase(fd));
-	    return;
+	    return new GlassDatabase(fd);
     }
 #else
     (void)flags;
@@ -428,6 +435,12 @@ Database::Database(int fd, int flags)
 
     (void)::close(fd);
     throw DatabaseOpeningError("Couldn't detect type of database");
+}
+
+Database::Database(int fd, int flags)
+    : internal(database_factory(fd, flags))
+{
+    LOGCALL_CTOR(API, "Database", fd|flags);
 }
 
 #if defined XAPIAN_HAS_GLASS_BACKEND
@@ -496,14 +509,14 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	    // by preference.
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	case DB_BACKEND_GLASS:
-	    internal.push_back(new GlassWritableDatabase(path, flags, block_size));
+	    internal = new GlassWritableDatabase(path, flags, block_size);
 	    return;
 #endif
 	case DB_BACKEND_CHERT:
 	    throw FeatureUnavailableError("Chert backend no longer supported");
 	case DB_BACKEND_INMEMORY:
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	    internal.push_back(new InMemoryDatabase());
+	    internal = new InMemoryDatabase();
 	    return;
 #else
 	    throw FeatureUnavailableError("Inmemory backend disabled");

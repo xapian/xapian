@@ -72,6 +72,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  would force us to forward declare an internal class in an external API
      *  header just to make it a friend.
      */
+    XAPIAN_VISIBILITY_INTERNAL
     void register_matcher_(void * matcher) { matcher_ = matcher; }
 
     // Destructor.

@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "database.h"
+#include "databaseinternal.h"
 #include "api/leafpostlist.h"
 
 /// A PostList iterating all docids when they form a contiguous range.

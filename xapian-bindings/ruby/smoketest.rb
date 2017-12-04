@@ -88,7 +88,7 @@ class XapianSmoketest < Test::Unit::TestCase
 
   def test_001_database
     assert_not_nil(@db)
-    assert_equal("WritableDatabase()", @db.description())
+    assert_equal("WritableDatabase(InMemory)", @db.description())
     assert_equal(1, @db.doccount())
   end # test_database
 

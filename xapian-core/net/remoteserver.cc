@@ -38,7 +38,7 @@
 
 #include "api/msetinternal.h"
 #include "length.h"
-#include "matcher/multimatch.h"
+#include "matcher/matcher.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "serialise.h"
@@ -158,54 +158,107 @@ RemoteServer::run()
 {
     while (true) {
 	try {
-	    /* This list needs to be kept in the same order as the list of
-	     * message types in "remoteprotocol.h". Note that messages at the
-	     * end of the list in "remoteprotocol.h" can be omitted if they
-	     * don't correspond to dispatch actions.
-	     */
-	    static const dispatch_func dispatch[] = {
-		&RemoteServer::msg_allterms,
-		&RemoteServer::msg_collfreq,
-		&RemoteServer::msg_document,
-		&RemoteServer::msg_termexists,
-		&RemoteServer::msg_termfreq,
-		&RemoteServer::msg_valuestats,
-		&RemoteServer::msg_keepalive,
-		&RemoteServer::msg_doclength,
-		&RemoteServer::msg_query,
-		&RemoteServer::msg_termlist,
-		&RemoteServer::msg_positionlist,
-		&RemoteServer::msg_postlist,
-		&RemoteServer::msg_reopen,
-		&RemoteServer::msg_update,
-		&RemoteServer::msg_adddocument,
-		&RemoteServer::msg_cancel,
-		&RemoteServer::msg_deletedocumentterm,
-		&RemoteServer::msg_commit,
-		&RemoteServer::msg_replacedocument,
-		&RemoteServer::msg_replacedocumentterm,
-		&RemoteServer::msg_deletedocument,
-		&RemoteServer::msg_writeaccess,
-		&RemoteServer::msg_getmetadata,
-		&RemoteServer::msg_setmetadata,
-		&RemoteServer::msg_addspelling,
-		&RemoteServer::msg_removespelling,
-		0, // MSG_GETMSET - used during a conversation.
-		0, // MSG_SHUTDOWN - handled by get_message().
-		&RemoteServer::msg_openmetadatakeylist,
-		&RemoteServer::msg_freqs,
-		&RemoteServer::msg_uniqueterms,
-		&RemoteServer::msg_positionlistcount,
-	    };
-
 	    string message;
 	    size_t type = get_message(idle_timeout, message);
-	    if (type >= sizeof(dispatch) / sizeof(dispatch[0]) || !dispatch[type]) {
-		string errmsg("Unexpected message type ");
-		errmsg += str(type);
-		throw Xapian::InvalidArgumentError(errmsg);
+	    switch (type) {
+		case MSG_ALLTERMS:
+		    msg_allterms(message);
+		    continue;
+		case MSG_COLLFREQ:
+		    msg_collfreq(message);
+		    continue;
+		case MSG_DOCUMENT:
+		    msg_document(message);
+		    continue;
+		case MSG_TERMEXISTS:
+		    msg_termexists(message);
+		    continue;
+		case MSG_TERMFREQ:
+		    msg_termfreq(message);
+		    continue;
+		case MSG_VALUESTATS:
+		    msg_valuestats(message);
+		    continue;
+		case MSG_KEEPALIVE:
+		    msg_keepalive(message);
+		    continue;
+		case MSG_DOCLENGTH:
+		    msg_doclength(message);
+		    continue;
+		case MSG_QUERY:
+		    msg_query(message);
+		    continue;
+		case MSG_TERMLIST:
+		    msg_termlist(message);
+		    continue;
+		case MSG_POSITIONLIST:
+		    msg_positionlist(message);
+		    continue;
+		case MSG_POSTLIST:
+		    msg_postlist(message);
+		    continue;
+		case MSG_REOPEN:
+		    msg_reopen(message);
+		    continue;
+		case MSG_UPDATE:
+		    msg_update(message);
+		    continue;
+		case MSG_ADDDOCUMENT:
+		    msg_adddocument(message);
+		    continue;
+		case MSG_CANCEL:
+		    msg_cancel(message);
+		    continue;
+		case MSG_DELETEDOCUMENTTERM:
+		    msg_deletedocumentterm(message);
+		    continue;
+		case MSG_COMMIT:
+		    msg_commit(message);
+		    continue;
+		case MSG_REPLACEDOCUMENT:
+		    msg_replacedocument(message);
+		    continue;
+		case MSG_REPLACEDOCUMENTTERM:
+		    msg_replacedocumentterm(message);
+		    continue;
+		case MSG_DELETEDOCUMENT:
+		    msg_deletedocument(message);
+		    continue;
+		case MSG_WRITEACCESS:
+		    msg_writeaccess(message);
+		    continue;
+		case MSG_GETMETADATA:
+		    msg_getmetadata(message);
+		    continue;
+		case MSG_SETMETADATA:
+		    msg_setmetadata(message);
+		    continue;
+		case MSG_ADDSPELLING:
+		    msg_addspelling(message);
+		    continue;
+		case MSG_REMOVESPELLING:
+		    msg_removespelling(message);
+		    continue;
+		case MSG_METADATAKEYLIST:
+		    msg_metadatakeylist(message);
+		    continue;
+		case MSG_FREQS:
+		    msg_freqs(message);
+		    continue;
+		case MSG_UNIQUETERMS:
+		    msg_uniqueterms(message);
+		    continue;
+		case MSG_POSITIONLISTCOUNT:
+		    msg_positionlistcount(message);
+		    continue;
+		default: {
+		    // MSG_GETMSET - used during a conversation.
+		    // MSG_SHUTDOWN - handled by get_message().
+		    string errmsg("Unexpected message type ");
+		    errmsg += str(type);
+		    throw Xapian::InvalidArgumentError(errmsg);
+		}
 	    }
-	    (this->*(dispatch[type]))(message);
 	} catch (const Xapian::NetworkTimeoutError & e) {
 	    try {
 		// We've had a timeout, so the client may not be listening, so
@@ -457,14 +510,14 @@ RemoteServer::msg_query(const string &message_in)
 
     double time_limit = unserialise_double(&p, p_end);
 
-    int percent_cutoff = *p++;
-    if (percent_cutoff < 0 || percent_cutoff > 100) {
-	throw Xapian::NetworkError("bad message (percent_cutoff)");
+    int percent_threshold = *p++;
+    if (percent_threshold < 0 || percent_threshold > 100) {
+	throw Xapian::NetworkError("bad message (percent_threshold)");
     }
 
-    double weight_cutoff = unserialise_double(&p, p_end);
-    if (weight_cutoff < 0) {
-	throw Xapian::NetworkError("bad message (weight_cutoff)");
+    double weight_threshold = unserialise_double(&p, p_end);
+    if (weight_threshold < 0) {
+	throw Xapian::NetworkError("bad message (weight_threshold)");
     }
 
     // Unserialise the Weight object.
@@ -508,10 +561,12 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     Xapian::Weight::Internal local_stats;
-    MultiMatch match(*db, query, qlen, &rset, collapse_max, collapse_key,
-		     percent_cutoff, weight_cutoff, order,
-		     sort_key, sort_by, sort_value_forward, time_limit,
-		     local_stats, wt.get(), matchspies, false, false);
+    Matcher matcher(*db, query, qlen, &rset, local_stats, wt.get(),
+		    false, false,
+		    collapse_key, collapse_max,
+		    percent_threshold, weight_threshold,
+		    order, sort_key, sort_by, sort_value_forward, time_limit,
+		    matchspies);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
@@ -530,11 +585,18 @@ RemoteServer::msg_query(const string &message_in)
 
     message.erase(0, message.size() - (p_end - p));
     unique_ptr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
-    unserialise_stats(message, *(total_stats.get()));
+    unserialise_stats(message, *total_stats);
     total_stats->set_bounds_from_db(*db);
 
-    Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, *(total_stats.get()), 0, 0);
+    Xapian::MSet mset = matcher.get_mset(first, maxitems, check_at_least,
+					 *total_stats, 0, 0,
+					 collapse_key, collapse_max,
+					 percent_threshold, weight_threshold,
+					 order,
+					 sort_key, sort_by, sort_value_forward,
+					 time_limit, matchspies);
+    // FIXME: The local side already has these stats, except for the maxpart
+    // information.
     mset.internal->set_stats(total_stats.release());
 
     message.resize(0);
@@ -741,7 +803,7 @@ RemoteServer::msg_getmetadata(const string & message)
 }
 
 void
-RemoteServer::msg_openmetadatakeylist(const string & message)
+RemoteServer::msg_metadatakeylist(const string & message)
 {
     string prev = message;
     string reply;
@@ -798,5 +860,6 @@ RemoteServer::msg_removespelling(const string & message)
     const char *p_end = p + message.size();
     Xapian::termcount freqdec;
     decode_length(&p, p_end, freqdec);
-    wdb->remove_spelling(string(p, p_end - p), freqdec);
+    auto result = wdb->remove_spelling(string(p, p_end - p), freqdec);
+    send_message(REPLY_REMOVESPELLING, encode_length(result));
 }

@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -95,7 +95,10 @@ using Xapian::Internal::intrusive_ptr;
  */
 GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 			     unsigned int block_size)
-	: db_dir(glass_dir),
+	: Xapian::Database::Internal(flags == Xapian::DB_READONLY_ ?
+				     TRANSACTION_READONLY :
+				     TRANSACTION_NONE),
+	  db_dir(glass_dir),
 	  readonly(flags == Xapian::DB_READONLY_),
 	  version_file(db_dir),
 	  postlist_table(db_dir, readonly),
@@ -165,7 +168,8 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 }
 
 GlassDatabase::GlassDatabase(int fd)
-	: db_dir(),
+	: Xapian::Database::Internal(TRANSACTION_READONLY),
+	  db_dir(),
 	  readonly(true),
 	  version_file(fd),
 	  postlist_table(fd, version_file.get_offset(), readonly),
@@ -384,7 +388,7 @@ GlassDatabase::request_document(Xapian::docid did) const
 }
 
 void
-GlassDatabase::readahead_for_query(const Xapian::Query &query)
+GlassDatabase::readahead_for_query(const Xapian::Query &query) const
 {
     Xapian::TermIterator t;
     for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
@@ -816,7 +820,9 @@ bool
 GlassDatabase::term_exists(const string & term) const
 {
     LOGCALL(DB, bool, "GlassDatabase::term_exists", term);
-    Assert(!term.empty());
+    if (term.empty()) {
+	RETURN(get_doccount() != 0);
+    }
     RETURN(postlist_table.term_exists(term));
 }
 
@@ -826,10 +832,17 @@ GlassDatabase::has_positions() const
     return !position_table.empty();
 }
 
-LeafPostList *
+PostList *
 GlassDatabase::open_post_list(const string& term) const
 {
-    LOGCALL(DB, LeafPostList *, "GlassDatabase::open_post_list", term);
+    LOGCALL(DB, PostList *, "GlassDatabase::open_post_list", term);
+    RETURN(GlassDatabase::open_leaf_post_list(term));
+}
+
+LeafPostList*
+GlassDatabase::open_leaf_post_list(const string& term) const
+{
+    LOGCALL(DB, LeafPostList *, "GlassDatabase::open_leaf_post_list", term);
     intrusive_ptr<const GlassDatabase> ptrtothis(this);
 
     if (term.empty()) {
@@ -860,6 +873,12 @@ GlassDatabase::open_term_list(Xapian::docid did) const
 	throw_termlist_table_close_exception();
     intrusive_ptr<const GlassDatabase> ptrtothis(this);
     RETURN(new GlassTermList(ptrtothis, did));
+}
+
+TermList *
+GlassDatabase::open_term_list_direct(Xapian::docid did) const
+{
+    return GlassDatabase::open_term_list(did);
 }
 
 Xapian::Document::Internal *
@@ -1005,6 +1024,18 @@ bool
 GlassDatabase::locked() const
 {
     return lock.test();
+}
+
+string
+GlassDatabase::get_description() const
+{
+    string desc = "Glass(";
+    if (!readonly) {
+	desc += "writable, ";
+    }
+    desc += db_dir;
+    desc += ')';
+    return desc;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1457,6 +1488,9 @@ bool
 GlassWritableDatabase::term_exists(const string & tname) const
 {
     LOGCALL(DB, bool, "GlassWritableDatabase::term_exists", tname);
+    if (tname.empty()) {
+	RETURN(get_doccount() != 0);
+    }
     Xapian::doccount tf;
     get_freqs(tname, &tf, NULL);
     RETURN(tf != 0);
@@ -1468,13 +1502,20 @@ GlassWritableDatabase::has_positions() const
     return inverter.has_positions(position_table);
 }
 
-LeafPostList *
-GlassWritableDatabase::open_post_list(const string& tname) const
+PostList *
+GlassWritableDatabase::open_post_list(const string& term) const
 {
-    LOGCALL(DB, LeafPostList *, "GlassWritableDatabase::open_post_list", tname);
+    LOGCALL(DB, PostList *, "GlassWritableDatabase::open_post_list", term);
+    RETURN(GlassWritableDatabase::open_leaf_post_list(term));
+}
+
+LeafPostList *
+GlassWritableDatabase::open_leaf_post_list(const string& term) const
+{
+    LOGCALL(DB, LeafPostList *, "GlassWritableDatabase::open_leaf_post_list", term);
     intrusive_ptr<const GlassWritableDatabase> ptrtothis(this);
 
-    if (tname.empty()) {
+    if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
 	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
@@ -1485,9 +1526,9 @@ GlassWritableDatabase::open_post_list(const string& tname) const
 
     // Flush any buffered changes for this term's postlist so we can just
     // iterate from the flushed state.
-    inverter.flush_post_list(postlist_table, tname);
+    inverter.flush_post_list(postlist_table, term);
     inverter.flush_pos_lists(position_table);
-    RETURN(new GlassPostList(ptrtothis, tname, true));
+    RETURN(new GlassPostList(ptrtothis, term, true));
 }
 
 ValueList *
@@ -1508,6 +1549,12 @@ GlassWritableDatabase::open_term_list(Xapian::docid did) const
     Assert(did != 0);
     inverter.flush_pos_lists(position_table);
     RETURN(GlassDatabase::open_term_list(did));
+}
+
+TermList *
+GlassWritableDatabase::open_term_list_direct(Xapian::docid did) const
+{
+    return GlassWritableDatabase::open_term_list(did);
 }
 
 PositionList *
@@ -1565,11 +1612,11 @@ GlassWritableDatabase::add_spelling(const string & word,
     spelling_table.add_word(word, freqinc);
 }
 
-void
+Xapian::termcount
 GlassWritableDatabase::remove_spelling(const string & word,
 				       Xapian::termcount freqdec) const
 {
-    spelling_table.remove_word(word, freqdec);
+    return spelling_table.remove_word(word, freqdec);
 }
 
 TermList *

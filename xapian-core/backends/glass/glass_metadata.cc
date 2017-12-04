@@ -1,7 +1,7 @@
 /** @file glass_metadata.cc
  * @brief Access to metadata for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2017 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 
 #include "glass_cursor.h"
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "debuglog.h"
 #include "omassert.h"
 #include "stringutils.h"
@@ -51,6 +51,14 @@ GlassMetadataTermList::~GlassMetadataTermList()
 {
     LOGCALL_DTOR(DB, "GlassMetadataTermList");
     delete cursor;
+}
+
+Xapian::termcount
+GlassMetadataTermList::get_approx_size() const
+{
+    // Very approximate!  This is only used to build a balanced or tree, so
+    // at least we'll get an even tree by returning a constant answer.
+    return 1;
 }
 
 string

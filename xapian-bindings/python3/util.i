@@ -159,28 +159,6 @@ namespace Xapian {
 	}
     }
     %rename(_ESetIterator) ESetIterator;
-
-    %extend MSet {
-	// for comparison
-	int __cmp__(const MSet &other) {
-	    if (self->get_max_possible() != other.get_max_possible()) {
-		return (self->get_max_possible() < other.get_max_possible())? -1 : 1;
-	    }
-	    if (self->size() != other.size()) {
-		return (self->size() < other.size())? -1 : 1;
-	    }
-
-	    for (size_t i=0; i<self->size(); ++i) {
-		if (*(*self)[i] != *other[i]) {
-		    return (*(*self)[i] < *other[i])? -1 : 1;
-		}
-		if ((*self)[i].get_weight() != other[i].get_weight()) {
-		    return ((*self)[i].get_weight() < other[i].get_weight())? -1 : 1;
-		}
-	    }
-	    return 0;
-	}
-    }
 }
 
 %fragment("XapianSWIG_anystring_as_ptr", "header", fragment="SWIG_AsPtr_std_string") {

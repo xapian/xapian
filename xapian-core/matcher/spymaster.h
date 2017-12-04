@@ -24,7 +24,6 @@
 #include <xapian/intrusive_ptr.h>
 #include <xapian/matchspy.h>
 
-#include "backends/multi.h"
 #include <vector>
 
 class SpyMaster {
@@ -33,26 +32,16 @@ class SpyMaster {
     /// The MatchSpy objects to apply.
     const std::vector<opt_ptr_spy>* spies;
 
-    /// Which shards are remote.
-    const std::vector<bool>* is_remote;
-
   public:
-    SpyMaster(const std::vector<opt_ptr_spy>* spies_,
-	      const std::vector<bool>* is_remote_)
-	: spies(spies_->empty() ? NULL : spies_), is_remote(is_remote_)
+    explicit SpyMaster(const std::vector<opt_ptr_spy>* spies_)
+	: spies(spies_->empty() ? NULL : spies_)
     {}
 
     operator bool() const { return spies != NULL; }
 
     void operator()(const Xapian::Document& doc,
-		    double weight,
-		    Xapian::docid did) {
+		    double weight) {
 	if (spies != NULL) {
-	    if ((*is_remote)[shard_number(did, is_remote->size())]) {
-		// The MatchSpy objects get applied during the remote match.
-		return;
-	    }
-
 	    for (auto spy : *spies) {
 		(*spy)(doc, weight);
 	    }

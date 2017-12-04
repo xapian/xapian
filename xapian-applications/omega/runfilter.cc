@@ -359,10 +359,10 @@ use_shell_after_all:
 	argv.push_back(NULL);
 
 	execvp(argv[0], const_cast<char **>(&argv[0]));
-	// The shell exits with status 127 if the command isn't found which we
-	// rely on below to throw NoSuchFilter, so emulate this when we avoid
-	// using the shell.
-	_exit(errno == ENOENT ? 127 : -1);
+	// Emulate shell behaviour and exit with status 127 if the command
+	// isn't found, and status 126 for other problems.  In particular, we
+	// rely on 127 below to throw NoSuchFilter.
+	_exit(errno == ENOENT ? 127 : 126);
     }
 
     // We're the parent process.

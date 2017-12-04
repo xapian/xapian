@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_QUERYOPTIMISER_H
 #define XAPIAN_INCLUDED_QUERYOPTIMISER_H
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "localsubmatch.h"
 #include "api/postlist.h"
 
@@ -41,7 +41,7 @@ class QueryOptimiser {
 
     LocalSubMatch & localsubmatch;
 
-    /** How many leaf subqueries there are.
+    /** How many weighted leaf subqueries there are.
      *
      *  Used for scaling percentages when the highest weighted document doesn't
      *  "match all terms".
@@ -86,16 +86,16 @@ class QueryOptimiser {
 
     void set_total_subqs(Xapian::termcount n) { total_subqs = n; }
 
-    LeafPostList * open_post_list(const std::string& term,
-				  Xapian::termcount wqf,
-				  double factor) {
+    PostList * open_post_list(const std::string& term,
+			      Xapian::termcount wqf,
+			      double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
 					    in_synonym, this, false);
     }
 
-    LeafPostList * open_lazy_post_list(const std::string& term,
-				       Xapian::termcount wqf,
-				       double factor) {
+    PostList * open_lazy_post_list(const std::string& term,
+				   Xapian::termcount wqf,
+				   double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, false,
 					    in_synonym, this, true);
     }

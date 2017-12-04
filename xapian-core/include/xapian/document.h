@@ -69,6 +69,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
 
     /// @private @internal Wrap an existing Internal.
+    XAPIAN_VISIBILITY_INTERNAL
     explicit Document(Internal*);
 
     /** Copy constructor.

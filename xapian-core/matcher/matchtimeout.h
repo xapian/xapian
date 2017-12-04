@@ -69,6 +69,10 @@ class TimeOut {
     timer_t timerid;
     volatile bool expired;
 
+    TimeOut(const TimeOut&) = delete;
+
+    TimeOut& operator=(const TimeOut&) = delete;
+
   public:
     explicit TimeOut(double limit) : expired(false) {
 	if (limit > 0) {

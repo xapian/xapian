@@ -70,13 +70,16 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     Xapian::Registry reg;
 
     /// Accept a message from the client.
+    XAPIAN_VISIBILITY_INTERNAL
     message_type get_message(double timeout, std::string & result,
 			     message_type required_type = MSG_MAX);
 
     /// Send a message to the client.
+    XAPIAN_VISIBILITY_INTERNAL
     void send_message(reply_type type, const std::string &message);
 
     /// Send a message to the client, with specific end_time.
+    XAPIAN_VISIBILITY_INTERNAL
     void send_message(reply_type type, const std::string &message,
 		      double end_time) {
 	unsigned char type_as_char = static_cast<unsigned char>(type);
@@ -84,93 +87,123 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     }
 
     // all terms
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_allterms(const std::string & message);
 
     // get document
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_document(const std::string & message);
 
     // term exists?
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_termexists(const std::string & message);
 
     // get collection freq
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_collfreq(const std::string & message);
 
     // get termfreq
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_termfreq(const std::string & message);
 
     // get termfreq and collection freq
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_freqs(const std::string & message);
 
     // get value statistics
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_valuestats(const std::string & message);
 
     // keep alive
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_keepalive(const std::string & message);
 
     // get doclength
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_doclength(const std::string & message);
 
     // set the query; return the mset
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_query(const std::string & message);
 
     // get termlist
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_termlist(const std::string & message);
 
     // get postlist
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_postlist(const std::string & message);
 
     // get positionlist
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_positionlist(const std::string &message);
 
     // get positionlist count
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_positionlistcount(const std::string &message);
 
     // get write access
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_writeaccess(const std::string & message);
 
     // reopen
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_reopen(const std::string & message);
 
     // get updated doccount and avlength
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_update(const std::string &message);
 
     // commit
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_commit(const std::string & message);
 
     // cancel
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_cancel(const std::string &message);
 
     // add document
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_adddocument(const std::string & message);
 
     // delete document
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_deletedocument(const std::string & message);
 
     // delete document with unique term
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_deletedocumentterm(const std::string & message);
 
     // replace document
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_replacedocument(const std::string & message);
 
     // replace document with unique term
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_replacedocumentterm(const std::string & message);
 
     // get metadata
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_getmetadata(const std::string & message);
 
     // read metadata key list
-    void msg_openmetadatakeylist(const std::string & message);
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_metadatakeylist(const std::string & message);
 
     // set metadata
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_setmetadata(const std::string & message);
 
     // add a spelling
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_addspelling(const std::string & message);
 
     // remove a spelling
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_removespelling(const std::string & message);
 
     // get number of unique terms
+    XAPIAN_VISIBILITY_INTERNAL
     void msg_uniqueterms(const std::string & message);
 
   public:

@@ -88,7 +88,7 @@ function run_tests()
   expect(doc:termlist_count(), 6)
 
   -- Test database
-  expect(tostring(db), "WritableDatabase()")
+  expect(tostring(db), "WritableDatabase(InMemory)")
   expect(db:get_doccount(), 1, 'db should have 1 document')
 
   term_count = 0

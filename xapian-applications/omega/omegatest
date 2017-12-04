@@ -298,7 +298,7 @@ testcase '' P=text a="    ABC #test_comment " b="ABC"
 
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
-rm -f "$TEST_DB"
+rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
 text=This is some text.
 host=example.org
@@ -446,10 +446,32 @@ testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
 printf '$hash{$cgi{text},invalidhash}' > "$TEST_TEMPLATE"
 testcase 'Exception: Unknown hash function: invalidhash' text="test"
 
+# Feature tests for termprefix and unprefix.
+printf '$termprefix{$cgi{B}}|$unprefix{$cgi{B}}' > "$TEST_TEMPLATE"
+testcase '|' B=''
+testcase '|something' B='something'
+testcase '|42' B='42'
+testcase '|3bad' B='3bad'
+testcase '|&something' B='&something'
+testcase '|:something' B=':something'
+testcase 'H|example.org' B='Hexample.org'
+testcase 'K|tag' B='Ktag'
+testcase 'K|Capital' B='KCapital'
+testcase 'K|:colon-tag' B='K:colon-tag'
+testcase 'K|:Capital' B='K:Capital'
+testcase 'XCOLOUR|red' B='XCOLOURred'
+testcase 'XPUNC|:colon' B='XPUNC::colon'
+testcase 'XPUNC|internal:colon' B='XPUNC:internal:colon'
+testcase 'XPUNC|:Colon' B='XPUNC::Colon'
+testcase 'XCASE|Upper' B='XCASE:Upper'
+testcase 'XCASE|TITLE' B='XCASE:TITLE'
+testcase 'XNUM|42' B='XNUM42'
+testcase 'XNUM|3bad' B='XNUM3bad'
+
 # Feature tests of scriptindex.
 printf 'uuid : boolean=Q unique=Q\nguid : boolean=G unique=G' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null < /dev/null ; then
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null < /dev/null 2>&1; then
     echo "scriptindex didn't reject 'unique' action being used more than once"
     failed=`expr $failed + 1`
 fi
@@ -457,11 +479,128 @@ fi
 # Test we check for hash's argument being an integer (new in 1.4.6).
 printf 'url : hash=37.3 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null \
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
     | grep -q "Index action 'hash' takes an integer argument" ; then
     : # OK
 else
     echo "scriptindex didn't reject 'hash' with a non-integer argument"
+    failed=`expr $failed + 1`
+fi
+
+# Test we give a helpful error for an action with a digit in (regression
+# test for fix in 1.4.6).
+#
+# This used to give the confusing:
+# Unknown index action ''
+printf 'url : index4' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
+    | grep -q "Unknown index action 'index4'" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected error for bad index action with a digit"
+    failed=`expr $failed + 1`
+fi
+
+# Test we give a helpful error if an = sign is missed out before an optional
+# numeric argument (regression test for fix in 1.4.6).
+#
+# This used to give the confusing:
+# Unknown index action ''
+printf 'url : hash 42' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
+    | grep -q "Unknown index action '42'" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected error for a missing equals sign"
+    failed=`expr $failed + 1`
+fi
+
+# Test we warn about spaces before and after '='.
+#
+# This has never been documented as supported, and was deprecated in 1.4.6
+# because it resulted in this quietly using hash as the field name, which is
+# probably not what was intended:
+#
+# url : field= hash boolean=Q unique=Q
+printf 'url : field= hash boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
+    | grep -q "warning: putting spaces between '=' and the argument is deprecated" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected warning for space after '='"
+    failed=`expr $failed + 1`
+fi
+printf 'url : field =link' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
+    | grep -q "warning: putting spaces between the action and '=' is deprecated" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected warning for space before '='"
+    failed=`expr $failed + 1`
+fi
+
+# Feature tests for datevalue command scriptindex.
+printf 'DATE : field parsedate=%%Y%%m%%d valuepacked=13\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+DATE=19891204
+END
+printf '$field{DATE,1}|$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
+testcase '19891204|628732800|1989-12-04' P=text
+
+# Feature tests for datevalue command scriptindex where format contains space.
+printf 'DATE : field parsedate="%%Y%%m%%d %%T" valuepacked=13\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1 <<'END'
+DATE=20161202 12:04:22.000000
+END
+printf '$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
+testcase '1480680262|2016-12-02' P=text
+
+# Feature tests for quoted argument.
+printf 'DATE : field="  spaces  " date="yyyymmdd"\nTEXT: index\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+DATE=19891204
+TEXT=This is sample text.
+NEXT=work
+END
+printf '$freq{D19891204}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
+testcase '1|19891204' P=text
+# Use $time to force the match to run.
+printf '$if{$time,$freq{D19891204}}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
+testcase '1|19891204' P=
+
+# Test we warn about useless actions.
+printf 'date : field parsedate=%%Y%%m%%d' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
+    | grep -q "Warning: Index action 'parsedate' has no effect" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected warning for useless 'parsedate'"
+    failed=`expr $failed + 1`
+fi
+
+# The 'hash' action should require its argument is >= 6, so test 5 is rejected.
+printf 'url : hash=5 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null > /dev/null 2>&1 ; then
+    echo "scriptindex didn't reject 'hash=5'"
+    failed=`expr $failed + 1`
+fi
+
+# And that 6 is accepted.
+printf 'url : hash=6 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if echo 'url=http://xapian.org' | $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1 ; then
+    : # OK
+else
+    echo "scriptindex rejected 'hash=6'"
     failed=`expr $failed + 1`
 fi
 

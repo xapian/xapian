@@ -24,21 +24,16 @@
 
 #include <xapian/database.h>
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "backends/multi.h"
 #include "omassert.h"
 
 using namespace std;
 
-MultiTermList::MultiTermList(const Xapian::Database& db_, Xapian::docid did)
-    : db(db_)
+MultiTermList::MultiTermList(const Xapian::Database::Internal* db_,
+			     TermList* real_termlist_)
+    : real_termlist(real_termlist_), db(db_)
 {
-    size_t n_shards = db.internal.size();
-    // The 0 and 1 cases should be handled by our caller.
-    AssertRel(n_shards, >=, 2);
-    size_t shard = shard_number(did, n_shards);
-    Xapian::docid sub_did = shard_docid(did, n_shards);
-    real_termlist = db.internal[shard]->open_term_list(sub_did);
 }
 
 MultiTermList::~MultiTermList()
@@ -67,7 +62,9 @@ MultiTermList::get_wdf() const
 Xapian::doccount
 MultiTermList::get_termfreq() const
 {
-    return db.get_termfreq(real_termlist->get_termname());
+    Xapian::doccount result;
+    db->get_freqs(real_termlist->get_termname(), &result, NULL);
+    return result;
 }
 
 TermList *

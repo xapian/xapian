@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -172,23 +172,31 @@ class MyStopper : public Xapian::Stopper {
 };
 
 static size_t
-prefix_from_term(string &prefix, const string &term)
+prefix_from_term(string* prefix, const string& term)
 {
-    if (term.empty()) {
-	prefix.resize(0);
-	return 0;
-    }
-    if (term[0] == 'X') {
-	const string::const_iterator begin = term.begin();
-	string::const_iterator i = begin + 1;
-	while (i != term.end() && C_isupper(*i)) ++i;
-	prefix.assign(begin, i);
-	if (i != term.end() && *i == ':') ++i;
-	return i - begin;
+    if (!term.empty()) {
+	if (term[0] == 'X') {
+	    const string::const_iterator begin = term.begin();
+	    string::const_iterator i = begin + 1;
+	    while (i != term.end() && C_isupper(*i))
+		++i;
+	    if (prefix)
+		prefix->assign(begin, i);
+	    if (i != term.end() && *i == ':')
+		++i;
+	    return i - begin;
+	}
+
+	if (C_isupper(term[0])) {
+	    if (prefix)
+		*prefix = term[0];
+	    return 1;
+	}
     }
 
-    prefix = term[0];
-    return 1;
+    if (prefix)
+	prefix->resize(0);
+    return 0;
 }
 
 // Don't allow ".." in format names, log file names, etc as this would allow
@@ -436,7 +444,7 @@ typedef multimap<string, string>::const_iterator FMCI;
 
 void add_bterm(const string &term) {
     string prefix;
-    if (prefix_from_term(prefix, term) > 0)
+    if (prefix_from_term(&prefix, term) > 0)
 	filter_map.insert(multimap<string, string>::value_type(prefix, term));
 }
 
@@ -995,6 +1003,7 @@ CMD_stoplist,
 CMD_sub,
 CMD_substr,
 CMD_suggestion,
+CMD_termprefix,
 CMD_terms,
 CMD_thispage,
 CMD_time,
@@ -1004,6 +1013,7 @@ CMD_transform,
 CMD_truncate,
 CMD_uniq,
 CMD_unpack,
+CMD_unprefix,
 CMD_unstem,
 CMD_upper,
 CMD_url,
@@ -1128,6 +1138,7 @@ T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
 T(substr,	   2, 3, N, 0), // substring
 T(suggestion,	   0, 0, N, Q), // misspelled word correction suggestion
+T(termprefix,	   1, 1, N, 0), // get any prefix from a term
 T(terms,	   0, 1, N, M), // list of matching terms
 T(thispage,	   0, 0, N, M), // page number of current page
 T(time,		   0, 0, N, M), // how long the match took (in seconds)
@@ -1139,6 +1150,7 @@ T(transform,	   3, 4, N, 0), // transform with a regexp
 T(truncate,	   2, 4, N, 0), // truncate after a word
 T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
 T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
+T(unprefix,	   1, 1, N, 0), // remove any prefix from a term
 T(unstem,	   1, 1, N, Q), // return list of probabilistic terms from
 				// the query which stemmed to this term
 T(upper,	   1, 1, N, 0), // convert string to upper case
@@ -1535,15 +1547,20 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_fmt:
 		value = fmtname;
 		break;
-	    case CMD_freq:
-		try {
-		    value = str(mset.get_termfreq(args[0]));
-		} catch (const Xapian::InvalidOperationError&) {
-		    // An MSet will raise this error if it's empty and not
-		    // associated with a search.
-		    value = str(db.get_termfreq(args[0]));
+	    case CMD_freq: {
+		const string& term = args[0];
+		Xapian::doccount termfreq = 0;
+		if (done_query) {
+		    termfreq = mset.get_termfreq(term);
 		}
+		if (termfreq == 0) {
+		    // We want $freq to work before the match is run, and we
+		    // don't want using it to force the match to run.
+		    termfreq = db.get_termfreq(term);
+		}
+		value = str(termfreq);
 		break;
+	    }
 	    case CMD_ge:
 		if (string_to_int(args[0]) >= string_to_int(args[1]))
 		    value = "true";
@@ -2158,6 +2175,9 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_suggestion:
 		value = qp.get_corrected_query_string();
 		break;
+	    case CMD_termprefix:
+		(void)prefix_from_term(&value, args[0]);
+		break;
 	    case CMD_terms: {
 		// list of matching terms
 		if (!enquire) break;
@@ -2281,6 +2301,11 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_unpack:
 		value = str(binary_string_to_int(args[0]));
 		break;
+	    case CMD_unprefix: {
+		size_t prefix_len = prefix_from_term(NULL, args[0]);
+		value.assign(args[0], prefix_len, string::npos);
+		break;
+	    }
 	    case CMD_unstem: {
 		const string &term = args[0];
 		Xapian::TermIterator i = qp.unstem_begin(term);
@@ -2383,7 +2408,7 @@ pretty_term(string term)
 	// See if we have this prefix in the termprefix_to_userprefix map.  If
 	// so, just reverse the mapping (e.g. turn 'Sfish' into 'subject:fish').
 	string prefix;
-	size_t prefix_len = prefix_from_term(prefix, term);
+	size_t prefix_len = prefix_from_term(&prefix, term);
 
 	map<string, string>::const_iterator i;
 	i = termprefix_to_userprefix.find(prefix);
@@ -2606,8 +2631,7 @@ OmegaExpandDecider::OmegaExpandDecider(const Xapian::Database & db_,
 	    }
 
 	    if (C_isupper(ch)) {
-		string prefix;
-		size_t prefix_len = prefix_from_term(prefix, term);
+		size_t prefix_len = prefix_from_term(NULL, term);
 		term.erase(0, prefix_len);
 	    }
 

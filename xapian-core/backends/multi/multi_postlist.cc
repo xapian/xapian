@@ -31,24 +31,14 @@
 
 using namespace std;
 
-MultiPostList::MultiPostList(const Xapian::Database& db,
-			     const string& term)
-    : current(0), n_shards(0), postlists(NULL), docids_size(0), docids(NULL)
+MultiPostList::MultiPostList(size_t n_shards_,
+			     PostList** postlists_)
+    : current(0), n_shards(n_shards_), postlists(postlists_), docids_size(0), docids(NULL)
 {
-    // The 0 and 1 cases should be handled by our caller.
-    AssertRel(db.internal.size(), >=, 2);
-    postlists = new PostList*[db.internal.size()];
     try {
-	docids = new Xapian::docid[db.internal.size()];
-	for (auto&& sub_db : db.internal) {
-	    postlists[n_shards] = sub_db->open_post_list(term);
-	    ++n_shards;
-	}
+	docids = new Xapian::docid[n_shards];
     } catch (...) {
-	while (n_shards)
-	    delete postlists[--n_shards];
 	delete [] postlists;
-	delete [] docids;
 	throw;
     }
 }

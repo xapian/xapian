@@ -46,6 +46,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     Internal * internal;
 
     /// @private @internal Wrap an existing Internal.
+    XAPIAN_VISIBILITY_INTERNAL
     explicit TermIterator(Internal *internal_);
 
     /// Copy constructor.

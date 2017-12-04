@@ -23,9 +23,9 @@
 #ifndef XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 #define XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 
-#include "backends/database.h"
 #include "api/postlist.h"
 #include "backends/valuelist.h"
+#include "xapian/database.h"
 
 class ValueRangePostList : public PostList {
   protected:

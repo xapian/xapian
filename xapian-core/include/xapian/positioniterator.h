@@ -47,6 +47,7 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
     Internal * internal;
 
     /// @private @internal Wrap an existing Internal.
+    XAPIAN_VISIBILITY_INTERNAL
     explicit PositionIterator(Internal *internal_);
 
     /// Copy constructor.

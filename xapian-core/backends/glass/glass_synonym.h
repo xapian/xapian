@@ -1,7 +1,7 @@
 /** @file glass_synonym.h
  * @brief Synonym data for a glass database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011,2014,2016 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2014,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,12 +24,13 @@
 #include <xapian/types.h>
 
 #include "backends/alltermslist.h"
-#include "backends/database.h"
 #include "glass_lazytable.h"
 #include "api/termlist.h"
 
 #include <set>
 #include <string>
+
+class GlassDatabase;
 
 namespace Glass {
     class RootInfo;
@@ -125,7 +126,7 @@ class GlassSynonymTermList : public AllTermsList {
     void operator=(const GlassSynonymTermList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
+    Xapian::Internal::intrusive_ptr<const GlassDatabase> database;
 
     /** A cursor which runs through the synonym table reading termnames from
      *  the keys.
@@ -136,7 +137,7 @@ class GlassSynonymTermList : public AllTermsList {
     string prefix;
 
   public:
-    GlassSynonymTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
+    GlassSynonymTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_,
 		      GlassCursor * cursor_,
 		      const string & prefix_)
 	    : database(database_), cursor(cursor_), prefix(prefix_)
@@ -154,6 +155,8 @@ class GlassSynonymTermList : public AllTermsList {
 
     /// Destructor.
     ~GlassSynonymTermList();
+
+    Xapian::termcount get_approx_size() const;
 
     /** Returns the current termname.
      *

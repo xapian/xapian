@@ -62,6 +62,7 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
      *  @param port	TCP port to listen on.
      *  @param tcp_nodelay	If true, enable TCP_NODELAY option.
      */
+    XAPIAN_VISIBILITY_INTERNAL
     static int get_listening_socket(const std::string & host, int port,
 				    bool tcp_nodelay
 #if defined __CYGWIN__ || defined __WIN32__
@@ -74,6 +75,7 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     bool verbose;
 
     /** Accept a connection and return the filedescriptor for it. */
+    XAPIAN_VISIBILITY_INTERNAL
     int accept_connection();
 
   public:

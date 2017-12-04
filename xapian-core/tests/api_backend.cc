@@ -575,7 +575,7 @@ DEFINE_TESTCASE(msize1, generated) {
     enq.set_collapse_key(0);
     enq.set_query(Xapian::Query("K1"));
 
-    Xapian::MSet mset = enq.get_mset(0, 10, 1000);
+    Xapian::MSet mset = enq.get_mset(0, 60);
     Xapian::doccount lb = mset.get_matches_lower_bound();
     Xapian::doccount ub = mset.get_matches_upper_bound();
     Xapian::doccount est = mset.get_matches_estimated();
@@ -590,7 +590,7 @@ DEFINE_TESTCASE(msize1, generated) {
     TEST_EQUAL(lb2, est2);
     TEST_EQUAL(est, est2);
 
-    Xapian::MSet mset3 = enq.get_mset(0, 60);
+    Xapian::MSet mset3 = enq.get_mset(0, 10, 1000);
     Xapian::doccount lb3 = mset3.get_matches_lower_bound();
     Xapian::doccount ub3 = mset3.get_matches_upper_bound();
     Xapian::doccount est3 = mset3.get_matches_estimated();
@@ -625,7 +625,7 @@ DEFINE_TESTCASE(msize2, generated) {
     enq.set_collapse_key(0);
     enq.set_query(Xapian::Query("K1"));
 
-    Xapian::MSet mset = enq.get_mset(0, 10, 1000);
+    Xapian::MSet mset = enq.get_mset(0, 60);
     Xapian::doccount lb = mset.get_matches_lower_bound();
     Xapian::doccount ub = mset.get_matches_upper_bound();
     Xapian::doccount est = mset.get_matches_estimated();
@@ -640,7 +640,7 @@ DEFINE_TESTCASE(msize2, generated) {
     TEST_EQUAL(lb2, est2);
     TEST_EQUAL(est, est2);
 
-    Xapian::MSet mset3 = enq.get_mset(0, 60);
+    Xapian::MSet mset3 = enq.get_mset(0, 10, 1000);
     Xapian::doccount lb3 = mset3.get_matches_lower_bound();
     Xapian::doccount ub3 = mset3.get_matches_upper_bound();
     Xapian::doccount est3 = mset3.get_matches_estimated();
@@ -862,7 +862,7 @@ DEFINE_TESTCASE(failedreplace2, glass) {
 DEFINE_TESTCASE(phrase3, positional) {
     Xapian::Database db = get_database("apitest_phrase");
 
-    const char * phrase_words[] = { "phrase", "near" };
+    static const char * const phrase_words[] = { "phrase", "near" };
     Xapian::Query q(Xapian::Query::OP_NEAR, phrase_words, phrase_words + 2, 12);
     q = Xapian::Query(Xapian::Query::OP_AND_MAYBE, Xapian::Query("pad"), q);
 
@@ -1167,13 +1167,13 @@ make_phrasebug1_db(Xapian::WritableDatabase &db, const string &)
 /// Regression test for ticket#653, fixed in 1.3.2 and 1.2.19.
 DEFINE_TESTCASE(phrasebug1, generated && positional) {
     Xapian::Database db = get_database("phrasebug1", make_phrasebug1_db);
-    const char * qterms[] = { "katrina", "hurricane" };
+    static const char * const qterms[] = { "katrina", "hurricane" };
     Xapian::Enquire e(db);
     Xapian::Query q(Xapian::Query::OP_PHRASE, qterms, qterms + 2, 5);
     e.set_query(q);
     Xapian::MSet mset = e.get_mset(0, 100);
     TEST_EQUAL(mset.size(), 0);
-    const char * qterms2[] = { "hurricane", "katrina" };
+    static const char * const qterms2[] = { "hurricane", "katrina" };
     Xapian::Query q2(Xapian::Query::OP_PHRASE, qterms2, qterms2 + 2, 5);
     e.set_query(q2);
     mset = e.get_mset(0, 100);
@@ -1467,7 +1467,9 @@ DEFINE_TESTCASE(exactxor1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
 
-    const char * words[4] = { "blank", "test", "paragraph", "banana" };
+    static const char * const words[4] = {
+	"blank", "test", "paragraph", "banana"
+    };
     Xapian::Query q(Xapian::Query::OP_XOR, words, words + 4);
     enq.set_query(q);
     enq.set_weighting_scheme(Xapian::BoolWeight());
@@ -1477,7 +1479,9 @@ DEFINE_TESTCASE(exactxor1, backend) {
     // Test improved lower bound in 1.3.7 (earlier versions gave 0).
     TEST_EQUAL(mset.get_matches_lower_bound(), 2);
 
-    const char * words2[4] = { "queri", "test", "paragraph", "word" };
+    static const char * const words2[4] = {
+	"queri", "test", "paragraph", "word"
+    };
     Xapian::Query q2(Xapian::Query::OP_XOR, words2, words2 + 4);
     enq.set_query(q2);
     enq.set_weighting_scheme(Xapian::BoolWeight());

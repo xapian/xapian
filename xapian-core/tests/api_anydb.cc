@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2016,2017 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -863,8 +863,11 @@ DEFINE_TESTCASE(pctcutoff3, backend) {
     for (Xapian::MSetIterator i = mset1.begin(); i != mset1.end(); ++i) {
 	int new_percent = mset1.convert_to_percent(i);
 	if (new_percent != percent) {
+	    tout.str(string());
+	    tout << "Testing " << percent << "% cutoff" << endl;
 	    enquire.set_cutoff(percent);
 	    Xapian::MSet mset2 = enquire.get_mset(0, 10);
+	    TEST_EQUAL(mset2.back().get_percent(), percent);
 	    TEST_EQUAL(mset2.size(), i.get_rank());
 	    percent = new_percent;
 	}
@@ -1008,9 +1011,10 @@ DEFINE_TESTCASE(reversebool1, backend) {
 	Xapian::MSetIterator i = mymset1.begin();
 	Xapian::MSetIterator j = mymset3.end();
 	for ( ; i != mymset1.end(); ++i) {
+	    --j;
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
-	    TEST_EQUAL(*i, *--j);
+	    TEST_EQUAL(*i, *j);
 	}
     }
 
@@ -1057,7 +1061,8 @@ DEFINE_TESTCASE(reversebool2, backend) {
 	for (j = mymset3.begin(); j != mymset3.end(); ++j) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
-	    TEST_EQUAL(*--i, *j);
+	    --i;
+	    TEST_EQUAL(*i, *j);
 	}
     }
 
@@ -1425,16 +1430,18 @@ DEFINE_TESTCASE(eliteset5, backend) {
 	v.push_back("word");
     }
 
-    Xapian::Query myquery1 = Xapian::Query(Xapian::Query::OP_ELITE_SET,
-					   v.begin(), v.end(), 1);
-    myquery1 = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
-			     myquery1,
-			     0.004);
+    for (Xapian::termcount n = 1; n != v.size(); ++n) {
+	Xapian::Query myquery1 = Xapian::Query(Xapian::Query::OP_ELITE_SET,
+					       v.begin(), v.end(), n);
+	myquery1 = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+				 myquery1,
+				 0.004);
 
-    enquire1.set_query(myquery1);
-    // On architectures with excess precision (or, at least, on x86), the
-    // following call used to result in a segfault.
-    enquire1.get_mset(0, 10);
+	enquire1.set_query(myquery1);
+	// On architectures with excess precision (or, at least, on x86), the
+	// following call used to result in a segfault (at least when n=1).
+	enquire1.get_mset(0, 10);
+    }
 
     return true;
 }
@@ -1550,6 +1557,11 @@ DEFINE_TESTCASE(qterminfo2, backend) {
 
     string term1 = stemmer("paragraph");
     string term2 = stemmer("another");
+
+    enquire.set_query(Xapian::Query(term1));
+    Xapian::MSet mset0 = enquire.get_mset(0, 10);
+
+    TEST_NOT_EQUAL(mset0.get_termweight("paragraph"), 0);
 
     Xapian::Query query(Xapian::Query::OP_AND_NOT, term1,
 	    Xapian::Query(Xapian::Query::OP_AND, term1, term2));
@@ -2214,7 +2226,7 @@ DEFINE_TESTCASE(scaleweight1, backend) {
     Xapian::Enquire enq(db);
     Xapian::QueryParser qp;
 
-    static const char * queries[] = {
+    static const char * const queries[] = {
 	"pad",
 	"milk fridge",
 	"leave milk on fridge",
@@ -2223,16 +2235,15 @@ DEFINE_TESTCASE(scaleweight1, backend) {
 	"leave \"milk on fridge\"",
 	"notpresent",
 	"leave \"milk notpresent\"",
-	NULL
     };
     static const double multipliers[] = {
 	-1000000, -2.5, -1, -0.5, 0, 0.5, 1, 2.5, 1000000,
 	0, 0
     };
 
-    for (const char **qstr = queries; *qstr; ++qstr) {
+    for (auto qstr : queries) {
 	tout.str(string());
-	Xapian::Query query1 = qp.parse_query(*qstr);
+	Xapian::Query query1 = qp.parse_query(qstr);
 	tout << "query1: " << query1.get_description() << endl;
 	for (const double *multp = multipliers; multp[0] != multp[1]; ++multp) {
 	    double mult = *multp;

@@ -1,7 +1,7 @@
 /** @file glass_synonym.cc
  * @brief Synonym data for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include "xapian/error.h"
 
 #include "glass_cursor.h"
+#include "glass_database.h"
 #include "debuglog.h"
 #include "stringutils.h"
 #include "api/vectortermlist.h"
@@ -169,6 +170,14 @@ GlassSynonymTermList::~GlassSynonymTermList()
 {
     LOGCALL_DTOR(DB, "GlassSynonymTermList");
     delete cursor;
+}
+
+Xapian::termcount
+GlassSynonymTermList::get_approx_size() const
+{
+    // This is an over-estimate, but we only use this value to build a balanced
+    // or-tree, and it'll do a decent enough job for that.
+    return database->synonym_table.get_entry_count();
 }
 
 string

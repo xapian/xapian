@@ -103,7 +103,7 @@ is_double_quote(unsigned ch) {
 inline bool
 prefix_needs_colon(const string & prefix, unsigned ch)
 {
-    if (!U_isupper(ch)) return false;
+    if (!U_isupper(ch) && ch != ':') return false;
     string::size_type len = prefix.length();
     return (len > 1 && prefix[len - 1] != ':');
 }

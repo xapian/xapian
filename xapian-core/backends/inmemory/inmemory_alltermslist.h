@@ -2,7 +2,7 @@
  * @brief Iterate all terms in an inmemory db
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2008,2009,2011 Olly Betts
+ * Copyright 2003,2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +53,8 @@ class InMemoryAllTermsList : public AllTermsList
 	      prefix(prefix_)
 	{
 	}
+
+	Xapian::termcount get_approx_size() const;
 
 	// Gets current termname
 	string get_termname() const;

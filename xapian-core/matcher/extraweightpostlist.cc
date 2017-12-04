@@ -76,8 +76,8 @@ ExtraWeightPostList::next(double w_min)
 PostList*
 ExtraWeightPostList::skip_to(Xapian::docid, double)
 {
-    // ExtraWeightPostList's parent will be either PostListTree or
-    // MergePostList, neither of which use skip_to() or check().
+    // ExtraWeightPostList's parent will be PostListTree which doesn't
+    // call skip_to() or check().
     Assert(false);
     return NULL;
 }

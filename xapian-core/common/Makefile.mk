@@ -40,9 +40,9 @@ noinst_HEADERS +=\
 	common/safewinsock2.h\
 	common/serialise-double.h\
 	common/socket_utils.h\
+	common/stdclamp.h\
 	common/str.h\
 	common/stringutils.h\
-	common/submatch.h\
 	common/wordaccess.h
 
 EXTRA_DIST +=\

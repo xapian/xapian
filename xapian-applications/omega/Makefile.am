@@ -195,8 +195,8 @@ endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
- common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
- common/safe.cc utf8convert.cc utf8truncate.cc\
+ common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
+ utf8convert.cc utf8truncate.cc\
  common/keyword.cc timegm.cc datetime.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
