@@ -1,7 +1,7 @@
 /** @file backends.h
  * @brief BACKEND_* constants
  */
-/* Copyright (C) 2015 Olly Betts
+/* Copyright (C) 2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ enum {
     BACKEND_REMOTE = 0,
     BACKEND_INMEMORY = 1,
     BACKEND_GLASS = 2,
+    BACKEND_HONEY = 3,
     BACKEND_MAX_
 };
 

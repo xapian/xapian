@@ -25,7 +25,7 @@
 #include "backends/databaseinternal.h"
 
 /// Database using honey backend.
-class HoneyDatabase : public Database::Internal {
+class HoneyDatabase : public Xapian::Database::Internal {
     /// Don't allow assignment.
     HoneyDatabase& operator=(const HoneyDatabase&) = delete;
 
@@ -33,23 +33,23 @@ class HoneyDatabase : public Database::Internal {
     HoneyDatabase(const HoneyDatabase&) = delete;
 
   public:
-    virtual void readahead_for_query(const Query& query) const;
+    void readahead_for_query(const Xapian::Query& query) const;
 
-    virtual doccount get_doccount() const = 0;
+    Xapian::doccount get_doccount() const;
 
     /** Return the last used document id of this (sub) database. */
-    virtual docid get_lastdocid() const = 0;
+    Xapian::docid get_lastdocid() const;
 
     /** Return the total length of all documents in this database. */
-    virtual totallength get_total_length() const = 0;
+    Xapian::totallength get_total_length() const;
 
-    virtual termcount get_doclength(docid did) const = 0;
+    Xapian::termcount get_doclength(Xapian::docid did) const;
 
     /** Get the number of unique terms in document.
      *
      *  @param did  The document id of the document to return this value for.
      */
-    virtual termcount get_unique_terms(docid did) const = 0;
+    Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
     /** Returns frequencies for a term.
      *
@@ -59,9 +59,9 @@ class HoneyDatabase : public Database::Internal {
      *  @param collfreq_ptr	Point to return number of occurrences of @a
      *				term in the database (or NULL not to return)
      */
-    virtual void get_freqs(const std::string& term,
-			   doccount* termfreq_ptr,
-			   termcount* collfreq_ptr) const = 0;
+    void get_freqs(const std::string& term,
+		   Xapian::doccount* termfreq_ptr,
+		   Xapian::termcount* collfreq_ptr) const;
 
     /** Return the frequency of a given value slot.
      *
@@ -73,7 +73,7 @@ class HoneyDatabase : public Database::Internal {
      *  @exception UnimplementedError The frequency of the value isn't
      *  available for this database type.
      */
-    virtual doccount get_value_freq(valueno slot) const;
+    Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 
     /** Get a lower bound on the values stored in the given value slot.
      *
@@ -82,7 +82,7 @@ class HoneyDatabase : public Database::Internal {
      *
      *  @param slot The value slot to examine.
      */
-    virtual std::string get_value_lower_bound(valueno slot) const;
+    std::string get_value_lower_bound(Xapian::valueno slot) const;
 
     /** Get an upper bound on the values stored in the given value slot.
      *
@@ -91,25 +91,25 @@ class HoneyDatabase : public Database::Internal {
      *  @exception UnimplementedError The upper bound of the values isn't
      *  available for this database type.
      */
-    virtual std::string get_value_upper_bound(valueno slot) const;
+    std::string get_value_upper_bound(Xapian::valueno slot) const;
 
     /// Get a lower bound on the length of a document in this DB.
-    virtual termcount get_doclength_lower_bound() const;
+    Xapian::termcount get_doclength_lower_bound() const;
 
     /// Get an upper bound on the length of a document in this DB.
-    virtual termcount get_doclength_upper_bound() const;
+    Xapian::termcount get_doclength_upper_bound() const;
 
     /// Get an upper bound on the wdf of term @a term.
-    virtual termcount get_wdf_upper_bound(const std::string& term) const;
+    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
 
-    virtual bool term_exists(const std::string& term) const = 0;
+    bool term_exists(const std::string& term) const;
 
     /** Check whether this database contains any positional information. */
-    virtual bool has_positions() const = 0;
+    bool has_positions() const;
 
-    virtual PostList* open_post_list(const std::string& term) const = 0;
+    PostList* open_post_list(const std::string& term) const;
 
-    virtual LeafPostList* open_leaf_post_list(const std::string& term) const = 0;
+    LeafPostList* open_leaf_post_list(const std::string& term) const;
 
     /** Open a value stream.
      *
@@ -120,21 +120,21 @@ class HoneyDatabase : public Database::Internal {
      *  @return	Pointer to a new ValueList object which should be deleted by
      *		the caller once it is no longer needed.
      */
-    virtual ValueList* open_value_list(valueno slot) const;
+    ValueList* open_value_list(Xapian::valueno slot) const;
 
-    virtual TermList* open_term_list(docid did) const = 0;
+    TermList* open_term_list(Xapian::docid did) const;
 
     /** Like open_term_list() but without MultiTermList wrapper.
      *
      *  MultiDatabase::open_term_list() wraps the returns TermList in a
      *  MultiTermList, but we don't want that for query expansion.
      */
-    virtual TermList* open_term_list_direct(docid did) const = 0;
+    TermList* open_term_list_direct(Xapian::docid did) const;
 
-    virtual TermList* open_allterms(const std::string& prefix) const = 0;
+    TermList* open_allterms(const std::string& prefix) const;
 
-    virtual PositionList* open_position_list(docid did,
-					     const std::string& term) const = 0;
+    PositionList* open_position_list(Xapian::docid did,
+				     const std::string& term) const;
 
     /** Open a handle on a document.
      *
@@ -150,7 +150,7 @@ class HoneyDatabase : public Database::Internal {
      *
      *  @return		A new document object, owned by the caller.
      */
-    virtual Document::Internal* open_document(docid did, bool lazy) const = 0;
+    Xapian::Document::Internal* open_document(Xapian::docid did, bool lazy) const;
 
     /** Create a termlist tree from trigrams of @a word.
      *
@@ -158,17 +158,17 @@ class HoneyDatabase : public Database::Internal {
      *
      *  If there are no trigrams, returns NULL.
      */
-    virtual TermList* open_spelling_termlist(const std::string& word) const;
+    TermList* open_spelling_termlist(const std::string& word) const;
 
     /** Return a termlist which returns the words which are spelling
      *  correction targets.
      *
      *  If there are no spelling correction targets, returns NULL.
      */
-    virtual TermList* open_spelling_wordlist() const;
+    TermList* open_spelling_wordlist() const;
 
     /** Return the number of times @a word was added as a spelling. */
-    virtual doccount get_spelling_frequency(const std::string& word) const;
+    Xapian::doccount get_spelling_frequency(const std::string& word) const;
 
     /** Add a word to the spelling dictionary.
      *
@@ -177,8 +177,8 @@ class HoneyDatabase : public Database::Internal {
      *  @param word	The word to add.
      *  @param freqinc	How much to increase its frequency by.
      */
-    virtual void add_spelling(const std::string& word,
-			      termcount freqinc) const;
+    void add_spelling(const std::string& word,
+		      Xapian::termcount freqinc) const;
 
     /** Remove a word from the spelling dictionary.
      *
@@ -190,48 +190,48 @@ class HoneyDatabase : public Database::Internal {
      *
      *  @return Any freqdec not "used up".
      */
-    virtual termcount remove_spelling(const std::string& word,
-				      termcount freqdec) const;
+    Xapian::termcount remove_spelling(const std::string& word,
+				      Xapian::termcount freqdec) const;
 
     /** Open a termlist returning synonyms for a term.
      *
      *  If @a term has no synonyms, returns NULL.
      */
-    virtual TermList* open_synonym_termlist(const std::string& term) const;
+    TermList* open_synonym_termlist(const std::string& term) const;
 
     /** Open a termlist returning each term which has synonyms.
      *
      *  @param prefix   If non-empty, only terms with this prefix are
      *		    returned.
      */
-    virtual TermList* open_synonym_keylist(const std::string& prefix) const;
+    TermList* open_synonym_keylist(const std::string& prefix) const;
 
     /** Add a synonym for a term.
      *
      *  If @a synonym is already a synonym for @a term, then no action is
      *  taken.
      */
-    virtual void add_synonym(const std::string& term,
-			     const std::string& synonym) const;
+    void add_synonym(const std::string& term,
+		     const std::string& synonym) const;
 
     /** Remove a synonym for a term.
      *
      *  If @a synonym isn't a synonym for @a term, then no action is taken.
      */
-    virtual void remove_synonym(const std::string& term,
-				const std::string& synonym) const;
+    void remove_synonym(const std::string& term,
+			const std::string& synonym) const;
 
     /** Clear all synonyms for a term.
      *
      *  If @a term has no synonyms, no action is taken.
      */
-    virtual void clear_synonyms(const std::string& term) const;
+    void clear_synonyms(const std::string& term) const;
 
     /** Get the metadata associated with a given key.
      *
      *  See Database::get_metadata() for more information.
      */
-    virtual std::string get_metadata(const std::string& key) const;
+    std::string get_metadata(const std::string& key) const;
 
     /** Open a termlist returning each metadata key.
      *
@@ -240,23 +240,23 @@ class HoneyDatabase : public Database::Internal {
      *
      *  @param prefix   If non-empty, only keys with this prefix are returned.
      */
-    virtual TermList* open_metadata_keylist(const std::string& prefix) const;
+    TermList* open_metadata_keylist(const std::string& prefix) const;
 
     /** Set the metadata associated with a given key.
      *
      *  See WritableDatabase::set_metadata() for more information.
      */
-    virtual void set_metadata(const std::string& key, const std::string& value);
+    void set_metadata(const std::string& key, const std::string& value);
 
     /** Reopen the database to the latest available revision.
      *
      *  Database backends which don't support simultaneous update and
      *  reading probably don't need to do anything here.
      */
-    virtual bool reopen();
+    bool reopen();
 
     /** Close the database */
-    virtual void close() = 0;
+    void close();
 
     /** Request a document.
      *
@@ -273,10 +273,10 @@ class HoneyDatabase : public Database::Internal {
      *
      *  The default implementation is a no-op.
      */
-    virtual void request_document(docid did) const;
+    void request_document(Xapian::docid did) const;
 
     /// Get a string describing the current revision of the database.
-    virtual std::string get_revision_info() const;
+    std::string get_revision_info() const;
 
     /** Get a UUID for the database.
      *
@@ -288,7 +288,7 @@ class HoneyDatabase : public Database::Internal {
      *
      *  If the backend does not support UUIDs the empty string is returned.
      */
-    virtual std::string get_uuid() const;
+    std::string get_uuid() const;
 
     /** Get backend information about this database.
      *
@@ -299,20 +299,17 @@ class HoneyDatabase : public Database::Internal {
      *
      *  @return	A constant indicating the backend type.
      */
-    virtual int get_backend_info(std::string* path) const = 0;
+    int get_backend_info(std::string* path) const;
 
     /** Find lowest and highest docids actually in use.
      *
      *  Only used by compaction, so only needs to be implemented by
      *  backends which support compaction.
      */
-    virtual void get_used_docid_range(docid& first,
-				      docid& last) const;
+    void get_used_docid_range(Xapian::docid& first, Xapian::docid& last) const;
 
     /// Return a string describing this object.
-    virtual std::string get_description() const = 0;
+    std::string get_description() const;
 };
-
-}
 
 #endif // XAPIAN_INCLUDED_HONEY_DATABASE_H
