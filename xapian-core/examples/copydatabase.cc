@@ -22,6 +22,7 @@
 
 #include <xapian.h>
 
+#include <initializer_list>
 #include <iomanip>
 #include <iostream>
 
@@ -82,22 +83,27 @@ try {
     Xapian::WritableDatabase db_out(dest, Xapian::DB_CREATE);
 
     for (int i = 1; i < argc - 1; ++i) {
-	char * src = argv[i];
-	if (*src) {
+	string src = argv[i];
+	if (!src.empty()) {
 	    // Remove any trailing directory separator.
-	    char & ch = src[strlen(src) - 1];
-	    if (ch == '/' || ch == '\\') ch = '\0';
+	    char& ch = src.back();
+	    for (char dir_sep : DIR_SEPS_LIST) {
+		if (ch == dir_sep) {
+		    ch = '\0';
+		    break;
+		}
+	    }
 	}
 
 	// Open the source database.
 	Xapian::Database db_in(src);
 
 	// Find the leaf-name of the database path for reporting progress.
-	const char * leaf = strrchr(src, '/');
-#if defined __WIN32__ || defined __OS2__
-	if (!leaf) leaf = strrchr(src, '\\');
-#endif
-	if (leaf) ++leaf; else leaf = src;
+	//
+	// If we found a directory separator, + 1 advances to the next
+	// character; If we didn't, incrementing string::npos will give us 0,
+	// so we use the whole of src as the leaf-name.
+	const char * leaf = src.c_str() + (src.find_last_of(DIR_SEPS) + 1);
 
 	// Iterate over all the documents in db_in, copying each to db_out.
 	Xapian::doccount dbsize = db_in.get_doccount();

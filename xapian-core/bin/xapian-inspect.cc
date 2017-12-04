@@ -192,7 +192,7 @@ main(int argc, char **argv)
     }
 
     string db_dir;
-    size_t slash = table_name.rfind('/');
+    size_t slash = table_name.find_last_of(DIR_SEPS);
     if (slash != string::npos) {
 	db_dir.assign(table_name, 0, slash);
     } else {

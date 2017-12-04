@@ -427,11 +427,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	new_stub_file += "/new_stub.tmp";
 	{
 	    ofstream new_stub(new_stub_file.c_str());
-#ifndef __WIN32__
-	    size_t slash = destdir.find_last_of('/');
-#else
-	    size_t slash = destdir.find_last_of("/\\");
-#endif
+	    size_t slash = destdir.find_last_of(DIR_SEPS);
 	    new_stub << "auto " << destdir.substr(slash + 1) << '\n';
 	}
 	if (!io_tmp_rename(new_stub_file, stub_file)) {
