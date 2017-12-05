@@ -529,7 +529,6 @@ AC_CHECK_SIZEOF([long])
 AC_CHECK_SIZEOF([long long])
 
 AC_CHECK_HEADERS([sys/types.h])
-AC_CHECK_SIZEOF([off_t])
 
 AC_MSG_CHECKING([for 32 bit integer type])
 case 4 in
@@ -552,19 +551,6 @@ case 8 in
       AC_MSG_ERROR([No 64 bit integer type found])
 esac
 AC_MSG_RESULT([$INT64_T])
-
-dnl Used to avoid undefined behaviour left shifting file sizes.
-AC_MSG_CHECKING([for unsigned equivalent of off_t])
-case $ac_cv_sizeof_off_t in
-    "$ac_cv_sizeof_int")       UNSIGNED_OFF_T=unsigned ;;
-    "$ac_cv_sizeof_long")      UNSIGNED_OFF_T='unsigned long' ;;
-    "$ac_cv_sizeof_long_long") UNSIGNED_OFF_T='unsigned long long' ;;
-    *)
-      AC_MSG_RESULT([none found])
-      AC_MSG_ERROR([No unsigned type equivalent to off_t found])
-esac
-AC_DEFINE_UNQUOTED([UNSIGNED_OFF_T], [$UNSIGNED_OFF_T], [Define to an unsigned type equivalent to off_t])
-AC_MSG_RESULT([$UNSIGNED_OFF_T])
 
 dnl Check for perl (needed to generate some sources and documentation).
 AC_PATH_PROG([PERL], [perl], [])
