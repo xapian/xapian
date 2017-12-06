@@ -22,17 +22,15 @@
 #ifndef XAPIAN_INCLUDED_HONEY_VALUES_H
 #define XAPIAN_INCLUDED_HONEY_VALUES_H
 
-#include "pack.h"
+#include "honey_cursor.h"
 #include "backends/valuestats.h"
-
+#include "pack.h"
 #include "xapian/error.h"
 #include "xapian/types.h"
 
-#include "autoptr.h"
 #include <map>
+#include <memory>
 #include <string>
-
-class HoneyCursor;
 
 namespace Honey {
 
@@ -93,7 +91,7 @@ class HoneyValueManager {
 
     std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
 
-    mutable AutoPtr<HoneyCursor> cursor;
+    mutable std::unique_ptr<HoneyCursor> cursor;
 
     void add_value(Xapian::docid did, Xapian::valueno slot,
 		   const std::string & val);

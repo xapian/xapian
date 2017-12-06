@@ -1,7 +1,7 @@
 /** @file honey_spelling.h
  * @brief Spelling correction data for a honey database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +101,8 @@ class HoneySpellingTable : public HoneyLazyTable {
     void merge_changes();
 
     void add_word(const std::string & word, Xapian::termcount freqinc);
-    void remove_word(const std::string & word, Xapian::termcount freqdec);
+    Xapian::termcount remove_word(const std::string & word,
+				  Xapian::termcount freqdec);
 
     TermList * open_termlist(const std::string & word);
 

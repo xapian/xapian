@@ -1,5 +1,5 @@
 /** @file honey_inverter.h
- * @brief Inverter class which "inverts the file".
+ * @brief HoneyInverter class which "inverts the file".
  */
 /* Copyright (C) 2009,2010,2013,2014 Olly Betts
  *
@@ -23,6 +23,8 @@
 
 #include "xapian/types.h"
 
+#include "api/smallvector.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -42,7 +44,7 @@ class TermIterator;
 const Xapian::termcount DELETED_POSTING = Xapian::termcount(-1);
 
 /** Class which "inverts the file". */
-class Inverter {
+class HoneyInverter {
     friend class HoneyPostListTable;
 
     /// Class for storing the changes in frequencies for a term.
@@ -120,7 +122,7 @@ class Inverter {
     void store_positions(const HoneyPositionListTable & position_table,
 			 Xapian::docid did,
 			 const std::string & tname,
-			 const std::vector<Xapian::termpos> & posvec,
+			 const Xapian::VecCOW<Xapian::termpos> & posvec,
 			 bool modifying);
 
     void set_positionlist(Xapian::docid did,

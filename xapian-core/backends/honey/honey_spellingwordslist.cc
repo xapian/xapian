@@ -32,6 +32,8 @@
 #include "pack.h"
 #include "stringutils.h"
 
+using namespace std;
+
 HoneySpellingWordsList::~HoneySpellingWordsList()
 {
     LOGCALL_DTOR(DB, "HoneySpellingWordsList");

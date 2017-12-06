@@ -1,7 +1,7 @@
 /** @file honey_spelling.cc
  * @brief Spelling correction data for a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -161,22 +161,23 @@ HoneySpellingTable::add_word(const string & word, Xapian::termcount freqinc)
     toggle_word(word);
 }
 
-void
+Xapian::termcount
 HoneySpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 {
-    if (word.size() <= 1) return;
+    if (word.size() <= 1) return freqdec;
 
     map<string, Xapian::termcount>::iterator i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	if (i->second == 0) {
 	    // Word has already been deleted.
-	    return;
+	    return freqdec;
 	}
 	// Word "word" exists and has been modified.
 	if (freqdec < i->second) {
 	    i->second -= freqdec;
-	    return;
+	    return 0;
 	}
+	freqdec -= i->second;
 
 	// Mark word as deleted.
 	i->second = 0;
@@ -185,7 +186,7 @@ HoneySpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	string data;
 	if (!get_exact_entry(key, data)) {
 	    // This word doesn't exist.
-	    return;
+	    return freqdec;
 	}
 
 	Xapian::termcount freq;
@@ -195,14 +196,18 @@ HoneySpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	}
 	if (freqdec < freq) {
 	    wordfreq_changes[word] = freq - freqdec;
-	    return;
+	    return 0;
 	}
+	freqdec -= freq;
+
 	// Mark word as deleted.
 	wordfreq_changes[word] = 0;
     }
 
     // Remove trigrams for word.
     toggle_word(word);
+
+    return freqdec;
 }
 
 void

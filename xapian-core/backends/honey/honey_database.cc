@@ -2,6 +2,9 @@
 
 #include "honey_database.h"
 
+#include "backends/backends.h"
+#include "xapian/error.h"
+
 using namespace std;
 
 void
@@ -82,7 +85,7 @@ HoneyDatabase::get_doclength_lower_bound() const
 }
 
 Xapian::termcount
-HoneyDatabase::get_doclength_upper_bound() const;
+HoneyDatabase::get_doclength_upper_bound() const
 {
     return version_file.get_doclength_upper_bound();
 }
@@ -90,12 +93,14 @@ HoneyDatabase::get_doclength_upper_bound() const;
 Xapian::termcount
 HoneyDatabase::get_wdf_upper_bound(const string& term) const
 {
+    (void)term;
     return version_file.get_doclength_upper_bound(); // FIXME
 }
 
 bool
 HoneyDatabase::term_exists(const string& term) const
 {
+    (void)term;
     return true; // FIXME
 }
 
@@ -108,95 +113,109 @@ HoneyDatabase::has_positions() const
 PostList*
 HoneyDatabase::open_post_list(const string& term) const
 {
-
+    (void)term;
+    return NULL;
 }
 
 LeafPostList*
 HoneyDatabase::open_leaf_post_list(const string& term) const
 {
-
+    (void)term;
+    return NULL;
 }
 
 ValueList*
 HoneyDatabase::open_value_list(Xapian::valueno slot) const
 {
-
+    (void)slot;
+    return NULL;
 }
 
 TermList*
-HoneyDatabase::open_term_list(docid did) const
+HoneyDatabase::open_term_list(Xapian::docid did) const
 {
-
+    (void)did;
+    return NULL;
 }
 
 TermList*
-HoneyDatabase::open_term_list_direct(docid did) const
+HoneyDatabase::open_term_list_direct(Xapian::docid did) const
 {
-
+    (void)did;
+    return NULL;
 }
 
 TermList*
 HoneyDatabase::open_allterms(const string& prefix) const
 {
-
+    (void)prefix;
+    return NULL;
 }
 
 PositionList*
-HoneyDatabase::open_position_list(docid did, const string& term) const
+HoneyDatabase::open_position_list(Xapian::docid did, const string& term) const
 {
-
+    (void)did;
+    (void)term;
+    return NULL;
 }
 
-Document::Internal*
-HoneyDatabase::open_document(docid did, bool lazy) const
+Xapian::Document::Internal*
+HoneyDatabase::open_document(Xapian::docid did, bool lazy) const
 {
-
+    (void)did;
+    (void)lazy;
+    return NULL;
 }
 
 TermList*
 HoneyDatabase::open_spelling_termlist(const string& word) const
 {
-
+    (void)word;
+    return NULL;
 }
 
 TermList*
 HoneyDatabase::open_spelling_wordlist() const
 {
-
+    return NULL;
 }
 
-doccount
+Xapian::doccount
 HoneyDatabase::get_spelling_frequency(const string& word) const
 {
-
+    (void)word;
+    return 0;
 }
 
 void
-HoneyDatabase::add_spelling(const string& word, termcount freqinc) const
+HoneyDatabase::add_spelling(const string& word, Xapian::termcount freqinc) const
 {
     (void)word;
     (void)freqinc;
-    throw Xapian::FeatureUnimplemented("Honey backend doesn't support update");
+    throw Xapian::UnimplementedError("Honey backend doesn't support update");
 }
 
-termcount
-HoneyDatabase::remove_spelling(const string& word, termcount freqdec) const
+Xapian::termcount
+HoneyDatabase::remove_spelling(const string& word, Xapian::termcount freqdec) const
 {
     (void)word;
     (void)freqdec;
-    throw Xapian::FeatureUnimplemented("Honey backend doesn't support update");
+    throw Xapian::UnimplementedError("Honey backend doesn't support update");
 }
 
 TermList*
 HoneyDatabase::open_synonym_termlist(const string& term) const
 {
-
+    (void)term;
+    return NULL;
 }
 
 TermList*
 HoneyDatabase::open_synonym_keylist(const string& prefix) const
 {
-
+    (void)prefix;
+    return NULL;
 }
 
 void
@@ -204,7 +223,7 @@ HoneyDatabase::add_synonym(const string& term, const string& synonym) const
 {
     (void)term;
     (void)synonym;
-    throw Xapian::FeatureUnimplemented("Honey backend doesn't support update");
+    throw Xapian::UnimplementedError("Honey backend doesn't support update");
 }
 
 void
@@ -212,26 +231,28 @@ HoneyDatabase::remove_synonym(const string& term, const string& synonym) const
 {
     (void)term;
     (void)synonym;
-    throw Xapian::FeatureUnimplemented("Honey backend doesn't support update");
+    throw Xapian::UnimplementedError("Honey backend doesn't support update");
 }
 
 void
 HoneyDatabase::clear_synonyms(const string& term) const
 {
     (void)term;
-    throw Xapian::FeatureUnimplemented("Honey backend doesn't support update");
+    throw Xapian::UnimplementedError("Honey backend doesn't support update");
 }
 
 string
 HoneyDatabase::get_metadata(const string& key) const
 {
-
+    (void)key;
+    return string();
 }
 
 TermList*
 HoneyDatabase::open_metadata_keylist(const string& prefix) const
 {
-
+    (void)prefix;
+    return NULL;
 }
 
 void
@@ -239,13 +260,13 @@ HoneyDatabase::set_metadata(const string& key, const string& value)
 {
     (void)key;
     (void)value;
-    throw Xapian::FeatureUnimplemented("Honey backend doesn't support update");
+    throw Xapian::UnimplementedError("Honey backend doesn't support update");
 }
 
 bool
 HoneyDatabase::reopen()
 {
-
+    return false;
 }
 
 void
@@ -255,15 +276,16 @@ HoneyDatabase::close()
 }
 
 void
-HoneyDatabase::request_document(docid did) const
+HoneyDatabase::request_document(Xapian::docid did) const
 {
+    (void)did;
 
 }
 
 string
 HoneyDatabase::get_revision_info() const
 {
-
+    return string();
 }
 
 string
@@ -273,19 +295,20 @@ HoneyDatabase::get_uuid() const
 }
 
 int
-HoneyDatabase::get_backend_info(string* path) const
+HoneyDatabase::get_backend_info(string* path_ptr) const
 {
-    if (path)
-	*path = db_directory;
+    if (path_ptr)
+	*path_ptr = path;
     return BACKEND_HONEY;
 }
 
 void
-HoneyDatabase::get_used_docid_range(docid& first, docid& last) const
+HoneyDatabase::get_used_docid_range(Xapian::docid& first,
+				    Xapian::docid& last) const
 {
     // FIXME: this isn't the actual used range.
     first = 1;
-    last = version_file.get_lastdocid();
+    last = version_file.get_last_docid();
 }
 
 string

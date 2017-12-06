@@ -26,6 +26,7 @@
 
 #include "bitstream.h"
 #include "debuglog.h"
+#include "honey_cursor.h"
 #include "pack.h"
 
 #include <string>
@@ -33,7 +34,7 @@
 using namespace std;
 
 void
-GlassPositionListTable::pack(string & s,
+HoneyPositionListTable::pack(string & s,
 			     const Xapian::VecCOW<Xapian::termpos> & vec) const
 {
     LOGCALL_VOID(DB, "HoneyPositionListTable::pack", s | vec);
@@ -137,7 +138,7 @@ HoneyPositionList::read_data(const HoneyTable * table, Xapian::docid did,
 Xapian::termcount
 HoneyPositionList::get_approx_size() const
 {
-    LOGCALL(DB, Xapian::termcount, "HoneyPositionList::get_size", NO_ARGS);
+    LOGCALL(DB, Xapian::termcount, "HoneyPositionList::get_approx_size", NO_ARGS);
     RETURN(size);
 }
 

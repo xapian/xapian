@@ -24,10 +24,11 @@
 
 #include <xapian/types.h>
 
+#include "backends/positionlist.h"
 #include "bitstream.h"
+#include "honey_cursor.h"
 #include "honey_lazytable.h"
 #include "pack.h"
-#include "backends/positionlist.h"
 
 #include <memory>
 #include <string>

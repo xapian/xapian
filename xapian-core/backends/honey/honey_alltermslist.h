@@ -71,6 +71,8 @@ class HoneyAllTermsList : public AllTermsList {
     /// Destructor.
     ~HoneyAllTermsList();
 
+    Xapian::termcount get_approx_size() const;
+
     /** Returns the current termname.
      *
      *  Either next() or skip_to() must have been called before this

@@ -30,6 +30,7 @@
 #include <iostream>
 #include <memory>
 #include <queue>
+#include <type_traits>
 
 #include <cstdio>
 #include <sys/uio.h>
@@ -38,10 +39,10 @@
 
 #include "backends/flint_lock.h"
 #include "compression_stream.h"
+#include "honey_cursor.h"
 #include "honey_database.h"
 #include "honey_defs.h"
 #include "honey_table.h"
-#include "honey_cursor.h"
 #include "honey_version.h"
 #include "filetests.h"
 #include "internaltypes.h"
@@ -241,7 +242,7 @@ class SSIndex {
 	data += char(reuse);
 	data += char(key.size() - reuse);
 	data.append(key, reuse, key.size() - reuse);
-	pack_uint(data, static_cast<UNSIGNED_OFF_T>(ptr));
+	pack_uint(data, static_cast<make_unsigned<off_t>::type>(ptr));
 
 	block = cur_block;
 	last_index_key = key;
@@ -293,6 +294,7 @@ class SSTable {
 	  num_entries(0),
 	  lazy(lazy_)
     {
+	(void)lazy;
     }
 
     ~SSTable() {
@@ -305,7 +307,7 @@ class SSTable {
 
     void set_max_item_size(unsigned) { }
 
-    void create_and_open(int flags_, const RootInfo& root_info) {
+    void create_and_open(int flags_, const Honey::RootInfo& root_info) {
 	flags = flags_;
 	compress_min = root_info.get_compress_min();
 	if (read_only) {
@@ -359,7 +361,7 @@ class SSTable {
 	fh.flush();
     }
 
-    void commit(honey_revision_number_t, RootInfo* root_info) {
+    void commit(honey_revision_number_t, Honey::RootInfo* root_info) {
 	if (root < 0)
 	    throw Xapian::InvalidOperationError("root not set");
 
@@ -448,7 +450,7 @@ class SSTable {
 template<typename T> class PostlistCursor;
 
 template<>
-class PostlistCursor<HoneyTable&> : private HoneyCursor {
+class PostlistCursor<const HoneyTable&> : private HoneyCursor {
     Xapian::docid offset;
 
   public:
@@ -456,7 +458,7 @@ class PostlistCursor<HoneyTable&> : private HoneyCursor {
     Xapian::docid firstdid;
     Xapian::termcount tf, cf;
 
-    PostlistCursor(HoneyTable *in, Xapian::docid offset_)
+    PostlistCursor(const HoneyTable *in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0)
     {
 	find_entry(string());
@@ -848,7 +850,7 @@ merge_postlists(Xapian::Compactor * compactor,
 template<typename T> struct MergeCursor;
 
 template<>
-struct MergeCursor<HoneyTable&> : public HoneyCursor {
+struct MergeCursor<const HoneyTable&> : public HoneyCursor {
     explicit MergeCursor(const HoneyTable *in) : HoneyCursor(in) {
 	find_entry(string());
 	next();
@@ -1119,7 +1121,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    // entries in temporary tables, even if the final table would do
 	    // so.  Any already compressed entries will get copied in
 	    // compressed form. (FIXME: SSTable has no blocksize)
-	    RootInfo root_info;
+	    Honey::RootInfo root_info;
 	    root_info.init(65536, 0);
 	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
 	    tmptab->create_and_open(flags, root_info);
@@ -1155,7 +1157,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    // entries in temporary tables, even if the final table would do
 	    // so.  Any already compressed entries will get copied in
 	    // compressed form. (FIXME: SSTable has no blocksize)
-	    RootInfo root_info;
+	    Honey::RootInfo root_info;
 	    root_info.init(65536, 0);
 	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
 	    tmptab->create_and_open(flags, root_info);
@@ -1191,7 +1193,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 template<typename T> class PositionCursor;
 
 template<>
-class PositionCursor<HoneyTable&> : private HoneyCursor {
+class PositionCursor<const HoneyTable&> : private HoneyCursor {
     Xapian::docid offset;
 
   public:
@@ -1355,11 +1357,11 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 using namespace HoneyCompact;
 
 void
-HoneyDatabase::compact(Xapian::Compactor * compactor,
-		       const char * destdir,
+HoneyDatabase::compact(Xapian::Compactor* compactor,
+		       const char* destdir,
 		       int fd,
-		       const vector<Xapian::Database::Internal*> & sources,
-		       const vector<Xapian::docid> & offset,
+		       const vector<const Xapian::Database::Internal*>& sources,
+		       const vector<Xapian::docid>& offset,
 		       size_t block_size,
 		       Xapian::Compactor::compaction_level compaction,
 		       unsigned flags,
@@ -1571,7 +1573,7 @@ HoneyDatabase::compact(Xapian::Compactor * compactor,
 	    out = new SSTable(t->name, dest, false, t->lazy);
 	}
 	tabs.push_back(out);
-	RootInfo * root_info = version_file_out->root_to_set(t->type);
+	Honey::RootInfo * root_info = version_file_out->root_to_set(t->type);
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
 //	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());

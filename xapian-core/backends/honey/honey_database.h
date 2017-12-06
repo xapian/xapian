@@ -24,10 +24,20 @@
 
 #include "backends/databaseinternal.h"
 
+#include "honey_table.h"
 #include "honey_version.h"
+#include "xapian/compactor.h"
+
+class HoneyAllTermsList;
+class HoneySynonymTermList;
+class HoneySpellingWordsList;
 
 /// Database using honey backend.
 class HoneyDatabase : public Xapian::Database::Internal {
+    friend class HoneyAllTermsList;
+    friend class HoneySpellingWordsList;
+    friend class HoneySynonymTermList;
+
     /// Don't allow assignment.
     HoneyDatabase& operator=(const HoneyDatabase&) = delete;
 
@@ -39,6 +49,18 @@ class HoneyDatabase : public Xapian::Database::Internal {
 
     /// Version file ("iamhoney").
     HoneyVersion version_file;
+
+    HoneyTable docdata_table;
+
+    HoneyTable postlist_table;
+
+    HoneyTable position_table;
+
+    HoneyTable spelling_table;
+
+    HoneyTable synonym_table;
+
+    HoneyTable termlist_table;
 
   public:
     HoneyDatabase(const std::string& path_);
@@ -317,6 +339,26 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *  backends which support compaction.
      */
     void get_used_docid_range(Xapian::docid& first, Xapian::docid& last) const;
+
+    void compact(Xapian::Compactor* compactor,
+		 const char* destdir,
+		 int fd,
+		 const std::vector<const Xapian::Database::Internal*>& sources,
+		 const std::vector<Xapian::docid>& offset,
+		 size_t block_size,
+		 Xapian::Compactor::compaction_level compaction,
+		 unsigned flags,
+		 Xapian::docid last_docid);
+
+    bool has_uncommitted_changes() const {
+	return false;
+    }
+
+    bool single_file() const {
+	return false;
+    }
+
+    HoneyCursor* get_postlist_cursor() const { return NULL; } // FIXME
 
     /// Return a string describing this object.
     std::string get_description() const;

@@ -25,16 +25,18 @@
 
 #include "honey_cursor.h"
 #include "honey_postlist.h"
+#include "honey_postlisttable.h"
 #include "honey_termlist.h"
+#include "honey_termlisttable.h"
 #include "debuglog.h"
-#include "backends/document.h"
+#include "backends/documentinternal.h"
 #include "pack.h"
 
 #include "xapian/error.h"
 #include "xapian/valueiterator.h"
 
 #include <algorithm>
-#include "autoptr.h"
+#include <memory>
 
 using namespace Honey;
 using namespace std;
@@ -272,7 +274,7 @@ class ValueUpdater {
 	    last_allowed_did = HONEY_MAX_DOCID;
 	    Assert(tag.empty());
 	    new_first_did = 0;
-	    AutoPtr<HoneyCursor> cursor(table->cursor_get());
+	    unique_ptr<HoneyCursor> cursor(table->cursor_get());
 	    if (cursor->find_entry(make_valuechunk_key(slot, did))) {
 		// We found an exact match, so the first docid is the one
 		// we looked for.
@@ -454,10 +456,22 @@ HoneyValueManager::replace_document(Xapian::docid did,
 				    const Xapian::Document &doc,
 				    map<Xapian::valueno, ValueStats> & value_stats)
 {
-    // Load the values into the document from the database, if they haven't
-    // been already.  (If we don't do this before deleting the old values,
-    // replacing a document with itself will lose the values.)
-    doc.internal->need_values();
+    if (doc.get_docid() == did) {
+	// If we're replacing a document with itself, but the optimisation for
+	// this higher up hasn't kicked in (e.g. because we've added/replaced
+	// a document since this one was read) and the values haven't changed,
+	// then the call to delete_document() below will remove the values
+	// before the subsequent add_document() can read them.
+	//
+	// The simplest way to handle this is to force the document to read its
+	// values, which we only need to do this is the docid matches.  Note that
+	// this check can give false positives as we don't also check the
+	// database, so for example replacing document 4 in one database with
+	// document 4 from another will unnecessarily trigger this, but forcing
+	// the values to be read is fairly harmless, and this is unlikely to be
+	// a common case.
+	doc.internal->ensure_values_fetched();
+    }
     delete_document(did, value_stats);
     add_document(did, doc, value_stats);
 }

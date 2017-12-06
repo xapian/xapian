@@ -1,6 +1,6 @@
 /* honey_alltermslist.cc: A termlist containing all terms in a honey database.
  *
- * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009,2010,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,11 +21,14 @@
 #include <config.h>
 
 #include "honey_alltermslist.h"
+#include "honey_cursor.h"
 #include "honey_postlist.h"
 
 #include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
+
+using namespace std;
 
 void
 HoneyAllTermsList::read_termfreq_and_collfreq() const
@@ -37,15 +40,24 @@ HoneyAllTermsList::read_termfreq_and_collfreq() const
     // Unpack the termfreq and collfreq from the tag.  Only do this if
     // one or other is actually read.
     cursor->read_tag();
-    const char *p = cursor->current_tag.data();
-    const char *pend = p + cursor->current_tag.size();
-    HoneyPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
+// FIXME:    const char *p = cursor->current_tag.data();
+// FIXME:    const char *pend = p + cursor->current_tag.size();
+// FIXME:    HoneyPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
 }
 
 HoneyAllTermsList::~HoneyAllTermsList()
 {
     LOGCALL_DTOR(DB, "HoneyAllTermsList");
     delete cursor;
+}
+
+Xapian::termcount
+HoneyAllTermsList::get_approx_size() const
+{
+    // This is an over-estimate and not entirely proportional between shards,
+    // but we only use this value to build a balanced or-tree, and it'll at
+    // least tend to distinguish large databases from small ones.
+    return database->postlist_table.get_entry_count();
 }
 
 string

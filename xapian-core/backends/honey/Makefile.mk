@@ -20,6 +20,7 @@ noinst_HEADERS +=\
 	backends/honey/honey_metadata.h\
 	backends/honey/honey_positionlist.h\
 	backends/honey/honey_postlist.h\
+	backends/honey/honey_postlisttable.h\
 	backends/honey/honey_replicate_internal.h\
 	backends/honey/honey_spelling.h\
 	backends/honey/honey_spellingwordslist.h\
@@ -39,7 +40,6 @@ lib_src +=\
 	backends/honey/honey_compact.cc\
 	backends/honey/honey_cursor.cc\
 	backends/honey/honey_database.cc\
-	backends/honey/honey_databasereplicator.cc\
 	backends/honey/honey_dbcheck.cc\
 	backends/honey/honey_document.cc\
 	backends/honey/honey_freelist.cc\
@@ -56,4 +56,10 @@ lib_src +=\
 	backends/honey/honey_valuelist.cc\
 	backends/honey/honey_values.cc\
 	backends/honey/honey_version.cc
+
+if BUILD_BACKEND_REMOTE
+lib_src += \
+	backends/honey/honey_databasereplicator.cc
+endif
+
 endif

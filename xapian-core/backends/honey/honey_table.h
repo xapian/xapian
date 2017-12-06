@@ -31,6 +31,7 @@
 
 //#include <cstdio>
 #include <cstdlib> // std::abort()
+#include <type_traits>
 #include <sys/uio.h>
 
 #include <sys/types.h>
@@ -48,6 +49,10 @@
 #include "str.h"
 
 #include "unicode/description_append.h"
+
+#ifdef BLK_UNUSED
+# undef BLK_UNUSED
+#endif // FIXME: namespace it?
 
 const uint4 BLK_UNUSED = uint4(-1);
 
@@ -273,7 +278,7 @@ class SSIndex {
 	data += char(reuse);
 	data += char(key.size() - reuse);
 	data.append(key, reuse, key.size() - reuse);
-	pack_uint(data, static_cast<UNSIGNED_OFF_T>(ptr));
+	pack_uint(data, static_cast<std::make_unsigned<off_t>::type>(ptr));
 
 	block = cur_block;
 	last_index_key = key;
@@ -350,9 +355,9 @@ class HoneyTable {
 
     void set_max_item_size(unsigned) { }
 
-    void create_and_open(int flags_, const RootInfo& root_info);
+    void create_and_open(int flags_, const Honey::RootInfo& root_info);
 
-    void open(int flags_, const RootInfo& root_info, honey_revision_number_t);
+    void open(int flags_, const Honey::RootInfo& root_info, honey_revision_number_t);
 
     void close(bool permanent) {
 	(void)permanent;
@@ -368,11 +373,11 @@ class HoneyTable {
 	fh.flush();
     }
 
-    void cancel(const RootInfo&, honey_revision_number_t) {
+    void cancel(const Honey::RootInfo&, honey_revision_number_t) {
 	std::abort();
     }
 
-    void commit(honey_revision_number_t, RootInfo* root_info);
+    void commit(honey_revision_number_t, Honey::RootInfo* root_info);
 
     bool sync() {
 	fh.sync();

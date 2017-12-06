@@ -5,6 +5,8 @@
 
 #include "honey_cursor.h"
 
+using Honey::RootInfo;
+
 void
 HoneyTable::create_and_open(int flags_, const RootInfo& root_info)
 {

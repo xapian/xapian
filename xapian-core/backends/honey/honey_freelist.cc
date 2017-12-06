@@ -30,6 +30,10 @@
 #include "wordaccess.h"
 #include <cstring>
 
+#if HAVE_DECL___POPCNT || HAVE_DECL___POPCNT64
+# include <intrin.h>
+#endif
+
 using namespace std;
 using namespace Honey;
 
@@ -312,7 +316,7 @@ HoneyFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 #if HAVE_DECL___BUILTIN_POPCOUNT
 	} else if (sizeof(elt_type) == sizeof(unsigned)) {
 	    c += __builtin_popcount(elt);
-#elif defined _MSC_VER
+#elif HAVE_DECL___POPCNT
 	} else if (sizeof(elt_type) == sizeof(unsigned)) {
 	    c += __popcnt(elt);
 #endif
@@ -323,9 +327,8 @@ HoneyFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 #if HAVE_DECL___BUILTIN_POPCOUNTLL
 	} else if (sizeof(elt_type) == sizeof(unsigned long long)) {
 	    c += __builtin_popcountll(elt);
-#endif
-#ifdef _MSC_VER
-	} else if (sizeof(elt_type) == sizeof(__int64)) {
+#elif HAVE_DECL___POPCNT64
+	} else if (sizeof(elt_type) == sizeof(unsigned long long)) {
 	    c += __popcnt64(elt);
 #endif
 	} else {

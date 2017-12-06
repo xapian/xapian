@@ -1,5 +1,5 @@
 /** @file honey_inverter.cc
- * @brief Inverter class which "inverts the file".
+ * @brief HoneyInverter class which "inverts the file".
  */
 /* Copyright (C) 2009,2013 Olly Betts
  *
@@ -22,8 +22,9 @@
 
 #include "honey_inverter.h"
 
-#include "honey_postlist.h"
 #include "honey_positionlist.h"
+#include "honey_postlist.h"
+#include "honey_postlisttable.h"
 
 #include "api/termlist.h"
 
@@ -33,19 +34,19 @@
 using namespace std;
 
 void
-Inverter::store_positions(const HoneyPositionListTable & position_table,
-			  Xapian::docid did,
-			  const string & tname,
-			  const vector<Xapian::termpos> & posvec,
-			  bool modifying)
+HoneyInverter::store_positions(const HoneyPositionListTable& position_table,
+			       Xapian::docid did,
+			       const string& term,
+			       const Xapian::VecCOW<Xapian::termpos>& posvec,
+			       bool modifying)
 {
     string s;
     position_table.pack(s, posvec);
     if (modifying) {
 	map<string, map<Xapian::docid, string> >::iterator i;
-	i = pos_changes.find(tname);
+	i = pos_changes.find(term);
 	if (i != pos_changes.end()) {
-	    map<Xapian::docid, string> & m = i->second;
+	    map<Xapian::docid, string>& m = i->second;
 	    map<Xapian::docid, string>::iterator j;
 	    j = m.find(did);
 	    if (j != m.end()) {
@@ -54,69 +55,73 @@ Inverter::store_positions(const HoneyPositionListTable & position_table,
 		return;
 	    }
 	}
-	const string & key = position_table.make_key(did, tname);
+	const string& key = position_table.make_key(did, term);
 	string old_tag;
 	if (position_table.get_exact_entry(key, old_tag) && s == old_tag) {
 	    // Identical to existing entry on disk.
 	    return;
 	}
     }
-    set_positionlist(did, tname, s);
+    set_positionlist(did, term, s);
 }
 
 void
-Inverter::set_positionlist(const HoneyPositionListTable & position_table,
-			   Xapian::docid did,
-			   const string & tname,
-			   const Xapian::TermIterator & term,
-			   bool modifying)
+HoneyInverter::set_positionlist(const HoneyPositionListTable& position_table,
+				Xapian::docid did,
+				const string& term,
+				const Xapian::TermIterator& term_it,
+				bool modifying)
 {
-    const std::vector<Xapian::termpos> * ptr;
-    ptr = term.internal->get_vector_termpos();
+    auto ptr = term_it.internal->get_vec_termpos();
     if (ptr) {
 	if (!ptr->empty()) {
-	    store_positions(position_table, did, tname, *ptr, modifying);
+	    store_positions(position_table, did, term, *ptr, modifying);
 	    return;
 	}
     } else {
-	Xapian::PositionIterator pos = term.positionlist_begin();
-	if (pos != term.positionlist_end()) {
-	    vector<Xapian::termpos> posvec(pos, Xapian::PositionIterator());
-	    store_positions(position_table, did, tname, posvec, modifying);
+	Xapian::PositionIterator pos = term_it.positionlist_begin();
+	if (pos != term_it.positionlist_end()) {
+	    Xapian::VecCOW<Xapian::termpos> posvec;
+	    posvec.reserve(term_it.positionlist_count());
+	    while (pos != term_it.positionlist_end()) {
+		posvec.push_back(*pos);
+		++pos;
+	    }
+	    store_positions(position_table, did, term, posvec, modifying);
 	    return;
 	}
     }
     // If we get here, the new position list was empty.
     if (modifying)
-	delete_positionlist(did, tname);
+	delete_positionlist(did, term);
 }
 
 void
-Inverter::set_positionlist(Xapian::docid did,
-			   const string & term,
-			   const string & s)
+HoneyInverter::set_positionlist(Xapian::docid did,
+				const string& term,
+				const string& s)
 {
     pos_changes.insert(make_pair(term, map<Xapian::docid, string>()))
 	.first->second[did] = s;
 }
 
 void
-Inverter::delete_positionlist(Xapian::docid did,
-			      const string & term)
+HoneyInverter::delete_positionlist(Xapian::docid did,
+				   const string& term)
 {
     set_positionlist(did, term, string());
 }
 
 bool
-Inverter::get_positionlist(Xapian::docid did,
-			   const string & term,
-			   string & s) const
+HoneyInverter::get_positionlist(Xapian::docid did,
+				const string& term,
+				string& s) const
 {
     map<string, map<Xapian::docid, string> >::const_iterator i;
     i = pos_changes.find(term);
     if (i == pos_changes.end())
 	return false;
-    const map<Xapian::docid, string> & m = i->second;
+    const map<Xapian::docid, string>& m = i->second;
     map<Xapian::docid, string>::const_iterator j;
     j = m.find(did);
     if (j == m.end())
@@ -126,7 +131,7 @@ Inverter::get_positionlist(Xapian::docid did,
 }
 
 bool
-Inverter::has_positions(const HoneyPositionListTable & position_table) const
+HoneyInverter::has_positions(const HoneyPositionListTable& position_table) const
 {
     if (pos_changes.empty())
 	return !position_table.empty();
@@ -136,10 +141,10 @@ Inverter::has_positions(const HoneyPositionListTable & position_table) const
     honey_tablesize_t changes = 0;
     map<string, map<Xapian::docid, string> >::const_iterator i;
     for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {
-	const map<Xapian::docid, string> & m = i->second;
+	const map<Xapian::docid, string>& m = i->second;
 	map<Xapian::docid, string>::const_iterator j;
 	for (j = m.begin(); j != m.end(); ++j) {
-	    const string & s = j->second;
+	    const string& s = j->second;
 	    if (!s.empty())
 		return true;
 	    ++changes;
@@ -151,14 +156,14 @@ Inverter::has_positions(const HoneyPositionListTable & position_table) const
 }
 
 void
-Inverter::flush_doclengths(HoneyPostListTable & table)
+HoneyInverter::flush_doclengths(HoneyPostListTable& table)
 {
     table.merge_doclen_changes(doclen_changes);
     doclen_changes.clear();
 }
 
 void
-Inverter::flush_post_list(HoneyPostListTable & table, const string & term)
+HoneyInverter::flush_post_list(HoneyPostListTable& table, const string& term)
 {
     map<string, PostingChanges>::iterator i;
     i = postlist_changes.find(term);
@@ -170,7 +175,7 @@ Inverter::flush_post_list(HoneyPostListTable & table, const string & term)
 }
 
 void
-Inverter::flush_all_post_lists(HoneyPostListTable & table)
+HoneyInverter::flush_all_post_lists(HoneyPostListTable& table)
 {
     map<string, PostingChanges>::const_iterator i;
     for (i = postlist_changes.begin(); i != postlist_changes.end(); ++i) {
@@ -180,7 +185,7 @@ Inverter::flush_all_post_lists(HoneyPostListTable & table)
 }
 
 void
-Inverter::flush_post_lists(HoneyPostListTable & table, const string & pfx)
+HoneyInverter::flush_post_lists(HoneyPostListTable& table, const string& pfx)
 {
     if (pfx.empty())
 	return flush_all_post_lists(table);
@@ -211,23 +216,23 @@ Inverter::flush_post_lists(HoneyPostListTable & table, const string & pfx)
 }
 
 void
-Inverter::flush(HoneyPostListTable & table)
+HoneyInverter::flush(HoneyPostListTable& table)
 {
     flush_doclengths(table);
     flush_all_post_lists(table);
 }
 
 void
-Inverter::flush_pos_lists(HoneyPositionListTable & table)
+HoneyInverter::flush_pos_lists(HoneyPositionListTable& table)
 {
     map<string, map<Xapian::docid, string> >::const_iterator i;
     for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {
-	const string & term = i->first;
-	const map<Xapian::docid, string> & m = i->second;
+	const string& term = i->first;
+	const map<Xapian::docid, string>& m = i->second;
 	map<Xapian::docid, string>::const_iterator j;
 	for (j = m.begin(); j != m.end(); ++j) {
 	    Xapian::docid did = j->first;
-	    const string & s = j->second;
+	    const string& s = j->second;
 	    if (!s.empty())
 		table.set_positionlist(did, term, s);
 	    else

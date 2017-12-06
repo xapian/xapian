@@ -36,6 +36,7 @@
 class DocumentTermList;
 class DocumentValueList;
 class GlassValueManager;
+class HoneyValueManager;
 class ValueStreamDocument;
 
 namespace Xapian {
@@ -46,6 +47,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     friend class ::DocumentValueList;
     // For ensure_values_fetched():
     friend class ::GlassValueManager;
+    friend class ::HoneyValueManager;
     friend class ::ValueStreamDocument;
 
     /// Don't allow assignment.

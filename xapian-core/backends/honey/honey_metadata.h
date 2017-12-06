@@ -1,7 +1,7 @@
 /** @file honey_metadata.h
  * @brief Access to metadata for a honey database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2017 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -57,6 +57,8 @@ class HoneyMetadataTermList : public AllTermsList {
 			  HoneyCursor * cursor_, const std::string &prefix_);
 
     ~HoneyMetadataTermList();
+
+    Xapian::termcount get_approx_size() const;
 
     /** Returns the current termname.
      *

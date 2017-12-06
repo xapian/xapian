@@ -1,3 +1,7 @@
+#ifndef XAPIAN_INCLUDED_HONEY_CURSOR_H
+#define XAPIAN_INCLUDED_HONEY_CURSOR_H
+
+#include "honey_table.h"
 
 class HoneyCursor {
   public:
@@ -201,7 +205,7 @@ class HoneyCursor {
 	//off_t pos = fh.get_pos();
 	fh.set_pos(root);
 	std::string index_key, prev_index_key;
-	UNSIGNED_OFF_T ptr = 0;
+	std::make_unsigned<off_t>::type ptr = 0;
 	while (true) {
 	    int reuse = fh.read();
 	    if (reuse == -1) break;
@@ -397,6 +401,8 @@ class HoneyCursor {
 
 class MutableHoneyCursor : public HoneyCursor {
   public:
-    MutableHoneyCursor(HoneyTable* table_) : HoneyCursor(table_->fh, table_->get_root()) { }
+    MutableHoneyCursor(HoneyTable* table_)
+	: HoneyCursor(table_->fh, table_->get_root()) { }
 };
 
+#endif // XAPIAN_INCLUDED_HONEY_CURSOR_H

@@ -1,7 +1,7 @@
 /** @file honey_synonym.cc
  * @brief Synonym data for a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include "xapian/error.h"
 
 #include "honey_cursor.h"
+#include "honey_database.h"
 #include "debuglog.h"
 #include "stringutils.h"
 #include "api/vectortermlist.h"
@@ -171,6 +172,14 @@ HoneySynonymTermList::~HoneySynonymTermList()
     delete cursor;
 }
 
+Xapian::termcount
+HoneySynonymTermList::get_approx_size() const
+{
+    // This is an over-estimate, but we only use this value to build a balanced
+    // or-tree, and it'll do a decent enough job for that.
+    return database->synonym_table.get_entry_count();
+}
+
 string
 HoneySynonymTermList::get_termname() const
 {
@@ -209,12 +218,12 @@ HoneySynonymTermList::next()
 }
 
 TermList *
-HoneySynonymTermList::skip_to(const string &tname)
+HoneySynonymTermList::skip_to(const string &term)
 {
-    LOGCALL(DB, TermList *, "HoneySynonymTermList::skip_to", tname);
+    LOGCALL(DB, TermList *, "HoneySynonymTermList::skip_to", term);
     Assert(!at_end());
 
-    if (!cursor->find_entry_ge(tname)) {
+    if (!cursor->find_entry_ge(term)) {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
 	if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {

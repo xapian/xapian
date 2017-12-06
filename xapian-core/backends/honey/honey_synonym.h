@@ -1,7 +1,7 @@
 /** @file honey_synonym.h
  * @brief Synonym data for a honey database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011,2014,2016 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2014,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +23,15 @@
 
 #include <xapian/types.h>
 
-#include "backends/alltermslist.h"
-#include "backends/database.h"
-#include "honey_lazytable.h"
 #include "api/termlist.h"
+#include "backends/alltermslist.h"
+#include "honey_cursor.h"
+#include "honey_lazytable.h"
 
 #include <set>
 #include <string>
+
+class HoneyDatabase;
 
 namespace Honey {
     class RootInfo;
@@ -125,7 +127,7 @@ class HoneySynonymTermList : public AllTermsList {
     void operator=(const HoneySynonymTermList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
+    Xapian::Internal::intrusive_ptr<const HoneyDatabase> database;
 
     /** A cursor which runs through the synonym table reading termnames from
      *  the keys.
@@ -133,19 +135,19 @@ class HoneySynonymTermList : public AllTermsList {
     HoneyCursor * cursor;
 
     /// The prefix to restrict the terms to.
-    string prefix;
+    std::string prefix;
 
   public:
-    HoneySynonymTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
+    HoneySynonymTermList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> database_,
 		      HoneyCursor * cursor_,
-		      const string & prefix_)
-	    : database(database_), cursor(cursor_), prefix(prefix_)
+		      const std::string & prefix_)
+	: database(database_), cursor(cursor_), prefix(prefix_)
     {
 	// Position the cursor on the highest key before the first key we want,
 	// so that the first call to next() will put us on the first key we
 	// want.
 	if (prefix.empty()) {
-	    cursor->find_entry(string());
+	    cursor->find_entry(std::string());
 	} else {
 	    // Seek to the first key before one with the desired prefix.
 	    cursor->find_entry_lt(prefix);
@@ -155,12 +157,14 @@ class HoneySynonymTermList : public AllTermsList {
     /// Destructor.
     ~HoneySynonymTermList();
 
+    Xapian::termcount get_approx_size() const;
+
     /** Returns the current termname.
      *
      *  Either next() or skip_to() must have been called before this
      *  method can be called.
      */
-    string get_termname() const;
+    std::string get_termname() const;
 
     /// Return the term frequency for the term at the current position.
     Xapian::doccount get_termfreq() const;
@@ -171,8 +175,8 @@ class HoneySynonymTermList : public AllTermsList {
     /// Advance to the next term in the list.
     TermList * next();
 
-    /// Advance to the first term which is >= tname.
-    TermList * skip_to(const string &tname);
+    /// Advance to the first term which is >= term.
+    TermList * skip_to(const std::string &term);
 
     /// True if we're off the end of the list
     bool at_end() const;

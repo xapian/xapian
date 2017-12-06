@@ -19,8 +19,8 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_GLASS_DBCHECK_H
-#define XAPIAN_INCLUDED_GLASS_DBCHECK_H
+#ifndef XAPIAN_INCLUDED_HONEY_DBCHECK_H
+#define XAPIAN_INCLUDED_HONEY_DBCHECK_H
 
 #include "xapian/types.h"
 
@@ -58,4 +58,4 @@ check_honey_table(const char * tablename, int fd, off_t offset_,
 			     doclens, out);
 }
 
-#endif // XAPIAN_INCLUDED_GLASS_DBCHECK_H
+#endif // XAPIAN_INCLUDED_HONEY_DBCHECK_H
