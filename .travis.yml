@@ -69,7 +69,7 @@ matrix:
         # "brew list --versions" says all the packages requested are installed.
         - brew install $HOMEBREW_PACKAGES || true
         - brew list --versions $HOMEBREW_PACKAGES
-        - pip install sphinx docutils
+        - pip2 install sphinx docutils
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
