@@ -20,6 +20,7 @@ noinst_HEADERS +=\
 	backends/honey/honey_metadata.h\
 	backends/honey/honey_positionlist.h\
 	backends/honey/honey_postlist.h\
+	backends/honey/honey_postlist_encodings.h\
 	backends/honey/honey_postlisttable.h\
 	backends/honey/honey_replicate_internal.h\
 	backends/honey/honey_spelling.h\
