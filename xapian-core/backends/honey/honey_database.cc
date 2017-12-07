@@ -49,14 +49,14 @@ Xapian::termcount
 HoneyDatabase::get_doclength(Xapian::docid did) const
 {
     (void)did;
-    return 0; // FIXME
+    return 0; // TODO0
 }
 
 Xapian::termcount
 HoneyDatabase::get_unique_terms(Xapian::docid did) const
 {
     (void)did;
-    return 0; // FIXME
+    return 0; // TODO1
 }
 
 void
@@ -67,28 +67,28 @@ HoneyDatabase::get_freqs(const string& term,
     (void)term;
     (void)termfreq_ptr;
     (void)collfreq_ptr;
-    // FIXME
+    // TODO0
 }
 
 Xapian::doccount
 HoneyDatabase::get_value_freq(Xapian::valueno slot) const
 {
     (void)slot;
-    return 0; // FIXME
+    return 0; // TODO1
 }
 
 string
 HoneyDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
     (void)slot;
-    return string(); // FIXME
+    return string(); // TODO1
 }
 
 string
 HoneyDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
     (void)slot;
-    return string(); // FIXME
+    return string(); // TODO1
 }
 
 Xapian::termcount
@@ -107,14 +107,14 @@ Xapian::termcount
 HoneyDatabase::get_wdf_upper_bound(const string& term) const
 {
     (void)term;
-    return version_file.get_doclength_upper_bound(); // FIXME
+    return version_file.get_doclength_upper_bound(); // TODO0
 }
 
 bool
 HoneyDatabase::term_exists(const string& term) const
 {
     (void)term;
-    return true; // FIXME
+    return true; // TODO0
 }
 
 bool
@@ -127,42 +127,42 @@ PostList*
 HoneyDatabase::open_post_list(const string& term) const
 {
     (void)term;
-    return NULL;
+    return NULL; // TODO0
 }
 
 LeafPostList*
 HoneyDatabase::open_leaf_post_list(const string& term) const
 {
     (void)term;
-    return NULL;
+    return NULL; // TODO0
 }
 
 ValueList*
 HoneyDatabase::open_value_list(Xapian::valueno slot) const
 {
     (void)slot;
-    return NULL;
+    return NULL; // TODO1
 }
 
 TermList*
 HoneyDatabase::open_term_list(Xapian::docid did) const
 {
     (void)did;
-    return NULL;
+    return NULL; // TODO0
 }
 
 TermList*
 HoneyDatabase::open_term_list_direct(Xapian::docid did) const
 {
     (void)did;
-    return NULL;
+    return NULL; // TODO0
 }
 
 TermList*
 HoneyDatabase::open_allterms(const string& prefix) const
 {
     (void)prefix;
-    return NULL;
+    return NULL; // TODO0
 }
 
 PositionList*
@@ -170,7 +170,7 @@ HoneyDatabase::open_position_list(Xapian::docid did, const string& term) const
 {
     (void)did;
     (void)term;
-    return NULL;
+    return NULL; // TODO0
 }
 
 Xapian::Document::Internal*
@@ -178,27 +178,27 @@ HoneyDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     (void)did;
     (void)lazy;
-    return NULL;
+    return NULL; // TODO0
 }
 
 TermList*
 HoneyDatabase::open_spelling_termlist(const string& word) const
 {
     (void)word;
-    return NULL;
+    return NULL; // TODO1
 }
 
 TermList*
 HoneyDatabase::open_spelling_wordlist() const
 {
-    return NULL;
+    return NULL; // TODO1
 }
 
 Xapian::doccount
 HoneyDatabase::get_spelling_frequency(const string& word) const
 {
     (void)word;
-    return 0;
+    return 0; // TODO1
 }
 
 void
@@ -221,14 +221,14 @@ TermList*
 HoneyDatabase::open_synonym_termlist(const string& term) const
 {
     (void)term;
-    return NULL;
+    return NULL; // TODO2
 }
 
 TermList*
 HoneyDatabase::open_synonym_keylist(const string& prefix) const
 {
     (void)prefix;
-    return NULL;
+    return NULL; // TODO2
 }
 
 void
@@ -258,14 +258,14 @@ string
 HoneyDatabase::get_metadata(const string& key) const
 {
     (void)key;
-    return string();
+    return string(); // TODO2
 }
 
 TermList*
 HoneyDatabase::open_metadata_keylist(const string& prefix) const
 {
     (void)prefix;
-    return NULL;
+    return NULL; // TODO2
 }
 
 void
@@ -285,20 +285,19 @@ HoneyDatabase::reopen()
 void
 HoneyDatabase::close()
 {
-
+    // TODO1
 }
 
 void
 HoneyDatabase::request_document(Xapian::docid did) const
 {
-    (void)did;
-
+    (void)did; // FIXME
 }
 
 string
 HoneyDatabase::get_revision_info() const
 {
-    return string();
+    return string(); // TODO2
 }
 
 string
@@ -319,7 +318,7 @@ void
 HoneyDatabase::get_used_docid_range(Xapian::docid& first,
 				    Xapian::docid& last) const
 {
-    // FIXME: this isn't the actual used range.
+    // TODO1: this isn't the actual used range.
     first = 1;
     last = version_file.get_last_docid();
 }
