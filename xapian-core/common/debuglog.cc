@@ -28,9 +28,9 @@
 #include "str.h"
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include "safeerrno.h"
 #include "safefcntl.h"
+#include "safesysstat.h"
 #include "safeunistd.h"
 
 #include <cstdlib> // For getenv().
