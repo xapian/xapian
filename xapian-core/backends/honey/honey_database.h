@@ -30,6 +30,7 @@
 #include "honey_spelling.h"
 #include "honey_synonym.h"
 #include "honey_termlisttable.h"
+#include "honey_values.h"
 #include "honey_version.h"
 #include "xapian/compactor.h"
 
@@ -66,6 +67,8 @@ class HoneyDatabase : public Xapian::Database::Internal {
     HoneySynonymTable synonym_table;
 
     HoneyTermListTable termlist_table;
+
+    HoneyValueManager value_manager;
 
   public:
     HoneyDatabase(const std::string& path_);

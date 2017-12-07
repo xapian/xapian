@@ -161,7 +161,7 @@ HoneyValueManager::get_chunk_containing_did(Xapian::valueno slot,
 {
     LOGCALL(DB, Xapian::docid, "HoneyValueManager::get_chunk_containing_did", slot | did | chunk);
     if (!cursor.get())
-	cursor.reset(postlist_table->cursor_get());
+	cursor.reset(postlist_table.cursor_get());
     if (!cursor.get()) RETURN(0);
 
     bool exact = cursor->find_entry(make_valuechunk_key(slot, did));
@@ -198,7 +198,7 @@ static const size_t CHUNK_SIZE_THRESHOLD = 2000;
 namespace Honey {
 
 class ValueUpdater {
-    HoneyPostListTable * table;
+    HoneyPostListTable& table;
 
     Xapian::valueno slot;
 
@@ -232,17 +232,17 @@ class ValueUpdater {
     void write_tag() {
 	// If the first docid has changed, delete the old entry.
 	if (first_did && new_first_did != first_did) {
-	    table->del(make_valuechunk_key(slot, first_did));
+	    table.del(make_valuechunk_key(slot, first_did));
 	}
 	if (!tag.empty()) {
-	    table->add(make_valuechunk_key(slot, new_first_did), tag);
+	    table.add(make_valuechunk_key(slot, new_first_did), tag);
 	}
 	first_did = 0;
 	tag.resize(0);
     }
 
   public:
-    ValueUpdater(HoneyPostListTable * table_, Xapian::valueno slot_)
+    ValueUpdater(HoneyPostListTable& table_, Xapian::valueno slot_)
 	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
 
     ~ValueUpdater() {
@@ -274,7 +274,7 @@ class ValueUpdater {
 	    last_allowed_did = HONEY_MAX_DOCID;
 	    Assert(tag.empty());
 	    new_first_did = 0;
-	    unique_ptr<HoneyCursor> cursor(table->cursor_get());
+	    unique_ptr<HoneyCursor> cursor(table.cursor_get());
 	    if (cursor->find_entry(make_valuechunk_key(slot, did))) {
 		// We found an exact match, so the first docid is the one
 		// we looked for.
@@ -327,15 +327,15 @@ class ValueUpdater {
 void
 HoneyValueManager::merge_changes()
 {
-    if (termlist_table->is_open()) {
+    if (termlist_table.is_open()) {
 	map<Xapian::docid, string>::const_iterator i;
 	for (i = slots.begin(); i != slots.end(); ++i) {
 	    const string & enc = i->second;
 	    string key = make_slot_key(i->first);
 	    if (!enc.empty()) {
-		termlist_table->add(key, i->second);
+		termlist_table.add(key, i->second);
 	    } else {
-		termlist_table->del(key);
+		termlist_table.del(key);
 	    }
 	}
 	slots.clear();
@@ -394,7 +394,7 @@ HoneyValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 	}
 
 	add_value(did, slot, value);
-	if (termlist_table->is_open()) {
+	if (termlist_table.is_open()) {
 	    pack_uint(slots_used, slot - prev_slot - 1);
 	    prev_slot = slot;
 	}
@@ -411,14 +411,14 @@ void
 HoneyValueManager::delete_document(Xapian::docid did,
 				   map<Xapian::valueno, ValueStats> & value_stats)
 {
-    Assert(termlist_table->is_open());
+    Assert(termlist_table.is_open());
     map<Xapian::docid, string>::iterator it = slots.find(did);
     string s;
     if (it != slots.end()) {
 	swap(s, it->second);
     } else {
 	// Get from table, making a swift exit if this document has no values.
-	if (!termlist_table->get_exact_entry(make_slot_key(did), s)) return;
+	if (!termlist_table.get_exact_entry(make_slot_key(did), s)) return;
 	slots.insert(make_pair(did, string()));
     }
     const char * p = s.data();
@@ -504,10 +504,10 @@ HoneyValueManager::get_all_values(map<Xapian::valueno, string> & values,
 				  Xapian::docid did) const
 {
     Assert(values.empty());
-    if (!termlist_table->is_open()) {
+    if (!termlist_table.is_open()) {
 	// Either the database has been closed, or else there's no termlist table.
 	// Check if the postlist table is open to determine which is the case.
-	if (!postlist_table->is_open())
+	if (!postlist_table.is_open())
 	    HoneyTable::throw_database_closed();
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
     }
@@ -517,7 +517,7 @@ HoneyValueManager::get_all_values(map<Xapian::valueno, string> & values,
 	s = i->second;
     } else {
 	// Get from table.
-	if (!termlist_table->get_exact_entry(make_slot_key(did), s)) return;
+	if (!termlist_table.get_exact_entry(make_slot_key(did), s)) return;
     }
     const char * p = s.data();
     const char * end = p + s.size();
@@ -551,7 +551,7 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
     mru_slot = Xapian::BAD_VALUENO;
 
     string tag;
-    if (postlist_table->get_exact_entry(make_valuestats_key(slot), tag)) {
+    if (postlist_table.get_exact_entry(make_valuestats_key(slot), tag)) {
 	const char * pos = tag.data();
 	const char * end = pos + tag.size();
 
@@ -593,9 +593,9 @@ HoneyValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stat
 	    // the bounds are equal.
 	    if (stats.lower_bound != stats.upper_bound)
 		new_value += stats.upper_bound;
-	    postlist_table->add(key, new_value);
+	    postlist_table.add(key, new_value);
 	} else {
-	    postlist_table->del(key);
+	    postlist_table.del(key);
 	}
     }
     value_stats.clear();

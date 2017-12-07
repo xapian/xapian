@@ -112,9 +112,9 @@ class HoneyPositionList : public PositionList {
     HoneyPositionList() { }
 
     /// Construct and initialise with data.
-    HoneyPositionList(const HoneyTable * table, Xapian::docid did,
-		      const string & tname) {
-	(void)read_data(table, did, tname);
+    HoneyPositionList(const HoneyTable& table, Xapian::docid did,
+		      const string& term) {
+	(void)read_data(table, did, term);
     }
 
     /** Fill list with data, and move the position to the start.
@@ -127,8 +127,8 @@ class HoneyPositionList : public PositionList {
      *
      *  @return true if position data was read.
      */
-    bool read_data(const HoneyTable * table, Xapian::docid did,
-		   const string & tname);
+    bool read_data(const HoneyTable& table, Xapian::docid did,
+		   const string & term);
 
     /// Returns size of position list.
     Xapian::termcount get_approx_size() const;

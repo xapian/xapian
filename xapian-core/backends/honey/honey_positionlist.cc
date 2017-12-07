@@ -121,15 +121,15 @@ HoneyPositionList::read_data(const string & data)
 }
 
 bool
-HoneyPositionList::read_data(const HoneyTable * table, Xapian::docid did,
-			     const string & tname)
+HoneyPositionList::read_data(const HoneyTable& table, Xapian::docid did,
+			     const string& term)
 {
-    LOGCALL(DB, bool, "HoneyPositionList::read_data", table | did | tname);
+    LOGCALL(DB, bool, "HoneyPositionList::read_data", table | did | term);
     if (!cursor.get()) {
-	cursor.reset(table->cursor_get());
+	cursor.reset(table.cursor_get());
     }
     if (cursor.get() &&
-	cursor->find_exact(HoneyPositionTable::make_key(did, tname))) {
+	cursor->find_exact(HoneyPositionTable::make_key(did, term))) {
 	RETURN(read_data(cursor->current_tag));
     }
     RETURN(read_data(string()));

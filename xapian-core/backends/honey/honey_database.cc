@@ -2,6 +2,8 @@
 
 #include "honey_database.h"
 
+#include "honey_alltermslist.h"
+
 #include "api/leafpostlist.h"
 #include "backends/backends.h"
 #include "xapian/error.h"
@@ -17,7 +19,8 @@ HoneyDatabase::HoneyDatabase(const std::string& path_)
       position_table(path_, true),
       spelling_table(path_, true),
       synonym_table(path_, true),
-      termlist_table(path_, true, false)
+      termlist_table(path_, true, false),
+      value_manager(postlist_table, termlist_table)
 {
 }
 
@@ -74,22 +77,19 @@ HoneyDatabase::get_freqs(const string& term,
 Xapian::doccount
 HoneyDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    (void)slot;
-    return 0; // TODO1
+    return value_manager.get_value_freq(slot);
 }
 
 string
 HoneyDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    (void)slot;
-    return string(); // TODO1
+    return value_manager.get_value_lower_bound(slot);
 }
 
 string
 HoneyDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    (void)slot;
-    return string(); // TODO1
+    return value_manager.get_value_upper_bound(slot);
 }
 
 Xapian::termcount
@@ -161,16 +161,13 @@ HoneyDatabase::open_term_list_direct(Xapian::docid did) const
 TermList*
 HoneyDatabase::open_allterms(const string& prefix) const
 {
-    (void)prefix;
-    return NULL; // TODO0
+    return new HoneyAllTermsList(this, prefix);
 }
 
 PositionList*
 HoneyDatabase::open_position_list(Xapian::docid did, const string& term) const
 {
-    (void)did;
-    (void)term;
-    return NULL; // TODO0
+    return new HoneyPositionList(position_table, did, term);
 }
 
 Xapian::Document::Internal*

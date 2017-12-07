@@ -83,9 +83,9 @@ class HoneyValueManager {
     /** The most recently used value statistics. */
     mutable ValueStats mru_valstats;
 
-    HoneyPostListTable * postlist_table;
+    HoneyPostListTable& postlist_table;
 
-    HoneyTermListTable * termlist_table;
+    HoneyTermListTable& termlist_table;
 
     std::map<Xapian::docid, std::string> slots;
 
@@ -109,8 +109,8 @@ class HoneyValueManager {
 
   public:
     /** Create a new HoneyValueManager object. */
-    HoneyValueManager(HoneyPostListTable * postlist_table_,
-		      HoneyTermListTable * termlist_table_)
+    HoneyValueManager(HoneyPostListTable& postlist_table_,
+		      HoneyTermListTable& termlist_table_)
 	: mru_slot(Xapian::BAD_VALUENO),
 	  postlist_table(postlist_table_),
 	  termlist_table(termlist_table_) { }
