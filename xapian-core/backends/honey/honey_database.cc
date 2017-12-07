@@ -120,7 +120,7 @@ HoneyDatabase::term_exists(const string& term) const
 bool
 HoneyDatabase::has_positions() const
 {
-    return true; // FIXME
+    return !position_table.empty();
 }
 
 PostList*
@@ -327,5 +327,8 @@ HoneyDatabase::get_used_docid_range(Xapian::docid& first,
 string
 HoneyDatabase::get_description() const
 {
-    return "Honey()"; // FIXME
+    string desc = "Honey(";
+    desc += path;
+    desc += ')';
+    return desc;
 }
