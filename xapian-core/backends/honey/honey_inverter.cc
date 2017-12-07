@@ -34,7 +34,7 @@
 using namespace std;
 
 void
-HoneyInverter::store_positions(const HoneyPositionListTable& position_table,
+HoneyInverter::store_positions(const HoneyPositionTable& position_table,
 			       Xapian::docid did,
 			       const string& term,
 			       const Xapian::VecCOW<Xapian::termpos>& posvec,
@@ -66,7 +66,7 @@ HoneyInverter::store_positions(const HoneyPositionListTable& position_table,
 }
 
 void
-HoneyInverter::set_positionlist(const HoneyPositionListTable& position_table,
+HoneyInverter::set_positionlist(const HoneyPositionTable& position_table,
 				Xapian::docid did,
 				const string& term,
 				const Xapian::TermIterator& term_it,
@@ -131,7 +131,7 @@ HoneyInverter::get_positionlist(Xapian::docid did,
 }
 
 bool
-HoneyInverter::has_positions(const HoneyPositionListTable& position_table) const
+HoneyInverter::has_positions(const HoneyPositionTable& position_table) const
 {
     if (pos_changes.empty())
 	return !position_table.empty();
@@ -223,7 +223,7 @@ HoneyInverter::flush(HoneyPostListTable& table)
 }
 
 void
-HoneyInverter::flush_pos_lists(HoneyPositionListTable& table)
+HoneyInverter::flush_pos_lists(HoneyPositionTable& table)
 {
     map<string, map<Xapian::docid, string> >::const_iterator i;
     for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {

@@ -36,7 +36,6 @@ class HoneyDatabase;
 namespace Honey {
     class RootInfo;
 }
-using Honey::RootInfo;
 
 class HoneySynonymTable : public HoneyLazyTable {
     /// The last term which was updated.
@@ -109,7 +108,7 @@ class HoneySynonymTable : public HoneyLazyTable {
 	HoneyTable::flush_db();
     }
 
-    void cancel(const RootInfo & root_info, honey_revision_number_t rev) {
+    void cancel(const Honey::RootInfo & root_info, honey_revision_number_t rev) {
 	discard_changes();
 	HoneyTable::cancel(root_info, rev);
     }

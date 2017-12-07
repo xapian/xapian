@@ -33,8 +33,6 @@
 
 namespace Honey {
 
-class RootInfo;
-
 struct fragment {
     char data[4];
 
@@ -57,8 +55,6 @@ struct fragment {
 };
 
 }
-
-using Honey::RootInfo;
 
 class HoneySpellingTable : public HoneyLazyTable {
     void toggle_word(const std::string & word);
@@ -130,7 +126,7 @@ class HoneySpellingTable : public HoneyLazyTable {
 	return wordfreq_upper_bound;
     }
 
-    void cancel(const RootInfo & root_info, honey_revision_number_t rev) {
+    void cancel(const Honey::RootInfo & root_info, honey_revision_number_t rev) {
 	// Discard batched-up changes.
 	wordfreq_changes.clear();
 	termlist_deltas.clear();

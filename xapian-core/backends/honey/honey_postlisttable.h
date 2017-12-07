@@ -54,10 +54,15 @@ class HoneyPostListTable : public HoneyTable {
     HoneyPostListTable(int fd, off_t offset_, bool readonly)
 	: HoneyTable("postlist", fd, offset_, readonly) { }
 
-    void merge_doclen_changes(const std::map<Xapian::docid, Xapian::termcount>& changes);
+    void merge_doclen_changes(const std::map<Xapian::docid, Xapian::termcount>& changes) {
+	(void)changes;
+    }
 
     void merge_changes(const std::string& term,
-		       const HoneyInverter::PostingChanges& changes);
+		       const HoneyInverter::PostingChanges& changes) {
+	(void)term;
+	(void)changes;
+    }
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_POSTLISTTABLE_H

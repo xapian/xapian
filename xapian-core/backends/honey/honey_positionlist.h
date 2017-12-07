@@ -35,7 +35,7 @@
 
 using namespace std;
 
-class HoneyPositionListTable : public HoneyLazyTable {
+class HoneyPositionTable : public HoneyLazyTable {
   public:
     static string make_key(Xapian::docid did, const string & term) {
 	string key;
@@ -44,7 +44,7 @@ class HoneyPositionListTable : public HoneyLazyTable {
 	return key;
     }
 
-    /** Create a new HoneyPositionListTable object.
+    /** Create a new HoneyPositionTable object.
      *
      *  This method does not create or open the table on disk - you
      *  must call the create() or open() methods respectively!
@@ -52,10 +52,10 @@ class HoneyPositionListTable : public HoneyLazyTable {
      *  @param dbdir		The directory the honey database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    HoneyPositionListTable(const string & dbdir, bool readonly)
+    HoneyPositionTable(const string & dbdir, bool readonly)
 	: HoneyLazyTable("position", dbdir + "/position.", readonly) { }
 
-    HoneyPositionListTable(int fd, off_t offset_, bool readonly_)
+    HoneyPositionTable(int fd, off_t offset_, bool readonly_)
 	: HoneyLazyTable("position", fd, offset_, readonly_) { }
 
     /** Pack a position list into a string.

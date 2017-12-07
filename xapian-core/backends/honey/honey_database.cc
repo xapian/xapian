@@ -7,6 +7,19 @@
 
 using namespace std;
 
+HoneyDatabase::HoneyDatabase(const std::string& path_)
+    : Xapian::Database::Internal(TRANSACTION_READONLY),
+      path(path_),
+      version_file(path_),
+      docdata_table(path_, true),
+      postlist_table(path_, true),
+      position_table(path_, true),
+      spelling_table(path_, true),
+      synonym_table(path_, true),
+      termlist_table(path_, true, false)
+{
+}
+
 void
 HoneyDatabase::readahead_for_query(const Xapian::Query& query) const
 {

@@ -24,7 +24,12 @@
 
 #include "backends/databaseinternal.h"
 
-#include "honey_table.h"
+#include "honey_docdata.h"
+#include "honey_postlisttable.h"
+#include "honey_positionlist.h"
+#include "honey_spelling.h"
+#include "honey_synonym.h"
+#include "honey_termlisttable.h"
 #include "honey_version.h"
 #include "xapian/compactor.h"
 
@@ -50,17 +55,17 @@ class HoneyDatabase : public Xapian::Database::Internal {
     /// Version file ("iamhoney").
     HoneyVersion version_file;
 
-    HoneyTable docdata_table;
+    HoneyDocDataTable docdata_table;
 
-    HoneyTable postlist_table;
+    HoneyPostListTable postlist_table;
 
-    HoneyTable position_table;
+    HoneyPositionTable position_table;
 
-    HoneyTable spelling_table;
+    HoneySpellingTable spelling_table;
 
-    HoneyTable synonym_table;
+    HoneySynonymTable synonym_table;
 
-    HoneyTable termlist_table;
+    HoneyTermListTable termlist_table;
 
   public:
     HoneyDatabase(const std::string& path_);

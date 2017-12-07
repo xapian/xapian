@@ -34,10 +34,10 @@
 using namespace std;
 
 void
-HoneyPositionListTable::pack(string & s,
-			     const Xapian::VecCOW<Xapian::termpos> & vec) const
+HoneyPositionTable::pack(string & s,
+			 const Xapian::VecCOW<Xapian::termpos> & vec) const
 {
-    LOGCALL_VOID(DB, "HoneyPositionListTable::pack", s | vec);
+    LOGCALL_VOID(DB, "HoneyPositionTable::pack", s | vec);
     Assert(!vec.empty());
 
     pack_uint(s, vec.back());
@@ -52,10 +52,10 @@ HoneyPositionListTable::pack(string & s,
 }
 
 Xapian::termcount
-HoneyPositionListTable::positionlist_count(Xapian::docid did,
-					   const string & term) const
+HoneyPositionTable::positionlist_count(Xapian::docid did,
+				       const string & term) const
 {
-    LOGCALL(DB, Xapian::termcount, "HoneyPositionListTable::positionlist_count", did | term);
+    LOGCALL(DB, Xapian::termcount, "HoneyPositionTable::positionlist_count", did | term);
 
     string data;
     if (!get_exact_entry(make_key(did, term), data)) {
@@ -129,7 +129,7 @@ HoneyPositionList::read_data(const HoneyTable * table, Xapian::docid did,
 	cursor.reset(table->cursor_get());
     }
     if (cursor.get() &&
-	cursor->find_exact(HoneyPositionListTable::make_key(did, tname))) {
+	cursor->find_exact(HoneyPositionTable::make_key(did, tname))) {
 	RETURN(read_data(cursor->current_tag));
     }
     RETURN(read_data(string()));

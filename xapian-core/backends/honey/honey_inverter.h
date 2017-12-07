@@ -34,18 +34,18 @@
 #include "xapian/error.h"
 
 class HoneyPostListTable;
-class HoneyPositionListTable;
+class HoneyPositionTable;
 
 namespace Xapian {
 class TermIterator;
 }
 
-/** Magic wdf value used for a deleted posting. */
-const Xapian::termcount DELETED_POSTING = Xapian::termcount(-1);
-
 /** Class which "inverts the file". */
 class HoneyInverter {
     friend class HoneyPostListTable;
+
+    /** Magic wdf value used for a deleted posting. */
+    static const Xapian::termcount DELETED_POSTING = Xapian::termcount(-1);
 
     /// Class for storing the changes in frequencies for a term.
     class PostingChanges {
@@ -119,7 +119,7 @@ class HoneyInverter {
     /// Buffered changes to positional data.
     std::map<std::string, std::map<Xapian::docid, std::string> > pos_changes;
 
-    void store_positions(const HoneyPositionListTable & position_table,
+    void store_positions(const HoneyPositionTable & position_table,
 			 Xapian::docid did,
 			 const std::string & tname,
 			 const Xapian::VecCOW<Xapian::termpos> & posvec,
@@ -171,7 +171,7 @@ class HoneyInverter {
 	}
     }
 
-    void set_positionlist(const HoneyPositionListTable & position_table,
+    void set_positionlist(const HoneyPositionTable & position_table,
 			  Xapian::docid did,
 			  const std::string & tname,
 			  const Xapian::TermIterator & term,
@@ -184,7 +184,7 @@ class HoneyInverter {
 			  const std::string & term,
 			  std::string & s) const;
 
-    bool has_positions(const HoneyPositionListTable & position_table) const;
+    bool has_positions(const HoneyPositionTable & position_table) const;
 
     void clear() {
 	doclen_changes.clear();
@@ -231,7 +231,7 @@ class HoneyInverter {
     void flush(HoneyPostListTable & table);
 
     /// Flush position changes.
-    void flush_pos_lists(HoneyPositionListTable & table);
+    void flush_pos_lists(HoneyPositionTable & table);
 
     bool get_deltas(const std::string & term,
 		    Xapian::termcount_diff & tf_delta,
