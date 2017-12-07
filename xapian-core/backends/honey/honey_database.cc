@@ -2,6 +2,7 @@
 
 #include "honey_database.h"
 
+#include "api/leafpostlist.h"
 #include "backends/backends.h"
 #include "xapian/error.h"
 
@@ -126,8 +127,7 @@ HoneyDatabase::has_positions() const
 PostList*
 HoneyDatabase::open_post_list(const string& term) const
 {
-    (void)term;
-    return NULL; // TODO0
+    return HoneyDatabase::open_leaf_post_list(term);
 }
 
 LeafPostList*
