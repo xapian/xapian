@@ -1,7 +1,7 @@
 /** @file weight.cc
  * @brief Xapian::Weight base class
  */
-/* Copyright (C) 2007,2008,2009,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2014,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2017 Vivek Pal
  *
@@ -96,19 +96,19 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     rset_size_ = stats.rset_size;
     if (stats_needed & AVERAGE_LENGTH)
 	average_length_ = stats.get_average_length();
-    if (stats_needed & DOC_LENGTH_MAX)
+    if (stats_needed & (DOC_LENGTH_MAX | WDF_MAX)) {
 	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
+	// The doclength is an upper bound on the wdf.  This is obviously true
+	// for normal terms, but SynonymPostList ensures that it is also true
+	// for synonym terms by clamping the wdf values returned to the
+	// doclength.
+	//
+	// (This clamping is only actually necessary in cases where a constituent
+	// term of the synonym is repeated.)
+	wdf_upper_bound_ = doclength_upper_bound_;
+    }
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
-
-    // The doclength is an upper bound on the wdf.  This is obviously true for
-    // normal terms, but SynonymPostList ensures that it is also true for
-    // synonym terms by clamping the wdf values returned to the doclength.
-    //
-    // (This clamping is only actually necessary in cases where a constituent
-    // term of the synonym is repeated.)
-    if (stats_needed & WDF_MAX)
-	wdf_upper_bound_ = stats.db.get_doclength_upper_bound();
 
     termfreq_ = termfreq;
     reltermfreq_ = reltermfreq;
