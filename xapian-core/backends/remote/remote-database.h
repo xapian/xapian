@@ -109,7 +109,19 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   bool writable, int flags);
 
     /// Receive a message from the server.
-    reply_type get_message(std::string& message, reply_type required_type = REPLY_MAX) const;
+    reply_type get_message(std::string& message,
+			   reply_type required_type,
+			   reply_type required_type2) const;
+
+    void get_message(std::string& message,
+		     reply_type required_type) const {
+	(void)get_message(message, required_type, required_type);
+    }
+
+    bool get_message_or_done(std::string& message,
+			     reply_type required_type) const {
+	return get_message(message, required_type, REPLY_DONE) != REPLY_DONE;
+    }
 
     /// Send a message to the server.
     void send_message(message_type type, const std::string& data) const;
