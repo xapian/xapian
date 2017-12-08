@@ -52,11 +52,12 @@
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
-XAPIAN_NORETURN(static void throw_bad_message(const string & context));
+XAPIAN_NORETURN(static void throw_handshake_failed(const string & context));
 static void
-throw_bad_message(const string & context)
+throw_handshake_failed(const string & context)
 {
-    throw Xapian::NetworkError("Bad message received", context);
+    throw Xapian::NetworkError("Handshake failed - is this a Xapian server?",
+			       context);
 }
 
 XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
@@ -129,16 +130,13 @@ RemoteDatabase::open_metadata_keylist(const std::string &prefix) const
     vector<NetworkTermListItem> & items = tlist->items;
 
     string term = prefix;
-    char type;
-    while ((type = get_message(message)) == REPLY_METADATAKEYLIST) {
+    while (get_message_or_done(message, REPLY_METADATAKEYLIST)) {
 	NetworkTermListItem item;
 	term.resize(size_t(static_cast<unsigned char>(message[0])));
 	term.append(message, 1, string::npos);
 	item.tname = term;
 	items.push_back(item);
     }
-    if (type != REPLY_DONE)
-	throw_bad_message(context);
 
     tlist->current_position = tlist->items.begin();
     return tlist.release();
@@ -171,8 +169,7 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
     vector<NetworkTermListItem> & items = tlist->items;
 
     string term;
-    char type;
-    while ((type = get_message(message)) == REPLY_TERMLIST) {
+    while (get_message_or_done(message, REPLY_TERMLIST)) {
 	NetworkTermListItem item;
 	p = message.data();
 	p_end = p + message.size();
@@ -183,8 +180,6 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 	item.tname = term;
 	items.push_back(item);
     }
-    if (type != REPLY_DONE)
-	throw_bad_message(context);
 
     tlist->current_position = tlist->items.begin();
     return tlist.release();
@@ -205,8 +200,7 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 
     string term = prefix;
     string message;
-    char type;
-    while ((type = get_message(message)) == REPLY_ALLTERMS) {
+    while (get_message_or_done(message, REPLY_ALLTERMS)) {
 	NetworkTermListItem item;
 	const char * p = message.data();
 	const char * p_end = p + message.size();
@@ -216,8 +210,6 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 	item.tname = term;
 	items.push_back(item);
     }
-    if (type != REPLY_DONE)
-	throw_bad_message(context);
 
     tlist->current_position = tlist->items.begin();
     return tlist.release();
@@ -235,7 +227,6 @@ RemoteDatabase::read_post_list(const string &term, NetworkPostList & pl) const
     send_message(MSG_POSTLIST, term);
 
     string message;
-    char type;
     get_message(message, REPLY_POSTLISTSTART);
 
     const char * p = message.data();
@@ -243,11 +234,9 @@ RemoteDatabase::read_post_list(const string &term, NetworkPostList & pl) const
     Xapian::doccount termfreq;
     decode_length(&p, p_end, termfreq);
 
-    while ((type = get_message(message)) == REPLY_POSTLISTITEM) {
+    while (get_message_or_done(message, REPLY_POSTLISTITEM)) {
 	pl.append_posting(message);
     }
-    if (type != REPLY_DONE)
-	throw_bad_message(context);
 
     return termfreq;
 }
@@ -260,9 +249,8 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
     vector<Xapian::termpos> positions;
 
     string message;
-    char type;
     Xapian::termpos lastpos = static_cast<Xapian::termpos>(-1);
-    while ((type = get_message(message)) == REPLY_POSITIONLIST) {
+    while (get_message_or_done(message, REPLY_POSITIONLIST)) {
 	const char * p = message.data();
 	const char * p_end = p + message.size();
 	Xapian::termpos inc;
@@ -270,8 +258,6 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
 	lastpos += inc + 1;
 	positions.push_back(lastpos);
     }
-    if (type != REPLY_DONE)
-	throw_bad_message(context);
 
     return new InMemoryPositionList(positions);
 }
@@ -328,17 +314,14 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
     map<Xapian::valueno, string> values;
     get_message(doc_data, REPLY_DOCDATA);
 
-    reply_type type;
     string message;
-    while ((type = get_message(message)) == REPLY_VALUE) {
+    while (get_message_or_done(message, REPLY_VALUE)) {
 	const char * p = message.data();
 	const char * p_end = p + message.size();
 	Xapian::valueno slot;
 	decode_length(&p, p_end, slot);
 	values.insert(make_pair(slot, string(p, p_end)));
     }
-    if (type != REPLY_DONE)
-	throw_bad_message(context);
 
     return new RemoteDocument(this, did, doc_data, values);
 }
@@ -352,15 +335,14 @@ RemoteDatabase::update_stats(message_type msg_code, const string & body) const
 	send_message(msg_code, body);
 
     string message;
-    reply_type type = get_message(message);
-    if (type != REPLY_UPDATE || message.size() < 3) {
-	if (type == REPLY_DONE) {
-	    // The database was already open at the latest revision.
-	    return false;
-	}
-	throw Xapian::NetworkError("Handshake failed - is this a Xapian server?", context);
+    if (!get_message_or_done(message, REPLY_UPDATE)) {
+	// The database was already open at the latest revision.
+	return false;
     }
 
+    if (message.size() < 3) {
+	throw_handshake_failed(context);
+    }
     const char *p = message.c_str();
     const char *p_end = p + message.size();
 
@@ -430,9 +412,9 @@ RemoteDatabase::term_exists(const string & tname) const
     Assert(!tname.empty());
     send_message(MSG_TERMEXISTS, tname);
     string message;
-    reply_type type = get_message(message);
-    if (type != REPLY_TERMEXISTS && type != REPLY_TERMDOESNTEXIST)
-	throw_bad_message(context);
+    reply_type type = get_message(message,
+				  REPLY_TERMEXISTS,
+				  REPLY_TERMDOESNTEXIST);
     return (type == REPLY_TERMEXISTS);
 }
 
@@ -569,25 +551,37 @@ RemoteDatabase::get_unique_terms(Xapian::docid did) const
 }
 
 reply_type
-RemoteDatabase::get_message(string &result, reply_type required_type) const
+RemoteDatabase::get_message(string &result,
+			    reply_type required_type,
+			    reply_type required_type2) const
 {
     double end_time = RealTime::end_time(timeout);
-    int type_int = link.get_message(result, end_time);
-    if (type_int < 0)
+    int type = link.get_message(result, end_time);
+    if (type < 0)
 	throw_connection_closed_unexpectedly();
-    reply_type type = static_cast<reply_type>(type_int);
+    if (rare(type) >= REPLY_MAX) {
+	if (required_type == REPLY_UPDATE)
+	    throw_handshake_failed(context);
+	string errmsg("Invalid reply type ");
+	errmsg += str(type);
+	throw Xapian::NetworkError(errmsg);
+    }
     if (type == REPLY_EXCEPTION) {
 	unserialise_error(result, "REMOTE:", context);
     }
-    if (required_type != REPLY_MAX && type != required_type) {
+    if (type != required_type && type != required_type2) {
 	string errmsg("Expecting reply type ");
 	errmsg += str(int(required_type));
+	if (required_type2 != required_type) {
+	    errmsg += " or ";
+	    errmsg += str(int(required_type2));
+	}
 	errmsg += ", got ";
-	errmsg += str(int(type));
+	errmsg += str(type);
 	throw Xapian::NetworkError(errmsg);
     }
 
-    return type;
+    return static_cast<reply_type>(type);
 }
 
 void
