@@ -1,7 +1,7 @@
 /** @file api_weight.cc
  * @brief tests of Xapian::Weight subclasses
  */
-/* Copyright (C) 2004,2012,2013,2016 Olly Betts
+/* Copyright (C) 2004,2012,2013,2016,2017 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
  *
@@ -1049,9 +1049,13 @@ class CheckStatsWeight : public Xapian::Weight {
 
     Xapian::Database db;
 
+    string term1;
+
     // When testing OP_SYNONYM, term2 is also set.
-    // When testing OP_WILDCARD, term2 == "*"
-    string term1, term2;
+    // When testing OP_WILDCARD, term2 == "*".
+    // When testing a repeated term, term2 == "=" for the first occurrence and
+    // "_" for subsequent occurrences.
+    mutable string term2;
 
     Xapian::termcount & sum;
     Xapian::termcount & sum_squares;
@@ -1096,7 +1100,18 @@ class CheckStatsWeight : public Xapian::Weight {
     }
 
     Weight * clone() const {
-	return new CheckStatsWeight(db, term1, term2, sum, sum_squares);
+	auto res = new CheckStatsWeight(db, term1, term2, sum, sum_squares);
+	if (term2 == "=") {
+	    // The object passed to Enquire::set_weighting_scheme() is cloned
+	    // right away, and then cloned again for each term, and then
+	    // potentially once more for the term-independent weight
+	    // contribution.  In the repeated case, we want to handle the first
+	    // actual term specially, so we arrange for that to have "=" for
+	    // term2, and subsequent clones to have "_", so that we accumulate
+	    // sum and sum_squares on the first occurrence only.
+	    term2 = "_";
+	}
+	return res;
     }
 
     double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
@@ -1105,10 +1120,14 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_EQUAL(get_collection_size(), num_docs);
 	TEST_EQUAL(get_rset_size(), 0);
 	TEST_EQUAL(get_average_length(), db.get_avlength());
-	if (term2.empty()) {
+	if (term2.empty() || term2 == "=" || term2 == "_") {
 	    TEST_EQUAL(get_termfreq(), db.get_termfreq(term1));
 	    TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term1));
-	    TEST_EQUAL(get_query_length(), 1);
+	    if (term2.empty()) {
+		TEST_EQUAL(get_query_length(), 1);
+	    } else {
+		TEST_EQUAL(get_query_length(), 2);
+	    }
 	} else {
 	    Xapian::doccount tfmax = 0, tfsum = 0;
 	    Xapian::termcount cfmax = 0, cfsum = 0;
@@ -1155,8 +1174,10 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_REL(uniqueterms,>=,1);
 	TEST_REL(uniqueterms,<=,doclen);
 	TEST_REL(wdf,<=,wdf_upper);
-	sum += wdf;
-	sum_squares += wdf * wdf;
+	if (term2 != "_") {
+	    sum += wdf;
+	    sum_squares += wdf * wdf;
+	}
 	return 1.0;
     }
 
@@ -1353,6 +1374,43 @@ DEFINE_TESTCASE(checkstatsweight3, backend && !remote && !multi) {
 	// the individual terms.
 	TEST_EQUAL(sum, expected_sum);
 	TEST_REL(sum_squares, >=, expected_sum_squares);
+    }
+    return true;
+}
+
+/// Check the stats for a repeated term are correct.
+// Regression test for bug fixed in 1.4.6.  Doesn't work with
+// multi as the weight object is cloned more times.
+DEFINE_TESTCASE(checkstatsweight4, backend && !remote && !multi) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    Xapian::TermIterator a;
+    for (a = db.allterms_begin(); a != db.allterms_end(); ++a) {
+	const string & term = *a;
+	enquire.set_query(Xapian::Query(term, 1, 1) |
+			  Xapian::Query(term, 1, 2));
+	Xapian::termcount sum = 0;
+	Xapian::termcount sum_squares = 0;
+	CheckStatsWeight wt(db, term, "=", sum, sum_squares);
+	enquire.set_weighting_scheme(wt);
+	Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+
+	// The document order in the multi-db case isn't the same as the
+	// postlist order on the combined DB, so it's hard to compare the
+	// wdf for each document in the Weight objects, so we can sum
+	// the wdfs and the squares of the wdfs which provides a decent
+	// check that we're not getting the wrong wdf values (it ensures
+	// they have the right mean and standard deviation).
+	Xapian::termcount expected_sum = 0;
+	Xapian::termcount expected_sum_squares = 0;
+	Xapian::PostingIterator i;
+	for (i = db.postlist_begin(term); i != db.postlist_end(term); ++i) {
+	    Xapian::termcount wdf = i.get_wdf();
+	    expected_sum += wdf;
+	    expected_sum_squares += wdf * wdf;
+	}
+	TEST_EQUAL(sum, expected_sum);
+	TEST_EQUAL(sum_squares, expected_sum_squares);
     }
     return true;
 }
