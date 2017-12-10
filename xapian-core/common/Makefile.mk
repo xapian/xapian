@@ -23,7 +23,6 @@ noinst_HEADERS +=\
 	common/pretty.h\
 	common/proc_uuid.h\
 	common/realtime.h\
-	common/remoteprotocol.h\
 	common/replicate_utils.h\
 	common/replicationprotocol.h\
 	common/safedirent.h\
