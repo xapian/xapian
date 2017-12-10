@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,7 +85,7 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 
     total_term_count += subdb.get_doccount() * subdb.get_total_length();
     Xapian::TermIterator t;
-    for (t = query.get_terms_begin(); t != Xapian::TermIterator(); ++t) {
+    for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
 	const string & term = *t;
 
 	Xapian::doccount sub_tf;
