@@ -28,9 +28,6 @@
 
 class LeafPostList;
 class MultiMatch;
-namespace Xapian {
-class Weight;
-}
 
 class QueryOptimiser {
     /// Prevent assignment.
