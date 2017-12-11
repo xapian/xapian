@@ -28,9 +28,6 @@
 
 class LeafPostList;
 class PostListTree;
-namespace Xapian {
-class Weight;
-}
 
 class QueryOptimiser {
     /// Prevent assignment.
