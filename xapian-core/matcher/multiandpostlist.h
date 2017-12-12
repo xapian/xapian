@@ -177,9 +177,9 @@ class MultiAndPostList : public PostList {
 
     double recalc_maxweight();
 
-    Internal *next(double w_min);
+    PostList* next(double w_min);
 
-    Internal *skip_to(Xapian::docid, double w_min);
+    PostList* skip_to(Xapian::docid, double w_min);
 
     std::string get_description() const;
 
