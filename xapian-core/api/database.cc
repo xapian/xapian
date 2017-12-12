@@ -25,14 +25,9 @@
 
 #include "backends/databaseinternal.h"
 #include "backends/empty_database.h"
-#include "backends/multi/multi_alltermslist.h"
 #include "backends/multi/multi_database.h"
-#include "backends/multi/multi_postlist.h"
-#include "backends/multi/multi_termlist.h"
-#include "backends/multi/multi_valuelist.h"
 #include "debuglog.h"
 #include "editdistance.h"
-#include "leafpostlist.h"
 #include "omassert.h"
 #include "pack.h"
 #include <xapian/constants.h>
