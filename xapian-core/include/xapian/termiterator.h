@@ -138,6 +138,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
   private:
     void decref();
 
+    XAPIAN_VISIBILITY_INTERNAL
     void post_advance(Internal * res);
 };
 
