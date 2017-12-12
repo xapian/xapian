@@ -1049,8 +1049,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
-    PostingIterator::Internal * r = qopt->make_synonym_postlist(pl, factor);
-    RETURN(r);
+    RETURN(qopt->make_synonym_postlist(pl, factor));
 }
 
 termcount
