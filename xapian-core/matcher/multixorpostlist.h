@@ -97,9 +97,9 @@ class MultiXorPostList : public PostList {
 	return NULL;
     }
 
-    Internal *next(double w_min);
+    PostList* next(double w_min);
 
-    Internal *skip_to(Xapian::docid, double w_min);
+    PostList* skip_to(Xapian::docid, double w_min);
 
     std::string get_description() const;
 
