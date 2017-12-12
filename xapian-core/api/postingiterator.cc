@@ -1,7 +1,7 @@
 /** @file postingiterator.cc
  *  @brief Class for iterating over a list of document ids.
  */
-/* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2013,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 #include "xapian/postingiterator.h"
 
+#include "api/postingiteratorinternal.h"
 #include "debuglog.h"
 #include "omassert.h"
 #include "postlist.h"
@@ -38,29 +39,16 @@ PostingIterator::decref()
 	delete internal;
 }
 
-void
-PostingIterator::post_advance(Internal * res)
-{
-    if (res) {
-	// FIXME: It seems this can't happen for any PostList which we wrap
-	// with PostingIterator.
-	++res->_refs;
-	decref();
-	internal = res;
-    }
-    if (internal->at_end()) {
-	decref();
-	internal = NULL;
-    }
-}
-
 PostingIterator::PostingIterator(Internal *internal_) : internal(internal_)
 {
     LOGCALL_CTOR(API, "PostingIterator", internal_);
     if (!internal) return;
     try {
 	++internal->_refs;
-	post_advance(internal->next());
+	if (!internal->next()) {
+	    decref();
+	    internal = NULL;
+	}
     } catch (...) {
 	// The destructor only runs if the constructor completes, so we have to
 	// take care of cleaning up for ourselves here.
@@ -102,7 +90,10 @@ PostingIterator::operator++()
 {
     LOGCALL(API, PostingIterator &, "PostingIterator::operator++", NO_ARGS);
     Assert(internal);
-    post_advance(internal->next());
+    if (!internal->next()) {
+	decref();
+	internal = NULL;
+    }
     RETURN(*this);
 }
 
@@ -152,8 +143,12 @@ void
 PostingIterator::skip_to(Xapian::docid did)
 {
     LOGCALL_VOID(API, "PostingIterator::skip_to", did);
-    if (internal)
-	post_advance(internal->skip_to(did));
+    if (internal) {
+	if (!internal->skip_to(did)) {
+	    decref();
+	    internal = NULL;
+	}
+    }
 }
 
 std::string

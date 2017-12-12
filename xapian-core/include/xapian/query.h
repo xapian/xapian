@@ -557,6 +557,7 @@ class AndContext;
 class OrContext;
 class XorContext;
 
+class PostList;
 class QueryOptimiser;
 }
 
@@ -567,8 +568,9 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 
     virtual ~Internal();
 
-    virtual PostingIterator::Internal* postlist(Xapian::Internal::QueryOptimiser* qopt,
-						double factor) const = 0;
+    virtual
+    Xapian::Internal::PostList* postlist(Xapian::Internal::QueryOptimiser* qopt,
+					 double factor) const = 0;
 
     virtual void postlist_sub_and_like(Xapian::Internal::AndContext& ctx,
 				       Xapian::Internal::QueryOptimiser* qopt,

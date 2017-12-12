@@ -30,6 +30,7 @@
 #include "editdistance.h"
 #include "omassert.h"
 #include "pack.h"
+#include "postingiteratorinternal.h"
 #include <xapian/constants.h>
 #include <xapian/error.h>
 #include <xapian/positioniterator.h>
@@ -187,7 +188,9 @@ Database::add_database_(const Database& o, bool read_only)
 PostingIterator
 Database::postlist_begin(const string& term) const
 {
-    return PostingIterator(internal->open_post_list(term));
+    PostList* pl = internal->open_post_list(term);
+    if (!pl) return PostingIterator();
+    return PostingIterator(new PostingIterator::Internal(pl));
 }
 
 TermIterator
