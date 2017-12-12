@@ -106,7 +106,7 @@ class LocalSubMatch {
 			      double factor,
 			      bool need_positions,
 			      bool in_synonym,
-			      QueryOptimiser* qopt,
+			      Xapian::Internal::QueryOptimiser* qopt,
 			      bool lazy_weight);
 };
 

@@ -36,8 +36,6 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-class QueryOptimiser; // FIXME
-
 namespace Xapian {
 
 class PostingSource;
@@ -558,6 +556,8 @@ namespace Internal {
 class AndContext;
 class OrContext;
 class XorContext;
+
+class QueryOptimiser;
 }
 
 /** @private @internal */
@@ -567,18 +567,19 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 
     virtual ~Internal();
 
-    virtual PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const = 0;
+    virtual PostingIterator::Internal* postlist(Xapian::Internal::QueryOptimiser* qopt,
+						double factor) const = 0;
 
     virtual void postlist_sub_and_like(Xapian::Internal::AndContext& ctx,
-				       QueryOptimiser * qopt,
+				       Xapian::Internal::QueryOptimiser* qopt,
 				       double factor) const;
 
     virtual void postlist_sub_or_like(Xapian::Internal::OrContext& ctx,
-				      QueryOptimiser * qopt,
+				      Xapian::Internal::QueryOptimiser* qopt,
 				      double factor) const;
 
     virtual void postlist_sub_xor(Xapian::Internal::XorContext& ctx,
-				  QueryOptimiser * qopt,
+				  Xapian::Internal::QueryOptimiser* qopt,
 				  double factor) const;
 
     virtual termcount XAPIAN_NOTHROW(get_length() const) XAPIAN_PURE_FUNCTION;

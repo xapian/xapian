@@ -29,6 +29,9 @@
 class LeafPostList;
 class PostListTree;
 
+namespace Xapian {
+namespace Internal {
+
 class QueryOptimiser {
     /// Prevent assignment.
     void operator=(const QueryOptimiser &);
@@ -113,5 +116,10 @@ class QueryOptimiser {
 
     void take_hint_ownership() { hint_owned = true; }
 };
+
+}
+}
+
+using Xapian::Internal::QueryOptimiser;
 
 #endif // XAPIAN_INCLUDED_QUERYOPTIMISER_H

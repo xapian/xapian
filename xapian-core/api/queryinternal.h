@@ -29,10 +29,10 @@
 /// Default set_size for OP_ELITE_SET:
 const Xapian::termcount DEFAULT_ELITE_SET_SIZE = 10;
 
-class QueryOptimiser;
-
 namespace Xapian {
 namespace Internal {
+
+class QueryOptimiser;
 
 class QueryTerm : public Query::Internal {
     std::string term;
