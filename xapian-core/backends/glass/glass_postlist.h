@@ -262,12 +262,6 @@ class GlassPostList : public LeafPostList {
 	/// Returns the current docid.
 	Xapian::docid get_docid() const { Assert(have_started); return did; }
 
-	/// Returns the length of current document.
-	Xapian::termcount get_doclength() const;
-
-	/// Returns the number of unique terms in the current document.
-	Xapian::termcount get_unique_terms() const;
-
 	/** Returns the Within Document Frequency of the term in the current
 	 *  document.
 	 */

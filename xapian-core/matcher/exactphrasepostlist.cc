@@ -33,8 +33,9 @@ using namespace std;
 
 ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
 					 const vector<PostList*>::const_iterator &terms_begin,
-					 const vector<PostList*>::const_iterator &terms_end)
-    : SelectPostList(source_), terms(terms_begin, terms_end)
+					 const vector<PostList*>::const_iterator &terms_end,
+					 PostListTree* pltree_)
+    : SelectPostList(source_, pltree_), terms(terms_begin, terms_end)
 {
     size_t n = terms.size();
     Assert(n > 1);

@@ -65,7 +65,8 @@ class ValueRangePostList : public PostList {
 
     Xapian::docid get_docid() const;
 
-    double get_weight() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
 
     double recalc_maxweight();
 

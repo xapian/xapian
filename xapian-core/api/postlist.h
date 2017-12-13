@@ -79,24 +79,6 @@ class PostList {
     /// Return the current docid.
     virtual Xapian::docid get_docid() const = 0;
 
-    /** Return the length of current document.
-     *
-     *  Only needed for postlists which get put in a PostingIterator or derive
-     *  from LeafPostList.
-     *
-     *  The default implementation throws Xapian::InvalidOperationError.
-     */
-    virtual Xapian::termcount get_doclength() const;
-
-    /** Return the number of unique terms in the current document.
-     *
-     *  Only needed for postlists which get put in a PostingIterator or derive
-     *  from LeafPostList.
-     *
-     *  The default implementation throws Xapian::InvalidOperationError.
-     */
-    virtual Xapian::termcount get_unique_terms() const;
-
     /** Return the wdf for the document at the current position.
      *
      *  The default implementation throws Xapian::UnimplementedError.
@@ -104,7 +86,8 @@ class PostList {
     virtual Xapian::termcount get_wdf() const;
 
     /// Return the weight contribution for the current position.
-    virtual double get_weight() const = 0;
+    virtual double get_weight(Xapian::termcount doclen,
+			      Xapian::termcount unique_terms) const = 0;
 
     /// Return true if the current position is past the last entry in this list.
     virtual bool at_end() const = 0;

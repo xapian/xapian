@@ -32,11 +32,13 @@ class PostingIterator::Internal {
 
     PostList* pl;
 
+    Xapian::Database db;
+
     unsigned _refs = 0;
 
   public:
-    explicit
-    Internal(PostList* pl_) : pl(pl_) {}
+    Internal(PostList* pl_, const Xapian::Database& db_)
+	: pl(pl_), db(db_) {}
 
     ~Internal() {
 	delete pl;
@@ -51,11 +53,11 @@ class PostingIterator::Internal {
     }
 
     Xapian::termcount get_doclength() const {
-	return pl->get_doclength();
+	return db.get_doclength(pl->get_docid());
     }
 
     Xapian::termcount get_unique_terms() const {
-	return pl->get_unique_terms();
+	return db.get_unique_terms(pl->get_docid());
     }
 
     PositionList* open_position_list() const {

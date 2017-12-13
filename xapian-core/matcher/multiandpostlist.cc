@@ -147,12 +147,13 @@ MultiAndPostList::get_docid() const
 }
 
 double
-MultiAndPostList::get_weight() const
+MultiAndPostList::get_weight(Xapian::termcount doclen,
+			     Xapian::termcount unique_terms) const
 {
     Assert(did);
     double result = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	result += plist[i]->get_weight();
+	result += plist[i]->get_weight(doclen, unique_terms);
     }
     return result;
 }

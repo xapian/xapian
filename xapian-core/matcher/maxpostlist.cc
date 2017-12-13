@@ -1,7 +1,7 @@
 /** @file maxpostlist.cc
  * @brief N-way OR postlist with wt=max(wt_i)
  */
-/* Copyright (C) 2007,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012,2013,2014,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -119,13 +119,14 @@ MaxPostList::get_docid() const
 }
 
 double
-MaxPostList::get_weight() const
+MaxPostList::get_weight(Xapian::termcount doclen,
+			Xapian::termcount unique_terms) const
 {
     Assert(did);
     double res = 0.0;
     for (size_t i = 0; i < n_kids; ++i) {
 	if (plist[i]->get_docid() == did)
-	    res = std::max(res, plist[i]->get_weight());
+	    res = std::max(res, plist[i]->get_weight(doclen, unique_terms));
     }
     return res;
 }

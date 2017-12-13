@@ -69,17 +69,12 @@ class MultiPostList : public PostList {
     /// Return the current docid.
     Xapian::docid get_docid() const;
 
-    /// Return the length of current document.
-    Xapian::termcount get_doclength() const;
-
-    /// Return the number of unique terms in the current document.
-    Xapian::termcount get_unique_terms() const;
-
     /// Return the wdf for the document at the current position.
     Xapian::termcount get_wdf() const;
 
     /// Return the weight contribution for the current position.
-    double get_weight() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
 
     /// Return true if the current position is past the last entry in this list.
     bool at_end() const;

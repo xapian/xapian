@@ -1,7 +1,7 @@
 /** @file maxpostlist.h
  * @brief N-way OR postlist with wt=max(wt_i)
  */
-/* Copyright (C) 2007,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012,2013,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -87,7 +87,8 @@ class MaxPostList : public PostList {
 
     Xapian::docid get_docid() const;
 
-    double get_weight() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
 
     bool at_end() const;
 

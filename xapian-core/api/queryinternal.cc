@@ -317,7 +317,9 @@ class AndContext : public Context {
 		  Xapian::termcount window_)
 	    : op_(op__), begin(begin_), end(end_), window(window_) { }
 
-	PostList * postlist(PostList * pl, const vector<PostList*>& pls) const;
+	PostList * postlist(PostList* pl,
+			    const vector<PostList*>& pls,
+			    PostListTree* pltree) const;
     };
 
     list<PosFilter> pos_filters;
@@ -334,19 +336,21 @@ class AndContext : public Context {
 };
 
 PostList *
-AndContext::PosFilter::postlist(PostList * pl, const vector<PostList*>& pls) const
+AndContext::PosFilter::postlist(PostList* pl,
+				const vector<PostList*>& pls,
+				PostListTree* pltree) const
 try {
     vector<PostList *>::const_iterator terms_begin = pls.begin() + begin;
     vector<PostList *>::const_iterator terms_end = pls.begin() + end;
 
     if (op_ == Xapian::Query::OP_NEAR) {
-	pl = new NearPostList(pl, window, terms_begin, terms_end);
+	pl = new NearPostList(pl, window, terms_begin, terms_end, pltree);
     } else if (window == end - begin) {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
-	pl = new ExactPhrasePostList(pl, terms_begin, terms_end);
+	pl = new ExactPhrasePostList(pl, terms_begin, terms_end, pltree);
     } else {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
-	pl = new PhrasePostList(pl, window, terms_begin, terms_end);
+	pl = new PhrasePostList(pl, window, terms_begin, terms_end, pltree);
     }
     return pl;
 } catch (...) {
@@ -386,7 +390,7 @@ AndContext::postlist()
     list<PosFilter>::const_iterator i;
     for (i = pos_filters.begin(); i != pos_filters.end(); ++i) {
 	const PosFilter & filter = *i;
-	pl.reset(filter.postlist(pl.release(), pls));
+	pl.reset(filter.postlist(pl.release(), pls, qopt->matcher));
     }
 
     // Empty pls so our destructor doesn't delete them all!

@@ -1,7 +1,7 @@
 /** @file leafpostlist.h
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011,2013,2015,2016 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -45,15 +45,12 @@ class LeafPostList : public PostList {
   protected:
     const Xapian::Weight * weight;
 
-    bool need_doclength, need_unique_terms;
-
     /// The term name for this postlist (empty for an alldocs postlist).
     std::string term;
 
     /// Only constructable as a base class for derived classes.
     explicit LeafPostList(const std::string & term_)
-	: weight(0), need_doclength(false), need_unique_terms(false),
-	  term(term_) { }
+	: weight(0), term(term_) { }
 
   public:
     ~LeafPostList();
@@ -67,7 +64,11 @@ class LeafPostList : public PostList {
      *
      *  @param weight_	The weighting object to use.  Must not be NULL.
      */
-    void set_termweight(const Xapian::Weight * weight_);
+    void set_termweight(const Xapian::Weight * weight_) {
+	// This method shouldn't be called more than once on the same object.
+	Assert(!weight);
+	weight = weight_;
+    }
 
     double resolve_lazy_termweight(Xapian::Weight * weight_,
 				   Xapian::Weight::Internal * stats,
@@ -81,7 +82,6 @@ class LeafPostList : public PostList {
 	const Xapian::Weight * const_weight_ = weight_;
 	std::swap(weight, const_weight_);
 	delete const_weight_;
-	need_doclength = weight->get_sumpart_needs_doclength_();
 	stats->termfreqs[term].max_part += weight->get_maxpart();
 	return stats->termfreqs[term].max_part;
     }
@@ -97,7 +97,9 @@ class LeafPostList : public PostList {
     Xapian::doccount get_termfreq_max() const;
     Xapian::doccount get_termfreq_est() const;
 
-    double get_weight() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
+
     double recalc_maxweight();
 
     TermFreqs get_termfreq_est_using_stats(

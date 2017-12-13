@@ -26,6 +26,7 @@
 
 #include "debuglog.h"
 #include "omassert.h"
+#include "postlisttree.h"
 
 using namespace std;
 
@@ -39,9 +40,7 @@ SynonymPostList::set_weight(const Xapian::Weight * wt_)
 {
     delete wt;
     wt = wt_;
-    want_doclength = wt->get_sumpart_needs_doclength_();
     want_wdf = wt->get_sumpart_needs_wdf_();
-    want_unique_terms = wt->get_sumpart_needs_uniqueterms_();
 }
 
 PostList *
@@ -61,46 +60,33 @@ SynonymPostList::skip_to(Xapian::docid did, double w_min)
 }
 
 double
-SynonymPostList::get_weight() const
+SynonymPostList::get_weight(Xapian::termcount doclen,
+			    Xapian::termcount unique_terms) const
 {
-    LOGCALL(MATCH, double, "SynonymPostList::get_weight", NO_ARGS);
-    // The wdf returned can be higher than the doclength.  In particular, this
-    // can currently occur if the query contains a term more than once; the wdf
-    // of each occurrence is added up.
-    //
-    // However, it's reasonable for weighting algorithms to optimise by
-    // assuming that get_wdf() will never return more than get_doclength(),
-    // since the doclength is the sum of the wdfs.
-    //
-    // Therefore, we simply clamp the wdf value to the doclength, to ensure
-    // that this is true.  Note that this requires the doclength to be
-    // calculated even if the weight object doesn't want it.
-
-    Xapian::docid did = 0;
-    Xapian::termcount unique_terms = 0;
-    Xapian::termcount doclen = 0;
-    if (want_unique_terms) {
-	did = pl->get_docid();
-	unique_terms = db->get_unique_terms(did);
-    }
+    LOGCALL(MATCH, double, "SynonymPostList::get_weight", doclen | unique_terms);
+    Xapian::termcount wdf = 0;
     if (want_wdf) {
-	Xapian::termcount wdf = get_wdf();
-	if (want_doclength || wdf > doclen_lower_bound) {
-	    if (did == 0)
-		did = pl->get_docid();
-	    doclen = db->get_doclength(did);
+	// The wdf returned can be higher than the doclength.  In particular,
+	// this can currently occur if the query contains a term more than
+	// once; the wdf of each occurrence is added up.
+	//
+	// However, it's reasonable for weighting algorithms to optimise by
+	// assuming that get_wdf() will never return more than doclen, since
+	// doclen is the sum of the wdfs.
+	//
+	// Therefore, we simply clamp the wdf value to doclen, to ensure that
+	// this is true.  Note that this requires doclen to be fetched even if
+	// the weight object doesn't want it.
+	wdf = get_wdf();
+	if (wdf > doclen_lower_bound) {
+	    if (doclen == 0) {
+		Xapian::termcount dummy;
+		pltree->get_doc_stats(doclen, dummy);
+	    }
 	    if (wdf > doclen) wdf = doclen;
 	}
-	double sumpart = wt->get_sumpart(wdf, doclen, unique_terms);
-	AssertRel(sumpart, <=, wt->get_maxpart());
-	RETURN(sumpart);
     }
-    if (want_doclength) {
-	if (did == 0)
-	    did = pl->get_docid();
-	doclen = db->get_doclength(did);
-    }
-    RETURN(wt->get_sumpart(0, doclen, unique_terms));
+    RETURN(wt->get_sumpart(wdf, doclen, unique_terms));
 }
 
 double

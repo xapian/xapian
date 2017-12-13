@@ -153,19 +153,6 @@ InMemoryPostList::get_description() const
     return "InMemoryPostList " + str(termfreq);
 }
 
-Xapian::termcount
-InMemoryPostList::get_doclength() const
-{
-    if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    return db->get_doclength(get_docid());
-}
-
-Xapian::termcount
-InMemoryPostList::get_unique_terms() const
-{
-    return db->get_unique_terms(get_docid());
-}
-
 PositionList *
 InMemoryPostList::read_position_list()
 {
@@ -324,19 +311,6 @@ InMemoryAllDocsPostList::get_docid() const
     Assert(did <= db->termlists.size());
     Assert(db->termlists[did - 1].is_valid);
     return did;
-}
-
-Xapian::termcount
-InMemoryAllDocsPostList::get_doclength() const
-{
-    if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    return db->get_doclength(did);
-}
-
-Xapian::termcount
-InMemoryAllDocsPostList::get_unique_terms() const
-{
-    return db->get_unique_terms(did);
 }
 
 Xapian::termcount

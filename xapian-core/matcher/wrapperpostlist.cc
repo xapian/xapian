@@ -54,9 +54,10 @@ WrapperPostList::get_docid() const
 }
 
 double
-WrapperPostList::get_weight() const
+WrapperPostList::get_weight(Xapian::termcount doclen,
+			    Xapian::termcount unique_terms) const
 {
-    return pl->get_weight();
+    return pl->get_weight(doclen, unique_terms);
 }
 
 bool

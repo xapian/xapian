@@ -1,7 +1,7 @@
 /** @file emptypostlist.h
  * @brief A PostList which contains no entries.
  */
-/* Copyright (C) 2009,2011,2015 Olly Betts
+/* Copyright (C) 2009,2011,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,8 @@ class EmptyPostList : public PostList {
     TermFreqs get_termfreq_est_using_stats(const Xapian::Weight::Internal &) const;
 
     Xapian::docid get_docid() const;
-    double get_weight() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
     bool at_end() const;
     double recalc_maxweight();
 

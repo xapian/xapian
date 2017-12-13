@@ -54,11 +54,12 @@ AndMaybePostList::get_docid() const
 }
 
 double
-AndMaybePostList::get_weight() const
+AndMaybePostList::get_weight(Xapian::termcount doclen,
+			     Xapian::termcount unique_terms) const
 {
-    auto res = pl->get_weight();
+    auto res = pl->get_weight(doclen, unique_terms);
     if (maybe_matches())
-	res += r->get_weight();
+	res += r->get_weight(doclen, unique_terms);
     return res;
 }
 

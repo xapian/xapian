@@ -101,7 +101,7 @@ class QueryOptimiser {
     }
 
     PostList * make_synonym_postlist(PostList * pl, double factor) {
-	return localsubmatch.make_synonym_postlist(pl, factor);
+	return localsubmatch.make_synonym_postlist(matcher, pl, factor);
     }
 
     const LeafPostList * get_hint_postlist() const { return hint; }

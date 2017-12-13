@@ -1,7 +1,7 @@
 /** @file leafpostlist.cc
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011,2013,2014 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2014,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -53,27 +53,11 @@ LeafPostList::get_termfreq_est() const
     return get_termfreq();
 }
 
-void
-LeafPostList::set_termweight(const Xapian::Weight * weight_)
-{
-    // This method shouldn't be called more than once on the same object.
-    Assert(!weight);
-    weight = weight_;
-    need_doclength = weight->get_sumpart_needs_doclength_();
-    need_unique_terms = weight->get_sumpart_needs_uniqueterms_();
-}
-
 double
-LeafPostList::get_weight() const
+LeafPostList::get_weight(Xapian::termcount doclen,
+			 Xapian::termcount unique_terms) const
 {
     if (!weight) return 0;
-    Xapian::termcount doclen = 0, unique_terms = 0;
-    // Fetching the document length and number of unique terms is work we can
-    // avoid if the weighting scheme doesn't use them.
-    if (need_doclength)
-	doclen = get_doclength();
-    if (need_unique_terms)
-	unique_terms = get_unique_terms();
     double sumpart = weight->get_sumpart(get_wdf(), doclen, unique_terms);
     AssertRel(sumpart, <=, weight->get_maxpart());
     return sumpart;

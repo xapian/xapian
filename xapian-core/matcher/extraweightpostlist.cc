@@ -29,30 +29,18 @@
 using namespace std;
 
 double
-ExtraWeightPostList::get_weight() const
+ExtraWeightPostList::get_weight(Xapian::termcount doclen,
+				Xapian::termcount unique_terms) const
 {
     /* Weight::get_sumextra() takes two parameters (document length and number
      * of unique terms) but none of the currently implemented weighting schemes
      * actually use the latter - it was added because it's likely to be wanted
      * at some point, and so that we got all the incompatible changes needed to
      * add support for the number of unique terms over with in one go.
-     *
-     * Currently we just pass zero for the number of unique terms, and always
-     * pass the document length - an extra weight contribution which doesn't
-     * depend on either can only really be a constant, and if it's constant it
-     * might as well be zero (and note that if get_maxextra() returns zero,
-     * then ExtraWeightPostList is not used).
-     *
-     * If a weighting scheme gets implemented that needs the number of unique
-     * terms, then this code will need updating to hook into the "stats_needed"
-     * mechanism which the Weight class has, so that we don't waste effort
-     * calculating the number of unique terms for the existing weighting
-     * schemes for which get_maxextra() returns non-zero.
      */
-    Xapian::docid did = pl->get_docid();
-    double sum_extra = weight->get_sumextra(db->get_doclength(did), 0.0);
+    double sum_extra = weight->get_sumextra(doclen, unique_terms);
     AssertRel(sum_extra,<=,max_extra);
-    return pl->get_weight() + sum_extra;
+    return pl->get_weight(doclen, unique_terms) + sum_extra;
 }
 
 double

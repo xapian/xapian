@@ -1,7 +1,7 @@
 /** @file contiguousalldocspostlist.cc
  * @brief Iterate all document ids when they form a contiguous range.
  */
-/* Copyright (C) 2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,31 +39,13 @@ Xapian::docid
 ContiguousAllDocsPostList::get_docid() const
 {
     Assert(did != 0);
-    Assert(!at_end());
     return did;
-}
-
-Xapian::termcount
-ContiguousAllDocsPostList::get_doclength() const
-{
-    Assert(did != 0);
-    Assert(!at_end());
-    return db->get_doclength(did);
-}
-
-Xapian::termcount
-ContiguousAllDocsPostList::get_unique_terms() const
-{
-    Assert(did != 0);
-    Assert(!at_end());
-    return db->get_unique_terms(did);
 }
 
 Xapian::termcount
 ContiguousAllDocsPostList::get_wdf() const
 {
     Assert(did != 0);
-    Assert(!at_end());
     return 1;
 }
 
@@ -83,9 +65,8 @@ ContiguousAllDocsPostList::open_position_list() const
 PostList *
 ContiguousAllDocsPostList::next(double)
 {
-    Assert(!at_end());
     if (did == doccount) {
-	db = NULL;
+	did = 0;
     } else {
 	++did;
     }
@@ -95,10 +76,9 @@ ContiguousAllDocsPostList::next(double)
 PostList *
 ContiguousAllDocsPostList::skip_to(Xapian::docid target, double)
 {
-    Assert(!at_end());
     if (target > did) {
 	if (target > doccount) {
-	    db = NULL;
+	    did = 0;
 	} else {
 	    did = target;
 	}
@@ -109,7 +89,7 @@ ContiguousAllDocsPostList::skip_to(Xapian::docid target, double)
 bool
 ContiguousAllDocsPostList::at_end() const
 {
-    return db.get() == NULL;
+    return did == 0;
 }
 
 string

@@ -180,30 +180,32 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 	*total_subqs_ptr = opt.get_total_subqs();
     }
 
-    unique_ptr<Xapian::Weight> extra_wt(wt_factory->clone());
+    unique_ptr<Xapian::Weight> extra_wt(wt_factory.clone());
     // Only uses term-independent stats.
     extra_wt->init_(*total_stats, qlen);
     if (extra_wt->get_maxextra() != 0.0) {
 	// There's a term-independent weight contribution, so we combine the
 	// postlist tree with an ExtraWeightPostList which adds in this
 	// contribution.
-	pl = new ExtraWeightPostList(pl, db, extra_wt.release(), matcher);
+	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
     }
 
     RETURN(pl);
 }
 
 PostList *
-LocalSubMatch::make_synonym_postlist(PostList * or_pl, double factor)
+LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
+				     PostList* or_pl,
+				     double factor)
 {
-    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", or_pl | factor);
+    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor);
     if (rare(or_pl->get_termfreq_max() == 0)) {
 	// or_pl is an EmptyPostList or equivalent.
 	return or_pl;
     }
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
-    unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, db));
-    unique_ptr<Xapian::Weight> wt(wt_factory->clone());
+    unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, db, pltree));
+    unique_ptr<Xapian::Weight> wt(wt_factory.clone());
 
     TermFreqs freqs;
     // Avoid calling get_termfreq_est_using_stats() if the database is empty
@@ -237,7 +239,7 @@ LocalSubMatch::open_post_list(const string& term,
     LeafPostList * pl = NULL;
     if (!term.empty() && !need_positions) {
 	if ((!weighted && !in_synonym) ||
-	    !wt_factory->get_sumpart_needs_wdf_()) {
+	    !wt_factory.get_sumpart_needs_wdf_()) {
 	    Xapian::doccount sub_tf;
 	    db->get_freqs(term, &sub_tf, NULL);
 	    if (sub_tf == db->get_doccount()) {
@@ -280,7 +282,7 @@ LocalSubMatch::open_post_list(const string& term,
     }
 
     if (weighted) {
-	Xapian::Weight * wt = wt_factory->clone();
+	Xapian::Weight * wt = wt_factory.clone();
 	if (!lazy_weight) {
 	    wt->init_(*total_stats, qlen, term, wqf, factor);
 	    total_stats->set_max_part(term, wt->get_maxpart());

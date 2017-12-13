@@ -42,8 +42,6 @@ class GlassAllDocsPostList : public GlassPostList {
 
     Xapian::doccount get_termfreq() const;
 
-    Xapian::termcount get_doclength() const;
-
     Xapian::termcount get_wdf() const;
 
     PositionList *read_position_list();

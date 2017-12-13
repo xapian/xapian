@@ -190,7 +190,7 @@ Database::postlist_begin(const string& term) const
 {
     PostList* pl = internal->open_post_list(term);
     if (!pl) return PostingIterator();
-    return PostingIterator(new PostingIterator::Internal(pl));
+    return PostingIterator(new PostingIterator::Internal(pl, *this));
 }
 
 TermIterator

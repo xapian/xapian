@@ -41,18 +41,6 @@ NetworkPostList::get_docid() const
 }
 
 Xapian::termcount
-NetworkPostList::get_doclength() const
-{
-    return db->get_doclength(lastdocid);
-}
-
-Xapian::termcount
-NetworkPostList::get_unique_terms() const
-{
-    return db->get_unique_terms(lastdocid);
-}
-
-Xapian::termcount
 NetworkPostList::get_wdf() const
 {
     return lastwdf;

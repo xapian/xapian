@@ -312,7 +312,9 @@ DEFINE_TESTCASE(topercent7, generated) {
 
 class ZWeight : public Xapian::Weight {
   public:
-    ZWeight() { }
+    ZWeight() {
+	need_stat(DOC_LENGTH);
+    }
 
     void init(double) { }
 

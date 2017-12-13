@@ -38,18 +38,6 @@ PostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal &) const
 }
 
 Xapian::termcount
-PostList::get_doclength() const
-{
-    throw Xapian::InvalidOperationError("get_doclength() not meaningful for this PostingIterator");
-}
-
-Xapian::termcount
-PostList::get_unique_terms() const
-{
-    throw Xapian::InvalidOperationError("get_unique_terms() not meaningful for this PostingIterator");
-}
-
-Xapian::termcount
 PostList::get_wdf() const
 {
     throw Xapian::InvalidOperationError("get_wdf() not meaningful for this PostingIterator");

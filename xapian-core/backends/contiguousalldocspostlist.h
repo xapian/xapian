@@ -1,7 +1,7 @@
 /** @file contiguousalldocspostlist.h
  * @brief Iterate all document ids when they form a contiguous range.
  */
-/* Copyright (C) 2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,6 @@
 
 #include <string>
 
-#include "databaseinternal.h"
 #include "api/leafpostlist.h"
 
 /// A PostList iterating all docids when they form a contiguous range.
@@ -35,10 +34,10 @@ class ContiguousAllDocsPostList : public LeafPostList {
     /// Don't allow copying.
     ContiguousAllDocsPostList(const ContiguousAllDocsPostList &);
 
-    /// The database we're iterating over.
-    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db;
-
-    /// The current document id.
+    /** The current document id.
+     *
+     *  This will be 0 before we start and once we reach the end.
+     */
     Xapian::docid did;
 
     /// The number of documents in the database.
@@ -46,10 +45,10 @@ class ContiguousAllDocsPostList : public LeafPostList {
 
   public:
     /// Constructor.
-    ContiguousAllDocsPostList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db_,
-			      Xapian::doccount doccount_)
+    explicit
+    ContiguousAllDocsPostList(Xapian::doccount doccount_)
 	: LeafPostList(std::string()),
-	  db(db_), did(0), doccount(doccount_) { }
+	  did(0), doccount(doccount_) { }
 
     /** Return the term frequency.
      *
@@ -60,12 +59,6 @@ class ContiguousAllDocsPostList : public LeafPostList {
 
     /// Return the current docid.
     Xapian::docid get_docid() const;
-
-    /// Return the length of current document.
-    Xapian::termcount get_doclength() const;
-
-    /// Return the number of unique terms.
-    Xapian::termcount get_unique_terms() const;
 
     /// Always return 1 (wdf isn't totally meaningful for us).
     Xapian::termcount get_wdf() const;
