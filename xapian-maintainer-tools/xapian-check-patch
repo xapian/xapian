@@ -181,7 +181,7 @@ while (<>) {
 		}
 	    }
 	    chomp($expandedline);
-	    if (length($expandedline) > 80) {
+	    if (length($expandedline) > 80 && !/^\+[ \t]*LOGCALL/) {
 		diagnostic('error', "Line extends beyond column 80 (to column ".length($expandedline).")", $fullline);
 	    }
 	}
