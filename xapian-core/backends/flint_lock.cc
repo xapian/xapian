@@ -63,6 +63,14 @@ using namespace std;
 # endif
 #endif
 
+XAPIAN_NORETURN(static void throw_cannot_test_lock());
+static void
+throw_cannot_test_lock()
+{
+    throw Xapian::FeatureUnavailableError("Can't test lock without trying to "
+					  "take it");
+}
+
 bool
 FlintLock::test() const
 {
@@ -70,12 +78,12 @@ FlintLock::test() const
     if (hFile != INVALID_HANDLE_VALUE) return true;
     // Doesn't seem to be possible to check if the lock is held without briefly
     // taking the lock.
-    throw Xapian::UnimplementedError("Can't test lock without trying to take it");
+    throw_cannot_test_lock();
 #elif defined FLINTLOCK_USE_FLOCK
     if (fd != -1) return true;
     // Doesn't seem to be possible to check if the lock is held without briefly
     // taking the lock.
-    throw Xapian::UnimplementedError("Can't test lock without trying to take it");
+    throw_cannot_test_lock();
 #else
     if (fd != -1) return true;
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
@@ -96,9 +104,12 @@ FlintLock::test() const
 	    // Translate known errno values into a reason code.
 	    int e = errno;
 	    close(lockfd);
-	    // F_GETLK isn't implemented by GNU Hurd, and always fails with
-	    // ENOSYS: https://bugs.debian.org/190367
-	    reason why = (e == ENOLCK || e == ENOSYS ? UNSUPPORTED : UNKNOWN);
+	    if (e == ENOSYS) {
+		// F_GETLK isn't implemented by GNU Hurd, and always fails with
+		// ENOSYS: https://bugs.debian.org/190367
+		throw_cannot_test_lock();
+	    }
+	    reason why = (e == ENOLCK ? UNSUPPORTED : UNKNOWN);
 	    throw_databaselockerror(why, filename, "Testing lock");
 	}
     }
