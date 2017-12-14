@@ -1,7 +1,7 @@
 /** @file multixorpostlist.cc
  * @brief N-way XOR postlist
  */
-/* Copyright (C) 2007,2009,2010,2011,2012,2016 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012,2016,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -176,13 +176,14 @@ MultiXorPostList::get_docid() const
 }
 
 double
-MultiXorPostList::get_weight() const
+MultiXorPostList::get_weight(Xapian::termcount doclen,
+			     Xapian::termcount unique_terms) const
 {
     Assert(did);
     double result = 0;
     for (size_t i = 0; i < n_kids; ++i) {
 	if (plist[i]->get_docid() == did)
-	    result += plist[i]->get_weight();
+	    result += plist[i]->get_weight(doclen, unique_terms);
     }
     return result;
 }

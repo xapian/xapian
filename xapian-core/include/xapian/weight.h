@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
+/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
  * Copyright (C) 2016,2017 Vivek Pal
@@ -71,8 +71,16 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  Some of the statistics can be costly to fetch or calculate, so
      *  Xapian needs to know which are actually going to be used.  You
-     *  should call need_stat() from your constructor for each such
-     *  statistic.
+     *  should call need_stat() from your constructor for each statistic
+     *  needed by the weighting scheme you are implementing (possibly
+     *  conditional on the values of parameters of the weighting scheme).
+     *
+     *  Prior to 1.5.0, it was assumed that if get_maxextra() returned
+     *  a non-zero value then get_sumextra() needed the document length even if
+     *  need(DOC_LENGTH) wasn't called - the logic was that get_sumextra() could
+     *  only return a constant value if it didn't use the document length.
+     *  However, this is no longer valid since it can also use the number of
+     *  unique terms in the document, so now you need to specify explicitly.
      *
      * @param flag  The stat_flags value for a required statistic.
      */
@@ -647,7 +655,10 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 	    need_stat(AVERAGE_LENGTH);
 	}
 	if (param_k1 != 0 && param_b != 0) need_stat(DOC_LENGTH);
-	if (param_k2 != 0) need_stat(QUERY_LENGTH);
+	if (param_k2 != 0) {
+	    need_stat(DOC_LENGTH);
+	    need_stat(QUERY_LENGTH);
+	}
 	if (param_k3 != 0) need_stat(WQF);
     }
 
@@ -766,7 +777,10 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
 	    need_stat(AVERAGE_LENGTH);
 	}
 	if (param_k1 != 0 && param_b != 0) need_stat(DOC_LENGTH);
-	if (param_k2 != 0) need_stat(QUERY_LENGTH);
+	if (param_k2 != 0) {
+	    need_stat(DOC_LENGTH);
+	    need_stat(QUERY_LENGTH);
+	}
 	if (param_k3 != 0) need_stat(WQF);
     }
 

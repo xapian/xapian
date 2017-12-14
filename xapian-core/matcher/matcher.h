@@ -57,6 +57,7 @@ class Matcher {
     Xapian::MSet get_local_mset(Xapian::doccount first,
 				Xapian::doccount maxitems,
 				Xapian::doccount check_at_least,
+				const Xapian::Weight& wtscheme,
 				const Xapian::MatchDecider* mdecider,
 				const Xapian::KeyMaker* sorter,
 				Xapian::valueno collapse_key,
@@ -101,7 +102,7 @@ class Matcher {
 	    Xapian::termcount query_length,
 	    const Xapian::RSet* rset,
 	    Xapian::Weight::Internal& stats,
-	    const Xapian::Weight* wtscheme,
+	    const Xapian::Weight& wtscheme,
 	    bool have_sorter,
 	    bool have_mdecider,
 	    Xapian::valueno collapse_key,
@@ -130,6 +131,7 @@ class Matcher {
      *				estimate.
      *  @param mset		MSet object to full in
      *  @param stats		Collated stats
+     *  @param wtscheme		Weight object to use as factory
      *  @param mdecider		MatchDecider to use (NULL for none)
      *  @param sorter		KeyMaker for sort keys (NULL for none)
      *  @param collapse_key	value slot to collapse on (Xapian::BAD_VALUENO
@@ -154,6 +156,7 @@ class Matcher {
 			  Xapian::doccount maxitems,
 			  Xapian::doccount check_at_least,
 			  Xapian::Weight::Internal& stats,
+			  const Xapian::Weight& wtscheme,
 			  const Xapian::MatchDecider* mdecider,
 			  const Xapian::KeyMaker* sorter,
 			  Xapian::valueno collapse_key,

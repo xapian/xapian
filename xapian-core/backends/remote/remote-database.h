@@ -177,7 +177,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   bool sort_value_forward,
 		   double time_limit,
 		   int percent_threshold, double weight_threshold,
-		   const Xapian::Weight *wtscheme,
+		   const Xapian::Weight& wtscheme,
 		   const Xapian::RSet &omrset,
 		   const std::vector<opt_ptr_spy>& matchspies) const;
 

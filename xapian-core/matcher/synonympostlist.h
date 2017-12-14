@@ -26,6 +26,8 @@
 
 #include "backends/databaseinternal.h"
 
+class PostListTree;
+
 /** A postlist comprising several postlists SYNONYMed together.
  *
  *  This postlist returns all postings in the OR of the sub postlists, but
@@ -39,31 +41,24 @@ class SynonymPostList : public WrapperPostList {
     /// Weighting object used for calculating the synonym weights.
     const Xapian::Weight * wt;
 
-    /// Flag indicating whether the weighting object needs the doclength.
-    bool want_doclength;
-
     /// Flag indicating whether the weighting object needs the wdf.
     bool want_wdf;
-
-    /** Flag indicating whether the weighting object needs the number of unique
-     *  terms.
-     */
-    bool want_unique_terms;
 
     /// Flag indicating if we've called recalc_maxweight on the subtree yet.
     bool have_calculated_subtree_maxweights;
 
-    const Xapian::Database::Internal* db;
+    PostListTree* pltree;
 
     /// Lower bound on doclength in the subdatabase we're working over.
     Xapian::termcount doclen_lower_bound;
 
   public:
-    SynonymPostList(PostList * subtree, const Xapian::Database::Internal* db_)
-	: WrapperPostList(subtree), wt(NULL),
-	  want_doclength(false), want_wdf(false), want_unique_terms(false),
+    SynonymPostList(PostList * subtree,
+		    const Xapian::Database::Internal* db,
+		    PostListTree* pltree_)
+	: WrapperPostList(subtree), wt(NULL), want_wdf(false),
 	  have_calculated_subtree_maxweights(false),
-	  db(db_),
+	  pltree(pltree_),
 	  doclen_lower_bound(db->get_doclength_lower_bound()) { }
 
     ~SynonymPostList();
@@ -78,7 +73,8 @@ class SynonymPostList : public WrapperPostList {
     PostList *next(double w_min);
     PostList *skip_to(Xapian::docid did, double w_min);
 
-    double get_weight() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
     double recalc_maxweight();
 
     // Note - we don't need to implement get_termfreq_est_using_stats()

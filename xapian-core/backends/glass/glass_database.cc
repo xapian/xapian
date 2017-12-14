@@ -848,7 +848,7 @@ GlassDatabase::open_leaf_post_list(const string& term) const
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
 	if (version_file.get_last_docid() == doccount) {
-	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
+	    RETURN(new ContiguousAllDocsPostList(doccount));
 	}
 	RETURN(new GlassAllDocsPostList(ptrtothis, doccount));
     }
@@ -1518,7 +1518,7 @@ GlassWritableDatabase::open_leaf_post_list(const string& term) const
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
 	if (version_file.get_last_docid() == doccount) {
-	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
+	    RETURN(new ContiguousAllDocsPostList(doccount));
 	}
 	inverter.flush_doclengths(postlist_table);
 	RETURN(new GlassAllDocsPostList(ptrtothis, doccount));

@@ -7,6 +7,7 @@ noinst_HEADERS +=\
 	api/leafpostlist.h\
 	api/msetinternal.h\
 	api/result.h\
+	api/postingiteratorinternal.h\
 	api/postlist.h\
 	api/queryinternal.h\
 	api/queryvector.h\

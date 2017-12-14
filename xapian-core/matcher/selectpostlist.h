@@ -25,10 +25,14 @@
 
 #include <cmath>
 
+class PostListTree;
+
 /// Base class for classes which filter another PostList
 class SelectPostList : public WrapperPostList {
     /// Used to avoid calculating the weight twice for a given document.
     double cached_weight = -HUGE_VAL;
+
+    PostListTree* pltree;
 
     /// Check if the current document is suitable.
     bool vet(double w_min);
@@ -38,9 +42,12 @@ class SelectPostList : public WrapperPostList {
     virtual bool test_doc() = 0;
 
   public:
-    explicit SelectPostList(PostList* pl_) : WrapperPostList(pl_) { }
+    SelectPostList(PostList* pl_,
+		   PostListTree* pltree_)
+	: WrapperPostList(pl_), pltree(pltree_) {}
 
-    double get_weight() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
 
     bool at_end() const;
 

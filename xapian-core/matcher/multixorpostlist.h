@@ -1,7 +1,7 @@
 /** @file multixorpostlist.h
  * @brief N-way XOR postlist
  */
-/* Copyright (C) 2007,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -87,7 +87,8 @@ class MultiXorPostList : public PostList {
 
     Xapian::docid get_docid() const;
 
-    double get_weight() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
 
     bool at_end() const;
 
@@ -97,9 +98,9 @@ class MultiXorPostList : public PostList {
 	return NULL;
     }
 
-    Internal *next(double w_min);
+    PostList* next(double w_min);
 
-    Internal *skip_to(Xapian::docid, double w_min);
+    PostList* skip_to(Xapian::docid, double w_min);
 
     std::string get_description() const;
 

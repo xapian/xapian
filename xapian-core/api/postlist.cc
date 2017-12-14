@@ -28,32 +28,17 @@
 
 using namespace std;
 
-namespace Xapian {
-
-PostingIterator::Internal::~Internal() { }
+PostList::~PostList() {}
 
 TermFreqs
-PostingIterator::Internal::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal &) const
+PostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal &) const
 {
     throw Xapian::InvalidOperationError(
      "get_termfreq_est_using_stats() not meaningful for this PostingIterator");
 }
 
 Xapian::termcount
-PostingIterator::Internal::get_doclength() const
-{
-    throw Xapian::InvalidOperationError("get_doclength() not meaningful for this PostingIterator");
-}
-
-Xapian::termcount
-PostingIterator::Internal::get_unique_terms() const
-{
-    throw Xapian::InvalidOperationError("get_unique_terms() not meaningful for this PostingIterator");
-}
-
-Xapian::termcount
-PostingIterator::Internal::get_wdf() const
+PostList::get_wdf() const
 {
     throw Xapian::InvalidOperationError("get_wdf() not meaningful for this PostingIterator");
 }
@@ -88,6 +73,4 @@ void
 PostList::gather_position_lists(OrPositionList*)
 {
     Assert(false);
-}
-
 }

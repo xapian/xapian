@@ -33,23 +33,26 @@
 
 class OrPositionList;
 
+namespace Xapian {
+namespace Internal {
+
 /// Abstract base class for postlists.
-class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_base {
+class PostList {
     /// Don't allow assignment.
-    void operator=(const Internal &);
+    void operator=(const PostList &);
 
     /// Don't allow copying.
-    Internal(const Internal &);
+    PostList(const PostList &);
 
   protected:
     /// Only constructable as a base class for derived classes.
-    Internal() { }
+    PostList() { }
 
   public:
     /** We have virtual methods and want to be able to delete derived classes
      *  using a pointer to the base class, so we need a virtual destructor.
      */
-    virtual ~Internal();
+    virtual ~PostList();
 
     /// Get a lower bound on the number of documents indexed by this term.
     virtual Xapian::doccount get_termfreq_min() const = 0;
@@ -76,24 +79,6 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
     /// Return the current docid.
     virtual Xapian::docid get_docid() const = 0;
 
-    /** Return the length of current document.
-     *
-     *  Only needed for postlists which get put in a PostingIterator or derive
-     *  from LeafPostList.
-     *
-     *  The default implementation throws Xapian::InvalidOperationError.
-     */
-    virtual Xapian::termcount get_doclength() const;
-
-    /** Return the number of unique terms in the current document.
-     *
-     *  Only needed for postlists which get put in a PostingIterator or derive
-     *  from LeafPostList.
-     *
-     *  The default implementation throws Xapian::InvalidOperationError.
-     */
-    virtual Xapian::termcount get_unique_terms() const;
-
     /** Return the wdf for the document at the current position.
      *
      *  The default implementation throws Xapian::UnimplementedError.
@@ -101,7 +86,8 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
     virtual Xapian::termcount get_wdf() const;
 
     /// Return the weight contribution for the current position.
-    virtual double get_weight() const = 0;
+    virtual double get_weight(Xapian::termcount doclen,
+			      Xapian::termcount unique_terms) const = 0;
 
     /// Return true if the current position is past the last entry in this list.
     virtual bool at_end() const = 0;
@@ -145,7 +131,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *		delete us.  This "pruning" can only happen for a non-leaf
      *		subclass of this class.
      */
-    virtual Internal * next(double w_min) = 0;
+    virtual PostList* next(double w_min) = 0;
 
     /** Skip forward to the specified docid.
      *
@@ -160,7 +146,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *		delete us.  This "pruning" can only happen for a non-leaf
      *		subclass of this class.
      */
-    virtual Internal * skip_to(Xapian::docid, double w_min) = 0;
+    virtual PostList* skip_to(Xapian::docid, double w_min) = 0;
 
     /** Check if the specified docid occurs in this postlist.
      *
@@ -182,19 +168,19 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *
      *  The default implementation calls skip_to().
      */
-    virtual Internal * check(Xapian::docid did, double w_min, bool &valid);
+    virtual PostList* check(Xapian::docid did, double w_min, bool &valid);
 
     /** Advance the current position to the next document in the postlist.
      *
      *  Any weight contribution is acceptable.
      */
-    Internal * next() { return next(0.0); }
+    PostList* next() { return next(0.0); }
 
     /** Skip forward to the specified docid.
      *
      *  Any weight contribution is acceptable.
      */
-    Internal * skip_to(Xapian::docid did) { return skip_to(did, 0.0); }
+    PostList* skip_to(Xapian::docid did) { return skip_to(did, 0.0); }
 
     /// Count the number of leaf subqueries which match at the current position.
     virtual Xapian::termcount count_matching_subqs() const;
@@ -206,8 +192,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
     virtual std::string get_description() const = 0;
 };
 
-// In the external API headers, this class is Xapian::PostingIterator::Internal,
-// but in the library code it's still known as "PostList" in most places.
-typedef Xapian::PostingIterator::Internal PostList;
+}
+}
+
+using Xapian::Internal::PostList;
 
 #endif // XAPIAN_INCLUDED_POSTLIST_H

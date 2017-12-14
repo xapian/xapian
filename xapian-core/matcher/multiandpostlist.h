@@ -165,15 +165,16 @@ class MultiAndPostList : public PostList {
 
     Xapian::docid get_docid() const;
 
-    double get_weight() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
 
     bool at_end() const;
 
     double recalc_maxweight();
 
-    Internal *next(double w_min);
+    PostList* next(double w_min);
 
-    Internal *skip_to(Xapian::docid, double w_min);
+    PostList* skip_to(Xapian::docid, double w_min);
 
     std::string get_description() const;
 

@@ -999,7 +999,9 @@ class CheckInitWeight : public Xapian::Weight {
     unsigned & zero_inits, & non_zero_inits;
 
     CheckInitWeight(unsigned &z, unsigned &n)
-	: factor(-1.0), zero_inits(z), non_zero_inits(n) { }
+	: factor(-1.0), zero_inits(z), non_zero_inits(n) {
+	need_stat(DOC_LENGTH);
+    }
 
     void init(double factor_) {
 	factor = factor_;

@@ -35,8 +35,11 @@ using namespace std;
 PhrasePostList::PhrasePostList(PostList *source_,
 			       Xapian::termpos window_,
 			       const vector<PostList*>::const_iterator &terms_begin,
-			       const vector<PostList*>::const_iterator &terms_end)
-    : SelectPostList(source_), window(window_), terms(terms_begin, terms_end)
+			       const vector<PostList*>::const_iterator &terms_end,
+			       PostListTree* pltree_)
+    : SelectPostList(source_, pltree_),
+      window(window_),
+      terms(terms_begin, terms_end)
 {
     size_t n = terms.size();
     Assert(n > 1);

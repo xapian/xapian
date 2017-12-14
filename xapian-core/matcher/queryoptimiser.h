@@ -28,9 +28,9 @@
 
 class LeafPostList;
 class PostListTree;
+
 namespace Xapian {
-class Weight;
-}
+namespace Internal {
 
 class QueryOptimiser {
     /// Prevent assignment.
@@ -101,7 +101,7 @@ class QueryOptimiser {
     }
 
     PostList * make_synonym_postlist(PostList * pl, double factor) {
-	return localsubmatch.make_synonym_postlist(pl, factor);
+	return localsubmatch.make_synonym_postlist(matcher, pl, factor);
     }
 
     const LeafPostList * get_hint_postlist() const { return hint; }
@@ -116,5 +116,10 @@ class QueryOptimiser {
 
     void take_hint_ownership() { hint_owned = true; }
 };
+
+}
+}
+
+using Xapian::Internal::QueryOptimiser;
 
 #endif // XAPIAN_INCLUDED_QUERYOPTIMISER_H

@@ -317,7 +317,9 @@ class AndContext : public Context {
 		  Xapian::termcount window_)
 	    : op_(op__), begin(begin_), end(end_), window(window_) { }
 
-	PostList * postlist(PostList * pl, const vector<PostList*>& pls) const;
+	PostList * postlist(PostList* pl,
+			    const vector<PostList*>& pls,
+			    PostListTree* pltree) const;
     };
 
     list<PosFilter> pos_filters;
@@ -334,19 +336,21 @@ class AndContext : public Context {
 };
 
 PostList *
-AndContext::PosFilter::postlist(PostList * pl, const vector<PostList*>& pls) const
+AndContext::PosFilter::postlist(PostList* pl,
+				const vector<PostList*>& pls,
+				PostListTree* pltree) const
 try {
     vector<PostList *>::const_iterator terms_begin = pls.begin() + begin;
     vector<PostList *>::const_iterator terms_end = pls.begin() + end;
 
     if (op_ == Xapian::Query::OP_NEAR) {
-	pl = new NearPostList(pl, window, terms_begin, terms_end);
+	pl = new NearPostList(pl, window, terms_begin, terms_end, pltree);
     } else if (window == end - begin) {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
-	pl = new ExactPhrasePostList(pl, terms_begin, terms_end);
+	pl = new ExactPhrasePostList(pl, terms_begin, terms_end, pltree);
     } else {
 	AssertEq(op_, Xapian::Query::OP_PHRASE);
-	pl = new PhrasePostList(pl, window, terms_begin, terms_end);
+	pl = new PhrasePostList(pl, window, terms_begin, terms_end, pltree);
     }
     return pl;
 } catch (...) {
@@ -386,7 +390,7 @@ AndContext::postlist()
     list<PosFilter>::const_iterator i;
     for (i = pos_filters.begin(); i != pos_filters.end(); ++i) {
 	const PosFilter & filter = *i;
-	pl.reset(filter.postlist(pl.release(), pls));
+	pl.reset(filter.postlist(pl.release(), pls, qopt->matcher));
     }
 
     // Empty pls so our destructor doesn't delete them all!
@@ -755,19 +759,19 @@ QueryScaleWeight::get_description() const
     return desc;
 }
 
-PostingIterator::Internal *
+PostList*
 QueryTerm::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryTerm::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryTerm::postlist", qopt | factor);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     RETURN(qopt->open_post_list(term, wqf, factor));
 }
 
-PostingIterator::Internal *
+PostList*
 QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryPostingSource::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryPostingSource::postlist", qopt | factor);
     Assert(source.get());
     if (factor != 0.0)
 	qopt->inc_total_subqs();
@@ -779,10 +783,10 @@ QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
     RETURN(new ExternalPostList(wrappeddb, source.get(), factor, qopt->matcher));
 }
 
-PostingIterator::Internal *
+PostList*
 QueryScaleWeight::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryScaleWeight::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryScaleWeight::postlist", qopt | factor);
     RETURN(subquery.internal->postlist(qopt, factor * scale_factor));
 }
 
@@ -797,10 +801,10 @@ QueryTerm::gather_terms(void * void_terms) const
     }
 }
 
-PostingIterator::Internal *
+PostList*
 QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryValueRange::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryValueRange::postlist", qopt | factor);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
@@ -867,10 +871,10 @@ QueryValueRange::get_description() const
     return desc;
 }
 
-PostingIterator::Internal *
+PostList*
 QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryValueLE::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryValueLE::postlist", qopt | factor);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
@@ -926,10 +930,10 @@ QueryValueLE::get_description() const
     return desc;
 }
 
-PostingIterator::Internal *
+PostList*
 QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryValueGE::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryValueGE::postlist", qopt | factor);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
@@ -982,10 +986,10 @@ QueryValueGE::get_description() const
     return desc;
 }
 
-PostingIterator::Internal *
+PostList*
 QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryWildcard::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryWildcard::postlist", qopt | factor);
     Query::op op = combiner;
     double or_factor = 0.0;
     if (factor == 0.0) {
@@ -1060,8 +1064,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
-    PostingIterator::Internal * r = qopt->make_synonym_postlist(pl, factor);
-    RETURN(r);
+    RETURN(qopt->make_synonym_postlist(pl, factor));
 }
 
 termcount
@@ -1462,10 +1465,10 @@ QueryAndLike::done()
     return this;
 }
 
-PostingIterator::Internal *
+PostList*
 QueryAndLike::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndLike::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryAndLike::postlist", qopt | factor);
     AndContext ctx(qopt, subqueries.size());
     postlist_sub_and_like(ctx, qopt, factor);
     RETURN(ctx.postlist());
@@ -1570,10 +1573,10 @@ QueryAndMaybe::done()
     return this;
 }
 
-PostingIterator::Internal *
+PostList*
 QueryOr::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryOr::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryOr::postlist", qopt | factor);
     OrContext ctx(qopt, subqueries.size());
     do_or_like(ctx, qopt, factor);
     RETURN(ctx.postlist());
@@ -1585,10 +1588,10 @@ QueryOr::postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, double fact
     do_or_like(ctx, qopt, factor);
 }
 
-PostingIterator::Internal *
+PostList*
 QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndNot::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryAndNot::postlist", qopt | factor);
     // FIXME: Combine and-like side with and-like stuff above.
     unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
     OrContext ctx(qopt, subqueries.size() - 1);
@@ -1598,10 +1601,10 @@ QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
 			      qopt->matcher, qopt->db_size));
 }
 
-PostingIterator::Internal *
+PostList*
 QueryXor::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryXor::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryXor::postlist", qopt | factor);
     XorContext ctx(qopt, subqueries.size());
     postlist_sub_xor(ctx, qopt, factor);
     RETURN(ctx.postlist());
@@ -1618,10 +1621,10 @@ QueryXor::postlist_sub_xor(XorContext& ctx, QueryOptimiser * qopt, double factor
     }
 }
 
-PostingIterator::Internal *
+PostList*
 QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndMaybe::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryAndMaybe::postlist", qopt | factor);
     // FIXME: Combine and-like side with and-like stuff above.
     unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
     if (factor == 0.0) {
@@ -1635,10 +1638,10 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
 				qopt->matcher, qopt->db_size));
 }
 
-PostingIterator::Internal *
+PostList*
 QueryFilter::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryFilter::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryFilter::postlist", qopt | factor);
     // FIXME: Combine and-like stuff, like QueryOptimiser.
     AssertEq(subqueries.size(), 2);
     PostList * pls[2];
@@ -1713,10 +1716,10 @@ QueryNear::postlist_sub_and_like(AndContext & ctx, QueryOptimiser * qopt, double
     QueryWindowed::postlist_windowed(Query::OP_NEAR, ctx, qopt, factor);
 }
 
-PostingIterator::Internal *
+PostList*
 QueryEliteSet::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryEliteSet::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryEliteSet::postlist", qopt | factor);
     OrContext ctx(qopt, subqueries.size());
     do_or_like(ctx, qopt, factor, set_size);
     RETURN(ctx.postlist());
@@ -1728,10 +1731,10 @@ QueryEliteSet::postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, doubl
     do_or_like(ctx, qopt, factor, set_size);
 }
 
-PostingIterator::Internal *
+PostList*
 QuerySynonym::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QuerySynonym::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QuerySynonym::postlist", qopt | factor);
     // Save and restore total_subqs so we only add one for the whole
     // OP_SYNONYM subquery (or none if we're not weighted).
     Xapian::termcount save_total_subqs = qopt->get_total_subqs();
@@ -1763,10 +1766,10 @@ QuerySynonym::done()
     return this;
 }
 
-PostingIterator::Internal *
+PostList*
 QueryMax::postlist(QueryOptimiser * qopt, double factor) const
 {
-    LOGCALL(QUERY, PostingIterator::Internal *, "QueryMax::postlist", qopt | factor);
+    LOGCALL(QUERY, PostList*, "QueryMax::postlist", qopt | factor);
     // Save and restore total_subqs so we only add one for the whole
     // OP_MAX subquery (or none if we're not weighted).
     Xapian::termcount save_total_subqs = qopt->get_total_subqs();
@@ -1927,7 +1930,7 @@ QueryInvalid::get_type() const XAPIAN_NOEXCEPT
     return Xapian::Query::OP_INVALID;
 }
 
-PostingIterator::Internal *
+PostList*
 QueryInvalid::postlist(QueryOptimiser *, double) const
 {
     throw Xapian::InvalidOperationError("Query is invalid");

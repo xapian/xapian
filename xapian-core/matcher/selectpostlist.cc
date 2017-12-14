@@ -23,6 +23,7 @@
 #include "selectpostlist.h"
 
 #include "omassert.h"
+#include "postlisttree.h"
 
 bool
 SelectPostList::vet(double w_min)
@@ -38,7 +39,7 @@ SelectPostList::vet(double w_min)
     if (w_min <= 0.0) {
 	cached_weight = -HUGE_VAL;
     } else {
-	cached_weight = pl->get_weight();
+	cached_weight = pltree->get_weight();
 	if (cached_weight < w_min)
 	    return false;
     }
@@ -46,9 +47,12 @@ SelectPostList::vet(double w_min)
 }
 
 double
-SelectPostList::get_weight() const
+SelectPostList::get_weight(Xapian::termcount doclen,
+			   Xapian::termcount unique_terms) const
 {
-    return cached_weight >= 0 ? cached_weight : pl->get_weight();
+    if (cached_weight >= 0)
+	return cached_weight;
+    return pl->get_weight(doclen, unique_terms);
 }
 
 bool

@@ -1,7 +1,7 @@
 /** @file maxpostlist.cc
  * @brief N-way OR postlist with wt=max(wt_i)
  */
-/* Copyright (C) 2007,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012,2013,2014,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ MaxPostList::get_termfreq_min() const
 {
     Xapian::doccount res = plist[0]->get_termfreq_min();
     for (size_t i = 1; i < n_kids; ++i) {
-	res = std::max(res, plist[i]->get_termfreq_min());
+	res = max(res, plist[i]->get_termfreq_min());
     }
     return res;
 }
@@ -119,13 +119,14 @@ MaxPostList::get_docid() const
 }
 
 double
-MaxPostList::get_weight() const
+MaxPostList::get_weight(Xapian::termcount doclen,
+			Xapian::termcount unique_terms) const
 {
     Assert(did);
     double res = 0.0;
     for (size_t i = 0; i < n_kids; ++i) {
 	if (plist[i]->get_docid() == did)
-	    res = std::max(res, plist[i]->get_weight());
+	    res = max(res, plist[i]->get_weight(doclen, unique_terms));
     }
     return res;
 }
@@ -141,7 +142,7 @@ MaxPostList::recalc_maxweight()
 {
     double result = plist[0]->recalc_maxweight();
     for (size_t i = 1; i < n_kids; ++i) {
-	result = std::max(result, plist[i]->recalc_maxweight());
+	result = max(result, plist[i]->recalc_maxweight());
     }
     return result;
 }

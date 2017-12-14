@@ -1,7 +1,7 @@
 /** @file emptypostlist.cc
  * @brief A PostList which contains no entries.
  */
-/* Copyright (C) 2009,2010,2011,2015 Olly Betts
+/* Copyright (C) 2009,2010,2011,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,7 +60,8 @@ EmptyPostList::get_docid() const
 }
 
 double
-EmptyPostList::get_weight() const
+EmptyPostList::get_weight(Xapian::termcount,
+			  Xapian::termcount) const
 {
     Assert(false);
     return 0;

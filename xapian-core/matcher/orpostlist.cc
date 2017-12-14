@@ -88,13 +88,15 @@ OrPostList::get_docid() const
 }
 
 double
-OrPostList::get_weight() const
+OrPostList::get_weight(Xapian::termcount doclen,
+		       Xapian::termcount unique_terms) const
 {
     if (l_did < r_did)
-	return l->get_weight();
+	return l->get_weight(doclen, unique_terms);
     if (l_did > r_did)
-	return r->get_weight();
-    return l->get_weight() + r->get_weight();
+	return r->get_weight(doclen, unique_terms);
+    return l->get_weight(doclen, unique_terms) +
+	   r->get_weight(doclen, unique_terms);
 }
 
 double

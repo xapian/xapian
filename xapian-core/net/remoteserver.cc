@@ -561,7 +561,7 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     Xapian::Weight::Internal local_stats;
-    Matcher matcher(*db, query, qlen, &rset, local_stats, wt.get(),
+    Matcher matcher(*db, query, qlen, &rset, local_stats, *wt,
 		    false, false,
 		    collapse_key, collapse_max,
 		    percent_threshold, weight_threshold,
@@ -589,7 +589,7 @@ RemoteServer::msg_query(const string &message_in)
     total_stats->set_bounds_from_db(*db);
 
     Xapian::MSet mset = matcher.get_mset(first, maxitems, check_at_least,
-					 *total_stats, 0, 0,
+					 *total_stats, *wt, 0, 0,
 					 collapse_key, collapse_max,
 					 percent_threshold, weight_threshold,
 					 order,

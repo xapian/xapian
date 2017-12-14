@@ -735,24 +735,6 @@ GlassPostList::open_nearby_postlist(const std::string & term_) const
     RETURN(new GlassPostList(this_db, term_, cursor->clone()));
 }
 
-Xapian::termcount
-GlassPostList::get_doclength() const
-{
-    LOGCALL(DB, Xapian::termcount, "GlassPostList::get_doclength", NO_ARGS);
-    Assert(have_started);
-    Assert(this_db.get());
-    RETURN(this_db->get_doclength(did));
-}
-
-Xapian::termcount
-GlassPostList::get_unique_terms() const
-{
-    LOGCALL(DB, Xapian::termcount, "GlassPostList::get_unique_terms", NO_ARGS);
-    Assert(have_started);
-    Assert(this_db.get());
-    RETURN(this_db->get_unique_terms(did));
-}
-
 bool
 GlassPostList::next_in_chunk()
 {

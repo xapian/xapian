@@ -83,7 +83,8 @@ ExternalPostList::get_docid() const
 }
 
 double
-ExternalPostList::get_weight() const
+ExternalPostList::get_weight(Xapian::termcount,
+			     Xapian::termcount) const
 {
     LOGCALL(MATCH, double, "ExternalPostList::get_weight", NO_ARGS);
     Assert(source);

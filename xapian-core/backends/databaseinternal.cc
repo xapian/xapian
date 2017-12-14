@@ -29,6 +29,7 @@
 #include "xapian/error.h"
 
 #include <algorithm>
+#include <memory>
 #include <string>
 
 using namespace std;
@@ -225,7 +226,7 @@ Database::Internal::delete_document(const string& unique_term)
 			  "read-only shard");
     }
 
-    intrusive_ptr<PostList> pl(open_post_list(unique_term));
+    unique_ptr<PostList> pl(open_post_list(unique_term));
 
     // We want this operation to be atomic if possible, so if we aren't in a
     // transaction and the backend supports transactions, temporarily enter an
@@ -266,7 +267,7 @@ Database::Internal::replace_document(const string & unique_term,
 			  "read-only shard");
     }
 
-    intrusive_ptr<PostList> pl(open_post_list(unique_term));
+    unique_ptr<PostList> pl(open_post_list(unique_term));
     pl->next();
     if (pl->at_end()) {
 	return add_document(document);

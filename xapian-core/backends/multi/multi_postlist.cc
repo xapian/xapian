@@ -85,25 +85,14 @@ MultiPostList::get_docid() const
 }
 
 Xapian::termcount
-MultiPostList::get_doclength() const
-{
-    return postlists[shard_number(docids[0], n_shards)]->get_doclength();
-}
-
-Xapian::termcount
-MultiPostList::get_unique_terms() const
-{
-    return postlists[shard_number(docids[0], n_shards)]->get_unique_terms();
-}
-
-Xapian::termcount
 MultiPostList::get_wdf() const
 {
     return postlists[shard_number(docids[0], n_shards)]->get_wdf();
 }
 
 double
-MultiPostList::get_weight() const
+MultiPostList::get_weight(Xapian::termcount,
+			  Xapian::termcount) const
 {
     // MultiPostList is only used by PostingIterator which should never call
     // this method.

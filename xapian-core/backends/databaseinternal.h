@@ -37,10 +37,16 @@
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
-typedef Xapian::PostingIterator::Internal PostList;
 typedef Xapian::ValueIterator::Internal ValueList;
 
 class LeafPostList;
+
+namespace Xapian {
+namespace Internal {
+class PostList;
+}
+}
+using Xapian::Internal::PostList;
 
 namespace Xapian {
 

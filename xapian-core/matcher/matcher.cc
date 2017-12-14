@@ -67,7 +67,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 		 Xapian::termcount query_length,
 		 const Xapian::RSet* rset,
 		 Xapian::Weight::Internal& stats,
-		 const Xapian::Weight* wtscheme,
+		 const Xapian::Weight& wtscheme,
 		 bool have_sorter,
 		 bool have_mdecider,
 		 Xapian::valueno collapse_key,
@@ -182,6 +182,7 @@ Xapian::MSet
 Matcher::get_local_mset(Xapian::doccount first,
 			Xapian::doccount maxitems,
 			Xapian::doccount check_at_least,
+			const Xapian::Weight& wtscheme,
 			const Xapian::MatchDecider* mdecider,
 			const Xapian::KeyMaker* sorter,
 			Xapian::valueno collapse_key,
@@ -204,7 +205,7 @@ Matcher::get_local_mset(Xapian::doccount first,
 
     vector<PostList*> postlists;
     postlists.reserve(locals.size());
-    PostListTree pltree(vsdoc);
+    PostListTree pltree(vsdoc, db, wtscheme);
     Xapian::termcount total_subqs = 0;
     for (size_t i = 0; i != locals.size(); ++i) {
 	if (!locals[i].get()) {
@@ -219,7 +220,7 @@ Matcher::get_local_mset(Xapian::doccount first,
 	PostList* pl = locals[i]->get_postlist(&pltree, &total_subqs_i);
 	total_subqs = max(total_subqs, total_subqs_i);
 	if (mdecider) {
-	    pl = new DeciderPostList(pl, mdecider, &vsdoc);
+	    pl = new DeciderPostList(pl, mdecider, &vsdoc, &pltree);
 	}
 	postlists.push_back(pl);
     }
@@ -363,6 +364,7 @@ Matcher::get_mset(Xapian::doccount first,
 		  Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least,
 		  Xapian::Weight::Internal& stats,
+		  const Xapian::Weight& wtscheme,
 		  const Xapian::MatchDecider* mdecider,
 		  const Xapian::KeyMaker* sorter,
 		  Xapian::valueno collapse_key,
@@ -409,7 +411,8 @@ Matcher::get_mset(Xapian::doccount first,
 	}
 
 	double ptf_to_use = remotes.empty() ? percent_threshold_factor : 0;
-	local_mset = get_local_mset(first, maxitems, check_at_least, mdecider,
+	local_mset = get_local_mset(first, maxitems, check_at_least,
+				    wtscheme, mdecider,
 				    sorter, collapse_key, collapse_max,
 				    percent_threshold, ptf_to_use,
 				    weight_threshold, order, sort_key, sort_by,

@@ -156,7 +156,8 @@ ValueRangePostList::get_docid() const
 }
 
 double
-ValueRangePostList::get_weight() const
+ValueRangePostList::get_weight(Xapian::termcount,
+			       Xapian::termcount) const
 {
     Assert(db);
     return 0;
