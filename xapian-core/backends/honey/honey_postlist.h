@@ -44,20 +44,6 @@ class HoneyPostList : public LeafPostList {
 
     Xapian::doccount get_termfreq() const;
 
-    Xapian::doccount get_termfreq_min() const;
-    Xapian::doccount get_termfreq_max() const;
-    Xapian::doccount get_termfreq_est() const;
-
-    double get_weight() const;
-    double recalc_maxweight();
-
-    TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
-
-    Xapian::termcount count_matching_subqs() const;
-
-    void gather_position_lists(OrPositionList* orposlist);
-
     LeafPostList* open_nearby_postlist(const std::string & term_) const;
 };
 
