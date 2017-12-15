@@ -54,7 +54,6 @@ bin_xapian_inspect_CPPFLAGS =\
 	-DXAPIAN_REALLY_NO_DEBUG_LOG\
 	-I$(top_srcdir)/backends/glass
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
-	api/constinfo.cc\
 	api/error.cc\
 	backends/glass/glass_changes.cc\
 	backends/glass/glass_cursor.cc\
