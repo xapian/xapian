@@ -53,6 +53,7 @@ HoneyDatabase::get_total_length() const
 Xapian::termcount
 HoneyDatabase::get_doclength(Xapian::docid did) const
 {
+    Assert(did != 0);
     (void)did;
     return 0; // TODO0
 }
@@ -60,6 +61,7 @@ HoneyDatabase::get_doclength(Xapian::docid did) const
 Xapian::termcount
 HoneyDatabase::get_unique_terms(Xapian::docid did) const
 {
+    Assert(did != 0);
     (void)did;
     return 0; // TODO1
 }
@@ -158,6 +160,7 @@ HoneyDatabase::open_value_list(Xapian::valueno slot) const
 TermList*
 HoneyDatabase::open_term_list(Xapian::docid did) const
 {
+    Assert(did != 0);
     (void)did;
     return NULL; // TODO0
 }
@@ -165,6 +168,7 @@ HoneyDatabase::open_term_list(Xapian::docid did) const
 TermList*
 HoneyDatabase::open_term_list_direct(Xapian::docid did) const
 {
+    Assert(did != 0);
     (void)did;
     return NULL; // TODO0
 }
@@ -184,6 +188,7 @@ HoneyDatabase::open_position_list(Xapian::docid did, const string& term) const
 Xapian::Document::Internal*
 HoneyDatabase::open_document(Xapian::docid did, bool lazy) const
 {
+    Assert(did != 0);
     (void)did;
     (void)lazy;
     return NULL; // TODO0
@@ -299,6 +304,7 @@ HoneyDatabase::close()
 void
 HoneyDatabase::request_document(Xapian::docid did) const
 {
+    Assert(did != 0);
     (void)did; // FIXME
 }
 
