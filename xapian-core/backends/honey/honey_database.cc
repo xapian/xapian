@@ -3,6 +3,7 @@
 #include "honey_database.h"
 
 #include "honey_alltermslist.h"
+#include "honey_valuelist.h"
 
 #include "api/leafpostlist.h"
 #include "backends/backends.h"
@@ -151,8 +152,7 @@ HoneyDatabase::open_leaf_post_list(const string& term) const
 ValueList*
 HoneyDatabase::open_value_list(Xapian::valueno slot) const
 {
-    (void)slot;
-    return NULL; // TODO1
+    return new HoneyValueList(slot, this);
 }
 
 TermList*
