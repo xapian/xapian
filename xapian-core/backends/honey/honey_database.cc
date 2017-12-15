@@ -127,8 +127,7 @@ HoneyDatabase::get_wdf_upper_bound(const string& term) const
 bool
 HoneyDatabase::term_exists(const string& term) const
 {
-    (void)term;
-    return true; // TODO0
+    return postlist_table.term_exists(term);
 }
 
 bool

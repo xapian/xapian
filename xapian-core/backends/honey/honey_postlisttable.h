@@ -34,10 +34,12 @@ class PostingChanges;
 
 class HoneyPostListTable : public HoneyTable {
   public:
-    static std::string make_key(Xapian::docid did) {
-	std::string key;
-	pack_uint_preserving_sort(key, did);
-	return key;
+    static std::string make_key(const std::string& term) {
+	return pack_honey_postlist_key(term);
+    }
+
+    static std::string make_key(const std::string& term, Xapian::docid did) {
+	return pack_honey_postlist_key(term, did);
     }
 
     /** Create a new HoneyPostListTable object.
@@ -53,6 +55,10 @@ class HoneyPostListTable : public HoneyTable {
 
     HoneyPostListTable(int fd, off_t offset_, bool readonly)
 	: HoneyTable("postlist", fd, offset_, readonly) { }
+
+    bool term_exists(const std::string& term) const {
+	return key_exists(make_key(term));
+    }
 
     void merge_doclen_changes(const std::map<Xapian::docid, Xapian::termcount>& changes) {
 	(void)changes;
