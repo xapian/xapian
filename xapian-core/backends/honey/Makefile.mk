@@ -48,6 +48,7 @@ lib_src +=\
 	backends/honey/honey_metadata.cc\
 	backends/honey/honey_positionlist.cc\
 	backends/honey/honey_postlist.cc\
+	backends/honey/honey_postlisttable.cc\
 	backends/honey/honey_spelling.cc\
 	backends/honey/honey_spellingwordslist.cc\
 	backends/honey/honey_synonym.cc\

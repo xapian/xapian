@@ -62,7 +62,7 @@ class HoneyPostList : public LeafPostList {
 
     PostList* check(Xapian::docid did, double w_min, bool& valid);
 
-    std::string get_description() const = 0;
+    std::string get_description() const;
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_POSTLIST_H

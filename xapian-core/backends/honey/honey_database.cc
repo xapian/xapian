@@ -145,8 +145,7 @@ HoneyDatabase::open_post_list(const string& term) const
 LeafPostList*
 HoneyDatabase::open_leaf_post_list(const string& term) const
 {
-    (void)term;
-    return NULL; // TODO0
+    return postlist_table.open_post_list(this, term);
 }
 
 ValueList*

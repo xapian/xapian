@@ -25,11 +25,13 @@
 #include <xapian/types.h>
 
 #include "honey_inverter.h"
+#include "honey_postlist.h"
 #include "honey_table.h"
 #include "pack.h"
 
 #include <string>
 
+class HoneyDatabase;
 class PostingChanges;
 
 class HoneyPostListTable : public HoneyTable {
@@ -59,6 +61,9 @@ class HoneyPostListTable : public HoneyTable {
     bool term_exists(const std::string& term) const {
 	return key_exists(make_key(term));
     }
+
+    HoneyPostList* open_post_list(Xapian::Internal::intrusive_ptr<const HoneyDatabase> db,
+				  const std::string& term) const;
 
     void merge_doclen_changes(const std::map<Xapian::docid, Xapian::termcount>& changes) {
 	(void)changes;
