@@ -304,7 +304,12 @@ HoneyDatabase::reopen()
 void
 HoneyDatabase::close()
 {
-    // TODO1
+    docdata_table.close(true);
+    postlist_table.close(true);
+    position_table.close(true);
+    spelling_table.close(true);
+    synonym_table.close(true);
+    termlist_table.close(true);
 }
 
 void
