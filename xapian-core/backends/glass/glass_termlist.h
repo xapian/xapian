@@ -93,6 +93,12 @@ class GlassTermList : public TermList {
      */
     Xapian::termcount get_doclength() const;
 
+    /** Return the number of unique terms.
+     *
+     *  This is a non-virtual method, used by GlassDatabase.
+     */
+    Xapian::termcount get_unique_terms() const;
+
     /** Return approximate size of this termlist.
      *
      *  For a GlassTermList, this value will always be exact.
