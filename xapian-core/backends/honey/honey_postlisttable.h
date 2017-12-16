@@ -65,6 +65,10 @@ class HoneyPostListTable : public HoneyTable {
     HoneyPostList* open_post_list(Xapian::Internal::intrusive_ptr<const HoneyDatabase> db,
 				  const std::string& term) const;
 
+    void get_freqs(const std::string& term,
+		   Xapian::doccount* termfreq_ptr,
+		   Xapian::termcount* collfreq_ptr) const;
+
     void merge_doclen_changes(const std::map<Xapian::docid, Xapian::termcount>& changes) {
 	(void)changes;
     }

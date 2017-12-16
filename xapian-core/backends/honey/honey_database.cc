@@ -3,7 +3,9 @@
 #include "honey_database.h"
 
 #include "honey_alltermslist.h"
+#include "honey_document.h"
 #include "honey_termlist.h"
+#include "honey_spellingwordslist.h"
 #include "honey_valuelist.h"
 
 #include "api/leafpostlist.h"
@@ -72,10 +74,7 @@ HoneyDatabase::get_freqs(const string& term,
 			 Xapian::doccount* termfreq_ptr,
 			 Xapian::termcount* collfreq_ptr) const 
 {
-    (void)term;
-    (void)termfreq_ptr;
-    (void)collfreq_ptr;
-    // TODO0
+    postlist_table.get_freqs(term, termfreq_ptr, collfreq_ptr);
 }
 
 Xapian::doccount
@@ -188,9 +187,11 @@ Xapian::Document::Internal*
 HoneyDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     Assert(did != 0);
-    (void)did;
-    (void)lazy;
-    return NULL; // TODO0
+    if (!lazy) {
+	// This will throw DocNotFoundError if did isn't in use.
+	(void)HoneyDatabase::get_doclength(did);
+    }
+    return new HoneyDocument(this, did, &value_manager, &docdata_table);
 }
 
 TermList*
@@ -203,14 +204,16 @@ HoneyDatabase::open_spelling_termlist(const string& word) const
 TermList*
 HoneyDatabase::open_spelling_wordlist() const
 {
-    return NULL; // TODO1
+    auto cursor = spelling_table.cursor_get();
+    if (rare(cursor == NULL))
+	return NULL;
+    return new HoneySpellingWordsList(this, cursor);
 }
 
 Xapian::doccount
 HoneyDatabase::get_spelling_frequency(const string& word) const
 {
-    (void)word;
-    return 0; // TODO1
+    return spelling_table.get_word_frequency(word);
 }
 
 void
