@@ -748,14 +748,7 @@ GlassDatabase::get_unique_terms(Xapian::docid did) const
     LOGCALL(DB, Xapian::termcount, "GlassDatabase::get_unique_terms", did);
     Assert(did != 0);
     intrusive_ptr<const GlassDatabase> ptrtothis(this);
-    GlassTermList termlist(ptrtothis, did);
-    // Note that the "approximate" size should be exact in this case.
-    //
-    // get_unique_terms() really ought to only count terms with wdf > 0, but
-    // that's expensive to calculate on demand, so for now let's just ensure
-    // unique_terms <= doclen.
-    RETURN(min(termlist.get_approx_size(),
-	       postlist_table.get_doclength(did, ptrtothis)));
+    RETURN(GlassTermList(ptrtothis, did).get_unique_terms());
 }
 
 void
