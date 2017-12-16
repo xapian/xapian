@@ -65,8 +65,7 @@ Xapian::termcount
 HoneyDatabase::get_unique_terms(Xapian::docid did) const
 {
     Assert(did != 0);
-    (void)did;
-    return 0; // TODO1
+    return HoneyTermList(this, did).get_unique_terms();
 }
 
 void

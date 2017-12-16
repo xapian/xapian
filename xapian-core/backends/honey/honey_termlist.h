@@ -21,6 +21,7 @@
 #ifndef XAPIAN_INCLUDED_HONEY_TERMLIST_H
 #define XAPIAN_INCLUDED_HONEY_TERMLIST_H
 
+#include <algorithm>
 #include <string>
 
 #include "xapian/intrusive_ptr.h"
@@ -93,6 +94,17 @@ class HoneyTermList : public TermList {
      */
     Xapian::termcount get_doclength() const {
 	return doclen;
+    }
+
+    /** Return the number of unique terms.
+     *
+     *  This is a non-virtual method, used by HoneyDatabase.
+     */
+    Xapian::termcount get_unique_terms() const {
+	// We approximate get_unique_terms() by the length of the termlist
+	// (which counts boolean terms too) but clamp the result to be no
+	// larger than the document length.
+	return std::min(termlist_size, doclen);
     }
 
     /** Return approximate size of this termlist.
