@@ -23,6 +23,8 @@
 
 #include "api/smallvector.h"
 
+#include "backends/positionlist.h"
+
 #include <string>
 
 #include "xapian/intrusive_ptr.h"
@@ -30,7 +32,6 @@
 #include <xapian/termiterator.h>
 
 namespace Xapian {
-    class PositionIterator;
     namespace Internal {
 	class ExpandStats;
     }
@@ -105,8 +106,8 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
      */
     virtual const Xapian::VecCOW<Xapian::termpos> * get_vec_termpos() const;
 
-    /// Return a PositionIterator for the current position.
-    virtual Xapian::PositionIterator positionlist_begin() const = 0;
+    /// Return PositionList for the current position.
+    virtual PositionList* positionlist_begin() const = 0;
 };
 
 // In the external API headers, this class is Xapian::TermIterator::Internal,

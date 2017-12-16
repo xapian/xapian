@@ -178,8 +178,8 @@ HoneyTermList::positionlist_count() const
     return db->position_table.positionlist_count(did, current_term);
 }
 
-Xapian::PositionIterator
+PositionList*
 HoneyTermList::positionlist_begin() const
 {
-    return Xapian::PositionIterator(db->open_position_list(did, current_term));
+    return db->open_position_list(did, current_term);
 }

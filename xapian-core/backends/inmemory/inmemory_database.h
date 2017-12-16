@@ -234,7 +234,7 @@ class InMemoryTermList : public TermList {
 	TermList * skip_to(const std::string & term);
 	bool at_end() const;
 	Xapian::termcount positionlist_count() const;
-	Xapian::PositionIterator positionlist_begin() const;
+	PositionList* positionlist_begin() const;
 };
 
 class InMemoryDocument;

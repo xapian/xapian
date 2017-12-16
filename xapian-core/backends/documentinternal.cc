@@ -29,6 +29,8 @@
 
 #include "xapian/valueiterator.h"
 
+#include <memory>
+
 using namespace std;
 
 namespace Xapian {
@@ -50,8 +52,9 @@ Document::Internal::ensure_terms_fetched() const
 	auto&& r = terms->emplace(make_pair(t->get_termname(),
 					    TermInfo(t->get_wdf())));
 	TermInfo& term = r.first->second;
-	for (auto p = t->positionlist_begin(); p != PositionIterator(); ++p) {
-	    term.append_position(*p);
+	unique_ptr<PositionList> p(t->positionlist_begin());
+	while (p->next()) {
+	    term.append_position(p->get_position());
 	}
     }
 }

@@ -208,11 +208,11 @@ OrTermList::positionlist_count() const
     return 0;
 }
 
-Xapian::PositionIterator
+PositionList*
 OrTermList::positionlist_begin() const
 {
     Assert(false);
-    return Xapian::PositionIterator();
+    return NULL;
 }
 
 

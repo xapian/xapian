@@ -97,7 +97,7 @@ VectorTermList::positionlist_count() const
     throw Xapian::InvalidOperationError("VectorTermList::positionlist_count() not meaningful");
 }
 
-Xapian::PositionIterator
+PositionList*
 VectorTermList::positionlist_begin() const
 {
     throw Xapian::InvalidOperationError("VectorTermList::positionlist_begin() not meaningful");

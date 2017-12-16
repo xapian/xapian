@@ -177,7 +177,7 @@ class HoneySpellingTermList : public TermList {
 
     Xapian::termcount positionlist_count() const;
 
-    Xapian::PositionIterator positionlist_begin() const;
+    PositionList* positionlist_begin() const;
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_SPELLING_H

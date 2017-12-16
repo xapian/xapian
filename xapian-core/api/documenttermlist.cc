@@ -64,11 +64,10 @@ DocumentTermList::get_vec_termpos() const
     return it->second.get_positions();
 }
 
-Xapian::PositionIterator
+PositionList*
 DocumentTermList::positionlist_begin() const
 {
-    auto poslist = new InMemoryPositionList(*it->second.get_positions());
-    return Xapian::PositionIterator(poslist);
+    return new InMemoryPositionList(*it->second.get_positions());
 }
 
 Xapian::termcount

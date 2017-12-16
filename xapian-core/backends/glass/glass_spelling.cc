@@ -478,7 +478,7 @@ GlassSpellingTermList::positionlist_count() const
     throw Xapian::UnimplementedError("GlassSpellingTermList::positionlist_count() not implemented");
 }
 
-Xapian::PositionIterator
+PositionList*
 GlassSpellingTermList::positionlist_begin() const
 {
     throw Xapian::UnimplementedError("GlassSpellingTermList::positionlist_begin() not implemented");

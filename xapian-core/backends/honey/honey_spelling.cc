@@ -478,7 +478,7 @@ HoneySpellingTermList::positionlist_count() const
     throw Xapian::UnimplementedError("HoneySpellingTermList::positionlist_count() not implemented");
 }
 
-Xapian::PositionIterator
+PositionList*
 HoneySpellingTermList::positionlist_begin() const
 {
     throw Xapian::UnimplementedError("HoneySpellingTermList::positionlist_begin() not implemented");

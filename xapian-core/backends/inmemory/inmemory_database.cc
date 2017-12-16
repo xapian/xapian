@@ -280,11 +280,11 @@ InMemoryTermList::positionlist_count() const
     return db->positionlist_count(did, (*pos).tname);
 }
 
-Xapian::PositionIterator
+PositionList*
 InMemoryTermList::positionlist_begin() const
 {
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
-    return Xapian::PositionIterator(db->open_position_list(did, (*pos).tname));
+    return db->open_position_list(did, (*pos).tname);
 }
 
 /////////////////////////////
