@@ -3,6 +3,7 @@
 #include "honey_database.h"
 
 #include "honey_alltermslist.h"
+#include "honey_termlist.h"
 #include "honey_valuelist.h"
 
 #include "api/leafpostlist.h"
@@ -161,16 +162,14 @@ TermList*
 HoneyDatabase::open_term_list(Xapian::docid did) const
 {
     Assert(did != 0);
-    (void)did;
-    return NULL; // TODO0
+    return new HoneyTermList(this, did);
 }
 
 TermList*
 HoneyDatabase::open_term_list_direct(Xapian::docid did) const
 {
-    Assert(did != 0);
-    (void)did;
-    return NULL; // TODO0
+    // Same as open_term_list() except for MultiDatabase.
+    return HoneyDatabase::open_term_list(did);
 }
 
 TermList*

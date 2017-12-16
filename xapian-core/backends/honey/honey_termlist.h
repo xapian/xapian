@@ -91,7 +91,9 @@ class HoneyTermList : public TermList {
      *
      *  This is a non-virtual method, used by HoneyDatabase.
      */
-    Xapian::termcount get_doclength() const;
+    Xapian::termcount get_doclength() const {
+	return doclen;
+    }
 
     /** Return approximate size of this termlist.
      *
@@ -100,7 +102,7 @@ class HoneyTermList : public TermList {
     Xapian::termcount get_approx_size() const;
 
     /// Collate weighting information for the current term.
-    void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
+    void accumulate_stats(Xapian::Internal::ExpandStats& stats) const;
 
     /// Return the termname at the current position.
     std::string get_termname() const;
@@ -125,9 +127,9 @@ class HoneyTermList : public TermList {
      *
      *  @return Always returns 0 for a HoneyTermList.
      */
-    TermList * next();
+    TermList* next();
 
-    TermList * skip_to(const std::string & term);
+    TermList* skip_to(const std::string& term);
 
     /// Return true if the current position is past the last term in this list.
     bool at_end() const;

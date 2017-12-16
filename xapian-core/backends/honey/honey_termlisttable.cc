@@ -42,11 +42,8 @@ HoneyTermListTable::set_termlist(Xapian::docid did,
 {
     LOGCALL_VOID(DB, "HoneyTermListTable::set_termlist", did | doc | doclen);
 
-    string tag;
-    pack_uint(tag, doclen);
-
     Xapian::doccount termlist_size = doc.termlist_count();
-    if (termlist_size == 0) {
+    if (rare(termlist_size == 0)) {
 	// doclen is sum(wdf) so should be zero if there are no terms.
 	Assert(doclen == 0);
 	Assert(doc.termlist_begin() == doc.termlist_end());
@@ -54,15 +51,18 @@ HoneyTermListTable::set_termlist(Xapian::docid did,
 	return;
     }
 
+    string tag;
+    pack_uint(tag, doclen);
+
     Xapian::TermIterator t = doc.termlist_begin();
     if (t != doc.termlist_end()) {
+	--termlist_size;
 	pack_uint(tag, termlist_size);
 	string prev_term = *t;
 
 	tag += prev_term.size();
-	tag += prev_term;
 	pack_uint(tag, t.get_wdf());
-	--termlist_size;
+	tag += prev_term;
 
 	while (++t != doc.termlist_end()) {
 	    const string & term = *t;
@@ -78,27 +78,21 @@ HoneyTermListTable::set_termlist(Xapian::docid did,
 	    // save ourselves a byte.  We actually need to add one to the wdf
 	    // before multiplying so that a wdf of 0 can be detected by the
 	    // decoder.
-	    size_t packed = 0;
 	    Xapian::termcount wdf = t.get_wdf();
-	    // If wdf >= 128, then we aren't going to be able to pack it in so
-	    // don't even try to avoid the calculation overflowing and making
-	    // us think we can.
-	    if (wdf < 127)
-		packed = (wdf + 1) * (prev_term.size() + 1) + reuse;
-
-	    if (packed && packed < 256) {
+	    // If wdf >= 127, then we aren't going to be able to pack it in so
+	    // don't even try to avoid any risk of the calculation overflowing
+	    // and making us think we can.
+	    size_t packed;
+	    if (wdf < 127 &&
+		(packed = (wdf + 1) * (prev_term.size() + 1) + reuse) < 256) {
 		// We can pack the wdf into the same byte.
 		tag += char(packed);
-		tag += char(term.size() - reuse);
-		tag.append(term.data() + reuse, term.size() - reuse);
 	    } else {
 		tag += char(reuse);
-		tag += char(term.size() - reuse);
-		tag.append(term.data() + reuse, term.size() - reuse);
-		// FIXME: pack wdf after reuse next time we rejig the format
-		// incompatibly.
 		pack_uint(tag, wdf);
 	    }
+	    tag += char(term.size() - reuse);
+	    tag.append(term.data() + reuse, term.size() - reuse);
 
 	    prev_term = *t;
 	    --termlist_size;

@@ -37,12 +37,14 @@
 class HoneyAllTermsList;
 class HoneySynonymTermList;
 class HoneySpellingWordsList;
+class HoneyTermList;
 
 /// Database using honey backend.
 class HoneyDatabase : public Xapian::Database::Internal {
     friend class HoneyAllTermsList;
     friend class HoneySpellingWordsList;
     friend class HoneySynonymTermList;
+    friend class HoneyTermList;
 
     /// Don't allow assignment.
     HoneyDatabase& operator=(const HoneyDatabase&) = delete;
