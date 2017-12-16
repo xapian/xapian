@@ -4,6 +4,7 @@
 
 #include "honey_alltermslist.h"
 #include "honey_document.h"
+#include "honey_metadata.h"
 #include "honey_termlist.h"
 #include "honey_spellingwordslist.h"
 #include "honey_valuelist.h"
@@ -275,15 +276,15 @@ HoneyDatabase::clear_synonyms(const string& term) const
 string
 HoneyDatabase::get_metadata(const string& key) const
 {
-    (void)key;
-    return string(); // TODO2
+    return postlist_table.get_metadata(key);
 }
 
 TermList*
 HoneyDatabase::open_metadata_keylist(const string& prefix) const
 {
-    (void)prefix;
-    return NULL; // TODO2
+    auto cursor = postlist_table.cursor_get();
+    Assert(cursor != NULL);
+    return new HoneyMetadataTermList(this, cursor, prefix);
 }
 
 void
