@@ -91,7 +91,7 @@ class MultiTermList : public TermList {
     Xapian::termcount positionlist_count() const;
 
     /// Return a PositionIterator for the current position.
-    Xapian::PositionIterator positionlist_begin() const;
+    PositionList* positionlist_begin() const;
 };
 
 #endif // XAPIAN_INCLUDED_MULTI_TERMLIST_H

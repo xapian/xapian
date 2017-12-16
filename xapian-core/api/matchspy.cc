@@ -141,9 +141,9 @@ class ValueCountTermList : public TermList {
 
     Xapian::termcount get_approx_size() const { unsupported_method(); return 0; }
     Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
-    Xapian::PositionIterator positionlist_begin() const {
+    PositionList* positionlist_begin() const {
 	unsupported_method();
-	return Xapian::PositionIterator();
+	return NULL;
     }
     Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };
@@ -238,9 +238,9 @@ class StringAndFreqTermList : public TermList {
 
     Xapian::termcount get_approx_size() const { unsupported_method(); return 0; }
     Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
-    Xapian::PositionIterator positionlist_begin() const {
+    PositionList* positionlist_begin() const {
 	unsupported_method();
-	return Xapian::PositionIterator();
+	return NULL;
     }
     Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };

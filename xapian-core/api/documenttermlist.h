@@ -59,7 +59,7 @@ class DocumentTermList : public TermList {
 
     const Xapian::VecCOW<Xapian::termpos> * get_vec_termpos() const;
 
-    Xapian::PositionIterator positionlist_begin() const;
+    PositionList* positionlist_begin() const;
 
     Xapian::termcount positionlist_count() const;
 

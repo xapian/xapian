@@ -40,7 +40,7 @@ AllTermsList::positionlist_count() const
     throw Xapian::InvalidOperationError("AllTermsList::positionlist_count() isn't meaningful");
 }
 
-Xapian::PositionIterator
+PositionList*
 AllTermsList::positionlist_begin() const
 {
     throw Xapian::InvalidOperationError("AllTermsList::positionlist_begin() isn't meaningful");

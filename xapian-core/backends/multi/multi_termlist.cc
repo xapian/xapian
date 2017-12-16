@@ -91,7 +91,7 @@ MultiTermList::positionlist_count() const
     return real_termlist->positionlist_count();
 }
 
-Xapian::PositionIterator
+PositionList*
 MultiTermList::positionlist_begin() const
 {
     return real_termlist->positionlist_begin();

@@ -209,7 +209,7 @@ class PointTermIterator : public TermIterator::Internal {
 	throw UnimplementedError("PointTermIterator doesn't support positionlist_count()");
     }
     bool at_end() const;
-    PositionIterator positionlist_begin() const {
+    PositionList* positionlist_begin() const {
 	throw UnimplementedError("PointTermIterator doesn't support positionlist_begin()");
     }
     Internal * skip_to(const string &) {

@@ -77,7 +77,7 @@ class AllTermsList : public TermList {
      *  This isn't meaningful for an AllTermsList, and will throw
      *  Xapian::InvalidOperationError if called.
      */
-    virtual Xapian::PositionIterator positionlist_begin() const;
+    virtual PositionList* positionlist_begin() const;
 };
 
 #endif // XAPIAN_INCLUDED_ALLTERMSLIST_H

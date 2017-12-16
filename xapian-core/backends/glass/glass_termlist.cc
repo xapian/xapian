@@ -192,10 +192,9 @@ GlassTermList::positionlist_count() const
     RETURN(db->position_table.positionlist_count(did, current_term));
 }
 
-Xapian::PositionIterator
+PositionList*
 GlassTermList::positionlist_begin() const
 {
     LOGCALL(DB, Xapian::PositionIterator, "GlassTermList::positionlist_begin", NO_ARGS);
-    RETURN(Xapian::PositionIterator(
-	    new GlassPositionList(&db->position_table, did, current_term)));
+    RETURN(new GlassPositionList(&db->position_table, did, current_term));
 }

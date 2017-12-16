@@ -120,8 +120,8 @@ NetworkTermList::positionlist_count() const
     return this_db->positionlist_count(did, get_termname());
 }
 
-Xapian::PositionIterator
+PositionList*
 NetworkTermList::positionlist_begin() const
 {
-    return Xapian::PositionIterator(this_db->open_position_list(did, get_termname()));
+    return this_db->open_position_list(did, get_termname());
 }

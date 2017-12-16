@@ -122,7 +122,7 @@ class NetworkTermList : public TermList {
 	bool at_end() const;
 
 	Xapian::termcount positionlist_count() const;
-	Xapian::PositionIterator positionlist_begin() const;
+	PositionList* positionlist_begin() const;
 };
 
 #endif /* OM_HGUARD_NET_TERMLIST_H */
