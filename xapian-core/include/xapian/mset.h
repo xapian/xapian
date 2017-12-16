@@ -110,7 +110,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     template <typename Iterator>
     void replace_weights(Iterator first, Iterator last)
     {
-	if (last - first != size()) {
+	auto distance = last - first;
+	// Take care to compare signed and unsigned types both safely and
+	// without triggering compiler warnings.
+	if (distance < 0 ||
+	    (sizeof(distance) <= sizeof(Xapian::doccount) ?
+		Xapian::doccount(distance) != size() :
+		distance != static_cast<decltype(distance)>(size()))) {
 	    throw Xapian::InvalidArgumentError("Number of weights assigned "
 					       "doesn't match the number of "
 					       "items");
