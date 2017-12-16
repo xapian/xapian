@@ -100,7 +100,7 @@ class EmptyDatabase : public Xapian::Database::Internal {
 
     void invalidate_doc_object(Xapian::Document::Internal* obj) const;
 
-    std::string get_revision_info() const;
+    Xapian::rev get_revision() const;
 
     int get_backend_info(std::string* path) const;
 

@@ -410,8 +410,8 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 					bool need_whole_db,
 					ReplicationInfo* info);
 
-    /// Get a string describing the current revision of the database.
-    virtual std::string get_revision_info() const;
+    /// Get revision number of database (if meaningful).
+    virtual Xapian::rev get_revision() const;
 
     /** Get a UUID for the database.
      *

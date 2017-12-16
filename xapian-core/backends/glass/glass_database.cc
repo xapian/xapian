@@ -278,13 +278,6 @@ GlassDatabase::open_tables(int flags)
 }
 
 glass_revision_number_t
-GlassDatabase::get_revision_number() const
-{
-    LOGCALL(DB, glass_revision_number_t, "GlassDatabase::get_revision_number", NO_ARGS);
-    RETURN(version_file.get_revision());
-}
-
-glass_revision_number_t
 GlassDatabase::get_next_revision_number() const
 {
     LOGCALL(DB, glass_revision_number_t, "GlassDatabase::get_next_revision_number", NO_ARGS);
@@ -450,7 +443,7 @@ GlassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
     string uuid = get_uuid();
     buf += encode_length(uuid.size());
     buf += uuid;
-    pack_uint(buf, get_revision_number());
+    pack_uint(buf, get_revision());
     conn.send_message(REPL_REPLY_DB_HEADER, buf, end_time);
 
     // Send all the tables.  The tables which we want to be cached best after
@@ -524,7 +517,7 @@ GlassDatabase::write_changesets_to_fd(int fd,
 	    whole_db_copies_left--;
 
 	    // Send the whole database across.
-	    start_rev_num = get_revision_number();
+	    start_rev_num = get_revision();
 	    start_uuid = get_uuid();
 
 	    send_whole_database(conn, 0.0);
@@ -540,7 +533,7 @@ GlassDatabase::write_changesets_to_fd(int fd,
 		// copy is safe to make live.
 
 		string buf;
-		needed_rev_num = get_revision_number();
+		needed_rev_num = get_revision();
 		pack_uint(buf, needed_rev_num);
 		conn.send_message(REPL_REPLY_DB_FOOTER, buf, 0.0);
 		if (info != NULL && start_rev_num == needed_rev_num)
@@ -561,13 +554,13 @@ GlassDatabase::write_changesets_to_fd(int fd,
 	    }
 	} else {
 	    // Check if we've sent all the updates.
-	    if (start_rev_num >= get_revision_number()) {
+	    if (start_rev_num >= get_revision()) {
 		reopen();
 		if (start_uuid != get_uuid()) {
 		    need_whole_db = true;
 		    continue;
 		}
-		if (start_rev_num >= get_revision_number()) {
+		if (start_rev_num >= get_revision()) {
 		    break;
 		}
 	    }
@@ -975,13 +968,11 @@ GlassDatabase::open_metadata_keylist(const std::string &prefix) const
 				     cursor, prefix));
 }
 
-string
-GlassDatabase::get_revision_info() const
+Xapian::rev
+GlassDatabase::get_revision() const
 {
-    LOGCALL(DB, string, "GlassDatabase::get_revision_info", NO_ARGS);
-    string buf;
-    pack_uint(buf, get_revision_number());
-    RETURN(buf);
+    LOGCALL(DB, Xapian::rev, "GlassDatabase::get_revision", NO_ARGS);
+    RETURN(version_file.get_revision());
 }
 
 string

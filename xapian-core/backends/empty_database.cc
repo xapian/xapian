@@ -249,8 +249,8 @@ EmptyDatabase::write_changesets_to_fd(int,
 					"no subdatabases");
 }
 
-string
-EmptyDatabase::get_revision_info() const
+Xapian::rev
+EmptyDatabase::get_revision() const
 {
     throw Xapian::InvalidOperationError("Database::get_revision() with "
 					"no subdatabases");

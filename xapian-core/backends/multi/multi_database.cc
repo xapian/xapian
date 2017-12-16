@@ -523,8 +523,8 @@ MultiDatabase::write_changesets_to_fd(int,
 					"more than one subdatabase");
 }
 
-string
-MultiDatabase::get_revision_info() const
+Xapian::rev
+MultiDatabase::get_revision() const
 {
     throw Xapian::InvalidOperationError("Database::get_revision() with "
 					"more than one subdatabase");

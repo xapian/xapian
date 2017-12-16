@@ -29,7 +29,6 @@
 #include "debuglog.h"
 #include "editdistance.h"
 #include "omassert.h"
-#include "pack.h"
 #include "postingiteratorinternal.h"
 #include <xapian/constants.h>
 #include <xapian/error.h>
@@ -520,14 +519,7 @@ Database::locked() const
 Xapian::rev
 Database::get_revision() const
 {
-    const string& s = internal->get_revision_info();
-    const char* p = s.data();
-    const char* end = p + s.size();
-    Xapian::rev revision;
-    if (!unpack_uint(&p, end, &revision))
-	throw Xapian::UnimplementedError("Database::get_revision() only "
-					 "supported for glass");
-    return revision;
+    return internal->get_revision();
 }
 
 void
