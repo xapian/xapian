@@ -69,6 +69,8 @@ class HoneyPostListTable : public HoneyTable {
 		   Xapian::doccount* termfreq_ptr,
 		   Xapian::termcount* collfreq_ptr) const;
 
+    Xapian::termcount get_doclength(Xapian::docid did) const;
+
     void merge_doclen_changes(const std::map<Xapian::docid, Xapian::termcount>& changes) {
 	(void)changes;
     }

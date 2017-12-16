@@ -64,7 +64,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
 
     HoneyPositionTable position_table;
 
-    HoneySpellingTable spelling_table;
+    mutable HoneySpellingTable spelling_table;
 
     HoneySynonymTable synonym_table;
 

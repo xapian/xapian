@@ -132,7 +132,7 @@ HoneySynonymTable::clear_synonyms(const string & term)
 }
 
 TermList *
-HoneySynonymTable::open_termlist(const string & term)
+HoneySynonymTable::open_termlist(const string & term) const
 {
     vector<string> synonyms;
 

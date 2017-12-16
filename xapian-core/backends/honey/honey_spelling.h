@@ -60,7 +60,7 @@ class HoneySpellingTable : public HoneyLazyTable {
     void toggle_word(const std::string & word);
     void toggle_fragment(Honey::fragment frag, const std::string & word);
 
-    std::map<std::string, Xapian::termcount> wordfreq_changes;
+    mutable std::map<std::string, Xapian::termcount> wordfreq_changes;
 
     /** Changes to make to the termlists.
      *
@@ -70,7 +70,7 @@ class HoneySpellingTable : public HoneyLazyTable {
      *  we don't need to store an additional add/remove flag for every
      *  word.
      */
-    std::map<Honey::fragment, std::set<std::string> > termlist_deltas;
+    mutable std::map<Honey::fragment, std::set<std::string> > termlist_deltas;
 
     /** Used to track an upper bound on wordfreq. */
     Xapian::termcount wordfreq_upper_bound = 0;
@@ -90,10 +90,7 @@ class HoneySpellingTable : public HoneyLazyTable {
     HoneySpellingTable(int fd, off_t offset_, bool readonly)
 	: HoneyLazyTable("spelling", fd, offset_, readonly) { }
 
-    /** Merge in batched-up changes.
-     *
-     *  @return Updated upperbound on the word frequency.
-     */
+    /** Merge in batched-up changes. */
     void merge_changes();
 
     void add_word(const std::string & word, Xapian::termcount freqinc);

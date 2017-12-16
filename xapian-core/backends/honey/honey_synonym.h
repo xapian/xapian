@@ -90,7 +90,7 @@ class HoneySynonymTable : public HoneyLazyTable {
      *
      *  If @a term has no synonyms, NULL is returned.
      */
-    TermList * open_termlist(const std::string & term);
+    TermList * open_termlist(const std::string & term) const;
 
     /** Override methods of HoneyTable.
      *

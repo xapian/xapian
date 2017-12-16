@@ -57,8 +57,7 @@ Xapian::termcount
 HoneyDatabase::get_doclength(Xapian::docid did) const
 {
     Assert(did != 0);
-    (void)did;
-    return 0; // TODO0
+    return postlist_table.get_doclength(did);
 }
 
 Xapian::termcount
@@ -197,16 +196,17 @@ HoneyDatabase::open_document(Xapian::docid did, bool lazy) const
 TermList*
 HoneyDatabase::open_spelling_termlist(const string& word) const
 {
-    (void)word;
-    return NULL; // TODO1
+    return spelling_table.open_termlist(word);
 }
 
 TermList*
 HoneyDatabase::open_spelling_wordlist() const
 {
     auto cursor = spelling_table.cursor_get();
-    if (rare(cursor == NULL))
+    if (rare(cursor == NULL)) {
+	// No spelling table.
 	return NULL;
+    }
     return new HoneySpellingWordsList(this, cursor);
 }
 
@@ -235,15 +235,18 @@ HoneyDatabase::remove_spelling(const string& word, Xapian::termcount freqdec) co
 TermList*
 HoneyDatabase::open_synonym_termlist(const string& term) const
 {
-    (void)term;
-    return NULL; // TODO2
+    return synonym_table.open_termlist(term);
 }
 
 TermList*
 HoneyDatabase::open_synonym_keylist(const string& prefix) const
 {
-    (void)prefix;
-    return NULL; // TODO2
+    auto cursor = synonym_table.cursor_get();
+    if (rare(cursor == NULL)) {
+	// No synonym table.
+	return NULL;
+    }
+    return new HoneySynonymTermList(this, cursor, prefix);
 }
 
 void
