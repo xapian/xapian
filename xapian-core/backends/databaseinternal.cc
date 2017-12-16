@@ -414,8 +414,8 @@ Database::Internal::write_changesets_to_fd(int, const string&, bool, Replication
     throw Xapian::UnimplementedError("This backend doesn't provide changesets");
 }
 
-string
-Database::Internal::get_revision_info() const
+Xapian::rev
+Database::Internal::get_revision() const
 {
     throw Xapian::UnimplementedError("This backend doesn't provide access to revision information");
 }

@@ -236,13 +236,6 @@ class GlassDatabase : public Xapian::Database::Internal {
 	    return postlist_table.cursor_get();
 	}
 
-	/** Get an object holding the revision number which the tables are
-	 *  opened at.
-	 *
-	 *  @return the current revision number.
-	 */
-	glass_revision_number_t get_revision_number() const;
-
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::doccount get_doccount() const;
@@ -285,7 +278,11 @@ class GlassDatabase : public Xapian::Database::Internal {
 				    const string & start_revision,
 				    bool need_whole_db,
 				    Xapian::ReplicationInfo * info);
-	string get_revision_info() const;
+	/** Get the revision number which the tables are opened at.
+	 *
+	 *  @return the current revision number.
+	 */
+	Xapian::rev get_revision() const;
 	string get_uuid() const;
 
 	void request_document(Xapian::docid /*did*/) const;

@@ -36,6 +36,7 @@
 #include "fileutils.h"
 #include "io_utils.h"
 #include "omassert.h"
+#include "pack.h"
 #include "realtime.h"
 #include "net/remoteconnection.h"
 #include "replicationprotocol.h"
@@ -373,7 +374,7 @@ DatabaseReplica::Internal::get_revision_info() const
     string uuid = live_db.get_uuid();
     string buf = encode_length(uuid.size());
     buf += uuid;
-    buf += live_db.internal->get_revision_info();
+    pack_uint(buf, live_db.get_revision());
     RETURN(buf);
 }
 
