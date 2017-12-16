@@ -319,10 +319,10 @@ HoneyDatabase::request_document(Xapian::docid did) const
     (void)did; // FIXME
 }
 
-string
-HoneyDatabase::get_revision_info() const
+Xapian::rev
+HoneyDatabase::get_revision() const
 {
-    return string(); // TODO2
+    return version_file.get_revision();
 }
 
 string

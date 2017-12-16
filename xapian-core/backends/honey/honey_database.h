@@ -317,8 +317,8 @@ class HoneyDatabase : public Xapian::Database::Internal {
      */
     void request_document(Xapian::docid did) const;
 
-    /// Get a string describing the current revision of the database.
-    std::string get_revision_info() const;
+    /// Get the current revision of the database.
+    Xapian::rev get_revision() const;
 
     /** Get a UUID for the database.
      *
