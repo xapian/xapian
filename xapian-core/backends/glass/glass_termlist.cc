@@ -85,6 +85,16 @@ GlassTermList::get_doclength() const
 }
 
 Xapian::termcount
+GlassTermList::get_unique_terms() const
+{
+    LOGCALL(DB, Xapian::termcount, "GlassTermList::get_unique_terms", NO_ARGS);
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    RETURN(min(termlist_size, doclen));
+}
+
+Xapian::termcount
 GlassTermList::get_approx_size() const
 {
     LOGCALL(DB, Xapian::termcount, "GlassTermList::get_approx_size", NO_ARGS);
