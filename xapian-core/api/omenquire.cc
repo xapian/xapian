@@ -505,6 +505,16 @@ MSetIterator::get_collapse_count() const
 }
 
 string
+MSetIterator::get_sort_key() const
+{
+    Assert(mset.internal.get());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
+    return mset.internal->items[index].sort_key;
+}
+
+string
 MSetIterator::get_description() const
 {
     return "Xapian::MSetIterator(" + str(mset.size() - off_from_end) + ")";

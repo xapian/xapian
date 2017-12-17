@@ -454,6 +454,14 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
      */
     Xapian::doccount get_collapse_count() const;
 
+    /** Return the sort key for the current position.
+     *
+     *  If sorting didn't use a key then an empty string will be returned.
+     *
+     *  @since Added in Xapian 1.4.6.
+     */
+    std::string get_sort_key() const;
+
     /** Convert the weight of the current iterator position to a percentage.
      *
      *  The matching document with the highest weight will get 100% if it
