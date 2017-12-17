@@ -102,14 +102,14 @@ N
         multiple `B` and `N` parameters are handled.
 
 COLLAPSE
-	value number to use for removing duplicate documents.
+	value slot number to use for removing duplicate documents.
 	Additional documents in the MSet with the same value will be
 	removed from the MSet. $value{$cgi{COLLAPSE}} can be used to
 	access the actual value for each hit.
 
 DATEVALUE
-	value number to use for date range filtering.  If this isn't set then
-	date filtering will use the older approach based on D-, M-, and
+        value slot number to use for date range filtering.  If this isn't set
+        then date filtering will use the older approach based on D-, M-, and
 	Y-prefixed terms.  The values must be of the format YYYYMMDDHHMM
         (e.g. 200702142359), YYYYMMDD (e.g. 20070214), or a raw 4 byte
         big-endian value representing a time_t (omindex adds this as value 0

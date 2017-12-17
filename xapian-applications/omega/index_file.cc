@@ -85,6 +85,7 @@ static bool use_ctime;
 static dup_action_type dup_action;
 static bool ignore_exclusions;
 static bool description_as_sample;
+static bool date_terms;
 
 static time_t last_altered_max;
 static size_t sample_size;
@@ -214,7 +215,8 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
 	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
-	   bool spelling, bool ignore_exclusions_, bool description_as_sample_)
+	   bool spelling, bool ignore_exclusions_, bool description_as_sample_,
+	   bool date_terms_)
 {
     root = root_;
     site_term = site_term_;
@@ -228,6 +230,7 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
     use_ctime = use_ctime_;
     ignore_exclusions = ignore_exclusions_;
     description_as_sample = description_as_sample_;
+    date_terms = date_terms_;
 
     if (!overwrite) {
 	db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
@@ -1096,15 +1099,20 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	if (!host_term.empty())
 	    newdocument.add_boolean_term(host_term);
 
-	struct tm *tm = localtime(&mtime);
-	string date_term = "D" + date_to_string(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-	newdocument.add_boolean_term(date_term); // Date (YYYYMMDD)
-	date_term.resize(7);
-	date_term[0] = 'M';
-	newdocument.add_boolean_term(date_term); // Month (YYYYMM)
-	date_term.resize(5);
-	date_term[0] = 'Y';
-	newdocument.add_boolean_term(date_term); // Year (YYYY)
+	if (date_terms) {
+	    struct tm *tm = localtime(&mtime);
+	    string date_term = "D";
+	    date_term += date_to_string(tm->tm_year + 1900,
+					tm->tm_mon + 1,
+					tm->tm_mday);
+	    newdocument.add_boolean_term(date_term); // Date (YYYYMMDD)
+	    date_term.resize(7);
+	    date_term[0] = 'M';
+	    newdocument.add_boolean_term(date_term); // Month (YYYYMM)
+	    date_term.resize(5);
+	    date_term[0] = 'Y';
+	    newdocument.add_boolean_term(date_term); // Year (YYYY)
+	}
 
 	newdocument.add_boolean_term(urlterm); // Url
 

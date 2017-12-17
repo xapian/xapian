@@ -78,6 +78,15 @@ MSetIterator::get_collapse_count() const
     RETURN((mset.internal->items.end() - off_from_end)->get_collapse_count());
 }
 
+string
+MSetIterator::get_sort_key() const
+{
+    LOGCALL(API, string, "MSetIterator::get_sort_key", NO_ARGS);
+    Assert(off_from_end != 0);
+    AssertRel(off_from_end, <=, mset.internal->items.size());
+    RETURN((mset.internal->items.end() - off_from_end)->get_sort_key());
+}
+
 std::string
 MSetIterator::get_description() const
 {

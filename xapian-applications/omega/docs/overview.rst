@@ -544,6 +544,10 @@ U
     full URL of indexed document - if the resulting term would be > 240 bytes,
     a hashing scheme is used to avoid overflowing Xapian's term length limit.
 
+If the ``--date-terms`` option is used, then the following additional boolean
+terms are added to documents (prior to 1.5.0 these were always added with no
+way to disable this):
+
 D
     date (numeric format: YYYYMMDD)
 
