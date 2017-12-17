@@ -1,7 +1,7 @@
 /** @file honey_postlisttable.cc
  * @brief Subclass of HoneyTable which holds postlists.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,4 +48,13 @@ HoneyPostListTable::get_doclength(Xapian::docid did) const
     (void)did;
     // TODO0
     return 0;
+}
+
+void
+HoneyPostListTable::get_used_docid_range(Xapian::docid& first,
+					 Xapian::docid& last) const
+{
+    // TODO1
+    first = 1;
+    last = Xapian::docid(-1);
 }

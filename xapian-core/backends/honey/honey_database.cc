@@ -1,3 +1,23 @@
+/** @file honey_database.cc
+ * @brief Honey backend database class
+ */
+/* Copyright 2015,2017 Olly Betts
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ */
+
 #include <config.h>
 
 #include "honey_database.h"
@@ -342,9 +362,14 @@ void
 HoneyDatabase::get_used_docid_range(Xapian::docid& first,
 				    Xapian::docid& last) const
 {
-    // TODO1: this isn't the actual used range.
-    first = 1;
-    last = version_file.get_last_docid();
+    auto last_docid = version_file.get_last_docid();
+    if (last_docid == version_file.get_doccount()) {
+	// Contiguous range starting at 1.
+	first = 1;
+	last = last_docid;
+	return;
+    }
+    postlist_table.get_used_docid_range(first, last);
 }
 
 string
