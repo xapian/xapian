@@ -137,9 +137,9 @@ class HoneySynonymTermList : public AllTermsList {
     std::string prefix;
 
   public:
-    HoneySynonymTermList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> database_,
-		      HoneyCursor * cursor_,
-		      const std::string & prefix_)
+    HoneySynonymTermList(const HoneyDatabase* database_,
+			 HoneyCursor* cursor_,
+			 const std::string& prefix_)
 	: database(database_), cursor(cursor_), prefix(prefix_)
     {
 	// Position the cursor on the highest key before the first key we want,

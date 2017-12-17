@@ -36,10 +36,10 @@ using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 HoneyMetadataTermList::HoneyMetadataTermList(
-	intrusive_ptr<const Xapian::Database::Internal> database_,
-	HoneyCursor * cursor_,
-	const string &prefix_)
-	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
+	const Xapian::Database::Internal* database_,
+	HoneyCursor* cursor_,
+	const string& prefix_)
+    : database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
 {
     LOGCALL_CTOR(DB, "HoneyMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);

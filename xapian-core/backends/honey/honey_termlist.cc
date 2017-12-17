@@ -40,8 +40,7 @@ throw_database_corrupt(const char* item, const char* pos)
     throw Xapian::DatabaseCorruptError(message);
 }
 
-HoneyTermList::HoneyTermList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> db_,
-			     Xapian::docid did_)
+HoneyTermList::HoneyTermList(const HoneyDatabase* db_, Xapian::docid did_)
     : db(db_), did(did_)
 {
     if (!db->termlist_table.get_exact_entry(HoneyTermListTable::make_key(did),

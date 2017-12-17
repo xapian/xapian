@@ -55,8 +55,7 @@ class HoneySpellingWordsList : public AllTermsList {
     void read_termfreq() const;
 
   public:
-    HoneySpellingWordsList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> database_,
-			   HoneyCursor * cursor_)
+    HoneySpellingWordsList(const HoneyDatabase* database_, HoneyCursor* cursor_)
 	    : database(database_), cursor(cursor_), termfreq(0) {
 	// Seek to the entry before the first key with a "W" prefix, so the
 	// first next() will advance us to the first such entry.

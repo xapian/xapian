@@ -53,7 +53,7 @@ class HoneyMetadataTermList : public AllTermsList {
     std::string prefix;
 
   public:
-    HoneyMetadataTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
+    HoneyMetadataTermList(const Xapian::Database::Internal* database_,
 			  HoneyCursor * cursor_, const std::string &prefix_);
 
     ~HoneyMetadataTermList();

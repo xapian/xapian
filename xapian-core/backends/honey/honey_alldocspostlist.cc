@@ -32,7 +32,7 @@
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
-HoneyAllDocsPostList::HoneyAllDocsPostList(intrusive_ptr<const HoneyDatabase> db_,
+HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db_,
 					   Xapian::doccount doccount_)
     : LeafPostList(string()),
       doccount(doccount_)

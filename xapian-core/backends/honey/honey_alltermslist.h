@@ -64,7 +64,7 @@ class HoneyAllTermsList : public AllTermsList {
     void read_termfreq_and_collfreq() const;
 
   public:
-    HoneyAllTermsList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> database_,
+    HoneyAllTermsList(const HoneyDatabase* database_,
 		      const std::string & prefix_)
 	: database(database_), cursor(NULL), prefix(prefix_), termfreq(0) { }
 

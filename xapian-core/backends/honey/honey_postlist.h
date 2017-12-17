@@ -37,8 +37,7 @@ class HoneyPostList : public LeafPostList {
     HoneyPostList(const HoneyPostList&) = delete;
 
   public:
-    HoneyPostList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> db_,
-		  const std::string& term_)
+    HoneyPostList(const HoneyDatabase* db_, const std::string& term_)
 	: LeafPostList(term_) { (void)db_; }
 
     Xapian::doccount get_termfreq() const;

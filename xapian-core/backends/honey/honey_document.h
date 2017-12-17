@@ -1,7 +1,7 @@
 /** @file honey_document.h
  * @brief A document read from a HoneyDatabase.
  */
-/* Copyright (C) 2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@ class HoneyDocument : public Xapian::Document::Internal {
     friend class HoneyDatabase;
 
     /// Private constructor - only called by HoneyDatabase::open_document().
-    HoneyDocument(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db,
+    HoneyDocument(const Xapian::Database::Internal* db,
 		  Xapian::docid did_,
 		  const HoneyValueManager *value_manager_,
 		  const HoneyDocDataTable *docdata_table_)

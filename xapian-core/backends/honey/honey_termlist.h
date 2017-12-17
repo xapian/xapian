@@ -85,8 +85,7 @@ class HoneyTermList : public TermList {
 
   public:
     /// Create a new HoneyTermList object for document @a did_ in DB @a db_
-    HoneyTermList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> db_,
-		  Xapian::docid did_);
+    HoneyTermList(const HoneyDatabase* db_, Xapian::docid did_);
 
     /** Return the length of this document.
      *

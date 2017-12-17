@@ -47,8 +47,7 @@ class HoneyValueList : public Xapian::ValueIterator::Internal {
     bool update_reader();
 
   public:
-    HoneyValueList(Xapian::valueno slot_,
-		   Xapian::Internal::intrusive_ptr<const HoneyDatabase> db_)
+    HoneyValueList(Xapian::valueno slot_, const HoneyDatabase* db_)
 	: cursor(NULL), slot(slot_), db(db_) { }
 
     ~HoneyValueList();
