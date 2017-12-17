@@ -37,7 +37,6 @@ void
 HoneyAllTermsList::read_termfreq_and_collfreq() const
 {
     LOGCALL_VOID(DB, "HoneyAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
-    Assert(!current_term.empty());
     Assert(!at_end());
 
     // Unpack the termfreq and collfreq from the tag.  Only do this if
@@ -71,7 +70,6 @@ string
 HoneyAllTermsList::get_termname() const
 {
     LOGCALL(DB, string, "HoneyAllTermsList::get_termname", NO_ARGS);
-    Assert(!current_term.empty());
     Assert(!at_end());
     RETURN(current_term);
 }
@@ -80,7 +78,6 @@ Xapian::doccount
 HoneyAllTermsList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "HoneyAllTermsList::get_termfreq", NO_ARGS);
-    Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
     RETURN(termfreq);
@@ -90,7 +87,6 @@ Xapian::termcount
 HoneyAllTermsList::get_collection_freq() const
 {
     LOGCALL(DB, Xapian::termcount, "HoneyAllTermsList::get_collection_freq", NO_ARGS);
-    Assert(!current_term.empty());
     Assert(!at_end());
     if (termfreq == 0) read_termfreq_and_collfreq();
     RETURN(collfreq);
@@ -106,13 +102,14 @@ HoneyAllTermsList::next()
     termfreq = 0;
 
     if (rare(!cursor)) {
+	Assert(database.get());
 	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
 
 	if (prefix.empty()) {
 	    (void)cursor->find_entry_ge(string("\x00\xff", 2));
 	} else {
-	    const string & key = pack_honey_postlist_key(prefix);
+	    const string& key = pack_honey_postlist_key(prefix);
 	    if (cursor->find_entry_ge(key)) {
 		// The exact term we asked for is there, so just copy it rather
 		// than wasting effort unpacking it from the key.
@@ -127,7 +124,9 @@ HoneyAllTermsList::next()
 	cursor->next();
 first_time:
 	if (cursor->after_end()) {
-	    current_term.resize(0);
+	    delete cursor;
+	    cursor = NULL;
+	    database = NULL;
 	    RETURN(NULL);
 	}
 
@@ -145,8 +144,9 @@ first_time:
 
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
-	current_term.resize(0);
+	delete cursor;
+	cursor = NULL;
+	database = NULL;
     }
 
     RETURN(NULL);
@@ -157,11 +157,15 @@ HoneyAllTermsList::skip_to(const string &term)
 {
     LOGCALL(DB, TermList *, "HoneyAllTermsList::skip_to", term);
     Assert(!at_end());
-    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
+    // Set termfreq to 0 to indicate we've not read termfreq and collfreq for
     // the current term.
     termfreq = 0;
 
     if (rare(!cursor)) {
+	if (!database.get()) {
+	    // skip_to() once at_end() is allowed but a no-op.
+	    RETURN(NULL);
+	}
 	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
     }
@@ -173,21 +177,25 @@ HoneyAllTermsList::skip_to(const string &term)
 	current_term = term;
     } else {
 	if (cursor->after_end()) {
-	    current_term.resize(0);
+	    delete cursor;
+	    cursor = NULL;
+	    database = NULL;
 	    RETURN(NULL);
 	}
 
 	const char *p = cursor->current_key.data();
 	const char *pend = p + cursor->current_key.size();
-	if (!unpack_string_preserving_sort(&p, pend, current_term)) {
+	if (!unpack_string_preserving_sort(&p, pend, current_term) ||
+	    p != pend) {
 	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
 	}
     }
 
     if (!startswith(current_term, prefix)) {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
-	current_term.resize(0);
+	delete cursor;
+	cursor = NULL;
+	database = NULL;
     }
 
     RETURN(NULL);
@@ -197,5 +205,7 @@ bool
 HoneyAllTermsList::at_end() const
 {
     LOGCALL(DB, bool, "HoneyAllTermsList::at_end", NO_ARGS);
-    RETURN(cursor && cursor->after_end());
+    // Either next() or skip_to() should be called before at_end().
+    Assert(!(cursor == NULL && database.get() != NULL));
+    RETURN(cursor == NULL);
 }

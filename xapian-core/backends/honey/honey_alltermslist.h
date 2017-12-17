@@ -1,7 +1,7 @@
 /** @file honey_alltermslist.h
  * @brief A termlist containing all terms in a honey database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2010,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,18 +30,30 @@ class HoneyCursor;
 
 class HoneyAllTermsList : public AllTermsList {
     /// Copying is not allowed.
-    HoneyAllTermsList(const HoneyAllTermsList &);
+    HoneyAllTermsList(const HoneyAllTermsList&) = delete;
 
     /// Assignment is not allowed.
-    void operator=(const HoneyAllTermsList &);
+    HoneyAllTermsList& operator=(const HoneyAllTermsList&) = delete;
 
-    /// Keep a reference to our database to stop it being deleted.
+    /** Reference to our database.
+     *
+     *  We need this to stop it being deleted, and so we can lazily initialise
+     *  @a cursor.
+     */
     Xapian::Internal::intrusive_ptr<const HoneyDatabase> database;
 
     /** A cursor which runs through the postlist table reading termnames from
      *  the keys.
+     *
+     *  The cursor is lazily initialised so that we can avoid the initial
+     *  positioning if skip_to() is the first action, and also so we can
+     *  avoid having to seek to the item before the first matching @a prefix
+     *  just so that the first next() advances us to where we want to start.
+     *
+     *  We also set this to NULL to signal the iterator has reached the
+     *  end - in this case database will also be NULL.
      */
-    HoneyCursor * cursor;
+    HoneyCursor* cursor = NULL;
 
     /// The termname at the current position.
     std::string current_term;
@@ -55,7 +67,7 @@ class HoneyAllTermsList : public AllTermsList {
      *  collection frequency for the current term yet.  We need to call
      *  read_termfreq_and_collfreq() to read these.
      */
-    mutable Xapian::doccount termfreq;
+    mutable Xapian::doccount termfreq = 0;
 
     /// The collection frequency of the term at the current position.
     mutable Xapian::termcount collfreq;
@@ -65,8 +77,8 @@ class HoneyAllTermsList : public AllTermsList {
 
   public:
     HoneyAllTermsList(const HoneyDatabase* database_,
-		      const std::string & prefix_)
-	: database(database_), cursor(NULL), prefix(prefix_), termfreq(0) { }
+		      const std::string& prefix_)
+	: database(database_), prefix(prefix_) {}
 
     /// Destructor.
     ~HoneyAllTermsList();
@@ -95,10 +107,10 @@ class HoneyAllTermsList : public AllTermsList {
     Xapian::termcount get_collection_freq() const;
 
     /// Advance to the next term in the list.
-    TermList * next();
+    TermList* next();
 
-    /// Advance to the first term which is >= tname.
-    TermList * skip_to(const std::string &tname);
+    /// Advance to the first term which is >= term.
+    TermList* skip_to(const std::string &term);
 
     /// True if we're off the end of the list
     bool at_end() const;

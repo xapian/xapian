@@ -47,8 +47,6 @@ class HoneyCursor {
 
     bool after_end() const { return is_after_end; }
 
-    void to_end() { is_after_end = true; }
-
     bool next() {
 	if (is_at_end) {
 	    is_after_end = true;
