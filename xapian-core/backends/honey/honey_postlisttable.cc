@@ -28,7 +28,7 @@
 HoneyPostList*
 HoneyPostListTable::open_post_list(Xapian::Internal::intrusive_ptr<const HoneyDatabase> db,
 				   const std::string& term) const {
-    return new HoneyPostList(db, term, false);
+    return new HoneyPostList(db, term);
 }
 
 void

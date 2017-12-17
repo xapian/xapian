@@ -31,15 +31,14 @@ class HoneyDatabase;
 /** PostList in a honey database. */
 class HoneyPostList : public LeafPostList {
     /// Don't allow assignment.
-    HoneyPostList& operator=(const HoneyPostList &) = delete;
+    HoneyPostList& operator=(const HoneyPostList&) = delete;
 
     /// Don't allow copying.
-    HoneyPostList(const HoneyPostList &) = delete;
+    HoneyPostList(const HoneyPostList&) = delete;
 
   public:
     HoneyPostList(Xapian::Internal::intrusive_ptr<const HoneyDatabase> db_,
-		  const std::string& term_,
-		  bool)
+		  const std::string& term_)
 	: LeafPostList(term_) { (void)db_; }
 
     Xapian::doccount get_termfreq() const;

@@ -1,7 +1,7 @@
 /** @file honey_alldocspostlist.h
  * @brief A PostList which iterates over all documents in a HoneyDatabase.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2017 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,16 +24,16 @@
 
 #include <string>
 
-#include "honey_postlist.h"
+#include "api/leafpostlist.h"
 
 class HoneyDatabase;
 
-class HoneyAllDocsPostList : public HoneyPostList {
+class HoneyAllDocsPostList : public LeafPostList {
     /// Don't allow assignment.
-    void operator=(const HoneyAllDocsPostList &);
+    HoneyAllDocsPostList& operator=(const HoneyAllDocsPostList&) = delete;
 
     /// Don't allow copying.
-    HoneyAllDocsPostList(const HoneyAllDocsPostList &);
+    HoneyAllDocsPostList(const HoneyAllDocsPostList&) = delete;
 
     /// The number of documents in the database.
     Xapian::doccount doccount;
@@ -46,11 +46,17 @@ class HoneyAllDocsPostList : public HoneyPostList {
 
     Xapian::termcount get_doclength() const;
 
+    Xapian::docid get_docid() const;
+
     Xapian::termcount get_wdf() const;
 
-    PositionList *read_position_list();
+    bool at_end() const;
 
-    PositionList *open_position_list() const;
+    PostList* next(double w_min);
+
+    PostList* skip_to(Xapian::docid did, double w_min);
+
+    PostList* check(Xapian::docid did, double w_min, bool& valid);
 
     std::string get_description() const;
 };

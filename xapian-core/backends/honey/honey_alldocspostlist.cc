@@ -34,10 +34,11 @@ using Xapian::Internal::intrusive_ptr;
 
 HoneyAllDocsPostList::HoneyAllDocsPostList(intrusive_ptr<const HoneyDatabase> db_,
 					   Xapian::doccount doccount_)
-	: HoneyPostList(db_, string(), true),
-	  doccount(doccount_)
+    : LeafPostList(string()),
+      doccount(doccount_)
 {
     LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db_.get() | doccount_);
+    (void)db_; // TODO0
 }
 
 Xapian::doccount
@@ -51,8 +52,13 @@ Xapian::termcount
 HoneyAllDocsPostList::get_doclength() const
 {
     LOGCALL(DB, Xapian::termcount, "HoneyAllDocsPostList::get_doclength", NO_ARGS);
+    RETURN(0); // TODO0
+}
 
-    RETURN(HoneyPostList::get_wdf());
+Xapian::docid
+HoneyAllDocsPostList::get_docid() const
+{
+    return 0; // TODO0
 }
 
 Xapian::termcount
@@ -63,18 +69,34 @@ HoneyAllDocsPostList::get_wdf() const
     RETURN(1);
 }
 
-PositionList *
-HoneyAllDocsPostList::read_position_list()
+bool
+HoneyAllDocsPostList::at_end() const
 {
-    LOGCALL(DB, PositionList *, "HoneyAllDocsPostList::read_position_list", NO_ARGS);
-    throw Xapian::InvalidOperationError("HoneyAllDocsPostList::read_position_list() not meaningful");
+    return true; // TODO0
 }
 
-PositionList *
-HoneyAllDocsPostList::open_position_list() const
+PostList*
+HoneyAllDocsPostList::next(double w_min)
 {
-    LOGCALL(DB, PositionList *, "HoneyAllDocsPostList::open_position_list", NO_ARGS);
-    throw Xapian::InvalidOperationError("HoneyAllDocsPostList::open_position_list() not meaningful");
+    (void)w_min;
+    return 0; // TODO0
+}
+
+PostList*
+HoneyAllDocsPostList::skip_to(Xapian::docid did, double w_min)
+{
+    (void)did;
+    (void)w_min;
+    return 0; // TODO0
+}
+
+PostList*
+HoneyAllDocsPostList::check(Xapian::docid did, double w_min, bool& valid)
+{
+    (void)did;
+    (void)w_min;
+    (void)valid;
+    return 0; // TODO0
 }
 
 string
