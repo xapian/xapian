@@ -209,9 +209,10 @@ HoneySynonymTermList::next()
     Assert(!at_end());
 
     cursor->next();
-    if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
+    if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
+	delete cursor;
+	cursor = NULL;
     }
 
     RETURN(NULL);
@@ -226,9 +227,10 @@ HoneySynonymTermList::skip_to(const string &term)
     if (!cursor->find_entry_ge(term)) {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
-	if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
+	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed terms.
-	    cursor->to_end();
+	    delete cursor;
+	    cursor = NULL;
 	}
     }
     RETURN(NULL);
@@ -238,5 +240,5 @@ bool
 HoneySynonymTermList::at_end() const
 {
     LOGCALL(DB, bool, "HoneySynonymTermList::at_end", NO_ARGS);
-    RETURN(cursor->after_end());
+    RETURN(cursor == NULL);
 }

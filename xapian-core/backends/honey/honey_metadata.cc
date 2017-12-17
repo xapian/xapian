@@ -90,9 +90,10 @@ HoneyMetadataTermList::next()
     Assert(!at_end());
 
     cursor->next();
-    if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
+    if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
-	cursor->to_end();
+	delete cursor;
+	cursor = NULL;
     }
 
     RETURN(NULL);
@@ -107,9 +108,10 @@ HoneyMetadataTermList::skip_to(const string &key)
     if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
-	if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
+	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	    // We've reached the end of the prefixed terms.
-	    cursor->to_end();
+	    delete cursor;
+	    cursor = NULL;
 	}
     }
     RETURN(NULL);
@@ -119,5 +121,5 @@ bool
 HoneyMetadataTermList::at_end() const
 {
     LOGCALL(DB, bool, "HoneyMetadataTermList::at_end", NO_ARGS);
-    RETURN(cursor->after_end());
+    RETURN(cursor == NULL);
 }
