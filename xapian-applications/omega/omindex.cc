@@ -64,6 +64,7 @@ static off_t max_size = 0;
 static std::string pretty_max_size;
 static bool verbose = false;
 static double sleep_before_opendir = 0;
+static bool date_terms = false;
 
 static string root;
 static string url_start_path;
@@ -270,7 +271,7 @@ main(int argc, char **argv)
     string site_term, host_term;
     Xapian::Stem stemmer("english");
 
-    enum { OPT_OPENDIR_SLEEP = 256, OPT_SAMPLE };
+    enum { OPT_OPENDIR_SLEEP = 256, OPT_SAMPLE, OPT_DATE_TERMS };
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
 	{ "version",	no_argument,		NULL, 'V' },
@@ -295,6 +296,7 @@ main(int argc, char **argv)
 	{ "retry-failed",	no_argument,	NULL, 'R' },
 	{ "opendir-sleep",	required_argument,	NULL, OPT_OPENDIR_SLEEP },
 	{ "track-ctime",no_argument,		NULL, 'C' },
+	{ "date-terms",	no_argument,		NULL, OPT_DATE_TERMS },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -582,6 +584,9 @@ main(int argc, char **argv)
 	case 'C':
 	    use_ctime = true;
 	    break;
+	case OPT_DATE_TERMS:
+	    date_terms = true;
+	    break;
 	case ':': // missing param
 	    return 1;
 	case '?': // unknown option: FIXME -> char
@@ -665,7 +670,7 @@ main(int argc, char **argv)
 		   sample_size, title_size, max_ext_len,
 		   overwrite, retry_failed, delete_removed_documents, verbose,
 		   use_ctime, spelling, ignore_exclusions,
-		   description_as_sample);
+		   description_as_sample, date_terms);
 	index_directory(root, baseurl, depth_limit, mime_map);
 	index_handle_deletion();
 	index_commit();

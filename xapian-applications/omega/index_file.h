@@ -95,7 +95,8 @@ index_init(const std::string & dbpath, const Xapian::Stem & stemmer,
 	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
-	   bool spelling, bool ignore_exclusions_, bool description_as_sample);
+	   bool spelling, bool ignore_exclusions_, bool description_as_sample,
+	   bool date_terms);
 
 void
 index_add_document(const std::string & urlterm, time_t last_altered,
