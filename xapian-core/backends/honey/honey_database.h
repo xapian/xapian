@@ -368,7 +368,9 @@ class HoneyDatabase : public Xapian::Database::Internal {
 	return false;
     }
 
-    HoneyCursor* get_postlist_cursor() const { return NULL; } // FIXME
+    HoneyCursor* get_postlist_cursor() const {
+	return postlist_table.cursor_get();
+    }
 
     /// Return a string describing this object.
     std::string get_description() const;

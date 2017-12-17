@@ -80,11 +80,13 @@ class HoneyPostListTable : public HoneyTable {
     }
 
     void merge_doclen_changes(const std::map<Xapian::docid, Xapian::termcount>& changes) {
+	// Honey doesn't support update currently.
 	(void)changes;
     }
 
     void merge_changes(const std::string& term,
 		       const HoneyInverter::PostingChanges& changes) {
+	// Honey doesn't support update currently.
 	(void)term;
 	(void)changes;
     }

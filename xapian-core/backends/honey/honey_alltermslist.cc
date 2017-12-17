@@ -23,10 +23,13 @@
 #include "honey_alltermslist.h"
 #include "honey_cursor.h"
 #include "honey_postlist.h"
+#include "honey_postlist_encodings.h"
 
 #include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
+
+#include "xapian/error.h"
 
 using namespace std;
 
@@ -40,9 +43,13 @@ HoneyAllTermsList::read_termfreq_and_collfreq() const
     // Unpack the termfreq and collfreq from the tag.  Only do this if
     // one or other is actually read.
     cursor->read_tag();
-// FIXME:    const char *p = cursor->current_tag.data();
-// FIXME:    const char *pend = p + cursor->current_tag.size();
-// FIXME:    HoneyPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
+    Xapian::docid first, last;
+    const char *p = cursor->current_tag.data();
+    const char *pend = p + cursor->current_tag.size();
+    if (!decode_initial_chunk_header(&p, pend,
+				     termfreq, collfreq, first, last)) {
+	throw Xapian::DatabaseCorruptError("Postlist initial chunk header not as expected");
+    }
 }
 
 HoneyAllTermsList::~HoneyAllTermsList()

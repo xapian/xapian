@@ -26,6 +26,7 @@
 
 #include "api/leafpostlist.h"
 
+class HoneyCursor;
 class HoneyDatabase;
 
 class HoneyAllDocsPostList : public LeafPostList {
@@ -35,11 +36,16 @@ class HoneyAllDocsPostList : public LeafPostList {
     /// Don't allow copying.
     HoneyAllDocsPostList(const HoneyAllDocsPostList&) = delete;
 
+    /// Cursor on the postlist table.
+    HoneyCursor* cursor;
+
     /// The number of documents in the database.
     Xapian::doccount doccount;
 
   public:
     HoneyAllDocsPostList(const HoneyDatabase* db_, Xapian::doccount doccount_);
+
+    ~HoneyAllDocsPostList();
 
     Xapian::doccount get_termfreq() const;
 

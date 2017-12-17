@@ -32,13 +32,18 @@
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
-HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db_,
+HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db,
 					   Xapian::doccount doccount_)
     : LeafPostList(string()),
+      cursor(db->get_postlist_cursor()),
       doccount(doccount_)
 {
-    LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db_.get() | doccount_);
-    (void)db_; // TODO0
+    LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db | doccount_);
+}
+
+HoneyAllDocsPostList::~HoneyAllDocsPostList()
+{
+    delete cursor;
 }
 
 Xapian::doccount
@@ -72,7 +77,7 @@ HoneyAllDocsPostList::get_wdf() const
 bool
 HoneyAllDocsPostList::at_end() const
 {
-    return true; // TODO0
+    return cursor == NULL;
 }
 
 PostList*
