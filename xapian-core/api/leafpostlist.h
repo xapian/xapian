@@ -118,8 +118,8 @@ class LeafPostList : public PostList {
      *			wildcard expansion much more memory efficient.
      *
      *  @return		The new postlist object, or NULL if not supported
-     *			(in which case the caller should probably the postlist
-     *			via the database instead).
+     *			(in which case the caller should probably open the
+     *			postlist via the database instead).
      */
     virtual LeafPostList * open_nearby_postlist(const std::string & term_) const;
 
