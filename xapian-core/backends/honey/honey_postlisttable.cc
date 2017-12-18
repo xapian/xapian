@@ -22,8 +22,14 @@
 
 #include "honey_postlisttable.h"
 
+#include "honey_cursor.h"
 #include "honey_database.h"
 #include "honey_postlist.h"
+#include "honey_postlist_encodings.h"
+
+#include <memory>
+
+using namespace std;
 
 HoneyPostList*
 HoneyPostListTable::open_post_list(const std::string& term) const
@@ -36,17 +42,61 @@ HoneyPostListTable::get_freqs(const std::string& term,
 			      Xapian::doccount* termfreq_ptr,
 			      Xapian::termcount* collfreq_ptr) const
 {
-    (void)term;
-    (void)termfreq_ptr;
-    (void)collfreq_ptr;
-    // TODO0
+    string chunk;
+    if (!get_exact_entry(Honey::make_postingchunk_key(term), chunk)) {
+	if (termfreq_ptr) *termfreq_ptr = 0;
+	if (collfreq_ptr) *collfreq_ptr = 0;
+	return;
+    }
+
+    const char* p = chunk.data();
+    const char* pend = p + chunk.size();
+    Xapian::doccount tf;
+    Xapian::termcount cf;
+    Xapian::docid first, last;
+    if (!decode_initial_chunk_header(&p, pend, tf, cf, first, last))
+	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
+    if (termfreq_ptr) *termfreq_ptr = tf;
+    if (collfreq_ptr) *collfreq_ptr = cf;
 }
 
 void
 HoneyPostListTable::get_used_docid_range(Xapian::docid& first,
 					 Xapian::docid& last) const
 {
-    // TODO1
-    first = 1;
-    last = Xapian::docid(-1);
+    unique_ptr<HoneyCursor> cursor;
+    if (cursor->find_entry_ge(string("\0\xe0", 2))) {
+	first = 1;
+    } else {
+	const char* p = cursor->current_key.data();
+	const char* pend = p + cursor->current_key.size();
+	p += 2;
+	if (p[-2] != '\0' ||
+	    p[-1] != '\xe0' ||
+	    !unpack_uint_preserving_sort(&p, pend, &first) ||
+	    p != pend) {
+	    // Note that our caller checks for doccount == 0 and handles that.
+	    throw Xapian::DatabaseCorruptError("Bad first doclen chunk");
+	}
+    }
+
+    cursor->find_entry_lt(string("\0\xe1", 2));
+    cursor->read_tag();
+    if (cursor->current_key.size() == 2) {
+	// Must be a single doclen chunk starting at 1.
+	AssertEq(cursor->current_key[0], '\0');
+	AssertEq(cursor->current_key[1], '\xe0');
+	last = cursor->current_tag.size() >> 2;
+    } else {
+	const char* p = cursor->current_key.data();
+	const char* pend = p + cursor->current_key.size();
+	p += 2;
+	if (p[-2] != '\0' ||
+	    p[-1] != '\xe0' ||
+	    !unpack_uint_preserving_sort(&p, pend, &last) ||
+	    p != pend) {
+	    throw Xapian::DatabaseCorruptError("Bad final doclen chunk");
+	}
+	last += (cursor->current_tag.size() >> 2) - 1;
+    }
 }

@@ -380,8 +380,14 @@ void
 HoneyDatabase::get_used_docid_range(Xapian::docid& first,
 				    Xapian::docid& last) const
 {
+    auto doccount = version_file.get_doccount();
+    if (doccount == 0) {
+	// Empty database.
+	first = last = 0;
+	return;
+    }
     auto last_docid = version_file.get_last_docid();
-    if (last_docid == version_file.get_doccount()) {
+    if (last_docid == doccount) {
 	// Contiguous range starting at 1.
 	first = 1;
 	last = last_docid;
