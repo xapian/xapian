@@ -22,10 +22,10 @@
 #ifndef XAPIAN_INCLUDED_HONEY_ALLDOCSPOSTLIST_H
 #define XAPIAN_INCLUDED_HONEY_ALLDOCSPOSTLIST_H
 
-#include <string>
-
 #include "api/leafpostlist.h"
 #include "pack.h"
+
+#include <string>
 
 class HoneyCursor;
 class HoneyDatabase;
