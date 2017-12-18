@@ -25,9 +25,67 @@
 #include <string>
 
 #include "api/leafpostlist.h"
+#include "pack.h"
 
 class HoneyCursor;
 class HoneyDatabase;
+
+namespace Honey {
+
+/** Generate a key for a doc len chunk. */
+inline std::string
+make_doclenchunk_key(Xapian::docid did)
+{
+    std::string key("\0\xe0", 2);
+    if (did > 1) pack_uint_preserving_sort(key, did);
+    return key;
+}
+
+inline Xapian::docid
+docid_from_key(const std::string& key)
+{
+    const char * p = key.data();
+    const char * end = p + key.length();
+    // Fail if not a doclen chunk key.
+    if (end - p < 2 || *p++ != '\0' || *p++ != '\xe0') return 0;
+    if (p == end)
+	return 1;
+    Xapian::docid did;
+    if (!unpack_uint_preserving_sort(&p, end, &did))
+	throw Xapian::DatabaseCorruptError("bad value key");
+    return did;
+}
+
+class DocLenChunkReader {
+    unsigned const char *p;
+    unsigned const char *end;
+
+    Xapian::docid did;
+
+    Xapian::termcount doclen;
+
+  public:
+    /// Create a DocLenChunkReader which is already at_end().
+    DocLenChunkReader() : p(NULL) { }
+
+    DocLenChunkReader(const char * p_, size_t len, Xapian::docid did_) {
+	assign(p_, len, did_);
+    }
+
+    void assign(const char * p_, size_t len, Xapian::docid did_);
+
+    bool at_end() const { return p == NULL; }
+
+    Xapian::docid get_docid() const { return did; }
+
+    Xapian::termcount get_doclength() const { return doclen; }
+
+    void next();
+
+    void skip_to(Xapian::docid target);
+};
+
+}
 
 class HoneyAllDocsPostList : public LeafPostList {
     /// Don't allow assignment.
@@ -39,8 +97,13 @@ class HoneyAllDocsPostList : public LeafPostList {
     /// Cursor on the postlist table.
     HoneyCursor* cursor;
 
+    Honey::DocLenChunkReader reader;
+
     /// The number of documents in the database.
     Xapian::doccount doccount;
+
+    /// Update @a reader to use the chunk currently pointed to by @a cursor.
+    bool update_reader();
 
   public:
     HoneyAllDocsPostList(const HoneyDatabase* db_, Xapian::doccount doccount_);
