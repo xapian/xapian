@@ -24,6 +24,7 @@
 
 #include "backends/databaseinternal.h"
 
+#include "honey_alldocspostlist.h"
 #include "honey_docdata.h"
 #include "honey_postlisttable.h"
 #include "honey_positionlist.h"
@@ -35,6 +36,7 @@
 #include "xapian/compactor.h"
 
 class HoneyAllTermsList;
+class HoneyCursor;
 class HoneySynonymTermList;
 class HoneySpellingWordsList;
 class HoneyTermList;
@@ -71,6 +73,10 @@ class HoneyDatabase : public Xapian::Database::Internal {
     HoneyTermListTable termlist_table;
 
     HoneyValueManager value_manager;
+
+    mutable Honey::DocLenChunkReader doclen_chunk_reader;
+
+    mutable HoneyCursor* doclen_cursor = NULL;
 
   public:
     HoneyDatabase(const std::string& path_);

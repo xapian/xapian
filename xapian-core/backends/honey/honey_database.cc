@@ -78,7 +78,25 @@ Xapian::termcount
 HoneyDatabase::get_doclength(Xapian::docid did) const
 {
     Assert(did != 0);
-    return postlist_table.get_doclength(did);
+    if (doclen_cursor == NULL) {
+	doclen_cursor = get_postlist_cursor();
+    } else {
+	if (doclen_chunk_reader.find_doclength(did)) {
+	    return doclen_chunk_reader.get_doclength();
+	}
+    }
+
+    // If exact is true, the desired docid is first in this chunk.
+    bool exact = doclen_cursor->find_entry(Honey::make_doclenchunk_key(did));
+    if (doclen_chunk_reader.update(doclen_cursor)) {
+	if (exact || doclen_chunk_reader.find_doclength(did)) {
+	    return doclen_chunk_reader.get_doclength();
+	}
+    }
+
+    string message = "Document ID not in use: ";
+    message += str(did);
+    throw Xapian::DocNotFoundError(message);
 }
 
 Xapian::termcount
@@ -91,7 +109,7 @@ HoneyDatabase::get_unique_terms(Xapian::docid did) const
 void
 HoneyDatabase::get_freqs(const string& term,
 			 Xapian::doccount* termfreq_ptr,
-			 Xapian::termcount* collfreq_ptr) const 
+			 Xapian::termcount* collfreq_ptr) const
 {
     postlist_table.get_freqs(term, termfreq_ptr, collfreq_ptr);
 }

@@ -42,14 +42,6 @@ HoneyPostListTable::get_freqs(const std::string& term,
     // TODO0
 }
 
-Xapian::termcount
-HoneyPostListTable::get_doclength(Xapian::docid did) const
-{
-    (void)did;
-    // TODO0
-    return 0;
-}
-
 void
 HoneyPostListTable::get_used_docid_range(Xapian::docid& first,
 					 Xapian::docid& last) const

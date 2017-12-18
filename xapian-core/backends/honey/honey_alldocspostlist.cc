@@ -33,18 +33,6 @@
 using namespace Honey;
 using namespace std;
 
-bool
-HoneyAllDocsPostList::update_reader()
-{
-    Xapian::docid first_did = docid_from_key(cursor->current_key);
-    if (!first_did) return false;
-
-    cursor->read_tag();
-    const string& tag = cursor->current_tag;
-    reader.assign(tag.data(), tag.size(), first_did);
-    return true;
-}
-
 HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db,
 					   Xapian::doccount doccount_)
     : LeafPostList(string()),
@@ -99,13 +87,12 @@ HoneyAllDocsPostList::next(double)
 {
     Assert(cursor);
     if (!reader.at_end()) {
-	reader.next();
-	if (!reader.at_end()) return NULL;
+	if (reader.next()) return NULL;
 	cursor->next();
     }
 
     if (!cursor->after_end()) {
-	if (update_reader()) {
+	if (reader.update(cursor)) {
 	    if (!reader.at_end()) return NULL;
 	}
     }
@@ -124,15 +111,11 @@ HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
 	return NULL;
     }
 
-    if (!reader.at_end()) {
-	reader.skip_to(did);
-	if (!reader.at_end()) return NULL;
-    }
+    if (reader.skip_to(did)) return NULL;
 
     if (!cursor->find_entry(make_doclenchunk_key(did))) {
-	if (update_reader()) {
-	    reader.skip_to(did);
-	    if (!reader.at_end()) return NULL;
+	if (reader.update(cursor)) {
+	    if (reader.skip_to(did)) return NULL;
 	}
 	// The requested docid is between two chunks.
 	cursor->next();
@@ -140,8 +123,8 @@ HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
 
     // Either an exact match, or in a gap before the start of a chunk.
     if (!cursor->after_end()) {
-	if (update_reader()) {
-	    if (!reader.at_end()) return NULL;
+	if (reader.update(cursor)) {
+	    return NULL;
 	}
     }
 
@@ -162,8 +145,7 @@ HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
 
     if (!reader.at_end()) {
 	// Check for the requested docid in the current block.
-	reader.skip_to(did);
-	if (!reader.at_end()) {
+	if (reader.skip_to(did)) {
 	    valid = true;
 	    return NULL;
 	}
@@ -172,9 +154,8 @@ HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
     // Try moving to the appropriate chunk.
     if (!cursor->find_entry(make_doclenchunk_key(did))) {
 	// We're in a chunk which might contain the docid.
-	if (update_reader()) {
-	    reader.skip_to(did);
-	    if (!reader.at_end()) {
+	if (reader.update(cursor)) {
+	    if (reader.skip_to(did)) {
 		valid = true;
 		return NULL;
 	    }
@@ -185,9 +166,9 @@ HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
 
     // We had an exact match for a chunk starting with specified docid.
     Assert(!cursor->after_end());
-    if (!update_reader()) {
+    if (!reader.update(cursor)) {
 	// We found the exact key we built so it must be a doclen chunk.
-	// Therefore update_reader() "can't possibly fail".
+	// Therefore reader.update() "can't possibly fail".
 	Assert(false);
     }
 
@@ -208,53 +189,77 @@ HoneyAllDocsPostList::get_description() const
 
 namespace Honey {
 
-void
-DocLenChunkReader::assign(const char * p_, size_t len, Xapian::docid did_)
+bool
+DocLenChunkReader::update(HoneyCursor* cursor)
 {
+    Xapian::docid first_did = docid_from_key(cursor->current_key);
+    if (!first_did) return false;
+
+    cursor->read_tag();
+
+    size_t len = cursor->current_tag.size();
     if (len % 4 != 0 || len == 0)
 	throw Xapian::DatabaseCorruptError("Doclen data length not a non-zero multiple of 4");
-    if (rare(len == 0)) {
-	p = NULL;
-	return;
-    }
-    p = reinterpret_cast<const unsigned char*>(p_);
+
+    p = reinterpret_cast<const unsigned char*>(cursor->current_tag.data());
     end = p + len;
-    did = did_;
+    did = first_did;
     // FIXME: Alignment guarantees?
     doclen = unaligned_read4(p);
-    p += 4;
+    return true;
 }
 
-void
+bool
 DocLenChunkReader::next()
 {
+    p += 4;
     if (p == end) {
 	p = NULL;
-	return;
+	return false;
     }
 
     // FIXME: Alignment guarantees?
     doclen = unaligned_read4(p);
-    p += 4;
+    return true;
 }
 
-void
+bool
 DocLenChunkReader::skip_to(Xapian::docid target)
 {
-    if (p == NULL || target <= did)
-	return;
+    if (p == NULL)
+	return false;
+
+    if (target <= did)
+	return true;
 
     Xapian::docid delta = target - did;
-    if (delta > Xapian::docid((end - p) >> 2)) {
+    if (delta >= Xapian::docid((end - p) >> 2)) {
 	p = NULL;
-	return;
+	return false;
     }
 
     did = target;
     p += delta << 2;
 
     // FIXME: Alignment guarantees?
-    doclen = unaligned_read4(p - 4);
+    doclen = unaligned_read4(p);
+    return true;
+}
+
+bool
+DocLenChunkReader::find_doclength(Xapian::docid target)
+{
+    if (target <= did)
+	return false;
+
+    Xapian::docid delta = target - did;
+    if (delta >= Xapian::docid((end - p) >> 2)) {
+	return false;
+    }
+
+    // FIXME: Alignment guarantees?
+    doclen = unaligned_read4(p + (delta << 2));
+    return true;
 }
 
 }

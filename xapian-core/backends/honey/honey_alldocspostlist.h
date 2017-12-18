@@ -68,11 +68,8 @@ class DocLenChunkReader {
     /// Create a DocLenChunkReader which is already at_end().
     DocLenChunkReader() : p(NULL) { }
 
-    DocLenChunkReader(const char * p_, size_t len, Xapian::docid did_) {
-	assign(p_, len, did_);
-    }
-
-    void assign(const char * p_, size_t len, Xapian::docid did_);
+    /// Update to use the chunk currently pointed to by @a cursor.
+    bool update(HoneyCursor* cursor);
 
     bool at_end() const { return p == NULL; }
 
@@ -80,9 +77,18 @@ class DocLenChunkReader {
 
     Xapian::termcount get_doclength() const { return doclen; }
 
-    void next();
+    bool next();
 
-    void skip_to(Xapian::docid target);
+    bool skip_to(Xapian::docid target);
+
+    /** Searches the whole chunk (skip_to() only advances).
+     *
+     *  Don't call this method and any of next()/skip_to()/at_end() on the same
+     *  object (unless there's an intervening call to update()).
+     *
+     *  Return false if this isn't the right chunk.
+     */
+    bool find_doclength(Xapian::docid target);
 };
 
 }
@@ -101,9 +107,6 @@ class HoneyAllDocsPostList : public LeafPostList {
 
     /// The number of documents in the database.
     Xapian::doccount doccount;
-
-    /// Update @a reader to use the chunk currently pointed to by @a cursor.
-    bool update_reader();
 
   public:
     HoneyAllDocsPostList(const HoneyDatabase* db_, Xapian::doccount doccount_);
