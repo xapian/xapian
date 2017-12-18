@@ -6,6 +6,7 @@
 #include "honey_cursor.h"
 #include "honey_database.h"
 #include "honey_positionlist.h"
+#include "honey_postlist_encodings.h"
 #include "wordaccess.h"
 
 #include <string>
@@ -34,7 +35,23 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	delete cursor;
 	cursor = NULL;
 	termfreq = 0;
+	last_did = 0;
+	return;
     }
+
+    cursor->read_tag();
+    const string& chunk = cursor->current_tag;
+
+    const char* p = chunk.data();
+    const char* pend = p + chunk.size();
+    // FIXME: Make use of [first,last] ranges to calculate better estimates and
+    // potentially to spot subqueries that can't match anything.
+    Xapian::termcount cf;
+    Xapian::docid first_did;
+    if (!decode_initial_chunk_header(&p, pend, termfreq, cf,
+				     first_did, last_did))
+	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
+    reader.assign(p, pend - p, first_did);
 }
 
 HoneyPostList::~HoneyPostList()
@@ -126,6 +143,8 @@ HoneyPostList::skip_to(Xapian::docid did, double)
 	if (!reader.at_end()) return NULL;
     }
 
+    if (did > last_did) goto set_at_end;
+
     if (!cursor->find_entry(make_postingchunk_key(term, did))) {
 	if (update_reader()) {
 	    reader.skip_to(did);
@@ -142,6 +161,7 @@ HoneyPostList::skip_to(Xapian::docid did, double)
 	}
     }
 
+set_at_end:
     // We've reached the end.
     delete cursor;
     cursor = NULL;
@@ -166,6 +186,8 @@ HoneyPostList::check(Xapian::docid did, double, bool& valid)
 	}
     }
 
+    if (did > last_did) goto set_at_end;
+
     // Try moving to the appropriate chunk.
     if (!cursor->find_entry(make_postingchunk_key(term, did))) {
 	// We're in a chunk which might contain the docid.
@@ -176,7 +198,12 @@ HoneyPostList::check(Xapian::docid did, double, bool& valid)
 		return NULL;
 	    }
 	}
-	valid = false;
+
+set_at_end:
+	// We've reached the end.
+	delete cursor;
+	cursor = NULL;
+	valid = true;
 	return NULL;
     }
 
@@ -206,17 +233,22 @@ namespace Honey {
 void
 PostingChunkReader::assign(const char * p_, size_t len, Xapian::docid did_)
 {
-    // TODO: handle headers here...
-    if (len % 8 != 4)
+    Xapian::docid last_did_in_chunk;
+    const char* pend = p_ + len;
+    if (!decode_delta_chunk_header(&p_, pend, did_, last_did_in_chunk)) {
+	throw Xapian::DatabaseCorruptError("Postlist delta chunk header");
+    }
+    if ((pend - p_) % 8 != 4)
 	throw Xapian::DatabaseCorruptError("Doclen data length not 4 more than a multiple of 8");
-    if (rare(len == 0)) {
+    if (rare(p_ == pend)) {
 	p = NULL;
 	return;
     }
     p = reinterpret_cast<const unsigned char*>(p_);
-    end = p + len;
+    end = reinterpret_cast<const unsigned char*>(pend);
     did = did_;
-    // FIXME: Alignment guarantees?
+    last_did = last_did_in_chunk;
+    // FIXME: Alignment guarantees?  Hard with header.
     wdf = unaligned_read4(p);
     p += 4;
 }
@@ -229,7 +261,7 @@ PostingChunkReader::next()
 	return;
     }
 
-    // FIXME: Alignment guarantees?
+    // FIXME: Alignment guarantees?  Hard with header.
     did += unaligned_read4(p) + 1;
     wdf = unaligned_read4(p + 4);
     p += 8;
@@ -241,13 +273,22 @@ PostingChunkReader::skip_to(Xapian::docid target)
     if (p == NULL || target <= did)
 	return;
 
+    if (target > last_did) {
+	p = NULL;
+	return;
+    }
+
+    // FIXME: Special case target == last_did to just decode the wdf from the
+    // end?
+
     do {
-	if (p == end) {
+	if (rare(p == end)) {
+	    // FIXME: Shouldn't happen unless last_did was wrong.
 	    p = NULL;
 	    return;
 	}
 
-	// FIXME: Alignment guarantees?
+	// FIXME: Alignment guarantees?  Hard with header.
 	did += unaligned_read4(p) + 1;
 	p += 8;
     } while (target > did);

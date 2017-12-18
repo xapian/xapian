@@ -82,6 +82,9 @@ class PostingChunkReader {
 
     Xapian::termcount wdf;
 
+    /// The last docid in this chunk.
+    Xapian::docid last_did;
+
   public:
     /// Create a PostingChunkReader which is already at_end().
     PostingChunkReader() : p(NULL) { }
@@ -119,6 +122,9 @@ class HoneyPostList : public LeafPostList {
     Honey::PostingChunkReader reader;
 
     Xapian::doccount termfreq;
+
+    /// The highest document id in this posting list.
+    Xapian::docid last_did;
 
     /** PositionList object to reuse for OP_NEAR and OP_PHRASE.
      *
