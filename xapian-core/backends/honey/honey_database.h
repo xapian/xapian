@@ -37,6 +37,7 @@
 
 class HoneyAllTermsList;
 class HoneyCursor;
+class HoneyPostList;
 class HoneySynonymTermList;
 class HoneySpellingWordsList;
 class HoneyTermList;
@@ -44,6 +45,7 @@ class HoneyTermList;
 /// Database using honey backend.
 class HoneyDatabase : public Xapian::Database::Internal {
     friend class HoneyAllTermsList;
+    friend class HoneyPostList;
     friend class HoneySpellingWordsList;
     friend class HoneySynonymTermList;
     friend class HoneyTermList;

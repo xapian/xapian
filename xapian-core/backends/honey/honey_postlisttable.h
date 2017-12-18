@@ -62,7 +62,8 @@ class HoneyPostListTable : public HoneyTable {
 	return key_exists(make_key(term));
     }
 
-    HoneyPostList* open_post_list(const std::string& term) const;
+    HoneyPostList* open_post_list(const HoneyDatabase* db,
+				  const std::string& term) const;
 
     void get_freqs(const std::string& term,
 		   Xapian::doccount* termfreq_ptr,

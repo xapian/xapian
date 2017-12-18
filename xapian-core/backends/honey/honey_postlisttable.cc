@@ -32,9 +32,10 @@
 using namespace std;
 
 HoneyPostList*
-HoneyPostListTable::open_post_list(const std::string& term) const
+HoneyPostListTable::open_post_list(const HoneyDatabase* db,
+				   const std::string& term) const
 {
-    return new HoneyPostList(term, cursor_get());
+    return new HoneyPostList(db, term, cursor_get());
 }
 
 void

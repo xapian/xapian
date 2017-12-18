@@ -29,6 +29,7 @@
 
 class HoneyCursor;
 class HoneyDatabase;
+class HoneyPositionList;
 
 namespace Honey {
 
@@ -119,12 +120,23 @@ class HoneyPostList : public LeafPostList {
 
     Xapian::doccount termfreq;
 
+    /** PositionList object to reuse for OP_NEAR and OP_PHRASE.
+     *
+     *  This saves the overhead of creating objects for every document
+     *  considered.
+     */
+    HoneyPositionList* position_list = NULL;
+
+    /// HoneyDatabase to get position table object from.
+    const HoneyDatabase* db;
+
     /// Update @a reader to use the chunk currently pointed to by @a cursor.
     bool update_reader();
 
   public:
-    HoneyPostList(const std::string& term_,
-		  HoneyCursor* cusor_);
+    HoneyPostList(const HoneyDatabase* db_,
+		  const std::string& term_,
+		  HoneyCursor* cursor_);
 
     ~HoneyPostList();
 

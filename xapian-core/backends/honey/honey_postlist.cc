@@ -4,6 +4,8 @@
 #include "honey_postlist.h"
 
 #include "honey_cursor.h"
+#include "honey_database.h"
+#include "honey_positionlist.h"
 #include "wordaccess.h"
 
 #include <string>
@@ -23,9 +25,10 @@ HoneyPostList::update_reader()
     return true;
 }
 
-HoneyPostList::HoneyPostList(const string& term_,
+HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
+			     const string& term_,
 			     HoneyCursor* cursor_)
-    : LeafPostList(term_), cursor(cursor_)
+    : LeafPostList(term_), cursor(cursor_), db(db_)
 {
     if (!cursor->find_exact(make_postingchunk_key(term_))) {
 	delete cursor;
@@ -37,6 +40,7 @@ HoneyPostList::HoneyPostList(const string& term_,
 HoneyPostList::~HoneyPostList()
 {
     delete cursor;
+    delete position_list;
 }
 
 Xapian::doccount
@@ -50,7 +54,7 @@ HoneyPostList::open_nearby_postlist(const string& term_) const
 {
     Assert(!term_.empty());
     // FIXME: Once Honey supports writing, we need to return NULL here if the DB is writable.
-    return new HoneyPostList(term_, new HoneyCursor(*cursor));
+    return new HoneyPostList(db, term_, new HoneyCursor(*cursor));
 }
 
 Xapian::docid
@@ -74,13 +78,17 @@ HoneyPostList::at_end() const
 PositionList*
 HoneyPostList::read_position_list()
 {
-    return 0; // TODO1
+    if (rare(position_list == NULL))
+	position_list = new HoneyPositionList();
+    if (!position_list->read_data(db->position_table, get_docid(), term))
+	return NULL;
+    return position_list;
 }
 
 PositionList*
 HoneyPostList::open_position_list() const
 {
-    return 0; // TODO1
+    return new HoneyPositionList(db->position_table, get_docid(), term);
 }
 
 PostList*
