@@ -206,6 +206,7 @@ namespace Honey {
 void
 PostingChunkReader::assign(const char * p_, size_t len, Xapian::docid did_)
 {
+    // TODO: handle headers here...
     if (len % 8 != 4)
 	throw Xapian::DatabaseCorruptError("Doclen data length not 4 more than a multiple of 8");
     if (rare(len == 0)) {
