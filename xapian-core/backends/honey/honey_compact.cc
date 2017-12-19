@@ -42,6 +42,7 @@
 #include "honey_cursor.h"
 #include "honey_database.h"
 #include "honey_defs.h"
+#include "honey_postlist_encodings.h"
 #include "honey_table.h"
 #include "honey_version.h"
 #include "filetests.h"
@@ -494,11 +495,12 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	}
 
 	// Adjust key if this is *NOT* an initial chunk.
-	// key is: pack_string_preserving_sort(key, tname)
+	// key is: pack_string_preserving_sort(key, term)
 	// plus optionally: pack_uint_preserving_sort(key, did)
 	const char * d = key.data();
 	const char * e = d + key.size();
-	if (is_doclenchunk_key(key)) {
+	bool is_doclen_chunk = is_doclenchunk_key(key);
+	if (is_doclen_chunk) {
 	    d += 2;
 	} else {
 	    string tname;
@@ -506,27 +508,31 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	}
 
-	if (d == e) {
+	if (is_doclen_chunk) {
+	    if (d != e &&
+		(!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)) {
+		throw Xapian::DatabaseCorruptError("Bad doclen key");
+	    }
+	    key.erase(2);
+	} else if (d == e) {
 	    // This is an initial chunk for a term, so adjust tag header.
 	    d = tag.data();
 	    e = d + tag.size();
-	    if (!unpack_uint(&d, e, &tf) ||
-		!unpack_uint(&d, e, &cf) ||
-		!unpack_uint(&d, e, &firstdid)) {
+
+	    Xapian::docid lastdid;
+	    if (!decode_initial_chunk_header(&d, e, tf, cf,
+					     firstdid, lastdid)) {
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	    }
-	    ++firstdid;
 	    tag.erase(0, d - tag.data());
 	} else {
 	    // Not an initial chunk, so adjust key.
 	    size_t tmp = d - key.data();
-	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e) {
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    if (is_doclenchunk_key(key)) {
-		key.erase(tmp);
-	    } else {
-		key.erase(tmp - 1);
 	    }
+	    // -1 to remove the terminating zero byte too.
+	    key.erase(tmp - 1);
 	}
 	firstdid += offset;
 	return true;
@@ -582,7 +588,8 @@ class PostlistCursor<SSTable&> {
 	// plus optionally: pack_uint_preserving_sort(key, did)
 	const char * d = key.data();
 	const char * e = d + key.size();
-	if (is_doclenchunk_key(key)) {
+	bool is_doclen_chunk = is_doclenchunk_key(key);
+	if (is_doclen_chunk) {
 	    d += 2;
 	} else {
 	    string tname;
@@ -590,27 +597,31 @@ class PostlistCursor<SSTable&> {
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	}
 
-	if (d == e) {
+	if (is_doclen_chunk) {
+	    if (d != e &&
+		(!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)) {
+		throw Xapian::DatabaseCorruptError("Bad doclen key");
+	    }
+	    key.erase(2);
+	} else if (d == e) {
 	    // This is an initial chunk for a term, so adjust tag header.
 	    d = tag.data();
 	    e = d + tag.size();
-	    if (!unpack_uint(&d, e, &tf) ||
-		!unpack_uint(&d, e, &cf) ||
-		!unpack_uint(&d, e, &firstdid)) {
+
+	    Xapian::docid lastdid;
+	    if (!decode_initial_chunk_header(&d, e, tf, cf,
+					     firstdid, lastdid)) {
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	    }
-	    ++firstdid;
 	    tag.erase(0, d - tag.data());
 	} else {
 	    // Not an initial chunk, so adjust key.
 	    size_t tmp = d - key.data();
-	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e) {
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    if (is_doclenchunk_key(key)) {
-		key.erase(tmp);
-	    } else {
-		key.erase(tmp - 1);
 	    }
+	    // -1 to remove the terminating zero byte too.
+	    key.erase(tmp - 1);
 	}
 	firstdid += offset;
 	return true;
@@ -806,29 +817,37 @@ merge_postlists(Xapian::Compactor * compactor,
 	Assert(cur == NULL || !is_user_metadata_key(cur->key));
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
+		// FIXME: special case for doclen chunks
+		Xapian::docid last_did;
+		const string& last_tag = tags.back().second;
+		const char* p = last_tag.data();
+		const char* pend = p + last_tag.size();
+		if (!decode_delta_chunk_header(&p, pend,
+					       tags.back().first, last_did)) {
+		    throw Xapian::DatabaseCorruptError("Bad postlist delta chunk header");
+		}
+
 		string first_tag;
-		pack_uint(first_tag, tf);
-		pack_uint(first_tag, cf);
-		pack_uint(first_tag, tags[0].first - 1);
-		string tag = tags[0].second;
-		tag[0] = (tags.size() == 1) ? '1' : '0';
-		first_tag += tag;
+		encode_initial_chunk_header(tf, cf, tags[0].first - 1, last_did,
+					    first_tag);
+		first_tag += tags[0].second;
 		out->add(last_key, first_tag);
 
 		string term;
 		if (!is_doclenchunk_key(last_key)) {
-		    const char * p = last_key.data();
-		    const char * end = p + last_key.size();
-		    if (!unpack_string_preserving_sort(&p, end, term) || p != end)
+		    const char* p_ = last_key.data();
+		    const char* end_ = p + last_key.size();
+		    if (!unpack_string_preserving_sort(&p_, end_, term) ||
+			p_ != end_) {
 			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
+		    }
 		}
 
 		vector<pair<Xapian::docid, string> >::const_iterator i;
 		i = tags.begin();
 		while (++i != tags.end()) {
-		    tag = i->second;
-		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
-		    out->add(pack_honey_postlist_key(term, i->first), tag);
+		    const string& key = pack_honey_postlist_key(term, i->first);
+		    out->add(key, i->second);
 		}
 	    }
 	    tags.clear();
