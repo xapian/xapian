@@ -206,20 +206,23 @@ DocLenChunkReader::update(HoneyCursor* cursor)
     did = first_did;
     // FIXME: Alignment guarantees?
     doclen = unaligned_read4(p);
+    Assert(doclen != 0xffffffff);
     return true;
 }
 
 bool
 DocLenChunkReader::next()
 {
-    p += 4;
-    if (p == end) {
-	p = NULL;
-	return false;
-    }
+    do {
+	p += 4;
+	if (p == end) {
+	    p = NULL;
+	    return false;
+	}
 
-    // FIXME: Alignment guarantees?
-    doclen = unaligned_read4(p);
+	// FIXME: Alignment guarantees?
+	doclen = unaligned_read4(p);
+    } while (doclen == 0xffffffff);
     return true;
 }
 
@@ -243,8 +246,12 @@ DocLenChunkReader::skip_to(Xapian::docid target)
 
     // FIXME: Alignment guarantees?
     doclen = unaligned_read4(p);
+    if (doclen == 0xffffffff)
+	return next();
     return true;
 }
+
+// FIXME: Add check() method, which doesn't advance when it hits a 0xffffffff.
 
 bool
 DocLenChunkReader::find_doclength(Xapian::docid target)
@@ -259,7 +266,7 @@ DocLenChunkReader::find_doclength(Xapian::docid target)
 
     // FIXME: Alignment guarantees?
     doclen = unaligned_read4(p + (delta << 2));
-    return true;
+    return (doclen != 0xffffffff);
 }
 
 }
