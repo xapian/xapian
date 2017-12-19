@@ -95,7 +95,7 @@ enum {
     KEY_USER_METADATA = 0xc0,
     KEY_VALUE_STATS = 0xd0,
     KEY_VALUE_CHUNK = 0xd8,
-    KEY_DOCLEN_CHUNK = 0xe8,
+    KEY_DOCLEN_CHUNK = 0xe0,
     KEY_POSTING_CHUNK = 0xff
 };
 
@@ -594,13 +594,9 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	// plus optionally: pack_uint_preserving_sort(key, did)
 	const char * d = key.data();
 	const char * e = d + key.size();
-	if (GlassCompact::is_doclenchunk_key(key)) {
-	    d += 2;
-	} else {
-	    string tname;
-	    if (!unpack_string_preserving_sort(&d, e, tname))
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	}
+	string tname;
+	if (!unpack_string_preserving_sort(&d, e, tname))
+	    throw Xapian::DatabaseCorruptError("Bad postlist key");
 
 	if (d == e) {
 	    // This is an initial chunk for a term, so adjust tag header.
@@ -618,13 +614,12 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    size_t tmp = d - key.data();
 	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    if (GlassCompact::is_doclenchunk_key(key)) {
-		key.erase(tmp);
-	    } else {
-		key.erase(tmp - 1);
-	    }
+	    key.erase(tmp - 1);
 	}
 	firstdid += offset;
+
+	d = tag.data();
+	e = d + tag.size();
 
 	// Convert posting chunk to honey format.
 	string newtag;
@@ -1070,7 +1065,7 @@ merge_postlists(Xapian::Compactor * compactor,
 		string term;
 		if (key_type(last_key) != KEY_DOCLEN_CHUNK) {
 		    const char* p_ = last_key.data();
-		    const char* end_ = p + last_key.size();
+		    const char* end_ = p_ + last_key.size();
 		    if (!unpack_string_preserving_sort(&p_, end_, term) ||
 			p_ != end_) {
 			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
