@@ -755,7 +755,8 @@ merge_docid_keyed(GlassTable *out, const vector<GlassTable*> & inputs,
 		key.resize(0);
 		pack_uint_preserving_sort(key, did);
 		if (d != e) {
-		    // Copy over the termname for the position table.
+		    // Copy over anything extra in the key (e.g. the zero byte
+		    // at the end of "used value slots" in the termlist table).
 		    key.append(d, e - d);
 		}
 	    } else {
