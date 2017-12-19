@@ -48,6 +48,7 @@
 
 class GlassTermList;
 class GlassAllDocsPostList;
+class HoneyDatabase;
 class RemoteConnection;
 
 /** A backend designed for efficient indexing and retrieval, using
@@ -61,6 +62,7 @@ class GlassDatabase : public Xapian::Database::Internal {
     friend class GlassAllDocsPostList;
     friend class GlassSpellingWordsList;
     friend class GlassSynonymTermList;
+    friend class HoneyDatabase; // For compacting to convert.
     private:
 	/** Directory to store databases in.
 	 */

@@ -54,6 +54,11 @@
 #include "backends/glass/glass_version.h"
 #endif
 
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+#include "backends/honey/honey_database.h"
+#include "backends/honey/honey_version.h"
+#endif
+
 #include "backends/multi/multi_database.h"
 
 #include <xapian/constants.h>
@@ -342,11 +347,11 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
     if (backend == BACKEND_GLASS) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	if (output_ptr) {
-	    GlassDatabase::compact(compactor, destdir.c_str(), 0,
+	    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
 				   internals, offset,
 				   block_size, compaction, flags, last_docid);
 	} else {
-	    GlassDatabase::compact(compactor, NULL, fd,
+	    HoneyDatabase::compact(compactor, NULL, fd,
 				   internals, offset,
 				   block_size, compaction, flags, last_docid);
 	}

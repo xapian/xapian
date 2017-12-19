@@ -813,7 +813,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	multipass = false;
     }
 
-    if (single_file) {
+    if (true || single_file) { // FIXME: why check only if single_file is true?
 	for (size_t i = 0; i != sources.size(); ++i) {
 	    auto db = static_cast<const GlassDatabase*>(sources[i]);
 	    if (db->has_uncommitted_changes()) {

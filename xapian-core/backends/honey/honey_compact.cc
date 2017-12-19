@@ -54,6 +54,7 @@
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
 
+#include "../glass/glass_database.h"
 #include "../glass/glass_table.h"
 
 using namespace std;
@@ -549,6 +550,9 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    }
 	    firstdid += offset;
 
+	    d = tag.data();
+	    e = d + tag.size();
+
 	    // Convert doclen chunk to honey format.
 	    string newtag;
 
@@ -576,6 +580,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		while (delta > 1) {
 		    newtag.resize(newtag.size() + 4);
 		    unaligned_write4(reinterpret_cast<unsigned char*>(&newtag[newtag.size() - 4]), 0xffffffff);
+		    --delta;
 		}
 	    }
 
@@ -1646,6 +1651,47 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
     }
 }
 
+template<typename T> void
+merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
+		  const vector<Xapian::docid> & offset)
+{
+    for (size_t i = 0; i < inputs.size(); ++i) {
+	Xapian::docid off = offset[i];
+
+	auto in = inputs[i];
+	if (in->empty()) continue;
+
+	GlassCursor cur(in);
+	cur.find_entry(string());
+
+	string key;
+	while (cur.next()) {
+	    // Adjust the key if this isn't the first database.
+	    if (off) {
+		Xapian::docid did;
+		const char * d = cur.current_key.data();
+		const char * e = d + cur.current_key.size();
+		if (!unpack_uint_preserving_sort(&d, e, &did)) {
+		    string msg = "Bad key in ";
+		    msg += inputs[i]->get_path();
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		did += off;
+		key.resize(0);
+		pack_uint_preserving_sort(key, did);
+		if (d != e) {
+		    // Copy over the termname for the position table.
+		    key.append(d, e - d);
+		}
+	    } else {
+		key = cur.current_key;
+	    }
+	    bool compressed = cur.read_tag(true);
+	    out->add(key, cur.current_tag, compressed);
+	}
+    }
+}
+
 }
 
 using namespace HoneyCompact;
@@ -1692,8 +1738,9 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	multipass = false;
     }
 
-    if (single_file) {
+    if (false && single_file) {
 	for (size_t i = 0; i != sources.size(); ++i) {
+	    // FIXME: could be glass now...
 	    auto db = static_cast<const HoneyDatabase*>(sources[i]);
 	    if (db->has_uncommitted_changes()) {
 		const char * m =
@@ -1749,6 +1796,255 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
     }
 #endif
 
+    // FIXME: ick
+if (true) {
+    vector<SSTable *> tabs;
+    tabs.reserve(tables_end - tables);
+    off_t prev_size = block_size;
+    for (const table_list * t = tables; t < tables_end; ++t) {
+	// The postlist table requires an N-way merge, adjusting the
+	// headers of various blocks.  The spelling and synonym tables also
+	// need special handling.  The other tables have keys sorted in
+	// docid order, so we can merge them by simply copying all the keys
+	// from each source table in turn.
+	if (compactor)
+	    compactor->set_status(t->name, string());
+
+	string dest;
+	if (!single_file) {
+	    dest = destdir;
+	    dest += '/';
+	    dest += t->name;
+	    dest += '.';
+	}
+
+	bool output_will_exist = !t->lazy;
+
+	// Sometimes stat can fail for benign reasons (e.g. >= 2GB file
+	// on certain systems).
+	bool bad_stat = false;
+
+	// We can't currently report input sizes if there's a single file DB
+	// amongst the inputs.
+	bool single_file_in = false;
+
+	off_t in_size = 0;
+
+	vector<const GlassTable*> inputs;
+	inputs.reserve(sources.size());
+	size_t inputs_present = 0;
+	for (auto src : sources) {
+	    auto db = static_cast<const GlassDatabase*>(src);
+	    const GlassTable * table;
+	    switch (t->type) {
+		case Honey::POSTLIST:
+		    table = &(db->postlist_table);
+		    break;
+		case Honey::DOCDATA:
+		    table = &(db->docdata_table);
+		    break;
+		case Honey::TERMLIST:
+		    table = &(db->termlist_table);
+		    break;
+		case Honey::POSITION:
+		    table = &(db->position_table);
+		    break;
+		case Honey::SPELLING:
+		    table = &(db->spelling_table);
+		    break;
+		case Honey::SYNONYM:
+		    table = &(db->synonym_table);
+		    break;
+		default:
+		    Assert(false);
+		    return;
+	    }
+
+	    if (db->single_file()) {
+		if (t->lazy && table->empty()) {
+		    // Essentially doesn't exist.
+		} else {
+		    // FIXME: Find actual size somehow?
+		    // in_size += table->size() / 1024;
+		    single_file_in = true;
+		    output_will_exist = true;
+		    ++inputs_present;
+		}
+	    } else {
+		off_t db_size = file_size(table->get_path());
+		if (errno == 0) {
+		    in_size += db_size / 1024;
+		    output_will_exist = true;
+		    ++inputs_present;
+		} else if (errno != ENOENT) {
+		    // We get ENOENT for an optional table.
+		    bad_stat = true;
+		    output_will_exist = true;
+		    ++inputs_present;
+		}
+	    }
+	    inputs.push_back(table);
+	}
+
+	// If any inputs lack a termlist table, suppress it in the output.
+	if (t->type == Honey::TERMLIST && inputs_present != sources.size()) {
+	    if (inputs_present != 0) {
+		if (compactor) {
+		    string m = str(inputs_present);
+		    m += " of ";
+		    m += str(sources.size());
+		    m += " inputs present, so suppressing output";
+		    compactor->set_status(t->name, m);
+		}
+		continue;
+	    }
+	    output_will_exist = false;
+	}
+
+	if (!output_will_exist) {
+	    if (compactor)
+		compactor->set_status(t->name, "doesn't exist");
+	    continue;
+	}
+
+	SSTable * out;
+	if (single_file) {
+//	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
+//				 false, false);
+	    out = NULL;
+	} else {
+	    out = new SSTable(t->name, dest, false, t->lazy);
+	}
+	tabs.push_back(out);
+	Honey::RootInfo * root_info = version_file_out->root_to_set(t->type);
+	if (single_file) {
+	    root_info->set_free_list(fl_serialised);
+//	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
+	} else {
+	    out->create_and_open(FLAGS, *root_info);
+	}
+
+	out->set_full_compaction(compaction != compactor->STANDARD);
+	if (compaction == compactor->FULLER) out->set_max_item_size(1);
+
+	switch (t->type) {
+	    case Honey::POSTLIST: {
+		if (multipass && inputs.size() > 3) {
+		    multimerge_postlists(compactor, out, destdir,
+					 inputs, offset);
+		} else {
+		    merge_postlists(compactor, out, offset.begin(),
+				    inputs.begin(), inputs.end());
+		}
+		break;
+	    }
+	    case Honey::SPELLING:
+		merge_spellings(out, inputs.begin(), inputs.end());
+		break;
+	    case Honey::SYNONYM:
+		merge_synonyms(out, inputs.begin(), inputs.end());
+		break;
+	    case Honey::POSITION:
+		merge_positions(out, inputs, offset);
+		break;
+	    default:
+		// DocData, Termlist
+		merge_docid_keyed(out, inputs, offset);
+		break;
+	}
+
+	// Commit as revision 1.
+	out->flush_db();
+	out->commit(1, root_info);
+	out->sync();
+	if (single_file) fl_serialised = root_info->get_free_list();
+
+	off_t out_size = 0;
+	if (!bad_stat && !single_file_in) {
+	    off_t db_size;
+	    if (single_file) {
+		db_size = file_size(fd);
+	    } else {
+		db_size = file_size(dest + HONEY_TABLE_EXTENSION);
+	    }
+	    if (errno == 0) {
+		if (single_file) {
+		    off_t old_prev_size = max(prev_size, off_t(block_size));
+		    prev_size = db_size;
+		    db_size -= old_prev_size;
+		}
+		out_size = db_size / 1024;
+	    } else {
+		bad_stat = (errno != ENOENT);
+	    }
+	}
+	if (bad_stat) {
+	    if (compactor)
+		compactor->set_status(t->name, "Done (couldn't stat all the DB files)");
+	} else if (single_file_in) {
+	    if (compactor)
+		compactor->set_status(t->name, "Done (table sizes unknown for single file DB input)");
+	} else {
+	    string status;
+	    if (out_size == in_size) {
+		status = "Size unchanged (";
+	    } else {
+		off_t delta;
+		if (out_size < in_size) {
+		    delta = in_size - out_size;
+		    status = "Reduced by ";
+		} else {
+		    delta = out_size - in_size;
+		    status = "INCREASED by ";
+		}
+		if (in_size) {
+		    status += str(100 * delta / in_size);
+		    status += "% ";
+		}
+		status += str(delta);
+		status += "K (";
+		status += str(in_size);
+		status += "K -> ";
+	    }
+	    status += str(out_size);
+	    status += "K)";
+	    if (compactor)
+		compactor->set_status(t->name, status);
+	}
+    }
+
+    // If compacting to a single file output and all the tables are empty, pad
+    // the output so that it isn't mistaken for a stub database when we try to
+    // open it.  For this it needs to be a multiple of 2KB in size.
+    if (single_file && prev_size < off_t(block_size)) {
+#ifdef HAVE_FTRUNCATE
+	if (ftruncate(fd, block_size) < 0) {
+	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	}
+#else
+	const off_t off = block_size - 1;
+	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
+	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	}
+#endif
+    }
+
+    if (single_file) {
+	if (lseek(fd, version_file_out->get_offset(), SEEK_SET) == -1) {
+	    throw Xapian::DatabaseError("lseek() failed", errno);
+	}
+    }
+    version_file_out->set_last_docid(last_docid);
+    string tmpfile = version_file_out->write(1, FLAGS);
+    for (unsigned j = 0; j != tabs.size(); ++j) {
+	tabs[j]->sync();
+    }
+    // Commit with revision 1.
+    version_file_out->sync(tmpfile, 1, FLAGS);
+    for (unsigned j = 0; j != tabs.size(); ++j) {
+	delete tabs[j];
+    }
+} else {
     vector<SSTable *> tabs;
     tabs.reserve(tables_end - tables);
     off_t prev_size = block_size;
@@ -1995,6 +2291,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
     for (unsigned j = 0; j != tabs.size(); ++j) {
 	delete tabs[j];
     }
+}
 
     if (!single_file) lock.release();
 }
