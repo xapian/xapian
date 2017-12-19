@@ -1098,6 +1098,14 @@ merge_postlists(Xapian::Compactor * compactor,
 template<typename T> struct MergeCursor;
 
 template<>
+struct MergeCursor<const GlassTable&> : public GlassCursor {
+    explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
+	find_entry(string());
+	next();
+    }
+};
+
+template<>
 struct MergeCursor<const HoneyTable&> : public HoneyCursor {
     explicit MergeCursor(const HoneyTable *in) : HoneyCursor(in) {
 	find_entry(string());
@@ -1439,6 +1447,44 @@ multimerge_postlists(Xapian::Compactor * compactor,
 }
 
 template<typename T> class PositionCursor;
+
+template<>
+class PositionCursor<const GlassTable&> : private GlassCursor {
+    Xapian::docid offset;
+
+  public:
+    string key;
+    Xapian::docid firstdid;
+
+    PositionCursor(const GlassTable *in, Xapian::docid offset_)
+	: GlassCursor(in), offset(offset_), firstdid(0) {
+	find_entry(string());
+	next();
+    }
+
+    bool next() {
+	if (!GlassCursor::next()) return false;
+	read_tag();
+	const char * d = current_key.data();
+	const char * e = d + current_key.size();
+	string term;
+	Xapian::docid did;
+	if (!unpack_string_preserving_sort(&d, e, term) ||
+	    !unpack_uint_preserving_sort(&d, e, &did) ||
+	    d != e) {
+	    throw Xapian::DatabaseCorruptError("Bad position key");
+	}
+
+	key.resize(0);
+	pack_string_preserving_sort(key, term);
+	pack_uint_preserving_sort(key, did + offset);
+	return true;
+    }
+
+    const string & get_tag() const {
+	return current_tag;
+    }
+};
 
 template<>
 class PositionCursor<const HoneyTable&> : private HoneyCursor {
