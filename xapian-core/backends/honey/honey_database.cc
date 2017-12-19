@@ -35,7 +35,11 @@
 
 using namespace std;
 
-HoneyDatabase::HoneyDatabase(const std::string& path_)
+// Relied on below - opening to read should allow the termlist to be missing.
+static_assert(Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST,
+	"Xapian::DB_READONLY_ should imply Xapian::DB_NO_TERMLIST");
+
+HoneyDatabase::HoneyDatabase(const std::string& path_, int flags)
     : Xapian::Database::Internal(TRANSACTION_READONLY),
       path(path_),
       version_file(path_),
@@ -44,10 +48,19 @@ HoneyDatabase::HoneyDatabase(const std::string& path_)
       position_table(path_, true),
       spelling_table(path_, true),
       synonym_table(path_, true),
-      termlist_table(path_, true, false),
+      // Note: (Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST) is true, so
+      // opening to read we always allow the termlist to be missing.
+      termlist_table(path_, true, (flags & Xapian::DB_NO_TERMLIST)),
       value_manager(postlist_table, termlist_table)
 {
     version_file.read();
+    auto rev = version_file.get_revision();
+    docdata_table.open(flags, version_file.get_root(Honey::DOCDATA), rev);
+    postlist_table.open(flags, version_file.get_root(Honey::POSTLIST), rev);
+    position_table.open(flags, version_file.get_root(Honey::POSITION), rev);
+    spelling_table.open(flags, version_file.get_root(Honey::SPELLING), rev);
+    synonym_table.open(flags, version_file.get_root(Honey::SYNONYM), rev);
+    termlist_table.open(flags, version_file.get_root(Honey::TERMLIST), rev);
 }
 
 void

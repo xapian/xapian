@@ -81,7 +81,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
     mutable HoneyCursor* doclen_cursor = NULL;
 
   public:
-    HoneyDatabase(const std::string& path_);
+    HoneyDatabase(const std::string& path_, int flags = Xapian::DB_READONLY_);
 
     void readahead_for_query(const Xapian::Query& query) const;
 
