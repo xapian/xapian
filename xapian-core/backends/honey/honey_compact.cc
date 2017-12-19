@@ -59,28 +59,26 @@ using namespace std;
 // the same name in other flint-derived backends.
 namespace HoneyCompact {
 
-static inline bool
-is_user_metadata_key(const string & key)
-{
-    return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
-}
+enum {
+    KEY_USER_METADATA = 0xc0,
+    KEY_VALUE_STATS = 0xd0,
+    KEY_VALUE_CHUNK = 0xd8,
+    KEY_DOCLEN_CHUNK = 0xe8,
+    KEY_POSTING_CHUNK = 0xff
+};
 
-static inline bool
-is_valuestats_key(const string & key)
+/// Return one of the KEY_* constants, or a different value for an invalid key.
+static inline int
+key_type(const string& key)
 {
-    return key.size() > 1 && key[0] == '\0' && key[1] == '\xd0';
-}
+    if (key[0] != '\0')
+	return KEY_POSTING_CHUNK;
 
-static inline bool
-is_valuechunk_key(const string & key)
-{
-    return key.size() > 1 && key[0] == '\0' && key[1] == '\xd8';
-}
+    if (key.size() <= 1)
+	return -1;
 
-static inline bool
-is_doclenchunk_key(const string & key)
-{
-    return key.size() > 1 && key[0] == '\0' && key[1] == '\xe0';
+    // If key[1] is \xff then this correctly returns KEY_POSTING_CHUNK.
+    return static_cast<unsigned char>(key[1]);
 }
 
 class BufferedFile {
@@ -474,24 +472,48 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	key = current_key;
 	tag = current_tag;
 	tf = cf = 0;
-	if (is_user_metadata_key(key)) return true;
-	if (is_valuestats_key(key)) return true;
-	if (is_valuechunk_key(key)) {
-	    const char * p = key.data();
-	    const char * end = p + key.length();
-	    p += 2;
-	    Xapian::valueno slot;
-	    if (!unpack_uint(&p, end, &slot))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&p, end, &did))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	    did += offset;
+	switch (key_type(key)) {
+	    case KEY_USER_METADATA:
+	    case KEY_VALUE_STATS:
+		return true;
+	    case KEY_VALUE_CHUNK: {
+		const char * p = key.data();
+		const char * end = p + key.length();
+		p += 2;
+		Xapian::valueno slot;
+		if (!unpack_uint(&p, end, &slot))
+		    throw Xapian::DatabaseCorruptError("bad value key");
+		Xapian::docid did;
+		if (!unpack_uint_preserving_sort(&p, end, &did))
+		    throw Xapian::DatabaseCorruptError("bad value key");
+		did += offset;
 
-	    key.assign("\0\xd8", 2);
-	    pack_uint(key, slot);
-	    pack_uint_preserving_sort(key, did);
-	    return true;
+		key.assign("\0\xd8", 2);
+		pack_uint(key, slot);
+		pack_uint_preserving_sort(key, did);
+		return true;
+	    }
+	    case KEY_DOCLEN_CHUNK: {
+		const char * p = key.data();
+		const char * end = p + key.length();
+		p += 2;
+		Xapian::docid did = 1;
+		if (p != end &&
+		    (!unpack_uint_preserving_sort(&p, end, &did) || p != end)) {
+		    throw Xapian::DatabaseCorruptError("Bad doclen key");
+		}
+		did += offset;
+
+		key.erase(2);
+		if (did != 1) {
+		    pack_uint_preserving_sort(key, did);
+		}
+		return true;
+	    }
+	    case KEY_POSTING_CHUNK:
+		break;
+	    default:
+		throw Xapian::DatabaseCorruptError("Bad postlist table key type");
 	}
 
 	// Adjust key if this is *NOT* an initial chunk.
@@ -499,22 +521,11 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	// plus optionally: pack_uint_preserving_sort(key, did)
 	const char * d = key.data();
 	const char * e = d + key.size();
-	bool is_doclen_chunk = is_doclenchunk_key(key);
-	if (is_doclen_chunk) {
-	    d += 2;
-	} else {
-	    string tname;
-	    if (!unpack_string_preserving_sort(&d, e, tname))
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	}
+	string term;
+	if (!unpack_string_preserving_sort(&d, e, term))
+	    throw Xapian::DatabaseCorruptError("Bad postlist key");
 
-	if (is_doclen_chunk) {
-	    if (d != e &&
-		(!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)) {
-		throw Xapian::DatabaseCorruptError("Bad doclen key");
-	    }
-	    key.erase(2);
-	} else if (d == e) {
+	if (d == e) {
 	    // This is an initial chunk for a term, so adjust tag header.
 	    d = tag.data();
 	    e = d + tag.size();
@@ -563,47 +574,60 @@ class PostlistCursor<SSTable&> {
 	// We put all chunks into the non-initial chunk form here, then fix up
 	// the first chunk for each term in the merged database as we merge.
 	tf = cf = 0;
-	if (is_user_metadata_key(key)) return true;
-	if (is_valuestats_key(key)) return true;
-	if (is_valuechunk_key(key)) {
-	    const char * p = key.data();
-	    const char * end = p + key.length();
-	    p += 2;
-	    Xapian::valueno slot;
-	    if (!unpack_uint(&p, end, &slot))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&p, end, &did))
-		throw Xapian::DatabaseCorruptError("bad value key");
-	    did += offset;
+	switch (key_type(key)) {
+	    case KEY_USER_METADATA:
+	    case KEY_VALUE_STATS:
+		return true;
+	    case KEY_VALUE_CHUNK: {
+		const char * p = key.data();
+		const char * end = p + key.length();
+		p += 2;
+		Xapian::valueno slot;
+		if (!unpack_uint(&p, end, &slot))
+		    throw Xapian::DatabaseCorruptError("bad value key");
+		Xapian::docid did;
+		if (!unpack_uint_preserving_sort(&p, end, &did))
+		    throw Xapian::DatabaseCorruptError("bad value key");
+		did += offset;
 
-	    key.assign("\0\xd8", 2);
-	    pack_uint(key, slot);
-	    pack_uint_preserving_sort(key, did);
-	    return true;
+		key.assign("\0\xd8", 2);
+		pack_uint(key, slot);
+		pack_uint_preserving_sort(key, did);
+		return true;
+	    }
+	    case KEY_DOCLEN_CHUNK: {
+		const char * p = key.data();
+		const char * end = p + key.length();
+		p += 2;
+		Xapian::docid did = 1;
+		if (p != end &&
+		    (!unpack_uint_preserving_sort(&p, end, &did) || p != end)) {
+		    throw Xapian::DatabaseCorruptError("Bad doclen key");
+		}
+		did += offset;
+
+		key.erase(2);
+		if (did != 1) {
+		    pack_uint_preserving_sort(key, did);
+		}
+		return true;
+	    }
+	    case KEY_POSTING_CHUNK:
+		break;
+	    default:
+		throw Xapian::DatabaseCorruptError("Bad postlist table key type");
 	}
 
 	// Adjust key if this is *NOT* an initial chunk.
-	// key is: pack_string_preserving_sort(key, tname)
+	// key is: pack_string_preserving_sort(key, term)
 	// plus optionally: pack_uint_preserving_sort(key, did)
 	const char * d = key.data();
 	const char * e = d + key.size();
-	bool is_doclen_chunk = is_doclenchunk_key(key);
-	if (is_doclen_chunk) {
-	    d += 2;
-	} else {
-	    string tname;
-	    if (!unpack_string_preserving_sort(&d, e, tname))
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	}
+	string term;
+	if (!unpack_string_preserving_sort(&d, e, term))
+	    throw Xapian::DatabaseCorruptError("Bad postlist key");
 
-	if (is_doclen_chunk) {
-	    if (d != e &&
-		(!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)) {
-		throw Xapian::DatabaseCorruptError("Bad doclen key");
-	    }
-	    key.erase(2);
-	} else if (d == e) {
+	if (d == e) {
 	    // This is an initial chunk for a term, so adjust tag header.
 	    d = tag.data();
 	    e = d + tag.size();
@@ -681,7 +705,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	while (!pq.empty()) {
 	    cursor_type * cur = pq.top();
 	    const string& key = cur->key;
-	    if (!is_user_metadata_key(key)) break;
+	    if (key_type(key) != KEY_USER_METADATA) break;
 
 	    if (key != last_key) {
 		if (!tags.empty()) {
@@ -735,7 +759,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	while (!pq.empty()) {
 	    cursor_type * cur = pq.top();
 	    const string& key = cur->key;
-	    if (!is_valuestats_key(key)) break;
+	    if (key_type(key) != KEY_VALUE_STATS) break;
 	    if (key != last_key) {
 		// For the first valuestats key, last_key will be the previous
 		// key we wrote, which we don't want to overwrite.  This is the
@@ -795,8 +819,7 @@ merge_postlists(Xapian::Compactor * compactor,
     while (!pq.empty()) {
 	cursor_type * cur = pq.top();
 	const string & key = cur->key;
-	if (!is_valuechunk_key(key)) break;
-	Assert(!is_user_metadata_key(key));
+	if (key_type(key) != KEY_VALUE_CHUNK) break;
 	out->add(key, cur->tag);
 	pq.pop();
 	if (cur->next()) {
@@ -814,7 +837,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	    cur = pq.top();
 	    pq.pop();
 	}
-	Assert(cur == NULL || !is_user_metadata_key(cur->key));
+	Assert(cur == NULL || key_type(cur->key) != KEY_USER_METADATA);
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
 		// FIXME: special case for doclen chunks
@@ -834,7 +857,7 @@ merge_postlists(Xapian::Compactor * compactor,
 		out->add(last_key, first_tag);
 
 		string term;
-		if (!is_doclenchunk_key(last_key)) {
+		if (key_type(last_key) != KEY_DOCLEN_CHUNK) {
 		    const char* p_ = last_key.data();
 		    const char* end_ = p + last_key.size();
 		    if (!unpack_string_preserving_sort(&p_, end_, term) ||
