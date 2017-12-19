@@ -59,6 +59,20 @@
 
 using namespace std;
 
+[[noreturn]]
+static void
+throw_database_corrupt(const char* item, const char* pos)
+{
+    string message;
+    if (pos != NULL) {
+	message = "Value overflow unpacking termlist: ";
+    } else {
+	message = "Out of data unpacking termlist: ";
+    }
+    message += item;
+    throw Xapian::DatabaseCorruptError(message);
+}
+
 namespace GlassCompact {
 
 static inline bool
@@ -1607,7 +1621,8 @@ merge_positions(T* out, const vector<U*> & inputs,
 
 template<typename T, typename U> void
 merge_docid_keyed(T *out, const vector<U*> & inputs,
-		  const vector<Xapian::docid> & offset)
+		  const vector<Xapian::docid> & offset,
+		  int = 0)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
@@ -1648,7 +1663,8 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 
 template<typename T> void
 merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
-		  const vector<Xapian::docid> & offset)
+		  const vector<Xapian::docid> & offset,
+		  int table_type = 0)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
@@ -1681,8 +1697,68 @@ merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 	    } else {
 		key = cur.current_key;
 	    }
-	    bool compressed = cur.read_tag(true);
-	    out->add(key, cur.current_tag, compressed);
+	    if (table_type == Honey::TERMLIST && key.back() != '\0') {
+		cur.read_tag();
+		const string& tag = cur.current_tag;
+		const char* pos = tag.data();
+		const char* end = pos + tag.size();
+
+		string newtag;
+		if (pos != end) {
+		    Xapian::termcount doclen;
+		    if (!unpack_uint(&pos, end, &doclen)) {
+			throw_database_corrupt("doclen", pos);
+		    }
+		    Xapian::termcount termlist_size;
+		    if (!unpack_uint(&pos, end, &termlist_size)) {
+			throw_database_corrupt("termlist length", pos);
+		    }
+		    pack_uint(newtag, termlist_size - 1);
+		    pack_uint(newtag, doclen);
+
+		    string current_term;
+		    while (pos != end) {
+			Xapian::termcount current_wdf = 0;
+
+			if (!current_term.empty()) {
+			    size_t reuse = static_cast<unsigned char>(*pos++);
+			    newtag += char(reuse);
+
+			    if (reuse > current_term.size()) {
+				current_wdf = reuse / (current_term.size() + 1);
+				reuse = reuse % (current_term.size() + 1);
+			    }
+			    current_term.resize(reuse);
+
+			    if (pos == end)
+				throw_database_corrupt("term", NULL);
+			}
+
+			size_t append = static_cast<unsigned char>(*pos++);
+			if (size_t(end - pos) < append)
+			    throw_database_corrupt("term", NULL);
+
+			current_term.append(pos, append);
+			pos += append;
+
+			if (current_wdf) {
+			    --current_wdf;
+			} else {
+			    if (!unpack_uint(&pos, end, &current_wdf)) {
+				throw_database_corrupt("wdf", pos);
+			    }
+			    pack_uint(newtag, current_wdf);
+			}
+
+			newtag += char(append);
+			newtag.append(current_term.end() - append, current_term.end());
+		    }
+		}
+		out->add(key, newtag);
+	    } else {
+		bool compressed = cur.read_tag(true);
+		out->add(key, cur.current_tag, compressed);
+	    }
 	}
     }
 }
@@ -1944,7 +2020,7 @@ if (true) {
 		break;
 	    default:
 		// DocData, Termlist
-		merge_docid_keyed(out, inputs, offset);
+		merge_docid_keyed(out, inputs, offset, t->type);
 		break;
 	}
 

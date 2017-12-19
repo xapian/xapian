@@ -119,17 +119,15 @@ HoneyTermList::next()
 
     current_wdf = 0;
 
-    size_t reuse = 0;
     if (!current_term.empty()) {
-	reuse = static_cast<unsigned char>(*pos++);
-
+	size_t reuse = static_cast<unsigned char>(*pos++);
         if (reuse > current_term.size()) {
 	    current_wdf = reuse / (current_term.size() + 1);
 	    reuse = reuse % (current_term.size() + 1);
 	}
+	current_term.resize(reuse);
     }
 
-    current_term.resize(reuse);
     if (current_wdf) {
 	--current_wdf;
     } else {
@@ -147,8 +145,6 @@ HoneyTermList::next()
 
     current_term.append(pos, append);
     pos += append;
-
-    --termlist_size;
 
     // Indicate that termfreq hasn't been read for the current term.
     current_termfreq = 0;
