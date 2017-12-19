@@ -192,10 +192,13 @@ class BufferedFile {
     int read() const {
 #if 1
 	if (buf_end == 0) {
+retry:
 	    ssize_t r = pread(fd, buf, sizeof(buf), pos);
 	    if (r == 0) return EOF;
-	    // FIXME: retry on EINTR
-	    if (r < 0) std::abort();
+	    if (r < 0) {
+		if (errno == EINTR) goto retry;
+		throw Xapian::DatabaseError("pread failed", errno);
+	    }
 	    pos += r;
 	    buf_end = r;
 	}
