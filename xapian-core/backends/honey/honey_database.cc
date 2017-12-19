@@ -47,6 +47,7 @@ HoneyDatabase::HoneyDatabase(const std::string& path_)
       termlist_table(path_, true, false),
       value_manager(postlist_table, termlist_table)
 {
+    version_file.read();
 }
 
 void
