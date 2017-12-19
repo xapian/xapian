@@ -49,11 +49,42 @@
 #include "internaltypes.h"
 #include "pack.h"
 #include "backends/valuestats.h"
+#include "wordaccess.h"
 
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
 
+#include "../glass/glass_table.h"
+
 using namespace std;
+
+namespace GlassCompact {
+
+static inline bool
+is_user_metadata_key(const string & key)
+{
+    return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
+}
+
+static inline bool
+is_valuestats_key(const string & key)
+{
+    return key.size() > 1 && key[0] == '\0' && key[1] == '\xd0';
+}
+
+static inline bool
+is_valuechunk_key(const string & key)
+{
+    return key.size() > 1 && key[0] == '\0' && key[1] == '\xd8';
+}
+
+static inline bool
+is_doclenchunk_key(const string & key)
+{
+    return key.size() > 1 && key[0] == '\0' && key[1] == '\xe0';
+}
+
+}
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
 // the same name in other flint-derived backends.
@@ -447,6 +478,181 @@ class SSTable {
 };
 
 template<typename T> class PostlistCursor;
+
+// Convert glass to honey.
+template<>
+class PostlistCursor<const GlassTable&> : private GlassCursor {
+    Xapian::docid offset;
+
+  public:
+    string key, tag;
+    Xapian::docid firstdid;
+    Xapian::termcount tf, cf;
+
+    PostlistCursor(const GlassTable *in, Xapian::docid offset_)
+	: GlassCursor(in), offset(offset_), firstdid(0)
+    {
+	find_entry(string());
+	next();
+    }
+
+    bool next() {
+	if (!GlassCursor::next()) return false;
+	// We put all chunks into the non-initial chunk form here, then fix up
+	// the first chunk for each term in the merged database as we merge.
+	read_tag();
+	key = current_key;
+	tag = current_tag;
+	tf = cf = 0;
+	if (GlassCompact::is_user_metadata_key(key)) return true;
+	if (GlassCompact::is_valuestats_key(key)) return true;
+	if (GlassCompact::is_valuechunk_key(key)) {
+	    const char * p = key.data();
+	    const char * end = p + key.length();
+	    p += 2;
+	    Xapian::valueno slot;
+	    if (!unpack_uint(&p, end, &slot))
+		throw Xapian::DatabaseCorruptError("bad value key");
+	    Xapian::docid did;
+	    if (!unpack_uint_preserving_sort(&p, end, &did))
+		throw Xapian::DatabaseCorruptError("bad value key");
+	    did += offset;
+
+	    key.assign("\0\xd8", 2);
+	    pack_uint(key, slot);
+	    pack_uint_preserving_sort(key, did);
+	    return true;
+	}
+
+	if (GlassCompact::is_doclenchunk_key(key)) {
+	    const char * d = key.data();
+	    const char * e = d + key.size();
+	    d += 2;
+
+	    if (d == e) {
+		// This is an initial chunk for a term, so adjust tag header.
+		d = tag.data();
+		e = d + tag.size();
+		if (!unpack_uint(&d, e, &tf) ||
+		    !unpack_uint(&d, e, &cf) ||
+		    !unpack_uint(&d, e, &firstdid)) {
+		    throw Xapian::DatabaseCorruptError("Bad postlist key");
+		}
+		++firstdid;
+		tag.erase(0, d - tag.data());
+	    } else {
+		// Not an initial chunk, so adjust key.
+		size_t tmp = d - key.data();
+		if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+		    throw Xapian::DatabaseCorruptError("Bad postlist key");
+		key.erase(tmp);
+	    }
+	    firstdid += offset;
+
+	    // Convert doclen chunk to honey format.
+	    string newtag;
+
+	    // Skip the "last chunk" flag and increase_to_last.
+	    if (d == e)
+		throw Xapian::DatabaseCorruptError("No last chunk flag in glass docdata chunk");
+	    ++d;
+	    Xapian::docid increase_to_last;
+	    if (!unpack_uint(&d, e, &increase_to_last))
+		throw Xapian::DatabaseCorruptError("Decoding last docid delta in glass docdata chunk");
+
+	    while (true) {
+		Xapian::termcount doclen;
+		if (!unpack_uint(&d, e, &doclen))
+		    throw Xapian::DatabaseCorruptError("Decoding doclen in glass docdata chunk");
+		newtag.resize(newtag.size() + 4);
+		unaligned_write4(reinterpret_cast<unsigned char*>(&newtag[newtag.size() - 4]), doclen);
+		if (d == e)
+		    break;
+		Xapian::docid delta;
+		if (!unpack_uint(&d, e, &delta))
+		    throw Xapian::DatabaseCorruptError("Decoding docid delta in glass docdata chunk");
+		++delta;
+		// FIXME: Split chunk if the delta is at all large.
+		while (delta > 1) {
+		    newtag.resize(newtag.size() + 4);
+		    unaligned_write4(reinterpret_cast<unsigned char*>(&newtag[newtag.size() - 4]), 0xffffffff);
+		}
+	    }
+
+	    swap(tag, newtag);
+
+	    return true;
+	}
+
+	// Adjust key if this is *NOT* an initial chunk.
+	// key is: pack_string_preserving_sort(key, tname)
+	// plus optionally: pack_uint_preserving_sort(key, did)
+	const char * d = key.data();
+	const char * e = d + key.size();
+	if (GlassCompact::is_doclenchunk_key(key)) {
+	    d += 2;
+	} else {
+	    string tname;
+	    if (!unpack_string_preserving_sort(&d, e, tname))
+		throw Xapian::DatabaseCorruptError("Bad postlist key");
+	}
+
+	if (d == e) {
+	    // This is an initial chunk for a term, so adjust tag header.
+	    d = tag.data();
+	    e = d + tag.size();
+	    if (!unpack_uint(&d, e, &tf) ||
+		!unpack_uint(&d, e, &cf) ||
+		!unpack_uint(&d, e, &firstdid)) {
+		throw Xapian::DatabaseCorruptError("Bad postlist key");
+	    }
+	    ++firstdid;
+	    tag.erase(0, d - tag.data());
+	} else {
+	    // Not an initial chunk, so adjust key.
+	    size_t tmp = d - key.data();
+	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+		throw Xapian::DatabaseCorruptError("Bad postlist key");
+	    if (GlassCompact::is_doclenchunk_key(key)) {
+		key.erase(tmp);
+	    } else {
+		key.erase(tmp - 1);
+	    }
+	}
+	firstdid += offset;
+
+	// Convert posting chunk to honey format.
+	string newtag;
+
+	// Skip the "last chunk" flag; decode increase_to_last.
+	if (d == e)
+	    throw Xapian::DatabaseCorruptError("No last chunk flag in glass posting chunk");
+	++d;
+	Xapian::docid increase_to_last;
+	if (!unpack_uint(&d, e, &increase_to_last))
+	    throw Xapian::DatabaseCorruptError("Decoding last docid delta in glass posting chunk");
+
+	encode_delta_chunk_header(firstdid, firstdid + increase_to_last, newtag);
+	while (true) {
+	    Xapian::termcount wdf;
+	    if (!unpack_uint(&d, e, &wdf))
+		throw Xapian::DatabaseCorruptError("Decoding wdf glass posting chunk");
+	    newtag.resize(newtag.size() + 4);
+	    unaligned_write4(reinterpret_cast<unsigned char*>(&newtag[newtag.size() - 4]), wdf);
+	    if (d == e)
+		break;
+	    Xapian::docid delta;
+	    if (!unpack_uint(&d, e, &delta))
+		throw Xapian::DatabaseCorruptError("Decoding docid delta in glass posting chunk");
+	    newtag.resize(newtag.size() + 4);
+	    unaligned_write4(reinterpret_cast<unsigned char*>(&newtag[newtag.size() - 4]), delta);
+	}
+
+	swap(tag, newtag);
+
+	return true;
+    }
+};
 
 template<>
 class PostlistCursor<const HoneyTable&> : private HoneyCursor {
