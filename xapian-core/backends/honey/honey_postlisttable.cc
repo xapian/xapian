@@ -35,7 +35,14 @@ HoneyPostList*
 HoneyPostListTable::open_post_list(const HoneyDatabase* db,
 				   const std::string& term) const
 {
-    return new HoneyPostList(db, term, cursor_get());
+    // Try to position cursor first so we avoid creating HoneyPostList objects
+    // for terms which don't exist.
+    unique_ptr<HoneyCursor> cursor(cursor_get());
+    if (!cursor->find_exact(Honey::make_postingchunk_key(term))) {
+	return NULL;
+    }
+
+    return new HoneyPostList(db, term, cursor.release());
 }
 
 void

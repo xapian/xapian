@@ -31,14 +31,6 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 			     HoneyCursor* cursor_)
     : LeafPostList(term_), cursor(cursor_), db(db_)
 {
-    if (!cursor->find_exact(make_postingchunk_key(term_))) {
-	delete cursor;
-	cursor = NULL;
-	termfreq = 0;
-	last_did = 0;
-	return;
-    }
-
     cursor->read_tag();
     const string& chunk = cursor->current_tag;
 

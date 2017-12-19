@@ -140,6 +140,7 @@ class HoneyPostList : public LeafPostList {
     bool update_reader();
 
   public:
+    /// Create HoneyPostList from already positioned @a cursor_.
     HoneyPostList(const HoneyDatabase* db_,
 		  const std::string& term_,
 		  HoneyCursor* cursor_);
