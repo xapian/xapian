@@ -96,7 +96,7 @@ TermList *
 HoneyAllTermsList::next()
 {
     LOGCALL(DB, TermList *, "HoneyAllTermsList::next", NO_ARGS);
-    Assert(!at_end());
+    Assert(cursor != NULL);
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
     termfreq = 0;
@@ -156,7 +156,6 @@ TermList *
 HoneyAllTermsList::skip_to(const string &term)
 {
     LOGCALL(DB, TermList *, "HoneyAllTermsList::skip_to", term);
-    Assert(!at_end());
     // Set termfreq to 0 to indicate we've not read termfreq and collfreq for
     // the current term.
     termfreq = 0;
