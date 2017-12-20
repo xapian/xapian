@@ -290,6 +290,13 @@ class HoneyVersion {
      */
     void merge_stats(const HoneyVersion & o);
 
+    void merge_stats(Xapian::doccount o_doccount,
+		     Xapian::termcount o_doclen_lbound,
+		     Xapian::termcount o_doclen_ubound,
+		     Xapian::termcount o_wdf_ubound,
+		     Xapian::totallength o_total_doclen,
+		     Xapian::termcount o_spelling_wordfreq_ubound);
+
     bool single_file() const { return db_dir.empty(); }
 
     off_t get_offset() const { return offset; }

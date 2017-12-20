@@ -254,6 +254,35 @@ HoneyVersion::merge_stats(const HoneyVersion & o)
 }
 
 void
+HoneyVersion::merge_stats(Xapian::doccount o_doccount,
+			  Xapian::termcount o_doclen_lbound,
+			  Xapian::termcount o_doclen_ubound,
+			  Xapian::termcount o_wdf_ubound,
+			  Xapian::totallength o_total_doclen,
+			  Xapian::termcount o_spelling_wordfreq_ubound)
+{
+    doccount += o_doccount;
+    if (doccount < o_doccount) {
+	throw Xapian::DatabaseError("doccount overflowed!");
+    }
+
+    if (o_doclen_lbound > 0) {
+	if (doclen_lbound == 0 || o_doclen_lbound < doclen_lbound)
+	    doclen_lbound = o_doclen_lbound;
+    }
+
+    doclen_ubound = max(doclen_ubound, o_doclen_ubound);
+    wdf_ubound = max(wdf_ubound, o_wdf_ubound);
+    total_doclen += o_total_doclen;
+    if (total_doclen < o_total_doclen) {
+	throw Xapian::DatabaseError("Total document length overflowed!");
+    }
+
+    // The upper bounds might be on the same word, so we must sum them.
+    spelling_wordfreq_ubound += o_spelling_wordfreq_ubound;
+}
+
+void
 HoneyVersion::cancel()
 {
     LOGCALL_VOID(DB, "HoneyVersion::cancel", NO_ARGS);

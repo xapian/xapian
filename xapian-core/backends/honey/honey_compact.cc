@@ -1869,8 +1869,19 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 
     version_file_out->create(block_size);
     for (size_t i = 0; i != sources.size(); ++i) {
-	auto db = static_cast<const HoneyDatabase*>(sources[i]);
-	version_file_out->merge_stats(db->version_file);
+	auto honey_db = dynamic_cast<const HoneyDatabase*>(sources[i]);
+	if (honey_db) {
+	    version_file_out->merge_stats(honey_db->version_file);
+	} else {
+	    auto glass_db = dynamic_cast<const GlassDatabase*>(sources[i]);
+	    Assert(glass_db != NULL);
+	    version_file_out->merge_stats(glass_db->version_file.get_doccount(),
+					  glass_db->version_file.get_doclength_lower_bound(),
+					  glass_db->version_file.get_doclength_upper_bound(),
+					  glass_db->version_file.get_wdf_upper_bound(),
+					  glass_db->version_file.get_total_doclen(),
+					  glass_db->version_file.get_spelling_wordfreq_upper_bound());
+	}
     }
 
     string fl_serialised;
