@@ -46,6 +46,7 @@
 #endif
 
 #include <fstream>
+#include <iterator>
 
 using namespace std;
 
@@ -1556,7 +1557,7 @@ gen_uniqterms_gt_doclen_db(Xapian::WritableDatabase& db, const string&)
     doc.add_boolean_term("bar");
     db.add_document(doc);
     Xapian::Document doc2;
-    doc.add_term("foo", 2);
+    doc.add_posting("foo", 0, 2);
     doc.add_term("foo2");
     doc.add_boolean_term("baz");
     db.add_document(doc);
@@ -1579,6 +1580,49 @@ DEFINE_TESTCASE(getuniqueterms1, generated) {
     // Ideally it'd be equal to 2, but the current backends can't always
     // efficiently ensure an exact answer and here it is actually 3.
     TEST_REL(unique2, >=, 2);
+
+    return true;
+}
+
+/** Regression test for bug fixed in 1.4.6.
+ *
+ *  OP_NEAR would think a term without positional information occurred at
+ *  position 1 if it had the lowest term frequency amongst the OP_NEAR's
+ *  subqueries.
+ */
+DEFINE_TESTCASE(nopositionbug1, generated) {
+    Xapian::Database db =
+	get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
+
+    // Test both orders.
+    static const char* const terms1[] = { "foo", "baz" };
+    static const char* const terms2[] = { "baz", "foo" };
+
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query(Xapian::Query::OP_NEAR,
+				begin(terms1), end(terms1), 10));
+    TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
+
+    enq.set_query(Xapian::Query(Xapian::Query::OP_NEAR,
+				begin(terms2), end(terms2), 10));
+    TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
+
+    enq.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
+				begin(terms1), end(terms1), 10));
+    TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
+
+    enq.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
+				begin(terms2), end(terms2), 10));
+    TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
+
+    // Exercise exact phrase case too.
+    enq.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
+				begin(terms1), end(terms1), 2));
+    TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
+
+    enq.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
+				begin(terms2), end(terms2), 2));
+    TEST_EQUAL(enq.get_mset(0, 5).size(), 0);
 
     return true;
 }
