@@ -1558,14 +1558,30 @@ gen_uniqterms_gt_doclen_db(Xapian::WritableDatabase& db, const string&)
     doc.add_term("foo");
     doc.add_boolean_term("bar");
     db.add_document(doc);
+    Xapian::Document doc2;
+    doc.add_term("foo", 2);
+    doc.add_term("foo2");
+    doc.add_boolean_term("baz");
+    db.add_document(doc);
 }
 
 DEFINE_TESTCASE(getuniqueterms1, generated) {
     Xapian::Database db =
 	get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
 
-    TEST_REL(db.get_unique_terms(1), <=, db.get_doclength(1));
-    TEST_REL(db.get_unique_terms(1), <, db.get_document(1).termlist_count());
+    auto unique1 = db.get_unique_terms(1);
+    TEST_REL(unique1, <=, db.get_doclength(1));
+    TEST_REL(unique1, <, db.get_document(1).termlist_count());
+    // Ideally it'd be equal to 1, and in this case it is, but the current
+    // backends can't always efficiently ensure an exact answer.
+    TEST_REL(unique1, >=, 1);
+
+    auto unique2 = db.get_unique_terms(2);
+    TEST_REL(unique2, <=, db.get_doclength(2));
+    TEST_REL(unique2, <, db.get_document(2).termlist_count());
+    // Ideally it'd be equal to 2, but the current backends can't always
+    // efficiently ensure an exact answer and here it is actually 3.
+    TEST_REL(unique2, >=, 2);
 
     return true;
 }
