@@ -78,7 +78,8 @@ NearPostList::test_doc()
     sort(terms.begin(), terms.end(), TermCmp());
 
     poslists[0] = terms[0]->read_position_list();
-    poslists[0]->next();
+    if (!poslists[0]->next())
+	RETURN(false);
 
     Xapian::termpos last = poslists[0]->get_position();
     PositionList ** end = poslists + 1;
