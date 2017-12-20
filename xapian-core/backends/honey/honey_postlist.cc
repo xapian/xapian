@@ -31,6 +31,12 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 			     HoneyCursor* cursor_)
     : LeafPostList(term_), cursor(cursor_), db(db_)
 {
+    if (!cursor) {
+	// Term not present in db.
+	termfreq = 0;
+	last_did = 0;
+	return;
+    }
     cursor->read_tag();
     const string& chunk = cursor->current_tag;
 
@@ -103,7 +109,12 @@ HoneyPostList::open_position_list() const
 PostList*
 HoneyPostList::next(double)
 {
-    Assert(cursor);
+    if (rare(!cursor)) {
+	// This happens for terms not present in db.
+	AssertEq(termfreq, 0);
+	return NULL;
+    }
+
     if (!reader.at_end()) {
 	reader.next();
 	if (!reader.at_end()) return NULL;

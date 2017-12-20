@@ -39,7 +39,10 @@ HoneyPostListTable::open_post_list(const HoneyDatabase* db,
     // for terms which don't exist.
     unique_ptr<HoneyCursor> cursor(cursor_get());
     if (!cursor->find_exact(Honey::make_postingchunk_key(term))) {
-	return NULL;
+	// FIXME: Return NULL here and handle that in Query::Internal
+	// postlist() methods as we build the PostList tree.
+	// return NULL;
+	return new HoneyPostList(db, term, NULL);
     }
 
     return new HoneyPostList(db, term, cursor.release());
