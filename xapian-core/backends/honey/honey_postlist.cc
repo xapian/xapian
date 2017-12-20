@@ -68,8 +68,9 @@ LeafPostList*
 HoneyPostList::open_nearby_postlist(const string& term_) const
 {
     Assert(!term_.empty());
+    return NULL; // FIXME: reenable once fixed
     // FIXME: Once Honey supports writing, we need to return NULL here if the DB is writable.
-    return new HoneyPostList(db, term_, new HoneyCursor(*cursor));
+    //return new HoneyPostList(db, term_, new HoneyCursor(*cursor));
 }
 
 Xapian::docid
