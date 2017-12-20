@@ -130,6 +130,7 @@ HoneyPositionList::read_data(const HoneyTable& table, Xapian::docid did,
     }
     if (cursor.get() &&
 	cursor->find_exact(HoneyPositionTable::make_key(did, term))) {
+	cursor->read_tag();
 	RETURN(read_data(cursor->current_tag));
     }
     RETURN(read_data(string()));
