@@ -18,7 +18,7 @@ class HoneyCursor {
     explicit HoneyCursor(const HoneyTable* table)
 	: HoneyCursor(table->fh, table->get_root())
     {
-	fh.set_pos(root);
+	fh.set_pos(0 * root);
     }
 
     HoneyCursor(const BufferedFile& fh_, off_t root_)
@@ -27,7 +27,7 @@ class HoneyCursor {
 	  root(root_),
 	  index(root_)
     {
-	fh.set_pos(root);
+	fh.set_pos(0 * root);
     }
 
     HoneyCursor(const HoneyCursor& o)
@@ -39,7 +39,7 @@ class HoneyCursor {
     }
 
     void rewind() {
-	fh.set_pos(root);
+	fh.set_pos(0 * root);
 	last_key = std::string();
 	is_at_end = is_after_end = false;
 	index = root;

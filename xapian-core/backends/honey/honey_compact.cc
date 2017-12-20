@@ -1050,6 +1050,21 @@ merge_postlists(Xapian::Compactor * compactor,
 	}
     }
 
+    // Merge doclen chunks.
+    while (!pq.empty()) {
+	cursor_type * cur = pq.top();
+	string & key = cur->key;
+	if (key_type(key) != KEY_DOCLEN_CHUNK) break;
+	pack_uint_preserving_sort(key, cur->firstdid);
+	out->add(key, cur->tag);
+	pq.pop();
+	if (cur->next()) {
+	    pq.push(cur);
+	} else {
+	    delete cur;
+	}
+    }
+
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
     vector<pair<Xapian::docid, string> > tags;
     while (true) {
@@ -1058,10 +1073,9 @@ merge_postlists(Xapian::Compactor * compactor,
 	    cur = pq.top();
 	    pq.pop();
 	}
-	Assert(cur == NULL || key_type(cur->key) != KEY_USER_METADATA);
+	Assert(cur == NULL || key_type(cur->key) == KEY_POSTING_CHUNK);
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
-		// FIXME: special case for doclen chunks
 		Xapian::docid last_did;
 		const string& last_tag = tags.back().second;
 		const char* p = last_tag.data();
@@ -1072,21 +1086,17 @@ merge_postlists(Xapian::Compactor * compactor,
 		}
 
 		string first_tag;
-		if (key_type(last_key) != KEY_DOCLEN_CHUNK) {
-		    encode_initial_chunk_header(tf, cf, tags[0].first - 1, last_did,
-						first_tag);
-		}
+		encode_initial_chunk_header(tf, cf, tags[0].first, last_did,
+					    first_tag);
 		first_tag += tags[0].second;
 		out->add(last_key, first_tag);
 
 		string term;
-		if (key_type(last_key) != KEY_DOCLEN_CHUNK) {
-		    const char* p_ = last_key.data();
-		    const char* end_ = p_ + last_key.size();
-		    if (!unpack_string_preserving_sort(&p_, end_, term) ||
-			p_ != end_) {
-			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
-		    }
+		const char* p_ = last_key.data();
+		const char* end_ = p_ + last_key.size();
+		if (!unpack_string_preserving_sort(&p_, end_, term) ||
+		    p_ != end_) {
+		    throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
 		}
 
 		vector<pair<Xapian::docid, string> >::const_iterator i;

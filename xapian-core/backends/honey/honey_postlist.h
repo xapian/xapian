@@ -38,7 +38,7 @@ inline std::string
 make_postingchunk_key(const std::string& term)
 {
     std::string key;
-    pack_string_preserving_sort(key, term);
+    pack_string_preserving_sort(key, term, true);
     return key;
 }
 

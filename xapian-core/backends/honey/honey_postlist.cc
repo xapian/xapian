@@ -240,14 +240,18 @@ PostingChunkReader::assign(const char * p_, size_t len, Xapian::docid did_)
     end = reinterpret_cast<const unsigned char*>(pend);
     did = did_;
     last_did = last_did_in_chunk;
-    // FIXME: Alignment guarantees?  Hard with header.
-    wdf = unaligned_read4(p);
-    p += 4;
 }
 
 void
 PostingChunkReader::next()
 {
+    if ((end - p) % 8 != 0) {
+	// FIXME: Alignment guarantees?  Hard with header.
+	wdf = unaligned_read4(p);
+	p += 4;
+	return;
+    }
+
     if (p == end) {
 	p = NULL;
 	return;
@@ -264,6 +268,16 @@ PostingChunkReader::skip_to(Xapian::docid target)
 {
     if (p == NULL || target <= did)
 	return;
+
+    if ((end - p) % 8 != 0) {
+	if (target == did) {
+	    // FIXME: Alignment guarantees?  Hard with header.
+	    wdf = unaligned_read4(p);
+	    p += 4;
+	    return;
+	}
+	p += 4;
+    }
 
     if (target > last_did) {
 	p = NULL;
