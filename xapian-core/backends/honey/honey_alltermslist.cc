@@ -96,7 +96,6 @@ TermList *
 HoneyAllTermsList::next()
 {
     LOGCALL(DB, TermList *, "HoneyAllTermsList::next", NO_ARGS);
-    Assert(cursor != NULL);
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
     termfreq = 0;
