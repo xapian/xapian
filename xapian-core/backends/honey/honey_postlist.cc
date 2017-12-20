@@ -96,8 +96,12 @@ HoneyPostList::read_position_list()
 {
     if (rare(position_list == NULL))
 	position_list = new HoneyPositionList();
-    if (!position_list->read_data(db->position_table, get_docid(), term))
-	return NULL;
+    if (!position_list->read_data(db->position_table, get_docid(), term)) {
+	// FIXME: Consider returning NULL here - callers need fixing up, but
+	// this may be a rare case and the costs of checking for NULL may
+	// outweigh any gains.  Need to profile.
+	// return NULL;
+    }
     return position_list;
 }
 
