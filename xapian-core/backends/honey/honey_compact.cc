@@ -582,21 +582,21 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		Xapian::termcount doclen;
 		if (!unpack_uint(&d, e, &doclen))
 		    throw Xapian::DatabaseCorruptError("Decoding doclen in glass docdata chunk");
-		newtag.resize(newtag.size() + 4);
-		unaligned_write4(reinterpret_cast<unsigned char*>(&newtag[newtag.size() - 4]), doclen);
+		Assert(doclen != 0xffffffff);
+		unsigned char buf[4];
+		unaligned_write4(buf, doclen);
+		newtag.append(reinterpret_cast<char*>(buf), 4);
 		if (d == e)
 		    break;
-		Xapian::docid delta;
-		if (!unpack_uint(&d, e, &delta))
-		    throw Xapian::DatabaseCorruptError("Decoding docid delta in glass docdata chunk");
-		++delta;
-		// FIXME: Split chunk if the delta is at all large.
-		while (delta > 1) {
-		    newtag.resize(newtag.size() + 4);
-		    unaligned_write4(reinterpret_cast<unsigned char*>(&newtag[newtag.size() - 4]), 0xffffffff);
-		    --delta;
-		}
+		Xapian::docid gap_size;
+		if (!unpack_uint(&d, e, &gap_size))
+		    throw Xapian::DatabaseCorruptError("Decoding docid gap_size in glass docdata chunk");
+		// FIXME: Split chunk if the gap_size is at all large.
+		newtag.append(4 * gap_size, '\xff');
 	    }
+
+	    Assert(!startswith(newtag, "\xff\xff\xff\xff"));
+	    Assert(!endswith(newtag, "\xff\xff\xff\xff"));
 
 	    swap(tag, newtag);
 
@@ -651,15 +651,16 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    Xapian::termcount wdf;
 	    if (!unpack_uint(&d, e, &wdf))
 		throw Xapian::DatabaseCorruptError("Decoding wdf glass posting chunk");
-	    newtag.resize(newtag.size() + 4);
-	    unaligned_write4(reinterpret_cast<unsigned char*>(&newtag[newtag.size() - 4]), wdf);
+	    unsigned char buf[4];
+	    unaligned_write4(buf, wdf);
+	    newtag.append(reinterpret_cast<char*>(buf), 4);
 	    if (d == e)
 		break;
 	    Xapian::docid delta;
 	    if (!unpack_uint(&d, e, &delta))
 		throw Xapian::DatabaseCorruptError("Decoding docid delta in glass posting chunk");
-	    newtag.resize(newtag.size() + 4);
-	    unaligned_write4(reinterpret_cast<unsigned char*>(&newtag[newtag.size() - 4]), delta);
+	    unaligned_write4(buf, delta);
+	    newtag.append(reinterpret_cast<char*>(buf), 4);
 	}
 
 	swap(tag, newtag);
@@ -1071,8 +1072,10 @@ merge_postlists(Xapian::Compactor * compactor,
 		}
 
 		string first_tag;
-		encode_initial_chunk_header(tf, cf, tags[0].first - 1, last_did,
-					    first_tag);
+		if (key_type(last_key) != KEY_DOCLEN_CHUNK) {
+		    encode_initial_chunk_header(tf, cf, tags[0].first - 1, last_did,
+						first_tag);
+		}
 		first_tag += tags[0].second;
 		out->add(last_key, first_tag);
 
@@ -1756,7 +1759,7 @@ merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 			newtag.append(current_term.end() - append, current_term.end());
 		    }
 		}
-		out->add(key, newtag);
+		out->add(key, newtag); // FIXME: compression...
 	    } else {
 		bool compressed = cur.read_tag(true);
 		out->add(key, cur.current_tag, compressed);
