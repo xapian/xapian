@@ -146,7 +146,7 @@ class PostList {
      *		delete us.  This "pruning" can only happen for a non-leaf
      *		subclass of this class.
      */
-    virtual PostList* skip_to(Xapian::docid, double w_min) = 0;
+    virtual PostList* skip_to(Xapian::docid did, double w_min) = 0;
 
     /** Check if the specified docid occurs in this postlist.
      *
