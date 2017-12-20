@@ -1,7 +1,7 @@
 /** @file glass_compact.cc
  * @brief Compact a glass database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -814,16 +814,14 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	multipass = false;
     }
 
-    if (single_file) {
-	for (size_t i = 0; i != sources.size(); ++i) {
-	    GlassDatabase * db = static_cast<GlassDatabase*>(sources[i]);
-	    if (db->has_uncommitted_changes()) {
-		const char * m =
-		    "Can't compact from a WritableDatabase with uncommitted "
-		    "changes - either call commit() first, or create a new "
-		    "Database object from the filename on disk";
-		throw Xapian::InvalidOperationError(m);
-	    }
+    for (size_t i = 0; i != sources.size(); ++i) {
+	auto db = static_cast<const GlassDatabase*>(sources[i]);
+	if (db->has_uncommitted_changes()) {
+	    const char * m =
+		"Can't compact from a WritableDatabase with uncommitted "
+		"changes - either call commit() first, or create a new "
+		"Database object from the filename on disk";
+	    throw Xapian::InvalidOperationError(m);
 	}
     }
 

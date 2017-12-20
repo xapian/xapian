@@ -652,7 +652,7 @@ DEFINE_TESTCASE(compacttofd2, glass) {
     return true;
 }
 
-// Regression test for bug fixed in 1.3.5.  If you commit a WritableDatabase
+// Regression test for bug fixed in 1.3.5.  If you compact a WritableDatabase
 // with uncommitted changes, you get an inconsistent output.
 DEFINE_TESTCASE(compactsingle1, glass) {
     Xapian::WritableDatabase db = get_writable_database();
@@ -675,6 +675,31 @@ DEFINE_TESTCASE(compactsingle1, glass) {
 
     db.commit();
     db.compact(output, Xapian::DBCOMPACT_SINGLE_FILE);
+    db.close();
+
+    TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
+
+    return true;
+}
+
+// Regression test for bug fixed in 1.4.6.  Same as above, except not with
+// a single file database!
+DEFINE_TESTCASE(compact1, glass) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.add_term("foo");
+    doc.add_term("bar");
+    doc.add_term("baz");
+    db.add_document(doc);
+
+    string output = ".glass/db__compact1-out";
+    rm_rf(output);
+
+    TEST_EXCEPTION(Xapian::InvalidOperationError,
+	db.compact(output));
+
+    db.commit();
+    db.compact(output);
     db.close();
 
     TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
