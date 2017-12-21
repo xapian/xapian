@@ -7,6 +7,8 @@
 
 using Honey::RootInfo;
 
+using namespace std;
+
 void
 HoneyTable::create_and_open(int flags_, const RootInfo& root_info)
 {
@@ -37,6 +39,17 @@ HoneyTable::open(int flags_, const RootInfo& root_info, honey_revision_number_t)
 void
 HoneyTable::add(const std::string& key, const std::string& val, bool compressed)
 {
+    if (!compressed && compress_min > 0 && val.size() > compress_min) {
+	size_t compressed_size = val.size();
+	CompressionStream comp_stream; // FIXME: reuse
+	const char* p = comp_stream.compress(val.data(), &compressed_size);
+	if (p) {
+	    // FIXME: avoid temporary string.
+	    add(key, string(p, compressed_size), true);
+	    return;
+	}
+    }
+
     if (read_only)
 	throw Xapian::InvalidOperationError("add() on read-only HoneyTable");
     if (key.size() == 0 || key.size() > 255)

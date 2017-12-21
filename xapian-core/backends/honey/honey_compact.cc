@@ -367,6 +367,17 @@ class SSTable {
     const std::string& get_path() const { return path; }
 
     void add(const std::string& key, const std::string& val, bool compressed = false) {
+	if (!compressed && compress_min > 0 && val.size() > compress_min) {
+	    size_t compressed_size = val.size();
+	    CompressionStream comp_stream; // FIXME: reuse
+	    const char* p = comp_stream.compress(val.data(), &compressed_size);
+	    if (p) {
+		// FIXME: avoid temporary string.
+		add(key, string(p, compressed_size), true);
+		return;
+	    }
+	}
+
 	if (read_only)
 	    throw Xapian::InvalidOperationError("add() on read-only SSTable");
 	if (key.size() == 0 || key.size() > 255)
