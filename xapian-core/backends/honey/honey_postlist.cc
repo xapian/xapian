@@ -68,7 +68,8 @@ LeafPostList*
 HoneyPostList::open_nearby_postlist(const string& term_) const
 {
     Assert(!term_.empty());
-    // FIXME: Once Honey supports writing, we need to return NULL here if the DB is writable.
+    // FIXME: Once Honey supports writing, we need to return NULL here if the
+    // DB is writable and has uncommitted modifications.
 
     unique_ptr<HoneyCursor> new_cursor(new HoneyCursor(*cursor));
     if (!new_cursor->find_exact(Honey::make_postingchunk_key(term_))) {
