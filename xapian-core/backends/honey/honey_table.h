@@ -355,7 +355,8 @@ class HoneyTable {
     ~HoneyTable() {
 	size_t index_size = index.size();
 	total_index_size += index_size;
-	std::cout << "*** " << path << " - index " << index_size << " for " << index.get_num_entries() << " entries; total_size = " << total_index_size << std::endl;
+	if (index_size)
+	    std::cout << "*** " << path << " - index " << index_size << " for " << index.get_num_entries() << " entries; total_size = " << total_index_size << std::endl;
 	fh.close();
     }
 
