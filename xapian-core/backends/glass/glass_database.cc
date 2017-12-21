@@ -995,6 +995,10 @@ GlassDatabase::has_uncommitted_changes() const
 bool
 GlassDatabase::locked() const
 {
+    if (version_file.single_file()) {
+	// Single-file databases don't currently support writing.
+	return false;
+    }
     return lock.test();
 }
 
