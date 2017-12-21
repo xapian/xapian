@@ -731,7 +731,7 @@ GlassPostList::open_nearby_postlist(const std::string & term_) const
     LOGCALL(DB, LeafPostList *, "GlassPostList::open_nearby_postlist", term_);
     if (term_.empty())
 	RETURN(NULL);
-    if (!this_db.get() || this_db->postlist_table.is_writable())
+    if (!this_db.get() || this_db->postlist_table.is_modified())
 	RETURN(NULL);
     RETURN(new GlassPostList(this_db, term_, cursor->clone()));
 }
