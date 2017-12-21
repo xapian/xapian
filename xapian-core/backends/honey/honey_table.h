@@ -314,14 +314,18 @@ class SSIndex {
     size_t get_num_entries() const { return n_index; }
 };
 
+class HoneyCursor;
+class MutableHoneyCursor;
+
 class HoneyTable {
+    friend class HoneyCursor; // Allow access to fh.  FIXME cleaner way?
+    friend class MutableHoneyCursor; // Allow access to fh.  FIXME cleaner way?
+
     std::string path;
     bool read_only;
     int flags;
     uint4 compress_min;
-  public:
     mutable BufferedFile fh;
-  private:
     mutable std::string last_key;
     SSIndex index;
     off_t root = -1;
@@ -346,7 +350,12 @@ class HoneyTable {
 	std::abort();
     }
 
+    static size_t total_index_size;
+
     ~HoneyTable() {
+	size_t index_size = index.size();
+	total_index_size += index_size;
+	std::cout << "*** " << path << " - index " << index_size << " for " << index.get_num_entries() << " entries; total_size = " << total_index_size << std::endl;
 	fh.close();
     }
 

@@ -9,6 +9,8 @@ using Honey::RootInfo;
 
 using namespace std;
 
+size_t HoneyTable::total_index_size = 0;
+
 void
 HoneyTable::create_and_open(int flags_, const RootInfo& root_info)
 {
@@ -103,7 +105,7 @@ HoneyTable::commit(honey_revision_number_t, RootInfo* root_info)
 
     read_only = true;
     fh.rewind();
-    last_key = std::string();
+    last_key = string();
 }
 
 bool
@@ -162,7 +164,7 @@ HoneyTable::read_item(std::string& key, std::string& val, bool& compressed) cons
     if (p != end) std::abort();
     val_size -= (end - p);
     while (val_size) {
-	size_t n = std::min(val_size, sizeof(buf));
+	size_t n = min(val_size, sizeof(buf));
 	if (!fh.read(buf, n))
 	    throw Xapian::DatabaseError("read of " + str(n) + "/" + str(val_size) + " bytes of value data failed", errno);
 	val.append(buf, n);

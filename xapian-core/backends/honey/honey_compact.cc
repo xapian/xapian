@@ -258,251 +258,6 @@ class BufferedFile {
     }
 };
 
-static size_t total_index_size = 0;
-
-class SSIndex {
-    std::string data;
-    size_t block = 0;
-    size_t n_index = 0;
-    std::string last_index_key;
-    // Put an index entry every this much:
-    // FIXME: tune - seems 64K is common elsewhere
-    enum { INDEXBLOCK = 1024 };
-    SSIndex* parent_index = NULL;
-
-  public:
-    SSIndex() { }
-
-    void maybe_add_entry(const std::string& key, off_t ptr) {
-	size_t cur_block = ptr / INDEXBLOCK;
-	if (cur_block == block)
-	    return;
-
-	size_t len = std::min(last_index_key.size(), key.size());
-	size_t reuse;
-	for (reuse = 0; reuse < len; ++reuse) {
-	    if (last_index_key[reuse] != key[reuse]) break;
-	}
-
-	data += char(reuse);
-	data += char(key.size() - reuse);
-	data.append(key, reuse, key.size() - reuse);
-	pack_uint(data, static_cast<make_unsigned<off_t>::type>(ptr));
-
-	block = cur_block;
-	last_index_key = key;
-
-	++n_index;
-
-	// FIXME: deal with parent_index...
-
-	// FIXME: constant width entries would allow binary chop, but take a
-	// lot more space.  could impose max key width and just insert based on
-	// that, but still more space than storing key by length.  Or "SKO" -
-	// fixed width entry which encodes variable length pointer and key with
-	// short keys in the entry and long keys pointed to (or prefix included
-	// and rest pointed to).
-    }
-
-    off_t write(BufferedFile& fh) {
-	off_t root = fh.get_pos();
-	fh.write(data.data(), data.size());
-	// FIXME: parent stuff...
-	return root;
-    }
-
-    size_t size() const {
-	size_t s = data.size();
-	if (parent_index) s += parent_index->size();
-	return s;
-    }
-
-    size_t get_num_entries() const { return n_index; }
-};
-
-class SSTable {
-    std::string path;
-    bool read_only;
-    int flags;
-    uint4 compress_min;
-    mutable BufferedFile fh;
-    mutable std::string last_key;
-    SSIndex index;
-    off_t root = -1;
-    honey_tablesize_t num_entries;
-    bool lazy;
-
-  public:
-    SSTable(const char*, const std::string& path_, bool read_only_, bool lazy_ = false)
-	: path(path_ + HONEY_TABLE_EXTENSION),
-	  read_only(read_only_),
-	  num_entries(0),
-	  lazy(lazy_)
-    {
-	(void)lazy;
-    }
-
-    ~SSTable() {
-	size_t index_size = index.size();
-	total_index_size += index_size;
-	cout << "*** " << path << " - index " << index_size << " for " << index.get_num_entries() << " entries; total_size = " << total_index_size << endl;
-    }
-
-    void set_full_compaction(bool) { }
-
-    void set_max_item_size(unsigned) { }
-
-    void create_and_open(int flags_, const Honey::RootInfo& root_info) {
-	flags = flags_;
-	compress_min = root_info.get_compress_min();
-	if (read_only) {
-	    num_entries = root_info.get_num_entries();
-	    root = root_info.get_root();
-	    // FIXME: levels
-	}
-	if (!fh.open(path, read_only))
-	    throw Xapian::DatabaseOpeningError("Failed to open SSTable", errno);
-    }
-
-    const std::string& get_path() const { return path; }
-
-    void add(const std::string& key, const std::string& val, bool compressed = false) {
-	if (!compressed && compress_min > 0 && val.size() > compress_min) {
-	    size_t compressed_size = val.size();
-	    CompressionStream comp_stream; // FIXME: reuse
-	    const char* p = comp_stream.compress(val.data(), &compressed_size);
-	    if (p) {
-		// FIXME: avoid temporary string.
-		add(key, string(p, compressed_size), true);
-		return;
-	    }
-	}
-
-	if (read_only)
-	    throw Xapian::InvalidOperationError("add() on read-only SSTable");
-	if (key.size() == 0 || key.size() > 255)
-	    throw Xapian::InvalidArgumentError("Invalid key size: " + str(key.size()));
-	if (key <= last_key)
-	    throw Xapian::InvalidOperationError("New key <= previous key");
-	if (!last_key.empty()) {
-	    size_t len = std::min(last_key.size(), key.size());
-	    size_t i;
-	    for (i = 0; i < len; ++i) {
-		if (last_key[i] != key[i]) break;
-	    }
-	    fh.write(static_cast<unsigned char>(i));
-	    fh.write(static_cast<unsigned char>(key.size() - i));
-	    fh.write(key.data() + i, key.size() - i);
-	} else {
-	    fh.write(static_cast<unsigned char>(key.size()));
-	    fh.write(key.data(), key.size());
-	}
-	++num_entries;
-	index.maybe_add_entry(key, fh.get_pos());
-
-	// Encode "compressed?" flag in bottom bit.
-	// FIXME: Don't do this if a table is uncompressed?  That saves a byte
-	// for each item where the extra bit pushes the length up by a byte.
-	size_t val_size_enc = (val.size() << 1) | compressed;
-	std::string val_len;
-	pack_uint(val_len, val_size_enc);
-	// FIXME: pass together so we can potentially writev() both?
-	fh.write(val_len.data(), val_len.size());
-	fh.write(val.data(), val.size());
-	last_key = key;
-    }
-
-    void flush_db() {
-	root = index.write(fh);
-	fh.flush();
-    }
-
-    void commit(honey_revision_number_t, Honey::RootInfo* root_info) {
-	if (root < 0)
-	    throw Xapian::InvalidOperationError("root not set");
-
-	root_info->set_level(1); // FIXME: number of index levels
-	root_info->set_num_entries(num_entries);
-	root_info->set_root_is_fake(false);
-	// Not really meaningful.
-	root_info->set_sequential(true);
-	root_info->set_root(root);
-	// Not really meaningful.
-	root_info->set_blocksize(2048);
-	// Not really meaningful.
-	//root_info->set_free_list(std::string());
-
-	read_only = true;
-	fh.rewind();
-	last_key = string();
-    }
-
-    void sync() {
-	fh.sync();
-    }
-
-    bool empty() const {
-	return fh.empty();
-    }
-
-    bool read_item(std::string& key, std::string& val, bool& compressed) const {
-	if (!read_only) {
-	    return false;
-	}
-
-	int ch = fh.read();
-	if (ch == EOF) return false;
-
-	size_t reuse = 0;
-	if (!last_key.empty()) {
-	    reuse = ch;
-	    ch = fh.read();
-	    if (ch == EOF) throw Xapian::DatabaseError("EOF/error while reading key length", errno);
-	}
-	size_t key_size = ch;
-	char buf[4096];
-	if (!fh.read(buf, key_size))
-	    throw Xapian::DatabaseError("read of " + str(key_size) + " bytes of key data failed", errno);
-	key.assign(last_key, 0, reuse);
-	key.append(buf, key_size);
-	last_key = key;
-
-	int r;
-	{
-	    // FIXME: rework to take advantage of buffering that's happening anyway?
-	    char * p = buf;
-	    for (int i = 0; i < 8; ++i) {
-		int ch2 = fh.read();
-		if (ch2 == EOF) {
-		    break;
-		}
-		*p++ = ch2;
-		if (ch2 < 128) break;
-	    }
-	    r = p - buf;
-	}
-	const char* p = buf;
-	const char* end = p + r;
-	size_t val_size;
-	if (!unpack_uint(&p, end, &val_size)) {
-	    throw Xapian::DatabaseError("val_size unpack_uint invalid");
-	}
-	compressed = val_size & 1;
-	val_size >>= 1;
-	val.assign(p, end);
-	val_size -= (end - p);
-	while (val_size) {
-	    size_t n = min(val_size, sizeof(buf));
-	    if (!fh.read(buf, n))
-		throw Xapian::DatabaseError("read of " + str(n) + "/" + str(val_size) + " bytes of value data failed " + str(r), errno);
-	    val.append(buf, n);
-	    val_size -= n;
-	}
-
-	return true;
-    }
-};
-
 template<typename T> class PostlistCursor;
 
 // Convert glass to honey.
@@ -783,8 +538,8 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 };
 
 template<>
-class PostlistCursor<SSTable&> {
-    SSTable* table;
+class PostlistCursor<HoneyTable&> {
+    HoneyTable* table;
     Xapian::docid offset;
 
   public:
@@ -792,7 +547,7 @@ class PostlistCursor<SSTable&> {
     Xapian::docid firstdid;
     Xapian::termcount tf, cf;
 
-    PostlistCursor(SSTable *in, Xapian::docid offset_)
+    PostlistCursor(HoneyTable *in, Xapian::docid offset_)
 	: table(in), offset(offset_), firstdid(0)
     {
 	next();
@@ -1152,13 +907,13 @@ struct MergeCursor<const HoneyTable&> : public HoneyCursor {
 };
 
 template<>
-struct MergeCursor<SSTable&> {
-    SSTable* table;
+struct MergeCursor<HoneyTable&> {
+    HoneyTable* table;
     string current_key, current_tag;
     bool current_compressed;
     mutable CompressionStream comp_stream;
 
-    explicit MergeCursor(SSTable *in) : table(in), comp_stream(Z_DEFAULT_STRATEGY) {
+    explicit MergeCursor(HoneyTable *in) : table(in), comp_stream(Z_DEFAULT_STRATEGY) {
 	next();
     }
 
@@ -1395,7 +1150,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	return;
     }
     unsigned int c = 0;
-    vector<SSTable *> tmp;
+    vector<HoneyTable *> tmp;
     tmp.reserve(in.size() / 2);
     {
 	vector<Xapian::docid> newoff;
@@ -1409,12 +1164,12 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
 	    dest += buf;
 
-	    SSTable * tmptab = new SSTable("postlist", dest, false);
+	    HoneyTable * tmptab = new HoneyTable("postlist", dest, false);
 
 	    // Use maximum blocksize for temporary tables.  And don't compress
 	    // entries in temporary tables, even if the final table would do
 	    // so.  Any already compressed entries will get copied in
-	    // compressed form. (FIXME: SSTable has no blocksize)
+	    // compressed form. (FIXME: HoneyTable has no blocksize)
 	    Honey::RootInfo root_info;
 	    root_info.init(65536, 0);
 	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
@@ -1432,7 +1187,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
     }
 
     while (tmp.size() > 3) {
-	vector<SSTable *> tmpout;
+	vector<HoneyTable *> tmpout;
 	tmpout.reserve(tmp.size() / 2);
 	vector<Xapian::docid> newoff;
 	newoff.resize(tmp.size() / 2);
@@ -1445,12 +1200,12 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
 	    dest += buf;
 
-	    SSTable * tmptab = new SSTable("postlist", dest, false);
+	    HoneyTable * tmptab = new HoneyTable("postlist", dest, false);
 
 	    // Use maximum blocksize for temporary tables.  And don't compress
 	    // entries in temporary tables, even if the final table would do
 	    // so.  Any already compressed entries will get copied in
-	    // compressed form. (FIXME: SSTable has no blocksize)
+	    // compressed form. (FIXME: HoneyTable has no blocksize)
 	    Honey::RootInfo root_info;
 	    root_info.init(65536, 0);
 	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
@@ -1563,8 +1318,8 @@ class PositionCursor<const HoneyTable&> : private HoneyCursor {
 };
 
 template<>
-class PositionCursor<SSTable&> {
-    SSTable* table;
+class PositionCursor<HoneyTable&> {
+    HoneyTable* table;
     Xapian::docid offset;
 
   public:
@@ -1572,7 +1327,7 @@ class PositionCursor<SSTable&> {
     string current_key, current_tag;
     Xapian::docid firstdid;
 
-    PositionCursor(SSTable *in, Xapian::docid offset_)
+    PositionCursor(HoneyTable *in, Xapian::docid offset_)
 	: table(in), offset(offset_), firstdid(0) {
 	next();
     }
@@ -1906,7 +1661,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 
     // FIXME: ick
 if (true) {
-    vector<SSTable *> tabs;
+    vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
     off_t prev_size = block_size;
     for (const table_list * t = tables; t < tables_end; ++t) {
@@ -2015,13 +1770,13 @@ if (true) {
 	    continue;
 	}
 
-	SSTable * out;
+	HoneyTable * out;
 	if (single_file) {
 //	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
 //				 false, false);
 	    out = NULL;
 	} else {
-	    out = new SSTable(t->name, dest, false, t->lazy);
+	    out = new HoneyTable(t->name, dest, false, t->lazy);
 	}
 	tabs.push_back(out);
 	Honey::RootInfo * root_info = version_file_out->root_to_set(t->type);
@@ -2153,7 +1908,7 @@ if (true) {
 	delete tabs[j];
     }
 } else {
-    vector<SSTable *> tabs;
+    vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
     off_t prev_size = block_size;
     for (const table_list * t = tables; t < tables_end; ++t) {
@@ -2262,13 +2017,13 @@ if (true) {
 	    continue;
 	}
 
-	SSTable * out;
+	HoneyTable * out;
 	if (single_file) {
 //	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
 //				 false, false);
 	    out = NULL;
 	} else {
-	    out = new SSTable(t->name, dest, false, t->lazy);
+	    out = new HoneyTable(t->name, dest, false, t->lazy);
 	}
 	tabs.push_back(out);
 	Honey::RootInfo * root_info = version_file_out->root_to_set(t->type);
