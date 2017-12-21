@@ -27,6 +27,7 @@
 #include "testsuite.h"
 #include "backendmanager.h"
 #include "backendmanager_glass.h"
+#include "backendmanager_honey.h"
 #include "backendmanager_inmemory.h"
 #include "backendmanager_multi.h"
 #include "backendmanager_remoteprog.h"
@@ -83,6 +84,8 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
 	{ "singlefile_glass", SINGLEFILE|
 	    BACKEND|POSITIONAL|VALUESTATS },
+	{ "honey", HONEY|
+	    BACKEND|POSITIONAL|VALUESTATS },
 	{ NULL, 0 }
     };
 
@@ -118,6 +121,10 @@ TestRunner::run_tests(int argc, char ** argv)
 	test_driver::add_command_line_option("backend", 'b', &user_backend);
 	test_driver::parse_command_line(argc, argv);
 	srcdir = test_driver::get_srcdir();
+
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+	do_tests_for_backend(BackendManagerHoney());
+#endif
 
 	do_tests_for_backend(BackendManager());
 

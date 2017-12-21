@@ -77,6 +77,7 @@ class TestRunner {
 	SINGLEFILE	= 0x00001000,
 	INMEMORY	= 0x00002000,
 	GLASS		= 0x00004000,
+	HONEY		= 0x00008000,
     };
 
   public:
