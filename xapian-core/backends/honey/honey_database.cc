@@ -63,6 +63,11 @@ HoneyDatabase::HoneyDatabase(const std::string& path_, int flags)
     termlist_table.open(flags, version_file.get_root(Honey::TERMLIST), rev);
 }
 
+HoneyDatabase::~HoneyDatabase()
+{
+    delete doclen_cursor;
+}
+
 void
 HoneyDatabase::readahead_for_query(const Xapian::Query& query) const
 {
