@@ -207,6 +207,29 @@ class HoneyCursor {
 	    description_append(desc, key);
 	    std::cerr << "find_entry(" << desc << ") [LE]" << std::endl;
 	}
+#if 1
+	// FIXME: use index
+	int cmp0 = current_key.compare(key);
+	if (cmp0 == 0) return true;
+	if (cmp0 > 0) {
+	    rewind();
+	}
+
+	off_t pos;
+	std::string k;
+	size_t vs;
+	bool compressed;
+	while (pos = fh.get_pos(), k = current_key, vs = val_size, compressed = current_compressed, next()) {
+	    int cmp = current_key.compare(key);
+	    if (cmp == 0) return true;
+	    if (cmp > 0) break;
+	}
+	fh.set_pos(pos);
+	current_key = last_key = k;
+	val_size = vs;
+	current_compressed = compressed;
+	return false;
+#else
 	int cmp0 = current_key.compare(key);
 	if (cmp0 == 0) {
 	    if (DEBUGGING) std::cerr << " already on it" << std::endl;
@@ -379,6 +402,7 @@ class HoneyCursor {
 	    std::cerr << " NOT found - leaving us on " << desc << std::endl;
 	}
 	return false;
+#endif
     }
 
     void find_entry_lt(const std::string& key) {
