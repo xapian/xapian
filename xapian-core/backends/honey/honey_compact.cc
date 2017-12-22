@@ -311,7 +311,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    d += 2;
 
 	    if (d == e) {
-		// This is an initial chunk for a term, so adjust tag header.
+		// This is an initial chunk, so adjust tag header.
 		d = tag.data();
 		e = d + tag.size();
 		if (!unpack_uint(&d, e, &tf) ||
