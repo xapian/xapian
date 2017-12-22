@@ -74,6 +74,9 @@ throw_cannot_test_lock()
 bool
 FlintLock::test() const
 {
+    // A database which doesn't support update can't be locked for update.
+    if (filename.empty()) return false;
+
 #if defined __CYGWIN__ || defined __WIN32__
     if (hFile != INVALID_HANDLE_VALUE) return true;
     // Doesn't seem to be possible to check if the lock is held without briefly
