@@ -1,7 +1,7 @@
 /** @file flint_lock.h
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2012,2014,2016 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2012,2014,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,11 +33,11 @@
 class FlintLock {
     std::string filename;
 #if defined __CYGWIN__ || defined __WIN32__
-    HANDLE hFile;
+    HANDLE hFile = INVALID_HANDLE_VALUE;
 #elif defined FLINTLOCK_USE_FLOCK
-    int fd;
+    int fd = -1;
 #else
-    int fd;
+    int fd = -1;
     pid_t pid;
 #endif
 
@@ -49,28 +49,27 @@ class FlintLock {
 	FDLIMIT, // Process hit its file descriptor limit.
 	UNKNOWN // The attempt failed for some unspecified reason.
     } reason;
+
+    /** Standard constructor. */
+    explicit FlintLock(const std::string &filename_)
+	: filename(filename_) {
+	// Keep the same lockfile name as flint since the locking is compatible
+	// and this avoids the possibility of creating two databases in the
+	// same directory using different backends.
+	filename += "/flintlock";
+    }
+
+    /** Constructor for use in read-only cases (like single-file glass). */
+    FlintLock() {}
+
+    operator bool() const {
 #if defined __CYGWIN__ || defined __WIN32__
-    explicit FlintLock(const std::string &filename_)
-	: filename(filename_), hFile(INVALID_HANDLE_VALUE) {
-	// Keep the same lockfile name as flint since the locking is
-	// compatible and this avoids the possibility of creating two databases
-	// in the same directory using different backends.
-	filename += "/flintlock";
-    }
-    operator bool() const { return hFile != INVALID_HANDLE_VALUE; }
-#elif defined FLINTLOCK_USE_FLOCK
-    explicit FlintLock(const std::string &filename_)
-	: filename(filename_), fd(-1) {
-	filename += "/flintlock";
-    }
-    operator bool() const { return fd != -1; }
+	return hFile != INVALID_HANDLE_VALUE;
 #else
-    explicit FlintLock(const std::string &filename_)
-	: filename(filename_), fd(-1) {
-	filename += "/flintlock";
-    }
-    operator bool() const { return fd != -1; }
+	return fd != -1;
 #endif
+    }
+
     // Release any lock held when we're destroyed.
     ~FlintLock() { release(); }
 

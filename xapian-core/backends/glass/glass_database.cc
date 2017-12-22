@@ -179,7 +179,7 @@ GlassDatabase::GlassDatabase(int fd)
 	  synonym_table(fd, version_file.get_offset(), readonly),
 	  spelling_table(fd, version_file.get_offset(), readonly),
 	  docdata_table(fd, version_file.get_offset(), readonly),
-	  lock(string()),
+	  lock(),
 	  changes(string())
 {
     LOGCALL_CTOR(DB, "GlassDatabase", fd);
@@ -1007,10 +1007,6 @@ GlassDatabase::has_uncommitted_changes() const
 bool
 GlassDatabase::locked() const
 {
-    if (version_file.single_file()) {
-	// Single-file databases don't currently support writing.
-	return false;
-    }
     return lock.test();
 }
 
