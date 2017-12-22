@@ -3,6 +3,8 @@
 
 #include "honey_table.h"
 
+#define DEBUGGING false
+
 class HoneyCursor {
     void rewind() {
 	fh.set_pos(0 * root);
@@ -80,7 +82,7 @@ class HoneyCursor {
 	if (DEBUGGING) {
 	    std::string esc;
 	    description_append(esc, current_key);
-	    std::cout << "K:" << esc << std::endl;
+	    std::cerr << "K:" << esc << std::endl;
 	}
 
 	int r;
@@ -127,7 +129,7 @@ class HoneyCursor {
 	    if (DEBUGGING) {
 		std::string esc;
 		description_append(esc, current_tag);
-		std::cout << "V:" << esc << std::endl;
+		std::cerr << "V:" << esc << std::endl;
 	    }
 	}
 	if (!keep_compressed && current_compressed) {
@@ -148,7 +150,11 @@ class HoneyCursor {
     }
 
     bool find_exact(const std::string& key) {
-//	std::cerr << "EQ" << std::endl;
+	if (DEBUGGING) {
+	    std::string esc;
+	    description_append(esc, key);
+	    std::cerr << "find_exact(" << esc << ") @" << fh.get_pos() << std::endl;
+	}
 	// FIXME: use index
 	int cmp0 = current_key.compare(key);
 	if (cmp0 == 0) return true;
@@ -165,7 +171,11 @@ class HoneyCursor {
     }
 
     bool find_entry_ge(const std::string& key) {
-//	std::cerr << "GE" << std::endl;
+	if (DEBUGGING) {
+	    std::string esc;
+	    description_append(esc, key);
+	    std::cerr << "find_entry_ge(" << esc << ") @" << fh.get_pos() << std::endl;
+	}
 	// FIXME: use index
 	int cmp0 = current_key.compare(key);
 	if (cmp0 == 0) return true;
@@ -362,7 +372,11 @@ class HoneyCursor {
     }
 
     void find_entry_lt(const std::string& key) {
-//	std::cerr << "LT" << std::endl;
+	if (DEBUGGING) {
+	    std::string esc;
+	    description_append(esc, key);
+	    std::cerr << "find_entry_lt(" << esc << ") @" << fh.get_pos() << std::endl;
+	}
 	// FIXME: use index
 	if (key < current_key) {
 	    rewind();

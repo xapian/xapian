@@ -21,8 +21,6 @@
 #ifndef XAPIAN_INCLUDED_HONEY_TABLE_H
 #define XAPIAN_INCLUDED_HONEY_TABLE_H
 
-#define DEBUGGING false
-
 //#include "xapian/constants.h"
 #include "xapian/error.h"
 
