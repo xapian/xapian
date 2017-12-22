@@ -22,11 +22,9 @@ class HoneyCursor {
     mutable std::string last_key;
     off_t root, index;
 
+    // Forward to next constructor form.
     explicit HoneyCursor(const HoneyTable* table)
-	: HoneyCursor(table->fh, table->get_root())
-    {
-	fh.set_pos(0 * root);
-    }
+	: HoneyCursor(table->fh, table->get_root()) {}
 
     HoneyCursor(const BufferedFile& fh_, off_t root_)
 	: fh(fh_),
