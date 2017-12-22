@@ -68,6 +68,7 @@ LeafPostList*
 HoneyPostList::open_nearby_postlist(const string& term_) const
 {
     Assert(!term_.empty());
+    if (!cursor) return NULL;
     // FIXME: Once Honey supports writing, we need to return NULL here if the
     // DB is writable and has uncommitted modifications.
 
