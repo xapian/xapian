@@ -538,105 +538,10 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 };
 
 template<>
-class PostlistCursor<HoneyTable&> {
-    HoneyTable* table;
-    Xapian::docid offset;
-
+class PostlistCursor<HoneyTable&> : public PostlistCursor<const HoneyTable&> {
   public:
-    string key, tag;
-    Xapian::docid firstdid;
-    Xapian::termcount tf, cf;
-
     PostlistCursor(HoneyTable *in, Xapian::docid offset_)
-	: table(in), offset(offset_), firstdid(0)
-    {
-	next();
-    }
-
-    bool next() {
-	bool compressed;
-	if (!table->read_item(key, tag, compressed))
-	    return false;
-	if (compressed) abort();
-	// We put all chunks into the non-initial chunk form here, then fix up
-	// the first chunk for each term in the merged database as we merge.
-	tf = cf = 0;
-	switch (key_type(key)) {
-	    case KEY_USER_METADATA:
-	    case KEY_VALUE_STATS:
-		return true;
-	    case KEY_VALUE_CHUNK: {
-		const char * p = key.data();
-		const char * end = p + key.length();
-		p += 2;
-		Xapian::valueno slot;
-		if (!unpack_uint(&p, end, &slot))
-		    throw Xapian::DatabaseCorruptError("bad value key");
-		Xapian::docid did;
-		if (!unpack_uint_preserving_sort(&p, end, &did))
-		    throw Xapian::DatabaseCorruptError("bad value key");
-		did += offset;
-
-		key.assign("\0\xd8", 2);
-		pack_uint(key, slot);
-		pack_uint_preserving_sort(key, did);
-		return true;
-	    }
-	    case KEY_DOCLEN_CHUNK: {
-		const char * p = key.data();
-		const char * end = p + key.length();
-		p += 2;
-		Xapian::docid did = 1;
-		if (p != end &&
-		    (!unpack_uint_preserving_sort(&p, end, &did) || p != end)) {
-		    throw Xapian::DatabaseCorruptError("Bad doclen key");
-		}
-		did += offset;
-
-		key.erase(2);
-		if (did != 1) {
-		    pack_uint_preserving_sort(key, did);
-		}
-		return true;
-	    }
-	    case KEY_POSTING_CHUNK:
-		break;
-	    default:
-		throw Xapian::DatabaseCorruptError("Bad postlist table key type");
-	}
-
-	// Adjust key if this is *NOT* an initial chunk.
-	// key is: pack_string_preserving_sort(key, term)
-	// plus optionally: pack_uint_preserving_sort(key, did)
-	const char * d = key.data();
-	const char * e = d + key.size();
-	string term;
-	if (!unpack_string_preserving_sort(&d, e, term))
-	    throw Xapian::DatabaseCorruptError("Bad postlist key");
-
-	if (d == e) {
-	    // This is an initial chunk for a term, so adjust tag header.
-	    d = tag.data();
-	    e = d + tag.size();
-
-	    Xapian::docid lastdid;
-	    if (!decode_initial_chunk_header(&d, e, tf, cf,
-					     firstdid, lastdid)) {
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    }
-	    tag.erase(0, d - tag.data());
-	} else {
-	    // Not an initial chunk, so adjust key.
-	    size_t tmp = d - key.data();
-	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e) {
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    }
-	    // -1 to remove the terminating zero byte too.
-	    key.erase(tmp - 1);
-	}
-	firstdid += offset;
-	return true;
-    }
+	: PostlistCursor<const HoneyTable&>(in, offset_) {}
 };
 
 template<typename T>
