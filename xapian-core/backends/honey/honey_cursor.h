@@ -4,6 +4,13 @@
 #include "honey_table.h"
 
 class HoneyCursor {
+    void rewind() {
+	fh.set_pos(0 * root);
+	last_key = std::string();
+	is_at_end = is_after_end = false;
+	index = root;
+    }
+
   public:
     BufferedFile fh;
     std::string current_key, current_tag;
@@ -36,13 +43,6 @@ class HoneyCursor {
 	  root(o.root),
 	  index(o.root)
     {
-    }
-
-    void rewind() {
-	fh.set_pos(0 * root);
-	last_key = std::string();
-	is_at_end = is_after_end = false;
-	index = root;
     }
 
     bool after_end() const { return is_after_end; }
