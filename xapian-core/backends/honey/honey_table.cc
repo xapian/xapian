@@ -39,15 +39,17 @@ HoneyTable::open(int flags_, const RootInfo& root_info, honey_revision_number_t)
 }
 
 void
-HoneyTable::add(const std::string& key, const std::string& val, bool compressed)
+HoneyTable::add(const std::string& key,
+		const char* val,
+		size_t val_size,
+		bool compressed)
 {
-    if (!compressed && compress_min > 0 && val.size() > compress_min) {
-	size_t compressed_size = val.size();
+    if (!compressed && compress_min > 0 && val_size > compress_min) {
+	size_t compressed_size = val_size;
 	CompressionStream comp_stream; // FIXME: reuse
-	const char* p = comp_stream.compress(val.data(), &compressed_size);
+	const char* p = comp_stream.compress(val, &compressed_size);
 	if (p) {
-	    // FIXME: avoid temporary string.
-	    add(key, string(p, compressed_size), true);
+	    add(key, p, compressed_size, true);
 	    return;
 	}
     }
@@ -77,12 +79,12 @@ HoneyTable::add(const std::string& key, const std::string& val, bool compressed)
     // Encode "compressed?" flag in bottom bit.
     // FIXME: Don't do this if a table is uncompressed?  That saves a byte
     // for each item where the extra bit pushes the length up by a byte.
-    size_t val_size_enc = (val.size() << 1) | compressed;
+    size_t val_size_enc = (val_size << 1) | compressed;
     std::string val_len;
     pack_uint(val_len, val_size_enc);
     // FIXME: pass together so we can potentially writev() both?
     fh.write(val_len.data(), val_len.size());
-    fh.write(val.data(), val.size());
+    fh.write(val, val_size);
     last_key = key;
 }
 

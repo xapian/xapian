@@ -381,7 +381,16 @@ class HoneyTable {
 
     const std::string& get_path() const { return path; }
 
-    void add(const std::string& key, const std::string& val, bool compressed = false);
+    void add(const std::string& key,
+	     const char* val,
+	     size_t val_size,
+	     bool compressed = false);
+
+    void add(const std::string& key,
+	     const std::string& val,
+	     bool compressed = false) {
+	add(key, val.data(), val.size(), compressed);
+    }
 
     void flush_db() {
 	root = index.write(fh);
