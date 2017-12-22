@@ -21,6 +21,7 @@ TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory \
 	check-glass \
+	check-honey \
 	check-multi check-multi-glass \
 	check-remote check-remoteprog check-remotetcp \
 	check-remoteprog-glass \
@@ -73,6 +74,11 @@ check-glass: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b glass
 check-singlefile-glass: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile_glass
+endif
+
+if BUILD_BACKEND_HONEY
+check-honey: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b honey
 endif
 
 ## Test programs to be run
