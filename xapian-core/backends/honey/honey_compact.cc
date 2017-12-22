@@ -821,7 +821,8 @@ merge_postlists(Xapian::Compactor * compactor,
 	cursor_type * cur = pq.top();
 	string & key = cur->key;
 	if (key_type(key) != KEY_DOCLEN_CHUNK) break;
-	pack_uint_preserving_sort(key, cur->firstdid);
+	if (cur->firstdid != 1)
+	    pack_uint_preserving_sort(key, cur->firstdid);
 	out->add(key, cur->tag);
 	pq.pop();
 	if (cur->next()) {
