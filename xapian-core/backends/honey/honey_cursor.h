@@ -22,6 +22,8 @@ class HoneyCursor {
     bool is_at_end = false;
     bool is_after_end = false;
     mutable std::string last_key;
+
+    // File offset to start of index and to current position in index.
     off_t root, index;
 
     // Forward to next constructor form.
