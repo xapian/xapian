@@ -366,12 +366,13 @@ Database::get_value_lower_bound(Xapian::valueno slot) const
 
     if (rare(internal.empty())) RETURN(string());
 
-    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    i = internal.begin();
-    string full_lb = (*i)->get_value_lower_bound(slot);
-    while (++i != internal.end()) {
-	string lb = (*i)->get_value_lower_bound(slot);
-	if (lb < full_lb) full_lb = lb;
+    string full_lb;
+    for (auto&& subdb : internal) {
+	string lb = subdb->get_value_lower_bound(slot);
+	if (lb.empty())
+	    continue;
+	if (full_lb.empty() || lb < full_lb)
+	    full_lb = std::move(lb);
     }
     RETURN(full_lb);
 }

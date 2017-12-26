@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -54,20 +54,31 @@ BackendManagerMulti::get_dbtype() const
 #define NUMBER_OF_SUB_DBS 2
 
 string
-BackendManagerMulti::createdb_multi(const vector<string> & files)
+BackendManagerMulti::createdb_multi(const string& name,
+				    const vector<string>& files)
 {
     string dbdir = ".multi" + subtype;
     create_dir_if_needed(dbdir);
 
-    string dbname = "db";
-    vector<string>::const_iterator i;
-    for (i = files.begin(); i != files.end(); ++i) {
-	dbname += "__";
-	dbname += *i;
+    string dbname;
+    if (!name.empty()) {
+	dbname = name;
+    } else {
+	dbname = "db";
+	vector<string>::const_iterator i;
+	for (i = files.begin(); i != files.end(); ++i) {
+	    dbname += "__";
+	    dbname += *i;
+	}
     }
+
     string dbpath = dbdir + "/" + dbname;
 
-    if (file_exists(dbpath)) return dbpath;
+    if (!name.empty()) {
+	remove(dbpath.c_str());
+    } else {
+	if (file_exists(dbpath)) return dbpath;
+    }
 
     string tmpfile = dbpath;
     tmpfile += ".tmp";
@@ -115,17 +126,39 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 
     rename(tmpfile.c_str(), dbpath.c_str());
 
+    last_wdb_path = dbpath;
     return dbpath;
 }
 
 string
 BackendManagerMulti::do_get_database_path(const vector<string> & files)
 {
-    return createdb_multi(files);
+    return createdb_multi(string(), files);
 }
 
 Xapian::WritableDatabase
-BackendManagerMulti::get_writable_database(const string &, const string &)
+BackendManagerMulti::get_writable_database(const string& name, const string& file)
 {
-    throw Xapian::UnimplementedError("Multi-databases don't support writing");
+    vector<string> files;
+    if (!file.empty()) files.push_back(file);
+    return Xapian::WritableDatabase(createdb_multi(name, files));
+}
+
+string
+BackendManagerMulti::get_writable_database_path(const std::string& name)
+{
+    string dbdir = ".multi" + subtype;
+    return dbdir + "/" + name;
+}
+
+Xapian::Database
+BackendManagerMulti::get_writable_database_as_database()
+{
+    return Xapian::Database(last_wdb_path);
+}
+
+Xapian::WritableDatabase
+BackendManagerMulti::get_writable_database_again()
+{
+    return Xapian::WritableDatabase(last_wdb_path);
 }

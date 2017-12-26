@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.h
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2017 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,13 +34,17 @@ class BackendManagerMulti : public BackendManager {
     /// The type to use for the sub-databases.
     std::string subtype;
 
+    /// The path of the last writable database used.
+    std::string last_wdb_path;
+
     /// Don't allow assignment.
     void operator=(const BackendManagerMulti &);
 
     /// Don't allow copying.
     BackendManagerMulti(const BackendManagerMulti &);
 
-    std::string createdb_multi(const std::vector<std::string> & files);
+    std::string createdb_multi(const std::string& name,
+			       const std::vector<std::string>& files);
 
   protected:
     /// Get the path of the Xapian::Database instance.
@@ -54,6 +58,15 @@ class BackendManagerMulti : public BackendManager {
 
     /// Create a Multi Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
+
+    /// Get the path of Xapian::WritableDatabase instance.
+    std::string get_writable_database_path(const std::string & name);
+
+    /// Create a Database object for the last opened WritableDatabase.
+    Xapian::Database get_writable_database_as_database();
+
+    /// Create a WritableDatabase object for the last opened WritableDatabase.
+    Xapian::WritableDatabase get_writable_database_again();
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_MULTI_H

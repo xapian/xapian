@@ -44,7 +44,7 @@ struct SubValueList {
 
     void skip_to(Xapian::docid did, size_t multiplier) {
 	// Translate did from merged docid.
-	did = (did - db_idx - 2 + multiplier) / multiplier + 1;
+	did = (did - 1) / multiplier + 1 + ((did - 1) % multiplier > db_idx);
 	valuelist->skip_to(did);
     }
 

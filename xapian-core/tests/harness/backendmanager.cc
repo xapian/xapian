@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -250,6 +250,8 @@ BackendManager::get_database(const std::string &dbname,
 	gen(wdb, arg);
     }
     rename(tmp_path.c_str(), path.c_str());
+    // For multi, the shards will use the temporary name, but that's not really
+    // a problem.
 
     return Xapian::Database(path);
 }

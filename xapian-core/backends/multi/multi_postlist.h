@@ -31,7 +31,7 @@ class MultiPostList : public PostList {
     private:
 	std::vector<LeafPostList *> postlists;
 
-	const Xapian::Database &this_db;
+	Xapian::Database this_db;
 
 	bool finished;
 	Xapian::docid currdoc;
