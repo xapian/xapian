@@ -26,25 +26,8 @@
 # include <unistd.h>
 #else
 
-// sys/types.h has a typedef for off_t so make sure we've seen that before
-// we hide it behind a #define.
-# include <sys/types.h>
-
-// MSVC doesn't even HAVE unistd.h - io.h seems the nearest equivalent.
-// We also need to do some renaming of functions to get versions which
-// work on large files.
+// io.h is the nearest equivalent to unistd.h.
 # include <io.h>
-
-# ifdef lseek
-#  undef lseek
-# endif
-
-# ifdef off_t
-#  undef off_t
-# endif
-
-# define lseek(FD, OFF, WHENCE) _lseeki64(FD, OFF, WHENCE)
-# define off_t __int64
 
 // process.h is needed for getpid().
 # include <process.h>
