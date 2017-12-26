@@ -225,7 +225,7 @@ GlassChanges::check(const string & changes_file)
 	    if (len <= size_t(end - p)) {
 		p += len;
 	    } else {
-		if (lseek(fd, len - (end - p), SEEK_CUR) == off_t(-1))
+		if (lseek(fd, len - (end - p), SEEK_CUR) < 0)
 		    throw Xapian::DatabaseError("Changes file - version file data truncated");
 		p = end = buf;
 		n = 0;
@@ -253,7 +253,7 @@ GlassChanges::check(const string & changes_file)
 	if (block_size <= unsigned(end - p)) {
 	    p += block_size;
 	} else {
-	    if (lseek(fd, block_size - (end - p), SEEK_CUR) == off_t(-1))
+	    if (lseek(fd, block_size - (end - p), SEEK_CUR) < 0)
 		throw Xapian::DatabaseError("Changes file - block data truncated");
 	    p = end = buf;
 	    n = 0;
