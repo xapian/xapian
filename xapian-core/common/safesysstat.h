@@ -1,7 +1,7 @@
 /** @file safesysstat.h
- * @brief #include <sys/stat.h>, but enabling large file support.
+ * @brief #include <sys/stat.h> with portability enhancements
  */
-/* Copyright (C) 2007,2012 Olly Betts
+/* Copyright (C) 2007,2012,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,34 +23,7 @@
 #define XAPIAN_INCLUDED_SAFESYSSTAT_H
 
 #include <sys/stat.h>
-
-// For most platforms, AC_SYS_LARGEFILE enables support for large files at
-// configure time, but MSVC doesn't use configure so we have to put the
-// magic somewhere else - i.e. here!
-
-#ifdef _MSC_VER
-// MSVC needs to call _stati64() instead of stat() and the struct which holds
-// the information is "struct _stati64" instead of "struct stat" so we just
-// use #define to replace both in one go.  We also want to use _fstati64()
-// instead of fstat() but in this case we can use a function-like macro.
-//
-// This hack is a problem is we ever want a method called "stat", or one called
-// fstat which takes 2 parameters, but we can probably live with these
-// limitations.
-
-#ifdef stat
-# undef stat
-#endif
-
-#ifdef fstat
-# undef fstat
-#endif
-
-// NB: _stati64 not _stat64 (the latter just returns a 64 bit timestamp).
-#define stat _stati64
-#define fstat(FD, BUF) _fstati64(FD,BUF)
-
-#endif
+#include <sys/types.h>
 
 #ifdef __WIN32__
 
