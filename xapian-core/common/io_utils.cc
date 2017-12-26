@@ -200,7 +200,7 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 	o += c;
     }
 #else
-    if (rare(lseek(fd, o, SEEK_SET) == off_t(-1)))
+    if (rare(lseek(fd, o, SEEK_SET) < 0))
 	throw_block_error("Error seeking to block ", b, errno);
     while (true) {
 	ssize_t c = read(fd, p, n);
@@ -245,7 +245,7 @@ io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 	o += c;
     }
 #else
-    if (rare(lseek(fd, o, SEEK_SET) == off_t(-1)))
+    if (rare(lseek(fd, o, SEEK_SET) < 0))
 	throw_block_error("Error seeking to block ", b, errno);
     while (true) {
 	ssize_t c = write(fd, p, n);

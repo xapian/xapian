@@ -1098,7 +1098,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     }
 
     if (single_file) {
-	if (lseek(fd, version_file_out->get_offset(), SEEK_SET) == -1) {
+	if (lseek(fd, version_file_out->get_offset(), SEEK_SET) < 0) {
 	    throw Xapian::DatabaseError("lseek() failed", errno);
 	}
     }

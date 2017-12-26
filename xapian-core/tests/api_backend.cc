@@ -1330,7 +1330,7 @@ DEFINE_TESTCASE(dbfilefd012, glass) {
     try {
 	for (int j = 0; j < 3; ++j) {
 	    close(j);
-	    TEST_EQUAL(lseek(j, 0, SEEK_CUR), -1);
+	    TEST_REL(lseek(j, 0, SEEK_CUR), <, 0);
 	    TEST_EQUAL(errno, EBADF);
 	}
 
