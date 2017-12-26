@@ -90,8 +90,8 @@ void
 MultiValueList::next()
 {
     if (current_docid == 0) {
-	// Make valuelists into a heap so that the one (or one of the ones) with
-	// earliest sorting term is at the top of the heap.
+	// Make valuelists into a heap so that the one with the earliest
+	// sorting docid is at the top of the heap.
 	size_t j = 0;
 	for (size_t i = 0; i != count; ++i) {
 	    valuelists[i]->next();
