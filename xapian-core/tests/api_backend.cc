@@ -319,11 +319,6 @@ DEFINE_TESTCASE(lockfilefd0or1, chert || glass) {
 
 /// Regression test for bug fixed in 1.2.13 and 1.3.1.
 DEFINE_TESTCASE(lockfilealreadyopen1, chert || glass) {
-#ifdef __CYGWIN__
-    SKIP_TEST("Testcase doesn't work under __CYGWIN__ but not relevant there");
-#elif defined  __WIN32__
-    SKIP_TEST("Testcase doesn't work under __WIN32__ but not relevant there");
-#else
     // Ensure database has been created.
     (void)get_named_writable_database("lockfilealreadyopen1");
     string path = get_named_writable_database_path("lockfilealreadyopen1");
@@ -341,7 +336,6 @@ DEFINE_TESTCASE(lockfilealreadyopen1, chert || glass) {
     close(fd);
 
     return true;
-#endif
 }
 
 /// Feature tests for Database::locked().
