@@ -137,8 +137,8 @@ void
 MultiValueList::next()
 {
     if (current_docid == 0) {
-	// Make valuelists into a heap so that the one (or one of the ones) with
-	// earliest sorting term is at the top of the heap.
+	// Make valuelists into a heap so that the one with the earliest
+	// sorting docid is at the top of the heap.
 	vector<SubValueList *>::iterator i = valuelists.begin();
 	while (i != valuelists.end()) {
 	    (*i)->next();
