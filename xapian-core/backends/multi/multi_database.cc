@@ -624,6 +624,7 @@ MultiDatabase::replace_document(const string& term, const Xapian::Document& doc)
 {
     auto n_shards = shards.size();
     unique_ptr<PostList> pl(open_post_list(term));
+    pl->next();
     // If no unique_term in the database, this is just an add_document().
     if (pl->at_end()) {
 	// Which database will the next never used docid be in?
