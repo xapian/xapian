@@ -381,7 +381,7 @@ DEFINE_TESTCASE(testlock1, glass) {
 
 /// Test that locked() returns false for backends which don't support update.
 /// Regression test for bug fixed in 1.4.6.
-DEFINE_TESTCASE(testlock2, backend && !writable) {
+DEFINE_TESTCASE(testlock2, backend && !writable && !multi) {
     Xapian::Database db = get_database("apitest_simpledata");
     TEST(!db.locked());
     return true;
