@@ -39,6 +39,7 @@
 #endif
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <set>
 
@@ -162,6 +163,7 @@ test_driver::get_srcdir()
 test_driver::test_driver(const test_desc *tests_)
 	: out(cout.rdbuf()), tests(tests_)
 {
+    tout << boolalpha;
 }
 
 static SIGJMP_BUF jb;
