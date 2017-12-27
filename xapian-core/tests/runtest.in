@@ -4,7 +4,7 @@
 # Wrapper script for running test programs (using libtool, valgrind and
 # eatmydata if required).
 #
-# Copyright (C) 2003,2004,2007,2008,2009,2010,2013 Olly Betts
+# Copyright (C) 2003,2004,2007,2008,2009,2010,2013,2017 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -112,7 +112,7 @@ export GLIBCXX_FORCE_NEW
 XAPIAN_TESTSUITE_VALGRIND=1
 export XAPIAN_TESTSUITE_VALGRIND
 
-vg_opts='--log-file=.valgrind.log.%p --child-silent-after-fork=yes --leak-resolution=high'
+vg_opts='--log-file=.valgrind.log.%p --child-silent-after-fork=yes --leak-resolution=high --error-limit=no'
 vg_opts="$vg_opts --suppressions=$srcdir/valgrind.supp"
 if test -n "$EATMYDATA" ; then
     echo "Running test '$@' under eatmydata and valgrind"
