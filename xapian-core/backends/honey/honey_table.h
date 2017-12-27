@@ -197,6 +197,9 @@ retry:
 		if (errno == EINTR) goto retry;
 		throw Xapian::DatabaseError("pread failed", errno);
 	    }
+	    if (size_t(r) < sizeof(buf)) {
+		memmove(buf + sizeof(buf) - r, buf, r);
+	    }
 	    pos += r;
 	    buf_end = r;
 	}
