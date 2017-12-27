@@ -294,18 +294,20 @@ PostingChunkReader::next()
 void
 PostingChunkReader::skip_to(Xapian::docid target)
 {
-    if (p == NULL || target <= did)
+    if (p == NULL)
 	return;
 
     if ((end - p) % 8 != 0) {
-	if (target == did) {
+	p += 4;
+	if (target <= did) {
 	    // FIXME: Alignment guarantees?  Hard with header.
-	    wdf = unaligned_read4(p);
-	    p += 4;
+	    wdf = unaligned_read4(p - 4);
 	    return;
 	}
-	p += 4;
     }
+
+    if (target <= did)
+	return;
 
     if (target > last_did) {
 	p = NULL;
