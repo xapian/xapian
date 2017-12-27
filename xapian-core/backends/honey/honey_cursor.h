@@ -9,7 +9,7 @@ class HoneyCursor {
     void rewind() {
 	fh.set_pos(0 * root);
 	last_key = std::string();
-	is_at_end = is_after_end = false;
+	is_at_end = false;
 	index = root;
     }
 
@@ -20,7 +20,6 @@ class HoneyCursor {
     bool current_compressed = false;
     mutable CompressionStream comp_stream;
     bool is_at_end = false;
-    bool is_after_end = false;
     mutable std::string last_key;
 
     // File offset to start of index and to current position in index.
@@ -47,7 +46,6 @@ class HoneyCursor {
 	  current_compressed(o.current_compressed),
 	  comp_stream(Z_DEFAULT_STRATEGY),
 	  is_at_end(o.is_at_end),
-	  is_after_end(o.is_after_end),
 	  last_key(o.last_key),
 	  root(o.root),
 	  index(o.index)
@@ -55,11 +53,11 @@ class HoneyCursor {
 	fh.set_pos(o.fh.get_pos());
     }
 
-    bool after_end() const { return is_after_end; }
+    bool after_end() const { return is_at_end; }
 
     bool next() {
 	if (is_at_end) {
-	    is_after_end = true;
+	    Assert(false);
 	    return false;
 	}
 
@@ -198,7 +196,7 @@ class HoneyCursor {
 	    if (cmp == 0) return true;
 	    if (cmp > 0) return false;
 	}
-	is_after_end = true;
+	is_at_end = true;
 	return false;
     }
 
@@ -392,7 +390,7 @@ class HoneyCursor {
 	    std::cerr << " NOT found - reached " << desc << std::endl;
 	}
 	// No match so back up to previous entry.
-	is_at_end = is_after_end = false;
+	is_at_end = false;
 	last_key = current_key = k;
 	val_size = vs;
 	current_compressed = compressed;
@@ -430,7 +428,7 @@ class HoneyCursor {
 	} while (next() && current_key < key);
 
 	// Back up to previous entry.
-	is_at_end = is_after_end = false;
+	is_at_end = false;
 	last_key = current_key = k;
 	val_size = vs;
 	current_compressed = compressed;
