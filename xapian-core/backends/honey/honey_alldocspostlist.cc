@@ -220,6 +220,7 @@ DocLenChunkReader::next()
 	    return false;
 	}
 
+	++did;
 	// FIXME: Alignment guarantees?
 	doclen = unaligned_read4(p);
     } while (doclen == 0xffffffff);
