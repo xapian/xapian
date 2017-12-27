@@ -967,7 +967,11 @@ WritableDatabase::replace_document(const std::string & unique_term,
     // If no unique_term in the database, this is just an add_document().
     if (postit == postlist_end(unique_term)) {
 	// Which database will the next never used docid be in?
-	size_t i = sub_db(get_lastdocid() + 1, n_dbs);
+	Xapian::docid did = get_lastdocid() + 1;
+	if (rare(did == 0)) {
+	    throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
+	}
+	size_t i = sub_db(did, n_dbs);
 	RETURN(internal[i]->add_document(document));
     }
 
