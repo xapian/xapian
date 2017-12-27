@@ -80,6 +80,8 @@ HoneyPostListTable::get_used_docid_range(Xapian::docid& first,
     if (cursor->find_entry_ge(string("\0\xe0", 2))) {
 	first = 1;
     } else {
+	// doccount == 0 should be handled by our caller.
+	Assert(!cursor->after_end());
 	const char* p = cursor->current_key.data();
 	const char* pend = p + cursor->current_key.size();
 	p += 2;
