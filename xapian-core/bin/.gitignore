@@ -8,6 +8,7 @@
 /xapian-compact
 /xapian-delve
 /xapian-inspect
+/xapian-inspect-honey
 /xapian-progsrv
 /xapian-replicate
 /xapian-replicate-server
@@ -16,6 +17,7 @@
 /xapian-compact.exe
 /xapian-delve.exe
 /xapian-inspect.exe
+/xapian-inspect-honey.exe
 /xapian-progsrv.exe
 /xapian-replicate.exe
 /xapian-replicate-server.exe

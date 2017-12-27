@@ -16,6 +16,11 @@ noinst_PROGRAMS +=\
 	bin/xapian-inspect
 endif
 
+if BUILD_BACKEND_HONEY
+noinst_PROGRAMS +=\
+	bin/xapian-inspect-honey
+endif
+
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-check.1\
@@ -69,15 +74,42 @@ bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 	unicode/unicode-data.cc\
 	unicode/utf8itor.cc
 
+bin_xapian_inspect_honey_CPPFLAGS =\
+	$(AM_CPPFLAGS)\
+	-DXAPIAN_REALLY_NO_DEBUG_LOG\
+	-I$(top_srcdir)/backends/honey
+bin_xapian_inspect_honey_SOURCES = bin/xapian-inspect-honey.cc\
+	api/error.cc\
+	backends/honey/honey_changes.cc\
+	backends/honey/honey_cursor.cc\
+	backends/honey/honey_freelist.cc\
+	backends/honey/honey_table.cc\
+	backends/honey/honey_version.cc\
+	common/compression_stream.cc\
+	common/errno_to_string.cc\
+	common/io_utils.cc\
+	common/posixy_wrapper.cc\
+	common/str.cc\
+	unicode/description_append.cc\
+	unicode/unicode-data.cc\
+	unicode/utf8itor.cc
+
 # XAPIAN_LIBS gives us zlib and any library needed for UUIDs.
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
+bin_xapian_inspect_honey_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
 if USE_PROC_FOR_UUID
 bin_xapian_inspect_SOURCES +=\
+	api/constinfo.cc\
+	common/proc_uuid.cc
+bin_xapian_inspect_honey_SOURCES +=\
 	api/constinfo.cc\
 	common/proc_uuid.cc
 endif
 if USE_WIN32_UUID_API
 bin_xapian_inspect_SOURCES +=\
+	api/constinfo.cc\
+	common/win32_uuid.cc
+bin_xapian_inspect_honey_SOURCES +=\
 	api/constinfo.cc\
 	common/win32_uuid.cc
 endif
