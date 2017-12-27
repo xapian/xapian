@@ -107,11 +107,6 @@ HoneyAllTermsList::next()
 
 	if (prefix.empty()) {
 	    (void)cursor->find_entry_ge(string("\x00\xff", 2));
-	    if (cursor->after_end()) {
-		delete cursor;
-		cursor = NULL;
-		RETURN(NULL);
-	    }
 	} else {
 	    const string& key = pack_honey_postlist_key(prefix);
 	    if (cursor->find_entry_ge(key)) {
@@ -120,25 +115,25 @@ HoneyAllTermsList::next()
 		current_term = prefix;
 		RETURN(NULL);
 	    }
-	    if (cursor->after_end()) {
-		delete cursor;
-		cursor = NULL;
-		RETURN(NULL);
-	    }
 	}
-	goto first_time;
-    }
-
-    while (true) {
-	cursor->next();
-first_time:
 	if (cursor->after_end()) {
 	    delete cursor;
 	    cursor = NULL;
 	    database = NULL;
 	    RETURN(NULL);
 	}
+	goto first_time;
+    }
 
+    while (true) {
+	if (!cursor->next()) {
+	    delete cursor;
+	    cursor = NULL;
+	    database = NULL;
+	    RETURN(NULL);
+	}
+
+first_time:
 	const char *p = cursor->current_key.data();
 	const char *pend = p + cursor->current_key.size();
 	if (!unpack_string_preserving_sort(&p, pend, current_term)) {
