@@ -196,8 +196,9 @@ class HoneyCursor {
 	while (next()) {
 	    int cmp = current_key.compare(key);
 	    if (cmp == 0) return true;
-	    if (cmp > 0) break;
+	    if (cmp > 0) return false;
 	}
+	is_after_end = true;
 	return false;
     }
 

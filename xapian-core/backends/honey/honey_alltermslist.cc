@@ -107,12 +107,22 @@ HoneyAllTermsList::next()
 
 	if (prefix.empty()) {
 	    (void)cursor->find_entry_ge(string("\x00\xff", 2));
+	    if (cursor->after_end()) {
+		delete cursor;
+		cursor = NULL;
+		RETURN(NULL);
+	    }
 	} else {
 	    const string& key = pack_honey_postlist_key(prefix);
 	    if (cursor->find_entry_ge(key)) {
 		// The exact term we asked for is there, so just copy it rather
 		// than wasting effort unpacking it from the key.
 		current_term = prefix;
+		RETURN(NULL);
+	    }
+	    if (cursor->after_end()) {
+		delete cursor;
+		cursor = NULL;
 		RETURN(NULL);
 	    }
 	}
