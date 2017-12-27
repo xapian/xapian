@@ -204,6 +204,9 @@ HoneyDatabase::open_post_list(const string& term) const
 LeafPostList*
 HoneyDatabase::open_leaf_post_list(const string& term) const
 {
+    if (term.empty())
+	return new HoneyAllDocsPostList(this, get_doccount());
+
     return postlist_table.open_post_list(this, term);
 }
 

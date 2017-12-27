@@ -35,6 +35,7 @@ HoneyPostList*
 HoneyPostListTable::open_post_list(const HoneyDatabase* db,
 				   const std::string& term) const
 {
+    Assert(!term.empty());
     // Try to position cursor first so we avoid creating HoneyPostList objects
     // for terms which don't exist.
     unique_ptr<HoneyCursor> cursor(cursor_get());
