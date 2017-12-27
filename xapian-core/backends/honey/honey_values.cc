@@ -188,7 +188,8 @@ HoneyValueManager::get_chunk_containing_did(Xapian::valueno slot,
     }
 
     cursor->read_tag();
-    swap(chunk, cursor->current_tag);
+    chunk = cursor->current_tag;
+    // FIXME: fails, not sure why: swap(chunk, cursor->current_tag);
 
     RETURN(did);
 }
