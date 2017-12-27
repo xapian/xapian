@@ -32,12 +32,6 @@
 // e.g. "creat" to "creat64", but only "open" is a problem for Xapian so
 // that's the only one we currently fix).
 
-#ifdef _MSC_VER
-// MSVC #define-s open but also defines a function called open, so just undef
-// the macro.
-# undef open
-#else
-
 inline int fcntl_open_(const char *filename, int flags, mode_t mode) {
     return open(filename, flags, mode);
 }
@@ -55,8 +49,6 @@ inline int open(const char *filename, int flags, mode_t mode) {
 inline int open(const char *filename, int flags) {
     return fcntl_open_(filename, flags);
 }
-
-#endif
 
 #endif
 

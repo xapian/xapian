@@ -624,10 +624,18 @@ MultiDatabase::replace_document(const string& term, const Xapian::Document& doc)
 {
     auto n_shards = shards.size();
     unique_ptr<PostList> pl(open_post_list(term));
+    pl->next();
     // If no unique_term in the database, this is just an add_document().
     if (pl->at_end()) {
 	// Which database will the next never used docid be in?
-	auto shard = shards[shard_number(get_lastdocid() + 1, n_shards)];
+	Xapian::docid did = get_lastdocid() + 1;
+	if (rare(did == 0)) {
+	    throw Xapian::DatabaseError("Run out of docids - you'll have to "
+					"use copydatabase to eliminate any "
+					"gaps before you can add more "
+					"documents");
+	}
+	auto shard = shards[shard_number(did, n_shards)];
 	return shard->add_document(doc);
     }
 

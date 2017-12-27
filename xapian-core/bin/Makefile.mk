@@ -78,6 +78,7 @@ bin_xapian_inspect_SOURCES +=\
 endif
 if USE_WIN32_UUID_API
 bin_xapian_inspect_SOURCES +=\
+	api/constinfo.cc\
 	common/win32_uuid.cc
 endif
 

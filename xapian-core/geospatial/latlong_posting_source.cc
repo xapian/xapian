@@ -1,5 +1,5 @@
 /** @file latlong_posting_source.cc
- * @brief LatLongPostingSource implementation.
+ * @brief LatLongDistancePostingSource implementation.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton

@@ -318,11 +318,6 @@ DEFINE_TESTCASE(lockfilefd0or1, glass) {
 
 /// Regression test for bug fixed in 1.2.13 and 1.3.1.
 DEFINE_TESTCASE(lockfilealreadyopen1, glass) {
-#ifdef __CYGWIN__
-    SKIP_TEST("Testcase doesn't work under __CYGWIN__ but not relevant there");
-#elif defined  __WIN32__
-    SKIP_TEST("Testcase doesn't work under __WIN32__ but not relevant there");
-#else
     // Ensure database has been created.
     (void)get_named_writable_database("lockfilealreadyopen1");
     string path = get_named_writable_database_path("lockfilealreadyopen1");
@@ -340,7 +335,6 @@ DEFINE_TESTCASE(lockfilealreadyopen1, glass) {
     close(fd);
 
     return true;
-#endif
 }
 
 /// Feature tests for Database::locked().
@@ -387,7 +381,7 @@ DEFINE_TESTCASE(testlock1, glass) {
 
 /// Test that locked() returns false for backends which don't support update.
 /// Regression test for bug fixed in 1.4.6.
-DEFINE_TESTCASE(testlock2, backend && !writable) {
+DEFINE_TESTCASE(testlock2, backend && !writable && !multi) {
     Xapian::Database db = get_database("apitest_simpledata");
     TEST(!db.locked());
     return true;
@@ -492,11 +486,13 @@ DEFINE_TESTCASE(replacedoc8, writable) {
 }
 
 /// Test coverage for DatabaseModifiedError.
-DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote) {
+DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote && !multi) {
     // The inmemory backend doesn't support revisions.
     //
     // The remote backend doesn't work as expected here, I think due to
     // test harness issues.
+    //
+    // With multi, DatabaseModifiedError doesn't trigger as easily.
     Xapian::WritableDatabase db(get_writable_database());
     Xapian::Document doc;
     doc.set_data("cargo");
@@ -1330,7 +1326,7 @@ DEFINE_TESTCASE(dbfilefd012, glass) {
     try {
 	for (int j = 0; j < 3; ++j) {
 	    close(j);
-	    TEST_EQUAL(lseek(j, 0, SEEK_CUR), -1);
+	    TEST_REL(lseek(j, 0, SEEK_CUR), <, 0);
 	    TEST_EQUAL(errno, EBADF);
 	}
 

@@ -1343,14 +1343,73 @@ AH_BOTTOM(
 # pragma warning(disable:4003)
 /* A "performance" warning for converting int to bool. */
 # pragma warning(disable:4800)
-#endif
 
-#ifdef _MSC_VER
 /* Tell MSVC we want M_PI, etc defined. */
 # define _USE_MATH_DEFINES
 
 /* Tell MSVC we don't want max() and min() macros defined. */
 # define NOMINMAX
+#endif
+
+/* Make the POSIX-like functions support large files.  MSVC needs this;
+ * current mingw32 does too; mingw64 supports _FILE_OFFSET_BITS, which
+ * AC_SYS_LARGEFILE should discover and enable automatically.
+ */
+#if defined _MSC_VER || \
+    (defined __MINGW32__ && !defined _FILE_OFFSET_BITS)
+
+# include <sys/stat.h>
+# include <sys/types.h>
+# include <io.h>
+/* zlib.h uses off_t so we need to include it before we redefine off_t. */
+# include <zlib.h>
+
+// MSVC needs to call _stat64() instead of stat() and the struct which holds
+// the information is "struct _stat64" instead of "struct stat" so we just
+// use #define to replace both in one go.  We also want to use _fstat64()
+// instead of fstat() but in this case we can use a function-like macro.
+//
+// Mingw has _stat64() but unhelpfully for our purposes, it has an extra
+// underscore prefix on the struct name ("struct __stat64") so there we
+// target _stati64 instead.  This has 64-bit file size but the time_t size
+// is switchable.  We don't really care about file timestamps in the
+// library, so this should be fine.
+//
+// This hack is a problem is we ever want a method called "stat", or one called
+// fstat which takes 2 parameters, but we can probably live with these
+// limitations.
+
+# ifdef stat
+#  undef stat
+# endif
+
+# ifdef fstat
+#  undef fstat
+# endif
+
+# ifdef _MSC_VER
+#  define stat _stat64
+#  define fstat(FD, BUF) _fstat64(FD, BUF)
+# else
+#  define stat _stati64
+#  define fstat(FD, BUF) _fstati64(FD, BUF)
+# endif
+
+# ifdef lseek
+#  undef lseek
+# endif
+
+# ifdef off_t
+#  undef off_t
+# endif
+
+# define lseek(FD, OFF, WHENCE) _lseeki64(FD, OFF, WHENCE)
+/* Redefine via a typedef so C++ code off_t(-1) works - it wouldn't if we did:
+ * #define off_t long long
+ */
+typedef long long off_t_redefinition_typedef;
+# define off_t off_t_redefinition_typedef
+
 #endif
 
 /* MSVC defines _WIN32 but not __WIN32__. */
@@ -1521,7 +1580,7 @@ $CXXCPP $cxxcpp_flags\
 	-DREVISION="\"$REVISION\""\
 	$dash_d_visibility\
 	$srcdir/include/xapian/version_h.cc|\
-	${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//;s/____/ /g;s/\\\\$/\\/'\
+	${SED-sed} '0,/const char \* dummy/d;/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//;s/____/ /g;s/\\\\$/\\/'\
 	> include/xapian/version.h.tmp
 dnl Only update the file if it has changed, so we don't alter the timestamp
 dnl and cause lots of rebuilding needlessly.  However, the build system
