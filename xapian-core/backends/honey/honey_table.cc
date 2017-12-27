@@ -186,7 +186,11 @@ bool
 HoneyTable::get_exact_entry(const std::string& key, std::string& tag) const
 {
     if (!read_only) std::abort();
-    if (!fh.is_open()) return false;
+    if (!fh.is_open()) {
+	if (fh.was_forced_closed())
+	    throw_database_closed();
+	return false;
+    }
     fh.rewind();
     last_key = std::string();
     std::string k, v;

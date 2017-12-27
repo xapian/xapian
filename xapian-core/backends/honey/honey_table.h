@@ -56,6 +56,8 @@ const uint4 BLK_UNUSED = uint4(-1);
 
 class HoneyFreeListChecker;
 
+const int FORCED_CLOSE = -2;
+
 class BufferedFile {
     int fd = -1;
     mutable off_t pos = 0;
@@ -87,7 +89,14 @@ class BufferedFile {
 	}
     }
 
+    void force_close() {
+	close();
+	fd = FORCED_CLOSE;
+    }
+
     bool is_open() const { return fd >= 0; }
+
+    bool was_forced_closed() const { return fd == FORCED_CLOSE; }
 
     bool open(const std::string& path, bool read_only_) {
 //	if (fd >= 0) ::close(fd);
@@ -376,8 +385,10 @@ class HoneyTable {
     void open(int flags_, const Honey::RootInfo& root_info, honey_revision_number_t);
 
     void close(bool permanent) {
-	(void)permanent;
-	fh.close();
+	if (permanent)
+	    fh.force_close();
+	else
+	    fh.close();
     }
 
     const std::string& get_path() const { return path; }

@@ -35,6 +35,16 @@
 
 using namespace std;
 
+void
+HoneyDatabase::throw_termlist_table_close_exception() const
+{
+    // Either the database has been closed, or else there's no termlist table.
+    // Check if the postlist table is open to determine which is the case.
+    if (!postlist_table.is_open())
+	HoneyTable::throw_database_closed();
+    throw Xapian::FeatureUnavailableError("Database has no termlist");
+}
+
 // Relied on below - opening to read should allow the termlist to be missing.
 static_assert(Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST,
 	"Xapian::DB_READONLY_ should imply Xapian::DB_NO_TERMLIST");
@@ -220,6 +230,8 @@ TermList*
 HoneyDatabase::open_term_list(Xapian::docid did) const
 {
     Assert(did != 0);
+    if (!termlist_table.is_open())
+	throw_termlist_table_close_exception();
     return new HoneyTermList(this, did);
 }
 
@@ -357,6 +369,8 @@ HoneyDatabase::set_metadata(const string& key, const string& value)
 bool
 HoneyDatabase::reopen()
 {
+    if (!postlist_table.is_open())
+	HoneyTable::throw_database_closed();
     return false;
 }
 
