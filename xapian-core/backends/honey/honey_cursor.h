@@ -168,11 +168,15 @@ class HoneyCursor {
 	    description_append(esc, key);
 	    std::cerr << "find_exact(" << esc << ") @" << fh.get_pos() << std::endl;
 	}
-	// FIXME: use index
-	int cmp0 = current_key.compare(key);
-	if (cmp0 == 0) return true;
-	if (cmp0 > 0) {
+	if (is_at_end) {
 	    rewind();
+	} else {
+	    // FIXME: use index
+	    int cmp0 = current_key.compare(key);
+	    if (cmp0 == 0) return true;
+	    if (cmp0 > 0) {
+		rewind();
+	    }
 	}
 
 	while (next()) {
@@ -189,11 +193,15 @@ class HoneyCursor {
 	    description_append(esc, key);
 	    std::cerr << "find_entry_ge(" << esc << ") @" << fh.get_pos() << std::endl;
 	}
-	// FIXME: use index
-	int cmp0 = current_key.compare(key);
-	if (cmp0 == 0) return true;
-	if (cmp0 > 0) {
+	if (is_at_end) {
 	    rewind();
+	} else {
+	    // FIXME: use index
+	    int cmp0 = current_key.compare(key);
+	    if (cmp0 == 0) return true;
+	    if (cmp0 > 0) {
+		rewind();
+	    }
 	}
 
 	while (next()) {
@@ -212,11 +220,15 @@ class HoneyCursor {
 	    std::cerr << "find_entry(" << desc << ") [LE]" << std::endl;
 	}
 #if 1
-	// FIXME: use index
-	int cmp0 = current_key.compare(key);
-	if (cmp0 == 0) return true;
-	if (cmp0 > 0) {
+	if (is_at_end) {
 	    rewind();
+	} else {
+	    // FIXME: use index
+	    int cmp0 = current_key.compare(key);
+	    if (cmp0 == 0) return true;
+	    if (cmp0 > 0) {
+		rewind();
+	    }
 	}
 
 	off_t pos;
@@ -416,7 +428,7 @@ class HoneyCursor {
 	    std::cerr << "find_entry_lt(" << esc << ") @" << fh.get_pos() << std::endl;
 	}
 	// FIXME: use index
-	if (key < current_key) {
+	if (is_at_end || key < current_key) {
 	    rewind();
 	    current_key.resize(0);
 	}
