@@ -198,6 +198,8 @@ HoneyTable::get_exact_entry(const std::string& key, std::string& tag) const
     bool compressed;
     int cmp;
     do {
+	// FIXME: avoid reading tag data on every iteration
+	// FIXME: use index
 	if (!read_item(k, v, compressed)) return false;
 	cmp = k.compare(key);
     } while (cmp < 0);
@@ -227,6 +229,7 @@ HoneyTable::key_exists(const std::string& key) const
     int cmp;
     do {
 	// FIXME: avoid reading tag data?
+	// FIXME: use index
 	if (!read_item(k, v, compressed)) return false;
 	cmp = k.compare(key);
     } while (cmp < 0);
