@@ -67,6 +67,11 @@ class HoneyCursor {
 	    val_size = 0;
 	}
 
+	if (fh.get_pos() == root) {
+	    is_at_end = true;
+	    return false;
+	}
+
 	int ch = fh.read();
 	if (ch == EOF) {
 	    is_at_end = true;
