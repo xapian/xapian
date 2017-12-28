@@ -636,7 +636,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     std::map<std::string, double> weight_map;
 
   public:
-    /** Construct a ValueWeightPostingSource.
+    /** Construct a ValueMapPostingSource.
      *
      *  @param slot_ The value slot to read values from.
      */
