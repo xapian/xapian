@@ -117,6 +117,10 @@ HoneyTable::read_item(std::string& key, std::string& val, bool& compressed) cons
 	return false;
     }
 
+    if (fh.get_pos() >= root) {
+	Assert(fh.get_pos() == root);
+	return false;
+    }
     int ch = fh.read();
     if (ch == EOF) return false;
 
