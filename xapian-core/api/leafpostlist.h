@@ -111,11 +111,12 @@ class LeafPostList : public PostList {
 
     /** Open another postlist from the same database.
      *
-     *  @param term_	The term to open a postlist for.  If term_ is near to
-     *			this postlist's term, then this can be a lot more
-     *			efficient (and if it isn't very near, there's not
-     *			much of a penalty).  Using this method can make a
-     *			wildcard expansion much more memory efficient.
+     *  @param term_	The term to open a postlist for (must not be an empty
+     *			string).  If term_ is near to this postlist's term,
+     *			then this can be a lot more efficient (and if it isn't
+     *			very near, there's not much of a penalty).  Using this
+     *			method can make a wildcard expansion much more memory
+     *			efficient.
      *
      *  @return		The new postlist object, or NULL if not supported
      *			(in which case the caller should probably open the

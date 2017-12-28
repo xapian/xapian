@@ -237,36 +237,40 @@ LocalSubMatch::open_post_list(const string& term,
     bool weighted = (factor != 0.0 && !term.empty());
 
     LeafPostList * pl = NULL;
-    if (!term.empty() && !need_positions) {
-	if ((!weighted && !in_synonym) ||
-	    !wt_factory.get_sumpart_needs_wdf_()) {
-	    Xapian::doccount sub_tf;
-	    db->get_freqs(term, &sub_tf, NULL);
-	    if (sub_tf == db->get_doccount()) {
-		// If we're not going to use the wdf or term positions, and the
-		// term indexes all documents, we can replace it with the
-		// MatchAll postlist, which is especially efficient if there
-		// are no gaps in the docids.
-		pl = db->open_leaf_post_list(string());
+    if (term.empty()) {
+	pl = db->open_leaf_post_list(term);
+    } else {
+	if (!need_positions) {
+	    if ((!weighted && !in_synonym) ||
+		!wt_factory.get_sumpart_needs_wdf_()) {
+		Xapian::doccount sub_tf;
+		db->get_freqs(term, &sub_tf, NULL);
+		if (sub_tf == db->get_doccount()) {
+		    // If we're not going to use the wdf or term positions, and
+		    // the term indexes all documents, we can replace it with
+		    // the MatchAll postlist, which is especially efficient if
+		    // there are no gaps in the docids.
+		    pl = db->open_leaf_post_list(string());
 
-		// Set the term name so the postlist looks up the correct term
-		// frequencies - this is necessary if the weighting scheme
-		// needs collection frequency or reltermfreq (termfreq would be
-		// correct anyway since it's just the collection size in this
-		// case).
-		pl->set_term(term);
+		    // Set the term name so the postlist looks up the correct
+		    // term frequencies - this is necessary if the weighting
+		    // scheme needs collection frequency or reltermfreq
+		    // (termfreq would be correct anyway since it's just the
+		    // collection size in this case).
+		    pl->set_term(term);
+		}
 	    }
 	}
-    }
 
-    if (!pl) {
-	const LeafPostList * hint = qopt->get_hint_postlist();
-	if (hint)
-	    pl = hint->open_nearby_postlist(term);
 	if (!pl) {
-	    pl = db->open_leaf_post_list(term);
+	    const LeafPostList * hint = qopt->get_hint_postlist();
+	    if (hint)
+		pl = hint->open_nearby_postlist(term);
+	    if (!pl) {
+		pl = db->open_leaf_post_list(term);
+	    }
+	    qopt->set_hint_postlist(pl);
 	}
-	qopt->set_hint_postlist(pl);
     }
 
     if (lazy_weight) {
