@@ -154,6 +154,7 @@ class BufferedFile {
 	    if (::write(fd, buf, buf_end)) {
 		// FIXME: retry short write
 	    }
+	    pos += buf_end;
 	    buf_end = 0;
 	}
 	buf[buf_end++] = ch;
@@ -166,6 +167,7 @@ class BufferedFile {
 	    return;
 	}
 
+	pos += buf_end + len;
 	while (true) {
 	    struct iovec iov[2];
 	    iov[0].iov_base = buf;
@@ -247,6 +249,7 @@ retry:
 	    if (::write(fd, buf, buf_end)) {
 		// FIXME: retry short write
 	    }
+	    pos += buf_end;
 	    buf_end = 0;
 	}
     }
