@@ -1,7 +1,7 @@
 /** @file glass_values.cc
  * @brief GlassValueManager class
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2016 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2016,2017 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -545,8 +545,6 @@ void
 GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
 {
     LOGCALL_VOID(DB, "GlassValueManager::get_value_stats", slot | Literal("[stats]"));
-    // Invalidate the cache first in case an exception is thrown.
-    mru_slot = Xapian::BAD_VALUENO;
 
     string tag;
     if (postlist_table->get_exact_entry(make_valuestats_key(slot), tag)) {
@@ -570,8 +568,6 @@ GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
     } else {
 	stats.clear();
     }
-
-    mru_slot = slot;
 }
 
 void
