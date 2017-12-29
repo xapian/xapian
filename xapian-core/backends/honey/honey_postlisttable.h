@@ -65,7 +65,7 @@ class HoneyPostListTable : public HoneyTable {
 
     std::string get_metadata(const std::string& key) const {
 	std::string value;
-	(void)get_exact_entry(std::string("\x00\xc0", 2) + key, value);
+	(void)get_exact_entry(std::string("\0", 2) + key, value);
 	return value;
     }
 

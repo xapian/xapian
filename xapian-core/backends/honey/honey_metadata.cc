@@ -39,7 +39,7 @@ HoneyMetadataTermList::HoneyMetadataTermList(
 	const Xapian::Database::Internal* database_,
 	HoneyCursor* cursor_,
 	const string& prefix_)
-    : database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
+    : database(database_), cursor(cursor_), prefix(string("\0", 2) + prefix_)
 {
     LOGCALL_CTOR(DB, "HoneyMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
@@ -105,7 +105,7 @@ HoneyMetadataTermList::skip_to(const string &key)
     LOGCALL(DB, TermList *, "HoneyMetadataTermList::skip_to", key);
     Assert(!at_end());
 
-    if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
+    if (!cursor->find_entry_ge(string("\0", 2) + key)) {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has the right prefix.
 	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {

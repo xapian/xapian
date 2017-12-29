@@ -106,7 +106,7 @@ is_doclenchunk_key(const string & key)
 namespace HoneyCompact {
 
 enum {
-    KEY_USER_METADATA = 0xc0,
+    KEY_USER_METADATA = 0x00,
     KEY_VALUE_STATS = 0xd0,
     KEY_VALUE_CHUNK = 0xd8,
     KEY_DOCLEN_CHUNK = 0xe0,
@@ -285,7 +285,10 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	key = current_key;
 	tag = current_tag;
 	tf = cf = 0;
-	if (GlassCompact::is_user_metadata_key(key)) return true;
+	if (GlassCompact::is_user_metadata_key(key)) {
+	    key[1] = KEY_USER_METADATA;
+	    return true;
+	}
 	if (GlassCompact::is_valuestats_key(key)) return true;
 	if (GlassCompact::is_valuechunk_key(key)) {
 	    const char * p = key.data();
