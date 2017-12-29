@@ -196,6 +196,8 @@ HoneyDatabase::get_wdf_upper_bound(const string& term) const
 bool
 HoneyDatabase::term_exists(const string& term) const
 {
+    if (term.empty())
+	return HoneyDatabase::get_doccount() != 0;
     return postlist_table.term_exists(term);
 }
 

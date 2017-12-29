@@ -169,8 +169,15 @@ HoneyAllTermsList::skip_to(const string &term)
 	    // skip_to() once at_end() is allowed but a no-op.
 	    RETURN(NULL);
 	}
+	if (rare(term.empty())) {
+	    RETURN(next());
+	}
 	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
+    }
+
+    if (rare(term.empty())) {
+	RETURN(NULL);
     }
 
     string key = pack_honey_postlist_key(term);

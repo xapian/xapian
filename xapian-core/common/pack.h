@@ -494,27 +494,18 @@ pack_glass_postlist_key(const std::string &term, Xapian::docid did)
 }
 
 inline std::string
-pack_honey_postlist_key(const std::string &term)
+pack_honey_postlist_key(const std::string& term)
 {
-    // Special case for doclen lists.
-    if (term.empty())
-	return std::string("\x00\xe0", 2);
-
+    Assert(!term.empty());
     std::string key;
     pack_string_preserving_sort(key, term, true);
     return key;
 }
 
 inline std::string
-pack_honey_postlist_key(const std::string &term, Xapian::docid did)
+pack_honey_postlist_key(const std::string& term, Xapian::docid did)
 {
-    // Special case for doclen lists.
-    if (term.empty()) {
-	std::string key("\x00\xe0", 2);
-	pack_uint_preserving_sort(key, did);
-	return key;
-    }
-
+    Assert(!term.empty());
     std::string key;
     pack_string_preserving_sort(key, term);
     pack_uint_preserving_sort(key, did);
