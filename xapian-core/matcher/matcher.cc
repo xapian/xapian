@@ -56,11 +56,13 @@ static constexpr auto REL_VAL = Xapian::Enquire::Internal::REL_VAL;
 static constexpr auto VAL = Xapian::Enquire::Internal::VAL;
 static constexpr auto VAL_REL = Xapian::Enquire::Internal::VAL_REL;
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 [[noreturn]]
 static void unimplemented(const char* msg)
 {
     throw Xapian::UnimplementedError(msg);
 }
+#endif
 
 Matcher::Matcher(const Xapian::Database& db_,
 		 const Xapian::Query& query_,
@@ -128,6 +130,16 @@ Matcher::Matcher(const Xapian::Database& db_,
 	// Avoid unused parameter warnings.
 	(void)have_sorter;
 	(void)have_mdecider;
+	(void)collapse_key;
+	(void)collapse_max;
+	(void)percent_threshold;
+	(void)weight_threshold;
+	(void)order;
+	(void)sort_key;
+	(void)sort_by;
+	(void)sort_val_reverse;
+	(void)time_limit;
+	(void)matchspies;
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	if (locals.size() != i)
 	    locals.resize(i);
@@ -139,8 +151,10 @@ Matcher::Matcher(const Xapian::Database& db_,
 
     if (!locals.empty() && locals.size() != n_shards)
 	locals.resize(n_shards);
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     if (!remotes.empty() && remotes.size() != n_shards)
 	remotes.resize(n_shards);
+#endif
 
     stats.set_query(query);
 
@@ -150,6 +164,7 @@ Matcher::Matcher(const Xapian::Database& db_,
      * preparing.
      */
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     // Track which RemoteSubMatch objects still need preparing.
     vector<RemoteSubMatch*> todo;
 
@@ -159,6 +174,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 	    todo.push_back(submatch.get());
 	}
     }
+#endif
 
     if (!locals.empty()) {
 	// Prepare local matches.
@@ -170,10 +186,12 @@ Matcher::Matcher(const Xapian::Database& db_,
 	}
     }
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     // Do a blocking pass preparing any remaining remote matches.
     for (auto&& submatch : todo) {
 	(void)submatch->prepare_match(true, stats);
     }
+#endif
 
     stats.set_bounds_from_db(db);
 }
@@ -382,12 +400,14 @@ Matcher::get_mset(Xapian::doccount first,
 
     Assert(!query.empty());
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     if (locals.empty() && remotes.size() == 1) {
 	// Short cut for a single remote database.
 	Assert(remotes[0].get());
 	remotes[0]->start_match(first, maxitems, check_at_least, stats);
 	return remotes[0]->get_mset();
     }
+#endif
 
     // Factor to multiply maximum weight seen by to get the minimum weight we
     // need to consider.
@@ -396,12 +416,14 @@ Matcher::get_mset(Xapian::doccount first,
     // precision on x86.
     percent_threshold_factor -= DBL_EPSILON;
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     for (auto&& submatch : remotes) {
 	// We need to fetch the first "first" results too, as merging may push
 	// those down into the part of the merged MSet we care about.
 	if (submatch.get())
 	    submatch->start_match(0, first + maxitems, check_at_least, stats);
     }
+#endif
 
     Xapian::MSet local_mset;
     if (!locals.empty()) {
@@ -410,7 +432,11 @@ Matcher::get_mset(Xapian::doccount first,
 		submatch->start_match(stats);
 	}
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	double ptf_to_use = remotes.empty() ? percent_threshold_factor : 0;
+#else
+	double ptf_to_use = percent_threshold_factor;
+#endif
 	local_mset = get_local_mset(first, maxitems, check_at_least,
 				    wtscheme, mdecider,
 				    sorter, collapse_key, collapse_max,
@@ -419,6 +445,7 @@ Matcher::get_mset(Xapian::doccount first,
 				    sort_val_reverse, time_limit, matchspies);
     }
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     if (remotes.empty()) {
 	// Another easy case - only local databases.
 	return local_mset;
@@ -549,4 +576,7 @@ Matcher::get_mset(Xapian::doccount first,
     }
 
     return merged_mset;
+#else
+    return local_mset;
+#endif
 }

@@ -48,7 +48,9 @@ class Matcher {
 
     std::vector<std::unique_ptr<LocalSubMatch>> locals;
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     std::vector<std::unique_ptr<RemoteSubMatch>> remotes;
+#endif
 
     Matcher(const Matcher&) = delete;
 
