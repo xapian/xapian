@@ -24,24 +24,28 @@
 #include "backends/valuelist.h"
 
 #include "backends/databaseinternal.h"
+#include "backends/multi.h"
 
 #include <string>
 
 struct SubValueList {
     ValueList * valuelist;
-    unsigned db_idx;
+    unsigned shard;
 
-    SubValueList(ValueList * vl, unsigned db_idx_)
-	: valuelist(vl), db_idx(db_idx_) { }
+    SubValueList(ValueList * vl, unsigned shard_)
+	: valuelist(vl), shard(shard_) { }
 
     ~SubValueList() {
 	delete valuelist;
     }
 
     void skip_to(Xapian::docid did, size_t n_shards) {
-	// Translate did from merged docid.
-	did = (did - db_idx - 2 + n_shards) / n_shards + 1;
-	valuelist->skip_to(did);
+	// Calculate the docid in this shard which is the same or later than
+	// did (which may be in a different shard).
+	Xapian::docid shard_did = shard_docid(did, n_shards);
+	if (shard_number(did, n_shards) > shard)
+	    ++shard_did;
+	valuelist->skip_to(shard_did);
     }
 
     Xapian::docid get_docid() const {
@@ -49,7 +53,7 @@ struct SubValueList {
     }
 
     Xapian::docid get_merged_docid(unsigned n_shards) const {
-	return (valuelist->get_docid() - 1) * n_shards + db_idx + 1;
+	return unshard(valuelist->get_docid(), shard, n_shards);
     }
 
     std::string get_value() const { return valuelist->get_value(); }
