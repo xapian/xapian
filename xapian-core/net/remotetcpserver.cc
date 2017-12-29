@@ -60,3 +60,7 @@ RemoteTcpServer::handle_one_connection(int socket)
 	// ignore other exceptions
     }
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

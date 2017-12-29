@@ -109,3 +109,7 @@ InMemoryAllTermsList::at_end() const
     Assert(it == tmap->end() || !it->first.empty());
     return (it == tmap->end());
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

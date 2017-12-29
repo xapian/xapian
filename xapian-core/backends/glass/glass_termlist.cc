@@ -208,3 +208,7 @@ GlassTermList::positionlist_begin() const
     LOGCALL(DB, Xapian::PositionIterator, "GlassTermList::positionlist_begin", NO_ARGS);
     RETURN(new GlassPositionList(&db->position_table, did, current_term));
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

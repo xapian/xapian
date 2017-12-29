@@ -2185,3 +2185,7 @@ GlassTable::throw_database_closed()
 {
     throw Xapian::DatabaseError("Database has been closed");
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

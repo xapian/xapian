@@ -175,3 +175,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 #endif
     return socketfd;
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

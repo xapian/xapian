@@ -36,8 +36,14 @@ endif
 
 if BUILD_BACKEND_GLASS
 lib_src +=\
-        backends/contiguousalldocspostlist.cc\
+	backends/contiguousalldocspostlist.cc\
 	backends/flint_lock.cc
+else
+if BUILD_BACKEND_HONEY
+lib_src +=\
+	backends/contiguousalldocspostlist.cc\
+	backends/flint_lock.cc
+endif
 endif
 
 # To add a new database backend:

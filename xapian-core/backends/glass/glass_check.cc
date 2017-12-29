@@ -367,3 +367,7 @@ void GlassTableCheck::report_cursor(int N, const Glass::Cursor * C_) const
 		"n=[" << C_[i].get_n() << "], "
 		"rewrite=" << C_[i].rewrite << endl;
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

@@ -493,3 +493,7 @@ TcpServer::run_once()
 #else
 # error Neither HAVE_FORK nor __WIN32__ are defined.
 #endif
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

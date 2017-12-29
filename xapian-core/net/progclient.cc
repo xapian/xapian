@@ -253,3 +253,7 @@ ProgClient::~ProgClient()
     waitpid(pid, 0, 0);
 #endif
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

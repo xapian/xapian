@@ -333,3 +333,7 @@ MutableGlassCursor::del()
     if (!find_entry_ge(current_key)) return is_positioned;
     return next();
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

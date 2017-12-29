@@ -939,3 +939,7 @@ InMemoryDatabase::get_description() const
 {
     return "InMemory";
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

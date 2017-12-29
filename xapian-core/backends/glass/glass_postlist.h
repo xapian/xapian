@@ -294,4 +294,8 @@ class GlassPostList : public LeafPostList {
 					   Xapian::termcount * collection_freq_ptr);
 };
 
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif
+
 #endif /* OM_HGUARD_GLASS_POSTLIST_H */

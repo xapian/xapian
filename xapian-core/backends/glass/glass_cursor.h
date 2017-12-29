@@ -359,4 +359,8 @@ class MutableGlassCursor : public GlassCursor {
     bool del();
 };
 
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif
+
 #endif /* OM_HGUARD_GLASS_CURSOR_H */

@@ -70,6 +70,11 @@ lib_src +=\
 if BUILD_BACKEND_GLASS
 lib_src +=\
 	common/compression_stream.cc
+else
+if BUILD_BACKEND_HONEY
+lib_src +=\
+	common/compression_stream.cc
+endif
 endif
 
 if USE_WIN32_UUID_API

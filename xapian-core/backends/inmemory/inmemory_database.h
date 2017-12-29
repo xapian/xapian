@@ -361,4 +361,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     std::string get_description() const;
 };
 
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif
+
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */

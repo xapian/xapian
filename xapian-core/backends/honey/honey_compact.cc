@@ -54,11 +54,14 @@
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
 
-#include "../glass/glass_database.h"
-#include "../glass/glass_table.h"
+#ifndef DISABLE_GPL_LIBXAPIAN
+# include "../glass/glass_database.h"
+# include "../glass/glass_table.h"
+#endif
 
 using namespace std;
 
+#ifndef DISABLE_GPL_LIBXAPIAN
 [[noreturn]]
 static void
 throw_database_corrupt(const char* item, const char* pos)
@@ -100,6 +103,7 @@ is_doclenchunk_key(const string & key)
 }
 
 }
+#endif
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
 // the same name in other flint-derived backends.
@@ -260,6 +264,7 @@ class BufferedFile {
 
 template<typename T> class PostlistCursor;
 
+#ifndef DISABLE_GPL_LIBXAPIAN
 // Convert glass to honey.
 template<>
 class PostlistCursor<const GlassTable&> : private GlassCursor {
@@ -437,6 +442,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	return true;
     }
 };
+#endif
 
 template<>
 class PostlistCursor<const HoneyTable&> : private HoneyCursor {
@@ -799,6 +805,7 @@ merge_postlists(Xapian::Compactor * compactor,
 
 template<typename T> struct MergeCursor;
 
+#ifndef DISABLE_GPL_LIBXAPIAN
 template<>
 struct MergeCursor<const GlassTable&> : public GlassCursor {
     explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
@@ -806,6 +813,7 @@ struct MergeCursor<const GlassTable&> : public GlassCursor {
 	next();
     }
 };
+#endif
 
 template<>
 struct MergeCursor<const HoneyTable&> : public HoneyCursor {
@@ -1150,6 +1158,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 
 template<typename T> class PositionCursor;
 
+#ifndef DISABLE_GPL_LIBXAPIAN
 template<>
 class PositionCursor<const GlassTable&> : private GlassCursor {
     Xapian::docid offset;
@@ -1187,6 +1196,7 @@ class PositionCursor<const GlassTable&> : private GlassCursor {
 	return current_tag;
     }
 };
+#endif
 
 template<>
 class PositionCursor<const HoneyTable&> : private HoneyCursor {
@@ -1350,6 +1360,7 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
     }
 }
 
+#ifndef DISABLE_GPL_LIBXAPIAN
 template<typename T> void
 merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 		  const vector<Xapian::docid> & offset,
@@ -1452,6 +1463,7 @@ merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 	}
     }
 }
+#endif
 
 }
 
@@ -1548,6 +1560,9 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	if (honey_db) {
 	    version_file_out->merge_stats(honey_db->version_file);
 	} else {
+#ifdef DISABLE_GPL_LIBXAPIAN
+	    Assert(false);
+#else
 	    auto glass_db = dynamic_cast<const GlassDatabase*>(sources[i]);
 	    Assert(glass_db != NULL);
 	    version_file_out->merge_stats(glass_db->version_file.get_doccount(),
@@ -1556,6 +1571,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 					  glass_db->version_file.get_wdf_upper_bound(),
 					  glass_db->version_file.get_total_doclen(),
 					  glass_db->version_file.get_spelling_wordfreq_upper_bound());
+#endif
 	}
     }
 
@@ -1570,6 +1586,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 
     // FIXME: ick
 if (true) {
+#ifndef DISABLE_GPL_LIBXAPIAN
     vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
     off_t prev_size = block_size;
@@ -1817,6 +1834,7 @@ if (true) {
 	delete tabs[j];
     }
 } else {
+#endif
     vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
     off_t prev_size = block_size;

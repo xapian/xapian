@@ -125,3 +125,7 @@ NetworkTermList::positionlist_begin() const
 {
     return this_db->open_position_list(did, get_termname());
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

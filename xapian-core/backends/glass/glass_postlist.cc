@@ -1311,3 +1311,7 @@ GlassPostListTable::get_used_docid_range(Xapian::docid & first,
     bool dummy;
     last = read_start_of_chunk(&p, e, start_of_last_chunk, &dummy);
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

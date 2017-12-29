@@ -948,3 +948,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 
     return errors;
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

@@ -1671,3 +1671,7 @@ GlassWritableDatabase::has_uncommitted_changes() const
 	   spelling_table.is_modified() ||
 	   docdata_table.is_modified();
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

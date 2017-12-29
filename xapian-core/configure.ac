@@ -779,6 +779,17 @@ dnl ***************************
 dnl * Select modules to build *
 dnl ***************************
 
+dnl Check if a non-GPL library build is specified.
+AC_ARG_ENABLE([gpl-libxapian],
+  [AS_HELP_STRING([--disable-gpl-libxapian], [disable use of GPL code in libxapian])],
+  [case ${enableval} in
+    yes) ;;
+    no)
+      AC_DEFINE([DISABLE_GPL_LIBXAPIAN], 1, [Define to error out if we try to include GPL code in libxapian])
+      ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --disable-gpl-libxapian]) ;;
+  esac])
+
 dnl Check which database backends should be built.
 
 AC_DEFUN([_XAPIAN_BACKEND_ENABLE],
@@ -797,10 +808,10 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
   ])
 
 dnl When adding a new backend, update INSTALL too.
-XAPIAN_BACKEND_ENABLE([glass])
+XAPIAN_BACKEND_ENABLE([glass], [$enable_gpl_libxapian], [yes (unless --disable-gpl-libxapian)])
 XAPIAN_BACKEND_ENABLE([honey])
-XAPIAN_BACKEND_ENABLE([inmemory])
-default_enable_backend_remote=yes
+XAPIAN_BACKEND_ENABLE([inmemory], [$enable_gpl_libxapian], [yes (unless --disable-gpl-libxapian)])
+default_enable_backend_remote=$enable_gpl_libxapian
 case $host_os in
   *djgpp* | *msdos* )
     dnl We don't currently support the remote backend on this platform so
@@ -808,7 +819,7 @@ case $host_os in
     default_enable_backend_remote=no
     ;;
 esac
-XAPIAN_BACKEND_ENABLE([remote], [$default_enable_backend_remote], [yes (except for MSDOS)])
+XAPIAN_BACKEND_ENABLE([remote], [$default_enable_backend_remote], [yes (except for MSDOS; unless --disable-gpl-libxapian)])
 
 use_proc_for_uuid=0
 use_win32_uuid_api=0
