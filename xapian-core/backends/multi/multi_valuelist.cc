@@ -39,7 +39,7 @@ struct CompareSubValueListsByDocId {
 	Xapian::docid did_b = b->get_docid();
 	if (did_a > did_b) return true;
 	if (did_a < did_b) return false;
-	return a->db_idx > b->db_idx;
+	return a->shard > b->shard;
     }
 };
 
