@@ -36,14 +36,6 @@ class PostingChanges;
 
 class HoneyPostListTable : public HoneyTable {
   public:
-    static std::string make_key(const std::string& term) {
-	return pack_honey_postlist_key(term);
-    }
-
-    static std::string make_key(const std::string& term, Xapian::docid did) {
-	return pack_honey_postlist_key(term, did);
-    }
-
     /** Create a new HoneyPostListTable object.
      *
      *  This method does not create or open the table on disk - you
@@ -59,7 +51,7 @@ class HoneyPostListTable : public HoneyTable {
 	: HoneyTable("postlist", fd, offset_, readonly) { }
 
     bool term_exists(const std::string& term) const {
-	return key_exists(make_key(term));
+	return key_exists(pack_honey_postlist_key(term));
     }
 
     HoneyPostList* open_post_list(const HoneyDatabase* db,
