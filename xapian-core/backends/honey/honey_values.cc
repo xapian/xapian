@@ -60,16 +60,6 @@ make_slot_key(Xapian::docid did)
     RETURN(key);
 }
 
-/** Generate a key for a value statistics item. */
-inline string
-make_valuestats_key(Xapian::valueno slot)
-{
-    LOGCALL_STATIC(DB, string, "make_valuestats_key", slot);
-    string key("\0\xd0", 2);
-    pack_uint_last(key, slot);
-    RETURN(key);
-}
-
 void
 ValueChunkReader::assign(const char * p_, size_t len, Xapian::docid did_)
 {
@@ -550,7 +540,7 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
     LOGCALL_VOID(DB, "HoneyValueManager::get_value_stats", slot | Literal("[stats]"));
 
     string tag;
-    if (postlist_table.get_exact_entry(make_valuestats_key(slot), tag)) {
+    if (postlist_table.get_exact_entry(pack_honey_valuestats_key(slot), tag)) {
 	const char * pos = tag.data();
 	const char * end = pos + tag.size();
 
@@ -579,7 +569,7 @@ HoneyValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stat
     LOGCALL_VOID(DB, "HoneyValueManager::set_value_stats", value_stats);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     for (i = value_stats.begin(); i != value_stats.end(); ++i) {
-	string key = make_valuestats_key(i->first);
+	string key = pack_honey_valuestats_key(i->first);
 	const ValueStats & stats = i->second;
 	if (stats.freq != 0) {
 	    string new_value;

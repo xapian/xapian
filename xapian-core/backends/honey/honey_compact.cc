@@ -111,7 +111,7 @@ namespace HoneyCompact {
 
 enum {
     KEY_USER_METADATA = 0x00,
-    KEY_VALUE_STATS = 0xd0,
+    KEY_VALUE_STATS = 0x01,
     KEY_VALUE_CHUNK = 0xd8,
     KEY_DOCLEN_CHUNK = 0xe0,
     KEY_POSTING_CHUNK = 0xff
@@ -126,6 +126,11 @@ key_type(const string& key)
 
     if (key.size() <= 1)
 	return -1;
+
+    switch (static_cast<unsigned char>(key[1])) {
+	case 0x01: case 0x02: case 0x03: case 0x04:
+	    return KEY_VALUE_STATS;
+    }
 
     // If key[1] is \xff then this correctly returns KEY_POSTING_CHUNK.
     return static_cast<unsigned char>(key[1]);
@@ -294,7 +299,17 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    key[1] = KEY_USER_METADATA;
 	    return true;
 	}
-	if (GlassCompact::is_valuestats_key(key)) return true;
+	if (GlassCompact::is_valuestats_key(key)) {
+	    // Adjust key.
+	    const char * p = key.data();
+	    const char * end = p + key.length();
+	    p += 2;
+	    Xapian::valueno slot;
+	    if (!unpack_uint_last(&p, end, &slot))
+		throw Xapian::DatabaseCorruptError("bad value stats key");
+	    key = pack_honey_valuestats_key(slot);
+	    return true;
+	}
 	if (GlassCompact::is_valuechunk_key(key)) {
 	    const char * p = key.data();
 	    const char * end = p + key.length();
