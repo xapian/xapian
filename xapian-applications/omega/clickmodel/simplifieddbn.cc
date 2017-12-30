@@ -185,15 +185,18 @@ SimplifiedDBN::train(const vector<Session> &sessions)
 	}
     }
 
-    for (auto i = doc_rel_fractions.begin(); i != doc_rel_fractions.end(); ++i) {
+    for (auto i = doc_rel_fractions.begin(); i != doc_rel_fractions.end();
+	++i) {
 	string qid = i->first;
 	for (auto&& j : i->second) {
-	    doc_relevances[qid][j.first][PARAM_ATTR_PROB] = j.second[PARAM_ATTR_PROB][1] /
-							   (j.second[PARAM_ATTR_PROB][1] +
-							    j.second[PARAM_ATTR_PROB][0]);
-	    doc_relevances[qid][j.first][PARAM_SAT_PROB] = j.second[PARAM_SAT_PROB][1] /
-							  (j.second[PARAM_SAT_PROB][1] +
-							   j.second[PARAM_SAT_PROB][0]);
+	    doc_relevances[qid][j.first][PARAM_ATTR_PROB] =
+		j.second[PARAM_ATTR_PROB][1] /
+		(j.second[PARAM_ATTR_PROB][1] +
+		j.second[PARAM_ATTR_PROB][0]);
+	    doc_relevances[qid][j.first][PARAM_SAT_PROB] =
+		j.second[PARAM_SAT_PROB][1] /
+		(j.second[PARAM_SAT_PROB][1] +
+		j.second[PARAM_SAT_PROB][0]);
 	}
     }
 }
@@ -206,8 +209,10 @@ SimplifiedDBN::get_predicted_relevances(const Session &session)
     vector<string> docids = get_docid_list(session.get_docids());
 
     for (size_t i = 0; i < docids.size(); ++i) {
-	double attr_prob = doc_relevances[session.get_qid()][docids[i]][PARAM_ATTR_PROB];
-	double sat_prob = doc_relevances[session.get_qid()][docids[i]][PARAM_SAT_PROB];
+	double attr_prob =
+		doc_relevances[session.get_qid()][docids[i]][PARAM_ATTR_PROB];
+	double sat_prob =
+		doc_relevances[session.get_qid()][docids[i]][PARAM_SAT_PROB];
 	docid_relevances.push_back(make_pair(docids[i], attr_prob * sat_prob));
     }
     return docid_relevances;

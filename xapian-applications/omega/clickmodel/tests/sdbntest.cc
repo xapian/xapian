@@ -77,7 +77,8 @@ int main() {
     int failure_count = 0;
 
     // Tests for SimplifiedDBN::build_sessions method.
-    for (size_t i = 0; i < sizeof(sessions_tests) / sizeof(sessions_tests[0]); ++i) {
+    for (size_t i = 0; i < sizeof(sessions_tests) / sizeof(sessions_tests[0]);
+	++i) {
 	vector<Session> result;
 	try {
 	    result = sdbn.build_sessions(sessions_tests[i].logfile);
@@ -153,7 +154,8 @@ int main() {
 	}
 
 	for (size_t j = 0; j < expected_relevances[k].size(); ++j) {
-	    if (!almost_equal(predicted_relevances[j].second, expected_relevances[k][j].second)) {
+	    if (!almost_equal(predicted_relevances[j].second,
+		expected_relevances[k][j].second)) {
 		cerr << "ERROR: Relevances do not match." << endl
 		     << "Expected: " << expected_relevances[k][j].second
 		     << " Received: " << predicted_relevances[j].second << endl;

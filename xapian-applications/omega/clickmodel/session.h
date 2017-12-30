@@ -41,7 +41,8 @@ class Session {
      * @param docids		Document ids in the search session.
      * @param clicks		Click information corresponding to the docids.
      */
-    void create_session (std::string qid, std::string docids, std::string clicks) {
+    void create_session (std::string qid, std::string docids,
+			 std::string clicks) {
 	session.push_back(qid);
 	session.push_back(docids);
 	session.push_back(clicks);

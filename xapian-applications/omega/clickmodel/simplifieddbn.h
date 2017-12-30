@@ -45,7 +45,8 @@ enum {
  */
 class SimplifiedDBN {
     /// Relevances of documents corresponding to a query in a search session.
-    std::map<std::string, std::map<std::string, std::map<int, double>>> doc_relevances;
+    std::map<std::string, std::map<std::string, std::map<int, double>>>
+    doc_relevances;
   public:
     /// Return the name of the click model.
     std::string name();
@@ -72,7 +73,8 @@ class SimplifiedDBN {
      *
      * @param sessions		Session class object representing a session.
      */
-    std::vector<std::pair<std::string, double>> get_predicted_relevances(const Session &session);
+    std::vector<std::pair<std::string, double>>
+    get_predicted_relevances(const Session &session);
 };
 
 #endif // OMEGA_INCLUDED_SIMPLIFIEDDBN_H
