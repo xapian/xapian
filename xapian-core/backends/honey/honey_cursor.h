@@ -219,7 +219,7 @@ class HoneyCursor {
 	    description_append(desc, key);
 	    std::cerr << "find_entry(" << desc << ") [LE]" << std::endl;
 	}
-#if 1
+#if 0
 	if (is_at_end) {
 	    rewind();
 	} else {
@@ -246,134 +246,138 @@ class HoneyCursor {
 	current_compressed = compressed;
 	return false;
 #else
-	int cmp0 = current_key.compare(key);
-	if (cmp0 == 0) {
-	    if (DEBUGGING) std::cerr << " already on it" << std::endl;
-	    return true;
-	}
-#if 0
-	if (cmp0 > 0) {
+	if (is_at_end) {
 	    rewind();
-	}
-#else
-	// FIXME: If "close" just seek forwards?  Or consider seeking from current index pos?
-	//off_t pos = fh.get_pos();
-	fh.set_pos(root);
-	std::string index_key, prev_index_key;
-	std::make_unsigned<off_t>::type ptr = 0;
-	while (true) {
-	    int reuse = fh.read();
-	    if (reuse == -1) break;
-	    int len = fh.read();
-	    if (len == -1) std::abort(); // FIXME
-	    prev_index_key = index_key;
-	    index_key.resize(reuse + len);
-	    fh.read(&index_key[reuse], len);
-
-	    if (DEBUGGING) {
-		std::string desc;
-		description_append(desc, index_key);
-		std::cerr << "Index key: " << desc << std::endl;
-	    }
-
-	    cmp0 = index_key.compare(key);
-	    if (cmp0 > 0) break;
-	    last_key = ptr ? index_key : std::string(); // for now (a lie, but the reuse part is correct).
-	    char buf[8];
-	    char* e = buf;
-	    while (true) {
-		int b = fh.read();
-		*e++ = b;
-		if ((b & 0x80) == 0) break;
-	    }
-	    const char* p = buf;
-	    if (!unpack_uint(&p, e, &ptr) || p != e) std::abort(); // FIXME
-	    if (DEBUGGING) std::cerr << " -> " << ptr << std::endl;
+	} else {
+	    int cmp0 = current_key.compare(key);
 	    if (cmp0 == 0) {
-		if (DEBUGGING) std::cerr << " hit straight from index" << std::endl;
-		fh.set_pos(ptr);
-		current_key = index_key;
+		if (DEBUGGING) std::cerr << " already on it" << std::endl;
+		return true;
+	    }
+#if 1
+	    if (cmp0 > 0) {
+		rewind();
+	    }
+#else
+	    // FIXME: If "close" just seek forwards?  Or consider seeking from current index pos?
+	    //off_t pos = fh.get_pos();
+	    fh.set_pos(root);
+	    std::string index_key, prev_index_key;
+	    std::make_unsigned<off_t>::type ptr = 0;
+	    while (true) {
+		int reuse = fh.read();
+		if (reuse == -1) break;
+		int len = fh.read();
+		if (len == -1) std::abort(); // FIXME
+		prev_index_key = index_key;
+		index_key.resize(reuse + len);
+		fh.read(&index_key[reuse], len);
+
+		if (DEBUGGING) {
+		    std::string desc;
+		    description_append(desc, index_key);
+		    std::cerr << "Index key: " << desc << std::endl;
+		}
+
+		cmp0 = index_key.compare(key);
+		if (cmp0 > 0) break;
+		last_key = ptr ? index_key : std::string(); // for now (a lie, but the reuse part is correct).
+		char buf[8];
+		char* e = buf;
+		while (true) {
+		    int b = fh.read();
+		    *e++ = b;
+		    if ((b & 0x80) == 0) break;
+		}
+		const char* p = buf;
+		if (!unpack_uint(&p, e, &ptr) || p != e) std::abort(); // FIXME
+		if (DEBUGGING) std::cerr << " -> " << ptr << std::endl;
+		if (cmp0 == 0) {
+		    if (DEBUGGING) std::cerr << " hit straight from index" << std::endl;
+		    fh.set_pos(ptr);
+		    current_key = index_key;
+		    int r;
+		    {
+			// FIXME: rework to take advantage of buffering that's happening anyway?
+			char * q = buf;
+			for (int i = 0; i < 8; ++i) {
+			    int ch2 = fh.read();
+			    if (ch2 == EOF) {
+				break;
+			    }
+			    *q++ = ch2;
+			    if (ch2 < 128) break;
+			}
+			r = q - buf;
+		    }
+		    p = buf;
+		    const char* end = p + r;
+		    if (!unpack_uint(&p, end, &val_size)) {
+			throw Xapian::DatabaseError("val_size unpack_uint invalid");
+		    }
+		    bool& compressed = current_compressed;
+		    compressed = val_size & 1;
+		    val_size >>= 1;
+		    if (p != end) std::abort();
+		    return true;
+		}
+	    }
+	    if (DEBUGGING) std::cerr << " cmp0 = " << cmp0 << ", going to " << ptr << std::endl;
+	    fh.set_pos(ptr);
+
+	    // FIXME: crude for now
+	    if (ptr != 0) {
+		current_key = prev_index_key;
+		char buf[4096];
 		int r;
 		{
 		    // FIXME: rework to take advantage of buffering that's happening anyway?
-		    char * q = buf;
+		    char * p = buf;
 		    for (int i = 0; i < 8; ++i) {
 			int ch2 = fh.read();
 			if (ch2 == EOF) {
 			    break;
 			}
-			*q++ = ch2;
+			*p++ = ch2;
 			if (ch2 < 128) break;
 		    }
-		    r = q - buf;
+		    r = p - buf;
 		}
-		p = buf;
+		const char* p = buf;
 		const char* end = p + r;
 		if (!unpack_uint(&p, end, &val_size)) {
 		    throw Xapian::DatabaseError("val_size unpack_uint invalid");
 		}
 		bool& compressed = current_compressed;
+		auto& val = current_tag;
 		compressed = val_size & 1;
 		val_size >>= 1;
+		val.assign(p, end);
 		if (p != end) std::abort();
-		return true;
-	    }
-	}
-	if (DEBUGGING) std::cerr << " cmp0 = " << cmp0 << ", going to " << ptr << std::endl;
-	fh.set_pos(ptr);
-
-	// FIXME: crude for now
-	if (ptr != 0) {
-	    current_key = prev_index_key;
-	    char buf[4096];
-	    int r;
-	    {
-		// FIXME: rework to take advantage of buffering that's happening anyway?
-		char * p = buf;
-		for (int i = 0; i < 8; ++i) {
-		    int ch2 = fh.read();
-		    if (ch2 == EOF) {
-			break;
-		    }
-		    *p++ = ch2;
-		    if (ch2 < 128) break;
+		val_size -= (end - p);
+		while (val_size) {
+		    size_t n = std::min(val_size, sizeof(buf));
+		    if (!fh.read(buf, n))
+			throw Xapian::DatabaseError("read of " + str(n) + "/" + str(val_size) + " bytes of value data failed", errno);
+		    val.append(buf, n);
+		    val_size -= n;
 		}
-		r = p - buf;
+	    } else {
+		if (!next()) {
+		    std::abort();
+		}
 	    }
-	    const char* p = buf;
-	    const char* end = p + r;
-	    if (!unpack_uint(&p, end, &val_size)) {
-		throw Xapian::DatabaseError("val_size unpack_uint invalid");
-	    }
-	    bool& compressed = current_compressed;
-	    auto& val = current_tag;
-	    compressed = val_size & 1;
-	    val_size >>= 1;
-	    val.assign(p, end);
-	    if (p != end) std::abort();
-	    val_size -= (end - p);
-	    while (val_size) {
-		size_t n = std::min(val_size, sizeof(buf));
-		if (!fh.read(buf, n))
-		    throw Xapian::DatabaseError("read of " + str(n) + "/" + str(val_size) + " bytes of value data failed", errno);
-		val.append(buf, n);
-		val_size -= n;
-	    }
-	} else {
-	    if (!next()) {
-		std::abort();
-	    }
-	}
 
-	if (DEBUGGING) {
-	    std::string desc;
-	    description_append(desc, current_key);
-	    std::cerr << "Dropped to data layer on key: " << desc << std::endl;
-	}
+	    if (DEBUGGING) {
+		std::string desc;
+		description_append(desc, current_key);
+		std::cerr << "Dropped to data layer on key: " << desc << std::endl;
+	    }
 
-	// FIXME: need to put us in the "read key not tag" state but persist that more?
-	// if (cmp0 == 0) this is an exact hit from the index...
+	    // FIXME: need to put us in the "read key not tag" state but persist that more?
+	    // if (cmp0 == 0) this is an exact hit from the index...
 #endif
+	}
 
 	off_t pos;
 	std::string k;
