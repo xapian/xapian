@@ -462,8 +462,8 @@ GlassValueManager::replace_document(Xapian::docid did,
 	// before the subsequent add_document() can read them.
 	//
 	// The simplest way to handle this is to force the document to read its
-	// values, which we only need to do this is the docid matches.  Note that
-	// this check can give false positives as we don't also check the
+	// values, which we only need to do this is the docid matches.  Note
+	// that this check can give false positives as we don't also check the
 	// database, so for example replacing document 4 in one database with
 	// document 4 from another will unnecessarily trigger this, but forcing
 	// the values to be read is fairly harmless, and this is unlikely to be
