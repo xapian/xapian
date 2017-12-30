@@ -132,7 +132,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 
     /// Constructor used by subclasses.
     Internal(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
-	    Xapian::docid did_)
+	     Xapian::docid did_)
 	: database(database_), did(did_) {}
 
     /// Constructor used by RemoteDocument subclass.
@@ -158,7 +158,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  clears @a values_.
      */
     virtual void fetch_all_values(std::map<Xapian::valueno,
-				   std::string>& values_) const;
+				  std::string>& values_) const;
 
     /** Fetch a single value from the database.
      *
