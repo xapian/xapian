@@ -1,7 +1,7 @@
 /** @file bitstream.h
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2012,2013,2014 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2012,2013,2014,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,9 +64,12 @@ class BitWriter {
 
 /// Read a stream created by BitWriter.
 class BitReader {
-    std::string buf;
-    size_t idx;
+    const char* p;
+
+    const char* end;
+
     int n_bits;
+
     unsigned int acc;
 
     unsigned int read_bits(int count);
@@ -119,22 +122,23 @@ class BitReader {
     // Construct.
     BitReader() { }
 
-    // Construct with the contents of buf_.
-    explicit BitReader(const std::string &buf_)
-	: buf(buf_), idx(0), n_bits(0), acc(0) { }
+    // Construct and set data.
+    BitReader(const char* p_, const char* end_)
+	: p(p_), end(end_), n_bits(0), acc(0) { }
 
-    // Construct with the contents of buf_, skipping some bytes.
-    BitReader(const std::string &buf_, size_t skip)
-	: buf(buf_, skip), idx(0), n_bits(0), acc(0) { }
-
-    // Initialise from buf_, optionally skipping some bytes.
-    void init(const std::string &buf_, size_t skip = 0) {
-	buf.assign(buf_, skip, std::string::npos);
-	idx = 0;
+    // Initialise with fresh data.
+    void init(const char* p_, const char* end_) {
+	p = p_;
+	end = end_;
 	n_bits = 0;
 	acc = 0;
 	di_stack.clear();
 	di_current.uninit();
+    }
+
+    // Initialise with fresh data.
+    void init(const char* p_, size_t len) {
+	init(p_, p_ + len);
     }
 
     // Decode value, known to be less than outof.
@@ -145,7 +149,7 @@ class BitReader {
     // there's less than a byte left and that all remaining bits are
     // zero.
     bool check_all_gone() const {
-	return (idx == buf.size() && n_bits <= 7 && acc == 0);
+	return (p == end && n_bits <= 7 && acc == 0);
     }
 
     /// Perform interpolative decoding between elements between j and k.

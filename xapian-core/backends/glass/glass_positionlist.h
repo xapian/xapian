@@ -1,7 +1,7 @@
 /** @file glass_positionlist.h
  * @brief A position list in a glass database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016 Olly Betts
+/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,11 +25,11 @@
 #include <xapian/types.h>
 
 #include "bitstream.h"
+#include "glass_cursor.h"
 #include "glass_lazytable.h"
 #include "pack.h"
 #include "backends/positionlist.h"
 
-#include <memory>
 #include <string>
 
 using namespace std;
@@ -80,8 +80,15 @@ class GlassPositionListTable : public GlassLazyTable {
 					 const string & term) const;
 };
 
-/** A position list in a glass database. */
-class GlassPositionList : public PositionList {
+/** Base-class for a position list in a glass database. */
+class GlassBasePositionList : public PositionList {
+    /// Copying is not allowed.
+    GlassBasePositionList(const GlassBasePositionList&) = delete;
+
+    /// Assignment is not allowed.
+    GlassBasePositionList& operator=(const GlassBasePositionList&) = delete;
+
+  protected:
     /// Interpolative decoder.
     BitReader rd;
 
@@ -94,40 +101,12 @@ class GlassPositionList : public PositionList {
     /// Number of entries.
     Xapian::termcount size;
 
-    /// Cursor for locating multiple entries efficiently.
-    unique_ptr<GlassCursor> cursor;
-
     /// Have we started iterating yet?
     bool have_started;
 
-    /// Copying is not allowed.
-    GlassPositionList(const GlassPositionList &);
-
-    /// Assignment is not allowed.
-    void operator=(const GlassPositionList &);
-
   public:
     /// Default constructor.
-    GlassPositionList() { }
-
-    /// Construct and initialise with data.
-    GlassPositionList(const GlassTable * table, Xapian::docid did,
-		      const string & tname) {
-	(void)read_data(table, did, tname);
-    }
-
-    /** Fill list with data, and move the position to the start.
-     *
-     *  @return true if position data was read.
-     */
-    bool read_data(const string & data);
-
-    /** Fill list with data, and move the position to the start.
-     *
-     *  @return true if position data was read.
-     */
-    bool read_data(const GlassTable * table, Xapian::docid did,
-		   const string & tname);
+    GlassBasePositionList() {}
 
     /// Returns size of position list.
     Xapian::termcount get_approx_size() const;
@@ -144,6 +123,50 @@ class GlassPositionList : public PositionList {
 
     /// Advance to the first term position which is at least termpos.
     bool skip_to(Xapian::termpos termpos);
+};
+
+/** A position list in a glass database. */
+class GlassPositionList : public GlassBasePositionList {
+    /// The encoded positional data being read by rd.
+    std::string pos_data;
+
+    /// Copying is not allowed.
+    GlassPositionList(const GlassPositionList&) = delete;
+
+    /// Assignment is not allowed.
+    GlassPositionList& operator=(const GlassPositionList&) = delete;
+
+  public:
+    /// Construct and initialise with data.
+    explicit
+    GlassPositionList(const string& data);
+
+    /// Construct and initialise with data.
+    GlassPositionList(const GlassTable* table,
+		      Xapian::docid did,
+		      const string& term);
+};
+
+/** A reusable position list in a glass database. */
+class GlassRePositionList : public GlassBasePositionList {
+    /// Cursor for locating multiple entries efficiently.
+    GlassCursor cursor;
+
+    /// Copying is not allowed.
+    GlassRePositionList(const GlassRePositionList&) = delete;
+
+    /// Assignment is not allowed.
+    GlassRePositionList& operator=(const GlassRePositionList&) = delete;
+
+  public:
+    /// Constructor.
+    explicit
+    GlassRePositionList(const GlassTable* table)
+	: cursor(table) {}
+
+    /** Fill list with data, and move the position to the start. */
+    void read_data(Xapian::docid did,
+		   const string& term);
 };
 
 #endif /* XAPIAN_HGUARD_GLASS_POSITIONLIST_H */

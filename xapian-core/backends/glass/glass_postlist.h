@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014,2015,2017 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -144,7 +144,7 @@ class GlassPostList : public LeafPostList {
 	Xapian::Internal::intrusive_ptr<const GlassDatabase> this_db;
 
 	/// The position list object for this posting list.
-	GlassPositionList positionlist;
+	GlassRePositionList* positionlist = NULL;
 
 	/// Whether we've started reading the list yet.
 	bool have_started;
@@ -245,7 +245,8 @@ class GlassPostList : public LeafPostList {
 	/// Destructor.
 	~GlassPostList();
 
-	LeafPostList * open_nearby_postlist(const std::string & term_) const;
+	LeafPostList * open_nearby_postlist(const std::string & term_,
+					    bool need_pos) const;
 
 	/** Used for looking up doclens.
 	 *

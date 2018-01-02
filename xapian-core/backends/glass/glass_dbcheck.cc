@@ -2,7 +2,7 @@
  * @brief Check consistency of a glass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -905,7 +905,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		// Special case for single entry position list.
 	    } else {
 		// Skip the header we just read.
-		BitReader rd(data, pos - data.data());
+		BitReader rd(pos, end);
 		Xapian::termpos pos_first = rd.decode(pos_last);
 		Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
 		rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);

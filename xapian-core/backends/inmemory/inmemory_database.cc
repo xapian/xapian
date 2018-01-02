@@ -412,14 +412,16 @@ InMemoryDatabase::close()
 PostList*
 InMemoryDatabase::open_post_list(const string& term) const
 {
-    return InMemoryDatabase::open_leaf_post_list(term);
+    return InMemoryDatabase::open_leaf_post_list(term, false);
 }
 
 LeafPostList*
-InMemoryDatabase::open_leaf_post_list(const string& term) const
+InMemoryDatabase::open_leaf_post_list(const string& term, bool need_pos) const
 {
+    (void)need_pos;
     if (closed) InMemoryDatabase::throw_database_closed();
     if (term.empty()) {
+	Assert(!need_pos);
 	intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }

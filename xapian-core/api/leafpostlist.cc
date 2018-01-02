@@ -97,7 +97,7 @@ LeafPostList::gather_position_lists(OrPositionList* orposlist)
 }
 
 LeafPostList *
-LeafPostList::open_nearby_postlist(const std::string &) const
+LeafPostList::open_nearby_postlist(const std::string &, bool) const
 {
     return NULL;
 }

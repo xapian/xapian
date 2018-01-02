@@ -1,6 +1,6 @@
 /* glass_positionlist.cc: A position list in a glass database.
  *
- * Copyright (C) 2004,2005,2006,2008,2009,2010,2013 Olly Betts
+ * Copyright (C) 2004,2005,2006,2008,2009,2010,2013,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -73,7 +73,7 @@ GlassPositionListTable::positionlist_count(Xapian::docid did,
     }
 
     // Skip the header we just read.
-    BitReader rd(data, pos - data.data());
+    BitReader rd(pos, end);
     Xapian::termpos pos_first = rd.decode(pos_last);
     Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
     RETURN(pos_size);
@@ -81,78 +81,25 @@ GlassPositionListTable::positionlist_count(Xapian::docid did,
 
 ///////////////////////////////////////////////////////////////////////////
 
-bool
-GlassPositionList::read_data(const string & data)
-{
-    LOGCALL(DB, bool, "GlassPositionList::read_data", data);
-
-    have_started = false;
-
-    if (data.empty()) {
-	// There's no positional information for this term.
-	size = 0;
-	last = 0;
-	current_pos = 1;
-	RETURN(false);
-    }
-
-    const char * pos = data.data();
-    const char * end = pos + data.size();
-    Xapian::termpos pos_last;
-    if (!unpack_uint(&pos, end, &pos_last)) {
-	throw Xapian::DatabaseCorruptError("Position list data corrupt");
-    }
-    if (pos == end) {
-	// Special case for single entry position list.
-	size = 1;
-	current_pos = last = pos_last;
-	RETURN(true);
-    }
-    // Skip the header we just read.
-    rd.init(data, pos - data.data());
-    Xapian::termpos pos_first = rd.decode(pos_last);
-    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
-    size = pos_size;
-    last = pos_last;
-    current_pos = pos_first;
-    RETURN(true);
-}
-
-bool
-GlassPositionList::read_data(const GlassTable * table, Xapian::docid did,
-			     const string & tname)
-{
-    LOGCALL(DB, bool, "GlassPositionList::read_data", table | did | tname);
-    if (!cursor.get()) {
-	cursor.reset(table->cursor_get());
-    }
-    if (cursor.get() &&
-	cursor->find_exact(GlassPositionListTable::make_key(did, tname))) {
-	RETURN(read_data(cursor->current_tag));
-    }
-    RETURN(read_data(string()));
-}
-
 Xapian::termcount
-GlassPositionList::get_approx_size() const
+GlassBasePositionList::get_approx_size() const
 {
-    LOGCALL(DB, Xapian::termcount, "GlassPositionList::get_approx_size", NO_ARGS);
+    LOGCALL(DB, Xapian::termcount, "GlassBasePositionList::get_approx_size", NO_ARGS);
     RETURN(size);
 }
 
 Xapian::termpos
-GlassPositionList::get_position() const
+GlassBasePositionList::get_position() const
 {
-    LOGCALL(DB, Xapian::termpos, "GlassPositionList::get_position", NO_ARGS);
+    LOGCALL(DB, Xapian::termpos, "GlassBasePositionList::get_position", NO_ARGS);
     Assert(have_started);
     RETURN(current_pos);
 }
 
 bool
-GlassPositionList::next()
+GlassBasePositionList::next()
 {
-    LOGCALL(DB, bool, "GlassPositionList::next", NO_ARGS);
+    LOGCALL(DB, bool, "GlassBasePositionList::next", NO_ARGS);
     if (rare(!have_started)) {
 	have_started = true;
 	return current_pos <= last;
@@ -165,9 +112,9 @@ GlassPositionList::next()
 }
 
 bool
-GlassPositionList::skip_to(Xapian::termpos termpos)
+GlassBasePositionList::skip_to(Xapian::termpos termpos)
 {
-    LOGCALL(DB, bool, "GlassPositionList::skip_to", termpos);
+    LOGCALL(DB, bool, "GlassBasePositionList::skip_to", termpos);
     have_started = true;
     if (termpos >= last) {
 	if (termpos == last) {
@@ -183,4 +130,123 @@ GlassPositionList::skip_to(Xapian::termpos termpos)
 	current_pos = rd.decode_interpolative_next();
     }
     return true;
+}
+
+GlassPositionList::GlassPositionList(const string& data)
+{
+    LOGCALL_CTOR(DB, "GlassPositionList", data);
+
+    have_started = false;
+
+    if (data.empty()) {
+	// There's no positional information for this term.
+	size = 0;
+	last = 0;
+	current_pos = 1;
+	return;
+    }
+
+    const char* pos = data.data();
+    const char* end = pos + data.size();
+    Xapian::termpos pos_last;
+    if (!unpack_uint(&pos, end, &pos_last)) {
+	throw Xapian::DatabaseCorruptError("Position list data corrupt");
+    }
+
+    if (pos == end) {
+	// Special case for single entry position list.
+	size = 1;
+	current_pos = last = pos_last;
+	return;
+    }
+
+    // Copy the rest of the data and lazily decode from that copy.
+    pos_data.assign(pos, end);
+
+    rd.init(pos_data.data(), pos_data.size());
+    Xapian::termpos pos_first = rd.decode(pos_last);
+    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
+    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+    size = pos_size;
+    last = pos_last;
+    current_pos = pos_first;
+}
+
+GlassPositionList::GlassPositionList(const GlassTable* table,
+				     Xapian::docid did,
+				     const string& term)
+{
+    LOGCALL_CTOR(DB, "GlassPositionList", table | did | term);
+
+    have_started = false;
+
+    if (!table->get_exact_entry(GlassPositionListTable::make_key(did, term),
+				pos_data)) {
+	// There's no positional information for this term.
+	size = 0;
+	last = 0;
+	current_pos = 1;
+	return;
+    }
+
+    const char* pos = pos_data.data();
+    const char* end = pos + pos_data.size();
+    Xapian::termpos pos_last;
+    if (!unpack_uint(&pos, end, &pos_last)) {
+	throw Xapian::DatabaseCorruptError("Position list data corrupt");
+    }
+
+    if (pos == end) {
+	// Special case for single entry position list.
+	size = 1;
+	current_pos = last = pos_last;
+	return;
+    }
+
+    rd.init(pos, end);
+    Xapian::termpos pos_first = rd.decode(pos_last);
+    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
+    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+    size = pos_size;
+    last = pos_last;
+    current_pos = pos_first;
+}
+
+void
+GlassRePositionList::read_data(Xapian::docid did,
+			       const string& term)
+{
+    LOGCALL_VOID(DB, "GlassRePositionList::read_data", table | did | term);
+
+    have_started = false;
+
+    if (!cursor.find_exact(GlassPositionListTable::make_key(did, term))) {
+	// There's no positional information for this term.
+	size = 0;
+	last = 0;
+	current_pos = 1;
+	return;
+    }
+
+    const char* pos = cursor.current_tag.data();
+    const char* end = pos + cursor.current_tag.size();
+    Xapian::termpos pos_last;
+    if (!unpack_uint(&pos, end, &pos_last)) {
+	throw Xapian::DatabaseCorruptError("Position list data corrupt");
+    }
+
+    if (pos == end) {
+	// Special case for single entry position list.
+	size = 1;
+	current_pos = last = pos_last;
+	return;
+    }
+
+    rd.init(pos, end);
+    Xapian::termpos pos_first = rd.decode(pos_last);
+    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
+    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+    size = pos_size;
+    last = pos_last;
+    current_pos = pos_first;
 }

@@ -23,13 +23,13 @@
 #define XAPIAN_INCLUDED_HONEY_POSTLIST_H
 
 #include "api/leafpostlist.h"
+#include "honey_positionlist.h"
 #include "pack.h"
 
 #include <string>
 
 class HoneyCursor;
 class HoneyDatabase;
-class HoneyPositionList;
 
 namespace Honey {
 
@@ -126,13 +126,6 @@ class HoneyPostList : public LeafPostList {
     /// The highest document id in this posting list.
     Xapian::docid last_did;
 
-    /** PositionList object to reuse for OP_NEAR and OP_PHRASE.
-     *
-     *  This saves the overhead of creating objects for every document
-     *  considered.
-     */
-    HoneyPositionList* position_list = NULL;
-
     /// HoneyDatabase to get position table object from.
     const HoneyDatabase* db;
 
@@ -149,15 +142,14 @@ class HoneyPostList : public LeafPostList {
 
     Xapian::doccount get_termfreq() const;
 
-    LeafPostList* open_nearby_postlist(const std::string& term_) const;
+    LeafPostList* open_nearby_postlist(const std::string& term_,
+				       bool need_pos) const;
 
     Xapian::docid get_docid() const;
 
     Xapian::termcount get_wdf() const;
 
     bool at_end() const;
-
-    PositionList* read_position_list();
 
     PositionList* open_position_list() const;
 
@@ -166,6 +158,29 @@ class HoneyPostList : public LeafPostList {
     PostList* skip_to(Xapian::docid did, double w_min);
 
     PostList* check(Xapian::docid did, double w_min, bool& valid);
+
+    std::string get_description() const;
+};
+
+/** PostList in a honey database with positions.
+ *
+ *  Use a special subclass to avoid the size cost for the common case where we
+ *  don't want positional data.
+ */
+class HoneyPosPostList : public HoneyPostList {
+    /** PositionList object to reuse for OP_NEAR and OP_PHRASE.
+     *
+     *  This saves the overhead of creating objects for every document
+     *  considered.
+     */
+    HoneyRePositionList position_list;
+
+  public:
+    HoneyPosPostList(const HoneyDatabase* db_,
+		     const std::string& term_,
+		     HoneyCursor* cursor_);
+
+    PositionList* read_position_list();
 
     std::string get_description() const;
 };

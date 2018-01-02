@@ -33,7 +33,8 @@ using namespace std;
 
 HoneyPostList*
 HoneyPostListTable::open_post_list(const HoneyDatabase* db,
-				   const std::string& term) const
+				   const std::string& term,
+				   bool need_pos) const
 {
     Assert(!term.empty());
     // Try to position cursor first so we avoid creating HoneyPostList objects
@@ -46,6 +47,8 @@ HoneyPostListTable::open_post_list(const HoneyDatabase* db,
 	return new HoneyPostList(db, term, NULL);
     }
 
+    if (need_pos)
+	return new HoneyPosPostList(db, term, cursor.release());
     return new HoneyPostList(db, term, cursor.release());
 }
 

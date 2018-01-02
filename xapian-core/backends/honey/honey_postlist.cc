@@ -1,3 +1,22 @@
+/** @file honey_postlist.cc
+ * @brief PostList in a honey database.
+ */
+/* Copyright (C) 2017 Olly Betts
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ */
 
 #include <config.h>
 
@@ -55,7 +74,6 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 HoneyPostList::~HoneyPostList()
 {
     delete cursor;
-    delete position_list;
 }
 
 Xapian::doccount
@@ -65,7 +83,7 @@ HoneyPostList::get_termfreq() const
 }
 
 LeafPostList*
-HoneyPostList::open_nearby_postlist(const string& term_) const
+HoneyPostList::open_nearby_postlist(const string& term_, bool need_pos) const
 {
     Assert(!term_.empty());
     if (!cursor) return NULL;
@@ -79,9 +97,13 @@ HoneyPostList::open_nearby_postlist(const string& term_) const
 	// We also need to distinguish this case from "open_nearby_postlist()
 	// not supported" though.
 	// return NULL;
+	//
+	// No need to consider need_pos for an empty posting list.
 	return new HoneyPostList(db, term_, NULL);
     }
 
+    if (need_pos)
+	return new HoneyPosPostList(db, term_, new_cursor.release());
     return new HoneyPostList(db, term_, new_cursor.release());
 }
 
@@ -101,20 +123,6 @@ bool
 HoneyPostList::at_end() const
 {
     return cursor == NULL;
-}
-
-PositionList*
-HoneyPostList::read_position_list()
-{
-    if (rare(position_list == NULL))
-	position_list = new HoneyPositionList();
-    if (!position_list->read_data(db->position_table, get_docid(), term)) {
-	// FIXME: Consider returning NULL here - callers need fixing up, but
-	// this may be a rare case and the costs of checking for NULL may
-	// outweigh any gains.  Need to profile.
-	// return NULL;
-    }
-    return position_list;
 }
 
 PositionList*
@@ -243,6 +251,31 @@ string
 HoneyPostList::get_description() const
 {
     string desc = "HoneyPostList(";
+    desc += term;
+    desc += ')';
+    return desc;
+}
+
+HoneyPosPostList::HoneyPosPostList(const HoneyDatabase* db_,
+				   const std::string& term_,
+				   HoneyCursor* cursor_)
+    : HoneyPostList(db_, term_, cursor_),
+      position_list(db_->position_table) {}
+
+PositionList*
+HoneyPosPostList::read_position_list()
+{
+    position_list.read_data(HoneyPostList::get_docid(), term);
+    // FIXME: Consider returning NULL if there's no positional data - callers
+    // need fixing up, but this may be a rare case and the costs of checking
+    // for NULL may outweigh any gains.  Need to profile.
+    return &position_list;
+}
+
+string
+HoneyPosPostList::get_description() const
+{
+    string desc = "HoneyPosPostList(";
     desc += term;
     desc += ')';
     return desc;

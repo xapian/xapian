@@ -55,7 +55,8 @@ class HoneyPostListTable : public HoneyTable {
     }
 
     HoneyPostList* open_post_list(const HoneyDatabase* db,
-				  const std::string& term) const;
+				  const std::string& term,
+				  bool need_pos) const;
 
     void get_freqs(const std::string& term,
 		   Xapian::doccount* termfreq_ptr,

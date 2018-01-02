@@ -62,7 +62,8 @@ class MultiDatabase : public Xapian::Database::Internal {
 
     PostList* open_post_list(const std::string& term) const;
 
-    LeafPostList* open_leaf_post_list(const std::string& term) const;
+    LeafPostList* open_leaf_post_list(const std::string& term,
+				      bool need_pos) const;
 
     TermList* open_term_list(Xapian::docid did) const;
 

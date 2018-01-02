@@ -50,7 +50,7 @@ EmptyDatabase::open_post_list(const string&) const
 }
 
 LeafPostList*
-EmptyDatabase::open_leaf_post_list(const string&) const
+EmptyDatabase::open_leaf_post_list(const string&, bool) const
 {
     return NULL;
 }

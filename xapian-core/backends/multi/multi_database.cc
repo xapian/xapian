@@ -79,7 +79,7 @@ MultiDatabase::open_post_list(const string& term) const
 }
 
 LeafPostList*
-MultiDatabase::open_leaf_post_list(const string&) const
+MultiDatabase::open_leaf_post_list(const string&, bool) const
 {
     // This should never get called.
     Assert(false);

@@ -45,6 +45,7 @@ class HoneyTermList;
 /// Database using honey backend.
 class HoneyDatabase : public Xapian::Database::Internal {
     friend class HoneyAllTermsList;
+    friend class HoneyPosPostList;
     friend class HoneyPostList;
     friend class HoneySpellingWordsList;
     friend class HoneySynonymTermList;
@@ -164,7 +165,8 @@ class HoneyDatabase : public Xapian::Database::Internal {
 
     PostList* open_post_list(const std::string& term) const;
 
-    LeafPostList* open_leaf_post_list(const std::string& term) const;
+    LeafPostList* open_leaf_post_list(const std::string& term,
+				      bool need_pos) const;
 
     /** Open a value stream.
      *

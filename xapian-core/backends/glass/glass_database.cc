@@ -822,16 +822,18 @@ PostList *
 GlassDatabase::open_post_list(const string& term) const
 {
     LOGCALL(DB, PostList *, "GlassDatabase::open_post_list", term);
-    RETURN(GlassDatabase::open_leaf_post_list(term));
+    RETURN(GlassDatabase::open_leaf_post_list(term, false));
 }
 
 LeafPostList*
-GlassDatabase::open_leaf_post_list(const string& term) const
+GlassDatabase::open_leaf_post_list(const string& term, bool need_pos) const
 {
-    LOGCALL(DB, LeafPostList *, "GlassDatabase::open_leaf_post_list", term);
+    LOGCALL(DB, LeafPostList *, "GlassDatabase::open_leaf_post_list", term | need_pos);
+    (void)need_pos;
     intrusive_ptr<const GlassDatabase> ptrtothis(this);
 
     if (term.empty()) {
+	Assert(!need_pos);
 	Xapian::doccount doccount = get_doccount();
 	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(doccount));
@@ -882,18 +884,10 @@ GlassDatabase::open_document(Xapian::docid did, bool lazy) const
 }
 
 PositionList *
-GlassDatabase::open_position_list(Xapian::docid did, const string & term) const
+GlassDatabase::open_position_list(Xapian::docid did, const string& term) const
 {
     Assert(did != 0);
-
-    unique_ptr<GlassPositionList> poslist(new GlassPositionList);
-    if (!poslist->read_data(&position_table, did, term)) {
-	// As of 1.1.0, we don't check if the did and term exist - we just
-	// return an empty positionlist.  If the user really needs to know,
-	// they can check for themselves.
-    }
-
-    return poslist.release();
+    return new GlassPositionList(&position_table, did, term);
 }
 
 TermList *
@@ -1490,16 +1484,19 @@ PostList *
 GlassWritableDatabase::open_post_list(const string& term) const
 {
     LOGCALL(DB, PostList *, "GlassWritableDatabase::open_post_list", term);
-    RETURN(GlassWritableDatabase::open_leaf_post_list(term));
+    RETURN(GlassWritableDatabase::open_leaf_post_list(term, false));
 }
 
 LeafPostList *
-GlassWritableDatabase::open_leaf_post_list(const string& term) const
+GlassWritableDatabase::open_leaf_post_list(const string& term,
+					   bool need_pos) const
 {
-    LOGCALL(DB, LeafPostList *, "GlassWritableDatabase::open_leaf_post_list", term);
+    LOGCALL(DB, LeafPostList *, "GlassWritableDatabase::open_leaf_post_list", term | need_pos);
+    (void)need_pos;
     intrusive_ptr<const GlassWritableDatabase> ptrtothis(this);
 
     if (term.empty()) {
+	Assert(!need_pos);
 	Xapian::doccount doccount = get_doccount();
 	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(doccount));
@@ -1542,22 +1539,14 @@ GlassWritableDatabase::open_term_list_direct(Xapian::docid did) const
 }
 
 PositionList *
-GlassWritableDatabase::open_position_list(Xapian::docid did, const string & term) const
+GlassWritableDatabase::open_position_list(Xapian::docid did, const string& term) const
 {
     Assert(did != 0);
-
-    unique_ptr<GlassPositionList> poslist(new GlassPositionList);
-
     string data;
     if (inverter.get_positionlist(did, term, data)) {
-	poslist->read_data(data);
-    } else if (!poslist->read_data(&position_table, did, term)) {
-	// As of 1.1.0, we don't check if the did and term exist - we just
-	// return an empty positionlist.  If the user really needs to know,
-	// they can check for themselves.
+	return new GlassPositionList(data);
     }
-
-    return poslist.release();
+    return GlassDatabase::open_position_list(did, term);
 }
 
 TermList *

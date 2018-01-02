@@ -210,16 +210,18 @@ HoneyDatabase::has_positions() const
 PostList*
 HoneyDatabase::open_post_list(const string& term) const
 {
-    return HoneyDatabase::open_leaf_post_list(term);
+    return HoneyDatabase::open_leaf_post_list(term, false);
 }
 
 LeafPostList*
-HoneyDatabase::open_leaf_post_list(const string& term) const
+HoneyDatabase::open_leaf_post_list(const string& term, bool need_pos) const
 {
-    if (term.empty())
+    if (term.empty()) {
+	Assert(!need_pos);
 	return new HoneyAllDocsPostList(this, get_doccount());
+    }
 
-    return postlist_table.open_post_list(this, term);
+    return postlist_table.open_post_list(this, term, need_pos);
 }
 
 ValueList*

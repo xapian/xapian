@@ -240,11 +240,11 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 PostList *
 RemoteDatabase::open_post_list(const string& term) const
 {
-    return RemoteDatabase::open_leaf_post_list(term);
+    return RemoteDatabase::open_leaf_post_list(term, false);
 }
 
 LeafPostList *
-RemoteDatabase::open_leaf_post_list(const string& term) const
+RemoteDatabase::open_leaf_post_list(const string& term, bool) const
 {
     return new NetworkPostList(intrusive_ptr<const RemoteDatabase>(this), term);
 }

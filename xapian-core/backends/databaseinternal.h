@@ -204,7 +204,8 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
     virtual PostList* open_post_list(const std::string& term) const = 0;
 
-    virtual LeafPostList* open_leaf_post_list(const std::string& term) const = 0;
+    virtual LeafPostList* open_leaf_post_list(const std::string& term,
+					      bool need_pos) const = 0;
 
     /** Open a value stream.
      *

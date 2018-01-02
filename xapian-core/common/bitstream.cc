@@ -1,7 +1,7 @@
 /** @file bitstream.cc
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2013,2014,2016 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2013,2014,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -160,17 +160,17 @@ BitReader::decode(Xapian::termpos outof, bool force)
     size_t bits = highest_order_bit(outof - 1);
     const size_t spare = (1 << bits) - outof;
     const size_t mid_start = (outof - spare) / 2;
-    Xapian::termpos p;
+    Xapian::termpos pos;
     if (spare) {
-	p = read_bits(bits - 1);
-	if (p < mid_start) {
-	    if (read_bits(1)) p += mid_start + spare;
+	pos = read_bits(bits - 1);
+	if (pos < mid_start) {
+	    if (read_bits(1)) pos += mid_start + spare;
 	}
     } else {
-	p = read_bits(bits);
+	pos = read_bits(bits);
     }
-    Assert(p < outof);
-    return p;
+    Assert(pos < outof);
+    return pos;
 }
 
 unsigned int
@@ -187,8 +187,8 @@ BitReader::read_bits(int count)
 	return result | (read_bits(count - 16) << 16);
     }
     while (n_bits < count) {
-	Assert(idx < buf.size());
-	acc |= static_cast<unsigned char>(buf[idx++]) << n_bits;
+	Assert(p < end);
+	acc |= static_cast<unsigned char>(*p++) << n_bits;
 	n_bits += 8;
     }
     result = acc & ((1u << count) - 1);

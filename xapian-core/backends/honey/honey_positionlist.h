@@ -1,7 +1,7 @@
 /** @file honey_positionlist.h
  * @brief A position list in a honey database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016 Olly Betts
+/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,6 @@
 #include "honey_lazytable.h"
 #include "pack.h"
 
-#include <memory>
 #include <string>
 
 using namespace std;
@@ -81,8 +80,15 @@ class HoneyPositionTable : public HoneyLazyTable {
 					 const string & term) const;
 };
 
-/** A position list in a honey database. */
-class HoneyPositionList : public PositionList {
+/** Base-class for a position list in a honey database. */
+class HoneyBasePositionList : public PositionList {
+    /// Copying is not allowed.
+    HoneyBasePositionList(const HoneyBasePositionList&) = delete;
+
+    /// Assignment is not allowed.
+    HoneyBasePositionList& operator=(const HoneyBasePositionList&) = delete;
+
+  protected:
     /// Interpolative decoder.
     BitReader rd;
 
@@ -95,40 +101,12 @@ class HoneyPositionList : public PositionList {
     /// Number of entries.
     Xapian::termcount size;
 
-    /// Cursor for locating multiple entries efficiently.
-    unique_ptr<HoneyCursor> cursor;
-
     /// Have we started iterating yet?
     bool have_started;
 
-    /// Copying is not allowed.
-    HoneyPositionList(const HoneyPositionList &);
-
-    /// Assignment is not allowed.
-    void operator=(const HoneyPositionList &);
-
   public:
     /// Default constructor.
-    HoneyPositionList() { }
-
-    /// Construct and initialise with data.
-    HoneyPositionList(const HoneyTable& table, Xapian::docid did,
-		      const string& term) {
-	(void)read_data(table, did, term);
-    }
-
-    /** Fill list with data, and move the position to the start.
-     *
-     *  @return true if position data was read.
-     */
-    bool read_data(const string & data);
-
-    /** Fill list with data, and move the position to the start.
-     *
-     *  @return true if position data was read.
-     */
-    bool read_data(const HoneyTable& table, Xapian::docid did,
-		   const string & term);
+    HoneyBasePositionList() {}
 
     /// Returns size of position list.
     Xapian::termcount get_approx_size() const;
@@ -145,6 +123,49 @@ class HoneyPositionList : public PositionList {
 
     /// Advance to the first term position which is at least termpos.
     bool skip_to(Xapian::termpos termpos);
+};
+
+/** A position list in a honey database. */
+class HoneyPositionList : public HoneyBasePositionList {
+    /// The encoded positional data being read by rd.
+    std::string pos_data;
+
+    /// Copying is not allowed.
+    HoneyPositionList(const HoneyPositionList&) = delete;
+
+    /// Assignment is not allowed.
+    HoneyPositionList& operator=(const HoneyPositionList&) = delete;
+
+  public:
+    /// Construct and initialise with data.
+    explicit
+    HoneyPositionList(const string& data);
+
+    /// Construct and initialise with data.
+    HoneyPositionList(const HoneyTable& table,
+		      Xapian::docid did,
+		      const string& term);
+};
+
+/** A reusable position list in a honey database. */
+class HoneyRePositionList : public HoneyBasePositionList {
+    /// Cursor for locating multiple entries efficiently.
+    HoneyCursor cursor;
+
+    /// Copying is not allowed.
+    HoneyRePositionList(const HoneyRePositionList&) = delete;
+
+    /// Assignment is not allowed.
+    HoneyRePositionList& operator=(const HoneyRePositionList&) = delete;
+
+  public:
+    /// Constructor.
+    explicit
+    HoneyRePositionList(const HoneyTable& table)
+	: cursor(&table) {}
+
+    /** Fill list with data, and move the position to the start. */
+    void read_data(Xapian::docid did, const string& term);
 };
 
 #endif /* XAPIAN_HGUARD_HONEY_POSITIONLIST_H */

@@ -238,7 +238,8 @@ LocalSubMatch::open_post_list(const string& term,
 
     LeafPostList * pl = NULL;
     if (term.empty()) {
-	pl = db->open_leaf_post_list(term);
+	Assert(!need_positions);
+	pl = db->open_leaf_post_list(term, false);
     } else {
 	if (!need_positions) {
 	    if ((!weighted && !in_synonym) ||
@@ -250,7 +251,7 @@ LocalSubMatch::open_post_list(const string& term,
 		    // the term indexes all documents, we can replace it with
 		    // the MatchAll postlist, which is especially efficient if
 		    // there are no gaps in the docids.
-		    pl = db->open_leaf_post_list(string());
+		    pl = db->open_leaf_post_list(string(), false);
 
 		    // Set the term name so the postlist looks up the correct
 		    // term frequencies - this is necessary if the weighting
@@ -265,9 +266,9 @@ LocalSubMatch::open_post_list(const string& term,
 	if (!pl) {
 	    const LeafPostList * hint = qopt->get_hint_postlist();
 	    if (hint)
-		pl = hint->open_nearby_postlist(term);
+		pl = hint->open_nearby_postlist(term, need_positions);
 	    if (!pl) {
-		pl = db->open_leaf_post_list(term);
+		pl = db->open_leaf_post_list(term, need_positions);
 	    }
 	    qopt->set_hint_postlist(pl);
 	}
