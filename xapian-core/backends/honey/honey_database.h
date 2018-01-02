@@ -85,6 +85,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
     void throw_termlist_table_close_exception() const;
 
   public:
+    explicit
     HoneyDatabase(const std::string& path_, int flags = Xapian::DB_READONLY_);
 
     ~HoneyDatabase();
