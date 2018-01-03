@@ -78,6 +78,9 @@ class BufferedFile {
 #endif
     }
 
+    BufferedFile(int fd_, off_t pos_)
+	: fd(fd_), pos(pos_) {}
+
     ~BufferedFile() {
 //	if (fd >= 0) ::close(fd);
     }
@@ -92,6 +95,10 @@ class BufferedFile {
     void force_close() {
 	close();
 	fd = FORCED_CLOSE;
+    }
+
+    void reset_fd(bool permanent) {
+	fd = permanent ? FORCED_CLOSE : -1;
     }
 
     bool is_open() const { return fd >= 0; }
@@ -342,25 +349,24 @@ class HoneyTable {
     mutable std::string last_key;
     SSIndex index;
     off_t root = -1;
-    honey_tablesize_t num_entries;
+    honey_tablesize_t num_entries = 0;
     bool lazy;
+
+    bool single_file() const { return path.empty(); }
 
   public:
     HoneyTable(const char*, const std::string& path_, bool read_only_, bool lazy_ = false)
 	: path(path_ + HONEY_TABLE_EXTENSION),
 	  read_only(read_only_),
-	  num_entries(0),
 	  lazy(lazy_)
     {
     }
 
     HoneyTable(const char*, int fd, off_t offset, bool read_only_, bool lazy_ = false)
+	: read_only(read_only_),
+	  fh(fd, offset),
+	  lazy(lazy_)
     {
-	(void)fd;
-	(void)offset;
-	(void)read_only_;
-	(void)lazy_;
-	std::abort();
     }
 
     static size_t total_index_size;
@@ -372,7 +378,10 @@ class HoneyTable {
 	if (index_size)
 	    std::cout << "*** " << path << " - index " << index_size << " for " << index.get_num_entries() << " entries; total_size = " << total_index_size << std::endl;
 #endif
-	fh.close();
+	if (!single_file())
+	    fh.close();
+	else
+	    fh.reset_fd(false);
     }
 
     bool is_writable() const { return !read_only; }
@@ -388,10 +397,14 @@ class HoneyTable {
     void open(int flags_, const Honey::RootInfo& root_info, honey_revision_number_t);
 
     void close(bool permanent) {
-	if (permanent)
-	    fh.force_close();
-	else
-	    fh.close();
+	if (!single_file()) {
+	    if (permanent)
+		fh.force_close();
+	    else
+		fh.close();
+	} else {
+	    fh.reset_fd(permanent);
+	}
     }
 
     const std::string& get_path() const { return path; }

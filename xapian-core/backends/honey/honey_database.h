@@ -88,6 +88,9 @@ class HoneyDatabase : public Xapian::Database::Internal {
     explicit
     HoneyDatabase(const std::string& path_, int flags = Xapian::DB_READONLY_);
 
+    explicit
+    HoneyDatabase(int fd, int flags = Xapian::DB_READONLY_);
+
     ~HoneyDatabase();
 
     void readahead_for_query(const Xapian::Query& query) const;

@@ -32,7 +32,7 @@ HoneyTable::open(int flags_, const RootInfo& root_info, honey_revision_number_t)
     compress_min = root_info.get_compress_min();
     num_entries = root_info.get_num_entries();
     root = root_info.get_root();
-    if (!fh.open(path, read_only)) {
+    if (!single_file() && !fh.open(path, read_only)) {
 	if (!lazy)
 	    throw Xapian::DatabaseOpeningError("Failed to open HoneyTable", errno);
     }

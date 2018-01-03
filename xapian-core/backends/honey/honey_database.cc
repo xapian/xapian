@@ -73,6 +73,30 @@ HoneyDatabase::HoneyDatabase(const std::string& path_, int flags)
     termlist_table.open(flags, version_file.get_root(Honey::TERMLIST), rev);
 }
 
+HoneyDatabase::HoneyDatabase(int fd, int flags)
+    : Xapian::Database::Internal(TRANSACTION_READONLY),
+      version_file(fd),
+      docdata_table(fd, version_file.get_offset(), true),
+      postlist_table(fd, version_file.get_offset(), true),
+      position_table(fd, version_file.get_offset(), true),
+      spelling_table(fd, version_file.get_offset(), true),
+      synonym_table(fd, version_file.get_offset(), true),
+      // Note: (Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST) is true, so
+      // opening to read we always allow the termlist to be missing.
+      termlist_table(fd, version_file.get_offset(), true,
+		     (flags & Xapian::DB_NO_TERMLIST)),
+      value_manager(postlist_table, termlist_table)
+{
+    version_file.read();
+    auto rev = version_file.get_revision();
+    docdata_table.open(flags, version_file.get_root(Honey::DOCDATA), rev);
+    postlist_table.open(flags, version_file.get_root(Honey::POSTLIST), rev);
+    position_table.open(flags, version_file.get_root(Honey::POSITION), rev);
+    spelling_table.open(flags, version_file.get_root(Honey::SPELLING), rev);
+    synonym_table.open(flags, version_file.get_root(Honey::SYNONYM), rev);
+    termlist_table.open(flags, version_file.get_root(Honey::TERMLIST), rev);
+}
+
 HoneyDatabase::~HoneyDatabase()
 {
     delete doclen_cursor;

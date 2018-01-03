@@ -29,6 +29,7 @@
 #include "xapian/error.h"
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
+#include "backends.h"
 #include "debuglog.h"
 #include "filetests.h"
 #include "fileutils.h"
@@ -58,16 +59,29 @@
 
 using namespace std;
 
-static bool
+/** Return a BACKEND_* constant from backends.h.
+ *
+ *  BACKEND_UNKNOWN : stub file
+ *  BACKEND_GLASS : glass single file
+ *  BACKEND_HONEY : honey single file
+ */
+static int
 check_if_single_file_db(const struct stat & sb, const string & path,
 			int * fd_ptr = NULL)
 {
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-    if (!S_ISREG(sb.st_mode)) return false;
+#if defined XAPIAN_HAS_GLASS_BACKEND || \
+    defined XAPIAN_HAS_HONEY_BACKEND
+    if (!S_ISREG(sb.st_mode)) return BACKEND_UNKNOWN;
     // Look at the size as a clue - if it's 0 or not a multiple of
-    // GLASS_MIN_BLOCKSIZE, then it's not a single-file glass database.  If it
-    // is, peek at the start of the file to determine which it is.
+    // GLASS_MIN_BLOCKSIZE, then it's not a single-file glass database, and
+    // not a honey single-file database either, as we pad those to a multiple
+    // of GLASS_MIN_BLOCKSIZE too.  Otherwise peek at the start of the file to
+    // determine which it is.
     if (sb.st_size == 0 || sb.st_size % GLASS_MIN_BLOCKSIZE != 0)
+    // Look at the size as a clue - if it's less than GLASS_MIN_BLOCKSIZE, then
+    // it's not a single-file glass database and too small to be a honey one
+    // If it is, peek at the start of the file to determine what it is.
+    if (sb.st_size < GLASS_MIN_BLOCKSIZE)
 	return false;
     int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
     if (fd != -1) {
@@ -75,13 +89,28 @@ check_if_single_file_db(const struct stat & sb, const string & path,
 	// FIXME: Don't duplicate magic check here...
 	if (io_read(fd, magic_buf, 14) == 14 &&
 	    lseek(fd, 0, SEEK_SET) == 0 &&
-	    memcmp(magic_buf, "\x0f\x0dXapian Glass", 14) == 0) {
-	    if (fd_ptr) {
-		*fd_ptr = fd;
-	    } else {
+	    memcmp(magic_buf, "\x0f\x0dXapian ", 9) == 0) {
+	    if (!fd_ptr)
 		::close(fd);
+	    switch (magic_buf[9]) {
+		case 'G':
+		    if (memcmp(magic_buf + 10, "lass", 4) == 0) {
+			if (fd_ptr)
+			    *fd_ptr = fd;
+			return BACKEND_GLASS;
+		    }
+		    break;
+		case 'H':
+		    if (memcmp(magic_buf + 10, "oney", 4) == 0) {
+			if (fd_ptr)
+			    *fd_ptr = fd;
+			return BACKEND_HONEY;
+		    }
+		    break;
 	    }
-	    return true;
+	    if (fd_ptr)
+		::close(fd);
+	    return BACKEND_UNKNOWN;
 	}
 	::close(fd);
     }
@@ -90,7 +119,7 @@ check_if_single_file_db(const struct stat & sb, const string & path,
     (void)path;
     (void)fd_ptr;
 #endif
-    return false;
+    return BACKEND_UNKNOWN;
 }
 
 namespace Xapian {
@@ -383,13 +412,22 @@ Database::Database(const string& path, int flags)
     if (S_ISREG(statbuf.st_mode)) {
 	// Could be a stub database file, or a single file glass database.
 	int fd;
-	if (check_if_single_file_db(statbuf, path, &fd)) {
+	switch (check_if_single_file_db(statbuf, path, &fd)) {
+	    case BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	    // Single file glass format.
-	    internal = new GlassDatabase(fd);
-	    return;
+		// Single file glass format.
+		internal = new GlassDatabase(fd);
+		return;
 #else
-	    throw FeatureUnavailableError("Glass backend disabled");
+		throw FeatureUnavailableError("Glass backend disabled");
+#endif
+	    case BACKEND_HONEY:
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+		// Single file honey format.
+		internal = new HoneyDatabase(fd);
+		return;
+#else
+		throw FeatureUnavailableError("Honey backend disabled");
 #endif
 	}
 

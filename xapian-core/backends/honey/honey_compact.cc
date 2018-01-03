@@ -1713,9 +1713,8 @@ if (true) {
 
 	HoneyTable * out;
 	if (single_file) {
-//	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
-//				 false, false);
-	    out = NULL;
+	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
+				 false, false);
 	} else {
 	    out = new HoneyTable(t->name, dest, false, t->lazy);
 	}
@@ -1723,7 +1722,7 @@ if (true) {
 	Honey::RootInfo * root_info = version_file_out->root_to_set(t->type);
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
-//	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
+	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
 	} else {
 	    out->create_and_open(FLAGS, *root_info);
 	}
