@@ -21,6 +21,7 @@
 /termgentest.exe
 /unittest.exe
 /.glass
+/.honey
 /.multiglass
 /.singlefileglass
 /.stub
