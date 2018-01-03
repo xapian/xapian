@@ -843,7 +843,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     unique_ptr<GlassVersion> version_file_out;
     if (single_file) {
 	if (destdir) {
-	    fd = open(destdir, O_RDWR|O_CREAT|O_BINARY|O_CLOEXEC, 0666);
+	    fd = open(destdir, O_RDWR|O_CREAT|O_TRUNC|O_BINARY|O_CLOEXEC, 0666);
 	    if (fd < 0) {
 		throw Xapian::DatabaseCreateError("open() failed", errno);
 	    }
