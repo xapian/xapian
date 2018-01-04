@@ -78,8 +78,8 @@ class BufferedFile {
 #endif
     }
 
-    BufferedFile(int fd_, off_t pos_)
-	: fd(fd_), pos(pos_) {}
+    BufferedFile(int fd_, off_t pos_, bool read_only_)
+	: fd(fd_), pos(pos_), read_only(read_only_) {}
 
     ~BufferedFile() {
 //	if (fd >= 0) ::close(fd);
@@ -123,8 +123,8 @@ class BufferedFile {
 	    pos + buf_end;
     }
 
-    void set_pos(off_t pos_) const {
-	if (!read_only) std::abort();
+    void set_pos(off_t pos_) {
+	if (!read_only) flush();
 	if (false && pos_ >= pos) { // FIXME: need to take buf_end into account
 	    skip(pos_ - pos);
 	} else {
@@ -265,9 +265,9 @@ retry:
 	io_sync(fd);
     }
 
-    void rewind() {
+    void rewind(off_t start) {
 	read_only = true;
-	pos = 0;
+	pos = start;
 	buf_end = 0;
     }
 };
@@ -354,6 +354,13 @@ class HoneyTable {
 
     bool single_file() const { return path.empty(); }
 
+    /** Offset to add to pointers in this table.
+     *
+     *  This is zero when each table is a separate file, but likely non-zero
+     *  when the tables are all embedded in one file.
+     */
+    off_t offset = 0;
+
   public:
     HoneyTable(const char*, const std::string& path_, bool read_only_, bool lazy_ = false)
 	: path(path_ + HONEY_TABLE_EXTENSION),
@@ -362,10 +369,11 @@ class HoneyTable {
     {
     }
 
-    HoneyTable(const char*, int fd, off_t offset, bool read_only_, bool lazy_ = false)
+    HoneyTable(const char*, int fd, off_t offset_, bool read_only_, bool lazy_ = false)
 	: read_only(read_only_),
-	  fh(fd, offset),
-	  lazy(lazy_)
+	  fh(fd, offset_, read_only_),
+	  lazy(lazy_),
+	  offset(offset_)
     {
     }
 
@@ -471,6 +479,8 @@ class HoneyTable {
     honey_tablesize_t get_entry_count() const { return num_entries; }
 
     off_t get_root() const { return root; }
+
+    off_t get_offset() const { return offset; }
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_TABLE_H

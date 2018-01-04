@@ -27,7 +27,7 @@
 
 class HoneyCursor {
     void rewind() {
-	fh.set_pos(0 * root);
+	fh.set_pos(offset); // FIXME root
 	last_key = std::string();
 	is_at_end = false;
 	index = root;
@@ -45,17 +45,21 @@ class HoneyCursor {
     // File offset to start of index and to current position in index.
     off_t root, index;
 
+    // File offset to start of table (zero except for single-file DB).
+    off_t offset;
+
     // Forward to next constructor form.
     explicit HoneyCursor(const HoneyTable* table)
-	: HoneyCursor(table->fh, table->get_root()) {}
+	: HoneyCursor(table->fh, table->get_root(), table->get_offset()) {}
 
-    HoneyCursor(const BufferedFile& fh_, off_t root_)
+    HoneyCursor(const BufferedFile& fh_, off_t root_, off_t offset_)
 	: fh(fh_),
 	  comp_stream(Z_DEFAULT_STRATEGY),
 	  root(root_),
-	  index(root_)
+	  index(root_),
+	  offset(offset_)
     {
-	fh.set_pos(0 * root);
+	fh.set_pos(offset); // FIXME root
     }
 
     HoneyCursor(const HoneyCursor& o)
@@ -68,7 +72,8 @@ class HoneyCursor {
 	  is_at_end(o.is_at_end),
 	  last_key(o.last_key),
 	  root(o.root),
-	  index(o.index)
+	  index(o.index),
+	  offset(o.offset)
     {
 	fh.set_pos(o.fh.get_pos());
     }
@@ -486,7 +491,7 @@ class HoneyCursor {
 class MutableHoneyCursor : public HoneyCursor {
   public:
     MutableHoneyCursor(HoneyTable* table_)
-	: HoneyCursor(table_->fh, table_->get_root()) { }
+	: HoneyCursor(table_->fh, table_->get_root(), table_->get_offset()) { }
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_CURSOR_H

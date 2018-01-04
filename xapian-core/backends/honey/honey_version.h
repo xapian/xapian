@@ -1,7 +1,7 @@
 /** @file honey_version.h
  * @brief HoneyVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@
 namespace Honey {
 
 class RootInfo {
+    off_t offset;
     honey_block_t root;
     unsigned level;
     honey_tablesize_t num_entries;
@@ -54,6 +55,7 @@ class RootInfo {
 
     bool unserialise(const char ** p, const char * end);
 
+    off_t get_offset() const { return offset; }
     honey_block_t get_root() const { return root; }
     int get_level() const { return int(level); }
     honey_tablesize_t get_num_entries() const { return num_entries; }
@@ -71,6 +73,7 @@ class RootInfo {
     void set_num_entries(honey_tablesize_t n) { num_entries = n; }
     void set_root_is_fake(bool f) { root_is_fake = f; }
     void set_sequential(bool f) { sequential = f; }
+    void set_offset(off_t offset_) { offset = offset_; }
     void set_root(honey_block_t root_) { root = root_; }
     void set_blocksize(unsigned b) {
 	AssertRel(b,>=,HONEY_MIN_BLOCKSIZE);
@@ -81,6 +84,9 @@ class RootInfo {
 };
 
 }
+
+/** Maximum size to allow for honey version file data in single file DB. */
+#define HONEY_VERSION_MAX_SIZE 1024
 
 /** The HoneyVersion class manages the revision files.
  *

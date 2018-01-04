@@ -1712,7 +1712,18 @@ if (true) {
 	}
 
 	HoneyTable * out;
+	off_t table_start_offset = -1;
 	if (single_file) {
+	    if (t == tables) {
+		// Start first table HONEY_VERSION_MAX_SIZE bytes in to allow
+		// space for version file.  It's tricky to exactly know the
+		// size of the version file beforehand.
+		table_start_offset = HONEY_VERSION_MAX_SIZE;
+		if (lseek(fd, table_start_offset, SEEK_SET) < 0)
+		    throw Xapian::DatabaseError("lseek() failed", errno);
+	    } else {
+		table_start_offset = lseek(fd, 0, SEEK_CUR);
+	    }
 	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
 				 false, false);
 	} else {
@@ -1722,6 +1733,7 @@ if (true) {
 	Honey::RootInfo * root_info = version_file_out->root_to_set(t->type);
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
+	    root_info->set_offset(table_start_offset);
 	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
 	} else {
 	    out->create_and_open(FLAGS, *root_info);
@@ -1839,6 +1851,15 @@ if (true) {
     }
     version_file_out->set_last_docid(last_docid);
     string tmpfile = version_file_out->write(1, FLAGS);
+    if (single_file) {
+	off_t version_file_size = lseek(fd, 0, SEEK_CUR);
+	if (version_file_size < 0) {
+	    throw Xapian::DatabaseError("lseek() failed", errno);
+	}
+	if (version_file_size > HONEY_VERSION_MAX_SIZE) {
+	    throw Xapian::DatabaseError("Didn't allow enough space for version file data");
+	}
+    }
     for (unsigned j = 0; j != tabs.size(); ++j) {
 	tabs[j]->sync();
     }
@@ -1959,10 +1980,20 @@ if (true) {
 	}
 
 	HoneyTable * out;
+	off_t table_start_offset = -1;
 	if (single_file) {
-//	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
-//				 false, false);
-	    out = NULL;
+	    if (t == tables) {
+		// Start first table HONEY_VERSION_MAX_SIZE bytes in to allow
+		// space for version file.  It's tricky to exactly know the
+		// size of the version file beforehand.
+		table_start_offset = HONEY_VERSION_MAX_SIZE;
+		if (lseek(fd, table_start_offset, SEEK_SET) < 0)
+		    throw Xapian::DatabaseError("lseek() failed", errno);
+	    } else {
+		table_start_offset = lseek(fd, 0, SEEK_CUR);
+	    }
+	    out = new HoneyTable(t->name, fd, version_file_out->get_offset(),
+				 false, false);
 	} else {
 	    out = new HoneyTable(t->name, dest, false, t->lazy);
 	}
@@ -1970,7 +2001,8 @@ if (true) {
 	Honey::RootInfo * root_info = version_file_out->root_to_set(t->type);
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
-//	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
+	    root_info->set_offset(table_start_offset);
+	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
 	} else {
 	    out->create_and_open(FLAGS, *root_info);
 	}

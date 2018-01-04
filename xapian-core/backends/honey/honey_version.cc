@@ -50,8 +50,9 @@
 using namespace std;
 
 /// Honey format version (date of change):
-#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2017,12,30)
-// 2017,12,30 1.5.0 Value stats key changes
+#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,1,3)
+// 2018,1,3   1.5.0 Table start offset in RootInfo
+// 2017,12,30       Value stats key changes
 // 2017,12,29       User metadata key changes
 // 2017,12,5        New Honey backend
 
@@ -430,6 +431,7 @@ void
 RootInfo::init(unsigned blocksize_, uint4 compress_min_)
 {
     AssertRel(blocksize_,>=,HONEY_MIN_BLOCKSIZE);
+    offset = 0;
     root = 0;
     level = 0;
     num_entries = 0;
@@ -443,7 +445,11 @@ RootInfo::init(unsigned blocksize_, uint4 compress_min_)
 void
 RootInfo::serialise(string &s) const
 {
-    pack_uint(s, root);
+    AssertRel(offset, >=, 0);
+    std::make_unsigned<off_t>::type uoffset = offset;
+    AssertRel(root, >=, uoffset);
+    pack_uint(s, uoffset);
+    pack_uint(s, root - uoffset);
     unsigned val = level << 2;
     if (sequential) val |= 0x02;
     if (root_is_fake) val |= 0x01;
@@ -457,13 +463,17 @@ RootInfo::serialise(string &s) const
 bool
 RootInfo::unserialise(const char ** p, const char * end)
 {
+    std::make_unsigned<off_t>::type uoffset;
     unsigned val;
-    if (!unpack_uint(p, end, &root) ||
+    if (!unpack_uint(p, end, &uoffset) ||
+	!unpack_uint(p, end, &root) ||
 	!unpack_uint(p, end, &val) ||
 	!unpack_uint(p, end, &num_entries) ||
 	!unpack_uint(p, end, &blocksize) ||
 	!unpack_uint(p, end, &compress_min) ||
 	!unpack_string(p, end, fl_serialised)) return false;
+    offset = uoffset;
+    root += uoffset;
     level = val >> 2;
     sequential = val & 0x02;
     root_is_fake = val & 0x01;

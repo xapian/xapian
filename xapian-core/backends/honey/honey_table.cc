@@ -14,6 +14,7 @@ size_t HoneyTable::total_index_size = 0;
 void
 HoneyTable::create_and_open(int flags_, const RootInfo& root_info)
 {
+    Assert(!single_file());
     flags = flags_;
     compress_min = root_info.get_compress_min();
     if (read_only) {
@@ -31,11 +32,13 @@ HoneyTable::open(int flags_, const RootInfo& root_info, honey_revision_number_t)
     flags = flags_;
     compress_min = root_info.get_compress_min();
     num_entries = root_info.get_num_entries();
+    offset = root_info.get_offset();
     root = root_info.get_root();
     if (!single_file() && !fh.open(path, read_only)) {
 	if (!lazy)
 	    throw Xapian::DatabaseOpeningError("Failed to open HoneyTable", errno);
     }
+    fh.set_pos(offset);
 }
 
 void
@@ -99,6 +102,7 @@ HoneyTable::commit(honey_revision_number_t, RootInfo* root_info)
     root_info->set_root_is_fake(false);
     // Not really meaningful.
     root_info->set_sequential(true);
+    // offset should already be set.
     root_info->set_root(root);
     // Not really meaningful.
     root_info->set_blocksize(2048);
@@ -106,7 +110,7 @@ HoneyTable::commit(honey_revision_number_t, RootInfo* root_info)
     //root_info->set_free_list(std::string());
 
     read_only = true;
-    fh.rewind();
+    fh.rewind(offset);
     last_key = string();
 }
 
@@ -117,6 +121,7 @@ HoneyTable::read_item(std::string& key, std::string& val, bool& compressed) cons
 	return false;
     }
 
+    AssertRel(fh.get_pos(), >=, offset);
     if (fh.get_pos() >= root) {
 	Assert(fh.get_pos() == root);
 	return false;
@@ -192,7 +197,7 @@ HoneyTable::get_exact_entry(const std::string& key, std::string& tag) const
 	    throw_database_closed();
 	return false;
     }
-    fh.rewind();
+    fh.rewind(offset);
     last_key = std::string();
     std::string k, v;
     bool compressed;
@@ -222,7 +227,7 @@ HoneyTable::key_exists(const std::string& key) const
 {
     if (!read_only) std::abort();
     if (!fh.is_open()) return false;
-    fh.rewind();
+    fh.rewind(offset);
     last_key = std::string();
     std::string k, v;
     bool compressed;
@@ -239,5 +244,5 @@ HoneyTable::key_exists(const std::string& key) const
 HoneyCursor*
 HoneyTable::cursor_get() const
 {
-    return new HoneyCursor(fh, root);
+    return new HoneyCursor(fh, root, offset);
 }
