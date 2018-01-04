@@ -1470,7 +1470,7 @@ merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 			newtag.append(current_term.end() - append, current_term.end());
 		    }
 		}
-		out->add(key, newtag); // FIXME: compression...
+		out->add(key, newtag);
 	    } else {
 		bool compressed = cur.read_tag(true);
 		out->add(key, cur.current_tag, compressed);
