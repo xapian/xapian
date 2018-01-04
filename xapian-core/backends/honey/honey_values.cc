@@ -28,6 +28,8 @@
 #include "honey_postlisttable.h"
 #include "honey_termlist.h"
 #include "honey_termlisttable.h"
+
+#include "bitstream.h"
 #include "debuglog.h"
 #include "backends/documentinternal.h"
 #include "pack.h"
@@ -42,23 +44,8 @@ using namespace Honey;
 using namespace std;
 
 // FIXME:
-//  * put the "used slots" entry in the same termlist tag as the terms?
 //  * multi-values?
 //  * values named instead of numbered?
-
-/** Generate a key for the "used slots" data. */
-inline string
-make_slot_key(Xapian::docid did)
-{
-    LOGCALL_STATIC(DB, string, "make_slot_key", did);
-    // Add an extra character so that it can't clash with a termlist entry key
-    // and will sort just after the corresponding termlist entry key.
-    // FIXME: should we store this in the *same entry* as the list of terms?
-    string key;
-    pack_uint_preserving_sort(key, did);
-    key += '\0';
-    RETURN(key);
-}
 
 void
 ValueChunkReader::assign(const char * p_, size_t len, Xapian::docid did_)
@@ -318,52 +305,44 @@ class ValueUpdater {
 void
 HoneyValueManager::merge_changes()
 {
-    if (termlist_table.is_open()) {
-	map<Xapian::docid, string>::const_iterator i;
-	for (i = slots.begin(); i != slots.end(); ++i) {
-	    const string & enc = i->second;
-	    string key = make_slot_key(i->first);
-	    if (!enc.empty()) {
-		termlist_table.add(key, i->second);
-	    } else {
-		termlist_table.del(key);
-	    }
+    for (auto&& i : changes) {
+	Xapian::valueno slot = i.first;
+	Honey::ValueUpdater updater(postlist_table, slot);
+	for (auto&& j : i.second) {
+	    updater.update(j.first, j.second);
 	}
-	slots.clear();
     }
-
-    {
-	map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
-	for (i = changes.begin(); i != changes.end(); ++i) {
-	    Xapian::valueno slot = i->first;
-	    Honey::ValueUpdater updater(postlist_table, slot);
-	    const map<Xapian::docid, string> & slot_changes = i->second;
-	    map<Xapian::docid, string>::const_iterator j;
-	    for (j = slot_changes.begin(); j != slot_changes.end(); ++j) {
-		updater.update(j->first, j->second);
-	    }
-	}
-	changes.clear();
-    }
+    changes.clear();
 }
 
-void
+string
 HoneyValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 				map<Xapian::valueno, ValueStats> & value_stats)
 {
-    // FIXME: Use BitWriter and interpolative coding?  Or is it not worthwhile
-    // for this?
-    string slots_used;
-    Xapian::valueno prev_slot = static_cast<Xapian::valueno>(-1);
     Xapian::ValueIterator it = doc.values_begin();
+    if (it == doc.values_end()) {
+	// No document values.
+	auto i = slots.find(did);
+	if (i != slots.end()) {
+	    // Document's values already added or modified in this batch.
+	    i->second = string();
+	}
+	return string();
+    }
+
+    Xapian::valueno count = doc.internal->values_count();
+    Xapian::VecCOW<Xapian::termpos> slotvec(count);
+
+    Xapian::valueno first_slot = it.get_valueno();
+    Xapian::valueno last_slot = first_slot;
     while (it != doc.values_end()) {
 	Xapian::valueno slot = it.get_valueno();
-	string value = *it;
+	slotvec.push_back(slot);
+	const string& value = *it;
 
 	// Update the statistics.
-	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-	i = value_stats.insert(make_pair(slot, ValueStats()));
-	ValueStats & stats = i.first->second;
+	auto i = value_stats.insert(make_pair(slot, ValueStats()));
+	ValueStats& stats = i.first->second;
 	if (i.second) {
 	    // There were no statistics stored already, so read them.
 	    get_value_stats(slot, stats);
@@ -377,25 +356,37 @@ HoneyValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 	    stats.upper_bound = value;
 	} else {
 	    // Otherwise, simply make sure they reflect the new value.
-	    if (value < stats.lower_bound) {
+	    //
+	    // Check the upper bound first, as for some common uses of value
+	    // slots (dates) the values will tend to get larger not smaller
+	    // over time.
+	    int cmp = value.compare(stats.upper_bound);
+	    if (cmp >= 0) {
+		if (cmp > 0) stats.upper_bound = value;
+	    } else if (value < stats.lower_bound) {
 		stats.lower_bound = value;
-	    } else if (value > stats.upper_bound) {
-		stats.upper_bound = value;
 	    }
 	}
 
 	add_value(did, slot, value);
-	if (termlist_table.is_open()) {
-	    pack_uint(slots_used, slot - prev_slot - 1);
-	    prev_slot = slot;
-	}
+	last_slot = slot;
 	++it;
     }
-    if (slots_used.empty() && slots.find(did) == slots.end()) {
-	// Adding a new document with no values which we didn't just remove.
-    } else {
-	swap(slots[did], slots_used);
+
+    if (!termlist_table.is_open()) {
+	return string();
     }
+
+    string enc;
+    pack_uint(enc, last_slot);
+    BitWriter slots_used(enc);
+    if (count > 1) {
+	slots_used.encode(first_slot, last_slot);
+	slots_used.encode(count - 2, last_slot - first_slot);
+	slots_used.encode_interpolative(slotvec, 0, slotvec.size() - 1);
+    }
+
+    return slots_used.freeze();
 }
 
 void
@@ -408,41 +399,81 @@ HoneyValueManager::delete_document(Xapian::docid did,
     if (it != slots.end()) {
 	swap(s, it->second);
     } else {
-	// Get from table, making a swift exit if this document has no values.
-	if (!termlist_table.get_exact_entry(make_slot_key(did), s)) return;
+	// Get from table, making a swift exit if this document has no terms or
+	// values.
+	if (!termlist_table.get_exact_entry(termlist_table.make_key(did), s))
+	    return;
 	slots.insert(make_pair(did, string()));
     }
-    const char * p = s.data();
-    const char * end = p + s.size();
-    Xapian::valueno prev_slot = static_cast<Xapian::valueno>(-1);
-    while (p != end) {
-	Xapian::valueno slot;
-	if (!unpack_uint(&p, end, &slot)) {
-	    throw Xapian::DatabaseCorruptError("Value slot encoding corrupt");
-	}
-	slot += prev_slot + 1;
-	prev_slot = slot;
 
-	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-	i = value_stats.insert(make_pair(slot, ValueStats()));
-	ValueStats & stats = i.first->second;
-	if (i.second) {
-	    // There were no statistics stored already, so read them.
-	    get_value_stats(slot, stats);
+    const char* p = s.data();
+    const char* end = p + s.size();
+    size_t slot_enc_size;
+    if (!unpack_uint(&p, end, &slot_enc_size)) {
+	throw Xapian::DatabaseCorruptError("Termlist encoding corrupt");
+    }
+    if (slot_enc_size == 0)
+	return;
+
+    end = p + slot_enc_size;
+    Xapian::valueno last_slot;
+    if (!unpack_uint(&p, end, &last_slot)) {
+	throw Xapian::DatabaseCorruptError("Slots used data corrupt");
+    }
+
+    if (p != end) {
+	BitReader rd(p, end);
+	Xapian::valueno first_slot = rd.decode(last_slot);
+	Xapian::valueno slot_count = rd.decode(last_slot - first_slot) + 2;
+	rd.decode_interpolative(0, slot_count - 1, first_slot, last_slot);
+
+	Xapian::valueno slot = first_slot;
+	while (slot != last_slot) {
+	    auto i = value_stats.insert(make_pair(slot, ValueStats()));
+	    ValueStats & stats = i.first->second;
+	    if (i.second) {
+		// There were no statistics stored already, so read them.
+		get_value_stats(slot, stats);
+	    }
+
+	    // Now, modify the stored statistics.
+	    AssertRelParanoid(stats.freq, >, 0);
+	    if (--(stats.freq) == 0) {
+		stats.lower_bound.resize(0);
+		stats.upper_bound.resize(0);
+	    }
+
+	    remove_value(did, slot);
+
+	    slot = rd.decode_interpolative_next();
 	}
 
-	// Now, modify the stored statistics.
-	AssertRelParanoid(stats.freq, >, 0);
-	if (--(stats.freq) == 0) {
-	    stats.lower_bound.resize(0);
-	    stats.upper_bound.resize(0);
-	}
+    }
 
-	remove_value(did, slot);
+    Xapian::valueno slot = last_slot;
+    {
+	{
+	    // FIXME: share code with above
+	    auto i = value_stats.insert(make_pair(slot, ValueStats()));
+	    ValueStats & stats = i.first->second;
+	    if (i.second) {
+		// There were no statistics stored already, so read them.
+		get_value_stats(slot, stats);
+	    }
+
+	    // Now, modify the stored statistics.
+	    AssertRelParanoid(stats.freq, >, 0);
+	    if (--(stats.freq) == 0) {
+		stats.lower_bound.resize(0);
+		stats.upper_bound.resize(0);
+	    }
+
+	    remove_value(did, slot);
+	}
     }
 }
 
-void
+string
 HoneyValueManager::replace_document(Xapian::docid did,
 				    const Xapian::Document &doc,
 				    map<Xapian::valueno, ValueStats> & value_stats)
@@ -455,16 +486,17 @@ HoneyValueManager::replace_document(Xapian::docid did,
 	// before the subsequent add_document() can read them.
 	//
 	// The simplest way to handle this is to force the document to read its
-	// values, which we only need to do this is the docid matches.  Note that
-	// this check can give false positives as we don't also check the
+	// values, which we only need to do this is the docid matches.  Note
+	// that this check can give false positives as we don't also check the
 	// database, so for example replacing document 4 in one database with
 	// document 4 from another will unnecessarily trigger this, but forcing
 	// the values to be read is fairly harmless, and this is unlikely to be
-	// a common case.
+	// a common case.  (Currently we will end up fetching the values
+	// anyway, but there's scope to change that in the future).
 	doc.internal->ensure_values_fetched();
     }
     delete_document(did, value_stats);
-    add_document(did, doc, value_stats);
+    return add_document(did, doc, value_stats);
 }
 
 string
@@ -502,26 +534,39 @@ HoneyValueManager::get_all_values(map<Xapian::valueno, string> & values,
 	    HoneyTable::throw_database_closed();
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
     }
-    map<Xapian::docid, string>::const_iterator i = slots.find(did);
+
     string s;
-    if (i != slots.end()) {
-	s = i->second;
-    } else {
-	// Get from table.
-	if (!termlist_table.get_exact_entry(make_slot_key(did), s)) return;
+    if (!termlist_table.get_exact_entry(termlist_table.make_key(did), s))
+	return;
+
+    const char* p = s.data();
+    const char* end = p + s.size();
+    size_t slot_enc_size;
+    if (!unpack_uint(&p, end, &slot_enc_size)) {
+	throw Xapian::DatabaseCorruptError("Termlist encoding corrupt");
     }
-    const char * p = s.data();
-    const char * end = p + s.size();
-    Xapian::valueno prev_slot = static_cast<Xapian::valueno>(-1);
-    while (p != end) {
-	Xapian::valueno slot;
-	if (!unpack_uint(&p, end, &slot)) {
-	    throw Xapian::DatabaseCorruptError("Value slot encoding corrupt");
+    if (slot_enc_size == 0)
+	return;
+
+    end = p + slot_enc_size;
+    Xapian::valueno last_slot;
+    if (!unpack_uint(&p, end, &last_slot)) {
+	throw Xapian::DatabaseCorruptError("Slots used data corrupt");
+    }
+
+    if (p != end) {
+	BitReader rd(p, end);
+	Xapian::valueno first_slot = rd.decode(last_slot);
+	Xapian::valueno slot_count = rd.decode(last_slot - first_slot) + 2;
+	rd.decode_interpolative(0, slot_count - 1, first_slot, last_slot);
+
+	Xapian::valueno slot = first_slot;
+	while (slot != last_slot) {
+	    values.insert(make_pair(slot, get_value(did, slot)));
+	    slot = rd.decode_interpolative_next();
 	}
-	slot += prev_slot + 1;
-	prev_slot = slot;
-	values.insert(make_pair(slot, get_value(did, slot)));
     }
+    values.insert(make_pair(last_slot, get_value(did, last_slot)));
 }
 
 void

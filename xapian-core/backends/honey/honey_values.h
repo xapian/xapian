@@ -118,14 +118,14 @@ class HoneyValueManager {
     // Merge in batched-up changes.
     void merge_changes();
 
-    void add_document(Xapian::docid did, const Xapian::Document &doc,
-		      std::map<Xapian::valueno, ValueStats> & value_stats);
+    std::string add_document(Xapian::docid did, const Xapian::Document& doc,
+			     std::map<Xapian::valueno, ValueStats>& value_stats);
 
     void delete_document(Xapian::docid did,
 			 std::map<Xapian::valueno, ValueStats> & value_stats);
 
-    void replace_document(Xapian::docid did, const Xapian::Document &doc,
-			  std::map<Xapian::valueno, ValueStats> & value_stats);
+    std::string replace_document(Xapian::docid did, const Xapian::Document& doc,
+				 std::map<Xapian::valueno, ValueStats>& value_stats);
 
     std::string get_value(Xapian::docid did, Xapian::valueno slot) const;
 

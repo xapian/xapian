@@ -95,6 +95,14 @@ class HoneyTermList : public TermList {
 	return doclen;
     }
 
+    /** Return the number of entries in this termlist.
+     *
+     *  This is a non-virtual method, used by HoneyDatabase.
+     */
+    Xapian::termcount size() const {
+	return termlist_size;
+    }
+
     /** Return the number of unique terms.
      *
      *  This is a non-virtual method, used by HoneyDatabase.

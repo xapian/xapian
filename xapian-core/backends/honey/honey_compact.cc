@@ -105,6 +105,21 @@ is_doclenchunk_key(const string & key)
 }
 #endif
 
+inline static bool
+termlist_key_is_values_used(const string& key)
+{
+    const char* p = key.data();
+    const char* e = p + key.size();
+    Xapian::docid did;
+    if (unpack_uint_preserving_sort(&p, e, &did)) {
+	if (p == e)
+	    return false;
+	if (e - p == 1 && *p == '\0')
+	    return true;
+    }
+    throw Xapian::DatabaseCorruptError("termlist key format");
+}
+
 // Put all the helpers in a namespace to avoid symbols colliding with those of
 // the same name in other flint-derived backends.
 namespace HoneyCompact {
@@ -1392,6 +1407,7 @@ merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 
 	string key;
 	while (cur.next()) {
+next_without_next:
 	    // Adjust the key if this isn't the first database.
 	    if (off) {
 		Xapian::docid did;
@@ -1413,13 +1429,64 @@ merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 	    } else {
 		key = cur.current_key;
 	    }
-	    if (table_type == Honey::TERMLIST && key.back() != '\0') {
+	    if (table_type == Honey::TERMLIST) {
+		if (termlist_key_is_values_used(key)) {
+		    throw Xapian::DatabaseCorruptError("value slots used entry without a corresponding termlist entry");
+		}
 		cur.read_tag();
-		const string& tag = cur.current_tag;
+		string tag = cur.current_tag;
+
+		bool next_result = cur.next();
+		bool next_already_done = true;
+		string encoded_slots_used;
+		if (next_result &&
+		    termlist_key_is_values_used(cur.current_key)) {
+		    next_already_done = false;
+		    cur.read_tag();
+		    const string& valtag = cur.current_tag;
+
+		    const char* p = valtag.data();
+		    const char* end = p + valtag.size();
+
+		    Xapian::VecCOW<Xapian::termpos> slots;
+
+		    Xapian::valueno first_slot;
+		    if (!unpack_uint(&p, end, &first_slot)) {
+			throw Xapian::DatabaseCorruptError("Value slot encoding corrupt");
+		    }
+		    slots.push_back(first_slot);
+		    Xapian::valueno last_slot = first_slot;
+		    while (p != end) {
+			Xapian::valueno slot;
+			if (!unpack_uint(&p, end, &slot)) {
+			    throw Xapian::DatabaseCorruptError("Value slot encoding corrupt");
+			}
+			slot += last_slot + 1;
+			last_slot = slot;
+
+			slots.push_back(slot);
+		    }
+
+		    string enc;
+		    pack_uint(enc, last_slot);
+		    if (slots.size() > 1) {
+			BitWriter slots_used(enc);
+			slots_used.encode(first_slot, last_slot);
+			slots_used.encode(slots.size() - 2, last_slot - first_slot);
+			slots_used.encode_interpolative(slots, 0, slots.size() - 1);
+			encoded_slots_used = slots_used.freeze();
+		    } else {
+			encoded_slots_used = std::move(enc);
+		    }
+		}
+
 		const char* pos = tag.data();
 		const char* end = pos + tag.size();
 
 		string newtag;
+		pack_uint(newtag, encoded_slots_used.size());
+		newtag += encoded_slots_used;
+
 		if (pos != end) {
 		    Xapian::termcount doclen;
 		    if (!unpack_uint(&pos, end, &doclen)) {
@@ -1470,7 +1537,10 @@ merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 			newtag.append(current_term.end() - append, current_term.end());
 		    }
 		}
-		out->add(key, newtag);
+		if (!newtag.empty())
+		    out->add(key, newtag);
+		if (!next_result) break;
+		if (next_already_done) goto next_without_next;
 	    } else {
 		bool compressed = cur.read_tag(true);
 		out->add(key, cur.current_tag, compressed);

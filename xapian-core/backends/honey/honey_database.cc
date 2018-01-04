@@ -260,7 +260,22 @@ HoneyDatabase::open_term_list(Xapian::docid did) const
     Assert(did != 0);
     if (!termlist_table.is_open())
 	throw_termlist_table_close_exception();
-    return new HoneyTermList(this, did);
+    HoneyTermList* tl = new HoneyTermList(this, did);
+    if (tl->size() == 0) {
+	// It could be the document has no terms, but maybe it doesn't exist -
+	// in the latter case we ought to throw DocNotFoundError.  FIXME: If
+	// the document has no terms, but does have values, we should be able
+	// to avoid this check.
+
+	// Put the pointer in a unique_ptr so it gets released if an exception
+	// is thrown.
+	unique_ptr<TermList> tl_ptr(tl);
+
+	// This will throw DocNotFoundError if did isn't in use.
+	(void)HoneyDatabase::get_doclength(did);
+	tl_ptr.release();
+    }
+    return tl;
 }
 
 TermList*

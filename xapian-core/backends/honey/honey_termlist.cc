@@ -44,14 +44,27 @@ HoneyTermList::HoneyTermList(const HoneyDatabase* db_, Xapian::docid did_)
     : db(db_), did(did_)
 {
     if (!db->termlist_table.get_exact_entry(HoneyTermListTable::make_key(did),
-					    data))
-	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
+					    data)) {
+	// Document with no terms or values, or one which doesn't exist.
+	termlist_size = 0;
+	doclen = 0;
+	pos = end = data.data();
+	return;
+    }
 
     pos = data.data();
     end = pos + data.size();
 
-    if (rare(pos == end)) {
-	// Document with no terms.
+    size_t slot_enc_size;
+    if (!unpack_uint(&pos, end, &slot_enc_size)) {
+	throw Xapian::DatabaseCorruptError("Termlist encoding corrupt");
+    }
+
+    // Skip encoded slot data.
+    pos += slot_enc_size;
+
+    if (pos == end) {
+	// Document with values but no terms.
 	termlist_size = 0;
 	doclen = 0;
 	return;
