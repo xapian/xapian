@@ -133,11 +133,9 @@ TestRunner::run_tests(int argc, char ** argv)
 #endif
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-#  if 0 // Disable tests using glass until compaction is sorted. (FIXME)
 	do_tests_for_backend(BackendManagerGlass());
 	do_tests_for_backend(BackendManagerSingleFile("glass"));
 	do_tests_for_backend(BackendManagerMulti("glass"));
-#  endif
 # ifdef XAPIAN_HAS_REMOTE_BACKEND
 	do_tests_for_backend(BackendManagerRemoteProg("glass"));
 	do_tests_for_backend(BackendManagerRemoteTcp("glass"));

@@ -1,7 +1,7 @@
 /** @file backendmanager_honey.cc
  * @brief BackendManager subclass for honey databases
  */
-/* Copyright (C) 2007,2008,2009,2013,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2013,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,7 +61,7 @@ BackendManagerHoney::createdb_honey(const vector<string> & files)
     Xapian::WritableDatabase db(db_source, flags);
     FileIndexer(get_datadir(), files).index_to(db);
     db.commit();
-    db.compact(tmpfile/*, DBCOMPACT_HONEY*/);
+    db.compact(tmpfile, Xapian::DB_BACKEND_HONEY);
     db.close();
 
     rm_rf(db_source);

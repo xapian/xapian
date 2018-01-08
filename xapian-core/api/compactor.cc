@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -189,8 +189,15 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 		}
 		backend = type;
 		break;
+	    case BACKEND_HONEY:
+		if (backend != type && backend != BACKEND_UNKNOWN) {
+		    backend_mismatch(internals[0], backend, srcdir, type);
+		}
+		backend = type;
+		break;
 	    default:
-		throw DatabaseError("Only glass databases can be compacted");
+		throw DatabaseError("Only glass and honey databases can be "
+				    "compacted");
 	}
 
 	Xapian::docid first = 0, last = 0;
@@ -344,22 +351,82 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
     (void)block_size;
 #endif
 
+    auto output_backend = flags & Xapian::DB_BACKEND_MASK_;
     if (backend == BACKEND_GLASS) {
+	switch (output_backend) {
+	    case 0:
+	    case Xapian::DB_BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	if (output_ptr) {
-	    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
-				   internals, offset,
-				   block_size, compaction, flags, last_docid);
-	} else {
-	    HoneyDatabase::compact(compactor, NULL, fd,
-				   internals, offset,
-				   block_size, compaction, flags, last_docid);
-	}
+		if (output_ptr) {
+		    GlassDatabase::compact(compactor, destdir.c_str(), 0,
+					   internals, offset,
+					   block_size, compaction, flags,
+					   last_docid);
+		} else {
+		    GlassDatabase::compact(compactor, NULL, fd,
+					   internals, offset,
+					   block_size, compaction, flags,
+					   last_docid);
+		}
+		break;
 #else
-	(void)fd;
-	(void)last_docid;
-	throw Xapian::FeatureUnavailableError("Glass backend disabled at build time");
+		(void)fd;
+		(void)last_docid;
+		throw Xapian::FeatureUnavailableError("Glass backend disabled "
+						      "at build time");
 #endif
+	    case Xapian::DB_BACKEND_HONEY:
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+		if (output_ptr) {
+		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
+					   internals, offset,
+					   block_size, compaction, flags,
+					   last_docid);
+		} else {
+		    HoneyDatabase::compact(compactor, NULL, fd,
+					   internals, offset,
+					   block_size, compaction, flags,
+					   last_docid);
+		}
+		break;
+#else
+		(void)fd;
+		(void)last_docid;
+		throw Xapian::FeatureUnavailableError("Honey backend disabled "
+						      "at build time");
+#endif
+	    default:
+		throw Xapian::UnimplementedError("Glass can only be "
+						 "compacted to itself or "
+						 "honey");
+	}
+    } else if (backend == BACKEND_HONEY) {
+	switch (output_backend) {
+	    case 0:
+	    case Xapian::DB_BACKEND_HONEY:
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+		if (output_ptr) {
+		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
+					   internals, offset,
+					   block_size, compaction, flags,
+					   last_docid);
+		} else {
+		    HoneyDatabase::compact(compactor, NULL, fd,
+					   internals, offset,
+					   block_size, compaction, flags,
+					   last_docid);
+		}
+		break;
+#else
+		(void)fd;
+		(void)last_docid;
+		throw Xapian::FeatureUnavailableError("Honey backend disabled "
+						      "at build time");
+#endif
+	    default:
+		throw Xapian::UnimplementedError("Honey can only be "
+						 "compacted to itself");
+	}
     }
 
     if (compact_to_stub) {
