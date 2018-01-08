@@ -1,7 +1,7 @@
 /** @file backends.h
  * @brief BACKEND_* constants
  */
-/* Copyright (C) 2015,2017 Olly Betts
+/* Copyright (C) 2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ inline const char * backend_name(int code) {
 	"remote\0\0\0"
 	"inmemory\0"
 	"glass\0\0\0\0"
+	"honey\0\0\0\0"
 	"?";
     return p + code * 9;
 }
