@@ -179,7 +179,7 @@ libtransform_la_LIBADD = $(PCRE_LIBS)
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
  datevalue.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc\
- csvescape.cc timegm.cc md5.cc md5wrap.cc clickmodel/simplifieddbn.cc
+ csvescape.cc timegm.cc md5.cc md5wrap.cc
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
 omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
