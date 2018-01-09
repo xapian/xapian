@@ -30,6 +30,7 @@
 #include "debuglog.h"
 
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
