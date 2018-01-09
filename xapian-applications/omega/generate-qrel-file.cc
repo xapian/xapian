@@ -94,8 +94,8 @@ int main(int argc, char **argv) {
     // Extract doc relevances and doc ids from each session and write
     // to the qrel file in the required format.
     for (auto&& session : sessions) {
-	vector<pair<string, double>>
-	docid_relevances = sdbn.get_predicted_relevances(session);
+	vector<pair<string, double>> docid_relevances =
+	    sdbn.get_predicted_relevances(session);
 
 	auto reliter = docid_relevances.begin();
 

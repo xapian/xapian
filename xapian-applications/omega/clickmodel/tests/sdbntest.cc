@@ -122,29 +122,28 @@ int main() {
 
     sdbn.train(training_sessions);
 
-    pair<string, double> relevance11 ("45", 0.166);
-    pair<string, double> relevance12 ("36", 0.166);
-    pair<string, double> relevance13 ("14", 0.166);
-    pair<string, double> relevance14 ("54", 0.444);
-    pair<string, double> relevance15 ("42", 0);
+    pair<string, double> relevance11("45", 0.166);
+    pair<string, double> relevance12("36", 0.166);
+    pair<string, double> relevance13("14", 0.166);
+    pair<string, double> relevance14("54", 0.444);
+    pair<string, double> relevance15("42", 0);
 
-    pair<string, double> relevance21 ("35", 0.444);
-    pair<string, double> relevance22 ("47", 0);
-    pair<string, double> relevance23 ("31", 0);
-    pair<string, double> relevance24 ("14", 0);
-    pair<string, double> relevance25 ("45", 0);
+    pair<string, double> relevance21("35", 0.444);
+    pair<string, double> relevance22("47", 0);
+    pair<string, double> relevance23("31", 0);
+    pair<string, double> relevance24("14", 0);
+    pair<string, double> relevance25("45", 0);
 
-    vector<vector<pair<string, double>>>
-    expected_relevances = {{relevance11, relevance12, relevance13,
-			    relevance14, relevance15},
-			   {relevance21, relevance22, relevance23,
-			    relevance24, relevance25}};
+    vector<vector<pair<string, double>>> expected_relevances = {
+	{ relevance11, relevance12, relevance13, relevance14, relevance15 },
+	{ relevance21, relevance22, relevance23, relevance24, relevance25 }
+    };
 
     int k = 0;
     // Tests for SimplifiedDBN::get_predicted_relevances. 
     for (auto&& session : training_sessions) {
-	vector<pair<string, double>>
-	predicted_relevances = sdbn.get_predicted_relevances(session);
+	vector<pair<string, double>> predicted_relevances =
+	    sdbn.get_predicted_relevances(session);
 
 	if (predicted_relevances.size() != expected_relevances[k].size()) {
 	    cerr << "ERROR: Relevance lists sizes do not match." << endl;

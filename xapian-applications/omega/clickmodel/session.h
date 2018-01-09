@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
- #ifndef OMEGA_INCLUDED_SESSION_H
- #define OMEGA_INCLUDED_SESSION_H
+#ifndef OMEGA_INCLUDED_SESSION_H
+#define OMEGA_INCLUDED_SESSION_H
 
 #include <string>
 #include <vector>
