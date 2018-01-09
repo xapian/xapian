@@ -133,7 +133,7 @@ load_relevance(const std::string & qrel_file)
 {
     map<string, map<string, int>> qrel1;     // < qid, <docid, relevance_judgement> >
 
-    string inLine;
+    string line;
     ifstream myfile(qrel_file.c_str(), ifstream::in);
     if (!myfile.good()) {
 	throw Xapian::FileNotFoundError("No Qrel file found. Check path.");
@@ -141,18 +141,18 @@ load_relevance(const std::string & qrel_file)
     int qrel_count = 0;
     if (myfile.is_open()) {
 	while (myfile.good()) {
-	    getline(myfile, inLine);        // read a file line by line
-	    if (inLine.empty()) {
+	    getline(myfile, line);        // read a file line by line
+	    if (line.empty()) {
 		break;
 	    }
 	    ++qrel_count;
 	    vector<string> token;
 	    size_t j = 0;
-	    while (j < inLine.size()) {
-		size_t i = inLine.find_first_not_of(' ', j);
+	    while (j < line.size()) {
+		size_t i = line.find_first_not_of(' ', j);
 		if (i == string::npos) break;
-		j = inLine.find_first_of(' ', i);
-		token.push_back(inLine.substr(i, j - i));
+		j = line.find_first_of(' ', i);
+		token.push_back(line.substr(i, j - i));
 	    }
 	    // Exceptions for parse errors
 	    if (token.size() != 4 || token[1] != "Q0") {
