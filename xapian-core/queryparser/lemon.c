@@ -593,7 +593,6 @@ acttab *acttab_alloc(void){
     fprintf(stderr,"Unable to allocate memory for a new acttab.");
     exit(1);
   }
-  memset(p, 0, sizeof(*p));
   return p;
 }
 
@@ -2287,7 +2286,6 @@ static void parseonetoken(struct pstate *psp)
           struct symbol *origsp = msp;
           msp = (struct symbol *) calloc(1,sizeof(*msp));
           MemoryCheck(msp);
-          memset(msp, 0, sizeof(*msp));
           msp->type = MULTITERMINAL;
           msp->nsubsym = 1;
           msp->subsym = (struct symbol **) calloc(1,sizeof(struct symbol*));
