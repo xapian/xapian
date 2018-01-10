@@ -211,6 +211,7 @@ struct yyStackEntry {
 };
 
 static void ParseInit(yyParser *pParser);
+static void ParseFinalize(yyParser *pParser);
 
 /* The state of the parser is completely contained in an instance of
 ** the following structure */
@@ -225,6 +226,9 @@ struct yyParser {
   vector<yyStackEntry> yystack; /* The parser's stack */
   yyParser() {
     ParseInit(this);
+  }
+  ~yyParser() {
+    ParseFinalize(this);
   }
 };
 typedef struct yyParser yyParser;
@@ -395,10 +399,6 @@ static
 void ParseFree(
   yyParser *pParser           /* The parser to be deleted */
 ){
-#ifndef YYPARSEFREENEVERNULL
-  if( pParser==0 ) return;
-#endif
-  ParseFinalize(pParser);
   delete pParser;
 }
 #endif /* Parse_ENGINEALWAYSONSTACK */
