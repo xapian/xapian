@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -1839,8 +1839,7 @@ query ::= . {
 %type expr {Query *}
 %destructor expr {delete $$;}
 
-expr(E) ::= prob_expr(P).
-	{ E = P; }
+expr(E) ::= prob_expr(E).
 
 expr(E) ::= bool_arg(A) AND bool_arg(B).
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND, B, "AND"); }
@@ -1870,7 +1869,7 @@ expr(E) ::= bool_arg(A) XOR bool_arg(B).
 %type bool_arg {Query *}
 %destructor bool_arg {delete $$;}
 
-bool_arg(A) ::= expr(E). { A = E; }
+bool_arg(A) ::= expr(A).
 
 bool_arg(A) ::= . [ERROR] {
     // Set the argument to NULL, which enables the bool_arg-using rules in
@@ -1922,9 +1921,7 @@ prob_expr(E) ::= prob(P). {
     delete P;
 }
 
-prob_expr(E) ::= term(T). {
-    E = T;
-}
+prob_expr(E) ::= term(E).
 
 // prob - a probabilistic sub-expression consisting of stop_terms, "+" terms,
 // "-" terms, boolean filters, and/or ranges.
@@ -1941,10 +1938,9 @@ prob(P) ::= RANGE(R). {
     P->add_filter_range(grouping, range);
 }
 
-prob(P) ::= stop_prob(Q) RANGE(R). {
+prob(P) ::= stop_prob(P) RANGE(R). {
     string grouping = R->name;
     const Query & range = R->as_range_query();
-    P = Q;
     P->append_filter_range(grouping, range);
 }
 
@@ -1966,8 +1962,7 @@ prob(P) ::= stop_term(T) stop_term(U). {
     }
 }
 
-prob(P) ::= prob(Q) stop_term(T). {
-    P = Q;
+prob(P) ::= prob(P) stop_term(T). {
     // If T is a stopword, there's nothing to do here.
     if (T) add_to_query(P->query, state->default_op(), T);
 }
@@ -1981,8 +1976,7 @@ prob(P) ::= LOVE term(T). {
     }
 }
 
-prob(P) ::= stop_prob(Q) LOVE term(T). {
-    P = Q;
+prob(P) ::= stop_prob(P) LOVE term(T). {
     if (state->default_op() == Query::OP_AND) {
 	/* The default op is AND, so we just put loved terms into the query
 	 * (in this case the only effect of love is to ignore the stopword
@@ -1998,8 +1992,7 @@ prob(P) ::= HATE term(T). {
     P->hate = T;
 }
 
-prob(P) ::= stop_prob(Q) HATE term(T). {
-    P = Q;
+prob(P) ::= stop_prob(P) HATE term(T). {
     add_to_query(P->hate, Query::OP_OR, T);
 }
 
@@ -2009,8 +2002,7 @@ prob(P) ::= HATE BOOLEAN_FILTER(T). {
     delete T;
 }
 
-prob(P) ::= stop_prob(Q) HATE BOOLEAN_FILTER(T). {
-    P = Q;
+prob(P) ::= stop_prob(P) HATE BOOLEAN_FILTER(T). {
     add_to_query(P->hate, Query::OP_OR, T->get_query());
     delete T;
 }
@@ -2021,8 +2013,7 @@ prob(P) ::= BOOLEAN_FILTER(T). {
     delete T;
 }
 
-prob(P) ::= stop_prob(Q) BOOLEAN_FILTER(T). {
-    P = Q;
+prob(P) ::= stop_prob(P) BOOLEAN_FILTER(T). {
     P->append_filter(T->get_grouping(), T->get_query());
     delete T;
 }
@@ -2034,9 +2025,8 @@ prob(P) ::= LOVE BOOLEAN_FILTER(T). {
     delete T;
 }
 
-prob(P) ::= stop_prob(Q) LOVE BOOLEAN_FILTER(T). {
+prob(P) ::= stop_prob(P) LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
-    P = Q;
     // We OR filters with the same prefix...
     Query & q = P->filter[T->get_grouping()];
     q = Query(Query::OP_OR, q, T->get_query());
@@ -2048,8 +2038,7 @@ prob(P) ::= stop_prob(Q) LOVE BOOLEAN_FILTER(T). {
 %type stop_prob {ProbQuery *}
 %destructor stop_prob {delete $$;}
 
-stop_prob(P) ::= prob(Q).
-    { P = Q; }
+stop_prob(P) ::= prob(P).
 
 stop_prob(P) ::= stop_term(T). {
     P = new ProbQuery;
@@ -2075,9 +2064,7 @@ stop_term(T) ::= TERM(U). {
     delete U;
 }
 
-stop_term(T) ::= compound_term(U). {
-    T = U;
-}
+stop_term(T) ::= compound_term(T).
 
 // term - A term or a compound_term.
 
@@ -2089,9 +2076,7 @@ term(T) ::= TERM(U). {
     delete U;
 }
 
-term(T) ::= compound_term(U). {
-    T = U;
-}
+term(T) ::= compound_term(T).
 
 // compound_term - A WILD_TERM, a quoted phrase (with or without prefix), a
 // phrased_term, group, near_expr, adj_expr, or a bracketed subexpression (with
@@ -2149,13 +2134,11 @@ phrase(P) ::= CJKTERM(T). {
     T->as_positional_cjk_term(P);
 }
 
-phrase(P) ::= phrase(Q) TERM(T). {
-    P = Q;
+phrase(P) ::= phrase(P) TERM(T). {
     P->add_positional_term(T);
 }
 
-phrase(P) ::= phrase(Q) CJKTERM(T). {
-    P = Q;
+phrase(P) ::= phrase(P) CJKTERM(T). {
     T->as_positional_cjk_term(P);
 }
 
@@ -2172,8 +2155,7 @@ phrased_term(P) ::= TERM(T) PHR_TERM(U). {
     P->add_positional_term(U);
 }
 
-phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
-    P = Q;
+phrased_term(P) ::= phrased_term(P) PHR_TERM(T). {
     P->add_positional_term(T);
 }
 
@@ -2187,13 +2169,11 @@ group(P) ::= TERM(T) GROUP_TERM(U). {
     P = TermGroup::create(T, U);
 }
 
-group(P) ::= group(Q) GROUP_TERM(T). {
-    P = Q;
+group(P) ::= group(P) GROUP_TERM(T). {
     P->add_term(T);
 }
 
-group(P) ::= group(Q) EMPTY_GROUP_OK. {
-    P = Q;
+group(P) ::= group(P) EMPTY_GROUP_OK. {
     P->set_empty_ok();
 }
 
@@ -2213,8 +2193,7 @@ near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
     }
 }
 
-near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
-    P = Q;
+near_expr(P) ::= near_expr(P) NEAR(N) TERM(T). {
     P->add_positional_term(T);
     if (N) {
 	P->adjust_window(N->get_termpos());
@@ -2238,8 +2217,7 @@ adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
     }
 }
 
-adj_expr(P) ::= adj_expr(Q) ADJ(N) TERM(T). {
-    P = Q;
+adj_expr(P) ::= adj_expr(P) ADJ(N) TERM(T). {
     P->add_positional_term(T);
     if (N) {
 	P->adjust_window(N->get_termpos());
