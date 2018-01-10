@@ -1395,15 +1395,19 @@ done:
 }
 
 struct ProbQuery {
-    Query * query;
-    Query * love;
-    Query * hate;
+    Query* query = NULL;
+    Query* love = NULL;
+    Query* hate = NULL;
     // filter is a map from prefix to a query for that prefix.  Queries with
     // the same prefix are combined with OR, and the results of this are
     // combined with AND to get the full filter.
     map<string, Query> filter;
 
-    ProbQuery() : query(0), love(0), hate(0) { }
+    ProbQuery() {}
+
+    explicit
+    ProbQuery(Query* query_) : query(query_) {}
+
     ~ProbQuery() {
 	delete query;
 	delete love;
@@ -1934,7 +1938,7 @@ prob_expr(E) ::= term(E).
 prob(P) ::= RANGE(R). {
     string grouping = R->name;
     const Query & range = R->as_range_query();
-    P = new ProbQuery;
+    P = new ProbQuery; /*P-overwrites-R*/
     P->add_filter_range(grouping, range);
 }
 
@@ -1945,8 +1949,7 @@ prob(P) ::= stop_prob(P) RANGE(R). {
 }
 
 prob(P) ::= stop_term(T) stop_term(U). {
-    P = new ProbQuery;
-    P->query = T;
+    P = new ProbQuery(T); /*P-overwrites-T*/
     if (U) {
 	Query::op op = state->default_op();
 	if (P->query && is_positional(op)) {
@@ -2041,8 +2044,7 @@ prob(P) ::= stop_prob(P) LOVE BOOLEAN_FILTER(T). {
 stop_prob(P) ::= prob(P).
 
 stop_prob(P) ::= stop_term(T). {
-    P = new ProbQuery;
-    P->query = T;
+    P = new ProbQuery(T); /*P-overwrites-T*/
 }
 
 // stop_term - A term which should be checked against the stopword list,
@@ -2086,25 +2088,25 @@ term(T) ::= compound_term(T).
 %destructor compound_term {delete $$;}
 
 compound_term(T) ::= WILD_TERM(U).
-	{ T = U->as_wildcarded_query(state); }
+	{ T = U->as_wildcarded_query(state); /*T-overwrites-U*/ }
 
 compound_term(T) ::= PARTIAL_TERM(U).
-	{ T = U->as_partial_query(state); }
+	{ T = U->as_partial_query(state); /*T-overwrites-U*/ }
 
 compound_term(T) ::= QUOTE phrase(P) QUOTE.
 	{ T = P->as_phrase_query(); }
 
 compound_term(T) ::= phrased_term(P).
-	{ T = P->as_phrase_query(); }
+	{ T = P->as_phrase_query(); /*T-overwrites-P*/ }
 
 compound_term(T) ::= group(P).
-	{ T = P->as_group(state); }
+	{ T = P->as_group(state); /*T-overwrites-P*/ }
 
 compound_term(T) ::= near_expr(P).
-	{ T = P->as_near_query(); }
+	{ T = P->as_near_query(); /*T-overwrites-P*/ }
 
 compound_term(T) ::= adj_expr(P).
-	{ T = P->as_adj_query(); }
+	{ T = P->as_adj_query(); /*T-overwrites-P*/ }
 
 compound_term(T) ::= BRA expr(E) KET.
 	{ T = E; }
@@ -2115,7 +2117,7 @@ compound_term(T) ::= SYNONYM TERM(U). {
 }
 
 compound_term(T) ::= CJKTERM(U). {
-    { T = U->as_cjk_query(); }
+    { T = U->as_cjk_query(); /*T-overwrites-U*/ }
 }
 
 // phrase - The "inside the quotes" part of a double-quoted phrase.
@@ -2166,7 +2168,7 @@ phrased_term(P) ::= phrased_term(P) PHR_TERM(T). {
 %destructor group {delete $$;}
 
 group(P) ::= TERM(T) GROUP_TERM(U). {
-    P = TermGroup::create(T, U);
+    P = TermGroup::create(T, U); /*P-overwrites-T*/
 }
 
 group(P) ::= group(P) GROUP_TERM(T). {
