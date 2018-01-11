@@ -1,7 +1,7 @@
 /** @file xapian-compact.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2015,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 #include <xapian.h>
 
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 #include "gnu_getopt.h"
@@ -45,6 +46,10 @@ static void show_usage() {
 "Options:\n"
 "  -b, --blocksize=B  Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
 "                     (must be between 2K and 64K and a power of 2, default 8K)\n"
+"  -B, --backend=B    Set the output backend.  Supported values are 'glass'\n"
+"                     and 'honey'.  By default input's backend is used.  At\n"
+"                     present, only glass to honey conversion is implemented -\n"
+"                     otherwise the backend must be the same.\n"
 "  -n, --no-full      Disable full compaction\n"
 "  -F, --fuller       Enable fuller compaction (not recommended if you plan to\n"
 "                     update the compacted database)\n"
@@ -106,12 +111,13 @@ MyCompactor::resolve_duplicate_metadata(const string & key,
 int
 main(int argc, char **argv)
 {
-    const char * opts = "b:nFmqs";
+    const char * opts = "b:B:nFmqs";
     static const struct option long_opts[] = {
 	{"fuller",	no_argument, 0, 'F'},
 	{"no-full",	no_argument, 0, 'n'},
 	{"multipass",	no_argument, 0, 'm'},
 	{"blocksize",	required_argument, 0, 'b'},
+	{"backend",	required_argument, 0, 'B'},
 	{"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
 	{"single-file", no_argument, 0, 's'},
 	{"quiet",	no_argument, 0, 'q'},
@@ -122,6 +128,7 @@ main(int argc, char **argv)
 
     MyCompactor compactor;
     Xapian::Compactor::compaction_level level = Xapian::Compactor::FULL;
+    unsigned backend = 0;
     unsigned flags = 0;
     size_t block_size = 0;
 
@@ -140,8 +147,8 @@ main(int argc, char **argv)
 		    block_size < GLASS_MIN_BLOCKSIZE ||
 		    block_size > GLASS_MAX_BLOCKSIZE ||
 		    (block_size & (block_size - 1)) != 0) {
-		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for blocksize, must be a power of 2 between "
+		    cerr << PROG_NAME": Bad value '" << optarg << "' passed "
+			    "for blocksize, must be a power of 2 between "
 			 << (GLASS_MIN_BLOCKSIZE / 1024) << "K and "
 			 << (GLASS_MAX_BLOCKSIZE / 1024) << "K"
 			 << endl;
@@ -149,6 +156,18 @@ main(int argc, char **argv)
 		}
 		break;
 	    }
+	    case 'B':
+		if (strcmp(optarg, "honey") == 0) {
+		    backend = Xapian::DB_BACKEND_HONEY;
+		} else if (strcmp(optarg, "glass") == 0) {
+		    backend = Xapian::DB_BACKEND_GLASS;
+		} else {
+		    cerr << PROG_NAME": Bad value '" << optarg
+			 << "' passed for backend - must be 'glass' or 'honey'"
+			 << endl;
+		    exit(1);
+		}
+		break;
 	    case 'n':
 		level = compactor.STANDARD;
 		break;
@@ -188,12 +207,14 @@ main(int argc, char **argv)
     // Path to the database to create.
     string destdir = argv[argc - 1];
 
+    flags |= backend | level;
+
     try {
 	Xapian::Database src;
 	for (int i = optind; i < argc - 1; ++i) {
 	    src.add_database(Xapian::Database(argv[i]));
 	}
-	src.compact(destdir, level | flags, block_size, compactor);
+	src.compact(destdir, flags, block_size, compactor);
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);
