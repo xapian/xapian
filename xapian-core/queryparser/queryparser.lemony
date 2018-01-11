@@ -44,6 +44,9 @@
 #include <string>
 #include <vector>
 
+// We create the yyParser on the stack.
+#define Parse_ENGINEALWAYSONSTACK
+
 using namespace std;
 
 using namespace Xapian;
@@ -592,12 +595,9 @@ inline unsigned check_infix_digit(unsigned ch) {
     return 0;
 }
 
+// Prototype a function lemon generates, but which we want to call before that
+// in the generated source code file.
 struct yyParser;
-
-// Prototype the functions lemon generates.
-static yyParser *ParseAlloc();
-static void ParseFree(yyParser *);
-static void Parse(yyParser *, int, Term *, State *);
 static void yy_parse_failed(yyParser *);
 
 void
@@ -779,14 +779,10 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     return term;
 }
 
-class ParserHandler {
-    yyParser * parser;
-
-  public:
-    explicit ParserHandler(yyParser * parser_) : parser(parser_) { }
-    operator yyParser*() const { return parser; }
-    ~ParserHandler() { ParseFree(parser); }
-};
+}
+// Switch to %code to insert at the end of the file so struct yyParser has been
+// defined.
+%code {
 
 Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
@@ -824,7 +820,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 	prefix_stack.push_back(default_field_info);
     }
 
-    ParserHandler pParser(ParseAlloc());
+    yyParser parser;
 
     unsigned newprev = ' ';
 main_lex_loop:
@@ -894,7 +890,7 @@ just_had_operator_needing_term:
 			    it = it_initial;
 			    break;
 			}
-			Parse(pParser, RANGE, range, &state);
+			Parse(&parser, RANGE, range, &state);
 		    }
 		    it = p;
 		    goto main_lex_loop;
@@ -937,7 +933,7 @@ just_had_operator_needing_term:
 		    }
 		}
 		if (flags & QueryParser::FLAG_PHRASE) {
-		    Parse(pParser, QUOTE, NULL, &state);
+		    Parse(&parser, QUOTE, NULL, &state);
 		    if (mode == DEFAULT) {
 			mode = IN_QUOTES;
 		    } else {
@@ -972,7 +968,7 @@ just_had_operator_needing_term:
 		    } else {
 			token = HATE;
 		    }
-		    Parse(pParser, token, NULL, &state);
+		    Parse(&parser, token, NULL, &state);
 		    goto just_had_operator_needing_term;
 		}
 		// Need to prevent the term after a LOVE or HATE starting a
@@ -995,7 +991,7 @@ just_had_operator_needing_term:
 		}
 		if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
 		    prefix_stack.push_back(prefix_stack.back());
-		    Parse(pParser, BRA, NULL, &state);
+		    Parse(&parser, BRA, NULL, &state);
 		}
 		break;
 
@@ -1005,7 +1001,7 @@ just_had_operator_needing_term:
 		    // If brackets are unmatched, it's a syntax error, but
 		    // that's no excuse to SEGV!
 		    if (prefix_stack.size() > 1) prefix_stack.pop_back();
-		    Parse(pParser, KET, NULL, &state);
+		    Parse(&parser, KET, NULL, &state);
 		}
 		break;
 
@@ -1021,7 +1017,7 @@ just_had_operator_needing_term:
 			// Ignore if not followed by a word character.
 			break;
 		    }
-		    Parse(pParser, SYNONYM, NULL, &state);
+		    Parse(&parser, SYNONYM, NULL, &state);
 		    mode = EXPLICIT_SYNONYM;
 		    goto just_had_operator_needing_term;
 		}
@@ -1095,14 +1091,14 @@ just_had_operator_needing_term:
 			// Clear any pending range error.
 			state.error = NULL;
 			Term * token = new Term(&state, name, field_info, field);
-			Parse(pParser, BOOLEAN_FILTER, token, &state);
+			Parse(&parser, BOOLEAN_FILTER, token, &state);
 			continue;
 		    }
 
 		    if ((flags & FLAG_PHRASE) && is_double_quote(ch)) {
 			// Prefixed phrase, e.g.: subject:"space flight"
 			mode = IN_PREFIXED_QUOTES;
-			Parse(pParser, QUOTE, NULL, &state);
+			Parse(&parser, QUOTE, NULL, &state);
 			it = p;
 			newprev = ch;
 			++it;
@@ -1113,7 +1109,7 @@ just_had_operator_needing_term:
 		    if (ch == '(' && (flags & FLAG_BOOLEAN)) {
 			// Prefixed subexpression, e.g.: title:(fast NEAR food)
 			mode = DEFAULT;
-			Parse(pParser, BRA, NULL, &state);
+			Parse(&parser, BRA, NULL, &state);
 			it = p;
 			newprev = ch;
 			++it;
@@ -1164,15 +1160,15 @@ phrased_term:
 	    }
 	    if (op.size() == 3) {
 		if (op == "AND") {
-		    Parse(pParser, AND, NULL, &state);
+		    Parse(&parser, AND, NULL, &state);
 		    goto just_had_operator;
 		}
 		if (op == "NOT") {
-		    Parse(pParser, NOT, NULL, &state);
+		    Parse(&parser, NOT, NULL, &state);
 		    goto just_had_operator;
 		}
 		if (op == "XOR") {
-		    Parse(pParser, XOR, NULL, &state);
+		    Parse(&parser, XOR, NULL, &state);
 		    goto just_had_operator;
 		}
 		if (op == "ADJ") {
@@ -1184,17 +1180,17 @@ phrased_term:
 			}
 			if (width && (p == end || is_whitespace(*p))) {
 			    it = p;
-			    Parse(pParser, ADJ, new Term(width), &state);
+			    Parse(&parser, ADJ, new Term(width), &state);
 			    goto just_had_operator;
 			}
 		    } else {
-			Parse(pParser, ADJ, NULL, &state);
+			Parse(&parser, ADJ, NULL, &state);
 			goto just_had_operator;
 		    }
 		}
 	    } else if (op.size() == 2) {
 		if (op == "OR") {
-		    Parse(pParser, OR, NULL, &state);
+		    Parse(&parser, OR, NULL, &state);
 		    goto just_had_operator;
 		}
 	    } else if (op.size() == 4) {
@@ -1207,11 +1203,11 @@ phrased_term:
 			}
 			if (width && (p == end || is_whitespace(*p))) {
 			    it = p;
-			    Parse(pParser, NEAR, new Term(width), &state);
+			    Parse(&parser, NEAR, new Term(width), &state);
 			    goto just_had_operator;
 			}
 		    } else {
-			Parse(pParser, NEAR, NULL, &state);
+			Parse(&parser, NEAR, NULL, &state);
 			goto just_had_operator;
 		    }
 		}
@@ -1247,7 +1243,7 @@ phrased_term:
 				       unstemmed_term, stem_term, term_pos++);
 
 	    if (is_cjk_term) {
-		Parse(pParser, CJKTERM, term_obj, &state);
+		Parse(&parser, CJKTERM, term_obj, &state);
 		if (it == end) break;
 		continue;
 	    }
@@ -1263,12 +1259,12 @@ phrased_term:
 				// Drop out of IN_GROUP and flag that the group
 				// can be empty if all members are stopwords.
 				if (mode == IN_GROUP2)
-				    Parse(pParser, EMPTY_GROUP_OK, NULL, &state);
+				    Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
 				mode = DEFAULT;
 			    }
 			    // Wildcard at end of term (also known as
 			    // "right truncation").
-			    Parse(pParser, WILD_TERM, term_obj, &state);
+			    Parse(&parser, WILD_TERM, term_obj, &state);
 			    continue;
 			}
 		    }
@@ -1278,12 +1274,12 @@ phrased_term:
 			    // Drop out of IN_GROUP and flag that the group
 			    // can be empty if all members are stopwords.
 			    if (mode == IN_GROUP2)
-				Parse(pParser, EMPTY_GROUP_OK, NULL, &state);
+				Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
 			    mode = DEFAULT;
 			}
 			// Final term of a partial match query, with no
 			// following characters - treat as a wildcard.
-			Parse(pParser, PARTIAL_TERM, term_obj, &state);
+			Parse(&parser, PARTIAL_TERM, term_obj, &state);
 			continue;
 		    }
 		}
@@ -1312,7 +1308,7 @@ phrased_term:
 	    }
 
 	    if (mode == IN_PHRASED_TERM) {
-		Parse(pParser, PHR_TERM, term_obj, &state);
+		Parse(&parser, PHR_TERM, term_obj, &state);
 	    } else {
 		// See if the next token will be PHR_TERM - if so, this one
 		// needs to be TERM not GROUP_TERM.
@@ -1335,7 +1331,7 @@ phrased_term:
 		    mode = IN_GROUP2;
 		    token = GROUP_TERM;
 		}
-		Parse(pParser, token, term_obj, &state);
+		Parse(&parser, token, term_obj, &state);
 		if (token == TERM && mode != DEFAULT)
 		    continue;
 	    }
@@ -1380,19 +1376,22 @@ done:
     if (!state.error) {
 	// Implicitly close any unclosed quotes.
 	if (mode == IN_QUOTES || mode == IN_PREFIXED_QUOTES)
-	    Parse(pParser, QUOTE, NULL, &state);
+	    Parse(&parser, QUOTE, NULL, &state);
 
 	// Implicitly close all unclosed brackets.
 	while (prefix_stack.size() > 1) {
-	    Parse(pParser, KET, NULL, &state);
+	    Parse(&parser, KET, NULL, &state);
 	    prefix_stack.pop_back();
 	}
-	Parse(pParser, 0, NULL, &state);
+	Parse(&parser, 0, NULL, &state);
     }
 
     errmsg = state.error;
     return state.query;
 }
+
+}
+%include {
 
 struct ProbQuery {
     Query* query = NULL;
