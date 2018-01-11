@@ -33,7 +33,8 @@
 using namespace std;
 
 #define NAME "generate-qrel-file"
-#define DESC "Command to generate qrel file needed to prepare training file for letor"
+#define DESC \
+    "Command to generate qrel file needed to prepare training file for letor"
 
 static void help() {
     cout << "usage: ./" NAME " [<option>] final_log qrel_file\n\n"
