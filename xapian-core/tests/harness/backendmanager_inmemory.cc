@@ -44,7 +44,7 @@ BackendManagerInMemory::get_writable_database(const string &,
 }
 
 string
-BackendManagerInMemory::get_writable_database_path(const std::string&)
+BackendManagerInMemory::get_generated_database_path(const std::string&)
 {
     return string();
 }
