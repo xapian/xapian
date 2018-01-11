@@ -1,7 +1,7 @@
 /** @file filetests.h
  * @brief Utility functions for testing files.
  */
-/* Copyright (C) 2012 Olly Betts
+/* Copyright (C) 2012,2018 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -147,6 +147,27 @@ inline bool dir_exists(const char * path) {
  */
 inline bool dir_exists(const std::string & path) {
     return dir_exists(path.c_str());
+}
+
+/** Test if a path exists.
+ *
+ *  @param path	The path to test
+ *
+ *  @return true if @a path exists (and is not a dangling symlink).
+ */
+inline bool path_exists(const char * path) {
+    struct stat st;
+    return stat(path, &st) == 0;
+}
+
+/** Test if a path exists.
+ *
+ *  @param path	The path to test
+ *
+ *  @return true if @a path exists (and is not a dangling symlink).
+ */
+inline bool path_exists(const std::string & path) {
+    return path_exists(path.c_str());
 }
 
 #endif // XAPIAN_INCLUDED_FILETESTS_H

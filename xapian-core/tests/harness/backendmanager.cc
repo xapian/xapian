@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +38,7 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 
+#include "filetests.h"
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "unixcmds.h"
@@ -178,9 +179,11 @@ BackendManager::get_database(const std::string &dbname,
     string dbleaf = "db__";
     dbleaf += dbname;
     const string & path = get_writable_database_path(dbleaf);
-    try {
-	return Xapian::Database(path);
-    } catch (const Xapian::DatabaseOpeningError &) {
+    if (path_exists(path)) {
+	try {
+	    return Xapian::Database(path);
+	} catch (const Xapian::DatabaseOpeningError &) {
+	}
     }
     rm_rf(path);
 
@@ -210,10 +213,12 @@ BackendManager::get_database_path(const std::string &dbname,
     string dbleaf = "db__";
     dbleaf += dbname;
     const string & path = get_writable_database_path(dbleaf);
-    try {
-	(void)Xapian::Database(path);
-	return path;
-    } catch (const Xapian::DatabaseOpeningError &) {
+    if (path_exists(path)) {
+	try {
+	    (void)Xapian::Database(path);
+	    return path;
+	} catch (const Xapian::DatabaseOpeningError &) {
+	}
     }
     rm_rf(path);
 
