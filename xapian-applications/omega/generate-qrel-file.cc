@@ -28,7 +28,7 @@
 
 #include "gnu_getopt.h"
 
-#include <clickmodel/simplifieddbn.h>
+#include "clickmodel/simplifieddbn.h"
 
 using namespace std;
 
