@@ -47,8 +47,8 @@ struct sessions_testcase {
 };
 
 static string get_srcdir() {
-    char *p = getenv("srcdir");
-    if (!p) return ".";
+    const char *p = getenv("srcdir");
+    if (!p) p = ".";
     return string(p);
 }
 
