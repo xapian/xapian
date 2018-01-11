@@ -42,8 +42,8 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     Xapian::Database do_get_database(const std::vector<std::string> & files);
 
   public:
-    BackendManagerRemoteTcp(const std::string & remote_type_)
-	: BackendManagerRemote(remote_type_) { }
+    explicit BackendManagerRemoteTcp(BackendManager* sub_manager_)
+	: BackendManagerRemote(sub_manager_) { }
 
     ~BackendManagerRemoteTcp();
 

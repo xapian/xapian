@@ -1656,8 +1656,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
 
 // Test network stats and local stats give the same results.
 DEFINE_TESTCASE(netstats1, remote) {
-    BackendManagerLocal local_manager;
-    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
+    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
 
     static const char * const words[] = { "paragraph", "word" };
     Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);

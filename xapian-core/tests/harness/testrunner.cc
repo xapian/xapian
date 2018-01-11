@@ -97,15 +97,14 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 }
 
 void
-TestRunner::do_tests_for_backend(BackendManager&& manager)
+TestRunner::do_tests_for_backend_(BackendManager* manager)
 {
-    const string& backend_name = manager.get_dbtype();
+    const string& backend_name = manager->get_dbtype();
     if (use_backend(backend_name)) {
-	manager.set_datadir(srcdir + "/testdata/");
 	set_properties_for_backend(backend_name);
 	cout << "Running tests with backend \"" << backend_name << "\"..."
 	     << endl;
-	backendmanager = &manager;
+	backendmanager = manager;
 	result_so_far = max(result_so_far, run());
 	backendmanager = NULL;
     }
@@ -119,21 +118,25 @@ TestRunner::run_tests(int argc, char ** argv)
 	test_driver::add_command_line_option("backend", 'b', &user_backend);
 	test_driver::parse_command_line(argc, argv);
 	srcdir = test_driver::get_srcdir();
+	string datadir = srcdir + "/testdata/";
 
-	do_tests_for_backend(BackendManager());
+	do_tests_for_backend(BackendManager(string()));
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	do_tests_for_backend(BackendManagerInMemory());
+	do_tests_for_backend(BackendManagerInMemory(datadir));
 #endif
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	do_tests_for_backend(BackendManagerGlass());
-	do_tests_for_backend(BackendManagerSingleFile("glass"));
-	do_tests_for_backend(BackendManagerMulti("glass"));
+	{
+	    BackendManagerGlass glass_man(datadir);
+	    do_tests_for_backend(glass_man);
+	    do_tests_for_backend(BackendManagerSingleFile(datadir, &glass_man));
+	    do_tests_for_backend(BackendManagerMulti(datadir, &glass_man));
 # ifdef XAPIAN_HAS_REMOTE_BACKEND
-	do_tests_for_backend(BackendManagerRemoteProg("glass"));
-	do_tests_for_backend(BackendManagerRemoteTcp("glass"));
+	    do_tests_for_backend(BackendManagerRemoteProg(&glass_man));
+	    do_tests_for_backend(BackendManagerRemoteTcp(&glass_man));
 # endif
+	}
 #endif
     } catch (const Xapian::Error &e) {
 	cerr << "\nTest harness failed with " << e.get_description() << endl;

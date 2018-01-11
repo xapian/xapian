@@ -41,7 +41,9 @@ class BackendManagerInMemory : public BackendManager {
     Xapian::Database do_get_database(const std::vector<std::string> & files);
 
   public:
-    BackendManagerInMemory() { }
+    explicit
+    BackendManagerInMemory(const std::string& datadir_)
+	: BackendManager(datadir_) {}
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;

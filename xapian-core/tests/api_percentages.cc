@@ -199,8 +199,7 @@ DEFINE_TESTCASE(pctcutoff5, backend) {
 
 // Regression test for bug fixed in 1.0.14.
 DEFINE_TESTCASE(topercent3, remote) {
-    BackendManagerLocal local_manager;
-    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
+    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
     Xapian::Database db;
     db.add_database(get_database("apitest_simpledata"));
     db.add_database(local_manager.get_database("apitest_simpledata"));

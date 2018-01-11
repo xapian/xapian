@@ -578,8 +578,7 @@ DEFINE_TESTCASE(topercent1, backend) {
 
 // tests the percentage values returned
 DEFINE_TESTCASE(topercent2, backend) {
-    BackendManagerLocal local_manager;
-    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
+    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
     Xapian::Enquire localenq(local_manager.get_database("apitest_simpledata"));
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
 

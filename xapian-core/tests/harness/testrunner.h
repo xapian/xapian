@@ -56,9 +56,17 @@ class TestRunner {
      */
     void set_properties_for_backend(const std::string & backend_name);
 
+    void do_tests_for_backend_(BackendManager* manager);
+
     /** Run the tests with the specified backend.
      */
-    void do_tests_for_backend(BackendManager&& manager);
+    void do_tests_for_backend(BackendManager&& manager) {
+	do_tests_for_backend_(&manager);
+    }
+
+    void do_tests_for_backend(BackendManager& manager) {
+	do_tests_for_backend_(&manager);
+    }
 
   protected:
     enum {
