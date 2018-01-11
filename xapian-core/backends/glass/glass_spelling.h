@@ -47,7 +47,7 @@ struct fragment {
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
 
-    operator std::string () const {
+    operator std::string() const {
 	return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 
