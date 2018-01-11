@@ -64,7 +64,6 @@ int main() {
     string sample_log2 = srcdir + "/clickmodel/testdata/test2.log";
     string sample_log3 = srcdir + "/clickmodel/testdata/test3.log";
 
-
     sessions_testcase sessions_tests[] = {
 	{sample_log1, {"821f03288846297c2cf43c34766a38f7",
 		       "45,36,14,54,42",
