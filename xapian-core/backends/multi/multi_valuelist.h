@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_MULTIVALUELIST_H
-#define XAPIAN_INCLUDED_MULTIVALUELIST_H
+#ifndef XAPIAN_INCLUDED_MULTI_VALUELIST_H
+#define XAPIAN_INCLUDED_MULTI_VALUELIST_H
 
 #include "backends/valuelist.h"
 

@@ -114,10 +114,10 @@ AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
 dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
-bin_PROGRAMS = omindex scriptindex omindex-list
+bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
 
-check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
+check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test sdbntest urlenctest utf8converttest
 dist_check_SCRIPTS = omegatest
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
@@ -125,6 +125,7 @@ TESTS =	atomparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	omegatest\
+	sdbntest$(EXEEXT)\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
 
@@ -141,7 +142,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
  xlsxparse.h opendocparse.h msxmlparse.h timegm.h csvescape.h\
- portability/mkdtemp.h
+ portability/mkdtemp.h clickmodel/simplifieddbn.h clickmodel/session.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -203,6 +204,10 @@ scriptindex_LDADD = $(XAPIAN_LIBS)
 omindex_list_SOURCES = common/getopt.cc omindex-list.cc
 omindex_list_LDADD = $(XAPIAN_LIBS)
 
+generate_qrel_file_SOURCES = generate-qrel-file.cc clickmodel/simplifieddbn.cc\
+ common/getopt.cc
+generate_qrel_file_LDADD = $(XAPIAN_LIBS)
+
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
  myhtmlparse.cc utf8convert.cc common/keyword.cc datetime.cc timegm.cc
 atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
@@ -222,6 +227,9 @@ urlenctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 csvesctest_SOURCES = csvesctest.cc csvescape.cc
 csvesctest_LDADD = $(NO_INSTALL)
+
+sdbntest_SOURCES = clickmodel/tests/sdbntest.cc clickmodel/simplifieddbn.cc
+sdbntest_LDADD = $(NO_INSTALL)
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
 jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)

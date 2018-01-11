@@ -54,3 +54,9 @@
 /namedents.h
 /my-html-tok.h
 /*.1
+/clickmodel/.deps
+/clickmodel/.dirstamp
+/clickmodel/tests/.deps/
+/clickmodel/tests/.dirstamp
+/generate-qrel-file
+/sdbntest
