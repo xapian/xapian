@@ -237,7 +237,7 @@ QUOTELOOP:  while (1) {
 	}
     }
 
-    if ($check_trailing && /^\+.*[ \t]$/) {
+    if ($check_trailing && $fullline =~ /^\+.*[ \t]$/) {
 	diagnostic('error', "added/changed line has trailing whitespace", $fullline);
     }
     if ($check_space_tab && /^\+.* \t/) {
