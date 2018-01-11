@@ -28,7 +28,7 @@
 #define DOCIDS 1
 #define CLICKS 2
 
-/** 
+/**
  * Session class for handling search session data elements.
  */
 class Session {

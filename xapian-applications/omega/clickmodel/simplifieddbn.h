@@ -34,14 +34,14 @@ enum {
     PARAM_COUNT_
 };
 
-/** 
+/**
  * SimplifiedDBN class implementing the SDBN click model.
  *
  * For more information of DBN click model, see the following paper:
  *
  * Olivier Chapelle and Ya Zhang. 2009. A dynamic bayesian network click
  * model for web search ranking. In Proceedings of the 18th international
- * conference on World wide web (WWW '09). 
+ * conference on World wide web (WWW '09).
  */
 class SimplifiedDBN {
     /// Relevances of documents corresponding to a query in a search session.

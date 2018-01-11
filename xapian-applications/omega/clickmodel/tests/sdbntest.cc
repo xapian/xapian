@@ -140,7 +140,7 @@ int main() {
     };
 
     int k = 0;
-    // Tests for SimplifiedDBN::get_predicted_relevances. 
+    // Tests for SimplifiedDBN::get_predicted_relevances.
     for (auto&& session : training_sessions) {
 	vector<pair<string, double>> predicted_relevances =
 	    sdbn.get_predicted_relevances(session);
