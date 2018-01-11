@@ -45,7 +45,6 @@ static void help() {
 }
 
 #define OPT_HELP 1
-#define DOCIDS 1
 
 int main(int argc, char **argv) {
     const char * opts = "";
