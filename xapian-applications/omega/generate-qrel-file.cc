@@ -53,8 +53,6 @@ int main(int argc, char **argv) {
 	{ NULL,			0, 0, 0}
     };
 
-    string final_log_path, qrel_path;
-
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
