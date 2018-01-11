@@ -45,6 +45,9 @@ BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
 MAINTAINERCLEANFILES = my-html-tok.h mimemap.h namedents.h
 
 EXTRA_DIST =\
+	clickmodel/testdata/test.log\
+	clickmodel/testdata/test2.log\
+	clickmodel/testdata/test3.log\
 	common/Tokeniseise.pm \
 	extra/omegascript.vim \
 	extra/omegascript.vim.in \
