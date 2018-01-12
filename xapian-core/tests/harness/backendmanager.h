@@ -71,20 +71,6 @@ class BackendManager {
     Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &files);
 #endif
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-    /// Get a remote database instance using xapian-progsrv.
-    Xapian::Database getdb_remoteprog(const std::vector<std::string> &files);
-
-    /// Get a writable remote database instance using xapian-progsrv.
-    Xapian::WritableDatabase getwritedb_remoteprog(const std::vector<std::string> &files);
-
-    /// Get a remote database instance using xapian-tcpsrv.
-    Xapian::Database getdb_remotetcp(const std::vector<std::string> &files);
-
-    /// Get a writable remote database instance using xapian-tcpsrv.
-    Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &files);
-#endif
-
 #ifdef XAPIAN_HAS_CHERT_BACKEND
   protected:
     std::string createdb_chert(const std::vector<std::string> &files);
