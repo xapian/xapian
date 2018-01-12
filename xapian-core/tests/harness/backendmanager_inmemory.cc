@@ -1,7 +1,7 @@
 /** @file backendmanager_inmemory.cc
  * @brief BackendManager subclass for inmemory databases.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,14 +31,18 @@ BackendManagerInMemory::get_dbtype() const
 }
 
 Xapian::Database
-BackendManagerInMemory::do_get_database(const vector<string> & files)
+BackendManagerInMemory::do_get_database(const vector<string>& files)
 {
-    return getwritedb_inmemory(files);
+    Xapian::WritableDatabase wdb(string(), Xapian::DB_BACKEND_INMEMORY);
+    index_files_to_database(wdb, files);
+    return wdb;
 }
 
 Xapian::WritableDatabase
-BackendManagerInMemory::get_writable_database(const string &,
-					      const string & file)
+BackendManagerInMemory::get_writable_database(const string&,
+					      const string& file)
 {
-    return getwritedb_inmemory(vector<string>(1, file));
+    Xapian::WritableDatabase wdb(string(), Xapian::DB_BACKEND_INMEMORY);
+    index_files_to_database(wdb, vector<string>(1, file));
+    return wdb;
 }

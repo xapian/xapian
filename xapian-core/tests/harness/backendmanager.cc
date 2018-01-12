@@ -74,16 +74,6 @@ BackendManager::create_dir_if_needed(const string &dirname)
     return false; // Already a directory.
 }
 
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-Xapian::WritableDatabase
-BackendManager::getwritedb_inmemory(const vector<string> &files)
-{
-    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
-    index_files_to_database(db, files);
-    return db;
-}
-#endif
-
 BackendManager::~BackendManager() { }
 
 std::string

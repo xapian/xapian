@@ -66,11 +66,6 @@ class BackendManager {
      */
     virtual std::string do_get_database_path(const std::vector<std::string> &files);
 
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-    /// Get a writable inmemory database instance.
-    Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &files);
-#endif
-
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     /// Get a remote database instance using xapian-progsrv.
     Xapian::Database getdb_remoteprog(const std::vector<std::string> &files);
