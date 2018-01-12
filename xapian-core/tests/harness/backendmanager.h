@@ -66,20 +66,6 @@ class BackendManager {
      */
     virtual std::string do_get_database_path(const std::vector<std::string> &files);
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-    /// Get a remote database instance using xapian-progsrv.
-    Xapian::Database getdb_remoteprog(const std::vector<std::string> &files);
-
-    /// Get a writable remote database instance using xapian-progsrv.
-    Xapian::WritableDatabase getwritedb_remoteprog(const std::vector<std::string> &files);
-
-    /// Get a remote database instance using xapian-tcpsrv.
-    Xapian::Database getdb_remotetcp(const std::vector<std::string> &files);
-
-    /// Get a writable remote database instance using xapian-tcpsrv.
-    Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &files);
-#endif
-
   public:
     /// Constructor.
     explicit
