@@ -1,6 +1,6 @@
 # generate-generic-exceptions: generate generic error handling code
 my $copyright = <<'END';
- Copyright (C) 2004,2005,2006,2007,2011,2012 Olly Betts
+ Copyright (C) 2004,2005,2006,2007,2011,2012,2018 Olly Betts
  Copyright (C) 2007 Lemur Consulting Ltd
 
  This program is free software; you can redistribute it and/or
@@ -44,12 +44,6 @@ EOF
 
 print FD <<'EOF';
 #include <exception>
-
-// Language interface files can #define XapianException before including this
-// file to override this.
-#ifndef XapianException
-# define XapianException(TYPE, MSG) SWIG_exception((TYPE), (MSG).c_str())
-#endif
 
 static int XapianExceptionHandler(string & msg) {
     try {
@@ -101,7 +95,7 @@ print FD <<'EOF';
     } catch (...) {
 	string msg;
 	int code = XapianExceptionHandler(msg);
-	XapianException(code, msg);
+	SWIG_exception(code, msg.c_str());
     }
 }
 EOF

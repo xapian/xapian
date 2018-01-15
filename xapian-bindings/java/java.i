@@ -2,7 +2,7 @@
 %{
 /* java.i: SWIG interface file for the Java bindings
  *
- * Copyright (c) 2007,2009,2011,2012,2014,2016,2017 Olly Betts
+ * Copyright (c) 2007,2009,2011,2012,2014,2016,2017,2018 Olly Betts
  * Copyright (c) 2012 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
-// In Java, we don't get SWIG_exception in the generated C++ wrapper sources.
-# define XapianException(TYPE, MSG) SWIG_JavaException(jenv, TYPE, (MSG).c_str())
 %}
 
 // Insert code to automatically load the JNI library.
