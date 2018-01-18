@@ -1,7 +1,7 @@
 /** @file unixcmds.cc
  *  @brief C++ function versions of useful Unix commands.
  */
-/* Copyright (C) 2003,2004,2007,2012,2014,2015 Olly Betts
+/* Copyright (C) 2003,2004,2007,2012,2014,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,8 +29,14 @@
 #include "safefcntl.h"
 
 #include "append_filename_arg.h"
+#include "errno_to_string.h"
 #include "filetests.h"
 #include "str.h"
+
+#ifdef HAVE_NFTW
+# include <ftw.h>
+# include <unistd.h>
+#endif
 
 using namespace std;
 
@@ -75,19 +81,48 @@ void cp_R(const std::string &src, const std::string &dest) {
 #endif
 }
 
+#ifdef HAVE_NFTW
+extern "C" {
+static int
+rm_rf_nftw_helper(const char* path,
+		  const struct stat*,
+		  int type,
+		  struct FTW*)
+{
+    int r = (type == FTW_DP ? rmdir(path) : unlink(path));
+    // Return the errno value if deletion fails as the nftw() function might
+    // overwrite errno during clean-up.  Any non-zero return value will end
+    // the walk.
+    return r < 0 ? errno : 0;
+}
+}
+#endif
+
 /// Remove a directory and contents, just like the Unix "rm -rf" command.
 void rm_rf(const string &filename) {
     // Check filename exists and is actually a directory
     if (filename.empty() || !dir_exists(filename))
 	return;
 
-#ifdef __WIN32__
-    string cmd("rd /s /q");
+#ifdef HAVE_NFTW
+    auto flags = FTW_DEPTH | FTW_PHYS;
+    int eno = nftw(filename.c_str(), rm_rf_nftw_helper, 10, flags);
+    if (eno != 0) {
+	string msg = "recursive delete of \"";
+	msg += filename;
+	msg += "\") failed, errno = ";
+	errno_to_string(eno, msg);
+	throw msg;
+    }
 #else
+# ifdef __WIN32__
+    string cmd("rd /s /q");
+# else
     string cmd("rm -rf");
-#endif
+# endif
     if (!append_filename_argument(cmd, filename)) return;
     checked_system(cmd);
+#endif
 }
 
 /// Touch a file, just like the Unix "touch" command.
