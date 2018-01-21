@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of Database::compact()
  */
-/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include "apitest.h"
 #include "dbcheck.h"
 #include "filetests.h"
+#include "msvcignoreinvalidparam.h"
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
@@ -599,8 +600,11 @@ DEFINE_TESTCASE(compacttofd1, glass) {
     // a bug in Wine's msvcrt.dll which fails to set errno in this case:
     // https://bugs.winehq.org/show_bug.cgi?id=43902
     errno = EBADF;
-    TEST(close(fd) == -1);
-    TEST_EQUAL(errno, EBADF);
+    {
+	MSVCIgnoreInvalidParameter invalid_fd_in_close_is_expected;
+	TEST(close(fd) == -1);
+	TEST_EQUAL(errno, EBADF);
+    }
 
     Xapian::Database outdb(outdbpath);
 
@@ -625,8 +629,11 @@ DEFINE_TESTCASE(compacttofd2, glass) {
     // a bug in Wine's msvcrt.dll which fails to set errno in this case:
     // https://bugs.winehq.org/show_bug.cgi?id=43902
     errno = EBADF;
-    TEST(close(fd) == -1);
-    TEST_EQUAL(errno, EBADF);
+    {
+	MSVCIgnoreInvalidParameter invalid_fd_in_close_is_expected;
+	TEST(close(fd) == -1);
+	TEST_EQUAL(errno, EBADF);
+    }
 
     fd = open(outdbpath.c_str(), O_RDONLY|O_BINARY, 0666);
     TEST(fd != -1);
