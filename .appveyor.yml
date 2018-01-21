@@ -1,0 +1,54 @@
+branches:
+  only:
+  - appveyor
+skip_tags: true
+# A full clone takes 30 seconds, depth 20 takes 5 seconds.
+clone_depth: 20
+environment:
+  global:
+    AUTOMATED_TESTING: 1
+  matrix:
+  - TOOLCHAIN: mingw
+  - TOOLCHAIN: mingw64
+  - TOOLCHAIN: cygwin
+  - TOOLCHAIN: msvc
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat\" x86"
+  - TOOLCHAIN: msvc
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\""
+platform:
+  - x86
+install:
+  - ps: >-
+      if ($env:TOOLCHAIN -eq "mingw") {
+        $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
+      } elseif ($env:TOOLCHAIN -eq "mingw64") {
+        $env:PATH="C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;C:\msys64\usr\bin;$env:PATH"
+      } elseif ($env:TOOLCHAIN -eq "cygwin") {
+        $env:PATH="C:\cygwin64\bin;$env:PATH"
+      } elseif ($env:TOOLCHAIN -eq "llvm") {
+        $env:PATH="C:\Program Files\LLVM\bin;c:\msys64\usr\bin;$env:PATH"
+      } else {
+        $env:PATH="c:\msys64\usr\bin;$env:PATH"
+      }
+  - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
+  - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
+  - if "%TOOLCHAIN%"=="mingw64" bash -c 'pacman -Sy --noconfirm zlib-devel'
+  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P file-devel -P zlib-devel
+  - bash -c 'time ./bootstrap xapian-core'
+  - if "%TOOLCHAIN%"=="msvc" call %VCVARS_BAT%
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'wget https://zlib.net/zlib-1.2.11.tar.gz && tar -xf zlib-1.2.11.tar.gz && mv zlib-1.2.11 zlib'
+  - if "%TOOLCHAIN%"=="msvc" cd zlib
+  - if "%TOOLCHAIN%"=="msvc" nmake -nologo -f win32\Makefile.msc
+  - if "%TOOLCHAIN%"=="msvc" cd ..
+  # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
+  - curl https://oligarchy.co.uk/xapian/patches/unicode-data.cc > xapian-core\unicode\unicode-data.cc
+build_script:
+  - if "%TOOLCHAIN%"=="mingw" bash -c 'time ./configure --disable-documentation'
+  - if "%TOOLCHAIN%"=="mingw64" bash -c 'time ./configure --disable-documentation --host=i686-pc-mingw32'
+  - if "%TOOLCHAIN%"=="cygwin" bash -c 'time ./configure --disable-documentation'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc" CPPFLAGS=-I$PWD/zlib AR=lib LDFLAGS=-L$PWD/zlib'
+  - bash -c 'time make -j2' < nul
+test_script:
+  - bash -c 'time make check VERBOSE=1' < nul
