@@ -369,6 +369,9 @@ foreach my $ref (@ARGV) {
     print SIZELOG "$ref\trev=$revision\tunstripped_so=$unstripped_so\tstripped_so=$stripped_so\n";
     close SIZELOG;
 
+    # Be more verbose about test failures.
+    $ENV{VERBOSE} = 1;
+
     # Need to set LD_LIBRARY_PATH so that e.g. omega run from omegatest finds
     # a suitable "libxapian.so".
     $log = `env LD_LIBRARY_PATH="\`pwd\`"/xapian-core/.libs make -s distcheck VALGRIND= 2>&1`;
