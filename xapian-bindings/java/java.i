@@ -409,6 +409,7 @@ class XapianSWIGQueryItor {
     jarr = jenv->GetByteArrayElements($input, NULL);
     if (!jarr) return $null;
     c_arg.assign(reinterpret_cast<char*>(jarr), jenv->GetArrayLength($input));
+    jenv->ReleaseByteArrayElements($input, jarr, JNI_ABORT);
     $1 = &c_arg;
 %}
 
@@ -422,14 +423,16 @@ class XapianSWIGQueryItor {
     $result = c_result;
 }
 
-%typemap(directorin, descriptor="B[") const binary_std_string & {
-    size_t len = $1.size();
-    jbyteArray c_result = jenv->NewByteArray(len);
-    const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
-    // Final parameter was not const in Java 6 and earlier.
-    jbyte* data_nc = const_cast<jbyte*>(data);
-    jenv->SetByteArrayRegion(c_result, 0, len, data_nc);
-    $input = c_result;
+%typemap(directorin, descriptor="B[", noblock=1) const binary_std_string & {
+    size_t $1_len = $1.size();
+    $input = jenv->NewByteArray($1_len);
+    Swig::LocalRefGuard $1_refguard(jenv, $input);
+    {
+        const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
+        // Final parameter was not const in Java 6 and earlier.
+        jbyte* data_nc = const_cast<jbyte*>(data);
+        jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
+    }
 }
 
 %typemap(jni) binary_std_string, const binary_std_string & "jbyteArray"
