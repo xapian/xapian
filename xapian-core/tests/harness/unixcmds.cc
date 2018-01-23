@@ -33,7 +33,15 @@
 #include "filetests.h"
 #include "str.h"
 
-#ifdef HAVE_NFTW
+// mingw-w64 added an implementation of nftw() but it seems to be buggy and
+// garble paths, though I can't see where in the code things go wrong and
+// their code seems to work when built on Linux.
+//
+// For now, we just blacklist nftw() here and on mingw32 (which doesn't
+// currently have it, but let's be defensive in case somebody copies over the
+// buggy version).  Using nftw() is just a minor optimisation which only
+// makes a real difference for developers running the testsuite a lot.
+#if defined HAVE_NFTW && !defined __MINGW32__
 # include <ftw.h>
 # include <unistd.h>
 #endif
@@ -81,7 +89,7 @@ void cp_R(const std::string &src, const std::string &dest) {
 #endif
 }
 
-#ifdef HAVE_NFTW
+#if defined HAVE_NFTW && !defined __MINGW32__
 extern "C" {
 static int
 rm_rf_nftw_helper(const char* path,
@@ -104,10 +112,14 @@ void rm_rf(const string &filename) {
     if (filename.empty() || !dir_exists(filename))
 	return;
 
-#ifdef HAVE_NFTW
+#if defined HAVE_NFTW && !defined __MINGW32__
     auto flags = FTW_DEPTH | FTW_PHYS;
     int eno = nftw(filename.c_str(), rm_rf_nftw_helper, 10, flags);
     if (eno != 0) {
+	// nftw() either returns 0 for OK, -1 for error, or the non-zero return
+	// value of the helper (which in our case is an errno value).
+	if (eno < 0)
+	    eno = errno;
 	string msg = "recursive delete of \"";
 	msg += filename;
 	msg += "\") failed, errno = ";
