@@ -1,7 +1,7 @@
 /** @file honey_postlist_encodings.h
  * @brief Encoding and decoding functions for honey postlists
  */
-/* Copyright (C) 2015 Olly Betts
+/* Copyright (C) 2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +33,11 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
     --termfreq;
     pack_uint(out, termfreq);
     pack_uint(out, first - 1);
-    pack_uint(out, last - first - termfreq);
+    if (termfreq) {
+	pack_uint(out, last - first - termfreq);
+    } else {
+	AssertEq(first, last);
+    }
     pack_uint(out, collfreq);
 }
 
@@ -46,12 +50,16 @@ decode_initial_chunk_header(const char ** p, const char * end,
 {
     if (!unpack_uint(p, end, &termfreq) ||
 	!unpack_uint(p, end, &first) ||
-	!unpack_uint(p, end, &last) ||
+	(termfreq && !unpack_uint(p, end, &last)) ||
 	!unpack_uint(p, end, &collfreq)) {
 	return false;
     }
     ++first;
-    last += first + termfreq;
+    if (termfreq == 0) {
+	last = first;
+    } else {
+	last += first + termfreq;
+    }
     ++termfreq;
     return true;
 }

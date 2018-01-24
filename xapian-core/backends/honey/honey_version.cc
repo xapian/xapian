@@ -1,7 +1,7 @@
 /** @file honey_version.cc
  * @brief HoneyVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,8 +50,9 @@
 using namespace std;
 
 /// Honey format version (date of change):
-#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,1,4)
-// 2018,1,4   1.5.0 Merge values used and terms used
+#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,1,23)
+// 2018,1,23  1.5.0 Elide last-first for single occurrence terms
+// 2018,1,4         Merge values used and terms used
 // 2018,1,3         Table start offset in RootInfo
 // 2017,12,30       Value stats key changes
 // 2017,12,29       User metadata key changes
