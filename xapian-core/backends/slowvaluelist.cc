@@ -1,7 +1,7 @@
 /** @file slowvaluelist.cc
  * @brief Slow implementation for backends which don't streamed values.
  */
-/* Copyright (C) 2008,2011,2013,2014 Olly Betts
+/* Copyright (C) 2008,2011,2013,2014,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,13 +88,6 @@ void
 SlowValueList::skip_to(Xapian::docid did)
 {
     if (did <= current_did) return;
-
-    if (did > last_docid) {
-	// Indicate that we're at_end().
-	last_docid = 0;
-	return;
-    }
-
     current_did = did - 1;
     next();
 }
