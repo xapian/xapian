@@ -95,7 +95,9 @@ SlowValueList::skip_to(Xapian::docid did)
 bool
 SlowValueList::check(Xapian::docid did)
 {
-    if (did <= current_did) return true;
+    if (did <= current_did) {
+	return !current_value.empty();
+    }
 
     if (did > last_docid) {
 	// Indicate that we're at_end().
@@ -114,6 +116,7 @@ SlowValueList::check(Xapian::docid did)
 	}
     } catch (const Xapian::DocNotFoundError &) {
     }
+    current_value = string();
     return false;
 }
 
