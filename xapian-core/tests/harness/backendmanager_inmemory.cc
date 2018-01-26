@@ -46,3 +46,9 @@ BackendManagerInMemory::get_writable_database(const string&,
     index_files_to_database(wdb, vector<string>(1, file));
     return wdb;
 }
+
+string
+BackendManagerInMemory::get_generated_database_path(const std::string&)
+{
+    return string();
+}

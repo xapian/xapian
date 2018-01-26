@@ -67,7 +67,7 @@ TestRunner::set_properties_for_backend(const string & backend_name)
     static const BackendProperties backend_properties[] = {
 	{ "none", 0 },
 	{ "inmemory", INMEMORY|
-	    BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	    BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS|GENERATED },
 	{ "glass", GLASS|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
 	    SYNONYMS|VALUESTATS|GENERATED|COMPACT
