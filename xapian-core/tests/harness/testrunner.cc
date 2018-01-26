@@ -2,7 +2,7 @@
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2008,2009,2010,2011,2015,2017 Olly Betts
+ * Copyright 2008,2009,2010,2011,2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,10 +71,18 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
 	{ "chert", CHERT|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
-	    SYNONYMS|REPLICAS|VALUESTATS|GENERATED },
+	    SYNONYMS|VALUESTATS|GENERATED|COMPACT
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	    |REPLICAS
+#endif
+	},
 	{ "glass", GLASS|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
-	    SYNONYMS|REPLICAS|VALUESTATS|GENERATED },
+	    SYNONYMS|VALUESTATS|GENERATED|COMPACT
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	    |REPLICAS
+#endif
+	},
 	{ "multi_chert", MULTI|
 	    BACKEND|POSITIONAL|WRITABLE|METADATA|
 	    SYNONYMS|VALUESTATS },
