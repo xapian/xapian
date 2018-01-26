@@ -138,6 +138,9 @@ class BackendManager {
     /// Get the path of the last opened WritableDatabase.
     virtual std::string get_writable_database_path_again();
 
+    /// Get a path to compact a database to.
+    virtual std::string get_compaction_output_path(const std::string& name);
+
     /** Called after each test, to perform any necessary cleanup.
      *
      *  May be called more than once for a given test in some cases.

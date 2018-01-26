@@ -100,6 +100,12 @@ get_named_writable_database_path(const std::string &name)
     return backendmanager->get_writable_database_path("dbw__" + name);
 }
 
+std::string
+get_compaction_output_path(const std::string& name)
+{
+    return backendmanager->get_compaction_output_path(name);
+}
+
 Xapian::Database
 get_remote_database(const string &dbname, unsigned int timeout)
 {

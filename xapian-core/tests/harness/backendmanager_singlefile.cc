@@ -48,7 +48,7 @@ BackendManagerSingleFile::get_dbtype() const
 }
 
 string
-BackendManagerSingleFile::createdb_singlefile(const vector<string> & files)
+BackendManagerSingleFile::do_get_database_path(const vector<string> & files)
 {
     string db_path = cachedir + "/db";
     for (const string& file : files) {
@@ -70,14 +70,14 @@ BackendManagerSingleFile::createdb_singlefile(const vector<string> & files)
     return db_path;
 }
 
-string
-BackendManagerSingleFile::do_get_database_path(const vector<string> & files)
-{
-    return createdb_singlefile(files);
-}
-
 Xapian::WritableDatabase
 BackendManagerSingleFile::get_writable_database(const string &, const string &)
 {
     throw Xapian::UnimplementedError("Single-file databases don't support writing");
+}
+
+string
+BackendManagerSingleFile::get_compaction_output_path(const string& name)
+{
+    return cachedir + "/" + name;
 }

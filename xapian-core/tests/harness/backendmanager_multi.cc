@@ -145,6 +145,12 @@ BackendManagerMulti::get_writable_database_path(const std::string& name)
     return cachedir + "/" + name;
 }
 
+string
+BackendManagerMulti::get_compaction_output_path(const string& name)
+{
+    return cachedir + "/" + name;
+}
+
 Xapian::WritableDatabase
 BackendManagerMulti::get_writable_database_again()
 {

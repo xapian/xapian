@@ -55,6 +55,8 @@ class BackendManagerGlass : public BackendManager {
     /// Get the path of Glass Xapian::WritableDatabase instance.
     std::string get_writable_database_path(const std::string & name);
 
+    std::string get_compaction_output_path(const std::string& name);
+
     /// Get the path to use for generating a database, if supported.
     std::string get_generated_database_path(const std::string & name);
 

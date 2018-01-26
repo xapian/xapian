@@ -36,8 +36,6 @@ class BackendManagerSingleFile : public BackendManager {
     /// Don't allow copying.
     BackendManagerSingleFile(const BackendManagerSingleFile &);
 
-    std::string createdb_singlefile(const std::vector<std::string> & files);
-
     BackendManager* sub_manager;
 
     std::string cachedir;
@@ -55,6 +53,8 @@ class BackendManagerSingleFile : public BackendManager {
 
     /// Create a Xapian::WritableDatabase object.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
+
+    std::string get_compaction_output_path(const std::string& name);
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_SINGLEFILE_H
