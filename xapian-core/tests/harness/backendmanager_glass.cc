@@ -97,6 +97,12 @@ BackendManagerGlass::get_writable_database_path(const string & name)
 }
 
 string
+BackendManagerGlass::get_compaction_output_path(const string& name)
+{
+    return CACHE_DIRECTORY "/" + name;
+}
+
+string
 BackendManagerGlass::get_generated_database_path(const std::string & name)
 {
     return BackendManagerGlass::get_writable_database_path(name);

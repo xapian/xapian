@@ -158,6 +158,12 @@ BackendManagerMulti::get_writable_database_path(const std::string& name)
 }
 
 string
+BackendManagerMulti::get_compaction_output_path(const string& name)
+{
+    return cachedir + "/" + name;
+}
+
+string
 BackendManagerMulti::get_generated_database_path(const string& name)
 {
     return BackendManagerMulti::get_writable_database_path(name);

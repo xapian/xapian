@@ -218,6 +218,12 @@ BackendManager::get_generated_database(const std::string& name)
 }
 
 string
+BackendManager::get_compaction_output_path(const std::string&)
+{
+    throw Xapian::InvalidArgumentError("Compaction now supported for this database type");
+}
+
+string
 BackendManager::get_generated_database_path(const std::string &)
 {
     throw Xapian::InvalidArgumentError("Generated databases aren't supported for this database type");

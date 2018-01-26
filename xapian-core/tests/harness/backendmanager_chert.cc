@@ -97,6 +97,12 @@ BackendManagerChert::get_writable_database_path(const string & name)
 }
 
 string
+BackendManagerChert::get_compaction_output_path(const string& name)
+{
+    return CACHE_DIRECTORY "/" + name;
+}
+
+string
 BackendManagerChert::get_generated_database_path(const std::string & name)
 {
     return BackendManagerChert::get_writable_database_path(name);

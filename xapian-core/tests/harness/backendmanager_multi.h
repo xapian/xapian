@@ -63,6 +63,7 @@ class BackendManagerMulti : public BackendManager {
     /// Get the path of Xapian::WritableDatabase instance.
     std::string get_writable_database_path(const std::string & name);
 
+    std::string get_compaction_output_path(const std::string& name);
 
     std::string get_generated_database_path(const std::string& name);
 
