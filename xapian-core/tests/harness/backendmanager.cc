@@ -45,6 +45,13 @@
 
 using namespace std;
 
+[[noreturn]]
+static void
+invalid_operation(const char* msg)
+{
+    throw Xapian::InvalidOperationError(msg);
+}
+
 void
 BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 					const vector<string> & files)
@@ -85,7 +92,7 @@ BackendManager::get_dbtype() const
 string
 BackendManager::do_get_database_path(const vector<string> &)
 {
-    throw Xapian::InvalidArgumentError("Path isn't meaningful for this database type");
+    invalid_operation("Path isn't meaningful for this database type");
 }
 
 Xapian::Database
@@ -196,31 +203,33 @@ BackendManager::get_database_path(const string & file)
 Xapian::WritableDatabase
 BackendManager::get_writable_database(const string &, const string &)
 {
-    throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
+    invalid_operation("Attempted to open a disabled database");
 }
 
 string
 BackendManager::get_writable_database_path(const std::string &)
 {
-    throw Xapian::InvalidArgumentError("Path isn't meaningful for this database type");
+    invalid_operation("Path isn't meaningful for this database type");
 }
 
 string
 BackendManager::get_compaction_output_path(const std::string&)
 {
-    throw Xapian::InvalidArgumentError("Compaction now supported for this database type");
+    invalid_operation("Compaction not supported for this database type");
 }
 
 string
 BackendManager::get_generated_database_path(const std::string &)
 {
-    throw Xapian::InvalidArgumentError("Generated databases aren't supported for this database type");
+    invalid_operation("Generated databases aren't supported for this database "
+		      "type");
 }
 
 Xapian::Database
 BackendManager::get_remote_database(const vector<string> &, unsigned int)
 {
-    string msg = "BackendManager::get_remote_database() called for non-remote database (type is ";
+    string msg = "BackendManager::get_remote_database() called for non-remote "
+		 "database (type is ";
     msg += get_dbtype();
     msg += ')';
     throw Xapian::InvalidOperationError(msg);
