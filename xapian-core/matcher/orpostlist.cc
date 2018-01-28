@@ -58,8 +58,8 @@ OrPostList::decay_to_andmaybe(PostList* left,
 			      double w_min,
 			      bool* valid_ptr)
 {
-    if (l != left) swap(l_did, r_did);
-    l = new AndMaybePostList(left, right, pltree, db_size, l_did, r_did);
+    if (l != left) swap(l_max, r_max);
+    l = new AndMaybePostList(left, right, l_max, r_max, pltree, db_size);
     r = NULL;
     PostList* result;
     if (valid_ptr) {
@@ -84,16 +84,18 @@ OrPostList::get_termfreq_min() const
 Xapian::docid
 OrPostList::get_docid() const
 {
-    return min(l_did, r_did);
+    // Handle l_did or r_did being zero correctly (which means the last call on
+    // that side was a check() which came back !valid).
+    return min(l_did - 1, r_did - 1) + 1;
 }
 
 double
 OrPostList::get_weight(Xapian::termcount doclen,
 		       Xapian::termcount unique_terms) const
 {
-    if (l_did < r_did)
+    if (r_did == 0 || l_did < r_did)
 	return l->get_weight(doclen, unique_terms);
-    if (l_did > r_did)
+    if (l_did == 0 || l_did > r_did)
 	return r->get_weight(doclen, unique_terms);
     return l->get_weight(doclen, unique_terms) +
 	   r->get_weight(doclen, unique_terms);
@@ -112,19 +114,46 @@ OrPostList::next(double w_min)
 {
     if (w_min > l_max) {
 	if (w_min > r_max) {
-	    // If l_did < r_did, r AND_MAYBE l might match at r_did.
-	    Xapian::docid did = (l_did < r_did) ? r_did : r_did + 1;
+	    // Work out the smallest docid which the AND could match at.
+	    Xapian::docid did;
+	    if (l_did == r_did || r_did == 0) {
+		did = l_did + 1;
+	    } else if (l_did == 0) {
+		did = r_did + 1;
+	    } else {
+		// The OR last matched at min(l_did, r_did), so the AND could
+		// match at the max().
+		did = max(l_did, r_did);
+	    }
 	    return decay_to_and(did, w_min);
 	}
-	Xapian::docid did = (l_did == r_did) ? l_did + 1 : max(l_did, r_did);
+	// Work out the smallest docid which r AND_MAYBE l could match at.
+	Xapian::docid did;
+	if (r_did == 0) {
+	    did = l_did + 1;
+	} else if (l_did - 1 >= r_did - 1) {
+	    did = r_did + 1;
+	} else {
+	    // l_did and r_did both non zero and l_did < r_did.
+	    did = r_did;
+	}
 	return decay_to_andmaybe(r, l, did, w_min);
     }
     if (w_min > r_max) {
-	// If r_did < l_did, l AND_MAYBE r might match at l_did.
-	Xapian::docid did = (r_did < l_did) ? l_did : l_did + 1;
+	// Work out the smallest docid which l AND_MAYBE r could match at.
+	Xapian::docid did;
+	if (l_did == 0) {
+	    did = r_did + 1;
+	} else if (r_did - 1 >= l_did - 1) {
+	    did = l_did + 1;
+	} else {
+	    // l_did and r_did both non zero and r_did < l_did.
+	    did = l_did;
+	}
 	return decay_to_andmaybe(l, r, did, w_min);
     }
 
+    // We always advance_l if l_did is 0, and similarly for advance_r.
     bool advance_l = (l_did <= r_did);
     bool advance_r = (l_did >= r_did);
 
@@ -176,9 +205,9 @@ OrPostList::next(double w_min)
 PostList*
 OrPostList::skip_to(Xapian::docid did, double w_min)
 {
-    // >= so skip_to(n) after check(n) -> !valid actually moves us on.
-    bool advance_l = (did >= l_did);
-    bool advance_r = (did >= r_did);
+    // We always advance_l if l_did is 0, and similarly for advance_r.
+    bool advance_l = (did > l_did);
+    bool advance_r = (did > r_did);
     if (!advance_l && !advance_r)
 	return NULL;
 
@@ -241,15 +270,22 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 {
     bool advance_l = (did > l_did);
     bool advance_r = (did > r_did);
-    if (!advance_l && !advance_r)
+    if (!advance_l && !advance_r) {
+	// A call to check() which steps back isn't valid, so if we get here
+	// then did should be equal to at least one of l_did or r_did.
+	Assert(did == l_did || did == r_did);
+	valid = true;
 	return NULL;
+    }
 
     if (w_min > l_max) {
+	valid = true;
 	if (w_min > r_max)
 	    return decay_to_and(did, w_min, &valid);
 	return decay_to_andmaybe(r, l, did, w_min, &valid);
     }
     if (w_min > r_max) {
+	valid = true;
 	return decay_to_andmaybe(l, r, did, w_min, &valid);
     }
 
@@ -257,10 +293,11 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 	bool l_valid;
 	PostList* result = l->check(did, w_min - r_max, l_valid);
 	if (result) {
+	    Assert(l_valid);
 	    delete l;
 	    l = result;
 	} else if (!l_valid) {
-	    l_did = did - 1;
+	    l_did = 0;
 	    advance_l = false;
 	}
     }
@@ -269,18 +306,13 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 	bool r_valid;
 	PostList* result = r->check(did, w_min - l_max, r_valid);
 	if (result) {
+	    Assert(r_valid);
 	    delete r;
 	    r = result;
 	} else if (!r_valid) {
-	    r_did = did - 1;
+	    r_did = 0;
 	    advance_r = false;
 	}
-    }
-
-    valid = advance_l || advance_r;
-    if (!valid) {
-	l_did = r_did = did;
-	return NULL;
     }
 
     if (advance_l) {
@@ -288,6 +320,7 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 	    PostList* result = r;
 	    r = NULL;
 	    pltree->force_recalc();
+	    valid = true;
 	    return result;
 	}
     }
@@ -297,6 +330,7 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 	    PostList* result = l;
 	    l = NULL;
 	    pltree->force_recalc();
+	    valid = true;
 	    return result;
 	}
     }
@@ -308,6 +342,8 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
     if (advance_r) {
 	r_did = r->get_docid();
     }
+
+    valid = (l_did == did || r_did == did) || (l_did != 0 && r_did != 0);
 
     return NULL;
 }
@@ -403,9 +439,9 @@ OrPostList::get_description() const
 Xapian::termcount
 OrPostList::get_wdf() const
 {
-    if (l_did < r_did)
+    if (r_did == 0 || l_did < r_did)
 	return l->get_wdf();
-    if (l_did > r_did)
+    if (l_did == 0 || l_did > r_did)
 	return r->get_wdf();
     return l->get_wdf() + r->get_wdf();
 }
@@ -413,9 +449,9 @@ OrPostList::get_wdf() const
 Xapian::termcount
 OrPostList::count_matching_subqs() const
 {
-    if (l_did < r_did)
+    if (r_did == 0 || l_did < r_did)
 	return l->count_matching_subqs();
-    if (l_did > r_did)
+    if (l_did == 0 || l_did > r_did)
 	return r->count_matching_subqs();
     return l->count_matching_subqs() + r->count_matching_subqs();
 }
@@ -423,8 +459,8 @@ OrPostList::count_matching_subqs() const
 void
 OrPostList::gather_position_lists(OrPositionList* orposlist)
 {
-    if (l_did <= r_did)
+    if (l_did - 1 <= r_did - 1)
 	l->gather_position_lists(orposlist);
-    if (l_did >= r_did)
+    if (l_did - 1 >= r_did - 1)
 	r->gather_position_lists(orposlist);
 }

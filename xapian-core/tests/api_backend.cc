@@ -789,8 +789,6 @@ make_orcheck_db(Xapian::WritableDatabase &db, const string &)
  *  Bugs introduced and fixed between 1.2.0 and 1.2.1 (never in a release).
  */
 DEFINE_TESTCASE(orcheck1, generated) {
-    // Currently fails for inmemory.
-    SKIP_TEST_FOR_BACKEND("inmemory");
     Xapian::Database db = get_database("orcheck1", make_orcheck_db);
     Xapian::Enquire enq(db);
     Xapian::Query q1("T1");
