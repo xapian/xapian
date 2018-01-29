@@ -279,6 +279,7 @@ open_different_table:
 	    cout << "No entries!" << endl;
 	    exit(0);
 	}
+	cout << "Table has " << table.get_entry_count() << " entries" << endl;
 
 	GlassCursor cursor(&table);
 	cursor.find_entry(string());
