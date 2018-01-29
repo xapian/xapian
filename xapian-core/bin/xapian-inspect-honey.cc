@@ -85,6 +85,8 @@ show_help()
     cout << "Commands:\n"
 	    "next   : Next entry (alias 'n' or '')\n"
 	    "prev   : Previous entry (alias 'p')\n"
+	    "first  : First entry (alias 'f')\n"
+	    "last   : Last entry (alias 'l')\n"
 	    "goto K : Goto entry with key K (alias 'g')\n"
 	    "until K: Display entries until key K (alias 'u')\n"
 	    "open T : Open table T instead (alias 'o') - e.g. open postlist\n"
@@ -278,6 +280,7 @@ open_different_table:
 	    cout << "No entries!" << endl;
 	    exit(0);
 	}
+	cout << "Table has " << table.get_entry_count() << " entries" << endl;
 
 	HoneyCursor cursor(&table);
 	cursor.find_entry(string());
@@ -320,6 +323,16 @@ wait_for_input:
 	    } else if (input == "u" || input == "until") {
 		do_until(cursor, string());
 		goto wait_for_input;
+	    } else if (input == "f" || input == "first") {
+		cursor.find_entry(string());
+		cursor.next();
+		continue;
+	    } else if (input == "l" || input == "last") {
+		// To position on the last key we just search for a key with
+		// the longest possible length consisting entirely of the
+		// highest sorting byte value.
+		cursor.find_entry(string(HONEY_MAX_KEY_LEN, '\xff'));
+		continue;
 	    } else if (startswith(input, "g ")) {
 		if (!cursor.find_entry(input.substr(2))) {
 		    cout << "No exact match, going to entry before." << endl;
