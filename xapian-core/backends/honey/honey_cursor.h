@@ -28,9 +28,10 @@
 class HoneyCursor {
     void rewind() {
 	fh.set_pos(offset); // FIXME root
-	last_key = std::string();
+	current_key = last_key = std::string();
 	is_at_end = false;
 	index = root;
+	val_size = 0;
     }
 
   public:
