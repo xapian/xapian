@@ -337,7 +337,7 @@ BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
 std::string
 BackendManagerRemoteTcp::get_dbtype() const
 {
-    return "remotetcp_" + remote_type;
+    return "remotetcp_" + sub_manager->get_dbtype();
 }
 
 Xapian::Database

@@ -1,5 +1,5 @@
 /** @file generate_qrel_file.cc
- * @brief generates the qrel file needed to prepare training file for letor.
+ * @brief generates qrel file needed to prepare training file for letor
  */
 /* Copyright (C) 2017 Vivek Pal
  *
@@ -28,48 +28,53 @@
 
 #include "gnu_getopt.h"
 
-#include <clickmodel/simplifieddbn.h>
+#include "clickmodel/simplifieddbn.h"
 
 using namespace std;
 
-#define NAME "generate-qrel-file"
-#define DESC "Command to generate qrel file needed to prepare training file for letor"
-
-static void help() {
-    cout << "usage: ./" NAME " [<option>] final_log qrel_file\n\n"
-
-    "      final_log        Path to final log file\n"
-    "      qrel_file        Path to save qrel file\n"
-    "      --help           display this help message and exit\n";
-}
+#define PROG_NAME "generate-qrel-file"
+#define PROG_DESC "Generate qrel file needed to prepare training file for letor"
 
 #define OPT_HELP 1
-#define DOCIDS 1
+#define OPT_VERSION 2
 
-int main(int argc, char **argv) {
+static void show_usage() {
+    cout << "Usage: " PROG_NAME " [OPTIONS] FINAL_LOG QREL_FILE\n\n"
+"FINAL_LOG is the path to log file from the 'postprocess' script.\n\n"
+"QREL_FILE is the path to save the qrel file to.\n\n"
+"Options:\n"
+"     --help        display this help and exit\n"
+"  --version        output version information and exit" << endl;
+}
+
+int
+main(int argc, char **argv)
+{
     const char * opts = "";
     static const struct option long_opts[] = {
-	{ "help",		no_argument, 0, OPT_HELP },
-	{ NULL,			0, 0, 0}
+	{ "help",	no_argument, 0, OPT_HELP },
+	{ "version",	no_argument, 0, OPT_VERSION },
+	{ NULL,		0, 0, 0}
     };
-
-    string final_log_path, qrel_path;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case OPT_HELP:
-		cout << DESC "\n\n";
-		help();
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
+		show_usage();
 		exit(0);
-	    case '?': // unknown option
-		help();
+	    case OPT_VERSION:
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
+		exit(0);
+	    default:
+		show_usage();
 		exit(1);
 	}
     }
 
     if (argc - optind != 2) {
-	help();
+	show_usage();
 	exit(1);
     }
 

@@ -94,7 +94,7 @@ SimplifiedDBN::build_sessions(const string &logfile)
     file.open(logfile, ios::in);
 
     if (!file) {
-	throw runtime_error("ERROR: Specified file does not exist.");
+	throw runtime_error("Couldn't open file: " + logfile);
     }
 
     string line;

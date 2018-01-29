@@ -47,8 +47,8 @@ struct sessions_testcase {
 };
 
 static string get_srcdir() {
-    char *p = getenv("srcdir");
-    if (!p) return ".";
+    const char *p = getenv("srcdir");
+    if (!p) p = ".";
     return string(p);
 }
 
@@ -63,7 +63,6 @@ int main() {
     string sample_log1 = srcdir + "/clickmodel/testdata/test1.log";
     string sample_log2 = srcdir + "/clickmodel/testdata/test2.log";
     string sample_log3 = srcdir + "/clickmodel/testdata/test3.log";
-
 
     sessions_testcase sessions_tests[] = {
 	{sample_log1, {"821f03288846297c2cf43c34766a38f7",
@@ -140,7 +139,7 @@ int main() {
     };
 
     int k = 0;
-    // Tests for SimplifiedDBN::get_predicted_relevances. 
+    // Tests for SimplifiedDBN::get_predicted_relevances.
     for (auto&& session : training_sessions) {
 	vector<pair<string, double>> predicted_relevances =
 	    sdbn.get_predicted_relevances(session);

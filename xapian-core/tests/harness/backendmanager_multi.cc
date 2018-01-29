@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,19 +33,20 @@
 
 using namespace std;
 
-BackendManagerMulti::BackendManagerMulti(const std::string & subtype_)
-	: subtype(subtype_)
+BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
+					 BackendManager* sub_manager_)
+    : BackendManager(datadir_),
+      sub_manager(sub_manager_),
+      cachedir(".multi" + sub_manager_->get_dbtype())
 {
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-    if (subtype == "glass") return;
-#endif
-    throw ("Unknown backend type \"" + subtype + "\" specified for multi database subdatabases");
+    // Ensure the directory we store cached test databases in exists.
+    (void)create_dir_if_needed(cachedir);
 }
 
 std::string
 BackendManagerMulti::get_dbtype() const
 {
-    return "multi_" + subtype;
+    return "multi_" + sub_manager->get_dbtype();
 }
 
 #define NUMBER_OF_SUB_DBS 2
@@ -54,31 +55,28 @@ string
 BackendManagerMulti::createdb_multi(const string& name,
 				    const vector<string>& files)
 {
-    string dbdir = ".multi" + subtype;
-    create_dir_if_needed(dbdir);
-
     string dbname;
     if (!name.empty()) {
 	dbname = name;
     } else {
 	dbname = "db";
-	vector<string>::const_iterator i;
-	for (i = files.begin(); i != files.end(); ++i) {
+	for (const string& file : files) {
 	    dbname += "__";
-	    dbname += *i;
+	    dbname += file;
 	}
     }
 
-    string dbpath = dbdir + "/" + dbname;
+    string db_path = cachedir;
+    db_path += '/';
+    db_path += dbname;
 
     if (!name.empty()) {
-	remove(dbpath.c_str());
+	remove(db_path.c_str());
     } else {
-	if (file_exists(dbpath)) return dbpath;
+	if (file_exists(db_path)) return db_path;
     }
 
-    string tmpfile = dbpath;
-    tmpfile += ".tmp";
+    string tmpfile = db_path + ".tmp";
     ofstream out(tmpfile.c_str());
     if (!out.is_open()) {
 	string msg = "Couldn't create file '";
@@ -92,6 +90,7 @@ BackendManagerMulti::createdb_multi(const string& name,
     // Open NUMBER_OF_SUB_DBS databases and index files to them alternately so
     // a multi-db combining them contains the documents in the expected order.
     Xapian::WritableDatabase dbs;
+    const string& subtype = sub_manager->get_dbtype();
     int flags = Xapian::DB_CREATE_OR_OVERWRITE;
     if (subtype == "glass") {
 	flags |= Xapian::DB_BACKEND_GLASS;
@@ -100,9 +99,7 @@ BackendManagerMulti::createdb_multi(const string& name,
 	msg += subtype;
 	throw msg;
     }
-    string dbbase = dbdir;
-    dbbase += '/';
-    dbbase += dbname;
+    string dbbase = db_path;
     dbbase += "___";
     size_t dbbase_len = dbbase.size();
     string line = subtype;
@@ -118,11 +115,14 @@ BackendManagerMulti::createdb_multi(const string& name,
     out.close();
 
     FileIndexer(get_datadir(), files).index_to(dbs);
+    dbs.close();
 
-    rename(tmpfile.c_str(), dbpath.c_str());
+    if (rename(tmpfile.c_str(), db_path.c_str()) < 0) {
+	throw Xapian::Database("rename failed", errno);
+    }
 
-    last_wdb_path = dbpath;
-    return dbpath;
+    last_wdb_path = db_path;
+    return db_path;
 }
 
 string
@@ -142,18 +142,23 @@ BackendManagerMulti::get_writable_database(const string& name, const string& fil
 string
 BackendManagerMulti::get_writable_database_path(const std::string& name)
 {
-    string dbdir = ".multi" + subtype;
-    return dbdir + "/" + name;
+    return cachedir + "/" + name;
 }
 
-Xapian::Database
-BackendManagerMulti::get_writable_database_as_database()
+string
+BackendManagerMulti::get_compaction_output_path(const string& name)
 {
-    return Xapian::Database(last_wdb_path);
+    return cachedir + "/" + name;
 }
 
 Xapian::WritableDatabase
 BackendManagerMulti::get_writable_database_again()
 {
     return Xapian::WritableDatabase(last_wdb_path);
+}
+
+string
+BackendManagerMulti::get_writable_database_path_again()
+{
+    return last_wdb_path;
 }

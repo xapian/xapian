@@ -46,13 +46,16 @@ class BackendManagerHoney : public BackendManager {
     std::string do_get_database_path(const std::vector<std::string> & files);
 
   public:
-    BackendManagerHoney() { }
+    BackendManagerHoney(const std::string& datadir_)
+	: BackendManager(datadir_) { }
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
 
     /// Create a Xapian::WritableDatabase object.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
+
+    std::string get_compaction_output_path(const std::string& name);
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_HONEY_H

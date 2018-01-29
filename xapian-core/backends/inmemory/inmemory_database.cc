@@ -150,7 +150,7 @@ InMemoryPostList::at_end() const
 string
 InMemoryPostList::get_description() const
 {
-    return "InMemoryPostList " + str(termfreq);
+    return term + ":" + str(termfreq);
 }
 
 PositionList *

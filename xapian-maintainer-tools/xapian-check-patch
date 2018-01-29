@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# Copyright (c) 2007-2017 Olly Betts
+# Copyright (c) 2007-2018 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -69,6 +69,8 @@ my $lang;
 my $header_guard_macro;
 my $last_first_char = '';
 my $in_ternary;
+my $preproc;
+my $preproc_continuation;
 while (<>) {
     if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
 	++$files;
@@ -78,6 +80,8 @@ while (<>) {
 	$in_comment = 0;
 	$header_guard_macro = undef;
 	$in_ternary = 0;
+	$preproc = 0;
+	$preproc_continuation = 0;
 	# Don't know!
 	$want_tabs = -1;
 	if ($fnm =~ /\.cc$/) {
@@ -169,7 +173,7 @@ while (<>) {
     # Replace multiple spaces before line continuation marker:
     s!  +\\$! \\!;
 
-    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c') && !(/^[-+]\s*\#/)) {
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
 	if (substr($_, 0, 1) eq '+') {
 	    my $expandedline = '';
 	    for my $i (1..length($fullline) - 1) {
@@ -235,7 +239,7 @@ QUOTELOOP:  while (1) {
 	}
     }
 
-    if ($check_trailing && /^\+.*[ \t]$/) {
+    if ($check_trailing && $fullline =~ /^\+.*[ \t]$/) {
 	diagnostic('error', "added/changed line has trailing whitespace", $fullline);
     }
     if ($check_space_tab && /^\+.* \t/) {
@@ -265,9 +269,35 @@ QUOTELOOP:  while (1) {
 	diagnostic('error', "Broken Doxygen command: whitespace between '\@' and '$1'", $fullline);
     }
     if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+	if (/^([-+ ])(\s*)\#/) {
+	    # Avoid misfiring for something like:
+	    # #define FOO(x) \
+	    #     #x
+	    if (!$preproc_continuation) {
+		if ($1 eq '+' && $2 ne '') {
+		    diagnostic('error', "Whitespace before '#' on preprocessor line", $fullline);
+		}
+	    }
+	    $preproc = 1;
+	    $preproc_continuation = /\\$/;
+	} elsif ($preproc_continuation) {
+	    $preproc_continuation = /\\$/;
+	} else {
+	    $preproc = 0;
+	}
 	if ($check_space_tab && /^\+( (?:|  |    |      ))[^ \t#].*(?:[^)];|[^);,])\n/) {
 	    # Exclude lines ending ');', ')', or ',' to avoid reporting for wrapped function arguments.
 	    diagnostic('error', "line indented by ".length($1)." spaces", $fullline);
+	}
+	if (m!^\+.*\b([A-Za-z_][A-Za-z_0-9]*)\s+\(! &&
+	    $1 !~ /^(bool|case|catch|double|for|if|int|return|switch|throw|void|while)$/) {
+	    if (!$preproc) {
+		diagnostic('error', "Whitespace between '$1' and '('", $fullline);
+	    } else {
+		# FIXME: We skip preprocessor lines for now to avoid triggering
+		# on things like «#define FOUR (2+2)» but it would be good to
+		# catch «#define FOO(x) foo (x)»
+	    }
 	}
 	if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
 	    diagnostic('error', "'$1' not followed by exactly one space", $fullline);

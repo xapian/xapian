@@ -45,8 +45,8 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
     Xapian::Database do_get_database(const std::vector<std::string> & files);
 
   public:
-    BackendManagerRemoteProg(const std::string & remote_type_)
-	: BackendManagerRemote(remote_type_) { }
+    explicit BackendManagerRemoteProg(BackendManager* sub_manager_)
+	: BackendManagerRemote(sub_manager_) { }
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;

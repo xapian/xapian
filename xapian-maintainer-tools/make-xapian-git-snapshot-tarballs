@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2011,2012,2013,2015 Olly Betts
+# Copyright (C) 2011,2012,2013,2015,2018 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -346,6 +346,7 @@ foreach my $ref (@ARGV) {
 	return if $_ eq 'NEWS.SKELETON';
 	return if $f eq 'README';
 	return if $f eq 'Vagrantfile';
+	return if $f eq '.appveyor.yml';
 	return if $f eq '.travis.yml';
 	return if $f eq '.clang-format';
 	return if /^Search-Xapian-\d+\.\d+\.\d+\.\d+\.tar\..z$/;
@@ -364,6 +365,9 @@ foreach my $ref (@ARGV) {
     open SIZELOG, ">>/home/olly/xapian-autobuild-stats.log";
     print SIZELOG "$ref\trev=$revision\tunstripped_so=$unstripped_so\tstripped_so=$stripped_so\n";
     close SIZELOG;
+
+    # Be more verbose about test failures.
+    $ENV{VERBOSE} = 1;
 
     # Need to set LD_LIBRARY_PATH so that e.g. omega run from omegatest finds
     # a suitable "libxapian.so".

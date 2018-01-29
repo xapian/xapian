@@ -16,6 +16,7 @@ noinst_HEADERS +=\
 	common/keyword.h\
 	common/log2.h\
 	common/msvc_dirent.h\
+	common/msvcignoreinvalidparam.h\
 	common/omassert.h\
 	common/output.h\
 	common/pack.h\

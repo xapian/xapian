@@ -30,6 +30,8 @@
 
 using namespace std;
 
+#define CACHE_DIRECTORY ".honey"
+
 string
 BackendManagerHoney::get_dbtype() const
 {
@@ -39,7 +41,7 @@ BackendManagerHoney::get_dbtype() const
 string
 BackendManagerHoney::createdb_honey(const vector<string> & files)
 {
-    string dbdir = ".honey";
+    string dbdir = CACHE_DIRECTORY;
     create_dir_if_needed(dbdir);
 
     string dbname = "db";
@@ -81,4 +83,10 @@ Xapian::WritableDatabase
 BackendManagerHoney::get_writable_database(const string &, const string &)
 {
     throw Xapian::UnimplementedError("Honey databases don't support writing");
+}
+
+string
+BackendManagerHoney::get_compaction_output_path(const string& name)
+{
+    return CACHE_DIRECTORY "/" + name;
 }

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,11 +38,19 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 
+#include "filetests.h"
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "unixcmds.h"
 
 using namespace std;
+
+[[noreturn]]
+static void
+invalid_operation(const char* msg)
+{
+    throw Xapian::InvalidOperationError(msg);
+}
 
 void
 BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
@@ -73,70 +81,6 @@ BackendManager::create_dir_if_needed(const string &dirname)
     return false; // Already a directory.
 }
 
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-Xapian::WritableDatabase
-BackendManager::getwritedb_inmemory(const vector<string> &files)
-{
-    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
-    index_files_to_database(db, files);
-    return db;
-}
-#endif
-
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-string
-BackendManager::createdb_glass(const vector<string> &files)
-{
-    string parent_dir = ".glass";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir + "/db";
-    for (vector<string>::const_iterator i = files.begin();
-	 i != files.end(); ++i) {
-	dbdir += '=';
-	dbdir += *i;
-    }
-    // If the database is readonly, we can reuse it if it exists.
-    if (create_dir_if_needed(dbdir)) {
-	// Directory was created, so do the indexing.
-	Xapian::WritableDatabase db(dbdir,
-		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS, 2048);
-	index_files_to_database(db, files);
-	db.commit();
-    }
-    return dbdir;
-}
-
-Xapian::WritableDatabase
-BackendManager::getwritedb_glass(const string & name,
-				 const vector<string> & files)
-{
-    string dbdir = getwritedb_glass_path(name);
-
-    // For a writable database we need to start afresh each time.
-    rm_rf(dbdir);
-    (void)create_dir_if_needed(dbdir);
-
-    // directory was created, so do the indexing.
-    Xapian::WritableDatabase db(dbdir,
-	    Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS, 2048);
-    index_files_to_database(db, files);
-    return db;
-}
-
-std::string
-BackendManager::getwritedb_glass_path(const string & name)
-{
-    string parent_dir = ".glass";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir;
-    dbdir += '/';
-    dbdir += name;
-    return dbdir;
-}
-#endif
-
 BackendManager::~BackendManager() { }
 
 std::string
@@ -148,7 +92,7 @@ BackendManager::get_dbtype() const
 string
 BackendManager::do_get_database_path(const vector<string> &)
 {
-    throw Xapian::InvalidArgumentError("Path isn't meaningful for this database type");
+    invalid_operation("Path isn't meaningful for this database type");
 }
 
 Xapian::Database
@@ -177,10 +121,20 @@ BackendManager::get_database(const std::string &dbname,
 {
     string dbleaf = "db__";
     dbleaf += dbname;
-    const string & path = get_writable_database_path(dbleaf);
-    try {
-	return Xapian::Database(path);
-    } catch (const Xapian::DatabaseOpeningError &) {
+    const string& path = get_generated_database_path(dbleaf);
+    if (path.empty()) {
+	// InMemory doesn't have a path but we want to support generated
+	// databases for it.
+	Xapian::WritableDatabase wdb = get_writable_database(path, path);
+	gen(wdb, arg);
+	return wdb;
+    }
+
+    if (path_exists(path)) {
+	try {
+	    return Xapian::Database(path);
+	} catch (const Xapian::DatabaseOpeningError &) {
+	}
     }
     rm_rf(path);
 
@@ -209,11 +163,13 @@ BackendManager::get_database_path(const std::string &dbname,
 {
     string dbleaf = "db__";
     dbleaf += dbname;
-    const string & path = get_writable_database_path(dbleaf);
-    try {
-	(void)Xapian::Database(path);
-	return path;
-    } catch (const Xapian::DatabaseOpeningError &) {
+    const string & path = get_generated_database_path(dbleaf);
+    if (path_exists(path)) {
+	try {
+	    (void)Xapian::Database(path);
+	    return path;
+	} catch (const Xapian::DatabaseOpeningError &) {
+	}
     }
     rm_rf(path);
 
@@ -247,19 +203,33 @@ BackendManager::get_database_path(const string & file)
 Xapian::WritableDatabase
 BackendManager::get_writable_database(const string &, const string &)
 {
-    throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
+    invalid_operation("Attempted to open a disabled database");
 }
 
 string
 BackendManager::get_writable_database_path(const std::string &)
 {
-    throw Xapian::InvalidArgumentError("Path isn't meaningful for this database type");
+    invalid_operation("Path isn't meaningful for this database type");
+}
+
+string
+BackendManager::get_compaction_output_path(const std::string&)
+{
+    invalid_operation("Compaction not supported for this database type");
+}
+
+string
+BackendManager::get_generated_database_path(const std::string &)
+{
+    invalid_operation("Generated databases aren't supported for this database "
+		      "type");
 }
 
 Xapian::Database
 BackendManager::get_remote_database(const vector<string> &, unsigned int)
 {
-    string msg = "BackendManager::get_remote_database() called for non-remote database (type is ";
+    string msg = "BackendManager::get_remote_database() called for non-remote "
+		 "database (type is ";
     msg += get_dbtype();
     msg += ')';
     throw Xapian::InvalidOperationError(msg);
@@ -268,10 +238,7 @@ BackendManager::get_remote_database(const vector<string> &, unsigned int)
 Xapian::Database
 BackendManager::get_writable_database_as_database()
 {
-    string msg = "Backend ";
-    msg += get_dbtype();
-    msg += " doesn't support get_writable_database_as_database()";
-    throw Xapian::InvalidOperationError(msg);
+    return Xapian::Database(get_writable_database_path_again());
 }
 
 Xapian::WritableDatabase
@@ -280,6 +247,15 @@ BackendManager::get_writable_database_again()
     string msg = "Backend ";
     msg += get_dbtype();
     msg += " doesn't support get_writable_database_again()";
+    throw Xapian::InvalidOperationError(msg);
+}
+
+string
+BackendManager::get_writable_database_path_again()
+{
+    string msg = "Backend ";
+    msg += get_dbtype();
+    msg += " doesn't support get_writable_database_path_again()";
     throw Xapian::InvalidOperationError(msg);
 }
 

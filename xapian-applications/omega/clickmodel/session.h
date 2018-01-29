@@ -28,7 +28,7 @@
 #define DOCIDS 1
 #define CLICKS 2
 
-/** 
+/**
  * Session class for handling search session data elements.
  */
 class Session {
@@ -41,8 +41,8 @@ class Session {
      * @param docids		Document ids in the search session.
      * @param clicks		Click information corresponding to the docids.
      */
-    void create_session (std::string qid, std::string docids,
-			 std::string clicks) {
+    void create_session(std::string qid, std::string docids,
+			std::string clicks) {
 	session.push_back(qid);
 	session.push_back(docids);
 	session.push_back(clicks);

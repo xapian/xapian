@@ -62,22 +62,20 @@ class AndMaybePostList : public WrapperPostList {
 	: WrapperPostList(left), r(right), db_size(db_size_), pltree(pltree_)
     {}
 
-    /// Construct as decay product from OrPostList.
+    /** Construct as decay product from OrPostList.
+     *
+     *  The first operation after such construction must be check() or
+     *  skip_to().
+     */
     AndMaybePostList(PostList* left,
 		     PostList* right,
+		     double lmax,
+		     double rmax,
 		     PostListTree* pltree_,
-		     Xapian::doccount db_size_,
-		     Xapian::docid lhead,
-		     Xapian::docid rhead)
-	: WrapperPostList(left), r(right), pl_did(lhead), r_did(rhead),
+		     Xapian::doccount db_size_)
+	: WrapperPostList(left), r(right), pl_max(lmax), r_max(rmax),
 	  db_size(db_size_), pltree(pltree_)
     {
-	// This should cause recalc_maxweight() to be called on the tree and
-	// that should set pl_max and r_max.
-	pltree->force_recalc();
-	// However, it seems that next(), etc can be called before that
-	// happens, so we need to recalc here explicitly.
-	(void)AndMaybePostList::recalc_maxweight();
     }
 
     ~AndMaybePostList() { delete r; }

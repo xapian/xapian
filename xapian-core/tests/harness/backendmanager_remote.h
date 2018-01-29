@@ -2,6 +2,7 @@
  * @brief BackendManager subclass for remote databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
+ * Copyright (C) 2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,15 +35,13 @@ class BackendManagerRemote : public BackendManager {
     /// Don't allow copying.
     BackendManagerRemote(const BackendManagerRemote &);
 
-    /// The path of the last writable database used.
-    std::string last_wdb_name;
-
   protected:
-    /// The type of the remote database to use.
-    std::string remote_type;
+    BackendManager* sub_manager;
 
   public:
-    BackendManagerRemote(const std::string & remote_type_);
+    explicit BackendManagerRemote(BackendManager* sub_manager_)
+	: BackendManager(std::string()),
+	  sub_manager(sub_manager_) {}
 
     /// Get the args for opening a remote database indexing a single file.
     std::string get_writable_database_args(const std::string & name,

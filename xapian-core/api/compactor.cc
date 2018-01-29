@@ -176,8 +176,8 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	string srcdir;
 	int type = shard->get_backend_info(&srcdir);
 	// Check destdir isn't the same as any source directory, unless it
-	// is a stub database.
-	if (!compact_to_stub && srcdir == destdir) {
+	// is a stub database or we're compacting to an fd.
+	if (!compact_to_stub && !destdir.empty() && srcdir == destdir) {
 	    throw InvalidArgumentError("destination may not be the same as "
 				       "any source database, unless it is a "
 				       "stub database");
