@@ -1,7 +1,7 @@
 /** @file honey_compact.cc
  * @brief Compact a honey database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1558,6 +1558,7 @@ void
 HoneyDatabase::compact(Xapian::Compactor* compactor,
 		       const char* destdir,
 		       int fd,
+		       int source_backend,
 		       const vector<const Xapian::Database::Internal*>& sources,
 		       const vector<Xapian::docid>& offset,
 		       size_t block_size,
@@ -1596,11 +1597,17 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	multipass = false;
     }
 
-    if (false && single_file) {
+    if (single_file) {
 	for (size_t i = 0; i != sources.size(); ++i) {
-	    // FIXME: could be glass now...
-	    auto db = static_cast<const HoneyDatabase*>(sources[i]);
-	    if (db->has_uncommitted_changes()) {
+	    bool has_uncommitted_changes;
+	    if (source_backend == Xapian::DB_BACKEND_GLASS) {
+		auto db = static_cast<const GlassDatabase*>(sources[i]);
+		has_uncommitted_changes = db->has_uncommitted_changes();
+	    } else {
+		auto db = static_cast<const HoneyDatabase*>(sources[i]);
+		has_uncommitted_changes = db->has_uncommitted_changes();
+	    }
+	    if (has_uncommitted_changes) {
 		const char * m =
 		    "Can't compact from a WritableDatabase with uncommitted "
 		    "changes - either call commit() first, or create a new "
@@ -1641,22 +1648,21 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 
     version_file_out->create(block_size);
     for (size_t i = 0; i != sources.size(); ++i) {
-	auto honey_db = dynamic_cast<const HoneyDatabase*>(sources[i]);
-	if (honey_db) {
-	    version_file_out->merge_stats(honey_db->version_file);
-	} else {
+	if (source_backend == Xapian::DB_BACKEND_GLASS) {
 #ifdef DISABLE_GPL_LIBXAPIAN
 	    Assert(false);
 #else
-	    auto glass_db = dynamic_cast<const GlassDatabase*>(sources[i]);
-	    Assert(glass_db != NULL);
-	    version_file_out->merge_stats(glass_db->version_file.get_doccount(),
-					  glass_db->version_file.get_doclength_lower_bound(),
-					  glass_db->version_file.get_doclength_upper_bound(),
-					  glass_db->version_file.get_wdf_upper_bound(),
-					  glass_db->version_file.get_total_doclen(),
-					  glass_db->version_file.get_spelling_wordfreq_upper_bound());
+	    auto db = static_cast<const GlassDatabase*>(sources[i]);
+	    version_file_out->merge_stats(db->version_file.get_doccount(),
+					  db->version_file.get_doclength_lower_bound(),
+					  db->version_file.get_doclength_upper_bound(),
+					  db->version_file.get_wdf_upper_bound(),
+					  db->version_file.get_total_doclen(),
+					  db->version_file.get_spelling_wordfreq_upper_bound());
 #endif
+	} else {
+	    auto db = static_cast<const HoneyDatabase*>(sources[i]);
+	    version_file_out->merge_stats(db->version_file);
 	}
     }
 
@@ -1669,9 +1675,11 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
     }
 #endif
 
-    // FIXME: ick
-if (true) {
-#ifndef DISABLE_GPL_LIBXAPIAN
+    // FIXME: sort out indentation.
+if (source_backend == Xapian::DB_BACKEND_GLASS) {
+#ifdef DISABLE_GPL_LIBXAPIAN
+    throw Xapian::FeatureUnavailableError("Glass backend disabled");
+#else
     vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
     off_t prev_size = block_size;
@@ -1938,8 +1946,8 @@ if (true) {
     for (unsigned j = 0; j != tabs.size(); ++j) {
 	delete tabs[j];
     }
-} else {
 #endif
+} else {
     vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
     off_t prev_size = block_size;

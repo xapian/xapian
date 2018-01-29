@@ -379,11 +379,13 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 		if (output_ptr) {
 		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
+					   Xapian::DB_BACKEND_GLASS,
 					   internals, offset,
 					   block_size, compaction, flags,
 					   last_docid);
 		} else {
 		    HoneyDatabase::compact(compactor, NULL, fd,
+					   Xapian::DB_BACKEND_GLASS,
 					   internals, offset,
 					   block_size, compaction, flags,
 					   last_docid);
@@ -407,11 +409,13 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 		if (output_ptr) {
 		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
+					   Xapian::DB_BACKEND_HONEY,
 					   internals, offset,
 					   block_size, compaction, flags,
 					   last_docid);
 		} else {
 		    HoneyDatabase::compact(compactor, NULL, fd,
+					   Xapian::DB_BACKEND_HONEY,
 					   internals, offset,
 					   block_size, compaction, flags,
 					   last_docid);
