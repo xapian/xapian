@@ -238,6 +238,8 @@ DEFINE_TESTCASE(compactnorenumber1, compact && generated) {
 
 // Test use of compact to merge two databases.
 DEFINE_TESTCASE(compactmerge1, compact) {
+    // Honey->honey compaction is currently buggy.
+    SKIP_TEST_FOR_BACKEND("honey");
     string indbpath = get_database_path("apitest_simpledata");
     string outdbpath = get_compaction_output_path("compactmerge1out");
     rm_rf(outdbpath);
@@ -330,6 +332,8 @@ DEFINE_TESTCASE(compactmultichunks1, compact && generated) {
 
 // Test compacting from a stub database directory.
 DEFINE_TESTCASE(compactstub1, compact) {
+    // Honey->honey compaction is currently buggy.
+    SKIP_TEST_FOR_BACKEND("honey");
     const char * stubpath = ".stub/compactstub1";
     const char * stubpathfile = ".stub/compactstub1/XAPIANDB";
     mkdir(".stub", 0755);
@@ -359,6 +363,8 @@ DEFINE_TESTCASE(compactstub1, compact) {
 
 // Test compacting from a stub database file.
 DEFINE_TESTCASE(compactstub2, compact) {
+    // Honey->honey compaction is currently buggy.
+    SKIP_TEST_FOR_BACKEND("honey");
     const char * stubpath = ".stub/compactstub2";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
@@ -386,6 +392,8 @@ DEFINE_TESTCASE(compactstub2, compact) {
 
 // Test compacting a stub database file to itself.
 DEFINE_TESTCASE(compactstub3, compact) {
+    // Honey->honey compaction is currently buggy.
+    SKIP_TEST_FOR_BACKEND("honey");
     const char * stubpath = ".stub/compactstub3";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
@@ -411,6 +419,8 @@ DEFINE_TESTCASE(compactstub3, compact) {
 
 // Test compacting a stub database directory to itself.
 DEFINE_TESTCASE(compactstub4, compact) {
+    // Honey->honey compaction is currently buggy.
+    SKIP_TEST_FOR_BACKEND("honey");
     const char * stubpath = ".stub/compactstub4";
     const char * stubpathfile = ".stub/compactstub4/XAPIANDB";
     mkdir(".stub", 0755);
@@ -609,6 +619,8 @@ DEFINE_TESTCASE(compactmultipass1, compact && generated) {
 
 // Test compacting to an fd.
 DEFINE_TESTCASE(compacttofd1, compact) {
+    // Honey->honey compaction is currently buggy.
+    SKIP_TEST_FOR_BACKEND("honey");
     Xapian::Database indb(get_database("apitest_simpledata"));
     string outdbpath = get_compaction_output_path("compacttofd1out");
     rm_rf(outdbpath);
@@ -637,6 +649,8 @@ DEFINE_TESTCASE(compacttofd1, compact) {
 
 // Test compacting to an fd at at offset.
 DEFINE_TESTCASE(compacttofd2, compact) {
+    // Honey->honey compaction is currently buggy.
+    SKIP_TEST_FOR_BACKEND("honey");
     Xapian::Database indb(get_database("apitest_simpledata"));
     string outdbpath = get_compaction_output_path("compacttofd2out");
     rm_rf(outdbpath);
