@@ -37,6 +37,9 @@
 /// Maximum B-tree block size.
 #define HONEY_MAX_BLOCKSIZE 65536
 
+/// Maximum key length.
+#define HONEY_MAX_KEY_LEN 255
+
 /** The largest docid value supported by honey.
  *
  *  The disk format supports 64-bit docids, but if Xapian::docid is narrower
