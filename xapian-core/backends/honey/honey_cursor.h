@@ -458,9 +458,8 @@ class HoneyCursor {
 	    std::cerr << "find_entry_lt(" << esc << ") @" << fh.get_pos() << std::endl;
 	}
 	// FIXME: use index
-	if (is_at_end || key < current_key) {
+	if (is_at_end || key <= current_key) {
 	    rewind();
-	    current_key.resize(0);
 	}
 
 	off_t pos;
