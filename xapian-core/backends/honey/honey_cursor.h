@@ -458,7 +458,15 @@ class HoneyCursor {
 	    std::cerr << "find_entry_lt(" << esc << ") @" << fh.get_pos() << std::endl;
 	}
 	// FIXME: use index
-	if (is_at_end || key <= current_key) {
+	int cmp = -1;
+	if (is_at_end || (cmp = key.compare(current_key)) <= 0) {
+	    if (cmp == 0 && rare(&key == &current_key)) {
+		// Avoid bug with this (which should step back one entry):
+		// cursor.find_entry_lt(cursor.current_key);
+		std::string copy = current_key;
+		find_entry_lt(copy);
+		return;
+	    }
 	    rewind();
 	}
 
