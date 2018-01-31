@@ -1749,6 +1749,11 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
     }
 #endif
 
+    // Set to true if stat() failed (which can happen if the files are > 2GB
+    // and off_t is 32 bit) or one of the totals overflowed.
+    bool bad_totals = false;
+    off_t in_total = 0, out_total = 0;
+
     // FIXME: sort out indentation.
 if (source_backend == Xapian::DB_BACKEND_GLASS) {
 #ifdef DISABLE_GPL_LIBXAPIAN
@@ -1823,18 +1828,21 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		    // FIXME: Find actual size somehow?
 		    // in_size += table->size() / 1024;
 		    single_file_in = true;
+		    bad_totals = true;
 		    output_will_exist = true;
 		    ++inputs_present;
 		}
 	    } else {
 		off_t db_size = file_size(table->get_path());
 		if (errno == 0) {
+		    // FIXME: check overflow and set bad_totals
+		    in_total += db_size;
 		    in_size += db_size / 1024;
 		    output_will_exist = true;
 		    ++inputs_present;
 		} else if (errno != ENOENT) {
 		    // We get ENOENT for an optional table.
-		    bad_stat = true;
+		    bad_totals = bad_stat = true;
 		    output_will_exist = true;
 		    ++inputs_present;
 		}
@@ -1940,9 +1948,11 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
+		// FIXME: check overflow and set bad_totals
+		out_total += db_size;
 		out_size = db_size / 1024;
-	    } else {
-		bad_stat = (errno != ENOENT);
+	    } else if (errno != ENOENT) {
+		bad_totals = bad_stat = true;
 	    }
 	}
 	if (bad_stat) {
@@ -2091,18 +2101,21 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		    // FIXME: Find actual size somehow?
 		    // in_size += table->size() / 1024;
 		    single_file_in = true;
+		    bad_totals = true;
 		    output_will_exist = true;
 		    ++inputs_present;
 		}
 	    } else {
 		off_t db_size = file_size(table->get_path());
 		if (errno == 0) {
+		    // FIXME: check overflow and set bad_totals
+		    in_total += db_size;
 		    in_size += db_size / 1024;
 		    output_will_exist = true;
 		    ++inputs_present;
 		} else if (errno != ENOENT) {
 		    // We get ENOENT for an optional table.
-		    bad_stat = true;
+		    bad_totals = bad_stat = true;
 		    output_will_exist = true;
 		    ++inputs_present;
 		}
@@ -2208,9 +2221,11 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
+		// FIXME: check overflow and set bad_totals
+		out_total += db_size;
 		out_size = db_size / 1024;
-	    } else {
-		bad_stat = (errno != ENOENT);
+	    } else if (errno != ENOENT) {
+		bad_totals = bad_stat = true;
 	    }
 	}
 	if (bad_stat) {
@@ -2282,4 +2297,33 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 }
 
     if (!single_file) lock.release();
+
+    if (!bad_totals && compactor) {
+	string status;
+	in_total /= 1024;
+	out_total /= 1024;
+	if (out_total == in_total) {
+	    status = "Size unchanged (";
+	} else {
+	    off_t delta;
+	    if (out_total < in_total) {
+		delta = in_total - out_total;
+		status = "Reduced by ";
+	    } else {
+		delta = out_total - in_total;
+		status = "INCREASED by ";
+	    }
+	    if (in_total) {
+		status += str(100 * delta / in_total);
+		status += "% ";
+	    }
+	    status += str(delta);
+	    status += "K (";
+	    status += str(in_total);
+	    status += "K -> ";
+	}
+	status += str(out_total);
+	status += "K)";
+	compactor->set_status("Total", status);
+    }
 }
