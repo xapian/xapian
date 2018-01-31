@@ -50,8 +50,9 @@
 using namespace std;
 
 /// Honey format version (date of change):
-#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,1,30)
-// 2018,1,30  1.5.0 More compact postlist chunk headers
+#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,1,31)
+// 2018,1,31  1.5.0 Special case postlist when termfreq==2
+// 2018,1,30        More compact postlist chunk headers
 // 2018,1,23        Elide last-first for single occurrence terms
 // 2018,1,4         Merge values used and terms used
 // 2018,1,3         Table start offset in RootInfo

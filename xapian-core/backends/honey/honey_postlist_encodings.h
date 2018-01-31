@@ -34,7 +34,7 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 {
     AssertRel(termfreq, !=,  0);
     pack_uint(out, first - 1);
-    if (--termfreq == 0) {
+    if (termfreq == 1) {
 	// Special case for a term which only occurs in one document.  By
 	// Zipf's Law we expect these to be common in natural language
 	// (typically 40-60% of words in a large corpus:
@@ -52,23 +52,24 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 	AssertEq(first, last);
 	AssertEq(last, chunk_last);
 	AssertEq(collfreq, first_wdf);
-#if 0 // FIXME: is this worthwhile?  It complicates decoding...
-    } else if (termfreq == 1) {
+    } else if (termfreq == 2) {
 	// A term which only occurs in two documents.  By Zipf's Law these
-	// are also fairly common (wikipedia suggests in a large corpus
-	// 40-60% of words occur just once and 10-15% occur twice:
-	// https://en.wikipedia.org/wiki/Hapax_legomenon )
-	pack_uint(out, termfreq);
+	// are also fairly common (typically 10-15% of words in a large
+	// corpus: https://en.wikipedia.org/wiki/Hapax_legomenon )
+	// We have to encode collfreq == 0 explicitly or else the decoder can't
+	// distinguish between the cases:
+	//  tf = 1; collfreq = x
+	//  tf = 2; last = first + x + 1; collfreq = 0
+	pack_uint(out, collfreq);
+	AssertRel(last, >, first);
 	pack_uint(out, last - first - 1);
 	if (collfreq) {
 	    pack_uint(out, first_wdf);
-	    pack_uint(out, collfreq - first_wdf);
 	}
-#endif
     } else {
 	pack_uint(out, collfreq);
-	pack_uint(out, termfreq);
-	pack_uint(out, last - first - termfreq);
+	pack_uint(out, termfreq - 3);
+	pack_uint(out, last - first - (termfreq - 1));
 	pack_uint(out, chunk_last - first);
 	if (collfreq == 0) {
 	    AssertEq(first_wdf, 0);
@@ -97,19 +98,43 @@ decode_initial_chunk_header(const char ** p, const char * end,
 	return false;
     }
     if (*p == end) {
+	// Single occurrence term.
 	termfreq = 1;
 	chunk_last = last = first;
 	first_wdf = collfreq;
 	return true;
     }
 
-    if (!unpack_uint(p, end, &termfreq) ||
-	!unpack_uint(p, end, &last) ||
-	!unpack_uint(p, end, &chunk_last)) {
+    if (!unpack_uint(p, end, &termfreq)) {
 	return false;
     }
-    last += first + termfreq;
-    ++termfreq;
+    if (*p == end) {
+	// Double occurrence boolean term.
+	// FIXME: Use non-zero value here to encode equal wdf?
+	AssertEq(collfreq, 0);
+	chunk_last = last = first + termfreq + 1;
+	termfreq = 2;
+	first_wdf = 0;
+	return true;
+    }
+
+    if (!unpack_uint(p, end, &last)) {
+	return false;
+    }
+    if (*p == end) {
+	// Double occurrence term.
+	Assert(collfreq != 0);
+	first_wdf = last;
+	chunk_last = last = first + termfreq + 1;
+	termfreq = 2;
+	return true;
+    }
+
+    if (!unpack_uint(p, end, &chunk_last)) {
+	return false;
+    }
+    termfreq += 3;
+    last += first + termfreq - 1;
     chunk_last += first;
 
     if (collfreq == 0) {
@@ -138,6 +163,7 @@ decode_initial_chunk_header_freqs(const char ** p, const char * end,
 	return false;
     }
     if (*p == end) {
+	// Single occurrence term.
 	termfreq = 1;
 	return true;
     }
@@ -145,7 +171,28 @@ decode_initial_chunk_header_freqs(const char ** p, const char * end,
     if (!unpack_uint(p, end, &termfreq)) {
 	return false;
     }
-    ++termfreq;
+    if (*p == end) {
+	// Double occurrence boolean term.
+	// FIXME: Use non-zero value here to encode equal wdf?
+	AssertEq(collfreq, 0);
+	termfreq = 2;
+	return true;
+    }
+
+    Xapian::docid last;
+    if (!unpack_uint(p, end, &last)) {
+	return false;
+    }
+    // Not used in this case.
+    (void)last;
+    if (*p == end) {
+	// Double occurrence term.
+	Assert(collfreq != 0);
+	termfreq = 2;
+	return true;
+    }
+
+    termfreq += 3;
 
     return true;
 }
@@ -174,7 +221,6 @@ decode_delta_chunk_header(const char ** p, const char * end,
     return true;
 }
 
-// FIXME: use these when cf == 0
 inline void
 encode_delta_chunk_header_bool(Xapian::docid chunk_first,
 			       Xapian::docid chunk_last,
@@ -183,7 +229,6 @@ encode_delta_chunk_header_bool(Xapian::docid chunk_first,
     pack_uint(out, chunk_last - chunk_first);
 }
 
-// FIXME: use these when cf == 0
 inline bool
 decode_delta_chunk_header_bool(const char ** p, const char * end,
 			       Xapian::docid chunk_last,

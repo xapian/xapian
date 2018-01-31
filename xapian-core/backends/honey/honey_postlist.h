@@ -85,9 +85,26 @@ class PostingChunkReader {
     /// The last docid in this chunk.
     Xapian::docid last_did;
 
+    Xapian::doccount termfreq;
+
+    Xapian::termcount collfreq;
+
   public:
-    /// Create a PostingChunkReader which is already at_end().
+    /// Create an uninitialised PostingChunkReader.
     PostingChunkReader() : p(NULL) { }
+
+    /// Initialise already at_end().
+    void init() {
+	p = NULL;
+	termfreq = 0;
+    }
+
+    /// Initialise.
+    void init(Xapian::doccount tf, Xapian::termcount cf) {
+	p = NULL;
+	termfreq = tf;
+	collfreq = cf;
+    }
 
     void assign(const char * p_, size_t len, Xapian::docid did);
 
@@ -96,6 +113,8 @@ class PostingChunkReader {
 		Xapian::termcount wdf_);
 
     bool at_end() const { return p == NULL; }
+
+    Xapian::doccount get_termfreq() const { return termfreq; }
 
     Xapian::docid get_docid() const { return did; }
 
@@ -122,8 +141,6 @@ class HoneyPostList : public LeafPostList {
     HoneyCursor* cursor;
 
     Honey::PostingChunkReader reader;
-
-    Xapian::doccount termfreq;
 
     /// The highest document id in this posting list.
     Xapian::docid last_did;

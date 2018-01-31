@@ -1,7 +1,7 @@
 /** @file honey_postlist.cc
  * @brief PostList in a honey database.
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,10 +52,11 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 {
     if (!cursor) {
 	// Term not present in db.
-	termfreq = 0;
+	reader.init();
 	last_did = 0;
 	return;
     }
+
     cursor->read_tag();
     const string& chunk = cursor->current_tag;
 
@@ -63,14 +64,16 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
     const char* pend = p + chunk.size();
     // FIXME: Make use of [first,last] ranges to calculate better estimates and
     // potentially to spot subqueries that can't match anything.
+    Xapian::doccount tf;
     Xapian::termcount cf;
     Xapian::docid first_did;
     Xapian::termcount first_wdf;
     Xapian::docid chunk_last;
-    if (!decode_initial_chunk_header(&p, pend, termfreq, cf,
+    if (!decode_initial_chunk_header(&p, pend, tf, cf,
 				     first_did, last_did,
 				     chunk_last, first_wdf))
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
+    reader.init(tf, cf);
     reader.assign(p, pend - p, first_did, last_did, first_wdf);
 }
 
@@ -82,7 +85,7 @@ HoneyPostList::~HoneyPostList()
 Xapian::doccount
 HoneyPostList::get_termfreq() const
 {
-    return termfreq;
+    return reader.get_termfreq();
 }
 
 LeafPostList*
@@ -147,7 +150,7 @@ HoneyPostList::next(double)
     if (reader.next())
 	return NULL;
 
-    if (get_docid() >= last_did) {
+    if (reader.get_docid() >= last_did) {
 	// We've reached the end.
 	delete cursor;
 	cursor = NULL;
@@ -247,11 +250,15 @@ PostingChunkReader::assign(const char * p_, size_t len,
 			   Xapian::docid chunk_last)
 {
     const char* pend = p_ + len;
-    if (!decode_delta_chunk_header(&p_, pend, chunk_last, did, wdf)) {
+    if (collfreq ?
+	!decode_delta_chunk_header(&p_, pend, chunk_last, did, wdf) :
+	!decode_delta_chunk_header_bool(&p_, pend, chunk_last, did)) {
 	throw Xapian::DatabaseCorruptError("Postlist delta chunk header");
     }
-    if ((pend - p_) % 8 != 0)
-	throw Xapian::DatabaseCorruptError("Postlist data length not a multiple of 8");
+    if (collfreq ?
+	(pend - p_) % 8 != 0 :
+	(pend - p_) % 4 != 0)
+	throw Xapian::DatabaseCorruptError("Postlist data length not a multiple of 8 (or 4 for boolean)");
     p = reinterpret_cast<const unsigned char*>(p_);
     end = reinterpret_cast<const unsigned char*>(pend);
     last_did = chunk_last;
@@ -263,8 +270,10 @@ PostingChunkReader::assign(const char * p_, size_t len, Xapian::docid did_,
 			   Xapian::termcount wdf_)
 {
     const char* pend = p_ + len;
-    if ((pend - p_) % 8 != 0)
-	throw Xapian::DatabaseCorruptError("Postlist data length not a multiple of 8");
+    if (collfreq ?
+	(pend - p_) % 8 != 0 :
+	(pend - p_) % 4 != 0)
+	throw Xapian::DatabaseCorruptError("Postlist data length not a multiple of 8 (or 4 for boolean)");
     p = reinterpret_cast<const unsigned char*>(p_);
     end = reinterpret_cast<const unsigned char*>(pend);
     did = did_;
@@ -276,6 +285,11 @@ bool
 PostingChunkReader::next()
 {
     if (p == end) {
+	if (termfreq == 2 && did != last_did) {
+	    did = last_did;
+	    wdf = collfreq - wdf;
+	    return true;
+	}
 	p = NULL;
 	return false;
     }
@@ -284,8 +298,10 @@ PostingChunkReader::next()
 
     // FIXME: Alignment guarantees?  Hard with header.
     did += unaligned_read4(p) + 1;
-    wdf = unaligned_read4(p + 4);
-    p += 8;
+    if (collfreq)
+	wdf = unaligned_read4(p + 4);
+    p += (collfreq ? 8 : 4);
+
     return true;
 }
 
@@ -303,10 +319,28 @@ PostingChunkReader::skip_to(Xapian::docid target)
 	return false;
     }
 
+    if (p == end) {
+	// Given the checks above, this must be the termfreq == 2 case with the
+	// current position being on the first entry, and so skip_to() must
+	// move to last_did.
+	AssertEq(termfreq, 2);
+	did = last_did;
+	wdf = collfreq - wdf;
+	return true;
+    }
+
     AssertEq((end - p) % 8, 0);
 
-    // FIXME: Special case target == last_did to just decode the wdf from the
-    // end?
+    if (target == last_did) {
+	if (collfreq == wdf) {
+	    // No need to decode wdf, it must be zero.
+	    wdf = 0;
+	    target = last_did;
+	    return true;
+	}
+	// FIXME: Special case target == last_did && collfreq != 0 to just decode
+	// the wdf from the end?
+    }
 
     do {
 	if (rare(p == end)) {
@@ -317,9 +351,12 @@ PostingChunkReader::skip_to(Xapian::docid target)
 
 	// FIXME: Alignment guarantees?  Hard with header.
 	did += unaligned_read4(p) + 1;
-	p += 8;
+	p += (collfreq ? 8 : 4);
     } while (target > did);
-    wdf = unaligned_read4(p - 4);
+
+    if (collfreq)
+	wdf = unaligned_read4(p - 4);
+
     return true;
 }
 
