@@ -36,12 +36,12 @@ using namespace std;
 bool
 HoneyPostList::update_reader()
 {
-    Xapian::docid first_did = docid_from_key(term, cursor->current_key);
-    if (!first_did) return false;
+    Xapian::docid chunk_last = docid_from_key(term, cursor->current_key);
+    if (!chunk_last) return false;
 
     cursor->read_tag();
     const string& tag = cursor->current_tag;
-    reader.assign(tag.data(), tag.size(), first_did);
+    reader.assign(tag.data(), tag.size(), chunk_last);
     return true;
 }
 
@@ -65,10 +65,13 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
     // potentially to spot subqueries that can't match anything.
     Xapian::termcount cf;
     Xapian::docid first_did;
+    Xapian::termcount first_wdf;
+    Xapian::docid chunk_last;
     if (!decode_initial_chunk_header(&p, pend, termfreq, cf,
-				     first_did, last_did))
+				     first_did, last_did,
+				     chunk_last, first_wdf))
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
-    reader.assign(p, pend - p, first_did);
+    reader.assign(p, pend - p, first_did, last_did, first_wdf);
 }
 
 HoneyPostList::~HoneyPostList()
@@ -134,116 +137,72 @@ HoneyPostList::open_position_list() const
 PostList*
 HoneyPostList::next(double)
 {
-    if (rare(!cursor)) {
-	// This happens for terms not present in db.
-	AssertEq(termfreq, 0);
+    if (!started) {
+	started = true;
 	return NULL;
     }
 
-    if (!reader.at_end()) {
-	reader.next();
-	if (!reader.at_end()) return NULL;
-	cursor->next();
+    Assert(!reader.at_end());
+
+    if (reader.next())
+	return NULL;
+
+    if (get_docid() >= last_did) {
+	// We've reached the end.
+	delete cursor;
+	cursor = NULL;
+	return NULL;
     }
 
-    if (!cursor->after_end()) {
-	if (update_reader()) {
-	    if (!reader.at_end()) return NULL;
-	}
-    }
+    if (rare(!cursor->next()))
+	throw Xapian::DatabaseCorruptError("Hit end of table looking for postlist chunk");
 
-    // We've reached the end.
-    delete cursor;
-    cursor = NULL;
+    if (rare(!update_reader()))
+	throw Xapian::DatabaseCorruptError("Missing postlist chunk");
+
     return NULL;
 }
 
 PostList*
 HoneyPostList::skip_to(Xapian::docid did, double)
 {
+    if (!started) {
+	started = true;
+    }
+
     if (rare(!cursor)) {
 	// No-op if already at_end.
 	return NULL;
     }
 
-    if (!reader.at_end()) {
-	reader.skip_to(did);
-	if (!reader.at_end()) return NULL;
-    }
+    Assert(!reader.at_end());
 
-    if (did > last_did) goto set_at_end;
-
-    if (!cursor->find_entry(make_postingchunk_key(term, did))) {
-	if (update_reader()) {
-	    reader.skip_to(did);
-	    if (!reader.at_end()) return NULL;
-	}
-	// The requested docid is between two chunks.
-	cursor->next();
-    }
-
-    // Either an exact match, or in a gap before the start of a chunk.
-    if (!cursor->after_end()) {
-	if (update_reader()) {
-	    if (!reader.at_end()) return NULL;
-	}
-    }
-
-set_at_end:
-    // We've reached the end.
-    delete cursor;
-    cursor = NULL;
-    return NULL;
-}
-
-PostList*
-HoneyPostList::check(Xapian::docid did, double, bool& valid)
-{
-    if (rare(!cursor)) {
-	// Already at_end.
-	valid = true;
+    if (reader.skip_to(did))
 	return NULL;
-    }
 
-    if (!reader.at_end()) {
-	// Check for the requested docid in the current block.
-	reader.skip_to(did);
-	if (!reader.at_end()) {
-	    valid = true;
-	    return NULL;
-	}
-    }
-
-    if (did > last_did) goto set_at_end;
-
-    // Try moving to the appropriate chunk.
-    if (!cursor->find_entry(make_postingchunk_key(term, did))) {
-	// We're in a chunk which might contain the docid.
-	if (update_reader()) {
-	    reader.skip_to(did);
-	    if (!reader.at_end()) {
-		valid = true;
-		return NULL;
-	    }
-	}
-
-set_at_end:
+    if (did > last_did) {
 	// We've reached the end.
 	delete cursor;
 	cursor = NULL;
-	valid = true;
 	return NULL;
     }
 
-    // We had an exact match for a chunk starting with specified docid.
-    Assert(!cursor->after_end());
-    if (!update_reader()) {
-	// We found the exact key we built so it must be a posting chunk.
-	// Therefore update_reader() "can't possibly fail".
-	Assert(false);
-    }
+    // At this point we know that skip_to() must succeed since last_did
+    // satisfies the requirements.
 
-    valid = true;
+    // find_entry_ge() returns true for an exact match, which isn't interesting
+    // here.
+    (void)cursor->find_entry_ge(make_postingchunk_key(term, did));
+
+    if (rare(cursor->after_end()))
+	throw Xapian::DatabaseCorruptError("Hit end of table looking for postlist chunk");
+
+    if (rare(!update_reader()))
+	throw Xapian::DatabaseCorruptError("Missing postlist chunk");
+
+    if (rare(!reader.skip_to(did)))
+	throw Xapian::DatabaseCorruptError("Postlist chunk doesn't contain its last entry");
+
     return NULL;
 }
 
@@ -284,68 +243,67 @@ HoneyPosPostList::get_description() const
 namespace Honey {
 
 void
-PostingChunkReader::assign(const char * p_, size_t len, Xapian::docid did_)
+PostingChunkReader::assign(const char * p_, size_t len,
+			   Xapian::docid chunk_last)
 {
-    Xapian::docid last_did_in_chunk;
     const char* pend = p_ + len;
-    if (!decode_delta_chunk_header(&p_, pend, did_, last_did_in_chunk)) {
+    if (!decode_delta_chunk_header(&p_, pend, chunk_last, did, wdf)) {
 	throw Xapian::DatabaseCorruptError("Postlist delta chunk header");
     }
-    if ((pend - p_) % 8 != 4)
-	throw Xapian::DatabaseCorruptError("Doclen data length not 4 more than a multiple of 8");
-    if (rare(p_ == pend)) {
-	p = NULL;
-	return;
-    }
+    if ((pend - p_) % 8 != 0)
+	throw Xapian::DatabaseCorruptError("Postlist data length not a multiple of 8");
+    p = reinterpret_cast<const unsigned char*>(p_);
+    end = reinterpret_cast<const unsigned char*>(pend);
+    last_did = chunk_last;
+}
+
+void
+PostingChunkReader::assign(const char * p_, size_t len, Xapian::docid did_,
+			   Xapian::docid last_did_in_chunk,
+			   Xapian::termcount wdf_)
+{
+    const char* pend = p_ + len;
+    if ((pend - p_) % 8 != 0)
+	throw Xapian::DatabaseCorruptError("Postlist data length not a multiple of 8");
     p = reinterpret_cast<const unsigned char*>(p_);
     end = reinterpret_cast<const unsigned char*>(pend);
     did = did_;
     last_did = last_did_in_chunk;
+    wdf = wdf_;
 }
 
-void
+bool
 PostingChunkReader::next()
 {
-    if ((end - p) % 8 != 0) {
-	// FIXME: Alignment guarantees?  Hard with header.
-	wdf = unaligned_read4(p);
-	p += 4;
-	return;
-    }
-
     if (p == end) {
 	p = NULL;
-	return;
+	return false;
     }
+
+    AssertEq((end - p) % 8, 0);
 
     // FIXME: Alignment guarantees?  Hard with header.
     did += unaligned_read4(p) + 1;
     wdf = unaligned_read4(p + 4);
     p += 8;
+    return true;
 }
 
-void
+bool
 PostingChunkReader::skip_to(Xapian::docid target)
 {
     if (p == NULL)
-	return;
-
-    if ((end - p) % 8 != 0) {
-	p += 4;
-	if (target <= did) {
-	    // FIXME: Alignment guarantees?  Hard with header.
-	    wdf = unaligned_read4(p - 4);
-	    return;
-	}
-    }
+	return false;
 
     if (target <= did)
-	return;
+	return true;
 
     if (target > last_did) {
 	p = NULL;
-	return;
+	return false;
     }
+
+    AssertEq((end - p) % 8, 0);
 
     // FIXME: Special case target == last_did to just decode the wdf from the
     // end?
@@ -354,7 +312,7 @@ PostingChunkReader::skip_to(Xapian::docid target)
 	if (rare(p == end)) {
 	    // FIXME: Shouldn't happen unless last_did was wrong.
 	    p = NULL;
-	    return;
+	    return false;
 	}
 
 	// FIXME: Alignment guarantees?  Hard with header.
@@ -362,6 +320,7 @@ PostingChunkReader::skip_to(Xapian::docid target)
 	p += 8;
     } while (target > did);
     wdf = unaligned_read4(p - 4);
+    return true;
 }
 
 }

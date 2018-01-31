@@ -68,8 +68,7 @@ HoneyPostListTable::get_freqs(const std::string& term,
     const char* pend = p + chunk.size();
     Xapian::doccount tf;
     Xapian::termcount cf;
-    Xapian::docid first, last;
-    if (!decode_initial_chunk_header(&p, pend, tf, cf, first, last))
+    if (!decode_initial_chunk_header_freqs(&p, pend, tf, cf))
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
     if (termfreq_ptr) *termfreq_ptr = tf;
     if (collfreq_ptr) *collfreq_ptr = cf;

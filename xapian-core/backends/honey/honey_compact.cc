@@ -293,7 +293,9 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
   public:
     string key, tag;
     Xapian::docid firstdid;
+    Xapian::docid chunk_lastdid;
     Xapian::termcount tf, cf;
+    Xapian::termcount first_wdf;
 
     PostlistCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0)
@@ -439,7 +441,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	d = tag.data();
 	e = d + tag.size();
 
-	// Convert posting chunk to honey format.
+	// Convert posting chunk to honey format, but without any header.
 	string newtag;
 
 	// Skip the "last chunk" flag; decode increase_to_last.
@@ -449,21 +451,21 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	Xapian::docid increase_to_last;
 	if (!unpack_uint(&d, e, &increase_to_last))
 	    throw Xapian::DatabaseCorruptError("Decoding last docid delta in glass posting chunk");
+	chunk_lastdid = firstdid + increase_to_last;
+	if (!unpack_uint(&d, e, &first_wdf))
+	    throw Xapian::DatabaseCorruptError("Decoding first wdf in glass posting chunk");
 
-	encode_delta_chunk_header(firstdid, firstdid + increase_to_last, newtag);
-	while (true) {
-	    Xapian::termcount wdf;
-	    if (!unpack_uint(&d, e, &wdf))
-		throw Xapian::DatabaseCorruptError("Decoding wdf glass posting chunk");
+	while (d != e) {
 	    unsigned char buf[4];
-	    unaligned_write4(buf, wdf);
-	    newtag.append(reinterpret_cast<char*>(buf), 4);
-	    if (d == e)
-		break;
 	    Xapian::docid delta;
 	    if (!unpack_uint(&d, e, &delta))
 		throw Xapian::DatabaseCorruptError("Decoding docid delta in glass posting chunk");
 	    unaligned_write4(buf, delta);
+	    newtag.append(reinterpret_cast<char*>(buf), 4);
+	    Xapian::termcount wdf;
+	    if (!unpack_uint(&d, e, &wdf))
+		throw Xapian::DatabaseCorruptError("Decoding wdf in glass posting chunk");
+	    unaligned_write4(buf, wdf);
 	    newtag.append(reinterpret_cast<char*>(buf), 4);
 	}
 
@@ -481,7 +483,9 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
   public:
     string key, tag;
     Xapian::docid firstdid;
+    Xapian::docid chunk_lastdid;
     Xapian::termcount tf, cf;
+    Xapian::termcount first_wdf;
 
     PostlistCursor(const HoneyTable *in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0)
@@ -552,26 +556,41 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    throw Xapian::DatabaseCorruptError("Bad postlist key");
 
 	if (d == e) {
-	    // This is an initial chunk for a term, so adjust tag header.
+	    // This is an initial chunk for a term, so remove tag header.
 	    d = tag.data();
 	    e = d + tag.size();
 
 	    Xapian::docid lastdid;
 	    if (!decode_initial_chunk_header(&d, e, tf, cf,
-					     firstdid, lastdid)) {
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
+					     firstdid, lastdid, chunk_lastdid,
+					     first_wdf)) {
+		throw Xapian::DatabaseCorruptError("Bad postlist initial chunk header");
 	    }
+	    // Ignore lastdid - we'll need to recalculate it (at least when
+	    // merging, and for simplicity we always do).
+	    (void)lastdid;
 	    tag.erase(0, d - tag.data());
 	} else {
-	    // Not an initial chunk, so adjust key.
+	    // Not an initial chunk, so adjust key and remove tag header.
 	    size_t tmp = d - key.data();
-	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e) {
+	    if (!unpack_uint_preserving_sort(&d, e, &chunk_lastdid) ||
+		d != e) {
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	    }
 	    // -1 to remove the terminating zero byte too.
 	    key.erase(tmp - 1);
+
+	    d = tag.data();
+	    e = d + tag.size();
+
+	    if (!decode_delta_chunk_header(&d, e, chunk_lastdid, firstdid,
+					   first_wdf)) {
+		throw Xapian::DatabaseCorruptError("Bad postlist delta chunk header");
+	    }
+	    tag.erase(0, d - tag.data());
 	}
 	firstdid += offset;
+	chunk_lastdid += offset;
 	return true;
     }
 };
@@ -777,7 +796,22 @@ merge_postlists(Xapian::Compactor * compactor,
     }
 
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
-    vector<pair<Xapian::docid, string> > tags;
+
+    struct HoneyPostListChunk {
+	Xapian::docid first, last;
+	Xapian::termcount first_wdf;
+	string data;
+
+	HoneyPostListChunk(Xapian::docid first_,
+			   Xapian::docid last_,
+			   Xapian::termcount first_wdf_,
+			   string&& data_)
+	    : first(first_),
+	      last(last_),
+	      first_wdf(first_wdf_),
+	      data(data_) {}
+    };
+    vector<HoneyPostListChunk> tags;
     while (true) {
 	cursor_type * cur = NULL;
 	if (!pq.empty()) {
@@ -787,34 +821,34 @@ merge_postlists(Xapian::Compactor * compactor,
 	Assert(cur == NULL || key_type(cur->key) == KEY_POSTING_CHUNK);
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
-		Xapian::docid last_did;
-		const string& last_tag = tags.back().second;
-		const char* p = last_tag.data();
-		const char* pend = p + last_tag.size();
-		if (!decode_delta_chunk_header(&p, pend,
-					       tags.back().first, last_did)) {
-		    throw Xapian::DatabaseCorruptError("Bad postlist delta chunk header");
-		}
+		Xapian::termcount first_wdf = tags[0].first_wdf;
+		Xapian::docid chunk_lastdid = tags[0].last;
+		Xapian::docid last_did = tags.back().last;
 
 		string first_tag;
 		encode_initial_chunk_header(tf, cf, tags[0].first, last_did,
-					    first_tag);
-		first_tag += tags[0].second;
+					    chunk_lastdid,
+					    first_wdf, first_tag);
+		first_tag += tags[0].data;
 		out->add(last_key, first_tag);
 
 		string term;
-		const char* p_ = last_key.data();
-		const char* end_ = p_ + last_key.size();
-		if (!unpack_string_preserving_sort(&p_, end_, term) ||
-		    p_ != end_) {
+		const char* p = last_key.data();
+		const char* end = p + last_key.size();
+		if (!unpack_string_preserving_sort(&p, end, term) ||
+		    p != end) {
 		    throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
 		}
 
-		vector<pair<Xapian::docid, string> >::const_iterator i;
-		i = tags.begin();
+		auto i = tags.begin();
 		while (++i != tags.end()) {
-		    const string& key = pack_honey_postlist_key(term, i->first);
-		    out->add(key, i->second);
+		    last_did = i->last;
+		    const string& key = pack_honey_postlist_key(term, last_did);
+		    string tag;
+		    encode_delta_chunk_header(i->first, last_did, i->first_wdf,
+					      tag);
+		    tag += i->data;
+		    out->add(key, i->data);
 		}
 	    }
 	    tags.clear();
@@ -824,7 +858,10 @@ merge_postlists(Xapian::Compactor * compactor,
 	}
 	tf += cur->tf;
 	cf += cur->cf;
-	tags.push_back(make_pair(cur->firstdid, cur->tag));
+	tags.push_back(HoneyPostListChunk(cur->firstdid,
+					  cur->chunk_lastdid,
+					  cur->first_wdf,
+					  std::move(cur->tag)));
 	if (cur->next()) {
 	    pq.push(cur);
 	} else {

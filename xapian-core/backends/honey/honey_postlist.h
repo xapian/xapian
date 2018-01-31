@@ -89,11 +89,11 @@ class PostingChunkReader {
     /// Create a PostingChunkReader which is already at_end().
     PostingChunkReader() : p(NULL) { }
 
-    PostingChunkReader(const char * p_, size_t len, Xapian::docid did_) {
-	assign(p_, len, did_);
-    }
+    void assign(const char * p_, size_t len, Xapian::docid did);
 
-    void assign(const char * p_, size_t len, Xapian::docid did_);
+    void assign(const char * p_, size_t len, Xapian::docid did_,
+		Xapian::docid last_did_in_chunk,
+		Xapian::termcount wdf_);
 
     bool at_end() const { return p == NULL; }
 
@@ -101,9 +101,11 @@ class PostingChunkReader {
 
     Xapian::termcount get_wdf() const { return wdf; }
 
-    void next();
+    /// Advance, returning false if we've run out of data.
+    bool next();
 
-    void skip_to(Xapian::docid target);
+    /// Skip ahead, returning false if we've run out of data.
+    bool skip_to(Xapian::docid target);
 };
 
 }
@@ -128,6 +130,12 @@ class HoneyPostList : public LeafPostList {
 
     /// HoneyDatabase to get position table object from.
     const HoneyDatabase* db;
+
+    /** Needed so that first next() does nothing.
+     *
+     *  FIXME: Can we arrange not to need this?
+     */
+    bool started = false;
 
     /// Update @a reader to use the chunk currently pointed to by @a cursor.
     bool update_reader();
@@ -156,8 +164,6 @@ class HoneyPostList : public LeafPostList {
     PostList* next(double w_min);
 
     PostList* skip_to(Xapian::docid did, double w_min);
-
-    PostList* check(Xapian::docid did, double w_min, bool& valid);
 
     std::string get_description() const;
 };

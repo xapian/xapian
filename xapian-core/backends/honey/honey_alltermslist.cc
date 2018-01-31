@@ -1,6 +1,6 @@
 /* honey_alltermslist.cc: A termlist containing all terms in a honey database.
  *
- * Copyright (C) 2005,2007,2008,2009,2010,2017 Olly Betts
+ * Copyright (C) 2005,2007,2008,2009,2010,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,11 +42,10 @@ HoneyAllTermsList::read_termfreq_and_collfreq() const
     // Unpack the termfreq and collfreq from the tag.  Only do this if
     // one or other is actually read.
     cursor->read_tag();
-    Xapian::docid first, last;
     const char *p = cursor->current_tag.data();
     const char *pend = p + cursor->current_tag.size();
-    if (!decode_initial_chunk_header(&p, pend,
-				     termfreq, collfreq, first, last)) {
+    if (!decode_initial_chunk_header_freqs(&p, pend,
+					   termfreq, collfreq)) {
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header not as expected");
     }
 }
