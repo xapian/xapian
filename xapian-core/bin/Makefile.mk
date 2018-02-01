@@ -54,6 +54,7 @@ bin_xapian_inspect_CPPFLAGS =\
 	-DXAPIAN_REALLY_NO_DEBUG_LOG\
 	-I$(top_srcdir)/backends/glass
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
+	api/constinfo.cc\
 	api/error.cc\
 	backends/glass/glass_changes.cc\
 	backends/glass/glass_cursor.cc\
@@ -73,12 +74,10 @@ bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
 if USE_PROC_FOR_UUID
 bin_xapian_inspect_SOURCES +=\
-	api/constinfo.cc\
 	common/proc_uuid.cc
 endif
 if USE_WIN32_UUID_API
 bin_xapian_inspect_SOURCES +=\
-	api/constinfo.cc\
 	common/win32_uuid.cc
 endif
 
