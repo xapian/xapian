@@ -145,6 +145,7 @@ show_help()
 	    "last   : Last entry (alias 'l')\n"
 	    "goto K : Goto entry with key K (alias 'g')\n"
 	    "until K: Display entries until key K (alias 'u')\n"
+	    "until  : Display entries until end (alias 'u')\n"
 	    "open T : Open table T instead (alias 'o') - e.g. open postlist\n"
 	    "keys   : Toggle showing keys (default: true) (alias 'k')\n"
 	    "tags   : Toggle showing tags (default: true) (alias 't')\n"
