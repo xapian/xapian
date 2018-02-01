@@ -1,7 +1,7 @@
 /** @file honey_termlisttable.cc
  * @brief Subclass of HoneyTable which holds termlists.
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,21 +43,16 @@ HoneyTermListTable::set_termlist(Xapian::docid did,
     LOGCALL_VOID(DB, "HoneyTermListTable::set_termlist", did | doc | doclen);
 
     Xapian::doccount termlist_size = doc.termlist_count();
-    if (rare(termlist_size == 0)) {
-	// doclen is sum(wdf) so should be zero if there are no terms.
-	Assert(doclen == 0);
-	Assert(doc.termlist_begin() == doc.termlist_end());
-	add(make_key(did), string());
-	return;
-    }
 
     string tag;
-    pack_uint(tag, doclen);
+    // FIXME: Need to encode value slots used here.  For now, just encode no
+    // slots as used.
+    tag += '\0';
 
-    Xapian::TermIterator t = doc.termlist_begin();
-    if (t != doc.termlist_end()) {
-	--termlist_size;
-	pack_uint(tag, termlist_size);
+    if (usual(termlist_size != 0)) {
+	pack_uint(tag, termlist_size - 1);
+	pack_uint(tag, doclen);
+	Xapian::TermIterator t = doc.termlist_begin();
 	string prev_term = *t;
 
 	tag += prev_term.size();
@@ -95,9 +90,16 @@ HoneyTermListTable::set_termlist(Xapian::docid did,
 	    tag.append(term.data() + reuse, term.size() - reuse);
 
 	    prev_term = *t;
-	    --termlist_size;
 	}
+    } else {
+	Assert(doclen == 0);
+	Assert(doc.termlist_begin() == doc.termlist_end());
     }
-    AssertEq(termlist_size, 0);
-    add(make_key(did), tag);
+
+    if (rare(tag.size() == 1 && tag[0] == '\0')) {
+	// No slots used or terms.
+	del(make_key(did));
+    } else {
+	add(make_key(did), tag);
+    }
 }

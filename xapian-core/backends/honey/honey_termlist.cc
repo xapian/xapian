@@ -1,7 +1,7 @@
 /** @file honey_termlist.cc
  * @brief A TermList in a honey database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,13 +55,23 @@ HoneyTermList::HoneyTermList(const HoneyDatabase* db_, Xapian::docid did_)
     pos = data.data();
     end = pos + data.size();
 
-    size_t slot_enc_size;
-    if (!unpack_uint(&pos, end, &slot_enc_size)) {
-	throw Xapian::DatabaseCorruptError("Termlist encoding corrupt");
-    }
+    if (pos == end)
+	throw_database_corrupt("No termlist data", pos);
 
-    // Skip encoded slot data.
-    pos += slot_enc_size;
+    size_t slot_enc_size = *pos++;
+
+    // If the top bit is clear we have a 7-bit bitmap of slots used.
+    if (slot_enc_size & 0x80) {
+	slot_enc_size &= 0x7f;
+	if (slot_enc_size == 0) {
+	    if (!unpack_uint(&pos, end, &slot_enc_size)) {
+		throw Xapian::DatabaseCorruptError("Termlist encoding corrupt");
+	    }
+	}
+
+	// Skip encoded slot data.
+	pos += slot_enc_size;
+    }
 
     if (pos == end) {
 	// Document with values but no terms.

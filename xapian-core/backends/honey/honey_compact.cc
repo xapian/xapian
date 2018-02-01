@@ -1518,6 +1518,7 @@ next_without_next:
 
 		bool next_result = cur.next();
 		bool next_already_done = true;
+		unsigned bitmap_slots_used = 0;
 		string encoded_slots_used;
 		if (next_result &&
 		    termlist_key_is_values_used(cur.current_key)) {
@@ -1547,16 +1548,23 @@ next_without_next:
 			slots.push_back(slot);
 		    }
 
-		    string enc;
-		    pack_uint(enc, last_slot);
-		    if (slots.size() > 1) {
-			BitWriter slots_used(enc);
-			slots_used.encode(first_slot, last_slot);
-			slots_used.encode(slots.size() - 2, last_slot - first_slot);
-			slots_used.encode_interpolative(slots, 0, slots.size() - 1);
-			encoded_slots_used = slots_used.freeze();
+		    if (slots.back() <= 6) {
+			// Encode as a bitmap if only slots in the range 0-6 are used.
+			for (auto slot : slots) {
+			    bitmap_slots_used |= 1 << slot;
+			}
 		    } else {
-			encoded_slots_used = std::move(enc);
+			string enc;
+			pack_uint(enc, last_slot);
+			if (slots.size() > 1) {
+			    BitWriter slots_used(enc);
+			    slots_used.encode(first_slot, last_slot);
+			    slots_used.encode(slots.size() - 2, last_slot - first_slot);
+			    slots_used.encode_interpolative(slots, 0, slots.size() - 1);
+			    encoded_slots_used = slots_used.freeze();
+			} else {
+			    encoded_slots_used = std::move(enc);
+			}
 		    }
 		}
 
@@ -1564,8 +1572,18 @@ next_without_next:
 		const char* end = pos + tag.size();
 
 		string newtag;
-		pack_uint(newtag, encoded_slots_used.size());
-		newtag += encoded_slots_used;
+		if (encoded_slots_used.empty()) {
+		    newtag += char(bitmap_slots_used);
+		} else {
+		    auto size = encoded_slots_used.size();
+		    if (size < 0x80) {
+			newtag += char(0x80 | size);
+		    } else {
+			newtag += '\x80';
+			pack_uint(newtag, size);
+		    }
+		    newtag += encoded_slots_used;
+		}
 
 		if (pos != end) {
 		    Xapian::termcount doclen;

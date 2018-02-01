@@ -1,7 +1,7 @@
 /** @file honey_values.cc
  * @brief HoneyValueManager class
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2016,2017 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2016,2017,2018 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -541,12 +541,27 @@ HoneyValueManager::get_all_values(map<Xapian::valueno, string> & values,
 
     const char* p = s.data();
     const char* end = p + s.size();
-    size_t slot_enc_size;
-    if (!unpack_uint(&p, end, &slot_enc_size)) {
-	throw Xapian::DatabaseCorruptError("Termlist encoding corrupt");
-    }
-    if (slot_enc_size == 0)
+    size_t slot_enc_size = *p++;
+
+    if ((slot_enc_size & 0x80) == 0) {
+	// If the top bit is clear we have a 7-bit bitmap of slots used.
+	Xapian::valueno slot = 0;
+	while (slot_enc_size) {
+	    if (slot_enc_size & 1) {
+		values.insert(make_pair(slot, get_value(did, slot)));
+	    }
+	    ++slot;
+	    slot_enc_size >>= 1;
+	}
 	return;
+    }
+
+    slot_enc_size &= 0x7f;
+    if (slot_enc_size == 0) {
+	if (!unpack_uint(&p, end, &slot_enc_size)) {
+	    throw Xapian::DatabaseCorruptError("Termlist encoding corrupt");
+	}
+    }
 
     end = p + slot_enc_size;
     Xapian::valueno last_slot;
