@@ -75,8 +75,8 @@ docid_from_key(const std::string& term, const std::string& key)
 }
 
 class PostingChunkReader {
-    unsigned const char *p;
-    unsigned const char *end;
+    const char *p;
+    const char *end;
 
     Xapian::docid did;
 

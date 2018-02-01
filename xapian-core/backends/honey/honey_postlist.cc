@@ -26,7 +26,7 @@
 #include "honey_database.h"
 #include "honey_positionlist.h"
 #include "honey_postlist_encodings.h"
-#include "wordaccess.h"
+#include "pack.h"
 
 #include <string>
 
@@ -255,12 +255,8 @@ PostingChunkReader::assign(const char * p_, size_t len,
 	!decode_delta_chunk_header_bool(&p_, pend, chunk_last, did)) {
 	throw Xapian::DatabaseCorruptError("Postlist delta chunk header");
     }
-    if (collfreq ?
-	(pend - p_) % 8 != 0 :
-	(pend - p_) % 4 != 0)
-	throw Xapian::DatabaseCorruptError("Postlist data length not a multiple of 8 (or 4 for boolean)");
-    p = reinterpret_cast<const unsigned char*>(p_);
-    end = reinterpret_cast<const unsigned char*>(pend);
+    p = p_;
+    end = pend;
     last_did = chunk_last;
 }
 
@@ -269,13 +265,8 @@ PostingChunkReader::assign(const char * p_, size_t len, Xapian::docid did_,
 			   Xapian::docid last_did_in_chunk,
 			   Xapian::termcount wdf_)
 {
-    const char* pend = p_ + len;
-    if (collfreq ?
-	(pend - p_) % 8 != 0 :
-	(pend - p_) % 4 != 0)
-	throw Xapian::DatabaseCorruptError("Postlist data length not a multiple of 8 (or 4 for boolean)");
-    p = reinterpret_cast<const unsigned char*>(p_);
-    end = reinterpret_cast<const unsigned char*>(pend);
+    p = p_;
+    end = p_ + len;
     did = did_;
     last_did = last_did_in_chunk;
     wdf = wdf_;
@@ -294,13 +285,16 @@ PostingChunkReader::next()
 	return false;
     }
 
-    AssertEq((end - p) % 8, 0);
-
-    // FIXME: Alignment guarantees?  Hard with header.
-    did += unaligned_read4(p) + 1;
-    if (collfreq)
-	wdf = unaligned_read4(p + 4);
-    p += (collfreq ? 8 : 4);
+    Xapian::docid delta;
+    if (!unpack_uint(&p, end, &delta)) {
+	throw Xapian::DatabaseCorruptError("postlist docid delta");
+    }
+    did += delta + 1;
+    if (collfreq) {
+	if (!unpack_uint(&p, end, &wdf)) {
+	    throw Xapian::DatabaseCorruptError("postlist wdf");
+	}
+    }
 
     return true;
 }
@@ -329,8 +323,6 @@ PostingChunkReader::skip_to(Xapian::docid target)
 	return true;
     }
 
-    AssertEq((end - p) % 8, 0);
-
     if (target == last_did) {
 	if (collfreq == wdf) {
 	    // No need to decode wdf, it must be zero.
@@ -349,13 +341,17 @@ PostingChunkReader::skip_to(Xapian::docid target)
 	    return false;
 	}
 
-	// FIXME: Alignment guarantees?  Hard with header.
-	did += unaligned_read4(p) + 1;
-	p += (collfreq ? 8 : 4);
+	Xapian::docid delta;
+	if (!unpack_uint(&p, end, &delta)) {
+	    throw Xapian::DatabaseCorruptError("postlist docid delta");
+	}
+	did += delta + 1;
+	if (collfreq) {
+	    if (!unpack_uint(&p, end, &wdf)) {
+		throw Xapian::DatabaseCorruptError("postlist wdf");
+	    }
+	}
     } while (target > did);
-
-    if (collfreq)
-	wdf = unaligned_read4(p - 4);
 
     return true;
 }

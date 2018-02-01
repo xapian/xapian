@@ -456,17 +456,14 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    throw Xapian::DatabaseCorruptError("Decoding first wdf in glass posting chunk");
 
 	while (d != e) {
-	    unsigned char buf[4];
 	    Xapian::docid delta;
 	    if (!unpack_uint(&d, e, &delta))
 		throw Xapian::DatabaseCorruptError("Decoding docid delta in glass posting chunk");
-	    unaligned_write4(buf, delta);
-	    newtag.append(reinterpret_cast<char*>(buf), 4);
+	    pack_uint(newtag, delta);
 	    Xapian::termcount wdf;
 	    if (!unpack_uint(&d, e, &wdf))
 		throw Xapian::DatabaseCorruptError("Decoding wdf in glass posting chunk");
-	    unaligned_write4(buf, wdf);
-	    newtag.append(reinterpret_cast<char*>(buf), 4);
+	    pack_uint(newtag, wdf);
 	}
 
 	swap(tag, newtag);
@@ -876,9 +873,18 @@ merge_postlists(Xapian::Compactor * compactor,
 			    encode_delta_chunk_header_bool(i->first,
 							   last_did,
 							   tag);
-			    // Only copy over the docid deltas, not the wdfs.
-			    for (size_t j = 0; j < i->data.size(); j += 8) {
-				tag.append(i->data, j, 4);
+			    const char* pos = i->data.data();
+			    const char* pos_end = pos + i->data.size();
+			    while (pos != pos_end) {
+				Xapian::docid delta;
+				if (!unpack_uint(&pos, pos_end, &delta))
+				    throw Xapian::DatabaseCorruptError("Decoding docid delta");
+				pack_uint(tag, delta);
+				Xapian::termcount wdf;
+				if (!unpack_uint(&pos, pos_end, &wdf))
+				    throw Xapian::DatabaseCorruptError("Decoding wdf");
+				// Only copy over the docid deltas, not the wdfs.
+				(void)wdf;
 			    }
 			}
 
