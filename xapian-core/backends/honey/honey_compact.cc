@@ -103,7 +103,6 @@ is_doclenchunk_key(const string & key)
 }
 
 }
-#endif
 
 inline static bool
 termlist_key_is_values_used(const string& key)
@@ -119,6 +118,7 @@ termlist_key_is_values_used(const string& key)
     }
     throw Xapian::DatabaseCorruptError("termlist key format");
 }
+#endif
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
 // the same name in other flint-derived backends.
