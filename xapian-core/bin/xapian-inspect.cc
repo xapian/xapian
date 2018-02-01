@@ -78,6 +78,63 @@ display_nicely(const string & data) {
     }
 }
 
+// Reverse display_nicely() encoding.
+static string
+unescape(const string& s)
+{
+    auto bslash = s.find('\\');
+    if (bslash == string::npos)
+	return s;
+    string r(s, 0, bslash);
+    for (auto i = s.begin() + bslash; i != s.end(); ++i) {
+	char ch = *i;
+	if (ch == '\\') {
+	    if (++i == s.end())
+		goto bad_escaping;
+	    ch = *i;
+	    switch (ch) {
+		case '\\':
+		    break;
+		case '0':
+		    // \0 is not output by display_nicely(), but would
+		    // reasonably be expected to work.
+		    ch = '\0';
+		    break;
+		case 'n':
+		    ch = '\n';
+		    break;
+		case 'r':
+		    ch = '\r';
+		    break;
+		case 't':
+		    ch = '\t';
+		    break;
+		case 'x': {
+		    if (++i == s.end())
+			goto bad_escaping;
+		    char ch1 = *i;
+		    if (++i == s.end())
+			goto bad_escaping;
+		    char ch2 = *i;
+		    if (!C_isxdigit(ch1) || !C_isxdigit(ch2))
+			goto bad_escaping;
+		    ch = hex_digit(ch1) << 4 | hex_digit(ch2);
+		    break;
+		}
+		default:
+		    goto bad_escaping;
+	    }
+	}
+	r += ch;
+    }
+    return r;
+
+bad_escaping:
+    cout << "Bad escaping in specified key value, assuming literal"
+	<< endl;
+    return s;
+}
+
 static void
 show_help()
 {
@@ -314,10 +371,10 @@ wait_for_input:
 		}
 		continue;
 	    } else if (startswith(input, "u ")) {
-		do_until(cursor, input.substr(2));
+		do_until(cursor, unescape(input.substr(2)));
 		goto wait_for_input;
 	    } else if (startswith(input, "until ")) {
-		do_until(cursor, input.substr(6));
+		do_until(cursor, unescape(input.substr(6)));
 		goto wait_for_input;
 	    } else if (input == "u" || input == "until") {
 		do_until(cursor, string());
@@ -333,12 +390,12 @@ wait_for_input:
 		cursor.find_entry(string(GLASS_BTREE_MAX_KEY_LEN, '\xff'));
 		continue;
 	    } else if (startswith(input, "g ")) {
-		if (!cursor.find_entry(input.substr(2))) {
+		if (!cursor.find_entry(unescape(input.substr(2)))) {
 		    cout << "No exact match, going to entry before." << endl;
 		}
 		continue;
 	    } else if (startswith(input, "goto ")) {
-		if (!cursor.find_entry(input.substr(5))) {
+		if (!cursor.find_entry(unescape(input.substr(5)))) {
 		    cout << "No exact match, going to entry before." << endl;
 		}
 		continue;
