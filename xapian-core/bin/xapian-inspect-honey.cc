@@ -193,23 +193,27 @@ do_until(HoneyCursor & cursor, const string & target)
 	}
     }
 
+    size_t count = 0;
     while (cursor.next()) {
 	int cmp = 1;
 	if (!target.empty()) {
 	    cmp = target.compare(cursor.current_key);
 	    if (cmp < 0) {
-		cout << "No exact match, stopping at entry before." << endl;
+		cout << "No exact match, stopping at entry before, "
+			"having advanced by " << count << " entries." << endl;
 		cursor.find_entry_lt(cursor.current_key);
 		return;
 	    }
 	}
+	++count;
 	show_entry(cursor);
 	if (cmp == 0) {
+	    cout << "Advanced by " << count << " entries." << endl;
 	    return;
 	}
     }
 
-    cout << "Reached end." << endl;
+    cout << "Reached end, having advanced by " << count << " entries." << endl;
 }
 
 int
