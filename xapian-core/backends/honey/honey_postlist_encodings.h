@@ -56,14 +56,30 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 	// A term which only occurs in two documents.  By Zipf's Law these
 	// are also fairly common (typically 10-15% of words in a large
 	// corpus: https://en.wikipedia.org/wiki/Hapax_legomenon )
+	//
 	// We have to encode collfreq == 0 explicitly or else the decoder can't
 	// distinguish between the cases:
+	//
 	//  tf = 1; collfreq = x
 	//  tf = 2; last = first + x + 1; collfreq = 0
+	//
+	// We turn this to our advantage to encode tf = 2 lists with constant
+	// wdf or where the second wdf is one more than the first (which are
+	// common cases) more compactly, so instead of:
+	//
+	// <first - 1> <collfreq> <last - first - 1> <first_wdf>
+	//
+	// We encode these as:
+	//
+	// <first - 1> <collfreq> <last - first - 1>
+	//
+	// And then when its omitted: first_wdf = collfreq >> 1
+	//
+	// The collfreq = 0 case is then a particular example of this.
 	pack_uint(out, collfreq);
 	AssertRel(last, >, first);
 	pack_uint(out, last - first - 1);
-	if (collfreq) {
+	if (first_wdf != (collfreq / 2)) {
 	    pack_uint(out, first_wdf);
 	}
     } else {
@@ -109,12 +125,10 @@ decode_initial_chunk_header(const char ** p, const char * end,
 	return false;
     }
     if (*p == end) {
-	// Double occurrence boolean term.
-	// FIXME: Use non-zero value here to encode equal wdf?
-	AssertEq(collfreq, 0);
+	// Double occurrence boolean term with first_wdf = floor(collfreq / 2).
 	chunk_last = last = first + termfreq + 1;
 	termfreq = 2;
-	first_wdf = 0;
+	first_wdf = collfreq / 2;
 	return true;
     }
 

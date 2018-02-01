@@ -50,8 +50,9 @@
 using namespace std;
 
 /// Honey format version (date of change):
-#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,2,1)
-// 2018,2,1   1.5.0 pack_uint for postlist data
+#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,2,2)
+// 2018,2,2   1.5.0 special case tf=2; first_wdf = floor(collfreq/2)
+// 2018,2,1         pack_uint for postlist data
 // 2018,1,31        Special case postlist when termfreq==2
 // 2018,1,30        More compact postlist chunk headers
 // 2018,1,23        Elide last-first for single occurrence terms
