@@ -59,6 +59,7 @@ bin_xapian_inspect_CPPFLAGS =\
 	-DXAPIAN_REALLY_NO_DEBUG_LOG\
 	-I$(top_srcdir)/backends/glass
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
+	api/constinfo.cc\
 	api/error.cc\
 	backends/glass/glass_changes.cc\
 	backends/glass/glass_cursor.cc\
@@ -79,6 +80,7 @@ bin_xapian_inspect_honey_CPPFLAGS =\
 	-DXAPIAN_REALLY_NO_DEBUG_LOG\
 	-I$(top_srcdir)/backends/honey
 bin_xapian_inspect_honey_SOURCES = bin/xapian-inspect-honey.cc\
+	api/constinfo.cc\
 	api/error.cc\
 	backends/honey/honey_changes.cc\
 	backends/honey/honey_cursor.cc\
@@ -99,18 +101,14 @@ bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
 bin_xapian_inspect_honey_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
 if USE_PROC_FOR_UUID
 bin_xapian_inspect_SOURCES +=\
-	api/constinfo.cc\
 	common/proc_uuid.cc
 bin_xapian_inspect_honey_SOURCES +=\
-	api/constinfo.cc\
 	common/proc_uuid.cc
 endif
 if USE_WIN32_UUID_API
 bin_xapian_inspect_SOURCES +=\
-	api/constinfo.cc\
 	common/win32_uuid.cc
 bin_xapian_inspect_honey_SOURCES +=\
-	api/constinfo.cc\
 	common/win32_uuid.cc
 endif
 
