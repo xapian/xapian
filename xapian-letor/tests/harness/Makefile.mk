@@ -22,6 +22,7 @@ noinst_HEADERS +=\
 	harness/testutils.h
 
 testharness_sources =\
+	../common/errno_to_string.cc\
 	harness/backendmanager.cc\
 	harness/backendmanager_multi.cc\
 	harness/cputimer.cc\

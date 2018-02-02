@@ -501,6 +501,9 @@ AC_TRY_COMPILE([#include <setjmp.h>],
   AC_MSG_RESULT([yes]),
   AC_MSG_RESULT([no]))
 
+dnl Used by tests/harness/unixcmd.cc
+AC_CHECK_FUNCS([nftw])
+
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
   [case ${enableval} in
