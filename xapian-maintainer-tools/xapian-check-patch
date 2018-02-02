@@ -122,6 +122,7 @@ while (<>) {
 	    $fnm !~ m!\bcdb! &&
 	    $fnm !~ m!/testdata/etext\.txt$!;
 	$check_space_tab =
+	    $fnm !~ /\.patch$/ &&
 	    $fnm !~ /\.sbl$/;
 	# print STDERR "$fnm: lang=" . ($lang // "UNKNOWN") . "\;
 	next;
