@@ -211,7 +211,8 @@ class HoneyDatabase : public Xapian::Database::Internal {
      *
      *  @return		A new document object, owned by the caller.
      */
-    Xapian::Document::Internal* open_document(Xapian::docid did, bool lazy) const;
+    Xapian::Document::Internal* open_document(Xapian::docid did,
+					      bool lazy) const;
 
     /** Create a termlist tree from trigrams of @a word.
      *

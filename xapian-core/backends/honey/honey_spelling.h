@@ -45,7 +45,7 @@ struct fragment {
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
 
-    operator std::string () const {
+    operator std::string() const {
 	return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 
@@ -123,7 +123,8 @@ class HoneySpellingTable : public HoneyLazyTable {
 	return wordfreq_upper_bound;
     }
 
-    void cancel(const Honey::RootInfo & root_info, honey_revision_number_t rev) {
+    void cancel(const Honey::RootInfo & root_info,
+		honey_revision_number_t rev) {
 	// Discard batched-up changes.
 	wordfreq_changes.clear();
 	termlist_deltas.clear();

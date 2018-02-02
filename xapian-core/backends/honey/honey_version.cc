@@ -158,8 +158,10 @@ HoneyVersion::read()
     memcpy(uuid, p, 16);
     p += 16;
 
-    if (!unpack_uint(&p, end, &rev))
-	throw Xapian::DatabaseCorruptError("Rev file failed to decode revision");
+    if (!unpack_uint(&p, end, &rev)) {
+	throw Xapian::DatabaseCorruptError("Rev file failed to decode "
+					   "revision");
+    }
 
     for (unsigned table_no = 0; table_no < Honey::MAX_; ++table_no) {
 	if (!root[table_no].unserialise(&p, end)) {
@@ -328,10 +330,13 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
 	else
 	    tmpfile += "/v.tmp";
 
-	fd = posixy_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
-	if (rare(fd < 0))
-	    throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
-					       errno);
+	int open_flags = O_CREAT|O_TRUNC|O_WRONLY|O_BINARY;
+	fd = posixy_open(tmpfile.c_str(), open_flags, 0666);
+	if (rare(fd < 0)) {
+	    string msg = "Couldn't write new rev file: ";
+	    msg += tmpfile;
+	    throw Xapian::DatabaseOpeningError(msg, errno);
+	}
 
 	if (flags & Xapian::DB_DANGEROUS)
 	    tmpfile = string();

@@ -56,7 +56,8 @@ HoneyTable::open(int flags_, const RootInfo& root_info, honey_revision_number_t)
     root = root_info.get_root();
     if (!single_file() && !fh.open(path, read_only)) {
 	if (!lazy)
-	    throw Xapian::DatabaseOpeningError("Failed to open HoneyTable", errno);
+	    throw Xapian::DatabaseOpeningError("Failed to open HoneyTable",
+					       errno);
     }
     fh.set_pos(offset);
 }
@@ -80,7 +81,8 @@ HoneyTable::add(const std::string& key,
     if (read_only)
 	throw Xapian::InvalidOperationError("add() on read-only HoneyTable");
     if (key.size() == 0 || key.size() > HONEY_MAX_KEY_LEN)
-	throw Xapian::InvalidArgumentError("Invalid key size: " + str(key.size()));
+	throw Xapian::InvalidArgumentError("Invalid key size: " +
+					   str(key.size()));
     if (key <= last_key)
 	throw Xapian::InvalidOperationError("New key <= previous key");
     if (!last_key.empty()) {
@@ -127,7 +129,7 @@ HoneyTable::commit(honey_revision_number_t, RootInfo* root_info)
     // Not really meaningful.
     root_info->set_blocksize(2048);
     // Not really meaningful.
-    //root_info->set_free_list(std::string());
+    // root_info->set_free_list(std::string());
 
     read_only = true;
     fh.rewind(offset);
@@ -135,7 +137,9 @@ HoneyTable::commit(honey_revision_number_t, RootInfo* root_info)
 }
 
 bool
-HoneyTable::read_item(std::string& key, std::string& val, bool& compressed) const
+HoneyTable::read_item(std::string& key,
+		      std::string& val,
+		      bool& compressed) const
 {
     if (!read_only) {
 	return false;
@@ -153,12 +157,16 @@ HoneyTable::read_item(std::string& key, std::string& val, bool& compressed) cons
     if (!last_key.empty()) {
 	reuse = ch;
 	ch = fh.read();
-	if (ch == EOF) throw Xapian::DatabaseError("EOF/error while reading key length", errno);
+	if (ch == EOF) {
+	    throw Xapian::DatabaseError("EOF/error while reading key length",
+					errno);
+	}
     }
     size_t key_size = ch;
     char buf[256];
     if (!fh.read(buf, key_size))
-	throw Xapian::DatabaseError("read of " + str(key_size) + " bytes of key data failed", errno);
+	throw Xapian::DatabaseError("read of " + str(key_size) + " bytes of "
+				    "key data failed", errno);
     key.assign(last_key, 0, reuse);
     key.append(buf, key_size);
     last_key = key;
@@ -197,7 +205,8 @@ HoneyTable::read_item(std::string& key, std::string& val, bool& compressed) cons
     AssertRel(fh.get_pos() + val_size, <=, root);
     val.resize(val_size);
     if (!fh.read(&(val[0]), val_size))
-	throw Xapian::DatabaseError("read of " + str(val_size) + " bytes of value data from table failed", errno);
+	throw Xapian::DatabaseError("read of " + str(val_size) + " bytes of "
+				    "value data from table failed", errno);
 
     if (false) {
 	std::string esc;

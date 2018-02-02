@@ -32,7 +32,7 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 			    Xapian::termcount first_wdf,
 			    std::string & out)
 {
-    AssertRel(termfreq, !=,  0);
+    AssertRel(termfreq, !=, 0);
     pack_uint(out, first - 1);
     if (termfreq == 1) {
 	// Special case for a term which only occurs in one document.  By

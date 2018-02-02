@@ -108,12 +108,15 @@ class HoneyCursor {
 	if (!last_key.empty()) {
 	    reuse = ch;
 	    ch = fh.read();
-	    if (ch == EOF) throw Xapian::DatabaseError("EOF/error while reading key length", errno);
+	    if (ch == EOF)
+		throw Xapian::DatabaseError("EOF/error while reading key "
+					    "length", errno);
 	}
 	size_t key_size = ch;
 	char buf[256];
 	if (!fh.read(buf, key_size))
-	    throw Xapian::DatabaseError("read of " + str(key_size) + " bytes of key data failed", errno);
+	    throw Xapian::DatabaseError("read of " + str(key_size) + " bytes "
+					"of key data failed", errno);
 	current_key.assign(last_key, 0, reuse);
 	current_key.append(buf, key_size);
 	last_key = current_key;
@@ -126,7 +129,8 @@ class HoneyCursor {
 
 	int r;
 	{
-	    // FIXME: rework to take advantage of buffering that's happening anyway?
+	    // FIXME: rework to take advantage of buffering that's happening
+	    // anyway?
 	    char * p = buf;
 	    for (int i = 0; i < 8; ++i) {
 		int ch2 = fh.read();
@@ -160,9 +164,13 @@ class HoneyCursor {
 	if (val_size) {
 	    current_tag.resize(val_size);
 	    if (!fh.read(&(current_tag[0]), val_size))
-		throw Xapian::DatabaseError("read of " + str(val_size) + " bytes of value data failed", errno);
+		throw Xapian::DatabaseError("read of " + str(val_size) +
+					    "bytes of value data failed",
+					    errno);
 	    if (DEBUGGING) {
-		std::cerr << "read " << val_size << " bytes of value data ending @" << fh.get_pos() << std::endl;
+		std::cerr << "read " << val_size
+			  << " bytes of value data ending @" << fh.get_pos()
+			  << std::endl;
 	    }
 	    val_size = 0;
 	    if (DEBUGGING) {
@@ -175,14 +183,17 @@ class HoneyCursor {
 	    // Need to decompress.
 	    comp_stream.decompress_start();
 	    std::string new_tag;
-	    if (!comp_stream.decompress_chunk(current_tag.data(), current_tag.size(), new_tag)) {
+	    if (!comp_stream.decompress_chunk(current_tag.data(),
+					      current_tag.size(),
+					      new_tag)) {
 		// Decompression didn't complete.
 		abort();
 	    }
 	    swap(current_tag, new_tag);
 	    current_compressed = false;
 	    if (DEBUGGING) {
-		std::cerr << "decompressed to " << current_tag.size() << " bytes of value data" << std::endl;
+		std::cerr << "decompressed to " << current_tag.size()
+			  << "bytes of value data" << std::endl;
 	    }
 	}
 	return current_compressed;
@@ -192,7 +203,8 @@ class HoneyCursor {
 	if (DEBUGGING) {
 	    std::string esc;
 	    description_append(esc, key);
-	    std::cerr << "find_exact(" << esc << ") @" << fh.get_pos() << std::endl;
+	    std::cerr << "find_exact(" << esc << ") @" << fh.get_pos()
+		      << std::endl;
 	}
 	if (is_at_end) {
 	    rewind();
@@ -217,7 +229,8 @@ class HoneyCursor {
 	if (DEBUGGING) {
 	    std::string esc;
 	    description_append(esc, key);
-	    std::cerr << "find_entry_ge(" << esc << ") @" << fh.get_pos() << std::endl;
+	    std::cerr << "find_entry_ge(" << esc << ") @" << fh.get_pos()
+		      << std::endl;
 	}
 	if (is_at_end) {
 	    rewind();
@@ -261,7 +274,8 @@ class HoneyCursor {
 	std::string k;
 	size_t vs;
 	bool compressed;
-	while (pos = fh.get_pos(), k = current_key, vs = val_size, compressed = current_compressed, next()) {
+	while (pos = fh.get_pos(), k = current_key, vs = val_size,
+	       compressed = current_compressed, next()) {
 	    int cmp = current_key.compare(key);
 	    if (cmp == 0) return true;
 	    if (cmp > 0) break;
@@ -285,8 +299,9 @@ class HoneyCursor {
 		rewind();
 	    }
 #else
-	    // FIXME: If "close" just seek forwards?  Or consider seeking from current index pos?
-	    //off_t pos = fh.get_pos();
+	    // FIXME: If "close" just seek forwards?  Or consider seeking from
+	    // current index pos?
+	    // off_t pos = fh.get_pos();
 	    fh.set_pos(root);
 	    std::string index_key, prev_index_key;
 	    std::make_unsigned<off_t>::type ptr = 0;
@@ -307,7 +322,8 @@ class HoneyCursor {
 
 		cmp0 = index_key.compare(key);
 		if (cmp0 > 0) break;
-		last_key = ptr ? index_key : std::string(); // for now (a lie, but the reuse part is correct).
+		// For now (a lie, but the reuse part is correct).
+		last_key = ptr ? index_key : std::string();
 		char buf[8];
 		char* e = buf;
 		while (true) {
@@ -319,12 +335,14 @@ class HoneyCursor {
 		if (!unpack_uint(&p, e, &ptr) || p != e) std::abort(); // FIXME
 		if (DEBUGGING) std::cerr << " -> " << ptr << std::endl;
 		if (cmp0 == 0) {
-		    if (DEBUGGING) std::cerr << " hit straight from index" << std::endl;
+		    if (DEBUGGING)
+			std::cerr << " hit straight from index" << std::endl;
 		    fh.set_pos(ptr);
 		    current_key = index_key;
 		    int r;
 		    {
-			// FIXME: rework to take advantage of buffering that's happening anyway?
+			// FIXME: rework to take advantage of buffering that's
+			// happening anyway?
 			char * q = buf;
 			for (int i = 0; i < 8; ++i) {
 			    int ch2 = fh.read();
@@ -339,7 +357,8 @@ class HoneyCursor {
 		    p = buf;
 		    const char* end = p + r;
 		    if (!unpack_uint(&p, end, &val_size)) {
-			throw Xapian::DatabaseError("val_size unpack_uint invalid");
+			throw Xapian::DatabaseError("val_size unpack_uint "
+						    "invalid");
 		    }
 		    bool& compressed = current_compressed;
 		    compressed = val_size & 1;
@@ -348,7 +367,9 @@ class HoneyCursor {
 		    return true;
 		}
 	    }
-	    if (DEBUGGING) std::cerr << " cmp0 = " << cmp0 << ", going to " << ptr << std::endl;
+	    if (DEBUGGING)
+		std::cerr << " cmp0 = " << cmp0 << ", going to " << ptr
+			  << std::endl;
 	    fh.set_pos(ptr);
 
 	    // FIXME: crude for now
@@ -357,7 +378,8 @@ class HoneyCursor {
 		char buf[4096];
 		int r;
 		{
-		    // FIXME: rework to take advantage of buffering that's happening anyway?
+		    // FIXME: rework to take advantage of buffering that's
+		    // happening anyway?
 		    char * p = buf;
 		    for (int i = 0; i < 8; ++i) {
 			int ch2 = fh.read();
@@ -384,7 +406,10 @@ class HoneyCursor {
 		while (val_size) {
 		    size_t n = std::min(val_size, sizeof(buf));
 		    if (!fh.read(buf, n))
-			throw Xapian::DatabaseError("read of " + str(n) + "/" + str(val_size) + " bytes of value data failed", errno);
+			throw Xapian::DatabaseError("read of " + str(n) + "/" +
+						    str(val_size) + " bytes "
+						    "of value data failed",
+						    errno);
 		    val.append(buf, n);
 		    val_size -= n;
 		}
@@ -397,10 +422,12 @@ class HoneyCursor {
 	    if (DEBUGGING) {
 		std::string desc;
 		description_append(desc, current_key);
-		std::cerr << "Dropped to data layer on key: " << desc << std::endl;
+		std::cerr << "Dropped to data layer on key: " << desc
+			  << std::endl;
 	    }
 
-	    // FIXME: need to put us in the "read key not tag" state but persist that more?
+	    // FIXME: need to put us in the "read key not tag" state but
+	    // persist that more?
 	    // if (cmp0 == 0) this is an exact hit from the index...
 #endif
 	}
@@ -455,7 +482,8 @@ class HoneyCursor {
 	if (DEBUGGING) {
 	    std::string esc;
 	    description_append(esc, key);
-	    std::cerr << "find_entry_lt(" << esc << ") @" << fh.get_pos() << std::endl;
+	    std::cerr << "find_entry_lt(" << esc << ") @" << fh.get_pos()
+		      << std::endl;
 	}
 	// FIXME: use index
 	int cmp = -1;

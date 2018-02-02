@@ -98,7 +98,8 @@ HoneyChanges::start(honey_revision_number_t old_rev,
     io_write(changes_fd, header.data(), header.size());
     // FIXME: save the block stream as a single zlib stream...
 
-    // bool compressed = CHANGES_VERSION != 1; FIXME: always true for honey, but make optional?
+    // FIXME: always true for honey, but make optional?
+    // bool compressed = CHANGES_VERSION != 1;
     return this;
 }
 
@@ -173,7 +174,8 @@ HoneyChanges::check(const string & changes_file)
 
     char buf[10240];
 
-    size_t n = io_read(fd, buf, sizeof(buf), CONST_STRLEN(CHANGES_MAGIC_STRING) + 4);
+    size_t n = io_read(fd, buf, sizeof(buf),
+		       CONST_STRLEN(CHANGES_MAGIC_STRING) + 4);
     if (memcmp(buf, CHANGES_MAGIC_STRING,
 	       CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	throw Xapian::DatabaseError("Changes file has wrong magic");
@@ -217,17 +219,21 @@ HoneyChanges::check(const string & changes_file)
 	    // Version file.
 	    honey_revision_number_t version_rev;
 	    if (!unpack_uint(&p, end, &version_rev))
-		throw Xapian::DatabaseError("Changes file - bad version file revision");
+		throw Xapian::DatabaseError("Changes file - bad version file "
+					    "revision");
 	    if (rev != version_rev)
-		throw Xapian::DatabaseError("Version file revision != changes file new revision");
+		throw Xapian::DatabaseError("Version file revision != changes "
+					    "file new revision");
 	    size_t len;
 	    if (!unpack_uint(&p, end, &len))
-		throw Xapian::DatabaseError("Changes file - bad version file length");
+		throw Xapian::DatabaseError("Changes file - bad version file "
+					    "length");
 	    if (len <= size_t(end - p)) {
 		p += len;
 	    } else {
 		if (lseek(fd, len - (end - p), SEEK_CUR) == off_t(-1))
-		    throw Xapian::DatabaseError("Changes file - version file data truncated");
+		    throw Xapian::DatabaseError("Changes file - version file "
+						"data truncated");
 		p = end = buf;
 		n = 0;
 	    }
@@ -255,7 +261,8 @@ HoneyChanges::check(const string & changes_file)
 	    p += block_size;
 	} else {
 	    if (lseek(fd, block_size - (end - p), SEEK_CUR) == off_t(-1))
-		throw Xapian::DatabaseError("Changes file - block data truncated");
+		throw Xapian::DatabaseError("Changes file - block data "
+					    "truncated");
 	    p = end = buf;
 	    n = 0;
 	}

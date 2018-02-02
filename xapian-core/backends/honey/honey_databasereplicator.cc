@@ -106,21 +106,23 @@ HoneyDatabaseReplicator::check_revision_at_least(const string & rev,
     const char * ptr = rev.data();
     const char * end = ptr + rev.size();
     if (!unpack_uint(&ptr, end, &rev_val)) {
-	throw NetworkError("Invalid revision string supplied to check_revision_at_least");
+	throw NetworkError("Invalid revision string supplied to "
+			   "check_revision_at_least");
     }
 
     ptr = target.data();
     end = ptr + target.size();
     if (!unpack_uint(&ptr, end, &target_val)) {
-	throw NetworkError("Invalid revision string supplied to check_revision_at_least");
+	throw NetworkError("Invalid revision string supplied to "
+			   "check_revision_at_least");
     }
 
     RETURN(rev_val >= target_val);
 }
 
 void
-HoneyDatabaseReplicator::process_changeset_chunk_version(string & buf,
-							 RemoteConnection & conn,
+HoneyDatabaseReplicator::process_changeset_chunk_version(string& buf,
+							 RemoteConnection& conn,
 							 double end_time) const
 {
     const char *ptr = buf.data();
@@ -146,7 +148,8 @@ HoneyDatabaseReplicator::process_changeset_chunk_version(string & buf,
     // Write size bytes from start of buf to new version file.
     string tmpfile = db_dir;
     tmpfile += "/v.rtmp";
-    int fd = posixy_open(tmpfile.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+    int flags = O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC;
+    int fd = posixy_open(tmpfile.c_str(), flags, 0666);
     if (fd == -1) {
 	string msg = "Failed to open ";
 	msg += tmpfile;
@@ -247,7 +250,8 @@ HoneyDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     }
     ptr += CONST_STRLEN(CHANGES_MAGIC_STRING);
     if (ptr == end)
-	throw NetworkError("Couldn't read a valid version number from changeset");
+	throw NetworkError("Couldn't read a valid version number from "
+			   "changeset");
     unsigned int changes_version = *ptr++;
     if (changes_version != CHANGES_VERSION)
 	throw NetworkError("Unsupported changeset version");
@@ -256,12 +260,15 @@ HoneyDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     honey_revision_number_t endrev;
 
     if (!unpack_uint(&ptr, end, &startrev))
-	throw NetworkError("Couldn't read a valid start revision from changeset");
+	throw NetworkError("Couldn't read a valid start revision from "
+			   "changeset");
     if (!unpack_uint(&ptr, end, &endrev))
-	throw NetworkError("Couldn't read a valid end revision from changeset");
+	throw NetworkError("Couldn't read a valid end revision from "
+			   "changeset");
 
     if (endrev <= startrev)
-	throw NetworkError("End revision in changeset is not later than start revision");
+	throw NetworkError("End revision in changeset is not later than "
+			   "start revision");
 
     if (ptr == end)
 	throw NetworkError("Unexpected end of changeset (1)");
@@ -274,7 +281,8 @@ HoneyDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	HoneyVersion version_file(db_dir);
 	version_file.read();
 	if (startrev != version_file.get_revision())
-	    throw NetworkError("Changeset supplied is for wrong revision number");
+	    throw NetworkError("Changeset supplied is for wrong revision "
+			       "number");
     }
 
     unsigned char changes_type = *ptr++;
@@ -289,7 +297,9 @@ HoneyDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 
     // Read the items from the changeset.
     while (true) {
-	if (conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time) < 0)
+	if (conn.get_message_chunk(buf,
+				   REASONABLE_CHANGESET_SIZE,
+				   end_time) < 0)
 	    throw_connection_closed_unexpectedly();
 	ptr = buf.data();
 	end = ptr + buf.size();

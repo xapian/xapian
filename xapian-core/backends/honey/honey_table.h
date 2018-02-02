@@ -112,7 +112,8 @@ class BufferedFile {
 	    // FIXME: add new io_open_stream_rd() etc?
 	    fd = io_open_block_rd(path);
 	} else {
-	    fd = io_open_block_wr(path, true); // FIXME: Always create anew for now...
+	    // FIXME: Always create anew for now...
+	    fd = io_open_block_wr(path, true);
 	}
 	return fd >= 0;
     }
@@ -362,14 +363,16 @@ class HoneyTable {
     off_t offset = 0;
 
   public:
-    HoneyTable(const char*, const std::string& path_, bool read_only_, bool lazy_ = false)
+    HoneyTable(const char*, const std::string& path_, bool read_only_,
+	       bool lazy_ = false)
 	: path(path_ + HONEY_TABLE_EXTENSION),
 	  read_only(read_only_),
 	  lazy(lazy_)
     {
     }
 
-    HoneyTable(const char*, int fd, off_t offset_, bool read_only_, bool lazy_ = false)
+    HoneyTable(const char*, int fd, off_t offset_, bool read_only_,
+	       bool lazy_ = false)
 	: read_only(read_only_),
 	  fh(fd, offset_, read_only_),
 	  lazy(lazy_),
@@ -384,7 +387,9 @@ class HoneyTable {
 	size_t index_size = index.size();
 	total_index_size += index_size;
 	if (index_size)
-	    std::cout << "*** " << path << " - index " << index_size << " for " << index.get_num_entries() << " entries; total_size = " << total_index_size << std::endl;
+	    std::cout << "*** " << path << " - index " << index_size << " for "
+		      << index.get_num_entries() << " entries; total_size = "
+		      << total_index_size << std::endl;
 #endif
 	if (!single_file())
 	    fh.close();
@@ -402,7 +407,8 @@ class HoneyTable {
 
     void create_and_open(int flags_, const Honey::RootInfo& root_info);
 
-    void open(int flags_, const Honey::RootInfo& root_info, honey_revision_number_t);
+    void open(int flags_, const Honey::RootInfo& root_info,
+	      honey_revision_number_t);
 
     void close(bool permanent) {
 	if (!single_file()) {
@@ -474,7 +480,9 @@ class HoneyTable {
 
     void set_changes(HoneyChanges*) { }
 
-    static void throw_database_closed() { throw Xapian::DatabaseError("Closed!"); }
+    static void throw_database_closed() {
+	throw Xapian::DatabaseError("Closed!");
+    }
 
     honey_tablesize_t get_entry_count() const { return num_entries; }
 

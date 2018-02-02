@@ -39,7 +39,7 @@
 using namespace std;
 
 #define PROG_NAME "xapian-inspect-honey"
-#define PROG_DESC "Inspect the contents of a honey table for development or debugging"
+#define PROG_DESC "Inspect a honey table for development or debugging"
 
 #define OPT_HELP 1
 #define OPT_VERSION 2

@@ -107,8 +107,11 @@ HoneyFreeList::get_block(const HoneyTable *B, uint4 block_size,
 
     if (fl.c != FREELIST_END - 4) {
 	uint4 blk = aligned_read4(p + fl.c);
-	if (blk == UNUSED)
-	    throw Xapian::DatabaseCorruptError("Ran off end of freelist (" + str(fl.n) + ", " + str(fl.c) + ")");
+	if (blk == UNUSED) {
+	    throw Xapian::DatabaseCorruptError("Ran off end of freelist (" +
+					       str(fl.n) + ", " + str(fl.c) +
+					       ")");
+	}
 	fl.c += 4;
 	return blk;
     }
@@ -154,7 +157,8 @@ HoneyFreeList::walk(const HoneyTable *B, uint4 block_size, bool inclusive)
 	p = new byte[block_size];
 	read_block(B, fl.n, p);
 	if (inclusive) {
-	    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
+	    Assert(fl.n == fl_end.n ||
+		   aligned_read4(p + FREELIST_END - 4) != UNUSED);
 	    return fl.n;
 	}
     }
@@ -187,7 +191,9 @@ HoneyFreeList::walk(const HoneyTable *B, uint4 block_size, bool inclusive)
 }
 
 void
-HoneyFreeList::mark_block_unused(const HoneyTable * B, uint4 block_size, uint4 blk)
+HoneyFreeList::mark_block_unused(const HoneyTable * B,
+				 uint4 block_size,
+				 uint4 blk)
 {
     // If the current flw block is full, we need to call get_block(), and if
     // the returned block is the last entry in its freelist block, that block
@@ -226,7 +232,8 @@ HoneyFreeList::mark_block_unused(const HoneyTable * B, uint4 block_size, uint4 b
 	if (p && flw.n == fl.n) {
 	    // FIXME: share and refcount?
 	    memcpy(p, pw, block_size);
-	    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
+	    Assert(fl.n == fl_end.n ||
+		   aligned_read4(p + FREELIST_END - 4) != UNUSED);
 	}
 	flw.n = n;
 	flw.c = C_BASE;
@@ -255,7 +262,8 @@ HoneyFreeList::commit(const HoneyTable * B, uint4 block_size)
 	if (p && flw.n == fl.n) {
 	    // FIXME: share and refcount?
 	    memcpy(p, pw, block_size);
-	    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
+	    Assert(fl.n == fl_end.n ||
+		   aligned_read4(p + FREELIST_END - 4) != UNUSED);
 	}
 	flw_appending = true;
 	fl_end = flw;

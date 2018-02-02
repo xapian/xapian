@@ -46,7 +46,8 @@ HoneyAllTermsList::read_termfreq_and_collfreq() const
     const char *pend = p + cursor->current_tag.size();
     if (!decode_initial_chunk_header_freqs(&p, pend,
 					   termfreq, collfreq)) {
-	throw Xapian::DatabaseCorruptError("Postlist initial chunk header not as expected");
+	throw Xapian::DatabaseCorruptError("Postlist initial chunk header not "
+					   "as expected");
     }
 }
 
@@ -136,7 +137,8 @@ first_time:
 	const char *p = cursor->current_key.data();
 	const char *pend = p + cursor->current_key.size();
 	if (!unpack_string_preserving_sort(&p, pend, current_term)) {
-	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
+	    throw Xapian::DatabaseCorruptError("PostList table key has "
+					       "unexpected format");
 	}
 
 	// If this key is for the first chunk of a postlist, we're done.
@@ -196,7 +198,8 @@ HoneyAllTermsList::skip_to(const string &term)
 	const char *pend = p + cursor->current_key.size();
 	if (!unpack_string_preserving_sort(&p, pend, current_term) ||
 	    p != pend) {
-	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
+	    throw Xapian::DatabaseCorruptError("PostList table key has "
+					       "unexpected format");
 	}
     }
 

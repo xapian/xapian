@@ -74,13 +74,16 @@ HoneyMetadataTermList::get_termname() const
 Xapian::doccount
 HoneyMetadataTermList::get_termfreq() const
 {
-    throw Xapian::InvalidOperationError("HoneyMetadataTermList::get_termfreq() not meaningful");
+    throw Xapian::InvalidOperationError("HoneyMetadataTermList::get_termfreq() "
+					"not meaningful");
 }
 
 Xapian::termcount
 HoneyMetadataTermList::get_collection_freq() const
 {
-    throw Xapian::InvalidOperationError("HoneyMetadataTermList::get_collection_freq() not meaningful");
+    throw Xapian::InvalidOperationError("HoneyMetadataTermList::"
+					"get_collection_freq() "
+					"not meaningful");
 }
 
 TermList *

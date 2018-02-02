@@ -48,7 +48,7 @@ static void show_usage() {
 "                     (must be between 2K and 64K and a power of 2, default 8K)\n"
 "  -B, --backend=B    Set the output backend.  Supported values are 'glass'\n"
 "                     and 'honey'.  By default input's backend is used.  At\n"
-"                     present, only glass to honey conversion is implemented -\n"
+"                     present only glass to honey conversion is implemented -\n"
 "                     otherwise the backend must be the same.\n"
 "  -n, --no-full      Disable full compaction\n"
 "  -F, --fuller       Enable fuller compaction (not recommended if you plan to\n"

@@ -199,7 +199,8 @@ DocLenChunkReader::update(HoneyCursor* cursor)
 
     size_t len = cursor->current_tag.size();
     if (len % 4 != 0 || len == 0)
-	throw Xapian::DatabaseCorruptError("Doclen data length not a non-zero multiple of 4");
+	throw Xapian::DatabaseCorruptError("Doclen data length not a non-zero "
+					   "multiple of 4");
 
     p = reinterpret_cast<const unsigned char*>(cursor->current_tag.data());
     end = p + len;

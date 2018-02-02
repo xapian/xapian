@@ -340,7 +340,8 @@ HoneyDatabase::add_spelling(const string& word, Xapian::termcount freqinc) const
 }
 
 Xapian::termcount
-HoneyDatabase::remove_spelling(const string& word, Xapian::termcount freqdec) const
+HoneyDatabase::remove_spelling(const string& word,
+			       Xapian::termcount freqdec) const
 {
     (void)word;
     (void)freqdec;

@@ -193,13 +193,16 @@ HoneySynonymTermList::get_termname() const
 Xapian::doccount
 HoneySynonymTermList::get_termfreq() const
 {
-    throw Xapian::InvalidOperationError("HoneySynonymTermList::get_termfreq() not meaningful");
+    throw Xapian::InvalidOperationError("HoneySynonymTermList::get_termfreq() "
+					"not meaningful");
 }
 
 Xapian::termcount
 HoneySynonymTermList::get_collection_freq() const
 {
-    throw Xapian::InvalidOperationError("HoneySynonymTermList::get_collection_freq() not meaningful");
+    throw Xapian::InvalidOperationError("HoneySynonymTermList::"
+					"get_collection_freq() "
+					"not meaningful");
 }
 
 TermList *

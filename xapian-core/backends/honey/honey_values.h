@@ -119,13 +119,14 @@ class HoneyValueManager {
     void merge_changes();
 
     std::string add_document(Xapian::docid did, const Xapian::Document& doc,
-			     std::map<Xapian::valueno, ValueStats>& value_stats);
+			     std::map<Xapian::valueno, ValueStats>& val_stats);
 
     void delete_document(Xapian::docid did,
-			 std::map<Xapian::valueno, ValueStats> & value_stats);
+			 std::map<Xapian::valueno, ValueStats>& val_stats);
 
-    std::string replace_document(Xapian::docid did, const Xapian::Document& doc,
-				 std::map<Xapian::valueno, ValueStats>& value_stats);
+    std::string replace_document(Xapian::docid did,
+				 const Xapian::Document& doc,
+				 std::map<Xapian::valueno, ValueStats>& val_stats);
 
     std::string get_value(Xapian::docid did, Xapian::valueno slot) const;
 
@@ -152,9 +153,9 @@ class HoneyValueManager {
      *  If the @a freq member of the statistics for a particular slot is 0, the
      *  statistics for that slot will be cleared.
      *
-     *  @param value_stats The statistics to set.
+     *  @param val_stats The statistics to set.
      */
-    void set_value_stats(std::map<Xapian::valueno, ValueStats> & value_stats);
+    void set_value_stats(std::map<Xapian::valueno, ValueStats>& val_stats);
 
     void reset() {
 	/// Ignore any old cached valuestats.

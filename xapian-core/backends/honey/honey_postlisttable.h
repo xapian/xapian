@@ -70,7 +70,8 @@ class HoneyPostListTable : public HoneyTable {
 	return value;
     }
 
-    void merge_doclen_changes(const std::map<Xapian::docid, Xapian::termcount>& changes) {
+    void merge_doclen_changes(const std::map<Xapian::docid,
+			      Xapian::termcount>& changes) {
 	// Honey doesn't support update currently.
 	(void)changes;
     }

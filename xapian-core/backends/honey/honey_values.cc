@@ -66,8 +66,10 @@ ValueChunkReader::next()
     }
 
     Xapian::docid delta;
-    if (!unpack_uint(&p, end, &delta))
-	throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
+    if (!unpack_uint(&p, end, &delta)) {
+	throw Xapian::DatabaseCorruptError("Failed to unpack streamed value "
+					   "docid");
+    }
     did += delta + 1;
     if (!unpack_string(&p, end, value))
 	throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
@@ -83,18 +85,22 @@ ValueChunkReader::skip_to(Xapian::docid target)
     while (p != end) {
 	// Get the next docid
 	Xapian::docid delta;
-	if (rare(!unpack_uint(&p, end, &delta)))
-	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
+	if (rare(!unpack_uint(&p, end, &delta))) {
+	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed "
+					       "value docid");
+	}
 	did += delta + 1;
 
 	// Get the length of the string
 	if (rare(!unpack_uint(&p, end, &value_len))) {
-	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value length");
+	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed "
+					       "value length");
 	}
 
 	// Check that it's not too long
 	if (rare(value_len > size_t(end - p))) {
-	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
+	    throw Xapian::DatabaseCorruptError("Failed to unpack streamed "
+					       "value");
 	}
 
 	// Assign the value and return only if we've reached the target
@@ -317,7 +323,7 @@ HoneyValueManager::merge_changes()
 
 string
 HoneyValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
-				map<Xapian::valueno, ValueStats> & value_stats)
+				map<Xapian::valueno, ValueStats> &val_stats)
 {
     Xapian::ValueIterator it = doc.values_begin();
     if (it == doc.values_end()) {
@@ -341,7 +347,7 @@ HoneyValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 	const string& value = *it;
 
 	// Update the statistics.
-	auto i = value_stats.insert(make_pair(slot, ValueStats()));
+	auto i = val_stats.insert(make_pair(slot, ValueStats()));
 	ValueStats& stats = i.first->second;
 	if (i.second) {
 	    // There were no statistics stored already, so read them.
@@ -391,7 +397,7 @@ HoneyValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 
 void
 HoneyValueManager::delete_document(Xapian::docid did,
-				   map<Xapian::valueno, ValueStats> & value_stats)
+				   map<Xapian::valueno, ValueStats>& val_stats)
 {
     Assert(termlist_table.is_open());
     map<Xapian::docid, string>::iterator it = slots.find(did);
@@ -429,7 +435,7 @@ HoneyValueManager::delete_document(Xapian::docid did,
 
 	Xapian::valueno slot = first_slot;
 	while (slot != last_slot) {
-	    auto i = value_stats.insert(make_pair(slot, ValueStats()));
+	    auto i = val_stats.insert(make_pair(slot, ValueStats()));
 	    ValueStats & stats = i.first->second;
 	    if (i.second) {
 		// There were no statistics stored already, so read them.
@@ -454,7 +460,7 @@ HoneyValueManager::delete_document(Xapian::docid did,
     {
 	{
 	    // FIXME: share code with above
-	    auto i = value_stats.insert(make_pair(slot, ValueStats()));
+	    auto i = val_stats.insert(make_pair(slot, ValueStats()));
 	    ValueStats & stats = i.first->second;
 	    if (i.second) {
 		// There were no statistics stored already, so read them.
@@ -476,7 +482,7 @@ HoneyValueManager::delete_document(Xapian::docid did,
 string
 HoneyValueManager::replace_document(Xapian::docid did,
 				    const Xapian::Document &doc,
-				    map<Xapian::valueno, ValueStats> & value_stats)
+				    map<Xapian::valueno, ValueStats>& val_stats)
 {
     if (doc.get_docid() == did) {
 	// If we're replacing a document with itself, but the optimisation for
@@ -495,8 +501,8 @@ HoneyValueManager::replace_document(Xapian::docid did,
 	// anyway, but there's scope to change that in the future).
 	doc.internal->ensure_values_fetched();
     }
-    delete_document(did, value_stats);
-    return add_document(did, doc, value_stats);
+    delete_document(did, val_stats);
+    return add_document(did, doc, val_stats);
 }
 
 string
@@ -528,8 +534,9 @@ HoneyValueManager::get_all_values(map<Xapian::valueno, string> & values,
 {
     Assert(values.empty());
     if (!termlist_table.is_open()) {
-	// Either the database has been closed, or else there's no termlist table.
-	// Check if the postlist table is open to determine which is the case.
+	// Either the database has been closed, or else there's no termlist
+	// table.  Check if the postlist table is open to determine which is
+	// the case.
 	if (!postlist_table.is_open())
 	    HoneyTable::throw_database_closed();
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
@@ -595,7 +602,8 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot) const
 }
 
 void
-HoneyValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
+HoneyValueManager::get_value_stats(Xapian::valueno slot,
+				   ValueStats& stats) const
 {
     LOGCALL_VOID(DB, "HoneyValueManager::get_value_stats", slot | Literal("[stats]"));
 
@@ -605,12 +613,20 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 	const char * end = pos + tag.size();
 
 	if (!unpack_uint(&pos, end, &(stats.freq))) {
-	    if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-	    throw Xapian::RangeError("Frequency statistic in value table is too large");
+	    if (pos == 0) {
+		throw Xapian::DatabaseCorruptError("Incomplete stats item in "
+						   "value table");
+	    }
+	    throw Xapian::RangeError("Frequency statistic in value table is "
+				     "too large");
 	}
 	if (!unpack_string(&pos, end, stats.lower_bound)) {
-	    if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-	    throw Xapian::RangeError("Lower bound in value table is too large");
+	    if (pos == 0) {
+		throw Xapian::DatabaseCorruptError("Incomplete stats item in "
+						   "value table");
+	    }
+	    throw Xapian::RangeError("Lower bound in value table is too "
+				     "large");
 	}
 	size_t len = end - pos;
 	if (len == 0) {
@@ -624,11 +640,11 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 }
 
 void
-HoneyValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stats)
+HoneyValueManager::set_value_stats(map<Xapian::valueno, ValueStats>& val_stats)
 {
-    LOGCALL_VOID(DB, "HoneyValueManager::set_value_stats", value_stats);
+    LOGCALL_VOID(DB, "HoneyValueManager::set_value_stats", val_stats);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    for (i = value_stats.begin(); i != value_stats.end(); ++i) {
+    for (i = val_stats.begin(); i != val_stats.end(); ++i) {
 	string key = pack_honey_valuestats_key(i->first);
 	const ValueStats & stats = i->second;
 	if (stats.freq != 0) {
@@ -645,6 +661,6 @@ HoneyValueManager::set_value_stats(map<Xapian::valueno, ValueStats> & value_stat
 	    postlist_table.del(key);
 	}
     }
-    value_stats.clear();
+    val_stats.clear();
     mru_slot = Xapian::BAD_VALUENO;
 }

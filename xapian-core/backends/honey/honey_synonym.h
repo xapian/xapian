@@ -108,7 +108,8 @@ class HoneySynonymTable : public HoneyLazyTable {
 	HoneyTable::flush_db();
     }
 
-    void cancel(const Honey::RootInfo & root_info, honey_revision_number_t rev) {
+    void cancel(const Honey::RootInfo & root_info,
+		honey_revision_number_t rev) {
 	discard_changes();
 	HoneyTable::cancel(root_info, rev);
     }

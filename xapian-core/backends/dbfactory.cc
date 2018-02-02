@@ -556,7 +556,8 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 #endif
 	    } else if (file_exists(path + "/iamhoney")) {
 		// Existing honey DB.
-		throw InvalidOperationError("Honey backend doesn't support updating existing databases");
+		throw InvalidOperationError("Honey backend doesn't support "
+					    "updating existing databases");
 	    } else if (file_exists(path + "/iamchert")) {
 		// Existing chert DB.
 		throw FeatureUnavailableError("Chert backend no longer supported");
@@ -588,7 +589,8 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	    return;
 #endif
 	case DB_BACKEND_HONEY:
-	    throw InvalidArgumentError("Honey backend doesn't support updating existing databases");
+	    throw InvalidArgumentError("Honey backend doesn't support "
+				       "updating existing databases");
 	case DB_BACKEND_CHERT:
 	    throw FeatureUnavailableError("Chert backend no longer supported");
 	case DB_BACKEND_INMEMORY:

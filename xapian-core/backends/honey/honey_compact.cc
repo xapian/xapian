@@ -171,7 +171,8 @@ class BufferedFile {
 	    // FIXME: add new io_open_stream_rd() etc?
 	    fd = io_open_block_rd(path);
 	} else {
-	    fd = io_open_block_wr(path, true); // FIXME: Always create anew for now...
+	    // FIXME: Always create anew for now...
+	    fd = io_open_block_wr(path, true);
 	}
 	return fd >= 0;
     }
@@ -378,16 +379,19 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 
 	    // Skip the "last chunk" flag and increase_to_last.
 	    if (d == e)
-		throw Xapian::DatabaseCorruptError("No last chunk flag in glass docdata chunk");
+		throw Xapian::DatabaseCorruptError("No last chunk flag in "
+						   "glass docdata chunk");
 	    ++d;
 	    Xapian::docid increase_to_last;
 	    if (!unpack_uint(&d, e, &increase_to_last))
-		throw Xapian::DatabaseCorruptError("Decoding last docid delta in glass docdata chunk");
+		throw Xapian::DatabaseCorruptError("Decoding last docid delta "
+						   "in glass docdata chunk");
 
 	    while (true) {
 		Xapian::termcount doclen;
 		if (!unpack_uint(&d, e, &doclen))
-		    throw Xapian::DatabaseCorruptError("Decoding doclen in glass docdata chunk");
+		    throw Xapian::DatabaseCorruptError("Decoding doclen in "
+						       "glass docdata chunk");
 		Assert(doclen != 0xffffffff);
 		unsigned char buf[4];
 		unaligned_write4(buf, doclen);
@@ -396,7 +400,9 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		    break;
 		Xapian::docid gap_size;
 		if (!unpack_uint(&d, e, &gap_size))
-		    throw Xapian::DatabaseCorruptError("Decoding docid gap_size in glass docdata chunk");
+		    throw Xapian::DatabaseCorruptError("Decoding docid "
+						       "gap_size in glass "
+						       "docdata chunk");
 		// FIXME: Split chunk if the gap_size is at all large.
 		newtag.append(4 * gap_size, '\xff');
 	    }
@@ -446,23 +452,28 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 
 	// Skip the "last chunk" flag; decode increase_to_last.
 	if (d == e)
-	    throw Xapian::DatabaseCorruptError("No last chunk flag in glass posting chunk");
+	    throw Xapian::DatabaseCorruptError("No last chunk flag in glass "
+					       "posting chunk");
 	++d;
 	Xapian::docid increase_to_last;
 	if (!unpack_uint(&d, e, &increase_to_last))
-	    throw Xapian::DatabaseCorruptError("Decoding last docid delta in glass posting chunk");
+	    throw Xapian::DatabaseCorruptError("Decoding last docid delta in "
+					       "glass posting chunk");
 	chunk_lastdid = firstdid + increase_to_last;
 	if (!unpack_uint(&d, e, &first_wdf))
-	    throw Xapian::DatabaseCorruptError("Decoding first wdf in glass posting chunk");
+	    throw Xapian::DatabaseCorruptError("Decoding first wdf in glass "
+					       "posting chunk");
 
 	while (d != e) {
 	    Xapian::docid delta;
 	    if (!unpack_uint(&d, e, &delta))
-		throw Xapian::DatabaseCorruptError("Decoding docid delta in glass posting chunk");
+		throw Xapian::DatabaseCorruptError("Decoding docid delta in "
+						   "glass posting chunk");
 	    pack_uint(newtag, delta);
 	    Xapian::termcount wdf;
 	    if (!unpack_uint(&d, e, &wdf))
-		throw Xapian::DatabaseCorruptError("Decoding wdf in glass posting chunk");
+		throw Xapian::DatabaseCorruptError("Decoding wdf in glass "
+						   "posting chunk");
 	    pack_uint(newtag, wdf);
 	}
 
@@ -540,7 +551,8 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    case KEY_POSTING_CHUNK:
 		break;
 	    default:
-		throw Xapian::DatabaseCorruptError("Bad postlist table key type");
+		throw Xapian::DatabaseCorruptError("Bad postlist table key "
+						   "type");
 	}
 
 	// Adjust key if this is *NOT* an initial chunk.
@@ -561,7 +573,8 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    if (!decode_initial_chunk_header(&d, e, tf, cf,
 					     firstdid, lastdid, chunk_lastdid,
 					     first_wdf)) {
-		throw Xapian::DatabaseCorruptError("Bad postlist initial chunk header");
+		throw Xapian::DatabaseCorruptError("Bad postlist initial "
+						   "chunk header");
 	    }
 	    // Ignore lastdid - we'll need to recalculate it (at least when
 	    // merging, and for simplicity we always do).
@@ -583,12 +596,15 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    if (cf) {
 		if (!decode_delta_chunk_header(&d, e, chunk_lastdid, firstdid,
 					       first_wdf)) {
-		    throw Xapian::DatabaseCorruptError("Bad postlist delta chunk header");
+		    throw Xapian::DatabaseCorruptError("Bad postlist delta "
+						       "chunk header");
 		}
 		tag.erase(0, d - tag.data());
 	    } else {
-		if (!decode_delta_chunk_header_bool(&d, e, chunk_lastdid, firstdid)) {
-		    throw Xapian::DatabaseCorruptError("Bad postlist delta chunk header");
+		if (!decode_delta_chunk_header_bool(&d, e, chunk_lastdid,
+						    firstdid)) {
+		    throw Xapian::DatabaseCorruptError("Bad postlist delta "
+						       "chunk header");
 		}
 		first_wdf = 0;
 		// Splice in a 0 wdf value after each docid delta.
@@ -740,12 +756,18 @@ merge_postlists(Xapian::Compactor * compactor,
 	    Xapian::doccount f;
 	    string l, u;
 	    if (!unpack_uint(&pos, end, &f)) {
-		if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-		throw Xapian::RangeError("Frequency statistic in value table is too large");
+		if (*pos == 0)
+		    throw Xapian::DatabaseCorruptError("Incomplete stats item "
+						       "in value table");
+		throw Xapian::RangeError("Frequency statistic in value table "
+					 "is too large");
 	    }
 	    if (!unpack_string(&pos, end, l)) {
-		if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
-		throw Xapian::RangeError("Lower bound in value table is too large");
+		if (*pos == 0)
+		    throw Xapian::DatabaseCorruptError("Incomplete stats item "
+						       "in value table");
+		throw Xapian::RangeError("Lower bound in value table is too "
+					 "large");
 	    }
 	    size_t len = end - pos;
 	    if (len == 0) {
@@ -878,12 +900,15 @@ merge_postlists(Xapian::Compactor * compactor,
 			    while (pos != pos_end) {
 				Xapian::docid delta;
 				if (!unpack_uint(&pos, pos_end, &delta))
-				    throw Xapian::DatabaseCorruptError("Decoding docid delta");
+				    throw_database_corrupt("Decoding docid "
+							   "delta", pos);
 				pack_uint(tag, delta);
 				Xapian::termcount wdf;
 				if (!unpack_uint(&pos, pos_end, &wdf))
-				    throw Xapian::DatabaseCorruptError("Decoding wdf");
-				// Only copy over the docid deltas, not the wdfs.
+				    throw_database_corrupt("Decoding wdf",
+							   pos);
+				// Only copy over the docid deltas, not the
+				// wdfs.
 				(void)wdf;
 			    }
 			}
@@ -940,7 +965,8 @@ struct MergeCursor<HoneyTable&> {
     bool current_compressed;
     mutable CompressionStream comp_stream;
 
-    explicit MergeCursor(HoneyTable *in) : table(in), comp_stream(Z_DEFAULT_STRATEGY) {
+    explicit MergeCursor(HoneyTable *in)
+	: table(in), comp_stream(Z_DEFAULT_STRATEGY) {
 	next();
     }
 
@@ -953,7 +979,8 @@ struct MergeCursor<HoneyTable&> {
 	    // Need to decompress.
 	    comp_stream.decompress_start();
 	    string new_tag;
-	    if (!comp_stream.decompress_chunk(current_tag.data(), current_tag.size(), new_tag)) {
+	    if (!comp_stream.decompress_chunk(current_tag.data(),
+					      current_tag.size(), new_tag)) {
 		// Decompression didn't complete.
 		abort();
 	    }
@@ -1065,7 +1092,7 @@ merge_spellings(T* out, U b, U e)
 		const char * p = cur->current_tag.data();
 		const char * end = p + cur->current_tag.size();
 		if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
-		    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+		    throw_database_corrupt("Bad spelling word freq", p);
 		}
 		tot_freq += freq;
 		if (cur->next()) {
@@ -1511,7 +1538,10 @@ next_without_next:
 	    }
 	    if (table_type == Honey::TERMLIST) {
 		if (termlist_key_is_values_used(key)) {
-		    throw Xapian::DatabaseCorruptError("value slots used entry without a corresponding termlist entry");
+		    throw Xapian::DatabaseCorruptError("value slots used "
+						       "entry without a "
+						       "corresponding "
+						       "termlist entry");
 		}
 		cur.read_tag();
 		string tag = cur.current_tag;
@@ -1533,14 +1563,16 @@ next_without_next:
 
 		    Xapian::valueno first_slot;
 		    if (!unpack_uint(&p, end, &first_slot)) {
-			throw Xapian::DatabaseCorruptError("Value slot encoding corrupt");
+			throw_database_corrupt("Value slot encoding corrupt",
+					       p);
 		    }
 		    slots.push_back(first_slot);
 		    Xapian::valueno last_slot = first_slot;
 		    while (p != end) {
 			Xapian::valueno slot;
 			if (!unpack_uint(&p, end, &slot)) {
-			    throw Xapian::DatabaseCorruptError("Value slot encoding corrupt");
+			    throw_database_corrupt("Value slot encoding "
+						   "corrupt", p);
 			}
 			slot += last_slot + 1;
 			last_slot = slot;
@@ -1549,7 +1581,8 @@ next_without_next:
 		    }
 
 		    if (slots.back() <= 6) {
-			// Encode as a bitmap if only slots in the range 0-6 are used.
+			// Encode as a bitmap if only slots in the range 0-6
+			// are used.
 			for (auto slot : slots) {
 			    bitmap_slots_used |= 1 << slot;
 			}
@@ -1559,8 +1592,10 @@ next_without_next:
 			if (slots.size() > 1) {
 			    BitWriter slots_used(enc);
 			    slots_used.encode(first_slot, last_slot);
-			    slots_used.encode(slots.size() - 2, last_slot - first_slot);
-			    slots_used.encode_interpolative(slots, 0, slots.size() - 1);
+			    slots_used.encode(slots.size() - 2,
+					      last_slot - first_slot);
+			    slots_used.encode_interpolative(slots, 0,
+							    slots.size() - 1);
 			    encoded_slots_used = slots_used.freeze();
 			} else {
 			    encoded_slots_used = std::move(enc);
@@ -1632,7 +1667,8 @@ next_without_next:
 			}
 
 			newtag += char(append);
-			newtag.append(current_term.end() - append, current_term.end());
+			newtag.append(current_term.end() - append,
+				      current_term.end());
 		    }
 		}
 		if (!newtag.empty())
@@ -1751,12 +1787,14 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	    Assert(false);
 #else
 	    auto db = static_cast<const GlassDatabase*>(sources[i]);
-	    version_file_out->merge_stats(db->version_file.get_doccount(),
-					  db->version_file.get_doclength_lower_bound(),
-					  db->version_file.get_doclength_upper_bound(),
-					  db->version_file.get_wdf_upper_bound(),
-					  db->version_file.get_total_doclen(),
-					  db->version_file.get_spelling_wordfreq_upper_bound());
+	    auto& v_in = db->version_file;
+	    auto& v_out = version_file_out;
+	    v_out->merge_stats(v_in.get_doccount(),
+			       v_in.get_doclength_lower_bound(),
+			       v_in.get_doclength_upper_bound(),
+			       v_in.get_wdf_upper_bound(),
+			       v_in.get_total_doclen(),
+			       v_in.get_spelling_wordfreq_upper_bound());
 #endif
 	} else {
 	    auto db = static_cast<const HoneyDatabase*>(sources[i]);
@@ -1918,7 +1956,9 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
 	    root_info->set_offset(table_start_offset);
-	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
+	    out->open(FLAGS,
+		      version_file_out->get_root(t->type),
+		      version_file_out->get_revision());
 	} else {
 	    out->create_and_open(FLAGS, *root_info);
 	}
@@ -1981,10 +2021,13 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	}
 	if (bad_stat) {
 	    if (compactor)
-		compactor->set_status(t->name, "Done (couldn't stat all the DB files)");
+		compactor->set_status(t->name,
+				      "Done (couldn't stat all the DB files)");
 	} else if (single_file_in) {
 	    if (compactor)
-		compactor->set_status(t->name, "Done (table sizes unknown for single file DB input)");
+		compactor->set_status(t->name,
+				      "Done (table sizes unknown for single "
+				      "file DB input)");
 	} else {
 	    string status;
 	    if (out_size == in_size) {
@@ -2020,12 +2063,14 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
     if (single_file && prev_size < off_t(block_size)) {
 #ifdef HAVE_FTRUNCATE
 	if (ftruncate(fd, block_size) < 0) {
-	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	    throw Xapian::DatabaseError("Failed to set size of output "
+					"database", errno);
 	}
 #else
 	const off_t off = block_size - 1;
 	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
-	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	    throw Xapian::DatabaseError("Failed to set size of output "
+					"database", errno);
 	}
 #endif
     }
@@ -2043,7 +2088,8 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    throw Xapian::DatabaseError("lseek() failed", errno);
 	}
 	if (version_file_size > HONEY_VERSION_MAX_SIZE) {
-	    throw Xapian::DatabaseError("Didn't allow enough space for version file data");
+	    throw Xapian::DatabaseError("Didn't allow enough space for "
+					"version file data");
 	}
     }
     for (unsigned j = 0; j != tabs.size(); ++j) {
@@ -2191,7 +2237,9 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
 	    root_info->set_offset(table_start_offset);
-	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
+	    out->open(FLAGS,
+		      version_file_out->get_root(t->type),
+		      version_file_out->get_revision());
 	} else {
 	    out->create_and_open(FLAGS, *root_info);
 	}
@@ -2254,10 +2302,13 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	}
 	if (bad_stat) {
 	    if (compactor)
-		compactor->set_status(t->name, "Done (couldn't stat all the DB files)");
+		compactor->set_status(t->name,
+				      "Done (couldn't stat all the DB files)");
 	} else if (single_file_in) {
 	    if (compactor)
-		compactor->set_status(t->name, "Done (table sizes unknown for single file DB input)");
+		compactor->set_status(t->name,
+				      "Done (table sizes unknown for single "
+				      "file DB input)");
 	} else {
 	    string status;
 	    if (out_size == in_size) {
@@ -2293,12 +2344,14 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
     if (single_file && prev_size < off_t(block_size)) {
 #ifdef HAVE_FTRUNCATE
 	if (ftruncate(fd, block_size) < 0) {
-	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	    throw Xapian::DatabaseError("Failed to set size of output "
+					"database", errno);
 	}
 #else
 	const off_t off = block_size - 1;
 	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
-	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	    throw Xapian::DatabaseError("Failed to set size of output "
+					"database", errno);
 	}
 #endif
     }

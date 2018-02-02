@@ -158,7 +158,8 @@ HoneyPostList::next(double)
     }
 
     if (rare(!cursor->next()))
-	throw Xapian::DatabaseCorruptError("Hit end of table looking for postlist chunk");
+	throw Xapian::DatabaseCorruptError("Hit end of table looking for "
+					   "postlist chunk");
 
     if (rare(!update_reader()))
 	throw Xapian::DatabaseCorruptError("Missing postlist chunk");
@@ -198,13 +199,15 @@ HoneyPostList::skip_to(Xapian::docid did, double)
     (void)cursor->find_entry_ge(make_postingchunk_key(term, did));
 
     if (rare(cursor->after_end()))
-	throw Xapian::DatabaseCorruptError("Hit end of table looking for postlist chunk");
+	throw Xapian::DatabaseCorruptError("Hit end of table looking for "
+					   "postlist chunk");
 
     if (rare(!update_reader()))
 	throw Xapian::DatabaseCorruptError("Missing postlist chunk");
 
     if (rare(!reader.skip_to(did)))
-	throw Xapian::DatabaseCorruptError("Postlist chunk doesn't contain its last entry");
+	throw Xapian::DatabaseCorruptError("Postlist chunk doesn't contain "
+					   "its last entry");
 
     return NULL;
 }
@@ -330,8 +333,8 @@ PostingChunkReader::skip_to(Xapian::docid target)
 	    target = last_did;
 	    return true;
 	}
-	// FIXME: Special case target == last_did && collfreq != 0 to just decode
-	// the wdf from the end?
+	// FIXME: Special case target == last_did && collfreq != 0 to just
+	// decode the wdf from the end?
     }
 
     do {

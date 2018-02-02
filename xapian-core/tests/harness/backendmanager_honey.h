@@ -53,7 +53,8 @@ class BackendManagerHoney : public BackendManager {
     std::string get_dbtype() const;
 
     /// Create a Xapian::WritableDatabase object.
-    Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
+    Xapian::WritableDatabase get_writable_database(const std::string& name,
+						   const std::string& file);
 
     std::string get_compaction_output_path(const std::string& name);
 };

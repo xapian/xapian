@@ -194,13 +194,15 @@ class HoneyInverter {
 
     void set_doclength(Xapian::docid did, Xapian::termcount doclen, bool add) {
 	if (add) {
-	    Assert(doclen_changes.find(did) == doclen_changes.end() || doclen_changes[did] == DELETED_POSTING);
+	    Assert(doclen_changes.find(did) == doclen_changes.end() ||
+		   doclen_changes[did] == DELETED_POSTING);
 	}
 	doclen_changes[did] = doclen;
     }
 
     void delete_doclength(Xapian::docid did) {
-	Assert(doclen_changes.find(did) == doclen_changes.end() || doclen_changes[did] != DELETED_POSTING);
+	Assert(doclen_changes.find(did) == doclen_changes.end() ||
+	       doclen_changes[did] != DELETED_POSTING);
 	doclen_changes[did] = DELETED_POSTING;
     }
 
