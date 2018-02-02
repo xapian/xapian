@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_HGUARD_HONEY_SPELLINGWORDSLIST_H
-#define XAPIAN_HGUARD_HONEY_SPELLINGWORDSLIST_H
+#ifndef XAPIAN_INCLUDED_HONEY_SPELLINGWORDSLIST_H
+#define XAPIAN_INCLUDED_HONEY_SPELLINGWORDSLIST_H
 
 #include "backends/alltermslist.h"
 #include "honey_spelling.h"
@@ -98,4 +98,4 @@ class HoneySpellingWordsList : public AllTermsList {
     bool at_end() const;
 };
 
-#endif /* XAPIAN_HGUARD_HONEY_SPELLINGWORDSLIST_H */
+#endif /* XAPIAN_INCLUDED_HONEY_SPELLINGWORDSLIST_H */

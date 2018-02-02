@@ -19,8 +19,8 @@
  * USA
  */
 
-#ifndef XAPIAN_HGUARD_HONEY_POSITIONLIST_H
-#define XAPIAN_HGUARD_HONEY_POSITIONLIST_H
+#ifndef XAPIAN_INCLUDED_HONEY_POSITIONLIST_H
+#define XAPIAN_INCLUDED_HONEY_POSITIONLIST_H
 
 #include <xapian/types.h>
 
@@ -168,4 +168,4 @@ class HoneyRePositionList : public HoneyBasePositionList {
     void read_data(Xapian::docid did, const string& term);
 };
 
-#endif /* XAPIAN_HGUARD_HONEY_POSITIONLIST_H */
+#endif /* XAPIAN_INCLUDED_HONEY_POSITIONLIST_H */
