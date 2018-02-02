@@ -347,7 +347,7 @@ QUOTELOOP:  while (1) {
 	    } elsif ($op eq '<' && substr($_, $pre[1] - 1, 1) =~ /^[A-Za-z0-9_]$/ && substr($_, $post[1]) =~ />/) {
 		# y = static_cast<char>(x);
 	    } elsif ($op eq '<' &&
-		     substr($_, 0, $pre[1]) =~ /\b(?:list|map|multimap|multiset|priority_queue|set|template|unordered_map|unordered_set|vector)$/) {
+		     substr($_, 0, $pre[1]) =~ /\b(?:enable_if|list|map|multimap|multiset|priority_queue|set|template|unordered_map|unordered_set|vector)$/) {
 		# y = priority_queue<Foo*,
 		#                    Bar>;
 		# template<typename A,
