@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_NET_TERMLIST_H
-#define OM_HGUARD_NET_TERMLIST_H
+#ifndef XAPIAN_INCLUDED_NET_TERMLIST_H
+#define XAPIAN_INCLUDED_NET_TERMLIST_H
 
 #include <string>
 
@@ -129,4 +129,4 @@ class NetworkTermList : public TermList {
 # error GPL source we cannot relicense included in libxapian
 #endif
 
-#endif /* OM_HGUARD_NET_TERMLIST_H */
+#endif /* XAPIAN_INCLUDED_NET_TERMLIST_H */

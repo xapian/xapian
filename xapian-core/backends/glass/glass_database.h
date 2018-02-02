@@ -22,8 +22,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_GLASS_DATABASE_H
-#define OM_HGUARD_GLASS_DATABASE_H
+#ifndef XAPIAN_INCLUDED_GLASS_DATABASE_H
+#define XAPIAN_INCLUDED_GLASS_DATABASE_H
 
 #include "backends/backends.h"
 #include "backends/databaseinternal.h"
@@ -451,4 +451,4 @@ class GlassWritableDatabase : public GlassDatabase {
 # error GPL source we cannot relicense included in libxapian
 #endif
 
-#endif /* OM_HGUARD_GLASS_DATABASE_H */
+#endif /* XAPIAN_INCLUDED_GLASS_DATABASE_H */

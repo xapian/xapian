@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_BACKENDMANAGER_H
-#define OM_HGUARD_BACKENDMANAGER_H
+#ifndef XAPIAN_INCLUDED_BACKENDMANAGER_H
+#define XAPIAN_INCLUDED_BACKENDMANAGER_H
 
 #include <xapian.h>
 #include <vector>
@@ -151,4 +151,4 @@ class BackendManager {
     static const char * get_xapian_progsrv_command();
 };
 
-#endif /* OM_HGUARD_BACKENDMANAGER_H */
+#endif /* XAPIAN_INCLUDED_BACKENDMANAGER_H */

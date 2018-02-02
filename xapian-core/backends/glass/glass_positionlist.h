@@ -19,8 +19,8 @@
  * USA
  */
 
-#ifndef XAPIAN_HGUARD_GLASS_POSITIONLIST_H
-#define XAPIAN_HGUARD_GLASS_POSITIONLIST_H
+#ifndef XAPIAN_INCLUDED_GLASS_POSITIONLIST_H
+#define XAPIAN_INCLUDED_GLASS_POSITIONLIST_H
 
 #include <xapian/types.h>
 
@@ -169,4 +169,4 @@ class GlassRePositionList : public GlassBasePositionList {
 		   const string& term);
 };
 
-#endif /* XAPIAN_HGUARD_GLASS_POSITIONLIST_H */
+#endif /* XAPIAN_INCLUDED_GLASS_POSITIONLIST_H */

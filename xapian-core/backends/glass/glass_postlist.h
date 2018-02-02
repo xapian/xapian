@@ -22,8 +22,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_GLASS_POSTLIST_H
-#define OM_HGUARD_GLASS_POSTLIST_H
+#ifndef XAPIAN_INCLUDED_GLASS_POSTLIST_H
+#define XAPIAN_INCLUDED_GLASS_POSTLIST_H
 
 #include <xapian/database.h>
 
@@ -299,4 +299,4 @@ class GlassPostList : public LeafPostList {
 # error GPL source we cannot relicense included in libxapian
 #endif
 
-#endif /* OM_HGUARD_GLASS_POSTLIST_H */
+#endif /* XAPIAN_INCLUDED_GLASS_POSTLIST_H */

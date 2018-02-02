@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_INMEMORY_ALLTERMSLIST_H
-#define OM_HGUARD_INMEMORY_ALLTERMSLIST_H
+#ifndef XAPIAN_INCLUDED_INMEMORY_ALLTERMSLIST_H
+#define XAPIAN_INCLUDED_INMEMORY_ALLTERMSLIST_H
 
 #include "backends/alltermslist.h"
 #include "inmemory_database.h"
@@ -79,4 +79,4 @@ class InMemoryAllTermsList : public AllTermsList
 # error GPL source we cannot relicense included in libxapian
 #endif
 
-#endif /* OM_HGUARD_INMEMORY_ALLTERMSLIST_H */
+#endif /* XAPIAN_INCLUDED_INMEMORY_ALLTERMSLIST_H */

@@ -22,8 +22,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_GLASS_CHECK_H
-#define OM_HGUARD_GLASS_CHECK_H
+#ifndef XAPIAN_INCLUDED_GLASS_CHECK_H
+#define XAPIAN_INCLUDED_GLASS_CHECK_H
 
 #include "glass_table.h"
 
@@ -67,4 +67,4 @@ class GlassTableCheck : public GlassTable {
 # error GPL source we cannot relicense included in libxapian
 #endif
 
-#endif /* OM_HGUARD_GLASS_CHECK_H */
+#endif /* XAPIAN_INCLUDED_GLASS_CHECK_H */

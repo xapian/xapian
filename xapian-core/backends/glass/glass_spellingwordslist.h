@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_HGUARD_GLASS_SPELLINGWORDSLIST_H
-#define XAPIAN_HGUARD_GLASS_SPELLINGWORDSLIST_H
+#ifndef XAPIAN_INCLUDED_GLASS_SPELLINGWORDSLIST_H
+#define XAPIAN_INCLUDED_GLASS_SPELLINGWORDSLIST_H
 
 #include "backends/alltermslist.h"
 #include "glass_spelling.h"
@@ -99,4 +99,4 @@ class GlassSpellingWordsList : public AllTermsList {
     bool at_end() const;
 };
 
-#endif /* XAPIAN_HGUARD_GLASS_SPELLINGWORDSLIST_H */
+#endif /* XAPIAN_INCLUDED_GLASS_SPELLINGWORDSLIST_H */

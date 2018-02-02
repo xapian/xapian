@@ -21,8 +21,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_GLASS_TABLE_H
-#define OM_HGUARD_GLASS_TABLE_H
+#ifndef XAPIAN_INCLUDED_GLASS_TABLE_H
+#define XAPIAN_INCLUDED_GLASS_TABLE_H
 
 #include <xapian/constants.h>
 #include <xapian/error.h>
@@ -986,4 +986,4 @@ compare(BItem a, BItem b)
 # error GPL source we cannot relicense included in libxapian
 #endif
 
-#endif /* OM_HGUARD_GLASS_TABLE_H */
+#endif /* XAPIAN_INCLUDED_GLASS_TABLE_H */

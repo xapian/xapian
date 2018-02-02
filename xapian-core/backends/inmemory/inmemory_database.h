@@ -22,8 +22,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_INMEMORY_DATABASE_H
-#define OM_HGUARD_INMEMORY_DATABASE_H
+#ifndef XAPIAN_INCLUDED_INMEMORY_DATABASE_H
+#define XAPIAN_INCLUDED_INMEMORY_DATABASE_H
 
 #include "api/leafpostlist.h"
 #include "api/smallvector.h"
@@ -365,4 +365,4 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 # error GPL source we cannot relicense included in libxapian
 #endif
 
-#endif /* OM_HGUARD_INMEMORY_DATABASE_H */
+#endif /* XAPIAN_INCLUDED_INMEMORY_DATABASE_H */

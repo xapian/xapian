@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_TESTUTILS_H
-#define OM_HGUARD_TESTUTILS_H
+#ifndef XAPIAN_INCLUDED_TESTUTILS_H
+#define XAPIAN_INCLUDED_TESTUTILS_H
 
 #include "testsuite.h"
 #include <xapian.h>
@@ -91,4 +91,4 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	expected_exception = NULL;\
     } while (0)
 
-#endif // OM_HGUARD_TESTUTILS_H
+#endif // XAPIAN_INCLUDED_TESTUTILS_H

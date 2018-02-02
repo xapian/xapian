@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_GLASS_CURSOR_H
-#define OM_HGUARD_GLASS_CURSOR_H
+#ifndef XAPIAN_INCLUDED_GLASS_CURSOR_H
+#define XAPIAN_INCLUDED_GLASS_CURSOR_H
 
 #include "glass_defs.h"
 
@@ -363,4 +363,4 @@ class MutableGlassCursor : public GlassCursor {
 # error GPL source we cannot relicense included in libxapian
 #endif
 
-#endif /* OM_HGUARD_GLASS_CURSOR_H */
+#endif /* XAPIAN_INCLUDED_GLASS_CURSOR_H */

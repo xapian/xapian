@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_TESTSUITE_H
-#define OM_HGUARD_TESTSUITE_H
+#ifndef XAPIAN_INCLUDED_TESTSUITE_H
+#define XAPIAN_INCLUDED_TESTSUITE_H
 
 #ifndef XAPIAN_UNITTEST
 # include "output.h"
@@ -286,4 +286,4 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 // Newer test macros:
 #include "testmacros.h"
 
-#endif // OM_HGUARD_TESTSUITE_H
+#endif // XAPIAN_INCLUDED_TESTSUITE_H
