@@ -352,8 +352,9 @@ QUOTELOOP:  while (1) {
 		#                    Bar>;
 		# template<typename A,
 		#          typename B>
-	    } elsif ($op eq '&&' && substr($_, $pre[1] - 4, 4) eq 'auto') {
-		# auto&& x
+	    } elsif ($op eq '&&' && substr($_, 0, $pre[1]) =~ /\b(?:auto|bool|double|float|int(?:\d+_t)?|long|string|uint\d+_t|unsigned|[A-Z][A-Za-z0-9_]*)$/) {
+		# auto&& x;
+		# method(Class&& foo);
 	    } elsif (($op eq '<<' || $op eq '>>') &&
 		substr($_, 0, $pre[1]) =~ /\b(?:0x[0-9a-fA-F]+|[0-9]+)$/ &&
 		substr($_, $post[1]) =~ /^(?:0x[0-9a-fA-F]+|[0-9]+)\b/) {
