@@ -258,10 +258,16 @@ class BufferedFile {
 
     int read() const {
 	if (buf_end == 0) {
+retry:
 	    ssize_t r = ::read(fd, buf, sizeof(buf));
 	    if (r == 0) return EOF;
-	    // FIXME: retry on EINTR
-	    if (r < 0) abort();
+	    if (r < 0) {
+		if (errno == EINTR) goto retry;
+		throw Xapian::DatabaseError("read failed", errno);
+	    }
+	    if (size_t(r) < sizeof(buf)) {
+		memmove(buf + sizeof(buf) - r, buf, r);
+	    }
 	    buf_end = r;
 	}
 	return static_cast<unsigned char>(buf[sizeof(buf) - buf_end--]);
