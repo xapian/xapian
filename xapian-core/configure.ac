@@ -619,7 +619,7 @@ if test x"$enable_documentation" = xyes ; then
 fi
 
 dnl Checks for header files.
-AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
+AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h sys/uio.h], [], [], [ ])
 AC_CHECK_HEADERS([sys/resource.h],
 		 [], [], [#include <sys/types.h>])
 
@@ -1036,7 +1036,7 @@ AC_CHECK_DECL([fdatasync(int)], [
   [#include <unistd.h>]
 )
 
-AC_CHECK_FUNCS([fsync])
+AC_CHECK_FUNCS([fsync writev])
 AC_CHECK_FUNCS([posix_fadvise])
 if test "$win32" = no ; then
   dnl ftruncate() under Wine seems to be buggy and sometimes fails, though

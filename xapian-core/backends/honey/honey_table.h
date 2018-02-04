@@ -30,7 +30,9 @@
 //#include <cstdio>
 #include <cstdlib> // std::abort()
 #include <type_traits>
-#include <sys/uio.h>
+#ifdef HAVE_SYS_UIO_H
+# include <sys/uio.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -176,6 +178,7 @@ class BufferedFile {
 	}
 
 	pos += buf_end + len;
+#ifdef HAVE_WRITEV
 	while (true) {
 	    struct iovec iov[2];
 	    iov[0].iov_base = buf;
@@ -204,6 +207,21 @@ class BufferedFile {
 	    buf_end -= n;
 	    memmove(buf, buf + n, buf_end);
 	}
+#else
+	if (::write(fd, buf, buf_end)) {
+	    // FIXME: retry short write
+	}
+	if (len >= sizeof(buf)) {
+	    // If it's bigger than our buffer, just write it directly.
+	    if (::write(fd, p, len)) {
+		// FIXME: retry short write
+	    }
+	    buf_end = 0;
+	    return;
+	}
+	memcpy(buf, p, len);
+	buf_end = len;
+#endif
     }
 
     int read() const {
