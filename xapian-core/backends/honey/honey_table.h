@@ -227,14 +227,8 @@ class BufferedFile {
     int read() const {
 #if 1
 	if (buf_end == 0) {
-retry:
-	    ssize_t r = pread(fd, buf, sizeof(buf), pos);
-	    if (r == 0) return EOF;
-	    if (r < 0) {
-		if (errno == EINTR) goto retry;
-		throw Xapian::DatabaseError("pread failed", errno);
-	    }
-	    if (size_t(r) < sizeof(buf)) {
+	    size_t r = io_pread(fd, buf, sizeof(buf), pos);
+	    if (r < sizeof(buf)) {
 		memmove(buf + sizeof(buf) - r, buf, r);
 	    }
 	    pos += r;
@@ -243,7 +237,7 @@ retry:
 	return static_cast<unsigned char>(buf[sizeof(buf) - buf_end--]);
 #else
 	unsigned char ch;
-	if (pread(fd, &ch, 1, pos) != 1)
+	if (io_pread(fd, &ch, 1, pos) != 1)
 	    return EOF;
 	++pos;
 	return ch;
@@ -265,9 +259,9 @@ retry:
 	}
 	// FIXME: refill buffer if len < sizeof(buf)
 #endif
-	ssize_t r = pread(fd, p, len, pos);
-	if (r > 0) pos += r;
-	return r == ssize_t(len);
+	size_t r = io_pread(fd, p, len, pos);
+	pos += r;
+	return r == len;
     }
 
     void flush() {

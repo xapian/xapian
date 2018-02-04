@@ -1,7 +1,7 @@
 /** @file io_utils.h
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009,2011,2014,2015,2016 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -118,6 +118,20 @@ void io_write(int fd, const char * p, size_t n);
 inline void io_write(int fd, const unsigned char * p, size_t n) {
     io_write(fd, reinterpret_cast<const char *>(p), n);
 }
+
+/** Read n bytes (or until EOF) into block pointed to by p from file descriptor
+ *  fd starting at position o.
+ *
+ *  If a read error occurs, throws DatabaseError.
+ *
+ *  If @a min is specified and EOF is reached after less than @a min bytes,
+ *  throws DatabaseCorruptError.
+ *
+ *  The current file position may or may not be updated.
+ *
+ *  Returns the number of bytes actually read.
+ */
+size_t io_pread(int fd, char * p, size_t n, off_t o, size_t min = 0);
 
 /** Readahead block b size n bytes from file descriptor fd.
  *

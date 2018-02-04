@@ -1,7 +1,7 @@
 /** @file io_utils.cc
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2004,2006,2007,2008,2009,2011,2012,2014,2015,2016 Olly Betts
+/* Copyright (C) 2004,2006,2007,2008,2009,2011,2012,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -151,6 +151,57 @@ io_write(int fd, const char * p, size_t n)
 	p += c;
 	n -= c;
     }
+}
+
+size_t
+io_pread(int fd, char * p, size_t n, off_t o, size_t min)
+{
+    size_t total = 0;
+#ifdef HAVE_PREAD
+    while (true) {
+	ssize_t c = pread(fd, p, n, o);
+	// We should get a full read most of the time, so streamline that case.
+	if (usual(c == ssize_t(n)))
+	    return total + n;
+	// -1 is error, 0 is EOF
+	if (c <= 0) {
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the read.
+	    if (errno == EINTR) continue;
+	    if (c == 0)
+		throw Xapian::DatabaseError("EOF reading database");
+	    throw Xapian::DatabaseError("Error reading database", errno);
+	}
+	total += c;
+	if (total >= min)
+	    return total;
+	p += c;
+	n -= c;
+	o += c;
+    }
+#else
+    if (rare(lseek(fd, o, SEEK_SET) < 0))
+	throw Xapian::DatabaseError("Error seeking database", errno);
+    while (true) {
+	ssize_t c = read(fd, p, n);
+	// We should get a full read most of the time, so streamline that case.
+	if (usual(c == ssize_t(n)))
+	    return total + n;
+	if (c <= 0) {
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the read.
+	    if (errno == EINTR) continue;
+	    if (c == 0)
+		throw Xapian::DatabaseError("EOF reading database");
+	    throw Xapian::DatabaseError("Error reading database", errno);
+	}
+	total += c;
+	if (total >= min)
+	    return total;
+	p += c;
+	n -= c;
+    }
+#endif
 }
 
 [[noreturn]]
