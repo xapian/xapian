@@ -39,8 +39,6 @@ class BackendManagerHoney : public BackendManager {
     /// The path of the last writable database used.
     std::string last_wdb_name;
 
-    std::string createdb_honey(const std::vector<std::string> & files);
-
   protected:
     /// Get the path of Honey Xapian::Database instance.
     std::string do_get_database_path(const std::vector<std::string> & files);

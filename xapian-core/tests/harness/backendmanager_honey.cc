@@ -39,7 +39,7 @@ BackendManagerHoney::get_dbtype() const
 }
 
 string
-BackendManagerHoney::createdb_honey(const vector<string> & files)
+BackendManagerHoney::do_get_database_path(const vector<string> & files)
 {
     string dbdir = CACHE_DIRECTORY;
     create_dir_if_needed(dbdir);
@@ -71,12 +71,6 @@ BackendManagerHoney::createdb_honey(const vector<string> & files)
     rename(tmpfile.c_str(), dbpath.c_str());
 
     return dbpath;
-}
-
-string
-BackendManagerHoney::do_get_database_path(const vector<string> & files)
-{
-    return createdb_honey(files);
 }
 
 Xapian::WritableDatabase
