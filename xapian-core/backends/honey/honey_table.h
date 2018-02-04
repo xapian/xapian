@@ -27,7 +27,7 @@
 #include <algorithm>
 #include<iostream> // FIXME
 
-//#include <cstdio>
+#include <cstdio> // For EOF
 #include <cstdlib> // std::abort()
 #include <type_traits>
 #ifdef HAVE_SYS_UIO_H
