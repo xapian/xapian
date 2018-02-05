@@ -259,8 +259,9 @@ class BufferedFile {
 	}
 	// FIXME: refill buffer if len < sizeof(buf)
 #endif
-	size_t r = io_pread(fd, p, len, pos);
+	size_t r = io_pread(fd, p, len, pos, len);
 	pos += r;
+	// FIXME: always true - io_pread() throws exception if < min read
 	return r == len;
     }
 
