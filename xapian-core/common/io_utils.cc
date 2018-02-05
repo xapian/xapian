@@ -190,11 +190,11 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 	    return;
 	// -1 is error, 0 is EOF
 	if (c <= 0) {
+	    if (c == 0)
+		throw_block_error("EOF reading block ", b);
 	    // We get EINTR if the syscall was interrupted by a signal.
 	    // In this case we should retry the read.
 	    if (errno == EINTR) continue;
-	    if (c == 0)
-		throw_block_error("EOF reading block ", b);
 	    throw_block_error("Error reading block ", b, errno);
 	}
 	p += c;
@@ -210,11 +210,11 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 	if (usual(c == ssize_t(n)))
 	    return;
 	if (c <= 0) {
+	    if (c == 0)
+		throw_block_error("EOF reading block ", b);
 	    // We get EINTR if the syscall was interrupted by a signal.
 	    // In this case we should retry the read.
 	    if (errno == EINTR) continue;
-	    if (c == 0)
-		throw_block_error("EOF reading block ", b);
 	    throw_block_error("Error reading block ", b, errno);
 	}
 	p += c;
