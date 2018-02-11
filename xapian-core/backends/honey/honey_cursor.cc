@@ -68,10 +68,7 @@ HoneyCursor::next()
     }
     size_t key_size = ch;
     char buf[256];
-    if (!fh.read(buf, key_size)) {
-	throw Xapian::DatabaseError("read of " + str(key_size) + " bytes of "
-				    "key data failed", errno);
-    }
+    fh.read(buf, key_size);
     current_key.assign(last_key, 0, reuse);
     current_key.append(buf, key_size);
     last_key = current_key;
@@ -120,10 +117,7 @@ HoneyCursor::read_tag(bool keep_compressed)
 {
     if (val_size) {
 	current_tag.resize(val_size);
-	if (!fh.read(&(current_tag[0]), val_size))
-	    throw Xapian::DatabaseError("read of " + str(val_size) +
-					"bytes of value data failed",
-					errno);
+	fh.read(&(current_tag[0]), val_size);
 	if (DEBUGGING) {
 	    cerr << "read " << val_size << " bytes of value data ending @"
 		 << fh.get_pos() << endl;

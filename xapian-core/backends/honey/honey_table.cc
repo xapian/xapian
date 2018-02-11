@@ -164,9 +164,7 @@ HoneyTable::read_item(std::string& key,
     }
     size_t key_size = ch;
     char buf[256];
-    if (!fh.read(buf, key_size))
-	throw Xapian::DatabaseError("read of " + str(key_size) + " bytes of "
-				    "key data failed", errno);
+    fh.read(buf, key_size);
     key.assign(last_key, 0, reuse);
     key.append(buf, key_size);
     last_key = key;
@@ -204,10 +202,7 @@ HoneyTable::read_item(std::string& key,
     val_size -= (end - p);
     AssertRel(fh.get_pos() + val_size, <=, root);
     val.resize(val_size);
-    if (!fh.read(&(val[0]), val_size))
-	throw Xapian::DatabaseError("read of " + str(val_size) + " bytes of "
-				    "value data from table failed", errno);
-
+    fh.read(&(val[0]), val_size);
     if (false) {
 	std::string esc;
 	description_append(esc, val);

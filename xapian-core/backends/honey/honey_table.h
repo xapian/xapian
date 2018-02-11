@@ -244,13 +244,13 @@ class BufferedFile {
 #endif
     }
 
-    bool read(char* p, size_t len) const {
+    void read(char* p, size_t len) const {
 #if 1
 	if (buf_end != 0) {
 	    if (len <= buf_end) {
 		memcpy(p, buf + sizeof(buf) - buf_end, len);
 		buf_end -= len;
-		return true;
+		return;
 	    }
 	    memcpy(p, buf + sizeof(buf) - buf_end, buf_end);
 	    p += buf_end;
@@ -260,9 +260,9 @@ class BufferedFile {
 	// FIXME: refill buffer if len < sizeof(buf)
 #endif
 	size_t r = io_pread(fd, p, len, pos, len);
+	// io_pread() should throw an exception if it read < len bytes.
+	AssertEq(r, len);
 	pos += r;
-	// FIXME: always true - io_pread() throws exception if < min read
-	return r == len;
     }
 
     void flush() {
