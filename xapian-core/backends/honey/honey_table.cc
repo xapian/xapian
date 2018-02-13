@@ -200,7 +200,7 @@ HoneyTable::read_item(std::string& key,
     val.assign(p, end);
     if (p != end) std::abort();
     val_size -= (end - p);
-    AssertRel(fh.get_pos() + val_size, <=, root);
+    AssertRel(fh.get_pos() + val_size, <=, size_t(root));
     val.resize(val_size);
     fh.read(&(val[0]), val_size);
     if (false) {
