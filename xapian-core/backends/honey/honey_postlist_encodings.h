@@ -186,9 +186,7 @@ decode_initial_chunk_header_freqs(const char ** p, const char * end,
 	return false;
     }
     if (*p == end) {
-	// Double occurrence boolean term.
-	// FIXME: Use non-zero value here to encode equal wdf?
-	AssertEq(collfreq, 0);
+	// Double occurrence boolean term with first_wdf = floor(collfreq / 2).
 	termfreq = 2;
 	return true;
     }
