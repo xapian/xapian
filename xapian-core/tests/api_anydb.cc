@@ -1405,7 +1405,6 @@ DEFINE_TESTCASE(eliteset4, backend) {
 
     TEST_NOT_EQUAL(mymset2.size(), 0);
     TEST_EQUAL(mymset1, mymset2);
-//    TEST_EQUAL(mymset1, mymset2);
 
     return true;
 }
