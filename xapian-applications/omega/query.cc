@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -1001,6 +1001,8 @@ CMD_snippet,
 CMD_split,
 CMD_stoplist,
 CMD_sub,
+CMD_subdb,
+CMD_subid,
 CMD_substr,
 CMD_suggestion,
 CMD_termprefix,
@@ -1135,6 +1137,8 @@ T(snippet,	   1, 2, N, M), // generate snippet from text
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
+T(subdb,	   0, 1, N, 0), // name of subdb docid is in
+T(subid,	   0, 1, N, 0), // docid in the subdb#
 T(substr,	   2, 3, N, 0), // substring
 T(suggestion,	   0, 0, N, Q), // misspelled word correction suggestion
 T(termprefix,	   1, 1, N, 0), // get any prefix from a term
@@ -1179,6 +1183,22 @@ write_all(int fd, const char * buf, size_t count)
 	count -= r;
     }
     return 0;
+}
+
+static const vector<string>&
+get_subdbs()
+{
+    static vector<string> subdbs;
+    if (subdbs.empty()) {
+	size_t p = 0, q;
+	while (true) {
+	    q = dbname.find('/', p);
+	    subdbs.emplace_back(dbname, p, q - p);
+	    if (q == string::npos) break;
+	    p = q + 1;
+	}
+    }
+    return subdbs;
 }
 
 static string
@@ -2134,6 +2154,19 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_sub:
 		value = str(string_to_int(args[0]) - string_to_int(args[1]));
 		break;
+	    case CMD_subdb: {
+		Xapian::docid id = q0;
+		if (args.size() > 0) id = string_to_int(args[0]);
+		auto subdbs = get_subdbs();
+		value = subdbs[(id - 1) % subdbs.size()];
+		break;
+	    }
+	    case CMD_subid: {
+		Xapian::docid id = q0;
+		if (args.size() > 0) id = string_to_int(args[0]);
+		value = str(((id - 1) / get_subdbs().size()) + 1);
+		break;
+	    }
 	    case CMD_substr: {
 		int start = string_to_int(args[1]);
 		if (start < 0) {
