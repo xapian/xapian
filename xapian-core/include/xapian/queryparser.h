@@ -235,6 +235,62 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
     }
 };
 
+/** Handle a file size range.
+ *
+ *  This class must be used on values which have been encoded using
+ *  Xapian::sortable_serialise() which turns numbers into strings which
+ *  will sort in the same order as the numbers (the same values can be
+ *  used to implement a numeric sort).
+ */
+class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
+  public:
+    /** Constructor.
+     *
+     *  @param slot_    The value slot number to query.
+     *
+     *  @param str_     A string to look for to recognise values as belonging
+     *                  to this file-size range.
+     *
+     *  @param flags_   No flags_ required for using FileSizeRangeProcessor
+     *
+     *  FileSizeRangeProcessor will handle file size as:
+     *  B - Bytes
+     *  K - Kilo Bytes
+     *  M - Mega Bytes
+     *  G - Giga Bytes
+     *  For example, if str_ is "size:",  Xapian::RP_SUFFIX is not specified,
+     *  and the range processor has been added to the queryparser, the
+     *  queryparser will accept "size:10K..1M".
+     *  Examples of valid ranges
+     *    size:10K..1M (10 KB to 1 MB)
+     *    size:10..50  (10 to 50 bytes) If no suffix are provided, units will be interpreted as Bytes
+     *  Examples of invalid ranges
+     *    size:10K..20
+     *    size:K10..K20
+     *    size:10..K20
+     *    size:K10..20
+     *
+     */
+    explicit FileSizeRangeProcessor(Xapian::valueno slot_,
+		const std::string &str_ = std::string(),
+		unsigned flags_ = 0)
+    : RangeProcessor(slot_, str_, flags_) { }
+
+    /** Check for a valid numeric range.
+     *
+     *  If BEGIN..END is a valid file size range example 10..20, 10..20K, 10K..20K
+     *  then last character if specified is converted to appropriate multiplier and
+     *  is multiplied with number specified to convert in to number (bytes), and
+     *  encoded with Xapian::sortable_serialise(),and a value range query is built.
+     *
+     *  @param begin    The start of the range as specified in the query string
+     *          by the user.
+     *  @param end  The end of the range as specified in the query string
+     *          by the user.
+     */
+    Xapian::Query operator()(const std::string& begin, const std::string& end);
+};
+
 /** Handle a date range.
  *
  *  Begin and end must be dates in a recognised format.
