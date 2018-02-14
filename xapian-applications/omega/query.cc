@@ -1314,7 +1314,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_allterms: {
 		// list of all terms indexing document
-		int id = q0;
+		Xapian::docid id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
 		for (Xapian::TermIterator term = db.termlist_begin(id);
 		     term != db.termlist_end(id); ++term) {
@@ -2010,14 +2010,14 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_record: {
-		int id = q0;
+		Xapian::docid id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
 		value = db.get_document(id).get_data();
 		break;
 	    }
 	    case CMD_relevant: {
 		// document id if relevant; empty otherwise
-		int id = q0;
+		Xapian::docid id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
 		map<Xapian::docid, bool>::iterator i = ticked.find(id);
 		if (i != ticked.end()) {
