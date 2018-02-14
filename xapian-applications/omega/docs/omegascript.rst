@@ -646,6 +646,25 @@ $stoplist
 	returns a list of any terms in the query which were ignored as
 	stopwords.
 
+$subdb[{DOCID}]
+        return the name of the sub-database containing ``DOCID`` (or the
+        current document in the histlist if ``DOCID`` is omitted).
+
+        NB: The current implementation assumes that each omega database name
+        corresponds to a single Xapian database - if a database name refers to
+        a stub database file expanding to multiple Xapian databases then this
+        command will misbehave.
+
+$subid[{DOCID}]
+        return the docid in the sub-database corresponding to ``DOCID`` in the
+        combined database (or the current document in the histlist if ``DOCID``
+        is omitted).
+
+        NB: The current implementation assumes that each omega database name
+        corresponds to a single Xapian database - if a database name refers to
+        a stub database file expanding to multiple Xapian databases then this
+        command will misbehave.
+
 $substr{STRING,START[,LENGTH]}
         returns the substring of ``STRING`` which starts at byte position
         ``START`` (the start of the string being 0) and is ``LENGTH`` bytes
