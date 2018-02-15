@@ -209,7 +209,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	int type = it->get_backend_info(&srcdir);
 	// Check destdir isn't the same as any source directory, unless it
 	// is a stub database or we're compacting to an fd.
-	if (!compact_to_stub && !destdir.empty() && srcdir == destdir) {
+	if (!compact_to_stub && !destdir.empty() && srcdir == destdir)
 	    throw Xapian::InvalidArgumentError("destination may not be the same as any source database, unless it is a stub database");
 	switch (type) {
 	    case BACKEND_CHERT:
