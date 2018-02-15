@@ -1,6 +1,3 @@
-branches:
-  only:
-  - appveyor
 skip_tags: true
 # A full clone takes 30 seconds, depth 20 takes 5 seconds.
 clone_depth: 20
