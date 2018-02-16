@@ -301,6 +301,8 @@ class GlassDatabase;
 class GlassFreeListChecker;
 class GlassTable;
 
+class HoneyTable;
+
 #define XAPIAN_PRETTY_AS_CLASSNAME(C)\
 template<class S>\
 inline PrettyOStream<S> &\
@@ -329,6 +331,7 @@ XAPIAN_PRETTY_AS_CLASSNAME(GlassCursor)
 XAPIAN_PRETTY_AS_CLASSNAME(GlassFreeListChecker)
 XAPIAN_PRETTY_AS_CLASSNAME(GlassDatabase)
 XAPIAN_PRETTY_AS_CLASSNAME(GlassTable)
+XAPIAN_PRETTY_AS_CLASSNAME(HoneyTable)
 
 template<class S>
 inline PrettyOStream<S> &
