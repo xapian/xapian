@@ -318,6 +318,9 @@ class ChertDatabase : public Xapian::Database::Internal {
 
 	bool locked() const;
 
+	/** Return true if there are uncommitted changes. */
+	virtual bool has_uncommitted_changes() const;
+
 	static void compact(Xapian::Compactor * compactor,
 			    const char * destdir,
 			    const std::vector<Xapian::Database::Internal *> & sources,
@@ -487,6 +490,9 @@ class ChertWritableDatabase : public ChertDatabase {
 	void set_metadata(const string & key, const string & value);
 	void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 	//@}
+
+	/** Return true if there are uncommitted changes. */
+	bool has_uncommitted_changes() const;
 };
 
 #endif /* OM_HGUARD_CHERT_DATABASE_H */

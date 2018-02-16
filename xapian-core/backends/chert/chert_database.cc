@@ -1042,6 +1042,12 @@ ChertDatabase::locked() const
     return lock.test();
 }
 
+bool
+ChertDatabase::has_uncommitted_changes() const
+{
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
@@ -1726,4 +1732,17 @@ ChertWritableDatabase::invalidate_doc_object(Xapian::Document::Internal * obj) c
 	modify_shortcut_document = NULL;
 	modify_shortcut_docid = 0;
     }
+}
+
+bool
+ChertWritableDatabase::has_uncommitted_changes() const
+{
+    return change_count > 0 ||
+	   postlist_table.is_modified() ||
+	   position_table.is_modified() ||
+	   termlist_table.is_modified() ||
+	   value_manager.is_modified() ||
+	   synonym_table.is_modified() ||
+	   spelling_table.is_modified() ||
+	   record_table.is_modified();
 }

@@ -710,7 +710,6 @@ DEFINE_TESTCASE(compactsingle1, compact && !chert) {
 // Regression test for bug fixed in 1.4.6.  Same as above, except not with
 // a single file database!
 DEFINE_TESTCASE(compact1, compact) {
-    SKIP_TEST_FOR_BACKEND("chert"); // Currently fails.
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("foo");
