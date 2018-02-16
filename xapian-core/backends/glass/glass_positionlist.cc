@@ -216,7 +216,7 @@ void
 GlassRePositionList::read_data(Xapian::docid did,
 			       const string& term)
 {
-    LOGCALL_VOID(DB, "GlassRePositionList::read_data", table | did | term);
+    LOGCALL_VOID(DB, "GlassRePositionList::read_data", did | term);
 
     have_started = false;
 
