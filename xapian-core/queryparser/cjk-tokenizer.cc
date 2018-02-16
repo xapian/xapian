@@ -85,13 +85,17 @@ CJK::codepoint_is_cjk(unsigned p)
 	    (p >= 0x2F800 && p <= 0x2FA1F));
 }
 
+bool
+CJK::codepoint_is_cjk_wordchar(unsigned p)
+{
+    return codepoint_is_cjk(p) && Xapian::Unicode::is_wordchar(p);
+}
+
 string
 CJK::get_cjk(Xapian::Utf8Iterator &it)
 {
     string str;
-    while (it != Xapian::Utf8Iterator() &&
-	   codepoint_is_cjk(*it) &&
-	   Xapian::Unicode::is_wordchar(*it)) {
+    while (it != Xapian::Utf8Iterator() && codepoint_is_cjk_wordchar(*it)) {
 	Xapian::Unicode::append_utf8(str, *it);
 	++it;
     }
@@ -137,7 +141,8 @@ CJKNgramIterator::operator++()
 bool
 CJKWordIterator::equal_to(const CJKTokenIterator & other) const
 {
-    if (CJKWordIterator const* o = dynamic_cast<CJKWordIterator const*>(&other)) {
+    CJKWordIterator const* o = dynamic_cast<CJKWordIterator const*>(&other);
+    if (o) {
 	return p == o->p && q == o->q;
     } else {
 	return false;
@@ -156,7 +161,8 @@ CJKWordIterator::CJKWordIterator(const std::string & s) : CJKTokenIterator(s)
     UErrorCode err = U_ZERO_ERROR;
     brk = icu::BreakIterator::createWordInstance(0/*unknown locale*/, err);
     if (U_FAILURE(err))
-	throw Xapian::InternalError(string("ICU error: ") + string(u_errorName(err)));
+	throw Xapian::InternalError(string("ICU error: ") +
+			string(u_errorName(err)));
     brk->setText(ustr);
     q = brk->first();
     p = brk->next();

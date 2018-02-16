@@ -54,6 +54,8 @@ bool is_cjk_enabled();
 
 bool codepoint_is_cjk(unsigned codepoint);
 
+bool codepoint_is_cjk_wordchar(unsigned codepoint);
+
 std::string get_cjk(Xapian::Utf8Iterator &it);
 
 }
@@ -76,7 +78,7 @@ class CJKTokenIterator {
 	: it(it_) { }
 
     CJKTokenIterator()
-       : it() { }
+	: it() { }
 
     virtual ~CJKTokenIterator() {};
 

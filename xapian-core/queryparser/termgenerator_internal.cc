@@ -131,6 +131,31 @@ check_suffix(unsigned ch)
     return 0;
 }
 
+template<typename ACTION> bool
+parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
+	  ACTION action)
+{
+    const string & cjk = CJK::get_cjk(itor);
+    size_t cjk_left = cjk.length();
+    if (cjk_flags & TermGenerator::FLAG_CJK_WORDS) {
+	for (CJKWordIterator tk(cjk); tk != CJKWordIterator(); ++tk) {
+		const string & cjk_token = *tk;
+		cjk_left -= cjk_token.length();
+		if (!action(cjk_token, with_positions, itor.left() + cjk_left))
+			return false;
+	}
+    } else {
+	for (CJKNgramIterator tk(cjk); tk != CJKNgramIterator(); ++tk) {
+		const string & cjk_token = *tk;
+		// FLAG_CJK_NGRAM only sets positions for tokens of length 1
+		bool with_pos = with_positions && tk.get_length() == 1;
+		if (!action(cjk_token, with_pos, itor.left() + cjk_left))
+			return false;
+	}
+    }
+    return true;
+}
+
 /** Templated framework for processing terms.
  *
  *  Calls action(term, positional) for each term to add, where term is a
@@ -139,7 +164,8 @@ check_suffix(unsigned ch)
  */
 template<typename ACTION>
 static void
-parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions, ACTION action)
+parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions,
+	    ACTION action)
 {
     while (true) {
 	// Advance to the start of the next term.
@@ -174,33 +200,14 @@ parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions, ACTION a
 	}
 
 	while (true) {
-	    if (cjk_flags &&
-		CJK::codepoint_is_cjk(*itor) &&
-		Unicode::is_wordchar(*itor)) {
-		const string & cjk = CJK::get_cjk(itor);
-		size_t cjk_left = cjk.length();
-
-		if (cjk_flags & TermGenerator::FLAG_CJK_WORDS) {
-			for (CJKWordIterator tk(cjk); tk != CJKWordIterator(); ++tk) {
-				const string & cjk_token = *tk;
-				cjk_left -= cjk_token.length();
-				if (!action(cjk_token, with_positions, itor.left() + cjk_left))
-					return;
-			}
-		} else {
-			for (CJKNgramIterator tk(cjk); tk != CJKNgramIterator(); ++tk) {
-				const string & cjk_token = *tk;
-				// FLAG_CJK_NGRAM only sets positions for tokens of length 1
-				if (!action(cjk_token, with_positions && tk.get_length() == 1, itor.left() + cjk_left))
-					return;
-			}
-		}
-
+		if (cjk_flags && CJK::codepoint_is_cjk_wordchar(*itor)) {
+			if (!parse_cjk(itor, cjk_flags, with_positions, action))
+				return;
 		while (true) {
-		    if (itor == Utf8Iterator()) return;
-		    ch = check_wordchar(*itor);
-		    if (ch) break;
-		    ++itor;
+			if (itor == Utf8Iterator()) return;
+			ch = check_wordchar(*itor);
+			if (ch) break;
+			++itor;
 		}
 		continue;
 	    }

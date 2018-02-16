@@ -440,8 +440,9 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
     size_t len = strlen(input);
 
     unsigned cjk_flags = Xapian::TermGenerator::FLAG_CJK_WORDS;
-    TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, 0, "<b>", "</b>", "...", cjk_flags),
-		       "明末時<b>已經</b>有香港地方的概念");
+    TEST_STRINGS_EQUAL(
+	mset.snippet(input, len, stem, 0, "<b>", "</b>", "...", cjk_flags),
+	"明末時<b>已經</b>有香港地方的概念");
 
     return true;
 }
