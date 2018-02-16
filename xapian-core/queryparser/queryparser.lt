@@ -569,16 +569,14 @@ static void yyStackOverflow(yyParser *yypParser){
 */
 #ifdef XAPIAN_DEBUG_LOG
 static void yyTraceShift(yyParser *yypParser, int yyNewState, const char *zTag){
-  if( yyTraceFILE ){
-    if( yyNewState<YYNSTATE ){
-      LOGLINE(QUERYPARSER, zTag << " '" <<
-			   yyTokenName[yypParser->yystack.back().major] <<
-			   "', go to state " << yyNewState);
-    }else{
-      LOGLINE(QUERYPARSER, zTag << " '" <<
-			   yyTokenName[yypParser->yystack.back().major] <<
-			   "', pending reduce " << yyNewState - YY_MIN_REDUCE);
-    }
+  if( yyNewState<YYNSTATE ){
+    LOGLINE(QUERYPARSER, zTag << " '" <<
+			 yyTokenName[yypParser->yystack.back().major] <<
+			 "', go to state " << yyNewState);
+  }else{
+    LOGLINE(QUERYPARSER, zTag << " '" <<
+			 yyTokenName[yypParser->yystack.back().major] <<
+			 "', pending reduce " << yyNewState - YY_MIN_REDUCE);
   }
 }
 #else
@@ -823,16 +821,14 @@ void Parse(
 
 #ifdef XAPIAN_DEBUG_LOG
   {
-    int stateno = yypParser->yystack.back()->stateno;
+    int stateno = yypParser->yystack.back().stateno;
     if( stateno < YY_MIN_REDUCE ){
-      fprintf(yyTraceFILE,"%sInput '%s' in state %d\n",
-              yyTracePrompt,yyTokenName[yymajor],stateno);
       LOGLINE(QUERYPARSER, "Input '" << ParseTokenName(yymajor) <<
-			   "'," << (yyminor ? yyminor->name : "<<null>>")) <<
+			   "'," << (yyminor ? yyminor->name : "<<null>>") <<
 			   "in state " << stateno);
     }else{
       LOGLINE(QUERYPARSER, "Input '" << ParseTokenName(yymajor) <<
-			   "'," << (yyminor ? yyminor->name : "<<null>>")) <<
+			   "'," << (yyminor ? yyminor->name : "<<null>>") <<
 			   "with pending reduce " << stateno-YY_MIN_REDUCE);
     }
   }
@@ -950,7 +946,7 @@ void Parse(
   {
     int i;
     LOGLINE(QUERYPARSER, "Return. Stack=");
-    for(i=1; i<=yypParser->yyidx; i++)
+    for(i=1; i<=(int)yypParser->yystack.size(); i++)
       LOGLINE(QUERYPARSER, yyTokenName[yypParser->yystack[i].major]);
   }
 #endif
