@@ -389,6 +389,48 @@ class XAPIAN_VISIBILITY_DEFAULT NumberRangeProcessor : public RangeProcessor {
     Xapian::Query operator()(const std::string& begin, const std::string& end);
 };
 
+/** Handle a byte unit range.
+ *
+ *  This class must be used on values which have been encoded using
+ *  Xapian::sortable_serialise() which turns numbers into strings which
+ *  will sort in the same order as the numbers (the same values can be
+ *  used to implement a numeric sort).
+ */
+class XAPIAN_VISIBILITY_DEFAULT UnitRangeProcessor : public RangeProcessor {
+  public:
+    /** Constructor.
+     *
+     *  @param slot_    The value slot number to query.
+     *
+     *  @param str_     A string to look for to recognise values as belonging
+     *                  to this numeric range.
+     *
+     *  The string supplied in str_ is the prefix plus ":" that defines the field
+     *  upon which the range query is performed.
+     *
+     *  For example, if str_ is "size:", and the range
+     *  processor has been added to the queryparser, the queryparser will
+     *  accept "size:3K..10K" as a valid range.
+     */
+    UnitRangeProcessor(Xapian::valueno slot_,
+			 const std::string &str_ = std::string())
+	: RangeProcessor(slot_, str_) { }
+
+    /** Check for a valid byte value range.
+     *
+     *  If BEGIN..END is a valid numeric byte range with the specified prefix
+     *  the prefix is removed, the string converted to a number, unit
+     *  normalized and encoded with Xapian::sortable_serialise(),
+     *  and a value range query is built.
+     *
+     *  @param begin	The start of the range as specified in the query string
+     *			by the user.
+     *  @param end	The end of the range as specified in the query string
+     *			by the user.
+     */
+    Xapian::Query operator()(const std::string& begin, const std::string& end);
+};
+
 /// Base class for value range processors.
 class XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor
     : public Xapian::Internal::opt_intrusive_base {

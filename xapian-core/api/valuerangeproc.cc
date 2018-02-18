@@ -439,4 +439,82 @@ not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
 }
 
+static const string byte_units[4] = {
+    "B", "K", "M", "G"
+};
+
+// Return factor for byte unit
+// if string is a valid byte unit
+// else return -1
+static double
+check_byte_unit(const string &s) {
+	double factor = 1;
+	for (int i = 0; i < 4; ++i) {
+	    if (endswith(s, byte_units[i])) {
+		return factor;
+	    }
+	    factor *= 1024;
+	}
+
+	return -1;
+}
+
+Xapian::Query
+UnitRangeProcessor::operator()(const string& b, const string& e)
+{
+    // Parse the numbers to floating point.
+    double num_b, num_e;
+
+    if (!b.empty()) {
+	double factor_b = check_byte_unit(b);
+	if (factor_b == -1) {
+	    // Not a valid byte unit
+	    goto not_our_range;
+	}
+	string b_ = string(b, 0, b.size() - 1);
+
+	errno = 0;
+	const char * startptr = b_.c_str();
+	char * endptr;
+	num_b = strtod(startptr, &endptr);
+	if (endptr != startptr + b_.size() || errno) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+	num_b *= factor_b;
+    } else {
+	// Silence GCC warning.
+	num_b = 0.0;
+    }
+
+    if (!e.empty()) {
+	double factor_e = check_byte_unit(e);
+	if (factor_e == -1) {
+    	    // Not a valid byte unit
+	    goto not_our_range;
+	}
+	string e_ = string(e, 0, e.size() - 1);
+
+	errno = 0;
+	const char * startptr = e_.c_str();
+	char * endptr;
+	num_e = strtod(startptr, &endptr);
+	if (endptr != startptr + e_.size() || errno) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+	num_e *= factor_e;
+    } else {
+	// Silence GCC warning.
+	num_e = 0.0;
+    }
+
+    return RangeProcessor::operator()(
+	    b.empty() ? b : Xapian::sortable_serialise(num_b),
+	    e.empty() ? e : Xapian::sortable_serialise(num_e));
+
+not_our_range:
+    return Xapian::Query(Xapian::Query::OP_INVALID);
+}
+
 }

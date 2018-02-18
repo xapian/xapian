@@ -1726,6 +1726,39 @@ DEFINE_TESTCASE(qp_range4, !backend) {
     return true;
 }
 
+static const test test_unitrange1_queries[] = {
+    { "financial report size:100K..1M", "((financial@1 OR report@2) FILTER VALUE_RANGE 1 \\xe0&@ \\xe04)" },
+    { NULL, NULL }
+};
+
+// Test chaining of UnitRangeProcessor class.
+DEFINE_TESTCASE(qp_range5, !backend) {
+    Xapian::QueryParser qp;
+    Xapian::UnitRangeProcessor rp_size(1, "size:");
+    qp.add_rangeprocessor(&rp_size);
+    for (const test *p = test_unitrange1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 static const test test_value_daterange1_queries[] = {
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
