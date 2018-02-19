@@ -102,7 +102,7 @@ HoneyPostListTable::get_used_docid_range(Xapian::docid& first,
 	// Must be a single doclen chunk starting at 1.
 	AssertEq(cursor->current_key[0], '\0');
 	AssertEq(cursor->current_key[1], '\xe0');
-	last = cursor->current_tag.size() >> 2;
+	last = 0;
     } else {
 	const char* p = cursor->current_key.data();
 	const char* pend = p + cursor->current_key.size();
@@ -113,6 +113,21 @@ HoneyPostListTable::get_used_docid_range(Xapian::docid& first,
 	    p != pend) {
 	    throw Xapian::DatabaseCorruptError("Bad final doclen chunk");
 	}
-	last += (cursor->current_tag.size() >> 2) - 1;
+	--last;
     }
+
+    const string& tag = cursor->current_tag;
+    size_t len = tag.size();
+    if (rare(len == 0))
+	throw Xapian::DatabaseCorruptError("Doclen data chunk is empty");
+
+    unsigned width = static_cast<unsigned char>(tag[0]);
+    if (((width - 8) &~ 0x18) != 0) {
+	throw Xapian::DatabaseCorruptError("Invalid doclen width - "
+					   "currently 8, 16, 24 and 32 "
+					   "are supported");
+    }
+    width /= 8;
+
+    last += (len - 1) / width;
 }

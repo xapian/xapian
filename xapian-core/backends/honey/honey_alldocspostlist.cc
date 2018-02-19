@@ -1,7 +1,7 @@
 /** @file honey_alldocspostlist.cc
  * @brief A PostList which iterates over all documents in a HoneyDatabase.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -190,6 +190,29 @@ HoneyAllDocsPostList::get_description() const
 namespace Honey {
 
 bool
+DocLenChunkReader::read_doclen(const unsigned char* q)
+{
+    switch (width) {
+	case 1:
+	    doclen = *q;
+	    return doclen != 0xff;
+	case 2:
+	    doclen = unaligned_read2(q);
+	    return doclen != 0xffff;
+	case 3:
+	    // q - 1 is always a valid byte - either the leading byte holding
+	    // the data width, or else the last byte of the previous value.
+	    // unaligned_read4() uses bigendian order, so we just need to mask
+	    // off the most significant byte.
+	    doclen = unaligned_read4(q - 1) & 0xffffff;
+	    return doclen != 0xffffff;
+	default:
+	    doclen = unaligned_read4(q);
+	    return doclen != 0xffffffff;
+    }
+}
+
+bool
 DocLenChunkReader::update(HoneyCursor* cursor)
 {
     Xapian::docid first_did = docid_from_key(cursor->current_key);
@@ -198,16 +221,25 @@ DocLenChunkReader::update(HoneyCursor* cursor)
     cursor->read_tag();
 
     size_t len = cursor->current_tag.size();
-    if (len % 4 != 0 || len == 0)
-	throw Xapian::DatabaseCorruptError("Doclen data length not a non-zero "
-					   "multiple of 4");
+    if (rare(len == 0))
+	throw Xapian::DatabaseCorruptError("Doclen data chunk is empty");
 
     p = reinterpret_cast<const unsigned char*>(cursor->current_tag.data());
     end = p + len;
+    width = *p++;
+    if (((width - 8) &~ 0x18) != 0) {
+	throw Xapian::DatabaseCorruptError("Invalid doclen width - currently "
+					   "8, 16, 24 and 32 are supported");
+    }
+    width /= 8;
+    if ((len - 1) % width != 0)
+	throw Xapian::DatabaseCorruptError("Doclen data chunk has junk at end");
+
     did = first_did;
-    // FIXME: Alignment guarantees?
-    doclen = unaligned_read4(p);
-    Assert(doclen != 0xffffffff);
+    if (!read_doclen(p)) {
+	// The first doclen value shouldn't be missing.
+	throw Xapian::DatabaseCorruptError("Invalid first doclen value");
+    }
     return true;
 }
 
@@ -215,16 +247,14 @@ bool
 DocLenChunkReader::next()
 {
     do {
-	p += 4;
+	p += width;
 	if (p == end) {
 	    p = NULL;
 	    return false;
 	}
 
 	++did;
-	// FIXME: Alignment guarantees?
-	doclen = unaligned_read4(p);
-    } while (doclen == 0xffffffff);
+    } while (!read_doclen(p));
     return true;
 }
 
@@ -238,37 +268,32 @@ DocLenChunkReader::skip_to(Xapian::docid target)
 	return true;
 
     Xapian::docid delta = target - did;
-    if (delta >= Xapian::docid((end - p) >> 2)) {
+    if (delta >= Xapian::docid(end - p) / width) {
 	p = NULL;
 	return false;
     }
 
     did = target;
-    p += delta << 2;
+    p += delta * width;
 
-    // FIXME: Alignment guarantees?
-    doclen = unaligned_read4(p);
-    if (doclen == 0xffffffff)
-	return next();
-    return true;
+    return read_doclen(p) || next();
 }
 
-// FIXME: Add check() method, which doesn't advance when it hits a 0xffffffff.
+// FIXME: Add check() method, which doesn't advance when read_doclen() returns
+// false?
 
 bool
 DocLenChunkReader::find_doclength(Xapian::docid target)
 {
-    if (target <= did)
+    if (target < did)
 	return false;
 
     Xapian::docid delta = target - did;
-    if (delta >= Xapian::docid((end - p) >> 2)) {
+    if (delta >= Xapian::docid(end - p) / width) {
 	return false;
     }
 
-    // FIXME: Alignment guarantees?
-    doclen = unaligned_read4(p + (delta << 2));
-    return (doclen != 0xffffffff);
+    return read_doclen(p + delta * width);
 }
 
 }

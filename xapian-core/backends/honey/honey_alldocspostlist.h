@@ -1,7 +1,7 @@
 /** @file honey_alldocspostlist.h
  * @brief A PostList which iterates over all documents in a HoneyDatabase.
  */
-/* Copyright (C) 2006,2007,2008,2009,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2017,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -63,6 +63,10 @@ class DocLenChunkReader {
     Xapian::docid did;
 
     Xapian::termcount doclen;
+
+    unsigned width;
+
+    bool read_doclen(const unsigned char* q);
 
   public:
     /// Create a DocLenChunkReader which is already at_end().

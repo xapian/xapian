@@ -411,12 +411,14 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		throw Xapian::DatabaseCorruptError("Decoding last docid delta "
 						   "in glass docdata chunk");
 
+	    Xapian::termcount doclen_max = 0;
 	    while (true) {
 		Xapian::termcount doclen;
 		if (!unpack_uint(&d, e, &doclen))
 		    throw Xapian::DatabaseCorruptError("Decoding doclen in "
 						       "glass docdata chunk");
-		Assert(doclen != 0xffffffff);
+		if (doclen > doclen_max)
+		    doclen_max = doclen;
 		unsigned char buf[4];
 		unaligned_write4(buf, doclen);
 		newtag.append(reinterpret_cast<char*>(buf), 4);
@@ -434,7 +436,35 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    Assert(!startswith(newtag, "\xff\xff\xff\xff"));
 	    Assert(!endswith(newtag, "\xff\xff\xff\xff"));
 
-	    swap(tag, newtag);
+	    // Only encode document lengths using a whole number of bytes for
+	    // now.  We could allow arbitrary bit widths, but it complicates
+	    // encoding and decoding so we should consider if the fairly small
+	    // additional saving is worth it.
+	    if (doclen_max >= 0xffff) {
+		if (doclen_max >= 0xffffff) {
+		    newtag.insert(0, 1, char(32));
+		    swap(tag, newtag);
+		} else if (doclen_max >= 0xffffffff) {
+		    // FIXME: Handle these.
+		    const char* m = "Document length values >= 0xffffffff not "
+				    "currently handled";
+		    throw Xapian::FeatureUnavailableError(m);
+		} else {
+		    tag.assign(1, char(24));
+		    for (size_t i = 1; i < newtag.size(); i += 4)
+			tag.append(newtag, i, 3);
+		}
+	    } else {
+		if (doclen_max >= 0xff) {
+		    tag.assign(1, char(16));
+		    for (size_t i = 2; i < newtag.size(); i += 4)
+			tag.append(newtag, i, 2);
+		} else {
+		    tag.assign(1, char(8));
+		    for (size_t i = 3; i < newtag.size(); i += 4)
+			tag.append(newtag, i, 1);
+		}
+	    }
 
 	    return true;
 	}
