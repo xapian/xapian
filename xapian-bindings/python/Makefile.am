@@ -165,6 +165,14 @@ all-local: $(sphinxdocs)
 $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON2_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
 ## We need to run Sphinx for the right version of Python here, so we can't
 ## just run sphinx-build as that might be for a different version.
+##
+## sphinx >= 1.7.0 no longer skips the first argument passed to
+## sphinx.main(). Therefore we have to skip it ourselves (by
+## taking a slice of sys.argv), and then have a skippable first
+## argument for sphinx < 1.7.0. -bhtml duplicates the subsequent
+## -b html, and so apparently is safe.
+##
+## Change was merged here: https://github.com/sphinx-doc/sphinx/pull/3668
 	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON2) \
-		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv))' \
-		-b html -d doctrees -c docs $(srcdir)/docs docs/html
+		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv[1:]))' \
+		-bhtml -b html -d doctrees -c docs $(srcdir)/docs docs/html
