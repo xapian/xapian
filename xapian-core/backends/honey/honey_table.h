@@ -1,7 +1,7 @@
 /** @file honey_table.h
  * @brief HoneyTable class
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@
 #include "io_utils.h"
 #include "pack.h"
 #include "str.h"
+#include "wordaccess.h"
 
 #include "unicode/description_append.h"
 
@@ -290,7 +291,9 @@ class HoneyCursor;
 
 class SSIndex {
     std::string data;
+#if 0 // For skiplist:
     size_t block = 0;
+#endif
     size_t n_index = 0;
     std::string last_index_key;
     // Put an index entry every this much:
@@ -298,10 +301,42 @@ class SSIndex {
     enum { INDEXBLOCK = 1024 };
     SSIndex* parent_index = NULL;
 
+    // For array:
+    unsigned char first, last = static_cast<unsigned char>(-1);
+    off_t* pointers = NULL;
+
   public:
     SSIndex() { }
 
+    ~SSIndex() {
+	delete [] pointers;
+    }
+
     void maybe_add_entry(const std::string& key, off_t ptr) {
+#if 1 // Array.
+	unsigned char initial = key[0];
+	if (!pointers) {
+	    pointers = new off_t[256]();
+	    first = initial;
+	} else if (initial == last) {
+	    return;
+	}
+
+	while (++last != initial) {
+	    pointers[last] = ptr;
+	    // FIXME: Perhaps record this different, so an exact key search can
+	    // return false?
+	}
+	pointers[initial] = ptr;
+	last = initial;
+#elif 0 // Binary chop.
+	// FIXME: constant width entries would allow binary chop, but take a
+	// lot more space.  could impose max key width and just insert based on
+	// that, but still more space than storing key by length.  Or "SKO" -
+	// fixed width entry which encodes variable length pointer and key with
+	// short keys in the entry and long keys pointed to (or prefix included
+	// and rest pointed to).
+#else // Skiplist.
 	size_t cur_block = ptr / INDEXBLOCK;
 	if (cur_block == block)
 	    return;
@@ -318,21 +353,42 @@ class SSIndex {
 	pack_uint(data, static_cast<std::make_unsigned<off_t>::type>(ptr));
 
 	block = cur_block;
+	// FIXME: deal with parent_index...
+#endif
+
 	last_index_key = key;
 
 	++n_index;
-
-	// FIXME: deal with parent_index...
-
-	// FIXME: constant width entries would allow binary chop, but take a
-	// lot more space.  could impose max key width and just insert based on
-	// that, but still more space than storing key by length.  Or "SKO" -
-	// fixed width entry which encodes variable length pointer and key with
-	// short keys in the entry and long keys pointed to (or prefix included
-	// and rest pointed to).
     }
 
     off_t write(BufferedFile& fh) {
+#if 1 // Array:
+	if (!pointers) {
+	    first = last = 0;
+	    pointers = new off_t[1]();
+	}
+	data.resize(0);
+	data.resize(3 + (last - first + 1) * 4);
+	data[0] = 0;
+	data[1] = first;
+	data[2] = last - first;
+	for (unsigned ch = first; ch <= last; ++ch) {
+	    size_t o = 3 + (ch - first) * 4;
+	    // FIXME: Just make offsets 8 bytes?  Or allow different widths?
+	    off_t ptr = pointers[ch];
+	    if (ptr > 0xffffffff)
+		throw Xapian::DatabaseError("Index offset needs >4 bytes");
+	    Assert(o + 4 <= data.size());
+	    unaligned_write4(reinterpret_cast<unsigned char*>(&data[o]), ptr);
+	}
+	delete [] pointers;
+	pointers = NULL;
+#elif 0 // Binary chop.
+	// FIXME
+#else // Skiplist.
+	// Already built in data.
+#endif
+
 	off_t root = fh.get_pos();
 	fh.write(data.data(), data.size());
 	// FIXME: parent stuff...

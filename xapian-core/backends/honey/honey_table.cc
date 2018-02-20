@@ -85,6 +85,7 @@ HoneyTable::add(const std::string& key,
 					   str(key.size()));
     if (key <= last_key)
 	throw Xapian::InvalidOperationError("New key <= previous key");
+    off_t index_pos = fh.get_pos();
     if (!last_key.empty()) {
 	size_t len = std::min(last_key.size(), key.size());
 	size_t i;
@@ -99,7 +100,16 @@ HoneyTable::add(const std::string& key,
 	fh.write(key.data(), key.size());
     }
     ++num_entries;
-    index.maybe_add_entry(key, fh.get_pos());
+#if 1 // Array
+    // For an array index, the index point is right before the complete key.
+    if (!last_key.empty()) ++index_pos;
+#elif 0 // Binary chop
+    // FIXME implement
+#else
+    // Skiplist
+    index_pos = fh.get_pos();
+#endif
+    index.maybe_add_entry(key, index_pos);
 
     // Encode "compressed?" flag in bottom bit.
     // FIXME: Don't do this if a table is uncompressed?  That saves a byte
@@ -221,14 +231,32 @@ HoneyTable::get_exact_entry(const std::string& key, std::string& tag) const
 	    throw_database_closed();
 	return false;
     }
-    fh.rewind(offset);
-    last_key = std::string();
+    fh.rewind(root);
+    if (rare(key.empty()))
+	return false;
+    unsigned index_type = fh.read();
+    if (index_type != 0x00)
+	throw Xapian::DatabaseCorruptError("Unknown index type");
+    unsigned char first = key[0] - fh.read();
+    unsigned char range = fh.read();
+    if (first > range)
+	return false;
+    fh.skip(first * 4); // FIXME: pointer width
+    off_t jump = fh.read() << 24;
+    jump |= fh.read() << 16;
+    jump |= fh.read() << 8;
+    jump |= fh.read();
+    fh.rewind(jump);
+    // The jump point will be an entirely new key (because it is the first key
+    // with that initial character), and we drop in as if this was the first
+    // key so set last_key to be empty.
+    last_key = string();
+
     std::string k, v;
     bool compressed;
     int cmp;
     do {
 	// FIXME: avoid reading tag data on every iteration
-	// FIXME: use index
 	if (!read_item(k, v, compressed)) return false;
 	cmp = k.compare(key);
     } while (cmp < 0);

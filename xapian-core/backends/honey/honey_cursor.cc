@@ -46,15 +46,16 @@ HoneyCursor::next()
 	val_size = 0;
     }
 
-    if (fh.get_pos() == root) {
+    if (fh.get_pos() >= root) {
+	AssertEq(fh.get_pos(), root);
 	is_at_end = true;
 	return false;
     }
 
     int ch = fh.read();
     if (ch == EOF) {
-	is_at_end = true;
-	return false;
+	// The root check above should mean this can't legitimately happen.
+	throw Xapian::DatabaseCorruptError("EOF reading key");
     }
 
     size_t reuse = 0;
@@ -157,15 +158,41 @@ HoneyCursor::find_exact(const string& key)
 	description_append(esc, key);
 	cerr << "find_exact(" << esc << ") @" << fh.get_pos() << endl;
     }
-    if (is_at_end) {
-	rewind();
-    } else {
-	// FIXME: use index
+
+    if (rare(key.empty()))
+	return false;
+
+    bool use_index = true;
+    if (!is_at_end && !current_key.empty() && current_key[0] == key[0]) {
 	int cmp0 = current_key.compare(key);
 	if (cmp0 == 0) return true;
-	if (cmp0 > 0) {
-	    rewind();
+	if (cmp0 < 0) {
+	    // We're going forwards to a key with the same first character, so
+	    // an array index won't help us.
+	    use_index = false;
 	}
+    }
+
+    if (use_index) {
+	fh.rewind(root);
+	unsigned index_type = fh.read();
+	if (index_type != 0x00)
+	    throw Xapian::DatabaseCorruptError("Unknown index type");
+	unsigned char first = key[0] - fh.read();
+	unsigned char range = fh.read();
+	if (first > range)
+	    return false;
+	fh.skip(first * 4); // FIXME: pointer width
+	off_t jump = fh.read() << 24;
+	jump |= fh.read() << 16;
+	jump |= fh.read() << 8;
+	jump |= fh.read();
+	fh.rewind(jump);
+	// The jump point will be an entirely new key (because it is the first
+	// key with that initial character), and we drop in as if this was the
+	// first key so set last_key to be empty.
+	last_key = string();
+	val_size = 0;
     }
 
     while (next()) {
@@ -184,15 +211,51 @@ HoneyCursor::find_entry_ge(const string& key)
 	description_append(esc, key);
 	cerr << "find_entry_ge(" << esc << ") @" << fh.get_pos() << endl;
     }
-    if (is_at_end) {
+
+    if (rare(key.empty())) {
 	rewind();
-    } else {
-	// FIXME: use index
-	int cmp0 = current_key.compare(key);
-	if (cmp0 == 0) return true;
-	if (cmp0 > 0) {
-	    rewind();
+	next();
+	return false;
+    }
+
+    bool use_index = true;
+    if (!is_at_end && !last_key.empty() && last_key[0] == key[0]) {
+	int cmp0 = last_key.compare(key);
+	if (cmp0 == 0) {
+	    current_key = last_key;
+	    return true;
 	}
+	if (cmp0 < 0) {
+	    // We're going forwards to a key with the same first character, so
+	    // an array index won't help us.
+	    use_index = false;
+	}
+    }
+
+    if (use_index) {
+	fh.rewind(root);
+	unsigned index_type = fh.read();
+	if (index_type != 0x00)
+	    throw Xapian::DatabaseCorruptError("Unknown index type");
+	unsigned char first = key[0] - fh.read();
+	unsigned char range = fh.read();
+	if (first > range) {
+	    is_at_end = true;
+	    return false;
+	}
+	fh.skip(first * 4); // FIXME: pointer width
+	off_t jump = fh.read() << 24;
+	jump |= fh.read() << 16;
+	jump |= fh.read() << 8;
+	jump |= fh.read();
+	fh.rewind(jump);
+	AssertEq(jump, fh.get_pos());
+	// The jump point will be an entirely new key (because it is the first
+	// key with that initial character), and we drop in as if this was the
+	// first key so set last_key to be empty.
+	last_key = string();
+	is_at_end = false;
+	val_size = 0;
     }
 
     while (next()) {
@@ -200,7 +263,6 @@ HoneyCursor::find_entry_ge(const string& key)
 	if (cmp == 0) return true;
 	if (cmp > 0) return false;
     }
-    is_at_end = true;
     return false;
 }
 
