@@ -32,15 +32,20 @@
 
 #include <string>
 
-// turn off warnings for "-Wold-style-cast"
+#ifdef __GNUC__
+// turn off some warnings for libicu headers
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wundef"
+#endif // __GNUC__
 
-#include <unicode/unistr.h>
 #include <unicode/brkiter.h>
+#include <unicode/unistr.h>
 
+#ifdef __GNUC__
 // turn the warnings back on
 #pragma GCC diagnostic pop
+#endif // __GNUC__
 
 namespace CJK {
 
