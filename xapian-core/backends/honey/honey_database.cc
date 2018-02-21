@@ -139,10 +139,12 @@ HoneyDatabase::get_doclength(Xapian::docid did) const
 	}
     }
 
-    // If exact is true, the desired docid is first in this chunk.
-    bool exact = doclen_cursor->find_entry(Honey::make_doclenchunk_key(did));
+    // If exact is true, the desired docid is the last in this chunk.
+    bool exact = doclen_cursor->find_entry_ge(Honey::make_doclenchunk_key(did));
     if (doclen_chunk_reader.update(doclen_cursor)) {
-	if (exact || doclen_chunk_reader.find_doclength(did)) {
+	if (exact)
+	    return doclen_chunk_reader.back();
+	if (doclen_chunk_reader.find_doclength(did)) {
 	    return doclen_chunk_reader.get_doclength();
 	}
     }

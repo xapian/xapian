@@ -37,7 +37,7 @@ inline std::string
 make_doclenchunk_key(Xapian::docid did)
 {
     std::string key("\0\xe0", 2);
-    if (did > 1) pack_uint_preserving_sort(key, did);
+    pack_uint_preserving_sort(key, did);
     return key;
 }
 
@@ -47,9 +47,7 @@ docid_from_key(const std::string& key)
     const char * p = key.data();
     const char * end = p + key.length();
     // Fail if not a doclen chunk key.
-    if (end - p < 2 || *p++ != '\0' || *p++ != '\xe0') return 0;
-    if (p == end)
-	return 1;
+    if (end - p <= 2 || *p++ != '\0' || *p++ != '\xe0') return 0;
     Xapian::docid did;
     if (!unpack_uint_preserving_sort(&p, end, &did))
 	throw Xapian::DatabaseCorruptError("bad doclen key");
@@ -93,6 +91,12 @@ class DocLenChunkReader {
      *  Return false if this isn't the right chunk.
      */
     bool find_doclength(Xapian::docid target);
+
+    /// Return the last document length in this chunk.
+    Xapian::termcount back() {
+	(void)read_doclen(end - width);
+	return doclen;
+    }
 };
 
 }

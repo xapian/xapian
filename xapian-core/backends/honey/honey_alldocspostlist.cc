@@ -111,20 +111,26 @@ HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
 	return NULL;
     }
 
-    if (reader.skip_to(did)) return NULL;
+    Assert(!reader.at_end());
 
-    if (!cursor->find_entry(make_doclenchunk_key(did))) {
+    if (reader.skip_to(did))
+	return NULL;
+
+    if (cursor->find_entry_ge(make_doclenchunk_key(did))) {
+	// Exact match.
+	if (rare(!reader.update(cursor))) {
+	    // Shouldn't be possible.
+	    Assert(false);
+	}
+	if (reader.skip_to(did)) return NULL;
+	// The chunk's last docid is did, so skip_to() should always succeed.
+	Assert(false);
+    } else if (!cursor->after_end()) {
 	if (reader.update(cursor)) {
 	    if (reader.skip_to(did)) return NULL;
-	}
-	// The requested docid is between two chunks.
-	cursor->next();
-    }
-
-    // Either an exact match, or in a gap before the start of a chunk.
-    if (!cursor->after_end()) {
-	if (reader.update(cursor)) {
-	    return NULL;
+	    // The chunk's last docid is >= did, so skip_to() should always
+	    // succeed.
+	    Assert(false);
 	}
     }
 
@@ -152,7 +158,7 @@ HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
     }
 
     // Try moving to the appropriate chunk.
-    if (!cursor->find_entry(make_doclenchunk_key(did))) {
+    if (!cursor->find_entry_ge(make_doclenchunk_key(did))) {
 	// We're in a chunk which might contain the docid.
 	if (reader.update(cursor)) {
 	    if (reader.skip_to(did)) {
@@ -215,8 +221,8 @@ DocLenChunkReader::read_doclen(const unsigned char* q)
 bool
 DocLenChunkReader::update(HoneyCursor* cursor)
 {
-    Xapian::docid first_did = docid_from_key(cursor->current_key);
-    if (!first_did) return false;
+    Xapian::docid last_did = docid_from_key(cursor->current_key);
+    if (!last_did) return false;
 
     cursor->read_tag();
 
@@ -234,6 +240,7 @@ DocLenChunkReader::update(HoneyCursor* cursor)
     width /= 8;
     if ((len - 1) % width != 0)
 	throw Xapian::DatabaseCorruptError("Doclen data chunk has junk at end");
+    Xapian::docid first_did = last_did - (len - 1) / width + 1;
 
     did = first_did;
     if (!read_doclen(p)) {

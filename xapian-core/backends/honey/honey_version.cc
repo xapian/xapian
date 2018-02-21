@@ -50,8 +50,9 @@
 using namespace std;
 
 /// Honey format version (date of change):
-#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,2,20)
-// 2018,2,20  1.5.0 implement array index
+#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,2,21)
+// 2018,2,21  1.5.0 index doclen chunks by last docid in chunk
+// 2018,2,20        implement array index
 // 2018,2,19        allow 1,2,3 as well as 4 byte doc length width
 // 2018,2,2         special case tf=2; first_wdf = floor(collfreq/2)
 // 2018,2,1         pack_uint for postlist data

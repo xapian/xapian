@@ -436,6 +436,8 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    Assert(!startswith(newtag, "\xff\xff\xff\xff"));
 	    Assert(!endswith(newtag, "\xff\xff\xff\xff"));
 
+	    chunk_lastdid = firstdid - 1 + newtag.size() / 4;
+
 	    // Only encode document lengths using a whole number of bytes for
 	    // now.  We could allow arbitrary bit widths, but it complicates
 	    // encoding and decoding so we should consider if the fairly small
@@ -871,8 +873,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	cursor_type * cur = pq.top();
 	string & key = cur->key;
 	if (key_type(key) != KEY_DOCLEN_CHUNK) break;
-	if (cur->firstdid != 1)
-	    pack_uint_preserving_sort(key, cur->firstdid);
+	pack_uint_preserving_sort(key, cur->chunk_lastdid);
 	out->add(key, cur->tag);
 	pq.pop();
 	if (cur->next()) {
