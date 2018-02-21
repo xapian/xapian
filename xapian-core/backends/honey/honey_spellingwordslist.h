@@ -57,9 +57,10 @@ class HoneySpellingWordsList : public AllTermsList {
   public:
     HoneySpellingWordsList(const HoneyDatabase* database_, HoneyCursor* cursor_)
 	    : database(database_), cursor(cursor_), termfreq(0) {
-	// Seek to the entry before the first key with a "W" prefix, so the
-	// first next() will advance us to the first such entry.
-	cursor->find_entry(std::string("W", 1));
+	// Set the cursor to its end to signal we haven't started yet.  Then
+	// if the first action is next() it can use find_entry_ge("W") to
+	// locate the first word.
+	cursor->to_end();
     }
 
     /// Destructor.

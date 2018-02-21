@@ -211,7 +211,13 @@ HoneySynonymTermList::next()
     LOGCALL(DB, TermList *, "HoneySynonymTermList::next", NO_ARGS);
     Assert(!at_end());
 
-    cursor->next();
+    if (cursor->after_end()) {
+	// This is the first action on a new HoneySynonymTermList.
+	if (cursor->find_entry_ge(prefix))
+	    RETURN(NULL);
+    } else {
+	cursor->next();
+    }
     if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
 	delete cursor;
@@ -226,6 +232,13 @@ HoneySynonymTermList::skip_to(const string &term)
 {
     LOGCALL(DB, TermList *, "HoneySynonymTermList::skip_to", term);
     Assert(!at_end());
+
+    if (cursor->after_end() && prefix > term) {
+	// This is the first action on a new HoneySynonymTermList and we were
+	// asked to skip to a term before the prefix - this ought to leave us
+	// on the first term with the specified prefix.
+	RETURN(skip_to(prefix));
+    }
 
     if (!cursor->find_entry_ge(term)) {
 	// The exact term we asked for isn't there, so check if the next

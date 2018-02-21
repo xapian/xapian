@@ -77,6 +77,8 @@ class HoneyCursor {
 	fh.set_pos(o.fh.get_pos());
     }
 
+    void to_end() { is_at_end = true; }
+
     bool after_end() const { return is_at_end; }
 
     bool next();

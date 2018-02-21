@@ -143,15 +143,8 @@ class HoneySynonymTermList : public AllTermsList {
 			 const std::string& prefix_)
 	: database(database_), cursor(cursor_), prefix(prefix_)
     {
-	// Position the cursor on the highest key before the first key we want,
-	// so that the first call to next() will put us on the first key we
-	// want.
-	if (prefix.empty()) {
-	    cursor->find_entry(std::string());
-	} else {
-	    // Seek to the first key before one with the desired prefix.
-	    cursor->find_entry_lt(prefix);
-	}
+	// Set the cursor to its end to signal we haven't started yet.
+	cursor->to_end();
     }
 
     /// Destructor.

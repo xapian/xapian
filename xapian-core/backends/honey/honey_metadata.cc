@@ -43,8 +43,8 @@ HoneyMetadataTermList::HoneyMetadataTermList(
 {
     LOGCALL_CTOR(DB, "HoneyMetadataTermList", database_ | cursor_ | prefix_);
     Assert(cursor);
-    // Seek to the first key before the first metadata key.
-    cursor->find_entry_lt(prefix);
+    // Set the cursor to its end to signal we haven't started yet.
+    cursor->to_end();
 }
 
 HoneyMetadataTermList::~HoneyMetadataTermList()
@@ -92,7 +92,13 @@ HoneyMetadataTermList::next()
     LOGCALL(DB, TermList *, "HoneyMetadataTermList::next", NO_ARGS);
     Assert(!at_end());
 
-    cursor->next();
+    if (cursor->after_end()) {
+	// This is the first action on a new HoneyMetadataTermList.
+	if (cursor->find_entry_ge(prefix))
+	    RETURN(NULL);
+    } else {
+	cursor->next();
+    }
     if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
 	// We've reached the end of the prefixed terms.
 	delete cursor;
@@ -108,11 +114,21 @@ HoneyMetadataTermList::skip_to(const string &key)
     LOGCALL(DB, TermList *, "HoneyMetadataTermList::skip_to", key);
     Assert(!at_end());
 
-    if (!cursor->find_entry_ge(string("\0", 2) + key)) {
-	// The exact term we asked for isn't there, so check if the next
-	// term after it also has the right prefix.
+    // k is the table key (key is the user metadata key).
+    string k(2, '\0');
+    k += key;
+    if (cursor->after_end() && prefix > k) {
+	// This is the first action on a new HoneySynonymTermList and we were
+	// asked to skip to a key before the prefix - this ought to leave us
+	// on the first key with the specified prefix.
+	k = prefix;
+    }
+
+    if (!cursor->find_entry_ge(k)) {
+	// The exact key we asked for isn't there, so check if the next
+	// key after it also has the right prefix.
 	if (cursor->after_end() || !startswith(cursor->current_key, prefix)) {
-	    // We've reached the end of the prefixed terms.
+	    // We've reached the end of the prefixed keys.
 	    delete cursor;
 	    cursor = NULL;
 	}

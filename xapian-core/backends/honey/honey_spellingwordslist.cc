@@ -91,7 +91,12 @@ HoneySpellingWordsList::next()
     LOGCALL(DB, TermList *, "HoneySpellingWordsList::next", NO_ARGS);
     Assert(!at_end());
 
-    cursor->next();
+    if (cursor->after_end()) {
+	// This is the first action on a new HoneySpellingWordsList.
+	(void)cursor->find_entry_ge("W");
+    } else {
+	cursor->next();
+    }
     if (cursor->after_end() || !startswith(cursor->current_key, 'W')) {
 	// We've reached the end of the prefixed terms.
 	delete cursor;
