@@ -1392,7 +1392,6 @@ DEFINE_TESTCASE(sortvalue1, backend) {
 // with that, and testing it there doesn't actually improve the test
 // coverage really.
 DEFINE_TESTCASE(consistency1, backend && !remote) {
-    SKIP_TEST("honey too slow");
     Xapian::Database db(get_database("etext"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, Xapian::Query("the"), Xapian::Query("sky")));
