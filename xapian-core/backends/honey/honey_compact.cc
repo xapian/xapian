@@ -905,7 +905,9 @@ merge_postlists(Xapian::Compactor * compactor,
 	    cur = pq.top();
 	    pq.pop();
 	}
-	Assert(cur == NULL || key_type(cur->key) == KEY_POSTING_CHUNK);
+	if (cur) {
+	    AssertEq(key_type(cur->key), KEY_POSTING_CHUNK);
+	}
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
 		Xapian::termcount first_wdf = tags[0].first_wdf;
