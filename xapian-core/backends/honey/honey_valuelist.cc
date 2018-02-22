@@ -33,12 +33,12 @@ using namespace std;
 bool
 HoneyValueList::update_reader()
 {
-    Xapian::docid first_did = docid_from_key(slot, cursor->current_key);
-    if (!first_did) return false;
+    Xapian::docid last_did = docid_from_key(slot, cursor->current_key);
+    if (!last_did) return false;
 
     cursor->read_tag();
     const string & tag = cursor->current_tag;
-    reader.assign(tag.data(), tag.size(), first_did);
+    reader.assign(tag.data(), tag.size(), last_did);
     return true;
 }
 
@@ -108,58 +108,29 @@ HoneyValueList::skip_to(Xapian::docid did)
 	if (!reader.at_end()) return;
     }
 
-    if (!cursor->find_entry(make_valuechunk_key(slot, did))) {
+    if (cursor->find_entry_ge(make_valuechunk_key(slot, did))) {
+	// Exact match.
+	if (rare(!update_reader())) {
+	    // Shouldn't be possible.
+	    Assert(false);
+	}
+	reader.skip_to(did);
+	if (!at_end()) return;
+	// The chunk's last docid is did, so skip_to() should always succeed.
+	Assert(false);
+    } else if (!cursor->after_end()) {
 	if (update_reader()) {
 	    reader.skip_to(did);
 	    if (!reader.at_end()) return;
-	}
-	// The requested docid is between two chunks.
-	cursor->next();
-    }
-
-    // Either an exact match, or in a gap before the start of a chunk.
-    if (!cursor->after_end()) {
-	if (update_reader()) {
-	    if (!reader.at_end()) return;
+	    // The chunk's last docid is >= did, so skip_to() shouldn't reach
+	    // the end.
+	    Assert(false);
 	}
     }
 
     // We've reached the end.
     delete cursor;
     cursor = NULL;
-}
-
-bool
-HoneyValueList::check(Xapian::docid did)
-{
-    if (!cursor) {
-	cursor = db->get_postlist_cursor();
-	if (!cursor) return true;
-    } else if (!reader.at_end()) {
-	// Check for the requested docid in the current block.
-	reader.skip_to(did);
-	if (!reader.at_end()) return true;
-    }
-
-    // Try moving to the appropriate chunk.
-    if (!cursor->find_entry(make_valuechunk_key(slot, did))) {
-	// We're in a chunk which might contain the docid.
-	if (update_reader()) {
-	    reader.skip_to(did);
-	    if (!reader.at_end()) return true;
-	}
-	return false;
-    }
-
-    // We had an exact match for a chunk starting with specified docid.
-    Assert(!cursor->after_end());
-    if (!update_reader()) {
-	// We found the exact key we built, so it must match the slot.
-	// Therefore update_reader() "can't possibly fail".
-	Assert(false);
-    }
-
-    return true;
 }
 
 string

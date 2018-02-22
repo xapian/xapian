@@ -53,12 +53,12 @@ docid_from_key(Xapian::valueno required_slot, const std::string & key)
     if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') return 0;
     Xapian::valueno slot;
     if (!unpack_uint(&p, end, &slot))
-	throw Xapian::DatabaseCorruptError("bad value key");
+	throw Xapian::DatabaseCorruptError("Bad value key");
     // Fail if for a different slot.
     if (slot != required_slot) return 0;
     Xapian::docid did;
     if (!unpack_uint_preserving_sort(&p, end, &did))
-	throw Xapian::DatabaseCorruptError("bad value key");
+	throw Xapian::DatabaseCorruptError("Bad value key");
     return did;
 }
 
@@ -98,6 +98,10 @@ class HoneyValueManager {
 
     void remove_value(Xapian::docid did, Xapian::valueno slot);
 
+    /** Move the cursor to the chunk containing did.
+     *
+     *  @return The last docid in the chunk, or 0 if off the end of the stream.
+     */
     Xapian::docid get_chunk_containing_did(Xapian::valueno slot,
 					   Xapian::docid did,
 					   std::string &chunk) const;
@@ -187,11 +191,11 @@ class ValueChunkReader {
     /// Create a ValueChunkReader which is already at_end().
     ValueChunkReader() : p(NULL) { }
 
-    ValueChunkReader(const char * p_, size_t len, Xapian::docid did_) {
-	assign(p_, len, did_);
+    ValueChunkReader(const char * p_, size_t len, Xapian::docid last_did) {
+	assign(p_, len, last_did);
     }
 
-    void assign(const char * p_, size_t len, Xapian::docid did_);
+    void assign(const char * p_, size_t len, Xapian::docid last_did);
 
     bool at_end() const { return p == NULL; }
 

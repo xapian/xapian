@@ -48,11 +48,13 @@ using namespace std;
 //  * values named instead of numbered?
 
 void
-ValueChunkReader::assign(const char * p_, size_t len, Xapian::docid did_)
+ValueChunkReader::assign(const char * p_, size_t len, Xapian::docid last_did)
 {
     p = p_;
     end = p_ + len;
-    did = did_;
+    if (!unpack_uint(&p, end, &did))
+	throw Xapian::DatabaseCorruptError("Failed to unpack docid delta");
+    did = last_did - did;
     if (!unpack_string(&p, end, value))
 	throw Xapian::DatabaseCorruptError("Failed to unpack first value");
 }
@@ -147,27 +149,11 @@ HoneyValueManager::get_chunk_containing_did(Xapian::valueno slot,
 	cursor.reset(postlist_table.cursor_get());
     if (!cursor.get()) RETURN(0);
 
-    bool exact = cursor->find_entry(make_valuechunk_key(slot, did));
+    bool exact = cursor->find_entry_ge(make_valuechunk_key(slot, did));
     if (!exact) {
-	// If we didn't find a chunk starting with docid did, then we need
-	// to check if the chunk contains did.
-	const char * p = cursor->current_key.data();
-	const char * end = p + cursor->current_key.size();
-
-	// Check that it is a value stream chunk.
-	if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') RETURN(0);
-
-	// Check that it's for the right value slot.
-	Xapian::valueno v;
-	if (!unpack_uint(&p, end, &v)) {
-	    throw Xapian::DatabaseCorruptError("Bad value key");
-	}
-	if (v != slot) RETURN(0);
-
-	// And get the first docid for the chunk so we can return it.
-	if (!unpack_uint_preserving_sort(&p, end, &did) || p != end) {
-	    throw Xapian::DatabaseCorruptError("Bad value key");
-	}
+	// The chunk doesn't end with docid did, so we need to get
+	// the last docid in the chunk from the key to return.
+	did = docid_from_key(slot, cursor->current_key);
     }
 
     cursor->read_tag();
@@ -194,40 +180,39 @@ class ValueUpdater {
 
     Xapian::docid prev_did;
 
-    Xapian::docid first_did;
+    Xapian::docid last_did;
 
-    Xapian::docid new_first_did;
+    Xapian::docid new_last_did;
 
     Xapian::docid last_allowed_did;
 
     void append_to_stream(Xapian::docid did, const string & value) {
 	Assert(did);
-	if (tag.empty()) {
-	    new_first_did = did;
-	} else {
+	if (!tag.empty()) {
 	    AssertRel(did,>,prev_did);
 	    pack_uint(tag, did - prev_did - 1);
 	}
 	prev_did = did;
+	new_last_did = did;
 	pack_string(tag, value);
 	if (tag.size() >= CHUNK_SIZE_THRESHOLD) write_tag();
     }
 
     void write_tag() {
-	// If the first docid has changed, delete the old entry.
-	if (first_did && new_first_did != first_did) {
-	    table.del(make_valuechunk_key(slot, first_did));
+	// If the last docid has changed, delete the old entry.
+	if (last_did && new_last_did != last_did) {
+	    table.del(make_valuechunk_key(slot, last_did));
 	}
 	if (!tag.empty()) {
-	    table.add(make_valuechunk_key(slot, new_first_did), tag);
+	    table.add(make_valuechunk_key(slot, new_last_did), tag);
 	}
-	first_did = 0;
+	last_did = 0;
 	tag.resize(0);
     }
 
   public:
     ValueUpdater(HoneyPostListTable& table_, Xapian::valueno slot_)
-	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
+	: table(table_), slot(slot_), last_did(0), last_allowed_did(0) { }
 
     ~ValueUpdater() {
 	while (!reader.at_end()) {
@@ -257,37 +242,48 @@ class ValueUpdater {
 	if (last_allowed_did == 0) {
 	    last_allowed_did = HONEY_MAX_DOCID;
 	    Assert(tag.empty());
-	    new_first_did = 0;
+	    new_last_did = 0;
 	    unique_ptr<HoneyCursor> cursor(table.cursor_get());
-	    if (cursor->find_entry(make_valuechunk_key(slot, did))) {
-		// We found an exact match, so the first docid is the one
+	    if (cursor->find_entry_ge(make_valuechunk_key(slot, did))) {
+		// We found an exact match, so the last docid is the one
 		// we looked for.
-		first_did = did;
+		last_did = did;
 	    } else {
 		Assert(!cursor->after_end());
 		// Otherwise we need to unpack it from the key we found.
 		// We may have found a non-value-chunk entry in which case
 		// docid_from_key() returns 0.
-		first_did = docid_from_key(slot, cursor->current_key);
+		last_did = docid_from_key(slot, cursor->current_key);
 	    }
 
 	    // If there are no further chunks, then the last docid that can go
 	    // in this chunk is the highest valid docid.  If there are further
 	    // chunks then it's one less than the first docid of the next
 	    // chunk.
-	    if (first_did) {
+	    if (last_did) {
 		// We found a value chunk.
 		cursor->read_tag();
 		// FIXME:swap(cursor->current_tag, ctag);
 		ctag = cursor->current_tag;
-		reader.assign(ctag.data(), ctag.size(), first_did);
+		reader.assign(ctag.data(), ctag.size(), last_did);
 	    }
 	    if (cursor->next()) {
 		const string & key = cursor->current_key;
-		Xapian::docid next_first_did = docid_from_key(slot, key);
-		if (next_first_did) last_allowed_did = next_first_did - 1;
+		Xapian::docid next_last_did = docid_from_key(slot, key);
+		if (next_last_did) {
+		    cursor->read_tag();
+		    Xapian::docid delta;
+		    const char* p = cursor->current_tag.data();
+		    const char* e = p + cursor->current_tag.size();
+		    if (!unpack_uint(&p, e, &delta)) {
+			throw Xapian::DatabaseCorruptError("Failed to unpack "
+							   "docid delta");
+		    }
+		    Xapian::docid next_first_did = next_last_did - delta;
+		    last_allowed_did = next_first_did - 1;
+		}
 		Assert(last_allowed_did);
-		AssertRel(last_allowed_did,>=,first_did);
+		AssertRel(last_allowed_did,>=,last_did);
 	    }
 	}
 
@@ -518,11 +514,11 @@ HoneyValueManager::get_value(Xapian::docid did, Xapian::valueno slot) const
 
     // Read it from the table.
     string chunk;
-    Xapian::docid first_did;
-    first_did = get_chunk_containing_did(slot, did, chunk);
-    if (first_did == 0) return string();
+    Xapian::docid last_did;
+    last_did = get_chunk_containing_did(slot, did, chunk);
+    if (last_did == 0) return string();
 
-    ValueChunkReader reader(chunk.data(), chunk.size(), first_did);
+    ValueChunkReader reader(chunk.data(), chunk.size(), last_did);
     reader.skip_to(did);
     if (reader.at_end() || reader.get_docid() != did) return string();
     return reader.get_value();

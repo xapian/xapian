@@ -64,8 +64,6 @@ class HoneyValueList : public Xapian::ValueIterator::Internal {
 
     void skip_to(Xapian::docid);
 
-    bool check(Xapian::docid did);
-
     std::string get_description() const;
 };
 

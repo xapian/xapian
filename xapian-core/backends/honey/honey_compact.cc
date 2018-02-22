@@ -59,6 +59,7 @@
 #ifndef DISABLE_GPL_LIBXAPIAN
 # include "../glass/glass_database.h"
 # include "../glass/glass_table.h"
+# include "../glass/glass_values.h"
 #endif
 
 using namespace std;
@@ -359,14 +360,26 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    Xapian::valueno slot;
 	    if (!unpack_uint(&p, end, &slot))
 		throw Xapian::DatabaseCorruptError("bad value key");
-	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&p, end, &did))
+	    Xapian::docid first_did;
+	    if (!unpack_uint_preserving_sort(&p, end, &first_did))
 		throw Xapian::DatabaseCorruptError("bad value key");
-	    did += offset;
+	    first_did += offset;
+
+	    Glass::ValueChunkReader reader(tag.data(), tag.size(), first_did);
+	    Xapian::docid last_did = first_did;
+	    while (reader.next(), !reader.at_end()) {
+		last_did = reader.get_docid();
+	    }
 
 	    key.assign("\0\xd8", 2);
 	    pack_uint(key, slot);
-	    pack_uint_preserving_sort(key, did);
+	    pack_uint_preserving_sort(key, last_did);
+
+	    // Add the docid delta across the chunk to the start of the tag.
+	    string newtag;
+	    pack_uint(newtag, last_did - first_did);
+	    tag.insert(0, newtag);
+
 	    return true;
 	}
 
