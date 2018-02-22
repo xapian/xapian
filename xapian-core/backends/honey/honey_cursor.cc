@@ -214,7 +214,6 @@ HoneyCursor::find_entry_ge(const string& key)
 
     if (rare(key.empty())) {
 	rewind();
-	next();
 	return false;
     }
 
