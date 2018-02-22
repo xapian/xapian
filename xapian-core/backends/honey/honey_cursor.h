@@ -89,8 +89,6 @@ class HoneyCursor {
 
     bool find_entry_ge(const std::string& key);
 
-    bool find_entry(const std::string& key);
-
     void find_entry_lt(const std::string& key);
 
     HoneyCursor * clone() const {
