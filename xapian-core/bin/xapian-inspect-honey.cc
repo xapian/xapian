@@ -144,8 +144,8 @@ show_help()
 	    "prev   : Previous entry (alias 'p')\n"
 	    "first  : First entry (alias 'f')\n"
 	    "last   : Last entry (alias 'l')\n"
-	    "goto K : Goto entry with key K (alias 'g')\n"
-	    "until K: Display entries until key K (alias 'u')\n"
+	    "goto K : Goto first entry with key >= K (alias 'g')\n"
+	    "until K: Display entries until key >= K (alias 'u')\n"
 	    "until  : Display entries until end (alias 'u')\n"
 	    "open T : Open table T instead (alias 'o') - e.g. open postlist\n"
 	    "keys   : Toggle showing keys (default: true) (alias 'k')\n"
@@ -159,6 +159,10 @@ show_entry(HoneyCursor & cursor)
 {
     if (cursor.after_end()) {
 	cout << "After end" << endl;
+	return;
+    }
+    if (cursor.current_key.empty()) {
+	cout << "Before start" << endl;
 	return;
     }
     if (keys) {
@@ -195,18 +199,18 @@ do_until(HoneyCursor & cursor, const string & target)
 
     size_t count = 0;
     while (cursor.next()) {
-	int cmp = 1;
-	if (!target.empty()) {
-	    cmp = target.compare(cursor.current_key);
-	    if (cmp < 0) {
-		cout << "No exact match, stopping at entry before, "
-			"having advanced by " << count << " entries." << endl;
-		cursor.find_entry_lt(cursor.current_key);
-		return;
-	    }
-	}
 	++count;
 	show_entry(cursor);
+
+	if (target.empty())
+	    continue;
+
+	int cmp = target.compare(cursor.current_key);
+	if (cmp < 0) {
+	    cout << "No exact match, stopping at entry after, "
+		    "having advanced by " << count << " entries." << endl;
+	    return;
+	}
 	if (cmp == 0) {
 	    cout << "Advanced by " << count << " entries." << endl;
 	    return;
@@ -214,6 +218,15 @@ do_until(HoneyCursor & cursor, const string & target)
     }
 
     cout << "Reached end, having advanced by " << count << " entries." << endl;
+}
+
+static void
+goto_last(HoneyCursor& cursor)
+{
+    // To position on the last key we just do a < search for a key greater than
+    // any possible key - one longer than the longest possible length and
+    // consisting entirely of the highest sorting byte value.
+    cursor.find_entry_lt(string(HONEY_MAX_KEY_LEN + 1, '\xff'));
 }
 
 int
@@ -345,7 +358,7 @@ open_different_table:
 	cout << "Table has " << table.get_entry_count() << " entries" << endl;
 
 	HoneyCursor cursor(&table);
-	cursor.find_entry(string());
+	cursor.find_entry_ge(string());
 	cursor.next();
 
 	while (!cin.eof()) {
@@ -361,20 +374,24 @@ wait_for_input:
 		input.resize(input.size() - 1);
 
 	    if (input.empty() || input == "n" || input == "next") {
-		if (cursor.after_end() || !cursor.next()) {
+		if (cursor.after_end()) {
 		    cout << "At end already." << endl;
 		    goto wait_for_input;
 		}
+		(void)cursor.next();
 		continue;
 	    } else if (input == "p" || input == "prev") {
-		// If the cursor has fallen off the end, point it back at
-		// the last entry.
-		if (cursor.after_end()) cursor.find_entry(cursor.current_key);
-		cursor.find_entry_lt(cursor.current_key);
 		if (cursor.current_key.empty()) {
-		    cout << "At start already." << endl;
+		    cout << "Before start already." << endl;
 		    goto wait_for_input;
 		}
+		// If the cursor has fallen off the end, point it back at the
+		// last entry.
+		if (cursor.after_end()) {
+		    goto_last(cursor);
+		    continue;
+		}
+		cursor.find_entry_lt(cursor.current_key);
 		continue;
 	    } else if (startswith(input, "u ")) {
 		do_until(cursor, unescape(input.substr(2)));
@@ -386,23 +403,20 @@ wait_for_input:
 		do_until(cursor, string());
 		goto wait_for_input;
 	    } else if (input == "f" || input == "first") {
-		cursor.find_entry(string());
+		cursor.find_entry_ge(string());
 		cursor.next();
 		continue;
 	    } else if (input == "l" || input == "last") {
-		// To position on the last key we just search for a key with
-		// the longest possible length consisting entirely of the
-		// highest sorting byte value.
-		cursor.find_entry(string(HONEY_MAX_KEY_LEN, '\xff'));
+		goto_last(cursor);
 		continue;
 	    } else if (startswith(input, "g ")) {
-		if (!cursor.find_entry(unescape(input.substr(2)))) {
-		    cout << "No exact match, going to entry before." << endl;
+		if (!cursor.find_entry_ge(unescape(input.substr(2)))) {
+		    cout << "No exact match, going to entry after." << endl;
 		}
 		continue;
 	    } else if (startswith(input, "goto ")) {
-		if (!cursor.find_entry(unescape(input.substr(5)))) {
-		    cout << "No exact match, going to entry before." << endl;
+		if (!cursor.find_entry_ge(unescape(input.substr(5)))) {
+		    cout << "No exact match, going to entry after." << endl;
 		}
 		continue;
 	    } else if (startswith(input, "o ") || startswith(input, "open ")) {
