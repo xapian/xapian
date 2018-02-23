@@ -51,6 +51,7 @@ docid_from_key(const std::string& key)
     Xapian::docid did;
     if (!unpack_uint_preserving_sort(&p, end, &did))
 	throw Xapian::DatabaseCorruptError("bad doclen key");
+    Assert(p == end);
     return did;
 }
 
