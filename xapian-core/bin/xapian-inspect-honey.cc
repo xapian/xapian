@@ -220,15 +220,6 @@ do_until(HoneyCursor & cursor, const string & target)
     cout << "Reached end, having advanced by " << count << " entries." << endl;
 }
 
-static void
-goto_last(HoneyCursor& cursor)
-{
-    // To position on the last key we just do a < search for a key greater than
-    // any possible key - one longer than the longest possible length and
-    // consisting entirely of the highest sorting byte value.
-    cursor.find_entry_lt(string(HONEY_MAX_KEY_LEN + 1, '\xff'));
-}
-
 int
 main(int argc, char **argv)
 {
@@ -381,17 +372,10 @@ wait_for_input:
 		(void)cursor.next();
 		continue;
 	    } else if (input == "p" || input == "prev") {
-		if (cursor.current_key.empty()) {
+		if (!cursor.prev()) {
 		    cout << "Before start already." << endl;
 		    goto wait_for_input;
 		}
-		// If the cursor has fallen off the end, point it back at the
-		// last entry.
-		if (cursor.after_end()) {
-		    goto_last(cursor);
-		    continue;
-		}
-		cursor.find_entry_lt(cursor.current_key);
 		continue;
 	    } else if (startswith(input, "u ")) {
 		do_until(cursor, unescape(input.substr(2)));
@@ -407,7 +391,8 @@ wait_for_input:
 		cursor.next();
 		continue;
 	    } else if (input == "l" || input == "last") {
-		goto_last(cursor);
+		cursor.to_end();
+		cursor.prev();
 		continue;
 	    } else if (startswith(input, "g ")) {
 		if (!cursor.find_entry_ge(unescape(input.substr(2)))) {

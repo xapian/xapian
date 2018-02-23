@@ -265,26 +265,24 @@ HoneyCursor::find_entry_ge(const string& key)
     return false;
 }
 
-void
-HoneyCursor::find_entry_lt(const string& key)
+bool
+HoneyCursor::prev()
 {
-    if (DEBUGGING) {
-	string esc;
-	description_append(esc, key);
-	cerr << "find_entry_lt(" << esc << ") @" << fh.get_pos() << endl;
+    string key;
+    if (is_at_end) {
+	// To position on the last key we just do a < search for a key greater
+	// than any possible key - one longer than the longest possible length
+	// and consisting entirely of the highest sorting byte value.
+	key.assign(HONEY_MAX_KEY_LEN + 1, '\xff');
+    } else {
+	if (current_key.empty())
+	    return false;
+	key = current_key;
     }
-    // FIXME: use index
-    int cmp = -1;
-    if (is_at_end || (cmp = key.compare(current_key)) <= 0) {
-	if (cmp == 0 && rare(&key == &current_key)) {
-	    // Avoid bug with this (which should step back one entry):
-	    // cursor.find_entry_lt(cursor.current_key);
-	    string copy = current_key;
-	    find_entry_lt(copy);
-	    return;
-	}
-	rewind();
-    }
+
+    // FIXME: use index - for an array index we can look at index points for
+    // first characters starting with key[0] and working down.
+    rewind();
 
     off_t pos;
     string k;
@@ -303,4 +301,6 @@ HoneyCursor::find_entry_lt(const string& key)
     val_size = vs;
     current_compressed = compressed;
     fh.set_pos(pos);
+
+    return true;
 }

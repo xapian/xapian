@@ -89,7 +89,16 @@ class HoneyCursor {
 
     bool find_entry_ge(const std::string& key);
 
-    void find_entry_lt(const std::string& key);
+    /** Move to the item before the current one.
+     *
+     *  If the cursor is after_end(), this moves to the last item.
+     *
+     *  If the cursor is at the start of the table (on the empty key), do
+     *  nothing and return false, otherwise return true.
+     *
+     *  This method may not be particularly efficient.
+     */
+    bool prev();
 
     HoneyCursor * clone() const {
 	return new HoneyCursor(*this);
