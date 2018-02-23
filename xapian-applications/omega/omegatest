@@ -309,6 +309,29 @@ testcase '1' one=true
 testcase '2' two=true
 testcase 'erralt' alt=none
 
+# Feature tests for $switch.
+printf '$switch{$cgi{x},1,one,2,two}' > "$TEST_TEMPLATE"
+testcase 'one' x=1
+testcase 'two' x=2
+testcase '' x=3
+printf '$switch{$cgi{x},1,one,2,two,default}' > "$TEST_TEMPLATE"
+testcase 'one' x=1
+testcase 'two' x=2
+testcase 'default' x=3
+# Check evaluation is lazy.
+printf '$switch{$cgi{x},1,$seterror{err1},2,two}$error' > "$TEST_TEMPLATE"
+testcase 'err1' x=1
+testcase 'two' x=2
+testcase '' x=3
+printf '$switch{$cgi{x},1,one,2,$seterror{err2},default}$error' > "$TEST_TEMPLATE"
+testcase 'one' x=1
+testcase 'err2' x=2
+testcase 'default' x=3
+printf '$switch{$cgi{x},1,one,2,two,$seterror{errdefault}}$error' > "$TEST_TEMPLATE"
+testcase 'one' x=1
+testcase 'two' x=2
+testcase 'errdefault' x=3
+
 # Feature tests for $map.
 printf '$list{$map{$split{-,$cgi{a}},$list{$map{$split{,$cgi{b}},$_},-}},|}' > "$TEST_TEMPLATE"
 testcase '1-2-3|1-2-3' P=text a=ab-cd b=123
