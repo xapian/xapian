@@ -62,7 +62,9 @@ class HoneyPostListTable : public HoneyTable {
 		   Xapian::doccount* termfreq_ptr,
 		   Xapian::termcount* collfreq_ptr) const;
 
-    void get_used_docid_range(Xapian::docid& first, Xapian::docid& last) const;
+    void get_used_docid_range(Xapian::doccount doccount,
+			      Xapian::docid& first,
+			      Xapian::docid& last) const;
 
     std::string get_metadata(const std::string& key) const {
 	std::string value;

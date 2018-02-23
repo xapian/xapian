@@ -22,6 +22,7 @@
 
 #include "honey_postlisttable.h"
 
+#include "honey_alldocspostlist.h"
 #include "honey_cursor.h"
 #include "honey_database.h"
 #include "honey_postlist.h"
@@ -29,6 +30,7 @@
 
 #include <memory>
 
+using namespace Honey;
 using namespace std;
 
 HoneyPostList*
@@ -75,7 +77,8 @@ HoneyPostListTable::get_freqs(const std::string& term,
 }
 
 void
-HoneyPostListTable::get_used_docid_range(Xapian::docid& first,
+HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
+					 Xapian::docid& first,
 					 Xapian::docid& last) const
 {
     unique_ptr<HoneyCursor> cursor;
@@ -84,50 +87,42 @@ HoneyPostListTable::get_used_docid_range(Xapian::docid& first,
     } else {
 	// doccount == 0 should be handled by our caller.
 	Assert(!cursor->after_end());
-	const char* p = cursor->current_key.data();
-	const char* pend = p + cursor->current_key.size();
-	p += 2;
-	if (p[-2] != '\0' ||
-	    p[-1] != '\xe0' ||
-	    !unpack_uint_preserving_sort(&p, pend, &first) ||
-	    p != pend) {
+	Xapian::docid last_in_first_chunk = docid_from_key(cursor->current_key);
+	if (last_in_first_chunk == 0) {
 	    // Note that our caller checks for doccount == 0 and handles that.
-	    throw Xapian::DatabaseCorruptError("Bad first doclen chunk");
+	    throw Xapian::DatabaseCorruptError("Bad first doclen chunk key");
 	}
-    }
-
-    cursor->find_entry_lt(string("\0\xe1", 2));
-    cursor->read_tag();
-    if (cursor->current_key.size() == 2) {
-	// Must be a single doclen chunk starting at 1.
-	AssertEq(cursor->current_key[0], '\0');
-	AssertEq(cursor->current_key[1], '\xe0');
-	last = 0;
-    } else {
-	const char* p = cursor->current_key.data();
-	const char* pend = p + cursor->current_key.size();
-	p += 2;
-	if (p[-2] != '\0' ||
-	    p[-1] != '\xe0' ||
-	    !unpack_uint_preserving_sort(&p, pend, &last) ||
-	    p != pend) {
-	    throw Xapian::DatabaseCorruptError("Bad final doclen chunk");
+	cursor->read_tag();
+	Xapian::docid delta;
+	const char* p = cursor->current_tag.data();
+	const char* pend = p + cursor->current_tag.size();
+	if (!unpack_uint(&p, pend, &delta)) {
+	    throw Xapian::DatabaseCorruptError("Bad first doclen chunk delta");
 	}
-	--last;
+	first = last_in_first_chunk - delta;
     }
 
-    const string& tag = cursor->current_tag;
-    size_t len = tag.size();
-    if (rare(len == 0))
-	throw Xapian::DatabaseCorruptError("Doclen data chunk is empty");
+    // We know the last docid is at least first - 1 + doccount, so seek
+    // to there and then scan forwards.  If we match exactly, then that
+    // is exactly the last docid (our caller handles this case when
+    // first == 1, but not otherwise).
+    last = first - 1 + doccount;
+    if (cursor->find_entry_ge(make_doclenchunk_key(last)))
+	return;
 
-    unsigned width = static_cast<unsigned char>(tag[0]);
-    if (((width - 8) &~ 0x18) != 0) {
-	throw Xapian::DatabaseCorruptError("Invalid doclen width - "
-					   "currently 8, 16, 24 and 32 "
-					   "are supported");
-    }
-    width /= 8;
+    if (cursor->after_end())
+	throw Xapian::DatabaseCorruptError("Missing doclen chunk");
 
-    last += (len - 1) / width;
+    do {
+	Xapian::docid new_last = docid_from_key(cursor->current_key);
+	if (new_last == 0) {
+	    // We've hit a non-doclen item.
+	    return;
+	}
+	last = new_last;
+	cursor->next();
+    } while (!cursor->after_end());
+
+    // We've reached the end of the table (only possible if there are no terms
+    // at all!)
 }

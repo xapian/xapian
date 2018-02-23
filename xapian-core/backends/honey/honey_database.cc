@@ -1,7 +1,7 @@
 /** @file honey_database.cc
  * @brief Honey backend database class
  */
-/* Copyright 2015,2017 Olly Betts
+/* Copyright 2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -475,7 +475,7 @@ HoneyDatabase::get_used_docid_range(Xapian::docid& first,
 	last = last_docid;
 	return;
     }
-    postlist_table.get_used_docid_range(first, last);
+    postlist_table.get_used_docid_range(doccount, first, last);
 }
 
 string
