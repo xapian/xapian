@@ -856,3 +856,12 @@ $if{COND,THEN[,ELSE]}
 
 $include{FILE}
 	include another OmegaScript file
+
+$switch{EXPR,CASE1,VALUE1,[CASE2,VALUE2]...[,DEFAULT]}
+        first evaluates ``EXPR``, and then evaluates ``CASE1``, ``CASE2``, ...
+        in turn until one of them has the same value as ``EXPR`` did, and then
+        evaluates and returns the corresponding ``VALUE``.  If none of the
+        ``CASE`` values matches, then evaluates and returns ``DEFAULT`` (if
+        present, otherwise returns nothing).
+
+        Added in Omega 1.4.6.

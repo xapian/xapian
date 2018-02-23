@@ -1006,6 +1006,7 @@ CMD_subdb,
 CMD_subid,
 CMD_substr,
 CMD_suggestion,
+CMD_switch,
 CMD_termprefix,
 CMD_terms,
 CMD_thispage,
@@ -1144,6 +1145,7 @@ T(subdb,	   0, 1, N, 0), // name of subdb docid is in
 T(subid,	   0, 1, N, 0), // docid in the subdb#
 T(substr,	   2, 3, N, 0), // substring
 T(suggestion,	   0, 0, N, Q), // misspelled word correction suggestion
+T(switch,	   3, N, 1, 0), // return position of substring, or empty string
 T(termprefix,	   1, 1, N, 0), // get any prefix from a term
 T(terms,	   0, 1, N, M), // list of matching terms
 T(thispage,	   0, 0, N, M), // page number of current page
@@ -2223,6 +2225,21 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_suggestion:
 		value = qp.get_corrected_query_string();
 		break;
+	    case CMD_switch: {
+		const string& val = args[0];
+		for (size_t i = 1; i < args.size(); i += 2) {
+		    if (i == args.size() - 1) {
+			// Handle optional "else" value.
+			value = eval(args[i], param);
+			break;
+		    }
+		    if (val == eval(args[i], param)) {
+			value = eval(args[i + 1], param);
+			break;
+		    }
+		}
+		break;
+	    }
 	    case CMD_termprefix:
 		(void)prefix_from_term(&value, args[0]);
 		break;
