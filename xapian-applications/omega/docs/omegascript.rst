@@ -836,9 +836,21 @@ $or{...}
 Control:
 ========
 
+$cond{COND1,THEN1[,COND2,THEN2]...[,ELSE]}
+	evaluates ``COND1``, ``COND2``, ... in turn until a non-empty value is
+        obtained, and then evaluates and returns the corresponding ``THEN``.
+        If all ``COND`` values expand to empty values, then evaluates and
+        returns ``ELSE`` (if present, otherwise returns nothing).
+
+        ``$cond`` provides a neater way of writing a cascading series of
+        ``$if`` checks.  If there's only one condition, ``$cond`` is equivalent
+        to ``$if``.
+
+        Added in Omega 1.4.6.
+
 $if{COND,THEN[,ELSE]}
-	if ``COND`` is non-empty, evaluate ``THEN``, otherwise evaluate else
-	(if present)
+        if ``COND`` is non-empty, evaluates and returns ``THEN``; otherwise
+        evaluates and returns ``ELSE`` (if present, otherwise returns nothing).
 
 $include{FILE}
 	include another OmegaScript file

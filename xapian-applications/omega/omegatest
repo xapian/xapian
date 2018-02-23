@@ -283,6 +283,32 @@ NEWLINE='
 printf '$set{stemmer,}$setmap{boolprefix,lang,L,host,H}$setmap{prefix,,XDEFAULT}$querydescription' > "$TEST_TEMPLATE"
 qtestcase '((XDEFAULTfoo@1 AND XDEFAULTbar@2) FILTER (Hexample.org AND Lzh))' P='host:example.org foo bar lang:zh'
 
+# Feature tests for $cond.
+printf '$cond{$cgi{one},1,$cgi{two},2,$cgi{three},3}' > "$TEST_TEMPLATE"
+testcase '1' one=true
+testcase '2' two=true
+testcase '3' three=true
+testcase '' nothing=true
+testcase '1' one=true two=true three=true
+testcase '2' two=true three=true
+printf '$cond{$cgi{one},1,$cgi{two},2,$cgi{alt}}' > "$TEST_TEMPLATE"
+testcase '1' one=true
+testcase '2' two=true
+testcase 'none' alt=none
+# Check evaluation is lazy.
+printf '$cond{$cgi{one},$seterror{err1},$cgi{two},2,$cgi{alt}}$error' > "$TEST_TEMPLATE"
+testcase 'err1' one=true
+testcase '2' two=true
+testcase 'none' alt=none
+printf '$cond{$cgi{one},1,$cgi{two},$seterror{err2},$cgi{alt}}$error' > "$TEST_TEMPLATE"
+testcase '1' one=true
+testcase 'err2' two=true
+testcase 'none' alt=none
+printf '$cond{$cgi{one},1,$cgi{two},2,$seterror{erralt}}$error' > "$TEST_TEMPLATE"
+testcase '1' one=true
+testcase '2' two=true
+testcase 'erralt' alt=none
+
 # Feature tests for $map.
 printf '$list{$map{$split{-,$cgi{a}},$list{$map{$split{,$cgi{b}},$_},-}},|}' > "$TEST_TEMPLATE"
 testcase '1-2-3|1-2-3' P=text a=ab-cd b=123
