@@ -283,6 +283,17 @@ NEWLINE='
 printf '$set{stemmer,}$setmap{boolprefix,lang,L,host,H}$setmap{prefix,,XDEFAULT}$querydescription' > "$TEST_TEMPLATE"
 qtestcase '((XDEFAULTfoo@1 AND XDEFAULTbar@2) FILTER (Hexample.org AND Lzh))' P='host:example.org foo bar lang:zh'
 
+# Feature tests for $map.
+printf '$list{$map{$split{-,$cgi{a}},$list{$map{$split{,$cgi{b}},$_},-}},|}' > "$TEST_TEMPLATE"
+testcase '1-2-3|1-2-3' P=text a=ab-cd b=123
+printf '$list{$map{$split{-,$cgi{a}},$set{__,$_}$list{$map{$split{,$cgi{b}},$opt{__}$_},-}},|}' > "$TEST_TEMPLATE"
+testcase 'a1-a2-a3|b1-b2-b3' P=text a=a-b b=123
+printf '$list{$map{$split{-,$cgi{a}},$list{$map{$split{$_,$cgi{b}},$_},-}},|}' > "$TEST_TEMPLATE"
+testcase '1-2,3|1:2-3' P=text a=':-,' b='1:2,3'
+# Check that the outer $_ is restored after the inner $map.
+printf '$list{$map{$split{-,$cgi{a}},$list{$map{$split{,$cgi{b}},$_},-}$_},|}' > "$TEST_TEMPLATE"
+testcase '1-2-3a|1-2-3b' P=text a='a-b' b='123'
+
 # Feature tests for $match.
 printf '$match{$cgi{a},$cgi{b},$cgi{c}}' > "$TEST_TEMPLATE"
 testcase 'true' P=text a="ab*c+" b="ac"
