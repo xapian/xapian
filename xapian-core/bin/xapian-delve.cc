@@ -164,7 +164,7 @@ decode_and_show_value(const string& value)
 	    break;
 	case VALUE_PACKED_INT: {
 	    unsigned long long i = 0;
-	    for (unsigned ch : value) {
+	    for (unsigned char ch : value) {
 		i = (i << 8) | ch;
 	    }
 	    cout << i;
