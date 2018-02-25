@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +34,9 @@
 #include <cstring>
 #include <cstdlib>
 #include "safeerrno.h"
+#include "unicode/description_append.h"
+
+#include "unicode/description_append.cc"
 
 using namespace Xapian;
 using namespace std;
@@ -44,6 +47,14 @@ static int verbose = 0;
 static bool showvalues = false;
 static bool showdocdata = false;
 static bool count_zero_length_docs = false;
+
+// How to decode document values.
+static enum {
+    VALUE_ESCAPE,
+    VALUE_SORTABLE_SERIALISE,
+    VALUE_PACKED_INT,
+    VALUE_RAW
+} value_decode = VALUE_ESCAPE;
 
 #define PROG_NAME "delve"
 #define PROG_DESC "Inspect the contents of a Xapian database"
@@ -58,9 +69,16 @@ static void show_usage() {
 "  -t <term> -r <recno>  for position list(s)\n"
 "  -s, --stemmer=LANG    set the stemming language, the default is 'none'\n"
 "  -1                    output one list entry per line\n"
-"  -V                    output values for each document referred to\n"
-"  -V<valueno>           output value valueno for each document referred to\n"
-"                        (or each document in the database if no -r options)\n"
+"  -V[<type>]<valueno>   output value valueno for each document referred to\n"
+"                        (or each document in the database if no -r options).\n"
+"                        <type> can be:\n"
+"                        E: escape in a C-like way (default)\n"
+"                        I: decode as a packed integer\n"
+"                        R: show the raw value (which may contain binary data,\n"
+"                           newlines, invalid UTF-8, etc)\n"
+"                        S: decode using Xapian::sortable_unserialise()\n"
+"  -V[<type>]            output all values for each document referred to.\n"
+"                        <type> is as above.\n"
 "  -d                    output document data for each document referred to\n"
 "  -z                    for db, count documents with length 0\n"
 "  -v                    extra info (wdf and len for postlist;\n"
@@ -132,12 +150,40 @@ show_db_stats(Database &db)
 }
 
 static void
+decode_and_show_value(const string& value)
+{
+    switch (value_decode) {
+	case VALUE_ESCAPE: {
+	    string esc;
+	    description_append(esc, value);
+	    cout << esc;
+	    break;
+	}
+	case VALUE_SORTABLE_SERIALISE:
+	    cout << Xapian::sortable_unserialise(value);
+	    break;
+	case VALUE_PACKED_INT: {
+	    unsigned long long i = 0;
+	    for (unsigned ch : value) {
+		i = (i << 8) | ch;
+	    }
+	    cout << i;
+	    break;
+	}
+	default: // VALUE_RAW
+	    cout << value;
+	    break;
+    }
+}
+
+static void
 show_values(Database &db, docid docid, char sep)
 {
     Document doc = db.get_document(docid);
     ValueIterator v = doc.values_begin();
     while (v != doc.values_end()) {
-	cout << sep << v.get_valueno() << ':' << *v;
+	cout << sep << v.get_valueno() << ':';
+	decode_and_show_value(*v);
 	++v;
     }
 }
@@ -163,8 +209,9 @@ show_value(Database &db,
 {
     while (i != end) {
 	Xapian::docid did = *i;
-	cout << "Value " << slot << " for record #" << did << ": "
-	     << db.get_document(did).get_value(slot) << endl;
+	cout << "Value " << slot << " for record #" << did << ": ";
+	decode_and_show_value(db.get_document(did).get_value(slot));
+	cout << endl;
 	++i;
     }
 }
@@ -303,6 +350,24 @@ main(int argc, char **argv) try {
 		break;
 	    case 'V':
 		if (optarg) {
+		    switch (*optarg) {
+			case 'R':
+			    value_decode = VALUE_RAW;
+			    ++optarg;
+			    break;
+			case 'I':
+			    value_decode = VALUE_PACKED_INT;
+			    ++optarg;
+			    break;
+			case 'S':
+			    value_decode = VALUE_SORTABLE_SERIALISE;
+			    ++optarg;
+			    break;
+			case 'E':
+			    value_decode = VALUE_ESCAPE;
+			    ++optarg;
+			    break;
+		    }
 		    char * end;
 		    errno = 0;
 		    unsigned long n = strtoul(optarg, &end, 10);
@@ -383,7 +448,8 @@ main(int argc, char **argv) try {
 	    cout << "Value " << slot << " for each document:";
 	    ValueIterator it = db.valuestream_begin(slot);
 	    while (it != db.valuestream_end(slot)) {
-		cout << separator << it.get_docid() << ':' << *it;
+		cout << separator << it.get_docid() << ':';
+		decode_and_show_value(*it);
 		++it;
 	    }
 	    cout << endl;
