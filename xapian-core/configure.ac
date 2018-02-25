@@ -431,6 +431,8 @@ AC_TRY_COMPILE([
 CXXFLAGS=$save_CXXFLAGS
 
 AC_CHECK_DECLS([__builtin_bswap16, __builtin_bswap32], [], [], [ ])
+AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong], [], [],
+	       [#include <stdlib.h>])
 AC_CHECK_DECLS([__builtin_clz, __builtin_clzl, __builtin_clzll], [], [], [ ])
 AC_CHECK_DECLS([__builtin_ctz, __builtin_ctzl, __builtin_ctzll], [], [], [ ])
 AC_CHECK_DECLS([__builtin_expect], [], [], [ ])
