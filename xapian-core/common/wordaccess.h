@@ -1,7 +1,7 @@
 /** @file wordaccess.h
  * @brief functions for reading and writing different width words
  */
-/* Copyright (C) 2016 Olly Betts
+/* Copyright (C) 2016,2018 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -33,9 +33,15 @@
 
 #ifndef WORDS_BIGENDIAN
 
+#if HAVE_DECL__BYTESWAP_USHORT || HAVE_DECL__BYTESWAP_ULONG
+# include <stdlib.h>
+#endif
+
 inline int do_bswap(uint16_t value) {
 # if HAVE_DECL___BUILTIN_BSWAP16
     return __builtin_bswap16(value);
+# elif HAVE_DECL__BYTESWAP_USHORT
+    return _byteswap_ushort(value);
 # else
     return (value << 8) | (value >> 8);
 # endif
@@ -44,6 +50,8 @@ inline int do_bswap(uint16_t value) {
 inline int do_bswap(uint32_t value) {
 # if HAVE_DECL___BUILTIN_BSWAP32
     return __builtin_bswap32(value);
+# elif HAVE_DECL__BYTESWAP_USHORT
+    return _byteswap_ulong(value);
 # else
     return (value << 24) |
 	   ((value & 0xff00) << 8) |
