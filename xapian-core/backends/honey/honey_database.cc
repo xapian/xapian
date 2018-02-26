@@ -131,21 +131,24 @@ Xapian::termcount
 HoneyDatabase::get_doclength(Xapian::docid did) const
 {
     Assert(did != 0);
-    if (doclen_cursor == NULL) {
-	doclen_cursor = get_postlist_cursor();
-    } else {
-	if (doclen_chunk_reader.find_doclength(did)) {
-	    return doclen_chunk_reader.get_doclength();
+    if (usual(did <= version_file.get_last_docid())) {
+	if (doclen_cursor == NULL) {
+	    doclen_cursor = get_postlist_cursor();
+	} else {
+	    if (doclen_chunk_reader.find_doclength(did)) {
+		return doclen_chunk_reader.get_doclength();
+	    }
 	}
-    }
 
-    // If exact is true, the desired docid is the last in this chunk.
-    bool exact = doclen_cursor->find_entry_ge(Honey::make_doclenchunk_key(did));
-    if (doclen_chunk_reader.update(doclen_cursor)) {
-	if (exact)
-	    return doclen_chunk_reader.back();
-	if (doclen_chunk_reader.find_doclength(did)) {
-	    return doclen_chunk_reader.get_doclength();
+	// If exact is true, the desired docid is the last in this chunk.
+	bool exact =
+	    doclen_cursor->find_entry_ge(Honey::make_doclenchunk_key(did));
+	if (doclen_chunk_reader.update(doclen_cursor)) {
+	    if (exact)
+		return doclen_chunk_reader.back();
+	    if (doclen_chunk_reader.find_doclength(did)) {
+		return doclen_chunk_reader.get_doclength();
+	    }
 	}
     }
 

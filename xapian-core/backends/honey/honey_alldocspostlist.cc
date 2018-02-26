@@ -296,6 +296,7 @@ DocLenChunkReader::find_doclength(Xapian::docid target)
 	return false;
 
     Xapian::docid delta = target - did;
+    Assert(width > 0);
     if (delta >= Xapian::docid(end - p) / width) {
 	return false;
     }
