@@ -758,7 +758,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			 MSetCmp>(items.begin(), items.end(), mcmp);
 		items.pop_back();
 
-		min_item = items.front();
+		if (!items.empty()) {
+		    // In the get_mset(0, 0, X) (X > 0) case just don't update min_item.
+		    min_item = items.front();
+		}
 		if (sort_by == REL || sort_by == REL_VAL) {
 		    if (docs_matched >= check_at_least) {
 			if (sort_by == REL) {

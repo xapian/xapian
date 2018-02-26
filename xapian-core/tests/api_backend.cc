@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -1650,5 +1650,19 @@ DEFINE_TESTCASE(estimaterounding1, backend) {
     tout << mset.get_description() << endl;
     // Bounds are 111-138, raw estimate is 133.
     TEST_EQUAL(mset.get_matches_estimated() % 10, 0);
+    return true;
+}
+
+/** Regression test for bug with get_mset(0, 0, N) (N > 0).
+ *
+ *  Fixed in 1.5.0 and 1.4.6.
+ */
+DEFINE_TESTCASE(checkatleast4, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("paragraph"));
+    // This used to cause access to an element in an empty vector.
+    Xapian::MSet mset = enq.get_mset(0, 0, 4);
+    TEST_EQUAL(mset.size(), 0);
     return true;
 }
