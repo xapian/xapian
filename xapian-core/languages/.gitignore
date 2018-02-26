@@ -5,6 +5,7 @@
 /.libs
 /.dirstamp
 /snowball
+/allsnowballheaders.h
 /arabic.cc
 /arabic.h
 /armenian.cc
