@@ -1,7 +1,7 @@
 /** @file protomset.h
  * @brief ProtoMSet class
  */
-/* Copyright (C) 2004,2007,2017 Olly Betts
+/* Copyright (C) 2004,2007,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -354,6 +354,10 @@ class ProtoMSet {
 		}
 	    }
 
+	    if (results.size() == 0) {
+		// E.g. get_mset(0, 0, 10);
+		return Xapian::doccount(-1);
+	    }
 	    min_heap.reserve(results.size());
 	    for (Xapian::doccount i = 0; i != results.size(); ++i)
 		min_heap.push_back(i);
