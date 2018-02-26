@@ -59,6 +59,13 @@ hash[=LENGTH]
         If specified, LENGTH must be at least 6 (because the hash takes 6
         characters).
 
+hextobin
+        converts pairs of hex digits to binary byte values (providing a way
+        to specify arbitrary binary strings e.g. for use in a document value
+        slot).  The input should have an even length and be composed entirely
+        of hex digits (if it isn't, an error is reported and the value is
+        unchanged).
+
 index[=PREFIX]
 	split text into words and index probabilistically (with prefix PREFIX
 	if specified).

@@ -506,6 +506,33 @@ testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
 printf '$hash{$cgi{text},invalidhash}' > "$TEST_TEMPLATE"
 testcase 'Exception: Unknown hash function: invalidhash' text="test"
 
+# Feature tests for scriptindex hextobin action.
+printf 'hex : hextobin value=0' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+hex=
+
+hex=41
+
+hex=54657374
+
+hex=4b696C6c
+END
+printf '$list{$map{$split{$cgi{DOCIDS}},$value{0,$_}},|}' > "$TEST_TEMPLATE"
+testcase '|A|Test|Kill' DOCIDS='1 2 3 4'
+
+# Feature test error cases for scriptindex hextobin action.
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null <<'END' |\
+    grep -q "hextobin couldn't decode"
+hex=7g
+END
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null <<'END' |\
+    grep -q "hextobin couldn't decode"
+hex=404
+END
+testcase '7g|404' DOCIDS='1 2'
+
 # Feature tests for termprefix and unprefix.
 printf '$termprefix{$cgi{B}}|$unprefix{$cgi{B}}' > "$TEST_TEMPLATE"
 testcase '|' B=''

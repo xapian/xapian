@@ -72,9 +72,9 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 
 const char * action_names[] = {
     "bad", "new",
-    "boolean", "date", "field", "hash", "index", "indexnopos", "load", "lower",
-    "parsedate", "spell", "truncate", "unhtml", "unique", "value",
-    "valuenumeric", "valuepacked", "weight"
+    "boolean", "date", "field", "hash", "hextobin", "index", "indexnopos",
+    "load", "lower", "parsedate", "spell", "truncate", "unhtml", "unique",
+    "value", "valuenumeric", "valuepacked", "weight"
 };
 
 // For debugging:
@@ -84,7 +84,7 @@ class Action {
 public:
     typedef enum {
 	BAD, NEW,
-	BOOLEAN, DATE, FIELD, HASH, INDEX, INDEXNOPOS, LOAD, LOWER,
+	BOOLEAN, DATE, FIELD, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD, LOWER,
 	PARSEDATE, SPELL, TRUNCATE, UNHTML, UNIQUE, VALUE,
 	VALUENUMERIC, VALUEPACKED, WEIGHT
     } type;
@@ -201,6 +201,8 @@ parse_index_script(const string &filename)
 			    code = Action::HASH;
 			    arg = OPT;
 			    takes_integer_argument = true;
+			} else if (action == "hextobin") {
+			    code = Action::HEXTOBIN;
 			}
 			break;
 		    case 'i':
@@ -410,6 +412,7 @@ parse_index_script(const string &filename)
 	    Action::type action = actions.back().get_action();
 	    switch (action) {
 		case Action::HASH:
+		case Action::HEXTOBIN:
 		case Action::LOWER:
 		case Action::PARSEDATE:
 		case Action::SPELL:
@@ -560,6 +563,30 @@ index_file(const char *fname, istream &stream,
 			unsigned int max_length = i->get_num_arg();
 			if (value.length() > max_length)
 			    value = hash_long_term(value, max_length);
+			break;
+		    }
+		    case Action::HEXTOBIN: {
+			size_t len = value.length();
+			if (len & 1) {
+			    cerr << "hextobin: input must have even length"
+				 << endl;
+			} else {
+			    string output;
+			    output.reserve(len / 2);
+			    for (size_t j = 0; j < len; j += 2) {
+				char a = value[j];
+				char b = value[j + 1];
+				if (!C_isxdigit(a) || !C_isxdigit(b)) {
+				    cerr << "hextobin: input must be all hex "
+					    "digits" << endl;
+				    goto badhex;
+				}
+				char r = (hex_digit(a) << 4) | hex_digit(b);
+				output.push_back(r);
+			    }
+			    value = std::move(output);
+			}
+badhex:
 			break;
 		    }
 		    case Action::LOWER:
