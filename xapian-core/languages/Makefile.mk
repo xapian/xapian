@@ -51,6 +51,7 @@ snowball_headers =\
 
 EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources)\
 	languages/collate-sbl\
+	languages/allsnowballheaders.h\
 	languages/sbl-dispatch.h\
 	languages/Makefile
 
@@ -93,10 +94,12 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 .sbl.h:
 	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
-languages/sbl-dispatch.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
+languages/allsnowballheaders.h: languages/sbl-dispatch.h
+languages/sbl-dispatch.h languages/allsnowballheaders.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/languages/collate-sbl' '$(srcdir)' $(snowball_algorithms)
 
 BUILT_SOURCES += $(snowball_built_sources)\
+	languages/allsnowballheaders.h\
 	languages/sbl-dispatch.h
 CLEANFILES += languages/snowball
 endif
