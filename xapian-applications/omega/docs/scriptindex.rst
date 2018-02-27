@@ -66,6 +66,8 @@ hextobin
         of hex digits (if it isn't, an error is reported and the value is
         unchanged).
 
+        ``hextobin`` was added in Omega 1.4.6.
+
 index[=PREFIX]
 	split text into words and index probabilistically (with prefix PREFIX
 	if specified).
