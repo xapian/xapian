@@ -509,14 +509,16 @@ testcase '|A|Test|Kill' DOCIDS='1 2 3 4'
 
 # Feature test error cases for scriptindex hextobin action.
 rm -rf "$TEST_DB"
-$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null <<'END' |\
-    grep -q "hextobin couldn't decode"
-hex=7g
-END
-$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null <<'END' |\
-    grep -q "hextobin couldn't decode"
-hex=404
-END
+echo hex=7g |\
+    $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null |\
+    grep -q "hextobin: input must be all hex digits" ||\
+    { echo "scriptindex hextobin didn't give error for bad hex digit";\
+      failed=`expr $failed + 1`; }
+echo hex=404 |\
+    $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null |\
+    grep -q "hextobin: input must have even length" ||\
+    { echo "scriptindex hextobin didn't give error for odd length hex string";\
+      failed=`expr $failed + 1`; }
 testcase '7g|404' DOCIDS='1 2'
 
 # Feature tests for termprefix and unprefix.
