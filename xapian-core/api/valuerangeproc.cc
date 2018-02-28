@@ -465,46 +465,73 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
     // Parse the numbers to floating point.
     double num_b, num_e;
 
-    if (!b.empty()) {
-	double factor_b = check_byte_unit(b);
-	if (factor_b == -1) {
-	    // Not a valid byte unit
-	    goto not_our_range;
-	}
+    // True if b has unit, e.g. 20K..
+    bool b_has_unit = false;
 
+    if (!b.empty()) {
 	errno = 0;
 	const char * startptr = b.c_str();
 	char * endptr;
 	num_b = strtod(startptr, &endptr);
-	if (endptr != startptr + b.size() - 1 || errno) {
-	    // Invalid characters in string || overflow or underflow.
+
+	if (errno) {
+	    // overflow or underflow
 	    goto not_our_range;
 	}
-	num_b *= factor_b;
+
+	// For lower range having a unit, e.g. 100K..
+	if (endptr == startptr + b.size() - 1) {
+	    double factor_b = check_byte_unit(b);
+	    if (factor_b == -1) {
+		// Not a valid byte unit
+		goto not_our_range;
+	    }
+	    b_has_unit = true;
+	    num_b *= factor_b;
+	}
     } else {
 	// Silence GCC warning.
 	num_b = 0.0;
     }
 
     if (!e.empty()) {
-	double factor_e = check_byte_unit(e);
-	if (factor_e == -1) {
-    	    // Not a valid byte unit
-	    goto not_our_range;
-	}
-
 	errno = 0;
 	const char * startptr = e.c_str();
 	char * endptr;
 	num_e = strtod(startptr, &endptr);
-	if (endptr != startptr + e.size() - 1 || errno) {
-	    // Invalid characters in string || overflow or underflow.
+
+	if (errno) {
+	    // overflow or underflow
 	    goto not_our_range;
 	}
-	num_e *= factor_e;
+
+	// For upper range having a unit, e.g. ..100K
+	if (endptr == startptr + e.size() - 1) {
+	    double factor_e = check_byte_unit(e);
+	    if (factor_e == -1) {
+		// Not a valid byte unit
+		goto not_our_range;
+	    }
+	    num_e *= factor_e;
+
+	    // When lower range is not empty and
+	    // only upper range unit, e.g. 20..100K
+	    if (!b.empty() && !b_has_unit) {
+		num_b *= factor_e;
+	    }
+	} else {
+	    // When lower range has no unit
+	    goto not_our_range;
+	}
     } else {
 	// Silence GCC warning.
 	num_e = 0.0;
+
+	// Fail case when lower range
+	// has no unit, e.g. 200..
+	if (!b.empty() && !b_has_unit) {
+	    goto not_our_range;
+	}
     }
 
     return RangeProcessor::operator()(
