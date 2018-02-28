@@ -356,6 +356,12 @@ testcase '' P=text a="abc." b="abc${NEWLINE}"
 testcase 'true' P=text a="    ABC #test_comment " b="ABC" c="x"
 testcase '' P=text a="    ABC #test_comment " b="ABC"
 
+# Feature tests for $sort.
+printf '$list{$sort{$split{|,$cgi{input}}},|}' > "$TEST_TEMPLATE"
+testcase 'pineapple' input="pineapple"
+testcase 'apple|banana|coconut' input="coconut|banana|apple"
+testcase '1|b|b|c' input="b|c|b|1"
+
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"

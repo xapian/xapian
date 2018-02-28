@@ -628,6 +628,10 @@ $snippet{TEXT[,LENGTH]}
         ``Xapian::MSet::snippet()``.  The snippet will be at most
         ``LENGTH`` bytes long (default: 200).
 
+$sort{LIST}
+        sort the entries in a list.  The sort order is an ascending string sort
+        by byte value.
+
 $split{STRING}
 
 $split{SPLIT,STRING}
