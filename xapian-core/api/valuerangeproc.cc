@@ -439,7 +439,7 @@ not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
 }
 
-static const string byte_units[4] = {
+static const char byte_units[4][2] = {
     "B", "K", "M", "G"
 };
 
