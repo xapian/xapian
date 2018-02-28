@@ -1728,6 +1728,17 @@ DEFINE_TESTCASE(qp_range4, !backend) {
 
 static const test test_unitrange1_queries[] = {
     { "financial report size:100K..1M", "((financial@1 OR report@2) FILTER VALUE_RANGE 1 \\xe0&@ \\xe04)" },
+    { "size:1B..1G", "VALUE_RANGE 1 \\xa0 \\xe0\\x5c" },
+    // Interpret this as size:10K..100K
+    { "size:10..100K", "VALUE_RANGE 1 \\xd9 \\xe0&@" },
+    // Feature test for single-ended ranges
+    { "size:10K..", "VALUE_GE 1 \\xd9" },
+    { "size:..2M", "VALUE_LE 1 \\xe08" },
+    // Forbidden ranges
+    { "size:10B..100", "Unknown range operation" },
+    { "size:10..100", "Unknown range operation" },
+    { "size:..100", "Unknown range operation" },
+    { "size:10..", "Unknown range operation" },
     { NULL, NULL }
 };
 
