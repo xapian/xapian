@@ -1742,7 +1742,7 @@ static const test test_unitrange1_queries[] = {
     { NULL, NULL }
 };
 
-// Test chaining of UnitRangeProcessor class.
+// Simple Test of UnitRangeProcessor class.
 DEFINE_TESTCASE(qp_range5, !backend) {
     Xapian::QueryParser qp;
     Xapian::UnitRangeProcessor rp_size(1, "size:");
