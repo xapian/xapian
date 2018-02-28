@@ -999,6 +999,7 @@ CMD_setmap,
 CMD_setrelevant,
 CMD_slice,
 CMD_snippet,
+CMD_sort,
 CMD_split,
 CMD_stoplist,
 CMD_sub,
@@ -1138,6 +1139,7 @@ T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 2, N, M), // generate snippet from text
+T(sort,		   1, 1, N, M), // alpha sort a list
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
@@ -2143,6 +2145,31 @@ eval(const string &fmt, const vector<string> &param)
 		value = mset.snippet(args[0], length, *stemmer,
 				     mset.SNIPPET_BACKGROUND_MODEL|mset.SNIPPET_EXHAUSTIVE,
 				     "<strong>", "</strong>", "...");
+		break;
+	    }
+	    case CMD_sort: {
+		const string &list = args[0];
+		if (list.empty()) break;
+		vector<string> items;
+		string::size_type split = 0, split2;
+		do {
+		    split2 = list.find('\t', split);
+		    items.emplace_back(list, split, split2 - split);
+		    split = split2 + 1;
+		} while (split2 != string::npos);
+
+		sort(items.begin(), items.end());
+
+		value.reserve(list.size());
+		bool tab = false;
+		for (auto&& item : items) {
+		    if (tab) {
+			value += '\t';
+		    } else {
+			tab = true;
+		    }
+		    value += item;
+		}
 		break;
 	    }
 	    case CMD_split: {
