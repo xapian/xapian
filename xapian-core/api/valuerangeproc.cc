@@ -471,13 +471,12 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
 	    // Not a valid byte unit
 	    goto not_our_range;
 	}
-	string b_ = string(b, 0, b.size() - 1);
 
 	errno = 0;
-	const char * startptr = b_.c_str();
+	const char * startptr = b.c_str();
 	char * endptr;
 	num_b = strtod(startptr, &endptr);
-	if (endptr != startptr + b_.size() || errno) {
+	if (endptr != startptr + b.size() - 1 || errno) {
 	    // Invalid characters in string || overflow or underflow.
 	    goto not_our_range;
 	}
@@ -493,13 +492,12 @@ UnitRangeProcessor::operator()(const string& b, const string& e)
     	    // Not a valid byte unit
 	    goto not_our_range;
 	}
-	string e_ = string(e, 0, e.size() - 1);
 
 	errno = 0;
-	const char * startptr = e_.c_str();
+	const char * startptr = e.c_str();
 	char * endptr;
 	num_e = strtod(startptr, &endptr);
-	if (endptr != startptr + e_.size() || errno) {
+	if (endptr != startptr + e.size() - 1 || errno) {
 	    // Invalid characters in string || overflow or underflow.
 	    goto not_our_range;
 	}
