@@ -11,7 +11,7 @@ env:
   global:
     # Tell bootstrap where to clone ./common from
     - XAPIAN_COMMON_CLONE_URL=https://github.com/xapian/xapian.git
-    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libmagic pcre libsvm lua mono python3'
+    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libmagic pcre libsvm lua mono python2 python'
 matrix:
   include:
     - compiler: gcc
@@ -61,19 +61,25 @@ matrix:
     - os: osx
       before_install:
         - brew update
+        # python is now python3, but the travis macOS build isn't there yet
+        # so we need to explicitly upgrade otherwise we end up with the old
+        # python (which is 2.7.x) and the python2 package (which is also
+        # 2.7.x). This step can be removed once travis ships with a more
+        # recent homebrew.
+        - brew upgrade python
         # "brew install" unhelpfully errors out if any package listed is
         # already installed and up-to-date, but travis change what's installed
         # by default from time to time so it's brittle to just filter out those
         # installed by default from the list we need.  Instead we ignore the
-        # exit status from "brew install", then check that
+        # exit status from "brew install", then check later that
         # "brew list --versions" says all the packages requested are installed.
         - brew install $HOMEBREW_PACKAGES || true
         - brew list --versions $HOMEBREW_PACKAGES
-        - pip2 install sphinx docutils
-        - pip3 install sphinx
+        - /usr/local/opt/python@2/libexec/bin/pip install sphinx docutils
+        - pip install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
-      env: CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
+      env: PYTHON2=/usr/local/opt/python@2/libexec/bin/python CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"
