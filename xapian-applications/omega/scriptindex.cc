@@ -325,7 +325,7 @@ parse_index_script(const string &filename)
 		switch (code) {
 		    case Action::INDEX:
 		    case Action::INDEXNOPOS:
-			actions.push_back(Action(code, val, weight));
+			actions.emplace_back(code, val, weight);
 			useless_weight_pos = string::npos;
 			break;
 		    case Action::WEIGHT:
@@ -350,7 +350,7 @@ parse_index_script(const string &filename)
 			    actions.pop_back();
 			    code = Action::LOAD;
 			}
-			actions.push_back(Action(code, val));
+			actions.emplace_back(code, val);
 			break;
 		    case Action::UNIQUE:
 			if (had_unique) {
@@ -362,10 +362,10 @@ parse_index_script(const string &filename)
 			had_unique = true;
 			if (boolmap.find(val) == boolmap.end())
 			    boolmap[val] = Action::UNIQUE;
-			actions.push_back(Action(code, val));
+			actions.emplace_back(code, val);
 			break;
 		    case Action::HASH: {
-			actions.push_back(Action(code, val));
+			actions.emplace_back(code, val);
 			auto& obj = actions.back();
 			auto max_length = obj.get_num_arg();
 			if (max_length == 0) {
@@ -382,7 +382,7 @@ parse_index_script(const string &filename)
 			boolmap[val] = Action::BOOLEAN;
 			/* FALLTHRU */
 		    default:
-			actions.push_back(Action(code, val));
+			actions.emplace_back(code, val);
 		}
 		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 	    } else {
@@ -394,9 +394,9 @@ parse_index_script(const string &filename)
 		}
 		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
 		    useless_weight_pos = string::npos;
-		    actions.push_back(Action(code, "", weight));
+		    actions.emplace_back(code, "", weight);
 		} else {
-		    actions.push_back(Action(code));
+		    actions.emplace_back(code);
 		}
 	    }
 	    j = i;
@@ -449,9 +449,9 @@ parse_index_script(const string &filename)
 	for (field = fields.begin(); field != fields.end(); ++field) {
 	    vector<Action> &v = index_spec[*field];
 	    if (v.empty()) {
-		v = actions;
+		v = std::move(actions);
 	    } else {
-		v.push_back(Action(Action::NEW));
+		v.emplace_back(Action::NEW);
 		v.insert(v.end(), actions.begin(), actions.end());
 	    }
 	}
