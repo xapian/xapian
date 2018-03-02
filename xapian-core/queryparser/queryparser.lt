@@ -571,12 +571,12 @@ static void yyStackOverflow(yyParser *yypParser){
 static void yyTraceShift(yyParser *yypParser, int yyNewState, const char *zTag){
   if( yyNewState<YYNSTATE ){
     LOGLINE(QUERYPARSER, zTag << " '" <<
-		   yyTokenName[yypParser->yystack.back().major] <<
-		   "', go to state " << yyNewState);
+			 yyTokenName[yypParser->yystack.back().major] <<
+			 "', go to state " << yyNewState);
   }else{
     LOGLINE(QUERYPARSER, zTag << " '" <<
-		   yyTokenName[yypParser->yystack.back().major] <<
-		   "', pending reduce " << yyNewState - YY_MIN_REDUCE);
+			 yyTokenName[yypParser->yystack.back().major] <<
+			 "', pending reduce " << yyNewState - YY_MIN_REDUCE);
   }
 }
 #else
