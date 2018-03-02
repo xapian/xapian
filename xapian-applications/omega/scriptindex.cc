@@ -368,9 +368,7 @@ parse_index_script(const string &filename)
 			actions.emplace_back(code, val);
 			auto& obj = actions.back();
 			auto max_length = obj.get_num_arg();
-			if (max_length == 0) {
-			    obj.set_num_arg(MAX_SAFE_TERM_LENGTH - 1);
-			} else if (max_length < 6) {
+			if (max_length < 6) {
 			    cerr << filename << ':' << line_no
 				 << ": Index action 'hash' takes an integer "
 				    "argument which must be at least 6" << endl;
@@ -395,6 +393,8 @@ parse_index_script(const string &filename)
 		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
 		    useless_weight_pos = string::npos;
 		    actions.emplace_back(code, "", weight);
+		} else if (code == Action::HASH) {
+		    actions.emplace_back(code, "", MAX_SAFE_TERM_LENGTH - 1);
 		} else {
 		    actions.emplace_back(code);
 		}
