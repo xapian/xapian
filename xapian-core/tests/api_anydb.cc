@@ -753,7 +753,7 @@ DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
 
     TEST_EQUAL(orig, myeset_orig.end());
     TEST_AND_EXPLAIN(filt == myeset.end(),
-	"Extra items in the filtered eset.");
+		     "Extra items in the filtered eset.");
 
     return true;
 }

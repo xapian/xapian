@@ -189,12 +189,12 @@ posixy_open(const char *filename, int flags)
 
     HANDLE handleWin =
 	CreateFile(filename,
-		dwDesiredAccess,
-		dwShareMode,
-		NULL,
-		dwCreationDisposition,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
+		   dwDesiredAccess,
+		   dwShareMode,
+		   NULL,
+		   dwCreationDisposition,
+		   FILE_ATTRIBUTE_NORMAL,
+		   NULL);
     if (handleWin == INVALID_HANDLE_VALUE) {
 	return set_errno_from_getlasterror();
     }

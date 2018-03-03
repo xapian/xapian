@@ -151,8 +151,8 @@ static void report_read_error(const char * position)
     throw Xapian::RangeError("Value in posting list too large.");
 }
 
-static inline bool get_tname_from_key(const char **src, const char *end,
-			       string &tname)
+static inline bool
+get_tname_from_key(const char **src, const char *end, string &tname)
 {
     return unpack_string_preserving_sort(src, end, tname);
 }
@@ -192,7 +192,8 @@ read_start_of_first_chunk(const char ** posptr,
     LOGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk", (const void *)posptr | (const void *)end | (void *)number_of_entries_ptr | (void *)collection_freq_ptr);
 
     GlassPostList::read_number_of_entries(posptr, end,
-			   number_of_entries_ptr, collection_freq_ptr);
+					  number_of_entries_ptr,
+					  collection_freq_ptr);
     if (number_of_entries_ptr)
 	LOGVALUE(DB, *number_of_entries_ptr);
     if (collection_freq_ptr)
@@ -1017,8 +1018,9 @@ GlassPostList::get_description() const
 // Returns the last did to allow in this chunk.
 Xapian::docid
 GlassPostListTable::get_chunk(const string &tname,
-	  Xapian::docid did, bool adding,
-	  PostlistChunkReader ** from, PostlistChunkWriter **to)
+			      Xapian::docid did, bool adding,
+			      PostlistChunkReader ** from,
+			      PostlistChunkWriter **to)
 {
     LOGCALL(DB, Xapian::docid, "GlassPostListTable::get_chunk", tname | did | adding | from | to);
     // Get chunk containing entry

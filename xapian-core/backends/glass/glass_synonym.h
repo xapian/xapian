@@ -137,8 +137,8 @@ class GlassSynonymTermList : public AllTermsList {
 
   public:
     GlassSynonymTermList(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database_,
-		      GlassCursor * cursor_,
-		      const string & prefix_)
+			 GlassCursor * cursor_,
+			 const string & prefix_)
 	    : database(database_), cursor(cursor_), prefix(prefix_)
     {
 	// Position the cursor on the highest key before the first key we want,
