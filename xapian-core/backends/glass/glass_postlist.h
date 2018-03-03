@@ -92,9 +92,9 @@ class GlassPostListTable : public GlassTable {
 	void merge_doclen_changes(const map<Xapian::docid, Xapian::termcount> & doclens);
 
 	Xapian::docid get_chunk(const string &tname,
-		Xapian::docid did, bool adding,
-		Glass::PostlistChunkReader ** from,
-		Glass::PostlistChunkWriter **to);
+				Xapian::docid did, bool adding,
+				Glass::PostlistChunkReader ** from,
+				Glass::PostlistChunkWriter **to);
 
 	/// Compose a key from a termname and docid.
 	static string make_key(const string & term, Xapian::docid did) {

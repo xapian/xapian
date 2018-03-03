@@ -46,10 +46,10 @@ CollapseData::check_item(const vector<Result>& results,
 	// items with a particular collapse key, we never need to use
 	// the heap.
 	Heap::make(items.begin(), items.end(),
-		[&](pair<Xapian::doccount, Xapian::docid> a,
-		    pair<Xapian::doccount, Xapian::docid> b) {
-		    return mcmp(results[a.first], results[b.first]);
-		});
+		   [&](pair<Xapian::doccount, Xapian::docid> a,
+		       pair<Xapian::doccount, Xapian::docid> b) {
+		       return mcmp(results[a.first], results[b.first]);
+		   });
     }
     ++collapse_count;
 
@@ -87,10 +87,10 @@ CollapseData::check_item(const vector<Result>& results,
 
     items.front() = { old_item, result.get_docid() };
     Heap::replace(items.begin(), items.end(),
-	    [&](pair<Xapian::doccount, Xapian::docid> a,
-		pair<Xapian::doccount, Xapian::docid> b) {
-		return mcmp(results[a.first], results[b.first]);
-	    });
+		  [&](pair<Xapian::doccount, Xapian::docid> a,
+		      pair<Xapian::doccount, Xapian::docid> b) {
+		      return mcmp(results[a.first], results[b.first]);
+		  });
 
     return REPLACE;
 }
@@ -117,10 +117,10 @@ CollapseData::add_item(const vector<Result>& results,
 
     items.front() = { item, result.get_docid() };
     Heap::replace(items.begin(), items.end(),
-	    [&](pair<Xapian::doccount, Xapian::docid> a,
-		pair<Xapian::doccount, Xapian::docid> b) {
-		return mcmp(results[a.first], results[b.first]);
-	    });
+		  [&](pair<Xapian::doccount, Xapian::docid> a,
+		      pair<Xapian::doccount, Xapian::docid> b) {
+		      return mcmp(results[a.first], results[b.first]);
+		  });
 }
 
 collapse_result

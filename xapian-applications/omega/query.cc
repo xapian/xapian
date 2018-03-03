@@ -480,8 +480,8 @@ run_query()
 			    op = Xapian::Query::OP_AND;
 			}
 			filter_vec.push_back(Xapian::Query(op,
-						     same_vec.begin(),
-						     same_vec.end()));
+							   same_vec.begin(),
+							   same_vec.end()));
 			break;
 		    }
 		}

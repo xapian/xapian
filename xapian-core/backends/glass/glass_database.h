@@ -227,7 +227,7 @@ class GlassDatabase : public Xapian::Database::Internal {
 	 *                    created.
 	 */
 	explicit GlassDatabase(const string &db_dir_, int flags = Xapian::DB_READONLY_,
-		      unsigned int block_size = 0u);
+			       unsigned int block_size = 0u);
 
 	explicit GlassDatabase(int fd);
 

@@ -316,7 +316,7 @@ class RemoteConnection {
      *				< at_least bytes, but finished the message.
      */
     int get_message_chunk(std::string &result, size_t at_least,
-			   double end_time);
+			  double end_time);
 
     /** Save the contents of a message as a file.
      *

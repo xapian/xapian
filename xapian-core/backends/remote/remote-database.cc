@@ -640,18 +640,18 @@ RemoteDatabase::do_close()
 
 void
 RemoteDatabase::set_query(const Xapian::Query& query,
-			 Xapian::termcount qlen,
-			 Xapian::valueno collapse_key,
-			 Xapian::doccount collapse_max,
-			 Xapian::Enquire::docid_order order,
-			 Xapian::valueno sort_key,
-			 Xapian::Enquire::Internal::sort_setting sort_by,
-			 bool sort_value_forward,
-			 double time_limit,
-			 int percent_threshold, double weight_threshold,
-			 const Xapian::Weight& wtscheme,
-			 const Xapian::RSet &omrset,
-			 const vector<opt_ptr_spy>& matchspies) const
+			  Xapian::termcount qlen,
+			  Xapian::valueno collapse_key,
+			  Xapian::doccount collapse_max,
+			  Xapian::Enquire::docid_order order,
+			  Xapian::valueno sort_key,
+			  Xapian::Enquire::Internal::sort_setting sort_by,
+			  bool sort_value_forward,
+			  double time_limit,
+			  int percent_threshold, double weight_threshold,
+			  const Xapian::Weight& wtscheme,
+			  const Xapian::RSet &omrset,
+			  const vector<opt_ptr_spy>& matchspies) const
 {
     string tmp = query.serialise();
     string message = encode_length(tmp.size());
