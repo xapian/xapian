@@ -141,7 +141,12 @@ foreach $pair (
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( qd($query), "Xapian::Query($res)" );
+    skip(substr($str, 0, 1) eq '!' &&
+	 Search::Xapian::major_version() == 1 &&
+	 Search::Xapian::minor_version() == 2 &&
+	 Search::Xapian::revision() < 21 ?
+	     "Testcase requires xapian-core >= 1.2.21" : 0,
+	qd($query), "Xapian::Query($res)" );
 }
 
 $qp = new Search::Xapian::QueryParser();

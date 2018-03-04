@@ -1,5 +1,11 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.25.1
+	[Changes contributed by Olly Betts]
+	- Skip testcase t/parser.t if we're using xapian-core < 1.2.21 which
+	  doesn't support character '!' in the start of a range.  Reported by
+	  melmothx on #xapian.
+
 1.2.25.0  Tue Sep 26 02:06:18 UTC 2017
 	[Changes contributed by Olly Betts]
 	- Wrap WritableDatabase::commit(), which is the preferred name for
