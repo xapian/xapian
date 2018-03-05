@@ -179,9 +179,12 @@ index_add_default_filters()
 		  Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html",
 			 false));
     // pod2text's output character set doesn't seem to be documented, but from
-    // inspecting the source it looks like it's probably iso-8859-1.
+    // inspecting the source it looks like it's probably iso-8859-1.  We need
+    // to pass "--errors=stderr" or else minor POD formatting errors cause a
+    // file not to be indexed.
     index_command("text/x-perl",
-		  Filter("pod2text", "text/plain", "iso-8859-1", false));
+		  Filter("pod2text --errors=stderr",
+			 "text/plain", "iso-8859-1", false));
     // FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
     // appearing as single ligatures.  For European languages, it's actually
     // better to use -e2 (ISO-8859-1) and then convert, so let's do that for
