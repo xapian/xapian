@@ -182,7 +182,7 @@ index_add_default_filters()
     // pod2text's output character set doesn't seem to be documented, but from
     // inspecting the source it looks like it's probably iso-8859-1.
     index_command("text/x-perl",
-		  Filter("pod2text", "text/plain", "iso-8859-1", false));
+		  Filter("perl -MPod::Text -e '$p = Pod::Text->new(); $p->no_errata_section(1); $p->parse_file($ARGV[0])'", "text/plain", "iso-8859-1", false));
     // FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
     // appearing as single ligatures.  For European languages, it's actually
     // better to use -e2 (ISO-8859-1) and then convert, so let's do that for
