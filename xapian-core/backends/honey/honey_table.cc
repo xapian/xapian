@@ -24,6 +24,7 @@
 #include "honey_table.h"
 
 #include "honey_cursor.h"
+#include "stringutils.h"
 
 using Honey::RootInfo;
 
@@ -87,14 +88,10 @@ HoneyTable::add(const std::string& key,
 	throw Xapian::InvalidOperationError("New key <= previous key");
     off_t index_pos = fh.get_pos();
     if (!last_key.empty()) {
-	size_t len = std::min(last_key.size(), key.size());
-	size_t i;
-	for (i = 0; i < len; ++i) {
-	    if (last_key[i] != key[i]) break;
-	}
-	fh.write(static_cast<unsigned char>(i));
-	fh.write(static_cast<unsigned char>(key.size() - i));
-	fh.write(key.data() + i, key.size() - i);
+	size_t reuse = common_prefix_length(last_key, key);
+	fh.write(static_cast<unsigned char>(reuse));
+	fh.write(static_cast<unsigned char>(key.size() - reuse));
+	fh.write(key.data() + reuse, key.size() - reuse);
     } else {
 	fh.write(static_cast<unsigned char>(key.size()));
 	fh.write(key.data(), key.size());
