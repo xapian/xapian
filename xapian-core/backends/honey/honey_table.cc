@@ -154,7 +154,7 @@ HoneyTable::read_item(std::string& key,
 
     AssertRel(fh.get_pos(), >=, offset);
     if (fh.get_pos() >= root) {
-	Assert(fh.get_pos() == root);
+	AssertEq(fh.get_pos(), root);
 	return false;
     }
     int ch = fh.read();
