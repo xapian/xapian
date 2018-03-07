@@ -228,7 +228,9 @@ class BufferedFile {
     int read() const {
 #if 1
 	if (buf_end == 0) {
-	    size_t r = io_pread(fd, buf, sizeof(buf), pos);
+	    // The buffer is currently empty, so we need to read at least one
+	    // byte.
+	    size_t r = io_pread(fd, buf, sizeof(buf), pos, 1);
 	    if (r < sizeof(buf)) {
 		memmove(buf + sizeof(buf) - r, buf, r);
 	    }
