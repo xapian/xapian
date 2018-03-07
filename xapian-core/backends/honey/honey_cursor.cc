@@ -224,7 +224,10 @@ HoneyCursor::prev()
     }
 
     // FIXME: use index - for an array index we can look at index points for
-    // first characters starting with key[0] and working down.
+    // first characters starting with key[0] and working down; for a binary
+    // chop index we can start at the entry including the current key, or the
+    // one before if this is the first key for that index entry; for a skiplist
+    // index we can find the previous entry at the index level above.
     rewind();
 
     off_t pos;

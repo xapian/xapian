@@ -32,7 +32,7 @@ class HoneyDatabase;
 
 namespace Honey {
 
-/** Generate a key for a doc len chunk. */
+/** Generate a key for a doclen chunk. */
 inline std::string
 make_doclenchunk_key(Xapian::docid did)
 {
