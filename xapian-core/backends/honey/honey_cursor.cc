@@ -151,64 +151,15 @@ HoneyCursor::read_tag(bool keep_compressed)
 }
 
 bool
-HoneyCursor::find_exact(const string& key)
+HoneyCursor::do_find(const string& key, bool greater_than)
 {
+    // FIXME: Actually use this!
+    (void)greater_than;
+
     if (DEBUGGING) {
 	string esc;
 	description_append(esc, key);
-	cerr << "find_exact(" << esc << ") @" << fh.get_pos() << endl;
-    }
-
-    Assert(!key.empty());
-
-    bool use_index = true;
-    if (!is_at_end && !current_key.empty() && current_key[0] == key[0]) {
-	int cmp0 = current_key.compare(key);
-	if (cmp0 == 0) return true;
-	if (cmp0 < 0) {
-	    // We're going forwards to a key with the same first character, so
-	    // an array index won't help us.
-	    use_index = false;
-	}
-    }
-
-    if (use_index) {
-	fh.rewind(root);
-	unsigned index_type = fh.read();
-	if (index_type != 0x00)
-	    throw Xapian::DatabaseCorruptError("Unknown index type");
-	unsigned char first = key[0] - fh.read();
-	unsigned char range = fh.read();
-	if (first > range)
-	    return false;
-	fh.skip(first * 4); // FIXME: pointer width
-	off_t jump = fh.read() << 24;
-	jump |= fh.read() << 16;
-	jump |= fh.read() << 8;
-	jump |= fh.read();
-	fh.rewind(jump);
-	// The jump point will be an entirely new key (because it is the first
-	// key with that initial character), and we drop in as if this was the
-	// first key so set last_key to be empty.
-	last_key = string();
-	val_size = 0;
-    }
-
-    while (next()) {
-	int cmp = current_key.compare(key);
-	if (cmp == 0) return true;
-	if (cmp > 0) break;
-    }
-    return false;
-}
-
-bool
-HoneyCursor::find_entry_ge(const string& key)
-{
-    if (DEBUGGING) {
-	string esc;
-	description_append(esc, key);
-	cerr << "find_entry_ge(" << esc << ") @" << fh.get_pos() << endl;
+	cerr << "do_find(" << esc << ", " << greater_than << ") @" << fh.get_pos() << endl;
     }
 
     Assert(!key.empty());
@@ -216,10 +167,7 @@ HoneyCursor::find_entry_ge(const string& key)
     bool use_index = true;
     if (!is_at_end && !last_key.empty() && last_key[0] == key[0]) {
 	int cmp0 = last_key.compare(key);
-	if (cmp0 == 0) {
-	    current_key = last_key;
-	    return true;
-	}
+	if (cmp0 == 0) return true;
 	if (cmp0 < 0) {
 	    // We're going forwards to a key with the same first character, so
 	    // an array index won't help us.
@@ -244,7 +192,6 @@ HoneyCursor::find_entry_ge(const string& key)
 	jump |= fh.read() << 8;
 	jump |= fh.read();
 	fh.rewind(jump);
-	AssertEq(jump, fh.get_pos());
 	// The jump point will be an entirely new key (because it is the first
 	// key with that initial character), and we drop in as if this was the
 	// first key so set last_key to be empty.
@@ -256,7 +203,7 @@ HoneyCursor::find_entry_ge(const string& key)
     while (next()) {
 	int cmp = current_key.compare(key);
 	if (cmp == 0) return true;
-	if (cmp > 0) return false;
+	if (cmp > 0) break;
     }
     return false;
 }

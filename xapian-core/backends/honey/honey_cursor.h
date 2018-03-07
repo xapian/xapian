@@ -24,6 +24,14 @@
 #include "honey_table.h"
 
 class HoneyCursor {
+    /** Search for @a key.
+     *
+     *  If @a key isn't present, the behaviour depends on @a greater_than.
+     *  If it's true, then the cursor will be left on the first key >
+     *  @a key; otherwise it may be left at an unspecified position.
+     */
+    bool do_find(const std::string& key, bool greater_than);
+
   public:
     BufferedFile fh;
     std::string current_key, current_tag;
@@ -89,9 +97,13 @@ class HoneyCursor {
 
     bool read_tag(bool keep_compressed = false);
 
-    bool find_exact(const std::string& key);
+    bool find_exact(const std::string& key) {
+	return do_find(key, false);
+    }
 
-    bool find_entry_ge(const std::string& key);
+    bool find_entry_ge(const std::string& key) {
+	return do_find(key, true);
+    }
 
     /** Move to the item before the current one.
      *
