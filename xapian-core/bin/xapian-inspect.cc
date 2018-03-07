@@ -357,7 +357,7 @@ open_different_table:
 	cout << "Table has " << table.get_entry_count() << " entries" << endl;
 
 	GlassCursor cursor(&table);
-	cursor.find_entry_ge(string());
+	cursor.rewind();
 	cursor.next();
 
 	while (!cin.eof()) {
@@ -402,7 +402,7 @@ wait_for_input:
 		do_until(cursor, string());
 		goto wait_for_input;
 	    } else if (input == "f" || input == "first") {
-		cursor.find_entry_ge(string());
+		cursor.rewind();
 		cursor.next();
 		continue;
 	    } else if (input == "l" || input == "last") {

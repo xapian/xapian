@@ -159,8 +159,7 @@ HoneyCursor::find_exact(const string& key)
 	cerr << "find_exact(" << esc << ") @" << fh.get_pos() << endl;
     }
 
-    if (rare(key.empty()))
-	return false;
+    Assert(!key.empty());
 
     bool use_index = true;
     if (!is_at_end && !current_key.empty() && current_key[0] == key[0]) {
@@ -212,10 +211,7 @@ HoneyCursor::find_entry_ge(const string& key)
 	cerr << "find_entry_ge(" << esc << ") @" << fh.get_pos() << endl;
     }
 
-    if (rare(key.empty())) {
-	rewind();
-	return false;
-    }
+    Assert(!key.empty());
 
     bool use_index = true;
     if (!is_at_end && !last_key.empty() && last_key[0] == key[0]) {

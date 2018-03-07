@@ -89,7 +89,7 @@ class PostlistCursor : private GlassCursor {
     PostlistCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0)
     {
-	find_entry(string());
+	rewind();
 	next();
     }
 
@@ -389,7 +389,7 @@ merge_postlists(Xapian::Compactor * compactor,
 
 struct MergeCursor : public GlassCursor {
     explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
-	find_entry(string());
+	rewind();
 	next();
     }
 };
@@ -662,7 +662,7 @@ class PositionCursor : private GlassCursor {
 
     PositionCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0) {
-	find_entry(string());
+	rewind();
 	next();
     }
 
@@ -737,7 +737,7 @@ merge_docid_keyed(GlassTable *out, const vector<const GlassTable*> & inputs,
 	if (in->empty()) continue;
 
 	GlassCursor cur(in);
-	cur.find_entry(string());
+	cur.rewind();
 
 	string key;
 	while (cur.next()) {

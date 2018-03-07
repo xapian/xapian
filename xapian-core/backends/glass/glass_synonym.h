@@ -146,7 +146,7 @@ class GlassSynonymTermList : public AllTermsList {
 	// so that the first call to next() will put us on the first key we
 	// want.
 	if (prefix.empty()) {
-	    cursor->find_entry(string());
+	    cursor->rewind();
 	} else {
 	    // Seek to the first key before one with the desired prefix.
 	    cursor->find_entry_lt(prefix);

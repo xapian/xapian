@@ -326,7 +326,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
     PostlistCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0)
     {
-	find_entry_ge(string());
+	rewind();
 	next();
     }
 
@@ -567,7 +567,7 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
     PostlistCursor(const HoneyTable *in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0)
     {
-	find_entry_ge(string());
+	rewind();
 	next();
     }
 
@@ -1014,7 +1014,7 @@ template<typename T> struct MergeCursor;
 template<>
 struct MergeCursor<const GlassTable&> : public GlassCursor {
     explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
-	find_entry_ge(string());
+	rewind();
 	next();
     }
 };
@@ -1023,7 +1023,7 @@ struct MergeCursor<const GlassTable&> : public GlassCursor {
 template<>
 struct MergeCursor<const HoneyTable&> : public HoneyCursor {
     explicit MergeCursor(const HoneyTable *in) : HoneyCursor(in) {
-	find_entry_ge(string());
+	rewind();
 	next();
     }
 };
@@ -1376,7 +1376,7 @@ class PositionCursor<const GlassTable&> : private GlassCursor {
 
     PositionCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0) {
-	find_entry_ge(string());
+	rewind();
 	next();
     }
 
@@ -1415,7 +1415,7 @@ class PositionCursor<const HoneyTable&> : private HoneyCursor {
 
     PositionCursor(const HoneyTable *in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0) {
-	find_entry_ge(string());
+	rewind();
 	next();
     }
 
@@ -1536,7 +1536,7 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 	if (in->empty()) continue;
 
 	HoneyCursor cur(in);
-	cur.find_entry_ge(string());
+	cur.rewind();
 
 	string key;
 	while (cur.next()) {
@@ -1580,7 +1580,7 @@ merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 	if (in->empty()) continue;
 
 	GlassCursor cur(in);
-	cur.find_entry_ge(string());
+	cur.rewind();
 
 	string key;
 	while (cur.next()) {

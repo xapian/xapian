@@ -200,8 +200,7 @@ class GlassCursor {
 	 *    string key;
 	 *
 	 *    // Now do something to each key in the Btree
-	 *    BC.find_entry(string()); // must give result true
-	 *
+	 *    BC.rewind();
 	 *    while (BC.next()) {
 	 *        BC.get_key(&key);
 	 *        do_something_to(key);
@@ -244,6 +243,14 @@ class GlassCursor {
 	 *  make this value available.
 	 */
 	string current_tag;
+
+	/** Position cursor on the dummy empty key.
+	 *
+	 *  Calling next() after this moves the cursor to the first entry.
+	 */
+	void rewind() {
+	    (void)find_entry_ge(string());
+	}
 
 	/** Read the tag from the table and store it in current_tag.
 	 *

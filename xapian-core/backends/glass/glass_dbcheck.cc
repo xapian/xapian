@@ -97,7 +97,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 
     size_t errors = 0;
 
-    cursor->find_entry(string());
+    cursor->rewind();
     cursor->next(); // Skip the empty entry.
 
     if (strcmp(tablename, "postlist") == 0) {

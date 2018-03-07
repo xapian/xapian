@@ -24,14 +24,6 @@
 #include "honey_table.h"
 
 class HoneyCursor {
-    void rewind() {
-	fh.set_pos(offset); // FIXME root
-	current_key = last_key = std::string();
-	is_at_end = false;
-	index = root;
-	val_size = 0;
-    }
-
   public:
     BufferedFile fh;
     std::string current_key, current_tag;
@@ -75,6 +67,18 @@ class HoneyCursor {
 	  offset(o.offset)
     {
 	fh.set_pos(o.fh.get_pos());
+    }
+
+    /** Position cursor on the dummy empty key.
+     *
+     *  Calling next() after this moves the cursor to the first entry.
+     */
+    void rewind() {
+	fh.set_pos(offset); // FIXME root
+	current_key = last_key = std::string();
+	is_at_end = false;
+	index = root;
+	val_size = 0;
     }
 
     void to_end() { is_at_end = true; }
