@@ -324,8 +324,8 @@ class SSIndex {
 
 	while (++last != initial) {
 	    pointers[last] = ptr;
-	    // FIXME: Perhaps record this different, so an exact key search can
-	    // return false?
+	    // FIXME: Perhaps record this differently so that an exact key
+	    // search can return false?
 	}
 	pointers[initial] = ptr;
 	last = initial;
