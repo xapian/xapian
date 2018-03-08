@@ -167,7 +167,10 @@ HoneyCursor::do_find(const string& key, bool greater_than)
     bool use_index = true;
     if (!is_at_end && !last_key.empty() && last_key[0] == key[0]) {
 	int cmp0 = last_key.compare(key);
-	if (cmp0 == 0) return true;
+	if (cmp0 == 0) {
+	    current_key = last_key;
+	    return true;
+	}
 	if (cmp0 < 0) {
 	    // We're going forwards to a key with the same first character, so
 	    // an array index won't help us.
