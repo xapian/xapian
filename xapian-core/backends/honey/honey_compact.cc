@@ -196,9 +196,7 @@ class BufferedFile {
     void write(unsigned char ch) {
 	if (buf_end == sizeof(buf)) {
 	    // writev()?
-	    if (::write(fd, buf, buf_end)) {
-		// FIXME: retry short write
-	    }
+	    io_write(fd, buf, buf_end);
 	    buf_end = 0;
 	}
 	buf[buf_end++] = ch;
@@ -231,9 +229,7 @@ class BufferedFile {
 		n -= buf_end;
 		p += n;
 		len -= n;
-		if (::write(fd, p, len)) {
-		    // FIXME: retry short write
-		}
+		io_write(fd, p, len);
 		buf_end = 0;
 		return;
 	    }
@@ -241,14 +237,10 @@ class BufferedFile {
 	    memmove(buf, buf + n, buf_end);
 	}
 #else
-	if (::write(fd, buf, buf_end)) {
-	    // FIXME: retry short write
-	}
+	io_write(fd, buf, buf_end);
 	if (len >= sizeof(buf)) {
 	    // If it's bigger than our buffer, just write it directly.
-	    if (::write(fd, p, len)) {
-		// FIXME: retry short write
-	    }
+	    io_write(fd, p, len);
 	    buf_end = 0;
 	    return;
 	}
@@ -290,9 +282,7 @@ retry:
 
     void flush() {
 	if (!read_only && buf_end) {
-	    if (::write(fd, buf, buf_end)) {
-		// FIXME: retry short write
-	    }
+	    io_write(fd, buf, buf_end);
 	    buf_end = 0;
 	}
     }
