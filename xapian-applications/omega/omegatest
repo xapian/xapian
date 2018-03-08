@@ -244,7 +244,11 @@ qtestcase '(VALUE_RANGE 0 2015 201501~ AND_NOT Len)' DATEVALUE=0 START=20150101 
 
 # If faketime is available and works, test cases where the output depends on
 # "now".
-if [ "`faketime -f '1980-12-08 00:00:00' date +%Y 2>&1`" = 1980 ] ; then
+set +e
+out=`faketime -f '1980-12-08 00:00:00' date +%Y 2>&1`
+rc=$?
+set -e
+if [ "$rc:$out" = "0:1980" ] ; then
     TZ=UTC
     export TZ
     FAKETIME='faketime -f'
@@ -264,7 +268,7 @@ if [ "`faketime -f '1980-12-08 00:00:00' date +%Y 2>&1`" = 1980 ] ; then
     FAKETIME=
     unset FAKE_NOW
 else
-    if [ $? = 127 ] ; then
+    if [ "$rc" = 127 ] ; then
 	echo "Skipping testcases which need 'faketime' tool installed"
     else
 	echo "Skipping testcases which need 'faketime' tool - it's installed but doesn't work"
