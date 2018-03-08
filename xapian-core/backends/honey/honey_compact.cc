@@ -1028,39 +1028,6 @@ struct MergeCursor<const HoneyTable&> : public HoneyCursor {
     }
 };
 
-template<>
-struct MergeCursor<HoneyTable&> {
-    HoneyTable* table;
-    string current_key, current_tag;
-    bool current_compressed;
-    mutable CompressionStream comp_stream;
-
-    explicit MergeCursor(HoneyTable *in)
-	: table(in), comp_stream(Z_DEFAULT_STRATEGY) {
-	next();
-    }
-
-    bool next() {
-	return table->read_item(current_key, current_tag, current_compressed);
-    }
-
-    bool read_tag(bool keep_compressed) {
-	if (!keep_compressed && current_compressed) {
-	    // Need to decompress.
-	    comp_stream.decompress_start();
-	    string new_tag;
-	    if (!comp_stream.decompress_chunk(current_tag.data(),
-					      current_tag.size(), new_tag)) {
-		// Decompression didn't complete.
-		abort();
-	    }
-	    swap(current_tag, new_tag);
-	    current_compressed = false;
-	}
-	return current_compressed;
-    }
-};
-
 template<typename T>
 struct CursorGt {
     /// Return true if and only if a's key is strictly greater than b's key.
@@ -1422,47 +1389,6 @@ class PositionCursor<const HoneyTable&> : private HoneyCursor {
     bool next() {
 	if (!HoneyCursor::next()) return false;
 	read_tag();
-	const char * d = current_key.data();
-	const char * e = d + current_key.size();
-	string term;
-	Xapian::docid did;
-	if (!unpack_string_preserving_sort(&d, e, term) ||
-	    !unpack_uint_preserving_sort(&d, e, &did) ||
-	    d != e) {
-	    throw Xapian::DatabaseCorruptError("Bad position key");
-	}
-
-	key.resize(0);
-	pack_string_preserving_sort(key, term);
-	pack_uint_preserving_sort(key, did + offset);
-	return true;
-    }
-
-    const string & get_tag() const {
-	return current_tag;
-    }
-};
-
-template<>
-class PositionCursor<HoneyTable&> {
-    HoneyTable* table;
-    Xapian::docid offset;
-
-  public:
-    string key;
-    string current_key, current_tag;
-    Xapian::docid firstdid;
-
-    PositionCursor(HoneyTable *in, Xapian::docid offset_)
-	: table(in), offset(offset_), firstdid(0) {
-	next();
-    }
-
-    bool next() {
-	bool compressed;
-	if (!table->read_item(current_key, current_tag, compressed))
-	    return false;
-	if (compressed) abort();
 	const char * d = current_key.data();
 	const char * e = d + current_key.size();
 	string term;
