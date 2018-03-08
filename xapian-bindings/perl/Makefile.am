@@ -62,7 +62,7 @@ auto/Xapian/Xapian$(PERL_SO): Xapian.la
 
 EXTRA_DIST = perl.i except.i $(TESTS) \
 	generate-perl-exceptions \
-	run-perl-tests \
+	run-perl-test \
 	Xapian.pm xapian_wrap.cc \
 	t/symbol-test/SymbolTest.pm \
 	t/symbol-test/typemap \
