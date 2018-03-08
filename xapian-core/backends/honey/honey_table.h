@@ -433,6 +433,12 @@ class HoneyTable {
      */
     off_t offset = 0;
 
+    bool get_exact_entry(const std::string& key, std::string* tag) const;
+
+    bool read_key(std::string& key, size_t& val_size, bool& compressed) const;
+
+    void read_val(std::string& val, size_t val_size) const;
+
   public:
     HoneyTable(const char*, const std::string& path_, bool read_only_,
 	       bool lazy_ = false)
@@ -525,11 +531,13 @@ class HoneyTable {
 	return num_entries == 0;
     }
 
-    bool read_item(std::string& key, std::string& val, bool& compressed) const;
+    bool get_exact_entry(const std::string& key, std::string& tag) const {
+	return get_exact_entry(key, &tag);
+    }
 
-    bool get_exact_entry(const std::string& key, std::string& tag) const;
-
-    bool key_exists(const std::string& key) const;
+    bool key_exists(const std::string& key) const {
+	return get_exact_entry(key, NULL);
+    }
 
     bool del(const std::string&) {
 	std::abort();

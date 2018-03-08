@@ -144,9 +144,9 @@ HoneyTable::commit(honey_revision_number_t, RootInfo* root_info)
 }
 
 bool
-HoneyTable::read_item(std::string& key,
-		      std::string& val,
-		      bool& compressed) const
+HoneyTable::read_key(std::string& key,
+		     size_t& val_size,
+		     bool& compressed) const
 {
     if (!read_only) {
 	return false;
@@ -198,15 +198,18 @@ HoneyTable::read_item(std::string& key,
     }
     const char* p = buf;
     const char* end = p + r;
-    size_t val_size;
     if (!unpack_uint(&p, end, &val_size)) {
 	throw Xapian::DatabaseError("val_size unpack_uint invalid");
     }
     compressed = val_size & 1;
     val_size >>= 1;
-    val.assign(p, end);
-    if (p != end) std::abort();
-    val_size -= (end - p);
+    Assert(p == end);
+    return true;
+}
+
+void
+HoneyTable::read_val(std::string& val, size_t val_size) const
+{
     AssertRel(fh.get_pos() + val_size, <=, size_t(root));
     val.resize(val_size);
     fh.read(&(val[0]), val_size);
@@ -215,12 +218,10 @@ HoneyTable::read_item(std::string& key,
 	description_append(esc, val);
 	std::cout << "V:" << esc << std::endl;
     }
-
-    return true;
 }
 
 bool
-HoneyTable::get_exact_entry(const std::string& key, std::string& tag) const
+HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 {
     if (!read_only) std::abort();
     if (!fh.is_open()) {
@@ -249,45 +250,35 @@ HoneyTable::get_exact_entry(const std::string& key, std::string& tag) const
     // key so set last_key to be empty.
     last_key = string();
 
-    std::string k, v;
+    std::string k;
     bool compressed;
     int cmp;
+    size_t val_size = 0;
     do {
-	// FIXME: avoid reading tag data on every iteration
-	if (!read_item(k, v, compressed)) return false;
+	if (val_size) {
+	    // Skip val data we've not looked at.
+	    fh.skip(val_size);
+	    val_size = 0;
+	}
+	if (!read_key(k, val_size, compressed)) return false;
 	cmp = k.compare(key);
     } while (cmp < 0);
     if (cmp > 0) return false;
-    if (compressed) {
-	CompressionStream comp_stream;
-	comp_stream.decompress_start();
-	if (!comp_stream.decompress_chunk(v.data(), v.size(), tag)) {
-	    // Decompression didn't complete.
-	    abort();
+    if (tag != NULL) {
+	if (compressed) {
+	    std::string v;
+	    read_val(v, val_size);
+	    CompressionStream comp_stream;
+	    comp_stream.decompress_start();
+	    if (!comp_stream.decompress_chunk(v.data(), v.size(), *tag)) {
+		// Decompression didn't complete.
+		abort();
+	    }
+	} else {
+	    read_val(*tag, val_size);
 	}
-    } else {
-	tag = v;
     }
     return true;
-}
-
-bool
-HoneyTable::key_exists(const std::string& key) const
-{
-    if (!read_only) std::abort();
-    if (!fh.is_open()) return false;
-    fh.rewind(offset);
-    last_key = std::string();
-    std::string k, v;
-    bool compressed;
-    int cmp;
-    do {
-	// FIXME: avoid reading tag data?
-	// FIXME: use index
-	if (!read_item(k, v, compressed)) return false;
-	cmp = k.compare(key);
-    } while (cmp < 0);
-    return (cmp == 0);
 }
 
 HoneyCursor*
