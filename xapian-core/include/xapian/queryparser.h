@@ -413,7 +413,7 @@ class XAPIAN_VISIBILITY_DEFAULT UnitRangeProcessor : public RangeProcessor {
      *  accept "size:3K..10K" as a valid range.
      */
     UnitRangeProcessor(Xapian::valueno slot_,
-                       const std::string &str_ = std::string())
+		       const std::string &str_ = std::string())
 	: RangeProcessor(slot_, str_) { }
 
     /** Check for a valid byte value range.
