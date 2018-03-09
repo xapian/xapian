@@ -270,6 +270,7 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 	    read_val(v, val_size);
 	    CompressionStream comp_stream;
 	    comp_stream.decompress_start();
+	    tag->resize(0);
 	    if (!comp_stream.decompress_chunk(v.data(), v.size(), *tag)) {
 		// Decompression didn't complete.
 		abort();
