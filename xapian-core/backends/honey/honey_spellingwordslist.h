@@ -58,7 +58,7 @@ class HoneySpellingWordsList : public AllTermsList {
     HoneySpellingWordsList(const HoneyDatabase* database_, HoneyCursor* cursor_)
 	    : database(database_), cursor(cursor_), termfreq(0) {
 	// Set the cursor to its end to signal we haven't started yet.  Then
-	// if the first action is next() it can use find_entry_ge("W") to
+	// if the first action is next() it can use find_entry_ge("\x04") to
 	// locate the first word.
 	cursor->to_end();
     }
@@ -92,8 +92,8 @@ class HoneySpellingWordsList : public AllTermsList {
     /// Advance to the next term in the list.
     TermList * next();
 
-    /// Advance to the first term which is >= tname.
-    TermList * skip_to(const std::string &tname);
+    /// Advance to the first term which is >= term.
+    TermList * skip_to(const std::string& term);
 
     /// True if we're off the end of the list
     bool at_end() const;

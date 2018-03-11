@@ -1,7 +1,7 @@
 /** @file honey_spellingwordslist.cc
  * @brief Iterator for the spelling correction words in a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017,2018 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -55,8 +55,9 @@ HoneySpellingWordsList::get_termname() const
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
-    Assert(cursor->current_key[0] == 'W');
-    RETURN(cursor->current_key.substr(1));
+    unsigned char first = cursor->current_key[0];
+    AssertRel(first, >=, 0x04);
+    RETURN(first > 0x04 ? cursor->current_key : cursor->current_key.substr(1));
 }
 
 Xapian::doccount
@@ -66,7 +67,7 @@ HoneySpellingWordsList::get_termfreq() const
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
-    Assert(cursor->current_key[0] == 'W');
+    AssertRel(static_cast<unsigned char>(cursor->current_key[0]), >=, 0x04);
     cursor->read_tag();
 
     Xapian::termcount freq;
@@ -93,11 +94,11 @@ HoneySpellingWordsList::next()
 
     if (cursor->after_end()) {
 	// This is the first action on a new HoneySpellingWordsList.
-	(void)cursor->find_entry_ge("W");
+	(void)cursor->find_entry_ge("\x04");
     } else {
 	cursor->next();
     }
-    if (cursor->after_end() || !startswith(cursor->current_key, 'W')) {
+    if (cursor->after_end()) {
 	// We've reached the end of the prefixed terms.
 	delete cursor;
 	cursor = NULL;
@@ -107,15 +108,15 @@ HoneySpellingWordsList::next()
 }
 
 TermList *
-HoneySpellingWordsList::skip_to(const string &tname)
+HoneySpellingWordsList::skip_to(const string &term)
 {
-    LOGCALL(DB, TermList *, "HoneySpellingWordsList::skip_to", tname);
+    LOGCALL(DB, TermList *, "HoneySpellingWordsList::skip_to", term);
     Assert(!at_end());
 
-    if (!cursor->find_entry_ge("W" + tname)) {
+    if (!cursor->find_entry_ge(Honey::make_spelling_wordlist_key(term))) {
 	// The exact term we asked for isn't there, so check if the next
 	// term after it also has a W prefix.
-	if (cursor->after_end() || !startswith(cursor->current_key, 'W')) {
+	if (cursor->after_end()) {
 	    // We've reached the end of the prefixed terms.
 	    delete cursor;
 	    cursor = NULL;

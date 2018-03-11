@@ -1,7 +1,7 @@
 /** @file honey_spelling.h
  * @brief Spelling correction data for a honey database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,20 +33,31 @@
 
 namespace Honey {
 
+inline std::string
+make_spelling_wordlist_key(const std::string& word)
+{
+    if (rare(static_cast<unsigned char>(word[0]) <= 0x04))
+	return "\x04" + word;
+    return word;
+}
+
 struct fragment {
     char data[4];
 
-    // Default constructor.
+    /// Default constructor.
     fragment() { }
 
-    // Allow implicit conversion.
+    /// Zero-initialising constructor.
+    explicit fragment(int) { std::memset(data, 0, 4); }
+
+    /// Allow implicit conversion.
     explicit fragment(char data_[4]) { std::memcpy(data, data_, 4); }
 
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
 
     operator std::string() const {
-	return std::string(data, data[0] == 'M' ? 4 : 3);
+	return std::string(data, data[0] == '\x02' ? 4 : 3);
     }
 
     bool operator<(const fragment &b) const {

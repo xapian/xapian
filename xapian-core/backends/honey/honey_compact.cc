@@ -1028,12 +1028,177 @@ struct CursorGt {
     }
 };
 
-// U : vector<HoneyTable*>::const_iterator
-template<typename T, typename U> void
-merge_spellings(T* out, U b, U e)
+#ifndef DISABLE_GPL_LIBXAPIAN
+// Convert glass to honey.
+static void
+merge_spellings(HoneyTable* out,
+		vector<const GlassTable*>::const_iterator b,
+		vector<const GlassTable*>::const_iterator e)
 {
-    typedef decltype(**b) table_type; // E.g. HoneyTable
-    typedef MergeCursor<table_type> cursor_type;
+    typedef MergeCursor<const GlassTable&> cursor_type;
+    typedef CursorGt<cursor_type> gt_type;
+    priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
+    for ( ; b != e; ++b) {
+	auto in = *b;
+	if (!in->empty()) {
+	    pq.push(new cursor_type(in));
+	}
+    }
+
+    while (!pq.empty()) {
+	cursor_type * cur = pq.top();
+	pq.pop();
+
+	// Glass vs honey spelling key prefix map:
+	//
+	//  Type	Glass	    Honey
+	//
+	//  bookend	Bbd	    \x00bd
+	//  head	Hhe	    \x01he
+	//  middle	Mddl	    \x02ddl
+	//  tail	Til	    \x03il
+	//  word	Wword	    word
+	//
+	// In honey, if the word's first byte is <= '\x04', we add a prefix
+	// of '\x04' (which is unlikely in real world use but ensures that
+	// we can handle arbitrary strings).
+	//
+	// The prefixes for honey are chosen such that we save a byte for the
+	// key of all real-world words, and so that more first bytes are used
+	// so that a top-level array index is more effective, especially for
+	// random-access lookup of word entries (which we do to check the
+	// frequency of potential spelling candidates).
+	//
+	// The other prefixes are chosen such that we can do look up in key
+	// order at search time, which is more efficient for a cursor which can
+	// only efficiently move forwards.
+	//
+	// Note that the key ordering is the same for glass and honey, which
+	// makes translating during compaction simpler.
+	string key = cur->current_key;
+	switch (key[0]) {
+	    case 'B':
+		key[0] = '\x00';
+		break;
+	    case 'H':
+		key[0] = '\x01';
+		break;
+	    case 'M':
+		key[0] = '\x02';
+		break;
+	    case 'T':
+		key[0] = '\x03';
+		break;
+	    case 'W':
+		if (static_cast<unsigned char>(key[1]) > 0x04)
+		    key.erase(0, 1);
+		else
+		    key[0] = '\x04';
+		break;
+	    default: {
+		string m = "Bad spelling key prefix: ";
+		m += static_cast<unsigned char>(key[0]);
+		throw Xapian::DatabaseCorruptError(m);
+	    }
+	}
+
+	if (pq.empty() || pq.top()->current_key > key) {
+	    // No need to merge the tags, just copy the (possibly compressed)
+	    // tag value.
+	    bool compressed = cur->read_tag(true);
+	    out->add(key, cur->current_tag, compressed);
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
+	    continue;
+	}
+
+	// Merge tag values with the same key:
+	string tag;
+	if (static_cast<unsigned char>(key[0]) < 0x04) {
+	    // We just want the union of words, so copy over the first instance
+	    // and skip any identical ones.
+	    priority_queue<PrefixCompressedStringItor *,
+			   vector<PrefixCompressedStringItor *>,
+			   PrefixCompressedStringItorGt> pqtag;
+	    // Stick all the cursor_type pointers in a vector because their
+	    // current_tag members must remain valid while we're merging their
+	    // tags, but we need to call next() on them all afterwards.
+	    vector<cursor_type *> vec;
+	    vec.reserve(pq.size());
+
+	    while (true) {
+		cur->read_tag();
+		pqtag.push(new PrefixCompressedStringItor(cur->current_tag));
+		vec.push_back(cur);
+		if (pq.empty() || pq.top()->current_key != key) break;
+		cur = pq.top();
+		pq.pop();
+	    }
+
+	    PrefixCompressedStringWriter wr(tag);
+	    string lastword;
+	    while (!pqtag.empty()) {
+		PrefixCompressedStringItor * it = pqtag.top();
+		pqtag.pop();
+		string word = **it;
+		if (word != lastword) {
+		    lastword = word;
+		    wr.append(lastword);
+		}
+		++*it;
+		if (!it->at_end()) {
+		    pqtag.push(it);
+		} else {
+		    delete it;
+		}
+	    }
+
+	    for (auto i : vec) {
+		cur = i;
+		if (cur->next()) {
+		    pq.push(cur);
+		} else {
+		    delete cur;
+		}
+	    }
+	} else {
+	    // We want to sum the frequencies from tags for the same key.
+	    Xapian::termcount tot_freq = 0;
+	    while (true) {
+		cur->read_tag();
+		Xapian::termcount freq;
+		const char * p = cur->current_tag.data();
+		const char * end = p + cur->current_tag.size();
+		if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
+		    throw_database_corrupt("Bad spelling word freq", p);
+		}
+		tot_freq += freq;
+		if (cur->next()) {
+		    pq.push(cur);
+		} else {
+		    delete cur;
+		}
+		if (pq.empty() || pq.top()->current_key != key) break;
+		cur = pq.top();
+		pq.pop();
+	    }
+	    tag.resize(0);
+	    pack_uint_last(tag, tot_freq);
+	}
+	out->add(key, tag);
+    }
+}
+#endif
+
+static void
+merge_spellings(HoneyTable* out,
+		vector<const HoneyTable*>::const_iterator b,
+		vector<const HoneyTable*>::const_iterator e)
+{
+    typedef MergeCursor<const HoneyTable&> cursor_type;
     typedef CursorGt<cursor_type> gt_type;
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for ( ; b != e; ++b) {
@@ -1063,7 +1228,7 @@ merge_spellings(T* out, U b, U e)
 
 	// Merge tag values with the same key:
 	string tag;
-	if (key[0] != 'W') {
+	if (static_cast<unsigned char>(key[0]) < 0x04) {
 	    // We just want the union of words, so copy over the first instance
 	    // and skip any identical ones.
 	    priority_queue<PrefixCompressedStringItor *,
@@ -1964,7 +2129,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		break;
 	    }
 	    case Honey::SPELLING:
-		merge_spellings(out, inputs.begin(), inputs.end());
+		merge_spellings(out, inputs.cbegin(), inputs.cend());
 		break;
 	    case Honey::SYNONYM:
 		merge_synonyms(out, inputs.begin(), inputs.end());

@@ -1,7 +1,7 @@
 /** @file honey_spelling.cc
  * @brief Spelling correction data for a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ HoneySpellingTable::merge_changes()
 
     map<string, Xapian::termcount>::const_iterator j;
     for (j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
-	string key = "W" + j->first;
+	const string& key = make_spelling_wordlist_key(j->first);
 	Xapian::termcount wordfreq = j->second;
 	if (wordfreq) {
 	    string tag;
@@ -142,9 +142,8 @@ HoneySpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	// we need to execute the code below to re-add trigrams for it.
 	i->second = freqinc;
     } else {
-	string key = "W" + word;
 	string data;
-	if (get_exact_entry(key, data)) {
+	if (get_exact_entry(make_spelling_wordlist_key(word), data)) {
 	    // Word "word" already exists, so increment its count.
 	    Xapian::termcount freq;
 	    const char * p = data.data();
@@ -182,9 +181,8 @@ HoneySpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	// Mark word as deleted.
 	i->second = 0;
     } else {
-	string key = "W" + word;
 	string data;
-	if (!get_exact_entry(key, data)) {
+	if (!get_exact_entry(make_spelling_wordlist_key(word), data)) {
 	    // This word doesn't exist.
 	    return freqdec;
 	}
@@ -213,20 +211,7 @@ HoneySpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 void
 HoneySpellingTable::toggle_word(const string & word)
 {
-    fragment buf;
-    // Head:
-    buf[0] = 'H';
-    buf[1] = word[0];
-    buf[2] = word[1];
-    buf[3] = '\0';
-    toggle_fragment(buf, word);
-
-    // Tail:
-    buf[0] = 'T';
-    buf[1] = word[word.size() - 2];
-    buf[2] = word[word.size() - 1];
-    buf[3] = '\0';
-    toggle_fragment(buf, word);
+    fragment buf(0);
 
     if (word.size() <= 4) {
 	// We also generate 'bookends' for two, three, and four character
@@ -235,15 +220,28 @@ HoneySpellingTable::toggle_word(const string & word)
 	// character of a three character word, or insertion in the middle of a
 	// two character word.
 	// 'Bookends':
-	buf[0] = 'B';
+	buf[0] = '\x00';
 	buf[1] = word[0];
-	buf[3] = '\0';
+	buf[2] = word[word.size() - 1];
 	toggle_fragment(buf, word);
     }
+
+    // Head:
+    buf[0] = '\x01';
+    buf[1] = word[0];
+    buf[2] = word[1];
+    toggle_fragment(buf, word);
+
+    // Tail:
+    buf[0] = '\x03';
+    buf[1] = word[word.size() - 2];
+    buf[2] = word[word.size() - 1];
+    toggle_fragment(buf, word);
+
     if (word.size() > 2) {
 	set<fragment> done;
 	// Middles:
-	buf[0] = 'M';
+	buf[0] = '\x02';
 	for (size_t start = 0; start <= word.size() - 3; ++start) {
 	    memcpy(buf.data + 1, word.data() + start, 3);
 	    // Don't toggle the same fragment twice or it will cancel out.
@@ -275,21 +273,7 @@ HoneySpellingTable::open_termlist(const string & word)
     priority_queue<TermList*, vector<TermList*>, TermListGreaterApproxSize> pq;
     try {
 	string data;
-	fragment buf;
-
-	// Head:
-	buf[0] = 'H';
-	buf[1] = word[0];
-	buf[2] = word[1];
-	if (get_exact_entry(string(buf), data))
-	    pq.push(new HoneySpellingTermList(data));
-
-	// Tail:
-	buf[0] = 'T';
-	buf[1] = word[word.size() - 2];
-	buf[2] = word[word.size() - 1];
-	if (get_exact_entry(string(buf), data))
-	    pq.push(new HoneySpellingTermList(data));
+	fragment buf(0);
 
 	if (word.size() <= 4) {
 	    // We also generate 'bookends' for two, three, and four character
@@ -297,15 +281,44 @@ HoneySpellingTable::open_termlist(const string & word)
 	    // characters of a four character word, substitution or deletion of
 	    // the middle character of a three character word, or insertion in
 	    // the middle of a two character word.
-	    buf[0] = 'B';
+	    buf[0] = '\x00';
 	    buf[1] = word[0];
-	    buf[3] = '\0';
+	    buf[2] = word[word.size() - 1];
 	    if (get_exact_entry(string(buf), data))
 		pq.push(new HoneySpellingTermList(data));
 	}
+
+	// Head:
+	buf[0] = '\x01';
+	buf[1] = word[0];
+	buf[2] = word[1];
+	if (get_exact_entry(string(buf), data))
+	    pq.push(new HoneySpellingTermList(data));
+
+	if (word.size() == 2) {
+	    // For two letter words, we generate H and T terms for the
+	    // transposed form so that we can produce good spelling
+	    // suggestions.
+	    // AB -> BA
+	    buf[1] = word[1];
+	    buf[2] = word[0];
+	    if (get_exact_entry(string(buf), data))
+		pq.push(new HoneySpellingTermList(data));
+	    buf[0] = '\x02';
+	    if (get_exact_entry(string(buf), data))
+		pq.push(new HoneySpellingTermList(data));
+	}
+
+	// Tail:
+	buf[0] = '\x02';
+	buf[1] = word[word.size() - 2];
+	buf[2] = word[word.size() - 1];
+	if (get_exact_entry(string(buf), data))
+	    pq.push(new HoneySpellingTermList(data));
+
 	if (word.size() > 2) {
 	    // Middles:
-	    buf[0] = 'M';
+	    buf[0] = '\x03';
 	    for (size_t start = 0; start <= word.size() - 3; ++start) {
 		memcpy(buf.data + 1, word.data() + start, 3);
 		if (get_exact_entry(string(buf), data))
@@ -328,20 +341,6 @@ HoneySpellingTable::open_termlist(const string & word)
 		if (get_exact_entry(string(buf), data))
 		    pq.push(new HoneySpellingTermList(data));
 	    }
-	} else {
-	    Assert(word.size() == 2);
-	    // For two letter words, we generate H and T terms for the
-	    // transposed form so that we can produce good spelling
-	    // suggestions.
-	    // AB -> BA
-	    buf[0] = 'H';
-	    buf[1] = word[1];
-	    buf[2] = word[0];
-	    if (get_exact_entry(string(buf), data))
-		pq.push(new HoneySpellingTermList(data));
-	    buf[0] = 'T';
-	    if (get_exact_entry(string(buf), data))
-		pq.push(new HoneySpellingTermList(data));
 	}
 
 	if (pq.empty()) return NULL;
@@ -386,9 +385,8 @@ HoneySpellingTable::get_word_frequency(const string & word) const
 	return i->second;
     }
 
-    string key = "W" + word;
     string data;
-    if (get_exact_entry(key, data)) {
+    if (get_exact_entry(make_spelling_wordlist_key(word), data)) {
 	// Word "word" already exists.
 	Xapian::termcount freq;
 	const char *p = data.data();

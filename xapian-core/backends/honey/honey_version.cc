@@ -50,8 +50,9 @@
 using namespace std;
 
 /// Honey format version (date of change):
-#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,2,22)
-// 2018,2,22  1.5.0 index valuestream chunks by last docid in chunk
+#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,3,11)
+// 2018,3,11  1.5.0 spelling key encoding changed
+// 2018,2,22        index valuestream chunks by last docid in chunk
 // 2018,2,21        index doclen chunks by last docid in chunk
 // 2018,2,20        implement array index
 // 2018,2,19        allow 1,2,3 as well as 4 byte doc length width
