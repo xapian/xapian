@@ -181,24 +181,73 @@ HoneyCursor::do_find(const string& key, bool greater_than)
     if (use_index) {
 	fh.rewind(root);
 	unsigned index_type = fh.read();
-	if (index_type != 0x00)
-	    throw Xapian::DatabaseCorruptError("Unknown index type");
-	unsigned char first = key[0] - fh.read();
-	unsigned char range = fh.read();
-	if (first > range) {
-	    is_at_end = true;
-	    return false;
+	switch (index_type) {
+	    case 0x00: {
+		unsigned char first = key[0] - fh.read();
+		unsigned char range = fh.read();
+		if (first > range) {
+		    is_at_end = true;
+		    return false;
+		}
+		fh.skip(first * 4); // FIXME: pointer width
+		off_t jump = fh.read() << 24;
+		jump |= fh.read() << 16;
+		jump |= fh.read() << 8;
+		jump |= fh.read();
+		fh.rewind(jump);
+		// The jump point will be an entirely new key (because it is the first
+		// key with that initial character), and we drop in as if this was the
+		// first key so set last_key to be empty.
+		last_key = string();
+		break;
+	    }
+	    case 0x01: {
+		size_t j = fh.read() << 24;
+		j |= fh.read() << 16;
+		j |= fh.read() << 8;
+		j |= fh.read();
+		if (j == 0) {
+		    is_at_end = true;
+		    return false;
+		}
+		off_t base = fh.get_pos();
+		char kkey[SSINDEX_BINARY_CHOP_KEY_SIZE];
+		size_t kkey_len = 0;
+		size_t i = 0;
+		while (j - i > 1) {
+		    size_t k = i + (j - i) / 2;
+		    fh.set_pos(base + k * (SSINDEX_BINARY_CHOP_KEY_SIZE + 4));
+		    fh.read(kkey, SSINDEX_BINARY_CHOP_KEY_SIZE);
+		    kkey_len = 4;
+		    while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
+		    int r = key.compare(0, SSINDEX_BINARY_CHOP_KEY_SIZE, kkey, kkey_len);
+		    if (r < 0) {
+			j = k;
+		    } else {
+			i = k;
+			if (r == 0) {
+			    break;
+			}
+		    }
+		}
+		fh.set_pos(base + i * (SSINDEX_BINARY_CHOP_KEY_SIZE + 4));
+		fh.read(kkey, SSINDEX_BINARY_CHOP_KEY_SIZE);
+		kkey_len = 4;
+		while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
+		off_t jump = fh.read() << 24;
+		jump |= fh.read() << 16;
+		jump |= fh.read() << 8;
+		jump |= fh.read();
+		fh.rewind(jump);
+		// The jump point is to the first key with prefix kkey, so will
+		// work if we set last key to kkey.  Unless we're jumping to the
+		// start of the table, in which case last_key needs to be empty.
+		last_key.assign(kkey, jump == 0 ? 0 : kkey_len);
+		break;
+	    }
+	    default:
+		throw Xapian::DatabaseCorruptError("Unknown index type");
 	}
-	fh.skip(first * 4); // FIXME: pointer width
-	off_t jump = fh.read() << 24;
-	jump |= fh.read() << 16;
-	jump |= fh.read() << 8;
-	jump |= fh.read();
-	fh.rewind(jump);
-	// The jump point will be an entirely new key (because it is the first
-	// key with that initial character), and we drop in as if this was the
-	// first key so set last_key to be empty.
-	last_key = string();
 	is_at_end = false;
 	val_size = 0;
     }
