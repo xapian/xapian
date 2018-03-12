@@ -448,15 +448,15 @@ static const char byte_units[4][2] = {
 // else return -1
 static double
 check_byte_unit(const string &s) {
-	double factor = 1;
-	for (int i = 0; i < 4; ++i) {
-	    if (endswith(s, byte_units[i])) {
-		return factor;
-	    }
-	    factor *= 1024;
+    double factor = 1;
+    for (int i = 0; i < 4; ++i) {
+	if (endswith(s, byte_units[i])) {
+	    return factor;
 	}
+	factor *= 1024;
+    }
 
-	return -1;
+    return -1;
 }
 
 Xapian::Query
