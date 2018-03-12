@@ -3,7 +3,7 @@ from new import instancemethod as new_instancemethod") xapian
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright (C) 2011,2012,2013,2014,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,21 @@ development files, or again online at <https://xapian.org/docs/>.
 
 %begin %{
 #include <config.h>
+
+#ifdef __clang__
+// The Python 3.3 headers have several uses of the C register keyword, which
+// result in warnings from clang++ 6.  There's nothing we can really do about
+// them, so just suppress them.  This appears to have been addressed in Python
+// 3.4 and later.
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wdeprecated-register"
+#endif
+
 #include <Python.h>
+
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
 
 /* Override SWIG's standard GIL locking machinery - we want to avoid the
  * overhead of thread locking when the user's code isn't using threads,
