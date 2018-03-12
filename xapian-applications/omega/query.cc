@@ -1329,7 +1329,6 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_add: {
 		int total = 0;
-		vector<string>::const_iterator i;
 		for (auto&& arg : args)
 		    total += string_to_int(arg);
 		value = str(total);
