@@ -439,4 +439,107 @@ not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
 }
 
+static const char byte_units[4][2] = {
+    "B", "K", "M", "G"
+};
+
+// Return factor for byte unit
+// if string is a valid byte unit
+// else return -1
+static double
+check_byte_unit(const string &s) {
+	double factor = 1;
+	for (int i = 0; i < 4; ++i) {
+	    if (endswith(s, byte_units[i])) {
+		return factor;
+	    }
+	    factor *= 1024;
+	}
+
+	return -1;
+}
+
+Xapian::Query
+UnitRangeProcessor::operator()(const string& b, const string& e)
+{
+    // Parse the numbers to floating point.
+    double num_b, num_e;
+
+    // True if b has unit, e.g. 20K..
+    bool b_has_unit = false;
+
+    if (!b.empty()) {
+	errno = 0;
+	const char * startptr = b.c_str();
+	char * endptr;
+	num_b = strtod(startptr, &endptr);
+
+	if (errno) {
+	    // overflow or underflow
+	    goto not_our_range;
+	}
+
+	// For lower range having a unit, e.g. 100K..
+	if (endptr == startptr + b.size() - 1) {
+	    double factor_b = check_byte_unit(b);
+	    if (factor_b == -1) {
+		// Not a valid byte unit
+		goto not_our_range;
+	    }
+	    b_has_unit = true;
+	    num_b *= factor_b;
+	}
+    } else {
+	// Silence GCC warning.
+	num_b = 0.0;
+    }
+
+    if (!e.empty()) {
+	errno = 0;
+	const char * startptr = e.c_str();
+	char * endptr;
+	num_e = strtod(startptr, &endptr);
+
+	if (errno) {
+	    // overflow or underflow
+	    goto not_our_range;
+	}
+
+	// For upper range having a unit, e.g. ..100K
+	if (endptr == startptr + e.size() - 1) {
+	    double factor_e = check_byte_unit(e);
+	    if (factor_e == -1) {
+		// Not a valid byte unit
+		goto not_our_range;
+	    }
+	    num_e *= factor_e;
+
+	    // When lower range is not empty and
+	    // only upper range unit, e.g. 20..100K
+	    if (!b.empty() && !b_has_unit) {
+		num_b *= factor_e;
+	    }
+	} else {
+	    // When lower range has no unit
+	    goto not_our_range;
+	}
+    } else {
+	// Silence GCC warning.
+	num_e = 0.0;
+
+	// Fail case when lower range
+	// has no unit, e.g. 200..
+	if (!b.empty() && !b_has_unit) {
+	    goto not_our_range;
+	}
+    }
+
+    return RangeProcessor::operator()(
+	    b.empty() ? b : Xapian::sortable_serialise(num_b),
+	    e.empty() ? e : Xapian::sortable_serialise(num_e));
+
+not_our_range:
+    return Xapian::Query(Xapian::Query::OP_INVALID);
+}
+
 }

@@ -92,6 +92,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/TermIterator.java\
 	org/xapian/TfIdfWeight.java\
 	org/xapian/TradWeight.java\
+	org/xapian/UnitRangeProcessor.java\
 	org/xapian/ValueCountMatchSpy.java\
 	org/xapian/ValueIterator.java\
 	org/xapian/ValueMapPostingSource.java\
