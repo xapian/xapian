@@ -75,11 +75,11 @@ matrix:
         # "brew list --versions" says all the packages requested are installed.
         - brew install $HOMEBREW_PACKAGES || true
         - brew list --versions $HOMEBREW_PACKAGES
-        - /usr/local/opt/python@2/libexec/bin/pip install sphinx docutils
-        - pip install sphinx
+        - pip2 install sphinx docutils
+        - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
-      env: PYTHON2=/usr/local/opt/python@2/libexec/bin/python CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
+      env: PYTHON2=/usr/local/bin/python2 CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"
