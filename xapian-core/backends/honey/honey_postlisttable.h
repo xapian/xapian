@@ -1,7 +1,7 @@
 /** @file honey_postlisttable.h
  * @brief Subclass of HoneyTable which holds postlists.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,6 +65,8 @@ class HoneyPostListTable : public HoneyTable {
     void get_used_docid_range(Xapian::doccount doccount,
 			      Xapian::docid& first,
 			      Xapian::docid& last) const;
+
+    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
 
     std::string get_metadata(const std::string& key) const {
 	std::string value;

@@ -205,19 +205,16 @@ HoneyDatabase::get_doclength_upper_bound() const
 Xapian::termcount
 HoneyDatabase::get_wdf_upper_bound(const string& term) const
 {
-    // We don't store per-term wdf upper bounds currently, only a per-database
-    // wdf bound.  However, the collection frequency of the term provides a
-    // second upper bound (since collection frequency is the sum of the wdf and
-    // wdf >= 0), so pick the tighter of these bounds.
     Xapian::termcount wdf_bound = version_file.get_wdf_upper_bound();
-    // It's unlikely wdf is always 0, but when it is there's no need to check
-    // the collection frequency.
+    // It's unlikely wdf is always 0, but when it is there's no need to do any
+    // further work.
     if (usual(wdf_bound != 0)) {
-	Xapian::termcount coll_freq;
-	get_freqs(term, NULL, &coll_freq);
-	if (coll_freq < wdf_bound) {
-	    wdf_bound = coll_freq;
-	}
+	// We don't store per-term wdf upper bounds currently, but
+	// HoneyPostListTable can provide an upper bound based on termfreq,
+	// coll_freq, and the first wdf value, which more often than not is
+	// actually the exact bound (in 77% of cases in an example database of
+	// wikipedia data).
+	wdf_bound = min(wdf_bound, postlist_table.get_wdf_upper_bound(term));
     }
     return wdf_bound;
 }

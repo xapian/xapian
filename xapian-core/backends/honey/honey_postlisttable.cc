@@ -1,7 +1,7 @@
 /** @file honey_postlisttable.cc
  * @brief Subclass of HoneyTable which holds postlists.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,4 +125,27 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
 
     // We've reached the end of the table (only possible if there are no terms
     // at all!)
+}
+
+Xapian::termcount
+HoneyPostListTable::get_wdf_upper_bound(const std::string& term) const
+{
+    string chunk;
+    if (!get_exact_entry(Honey::make_postingchunk_key(term), chunk)) {
+	// Term not present.
+	return 0;
+    }
+
+    const char* p = chunk.data();
+    const char* pend = p + chunk.size();
+    Xapian::doccount tf;
+    Xapian::termcount cf;
+    Xapian::docid first;
+    Xapian::docid last;
+    Xapian::docid chunk_last;
+    Xapian::termcount first_wdf;
+    if (!decode_initial_chunk_header(&p, pend, tf, cf, first, last, chunk_last,
+				     first_wdf))
+	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
+    return (cf > 0 && tf > 1) ? max(cf - first_wdf, first_wdf) : cf;
 }
