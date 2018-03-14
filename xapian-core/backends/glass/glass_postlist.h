@@ -117,10 +117,14 @@ class GlassPostListTable : public GlassTable {
 	 *			term (or NULL not to return)
 	 *  @param collfreq_ptr	Point to return number of occurrences of @a
 	 *			term in the database (or NULL not to return)
+	 *  @param wdfub_ptr	Point to return an upper bound on the wdf
+	 *			of @a term in the database (or NULL not to
+	 *			return)
 	 */
 	void get_freqs(const std::string & term,
 		       Xapian::doccount * termfreq_ptr,
-		       Xapian::termcount * collfreq_ptr) const;
+		       Xapian::termcount * collfreq_ptr,
+		       Xapian::termcount * wdfub_ptr = NULL) const;
 
 	/** Returns the length of document @a did. */
 	Xapian::termcount get_doclength(Xapian::docid did,

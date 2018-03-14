@@ -797,9 +797,10 @@ GlassDatabase::get_doclength_upper_bound() const
 Xapian::termcount
 GlassDatabase::get_wdf_upper_bound(const string & term) const
 {
-    Xapian::termcount cf;
-    get_freqs(term, NULL, &cf);
-    return min(cf, version_file.get_wdf_upper_bound());
+    Assert(!term.empty());
+    Xapian::termcount wdfub;
+    postlist_table.get_freqs(term, NULL, NULL, &wdfub);
+    return min(wdfub, version_file.get_wdf_upper_bound());
 }
 
 bool
