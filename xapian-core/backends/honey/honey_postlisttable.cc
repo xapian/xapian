@@ -144,8 +144,9 @@ HoneyPostListTable::get_wdf_upper_bound(const std::string& term) const
     Xapian::docid last;
     Xapian::docid chunk_last;
     Xapian::termcount first_wdf;
+    Xapian::termcount wdf_max;
     if (!decode_initial_chunk_header(&p, pend, tf, cf, first, last, chunk_last,
-				     first_wdf))
+				     first_wdf, wdf_max))
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
-    return (cf > 0 && tf > 1) ? max(cf - first_wdf, first_wdf) : cf;
+    return wdf_max;
 }

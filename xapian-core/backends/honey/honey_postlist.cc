@@ -69,9 +69,10 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
     Xapian::docid first_did;
     Xapian::termcount first_wdf;
     Xapian::docid chunk_last;
+    Xapian::termcount wdf_max;
     if (!decode_initial_chunk_header(&p, pend, tf, cf,
 				     first_did, last_did,
-				     chunk_last, first_wdf))
+				     chunk_last, first_wdf, wdf_max))
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
     reader.init(tf, cf);
     reader.assign(p, pend - p, first_did, last_did, first_wdf);

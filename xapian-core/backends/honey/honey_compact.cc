@@ -629,9 +629,12 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    e = d + tag.size();
 
 	    Xapian::docid lastdid;
+	    // FIXME: Store and use this value rather than always recomputing
+	    // it.
+	    Xapian::termcount wdf_max;
 	    if (!decode_initial_chunk_header(&d, e, tf, cf,
 					     firstdid, lastdid, chunk_lastdid,
-					     first_wdf)) {
+					     first_wdf, wdf_max)) {
 		throw Xapian::DatabaseCorruptError("Bad postlist initial "
 						   "chunk header");
 	    }
@@ -918,10 +921,30 @@ merge_postlists(Xapian::Compactor * compactor,
 		Xapian::docid chunk_lastdid = tags[0].last;
 		Xapian::docid last_did = tags.back().last;
 
+		Xapian::termcount wdf_max = first_wdf;
+		if (cf > 0 && tf > 1) {
+		    for (auto&& tag : tags) {
+			const char* pos = tag.data.data();
+			const char* pos_end = pos + tag.data.size();
+			while (pos != pos_end) {
+			    Xapian::docid delta;
+			    if (!unpack_uint(&pos, pos_end, &delta))
+				throw_database_corrupt("Decoding docid "
+						       "delta", pos);
+			    (void)delta;
+			    Xapian::termcount wdf;
+			    if (!unpack_uint(&pos, pos_end, &wdf))
+				throw_database_corrupt("Decoding wdf",
+						       pos);
+			    wdf_max = max(wdf_max, wdf);
+			}
+		    }
+		}
+
 		string first_tag;
 		encode_initial_chunk_header(tf, cf, tags[0].first, last_did,
 					    chunk_lastdid,
-					    first_wdf, first_tag);
+					    first_wdf, wdf_max, first_tag);
 		if (tf > 2) {
 		    first_tag += tags[0].data;
 		}

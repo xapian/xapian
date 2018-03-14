@@ -30,6 +30,7 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 			    Xapian::docid last,
 			    Xapian::docid chunk_last,
 			    Xapian::termcount first_wdf,
+			    Xapian::termcount wdf_max,
 			    std::string & out)
 {
     AssertRel(termfreq, !=, 0);
@@ -51,6 +52,7 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 	}
 	AssertEq(first, last);
 	AssertEq(last, chunk_last);
+	AssertEq(collfreq, wdf_max);
 	AssertEq(collfreq, first_wdf);
     } else if (termfreq == 2) {
 	// A term which only occurs in two documents.  By Zipf's Law these
@@ -81,6 +83,9 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 	pack_uint(out, last - first - 1);
 	if (first_wdf != (collfreq / 2)) {
 	    pack_uint(out, first_wdf);
+	    AssertEq(max(first_wdf, collfreq - first_wdf), wdf_max);
+	} else {
+	    AssertEq(collfreq - first_wdf, wdf_max);
 	}
     } else {
 	pack_uint(out, collfreq);
@@ -89,8 +94,30 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 	pack_uint(out, chunk_last - first);
 	if (collfreq == 0) {
 	    AssertEq(first_wdf, 0);
+	    AssertEq(wdf_max, 0);
 	} else {
 	    pack_uint(out, first_wdf);
+	    if (first_wdf >= collfreq - first_wdf) {
+		AssertEq(wdf_max, first_wdf);
+	    } else {
+		// FIXME: If we stored a flag to indicate the wdf was always
+		// non-zero for this term, we could know the exact wdf_max
+		// without storing it in more cases.  We could store such a
+		// flag in close to no space by storing collfreq + 1, with
+		// a value of 1 being an escape value meaning the unusual
+		// case of "term has a mixture of zero and non-zero wdf"
+		// and then the true collfreq value is stored later.  For
+		// the common case, this takes no extra space except for
+		// collfreq values such as 127, 16383, 2097151, ... where
+		// storing one higher needs an extra byte.
+		//
+		// We could also make savings because then we wouldn't need to
+		// store the wdf values for a term where cf = first_wdf + tf -
+		// 1, since then we would know that all the remaining wdf
+		// values were 1.
+		AssertRel(wdf_max, >=, first_wdf);
+		pack_uint(out, wdf_max - first_wdf);
+	    }
 	}
     }
 }
@@ -102,7 +129,8 @@ decode_initial_chunk_header(const char ** p, const char * end,
 			    Xapian::docid & first,
 			    Xapian::docid & last,
 			    Xapian::docid & chunk_last,
-			    Xapian::termcount & first_wdf)
+			    Xapian::termcount & first_wdf,
+			    Xapian::termcount & wdf_max)
 {
     if (!unpack_uint(p, end, &first)) {
 	return false;
@@ -117,7 +145,7 @@ decode_initial_chunk_header(const char ** p, const char * end,
 	// Single occurrence term.
 	termfreq = 1;
 	chunk_last = last = first;
-	first_wdf = collfreq;
+	wdf_max = first_wdf = collfreq;
 	return true;
     }
 
@@ -129,6 +157,7 @@ decode_initial_chunk_header(const char ** p, const char * end,
 	chunk_last = last = first + termfreq + 1;
 	termfreq = 2;
 	first_wdf = collfreq / 2;
+	wdf_max = max(first_wdf, collfreq - first_wdf);
 	return true;
     }
 
@@ -141,6 +170,7 @@ decode_initial_chunk_header(const char ** p, const char * end,
 	first_wdf = last;
 	chunk_last = last = first + termfreq + 1;
 	termfreq = 2;
+	wdf_max = max(first_wdf, collfreq - first_wdf);
 	return true;
     }
 
@@ -152,9 +182,19 @@ decode_initial_chunk_header(const char ** p, const char * end,
     chunk_last += first;
 
     if (collfreq == 0) {
-	first_wdf = 0;
-    } else if (!unpack_uint(p, end, &first_wdf)) {
-	return false;
+	wdf_max = first_wdf = 0;
+    } else {
+	if (!unpack_uint(p, end, &first_wdf)) {
+	    return false;
+	}
+	if (first_wdf >= collfreq - first_wdf) {
+	    wdf_max = first_wdf;
+	} else {
+	    if (!unpack_uint(p, end, &wdf_max)) {
+		return false;
+	    }
+	    wdf_max += first_wdf;
+	}
     }
 
     return true;
