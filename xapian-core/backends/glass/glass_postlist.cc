@@ -34,107 +34,6 @@
 
 using Xapian::Internal::intrusive_ptr;
 
-void
-GlassPostListTable::get_freqs(const string & term,
-			      Xapian::doccount * termfreq_ptr,
-			      Xapian::termcount * collfreq_ptr) const
-{
-    string key = make_key(term);
-    string tag;
-    if (!get_exact_entry(key, tag)) {
-	if (termfreq_ptr)
-	    *termfreq_ptr = 0;
-	if (collfreq_ptr)
-	    *collfreq_ptr = 0;
-    } else {
-	const char * p = tag.data();
-	GlassPostList::read_number_of_entries(&p, p + tag.size(),
-					      termfreq_ptr, collfreq_ptr);
-    }
-}
-
-Xapian::termcount
-GlassPostListTable::get_doclength(Xapian::docid did,
-				  intrusive_ptr<const GlassDatabase> db) const {
-    if (!doclen_pl.get()) {
-	// Don't keep a reference back to the database, since this
-	// would make a reference loop.
-	doclen_pl.reset(new GlassPostList(db, string(), false));
-    }
-    if (!doclen_pl->jump_to(did))
-	throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
-    return doclen_pl->get_wdf();
-}
-
-bool
-GlassPostListTable::document_exists(Xapian::docid did,
-				    intrusive_ptr<const GlassDatabase> db) const
-{
-    if (!doclen_pl.get()) {
-	// Don't keep a reference back to the database, since this
-	// would make a reference loop.
-	doclen_pl.reset(new GlassPostList(db, string(), false));
-    }
-    return (doclen_pl->jump_to(did));
-}
-
-// How big should chunks in the posting list be?  (They
-// will grow slightly bigger than this, but not more than a
-// few bytes extra) - FIXME: tune this value to try to
-// maximise how well blocks are used.  Or performance.
-// Or indexing speed.  Or something...
-const unsigned int CHUNKSIZE = 2000;
-
-/** PostlistChunkWriter is a wrapper which acts roughly as an
- *  output iterator on a postlist chunk, taking care of the
- *  messy details.  It's intended to be used with deletion and
- *  replacing of entries, not for adding to the end, when it's
- *  not really needed.
- */
-class Glass::PostlistChunkWriter {
-    public:
-	PostlistChunkWriter(const string &orig_key_,
-			    bool is_first_chunk_,
-			    const string &tname_,
-			    bool is_last_chunk_);
-
-	/// Append an entry to this chunk.
-	void append(GlassTable * table, Xapian::docid did,
-		    Xapian::termcount wdf);
-
-	/// Append a block of raw entries to this chunk.
-	void raw_append(Xapian::docid first_did_, Xapian::docid current_did_,
-			const string & s) {
-	    Assert(!started);
-	    first_did = first_did_;
-	    current_did = current_did_;
-	    if (!s.empty()) {
-		chunk.append(s);
-		started = true;
-	    }
-	}
-
-	/** Flush the chunk to the buffered table.  Note: this may write it
-	 *  with a different key to the original one, if for example the first
-	 *  entry has changed.
-	 */
-	void flush(GlassTable *table);
-
-    private:
-	string orig_key;
-	string tname;
-	bool is_first_chunk;
-	bool is_last_chunk;
-	bool started;
-
-	Xapian::docid first_did;
-	Xapian::docid current_did;
-
-	string chunk;
-};
-
-using Glass::PostlistChunkWriter;
-
 // Static functions
 
 /// Report an error when reading the posting list.
@@ -247,6 +146,132 @@ read_start_of_chunk(const char ** posptr,
     LOGVALUE(DB, last_did_in_chunk);
     RETURN(last_did_in_chunk);
 }
+
+void
+GlassPostListTable::get_freqs(const string & term,
+			      Xapian::doccount * termfreq_ptr,
+			      Xapian::termcount * collfreq_ptr,
+			      Xapian::termcount * wdfub_ptr) const
+{
+    string key = make_key(term);
+    string tag;
+    if (!get_exact_entry(key, tag)) {
+	if (termfreq_ptr)
+	    *termfreq_ptr = 0;
+	if (collfreq_ptr)
+	    *collfreq_ptr = 0;
+	if (wdfub_ptr)
+	    *wdfub_ptr = 0;
+    } else {
+	const char * p = tag.data();
+	const char * e = p + tag.size();
+	Xapian::doccount tf;
+	Xapian::termcount cf;
+	GlassPostList::read_number_of_entries(&p, e, &tf, &cf);
+	if (termfreq_ptr)
+	    *termfreq_ptr = tf;
+	if (collfreq_ptr)
+	    *collfreq_ptr = cf;
+	if (wdfub_ptr) {
+	    if (cf == 0 || tf == 1) {
+		*wdfub_ptr = cf;
+	    } else {
+		Xapian::docid did;
+		if (!unpack_uint(&p, e, &did))
+		    report_read_error(p);
+		bool is_last;
+		(void)read_start_of_chunk(&p, e, did + 1, &is_last);
+		(void)is_last;
+		Xapian::termcount first_wdf;
+		if (!unpack_uint(&p, e, &first_wdf))
+		    report_read_error(p);
+		*wdfub_ptr = max(cf - first_wdf, first_wdf);
+	    }
+	}
+    }
+}
+
+Xapian::termcount
+GlassPostListTable::get_doclength(Xapian::docid did,
+				  intrusive_ptr<const GlassDatabase> db) const {
+    if (!doclen_pl.get()) {
+	// Don't keep a reference back to the database, since this
+	// would make a reference loop.
+	doclen_pl.reset(new GlassPostList(db, string(), false));
+    }
+    if (!doclen_pl->jump_to(did))
+	throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
+    return doclen_pl->get_wdf();
+}
+
+bool
+GlassPostListTable::document_exists(Xapian::docid did,
+				    intrusive_ptr<const GlassDatabase> db) const
+{
+    if (!doclen_pl.get()) {
+	// Don't keep a reference back to the database, since this
+	// would make a reference loop.
+	doclen_pl.reset(new GlassPostList(db, string(), false));
+    }
+    return (doclen_pl->jump_to(did));
+}
+
+// How big should chunks in the posting list be?  (They
+// will grow slightly bigger than this, but not more than a
+// few bytes extra) - FIXME: tune this value to try to
+// maximise how well blocks are used.  Or performance.
+// Or indexing speed.  Or something...
+const unsigned int CHUNKSIZE = 2000;
+
+/** PostlistChunkWriter is a wrapper which acts roughly as an
+ *  output iterator on a postlist chunk, taking care of the
+ *  messy details.  It's intended to be used with deletion and
+ *  replacing of entries, not for adding to the end, when it's
+ *  not really needed.
+ */
+class Glass::PostlistChunkWriter {
+    public:
+	PostlistChunkWriter(const string &orig_key_,
+			    bool is_first_chunk_,
+			    const string &tname_,
+			    bool is_last_chunk_);
+
+	/// Append an entry to this chunk.
+	void append(GlassTable * table, Xapian::docid did,
+		    Xapian::termcount wdf);
+
+	/// Append a block of raw entries to this chunk.
+	void raw_append(Xapian::docid first_did_, Xapian::docid current_did_,
+			const string & s) {
+	    Assert(!started);
+	    first_did = first_did_;
+	    current_did = current_did_;
+	    if (!s.empty()) {
+		chunk.append(s);
+		started = true;
+	    }
+	}
+
+	/** Flush the chunk to the buffered table.  Note: this may write it
+	 *  with a different key to the original one, if for example the first
+	 *  entry has changed.
+	 */
+	void flush(GlassTable *table);
+
+    private:
+	string orig_key;
+	string tname;
+	bool is_first_chunk;
+	bool is_last_chunk;
+	bool started;
+
+	Xapian::docid first_did;
+	Xapian::docid current_did;
+
+	string chunk;
+};
+
+using Glass::PostlistChunkWriter;
 
 /** PostlistChunkReader is essentially an iterator wrapper
  *  around a postlist chunk.  It simply iterates through the
