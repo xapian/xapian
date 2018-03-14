@@ -64,7 +64,7 @@ NDCGScore::score(const std::vector<FeatureVector> & fvv) const {
     // DCG score of original ranking
     double DCG = get_dcg(labels);
     // DCG score of ideal ranking
-    sort(labels.begin(), labels.begin() + labels.size(), std::greater<double>());
+    sort(labels.begin(), labels.end(), std::greater<double>());
     double iDCG = get_dcg(labels);
 
     if (iDCG == 0) // Don't divide by 0
