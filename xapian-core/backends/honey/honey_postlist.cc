@@ -256,7 +256,7 @@ PostingChunkReader::assign(const char * p_, size_t len,
     const char* pend = p_ + len;
     if (collfreq ?
 	!decode_delta_chunk_header(&p_, pend, chunk_last, did, wdf) :
-	!decode_delta_chunk_header_bool(&p_, pend, chunk_last, did)) {
+	!decode_delta_chunk_header_no_wdf(&p_, pend, chunk_last, did)) {
 	throw Xapian::DatabaseCorruptError("Postlist delta chunk header");
     }
     p = p_;

@@ -274,17 +274,17 @@ decode_delta_chunk_header(const char ** p, const char * end,
 }
 
 inline void
-encode_delta_chunk_header_bool(Xapian::docid chunk_first,
-			       Xapian::docid chunk_last,
-			       std::string & out)
+encode_delta_chunk_header_no_wdf(Xapian::docid chunk_first,
+				 Xapian::docid chunk_last,
+				 std::string & out)
 {
     pack_uint(out, chunk_last - chunk_first);
 }
 
 inline bool
-decode_delta_chunk_header_bool(const char ** p, const char * end,
-			       Xapian::docid chunk_last,
-			       Xapian::docid& chunk_first)
+decode_delta_chunk_header_no_wdf(const char ** p, const char * end,
+				 Xapian::docid chunk_last,
+				 Xapian::docid& chunk_first)
 {
     if (!unpack_uint(p, end, &chunk_first)) {
 	return false;

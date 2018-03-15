@@ -663,8 +663,8 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		}
 		tag.erase(0, d - tag.data());
 	    } else {
-		if (!decode_delta_chunk_header_bool(&d, e, chunk_lastdid,
-						    firstdid)) {
+		if (!decode_delta_chunk_header_no_wdf(&d, e, chunk_lastdid,
+						      firstdid)) {
 		    throw Xapian::DatabaseCorruptError("Bad postlist delta "
 						       "chunk header");
 		}
@@ -975,9 +975,9 @@ merge_postlists(Xapian::Compactor * compactor,
 						      tag);
 			    tag += i->data;
 			} else {
-			    encode_delta_chunk_header_bool(i->first,
-							   last_did,
-							   tag);
+			    encode_delta_chunk_header_no_wdf(i->first,
+							     last_did,
+							     tag);
 			    const char* pos = i->data.data();
 			    const char* pos_end = pos + i->data.size();
 			    while (pos != pos_end) {
