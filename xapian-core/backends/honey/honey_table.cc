@@ -21,10 +21,15 @@
 
 #include <config.h>
 
+static bool DEBUGGING = false;
+
 #include "honey_table.h"
 
 #include "honey_cursor.h"
 #include "stringutils.h"
+
+#include "unicode/description_append.h"
+#include <iostream>
 
 using Honey::RootInfo;
 
@@ -153,6 +158,11 @@ HoneyTable::read_key(std::string& key,
 		     size_t& val_size,
 		     bool& compressed) const
 {
+    if (DEBUGGING) {
+	string desc;
+	description_append(desc, key);
+	cerr << "HoneyTable::read_key(" << desc << ", ...) for path=" << path << endl;
+    }
     if (!read_only) {
 	return false;
     }
@@ -237,8 +247,13 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
     fh.rewind(root);
     if (rare(key.empty()))
 	return false;
-    unsigned index_type = fh.read();
+    bool exact_match = false;
+    bool compressed;
+    size_t val_size = 0;
+    int index_type = fh.read();
     switch (index_type) {
+	case EOF:
+	    return false;
 	case 0x00: {
 	    unsigned char first = key[0] - fh.read();
 	    unsigned char range = fh.read();
@@ -298,24 +313,110 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 	    last_key.assign(kkey, jump == 0 ? 0 : kkey_len);
 	    break;
 	}
+	case 0x02: {
+	    // FIXME: If "close" just seek forwards?  Or consider seeking from
+	    // current index pos?
+	    // off_t pos = fh.get_pos();
+	    string index_key, prev_index_key;
+	    make_unsigned<off_t>::type ptr = 0;
+	    int cmp0 = 1;
+	    while (true) {
+		int reuse = fh.read();
+		if (reuse == EOF) break;
+		int len = fh.read();
+		if (len == EOF) abort(); // FIXME
+		index_key.resize(reuse + len);
+		fh.read(&index_key[reuse], len);
+
+		if (DEBUGGING) {
+		    string desc;
+		    description_append(desc, index_key);
+		    cerr << "Index key: " << desc << endl;
+		}
+
+		cmp0 = index_key.compare(key);
+		if (cmp0 > 0) {
+		    index_key = prev_index_key;
+		    break;
+		}
+		char buf[8];
+		char* e = buf;
+		while (true) {
+		    int b = fh.read();
+		    *e++ = b;
+		    if ((b & 0x80) == 0) break;
+		}
+		const char* p = buf;
+		if (!unpack_uint(&p, e, &ptr) || p != e) abort(); // FIXME
+		if (DEBUGGING) cerr << " -> " << ptr << endl;
+		if (cmp0 == 0)
+		    break;
+		prev_index_key = index_key;
+	    }
+	    if (DEBUGGING)
+		cerr << " cmp0 = " << cmp0 << ", going to " << ptr << endl;
+	    fh.set_pos(ptr);
+
+	    if (ptr != 0) {
+		last_key = index_key;
+		char buf[8];
+		int r;
+		{
+		    // FIXME: rework to take advantage of buffering that's happening anyway?
+		    char * p = buf;
+		    for (int i = 0; i < 8; ++i) {
+			int ch2 = fh.read();
+			if (ch2 == EOF) {
+			    break;
+			}
+			*p++ = ch2;
+			if (ch2 < 128) break;
+		    }
+		    r = p - buf;
+		}
+		const char* p = buf;
+		const char* end = p + r;
+		if (!unpack_uint(&p, end, &val_size)) {
+		    throw Xapian::DatabaseError("val_size unpack_uint invalid");
+		}
+		compressed = val_size & 1;
+		val_size >>= 1;
+		Assert(p == end);
+	    } else {
+		last_key = string();
+	    }
+
+	    if (cmp0 == 0) {
+		exact_match = true;
+		break;
+	    }
+
+	    if (DEBUGGING) {
+		string desc;
+		description_append(desc, last_key);
+		cerr << "Dropped to data layer on key: " << desc << endl;
+	    }
+
+	    break;
+	}
 	default:
 	    throw Xapian::DatabaseCorruptError("Unknown index type");
     }
 
     std::string k;
-    bool compressed;
     int cmp;
-    size_t val_size = 0;
-    do {
-	if (val_size) {
-	    // Skip val data we've not looked at.
-	    fh.skip(val_size);
-	    val_size = 0;
-	}
-	if (!read_key(k, val_size, compressed)) return false;
-	cmp = k.compare(key);
-    } while (cmp < 0);
-    if (cmp > 0) return false;
+    if (!exact_match) {
+	do {
+	    if (val_size) {
+		// Skip val data we've not looked at.
+		fh.skip(val_size);
+		val_size = 0;
+	    }
+	    if (!read_key(k, val_size, compressed)) return false;
+	    cmp = k.compare(key);
+	} while (cmp < 0);
+	if (cmp > 0) return false;
+    }
     if (tag != NULL) {
 	if (compressed) {
 	    std::string v;

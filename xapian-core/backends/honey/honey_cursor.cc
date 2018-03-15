@@ -80,6 +80,13 @@ HoneyCursor::next()
 	cerr << "K:" << esc << endl;
     }
 
+    return next_from_index();
+}
+
+bool
+HoneyCursor::next_from_index()
+{
+    char buf[8];
     int r;
     {
 	// FIXME: rework to take advantage of buffering that's happening
@@ -243,6 +250,85 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		// work if we set last key to kkey.  Unless we're jumping to the
 		// start of the table, in which case last_key needs to be empty.
 		last_key.assign(kkey, jump == 0 ? 0 : kkey_len);
+		break;
+	    }
+	    case 0x02: {
+		// FIXME: If "close" just seek forwards?  Or consider seeking from
+		// current index pos?
+		// off_t pos = fh.get_pos();
+		string index_key, prev_index_key;
+		make_unsigned<off_t>::type ptr = 0;
+		int cmp0 = 1;
+		if (DEBUGGING) {
+		    cerr << "Using skiplist index\n";
+		}
+		while (true) {
+		    int reuse = fh.read();
+		    if (reuse == EOF) break;
+		    int len = fh.read();
+		    if (len == EOF) abort(); // FIXME
+		    if (DEBUGGING) {
+			cerr << "reuse = " << reuse << " len = " << len << endl;
+		    }
+		    index_key.resize(reuse + len);
+		    fh.read(&index_key[reuse], len);
+
+		    if (DEBUGGING) {
+			string desc;
+			description_append(desc, index_key);
+			cerr << "Index key: " << desc << endl;
+		    }
+
+		    cmp0 = index_key.compare(key);
+		    if (cmp0 > 0) {
+			index_key = prev_index_key;
+			break;
+		    }
+		    char buf[8];
+		    char* e = buf;
+		    while (true) {
+			int b = fh.read();
+			*e++ = b;
+			if ((b & 0x80) == 0) break;
+		    }
+		    const char* p = buf;
+		    if (!unpack_uint(&p, e, &ptr) || p != e) abort(); // FIXME
+		    if (DEBUGGING) cerr << " -> " << ptr << endl;
+		    if (cmp0 == 0)
+			break;
+		    prev_index_key = index_key;
+		    if (DEBUGGING) {
+			string desc;
+			description_append(desc, prev_index_key);
+			cerr << "prev_index_key -> " << desc << endl;
+		    }
+		}
+		if (DEBUGGING) {
+		    string desc;
+		    description_append(desc, index_key);
+		    cerr << " index_key = " << desc << ", cmp0 = " << cmp0 << ", going to " << ptr << endl;
+		}
+		fh.set_pos(ptr);
+
+		if (ptr != 0) {
+		    last_key = current_key = index_key;
+		    bool res = next_from_index();
+		    Assert(res);
+		    if (cmp0 == 0) {
+			Assert(ptr != 0);
+			return true;
+		    }
+		    fh.skip(val_size);
+		} else {
+		    last_key = current_key = string();
+		}
+
+		if (DEBUGGING) {
+		    string desc;
+		    description_append(desc, current_key);
+		    cerr << "cmp0 was " << cmp0 << ", Dropped to data layer on key: " << desc << endl;
+		}
+
 		break;
 	    }
 	    default:

@@ -32,6 +32,9 @@ class HoneyCursor {
      */
     bool do_find(const std::string& key, bool greater_than);
 
+    /** Handle the value part of the (key,value). */
+    bool next_from_index();
+
   public:
     BufferedFile fh;
     std::string current_key, current_tag;

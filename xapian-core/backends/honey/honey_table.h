@@ -22,8 +22,8 @@
 #define XAPIAN_INCLUDED_HONEY_TABLE_H
 
 //#define SSINDEX_ARRAY
-#define SSINDEX_BINARY_CHOP
-//#define SSINDEX_SKIPLIST
+//#define SSINDEX_BINARY_CHOP
+#define SSINDEX_SKIPLIST
 
 #define SSINDEX_BINARY_CHOP_KEY_SIZE 4
 
@@ -237,8 +237,11 @@ class BufferedFile {
 	if (buf_end == 0) {
 	    // The buffer is currently empty, so we need to read at least one
 	    // byte.
-	    size_t r = io_pread(fd, buf, sizeof(buf), pos, 1);
+	    size_t r = io_pread(fd, buf, sizeof(buf), pos, 0);
 	    if (r < sizeof(buf)) {
+		if (r == 0) {
+		    return EOF;
+		}
 		memmove(buf + sizeof(buf) - r, buf, r);
 	    }
 	    pos += r;
@@ -306,7 +309,7 @@ class SSIndex {
     size_t block = 0;
 #endif
     size_t n_index = 0;
-#if defined SSINDEX_BINARY_CHOP || SSINDEX_SKIPLIST
+#if defined SSINDEX_BINARY_CHOP || defined SSINDEX_SKIPLIST
     std::string last_index_key;
 #endif
     // Put an index entry every this much:
@@ -410,11 +413,7 @@ class SSIndex {
 	size_t cur_block = ptr / INDEXBLOCK;
 	if (cur_block == block) return;
 
-	size_t len = std::min(last_index_key.size(), key.size());
-	size_t reuse;
-	for (reuse = 0; reuse < len; ++reuse) {
-	    if (last_index_key[reuse] != key[reuse]) break;
-	}
+	size_t reuse = common_prefix_length(last_index_key, key);
 
 	data += char(reuse);
 	data += char(key.size() - reuse);
