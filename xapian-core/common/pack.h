@@ -1,7 +1,7 @@
 /** @file pack.h
  * @brief Pack types into strings and unpack them again.
  */
-/* Copyright (C) 2009,2015,2016,2017 Olly Betts
+/* Copyright (C) 2009,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -350,6 +350,38 @@ unpack_uint(const char ** p, const char * end, U * result)
     }
     *result |= U(static_cast<unsigned char>(*ptr) & 0x7f);
     return true;
+}
+
+/** Decode an unsigned integer from a string, going backwards.
+ *
+ *  @param p	    Pointer to pointer just after the position in the string.
+ *  @param start    Pointer to the start of the string.
+ *  @param result   Where to store the result (or NULL to just skip it).
+ */
+template<class U>
+inline bool
+unpack_uint_backwards(const char ** p, const char * start, U * result)
+{
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+
+    const char * ptr = *p;
+    Assert(ptr);
+
+    // Check it's not empty and that the final byte is valid.
+    if (rare(ptr == start || static_cast<unsigned char>(ptr[-1]) >= 128)) {
+	// Out of data.
+	*p = NULL;
+	return false;
+    }
+
+    do {
+	if (rare(--ptr == start))
+	    break;
+    } while (static_cast<unsigned char>(ptr[-1]) >= 128);
+
+    const char* end = *p;
+    *p = ptr;
+    return unpack_uint(&ptr, end, result);
 }
 
 /** Append an encoded std::string to a string.

@@ -331,11 +331,13 @@ PostingChunkReader::skip_to(Xapian::docid target)
 	if (collfreq == wdf) {
 	    // No need to decode wdf, it must be zero.
 	    wdf = 0;
-	    target = last_did;
-	    return true;
+	} else {
+	    if (!unpack_uint_backwards(&end, p, &wdf))
+		throw Xapian::DatabaseCorruptError("postlist final wdf");
 	}
-	// FIXME: Special case target == last_did && collfreq != 0 to just
-	// decode the wdf from the end?
+	did = last_did;
+	p = end;
+	return true;
     }
 
     do {
