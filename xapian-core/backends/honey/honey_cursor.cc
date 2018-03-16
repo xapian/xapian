@@ -313,6 +313,7 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		if (ptr != 0) {
 		    last_key = current_key = index_key;
 		    bool res = next_from_index();
+		    (void)res;
 		    Assert(res);
 		    if (cmp0 == 0) {
 			Assert(ptr != 0);
