@@ -50,8 +50,14 @@ generate_sample(const string & input, size_t maxlen,
 	if (output.size() >= maxlen) {
 	    // Need to truncate output.
 	    if (last_word_end <= maxlen / 2) {
-		// Monster word!  We'll have to just split it.
-		output.replace(maxlen - ind.size(), string::npos, ind);
+		// Fixed when maxlen < ind.size leading to a negative
+		// reference
+		if (maxlen < ind.size()) {
+		    output.resize(0);
+		} else {
+		    // Monster word!  We'll have to just split it.
+		    output.replace(maxlen - ind.size(), string::npos, ind);
+		}
 	    } else {
 		output.replace(last_word_end, string::npos, ind2);
 	    }
