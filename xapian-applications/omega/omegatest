@@ -567,6 +567,12 @@ testcase 'XCASE|TITLE' B='XCASE:TITLE'
 testcase 'XNUM|42' B='XNUM42'
 testcase 'XNUM|3bad' B='XNUM3bad'
 
+# Test to make sure out generate_sample function in sample.cc
+# Doesn't run into negative memory access
+printf '$truncate{$cgi{input},$cgi{maxlen},$cgi{ind},$cgi{ind2}}$seterror{$opt{error}}' > "$TEST_TEMPLATE"
+testcase 'w...' input='wwwwww' maxlen=4 ind='...' ind2='...'
+testcase '' input='s' maxlen=0 ind='...' ind2='...'
+
 # Simple tests of $subdb and $subid.
 rm -rf "$TEST_DB"
 printf 'inmemory' > "$TEST_DB"
