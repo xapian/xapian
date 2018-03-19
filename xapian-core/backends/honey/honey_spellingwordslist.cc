@@ -53,11 +53,12 @@ HoneySpellingWordsList::get_termname() const
 {
     LOGCALL(DB, string, "HoneySpellingWordsList::get_termname", NO_ARGS);
     Assert(cursor);
-    Assert(!at_end());
-    Assert(!cursor->current_key.empty());
-    unsigned char first = cursor->current_key[0];
-    AssertRel(first, >=, 0x04);
-    RETURN(first > 0x04 ? cursor->current_key : cursor->current_key.substr(1));
+    Assert(!cursor->after_end());
+    const string& key = cursor->current_key;
+    Assert(!key.empty());
+    unsigned char first = key[0];
+    AssertRel(first, >=, Honey::KEY_PREFIX_WORD);
+    RETURN(first > Honey::KEY_PREFIX_WORD ? key : key.substr(1));
 }
 
 Xapian::doccount
@@ -65,9 +66,10 @@ HoneySpellingWordsList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "HoneySpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
-    Assert(!at_end());
+    Assert(!cursor->after_end());
     Assert(!cursor->current_key.empty());
-    AssertRel(static_cast<unsigned char>(cursor->current_key[0]), >=, 0x04);
+    AssertRel(static_cast<unsigned char>(cursor->current_key[0]), >=,
+	      Honey::KEY_PREFIX_WORD);
     cursor->read_tag();
 
     Xapian::termcount freq;
@@ -90,11 +92,11 @@ TermList *
 HoneySpellingWordsList::next()
 {
     LOGCALL(DB, TermList *, "HoneySpellingWordsList::next", NO_ARGS);
-    Assert(!at_end());
+    Assert(cursor);
 
     if (cursor->after_end()) {
 	// This is the first action on a new HoneySpellingWordsList.
-	(void)cursor->find_entry_ge("\x04");
+	(void)cursor->find_entry_ge(string(1, char(Honey::KEY_PREFIX_WORD)));
     } else {
 	cursor->next();
     }
@@ -111,7 +113,7 @@ TermList *
 HoneySpellingWordsList::skip_to(const string &term)
 {
     LOGCALL(DB, TermList *, "HoneySpellingWordsList::skip_to", term);
-    Assert(!at_end());
+    Assert(cursor);
 
     if (!cursor->find_entry_ge(Honey::make_spelling_wordlist_key(term))) {
 	// The exact term we asked for isn't there, so check if the next

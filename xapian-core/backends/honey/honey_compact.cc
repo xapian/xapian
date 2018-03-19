@@ -1134,22 +1134,22 @@ merge_spellings(HoneyTable* out,
 	string key = cur->current_key;
 	switch (key[0]) {
 	    case 'B':
-		key[0] = '\x00';
+		key[0] = Honey::KEY_PREFIX_BOOKEND;
 		break;
 	    case 'H':
-		key[0] = '\x01';
+		key[0] = Honey::KEY_PREFIX_HEAD;
 		break;
 	    case 'M':
-		key[0] = '\x02';
+		key[0] = Honey::KEY_PREFIX_MIDDLE;
 		break;
 	    case 'T':
-		key[0] = '\x03';
+		key[0] = Honey::KEY_PREFIX_TAIL;
 		break;
 	    case 'W':
-		if (static_cast<unsigned char>(key[1]) > 0x04)
+		if (static_cast<unsigned char>(key[1]) > Honey::KEY_PREFIX_WORD)
 		    key.erase(0, 1);
 		else
-		    key[0] = '\x04';
+		    key[0] = Honey::KEY_PREFIX_WORD;
 		break;
 	    default: {
 		string m = "Bad spelling key prefix: ";
@@ -1173,7 +1173,7 @@ merge_spellings(HoneyTable* out,
 
 	// Merge tag values with the same key:
 	string tag;
-	if (static_cast<unsigned char>(key[0]) < 0x04) {
+	if (static_cast<unsigned char>(key[0]) < Honey::KEY_PREFIX_WORD) {
 	    // We just want the union of words, so copy over the first instance
 	    // and skip any identical ones.
 	    priority_queue<PrefixCompressedStringItor *,
@@ -1284,7 +1284,7 @@ merge_spellings(HoneyTable* out,
 
 	// Merge tag values with the same key:
 	string tag;
-	if (static_cast<unsigned char>(key[0]) < 0x04) {
+	if (static_cast<unsigned char>(key[0]) < Honey::KEY_PREFIX_WORD) {
 	    // We just want the union of words, so copy over the first instance
 	    // and skip any identical ones.
 	    priority_queue<PrefixCompressedStringItor *,

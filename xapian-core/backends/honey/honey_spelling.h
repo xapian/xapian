@@ -33,11 +33,17 @@
 
 namespace Honey {
 
+const unsigned KEY_PREFIX_BOOKEND = 0x00;
+const unsigned KEY_PREFIX_HEAD = 0x01;
+const unsigned KEY_PREFIX_MIDDLE = 0x02;
+const unsigned KEY_PREFIX_TAIL = 0x03;
+const unsigned KEY_PREFIX_WORD = 0x04;
+
 inline std::string
 make_spelling_wordlist_key(const std::string& word)
 {
-    if (rare(static_cast<unsigned char>(word[0]) <= 0x04))
-	return "\x04" + word;
+    if (rare(static_cast<unsigned char>(word[0]) <= KEY_PREFIX_WORD))
+	return char(KEY_PREFIX_WORD) + word;
     return word;
 }
 
@@ -57,7 +63,7 @@ struct fragment {
     const char & operator[] (unsigned i) const { return data[i]; }
 
     operator std::string() const {
-	return std::string(data, data[0] == '\x02' ? 4 : 3);
+	return std::string(data, data[0] == KEY_PREFIX_MIDDLE ? 4 : 3);
     }
 
     bool operator<(const fragment &b) const {

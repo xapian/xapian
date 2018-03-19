@@ -220,20 +220,20 @@ HoneySpellingTable::toggle_word(const string & word)
 	// character of a three character word, or insertion in the middle of a
 	// two character word.
 	// 'Bookends':
-	buf[0] = '\x00';
+	buf[0] = KEY_PREFIX_BOOKEND;
 	buf[1] = word[0];
 	buf[2] = word[word.size() - 1];
 	toggle_fragment(buf, word);
     }
 
     // Head:
-    buf[0] = '\x01';
+    buf[0] = KEY_PREFIX_HEAD;
     buf[1] = word[0];
     buf[2] = word[1];
     toggle_fragment(buf, word);
 
     // Tail:
-    buf[0] = '\x03';
+    buf[0] = KEY_PREFIX_TAIL;
     buf[1] = word[word.size() - 2];
     buf[2] = word[word.size() - 1];
     toggle_fragment(buf, word);
@@ -241,7 +241,7 @@ HoneySpellingTable::toggle_word(const string & word)
     if (word.size() > 2) {
 	set<fragment> done;
 	// Middles:
-	buf[0] = '\x02';
+	buf[0] = KEY_PREFIX_MIDDLE;
 	for (size_t start = 0; start <= word.size() - 3; ++start) {
 	    memcpy(buf.data + 1, word.data() + start, 3);
 	    // Don't toggle the same fragment twice or it will cancel out.
@@ -281,7 +281,7 @@ HoneySpellingTable::open_termlist(const string & word)
 	    // characters of a four character word, substitution or deletion of
 	    // the middle character of a three character word, or insertion in
 	    // the middle of a two character word.
-	    buf[0] = '\x00';
+	    buf[0] = KEY_PREFIX_BOOKEND;
 	    buf[1] = word[0];
 	    buf[2] = word[word.size() - 1];
 	    if (get_exact_entry(string(buf), data))
@@ -289,7 +289,7 @@ HoneySpellingTable::open_termlist(const string & word)
 	}
 
 	// Head:
-	buf[0] = '\x01';
+	buf[0] = KEY_PREFIX_HEAD;
 	buf[1] = word[0];
 	buf[2] = word[1];
 	if (get_exact_entry(string(buf), data))
@@ -304,13 +304,13 @@ HoneySpellingTable::open_termlist(const string & word)
 	    buf[2] = word[0];
 	    if (get_exact_entry(string(buf), data))
 		pq.push(new HoneySpellingTermList(data));
-	    buf[0] = '\x02';
+	    buf[0] = KEY_PREFIX_TAIL;
 	    if (get_exact_entry(string(buf), data))
 		pq.push(new HoneySpellingTermList(data));
 	}
 
 	// Tail:
-	buf[0] = '\x02';
+	buf[0] = KEY_PREFIX_TAIL;
 	buf[1] = word[word.size() - 2];
 	buf[2] = word[word.size() - 1];
 	if (get_exact_entry(string(buf), data))
@@ -318,7 +318,7 @@ HoneySpellingTable::open_termlist(const string & word)
 
 	if (word.size() > 2) {
 	    // Middles:
-	    buf[0] = '\x03';
+	    buf[0] = KEY_PREFIX_MIDDLE;
 	    for (size_t start = 0; start <= word.size() - 3; ++start) {
 		memcpy(buf.data + 1, word.data() + start, 3);
 		if (get_exact_entry(string(buf), data))

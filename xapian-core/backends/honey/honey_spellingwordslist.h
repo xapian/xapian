@@ -58,8 +58,10 @@ class HoneySpellingWordsList : public AllTermsList {
     HoneySpellingWordsList(const HoneyDatabase* database_, HoneyCursor* cursor_)
 	    : database(database_), cursor(cursor_), termfreq(0) {
 	// Set the cursor to its end to signal we haven't started yet.  Then
-	// if the first action is next() it can use find_entry_ge("\x04") to
-	// locate the first word.
+	// if the first action is next() we can move the cursor to the first
+	// word with:
+	//
+	// cursor.find_entry_ge(string(1, KEY_PREFIX_WORD));
 	cursor->to_end();
     }
 
