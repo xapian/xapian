@@ -20,14 +20,13 @@
 
 #include <config.h>
 
+//#define DEBUGGING
+
 #include "honey_cursor.h"
 
 #include <string>
 
-#if 1
-# define DEBUGGING false
-#else
-# define DEBUGGING true
+#ifdef DEBUGGING
 # include <iostream>
 #endif
 
@@ -75,11 +74,13 @@ HoneyCursor::next()
     current_key.append(buf, key_size);
     last_key = current_key;
 
-    if (DEBUGGING) {
+#ifdef DEBUGGING
+    {
 	string esc;
 	description_append(esc, current_key);
 	cerr << "K:" << esc << endl;
     }
+#endif
 
     return next_from_index();
 }
@@ -127,16 +128,16 @@ HoneyCursor::read_tag(bool keep_compressed)
     if (val_size) {
 	current_tag.resize(val_size);
 	fh.read(&(current_tag[0]), val_size);
-	if (DEBUGGING) {
+#ifdef DEBUGGING
+	{
 	    cerr << "read " << val_size << " bytes of value data ending @"
 		 << fh.get_pos() << endl;
-	}
-	val_size = 0;
-	if (DEBUGGING) {
 	    string esc;
 	    description_append(esc, current_tag);
 	    cerr << "V:" << esc << endl;
 	}
+#endif
+	val_size = 0;
     }
     if (!keep_compressed && current_compressed) {
 	// Need to decompress.
@@ -150,10 +151,12 @@ HoneyCursor::read_tag(bool keep_compressed)
 	}
 	swap(current_tag, new_tag);
 	current_compressed = false;
-	if (DEBUGGING) {
+#ifdef DEBUGGING
+	{
 	    cerr << "decompressed to " << current_tag.size()
 		 << "bytes of value data" << endl;
 	}
+#endif
     }
     return current_compressed;
 }
@@ -164,11 +167,13 @@ HoneyCursor::do_find(const string& key, bool greater_than)
     // FIXME: Actually use this!
     (void)greater_than;
 
-    if (DEBUGGING) {
+#ifdef DEBUGGING
+    {
 	string esc;
 	description_append(esc, key);
 	cerr << "do_find(" << esc << ", " << greater_than << ") @" << fh.get_pos() << endl;
     }
+#endif
 
     Assert(!key.empty());
 
@@ -260,25 +265,31 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		string index_key, prev_index_key;
 		make_unsigned<off_t>::type ptr = 0;
 		int cmp0 = 1;
-		if (DEBUGGING) {
+#ifdef DEBUGGING
+		{
 		    cerr << "Using skiplist index\n";
 		}
+#endif
 		while (true) {
 		    int reuse = fh.read();
 		    if (reuse == EOF) break;
 		    int len = fh.read();
 		    if (len == EOF) abort(); // FIXME
-		    if (DEBUGGING) {
+#ifdef DEBUGGING
+		    {
 			cerr << "reuse = " << reuse << " len = " << len << endl;
 		    }
+#endif
 		    index_key.resize(reuse + len);
 		    fh.read(&index_key[reuse], len);
 
-		    if (DEBUGGING) {
+#ifdef DEBUGGING
+		    {
 			string desc;
 			description_append(desc, index_key);
 			cerr << "Index key: " << desc << endl;
 		    }
+#endif
 
 		    cmp0 = index_key.compare(key);
 		    if (cmp0 > 0) {
@@ -294,21 +305,29 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		    }
 		    const char* p = buf;
 		    if (!unpack_uint(&p, e, &ptr) || p != e) abort(); // FIXME
-		    if (DEBUGGING) cerr << " -> " << ptr << endl;
+#ifdef DEBUGGING
+		    {
+			cerr << " -> " << ptr << endl;
+		    }
+#endif
 		    if (cmp0 == 0)
 			break;
 		    prev_index_key = index_key;
-		    if (DEBUGGING) {
+#ifdef DEBUGGING
+		    {
 			string desc;
 			description_append(desc, prev_index_key);
 			cerr << "prev_index_key -> " << desc << endl;
 		    }
+#endif
 		}
-		if (DEBUGGING) {
+#ifdef DEBUGGING
+		{
 		    string desc;
 		    description_append(desc, index_key);
 		    cerr << " index_key = " << desc << ", cmp0 = " << cmp0 << ", going to " << ptr << endl;
 		}
+#endif
 		fh.set_pos(ptr);
 
 		if (ptr != 0) {
@@ -325,11 +344,13 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		    last_key = current_key = string();
 		}
 
-		if (DEBUGGING) {
+#ifdef DEBUGGING
+		{
 		    string desc;
 		    description_append(desc, current_key);
 		    cerr << "cmp0 was " << cmp0 << ", Dropped to data layer on key: " << desc << endl;
 		}
+#endif
 
 		break;
 	    }

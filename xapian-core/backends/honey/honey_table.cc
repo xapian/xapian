@@ -21,6 +21,8 @@
 
 #include <config.h>
 
+//#define DEBUGGING
+
 #include "honey_table.h"
 
 #include "honey_cursor.h"
@@ -28,10 +30,7 @@
 
 #include "unicode/description_append.h"
 
-#if 1
-# define DEBUGGING false
-#else
-# define DEBUGGING true
+#ifdef DEBUGGING
 # include <iostream>
 #endif
 
@@ -162,11 +161,13 @@ HoneyTable::read_key(std::string& key,
 		     size_t& val_size,
 		     bool& compressed) const
 {
-    if (DEBUGGING) {
+#ifdef DEBUGGING
+    {
 	string desc;
 	description_append(desc, key);
 	cerr << "HoneyTable::read_key(" << desc << ", ...) for path=" << path << endl;
     }
+#endif
     if (!read_only) {
 	return false;
     }
@@ -195,11 +196,13 @@ HoneyTable::read_key(std::string& key,
     key.append(buf, key_size);
     last_key = key;
 
+#ifdef DEBUGGING
     if (false) {
 	std::string esc;
 	description_append(esc, key);
 	std::cout << "K:" << esc << std::endl;
     }
+#endif
 
     int r;
     {
@@ -232,11 +235,13 @@ HoneyTable::read_val(std::string& val, size_t val_size) const
     AssertRel(fh.get_pos() + val_size, <=, size_t(root));
     val.resize(val_size);
     fh.read(&(val[0]), val_size);
+#ifdef DEBUGGING
     if (false) {
 	std::string esc;
 	description_append(esc, val);
 	std::cout << "V:" << esc << std::endl;
     }
+#endif
 }
 
 bool
@@ -332,11 +337,13 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 		index_key.resize(reuse + len);
 		fh.read(&index_key[reuse], len);
 
-		if (DEBUGGING) {
+#ifdef DEBUGGING
+		{
 		    string desc;
 		    description_append(desc, index_key);
 		    cerr << "Index key: " << desc << endl;
 		}
+#endif
 
 		cmp0 = index_key.compare(key);
 		if (cmp0 > 0) {
@@ -352,13 +359,20 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 		}
 		const char* p = buf;
 		if (!unpack_uint(&p, e, &ptr) || p != e) abort(); // FIXME
-		if (DEBUGGING) cerr << " -> " << ptr << endl;
+#ifdef DEBUGGING
+		{
+		    cerr << " -> " << ptr << endl;
+		}
+#endif
 		if (cmp0 == 0)
 		    break;
 		prev_index_key = index_key;
 	    }
-	    if (DEBUGGING)
+#ifdef DEBUGGING
+	    {
 		cerr << " cmp0 = " << cmp0 << ", going to " << ptr << endl;
+	    }
+#endif
 	    fh.set_pos(ptr);
 
 	    if (ptr != 0) {
@@ -395,11 +409,13 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 		break;
 	    }
 
-	    if (DEBUGGING) {
+#ifdef DEBUGGING
+	    {
 		string desc;
 		description_append(desc, last_key);
 		cerr << "Dropped to data layer on key: " << desc << endl;
 	    }
+#endif
 
 	    break;
 	}
