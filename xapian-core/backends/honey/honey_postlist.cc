@@ -45,6 +45,9 @@ HoneyPostList::update_reader()
     return true;
 }
 
+// Return T with just its top bit set (for unsigned T).
+#define TOP_BIT_SET(T) ((static_cast<T>(-1) >> 1) + 1)
+
 HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 			     const string& term_,
 			     HoneyCursor* cursor_)
@@ -74,7 +77,27 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 				     first_did, last_did,
 				     chunk_last, first_wdf, wdf_max))
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
-    reader.init(tf, cf);
+
+    Xapian::termcount cf_info = cf;
+    if (tf > 2) {
+	cf_info = 1;
+	Xapian::termcount remaining_cf_for_flat_wdf = (tf - 1) * wdf_max;
+	// Check this matches and that it isn't a false match due
+	// to overflow of the multiplication above.
+	if (cf - first_wdf == remaining_cf_for_flat_wdf &&
+	    usual(wdf_max == 0 ||
+		  remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
+	    // Set cl_info to the flat wdf value with the top bit set to
+	    // signify that this is a flat wdf value.
+	    cf_info = wdf_max;
+	    // It shouldn't be possible for the top bit to already be set since
+	    // tf > 2 so cf must be at least 2 * remaining_cf_for_flat_wdf.
+	    Assert((cf_info & TOP_BIT_SET(decltype(cf_info))) == 0);
+	    cf_info |= TOP_BIT_SET(decltype(cf_info));
+	}
+    }
+
+    reader.init(tf, cf_info);
     reader.assign(p, pend - p, first_did, last_did, first_wdf);
 }
 
@@ -254,7 +277,7 @@ PostingChunkReader::assign(const char * p_, size_t len,
 			   Xapian::docid chunk_last)
 {
     const char* pend = p_ + len;
-    if (collfreq ?
+    if (collfreq_info ?
 	!decode_delta_chunk_header(&p_, pend, chunk_last, did, wdf) :
 	!decode_delta_chunk_header_no_wdf(&p_, pend, chunk_last, did)) {
 	throw Xapian::DatabaseCorruptError("Postlist delta chunk header");
@@ -282,11 +305,17 @@ PostingChunkReader::next()
     if (p == end) {
 	if (termfreq == 2 && did != last_did) {
 	    did = last_did;
-	    wdf = collfreq - wdf;
+	    wdf = collfreq_info - wdf;
 	    return true;
 	}
 	p = NULL;
 	return false;
+    }
+
+    // The "constant wdf apart from maybe the first entry" case.
+    if (collfreq_info & TOP_BIT_SET(decltype(collfreq_info))) {
+	wdf = collfreq_info &~ TOP_BIT_SET(decltype(collfreq_info));
+	collfreq_info = 0;
     }
 
     Xapian::docid delta;
@@ -294,7 +323,7 @@ PostingChunkReader::next()
 	throw Xapian::DatabaseCorruptError("postlist docid delta");
     }
     did += delta + 1;
-    if (collfreq) {
+    if (collfreq_info) {
 	if (!unpack_uint(&p, end, &wdf)) {
 	    throw Xapian::DatabaseCorruptError("postlist wdf");
 	}
@@ -323,15 +352,18 @@ PostingChunkReader::skip_to(Xapian::docid target)
 	// move to last_did.
 	AssertEq(termfreq, 2);
 	did = last_did;
-	wdf = collfreq - wdf;
+	wdf = collfreq_info - wdf;
 	return true;
     }
 
+    // The "constant wdf apart from maybe the first entry" case.
+    if (collfreq_info & TOP_BIT_SET(decltype(collfreq_info))) {
+	wdf = collfreq_info &~ TOP_BIT_SET(decltype(collfreq_info));
+	collfreq_info = 0;
+    }
+
     if (target == last_did) {
-	if (collfreq == wdf) {
-	    // No need to decode wdf, it must be zero.
-	    wdf = 0;
-	} else {
+	if (collfreq_info) {
 	    if (!unpack_uint_backwards(&end, p, &wdf))
 		throw Xapian::DatabaseCorruptError("postlist final wdf");
 	}
@@ -352,7 +384,7 @@ PostingChunkReader::skip_to(Xapian::docid target)
 	    throw Xapian::DatabaseCorruptError("postlist docid delta");
 	}
 	did += delta + 1;
-	if (collfreq) {
+	if (collfreq_info) {
 	    if (!unpack_uint(&p, end, &wdf)) {
 		throw Xapian::DatabaseCorruptError("postlist wdf");
 	    }

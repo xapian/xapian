@@ -1,7 +1,7 @@
 /** @file honey_postlist.h
  * @brief PostList in a honey database.
  */
-/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -87,7 +87,28 @@ class PostingChunkReader {
 
     Xapian::doccount termfreq;
 
-    Xapian::termcount collfreq;
+    /** Value "to do with" collection frequency.
+     *
+     *  In order to keep this class small in size the meaning of the value of
+     *  collfreq_info depends on the context (which can be determined from the
+     *  values of other members):
+     *
+     *  * if (collfreq == 0 || tf <= 2) collfreq_info = collfreq;
+     *
+     *  * otherwise:
+     *
+     *    + if wdf is wdf_same for all documents (with the possible exception
+     *      of the first) then to start with:
+     *
+     *      collfreq_info = wdf_same | TOP_BIT_SET
+     *
+     *      and once we've moved onto the second entry:
+     *
+     *      collfreq_info = 0
+     *
+     *    + else collfreq_info = 1
+     */
+    Xapian::termcount collfreq_info;
 
   public:
     /// Create an uninitialised PostingChunkReader.
@@ -100,10 +121,10 @@ class PostingChunkReader {
     }
 
     /// Initialise.
-    void init(Xapian::doccount tf, Xapian::termcount cf) {
+    void init(Xapian::doccount tf, Xapian::termcount cf_info) {
 	p = NULL;
 	termfreq = tf;
-	collfreq = cf;
+	collfreq_info = cf_info;
     }
 
     void assign(const char * p_, size_t len, Xapian::docid did);
