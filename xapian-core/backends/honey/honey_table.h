@@ -31,7 +31,9 @@
 #include "xapian/error.h"
 
 #include <algorithm>
-#include<iostream> // FIXME
+#if 0
+#include <iostream> // FIXME
+#endif
 
 #include <cstdio> // For EOF
 #include <cstdlib> // std::abort()

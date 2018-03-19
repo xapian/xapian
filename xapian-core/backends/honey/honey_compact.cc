@@ -27,7 +27,6 @@
 #include "xapian/types.h"
 
 #include <algorithm>
-#include <iostream>
 #include <memory>
 #include <queue>
 #include <type_traits>

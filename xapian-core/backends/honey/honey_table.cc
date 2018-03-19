@@ -21,15 +21,19 @@
 
 #include <config.h>
 
-static bool DEBUGGING = false;
-
 #include "honey_table.h"
 
 #include "honey_cursor.h"
 #include "stringutils.h"
 
 #include "unicode/description_append.h"
-#include <iostream>
+
+#if 1
+# define DEBUGGING false
+#else
+# define DEBUGGING true
+# include <iostream>
+#endif
 
 using Honey::RootInfo;
 

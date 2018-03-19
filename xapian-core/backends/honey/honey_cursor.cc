@@ -24,9 +24,10 @@
 
 #include <string>
 
-#define DEBUGGING false
-
-#ifdef DEBUGGING
+#if 1
+# define DEBUGGING false
+#else
+# define DEBUGGING true
 # include <iostream>
 #endif
 
