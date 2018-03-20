@@ -419,8 +419,11 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 
 	    break;
 	}
-	default:
-	    throw Xapian::DatabaseCorruptError("Unknown index type");
+	default: {
+	    string m = "HoneyTable: Unknown index type ";
+	    m += str(index_type);
+	    throw Xapian::DatabaseCorruptError(m);
+	}
     }
 
     std::string k;

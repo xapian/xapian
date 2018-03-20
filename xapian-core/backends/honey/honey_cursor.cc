@@ -193,8 +193,10 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 
     if (use_index) {
 	fh.rewind(root);
-	unsigned index_type = fh.read();
+	int index_type = fh.read();
 	switch (index_type) {
+	    case EOF:
+		return false;
 	    case 0x00: {
 		unsigned char first = key[0] - fh.read();
 		unsigned char range = fh.read();
@@ -354,8 +356,11 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 
 		break;
 	    }
-	    default:
-		throw Xapian::DatabaseCorruptError("Unknown index type");
+	    default: {
+		string m = "HoneyCursor: Unknown index type ";
+		m += str(index_type);
+		throw Xapian::DatabaseCorruptError(m);
+	    }
 	}
 	is_at_end = false;
 	val_size = 0;
