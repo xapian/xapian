@@ -1,3 +1,134 @@
+up to: 3e1e5e586b8c41ad7d238d0cc767fe00730102c3
+
+    omegatest: Fix faketime not installed
+    We were reporting "not working" when it wasn't installed.
+    
+    Index POD files despite minor formatting errors
+    Pass --errors=stderr to pod2text so that minor formatting errors don't
+    prevent us from indexing a file.
+    It may seem that --errors=none is a better option, but at least with
+    current versions of Pod::Text that results in an ERRATA section in the
+    generated text version, which we then end up indexing.
+    Reported by Gaurav Arora.
+
+    scriptindex: Fix hash without an argument
+    It was failing with an assertion:
+    scriptindex: ../../hashterm.cc:65: std::string hash_long_term(const string&, unsigned int): Assertion `max_length >= HASH_LEN' failed.
+    Based on a patch by Gaurav Arora:
+    https://github.com/xapian/xapian/pull/189
+    
+    Avoid some unnecessary copying of Action objects
+    Make use of C++11 emplace_back() and std::move().
+    
+    Add $sort OmegaScript command
+    Does a string sort on an OmegaScript list.
+    
+    Add hextobin action
+    Based on a patch from Gaurav Arora.
+    
+    Implement $switch OmegaScript conditional
+    This provides a neater way to write a cascade of $if{$eq{X,VALUE1},...}
+    
+    Implement $cond OmegaScript conditional
+    Inspired by LISP's COND, this provides a neater way to write a cascade
+    of $if.
+    
+    Add feature tests of $map
+    
+    Add $subdb and $subid omegascript commands
+    These report the subdatabase name and the docid in that subdatabase.
+    
+    Use Xapian::docid instead of int for docids
+    
+    Make options array static in omindex-list
+    
+    Say "value slot number" instead of "value number"
+    
+Author: Gaurav Arora <gauravarora.daiict@gmail.com>
+    Reject 'hash' with argument < 6
+    The hashing replaces the last 6 characters of the string with a
+    hash, which doesn't work for producing a string shorter than 6
+    characters.  We now reject index scripts which attempt to specify
+    shorter values.
+    
+Author: Gaurav Arora <gauravarora.daiict@gmail.com>
+    Convert all errors to go to stderr instead of stdout in scripindex
+    
+Omega 1.4.6 (2018-03-20):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Emulate shell exit codes when running command directly fails.
+    Emulate 127 exit code for command not found.
+    Emulate 126 exit code for other failed commands
+    The shell exits with code 127 to mean "command not found" (which we
+    already emulate) and code 126 for other cases.
+    The shell exits with code 127 to mean "command not found" and we
+    check for this and throw NoSuchFilter, so emulate this when we avoid
+    using a shell.  Noted by Gaurav Arora.
+
+* scriptindex:
+
+  + Warn about non-integer arg to hash.
+
+  + Look for alphanumerics when parsing index actions
+    None of the current index actions contain digits, but we give more helpful error messages this way.
+
+  + Deprecate allowing spaces around = in scripts
+    This was never documented as supported, and leads to a missing argument
+    quietly swallowing the next action rather than using an empty value or
+    giving an error.
+    Reported by Gaurav Arora in https://github.com/xapian/xapian/pull/182
+
+    Add colon after prefix when term starts with a colon
+    This means the mapping is reversible, and matches what omega actually
+    does in this case when it tries to reverse the mapping.
+    Thanks to Andy Chilton for pointing out this corner case.
+    
+    New omegascript commands: $termprefix and $unprefix
+    The algorithm for splitting up a term is a bit subtle, so it makes
+    sense to expose the existing implementation inside Omega rather than
+    people having to try to reimplement it in OmegaScript.
+    
+    Use DB_RETRY_LOCK to wait for lock.
+    It's better than sleeping for a second and retrying as we currently
+    do - on most platforms it means we make a blocking request for the lock,
+    and even on platforms where that's not supported, we can sleep and retry
+    inside libxapian, and without having to throw and catch an exception
+    each time.
+    
+    Add parsedate and valuepacked actions
+    Together these assist adding date values for sorting and date range
+    filtering.  Based on a patch from Gaurav Arora.
+
+omega:
+
+* $freq: Speed up some cases by avoiding throwing and catching an exception
+  when we know the MSet has no term frequency information.
+
+templates:
+
+testsuite:
+
+build system:
+
+* configure: Fix potentially confusing messages suggesting snprintf was added
+  in C90 - it was actually standardised in C99.
+
+portability:
+
+* Check for EAGAIN as well as EINTR from select().  The Linux select(2) man
+  page says: "Portable programs may wish to check for EAGAIN and loop, just as
+  with EINTR" and that seems to be necessary for Cygwin at least.
+
+packaging:
+
 Omega 1.4.5 (2017-10-16):
 
 documentation:

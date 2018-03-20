@@ -1,3 +1,91 @@
+up to: e657c070c7ccee7bd183705318a48f551f1b2b19
+
+Xapian-bindings 1.4.6 (2018-03-20):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+    [Java,C#] Use SWIG_exception() to handle exceptions
+    It seems this didn't used to work with older SWIG, but it does with
+    current versions, and using it means that we skip any return value
+    translation logic when an exception has been thrown.
+
+Java:
+
+    [java] Fix leaks in binary std::string typemaps
+    These are used for document values and serialised data.
+    
+    [Java,C#] Use SWIG_exception() to handle exceptions
+    It seems this didn't used to work with older SWIG, but it does with
+    current versions, and using it means that we skip any return value
+    translation logic when an exception has been thrown.
+
+Lua:
+
+Perl:
+
+    [perl] Call prove via App::Prove module
+    This avoids potentially use prove from a different Perl installation
+    to perl (currently the user needs to specify the corresponding PROVE= if
+    they specify PERL= to configure).  In particular this is useful on macOS
+    when using Perl from homebrew.
+    
+PHP:
+
+PHP7:
+
+Python:
+
+Author: James Aylett <james@tartarus.org>
+    Support sphinx >= 1.7 while still working with < 1.7
+    Sphinx 1.7.0 changed the behaviour of the internal sphinx "main"
+    functions: https://github.com/sphinx-doc/sphinx/pull/3668
+    In order to support both, we now need to manually strip argv[0]
+    before calling sphinx.main(), and also provide a dummy first
+    argument for pre-1.7 sphinx to skip automatically. We do this
+    by effectively duplicating our first "real" argument (-b html)
+    as -bhtml.
+
+    Suppress clang -Wdeprecated-register warnings
+    Clang++ 6 warns about uses register in C code in Python.h.  We can't
+    do anything about these (and they appear to have been removed in
+    Python 3.4 and later) so just suppress these warnings.
+    
+Python3:
+
+Author: James Aylett <james@tartarus.org>
+    Support sphinx >= 1.7 while still working with < 1.7
+    Sphinx 1.7.0 changed the behaviour of the internal sphinx "main"
+    functions: https://github.com/sphinx-doc/sphinx/pull/3668
+    In order to support both, we now need to manually strip argv[0]
+    before calling sphinx.main(), and also provide a dummy first
+    argument for pre-1.7 sphinx to skip automatically. We do this
+    by effectively duplicating our first "real" argument (-b html)
+    as -bhtml.
+
+
+    Suppress clang -Wdeprecated-register warnings
+    Clang++ 6 warns about uses register in C code in Python.h.  We can't
+    do anything about these (and they appear to have been removed in
+    Python 3.4 and later) so just suppress these warnings.
+    
+* Remove unused MSet::__cmp__ extend method.  This was used in Python 2, but
+  Python 3 does things differently.  There doesn't seem a good reason to
+  provide comparison operations for MSet objects, and we don't for other
+  classes, so let's just drop this feature - it seems nobody has noticed it has
+  gone.
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.4.5 (2017-10-16):
 
 Documentation:
