@@ -1639,6 +1639,7 @@ GlassTable::read_root()
 	    /* writing - */
 	    SET_REVISION(p, revision_number + 1);
 	    C[0].set_n(free_list.get_block(this, block_size));
+	    C[0].rewrite = true;
 	}
     } else {
 	/* using a root block stored on disk */
@@ -1853,9 +1854,7 @@ GlassTable::flush_db()
 	}
     }
 
-    if (Btree_modified) {
-	faked_root_block = false;
-    }
+    faked_root_block = false;
 }
 
 void
