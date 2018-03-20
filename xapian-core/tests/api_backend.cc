@@ -1686,3 +1686,23 @@ DEFINE_TESTCASE(checkatleast4, backend) {
     TEST_EQUAL(mset.size(), 0);
     return true;
 }
+
+/// Regression test for glass bug fixed in 1.4.6 and 1.5.0.
+DEFINE_TESTCASE(nodocs1, transactions && !remote) {
+    {
+	Xapian::WritableDatabase db = get_named_writable_database("nodocs1");
+	db.set_metadata("foo", "bar");
+	db.commit();
+	Xapian::Document doc;
+	doc.add_term("baz");
+	db.add_document(doc);
+	db.commit();
+    }
+
+    size_t check_errors =
+	Xapian::Database::check(get_named_writable_database_path("nodocs1"),
+				Xapian::DBCHECK_SHOW_STATS, &tout);
+    TEST_EQUAL(check_errors, 0);
+
+    return true;
+}
