@@ -42,10 +42,10 @@ install:
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
   - curl https://oligarchy.co.uk/xapian/patches/unicode-data.cc > xapian-core\unicode\unicode-data.cc
 build_script:
-  - if "%TOOLCHAIN%"=="mingw" bash -c 'time ./configure --disable-documentation'
-  - if "%TOOLCHAIN%"=="mingw64" bash -c 'time ./configure --disable-documentation --host=i686-pc-mingw32'
+  - if "%TOOLCHAIN%"=="mingw" bash -c 'time ./configure --disable-documentation --disable-backend-honey'
+  - if "%TOOLCHAIN%"=="mingw64" bash -c 'time ./configure --disable-documentation --disable-backend-honey --host=i686-pc-mingw32'
   - if "%TOOLCHAIN%"=="cygwin" bash -c 'time ./configure --disable-documentation'
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc" CPPFLAGS=-I$PWD/zlib AR=lib LDFLAGS=-L$PWD/zlib'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'time ./configure --disable-documentation --disable-backend-honey CC="cl -nologo" CXX="/c/projects/xapian/INST/share/automake-1.15/compile cl -nologo" CXXFLAGS="-EHsc" CPPFLAGS=-I$PWD/zlib AR=lib LDFLAGS=-L$PWD/zlib'
   - bash -c 'time make -j2' < nul
 test_script:
   - bash -c 'time make check VERBOSE=1' < nul
