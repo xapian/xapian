@@ -72,12 +72,6 @@ check_if_single_file_db(const struct stat & sb, const string & path,
 #if defined XAPIAN_HAS_GLASS_BACKEND || \
     defined XAPIAN_HAS_HONEY_BACKEND
     if (!S_ISREG(sb.st_mode)) return BACKEND_UNKNOWN;
-    // Look at the size as a clue - if it's 0 or not a multiple of
-    // GLASS_MIN_BLOCKSIZE, then it's not a single-file glass database, and
-    // not a honey single-file database either, as we pad those to a multiple
-    // of GLASS_MIN_BLOCKSIZE too.  Otherwise peek at the start of the file to
-    // determine which it is.
-    if (sb.st_size == 0 || sb.st_size % GLASS_MIN_BLOCKSIZE != 0)
     // Look at the size as a clue - if it's less than GLASS_MIN_BLOCKSIZE, then
     // it's not a single-file glass database and too small to be a honey one
     // If it is, peek at the start of the file to determine what it is.
