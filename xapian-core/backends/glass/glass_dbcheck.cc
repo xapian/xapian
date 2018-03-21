@@ -742,7 +742,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    if (doclen < version_file.get_doclength_lower_bound() ||
 		doclen > version_file.get_doclength_upper_bound()) {
 		if (out) {
-		    *out << "doclen not within bounds";
+		    *out << "doclen not within bounds" << endl;
 		}
 		++errors;
 		continue;
