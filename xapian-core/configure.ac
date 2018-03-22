@@ -1416,8 +1416,13 @@ typedef long long off_t_redefinition_typedef;
 #endif
 
 /* MSVC defines _WIN32 but not __WIN32__. */
-#if !defined __WIN32__ && defined _WIN32 && !defined _WIN64
+#if !defined __WIN32__ && defined _WIN32
 # define __WIN32__
+#endif
+
+/* MSVC defines _WIN64 but not __WIN64__. */
+#if !defined __WIN64__ && defined _WIN64
+# define __WIN64__
 #endif
 
 /* _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4, but it
