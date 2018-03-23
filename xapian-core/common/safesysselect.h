@@ -36,7 +36,7 @@
 #  include <unistd.h>
 # endif
 
-// On Solaris FDSET uses memset but fails to prototype it.
+// On Solaris FD_SET uses memset but fails to prototype it.
 # include <cstring>
 
 #else
