@@ -5,6 +5,8 @@ skip_tags: true
 # think that would be quicker still, but actually it seems to take ~15 seconds,
 # and then bootstrap fails due to there not being a ".git" directory.
 clone_depth: 20
+# Specify clone_folder so we can hard-code the Unix path equivalent below.
+clone_folder: c:\projects\xapian
 environment:
   global:
     AUTOMATED_TESTING: 1
@@ -37,37 +39,37 @@ environment:
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
 install:
   - ps: >-
-      {
-        $env:CONFIGOPTS="--disable-documentation"
-        if ($env:TOOLCHAIN -eq "mingw") {
-          $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
-        } elseif ($env:TOOLCHAIN -eq "mingw64") {
-          if ($env:Platform -eq "x86") {
-            $env:PATH="C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;C:\msys64\usr\bin;$env:PATH"
-            $env:CONFIGOPTS+=" --host=i686-pc-mingw32"
-          } else {
-            $env:PATH="C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;C:\msys64\usr\bin;$env:PATH"
-            $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32"
-          }
-        } elseif ($env:TOOLCHAIN -eq "cygwin") {
-          $env:PATH="C:\cygwin64\bin;$env:PATH"
-          if ($env:Platform -eq "x86") {
-            $env:CONFIGOPTS+=""
-          } else {
-            $env:CONFIGOPTS+=" --host=x86_64-pc-cygwin"
-          }
-        } elseif ($env:TOOLCHAIN -eq "llvm") {
-          $env:PATH="C:\Program Files\LLVM\bin;c:\msys64\usr\bin;$env:PATH"
+      $env:CONFIGOPTS="--disable-documentation"
+  - ps: >-
+      if ($env:TOOLCHAIN -eq "mingw") {
+        $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
+      } elseif ($env:TOOLCHAIN -eq "mingw64") {
+        if ($env:Platform -eq "x86") {
+          $env:PATH="C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;C:\msys64\usr\bin;$env:PATH"
+          $env:CONFIGOPTS+=" --host=i686-pc-mingw32"
         } else {
-          $env:PATH="c:\msys64\usr\bin;$env:PATH"
-          $env:CONFIGOPTS+=" CC='cl -nologo' CXX='$env:APPVEYOR_BUILD_FOLDER/INST/share/automake-1.15/compile cl -nologo' CXXFLAGS=-EHsc CPPFLAGS='-$env:APPVEYOR_BUILD_FOLDER/zlib' AR=lib LDFLAGS=-L'$env:APPVEYOR_BUILD_FOLDER/zlib'"
+          $env:PATH="C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;C:\msys64\usr\bin;$env:PATH"
+          $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32"
         }
-        if ($env:Platform -eq "x64") {
-          $env:CONFIGOPTS+=" --disable-backend-remote"
-          if ($env:TOOLCHAIN -ne "cygwin") {
-            $env:CONFIGOPTS+=" --disable-backend-honey"
-          }
+      } elseif ($env:TOOLCHAIN -eq "cygwin") {
+        $env:PATH="C:\cygwin64\bin;$env:PATH"
+        if ($env:Platform -eq "x86") {
+          $env:CONFIGOPTS+=""
+        } else {
+          $env:CONFIGOPTS+=" --host=x86_64-pc-cygwin"
         }
+      } elseif ($env:TOOLCHAIN -eq "llvm") {
+        $env:PATH="C:\Program Files\LLVM\bin;c:\msys64\usr\bin;$env:PATH"
+      } else {
+        $env:PATH="c:\msys64\usr\bin;$env:PATH"
+      }
+  - ps: >-
+      if ($env:Platform -eq "x64") {
+        $env:CONFIGOPTS+=" --disable-backend-remote"
+      }
+  - ps: >-
+      if ($env:TOOLCHAIN -ne "cygwin") {
+        $env:CONFIGOPTS+=" --disable-backend-honey"
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
@@ -81,6 +83,15 @@ install:
   - if "%TOOLCHAIN%"=="msvc" cd ..
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
   - curl https://oligarchy.co.uk/xapian/patches/unicode-data.cc > xapian-core\unicode\unicode-data.cc
+  - ps: >-
+      if ($env:TOOLCHAIN -eq "msvc") {
+        $env:CC="cl -nologo"
+        $env:CXX="c:/projects/xapian/INST/share/automake-1.15/compile cl -nologo"
+        $env:CXXFLAGS="-EHsc"
+        $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
+        $env:AR="lib"
+        $env:LDFLAGS="-Lc:/projects/xapian/zlib"
+      }
 build_script:
   - bash -c 'time ./configure $CONFIGOPTS'
   - bash -c 'time make -j2' < nul
