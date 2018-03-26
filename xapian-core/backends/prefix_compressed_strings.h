@@ -1,7 +1,7 @@
 /** @file prefix_compressed_strings.h
  * @brief Handle encoding and decoding prefix-compressed lists of strings
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,8 +24,10 @@
 
 #include <xapian/error.h>
 
-#include <algorithm>
 #include <string>
+
+#include "honey/honey_spelling.h"
+#include "stringutils.h"
 
 // We XOR the length values with this so that they are more likely to coincide
 // with lower case ASCII letters, which are likely to be common.  This means
@@ -38,14 +40,57 @@ class PrefixCompressedStringItor {
     size_t left;
     std::string current;
 
-    PrefixCompressedStringItor(const unsigned char * p_, size_t left_,
-			       const std::string &current_)
-	: p(p_), left(left_), current(current_) { }
+    /** Number of constant characters on the end of the value.
+     *
+     *  Valid values once iterating are 0, 1, 2.  Before iteration, can be
+     *  0 (no head or tail), 2 (two tails), -1 (one head, one tail -> 1 once
+     *  iterating) or -2 (two heads, no tail -> 0 once iterating).
+     */
+    int tail = 0;
+
+    PrefixCompressedStringItor(PrefixCompressedStringItor& o)
+	: p(o.p), left(o.left), current(o.current), tail(o.tail) {}
 
   public:
-    explicit PrefixCompressedStringItor(const std::string & s)
+    /** Construct for glass.
+     *
+     *  @param s  the encoded data.
+     */
+    explicit PrefixCompressedStringItor(const std::string& s)
 	: p(reinterpret_cast<const unsigned char *>(s.data())),
 	  left(s.size()) {
+	if (left) {
+	    operator++();
+	} else {
+	    p = NULL;
+	}
+    }
+
+    /** Construct for honey.
+     *
+     *  @param s    the encoded data.
+     *  @param key  the key
+     */
+    PrefixCompressedStringItor(const std::string& s,
+			       const std::string& key)
+	: p(reinterpret_cast<const unsigned char *>(s.data())),
+	  left(s.size()) {
+	Assert(!key.empty());
+	unsigned char first_ch = key[0];
+	AssertRel(first_ch, <, Honey::KEY_PREFIX_WORD);
+	switch (first_ch) {
+	    case Honey::KEY_PREFIX_BOOKEND:
+		tail = -1;
+		break;
+	    case Honey::KEY_PREFIX_HEAD:
+		tail = -2;
+		break;
+	    case Honey::KEY_PREFIX_TAIL:
+		tail = 2;
+		break;
+	}
+	if (tail != 0)
+	    current.assign(key, 1, 2);
 	if (left) {
 	    operator++();
 	} else {
@@ -58,25 +103,28 @@ class PrefixCompressedStringItor {
     }
 
     PrefixCompressedStringItor operator++(int) {
-	const unsigned char * old_p = p;
-	size_t old_left = left;
-	std::string old_current = current;
+	PrefixCompressedStringItor old(*this);
 	operator++();
-	return PrefixCompressedStringItor(old_p, old_left, old_current);
+	return old;
     }
 
     PrefixCompressedStringItor & operator++() {
 	if (left == 0) {
 	    p = NULL;
 	} else {
-	    if (!current.empty()) {
-		current.resize(*p++ ^ MAGIC_XOR_VALUE);
+	    size_t keep;
+	    if (rare(tail < 0)) {
+		tail += 2;
+		keep = current.size() - tail;
+	    } else if (usual(!current.empty())) {
+		keep = *p++ ^ MAGIC_XOR_VALUE;
 		--left;
 	    }
 	    size_t add;
 	    if (left == 0 || (add = *p ^ MAGIC_XOR_VALUE) >= left)
 		throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
-	    current.append(reinterpret_cast<const char *>(p + 1), add);
+	    current.replace(keep, current.size() - tail - keep,
+			    reinterpret_cast<const char *>(p + 1), add);
 	    p += add + 1;
 	    left -= add + 1;
 	}
@@ -92,24 +140,75 @@ class PrefixCompressedStringWriter {
     std::string current;
     std::string & out;
 
+    int tail = 0;
+
   public:
-    explicit PrefixCompressedStringWriter(std::string & out_) : out(out_) { }
+    /** Construct for glass.
+     *
+     *  @param out_  where to write data to.
+     */
+    explicit PrefixCompressedStringWriter(std::string& out_) : out(out_) { }
+
+    /** Construct for honey.
+     *
+     *  @param out_  where to write data to.
+     *  @param key   the key.
+     */
+    PrefixCompressedStringWriter(std::string& out_,
+				 const std::string& key)
+	: out(out_) {
+	Assert(!key.empty());
+	unsigned char first_ch = key[0];
+	AssertRel(first_ch, <, Honey::KEY_PREFIX_WORD);
+	switch (first_ch) {
+	    case Honey::KEY_PREFIX_BOOKEND:
+		tail = -1;
+		break;
+	    case Honey::KEY_PREFIX_HEAD:
+		tail = -2;
+		break;
+	    case Honey::KEY_PREFIX_TAIL:
+		tail = 2;
+		break;
+	}
+	if (tail != 0)
+	    current.assign(key, 1, 2);
+    }
 
     void append(const std::string & word) {
 	// If this isn't the first entry, see how much of the previous one
 	// we can reuse.
-	if (!current.empty()) {
-	    size_t len = std::min(current.size(), word.size());
-	    size_t i;
-	    for (i = 0; i < len; ++i) {
-		if (current[i] != word[i]) break;
+	if (rare(tail < 0)) {
+	    // First entry for BOOKEND or HEAD (tail is -1 or -2).
+	    AssertRel(tail, >=, -2);
+	    AssertEq(current[0], word[0]);
+	    if (tail == -2) {
+		AssertEq(current[1], word[1]);
+	    } else {
+		AssertEq(current.back(), word.back());
 	    }
+	    out += char((word.size() - 2) ^ MAGIC_XOR_VALUE);
+	    out.append(word, -tail, word.size() - 2);
+	    tail += 2;
+	} else if (usual(!current.empty())) {
+	    // Incremental change.
+	    if (tail)
+		AssertEq(current[current.size() - 1], word[word.size() - 1]);
+	    if (tail > 1)
+		AssertEq(current[current.size() - 2], word[word.size() - 2]);
+	    size_t i = common_prefix_length(current, word);
 	    out += char(i ^ MAGIC_XOR_VALUE);
-	    out += char((word.size() - i) ^ MAGIC_XOR_VALUE);
-	    out.append(word.data() + i, word.size() - i);
+	    size_t add = word.size() - i - tail;
+	    out += char(add ^ MAGIC_XOR_VALUE);
+	    out.append(word.data() + i, add);
 	} else {
-	    out += char(word.size() ^ MAGIC_XOR_VALUE);
-	    out += word;
+	    // First entry for MIDDLE or TAIL (tail is 0 or 2).
+	    if (tail) {
+		AssertEq(current[current.size() - 1], word[word.size() - 1]);
+		AssertEq(current[current.size() - 2], word[word.size() - 2]);
+	    }
+	    out += char((word.size() - tail) ^ MAGIC_XOR_VALUE);
+	    out.append(word, 0, word.size() - tail);
 	}
 	current = word;
     }
