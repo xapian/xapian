@@ -442,7 +442,7 @@ HoneySpellingTermList::next()
 	return NULL;
     }
 
-    size_t keep;
+    size_t keep = 0;
     if (rare(tail < 0)) {
 	tail += 2;
 	keep = current_term.size() - tail;
