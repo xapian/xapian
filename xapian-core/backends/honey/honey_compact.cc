@@ -32,9 +32,6 @@
 #include <type_traits>
 
 #include <cstdio>
-#ifdef HAVE_SYS_UIO_H
-# include <sys/uio.h>
-#endif
 
 #include "safeerrno.h"
 
