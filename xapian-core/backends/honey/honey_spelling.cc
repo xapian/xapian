@@ -56,7 +56,7 @@ HoneySpellingTable::merge_changes()
 	string current;
 	PrefixCompressedStringWriter out(updated);
 	if (get_exact_entry(key, current)) {
-	    PrefixCompressedStringItor in(current);
+	    PrefixCompressedStringItor in(current, key);
 	    updated.reserve(current.size()); // FIXME plus some?
 	    while (!in.at_end() && d != changes.end()) {
 		const string & word = *in;
@@ -285,7 +285,7 @@ HoneySpellingTable::open_termlist(const string & word)
 	    buf[1] = word[0];
 	    buf[2] = word[word.size() - 1];
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new HoneySpellingTermList(data));
+		pq.push(new HoneySpellingTermList(data, buf.data));
 	}
 
 	// Head:
@@ -293,7 +293,7 @@ HoneySpellingTable::open_termlist(const string & word)
 	buf[1] = word[0];
 	buf[2] = word[1];
 	if (get_exact_entry(string(buf), data))
-	    pq.push(new HoneySpellingTermList(data));
+	    pq.push(new HoneySpellingTermList(data, buf.data));
 
 	if (word.size() == 2) {
 	    // For two letter words, we generate H and T terms for the
@@ -303,10 +303,10 @@ HoneySpellingTable::open_termlist(const string & word)
 	    buf[1] = word[1];
 	    buf[2] = word[0];
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new HoneySpellingTermList(data));
+		pq.push(new HoneySpellingTermList(data, buf.data));
 	    buf[0] = KEY_PREFIX_TAIL;
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new HoneySpellingTermList(data));
+		pq.push(new HoneySpellingTermList(data, buf.data));
 	}
 
 	// Tail:
@@ -314,7 +314,7 @@ HoneySpellingTable::open_termlist(const string & word)
 	buf[1] = word[word.size() - 2];
 	buf[2] = word[word.size() - 1];
 	if (get_exact_entry(string(buf), data))
-	    pq.push(new HoneySpellingTermList(data));
+	    pq.push(new HoneySpellingTermList(data, buf.data));
 
 	if (word.size() > 2) {
 	    // Middles:
@@ -441,17 +441,23 @@ HoneySpellingTermList::next()
 	data.resize(0);
 	return NULL;
     }
-    if (!current_term.empty()) {
-	if (p == data.size())
-	    throw Xapian::DatabaseCorruptError("Bad spelling termlist");
-	current_term.resize(byte(data[p++]) ^ MAGIC_XOR_VALUE);
+
+    size_t keep;
+    if (rare(tail < 0)) {
+	tail += 2;
+	keep = current_term.size() - tail;
+    } else if (usual(!current_term.empty())) {
+	keep = data[p++] ^ MAGIC_XOR_VALUE;
     }
     size_t add;
     if (p == data.size() ||
-	(add = byte(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
-	throw Xapian::DatabaseCorruptError("Bad spelling termlist");
-    current_term.append(data.data() + p + 1, add);
+	(add = data[p] ^ MAGIC_XOR_VALUE) >= data.size() - p) {
+	throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
+    }
+    current_term.replace(keep, current_term.size() - tail - keep,
+			 reinterpret_cast<const char *>(&data[p + 1]), add);
     p += add + 1;
+
     return NULL;
 }
 

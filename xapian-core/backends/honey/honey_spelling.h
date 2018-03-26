@@ -158,10 +158,18 @@ class HoneySpellingTermList : public TermList {
     std::string data;
 
     /// Position in the data.
-    unsigned p;
+    unsigned p = 0;
 
     /// The current term.
     std::string current_term;
+
+    /** Number of constant characters on the end of the value.
+     *
+     *  Valid values once iterating are 0, 1, 2.  Before iteration, can be
+     *  0 (no head or tail), 2 (two tails), -1 (one head, one tail -> 1 once
+     *  iterating) or -2 (two heads, no tail -> 0 once iterating).
+     */
+    int tail = 0;
 
     /// Copying is not allowed.
     HoneySpellingTermList(const HoneySpellingTermList &);
@@ -171,8 +179,29 @@ class HoneySpellingTermList : public TermList {
 
   public:
     /// Constructor.
-    explicit HoneySpellingTermList(const std::string & data_)
-	: data(data_), p(0) { }
+    explicit HoneySpellingTermList(const std::string& data_)
+	: data(data_) { }
+
+    /// Constructor for head/bookend/tail terms.
+    HoneySpellingTermList(const std::string& data_,
+			  const char* key)
+	: data(data_) {
+	unsigned char first_ch = key[0];
+	AssertRel(first_ch, <, Honey::KEY_PREFIX_WORD);
+	switch (first_ch) {
+	    case Honey::KEY_PREFIX_BOOKEND:
+		tail = -1;
+		break;
+	    case Honey::KEY_PREFIX_HEAD:
+		tail = -2;
+		break;
+	    case Honey::KEY_PREFIX_TAIL:
+		tail = 2;
+		break;
+	}
+	if (tail != 0)
+	    current_term.assign(key + 1, 2);
+    }
 
     Xapian::termcount get_approx_size() const;
 

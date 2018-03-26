@@ -1011,9 +1011,43 @@ merge_spellings(HoneyTable* out,
 	}
 
 	if (pq.empty() || pq.top()->current_key > key) {
-	    // No need to merge the tags, just copy the (possibly compressed)
-	    // tag value.
-	    bool compressed = cur->read_tag(true);
+	    // No merging to do for this key so just copy the tag value,
+	    // adjusting if necessary.  If we don't need to adjust it, just
+	    // copy the compressed value.
+	    bool compressed;
+	    switch (key[0]) {
+		case Honey::KEY_PREFIX_HEAD: {
+		    compressed = cur->read_tag(false);
+		    unsigned char len = cur->current_tag[0] ^ MAGIC_XOR_VALUE;
+		    cur->current_tag[0] = (len - 2) ^ MAGIC_XOR_VALUE;
+		    AssertEq(cur->current_tag[1], key[1]);
+		    AssertEq(cur->current_tag[2], key[2]);
+		    cur->current_tag.erase(1, 2);
+		    break;
+		}
+		case Honey::KEY_PREFIX_TAIL: {
+		    compressed = cur->read_tag(false);
+		    unsigned char len = cur->current_tag[0] ^ MAGIC_XOR_VALUE;
+		    cur->current_tag[0] = (len - 2) ^ MAGIC_XOR_VALUE;
+		    AssertEq(cur->current_tag[len - 1], key[1]);
+		    AssertEq(cur->current_tag[len], key[2]);
+		    cur->current_tag.erase(len - 1, 2);
+		    break;
+		}
+		case Honey::KEY_PREFIX_BOOKEND: {
+		    compressed = cur->read_tag(false);
+		    unsigned char len = cur->current_tag[0] ^ MAGIC_XOR_VALUE;
+		    cur->current_tag[0] = (len - 2) ^ MAGIC_XOR_VALUE;
+		    AssertEq(cur->current_tag[1], key[1]);
+		    AssertEq(cur->current_tag[len], key[2]);
+		    cur->current_tag.erase(len, 1);
+		    cur->current_tag.erase(1, 1);
+		    break;
+		}
+		default:
+		    compressed = cur->read_tag(true);
+		    break;
+	    }
 	    out->add(key, cur->current_tag, compressed);
 	    if (cur->next()) {
 		pq.push(cur);
@@ -1046,7 +1080,7 @@ merge_spellings(HoneyTable* out,
 		pq.pop();
 	    }
 
-	    PrefixCompressedStringWriter wr(tag);
+	    PrefixCompressedStringWriter wr(tag, key);
 	    string lastword;
 	    while (!pqtag.empty()) {
 		PrefixCompressedStringItor * it = pqtag.top();
@@ -1150,14 +1184,15 @@ merge_spellings(HoneyTable* out,
 
 	    while (true) {
 		cur->read_tag();
-		pqtag.push(new PrefixCompressedStringItor(cur->current_tag));
+		pqtag.push(new PrefixCompressedStringItor(cur->current_tag,
+							  key));
 		vec.push_back(cur);
 		if (pq.empty() || pq.top()->current_key != key) break;
 		cur = pq.top();
 		pq.pop();
 	    }
 
-	    PrefixCompressedStringWriter wr(tag);
+	    PrefixCompressedStringWriter wr(tag, key);
 	    string lastword;
 	    while (!pqtag.empty()) {
 		PrefixCompressedStringItor * it = pqtag.top();
