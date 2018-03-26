@@ -112,7 +112,7 @@ class PrefixCompressedStringItor {
 	if (left == 0) {
 	    p = NULL;
 	} else {
-	    size_t keep;
+	    size_t keep = 0;
 	    if (rare(tail < 0)) {
 		tail += 2;
 		keep = current.size() - tail;
