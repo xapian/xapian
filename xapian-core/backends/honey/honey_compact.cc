@@ -1014,9 +1014,24 @@ merge_spellings(HoneyTable* out,
 	}
 
 	if (pq.empty() || pq.top()->current_key > key) {
-	    // No need to merge the tags, just copy the (possibly compressed)
-	    // tag value.
-	    bool compressed = cur->read_tag(true);
+	    // No need to merge the tags so just copy the tag value, adjusting
+	    // if necessary.  If we don't need to adjust it, just copy the
+	    // compressed value.
+	    bool compressed;
+	    if (key[0] == Honey::KEY_PREFIX_HEAD) {
+		compressed = cur->read_tag(false);
+		AssertEq(cur->current_tag[1], key[1]);
+		AssertEq(cur->current_tag[2], key[2]);
+		cur->current_tag[0] -= 2;
+		cur->current_tag.erase(1, 2);
+	    } else if (key[0] == Honey::KEY_PREFIX_BOOKEND) {
+		compressed = cur->read_tag(false);
+		AssertEq(cur->current_tag[1], key[1]);
+		--cur->current_tag[0];
+		cur->current_tag.erase(1, 1);
+	    } else {
+		compressed = cur->read_tag(true);
+	    }
 	    out->add(key, cur->current_tag, compressed);
 	    if (cur->next()) {
 		pq.push(cur);
@@ -1065,6 +1080,18 @@ merge_spellings(HoneyTable* out,
 		} else {
 		    delete it;
 		}
+	    }
+
+	    // FIXME: Handle this in PrefixCompressedStringWriter
+	    if (key[0] == Honey::KEY_PREFIX_HEAD) {
+		AssertEq(tag[1], key[1]);
+		AssertEq(tag[2], key[2]);
+		tag[0] -= 2;
+		tag.erase(1, 2);
+	    } else if (key[0] == Honey::KEY_PREFIX_BOOKEND) {
+		AssertEq(tag[1], key[1]);
+		tag[0] -= 1;
+		tag.erase(1, 1);
 	    }
 
 	    for (auto i : vec) {

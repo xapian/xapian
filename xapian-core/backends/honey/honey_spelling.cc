@@ -54,6 +54,11 @@ HoneySpellingTable::merge_changes()
 
 	string updated;
 	string current;
+	if (key[0] == KEY_PREFIX_HEAD) {
+	    // FIXME: Handle priming with key[1] and key[2].
+	} else if (key[1] == KEY_PREFIX_BOOKEND) {
+	    // FIXME: Handle priming with key[1]
+	}
 	PrefixCompressedStringWriter out(updated);
 	if (get_exact_entry(key, current)) {
 	    PrefixCompressedStringItor in(current);
@@ -285,7 +290,7 @@ HoneySpellingTable::open_termlist(const string & word)
 	    buf[1] = word[0];
 	    buf[2] = word[word.size() - 1];
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new HoneySpellingTermList(data));
+		pq.push(new HoneySpellingTermList(data, buf.data + 1, 1));
 	}
 
 	// Head:
@@ -293,7 +298,7 @@ HoneySpellingTable::open_termlist(const string & word)
 	buf[1] = word[0];
 	buf[2] = word[1];
 	if (get_exact_entry(string(buf), data))
-	    pq.push(new HoneySpellingTermList(data));
+	    pq.push(new HoneySpellingTermList(data, buf.data + 1, 2));
 
 	if (word.size() == 2) {
 	    // For two letter words, we generate H and T terms for the
@@ -303,7 +308,7 @@ HoneySpellingTable::open_termlist(const string & word)
 	    buf[1] = word[1];
 	    buf[2] = word[0];
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new HoneySpellingTermList(data));
+		pq.push(new HoneySpellingTermList(data, buf.data + 1, 2));
 	    buf[0] = KEY_PREFIX_TAIL;
 	    if (get_exact_entry(string(buf), data))
 		pq.push(new HoneySpellingTermList(data));

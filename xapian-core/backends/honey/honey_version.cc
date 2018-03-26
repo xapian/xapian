@@ -50,8 +50,9 @@
 using namespace std;
 
 /// Honey format version (date of change):
-#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,3,15)
-// 2018,3,15  1.5.0 avoid storing flat wdf
+#define HONEY_FORMAT_VERSION DATE_TO_VERSION(2018,3,25)
+// 2018,3,25  1.5.0 use known prefix from spelling B and H keys
+// 2018,3,15        avoid storing flat wdf
 // 2018,3,14        store per term wdf_max
 // 2018,3,12        binary chop index
 // 2018,3,11        spelling key encoding changed

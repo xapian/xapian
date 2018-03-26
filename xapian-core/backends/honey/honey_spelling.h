@@ -158,7 +158,7 @@ class HoneySpellingTermList : public TermList {
     std::string data;
 
     /// Position in the data.
-    unsigned p;
+    unsigned p = 0;
 
     /// The current term.
     std::string current_term;
@@ -171,8 +171,15 @@ class HoneySpellingTermList : public TermList {
 
   public:
     /// Constructor.
-    explicit HoneySpellingTermList(const std::string & data_)
-	: data(data_), p(0) { }
+    explicit HoneySpellingTermList(const std::string& data_)
+	: data(data_) { }
+
+    /// Constructor for head terms.
+    HoneySpellingTermList(const std::string& data_,
+			  const char* head,
+			  size_t head_len)
+	: data(data_),
+	  current_term(head, head_len) { }
 
     Xapian::termcount get_approx_size() const;
 
