@@ -52,9 +52,10 @@ install:
           $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32"
         }
       } elseif ($env:TOOLCHAIN -eq "cygwin") {
+        # Use 64-bit cygwin install for 32 bit build too to avoid DLL mapping issues.
         $env:PATH="C:\cygwin64\bin;$env:PATH"
         if ($env:Platform -eq "x86") {
-          $env:CONFIGOPTS+=""
+          $env:CONFIGOPTS+=" --host=i686-pc-cygwin"
         } else {
           $env:CONFIGOPTS+=" --host=x86_64-pc-cygwin"
         }
@@ -64,17 +65,19 @@ install:
         $env:PATH="c:\msys64\usr\bin;$env:PATH"
       }
   - ps: >-
-      if ($env:Platform -eq "x64") {
-        $env:CONFIGOPTS+=" --disable-backend-remote"
-      }
-  - ps: >-
       if ($env:TOOLCHAIN -ne "cygwin") {
         $env:CONFIGOPTS+=" --disable-backend-honey"
+        if ($env:TOOLCHAIN -eq "msvc") {
+          if ($env:Platform -eq "x64") {
+            $env:CONFIGOPTS+=" --disable-backend-remote"
+          }
+        }
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
   - if "%TOOLCHAIN%"=="mingw64" bash -c 'pacman -Sy --noconfirm zlib-devel'
-  - if "%TOOLCHAIN%"=="cygwin" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P file-devel -P zlib-devel
+  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x64" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P zlib-devel
+  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x86" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P cygwin32-zlib -P cygwin32-gcc-core -P cygwin32-gcc-g++
   - bash -c 'time ./bootstrap xapian-core'
   - if "%TOOLCHAIN%"=="msvc" call %VCVARS_BAT%
   - if "%TOOLCHAIN%"=="msvc" bash -c 'wget https://zlib.net/zlib-1.2.11.tar.gz && tar -xf zlib-1.2.11.tar.gz && mv zlib-1.2.11 zlib'
