@@ -23,6 +23,7 @@
 #include "honey_alldocspostlist.h"
 
 #include "honey_database.h"
+#include "honey_defs.h"
 
 #include "debuglog.h"
 #include "str.h"
@@ -40,7 +41,10 @@ HoneyAllDocsPostList::HoneyAllDocsPostList(const HoneyDatabase* db,
       doccount(doccount_)
 {
     LOGCALL_CTOR(DB, "HoneyAllDocsPostList", db | doccount_);
-    cursor->find_entry_ge(string("\0\xe0", 2));
+    static const char doclen_key_prefix[2] = {
+	0, char(Honey::KEY_DOCLEN_CHUNK)
+    };
+    cursor->find_entry_ge(string(doclen_key_prefix, 2));
 }
 
 HoneyAllDocsPostList::~HoneyAllDocsPostList()

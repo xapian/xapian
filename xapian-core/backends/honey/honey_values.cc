@@ -604,7 +604,7 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot,
     LOGCALL_VOID(DB, "HoneyValueManager::get_value_stats", slot | Literal("[stats]"));
 
     string tag;
-    if (postlist_table.get_exact_entry(pack_honey_valuestats_key(slot), tag)) {
+    if (postlist_table.get_exact_entry(Honey::make_valuestats_key(slot), tag)) {
 	const char * pos = tag.data();
 	const char * end = pos + tag.size();
 
@@ -641,7 +641,7 @@ HoneyValueManager::set_value_stats(map<Xapian::valueno, ValueStats>& val_stats)
     LOGCALL_VOID(DB, "HoneyValueManager::set_value_stats", val_stats);
     map<Xapian::valueno, ValueStats>::const_iterator i;
     for (i = val_stats.begin(); i != val_stats.end(); ++i) {
-	string key = pack_honey_valuestats_key(i->first);
+	string key = Honey::make_valuestats_key(i->first);
 	const ValueStats & stats = i->second;
 	if (stats.freq != 0) {
 	    string new_value;

@@ -25,6 +25,7 @@
 #include "honey_alldocspostlist.h"
 #include "honey_cursor.h"
 #include "honey_database.h"
+#include "honey_defs.h"
 #include "honey_postlist.h"
 #include "honey_postlist_encodings.h"
 
@@ -82,7 +83,10 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
 					 Xapian::docid& last) const
 {
     unique_ptr<HoneyCursor> cursor;
-    if (cursor->find_entry_ge(string("\0\xe0", 2))) {
+    static const char doclen_key_prefix[2] = {
+	0, char(Honey::KEY_DOCLEN_CHUNK)
+    };
+    if (cursor->find_entry_ge(string(doclen_key_prefix, 2))) {
 	first = 1;
     } else {
 	// doccount == 0 should be handled by our caller.

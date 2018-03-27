@@ -23,7 +23,9 @@
 #define XAPIAN_INCLUDED_HONEY_ALLDOCSPOSTLIST_H
 
 #include "api/leafpostlist.h"
+#include "honey_defs.h"
 #include "pack.h"
+#include "wordaccess.h"
 
 #include <string>
 
@@ -34,26 +36,51 @@ namespace Honey {
 
 /** Generate a key for a doclen chunk. */
 inline std::string
-make_doclenchunk_key(Xapian::docid did)
+make_doclenchunk_key(Xapian::docid last_did)
 {
-    std::string key("\0\xe0", 2);
-    pack_uint_preserving_sort(key, did);
+    std::string key(1, '\0');
+    Assert(last_did != 0);
+#ifdef DO_CLZ
+    int width = (do_clz(last_did) >> 3) + 1;
+#else
+    int width = 0;
+    for (auto v = last_did; v; v >>= 8) {
+	++width;
+    }
+#endif
+    key += char(Honey::KEY_DOCLEN_CHUNK + width - 1);
+    Xapian::docid v = last_did;
+#ifndef WORDS_BIGENDIAN
+    v = do_bswap(v);
+#endif
+    key.append(reinterpret_cast<const char*>(&v) + (sizeof(v) - width), width);
     return key;
 }
 
 inline Xapian::docid
 docid_from_key(const std::string& key)
 {
-    const char * p = key.data();
-    const char * end = p + key.length();
-    // Fail if not a doclen chunk key.
-    if (end - p <= 2 || *p++ != '\0' || *p++ != '\xe0') return 0;
-    Xapian::docid did;
-    if (!unpack_uint_preserving_sort(&p, end, &did))
-	throw Xapian::DatabaseCorruptError("bad doclen key");
-    AssertEq(end - p, 0);
-    Assert(did != 0);
-    return did;
+    const char* p = key.data();
+    const char* end = p + key.length();
+    if (end - p < 3 || *p++ != '\0') {
+	// Not a doclen chunk key.
+	return 0;
+    }
+    unsigned char code = *p++;
+    if (code < Honey::KEY_DOCLEN_CHUNK || code > Honey::KEY_DOCLEN_CHUNK_HI) {
+	// Also not a doclen chunk key.
+	return 0;
+    }
+
+    size_t width = (code - Honey::KEY_DOCLEN_CHUNK) + 1;
+    AssertEq(width, size_t(end - p));
+    Xapian::docid v = 0;
+    memcpy(reinterpret_cast<char*>(&v) + (sizeof(v) - width), p, width);
+#ifndef WORDS_BIGENDIAN
+    v = do_bswap(v);
+#endif
+    Assert(v != 0);
+    return v;
 }
 
 class DocLenChunkReader {

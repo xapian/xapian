@@ -544,26 +544,4 @@ pack_honey_postlist_key(const std::string& term, Xapian::docid did)
     return key;
 }
 
-inline std::string
-pack_honey_valuestats_key(Xapian::valueno slot)
-{
-    char data[6];
-    data[0] = '\0';
-    int l = 1;
-    if (slot >= 0x100) {
-	if (slot >= 0x10000) {
-	    if (slot >= 0x1000000) {
-		data[++l] = char(slot >> 24);
-	    }
-	    data[++l] = char(slot >> 16);
-	}
-	data[++l] = char(slot >> 8);
-    }
-    data[++l] = char(slot);
-    data[1] = l - 1;
-    // Prune trailing zero bytes.
-    while (data[l] == 0) --l;
-    return std::string(data, l + 1);
-}
-
 #endif // XAPIAN_INCLUDED_PACK_H

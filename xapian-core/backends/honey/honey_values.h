@@ -1,7 +1,7 @@
 /** @file honey_values.h
  * @brief HoneyValueManager class
  */
-/* Copyright (C) 2008,2009,2011 Olly Betts
+/* Copyright (C) 2008,2009,2011,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -36,30 +36,60 @@ namespace Honey {
 
 /** Generate a key for a value stream chunk. */
 inline std::string
-make_valuechunk_key(Xapian::valueno slot, Xapian::docid did)
+make_valuechunk_key(Xapian::valueno slot, Xapian::docid last_did)
 {
-    std::string key("\0\xd8", 2);
-    pack_uint(key, slot);
-    pack_uint_preserving_sort(key, did);
+    std::string key(1, '\0');
+    if (slot < (Honey::KEY_VALUE_CHUNK_HI - Honey::KEY_VALUE_CHUNK) >> 3) {
+	key += char(Honey::KEY_VALUE_CHUNK + slot);
+    } else {
+	key += char(Honey::KEY_VALUE_CHUNK_HI);
+	pack_uint_preserving_sort(key, slot);
+    }
+    pack_uint_preserving_sort(key, last_did);
     return key;
 }
 
 inline Xapian::docid
 docid_from_key(Xapian::valueno required_slot, const std::string & key)
 {
-    const char * p = key.data();
-    const char * end = p + key.length();
-    // Fail if not a value chunk key.
-    if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') return 0;
+    const char* p = key.data();
+    const char* end = p + key.length();
+    if (end - p < 3 || *p++ != '\0') {
+	// Not a value chunk key.
+	return 0;
+    }
+    unsigned char code = *p++;
+    if (code < Honey::KEY_VALUE_CHUNK || code > Honey::KEY_VALUE_CHUNK_HI) {
+	// Also not a value chunk key.
+	return 0;
+    }
+
     Xapian::valueno slot;
-    if (!unpack_uint(&p, end, &slot))
-	throw Xapian::DatabaseCorruptError("Bad value key");
+    if (code < Honey::KEY_VALUE_CHUNK_HI) {
+	slot = code - Honey::KEY_VALUE_CHUNK;
+    } else {
+	if (!unpack_uint_preserving_sort(&p, end, &slot))
+	    throw Xapian::DatabaseCorruptError("Bad value key");
+    }
     // Fail if for a different slot.
     if (slot != required_slot) return 0;
     Xapian::docid did;
     if (!unpack_uint_preserving_sort(&p, end, &did))
 	throw Xapian::DatabaseCorruptError("Bad value key");
     return did;
+}
+
+inline std::string
+make_valuestats_key(Xapian::valueno slot)
+{
+    std::string key(1, '\0');
+    if (slot <= 7) {
+	key += char(Honey::KEY_VALUE_STATS + slot);
+    } else {
+	key += char(Honey::KEY_VALUE_STATS + 7);
+	pack_uint_preserving_sort(key, slot);
+    }
+    return key;
 }
 
 }

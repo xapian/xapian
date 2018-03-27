@@ -42,6 +42,7 @@
 #include "honey_defs.h"
 #include "honey_postlist_encodings.h"
 #include "honey_table.h"
+#include "honey_values.h"
 #include "honey_version.h"
 #include "filetests.h"
 #include "internaltypes.h"
@@ -123,31 +124,27 @@ termlist_key_is_values_used(const string& key)
 // the same name in other flint-derived backends.
 namespace HoneyCompact {
 
-enum {
-    KEY_USER_METADATA = 0x00,
-    KEY_VALUE_STATS = 0x01,
-    KEY_VALUE_CHUNK = 0xd8,
-    KEY_DOCLEN_CHUNK = 0xe0,
-    KEY_POSTING_CHUNK = 0xff
-};
-
-/// Return one of the KEY_* constants, or a different value for an invalid key.
+/// Return a Honey::KEY_* constant, or a different value for an invalid key.
 static inline int
 key_type(const string& key)
 {
     if (key[0] != '\0')
-	return KEY_POSTING_CHUNK;
+	return Honey::KEY_POSTING_CHUNK;
 
     if (key.size() <= 1)
 	return -1;
 
-    switch (static_cast<unsigned char>(key[1])) {
-	case 0x01: case 0x02: case 0x03: case 0x04:
-	    return KEY_VALUE_STATS;
-    }
+    unsigned char ch = key[1];
+    if (ch >= Honey::KEY_VALUE_STATS && ch <= Honey::KEY_VALUE_STATS_HI)
+	return Honey::KEY_VALUE_STATS;
+    if (ch >= Honey::KEY_VALUE_CHUNK && ch <= Honey::KEY_VALUE_CHUNK_HI)
+	return Honey::KEY_VALUE_CHUNK;
+    if (ch >= Honey::KEY_DOCLEN_CHUNK && ch <= Honey::KEY_DOCLEN_CHUNK_HI)
+	return Honey::KEY_DOCLEN_CHUNK;
 
-    // If key[1] is \xff then this correctly returns KEY_POSTING_CHUNK.
-    return static_cast<unsigned char>(key[1]);
+    // Handle Honey::KEY_USER_METADATA, Honey::KEY_POSTING_CHUNK, and currently
+    // unused values.
+    return ch;
 }
 
 template<typename T> class PostlistCursor;
@@ -182,7 +179,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	tag = current_tag;
 	tf = cf = 0;
 	if (GlassCompact::is_user_metadata_key(key)) {
-	    key[1] = KEY_USER_METADATA;
+	    key[1] = Honey::KEY_USER_METADATA;
 	    return true;
 	}
 	if (GlassCompact::is_valuestats_key(key)) {
@@ -193,7 +190,15 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    Xapian::valueno slot;
 	    if (!unpack_uint_last(&p, end, &slot))
 		throw Xapian::DatabaseCorruptError("bad value stats key");
-	    key = pack_honey_valuestats_key(slot);
+	    // FIXME: pack_uint_last() is not a good encoding for keys, as the
+	    // encoded values do not in general sort the same way as the
+	    // numeric values.  The first 256 values will be in order at least.
+	    //
+	    // We could just buffer up the stats for all the slots - it's
+	    // unlikely there are going to be very many.  Another option is
+	    // to use multiple cursors or seek a single cursor around.
+	    AssertRel(slot, <=, 256);
+	    key = Honey::make_valuestats_key(slot);
 	    return true;
 	}
 	if (GlassCompact::is_valuechunk_key(key)) {
@@ -203,6 +208,14 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    Xapian::valueno slot;
 	    if (!unpack_uint(&p, end, &slot))
 		throw Xapian::DatabaseCorruptError("bad value key");
+	    // FIXME: pack_uint() is not a good encoding for keys, as the
+	    // encoded values do not in general sort the same way as the
+	    // numeric values.  The first 128 values will be in order at least.
+	    //
+	    // Buffering up this data for all slots is potentially prohibitively
+	    // costly.  We probably need to use multiple cursors or seek a single
+	    // cursor around.
+	    AssertRel(slot, <=, 128);
 	    Xapian::docid first_did;
 	    if (!unpack_uint_preserving_sort(&p, end, &first_did))
 		throw Xapian::DatabaseCorruptError("bad value key");
@@ -214,9 +227,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		last_did = reader.get_docid();
 	    }
 
-	    key.assign("\0\xd8", 2);
-	    pack_uint(key, slot);
-	    pack_uint_preserving_sort(key, last_did);
+	    key = Honey::make_valuechunk_key(slot, last_did);
 
 	    // Add the docid delta across the chunk to the start of the tag.
 	    string newtag;
@@ -243,13 +254,18 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		++firstdid;
 		tag.erase(0, d - tag.data());
 	    } else {
-		// Not an initial chunk, so adjust key.
-		size_t tmp = d - key.data();
+		// Not an initial chunk, just unpack firstdid.
 		if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
 		    throw Xapian::DatabaseCorruptError("Bad postlist key");
-		key.erase(tmp);
 	    }
 	    firstdid += offset;
+
+	    // Set key to placeholder value which just indicates that this is a
+	    // doclen chunk.
+	    static const char doclen_key_prefix[2] = {
+		0, char(Honey::KEY_DOCLEN_CHUNK)
+	    };
+	    key.assign(doclen_key_prefix, 2);
 
 	    d = tag.data();
 	    e = d + tag.size();
@@ -427,10 +443,10 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	tag = current_tag;
 	tf = 0;
 	switch (key_type(key)) {
-	    case KEY_USER_METADATA:
-	    case KEY_VALUE_STATS:
+	    case Honey::KEY_USER_METADATA:
+	    case Honey::KEY_VALUE_STATS:
 		return true;
-	    case KEY_VALUE_CHUNK: {
+	    case Honey::KEY_VALUE_CHUNK: {
 		const char * p = key.data();
 		const char * end = p + key.length();
 		p += 2;
@@ -440,14 +456,10 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		Xapian::docid did;
 		if (!unpack_uint_preserving_sort(&p, end, &did))
 		    throw Xapian::DatabaseCorruptError("bad value key");
-		did += offset;
-
-		key.assign("\0\xd8", 2);
-		pack_uint(key, slot);
-		pack_uint_preserving_sort(key, did);
+		key = Honey::make_valuechunk_key(slot, did + offset);
 		return true;
 	    }
-	    case KEY_DOCLEN_CHUNK: {
+	    case Honey::KEY_DOCLEN_CHUNK: {
 		const char * p = key.data();
 		const char * end = p + key.length();
 		p += 2;
@@ -456,15 +468,10 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		    (!unpack_uint_preserving_sort(&p, end, &did) || p != end)) {
 		    throw Xapian::DatabaseCorruptError("Bad doclen key");
 		}
-		did += offset;
-
-		key.erase(2);
-		if (did != 1) {
-		    pack_uint_preserving_sort(key, did);
-		}
+		key = Honey::make_doclenchunk_key(did + offset);
 		return true;
 	    }
-	    case KEY_POSTING_CHUNK:
+	    case Honey::KEY_POSTING_CHUNK:
 		break;
 	    default:
 		throw Xapian::DatabaseCorruptError("Bad postlist table key "
@@ -508,7 +515,6 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 
 	    d = tag.data();
 	    e = d + tag.size();
-
 
 	    bool have_wdfs = (cf != 0);
 	    if (have_wdfs && tf > 2) {
@@ -612,7 +618,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	while (!pq.empty()) {
 	    cursor_type * cur = pq.top();
 	    const string& key = cur->key;
-	    if (key_type(key) != KEY_USER_METADATA) break;
+	    if (key_type(key) != Honey::KEY_USER_METADATA) break;
 
 	    if (key != last_key) {
 		if (!tags.empty()) {
@@ -666,7 +672,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	while (!pq.empty()) {
 	    cursor_type * cur = pq.top();
 	    const string& key = cur->key;
-	    if (key_type(key) != KEY_VALUE_STATS) break;
+	    if (key_type(key) != Honey::KEY_VALUE_STATS) break;
 	    if (key != last_key) {
 		// For the first valuestats key, last_key will be the previous
 		// key we wrote, which we don't want to overwrite.  This is the
@@ -732,7 +738,7 @@ merge_postlists(Xapian::Compactor * compactor,
     while (!pq.empty()) {
 	cursor_type * cur = pq.top();
 	const string & key = cur->key;
-	if (key_type(key) != KEY_VALUE_CHUNK) break;
+	if (key_type(key) != Honey::KEY_VALUE_CHUNK) break;
 	out->add(key, cur->tag);
 	pq.pop();
 	if (cur->next()) {
@@ -746,8 +752,8 @@ merge_postlists(Xapian::Compactor * compactor,
     while (!pq.empty()) {
 	cursor_type * cur = pq.top();
 	string & key = cur->key;
-	if (key_type(key) != KEY_DOCLEN_CHUNK) break;
-	pack_uint_preserving_sort(key, cur->chunk_lastdid);
+	if (key_type(key) != Honey::KEY_DOCLEN_CHUNK) break;
+	key = Honey::make_doclenchunk_key(cur->chunk_lastdid);
 	out->add(key, cur->tag);
 	pq.pop();
 	if (cur->next()) {
@@ -784,7 +790,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	    pq.pop();
 	}
 	if (cur) {
-	    AssertEq(key_type(cur->key), KEY_POSTING_CHUNK);
+	    AssertEq(key_type(cur->key), Honey::KEY_POSTING_CHUNK);
 	}
 	if (cur == NULL || cur->key != last_key) {
 	    if (!tags.empty()) {
