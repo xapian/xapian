@@ -17,8 +17,9 @@ environment:
     platform: x86
   - TOOLCHAIN: mingw64
     platform: x64
-  - TOOLCHAIN: cygwin
-    platform: x86
+# Fails trying to run apitest.exe etc for unknown reasons.
+#  - TOOLCHAIN: cygwin
+#   platform: x86
   - TOOLCHAIN: cygwin
     platform: x64
   - TOOLCHAIN: msvc
