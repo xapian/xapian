@@ -298,7 +298,6 @@ class SSIndex {
 #elif defined SSINDEX_SKIPLIST
     size_t block = 0;
 #endif
-    size_t n_index = 0;
 #if defined SSINDEX_BINARY_CHOP || defined SSINDEX_SKIPLIST
     std::string last_index_key;
 #endif
@@ -417,8 +416,6 @@ class SSIndex {
 #else
 # error "SSINDEX type not specified"
 #endif
-
-	++n_index;
     }
 
     off_t write(BufferedFile& fh) {
@@ -445,7 +442,7 @@ class SSIndex {
 	pointers = NULL;
 #elif defined SSINDEX_BINARY_CHOP
 	// Fill in bytes 1 to 4 with the number of entries.
-	AssertEq(n_index, (data.size() - 5) / (SSINDEX_BINARY_CHOP_KEY_SIZE + 4));
+	size_t n_index = (data.size() - 5) / (SSINDEX_BINARY_CHOP_KEY_SIZE + 4);
 	data[1] = n_index >> 24;
 	data[2] = n_index >> 16;
 	data[3] = n_index >> 8;
@@ -469,8 +466,6 @@ class SSIndex {
 	if (parent_index) s += parent_index->size();
 	return s;
     }
-
-    size_t get_num_entries() const { return n_index; }
 };
 
 class HoneyCursor;
