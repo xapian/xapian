@@ -34,7 +34,7 @@ namespace Xapian {
 #if defined __GNUC__ && defined __MINGW32__
 // Avoid deprecation warnings about useconds_t on mingw.
 # pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wdeprecated"
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 Database
