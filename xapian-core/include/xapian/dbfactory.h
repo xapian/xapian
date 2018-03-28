@@ -158,6 +158,12 @@ open(const std::string &dir, int action, int block_size)
 /// Database factory functions for the remote backend.
 namespace Remote {
 
+#if defined __GNUC__ && defined __MINGW32__
+// Avoid deprecation warnings about useconds_t on mingw.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated"
+#endif
+
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a TCP connection.
  *
@@ -235,6 +241,10 @@ Database open(const std::string &program, const std::string &args, useconds_t ti
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 0, int flags = 0);
+
+#if defined __GNUC__ && defined __MINGW32__
+# pragma GCC diagnostic pop
+#endif
 
 }
 #endif
