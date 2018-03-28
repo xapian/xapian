@@ -31,6 +31,12 @@ using namespace std;
 
 namespace Xapian {
 
+#if defined __GNUC__ && defined __MINGW32__
+// Avoid deprecation warnings about useconds_t on mingw.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated"
+#endif
+
 Database
 Remote::open(const string &host, unsigned int port, useconds_t timeout_,
 	     useconds_t connect_timeout)
@@ -67,5 +73,9 @@ Remote::open_writable(const string &program, const string &args,
     RETURN(WritableDatabase(new ProgClient(program, args,
 					   timeout_ * 1e-3, true, flags)));
 }
+
+#if defined __GNUC__ && defined __MINGW32__
+# pragma GCC diagnostic pop
+#endif
 
 }
