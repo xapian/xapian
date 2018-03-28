@@ -337,11 +337,11 @@ class SSIndex {
 	if (!pointers) {
 	    pointers = new off_t[256]();
 	    first = initial;
-	} else if (initial == last) {
-	    return;
 	}
+	// We should only be called for valid index points.
+	AssertRel(int(initial), !=, last);
 
-	while (++last != initial) {
+	while (++last != int(initial)) {
 	    pointers[last] = ptr;
 	    // FIXME: Perhaps record this differently so that an exact key
 	    // search can return false?

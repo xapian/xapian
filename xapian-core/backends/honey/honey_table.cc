@@ -94,32 +94,33 @@ HoneyTable::add(const std::string& key,
 					   str(key.size()));
     if (key <= last_key)
 	throw Xapian::InvalidOperationError("New key <= previous key");
-    off_t index_pos = fh.get_pos();
-    if (!last_key.empty()) {
-	size_t reuse = common_prefix_length(last_key, key);
-	fh.write(static_cast<unsigned char>(reuse));
-	fh.write(static_cast<unsigned char>(key.size() - reuse));
-	fh.write(key.data() + reuse, key.size() - reuse);
-    } else {
-	fh.write(static_cast<unsigned char>(key.size()));
-	fh.write(key.data(), key.size());
-    }
-    ++num_entries;
+    size_t reuse = common_prefix_length(last_key, key);
+
 #ifdef SSINDEX_ARRAY
-    // For an array index, the index point is right before the complete key.
-    if (!last_key.empty()) ++index_pos;
+    if (reuse == 0) {
+	index.maybe_add_entry(key, fh.get_pos());
+    }
 #elif defined SSINDEX_BINARY_CHOP
     // For a binary chop index, the index point is before the key info - the
-    // index key must have the same N first bytes as the previous key, where N
-    // >= the keep length.
+    // index key must have the same N first bytes as the previous key, where
+    // N >= the keep length.
+    index.maybe_add_entry(key, fh.get_pos());
 #elif defined SSINDEX_SKIPLIST
-    // For a skiplist index, the index provides the full key, so the index
-    // point is after the key at the level below.
-    index_pos = fh.get_pos();
+    // Handled below.
 #else
 # error "SSINDEX type not specified"
 #endif
-    index.maybe_add_entry(key, index_pos);
+
+    fh.write(static_cast<unsigned char>(reuse));
+    fh.write(static_cast<unsigned char>(key.size() - reuse));
+    fh.write(key.data() + reuse, key.size() - reuse);
+    ++num_entries;
+
+#ifdef SSINDEX_SKIPLIST
+    // For a skiplist index, the index provides the full key, so the index
+    // point is after the key at the level below.
+    index.maybe_add_entry(key, fh.get_pos());
+#endif
 
     // Encode "compressed?" flag in bottom bit.
     // FIXME: Don't do this if a table is uncompressed?  That saves a byte
@@ -180,14 +181,14 @@ HoneyTable::read_key(std::string& key,
     int ch = fh.read();
     if (ch == EOF) return false;
 
-    size_t reuse = 0;
-    if (!last_key.empty()) {
-	reuse = ch;
-	ch = fh.read();
-	if (ch == EOF) {
-	    throw Xapian::DatabaseError("EOF/error while reading key length",
-					errno);
-	}
+    size_t reuse = ch;
+    if (reuse > last_key.size()) {
+	throw Xapian::DatabaseCorruptError("Reuse > previous key size");
+    }
+    ch = fh.read();
+    if (ch == EOF) {
+	throw Xapian::DatabaseError("EOF/error while reading key length",
+				    errno);
     }
     size_t key_size = ch;
     char buf[256];

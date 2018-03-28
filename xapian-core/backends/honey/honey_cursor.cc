@@ -58,14 +58,14 @@ HoneyCursor::next()
 	throw Xapian::DatabaseCorruptError("EOF reading key");
     }
 
-    size_t reuse = 0;
-    if (!last_key.empty()) {
-	reuse = ch;
-	ch = fh.read();
-	if (ch == EOF) {
-	    throw Xapian::DatabaseError("EOF/error while reading key length",
-					errno);
-	}
+    size_t reuse = ch;
+    if (reuse > last_key.size()) {
+	throw Xapian::DatabaseCorruptError("Reuse > previous key size");
+    }
+    ch = fh.read();
+    if (ch == EOF) {
+	throw Xapian::DatabaseError("EOF/error while reading key length",
+				    errno);
     }
     size_t key_size = ch;
     char buf[256];
