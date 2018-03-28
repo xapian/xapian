@@ -530,7 +530,7 @@ void
 ChertDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 {
     LOGCALL_VOID(DB, "ChertDatabase::send_whole_database", conn | end_time);
-
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     // Send the current revision number in the header.
     string buf;
     string uuid = get_uuid();
@@ -560,6 +560,10 @@ ChertDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
 	}
     }
+#else
+    (void)conn;
+    (void)end_time;
+#endif
 }
 
 void
@@ -569,7 +573,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 				      ReplicationInfo * info)
 {
     LOGCALL_VOID(DB, "ChertDatabase::write_changesets_to_fd", fd | revision | need_whole_db | info);
-
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
     chert_revision_number_t start_rev_num = 0;
     string start_uuid = get_uuid();
@@ -685,6 +689,12 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	}
     }
     conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), 0.0);
+#else
+    (void)fd;
+    (void)revision;
+    (void)need_whole_db;
+    (void)info;
+#endif
 }
 
 void

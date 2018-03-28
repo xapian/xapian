@@ -52,7 +52,11 @@ DatabaseReplicator::open(const string & path)
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
     if (file_exists(path + "/iamchert")) {
+# ifdef XAPIAN_HAS_REMOTE_BACKEND
 	return new ChertDatabaseReplicator(path);
+# else
+	throw FeatureUnavailableError("Replication disabled");
+# endif
     }
 #endif
 
