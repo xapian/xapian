@@ -1967,16 +1967,9 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_not:
 		if (args[0].empty()) value = "true";
 		break;
-	    case CMD_now: {
-		char buf[64];
-		my_snprintf(buf, sizeof(buf), "%lu",
-			    static_cast<unsigned long>(time(NULL)));
-		// MSVC's snprintf omits the zero byte if the string if
-		// sizeof(buf) long.
-		buf[sizeof(buf) - 1] = '\0';
-		value = buf;
+	    case CMD_now:
+		value = str(static_cast<unsigned long>(time(NULL)));
 		break;
-	    }
 	    case CMD_opt:
 		if (args.size() == 2) {
 		    value = option[args[0] + "," + args[1]];
