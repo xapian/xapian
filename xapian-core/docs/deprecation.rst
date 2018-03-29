@@ -41,8 +41,8 @@ Deprecation markers
 At any particular point, some parts of the C++ API will be marked as
 "deprecated".  Deprecated features are annotated in the API headers with macros
 such as ``XAPIAN_DEPRECATED()``, which will cause compilers with appropriate
-support (such as GCC 3.1 or later, and MSVC 7.0 or later) to emit compile-time
-warnings if these features are used.
+support (such as GCC, clang and MSVC) to emit compile-time warnings if these
+features are used.
 
 If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
