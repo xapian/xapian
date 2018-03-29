@@ -530,9 +530,21 @@ There is a good GNU autotools tutorial at
 Building from git on Windows with MSVC
 --------------------------------------
 
-The windows build process is maintained in the xapian-maintainer-tools
-directory in the Xapian git repository.  See the win32msvc/README file in that
-directory for details of how to build from git.
+Building using MSVC is now supported by the autotools build system.  You need
+to install a set of Unix-like tools first - we recommended MSYS2:
+https://www.msys2.org/
+
+For details of how to specify MSVC to ``configure`` see the "INSTALL" document.
+
+When building from git, by default you'll need some extra tools to generate
+Unicode tables (Tcl) and build documentation (doxygen, help2man, sphinx-doc).
+We don't currently have detailed advice on how to do this (if you can provide
+some then please send a patch).
+
+You can avoid needing Tcl by copying ``xapian-core/unicode/unicode-data.cc``
+from another platform or a release which uses the same Unicode version.  You
+can avoid needing most of the documentation tools by running configure with
+the ``--disable-documentation`` option.
 
 Using a Vagrant-driven Ubuntu virtual machine
 ---------------------------------------------
@@ -1110,10 +1122,10 @@ can be marked as deprecated by using the XAPIAN_DEPRECATED() or
 XAPIAN_DEPRECATED_CLASS macros.  Note that you can't deprecate a preprocessor
 macro.
 
-For compilers with a suitable mechanism (currently GCC 3.1 or later, and
-MSVC 7.0 or later) this causes compile-time warning messages to be emitted for
-any use of the deprecated feature.  For compilers without support, the macro
-just expands to its argument.
+For compilers with a suitable mechanism (such as GCC, clang and MSVC) this
+causes compile-time warning messages to be emitted for any use of the
+deprecated feature.  For compilers without support, the macro just expands to
+its argument.
 
 Sometimes a deprecated feature will also be removed from the library itself
 (particularly something like a typedef), but if the feature is still used

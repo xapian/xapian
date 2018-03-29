@@ -34,22 +34,47 @@ libuuid-devel (on older Fedora versions you instead need e2fsprogs-devel).
 Compilers
 =========
 
-We aim to support compilation with any C++ compiler which conforms to ISO
-C++11, or a reasonable approximation to it.
+We aim to support compilation with any C++ compiler which support ISO C++11, or
+a reasonable approximation to it.
 
-If you're using MS Visual C++, see the Xapian download page for a link to
-a set of suitable makefiles: https://xapian.org/download
+GCC
+---
 
 If you're using GCC, we currently recommend GCC 4.8 or newer (this is the
 oldest version we regularly test with).
 
-The current hard minimum requirement is GCC 4.8 (due to requiring good
+The current hard minimum requirement is also GCC 4.8 (due to requiring good
 support for C++11, for example non-static data member initializers aren't
 supported by earlier versions).
 
 If you really still need to use an older version of GCC, Xapian 1.4.x aims
 to support GCC 4.7, while Xapian 1.2.x doesn't require C++11 support and should
 build with older versions - probably as far back as GCC 3.1.
+
+MSVC
+----
+
+If you're using MS Visual C++, you'll need at least MSVS 2015 for C++11
+support.
+
+As of 1.4.6 building using MSVC is supported by the autotools build system.
+You need to install a set of Unix-like tools first - we recommended MSYS2:
+https://www.msys2.org/
+
+Then from a bash shell run configure like so::
+
+  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS=-EHsc AR=lib
+
+You'll need to have the zlib library available.  You can also specify
+``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to tell MSVC where to
+find the zlib headers and library.
+
+We support 64-bit compilation, but with MSVC you currently need to disable
+the remote backend (which also disables replication) - to do this add
+``--disable-remote-backend`` to your configure command.
+
+HP's aCC
+--------
 
 When using HP's aCC, Xapian must be compiled with +std=c++11, which
 xapian-core's configure automatically detects and passes.  You don't have to

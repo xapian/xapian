@@ -67,10 +67,6 @@ building, read the file "INSTALL" in the top level directory of your
 newly unpacked source tree. But in many cases, the following quick
 summary is all you need to know.
 
-Building for MSVC is currently handled using a separately maintained set
-of makefiles - you can find a link to these on the `Xapian download
-page <https://xapian.org/download>`_.
-
 Each directory contains a ``configure`` script which checks various
 features of your system. Assuming this runs successfully, you can then
 run ``make`` to build the software, and ``make install`` to actually
