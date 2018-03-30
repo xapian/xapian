@@ -405,7 +405,9 @@ Database::Database(const string& path, int flags)
 
     if (S_ISREG(statbuf.st_mode)) {
 	// Could be a stub database file, or a single file glass database.
-	int fd;
+
+	// Initialise to avoid bogus warning from GCC 4.9.2 with -Os.
+	int fd = -1;
 	switch (check_if_single_file_db(statbuf, path, &fd)) {
 	    case BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
