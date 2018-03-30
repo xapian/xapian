@@ -75,11 +75,9 @@ string			STRING
 docid			T_UV
 doccount		T_UV
 doclength		T_UV
-percent			T_UV
 termcount		T_UV
 termpos			T_UV
 valueno			T_UV
-weight			T_NV
 
 
 

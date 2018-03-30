@@ -69,8 +69,8 @@ Enquire::set_docid_order(order)
 
 void
 Enquire::set_cutoff(percent_cutoff, weight_cutoff = NO_INIT)
-    percent     percent_cutoff
-    weight      weight_cutoff
+    int         percent_cutoff
+    double      weight_cutoff
     CODE:
 	try {
 	    if (items == 3) { /* items includes the hidden this pointer */

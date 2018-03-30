@@ -27,7 +27,11 @@ WritableDatabase *
 new3()
     CODE:
 	try {
+#if defined XAPIAN_AT_LEAST && XAPIAN_AT_LEAST(1,5,0)
+	    RETVAL = new WritableDatabase(std::string(), Xapian::DB_BACKEND_INMEMORY);
+#else
 	    RETVAL = new WritableDatabase(InMemory::open());
+#endif
 	} catch (...) {
 	    handle_exception();
 	}

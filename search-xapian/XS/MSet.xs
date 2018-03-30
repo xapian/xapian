@@ -35,15 +35,15 @@ MSet::fetch3()
     CODE:
 	THIS->fetch();
 
-percent
+int
 MSet::convert_to_percent1(wt)
-    weight	wt
+    double	wt
     CODE:
 	RETVAL = THIS->convert_to_percent(wt);
     OUTPUT:
 	RETVAL
 
-percent
+int
 MSet::convert_to_percent2(it)
     MSetIterator *	it
     CODE:
@@ -59,7 +59,7 @@ MSet::get_termfreq(tname)
     OUTPUT:
 	RETVAL
 
-weight
+double
 MSet::get_termweight(tname)
     string	tname
     CODE:
@@ -79,10 +79,10 @@ MSet::get_matches_estimated()
 doccount
 MSet::get_matches_upper_bound()
 
-weight
+double
 MSet::get_max_possible()
 
-weight
+double
 MSet::get_max_attained()
 
 doccount

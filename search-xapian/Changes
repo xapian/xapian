@@ -5,6 +5,7 @@ Revision history for Perl extension Search::Xapian.
 	- Skip testcase t/parser.t if we're using xapian-core < 1.2.21 which
 	  doesn't support character '!' in the start of a range.  Reported by
 	  melmothx on #xapian.
+	- Add compatibility with Xapian git master.
 
 1.2.25.0  Tue Sep 26 02:06:18 UTC 2017
 	[Changes contributed by Olly Betts]

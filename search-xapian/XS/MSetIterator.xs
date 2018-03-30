@@ -60,13 +60,13 @@ MSetIterator::get_document()
 doccount
 MSetIterator::get_rank()
 
-weight
+double
 MSetIterator::get_weight()
 
 doccount
 MSetIterator::get_collapse_count()
 
-percent
+int
 MSetIterator::get_percent()
 
 string

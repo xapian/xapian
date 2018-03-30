@@ -48,7 +48,7 @@ ESetIterator::get_termname()
     OUTPUT:
 	RETVAL
 
-weight
+double
 ESetIterator::get_weight()
 
 string
