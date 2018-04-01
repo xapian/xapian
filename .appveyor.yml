@@ -70,11 +70,6 @@ install:
   - ps: >-
       if ($env:TOOLCHAIN -ne "cygwin") {
         $env:CONFIGOPTS+=" --disable-backend-honey"
-        if ($env:TOOLCHAIN -eq "msvc") {
-          if ($env:Platform -eq "x64") {
-            $env:CONFIGOPTS+=" --disable-backend-remote"
-          }
-        }
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
