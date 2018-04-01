@@ -57,9 +57,9 @@ MSVC
 If you're using MS Visual C++, you'll need at least MSVS 2015 for C++11
 support.
 
-As of 1.4.6 building using MSVC is supported by the autotools build system.
-You need to install a set of Unix-like tools first - we recommended MSYS2:
-https://www.msys2.org/
+As of Xapian 1.4.6 building using MSVC is supported by the autotools build
+system.  You need to install a set of Unix-like tools first - we recommended
+MSYS2: https://www.msys2.org/
 
 Then from a bash shell run configure like so::
 
@@ -69,9 +69,8 @@ You'll need to have the zlib library available.  You can also specify
 ``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to tell MSVC where to
 find the zlib headers and library.
 
-We support 64-bit compilation, but with MSVC you currently need to disable
-the remote backend (which also disables replication) - to do this add
-``--disable-remote-backend`` to your configure command.
+We support 64-bit compilation with MSVS 2017.  With MSVS 2015 a 64-bit build
+fails to work - we haven't investigated why.
 
 HP's aCC
 --------
