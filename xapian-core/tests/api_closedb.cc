@@ -53,6 +53,8 @@ struct closedb1_iterators {
     Xapian::PostingIterator plend;
     Xapian::TermIterator tl1;
     Xapian::TermIterator tlend;
+    Xapian::TermIterator atl1;
+    Xapian::TermIterator atlend;
 
     void setup(Xapian::Database db_) {
 	db = db_;
@@ -64,6 +66,8 @@ struct closedb1_iterators {
 	plend = db.postlist_end("paragraph");
 	tl1 = db.termlist_begin(1);
 	tlend = db.termlist_end(1);
+	atl1 = db.allterms_begin("t");
+	atlend = db.allterms_end("t");
     }
 
     int perform() {
@@ -100,6 +104,7 @@ struct closedb1_iterators {
 
 	TEST_NOT_EQUAL(pl1, plend);
 	TEST_NOT_EQUAL(tl1, tlend);
+	TEST_NOT_EQUAL(atl1, atlend);
 
 	COUNT_CLOSEDEXC(db.postlist_begin("paragraph"));
 
@@ -110,6 +115,9 @@ struct closedb1_iterators {
 	COUNT_CLOSEDEXC(TEST_EQUAL(*tl1, "a"));
 	COUNT_CLOSEDEXC(TEST_EQUAL(tl1.get_wdf(), 2));
 	COUNT_CLOSEDEXC(TEST_EQUAL(tl1.get_termfreq(), 3));
+
+	COUNT_CLOSEDEXC(TEST_EQUAL(*atl1, "test"));
+	COUNT_CLOSEDEXC(TEST_EQUAL(atl1.get_termfreq(), 1));
 
 	// Advancing the iterator may or may not raise an error, but if it
 	// doesn't it must return the correct answers.
@@ -135,6 +143,17 @@ struct closedb1_iterators {
 	    COUNT_CLOSEDEXC(TEST_EQUAL(*tl1, "api"));
 	    COUNT_CLOSEDEXC(TEST_EQUAL(tl1.get_wdf(), 1));
 	    COUNT_CLOSEDEXC(TEST_EQUAL(tl1.get_termfreq(), 1));
+	}
+
+	advanced = false;
+	try {
+	    ++atl1;
+	    advanced = true;
+	} catch (const Xapian::DatabaseError &) {}
+
+	if (advanced) {
+	    COUNT_CLOSEDEXC(TEST_EQUAL(*atl1, "that"));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(atl1.get_termfreq(), 2));
 	}
 
 	return closedexc_count;
