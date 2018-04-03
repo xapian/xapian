@@ -1,5 +1,4 @@
-%module(directors="1", moduleimport="from . import _xapian
-from new import instancemethod as new_instancemethod") xapian
+%module(directors="1", moduleimport="from . import _xapian") xapian
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
