@@ -392,6 +392,14 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	if (!unpack_uint(&d, e, &first_wdf))
 	    throw Xapian::DatabaseCorruptError("Decoding first wdf in glass "
 					       "posting chunk");
+	if (first_wdf == 0 && cf > 0) {
+	    // FIXME: Also need to adjust document length, total document length.
+	    // Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
+	    // first_wdf = 1;
+	    // ++cf;
+	    throw Xapian::DatabaseError("Honey does not support a term having "
+					"both zero and non-zero wdf");
+	}
 	wdf_max = max(wdf_max, first_wdf);
 
 	while (d != e) {
@@ -404,6 +412,15 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    if (!unpack_uint(&d, e, &wdf))
 		throw Xapian::DatabaseCorruptError("Decoding wdf in glass "
 						   "posting chunk");
+	    if (wdf == 0 && cf > 0) {
+		// FIXME: Also need to adjust document length, total document length.
+		// Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
+		// wdf = 1;
+		// ++cf;
+		throw Xapian::DatabaseError("Honey does not support a term "
+					    "having both zero and non-zero "
+					    "wdf");
+	    }
 	    pack_uint(newtag, wdf);
 	    wdf_max = max(wdf_max, wdf);
 	}
@@ -803,8 +820,18 @@ merge_postlists(Xapian::Compactor * compactor,
 		encode_initial_chunk_header(tf, cf, tags[0].first, last_did,
 					    chunk_lastdid,
 					    first_wdf, wdf_max, first_tag);
-		bool have_wdfs = (cf != 0);
-		if (have_wdfs && tf > 2) {
+
+		bool have_wdfs = true;
+		if (cf == 0) {
+		    // wdf must always be zero.
+		    have_wdfs = false;
+		} else if (tf <= 2) {
+		    // We only need to store cf and first_wdf to know all wdfs.
+		    have_wdfs = false;
+		} else if (cf == tf - 1 + first_wdf) {
+		    // wdf must be 1 for second and subsequent entries.
+		    have_wdfs = false;
+		} else {
 		    Xapian::termcount remaining_cf_for_flat_wdf =
 			(tf - 1) * wdf_max;
 		    // Check this matches and that it isn't a false match due

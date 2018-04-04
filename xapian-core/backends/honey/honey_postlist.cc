@@ -79,7 +79,14 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header");
 
     Xapian::termcount cf_info = cf;
-    if (tf > 2) {
+    if (cf == 0) {
+	// wdf must always be zero.
+    } else if (tf <= 2) {
+	// No further postlist data stored.
+    } else if (cf == tf - 1 + first_wdf) {
+	// wdf must be 1 for second and subsequent entries.
+	cf_info = 1 | TOP_BIT_SET(decltype(cf_info));
+    } else {
 	cf_info = 1;
 	Xapian::termcount remaining_cf_for_flat_wdf = (tf - 1) * wdf_max;
 	// Check this matches and that it isn't a false match due

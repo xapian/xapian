@@ -87,37 +87,26 @@ encode_initial_chunk_header(Xapian::doccount termfreq,
 	} else {
 	    AssertEq(collfreq - first_wdf, wdf_max);
 	}
-    } else {
-	pack_uint(out, collfreq);
+    } else if (collfreq == 0) {
+	AssertEq(first_wdf, 0);
+	AssertEq(wdf_max, 0);
+	pack_uint(out, 0u);
 	pack_uint(out, termfreq - 3);
 	pack_uint(out, last - first - (termfreq - 1));
 	pack_uint(out, chunk_last - first);
-	if (collfreq == 0) {
-	    AssertEq(first_wdf, 0);
-	    AssertEq(wdf_max, 0);
+    } else {
+	AssertRel(collfreq, >=, termfreq);
+	pack_uint(out, collfreq - termfreq + 1);
+	pack_uint(out, termfreq - 3);
+	pack_uint(out, last - first - (termfreq - 1));
+	pack_uint(out, chunk_last - first);
+	pack_uint(out, first_wdf - 1);
+
+	if (first_wdf >= collfreq - first_wdf - (termfreq - 2)) {
+	    AssertEq(wdf_max, first_wdf);
 	} else {
-	    pack_uint(out, first_wdf);
-	    if (first_wdf >= collfreq - first_wdf) {
-		AssertEq(wdf_max, first_wdf);
-	    } else {
-		// FIXME: If we stored a flag to indicate the wdf was always
-		// non-zero for this term, we could know the exact wdf_max
-		// without storing it in more cases.  We could store such a
-		// flag in close to no space by storing collfreq + 1, with
-		// a value of 1 being an escape value meaning the unusual
-		// case of "term has a mixture of zero and non-zero wdf"
-		// and then the true collfreq value is stored later.  For
-		// the common case, this takes no extra space except for
-		// collfreq values such as 127, 16383, 2097151, ... where
-		// storing one higher needs an extra byte.
-		//
-		// We could also make savings because then we wouldn't need to
-		// store the wdf values for a term where cf = first_wdf + tf -
-		// 1, since then we would know that all the remaining wdf
-		// values were 1.
-		AssertRel(wdf_max, >=, first_wdf);
-		pack_uint(out, wdf_max - first_wdf);
-	    }
+	    AssertRel(wdf_max, >=, first_wdf);
+	    pack_uint(out, wdf_max - first_wdf);
 	}
     }
 }
@@ -153,7 +142,7 @@ decode_initial_chunk_header(const char ** p, const char * end,
 	return false;
     }
     if (*p == end) {
-	// Double occurrence boolean term with first_wdf = floor(collfreq / 2).
+	// Double occurrence term with first_wdf = floor(collfreq / 2).
 	chunk_last = last = first + termfreq + 1;
 	termfreq = 2;
 	first_wdf = collfreq / 2;
@@ -184,10 +173,12 @@ decode_initial_chunk_header(const char ** p, const char * end,
     if (collfreq == 0) {
 	wdf_max = first_wdf = 0;
     } else {
+	collfreq += (termfreq - 1);
 	if (!unpack_uint(p, end, &first_wdf)) {
 	    return false;
 	}
-	if (first_wdf >= collfreq - first_wdf) {
+	++first_wdf;
+	if (first_wdf >= collfreq - first_wdf - (termfreq - 2)) {
 	    wdf_max = first_wdf;
 	} else {
 	    if (!unpack_uint(p, end, &wdf_max)) {
@@ -226,7 +217,7 @@ decode_initial_chunk_header_freqs(const char ** p, const char * end,
 	return false;
     }
     if (*p == end) {
-	// Double occurrence boolean term with first_wdf = floor(collfreq / 2).
+	// Double occurrence term with first_wdf = floor(collfreq / 2).
 	termfreq = 2;
 	return true;
     }
@@ -245,6 +236,9 @@ decode_initial_chunk_header_freqs(const char ** p, const char * end,
     }
 
     termfreq += 3;
+    if (collfreq != 0) {
+	collfreq += (termfreq - 1);
+    }
 
     return true;
 }
@@ -255,8 +249,9 @@ encode_delta_chunk_header(Xapian::docid chunk_first,
 			  Xapian::termcount chunk_first_wdf,
 			  std::string & out)
 {
+    Assert(chunk_first_wdf != 0);
     pack_uint(out, chunk_last - chunk_first);
-    pack_uint(out, chunk_first_wdf);
+    pack_uint(out, chunk_first_wdf - 1);
 }
 
 inline bool
@@ -270,6 +265,7 @@ decode_delta_chunk_header(const char ** p, const char * end,
 	return false;
     }
     chunk_first = chunk_last - chunk_first;
+    ++chunk_first_wdf;
     return true;
 }
 
