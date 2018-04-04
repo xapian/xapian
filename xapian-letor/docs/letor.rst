@@ -32,10 +32,10 @@ As mentioned before, this process requires a training file in the above format. 
     1. Query file: This file has information of queries to be involved in
     learning and its id. It should be formatted in such a way::
 
-    2010001 'landslide malaysia'
-    2010002 'search engine'
-    2010003 'Monuments of India'
-    2010004 'Indian food'
+      2010001 'landslide malaysia'
+      2010002 'search engine'
+      2010003 'Monuments of India'
+      2010004 'Indian food'
 
     where 2010xxx being query-id followed by a comma separated query in
     single-quotes.
@@ -43,11 +43,11 @@ As mentioned before, this process requires a training file in the above format. 
     2. Qrel file: This is the file containing relevance judgements. It should
     be formatted in this way::
 
-    2010003 Q0 19243417 1
-    2010003 Q0 3256433 1
-    2010003 Q0 275014 1
-    2010003 Q0 298021 0
-    2010003 Q0 1456811 0
+      2010003 Q0 19243417 1
+      2010003 Q0 3256433 1
+      2010003 Q0 275014 1
+      2010003 Q0 298021 0
+      2010003 Q0 1456811 0
 
     where first column is query-id, third column is Document-id and fourth
     column being relevance label which is 0 for irrelevance and 1 for
