@@ -1636,8 +1636,10 @@ DEFINE_TESTCASE(dicecoeffweight1, !backend) {
 	bool empty = t2->name().empty();
 	delete t2;
 	if (empty)
-	    FAIL_TEST("Serialised DiceCoeffWeight with junk appended unserialised to empty name!");
-	FAIL_TEST("Serialised DiceCoeffWeight with junk appended unserialised OK");
+	    FAIL_TEST("Serialised DiceCoeffWeight with junk appended\
+		    unserialised to empty name!");
+	FAIL_TEST("Serialised DiceCoeffWeight with junk appended unserialised\
+		   OK");
     } catch (const Xapian::SerialisationError &e) {
 	TEST(e.get_msg().find("DiceCoeff") != string::npos);
     }
@@ -1668,7 +1670,8 @@ DEFINE_TESTCASE(dicecoeffweight2, backend) {
     TEST_EQUAL_DOUBLE(mset1[3].get_weight(), 0.181818181818182);
 
     /* // Test with OP_SCALE_WEIGHT. */
-    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+		      query, 15.0));
     enquire.set_weighting_scheme(Xapian::DiceCoeffWeight());
 
     Xapian::MSet mset2;

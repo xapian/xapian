@@ -45,10 +45,10 @@ DiceCoeffWeight::init(double factor_)
 
     factor = get_wqf() * factor_;
 
-    //upper bound computation:
-    //dice_coeff(q, d) = 2.0 * (q ∩ d) / (|q| + |d|)
-    //To maximize the result minimize the denominator, hence
-    //|q| = 1, |d| = length of smallest document.
+    // FIXME: Upper bound computation:
+    // dice_coeff(q, d) = 2.0 * (q ∩ d) / (|q| + |d|)
+    // To maximize the result minimize the denominator, hence
+    // |q| = 1, |d| = length of smallest document.
     upper_bound = factor * (2.0 / (1 + get_doclength_lower_bound()));
 }
 
@@ -74,7 +74,8 @@ DiceCoeffWeight *
 DiceCoeffWeight::unserialise(const string & s) const
 {
     if (rare(!s.empty()))
-	throw Xapian::SerialisationError("Extra data in DiceCoeffWeight::unserialise()");
+	throw Xapian::SerialisationError("Extra data in\
+		DiceCoeffWeight::unserialise()");
     return new DiceCoeffWeight;
 }
 
@@ -108,7 +109,8 @@ DiceCoeffWeight *
 DiceCoeffWeight::create_from_parameters(const char * p) const
 {
     if (*p != '\0')
-	throw InvalidArgumentError("No parameters are required for DiceCoeffWeight");
+	throw InvalidArgumentError("No parameters are required for\
+		DiceCoeffWeight");
     return new Xapian::DiceCoeffWeight;
 }
 
