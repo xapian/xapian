@@ -414,6 +414,12 @@ DEFINE_TESTCASE(weight1, !backend) {
     TEST_EQUAL(unigramlmweight.serialise(), wt->serialise());
     delete wt;
 
+    Xapian::DiceCoeffWeight dicecoeffweight;
+    TEST_EQUAL(dicecoeffweight.name(), "Xapian::DiceCoeffWeight");
+    wt = Xapian::DiceCoeffWeight().unserialise(dicecoeffweight.serialise());
+    TEST_EQUAL(dicecoeffweight.serialise(), wt->serialise());
+    delete wt;
+
     return true;
 }
 
