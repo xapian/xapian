@@ -1625,3 +1625,60 @@ DEFINE_TESTCASE(coordweight2, !backend) {
     }
     return true;
 }
+
+// Test exception for junk after serialised weight.
+DEFINE_TESTCASE(dicecoeffweight1, !backend) {
+    Xapian::DiceCoeffWeight wt;
+    try {
+	Xapian::DiceCoeffWeight t;
+	Xapian::DiceCoeffWeight * t2 = t.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = t2->name().empty();
+	delete t2;
+	if (empty)
+	    FAIL_TEST("Serialised DiceCoeffWeight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised DiceCoeffWeight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("DiceCoeff") != string::npos);
+    }
+    return true;
+}
+
+// Feature test.
+DEFINE_TESTCASE(dicecoeffweight2, backend) {
+    Xapian::Database db = get_database("apitest_simpledata3");
+    Xapian::Enquire enquire(db);
+    static const char * const terms[] = {
+	"one", "three"
+    };
+    Xapian::Query query(Xapian::Query::OP_OR,
+			terms, terms + sizeof(terms) / sizeof(terms[0]));
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::DiceCoeffWeight());
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 4);
+
+    /* The weight value has been manually calculated by using the statistics
+     * of the test database. */
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 0.571428571428571);
+    TEST_EQUAL_DOUBLE(mset1[1].get_weight(), 0.5);
+    TEST_EQUAL_DOUBLE(mset1[2].get_weight(), 0.2);
+    TEST_EQUAL_DOUBLE(mset1[3].get_weight(), 0.181818181818182);
+
+    /* // Test with OP_SCALE_WEIGHT. */
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    enquire.set_weighting_scheme(Xapian::DiceCoeffWeight());
+
+    Xapian::MSet mset2;
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 4);
+
+    TEST_NOT_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
+    for (int i = 0; i < 3; ++i) {
+	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
+    }
+
+    return true;
+}
