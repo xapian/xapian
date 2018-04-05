@@ -1613,6 +1613,49 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
     CoordWeight * create_from_parameters(const char * params) const;
 };
 
+/** Xapian::Weight subclass implementing Dice Coefficient.
+ *
+ *  Dice Coefficient measures the degree of similarity between
+ *  pair of sets (ex. between two documents or a document and a query).
+ *
+ *  Jaccard coefficient and Cosine coefficient are other similarity
+ *  coefficients.
+ */
+class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
+    /// Upper bound on the weight
+    double upper_bound;
+
+    void init(double factor_);
+
+  public:
+    DiceCoeffWeight * clone() const;
+
+    /** Construct a DiceCoeffWeight. */
+    DiceCoeffWeight() {
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(QUERY_LENGTH);
+	need_stat(UNIQUE_TERMS);
+    }
+
+    std::string name() const;
+    std::string short_name() const;
+
+    std::string serialise() const;
+    DiceCoeffWeight * unserialise(const std::string & serialised) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount, Xapian::termcount) const;
+    double get_maxextra() const;
+
+    DiceCoeffWeight * create_from_parameters(const char * params) const;
+};
 }
 
 #endif // XAPIAN_INCLUDED_WEIGHT_H
