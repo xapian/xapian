@@ -45,11 +45,15 @@ DiceCoeffWeight::init(double factor_)
 
     factor = get_wqf() * factor_;
 
-    // FIXME: Upper bound computation:
+    // Upper bound computation:
     // dice_coeff(q, d) = 2.0 * (q ∩ d) / (|q| + |d|)
     // To maximize the result minimize the denominator, hence
-    // |q| = 1, |d| = length of smallest document.
-    upper_bound = factor * (2.0 / (1 + get_doclength_lower_bound()));
+    // |q|= 1, |d| = lower bound on unique term.
+    // FIXME lower bound on unique term is not tracked in database,
+    // hence keeping it's value as 1, this will not give a tight bound.
+    // Plan to fix in future.
+    double uniqtermlen_lower_bound = 1;
+    upper_bound = factor * (2.0 / (1 + uniqtermlen_lower_bound));
 }
 
 string
