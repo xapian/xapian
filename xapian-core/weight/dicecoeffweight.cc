@@ -74,8 +74,8 @@ DiceCoeffWeight *
 DiceCoeffWeight::unserialise(const string & s) const
 {
     if (rare(!s.empty()))
-	throw Xapian::SerialisationError("Extra data in\
-		DiceCoeffWeight::unserialise()");
+	throw Xapian::SerialisationError("Extra data in"
+		"DiceCoeffWeight::unserialise()");
     return new DiceCoeffWeight;
 }
 
@@ -109,8 +109,8 @@ DiceCoeffWeight *
 DiceCoeffWeight::create_from_parameters(const char * p) const
 {
     if (*p != '\0')
-	throw InvalidArgumentError("No parameters are required for\
-		DiceCoeffWeight");
+	throw InvalidArgumentError("No parameters are required for"
+		"DiceCoeffWeight");
     return new Xapian::DiceCoeffWeight;
 }
 

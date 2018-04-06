@@ -1636,10 +1636,10 @@ DEFINE_TESTCASE(dicecoeffweight1, !backend) {
 	bool empty = t2->name().empty();
 	delete t2;
 	if (empty)
-	    FAIL_TEST("Serialised DiceCoeffWeight with junk appended\
-		    unserialised to empty name!");
-	FAIL_TEST("Serialised DiceCoeffWeight with junk appended unserialised\
-		   OK");
+	    FAIL_TEST("Serialised DiceCoeffWeight with junk appended"
+		    "unserialised to empty name!");
+	FAIL_TEST("Serialised DiceCoeffWeight with junk appended"
+		"unserialised OK");
     } catch (const Xapian::SerialisationError &e) {
 	TEST(e.get_msg().find("DiceCoeff") != string::npos);
     }
