@@ -299,6 +299,20 @@ DEFINE_TESTCASE(closedb5, transactions) {
 	Xapian::Database db = get_writable_database_as_database();
 	TEST_EQUAL(db.get_doccount(), 0);
     }
+
+    {
+	// commit_transaction() throws InvalidOperationError when
+	// not in a transaction. begin_transaction() is no-op or
+	// throws DatabaseError
+	Xapian::WritableDatabase wdb = get_writable_database();
+	wdb.close();
+	TEST_EXCEPTION(Xapian::InvalidOperationError,
+		wdb.commit_transaction());
+	try {
+	    wdb.begin_transaction();
+	} catch (const Xapian::DatabaseError &) {
+	}
+    }
     return true;
 }
 
