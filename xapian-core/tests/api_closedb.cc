@@ -325,6 +325,11 @@ DEFINE_TESTCASE(closedb7, writable) {
     // is a no-op, and so doesn't have to fail.  Similarly we may be able to
     // call db.begin_transaction(), but we can't make any changes inside that
     // transaction.
+    try {
+	db.commit();
+    } catch (const Xapian::DatabaseError &) {
+    }
+
     TEST_EXCEPTION(Xapian::DatabaseError,
 		   db.add_document(Xapian::Document()));
     TEST_EXCEPTION(Xapian::DatabaseError,
