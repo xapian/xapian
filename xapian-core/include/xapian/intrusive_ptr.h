@@ -303,6 +303,35 @@ public:
 	if( counting && --px->_refs == 1 ) delete px;
     }
 
+    opt_intrusive_ptr(opt_intrusive_ptr && rhs)
+    : px( rhs.px ), counting( rhs.counting )
+    {
+        rhs.px = 0;
+	rhs.counting = 0;
+    }
+
+    opt_intrusive_ptr & operator=(opt_intrusive_ptr && rhs)
+    {
+        this_type( static_cast< opt_intrusive_ptr && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
+    template<class U> friend class opt_intrusive_ptr;
+
+    template<class U>
+    opt_intrusive_ptr(opt_intrusive_ptr<U> && rhs)
+    : px( rhs.px ), counting( rhs.counting )
+    {
+        rhs.px = 0;
+	rhs.counting = 0;
+    }
+
+    template<class U>
+    opt_intrusive_ptr & operator=(opt_intrusive_ptr<U> && rhs)
+    {
+        this_type( static_cast< opt_intrusive_ptr<U> && >( rhs ) ).swap(*this);
+        return *this;
+    }
     opt_intrusive_ptr & operator=(opt_intrusive_ptr const & rhs)
     {
 	this_type(rhs).swap(*this);
