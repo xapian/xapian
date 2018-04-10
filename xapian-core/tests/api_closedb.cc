@@ -277,9 +277,10 @@ DEFINE_TESTCASE(closedb4, writable && !inmemory) {
     return true;
 }
 
-/// If a transaction is active, close() shouldn't implicitly commit().
+/// Test the effects of close() on transactions
 DEFINE_TESTCASE(closedb5, transactions) {
     {
+	// If a transaction is active, close() shouldn't implicitly commit().
 	Xapian::WritableDatabase wdb = get_writable_database();
 	wdb.begin_transaction();
 	wdb.add_document(Xapian::Document());
@@ -302,17 +303,51 @@ DEFINE_TESTCASE(closedb5, transactions) {
 
     {
 	// commit_transaction() throws InvalidOperationError when
-	// not in a transaction. begin_transaction() is no-op or
-	// throws DatabaseError
+	// not in a transaction.
 	Xapian::WritableDatabase wdb = get_writable_database();
 	wdb.close();
 	TEST_EXCEPTION(Xapian::InvalidOperationError,
 		       wdb.commit_transaction());
+
+	// begin_transaction() is no-op or throws DatabaseError. We may be able to
+	// call db.begin_transaction(), but we can't make any changes inside that
+	// transaction. If begin_transaction() succeeds, then commit_transaction()
+	// either end the transaction or throw DatabaseError.
+	bool advanced = false;
 	try {
 	    wdb.begin_transaction();
+	    advanced = true;
 	} catch (const Xapian::DatabaseError &) {
 	}
+	if (advanced) {
+	    try {
+		wdb.commit_transaction();
+	    } catch (const Xapian::DatabaseError &) {
+	    }
+	}
     }
+
+    {
+	// Same test but for cancel_transaction().
+	Xapian::WritableDatabase wdb = get_writable_database();
+	wdb.close();
+	TEST_EXCEPTION(Xapian::InvalidOperationError,
+		       wdb.cancel_transaction());
+
+	bool advanced = false;
+	try {
+	    wdb.begin_transaction();
+	    advanced = true;
+	} catch (const Xapian::DatabaseError &) {
+	}
+	if (advanced) {
+	    try {
+		wdb.cancel_transaction();
+	    } catch (const Xapian::DatabaseError &) {
+	    }
+	}
+    }
+
     return true;
 }
 
@@ -335,10 +370,8 @@ DEFINE_TESTCASE(closedb7, writable) {
     db.add_document(Xapian::Document());
     db.close();
 
-    // Since we can't make any changes which need to be committed, db.commit()
-    // is a no-op, and so doesn't have to fail.  Similarly we may be able to
-    // call db.begin_transaction(), but we can't make any changes inside that
-    // transaction.
+    // Since we can't make any changes which need to be committed,
+    // db.commit() is a no-op, and so doesn't have to fail.
     try {
 	db.commit();
     } catch (const Xapian::DatabaseError &) {
