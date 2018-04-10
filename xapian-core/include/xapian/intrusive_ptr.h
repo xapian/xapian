@@ -236,7 +236,33 @@ public:
 
     ~intrusive_ptr_nonnull()
     {
-        if(--px->_refs == 0 ) delete px;
+        if(px != 0 && --px->_refs == 0 ) delete px;
+    }
+
+    intrusive_ptr_nonnull(intrusive_ptr_nonnull && rhs) : px( rhs.px )
+    {
+        rhs.px = 0;
+    }
+
+    intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull && rhs)
+    {
+        this_type( static_cast< intrusive_ptr_nonnull && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
+    template<class U> friend class intrusive_ptr_nonnull;
+
+    template<class U>
+    intrusive_ptr_nonnull(intrusive_ptr_nonnull<U> && rhs) : px( rhs.px )
+    {
+        rhs.px = 0;
+    }
+
+    template<class U>
+    intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull<U> && rhs)
+    {
+        this_type( static_cast< intrusive_ptr_nonnull<U> && >( rhs ) ).swap(*this);
+        return *this;
     }
 
     intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull const & rhs)
