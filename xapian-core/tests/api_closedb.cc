@@ -309,10 +309,11 @@ DEFINE_TESTCASE(closedb5, transactions) {
 	TEST_EXCEPTION(Xapian::InvalidOperationError,
 		       wdb.commit_transaction());
 
-	// begin_transaction() is no-op or throws DatabaseError. We may be able to
-	// call db.begin_transaction(), but we can't make any changes inside that
-	// transaction. If begin_transaction() succeeds, then commit_transaction()
-	// either end the transaction or throw DatabaseError.
+	// begin_transaction() is no-op or throws DatabaseError. We may be
+	// able to call db.begin_transaction(), but we can't make any changes
+	// inside that transaction. If begin_transaction() succeeds, then
+	// commit_transaction() either end the transaction or throw
+	// DatabaseError.
 	bool advanced = false;
 	try {
 	    wdb.begin_transaction();
