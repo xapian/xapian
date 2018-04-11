@@ -50,7 +50,8 @@ struct closedb1_iterators {
     Xapian::Document doc1;
     Xapian::PostingIterator pl1;
     Xapian::PostingIterator pl2;
-    Xapian::PostingIterator plend;
+    Xapian::PostingIterator pl1end;
+    Xapian::PostingIterator pl2end;
     Xapian::TermIterator tl1;
     Xapian::TermIterator tlend;
     Xapian::TermIterator atl1;
@@ -63,9 +64,10 @@ struct closedb1_iterators {
 
 	// Set up the iterators for the test.
 	pl1 = db.postlist_begin("paragraph");
-	pl2 = db.postlist_begin("paragraph");
+	pl2 = db.postlist_begin("this");
 	++pl2;
-	plend = db.postlist_end("paragraph");
+	pl1end = db.postlist_end("paragraph");
+	pl2end = db.postlist_end("this");
 	tl1 = db.termlist_begin(1);
 	tlend = db.termlist_end(1);
 	atl1 = db.allterms_begin("t");
@@ -106,7 +108,8 @@ struct closedb1_iterators {
 	// Reopen raises the "database closed" error.
 	COUNT_CLOSEDEXC(db.reopen());
 
-	TEST_NOT_EQUAL(pl1, plend);
+	TEST_NOT_EQUAL(pl1, pl1end);
+	TEST_NOT_EQUAL(pl2, pl2end);
 	TEST_NOT_EQUAL(tl1, tlend);
 	TEST_NOT_EQUAL(atl1, atlend);
 	TEST_NOT_EQUAL(pil1, pilend);
@@ -116,6 +119,10 @@ struct closedb1_iterators {
 	COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 1));
 	COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_doclength(), 28));
 	COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_unique_terms(), 21));
+
+	COUNT_CLOSEDEXC(TEST_EQUAL(*pl2, 2));
+	COUNT_CLOSEDEXC(TEST_EQUAL(pl2.get_doclength(), 81));
+	COUNT_CLOSEDEXC(TEST_EQUAL(pl2.get_unique_terms(), 56));
 
 	COUNT_CLOSEDEXC(TEST_EQUAL(*tl1, "a"));
 	COUNT_CLOSEDEXC(TEST_EQUAL(tl1.get_wdf(), 2));
@@ -138,6 +145,18 @@ struct closedb1_iterators {
 	    COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 2));
 	    COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_doclength(), 81));
 	    COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_unique_terms(), 56));
+	}
+
+	advanced = false;
+	try {
+	    ++pl2;
+	    advanced = true;
+	} catch (const Xapian::DatabaseError &) {}
+
+	if (advanced) {
+	    COUNT_CLOSEDEXC(TEST_EQUAL(*pl2, 3));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(pl2.get_doclength(), 15));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(pl2.get_unique_terms(), 14));
 	}
 
 	advanced = false;
