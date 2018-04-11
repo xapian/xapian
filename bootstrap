@@ -491,9 +491,9 @@ if lazy_build autoconf autoconf 2.69 \
   AUTOM4TE=$instdir/bin/autom4te
   export AUTOM4TE
 fi
-if lazy_build automake automake 1.15.1 \
-    tar.xz af6ba39142220687c500f79b4aa2f181d9b24e4f8d8ec497cea4ba26c64bedaf \
-    tar.gz 988e32527abe052307d21c8ca000aa238b914df363a617e38f4fb89f5abf6260 \
+if lazy_build automake automake 1.16.1 \
+    tar.xz 5d05bb38a23fd3312b10aea93840feec685bdf4a41146e78882848165d3ae921 \
+    tar.gz 608a97523f97db32f1f5d5615c98ca69326ced2054c9f82e65bade7fc4c9dea8 \
     ; then
   ACLOCAL=$instdir/bin/aclocal
   export ACLOCAL
