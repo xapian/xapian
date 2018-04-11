@@ -40,35 +40,35 @@ autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
 # Tool for downloading a file from a URL (currently wget or curl).
 FETCH_URL_TOOL=
 
-check_sha1sum() {
+check_checksum() {
   # This function is expected to be used in 'if' so we can't rely on set -e
   # being in effect here.
   checksum=$1
   tarball=$2
 
-  if [ -z "$SHA1SUM_TOOL" ] ; then
-    for SHA1SUM_TOOL in \
-	'${SHA1SUM-sha1sum} 2>/dev/null|cut -d\  -f1' \
-	'${SHASUM-shasum} 2>/dev/null|cut -d\  -f1' \
-	'${OPENSSL-openssl} sha1 2>/dev/null|sed "s/.* //"' \
+  if [ -z "$SHA256SUM_TOOL" ] ; then
+    for SHA256SUM_TOOL in \
+	'${SHA256SUM-sha256sum} 2>/dev/null|cut -d\  -f1' \
+	'${SHASUM-shasum} -a256 2>/dev/null|cut -d\  -f1' \
+	'${OPENSSL-openssl} sha256 2>/dev/null|sed "s/.* //"' \
 	'' ; do
-      if [ -z "$SHA1SUM_TOOL" ] ; then
+      if [ -z "$SHA256SUM_TOOL" ] ; then
 	echo <<'END'
-Need sha1sum or shasum or openssl installed to check SHA1 checksums.
-Set environment variable SHA1SUM, SHASUM or OPENSSL if the tool isn't on
+Need sha256sum or shasum or openssl installed to check SHA256 checksums.
+Set environment variable SHA256SUM, SHASUM or OPENSSL if the tool isn't on
 your PATH.
 END
 	exit 1
       fi
       # Sanity check by hashing empty input.
-      r=`:|eval "$SHA1SUM_TOOL"`
-      [ X"$r" != Xda39a3ee5e6b4b0d3255bfef95601890afd80709 ] || break
+      r=`:|eval "$SHA256SUM_TOOL"`
+      [ X"$r" != Xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 ] || break
     done
   fi
-  r=`< $tarball eval "$SHA1SUM_TOOL"`
+  r=`< $tarball eval "$SHA256SUM_TOOL"`
   if [ X"$r" != X"$checksum" ] ; then
-    echo "$tarball: computed SHA1 checksum did NOT match"
-    echo "computed: $r with $SHA1SUM_TOOL"
+    echo "$tarball: computed SHA256 checksum did NOT match"
+    echo "computed: $r with $SHA256SUM_TOOL"
     echo "expected: $checksum"
     ls -l $tarball
     file $tarball || true
@@ -239,7 +239,7 @@ END
 
   if [ -n "$find_stdout" ] ; then
     # Verify the tarball's checksum before building it.
-    check_sha1sum "$checksum" "$tarball"
+    check_checksum "$checksum" "$tarball"
 
     # Remove tarballs of other versions.
     for f in "$package"-* ; do
@@ -477,10 +477,10 @@ instdir=`pwd`/INST
 [ -d BUILD ] || mkdir BUILD
 cd BUILD
 
-# The last field is the SHA1 checksum of the tarball.
+# The hex strings are SHA256 checksums for the preceding extension.
 if lazy_build autoconf autoconf 2.69 \
-    tar.xz e891c3193029775e83e0534ac0ee0c4c711f6d23 \
-    tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a \
+    tar.xz 64ebcec9f8ac5b2487125a86a7760d2591ac9e1d3dbd59489633f9de62a57684 \
+    tar.gz 954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969 \
     ; then
   AUTOCONF=$instdir/bin/autoconf
   export AUTOCONF
@@ -492,8 +492,8 @@ if lazy_build autoconf autoconf 2.69 \
   export AUTOM4TE
 fi
 if lazy_build automake automake 1.15.1 \
-    tar.xz 45632d466c16ecf18d9c18dc4be883cde59acb59 \
-    tar.gz d3cd5fc9bbea9f977b51799180cde5d253dcba96 \
+    tar.xz af6ba39142220687c500f79b4aa2f181d9b24e4f8d8ec497cea4ba26c64bedaf \
+    tar.gz 988e32527abe052307d21c8ca000aa238b914df363a617e38f4fb89f5abf6260 \
     ; then
   ACLOCAL=$instdir/bin/aclocal
   export ACLOCAL
@@ -501,8 +501,8 @@ if lazy_build automake automake 1.15.1 \
   export AUTOMAKE
 fi
 if lazy_build libtool libtool 2.4.6 \
-    tar.xz 3e7504b832eb2dd23170c91b6af72e15b56eb94e \
-    tar.gz 25b6931265230a06f0fc2146df64c04e5ae6ec33 \
+    tar.xz 7c87a8c2c8c0fc9cd5019e402bed4292462d00a718a7cd5f11218153bf28b26f \
+    tar.gz e3bd4d5d3d025a36c21dd6af7ea818a2afcd4dfc1ea5a17b39d7854bcd0c06e3 \
     ; then
   LIBTOOLIZE=$instdir/bin/libtoolize
   export LIBTOOLIZE
@@ -523,7 +523,7 @@ fi
 if [ "$1" = "--deps=libmagic" ] ; then
     shift
     lazy_build file '' 5.32 \
-      tar.gz c2858a8043387d1229d8768ad42762a803d017db
+      tar.gz 8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
 fi
 
 cd ..
