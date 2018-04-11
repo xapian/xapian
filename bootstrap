@@ -514,8 +514,8 @@ fi
 
 if [ "$1" = "--deps=libmagic" ] ; then
     shift
-    lazy_build file '' 5.25 \
-      tar.gz fea78106dd0b7a09a61714cdbe545135563e84bd
+    lazy_build file '' 5.32 \
+      tar.gz c2858a8043387d1229d8768ad42762a803d017db
 fi
 
 cd ..
