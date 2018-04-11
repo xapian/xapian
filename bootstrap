@@ -23,7 +23,7 @@ copyright='
 
 if [ "$1" = "--help" ] ; then
   cat <<__END__
-$0 [--ftp] [--download-tools=(always|ifneeded|never)] [--clean] [MODULE...]
+$0 [--ftp|--http] [--download-tools=(always|ifneeded|never)] [--clean] [MODULE...]
 
 The default is to bootstrap all known modules.  Any modules which have a
 file called ".nobootstrap" in their top-level will be skipped.
@@ -201,26 +201,29 @@ END
 	exit 1
       fi
     fi
+    url="https://github.com/xapian/xapian-dev-deps/releases/download/current/$tarball"
     case $basename in
     file-*)
-      if [ "$use_ftp" = yes ] ; then
-	url="ftp://ftp.astron.com/pub/file/$tarball"
-      else
-	url="http://fossies.org/unix/misc/$tarball"
-      fi ;;
+      case $download_protocol in
+	ftp) url="ftp://ftp.astron.com/pub/file/$tarball" ;;
+	# We used to use http://fossies.org/ but that now redirects to https.
+      esac ;;
     *[13579][a-z])
       # GNU alpha release
-      if [ "$use_ftp" = yes ] ; then
-	url="ftp://alpha.gnu.org/gnu/$package/$tarball"
-      else
-	url="http://alpha.gnu.org/gnu/$package/$tarball"
-      fi ;;
+      case $download_protocol in
+	ftp) url="ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
+	http) url="http://alpha.gnu.org/gnu/$package/$tarball" ;;
+      esac ;;
     *)
-      if [ "$use_ftp" = yes ] ; then
-	url="ftp://ftp.gnu.org/gnu/$package/$tarball"
-      else
-	url="http://ftpmirror.gnu.org/$package/$tarball"
-      fi ;;
+      case $download_protocol in
+	ftp) url="ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
+	http) url="http://ftpmirror.gnu.org/$package/$tarball" ;;
+      esac ;;
+    esac
+    case $download_protocol,$url in
+      http,https:*)
+	echo "warning: No http: link for $tarball available, using https:"
+	;;
     esac
     rm -f download.tmp
     echo "Downloading <$url>"
@@ -390,11 +393,10 @@ else
     xapian_common_clone_url=$XAPIAN_COMMON_CLONE_URL
 fi
 
-# Set to 'yes' to use ftp URLs where available.
-#
-# By default we prefer http downloads as they are more likely to work through
-# firewalls.
-use_ftp=no
+# Set to 'ftp' to use ftp URLs where available and 'http' to use unencrypted
+# 'http'.  By default we prefer https downloads as they are more likely to work
+# through firewalls and better preserve user privacy.
+download_protocol=
 
 # Set to 'always' to always use a locally installed copy of the autotools
 # or 'never' to never download.
@@ -419,7 +421,13 @@ while [ "$#" -gt 0 ] ; do
     ;;
 
   --ftp)
-    use_ftp=yes
+    download_protocol=ftp
+    shift
+    continue
+    ;;
+
+  --http)
+    download_protocol=http
     shift
     continue
     ;;
