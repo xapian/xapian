@@ -10,6 +10,7 @@ clone_folder: c:\projects\xapian
 environment:
   global:
     AUTOMATED_TESTING: 1
+    FETCH_URL_TOOL: curl -L
   matrix:
   - TOOLCHAIN: mingw
     platform: x86
