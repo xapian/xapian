@@ -236,12 +236,12 @@ public:
 
     ~intrusive_ptr_nonnull()
     {
-        if(px != 0 && --px->_refs == 0 ) delete px;
+        if(--px->_refs == 0 ) delete px;
     }
 
     intrusive_ptr_nonnull(intrusive_ptr_nonnull && rhs) : px( rhs.px )
     {
-        rhs.px = 0;
+        ++px->_refs;
     }
 
     intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull && rhs)
@@ -255,7 +255,7 @@ public:
     template<class U>
     intrusive_ptr_nonnull(intrusive_ptr_nonnull<U> && rhs) : px( rhs.px )
     {
-        rhs.px = 0;
+        ++px->_refs;
     }
 
     template<class U>
@@ -459,6 +459,7 @@ public:
         this_type( static_cast< opt_intrusive_ptr<U> && >( rhs ) ).swap(*this);
         return *this;
     }
+
     opt_intrusive_ptr & operator=(opt_intrusive_ptr const & rhs)
     {
 	this_type(rhs).swap(*this);
