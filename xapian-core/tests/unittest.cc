@@ -686,7 +686,8 @@ static bool test_uuid1()
 class A : public Xapian::Internal::intrusive_base {
     int x = 0;
   public:
-    A(int x_) : x(x_) {}
+    explicit A(int x_) : x(x_) {}
+
     int get_x() const {
 	return x;
     }
@@ -694,11 +695,20 @@ class A : public Xapian::Internal::intrusive_base {
 
 class B : public Xapian::Internal::opt_intrusive_base {
     int x = 0;
+    bool & alive;
   public:
-    B(int x_) : x(x_) {}
+    B(int x_, bool & alive_) : x(x_), alive(alive_) {
+	alive = true;
+    }
+
+    ~B() {
+	alive = false;
+    }
+
     int get_x() const {
 	return x;
     }
+
     B * release() {
 	opt_intrusive_base::release();
 	return this;
@@ -723,7 +733,6 @@ static bool test_movesupport1()
 	TEST_EQUAL(p2.get(), 0);
     }
 
-
     {
 	// Same test for intrusive_ptr_nonnull class
 	Xapian::Internal::intrusive_ptr_nonnull<A> p1(new A{5});
@@ -732,17 +741,16 @@ static bool test_movesupport1()
 	// Test move constructor
 	Xapian::Internal::intrusive_ptr_nonnull<A> p2(std::move(p1));
 	TEST_EQUAL(p2->get_x(), 5);
-	TEST_EQUAL(p1.get(), 0);
 
 	// Test move assignment
 	p3 = std::move(p2);
 	TEST_EQUAL(p3->get_x(), 5);
-	TEST_EQUAL(p2.get(), 0);
     }
 
+    bool alive = false;
     {
 	// Same test for opt_intrusive_ptr class
-	B * b1 = new B{5};
+	B * b1 = new B{5, alive};
 	b1->release();
 	Xapian::Internal::opt_intrusive_ptr<B> p1(b1);
 	Xapian::Internal::opt_intrusive_ptr<B> p3;
@@ -750,15 +758,17 @@ static bool test_movesupport1()
 	// Test move constructor
 	Xapian::Internal::opt_intrusive_ptr<B> p2(std::move(p1));
 	TEST_EQUAL(p2->get_x(), 5);
-	TEST_EQUAL(p2->_refs, 2);
 	TEST_EQUAL(p1.get(), 0);
+	TEST_EQUAL(alive, true);
 
 	// Test move assignment
 	p3 = std::move(p2);
 	TEST_EQUAL(p3->get_x(), 5);
-	TEST_EQUAL(p3->_refs, 2);
 	TEST_EQUAL(p2.get(), 0);
+	TEST_EQUAL(alive, true);
     }
+    // Test that object b1 has been deleted.
+    TEST_EQUAL(alive, false);
     return true;
 }
 
