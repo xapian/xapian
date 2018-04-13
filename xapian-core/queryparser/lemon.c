@@ -10,7 +10,7 @@
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 **
 ** Synced with upstream:
-** https://www.sqlite.org/src/artifact/7f7735326ca9c3b48327b241063cee52d35d44e20ebe1b3624a81658052a4d39
+** https://www.sqlite.org/src/artifact/c1a87d15983f96851b253707985dba8783fbe41ba21ba1b76720e06c8a262206
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -3298,6 +3298,7 @@ void ReportOutput(struct lemon *lemp)
   struct state *stp;
   struct config *cfp;
   struct action *ap;
+  struct rule *rp;
   FILE *fp;
 
   fp = file_open(lemp,".out","wb");
@@ -3350,7 +3351,20 @@ void ReportOutput(struct lemon *lemp)
         }
       }
     }
+    if( sp->prec>=0 ) fprintf(fp," (precedence=%d)", sp->prec);
     fprintf(fp, "\n");
+  }
+  fprintf(fp, "----------------------------------------------------\n");
+  fprintf(fp, "Rules:\n");
+  for(rp=lemp->rule; rp; rp=rp->next){
+    fprintf(fp, "%4d: ", rp->iRule);
+    rule_print(fp, rp);
+    fprintf(fp,".");
+    if( rp->precsym ){
+      fprintf(fp," [%s precedence=%d]",
+              rp->precsym->name, rp->precsym->prec);
+    }
+    fprintf(fp,"\n");
   }
   fclose(fp);
   return;
