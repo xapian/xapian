@@ -23,7 +23,7 @@ copyright='
 
 if [ "$1" = "--help" ] ; then
   cat <<__END__
-$0 [--ftp|--http] [--download-tools=(always|ifneeded|never)] [--clean] [MODULE...]
+$0 [--ftp|--http] [--download-tools=(always|ifneeded|never)] [--fetch-url-command=CMD] [--clean] [MODULE...]
 
 The default is to bootstrap all known modules.  Any modules which have a
 file called ".nobootstrap" in their top-level will be skipped.
@@ -37,7 +37,8 @@ set -e
 # The variables which specify the autotools to use.
 autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
 
-# Tool for downloading a file from a URL (currently wget or curl).
+# Tool for downloading a file from a URL (currently wget, curl, and lwp-request
+# are probed for in that order).  Can be specified with --fetch-url-command.
 FETCH_URL_TOOL=
 
 check_checksum() {
@@ -322,6 +323,19 @@ update_config() {
   fi
 }
 
+update_bootstrap_sticky_opts() {
+  arg=$1
+  case $arg in
+    *[^-A-Za-z0-9_+=:@/.,]*)
+      # Quote for the shell and escape $ to $$ for make.
+      bootstrap_sticky_opts="$bootstrap_sticky_opts '"`echo "$arg"|sed "s/'/'\\\\\\''/g;"'s/[$]/\\\\$\\\\$/g'`"'"
+      ;;
+    *)
+      bootstrap_sticky_opts="$bootstrap_sticky_opts $arg"
+      ;;
+  esac
+}
+
 curdir=`pwd`
 
 # cd to srcdir if we aren't already there.
@@ -407,22 +421,20 @@ download_protocol=
 download_tools=ifneeded
 
 # Save options which should be sticky for when "make" needs to rerun bootstrap.
-# This should be empty or start with a space.  FIXME: We don't even try to
-# shell-escape options here - this isn't a security concern, and currently
-# none of the options should be affected, but it would be good to sort out.
+# This should be empty or start with a space.
 bootstrap_sticky_opts=
 
 while [ "$#" -gt 0 ] ; do
   case $1 in
   --download-tools=*)
-    bootstrap_sticky_opts="$bootstrap_sticky_opts $1"
-    download_tools=`echo "x$1"|sed 's/x--download-tools=//'`
+    update_bootstrap_sticky_opts "$1"
+    download_tools=`echo "x$1"|sed 's/^x--download-tools=//'`
     shift
     continue
     ;;
 
   --download-tools)
-    bootstrap_sticky_opts="$bootstrap_sticky_opts $1 $2"
+    update_bootstrap_sticky_opts "$1=$2"
     download_tools=$2
     shift 2
     continue
@@ -439,6 +451,20 @@ while [ "$#" -gt 0 ] ; do
     bootstrap_sticky_opts="$bootstrap_sticky_opts $1"
     download_protocol=http
     shift
+    continue
+    ;;
+
+  --fetch-url-command=*)
+    update_bootstrap_sticky_opts "$1"
+    FETCH_URL_TOOL=`echo "x$1"|sed 's/^x--fetch-url-command=//'`
+    shift
+    continue
+    ;;
+
+  --fetch-url-command)
+    update_bootstrap_sticky_opts "$1=$2"
+    FETCH_URL_TOOL=$2
+    shift 2
     continue
     ;;
 
@@ -474,7 +500,9 @@ while [ "$#" -gt 0 ] ; do
 done
 
 if [ "$#" -gt 0 ] ; then
-  bootstrap_sticky_opts="$bootstrap_sticky_opts $*"
+  for a in "$@" ; do
+    update_bootstrap_sticky_opts "$a"
+  done
 fi
 
 case $download_tools in
