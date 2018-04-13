@@ -12,7 +12,7 @@
 ** Driver template for the LEMON parser generator.
 **
 ** Synced with upstream:
-** https://www.sqlite.org/src/artifact/dddd4f592b8bad36aec4500d456c5db5fe42fefc4ee384913880439d8917f87a
+** https://www.sqlite.org/src/artifact/468a155e8729cfbccfe1d85bf60d064f1dab76167a51149ec5c7928a2de63953
 **
 ** The "lemon" program processes an LALR(1) input grammar file, then uses
 ** this template to construct a parser.  The "lemon" program inserts text
@@ -467,7 +467,8 @@ static unsigned int yy_find_shift_action(
 #endif
   do{
     i = yy_shift_ofst[stateno];
-    Assert( i>=0 && i+YYNTOKEN<=(int)(sizeof(yy_lookahead)/sizeof(yy_lookahead[0])) );
+    Assert( i>=0 );
+    Assert( i+YYNTOKEN<=(int)sizeof(yy_lookahead)/sizeof(yy_lookahead[0]) );
     Assert( iLookAhead!=YYNOCODE );
     Assert( iLookAhead < YYNTOKEN );
     i += iLookAhead;
@@ -494,7 +495,7 @@ static unsigned int yy_find_shift_action(
 #if YY_SHIFT_MAX+YYWILDCARD>=YY_ACTTAB_COUNT
           j<YY_ACTTAB_COUNT &&
 #endif
-          yy_lookahead[j]==YYWILDCARD
+          yy_lookahead[j]==YYWILDCARD && iLookAhead>0
         ){
 	  LOGLINE(QUERYPARSER,
 		  "WILDCARD " << ParseTokenName(iLookAhead) << " => " <<
@@ -638,7 +639,6 @@ static void yy_reduce(
   yyStackEntry *yymsp;            /* The top of the parser's stack */
   int yysize;                     /* Amount to pop the stack */
   ParseARG_FETCH;
-  /* Suppress any "unused variable" warnings. */
   (void)yyLookahead;
   (void)yyLookaheadToken;
   yymsp = &yypParser->yystack.back();
