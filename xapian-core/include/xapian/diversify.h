@@ -32,6 +32,7 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include <map>
 #include <vector>
 #include <unordered_map>
 
@@ -51,6 +52,9 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
     /// Store relevance score for each document of given mset
     std::unordered_map<Xapian::docid, double> weights;
 
+    /// Store pairwise cosine similarities of documents of given mset
+    std::map<std::pair<Xapian::docid, Xapian::docid>, double> pairwise_sim;
+
     /// MPT parameters
     double lambda, b, sigma_sqr;
 
@@ -63,6 +67,16 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *			top-k are to be diversified
      */
     void initialise_points(const Xapian::MSet &source);
+
+    /** Compute pairwise similarities
+     *
+     *  Use for pre-computing pairwise cosine similarities of documents
+     *  of given mset, which are used in evaluate_dmset
+     *
+     *  @param source	MSet object containing the documents of which
+     *			top-k are to be diversified
+     */
+    void compute_similarities();
 
     /** Return difference of 'points' and current dmset
      *
