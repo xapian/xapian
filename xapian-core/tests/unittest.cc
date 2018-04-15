@@ -28,6 +28,7 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <utility>
 
 #include "safeunistd.h"
 
@@ -91,6 +92,7 @@ using namespace std;
 #include "../net/serialise-error.cc"
 #include "../api/error.cc"
 #include "../api/sortable-serialise.cc"
+#include "../include/xapian/intrusive_ptr.h"
 
 // fileutils.cc uses opendir(), etc though not in a function we currently test.
 #include "../common/msvc_dirent.cc"
@@ -680,6 +682,96 @@ static bool test_uuid1()
     return true;
 }
 
+// Classes used by movesupport1 test
+class A : public Xapian::Internal::intrusive_base {
+    int x = 0;
+  public:
+    explicit A(int x_) : x(x_) {}
+
+    int get_x() const {
+	return x;
+    }
+};
+
+class B : public Xapian::Internal::opt_intrusive_base {
+    int x = 0;
+    bool & alive;
+  public:
+    B(int x_, bool & alive_) : x(x_), alive(alive_) {
+	alive = true;
+    }
+
+    ~B() {
+	alive = false;
+    }
+
+    int get_x() const {
+	return x;
+    }
+
+    B * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+};
+
+static bool test_movesupport1()
+{
+    {
+	// Test move semantics support for intrusive_ptr class
+	Xapian::Internal::intrusive_ptr<A> p1(new A{5});
+	Xapian::Internal::intrusive_ptr<A> p3;
+
+	// Test move constructor
+	Xapian::Internal::intrusive_ptr<A> p2(std::move(p1));
+	TEST_EQUAL(p2->get_x(), 5);
+	TEST_EQUAL(p1.get(), 0);
+
+	// Test move assignment
+	p3 = std::move(p2);
+	TEST_EQUAL(p3->get_x(), 5);
+	TEST_EQUAL(p2.get(), 0);
+    }
+
+    {
+	// Same test for intrusive_ptr_nonnull class
+	Xapian::Internal::intrusive_ptr_nonnull<A> p1(new A{5});
+	Xapian::Internal::intrusive_ptr_nonnull<A> p3(new A{6});
+
+	// Test move constructor
+	Xapian::Internal::intrusive_ptr_nonnull<A> p2(std::move(p1));
+	TEST_EQUAL(p2->get_x(), 5);
+
+	// Test move assignment
+	p3 = std::move(p2);
+	TEST_EQUAL(p3->get_x(), 5);
+    }
+
+    bool alive = false;
+    {
+	// Same test for opt_intrusive_ptr class
+	B * b1 = new B{5, alive};
+	b1->release();
+	Xapian::Internal::opt_intrusive_ptr<B> p1(b1);
+	Xapian::Internal::opt_intrusive_ptr<B> p3;
+
+	// Test move constructor
+	Xapian::Internal::opt_intrusive_ptr<B> p2(std::move(p1));
+	TEST_EQUAL(p2->get_x(), 5);
+	TEST_EQUAL(p1.get(), 0);
+	TEST_EQUAL(alive, true);
+
+	// Test move assignment
+	p3 = std::move(p2);
+	TEST_EQUAL(p3->get_x(), 5);
+	TEST_EQUAL(p2.get(), 0);
+	TEST_EQUAL(alive, true);
+    }
+    // Test that object b1 has been deleted.
+    TEST_EQUAL(alive, false);
+    return true;
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -697,6 +789,7 @@ static const test_desc tests[] = {
     TESTCASE(closefrom1),
     TESTCASE(shard1),
     TESTCASE(uuid1),
+    TESTCASE(movesupport1),
     END_OF_TESTCASES
 };
 

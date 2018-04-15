@@ -113,6 +113,32 @@ public:
         if( px != 0 && --px->_refs == 0 ) delete px;
     }
 
+    intrusive_ptr(intrusive_ptr && rhs) : px( rhs.px )
+    {
+        rhs.px = 0;
+    }
+
+    intrusive_ptr & operator=(intrusive_ptr && rhs)
+    {
+        this_type( static_cast< intrusive_ptr && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
+    template<class U> friend class intrusive_ptr;
+
+    template<class U>
+    intrusive_ptr(intrusive_ptr<U> && rhs) : px( rhs.px )
+    {
+        rhs.px = 0;
+    }
+
+    template<class U>
+    intrusive_ptr & operator=(intrusive_ptr<U> && rhs)
+    {
+        this_type( static_cast< intrusive_ptr<U> && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
     intrusive_ptr & operator=(intrusive_ptr const & rhs)
     {
         this_type(rhs).swap(*this);
@@ -211,6 +237,32 @@ public:
     ~intrusive_ptr_nonnull()
     {
         if(--px->_refs == 0 ) delete px;
+    }
+
+    intrusive_ptr_nonnull(intrusive_ptr_nonnull && rhs) : px( rhs.px )
+    {
+        ++px->_refs;
+    }
+
+    intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull && rhs)
+    {
+        this_type( static_cast< intrusive_ptr_nonnull && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
+    template<class U> friend class intrusive_ptr_nonnull;
+
+    template<class U>
+    intrusive_ptr_nonnull(intrusive_ptr_nonnull<U> && rhs) : px( rhs.px )
+    {
+        ++px->_refs;
+    }
+
+    template<class U>
+    intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull<U> && rhs)
+    {
+        this_type( static_cast< intrusive_ptr_nonnull<U> && >( rhs ) ).swap(*this);
+        return *this;
     }
 
     intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull const & rhs)
@@ -376,6 +428,36 @@ public:
     ~opt_intrusive_ptr()
     {
 	if( counting && --px->_refs == 1 ) delete px;
+    }
+
+    opt_intrusive_ptr(opt_intrusive_ptr && rhs)
+    : px( rhs.px ), counting( rhs.counting )
+    {
+        rhs.px = 0;
+	rhs.counting = 0;
+    }
+
+    opt_intrusive_ptr & operator=(opt_intrusive_ptr && rhs)
+    {
+        this_type( static_cast< opt_intrusive_ptr && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
+    template<class U> friend class opt_intrusive_ptr;
+
+    template<class U>
+    opt_intrusive_ptr(opt_intrusive_ptr<U> && rhs)
+    : px( rhs.px ), counting( rhs.counting )
+    {
+        rhs.px = 0;
+	rhs.counting = 0;
+    }
+
+    template<class U>
+    opt_intrusive_ptr & operator=(opt_intrusive_ptr<U> && rhs)
+    {
+        this_type( static_cast< opt_intrusive_ptr<U> && >( rhs ) ).swap(*this);
+        return *this;
     }
 
     opt_intrusive_ptr & operator=(opt_intrusive_ptr const & rhs)
