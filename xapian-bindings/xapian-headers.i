@@ -54,6 +54,7 @@
     %ignore NS::CLASS::CLASS(Internal*);
     %ignore NS::CLASS::CLASS(Internal&);
     %ignore NS::CLASS::operator=;
+    %ignore NS::CLASS::CLASS(CLASS &&);
 %enddef
 #else
 %define STANDARD_IGNORES(NS, CLASS)
@@ -62,6 +63,7 @@
     %ignore NS::CLASS::CLASS(Internal&);
     %ignore NS::CLASS::operator=;
     %ignore NS::CLASS::CLASS(const CLASS &);
+    %ignore NS::CLASS::CLASS(CLASS &&);
 %enddef
 #endif
 
