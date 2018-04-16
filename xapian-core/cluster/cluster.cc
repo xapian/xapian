@@ -131,6 +131,11 @@ DocumentSet::operator=(const DocumentSet &other)
     internal = other.internal;
 }
 
+DocumentSet::DocumentSet(DocumentSet &&) = default;
+
+DocumentSet&
+DocumentSet::operator=(DocumentSet &&) = default;
+
 DocumentSet::DocumentSet()
     : internal(new Xapian::DocumentSet::Internal)
 {
@@ -362,6 +367,11 @@ Cluster::Cluster(const Cluster &other)
 {
 }
 
+Cluster::Cluster(Cluster &&) = default;
+
+Cluster&
+Cluster::operator=(Cluster &&) = default;
+
 Cluster::Cluster() : internal(new Xapian::Cluster::Internal)
 {
     LOGCALL_CTOR(API, "Cluster", NO_ARGS);
@@ -435,6 +445,11 @@ ClusterSet::ClusterSet(const ClusterSet &other)
     : internal(other.internal)
 {
 }
+
+ClusterSet&
+ClusterSet::operator=(ClusterSet &&) = default;
+
+ClusterSet::ClusterSet(ClusterSet &&) = default;
 
 ClusterSet::ClusterSet() : internal(new Xapian::ClusterSet::Internal)
 {

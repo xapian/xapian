@@ -89,6 +89,18 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
      */
     void operator=(const DocumentSet &other);
 
+    /** Move constructor.
+     *
+     * @param other	The object to move.
+     */
+    DocumentSet(DocumentSet && other);
+
+    /** Move assignment operator.
+     *
+     * @param other	The object to move.
+     */
+    DocumentSet & operator=(DocumentSet && other);
+
     /// Default constructor
     DocumentSet();
 
@@ -376,6 +388,18 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
      */
     Cluster& operator=(const Cluster &other);
 
+    /** Move constructor.
+     *
+     * @param other	The object to move.
+     */
+    Cluster(Cluster && other);
+
+    /** Move assignment operator.
+     *
+     * @param other	The object to move.
+     */
+    Cluster & operator=(Cluster && other);
+
     /** Constructor
      *
      *  @param centroid		The centroid of the cluster object is
@@ -448,6 +472,18 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
      *  @param other	The object to copy.
      */
     ClusterSet& operator=(const ClusterSet &other);
+
+    /** Move constructor.
+     *
+     * @param other	The object to move.
+     */
+    ClusterSet(ClusterSet && other);
+
+    /** Move assignment operator.
+     *
+     * @param other	The object to move.
+     */
+    ClusterSet & operator=(ClusterSet && other);
 
     /// Default constructor
     ClusterSet();
