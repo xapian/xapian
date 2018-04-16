@@ -58,6 +58,11 @@ Document::operator=(const Document& o)
     return *this;
 }
 
+Document::Document(Document&&) = default;
+
+Document&
+Document::operator=(Document&&) = default;
+
 Document::Document() : internal(new Xapian::Document::Internal)
 {
 }
