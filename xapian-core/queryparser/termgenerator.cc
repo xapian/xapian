@@ -39,6 +39,11 @@ TermGenerator::operator=(const TermGenerator & o) {
     return *this;
 }
 
+TermGenerator::TermGenerator(TermGenerator &&) = default;
+
+TermGenerator &
+TermGenerator::operator=(TermGenerator &&) = default;
+
 TermGenerator::TermGenerator() : internal(new TermGenerator::Internal) { }
 
 TermGenerator::~TermGenerator() { }

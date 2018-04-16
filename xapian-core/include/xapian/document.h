@@ -84,6 +84,12 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      */
     Document& operator=(const Document& o);
 
+    /// Move constructor.
+    Document(Document&& o);
+
+    /// Move assignment operatoar.
+    Document& operator=(Document&& o);
+
     /** Default constructor.
      *
      *  Creates an empty Document.
