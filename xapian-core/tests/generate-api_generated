@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-my $copyright = 'Copyright (C) 2007,2009,2012,2014,2015,2016,2017 Olly Betts';
+my $copyright = 'Copyright (C) 2007,2009,2012,2014,2015,2016,2017,2018 Olly Betts';
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -170,7 +170,13 @@ for my $class (sort keys %copyableclasses) {
     print "    $class $object$params;\n";
     print "    TEST(!$object.get_description().empty());\n" if $get_description;
     print "    $class copy_$object($object);\n";
+    print "    TEST(!copy_$object.get_description().empty());\n" if $get_description;
+    print "    $class move_$object(std::move($object));\n";
+    print "    TEST(!move_$object.get_description().empty());\n" if $get_description;
     print "    $object = copy_$object;\n";
+    print "    TEST(!$object.get_description().empty());\n" if $get_description;
+    print "    copy_$object = std::move(move_$object);\n";
+    print "    TEST(!copy_$object.get_description().empty());\n" if $get_description;
     if ($params =~ /INMEMORY/) {
 	print "#endif\n";
     }
