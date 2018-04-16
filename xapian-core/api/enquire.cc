@@ -62,6 +62,11 @@ Enquire::operator=(const Enquire& o)
     return *this;
 }
 
+Enquire::Enquire(Enquire&&) = default;
+
+Enquire&
+Enquire::operator=(Enquire&&) = default;
+
 Enquire::Enquire(const Database& db) : internal(new Enquire::Internal(db)) {}
 
 Enquire::~Enquire() {}
