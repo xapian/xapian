@@ -56,6 +56,12 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
     /// Assignment.
     PositionIterator & operator=(const PositionIterator & o);
 
+    /// Move constructor.
+    PositionIterator(PositionIterator && o);
+
+    /// Move assignment operator.
+    PositionIterator & operator=(PositionIterator && o);
+
     /** Default constructor.
      *
      *  Creates an uninitialised iterator, which can't be used before being
