@@ -77,6 +77,11 @@ PostingIterator::operator=(const PostingIterator & o)
     RETURN(*this);
 }
 
+PostingIterator::PostingIterator(PostingIterator &&) = default;
+
+PostingIterator &
+PostingIterator::operator=(PostingIterator &&) = default;
+
 Xapian::docid
 PostingIterator::operator*() const
 {

@@ -88,6 +88,11 @@ TermIterator::operator=(const TermIterator & o)
     RETURN(*this);
 }
 
+TermIterator::TermIterator(TermIterator &&) = default;
+
+TermIterator &
+TermIterator::operator=(TermIterator &&) = default;
+
 string
 TermIterator::operator*() const
 {

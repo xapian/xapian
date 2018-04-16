@@ -78,6 +78,11 @@ ValueIterator::operator=(const ValueIterator & o)
     RETURN(*this);
 }
 
+ValueIterator::ValueIterator(ValueIterator &&) = default;
+
+ValueIterator &
+ValueIterator::operator=(ValueIterator &&) = default;
+
 string
 ValueIterator::operator*() const
 {

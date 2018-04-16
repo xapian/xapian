@@ -76,6 +76,11 @@ PositionIterator::operator=(const PositionIterator & o)
     RETURN(*this);
 }
 
+PositionIterator::PositionIterator(PositionIterator &&) = default;
+
+PositionIterator &
+PositionIterator::operator=(PositionIterator &&) = default;
+
 Xapian::termpos
 PositionIterator::operator*() const
 {
