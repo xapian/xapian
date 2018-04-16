@@ -68,6 +68,17 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      */
     void initialise_points(const Xapian::MSet &source);
 
+    /** Return a key for a pair of documents
+     *
+     *  Returns a key as a pair of documents ids of given documents where First
+     *  id in pair is smaller of the two doc ids.
+     *
+     *  @param source	MSet object containing the documents of which
+     *			top-k are to be diversified
+     */
+    std::pair<Xapian::docid, Xapian::docid>
+    get_key(const Xapian::Point &doc_a, const Xapian::Point &doc_b);
+
     /** Compute pairwise similarities
      *
      *  Use for pre-computing pairwise cosine similarities of documents

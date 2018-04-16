@@ -60,6 +60,22 @@ Diversify::initialise_points(const MSet &source)
     }
 }
 
+pair<Xapian::docid, Xapian::docid>
+Diversify::get_key(const Xapian::Point &doc_a, const Xapian::Point &doc_b)
+{
+    Xapian::docid docid_a = doc_a.get_document().get_docid();
+    Xapian::docid docid_b = doc_b.get_document().get_docid();
+
+    pair<Xapian::docid, Xapian::docid> key;
+    if (docid_a <= docid_b) {
+	key = make_pair(docid_a, docid_b);
+    } else {
+	key = make_pair(docid_b, docid_a);
+    }
+
+    return key;
+}
+
 void
 Diversify::compute_similarities()
 {
@@ -67,12 +83,9 @@ Diversify::compute_similarities()
     Xapian::CosineDistance d;
     for (unsigned int i = 0; i < points.size() - 1; ++i) {
 	for (unsigned int j = i + 1; j < points.size(); ++j) {
-	    Xapian::docid docid_i = points[i].get_document().get_docid();
-	    Xapian::docid docid_j = points[j].get_document().get_docid();
-	    auto key_ij = make_pair(docid_i, docid_j);
-	    auto key_ji = make_pair(docid_j, docid_i);
 	    double sim = d.similarity(points[i], points[j]);
-	    pairwise_sim[key_ij] = pairwise_sim[key_ji] = sim;
+	    auto key = get_key(points[i], points[j]);
+	    pairwise_sim[key] = sim;
 	}
     }
 }
@@ -115,8 +128,7 @@ Diversify::evaluate_dmset(const vector<Point> &dmset)
 	double min_dist = numeric_limits<double>::max();
 	unsigned int pos = 1;
 	for (auto doc : dmset) {
-	    auto key = make_pair(point.get_document().get_docid(),
-				 doc.get_document().get_docid());
+	    auto key = get_key(point, doc);
 	    double sim = pairwise_sim[key];
 	    double weight = 2 * b * sigma_sqr * (1 / log(1 + pos)) * (1 - sim);
 	    min_dist = min(min_dist, weight);
