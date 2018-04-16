@@ -46,10 +46,10 @@ Stem::operator=(const Stem & o)
     return *this;
 }
 
-Stem::Stem(Stem && o) = default;
+Stem::Stem(Stem &&) = default;
 
 Stem &
-Stem::operator=(Stem && o) = default;
+Stem::operator=(Stem &&) = default;
 
 Stem::Stem() { }
 
