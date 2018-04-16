@@ -22,14 +22,14 @@
 #include <config.h>
 
 #include "xapian/diversify.h"
-
 #include "xapian/error.h"
+
 #include "debuglog.h"
 
-#include <vector>
-#include <limits>
 #include <algorithm>
 #include <cmath>
+#include <limits>
+#include <vector>
 
 using namespace Xapian;
 using namespace std;
