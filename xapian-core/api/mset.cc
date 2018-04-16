@@ -48,6 +48,11 @@ MSet::operator=(const MSet& o)
     return *this;
 }
 
+MSet::MSet(MSet&&) = default;
+
+MSet&
+MSet::operator=(MSet&&) = default;
+
 MSet::MSet() : internal(new MSet::Internal) {}
 
 MSet::MSet(Internal* internal_) : internal(internal_) {}
