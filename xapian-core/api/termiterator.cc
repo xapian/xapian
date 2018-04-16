@@ -26,6 +26,8 @@
 #include "omassert.h"
 #include "termlist.h"
 
+#include <utility>
+
 using namespace std;
 
 namespace Xapian {
@@ -88,10 +90,19 @@ TermIterator::operator=(const TermIterator & o)
     RETURN(*this);
 }
 
-TermIterator::TermIterator(TermIterator &&) = default;
+TermIterator::TermIterator(TermIterator && o)
+    : internal(o.internal)
+{
+    o.internal = nullptr;
+}
 
 TermIterator &
-TermIterator::operator=(TermIterator &&) = default;
+TermIterator::operator=(TermIterator && o)
+{
+    if (this != &o)
+	swap(internal, o.internal);
+    RETURN(*this);
+}
 
 string
 TermIterator::operator*() const

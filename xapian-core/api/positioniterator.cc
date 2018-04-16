@@ -26,6 +26,8 @@
 #include "omassert.h"
 #include "backends/positionlist.h"
 
+#include <utility>
+
 using namespace std;
 
 namespace Xapian {
@@ -76,10 +78,19 @@ PositionIterator::operator=(const PositionIterator & o)
     RETURN(*this);
 }
 
-PositionIterator::PositionIterator(PositionIterator &&) = default;
+PositionIterator::PositionIterator(PositionIterator && o)
+    : internal(o.internal)
+{
+    o.internal = nullptr;
+}
 
 PositionIterator &
-PositionIterator::operator=(PositionIterator &&) = default;
+PositionIterator::operator=(PositionIterator && o)
+{
+    if (this != &o)
+	swap(internal, o.internal);
+    RETURN(*this);
+}
 
 Xapian::termpos
 PositionIterator::operator*() const
