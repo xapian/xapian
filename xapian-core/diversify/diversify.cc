@@ -56,7 +56,7 @@ Diversify::initialise_points(const MSet &source)
     TermListGroup tlg(source);
     for (MSetIterator it = source.begin(); it != source.end(); ++it) {
 	points.push_back(Point(tlg, it.get_document()));
-	weights[it.get_document().get_docid()] = it.get_weight();
+	weights[*it] = it.get_weight();
     }
 }
 
