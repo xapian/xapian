@@ -27,6 +27,8 @@
 #include "omassert.h"
 #include "postlist.h"
 
+#include <utility>
+
 using namespace std;
 
 namespace Xapian {
@@ -77,10 +79,19 @@ PostingIterator::operator=(const PostingIterator & o)
     RETURN(*this);
 }
 
-PostingIterator::PostingIterator(PostingIterator &&) = default;
+PostingIterator::PostingIterator(PostingIterator && o)
+    : internal(o.internal)
+{
+    o.internal = nullptr;
+}
 
 PostingIterator &
-PostingIterator::operator=(PostingIterator &&) = default;
+PostingIterator::operator=(PostingIterator && o)
+{
+    if (this != &o)
+	swap(internal, o.internal);
+    RETURN(*this);
+}
 
 Xapian::docid
 PostingIterator::operator*() const
