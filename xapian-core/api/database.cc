@@ -82,6 +82,11 @@ Database::operator=(const Database& o)
     return *this;
 }
 
+Database::Database(Database&&) = default;
+
+Database&
+Database::operator=(Database&&) = default;
+
 Database::Database()
     : internal(new EmptyDatabase)
 {
