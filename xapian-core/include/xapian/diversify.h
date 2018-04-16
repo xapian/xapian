@@ -83,8 +83,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *  Return the difference of 'points' and the current diversified
      *  document match set
      *
-     *  @param source	MSet object containing the documents of which
-     *			top-k are to be diversified
+     *  @param dmset	Document set representing a diversified document set
      */
     std::vector<Point> compute_diff_dmset(const std::vector<Point> &dmset);
 

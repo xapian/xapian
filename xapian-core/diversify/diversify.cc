@@ -183,12 +183,12 @@ Diversify::get_dmset(const MSet &mset)
 
     // Merge main_dmset and diff_dmset into final dmset
     DocumentSet dmset;
-    for (Point doc : main_dmset) {
+    for (auto doc : main_dmset) {
 	dmset.add_document(doc.get_document());
     }
 
     vector<Point> diff_dmset = compute_diff_dmset(main_dmset);
-    for (auto doc : main_dmset)
+    for (auto doc : diff_dmset)
 	dmset.add_document(doc.get_document());
 
     return dmset;
