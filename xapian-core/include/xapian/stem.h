@@ -70,6 +70,12 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
     /// Assignment.
     Stem & operator=(const Stem & o);
 
+    /// Move constructor.
+    Stem(Stem && o);
+
+    /// Move assignment operator.
+    Stem & operator=(Stem && o);
+
     /** Construct a Xapian::Stem object which doesn't change terms.
      *
      *  Equivalent to Stem("none").

@@ -181,6 +181,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      */
     Query & operator=(const Query & o) { internal = o.internal; return *this; }
 
+    /// Move constructor.
+    Query(Query &&) = default;
+
+    /// Move assignment operator.
+    Query & operator=(Query &&) = default;
+
     /** Construct a Query object for a term. */
     Query(const std::string & term,
 	  Xapian::termcount wqf = 1,

@@ -46,6 +46,11 @@ Stem::operator=(const Stem & o)
     return *this;
 }
 
+Stem::Stem(Stem &&) = default;
+
+Stem &
+Stem::operator=(Stem &&) = default;
+
 Stem::Stem() { }
 
 Stem::Stem(const std::string &language) {

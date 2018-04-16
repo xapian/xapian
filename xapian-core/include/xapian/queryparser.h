@@ -934,6 +934,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Assignment.
     QueryParser & operator=(const QueryParser & o);
 
+    /// Move constructor.
+    QueryParser(QueryParser && o);
+
+    /// Move assignment operator.
+    QueryParser & operator=(QueryParser && o);
+
     /// Default constructor.
     QueryParser();
 
