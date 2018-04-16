@@ -107,7 +107,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
 		       double b_ = 5.0,
 		       double sigma_sqr_ = 1e-3);
 
-    /** Implements diversifcation
+    /** Implements diversification
      *
      *  Performs GLS-MPT and returns documents of which top-k
      *  are diversified.
