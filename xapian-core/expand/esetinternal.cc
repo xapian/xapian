@@ -186,6 +186,11 @@ ESet::operator=(const ESet & o)
     return *this;
 }
 
+ESet::ESet(ESet &&) = default;
+
+ESet&
+ESet::operator=(ESet &&) = default;
+
 ESet::~ESet() { }
 
 Xapian::doccount

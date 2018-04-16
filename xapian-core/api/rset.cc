@@ -38,6 +38,11 @@ RSet::operator=(const RSet& o)
     return *this;
 }
 
+RSet::RSet(RSet &&) = default;
+
+RSet&
+RSet::operator=(RSet &&) = default;
+
 RSet::RSet() {}
 
 RSet::RSet(Internal* internal_) : internal(internal_) {}
