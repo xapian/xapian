@@ -29,6 +29,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <xapian/attributes.h>
@@ -164,6 +165,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  The internals are reference counted, so assignment is cheap.
      */
     Database& operator=(const Database& o);
+
+    /// Move constructor.
+    Database(Database&& o);
+
+    /// Move assignment operator.
+    Database& operator=(Database&& o);
 
     /** Reopen the database at the latest available revision.
      *
@@ -972,6 +979,15 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
      */
     WritableDatabase& operator=(const WritableDatabase& o) {
 	Database::operator=(o);
+	return *this;
+    }
+
+    /// Move constructor.
+    WritableDatabase(WritableDatabase&& o) : Database(std::move(o)) {}
+
+    /// Move Assignment operator.
+    WritableDatabase& operator=(WritableDatabase&& o) {
+	Database::operator=(std::move(o));
 	return *this;
     }
 
