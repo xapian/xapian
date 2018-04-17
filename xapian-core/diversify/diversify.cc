@@ -164,7 +164,7 @@ Diversify::get_dmset(const MSet &mset)
 	bool found_better_dmset = false;
 	for (unsigned int i = 0; i < main_dmset.size(); ++i) {
 	    auto curr_doc = main_dmset[i];
-	    unsigned int best_score = evaluate_dmset(curr_dmset);
+	    double best_score = evaluate_dmset(curr_dmset);
 
 	    vector<Point> diff_dmset = compute_diff_dmset(curr_dmset);
 
@@ -172,7 +172,7 @@ Diversify::get_dmset(const MSet &mset)
 	    for (unsigned int j = 0; j < diff_dmset.size(); ++j) {
 		vector<Point> temp_dmset = curr_dmset;
 		temp_dmset[i] = diff_dmset[j];
-		unsigned int score = evaluate_dmset(temp_dmset);
+		double score = evaluate_dmset(temp_dmset);
 		if (score < best_score) {
 		    curr_doc = temp_dmset[i];
 		    best_score = score;
