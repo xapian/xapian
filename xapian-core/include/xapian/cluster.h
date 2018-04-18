@@ -131,10 +131,10 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
 class XAPIAN_VISIBILITY_DEFAULT FreqSource
     : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
-    void operator=(const FreqSource &);
+    void operator=(const FreqSource &) = delete;
 
     /// Don't allow copying.
-    FreqSource(const FreqSource &);
+    FreqSource(const FreqSource &) = delete;
 
   public:
     /// Default constructor
