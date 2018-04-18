@@ -985,7 +985,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
     /// Move constructor.
     WritableDatabase(WritableDatabase&& o) : Database(std::move(o)) {}
 
-    /// Move Assignment operator.
+    /// Move assignment operator.
     WritableDatabase& operator=(WritableDatabase&& o) {
 	Database::operator=(std::move(o));
 	return *this;
