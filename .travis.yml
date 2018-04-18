@@ -57,6 +57,35 @@ matrix:
       # We also have to disable an error, because (older?)
       # perl header files don't play nicely with clang.
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS=-Wno-error=reserved-user-defined-literal
+    - os: linux
+      sudo: required
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - python-pygments
+            - pngcrush
+      language: node_js
+      node_js:
+        - node
+      services:
+        - docker
+      before_script:
+        # Bootstrap only xapian-core for emscripten build.
+        - ./bootstrap xapian-core
+        - ./configure CXXFLAGS=-O0 --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
+        - make -j2
+        - make -j2 distclean
+          # -w needs docker API 1.35+: - docker exec -it -w xapian-core emscripten emconfigure ./configure $confargs CXXFLAGS='-O3 -s USE_ZLIB=1' --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
+        - cd xapian-core
+        - docker run -v $(pwd):/src trzeci/emscripten emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1' --disable-backend-honey --disable-backend-inmemory --disable-shared --disable-backend-remote
+      script:
+        - docker run -v $(pwd):/src trzeci/emscripten emmake make
+        - docker run -v $(pwd):/src trzeci/emscripten em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude -I. -Icommon emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
+        - cd emscripten && node xapianjstest.js
     - os: osx
       before_install:
         - brew update
