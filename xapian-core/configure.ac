@@ -786,7 +786,6 @@ dnl ***************************
 
 dnl Check if a non-GPL library build is specified.
 
-enable_gpl_libxapian=yes
 AC_ARG_ENABLE([gpl-libxapian],
   [AS_HELP_STRING([--disable-gpl-libxapian], [disable use of GPL code in libxapian])],
   [case ${enableval} in
