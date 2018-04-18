@@ -87,7 +87,7 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
      *
      *  @param other	The object to copy.
      */
-    void operator=(const DocumentSet &other);
+    DocumentSet & operator=(const DocumentSet &other);
 
     /** Move constructor.
      *
