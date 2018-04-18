@@ -144,12 +144,8 @@ DocumentSet
 Diversify::get_dmset(const MSet &mset)
 {
     LOGCALL(API, MSet, "Diversify::get_dmset", mset);
-    // Nothing to do
-    if (mset.empty())
-	throw InvalidArgumentError("Given mset should not be empty");
-
     // Return original mset if no need to diversify
-    if (k == 0) {
+    if (k == 0 || mset.size() <= 2) {
 	DocumentSet dmset;
 	for (MSetIterator it = mset.begin(); it != mset.end(); ++it)
 	    dmset.add_document(it.get_document());
