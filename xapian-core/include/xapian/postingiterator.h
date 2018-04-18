@@ -62,7 +62,14 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     }
 
     /// Move assignment operator.
-    PostingIterator & operator=(PostingIterator && o);
+    PostingIterator & operator=(PostingIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
 
     /** Default constructor.
      *

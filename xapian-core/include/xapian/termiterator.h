@@ -62,7 +62,14 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     }
 
     /// Move assignment operator.
-    TermIterator & operator=(TermIterator && o);
+    TermIterator & operator=(TermIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
 
     /** Default constructor.
      *

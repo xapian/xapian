@@ -26,8 +26,6 @@
 #include "omassert.h"
 #include "backends/positionlist.h"
 
-#include <utility>
-
 using namespace std;
 
 namespace Xapian {
@@ -75,15 +73,6 @@ PositionIterator::operator=(const PositionIterator & o)
     if (internal)
 	decref();
     internal = o.internal;
-    RETURN(*this);
-}
-
-
-PositionIterator &
-PositionIterator::operator=(PositionIterator && o)
-{
-    if (this != &o)
-	swap(internal, o.internal);
     RETURN(*this);
 }
 

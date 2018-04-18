@@ -27,8 +27,6 @@
 #include "omassert.h"
 #include "postlist.h"
 
-#include <utility>
-
 using namespace std;
 
 namespace Xapian {
@@ -76,14 +74,6 @@ PostingIterator::operator=(const PostingIterator & o)
     if (internal)
 	decref();
     internal = o.internal;
-    RETURN(*this);
-}
-
-PostingIterator &
-PostingIterator::operator=(PostingIterator && o)
-{
-    if (this != &o)
-	swap(internal, o.internal);
     RETURN(*this);
 }
 

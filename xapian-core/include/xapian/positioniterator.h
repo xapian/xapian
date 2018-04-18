@@ -63,7 +63,14 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
     }
 
     /// Move assignment operator.
-    PositionIterator & operator=(PositionIterator && o);
+    PositionIterator & operator=(PositionIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
 
     /** Default constructor.
      *
