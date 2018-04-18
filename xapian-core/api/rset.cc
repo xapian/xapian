@@ -29,7 +29,7 @@ using namespace std;
 
 namespace Xapian {
 
-RSet::RSet(const RSet& o) = default;
+RSet::RSet(const RSet&) = default;
 
 RSet&
 RSet::operator=(const RSet&) = default;

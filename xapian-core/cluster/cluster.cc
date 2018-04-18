@@ -420,9 +420,9 @@ Cluster::Internal::get_point(Xapian::doccount i) const
 }
 
 ClusterSet&
-ClusterSet::operator=(const ClusterSet &other) = default;
+ClusterSet::operator=(const ClusterSet &) = default;
 
-ClusterSet::ClusterSet(const ClusterSet &other) = default;
+ClusterSet::ClusterSet(const ClusterSet &) = default;
 
 ClusterSet&
 ClusterSet::operator=(ClusterSet &&) = default;
