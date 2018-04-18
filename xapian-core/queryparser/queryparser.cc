@@ -62,14 +62,10 @@ ValueRangeProcessor::~ValueRangeProcessor() { }
 
 FieldProcessor::~FieldProcessor() { }
 
-QueryParser::QueryParser(const QueryParser & o) : internal(o.internal) { }
+QueryParser::QueryParser(const QueryParser &) = default;
 
 QueryParser &
-QueryParser::operator=(const QueryParser & o)
-{
-    internal = o.internal;
-    return *this;
-}
+QueryParser::operator=(const QueryParser &) = default;
 
 QueryParser::QueryParser(QueryParser &&) = default;
 

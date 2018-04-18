@@ -177,14 +177,10 @@ ESet::Internal::get_description() const
 
 ESet::ESet() : internal(new ESet::Internal) {}
 
-ESet::ESet(const ESet & o) : internal(o.internal) { }
+ESet::ESet(const ESet &) = default;
 
 ESet&
-ESet::operator=(const ESet & o)
-{
-    internal = o.internal;
-    return *this;
-}
+ESet::operator=(const ESet &) = default;
 
 ESet::ESet(ESet &&) = default;
 

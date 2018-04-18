@@ -29,14 +29,10 @@ using namespace std;
 
 namespace Xapian {
 
-RSet::RSet(const RSet& o) : internal(o.internal) {}
+RSet::RSet(const RSet& o) = default;
 
 RSet&
-RSet::operator=(const RSet& o)
-{
-    internal = o.internal;
-    return *this;
-}
+RSet::operator=(const RSet&) = default;
 
 RSet::RSet(RSet &&) = default;
 
