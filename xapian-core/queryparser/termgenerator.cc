@@ -31,13 +31,10 @@
 using namespace std;
 using namespace Xapian;
 
-TermGenerator::TermGenerator(const TermGenerator & o) : internal(o.internal) { }
+TermGenerator::TermGenerator(const TermGenerator &) = default;
 
 TermGenerator &
-TermGenerator::operator=(const TermGenerator & o) {
-    internal = o.internal;
-    return *this;
-}
+TermGenerator::operator=(const TermGenerator &) = default;
 
 TermGenerator::TermGenerator(TermGenerator &&) = default;
 
