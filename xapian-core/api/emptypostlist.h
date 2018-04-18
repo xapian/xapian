@@ -26,10 +26,10 @@
 /// A PostList which contains no entries.
 class EmptyPostList : public PostList {
     /// Don't allow assignment.
-    void operator=(const EmptyPostList &);
+    void operator=(const EmptyPostList &) = delete;
 
     /// Don't allow copying.
-    EmptyPostList(const EmptyPostList &);
+    EmptyPostList(const EmptyPostList &) = delete;
 
   public:
     /// Constructor.

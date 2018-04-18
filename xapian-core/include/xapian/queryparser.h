@@ -46,10 +46,10 @@ class Stem;
 class XAPIAN_VISIBILITY_DEFAULT Stopper
     : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
-    void operator=(const Stopper &);
+    void operator=(const Stopper &) = delete;
 
     /// Don't allow copying.
-    Stopper(const Stopper &);
+    Stopper(const Stopper &) = delete;
 
   public:
     /// Default constructor.

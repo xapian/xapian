@@ -50,10 +50,10 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
     : public Xapian::Internal::opt_intrusive_base {
   private:
     /// Don't allow assignment.
-    void operator=(const MatchSpy &);
+    void operator=(const MatchSpy &) = delete;
 
     /// Don't allow copying.
-    MatchSpy(const MatchSpy &);
+    MatchSpy(const MatchSpy &) = delete;
 
   public:
     /// Default constructor, needed by subclass constructors.

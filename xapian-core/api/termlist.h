@@ -40,10 +40,10 @@ namespace Xapian {
 /// Abstract base class for termlists.
 class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Don't allow assignment.
-    void operator=(const Internal &);
+    void operator=(const Internal &) = delete;
 
     /// Don't allow copying.
-    Internal(const Internal &);
+    Internal(const Internal &) = delete;
 
   protected:
     /// Only constructable as a base class for derived classes.

@@ -37,10 +37,10 @@ class Document;
 class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
   private:
     /// Don't allow assignment.
-    void operator=(const MatchDecider &);
+    void operator=(const MatchDecider &) = delete;
 
     /// Don't allow copying.
-    MatchDecider(const MatchDecider &);
+    MatchDecider(const MatchDecider &) = delete;
 
   public:
     /// Default constructor, needed by subclass constructors.
