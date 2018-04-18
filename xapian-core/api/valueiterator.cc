@@ -26,8 +26,6 @@
 #include "omassert.h"
 #include "backends/valuelist.h"
 
-#include <utility>
-
 using namespace std;
 
 namespace Xapian {
@@ -77,14 +75,6 @@ ValueIterator::operator=(const ValueIterator & o)
     if (internal)
 	decref();
     internal = o.internal;
-    RETURN(*this);
-}
-
-ValueIterator &
-ValueIterator::operator=(ValueIterator && o)
-{
-    if (this != &o)
-	swap(internal, o.internal);
     RETURN(*this);
 }
 
