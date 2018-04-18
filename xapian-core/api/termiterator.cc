@@ -90,12 +90,6 @@ TermIterator::operator=(const TermIterator & o)
     RETURN(*this);
 }
 
-TermIterator::TermIterator(TermIterator && o)
-    : internal(o.internal)
-{
-    o.internal = nullptr;
-}
-
 TermIterator &
 TermIterator::operator=(TermIterator && o)
 {

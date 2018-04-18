@@ -80,13 +80,6 @@ ValueIterator::operator=(const ValueIterator & o)
     RETURN(*this);
 }
 
-ValueIterator::ValueIterator(ValueIterator && o)
-    : internal(o.internal)
-{
-    o.internal = nullptr;
-}
-
-
 ValueIterator &
 ValueIterator::operator=(ValueIterator && o)
 {

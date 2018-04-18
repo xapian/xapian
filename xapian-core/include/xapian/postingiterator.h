@@ -56,7 +56,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     PostingIterator & operator=(const PostingIterator & o);
 
     /// Move constructor.
-    PostingIterator(PostingIterator && o);
+    PostingIterator(PostingIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
 
     /// Move assignment operator.
     PostingIterator & operator=(PostingIterator && o);
