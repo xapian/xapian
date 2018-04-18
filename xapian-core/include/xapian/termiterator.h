@@ -56,7 +56,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     TermIterator & operator=(const TermIterator & o);
 
     /// Move constructor.
-    TermIterator(TermIterator && o);
+    TermIterator(TermIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
 
     /// Move assignment operator.
     TermIterator & operator=(TermIterator && o);

@@ -79,12 +79,6 @@ PostingIterator::operator=(const PostingIterator & o)
     RETURN(*this);
 }
 
-PostingIterator::PostingIterator(PostingIterator && o)
-    : internal(o.internal)
-{
-    o.internal = nullptr;
-}
-
 PostingIterator &
 PostingIterator::operator=(PostingIterator && o)
 {

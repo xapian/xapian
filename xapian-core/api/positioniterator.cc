@@ -78,11 +78,6 @@ PositionIterator::operator=(const PositionIterator & o)
     RETURN(*this);
 }
 
-PositionIterator::PositionIterator(PositionIterator && o)
-    : internal(o.internal)
-{
-    o.internal = nullptr;
-}
 
 PositionIterator &
 PositionIterator::operator=(PositionIterator && o)

@@ -57,7 +57,10 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     ValueIterator & operator=(const ValueIterator & o);
 
     /// Move constructor.
-    ValueIterator(ValueIterator && o);
+    ValueIterator(ValueIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
 
     /// Move assignment operator.
     ValueIterator & operator=(ValueIterator && o);
