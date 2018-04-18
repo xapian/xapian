@@ -787,7 +787,7 @@ dnl ***************************
 dnl Check if a non-GPL library build is specified.
 
 AC_ARG_ENABLE([gpl-libxapian],
-  [AS_HELP_STRING([--disable-gpl-libxapian], [disable use of GPL code in libxapian])],
+  [AS_HELP_STRING([--disable-gpl-libxapian], [disable use of GPL code which we won't be able to relicense in libxapian (NB currently the resulting build still contains GPL code, but GPL code which it will be possible to relicense eventually)])],
   [case ${enableval} in
     yes) ;;
     no)
@@ -1614,4 +1614,8 @@ then
   rm include/xapian/version.h.tmp
 else
   mv include/xapian/version.h.tmp include/xapian/version.h
+fi
+
+if test "$enable_gpl_libxapian" != yes ; then
+  AC_MSG_WARN([--disable-gpl-libxapian disables use of GPL code which we won't be able to relicense in libxapian - currently the resulting build still contains GPL code, but GPL code which it will be possible to relicense eventually.])
 fi
