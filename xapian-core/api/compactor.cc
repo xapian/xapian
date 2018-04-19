@@ -343,7 +343,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	}
     }
 
-#if defined XAPIAN_HAS_GLASS_BACKEND
+#if defined XAPIAN_HAS_GLASS_BACKEND || defined XAPIAN_HAS_HONEY_BACKEND
     Xapian::Compactor::compaction_level compaction =
 	static_cast<Xapian::Compactor::compaction_level>(flags & (Xapian::Compactor::STANDARD|Xapian::Compactor::FULL|Xapian::Compactor::FULLER));
 #else
