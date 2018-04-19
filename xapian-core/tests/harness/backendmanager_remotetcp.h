@@ -66,6 +66,9 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
 
     /// Called after each test, to perform any necessary cleanup.
     void clean_up();
+
+    /// Kill all the remote server processes running
+    void killall_server();
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTETCP_H

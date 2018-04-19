@@ -71,6 +71,8 @@ void skip_test_unless_backend(const std::string & backend_prefix);
 // allows backends like "multi_glass" to be covered by specifying "multi".
 void skip_test_for_backend(const std::string & backend_prefix);
 
+void killall_server();
+
 #define SKIP_TEST_UNLESS_BACKEND(B) skip_test_unless_backend(B)
 #define SKIP_TEST_FOR_BACKEND(B) skip_test_for_backend(B)
 

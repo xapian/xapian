@@ -404,3 +404,22 @@ BackendManagerRemoteTcp::clean_up()
     }
 #endif
 }
+
+void
+BackendManagerRemoteTcp::killall_server()
+{
+    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+	if (pid_to_fd[i].pid != 0) {
+	    pid_t pid = pid_to_fd[i].pid;
+	    int fd = pid_to_fd[i].fd;
+	    if (kill(pid, SIGKILL) == -1) {
+		string msg("Couldn't kill the remote server");
+		msg += strerror(errno);
+		throw msg;
+	    }
+	    pid_to_fd[i].fd = 0;
+	    pid_to_fd[i].pid = 0;
+	    close(fd);
+	}
+    }
+}

@@ -264,6 +264,11 @@ BackendManager::clean_up()
 {
 }
 
+void
+BackendManager::killall_server()
+{
+}
+
 const char *
 BackendManager::get_xapian_progsrv_command()
 {
