@@ -794,7 +794,8 @@ AC_ARG_ENABLE([gpl-libxapian],
       AC_DEFINE([DISABLE_GPL_LIBXAPIAN], 1, [Define to error out if we try to include GPL code in libxapian])
       ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-gpl-libxapian]) ;;
-  esac])
+  esac],
+  [enable_gpl_libxapian=yes])
 
 dnl Check which database backends should be built.
 
