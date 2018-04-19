@@ -469,3 +469,24 @@ DEFINE_TESTCASE(closedb10, writable && metadata) {
 
     return true;
 }
+
+// Test database object behavior after remote db connection failure.
+DEFINE_TESTCASE(remotefaildb1, remote) {
+    // Remoteprog doesn't currently support this.
+    SKIP_TEST_FOR_BACKEND("remoteprog");
+    Xapian::WritableDatabase db(get_writable_database());
+    db.add_document(Xapian::Document());
+
+    // FIXME: Servers are not killed, there is some bug.
+    // hence test is incomplete.
+    killall_server();
+
+    // FIXME: Need to check the current impl and set expected error to
+    // apropriate error after discussion.
+    /* TEST_EXCEPTION(Xapian::NetworkError, */
+	    /* db.add_document(Xapian::Document())); */
+    /* TEST_EXCEPTION(Xapian::NetworkError, */
+	    /* db.commit()); */
+    TEST_EQUAL(db.get_doccount(), 1);
+    return true;
+}
