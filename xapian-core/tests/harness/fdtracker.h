@@ -25,7 +25,7 @@
 #include <string>
 
 // Disable fd tracking where it can't possibly work.
-#ifndef __WIN32__
+#if !defined __WIN32__ && defined HAVE_DIRFD
 # define XAPIAN_TESTSUITE_TRACK_FDS
 #endif
 
