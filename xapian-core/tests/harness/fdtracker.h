@@ -21,8 +21,8 @@
 #ifndef XAPIAN_INCLUDED_FDTRACKER_H
 #define XAPIAN_INCLUDED_FDTRACKER_H
 
-#include <set>
 #include <string>
+#include <vector>
 
 // Disable fd tracking where it can't possibly work.
 #ifndef __WIN32__
@@ -31,7 +31,13 @@
 
 class FDTracker {
 #ifdef XAPIAN_TESTSUITE_TRACK_FDS
-    std::set<int> fds;
+    /** Which fds are open.
+     *
+     *  The lowest unused fd is used whenever a new fd is needed so we
+     *  can expect them to form a dense set and vector<bool> should be an
+     *  efficient representation both in space and time.
+     */
+    std::vector<bool> fds;
 
     /** The DIR* from opendir("/proc/self/fd") (or equivalent) cast to void*.
      *
@@ -41,6 +47,10 @@ class FDTracker {
     void * dir_void;
 
     std::string message;
+
+    void mark_fd(int fd);
+
+    bool check_fd(int fd) const;
 
   public:
     FDTracker() : dir_void(NULL) { }
