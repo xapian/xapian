@@ -265,8 +265,10 @@ BackendManager::clean_up()
 }
 
 void
-BackendManager::killall_server()
+BackendManager::kill_server()
 {
+    invalid_operation("Server kill operation not supported for non-remote"
+		      "database type");
 }
 
 const char *

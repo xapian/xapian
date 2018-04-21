@@ -148,7 +148,7 @@ class BackendManager {
     virtual void clean_up();
 
     /// Kill remote server running
-    virtual void killall_server();
+    virtual void kill_server();
 
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();

@@ -79,6 +79,9 @@ struct pid_fd {
 
 static pid_fd pid_to_fd[16];
 
+// Slot index to pid_to_fd, this value is consumed by backendmanager object.
+static int pid_idx;
+
 extern "C" {
 
 static void
@@ -214,6 +217,7 @@ try_next_port:
 	if (pid_to_fd[i].pid == 0) {
 	    pid_to_fd[i].fd = tracked_fd;
 	    pid_to_fd[i].pid = child;
+	    pid_idx = i;
 	    break;
 	}
     }
@@ -354,6 +358,7 @@ BackendManagerRemoteTcp::get_writable_database(const string & name,
 {
     string args = get_writable_database_args(name, file);
     int port = launch_xapian_tcpsrv(args);
+    pid_index = pid_idx;
     return Xapian::Remote::open_writable(LOCALHOST, port);
 }
 
@@ -406,20 +411,21 @@ BackendManagerRemoteTcp::clean_up()
 }
 
 void
-BackendManagerRemoteTcp::killall_server()
+BackendManagerRemoteTcp::kill_server()
 {
-    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
-	if (pid_to_fd[i].pid != 0) {
-	    pid_t pid = pid_to_fd[i].pid;
-	    int fd = pid_to_fd[i].fd;
-	    if (kill(pid, SIGKILL) == -1) {
-		string msg("Couldn't kill the remote server");
-		msg += strerror(errno);
-		throw msg;
-	    }
-	    pid_to_fd[i].fd = 0;
-	    pid_to_fd[i].pid = 0;
-	    close(fd);
+#ifdef HAVE_FORK
+    int status;
+    if (pid_to_fd[pid_index].pid != 0) {
+	pid_t pid = pid_to_fd[pid_index].pid;
+	int fd = pid_to_fd[pid_index].fd;
+	if (waitpid(pid, &status, WNOHANG) == 0 && kill(pid, SIGKILL) == -1) {
+	    string msg("Couldn't kill the remote server");
+	    msg += strerror(errno);
+	    throw msg;
 	}
+	pid_to_fd[pid_index].fd = 0;
+	pid_to_fd[pid_index].pid = 0;
+	close(fd);
     }
+#endif
 }

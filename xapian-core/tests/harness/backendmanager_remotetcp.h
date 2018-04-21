@@ -38,6 +38,9 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     /// The path of the last writable database used.
     std::string last_wdb_name;
 
+    /// Index to pid_to_fd[] array.
+    int pid_index;
+
     /// Create a Xapian::Database object indexing multiple files.
     Xapian::Database do_get_database(const std::vector<std::string> & files);
 
@@ -67,8 +70,8 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     /// Called after each test, to perform any necessary cleanup.
     void clean_up();
 
-    /// Kill all the remote server processes running
-    void killall_server();
+    /// Kill the remote server processes running
+    void kill_server();
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTETCP_H
