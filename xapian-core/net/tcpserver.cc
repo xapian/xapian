@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -279,33 +279,6 @@ TcpServer::~TcpServer()
 
 #ifdef HAVE_FORK
 // A fork() based implementation.
-void
-TcpServer::run_once()
-{
-    int connected_socket = accept_connection();
-    pid_t pid = fork();
-    if (pid == 0) {
-	// Child process.
-	close(listen_socket);
-
-	handle_one_connection(connected_socket);
-	close(connected_socket);
-
-	if (verbose) cout << "Connection closed." << endl;
-	exit(0);
-    }
-
-    // Parent process.
-
-    if (pid < 0) {
-	// fork() failed
-	int saved_errno = socket_errno(); // note down in case close hits an error
-	close(connected_socket);
-	throw Xapian::NetworkError("fork failed", saved_errno);
-    }
-
-    close(connected_socket);
-}
 
 extern "C" {
 
@@ -350,7 +323,31 @@ TcpServer::run()
 
     while (true) {
 	try {
-	    run_once();
+	    int connected_socket = accept_connection();
+	    pid_t pid = fork();
+	    if (pid == 0) {
+		// Child process.
+		close(listen_socket);
+
+		handle_one_connection(connected_socket);
+		close(connected_socket);
+
+		if (verbose) cout << "Connection closed." << endl;
+		exit(0);
+	    }
+
+	    // Parent process.
+
+	    if (pid < 0) {
+		// fork() failed.
+
+		// Note down errno from fork() in case close() hits an error.
+		int saved_errno = socket_errno();
+		close(connected_socket);
+		throw Xapian::NetworkError("fork failed", saved_errno);
+	    }
+
+	    close(connected_socket);
 	} catch (const Xapian::Error &e) {
 	    // FIXME: better error handling.
 	    cerr << "Caught " << e.get_description() << endl;
@@ -481,15 +478,15 @@ TcpServer::run()
     }
 }
 
-void
-TcpServer::run_once()
-{
-    // Run a single request on the current thread.
-    int fd = accept_connection();
-    handle_one_connection(fd);
-    closesocket(fd);
-}
-
 #else
 # error Neither HAVE_FORK nor __WIN32__ are defined.
 #endif
+
+void
+TcpServer::run_once()
+{
+    // Run a single request in the current process/thread.
+    int fd = accept_connection();
+    handle_one_connection(fd);
+    CLOSESOCKET(fd);
+}
