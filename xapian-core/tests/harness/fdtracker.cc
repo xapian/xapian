@@ -49,6 +49,22 @@ using namespace std;
 # define FD_DIRECTORY "/dev/fd"
 #endif
 
+void
+FDTracker::mark_fd(int fd)
+{
+    if (fd >= 0) {
+	if (size_t(fd) >= fds.size())
+	    fds.resize((fd &~ 31) + 32);
+	fds[fd] = true;
+    }
+}
+
+bool
+FDTracker::check_fd(int fd) const
+{
+    return size_t(fd) < fds.size() && fds[fd];
+}
+
 FDTracker::~FDTracker()
 {
     if (dir_void) {
@@ -84,8 +100,7 @@ FDTracker::init()
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
 
-	int fd = atoi(name);
-	fds.insert(fd);
+	mark_fd(atoi(name));
     }
 }
 
@@ -116,7 +131,10 @@ FDTracker::check()
 	    continue;
 
 	int fd = atoi(name);
-	if (fds.find(fd) != fds.end()) continue;
+	if (check_fd(fd)) {
+	    // This fd was already open before the testcase.
+	    continue;
+	}
 
 	string proc_symlink = FD_DIRECTORY "/";
 	proc_symlink += name;
@@ -129,7 +147,7 @@ FDTracker::check()
 	    memcmp(buf, "/dev/urandom", CONST_STRLEN("/dev/urandom")) == 0) {
 	    // /dev/urandom isn't a real leak - something in the C library
 	    // opens it lazily (at least on Linux).
-	    fds.insert(fd);
+	    mark_fd(fd);
 	    continue;
 	}
 
@@ -140,8 +158,8 @@ FDTracker::check()
 	    message.append(buf, res);
 	}
 
-	// Insert the leaked fd so we don't report it for future tests.
-	fds.insert(fd);
+	// Mark the leaked fd as used so we don't report it for future tests.
+	mark_fd(fd);
 	ok = false;
     }
     return ok;
