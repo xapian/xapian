@@ -65,7 +65,6 @@ FDTracker::init()
     if (!dir) return;
     dir_void = static_cast<void*>(dir);
 
-    int ignore_fd = dirfd(dir);
     while (true) {
 	errno = 0;
 	struct dirent * entry = readdir(dir);
@@ -83,8 +82,7 @@ FDTracker::init()
 	    continue;
 
 	int fd = atoi(name);
-	if (fd != ignore_fd)
-	    fds.insert(fd);
+	fds.insert(fd);
     }
 }
 
@@ -98,7 +96,6 @@ FDTracker::check()
 
     message.resize(0);
 
-    int ignore_fd = dirfd(dir);
     while (true) {
 	errno = 0;
 	struct dirent * entry = readdir(dir);
@@ -116,7 +113,7 @@ FDTracker::check()
 	    continue;
 
 	int fd = atoi(name);
-	if (fd == ignore_fd || fds.find(fd) != fds.end()) continue;
+	if (fds.find(fd) != fds.end()) continue;
 
 	string proc_symlink = FD_DIRECTORY "/";
 	proc_symlink += name;

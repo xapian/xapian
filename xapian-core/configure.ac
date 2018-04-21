@@ -474,9 +474,6 @@ AC_SEARCH_LIBS([timer_create], [rt],
 ])
 LIBS=$SAVE_LIBS
 
-dnl Used by tests/harness/fdtracker.cc
-AC_CHECK_FUNCS([dirfd])
-
 dnl Used by tests/soaktest/soaktest.cc
 AC_CHECK_FUNCS([srandom random])
 
