@@ -65,6 +65,9 @@ FDTracker::init()
     if (!dir) return;
     dir_void = static_cast<void*>(dir);
 
+    // The list of fds we get will include the fd inside dir, but that's OK as
+    // we keep dir open while the testcase runs and use it to recheck the open
+    // fds at the end.
     while (true) {
 	errno = 0;
 	struct dirent * entry = readdir(dir);
