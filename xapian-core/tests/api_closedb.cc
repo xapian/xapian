@@ -488,6 +488,6 @@ DEFINE_TESTCASE(remotefaildb1, remote) {
 	    db.get_doccount());
     TEST_EXCEPTION(Xapian::NetworkError,
 	    db.commit());
-    return true;
 #endif
+    return true;
 }
