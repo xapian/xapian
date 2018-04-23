@@ -368,6 +368,7 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 {
     string args = get_remote_database_args(files, timeout);
     int port = launch_xapian_tcpsrv(args);
+    pid_index = pid_idx;
     return Xapian::Remote::open(LOCALHOST, port);
 }
 
@@ -376,6 +377,7 @@ BackendManagerRemoteTcp::get_writable_database_as_database()
 {
     string args = get_writable_database_as_database_args();
     int port = launch_xapian_tcpsrv(args);
+    pid_index = pid_idx;
     return Xapian::Remote::open(LOCALHOST, port);
 }
 
@@ -384,6 +386,7 @@ BackendManagerRemoteTcp::get_writable_database_again()
 {
     string args = get_writable_database_again_args();
     int port = launch_xapian_tcpsrv(args);
+    pid_index = pid_idx;
     return Xapian::Remote::open_writable(LOCALHOST, port);
 }
 
