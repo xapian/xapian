@@ -472,7 +472,6 @@ DEFINE_TESTCASE(closedb10, writable && metadata) {
 
 // Test database object behavior after remote db connection failure.
 DEFINE_TESTCASE(remotefaildb1, remote) {
-#ifdef HAVE_FORK
     // Remoteprog doesn't currently support this.
     SKIP_TEST_FOR_BACKEND("remoteprog");
     Xapian::WritableDatabase db(get_writable_database());
@@ -488,6 +487,5 @@ DEFINE_TESTCASE(remotefaildb1, remote) {
 	    db.get_doccount());
     TEST_EXCEPTION(Xapian::NetworkError,
 	    db.commit());
-#endif
     return true;
 }

@@ -67,6 +67,14 @@ using namespace std;
 // Start at DEFAULT port and try higher ports until one isn't already in use.
 #define DEFAULT_PORT 1239
 
+// Index to hProcess[](in case of windows) or pid_to_fd[](for linux).
+// This value is consumed by backendmanager object.
+static int pid_idx;
+
+#ifdef __WIN32__
+static HANDLE hProcess[16];
+#endif
+
 #ifdef HAVE_FORK
 
 // We can't dynamically allocate memory for this because it confuses the leak
@@ -78,9 +86,6 @@ struct pid_fd {
 };
 
 static pid_fd pid_to_fd[16];
-
-// Slot index to pid_to_fd, this value is consumed by backendmanager object.
-static int pid_idx;
 
 extern "C" {
 
@@ -327,6 +332,14 @@ try_next_port:
     }
     fclose(fh);
 
+    for (unsigned i = 0; i < sizeof(hProcess) / sizeof(HANDLE); ++i) {
+	if (hProcess[i] == 0) {
+	    hProcess[i] = procinfo.hProcess;
+	    pid_idx = i;
+	    break;
+	}
+    }
+
     return port;
 }
 
@@ -429,6 +442,16 @@ BackendManagerRemoteTcp::kill_server()
 	pid_to_fd[pid_index].fd = 0;
 	pid_to_fd[pid_index].pid = 0;
 	close(fd);
+    }
+#elif defined __WIN32__
+    if (hProcess[pid_index] != 0) {
+	HANDLE hProc = hProcess[pid_index];
+	if (!TerminateProcess(hProc, 0)) {
+	    string msg("Couldn't kill the remote server");
+	    throw msg;
+	}
+	CloseHandle(hProc);
+	hProcess[pid_index] = 0;
     }
 #endif
 }
