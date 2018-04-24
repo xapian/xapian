@@ -17,18 +17,18 @@ groupings ( v AEIO CG )
 
 stringescapes {}
 
-/* special characters (in ISO Latin I) */
+/* special characters */
 
-stringdef a'   hex 'E1'
-stringdef a`   hex 'E0'
-stringdef e'   hex 'E9'
-stringdef e`   hex 'E8'
-stringdef i'   hex 'ED'
-stringdef i`   hex 'EC'
-stringdef o'   hex 'F3'
-stringdef o`   hex 'F2'
-stringdef u'   hex 'FA'
-stringdef u`   hex 'F9'
+stringdef a'   '{U+00E1}'
+stringdef a`   '{U+00E0}'
+stringdef e'   '{U+00E9}'
+stringdef e`   '{U+00E8}'
+stringdef i'   '{U+00ED}'
+stringdef i`   '{U+00EC}'
+stringdef o'   '{U+00F3}'
+stringdef o`   '{U+00F2}'
+stringdef u'   '{U+00FA}'
+stringdef u`   '{U+00F9}'
 
 define v 'aeiou{a`}{e`}{i`}{o`}{u`}'
 

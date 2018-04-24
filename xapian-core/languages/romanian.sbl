@@ -21,11 +21,11 @@ stringescapes {}
 
 /* special characters */
 
-stringdef a^   hex '0E2'  // a circumflex
-stringdef i^   hex '0EE'  // i circumflex
-stringdef a+   hex '103'  // a breve
-stringdef s,   hex '15F'  // s cedilla
-stringdef t,   hex '163'  // t cedilla
+stringdef a^   '{U+00E2}'  // a circumflex
+stringdef i^   '{U+00EE}'  // i circumflex
+stringdef a+   '{U+0103}'  // a breve
+stringdef s,   '{U+015F}'  // s cedilla
+stringdef t,   '{U+0163}'  // t cedilla
 
 define v 'aeiou{a^}{i^}{a+}'
 

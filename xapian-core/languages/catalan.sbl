@@ -20,22 +20,22 @@ groupings ( v )
 
 stringescapes {}
 
-/* special characters (in ISO Latin I) */
+/* special characters */
 
-stringdef a'   hex 'E1'  // a-acute
-stringdef a`   hex 'E0'  // a-grave
-stringdef c,   hex 'E7'  // c-cedilla
-stringdef e'   hex 'E9'  // e-acute
-stringdef e`   hex 'E8'  // e-grave
-stringdef i'   hex 'ED'  // i-acute
-stringdef i`   hex 'EC'  // i-grave
-stringdef i"   hex 'EF'  // i-diaeresis
-stringdef o'   hex 'F3'  // o-acute
-stringdef o`   hex 'F2'  // o-grave
-stringdef u'   hex 'FA'  // u-acute
-stringdef u"   hex 'FC'  // u-diaeresis
-stringdef -    hex '2D'   // - per aggeminades
-stringdef .    hex 'B7'   // - per l aggeminades
+stringdef a'   '{U+00E1}'  // a-acute
+stringdef a`   '{U+00E0}'  // a-grave
+stringdef c,   '{U+00E7}'  // c-cedilla
+stringdef e'   '{U+00E9}'  // e-acute
+stringdef e`   '{U+00E8}'  // e-grave
+stringdef i'   '{U+00ED}'  // i-acute
+stringdef i`   '{U+00EC}'  // i-grave
+stringdef i"   '{U+00EF}'  // i-diaeresis
+stringdef o'   '{U+00F3}'  // o-acute
+stringdef o`   '{U+00F2}'  // o-grave
+stringdef u'   '{U+00FA}'  // u-acute
+stringdef u"   '{U+00FC}'  // u-diaeresis
+stringdef -    '{U+002D}'   // - per aggeminades
+stringdef .    '{U+00B7}'   // - per l aggeminades
 
 define v 'aeiou{a'}{a`}{e'}{e`}{i'}{i"}{o'}{o`}{u'}{u"}'
 

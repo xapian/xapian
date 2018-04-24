@@ -19,21 +19,21 @@ groupings ( v keep_with_s )
 
 stringescapes {}
 
-/* special characters (in ISO Latin I) */
+/* special characters */
 
-stringdef a^   hex 'E2'  // a-circumflex
-stringdef a`   hex 'E0'  // a-grave
-stringdef c,   hex 'E7'  // c-cedilla
+stringdef a^   '{U+00E2}'  // a-circumflex
+stringdef a`   '{U+00E0}'  // a-grave
+stringdef c,   '{U+00E7}'  // c-cedilla
 
-stringdef e"   hex 'EB'  // e-diaeresis (rare)
-stringdef e'   hex 'E9'  // e-acute
-stringdef e^   hex 'EA'  // e-circumflex
-stringdef e`   hex 'E8'  // e-grave
-stringdef i"   hex 'EF'  // i-diaeresis
-stringdef i^   hex 'EE'  // i-circumflex
-stringdef o^   hex 'F4'  // o-circumflex
-stringdef u^   hex 'FB'  // u-circumflex
-stringdef u`   hex 'F9'  // u-grave
+stringdef e"   '{U+00EB}'  // e-diaeresis (rare)
+stringdef e'   '{U+00E9}'  // e-acute
+stringdef e^   '{U+00EA}'  // e-circumflex
+stringdef e`   '{U+00E8}'  // e-grave
+stringdef i"   '{U+00EF}'  // i-diaeresis
+stringdef i^   '{U+00EE}'  // i-circumflex
+stringdef o^   '{U+00F4}'  // o-circumflex
+stringdef u^   '{U+00FB}'  // u-circumflex
+stringdef u`   '{U+00F9}'  // u-grave
 
 define v 'aeiouy{a^}{a`}{e"}{e'}{e^}{e`}{i"}{i^}{o^}{u^}{u`}'
 
