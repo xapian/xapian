@@ -85,7 +85,7 @@ $(snowball_built_sources): languages/snowball $(snowball_algorithms)
 
 languages/snowball: $(snowball_sources) $(snowball_headers)
 	$(CC_FOR_BUILD) -o languages/snowball \
-	    -DDISABLE_JAVA -DDISABLE_JSX -DDISABLE_PYTHON \
+	    -DDISABLE_CSHARP -DDISABLE_GO -DDISABLE_JAVA -DDISABLE_JS -DDISABLE_PYTHON -DDISABLE_RUST \
 	    `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
 
 .sbl.cc:
