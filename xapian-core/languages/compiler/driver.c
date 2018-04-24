@@ -7,24 +7,40 @@
 #define DEFAULT_BASE_CLASS "org.tartarus.snowball.SnowballProgram"
 #define DEFAULT_AMONG_CLASS "org.tartarus.snowball.Among"
 #define DEFAULT_STRING_CLASS "java.lang.StringBuilder"
+#define DEFAULT_GO_PACKAGE "snowball"
+#define DEFAULT_GO_SNOWBALL_RUNTIME "github.com/snowballstem/snowball/go"
+
+#define DEFAULT_CS_NAMESPACE "Snowball"
+#define DEFAULT_CS_BASE_CLASS "Stemmer"
+#define DEFAULT_CS_AMONG_CLASS "Among"
+#define DEFAULT_CS_STRING_CLASS "StringBuilder"
 
 static int eq(const char * s1, const char * s2) {
     return strcmp(s1, s2) == 0;
 }
 
 static void print_arglist(void) {
-    fprintf(stderr, "Usage: snowball <file> [options]\n\n"
+    fprintf(stderr, "Usage: snowball <file>... [options]\n\n"
                     "options are: [-o[utput] file]\n"
                     "             [-s[yntax]]\n"
 #ifndef DISABLE_JAVA
                     "             [-j[ava]]\n"
 #endif
+#ifndef DISABLE_CSHARP
+                    "             [-cs[harp]]\n"
+#endif
                     "             [-c++]\n"
 #ifndef DISABLE_PYTHON
                     "             [-py[thon]]\n"
 #endif
-#ifndef DISABLE_JSX
-                    "             [-jsx]\n"
+#ifndef DISABLE_JS
+                    "             [-js]\n"
+#endif
+#ifndef DISABLE_RUST
+                    "             [-rust]\n"
+#endif
+#ifndef DISABLE_GO
+                    "             [-go]\n"
 #endif
                     "             [-w[idechars]]\n"
                     "             [-u[tf8]]\n"
@@ -34,10 +50,14 @@ static void print_arglist(void) {
                     "             [-i[nclude] directory]\n"
                     "             [-r[untime] path to runtime headers]\n"
                     "             [-p[arentclassname] fully qualified parent class name]\n"
-#ifndef DISABLE_JAVA
+#if !defined(DISABLE_JAVA) || !defined(DISABLE_CSHARP)
                     "             [-P[ackage] package name for stemmers]\n"
                     "             [-S[tringclass] StringBuffer-compatible class]\n"
                     "             [-a[mongclass] fully qualified name of the Among class]\n"
+#endif
+#ifndef DISABLE_GO
+                    "             [-gop[ackage] Go package name for stemmers]\n"
+                    "             [-gor[untime] Go snowball runtime package]\n"
 #endif
            );
     exit(1);
@@ -61,9 +81,10 @@ static FILE * get_output(symbol * b) {
     return output;
 }
 
-static void read_options(struct options * o, int argc, char * argv[]) {
+static int read_options(struct options * o, int argc, char * argv[]) {
     char * s;
-    int i = 2;
+    int i = 1;
+    int new_argc = 1;
 
     /* set defaults: */
 
@@ -73,24 +94,30 @@ static void read_options(struct options * o, int argc, char * argv[]) {
     o->variables_prefix = 0;
     o->runtime_path = 0;
     o->parent_class_name = DEFAULT_BASE_CLASS;
-#ifndef DISABLE_JAVA
     o->string_class = DEFAULT_STRING_CLASS;
     o->among_class = DEFAULT_AMONG_CLASS;
     o->package = DEFAULT_PACKAGE;
-#endif
+    o->go_package = DEFAULT_GO_PACKAGE;
+    o->go_snowball_runtime = DEFAULT_GO_SNOWBALL_RUNTIME;
     o->name = "";
     o->make_lang = LANG_C;
-    o->widechars = false;
     o->includes = 0;
     o->includes_end = 0;
-    o->utf8 = false;
+    o->encoding = ENC_SINGLEBYTE;
 
     /* read options: */
 
     while (i < argc) {
         s = argv[i++];
-        {   if (eq(s, "-o") || eq(s, "-output")) {
-                check_lim(i, argc);
+        if (s[0] != '-') {
+            /* Non-option argument - shuffle down. */
+            argv[new_argc++] = s;
+            continue;
+        }
+
+        {
+            if (eq(s, "-o") || eq(s, "-output")) {
+               check_lim(i, argc);
                 o->output_file = argv[i++];
                 continue;
             }
@@ -99,17 +126,42 @@ static void read_options(struct options * o, int argc, char * argv[]) {
                 o->name = argv[i++];
                 continue;
             }
-#ifndef DISABLE_JSX
-            if (eq(s, "-jsx")) {
-                o->make_lang = LANG_JSX;
-                o->widechars = true;
+#ifndef DISABLE_JS
+            if (eq(s, "-js")) {
+                o->make_lang = LANG_JAVASCRIPT;
+                o->encoding = ENC_WIDECHARS;
+                continue;
+            }
+#endif
+#ifndef DISABLE_RUST
+            if (eq(s, "-rust")) {
+                o->make_lang = LANG_RUST;
+                o->encoding = ENC_UTF8;
+                continue;
+            }
+#endif
+#ifndef DISABLE_GO
+            if (eq(s, "-go")) {
+                o->make_lang = LANG_GO;
+                o->encoding = ENC_UTF8;
                 continue;
             }
 #endif
 #ifndef DISABLE_JAVA
             if (eq(s, "-j") || eq(s, "-java")) {
                 o->make_lang = LANG_JAVA;
-                o->widechars = true;
+                o->encoding = ENC_WIDECHARS;
+                continue;
+            }
+#endif
+#ifndef DISABLE_CSHARP
+            if (eq(s, "-cs") || eq(s, "-csharp")) {
+                o->make_lang = LANG_CSHARP;
+		o->encoding = ENC_WIDECHARS;
+                o->parent_class_name = DEFAULT_CS_BASE_CLASS;
+                o->string_class = DEFAULT_CS_STRING_CLASS;
+                o->among_class = DEFAULT_CS_AMONG_CLASS;
+                o->package = DEFAULT_CS_NAMESPACE;
                 continue;
             }
 #endif
@@ -120,13 +172,12 @@ static void read_options(struct options * o, int argc, char * argv[]) {
 #ifndef DISABLE_PYTHON
             if (eq(s, "-py") || eq(s, "-python")) {
                 o->make_lang = LANG_PYTHON;
-                o->widechars = true;
+                o->encoding = ENC_WIDECHARS;
                 continue;
             }
 #endif
             if (eq(s, "-w") || eq(s, "-widechars")) {
-                o->widechars = true;
-                o->utf8 = false;
+                o->encoding = ENC_WIDECHARS;
                 continue;
             }
             if (eq(s, "-s") || eq(s, "-syntax")) {
@@ -164,8 +215,7 @@ static void read_options(struct options * o, int argc, char * argv[]) {
                 continue;
             }
             if (eq(s, "-u") || eq(s, "-utf8")) {
-                o->utf8 = true;
-                o->widechars = false;
+                o->encoding = ENC_UTF8;
                 continue;
             }
             if (eq(s, "-p") || eq(s, "-parentclassname")) {
@@ -173,7 +223,7 @@ static void read_options(struct options * o, int argc, char * argv[]) {
                 o->parent_class_name = argv[i++];
                 continue;
             }
-#ifndef DISABLE_JAVA
+#if !defined(DISABLE_JAVA) || !defined(DISABLE_CSHARP)
             if (eq(s, "-P") || eq(s, "-Package")) {
                 check_lim(i, argc);
                 o->package = argv[i++];
@@ -190,10 +240,27 @@ static void read_options(struct options * o, int argc, char * argv[]) {
                 continue;
             }
 #endif
+#ifndef DISABLE_GO
+            if (eq(s, "-gop") || eq(s, "-gopackage")) {
+                check_lim(i, argc);
+                o->go_package = argv[i++];
+                continue;
+            }
+            if (eq(s, "-gor") || eq(s, "-goruntime")) {
+                check_lim(i, argc);
+                o->go_snowball_runtime = argv[i++];
+                continue;
+            }
+#endif
             fprintf(stderr, "'%s' misplaced\n", s);
             print_arglist();
         }
     }
+    if (new_argc == 1) {
+        fprintf(stderr, "no source files specified\n");
+        print_arglist();
+    }
+    argv[new_argc] = NULL;
 
     if (o->make_lang != LANG_C && o->make_lang != LANG_CPLUSPLUS) {
 	if (o->runtime_path) {
@@ -204,17 +271,19 @@ static void read_options(struct options * o, int argc, char * argv[]) {
 	}
     }
     if (!o->externals_prefix) o->externals_prefix = "";
+    return new_argc;
 }
 
 extern int main(int argc, char * argv[]) {
 
+    int i;
     NEW(options, o);
-    if (argc == 1) print_arglist();
-    read_options(o, argc, argv);
+    argc = read_options(o, argc, argv);
     {
         symbol * filename = add_s_to_b(0, argv[1]);
         char * file;
         symbol * u = get_input(filename, &file);
+        lose_b(filename);
         if (u == 0) {
             fprintf(stderr, "Can't open input %s\n", argv[1]);
             exit(1);
@@ -222,9 +291,29 @@ extern int main(int argc, char * argv[]) {
         {
             struct tokeniser * t = create_tokeniser(u, file);
             struct analyser * a = create_analyser(t);
-            t->widechars = o->widechars;
+            struct input ** next_input_ptr = &(t->next);
+            a->encoding = t->encoding = o->encoding;
             t->includes = o->includes;
-            a->utf8 = t->utf8 = o->utf8;
+            /* If multiple source files are specified, set up the others to be
+             * read after the first in order, using the same mechanism as
+             * 'get' uses. */
+            for (i = 2; i != argc; ++i) {
+                NEW(input, q);
+                filename = add_s_to_b(0, argv[i]);
+                u = get_input(filename, &file);
+                lose_b(filename);
+                if (u == 0) {
+                    fprintf(stderr, "Can't open input %s\n", argv[i]);
+                    exit(1);
+                }
+                q->p = u;
+                q->c = 0;
+                q->file = file;
+                q->line_number = 1;
+                *next_input_ptr = q;
+                next_input_ptr = &(q->next);
+            }
+            *next_input_ptr = NULL;
             read_program(a);
             if (t->error_count > 0) exit(1);
             if (o->syntax_tree) print_program(a);
@@ -274,13 +363,43 @@ extern int main(int argc, char * argv[]) {
                     fclose(o->output_src);
                 }
 #endif
-#ifndef DISABLE_JSX
-                if (o->make_lang == LANG_JSX) {
+#ifndef DISABLE_JS
+                if (o->make_lang == LANG_JAVASCRIPT) {
                     symbol * b = add_s_to_b(0, s);
-                    b = add_s_to_b(b, ".jsx");
+                    b = add_s_to_b(b, ".js");
                     o->output_src = get_output(b);
                     lose_b(b);
-                    generate_program_jsx(g);
+                    generate_program_js(g);
+                    fclose(o->output_src);
+                }
+#endif
+#ifndef DISABLE_CSHARP
+                if (o->make_lang == LANG_CSHARP) {
+                    symbol * b = add_s_to_b(0, s);
+                    b = add_s_to_b(b, ".cs");
+                    o->output_src = get_output(b);
+                    lose_b(b);
+                    generate_program_csharp(g);
+                    fclose(o->output_src);
+                }
+#endif
+#ifndef DISABLE_RUST
+                if (o->make_lang == LANG_RUST) {
+                    symbol * b = add_s_to_b(0, s);
+                    b = add_s_to_b(b, ".rs");
+                    o->output_src = get_output(b);
+                    lose_b(b);
+                    generate_program_rust(g);
+                    fclose(o->output_src);
+                }
+#endif
+#ifndef DISABLE_GO
+                if (o->make_lang == LANG_GO) {
+                    symbol * b = add_s_to_b(0, s);
+                    b = add_s_to_b(b, ".go");
+                    o->output_src = get_output(b);
+                    lose_b(b);
+                    generate_program_go(g);
                     fclose(o->output_src);
                 }
 #endif
@@ -289,7 +408,6 @@ extern int main(int argc, char * argv[]) {
             close_analyser(a);
         }
         lose_b(u);
-        lose_b(filename);
     }
     {   struct include * p = o->includes;
         while (p) {
@@ -301,4 +419,3 @@ extern int main(int argc, char * argv[]) {
     if (space_count) fprintf(stderr, "%d blocks unfreed\n", space_count);
     return 0;
 }
-
