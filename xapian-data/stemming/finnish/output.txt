@@ -1,3 +1,8 @@
+00
+1899
+2000
+555
+9999
 aa
 aaa
 aachen
@@ -1204,7 +1209,6 @@ ahvenisto
 ahvenisto
 ahvenistonjärv
 ahvenistonjärv
-ahvenjÄrv
 ahvenjärv
 ahvenjärv
 ahvenlahd
@@ -15089,7 +15093,7 @@ borssikeito
 bortnjansk
 borus
 borzag
-borÅs
+borås
 borås
 borås
 bos
@@ -16131,7 +16135,7 @@ bysant
 bysanttilain
 byström
 byung
-bÅstad
+båstad
 bäck
 bäckm
 bäckman
@@ -17404,7 +17408,7 @@ corto
 cortés
 cortés
 coru
-coruñ
+coruña
 cory
 cosa
 cosby
@@ -19506,7 +19510,6 @@ edellis
 edellis
 edellis
 edellis
-edelliseltÄ
 edellis
 edellis
 edellis
@@ -19722,7 +19725,6 @@ edesottamuks
 edesottamuks
 edesottamuks
 edesp
-edessÄ
 ede
 ede
 ede
@@ -20587,7 +20589,6 @@ ehj
 ehj
 ehj
 ehkei
-ehkÄ
 ehk
 ehkäis
 ehkäisemin
@@ -20766,7 +20767,6 @@ eiku
 eiku
 eikuulkaas
 eikuulu
-eikÄ
 eikä
 eikäkolmij
 eikäol
@@ -20901,7 +20901,6 @@ eivaiku
 eiviel
 eivoi
 eivoitu
-eivÄt
 eivä
 eivä
 eiväten
@@ -22117,10 +22116,7 @@ ely
 elys
 elys
 elysees
-elysé
-elÄim
-elÄmÄ
-elÄ
+elysée
 elä
 eläe
 eläe
@@ -23066,7 +23062,6 @@ enemmistövalt
 enemmistöväestö
 enemmistö
 enemmistö
-enemmÄ
 enemmält
 enem
 enemmänj
@@ -23906,7 +23901,6 @@ ensilähdö
 ensil
 ensimaanant
 ensiminuut
-ensimmÄin
 ensimmäin
 ensimmäin
 ensimmäin
@@ -24120,7 +24114,6 @@ enzensberger
 enzensberger
 enzio
 enzo
-enÄ
 enä
 enä
 ep
@@ -25542,7 +25535,6 @@ erk
 erkinjunt
 erk
 erk
-erkkilÄ
 erkkil
 erkkil
 erkkilänk
@@ -26420,7 +26412,6 @@ esittelemin
 esittelemis
 esittelem
 esittel
-esittelemÄssÄ
 esittelem
 esittelem
 esittelem
@@ -26479,7 +26470,6 @@ esit
 esit
 esit
 esittiv
-esittÄvÄt
 esitäe
 esitäe
 esitäe
@@ -27026,8 +27016,6 @@ eteis
 eteis
 eteis
 eteis
-etelÄ
-etelÄlohko
 etel
 eteläafrik
 eteläafrikkalain
@@ -27410,7 +27398,6 @@ et
 et
 ettet
 ettor
-ettÄ
 et
 ettäaapo
 ettäas
@@ -29777,7 +29764,6 @@ fry
 fryckm
 fryckman
 fryckman
-frÖjd
 främling
 frågeställningar
 från
@@ -30195,7 +30181,7 @@ garbo
 garbrecht
 garc
 garcia
-garcí
+garcía
 gard
 gard
 garden
@@ -31457,8 +31443,6 @@ gysi
 gyula
 györg
 györgy
-gÖteborg
-gÖteborg
 gärderud
 gästar
 gävl
@@ -36175,7 +36159,6 @@ heidelberg
 heide
 heidi
 heid
-heidÄ
 heidä
 heidä
 heidä
@@ -36319,7 +36302,6 @@ heik
 heikkihaavisto
 heikkijuh
 heikkikoivisto
-heikkilÄ
 heikkil
 heikkil
 heikkil
@@ -36586,8 +36568,6 @@ heinrichs
 heinrichs
 heinström
 heinz
-heinÄku
-heinÄn
 heinä
 heinähatu
 heinäkeng
@@ -37219,7 +37199,6 @@ helsing
 helsinginp
 helsinginpörs
 helsinginyliopisto
-helsingissÄ
 helsing
 helsing
 helsing
@@ -37513,9 +37492,7 @@ henkiinjäämis
 henkiinjäämis
 henkikirjoittaj
 henkikirjoittaj
-henkilÖ
-henkilÖkuvavkuv
-henkilÖt
+henkilökuvavkuv
 henkilääkär
 henkilääkär
 henkilö
@@ -39345,7 +39322,6 @@ hildegun
 hild
 hilden
 hildenintaidemuseo
-hildÉ
 hildé
 hildén
 hilirimpsis
@@ -39444,7 +39420,7 @@ hillborg
 hil
 hillel
 hiller
-hillerÖd
+hilleröd
 hilleröd
 hillev
 hil
@@ -44438,7 +44414,6 @@ hyvinj
 hyv
 hyvinkoulutetu
 hyvinkoulutetu
-hyvinkÄ
 hyvink
 hyvink
 hyvink
@@ -44514,8 +44489,6 @@ hyvyys
 hyvyyt
 hyvyyt
 hyvyyt
-hyvÄ
-hyvÄt
 hyvä
 hyvähenkin
 hyvähenk
@@ -45073,16 +45046,6 @@ hyötyy
 hyöty
 hyöty
 hzds
-hÄkkilÄ
-hÄme
-hÄmeen
-hÄmeenlin
-hÄmeenlin
-hÄmÄlÄine
-hÄn
-hÄnet
-hÄrkÖnen
-hÖyryvetur
 hä
 häd
 hädintusk
@@ -48289,7 +48252,6 @@ ilmiselv
 ilmiselv
 ilmiselv
 ilmitulo
-ilmiÖ
 ilmiö
 ilmiö
 ilmiö
