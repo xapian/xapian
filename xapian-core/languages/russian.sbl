@@ -2,7 +2,8 @@
 
 stringescapes {}
 
-/* the 32 Cyrillic letters in Unicode */
+/* the 33 Cyrillic letters represented in ASCII characters following the
+ * conventions of the standard Library of Congress transliteration: */
 
 stringdef a    '{U+0430}'
 stringdef b    '{U+0431}'
@@ -10,6 +11,7 @@ stringdef v    '{U+0432}'
 stringdef g    '{U+0433}'
 stringdef d    '{U+0434}'
 stringdef e    '{U+0435}'
+stringdef e"   '{U+0451}'
 stringdef zh   '{U+0436}'
 stringdef z    '{U+0437}'
 stringdef i    '{U+0438}'
@@ -199,6 +201,10 @@ backwardmode (
 )
 
 define stem as (
+
+    // Normalise {e"} to {e}.  The documentation has long suggested the user
+    // should do this before calling the stemmer - we now do it for them.
+    do repeat ( goto (['{e"}']) <- '{e}' )
 
     do mark_regions
     backwards setlimit tomark pV for (
