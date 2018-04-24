@@ -178,7 +178,7 @@ backwardmode (
             do ( ['j'] 'o' or 'u' delete )
             do ( ['o'] 'j' delete )
         )
-        goto non-V1 [next] -> x  x delete // undouble consonant
+        goto non-V1 [C] -> x  x delete // undouble consonant
     )
 )
 
