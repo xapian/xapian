@@ -94,12 +94,12 @@ backwardmode (
             (
                 R2 delete
             )
-            'log{i'}a'
-            'log{i'}as'
+            'logia'
+            'logias'
             (
                 R2 <- 'log'
             )
-            'uci{o'}n' 'uciones'
+            'u{c,}a~o' 'u{c,}o~es'
             (
                 R2 <- 'u'
             )
