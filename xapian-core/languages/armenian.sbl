@@ -5,45 +5,45 @@
 
 stringescapes {}
 
-stringdef a    hex '561' // 531
-stringdef b    hex '562' // 532
-stringdef g    hex '563' // 533
-stringdef d    hex '564' // 534
-stringdef ye   hex '565' // 535
-stringdef z    hex '566' // 536
-stringdef e    hex '567' // 537
-stringdef y    hex '568' // 538
-stringdef dt   hex '569' // 539
-stringdef zh   hex '56A' // 53A
-stringdef i    hex '56B' // 53B
-stringdef l    hex '56C' // 53C
-stringdef kh   hex '56D' // 53D
-stringdef ts   hex '56E' // 53E
-stringdef k    hex '56F' // 53F
-stringdef h    hex '570' // 540
-stringdef dz   hex '571' // 541
-stringdef gh   hex '572' // 542
-stringdef djch hex '573' // 543
-stringdef m    hex '574' // 544
-stringdef j    hex '575' // 545
-stringdef n    hex '576' // 546
-stringdef sh   hex '577' // 547
-stringdef vo   hex '578' // 548
-stringdef ch   hex '579' // 549
-stringdef p    hex '57A' // 54A
-stringdef dj   hex '57B' // 54B
-stringdef r    hex '57C' // 54C
-stringdef s    hex '57D' // 54D
-stringdef v    hex '57E' // 54E
-stringdef t    hex '57F' // 54F
-stringdef r'   hex '580' // 550
-stringdef c    hex '581' // 551
-stringdef u    hex '582' // 552                  //vjun
-stringdef bp   hex '583' // 553
-stringdef q    hex '584' // 554
-stringdef ev   hex '587'
-stringdef o    hex '585' // 555
-stringdef f    hex '586' // 556
+stringdef a    '{U+0561}' // 531
+stringdef b    '{U+0562}' // 532
+stringdef g    '{U+0563}' // 533
+stringdef d    '{U+0564}' // 534
+stringdef ye   '{U+0565}' // 535
+stringdef z    '{U+0566}' // 536
+stringdef e    '{U+0567}' // 537
+stringdef y    '{U+0568}' // 538
+stringdef dt   '{U+0569}' // 539
+stringdef zh   '{U+056A}' // 53A
+stringdef i    '{U+056B}' // 53B
+stringdef l    '{U+056C}' // 53C
+stringdef kh   '{U+056D}' // 53D
+stringdef ts   '{U+056E}' // 53E
+stringdef k    '{U+056F}' // 53F
+stringdef h    '{U+0570}' // 540
+stringdef dz   '{U+0571}' // 541
+stringdef gh   '{U+0572}' // 542
+stringdef djch '{U+0573}' // 543
+stringdef m    '{U+0574}' // 544
+stringdef j    '{U+0575}' // 545
+stringdef n    '{U+0576}' // 546
+stringdef sh   '{U+0577}' // 547
+stringdef vo   '{U+0578}' // 548
+stringdef ch   '{U+0579}' // 549
+stringdef p    '{U+057A}' // 54A
+stringdef dj   '{U+057B}' // 54B
+stringdef r    '{U+057C}' // 54C
+stringdef s    '{U+057D}' // 54D
+stringdef v    '{U+057E}' // 54E
+stringdef t    '{U+057F}' // 54F
+stringdef r'   '{U+0580}' // 550
+stringdef c    '{U+0581}' // 551
+stringdef u    '{U+0582}' // 552                  //vjun
+stringdef bp   '{U+0583}' // 553
+stringdef q    '{U+0584}' // 554
+stringdef ev   '{U+0587}'
+stringdef o    '{U+0585}' // 555
+stringdef f    '{U+0586}' // 556
 
 routines ( mark_regions R2
            adjective

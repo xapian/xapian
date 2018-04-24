@@ -22,8 +22,6 @@ groupings ( v v_WX AOU AIOU )
 
 stringescapes {}
 
-stringdef '   hex '27'  // yuk
-
 define v        'aeiouy'
 define v_WX     v + 'wx'
 define AOU      'aou'
