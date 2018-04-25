@@ -21,6 +21,7 @@ snowball_algorithms =\
 	languages/german2.sbl\
 	languages/german.sbl\
 	languages/hungarian.sbl\
+	languages/indonesian.sbl\
 	languages/italian.sbl\
 	languages/kraaij_pohlmann.sbl\
 	languages/lovins.sbl\
