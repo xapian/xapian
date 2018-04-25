@@ -1,0 +1,6 @@
+voc.txt was generated from a dump of the Indonesian wikipedia, discarding
+rarely occurring words.
+
+output.txt was generated from voc.txt by running it through the stemmer.
+
+Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/
