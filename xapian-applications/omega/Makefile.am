@@ -42,7 +42,7 @@ namedents.h: gen-namedents Makefile.am common/Tokeniseise.pm
 
 BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
 
-MAINTAINERCLEANFILES = my-html-tok.h mimemap.h namedents.h
+MAINTAINERCLEANFILES = my-html-tok.h mimemap.h mimemap.stamp namedents.h
 
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\

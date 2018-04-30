@@ -25,7 +25,7 @@ soaktest_soaktest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 if MAINTAINER_MODE
 BUILT_SOURCES += soaktest/soaktest_all.h soaktest/soaktest_collated.h \
- $(collated_soaktest_sources:.cc=.h)
+ $(collated_soaktest_sources:.cc=.h) soaktest/soaktest_collated.stamp
 
 soaktest/soaktest_all.h soaktest/soaktest_collated.h $(collated_soaktest_sources:.cc=.h): soaktest/soaktest_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
