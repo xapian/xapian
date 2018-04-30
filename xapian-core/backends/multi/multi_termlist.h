@@ -32,7 +32,6 @@ class MultiTermList : public TermList {
 	TermList *tl;
 	const Xapian::Database & db;
 	size_t db_index;
-	double termfreq_factor;
 
 	MultiTermList(TermList * tl_,
 		      const Xapian::Database &db_,
