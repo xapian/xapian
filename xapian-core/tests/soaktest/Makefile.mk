@@ -42,6 +42,9 @@ soaktest/soaktest_all.h soaktest/soaktest_collated.h $(collated_soaktest_sources
 	  fi; \
 	fi
 soaktest/soaktest_collated.stamp: $(collated_soaktest_sources) collate-test soaktest/Makefile.mk
+	## Need to create the directory here in a VPATH build configured with:
+	## --enable-maintainer-mode --disable-dependency-tracking
+	$(MKDIR_P) soaktest
 	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" soaktest/soaktest_collated.h soaktest/soaktest_all.h $(collated_soaktest_sources)
 	touch $@
 endif
