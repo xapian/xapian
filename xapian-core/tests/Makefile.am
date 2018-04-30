@@ -246,7 +246,6 @@ zlib-vg.so: zlib-vg.c
 	$(CC) -fPIC -shared -o zlib-vg.so $(srcdir)/zlib-vg.c -ldl
 endif
 
-
 .PHONY: check-syntax
 
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
