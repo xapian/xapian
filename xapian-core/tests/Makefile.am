@@ -173,7 +173,7 @@ BUILT_SOURCES =
 
 if MAINTAINER_MODE
 BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
- api_generated.cc
+ api_collated.stamp api_generated.cc
 
 api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
@@ -199,7 +199,7 @@ api_generated.cc: generate-api_generated
 endif
 
 EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
-	$(collated_apitest_sources:.cc=.h)
+	$(collated_apitest_sources:.cc=.h) api_collated.stamp
 
 ## Distribute test data:
 EXTRA_DIST +=\
@@ -248,6 +248,8 @@ endif
 
 
 .PHONY: check-syntax
+
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 check-syntax:
 	$(CXXCOMPILE) -fsyntax-only -gstabs+ $(CHK_SOURCES)

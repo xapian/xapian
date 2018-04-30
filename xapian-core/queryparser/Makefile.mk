@@ -12,7 +12,8 @@ noinst_HEADERS +=\
 
 lemon_built_sources =\
 	queryparser/queryparser_internal.cc\
-	queryparser/queryparser_token.h
+	queryparser/queryparser_token.h\
+	queryparser/queryparser_internal.stamp
 
 EXTRA_DIST += $(lemon_built_sources)\
 	queryparser/Makefile\
