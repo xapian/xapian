@@ -88,7 +88,7 @@ install:
   - ps: >-
       if ($env:TOOLCHAIN -eq "msvc") {
         $env:CC="cl -nologo"
-        $env:CXX="c:/projects/xapian/INST/share/automake-1.16/compile cl -nologo"
+        $env:CXX="c:/projects/xapian/INST/share/automake-1.15/compile cl -nologo"
         $env:CXXFLAGS="-EHsc"
         $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
         $env:AR="lib"
