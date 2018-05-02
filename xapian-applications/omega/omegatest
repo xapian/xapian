@@ -717,6 +717,19 @@ else
     failed=`expr $failed + 1`
 fi
 
+# Test the same actions for multiple fields works (briefly broken in git master
+# before 1.5.0).
+printf 'tag1 tag2 tag3 : boolean=T field' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+tag1=one
+tag2=two
+tag3=three
+END
+printf '$hitlist{$list{$terms{T},|}/$field{tag1}|$field{tag2}|$field{tag3}}' > "$TEST_TEMPLATE"
+testcase 'Tone/one|two|three' B=Tone
+testcase 'Tthree|Ttwo/one|two|three' B=Ttwo B=Tthree
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then

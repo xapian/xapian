@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -449,7 +449,13 @@ parse_index_script(const string &filename)
 	for (field = fields.begin(); field != fields.end(); ++field) {
 	    vector<Action> &v = index_spec[*field];
 	    if (v.empty()) {
-		v = std::move(actions);
+		if (fields.size() == 1) {
+		    // Optimise common case where there's only one fieldname
+		    // for a list of actions.
+		    v = std::move(actions);
+		} else {
+		    v = actions;
+		}
 	    } else {
 		v.emplace_back(Action::NEW);
 		v.insert(v.end(), actions.begin(), actions.end());
