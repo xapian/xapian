@@ -58,6 +58,10 @@ static const testcase tests[] = {
     { "<!Doctype  HTML\t><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<!DOCTYPE system 'about:legacy-compat'><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<!doctype SyStem \"about:legacy-compat\" ><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    // Check we default to UTF-8 for XML.
+    { "<?xml version=\"1.0\"?><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    // Check we handle specify a charset for XML.
+    { "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc3\x82\xc2\xa3", "\xc3\x82\xc2\xae", "", "" },
     { "<!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
     { "Foo<![CDATA[ & bar <literal>\"]]> ok", "Foo & bar <literal>\" ok", "", "", "" },
     { "Foo<![CDATA", "Foo", "", "", "" },
