@@ -157,6 +157,8 @@ struct name {
     struct grouping * grouping; /* for grouping names */
     byte referenced;
     byte used_in_among;         /* Function used in among? */
+    byte value_used;            /* (For variables) is its value ever used? */
+    byte initialised;           /* (For variables) is it ever initialised? */
     struct node * used;         /* First use, or NULL if not used */
     struct name * local_to;     /* Local to one routine/external */
     int declaration_line_number;/* Line number of declaration */

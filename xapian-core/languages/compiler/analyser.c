@@ -303,6 +303,8 @@ handle_as_name:
                     p->referenced = false;
                     p->used_in_among = false;
                     p->used = 0;
+                    p->value_used = false;
+                    p->initialised = false;
                     p->local_to = 0;
                     p->grouping = 0;
                     p->definition = 0;
@@ -404,6 +406,7 @@ static struct node * read_AE(struct analyser * a, int B) {
         case c_name:
             p = new_node(a, c_name);
             name_to_node(a, p, 'i');
+            if (p->name) p->name->value_used = true;
             break;
         case c_maxint:
         case c_minint:
@@ -719,8 +722,11 @@ static struct node * read_C(struct analyser * a) {
         case c_loop:
         case c_atleast:
             return C_style(a, "AC", token);
-        case c_setmark:
-            return C_style(a, "i", token);
+        case c_setmark: {
+            struct node * n = C_style(a, "i", token);
+            if (n->name) n->name->initialised = true;
+            return n;
+        }
         case c_tomark:
         case c_atmark:
         case c_hop:
@@ -738,20 +744,31 @@ static struct node * read_C(struct analyser * a) {
         case c_debug:
             return C_style(a, "", token);
         case c_assignto:
-        case c_sliceto:
+        case c_sliceto: {
+            struct node *n;
             check_modifyable(a);
-            return C_style(a, "s", token);
+            n = C_style(a, "s", token);
+            if (n->name) n->name->initialised = true;
+            return n;
+        }
         case c_assign:
         case c_insert:
         case c_attach:
-        case c_slicefrom:
+        case c_slicefrom: {
+            struct node *n;
             check_modifyable(a);
-            return C_style(a, "S", token);
+            n = C_style(a, "S", token);
+            if (n->name) n->name->value_used = true;
+            return n;
+        }
         case c_setlimit:
             return C_style(a, "CfD", token);
         case c_set:
-        case c_unset:
-            return C_style(a, "b", token);
+        case c_unset: {
+            struct node * n = C_style(a, "b", token);
+            if (n->name) n->name->initialised = true;
+            return n;
+        }
         case c_dollar:
             get_token(a, c_name);
             {
@@ -769,6 +786,11 @@ static struct node * read_C(struct analyser * a) {
                          * an error avalanche. */
                         /* fall through */
                     case t_string:
+			/* Assume for now that $ on string both initialises and
+			 * uses the string variable.  FIXME: Can we do better?
+			 */
+			q->initialised = true;
+			q->value_used = true;
                         a->mode = m_forward;
                         a->modifyable = true;
                         p = new_node(a, c_dollar);
@@ -776,7 +798,27 @@ static struct node * read_C(struct analyser * a) {
                     case t_integer:
                     /*  a->mode = m_integer;  */
                         p = new_node(a, read_AE_test(a));
-                        p->AE = read_AE(a, 0); break;
+                        p->AE = read_AE(a, 0);
+                        if (q) {
+                            /* +=, etc don't "initialise" as they only amend an
+                             * existing value.  Similarly, they don't count as
+                             * using the value.
+                             */
+                            switch (p->type) {
+                                case c_mathassign:
+                                    q->initialised = true;
+                                    break;
+                                case c_eq:
+                                case c_ne:
+                                case c_gr:
+                                case c_ge:
+                                case c_ls:
+                                case c_le:
+                                    q->value_used = true;
+                                    break;
+                            }
+                        }
+                        break;
                 }
                 if (q) mark_used_in(a, q, p);
                 p->name = q;
@@ -792,10 +834,14 @@ static struct node * read_C(struct analyser * a) {
                     mark_used_in(a, q, p);
                     switch (q->type) {
                         case t_boolean:
-                            p->type = c_booltest; break;
+                            p->type = c_booltest;
+                            q->value_used = true;
+                            break;
                         case t_integer:
                             error(a, e_misplaced); /* integer name misplaced */
+                            break;
                         case t_string:
+                            q->value_used = true;
                             break;
                         case t_routine:
                         case t_external:
@@ -1030,20 +1076,39 @@ extern void read_program(struct analyser * a) {
                 } else {
                     fprintf(stderr, "' defined but not used\n");
                 }
-            } else if (!q->used &&
-                       (q->type == t_routine || q->type == t_grouping)) {
-                int line_num;
-                if (q->type == t_routine) {
-                    line_num = q->definition->line_number;
-                } else {
-                    line_num = q->grouping->line_number;
+            } else if (q->type == t_routine || q->type == t_grouping) {
+                if (!q->used) {
+                    int line_num;
+                    if (q->type == t_routine) {
+                        line_num = q->definition->line_number;
+                    } else {
+                        line_num = q->grouping->line_number;
+                    }
+                    fprintf(stderr, "%s:%d: warning: %s '",
+                            a->tokeniser->file,
+                            line_num,
+                            name_of_name_type(q->type));
+                    report_b(stderr, q->b);
+                    fprintf(stderr, "' defined but not used\n");
                 }
+            } else if (q->type == t_external) {
+                /* Unused is OK. */
+            } else if (!q->initialised) {
+                count_error(a);
                 fprintf(stderr, "%s:%d: warning: %s '",
                         a->tokeniser->file,
-                        line_num,
+                        q->declaration_line_number,
                         name_of_name_type(q->type));
                 report_b(stderr, q->b);
-                fprintf(stderr, "' defined but not used\n");
+                fprintf(stderr, "' is never initialised\n");
+            } else if (!q->value_used) {
+                count_error(a);
+                fprintf(stderr, "%s:%d: warning: %s '",
+                        a->tokeniser->file,
+                        q->declaration_line_number,
+                        name_of_name_type(q->type));
+                report_b(stderr, q->b);
+                fprintf(stderr, "' is set but never used\n");
             }
             q = q->next;
         }
