@@ -1,6 +1,6 @@
 /* htmlparsetest.cc: test the MyHtmlParser class
  *
- * Copyright (C) 2006,2008,2011,2012,2013,2015,2016 Olly Betts
+ * Copyright (C) 2006,2008,2011,2012,2013,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,6 +52,12 @@ static const testcase tests[] = {
     { "<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><meta charset='utf-8'><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><title>\xc2\xae</title><meta charset=\"utf-8\"></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    // Check we default to UTF-8 for HTML5.
+    { "<!DOCTYPE html><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!Doctype\tHTML  ><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!Doctype  HTML\t><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!DOCTYPE system 'about:legacy-compat'><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!doctype SyStem \"about:legacy-compat\" ><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
     { "Foo<![CDATA[ & bar <literal>\"]]> ok", "Foo & bar <literal>\" ok", "", "", "" },
     { "Foo<![CDATA", "Foo", "", "", "" },
