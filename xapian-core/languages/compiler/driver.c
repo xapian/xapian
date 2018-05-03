@@ -99,7 +99,7 @@ static int read_options(struct options * o, int argc, char * argv[]) {
     o->package = DEFAULT_PACKAGE;
     o->go_package = DEFAULT_GO_PACKAGE;
     o->go_snowball_runtime = DEFAULT_GO_SNOWBALL_RUNTIME;
-    o->name = "";
+    o->name = NULL;
     o->make_lang = LANG_C;
     o->includes = 0;
     o->includes_end = 0;
@@ -271,6 +271,66 @@ static int read_options(struct options * o, int argc, char * argv[]) {
 	}
     }
     if (!o->externals_prefix) o->externals_prefix = "";
+
+    if (!o->name && o->output_file) {
+        /* Default class name to basename of output_file - this is the standard
+         * convention for at least Java and C#.
+         */
+        const char * slash = strrchr(o->output_file, '/');
+        size_t len;
+        const char * leaf = (slash == NULL) ? o->output_file : slash + 1;
+
+        slash = strrchr(leaf, '\\');
+        if (slash != NULL) leaf = slash + 1;
+
+        {
+            const char * dot = strchr(leaf, '.');
+            len = (dot == NULL) ? strlen(leaf) : (size_t)(dot - leaf);
+        }
+
+        {
+            char * new_name = malloc(len + 1);
+            switch (o->make_lang) {
+                case LANG_CSHARP:
+                    /* Upper case initial letter. */
+                    memcpy(new_name, leaf, len);
+                    new_name[0] = toupper(new_name[0]);
+                    break;
+                case LANG_JAVASCRIPT:
+                case LANG_PYTHON: {
+                    /* Upper case initial letter and change each
+                     * underscore+letter or hyphen+letter to an upper case
+                     * letter.
+                     */
+                    int i, j = 0;
+                    int uc_next = true;
+                    for (i = 0; i != len; ++i) {
+			unsigned char ch = leaf[i];
+                        if (ch == '_' || ch == '-') {
+                            uc_next = true;
+                        } else {
+                            if (uc_next) {
+                                new_name[j] = toupper(ch);
+                                uc_next = false;
+                            } else {
+                                new_name[j] = ch;
+                            }
+                            ++j;
+                        }
+                    }
+                    len = j;
+                    break;
+                }
+                default:
+                    /* Just copy. */
+                    memcpy(new_name, leaf, len);
+                    break;
+            }
+            new_name[len] = '\0';
+            o->name = new_name;
+        }
+    }
+
     return new_argc;
 }
 

@@ -388,9 +388,11 @@ static void generate_AE(struct generator * g, struct node * p) {
    elaborated almost indefinitely.
 */
 
-extern int K_needed(struct generator * g, struct node * p) {
+static int K_needed_(struct generator * g, struct node * p, int call_depth) {
     while (p) {
         switch (p->type) {
+            case c_atlimit:
+            case c_do:
             case c_dollar:
             case c_leftslice:
             case c_rightslice:
@@ -407,17 +409,27 @@ extern int K_needed(struct generator * g, struct node * p) {
             case c_le:
             case c_sliceto:
             case c_booltest:
+            case c_set:
+            case c_unset:
             case c_true:
             case c_false:
             case c_debug:
                 break;
 
             case c_call:
-                if (K_needed(g, p->name->definition)) return true;
+                /* Recursive functions aren't typical in snowball programs, so
+                 * make the pessimistic assumption that keep is needed if we
+                 * hit a generous limit on recursion.  It's not likely to make
+                 * a difference to any real world program, but means we won't
+                 * recurse until we run out of stack for pathological cases.
+                 */
+                if (call_depth >= 100) return true;
+                if (K_needed_(g, p->name->definition, call_depth + 1))
+                    return true;
                 break;
 
             case c_bra:
-                if (K_needed(g, p->left)) return true;
+                if (K_needed_(g, p->left, call_depth)) return true;
                 break;
 
             default: return true;
@@ -427,7 +439,11 @@ extern int K_needed(struct generator * g, struct node * p) {
     return false;
 }
 
-static int repeat_score(struct generator * g, struct node * p) {
+extern int K_needed(struct generator * g, struct node * p) {
+    return K_needed_(g, p, 0);
+}
+
+static int repeat_score(struct generator * g, struct node * p, int call_depth) {
     int score = 0;
     while (p) {
         switch (p->type) {
@@ -450,11 +466,25 @@ static int repeat_score(struct generator * g, struct node * p) {
                 break;
 
             case c_call:
-                score += repeat_score(g, p->name->definition);
+                /* Recursive functions aren't typical in snowball programs, so
+                 * make the pessimistic assumption that repeat requires cursor
+                 * reinstatement if we hit a generous limit on recursion.  It's
+                 * not likely to make a difference to any real world program,
+                 * but means we won't recurse until we run out of stack for
+                 * pathological cases.
+                 */
+                if (call_depth >= 100) {
+                    return 2;
+                }
+                score += repeat_score(g, p->name->definition, call_depth + 1);
+                if (score >= 2)
+                    return score;
                 break;
 
             case c_bra:
-                score += repeat_score(g, p->left);
+                score += repeat_score(g, p->left, call_depth);
+                if (score >= 2)
+                    return score;
                 break;
 
             case c_name:
@@ -463,12 +493,12 @@ static int repeat_score(struct generator * g, struct node * p) {
             case c_grouping:
             case c_non:
             case c_hop:
-                score = score + 1;
+                if (++score >= 2)
+                    return score;
                 break;
 
             default:
-                score = 2;
-                break;
+                return 2;
         }
         p = p->right;
     }
@@ -478,7 +508,7 @@ static int repeat_score(struct generator * g, struct node * p) {
 /* tests if an expression requires cursor reinstatement in a repeat */
 
 extern int repeat_restore(struct generator * g, struct node * p) {
-    return repeat_score(g, p) >= 2;
+    return repeat_score(g, p, 0) >= 2;
 }
 
 static void generate_bra(struct generator * g, struct node * p) {
@@ -936,15 +966,49 @@ static void generate_slicefrom(struct generator * g, struct node * p) {
 
 static void generate_setlimit(struct generator * g, struct node * p) {
     int keep_c;
-    writef(g, "~{~K~C", p);
-    keep_c = g->keep_count;
-    generate(g, p->left);
+    if (p->left && p->left->type == c_tomark && !p->left->right) {
+        /* Special case for:
+         *
+         *   setlimit tomark AE for C
+         *
+         * All uses of setlimit in the current stemmers we ship follow this
+         * pattern, and by special-casing we can avoid having to save and
+         * restore c.
+         */
+        struct node * q = p->left;
 
-    w(g, "~Mmlimit");
-    write_int(g, keep_c);
-    if (p->mode == m_forward) w(g, " = ~zl - ~zc; ~zl = ~zc;~N");
-                         else w(g, " = ~zlb; ~zlb = ~zc;~N");
-    w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
+        ++g->keep_count;
+        writef(g, "~N~{int mlimit", p);
+        write_int(g, g->keep_count);
+        writef(g, ";~C", p);
+        keep_c = g->keep_count;
+
+        g->S[0] = q->mode == m_forward ? ">" : "<";
+
+        w(g, "~Mif (~zc ~S0 "); generate_AE(g, q->AE); writef(g, ") ~f~N", q);
+        w(g, "~Mmlimit");
+        write_int(g, keep_c);
+        if (p->mode == m_forward) {
+            w(g, " = ~zl - ~zc; ~zl = ");
+        } else {
+            w(g, " = ~zlb; ~zlb = ");
+        }
+        generate_AE(g, q->AE);
+        w(g, ";~N");
+    } else {
+        writef(g, "~{~K~C", p);
+        keep_c = g->keep_count;
+        generate(g, p->left);
+
+        w(g, "~Mmlimit");
+        write_int(g, keep_c);
+        if (p->mode == m_forward)
+            w(g, " = ~zl - ~zc; ~zl = ~zc;~N");
+        else
+            w(g, " = ~zlb; ~zlb = ~zc;~N");
+        w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
+    }
+
     g->failure_keep_count = -keep_c;
     generate(g, p->aux);
     w(g, "~M");
@@ -1063,7 +1127,7 @@ static void generate_literalstring(struct generator * g, struct node * p) {
         /* It's quite common to compare with a single character literal string,
          * so just inline the simpler code for this case rather than making a
          * function call.  In UTF-8 mode, only do this for the ASCII subset,
-         * since multi-byte characters are more complex to text against.
+         * since multi-byte characters are more complex to test against.
          */
         if (g->options->encoding == ENC_UTF8 && *b >= 128) {
             printf("single byte %d\n", *b);
