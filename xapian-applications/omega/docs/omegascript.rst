@@ -630,9 +630,13 @@ $snippet{TEXT[,LENGTH]}
         ``Xapian::MSet::snippet()``.  The snippet will be at most
         ``LENGTH`` bytes long (default: 200).
 
-$sort{LIST}
+$sort{LIST[,OPTIONS]}
         sort the entries in a list.  The sort order is an ascending string sort
-        by byte value.
+        by byte value by default.  ``OPTIONS`` is zero or more of the following
+        characters which control the sort operation:
+
+        * ``r`` : reverse the sort order
+        * ``u`` : output only the first of an equal run
 
 $split{STRING}
 
