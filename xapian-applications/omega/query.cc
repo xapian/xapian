@@ -1138,7 +1138,7 @@ T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 2, N, M), // generate snippet from text
-T(sort,		   1, 1, N, M), // alpha sort a list
+T(sort,		   1, 2, N, M), // alpha sort a list
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
@@ -2132,6 +2132,22 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_sort: {
 		const string &list = args[0];
 		if (list.empty()) break;
+		bool uniq = false;
+		bool rev = false;
+		if (args.size() > 1) {
+		    for (auto opt_ch : args[1]) {
+			switch (opt_ch) {
+			    case 'r':
+				rev = true;
+				break;
+			    case 'u':
+				uniq = true;
+				break;
+			    default:
+				throw string("Unknown $sort option: ") + opt_ch;
+			}
+		    }
+		}
 		vector<string> items;
 		string::size_type split = 0, split2;
 		do {
@@ -2140,11 +2156,27 @@ eval(const string &fmt, const vector<string> &param)
 		    split = split2 + 1;
 		} while (split2 != string::npos);
 
-		sort(items.begin(), items.end());
+		if (!rev) {
+		    sort(items.begin(), items.end());
+		} else {
+		    sort(items.begin(), items.end(),
+			 [](const string& a, const string& b) {
+			     return a > b;
+			 });
+		}
 
 		value.reserve(list.size());
 		bool tab = false;
+		const string* prev = nullptr;
 		for (auto&& item : items) {
+		    // Skip duplicates if "u" flag specified.
+		    if (prev && *prev == item) {
+			continue;
+		    }
+		    if (uniq) {
+			prev = &item;
+		    }
+
 		    if (tab) {
 			value += '\t';
 		    } else {

@@ -365,6 +365,14 @@ printf '$list{$sort{$split{|,$cgi{input}}},|}' > "$TEST_TEMPLATE"
 testcase 'pineapple' input="pineapple"
 testcase 'apple|banana|coconut' input="coconut|banana|apple"
 testcase '1|b|b|c' input="b|c|b|1"
+printf '$list{$sort{$split{|,$cgi{input}},$cgi{opt}},|}' > "$TEST_TEMPLATE"
+testcase 'pineapple' input="pineapple" opt=
+testcase 'pineapple' input="pineapple" opt=r
+testcase 'pineapple' input="pineapple" opt=ru
+testcase '1|b|c' input="b|c|b|1" opt=u
+testcase 'c|b|b|1' input="b|c|b|1" opt=r
+testcase 'c|b|1' input="b|c|b|1" opt=ur
+testcase 'Exception: Unknown $sort option: x' input="b|c|b|1" opt=urx
 
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
