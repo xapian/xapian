@@ -429,8 +429,42 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 
 #if defined SWIGCSHARP || defined SWIGJAVA
 
-/* xapian/dbfactory.h is currently wrapped via fake class declarations in
- * fake_dbfactory.i for C# and Java. */
+/* C# and Java don't allow functions outside a class so we can't use SWIG's
+ * %nspace feature here.  Instead we pretend to SWIG that the C++
+ * Xapian::Remote namespace is actually a Xapian::Remote class with public
+ * static functions.  The code SWIG generates will work fine, and we get
+ * xapian.Remote.open() in Java and Xapian.Remote.open() in C#.
+ */
+
+namespace Xapian {
+
+class Remote {
+    // Private constructor and destructor so SWIG doesn't try to call them.
+    Remote();
+    ~Remote();
+  public:
+    static Database open(const std::string &host,
+			 unsigned int port,
+			 unsigned timeout = 10000,
+			 unsigned connect_timeout = 10000);
+
+    static WritableDatabase open_writable(const std::string &host,
+					  unsigned int port,
+					  unsigned timeout = 0,
+					  unsigned connect_timeout = 10000,
+					  int flags = 0);
+
+    static Database open(const std::string &program,
+			 const std::string &args,
+			 unsigned timeout = 10000);
+
+    static WritableDatabase open_writable(const std::string &program,
+					  const std::string &args,
+					  unsigned timeout = 0,
+					  int flags = 0);
+};
+
+}
 
 #else
 

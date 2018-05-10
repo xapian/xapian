@@ -254,4 +254,3 @@ namespace Xapian {
 
 %include ../generic/except.i
 %include ../xapian-headers.i
-%include ../fake_dbfactory.i

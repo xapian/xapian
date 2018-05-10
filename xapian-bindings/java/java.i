@@ -460,4 +460,3 @@ typedef std::string binary_std_string;
 
 %include ../generic/except.i
 %include ../xapian-headers.i
-%include ../fake_dbfactory.i

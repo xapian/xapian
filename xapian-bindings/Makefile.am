@@ -6,7 +6,7 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-EXTRA_DIST = fake_dbfactory.i xapian-head.i xapian-headers.i generic/except.i \
+EXTRA_DIST = xapian-head.i xapian-headers.i generic/except.i \
     generic/generate-generic-exceptions \
     swig-depcomp \
     xapian-bindings.spec shortstop.list skiptest \
