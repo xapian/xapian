@@ -28,7 +28,7 @@ SmokeTest: SmokeTest.class
 
 # To get debug symbols, use: make JAVACFLAGS=-g
 .java.class:
-	$(JAVAC) $(JAVACFLAGS) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
+	$(JAVAC) $(JAVACFLAGS) -classpath .$(JAVA_PATHSEP)$(srcdir) -d . $<
 
 XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/BB2Weight.java\
