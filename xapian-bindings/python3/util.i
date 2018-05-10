@@ -1,8 +1,6 @@
 %{
 /* python/util.i: custom Python typemaps for xapian-bindings
  *
- * Copyright (C) 1999,2000,2001 BrightStation PLC
- * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
  * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016,2017 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
