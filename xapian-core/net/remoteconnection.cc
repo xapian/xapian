@@ -177,13 +177,15 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	    }
 
 	    // Use select to wait until there is data or the timeout is reached.
-	    fd_set fdset;
-	    FD_ZERO(&fdset);
-	    FD_SET(fdin, &fdset);
+	    fd_set rfdset, efdset;
+	    FD_ZERO(&rfdset);
+	    FD_SET(fdin, &rfdset);
+	    FD_ZERO(&efdset);
+	    FD_SET(fdin, &efdset);
 
 	    struct timeval tv;
 	    RealTime::to_timeval(time_diff, &tv);
-	    int select_result = select(fdin + 1, &fdset, 0, &fdset, &tv);
+	    int select_result = select(fdin + 1, &rfdset, 0, &efdset, &tv);
 	    if (select_result > 0) break;
 
 	    if (select_result == 0)
@@ -211,9 +213,11 @@ RemoteConnection::ready_to_read() const
     if (!buffer.empty()) RETURN(true);
 
     // Use select to see if there's data available to be read.
-    fd_set fdset;
-    FD_ZERO(&fdset);
-    FD_SET(fdin, &fdset);
+    fd_set rfdset, efdset;
+    FD_ZERO(&rfdset);
+    FD_SET(fdin, &rfdset);
+    FD_ZERO(&efdset);
+    FD_SET(fdin, &efdset);
 
     // Set a 0.1 second timeout to avoid a busy loop.
     // FIXME: this would be much better done by exposing the fd so that the
@@ -221,7 +225,7 @@ RemoteConnection::ready_to_read() const
     struct timeval tv;
     tv.tv_sec = 0;
     tv.tv_usec = 100000;
-    RETURN(select(fdin + 1, &fdset, 0, &fdset, &tv) > 0);
+    RETURN(select(fdin + 1, &rfdset, 0, &efdset, &tv) > 0);
 }
 
 void
@@ -281,7 +285,7 @@ RemoteConnection::send_message(char type, const string &message,
 
     const string * str = &header;
 
-    fd_set fdset;
+    fd_set wfdset, efdset;
     size_t count = 0;
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
@@ -305,8 +309,10 @@ RemoteConnection::send_message(char type, const string &message,
 	    throw Xapian::NetworkError("write failed", context, errno);
 
 	// Use select to wait until there is space or the timeout is reached.
-	FD_ZERO(&fdset);
-	FD_SET(fdout, &fdset);
+	FD_ZERO(&wfdset);
+	FD_SET(fdout, &wfdset);
+	FD_ZERO(&efdset);
+	FD_SET(fdout, &efdset);
 
 	double time_diff = end_time - RealTime::now();
 	if (time_diff < 0) {
@@ -316,7 +322,7 @@ RemoteConnection::send_message(char type, const string &message,
 
 	struct timeval tv;
 	RealTime::to_timeval(time_diff, &tv);
-	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
+	int select_result = select(fdout + 1, 0, &wfdset, &efdset, &tv);
 
 	if (select_result < 0) {
 	    if (errno == EINTR) {
@@ -406,7 +412,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 				   context, errno);
     }
 
-    fd_set fdset;
+    fd_set wfdset, efdset;
     size_t count = 0;
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
@@ -438,8 +444,10 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    throw Xapian::NetworkError("write failed", context, errno);
 
 	// Use select to wait until there is space or the timeout is reached.
-	FD_ZERO(&fdset);
-	FD_SET(fdout, &fdset);
+	FD_ZERO(&wfdset);
+	FD_SET(fdout, &wfdset);
+	FD_ZERO(&efdset);
+	FD_SET(fdout, &efdset);
 
 	double time_diff = end_time - RealTime::now();
 	if (time_diff < 0) {
@@ -449,7 +457,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 
 	struct timeval tv;
 	RealTime::to_timeval(time_diff, &tv);
-	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
+	int select_result = select(fdout + 1, 0, &wfdset, &efdset, &tv);
 
 	if (select_result < 0) {
 	    if (errno == EINTR) {
@@ -665,12 +673,14 @@ RemoteConnection::do_close(bool wait)
 #else
 	    // Wait for the connection to be closed - when this happens
 	    // select() will report that a read won't block.
-	    fd_set fdset;
-	    FD_ZERO(&fdset);
-	    FD_SET(fdin, &fdset);
+	    fd_set rfdset, efdset;
+	    FD_ZERO(&rfdset);
+	    FD_SET(fdin, &rfdset);
+	    FD_ZERO(&efdset);
+	    FD_SET(fdin, &efdset);
 	    int res;
 	    do {
-		res = select(fdin + 1, &fdset, 0, &fdset, NULL);
+		res = select(fdin + 1, &rfdset, 0, &efdset, NULL);
 	    } while (res < 0 && errno == EINTR);
 #endif
 	}
