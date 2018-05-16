@@ -79,7 +79,7 @@ snowball_stopwords = \
 if VPATH_BUILD
 	$(MKDIR_P) languages/stopwords
 endif
-	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $< |sort|uniq > $@
+	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $< |LC_COLLATE=C sort|uniq > $@
 
 if MAINTAINER_MODE
 $(snowball_built_sources): languages/snowball $(snowball_algorithms)
