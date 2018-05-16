@@ -68,6 +68,7 @@ snowball_stopwords = \
 	languages/stopwords/french.txt\
 	languages/stopwords/german.txt\
 	languages/stopwords/hungarian.txt\
+	languages/stopwords/indonesian.txt\
 	languages/stopwords/italian.txt\
 	languages/stopwords/norwegian.txt\
 	languages/stopwords/portuguese.txt\
