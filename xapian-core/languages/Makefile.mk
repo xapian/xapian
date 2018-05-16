@@ -80,7 +80,7 @@ snowball_stopwords = \
 if VPATH_BUILD
 	$(MKDIR_P) languages/stopwords
 endif
-	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $< |LC_COLLATE=C sort|uniq > $@
+	$(SED) 's/[	 ]*|.*//;/^[	 ]*$$/d' < $< |LC_COLLATE=C sort|uniq > $@
 
 if MAINTAINER_MODE
 $(snowball_built_sources): languages/snowball $(snowball_algorithms)
@@ -91,10 +91,10 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 	    `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
 
 .sbl.cc:
-	languages/snowball $< -o `echo $@|sed 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
+	languages/snowball $< -o `echo $@|$(SED) 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
 .sbl.h:
-	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
+	languages/snowball $< -o `echo $@|$(SED) 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
 languages/allsnowballheaders.h: languages/sbl-dispatch.h
 languages/sbl-dispatch.h languages/allsnowballheaders.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
