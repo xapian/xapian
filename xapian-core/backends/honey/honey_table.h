@@ -97,20 +97,16 @@ class BufferedFile {
 //	if (fd >= 0) ::close(fd);
     }
 
-    void close() {
+    void close(bool fd_owned) {
 	if (fd >= 0) {
-	    ::close(fd);
+	    if (fd_owned) ::close(fd);
 	    fd = -1;
 	}
     }
 
-    void force_close() {
-	close();
+    void force_close(bool fd_owned) {
+	close(fd_owned);
 	fd = FORCED_CLOSE;
-    }
-
-    void reset_fd(bool permanent) {
-	fd = permanent ? FORCED_CLOSE : -1;
     }
 
     bool is_open() const { return fd >= 0; }
@@ -561,10 +557,8 @@ class HoneyTable {
 		      << index.get_num_entries() << " entries; total_size = "
 		      << total_index_size << std::endl;
 #endif
-	if (!single_file())
-	    fh.close();
-	else
-	    fh.reset_fd(false);
+	bool fd_owned = !single_file();
+	fh.close(fd_owned);
     }
 
     bool is_writable() const { return !read_only; }
@@ -581,14 +575,11 @@ class HoneyTable {
 	      honey_revision_number_t);
 
     void close(bool permanent) {
-	if (!single_file()) {
-	    if (permanent)
-		fh.force_close();
-	    else
-		fh.close();
-	} else {
-	    fh.reset_fd(permanent);
-	}
+	bool fd_owned = !single_file();
+	if (permanent)
+	    fh.force_close(fd_owned);
+	else
+	    fh.close(fd_owned);
     }
 
     const std::string& get_path() const { return path; }
