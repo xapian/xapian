@@ -40,6 +40,9 @@
 /// Maximum key length.
 #define HONEY_MAX_KEY_LEN 255
 
+// Maximum size of a document length chunk in bytes.
+#define HONEY_DOCLEN_CHUNK_MAX 2016
+
 /** The largest docid value supported by honey.
  *
  *  The disk format supports 64-bit docids, but if Xapian::docid is narrower

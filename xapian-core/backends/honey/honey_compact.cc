@@ -768,16 +768,55 @@ merge_postlists(Xapian::Compactor * compactor,
     // Merge doclen chunks.
     while (!pq.empty()) {
 	cursor_type * cur = pq.top();
-	string & key = cur->key;
-	if (key_type(key) != Honey::KEY_DOCLEN_CHUNK) break;
-	key = Honey::make_doclenchunk_key(cur->chunk_lastdid);
-	out->add(key, cur->tag);
+	if (key_type(cur->key) != Honey::KEY_DOCLEN_CHUNK) break;
+	string tag = std::move(cur->tag);
+	auto chunk_lastdid = cur->chunk_lastdid;
 	pq.pop();
 	if (cur->next()) {
 	    pq.push(cur);
 	} else {
 	    delete cur;
 	}
+	while (!pq.empty()) {
+	    cur = pq.top();
+	    if (key_type(cur->key) != Honey::KEY_DOCLEN_CHUNK)
+		break;
+	    auto new_size = tag.size();
+	    Xapian::docid gap_size = cur->firstdid - chunk_lastdid - 1;
+	    new_size += gap_size * 4;
+	    if (new_size >= HONEY_DOCLEN_CHUNK_MAX) {
+		// The gap spans beyond HONEY_DOCLEN_CHUNK_MAX.
+		break;
+	    }
+	    new_size += cur->tag.size();
+	    auto full_new_size = new_size;
+	    if (new_size > HONEY_DOCLEN_CHUNK_MAX)
+		new_size = HONEY_DOCLEN_CHUNK_MAX;
+	    tag.reserve(new_size);
+	    tag.append(4 * gap_size, '\xff');
+	    if (new_size != full_new_size) {
+		// Partial copy.
+		auto copy_size = new_size - tag.size();
+		tag.append(cur->tag, 0, copy_size);
+		cur->tag.erase(0, copy_size);
+		copy_size /= 4;
+		cur->firstdid += copy_size;
+		chunk_lastdid += gap_size;
+		chunk_lastdid += copy_size;
+		break;
+	    }
+
+	    tag += cur->tag;
+	    chunk_lastdid = cur->chunk_lastdid;
+
+	    pq.pop();
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
+	}
+	out->add(Honey::make_doclenchunk_key(chunk_lastdid), tag);
     }
 
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
@@ -816,11 +855,6 @@ merge_postlists(Xapian::Compactor * compactor,
 		Xapian::docid last_did = tags.back().last;
 		Xapian::termcount wdf_max = tags.back().wdf_max;
 
-		string first_tag;
-		encode_initial_chunk_header(tf, cf, tags[0].first, last_did,
-					    chunk_lastdid,
-					    first_wdf, wdf_max, first_tag);
-
 		bool have_wdfs = true;
 		if (cf == 0) {
 		    // wdf must always be zero.
@@ -843,6 +877,19 @@ merge_postlists(Xapian::Compactor * compactor,
 		    }
 		}
 
+		Xapian::docid splice_last = 0;
+		if (!have_wdfs && tf > 2 && tags.size() > 1) {
+		    // Stripping wdfs will approximately halve the size so
+		    // double up the chunks.
+		    splice_last = chunk_lastdid;
+		    chunk_lastdid = tags[1].last;
+		}
+
+		string first_tag;
+		encode_initial_chunk_header(tf, cf, tags[0].first, last_did,
+					    chunk_lastdid,
+					    first_wdf, wdf_max, first_tag);
+
 		if (tf > 2) {
 		    if (have_wdfs) {
 			first_tag += tags[0].data;
@@ -863,6 +910,26 @@ merge_postlists(Xapian::Compactor * compactor,
 			    // wdfs.
 			    (void)wdf;
 			}
+
+			if (splice_last) {
+			    pack_uint(first_tag, tags[1].first - splice_last);
+			    pos = tags[1].data.data();
+			    pos_end = pos + tags[1].data.size();
+			    while (pos != pos_end) {
+				Xapian::docid delta;
+				if (!unpack_uint(&pos, pos_end, &delta))
+				    throw_database_corrupt("Decoding docid "
+							   "delta", pos);
+				pack_uint(first_tag, delta);
+				Xapian::termcount wdf;
+				if (!unpack_uint(&pos, pos_end, &wdf))
+				    throw_database_corrupt("Decoding wdf",
+							   pos);
+				// Only copy over the docid deltas, not the
+				// wdfs.
+				(void)wdf;
+			    }
+			}
 		    }
 		}
 		out->add(last_key, first_tag);
@@ -880,10 +947,12 @@ merge_postlists(Xapian::Compactor * compactor,
 		    }
 
 		    auto i = tags.begin();
+		    if (splice_last) {
+			splice_last = 0;
+			++i;
+		    }
 		    while (++i != tags.end()) {
 			last_did = i->last;
-			const string& key = pack_honey_postlist_key(term,
-								    last_did);
 			string tag;
 			if (have_wdfs) {
 			    encode_delta_chunk_header(i->first,
@@ -892,6 +961,11 @@ merge_postlists(Xapian::Compactor * compactor,
 						      tag);
 			    tag += i->data;
 			} else {
+			    if (i + 1 != tags.end()) {
+				splice_last = last_did;
+				last_did = (i + 1)->last;
+			    }
+
 			    encode_delta_chunk_header_no_wdf(i->first,
 							     last_did,
 							     tag);
@@ -911,9 +985,30 @@ merge_postlists(Xapian::Compactor * compactor,
 				// wdfs.
 				(void)wdf;
 			    }
+			    if (splice_last) {
+				++i;
+				pack_uint(tag, i->first - splice_last);
+				splice_last = 0;
+				pos = i->data.data();
+				pos_end = pos + i->data.size();
+				while (pos != pos_end) {
+				    Xapian::docid delta;
+				    if (!unpack_uint(&pos, pos_end, &delta))
+					throw_database_corrupt("Decoding docid "
+							       "delta", pos);
+				    pack_uint(tag, delta);
+				    Xapian::termcount wdf;
+				    if (!unpack_uint(&pos, pos_end, &wdf))
+					throw_database_corrupt("Decoding wdf",
+							       pos);
+				    // Only copy over the docid deltas, not the
+				    // wdfs.
+				    (void)wdf;
+				}
+			    }
 			}
 
-			out->add(key, tag);
+			out->add(pack_honey_postlist_key(term, last_did), tag);
 		    }
 		}
 	    }
