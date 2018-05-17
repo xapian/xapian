@@ -68,14 +68,14 @@ const uint4 BLK_UNUSED = uint4(-1);
 
 class HoneyFreeListChecker;
 
-const int FORCED_CLOSE = -2;
-
 class BufferedFile {
     int fd = -1;
     mutable off_t pos = 0;
     bool read_only = true;
     mutable size_t buf_end = 0;
     mutable char buf[4096];
+
+    const int FORCED_CLOSE = -2;
 
   public:
     BufferedFile() { }
