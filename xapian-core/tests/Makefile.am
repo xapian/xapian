@@ -107,6 +107,7 @@ collated_apitest_sources = \
  api_generated.cc \
  api_geospatial.cc \
  api_matchspy.cc \
+ api_mathtermgen.cc \
  api_metadata.cc \
  api_nodb.cc \
  api_none.cc \
