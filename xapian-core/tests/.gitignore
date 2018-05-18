@@ -39,6 +39,7 @@
 /api_generated.h
 /api_geospatial.h
 /api_matchspy.h
+/api_mathtermgen.h
 /api_metadata.h
 /api_nodb.h
 /api_none.h
