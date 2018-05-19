@@ -131,7 +131,10 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 	bool fail = false;
 	struct stat statbuf;
 	if (stat(db_dir.c_str(), &statbuf) == 0) {
-	    if (!S_ISDIR(statbuf.st_mode)) fail = true;
+	    if (!S_ISDIR(statbuf.st_mode)) {
+		errno = EEXIST;
+		fail = true;
+	    }
 	} else if (errno != ENOENT || mkdir(db_dir.c_str(), 0755) == -1) {
 	    fail = true;
 	}
