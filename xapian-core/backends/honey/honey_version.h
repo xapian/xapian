@@ -37,48 +37,28 @@ namespace Honey {
 
 class RootInfo {
     off_t offset;
-    honey_block_t root;
-    unsigned level;
+    off_t root;
     honey_tablesize_t num_entries;
-    bool root_is_fake;
-    bool sequential;
-    unsigned blocksize;
     /// Should be >= 4 or 0 for no compression.
     uint4 compress_min;
     std::string fl_serialised;
 
   public:
-    void init(unsigned blocksize_, uint4 compress_min_);
+    void init(uint4 compress_min_);
 
     void serialise(std::string &s) const;
 
     bool unserialise(const char ** p, const char * end);
 
     off_t get_offset() const { return offset; }
-    honey_block_t get_root() const { return root; }
-    int get_level() const { return int(level); }
+    off_t get_root() const { return root; }
     honey_tablesize_t get_num_entries() const { return num_entries; }
-    bool get_root_is_fake() const { return root_is_fake; }
-    bool get_sequential() const { return sequential; }
-    unsigned get_blocksize() const {
-	AssertRel(blocksize,>=,HONEY_MIN_BLOCKSIZE);
-	AssertRel(blocksize,<=,HONEY_MAX_BLOCKSIZE);
-	return blocksize;
-    }
     uint4 get_compress_min() const { return compress_min; }
     const std::string & get_free_list() const { return fl_serialised; }
 
-    void set_level(int level_) { level = unsigned(level_); }
     void set_num_entries(honey_tablesize_t n) { num_entries = n; }
-    void set_root_is_fake(bool f) { root_is_fake = f; }
-    void set_sequential(bool f) { sequential = f; }
     void set_offset(off_t offset_) { offset = offset_; }
-    void set_root(honey_block_t root_) { root = root_; }
-    void set_blocksize(unsigned b) {
-	AssertRel(b,>=,HONEY_MIN_BLOCKSIZE);
-	AssertRel(b,<=,HONEY_MAX_BLOCKSIZE);
-	blocksize = b;
-    }
+    void set_root(off_t root_) { root = root_; }
     void set_free_list(const std::string & s) { fl_serialised = s; }
 };
 
@@ -171,7 +151,7 @@ class HoneyVersion {
     ~HoneyVersion();
 
     /** Create the version file. */
-    void create(unsigned blocksize);
+    void create();
 
     /** Read the version file and check it's a version we understand.
      *

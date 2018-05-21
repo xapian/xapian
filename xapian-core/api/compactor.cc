@@ -376,18 +376,20 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 						      "at build time");
 #endif
 	    case Xapian::DB_BACKEND_HONEY:
+		// Honey isn't block based.
+		(void)block_size;
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 		if (output_ptr) {
 		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
 					   Xapian::DB_BACKEND_GLASS,
 					   internals, offset,
-					   block_size, compaction, flags,
+					   compaction, flags,
 					   last_docid);
 		} else {
 		    HoneyDatabase::compact(compactor, NULL, fd,
 					   Xapian::DB_BACKEND_GLASS,
 					   internals, offset,
-					   block_size, compaction, flags,
+					   compaction, flags,
 					   last_docid);
 		}
 		break;
@@ -407,17 +409,19 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	    case 0:
 	    case Xapian::DB_BACKEND_HONEY:
 #ifdef XAPIAN_HAS_HONEY_BACKEND
+		// Honey isn't block based.
+		(void)block_size;
 		if (output_ptr) {
 		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
 					   Xapian::DB_BACKEND_HONEY,
 					   internals, offset,
-					   block_size, compaction, flags,
+					   compaction, flags,
 					   last_docid);
 		} else {
 		    HoneyDatabase::compact(compactor, NULL, fd,
 					   Xapian::DB_BACKEND_HONEY,
 					   internals, offset,
-					   block_size, compaction, flags,
+					   compaction, flags,
 					   last_docid);
 		}
 		break;

@@ -137,15 +137,9 @@ HoneyTable::commit(honey_revision_number_t, RootInfo* root_info)
     if (root < 0)
 	throw Xapian::InvalidOperationError("root not set");
 
-    root_info->set_level(1); // FIXME: number of index levels
     root_info->set_num_entries(num_entries);
-    root_info->set_root_is_fake(false);
-    // Not really meaningful.
-    root_info->set_sequential(true);
     // offset should already be set.
     root_info->set_root(root);
-    // Not really meaningful.
-    root_info->set_blocksize(2048);
     // Not really meaningful.
     // root_info->set_free_list(std::string());
 

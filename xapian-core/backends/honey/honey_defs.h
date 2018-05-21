@@ -35,15 +35,6 @@
  */
 #define HONEY_MIN_DB_SIZE 2048
 
-/// Default B-tree block size.
-#define HONEY_DEFAULT_BLOCKSIZE 8192
-
-/// Minimum B-tree block size.
-#define HONEY_MIN_BLOCKSIZE 2048
-
-/// Maximum B-tree block size.
-#define HONEY_MAX_BLOCKSIZE 65536
-
 /// Maximum key length.
 #define HONEY_MAX_KEY_LEN 255
 

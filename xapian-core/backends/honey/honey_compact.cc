@@ -1483,12 +1483,11 @@ multimerge_postlists(Xapian::Compactor * compactor,
 
 	    HoneyTable * tmptab = new HoneyTable("postlist", dest, false);
 
-	    // Use maximum blocksize for temporary tables.  And don't compress
-	    // entries in temporary tables, even if the final table would do
-	    // so.  Any already compressed entries will get copied in
-	    // compressed form. (FIXME: HoneyTable has no blocksize)
+	    // Don't compress entries in temporary tables, even if the final
+	    // table would do so.  Any already compressed entries will get
+	    // copied in compressed form.
 	    Honey::RootInfo root_info;
-	    root_info.init(65536, 0);
+	    root_info.init(0);
 	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
 	    tmptab->create_and_open(flags, root_info);
 
@@ -1519,12 +1518,11 @@ multimerge_postlists(Xapian::Compactor * compactor,
 
 	    HoneyTable * tmptab = new HoneyTable("postlist", dest, false);
 
-	    // Use maximum blocksize for temporary tables.  And don't compress
-	    // entries in temporary tables, even if the final table would do
-	    // so.  Any already compressed entries will get copied in
-	    // compressed form. (FIXME: HoneyTable has no blocksize)
+	    // Don't compress entries in temporary tables, even if the final
+	    // table would do so.  Any already compressed entries will get
+	    // copied in compressed form.
 	    Honey::RootInfo root_info;
-	    root_info.init(65536, 0);
+	    root_info.init(0);
 	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
 	    tmptab->create_and_open(flags, root_info);
 
@@ -1917,7 +1915,6 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 		       int source_backend,
 		       const vector<const Xapian::Database::Internal*>& sources,
 		       const vector<Xapian::docid>& offset,
-		       size_t block_size,
 		       Xapian::Compactor::compaction_level compaction,
 		       unsigned flags,
 		       Xapian::docid last_docid)
@@ -1973,12 +1970,6 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	}
     }
 
-    if (block_size < HONEY_MIN_BLOCKSIZE ||
-	block_size > HONEY_MAX_BLOCKSIZE ||
-	(block_size & (block_size - 1)) != 0) {
-	block_size = HONEY_DEFAULT_BLOCKSIZE;
-    }
-
     FlintLock lock(destdir ? destdir : "");
     if (!single_file) {
 	string explanation;
@@ -2002,7 +1993,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	version_file_out.reset(new HoneyVersion(destdir));
     }
 
-    version_file_out->create(block_size);
+    version_file_out->create();
     for (size_t i = 0; i != sources.size(); ++i) {
 	if (source_backend == Xapian::DB_BACKEND_GLASS) {
 #ifdef DISABLE_GPL_LIBXAPIAN
