@@ -2045,7 +2045,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 #else
     vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
-    off_t prev_size = block_size;
+    off_t prev_size = 0;
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -2230,7 +2230,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = max(prev_size, off_t(block_size));
+		    off_t old_prev_size = prev_size;
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
@@ -2281,15 +2281,16 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 
     // If compacting to a single file output and all the tables are empty, pad
     // the output so that it isn't mistaken for a stub database when we try to
-    // open it.  For this it needs to be a multiple of 2KB in size.
-    if (single_file && prev_size < off_t(block_size)) {
+    // open it.  For this it needs to at least HONEY_MIN_DB_SIZE in size.
+    if (single_file && prev_size < HONEY_MIN_DB_SIZE) {
+	out_total = HONEY_MIN_DB_SIZE;
 #ifdef HAVE_FTRUNCATE
-	if (ftruncate(fd, block_size) < 0) {
+	if (ftruncate(fd, HONEY_MIN_DB_SIZE) < 0) {
 	    throw Xapian::DatabaseError("Failed to set size of output "
 					"database", errno);
 	}
 #else
-	const off_t off = block_size - 1;
+	const off_t off = HONEY_MIN_DB_SIZE - 1;
 	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
 	    throw Xapian::DatabaseError("Failed to set size of output "
 					"database", errno);
@@ -2326,7 +2327,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 } else {
     vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
-    off_t prev_size = block_size;
+    off_t prev_size = HONEY_MIN_DB_SIZE;
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -2511,7 +2512,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = max(prev_size, off_t(block_size));
+		    off_t old_prev_size = prev_size;
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
@@ -2562,15 +2563,16 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 
     // If compacting to a single file output and all the tables are empty, pad
     // the output so that it isn't mistaken for a stub database when we try to
-    // open it.  For this it needs to be a multiple of 2KB in size.
-    if (single_file && prev_size < off_t(block_size)) {
+    // open it.  For this it needs to at least HONEY_MIN_DB_SIZE in size.
+    if (single_file && prev_size < HONEY_MIN_DB_SIZE) {
+	out_total = HONEY_MIN_DB_SIZE;
 #ifdef HAVE_FTRUNCATE
-	if (ftruncate(fd, block_size) < 0) {
+	if (ftruncate(fd, HONEY_MIN_DB_SIZE) < 0) {
 	    throw Xapian::DatabaseError("Failed to set size of output "
 					"database", errno);
 	}
 #else
-	const off_t off = block_size - 1;
+	const off_t off = HONEY_MIN_DB_SIZE - 1;
 	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
 	    throw Xapian::DatabaseError("Failed to set size of output "
 					"database", errno);

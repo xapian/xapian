@@ -28,6 +28,13 @@
 /// Honey table extension.
 #define HONEY_TABLE_EXTENSION "honey"
 
+/** Minimum size to pad a honey table to.
+ *
+ *  Having this minimum size means we can usually know from the size that a
+ *  stub database file isn't a single file database.
+ */
+#define HONEY_MIN_DB_SIZE 2048
+
 /// Default B-tree block size.
 #define HONEY_DEFAULT_BLOCKSIZE 8192
 
