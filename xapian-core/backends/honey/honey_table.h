@@ -649,8 +649,6 @@ class HoneyTable {
 
     bool is_open() const { return store.is_open(); }
 
-    void set_changes(HoneyChanges*) { }
-
     static void throw_database_closed() {
 	throw Xapian::DatabaseError("Closed!");
     }

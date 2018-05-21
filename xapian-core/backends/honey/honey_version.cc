@@ -91,7 +91,7 @@ static const char HONEY_VERSION_MAGIC[HONEY_VERSION_MAGIC_AND_VERSION_LEN] = {
 };
 
 HoneyVersion::HoneyVersion(int fd_)
-    : rev(0), fd(fd_), offset(0), db_dir(), changes(NULL),
+    : rev(0), fd(fd_), offset(0), db_dir(),
       doccount(0), total_doclen(0), last_docid(0),
       doclen_lbound(0), doclen_ubound(0),
       wdf_ubound(0), spelling_wordfreq_ubound(0),
@@ -361,15 +361,6 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
 	if (!single_file())
 	    (void)close(fd);
 	throw;
-    }
-
-    if (changes) {
-	string changes_buf;
-	changes_buf += '\xfe';
-	pack_uint(changes_buf, new_rev);
-	pack_uint(changes_buf, s.size());
-	changes->write_block(changes_buf);
-	changes->write_block(s);
     }
 
     RETURN(tmpfile);

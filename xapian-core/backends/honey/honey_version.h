@@ -22,7 +22,6 @@
 #ifndef XAPIAN_INCLUDED_HONEY_VERSION_H
 #define XAPIAN_INCLUDED_HONEY_VERSION_H
 
-#include "honey_changes.h"
 #include "honey_defs.h"
 
 #include "omassert.h"
@@ -126,8 +125,6 @@ class HoneyVersion {
     /// The database directory.
     std::string db_dir;
 
-    HoneyChanges * changes;
-
     /// The number of documents in the database.
     Xapian::doccount doccount;
 
@@ -163,7 +160,7 @@ class HoneyVersion {
 
   public:
     explicit HoneyVersion(const std::string & db_dir_ = std::string())
-	: rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
+	: rev(0), fd(-1), offset(0), db_dir(db_dir_),
 	  doccount(0), total_doclen(0), last_docid(0),
 	  doclen_lbound(0), doclen_ubound(0),
 	  wdf_ubound(0), spelling_wordfreq_ubound(0),
@@ -175,8 +172,6 @@ class HoneyVersion {
 
     /** Create the version file. */
     void create(unsigned blocksize);
-
-    void set_changes(HoneyChanges * changes_) { changes = changes_; }
 
     /** Read the version file and check it's a version we understand.
      *
