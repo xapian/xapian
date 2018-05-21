@@ -186,6 +186,11 @@ glass
     modifications, concurrent single-writer and multiple-reader access to a
     database. It's very efficient and highly scalable.
 
+honey
+    Honey is the default backend in Xapian 1.6.x. It supports incremental
+    modifications, concurrent single-writer and multiple-reader access to a
+    database. It's very efficient and highly scalable.
+
 inmemory
     This type is a database held entirely in memory. It was originally written
     for testing purposes only, but may prove useful for building up temporary
