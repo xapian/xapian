@@ -76,11 +76,7 @@ matrix:
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
-<<<<<<< HEAD
-      env: PYTHON2=/usr/local/bin/python2 CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
-=======
-      env: CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include -I/usr/local/opt/icu4c/include LDFLAGS=-L/usr/local/opt/icu4c/lib PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
->>>>>>> Add CJK word boundary iterator to query parser and term generator
+      env: PYTHON2=/usr/local/bin/python2 CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include -I/usr/local/opt/icu4c/include LDFLAGS=-L/usr/local/opt/icu4c/lib PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"
