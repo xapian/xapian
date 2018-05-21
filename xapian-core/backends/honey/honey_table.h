@@ -41,7 +41,6 @@
 #include <cstdio> // For EOF
 #include <cstdlib> // std::abort()
 #include <type_traits>
-#include <utility>
 #ifdef HAVE_SYS_UIO_H
 # include <sys/uio.h>
 #endif
@@ -67,12 +66,6 @@
 #ifdef BLK_UNUSED
 # undef BLK_UNUSED
 #endif // FIXME: namespace it?
-
-//#define DEBUGGING
-
-#ifdef DEBUGGING
-# include <iostream>
-#endif
 
 const uint4 BLK_UNUSED = uint4(-1);
 
@@ -508,333 +501,64 @@ skip_adding_upper_bound:
 class HoneyCursor;
 class MutableHoneyCursor;
 
-template<typename STORAGE>
-class SSTable {
-  protected:
+class HoneyTable {
+    // FIXME cleaner way?
+    friend class HoneyCursor; // Allow access to store.
+    friend class MutableHoneyCursor; // Allow access to store.
+
+    std::string path;
     bool read_only;
     int flags;
     uint4 compress_min;
-    mutable STORAGE store;
+    mutable BufferedFile store;
+    mutable std::string last_key;
     SSIndex index;
     off_t root = -1;
     honey_tablesize_t num_entries = 0;
     bool lazy;
 
+    bool single_file() const { return path.empty(); }
+
     /** Offset to add to pointers in this table.
      *
      *  This is zero when each table is a separate file, but likely non-zero
      *  when the tables are all embedded in one file.
-     *
-     *  FIXME: Should this be at the HoneyTable level?
      */
     off_t offset = 0;
 
-  private:
-    mutable std::string last_key;
+    bool get_exact_entry(const std::string& key, std::string* tag) const;
 
-    bool get_exact_entry(const std::string& key, std::string* tag) const {
-	if (!read_only) std::abort();
-	if (!store.is_open()) {
-	    if (store.was_forced_closed())
-		throw_database_closed();
-	    return false;
-	}
-	store.rewind(root);
-	if (rare(key.empty()))
-	    return false;
-	bool exact_match = false;
-	bool compressed = false;
-	size_t val_size = 0;
-	int index_type = store.read();
-	switch (index_type) {
-	    case EOF:
-		return false;
-	    case 0x00: {
-		unsigned char first = key[0] - store.read();
-		unsigned char range = store.read();
-		if (first > range)
-		    return false;
-		store.skip(first * 4); // FIXME: pointer width
-		off_t jump = store.read() << 24;
-		jump |= store.read() << 16;
-		jump |= store.read() << 8;
-		jump |= store.read();
-		store.rewind(jump);
-		// The jump point will be an entirely new key (because it is the
-		// first key with that initial character), and we drop in as if
-		// this was the first key so set last_key to be empty.
-		last_key = std::string();
-		break;
-	    }
-	    case 0x01: {
-		size_t j = store.read() << 24;
-		j |= store.read() << 16;
-		j |= store.read() << 8;
-		j |= store.read();
-		if (j == 0)
-		    return false;
-		off_t base = store.get_pos();
-		char kkey[SSINDEX_BINARY_CHOP_KEY_SIZE];
-		size_t kkey_len = 0;
-		size_t i = 0;
-		while (j - i > 1) {
-		    size_t k = i + (j - i) / 2;
-		    store.set_pos(base + k * SSINDEX_BINARY_CHOP_ENTRY_SIZE);
-		    store.read(kkey, SSINDEX_BINARY_CHOP_KEY_SIZE);
-		    kkey_len = 4;
-		    while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
-		    int r = key.compare(0, SSINDEX_BINARY_CHOP_KEY_SIZE, kkey, kkey_len);
-		    if (r < 0) {
-			j = k;
-		    } else {
-			i = k;
-			if (r == 0) {
-			    break;
-			}
-		    }
-		}
-		store.set_pos(base + i * SSINDEX_BINARY_CHOP_ENTRY_SIZE);
-		store.read(kkey, SSINDEX_BINARY_CHOP_KEY_SIZE);
-		kkey_len = 4;
-		while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
-		off_t jump = store.read() << 24;
-		jump |= store.read() << 16;
-		jump |= store.read() << 8;
-		jump |= store.read();
-		store.rewind(jump);
-		// The jump point is to the first key with prefix kkey, so will
-		// work if we set last key to kkey.  Unless we're jumping to the
-		// start of the table, in which case last_key needs to be empty.
-		last_key.assign(kkey, jump == 0 ? 0 : kkey_len);
-		break;
-	    }
-	    case 0x02: {
-		// FIXME: If "close" just seek forwards?  Or consider seeking from
-		// current index pos?
-		// off_t pos = store.get_pos();
-		std::string index_key, prev_index_key;
-		std::make_unsigned<off_t>::type ptr = 0;
-		int cmp0 = 1;
-		while (true) {
-		    int reuse = store.read();
-		    if (reuse == EOF) break;
-		    int len = store.read();
-		    if (len == EOF) abort(); // FIXME
-		    index_key.resize(reuse + len);
-		    store.read(&index_key[reuse], len);
+    bool read_key(std::string& key, size_t& val_size, bool& compressed) const;
 
-#ifdef DEBUGGING
-		    {
-			string desc;
-			description_append(desc, index_key);
-			cerr << "Index key: " << desc << endl;
-		    }
-#endif
-
-		    cmp0 = index_key.compare(key);
-		    if (cmp0 > 0) {
-			index_key = prev_index_key;
-			break;
-		    }
-		    char buf[8];
-		    char* e = buf;
-		    while (true) {
-			int b = store.read();
-			*e++ = b;
-			if ((b & 0x80) == 0) break;
-		    }
-		    const char* p = buf;
-		    if (!unpack_uint(&p, e, &ptr) || p != e) abort(); // FIXME
-#ifdef DEBUGGING
-		    {
-			cerr << " -> " << ptr << endl;
-		    }
-#endif
-		    if (cmp0 == 0)
-			break;
-		    prev_index_key = index_key;
-		}
-#ifdef DEBUGGING
-		{
-		    cerr << " cmp0 = " << cmp0 << ", going to " << ptr << endl;
-		}
-#endif
-		store.set_pos(ptr);
-
-		if (ptr != 0) {
-		    last_key = index_key;
-		    char buf[8];
-		    int r;
-		    {
-			// FIXME: rework to take advantage of buffering that's happening anyway?
-			char * p = buf;
-			for (int i = 0; i < 8; ++i) {
-			    int ch2 = store.read();
-			    if (ch2 == EOF) {
-				break;
-			    }
-			    *p++ = ch2;
-			    if (ch2 < 128) break;
-			}
-			r = p - buf;
-		    }
-		    const char* p = buf;
-		    const char* end = p + r;
-		    if (!unpack_uint(&p, end, &val_size)) {
-			throw Xapian::DatabaseError("val_size unpack_uint invalid");
-		    }
-		    compressed = val_size & 1;
-		    val_size >>= 1;
-		    Assert(p == end);
-		} else {
-		    last_key = std::string();
-		}
-
-		if (cmp0 == 0) {
-		    exact_match = true;
-		    break;
-		}
-
-#ifdef DEBUGGING
-		{
-		    string desc;
-		    description_append(desc, last_key);
-		    cerr << "Dropped to data layer on key: " << desc << endl;
-		}
-#endif
-
-		break;
-	    }
-	    default: {
-		std::string m = "HoneyTable: Unknown index type ";
-		m += str(index_type);
-		throw Xapian::DatabaseCorruptError(m);
-	    }
-	}
-
-	std::string k;
-	int cmp;
-	if (!exact_match) {
-	    do {
-		if (val_size) {
-		    // Skip val data we've not looked at.
-		    store.skip(val_size);
-		    val_size = 0;
-		}
-		if (!read_key(k, val_size, compressed)) return false;
-		cmp = k.compare(key);
-	    } while (cmp < 0);
-	    if (cmp > 0) return false;
-	}
-	if (tag != NULL) {
-	    if (compressed) {
-		std::string v;
-		read_val(v, val_size);
-		CompressionStream comp_stream;
-		comp_stream.decompress_start();
-		tag->resize(0);
-		if (!comp_stream.decompress_chunk(v.data(), v.size(), *tag)) {
-		    // Decompression didn't complete.
-		    abort();
-		}
-	    } else {
-		read_val(*tag, val_size);
-	    }
-	}
-	return true;
-    }
-
-    bool read_key(std::string& key, size_t& val_size, bool& compressed) const {
-#ifdef DEBUGGING
-	{
-	    string desc;
-	    description_append(desc, key);
-	    cerr << "SSTable::read_key(" << desc << ", ...) for path=" << path << endl;
-	}
-#endif
-	if (!read_only) {
-	    return false;
-	}
-
-	AssertRel(store.get_pos(), >=, offset);
-	if (store.get_pos() >= root) {
-	    AssertEq(store.get_pos(), root);
-	    return false;
-	}
-	int ch = store.read();
-	if (ch == EOF) return false;
-
-	size_t reuse = ch;
-	if (reuse > last_key.size()) {
-	    throw Xapian::DatabaseCorruptError("Reuse > previous key size");
-	}
-	ch = store.read();
-	if (ch == EOF) {
-	    throw Xapian::DatabaseError("EOF/error while reading key length",
-					errno);
-	}
-	size_t key_size = ch;
-	char buf[256];
-	store.read(buf, key_size);
-	key.assign(last_key, 0, reuse);
-	key.append(buf, key_size);
-	last_key = key;
-
-#ifdef DEBUGGING
-	if (false) {
-	    std::string esc;
-	    description_append(esc, key);
-	    std::cout << "K:" << esc << std::endl;
-	}
-#endif
-
-	int r;
-	{
-	    // FIXME: rework to take advantage of buffering that's happening anyway?
-	    char * p = buf;
-	    for (int i = 0; i < 8; ++i) {
-		int ch2 = store.read();
-		if (ch2 == EOF) {
-		    break;
-		}
-		*p++ = ch2;
-		if (ch2 < 128) break;
-	    }
-	    r = p - buf;
-	}
-	const char* p = buf;
-	const char* end = p + r;
-	if (!unpack_uint(&p, end, &val_size)) {
-	    throw Xapian::DatabaseError("val_size unpack_uint invalid");
-	}
-	compressed = val_size & 1;
-	val_size >>= 1;
-	Assert(p == end);
-	return true;
-    }
-
-    void read_val(std::string& val, size_t val_size) const {
-	AssertRel(store.get_pos() + val_size, <=, size_t(root));
-	val.resize(val_size);
-	store.read(&(val[0]), val_size);
-#ifdef DEBUGGING
-	if (false) {
-	    std::string esc;
-	    description_append(esc, val);
-	    std::cout << "V:" << esc << std::endl;
-	}
-#endif
-    }
+    void read_val(std::string& val, size_t val_size) const;
 
   public:
-    template<typename... Args>
-    SSTable(bool read_only_, off_t offset_, bool lazy_,
-	    Args&&... args)
+    HoneyTable(const char*, const std::string& path_, bool read_only_,
+	       bool lazy_ = false)
+	: path(path_ + HONEY_TABLE_EXTENSION),
+	  read_only(read_only_),
+	  lazy(lazy_)
+    {
+    }
+
+    HoneyTable(const char*, int fd, off_t offset_, bool read_only_,
+	       bool lazy_ = false)
 	: read_only(read_only_),
-	  store(std::forward<Args>(args)...),
+	  store(fd, offset_, read_only_),
 	  lazy(lazy_),
 	  offset(offset_)
     {
+    }
+
+    ~HoneyTable() {
+#if 0
+	size_t index_size = index.size();
+	if (index_size)
+	    std::cout << "*** " << path << " - index " << index_size << " for "
+		      << index.get_num_entries() << " entries" << std::endl;
+#endif
+	bool fd_owned = !single_file();
+	store.close(fd_owned);
     }
 
     bool is_writable() const { return !read_only; }
@@ -845,66 +569,25 @@ class SSTable {
 
     void set_max_item_size(unsigned) { }
 
+    void create_and_open(int flags_, const Honey::RootInfo& root_info);
+
+    void open(int flags_, const Honey::RootInfo& root_info,
+	      honey_revision_number_t);
+
+    void close(bool permanent) {
+	bool fd_owned = !single_file();
+	if (permanent)
+	    store.force_close(fd_owned);
+	else
+	    store.close(fd_owned);
+    }
+
+    const std::string& get_path() const { return path; }
+
     void add(const std::string& key,
 	     const char* val,
 	     size_t val_size,
-	     bool compressed = false) {
-	if (!compressed && compress_min > 0 && val_size > compress_min) {
-	    size_t compressed_size = val_size;
-	    CompressionStream comp_stream; // FIXME: reuse
-	    const char* p = comp_stream.compress(val, &compressed_size);
-	    if (p) {
-		add(key, p, compressed_size, true);
-		return;
-	    }
-	}
-
-	if (read_only)
-	    throw Xapian::InvalidOperationError("add() on read-only HoneyTable");
-	if (key.size() == 0 || key.size() > HONEY_MAX_KEY_LEN)
-	    throw Xapian::InvalidArgumentError("Invalid key size: " +
-					       str(key.size()));
-	if (key <= last_key)
-	    throw Xapian::InvalidOperationError("New key <= previous key");
-	size_t reuse = common_prefix_length(last_key, key);
-
-#ifdef SSINDEX_ARRAY
-	if (reuse == 0) {
-	    index.maybe_add_entry(key, store.get_pos());
-	}
-#elif defined SSINDEX_BINARY_CHOP
-	// For a binary chop index, the index point is before the key info - the
-	// index key must have the same N first bytes as the previous key, where
-	// N >= the keep length.
-	index.maybe_add_entry(key, store.get_pos());
-#elif defined SSINDEX_SKIPLIST
-	// Handled below.
-#else
-# error "SSINDEX type not specified"
-#endif
-
-	store.write(static_cast<unsigned char>(reuse));
-	store.write(static_cast<unsigned char>(key.size() - reuse));
-	store.write(key.data() + reuse, key.size() - reuse);
-	++num_entries;
-
-#ifdef SSINDEX_SKIPLIST
-	// For a skiplist index, the index provides the full key, so the index
-	// point is after the key at the level below.
-	index.maybe_add_entry(key, store.get_pos());
-#endif
-
-	// Encode "compressed?" flag in bottom bit.
-	// FIXME: Don't do this if a table is uncompressed?  That saves a byte
-	// for each item where the extra bit pushes the length up by a byte.
-	size_t val_size_enc = (val_size << 1) | compressed;
-	std::string val_len;
-	pack_uint(val_len, val_size_enc);
-	// FIXME: pass together so we can potentially writev() both?
-	store.write(val_len.data(), val_len.size());
-	store.write(val, val_size);
-	last_key = key;
-    }
+	     bool compressed = false);
 
     void add(const std::string& key,
 	     const std::string& val,
@@ -912,34 +595,20 @@ class SSTable {
 	add(key, val.data(), val.size(), compressed);
     }
 
+    void flush_db() {
+	root = index.write(store);
+	store.flush();
+    }
+
     void cancel(const Honey::RootInfo&, honey_revision_number_t) {
 	std::abort();
     }
 
-    void commit(honey_revision_number_t, Honey::RootInfo* root_info) {
-	if (root < 0)
-	    throw Xapian::InvalidOperationError("root not set");
+    void commit(honey_revision_number_t, Honey::RootInfo* root_info);
 
-	root_info->set_level(1); // FIXME: number of index levels
-	root_info->set_num_entries(num_entries);
-	root_info->set_root_is_fake(false);
-	// Not really meaningful.
-	root_info->set_sequential(true);
-	// offset should already be set.
-	root_info->set_root(root);
-	// Not really meaningful.
-	root_info->set_blocksize(2048);
-	// Not really meaningful.
-	// root_info->set_free_list(std::string());
-
-	read_only = true;
-	store.rewind(offset);
-	last_key = std::string();
-    }
-
-    void flush_db() {
-	root = index.write(store);
-	store.flush();
+    bool sync() {
+	store.sync();
+	return true;
     }
 
     bool empty() const {
@@ -965,72 +634,6 @@ class SSTable {
 
     HoneyCursor* cursor_get() const;
 
-    static void throw_database_closed() {
-	throw Xapian::DatabaseError("Closed!");
-    }
-
-    honey_tablesize_t get_entry_count() const { return num_entries; }
-
-    off_t get_root() const { return root; }
-};
-
-class HoneyTable : public SSTable<BufferedFile> {
-    // FIXME cleaner way?
-    friend class HoneyCursor; // Allow access to store.
-    friend class MutableHoneyCursor; // Allow access to store.
-
-    std::string path;
-
-    bool single_file() const { return path.empty(); }
-
-  public:
-    HoneyTable(const char*, const std::string& path_, bool read_only_,
-	       bool lazy_ = false)
-	: SSTable(read_only_, 0, lazy_),
-	  path(path_ + HONEY_TABLE_EXTENSION)
-    {
-    }
-
-    HoneyTable(const char*, int fd, off_t offset_, bool read_only_,
-	       bool lazy_ = false)
-	: SSTable(read_only_, offset_, lazy_,
-		  fd, offset_, read_only_)
-    {
-    }
-
-    ~HoneyTable() {
-#if 0
-	size_t index_size = index.size();
-	if (index_size)
-	    std::cout << "*** " << path << " - index " << index_size << " for "
-		      << index.get_num_entries() << " entries" << std::endl;
-#endif
-	bool fd_owned = !single_file();
-	store.close(fd_owned);
-    }
-
-    void create_and_open(int flags_, const Honey::RootInfo& root_info);
-
-    void open(int flags_, const Honey::RootInfo& root_info,
-	      honey_revision_number_t);
-
-    void close(bool permanent) {
-	bool fd_owned = !single_file();
-	if (permanent)
-	    store.force_close(fd_owned);
-	else
-	    store.close(fd_owned);
-    }
-
-    const std::string& get_path() const { return path; }
-
-    bool sync() {
-	store.sync();
-	return true;
-    }
-
-    HoneyCursor* cursor_get() const;
-
     bool exists() const {
 	struct stat sbuf;
 	return stat(path.c_str(), &sbuf) == 0;
@@ -1039,6 +642,14 @@ class HoneyTable : public SSTable<BufferedFile> {
     bool is_open() const { return store.is_open(); }
 
     void set_changes(HoneyChanges*) { }
+
+    static void throw_database_closed() {
+	throw Xapian::DatabaseError("Closed!");
+    }
+
+    honey_tablesize_t get_entry_count() const { return num_entries; }
+
+    off_t get_root() const { return root; }
 
     off_t get_offset() const { return offset; }
 };
