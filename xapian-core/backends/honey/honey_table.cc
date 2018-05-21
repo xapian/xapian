@@ -267,10 +267,7 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 	    if (first > range)
 		return false;
 	    store.skip(first * 4); // FIXME: pointer width
-	    off_t jump = store.read() << 24;
-	    jump |= store.read() << 16;
-	    jump |= store.read() << 8;
-	    jump |= store.read();
+	    off_t jump = store.read_uint4_be();
 	    store.rewind(jump);
 	    // The jump point will be an entirely new key (because it is the
 	    // first key with that initial character), and we drop in as if
@@ -279,10 +276,7 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 	    break;
 	}
 	case 0x01: {
-	    size_t j = store.read() << 24;
-	    j |= store.read() << 16;
-	    j |= store.read() << 8;
-	    j |= store.read();
+	    size_t j = store.read_uint4_be();
 	    if (j == 0)
 		return false;
 	    off_t base = store.get_pos();
@@ -309,10 +303,7 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 	    store.read(kkey, SSINDEX_BINARY_CHOP_KEY_SIZE);
 	    kkey_len = 4;
 	    while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
-	    off_t jump = store.read() << 24;
-	    jump |= store.read() << 16;
-	    jump |= store.read() << 8;
-	    jump |= store.read();
+	    off_t jump = store.read_uint4_be();
 	    store.rewind(jump);
 	    // The jump point is to the first key with prefix kkey, so will
 	    // work if we set last key to kkey.  Unless we're jumping to the

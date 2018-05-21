@@ -248,6 +248,14 @@ class BufferedFile {
 #endif
     }
 
+    uint4 read_uint4_be() const {
+	uint4 res = read() << 24;
+	res |= read() << 16;
+	res |= read() << 8;
+	res |= read();
+	return res;
+    }
+
     void read(char* p, size_t len) const {
 #if 1
 	if (buf_end != 0) {
