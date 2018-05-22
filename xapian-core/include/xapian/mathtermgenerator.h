@@ -70,7 +70,7 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
     /// Destructor.
     ~MathTermGenerator();
 
-    /** Index some math expression in a std::string.
+    /** Index some math expression in null-terminated string.
      *
      * @param expr	The expression to index.
      */
