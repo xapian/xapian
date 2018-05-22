@@ -76,8 +76,8 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
      */
     void index_math(const char * expr);
 
-    /// For debugging purpose.
-    std::size_t symbol_count();
+    // For testing purpose.
+    std::vector<std::string> get_labels_list();
 
     /// Return a string describing this object.
     std::string get_description() const;

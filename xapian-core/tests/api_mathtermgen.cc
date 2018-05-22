@@ -34,32 +34,58 @@
 
 using namespace std;
 
+struct test {
+    const char * expr;
+    vector<string> expected_mrow_labels;
+};
+
+static const test test_parse[] = {
+    {	// Text having mix of math and text.
+	" <math>"
+	" <mtext> such that </mtext>"
+	" <mi> x </mi>"
+	" <mo> + </mo>"
+	" <mi> b </mi>"
+	" <mfrac> <mi> p </mi>"
+	"	<mi> q </mi>"
+	" </mfrac>"
+	" </math>"
+	" Some more text entry"
+	" <nonmath> should not be parsed </nonmath>",
+	{ "T!such that", "V!x", "O+", "V!b", "F" } },
+    {	// Leading and trailing whitespaces in element value.
+	" <math>"
+	" <mi>    a</mi>"
+	" <mo>*     </mo>"
+	" <mi> b </mi>"
+	" <mo> = </mo>"
+	" <mi>    x </mi>"
+	" </math>",
+	{ "V!a", "O*", "V!b", "O=", "V!x" } },
+    {	// Expression with fraction.
+	" <math>"
+	" <mfrac> <mi> p </mi>"
+	"	  <mi> q </mi> </mfrac"
+	" <mo> = </mo>"
+	" <mfrac> <mi> c </mi>"
+	"	  <mi> d </mi> </mfrac>",
+	{ "F", "O=", "F" } },
+    {	// Expression with root.
+	" <math>"
+	" <mroot> <mi> a </mi>"
+	" 	  <mn> 4 </mn> </mroot>",
+	{ "R", "V!a" } },
+    { NULL, { } }
+};
+
 DEFINE_TESTCASE(mathtermgen1, !backend) {
     Xapian::MathTermGenerator termgen;
 
-    std::string formula {
-    " <math>"
-    "	<mtext> such that </mtext>"
-    "	<mi> x </mi>"
-    "   <mo> + </mo>"
-    " 	<mi> a </mi>"
-    "   <mo> / </mo>"
-    "   <mi> b </mi>"
-    "	<mfrac> <mi> p </mi>"
-    "		<mi> q </mi>"
-    "	</mfrac>"
-    " </math>"
-    " Some text entry."
-    " Some more text entry"
-    " <nonmath> should not be parsed </nonmath>"
-    };
-
-    formula.push_back('\0');
-
-    termgen.index_math(formula.data());
-
-    // Check symbol count on main line.
-    TEST_EQUAL(termgen.symbol_count(), 7);
+    for (const test * t = test_parse; t->expr; ++t) {
+	termgen.index_math(t->expr);
+	vector<string> labels = termgen.get_labels_list();
+	TEST( labels == t->expected_mrow_labels );
+    }
 
     return true;
 }

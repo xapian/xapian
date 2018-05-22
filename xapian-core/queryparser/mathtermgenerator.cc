@@ -57,16 +57,15 @@ MathTermGenerator::index_math(const char * expr)
     internal->index_math(expr);
 }
 
-size_t
-MathTermGenerator::symbol_count()
+vector<string>
+MathTermGenerator::get_labels_list()
 {
-    return internal->symbol_count();
+    return internal->get_labels_list();
 }
 
 string
 MathTermGenerator::get_description() const
 {
-    string s("Xapian::MathTermGenerator(doc=");
-    s += ")";
+    string s("Xapian::MathTermGenerator()");
     return s;
 }
