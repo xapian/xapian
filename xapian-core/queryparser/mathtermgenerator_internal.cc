@@ -150,6 +150,22 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.emplace_back(get_label(ch, tag), WITHIN);
+		} else if (tag.compare("msup") == 0) {
+		    // Parse base.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+		    // Parse superscript.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.back().trow.emplace_back(get_label(ch, tag),
+					              ABOVE);
+		} else if (tag.compare("msub") == 0) {
+		    // Parse base.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+		    // Parse subscript.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.back().brow.emplace_back(get_label(ch, tag),
+					              BELOW);
 		} else {
 		    // Parse token element.
 		    mrow.emplace_back(get_label(ch, tag), ADJACENT);
