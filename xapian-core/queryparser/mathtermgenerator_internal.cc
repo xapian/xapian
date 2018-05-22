@@ -43,8 +43,7 @@ namespace Xapian {
 
 bool move_to_next_open_tag(const char *& ch, string & tag);
 string get_element_value(const char *& ch);
-void append_symbol(vector<Symbol> & row, const char *& ch, string & tag,
-		   edge e);
+string get_label(const char *& ch, string & tag);
 
 string
 get_element_value(const char *& ch)
@@ -96,18 +95,19 @@ move_to_next_open_tag(const char *& ch, string & tag)
     return true;
 }
 
-void
-append_symbol(vector<Symbol> & row, const char *& ch, string & tag, edge e)
-{
-    // Add symbol label according to the tag.
-    if (tag.compare("mi") == 0) {
-	row.emplace_back("V!" + get_element_value(ch), e);
-    } else if (tag.compare("mn") == 0) {
-	row.emplace_back("N!" + get_element_value(ch), e);
-    } else if (tag.compare("mo") == 0) {
-	row.emplace_back("O" + get_element_value(ch), e);
-    } else if (tag.compare("mtext") == 0) {
-	row.emplace_back("T!" + get_element_value(ch), e);
+string
+get_label(const char *& ch, string & tag) {
+    if (tag.compare("mi") == 0)
+	return string("V!" + get_element_value(ch));
+    else if (tag.compare("mn") == 0)
+	return string("N!" + get_element_value(ch));
+    else if (tag.compare("mo") == 0)
+	return string("O" + get_element_value(ch));
+    else if (tag.compare("mtext") == 0)
+	return string("T!" + get_element_value(ch));
+    else {
+	// Not supported tag, mark as unknown for now.
+	return string("U!" + get_element_value(ch));
     }
 }
 
@@ -128,28 +128,31 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    mrow.emplace_back("F", ADJACENT);
 		    // Parse numerator.
 		    if (move_to_next_open_tag(ch, tag))
-			append_symbol(mrow.back().trow, ch, tag, ABOVE);
+			mrow.back().trow.emplace_back(get_label(ch, tag),
+					              ABOVE);
 		    // Parse denominator.
 		    if (move_to_next_open_tag(ch, tag))
-			append_symbol(mrow.back().brow, ch, tag, BELOW);
+			mrow.back().brow.emplace_back(get_label(ch, tag),
+					              BELOW);
 		} else if (tag.compare("mroot") == 0) {
 		    // Add root symbol.
 		    mrow.emplace_back("R", ADJACENT);
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
-			append_symbol(mrow, ch, tag, WITHIN);
+			mrow.emplace_back(get_label(ch, tag), WITHIN);
 		    // Parse index.
 		    if (move_to_next_open_tag(ch, tag))
-			append_symbol(mrow.back().trow, ch, tag, ABOVE);
+			mrow.back().trow.emplace_back(get_label(ch, tag),
+					              ABOVE);
 		} else if (tag.compare("msqrt") == 0) {
 		    // Add root symbol.
 		    mrow.emplace_back("R", ADJACENT);
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
-			append_symbol(mrow, ch, tag, WITHIN);
+			mrow.emplace_back(get_label(ch, tag), WITHIN);
 		} else {
 		    // Parse token element.
-		    append_symbol(mrow, ch, tag, ADJACENT);
+		    mrow.emplace_back(get_label(ch, tag), ADJACENT);
 		}
 	    }
 	} else {
