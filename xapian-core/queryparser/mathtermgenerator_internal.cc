@@ -22,15 +22,20 @@
 
 #include "mathtermgenerator_internal.h"
 
+/* #define DEBUGGING */
+
 #include <xapian/document.h>
 #include <xapian/unicode.h>
 
 #include "stringutils.h"
 
 #include <cstring>
-/* #include <iostream> */
+#ifdef DEBUGGING
+#include <iostream>
+#endif
 #include <string>
 #include <vector>
+
 
 using namespace std;
 
@@ -153,10 +158,13 @@ MathTermGenerator::Internal::index_math(const char * ch)
 {
     parse_mathml(ch);
 
-    /* // Debug prints */
-    /* cout << "Main line:"; */
-    /* for (auto & sym : mrow) */
-	/* cout << "---->" << "(" << sym.label << ")"; */
-    /* cout << '\n'; */
+#ifdef DEBUGGING
+    // Debug prints
+    cout << "\n===============\n";
+    cout << "#symbols on main line : " << mrow.size() << '\n';
+    cout << "Main line:";
+    for (auto & sym : mrow)
+	cout << "---->" << "(" << sym.label << ")";
+#endif
 }
 }

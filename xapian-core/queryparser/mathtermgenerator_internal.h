@@ -31,23 +31,6 @@
 
 namespace Xapian {
 
-struct Symbol;
-
-class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
-    friend class MathTermGenerator;
-    std::vector<Symbol> mrow;
-    void parse_mathml(const char *& ch);
-  public:
-    Internal() { }
-
-    void index_math(const char * ch);
-
-    // For debugging purpose.
-    std::size_t symbol_count() {
-	return mrow.size();
-    }
-};
-
 enum edge {
     ADJACENT,
     ABOVE,
@@ -69,6 +52,25 @@ struct Symbol {
     std::vector<Symbol> brow;	// Bottom row.
     explicit Symbol(std::string l, edge e_) : label(l), e(e_) { }
 };
+
+class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
+    friend class MathTermGenerator;
+    std::vector<Symbol> mrow;
+    void parse_mathml(const char *& ch);
+  public:
+    Internal() { }
+
+    void index_math(const char * ch);
+
+    // For debugging purpose.
+    std::vector<std::string> get_labels_list() {
+	std::vector<std::string> labels;
+	for (const auto & sym : mrow)
+	    labels.push_back(sym.label);
+	return labels;
+    }
+};
+
 }
 
 #endif // XAPIAN_INCLUDED_MATHTERMGENERATOR_INTERNAL_H
