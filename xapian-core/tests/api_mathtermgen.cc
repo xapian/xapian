@@ -75,6 +75,10 @@ static const test test_parse[] = {
 	" <mroot> <mi> a </mi>"
 	" 	  <mn> 4 </mn> </mroot>",
 	{ "R", "V!a" } },
+    {	// Expression with square root.
+	" <math>"
+	" <msqrt> <mi> a </mi> </msqrt>",
+	{ "R", "V!a" } },
     { NULL, { } }
 };
 

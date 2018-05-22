@@ -141,6 +141,12 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse index.
 		    if (move_to_next_open_tag(ch, tag))
 			append_symbol(mrow.back().trow, ch, tag, ABOVE);
+		} else if (tag.compare("msqrt") == 0) {
+		    // Add root symbol.
+		    mrow.emplace_back("R", ADJACENT);
+		    // Parse base.
+		    if (move_to_next_open_tag(ch, tag))
+			append_symbol(mrow, ch, tag, WITHIN);
 		} else {
 		    // Parse token element.
 		    append_symbol(mrow, ch, tag, ADJACENT);
