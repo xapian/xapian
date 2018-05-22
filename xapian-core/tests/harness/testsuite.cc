@@ -531,7 +531,7 @@ test_driver::runtest(const test_desc *test)
 		out << "std::exception";
 #else
 		const char * name = typeid(e).name();
-# ifdef HAVE_CXXABI_H__
+# ifdef HAVE_CXXABI_H
 		// __cxa_demangle() apparently requires GCC >= 3.1.
 		// Demangle the name which GCC returns for type_info::name().
 		int status;
