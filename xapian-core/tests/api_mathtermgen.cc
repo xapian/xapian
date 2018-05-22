@@ -75,10 +75,16 @@ static const test test_parse[] = {
 	" <mroot> <mi> a </mi>"
 	" 	  <mn> 4 </mn> </mroot>",
 	{ "R", "V!a" } },
-    {	// Expression with square root.
+    {	// Expression with superscript.
 	" <math>"
-	" <msqrt> <mi> a </mi> </msqrt>",
-	{ "R", "V!a" } },
+	" <msup> <mi> a </mi>"
+	" 	  <mi> i </mi> </msub>",
+	{ "V!a"} },
+    {	// Expression with subscript.
+	" <math>"
+	" <msub> <mi> a </mi>"
+	" 	  <mi> i </mi> </msub>",
+	{ "V!a"} },
     { NULL, { } }
 };
 

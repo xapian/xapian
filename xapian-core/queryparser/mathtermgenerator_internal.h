@@ -44,10 +44,13 @@ enum edge {
 struct Symbol {
     std::string label;
     edge e;
+    // TODO Think of better way
     // Symbols like fraction, matrix are represented over multiple lines.
     // For example, consider a / b. a goes to top row, b goes to bottom
     // row and fraction symbol is added in middle row.
-    // TODO Think of better way
+    // FIXME Symbols like super-script or subscript can be stored separately for
+    // simplicity, because these symbols will have only single token element
+    // and will not have group of elements. Will consider this idea later.
     std::vector<Symbol> trow;	// Top row.
     std::vector<Symbol> brow;	// Bottom row.
     explicit Symbol(std::string l, edge e_) : label(l), e(e_) { }
