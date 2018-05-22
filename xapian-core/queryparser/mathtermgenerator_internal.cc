@@ -109,6 +109,8 @@ append_symbol(vector<Symbol> & row, const char *& ch, string & tag, edge e)
 void
 MathTermGenerator::Internal::parse_mathml(const char *& ch)
 {
+    // Clear mrow contents.
+    mrow.clear();
     string tag;
     while (*ch != '\0') {
 	// Detect '<math ' or '<math>'.
@@ -117,7 +119,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 	    // Parse elements until '</math' found.
 	    while (move_to_next_open_tag(ch, tag)) {
 		if (tag.compare("mfrac") == 0) {
-		    // Parse fraction.
+		    // Add fraction symbol.
 		    mrow.emplace_back("F", ADJACENT);
 		    // Parse numerator.
 		    if (move_to_next_open_tag(ch, tag))
@@ -125,6 +127,15 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse denominator.
 		    if (move_to_next_open_tag(ch, tag))
 			append_symbol(mrow.back().brow, ch, tag, BELOW);
+		} else if (tag.compare("mroot") == 0) {
+		    // Add root symbol.
+		    mrow.emplace_back("R", ADJACENT);
+		    // Parse base.
+		    if (move_to_next_open_tag(ch, tag))
+			append_symbol(mrow, ch, tag, WITHIN);
+		    // Parse index.
+		    if (move_to_next_open_tag(ch, tag))
+			append_symbol(mrow.back().trow, ch, tag, ABOVE);
 		} else {
 		    // Parse token element.
 		    append_symbol(mrow, ch, tag, ADJACENT);
