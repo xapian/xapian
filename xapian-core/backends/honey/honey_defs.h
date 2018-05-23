@@ -36,7 +36,7 @@
 #define HONEY_MIN_DB_SIZE 2048
 
 /// Maximum key length.
-#define HONEY_MAX_KEY_LEN 255
+#define HONEY_MAX_KEY_LENGTH 255
 
 // Maximum size of a document length chunk in bytes.
 #define HONEY_DOCLEN_CHUNK_MAX 2016

@@ -86,7 +86,7 @@ HoneyTable::add(const std::string& key,
 
     if (read_only)
 	throw Xapian::InvalidOperationError("add() on read-only HoneyTable");
-    if (key.size() == 0 || key.size() > HONEY_MAX_KEY_LEN)
+    if (key.size() == 0 || key.size() > HONEY_MAX_KEY_LENGTH)
 	throw Xapian::InvalidArgumentError("Invalid key size: " +
 					   str(key.size()));
     if (key <= last_key)

@@ -373,7 +373,7 @@ HoneyCursor::prev()
 	// To position on the last key we just do a < search for a key greater
 	// than any possible key - one longer than the longest possible length
 	// and consisting entirely of the highest sorting byte value.
-	key.assign(HONEY_MAX_KEY_LEN + 1, '\xff');
+	key.assign(HONEY_MAX_KEY_LENGTH + 1, '\xff');
     } else {
 	if (current_key.empty())
 	    return false;
