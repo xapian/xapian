@@ -166,6 +166,47 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().brow.emplace_back(get_label(ch, tag),
 					              BELOW);
+		} else if (tag.compare("msubsup") == 0) {
+		    // Parse base.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+		    // Parse subscript.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.back().brow.emplace_back(get_label(ch, tag),
+					              BELOW);
+		    // Parse superscript.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.back().trow.emplace_back(get_label(ch, tag),
+						      ABOVE);
+		} else if (tag.compare("munder") == 0) {
+		    // Parse base.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+		    // Parse underscript.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.back().brow.emplace_back(get_label(ch, tag),
+					              UNDER);
+		} else if (tag.compare("mover") == 0) {
+		    // Parse base.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+		    // Parse overscript.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.back().trow.emplace_back(get_label(ch, tag),
+					              OVER);
+		} else if (tag.compare("munderover") == 0) {
+		    // Parse base.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+		    // Parse underscript.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.back().brow.emplace_back(get_label(ch, tag),
+					              UNDER);
+		    // Parse overscript.
+		    if (move_to_next_open_tag(ch, tag))
+			mrow.back().trow.emplace_back(get_label(ch, tag),
+						      OVER);
+
 		} else {
 		    // Parse token element.
 		    mrow.emplace_back(get_label(ch, tag), ADJACENT);
