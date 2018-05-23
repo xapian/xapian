@@ -44,6 +44,10 @@ namespace Xapian {
 bool move_to_next_open_tag(const char *& ch, string & tag);
 string get_element_value(const char *& ch);
 string get_label(const char *& ch, string & tag);
+void skip_prefix(const char *& ch);
+// TODO temporary usage of static. This will be either moved to function
+// arguments or plan to implement parser class where this data can be stored.
+static bool prefix = false;
 
 string
 get_element_value(const char *& ch)
@@ -67,6 +71,16 @@ get_element_value(const char *& ch)
     return value.substr(0, value.find_last_not_of(' ') + 1);
 }
 
+void
+skip_prefix(const char *& ch)
+{
+    while (*ch != '\0' && *ch != ':')
+	++ch;
+    if (*ch == '\0')
+	return;
+    ++ch;
+}
+
 bool
 move_to_next_open_tag(const char *& ch, string & tag)
 {
@@ -76,7 +90,9 @@ move_to_next_open_tag(const char *& ch, string & tag)
 		++ch;
 		break;
 	    }
-	    if (strncmp(ch + 2, "math>", 5) == 0)
+	    ch = ch+2;
+	    if (prefix) skip_prefix(ch);
+	    if (strncmp(ch, "math>", 5) == 0)
 		return false;
 	}
 	++ch;
@@ -84,6 +100,8 @@ move_to_next_open_tag(const char *& ch, string & tag)
 
     if (*ch == '\0')
 	return false;
+
+    if (prefix) skip_prefix(ch);
 
     tag.clear();
     while (*ch != '\0' && *ch != '>') {
@@ -118,8 +136,12 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
     mrow.clear();
     string tag;
     while (*ch != '\0') {
-	// Detect '<math ' or '<math>'.
-	if ((strncmp(ch, "<math", 5) == 0) && (ch[5] == ' ' || ch[5] == '>')) {
+	// TODO Handling prefix this way is totally safe. Will fix it later.
+	// Detect '<math ' or '<math>' or ':math ' or ':math>'
+	if ((ch[0] == '<' || ch[0] == ':' ) && strncmp(ch+1, "math", 4) == 0 &&
+	    (ch[5] == ' ' || ch[5] == '>')) {
+	    if (ch[0] == ':')
+		prefix = true;
 	    ch += 6;
 	    // Parse elements until '</math' found.
 	    while (move_to_next_open_tag(ch, tag)) {
