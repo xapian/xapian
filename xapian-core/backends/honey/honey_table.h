@@ -573,10 +573,6 @@ class HoneyTable {
 
     int get_flags() const { return flags; }
 
-    void set_full_compaction(bool) { }
-
-    void set_max_item_size(unsigned) { }
-
     void create_and_open(int flags_, const Honey::RootInfo& root_info);
 
     void open(int flags_, const Honey::RootInfo& root_info,

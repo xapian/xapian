@@ -1919,6 +1919,9 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 		       unsigned flags,
 		       Xapian::docid last_docid)
 {
+    // Currently unused for honey.
+    (void)compaction;
+
     struct table_list {
 	// The "base name" of the table.
 	char name[9];
@@ -2175,9 +2178,6 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	} else {
 	    out->create_and_open(FLAGS, *root_info);
 	}
-
-	out->set_full_compaction(compaction != compactor->STANDARD);
-	if (compaction == compactor->FULLER) out->set_max_item_size(1);
 
 	switch (t->type) {
 	    case Honey::POSTLIST: {
@@ -2457,9 +2457,6 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	} else {
 	    out->create_and_open(FLAGS, *root_info);
 	}
-
-	out->set_full_compaction(compaction != compactor->STANDARD);
-	if (compaction == compactor->FULLER) out->set_max_item_size(1);
 
 	switch (t->type) {
 	    case Honey::POSTLIST: {
