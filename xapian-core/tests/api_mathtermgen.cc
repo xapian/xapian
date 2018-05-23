@@ -75,6 +75,11 @@ static const test test_parse[] = {
 	" <mroot> <mi> a </mi>"
 	" 	  <mn> 4 </mn> </mroot>",
 	{ "R", "V!a" } },
+    {	// Expression wit square root.
+	" <math>"
+	" <msqrt> <mi> a </mi>"
+	"		</msqrt> </math>",
+	{ "R", "V!a" } },
     {	// Expression with superscript.
 	" <math>"
 	" <msup> <mi> a </mi>"
@@ -85,6 +90,47 @@ static const test test_parse[] = {
 	" <msub> <mi> a </mi>"
 	" 	  <mi> i </mi> </msub>",
 	{ "V!a"} },
+    {	// Expression with subscript & superscript.
+	" <math>"
+	" <msubsup>"
+	"	<mo> &int; </mo>"
+	"	<mn> 0 </mn>"
+	"	<mn> 1 </mn>"
+	"	</msubsup> </math>",
+	{ "O&int;" } },
+    {	// Expression with underscript.
+	" <math>"
+	" <munder> <mo> - </mo>"
+	" 	  <mi> a </mi> </under>",
+	{ "O-"} },
+    {	// Expression with overscript.
+	" <math>"
+	" <mover> <mo> - </mo>"
+	" 	  <mi> i </mi> </mover>",
+	{ "O-"} },
+    {	// Expression with underscript & overscript.
+	" <math>"
+	" <munderover>"
+	"	<mo> &int; </mo>"
+	"	<mn> 0 </mn>"
+	"	<mn> 1 </mn>"
+	"	</munderover> </math>",
+	{ "O&int;" } },
+    {	// Expression with namespace prefix.
+	" <m:math>"
+	" <m:mi> a </m:mi>"
+	" <m:mo> / </m:mo>"
+	" <m:mn> 5 </m:mn>"
+	"	</m:math>",
+	{ "V!a", "O/", "N!5" } },
+    {	// Expression with namespace prefix.
+	" <mn:math>"
+	" <mn:mi> a </mn:mi>"
+	" <mn:mo> / </mn:mo>"
+	" <mn:mn> 5 </mn:mn>"
+	"	</mn:math>",
+	{ "V!a", "O/", "N!5" } },
+
     { NULL, { } }
 };
 
