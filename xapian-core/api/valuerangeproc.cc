@@ -1,7 +1,7 @@
 /** @file valuerangeproc.cc
  * @brief Standard ValueRangeProcessor subclass implementations
  */
-/* Copyright (C) 2007,2008,2009,2010,2012,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2012,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 
 #include <xapian/queryparser.h>
 
-#include <cstdio> // For sprintf().
 #include <cstdlib> // For atoi().
 #include "safeerrno.h"
 
@@ -118,6 +117,29 @@ is_yyyy_mm_dd(const string &s)
 	    (s[4] == '-' || s[4] == '.' || s[4] == '/'));
 }
 
+// Write exactly w chars to buffer p representing integer v.
+//
+// The result is left padded with zeros if v < pow(10, w - 1).
+//
+// If v >= pow(10, w), then the output will show v % pow(10, w) (i.e. the
+// most significant digits are lost).
+static void
+format_int_fixed_width(char * p, int v, int w)
+{
+    while (--w >= 0) {
+	p[w] = '0' + (v % 10);
+	v /= 10;
+    }
+}
+
+static void
+format_yyyymmdd(char * p, int y, int m, int d)
+{
+    format_int_fixed_width(p, y, 4);
+    format_int_fixed_width(p + 4, m, 2);
+    format_int_fixed_width(p + 6, d, 2);
+}
+
 Xapian::valueno
 DateValueRangeProcessor::operator()(string &begin, string &end)
 {
@@ -169,39 +191,23 @@ DateValueRangeProcessor::operator()(string &begin, string &end)
 	return Xapian::BAD_VALUENO;
     }
 
-    if (b_y < 100) {
-	b_y += 1900;
-	if (b_y < epoch_year) b_y += 100;
-    }
-    if (e_y < 100) {
-	e_y += 1900;
-	if (e_y < epoch_year) e_y += 100;
-    }
-
-#ifdef SNPRINTF
-    char buf[9];
+    char buf[8];
     if (!begin.empty()) {
-	SNPRINTF(buf, sizeof(buf), "%08d", b_y * 10000 + b_m * 100 + b_d);
+	if (b_y < 100) {
+	    b_y += 1900;
+	    if (b_y < epoch_year) b_y += 100;
+	}
+	format_yyyymmdd(buf, b_y, b_m, b_d);
 	begin.assign(buf, 8);
     }
     if (!end.empty()) {
-	SNPRINTF(buf, sizeof(buf), "%08d", e_y * 10000 + e_m * 100 + e_d);
+	if (e_y < 100) {
+	    e_y += 1900;
+	    if (e_y < epoch_year) e_y += 100;
+	}
+	format_yyyymmdd(buf, e_y, e_m, e_d);
 	end.assign(buf, 8);
     }
-#else
-    char buf[100];
-    buf[sizeof(buf) - 1] = '\0';
-    if (!begin.empty()) {
-	sprintf(buf, "%08d", b_y * 10000 + b_m * 100 + b_d);
-	if (buf[sizeof(buf) - 1]) abort(); // Buffer overrun!
-	begin.assign(buf, 8);
-    }
-    if (!end.empty()) {
-	sprintf(buf, "%08d", e_y * 10000 + e_m * 100 + e_d);
-	if (buf[sizeof(buf) - 1]) abort(); // Buffer overrun!
-	end.assign(buf, 8);
-    }
-#endif
     return valno;
 }
 
@@ -351,46 +357,27 @@ DateRangeProcessor::operator()(const string& b, const string& e)
 	goto not_our_range;
     }
 
-    if (b_y < 100) {
-	b_y += 1900;
-	if (b_y < epoch_year) b_y += 100;
-    }
-    if (e_y < 100) {
-	e_y += 1900;
-	if (e_y < epoch_year) e_y += 100;
-    }
-
     {
-#ifdef SNPRINTF
-	char buf_b[9], buf_e[9];
+	char buf_b[8], buf_e[8];
+	size_t len_b = 0, len_e = 0;
 	if (!b.empty()) {
-	    SNPRINTF(buf_b, sizeof(buf_b), "%08d", b_y * 10000 + b_m * 100 + b_d);
-	} else {
-	    *buf_b = '\0';
+	    if (b_y < 100) {
+		b_y += 1900;
+		if (b_y < epoch_year) b_y += 100;
+	    }
+	    format_yyyymmdd(buf_b, b_y, b_m, b_d);
+	    len_b = 8;
 	}
 	if (!e.empty()) {
-	    SNPRINTF(buf_e, sizeof(buf_e), "%08d", e_y * 10000 + e_m * 100 + e_d);
-	} else {
-	    *buf_e = '\0';
+	    if (e_y < 100) {
+		e_y += 1900;
+		if (e_y < epoch_year) e_y += 100;
+	    }
+	    format_yyyymmdd(buf_e, e_y, e_m, e_d);
+	    len_e = 8;
 	}
-#else
-	char buf_b[100], buf_e[100];
-	buf_b[sizeof(buf_b) - 1] = '\0';
-	buf_e[sizeof(buf_e) - 1] = '\0';
-	if (!b.empty()) {
-	    sprintf(buf_b, "%08d", b_y * 10000 + b_m * 100 + b_d);
-	    if (buf_b[sizeof(buf_b) - 1]) abort(); // Buffer overrun!
-	} else {
-	    *buf_b = '\0';
-	}
-	if (!e.empty()) {
-	    sprintf(buf_e, "%08d", e_y * 10000 + e_m * 100 + e_d);
-	    if (buf_e[sizeof(buf_e) - 1]) abort(); // Buffer overrun!
-	} else {
-	    *buf_e = '\0';
-	}
-#endif
-	return RangeProcessor::operator()(buf_b, buf_e);
+	return RangeProcessor::operator()(string(buf_b, len_b),
+					  string(buf_e, len_e));
     }
 
 not_our_range:
