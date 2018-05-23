@@ -21,14 +21,14 @@
 #ifndef XAPIAN_INCLUDED_HONEY_TABLE_H
 #define XAPIAN_INCLUDED_HONEY_TABLE_H
 
-#define SSINDEX_ARRAY
-//#define SSINDEX_BINARY_CHOP
-//#define SSINDEX_SKIPLIST
+#define SSTINDEX_ARRAY
+//#define SSTINDEX_BINARY_CHOP
+//#define SSTINDEX_SKIPLIST
 
-#define SSINDEX_BINARY_CHOP_KEY_SIZE 4
-#define SSINDEX_BINARY_CHOP_PTR_SIZE 4
-#define SSINDEX_BINARY_CHOP_ENTRY_SIZE \
-    (SSINDEX_BINARY_CHOP_KEY_SIZE + SSINDEX_BINARY_CHOP_PTR_SIZE)
+#define SSTINDEX_BINARY_CHOP_KEY_SIZE 4
+#define SSTINDEX_BINARY_CHOP_PTR_SIZE 4
+#define SSTINDEX_BINARY_CHOP_ENTRY_SIZE \
+    (SSTINDEX_BINARY_CHOP_KEY_SIZE + SSTINDEX_BINARY_CHOP_PTR_SIZE)
 
 //#include "xapian/constants.h"
 #include "xapian/error.h"
@@ -298,47 +298,47 @@ class BufferedFile {
 
 class HoneyCursor;
 
-class SSIndex {
+class SSTIndex {
     std::string data;
-#if defined SSINDEX_BINARY_CHOP
+#if defined SSTINDEX_BINARY_CHOP
     size_t block = size_t(-1);
-#elif defined SSINDEX_SKIPLIST
+#elif defined SSTINDEX_SKIPLIST
     size_t block = 0;
 #endif
-#if defined SSINDEX_BINARY_CHOP || defined SSINDEX_SKIPLIST
+#if defined SSTINDEX_BINARY_CHOP || defined SSTINDEX_SKIPLIST
     std::string last_index_key;
 #endif
     // Put an index entry every this much:
     // FIXME: tune - seems 64K is common elsewhere
     enum { INDEXBLOCK = 4096 };
-    SSIndex* parent_index = NULL;
+    SSTIndex* parent_index = NULL;
 
-#ifdef SSINDEX_ARRAY
+#ifdef SSTINDEX_ARRAY
     unsigned char first, last = static_cast<unsigned char>(-1);
     off_t* pointers = NULL;
 #endif
 
   public:
-    SSIndex() {
-#ifdef SSINDEX_ARRAY
+    SSTIndex() {
+#ifdef SSTINDEX_ARRAY
 	// Header added in write() method.
-#elif defined SSINDEX_BINARY_CHOP
+#elif defined SSTINDEX_BINARY_CHOP
 	data.assign(5, '\x01');
-#elif defined SSINDEX_SKIPLIST
+#elif defined SSTINDEX_SKIPLIST
 	data.assign(1, '\x02');
 #else
-# error "SSINDEX type not specified"
+# error "SSTINDEX type not specified"
 #endif
     }
 
-    ~SSIndex() {
-#ifdef SSINDEX_ARRAY
+    ~SSTIndex() {
+#ifdef SSTINDEX_ARRAY
 	delete [] pointers;
 #endif
     }
 
     void maybe_add_entry(const std::string& key, off_t ptr) {
-#ifdef SSINDEX_ARRAY
+#ifdef SSTINDEX_ARRAY
 	unsigned char initial = key[0];
 	if (!pointers) {
 	    pointers = new off_t[256]();
@@ -354,7 +354,7 @@ class SSIndex {
 	}
 	pointers[initial] = ptr;
 	last = initial;
-#elif defined SSINDEX_BINARY_CHOP
+#elif defined SSTINDEX_BINARY_CHOP
 	// We store entries truncated to a maximum width (and trailing zeros
 	// are used to indicate keys shorter than that max width).  These then
 	// point to the first key that maps to this truncated value.
@@ -367,24 +367,24 @@ class SSIndex {
 	// could use a "SKO" - a fixed width entry which encodes variable
 	// length pointer and key with short keys in the entry and long keys
 	// pointed to (or prefix included and rest pointed to).
-	if (last_index_key.size() == SSINDEX_BINARY_CHOP_KEY_SIZE) {
+	if (last_index_key.size() == SSTINDEX_BINARY_CHOP_KEY_SIZE) {
 	    if (startswith(key, last_index_key)) {
 		return;
 	    }
 	}
 
 	// Ensure the truncated key doesn't end in a zero byte.
-	if (key.size() >= SSINDEX_BINARY_CHOP_KEY_SIZE) {
+	if (key.size() >= SSTINDEX_BINARY_CHOP_KEY_SIZE) {
 	    // FIXME: Start from char N if we have N array index levels above.
-	    last_index_key.assign(key, 0, SSINDEX_BINARY_CHOP_KEY_SIZE);
-	    if (key[SSINDEX_BINARY_CHOP_KEY_SIZE - 1] == '\0')
+	    last_index_key.assign(key, 0, SSTINDEX_BINARY_CHOP_KEY_SIZE);
+	    if (key[SSTINDEX_BINARY_CHOP_KEY_SIZE - 1] == '\0')
 		return;
 	} else {
 	    last_index_key = key;
 	    if (key.back() == '\0')
 		return;
 	    // Pad with zero bytes.
-	    last_index_key.resize(SSINDEX_BINARY_CHOP_KEY_SIZE);
+	    last_index_key.resize(SSTINDEX_BINARY_CHOP_KEY_SIZE);
 	}
 
 	// Thin entries to at most one per INDEXBLOCK sized block.
@@ -405,7 +405,7 @@ class SSIndex {
 	unaligned_write4(reinterpret_cast<unsigned char*>(&data[c]), ptr);
 
 	block = cur_block;
-#elif defined SSINDEX_SKIPLIST
+#elif defined SSTINDEX_SKIPLIST
 	size_t cur_block = ptr / INDEXBLOCK;
 	if (cur_block == block) return;
 
@@ -421,14 +421,14 @@ class SSIndex {
 
 	last_index_key = key;
 #else
-# error "SSINDEX type not specified"
+# error "SSTINDEX type not specified"
 #endif
     }
 
     off_t write(BufferedFile& store) {
 	off_t root = store.get_pos();
 
-#ifdef SSINDEX_ARRAY
+#ifdef SSTINDEX_ARRAY
 	if (!pointers) {
 	    first = last = 0;
 	    pointers = new off_t[1]();
@@ -449,8 +449,8 @@ class SSIndex {
 	}
 	delete [] pointers;
 	pointers = NULL;
-#elif defined SSINDEX_BINARY_CHOP
-	if (last_index_key.size() == SSINDEX_BINARY_CHOP_KEY_SIZE) {
+#elif defined SSTINDEX_BINARY_CHOP
+	if (last_index_key.size() == SSTINDEX_BINARY_CHOP_KEY_SIZE) {
 	    // Increment final byte(s) to give a key which is definitely
 	    // at or above any key which this could be truncated from.
 	    size_t i = last_index_key.size();
@@ -469,7 +469,7 @@ class SSIndex {
 	    } while (ch == 0);
 	} else {
 	    // Pad with zeros, which gives an upper bound.
-	    last_index_key.resize(SSINDEX_BINARY_CHOP_KEY_SIZE);
+	    last_index_key.resize(SSTINDEX_BINARY_CHOP_KEY_SIZE);
 	}
 
 	{
@@ -481,15 +481,15 @@ class SSIndex {
 
 skip_adding_upper_bound:
 	// Fill in bytes 1 to 4 with the number of entries.
-	size_t n_index = (data.size() - 5) / SSINDEX_BINARY_CHOP_ENTRY_SIZE;
+	size_t n_index = (data.size() - 5) / SSTINDEX_BINARY_CHOP_ENTRY_SIZE;
 	data[1] = n_index >> 24;
 	data[2] = n_index >> 16;
 	data[3] = n_index >> 8;
 	data[4] = n_index;
-#elif defined SSINDEX_SKIPLIST
+#elif defined SSTINDEX_SKIPLIST
 	// Already built in data.
 #else
-# error "SSINDEX type not specified"
+# error "SSTINDEX type not specified"
 #endif
 
 	store.write(data.data(), data.size());
@@ -498,7 +498,7 @@ skip_adding_upper_bound:
     }
 
     size_t size() const {
-	// FIXME: For SSINDEX_ARRAY, data.size() only correct after calling
+	// FIXME: For SSTINDEX_ARRAY, data.size() only correct after calling
 	// write().
 	size_t s = data.size();
 	if (parent_index) s += parent_index->size();
@@ -520,7 +520,7 @@ class HoneyTable {
     uint4 compress_min;
     mutable BufferedFile store;
     mutable std::string last_key;
-    SSIndex index;
+    SSTIndex index;
     off_t root = -1;
     honey_tablesize_t num_entries = 0;
     bool lazy;

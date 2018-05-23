@@ -220,16 +220,16 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		    return false;
 		}
 		off_t base = store.get_pos();
-		char kkey[SSINDEX_BINARY_CHOP_KEY_SIZE];
+		char kkey[SSTINDEX_BINARY_CHOP_KEY_SIZE];
 		size_t kkey_len = 0;
 		size_t i = 0;
 		while (j - i > 1) {
 		    size_t k = i + (j - i) / 2;
-		    store.set_pos(base + k * SSINDEX_BINARY_CHOP_ENTRY_SIZE);
-		    store.read(kkey, SSINDEX_BINARY_CHOP_KEY_SIZE);
+		    store.set_pos(base + k * SSTINDEX_BINARY_CHOP_ENTRY_SIZE);
+		    store.read(kkey, SSTINDEX_BINARY_CHOP_KEY_SIZE);
 		    kkey_len = 4;
 		    while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
-		    int r = key.compare(0, SSINDEX_BINARY_CHOP_KEY_SIZE, kkey, kkey_len);
+		    int r = key.compare(0, SSTINDEX_BINARY_CHOP_KEY_SIZE, kkey, kkey_len);
 		    if (r < 0) {
 			j = k;
 		    } else {
@@ -239,8 +239,8 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 			}
 		    }
 		}
-		store.set_pos(base + i * SSINDEX_BINARY_CHOP_ENTRY_SIZE);
-		store.read(kkey, SSINDEX_BINARY_CHOP_KEY_SIZE);
+		store.set_pos(base + i * SSTINDEX_BINARY_CHOP_ENTRY_SIZE);
+		store.read(kkey, SSTINDEX_BINARY_CHOP_KEY_SIZE);
 		kkey_len = 4;
 		while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
 		off_t jump = store.read_uint4_be();
