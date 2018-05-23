@@ -53,7 +53,7 @@
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 # include "../glass/glass_database.h"
 # include "../glass/glass_table.h"
 # include "../glass/glass_values.h"
@@ -61,7 +61,6 @@
 
 using namespace std;
 
-#ifndef DISABLE_GPL_LIBXAPIAN
 [[noreturn]]
 static void
 throw_database_corrupt(const char* item, const char* pos)
@@ -76,6 +75,7 @@ throw_database_corrupt(const char* item, const char* pos)
     throw Xapian::DatabaseCorruptError(message);
 }
 
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 namespace GlassCompact {
 
 static inline bool
@@ -149,7 +149,7 @@ key_type(const string& key)
 
 template<typename T> class PostlistCursor;
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 // Convert glass to honey.
 template<>
 class PostlistCursor<const GlassTable&> : private GlassCursor {
@@ -1036,7 +1036,7 @@ merge_postlists(Xapian::Compactor * compactor,
 
 template<typename T> struct MergeCursor;
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 template<>
 struct MergeCursor<const GlassTable&> : public GlassCursor {
     explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
@@ -1064,7 +1064,7 @@ struct CursorGt {
     }
 };
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 // Convert glass to honey.
 static void
 merge_spellings(HoneyTable* out,
@@ -1556,7 +1556,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 
 template<typename T> class PositionCursor;
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 template<>
 class PositionCursor<const GlassTable&> : private GlassCursor {
     Xapian::docid offset;
@@ -1717,7 +1717,7 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
     }
 }
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 template<typename T> void
 merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 		  const vector<Xapian::docid> & offset,
@@ -1957,8 +1957,12 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	for (size_t i = 0; i != sources.size(); ++i) {
 	    bool has_uncommitted_changes;
 	    if (source_backend == Xapian::DB_BACKEND_GLASS) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 		auto db = static_cast<const GlassDatabase*>(sources[i]);
 		has_uncommitted_changes = db->has_uncommitted_changes();
+#else
+		throw Xapian::FeatureUnavailableError("Glass backend disabled");
+#endif
 	    } else {
 		auto db = static_cast<const HoneyDatabase*>(sources[i]);
 		has_uncommitted_changes = db->has_uncommitted_changes();
@@ -1999,9 +2003,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
     version_file_out->create();
     for (size_t i = 0; i != sources.size(); ++i) {
 	if (source_backend == Xapian::DB_BACKEND_GLASS) {
-#ifdef DISABLE_GPL_LIBXAPIAN
-	    Assert(false);
-#else
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	    auto db = static_cast<const GlassDatabase*>(sources[i]);
 	    auto& v_in = db->version_file;
 	    auto& v_out = version_file_out;
@@ -2011,6 +2013,8 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 			       v_in.get_wdf_upper_bound(),
 			       v_in.get_total_doclen(),
 			       v_in.get_spelling_wordfreq_upper_bound());
+#else
+	    Assert(false);
 #endif
 	} else {
 	    auto db = static_cast<const HoneyDatabase*>(sources[i]);
@@ -2034,7 +2038,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 
     // FIXME: sort out indentation.
 if (source_backend == Xapian::DB_BACKEND_GLASS) {
-#ifdef DISABLE_GPL_LIBXAPIAN
+#ifndef XAPIAN_HAS_GLASS_BACKEND
     throw Xapian::FeatureUnavailableError("Glass backend disabled");
 #else
     vector<HoneyTable *> tabs;
