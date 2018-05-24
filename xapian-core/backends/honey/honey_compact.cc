@@ -167,7 +167,6 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	: GlassCursor(in), offset(offset_), firstdid(0)
     {
 	rewind();
-	next();
     }
 
     bool next() {
@@ -448,7 +447,6 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	: HoneyCursor(in), offset(offset_), firstdid(0)
     {
 	rewind();
-	next();
     }
 
     bool next() {
@@ -620,12 +618,13 @@ merge_postlists(Xapian::Compactor * compactor,
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for ( ; b != e; ++b, ++offset) {
 	auto in = *b;
-	if (in->empty()) {
+	auto cursor = new cursor_type(in, *offset);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
 	    // Skip empty tables.
-	    continue;
+	    delete cursor;
 	}
-
-	pq.push(new cursor_type(in, *offset));
     }
 
     string last_key;
@@ -1041,7 +1040,6 @@ template<>
 struct MergeCursor<const GlassTable&> : public GlassCursor {
     explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
 	rewind();
-	next();
     }
 };
 #endif
@@ -1050,7 +1048,6 @@ template<>
 struct MergeCursor<const HoneyTable&> : public HoneyCursor {
     explicit MergeCursor(const HoneyTable *in) : HoneyCursor(in) {
 	rewind();
-	next();
     }
 };
 
@@ -1076,8 +1073,12 @@ merge_spellings(HoneyTable* out,
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for ( ; b != e; ++b) {
 	auto in = *b;
-	if (!in->empty()) {
-	    pq.push(new cursor_type(in));
+	auto cursor = new cursor_type(in);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
+	    // Skip empty tables.
+	    delete cursor;
 	}
     }
 
@@ -1273,8 +1274,12 @@ merge_spellings(HoneyTable* out,
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for ( ; b != e; ++b) {
 	auto in = *b;
-	if (!in->empty()) {
-	    pq.push(new cursor_type(in));
+	auto cursor = new cursor_type(in);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
+	    // Skip empty tables.
+	    delete cursor;
 	}
     }
 
@@ -1384,8 +1389,12 @@ merge_synonyms(T* out, U b, U e)
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for ( ; b != e; ++b) {
 	auto in = *b;
-	if (!in->empty()) {
-	    pq.push(new cursor_type(in));
+	auto cursor = new cursor_type(in);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
+	    // Skip empty tables.
+	    delete cursor;
 	}
     }
 
@@ -1568,7 +1577,6 @@ class PositionCursor<const GlassTable&> : private GlassCursor {
     PositionCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0) {
 	rewind();
-	next();
     }
 
     bool next() {
@@ -1607,7 +1615,6 @@ class PositionCursor<const HoneyTable&> : private HoneyCursor {
     PositionCursor(const HoneyTable *in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0) {
 	rewind();
-	next();
     }
 
     bool next() {
@@ -1654,12 +1661,13 @@ merge_positions(T* out, const vector<U*> & inputs,
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for (size_t i = 0; i < inputs.size(); ++i) {
 	auto in = inputs[i];
-	if (in->empty()) {
+	auto cursor = new cursor_type(in, offset[i]);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
 	    // Skip empty tables.
-	    continue;
+	    delete cursor;
 	}
-
-	pq.push(new cursor_type(in, offset[i]));
     }
 
     while (!pq.empty()) {
@@ -1683,8 +1691,6 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 	Xapian::docid off = offset[i];
 
 	auto in = inputs[i];
-	if (in->empty()) continue;
-
 	HoneyCursor cur(in);
 	cur.rewind();
 
