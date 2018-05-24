@@ -122,8 +122,6 @@ class HoneyCursor {
     HoneyCursor * clone() const {
 	return new HoneyCursor(*this);
     }
-
-    bool del() { return false; }
 };
 
 class MutableHoneyCursor : public HoneyCursor {
@@ -131,6 +129,8 @@ class MutableHoneyCursor : public HoneyCursor {
     MutableHoneyCursor(HoneyTable* table_)
 	: HoneyCursor(table_->store, table_->get_root(), table_->get_offset())
     { }
+
+    bool del() { return false; }
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_CURSOR_H
