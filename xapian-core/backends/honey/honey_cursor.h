@@ -125,12 +125,21 @@ class HoneyCursor {
 };
 
 class MutableHoneyCursor : public HoneyCursor {
+    HoneyTable* table;
+
   public:
     MutableHoneyCursor(HoneyTable* table_)
-	: HoneyCursor(table_->store, table_->get_root(), table_->get_offset())
+	: HoneyCursor(table_->store, table_->get_root(), table_->get_offset()),
+	  table(table_)
     { }
 
-    bool del() { return false; }
+    bool del() {
+	Assert(!is_at_end);
+	std::string key_to_del = current_key;
+	bool res = next();
+	table->del(key_to_del);
+	return res;
+    }
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_CURSOR_H
