@@ -2006,8 +2006,14 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	version_file_out.reset(new HoneyVersion(destdir));
     }
 
+    // Set to true if stat() failed (which can happen if the files are > 2GB
+    // and off_t is 32 bit) or one of the totals overflowed.
+    bool bad_totals = false;
+    off_t in_total = 0, out_total = 0;
+
     version_file_out->create();
     for (size_t i = 0; i != sources.size(); ++i) {
+	bool source_single_file = false;
 	if (source_backend == Xapian::DB_BACKEND_GLASS) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	    auto db = static_cast<const GlassDatabase*>(sources[i]);
@@ -2019,12 +2025,27 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 			       v_in.get_wdf_upper_bound(),
 			       v_in.get_total_doclen(),
 			       v_in.get_spelling_wordfreq_upper_bound());
+	    source_single_file = db->single_file();
 #else
 	    Assert(false);
 #endif
 	} else {
 	    auto db = static_cast<const HoneyDatabase*>(sources[i]);
 	    version_file_out->merge_stats(db->version_file);
+	    source_single_file = db->single_file();
+	}
+	if (source_single_file) {
+	    // Add single file input DB sizes to in_total here.  For other
+	    // databases, we sum per-table below.
+	    string path;
+	    sources[i]->get_backend_info(&path);
+	    off_t db_size = file_size(path);
+	    if (errno == 0) {
+		// FIXME: check overflow and set bad_totals
+		in_total += db_size;
+	    } else {
+		bad_totals = true;
+	    }
 	}
     }
 
@@ -2036,11 +2057,6 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	fl.pack(fl_serialised);
     }
 #endif
-
-    // Set to true if stat() failed (which can happen if the files are > 2GB
-    // and off_t is 32 bit) or one of the totals overflowed.
-    bool bad_totals = false;
-    off_t in_total = 0, out_total = 0;
 
     // FIXME: sort out indentation.
 if (source_backend == Xapian::DB_BACKEND_GLASS) {
@@ -2116,7 +2132,6 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		    // FIXME: Find actual size somehow?
 		    // in_size += table->size() / 1024;
 		    single_file_in = true;
-		    bad_totals = true;
 		    output_will_exist = true;
 		    ++inputs_present;
 		}
@@ -2395,7 +2410,6 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		    // FIXME: Find actual size somehow?
 		    // in_size += table->size() / 1024;
 		    single_file_in = true;
-		    bad_totals = true;
 		    output_will_exist = true;
 		    ++inputs_present;
 		}
