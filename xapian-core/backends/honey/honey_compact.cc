@@ -475,15 +475,10 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		return true;
 	    }
 	    case Honey::KEY_DOCLEN_CHUNK: {
-		const char * p = key.data();
-		const char * end = p + key.length();
-		p += 2;
-		Xapian::docid did = 1;
-		if (p != end &&
-		    (!unpack_uint_preserving_sort(&p, end, &did) || p != end)) {
+		Xapian::docid did = Honey::docid_from_key(key);
+		if (did == 0)
 		    throw Xapian::DatabaseCorruptError("Bad doclen key");
-		}
-		key = Honey::make_doclenchunk_key(did + offset);
+		chunk_lastdid = did + offset;
 		return true;
 	    }
 	    case Honey::KEY_POSTING_CHUNK:
