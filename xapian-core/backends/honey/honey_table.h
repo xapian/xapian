@@ -651,6 +651,12 @@ class HoneyTable {
 
     honey_tablesize_t get_entry_count() const { return num_entries; }
 
+    /** Return an approximation of the number of entries in the table.
+     *
+     *  Currently this is exact, but may not be in the future.
+     */
+    honey_tablesize_t get_approx_entry_count() const { return num_entries; }
+
     off_t get_root() const { return root; }
 
     off_t get_offset() const { return offset; }
