@@ -88,12 +88,14 @@ HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
 	cf_info = 1 | TOP_BIT_SET(decltype(cf_info));
     } else {
 	cf_info = 1;
+	// If wdf_max can only be zero if cf == 0 (and
+	// decode_initial_chunk_header() should ensure this).
+	Assert(wdf_max != 0);
 	Xapian::termcount remaining_cf_for_flat_wdf = (tf - 1) * wdf_max;
 	// Check this matches and that it isn't a false match due
 	// to overflow of the multiplication above.
 	if (cf - first_wdf == remaining_cf_for_flat_wdf &&
-	    usual(wdf_max == 0 ||
-		  remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
+	    usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
 	    // Set cl_info to the flat wdf value with the top bit set to
 	    // signify that this is a flat wdf value.
 	    cf_info = wdf_max;
