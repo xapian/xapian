@@ -162,6 +162,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
     Xapian::termcount tf, cf;
     Xapian::termcount first_wdf;
     Xapian::termcount wdf_max;
+    bool have_wdfs;
 
     PostlistCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0)
@@ -361,6 +362,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	    }
 	    ++firstdid;
+	    have_wdfs = (cf != 0);
 	    tag.erase(0, d - tag.data());
 	    wdf_max = 0;
 	} else {
@@ -391,7 +393,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	if (!unpack_uint(&d, e, &first_wdf))
 	    throw Xapian::DatabaseCorruptError("Decoding first wdf in glass "
 					       "posting chunk");
-	if (first_wdf == 0 && cf > 0) {
+	if ((first_wdf != 0) != have_wdfs) {
 	    // FIXME: Also need to adjust document length, total document length.
 	    // Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
 	    // first_wdf = 1;
@@ -411,7 +413,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    if (!unpack_uint(&d, e, &wdf))
 		throw Xapian::DatabaseCorruptError("Decoding wdf in glass "
 						   "posting chunk");
-	    if (wdf == 0 && cf > 0) {
+	    if ((wdf != 0) != have_wdfs) {
 		// FIXME: Also need to adjust document length, total document length.
 		// Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
 		// wdf = 1;
@@ -420,8 +422,10 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 					    "having both zero and non-zero "
 					    "wdf");
 	    }
-	    pack_uint(newtag, wdf);
-	    wdf_max = max(wdf_max, wdf);
+	    if (have_wdfs) {
+		pack_uint(newtag, wdf);
+		wdf_max = max(wdf_max, wdf);
+	    }
 	}
 
 	swap(tag, newtag);
@@ -442,6 +446,7 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
     Xapian::termcount tf, cf;
     Xapian::termcount first_wdf;
     Xapian::termcount wdf_max;
+    bool have_wdfs;
 
     PostlistCursor(const HoneyTable *in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0)
@@ -466,8 +471,12 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		const char * end = p + key.length();
 		p += 2;
 		Xapian::valueno slot;
-		if (!unpack_uint(&p, end, &slot))
-		    throw Xapian::DatabaseCorruptError("bad value key");
+		if (p[-1] != char(Honey::KEY_VALUE_CHUNK_HI)) {
+		    slot = p[-1] - Honey::KEY_VALUE_CHUNK;
+		} else {
+		    if (!unpack_uint_preserving_sort(&p, end, &slot))
+			throw Xapian::DatabaseCorruptError("bad value key");
+		}
 		Xapian::docid did;
 		if (!unpack_uint_preserving_sort(&p, end, &did))
 		    throw Xapian::DatabaseCorruptError("bad value key");
@@ -513,7 +522,35 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    // merging, and for simplicity we always do).
 	    (void)lastdid;
 	    tag.erase(0, d - tag.data());
+
+	    have_wdfs = (cf != 0) && (cf != tf - 1 + first_wdf);
+	    if (have_wdfs && tf > 2) {
+		Xapian::termcount remaining_cf_for_flat_wdf =
+		    (tf - 1) * wdf_max;
+		// Check this matches and that it isn't a false match due
+		// to overflow of the multiplication above.
+		if (cf - first_wdf == remaining_cf_for_flat_wdf &&
+		    usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
+		    // The wdf is flat so we don't need to store it.
+		    have_wdfs = false;
+		}
+	    }
 	} else {
+	    if (cf > 0) {
+		// The cf we report should only be non-zero for initial chunks
+		// (of which there may be several for the same term from
+		// different instances of this class when merging databases)
+		// and gets summed to give the total cf for the term, so we
+		// need to zero it here, after potentially using it to
+		// calculate first_wdf.
+		//
+		// If cf is zero for a term, first_wdf will be zero for all
+		// chunks so doesn't need setting specially here.
+		if (!have_wdfs)
+		    first_wdf = (cf - first_wdf) / (tf - 1);
+		cf = 0;
+	    }
+
 	    // Not an initial chunk, so adjust key and remove tag header.
 	    size_t tmp = d - key.data();
 	    if (!unpack_uint_preserving_sort(&d, e, &chunk_lastdid) ||
@@ -526,41 +563,20 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    d = tag.data();
 	    e = d + tag.size();
 
-	    bool have_wdfs = (cf != 0);
-	    if (have_wdfs && tf > 2) {
-		Xapian::termcount remaining_cf_for_flat_wdf =
-		    (tf - 1) * wdf_max;
-		// Check this matches and that it isn't a false match due
-		// to overflow of the multiplication above.
-		if (cf - first_wdf == remaining_cf_for_flat_wdf &&
-		    usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
-		    // The wdf is flat so we don't need to store it.
-		    have_wdfs = false;
-		}
-	    }
-
 	    if (have_wdfs) {
 		if (!decode_delta_chunk_header(&d, e, chunk_lastdid, firstdid,
 					       first_wdf)) {
 		    throw Xapian::DatabaseCorruptError("Bad postlist delta "
 						       "chunk header");
 		}
-		tag.erase(0, d - tag.data());
 	    } else {
 		if (!decode_delta_chunk_header_no_wdf(&d, e, chunk_lastdid,
 						      firstdid)) {
 		    throw Xapian::DatabaseCorruptError("Bad postlist delta "
 						       "chunk header");
 		}
-		first_wdf = 0;
-		// Splice in a 0 wdf value after each docid delta.
-		string newtag;
-		for (size_t i = d - tag.data(); i < tag.size(); i += 4) {
-		    newtag.append(tag, i, 4);
-		    newtag.append(4, '\0');
-		}
-		tag = std::move(newtag);
 	    }
+	    tag.erase(0, d - tag.data());
 	}
 	firstdid += offset;
 	chunk_lastdid += offset;
@@ -819,18 +835,59 @@ merge_postlists(Xapian::Compactor * compactor,
 	Xapian::docid first, last;
 	Xapian::termcount first_wdf;
 	Xapian::termcount wdf_max;
+	Xapian::doccount tf;
+	Xapian::termcount cf;
+	bool have_wdfs;
 	string data;
 
 	HoneyPostListChunk(Xapian::docid first_,
 			   Xapian::docid last_,
 			   Xapian::termcount first_wdf_,
 			   Xapian::termcount wdf_max_,
+			   Xapian::doccount tf_,
+			   Xapian::termcount cf_,
+			   bool have_wdfs_,
 			   string&& data_)
 	    : first(first_),
 	      last(last_),
 	      first_wdf(first_wdf_),
 	      wdf_max(wdf_max_),
+	      tf(tf_),
+	      cf(cf_),
+	      have_wdfs(have_wdfs_),
 	      data(data_) {}
+
+	void append_postings_to(string& tag, bool want_wdfs) {
+	    if (want_wdfs && !have_wdfs) {
+		// Need to add wdfs which were implicit.
+		auto wdf = (cf - first_wdf) / (tf - 1);
+		const char* pos = data.data();
+		const char* pos_end = pos + data.size();
+		while (pos != pos_end) {
+		    Xapian::docid delta;
+		    if (!unpack_uint(&pos, pos_end, &delta))
+			throw_database_corrupt("Decoding docid delta", pos);
+		    pack_uint(tag, delta);
+		    pack_uint(tag, wdf);
+		}
+	    } else if (have_wdfs && !want_wdfs) {
+		// Need to remove wdfs which are now implicit.
+		const char* pos = data.data();
+		const char* pos_end = pos + data.size();
+		while (pos != pos_end) {
+		    Xapian::docid delta;
+		    if (!unpack_uint(&pos, pos_end, &delta))
+			throw_database_corrupt("Decoding docid delta", pos);
+		    pack_uint(tag, delta);
+		    Xapian::termcount wdf;
+		    if (!unpack_uint(&pos, pos_end, &wdf))
+			throw_database_corrupt("Decoding wdf", pos);
+		    (void)wdf;
+		}
+	    } else {
+		tag += data;
+	    }
+	}
     };
     vector<HoneyPostListChunk> tags;
     while (true) {
@@ -872,7 +929,8 @@ merge_postlists(Xapian::Compactor * compactor,
 		}
 
 		Xapian::docid splice_last = 0;
-		if (!have_wdfs && tf > 2 && tags.size() > 1) {
+		if (!have_wdfs && tags[0].have_wdfs && tf > 2 &&
+		    tags.size() > 1) {
 		    // Stripping wdfs will approximately halve the size so
 		    // double up the chunks.
 		    splice_last = chunk_lastdid;
@@ -885,45 +943,10 @@ merge_postlists(Xapian::Compactor * compactor,
 					    first_wdf, wdf_max, first_tag);
 
 		if (tf > 2) {
-		    if (have_wdfs) {
-			first_tag += tags[0].data;
-		    } else {
-			const char* pos = tags[0].data.data();
-			const char* pos_end = pos + tags[0].data.size();
-			while (pos != pos_end) {
-			    Xapian::docid delta;
-			    if (!unpack_uint(&pos, pos_end, &delta))
-				throw_database_corrupt("Decoding docid "
-						       "delta", pos);
-			    pack_uint(first_tag, delta);
-			    Xapian::termcount wdf;
-			    if (!unpack_uint(&pos, pos_end, &wdf))
-				throw_database_corrupt("Decoding wdf",
-						       pos);
-			    // Only copy over the docid deltas, not the
-			    // wdfs.
-			    (void)wdf;
-			}
-
-			if (splice_last) {
-			    pack_uint(first_tag, tags[1].first - splice_last);
-			    pos = tags[1].data.data();
-			    pos_end = pos + tags[1].data.size();
-			    while (pos != pos_end) {
-				Xapian::docid delta;
-				if (!unpack_uint(&pos, pos_end, &delta))
-				    throw_database_corrupt("Decoding docid "
-							   "delta", pos);
-				pack_uint(first_tag, delta);
-				Xapian::termcount wdf;
-				if (!unpack_uint(&pos, pos_end, &wdf))
-				    throw_database_corrupt("Decoding wdf",
-							   pos);
-				// Only copy over the docid deltas, not the
-				// wdfs.
-				(void)wdf;
-			    }
-			}
+		    tags[0].append_postings_to(first_tag, have_wdfs);
+		    if (!have_wdfs && splice_last) {
+			pack_uint(first_tag, tags[1].first - splice_last);
+			tags[1].append_postings_to(first_tag, have_wdfs);
 		    }
 		}
 		out->add(last_key, first_tag);
@@ -955,7 +978,7 @@ merge_postlists(Xapian::Compactor * compactor,
 						      tag);
 			    tag += i->data;
 			} else {
-			    if (i + 1 != tags.end()) {
+			    if (i->have_wdfs && i + 1 != tags.end()) {
 				splice_last = last_did;
 				last_did = (i + 1)->last;
 			    }
@@ -963,42 +986,12 @@ merge_postlists(Xapian::Compactor * compactor,
 			    encode_delta_chunk_header_no_wdf(i->first,
 							     last_did,
 							     tag);
-			    const char* pos = i->data.data();
-			    const char* pos_end = pos + i->data.size();
-			    while (pos != pos_end) {
-				Xapian::docid delta;
-				if (!unpack_uint(&pos, pos_end, &delta))
-				    throw_database_corrupt("Decoding docid "
-							   "delta", pos);
-				pack_uint(tag, delta);
-				Xapian::termcount wdf;
-				if (!unpack_uint(&pos, pos_end, &wdf))
-				    throw_database_corrupt("Decoding wdf",
-							   pos);
-				// Only copy over the docid deltas, not the
-				// wdfs.
-				(void)wdf;
-			    }
+			    tag += i->data;
 			    if (splice_last) {
 				++i;
 				pack_uint(tag, i->first - splice_last);
 				splice_last = 0;
-				pos = i->data.data();
-				pos_end = pos + i->data.size();
-				while (pos != pos_end) {
-				    Xapian::docid delta;
-				    if (!unpack_uint(&pos, pos_end, &delta))
-					throw_database_corrupt("Decoding docid "
-							       "delta", pos);
-				    pack_uint(tag, delta);
-				    Xapian::termcount wdf;
-				    if (!unpack_uint(&pos, pos_end, &wdf))
-					throw_database_corrupt("Decoding wdf",
-							       pos);
-				    // Only copy over the docid deltas, not the
-				    // wdfs.
-				    (void)wdf;
-				}
+				tag += i->data;
 			    }
 			}
 
@@ -1011,14 +1004,25 @@ merge_postlists(Xapian::Compactor * compactor,
 	    tf = cf = 0;
 	    last_key = cur->key;
 	}
-	if (cur->tf) {
-	    tf += cur->tf;
-	    cf += cur->cf;
+
+	Assert(cur->tf);
+	if (tf && cur->tf && (cf == 0) != (cur->cf == 0)) {
+	    // FIXME: Also need to adjust document length, total document
+	    // length.
+	    // Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
+	    throw Xapian::DatabaseError("Honey does not support a term having "
+					"both zero and non-zero wdf");
 	}
+	tf += cur->tf;
+	cf += cur->cf;
+
 	tags.push_back(HoneyPostListChunk(cur->firstdid,
 					  cur->chunk_lastdid,
 					  cur->first_wdf,
 					  cur->wdf_max,
+					  cur->tf,
+					  cur->cf,
+					  cur->have_wdfs,
 					  std::move(cur->tag)));
 	if (cur->next()) {
 	    pq.push(cur);
