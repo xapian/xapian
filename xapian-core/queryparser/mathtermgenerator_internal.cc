@@ -45,6 +45,7 @@ bool move_to_next_open_tag(const char *& ch, string & tag);
 string get_element_value(const char *& ch);
 string get_label(const char *& ch, string & tag);
 void skip_prefix(const char *& ch);
+string next_tag(const char *& ch, string & cur_tag);
 // TODO temporary usage of static. This will be either moved to function
 // arguments or plan to implement parser class where this data can be stored.
 static bool prefix = false;
@@ -114,6 +115,32 @@ move_to_next_open_tag(const char *& ch, string & tag)
 }
 
 string
+next_tag(const char *& ch, string & cur_tag)
+{
+    string tag;
+    while(*ch != '\0') {
+	if (ch[0] == '<') {
+	    ++ch;
+	    if (ch[0] == '/')
+		++ch;
+	    while (*ch != '\0' && *ch != '>') {
+		tag.push_back(*ch);
+		++ch;
+	    }
+	    ++ch;
+	    if (tag.compare(cur_tag) == 0) {
+		tag.clear();
+		continue;
+	    } else
+		return tag;
+	} else
+	    ++ch;
+    }
+    return tag;
+}
+
+
+string
 get_label(const char *& ch, string & tag) {
     if (tag.compare("mi") == 0)
 	return string("V!" + get_element_value(ch));
@@ -170,8 +197,17 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Add root symbol.
 		    mrow.emplace_back("R", ADJACENT);
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), WITHIN);
+		    if (move_to_next_open_tag(ch, tag) && tag.compare("mrow") == 0) {
+			if (move_to_next_open_tag(ch, tag))
+			    mrow.back().trow.emplace_back(get_label(ch, tag), WITHIN);
+			while (next_tag(ch, tag).compare("mrow") != 0) {
+			    if (move_to_next_open_tag(ch, tag))
+				// TODO This only works if all the elemments are token elements.
+				mrow.back().trow.emplace_back(get_label(ch, tag), ADJACENT);
+			}
+		    } else {
+			mrow.back().trow.emplace_back(get_label(ch, tag), WITHIN);
+		    }
 		} else if (tag.compare("msup") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
@@ -251,8 +287,19 @@ MathTermGenerator::Internal::index_math(const char * ch)
     cout << "\n===============\n";
     cout << "#symbols on main line : " << mrow.size() << '\n';
     cout << "Main line:";
-    for (auto & sym : mrow)
-	cout << "---->" << "(" << sym.label << ")";
+    for (auto & sym : mrow) {
+	cout << ">>>>>" << "(" << sym.label << ")";
+	if (!sym.trow.empty()) {
+	    cout << "\nTop line for " << sym.label << ':';
+	    for (auto & tsym : sym.trow)
+		cout << "---->" << '(' << tsym.label << ')';
+	}
+	if (!sym.trow.empty()) {
+	    cout << "\nBottom line for " << sym.label << ':';
+	    for (auto & bsym : sym.brow)
+		cout << "---->" << '(' << bsym.label << ')';
+	}
+    }
 #endif
 }
 }
