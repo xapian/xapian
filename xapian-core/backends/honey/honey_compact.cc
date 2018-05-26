@@ -2121,8 +2121,9 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 
 	    if (db->single_file()) {
-		if (t->lazy && table->empty()) {
-		    // Essentially doesn't exist.
+		if (t->lazy && !GlassCursor(table).next()) {
+		    // Lazy table with no entries, so essentially doesn't
+		    // exist.
 		} else {
 		    // FIXME: Find actual size somehow?
 		    // in_size += table->size() / 1024;
@@ -2399,8 +2400,9 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 
 	    if (db->single_file()) {
-		if (t->lazy && table->empty()) {
-		    // Essentially doesn't exist.
+		if (t->lazy && !HoneyCursor(table).next()) {
+		    // Lazy table with no entries, so essentially doesn't
+		    // exist.
 		} else {
 		    // FIXME: Find actual size somehow?
 		    // in_size += table->size() / 1024;
