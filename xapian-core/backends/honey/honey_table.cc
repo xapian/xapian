@@ -444,5 +444,5 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 HoneyCursor*
 HoneyTable::cursor_get() const
 {
-    return new HoneyCursor(store, root, offset);
+    return new HoneyCursor(this);
 }

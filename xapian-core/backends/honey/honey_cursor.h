@@ -52,14 +52,11 @@ class HoneyCursor {
 
     // Forward to next constructor form.
     explicit HoneyCursor(const HoneyTable* table)
-	: HoneyCursor(table->store, table->get_root(), table->get_offset()) {}
-
-    HoneyCursor(const BufferedFile& store_, off_t root_, off_t offset_)
-	: store(store_),
+	: store(table->store),
 	  comp_stream(Z_DEFAULT_STRATEGY),
-	  root(root_),
-	  index(root_),
-	  offset(offset_)
+	  root(table->get_root()),
+	  index(table->get_root()),
+	  offset(table->get_offset())
     {
 	store.set_pos(offset); // FIXME root
     }
@@ -129,7 +126,7 @@ class MutableHoneyCursor : public HoneyCursor {
 
   public:
     MutableHoneyCursor(HoneyTable* table_)
-	: HoneyCursor(table_->store, table_->get_root(), table_->get_offset()),
+	: HoneyCursor(table_),
 	  table(table_)
     { }
 
