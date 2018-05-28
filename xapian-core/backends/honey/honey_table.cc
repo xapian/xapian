@@ -240,7 +240,7 @@ bool
 HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 {
     if (!read_only) std::abort();
-    if (!store.is_open()) {
+    if (rare(!store.is_open())) {
 	if (store.was_forced_closed())
 	    throw_database_closed();
 	return false;
