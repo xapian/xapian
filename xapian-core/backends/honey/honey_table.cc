@@ -444,5 +444,10 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 HoneyCursor*
 HoneyTable::cursor_get() const
 {
+    if (rare(!store.is_open())) {
+	if (store.was_forced_closed())
+	    throw_database_closed();
+	return NULL;
+    }
     return new HoneyCursor(this);
 }
