@@ -35,8 +35,9 @@ class HoneyCursor {
     /** Handle the value part of the (key,value). */
     bool next_from_index();
 
-  public:
     BufferedFile store;
+
+  public:
     std::string current_key, current_tag;
     mutable size_t val_size = 0;
     bool current_compressed = false;
