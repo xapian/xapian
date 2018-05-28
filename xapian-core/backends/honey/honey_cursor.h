@@ -116,10 +116,6 @@ class HoneyCursor {
      *  This method may not be particularly efficient.
      */
     bool prev();
-
-    HoneyCursor * clone() const {
-	return new HoneyCursor(*this);
-    }
 };
 
 class MutableHoneyCursor : public HoneyCursor {
