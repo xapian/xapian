@@ -223,7 +223,8 @@ merge_postlists(Xapian::Compactor * compactor,
 			    compactor->resolve_duplicate_metadata(last_key,
 								  tags.size(),
 								  &tags[0]);
-			out->add(last_key, resolved_tag);
+			if (!resolved_tag.empty())
+			    out->add(last_key, resolved_tag);
 		    } else {
 			Assert(!last_key.empty());
 			out->add(last_key, tags[0]);
@@ -248,7 +249,8 @@ merge_postlists(Xapian::Compactor * compactor,
 		    compactor->resolve_duplicate_metadata(last_key,
 							  tags.size(),
 							  &tags[0]);
-		out->add(last_key, resolved_tag);
+		if (!resolved_tag.empty())
+		    out->add(last_key, resolved_tag);
 	    } else {
 		Assert(!last_key.empty());
 		out->add(last_key, tags[0]);
