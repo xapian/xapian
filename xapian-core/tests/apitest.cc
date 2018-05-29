@@ -142,6 +142,12 @@ skip_test_for_backend(const std::string & backend_prefix)
     }
 }
 
+void
+kill_server()
+{
+    backendmanager->kill_server();
+}
+
 class ApiTestRunner : public TestRunner
 {
   public:

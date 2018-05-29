@@ -67,6 +67,14 @@ using namespace std;
 // Start at DEFAULT port and try higher ports until one isn't already in use.
 #define DEFAULT_PORT 1239
 
+// Index to hProcess[](in case of windows) or pid_to_fd[](for linux).
+// This value is consumed by backendmanager object.
+static int pid_idx;
+
+#ifdef __WIN32__
+static HANDLE hProcess[16];
+#endif
+
 #ifdef HAVE_FORK
 
 // We can't dynamically allocate memory for this because it confuses the leak
@@ -214,6 +222,7 @@ try_next_port:
 	if (pid_to_fd[i].pid == 0) {
 	    pid_to_fd[i].fd = tracked_fd;
 	    pid_to_fd[i].pid = child;
+	    pid_idx = i;
 	    break;
 	}
     }
@@ -323,6 +332,14 @@ try_next_port:
     }
     fclose(fh);
 
+    for (unsigned i = 0; i < sizeof(hProcess) / sizeof(HANDLE); ++i) {
+	if (hProcess[i] == 0) {
+	    hProcess[i] = procinfo.hProcess;
+	    pid_idx = i;
+	    break;
+	}
+    }
+
     return port;
 }
 
@@ -354,6 +371,7 @@ BackendManagerRemoteTcp::get_writable_database(const string & name,
 {
     string args = get_writable_database_args(name, file);
     int port = launch_xapian_tcpsrv(args);
+    pid_index = pid_idx;
     return Xapian::Remote::open_writable(LOCALHOST, port);
 }
 
@@ -363,6 +381,7 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 {
     string args = get_remote_database_args(files, timeout);
     int port = launch_xapian_tcpsrv(args);
+    pid_index = pid_idx;
     return Xapian::Remote::open(LOCALHOST, port);
 }
 
@@ -371,6 +390,7 @@ BackendManagerRemoteTcp::get_writable_database_as_database()
 {
     string args = get_writable_database_as_database_args();
     int port = launch_xapian_tcpsrv(args);
+    pid_index = pid_idx;
     return Xapian::Remote::open(LOCALHOST, port);
 }
 
@@ -379,6 +399,7 @@ BackendManagerRemoteTcp::get_writable_database_again()
 {
     string args = get_writable_database_again_args();
     int port = launch_xapian_tcpsrv(args);
+    pid_index = pid_idx;
     return Xapian::Remote::open_writable(LOCALHOST, port);
 }
 
@@ -401,6 +422,36 @@ BackendManagerRemoteTcp::clean_up()
 	    pid_to_fd[i].pid = 0;
 	    close(fd);
 	}
+    }
+#endif
+}
+
+void
+BackendManagerRemoteTcp::kill_server()
+{
+#ifdef HAVE_FORK
+    int status;
+    if (pid_to_fd[pid_index].pid != 0) {
+	pid_t pid = pid_to_fd[pid_index].pid;
+	int fd = pid_to_fd[pid_index].fd;
+	if (waitpid(pid, &status, WNOHANG) == 0 && kill(pid, SIGKILL) == -1) {
+	    string msg("Couldn't kill the remote server");
+	    msg += strerror(errno);
+	    throw msg;
+	}
+	pid_to_fd[pid_index].fd = 0;
+	pid_to_fd[pid_index].pid = 0;
+	close(fd);
+    }
+#elif defined __WIN32__
+    if (hProcess[pid_index] != 0) {
+	HANDLE hProc = hProcess[pid_index];
+	if (!TerminateProcess(hProc, 0)) {
+	    string msg("Couldn't kill the remote server");
+	    throw msg;
+	}
+	CloseHandle(hProc);
+	hProcess[pid_index] = 0;
     }
 #endif
 }

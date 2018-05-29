@@ -264,6 +264,13 @@ BackendManager::clean_up()
 {
 }
 
+void
+BackendManager::kill_server()
+{
+    invalid_operation("Server kill operation not supported for non-remote"
+		      "database type");
+}
+
 const char *
 BackendManager::get_xapian_progsrv_command()
 {
