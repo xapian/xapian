@@ -92,6 +92,21 @@ make_valuestats_key(Xapian::valueno slot)
     return key;
 }
 
+inline static std::string
+encode_valuestats(Xapian::doccount freq,
+		  const std::string& lbound,
+		  const std::string& ubound)
+{
+    std::string value;
+    pack_uint(value, freq);
+    pack_string(value, lbound);
+    // We don't store or count empty values, so neither of the bounds
+    // can be empty.  So we can safely store an empty upper bound when
+    // the bounds are equal.
+    if (lbound != ubound) value += ubound;
+    return value;
+}
+
 }
 
 namespace Xapian {

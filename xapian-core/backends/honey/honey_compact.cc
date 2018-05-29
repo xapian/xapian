@@ -60,6 +60,7 @@
 #endif
 
 using namespace std;
+using Honey::encode_valuestats;
 
 [[noreturn]]
 static void
@@ -602,20 +603,6 @@ class PostlistCursorGt {
 	return (a->firstdid > b->firstdid);
     }
 };
-
-static string
-encode_valuestats(Xapian::doccount freq,
-		  const string & lbound, const string & ubound)
-{
-    string value;
-    pack_uint(value, freq);
-    pack_string(value, lbound);
-    // We don't store or count empty values, so neither of the bounds
-    // can be empty.  So we can safely store an empty upper bound when
-    // the bounds are equal.
-    if (lbound != ubound) value += ubound;
-    return value;
-}
 
 // U : vector<HoneyTable*>::const_iterator
 template<typename T, typename U> void
