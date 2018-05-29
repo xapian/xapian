@@ -1,7 +1,7 @@
 /** @file compactor.h
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -168,6 +168,11 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  For multipass this will currently get called multiple times for the
      *  same key if there are duplicates to resolve in each pass, but this
      *  may change in the future.
+     *
+     *  Since 1.4.6, an implementation of this method can return an empty
+     *  string to indicate that the appropriate result is to not set a value
+     *  for this user metadata key in the output database.  In older versions,
+     *  you should not return an empty string.
      *
      *  @param key	The metadata key with duplicate entries.
      *  @param num_tags	How many tags there are.
