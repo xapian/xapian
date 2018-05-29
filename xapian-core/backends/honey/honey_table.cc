@@ -74,6 +74,8 @@ HoneyTable::add(const std::string& key,
 		size_t val_size,
 		bool compressed)
 {
+    if (rare(val_size == 0))
+	throw Xapian::DatabaseError("HoneyTable::add() passed empty value");
     if (!compressed && compress_min > 0 && val_size > compress_min) {
 	size_t compressed_size = val_size;
 	CompressionStream comp_stream; // FIXME: reuse
