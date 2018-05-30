@@ -6,7 +6,6 @@ noinst_HEADERS +=\
 	matcher/exactphrasepostlist.h\
 	matcher/externalpostlist.h\
 	matcher/extraweightpostlist.h\
-	matcher/heap.h\
 	matcher/localsubmatch.h\
 	matcher/matcher.h\
 	matcher/matchtimeout.h\

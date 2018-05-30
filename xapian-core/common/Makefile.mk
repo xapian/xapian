@@ -11,6 +11,7 @@ noinst_HEADERS +=\
 	common/filetests.h\
 	common/fileutils.h\
 	common/gnu_getopt.h\
+	common/heap.h\
 	common/internaltypes.h\
 	common/io_utils.h\
 	common/keyword.h\
