@@ -1,7 +1,7 @@
 /** @file nearpostlist.cc
  * @brief Return docs containing terms within a specified window.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017,2018 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@
 
 #include "debuglog.h"
 #include "backends/positionlist.h"
+#include "heap.h"
 #include "omassert.h"
 #include "str.h"
 
@@ -101,7 +102,7 @@ NearPostList::test_doc()
 		Xapian::termpos pos = posl->get_position();
 		if (pos > last) last = pos;
 		*end++ = posl;
-		push_heap<PositionList **, Cmp>(poslists, end, Cmp());
+		Heap::push(poslists, end, Cmp());
 		continue;
 	    }
 
@@ -113,38 +114,37 @@ NearPostList::test_doc()
 	    // we return to the outer loop, otherwise we reinsert it into the
 	    // heap at its new position and continue to look for duplicates
 	    // we need to adjust.
-	    PositionList ** i = end;
-	    pop_heap<PositionList **, Cmp>(poslists, i, Cmp());
-	    Xapian::termpos pos = (*--i)->get_position();
+	    Xapian::termpos pos = poslists[0]->get_position();
+	    Heap::pop(poslists, end, Cmp());
+	    PositionList ** i = end - 1;
 	    while (true) {
-		pop_heap<PositionList **, Cmp>(poslists, i, Cmp());
-		if ((*--i)->get_position() == pos) {
-		    if (!(*i)->next())
+		if (poslists[0]->get_position() == pos) {
+		    if (!poslists[0]->next())
 			RETURN(false);
-		    Xapian::termpos newpos = (*i)->get_position();
+		    Xapian::termpos newpos = poslists[0]->get_position();
 		    if (newpos - end[-1]->get_position() >= window) {
 			// No longer fits in the window.
 			last = newpos;
 			break;
 		    }
-		    push_heap<PositionList **, Cmp>(poslists, ++i, Cmp());
+		    Heap::replace(poslists, i, Cmp());
 		    continue;
 		}
-		pos = (*i)->get_position();
-		if (i == poslists) {
+		pos = poslists[0]->get_position();
+		Heap::pop(poslists, i, Cmp());
+		if (--i == poslists) {
 		    Assert(pos - end[-1]->get_position() < window);
 		    RETURN(true);
 		}
 	    }
 
-	    make_heap<PositionList **, Cmp>(poslists, end, Cmp());
+	    Heap::make(poslists, end, Cmp());
 	    continue;
 	}
-	pop_heap<PositionList **, Cmp>(poslists, end, Cmp());
-	if (!end[-1]->skip_to(last - window + 1))
+	if (!poslists[0]->skip_to(last - window + 1))
 	    break;
-	last = max(last, end[-1]->get_position());
-	push_heap<PositionList **, Cmp>(poslists, end, Cmp());
+	last = max(last, poslists[0]->get_position());
+	Heap::replace(poslists, end, Cmp());
     }
 
     RETURN(false);
