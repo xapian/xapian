@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 #include "xapian/postingsource.h"
 #include "xapian/query.h"
 
+#include "heap.h"
 #include "leafpostlist.h"
 #include "matcher/andmaybepostlist.h"
 #include "matcher/andnotpostlist.h"
@@ -228,7 +229,7 @@ OrContext::postlist()
 
     // Make postlists into a heap so that the postlist with the greatest term
     // frequency is at the top of the heap.
-    make_heap(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
+    Heap::make(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
 
     // Now build a tree of binary OrPostList objects.
     //
@@ -245,7 +246,7 @@ OrContext::postlist()
 	// We do this so that the OrPostList class can be optimised assuming
 	// that this is the case.
 	PostList * r = pls.front();
-	pop_heap(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
+	Heap::pop(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
 	pls.pop_back();
 	PostList * pl;
 	pl = new OrPostList(pls.front(), r, qopt->matcher, qopt->db_size);
@@ -255,9 +256,9 @@ OrContext::postlist()
 	    return pl;
 	}
 
-	pop_heap(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
-	pls.back() = pl;
-	push_heap(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
+	pls[0] = pl;
+	Heap::replace(pls.begin(), pls.end(),
+		      ComparePostListTermFreqAscending());
     }
 }
 
