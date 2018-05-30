@@ -1,7 +1,7 @@
 /** @file multi_postlist.cc
  * @brief Class for merging PostList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include "api/leafpostlist.h"
 #include "backends/multi.h"
+#include "heap.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -140,20 +141,23 @@ MultiPostList::next(double w_min)
 	    }
 	}
 	docids_size = j;
-	make_heap(docids, docids + docids_size, std::greater<Xapian::docid>());
+	Heap::make(docids, docids + docids_size,
+		   std::greater<Xapian::docid>());
     } else {
 	Xapian::docid old_did = docids[0];
-	pop_heap(docids, docids + docids_size, std::greater<Xapian::docid>());
 	size_t shard = shard_number(old_did, n_shards);
 	PostList* pl = postlists[shard];
 	pl->next(w_min);
 	if (pl->at_end()) {
+	    Heap::pop(docids, docids + docids_size,
+		      std::greater<Xapian::docid>());
 	    delete pl;
 	    postlists[shard] = NULL;
 	    --docids_size;
 	} else {
-	    docids[docids_size - 1] = unshard(pl->get_docid(), shard, n_shards);
-	    push_heap(docids, docids + docids_size, std::greater<Xapian::docid>());
+	    docids[0] = unshard(pl->get_docid(), shard, n_shards);
+	    Heap::replace(docids, docids + docids_size,
+			  std::greater<Xapian::docid>());
 	}
     }
 
@@ -208,7 +212,7 @@ MultiPostList::skip_to(Xapian::docid did, double w_min)
 	}
     }
     docids_size = j;
-    make_heap(docids, docids + docids_size, std::greater<Xapian::docid>());
+    Heap::make(docids, docids + docids_size, std::greater<Xapian::docid>());
 
     return NULL;
 }

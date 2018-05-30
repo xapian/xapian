@@ -1,7 +1,7 @@
 /** @file multi_valuelist.cc
  * @brief Class for merging ValueList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include <xapian/error.h>
 
+#include "heap.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -108,21 +109,21 @@ MultiValueList::next()
 	if (rare(count == 0))
 	    return;
 
-	make_heap(valuelists, valuelists + count,
-		  CompareSubValueListsByDocId());
+	Heap::make(valuelists, valuelists + count,
+		   CompareSubValueListsByDocId());
     } else {
 	// Advance to the next docid.
-	pop_heap(valuelists, valuelists + count,
-		 CompareSubValueListsByDocId());
-	SubValueList * vl = valuelists[count - 1];
+	SubValueList * vl = valuelists[0];
 	vl->next();
 	if (vl->at_end()) {
+	    Heap::pop(valuelists, valuelists + count,
+		      CompareSubValueListsByDocId());
 	    delete vl;
 	    if (--count == 0)
 		return;
 	} else {
-	    push_heap(valuelists, valuelists + count,
-		      CompareSubValueListsByDocId());
+	    Heap::replace(valuelists, valuelists + count,
+			  CompareSubValueListsByDocId());
 	}
     }
 
@@ -151,7 +152,7 @@ MultiValueList::skip_to(Xapian::docid did)
     if (rare(count == 0))
 	return;
 
-    make_heap(valuelists, valuelists + count, CompareSubValueListsByDocId());
+    Heap::make(valuelists, valuelists + count, CompareSubValueListsByDocId());
 
     current_docid = valuelists[0]->get_merged_docid(n_shards);
 }
