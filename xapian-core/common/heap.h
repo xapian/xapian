@@ -267,4 +267,15 @@ make(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
     }
 }
 
+// sort_heap
+
+template <class _Compare, class _RandomAccessIterator>
+void
+sort(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
+{
+    typedef typename std::iterator_traits<_RandomAccessIterator>::difference_type difference_type;
+    for (difference_type n = last - first; n > 1; --last, --n)
+        pop_heap_<_Compare>(first, last, comp, n);
+}
+
 }
