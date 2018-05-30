@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2018 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -34,6 +34,7 @@
 #include <vector>
 
 #include "debuglog.h"
+#include "heap.h"
 #include "omassert.h"
 #include "net/length.h"
 #include "stringutils.h"
@@ -258,39 +259,46 @@ class StringAndFreqTermList : public TermList {
  *  @param items The map from string to frequency, from which the most
  *               frequent items will be selected.
  *
- *  @param maxitems The maximum number of items to return.
+ *  @param maxitems The maximum number of items to return (non-zero).
  */
 static void
 get_most_frequent_items(vector<StringAndFrequency> & result,
 			const map<string, doccount> & items,
 			size_t maxitems)
 {
+    Assert(maxitems != 0);
     result.clear();
     result.reserve(maxitems);
     StringAndFreqCmpByFreq cmpfn;
-    bool is_heap(false);
+    bool is_heap = false;
 
     for (map<string, doccount>::const_iterator i = items.begin();
 	 i != items.end(); ++i) {
-	Assert(result.size() <= maxitems);
-	result.push_back(StringAndFrequency(i->first, i->second));
-	if (result.size() > maxitems) {
-	    // Make the list back into a heap.
-	    if (is_heap) {
-		// Only the new element isn't in the right place.
-		push_heap(result.begin(), result.end(), cmpfn);
-	    } else {
-		// Need to build heap from scratch.
-		make_heap(result.begin(), result.end(), cmpfn);
-		is_heap = true;
-	    }
-	    pop_heap(result.begin(), result.end(), cmpfn);
-	    result.pop_back();
+	if (result.size() < maxitems) {
+	    result.emplace_back(i->first, i->second);
+	    continue;
 	}
+
+	// We have the desired number of items, so it's one-in one-out from
+	// now on.
+	Assert(result.size() == maxitems);
+	if (!is_heap) {
+	    Heap::make(result.begin(), result.end(), cmpfn);
+	    is_heap = true;
+	}
+
+	StringAndFrequency new_item(i->first, i->second);
+	if (!cmpfn(new_item, result[0])) {
+	    // The candidate is worse than the worst of the current top N.
+	    continue;
+	}
+
+	result[0] = std::move(new_item);
+	Heap::replace(result.begin(), result.end(), cmpfn);
     }
 
     if (is_heap) {
-	sort_heap(result.begin(), result.end(), cmpfn);
+	Heap::sort(result.begin(), result.end(), cmpfn);
     } else {
 	sort(result.begin(), result.end(), cmpfn);
     }
@@ -315,9 +323,12 @@ TermIterator
 ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 {
     Assert(internal.get());
-    unique_ptr<StringAndFreqTermList> termlist(new StringAndFreqTermList);
-    get_most_frequent_items(termlist->values, internal->values, maxvalues);
-    termlist->init();
+    unique_ptr<StringAndFreqTermList> termlist(nullptr);
+    if (usual(maxvalues > 0)) {
+	termlist.reset(new StringAndFreqTermList);
+	get_most_frequent_items(termlist->values, internal->values, maxvalues);
+	termlist->init();
+    }
     return Xapian::TermIterator(termlist.release());
 }
 
