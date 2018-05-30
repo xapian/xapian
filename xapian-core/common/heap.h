@@ -95,6 +95,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef XAPIAN_INCLUDED_HEAP_H
+#define XAPIAN_INCLUDED_HEAP_H
+
 namespace Heap {
 
 // push_heap
@@ -279,3 +282,5 @@ sort(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
 }
 
 }
+
+#endif
