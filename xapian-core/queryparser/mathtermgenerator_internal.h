@@ -31,20 +31,21 @@
 
 namespace Xapian {
 
-enum edge {
-    ADJACENT,
-    ABOVE,
-    BELOW,
-    OVER,
-    UNDER,
-    WITHIN,
-    ELEMENT
-};
+const unsigned EST_SYMBOLS_COUNT = 32;
+const unsigned EST_SUB_SYMBOLS_COUNT = 8;
+
+// Spatial relationship between symbols.
+const char NEXT = 'N';
+const char ABOVE = 'A';
+const char BELOW = 'B';
+const char OVER = 'O';
+const char UNDER = 'U';
+const char WITHIN = 'W';
+const char ELEMENT = 'E';
 
 struct Symbol {
     std::string label;
-    edge e;
-    // TODO Think of better way
+    char edge;
     // Symbols like fraction, matrix are represented over multiple lines.
     // For example, consider a / b. a goes to top row, b goes to bottom
     // row and fraction symbol is added in middle row.
@@ -59,9 +60,11 @@ struct Symbol {
 class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class MathTermGenerator;
     std::vector<Symbol> mrow;
+    std::vector<std::string> symbol_pairs;
     void parse_mathml(const char *& ch);
+    void generate_symbol_pair_list();
   public:
-    Internal() { }
+    Internal() : mrow(EST_SYMBOLS_COUNT), symbol_pairs() { }
 
     void index_math(const char * ch);
 
