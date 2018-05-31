@@ -105,9 +105,14 @@ move_to_next_open_tag(const char *& ch, string & tag)
     if (prefix) skip_prefix(ch);
 
     tag.clear();
-    while (*ch != '\0' && *ch != '>') {
+    while (*ch != '\0' && *ch != ' ' &&  *ch != '>') {
 	tag.push_back(*ch);
 	++ch;
+    }
+
+    if (*ch == ' ') {
+	while (*ch != '>')
+	    ++ch;
     }
     // TODO Handle EOF.
     ++ch;
