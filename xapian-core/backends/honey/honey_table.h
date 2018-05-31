@@ -182,8 +182,8 @@ class BufferedFile {
 	    return;
 	}
 
-	pos += buf_end + len;
 #ifdef HAVE_WRITEV
+	pos += buf_end + len;
 	while (true) {
 	    struct iovec iov[2];
 	    iov[0].iov_base = buf;
@@ -212,9 +212,11 @@ class BufferedFile {
 	}
 #else
 	io_write(fd, buf, buf_end);
+	pos += buf_end;
 	if (len >= sizeof(buf)) {
 	    // If it's bigger than our buffer, just write it directly.
 	    io_write(fd, p, len);
+	    pos += len;
 	    buf_end = 0;
 	    return;
 	}
