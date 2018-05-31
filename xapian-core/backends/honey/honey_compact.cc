@@ -489,6 +489,7 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		if (did == 0)
 		    throw Xapian::DatabaseCorruptError("Bad doclen key");
 		chunk_lastdid = did + offset;
+		key.resize(2);
 		return true;
 	    }
 	    case Honey::KEY_POSTING_CHUNK:
