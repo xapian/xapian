@@ -73,6 +73,20 @@ static const test test_parse[] = {
 	" <mfrac> <mi> c </mi>"
 	"	  <mi> d </mi> </mfrac>",
 	{ "F", "O=", "F" } },
+    {	// Expression with fraction having sub-expression.
+	" <math>"
+	" <mfrac> <mrow> "
+	"		<mi> p </mi>"
+	"		<mo> + </mo>"
+	"		<mi> q </mi>"
+	"	</mrow>"
+	"	<mrow>"
+	"		<mi> a </mi>"
+	"		<mo> - </mo>"
+	"		<mi> b </mi>"
+	"	</mrow> </mfrac"
+	"	</math>",
+	{ "F"} },
     {	// Expression with root.
 	" <math>"
 	" <mroot> <mi> a </mi>"
@@ -143,7 +157,70 @@ static const test test_parse[] = {
 	" <mn:mn> 5 </mn:mn>"
 	"	</mn:math>",
 	{ "V!a", "O/", "N!5" } },
-
+    {	// Expression from wikidata.
+	R"(<m:math alttext="Z(G)(f(z),f(z^{2}),\ldots,f(z^{n})).\," display="inline">
+          <m:semantics>
+            <m:mrow>
+              <m:mrow>
+                <m:mi>Z</m:mi>
+                <m:mo>⁢</m:mo>
+                <m:mrow>
+                  <m:mo>(</m:mo>
+                  <m:mi>G</m:mi>
+                  <m:mo>)</m:mo>
+                </m:mrow>
+                <m:mo>⁢</m:mo>
+                <m:mrow>
+                  <m:mo>(</m:mo>
+                  <m:mrow>
+                    <m:mrow>
+                      <m:mi>f</m:mi>
+                      <m:mo>⁢</m:mo>
+                      <m:mrow>
+                        <m:mo>(</m:mo>
+                        <m:mi>z</m:mi>
+                        <m:mo>)</m:mo>
+                      </m:mrow>
+                    </m:mrow>
+                    <m:mo>,</m:mo>
+                    <m:mrow>
+                      <m:mi>f</m:mi>
+                      <m:mo>⁢</m:mo>
+                      <m:mrow>
+                        <m:mo>(</m:mo>
+                        <m:msup>
+                          <m:mi>z</m:mi>
+                          <m:mn>2</m:mn>
+                        </m:msup>
+                        <m:mo>)</m:mo>
+                      </m:mrow>
+                    </m:mrow>
+                    <m:mo>,</m:mo>
+                    <m:mi mathvariant="normal">…</m:mi>
+                    <m:mo>,</m:mo>
+                    <m:mrow>
+                      <m:mi>f</m:mi>
+                      <m:mo>⁢</m:mo>
+                      <m:mrow>
+                        <m:mo>(</m:mo>
+                        <m:msup>
+                          <m:mi>z</m:mi>
+                          <m:mi>n</m:mi>
+                        </m:msup>
+                        <m:mo>)</m:mo>
+                      </m:mrow>
+                    </m:mrow>
+                  </m:mrow>
+                  <m:mo>)</m:mo>
+                </m:mrow>
+              </m:mrow>
+              <m:mo>.</m:mo>
+            </m:mrow>
+            <m:annotation encoding="application/x-tex">Z(G)(f(z),f(z^{2}),\ldots,f(z^{n})).\,</m:annotation>
+          </m:semantics>
+        </m:math>)",
+    { "V!Z", invisible_times, "O(", "V!G", "O)", invisible_times, "O(", "V!f", invisible_times, "O(", "V!z", "O)", "O,", "V!f", invisible_times, "O(", "V!z",
+      "O)", "O,", "V!…", "O,", "V!f", invisible_times, "O(", "V!z", "O)", "O)", "O." } },
     { NULL, { } }
 };
 

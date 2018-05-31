@@ -22,7 +22,7 @@
 
 #include "mathtermgenerator_internal.h"
 
-/* #define DEBUGGING */
+#define DEBUGGING
 
 #include <xapian/document.h>
 #include <xapian/unicode.h>
