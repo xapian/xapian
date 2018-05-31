@@ -151,7 +151,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 	    if (wt <= min_wt) continue;
 	}
 
-	items.front() = std::move(Xapian::Internal::ExpandTerm(wt, term));
+	items.front() = Xapian::Internal::ExpandTerm(wt, term);
 	Heap::replace(items.begin(), items.end(),
 		      std::less<Xapian::Internal::ExpandTerm>());
 	min_wt = items.front().wt;
