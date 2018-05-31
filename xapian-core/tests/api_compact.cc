@@ -619,8 +619,6 @@ DEFINE_TESTCASE(compactmultipass1, compact && generated) {
 
 // Test compacting to an fd.
 DEFINE_TESTCASE(compacttofd1, compact) {
-    // Honey->honey compaction is currently buggy.
-    SKIP_TEST_FOR_BACKEND("honey");
     Xapian::Database indb(get_database("apitest_simpledata"));
     string outdbpath = get_compaction_output_path("compacttofd1out");
     rm_rf(outdbpath);
