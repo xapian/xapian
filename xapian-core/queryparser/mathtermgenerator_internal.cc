@@ -22,7 +22,7 @@
 
 #include "mathtermgenerator_internal.h"
 
-#define DEBUGGING
+/* #define DEBUGGING */
 
 #include <xapian/document.h>
 #include <xapian/unicode.h>
@@ -91,7 +91,7 @@ move_to_next_open_tag(const char *& ch, string & tag)
 		++ch;
 		break;
 	    }
-	    ch = ch+2;
+	    ch = ch + 2;
 	    if (prefix) skip_prefix(ch);
 	    if (strncmp(ch, "math>", 5) == 0)
 		return false;
@@ -102,8 +102,8 @@ move_to_next_open_tag(const char *& ch, string & tag)
     if (*ch == '\0')
 	return false;
 
-    if (prefix) skip_prefix(ch);
-
+    if (prefix)
+	skip_prefix(ch);
     tag.clear();
     while (*ch != '\0' && *ch != ' ' &&  *ch != '>') {
 	tag.push_back(*ch);
@@ -123,7 +123,7 @@ string
 next_tag(const char *& ch, string & cur_tag)
 {
     string tag;
-    while(*ch != '\0') {
+    while (*ch != '\0') {
 	if (ch[0] == '<') {
 	    ++ch;
 	    if (ch[0] == '/')
@@ -170,7 +170,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
     while (*ch != '\0') {
 	// TODO Handling prefix this way is totally safe. Will fix it later.
 	// Detect '<math ' or '<math>' or ':math ' or ':math>'
-	if ((ch[0] == '<' || ch[0] == ':' ) && strncmp(ch+1, "math", 4) == 0 &&
+	if ((ch[0] == '<' || ch[0] == ':') && strncmp(ch + 1, "math", 4) == 0 &&
 	    (ch[5] == ' ' || ch[5] == '>')) {
 	    if (ch[0] == ':')
 		prefix = true;
@@ -215,7 +215,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 			}
 		    } else {
 			mrow.back().brow.emplace_back(get_label(ch, tag),
-					              BELOW);
+				BELOW);
 		    }
 		} else if (tag.compare("mroot") == 0) {
 		    // Add root symbol.
@@ -226,7 +226,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse index.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().trow.emplace_back(get_label(ch, tag),
-					              ABOVE);
+				ABOVE);
 		} else if (tag.compare("msqrt") == 0) {
 		    // Add root symbol.
 		    mrow.emplace_back("R", NEXT);
@@ -245,7 +245,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 			}
 		    } else {
 			mrow.back().trow.emplace_back(get_label(ch, tag),
-						      WITHIN);
+				WITHIN);
 		    }
 		} else if (tag.compare("msup") == 0) {
 		    // Parse base.
@@ -254,7 +254,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse superscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().trow.emplace_back(get_label(ch, tag),
-					              ABOVE);
+				ABOVE);
 		} else if (tag.compare("msub") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
@@ -262,7 +262,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse subscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().brow.emplace_back(get_label(ch, tag),
-					              BELOW);
+				BELOW);
 		} else if (tag.compare("msubsup") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
@@ -270,11 +270,11 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse subscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().brow.emplace_back(get_label(ch, tag),
-					              BELOW);
+				BELOW);
 		    // Parse superscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().trow.emplace_back(get_label(ch, tag),
-						      ABOVE);
+				ABOVE);
 		} else if (tag.compare("munder") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
@@ -282,7 +282,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse underscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().brow.emplace_back(get_label(ch, tag),
-					              UNDER);
+				UNDER);
 		} else if (tag.compare("mover") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
@@ -290,7 +290,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse overscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().trow.emplace_back(get_label(ch, tag),
-					              OVER);
+				OVER);
 		} else if (tag.compare("munderover") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
@@ -298,11 +298,11 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Parse underscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().brow.emplace_back(get_label(ch, tag),
-					              UNDER);
+				UNDER);
 		    // Parse overscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().trow.emplace_back(get_label(ch, tag),
-						      OVER);
+				OVER);
 
 		} else {
 		    // Parse token element.
