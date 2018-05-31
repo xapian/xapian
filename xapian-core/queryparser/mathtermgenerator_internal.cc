@@ -179,13 +179,38 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 	    while (move_to_next_open_tag(ch, tag)) {
 		if (tag.compare("mfrac") == 0) {
 		    // Add fraction symbol.
-		    mrow.emplace_back("F", ADJACENT);
+		    mrow.emplace_back("F", NEXT);
 		    // Parse numerator.
-		    if (move_to_next_open_tag(ch, tag))
+		    if (move_to_next_open_tag(ch, tag) &&
+			    tag.compare("mrow") == 0) {
+			if (move_to_next_open_tag(ch, tag))
+			    mrow.back().trow.emplace_back(get_label(ch, tag),
+				    ABOVE);
+			while (next_tag(ch, tag).compare("mrow") != 0) {
+			    if (move_to_next_open_tag(ch, tag))
+				// TODO This only works if all the elemments
+				// are token elements.
+				mrow.back().trow.emplace_back(
+					get_label(ch, tag), NEXT);
+			}
+		    } else {
 			mrow.back().trow.emplace_back(get_label(ch, tag),
-					              ABOVE);
+				ABOVE);
+		    }
 		    // Parse denominator.
-		    if (move_to_next_open_tag(ch, tag))
+		    if (move_to_next_open_tag(ch, tag) &&
+			    tag.compare("mrow") == 0) {
+			if (move_to_next_open_tag(ch, tag))
+			    mrow.back().brow.emplace_back(get_label(ch, tag),
+				    BELOW);
+			while (next_tag(ch, tag).compare("mrow") != 0) {
+			    if (move_to_next_open_tag(ch, tag))
+				// TODO This only works if all the elemments are
+				// token elements.
+				mrow.back().brow.emplace_back(get_label(ch,
+					    tag), NEXT);
+			}
+		    } else {
 			mrow.back().brow.emplace_back(get_label(ch, tag),
 					              BELOW);
 		} else if (tag.compare("mroot") == 0) {
