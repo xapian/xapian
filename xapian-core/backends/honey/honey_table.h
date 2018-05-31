@@ -226,11 +226,10 @@ class BufferedFile {
     }
 
     int read() const {
-#if 1
 	if (buf_end == 0) {
 	    // The buffer is currently empty, so we need to read at least one
 	    // byte.
-	    size_t r = io_pread(fd, buf, sizeof(buf), pos, 0);
+	    size_t r = io_pread(fd, buf, sizeof(buf), pos + offset, 0);
 	    if (r < sizeof(buf)) {
 		if (r == 0) {
 		    return EOF;
@@ -241,13 +240,6 @@ class BufferedFile {
 	    buf_end = r;
 	}
 	return static_cast<unsigned char>(buf[sizeof(buf) - buf_end--]);
-#else
-	unsigned char ch;
-	if (io_pread(fd, &ch, 1, pos) != 1)
-	    return EOF;
-	++pos;
-	return ch;
-#endif
     }
 
     uint4 read_uint4_be() const {
@@ -259,7 +251,6 @@ class BufferedFile {
     }
 
     void read(char* p, size_t len) const {
-#if 1
 	if (buf_end != 0) {
 	    if (len <= buf_end) {
 		memcpy(p, buf + sizeof(buf) - buf_end, len);
@@ -272,7 +263,6 @@ class BufferedFile {
 	    buf_end = 0;
 	}
 	// FIXME: refill buffer if len < sizeof(buf)
-#endif
 	size_t r = io_pread(fd, p, len, pos, len);
 	// io_pread() should throw an exception if it read < len bytes.
 	AssertEq(r, len);
