@@ -229,7 +229,7 @@ class BufferedFile {
 	if (buf_end == 0) {
 	    // The buffer is currently empty, so we need to read at least one
 	    // byte.
-	    size_t r = io_pread(fd, buf, sizeof(buf), pos + offset, 0);
+	    size_t r = io_pread(fd, buf, sizeof(buf), pos, 0);
 	    if (r < sizeof(buf)) {
 		if (r == 0) {
 		    return EOF;
