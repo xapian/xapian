@@ -177,7 +177,10 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 	    ch += 6;
 	    // Parse elements until '</math' found.
 	    while (move_to_next_open_tag(ch, tag)) {
-		if (tag.compare("mfrac") == 0) {
+		if (tag.compare("mrow") == 0 || tag.compare("annotation") == 0
+			|| tag.compare("semantics") == 0) {
+		    continue;
+		} else if (tag.compare("mfrac") == 0) {
 		    // Add fraction symbol.
 		    mrow.emplace_back("F", NEXT);
 		    // Parse numerator.
