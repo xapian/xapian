@@ -216,9 +216,10 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    } else {
 			mrow.back().brow.emplace_back(get_label(ch, tag),
 					              BELOW);
+		    }
 		} else if (tag.compare("mroot") == 0) {
 		    // Add root symbol.
-		    mrow.emplace_back("R", ADJACENT);
+		    mrow.emplace_back("R", NEXT);
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.emplace_back(get_label(ch, tag), WITHIN);
@@ -228,23 +229,28 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 					              ABOVE);
 		} else if (tag.compare("msqrt") == 0) {
 		    // Add root symbol.
-		    mrow.emplace_back("R", ADJACENT);
+		    mrow.emplace_back("R", NEXT);
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag) && tag.compare("mrow") == 0) {
+		    if (move_to_next_open_tag(ch, tag) &&
+			    tag.compare("mrow") == 0) {
 			if (move_to_next_open_tag(ch, tag))
-			    mrow.back().trow.emplace_back(get_label(ch, tag), WITHIN);
+			    mrow.back().trow.emplace_back(
+				    get_label(ch, tag), WITHIN);
 			while (next_tag(ch, tag).compare("mrow") != 0) {
 			    if (move_to_next_open_tag(ch, tag))
-				// TODO This only works if all the elemments are token elements.
-				mrow.back().trow.emplace_back(get_label(ch, tag), ADJACENT);
+				// TODO This only works if all the elemments are
+				// token elements.
+				mrow.back().trow.emplace_back(
+					get_label(ch, tag), NEXT);
 			}
 		    } else {
-			mrow.back().trow.emplace_back(get_label(ch, tag), WITHIN);
+			mrow.back().trow.emplace_back(get_label(ch, tag),
+						      WITHIN);
 		    }
 		} else if (tag.compare("msup") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+			mrow.emplace_back(get_label(ch, tag), NEXT);
 		    // Parse superscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().trow.emplace_back(get_label(ch, tag),
@@ -252,7 +258,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		} else if (tag.compare("msub") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+			mrow.emplace_back(get_label(ch, tag), NEXT);
 		    // Parse subscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().brow.emplace_back(get_label(ch, tag),
@@ -260,7 +266,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		} else if (tag.compare("msubsup") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+			mrow.emplace_back(get_label(ch, tag), NEXT);
 		    // Parse subscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().brow.emplace_back(get_label(ch, tag),
@@ -272,7 +278,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		} else if (tag.compare("munder") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+			mrow.emplace_back(get_label(ch, tag), NEXT);
 		    // Parse underscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().brow.emplace_back(get_label(ch, tag),
@@ -280,7 +286,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		} else if (tag.compare("mover") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+			mrow.emplace_back(get_label(ch, tag), NEXT);
 		    // Parse overscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().trow.emplace_back(get_label(ch, tag),
@@ -288,7 +294,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		} else if (tag.compare("munderover") == 0) {
 		    // Parse base.
 		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), ADJACENT);
+			mrow.emplace_back(get_label(ch, tag), NEXT);
 		    // Parse underscript.
 		    if (move_to_next_open_tag(ch, tag))
 			mrow.back().brow.emplace_back(get_label(ch, tag),
@@ -300,7 +306,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 
 		} else {
 		    // Parse token element.
-		    mrow.emplace_back(get_label(ch, tag), ADJACENT);
+		    mrow.emplace_back(get_label(ch, tag), NEXT);
 		}
 	    }
 	} else {
