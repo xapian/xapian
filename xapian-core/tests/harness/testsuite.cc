@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015,2016,2017 Olly Betts
+ * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,6 +93,8 @@ static int vg_log_fd = -1;
 //  exception when it should (due to a compiler or runtime fault in
 //  GCC 2.95 it seems)
 const char * expected_exception = NULL;
+
+const char* expected_failure;
 
 /// The debug printing stream
 std::ostringstream tout;
@@ -294,7 +297,8 @@ class SignalRedirector {
 //  If this test driver is used for anything other than
 //  Xapian tests, then this ought to be provided by
 //  the client, really.
-//  return: test_driver::PASS, test_driver::FAIL, or test_driver::SKIP
+//  return: test_driver::PASS, test_driver::FAIL, test_driver::SKIP,
+//  test_driver::XFAIL or test_driver:XPASS.
 test_driver::test_result
 test_driver::runtest(const test_desc *test)
 {
@@ -313,6 +317,7 @@ test_driver::runtest(const test_desc *test)
 	    if (catch_signals) sig.activate();
 	    try {
 		expected_exception = NULL;
+		expected_failure = NULL;
 #ifdef HAVE_VALGRIND
 		int vg_errs = 0;
 		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0;
@@ -327,9 +332,15 @@ test_driver::runtest(const test_desc *test)
 		}
 #endif
 		if (!test->run()) {
-		    out << col_red << " FAILED" << col_reset;
+		    out << ' ';
+		    if (expected_failure) {
+			out << col_yellow << "XFAIL (" << expected_failure << ")";
+		    } else {
+			out << col_red << "FAILED";
+		    }
+		    out << col_reset;
 		    write_and_clear_tout();
-		    return FAIL;
+		    return expected_failure ? XFAIL : FAIL;
 		}
 		if (verbose > 1)
 		    write_and_clear_tout();
@@ -491,18 +502,25 @@ test_driver::runtest(const test_desc *test)
 		    return FAIL;
 		}
 	    } catch (const TestFail &) {
-		out << col_red << " FAILED" << col_reset;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << "XFAIL (" << expected_failure << ")";
+		} else {
+		    out << col_red << "FAILED";
+		}
+		out << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 	    } catch (const TestSkip &) {
 		out << col_yellow << " SKIPPED" << col_reset;
 		write_and_clear_tout();
 		return SKIP;
 #ifndef NO_LIBXAPIAN
 	    } catch (const Xapian::Error &err) {
+		out << ' ';
 		string errclass = err.get_type();
 		if (expected_exception && expected_exception == errclass) {
-		    out << col_yellow << " C++ FAILED TO CATCH " << errclass << col_reset;
+		    out << col_yellow << "C++ FAILED TO CATCH " << errclass << col_reset;
 		    return SKIP;
 		}
 		if (errclass == "NetworkError" &&
@@ -513,19 +531,39 @@ test_driver::runtest(const test_desc *test)
 		    //
 		    // We also see apparently spurious ECHILD on Debian
 		    // buildds sometimes: https://bugs.debian.org/681941
-		    out << col_yellow << " ECHILD in network code" << col_reset;
+		    out << col_yellow << "ECHILD in network code" << col_reset;
 		    return SKIP;
 		}
-		out << " " << col_red << err.get_description() << col_reset;
+
+		if (expected_failure) {
+		    out << col_yellow << " XFAIL (" << expected_failure
+			<< "): ";
+		} else {
+		    out << col_red << " FAIL: ";
+		}
+		out << err.get_description() << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 #endif
 	    } catch (const string & msg) {
-		out << col_red << " EXCEPTION std::string " << msg << col_reset;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << " XFAIL (" << expected_failure
+			<< "): ";
+		} else {
+		    out << col_red << " FAIL: ";
+		}
+		out << "EXCEPTION std::string " << msg << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 	    } catch (const std::exception & e) {
-		out << " " << col_red;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << " XFAIL (" << expected_failure
+			<< "): ";
+		} else {
+		    out << col_red << " FAIL: ";
+		}
 #ifndef USE_RTTI
 		out << "std::exception";
 #else
@@ -547,21 +585,42 @@ test_driver::runtest(const test_desc *test)
 #endif
 		out << ": " << e.what() << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 	    } catch (const char * msg) {
-		out << col_red;
-		if (msg) {
-		    out << " EXCEPTION char * " << msg;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << " XFAIL (" << expected_failure
+			<< "): ";
 		} else {
-		    out << " EXCEPTION (char*)NULL";
+		    out << col_red << " FAIL: ";
+		}
+		if (msg) {
+		    out << "EXCEPTION char* " << msg;
+		} else {
+		    out << "EXCEPTION (char*)NULL";
 		}
 		out << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 	    } catch (...) {
-		out << col_red << " UNKNOWN EXCEPTION" << col_reset;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << " XFAIL (" << expected_failure
+			<< "): ";
+		} else {
+		    out << col_red << " FAIL: ";
+		}
+		out << "UNKNOWN EXCEPTION" << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
+	    }
+
+	    if (expected_failure) {
+		// Testcase marked as expected to fail but actually passed.
+		out << ' ' << col_red << " XPASS (" << expected_failure << ")"
+		    << col_reset;
+		write_and_clear_tout();
+		return XPASS;
 	    }
 	    return PASS;
 	}
@@ -650,11 +709,22 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 			out << "\r                                                                               \r";
 		    }
 		    break;
+		case XFAIL:
+		    ++res.xfailed;
+		    out << endl;
+		    break;
 		case FAIL:
 		    ++res.failed;
 		    out << endl;
 		    if (abort_on_error) {
 			throw "Test failed - aborting further tests";
+		    }
+		    break;
+		case XPASS:
+		    ++res.xpassed;
+		    out << endl;
+		    if (abort_on_error) {
+			throw "Test marked as XFAIL passed - aborting further tests";
 		    }
 		    break;
 		case SKIP:
@@ -696,13 +766,21 @@ test_driver::report(const test_driver::result &r, const string &desc)
     if (r.succeeded != 0 || r.failed != 0) {
 	cout << argv0 << " " << desc << ": ";
 
-	if (r.failed == 0)
+	if (r.failed == 0 && r.xpassed == 0)
 	    cout << "All ";
 
 	cout << col_green << r.succeeded << col_reset << " tests passed";
 
 	if (r.failed != 0)
 	    cout << ", " << col_red << r.failed << col_reset << " failed";
+
+	if (r.xpassed != 0)
+	    cout << ", " << col_red << r.xpassed << col_reset
+		 << " expected failures passed";
+
+	if (r.xfailed != 0)
+	    cout << ", " << col_yellow << r.xfailed << col_reset
+		 << " expected failures";
 
 	if (r.skipped) {
 	    cout << ", " << col_yellow << r.skipped << col_reset
@@ -821,7 +899,9 @@ test_driver::run(const test_desc *tests)
 
     subtotal += myresult;
 
-    return bool(myresult.failed); // if 0, then everything passed
+    // Return value is a Unix-style exit code, so 0 for success and 1 for
+    // failure.
+    return myresult.failed > 0 || myresult.xpassed > 0;
 }
 
 bool

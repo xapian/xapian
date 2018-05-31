@@ -2,7 +2,8 @@
  * @brief a generic test suite engine
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005,2006,2007,2008,2009,2013,2015,2016 Olly Betts
+ * Copyright 2002,2003,2005,2006,2007,2008,2009,2013,2015,2016,2018 Olly Betts
+ * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,6 +83,9 @@ struct test_desc {
 //  expensive.
 extern int verbose;
 
+/** Set to a string explanation for testcases expected to fail. */
+extern const char* expected_failure;
+
 /// The exception type we were expecting in TEST_EXCEPTION.
 //  Used to detect if such an exception was mishandled by the
 //  compiler/runtime.
@@ -103,20 +107,32 @@ class test_driver {
 	 */
 	struct result {
 	    /// The number of tests which succeeded.
-	    unsigned int succeeded;
+	    unsigned int succeeded = 0;
 
 	    /// The number of tests which failed.
-	    unsigned int failed;
+	    unsigned int failed = 0;
 
-	    /// The number of tests which were skipped
-	    unsigned int skipped;
+	    /// The number of tests which were skipped.
+	    unsigned int skipped = 0;
 
-	    result() : succeeded(0), failed(0), skipped(0) { }
+	    /** Number of tests with result XFAIL.
+	     *
+	     *  I.e. tests which were expected to fail and did.
+	     */
+	    unsigned int xfailed = 0;
+
+	    /** Number of tests with result XFAIL.
+	     *
+	     *  I.e. tests which were expected to fail but passed.
+	     */
+	    unsigned int xpassed = 0;
 
 	    result & operator+=(const result & o) {
 		succeeded += o.succeeded;
 		failed += o.failed;
 		skipped += o.skipped;
+		xfailed += o.xfailed;
+		xpassed += o.xpassed;
 		return *this;
 	    }
 
@@ -124,6 +140,8 @@ class test_driver {
 		succeeded = 0;
 		failed = 0;
 		skipped = 0;
+		xfailed = 0;
+		xpassed = 0;
 	    }
 	};
 
@@ -184,7 +202,9 @@ class test_driver {
 	test_driver(const test_driver &);
 	test_driver & operator=(const test_driver &);
 
-	typedef enum { PASS = 1, FAIL = 0, SKIP = -1 } test_result;
+	enum test_result {
+	    XPASS = 3, XFAIL = 2, PASS = 1, FAIL = 0, SKIP = -1
+	};
 
 	static std::map<int, std::string *> short_opts;
 
@@ -285,5 +305,27 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 
 // Newer test macros:
 #include "testmacros.h"
+
+/** Mark a testcase as expected to fail.
+ *
+ *  @param msg	An static string explaining why the testcase is expected to
+ *		fail.  Must not be NULL.
+ *
+ *  This is intended to be used temporarily to mark tests for known bugs before
+ *  the bugs are fixed.  If the test fails, the result will be shown as "XFAIL"
+ *  and this won't cause the test run to fail.  However, if a test marked in
+ *  this way actually passed, the result will be shown as "XPASS" and the test
+ *  run *will* fail.  (So XFAIL is explicitly not suitable for marking "flaky"
+ *  testcases - please fix flaky testcases rather than trying to find a way to
+ *  mark them as flaky!)
+ *
+ *  This macro should be used inside the testcase code.  It can be used inside
+ *  a conditional if the testcase is only expected to fail in certain situations
+ *  (for example, only for some backends) - it only has an effect if it is
+ *  actually executed.
+ */
+inline void XFAIL(const char* msg) {
+    expected_failure = msg;
+}
 
 #endif // XAPIAN_INCLUDED_TESTSUITE_H
