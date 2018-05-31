@@ -321,24 +321,104 @@ MathTermGenerator::Internal::index_math(const char * ch)
 {
     parse_mathml(ch);
 
-#ifdef DEBUGGING
+#ifdef DEBUGGING_NO
     // Debug prints
     cout << "\n===============\n";
-    cout << "#symbols on main line : " << mrow.size() << '\n';
     cout << "Main line:";
     for (auto & sym : mrow) {
-	cout << ">>>>>" << "(" << sym.label << ")";
+	cout << ">>>>>" << "(" << sym.label << ", " << sym.edge << ")";
 	if (!sym.trow.empty()) {
 	    cout << "\nTop line for " << sym.label << ':';
 	    for (auto & tsym : sym.trow)
-		cout << "---->" << '(' << tsym.label << ')';
+		cout << "--->" << '(' << tsym.label << ", " << tsym.edge << ')';
+	    cout << '\n';
 	}
-	if (!sym.trow.empty()) {
+	if (!sym.brow.empty()) {
 	    cout << "\nBottom line for " << sym.label << ':';
 	    for (auto & bsym : sym.brow)
-		cout << "---->" << '(' << bsym.label << ')';
+		cout << "--->" << '(' << bsym.label << ", " << bsym.edge << ')';
+	    cout << '\n';
 	}
     }
+#endif
+    generate_symbol_pair_list();
+}
+
+const unsigned MAX_PATH_LEN = 3;
+
+void
+MathTermGenerator::Internal::generate_symbol_pair_list()
+{
+    // If main row has size n, then number of tuples along main row is
+    // T = (n * (n+1))/ 2. if main row has trow and brow of each size 2, then
+    // total pairs is T + 4 * T. This computation is not accurate, an attempt to
+    // avoid reallocation.
+    unsigned long approx_pairs_count = (mrow.size() * (mrow.size() + 1)) * 3;
+    symbol_pairs.reserve(approx_pairs_count);
+    string pair;
+    string path;
+    for (vector<Symbol>::size_type i = 0; i < mrow.size(); ++i) {
+	path.clear();
+	auto j = i;
+	while (j < mrow.size() && path.size() <= MAX_PATH_LEN) {
+	    if (i != j) {
+		path.push_back(mrow[j].edge);
+		pair.reserve(mrow[i].label.size() + mrow[j].label.size() +
+			path.size());
+		pair.clear();
+		pair.append(mrow[i].label);
+		pair.append(mrow[j].label);
+		pair.append(path);
+		symbol_pairs.push_back(pair);
+	    }
+	    // Get subpath along trow.
+	    if (!mrow[j].trow.empty()) {
+		unsigned offset = 0;
+		auto & subrow = mrow[j].trow;
+		string subpath(path);
+		while (offset < subrow.size() && path.size() <= MAX_PATH_LEN) {
+		    subpath.push_back(subrow[offset].edge);
+		    pair.reserve(mrow[i].label.size() +
+			    subrow[offset].label.size() + path.size());
+		    pair.clear();
+		    pair.append(mrow[i].label);
+		    pair.append(subrow[offset].label);
+		    pair.append(subpath);
+		    symbol_pairs.push_back(pair);
+		    ++offset;
+		}
+	    }
+	    // Get subpath along brow.
+	    if (!mrow[j].brow.empty()) {
+		unsigned offset = 0;
+		auto & subrow = mrow[j].brow;
+		auto subpath(path);
+		while (offset < subrow.size() && path.size() <= MAX_PATH_LEN) {
+		    subpath.push_back(subrow[offset].edge);
+		    pair.reserve(mrow[i].label.size() +
+			    subrow[offset].label.size() + path.size());
+		    pair.clear();
+		    pair.append(mrow[i].label);
+		    pair.append(subrow[offset].label);
+		    pair.append(subpath);
+		    symbol_pairs.push_back(pair);
+		    ++offset;
+		}
+	    }
+	    ++j;
+	}
+	// TODO currently source symbol is taken only from mrow
+	// include trow and brow in the future.
+	// TODO There is a pattern, refactor possible? If so, worth
+	// doing it, becoz for me this looks very clear.
+    }
+#ifdef DEBUGGING
+    // Debug prints
+    cout << "\n===Symbol pairs========\n";
+    for (auto & p : symbol_pairs)
+	cout << p << '\n';
+    cout << "#symbols on main line : " << mrow.size() << '\n';
+    cout << "total pairs = " << symbol_pairs.size();
 #endif
 }
 }
