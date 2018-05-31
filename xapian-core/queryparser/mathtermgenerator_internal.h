@@ -54,7 +54,11 @@ struct Symbol {
     // and will not have group of elements. Will consider this idea later.
     std::vector<Symbol> trow;	// Top row.
     std::vector<Symbol> brow;	// Bottom row.
-    explicit Symbol(std::string l, edge e_) : label(l), e(e_) { }
+    Symbol() = default;
+    explicit Symbol(std::string l, char e) : label(l), edge(e) {
+	trow.reserve(EST_SUB_SYMBOLS_COUNT);
+	brow.reserve(EST_SUB_SYMBOLS_COUNT);
+    }
 };
 
 class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
