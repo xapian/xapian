@@ -537,10 +537,10 @@ test_driver::runtest(const test_desc *test)
 		}
 
 		if (expected_failure) {
-		    out << col_yellow << " XFAIL (" << expected_failure
+		    out << col_yellow << "XFAIL (" << expected_failure
 			<< "): ";
 		} else {
-		    out << col_red << " FAIL: ";
+		    out << col_red << "FAIL: ";
 		}
 		out << err.get_description() << col_reset;
 		write_and_clear_tout();
@@ -549,10 +549,10 @@ test_driver::runtest(const test_desc *test)
 	    } catch (const string & msg) {
 		out << ' ';
 		if (expected_failure) {
-		    out << col_yellow << " XFAIL (" << expected_failure
+		    out << col_yellow << "XFAIL (" << expected_failure
 			<< "): ";
 		} else {
-		    out << col_red << " FAIL: ";
+		    out << col_red << "FAIL: ";
 		}
 		out << "EXCEPTION std::string " << msg << col_reset;
 		write_and_clear_tout();
@@ -560,10 +560,10 @@ test_driver::runtest(const test_desc *test)
 	    } catch (const std::exception & e) {
 		out << ' ';
 		if (expected_failure) {
-		    out << col_yellow << " XFAIL (" << expected_failure
+		    out << col_yellow << "XFAIL (" << expected_failure
 			<< "): ";
 		} else {
-		    out << col_red << " FAIL: ";
+		    out << col_red << "FAIL: ";
 		}
 #ifndef USE_RTTI
 		out << "std::exception";
@@ -590,10 +590,10 @@ test_driver::runtest(const test_desc *test)
 	    } catch (const char * msg) {
 		out << ' ';
 		if (expected_failure) {
-		    out << col_yellow << " XFAIL (" << expected_failure
+		    out << col_yellow << "XFAIL (" << expected_failure
 			<< "): ";
 		} else {
-		    out << col_red << " FAIL: ";
+		    out << col_red << "FAIL: ";
 		}
 		if (msg) {
 		    out << "EXCEPTION char* " << msg;
@@ -606,10 +606,10 @@ test_driver::runtest(const test_desc *test)
 	    } catch (...) {
 		out << ' ';
 		if (expected_failure) {
-		    out << col_yellow << " XFAIL (" << expected_failure
+		    out << col_yellow << "XFAIL (" << expected_failure
 			<< "): ";
 		} else {
-		    out << col_red << " FAIL: ";
+		    out << col_red << "FAIL: ";
 		}
 		out << "UNKNOWN EXCEPTION" << col_reset;
 		write_and_clear_tout();
@@ -618,7 +618,7 @@ test_driver::runtest(const test_desc *test)
 
 	    if (expected_failure) {
 		// Testcase marked as expected to fail but actually passed.
-		out << ' ' << col_red << " XPASS (" << expected_failure << ")"
+		out << ' ' << col_red << "XPASS (" << expected_failure << ")"
 		    << col_reset;
 		write_and_clear_tout();
 		return XPASS;
