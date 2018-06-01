@@ -45,8 +45,8 @@ class HoneyCursor {
     bool is_at_end = false;
     mutable std::string last_key;
 
-    // File offset to start of index and to current position in index.
-    off_t root, index;
+    // File offset to start of index.
+    off_t root;
 
     // File offset to start of table (zero except for single-file DB).
     off_t offset;
@@ -56,7 +56,6 @@ class HoneyCursor {
 	: store(table->store),
 	  comp_stream(Z_DEFAULT_STRATEGY),
 	  root(table->get_root()),
-	  index(table->get_root()),
 	  offset(table->get_offset())
     {
 	store.set_pos(offset); // FIXME root
@@ -72,7 +71,6 @@ class HoneyCursor {
 	  is_at_end(o.is_at_end),
 	  last_key(o.last_key),
 	  root(o.root),
-	  index(o.index),
 	  offset(o.offset)
     {
 	store.set_pos(o.store.get_pos());
@@ -86,7 +84,6 @@ class HoneyCursor {
 	store.set_pos(offset); // FIXME root
 	current_key = last_key = std::string();
 	is_at_end = false;
-	index = root;
 	val_size = 0;
     }
 
