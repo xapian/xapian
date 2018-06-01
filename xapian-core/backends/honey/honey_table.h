@@ -74,6 +74,7 @@ class HoneyFreeListChecker;
 class BufferedFile {
     int fd = -1;
     mutable off_t pos = 0;
+    off_t offset = 0;
     bool read_only = true;
     mutable size_t buf_end = 0;
     mutable char buf[4096];
@@ -83,7 +84,7 @@ class BufferedFile {
   public:
     BufferedFile() { }
 
-    BufferedFile(const BufferedFile& o) : fd(o.fd) {
+    BufferedFile(const BufferedFile& o) : fd(o.fd), offset(o.offset) {
 	if (!o.read_only) std::abort();
 #if 0
 	if (o.buf_end) {
@@ -93,12 +94,16 @@ class BufferedFile {
 #endif
     }
 
-    BufferedFile(int fd_, off_t pos_, bool read_only_)
-	: fd(fd_), pos(pos_), read_only(read_only_) {}
+    BufferedFile(int fd_, off_t offset_, off_t pos_, bool read_only_)
+	: fd(fd_), pos(pos_), offset(offset_), read_only(read_only_) {}
 
     ~BufferedFile() {
 //	if (fd >= 0) ::close(fd);
     }
+
+//    void set_offset(off_t offset_) { offset = offset_; }
+
+    off_t get_offset() const { return offset; }
 
     void close(bool fd_owned) {
 	if (fd >= 0) {
@@ -263,7 +268,7 @@ class BufferedFile {
 	    buf_end = 0;
 	}
 	// FIXME: refill buffer if len < sizeof(buf)
-	size_t r = io_pread(fd, p, len, pos, len);
+	size_t r = io_pread(fd, p, len, pos + offset, len);
 	// io_pread() should throw an exception if it read < len bytes.
 	AssertEq(r, len);
 	pos += r;
@@ -544,7 +549,7 @@ class HoneyTable {
     HoneyTable(const char*, int fd, off_t offset_, bool read_only_,
 	       bool lazy_ = false)
 	: read_only(read_only_),
-	  store(fd, offset_, read_only_),
+	  store(fd, 0, offset_, read_only_),
 	  lazy(lazy_),
 	  offset(offset_)
     {
