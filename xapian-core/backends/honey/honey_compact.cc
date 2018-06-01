@@ -1135,6 +1135,10 @@ merge_spellings(HoneyTable* out,
 	    bool compressed;
 	    switch (key[0]) {
 		case Honey::KEY_PREFIX_HEAD: {
+		    // Honey omits the first two bytes from the first entry
+		    // since we know what those most be from the key
+		    // (subsequent entries won't include those anyway, since
+		    // they'll be part of the reused prefix).
 		    compressed = cur->read_tag(false);
 		    unsigned char len = cur->current_tag[0] ^ MAGIC_XOR_VALUE;
 		    cur->current_tag[0] = (len - 2) ^ MAGIC_XOR_VALUE;
@@ -1143,23 +1147,20 @@ merge_spellings(HoneyTable* out,
 		    cur->current_tag.erase(1, 2);
 		    break;
 		}
-		case Honey::KEY_PREFIX_TAIL: {
-		    compressed = cur->read_tag(false);
-		    unsigned char len = cur->current_tag[0] ^ MAGIC_XOR_VALUE;
-		    cur->current_tag[0] = (len - 2) ^ MAGIC_XOR_VALUE;
-		    AssertEq(cur->current_tag[len - 1], key[1]);
-		    AssertEq(cur->current_tag[len], key[2]);
-		    cur->current_tag.erase(len - 1, 2);
-		    break;
-		}
+		case Honey::KEY_PREFIX_TAIL:
 		case Honey::KEY_PREFIX_BOOKEND: {
+		    // Need to repack because honey omits the last 2 or 1 bytes
+		    // from each entry (2 for tail, 1 for bookend) since we
+		    // know what those must be from the key.
 		    compressed = cur->read_tag(false);
-		    unsigned char len = cur->current_tag[0] ^ MAGIC_XOR_VALUE;
-		    cur->current_tag[0] = (len - 2) ^ MAGIC_XOR_VALUE;
-		    AssertEq(cur->current_tag[1], key[1]);
-		    AssertEq(cur->current_tag[len], key[2]);
-		    cur->current_tag.erase(len, 1);
-		    cur->current_tag.erase(1, 1);
+		    PrefixCompressedStringItor spell_in(cur->current_tag);
+		    string new_tag;
+		    PrefixCompressedStringWriter spell_out(new_tag, key);
+		    while (!spell_in.at_end()) {
+			spell_out.append(*spell_in);
+			++spell_in;
+		    }
+		    cur->current_tag = std::move(new_tag);
 		    break;
 		}
 		default:
