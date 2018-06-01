@@ -24,6 +24,7 @@
 
 #include <xapian/error.h>
 
+#include <algorithm>
 #include <string>
 
 #include "honey/honey_spelling.h"
@@ -197,6 +198,8 @@ class PrefixCompressedStringWriter {
 	    if (tail > 1)
 		AssertEq(current[current.size() - 2], word[word.size() - 2]);
 	    size_t i = common_prefix_length(current, word);
+	    // Don't allow the reused prefix to overlap with tail
+	    i = std::min(i, word.size() - tail);
 	    out += char(i ^ MAGIC_XOR_VALUE);
 	    size_t add = word.size() - i - tail;
 	    out += char(add ^ MAGIC_XOR_VALUE);
