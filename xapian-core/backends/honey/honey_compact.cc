@@ -995,7 +995,6 @@ merge_postlists(Xapian::Compactor * compactor,
 	    last_key = cur->key;
 	}
 
-	Assert(cur->tf);
 	if (tf && cur->tf && (cf == 0) != (cur->cf == 0)) {
 	    // FIXME: Also need to adjust document length, total document
 	    // length.
