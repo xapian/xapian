@@ -456,7 +456,7 @@ RootInfo::serialise(string &s) const
 {
     AssertRel(offset, >=, 0);
     std::make_unsigned<off_t>::type uoffset = offset;
-    AssertRel(root, >=, uoffset);
+    AssertRel(root, >=, offset);
     pack_uint(s, uoffset);
     pack_uint(s, root - uoffset);
     pack_uint(s, 0u);
