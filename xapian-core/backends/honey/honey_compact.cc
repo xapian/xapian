@@ -1494,7 +1494,6 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    tmp.push_back(tmptab);
 	    tmptab->flush_db();
 	    tmptab->commit(1, &root_info);
-	    AssertRel(root_info.get_blocksize(),==,65536);
 	}
 	swap(off, newoff);
 	++c;
@@ -1536,7 +1535,6 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    tmpout.push_back(tmptab);
 	    tmptab->flush_db();
 	    tmptab->commit(1, &root_info);
-	    AssertRel(root_info.get_blocksize(),==,65536);
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
