@@ -36,7 +36,6 @@
 namespace Xapian {
 
 class Document;
-class WritableDatabase;
 
 /** Parses a math expression and generate terms.
  *
@@ -69,6 +68,12 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
 
     /// Destructor.
     ~MathTermGenerator();
+
+    /// Set the current document.
+    void set_document(const Xapian::Document & doc);
+
+    /// Get the current document.
+    const Xapian::Document & get_document() const;
 
     /** Index some math expression in null-terminated string.
      *
