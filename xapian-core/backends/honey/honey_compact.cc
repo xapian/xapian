@@ -309,6 +309,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    Assert(!startswith(newtag, "\xff\xff\xff\xff"));
 	    Assert(!endswith(newtag, "\xff\xff\xff\xff"));
 
+	    AssertEq(newtag.size() % 4, 0);
 	    chunk_lastdid = firstdid - 1 + newtag.size() / 4;
 
 	    // Only encode document lengths using a whole number of bytes for
@@ -781,32 +782,48 @@ merge_postlists(Xapian::Compactor * compactor,
 	    cur = pq.top();
 	    if (key_type(cur->key) != Honey::KEY_DOCLEN_CHUNK)
 		break;
+	    if (tag[0] != cur->tag[0]) {
+		// Different width values in the two tags, so punt for now.
+		// FIXME: We would ideally optimise the total size here.
+		break;
+	    }
+	    size_t byte_width = tag[0] / 8;
 	    auto new_size = tag.size();
 	    Xapian::docid gap_size = cur->firstdid - chunk_lastdid - 1;
-	    new_size += gap_size * 4;
+	    new_size += gap_size * byte_width;
 	    if (new_size >= HONEY_DOCLEN_CHUNK_MAX) {
 		// The gap spans beyond HONEY_DOCLEN_CHUNK_MAX.
 		break;
 	    }
-	    new_size += cur->tag.size();
+	    new_size += cur->tag.size() - 1;
 	    auto full_new_size = new_size;
-	    if (new_size > HONEY_DOCLEN_CHUNK_MAX)
+	    if (new_size > HONEY_DOCLEN_CHUNK_MAX) {
+		if (byte_width > 1) {
+		    // HONEY_DOCLEN_CHUNK_MAX should be one more than a
+		    // multiple of 12 so for widths 1,2,3,4 we can fix the
+		    // initial byte which indicates the width for the chunk
+		    // plus an exact number of entries.
+		    auto m = (new_size - HONEY_DOCLEN_CHUNK_MAX) % byte_width;
+		    (void)m;
+		    AssertEq(m, 0);
+		}
 		new_size = HONEY_DOCLEN_CHUNK_MAX;
+	    }
 	    tag.reserve(new_size);
-	    tag.append(4 * gap_size, '\xff');
+	    tag.append(byte_width * gap_size, '\xff');
 	    if (new_size != full_new_size) {
 		// Partial copy.
 		auto copy_size = new_size - tag.size();
-		tag.append(cur->tag, 0, copy_size);
-		cur->tag.erase(0, copy_size);
-		copy_size /= 4;
+		tag.append(cur->tag, 1, copy_size);
+		cur->tag.erase(1, copy_size);
+		copy_size /= byte_width;
 		cur->firstdid += copy_size;
 		chunk_lastdid += gap_size;
 		chunk_lastdid += copy_size;
 		break;
 	    }
 
-	    tag += cur->tag;
+	    tag.append(cur->tag, 1, string::npos);
 	    chunk_lastdid = cur->chunk_lastdid;
 
 	    pq.pop();

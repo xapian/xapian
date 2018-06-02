@@ -39,7 +39,14 @@
 #define HONEY_MAX_KEY_LENGTH 255
 
 // Maximum size of a document length chunk in bytes.
-#define HONEY_DOCLEN_CHUNK_MAX 2016
+#define HONEY_DOCLEN_CHUNK_MAX 2017
+
+// HONEY_DOCLEN_CHUNK_MAX should be one more than a
+// multiple of 12 so for widths 1,2,3,4 we can fix the
+// initial byte which indicates the width for the chunk
+// plus an exact number of entries.
+static_assert((HONEY_DOCLEN_CHUNK_MAX - 1) % 12 == 0,
+	      "HONEY_DOCLEN_CHUNK_MAX should be (12 * x + 1)");
 
 /** The largest docid value supported by honey.
  *
