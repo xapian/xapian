@@ -342,6 +342,10 @@ MathTermGenerator::Internal::index_math(const char * ch)
     }
 #endif
     generate_symbol_pair_list();
+
+    // Index symbol-pair string in db.
+    for (const auto & sp : symbol_pairs)
+	doc.add_term(sp);
 }
 
 const unsigned MAX_PATH_LEN = 3;

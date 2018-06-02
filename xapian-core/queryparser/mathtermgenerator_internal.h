@@ -22,7 +22,6 @@
 #define XAPIAN_INCLUDED_MATHTERMGENERATOR_INTERNAL_H
 
 #include "xapian/intrusive_ptr.h"
-#include <xapian/database.h>
 #include <xapian/document.h>
 #include <xapian/mathtermgenerator.h>
 
@@ -63,6 +62,7 @@ struct Symbol {
 
 class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class MathTermGenerator;
+    Document doc;
     std::vector<Symbol> mrow;
     std::vector<std::string> symbol_pairs;
     void parse_mathml(const char *& ch);

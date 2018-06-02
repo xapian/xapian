@@ -52,6 +52,18 @@ MathTermGenerator::MathTermGenerator()
 MathTermGenerator::~MathTermGenerator() { }
 
 void
+MathTermGenerator::set_document(const Xapian::Document & doc)
+{
+    internal->doc = doc;
+}
+
+const Xapian::Document &
+MathTermGenerator::get_document() const
+{
+    return internal->doc;
+}
+
+void
 MathTermGenerator::index_math(const char * expr)
 {
     internal->index_math(expr);
