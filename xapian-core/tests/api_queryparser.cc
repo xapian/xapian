@@ -3012,3 +3012,18 @@ DEFINE_TESTCASE(qp_defaultstrategysome1, !backend) {
     TEST_EQUAL(qp.parse_query("testing").get_description(), "Query(Ztest@1)");
     return true;
 }
+
+DEFINE_TESTCASE(mathqueryparse1, !backend) {
+    const char * query_string = {
+	"<math> <mi> a </mi> <mo> + </mo> <mi> b </mi> </math>"
+    };
+    // Symbol pairs: (a, +), (a, b), (+, b)
+
+    Xapian::QueryParser qp;
+    Xapian::Query q = qp.parse_math_query(query_string);
+    TEST_EQUAL(q.get_length(), 3);
+    TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((V!aO+N OR V!aV!bNN OR O+V!bN))");
+
+    return true;
+}
