@@ -317,7 +317,7 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 }
 
 void
-MathTermGenerator::Internal::index_math(const char * ch)
+MathTermGenerator::Internal::index_math(const char * ch, const string & prefix)
 {
     parse_mathml(ch);
 
@@ -345,7 +345,7 @@ MathTermGenerator::Internal::index_math(const char * ch)
 
     // Index symbol-pair string in db.
     for (const auto & sp : symbol_pairs)
-	doc.add_term(sp);
+	doc.add_term(prefix + sp);
 }
 
 const unsigned MAX_PATH_LEN = 3;
