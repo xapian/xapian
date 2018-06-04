@@ -70,7 +70,7 @@ class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
   public:
     Internal() : mrow(EST_SYMBOLS_COUNT), symbol_pairs() { }
 
-    void index_math(const char * ch);
+    void index_math(const char * ch, const std::string & prefix);
 
     std::vector<std::string> get_symbol_pair_list(const char * ch);
 

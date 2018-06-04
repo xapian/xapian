@@ -78,8 +78,11 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
     /** Index some math expression in null-terminated string.
      *
      * @param expr	The expression to index.
+     * @param prefix	The term prefix to use (default is no prefix).
      */
-    void index_math(const char * expr);
+    void index_math(const char * expr,
+		    const std::string & prefix = std::string());
+
     /** Generate and return symbol pair list frin null-terminated string.
      *
      * @param expr	The expression to generate symbol pair.
