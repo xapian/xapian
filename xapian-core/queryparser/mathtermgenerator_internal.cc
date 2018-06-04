@@ -359,6 +359,7 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
     // avoid reallocation.
     unsigned long approx_pairs_count = (mrow.size() * (mrow.size() + 1)) * 3;
     symbol_pairs.reserve(approx_pairs_count);
+    symbol_pairs.clear();
     string pair;
     string path;
     for (vector<Symbol>::size_type i = 0; i < mrow.size(); ++i) {
@@ -424,5 +425,13 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
     cout << "#symbols on main line : " << mrow.size() << '\n';
     cout << "total pairs = " << symbol_pairs.size();
 #endif
+}
+
+vector<string>
+MathTermGenerator::Internal::get_symbol_pair_list(const char * ch)
+{
+    parse_mathml(ch);
+    generate_symbol_pair_list();
+    return symbol_pairs;
 }
 }

@@ -67,6 +67,11 @@ void
 MathTermGenerator::index_math(const char * expr)
 {
     internal->index_math(expr);
+
+vector<string>
+MathTermGenerator::get_symbol_pair_list(const char * expr)
+{
+    return internal->get_symbol_pair_list(expr);
 }
 
 vector<string>
