@@ -690,3 +690,122 @@ DEFINE_TESTCASE(notandor1, backend) {
 
     return true;
 }
+
+// Formulae used for indexing.
+static const char * index_doc[] = {
+    // a = b + c
+    "<math>"
+    "<mi> a </mi>"
+    "<mo> = </mo>"
+    "<mi> b </mi>"
+    "<mo> + </mo>"
+    "<mi> c </mi>"
+    "</math>",
+
+    // a = b + c + d
+    "<math>"
+    "<mi> a </mi>"
+    "<mo> = </mo>"
+    "<mi> b </mi>"
+    "<mo> + </mo>"
+    "<mi> c </mi>"
+    "<mo> + </mo>"
+    "<mi> d </mi>"
+    "</math>",
+
+    // p = r + s
+    "<math>"
+    "<mi> p </mi>"
+    "<mo> = </mo>"
+    "<mi> r </mi>"
+    "<mo> + </mo>"
+    "<mi> s </mi>"
+    "</math>",
+
+    // a = x + b + c + s
+    "<math>"
+    "<mi> a </mi>"
+    "<mo> = </mo>"
+    "<mi> x </mi>"
+    "<mo> + </mo>"
+    "<mi> b </mi>"
+    "<mo> + </mo>"
+    "<mi> c </mi>"
+    "<mo> + </mo>"
+    "<mi> s </mi>"
+    "</math>",
+
+    // m = sqrt(n) + y
+    "<math>"
+    "<mi> m </mi>"
+    "<mo> = </mi>"
+    "<msqrt> "
+    "	<mi> n </mi>"
+    "<mo> + </mo>"
+    "<mi> y </mi>"
+    "</math>",
+
+    // l = a / b
+    "<math>"
+    "<mi> l </mi>"
+    "<mo> = </mo>"
+    "<mfrac>"
+    "	<mi> a </mi>"
+    "	<mi> b </mi>"
+    "</mfrac>"
+    "</math>",
+
+    NULL
+};
+
+DEFINE_TESTCASE(mathquery1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::MathTermGenerator termgen;
+
+    auto t = index_doc;
+    for (unsigned i = 0; i < sizeof(index_doc) / sizeof(char *) - 1; ++i) {
+	Xapian::Document doc;
+	termgen.set_document(doc);
+	termgen.index_math(*t++);
+	db.add_document(doc);
+    }
+
+    TEST_EQUAL(db.get_doccount(), 6);
+
+    const char * query_string = {
+	"<math> <mi> b </mi> <mo> + </mo> <mi> c </mi> </math>"
+    };
+    // Symbol pairs: (b, +), (b, c), (+, c)
+
+    Xapian::QueryParser qp;
+    Xapian::Query q = qp.parse_math_query(query_string);
+    TEST_EQUAL(q.get_length(), 3);
+    TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
+    TEST_STRINGS_EQUAL(q.get_description(),
+			"Query((V!bO+N OR V!bV!cNN OR O+V!cN))");
+
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    enq.set_weighting_scheme(Xapian::DiceCoeffWeight());
+
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 3);
+    mset_expect_order(enq.get_mset(0, 10), 1, 2, 4);
+
+    // Formula a = b - c will be indexed. symbols b and c match structurally,
+    // hence should appear in mset.
+    const char * formula_n = {
+	"<math> <mi> a </mi> <mo> = </mo> <mi> b </mi> <mo> - </mo>"
+	"<mi> c </mi> </math>" };
+    Xapian::Document doc;
+    termgen.set_document(doc);
+    termgen.index_math(formula_n);
+    db.add_document(doc);
+    TEST_EQUAL(db.get_doccount(), 7);
+
+    // Query retrieval
+    mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 4);
+    mset_expect_order(enq.get_mset(0, 10), 1, 2, 4, 7);
+    return true;
+}
