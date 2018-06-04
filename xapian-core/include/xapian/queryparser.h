@@ -1066,6 +1066,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 		      unsigned flags = FLAG_DEFAULT,
 		      const std::string &default_prefix = std::string());
 
+    /** Parse a math formula query.
+     *
+     * @param query_string	Math expression as null-terminated string.
+     * @param flags		Zero or more QueryParser::feature_flag
+     * 		specifying what features the QueryParser should support.
+     * 		Combine multiple values with bitwise-or (|)
+     * 		(default FLAG_DEFAULT).
+     *	@param default_prefix	The default term prefix to use (default none.
+     *		For example, you can pass "A" when parsing an "Author" field.
+     */
+    Query parse_math_query(const char * expr,
+			   unsigned flags = FLAG_DEFAULT,
+			   const std::string &default_prefix = std::string());
+
     /** Add a probabilistic term prefix.
      *
      *  For example:

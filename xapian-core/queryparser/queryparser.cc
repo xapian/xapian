@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include "xapian/error.h"
+#include <xapian/mathtermgenerator.h>
 #include <xapian/queryparser.h>
 #include <xapian/termiterator.h>
 
@@ -170,6 +171,20 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 
     if (internal->errmsg) throw Xapian::QueryParserError(internal->errmsg);
     return result;
+}
+
+Query
+QueryParser::parse_math_query(const char * query_string, unsigned flags,
+			      const string &)
+{
+    if (query_string[0] == '\0') return Query();
+
+    MathTermGenerator termgen;
+    auto query_terms = termgen.get_symbol_pair_list(query_string);
+    if (flags && FLAG_BOOLEAN)
+	return Query(Query::OP_OR, query_terms.begin(), query_terms.end());
+
+    return Query();
 }
 
 void
