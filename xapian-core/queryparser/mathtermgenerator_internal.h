@@ -72,6 +72,8 @@ class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
 
     void index_math(const char * ch);
 
+    std::vector<std::string> get_symbol_pair_list(const char * ch);
+
     // For debugging purpose.
     std::vector<std::string> get_labels_list() {
 	std::vector<std::string> labels;

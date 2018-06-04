@@ -80,6 +80,11 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
      * @param expr	The expression to index.
      */
     void index_math(const char * expr);
+    /** Generate and return symbol pair list frin null-terminated string.
+     *
+     * @param expr	The expression to generate symbol pair.
+     */
+    std::vector<std::string> get_symbol_pair_list(const char * expr);
 
     // For testing purpose.
     std::vector<std::string> get_labels_list();
