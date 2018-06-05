@@ -46,17 +46,20 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
     /// Top-k documents of given mset are diversified
     unsigned int k;
 
-    /// Store given mset as a vector of points
-    std::vector<Point> points;
+    /// MPT parameters
+    double lambda, b, sigma_sqr;
 
-    /// Store relevance score for each document of given mset
-    std::unordered_map<Xapian::docid, double> weights;
+    /// Store each document from given mset as a point and its relevance score
+    std::unordered_map<Xapian::docid, Xapian::Point> points;
+
+    /// Store the relevance score of each document
+    std::unordered_map<Xapian::docid, double> scores;
 
     /// Store pairwise cosine similarities of documents of given mset
     std::map<std::pair<Xapian::docid, Xapian::docid>, double> pairwise_sim;
 
-    /// MPT parameters
-    double lambda, b, sigma_sqr;
+    /// Store docids of top k diversified documents
+    std::vector<Xapian::docid> main_dmset;
 
     /** Initial diversified document set
      *
@@ -70,22 +73,18 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
 
     /** Return a key for a pair of documents
      *
-     *  Returns a key as a pair of documents ids of given documents where First
-     *  id in pair is smaller of the two doc ids.
+     *  Returns a key as a pair of given documents ids
      *
      *  @param source	MSet object containing the documents of which
      *			top-k are to be diversified
      */
     std::pair<Xapian::docid, Xapian::docid>
-    get_key(const Xapian::Point &doc_a, const Xapian::Point &doc_b);
+    get_key(const Xapian::docid &docid_a, const Xapian::docid &docid_b);
 
     /** Compute pairwise similarities
      *
-     *  Use for pre-computing pairwise cosine similarities of documents
-     *  of given mset, which are used in evaluate_dmset
-     *
-     *  @param source	MSet object containing the documents of which
-     *			top-k are to be diversified
+     *  Used for pre-computing pairwise cosine similarities of documents
+     *  of given mset, which is used to speed up evaluate_dmset
      */
     void compute_similarities();
 
@@ -96,7 +95,8 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *
      *  @param dmset	Document set representing a diversified document set
      */
-    std::vector<Point> compute_diff_dmset(const std::vector<Point> &dmset);
+    std::vector<Xapian::docid>
+    compute_diff_dmset(const std::vector<Xapian::docid> &dmset);
 
     /** Evaluate a diversified mset
      *
@@ -105,7 +105,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *  @param dmset	Set of points representing candidate diversifed
      *			set of documents
      */
-    double evaluate_dmset(const std::vector<Point> &dmset);
+    double evaluate_dmset(const std::vector<Xapian::docid> &dmset);
 
   public:
     /** Constructor specifying the number of diversified search results

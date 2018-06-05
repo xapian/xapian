@@ -53,19 +53,22 @@ void
 Diversify::initialise_points(const MSet &source)
 {
     LOGCALL_VOID(API, "Diversify::initialise_points", source);
+    unsigned int count = 0;
     TermListGroup tlg(source);
     for (MSetIterator it = source.begin(); it != source.end(); ++it) {
-	points.push_back(Point(tlg, it.get_document()));
-	weights[*it] = it.get_weight();
+	points.emplace(*it, Xapian::Point(tlg, it.get_document()));
+	scores[*it] = it.get_weight();
+	// Initial top-k diversified documents
+	if (count < k) {
+	    main_dmset.push_back(*it);
+	    ++count;
+	}
     }
 }
 
 pair<Xapian::docid, Xapian::docid>
-Diversify::get_key(const Xapian::Point &doc_a, const Xapian::Point &doc_b)
+Diversify::get_key(const Xapian::docid &docid_a, const Xapian::docid &docid_b)
 {
-    Xapian::docid docid_a = doc_a.get_document().get_docid();
-    Xapian::docid docid_b = doc_b.get_document().get_docid();
-
     pair<Xapian::docid, Xapian::docid> key;
     if (docid_a <= docid_b) {
 	key = make_pair(docid_a, docid_b);
@@ -81,32 +84,41 @@ Diversify::compute_similarities()
 {
     LOGCALL_VOID(API, "Diversify::compute_similarities", NO_ARGS);
     Xapian::CosineDistance d;
-    for (unsigned int i = 0; i < points.size() - 1; ++i) {
-	for (unsigned int j = i + 1; j < points.size(); ++j) {
-	    double sim = d.similarity(points[i], points[j]);
-	    auto key = get_key(points[i], points[j]);
+    for (auto p_a : points) {
+	Xapian::docid pointid_a = p_a.first;
+	Xapian::Point point_a = p_a.second;
+	for (auto p_b : points) {
+	    Xapian::docid pointid_b = p_b.first;
+	    Xapian::Point point_b = p_b.second;
+
+	    if (pointid_a > pointid_b) {
+		continue;
+	    }
+
+	    double sim = d.similarity(point_a, point_b);
+	    auto key = get_key(pointid_a, pointid_b);
 	    pairwise_sim[key] = sim;
 	}
     }
 }
 
-vector<Point>
-Diversify::compute_diff_dmset(const std::vector<Point> &dmset)
+vector<Xapian::docid>
+Diversify::compute_diff_dmset(const vector<Xapian::docid> &dmset)
 {
-    LOGCALL(API, vector<Point>, "Diversify::compute_diff_dmset", dmset);
-    vector<Point> diff_dmset;
+    LOGCALL(API, vector<Xapian::docid>, "Diversify::compute_diff_dmset", dmset);
+    vector<Xapian::docid> diff_dmset;
     for (auto point : points) {
+	Xapian::docid point_id = point.first;
 	bool found_point = false;
-	Xapian::docid point_docid = point.get_document().get_docid();
-	for (auto doc : dmset) {
-	    if (point_docid == doc.get_document().get_docid()) {
+	for (auto doc_id : dmset) {
+	    if (point_id == doc_id) {
 		found_point = true;
 		break;
 	    }
 	}
 
 	if (!found_point) {
-	    diff_dmset.push_back(point);
+	    diff_dmset.push_back(point_id);
 	}
     }
 
@@ -114,21 +126,21 @@ Diversify::compute_diff_dmset(const std::vector<Point> &dmset)
 }
 
 double
-Diversify::evaluate_dmset(const vector<Point> &dmset)
+Diversify::evaluate_dmset(const vector<Xapian::docid> &dmset)
 {
     LOGCALL(API, double, "Diversify::evaluate_dmset", dmset);
     double score_1 = 0, score_2 = 0;
 
-    for (auto doc : dmset)
-	score_1 += weights[doc.get_document().get_docid()];
+    for (auto doc_id : dmset)
+	score_1 += scores[doc_id];
 
-    vector<Point> diff_dmset = compute_diff_dmset(dmset);
+    vector<Xapian::docid> diff_dmset = compute_diff_dmset(dmset);
 
-    for (auto point : diff_dmset) {
+    for (auto point_id : diff_dmset) {
 	double min_dist = numeric_limits<double>::max();
 	unsigned int pos = 1;
-	for (auto doc : dmset) {
-	    auto key = get_key(point, doc);
+	for (auto doc_id : dmset) {
+	    auto key = get_key(point_id, doc_id);
 	    double sim = pairwise_sim[key];
 	    double weight = 2 * b * sigma_sqr * (1 / log(1 + pos)) * (1 - sim);
 	    min_dist = min(min_dist, weight);
@@ -157,8 +169,8 @@ Diversify::get_dmset(const MSet &mset)
 
     initialise_points(mset);
     compute_similarities();
-    vector<Point> main_dmset(points.begin(), points.begin() + k);
-    vector<Point> curr_dmset = main_dmset;
+
+    vector<Xapian::docid> curr_dmset = main_dmset;
 
     while (true) {
 	bool found_better_dmset = false;
@@ -166,11 +178,11 @@ Diversify::get_dmset(const MSet &mset)
 	    auto curr_doc = main_dmset[i];
 	    double best_score = evaluate_dmset(curr_dmset);
 
-	    vector<Point> diff_dmset = compute_diff_dmset(curr_dmset);
+	    vector<Xapian::docid> diff_dmset = compute_diff_dmset(curr_dmset);
 
 	    bool found_better_doc = false;
 	    for (unsigned int j = 0; j < diff_dmset.size(); ++j) {
-		vector<Point> temp_dmset = curr_dmset;
+		vector<Xapian::docid> temp_dmset = curr_dmset;
 		temp_dmset[i] = diff_dmset[j];
 		double score = evaluate_dmset(temp_dmset);
 		if (score < best_score) {
@@ -195,13 +207,12 @@ Diversify::get_dmset(const MSet &mset)
 
     // Merge main_dmset and diff_dmset into final dmset
     DocumentSet dmset;
-    for (auto doc : main_dmset) {
-	dmset.add_document(doc.get_document());
-    }
+    for (auto doc_id : main_dmset)
+	dmset.add_document(points.at(doc_id).get_document());
 
-    vector<Point> diff_dmset = compute_diff_dmset(main_dmset);
-    for (auto doc : diff_dmset)
-	dmset.add_document(doc.get_document());
+    vector<Xapian::docid> diff_dmset = compute_diff_dmset(main_dmset);
+    for (auto doc_id : diff_dmset)
+	dmset.add_document(points.at(doc_id).get_document());
 
     return dmset;
 }
