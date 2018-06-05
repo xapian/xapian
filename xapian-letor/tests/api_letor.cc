@@ -79,13 +79,6 @@ db_index_two_documents(Xapian::WritableDatabase& db, const string&)
 			     "other busy. On the other hand, bears don't live "
 			     "in the same continent as far as I know.");
     db.add_document(doc);
-    doc.clear_terms();
-    termgenerator.index_text("The lions", 1, "S");
-    termgenerator.index_text("This lions", 1,"XD");
-    termgenerator.index_text("Is will lions lions lions");
-    termgenerator.increase_termpos();
-    termgenerator.index_text("the a mango");
-    db.add_document(doc);
 }
 
 
@@ -176,11 +169,9 @@ DEFINE_TESTCASE(createfeaturevector, generated)
     TEST(!mset.empty());
     TEST_EQUAL(mset.size(), 2);
     fv = fl.create_feature_vectors(mset, Xapian::Query("lions"), db);
-    TEST_EQUAL(fv.size(), 3);
+    TEST_EQUAL(fv.size(), 2);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     TEST_EQUAL(fv[1].get_fcount(), 19);
-    TEST_EQUAL(fv[2].get_fcount(), 19);
-
     return true;
 }
 
@@ -308,20 +299,20 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
 	int i = 0;
 	while ((iss1 >> temp1) && (iss2 >> temp2)) {
 	    if (i == 0 || i == 1 || i == 21) {
-		// TEST_EQUAL(temp1, temp2);
+		TEST_EQUAL(temp1, temp2);
 	    } else {
-		// size_t t1 = temp1.find_first_of(':');
-		// size_t t2 = temp2.find_first_of(':');
-		// TEST(abs(stod(temp1.substr(t1 + 1)) -
-		// 	 stod(temp2.substr(t2 + 1))) <
-		     // 0.001);
+		size_t t1 = temp1.find_first_of(':');
+		size_t t2 = temp2.find_first_of(':');
+		TEST(abs(stod(temp1.substr(t1 + 1)) -
+			 stod(temp2.substr(t2 + 1))) <
+		     0.001);
 	    }
 	    i++;
 	}
 	TEST_REL(i, ==, 22);
 	TEST(!(iss2 >> temp2));
     }
-    // TEST(!getline(if2, file2));
+    TEST(!getline(if2, file2));
 
     return true;
 }
@@ -500,7 +491,7 @@ DEFINE_TESTCASE(listnet_ranker_one_file, generated)
 //     Xapian::ListNETRanker ranker;
 //     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
 //     string db_path = get_database_path("apitest_listnet_ranker3",
-//					  db_index_three_documents);
+//					   db_index_three_documents);
 //     Xapian::Enquire enquire((Xapian::Database(db_path)));
 //     enquire.set_query(Xapian::Query("score"));
 //     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -524,17 +515,16 @@ DEFINE_TESTCASE(listnet_ranker_one_file, generated)
 //     TEST_EQUAL(doc1, *mymset[1]);
 //     TEST_EQUAL(doc2, *mymset[0]);
 //     TEST_EXCEPTION(Xapian::LetorInternalError,
-//			ranker.score(query, qrel, "ListNet_Ranker",
-//			"scorer_output2.txt", 10, ""));
+// 			ranker.score(query, qrel, "ListNet_Ranker",
+// 			"scorer_output2.txt", 10, ""));
 //     TEST_EXCEPTION(Xapian::FileNotFoundError,
-//				ranker.score("", qrel, "ListNet_Ranker",
-//				"scorer_output2.txt", 10));
+// 				ranker.score("", qrel, "ListNet_Ranker",
+// 				"scorer_output2.txt", 10));
 //     TEST_EXCEPTION(Xapian::FileNotFoundError,
-//			ranker.score(qrel, "", "ListNet_Ranker",
-//						"scorer_output.txt2", 10));
+// 			ranker.score(qrel, "", "ListNet_Ranker",
+// 						"scorer_output.txt2", 10));
 //     ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output2.txt", 10);
-//	Conditional jump or move depends on uninitialised value(s)
-//     ranker.score(query, qrel, "ListNet_Ranker", "err_output2.txt", 10, "ERRScore");
+// 	ranker.score(query, qrel, "ListNet_Ranker", "err_output2.txt", 10, "ERRScore");
 
 //     return true;
 // }
@@ -845,48 +835,48 @@ DEFINE_TESTCASE(listmle_ranker_one_file, generated)
 }
 
 
-DEFINE_TESTCASE(listmle_ranker_three_miss, generated)
-{
-    Xapian::ListMLERanker ranker;
-    TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
-    string db_path = get_database_path("apitest_listmle_ranker3",
-				       db_index_three_documents);
-    Xapian::Enquire enquire((Xapian::Database(db_path)));
-    enquire.set_query(Xapian::Query("score"));
-    Xapian::MSet mymset = enquire.get_mset(0, 10);
-    string data_directory = test_driver::get_srcdir() + "/testdata/";
-    string query = data_directory + "querythree.txt";
-    string qrel = data_directory + "qrelthree_onemiss.txt";
-    string training_data = data_directory + "training_data_three_onemiss.txt";
-    ranker.set_database_path(db_path);
-    TEST_EQUAL(ranker.get_database_path(), db_path);
-    ranker.set_query(Xapian::Query("score"));
-    ranker.train_model(training_data);
-    TEST_EQUAL(mymset.size(), 2);
-    Xapian::docid doc1 = *mymset[0];
-    Xapian::docid doc2 = *mymset[1];
-    ranker.rank(mymset);
-    TEST_EQUAL(doc1, *mymset[1]);
-    TEST_EQUAL(doc2, *mymset[0]);
-    mymset = enquire.get_mset(0, 10);
-    ranker.train_model(training_data, "ListMLE_Ranker");
-    ranker.rank(mymset, "ListMLE_Ranker");
-    TEST_EQUAL(doc1, *mymset[1]);
-    TEST_EQUAL(doc2, *mymset[0]);
-    TEST_EXCEPTION(Xapian::LetorInternalError,
-		   ranker.score(query, qrel, "ListMLE_Ranker",
-				"scorer_output2.txt", 10, ""));
-    TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score("", qrel, "ListMLE_Ranker",
-				"scorer_output2.txt", 10));
-    TEST_EXCEPTION(Xapian::FileNotFoundError,
-		   ranker.score(qrel, "", "ListMLE_Ranker",
-				"scorer_output.txt2", 10));
-    ranker.score(query, qrel, "ListMLE_Ranker", "ndcg_output21.txt", 10);
-    ranker.score(query, qrel, "ListMLE_Ranker", "err_output21.txt", 10, "ERRScore");
+// DEFINE_TESTCASE(listmle_ranker_three_miss, generated)
+// {
+//     Xapian::ListMLERanker ranker;
+//     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
+//     string db_path = get_database_path("apitest_listmle_ranker3",
+// 				       db_index_three_documents);
+//     Xapian::Enquire enquire((Xapian::Database(db_path)));
+//     enquire.set_query(Xapian::Query("score"));
+//     Xapian::MSet mymset = enquire.get_mset(0, 10);
+//     string data_directory = test_driver::get_srcdir() + "/testdata/";
+//     string query = data_directory + "querythree.txt";
+//     string qrel = data_directory + "qrelthree_onemiss.txt";
+//     string training_data = data_directory + "training_data_three_onemiss.txt";
+//     ranker.set_database_path(db_path);
+//     TEST_EQUAL(ranker.get_database_path(), db_path);
+//     ranker.set_query(Xapian::Query("score"));
+//     ranker.train_model(training_data);
+//     TEST_EQUAL(mymset.size(), 2);
+//     Xapian::docid doc1 = *mymset[0];
+//     Xapian::docid doc2 = *mymset[1];
+//     ranker.rank(mymset);
+//     TEST_EQUAL(doc1, *mymset[1]);
+//     TEST_EQUAL(doc2, *mymset[0]);
+//     mymset = enquire.get_mset(0, 10);
+//     ranker.train_model(training_data, "ListMLE_Ranker");
+//     ranker.rank(mymset, "ListMLE_Ranker");
+//     TEST_EQUAL(doc1, *mymset[1]);
+//     TEST_EQUAL(doc2, *mymset[0]);
+//     TEST_EXCEPTION(Xapian::LetorInternalError,
+// 		   ranker.score(query, qrel, "ListMLE_Ranker",
+// 				"scorer_output2.txt", 10, ""));
+//     TEST_EXCEPTION(Xapian::FileNotFoundError,
+// 		   ranker.score("", qrel, "ListMLE_Ranker",
+// 				"scorer_output2.txt", 10));
+//     TEST_EXCEPTION(Xapian::FileNotFoundError,
+// 		   ranker.score(qrel, "", "ListMLE_Ranker",
+// 				"scorer_output.txt2", 10));
+//     ranker.score(query, qrel, "ListMLE_Ranker", "ndcg_output21.txt", 10);
+//     ranker.score(query, qrel, "ListMLE_Ranker", "err_output21.txt", 10, "ERRScore");
 
-    return true;
-}
+//     return true;
+// }
 
 DEFINE_TESTCASE(listmle_ranker_three_correct, generated)
 {

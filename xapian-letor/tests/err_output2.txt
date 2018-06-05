@@ -1,2 +1,2 @@
-Ranking score for qid:1 = -nan
-Average ranking score = -nan
+Ranking score for qid:1 = 0.46875
+Average ranking score = 0.46875
