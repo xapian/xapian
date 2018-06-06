@@ -167,6 +167,8 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
     // Clear mrow contents.
     mrow.clear();
     string tag;
+    // Will make permanent fix in few days.
+    xml_prefix = false;
     while (*ch != '\0') {
 	// TODO Handling xml_prefix this way is totally safe. Will fix it later.
 	// Detect '<math ' or '<math>' or ':math ' or ':math>'
