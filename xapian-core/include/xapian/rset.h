@@ -56,6 +56,12 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
      */
     RSet & operator=(const RSet & o);
 
+    /// Move constructor.
+    RSet(RSet && o);
+
+    /// Move assignment operator.
+    RSet & operator=(RSet && o);
+
     /** Default constructor.
      *
      *  Creates an empty RSet.

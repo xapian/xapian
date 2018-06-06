@@ -120,16 +120,15 @@ TermListGroup::get_termfreq(const string &tname) const
 	return 0;
 }
 
-DocumentSet::DocumentSet(const DocumentSet &other)
-    : internal(other.internal)
-{
-}
+DocumentSet::DocumentSet(const DocumentSet &) = default;
 
-void
-DocumentSet::operator=(const DocumentSet &other)
-{
-    internal = other.internal;
-}
+DocumentSet&
+DocumentSet::operator=(const DocumentSet &) = default;
+
+DocumentSet::DocumentSet(DocumentSet &&) = default;
+
+DocumentSet&
+DocumentSet::operator=(DocumentSet &&) = default;
 
 DocumentSet::DocumentSet()
     : internal(new Xapian::DocumentSet::Internal)
@@ -350,17 +349,14 @@ Centroid::clear()
 }
 
 Cluster&
-Cluster::operator=(const Cluster &other)
-{
-    // pointers are reference counted.
-    internal = other.internal;
-    return *this;
-}
+Cluster::operator=(const Cluster &) = default;
 
-Cluster::Cluster(const Cluster &other)
-    : internal(other.internal)
-{
-}
+Cluster::Cluster(const Cluster &) = default;
+
+Cluster::Cluster(Cluster &&) = default;
+
+Cluster&
+Cluster::operator=(Cluster &&) = default;
 
 Cluster::Cluster() : internal(new Xapian::Cluster::Internal)
 {
@@ -424,17 +420,14 @@ Cluster::Internal::get_point(Xapian::doccount i) const
 }
 
 ClusterSet&
-ClusterSet::operator=(const ClusterSet &other)
-{
-    // pointers are reference counted.
-    internal = other.internal;
-    return *this;
-}
+ClusterSet::operator=(const ClusterSet &) = default;
 
-ClusterSet::ClusterSet(const ClusterSet &other)
-    : internal(other.internal)
-{
-}
+ClusterSet::ClusterSet(const ClusterSet &) = default;
+
+ClusterSet&
+ClusterSet::operator=(ClusterSet &&) = default;
+
+ClusterSet::ClusterSet(ClusterSet &&) = default;
 
 ClusterSet::ClusterSet() : internal(new Xapian::ClusterSet::Internal)
 {

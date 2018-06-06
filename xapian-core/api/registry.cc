@@ -307,6 +307,11 @@ Registry::operator=(const Registry & other)
     RETURN(*this);
 }
 
+Registry::Registry(Registry &&) = default;
+
+Registry &
+Registry::operator=(Registry &&) = default;
+
 Registry::Registry()
 	: internal(new Registry::Internal())
 {

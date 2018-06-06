@@ -46,17 +46,15 @@ Document::Document(Document::Internal* internal_)
 {
 }
 
-Document::Document(const Document& o)
-    : internal(o.internal)
-{
-}
+Document::Document(const Document&) = default;
 
 Document&
-Document::operator=(const Document& o)
-{
-    internal = o.internal;
-    return *this;
-}
+Document::operator=(const Document&) = default;
+
+Document::Document(Document&&) = default;
+
+Document&
+Document::operator=(Document&&) = default;
 
 Document::Document() : internal(new Xapian::Document::Internal)
 {
