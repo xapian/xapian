@@ -64,11 +64,10 @@ class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class MathTermGenerator;
     Document doc;
     std::vector<Symbol> mrow;
-    std::vector<std::string> symbol_pairs;
     void parse_mathml(const char *& ch);
-    void generate_symbol_pair_list();
+    std::vector<std::string> generate_symbol_pair_list();
   public:
-    Internal() : mrow(EST_SYMBOLS_COUNT), symbol_pairs() { }
+    Internal() : mrow(EST_SYMBOLS_COUNT) { }
 
     void index_math(const char * ch, const std::string & prefix);
 
