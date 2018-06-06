@@ -49,7 +49,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
     /// MPT parameters
     double lambda, b, sigma_sqr;
 
-    /// Store each document from given mset as a point and its relevance score
+    /// Store each document from given mset as a point
     std::unordered_map<Xapian::docid, Xapian::Point> points;
 
     /// Store the relevance score of each document
