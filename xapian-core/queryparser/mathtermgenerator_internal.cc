@@ -343,7 +343,7 @@ MathTermGenerator::Internal::index_math(const char * ch, const string & prefix)
 	}
     }
 #endif
-    generate_symbol_pair_list();
+    auto symbol_pairs = generate_symbol_pair_list();
 
     // Index symbol-pair string in db.
     for (const auto & sp : symbol_pairs)
@@ -352,7 +352,7 @@ MathTermGenerator::Internal::index_math(const char * ch, const string & prefix)
 
 const unsigned MAX_PATH_LEN = 3;
 
-void
+vector<string>
 MathTermGenerator::Internal::generate_symbol_pair_list()
 {
     // If main row has size n, then number of tuples along main row is
@@ -360,8 +360,8 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
     // total pairs is T + 4 * T. This computation is not accurate, an attempt to
     // avoid reallocation.
     unsigned long approx_pairs_count = (mrow.size() * (mrow.size() + 1)) * 3;
+    vector<string> symbol_pairs;
     symbol_pairs.reserve(approx_pairs_count);
-    symbol_pairs.clear();
     string pair;
     string path;
     for (vector<Symbol>::size_type i = 0; i < mrow.size(); ++i) {
@@ -427,13 +427,14 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
     cout << "#symbols on main line : " << mrow.size() << '\n';
     cout << "total pairs = " << symbol_pairs.size();
 #endif
+
+    return symbol_pairs;
 }
 
 vector<string>
 MathTermGenerator::Internal::get_symbol_pair_list(const char * ch)
 {
     parse_mathml(ch);
-    generate_symbol_pair_list();
-    return symbol_pairs;
+    return generate_symbol_pair_list();
 }
 }
