@@ -50,10 +50,10 @@ DiceCoeffWeight::init(double factor_)
     // To maximize the result minimize the denominator, hence
     // |q|= 1, |d| = lower bound on unique term.
     // FIXME lower bound on unique term is not tracked in database,
-    // hence keeping it's value as 1, this will not give a tight bound.
+    // hence keeping its value as 1, this will not give a tight bound.
     // Plan to fix in future.
-    double uniqtermlen_lower_bound = 1;
-    upper_bound = factor * (2.0 / (1 + uniqtermlen_lower_bound));
+    double uniqtermlen_lb = 1;
+    upper_bound = factor * (2.0 / (get_query_length() + uniqtermlen_lb));
 }
 
 string
@@ -78,7 +78,7 @@ DiceCoeffWeight *
 DiceCoeffWeight::unserialise(const string & s) const
 {
     if (rare(!s.empty()))
-	throw Xapian::SerialisationError("Extra data in"
+	throw Xapian::SerialisationError("Extra data in "
 		"DiceCoeffWeight::unserialise()");
     return new DiceCoeffWeight;
 }
@@ -113,7 +113,7 @@ DiceCoeffWeight *
 DiceCoeffWeight::create_from_parameters(const char * p) const
 {
     if (*p != '\0')
-	throw InvalidArgumentError("No parameters are required for"
+	throw InvalidArgumentError("No parameters are required for "
 		"DiceCoeffWeight");
     return new Xapian::DiceCoeffWeight;
 }
