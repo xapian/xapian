@@ -98,7 +98,7 @@ class PerfTestLogger {
      */
     void searching_end();
 
-    /** Log the start of a diversifcation run.
+    /** Log the start of a diversification run.
      */
     void diversifying_start(const std::string & description);
 

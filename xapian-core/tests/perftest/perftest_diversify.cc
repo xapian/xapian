@@ -43,7 +43,7 @@ DEFINE_TESTCASE(perfdiversify1, writable && !remote && !inmemory)
 
     Xapian::Query query("java");
 
-    logger.searching_start("Diversifcation");
+    logger.searching_start("Diversfication");
     logger.search_start();
     enq.set_query(query);
     Xapian::MSet matches = enq.get_mset(0, 10);
