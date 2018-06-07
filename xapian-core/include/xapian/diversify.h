@@ -69,7 +69,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *  @param source	MSet object containing the documents of which
      *			top-k are to be diversified
      */
-    void initialise_points(const Xapian::MSet &source);
+    void initialise_points(const Xapian::MSet& source);
 
     /** Return a key for a pair of documents
      *
@@ -79,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *			top-k are to be diversified
      */
     std::pair<Xapian::docid, Xapian::docid>
-    get_key(const Xapian::docid &docid_a, const Xapian::docid &docid_b);
+    get_key(const Xapian::docid& docid_a, const Xapian::docid& docid_b);
 
     /** Compute pairwise similarities
      *
@@ -96,7 +96,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *  @param dmset	Document set representing a diversified document set
      */
     std::vector<Xapian::docid>
-    compute_diff_dmset(const std::vector<Xapian::docid> &dmset);
+    compute_diff_dmset(const std::vector<Xapian::docid>& dmset);
 
     /** Evaluate a diversified mset
      *
@@ -105,7 +105,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *  @param dmset	Set of points representing candidate diversifed
      *			set of documents
      */
-    double evaluate_dmset(const std::vector<Xapian::docid> &dmset);
+    double evaluate_dmset(const std::vector<Xapian::docid>& dmset);
 
   public:
     /** Constructor specifying the number of diversified search results
@@ -125,7 +125,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *  @param mset	MSet object containing the documents of which
      *			top-k are to be diversified
      */
-    Xapian::DocumentSet get_dmset(const MSet &mset);
+    Xapian::DocumentSet get_dmset(const MSet& mset);
 
     /// Return a string describing this object
     std::string get_description() const;

@@ -50,7 +50,7 @@ Diversify::get_description() const
 }
 
 void
-Diversify::initialise_points(const MSet &source)
+Diversify::initialise_points(const MSet& source)
 {
     LOGCALL_VOID(API, "Diversify::initialise_points", source);
     unsigned int count = 0;
@@ -67,7 +67,7 @@ Diversify::initialise_points(const MSet &source)
 }
 
 pair<Xapian::docid, Xapian::docid>
-Diversify::get_key(const Xapian::docid &docid_a, const Xapian::docid &docid_b)
+Diversify::get_key(const Xapian::docid& docid_a, const Xapian::docid& docid_b)
 {
     pair<Xapian::docid, Xapian::docid> key;
     if (docid_a <= docid_b) {
@@ -103,7 +103,7 @@ Diversify::compute_similarities()
 }
 
 vector<Xapian::docid>
-Diversify::compute_diff_dmset(const vector<Xapian::docid> &dmset)
+Diversify::compute_diff_dmset(const vector<Xapian::docid>& dmset)
 {
     LOGCALL(API, vector<Xapian::docid>, "Diversify::compute_diff_dmset", dmset);
     vector<Xapian::docid> diff_dmset;
@@ -126,7 +126,7 @@ Diversify::compute_diff_dmset(const vector<Xapian::docid> &dmset)
 }
 
 double
-Diversify::evaluate_dmset(const vector<Xapian::docid> &dmset)
+Diversify::evaluate_dmset(const vector<Xapian::docid>& dmset)
 {
     LOGCALL(API, double, "Diversify::evaluate_dmset", dmset);
     double score_1 = 0, score_2 = 0;
@@ -153,7 +153,7 @@ Diversify::evaluate_dmset(const vector<Xapian::docid> &dmset)
 }
 
 DocumentSet
-Diversify::get_dmset(const MSet &mset)
+Diversify::get_dmset(const MSet& mset)
 {
     LOGCALL(API, MSet, "Diversify::get_dmset", mset);
     // Return original mset if no need to diversify
