@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -254,10 +254,14 @@ namespace Internal {
     XAPIAN_VISIBILITY_DEFAULT
     int XAPIAN_NOTHROW(get_character_info(unsigned ch)) XAPIAN_CONST_FUNCTION;
 
-    /** @private @internal Extract how to convert the case of a Unicode
-     *  character from its info.
+    /** @private @internal Bit-masks for case conversion.
+     *
+     *  If the respective bit is set in the return value of
+     *  get_character_info() then the delta value also contained in that
+     *  return values needs adding/subtracting to convert to lower/upper
+     *  case.
      */
-    inline int get_case_type(int info) { return ((info & 0xe0) >> 5); }
+    enum { INFO_TOLOWER_MASK = 0x40, INFO_TOUPPER_MASK = 0x80 };
 
     /** @private @internal Extract the category of a Unicode character from its
      *  info.
@@ -366,7 +370,7 @@ inline bool is_currency(unsigned ch) {
 /// Convert a Unicode character to lowercase.
 inline unsigned tolower(unsigned ch) {
     int info = Xapian::Unicode::Internal::get_character_info(ch);
-    if (!(Internal::get_case_type(info) & 2))
+    if (!(info & Internal::INFO_TOLOWER_MASK))
 	return ch;
     return ch + Internal::get_delta(info);
 }
@@ -374,7 +378,7 @@ inline unsigned tolower(unsigned ch) {
 /// Convert a Unicode character to uppercase.
 inline unsigned toupper(unsigned ch) {
     int info = Xapian::Unicode::Internal::get_character_info(ch);
-    if (!(Internal::get_case_type(info) & 4))
+    if (!(info & Internal::INFO_TOUPPER_MASK))
 	return ch;
     return ch - Internal::get_delta(info);
 }
