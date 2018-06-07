@@ -86,10 +86,10 @@ Diversify::compute_similarities()
     Xapian::CosineDistance d;
     for (auto p_a : points) {
 	Xapian::docid pointid_a = p_a.first;
-	Xapian::Point point_a = p_a.second;
+	const Xapian::Point& point_a = p_a.second;
 	for (auto p_b : points) {
 	    Xapian::docid pointid_b = p_b.first;
-	    Xapian::Point point_b = p_b.second;
+	    const Xapian::Point& point_b = p_b.second;
 
 	    if (pointid_a > pointid_b) {
 		continue;
