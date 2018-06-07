@@ -22,7 +22,6 @@
  * IN THE SOFTWARE.
  */
 
-
 #include <config.h>
 
 #include "api/smallvector.h"
