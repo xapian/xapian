@@ -175,8 +175,10 @@ convert_to_utf8(string & text, const string & charset)
 		0x0090, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
 		0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x009d, 0x017e, 0x0178
 	    };
+	    const size_t CP1252_TO_UNICODE_ENTRIES =
+		sizeof(cp1252_to_unicode) / sizeof(*cp1252_to_unicode);
 	    unsigned ch = static_cast<unsigned char>(*i);
-	    if (ch - 128 < sizeof(cp1252_to_unicode) / sizeof(*cp1252_to_unicode))
+	    if (ch - 128 < CP1252_TO_UNICODE_ENTRIES)
 		ch = cp1252_to_unicode[ch - 128];
 	    start += Xapian::Unicode::to_utf8(ch, buf + start);
 	    if (start >= sizeof(buf) - 4) {
