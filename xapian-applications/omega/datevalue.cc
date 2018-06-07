@@ -205,7 +205,8 @@ DateRangeLimit::format(bool start) const
     } else {
 	while (len && buf[len - 1] == '9') --len;
 	if (len < 14) {
-	    // Append a character that will sort after any valid extra precision.
+	    // Append a character that will sort after any valid extra
+	    // precision.
 	    buf[len++] = '~';
 	}
     }
