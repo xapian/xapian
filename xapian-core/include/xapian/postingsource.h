@@ -778,7 +778,6 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
     std::string get_description() const;
 };
 
-
 }
 
 #endif // XAPIAN_INCLUDED_POSTINGSOURCE_H
