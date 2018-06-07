@@ -142,7 +142,7 @@ Diversify::evaluate_dmset(const vector<Xapian::docid>& dmset)
 	for (auto doc_id : dmset) {
 	    auto key = get_key(point_id, doc_id);
 	    double sim = pairwise_sim[key];
-	    double weight = 2 * b * sigma_sqr * (1 / log(1 + pos)) * (1 - sim);
+	    double weight = 2 * b * sigma_sqr / log(1 + pos) * (1 - sim);
 	    min_dist = min(min_dist, weight);
 	    ++pos;
 	}
