@@ -41,29 +41,20 @@ using namespace std;
 
 namespace Xapian {
 
-bool move_to_next_open_tag(const char *& ch, string & tag);
-string get_element_value(const char *& ch);
-string get_label(const char *& ch, string & tag);
-void skip_xml_prefix(const char *& ch);
-string next_tag(const char *& ch, string & cur_tag);
-// TODO temporary usage of static. This will be either moved to function
-// arguments or plan to implement parser class where this data can be stored.
-static bool xml_prefix = false;
-
 string
-get_element_value(const char *& ch)
+MathMLParser::get_element_value()
 {
     // Skip leading whitespace.
-    while (*ch != '\0' && *ch == ' ') {
-	++ch;
+    while (it != end && *it == ' ') {
+	++it;
     }
 
     // TODO Handle EOF.
 
     string value;
-    while (*ch != '\0' && *ch != '<') {
-	value.push_back(*ch);
-	++ch;
+    while (it != end && *it != '<') {
+	value.push_back(*it);
+	++it;
     }
 
     // TODO Handle EOF.
@@ -73,112 +64,115 @@ get_element_value(const char *& ch)
 }
 
 void
-skip_xml_prefix(const char *& ch)
+MathMLParser::skip_xml_prefix()
 {
-    while (*ch != '\0' && *ch != ':')
-	++ch;
-    if (*ch == '\0')
+    while (it != end && *it != ':')
+	++it;
+    if (it == end)
 	return;
-    ++ch;
+    ++it;
 }
 
 bool
-move_to_next_open_tag(const char *& ch, string & tag)
+MathMLParser::move_to_next_open_tag(string & tag)
 {
-    while (*ch != '\0') {
-	if (ch[0] == '<') {
-	    if (ch[1] != '/') {
-		++ch;
+    while (it != end) {
+	if (it[0] == '<') {
+	    if (it[1] != '/') {
+		++it;
 		break;
 	    }
-	    ch = ch + 2;
-	    if (xml_prefix) skip_xml_prefix(ch);
-	    if (strncmp(ch, "math>", 5) == 0)
+	    it += 2;
+	    if (xml_prefix) skip_xml_prefix();
+	    if (it[0] == 'm' && it[1] == 'a' && it[2] == 't' &&
+		    it[3] == 'h' && it[4] == '>')
 		return false;
 	}
-	++ch;
+	++it;
     }
 
-    if (*ch == '\0')
+    if (it == end)
 	return false;
 
     if (xml_prefix)
-	skip_xml_prefix(ch);
+	skip_xml_prefix();
     tag.clear();
-    while (*ch != '\0' && *ch != ' ' &&  *ch != '>') {
-	tag.push_back(*ch);
-	++ch;
+    while (it != end && *it != ' ' &&  *it != '>') {
+	tag.push_back(*it);
+	++it;
     }
 
-    if (*ch == ' ') {
-	while (*ch != '>')
-	    ++ch;
+    if (*it == ' ') {
+	while (*it != '>')
+	    ++it;
     }
     // TODO Handle EOF.
-    ++ch;
+    ++it;
     return true;
 }
 
 string
-next_tag(const char *& ch, string & cur_tag)
+MathMLParser::next_tag(string & cur_tag)
 {
     string tag;
-    while (*ch != '\0') {
-	if (ch[0] == '<') {
-	    ++ch;
-	    if (ch[0] == '/')
-		++ch;
-	    while (*ch != '\0' && *ch != '>') {
-		tag.push_back(*ch);
-		++ch;
+    while (it != end) {
+	if (it[0] == '<') {
+	    ++it;
+	    if (it[0] == '/')
+		++it;
+	    while (it != end && *it != '>') {
+		tag.push_back(*it);
+		++it;
 	    }
-	    ++ch;
+	    ++it;
 	    if (tag.compare(cur_tag) == 0) {
 		tag.clear();
 		continue;
 	    } else
 		return tag;
 	} else
-	    ++ch;
+	    ++it;
     }
     return tag;
 }
 
-
 string
-get_label(const char *& ch, string & tag) {
+MathMLParser::get_label(string & tag) {
     if (tag.compare("mi") == 0)
-	return string("V!" + get_element_value(ch));
+	return string("V!" + get_element_value());
     else if (tag.compare("mn") == 0)
-	return string("N!" + get_element_value(ch));
+	return string("N!" + get_element_value());
     else if (tag.compare("mo") == 0)
-	return string("O" + get_element_value(ch));
+	return string("O" + get_element_value());
     else if (tag.compare("mtext") == 0)
-	return string("T!" + get_element_value(ch));
+	return string("T!" + get_element_value());
     else {
 	// Not supported tag, mark as unknown for now.
-	return string("U!" + get_element_value(ch));
+	return string("U!" + get_element_value());
     }
 }
 
-void
-MathTermGenerator::Internal::parse_mathml(const char *& ch)
-{
-    // Clear mrow contents.
-    mrow.clear();
+vector<Symbol>
+MathMLParser::parse(const string & text) {
+    it = text.begin();
+    end = text.end();
+    vector<Symbol> mrow;
+    mrow.reserve(EST_SYMBOLS_COUNT);
     string tag;
-    // Will make permanent fix in few days.
-    xml_prefix = false;
-    while (*ch != '\0') {
+    while (it != end) {
 	// TODO Handling xml_prefix this way is totally safe. Will fix it later.
 	// Detect '<math ' or '<math>' or ':math ' or ':math>'
-	if ((ch[0] == '<' || ch[0] == ':') && strncmp(ch + 1, "math", 4) == 0 &&
-	    (ch[5] == ' ' || ch[5] == '>')) {
-	    if (ch[0] == ':')
+	if ((it[0] == '<' || it[0] == ':') &&
+		it[1] == 'm' &&
+		it[2] == 'a' &&
+		it[3] == 't' &&
+		it[4] == 'h' &&
+	    (it[5] == ' ' || it[5] == '>')) {
+	    if (it[0] == ':')
 		xml_prefix = true;
-	    ch += 6;
+	    it += 6;
 	    // Parse elements until '</math' found.
-	    while (move_to_next_open_tag(ch, tag)) {
+	    while (move_to_next_open_tag(tag)) {
 		if (tag.compare("mrow") == 0 || tag.compare("annotation") == 0
 			|| tag.compare("semantics") == 0) {
 		    continue;
@@ -186,142 +180,143 @@ MathTermGenerator::Internal::parse_mathml(const char *& ch)
 		    // Add fraction symbol.
 		    mrow.emplace_back("F", NEXT);
 		    // Parse numerator.
-		    if (move_to_next_open_tag(ch, tag) &&
+		    if (move_to_next_open_tag(tag) &&
 			    tag.compare("mrow") == 0) {
-			if (move_to_next_open_tag(ch, tag))
-			    mrow.back().trow.emplace_back(get_label(ch, tag),
+			if (move_to_next_open_tag(tag))
+			    mrow.back().trow.emplace_back(get_label(tag),
 				    ABOVE);
-			while (next_tag(ch, tag).compare("mrow") != 0) {
-			    if (move_to_next_open_tag(ch, tag))
+			while (next_tag(tag).compare("mrow") != 0) {
+			    if (move_to_next_open_tag(tag))
 				// TODO This only works if all the elemments
 				// are token elements.
 				mrow.back().trow.emplace_back(
-					get_label(ch, tag), NEXT);
+					get_label(tag), NEXT);
 			}
 		    } else {
-			mrow.back().trow.emplace_back(get_label(ch, tag),
+			mrow.back().trow.emplace_back(get_label(tag),
 				ABOVE);
 		    }
 		    // Parse denominator.
-		    if (move_to_next_open_tag(ch, tag) &&
+		    if (move_to_next_open_tag(tag) &&
 			    tag.compare("mrow") == 0) {
-			if (move_to_next_open_tag(ch, tag))
-			    mrow.back().brow.emplace_back(get_label(ch, tag),
+			if (move_to_next_open_tag(tag))
+			    mrow.back().brow.emplace_back(get_label(tag),
 				    BELOW);
-			while (next_tag(ch, tag).compare("mrow") != 0) {
-			    if (move_to_next_open_tag(ch, tag))
+			while (next_tag(tag).compare("mrow") != 0) {
+			    if (move_to_next_open_tag(tag))
 				// TODO This only works if all the elemments are
 				// token elements.
-				mrow.back().brow.emplace_back(get_label(ch,
-					    tag), NEXT);
+				mrow.back().brow.emplace_back(get_label(tag),
+					NEXT);
 			}
 		    } else {
-			mrow.back().brow.emplace_back(get_label(ch, tag),
+			mrow.back().brow.emplace_back(get_label(tag),
 				BELOW);
 		    }
 		} else if (tag.compare("mroot") == 0) {
 		    // Add root symbol.
 		    mrow.emplace_back("R", NEXT);
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), WITHIN);
+		    if (move_to_next_open_tag(tag))
+			mrow.emplace_back(get_label(tag), WITHIN);
 		    // Parse index.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.back().trow.emplace_back(get_label(ch, tag),
+		    if (move_to_next_open_tag(tag))
+			mrow.back().trow.emplace_back(get_label(tag),
 				ABOVE);
 		} else if (tag.compare("msqrt") == 0) {
 		    // Add root symbol.
 		    mrow.emplace_back("R", NEXT);
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag) &&
+		    if (move_to_next_open_tag(tag) &&
 			    tag.compare("mrow") == 0) {
-			if (move_to_next_open_tag(ch, tag))
+			if (move_to_next_open_tag(tag))
 			    mrow.back().trow.emplace_back(
-				    get_label(ch, tag), WITHIN);
-			while (next_tag(ch, tag).compare("mrow") != 0) {
-			    if (move_to_next_open_tag(ch, tag))
+				    get_label(tag), WITHIN);
+			while (next_tag(tag).compare("mrow") != 0) {
+			    if (move_to_next_open_tag(tag))
 				// TODO This only works if all the elemments are
 				// token elements.
 				mrow.back().trow.emplace_back(
-					get_label(ch, tag), NEXT);
+					get_label(tag), NEXT);
 			}
 		    } else {
-			mrow.back().trow.emplace_back(get_label(ch, tag),
+			mrow.back().trow.emplace_back(get_label(tag),
 				WITHIN);
 		    }
 		} else if (tag.compare("msup") == 0) {
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), NEXT);
+		    if (move_to_next_open_tag(tag))
+			mrow.emplace_back(get_label(tag), NEXT);
 		    // Parse superscript.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.back().trow.emplace_back(get_label(ch, tag),
+		    if (move_to_next_open_tag(tag))
+			mrow.back().trow.emplace_back(get_label(tag),
 				ABOVE);
 		} else if (tag.compare("msub") == 0) {
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), NEXT);
+		    if (move_to_next_open_tag(tag))
+			mrow.emplace_back(get_label(tag), NEXT);
 		    // Parse subscript.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.back().brow.emplace_back(get_label(ch, tag),
+		    if (move_to_next_open_tag(tag))
+			mrow.back().brow.emplace_back(get_label(tag),
 				BELOW);
 		} else if (tag.compare("msubsup") == 0) {
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), NEXT);
+		    if (move_to_next_open_tag(tag))
+			mrow.emplace_back(get_label(tag), NEXT);
 		    // Parse subscript.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.back().brow.emplace_back(get_label(ch, tag),
+		    if (move_to_next_open_tag(tag))
+			mrow.back().brow.emplace_back(get_label(tag),
 				BELOW);
 		    // Parse superscript.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.back().trow.emplace_back(get_label(ch, tag),
+		    if (move_to_next_open_tag(tag))
+			mrow.back().trow.emplace_back(get_label(tag),
 				ABOVE);
 		} else if (tag.compare("munder") == 0) {
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), NEXT);
+		    if (move_to_next_open_tag(tag))
+			mrow.emplace_back(get_label(tag), NEXT);
 		    // Parse underscript.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.back().brow.emplace_back(get_label(ch, tag),
+		    if (move_to_next_open_tag(tag))
+			mrow.back().brow.emplace_back(get_label(tag),
 				UNDER);
 		} else if (tag.compare("mover") == 0) {
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), NEXT);
+		    if (move_to_next_open_tag(tag))
+			mrow.emplace_back(get_label(tag), NEXT);
 		    // Parse overscript.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.back().trow.emplace_back(get_label(ch, tag),
+		    if (move_to_next_open_tag(tag))
+			mrow.back().trow.emplace_back(get_label(tag),
 				OVER);
 		} else if (tag.compare("munderover") == 0) {
 		    // Parse base.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.emplace_back(get_label(ch, tag), NEXT);
+		    if (move_to_next_open_tag(tag))
+			mrow.emplace_back(get_label(tag), NEXT);
 		    // Parse underscript.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.back().brow.emplace_back(get_label(ch, tag),
+		    if (move_to_next_open_tag(tag))
+			mrow.back().brow.emplace_back(get_label(tag),
 				UNDER);
 		    // Parse overscript.
-		    if (move_to_next_open_tag(ch, tag))
-			mrow.back().trow.emplace_back(get_label(ch, tag),
+		    if (move_to_next_open_tag(tag))
+			mrow.back().trow.emplace_back(get_label(tag),
 				OVER);
 
 		} else {
 		    // Parse token element.
-		    mrow.emplace_back(get_label(ch, tag), NEXT);
+		    mrow.emplace_back(get_label(tag), NEXT);
 		}
 	    }
 	} else {
 	    // <math> tag not found yet, move to next char.
-	    ++ch;
+	    ++it;
 	}
     }
+    return mrow;
 }
 
 void
-MathTermGenerator::Internal::index_math(const char * ch, const string & prefix)
+MathTermGenerator::Internal::index_math(const std::string & text, const string & prefix)
 {
-    parse_mathml(ch);
+    mrow = mlp.parse(text);
 
 #ifdef DEBUGGING_NO
     // Debug prints
@@ -432,9 +427,9 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
 }
 
 vector<string>
-MathTermGenerator::Internal::get_symbol_pair_list(const char * ch)
+MathTermGenerator::Internal::get_symbol_pair_list(const std::string & text)
 {
-    parse_mathml(ch);
+    mrow = mlp.parse(text);
     return generate_symbol_pair_list();
 }
 }

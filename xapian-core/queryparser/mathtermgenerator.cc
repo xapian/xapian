@@ -64,13 +64,13 @@ MathTermGenerator::get_document() const
 }
 
 void
-MathTermGenerator::index_math(const char * expr, const string & prefix)
+MathTermGenerator::index_math(const string & expr, const string & prefix)
 {
     internal->index_math(expr, prefix);
 }
 
 vector<string>
-MathTermGenerator::get_symbol_pair_list(const char * expr)
+MathTermGenerator::get_symbol_pair_list(const string & expr)
 {
     return internal->get_symbol_pair_list(expr);
 }
