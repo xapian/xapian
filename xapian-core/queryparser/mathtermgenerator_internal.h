@@ -48,9 +48,6 @@ struct Symbol {
     // Symbols like fraction, matrix are represented over multiple lines.
     // For example, consider a / b. a goes to top row, b goes to bottom
     // row and fraction symbol is added in middle row.
-    // FIXME Symbols like super-script or subscript can be stored separately for
-    // simplicity, because these symbols will have only single token element
-    // and will not have group of elements. Will consider this idea later.
     std::vector<Symbol> trow;	// Top row.
     std::vector<Symbol> brow;	// Bottom row.
     Symbol() = default;
@@ -60,18 +57,32 @@ struct Symbol {
     }
 };
 
+class MathMLParser {
+    bool xml_prefix = false;
+    std::string::const_iterator it;
+    std::string::const_iterator end;
+    /* helper methods */
+    bool move_to_next_open_tag(std::string & tag);
+    std::string get_element_value();
+    std::string get_label(std::string & tag);
+    void skip_xml_prefix();
+    std::string next_tag(std::string & cur_tag);
+  public:
+    std::vector<Symbol> parse(const std::string & text);
+};
+
 class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class MathTermGenerator;
     Document doc;
+    MathMLParser mlp;
     std::vector<Symbol> mrow;
-    void parse_mathml(const char *& ch);
     std::vector<std::string> generate_symbol_pair_list();
   public:
     Internal() : mrow(EST_SYMBOLS_COUNT) { }
 
-    void index_math(const char * ch, const std::string & prefix);
+    void index_math(const std::string & text, const std::string & prefix);
 
-    std::vector<std::string> get_symbol_pair_list(const char * ch);
+    std::vector<std::string> get_symbol_pair_list(const std::string & text);
 
     // For debugging purpose.
     std::vector<std::string> get_labels_list() {

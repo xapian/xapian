@@ -75,19 +75,19 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
     /// Get the current document.
     const Xapian::Document & get_document() const;
 
-    /** Index some math expression in null-terminated string.
+    /** Index some math expression in std::string.
      *
      * @param expr	The expression to index.
      * @param prefix	The term prefix to use (default is no prefix).
      */
-    void index_math(const char * expr,
+    void index_math(const std::string & expr,
 		    const std::string & prefix = std::string());
 
-    /** Generate and return symbol pair list frin null-terminated string.
+    /** Generate and return symbol pair list from math expression in string.
      *
      * @param expr	The expression to generate symbol pair.
      */
-    std::vector<std::string> get_symbol_pair_list(const char * expr);
+    std::vector<std::string> get_symbol_pair_list(const std::string & expr);
 
     // For testing purpose.
     std::vector<std::string> get_labels_list();

@@ -174,10 +174,10 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 }
 
 Query
-QueryParser::parse_math_query(const char * query_string, unsigned flags,
+QueryParser::parse_math_query(const std::string & query_string, unsigned flags,
 			      const string &)
 {
-    if (query_string[0] == '\0') return Query();
+    if (query_string.empty()) return Query();
 
     MathTermGenerator termgen;
     auto query_terms = termgen.get_symbol_pair_list(query_string);
