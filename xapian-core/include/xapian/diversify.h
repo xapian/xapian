@@ -75,8 +75,8 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *
      *  Returns a key as a pair of given documents ids
      *
-     *  @param source	MSet object containing the documents of which
-     *			top-k are to be diversified
+     *  @param docid_a	Document id of the first document
+     *  @param docid_b	Document id of the second document
      */
     std::pair<Xapian::docid, Xapian::docid>
     get_key(const Xapian::docid& docid_a, const Xapian::docid& docid_b);
@@ -110,7 +110,18 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
   public:
     /** Constructor specifying the number of diversified search results
      *
-     *  @param  k_	Number of required diversified results
+     *  @param  k_	Number of required diversified documents in the
+     *  		diversified document set
+     *  @param  lambda_	Trade-off between relevance of top-k diversified
+     *  		document set and its similarity to the rest of the
+     *  		documents in the document match set. Belongs to the
+     *  		the range [0,1] with '0' meaning no weightage to
+     *  		relevance of the diversified document set and '1'
+     *  		allowing for full weightage to relevance of the
+     *  		diversified document set.
+     *  @param  b_	Parameter for MPT, normally in the range [1,10]
+     *  @param  sigma_sqr_	Parameter for MPT, normally in the range
+     *	  			[1e-6,1]
      */
     explicit Diversify(unsigned int k_,
 		       double lambda_ = 0.5,
