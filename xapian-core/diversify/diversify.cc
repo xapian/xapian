@@ -67,7 +67,7 @@ Diversify::initialise_points(const MSet& source)
 }
 
 pair<Xapian::docid, Xapian::docid>
-Diversify::get_key(const Xapian::docid& docid_a, const Xapian::docid& docid_b)
+Diversify::get_key(Xapian::docid docid_a, Xapian::docid docid_b)
 {
     pair<Xapian::docid, Xapian::docid> key;
     if (docid_a <= docid_b) {

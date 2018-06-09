@@ -79,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *  @param docid_b	Document id of the second document
      */
     std::pair<Xapian::docid, Xapian::docid>
-    get_key(const Xapian::docid& docid_a, const Xapian::docid& docid_b);
+    get_key(Xapian::docid docid_a, Xapian::docid docid_b);
 
     /** Compute pairwise similarities
      *
