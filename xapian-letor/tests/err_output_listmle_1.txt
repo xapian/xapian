@@ -1,0 +1,2 @@
+Ranking score for qid:110001 = 0.9375
+Average ranking score = 0.9375
