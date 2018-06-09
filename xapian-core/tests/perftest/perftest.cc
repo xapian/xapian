@@ -402,8 +402,7 @@ PerfTestLogger::diversify_start()
 }
 
 void
-PerfTestLogger::diversify_end(const unsigned int k,
-			      const Xapian::DocumentSet & dset)
+PerfTestLogger::diversify_end(unsigned int k, const Xapian::DocumentSet & dset)
 {
     Assert(diversifying_started);
     double elapsed(RealTime::now() - diversifying_timer);

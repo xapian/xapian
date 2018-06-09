@@ -108,8 +108,7 @@ class PerfTestLogger {
 
     /** Log the completion of diversification.
      */
-    void diversify_end(const unsigned int k,
-		       const Xapian::DocumentSet & dset);
+    void diversify_end(unsigned int k, const Xapian::DocumentSet & dset);
 
     /** Log the end of a diversification run.
      */
