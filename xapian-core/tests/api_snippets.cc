@@ -424,5 +424,10 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
     TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
 		       "<b>foo</b>");
 
+    // Check we don't include characters that aren't useful.
+    input = "bar,foo!";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 5, stem),
+		       "...<b>foo</b>!");
+
     return true;
 }
