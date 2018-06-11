@@ -34,7 +34,6 @@
 
 using namespace std;
 
-
 // To check for one document edge
 static void
 db_index_one_document(Xapian::WritableDatabase& db, const string&)
@@ -163,7 +162,6 @@ DEFINE_TESTCASE(createfeaturevector, generated)
     enquire.set_query(Xapian::Query("lions"));
     Xapian::MSet mset;
     auto fv = fl.create_feature_vectors(mset, Xapian::Query("lions"), db);
-    TEST(fv.empty());
     mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
     TEST_EQUAL(mset.size(), 2);
@@ -200,7 +198,6 @@ DEFINE_TESTCASE(createfeaturevectoronevector_wrongquery, generated)
     enquire.set_query(Xapian::Query("llamas"));
     Xapian::MSet mset;
     auto fv = fl.create_feature_vectors(mset, Xapian::Query("llamas"), db);
-    TEST(fv.empty());
     mset = enquire.get_mset(0, 10);
     TEST(mset.empty());
     fv = fl.create_feature_vectors(mset, Xapian::Query("llamas"), db);
@@ -217,7 +214,6 @@ DEFINE_TESTCASE(createfeaturevectorthree, generated)
     enquire.set_query(Xapian::Query("score"));
     Xapian::MSet mset;
     auto fv = fl.create_feature_vectors(mset, Xapian::Query("score"), db);
-    TEST(fv.empty());
     mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
     fv = fl.create_feature_vectors(mset, Xapian::Query("score"), db);
@@ -243,12 +239,12 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
     string file2;
     while (getline(if1, file1)) {
     TEST(getline(if2, file2));
-    istringstream iss1(file1);
-    istringstream iss2(file2);
+    istringstream line1(file1);
+    istringstream line2(file2);
     string temp1;
     string temp2;
     int i = 0;
-    while ((iss1 >> temp1) && (iss2 >> temp2)) {
+    while ((line1 >> temp1) && (line2 >> temp2)) {
 	if (i == 0 || i == 1 || i == 21) {
 	TEST_EQUAL(temp1, temp2);
 	} else {
@@ -260,7 +256,7 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
 	i++;
     }
     TEST_REL(i, ==, 22);
-    TEST(!(iss2 >> temp2));
+    TEST(!(line2 >> temp2));
     }
     TEST(!getline(if2, file2));
     return true;
@@ -283,12 +279,12 @@ DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
     string file2;
     while (getline(if1, file1)) {
     TEST(getline(if2, file2));
-    istringstream iss1(file1);
-    istringstream iss2(file2);
+    istringstream line1(file1);
+    istringstream line2(file2);
     string temp1;
     string temp2;
     int i = 0;
-    while ((iss1 >> temp1) && (iss2 >> temp2)) {
+    while ((line1 >> temp1) && (line2 >> temp2)) {
 	if (i == 0 || i == 1 || i == 21) {
 	TEST_EQUAL(temp1, temp2);
 	} else {
@@ -300,7 +296,7 @@ DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
 	i++;
     }
     TEST_REL(i, ==, 22);
-    TEST(!(iss2 >> temp2));
+    TEST(!(line2 >> temp2));
     }
     TEST(!getline(if2, file2));
     return true;
@@ -322,12 +318,12 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
     string file2;
     while (getline(if1, file1)) {
     TEST(getline(if2, file2));
-    istringstream iss1(file1);
-    istringstream iss2(file2);
+    istringstream line1(file1);
+    istringstream line2(file2);
     string temp1;
     string temp2;
     int i = 0;
-    while ((iss1 >> temp1) && (iss2 >> temp2)) {
+    while ((line1 >> temp1) && (line2 >> temp2)) {
 	if (i == 0 || i == 1 || i == 21) {
 	TEST_EQUAL(temp1, temp2);
 	} else {
@@ -339,7 +335,7 @@ DEFINE_TESTCASE(preparetrainingfile, generated)
 	i++;
     }
     TEST_REL(i, ==, 22);
-    TEST(!(iss2 >> temp2));
+    TEST(!(line2 >> temp2));
     }
     TEST(!getline(if2, file2));
     return true;
@@ -361,12 +357,12 @@ DEFINE_TESTCASE(preparetrainingfilethree_missingQrel, generated)
     string file2;
     while (getline(if1, file1)) {
     TEST(getline(if2, file2));
-    istringstream iss1(file1);
-    istringstream iss2(file2);
+    istringstream line1(file1);
+    istringstream line2(file2);
     string temp1;
     string temp2;
     int i = 0;
-    while ((iss1 >> temp1) && (iss2 >> temp2)) {
+    while ((line1 >> temp1) && (line2 >> temp2)) {
 	if (i == 0 || i == 1 || i == 21) {
 	TEST_EQUAL(temp1, temp2);
 	} else {
@@ -378,7 +374,7 @@ DEFINE_TESTCASE(preparetrainingfilethree_missingQrel, generated)
 	i++;
     }
     TEST_REL(i, ==, 22);
-    TEST(!(iss2 >> temp2));
+    TEST(!(line2 >> temp2));
     }
     TEST(!getline(if2, file2));
     return true;
@@ -400,12 +396,12 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated)
     string file2;
     while (getline(if1, file1)) {
     TEST(getline(if2, file2));
-    istringstream iss1(file1);
-    istringstream iss2(file2);
+    istringstream line1(file1);
+    istringstream line2(file2);
     string temp1;
     string temp2;
     int i = 0;
-    while ((iss1 >> temp1) && (iss2 >> temp2)) {
+    while ((line1 >> temp1) && (line2 >> temp2)) {
 	if (i == 0 || i == 1 || i == 21) {
 	TEST_EQUAL(temp1, temp2);
 	} else {
@@ -417,7 +413,7 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated)
 	i++;
     }
     TEST_REL(i, ==, 22);
-    TEST(!(iss2 >> temp2));
+    TEST(!(line2 >> temp2));
     }
     TEST(!getline(if2, file2));
     return true;
@@ -444,13 +440,13 @@ DEFINE_TESTCASE(listnet_ranker, generated)
     Xapian::docid doc1 = *mymset[0];
     Xapian::docid doc2 = *mymset[1];
     ranker.rank(mymset);
-    TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
+    TEST_EQUAL(doc2, *mymset[0]);
     mymset = enquire.get_mset(0, 10);
     ranker.train_model(training_data, "ListNet_Ranker");
     ranker.rank(mymset, "ListNet_Ranker");
-    TEST_EQUAL(doc2, *mymset[0]);
     TEST_EQUAL(doc1, *mymset[1]);
+    TEST_EQUAL(doc2, *mymset[0]);
     TEST_EXCEPTION(Xapian::LetorInternalError,
 		   ranker.score(query, qrel, "ListNet_Ranker",
 				"scorer_output.txt", 10, ""));
