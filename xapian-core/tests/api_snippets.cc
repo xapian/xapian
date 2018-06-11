@@ -33,8 +33,6 @@
 #include "testsuite.h"
 #include "testutils.h"
 
-#include <iostream>
-
 using namespace std;
 
 struct snippet_testcase {
