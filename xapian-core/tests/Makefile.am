@@ -205,6 +205,7 @@ EXTRA_DIST +=\
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/apitest_declen.txt \
+	testdata/apitest_diversify.txt \
 	testdata/etext.txt \
 	testdata/snippet.txt
 
