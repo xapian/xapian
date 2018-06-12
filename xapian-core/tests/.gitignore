@@ -35,6 +35,7 @@
 /api_collated.stamp
 /api_compact.h
 /api_db.h
+/api_diversify.h
 /api_generated.cc
 /api_generated.h
 /api_geospatial.h
