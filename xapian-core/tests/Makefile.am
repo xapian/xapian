@@ -104,6 +104,7 @@ collated_apitest_sources = \
  api_collapse.cc \
  api_compact.cc \
  api_db.cc \
+ api_diversify.cc \
  api_generated.cc \
  api_geospatial.cc \
  api_matchspy.cc \
@@ -205,6 +206,7 @@ EXTRA_DIST +=\
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/apitest_declen.txt \
+	testdata/apitest_diversify.txt \
 	testdata/etext.txt \
 	testdata/snippet.txt
 

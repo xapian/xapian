@@ -81,7 +81,8 @@ escape_xml(const string & str)
 PerfTestLogger::PerfTestLogger()
 	: testcase_started(false),
 	  indexing_started(false),
-	  searching_started(false)
+	  searching_started(false),
+	  diversifying_started(false)
 {}
 
 PerfTestLogger::~PerfTestLogger()
@@ -380,6 +381,47 @@ PerfTestLogger::searching_end()
     if (searching_started) {
 	write("   </searchrun>\n");
 	searching_started = false;
+    }
+}
+
+void
+PerfTestLogger::diversifying_start(const string & description)
+{
+    indexing_end();
+    searching_end();
+    write("   <diversifyrun>\n"
+	  "    <description>" + escape_xml(description) + "</description>\n");
+    diversifying_started = true;
+    diversify_start();
+}
+
+void
+PerfTestLogger::diversify_start()
+{
+    diversifying_timer = RealTime::now();
+}
+
+void
+PerfTestLogger::diversify_end(unsigned int k, const Xapian::DocumentSet & dset)
+{
+    Assert(diversifying_started);
+    double elapsed(RealTime::now() - diversifying_timer);
+    write("    <diversify>"
+	  "<time>" + str(elapsed) + "</time>"
+	  "<dset>"
+	  "<k>" + str(k) + "</k>"
+	  "<size>" + str(dset.size()) + "</size>"
+	  "</dset>"
+	  "</diversify>\n");
+    diversify_start();
+}
+
+void
+PerfTestLogger::diversifying_end()
+{
+    if (diversifying_started) {
+	write("   </diversifyrun>\n");
+	diversifying_started = false;
     }
 }
 

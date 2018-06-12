@@ -45,6 +45,9 @@ class PerfTestLogger {
     bool searching_started;
     double searching_timer;
 
+    bool diversifying_started;
+    double diversifying_timer;
+
     /** Write a log entry for the current indexing run.
      */
     void indexing_log();
@@ -94,6 +97,22 @@ class PerfTestLogger {
     /** Log the end of a search run.
      */
     void searching_end();
+
+    /** Log the start of a diversification run.
+     */
+    void diversifying_start(const std::string & description);
+
+    /** Log the start of diversification.
+     */
+    void diversify_start();
+
+    /** Log the completion of diversification.
+     */
+    void diversify_end(unsigned int k, const Xapian::DocumentSet & dset);
+
+    /** Log the end of a diversification run.
+     */
+    void diversifying_end();
 
     /** Start a testcase.
      */

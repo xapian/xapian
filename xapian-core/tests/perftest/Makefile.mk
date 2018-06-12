@@ -18,6 +18,7 @@ perftest/get_machine_info: perftest/get_machine_info.in
 noinst_HEADERS += perftest/perftest.h
 
 collated_perftest_sources = \
+ perftest/perftest_diversify.cc \
  perftest/perftest_matchdecider.cc \
  perftest/perftest_randomidx.cc
 

@@ -123,6 +123,7 @@ include bin/Makefile.mk
 include backends/Makefile.mk
 include cluster/Makefile.mk
 include common/Makefile.mk
+include diversify/Makefile.mk
 include examples/Makefile.mk
 include expand/Makefile.mk
 include geospatial/Makefile.mk
