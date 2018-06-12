@@ -245,9 +245,11 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
 	string temp2;
 	int i = 0;
 	while ((iss1 >> temp1) && (iss2 >> temp2)) {
-	    // The 0th, 1st and 21st literals taken as input, are strings, and can be compared directly,
-	    // They are: For example(test) "1", "qid:20001" and "#docid=1" respectively.
-	    // Whereas the other values are doubles which would have to tested under TEST_DOUBLE()
+	    // The 0th, 1st and 21st literals taken as input, are strings,
+	    // and can be compared directly, They are: For example(test):
+	    // ("1", "qid:20001" and "#docid=1") at 0th, 1st, and 21st pos
+	    // respectively. Whereas the other values are doubles which
+	    // would have to tested under TEST_DOUBLE() against precision.
 	    if (i == 0 || i == 1 || i == 21) {
 		TEST_EQUAL(temp1, temp2);
 	    } else {
