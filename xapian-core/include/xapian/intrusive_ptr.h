@@ -112,6 +112,7 @@ public:
         if( px != 0 && --px->_refs == 0 ) delete px;
     }
 
+#ifdef XAPIAN_MOVE_SEMANTICS
     intrusive_ptr(intrusive_ptr && rhs) : px( rhs.px )
     {
         rhs.px = 0;
@@ -137,6 +138,7 @@ public:
         this_type( static_cast< intrusive_ptr<U> && >( rhs ) ).swap(*this);
         return *this;
     }
+#endif
 
     intrusive_ptr & operator=(intrusive_ptr const & rhs)
     {
@@ -303,6 +305,7 @@ public:
 	if( counting && --px->_refs == 1 ) delete px;
     }
 
+#ifdef XAPIAN_MOVE_SEMANTICS
     opt_intrusive_ptr(opt_intrusive_ptr && rhs)
     : px( rhs.px ), counting( rhs.counting )
     {
@@ -332,6 +335,8 @@ public:
         this_type( static_cast< opt_intrusive_ptr<U> && >( rhs ) ).swap(*this);
         return *this;
     }
+#endif
+
     opt_intrusive_ptr & operator=(opt_intrusive_ptr const & rhs)
     {
 	this_type(rhs).swap(*this);
