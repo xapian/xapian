@@ -1,2 +1,0 @@
-Ranking score for qid:1 = -nan
-Average ranking score = -nan

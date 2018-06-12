@@ -1,0 +1,2 @@
+Ranking score for qid:110001 = 1
+Average ranking score = 1

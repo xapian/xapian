@@ -1,0 +1,2 @@
+Ranking score for qid:20001 = 0.796708
+Average ranking score = 0.796708
