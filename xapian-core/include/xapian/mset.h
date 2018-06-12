@@ -65,6 +65,14 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      */
     MSet & operator=(const MSet & o);
 
+#ifdef XAPIAN_MOVE_SEMANTICS
+    /// Move constructor.
+    MSet(MSet && o);
+
+    /// Move assignment operator.
+    MSet & operator=(MSet && o);
+#endif
+
     /** Default constructor.
      *
      *  Creates an empty MSet, mostly useful as a placeholder.

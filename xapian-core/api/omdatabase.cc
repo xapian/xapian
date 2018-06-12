@@ -86,6 +86,11 @@ sub_docid(Xapian::docid did, size_t n_dbs)
 
 namespace Xapian {
 
+Database::Database(Database&&) = default;
+
+Database&
+Database::operator=(Database&&) = default;
+
 Database::Database()
 {
     LOGCALL_CTOR(API, "Database", NO_ARGS);

@@ -54,6 +54,24 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     /// Assignment.
     PostingIterator & operator=(const PostingIterator & o);
 
+#ifdef XAPIAN_MOVE_SEMANTICS
+    /// Move constructor.
+    PostingIterator(PostingIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
+
+    /// Move assignment operator.
+    PostingIterator & operator=(PostingIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
+#endif
+
     /** Default constructor.
      *
      *  Creates an uninitialised iterator, which can't be used before being

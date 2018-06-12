@@ -77,6 +77,11 @@ RSet::operator=(const RSet &other)
     internal = other.internal;
 }
 
+RSet::RSet(RSet &&) = default;
+
+RSet&
+RSet::operator=(RSet &&) = default;
+
 RSet::~RSet()
 {
 }
@@ -173,6 +178,11 @@ MSet::operator=(const MSet &other)
     internal = other.internal;
     return *this;
 }
+
+MSet::MSet(MSet&&) = default;
+
+MSet&
+MSet::operator=(MSet&&) = default;
 
 void
 MSet::fetch_(Xapian::doccount first, Xapian::doccount last) const
@@ -784,6 +794,11 @@ Enquire::operator=(const Enquire & other)
     LOGCALL_VOID(API, "Xapian::Enquire::operator=", other);
     internal = other.internal;
 }
+
+Enquire::Enquire(Enquire&&) = default;
+
+Enquire&
+Enquire::operator=(Enquire&&) = default;
 
 Enquire::Enquire(const Database &databases)
     : internal(new Internal(databases))

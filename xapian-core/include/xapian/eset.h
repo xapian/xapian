@@ -61,6 +61,14 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
      */
     ESet & operator=(const ESet & o);
 
+#ifdef XAPIAN_MOVE_SEMANTICS
+    /// Move constructor.
+    ESet(ESet && o);
+
+    /// Move assignment operator.
+    ESet & operator=(ESet && o);
+#endif
+
     /** Default constructor.
      *
      *  Creates an empty ESet, mostly useful as a placeholder.

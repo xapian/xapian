@@ -71,6 +71,11 @@ QueryParser::operator=(const QueryParser & o)
     return *this;
 }
 
+QueryParser::QueryParser(QueryParser &&) = default;
+
+QueryParser &
+QueryParser::operator=(QueryParser &&) = default;
+
 QueryParser::QueryParser() : internal(new QueryParser::Internal) { }
 
 QueryParser::~QueryParser() { }

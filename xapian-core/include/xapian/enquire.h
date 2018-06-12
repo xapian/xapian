@@ -71,6 +71,14 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
 	/// Assignment operator
 	void operator=(const RSet &rset);
 
+#ifdef XAPIAN_MOVE_SEMANTICS
+	/// Move constructor.
+	RSet(RSet && o);
+
+	/// Move assignment operator.
+	RSet & operator=(RSet && o);
+#endif
+
 	/// Default constructor
 	RSet();
 
@@ -148,6 +156,14 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/// Assignment is allowed (and is cheap).
 	void operator=(const Enquire & other);
+
+#ifdef XAPIAN_MOVE_SEMANTICS
+	/// Move constructor.
+	Enquire(Enquire&& o);
+
+	/// Move assignment operator.
+	Enquire& operator=(Enquire&& o);
+#endif
 
 	class Internal;
 	/// @private @internal Reference counted internals.

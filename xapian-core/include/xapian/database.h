@@ -31,6 +31,9 @@
 
 #include <iosfwd>
 #include <string>
+#ifdef XAPIAN_MOVE_SEMANTICS
+# include <utility>
+#endif
 #include <vector>
 
 #include <xapian/attributes.h>
@@ -135,6 +138,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @param other	The object to copy.
 	 */
 	void operator=(const Database &other);
+
+#ifdef XAPIAN_MOVE_SEMANTICS
+	/// Move constructor.
+	Database(Database&& o);
+
+	/// Move assignment operator.
+	Database& operator=(Database&& o);
+#endif
 
 	/** Re-open the database.
 	 *
@@ -842,6 +853,17 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  @param other	The object to copy.
 	 */
 	void operator=(const WritableDatabase &other);
+
+#ifdef XAPIAN_MOVE_SEMANTICS
+	/// Move constructor.
+	WritableDatabase(WritableDatabase&& o) : Database(std::move(o)) {}
+
+	/// Move assignment operator.
+	WritableDatabase& operator=(WritableDatabase&& o) {
+	    Database::operator=(std::move(o));
+	    return *this;
+	}
+#endif
 
 	/** Commit any pending modifications made to the database.
 	 *

@@ -58,6 +58,14 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Assignment.
     TermGenerator & operator=(const TermGenerator & o);
 
+#ifdef XAPIAN_MOVE_SEMANTICS
+    /// Move constructor.
+    TermGenerator(TermGenerator && o);
+
+    /// Move assignment operator.
+    TermGenerator & operator=(TermGenerator && o);
+#endif
+
     /// Default constructor.
     TermGenerator();
 
