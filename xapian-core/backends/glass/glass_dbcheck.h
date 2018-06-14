@@ -24,7 +24,7 @@
 
 #include "xapian/types.h"
 
-#include <cstring> // For size_t.
+#include <sys/types.h> // For size_t and off_t.
 #include <iosfwd>
 #include <string>
 #include <vector>
