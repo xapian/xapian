@@ -43,71 +43,37 @@ namespace Xapian {
  *  Diversification Naini et al. 2016
  */
 class XAPIAN_VISIBILITY_DEFAULT Diversify {
-    /// Top-k documents of given mset are diversified
-    unsigned int k;
-
-    /// MPT parameters
-    double lambda, b, sigma_sqr;
-
-    /// Store each document from given mset as a point
-    std::unordered_map<Xapian::docid, Xapian::Point> points;
-
-    /// Store the relevance score of each document
-    std::unordered_map<Xapian::docid, double> scores;
-
-    /// Store pairwise cosine similarities of documents of given mset
-    std::map<std::pair<Xapian::docid, Xapian::docid>, double> pairwise_sim;
-
-    /// Store docids of top k diversified documents
-    std::vector<Xapian::docid> main_dmset;
-
-    /** Initial diversified document set
-     *
-     *  Return top-k documents of mset as vector of Points, which
-     *  represent the initial diversified document set.
-     *
-     *  @param source	MSet object containing the documents of which
-     *			top-k are to be diversified
-     */
-    void initialise_points(const Xapian::MSet& source);
-
-    /** Return a key for a pair of documents
-     *
-     *  Returns a key as a pair of given documents ids
-     *
-     *  @param docid_a	Document id of the first document
-     *  @param docid_b	Document id of the second document
-     */
-    std::pair<Xapian::docid, Xapian::docid>
-    get_key(Xapian::docid docid_a, Xapian::docid docid_b);
-
-    /** Compute pairwise similarities
-     *
-     *  Used for pre-computing pairwise cosine similarities of documents
-     *  of given mset, which is used to speed up evaluate_dmset
-     */
-    void compute_similarities();
-
-    /** Return difference of 'points' and current dmset
-     *
-     *  Return the difference of 'points' and the current diversified
-     *  document match set
-     *
-     *  @param dmset	Document set representing a diversified document set
-     */
-    std::vector<Xapian::docid>
-    compute_diff_dmset(const std::vector<Xapian::docid>& dmset);
-
-    /** Evaluate a diversified mset
-     *
-     *  Evaluate a diversified mset using MPT algorithm
-     *
-     *  @param dmset	Set of points representing candidate diversifed
-     *			set of documents
-     */
-    double evaluate_dmset(const std::vector<Xapian::docid>& dmset);
-
   public:
+    class Internal;
+    /// @private @internal Reference counted internals.
+    Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
+
+    /** Copying is allowed.  The internals are reference counted, so
+     *  copying is cheap.
+     *
+     *  @param other	The object to copy.
+     */
+    Diversify(const Diversify& other);
+
+    /** Assignment is allowed.  The internals are reference counted,
+     *  so assignment is cheap.
+     *
+     *  @param other	The object to copy.
+     */
+    Diversify& operator=(const Diversify& other);
+
+    /** Move constructor.
+     *
+     * @param other	The object to move.
+     */
+    Diversify(Diversify&& other);
+
+    /** Move assignment operator.
+     *
+     * @param other	The object to move.
+     */
+    Diversify& operator=(Diversify&& other);
+
     /** Constructor specifying the number of diversified search results
      *
      *  @param  k_	Number of required diversified documents in the
@@ -127,6 +93,9 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
 		       double lambda_ = 0.5,
 		       double b_ = 5.0,
 		       double sigma_sqr_ = 1e-3);
+
+    /// Destructor
+    ~Diversify();
 
     /** Implements diversification
      *
