@@ -25,6 +25,7 @@
 #include "xapian/error.h"
 
 #include "debuglog.h"
+#include "diversify/diversifyinternal.h"
 
 #include <algorithm>
 #include <cmath>
@@ -34,13 +35,28 @@
 using namespace Xapian;
 using namespace std;
 
+Diversify::Diversify(const Diversify&) = default;
+
+Diversify&
+Diversify::operator=(const Diversify&) = default;
+
+Diversify::Diversify(Diversify&&) = default;
+
+Diversify&
+Diversify::operator=(Diversify&&) = default;
+
 Diversify::Diversify(unsigned int k_,
 		     double lambda_,
 		     double b_,
 		     double sigma_sqr_)
-    : k(k_), lambda(lambda_), b(b_), sigma_sqr(sigma_sqr_)
+    : internal(new Xapian::Diversify::Internal(k_, lambda_, b_, sigma_sqr_))
 {
     LOGCALL_CTOR(API, "Diversify", k_ | lambda_ | b_ | sigma_sqr_);
+}
+
+Diversify::~Diversify()
+{
+    LOGCALL_DTOR(API, "Diversify");
 }
 
 string
@@ -49,10 +65,16 @@ Diversify::get_description() const
     return "Diversify()";
 }
 
-void
-Diversify::initialise_points(const MSet& source)
+DocumentSet
+Diversify::get_dmset(const MSet& mset)
 {
-    LOGCALL_VOID(API, "Diversify::initialise_points", source);
+    LOGCALL(API, MSet, "Diversify::get_dmset", mset);
+    return internal->get_dmset(mset);
+}
+
+void
+Diversify::Internal::initialise_points(const MSet& source)
+{
     unsigned int count = 0;
     TermListGroup tlg(source);
     for (MSetIterator it = source.begin(); it != source.end(); ++it) {
@@ -67,7 +89,7 @@ Diversify::initialise_points(const MSet& source)
 }
 
 pair<Xapian::docid, Xapian::docid>
-Diversify::get_key(Xapian::docid docid_a, Xapian::docid docid_b)
+Diversify::Internal::get_key(Xapian::docid docid_a, Xapian::docid docid_b)
 {
     pair<Xapian::docid, Xapian::docid> key;
     if (docid_a <= docid_b) {
@@ -80,9 +102,8 @@ Diversify::get_key(Xapian::docid docid_a, Xapian::docid docid_b)
 }
 
 void
-Diversify::compute_similarities()
+Diversify::Internal::compute_similarities()
 {
-    LOGCALL_VOID(API, "Diversify::compute_similarities", NO_ARGS);
     Xapian::CosineDistance d;
     for (auto p_a : points) {
 	Xapian::docid pointid_a = p_a.first;
@@ -103,9 +124,8 @@ Diversify::compute_similarities()
 }
 
 vector<Xapian::docid>
-Diversify::compute_diff_dmset(const vector<Xapian::docid>& dmset)
+Diversify::Internal::compute_diff_dmset(const vector<Xapian::docid>& dmset)
 {
-    LOGCALL(API, vector<Xapian::docid>, "Diversify::compute_diff_dmset", dmset);
     vector<Xapian::docid> diff_dmset;
     for (auto point : points) {
 	Xapian::docid point_id = point.first;
@@ -126,9 +146,8 @@ Diversify::compute_diff_dmset(const vector<Xapian::docid>& dmset)
 }
 
 double
-Diversify::evaluate_dmset(const vector<Xapian::docid>& dmset)
+Diversify::Internal::evaluate_dmset(const vector<Xapian::docid>& dmset)
 {
-    LOGCALL(API, double, "Diversify::evaluate_dmset", dmset);
     double score_1 = 0, score_2 = 0;
 
     for (auto doc_id : dmset)
@@ -153,9 +172,8 @@ Diversify::evaluate_dmset(const vector<Xapian::docid>& dmset)
 }
 
 DocumentSet
-Diversify::get_dmset(const MSet& mset)
+Diversify::Internal::get_dmset(const MSet& mset)
 {
-    LOGCALL(API, MSet, "Diversify::get_dmset", mset);
     // Return original mset if no need to diversify
     if (k == 0 || mset.size() <= 2) {
 	DocumentSet dmset;
