@@ -30,10 +30,10 @@
  */
 class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
     /// Copies are not allowed
-    Internal(const Internal&);
+    Internal(const Internal&) = delete;
 
     /// Assignment is not allowed
-    void operator=(const Internal&);
+    void operator=(const Internal&) = delete;
 
     /// Top-k documents of given mset are diversified
     unsigned int k;
