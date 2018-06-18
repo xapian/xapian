@@ -35,6 +35,16 @@
 using namespace Xapian;
 using namespace std;
 
+Diversify::Diversify(const Diversify&) = default;
+
+Diversify&
+Diversify::operator=(const Diversify&) = default;
+
+Diversify::Diversify(Diversify&&) = default;
+
+Diversify&
+Diversify::operator=(Diversify&&) = default;
+
 Diversify::Diversify(unsigned int k_,
 		     double lambda_,
 		     double b_,
