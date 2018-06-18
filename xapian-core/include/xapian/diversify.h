@@ -64,13 +64,13 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
 
     /** Move constructor.
      *
-     * @param other	The object to move.
+     *  @param other	The object to move.
      */
     Diversify(Diversify&& other);
 
     /** Move assignment operator.
      *
-     * @param other	The object to move.
+     *  @param other	The object to move.
      */
     Diversify& operator=(Diversify&& other);
 
