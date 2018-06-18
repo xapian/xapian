@@ -112,7 +112,6 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
 
     /// Return diversified document set from given mset
     Xapian::DocumentSet get_dmset(const MSet& mset);
-
 };
 
 #endif // XAPIAN_INCLUDED_DIVERSIFYINTERNAL_H
