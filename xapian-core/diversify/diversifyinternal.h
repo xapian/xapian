@@ -59,7 +59,7 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
 		      double lambda_,
 		      double b_,
 		      double sigma_sqr_)
-    : k(k_), lambda(lambda_), b(b_), sigma_sqr(sigma_sqr_) {}
+	: k(k_), lambda(lambda_), b(b_), sigma_sqr(sigma_sqr_) {}
 
     /// Destructor
     ~Internal() {}
