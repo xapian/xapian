@@ -61,9 +61,6 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
 		      double sigma_sqr_)
 	: k(k_), lambda(lambda_), b(b_), sigma_sqr(sigma_sqr_) {}
 
-    /// Destructor
-    ~Internal() {}
-
     /** Initialise diversified document set
      *
      *  Convert top-k documents of mset into vector of Points, which
