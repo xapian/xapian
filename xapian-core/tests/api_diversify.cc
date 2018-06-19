@@ -37,8 +37,8 @@ DEFINE_TESTCASE(diversify1, generated)
     enq.set_query(Xapian::Query("java"));
     Xapian::MSet matches = enq.get_mset(0, 10);
 
-    unsigned int k = 4;
-    Xapian::Diversify d(k);
+    unsigned int k = 4, r = 2;
+    Xapian::Diversify d(k, r);
     Xapian::DocumentSet dset = d.get_dmset(matches);
 
     TEST(dset.size() != 0);
