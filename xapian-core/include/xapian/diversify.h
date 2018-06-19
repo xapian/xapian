@@ -78,6 +78,8 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *
      *  @param  k_	Number of required diversified documents in the
      *  		diversified document set
+     *  @param  r_	Number of documents from each cluster used for
+     *  		building topC
      *  @param  lambda_	Trade-off between relevance of top-k diversified
      *  		document set and its similarity to the rest of the
      *  		documents in the document match set. Belongs to the
@@ -90,6 +92,7 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *	  			[1e-6,1]
      */
     explicit Diversify(unsigned int k_,
+		       double r_,
 		       double lambda_ = 0.5,
 		       double b_ = 5.0,
 		       double sigma_sqr_ = 1e-3);

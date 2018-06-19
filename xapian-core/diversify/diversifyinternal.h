@@ -38,6 +38,9 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
     /// Top-k documents of given mset are diversified
     unsigned int k;
 
+    /// Number of relevant documents from each cluster used for building topC
+    double r;
+
     /// MPT parameters
     double lambda, b, sigma_sqr;
 
@@ -56,10 +59,11 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
   public:
     /// Constructor for initialising diversification parameters
     explicit Internal(unsigned int k_,
+		      double r_,
 		      double lambda_,
 		      double b_,
 		      double sigma_sqr_)
-	: k(k_), lambda(lambda_), b(b_), sigma_sqr(sigma_sqr_) {}
+	: k(k_), r(r_), lambda(lambda_), b(b_), sigma_sqr(sigma_sqr_) {}
 
     /** Initialise diversified document set
      *

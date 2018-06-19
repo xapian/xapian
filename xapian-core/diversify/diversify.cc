@@ -46,12 +46,13 @@ Diversify&
 Diversify::operator=(Diversify&&) = default;
 
 Diversify::Diversify(unsigned int k_,
+		     double r_,
 		     double lambda_,
 		     double b_,
 		     double sigma_sqr_)
-    : internal(new Xapian::Diversify::Internal(k_, lambda_, b_, sigma_sqr_))
+    : internal(new Xapian::Diversify::Internal(k_, r_, lambda_, b_, sigma_sqr_))
 {
-    LOGCALL_CTOR(API, "Diversify", k_ | lambda_ | b_ | sigma_sqr_);
+    LOGCALL_CTOR(API, "Diversify", k_ | r_ | lambda_ | b_ | sigma_sqr_);
 }
 
 Diversify::~Diversify()
