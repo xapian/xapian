@@ -89,37 +89,23 @@ Diversify::Internal::initialise_points(const MSet& source)
     }
 }
 
-pair<Xapian::docid, Xapian::docid>
-Diversify::Internal::get_key(Xapian::docid docid_a, Xapian::docid docid_b)
+pair<Xapian::docid, unsigned int>
+Diversify::Internal::get_key(Xapian::docid doc_id, unsigned int centroid_id)
 {
-    pair<Xapian::docid, Xapian::docid> key;
-    if (docid_a <= docid_b) {
-	key = make_pair(docid_a, docid_b);
-    } else {
-	key = make_pair(docid_b, docid_a);
-    }
-
-    return key;
+    return make_pair(doc_id, centroid_id);
 }
 
 void
-Diversify::Internal::compute_similarities()
+Diversify::Internal::compute_similarities(const Xapian::ClusterSet& cset)
 {
     Xapian::CosineDistance d;
-    for (auto p_a : points) {
-	Xapian::docid pointid_a = p_a.first;
-	const Xapian::Point& point_a = p_a.second;
-	for (auto p_b : points) {
-	    Xapian::docid pointid_b = p_b.first;
-	    const Xapian::Point& point_b = p_b.second;
-
-	    if (pointid_a > pointid_b) {
-		continue;
-	    }
-
-	    double sim = d.similarity(point_a, point_b);
-	    auto key = get_key(pointid_a, pointid_b);
-	    pairwise_sim[key] = sim;
+    for (auto p : points) {
+	Xapian::docid point_id = p.first;
+	Xapian::Point point = p.second;
+	for (unsigned int c = 0; c < cset.size(); ++c) {
+	    double dist = d.similarity(point, cset[c].get_centroid());
+	    auto key = get_key(point_id, c);
+	    pairwise_sim[key] = dist;
 	}
     }
 }
@@ -147,20 +133,19 @@ Diversify::Internal::compute_diff_dmset(const vector<Xapian::docid>& dmset)
 }
 
 double
-Diversify::Internal::evaluate_dmset(const vector<Xapian::docid>& dmset)
+Diversify::Internal::evaluate_dmset(const vector<Xapian::docid>& dmset,
+			  const Xapian::ClusterSet& cset)
 {
     double score_1 = 0, score_2 = 0;
 
     for (auto doc_id : dmset)
 	score_1 += scores[doc_id];
 
-    vector<Xapian::docid> diff_dmset = compute_diff_dmset(dmset);
-
-    for (auto point_id : diff_dmset) {
+    for (unsigned int c = 0; c < cset.size(); ++c) {
 	double min_dist = numeric_limits<double>::max();
 	unsigned int pos = 1;
 	for (auto doc_id : dmset) {
-	    auto key = get_key(point_id, doc_id);
+	    auto key = get_key(doc_id, c);
 	    double sim = pairwise_sim[key];
 	    double weight = 2 * b * sigma_sqr / log(1 + pos) * (1 - sim);
 	    min_dist = min(min_dist, weight);
@@ -187,7 +172,23 @@ Diversify::Internal::get_dmset(const MSet& mset)
 	k = mset.size();
 
     initialise_points(mset);
-    compute_similarities();
+
+    // Cluster the given mset into k clusters
+    KMeans km(k);
+    Xapian::ClusterSet cset = km.cluster(mset);
+    compute_similarities(cset);
+
+    // topC contains union of top-r relevant documents of each cluster
+    vector<Xapian::docid> topc;
+
+    // Build topC
+    for (unsigned int c = 0; c < cset.size(); ++c) {
+	auto documents = cset[c].get_documents();
+	for (unsigned int d = 0; d < r && d < documents.size(); ++d) {
+	    auto doc_id = documents[d].get_docid();
+	    topc.push_back(doc_id);
+	}
+    }
 
     vector<Xapian::docid> curr_dmset = main_dmset;
 
@@ -195,15 +196,21 @@ Diversify::Internal::get_dmset(const MSet& mset)
 	bool found_better_dmset = false;
 	for (unsigned int i = 0; i < main_dmset.size(); ++i) {
 	    auto curr_doc = main_dmset[i];
-	    double best_score = evaluate_dmset(curr_dmset);
-
-	    vector<Xapian::docid> diff_dmset = compute_diff_dmset(curr_dmset);
-
+	    double best_score = evaluate_dmset(curr_dmset, cset);
 	    bool found_better_doc = false;
-	    for (unsigned int j = 0; j < diff_dmset.size(); ++j) {
-		vector<Xapian::docid> temp_dmset = curr_dmset;
-		temp_dmset[i] = diff_dmset[j];
-		double score = evaluate_dmset(temp_dmset);
+
+	    for (unsigned int j = 0; j < topc.size(); ++j) {
+		// Continue if candidate document from topC already
+		// exists in curr_dmset
+		auto candidate_doc = find(curr_dmset.begin(), curr_dmset.end(),
+					  topc[j]);
+		if (candidate_doc != curr_dmset.end()) {
+		    continue;
+		}
+
+		auto temp_dmset = curr_dmset;
+		temp_dmset[i] = topc[j];
+		double score = evaluate_dmset(temp_dmset, cset);
 		if (score < best_score) {
 		    curr_doc = temp_dmset[i];
 		    best_score = score;

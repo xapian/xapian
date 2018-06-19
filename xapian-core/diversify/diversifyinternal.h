@@ -79,18 +79,21 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
      *
      *  Returns a key as a pair of given documents ids
      *
-     *  @param docid_a	Document id of the first document
-     *  @param docid_b	Document id of the second document
+     *  @param doc_id	Document id of the document
+     *  @param centroid_idx	Index of cluster to which the given centroid
+     *  			belongs to in the cluster set
      */
     std::pair<Xapian::docid, Xapian::docid>
-    get_key(Xapian::docid docid_a, Xapian::docid docid_b);
+    get_key(Xapian::docid doc_id, unsigned int centroid_idx);
 
     /** Compute pairwise similarities
      *
      *  Used for pre-computing pairwise cosine similarities of documents
      *  of given mset, which is used to speed up evaluate_dmset
+     *
+     *  @param cset	Cluster of given relevant documents
      */
-    void compute_similarities();
+    void compute_similarities(const Xapian::ClusterSet& cset);
 
     /** Return difference of 'points' and current dmset
      *
@@ -108,8 +111,10 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
      *
      *  @param dmset	Set of points representing candidate diversifed
      *			set of documents
+     *  @param cset	Set of clusters of given mset
      */
-    double evaluate_dmset(const std::vector<Xapian::docid>& dmset);
+    double evaluate_dmset(const std::vector<Xapian::docid>& dmset,
+			  const Xapian::ClusterSet& cset);
 
     /// Return diversified document set from given mset
     Xapian::DocumentSet get_dmset(const MSet& mset);
