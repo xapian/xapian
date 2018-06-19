@@ -51,11 +51,11 @@ DEFINE_TESTCASE(perfdiversify1, writable && !remote && !inmemory)
     logger.searching_end();
 
     logger.diversifying_start("Diversification");
-    unsigned int k = 4;
-    Xapian::Diversify d(k);
+    unsigned int k = 4, r = 2;
+    Xapian::Diversify d(k, r);
     logger.diversify_start();
     Xapian::DocumentSet dset = d.get_dmset(matches);
-    logger.diversify_end(k, dset);
+    logger.diversify_end(k, r, dset);
 
     TEST(dset.size() != 0);
     logger.diversifying_end();
