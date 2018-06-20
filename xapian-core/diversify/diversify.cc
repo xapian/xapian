@@ -134,7 +134,7 @@ Diversify::Internal::compute_diff_dmset(const vector<Xapian::docid>& dmset)
 
 double
 Diversify::Internal::evaluate_dmset(const vector<Xapian::docid>& dmset,
-			  const Xapian::ClusterSet& cset)
+				    const Xapian::ClusterSet& cset)
 {
     double score_1 = 0, score_2 = 0;
 
