@@ -208,14 +208,17 @@ Diversify::Internal::get_dmset(const MSet& mset)
 		    continue;
 		}
 
-		auto temp_dmset = curr_dmset;
-		temp_dmset[i] = topc[j];
-		double score = evaluate_dmset(temp_dmset, cset);
+		auto temp_doc = curr_dmset[i];
+		curr_dmset[i] = topc[j];
+		double score = evaluate_dmset(curr_dmset, cset);
+
 		if (score < best_score) {
-		    curr_doc = temp_dmset[i];
+		    curr_doc = curr_dmset[i];
 		    best_score = score;
 		    found_better_doc = true;
 		}
+
+		curr_dmset[i] = temp_doc;
 	    }
 	    if (found_better_doc) {
 		curr_dmset[i] = curr_doc;
