@@ -91,8 +91,8 @@ class XAPIAN_VISIBILITY_DEFAULT Diversify {
      *  @param  sigma_sqr_	Parameter for MPT, normally in the range
      *	  			[1e-6,1]
      */
-    explicit Diversify(unsigned int k_,
-		       double r_,
+    explicit Diversify(Xapian::doccount k_,
+		       Xapian::doccount r_,
 		       double lambda_ = 0.5,
 		       double b_ = 5.0,
 		       double sigma_sqr_ = 1e-3);

@@ -45,8 +45,8 @@ Diversify::Diversify(Diversify&&) = default;
 Diversify&
 Diversify::operator=(Diversify&&) = default;
 
-Diversify::Diversify(unsigned int k_,
-		     double r_,
+Diversify::Diversify(Xapian::doccount k_,
+		     Xapian::doccount r_,
 		     double lambda_,
 		     double b_,
 		     double sigma_sqr_)

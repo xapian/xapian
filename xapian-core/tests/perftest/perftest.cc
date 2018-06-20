@@ -402,7 +402,8 @@ PerfTestLogger::diversify_start()
 }
 
 void
-PerfTestLogger::diversify_end(unsigned int k, unsigned int r,
+PerfTestLogger::diversify_end(Xapian::doccount k,
+			      Xapian::doccount r,
 			      const Xapian::DocumentSet & dset)
 {
     Assert(diversifying_started);

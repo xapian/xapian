@@ -36,10 +36,10 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
     void operator=(const Internal&) = delete;
 
     /// Top-k documents of given mset are diversified
-    unsigned int k;
+    Xapian::doccount k;
 
     /// Number of relevant documents from each cluster used for building topC
-    double r;
+    Xapian::doccount r;
 
     /// MPT parameters
     double lambda, b, sigma_sqr;
@@ -58,8 +58,8 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// Constructor for initialising diversification parameters
-    explicit Internal(unsigned int k_,
-		      double r_,
+    explicit Internal(Xapian::doccount k_,
+		      Xapian::doccount r_,
 		      double lambda_,
 		      double b_,
 		      double sigma_sqr_)
