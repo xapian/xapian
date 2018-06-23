@@ -168,6 +168,16 @@ build_it() {
     ;;
   esac
 
+  # Mainly for Survex.
+  case $CODENAME in
+      trusty|xenial|artful|jessie|stretch)
+	if grep -q libwxgtk3.0-gtk3-dev debian/control ; then
+	    sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' debian/control
+	    dch -a 'debian/control: Build with GTK2 version of wxWidgets.'
+	fi
+	;;
+  esac
+
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in
     '')
       echo 'Failed to grep debian/rules'
