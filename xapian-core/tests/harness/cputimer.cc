@@ -1,7 +1,7 @@
 /** @file cputimer.cc
  * @brief Measure CPU time.
  */
-/* Copyright (C) 2009,2015 Olly Betts
+/* Copyright (C) 2009,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,6 +49,9 @@ using namespace std;
 double
 CPUTimer::get_current_cputime() const
 {
+#ifdef XAPIAN_DEBUG_LOG
+    SKIP_TEST("Skipping timed test because configured with --enable-log");
+#else
     static bool skip = (getenv("AUTOMATED_TESTING") != NULL);
     if (skip) {
 	SKIP_TEST("Skipping timed test because $AUTOMATED_TESTING is set");
@@ -96,4 +99,5 @@ CPUTimer::get_current_cputime() const
 #endif
 
     return t;
+#endif
 }
