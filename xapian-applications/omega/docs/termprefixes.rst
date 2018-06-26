@@ -82,8 +82,7 @@ Z
 
 Reserved but currently unallocated: CW
 
-There are two main uses for prefixes - boolean filters and probabilistic
-(i.e. free text) fields.
+There are two main uses for prefixes - boolean filters and free-text fields.
 
 Boolean Filters
 ===============
@@ -184,8 +183,8 @@ to that used for filters specified by ``B`` CGI parameters, with terms with the
 same prefixed combined with ``OP_OR`` by default, or ``OP_AND`` specified by
 ``$setmap{nonexclusiveprefix,...}``.
 
-Probabilistic Fields
-====================
+Free-Text Fields
+================
 
 Say you want to index the title of the document such that the user can
 search within the title by specifying title:report (for example) in their
@@ -207,7 +206,7 @@ Or if you're writing your own search frontend, like this::
 
     Xapian::QueryParser qp;
     qp.add_prefix("subject", "S");
-    // And similar lines for other probabilistic prefixes...
+    // And similar lines for other free-text prefixes...
     // And any other QueryParser configuration (e.g. stemmer, stopper).
     Xapian::Query query = qp.parse_query(user_query_string);
 
