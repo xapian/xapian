@@ -25,9 +25,9 @@ from new import instancemethod as new_instancemethod") xapian
 %pythonbegin %{
 """
 Xapian is a highly adaptable toolkit which allows developers to easily
-add advanced indexing and search facilities to their own
-applications. It supports the Probabilistic Information Retrieval
-model and also supports a rich set of boolean query operators.
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models
+and also supports a rich set of boolean query operators.
 
 In addition to the doc strings provided by this python library, you
 may wish to look at the library's overall documentation, either

@@ -32,7 +32,7 @@
 %define perl_arch %(%{__perl} -MConfig -e 'print $Config{installsitearch}')
 %endif
 
-Summary: Bindings for the Xapian Probabilistic Information Retrieval Library
+Summary: Bindings for the Xapian Search Engine Library
 Name: xapian-bindings
 Version: @VERSION@
 Release: 1
@@ -66,10 +66,12 @@ Source0: https://oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.xz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
-Xapian is an Open Source Probabilistic Information Retrieval Library. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-files needed for scripts which use Xapian.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
+
+This package provides the files needed for scripts which use Xapian.
 
 %if 0%{?!_without_ruby:1}
 %package ruby
@@ -78,10 +80,13 @@ Summary: Files needed for Ruby scripts which use Xapian.
 Requires: %{name} = %{version}, ruby >= %{ruby_ver}
 
 %description ruby
-Xapian is an Open Source Probabilistic Information Retrieval framework. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-files needed for developing and running Ruby scripts which use Xapian.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
+
+This package provides the files needed for developing and running
+Ruby scripts which use Xapian.
 %endif
 
 %if 0%{?!_without_python:1}
@@ -91,10 +96,13 @@ Summary: Files needed for Python scripts which use Xapian.
 Requires: %{name} = %{version}, python >= %{python_ver}
 
 %description python
-Xapian is an Open Source Probabilistic Information Retrieval framework. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-files needed for developing and running Python scripts which use Xapian.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
+
+This package provides the files needed for developing and running
+Python scripts which use Xapian.
 %endif
 
 %if 0%{?!_without_php:1}
@@ -104,10 +112,13 @@ Summary: Files needed for PHP scripts which use Xapian.
 Requires: %{name} = %{version}, php
 
 %description php
-Xapian is an Open Source Probabilistic Information Retrieval framework. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-files needed for developing and running PHP scripts which use Xapian.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
+
+This package provides the files needed for developing and running
+PHP scripts which use Xapian.
 %endif
 
 %if 0%{?!_without_tcl8:1}
@@ -117,10 +128,13 @@ Summary: Files needed for Tcl scripts which use Xapian.
 Requires: %{name} = %{version}, tcl
 
 %description tcl8
-Xapian is an Open Source Probabilistic Information Retrieval framework. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-files needed for developing and running Tcl scripts which use Xapian.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
+
+This package provides the files needed for developing and running
+Tcl scripts which use Xapian.
 %endif
 
 %if 0%{?!_without_csharp:1}
@@ -130,10 +144,13 @@ Summary: Files needed for C# applications which use Xapian.
 Requires: %{name} = %{version}, mono-core
 
 %description csharp
-Xapian is an Open Source Probabilistic Information Retrieval framework. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-files needed for developing and running C# applications which use Xapian.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
+
+This package provides the files needed for developing and running
+C# applications which use Xapian.
 %endif
 
 %if 0%{?!_without_perl:1}
@@ -145,10 +162,13 @@ Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires: perl(Exporter) perl(DynaLoader)
 
 %description perl
-Xapian is an Open Source Probabilistic Information Retrieval framework. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-files needed for developing and running Perl applications which use Xapian.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
+
+This package provides the files needed for developing and running
+Perl applications which use Xapian.
 %endif
 
 %prep
