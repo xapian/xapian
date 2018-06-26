@@ -60,9 +60,11 @@ ENQ_DESCENDING (docds sort in descending order), or ENQ_DONT_CARE (docids sort
 in whatever order is most efficient for the backend.)
 
 Note: If you add documents in strict date order, then a boolean
-search - i.e. set_weighting_scheme(Xapian::BoolWeight->new())
-- with set_docid_order(ENQ_DESCENDING) is a very efficient
-way to perform "sort by date, newest first".
+search - i.e. set_weighting_scheme(Xapian::BoolWeight()) - with
+set_docid_order(Xapian::Enquire::DESCENDING) is an efficient
+way to perform "sort by date, newest first", and with
+set_docid_order(Xapian::Enquire::ASCENDING) a very efficient way
+to perform "sort by date, oldest first".
 
 =item set_cutoff <percent_cutoff> [<weight_cutoff>]
 
