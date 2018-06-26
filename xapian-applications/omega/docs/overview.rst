@@ -25,14 +25,19 @@ syntax, see queryparser.html in the xapian-core documentation
 Term construction
 =================
 
-Documents within an omega database are stored with two types of terms:
-those used for probabilistic searching (the CGI parameter 'P'), and
-those used for boolean filtering (the CGI parameters 'B' and 'N' - the
-latter is a negated variant of 'B' and was added in Omega 1.3.5).
+Documents within an omega database are indexed by two types of terms: those
+used for a weighted search from a parsed query string (the CGI parameter
+``P``), and those used for boolean filtering (the CGI parameters ``B`` and
+``N`` - the latter is a negated variant of 'B' and was added in Omega 1.3.5).
 
-Boolean terms start with an initial capital letter denoting the 'group' of the
-term (e.g. 'M' for MIME type), while probabilistic terms are all lower-case,
-and are also stemmed before adding to the database.
+Boolean terms always start with a prefix which is an initial capital letter (or
+multiple capital letters if the first character is `X`) which denotes the
+category of the term (e.g. `M` for MIME type).
+
+Parsed query terms may have a prefix, but don't always.  Those from the body of
+the document in unstemmed form don't; stemmed terms have a `Z` prefix; terms
+from other fields have a prefix to indicate the field, such as `S` for the
+document title; stemmed terms from a field have both prefixes, e.g. `ZS`.
 
 The "english" stemmer is used by default - you can configure this for omindex
 and scriptindex with ``--stemmer=LANGUAGE`` (use ``--stemmer=none`` to disable
@@ -42,12 +47,12 @@ to the top of your OmegaScript template.
 
 The two term types are used as follows when building the query:
 
-The 'P' parameter is parsed using `Xapian::QueryParser` to give a
+The ``P`` parameter is parsed using `Xapian::QueryParser` to give a
 `Xapian::Query` object denoted as `P-terms` below.
 
-There are two ways that 'B' and 'N' parameters are handled, depending if the
-term-prefix has been configured as "non-exclusive" or not.  The default is
-"exclusive" (and in versions before 1.3.4, this was how all 'B' parameters
+There are two ways that ``B`` and ``N`` parameters are handled, depending if
+the term-prefix has been configured as "non-exclusive" or not.  The default is
+"exclusive" (and in versions before 1.3.4, this was how all ``B`` parameters
 were handled).
 
 Exclusive Boolean Prefix
@@ -116,13 +121,13 @@ using "AND_NOT"::
 The intent here is to allow filtering on arbitrary (and, typically,
 orthogonal) characteristics of the document. For instance, by adding
 boolean terms "Ttext/html", "Ttext/plain" and "J/press" you would be
-filtering the probabilistic search for only documents that are both in
+filtering the parsed query to only retrieve documents that are both in
 the "/press" site *and* which are either of MIME type text/html or
 text/plain. (See below for more information about sites.)
 
 If B-terms or N-terms is absent, that part of the query is simply omitted.
 
-If there is no probabilistic query, the boolean filter is promoted to
+If there is no parsed query, the boolean filter is promoted to
 be the query, and the weighting scheme is set to boolean.  This has
 the effect of applying the boolean filter to the whole database.  If
 there are only N-terms, then ``Query::MatchAll`` is used for the left
@@ -132,7 +137,7 @@ In order to add more boolean prefixes, you will need to alter the
 ``index_file()`` function in omindex.cc. Currently omindex adds several
 useful ones, detailed below.
 
-Probabilistic terms are constructed from the title, body and keywords
+Parsed query terms are constructed from the title, body and keywords
 of a document. (Not all document types support all three areas of
 text.) Title terms are stored with position data starting at 0, body
 terms starting 100 beyond title terms, and keyword terms starting 100

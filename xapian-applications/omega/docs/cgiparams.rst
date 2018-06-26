@@ -35,7 +35,7 @@ DEFAULTOP
 	If you want to implement "match any words", set ``DEFAULTOP=or``.
 
 P
-	probabilistic query (may occur multiple times - if so, each will be
+	query string to parse (may occur multiple times - if so, each will be
 	parsed and the results combined with ``OP_AND``).
 
 P.\ *PREFIX*
@@ -43,16 +43,17 @@ P.\ *PREFIX*
 	example, ``P.A`` will search the author by default.
 
 xP
-	terms from the previous probabilistic query - used to decide if
+	terms from the previous parsed query - used to decide if
 	this is a fresh query (in which case relevance judgements are
 	discarded and the first page of matches is shown), an extended query
 	(in which case the first page of matches is shown), or an unchanged
 	query.
 
 ADD
-	if present, any X parameters are added to the probabilistic
-	query (used for topterms support when JavaScript isn't
-	supported or is disabled).
+	if present, any ``X`` parameters are appended to the value of the first
+	non-empty ``P`` parameter, or used to build a query if there are no
+	non-empty ``P`` parameters (used for topterms support when JavaScript
+	isn't supported or is disabled).
 
 X
 	topterms to add to query (each term in a separate ``X`` parameter).  If
