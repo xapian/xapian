@@ -221,16 +221,16 @@ vet_filename(const string &filename)
 // BAD_QUERY parse error (message in error_msg)
 typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY, BAD_QUERY } querytype;
 
-static multimap<string, string> probabilistic_query;
+static multimap<string, string> query_strings;
 
 void
-set_probabilistic_query(const string & prefix, const string & s)
+add_query_string(const string& prefix, const string& s)
 {
     string query_string = s;
     // Strip leading and trailing whitespace from query_string.
     trim(query_string);
     if (!query_string.empty())
-	probabilistic_query.insert(make_pair(prefix, query_string));
+	query_strings.insert(make_pair(prefix, query_string));
 }
 
 static unsigned
@@ -321,7 +321,7 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 }
 
 static querytype
-set_probabilistic(const string &oldp)
+parse_queries(const string& oldp)
 {
     // Parse the query string.
     qp.set_stemming_strategy(option["stem_all"] == "true" ? Xapian::QueryParser::STEM_ALL : Xapian::QueryParser::STEM_SOME);
@@ -363,13 +363,11 @@ set_probabilistic(const string &oldp)
 	    default_flags |= qp.FLAG_SPELLING_CORRECTION;
 
 	vector<Xapian::Query> queries;
-	queries.reserve(probabilistic_query.size());
+	queries.reserve(query_strings.size());
 
-	multimap<string, string>::const_iterator j;
-	for (j = probabilistic_query.begin();
-	     j != probabilistic_query.end();
-	     ++j) {
-	    const string & prefix = j->first;
+	for (auto& j : query_strings) {
+	    const string& prefix = j.first;
+	    const string& query_string = j.second;
 
 	    // Choose the stemmer to use for this input.
 	    string stemlang = option[prefix + ":stemmer"];
@@ -380,7 +378,6 @@ set_probabilistic(const string &oldp)
 	    // Work out the flags to use for this input.
 	    unsigned f = read_qp_flags(prefix + ":flag_", default_flags);
 
-	    const string & query_string = j->second;
 	    Xapian::Query q = qp.parse_query(query_string, f, prefix);
 	    if (!q.empty())
 		queries.push_back(q);
@@ -404,7 +401,7 @@ set_probabilistic(const string &oldp)
 
     // Check new query against the previous one
     if (oldp.empty()) {
-	// If oldp was empty that means there were no probabilistic terms
+	// If oldp was empty that means there were no parsed query terms
 	// before, so if there are now this is a new query.
 	return n_new_terms ? NEW_QUERY : SAME_QUERY;
     }
@@ -497,7 +494,7 @@ run_query()
 			     filter_vec.begin(), filter_vec.end());
 
 	if (query.empty()) {
-	    // If no probabilistic query is provided then promote the filters
+	    // If no query strings were provided then promote the filters
 	    // to be THE query - filtering an empty query will give no
 	    // matches.
 	    std::swap(query, filter);
@@ -531,7 +528,7 @@ run_query()
 					Xapian::Query("Dlatest"));
 	}
 
-	// If no probabilistic query is provided then promote the daterange
+	// If no query strings were provided then promote the daterange
 	// filter to be THE query instead of filtering an empty query.
 	if (query.empty()) {
 	    query = date_filter;
@@ -1160,8 +1157,8 @@ T(truncate,	   2, 4, N, 0), // truncate after a word
 T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
 T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
 T(unprefix,	   1, 1, N, 0), // remove any prefix from a term
-T(unstem,	   1, 1, N, Q), // return list of probabilistic terms from
-				// the query which stemmed to this term
+T(unstem,	   1, 1, N, Q), // return list of terms from the parsed query
+				// which stemmed to this term
 T(upper,	   1, 1, N, 0), // convert string to upper case
 T(url,		   1, 1, N, 0), // url encode argument
 T(value,	   1, 2, N, 0), // return document value
@@ -1639,18 +1636,15 @@ eval(const string &fmt, const vector<string> &param)
 #if 0
 		url_query_string = "?DB=";
 		url_query_string += dbname;
-		multimap<string, string>::const_iterator j;
-		for (j = probabilistic_query.begin();
-		     j != probabilistic_query.end();
-		     ++j) {
-		    if (j->first.empty()) {
+		for (auto& j : query_strings) {
+		    if (j.first.empty()) {
 			url_query_string += "&P=";
 		    } else {
 			url_query_string += "&P."
-			url_query_string += j->first;
+			url_query_string += j.first;
 			url_query_string += '=';
 		    }
-		    const char *q = j->second.c_str();
+		    const char *q = j.second.c_str();
 		    int ch;
 		    while ((ch = *q++) != '\0') {
 			switch (ch) {
@@ -1996,12 +1990,9 @@ eval(const string &fmt, const vector<string> &param)
 		url_prettify(value);
 		break;
 	    case CMD_query: {
-		pair<multimap<string, string>::const_iterator,
-		     multimap<string, string>::const_iterator> r;
-		r = probabilistic_query.equal_range(args.empty() ?
-						    string() : args[0]);
-		multimap<string, string>::const_iterator j;
-		for (j = r.first; j != r.second; ++j) {
+		auto r = query_strings.equal_range(args.empty() ?
+						   string() : args[0]);
+		for (auto j = r.first; j != r.second; ++j) {
 		    if (!value.empty()) value += '\t';
 		    const string & s = j->second;
 		    size_t start = 0, tab;
@@ -2607,7 +2598,7 @@ ensure_query_parsed()
 	discard_rset = true;
 	force_first_page = true;
     }
-    querytype result = set_probabilistic(v);
+    querytype result = parse_queries(v);
     switch (result) {
 	case BAD_QUERY:
 	    break;
