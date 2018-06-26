@@ -356,7 +356,7 @@ letor_common_commit_hash=bddcf54435286b0363efff94f22529093e85fc89
 
 if [ ! -d .git ] ; then
   echo "$0: No '.git' directory found - this script should be run from a"
-  echo "git repo cloned from git://git.xapian.org/xapian or a mirror of it"
+  echo "git repo cloned from https://git.xapian.org/xapian or a mirror of it"
   exit 1
 fi
 
