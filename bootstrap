@@ -354,9 +354,9 @@ swig_git_commit_hash=2c910e47ae788412b95e356c99cef5862808bf9a
 omega_common_commit_hash=b310f9988f63cdc15b48323f9ac42f6b08c3a36c
 letor_common_commit_hash=b310f9988f63cdc15b48323f9ac42f6b08c3a36c
 
-if [ ! -d .git ] ; then
-  echo "$0: No '.git' directory found - this script should be run from a"
-  echo "git repo cloned from https://git.xapian.org/xapian or a mirror of it"
+if [ ! -r .git ] ; then
+  echo "$0: '.git' not found - this script should be run from a git repo cloned"
+  echo "from git://git.xapian.org/xapian or a mirror of it"
   exit 1
 fi
 
@@ -371,21 +371,25 @@ for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 
   fi
 done
 
-if [ -f .git/info/exclude ] ; then
-  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+if [ -f .git ] ; then
+  : # Looks like we're in a git worktree.
 else
-  [ -d .git/info ] || mkdir .git/info
-fi
-cat <<END >> .git/info/exclude~
+  if [ -f .git/info/exclude ] ; then
+    sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+  else
+    [ -d .git/info ] || mkdir .git/info
+  fi
+  cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
 xapian-letor/common
 END
-if [ -f .git/info/exclude ] &&
-   cmp -s .git/info/exclude~ .git/info/exclude ; then
-  rm .git/info/exclude~
-else
-  mv .git/info/exclude~ .git/info/exclude
+  if [ -f .git/info/exclude ] &&
+     cmp -s .git/info/exclude~ .git/info/exclude ; then
+    rm .git/info/exclude~
+  else
+    mv .git/info/exclude~ .git/info/exclude
+  fi
 fi
 
 # If this tree is checked out from the github mirror, use the same access
