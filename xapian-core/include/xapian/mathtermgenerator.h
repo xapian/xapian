@@ -75,7 +75,10 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
     /// Get the current document.
     const Xapian::Document & get_document() const;
 
-    /** Index some math expression in std::string.
+    /** Index math expression in std::string.
+     *
+     * Currently there is only support for indexing math expression in
+     * Presentation MathML format.
      *
      * @param expr	The expression to index.
      * @param prefix	The term prefix to use (default is no prefix).
@@ -85,11 +88,40 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
 
     /** Generate and return symbol pair list from math expression in string.
      *
-     * @param expr	The expression to generate symbol pair.
+     * This method creates list of symbol pair tuple from the symbol layout
+     * tree.
+     *
+     * consider Symbol layout tree with spatial relationship annotated on the
+     * edges (B - Below, N - Next):
+     *
+     * 		(V!a)--N--(O+)--N--(V!b)
+     * 		 |
+     * 		 B
+     * 		 |
+     * 		(V!x)
+     *
+     * 	Generated Symbol pair list: [(V!aV!xB), (V!aO+N), (V!aV!bNN), (O+V!bN)]
+     *
+     * @param expr	The expression to generate symbol pair. The expression
+     * 			must be in presentation mathml format.
      */
     std::vector<std::string> get_symbol_pair_list(const std::string & expr);
 
-    // For testing purpose.
+    /** Get the math symbols list in a given symbol layout tree.
+     *
+     * This method can be used to investigate the math symbols generated from
+     * mathml expression. Each math symbol represents a node in symbol layout
+     * tree.
+     *
+     * For example, consider expression:
+     * 	<math>
+     * 		<mi> a </mi>
+     * 		<mo> + </mo>
+     * 		<mi> b </mi>
+     * 	</math>
+     *
+     * 	Symbol list: [ (V!a), (O+), (V!b) ]
+     */
     std::vector<std::string> get_labels_list();
 
     /// Return a string describing this object.
