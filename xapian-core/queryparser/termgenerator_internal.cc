@@ -466,6 +466,27 @@ snippet_check_leading_nonwordchar(unsigned ch) {
     return false;
 }
 
+inline void
+append_escaping_xml(const char* p, const char* end, string& output)
+{
+    while (p != end) {
+	char ch = *p++;
+	switch (ch) {
+	    case '&':
+		output += "&amp;";
+		break;
+	    case '<':
+		output += "&lt;";
+		break;
+	    case '>':
+		output += "&gt;";
+		break;
+	    default:
+		output += ch;
+	}
+    }
+}
+
 inline bool
 SnipPipe::drain(const string & input,
 		const string & hi_start,
@@ -499,7 +520,7 @@ SnipPipe::drain(const string & input,
 
 	if (punc) {
 	    // Include end of sentence punctuation.
-	    output.append(input.data() + best_end, i.raw());
+	    append_escaping_xml(input.data() + best_end, i.raw(), output);
 	} else {
 	    // Append "..." or equivalent if this doesn't seem to be the start
 	    // of a sentence.
@@ -566,8 +587,7 @@ SnipPipe::drain(const string & input,
 	while (i != Utf8Iterator()) {
 	    unsigned ch = *i;
 	    if (Unicode::is_wordchar(ch)) {
-		const char * p = input.data() + best_begin;
-		output.append(p, i.raw() - p);
+		append_escaping_xml(input.data() + best_begin, i.raw(), output);
 		best_begin = i.raw() - input.data();
 		break;
 	    }
@@ -580,22 +600,9 @@ SnipPipe::drain(const string & input,
 	if (phrase_len) output += hi_start;
     }
 
-    while (best_begin != word.term_end) {
-	char ch = input[best_begin++];
-	switch (ch) {
-	    case '&':
-		output += "&amp;";
-		break;
-	    case '<':
-		output += "&lt;";
-		break;
-	    case '>':
-		output += "&gt;";
-		break;
-	    default:
-		output += ch;
-	}
-    }
+    const char* p = input.data();
+    append_escaping_xml(p + best_begin, p + word.term_end, output);
+    best_begin = word.term_end;
 
     if (phrase_len && --phrase_len == 0) output += hi_end;
 

@@ -363,7 +363,7 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
 
     input = "#include <foo.h> to use libfoo";
     TEST_STRINGS_EQUAL(mset.snippet(input, 12, stem),
-		       "...<<b>foo</b>.h&gt; to...");
+		       "...&lt;<b>foo</b>.h&gt; to...");
 
     input = "¡foo!";
     TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
@@ -395,7 +395,7 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
 
     input = "&foo takes the address of foo";
     TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
-		       "&<b>foo</b> takes the address of <b>foo</b>");
+		       "&amp;<b>foo</b> takes the address of <b>foo</b>");
 
     input = "§3.1.4 foo";
     TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
