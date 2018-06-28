@@ -329,15 +329,14 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	    DONT_CARE = 2
 	} docid_order;
 
-	/** Set the direction in which documents are ordered by document id
-	 *  in the returned MSet.
+	/** Set sort order for document IDs.
 	 *
 	 *  This order only has an effect on documents which would otherwise
-	 *  have equal rank.  For a weighted probabilistic match with no sort
-	 *  value, this means documents with equal weight.  For a boolean match,
-	 *  with no sort value, this means all documents.  And if a sort value
-	 *  is used, this means documents with equal sort value (and also equal
-	 *  weight if ordering on relevance after the sort).
+	 *  have equal rank.  When ordering by relevance without a sort key,
+	 *  this means documents with equal weight.  For a boolean match
+	 *  with no sort key, this means all documents.  And if a sort key
+	 *  is used, this means documents with the same sort key (and also equal
+	 *  weight if ordering on relevance before or after the sort key).
 	 *
 	 * @param order  This can be:
 	 * - Xapian::Enquire::ASCENDING
