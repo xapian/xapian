@@ -4,10 +4,7 @@ libdir=@libdir@
 includedir=@incdir@
 
 Name: The Xapian Probabilistic Information Retrieval Library
-Description: Xapian is an Open Source Probabilistic Information Retrieval framework. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-libraries for applications using Xapian functionality.
+Description: Xapian is an Open Source Probabilistic Information Retrieval framework.
 URL: https://xapian.org/
 Version: @VERSION@
 Cflags: -I${includedir} @abi_affecting_cxxflags@
