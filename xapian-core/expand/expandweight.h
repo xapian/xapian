@@ -112,7 +112,7 @@ class ExpandStats {
     }
 };
 
-/// Class for calculating probabilistic ESet term weights.
+/// Class for calculating ESet term weights.
 class ExpandWeight {
     /// The combined database.
     const Xapian::Database db;
