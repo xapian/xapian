@@ -26,8 +26,8 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  list of terms joined with a combination of operators such as AND, OR,
  AND_NOT).  In many systems, these documents are not ranked according to their
  relevance.  In Xapian, a pure Boolean query may be used, or alternatively a
- Boolean style query can filter the retrieved documents, which are then ordered
- using a probabilistic ranking.
+ Boolean style query can filter the retrieved documents, which are then ranked
+ using a weighting formula.
 
 **Brass**
  Brass was the current "under development" database format in Xapian 1.2.x,
@@ -63,7 +63,7 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  The document data is one of several types of information that can be
  associated with each document, the contents can be set to be anything in any
  format, examples include fields such as URL, document title, and an excerpt of
- text from the document.  If you wish to interpolate with Omega, it should
+ text from the document.  If you wish to interoperate with Omega, it should
  contain name=value pairs, one per line (recent versions of Omega also support
  one field value per line, and can assign names to line numbers in the
  query template).
@@ -140,9 +140,10 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  returned.
 
 **Probabilistic IR**
- Probabilistic IR is retrieval based on probability theory, this can produce a
- ranked list of documents based upon relevance.  Xapian uses probabilistic
- methods (the only exception is when a pure Boolean query is chosen)
+ Probabilistic IR is retrieval using a weighting formula derived from
+ probability theory to produce a ranked list of documents based upon estimated
+ relevance.  Xapian supports several families of weighting schemes, some of
+ which are based on probabilistic methods.
 
 **Quartz**
  Quartz was the database format used by Xapian prior to version 1.0.  Support

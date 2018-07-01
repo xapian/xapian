@@ -86,11 +86,11 @@ that exact phrase. Hyphenated words are also treated as phrases, as are
 cases such as filenames and email addresses (e.g. ``/etc/passwd`` or
 ``president@whitehouse.gov``).
 
-Searching within a probabilistic field
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Searching within a free-text field
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If the database has been indexed with prefixes on probabilistic terms
-from certain fields, you can set up a prefix map so that the user can
+If the database has been indexed with prefixes on terms generated from
+certain free-text fields, you can set up a prefix map so that the user can
 search within those fields. For example ``author:dickens title:shop``
 might find documents by dickens with shop in the title. You can also
 specify a prefix on a quoted phrase (e.g. ``author:"charles dickens"``)

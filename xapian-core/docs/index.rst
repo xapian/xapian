@@ -46,10 +46,9 @@ the source code.  There's also a list of `deprecated features
 also features already removed, along with suggestions for
 replacements.
 
-If you want to learn more about probabilistic information retrieval,
-there's a (reasonably mathematical) `introduction to the ideas behind
-Xapian <intro_ir.html>`_ which also suggests some books you might want
-to read.
+If you want to learn more about information retrieval, there's a (reasonably
+mathematical) `introduction to the ideas behind Xapian <intro_ir.html>`_ which
+also suggests some books you might want to read.
 
 There are a number of documents which cover particular features:
 
