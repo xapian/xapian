@@ -1926,8 +1926,8 @@ prob_expr(E) ::= prob(P). {
 
 prob_expr(E) ::= term(E).
 
-// prob - a probabilistic sub-expression consisting of stop_terms, "+" terms,
-// "-" terms, boolean filters, and/or ranges.
+// prob - a sub-expression consisting of stop_terms, "+" terms, "-" terms,
+// boolean filters, and/or ranges.
 //
 // Note: stop_term can also be several other things other than a simple term!
 

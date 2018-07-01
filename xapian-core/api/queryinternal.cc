@@ -1368,7 +1368,7 @@ void QueryTerm::serialise(string & result) const
 	}
     } else if (wqf == 1) {
 	if (pos == 0) {
-	    // Single occurrence probabilistic term without position set.
+	    // Single occurrence free-text term without position set.
 	    if (len >= 16) {
 		result += static_cast<char>(0x40 | 0x10);
 		result += encode_length(term.size() - 16);
@@ -1377,7 +1377,7 @@ void QueryTerm::serialise(string & result) const
 	    }
 	    result += term;
 	} else {
-	    // Single occurrence probabilistic term with position set.
+	    // Single occurrence free-text term with position set.
 	    if (len >= 16) {
 		result += static_cast<char>(0x40 | 0x20);
 		result += encode_length(term.size() - 16);

@@ -108,9 +108,9 @@ documents which don't match A.
 virtual postlist types
 ----------------------
 
-There are several types of virtual PostList. Each type can be treated as
-boolean or probabilistic - the only difference is whether the weights
-are ignored or not. The types are:
+There are several types of virtual PostList. Each type can be used in a
+weighted or unweighted (boolean) context - the only difference is whether the
+weights are used or not. The types are:
 
 -  OrPostList: returns documents which match either branch
 -  MultiAndPostList: returns documents which match all branches
@@ -118,14 +118,14 @@ are ignored or not. The types are:
    branches
 -  AndNotPostList: returns documents which match the left branch, but
    not the right (the weights of documents from the right branch are
-   ignored).
--  AndMaybePostList: returns documents which match the left branch -
-   weights from documents also in the right branch are added in for the
-   probabilistic case ("X ANDMAYBE Y" is what Altavista did for "+X Y").
+   ignored).  "X ANDNOT Y" implements what some search engines offer
+   as "X -Y" in their query syntax.
+-  AndMaybePostList: returns documents which match the left branch with
+   weights added on from the right branch where that also matches (so
+   an unweighted AndMaybePostList isn't very useful).  "X ANDMAYBE Y"
+   implements what some search engines offer as "+X Y" in their
+   query syntax.
 -  FIXME: this list is no longer complete...
-
-[Note: You can use AndNotPostList to apply an inverted boolean filter to
-a probabilistic query]
 
 There are two main optimisations which the best match performs:
 autoprune and operator decay.
