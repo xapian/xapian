@@ -184,19 +184,28 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Generate a snippet.
      *
-     *  This method selects a continuous run of words of less than about @a
-     *  length bytes from @a text, based mainly on where the query matches
-     *  (currently terms, exact phrases and wildcards are taken into account),
-     *  but also on the non-query terms in the text.
+     *  This method selects a continuous run of words from @a text, based
+     *  mainly on where the query matches (currently terms, exact phrases and
+     *  wildcards are taken into account).  If flag SNIPPET_BACKGROUND_MODEL is
+     *  used (which it is by default) then the selection algorithm also
+     *  considers the non-query terms in the text with the aim of showing
+     *  a context which provides more useful information.
      *
-     *  The returned text can be escaped (by default, it is escaped to make it
-     *  suitable for use in HTML), and matches with the query will be
+     *  The size of the text selected can be controlled by the @a length
+     *  parameter, which specifies a number of bytes of text to aim to select.
+     *  However slightly more text may be selected.  Also the size of any
+     *  escaping, highlighting or omission markers is not considered.
+     *
+     *  The returned text is escaped to make it suitable for use in HTML
+     *  (though beware that in upstream releases 1.4.5 and earlier this
+     *  escaping was sometimes incomplete), and matches with the query will be
      *  highlighted using @a hi_start and @a hi_end.
      *
      *  If the snippet seems to start or end mid-sentence, then @a omit is
      *  prepended or append (respectively) to indicate this.
      *
-     *  The stemmer used to build the query should be specified in @a stemmer.
+     *  The same stemming algorithm which was used to build the query should be
+     *  specified in @a stemmer.
      *
      *  And @a flags contains flags controlling behaviour.
      *
