@@ -1,14 +1,16 @@
-up to: c730b9d369601fa6aa762bd66857247489c89b9d
-
-Xapian-bindings 1.4.6 (2018-06-23):
+Xapian-bindings 1.4.6 (2018-07-02):
 
 Documentation:
 
-General:
+* Stop using "probabilistic" to mean "weighted" - we've supported other
+  families of weighting schemes since 1.3.2.
 
 Packaging:
 
-Portability:
+* Use https for tarball URLs in .spec files.  This provides protection against
+  MITM attacks on people building packages using these spec files, and is also
+  slightly more efficient as the http: URLs redirect to the https: versions
+  anyway.
 
 CSharp:
 
@@ -30,8 +32,6 @@ Java:
   VPATH builds search for targets and prerequisites so reverse this order to
   make handling of Java files more consistent.
 
-Lua:
-
 Perl:
 
 * Invoke prove via the App::Prove module.  This avoids potentially using
@@ -40,9 +40,8 @@ Perl:
   configure).  In particular this is useful on macOS when using Perl from
   homebrew.
 
-PHP:
-
-PHP7:
+* Improve Perl Enquire::set_docid_order documentation by syncing improvements
+  from the C++ API docs.
 
 Python:
 
@@ -68,10 +67,6 @@ Python3:
   gone.
 
 * Simplify generated wrapper post-processing.
-
-Ruby:
-
-Tcl:
 
 Xapian-bindings 1.4.5 (2017-10-16):
 

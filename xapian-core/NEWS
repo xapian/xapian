@@ -1,6 +1,4 @@
-up to: 3191785e4ef7fcfc964108a14acdeebe718d86d5
-
-Xapian-core 1.4.6 (2018-06-23):
+Xapian-core 1.4.6 (2018-07-02):
 
 API:
 
@@ -15,35 +13,43 @@ API:
   force this on, and will then get a compilation failure if the compiler lacks
   suitable support.
 
-* MSet::snippet(): Include certain leading non-word chars in snippets.
-  Previously we started the snippet at the start of the first actual word, but
-  there are various cases where including non-word characters in front of the
-  actual word adds useful context or otherwise aids comprehension.  Reported by
-  Robert Stepanek in https://github.com/xapian/xapian/pull/180
+* MSet::snippet():
+
+  + We were only escaping output for HTML/XML in some cases, which would
+    potentially allow HTML to be injected into output (this has been assigned
+    CVE-2018-0499).
+
+  + Include certain leading non-word characters in snippets.  Previously we
+    started the snippet at the start of the first actual word, but there are
+    various cases where including non-word characters in front of the actual
+    word adds useful context or otherwise aids comprehension.  Reported by
+    Robert Stepanek in https://github.com/xapian/xapian/pull/180
 
 * Add MSetIterator::get_sort_key() method.  The sort key has always been
   available internally, but wasn't exposed via the public API before, which
   seems like an oversight as the collapse key has long been available.
   Reported by 张少华 on xapian-discuss.
 
-* Database::compact(): Allow Compactor::resolve_duplicate_metadata()
-  implementations to delete entries.  Previously if an implementation returned
-  an empty string this would result in a user meta-data entry with an empty
-  value, which isn't normally achievable (empty meta-data values aren't
-  stored), and so will cause odd behaviour.  We now handle an empty returned
-  value by interpreting it in the natural way - it means that the merged result
-  is to not set a value for that key in the output database.
+* Database::compact():
 
-* Database::compact(): Since 1.3.5 compacting a WritableDatabase with
-  uncommitted changes throws Xapian::InvalidOperationError when compacting to
-  a single-file glass database.  This release adds similar checks for chert
-  and when compacting to a multiple-file glass database.
+  + Allow Compactor::resolve_duplicate_metadata() implementations to delete
+    entries.  Previously if an implementation returned an empty string this
+    would result in a user meta-data entry with an empty value, which isn't
+    normally achievable (empty meta-data values aren't stored), and so will
+    cause odd behaviour.  We now handle an empty returned value by interpreting
+    it in the natural way - it means that the merged result is to not set a
+    value for that key in the output database.
 
-* Database::compact(): In the unlikely event that the total number of documents
-  or the total length of all documents overflow when trying to compact a
-  multi-database, we throw an exception.  This is now a DatabaseError exception
-  instead of a const char* exception (a hang-over from before this code was
-  turned into a public API in the library).
+  + Since 1.3.5 compacting a WritableDatabase with uncommitted changes throws
+    Xapian::InvalidOperationError when compacting to a single-file glass
+    database.  This release adds similar checks for chert and when compacting
+    to a multiple-file glass database.
+
+  + In the unlikely event that the total number of documents or the total
+    length of all documents overflow when trying to compact a multi-database,
+    we throw an exception.  This is now a DatabaseError exception instead of a
+    const char* exception (a hang-over from before this code was turned into a
+    public API in the library).
 
 * Document::remove_term(): Handle removing term at current TermIterator
   position - previously the underlying iterator was invalidated, leading to
@@ -59,34 +65,39 @@ API:
   isn't hugely costly and the documentation doesn't warn that it might be
   approximated.
 
-* QueryParser::parse_query() now adds a colon after the prefix when prefixing
-  a boolean term which starts with a colon.  This means the mapping is
-  reversible, and matches what omega actually does in this case when it tries
-  to reverse the mapping.  Thanks to Andy Chilton for pointing out this corner
-  case.
+* QueryParser::parse_query():
+
+  + Now adds a colon after the prefix when prefixing a boolean term which
+    starts with a colon.  This means the mapping is reversible, and matches
+    what omega actually does in this case when it tries to reverse the mapping.
+    Thanks to Andy Chilton for pointing out this corner case.
+
+  + The parser now makes use of newer features in the lemon parser generator to
+    make parsing faster and use less memory.
 
 * Enquire::get_mset(): Fix bug with get_mset(0, 0, X) when X > 0 which was
   causing an attempt to access an element in an empty vector.  Reported by
   sielicki in #xapian.
 
-* QueryParser::parse_query(): The parser now makes use of newer features in
-  the lemon parser generator to make parsing faster and use less memory.
+* Stem:
 
-* Stem: Add Indonesian stemming algorithm.
+  + Add Indonesian stemming algorithm.
 
-* Stem: Small optimisations to almost all stemming algorithms.
+  + Small optimisations to almost all stemming algorithms.
 
-* Stopper: Add Indonesian stopword list.
+* Stopper:
 
-* Stopper: The installed version of the Finnish stopword list now has one word
-  per line.  Previously it had several space-separated words on some lines,
-  which works with C++'s std::istream_iterator but may be inconvenient for use
-  from some other languages.
+  + Add Indonesian stopword list.
 
-* Stopper: The installed versions of stopword lists are now sorted in byte
-  order rather than whatever collation order is specified by LC_COLLATE or
-  similar at build time.  This makes the build more reproducible, and also
-  may be more efficient for loading into some data structures.
+  + The installed version of the Finnish stopword list now has one word per
+    line.  Previously it had several space-separated words on some lines, which
+    works with C++'s std::istream_iterator but may be inconvenient for use from
+    some other languages.
+
+  + The installed versions of stopword lists are now sorted in byte order
+    rather than whatever collation order is specified by LC_COLLATE or similar
+    at build time.  This makes the build more reproducible, and also may be
+    more efficient for loading into some data structures.
 
 * WritableDatabase::replace_document(term, doc): Check for last_docid wrapping
   when used on a sharded database.
@@ -112,23 +123,39 @@ API:
 
 testsuite:
 
-* apitest: Enable testcases flagged metadata, synonym and/or writable to run on
-  sharded databases.
+* apitest:
 
-* apitest: Enable testcases flagged writable to run on sharded databases.
-  Writing to a sharded WritableDatabase has been supported since 1.3.2, but the
-  test harness wasn't running many of the tests that could be with a sharded
-  WritableDatabase.  This uncovered three bugs which are fixed in this release.
+  + Enable testcases flagged metadata, synonym and/or writable to run on
+    sharded databases.
 
-* apitest: Support "generated" testcases for the inmemory backend, which
-  uncovered a bug which is fixed in this release.
+  + Enable testcases flagged writable to run on sharded databases.  Writing to
+    a sharded WritableDatabase has been supported since 1.3.2, but the test
+    harness wasn't running many of the tests that could be with a sharded
+    WritableDatabase.  This uncovered three bugs which are fixed in this
+    release.
 
-* apitest: Skip testcase testlock1 on platforms that don't allow us to
-  implement Database::locked() (which notably include GNU Hurd and Microsoft
-  Windows).
+  + Support "generated" testcases for the inmemory backend, which uncovered a
+    bug which is fixed in this release.
 
-* Disable testlock2 on sharded databases as it fails for platforms which don't
-  actually support testing the lock.
+  + Skip testcase testlock1 on platforms that don't allow us to implement
+    Database::locked() (which notably include GNU Hurd and Microsoft Windows).
+
+  + Disable testlock2 on sharded databases as it fails for platforms which
+    don't actually support testing the lock.
+
+  + Extend tests of behaviour after database close.  Patch from Guruprasad
+    Hegde.  Fixes https://trac.xapian.org/ticket/337
+
+  + Enable testcase closedb5 for remote backends.  This testcase failed for
+    remote backends when it was added and the cause wasn't clear, but it turns
+    out it was actually a bug in the disk based backends, which was fixed way
+    back in 2010.  Reported by Guruprasad Hegde.
+
+  + Check for select() failing in retrylock1 testcase.  Retry on EINTR or
+    EAGAIN, and report other errors rather than trying the read() anyway.
+    Previously the read() would likely fail for the same reason the select()
+    did, but at best this is liable to make what's going on less clear if the
+    testcase fails.
 
 * Report bool values as true/false not 1/0.
 
@@ -158,28 +185,18 @@ testsuite:
 * The test harness machinery for detecting file descriptor leaks should now
   work on any platform which has /dev/fd.
 
-* apitest: Extend tests of behaviour after database close.  Patch from
-  Guruprasad Hegde.  Fixes https://trac.xapian.org/ticket/337
-
-* Enable testcase closedb5 for remote backends.  This testcase failed for
-  remote backends when it was added and the cause wasn't clear, but it turns
-  out it was actually a bug in the disk based backends, which was fixed way
-  back in 2010.  Reported by Guruprasad Hegde.
-
 * Implement recursive delete of a database directory in the test harness
   using nftw() if available (and not buggy like mingw64's seems to be), rather
   than running "rm -rf" as an external command.  This avoids the overhead of
   starting a new process each time we clean up a test database, which happens a
-  lot during a test run.  database directory, which the test harness does quite
-  a lot.
+  lot during a test run.
 
 * Speed up generated test databases a little by adding a stat() check to avoid
   throwing and catching an exception when the database doesn't yet exist.
 
-* Check for select() failing in retrylock1 testcase.  Retry on EINTR or EAGAIN,
-  and report other errors rather than trying the read() anyway.  Previously the
-  read() would likely fail for the same reason the select() did, but at best
-  this is liable to make what's going on less clear if the testcase fails.
+* Skip timed tests when configured with --enable-log.  The logging can easily
+  turn O(1) operations into O(n), and that's hard to avoid.  Fixes
+  https://trac.xapian.org/ticket/757, reported by Guruprasad Hegde.
 
 matcher:
 
@@ -287,9 +304,6 @@ glass backend:
   already exists, the exception now reports EEXIST as the errno value rather
   than whatever errno value happened to be set from an earlier library call.
 
-chert backend:
-
-
 remote backend:
 
 * xapian-tcpsrv --one-shot no longer forks.  We need fork to handle multiple
@@ -340,7 +354,17 @@ build system:
 * Split out allsnowballheaders.h again to avoid include path issues with
   unittest in out-of-tree maintainer-mode builds.
 
+* xapian-core.pc: Both the Name and Description were too long compared to
+  pkg-config norms, and the Description was trying to be multi-line which it
+  seems pkg-config doesn't support.  Fixes
+  https://github.com/xapian/xapian/pull/203, reported by orbea.
+
 documentation:
+
+* Stop describing Xapian as "Probabilistic" - we've also had non-probabilistic
+  weighting schemes since 1.3.2.
+
+* Improve API docs for MSet::snippet().
 
 * Correct some class names in doxygen file documentation comments.
 
@@ -379,9 +403,6 @@ tools:
     simpler to interact with tables with binary keys.
 
   + Fix to expect .glass not .DB extension of glass tables.
-
-examples:
-
 
 portability:
 
@@ -464,6 +485,10 @@ portability:
 
 packaging:
 
+* Use https for tarball URLs in .spec files.  This provides protection against
+  MITM attacks on people building packages using these spec files, and is also
+  slightly more efficient as the http: URLs redirect to the https: versions
+  anyway.
 
 debug code:
 
