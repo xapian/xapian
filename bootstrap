@@ -273,8 +273,8 @@ END
     # option if wget, curl, etc aren't found).
     check_checksum "$checksum" "$tarball"
 
-    case `git worktree --list --porcelain|grep -c '^worktree '` in
-      1|"")
+    case `git worktree list --porcelain|grep -c '^worktree '` in
+      1|0)
 	# Remove tarballs of other versions if there's only one worktree, or if
 	# using git < 2.5 (before worktrees were added).
 	for f in "$package"-* ; do
