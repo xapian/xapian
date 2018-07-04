@@ -207,11 +207,11 @@ build_it() {
 
   include_src_opt=
   case $backport_version in
-    *99$UBUNTU_FIRST)
+    *99$UBUNTU_FIRST+1)
       # We don't really want to upload the orig tarball for all Ubuntu
       # backports, only if it isn't already in the archive.  So for now, just
       # upload it for the first codename in alphabetical order, and only if
-      # there's no +N suffix on the version.
+      # the BUILD_INT (N in the +N suffix) is 1.
       include_src_opt=-sa ;;
   esac
   debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
