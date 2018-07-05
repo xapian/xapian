@@ -105,7 +105,7 @@ db_index_two_documents(Xapian::WritableDatabase& db, const string&)
     db.add_document(doc);
 }
 
-// To check for three documents. out of which one is irrelevent
+// To check for three documents. out of which one is irrelevant
 static void
 db_index_three_documents(Xapian::WritableDatabase& db, const string&)
 {
@@ -119,7 +119,7 @@ db_index_three_documents(Xapian::WritableDatabase& db, const string&)
 			     "is score, yes, score. The Score of a game is "
 			     "the determining factor of a game, the score is "
 			     "what matters at the end of the day. so my advise "
-			     "to everyone is to Score it!.", 1, "XD ");
+			     "to everyone is to Score it!.", 1, "XD");
     termgenerator.index_text("Score might be something else too, but this para "
 			     "refers to score only at an abstract. Scores are "
 			     "in general scoring. Score it!");
@@ -132,7 +132,7 @@ db_index_three_documents(Xapian::WritableDatabase& db, const string&)
 			     "file or might have no rank at all in another. "
 			     "Look out for this as a testcase, might be edgy "
 			     "good luck and may this be with you.", 1, "XD");
-    termgenerator.index_text("Another irrelevent paragraph to make sure the tf "
+    termgenerator.index_text("Another irrelevant paragraph to make sure the tf "
 			     "values are down, but this increases idf values "
 			     "but let's see how this works out.");
     termgenerator.increase_termpos();
@@ -385,7 +385,7 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated)
     return true;
 }
 
-////////// Running rankers ////////////////
+// ListNet_Ranker check
 DEFINE_TESTCASE(listnet_ranker, generated)
 {
     Xapian::ListNETRanker ranker;
@@ -512,7 +512,7 @@ DEFINE_TESTCASE(listnet_ranker_three_correct, generated)
     return true;
 }
 
-/// Svn ranker check
+/// SVM_ranker check
 DEFINE_TESTCASE(svm_ranker, generated)
 {
     Xapian::SVMRanker ranker;
@@ -636,7 +636,7 @@ DEFINE_TESTCASE(svm_ranker_three_correct, generated)
     return true;
 }
 
-// listmle ranker check ////
+// ListMLE_Ranker check
 DEFINE_TESTCASE(listmle_ranker, generated)
 {
     Xapian::ListMLERanker ranker;
@@ -763,7 +763,7 @@ DEFINE_TESTCASE(listmle_ranker_three_correct, generated)
     return true;
 }
 
-//// Featurename check
+// Featurename check
 DEFINE_TESTCASE(featurename, !backend)
 {
     Xapian::TfDoclenCollTfCollLenFeature feature1;
