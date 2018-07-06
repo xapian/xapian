@@ -1069,8 +1069,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /** Parse a math formula query.
      *
      * @param query_string	Math expression as std::string.
+     * @param unify		Condition to perform unification.
      */
-    Query parse_math_query(const std::string & query_string);
+    Query parse_math_query(const std::string & query_string,
+			    bool unify = false);
 
     /** Add a probabilistic term prefix.
      *

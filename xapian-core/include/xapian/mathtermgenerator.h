@@ -124,6 +124,11 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
      */
     std::vector<std::string> get_labels_list();
 
+    /** Set the condition to generate unified terms during symbol pair
+     * generation.
+     */
+    void set_unification_op(const bool unify);
+
     /// Return a string describing this object.
     std::string get_description() const;
 };

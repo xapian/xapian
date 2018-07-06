@@ -81,6 +81,12 @@ MathTermGenerator::get_labels_list()
     return internal->get_labels_list();
 }
 
+void
+MathTermGenerator::set_unification_op(const bool unify)
+{
+    internal->set_unification(unify);
+}
+
 string
 MathTermGenerator::get_description() const
 {
