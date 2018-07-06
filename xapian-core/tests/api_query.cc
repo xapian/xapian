@@ -693,7 +693,7 @@ DEFINE_TESTCASE(notandor1, backend) {
 
 // Formulae used for indexing.
 static const char * index_doc[] = {
-    // a = b + c
+    // 1. a = b + c
     "<math>"
     "<mi> a </mi>"
     "<mo> = </mo>"
@@ -702,7 +702,7 @@ static const char * index_doc[] = {
     "<mi> c </mi>"
     "</math>",
 
-    // a = b + c + d
+    // 2. a = b + c + d
     "<math>"
     "<mi> a </mi>"
     "<mo> = </mo>"
@@ -713,7 +713,7 @@ static const char * index_doc[] = {
     "<mi> d </mi>"
     "</math>",
 
-    // p = r + s
+    // 3. p = r + s
     "<math>"
     "<mi> p </mi>"
     "<mo> = </mo>"
@@ -722,7 +722,7 @@ static const char * index_doc[] = {
     "<mi> s </mi>"
     "</math>",
 
-    // a = x + b + c + s
+    // 4. a = x + b + c + s
     "<math>"
     "<mi> a </mi>"
     "<mo> = </mo>"
@@ -735,7 +735,7 @@ static const char * index_doc[] = {
     "<mi> s </mi>"
     "</math>",
 
-    // m = sqrt(n) + y
+    // 5. m = sqrt(n) + y
     "<math>"
     "<mi> m </mi>"
     "<mo> = </mi>"
@@ -745,13 +745,71 @@ static const char * index_doc[] = {
     "<mi> y </mi>"
     "</math>",
 
-    // l = a / b
+    // 6. l = a / b
     "<math>"
     "<mi> l </mi>"
     "<mo> = </mo>"
     "<mfrac>"
     "	<mi> a </mi>"
     "	<mi> b </mi>"
+    "</mfrac>"
+    "</math>",
+
+    // 7. x = c / d
+    "<math>"
+    "<mi> x </mi>"
+    "<mo> = </mo>"
+    "<mfrac>"
+    "	<mi> c </mi>"
+    "	<mi> d </mi>"
+    "</mfrac>"
+    "</math>",
+
+    // 8. m = 2 + o
+    "<math>"
+    "<mi> m </mi>"
+    "<mo> = </mo>"
+    "<mn> 2 </mn>"
+    "<mo> + </mo>"
+    "<mi> o </mi>"
+    "</math>",
+
+    // 9. p = q / r
+    "<math>"
+    "<mi> p </mi>"
+    "<mo> = </mo>"
+    "<mfrac>"
+    "	<mi> q </mi>"
+    "	<mi> r </mi>"
+    "</mfrac>"
+    "</math>",
+
+    // 10. x = y / s
+    "<math>"
+    "<mi> x </mi>"
+    "<mo> = </mo>"
+    "<mfrac>"
+    "	<mi> y </mi>"
+    "	<mi> s </mi>"
+    "</mfrac>"
+    "</math>",
+
+    // 11. 1 = 2 + 3
+    "<math>"
+    "<mn> 1 </mn>"
+    "<mo> = </mo>"
+    "<mn> 2 </mn>"
+    "<mo> + </mo>"
+    "<mn> 3 </mn>"
+    "</math>",
+
+    // 12. 100 = 20 / 200
+    "<math>"
+    "<mn> 100 </mn>"
+    "<mo> = </mo>"
+    "<mfrac>"
+    "	<mn> 20 </mn>"
+    "	<mn> 200 </mn>"
     "</mfrac>"
     "</math>",
 
@@ -770,7 +828,7 @@ DEFINE_TESTCASE(mathquery1, writable) {
 	db.add_document(doc);
     }
 
-    TEST_EQUAL(db.get_doccount(), 6);
+    TEST_EQUAL(db.get_doccount(), 12);
 
     const char * query_string = {
 	"<math> <mi> b </mi> <mo> + </mo> <mi> c </mi> </math>"
@@ -801,11 +859,24 @@ DEFINE_TESTCASE(mathquery1, writable) {
     termgen.set_document(doc);
     termgen.index_math(formula_n);
     db.add_document(doc);
-    TEST_EQUAL(db.get_doccount(), 7);
+    TEST_EQUAL(db.get_doccount(), 13);
 
     // Query retrieval
     mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 4);
-    mset_expect_order(enq.get_mset(0, 10), 1, 2, 4, 7);
+    mset_expect_order(enq.get_mset(0, 10), 1, 2, 4, 13);
+
+    // Test unification feature.
+    const char * query_string1 = {
+	"<math> <mi> p </mi> <mo> = </mo> <mfrac> <mi> q </mi>"
+	"<mi> s </mi> </mfrac> </math>"
+    };
+    q = qp.parse_math_query(query_string1, true);
+    TEST_EQUAL(q.get_length(), 17);
+    TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
+    enq.set_query(q);
+    mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 10);
+    mset_expect_order(enq.get_mset(0, 10), 9, 10, 6, 7, 3, 12, 1, 13, 8, 5);
     return true;
 }
