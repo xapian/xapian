@@ -97,7 +97,7 @@ MathMLParser::move_to_next_open_tag(string & tag)
     if (xml_prefix)
 	skip_xml_prefix();
     tag.clear();
-    while (it != end && *it != ' ' &&  *it != '>') {
+    while (it != end && *it != ' ' && *it != '>') {
 	tag.push_back(*it);
 	++it;
     }
@@ -173,8 +173,9 @@ MathMLParser::parse(const string & text) {
 	    it += 6;
 	    // Parse elements until '</math' found.
 	    while (move_to_next_open_tag(tag)) {
-		if (tag.compare("mrow") == 0 || tag.compare("annotation") == 0
-			|| tag.compare("semantics") == 0) {
+		if (tag.compare("mrow") == 0 ||
+		    tag.compare("annotation") == 0 ||
+		    tag.compare("semantics") == 0) {
 		    continue;
 		} else if (tag.compare("mfrac") == 0) {
 		    // Add fraction symbol.
@@ -314,7 +315,8 @@ MathMLParser::parse(const string & text) {
 }
 
 void
-MathTermGenerator::Internal::index_math(const std::string & text, const string & prefix)
+MathTermGenerator::Internal::index_math(const std::string & text,
+					const string & prefix)
 {
     mrow = mlp.parse(text);
 
@@ -359,6 +361,7 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
     symbol_pairs.reserve(approx_pairs_count);
     string pair;
     string path;
+    string unified_pair;
     for (vector<Symbol>::size_type i = 0; i < mrow.size(); ++i) {
 	path.clear();
 	auto j = i;
@@ -372,6 +375,14 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
 		pair.append(mrow[j].label);
 		pair.append(path);
 		symbol_pairs.push_back(pair);
+		if (unification && (mrow[i].label[0] == 'V' ||
+			    mrow[j].label[0] == 'V')) {
+		    unified_pair.clear();
+		    unified_pair.push_back(mrow[i].label[0]);
+		    unified_pair.push_back(mrow[j].label[0]);
+		    unified_pair.append(path);
+		    symbol_pairs.push_back(unified_pair);
+		}
 	    }
 	    // Get subpath along trow.
 	    if (!mrow[j].trow.empty()) {
@@ -387,6 +398,14 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
 		    pair.append(subrow[offset].label);
 		    pair.append(subpath);
 		    symbol_pairs.push_back(pair);
+		    if (unification && (mrow[i].label[0] == 'V' ||
+				subrow[offset].label[0] == 'V')) {
+			unified_pair.clear();
+			unified_pair.push_back(mrow[i].label[0]);
+			unified_pair.push_back(subrow[offset].label[0]);
+			unified_pair.append(subpath);
+			symbol_pairs.push_back(unified_pair);
+		    }
 		    ++offset;
 		}
 	    }
@@ -404,6 +423,14 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
 		    pair.append(subrow[offset].label);
 		    pair.append(subpath);
 		    symbol_pairs.push_back(pair);
+		    if (unification && (mrow[i].label[0] == 'V' ||
+				subrow[offset].label[0] == 'V')) {
+			unified_pair.clear();
+			unified_pair.push_back(mrow[i].label[0]);
+			unified_pair.push_back(subrow[offset].label[0]);
+			unified_pair.append(subpath);
+			symbol_pairs.push_back(unified_pair);
+		    }
 		    ++offset;
 		}
 	    }
@@ -424,6 +451,12 @@ MathTermGenerator::Internal::generate_symbol_pair_list()
 #endif
 
     return symbol_pairs;
+}
+
+void
+MathTermGenerator::Internal::set_unification(const bool unify)
+{
+    unification = unify;
 }
 
 vector<string>

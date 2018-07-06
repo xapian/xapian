@@ -73,6 +73,7 @@ class MathMLParser {
 
 class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class MathTermGenerator;
+    bool unification = true;
     Document doc;
     MathMLParser mlp;
     std::vector<Symbol> mrow;
@@ -83,6 +84,8 @@ class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
     void index_math(const std::string & text, const std::string & prefix);
 
     std::vector<std::string> get_symbol_pair_list(const std::string & text);
+
+    void set_unification(const bool unify);
 
     // For debugging purpose.
     std::vector<std::string> get_labels_list() {
