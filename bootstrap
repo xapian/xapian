@@ -185,7 +185,10 @@ lazy_build() {
     main_tarball=
     main_worktree_dir=`git worktree list --porcelain|sed 's/^worktree //;q'`
     if [ -n "$main_worktree_dir" ] ; then
-      main_tarball=$main_worktree_dir/BUILD/$tarball
+      if [ "$main_worktree_dir/BUILD" != "`pwd`" ] ; then
+	# If main_tarball is set non-empty, then we're a linked worktree.
+	main_tarball=$main_worktree_dir/BUILD/$tarball
+      fi
     fi
     if [ -n "$main_tarball" ] && [ -f "$main_tarball" ] ; then
       # Don't re-download the tarball if the main worktree already has it.
