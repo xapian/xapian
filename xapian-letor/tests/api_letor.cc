@@ -43,6 +43,7 @@ db_index_one_document(Xapian::WritableDatabase& db, const string&)
     termgenerator.set_document(doc);
     termgenerator.set_stemmer(Xapian::Stem("en"));
     termgenerator.index_text("Tigers are solitary animals", 1, "S");
+    termgenerator.index_text("1", 1, "U/");
     termgenerator.index_text("Might be that only one Tiger is good enough to "
 			     "Take out a ranker, a Tiger is a good way to "
 			     "check if a test is working or Tiger not. Tiger."
@@ -66,6 +67,7 @@ db_index_two_documents(Xapian::WritableDatabase& db, const string&)
     termgenerator.set_document(doc);
     termgenerator.set_stemmer(Xapian::Stem("en"));
     termgenerator.index_text("Lions, Tigers, Bears and Giraffes", 1, "S");
+    termgenerator.index_text("1", 1, "U/");
     termgenerator.index_text("This paragraph talks about lions and tigers and "
 			     "bears (oh, my!). It mentions giraffes, "
 			     "but that's not really very important. Lions "
@@ -83,6 +85,7 @@ db_index_two_documents(Xapian::WritableDatabase& db, const string&)
     db.add_document(doc);
     doc.clear_terms();
     termgenerator.index_text("Lions, Tigers and Bears", 1, "S");
+    termgenerator.index_text("2", 1, "U/");
     termgenerator.index_text("This is the paragraph of interest. Tigers are "
 			     "massive beasts - I wouldn't want to meet a "
 			     "hungry one anywhere. Lions are scary even when "
@@ -114,6 +117,7 @@ db_index_three_documents(Xapian::WritableDatabase& db, const string&)
     termgenerator.set_document(doc);
     termgenerator.set_stemmer(Xapian::Stem("en"));
     termgenerator.index_text("The will", 1, "S");
+    termgenerator.index_text("1", 1, "U/");
     termgenerator.index_text("The will are considered stop words in xapian and "
 			     "would be thrown off, so the query I want to say "
 			     "is score, yes, score. The Score of a game is "
@@ -128,6 +132,7 @@ db_index_three_documents(Xapian::WritableDatabase& db, const string&)
     db.add_document(doc);
     doc.clear_terms();
     termgenerator.index_text("Score score score score score score", 1, "S");
+    termgenerator.index_text("2", 1, "U/");
     termgenerator.index_text("it might have an absurdly high rank in the qrel "
 			     "file or might have no rank at all in another. "
 			     "Look out for this as a testcase, might be edgy "
@@ -140,6 +145,7 @@ db_index_three_documents(Xapian::WritableDatabase& db, const string&)
     db.add_document(doc);
     doc.clear_terms();
     termgenerator.index_text("Document has nothing to do with score", 1, "S");
+    termgenerator.index_text("3", 1, "U/");
     termgenerator.index_text("This is just to check if score is given a higher "
 			     "score if it is in the subject or not. Nothing "
 			     "special, just juding scores by the look of it. "

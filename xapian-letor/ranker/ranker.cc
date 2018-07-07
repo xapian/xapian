@@ -48,7 +48,7 @@ using namespace std;
 using namespace Xapian;
 
 // Map to store qrels
-map<string, map<string, int>> qrel;
+map<string, map<int, int>> qrel;
 
 //Stop-words
 static const char * sw[] = {
@@ -114,9 +114,9 @@ static int
 getlabel(const Document & doc, const std::string & qid)
 {
     int label = -1;
-    string id = std::to_string(doc.get_docid());
-    map<string, map<string, int> >::const_iterator outerit;
-    map<string, int>::const_iterator innerit;
+    int id = doc.get_docid();
+    map<string, map<int, int> >::const_iterator outerit;
+    map<int, int>::const_iterator innerit;
 
     outerit = qrel.find(qid);
     if (outerit != qrel.end()) {
@@ -128,10 +128,10 @@ getlabel(const Document & doc, const std::string & qid)
     return label;
 }
 
-static map<string, map<string, int>>
-load_relevance(const std::string & qrel_file)
+static map<string, map<int, int>>
+load_relevance(const std::string & qrel_file, const Xapian::Database & db)
 {
-    map<string, map<string, int>> qrel1;     // < qid, <docid, relevance_judgement> >
+    map<string, map<int, int>> qrel1;     // < qid, <docid, relevance_judgement> >
 
     string line;
     ifstream myfile(qrel_file.c_str(), ifstream::in);
@@ -164,7 +164,12 @@ load_relevance(const std::string & qrel_file)
 	    if (*end) {
 		throw LetorParseError("Could not parse relevance label in Qrel file at line:" + str(qrel_count));
 	    }
-	    qrel1[token[0]].insert(make_pair(token[2], label));
+	    // Map the file name in the qrel file, to the doc-id
+	    Xapian::PostingIterator db_iter = (db.postlist_begin("U/" + token[2]));
+	    if (db_iter != db.postlist_end("U/" + token[2])) {
+		int doc_id = (*db_iter);
+		qrel1[token[0]].insert(make_pair(doc_id, label));
+	    }
 	}
 	myfile.close();
     }
@@ -249,7 +254,7 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 
     Xapian::QueryParser parser = initialise_queryparser(letor_db);
 
-    qrel = load_relevance(qrel_file);
+    qrel = load_relevance(qrel_file, letor_db);
 
     ofstream train_file;
     train_file.open(filename);
@@ -412,7 +417,7 @@ Ranker::score(const string & query_file, const string & qrel_file,
 
     Xapian::QueryParser parser = initialise_queryparser(letor_db);
 
-    qrel = load_relevance(qrel_file);
+    qrel = load_relevance(qrel_file, letor_db);
 
     string str1;
     ifstream queryfile;
