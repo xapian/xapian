@@ -210,6 +210,31 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 #endif
 }
 
+void
+io_pwrite(int fd, const char * p, size_t n, off_t o)
+{
+#ifdef HAVE_PWRITE
+    while (n) {
+	ssize_t c = pwrite(fd, p, n, o);
+	// We should get a full write most of the time, so streamline that
+	// case.
+	if (usual(c == ssize_t(n)))
+	    return;
+	if (c < 0) {
+	    if (errno == EINTR) continue;
+	    throw Xapian::DatabaseError("Error writing to file", errno);
+	}
+	p += c;
+	n -= c;
+	o += c;
+    }
+#else
+    if (rare(lseek(fd, o, SEEK_SET) < 0))
+	throw Xapian::DatabaseError("Error seeking database", errno);
+    io_write(fd, p, n);
+#endif
+}
+
 [[noreturn]]
 static void
 throw_block_error(const char * s, off_t b, int e = 0)

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008,2009,2018 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -139,6 +139,15 @@ skip_test_for_backend(const std::string & backend_prefix)
 {
     if (startswith(get_dbtype(), backend_prefix)) {
 	SKIP_TEST("Test not supported for " << backend_prefix << " backend");
+    }
+}
+
+void
+XFAIL_FOR_BACKEND(const std::string& backend_prefix,
+		  const char* msg)
+{
+    if (startswith(get_dbtype(), backend_prefix)) {
+	XFAIL(msg);
     }
 }
 

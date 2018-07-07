@@ -82,7 +82,6 @@ bin_xapian_inspect_honey_CPPFLAGS =\
 bin_xapian_inspect_honey_SOURCES = bin/xapian-inspect-honey.cc\
 	api/constinfo.cc\
 	api/error.cc\
-	backends/honey/honey_changes.cc\
 	backends/honey/honey_cursor.cc\
 	backends/honey/honey_freelist.cc\
 	backends/honey/honey_table.cc\

@@ -87,7 +87,19 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
      *
      *  @param other	The object to copy.
      */
-    void operator=(const DocumentSet &other);
+    DocumentSet & operator=(const DocumentSet &other);
+
+    /** Move constructor.
+     *
+     * @param other	The object to move.
+     */
+    DocumentSet(DocumentSet && other);
+
+    /** Move assignment operator.
+     *
+     * @param other	The object to move.
+     */
+    DocumentSet & operator=(DocumentSet && other);
 
     /// Default constructor
     DocumentSet();
@@ -119,10 +131,10 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
 class XAPIAN_VISIBILITY_DEFAULT FreqSource
     : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
-    void operator=(const FreqSource &);
+    void operator=(const FreqSource &) = delete;
 
     /// Don't allow copying.
-    FreqSource(const FreqSource &);
+    FreqSource(const FreqSource &) = delete;
 
   public:
     /// Default constructor
@@ -376,6 +388,18 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
      */
     Cluster& operator=(const Cluster &other);
 
+    /** Move constructor.
+     *
+     * @param other	The object to move.
+     */
+    Cluster(Cluster && other);
+
+    /** Move assignment operator.
+     *
+     * @param other	The object to move.
+     */
+    Cluster & operator=(Cluster && other);
+
     /** Constructor
      *
      *  @param centroid		The centroid of the cluster object is
@@ -448,6 +472,18 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
      *  @param other	The object to copy.
      */
     ClusterSet& operator=(const ClusterSet &other);
+
+    /** Move constructor.
+     *
+     * @param other	The object to move.
+     */
+    ClusterSet(ClusterSet && other);
+
+    /** Move assignment operator.
+     *
+     * @param other	The object to move.
+     */
+    ClusterSet & operator=(ClusterSet && other);
 
     /// Default constructor
     ClusterSet();

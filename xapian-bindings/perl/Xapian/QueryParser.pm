@@ -79,7 +79,7 @@ default flags are C<FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE>
 
 =item add_prefix <field> <prefix>
 
-Add a probabilistic term prefix.  E.g. $qp->add_prefix("author", "A");
+Add a term prefix mapping.  E.g. $qp->add_prefix("author", "A");
 
 Allows the user to search for author:orwell which will search for the term
 "Aorwel" (assuming English stemming is in use). Multiple fields can be mapped
@@ -92,13 +92,13 @@ prefix	The term prefix to map this to
 
 =item add_boolean_prefix <field> prefix
 
-Add a boolean term prefix allowing the user to restrict a search with a
-boolean filter specified in the free text query.  E.g.
+Add a boolean term prefix mapping, allowing the user to restrict a search with
+a boolean filter specified in the free text query.  E.g.
 
   $p->add_boolean_prefix("site", "H");
 
 Allows the user to restrict a search with site:xapian.org which will be
-converted to Hxapian.org combined with any probabilistic query with
+converted to Hxapian.org combined with the rest of the parsed query using
 C<OP_FILTER>.
 
 Multiple fields can be mapped to the same prefix (so you can e.g. make site:

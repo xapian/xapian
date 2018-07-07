@@ -434,6 +434,59 @@ SnipPipe::done()
     }
 }
 
+// Check if a non-word character is should be included at the start of the
+// snippet.  We want to include certain leading non-word characters, but not
+// others.
+inline bool
+snippet_check_leading_nonwordchar(unsigned ch) {
+    if (Unicode::is_currency(ch) ||
+	Unicode::get_category(ch) == Unicode::OPEN_PUNCTUATION ||
+	Unicode::get_category(ch) == Unicode::INITIAL_QUOTE_PUNCTUATION) {
+	return true;
+    }
+    switch (ch) {
+	case '"':
+	case '#':
+	case '%':
+	case '&':
+	case '\'':
+	case '+':
+	case '-':
+	case '/':
+	case '<':
+	case '@':
+	case '\\':
+	case '`':
+	case '~':
+	case 0x00A1: // INVERTED EXCLAMATION MARK
+	case 0x00A7: // SECTION SIGN
+	case 0x00BF: // INVERTED QUESTION MARK
+	    return true;
+    }
+    return false;
+}
+
+inline void
+append_escaping_xml(const char* p, const char* end, string& output)
+{
+    while (p != end) {
+	char ch = *p++;
+	switch (ch) {
+	    case '&':
+		output += "&amp;";
+		break;
+	    case '<':
+		output += "&lt;";
+		break;
+	    case '>':
+		output += "&gt;";
+		break;
+	    default:
+		output += ch;
+	}
+    }
+}
+
 inline bool
 SnipPipe::drain(const string & input,
 		const string & hi_start,
@@ -467,7 +520,7 @@ SnipPipe::drain(const string & input,
 
 	if (punc) {
 	    // Include end of sentence punctuation.
-	    output.append(input.data() + best_end, i.raw());
+	    append_escaping_xml(input.data() + best_end, i.raw(), output);
 	} else {
 	    // Append "..." or equivalent if this doesn't seem to be the start
 	    // of a sentence.
@@ -504,12 +557,21 @@ SnipPipe::drain(const string & input,
 		case YES:
 		    break;
 	    }
+
+	    // Start the snippet at the start of the first word, but include
+	    // certain punctuation too.
 	    if (Unicode::is_wordchar(ch)) {
-		// Start the snippet at the start of the first word.
-		best_begin = i.raw() - input.data();
+		// But limit how much leading punctuation we include.
+		size_t word_begin = i.raw() - input.data();
+		if (word_begin - best_begin > 4) {
+		    best_begin = word_begin;
+		}
 		break;
 	    }
 	    ++i;
+	    if (!snippet_check_leading_nonwordchar(ch)) {
+		best_begin = i.raw() - input.data();
+	    }
 	}
 
 	// Add "..." or equivalent if this doesn't seem to be the start of a
@@ -525,8 +587,7 @@ SnipPipe::drain(const string & input,
 	while (i != Utf8Iterator()) {
 	    unsigned ch = *i;
 	    if (Unicode::is_wordchar(ch)) {
-		const char * p = input.data() + best_begin;
-		output.append(p, i.raw() - p);
+		append_escaping_xml(input.data() + best_begin, i.raw(), output);
 		best_begin = i.raw() - input.data();
 		break;
 	    }
@@ -539,22 +600,9 @@ SnipPipe::drain(const string & input,
 	if (phrase_len) output += hi_start;
     }
 
-    while (best_begin != word.term_end) {
-	char ch = input[best_begin++];
-	switch (ch) {
-	    case '&':
-		output += "&amp;";
-		break;
-	    case '<':
-		output += "&lt;";
-		break;
-	    case '>':
-		output += "&gt;";
-		break;
-	    default:
-		output += ch;
-	}
-    }
+    const char* p = input.data();
+    append_escaping_xml(p + best_begin, p + word.term_end, output);
+    best_begin = word.term_end;
 
     if (phrase_len && --phrase_len == 0) output += hi_end;
 

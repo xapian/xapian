@@ -19,7 +19,6 @@
  * USA
  */
 
-
 #ifndef XAPIAN_INCLUDED_MSETCMP_H
 #define XAPIAN_INCLUDED_MSETCMP_H
 

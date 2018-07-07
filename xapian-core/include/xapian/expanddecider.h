@@ -37,10 +37,10 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
     : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
-    void operator=(const ExpandDecider &);
+    void operator=(const ExpandDecider &) = delete;
 
     /// Don't allow copying.
-    ExpandDecider(const ExpandDecider &);
+    ExpandDecider(const ExpandDecider &) = delete;
 
   public:
     /// Default constructor.

@@ -1,7 +1,7 @@
 /** @file backendmanager_local.h
  * @brief BackendManager subclass for local databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,9 @@
 # include "testsuite.h"
 class BackendManagerLocal : public BackendManager {
   public:
-    BackendManagerLocal() {
+    explicit
+    BackendManagerLocal(const std::string& datadir_)
+	: BackendManager(datadir_) {
 	SKIP_TEST("No local database backend enabled");
     }
 };

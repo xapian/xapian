@@ -26,8 +26,8 @@ set -e
 
 MIRROR=http://httpredir.debian.org/debian/
 
-DEBIAN_CODENAMES='stretch jessie wheezy'
-UBUNTU_CODENAMES='artful zesty xenial trusty'
+DEBIAN_CODENAMES='stretch jessie'
+UBUNTU_CODENAMES='bionic artful xenial trusty'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
@@ -47,7 +47,7 @@ while true ; do
     shift
     ;;
   -b*)
-    BUILD_INT=`expr substr "$1" 2 9999`
+    BUILD_INT=`expr substr "$1" 3 9999`
     ;;
   --help)
     HELP_RC=0
@@ -166,6 +166,16 @@ build_it() {
       ;;
     esac
     ;;
+  esac
+
+  # Mainly for Survex.
+  case $CODENAME in
+      trusty|xenial|artful|jessie|stretch)
+	if grep -q libwxgtk3.0-gtk3-dev debian/control ; then
+	    sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' debian/control
+	    dch -a 'debian/control: Build with GTK2 version of wxWidgets.'
+	fi
+	;;
   esac
 
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in

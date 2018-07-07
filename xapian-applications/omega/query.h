@@ -32,8 +32,7 @@ void add_bterm(const std::string & term);
 
 void add_nterm(const std::string & term);
 
-void set_probabilistic_query(const std::string & prefix,
-			     const std::string & s);
+void add_query_string(const std::string& prefix, const std::string& s);
 
 void parse_omegascript();
 

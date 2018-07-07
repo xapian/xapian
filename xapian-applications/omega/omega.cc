@@ -218,7 +218,7 @@ try {
 		if (!morelike_query.empty()) morelike_query += ' ';
 		morelike_query += pretty_term(term);
 	    }
-	    set_probabilistic_query(string(), morelike_query);
+	    add_query_string(string(), morelike_query);
 	}
     } else {
 	// add expand/topterms terms if appropriate
@@ -246,16 +246,16 @@ try {
 		    string q = v;
 		    q += ' ';
 		    q += expand_terms;
-		    set_probabilistic_query(string(), q);
+		    add_query_string(string(), q);
 		    expand_terms = string();
 		} else {
-		    set_probabilistic_query(string(), v);
+		    add_query_string(string(), v);
 		}
 	    }
 	}
 
 	if (!expand_terms.empty()) {
-	    set_probabilistic_query(string(), expand_terms);
+	    add_query_string(string(), expand_terms);
 	}
     }
 
@@ -265,7 +265,7 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    string pfx(i->first, 2, string::npos);
-	    set_probabilistic_query(pfx, v);
+	    add_query_string(pfx, v);
 	}
     }
 

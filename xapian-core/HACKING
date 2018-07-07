@@ -129,9 +129,9 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, or glass backends using ``make check-inmemory``,
+multi-database, glass or honey backends using ``make check-inmemory``,
 ``make check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
-or ``make check-glass`` respectively.
+``make check-glass`` or ``make check-honey`` respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote
 backend, and ``make check-none`` will run those tests which don't use any
@@ -1457,6 +1457,26 @@ Tips for Submitting a Good Patch
 
  * If you've fixed a bug, make sure there's a regression test which
    fails on the existing code and succeeds after your changes.
+
+ * If you're adding a new testcase to demonstrate an existing bug, and not
+   checking a fix in at the same time, mark the testcase as a known failure (by
+   calling ``XFAIL("explanatory message")`` at the start of your testcase (if
+   necessary this can be conditional on backend or other factors - the backend
+   case has explicit support via ``XFAIL_FOR_BACKEND("backend", "message")``).
+
+   This will mean that this testcase failing will be reported as "XFAIL" which
+   won't cause the test run to fail.  If such a testcase in fact passes, that
+   gets reported as "XPASS" and *will* cause the test run to fail.  A testcase
+   should not be flagged as "XFAIL" for a long time, but it can be useful to be
+   able to add such testcases during development.  It also allows a patch
+   series which fixes a bug to first demonstrate the bug via a new testcase
+   marked as "XFAIL", then fix the bug and remove the "XFAIL" - this makes it
+   clear that the regression test actually failed before the fix.
+
+   Note that failures which are due to valgrind errors or leaked fds are not
+   affected by this macro - such errors are inherently not suitable for "XFAIL"
+   as they go away when the testsuite is run without valgrind or on a platform
+   where our fd leak detector code isn't supported.
 
  * Make sure all existing tests continue to pass.
 

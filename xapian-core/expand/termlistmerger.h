@@ -1,7 +1,7 @@
 /** @file termlistmerger.h
  * @brief Build tree to merge TermList objects
  */
-/* Copyright (C) 2008,2010,2011,2013,2016,2017 Olly Betts
+/* Copyright (C) 2008,2010,2011,2013,2016,2017,2018 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,10 +23,9 @@
 #define XAPIAN_INCLUDED_TERMLISTMERGER_H
 
 #include "api/termlist.h"
+#include "heap.h"
 #include "omassert.h"
 #include "ortermlist.h"
-
-#include <algorithm>
 
 struct CompareTermListSizeAscending {
     bool operator()(const TermList* a, const TermList* b) const {
@@ -44,8 +43,8 @@ make_termlist_merger(std::vector<TermList*>& termlists)
 
     // Make termlists into a heap so that the longest termlist is at the
     // top of the heap.
-    std::make_heap(termlists.begin(), termlists.end(),
-		   CompareTermListSizeAscending());
+    Heap::make(termlists.begin(), termlists.end(),
+	       CompareTermListSizeAscending());
 
     // Now build a tree of binary TermList objects.  The algorithm used to
     // build the tree is like that used to build an optimal Huffman coding
@@ -62,8 +61,8 @@ make_termlist_merger(std::vector<TermList*>& termlists)
 	// We do this so that the OrTermList class can be optimised
 	// assuming that this is the case.
 	TermList* r = termlists.front();
-	std::pop_heap(termlists.begin(), termlists.end(),
-		      CompareTermListSizeAscending());
+	Heap::pop(termlists.begin(), termlists.end(),
+		  CompareTermListSizeAscending());
 	termlists.pop_back();
 	TermList* l = termlists.front();
 
@@ -72,11 +71,9 @@ make_termlist_merger(std::vector<TermList*>& termlists)
 	if (termlists.size() == 1)
 	    return tl;
 
-	pop_heap(termlists.begin(), termlists.end(),
-		 CompareTermListSizeAscending());
-	termlists.back() = tl;
-	push_heap(termlists.begin(), termlists.end(),
-		  CompareTermListSizeAscending());
+	termlists.front() = tl;
+	Heap::replace(termlists.begin(), termlists.end(),
+		      CompareTermListSizeAscending());
     }
 }
 

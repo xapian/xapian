@@ -53,15 +53,15 @@
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 # include "../glass/glass_database.h"
 # include "../glass/glass_table.h"
 # include "../glass/glass_values.h"
 #endif
 
 using namespace std;
+using Honey::encode_valuestats;
 
-#ifndef DISABLE_GPL_LIBXAPIAN
 [[noreturn]]
 static void
 throw_database_corrupt(const char* item, const char* pos)
@@ -76,6 +76,7 @@ throw_database_corrupt(const char* item, const char* pos)
     throw Xapian::DatabaseCorruptError(message);
 }
 
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 namespace GlassCompact {
 
 static inline bool
@@ -149,7 +150,7 @@ key_type(const string& key)
 
 template<typename T> class PostlistCursor;
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 // Convert glass to honey.
 template<>
 class PostlistCursor<const GlassTable&> : private GlassCursor {
@@ -162,12 +163,12 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
     Xapian::termcount tf, cf;
     Xapian::termcount first_wdf;
     Xapian::termcount wdf_max;
+    bool have_wdfs;
 
     PostlistCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0)
     {
 	rewind();
-	next();
     }
 
     bool next() {
@@ -308,6 +309,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    Assert(!startswith(newtag, "\xff\xff\xff\xff"));
 	    Assert(!endswith(newtag, "\xff\xff\xff\xff"));
 
+	    AssertEq(newtag.size() % 4, 0);
 	    chunk_lastdid = firstdid - 1 + newtag.size() / 4;
 
 	    // Only encode document lengths using a whole number of bytes for
@@ -362,6 +364,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	    }
 	    ++firstdid;
+	    have_wdfs = (cf != 0);
 	    tag.erase(0, d - tag.data());
 	    wdf_max = 0;
 	} else {
@@ -392,7 +395,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	if (!unpack_uint(&d, e, &first_wdf))
 	    throw Xapian::DatabaseCorruptError("Decoding first wdf in glass "
 					       "posting chunk");
-	if (first_wdf == 0 && cf > 0) {
+	if ((first_wdf != 0) != have_wdfs) {
 	    // FIXME: Also need to adjust document length, total document length.
 	    // Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
 	    // first_wdf = 1;
@@ -412,7 +415,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    if (!unpack_uint(&d, e, &wdf))
 		throw Xapian::DatabaseCorruptError("Decoding wdf in glass "
 						   "posting chunk");
-	    if (wdf == 0 && cf > 0) {
+	    if ((wdf != 0) != have_wdfs) {
 		// FIXME: Also need to adjust document length, total document length.
 		// Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
 		// wdf = 1;
@@ -421,8 +424,10 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 					    "having both zero and non-zero "
 					    "wdf");
 	    }
-	    pack_uint(newtag, wdf);
-	    wdf_max = max(wdf_max, wdf);
+	    if (have_wdfs) {
+		pack_uint(newtag, wdf);
+		wdf_max = max(wdf_max, wdf);
+	    }
 	}
 
 	swap(tag, newtag);
@@ -443,12 +448,12 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
     Xapian::termcount tf, cf;
     Xapian::termcount first_wdf;
     Xapian::termcount wdf_max;
+    bool have_wdfs;
 
     PostlistCursor(const HoneyTable *in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0)
     {
 	rewind();
-	next();
     }
 
     bool next() {
@@ -468,8 +473,12 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		const char * end = p + key.length();
 		p += 2;
 		Xapian::valueno slot;
-		if (!unpack_uint(&p, end, &slot))
-		    throw Xapian::DatabaseCorruptError("bad value key");
+		if (p[-1] != char(Honey::KEY_VALUE_CHUNK_HI)) {
+		    slot = p[-1] - Honey::KEY_VALUE_CHUNK;
+		} else {
+		    if (!unpack_uint_preserving_sort(&p, end, &slot))
+			throw Xapian::DatabaseCorruptError("bad value key");
+		}
 		Xapian::docid did;
 		if (!unpack_uint_preserving_sort(&p, end, &did))
 		    throw Xapian::DatabaseCorruptError("bad value key");
@@ -477,15 +486,11 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 		return true;
 	    }
 	    case Honey::KEY_DOCLEN_CHUNK: {
-		const char * p = key.data();
-		const char * end = p + key.length();
-		p += 2;
-		Xapian::docid did = 1;
-		if (p != end &&
-		    (!unpack_uint_preserving_sort(&p, end, &did) || p != end)) {
+		Xapian::docid did = Honey::docid_from_key(key);
+		if (did == 0)
 		    throw Xapian::DatabaseCorruptError("Bad doclen key");
-		}
-		key = Honey::make_doclenchunk_key(did + offset);
+		chunk_lastdid = did + offset;
+		key.resize(2);
 		return true;
 	    }
 	    case Honey::KEY_POSTING_CHUNK:
@@ -520,7 +525,35 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    // merging, and for simplicity we always do).
 	    (void)lastdid;
 	    tag.erase(0, d - tag.data());
+
+	    have_wdfs = (cf != 0) && (cf != tf - 1 + first_wdf);
+	    if (have_wdfs && tf > 2) {
+		Xapian::termcount remaining_cf_for_flat_wdf =
+		    (tf - 1) * wdf_max;
+		// Check this matches and that it isn't a false match due
+		// to overflow of the multiplication above.
+		if (cf - first_wdf == remaining_cf_for_flat_wdf &&
+		    usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
+		    // The wdf is flat so we don't need to store it.
+		    have_wdfs = false;
+		}
+	    }
 	} else {
+	    if (cf > 0) {
+		// The cf we report should only be non-zero for initial chunks
+		// (of which there may be several for the same term from
+		// different instances of this class when merging databases)
+		// and gets summed to give the total cf for the term, so we
+		// need to zero it here, after potentially using it to
+		// calculate first_wdf.
+		//
+		// If cf is zero for a term, first_wdf will be zero for all
+		// chunks so doesn't need setting specially here.
+		if (!have_wdfs)
+		    first_wdf = (cf - first_wdf) / (tf - 1);
+		cf = 0;
+	    }
+
 	    // Not an initial chunk, so adjust key and remove tag header.
 	    size_t tmp = d - key.data();
 	    if (!unpack_uint_preserving_sort(&d, e, &chunk_lastdid) ||
@@ -533,41 +566,20 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    d = tag.data();
 	    e = d + tag.size();
 
-	    bool have_wdfs = (cf != 0);
-	    if (have_wdfs && tf > 2) {
-		Xapian::termcount remaining_cf_for_flat_wdf =
-		    (tf - 1) * wdf_max;
-		// Check this matches and that it isn't a false match due
-		// to overflow of the multiplication above.
-		if (cf - first_wdf == remaining_cf_for_flat_wdf &&
-		    usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
-		    // The wdf is flat so we don't need to store it.
-		    have_wdfs = false;
-		}
-	    }
-
 	    if (have_wdfs) {
 		if (!decode_delta_chunk_header(&d, e, chunk_lastdid, firstdid,
 					       first_wdf)) {
 		    throw Xapian::DatabaseCorruptError("Bad postlist delta "
 						       "chunk header");
 		}
-		tag.erase(0, d - tag.data());
 	    } else {
 		if (!decode_delta_chunk_header_no_wdf(&d, e, chunk_lastdid,
 						      firstdid)) {
 		    throw Xapian::DatabaseCorruptError("Bad postlist delta "
 						       "chunk header");
 		}
-		first_wdf = 0;
-		// Splice in a 0 wdf value after each docid delta.
-		string newtag;
-		for (size_t i = d - tag.data(); i < tag.size(); i += 4) {
-		    newtag.append(tag, i, 4);
-		    newtag.append(4, '\0');
-		}
-		tag = std::move(newtag);
 	    }
+	    tag.erase(0, d - tag.data());
 	}
 	firstdid += offset;
 	chunk_lastdid += offset;
@@ -594,20 +606,6 @@ class PostlistCursorGt {
     }
 };
 
-static string
-encode_valuestats(Xapian::doccount freq,
-		  const string & lbound, const string & ubound)
-{
-    string value;
-    pack_uint(value, freq);
-    pack_string(value, lbound);
-    // We don't store or count empty values, so neither of the bounds
-    // can be empty.  So we can safely store an empty upper bound when
-    // the bounds are equal.
-    if (lbound != ubound) value += ubound;
-    return value;
-}
-
 // U : vector<HoneyTable*>::const_iterator
 template<typename T, typename U> void
 merge_postlists(Xapian::Compactor * compactor,
@@ -620,12 +618,13 @@ merge_postlists(Xapian::Compactor * compactor,
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for ( ; b != e; ++b, ++offset) {
 	auto in = *b;
-	if (in->empty()) {
+	auto cursor = new cursor_type(in, *offset);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
 	    // Skip empty tables.
-	    continue;
+	    delete cursor;
 	}
-
-	pq.push(new cursor_type(in, *offset));
     }
 
     string last_key;
@@ -648,7 +647,8 @@ merge_postlists(Xapian::Compactor * compactor,
 			    compactor->resolve_duplicate_metadata(last_key,
 								  tags.size(),
 								  &tags[0]);
-			out->add(last_key, resolved_tag);
+			if (!resolved_tag.empty())
+			    out->add(last_key, resolved_tag);
 		    } else {
 			Assert(!last_key.empty());
 			out->add(last_key, tags[0]);
@@ -673,7 +673,8 @@ merge_postlists(Xapian::Compactor * compactor,
 		    compactor->resolve_duplicate_metadata(last_key,
 							  tags.size(),
 							  &tags[0]);
-		out->add(last_key, resolved_tag);
+		if (!resolved_tag.empty())
+		    out->add(last_key, resolved_tag);
 	    } else {
 		Assert(!last_key.empty());
 		out->add(last_key, tags[0]);
@@ -781,32 +782,48 @@ merge_postlists(Xapian::Compactor * compactor,
 	    cur = pq.top();
 	    if (key_type(cur->key) != Honey::KEY_DOCLEN_CHUNK)
 		break;
+	    if (tag[0] != cur->tag[0]) {
+		// Different width values in the two tags, so punt for now.
+		// FIXME: We would ideally optimise the total size here.
+		break;
+	    }
+	    size_t byte_width = tag[0] / 8;
 	    auto new_size = tag.size();
 	    Xapian::docid gap_size = cur->firstdid - chunk_lastdid - 1;
-	    new_size += gap_size * 4;
+	    new_size += gap_size * byte_width;
 	    if (new_size >= HONEY_DOCLEN_CHUNK_MAX) {
 		// The gap spans beyond HONEY_DOCLEN_CHUNK_MAX.
 		break;
 	    }
-	    new_size += cur->tag.size();
+	    new_size += cur->tag.size() - 1;
 	    auto full_new_size = new_size;
-	    if (new_size > HONEY_DOCLEN_CHUNK_MAX)
+	    if (new_size > HONEY_DOCLEN_CHUNK_MAX) {
+		if (byte_width > 1) {
+		    // HONEY_DOCLEN_CHUNK_MAX should be one more than a
+		    // multiple of 12 so for widths 1,2,3,4 we can fix the
+		    // initial byte which indicates the width for the chunk
+		    // plus an exact number of entries.
+		    auto m = (new_size - HONEY_DOCLEN_CHUNK_MAX) % byte_width;
+		    (void)m;
+		    AssertEq(m, 0);
+		}
 		new_size = HONEY_DOCLEN_CHUNK_MAX;
+	    }
 	    tag.reserve(new_size);
-	    tag.append(4 * gap_size, '\xff');
+	    tag.append(byte_width * gap_size, '\xff');
 	    if (new_size != full_new_size) {
 		// Partial copy.
 		auto copy_size = new_size - tag.size();
-		tag.append(cur->tag, 0, copy_size);
-		cur->tag.erase(0, copy_size);
-		copy_size /= 4;
+		tag.append(cur->tag, 1, copy_size);
+		cur->tag.erase(1, copy_size);
+		copy_size /= byte_width;
 		cur->firstdid += copy_size;
 		chunk_lastdid += gap_size;
 		chunk_lastdid += copy_size;
 		break;
 	    }
 
-	    tag += cur->tag;
+	    tag.append(cur->tag, 1, string::npos);
 	    chunk_lastdid = cur->chunk_lastdid;
 
 	    pq.pop();
@@ -825,18 +842,59 @@ merge_postlists(Xapian::Compactor * compactor,
 	Xapian::docid first, last;
 	Xapian::termcount first_wdf;
 	Xapian::termcount wdf_max;
+	Xapian::doccount tf;
+	Xapian::termcount cf;
+	bool have_wdfs;
 	string data;
 
 	HoneyPostListChunk(Xapian::docid first_,
 			   Xapian::docid last_,
 			   Xapian::termcount first_wdf_,
 			   Xapian::termcount wdf_max_,
+			   Xapian::doccount tf_,
+			   Xapian::termcount cf_,
+			   bool have_wdfs_,
 			   string&& data_)
 	    : first(first_),
 	      last(last_),
 	      first_wdf(first_wdf_),
 	      wdf_max(wdf_max_),
+	      tf(tf_),
+	      cf(cf_),
+	      have_wdfs(have_wdfs_),
 	      data(data_) {}
+
+	void append_postings_to(string& tag, bool want_wdfs) {
+	    if (want_wdfs && !have_wdfs) {
+		// Need to add wdfs which were implicit.
+		auto wdf = (cf - first_wdf) / (tf - 1);
+		const char* pos = data.data();
+		const char* pos_end = pos + data.size();
+		while (pos != pos_end) {
+		    Xapian::docid delta;
+		    if (!unpack_uint(&pos, pos_end, &delta))
+			throw_database_corrupt("Decoding docid delta", pos);
+		    pack_uint(tag, delta);
+		    pack_uint(tag, wdf);
+		}
+	    } else if (have_wdfs && !want_wdfs) {
+		// Need to remove wdfs which are now implicit.
+		const char* pos = data.data();
+		const char* pos_end = pos + data.size();
+		while (pos != pos_end) {
+		    Xapian::docid delta;
+		    if (!unpack_uint(&pos, pos_end, &delta))
+			throw_database_corrupt("Decoding docid delta", pos);
+		    pack_uint(tag, delta);
+		    Xapian::termcount wdf;
+		    if (!unpack_uint(&pos, pos_end, &wdf))
+			throw_database_corrupt("Decoding wdf", pos);
+		    (void)wdf;
+		}
+	    } else {
+		tag += data;
+	    }
+	}
     };
     vector<HoneyPostListChunk> tags;
     while (true) {
@@ -878,7 +936,8 @@ merge_postlists(Xapian::Compactor * compactor,
 		}
 
 		Xapian::docid splice_last = 0;
-		if (!have_wdfs && tf > 2 && tags.size() > 1) {
+		if (!have_wdfs && tags[0].have_wdfs && tf > 2 &&
+		    tags.size() > 1) {
 		    // Stripping wdfs will approximately halve the size so
 		    // double up the chunks.
 		    splice_last = chunk_lastdid;
@@ -891,45 +950,10 @@ merge_postlists(Xapian::Compactor * compactor,
 					    first_wdf, wdf_max, first_tag);
 
 		if (tf > 2) {
-		    if (have_wdfs) {
-			first_tag += tags[0].data;
-		    } else {
-			const char* pos = tags[0].data.data();
-			const char* pos_end = pos + tags[0].data.size();
-			while (pos != pos_end) {
-			    Xapian::docid delta;
-			    if (!unpack_uint(&pos, pos_end, &delta))
-				throw_database_corrupt("Decoding docid "
-						       "delta", pos);
-			    pack_uint(first_tag, delta);
-			    Xapian::termcount wdf;
-			    if (!unpack_uint(&pos, pos_end, &wdf))
-				throw_database_corrupt("Decoding wdf",
-						       pos);
-			    // Only copy over the docid deltas, not the
-			    // wdfs.
-			    (void)wdf;
-			}
-
-			if (splice_last) {
-			    pack_uint(first_tag, tags[1].first - splice_last);
-			    pos = tags[1].data.data();
-			    pos_end = pos + tags[1].data.size();
-			    while (pos != pos_end) {
-				Xapian::docid delta;
-				if (!unpack_uint(&pos, pos_end, &delta))
-				    throw_database_corrupt("Decoding docid "
-							   "delta", pos);
-				pack_uint(first_tag, delta);
-				Xapian::termcount wdf;
-				if (!unpack_uint(&pos, pos_end, &wdf))
-				    throw_database_corrupt("Decoding wdf",
-							   pos);
-				// Only copy over the docid deltas, not the
-				// wdfs.
-				(void)wdf;
-			    }
-			}
+		    tags[0].append_postings_to(first_tag, have_wdfs);
+		    if (!have_wdfs && splice_last) {
+			pack_uint(first_tag, tags[1].first - splice_last);
+			tags[1].append_postings_to(first_tag, have_wdfs);
 		    }
 		}
 		out->add(last_key, first_tag);
@@ -961,7 +985,7 @@ merge_postlists(Xapian::Compactor * compactor,
 						      tag);
 			    tag += i->data;
 			} else {
-			    if (i + 1 != tags.end()) {
+			    if (i->have_wdfs && i + 1 != tags.end()) {
 				splice_last = last_did;
 				last_did = (i + 1)->last;
 			    }
@@ -969,42 +993,12 @@ merge_postlists(Xapian::Compactor * compactor,
 			    encode_delta_chunk_header_no_wdf(i->first,
 							     last_did,
 							     tag);
-			    const char* pos = i->data.data();
-			    const char* pos_end = pos + i->data.size();
-			    while (pos != pos_end) {
-				Xapian::docid delta;
-				if (!unpack_uint(&pos, pos_end, &delta))
-				    throw_database_corrupt("Decoding docid "
-							   "delta", pos);
-				pack_uint(tag, delta);
-				Xapian::termcount wdf;
-				if (!unpack_uint(&pos, pos_end, &wdf))
-				    throw_database_corrupt("Decoding wdf",
-							   pos);
-				// Only copy over the docid deltas, not the
-				// wdfs.
-				(void)wdf;
-			    }
+			    tag += i->data;
 			    if (splice_last) {
 				++i;
 				pack_uint(tag, i->first - splice_last);
 				splice_last = 0;
-				pos = i->data.data();
-				pos_end = pos + i->data.size();
-				while (pos != pos_end) {
-				    Xapian::docid delta;
-				    if (!unpack_uint(&pos, pos_end, &delta))
-					throw_database_corrupt("Decoding docid "
-							       "delta", pos);
-				    pack_uint(tag, delta);
-				    Xapian::termcount wdf;
-				    if (!unpack_uint(&pos, pos_end, &wdf))
-					throw_database_corrupt("Decoding wdf",
-							       pos);
-				    // Only copy over the docid deltas, not the
-				    // wdfs.
-				    (void)wdf;
-				}
+				tag += i->data;
 			    }
 			}
 
@@ -1017,14 +1011,24 @@ merge_postlists(Xapian::Compactor * compactor,
 	    tf = cf = 0;
 	    last_key = cur->key;
 	}
-	if (cur->tf) {
-	    tf += cur->tf;
-	    cf += cur->cf;
+
+	if (tf && cur->tf && (cf == 0) != (cur->cf == 0)) {
+	    // FIXME: Also need to adjust document length, total document
+	    // length.
+	    // Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
+	    throw Xapian::DatabaseError("Honey does not support a term having "
+					"both zero and non-zero wdf");
 	}
+	tf += cur->tf;
+	cf += cur->cf;
+
 	tags.push_back(HoneyPostListChunk(cur->firstdid,
 					  cur->chunk_lastdid,
 					  cur->first_wdf,
 					  cur->wdf_max,
+					  cur->tf,
+					  cur->cf,
+					  cur->have_wdfs,
 					  std::move(cur->tag)));
 	if (cur->next()) {
 	    pq.push(cur);
@@ -1036,12 +1040,11 @@ merge_postlists(Xapian::Compactor * compactor,
 
 template<typename T> struct MergeCursor;
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 template<>
 struct MergeCursor<const GlassTable&> : public GlassCursor {
     explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
 	rewind();
-	next();
     }
 };
 #endif
@@ -1050,7 +1053,6 @@ template<>
 struct MergeCursor<const HoneyTable&> : public HoneyCursor {
     explicit MergeCursor(const HoneyTable *in) : HoneyCursor(in) {
 	rewind();
-	next();
     }
 };
 
@@ -1064,7 +1066,7 @@ struct CursorGt {
     }
 };
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 // Convert glass to honey.
 static void
 merge_spellings(HoneyTable* out,
@@ -1076,8 +1078,12 @@ merge_spellings(HoneyTable* out,
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for ( ; b != e; ++b) {
 	auto in = *b;
-	if (!in->empty()) {
-	    pq.push(new cursor_type(in));
+	auto cursor = new cursor_type(in);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
+	    // Skip empty tables.
+	    delete cursor;
 	}
     }
 
@@ -1145,6 +1151,10 @@ merge_spellings(HoneyTable* out,
 	    bool compressed;
 	    switch (key[0]) {
 		case Honey::KEY_PREFIX_HEAD: {
+		    // Honey omits the first two bytes from the first entry
+		    // since we know what those most be from the key
+		    // (subsequent entries won't include those anyway, since
+		    // they'll be part of the reused prefix).
 		    compressed = cur->read_tag(false);
 		    unsigned char len = cur->current_tag[0] ^ MAGIC_XOR_VALUE;
 		    cur->current_tag[0] = (len - 2) ^ MAGIC_XOR_VALUE;
@@ -1153,23 +1163,20 @@ merge_spellings(HoneyTable* out,
 		    cur->current_tag.erase(1, 2);
 		    break;
 		}
-		case Honey::KEY_PREFIX_TAIL: {
-		    compressed = cur->read_tag(false);
-		    unsigned char len = cur->current_tag[0] ^ MAGIC_XOR_VALUE;
-		    cur->current_tag[0] = (len - 2) ^ MAGIC_XOR_VALUE;
-		    AssertEq(cur->current_tag[len - 1], key[1]);
-		    AssertEq(cur->current_tag[len], key[2]);
-		    cur->current_tag.erase(len - 1, 2);
-		    break;
-		}
+		case Honey::KEY_PREFIX_TAIL:
 		case Honey::KEY_PREFIX_BOOKEND: {
+		    // Need to repack because honey omits the last 2 or 1 bytes
+		    // from each entry (2 for tail, 1 for bookend) since we
+		    // know what those must be from the key.
 		    compressed = cur->read_tag(false);
-		    unsigned char len = cur->current_tag[0] ^ MAGIC_XOR_VALUE;
-		    cur->current_tag[0] = (len - 2) ^ MAGIC_XOR_VALUE;
-		    AssertEq(cur->current_tag[1], key[1]);
-		    AssertEq(cur->current_tag[len], key[2]);
-		    cur->current_tag.erase(len, 1);
-		    cur->current_tag.erase(1, 1);
+		    PrefixCompressedStringItor spell_in(cur->current_tag);
+		    string new_tag;
+		    PrefixCompressedStringWriter spell_out(new_tag, key);
+		    while (!spell_in.at_end()) {
+			spell_out.append(*spell_in);
+			++spell_in;
+		    }
+		    cur->current_tag = std::move(new_tag);
 		    break;
 		}
 		default:
@@ -1273,8 +1280,12 @@ merge_spellings(HoneyTable* out,
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for ( ; b != e; ++b) {
 	auto in = *b;
-	if (!in->empty()) {
-	    pq.push(new cursor_type(in));
+	auto cursor = new cursor_type(in);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
+	    // Skip empty tables.
+	    delete cursor;
 	}
     }
 
@@ -1384,8 +1395,12 @@ merge_synonyms(T* out, U b, U e)
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for ( ; b != e; ++b) {
 	auto in = *b;
-	if (!in->empty()) {
-	    pq.push(new cursor_type(in));
+	auto cursor = new cursor_type(in);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
+	    // Skip empty tables.
+	    delete cursor;
 	}
     }
 
@@ -1483,12 +1498,11 @@ multimerge_postlists(Xapian::Compactor * compactor,
 
 	    HoneyTable * tmptab = new HoneyTable("postlist", dest, false);
 
-	    // Use maximum blocksize for temporary tables.  And don't compress
-	    // entries in temporary tables, even if the final table would do
-	    // so.  Any already compressed entries will get copied in
-	    // compressed form. (FIXME: HoneyTable has no blocksize)
+	    // Don't compress entries in temporary tables, even if the final
+	    // table would do so.  Any already compressed entries will get
+	    // copied in compressed form.
 	    Honey::RootInfo root_info;
-	    root_info.init(65536, 0);
+	    root_info.init(0);
 	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
 	    tmptab->create_and_open(flags, root_info);
 
@@ -1497,7 +1511,6 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    tmp.push_back(tmptab);
 	    tmptab->flush_db();
 	    tmptab->commit(1, &root_info);
-	    AssertRel(root_info.get_blocksize(),==,65536);
 	}
 	swap(off, newoff);
 	++c;
@@ -1519,12 +1532,11 @@ multimerge_postlists(Xapian::Compactor * compactor,
 
 	    HoneyTable * tmptab = new HoneyTable("postlist", dest, false);
 
-	    // Use maximum blocksize for temporary tables.  And don't compress
-	    // entries in temporary tables, even if the final table would do
-	    // so.  Any already compressed entries will get copied in
-	    // compressed form. (FIXME: HoneyTable has no blocksize)
+	    // Don't compress entries in temporary tables, even if the final
+	    // table would do so.  Any already compressed entries will get
+	    // copied in compressed form.
 	    Honey::RootInfo root_info;
-	    root_info.init(65536, 0);
+	    root_info.init(0);
 	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
 	    tmptab->create_and_open(flags, root_info);
 
@@ -1540,7 +1552,6 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    tmpout.push_back(tmptab);
 	    tmptab->flush_db();
 	    tmptab->commit(1, &root_info);
-	    AssertRel(root_info.get_blocksize(),==,65536);
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
@@ -1558,7 +1569,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 
 template<typename T> class PositionCursor;
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 template<>
 class PositionCursor<const GlassTable&> : private GlassCursor {
     Xapian::docid offset;
@@ -1570,7 +1581,6 @@ class PositionCursor<const GlassTable&> : private GlassCursor {
     PositionCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0) {
 	rewind();
-	next();
     }
 
     bool next() {
@@ -1609,7 +1619,6 @@ class PositionCursor<const HoneyTable&> : private HoneyCursor {
     PositionCursor(const HoneyTable *in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0) {
 	rewind();
-	next();
     }
 
     bool next() {
@@ -1656,12 +1665,13 @@ merge_positions(T* out, const vector<U*> & inputs,
     priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
     for (size_t i = 0; i < inputs.size(); ++i) {
 	auto in = inputs[i];
-	if (in->empty()) {
+	auto cursor = new cursor_type(in, offset[i]);
+	if (cursor->next()) {
+	    pq.push(cursor);
+	} else {
 	    // Skip empty tables.
-	    continue;
+	    delete cursor;
 	}
-
-	pq.push(new cursor_type(in, offset[i]));
     }
 
     while (!pq.empty()) {
@@ -1685,8 +1695,6 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 	Xapian::docid off = offset[i];
 
 	auto in = inputs[i];
-	if (in->empty()) continue;
-
 	HoneyCursor cur(in);
 	cur.rewind();
 
@@ -1719,7 +1727,7 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
     }
 }
 
-#ifndef DISABLE_GPL_LIBXAPIAN
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 template<typename T> void
 merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 		  const vector<Xapian::docid> & offset,
@@ -1917,11 +1925,13 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 		       int source_backend,
 		       const vector<const Xapian::Database::Internal*>& sources,
 		       const vector<Xapian::docid>& offset,
-		       size_t block_size,
 		       Xapian::Compactor::compaction_level compaction,
 		       unsigned flags,
 		       Xapian::docid last_docid)
 {
+    // Currently unused for honey.
+    (void)compaction;
+
     struct table_list {
 	// The "base name" of the table.
 	char name[9];
@@ -1957,8 +1967,12 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	for (size_t i = 0; i != sources.size(); ++i) {
 	    bool has_uncommitted_changes;
 	    if (source_backend == Xapian::DB_BACKEND_GLASS) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 		auto db = static_cast<const GlassDatabase*>(sources[i]);
 		has_uncommitted_changes = db->has_uncommitted_changes();
+#else
+		throw Xapian::FeatureUnavailableError("Glass backend disabled");
+#endif
 	    } else {
 		auto db = static_cast<const HoneyDatabase*>(sources[i]);
 		has_uncommitted_changes = db->has_uncommitted_changes();
@@ -1971,12 +1985,6 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 		throw Xapian::InvalidOperationError(m);
 	    }
 	}
-    }
-
-    if (block_size < HONEY_MIN_BLOCKSIZE ||
-	block_size > HONEY_MAX_BLOCKSIZE ||
-	(block_size & (block_size - 1)) != 0) {
-	block_size = HONEY_DEFAULT_BLOCKSIZE;
     }
 
     FlintLock lock(destdir ? destdir : "");
@@ -2002,12 +2010,16 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	version_file_out.reset(new HoneyVersion(destdir));
     }
 
-    version_file_out->create(block_size);
+    // Set to true if stat() failed (which can happen if the files are > 2GB
+    // and off_t is 32 bit) or one of the totals overflowed.
+    bool bad_totals = false;
+    off_t in_total = 0, out_total = 0;
+
+    version_file_out->create();
     for (size_t i = 0; i != sources.size(); ++i) {
+	bool source_single_file = false;
 	if (source_backend == Xapian::DB_BACKEND_GLASS) {
-#ifdef DISABLE_GPL_LIBXAPIAN
-	    Assert(false);
-#else
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	    auto db = static_cast<const GlassDatabase*>(sources[i]);
 	    auto& v_in = db->version_file;
 	    auto& v_out = version_file_out;
@@ -2017,10 +2029,27 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 			       v_in.get_wdf_upper_bound(),
 			       v_in.get_total_doclen(),
 			       v_in.get_spelling_wordfreq_upper_bound());
+	    source_single_file = db->single_file();
+#else
+	    Assert(false);
 #endif
 	} else {
 	    auto db = static_cast<const HoneyDatabase*>(sources[i]);
 	    version_file_out->merge_stats(db->version_file);
+	    source_single_file = db->single_file();
+	}
+	if (source_single_file) {
+	    // Add single file input DB sizes to in_total here.  For other
+	    // databases, we sum per-table below.
+	    string path;
+	    sources[i]->get_backend_info(&path);
+	    off_t db_size = file_size(path);
+	    if (errno == 0) {
+		// FIXME: check overflow and set bad_totals
+		in_total += db_size;
+	    } else {
+		bad_totals = true;
+	    }
 	}
     }
 
@@ -2033,19 +2062,14 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
     }
 #endif
 
-    // Set to true if stat() failed (which can happen if the files are > 2GB
-    // and off_t is 32 bit) or one of the totals overflowed.
-    bool bad_totals = false;
-    off_t in_total = 0, out_total = 0;
-
     // FIXME: sort out indentation.
 if (source_backend == Xapian::DB_BACKEND_GLASS) {
-#ifdef DISABLE_GPL_LIBXAPIAN
+#ifndef XAPIAN_HAS_GLASS_BACKEND
     throw Xapian::FeatureUnavailableError("Glass backend disabled");
 #else
     vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
-    off_t prev_size = block_size;
+    off_t prev_size = 0;
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -2106,13 +2130,13 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 
 	    if (db->single_file()) {
-		if (t->lazy && table->empty()) {
-		    // Essentially doesn't exist.
+		if (t->lazy && !GlassCursor(table).next()) {
+		    // Lazy table with no entries, so essentially doesn't
+		    // exist.
 		} else {
 		    // FIXME: Find actual size somehow?
 		    // in_size += table->size() / 1024;
 		    single_file_in = true;
-		    bad_totals = true;
 		    output_will_exist = true;
 		    ++inputs_present;
 		}
@@ -2185,9 +2209,6 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    out->create_and_open(FLAGS, *root_info);
 	}
 
-	out->set_full_compaction(compaction != compactor->STANDARD);
-	if (compaction == compactor->FULLER) out->set_max_item_size(1);
-
 	switch (t->type) {
 	    case Honey::POSTLIST: {
 		if (multipass && inputs.size() > 3) {
@@ -2230,7 +2251,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = max(prev_size, off_t(block_size));
+		    off_t old_prev_size = prev_size;
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
@@ -2281,15 +2302,16 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 
     // If compacting to a single file output and all the tables are empty, pad
     // the output so that it isn't mistaken for a stub database when we try to
-    // open it.  For this it needs to be a multiple of 2KB in size.
-    if (single_file && prev_size < off_t(block_size)) {
+    // open it.  For this it needs to at least HONEY_MIN_DB_SIZE in size.
+    if (single_file && prev_size < HONEY_MIN_DB_SIZE) {
+	out_total = HONEY_MIN_DB_SIZE;
 #ifdef HAVE_FTRUNCATE
-	if (ftruncate(fd, block_size) < 0) {
+	if (ftruncate(fd, HONEY_MIN_DB_SIZE) < 0) {
 	    throw Xapian::DatabaseError("Failed to set size of output "
 					"database", errno);
 	}
 #else
-	const off_t off = block_size - 1;
+	const off_t off = HONEY_MIN_DB_SIZE - 1;
 	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
 	    throw Xapian::DatabaseError("Failed to set size of output "
 					"database", errno);
@@ -2326,7 +2348,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 } else {
     vector<HoneyTable *> tabs;
     tabs.reserve(tables_end - tables);
-    off_t prev_size = block_size;
+    off_t prev_size = HONEY_MIN_DB_SIZE;
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -2387,13 +2409,13 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 
 	    if (db->single_file()) {
-		if (t->lazy && table->empty()) {
-		    // Essentially doesn't exist.
+		if (t->lazy && !HoneyCursor(table).next()) {
+		    // Lazy table with no entries, so essentially doesn't
+		    // exist.
 		} else {
 		    // FIXME: Find actual size somehow?
 		    // in_size += table->size() / 1024;
 		    single_file_in = true;
-		    bad_totals = true;
 		    output_will_exist = true;
 		    ++inputs_present;
 		}
@@ -2466,9 +2488,6 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    out->create_and_open(FLAGS, *root_info);
 	}
 
-	out->set_full_compaction(compaction != compactor->STANDARD);
-	if (compaction == compactor->FULLER) out->set_max_item_size(1);
-
 	switch (t->type) {
 	    case Honey::POSTLIST: {
 		if (multipass && inputs.size() > 3) {
@@ -2511,7 +2530,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = max(prev_size, off_t(block_size));
+		    off_t old_prev_size = prev_size;
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
@@ -2562,15 +2581,16 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 
     // If compacting to a single file output and all the tables are empty, pad
     // the output so that it isn't mistaken for a stub database when we try to
-    // open it.  For this it needs to be a multiple of 2KB in size.
-    if (single_file && prev_size < off_t(block_size)) {
+    // open it.  For this it needs to at least HONEY_MIN_DB_SIZE in size.
+    if (single_file && prev_size < HONEY_MIN_DB_SIZE) {
+	out_total = HONEY_MIN_DB_SIZE;
 #ifdef HAVE_FTRUNCATE
-	if (ftruncate(fd, block_size) < 0) {
+	if (ftruncate(fd, HONEY_MIN_DB_SIZE) < 0) {
 	    throw Xapian::DatabaseError("Failed to set size of output "
 					"database", errno);
 	}
 #else
-	const off_t off = block_size - 1;
+	const off_t off = HONEY_MIN_DB_SIZE - 1;
 	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
 	    throw Xapian::DatabaseError("Failed to set size of output "
 					"database", errno);

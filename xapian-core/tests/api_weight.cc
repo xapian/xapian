@@ -1,7 +1,7 @@
 /** @file api_weight.cc
  * @brief tests of Xapian::Weight subclasses
  */
-/* Copyright (C) 2004,2012,2013,2016,2017 Olly Betts
+/* Copyright (C) 2004,2012,2013,2016,2017,2018 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
  *
@@ -28,6 +28,7 @@
 #include <xapian.h>
 
 #include "apitest.h"
+#include "heap.h"
 #include "testutils.h"
 
 using namespace std;
@@ -1350,17 +1351,17 @@ DEFINE_TESTCASE(checkstatsweight3, backend && !remote && !multi) {
 	     t != db.allterms_end(pattern); ++t) {
 	    postlists.emplace_back(db.postlist_begin(*t));
 	}
-	make_heap(postlists.begin(), postlists.end(), PlCmp());
+	Heap::make(postlists.begin(), postlists.end(), PlCmp());
 	Xapian::docid did = 0;
 	Xapian::termcount wdf = 0;
 	while (!postlists.empty()) {
-	    pop_heap(postlists.begin(), postlists.end(), PlCmp());
-	    Xapian::docid did_new = *postlists.back();
-	    Xapian::termcount wdf_new = postlists.back().get_wdf();
-	    if (++(postlists.back()) == Xapian::PostingIterator()) {
+	    Xapian::docid did_new = *postlists.front();
+	    Xapian::termcount wdf_new = postlists.front().get_wdf();
+	    if (++(postlists.front()) == Xapian::PostingIterator()) {
+		Heap::pop(postlists.begin(), postlists.end(), PlCmp());
 		postlists.pop_back();
 	    } else {
-		push_heap(postlists.begin(), postlists.end(), PlCmp());
+		Heap::replace(postlists.begin(), postlists.end(), PlCmp());
 	    }
 	    if (did_new != did) {
 		expected_sum += wdf;

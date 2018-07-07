@@ -28,20 +28,25 @@
 /// Honey table extension.
 #define HONEY_TABLE_EXTENSION "honey"
 
-/// Default B-tree block size.
-#define HONEY_DEFAULT_BLOCKSIZE 8192
-
-/// Minimum B-tree block size.
-#define HONEY_MIN_BLOCKSIZE 2048
-
-/// Maximum B-tree block size.
-#define HONEY_MAX_BLOCKSIZE 65536
+/** Minimum size to pad a honey table to.
+ *
+ *  Having this minimum size means we can usually know from the size that a
+ *  stub database file isn't a single file database.
+ */
+#define HONEY_MIN_DB_SIZE 2048
 
 /// Maximum key length.
-#define HONEY_MAX_KEY_LEN 255
+#define HONEY_MAX_KEY_LENGTH 255
 
 // Maximum size of a document length chunk in bytes.
-#define HONEY_DOCLEN_CHUNK_MAX 2016
+#define HONEY_DOCLEN_CHUNK_MAX 2017
+
+// HONEY_DOCLEN_CHUNK_MAX should be one more than a
+// multiple of 12 so for widths 1,2,3,4 we can fix the
+// initial byte which indicates the width for the chunk
+// plus an exact number of entries.
+static_assert((HONEY_DOCLEN_CHUNK_MAX - 1) % 12 == 0,
+	      "HONEY_DOCLEN_CHUNK_MAX should be (12 * x + 1)");
 
 /** The largest docid value supported by honey.
  *

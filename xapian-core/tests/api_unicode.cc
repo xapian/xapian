@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -290,6 +290,24 @@ DEFINE_TESTCASE(unicode1, !backend) {
     // U+1F9E6 "SOCKS"
     TEST_EQUAL(Unicode::get_category(0x1F9E6), Unicode::OTHER_SYMBOL);
 
+    // Added in Unicode 11.0.0:
+    // U+0560 "ARMENIAN SMALL LETTER TURNED AYB"
+    TEST_EQUAL(Unicode::get_category(0x0560), Unicode::LOWERCASE_LETTER);
+    // U+05EF "HEBREW YOD TRIANGLE"
+    TEST_EQUAL(Unicode::get_category(0x05EF), Unicode::OTHER_LETTER);
+    // U+07FF "NKO TAMAN SIGN"
+    TEST_EQUAL(Unicode::get_category(0x07FF), Unicode::CURRENCY_SYMBOL);
+    // U+08D3 "ARABIC SMALL LOW WAW"
+    TEST_EQUAL(Unicode::get_category(0x08D3), Unicode::NON_SPACING_MARK);
+    // U+1878 "MONGOLIAN LETTER CHA WITH TWO DOTS"
+    TEST_EQUAL(Unicode::get_category(0x1878), Unicode::OTHER_LETTER);
+    // U+1F12F "COPYLEFT SYMBOL"
+    TEST_EQUAL(Unicode::get_category(0x1F12F), Unicode::OTHER_SYMBOL);
+
+    // Changed category in Unicode 11.0.0:
+    // U+10D0 "GEORGIAN LETTER AN"
+    TEST_EQUAL(Unicode::get_category(0x10D0), Unicode::LOWERCASE_LETTER);
+
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -406,6 +424,22 @@ DEFINE_TESTCASE(caseconvert2, !backend) {
     TEST_EQUAL(Unicode::tolower(0x026A), 0x026A);
     TEST_EQUAL(Unicode::toupper(0x026A), 0xA7AE);
 
+    // U+A7AE was added in Unicode 9.0.0 as an uppercase form of U+026A.
+    TEST_EQUAL(Unicode::tolower(0xA7AE), 0x026A);
+    TEST_EQUAL(Unicode::toupper(0xA7AE), 0xA7AE);
+    TEST_EQUAL(Unicode::tolower(0x026A), 0x026A);
+    TEST_EQUAL(Unicode::toupper(0x026A), 0xA7AE);
+
+    // U+0560 was added in Unicode 11.0.0 (lowercase, no other forms).
+    TEST_EQUAL(Unicode::tolower(0x0560), 0x0560);
+    TEST_EQUAL(Unicode::toupper(0x0560), 0x0560);
+
+    // U+10D0 changed to be lowercase in Unicode 11.0.0 and U+1C90 was added.
+    TEST_EQUAL(Unicode::tolower(0x10D0), 0x10D0);
+    TEST_EQUAL(Unicode::toupper(0x10D0), 0x1C90);
+    TEST_EQUAL(Unicode::tolower(0x1C90), 0x10D0);
+    TEST_EQUAL(Unicode::toupper(0x1C90), 0x1C90);
+
     return true;
 }
 
@@ -438,18 +472,24 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
     static const unsigned wordchars[] = {
 	// DECIMAL_DIGIT_NUMBER
 	'0', '7', '9',
+	0x10D30, // (added in Unicode 11.0.0)
 	0x11D51, // (added in Unicode 10.0.0)
+	0x11DA9, // (added in Unicode 11.0.0)
+	// OTHER_NUMBER
+	0x1ECB3, // (added in Unicode 11.0.0)
 	// LOWERCASE_LETTER
 	'a', 'z', 0x250, 0x251, 0x271, 0x3d7,
 	0x242, // (added in Unicode 5.0.0)
 	// LOWERCASE_LETTER (added in Unicode 5.1.0)
 	0x371, 0x373, 0x377, 0x514, 0x516, 0x518, 0x51a, 0x51c, 0x51e,
 	0x520, 0x522,
+	0x16E78, // (added in Unicode 11.0.0)
 	// UPPERCASE_LETTER
 	'A', 'Z', 0x241,
 	// UPPERCASE_LETTER (added in Unicode 5.1.0)
 	0x370, 0x372, 0x376, 0x3cf, 0x515, 0x517, 0x519, 0x51b, 0x51d, 0x51f,
 	0x521, 0x523, 0x2c6d, 0x2c6e, 0x2c6f,
+	0x16E45, // (added in Unicode 11.0.0)
 	// OTHER_LETTER
 	0x8bb, // Added in Unicode 9.0.0
 	0xc80, // Added in Unicode 9.0.0
@@ -462,8 +502,8 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	// NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
 	0x651,
 	0x487, // Added in Unicode 5.1.0
+	0x8d3, // Added in Unicode 11.0.0
 	0x8db, // Added in Unicode 9.0.0
-	0x8db, // Added in Unicode 10.0.0
 	0x11d47, // Added in Unicode 10.0.0
 	0
     };
@@ -476,6 +516,8 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x20be,
 	// CURRENCY_SYMBOL (added in Unicode 10.0.0)
 	0x20bf,
+	// CURRENCY_SYMBOL (added in Unicode 11.0.0)
+	0x7fe,
 	0
     };
     static const unsigned whitespace[] = {
@@ -492,6 +534,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0xd4f, // Added in Unicode 9.0.0
 	0x1f093, // Added in Unicode 5.1.0
 	0x1f263, // Added in Unicode 10.0.0
+	0x1fa62, // Added in Unicode 11.0.0
 	// FORMAT
 	0x61c, // Added in Unicode 6.3.0
 	0x8e2, // Added in Unicode 9.0.0

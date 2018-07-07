@@ -37,10 +37,10 @@ namespace Xapian {
  */
 class LeafPostList : public PostList {
     /// Don't allow assignment.
-    void operator=(const LeafPostList &);
+    void operator=(const LeafPostList &) = delete;
 
     /// Don't allow copying.
-    LeafPostList(const LeafPostList &);
+    LeafPostList(const LeafPostList &) = delete;
 
   protected:
     const Xapian::Weight * weight;

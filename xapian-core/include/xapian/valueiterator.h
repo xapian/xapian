@@ -56,6 +56,22 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// Assignment.
     ValueIterator & operator=(const ValueIterator & o);
 
+    /// Move constructor.
+    ValueIterator(ValueIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
+
+    /// Move assignment operator.
+    ValueIterator & operator=(ValueIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
+
     /** Default constructor.
      *
      *  Creates an uninitialised iterator, which can't be used before being

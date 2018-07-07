@@ -644,15 +644,9 @@ HoneyValueManager::set_value_stats(map<Xapian::valueno, ValueStats>& val_stats)
 	string key = Honey::make_valuestats_key(i->first);
 	const ValueStats & stats = i->second;
 	if (stats.freq != 0) {
-	    string new_value;
-	    pack_uint(new_value, stats.freq);
-	    pack_string(new_value, stats.lower_bound);
-	    // We don't store or count empty values, so neither of the bounds
-	    // can be empty.  So we can safely store an empty upper bound when
-	    // the bounds are equal.
-	    if (stats.lower_bound != stats.upper_bound)
-		new_value += stats.upper_bound;
-	    postlist_table.add(key, new_value);
+	    postlist_table.add(key, encode_valuestats(stats.freq,
+						      stats.lower_bound,
+						      stats.upper_bound));
 	} else {
 	    postlist_table.del(key);
 	}

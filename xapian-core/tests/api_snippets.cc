@@ -33,8 +33,6 @@
 #include "testsuite.h"
 #include "testutils.h"
 
-#include <iostream>
-
 using namespace std;
 
 struct snippet_testcase {
@@ -188,7 +186,7 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     mset = enquire.get_mset(0, 6);
     TEST_EQUAL(mset.size(), 3);
     TEST_STRINGS_EQUAL(mset.snippet(mset[0].get_document().get_data(), 25, stem),
-		       "<b>Welcome</b> to <b>Mike's</b>...");
+		       "\"<b>Welcome</b> to <b>Mike's</b>...");
     TEST_STRINGS_EQUAL(mset.snippet(mset[1].get_document().get_data(), 5, stem),
 		       "<b>Mike</b>...");
     TEST_STRINGS_EQUAL(mset.snippet(mset[2].get_document().get_data(), 10, stem),
@@ -310,6 +308,124 @@ DEFINE_TESTCASE(snippet_empty, backend) {
     flags |= Xapian::MSet::SNIPPET_EMPTY_WITHOUT_MATCH;
     TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags),
 		       "A <b>rubbish</b> <b>example</b> text");
+
+    return true;
+}
+
+/// Check snippets include certain preceding punctuation.
+DEFINE_TESTCASE(snippet_start_nonspace, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("foo"));
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    Xapian::Stem stem;
+
+    const char *input = "[xapian-devel] Re: foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "[xapian-devel] Re: <b>foo</b>");
+
+    input = "bar [xapian-devel] Re: foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 24, stem),
+		       "...[xapian-devel] Re: <b>foo</b>");
+
+    input = "there is a $1000 prize for foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 20, stem),
+		       "...$1000 prize for <b>foo</b>");
+
+    input = "-1 is less than foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "-1 is less than <b>foo</b>");
+
+    input = "+1 is less than foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "+1 is less than <b>foo</b>");
+
+    input = "/bin/sh is a foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "/bin/sh is a <b>foo</b>");
+
+    input = "'tis pity foo is a bar";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "'tis pity <b>foo</b> is a bar");
+
+    input = "\"foo bar\" he whispered";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 11, stem),
+		       "\"<b>foo</b> bar\" he...");
+
+    input = "\\\\server\\share\\foo is a UNC path";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "\\\\server\\share\\<b>foo</b> is a UNC path");
+
+    input = "«foo» is a placeholder";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 9, stem),
+		       "«<b>foo</b>» is...");
+
+    input = "#include <foo.h> to use libfoo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 12, stem),
+		       "...&lt;<b>foo</b>.h&gt; to...");
+
+    input = "¡foo!";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "¡<b>foo</b>!");
+
+    input = "¿foo?";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "¿<b>foo</b>?");
+
+    input = "(foo) test";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "(<b>foo</b>) test");
+
+    input = "{foo} test";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "{<b>foo</b>} test");
+
+    input = "`foo` test";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "`<b>foo</b>` test");
+
+    input = "@foo@ is replaced";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "@<b>foo</b>@ is replaced");
+
+    input = "%foo is a perl hash";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "%<b>foo</b> is a perl hash");
+
+    input = "&foo takes the address of foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "&amp;<b>foo</b> takes the address of <b>foo</b>");
+
+    input = "§3.1.4 foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "§3.1.4 <b>foo</b>");
+
+    input = "#foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "#<b>foo</b>");
+
+    input = "~foo~ test";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "~<b>foo</b>~ test");
+
+    input = "( foo )";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "<b>foo</b>...");
+
+    input = "(=foo=)";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "<b>foo</b>...");
+
+    // Check that excessive non-word characters aren't included.
+    input = "((((((foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "<b>foo</b>");
+
+    // Check we don't include characters that aren't useful.
+    input = "bar,foo!";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 5, stem),
+		       "...<b>foo</b>!");
 
     return true;
 }

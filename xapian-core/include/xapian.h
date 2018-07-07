@@ -89,6 +89,9 @@
 // Stemming
 #include <xapian/stem.h>
 
+// Diversification
+#include <xapian/diversify.h>
+
 // Subclass registry
 #include <xapian/registry.h>
 

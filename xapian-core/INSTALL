@@ -109,6 +109,7 @@ Options to give to configure
 	suspect a bug in Xapian.
 
 --enable-backend-glass
+--enable-backend-honey
 --enable-backend-inmemory
 --enable-backend-remote
 	These options enable (or disable if --disable-backend-XXX is specified)

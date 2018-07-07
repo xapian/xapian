@@ -39,10 +39,10 @@ class XAPIAN_VISIBILITY_DEFAULT StemImplementation
     : public Xapian::Internal::intrusive_base
 {
     /// Don't allow assignment.
-    void operator=(const StemImplementation &);
+    void operator=(const StemImplementation &) = delete;
 
     /// Don't allow copying.
-    StemImplementation(const StemImplementation &);
+    StemImplementation(const StemImplementation &) = delete;
 
   public:
     /// Default constructor.
@@ -69,6 +69,12 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
 
     /// Assignment.
     Stem & operator=(const Stem & o);
+
+    /// Move constructor.
+    Stem(Stem && o);
+
+    /// Move assignment operator.
+    Stem & operator=(Stem && o);
 
     /** Construct a Xapian::Stem object which doesn't change terms.
      *

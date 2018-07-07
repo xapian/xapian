@@ -442,7 +442,7 @@ $querydescription
         omega builds.  Mostly useful for debugging omega itself.
 
 $queryterms
-	list of probabilistic query terms.
+	list of parsed query terms.
 
 $range{START,END}
 	return list of values between ``START`` and ``END``.
@@ -532,12 +532,12 @@ $set{OPT,VALUE}
 	* flag_synonym
 	* flag_wildcard
 
-	Omega 1.2.7 added support for search fields with a probabilistic
-	prefix, and you can set different QueryParser flags for each prefix -
-	for example, for the ``XFOO`` prefix use ``XFOO:flag_pure_not``, etc.
-	The unprefixed constants provide a default value for these.  If a flag
-	is set in the default, the prefix specific flag can unset it if it
-	is set to the empty value (e.g.
+	Omega 1.2.7 added support for parsing different query fields with
+	different prefixes and you can specify different QueryParser flags for
+	each prefix - for example, for the ``XFOO`` prefix use
+	``XFOO:flag_pure_not``, etc.  The unprefixed constants provide a
+	default value for these.  If a flag is set in the default, the prefix
+	specific flag can unset it if it is set to the empty value (e.g.
 	``$set{flag_pure_not,1}$set{XFOO:flag_pure_not,}``).
 
 	You can use ``:flag_partial``, etc to set or unset a flag just for

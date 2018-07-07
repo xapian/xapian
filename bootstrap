@@ -44,8 +44,8 @@ FETCH_URL_TOOL=
 check_checksum() {
   # This function is expected to be used in 'if' so we can't rely on set -e
   # being in effect here.
-  checksum=$1
-  tarball=$2
+  checksum_=$1
+  tarball_=$2
 
   if [ -z "$SHA256SUM_TOOL" ] ; then
     for SHA256SUM_TOOL in \
@@ -66,15 +66,15 @@ END
       [ X"$r" != Xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 ] || break
     done
   fi
-  r=`< $tarball eval "$SHA256SUM_TOOL"`
-  if [ X"$r" != X"$checksum" ] ; then
-    echo "$tarball: computed SHA256 checksum did NOT match"
+  r=`< $tarball_ eval "$SHA256SUM_TOOL"`
+  if [ X"$r" != X"$checksum_" ] ; then
+    echo "$tarball_: computed SHA256 checksum did NOT match"
     echo "computed: $r with $SHA256SUM_TOOL"
-    echo "expected: $checksum"
-    ls -l $tarball
-    file $tarball || true
-    mv "$tarball" "$tarball.$r"
-    echo "Renamed $tarball to $tarball.$r"
+    echo "expected: $checksum_"
+    ls -l $tarball_
+    file $tarball_ || true
+    mv "$tarball_" "$tarball_.$r"
+    echo "Renamed $tarball_ to $tarball_.$r"
     exit 1
   fi
 }
@@ -178,74 +178,110 @@ lazy_build() {
   # Create the stamp file in INST so that rerunning bootstrap after
   # "rm -rf INST" recovers nicely.
   stamp=../INST/$package.stamp
+  out_of_date=
 
   # Download the tarball if required.
   if [ ! -f "$tarball" ] ; then
-    if [ -z "$FETCH_URL_TOOL" ] ; then
-      if ${WGET-wget} --version > /dev/null 2>&1 ; then
-	FETCH_URL_TOOL="${WGET-wget} -O-"
-      elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
-	# curl --version exits with code 2 (~7.18.2) or 0 (7.35.0).
-	# -L is needed to follow HTTP redirects.
-	FETCH_URL_TOOL="${CURL-curl} -L"
-      elif ${LWP_REQUEST-lwp-request} -v > /dev/null 2>&1 || [ "$?" = 9 -o "$?" = 255 ] ; then
-	# lwp-request -v exits with code 9 (5.810) or 255 (6.03)
-	FETCH_URL_TOOL="${LWP_REQUEST-lwp-request} -mGET"
-      else
-	cat <<END >&2
+    main_tarball=
+    main_worktree_dir=`git worktree list --porcelain|sed 's/^worktree //;q'`
+    if [ -n "$main_worktree_dir" ] ; then
+      main_tarball=$main_worktree_dir/BUILD/$tarball
+    fi
+    if [ -n "$main_tarball" ] && [ -f "$main_tarball" ] ; then
+      # Don't re-download the tarball if the main worktree already has it.
+      tarball=$main_tarball
+    else
+      if [ -z "$FETCH_URL_TOOL" ] ; then
+	if ${WGET-wget} --version > /dev/null 2>&1 ; then
+	  FETCH_URL_TOOL="${WGET-wget} -O-"
+	elif ${CURL-curl} --version > /dev/null 2>&1 || [ "$?" = 2 ] ; then
+	  # curl --version exits with code 2 (~7.18.2) or 0 (7.35.0).
+	  # -L is needed to follow HTTP redirects.
+	  FETCH_URL_TOOL="${CURL-curl} -L"
+	elif ${LWP_REQUEST-lwp-request} -v > /dev/null 2>&1 || [ "$?" = 9 -o "$?" = 255 ] ; then
+	  # lwp-request -v exits with code 9 (5.810) or 255 (6.03)
+	  FETCH_URL_TOOL="${LWP_REQUEST-lwp-request} -mGET"
+	else
+	  cat <<END >&2
 Neither wget nor curl nor lwp-request found - install one of them or if already
 installed, set WGET, CURL or LWP_REQUEST to the full path.  Alternatively,
 download $url
 to directory `pwd`
 then rerun this script.
 END
-	exit 1
+	  exit 1
+	fi
       fi
+      url="https://github.com/xapian/xapian-dev-deps/releases/download/current/$tarball"
+      case $basename in
+      file-*)
+	case $download_protocol in
+	  ftp) url="ftp://ftp.astron.com/pub/file/$tarball" ;;
+	  # We used to use http://fossies.org/ but that now redirects to https.
+	esac ;;
+      *[13579][a-z])
+	# GNU alpha release
+	case $download_protocol in
+	  ftp) url="ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
+	  http) url="http://alpha.gnu.org/gnu/$package/$tarball" ;;
+	esac ;;
+      *)
+	case $download_protocol in
+	  ftp) url="ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
+	  http) url="http://ftpmirror.gnu.org/$package/$tarball" ;;
+	esac ;;
+      esac
+      case $download_protocol,$url in
+	http,https:*)
+	  echo "warning: No http: link for $tarball available, using https:"
+	  ;;
+      esac
+
+      # Keep the tarball under a quarantined name until we've verified its
+      # checksum.  Once verified, if this is a linked git worktree we save
+      # the tarball in the main worktree's BUILD directory so that it can
+      # be shared with other worktrees.
+      if [ -n "$main_tarball" ] ; then
+	tarball=$main_tarball
+      fi
+      quarantined_tarball=$tarball-quarantine.$$
+      rm -f "$quarantined_tarball"
+      echo "Downloading <$url>"
+      $FETCH_URL_TOOL "$url" > "$quarantined_tarball" || exit $?
+      check_checksum "$checksum" "$quarantined_tarball"
+      mv "$quarantined_tarball" "$tarball"
+
+      # Force a build.
+      out_of_date=force
     fi
-    url="https://github.com/xapian/xapian-dev-deps/releases/download/current/$tarball"
-    case $basename in
-    file-*)
-      case $download_protocol in
-	ftp) url="ftp://ftp.astron.com/pub/file/$tarball" ;;
-	# We used to use http://fossies.org/ but that now redirects to https.
-      esac ;;
-    *[13579][a-z])
-      # GNU alpha release
-      case $download_protocol in
-	ftp) url="ftp://alpha.gnu.org/gnu/$package/$tarball" ;;
-	http) url="http://alpha.gnu.org/gnu/$package/$tarball" ;;
-      esac ;;
-    *)
-      case $download_protocol in
-	ftp) url="ftp://ftp.gnu.org/gnu/$package/$tarball" ;;
-	http) url="http://ftpmirror.gnu.org/$package/$tarball" ;;
-      esac ;;
-    esac
-    case $download_protocol,$url in
-      http,https:*)
-	echo "warning: No http: link for $tarball available, using https:"
-	;;
-    esac
-    rm -f download.tmp
-    echo "Downloading <$url>"
-    $FETCH_URL_TOOL "$url" > download.tmp || exit $?
-    mv download.tmp "$tarball"
   fi
 
-  if [ -f "$stamp" ] ; then
-    find_stdout=`find "$tarball" ../patches/"$package"/* -newer "$stamp" -print 2> /dev/null||true`
-  else
-    find_stdout=force
+  if [ -z "$out_of_date" ] ; then
+    if [ -f "$stamp" ] ; then
+      # Check if the tarball or the patches we're applying have changed since
+      # the existing build.
+      out_of_date=`find "$tarball" ../patches/"$package"/* -newer "$stamp" -print 2> /dev/null||true`
+    else
+      out_of_date=force
+    fi
   fi
 
-  if [ -n "$find_stdout" ] ; then
-    # Verify the tarball's checksum before building it.
+  if [ -n "$out_of_date" ] ; then
+    # Verify the tarball's checksum before building it.  We now check at
+    # download time, but older versions of bootstrap didn't, and this also
+    # protects a user who manually downloads a tarball (which we suggest as an
+    # option if wget, curl, etc aren't found).
     check_checksum "$checksum" "$tarball"
 
-    # Remove tarballs of other versions.
-    for f in "$package"-* ; do
-      [ "$f" = "$tarball" ] || rm -rf "$f"
-    done
+    case `git worktree --list --porcelain|grep -c '^worktree '` in
+      1|"")
+	# Remove tarballs of other versions if there's only one worktree, or if
+	# using git < 2.5 (before worktrees were added).
+	for f in "$package"-* ; do
+	  [ "$f" = "$tarball" ] || rm -rf "$f"
+	done
+	;;
+    esac
 
     case $ext in
     tar.xz)
@@ -354,9 +390,9 @@ swig_git_commit_hash=2c910e47ae788412b95e356c99cef5862808bf9a
 omega_common_commit_hash=b310f9988f63cdc15b48323f9ac42f6b08c3a36c
 letor_common_commit_hash=b310f9988f63cdc15b48323f9ac42f6b08c3a36c
 
-if [ ! -d .git ] ; then
-  echo "$0: No '.git' directory found - this script should be run from a"
-  echo "git repo cloned from git://git.xapian.org/xapian or a mirror of it"
+if [ ! -r .git ] ; then
+  echo "$0: '.git' not found - this script should be run from a git repo cloned"
+  echo "from git://git.xapian.org/xapian or a mirror of it"
   exit 1
 fi
 
@@ -371,21 +407,25 @@ for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 
   fi
 done
 
-if [ -f .git/info/exclude ] ; then
-  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+if [ -f .git ] ; then
+  : # Looks like we're in a git worktree.
 else
-  [ -d .git/info ] || mkdir .git/info
-fi
-cat <<END >> .git/info/exclude~
+  if [ -f .git/info/exclude ] ; then
+    sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+  else
+    [ -d .git/info ] || mkdir .git/info
+  fi
+  cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
 xapian-letor/common
 END
-if [ -f .git/info/exclude ] &&
-   cmp -s .git/info/exclude~ .git/info/exclude ; then
-  rm .git/info/exclude~
-else
-  mv .git/info/exclude~ .git/info/exclude
+  if [ -f .git/info/exclude ] &&
+     cmp -s .git/info/exclude~ .git/info/exclude ; then
+    rm .git/info/exclude~
+  else
+    mv .git/info/exclude~ .git/info/exclude
+  fi
 fi
 
 # If this tree is checked out from the github mirror, use the same access

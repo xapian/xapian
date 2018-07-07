@@ -69,14 +69,12 @@ hextobin
         ``hextobin`` was added in Omega 1.4.6.
 
 index[=PREFIX]
-	split text into words and index probabilistically (with prefix PREFIX
-	if specified).
+	split text into words and index (with prefix PREFIX if specified).
 
 indexnopos[=PREFIX]
-	split text into words and index probabilistically (with prefix PREFIX
-	if specified), but don't include positional information in the
-	database - this makes the database smaller, but phrase searching won't
-	work.
+	split text into words and index (with prefix PREFIX if specified), but
+	don't include positional information in the database - this makes the
+	database smaller, but phrase searching won't work.
 
 load
 	reads the contents of the file using the current text as the filename

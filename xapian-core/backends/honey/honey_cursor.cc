@@ -42,17 +42,17 @@ HoneyCursor::next()
 
     if (val_size) {
 	// Skip val data we've not looked at.
-	fh.skip(val_size);
+	store.skip(val_size);
 	val_size = 0;
     }
 
-    if (fh.get_pos() >= root) {
-	AssertEq(fh.get_pos(), root);
+    if (store.get_pos() >= root) {
+	AssertEq(store.get_pos(), root);
 	is_at_end = true;
 	return false;
     }
 
-    int ch = fh.read();
+    int ch = store.read();
     if (ch == EOF) {
 	// The root check above should mean this can't legitimately happen.
 	throw Xapian::DatabaseCorruptError("EOF reading key");
@@ -62,14 +62,14 @@ HoneyCursor::next()
     if (reuse > last_key.size()) {
 	throw Xapian::DatabaseCorruptError("Reuse > previous key size");
     }
-    ch = fh.read();
+    ch = store.read();
     if (ch == EOF) {
 	throw Xapian::DatabaseError("EOF/error while reading key length",
 				    errno);
     }
     size_t key_size = ch;
     char buf[256];
-    fh.read(buf, key_size);
+    store.read(buf, key_size);
     current_key.assign(last_key, 0, reuse);
     current_key.append(buf, key_size);
     last_key = current_key;
@@ -95,7 +95,7 @@ HoneyCursor::next_from_index()
 	// anyway?
 	char * p = buf;
 	for (int i = 0; i < 8; ++i) {
-	    int ch2 = fh.read();
+	    int ch2 = store.read();
 	    if (ch2 == EOF) {
 		break;
 	    }
@@ -127,11 +127,11 @@ HoneyCursor::read_tag(bool keep_compressed)
 {
     if (val_size) {
 	current_tag.resize(val_size);
-	fh.read(&(current_tag[0]), val_size);
+	store.read(&(current_tag[0]), val_size);
 #ifdef DEBUGGING
 	{
 	    cerr << "read " << val_size << " bytes of value data ending @"
-		 << fh.get_pos() << endl;
+		 << store.get_pos() << endl;
 	    string esc;
 	    description_append(esc, current_tag);
 	    cerr << "V:" << esc << endl;
@@ -171,7 +171,7 @@ HoneyCursor::do_find(const string& key, bool greater_than)
     {
 	string esc;
 	description_append(esc, key);
-	cerr << "do_find(" << esc << ", " << greater_than << ") @" << fh.get_pos() << endl;
+	cerr << "do_find(" << esc << ", " << greater_than << ") @" << store.get_pos() << endl;
     }
 #endif
 
@@ -192,24 +192,21 @@ HoneyCursor::do_find(const string& key, bool greater_than)
     }
 
     if (use_index) {
-	fh.rewind(root);
-	int index_type = fh.read();
+	store.rewind(root);
+	int index_type = store.read();
 	switch (index_type) {
 	    case EOF:
 		return false;
 	    case 0x00: {
-		unsigned char first = key[0] - fh.read();
-		unsigned char range = fh.read();
+		unsigned char first = key[0] - store.read();
+		unsigned char range = store.read();
 		if (first > range) {
 		    is_at_end = true;
 		    return false;
 		}
-		fh.skip(first * 4); // FIXME: pointer width
-		off_t jump = fh.read() << 24;
-		jump |= fh.read() << 16;
-		jump |= fh.read() << 8;
-		jump |= fh.read();
-		fh.rewind(jump);
+		store.skip(first * 4); // FIXME: pointer width
+		off_t jump = store.read_uint4_be();
+		store.rewind(jump);
 		// The jump point will be an entirely new key (because it is the first
 		// key with that initial character), and we drop in as if this was the
 		// first key so set last_key to be empty.
@@ -217,25 +214,22 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		break;
 	    }
 	    case 0x01: {
-		size_t j = fh.read() << 24;
-		j |= fh.read() << 16;
-		j |= fh.read() << 8;
-		j |= fh.read();
+		size_t j = store.read_uint4_be();
 		if (j == 0) {
 		    is_at_end = true;
 		    return false;
 		}
-		off_t base = fh.get_pos();
-		char kkey[SSINDEX_BINARY_CHOP_KEY_SIZE];
+		off_t base = store.get_pos();
+		char kkey[SSTINDEX_BINARY_CHOP_KEY_SIZE];
 		size_t kkey_len = 0;
 		size_t i = 0;
 		while (j - i > 1) {
 		    size_t k = i + (j - i) / 2;
-		    fh.set_pos(base + k * (SSINDEX_BINARY_CHOP_KEY_SIZE + 4));
-		    fh.read(kkey, SSINDEX_BINARY_CHOP_KEY_SIZE);
+		    store.set_pos(base + k * SSTINDEX_BINARY_CHOP_ENTRY_SIZE);
+		    store.read(kkey, SSTINDEX_BINARY_CHOP_KEY_SIZE);
 		    kkey_len = 4;
 		    while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
-		    int r = key.compare(0, SSINDEX_BINARY_CHOP_KEY_SIZE, kkey, kkey_len);
+		    int r = key.compare(0, SSTINDEX_BINARY_CHOP_KEY_SIZE, kkey, kkey_len);
 		    if (r < 0) {
 			j = k;
 		    } else {
@@ -245,15 +239,12 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 			}
 		    }
 		}
-		fh.set_pos(base + i * (SSINDEX_BINARY_CHOP_KEY_SIZE + 4));
-		fh.read(kkey, SSINDEX_BINARY_CHOP_KEY_SIZE);
+		store.set_pos(base + i * SSTINDEX_BINARY_CHOP_ENTRY_SIZE);
+		store.read(kkey, SSTINDEX_BINARY_CHOP_KEY_SIZE);
 		kkey_len = 4;
 		while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
-		off_t jump = fh.read() << 24;
-		jump |= fh.read() << 16;
-		jump |= fh.read() << 8;
-		jump |= fh.read();
-		fh.rewind(jump);
+		off_t jump = store.read_uint4_be();
+		store.rewind(jump);
 		// The jump point is to the first key with prefix kkey, so will
 		// work if we set last key to kkey.  Unless we're jumping to the
 		// start of the table, in which case last_key needs to be empty.
@@ -263,7 +254,7 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 	    case 0x02: {
 		// FIXME: If "close" just seek forwards?  Or consider seeking from
 		// current index pos?
-		// off_t pos = fh.get_pos();
+		// off_t pos = store.get_pos();
 		string index_key, prev_index_key;
 		make_unsigned<off_t>::type ptr = 0;
 		int cmp0 = 1;
@@ -273,9 +264,9 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		}
 #endif
 		while (true) {
-		    int reuse = fh.read();
+		    int reuse = store.read();
 		    if (reuse == EOF) break;
-		    int len = fh.read();
+		    int len = store.read();
 		    if (len == EOF) abort(); // FIXME
 #ifdef DEBUGGING
 		    {
@@ -283,7 +274,7 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		    }
 #endif
 		    index_key.resize(reuse + len);
-		    fh.read(&index_key[reuse], len);
+		    store.read(&index_key[reuse], len);
 
 #ifdef DEBUGGING
 		    {
@@ -301,7 +292,7 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		    char buf[8];
 		    char* e = buf;
 		    while (true) {
-			int b = fh.read();
+			int b = store.read();
 			*e++ = b;
 			if ((b & 0x80) == 0) break;
 		    }
@@ -330,7 +321,7 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		    cerr << " index_key = " << desc << ", cmp0 = " << cmp0 << ", going to " << ptr << endl;
 		}
 #endif
-		fh.set_pos(ptr);
+		store.set_pos(ptr);
 
 		if (ptr != 0) {
 		    last_key = current_key = index_key;
@@ -341,7 +332,7 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 			Assert(ptr != 0);
 			return true;
 		    }
-		    fh.skip(val_size);
+		    store.skip(val_size);
 		} else {
 		    last_key = current_key = string();
 		}
@@ -382,7 +373,7 @@ HoneyCursor::prev()
 	// To position on the last key we just do a < search for a key greater
 	// than any possible key - one longer than the longest possible length
 	// and consisting entirely of the highest sorting byte value.
-	key.assign(HONEY_MAX_KEY_LEN + 1, '\xff');
+	key.assign(HONEY_MAX_KEY_LENGTH + 1, '\xff');
     } else {
 	if (current_key.empty())
 	    return false;
@@ -401,7 +392,7 @@ HoneyCursor::prev()
     size_t vs;
     bool compressed;
     do {
-	pos = fh.get_pos();
+	pos = store.get_pos();
 	k = current_key;
 	vs = val_size;
 	compressed = current_compressed;
@@ -412,7 +403,7 @@ HoneyCursor::prev()
     last_key = current_key = k;
     val_size = vs;
     current_compressed = compressed;
-    fh.set_pos(pos);
+    store.set_pos(pos);
 
     return true;
 }

@@ -46,10 +46,10 @@ class Stem;
 class XAPIAN_VISIBILITY_DEFAULT Stopper
     : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
-    void operator=(const Stopper &);
+    void operator=(const Stopper &) = delete;
 
     /// Don't allow copying.
-    Stopper(const Stopper &);
+    Stopper(const Stopper &) = delete;
 
   public:
     /// Default constructor.
@@ -934,6 +934,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Assignment.
     QueryParser & operator=(const QueryParser & o);
 
+    /// Move constructor.
+    QueryParser(QueryParser && o);
+
+    /// Move assignment operator.
+    QueryParser & operator=(QueryParser && o);
+
     /// Default constructor.
     QueryParser();
 
@@ -957,8 +963,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /** Set the stemming strategy.
      *
      *  This controls how the query parser will apply the stemming algorithm.
-     *  Note that the stemming algorithm is only applied to words in
-     *  probabilistic fields - boolean filter terms are never stemmed.
+     *  Note that the stemming algorithm is only applied to words in free-text
+     *  fields - boolean filter terms are never stemmed.
      *
      *  @param strategy	The strategy to use - possible values are:
      *   - STEM_NONE:	Don't perform any stemming.  (default in Xapian <=
@@ -1074,7 +1080,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     Query parse_math_query(const std::string & query_string,
 			    bool unify = false);
 
-    /** Add a probabilistic term prefix.
+    /** Add a free-text field term prefix.
      *
      *  For example:
      *
@@ -1129,7 +1135,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @endcode
      *
      *  This allows the user to restrict a search with site:xapian.org which
-     *  will be converted to Hxapian.org combined with any probabilistic
+     *  will be converted to Hxapian.org combined with any weighted
      *  query with @c Xapian::Query::OP_FILTER.
      *
      *  If multiple boolean filters are specified in a query for the same

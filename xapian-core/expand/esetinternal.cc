@@ -1,7 +1,7 @@
 /** @file esetinternal.cc
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010,2011,2013,2016,2017 Olly Betts
+/* Copyright (C) 2008,2010,2011,2013,2016,2017,2018 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@
 #include "debuglog.h"
 #include "api/rsetinternal.h"
 #include "expandweight.h"
+#include "heap.h"
 #include "omassert.h"
 #include "ortermlist.h"
 #include "str.h"
@@ -131,29 +132,35 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 	double wt = eweight.get_weight();
 
 	// If the weights are equal, we prefer the lexically smaller term and
-	// so we use "<=" not "<" here.
+	// since we process terms in ascending order we use "<=" not "<" here.
 	if (wt <= min_wt) continue;
 
-	items.push_back(Xapian::Internal::ExpandTerm(wt, term));
-
-	// The candidate ESet is overflowing, so remove the worst element in it
-	// using a min-heap.
-	if (items.size() > max_esize) {
-	    if (rare(!is_heap)) {
-		is_heap = true;
-		make_heap(items.begin(), items.end());
-	    } else {
-		push_heap(items.begin(), items.end());
-	    }
-	    pop_heap(items.begin(), items.end());
-	    items.pop_back();
-	    min_wt = items.front().wt;
+	if (items.size() < max_esize) {
+	    items.emplace_back(wt, term);
+	    continue;
 	}
+
+	// We have the desired number of items, so it's one-in one-out from
+	// now on.
+	Assert(items.size() == max_esize);
+	if (rare(!is_heap)) {
+	    Heap::make(items.begin(), items.end(),
+		       std::less<Xapian::Internal::ExpandTerm>());
+	    min_wt = items.front().wt;
+	    is_heap = true;
+	    if (wt <= min_wt) continue;
+	}
+
+	items.front() = Xapian::Internal::ExpandTerm(wt, term);
+	Heap::replace(items.begin(), items.end(),
+		      std::less<Xapian::Internal::ExpandTerm>());
+	min_wt = items.front().wt;
     }
 
     // Now sort the contents of the new ESet.
     if (is_heap) {
-	sort_heap(items.begin(), items.end());
+	Heap::sort(items.begin(), items.end(),
+		   std::less<Xapian::Internal::ExpandTerm>());
     } else {
 	sort(items.begin(), items.end());
     }
@@ -177,14 +184,15 @@ ESet::Internal::get_description() const
 
 ESet::ESet() : internal(new ESet::Internal) {}
 
-ESet::ESet(const ESet & o) : internal(o.internal) { }
+ESet::ESet(const ESet &) = default;
 
 ESet&
-ESet::operator=(const ESet & o)
-{
-    internal = o.internal;
-    return *this;
-}
+ESet::operator=(const ESet &) = default;
+
+ESet::ESet(ESet &&) = default;
+
+ESet&
+ESet::operator=(ESet &&) = default;
 
 ESet::~ESet() { }
 

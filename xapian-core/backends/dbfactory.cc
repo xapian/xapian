@@ -41,12 +41,12 @@
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 # include "glass/glass_database.h"
-# include "glass/glass_defs.h"
 #endif
+#include "glass/glass_defs.h"
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 # include "honey/honey_database.h"
-# include "honey/honey_defs.h"
 #endif
+#include "honey/honey_defs.h"
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 # include "inmemory/inmemory_database.h"
 #endif
@@ -72,10 +72,11 @@ check_if_single_file_db(const struct stat & sb, const string & path,
 #if defined XAPIAN_HAS_GLASS_BACKEND || \
     defined XAPIAN_HAS_HONEY_BACKEND
     if (!S_ISREG(sb.st_mode)) return BACKEND_UNKNOWN;
-    // Look at the size as a clue - if it's less than GLASS_MIN_BLOCKSIZE, then
-    // it's not a single-file glass database and too small to be a honey one
-    // If it is, peek at the start of the file to determine what it is.
-    if (sb.st_size < GLASS_MIN_BLOCKSIZE)
+    // Look at the size as a clue - if it's less than both GLASS_MIN_BLOCKSIZE
+    // and HONEY_MIN_DB_SIZE then it's not a single-file glass or honey
+    // database.  For a larger file, we peek at the start of the file to
+    // determine what it is.
+    if (sb.st_size < min(GLASS_MIN_BLOCKSIZE, HONEY_MIN_DB_SIZE))
 	return false;
     int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
     if (fd != -1) {

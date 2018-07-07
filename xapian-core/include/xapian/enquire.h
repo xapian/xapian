@@ -74,6 +74,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      */
     Enquire& operator=(const Enquire& o);
 
+    /// Move constructor.
+    Enquire(Enquire&& o);
+
+    /// Move assignment operator.
+    Enquire& operator=(Enquire&& o);
+
     /** Constructor.
      *
      *  @param db	The database (or databases) to query.
@@ -134,11 +140,11 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
     /** Set sort order for document IDs.
      *
      *  This order only has an effect on documents which would otherwise
-     *  have equal rank.  For a weighted probabilistic match with no sort
-     *  value, this means documents with equal weight.  For a boolean match,
-     *  with no sort value, this means all documents.  And if a sort key
+     *  have equal rank.  When ordering by relevance without a sort key,
+     *  this means documents with equal weight.  For a boolean match
+     *  with no sort key, this means all documents.  And if a sort key
      *  is used, this means documents with the same sort key (and also equal
-     *  weight if ordering on relevance before or after the sort).
+     *  weight if ordering on relevance before or after the sort key).
      *
      * @param order  This can be:
      * - Xapian::Enquire::ASCENDING

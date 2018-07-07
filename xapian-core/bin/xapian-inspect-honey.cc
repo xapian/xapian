@@ -342,15 +342,14 @@ open_different_table:
 	HoneyTable& table = *table_ptr;
 
 	table.open(0, version_file.get_root(table_code), rev);
-	if (table.empty()) {
+	HoneyCursor cursor(&table);
+	cursor.rewind();
+	if (!cursor.next()) {
 	    cout << "No entries!" << endl;
 	    exit(0);
 	}
-	cout << "Table has " << table.get_entry_count() << " entries" << endl;
 
-	HoneyCursor cursor(&table);
-	cursor.rewind();
-	cursor.next();
+	cout << "Table has " << table.get_entry_count() << " entries" << endl;
 
 	while (!cin.eof()) {
 	    show_entry(cursor);

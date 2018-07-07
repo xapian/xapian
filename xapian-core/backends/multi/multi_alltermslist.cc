@@ -1,7 +1,7 @@
 /** @file multi_alltermslist.cc
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,8 @@
 #include <xapian/database.h>
 
 #include "backends/databaseinternal.h"
+#include "heap.h"
 #include "omassert.h"
-
-#include <algorithm>
 
 using namespace std;
 
@@ -74,16 +73,16 @@ MultiAllTermsList::get_termfreq() const
 	    if (tl->get_termname() != current_term)
 		break;
 	    current_termfreq += tl->get_termfreq();
-	    pop_heap(termlists, termlists + count,
-		     CompareTermListsByTerm());
 	    tl->next();
 	    if (tl->at_end()) {
+		Heap::pop(termlists, termlists + count,
+			  CompareTermListsByTerm());
 		delete tl;
 		if (--count == 0)
 		    break;
 	    } else {
-		push_heap(termlists, termlists + count,
-			  CompareTermListsByTerm());
+		Heap::replace(termlists, termlists + count,
+			      CompareTermListsByTerm());
 	    }
 	}
     }
@@ -108,8 +107,8 @@ MultiAllTermsList::next()
 	}
 	while (count > j)
 	    delete termlists[--count];
-	make_heap(termlists, termlists + count,
-		  CompareTermListsByTerm());
+	Heap::make(termlists, termlists + count,
+		   CompareTermListsByTerm());
     } else {
 	// Skip over current_term if we haven't already.
 	if (current_termfreq == 0)
@@ -161,7 +160,7 @@ MultiAllTermsList::skip_to(const std::string &term)
 	return termlists[0];
     }
 
-    make_heap(termlists, termlists + count, CompareTermListsByTerm());
+    Heap::make(termlists, termlists + count, CompareTermListsByTerm());
 
     current_term = termlists[0]->get_termname();
     return NULL;

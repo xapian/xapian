@@ -133,6 +133,15 @@ inline void io_write(int fd, const unsigned char * p, size_t n) {
  */
 size_t io_pread(int fd, char * p, size_t n, off_t o, size_t min = 0);
 
+/** Write n bytes from block pointed to by p to file descriptor fd starting at
+ *  position o.
+ *
+ *  If a read error occurs, throws DatabaseError.
+ *
+ *  The current file position may or may not be updated.
+ */
+void io_pwrite(int fd, const char * p, size_t n, off_t o);
+
 /** Readahead block b size n bytes from file descriptor fd.
  *
  *  Returns false if we can't readahead on this fd.

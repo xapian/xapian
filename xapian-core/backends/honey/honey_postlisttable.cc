@@ -82,7 +82,9 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
 					 Xapian::docid& first,
 					 Xapian::docid& last) const
 {
-    unique_ptr<HoneyCursor> cursor;
+    unique_ptr<HoneyCursor> cursor(cursor_get());
+    Assert(cursor.get());
+
     static const char doclen_key_prefix[2] = {
 	0, char(Honey::KEY_DOCLEN_CHUNK)
     };

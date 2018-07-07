@@ -91,7 +91,7 @@ static const char HONEY_VERSION_MAGIC[HONEY_VERSION_MAGIC_AND_VERSION_LEN] = {
 };
 
 HoneyVersion::HoneyVersion(int fd_)
-    : rev(0), fd(fd_), offset(0), db_dir(), changes(NULL),
+    : rev(0), fd(fd_), offset(0), db_dir(),
       doccount(0), total_doclen(0), last_docid(0),
       doclen_lbound(0), doclen_ubound(0),
       wdf_ubound(0), spelling_wordfreq_ubound(0),
@@ -363,15 +363,6 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
 	throw;
     }
 
-    if (changes) {
-	string changes_buf;
-	changes_buf += '\xfe';
-	pack_uint(changes_buf, new_rev);
-	pack_uint(changes_buf, s.size());
-	changes->write_block(changes_buf);
-	changes->write_block(s);
-    }
-
     RETURN(tmpfile);
 }
 
@@ -440,28 +431,22 @@ static const uint4 compress_min_tab[] = {
 };
 
 void
-HoneyVersion::create(unsigned blocksize)
+HoneyVersion::create()
 {
-    AssertRel(blocksize,>=,HONEY_MIN_BLOCKSIZE);
     uuid_generate(uuid);
     for (unsigned table_no = 0; table_no < Honey::MAX_; ++table_no) {
-	root[table_no].init(blocksize, compress_min_tab[table_no]);
+	root[table_no].init(compress_min_tab[table_no]);
     }
 }
 
 namespace Honey {
 
 void
-RootInfo::init(unsigned blocksize_, uint4 compress_min_)
+RootInfo::init(uint4 compress_min_)
 {
-    AssertRel(blocksize_,>=,HONEY_MIN_BLOCKSIZE);
     offset = 0;
     root = 0;
-    level = 0;
     num_entries = 0;
-    root_is_fake = true;
-    sequential = true;
-    blocksize = blocksize_;
     compress_min = compress_min_;
     fl_serialised.resize(0);
 }
@@ -471,15 +456,12 @@ RootInfo::serialise(string &s) const
 {
     AssertRel(offset, >=, 0);
     std::make_unsigned<off_t>::type uoffset = offset;
-    AssertRel(root, >=, uoffset);
+    AssertRel(root, >=, offset);
     pack_uint(s, uoffset);
     pack_uint(s, root - uoffset);
-    unsigned val = level << 2;
-    if (sequential) val |= 0x02;
-    if (root_is_fake) val |= 0x01;
-    pack_uint(s, val);
+    pack_uint(s, 0u);
     pack_uint(s, num_entries);
-    pack_uint(s, blocksize >> 11);
+    pack_uint(s, 2048u >> 11);
     pack_uint(s, compress_min);
     pack_string(s, fl_serialised);
 }
@@ -487,22 +469,22 @@ RootInfo::serialise(string &s) const
 bool
 RootInfo::unserialise(const char ** p, const char * end)
 {
-    std::make_unsigned<off_t>::type uoffset;
-    unsigned val;
+    std::make_unsigned<off_t>::type uoffset, uroot;
+    unsigned dummy_val;
+    unsigned dummy_blocksize;
     if (!unpack_uint(p, end, &uoffset) ||
-	!unpack_uint(p, end, &root) ||
-	!unpack_uint(p, end, &val) ||
+	!unpack_uint(p, end, &uroot) ||
+	!unpack_uint(p, end, &dummy_val) ||
 	!unpack_uint(p, end, &num_entries) ||
-	!unpack_uint(p, end, &blocksize) ||
+	!unpack_uint(p, end, &dummy_blocksize) ||
 	!unpack_uint(p, end, &compress_min) ||
 	!unpack_string(p, end, fl_serialised)) return false;
     offset = uoffset;
-    root += uoffset;
-    level = val >> 2;
-    sequential = val & 0x02;
-    root_is_fake = val & 0x01;
-    blocksize <<= 11;
-    AssertRel(blocksize,>=,HONEY_MIN_BLOCKSIZE);
+    root = uoffset + uroot;
+    // Not meaningful, but still there so that existing honey databases
+    // continue to work.
+    (void)dummy_val;
+    (void)dummy_blocksize;
     return true;
 }
 

@@ -70,17 +70,15 @@ Database::Database(Database::Internal* internal_)
 {
 }
 
-Database::Database(const Database& o)
-    : internal(o.internal)
-{
-}
+Database::Database(const Database&) = default;
 
 Database&
-Database::operator=(const Database& o)
-{
-    internal = o.internal;
-    return *this;
-}
+Database::operator=(const Database&) = default;
+
+Database::Database(Database&&) = default;
+
+Database&
+Database::operator=(Database&&) = default;
 
 Database::Database()
     : internal(new EmptyDatabase)

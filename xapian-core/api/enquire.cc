@@ -53,14 +53,15 @@ throw_invalid_arg(const char* msg) {
 
 namespace Xapian {
 
-Enquire::Enquire(const Enquire& o) : internal(o.internal) {}
+Enquire::Enquire(const Enquire&) = default;
 
 Enquire&
-Enquire::operator=(const Enquire& o)
-{
-    internal = o.internal;
-    return *this;
-}
+Enquire::operator=(const Enquire&) = default;
+
+Enquire::Enquire(Enquire&&) = default;
+
+Enquire&
+Enquire::operator=(Enquire&&) = default;
 
 Enquire::Enquire(const Database& db) : internal(new Enquire::Internal(db)) {}
 

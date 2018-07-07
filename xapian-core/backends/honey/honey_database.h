@@ -377,7 +377,6 @@ class HoneyDatabase : public Xapian::Database::Internal {
 		 int source_backend,
 		 const std::vector<const Xapian::Database::Internal*>& sources,
 		 const std::vector<Xapian::docid>& offset,
-		 size_t block_size,
 		 Xapian::Compactor::compaction_level compaction,
 		 unsigned flags,
 		 Xapian::docid last_docid);

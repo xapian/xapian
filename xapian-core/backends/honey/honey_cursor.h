@@ -35,8 +35,9 @@ class HoneyCursor {
     /** Handle the value part of the (key,value). */
     bool next_from_index();
 
+    BufferedFile store;
+
   public:
-    BufferedFile fh;
     std::string current_key, current_tag;
     mutable size_t val_size = 0;
     bool current_compressed = false;
@@ -44,28 +45,24 @@ class HoneyCursor {
     bool is_at_end = false;
     mutable std::string last_key;
 
-    // File offset to start of index and to current position in index.
-    off_t root, index;
+    // File offset to start of index.
+    off_t root;
 
     // File offset to start of table (zero except for single-file DB).
     off_t offset;
 
     // Forward to next constructor form.
     explicit HoneyCursor(const HoneyTable* table)
-	: HoneyCursor(table->fh, table->get_root(), table->get_offset()) {}
-
-    HoneyCursor(const BufferedFile& fh_, off_t root_, off_t offset_)
-	: fh(fh_),
+	: store(table->store),
 	  comp_stream(Z_DEFAULT_STRATEGY),
-	  root(root_),
-	  index(root_),
-	  offset(offset_)
+	  root(table->get_root()),
+	  offset(table->get_offset())
     {
-	fh.set_pos(offset); // FIXME root
+	store.set_pos(offset); // FIXME root
     }
 
     HoneyCursor(const HoneyCursor& o)
-	: fh(o.fh),
+	: store(o.store),
 	  current_key(o.current_key),
 	  current_tag(o.current_tag), // FIXME really copy?
 	  val_size(o.val_size),
@@ -74,10 +71,9 @@ class HoneyCursor {
 	  is_at_end(o.is_at_end),
 	  last_key(o.last_key),
 	  root(o.root),
-	  index(o.index),
 	  offset(o.offset)
     {
-	fh.set_pos(o.fh.get_pos());
+	store.set_pos(o.store.get_pos());
     }
 
     /** Position cursor on the dummy empty key.
@@ -85,10 +81,9 @@ class HoneyCursor {
      *  Calling next() after this moves the cursor to the first entry.
      */
     void rewind() {
-	fh.set_pos(offset); // FIXME root
+	store.set_pos(offset); // FIXME root
 	current_key = last_key = std::string();
 	is_at_end = false;
-	index = root;
 	val_size = 0;
     }
 
@@ -118,18 +113,24 @@ class HoneyCursor {
      *  This method may not be particularly efficient.
      */
     bool prev();
-
-    HoneyCursor * clone() const {
-	return new HoneyCursor(*this);
-    }
-
-    bool del() { return false; }
 };
 
 class MutableHoneyCursor : public HoneyCursor {
+    HoneyTable* table;
+
   public:
     MutableHoneyCursor(HoneyTable* table_)
-	: HoneyCursor(table_->fh, table_->get_root(), table_->get_offset()) { }
+	: HoneyCursor(table_),
+	  table(table_)
+    { }
+
+    bool del() {
+	Assert(!is_at_end);
+	std::string key_to_del = current_key;
+	bool res = next();
+	table->del(key_to_del);
+	return res;
+    }
 };
 
 #endif // XAPIAN_INCLUDED_HONEY_CURSOR_H

@@ -95,6 +95,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef XAPIAN_INCLUDED_HEAP_H
+#define XAPIAN_INCLUDED_HEAP_H
+
 namespace Heap {
 
 // push_heap
@@ -102,9 +105,9 @@ namespace Heap {
 template <class _Compare, class _RandomAccessIterator>
 void
 sift_up_(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp,
-          typename iterator_traits<_RandomAccessIterator>::difference_type len)
+          typename std::iterator_traits<_RandomAccessIterator>::difference_type len)
 {
-    typedef typename iterator_traits<_RandomAccessIterator>::value_type value_type;
+    typedef typename std::iterator_traits<_RandomAccessIterator>::value_type value_type;
     if (len > 1)
     {
         len = (len - 2) / 2;
@@ -139,11 +142,11 @@ push(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
 template <class _Compare, class _RandomAccessIterator>
 void
 sift_down_(_RandomAccessIterator first, _Compare comp,
-            typename iterator_traits<_RandomAccessIterator>::difference_type len,
+            typename std::iterator_traits<_RandomAccessIterator>::difference_type len,
             _RandomAccessIterator start)
 {
-    typedef typename iterator_traits<_RandomAccessIterator>::difference_type difference_type;
-    typedef typename iterator_traits<_RandomAccessIterator>::value_type value_type;
+    typedef typename std::iterator_traits<_RandomAccessIterator>::difference_type difference_type;
+    typedef typename std::iterator_traits<_RandomAccessIterator>::value_type value_type;
     // left-child of start is at 2 * start + 1
     // right-child of start is at 2 * start + 2
     difference_type child = start - first;
@@ -194,10 +197,11 @@ template <class _Compare, class _RandomAccessIterator>
 inline
 void
 pop_heap_(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp,
-           typename iterator_traits<_RandomAccessIterator>::difference_type len)
+           typename std::iterator_traits<_RandomAccessIterator>::difference_type len)
 {
     if (len > 1)
     {
+        using std::swap;
         swap(*first, *--last);
         sift_down_(first, comp, len - 1, first);
     }
@@ -215,7 +219,7 @@ template <class _Compare, class _RandomAccessIterator>
 inline
 void
 replace_heap_(_RandomAccessIterator first, _Compare comp,
-              typename iterator_traits<_RandomAccessIterator>::difference_type len)
+              typename std::iterator_traits<_RandomAccessIterator>::difference_type len)
 {
     sift_down_(first, comp, len, first);
 }
@@ -232,7 +236,7 @@ template <class _Compare, class _RandomAccessIterator>
 inline void
 siftdown_heap_(_RandomAccessIterator first,
                _RandomAccessIterator elt, _Compare comp,
-               typename iterator_traits<_RandomAccessIterator>::difference_type len)
+               typename std::iterator_traits<_RandomAccessIterator>::difference_type len)
 {
     sift_down_(first, comp, len, elt);
 }
@@ -254,7 +258,7 @@ template <class _RandomAccessIterator, class _Compare>
 void
 make(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
 {
-    typedef typename iterator_traits<_RandomAccessIterator>::difference_type difference_type;
+    typedef typename std::iterator_traits<_RandomAccessIterator>::difference_type difference_type;
     difference_type n = last - first;
     if (n > 1)
     {
@@ -266,4 +270,17 @@ make(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
     }
 }
 
+// sort_heap
+
+template <class _Compare, class _RandomAccessIterator>
+void
+sort(_RandomAccessIterator first, _RandomAccessIterator last, _Compare comp)
+{
+    typedef typename std::iterator_traits<_RandomAccessIterator>::difference_type difference_type;
+    for (difference_type n = last - first; n > 1; --last, --n)
+        pop_heap_<_Compare>(first, last, comp, n);
 }
+
+}
+
+#endif
