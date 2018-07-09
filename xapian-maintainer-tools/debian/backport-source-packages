@@ -218,7 +218,7 @@ build_it() {
 
   if [ 1 != "$ubuntu" ] ; then
     # Debian
-    echo "sbuild --debbuildopt=$V_OPT -d $CODENAME-backports ${PKG}_$backport_version.dsc"
+    echo "cd build && sbuild --debbuildopt=$V_OPT -d $CODENAME-backports ${PKG}_$backport_version.dsc"
   fi
 }
 
