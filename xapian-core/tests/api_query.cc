@@ -30,6 +30,8 @@
 
 #include "apitest.h"
 
+#include <fstream>
+
 using namespace std;
 
 /// Regression test - in 1.0.10 and earlier "" was included in the list.
@@ -691,140 +693,32 @@ DEFINE_TESTCASE(notandor1, backend) {
     return true;
 }
 
-// Formulae used for indexing.
-static const char * index_doc[] = {
-    // 1. a = b + c
-    "<math>"
-    "<mi> a </mi>"
-    "<mo> = </mo>"
-    "<mi> b </mi>"
-    "<mo> + </mo>"
-    "<mi> c </mi>"
-    "</math>",
-
-    // 2. a = b + c + d
-    "<math>"
-    "<mi> a </mi>"
-    "<mo> = </mo>"
-    "<mi> b </mi>"
-    "<mo> + </mo>"
-    "<mi> c </mi>"
-    "<mo> + </mo>"
-    "<mi> d </mi>"
-    "</math>",
-
-    // 3. p = r + s
-    "<math>"
-    "<mi> p </mi>"
-    "<mo> = </mo>"
-    "<mi> r </mi>"
-    "<mo> + </mo>"
-    "<mi> s </mi>"
-    "</math>",
-
-    // 4. a = x + b + c + s
-    "<math>"
-    "<mi> a </mi>"
-    "<mo> = </mo>"
-    "<mi> x </mi>"
-    "<mo> + </mo>"
-    "<mi> b </mi>"
-    "<mo> + </mo>"
-    "<mi> c </mi>"
-    "<mo> + </mo>"
-    "<mi> s </mi>"
-    "</math>",
-
-    // 5. m = sqrt(n) + y
-    "<math>"
-    "<mi> m </mi>"
-    "<mo> = </mi>"
-    "<msqrt> "
-    "	<mi> n </mi>"
-    "<mo> + </mo>"
-    "<mi> y </mi>"
-    "</math>",
-
-    // 6. l = a / b
-    "<math>"
-    "<mi> l </mi>"
-    "<mo> = </mo>"
-    "<mfrac>"
-    "	<mi> a </mi>"
-    "	<mi> b </mi>"
-    "</mfrac>"
-    "</math>",
-
-    // 7. x = c / d
-    "<math>"
-    "<mi> x </mi>"
-    "<mo> = </mo>"
-    "<mfrac>"
-    "	<mi> c </mi>"
-    "	<mi> d </mi>"
-    "</mfrac>"
-    "</math>",
-
-    // 8. m = 2 + o
-    "<math>"
-    "<mi> m </mi>"
-    "<mo> = </mo>"
-    "<mn> 2 </mn>"
-    "<mo> + </mo>"
-    "<mi> o </mi>"
-    "</math>",
-
-    // 9. p = q / r
-    "<math>"
-    "<mi> p </mi>"
-    "<mo> = </mo>"
-    "<mfrac>"
-    "	<mi> q </mi>"
-    "	<mi> r </mi>"
-    "</mfrac>"
-    "</math>",
-
-    // 10. x = y / s
-    "<math>"
-    "<mi> x </mi>"
-    "<mo> = </mo>"
-    "<mfrac>"
-    "	<mi> y </mi>"
-    "	<mi> s </mi>"
-    "</mfrac>"
-    "</math>",
-
-    // 11. 1 = 2 + 3
-    "<math>"
-    "<mn> 1 </mn>"
-    "<mo> = </mo>"
-    "<mn> 2 </mn>"
-    "<mo> + </mo>"
-    "<mn> 3 </mn>"
-    "</math>",
-
-    // 12. 100 = 20 / 200
-    "<math>"
-    "<mn> 100 </mn>"
-    "<mo> = </mo>"
-    "<mfrac>"
-    "	<mn> 20 </mn>"
-    "	<mn> 200 </mn>"
-    "</mfrac>"
-    "</math>",
-
-    NULL
-};
-
 DEFINE_TESTCASE(mathquery1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::MathTermGenerator termgen;
 
-    auto t = index_doc;
-    for (unsigned i = 0; i < sizeof(index_doc) / sizeof(char *) - 1; ++i) {
+    std::vector<std::string> docs;
+    ifstream infile("testdata/apitest_allformulae.txt");
+
+    string line;
+    string formula;
+    while (getline(infile, line)) {
+	if (line.empty()) {
+	    docs.push_back(formula);
+	    formula.clear();
+	    continue;
+	}
+	formula.append(line);
+    }
+
+    if (!formula.empty())
+	docs.push_back(formula);
+
+
+    for (unsigned i = 0; i < docs.size(); ++i) {
 	Xapian::Document doc;
 	termgen.set_document(doc);
-	termgen.index_math(*t++);
+	termgen.index_math(docs[i]);
 	db.add_document(doc);
     }
 
