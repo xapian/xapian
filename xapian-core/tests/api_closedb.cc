@@ -463,7 +463,7 @@ DEFINE_TESTCASE(closedb10, writable && metadata) {
     TEST_EXCEPTION(Xapian::DatabaseError,
 		   db.get_metadata("foo"));
     TEST_EXCEPTION(Xapian::DatabaseError,
-		   db.get_metadata("foo"));
+		   db.get_metadata("bar"));
     TEST_EXCEPTION(Xapian::DatabaseError,
 		   db.metadata_keys_begin());
 
