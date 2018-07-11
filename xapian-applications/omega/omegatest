@@ -532,6 +532,10 @@ testcase 'apple:banana:cherry|apple:banana:cherry' text='apple apple banana bana
 testcase 'a:b:r:a:c:a:d:a:b:r:a|a:b:r:c:d' text='a b r a c a d a b r a'
 testcase 'x:y:z:y|x:y:z' text='x y z z y'
 
+# Regression test - $map with one argument wasn't rejected cleanly.
+printf '$map{foo}' > "$TEST_TEMPLATE"
+testcase 'Exception: too few arguments to $map'
+
 # Feature tests for scriptindex hextobin action.
 printf 'hex : hextobin value=0' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"

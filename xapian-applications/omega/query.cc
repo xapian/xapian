@@ -1101,7 +1101,7 @@ T(log,		   1, 2, 1, 0), // create a log entry
 T(lookup,	   2, 2, N, 0), // lookup in named cdb file
 T(lower,	   1, 1, N, 0), // convert string to lower case
 T(lt,		   2, 2, N, 0), // test <
-T(map,		   1, 2, 1, 0), // map a list into another list
+T(map,		   2, 2, 1, 0), // map a list into another list
 T(match,	   2, 3, N, 0), // regex match
 T(max,		   1, N, N, 0), // maximum of a list of values
 T(min,		   1, N, N, 0), // minimum of a list of values
