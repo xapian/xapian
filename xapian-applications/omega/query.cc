@@ -1014,6 +1014,7 @@ CMD_topterms,
 CMD_transform,
 CMD_truncate,
 CMD_uniq,
+CMD_unique,
 CMD_unpack,
 CMD_unprefix,
 CMD_unstem,
@@ -1155,6 +1156,7 @@ T(topterms,	   0, 1, N, M), // list of up to N top relevance feedback terms
 T(transform,	   3, 4, N, 0), // transform with a regexp
 T(truncate,	   2, 4, N, 0), // truncate after a word
 T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
+T(unique,	   1, 1, N, 0), // removed duplicates from any list
 T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
 T(unprefix,	   1, 1, N, 0), // remove any prefix from a term
 T(unstem,	   1, 1, N, Q), // return list of terms from the parsed query
@@ -2391,6 +2393,23 @@ eval(const string &fmt, const vector<string> &param)
 			value += item;
 		    }
 		    prev = item;
+		    split = split2 + 1;
+		} while (split2 != string::npos);
+		break;
+	    }
+	    case CMD_unique: {
+		unordered_set<string> seen;
+		const string &list = args[0];
+		if (list.empty()) break;
+		string::size_type split = 0, split2;
+		do {
+		    split2 = list.find('\t', split);
+		    string item(list, split, split2 - split);
+		    if (seen.insert(item).second) {
+			if (split != 0)
+			    value += '\t';
+			value += item;
+		    }
 		    split = split2 + 1;
 		} while (split2 != string::npos);
 		break;

@@ -510,6 +510,14 @@ printf '$last$if{$cgi{ERR},$seterror{$cgi{ERR}}}$msize$if{$error,!$error!}' > "$
 testcase '11' P=text
 testcase '11!boo!' P=text ERR=boo
 
+# Feature tests for $uniq and $unique{}.
+printf '$list{$uniq{$split{$cgi{text}}},:}|$list{$unique{$split{$cgi{text}}},:}' > "$TEST_TEMPLATE"
+testcase '|' text=''
+testcase 'foo|foo' text='foo'
+testcase 'apple:banana:cherry|apple:banana:cherry' text='apple apple banana banana banana cherry'
+testcase 'a:b:r:a:c:a:d:a:b:r:a|a:b:r:c:d' text='a b r a c a d a b r a'
+testcase 'x:y:z:y|x:y:z' text='x y z z y'
+
 # Feature tests for scriptindex hextobin action.
 printf 'hex : hextobin value=0' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
