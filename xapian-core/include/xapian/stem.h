@@ -1,7 +1,7 @@
 /** @file stem.h
  * @brief stemming algorithms
  */
-/* Copyright (C) 2005,2007,2010,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2005,2007,2010,2011,2013,2014,2015,2018 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -93,13 +93,15 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  name):
      *
      *  - none - don't stem terms
-     *  - armenian (hy)
-     *  - basque (eu)
-     *  - catalan (ca)
+     *  - arabic (ar) - Since Xapian 1.3.5
+     *  - armenian (hy) - Since Xapian 1.3.0
+     *  - basque (eu) - Since Xapian 1.3.0
+     *  - catalan (ca) - Since Xapian 1.3.0
      *  - danish (da)
      *  - dutch (nl)
      *  - english (en) - Martin Porter's 2002 revision of his stemmer
      *  - earlyenglish - Early English (e.g. Shakespeare, Dickens) stemmer
+     *    (since Xapian 1.3.2)
      *  - english_lovins (lovins) - Lovin's stemmer
      *  - english_porter (porter) - Porter's stemmer as described in
      *			his 1980 paper
@@ -108,14 +110,19 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - german (de)
      *  - german2 - Normalises umlauts and &szlig;
      *  - hungarian (hu)
+     *  - indonesian (id) - Since Xapian 1.4.6
+     *  - irish (ga) - Since Xapian 1.4.7
      *  - italian (it)
      *  - kraaij_pohlmann - A different Dutch stemmer
+     *  - lithuanian (lt) - Since Xapian 1.4.7
+     *  - nepali (ne) - Since Xapian 1.4.7
      *  - norwegian (nb, nn, no)
      *  - portuguese (pt)
      *  - romanian (ro)
      *  - russian (ru)
      *  - spanish (es)
      *  - swedish (sv)
+     *  - tamil (ta) - Since Xapian 1.4.7
      *  - turkish (tr)
      *
      *  @exception	Xapian::InvalidArgumentError is thrown if
