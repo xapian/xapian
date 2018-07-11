@@ -750,7 +750,14 @@ $truncate{STRING,LEN[,IND[,IND2]]}
 	 $truncate{$field{text},500,..., ...}
 
 $uniq{LIST}
-	remove duplicates from a sorted list
+        remove adjacent duplicates, for example from an already sorted list
+        (similar to the Unix ``uniq`` command line tool).
+
+$unique{LIST}
+        remove duplicates from a list - unlike ``$uniq``, duplicates don't
+        need to be adjacent.  The first of each entry is kept, and order is
+        preserved.  If the input list is already sorted then ``$uniq`` is
+        more efficient.
 
 $unpack{BINARYSTRING}
 	converts a 4 byte big-endian binary string to a number, for example::
