@@ -212,11 +212,6 @@ stringdef la~     '{U+FEF5}' // LAM_ALEF_MADDA_ABOVE
 stringdef la~2    '{U+FEF6}' // LAM_ALEF_MADDA_ABOVE
 
 
-
-integers (
-            word_len
-         )
-
 booleans (
             is_noun
             is_verb
@@ -344,7 +339,7 @@ define Normalize_post as (
         )
     )
 
-    do loop word_len (
+    do repeat (
         (
         // normalize other hamza's
             [substring] among (
@@ -360,72 +355,65 @@ define Normalize_post as (
 
 // Checks
 define Checks1 as (
-    $word_len = len
     [substring] among (
-        '{b}{a}{l}' '{k}{a}{l}' ($word_len > 4  set is_noun  unset is_verb set is_defined)
-        '{l}{l}' '{a}{l}' ($word_len > 3  set is_noun unset is_verb set is_defined)
+        '{b}{a}{l}' '{k}{a}{l}' ($(len > 4)  set is_noun  unset is_verb set is_defined)
+        '{l}{l}' '{a}{l}' ($(len > 3)  set is_noun unset is_verb set is_defined)
     )
 )
 
 
 //prefixes
 define Prefix_Step1 as (
-        $word_len = len
          [substring] among (
-             '{ao}{ao}' ($word_len > 3 <-  '{ao}'  )
-             '{ao}{a~}' ($word_len > 3 <-  '{a~}'  )
-             '{ao}{wo}' ($word_len > 3 <-  '{ao}'  )
-             '{ao}{a}' ($word_len > 3 <-  '{a}'  )
-             '{ao}{ao_}' ($word_len > 3 <-  '{ao_}'  )
-            // '{ao}' ($word_len > 3 delete) //rare case
+             '{ao}{ao}' ($(len > 3) <-  '{ao}'  )
+             '{ao}{a~}' ($(len > 3) <-  '{a~}'  )
+             '{ao}{wo}' ($(len > 3) <-  '{ao}'  )
+             '{ao}{a}' ($(len > 3) <-  '{a}'  )
+             '{ao}{ao_}' ($(len > 3) <-  '{ao_}'  )
+            // '{ao}' ($(len > 3) delete) //rare case
         )
 )
 
 define Prefix_Step2 as (
-        $word_len = len
         not '{f}{a}'
         not '{w}{a}'
         [substring] among (
-            '{f}' ($word_len > 3 delete)
-            '{w}' ($word_len > 3 delete)
+            '{f}' ($(len > 3) delete)
+            '{w}' ($(len > 3) delete)
         )
 )
 
 define Prefix_Step3a_Noun as ( // it is noun and defined
-        $word_len = len
         [substring] among (
-            '{b}{a}{l}' '{k}{a}{l}' ($word_len > 5 delete)
-            '{l}{l}' '{a}{l}' ($word_len > 4 delete)
+            '{b}{a}{l}' '{k}{a}{l}' ($(len > 5) delete)
+            '{l}{l}' '{a}{l}' ($(len > 4) delete)
         )
 )
 
 define Prefix_Step3b_Noun as ( // probably  noun and defined
-        $word_len = len
         not '{b}{a}' // exception
         [substring] among (
-            '{b}' ($word_len > 3 delete)
-            // '{k}'  '{l}' ($word_len > 3 delete) // BUG: cause confusion
-            '{b}{b}' ($word_len > 3 <-  '{b}'  )
-            '{k}{k}'  ($word_len > 3 <-  '{k}'  )
+            '{b}' ($(len > 3) delete)
+            // '{k}'  '{l}' ($(len > 3) delete) // BUG: cause confusion
+            '{b}{b}' ($(len > 3) <-  '{b}'  )
+            '{k}{k}'  ($(len > 3) <-  '{k}'  )
            )
 
 )
 
 define Prefix_Step3_Verb as (
-        $word_len = len
         [substring] among (
-            //'{s}' ($word_len > 4 delete)// BUG: cause confusion
-            '{s}{y}' ($word_len > 4 <- '{y}' )
-            '{s}{t}' ($word_len > 4 <- '{t}')
-            '{s}{n}' ($word_len > 4 <- '{n}')
-            '{s}{ao}' ($word_len > 4 <- '{ao}')
+            //'{s}' ($(len > 4) delete)// BUG: cause confusion
+            '{s}{y}' ($(len > 4) <- '{y}' )
+            '{s}{t}' ($(len > 4) <- '{t}')
+            '{s}{n}' ($(len > 4) <- '{n}')
+            '{s}{ao}' ($(len > 4) <- '{ao}')
         )
 )
 
 define Prefix_Step4_Verb as (
-        $word_len = len
         [substring] among (
-            '{y}{s}{t}' '{n}{s}{t}' '{t}{s}{t}' ($word_len > 4 set is_verb unset is_noun <-  '{a}{s}{t}' )
+            '{y}{s}{t}' '{n}{s}{t}' '{t}{s}{t}' ($(len > 4) set is_verb unset is_noun <-  '{a}{s}{t}' )
         )
 )
 
@@ -433,90 +421,78 @@ define Prefix_Step4_Verb as (
 backwardmode (
 
         define Suffix_Noun_Step1a as (
-                $word_len = len
                 [substring] among (
-                        '{y}' '{k}' '{e}' ($word_len >= 4 delete)
-                        '{n}{a}' '{k}{m}' '{e}{a}' '{e}{n}' '{e}{m}' ($word_len >= 5  delete)
-                        '{k}{m}{a}' '{e}{m}{a}' ($word_len >= 6 delete)
+                        '{y}' '{k}' '{e}' ($(len >= 4) delete)
+                        '{n}{a}' '{k}{m}' '{e}{a}' '{e}{n}' '{e}{m}' ($(len >= 5)  delete)
+                        '{k}{m}{a}' '{e}{m}{a}' ($(len >= 6) delete)
                 )
             )
         define Suffix_Noun_Step1b as (
-            $word_len = len
             [substring] among (
-                '{n}' ($word_len > 5 delete)
+                '{n}' ($(len > 5) delete)
             )
         )
 
         define Suffix_Noun_Step2a as (
-                $word_len = len
                 [substring] among (
-                        '{a}' '{y}' '{w}' ($word_len > 4 delete)
+                        '{a}' '{y}' '{w}' ($(len > 4) delete)
                 )
             )
 
         define Suffix_Noun_Step2b as (
-            $word_len = len
             [substring] among (
-                '{a}{t}' ($word_len >= 5 delete)
+                '{a}{t}' ($(len >= 5) delete)
             )
         )
 
         define Suffix_Noun_Step2c1 as (
-            $word_len = len
             [substring] among (
-                '{t}' ($word_len >= 4 delete)
+                '{t}' ($(len >= 4) delete)
             )
         )
         define Suffix_Noun_Step2c2 as ( // feminine t_
-            $word_len = len
             [substring] among (
-                '{t_}' ($word_len >= 4 delete)
+                '{t_}' ($(len >= 4) delete)
             )
         )
         define Suffix_Noun_Step3 as ( // ya' nisbiya
-            $word_len = len
             [substring] among (
-                '{y}' ($word_len >= 3 delete)
+                '{y}' ($(len >= 3) delete)
             )
         )
 
         define Suffix_Verb_Step1 as (
-                $word_len = len
                 [substring] among (
-                        '{e}' '{k}' ($word_len >= 4 delete)
-                        '{n}{y}' '{n}{a}' '{e}{a}' '{e}{m}' '{e}{n}' '{k}{m}' '{k}{n}' ($word_len >= 5 delete)
-                        '{e}{m}{a}' '{k}{m}{a}' '{k}{m}{w}'($word_len >= 6 delete)
+                        '{e}' '{k}' ($(len >= 4) delete)
+                        '{n}{y}' '{n}{a}' '{e}{a}' '{e}{m}' '{e}{n}' '{k}{m}' '{k}{n}' ($(len >= 5) delete)
+                        '{e}{m}{a}' '{k}{m}{a}' '{k}{m}{w}'($(len >= 6) delete)
                 )
             )
         define Suffix_Verb_Step2a as (
-                $word_len = len
                 [substring] among (
-                       '{t}' ($word_len >= 4  delete)
-                        '{a}' '{n}' '{y}' ($word_len >= 4 delete)
-                        '{n}{a}' '{t}{a}'  '{t}{n}'  ($word_len >= 5 delete)// past
-                        '{a}{n}' '{w}{n}' '{y}{n}' ($word_len > 5 delete) // present
-                        '{t}{m}{a}' ($word_len >= 6 delete)
+                       '{t}' ($(len >= 4)  delete)
+                        '{a}' '{n}' '{y}' ($(len >= 4) delete)
+                        '{n}{a}' '{t}{a}'  '{t}{n}'  ($(len >= 5) delete)// past
+                        '{a}{n}' '{w}{n}' '{y}{n}' ($(len > 5) delete) // present
+                        '{t}{m}{a}' ($(len >= 6) delete)
                 )
             )
 
         define Suffix_Verb_Step2b as (
-            $word_len = len
             [substring] among (
-                '{w}{a}' '{t}{m}' ($word_len >= 5 delete) // len >= 5
+                '{w}{a}' '{t}{m}' ($(len >= 5) delete)
             )
         )
 
 
         define Suffix_Verb_Step2c as (
-            $word_len = len
             [substring] among (
-                '{w}' ($word_len >= 4 delete)
-                '{t}{m}{w}' ($word_len >= 6 delete)
+                '{w}' ($(len >= 4) delete)
+                '{t}{m}{w}' ($(len >= 6) delete)
             )
         )
 
         define Suffix_All_alef_maqsura as (
-            $word_len = len
             [substring] among (
                 '{a_}' ( <- '{y}' ) // spell error
                 // '{a_}' ( delete ) // if noun > 3
