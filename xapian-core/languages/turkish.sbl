@@ -87,8 +87,6 @@ stringdef o"  	'{U+00F6}'	// LATIN SMALL LETTER O WITH DIAERESIS
 stringdef s,	'{U+015F}'	// LATIN SMALL LETTER S WITH CEDILLA
 stringdef u"  	'{U+00FC}'	// LATIN SMALL LETTER U WITH DIAERESIS
 
-integers 	( strlen )	// length of a string
-
 booleans	( continue_stemming_noun_suffixes )
 
 groupings 	( vowel U vowel1 vowel2 vowel3 vowel4 vowel5 vowel6)
@@ -440,6 +438,9 @@ backwardmode (
 		(test((goto vowel) '{o"}' or '{u"}') <+ '{u"}')
 	)
 
+	define is_reserved_word as (
+		'ad' try 'soy' atlimit
+	)
 )
 
 // Tests if there are more than one syllables
@@ -448,15 +449,9 @@ define more_than_one_syllable_word as (
 	test (atleast 2 (gopast vowel))
 )
 
-define is_reserved_word as (
-	test(gopast 'ad' ($strlen = 2) ($strlen == limit))
-	or
-	test(gopast 'soyad' ($strlen = 5) ($strlen == limit))
-)
-
 define postlude as (
-	not(is_reserved_word)
 	backwards (
+		not(is_reserved_word)
 		do append_U_to_stems_ending_with_d_or_g
 		do post_process_last_consonants
 
