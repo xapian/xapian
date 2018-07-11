@@ -118,7 +118,7 @@ backwardmode (
                 )
 
             'a' '{a"}'              //-.
-                     (V1 C)    // |
+                     (V1 C)         // |
             'tta' 'tt{a"}'          // Partitive  [32]
                      ('e')          // |
             'ta' 't{a"}'            //-'
