@@ -20,25 +20,21 @@ static int hex_to_num(int ch);
 
 static int smaller(int a, int b) { return a < b ? a : b; }
 
-extern symbol * get_input(symbol * p, char ** p_file) {
-
-    char * s = b_to_s(p);
+extern symbol * get_input(const char * filename) {
+    FILE * input = fopen(filename, "r");
+    if (input == 0) { return 0; }
     {
-        FILE * input = fopen(s, "r");
-        if (input == 0) { free(s); return 0; }
-        *p_file = s;
-        {
-            symbol * u = create_b(STARTSIZE);
-            int size = 0;
-            while (true) {
-                int ch = getc(input);
-                if (ch == EOF) break;
-                if (size >= CAPACITY(u)) u = increase_capacity(u, size/2);
-                u[size++] = ch;
-            }
-            fclose(input);
-            SIZE(u) = size; return u;
+        symbol * u = create_b(STARTSIZE);
+        int size = 0;
+        while (true) {
+            int ch = getc(input);
+            if (ch == EOF) break;
+            if (size >= CAPACITY(u)) u = increase_capacity(u, size/2);
+            u[size++] = ch;
         }
+        fclose(input);
+        SIZE(u) = size;
+        return u;
     }
 }
 
@@ -427,15 +423,17 @@ extern int read_token(struct tokeniser * t) {
                    exit(1);
                }
                {
-                   char * file;
                    NEW(input, q);
-                   symbol * u = get_input(t->b, &file);
+                   char * file = b_to_s(t->b);
+                   symbol * u = get_input(file);
                    if (u == 0) {
                        struct include * r;
                        for (r = t->includes; r; r = r->next) {
                            symbol * b = copy_b(r->b);
                            b = add_to_b(b, SIZE(t->b), t->b);
-                           u = get_input(b, &file);
+                           free(file);
+                           file = b_to_s(b);
+                           u = get_input(file);
                            lose_b(b);
                            if (u != 0) break;
                        }
@@ -449,6 +447,7 @@ extern int read_token(struct tokeniser * t) {
                    t->p = u;
                    t->c = 0;
                    t->file = file;
+                   t->file_needs_freeing = true;
                    t->line_number = 1;
                }
                p = t->p;
@@ -502,6 +501,7 @@ extern struct tokeniser * create_tokeniser(symbol * p, char * file) {
     t->p = p;
     t->c = 0;
     t->file = file;
+    t->file_needs_freeing = false;
     t->line_number = 1;
     t->b = create_b(0);
     t->b2 = create_b(0);
@@ -538,6 +538,6 @@ extern void close_tokeniser(struct tokeniser * t) {
             q = q_next;
         }
     }
-    free(t->file);
+    if (t->file_needs_freeing) free(t->file);
     FREE(t);
 }

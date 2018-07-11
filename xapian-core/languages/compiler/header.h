@@ -10,7 +10,7 @@ typedef unsigned short symbol;
 #define FREE check_free
 
 #define NEW(type, p) struct type * p = (struct type *) MALLOC(sizeof(struct type))
-#define NEWVEC(type, p, n) struct type * p = (struct type *) MALLOC(sizeof(struct type) * n)
+#define NEWVEC(type, p, n) struct type * p = (struct type *) MALLOC(sizeof(struct type) * (n))
 
 #define STARTSIZE   10
 #define SIZE(p)     ((int *)(p))[-1]
@@ -65,6 +65,7 @@ struct input {
     symbol * p;
     int c;
     char * file;
+    int file_needs_freeing;
     int line_number;
 
 };
@@ -105,6 +106,7 @@ struct tokeniser {
     symbol * p;
     int c;
     char * file;
+    int file_needs_freeing;
     int line_number;
     symbol * b;
     symbol * b2;
@@ -132,7 +134,7 @@ struct tokeniser {
     char token_disabled[NUM_TOKEN_CODES];
 };
 
-extern symbol * get_input(symbol * p, char ** p_file);
+extern symbol * get_input(const char * filename);
 extern struct tokeniser * create_tokeniser(symbol * b, char * file);
 extern int read_token(struct tokeniser * t);
 extern const char * name_of_token(int code);
@@ -176,9 +178,10 @@ struct amongvec {
 
     symbol * b;      /* the string giving the case */
     int size;        /* - and its size */
-    struct node * p; /* the corresponding node for this string */
+    struct node * action; /* the corresponding action */
     int i;           /* the amongvec index of the longest substring of b */
     int result;      /* the numeric result for the case */
+    int line_number; /* for diagnostics and stable sorting */
     struct name * function;
 
 };
@@ -190,9 +193,12 @@ struct among {
     int number;               /* amongs are numbered 0, 1, 2 ... */
     int literalstring_count;  /* in this among */
     int command_count;        /* in this among */
+    int nocommand_count;      /* number of "no command" entries in this among */
     int function_count;       /* in this among */
+    int amongvar_needed;      /* do we need to set among_var? */
     struct node * starter;    /* i.e. among( (starter) 'string' ... ) */
     struct node * substring;  /* i.e. substring ... among ( ... ) */
+    struct node ** commands;  /* array with command_count entries */
 };
 
 struct grouping {
@@ -329,13 +335,12 @@ struct options {
     FILE * output_h;
     byte syntax_tree;
     enc encoding;
-    enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS, LANG_CSHARP, LANG_PYTHON, LANG_JAVASCRIPT, LANG_RUST, LANG_GO } make_lang;
+    enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS, LANG_CSHARP, LANG_PASCAL, LANG_PYTHON, LANG_JAVASCRIPT, LANG_RUST, LANG_GO } make_lang;
     const char * externals_prefix;
     const char * variables_prefix;
     const char * runtime_path;
     const char * parent_class_name;
     const char * package;
-    const char * go_package;
     const char * go_snowball_runtime;
     const char * string_class;
     const char * among_class;
@@ -355,6 +360,8 @@ extern void write_int(struct generator * g, int i);
 extern void write_b(struct generator * g, symbol * b);
 extern void write_str(struct generator * g, struct str * str);
 
+extern void write_comment_content(struct generator * g, struct node * p);
+
 extern int K_needed(struct generator * g, struct node * p);
 extern int repeat_restore(struct generator * g, struct node * p);
 
@@ -369,6 +376,10 @@ extern void generate_program_java(struct generator * g);
 #ifndef DISABLE_CSHARP
 /* Generator for C# code. */
 extern void generate_program_csharp(struct generator * g);
+#endif
+
+#ifndef DISABLE_PASCAL
+extern void generate_program_pascal(struct generator * g);
 #endif
 
 #ifndef DISABLE_PYTHON
