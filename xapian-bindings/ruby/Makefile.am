@@ -47,6 +47,9 @@ $(stamp):
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
 	    -o xapian_wrap.cc '$(srcdir)/'ruby.i
+	## Fix code to avoid GCC -Wconversion-null warnings.  This was fixed
+	## in SWIG git master after SWIG 3.0.12.
+	$(PERL) -pi -e 's/\b(rb_funcall\(.*, )NULL(\);)/$$1Qnil$$2/' xapian_wrap.cc
 	$(multitarget_end)
 
 -include xapian_wrap.d
