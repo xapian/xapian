@@ -34,12 +34,18 @@
 /hungarian.h
 /indonesian.cc
 /indonesian.h
+/irish.cc
+/irish.h
 /italian.cc
 /italian.h
 /kraaij_pohlmann.cc
 /kraaij_pohlmann.h
+/lithuanian.cc
+/lithuanian.h
 /lovins.cc
 /lovins.h
+/nepali.cc
+/nepali.h
 /norwegian.cc
 /norwegian.h
 /porter.cc
@@ -54,6 +60,8 @@
 /spanish.h
 /swedish.cc
 /swedish.h
+/tamil.cc
+/tamil.h
 /turkish.cc
 /turkish.h
 /sbl-dispatch.h
