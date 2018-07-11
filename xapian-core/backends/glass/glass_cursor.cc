@@ -73,6 +73,9 @@ GlassCursor::rebuild()
 {
     int new_level = B->level;
     if (new_level <= level) {
+	for (int j = 0; j < new_level; ++j) {
+	    C[j].clone(B->C[j]);
+	}
 	for (int j = new_level; j <= level; ++j) {
 	    C[j].destroy();
 	}
@@ -81,6 +84,7 @@ GlassCursor::rebuild()
 	C = new Cursor[new_level + 1];
 	for (int i = 0; i < level; ++i) {
 	    C[i].swap(old_C[i]);
+	    C[i].clone(B->C[i]);
 	}
 	delete [] old_C;
 	for (int j = level; j < new_level; ++j) {
