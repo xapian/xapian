@@ -83,7 +83,7 @@ $if{$not{$msizeexact},
 }
 <hr>
 </center>
-$list{$map{$queryterms,$list{$html{$unique{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
+$if{$map{$queryterms,$set{U,$unstem{$_}}$set{F_$opt{U},$add{$opt{F_$opt{U}},$freq{$_}}}},$list{$unique{$map{$queryterms,$set{U,$unstem{$_}}$list{$html{$unique{$opt{U}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$opt{F_$opt{U}}}}},Term frequencies: ,$. ,}}
 <br><small>Search took $time seconds</small>
 <table>
 $if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
