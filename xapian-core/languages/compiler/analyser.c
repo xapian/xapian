@@ -175,18 +175,6 @@ static void error2(struct analyser * a, error_code n, int x) {
 
 static void error(struct analyser * a, error_code n) { error2(a, n, 0); }
 
-static void error3(struct analyser * a, struct node * p, symbol * b) {
-    count_error(a);
-    fprintf(stderr, "%s:%d: among(...) has repeated string '", a->tokeniser->file, p->line_number);
-    report_b(stderr, b);
-    fprintf(stderr, "'\n");
-}
-
-static void error3a(struct analyser * a, struct node * p) {
-    count_error(a);
-    fprintf(stderr, "%s:%d: previously seen here\n", a->tokeniser->file, p->line_number);
-}
-
 static void error4(struct analyser * a, struct name * q) {
     count_error(a);
     fprintf(stderr, "%s:%d: ", a->tokeniser->file, q->used->line_number);
@@ -536,8 +524,73 @@ static int compare_amongvec(const void *pv, const void *qv) {
     for (i = 0; i < smaller_size; i++)
         if (b_p[i] != b_q[i]) return b_p[i] - b_q[i];
     if (p_size - q_size)
-	return p_size - q_size;
-    return p->p->line_number - q->p->line_number;
+        return p_size - q_size;
+    return p->line_number - q->line_number;
+}
+
+#define PTR_NULL_CHECK(P, Q) do {\
+        if ((Q) == NULL) {\
+            if ((P) != NULL) return 1;\
+        } else {\
+            if ((P) == NULL) return -1;\
+        }\
+    } while (0)
+
+static int compare_node(const struct node *p, const struct node *q) {
+    PTR_NULL_CHECK(p, q);
+    if (q == NULL) {
+        /* p must be NULL too. */
+        return 0;
+    }
+
+    if (p->type != q->type) return p->type > q->type ? 1 : -1;
+    if (p->mode != q->mode) return p->mode > q->mode ? 1 : -1;
+    if (p->type == c_number) {
+        if (p->number != q->number)
+            return p->number > q->number ? 1 : -1;
+    }
+
+    PTR_NULL_CHECK(p->left, q->left);
+    if (p->left) {
+        int r = compare_node(p->left, q->left);
+        if (r != 0) return r;
+    }
+
+    PTR_NULL_CHECK(p->AE, q->AE);
+    if (p->AE) {
+        int r = compare_node(p->AE, q->AE);
+        if (r != 0) return r;
+    }
+
+    PTR_NULL_CHECK(p->aux, q->aux);
+    if (p->aux) {
+        int r = compare_node(p->aux, q->aux);
+        if (r != 0) return r;
+    }
+
+    PTR_NULL_CHECK(p->name, q->name);
+    if (p->name) {
+        int r;
+        if (SIZE(p->name->b) != SIZE(q->name->b)) {
+            return SIZE(p->name->b) - SIZE(q->name->b);
+        }
+        r = memcmp(p->name->b, q->name->b,
+                   SIZE(p->name->b) * sizeof(symbol));
+        if (r != 0) return r;
+    }
+
+    PTR_NULL_CHECK(p->literalstring, q->literalstring);
+    if (p->literalstring) {
+        int r;
+        if (SIZE(p->literalstring) != SIZE(q->literalstring)) {
+            return SIZE(p->literalstring) - SIZE(q->literalstring);
+        }
+        r = memcmp(p->literalstring, q->literalstring,
+                   SIZE(p->literalstring) * sizeof(symbol));
+        if (r != 0) return r;
+    }
+
+    return compare_node(p->right, q->right);
 }
 
 static void make_among(struct analyser * a, struct node * p, struct node * substring) {
@@ -559,6 +612,8 @@ static void make_among(struct analyser * a, struct node * p, struct node * subst
     x->number = a->among_count++;
     x->function_count = 0;
     x->starter = 0;
+    x->nocommand_count = 0;
+    x->amongvar_needed = 0;
 
     if (q->type == c_bra) { x->starter = q; q = q->right; }
 
@@ -566,7 +621,8 @@ static void make_among(struct analyser * a, struct node * p, struct node * subst
         if (q->type == c_literalstring) {
             symbol * b = q->literalstring;
             w1->b = b;           /* pointer to case string */
-            w1->p = q;           /* pointer to corresponding node */
+            w1->action = NULL;   /* action gets filled in below */
+            w1->line_number = q->line_number;
             w1->size = SIZE(b);  /* number of characters in string */
             w1->i = -1;          /* index of longest substring */
             w1->result = -1;     /* number of corresponding case expression */
@@ -580,22 +636,58 @@ static void make_among(struct analyser * a, struct node * p, struct node * subst
                 w1->function = 0;
             }
             w1++;
-        }
-        else
-        if (q->left == 0)  /* empty command: () */
+        } else if (q->left == 0) {
+            /* empty command: () */
             w0 = w1;
-        else {
+        } else {
+            /* Check for previous action which is the same as this one and use
+             * the same action code if we find one.
+             */
+            int among_result = -1;
+            struct amongvec * w;
+            for (w = v; w < w0; ++w) {
+                if (w->action && compare_node(w->action->left, q->left) == 0) {
+                    if (w->result <= 0) {
+                        printf("Among code %d isn't positive\n", w->result);
+                        exit(1);
+                    }
+                    among_result = w->result;
+                    break;
+                }
+            }
+            if (among_result < 0) {
+                among_result = result++;
+            }
+
             while (w0 != w1) {
-                w0->p = q;
-                w0->result = result;
+                w0->action = q;
+                w0->result = among_result;
                 w0++;
             }
-            result++;
         }
         q = q->right;
     }
     if (w1-v != p->number) { fprintf(stderr, "oh! %d %d\n", (int)(w1-v), p->number); exit(1); }
-    if (backward) for (w0 = v; w0 < w1; w0++) reverse_b(w0->b);
+    x->command_count = result - 1;
+    {
+        NEWVEC(node*, commands, x->command_count);
+        memset(commands, 0, x->command_count * sizeof(struct node*));
+        for (w0 = v; w0 < w1; w0++) {
+            if (w0->result > 0) {
+                /* result == -1 when there's no command. */
+                if (w0->result > x->command_count) {
+                    fprintf(stderr, "More among codes than expected\n");
+                    exit(1);
+                }
+                if (!commands[w0->result - 1])
+                    commands[w0->result - 1] = w0->action;
+            } else {
+                ++x->nocommand_count;
+            }
+            if (backward) reverse_b(w0->b);
+        }
+        x->commands = commands;
+    }
     qsort(v, w1 - v, sizeof(struct amongvec), compare_amongvec);
 
     /* the following loop is O(n squared) */
@@ -616,17 +708,29 @@ static void make_among(struct analyser * a, struct node * p, struct node * subst
     for (w0 = v; w0 < w1 - 1; w0++)
         if (w0->size == (w0 + 1)->size &&
             memcmp(w0->b, (w0 + 1)->b, w0->size * sizeof(symbol)) == 0) {
-	    error3(a, (w0 + 1)->p, (w0 + 1)->b);
-	    error3a(a, w0->p);
-	}
+            count_error(a);
+            fprintf(stderr, "%s:%d: among(...) has repeated string '",
+                    a->tokeniser->file, (w0 + 1)->line_number);
+            report_b(stderr, (w0 + 1)->b);
+            fprintf(stderr, "'\n");
+            count_error(a);
+            fprintf(stderr, "%s:%d: previously seen here\n",
+                    a->tokeniser->file, w0->line_number);
+        }
 
     x->literalstring_count = p->number;
-    x->command_count = result - 1;
     p->among = x;
 
     x->substring = substring;
     if (substring != 0) substring->among = x;
-    if (x->command_count != 0 || x->starter != 0) a->amongvar_needed = true;
+    if (x->command_count > 1 ||
+        (x->command_count == 1 && x->nocommand_count > 0) ||
+        x->starter != 0) {
+        /* We need to set among_var rather than just checking if find_among*()
+         * returns zero or not.
+         */
+        x->amongvar_needed = a->amongvar_needed = true;
+    }
 }
 
 static struct node * read_among(struct analyser * a) {
@@ -742,7 +846,7 @@ static struct node * read_C(struct analyser * a) {
         case c_true:
         case c_false:
         case c_debug:
-            return C_style(a, "", token);
+            return new_node(a, token);
         case c_assignto:
         case c_sliceto: {
             struct node *n;
@@ -769,63 +873,104 @@ static struct node * read_C(struct analyser * a) {
             if (n->name) n->name->initialised = true;
             return n;
         }
-        case c_dollar:
-            get_token(a, c_name);
-            {
+        case c_dollar: {
+            struct tokeniser * t = a->tokeniser;
+            read_token(t);
+            if (t->token == c_bra) {
+                /* Handle newer $(AE REL_OP AE) syntax. */
+                struct node * n = read_AE(a, 0);
+                read_token(t);
+                switch (t->token) {
+                    case c_eq:
+                    case c_ne:
+                    case c_gr:
+                    case c_ge:
+                    case c_ls:
+                    case c_le: {
+                        struct node * lhs = n;
+                        n = new_node(a, t->token);
+                        n->left = lhs;
+                        n->AE = read_AE(a, 0);
+                        get_token(a, c_ket);
+                        break;
+                    }
+                    default:
+                        error(a, e_unexpected_token);
+                        t->token_held = true;
+                        break;
+                }
+                return n;
+            }
+
+            if (t->token == c_name) {
                 struct node * p;
                 struct name * q = find_name(a);
                 int mode = a->mode;
                 int modifyable = a->modifyable;
-                switch (q ? q->type : t_string)
-                    /* above line was: switch (q->type) - bug #1 fix 7/2/2003 */
-                {
-                    default:
+                if (q && q->type == t_string) {
+                    /* Assume for now that $ on string both initialises and
+                     * uses the string variable.  FIXME: Can we do better?
+                     */
+                    q->initialised = true;
+                    q->value_used = true;
+                    a->mode = m_forward;
+                    a->modifyable = true;
+                    p = new_node(a, c_dollar);
+                    p->left = read_C(a);
+                    p->name = q;
+                } else {
+                    if (q && q->type != t_integer) {
+                        /* If $ is used on an unknown name or a name which
+                         * isn't a string or an integer then we assume the
+                         * unknown name is an integer as $ is used more often
+                         * on integers than strings, so hopefully this it less
+                         * likely to cause an error avalanche.
+                         *
+                         * For an unknown name, we'll already have reported an
+                         * error.
+                         */
                         error(a, e_not_of_type_string_or_integer);
-                        /* Handle $foo for unknown 'foo' as string since
-                         * that's more common and so less likely to cause
-                         * an error avalanche. */
-                        /* fall through */
-                    case t_string:
-			/* Assume for now that $ on string both initialises and
-			 * uses the string variable.  FIXME: Can we do better?
-			 */
-			q->initialised = true;
-			q->value_used = true;
-                        a->mode = m_forward;
-                        a->modifyable = true;
-                        p = new_node(a, c_dollar);
-                        p->left = read_C(a); break;
-                    case t_integer:
-                    /*  a->mode = m_integer;  */
-                        p = new_node(a, read_AE_test(a));
-                        p->AE = read_AE(a, 0);
-                        if (q) {
-                            /* +=, etc don't "initialise" as they only amend an
-                             * existing value.  Similarly, they don't count as
-                             * using the value.
-                             */
-                            switch (p->type) {
-                                case c_mathassign:
-                                    q->initialised = true;
-                                    break;
-                                case c_eq:
-                                case c_ne:
-                                case c_gr:
-                                case c_ge:
-                                case c_ls:
-                                case c_le:
-                                    q->value_used = true;
-                                    break;
-                            }
+                        q = NULL;
+                    }
+                    p = new_node(a, read_AE_test(a));
+                    p->AE = read_AE(a, 0);
+
+                    if (q) {
+                        switch (p->type) {
+                            case c_mathassign:
+                                q->initialised = true;
+                                p->name = q;
+                                break;
+                            default:
+                                /* +=, etc don't "initialise" as they only
+                                 * amend an existing value.  Similarly, they
+                                 * don't count as using the value.
+                                 */
+                                p->name = q;
+                                break;
+                            case c_eq:
+                            case c_ne:
+                            case c_gr:
+                            case c_ge:
+                            case c_ls:
+                            case c_le:
+                                p->left = new_node(a, c_name);
+                                p->left->name = q;
+                                q->value_used = true;
+                                break;
                         }
-                        break;
+                    }
                 }
                 if (q) mark_used_in(a, q, p);
-                p->name = q;
                 a->mode = mode;
                 a->modifyable = modifyable;
                 return p;
             }
+
+            error(a, e_unexpected_token);
+            t->token_held = true;
+            return new_node(a, c_dollar);
+        }
         case c_name:
             {
                 struct name * q = find_name(a);
@@ -1094,7 +1239,6 @@ extern void read_program(struct analyser * a) {
             } else if (q->type == t_external) {
                 /* Unused is OK. */
             } else if (!q->initialised) {
-                count_error(a);
                 fprintf(stderr, "%s:%d: warning: %s '",
                         a->tokeniser->file,
                         q->declaration_line_number,
@@ -1102,7 +1246,6 @@ extern void read_program(struct analyser * a) {
                 report_b(stderr, q->b);
                 fprintf(stderr, "' is never initialised\n");
             } else if (!q->value_used) {
-                count_error(a);
                 fprintf(stderr, "%s:%d: warning: %s '",
                         a->tokeniser->file,
                         q->declaration_line_number,

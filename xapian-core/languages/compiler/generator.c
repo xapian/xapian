@@ -50,18 +50,18 @@ static void write_varname(struct generator * g, struct name * p) {
         case t_string:
         case t_boolean:
         case t_integer:
-	    if (g->options->make_lang == LANG_C) {
-		write_char(g, ch);
-		write_char(g, '[');
-		write_int(g, p->count);
-		write_char(g, ']');
-		return;
-	    }
-	    /* FALLTHRU */
+            if (g->options->make_lang == LANG_C) {
+                write_char(g, ch);
+                write_char(g, '[');
+                write_int(g, p->count);
+                write_char(g, ']');
+                return;
+            }
+            /* FALLTHRU */
         default:
             write_char(g, ch); write_char(g, '_');
     }
-    str_append_b(g->outbuf, p->b);
+    write_b(g, p->b);
 }
 
 static void write_varref(struct generator * g, struct name * p) {  /* reference to variable */
@@ -123,37 +123,46 @@ static void write_margin(struct generator * g) {
     for (i = 0; i < g->margin; i++) write_string(g, "    ");
 }
 
-static void write_comment(struct generator * g, struct node * p) {
-
-    ws_opt_space(g, "/* ");
+void write_comment_content(struct generator * g, struct node * p) {
     switch (p->type) {
         case c_mathassign:
         case c_plusassign:
         case c_minusassign:
         case c_multiplyassign:
         case c_divideassign:
+            if (p->name) {
+                write_char(g, '$');
+                write_b(g, p->name->b);
+                write_char(g, ' ');
+            }
+            write_string(g, name_of_token(p->type));
+            write_string(g, " <integer expression>");
+            break;
         case c_eq:
         case c_ne:
         case c_gr:
         case c_ge:
         case c_ls:
         case c_le:
-            if (p->name) {
-                write_char(g, '$');
-                str_append_b(g->outbuf, p->name->b);
-                write_char(g, ' ');
-            }
+            write_string(g, "$(<integer expression> ");
             write_string(g, name_of_token(p->type));
-            write_string(g, " <integer expression>");
+            write_string(g, " <integer expression>)");
             break;
         default:
             write_string(g, name_of_token(p->type));
             if (p->name) {
                 write_char(g, ' ');
-                str_append_b(g->outbuf, p->name->b);
+                write_b(g, p->name->b);
             }
     }
-    write_string(g, ", line "); write_int(g, p->line_number); write_string(g, " */");
+    write_string(g, ", line ");
+    write_int(g, p->line_number);
+}
+
+static void write_comment(struct generator * g, struct node * p) {
+    ws_opt_space(g, "/* ");
+    write_comment_content(g, p);
+    write_string(g, " */");
     write_newline(g);
 }
 
@@ -1083,9 +1092,13 @@ static void generate_integer_assign(struct generator * g, struct node * p, char 
 
 static void generate_integer_test(struct generator * g, struct node * p, char * s) {
 
-    g->V[0] = p->name;
-    g->S[0] = s;
-    w(g, "~Mif (!(~V0 ~S0 "); generate_AE(g, p->AE); writef(g, ")) ~f~C", p);
+    w(g, "~Mif (!(");
+    generate_AE(g, p->left);
+    write_char(g, ' ');
+    write_string(g, s);
+    write_char(g, ' ');
+    generate_AE(g, p->AE);
+    writef(g, ")) ~f~C", p);
 }
 
 static void generate_call(struct generator * g, struct node * p) {
@@ -1298,8 +1311,8 @@ static void generate_substring(struct generator * g, struct node * p) {
 #endif
     }
 
-    if (x->command_count == 0 && x->starter == 0) {
-        w(g, "~Mif (!(find_among~S0(s_pool, ~Za_~I0, ~I1, ");
+    if (!x->amongvar_needed) {
+        writef(g, "~Mif (!(find_among~S0(s_pool, ~Za_~I0, ~I1, ", p);
         if (x->function_count) {
             w(g, "af_~I0, af");
         } else {
@@ -1323,27 +1336,25 @@ static void generate_substring(struct generator * g, struct node * p) {
 static void generate_among(struct generator * g, struct node * p) {
 
     struct among * x = p->among;
-    int case_number = 1;
 
     if (x->substring == 0) generate_substring(g, p);
-    if (x->command_count == 0 && x->starter == 0) return;
 
     if (x->starter != 0) generate(g, x->starter);
 
-    writef(g, "~Mswitch (among_var) {~C~+"
-              "~Mcase 0: ~f~N", p);
-
-    p = p->left;
-    if (p != 0 && p->type != c_literalstring) p = p->right;
-
-    while (p) {
-        if (p->type == c_bra && p->left != 0) {
-            g->I[0] = case_number++;
-            w(g, "~Mcase ~I0:~N~+"); generate(g, p); w(g, "~Mbreak;~N~-");
+    if (x->command_count == 1 && x->nocommand_count == 0) {
+        /* Only one outcome ("no match" already handled). */
+        generate(g, x->commands[0]);
+    } else if (x->command_count > 0) {
+        int i;
+        writef(g, "~Mswitch (among_var) {~C~+", p);
+        for (i = 1; i <= x->command_count; i++) {
+            g->I[0] = i;
+            w(g, "~Mcase ~I0:~N~+");
+            generate(g, x->commands[i - 1]);
+            w(g, "~Mbreak;~N~-");
         }
-        p = p->right;
+        w(g, "~}");
     }
-    w(g, "~}");
 }
 
 static void generate_booltest(struct generator * g, struct node * p) {
@@ -1866,7 +1877,7 @@ static void generate_header_file(struct generator * g) {
                 if (vp) {
                     g->I[0] = q->count;
                     w(g, "#define ~S0");
-                    str_append_b(g->outbuf, q->b);
+                    write_b(g, q->b);
                     w(g, " (~S1[~I0])~N");
                 }
                 break;

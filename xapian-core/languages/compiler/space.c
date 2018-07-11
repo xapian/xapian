@@ -198,7 +198,7 @@ extern void str_append_b(struct str * str, symbol * q) {
     str->data = add_to_b(str->data, SIZE(q), q);
 }
 
-/* Append a (char *, null teminated) string to a str. */
+/* Append a (char *, null terminated) string to a str. */
 extern void str_append_string(struct str * str, const char * s) {
 
     str->data = add_s_to_b(str->data, s);
