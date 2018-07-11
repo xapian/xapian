@@ -698,7 +698,8 @@ DEFINE_TESTCASE(mathquery1, writable) {
     Xapian::MathTermGenerator termgen;
 
     std::vector<std::string> docs;
-    ifstream infile("testdata/apitest_allformulae.txt");
+    ifstream infile(test_driver::get_srcdir() +
+		    "/testdata/apitest_allformulae.txt");
 
     string line;
     string formula;
