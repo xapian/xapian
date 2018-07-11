@@ -38,7 +38,7 @@ $copyright
 
 EOF
 
-my $hdr = Tokeniseise->new('languages/sbl-dispatch.h', 'Map string to language code', $copyright, 'XAPIAN_INCLUDED_SBL_DISPATCH_H', 'sbl_code');
+my $hdr = Tokeniseise->new('languages/sbl-dispatch.h', 'Map string to language code', $copyright, 'XAPIAN_INCLUDED_SBL_DISPATCH_H', 'sbl_code', 2);
 $hdr->add('none', 'NONE');
 my @langs;
 foreach (sort @ARGV) {

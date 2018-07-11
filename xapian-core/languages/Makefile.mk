@@ -22,9 +22,12 @@ snowball_algorithms =\
 	languages/german.sbl\
 	languages/hungarian.sbl\
 	languages/indonesian.sbl\
+	languages/irish.sbl\
 	languages/italian.sbl\
 	languages/kraaij_pohlmann.sbl\
+	languages/lithuanian.sbl\
 	languages/lovins.sbl\
+	languages/nepali.sbl\
 	languages/norwegian.sbl\
 	languages/porter.sbl\
 	languages/portuguese.sbl\
@@ -32,6 +35,7 @@ snowball_algorithms =\
 	languages/russian.sbl\
 	languages/spanish.sbl\
 	languages/swedish.sbl\
+	languages/tamil.sbl\
 	languages/turkish.sbl
 
 snowball_built_sources =\
