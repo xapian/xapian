@@ -697,7 +697,6 @@ DEFINE_TESTCASE(mathquery1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::MathTermGenerator termgen;
 
-    std::vector<std::string> docs;
     ifstream infile(test_driver::get_srcdir() +
 		    "/testdata/apitest_allformulae.txt");
 
@@ -705,21 +704,21 @@ DEFINE_TESTCASE(mathquery1, writable) {
     string formula;
     while (getline(infile, line)) {
 	if (line.empty()) {
-	    docs.push_back(formula);
+	    Xapian::Document doc;
+	    termgen.set_document(doc);
+	    termgen.index_math(formula);
+	    db.add_document(doc);
 	    formula.clear();
 	    continue;
 	}
 	formula.append(line);
     }
 
-    if (!formula.empty())
-	docs.push_back(formula);
-
-
-    for (unsigned i = 0; i < docs.size(); ++i) {
+    if (!formula.empty()) {
+	// Index the last formula.
 	Xapian::Document doc;
 	termgen.set_document(doc);
-	termgen.index_math(docs[i]);
+	termgen.index_math(formula);
 	db.add_document(doc);
     }
 
