@@ -83,7 +83,7 @@ $if{$not{$msizeexact},
 }
 <hr>
 </center>
-$list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
+$list{$map{$queryterms,$list{$html{$unique{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
 <br><small>Search took $time seconds</small>
 <table>
 $if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
