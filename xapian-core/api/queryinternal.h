@@ -1,7 +1,7 @@
 /** @file queryinternal.h
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,6 +42,9 @@ class QueryTerm : public Query::Internal {
     Xapian::termpos pos;
 
   public:
+    // Construct a "MatchAll" QueryTerm.
+    QueryTerm() : term(), wqf(0), pos(0) { }
+
     QueryTerm(const std::string & term_,
 	      Xapian::termcount wqf_,
 	      Xapian::termpos pos_)
