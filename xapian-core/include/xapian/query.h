@@ -1,7 +1,7 @@
 /** @file query.h
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -50,13 +50,19 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** A query matching no documents.
      *
-     *  Exactly equivalent to Xapian::Query().
+     *  This is a static instance of a default-constructed Xapian::Query
+     *  object.  It is safe to use concurrently from different threads,
+     *  unlike @a MatchAll (this is because MatchNothing has a NULL
+     *  internal object so there's no reference counting happening).
      */
     static const Xapian::Query MatchNothing;
 
     /** A query matching all documents.
      *
-     *  Exactly equivalent to Xapian::Query(std::string()).
+     *  This is a static instance of Xapian::Query(std::string()).  If
+     *  you are constructing Query objects in different threads, avoid
+     *  using @a MatchAll as the reference counting of the static object
+     *  can get messed up by concurrent access).
      */
     static const Xapian::Query MatchAll;
 
@@ -531,7 +537,7 @@ class InvertedQuery_ {
     InvertedQuery_(const InvertedQuery_ & o) : query(o.query) { }
 
     operator Query() const {
-	return Query(Query::OP_AND_NOT, Query::MatchAll, query);
+	return Query(Query::OP_AND_NOT, Query(std::string()), query);
     }
 
     friend const InvertedQuery_ operator~(const Query &q);

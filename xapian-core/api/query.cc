@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2015,2016,2017 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,7 +89,7 @@ Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 
     if (op_ == OP_VALUE_GE) {
 	if (limit.empty())
-	    internal = MatchAll.internal;
+	    internal = new Xapian::Internal::QueryTerm();
 	else
 	    internal = new Xapian::Internal::QueryValueGE(slot, limit);
     } else if (usual(op_ == OP_VALUE_LE)) {

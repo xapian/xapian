@@ -632,7 +632,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    return new Xapian::Internal::QueryTerm(string(), wqf, pos);
 		}
 		case 0x0f:
-		    return Query::MatchAll.internal.get();
+		    return new Xapian::Internal::QueryTerm();
 		default: // Others currently unused.
 		    break;
 	    }
