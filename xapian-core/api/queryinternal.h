@@ -43,7 +43,7 @@ class QueryTerm : public Query::Internal {
 
   public:
     // Construct a "MatchAll" QueryTerm.
-    QueryTerm() : term(), wqf(0), pos(0) { }
+    QueryTerm() : term(), wqf(1), pos(0) { }
 
     QueryTerm(const std::string & term_,
 	      Xapian::termcount wqf_,
