@@ -1,3 +1,85 @@
+up to: 2f882fd0e3a13fac7eb17edd61763d9ffdd05a34
+
+Xapian-core 1.4.7 (2018-07-12):
+
+
+API:
+
+* Query: Use of Query::MatchAll in multithreaded code causes problems because
+  the reference counting gets messed up by concurrent updates.  Document that
+  Query(string()) should be used instead of MatchAll in multithreaded code, and
+  avoid using it in library code.  Reported by Germán M. Bravo.
+
+* Stem:
+
+  + Stemming algorithms added for Irish, Lithuanian, Nepali and Tamil.
+
+  + Merge Snowball compiler changes which improve code generation.
+
+  + Merge optimisations for the Arabic and Turkish stemmers.
+
+testsuite:
+
+  + Fix duplicate test in apitest closedb10 testcase.  Patch from Guruprasad
+    Hegde.
+
+matcher:
+
+
+glass backend:
+
+* A long-lived cursor on a table in a WritableDatabase could get into
+  an invalid state, which typically resulted in a DatabaseCorruptError
+  being thrown with the message:
+
+      Db block overwritten - are there multiple writers?
+
+  But in fact the on-disk database is not corrupted - it's just that
+  the cursor in memory has got into an inconsistent state.  It looks
+  like we'll always detect the inconsistency before it can cause on-disk
+  corruption but it's hard to be completely certain.
+
+  The bug is in code to rebuild the cursor when the underlying table
+  changes in ways which require that, which is a fairly rare occurrence
+  to start with, and only triggers when a block in the cursor has been
+  released, reallocated, and we tried to load it in the cursor at the
+  same level - the cursor wrongly assumes it has the current version
+  of the block.
+
+  Reported with a reproducer by Sylvain Taverne.  Confirmed by David
+  Bremner as fixing a problem in notmuch for which he hadn't managed
+  to find a reduced reproducer.
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+
+tools:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.6 (2018-07-02):
 
 API:

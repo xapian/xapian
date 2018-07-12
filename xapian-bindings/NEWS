@@ -1,3 +1,37 @@
+up to: 3eefa27d2d4c6fd990de8480595c750795e6826d
+
+Xapian-bindings 1.4.7 (2018-07-12):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+PHP7:
+
+Python:
+
+Python3:
+
+Ruby:
+
+* Fix -Wconversion-null warnings with newer GCC.
+
+Tcl:
+
 Xapian-bindings 1.4.6 (2018-07-02):
 
 Documentation:
@@ -26,7 +60,7 @@ Java:
 
 * Fix leaks in binary std::string typemaps.  These are used for document values
   and serialised data.
-    
+
 * Improve VPATH build.  Previously we looked for class files and java sources
   in srcdir first, then in builddir.  That's backwards from how autotools
   VPATH builds search for targets and prerequisites so reverse this order to
