@@ -739,13 +739,17 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    }
 
 	    // Check doclen with doclen lower and upper bounds
-	    if (doclen < version_file.get_doclength_lower_bound() ||
-		doclen > version_file.get_doclength_upper_bound()) {
-		if (out) {
-		    *out << "doclen not within bounds" << endl;
-		}
+	    if (doclen > version_file.get_doclength_upper_bound()) {
+		if (out)
+		    *out << "doclen " << doclen << " > upper bound "
+			 << version_file.get_doclength_upper_bound() << endl;
 		++errors;
-		continue;
+	    } else if (doclen < version_file.get_doclength_lower_bound() &&
+		       doclen != 0) {
+		if (out)
+		    *out << "doclen " << doclen << " < lower bound "
+			 << version_file.get_doclength_lower_bound() << endl;
+		++errors;
 	    }
 
 	    // Read termlist_size

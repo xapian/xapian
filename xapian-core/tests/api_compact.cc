@@ -701,6 +701,14 @@ DEFINE_TESTCASE(compactsingle1, compact && writable) {
     doc.add_term("bar");
     doc.add_term("baz");
     db.add_document(doc);
+    // Include a zero-length document as a regression test for a
+    // Database::check() bug fixed in 1.4.7 (and introduced in 1.4.6).  Test it
+    // here so we also have test coverage for compaction for such a document.
+    Xapian::Document doc2;
+    doc2.add_boolean_term("Kfoo");
+    db.add_document(doc2);
+    // Also test a completely empty document.
+    db.add_document(Xapian::Document());
 
     string output = get_compaction_output_path("compactsingle1-out");
     // In 1.3.4, we would hang if the output file already existed, so check
@@ -719,6 +727,8 @@ DEFINE_TESTCASE(compactsingle1, compact && writable) {
 
     TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
 
+    TEST_EQUAL(Xapian::Database(output).get_doccount(), 3);
+
     return true;
 }
 
@@ -731,6 +741,14 @@ DEFINE_TESTCASE(compact1, compact && writable) {
     doc.add_term("bar");
     doc.add_term("baz");
     db.add_document(doc);
+    // Include a zero-length document as a regression test for a
+    // Database::check() bug fixed in 1.4.7 (and introduced in 1.4.6).  Test it
+    // here so we also have test coverage for compaction for such a document.
+    Xapian::Document doc2;
+    doc2.add_boolean_term("Kfoo");
+    db.add_document(doc2);
+    // Also test a completely empty document.
+    db.add_document(Xapian::Document());
 
     string output = get_compaction_output_path("compact1-out");
     rm_rf(output);
@@ -743,6 +761,8 @@ DEFINE_TESTCASE(compact1, compact && writable) {
     db.close();
 
     TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
+
+    TEST_EQUAL(Xapian::Database(output).get_doccount(), 3);
 
     return true;
 }
