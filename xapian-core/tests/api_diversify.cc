@@ -45,10 +45,10 @@ DEFINE_TESTCASE(diversify1, generated)
     return true;
 }
 
-/** LC cluster Test
+/** LCD cluster Test
  *  Test that none of the returned clusters are empty
  */
-DEFINE_TESTCASE(lc1, generated)
+DEFINE_TESTCASE(lcdclusterer1, generated)
 {
     Xapian::Database db = get_database("apitest_diversify");
     Xapian::Enquire enq(db);
@@ -56,8 +56,8 @@ DEFINE_TESTCASE(lc1, generated)
     Xapian::MSet matches = enq.get_mset(0, 10);
 
     int num_clusters = 4;
-    Xapian::LC lc(num_clusters);
-    Xapian::ClusterSet cset = lc.cluster(matches);
+    Xapian::LCDClusterer lcd(num_clusters);
+    Xapian::ClusterSet cset = lcd.cluster(matches);
     int size = cset.size();
     for (int i = 0; i < size; ++i) {
 	Xapian::DocumentSet d = cset[i].get_documents();

@@ -663,12 +663,12 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     std::string get_description() const;
 };
 
-/** LC clusterer:
- *  This clusterer implements the LC clustering algorithm adapted from
+/** LCD clusterer:
+ *  This clusterer implements the LCD clustering algorithm adapted from
  *  Modelling efficient novelty-based search result diversification in metric
  *  spaces Gil-Costa et al. 2013
  */
-class XAPIAN_VISIBILITY_DEFAULT LC : public Clusterer {
+class XAPIAN_VISIBILITY_DEFAULT LCDClusterer : public Clusterer {
     /// Specifies that the clusterer needs to form 'k' clusters
     unsigned int k;
 
@@ -677,9 +677,9 @@ class XAPIAN_VISIBILITY_DEFAULT LC : public Clusterer {
      *
      *  @param k_		Number of required clusters
      */
-    explicit LC(unsigned int k_);
+    explicit LCDClusterer(unsigned int k_);
 
-    /** Implements the LC clustering algorithm
+    /** Implements the LCD clustering algorithm
      *
      *  @param mset    MSet object containing the documents that are to
      *                 be clustered

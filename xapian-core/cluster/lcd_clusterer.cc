@@ -1,5 +1,5 @@
-/** @file lc.cc
- *  @brief LC clustering API
+/** @file lcd_clusterer.cc
+ *  @brief LCD clustering API
  */
 /* Copyright (C) 2018 Uppinder Chugh
  *
@@ -34,19 +34,19 @@ using namespace std;
 
 typedef set<pair<Point, double> > PSet;
 
-LC::LC(unsigned int k_)
+LCDClusterer::LCDClusterer(unsigned int k_)
     : k(k_)
 {
-    LOGCALL_CTOR(API, "LC", k_);
+    LOGCALL_CTOR(API, "LCDClusterer", k_);
     if (k_ == 0)
 	throw InvalidArgumentError("Number of required clusters should be \
 				    greater than zero");
 }
 
 string
-LC::get_description() const
+LCDClusterer::get_description() const
 {
-    return "LC()";
+    return "LCDClusterer()";
 }
 
 struct pcompare {
@@ -64,9 +64,9 @@ struct dcompare {
 };
 
 ClusterSet
-LC::cluster(const MSet &mset)
+LCDClusterer::cluster(const MSet &mset)
 {
-    LOGCALL(API, ClusterSet, "LC::cluster", mset);
+    LOGCALL(API, ClusterSet, "LCDClusterer::cluster", mset);
 
     doccount size = mset.size();
     if (k >= size)
@@ -97,7 +97,7 @@ LC::cluster(const MSet &mset)
 	// The original algorithm accepts a parameter 'k' which is the number
 	// of documents in each cluster, which can be hard to tune and
 	// especially when using this in conjunction with the diversification
-	// module. So, for now LC clustering accepts 'k' as the number of
+	// module. So, for now LCD clustering accepts 'k' as the number of
 	// clusters and divides the documents equally in the first k-1 clusters
 	// and the remaining in the last cluster. This needs to be tested on a
 	// dataset to see how well this works.
