@@ -92,7 +92,7 @@ LCDClusterer::cluster(const MSet &mset)
     PSet::iterator it;
     for (unsigned int cnum = 1; cnum <= k; ++cnum) {
 	// Container for new cluster
-	Cluster C;
+	Cluster new_cluster;
 
 	// The original algorithm accepts a parameter 'k' which is the number
 	// of documents in each cluster, which can be hard to tune and
@@ -127,7 +127,7 @@ LCDClusterer::cluster(const MSet &mset)
 	for (unsigned int i = 0; i < num_points - 1; ++i) {
 	    auto piterator = dist_vector[i].first;
 	    // Add to cluster
-	    C.add_point(piterator->first);
+	    new_cluster.add_point(piterator->first);
 	    // Remove from 'points'
 	    points.erase(piterator);
 	}
@@ -148,10 +148,10 @@ LCDClusterer::cluster(const MSet &mset)
 	}
 
 	// Add cluster_center to current cluster
-	C.add_point(cluster_center->first);
+	new_cluster.add_point(cluster_center->first);
 
 	// Add cluster to cset
-	cset.add_cluster(C);
+	cset.add_cluster(new_cluster);
 
 	// Remove current cluster_center from points
 	points.erase(cluster_center);
