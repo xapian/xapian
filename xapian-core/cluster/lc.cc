@@ -39,7 +39,8 @@ LC::LC(unsigned int k_)
 {
     LOGCALL_CTOR(API, "LC", k_);
     if (k_ == 0)
-	throw InvalidArgumentError("Number of required clusters should be greater than zero");
+	throw InvalidArgumentError("Number of required clusters should be \
+				    greater than zero");
 }
 
 string
@@ -91,7 +92,7 @@ LC::cluster(const MSet &mset)
     PSet::iterator it;
     for (unsigned int cnum = 1; cnum <= k; ++cnum) {
 	// Container for new cluster
-	Cluster cluster;
+	Cluster C;
 
 	// The original algorithm accepts a parameter 'k' which is the number
 	// of documents in each cluster, which can be hard to tune and
@@ -123,10 +124,10 @@ LC::cluster(const MSet &mset)
 	sort(dist_vector.begin(), dist_vector.end(), dcompare());
 
 	// Add first num_points-1 to cluster
-	for (unsigned int i = 0;i < num_points - 1; ++i) {
+	for (unsigned int i = 0; i < num_points - 1; ++i) {
 	    auto piterator = dist_vector[i].first;
 	    // Add to cluster
-	    cluster.add_point(piterator->first);
+	    C.add_point(piterator->first);
 	    // Remove from 'points'
 	    points.erase(piterator);
 	}
@@ -147,10 +148,10 @@ LC::cluster(const MSet &mset)
 	}
 
 	// Add cluster_center to current cluster
-	cluster.add_point(cluster_center->first);
+	C.add_point(cluster_center->first);
 
 	// Add cluster to cset
-	cset.add_cluster(cluster);
+	cset.add_cluster(C);
 
 	// Remove current cluster_center from points
 	points.erase(cluster_center);
