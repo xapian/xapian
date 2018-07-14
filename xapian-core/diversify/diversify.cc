@@ -176,8 +176,8 @@ Diversify::Internal::get_dmset(const MSet& mset)
     initialise_points(mset);
 
     // Cluster the given mset into k clusters
-    KMeans km(k);
-    Xapian::ClusterSet cset = km.cluster(mset);
+    Xapian::LC lc(k);
+    Xapian::ClusterSet cset = lc.cluster(mset);
     compute_similarities(cset);
 
     // topC contains union of top-r relevant documents of each cluster
