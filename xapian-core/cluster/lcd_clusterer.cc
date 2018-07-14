@@ -39,8 +39,8 @@ LCDClusterer::LCDClusterer(unsigned int k_)
 {
     LOGCALL_CTOR(API, "LCDClusterer", k_);
     if (k_ == 0)
-	throw InvalidArgumentError("Number of required clusters should be \
-				    greater than zero");
+	throw InvalidArgumentError("Number of required clusters should be "
+				   "greater than zero");
 }
 
 string
