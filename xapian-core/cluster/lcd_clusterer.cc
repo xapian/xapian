@@ -72,7 +72,7 @@ LCDClusterer::cluster(const MSet &mset)
     if (k >= size)
 	k = size;
 
-    // Store each document and it's rel score from given mset
+    // Store each document and its rel score from given mset
     set<pair<Point, double>, pcompare> points;
 
     // Initiliase points
