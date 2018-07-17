@@ -185,6 +185,8 @@ lazy_build() {
     main_tarball=
     main_worktree_dir=`git worktree list --porcelain|sed 's/^worktree //;q'`
     if [ -n "$main_worktree_dir" ] ; then
+      # Canonicalise main_worktree_dir before comparing with pwd.
+      main_worktree_dir=`cd "$main_worktree_dir" && pwd`
       if [ "$main_worktree_dir/BUILD" != "`pwd`" ] ; then
 	# If main_tarball is set non-empty, then we're a linked worktree.
 	main_tarball=$main_worktree_dir/BUILD/$tarball
@@ -276,13 +278,18 @@ END
     # option if wget, curl, etc aren't found).
     check_checksum "$checksum" "$tarball"
 
-    case `git worktree list --porcelain|grep -c '^worktree '` in
-      1|0)
-	# Remove tarballs of other versions if there's only one worktree, or if
-	# using git < 2.5 (before worktrees were added).
-	for f in "$package"-* ; do
-	  [ "$f" = "$tarball" ] || rm -rf "$f"
-	done
+    case $tarball in
+      */*) ;; # Only expire tarballs from the main worktree.
+      *)
+	case `git worktree list --porcelain|grep -c '^worktree '` in
+	  1|0)
+	    # Remove tarballs of other versions if there's only one worktree, or if
+	    # using git < 2.5 (before worktrees were added).
+	    for f in "$package"-* ; do
+	      [ "$f" = "$tarball" ] || rm -rf "$f"
+	    done
+	    ;;
+	esac
 	;;
     esac
 
