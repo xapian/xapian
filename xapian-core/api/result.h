@@ -46,10 +46,10 @@ class Result {
     Result(const Result&) = default;
 
     /// Move constructor.
-    Result(Result&& o) = default;
+    Result(Result&&) = default;
 
     /// Move assignment.
-    Result& operator=(Result&& o) = default;
+    Result& operator=(Result&&) = default;
 
     /// Constructor.
     Result(double weight_, Xapian::docid did_)
