@@ -23,6 +23,7 @@
 #ifndef XAPIAN_INCLUDED_POSIXY_WRAPPER_H
 #define XAPIAN_INCLUDED_POSIXY_WRAPPER_H
 
+#ifdef __WIN32__
 /** Version of open() which allows the file to be unlinked while open. */
 int posixy_open(const char *filename, int flags);
 
