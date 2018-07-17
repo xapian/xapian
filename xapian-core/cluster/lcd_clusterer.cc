@@ -89,7 +89,6 @@ LCDClusterer::cluster(const MSet &mset)
     // First cluster center
     PSet::iterator cluster_center = points.begin();
 
-    PSet::iterator it;
     for (unsigned int cnum = 1; cnum <= k; ++cnum) {
 	// Container for new cluster
 	Cluster new_cluster;
@@ -112,7 +111,7 @@ LCDClusterer::cluster(const MSet &mset)
 	// Store distances of each point from current cluster center
 	// Iterator of each point is stored for fast deletion from 'points'
 	vector<pair<PSet::iterator, double> > dist_vector;
-	for (it = points.begin(); it != points.end(); ++it) {
+	for (auto it = points.begin(); it != points.end(); ++it) {
 	    if (it == cluster_center)
 		continue;
 
@@ -136,7 +135,7 @@ LCDClusterer::cluster(const MSet &mset)
 	// farthest away from the current cluster center
 	double max_dist = -1;
 	PSet::iterator new_cluster_center;
-	for (it = points.begin(); it != points.end(); ++it) {
+	for (auto it = points.begin(); it != points.end(); ++it) {
 	    if (it == cluster_center)
 		continue;
 
