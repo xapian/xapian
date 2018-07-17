@@ -170,13 +170,14 @@ Diversify::Internal::get_dmset(const MSet& mset)
 	return dmset;
     }
 
-    if (k > mset.size())
-	k = mset.size();
+    unsigned int k_ = k;
+    if (k_ > mset.size())
+	k_ = mset.size();
 
     initialise_points(mset);
 
     // Cluster the given mset into k clusters
-    Xapian::LCDClusterer lc(k);
+    Xapian::LCDClusterer lc(k_);
     Xapian::ClusterSet cset = lc.cluster(mset);
     compute_similarities(cset);
 

@@ -69,8 +69,9 @@ LCDClusterer::cluster(const MSet &mset)
     LOGCALL(API, ClusterSet, "LCDClusterer::cluster", mset);
 
     doccount size = mset.size();
-    if (k >= size)
-	k = size;
+    unsigned int k_ = k;
+    if (k_ >= size)
+	k_ = size;
 
     // Store each document and its rel score from given mset
     set<pair<Point, double>, pcompare> points;
@@ -89,7 +90,7 @@ LCDClusterer::cluster(const MSet &mset)
     // First cluster center
     PSet::iterator cluster_center = points.begin();
 
-    for (unsigned int cnum = 1; cnum <= k; ++cnum) {
+    for (unsigned int cnum = 1; cnum <= k_; ++cnum) {
 	// Container for new cluster
 	Cluster new_cluster;
 
@@ -100,9 +101,9 @@ LCDClusterer::cluster(const MSet &mset)
 	// clusters and divides the documents equally in the first k-1 clusters
 	// and the remaining in the last cluster. This needs to be tested on a
 	// dataset to see how well this works.
-	unsigned int num_points = size / k;
-	if (cnum == k)
-	    num_points = size - (k - 1) * (size / k);
+	unsigned int num_points = size / k_;
+	if (cnum == k_)
+	    num_points = size - (k_ - 1) * (size / k_);
 
 	/* Select (num_points - 1) nearest points to cluster_center from
 	*  from 'points' and form a new cluster
