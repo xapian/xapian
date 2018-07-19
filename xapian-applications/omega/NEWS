@@ -1,16 +1,4 @@
-up to: 43578e28c6fb5fbe328736d8f258af2fea4cb792
-
-Omega 1.4.7 (2018-07-12):
-
-general:
-
-documentation:
-
-indexers:
-
-* omindex:
-
-* scriptindex:
+Omega 1.4.7 (2018-07-19):
 
 omega:
 
@@ -31,14 +19,6 @@ templates:
 
 * When multiple words with the same stem are in the query string we now fully
   eliminate duplicates when showing term frequency information.
-
-testsuite:
-
-build system:
-
-portability:
-
-packaging:
 
 Omega 1.4.6 (2018-07-02):
 

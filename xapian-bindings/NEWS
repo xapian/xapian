@@ -1,36 +1,8 @@
-up to: 3eefa27d2d4c6fd990de8480595c750795e6826d
-
-Xapian-bindings 1.4.7 (2018-07-12):
-
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
-
-Perl:
-
-PHP:
-
-PHP7:
-
-Python:
-
-Python3:
+Xapian-bindings 1.4.7 (2018-07-19):
 
 Ruby:
 
 * Fix -Wconversion-null warnings with newer GCC.
-
-Tcl:
 
 Xapian-bindings 1.4.6 (2018-07-02):
 

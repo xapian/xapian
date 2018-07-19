@@ -1,9 +1,12 @@
-up to: 2f882fd0e3a13fac7eb17edd61763d9ffdd05a34
-
-Xapian-core 1.4.7 (2018-07-12):
-
+Xapian-core 1.4.7 (2018-07-19):
 
 API:
+
+* Database::check(): Fix bogus error reports for documents with length zero
+  due to a new check added in 1.4.6 that the doclength was between the stored
+  upper and lower bounds, which failed to allow for the lower bound ignoring
+  documents with length zero (since documents indexed only by boolean terms
+  aren't involved in weighted searches).  Reported by David Bremner.
 
 * Query: Use of Query::MatchAll in multithreaded code causes problems because
   the reference counting gets messed up by concurrent updates.  Document that
@@ -16,15 +19,12 @@ API:
 
   + Merge Snowball compiler changes which improve code generation.
 
-  + Merge optimisations for the Arabic and Turkish stemmers.
+  + Merge optimisations to the Arabic and Turkish stemmers.
 
 testsuite:
 
   + Fix duplicate test in apitest closedb10 testcase.  Patch from Guruprasad
     Hegde.
-
-matcher:
-
 
 glass backend:
 
@@ -47,38 +47,17 @@ glass backend:
   of the block.
 
   Reported with a reproducer by Sylvain Taverne.  Confirmed by David
-  Bremner as fixing a problem in notmuch for which he hadn't managed
+  Bremner as also fixing a problem in notmuch for which he hadn't managed
   to find a reduced reproducer.
-
-chert backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
-
-build system:
-
 
 documentation:
 
-
-tools:
-
-
-examples:
-
+* INSTALL: Document need to have MSVC command line tools on PATH.
 
 portability:
 
-
-packaging:
-
-
-debug code:
-
+* Cygwin: Work around oddity where unlink() sometimes seems to indicate failure
+  with errno set to ECHILD.
 
 Xapian-core 1.4.6 (2018-07-02):
 
