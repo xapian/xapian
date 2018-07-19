@@ -71,9 +71,9 @@ BackendManager::create_dir_if_needed(const string &dirname)
     int result = stat(dirname.c_str(), &sbuf);
     if (result < 0) {
 	if (errno != ENOENT)
-	    throw Xapian::DatabaseOpeningError("Can't stat directory");
+	    throw Xapian::DatabaseOpeningError("Can't stat directory", errno);
 	if (mkdir(dirname.c_str(), 0700) < 0)
-	    throw Xapian::DatabaseOpeningError("Can't create directory");
+	    throw Xapian::DatabaseOpeningError("Can't create directory", errno);
 	return true; // Successfully created a directory.
     }
     if (!S_ISDIR(sbuf.st_mode))
