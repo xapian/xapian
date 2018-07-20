@@ -272,6 +272,8 @@ cd build
       cmp "$DSC" "backup/$DSC" && rm -f "$DSC"
     fi
     dget -b "file://`pwd`/backup/$DSC"
+  elif [ -f "../$DSC" ] ; then
+    dget -b "file://`cd .. && pwd`/$DSC"
   else
     dget "${MIRROR}pool/main/$DIR/$PKG/$DSC"
   fi
