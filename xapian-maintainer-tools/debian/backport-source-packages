@@ -67,7 +67,7 @@ done
 if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
   echo "Usage: $0 [-v <last uploaded version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
   echo
-  echo "e.g.: $0 xapian-core 1.2.15-1 precise"
+  echo "e.g.: $0 xapian-core 1.2.15-1 xenial"
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
   echo "Currently, the recognised values are:"
@@ -119,19 +119,9 @@ build_it() {
 
   overrides=
   case $PKG:$CODENAME:$VERSION in
-    libsearch-xapian-perl:precise:*)
-      # Relax debhelper version requirement a little on precise.
-      sed -i 's/debhelper (>= 9\.[0-9]*)/debhelper (>= 9.20120115)/' debian/control
-      dch -a 'debian/control: Relax dependency on debhelper version a little so it is satisfied by the debhelper version in precise.  This only affects what hardening flags get used, and the backport will be no worse than the standard libsearch-xapian-perl package in precise.'
-      ;;
     xapian-core:*:1.2.*)
       # So we can create the backport source packages on debian unstable.
       overrides='libxapian_soversion=22 other_abi_suffix=v5' ;;
-    xapian-core:precise:1.4.*|xapian-omega:precise:1.4.*)
-      sed -i 's/^Build-Depends: /&g++-4.7, /' debian/control.in
-      sed -i 's!/configure\>!& CXX=g++-4.7!' debian/rules
-      dch -a 'debian/control.in,debian/rules: Build with g++-4.7 for C++11 support.'
-      ;;
     xapian-bindings:trusty:1.2.*)
       # Make sure we add python-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy RUBY_VERSIONS="2.0" RUBY_PROVIDES="X-Dummy: No provides"' ;;
@@ -142,12 +132,6 @@ build_it() {
       # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
       # to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
-    xapian-bindings:precise:1.4.*)
-      sed -i 's/^Build-Depends: /&g++-4.7, /' debian/control.in
-      sed -i 's!/configure\>!& CXX=g++-4.7!' debian/rules
-      dch -a 'debian/control.in,debian/rules: Build with g++-4.7 for C++11 support.'
-      # Make sure we add python-xapian and python3-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
     xapian-bindings:*:*)
       # Make sure we add python-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy' ;;
@@ -159,7 +143,7 @@ build_it() {
   case $PKG:$VERSION in
   xapian-core:1.4.*)
     case $CODENAME in
-    jessie|precise|trusty)
+    jessie|trusty)
       perl -i -e 'while (<>) { print; last if /^libxapian_soversion:=/ } while (<>) { print; last unless /\\$/ } print "libxapian_soversion:=\$(libxapian_soversion)v4\n"; while (<>) { print }' debian/rules
       sed -i 's/^\(Package: libxapian@LIBXAPIAN_SOVERSION@\)\(.*\)/\1\2\nConflicts: libxapian30\2\nReplaces: libxapian30\2/' debian/control.in
       dch -a 'debian/control.in,debian/rules: Add v4 suffix to soname. (Closes: #863705)'
@@ -195,13 +179,6 @@ build_it() {
       # Generates control from control.in (and maybe other files).
       fakeroot debian/rules maintclean CODENAME="$CODENAME"
       eval fakeroot debian/rules maint CODENAME="$CODENAME" $overrides
-      ;;
-  esac
-
-  case $PKG:$CODENAME:$VERSION in
-    xapian-bindings:precise:1.4.*)
-      # No dh-python for precise.
-      sed -i 's/dh-python, *//g' debian/control
       ;;
   esac
 
