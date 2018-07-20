@@ -1,3 +1,25 @@
+Omega 1.4.7 (2018-07-19):
+
+omega:
+
+* New OmegaScript $unique command.  The existing $uniq only removes adjacent
+  entries (like the Unix uniq command) so to fully remove duplicates you need a
+  sorted input.  Sometimes it is desirable to remove duplicates from an
+  unsorted list without changing the order of the entries which are left, so
+  add $unique to do that.  If the list is sorted already, then $uniq is more
+  efficient.
+
+* Fix $map to cleanly reject a single argument.
+
+templates:
+
+* templates/query: Merge multiple entries in the term frequency information,
+  which came from searching several prefixes by default.  Reported by Alistair
+  Buxton on #xapian-discuss.
+
+* When multiple words with the same stem are in the query string we now fully
+  eliminate duplicates when showing term frequency information.
+
 Omega 1.4.6 (2018-07-02):
 
 general:

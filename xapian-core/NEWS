@@ -1,3 +1,64 @@
+Xapian-core 1.4.7 (2018-07-19):
+
+API:
+
+* Database::check(): Fix bogus error reports for documents with length zero
+  due to a new check added in 1.4.6 that the doclength was between the stored
+  upper and lower bounds, which failed to allow for the lower bound ignoring
+  documents with length zero (since documents indexed only by boolean terms
+  aren't involved in weighted searches).  Reported by David Bremner.
+
+* Query: Use of Query::MatchAll in multithreaded code causes problems because
+  the reference counting gets messed up by concurrent updates.  Document that
+  Query(string()) should be used instead of MatchAll in multithreaded code, and
+  avoid using it in library code.  Reported by Germán M. Bravo.
+
+* Stem:
+
+  + Stemming algorithms added for Irish, Lithuanian, Nepali and Tamil.
+
+  + Merge Snowball compiler changes which improve code generation.
+
+  + Merge optimisations to the Arabic and Turkish stemmers.
+
+testsuite:
+
+  + Fix duplicate test in apitest closedb10 testcase.  Patch from Guruprasad
+    Hegde.
+
+glass backend:
+
+* A long-lived cursor on a table in a WritableDatabase could get into
+  an invalid state, which typically resulted in a DatabaseCorruptError
+  being thrown with the message:
+
+      Db block overwritten - are there multiple writers?
+
+  But in fact the on-disk database is not corrupted - it's just that
+  the cursor in memory has got into an inconsistent state.  It looks
+  like we'll always detect the inconsistency before it can cause on-disk
+  corruption but it's hard to be completely certain.
+
+  The bug is in code to rebuild the cursor when the underlying table
+  changes in ways which require that, which is a fairly rare occurrence
+  to start with, and only triggers when a block in the cursor has been
+  released, reallocated, and we tried to load it in the cursor at the
+  same level - the cursor wrongly assumes it has the current version
+  of the block.
+
+  Reported with a reproducer by Sylvain Taverne.  Confirmed by David
+  Bremner as also fixing a problem in notmuch for which he hadn't managed
+  to find a reduced reproducer.
+
+documentation:
+
+* INSTALL: Document need to have MSVC command line tools on PATH.
+
+portability:
+
+* Cygwin: Work around oddity where unlink() sometimes seems to indicate failure
+  with errno set to ECHILD.
+
 Xapian-core 1.4.6 (2018-07-02):
 
 API:

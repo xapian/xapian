@@ -1,3 +1,9 @@
+Xapian-bindings 1.4.7 (2018-07-19):
+
+Ruby:
+
+* Fix -Wconversion-null warnings with newer GCC.
+
 Xapian-bindings 1.4.6 (2018-07-02):
 
 Documentation:
@@ -26,7 +32,7 @@ Java:
 
 * Fix leaks in binary std::string typemaps.  These are used for document values
   and serialised data.
-    
+
 * Improve VPATH build.  Previously we looked for class files and java sources
   in srcdir first, then in builddir.  That's backwards from how autotools
   VPATH builds search for targets and prerequisites so reverse this order to
