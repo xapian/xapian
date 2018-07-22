@@ -51,7 +51,8 @@ MathMLParser::get_element_value()
 	++it;
     }
 
-    // TODO Handle EOF.
+    if (it == end)
+	error = true;
 
     string value;
     while (it != end && *it != '<') {
@@ -59,7 +60,9 @@ MathMLParser::get_element_value()
 	++it;
     }
 
-    // TODO Handle EOF.
+    if (it == end) {
+	error = true;
+    }
 
     // Skip trailing whitespace.
     return value.substr(0, value.find_last_not_of(' ') + 1);
@@ -70,7 +73,8 @@ MathMLParser::skip_xml_prefix()
 {
     while (it != end && *it != ':')
 	++it;
-    if (it == end)
+    if (it == end) {
+	error = true;
 	return;
     }
 }
@@ -80,6 +84,7 @@ MathMLParser::skip_close_tag()
 {
     it = find(it, end, '<');
     if (it == end || it[1] != '/') {
+	error = true;
 	end_math = true;
 	end_mrow = true;
 	return false;
@@ -89,6 +94,7 @@ MathMLParser::skip_close_tag()
     it = find(it, end, '>');
 
     if (it == end) {
+	error = true;
 	end_math = true;
 	end_mrow = true;
 	return false;
@@ -119,6 +125,7 @@ MathMLParser::get_open_tag()
 
 	it = start_it;
 	if (it == end) {
+	    error = true;
 	    end_math = true;
 	    end_mrow = true;
 	    return false;
@@ -147,6 +154,7 @@ MathMLParser::get_open_tag()
     if (*it == ' ') {
 	it = std::find(it, end, '>');
 	if (it == end) {
+	    error = true;
 	    end_math = true;
 	    end_mrow = true;
 	    return false;
