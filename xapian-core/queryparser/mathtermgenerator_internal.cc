@@ -24,11 +24,13 @@
 
 /* #define DEBUGGING */
 
+#include "str.h"
 #include <xapian/document.h>
 #include <xapian/unicode.h>
 
-#include "stringutils.h"
+#include "mathml.h"
 
+#include <algorithm>
 #include <cstring>
 #ifdef DEBUGGING
 #include <iostream>
@@ -70,86 +72,205 @@ MathMLParser::skip_xml_prefix()
 	++it;
     if (it == end)
 	return;
-    ++it;
+    }
 }
 
 bool
-MathMLParser::move_to_next_open_tag(string & tag)
+MathMLParser::skip_close_tag()
 {
-    while (it != end) {
-	if (it[0] == '<') {
-	    if (it[1] != '/') {
-		++it;
-		break;
-	    }
-	    it += 2;
-	    if (xml_prefix) skip_xml_prefix();
-	    if (it[0] == 'm' && it[1] == 'a' && it[2] == 't' &&
-		    it[3] == 'h' && it[4] == '>')
-		return false;
-	}
-	++it;
-    }
-
-    if (it == end)
+    it = find(it, end, '<');
+    if (it == end || it[1] != '/') {
+	end_math = true;
+	end_mrow = true;
 	return false;
+    }
 
-    if (xml_prefix)
-	skip_xml_prefix();
-    tag.clear();
+    auto start_it = it;
+    it = find(it, end, '>');
+
+    if (it == end) {
+	end_math = true;
+	end_mrow = true;
+	return false;
+    }
+
+    auto close_id = mathmlid_table[string(start_it + 2, it)];
+
+    if (close_id == MATH) {
+	end_math = true;
+	level--;
+    } else if (close_id == MROW) {
+	end_mrow = true;
+	level--;
+    } else if (close_id == MTABLE) {
+	end_mtable = true;
+    }
+
+    it++;
+    return true;
+}
+
+bool
+MathMLParser::get_open_tag()
+{
+    bool closed = false;
+    do {
+	auto start_it = std::find(it, end, '<');
+
+	it = start_it;
+	if (it == end) {
+	    end_math = true;
+	    end_mrow = true;
+	    return false;
+	}
+
+	if (xml_prefix)
+	    skip_xml_prefix();
+
+	it++;
+
+	if (it[0] == '/') {
+	    closed = true;
+	    it = start_it;
+	    skip_close_tag();
+	} else
+	    closed = false;
+    } while (closed);
+
+    cur_tag.clear();
     while (it != end && *it != ' ' && *it != '>') {
-	tag.push_back(*it);
+	cur_tag.push_back(*it);
 	++it;
     }
 
+    // Skip attribute values
     if (*it == ' ') {
-	while (*it != '>')
-	    ++it;
+	it = std::find(it, end, '>');
+	if (it == end) {
+	    end_math = true;
+	    end_mrow = true;
+	    return false;
+	}
     }
-    // TODO Handle EOF.
+
     ++it;
     return true;
 }
 
-string
-MathMLParser::next_tag(string & cur_tag)
+void
+MathMLParser::parse_expression(vector<Symbol> & crow, char relation)
 {
-    string tag;
-    while (it != end) {
-	if (it[0] == '<') {
-	    ++it;
-	    if (it[0] == '/')
-		++it;
-	    while (it != end && *it != '>') {
-		tag.push_back(*it);
-		++it;
+    if (!get_open_tag())
+	return;
+    auto cur_id = mathmlid_table[cur_tag];
+    switch (cur_id) {
+	case MATH:
+	    end_math = false;
+	    do {
+		parse_expression(crow, relation);
+	    } while (!end_math);
+	    end_math = false;
+	    return;
+	case MROW:
+	    level++;
+	    end_mrow = false;
+	    do {
+		parse_expression(crow, relation);
+		relation = NEXT;
+	    } while (!end_mrow);
+	    end_mrow = false;
+	    return;
+	case MTABLE:
+	    nrows = 0;
+	    end_mtable = false;
+	    while (!end_mtable && get_open_tag()) {
+		if (mathmlid_table[cur_tag] == MTR)
+		    nrows++;
+		skip_close_tag();
 	    }
-	    ++it;
-	    if (tag.compare(cur_tag) == 0) {
-		tag.clear();
-		continue;
-	    } else
-		return tag;
-	} else
-	    ++it;
-    }
-    return tag;
-}
-
-string
-MathMLParser::get_label(string & tag) {
-    if (tag.compare("mi") == 0)
-	return string("V!" + get_element_value());
-    else if (tag.compare("mn") == 0)
-	return string("N!" + get_element_value());
-    else if (tag.compare("mo") == 0)
-	return string("O" + get_element_value());
-    else if (tag.compare("mtext") == 0)
-	return string("T!" + get_element_value());
-    else {
-	// Not supported tag, mark as unknown for now.
-	return string("U!" + get_element_value());
-    }
+	    crow.emplace_back(tag_values[MTABLE] + str(nrows), NEXT);
+	    break;
+	case MANNOTATION:
+	case MSEMANTICS:
+	    break;
+	case MFRAC:
+	    // Add fraction symbol.
+	    crow.emplace_back(tag_values[cur_id], NEXT);
+	    // Numerator
+	    parse_expression(crow.back().trow, ABOVE);
+	    // Denominator
+	    parse_expression(crow.back().brow, BELOW);
+	    skip_close_tag();
+	    break;
+	case MROOT:
+	    // Add root symbol.
+	    crow.emplace_back(tag_values[cur_id], NEXT);
+	    // Parse base.
+	    parse_expression(crow, WITHIN);
+	    // Parse index.
+	    parse_expression(crow.back().trow, ABOVE);
+	    break;
+	case MSQRT:
+	    // Add root symbol.
+	    crow.emplace_back(tag_values[cur_id], NEXT);
+	    // Parse base.
+	    parse_expression(crow.back().trow, ABOVE);
+	    skip_close_tag();
+	    break;
+	case MSUP:
+	    // Parse base.
+	    parse_expression(crow, NEXT);
+	    // Parse superscript.
+	    parse_expression(crow.back().trow, ABOVE);
+	    break;
+	case MSUB:
+	    // Parse base.
+	    parse_expression(crow, NEXT);
+	    // Parse subscript.
+	    parse_expression(crow.back().brow, BELOW);
+	    break;
+	case MSUBSUP:
+	    // Parse base.
+	    parse_expression(crow, NEXT);
+	    // Parse subscript.
+	    parse_expression(crow.back().brow, BELOW);
+	    // Parse superscript.
+	    parse_expression(crow.back().trow, ABOVE);
+	    break;
+	case MUNDER:
+	    // Parse base.
+	    parse_expression(crow, NEXT);
+	    // Parse underscript.
+	    parse_expression(crow.back().brow, UNDER);
+	    break;
+	case MOVER:
+	    // Parse base.
+	    parse_expression(crow, NEXT);
+	    // Parse overscript.
+	    parse_expression(crow.back().trow, OVER);
+	    break;
+	case MUNDEROVER:
+	    // Parse base.
+	    parse_expression(crow, NEXT);
+	    // Parse underscript.
+	    parse_expression(crow.back().brow, UNDER);
+	    // Parse overscript.
+	    parse_expression(crow.back().trow, OVER);
+	    break;
+	case MI:
+	case MN:
+	case MO:
+	case MTEXT:
+	    if (!(relation != NEXT && crow.empty()))
+		relation = NEXT;
+	    crow.emplace_back(tag_values[cur_id] + get_element_value(),
+				relation);
+	    skip_close_tag();
+	    return;
+	default:
+	    // Unrecognized token. Skip for now.
+	    break;
+    } // End switch statement.
 }
 
 vector<Symbol>
@@ -158,7 +279,6 @@ MathMLParser::parse(const string & text) {
     end = text.end();
     vector<Symbol> mrow;
     mrow.reserve(EST_SYMBOLS_COUNT);
-    string tag;
     while (it != end) {
 	// TODO Handling xml_prefix this way is totally safe. Will fix it later.
 	// Detect '<math ' or '<math>' or ':math ' or ':math>'
@@ -167,145 +287,17 @@ MathMLParser::parse(const string & text) {
 		it[2] == 'a' &&
 		it[3] == 't' &&
 		it[4] == 'h' &&
-	    (it[5] == ' ' || it[5] == '>')) {
-	    if (it[0] == ':')
+		(it[5] == ' ' || it[5] == '>')) {
+	    if (it[0] == ':') {
 		xml_prefix = true;
-	    it += 6;
-	    // Parse elements until '</math' found.
-	    while (move_to_next_open_tag(tag)) {
-		if (tag.compare("mrow") == 0 ||
-		    tag.compare("annotation") == 0 ||
-		    tag.compare("semantics") == 0) {
-		    continue;
-		} else if (tag.compare("mfrac") == 0) {
-		    // Add fraction symbol.
-		    mrow.emplace_back("F", NEXT);
-		    // Parse numerator.
-		    if (move_to_next_open_tag(tag) &&
-			    tag.compare("mrow") == 0) {
-			if (move_to_next_open_tag(tag))
-			    mrow.back().trow.emplace_back(get_label(tag),
-				    ABOVE);
-			while (next_tag(tag).compare("mrow") != 0) {
-			    if (move_to_next_open_tag(tag))
-				// TODO This only works if all the elemments
-				// are token elements.
-				mrow.back().trow.emplace_back(
-					get_label(tag), NEXT);
-			}
-		    } else {
-			mrow.back().trow.emplace_back(get_label(tag),
-				ABOVE);
-		    }
-		    // Parse denominator.
-		    if (move_to_next_open_tag(tag) &&
-			    tag.compare("mrow") == 0) {
-			if (move_to_next_open_tag(tag))
-			    mrow.back().brow.emplace_back(get_label(tag),
-				    BELOW);
-			while (next_tag(tag).compare("mrow") != 0) {
-			    if (move_to_next_open_tag(tag))
-				// TODO This only works if all the elemments are
-				// token elements.
-				mrow.back().brow.emplace_back(get_label(tag),
-					NEXT);
-			}
-		    } else {
-			mrow.back().brow.emplace_back(get_label(tag),
-				BELOW);
-		    }
-		} else if (tag.compare("mroot") == 0) {
-		    // Add root symbol.
-		    mrow.emplace_back("R", NEXT);
-		    // Parse base.
-		    if (move_to_next_open_tag(tag))
-			mrow.emplace_back(get_label(tag), WITHIN);
-		    // Parse index.
-		    if (move_to_next_open_tag(tag))
-			mrow.back().trow.emplace_back(get_label(tag),
-				ABOVE);
-		} else if (tag.compare("msqrt") == 0) {
-		    // Add root symbol.
-		    mrow.emplace_back("R", NEXT);
-		    // Parse base.
-		    if (move_to_next_open_tag(tag) &&
-			    tag.compare("mrow") == 0) {
-			if (move_to_next_open_tag(tag))
-			    mrow.back().trow.emplace_back(
-				    get_label(tag), WITHIN);
-			while (next_tag(tag).compare("mrow") != 0) {
-			    if (move_to_next_open_tag(tag))
-				// TODO This only works if all the elemments are
-				// token elements.
-				mrow.back().trow.emplace_back(
-					get_label(tag), NEXT);
-			}
-		    } else {
-			mrow.back().trow.emplace_back(get_label(tag),
-				WITHIN);
-		    }
-		} else if (tag.compare("msup") == 0) {
-		    // Parse base.
-		    if (move_to_next_open_tag(tag))
-			mrow.emplace_back(get_label(tag), NEXT);
-		    // Parse superscript.
-		    if (move_to_next_open_tag(tag))
-			mrow.back().trow.emplace_back(get_label(tag),
-				ABOVE);
-		} else if (tag.compare("msub") == 0) {
-		    // Parse base.
-		    if (move_to_next_open_tag(tag))
-			mrow.emplace_back(get_label(tag), NEXT);
-		    // Parse subscript.
-		    if (move_to_next_open_tag(tag))
-			mrow.back().brow.emplace_back(get_label(tag),
-				BELOW);
-		} else if (tag.compare("msubsup") == 0) {
-		    // Parse base.
-		    if (move_to_next_open_tag(tag))
-			mrow.emplace_back(get_label(tag), NEXT);
-		    // Parse subscript.
-		    if (move_to_next_open_tag(tag))
-			mrow.back().brow.emplace_back(get_label(tag),
-				BELOW);
-		    // Parse superscript.
-		    if (move_to_next_open_tag(tag))
-			mrow.back().trow.emplace_back(get_label(tag),
-				ABOVE);
-		} else if (tag.compare("munder") == 0) {
-		    // Parse base.
-		    if (move_to_next_open_tag(tag))
-			mrow.emplace_back(get_label(tag), NEXT);
-		    // Parse underscript.
-		    if (move_to_next_open_tag(tag))
-			mrow.back().brow.emplace_back(get_label(tag),
-				UNDER);
-		} else if (tag.compare("mover") == 0) {
-		    // Parse base.
-		    if (move_to_next_open_tag(tag))
-			mrow.emplace_back(get_label(tag), NEXT);
-		    // Parse overscript.
-		    if (move_to_next_open_tag(tag))
-			mrow.back().trow.emplace_back(get_label(tag),
-				OVER);
-		} else if (tag.compare("munderover") == 0) {
-		    // Parse base.
-		    if (move_to_next_open_tag(tag))
-			mrow.emplace_back(get_label(tag), NEXT);
-		    // Parse underscript.
-		    if (move_to_next_open_tag(tag))
-			mrow.back().brow.emplace_back(get_label(tag),
-				UNDER);
-		    // Parse overscript.
-		    if (move_to_next_open_tag(tag))
-			mrow.back().trow.emplace_back(get_label(tag),
-				OVER);
-
-		} else {
-		    // Parse token element.
-		    mrow.emplace_back(get_label(tag), NEXT);
-		}
+		do {
+		    --it;
+		} while (it[0] != '<');
 	    }
+	    // Parse elements until '</math' found.
+	    level = 0;
+	    error = false;
+	    parse_expression(mrow, NEXT);
 	} else {
 	    // <math> tag not found yet, move to next char.
 	    ++it;

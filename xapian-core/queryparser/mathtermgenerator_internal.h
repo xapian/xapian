@@ -59,14 +59,20 @@ struct Symbol {
 
 class MathMLParser {
     bool xml_prefix = false;
+    bool end_math = false;
+    bool end_mrow = false;
+    bool end_mtable = false;
+    unsigned nrows = 0;
+    unsigned level = 0;
+    std::string cur_tag = "";
     std::string::const_iterator it;
     std::string::const_iterator end;
     /* helper methods */
-    bool move_to_next_open_tag(std::string & tag);
+    bool get_open_tag();
     std::string get_element_value();
-    std::string get_label(std::string & tag);
     void skip_xml_prefix();
-    std::string next_tag(std::string & cur_tag);
+    bool skip_close_tag();
+    void parse_expression(std::vector<Symbol> & mrow, char relation = NEXT);
   public:
     std::vector<Symbol> parse(const std::string & text);
 };
