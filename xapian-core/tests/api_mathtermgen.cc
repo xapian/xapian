@@ -171,3 +171,17 @@ DEFINE_TESTCASE(mathtermgen1, !backend) {
 
     return true;
 }
+
+DEFINE_TESTCASE(mathparsefail1, !backend) {
+    Xapian::MathTermGenerator termgen;
+
+    // Expression doesn't contain close tag </mo>.
+    const char * invalid_formula = {
+	"<math> <mi> a  <mo> + </mo> <mi> b </mi> </math>"
+    };
+
+    termgen.index_math(invalid_formula);
+    TEST_EQUAL(termgen.parse_error(), true);
+
+    return true;
+}
