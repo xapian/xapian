@@ -771,6 +771,6 @@ DEFINE_TESTCASE(mathquery1, writable) {
     enq.set_query(q);
     mset = enq.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 10);
-    mset_expect_order(enq.get_mset(0, 10), 9, 10, 6, 7, 3, 12, 1, 13, 8, 5);
+    mset_expect_order(enq.get_mset(0, 10), 9, 10, 6, 7, 5, 3, 12, 1, 13, 8);
     return true;
 }
