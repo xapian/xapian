@@ -87,6 +87,12 @@ MathTermGenerator::set_unification_op(const bool unify)
     internal->set_unification(unify);
 }
 
+bool
+MathTermGenerator::parse_error()
+{
+    return internal->parse_error();
+}
+
 string
 MathTermGenerator::get_description() const
 {

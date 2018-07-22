@@ -129,6 +129,14 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
      */
     void set_unification_op(const bool unify);
 
+    /** Returns true if formula encounted is invalid.
+     *
+     * Invalid formula means invalid xml structure. Even if this method
+     * returns true, MathTermGenerator may still succedded in indexing
+     * the formula.
+     */
+    bool parse_error();
+
     /// Return a string describing this object.
     std::string get_description() const;
 };

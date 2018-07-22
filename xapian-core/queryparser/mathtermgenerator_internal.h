@@ -62,6 +62,7 @@ class MathMLParser {
     bool end_math = false;
     bool end_mrow = false;
     bool end_mtable = false;
+    bool error = false;
     unsigned nrows = 0;
     unsigned level = 0;
     std::string cur_tag = "";
@@ -75,6 +76,9 @@ class MathMLParser {
     void parse_expression(std::vector<Symbol> & mrow, char relation = NEXT);
   public:
     std::vector<Symbol> parse(const std::string & text);
+    bool parse_error() {
+	return error;
+    }
 };
 
 class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
@@ -92,6 +96,10 @@ class MathTermGenerator::Internal : public Xapian::Internal::intrusive_base {
     std::vector<std::string> get_symbol_pair_list(const std::string & text);
 
     void set_unification(const bool unify);
+
+    bool parse_error() {
+	return mlp.parse_error();
+    }
 
     // For debugging purpose.
     std::vector<std::string> get_labels_list() {
