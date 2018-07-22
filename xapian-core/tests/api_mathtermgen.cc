@@ -43,6 +43,30 @@ struct test {
 };
 
 static const test test_parse[] = {
+    {	// Expression with matrix.
+	"<math>"
+	"<mtable>"
+	"<mtr>"
+	"	<mtd> <mrow> <mn> 1 </mn> </mrow> </mtd>"
+	"	<mtd> <mn> 0 </mn> </mtd>"
+	"	<mtd> <mn> 0 </mn> </mtd>"
+	"</mtr>"
+	"<mtr>"
+	"	<mtd> <mn> 0 </mn> </mtd>"
+	"	<mtd> <mn> 1 </mn> </mtd>"
+	"	<mtd> <mn> 0 </mn> </mtd>"
+	"</mtr>"
+	"</mtable>"
+	"</math>",
+	{ "M!2" } },
+    {	// Expression with fraction.
+	" <math>"
+	" <mfrac> <mi> p </mi>"
+	"	  <mi> q </mi> </mfrac>"
+	" <mo> = </mo>"
+	" <mfrac> <mi> c </mi>"
+	"	  <mi> d </mi> </mfrac> </math>",
+	{ "F", "O=", "F" } },
     {	// Text having mix of math and text.
 	" <math>"
 	" <mtext> such that </mtext>"
@@ -68,10 +92,10 @@ static const test test_parse[] = {
     {	// Expression with fraction.
 	" <math>"
 	" <mfrac> <mi> p </mi>"
-	"	  <mi> q </mi> </mfrac"
+	"	  <mi> q </mi> </mfrac>"
 	" <mo> = </mo>"
 	" <mfrac> <mi> c </mi>"
-	"	  <mi> d </mi> </mfrac>",
+	"	  <mi> d </mi> </mfrac> </math>",
 	{ "F", "O=", "F" } },
     {	// Expression with fraction having sub-expression.
 	" <math>"
@@ -84,7 +108,7 @@ static const test test_parse[] = {
 	"		<mi> a </mi>"
 	"		<mo> - </mo>"
 	"		<mi> b </mi>"
-	"	</mrow> </mfrac"
+	"	</mrow> </mfrac>"
 	"	</math>",
 	{ "F"} },
     {	// Expression with root.
@@ -110,12 +134,12 @@ static const test test_parse[] = {
     {	// Expression with superscript.
 	" <math>"
 	" <msup> <mi> a </mi>"
-	" 	  <mi> i </mi> </msub>",
+	" 	  <mi> i </mi> </msup> </math>",
 	{ "V!a"} },
     {	// Expression with subscript.
 	" <math>"
 	" <msub> <mi> a </mi>"
-	" 	  <mi> i </mi> </msub>",
+	" 	  <mi> i </mi> </msub> </math>",
 	{ "V!a"} },
     {	// Expression with subscript & superscript.
 	" <math>"
@@ -128,12 +152,12 @@ static const test test_parse[] = {
     {	// Expression with underscript.
 	" <math>"
 	" <munder> <mo> - </mo>"
-	" 	  <mi> a </mi> </under>",
+	" 	  <mi> a </mi> </munder>",
 	{ "O-"} },
     {	// Expression with overscript.
 	" <math>"
 	" <mover> <mo> - </mo>"
-	" 	  <mi> i </mi> </mover>",
+	" 	  <mi> i </mi> </mover> </math>",
 	{ "O-"} },
     {	// Expression with underscript & overscript.
 	" <math>"
@@ -143,20 +167,57 @@ static const test test_parse[] = {
 	"	<mn> 1 </mn>"
 	"	</munderover> </math>",
 	{ "O&int;" } },
-    {	// Expression with namespace prefix.
+    // Testcases with namespace prefix,
+    {	// Expression with token elements.
 	" <m:math>"
 	" <m:mi> a </m:mi>"
 	" <m:mo> / </m:mo>"
 	" <m:mn> 5 </m:mn>"
 	"	</m:math>",
 	{ "V!a", "O/", "N!5" } },
-    {	// Expression with namespace prefix.
+    {	// Expression with different namespace prefix.
 	" <mn:math>"
 	" <mn:mi> a </mn:mi>"
 	" <mn:mo> / </mn:mo>"
 	" <mn:mn> 5 </mn:mn>"
 	"	</mn:math>",
 	{ "V!a", "O/", "N!5" } },
+    {	// Expression with superscript.
+	" <m:math>"
+	" <m:msup> <m:mi> a </m:mi>"
+	" 	  <m:mi> i </m:mi> </m:msup> </m:math>",
+	{ "V!a"} },
+    {	// Expression with subscript.
+	" <m:math>"
+	" <m:msub> <m:mi> a </m:mi>"
+	" 	  <m:mi> i </m:mi> </m:msub> </m:math>",
+	{ "V!a"} },
+    {	// Expression with subscript & superscript.
+	" <m:math>"
+	" <m:msubsup>"
+	"	<m:mo> &int; </m:mo>"
+	"	<m:mn> 0 </m:mn>"
+	"	<m:mn> 1 </m:mn>"
+	"	</m:msubsup> </m:math>",
+	{ "O&int;" } },
+    {	// Expression with underscript.
+	" <m:math>"
+	" <m:munder> <m:mo> - </m:mo>"
+	" 	  <m:mi> a </m:mi> </m:munder>",
+	{ "O-"} },
+    {	// Expression with overscript.
+	" <m:math>"
+	" <m:mover> <m:mo> - </m:mo>"
+	" 	  <m:mi> i </m:mi> </m:mover> </m:math>",
+	{ "O-"} },
+    {	// Expression with underscript & overscript.
+	" <m:math>"
+	" <m:munderover>"
+	"	<m:mo> &int; </m:mo>"
+	"	<m:mn> 0 </m:mn>"
+	"	<m:mn> 1 </m:mn>"
+	"	</m:munderover> </m:math>",
+	{ "O&int;" } },
 	{ NULL, { } }
 };
 
