@@ -6,6 +6,7 @@ endif
 
 noinst_HEADERS +=\
 	queryparser/cjk-tokenizer.h\
+	queryparser/mathml.h\
 	queryparser/mathtermgenerator_internal.h\
 	queryparser/queryparser_internal.h\
 	queryparser/queryparser_token.h\
