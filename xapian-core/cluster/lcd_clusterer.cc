@@ -134,18 +134,7 @@ LCDClusterer::cluster(const MSet &mset)
 
 	// Now select a new cluster center which is the point that is
 	// farthest away from the current cluster center
-	double max_dist = -1;
-	PSet::iterator new_cluster_center;
-	for (auto it = points.begin(); it != points.end(); ++it) {
-	    if (it == cluster_center)
-		continue;
-
-	    double dist = distance.similarity(cluster_center->first, it->first);
-	    if (dist > max_dist) {
-		max_dist = dist;
-		new_cluster_center = it;
-	    }
-	}
+	PSet::iterator new_cluster_center = dist_vector.back().first;
 
 	// Add cluster_center to current cluster
 	new_cluster.add_point(cluster_center->first);
