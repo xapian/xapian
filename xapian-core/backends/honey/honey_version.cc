@@ -239,10 +239,10 @@ HoneyVersion::unserialise_stats()
 	throw Xapian::DatabaseCorruptError(m);
     }
 
-    // In the single-file DB case, there will be extra data in
-    // serialised_stats, so suppress this check.
-    if (p != end && !single_file())
-	throw Xapian::DatabaseCorruptError("Rev file has junk at end");
+    // Don't check if there's undecoded data between p and end - in the
+    // single-file DB case there will be extra data in serialised_stats, and
+    // more generally it's useful to be able to add new stats when it is
+    // safe for old versions to just ignore them.
 
     // last_docid must always be >= doccount.
     last_docid += doccount;
