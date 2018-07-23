@@ -90,24 +90,24 @@ LCDClusterer::cluster(const MSet &mset)
     // First cluster center
     PSet::iterator cluster_center = points.begin();
 
+    // The original algorithm accepts a parameter k which is the number
+    // of documents in each cluster, which can be hard to tune and
+    // especially when using this in conjunction with the diversification
+    // module. So, for now LCD clusterer accepts k as the number of
+    // clusters and divides the documents into k clusters such that among k
+    // clusters, n clusters have x - 1 points and (k - n) have x points. This
+    // needs to be tested on a dataset to see how well this works.
+    // n * (x - 1) + (k_ - n) * x = size, where 0 <= n < k
+    unsigned n = k_ - size % k_,
+	     x = (size + n) / k_;
+
     for (unsigned int cnum = 1; cnum <= k_; ++cnum) {
 	// Container for new cluster
 	Cluster new_cluster;
 
-	// The original algorithm accepts a parameter 'k' which is the number
-	// of documents in each cluster, which can be hard to tune and
-	// especially when using this in conjunction with the diversification
-	// module. So, for now LCD clustering accepts 'k' as the number of
-	// clusters and divides the documents equally in the first k-1 clusters
-	// and the remaining in the last cluster. This needs to be tested on a
-	// dataset to see how well this works.
-	unsigned int num_points = size / k_;
-	if (cnum == k_)
-	    num_points = size - (k_ - 1) * (size / k_);
-
-	/* Select (num_points - 1) nearest points to cluster_center from
-	*  from 'points' and form a new cluster
-	*/
+	// Select (num_points - 1) nearest points to cluster_center from
+	// from 'points' and form a new cluster
+	unsigned int num_points = cnum <= n ? x - 1 : x;
 
 	// Store distances of each point from current cluster center
 	// Iterator of each point is stored for fast deletion from 'points'
