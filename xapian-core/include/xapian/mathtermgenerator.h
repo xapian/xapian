@@ -129,11 +129,13 @@ class XAPIAN_VISIBILITY_DEFAULT MathTermGenerator {
      */
     void set_unification_op(const bool unify);
 
-    /** Returns true if formula encounted is invalid.
+    /** Returns true if formula encountered is invalid.
      *
-     * Invalid formula means invalid xml structure. Even if this method
-     * returns true, MathTermGenerator may still succedded in indexing
-     * the formula.
+     * MathML parser generates math terms while parsing along the expression.
+     * If at any point invalid structure (for ex. missing closed tag) encounted,
+     * error flag is set, but this doesn't throw any exception, instead indexing
+     * operation terminated silently. With this method, user can verfiy indexing
+     * of complete expression is performed or not.
      */
     bool parse_error();
 
