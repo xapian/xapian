@@ -94,7 +94,7 @@ std::unordered_map<std::string, mathml_id> mathmlid_table {
 
 // Default prefix value for token elements and default value for layout related
 // tags like fraction (/) or square root tag.
-std::unordered_map<mathml_id, std::string> tag_values {
+std::unordered_map<mathml_id, std::string, std::hash<int>> tag_values {
     { MI, "V!" },
     { MN, "N!" },
     { MO, "O" },
