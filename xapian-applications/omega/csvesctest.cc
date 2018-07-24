@@ -112,6 +112,5 @@ int main() {
 		    "'" << expected << "', got '" << result << "'" << endl;
 	    exit(1);
 	}
-
     }
 }

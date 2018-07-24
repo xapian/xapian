@@ -203,7 +203,6 @@ DEFINE_TESTCASE(spell3, spelling) {
     TEST_EQUAL(db1.get_spelling_suggestion("hell"), "cell");
     TEST_EQUAL(db2.get_spelling_suggestion("hell"), "hello");
 
-
     // Test spelling iterator
     Xapian::TermIterator i(db1.spellings_begin());
     TEST_EQUAL(*i, "cell");

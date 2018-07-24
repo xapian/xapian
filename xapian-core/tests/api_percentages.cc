@@ -121,7 +121,6 @@ class MyPostingSource : public Xapian::PostingSource {
     }
 };
 
-
 /// Test for rounding errors in percentage weight calculations and cutoffs.
 DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
     // Find the number of DBL_EPSILONs to subtract which result in the

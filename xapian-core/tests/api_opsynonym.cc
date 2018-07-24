@@ -269,7 +269,6 @@ DEFINE_TESTCASE(synonym1, backend) {
 	    }
 	}
 
-
 	TEST_EQUAL(different_weight, data.diffweight_count);
 	TEST_EQUAL(same_weight, data.sameweight_count);
 

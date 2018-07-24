@@ -246,7 +246,6 @@ PerfTestLogger::open(const string & logpath)
     write("  <version>" + string(Xapian::version_string()) + "</version>\n");
     write(" </sourceinfo>\n");
 
-
     return true;
 }
 
