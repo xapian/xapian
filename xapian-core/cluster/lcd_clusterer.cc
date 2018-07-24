@@ -28,6 +28,7 @@
 #include "omassert.h"
 
 #include <algorithm>
+#include <set>
 #include <vector>
 
 using namespace Xapian;
