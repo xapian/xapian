@@ -25,6 +25,7 @@
 #include "xapian/error.h"
 
 #include "debuglog.h"
+#include "omassert.h"
 
 #include <algorithm>
 #include <vector>
@@ -98,8 +99,9 @@ LCDClusterer::cluster(const MSet &mset)
     // clusters, n clusters have x - 1 points and (k - n) have x points. This
     // needs to be tested on a dataset to see how well this works.
     // n * (x - 1) + (k_ - n) * x = size, where 0 <= n < k
-    unsigned n = k_ - size % k_,
-	     x = (size + n) / k_;
+    unsigned n = k_ - size % k_;
+    unsigned x = (size / k_) + 1;
+    AssertEq(n * (x - 1) + (k_ - n) * x, size);
 
     for (unsigned int cnum = 1; cnum <= k_; ++cnum) {
 	// Container for new cluster
