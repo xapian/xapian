@@ -52,8 +52,6 @@ rand_int(unsigned int min, unsigned int max)
     return min + unsigned((max + 1 - min) * (rand() / (RAND_MAX + 1.0)));
 }
 
-
-
 /** Generate a random double in range 0.0 <= v < 1.0
  */
 static double

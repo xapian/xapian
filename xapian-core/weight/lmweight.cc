@@ -237,7 +237,6 @@ LMWeight::get_maxpart() const
     return (product > 1.0) ? factor * log(product) : 1.0;
 }
 
-
 /* The extra weight component in the Dir+ formula is :-
  *
  * |Q| * log (param_smoothing1 / (|D| + param_smoothing1))

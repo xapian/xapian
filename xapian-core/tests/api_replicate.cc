@@ -647,7 +647,6 @@ DEFINE_TESTCASE(replicate4, replicas) {
     return true;
 }
 
-
 // Tests for max_changesets
 DEFINE_TESTCASE(replicate5, replicas) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND

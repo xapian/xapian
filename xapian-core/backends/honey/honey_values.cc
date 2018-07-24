@@ -449,7 +449,6 @@ HoneyValueManager::delete_document(Xapian::docid did,
 
 	    slot = rd.decode_interpolative_next();
 	}
-
     }
 
     Xapian::valueno slot = last_slot;

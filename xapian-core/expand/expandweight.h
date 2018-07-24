@@ -74,7 +74,6 @@ class ExpandStats {
     ExpandStats(Xapian::doclength avlen_, double expand_k_)
 	: avlen(avlen_), expand_k(expand_k_), dbsize(0), termfreq(0),
 	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
-
     }
 
     void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,

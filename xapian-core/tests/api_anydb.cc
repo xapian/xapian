@@ -382,7 +382,6 @@ DEFINE_TESTCASE(expandweights3, backend) {
     return true;
 }
 
-
 // tests that negative weights are returned
 DEFINE_TESTCASE(expandweights4, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));

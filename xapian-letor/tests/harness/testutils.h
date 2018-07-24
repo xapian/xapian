@@ -54,7 +54,6 @@ inline bool operator!=(const Xapian::MSet &first, const Xapian::MSet &second)
     return !(first == second);
 }
 
-
 void mset_expect_order(const Xapian::MSet &A,
 		       Xapian::docid d1 = 0, Xapian::docid d2 = 0,
 		       Xapian::docid d3 = 0, Xapian::docid d4 = 0,

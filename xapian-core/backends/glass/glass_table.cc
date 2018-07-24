@@ -285,7 +285,6 @@ GlassTable::write_block(uint4 n, const byte * p, bool appending) const
    sense given above, and BC->B is the handle for the B-tree again.
 */
 
-
 void
 GlassTable::set_overwritten() const
 {
