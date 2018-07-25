@@ -44,3 +44,24 @@ DEFINE_TESTCASE(diversify1, generated)
     TEST(dset.size() != 0);
     return true;
 }
+
+/** LCD cluster Test
+ *  Test that none of the returned clusters are empty
+ */
+DEFINE_TESTCASE(lcdclusterer1, generated)
+{
+    Xapian::Database db = get_database("apitest_diversify");
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("java"));
+    Xapian::MSet matches = enq.get_mset(0, 10);
+
+    int num_clusters = 4;
+    Xapian::LCDClusterer lcd(num_clusters);
+    Xapian::ClusterSet cset = lcd.cluster(matches);
+    int size = cset.size();
+    for (int i = 0; i < size; ++i) {
+	Xapian::DocumentSet d = cset[i].get_documents();
+	TEST(d.size() != 0);
+    }
+    return true;
+}

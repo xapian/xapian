@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2010 Richard Boulton
  * Copyright (C) 2016 Richhiey Thomas
+ * Copyright (C) 2018 Uppinder Chugh
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -656,6 +657,33 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *			stopwords)
      */
     void set_stopper(const Xapian::Stopper *stop = NULL);
+
+    /// Return a string describing this object
+    std::string get_description() const;
+};
+
+/** LCD clusterer:
+ *  This clusterer implements the LCD clustering algorithm adapted from
+ *  Modelling efficient novelty-based search result diversification in metric
+ *  spaces Gil-Costa et al. 2013
+ */
+class XAPIAN_VISIBILITY_DEFAULT LCDClusterer : public Clusterer {
+    /// Specifies that the clusterer needs to form 'k' clusters
+    unsigned int k;
+
+  public:
+    /** Constructor specifying number of clusters
+     *
+     *  @param k_		Number of required clusters
+     */
+    explicit LCDClusterer(unsigned int k_);
+
+    /** Implements the LCD clustering algorithm
+     *
+     *  @param mset    MSet object containing the documents that are to
+     *                 be clustered
+     */
+    ClusterSet cluster(const MSet &mset);
 
     /// Return a string describing this object
     std::string get_description() const;
