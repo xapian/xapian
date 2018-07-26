@@ -759,7 +759,7 @@ GlassPostList::open_nearby_postlist(const std::string & term_,
     (void)need_pos;
     if (term_.empty())
 	RETURN(NULL);
-    if (!this_db.get() || this_db->postlist_table.is_modified())
+    if (!this_db.get() || this_db->postlist_table.is_writable())
 	RETURN(NULL);
     RETURN(new GlassPostList(this_db, term_, cursor->clone()));
 }
