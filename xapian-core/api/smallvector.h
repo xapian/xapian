@@ -202,6 +202,18 @@ class Vec {
 	}
     }
 
+    void erase(const_iterator b, const_iterator e) {
+	auto n_erased = e - b;
+	if (n_erased == 0) return;
+	std::memmove(const_cast<T*>(b), const_cast<T*>(e),
+		     (end() - e) * sizeof(T));
+	if (is_external()) {
+	    u.e -= n_erased;
+	} else {
+	    c -= n_erased;
+	}
+    }
+
     void insert(const_iterator pos, const T& elt) {
 	push_back(T());
 	T* p = const_cast<T*>(end());
