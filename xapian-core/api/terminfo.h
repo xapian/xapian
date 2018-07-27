@@ -1,7 +1,7 @@
 /** @file terminfo.h
  * @brief Metadata for a term in a document
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -125,7 +125,19 @@ class TermInfo {
      *
      *  @return If @a termpos wasn't present, returns false.
      */
-    bool remove_position(Xapian::termpos tpos);
+    bool remove_position(Xapian::termpos termpos);
+
+    /** Remove a range of positions.
+     *
+     *  @param termpos_first	First position to remove
+     *  @param termpos_last	Last position to remove
+     *
+     *  It's OK if there are no positions in the specified range.
+     *
+     *  @return the number of positions removed.
+     */
+    Xapian::termpos remove_positions(Xapian::termpos termpos_first,
+				     Xapian::termpos termpos_last);
 
     /// Is this term flagged as deleted?
     bool is_deleted() const { return deleted; }

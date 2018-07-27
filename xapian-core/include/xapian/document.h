@@ -1,7 +1,7 @@
 /** @file document.h
  * @brief Class representing a document
  */
-/* Copyright (C) 2010,2015,2016,2017 Olly Betts
+/* Copyright (C) 2010,2015,2016,2017,2018 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -150,6 +150,22 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     void remove_posting(const std::string& term,
 			Xapian::termpos term_pos,
 			Xapian::termcount wdf_dec = 1);
+
+    /** Remove a range of postings for a term.
+     *
+     *  Any instances of the term at positions >= @a term_pos_first and
+     *  <= @a term_pos_last will be removed, and the wdf reduced by
+     *  @a wdf_dec for each instance removed (the wdf will not ever go
+     *  below zero though).
+     *
+     *  It's OK if the term doesn't occur in the range of positions
+     *  specified (unlike @a remove_posting()).  And if
+     *  term_pos_first > term_pos_last, this method does nothing.
+     */
+    void remove_postings(const std::string& term,
+			 Xapian::termpos term_pos_first,
+			 Xapian::termpos term_pos_last,
+			 Xapian::termcount wdf_dec = 1);
 
     /// Clear all terms from the document.
     void clear_terms();

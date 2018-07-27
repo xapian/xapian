@@ -1,7 +1,7 @@
 /** @file document.cc
  * @brief Class representing a document
  */
-/* Copyright 2008,2017 Olly Betts
+/* Copyright 2008,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -135,6 +135,28 @@ Document::remove_posting(const string& term,
 	    m += "' not present at position ";
 	    m += str(term_pos);
 	}
+	throw Xapian::InvalidArgumentError(m);
+    }
+}
+
+void
+Document::remove_postings(const string& term,
+			  Xapian::termpos term_pos_first,
+			  Xapian::termpos term_pos_last,
+			  Xapian::termcount wdf_dec)
+{
+    if (term.empty()) {
+	throw_invalid_arg_empty_term();
+    }
+    if (rare(term_pos_first > term_pos_last)) {
+	return;
+    }
+    auto res = internal->remove_postings(term, term_pos_first, term_pos_last,
+					 wdf_dec);
+    if (res != Document::Internal::OK) {
+	string m = "Document::remove_postings() failed - term '";
+	m += term;
+	m += "' not present";
 	throw Xapian::InvalidArgumentError(m);
     }
 }

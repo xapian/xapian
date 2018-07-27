@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -164,6 +164,10 @@ DEFINE_TESTCASE(documentemptyterm1, !backend) {
 	    doc.remove_posting(string(), 1));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	    doc.remove_posting(string(), 2, 3));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.remove_postings(string(), 2, 3));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	    doc.remove_postings(string(), 2, 3, 4));
     return true;
 }
 
@@ -949,5 +953,67 @@ DEFINE_TESTCASE(deletewhileiterating1, !backend) {
 	TEST_EQUAL(doc.termlist_count(), 0);
 	TEST(doc.termlist_begin() == doc.termlist_end());
     }
+    return true;
+}
+
+/// Feature test for Document::remove_postings().
+DEFINE_TESTCASE(removepostings, !backend) {
+    Xapian::Document doc;
+    // Add Fibonacci sequence as positions.
+    Xapian::termpos prev_pos = 1;
+    Xapian::termpos pos = 1;
+    while (pos < 1000) {
+	 doc.add_posting("foo", pos);
+	 auto new_pos = prev_pos + pos;
+	 prev_pos = pos;
+	 pos = new_pos;
+    }
+
+    // Check we added exactly one term.
+    TEST_EQUAL(doc.termlist_count(), 1);
+
+    Xapian::TermIterator t = doc.termlist_begin();
+    auto num_pos = t.positionlist_count();
+    TEST_EQUAL(t.get_wdf(), num_pos);
+
+    // 6 and 7 aren't in the sequence.
+    doc.remove_postings("foo", 6, 7);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos);
+    TEST_EQUAL(t.get_wdf(), num_pos);
+
+    // Beyond the end of the positions.
+    doc.remove_postings("foo", 1000, 2000);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos);
+    TEST_EQUAL(t.get_wdf(), num_pos);
+
+    // 1, 2, 3 are in the sequence, 4 isn't.
+    doc.remove_postings("foo", 1, 4);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos - 3);
+    TEST_EQUAL(t.get_wdf(), num_pos - 3);
+
+    // Remove the end position.
+    doc.remove_postings("foo", 876, 987);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos - 4);
+    TEST_EQUAL(t.get_wdf(), num_pos - 4);
+
+    // Remove a range in the middle.
+    doc.remove_postings("foo", 33, 233);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos - 9);
+    TEST_EQUAL(t.get_wdf(), num_pos - 9);
+
+    // Check the expected positions are left.
+    t = doc.termlist_begin();
+    static const Xapian::termpos expected[] = { 5, 8, 13, 21, 377, 610, 9999 };
+    const Xapian::termpos* expect = expected;
+    for (auto p = t.positionlist_begin(); p != t.positionlist_end(); ++p) {
+	TEST_EQUAL(*p, *expect);
+	++expect;
+    }
+
     return true;
 }

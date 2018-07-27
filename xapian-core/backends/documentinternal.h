@@ -1,7 +1,7 @@
 /** @file documentinternal.h
  * @brief Abstract base class for a document
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 #include "api/terminfo.h"
 #include "api/termlist.h"
 #include "backends/databaseinternal.h"
+#include "overflow.h"
 
 #include <map>
 #include <memory>
@@ -309,6 +310,37 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	if (wdf_dec)
 	    i->second.decrease_wdf(wdf_dec);
 	positions_modified_ = true;
+	return remove_posting_result::OK;
+    }
+
+    /** Remove a range of postings for a term.
+     *
+     *  Can only return OK or NO_TERM.
+     */
+    remove_posting_result
+    remove_postings(const std::string& term,
+		    Xapian::termpos term_pos_first,
+		    Xapian::termpos term_pos_last,
+		    Xapian::termcount wdf_dec) {
+	ensure_terms_fetched();
+
+	auto i = terms->find(term);
+	if (i == terms->end() || i->second.is_deleted()) {
+	    return remove_posting_result::NO_TERM;
+	}
+	auto n_removed = i->second.remove_positions(term_pos_first,
+						    term_pos_last);
+	if (n_removed) {
+	    positions_modified_ = true;
+	    if (wdf_dec) {
+		Xapian::termcount wdf_delta;
+		if (mul_overflows(n_removed, wdf_dec, wdf_delta)) {
+		    // Decreasing by the maximum value will zero the wdf.
+		    wdf_delta = numeric_limits<Xapian::termcount>::max();
+		}
+		i->second.decrease_wdf(wdf_delta);
+	    }
+	}
 	return remove_posting_result::OK;
     }
 
