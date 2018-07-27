@@ -1,7 +1,7 @@
 /** @file unittest.cc
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016,2018 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -74,6 +74,7 @@ using namespace std;
 #include "../common/closefrom.cc"
 #include "../common/errno_to_string.cc"
 #include "../common/fileutils.cc"
+#include "../common/overflow.h"
 #include "../common/serialise-double.cc"
 #include "../common/str.cc"
 #include "../common/safeuuid.h"
@@ -732,6 +733,53 @@ static bool test_movesupport1()
     return true;
 }
 
+static bool test_addoverflows1()
+{
+    unsigned long res;
+    TEST(!add_overflows(0UL, 0UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(add_overflows(ULONG_MAX, 1UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(add_overflows(1UL, ULONG_MAX, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(add_overflows(ULONG_MAX, ULONG_MAX, res));
+    TEST_EQUAL(res, ULONG_MAX - 1UL);
+
+    return true;
+}
+
+static bool test_muloverflows1()
+{
+    unsigned long res;
+    TEST(!mul_overflows(0UL, 0UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(!mul_overflows(ULONG_MAX, 0UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(!mul_overflows(0UL, ULONG_MAX, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(!mul_overflows(ULONG_MAX, 1UL, res));
+    TEST_EQUAL(res, ULONG_MAX);
+
+    TEST(!mul_overflows(1UL, ULONG_MAX, res));
+    TEST_EQUAL(res, ULONG_MAX);
+
+    TEST(mul_overflows((ULONG_MAX >> 1UL) + 1UL, 2UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(mul_overflows(2UL, (ULONG_MAX >> 1UL) + 1UL, res));
+    TEST_EQUAL(res, 0);
+
+    TEST(mul_overflows(ULONG_MAX, ULONG_MAX, res));
+
+    return true;
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -749,6 +797,8 @@ static const test_desc tests[] = {
     TESTCASE(closefrom1),
     TESTCASE(uuid1),
     TESTCASE(movesupport1),
+    TESTCASE(addoverflows1),
+    TESTCASE(muloverflows1),
     END_OF_TESTCASES
 };
 

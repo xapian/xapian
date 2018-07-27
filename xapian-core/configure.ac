@@ -432,6 +432,7 @@ AC_TRY_COMPILE([
     AC_MSG_RESULT([no]))
 CXXFLAGS=$save_CXXFLAGS
 
+AC_CHECK_DECLS([__builtin_add_overflow, __builtin_mul_overflow], [], [], [ ])
 AC_CHECK_DECLS([__builtin_bswap16, __builtin_bswap32], [], [], [ ])
 AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong], [], [],
 	       [#include <stdlib.h>])
