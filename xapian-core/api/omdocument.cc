@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008,2009,2011,2013,2014 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008,2009,2011,2013,2014,2018 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include "documentvaluelist.h"
 #include "maptermlist.h"
 #include "net/serialise.h"
+#include "overflow.h"
 #include "str.h"
 #include "unicode/description_append.h"
 
@@ -156,6 +157,21 @@ Document::remove_posting(const string & tname, Xapian::termpos tpos,
 }
 
 void
+Document::remove_postings(const string& term,
+			  Xapian::termpos termpos_first,
+			  Xapian::termpos termpos_last,
+			  Xapian::termcount wdf_dec)
+{
+    if (term.empty()) {
+	throw InvalidArgumentError("Empty termnames aren't allowed.");
+    }
+    if (rare(termpos_first > termpos_last)) {
+	return;
+    }
+    internal->remove_postings(term, termpos_first, termpos_last, wdf_dec);
+}
+
+void
 Document::remove_term(const string & tname)
 {
     LOGCALL_VOID(API, "Document::remove_term", tname);
@@ -271,6 +287,26 @@ OmDocumentTerm::remove_position(Xapian::termpos tpos)
 				     " not in list, can't remove");
     }
     positions.erase(i);
+}
+
+Xapian::termpos
+OmDocumentTerm::remove_positions(Xapian::termpos termpos_first,
+				 Xapian::termpos termpos_last)
+{
+    LOGCALL(DB, Xapian::termpos, "OmDocumentTerm::remove_position", termpos_first | termpos_last);
+
+    Assert(!deleted);
+
+    // Find the range [i, j) that the specified termpos range maps to.  Use
+    // binary chop to search, since this is a sorted list.
+    auto i = lower_bound(positions.begin(), positions.end(), termpos_first);
+    if (i == positions.end() || *i > termpos_last) {
+	return 0;
+    }
+    auto j = upper_bound(i, positions.end(), termpos_last);
+    size_t size_before = positions.size();
+    positions.erase(i, j);
+    return Xapian::termpos(size_before - positions.size());
 }
 
 string
@@ -412,6 +448,34 @@ Xapian::Document::Internal::remove_posting(const string & tname,
     i->second.remove_position(tpos);
     if (wdfdec) i->second.decrease_wdf(wdfdec);
     positions_modified = true;
+}
+
+void
+Xapian::Document::Internal::remove_postings(const string& term,
+					    Xapian::termpos termpos_first,
+					    Xapian::termpos termpos_last,
+					    Xapian::termcount wdf_dec)
+{
+    need_terms();
+
+    auto i = terms.find(term);
+    if (i == terms.end() || i->second.is_deleted()) {
+	throw Xapian::InvalidArgumentError("Term '" + term +
+		"' is not present in document, in "
+		"Xapian::Document::Internal::remove_postings()");
+    }
+    auto n_removed = i->second.remove_positions(termpos_first, termpos_last);
+    if (n_removed) {
+	positions_modified = true;
+	if (wdf_dec) {
+	    Xapian::termcount wdf_delta;
+	    if (mul_overflows(n_removed, wdf_dec, wdf_delta)) {
+		// Decreasing by the maximum value will zero the wdf.
+		wdf_delta = numeric_limits<Xapian::termcount>::max();
+	    }
+	    i->second.decrease_wdf(wdf_delta);
+	}
+    }
 }
 
 void

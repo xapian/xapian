@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2007 Olly Betts
+ * Copyright 2003,2007,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -109,6 +109,18 @@ class OmDocumentTerm {
      *  not occur in the position list.
      */
     void remove_position(Xapian::termpos tpos);
+
+    /** Remove a range of positions.
+     *
+     *  @param termpos_first	First position to remove
+     *  @param termpos_last	Last position to remove
+     *
+     *  It's OK if there are no positions in the specified range.
+     *
+     *  @return the number of positions removed.
+     */
+    Xapian::termpos remove_positions(Xapian::termpos termpos_first,
+				     Xapian::termpos termpos_last);
 
     /** Increase within-document frequency.
      *
