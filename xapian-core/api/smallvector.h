@@ -45,9 +45,19 @@ namespace Xapian {
 template<typename T,
 	 bool COW = false,
 	 typename = typename std::enable_if<
+#if defined __GNUC__ && __GNUC__ < 6
+/* GCC < 6 doesn't support std::is_trivially_copyable<>, so just skip that
+ * check - we'll have to rely on other compilers to catch if this is violated.
+ *
+ * FIXME: Probe for whether this is supported in configure.
+ */
+	     !COW || std::is_integral<T>::value
+#else
 	     (COW ?
 	      std::is_integral<T>::value :
-	      std::is_trivially_copyable<T>::value)>::type>
+	      std::is_trivially_copyable<T>::value)
+#endif
+	      >::type>
 class Vec {
     std::size_t c;
 
