@@ -1,7 +1,7 @@
 /** @file smallvector.h
  * @brief Custom vector implementations using small vector optimisation
  */
-/* Copyright (C) 2012,2013,2014,2017 Olly Betts
+/* Copyright (C) 2012,2013,2014,2017,2018 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -44,8 +44,10 @@ namespace Xapian {
  */
 template<typename T,
 	 bool COW = false,
-	 typename = typename std::enable_if<!COW ||
-					    std::is_integral<T>::value>::type>
+	 typename = typename std::enable_if<
+	     (COW ?
+	      std::is_integral<T>::value :
+	      std::is_trivially_copyable<T>::value)>::type>
 class Vec {
     std::size_t c;
 
@@ -191,14 +193,8 @@ class Vec {
     }
 
     void erase(const_iterator it) {
-	auto end_it = end();
-	while (true) {
-	    T* p = const_cast<T*>(it);
-	    ++it;
-	    if (it == end_it)
-		break;
-	    *p = *it;
-	}
+	T* p = const_cast<T*>(it);
+	std::memmove(p, p + 1, (end() - it - 1) * sizeof(T));
 	if (is_external()) {
 	    --u.e;
 	} else {
