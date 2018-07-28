@@ -257,6 +257,14 @@ class HoneyVersion {
 	spelling_wordfreq_ubound = ub;
     }
 
+    void set_uniq_terms_lower_bound(Xapian::termcount ub) {
+	uniq_terms_lbound = ub;
+    }
+
+    void set_uniq_terms_upper_bound(Xapian::termcount ub) {
+	uniq_terms_ubound = ub;
+    }
+
     void add_document(Xapian::termcount doclen) {
 	++doccount;
 	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))
