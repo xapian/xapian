@@ -313,6 +313,18 @@ Database::get_wdf_upper_bound(const string& term) const
     return internal->get_wdf_upper_bound(term);
 }
 
+Xapian::termcount
+Database::get_uniq_terms_lower_bound() const
+{
+    return internal->get_uniq_terms_lower_bound();
+}
+
+Xapian::termcount
+Database::get_uniq_terms_upper_bound() const
+{
+    return internal->get_uniq_terms_upper_bound();
+}
+
 ValueIterator
 Database::valuestream_begin(Xapian::valueno slot) const
 {

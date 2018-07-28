@@ -60,6 +60,20 @@ Database::Internal::readahead_for_query(const Xapian::Query &) const
 {
 }
 
+Xapian::termcount
+Database::Internal::get_uniq_terms_lower_bound() const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support"
+			       "get_uniq_terms_lower_bound");
+}
+
+Xapian::termcount
+Database::Internal::get_uniq_terms_upper_bound() const
+{
+    throw Xapian::UnimplementedError("This backend doesn't support"
+			       "get_uniq_terms_upper_bound");
+}
+
 // Discard any exceptions - we're called from the destructors of derived
 // classes so we can't safely throw.
 void
