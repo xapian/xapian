@@ -283,12 +283,13 @@ HoneyVersion::merge_stats(const HoneyVersion & o)
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o.get_spelling_wordfreq_upper_bound();
 
-    if (o.uniq_terms_lbound > 0) {
-	if (uniq_terms_lbound == 0 || o.uniq_terms_lbound < uniq_terms_lbound)
-	    uniq_terms_lbound = o.uniq_terms_lbound;
+    auto o_uniq_terms_lbound = o.get_uniq_terms_lower_bound();
+    if (o_uniq_terms_lbound > 0) {
+	if (uniq_terms_lbound == 0 || o_uniq_terms_lbound < uniq_terms_lbound)
+	    uniq_terms_lbound = o_uniq_terms_lbound;
     }
 
-    uniq_terms_ubound = max(uniq_terms_ubound, o.uniq_terms_ubound);
+    uniq_terms_ubound = max(uniq_terms_ubound, o.get_uniq_terms_upper_bound());
 }
 
 void

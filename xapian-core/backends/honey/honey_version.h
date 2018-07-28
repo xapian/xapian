@@ -239,11 +239,11 @@ class HoneyVersion {
 	return oldest_changeset;
     }
 
-    Xapian::termcount get_uniq_terms_lbound() const {
+    Xapian::termcount get_uniq_terms_lower_bound() const {
 	return uniq_terms_lbound;
     }
 
-    Xapian::termcount get_uniq_terms_ubound() const {
+    Xapian::termcount get_uniq_terms_upper_bound() const {
 	return uniq_terms_ubound;
     }
 
