@@ -197,6 +197,12 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     /// Get an upper bound on the wdf of term @a term.
     virtual termcount get_wdf_upper_bound(const std::string& term) const;
 
+    /// Get a lower bound on the unique terms size of a document in this DB.
+    virtual termcount get_uniq_terms_lower_bound() const;
+
+    /// Get an upper bound on the unique terms size of a document in this DB.
+    virtual termcount get_uniq_terms_upper_bound() const;
+
     virtual bool term_exists(const std::string& term) const = 0;
 
     /** Check whether this database contains any positional information. */
