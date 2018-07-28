@@ -95,7 +95,8 @@ HoneyVersion::HoneyVersion(int fd_)
       doccount(0), total_doclen(0), last_docid(0),
       doclen_lbound(0), doclen_ubound(0),
       wdf_ubound(0), spelling_wordfreq_ubound(0),
-      oldest_changeset(0)
+      oldest_changeset(0),
+      uniq_terms_lbound(0), uniq_terms_ubound(0)
 {
     offset = lseek(fd, 0, SEEK_CUR);
     if (rare(offset == off_t(-1))) {
@@ -206,6 +207,8 @@ HoneyVersion::serialise_stats()
     pack_uint(serialised_stats, oldest_changeset);
     pack_uint(serialised_stats, total_doclen);
     pack_uint(serialised_stats, spelling_wordfreq_ubound);
+    pack_uint(serialised_stats, uniq_terms_lbound);
+    pack_uint(serialised_stats, uniq_terms_ubound);
 }
 
 void
@@ -222,6 +225,8 @@ HoneyVersion::unserialise_stats()
 	wdf_ubound = 0;
 	oldest_changeset = 0;
 	spelling_wordfreq_ubound = 0;
+	uniq_terms_lbound = 0;
+	uniq_terms_ubound = 0;
 	return;
     }
 
@@ -232,7 +237,9 @@ HoneyVersion::unserialise_stats()
 	!unpack_uint(&p, end, &doclen_ubound) ||
 	!unpack_uint(&p, end, &oldest_changeset) ||
 	!unpack_uint(&p, end, &total_doclen) ||
-	!unpack_uint(&p, end, &spelling_wordfreq_ubound)) {
+	!unpack_uint(&p, end, &spelling_wordfreq_ubound) ||
+	!unpack_uint(&p, end, &uniq_terms_lbound) ||
+	!unpack_uint(&p, end, &uniq_terms_ubound)) {
 	const char * m = p ?
 	    "Bad serialised DB stats (overflowed)" :
 	    "Bad serialised DB stats (out of data)";
@@ -275,6 +282,13 @@ HoneyVersion::merge_stats(const HoneyVersion & o)
 
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o.get_spelling_wordfreq_upper_bound();
+
+    if (o.uniq_terms_lbound > 0) {
+	if (uniq_terms_lbound == 0 || o.uniq_terms_lbound < uniq_terms_lbound)
+	    uniq_terms_lbound = o.uniq_terms_lbound;
+    }
+
+    uniq_terms_ubound = max(uniq_terms_ubound, o.uniq_terms_ubound);
 }
 
 void
@@ -283,7 +297,9 @@ HoneyVersion::merge_stats(Xapian::doccount o_doccount,
 			  Xapian::termcount o_doclen_ubound,
 			  Xapian::termcount o_wdf_ubound,
 			  Xapian::totallength o_total_doclen,
-			  Xapian::termcount o_spelling_wordfreq_ubound)
+			  Xapian::termcount o_spelling_wordfreq_ubound,
+			  Xapian::termcount o_uniq_terms_lbound,
+			  Xapian::termcount o_uniq_terms_ubound)
 {
     doccount += o_doccount;
     if (doccount < o_doccount) {
@@ -304,6 +320,13 @@ HoneyVersion::merge_stats(Xapian::doccount o_doccount,
 
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o_spelling_wordfreq_ubound;
+
+    if (o_uniq_terms_lbound > 0) {
+	if (uniq_terms_lbound == 0 || o_uniq_terms_lbound < uniq_terms_lbound)
+	    uniq_terms_lbound = o_uniq_terms_lbound;
+    }
+
+    uniq_terms_ubound = max(uniq_terms_ubound, o_uniq_terms_ubound);
 }
 
 void
