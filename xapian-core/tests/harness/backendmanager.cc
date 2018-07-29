@@ -66,19 +66,20 @@ BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 bool
 BackendManager::create_dir_if_needed(const string &dirname)
 {
-    // create a directory if not present
-    struct stat sbuf;
-    int result = stat(dirname.c_str(), &sbuf);
-    if (result < 0) {
-	if (errno != ENOENT)
-	    throw Xapian::DatabaseOpeningError("Can't stat directory", errno);
-	if (mkdir(dirname.c_str(), 0700) < 0)
-	    throw Xapian::DatabaseOpeningError("Can't create directory", errno);
-	return true; // Successfully created a directory.
+    if (mkdir(dirname.c_str(), 0700) == 0) {
+	return true;
     }
-    if (!S_ISDIR(sbuf.st_mode))
-	throw Xapian::DatabaseOpeningError("Is not a directory.");
-    return false; // Already a directory.
+
+    int mkdir_errno = errno;
+    if (mkdir_errno == EEXIST) {
+	// Something exists at dirname, but we need to check if it is a directory.
+	if (dir_exists(dirname)) {
+	    return false;
+	}
+    }
+
+    throw Xapian::DatabaseOpeningError("Failed to create directory",
+				       mkdir_errno);
 }
 
 BackendManager::~BackendManager() { }
