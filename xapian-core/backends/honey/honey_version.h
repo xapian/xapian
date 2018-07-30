@@ -130,12 +130,12 @@ class HoneyVersion {
     mutable honey_revision_number_t oldest_changeset;
 
     /** A lower bound on the number of unique terms in a document in this
-     *  databse
+     *  database.
      */
     Xapian::termcount uniq_terms_lbound;
 
     /** An upper bound on the number of unique terms in a document in this
-     *  databse
+     *  database.
      */
     Xapian::termcount uniq_terms_ubound;
 
