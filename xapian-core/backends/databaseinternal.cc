@@ -107,15 +107,13 @@ Database::Internal::get_wdf_upper_bound(const string & term) const
 Xapian::termcount
 Database::Internal::get_uniq_terms_lower_bound() const
 {
-    throw Xapian::UnimplementedError("This backend doesn't support"
-			       "get_uniq_terms_lower_bound");
+    return 1;
 }
 
 Xapian::termcount
 Database::Internal::get_uniq_terms_upper_bound() const
 {
-    throw Xapian::UnimplementedError("This backend doesn't support"
-			       "get_uniq_terms_upper_bound");
+    return get_doclength_upper_bound();
 }
 
 // Discard any exceptions - we're called from the destructors of derived
