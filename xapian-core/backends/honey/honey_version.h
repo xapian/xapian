@@ -283,8 +283,8 @@ class HoneyVersion {
 		     Xapian::termcount o_wdf_ubound,
 		     Xapian::totallength o_total_doclen,
 		     Xapian::termcount o_spelling_wordfreq_ubound,
-		     Xapian::termcount o_uniq_terms_lbound = 0,
-		     Xapian::termcount o_uniq_terms_ubound = 0);
+		     Xapian::termcount o_uniq_terms_lbound,
+		     Xapian::termcount o_uniq_terms_ubound);
 
     bool single_file() const { return db_dir.empty(); }
 

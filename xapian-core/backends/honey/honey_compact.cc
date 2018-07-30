@@ -2032,12 +2032,16 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	    auto db = static_cast<const GlassDatabase*>(sources[i]);
 	    auto& v_in = db->version_file;
 	    auto& v_out = version_file_out;
+	    // Glass backend doesn't track unique term bounds, hence setting
+	    // them to 0.
 	    v_out->merge_stats(v_in.get_doccount(),
 			       v_in.get_doclength_lower_bound(),
 			       v_in.get_doclength_upper_bound(),
 			       v_in.get_wdf_upper_bound(),
 			       v_in.get_total_doclen(),
-			       v_in.get_spelling_wordfreq_upper_bound());
+			       v_in.get_spelling_wordfreq_upper_bound(),
+			       0,
+			       0);
 	    source_single_file = db->single_file();
 #else
 	    Assert(false);
