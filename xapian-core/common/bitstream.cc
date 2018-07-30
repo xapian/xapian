@@ -76,8 +76,8 @@ void
 BitWriter::encode(size_t value, size_t outof)
 {
     Assert(value < outof);
-    size_t bits = highest_order_bit(outof - 1);
-    const size_t spare = (1 << bits) - outof;
+    unsigned bits = highest_order_bit(outof - 1);
+    const Xapian::termpos spare = (Xapian::termpos(1) << bits) - outof;
     if (spare) {
 	/* If we have spare values, we can use one fewer bit to encode some
 	 * values.  We shorten the values in the middle of the range, as
@@ -105,9 +105,9 @@ BitWriter::encode(size_t value, size_t outof)
 	 * Note the LSB comes first in the bitstream, so these codes need to be
 	 * suffix-free to be decoded.
 	 */
-	const size_t mid_start = (outof - spare) / 2;
+	const unsigned mid_start = (outof - spare) / 2;
 	if (value >= mid_start + spare) {
-	    value = (value - (mid_start + spare)) | (1 << (bits - 1));
+	    value = (value - (mid_start + spare)) | (1u << (bits - 1));
 	} else if (value >= mid_start) {
 	    --bits;
 	}
@@ -140,12 +140,12 @@ BitWriter::encode_interpolative(const Xapian::VecCOW<Xapian::termpos> &pos, int 
     // Gigabytes" - pages 126-127 in the second edition.  You can probably
     // view those pages in google books.
     while (j + 1 < k) {
-	const size_t mid = (j + k) / 2;
+	const Xapian::termpos mid = j + (k - j) / 2;
 	// Encode one out of (pos[k] - pos[j] + 1) values
 	// (less some at either end because we must be able to fit
 	// all the intervening pos in)
-	const size_t outof = pos[k] - pos[j] + j - k + 1;
-	const size_t lowest = pos[j] + mid - j;
+	const Xapian::termpos outof = pos[k] - pos[j] + j - k + 1;
+	const Xapian::termpos lowest = pos[j] + mid - j;
 	encode(pos[mid] - lowest, outof);
 	encode_interpolative(pos, j, mid);
 	j = mid;
@@ -157,9 +157,9 @@ BitReader::decode(Xapian::termpos outof, bool force)
 {
     (void)force;
     Assert(force == di_current.is_initialized());
-    size_t bits = highest_order_bit(outof - 1);
-    const size_t spare = (1 << bits) - outof;
-    const size_t mid_start = (outof - spare) / 2;
+    Xapian::termpos bits = highest_order_bit(outof - 1);
+    const Xapian::termpos spare = (Xapian::termpos(1) << bits) - outof;
+    const Xapian::termpos mid_start = (outof - spare) / 2;
     Xapian::termpos pos;
     if (spare) {
 	pos = read_bits(bits - 1);

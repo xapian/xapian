@@ -1411,6 +1411,8 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
 	doc.add_posting("fork", n * 3);
 	doc.add_posting("knife", n * unsigned(log(double(n + 2))));
 	doc.add_posting("spoon", n * n);
+	// Exercise positions up to 4 billion.
+	doc.add_posting("chopsticks", n * n / 2 * n);
     }
     doc.set_data("cutlery");
     Xapian::docid did = db.add_document(doc);
@@ -1424,6 +1426,18 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
     t = doc.termlist_begin();
     tend = doc.termlist_end();
 
+    TEST(t != tend);
+    TEST_EQUAL(*t, "chopsticks");
+    p = t.positionlist_begin();
+    pend = t.positionlist_end();
+    for (n = 1; n <= 2000; ++n) {
+	TEST(p != pend);
+	TEST_EQUAL(*p, n * n / 2 * n);
+	++p;
+    }
+    TEST(p == pend);
+
+    ++t;
     TEST(t != tend);
     TEST_EQUAL(*t, "fork");
     p = t.positionlist_begin();
