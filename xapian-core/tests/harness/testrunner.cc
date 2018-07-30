@@ -159,6 +159,10 @@ TestRunner::run_tests(int argc, char ** argv)
 	do_tests_for_backend(BackendManagerRemoteTcp("chert"));
 # endif
 #endif
+    } catch (const std::exception& e) {
+	cerr << "\nTest harness failed with std::exception: " << e.what()
+	     << endl;
+	return 1;
     } catch (const Xapian::Error &e) {
 	cerr << "\nTest harness failed with " << e.get_description() << endl;
 	return 1;
