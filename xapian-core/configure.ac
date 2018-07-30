@@ -409,7 +409,7 @@ using namespace std;]],
     [ac_cv_link___builtin_exp10=no])
 ])
 if test $ac_cv_link___builtin_exp10 = yes ; then
-  AC_DEFINE([HAVE___BUILTIN_EXP10], [1], [Define to 1 if you have the `__builtin_exp10' function.])
+  AC_DEFINE([HAVE___BUILTIN_EXP10], [1], [Define to 1 if you have the '__builtin_exp10' function.])
 fi
 
 dnl See if <typeinfo> can be used in the testsuite - at least for GCC and xlC,
