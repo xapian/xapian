@@ -139,7 +139,7 @@ Document::remove_posting(const string& term,
     }
 }
 
-void
+Xapian::termpos
 Document::remove_postings(const string& term,
 			  Xapian::termpos term_pos_first,
 			  Xapian::termpos term_pos_last,
@@ -149,16 +149,18 @@ Document::remove_postings(const string& term,
 	throw_invalid_arg_empty_term();
     }
     if (rare(term_pos_first > term_pos_last)) {
-	return;
+	return 0;
     }
+    Xapian::termpos n_removed;
     auto res = internal->remove_postings(term, term_pos_first, term_pos_last,
-					 wdf_dec);
+					 wdf_dec, n_removed);
     if (res != Document::Internal::OK) {
 	string m = "Document::remove_postings() failed - term '";
 	m += term;
 	m += "' not present";
 	throw Xapian::InvalidArgumentError(m);
     }
+    return n_removed;
 }
 
 void

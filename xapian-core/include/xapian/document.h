@@ -161,11 +161,13 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  It's OK if the term doesn't occur in the range of positions
      *  specified (unlike @a remove_posting()).  And if
      *  term_pos_first > term_pos_last, this method does nothing.
+     *
+     *  @return The number of postings removed.
      */
-    void remove_postings(const std::string& term,
-			 Xapian::termpos term_pos_first,
-			 Xapian::termpos term_pos_last,
-			 Xapian::termcount wdf_dec = 1);
+    Xapian::termpos remove_postings(const std::string& term,
+				    Xapian::termpos term_pos_first,
+				    Xapian::termpos term_pos_last,
+				    Xapian::termcount wdf_dec = 1);
 
     /// Clear all terms from the document.
     void clear_terms();

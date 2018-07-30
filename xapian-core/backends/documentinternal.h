@@ -321,15 +321,16 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     remove_postings(const std::string& term,
 		    Xapian::termpos term_pos_first,
 		    Xapian::termpos term_pos_last,
-		    Xapian::termcount wdf_dec) {
+		    Xapian::termcount wdf_dec,
+		    Xapian::termpos& n_removed) {
 	ensure_terms_fetched();
 
 	auto i = terms->find(term);
 	if (i == terms->end() || i->second.is_deleted()) {
 	    return remove_posting_result::NO_TERM;
 	}
-	auto n_removed = i->second.remove_positions(term_pos_first,
-						    term_pos_last);
+	n_removed = i->second.remove_positions(term_pos_first,
+					       term_pos_last);
 	if (n_removed) {
 	    positions_modified_ = true;
 	    if (wdf_dec) {
