@@ -965,32 +965,38 @@ DEFINE_TESTCASE(removepostings, !backend) {
     auto num_pos = t.positionlist_count();
     TEST_EQUAL(t.get_wdf(), num_pos);
 
+    // Out of order is a no-op.
+    TEST_EQUAL(doc.remove_postings("foo", 2, 1), 0);
+    t = doc.termlist_begin();
+    TEST_EQUAL(t.positionlist_count(), num_pos);
+    TEST_EQUAL(t.get_wdf(), num_pos);
+
     // 6 and 7 aren't in the sequence.
-    doc.remove_postings("foo", 6, 7);
+    TEST_EQUAL(doc.remove_postings("foo", 6, 7), 0);
     t = doc.termlist_begin();
     TEST_EQUAL(t.positionlist_count(), num_pos);
     TEST_EQUAL(t.get_wdf(), num_pos);
 
     // Beyond the end of the positions.
-    doc.remove_postings("foo", 1000, 2000);
+    TEST_EQUAL(doc.remove_postings("foo", 1000, 2000), 0);
     t = doc.termlist_begin();
     TEST_EQUAL(t.positionlist_count(), num_pos);
     TEST_EQUAL(t.get_wdf(), num_pos);
 
     // 1, 2, 3 are in the sequence, 4 isn't.
-    doc.remove_postings("foo", 1, 4);
+    TEST_EQUAL(doc.remove_postings("foo", 1, 4), 3);
     t = doc.termlist_begin();
     TEST_EQUAL(t.positionlist_count(), num_pos - 3);
     TEST_EQUAL(t.get_wdf(), num_pos - 3);
 
     // Remove the end position.
-    doc.remove_postings("foo", 876, 987);
+    TEST_EQUAL(doc.remove_postings("foo", 876, 987), 1);
     t = doc.termlist_begin();
     TEST_EQUAL(t.positionlist_count(), num_pos - 4);
     TEST_EQUAL(t.get_wdf(), num_pos - 4);
 
     // Remove a range in the middle.
-    doc.remove_postings("foo", 33, 233);
+    TEST_EQUAL(doc.remove_postings("foo", 33, 233), 5);
     t = doc.termlist_begin();
     TEST_EQUAL(t.positionlist_count(), num_pos - 9);
     TEST_EQUAL(t.get_wdf(), num_pos - 9);

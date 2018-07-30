@@ -156,7 +156,7 @@ Document::remove_posting(const string & tname, Xapian::termpos tpos,
     internal->remove_posting(tname, tpos, wdfdec);
 }
 
-void
+Xapian::termpos
 Document::remove_postings(const string& term,
 			  Xapian::termpos termpos_first,
 			  Xapian::termpos termpos_last,
@@ -166,9 +166,10 @@ Document::remove_postings(const string& term,
 	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
     if (rare(termpos_first > termpos_last)) {
-	return;
+	return 0;
     }
-    internal->remove_postings(term, termpos_first, termpos_last, wdf_dec);
+    return internal->remove_postings(term, termpos_first, termpos_last,
+				     wdf_dec);
 }
 
 void
@@ -450,7 +451,7 @@ Xapian::Document::Internal::remove_posting(const string & tname,
     positions_modified = true;
 }
 
-void
+Xapian::termpos
 Xapian::Document::Internal::remove_postings(const string& term,
 					    Xapian::termpos termpos_first,
 					    Xapian::termpos termpos_last,
@@ -476,6 +477,7 @@ Xapian::Document::Internal::remove_postings(const string& term,
 	    i->second.decrease_wdf(wdf_delta);
 	}
     }
+    return n_removed;
 }
 
 void

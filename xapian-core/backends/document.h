@@ -132,8 +132,9 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	void add_posting(const string &, Xapian::termpos, Xapian::termcount);
 	void add_term(const string &, Xapian::termcount);
 	void remove_posting(const string &, Xapian::termpos, Xapian::termcount);
-	void remove_postings(const string &, Xapian::termpos, Xapian::termpos,
-			     Xapian::termcount);
+	Xapian::termpos remove_postings(const string &,
+					Xapian::termpos, Xapian::termpos,
+					Xapian::termcount);
 	void remove_term(const string &);
 	void clear_terms();
 	Xapian::termcount termlist_count() const;

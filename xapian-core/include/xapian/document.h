@@ -224,13 +224,15 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  specified (unlike @a remove_posting()).  And if
 	 *  term_pos_first > term_pos_last, this method does nothing.
 	 *
+	 *  @return The number of postings removed.
+	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if the term
 	 *  is not in the document
 	 */
-	void remove_postings(const std::string& term,
-			     Xapian::termpos term_pos_first,
-			     Xapian::termpos term_pos_last,
-			     Xapian::termcount wdf_dec = 1);
+	Xapian::termpos remove_postings(const std::string& term,
+					Xapian::termpos term_pos_first,
+					Xapian::termpos term_pos_last,
+					Xapian::termcount wdf_dec = 1);
 
 	/** Remove a term and all postings associated with it.
 	 *
