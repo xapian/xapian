@@ -435,6 +435,13 @@ AC_TRY_COMPILE([
     AC_MSG_RESULT([no]))
 CXXFLAGS=$save_CXXFLAGS
 
+AC_MSG_CHECKING([if std::is_trivially_copyable<> is supported])
+AC_TRY_COMPILE([#include <type_traits>],
+	[return std::is_trivially_copyable<int>::value ? 1 : 0;],
+    AC_MSG_RESULT([yes])
+    AC_DEFINE([HAVE_STD_IS_TRIVIALLY_COPYABLE], [1], [Define to 1 if you have 'std::is_trivially_copyable<>'.]),
+    AC_MSG_RESULT([no]))
+
 AC_CHECK_DECLS([__builtin_add_overflow, __builtin_mul_overflow], [], [], [ ])
 AC_CHECK_DECLS([__builtin_bswap16, __builtin_bswap32], [], [], [ ])
 AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong], [], [],
