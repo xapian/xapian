@@ -240,25 +240,57 @@ Document::unserialise(const std::string &s)
 
 /////////////////////////////////////////////////////////////////////////////
 
+void
+OmDocumentTerm::merge() const
+{
+    Assert(!is_deleted());
+    inplace_merge(positions.begin(),
+		  positions.begin() + split,
+		  positions.end());
+    split = 0;
+}
+
 bool
 OmDocumentTerm::add_position(Xapian::termcount wdf_inc, Xapian::termpos tpos)
 {
     LOGCALL(DB, bool, "OmDocumentTerm::add_position", wdf_inc | tpos);
 
-    if (rare(deleted)) {
+    if (rare(is_deleted())) {
 	wdf = wdf_inc;
-	deleted = false;
+	split = 0;
 	positions.push_back(tpos);
 	return true;
     }
 
     wdf += wdf_inc;
 
-    // We generally expect term positions to be added in approximately
-    // increasing order, so check the end first
-    if (positions.empty() || tpos > positions.back()) {
+    // Optimise the common case of adding positions in ascending order.
+    if (positions.empty()) {
 	positions.push_back(tpos);
 	return false;
+    }
+    if (tpos > positions.back()) {
+	if (split) {
+	    // Check for duplicate before split.
+	    auto i = lower_bound(positions.cbegin(),
+				 positions.cbegin() + split,
+				 tpos);
+	    if (i != positions.cbegin() + split)
+		return false;
+	}
+	positions.push_back(tpos);
+	return false;
+    }
+
+    if (tpos == positions.back()) {
+	// Duplicate of last entry.
+	return false;
+    }
+
+    if (split > 0) {
+	// We could merge in the new entry at the same time, but that seems to
+	// make things much more complex for minor gains.
+	merge();
     }
 
     // Search for the position the term occurs at.  Use binary chop to
@@ -266,7 +298,8 @@ OmDocumentTerm::add_position(Xapian::termcount wdf_inc, Xapian::termpos tpos)
     vector<Xapian::termpos>::iterator i;
     i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
-	positions.insert(i, tpos);
+	split = positions.size();
+	positions.push_back(tpos);
     }
 
     return false;
@@ -277,15 +310,35 @@ OmDocumentTerm::remove_position(Xapian::termpos tpos)
 {
     LOGCALL_VOID(DB, "OmDocumentTerm::remove_position", tpos);
 
-    Assert(!deleted);
+    Assert(!is_deleted());
 
-    // Search for the position the term occurs at.  Use binary chop to
-    // search, since this is a sorted list.
-    vector<Xapian::termpos>::iterator i;
-    i = lower_bound(positions.begin(), positions.end(), tpos);
-    if (i == positions.end() || *i != tpos) {
+    if (rare(positions.empty())) {
+not_there:
 	throw Xapian::InvalidArgumentError("Position " + str(tpos) +
-				     " not in list, can't remove");
+					   " not in list, can't remove");
+    }
+
+    // Special case removing the final position, which we can handle in O(1).
+    if (positions.back() == tpos) {
+	positions.pop_back();
+	if (split == positions.size()) {
+	    split = 0;
+	    // We removed the only entry from after the split.
+	}
+	return;
+    }
+
+    if (split > 0) {
+	// We could remove the requested entry at the same time, but that seems
+	// fiddly to do.
+	merge();
+    }
+
+    // We keep positions sorted, so use lower_bound() which can binary chop to
+    // find the entry.
+    auto i = lower_bound(positions.cbegin(), positions.cend(), tpos);
+    if (i == positions.cend() || *i != tpos) {
+	goto not_there;
     }
     positions.erase(i);
 }
@@ -296,7 +349,13 @@ OmDocumentTerm::remove_positions(Xapian::termpos termpos_first,
 {
     LOGCALL(DB, Xapian::termpos, "OmDocumentTerm::remove_position", termpos_first | termpos_last);
 
-    Assert(!deleted);
+    Assert(!is_deleted());
+
+    if (split > 0) {
+	// We could remove the requested entries at the same time, but that
+	// seems fiddly to do.
+	merge();
+    }
 
     // Find the range [i, j) that the specified termpos range maps to.  Use
     // binary chop to search, since this is a sorted list.

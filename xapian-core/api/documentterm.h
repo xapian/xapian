@@ -51,12 +51,23 @@ class OmDocumentTerm {
      */
     Xapian::termcount wdf;
 
-    /** Flag to indicate if this term was deleted from this document.
+    /** Split point in the position range.
      *
-     *  We flag entries as deleted instead of actually deleting them to avoid
-     *  invalidating existing TermIterator objects.
+     *  To allow more efficient insertion of positions, we support the
+     *  positions being split into two sorted ranges, and if this is the
+     *  case, split will be > 0 and there will be two sorted ranges [0, split)
+     *  and [split, positions.size()).
+     *
+     *  If split is 0, then [0, positions.size()) form a single sorted range.
+     *
+     *  If positions.empty(), then split > 0 indicates that the term has been
+     *  deleted (this allows us to delete terms without invalidating existing
+     *  TermIterator objects).
      */
-    bool deleted = false;
+    mutable size_t split = 0;
+
+    /** Merge sorted ranges before and after @a split. */
+    void merge() const;
 
     typedef vector<Xapian::termpos> term_positions;
 
@@ -73,11 +84,11 @@ class OmDocumentTerm {
      *  occur multiple times at a single position, but will only have one
      *  entry in the position list for each position.
      */
-    term_positions positions;
+    mutable term_positions positions;
 
     void remove() {
 	positions.clear();
-	deleted = true;
+	split = 1;
     }
 
     /** Add a position.
@@ -127,8 +138,8 @@ class OmDocumentTerm {
      *  @return true if the term was flagged as deleted before the operation.
      */
     bool increase_wdf(Xapian::termcount delta) {
-	if (rare(deleted)) {
-	    deleted = false;
+	if (rare(is_deleted())) {
+	    split = 0;
 	    wdf = delta;
 	    return true;
 	}
@@ -149,8 +160,12 @@ class OmDocumentTerm {
     /// Get the wdf
     Xapian::termcount get_wdf() const { return wdf; }
 
-    /// Is this term flagged as deleted?
-    bool is_deleted() const { return deleted; }
+    /** Has this term been deleted from this document?
+     *
+     *  We flag entries as deleted instead of actually deleting them to avoid
+     *  invalidating existing TermIterator objects.
+     */
+    bool is_deleted() const { return positions.empty() && split > 0; }
 
     /// Return a string describing this object.
     string get_description() const;
