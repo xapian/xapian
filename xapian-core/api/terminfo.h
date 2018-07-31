@@ -30,19 +30,30 @@ using namespace std;
 class TermInfo {
     Xapian::termcount wdf;
 
-    /** Flag to indicate if this term was deleted from this document.
+    /** Split point in the position range.
      *
-     *  We flag entries as deleted instead of actually deleting them to avoid
-     *  invalidating existing TermIterator objects.
+     *  To allow more efficient insertion of positions, we support the
+     *  positions being split into two sorted ranges, and if this is the
+     *  case, split will be > 0 and there will be two sorted ranges [0, split)
+     *  and [split, positions.size()).
+     *
+     *  If split is 0, then [0, positions.size()) form a single sorted range.
+     *
+     *  If positions.empty(), then split > 0 indicates that the term has been
+     *  deleted (this allows us to delete terms without invalidating existing
+     *  TermIterator objects).
      */
-    bool deleted = false;
+    mutable size_t split = 0;
 
     /** Positions at which the term occurs.
      *
      *  The entries are sorted in strictly increasing order (so duplicate
      *  entries are not allowed).
      */
-    Xapian::VecCOW<Xapian::termpos> positions;
+    mutable Xapian::VecCOW<Xapian::termpos> positions;
+
+    /** Merge sorted ranges before and after @a split. */
+    void merge() const;
 
   public:
     /** Constructor.
@@ -62,8 +73,13 @@ class TermInfo {
 
     /// Get a pointer to the positions.
     const Xapian::VecCOW<Xapian::termpos>* get_positions() const {
+	if (split) merge();
 	return &positions;
     }
+
+    bool has_positions() const { return !positions.empty(); }
+
+    size_t count_positions() const { return positions.size(); }
 
     /// Get the within-document frequency.
     Xapian::termcount get_wdf() const { return wdf; }
@@ -73,8 +89,8 @@ class TermInfo {
      *  @return true if the term was flagged as deleted before the operation.
      */
     bool increase_wdf(Xapian::termcount delta) {
-	if (rare(deleted)) {
-	    deleted = false;
+	if (rare(is_deleted())) {
+	    split = 0;
 	    wdf = delta;
 	    return true;
 	}
@@ -93,10 +109,10 @@ class TermInfo {
     }
 
     bool remove() {
-	if (deleted)
+	if (is_deleted())
 	    return false;
 	positions.clear();
-	deleted = true;
+	split = 1;
 	return true;
     }
 
@@ -139,8 +155,12 @@ class TermInfo {
     Xapian::termpos remove_positions(Xapian::termpos termpos_first,
 				     Xapian::termpos termpos_last);
 
-    /// Is this term flagged as deleted?
-    bool is_deleted() const { return deleted; }
+    /** Has this term been deleted from this document?
+     *
+     *  We flag entries as deleted instead of actually deleting them to avoid
+     *  invalidating existing TermIterator objects.
+     */
+    bool is_deleted() const { return positions.empty() && split > 0; }
 };
 
 #endif // XAPIAN_INCLUDED_TERMINFO_H

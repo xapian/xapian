@@ -73,7 +73,7 @@ DocumentTermList::positionlist_begin() const
 Xapian::termcount
 DocumentTermList::positionlist_count() const
 {
-    return it->second.get_positions()->size();
+    return it->second.count_positions();
 }
 
 TermList*

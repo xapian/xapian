@@ -24,12 +24,26 @@
 
 #include "omassert.h"
 
+#include <algorithm>
+
+using namespace std;
+
+void
+TermInfo::merge() const
+{
+    Assert(!is_deleted());
+    inplace_merge(positions.begin(),
+		  positions.begin() + split,
+		  positions.end());
+    split = 0;
+}
+
 bool
 TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
 {
-    if (rare(deleted)) {
+    if (rare(is_deleted())) {
 	wdf = wdf_inc;
-	deleted = false;
+	split = 0;
 	positions.push_back(termpos);
 	return true;
     }
@@ -37,9 +51,32 @@ TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
     wdf += wdf_inc;
 
     // Optimise the common case of adding positions in ascending order.
-    if (positions.empty() || termpos > positions.back()) {
+    if (positions.empty()) {
 	positions.push_back(termpos);
 	return false;
+    }
+    if (termpos > positions.back()) {
+	if (split) {
+	    // Check for duplicate before split.
+	    auto i = lower_bound(positions.cbegin(),
+				 positions.cbegin() + split,
+				 termpos);
+	    if (i != positions.cbegin() + split)
+		return false;
+	}
+	positions.push_back(termpos);
+	return false;
+    }
+
+    if (termpos == positions.back()) {
+	// Duplicate of last entry.
+	return false;
+    }
+
+    if (split > 0) {
+	// We could merge in the new entry at the same time, but that seems to
+	// make things much more complex for minor gains.
+	merge();
     }
 
     // We keep positions sorted, so use lower_bound() which can binary chop to
@@ -47,7 +84,8 @@ TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
     auto i = lower_bound(positions.cbegin(), positions.cend(), termpos);
     // Add unless termpos is already in the list.
     if (i == positions.cend() || *i != termpos) {
-	positions.insert(i, termpos);
+	split = positions.size();
+	positions.push_back(termpos);
     }
     return false;
 }
@@ -55,7 +93,7 @@ TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
 bool
 TermInfo::remove_position(Xapian::termpos termpos)
 {
-    Assert(!deleted);
+    Assert(!is_deleted());
 
     if (rare(positions.empty()))
 	return false;
@@ -63,7 +101,17 @@ TermInfo::remove_position(Xapian::termpos termpos)
     // Special case removing the final position, which we can handle in O(1).
     if (positions.back() == termpos) {
 	positions.pop_back();
+	if (split == positions.size()) {
+	    split = 0;
+	    // We removed the only entry from after the split.
+	}
 	return true;
+    }
+
+    if (split > 0) {
+	// We could remove the requested entry at the same time, but that seems
+	// fiddly to do.
+	merge();
     }
 
     // We keep positions sorted, so use lower_bound() which can binary chop to
@@ -79,9 +127,15 @@ TermInfo::remove_position(Xapian::termpos termpos)
 
 Xapian::termpos
 TermInfo::remove_positions(Xapian::termpos termpos_first,
-			  Xapian::termpos termpos_last)
+			   Xapian::termpos termpos_last)
 {
-    Assert(!deleted);
+    Assert(!is_deleted());
+
+    if (split > 0) {
+	// We could remove the requested entries at the same time, but that
+	// seems fiddly to do.
+	merge();
+    }
 
     // Find the range [i, j) that the specified termpos range maps to.  Use
     // binary chop to search, since this is a sorted list.

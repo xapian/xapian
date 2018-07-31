@@ -264,7 +264,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	if (i == terms->end()) {
 	    return false;
 	}
-	if (!i->second.get_positions()->empty()) {
+	if (i->second.has_positions()) {
 	    positions_modified_ = true;
 	}
 	if (!i->second.remove()) {
