@@ -44,7 +44,7 @@ class BitWriter {
 	: buf(seed), n_bits(0), acc(0) { }
 
     /// Encode value, known to be less than outof.
-    void encode(size_t value, size_t outof);
+    void encode(Xapian::termpos value, Xapian::termpos outof);
 
     /// Finish encoding and return the encoded data as a std::string.
     std::string & freeze() {

@@ -72,12 +72,20 @@ inline int highest_order_bit(unsigned mask)
 
 namespace Xapian {
 
+/// Shift left that's safe for shifts wider than the type.
+template<typename T, typename U>
+constexpr inline
+T safe_shl(T x, U shift)
+{
+    return (shift >= sizeof(T) * 8 ? 0 : x << shift);
+}
+
 void
-BitWriter::encode(size_t value, size_t outof)
+BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
 {
     Assert(value < outof);
     unsigned bits = highest_order_bit(outof - 1);
-    const Xapian::termpos spare = (Xapian::termpos(1) << bits) - outof;
+    const Xapian::termpos spare = safe_shl(Xapian::termpos(1), bits) - outof;
     if (spare) {
 	/* If we have spare values, we can use one fewer bit to encode some
 	 * values.  We shorten the values in the middle of the range, as
@@ -105,7 +113,7 @@ BitWriter::encode(size_t value, size_t outof)
 	 * Note the LSB comes first in the bitstream, so these codes need to be
 	 * suffix-free to be decoded.
 	 */
-	const unsigned mid_start = (outof - spare) / 2;
+	const Xapian::termpos mid_start = (outof - spare) / 2;
 	if (value >= mid_start + spare) {
 	    value = (value - (mid_start + spare)) | (1u << (bits - 1));
 	} else if (value >= mid_start) {
@@ -158,7 +166,7 @@ BitReader::decode(Xapian::termpos outof, bool force)
     (void)force;
     Assert(force == di_current.is_initialized());
     Xapian::termpos bits = highest_order_bit(outof - 1);
-    const Xapian::termpos spare = (Xapian::termpos(1) << bits) - outof;
+    const Xapian::termpos spare = safe_shl(Xapian::termpos(1), bits) - outof;
     const Xapian::termpos mid_start = (outof - spare) / 2;
     Xapian::termpos p;
     if (spare) {
@@ -222,8 +230,8 @@ BitReader::decode_interpolative_next()
 	}
 	di_stack.push_back(di_current);
 	int mid = (di_current.j + di_current.k) / 2;
-	int pos_mid = decode(di_current.outof(), true) +
-	    (di_current.pos_j + mid - di_current.j);
+	Xapian::termpos pos_mid = decode(di_current.outof(), true) +
+				  (di_current.pos_j + mid - di_current.j);
 	di_current.set_k(mid, pos_mid);
     }
 #ifdef XAPIAN_ASSERTIONS
