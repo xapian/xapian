@@ -20,6 +20,7 @@ noinst_HEADERS +=\
 	common/msvcignoreinvalidparam.h\
 	common/omassert.h\
 	common/output.h\
+	common/overflow.h\
 	common/pack.h\
 	common/posixy_wrapper.h\
 	common/pretty.h\
