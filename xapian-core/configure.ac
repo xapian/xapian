@@ -432,14 +432,25 @@ AC_TRY_COMPILE([
     AC_MSG_RESULT([no]))
 CXXFLAGS=$save_CXXFLAGS
 
-AC_CHECK_DECLS([__builtin_add_overflow, __builtin_mul_overflow], [], [], [ ])
-AC_CHECK_DECLS([__builtin_bswap16, __builtin_bswap32], [], [], [ ])
+dnl We need to specify the argument types for builtin functions, or else
+dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
+AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
+		__builtin_mul_overflow(int, int, int*)], [], [], [ ])
+AC_CHECK_DECLS([__builtin_bswap16(uint16_t),
+		__builtin_bswap32(uint32_t)], [], [],
+	       [#include <stdint.h>])
 AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong], [], [],
 	       [#include <stdlib.h>])
-AC_CHECK_DECLS([__builtin_clz, __builtin_clzl, __builtin_clzll], [], [], [ ])
-AC_CHECK_DECLS([__builtin_ctz, __builtin_ctzl, __builtin_ctzll], [], [], [ ])
-AC_CHECK_DECLS([__builtin_expect], [], [], [ ])
-AC_CHECK_DECLS([__builtin_popcount, __builtin_popcountl, __builtin_popcountll], [], [], [ ])
+AC_CHECK_DECLS([__builtin_clz(unsigned),
+		__builtin_clzl(unsigned long),
+		__builtin_clzll(unsigned long long)], [], [], [ ])
+AC_CHECK_DECLS([__builtin_ctz(unsigned),
+		__builtin_ctzl(unsigned long),
+		__builtin_ctzll(unsigned long long)], [], [], [ ])
+AC_CHECK_DECLS([__builtin_expect(long, long)], [], [], [ ])
+AC_CHECK_DECLS([__builtin_popcount(unsigned),
+		__builtin_popcountl(unsigned long),
+		__builtin_popcountll(unsigned long long)], [], [], [ ])
 AC_CHECK_DECLS([__popcnt, __popcnt64], [], [], [#include <intrin.h>])
 
 dnl Check for time functions.
