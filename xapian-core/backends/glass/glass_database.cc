@@ -50,6 +50,7 @@
 #include "glass_values.h"
 #include "debuglog.h"
 #include "fd.h"
+#include "filetests.h"
 #include "io_utils.h"
 #include "pack.h"
 #include "net/remoteconnection.h"
@@ -130,23 +131,16 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 
     int action = flags & Xapian::DB_ACTION_MASK_;
     if (action != Xapian::DB_OPEN && !database_exists()) {
-
 	// Create the directory for the database, if it doesn't exist
 	// already.
-	bool fail = false;
-	struct stat statbuf;
-	if (stat(db_dir.c_str(), &statbuf) == 0) {
-	    if (!S_ISDIR(statbuf.st_mode)) {
-		errno = EEXIST;
-		fail = true;
+	if (mkdir(db_dir.c_str(), 0755) < 0) {
+	    int mkdir_errno = errno;
+	    if (mkdir_errno != EEXIST || !dir_exists(db_dir)) {
+		throw Xapian::DatabaseCreateError(db_dir + ": mkdir failed",
+						  mkdir_errno);
 	    }
-	} else if (errno != ENOENT || mkdir(db_dir.c_str(), 0755) == -1) {
-	    fail = true;
 	}
-	if (fail) {
-	    throw Xapian::DatabaseCreateError("Cannot create directory '" +
-					      db_dir + "'", errno);
-	}
+
 	get_database_write_lock(flags, true);
 
 	create_and_open_tables(flags, block_size);
