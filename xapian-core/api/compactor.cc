@@ -368,16 +368,11 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	    // Check why mkdir failed.  It's ok if the directory already
 	    // exists, but we also get EEXIST if there's an existing file with
 	    // that name.
-	    if (errno == EEXIST) {
-		if (dir_exists(destdir))
-		    errno = 0;
-		else
-		    errno = EEXIST; // dir_exists() might have changed it
-	    }
-	    if (errno) {
+	    int mkdir_errno = errno;
+	    if (mkdir_errno != EEXIST || !dir_exists(destdir)) {
 		string msg = destdir;
 		msg += ": cannot create directory";
-		throw Xapian::DatabaseError(msg, errno);
+		throw Xapian::DatabaseError(msg, mkdir_errno);
 	    }
 	}
     }
