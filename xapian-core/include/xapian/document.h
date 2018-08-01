@@ -88,7 +88,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	/// Move constructor.
 	Document(Document&& o);
 
-	/// Move assignment operatoar.
+	/// Move assignment operator.
 	Document& operator=(Document&& o);
 #endif
 
