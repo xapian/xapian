@@ -1,7 +1,7 @@
 /** @file xapian/types.h
  *  @brief typedefs for Xapian
  */
-/* Copyright (C) 2007,2010,2011,2013,2014,2017 Olly Betts
+/* Copyright (C) 2007,2010,2011,2013,2014,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -80,14 +80,14 @@ typedef XAPIAN_TERMCOUNT_BASE_TYPE termcount_diff;
 
 /** A term position within a document or query.
  */
-typedef unsigned termpos;
+typedef unsigned XAPIAN_TERMPOS_BASE_TYPE termpos;
 
 /** A signed difference between two term positions.
  *
  *  This is used by the Xapian classes which are STL containers of positions
  *  for "difference_type".
  */
-typedef int termpos_diff; /* FIXME: can overflow. */
+typedef XAPIAN_TERMPOS_BASE_TYPE termpos_diff; /* FIXME: can overflow. */
 
 /** A timeout value in milliseconds.
  *

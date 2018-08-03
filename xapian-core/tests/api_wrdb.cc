@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2015,2018 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -1412,7 +1412,12 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
 	doc.add_posting("knife", n * unsigned(log(double(n + 2))));
 	doc.add_posting("spoon", n * n);
 	// Exercise positions up to 4 billion.
-	doc.add_posting("chopsticks", n * n / 2 * n);
+	Xapian::termpos half_cube = n * n / 2 * n;
+	doc.add_posting("chopsticks", half_cube);
+	if (sizeof(Xapian::termpos) >= 8) {
+	    // Exercise 64-bit positions.
+	    doc.add_posting("spork", half_cube * half_cube);
+	}
     }
     doc.set_data("cutlery");
     Xapian::docid did = db.add_document(doc);
@@ -1432,7 +1437,8 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
     pend = t.positionlist_end();
     for (n = 1; n <= 2000; ++n) {
 	TEST(p != pend);
-	TEST_EQUAL(*p, n * n / 2 * n);
+	Xapian::termpos half_cube = n * n / 2 * n;
+	TEST_EQUAL(*p, half_cube);
 	++p;
     }
     TEST(p == pend);
@@ -1472,6 +1478,21 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
 	++p;
     }
     TEST(p == pend);
+
+    if (sizeof(Xapian::termpos) >= 8) {
+	++t;
+	TEST(t != tend);
+	TEST_EQUAL(*t, "spork");
+	p = t.positionlist_begin();
+	pend = t.positionlist_end();
+	for (n = 1; n <= 2000; ++n) {
+	    TEST(p != pend);
+	    Xapian::termpos half_cube = n * n / 2 * n;
+	    TEST_EQUAL(*p, half_cube * half_cube);
+	    ++p;
+	}
+	TEST(p == pend);
+    }
 
     ++t;
     TEST(t == tend);

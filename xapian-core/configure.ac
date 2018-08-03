@@ -593,6 +593,14 @@ AC_ARG_ENABLE([64bit_termcount],
   esac],
   [enable_64bit_termcount=no])
 
+AC_ARG_ENABLE([64bit_termpos],
+  [AS_HELP_STRING([--enable-64bit-termpos], [enable 64bit termpos [default=no]])],
+  [case ${enableval} in
+    yes|no) ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-64bit-termpos]) ;;
+  esac],
+  [enable_64bit_termpos=no])
+
 AC_ARG_ENABLE([documentation],
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
   [case ${enableval} in
@@ -1565,6 +1573,12 @@ if test yes = "$enable_64bit_termcount" ; then
   cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT64_T"|sed 's/ /____/g'`
 else
   cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT32_T"|sed 's/ /____/g'`
+fi
+
+if test yes = "$enable_64bit_termpos" ; then
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMPOS_BASE_TYPE="`echo "$INT64_T"|sed 's/ /____/g'`
+else
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMPOS_BASE_TYPE="`echo "$INT32_T"|sed 's/ /____/g'`
 fi
 
 dnl Always ought to be 64 bit.
