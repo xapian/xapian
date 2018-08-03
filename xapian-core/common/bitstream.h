@@ -1,7 +1,7 @@
 /** @file bitstream.h
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2012,2013,2014,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2012,2013,2014,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ namespace Xapian {
 class BitWriter {
     std::string buf;
     int n_bits;
-    unsigned int acc;
+    Xapian::termpos acc;
 
   public:
     /// Construct empty.
@@ -70,9 +70,9 @@ class BitReader {
 
     int n_bits;
 
-    unsigned int acc;
+    Xapian::termpos acc;
 
-    unsigned int read_bits(int count);
+    Xapian::termpos read_bits(int count);
 
     struct DIStack {
 	int j, k;
@@ -111,7 +111,7 @@ class BitReader {
 	// Given pos[j] = pos_j and pos[k] = pos_k, how many possible position
 	// values are there for the value midway between?
 	Xapian::termpos outof() const {
-	    return pos_k - pos_j + j - k + 1;
+	    return pos_k - pos_j - Xapian::termpos(k - j) + 1;
 	}
     };
 
