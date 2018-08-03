@@ -85,11 +85,11 @@ TermInfo::remove_positions(Xapian::termpos termpos_first,
 
     // Find the range [i, j) that the specified termpos range maps to.  Use
     // binary chop to search, since this is a sorted list.
-    auto i = lower_bound(positions.begin(), positions.end(), termpos_first);
-    if (i == positions.end() || *i > termpos_last) {
+    auto i = lower_bound(positions.cbegin(), positions.cend(), termpos_first);
+    if (i == positions.cend() || *i > termpos_last) {
 	return 0;
     }
-    auto j = upper_bound(i, positions.end(), termpos_last);
+    auto j = upper_bound(i, positions.cend(), termpos_last);
     size_t size_before = positions.size();
     positions.erase(i, j);
     return Xapian::termpos(size_before - positions.size());
