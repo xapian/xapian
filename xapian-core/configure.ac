@@ -1334,6 +1334,10 @@ case $host_cpu in
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
       FP_EXCESS_PRECISION=yes
+      if test yes = "$msvc"; then
+	dnl MSVC defaults to SSE2.
+	AM_CXXFLAGS="$AM_CXXFLAGS -arch:IA32"
+      fi
     else
       dnl Default to sse2.
       test "$enable_sse" != yes || enable_sse=sse2
@@ -1342,6 +1346,12 @@ case $host_cpu in
 	dnl We can unconditionally use -mtune=generic as it was added in GCC
 	dnl 4.2, and supported at least as far back as clang 3.0.
 	AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
+      elif test yes = "$msvc"; then
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	if test sse = "$enable_sse"; then
+	  dnl MSVC defaults to SSE2.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -arch:SSE"
+	fi
       else
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 [[#ifndef __SUNPRO_CC
