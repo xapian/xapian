@@ -84,7 +84,22 @@ TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
     auto i = lower_bound(positions.cbegin(), positions.cend(), termpos);
     // Add unless termpos is already in the list.
     if (i == positions.cend() || *i != termpos) {
-	split = positions.size();
+	auto new_split = positions.size();
+	if (sizeof(split) < sizeof(Xapian::termpos)) {
+	    if (rare(new_split > numeric_limits<decltype(split)>::max())) {
+		// The split point would be beyond the size of the type used to
+		// hold it, which is really unlikely if that type is 32-bit.
+		// Just insert the old way in this case.
+		positions.insert(i, termpos);
+		return false;
+	    }
+	} else {
+	    // This assertion should always be true because we shouldn't have
+	    // duplicate entries and the split point can't be after the final
+	    // entry.
+	    AssertRel(new_split, <=, numeric_limits<decltype(split)>::max());
+	}
+	split = new_split;
 	positions.push_back(termpos);
     }
     return false;

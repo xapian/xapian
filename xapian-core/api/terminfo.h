@@ -42,8 +42,12 @@ class TermInfo {
      *  If positions.empty(), then split > 0 indicates that the term has been
      *  deleted (this allows us to delete terms without invalidating existing
      *  TermIterator objects).
+     *
+     *  Use type unsigned here to avoid bloating this structure.  More than
+     *  4 billion positions in one document is not sensible (and not possible
+     *  unless termpos is configured to be 64 bit).
      */
-    mutable size_t split = 0;
+    mutable unsigned split = 0;
 
     /** Positions at which the term occurs.
      *
