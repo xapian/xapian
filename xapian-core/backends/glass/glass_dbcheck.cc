@@ -2,7 +2,7 @@
  * @brief Check consistency of a glass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -606,8 +606,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    ++errors;
 	}
 
-	// Now check the contents of the docdata table.  Any data is valid as
-	// the tag so we don't check the tags.
+	// Now check the contents of the docdata table.
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
 
@@ -632,6 +631,18 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 			     << db_last_docid << endl;
 		    ++errors;
 		}
+	    }
+
+	    // Fetch and decompress the document data to catch problems with
+	    // the splitting into multiple items, corruption of the compressed
+	    // data, etc.
+	    cursor->read_tag();
+	    if (cursor->current_tag.empty()) {
+		// We shouldn't store empty document data.
+		if (out)
+		    *out << "Empty document data explicitly stored for "
+			    "document id " << did << endl;
+		++errors;
 	    }
 	}
     } else if (strcmp(tablename, "termlist") == 0) {
