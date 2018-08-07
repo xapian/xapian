@@ -336,8 +336,8 @@ not_there:
 
     // We keep positions sorted, so use lower_bound() which can binary chop to
     // find the entry.
-    auto i = lower_bound(positions.cbegin(), positions.cend(), tpos);
-    if (i == positions.cend() || *i != tpos) {
+    auto i = lower_bound(positions.begin(), positions.end(), tpos);
+    if (i == positions.end() || *i != tpos) {
 	goto not_there;
     }
     positions.erase(i);
