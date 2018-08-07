@@ -298,10 +298,24 @@ OmDocumentTerm::add_position(Xapian::termcount wdf_inc, Xapian::termpos tpos)
     vector<Xapian::termpos>::iterator i;
     i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
-	split = positions.size();
+	auto new_split = positions.size();
+	if (sizeof(split) < sizeof(Xapian::termpos)) {
+	    if (rare(new_split > numeric_limits<decltype(split)>::max())) {
+		// The split point would be beyond the size of the type used to
+		// hold it, which is really unlikely if that type is 32-bit.
+		// Just insert the old way in this case.
+		positions.insert(i, tpos);
+		return false;
+	    }
+	} else {
+	    // This assertion should always be true because we shouldn't have
+	    // duplicate entries and the split point can't be after the final
+	    // entry.
+	    AssertRel(new_split, <=, numeric_limits<decltype(split)>::max());
+	}
+	split = new_split;
 	positions.push_back(tpos);
     }
-
     return false;
 }
 
