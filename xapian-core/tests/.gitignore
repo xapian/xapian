@@ -1,6 +1,8 @@
 /.*.sw?
 /*.lo
 /*.pyc
+/*.log
+/*.trs
 /Makefile.in
 /Makefile
 /.deps
