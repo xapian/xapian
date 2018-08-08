@@ -122,19 +122,19 @@ TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator & itor,
 }
 
 void
-TermGenerator::increase_termpos(Xapian::termcount delta)
+TermGenerator::increase_termpos(Xapian::termpos delta)
 {
     internal->termpos += delta;
 }
 
-Xapian::termcount
+Xapian::termpos
 TermGenerator::get_termpos() const
 {
     return internal->termpos;
 }
 
 void
-TermGenerator::set_termpos(Xapian::termcount termpos)
+TermGenerator::set_termpos(Xapian::termpos termpos)
 {
     internal->termpos = termpos;
 }

@@ -249,16 +249,16 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *
      *  @param delta	Amount to increase the term position by (default: 100).
      */
-    void increase_termpos(Xapian::termcount delta = 100);
+    void increase_termpos(Xapian::termpos delta = 100);
 
     /// Get the current term position.
-    Xapian::termcount get_termpos() const;
+    Xapian::termpos get_termpos() const;
 
     /** Set the current term position.
      *
      *  @param termpos	The new term position to set.
      */
-    void set_termpos(Xapian::termcount termpos);
+    void set_termpos(Xapian::termpos termpos);
 
     /// Return a string describing this object.
     std::string get_description() const;
