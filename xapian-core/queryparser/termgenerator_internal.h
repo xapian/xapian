@@ -39,7 +39,7 @@ class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     Xapian::Internal::opt_intrusive_ptr<const Stopper> stopper;
     stop_strategy stop_mode;
     Document doc;
-    termcount termpos;
+    termpos termpos;
     TermGenerator::flags flags;
     unsigned max_word_length;
     WritableDatabase db;
