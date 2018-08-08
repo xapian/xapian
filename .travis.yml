@@ -4,6 +4,8 @@
 dist: trusty
 sudo: false
 language: cpp
+notifications:
+  irc: "chat.freenode.net#xapian-devel"
 env:
   global:
     # Tell bootstrap where to clone ./common from
