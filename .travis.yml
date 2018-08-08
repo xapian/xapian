@@ -1,6 +1,3 @@
-# Travis configuration for building Xapian. This is fairly intensive, so
-# we only enable it for pull requests.
-#
 # Right now, we build on containerised linux, which defaults to the
 # ancient Ubuntu 12.04 LTS.  Specify "dist: trusty" so we get something
 # which is "only" 2.5 years old.
