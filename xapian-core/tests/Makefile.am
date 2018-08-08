@@ -82,8 +82,8 @@ check-honey: apitest$(EXEEXT)
 endif
 
 ## Test programs to be run
-TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
- unittest$(EXEEXT)
+TESTS = run_honey run_none run_inmemory run_glass \
+	internaltest$(EXTEXT) stemtest$(EXTEXT) unittest$(EXTEXT)
 
 ## Programs to build
 check_PROGRAMS = \

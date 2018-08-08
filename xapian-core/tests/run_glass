@@ -1,0 +1,7 @@
+#!/bin/sh
+
+./runtest ./apitest -b glass
+./runtest ./apitest -b singlefile_glass
+./runtest ./apitest -b multi_glass
+./runtest ./apitest -b remoteprog_glass
+./runtest ./apitest -b remotetcp_glass
