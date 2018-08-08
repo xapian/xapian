@@ -64,7 +64,7 @@ void
 TermGenerator::set_document(const Xapian::Document & doc)
 {
     internal->doc = doc;
-    internal->termpos = 0;
+    internal->termpos_ = 0;
 }
 
 const Xapian::Document &
@@ -124,19 +124,19 @@ TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator & itor,
 void
 TermGenerator::increase_termpos(Xapian::termpos delta)
 {
-    internal->termpos += delta;
+    internal->termpos_ += delta;
 }
 
 Xapian::termpos
 TermGenerator::get_termpos() const
 {
-    return internal->termpos;
+    return internal->termpos_;
 }
 
 void
 TermGenerator::set_termpos(Xapian::termpos termpos)
 {
-    internal->termpos = termpos;
+    internal->termpos_ = termpos;
 }
 
 string
@@ -150,7 +150,7 @@ TermGenerator::get_description() const
     s += ", doc=";
     s += internal->doc.get_description();
     s += ", termpos=";
-    s += str(internal->termpos);
+    s += str(internal->termpos_);
     s += ")";
     return s;
 }

@@ -255,7 +255,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    if (strategy == TermGenerator::STEM_SOME ||
 		strategy == TermGenerator::STEM_NONE) {
 		if (positional) {
-		    doc.add_posting(prefix + term, ++termpos, wdf_inc);
+		    doc.add_posting(prefix + term, ++termpos_, wdf_inc);
 		} else {
 		    doc.add_term(prefix + term, wdf_inc);
 		}
@@ -289,7 +289,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    stemmed_term += prefix;
 	    stemmed_term += stem;
 	    if (strategy != TermGenerator::STEM_SOME && with_positions) {
-		doc.add_posting(stemmed_term, ++termpos, wdf_inc);
+		doc.add_posting(stemmed_term, ++termpos_, wdf_inc);
 	    } else {
 		doc.add_term(stemmed_term, wdf_inc);
 	    }
