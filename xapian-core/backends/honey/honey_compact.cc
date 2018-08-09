@@ -2033,7 +2033,9 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	    auto& v_in = db->version_file;
 	    auto& v_out = version_file_out;
 	    // Glass backend doesn't track unique term bounds, hence setting
-	    // them to 0.
+	    // them to 0. We calculate the unique term bounds as we convert the
+	    // termlist table and fill in the correct values before we write out
+	    // version_file_out.
 	    v_out->merge_stats(v_in.get_doccount(),
 			       v_in.get_doclength_lower_bound(),
 			       v_in.get_doclength_upper_bound(),
