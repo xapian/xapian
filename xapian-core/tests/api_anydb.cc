@@ -576,7 +576,7 @@ DEFINE_TESTCASE(topercent1, backend) {
 }
 
 #if 0
-/** This testcase uses glass backend, even when backend intened to test is
+/** This testcase uses glass backend, even when backend intended to test is
  *  inmemory or other. This testcase may fail when run in parallel, hence
  *  disabling for now.
  */
