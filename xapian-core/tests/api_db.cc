@@ -1654,6 +1654,11 @@ DEFINE_TESTCASE(sortrel1, backend) {
     return true;
 }
 
+#if 0
+/** This testcase uses glass backend, even when backend intended to test is
+ *  inmemory or other. This testcase may fail when run in parallel, hence
+ *  disabling for now.
+ */
 // Test network stats and local stats give the same results.
 DEFINE_TESTCASE(netstats1, remote) {
     BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
@@ -1727,6 +1732,7 @@ DEFINE_TESTCASE(netstats1, remote) {
 
     return true;
 }
+#endif
 
 // Coordinate matching - scores 1 for each matching term
 class MyWeight : public Xapian::Weight {
