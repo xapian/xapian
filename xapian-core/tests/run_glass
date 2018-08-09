@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 ./runtest ./apitest -b glass
 ./runtest ./apitest -b singlefile_glass
