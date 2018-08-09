@@ -23,7 +23,7 @@ Constructor. Defaults to an uninitialized iterator.
 
 =item inc
 
-Advance the iterator by one. (Called implictly by C<++> overloading).
+Advance the iterator by one. (Called implicitly by C<++> overloading).
 
 =item skip_to <termpos>
 
