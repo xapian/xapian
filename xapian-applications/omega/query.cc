@@ -61,6 +61,7 @@
 #include "cgiparam.h"
 #include "loadfile.h"
 #include "sample.h"
+#include "sort.h"
 #include "str.h"
 #include "stringutils.h"
 #include "transform.h"
@@ -2133,63 +2134,9 @@ eval(const string &fmt, const vector<string> &param)
 				     "<strong>", "</strong>", "...");
 		break;
 	    }
-	    case CMD_sort: {
-		const string &list = args[0];
-		if (list.empty()) break;
-		bool uniq = false;
-		bool rev = false;
-		if (args.size() > 1) {
-		    for (auto opt_ch : args[1]) {
-			switch (opt_ch) {
-			    case 'r':
-				rev = true;
-				break;
-			    case 'u':
-				uniq = true;
-				break;
-			    default:
-				throw string("Unknown $sort option: ") + opt_ch;
-			}
-		    }
-		}
-		vector<string> items;
-		string::size_type split = 0, split2;
-		do {
-		    split2 = list.find('\t', split);
-		    items.emplace_back(list, split, split2 - split);
-		    split = split2 + 1;
-		} while (split2 != string::npos);
-
-		if (!rev) {
-		    sort(items.begin(), items.end());
-		} else {
-		    sort(items.begin(), items.end(),
-			 [](const string& a, const string& b) {
-			     return a > b;
-			 });
-		}
-
-		value.reserve(list.size());
-		bool tab = false;
-		const string* prev = nullptr;
-		for (auto&& item : items) {
-		    // Skip duplicates if "u" flag specified.
-		    if (prev && *prev == item) {
-			continue;
-		    }
-		    if (uniq) {
-			prev = &item;
-		    }
-
-		    if (tab) {
-			value += '\t';
-		    } else {
-			tab = true;
-		    }
-		    value += item;
-		}
+	    case CMD_sort:
+		omegascript_sort(args, value);
 		break;
-	    }
 	    case CMD_split: {
 		string split;
 		if (args.size() == 1) {
