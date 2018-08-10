@@ -142,7 +142,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  namedents.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
- xlsxparse.h opendocparse.h msxmlparse.h timegm.h csvescape.h\
+ xlsxparse.h opendocparse.h msxmlparse.h sort.h timegm.h csvescape.h\
  portability/mkdtemp.h
 
 # headers maintained in xapian-core
@@ -180,7 +180,7 @@ libtransform_la_LIBADD = $(PCRE_LIBS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
- datevalue.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc\
+ datevalue.cc common/str.cc sample.cc sort.cc urlencode.cc weight.cc expand.cc\
  csvescape.cc timegm.cc
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
 omega_LDADD = $(XAPIAN_LIBS) libtransform.la
