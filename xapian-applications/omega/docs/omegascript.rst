@@ -637,6 +637,10 @@ $sort{LIST[,OPTIONS]}
 
         * ``r`` : reverse the sort order
         * ``u`` : output only the first of an equal run
+        * ``n`` : sort by string numerical value - the start of each entry is
+          parsed as zero or more whitespace characters, an optional ``-``, zero
+          or more digits, optionally followed by ``$opt{decimal}`` then zero or
+          more digits.
 
 $split{STRING}
 
