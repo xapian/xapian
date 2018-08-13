@@ -372,6 +372,12 @@ testcase 'pineapple' input="pineapple" opt=ru
 testcase '1|b|c' input="b|c|b|1" opt=u
 testcase 'c|b|b|1' input="b|c|b|1" opt=r
 testcase 'c|b|1' input="b|c|b|1" opt=ur
+testcase '-2|-.01|+99.99|+999|.0|0.0|.1|1|2|3|3.0|3.01|12|23|30' testcase input='+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99' opt=n
+testcase '-2|-.01|+999|.1|1|2|3|3.01|12|23|30' testcase input='+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99' opt=nu
+testcase '-2|-.01|+99.99|.1|1|2|3.0|3.01|12|23|30' testcase input='+99.99|-.01|-2|0.0|.0|.1|3.0|3.01|30|3|23|12|1|2|+999' opt=nu
+testcase '30|23|12|3.01|3.0|3|2|1|.1|0.0|.0|+999|+99.99|-.01|-2' testcase input='+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99' opt=nr
+testcase '30|23|12|3.01|3|2|1|.1|+999|-.01|-2' testcase input='+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99' opt=nur
+testcase '30|23|12|3.01|3.0|2|1|.1|+99.99|-.01|-2' testcase input='+99.99|-.01|-2|0.0|.0|.1|3.0|3.01|30|3|23|12|1|2|+999' opt=nur
 testcase 'Exception: Unknown $sort option: x' input="b|c|b|1" opt=urx
 
 # Feature tests for $terms.
