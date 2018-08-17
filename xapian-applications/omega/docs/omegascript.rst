@@ -634,11 +634,14 @@ $sort{LIST[,OPTIONS]}
         characters which control the sort operation:
 
         * ``r`` : reverse the sort order
-        * ``u`` : output only the first of an equal run
+        * ``u`` : output only the first (in input order) of an equal run
         * ``n`` : sort by string numerical value - the start of each entry is
           parsed as zero or more whitespace characters, an optional ``-``, zero
           or more digits, optionally followed by ``$opt{decimal}`` then zero or
-          more digits.
+          more digits.  Entries are regarded as equal if the numbers are equal
+          and so only the first is kept with ``u``.  When ``u`` is not used,
+          the order within groups of equal entries is resolved with a string
+          sort.
 
 $split{STRING}
 
