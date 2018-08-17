@@ -29,7 +29,7 @@ examples_xapian_metadata_SOURCES = examples/xapian-metadata.cc
 examples_xapian_metadata_LDADD = $(ldflags) $(libxapian_la)
 
 examples_xapian_pos_SOURCES = examples/xapian-pos.cc
-examples_xapian_pos_LDADD = $(ldflags) $(libxapian_la)
+examples_xapian_pos_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
