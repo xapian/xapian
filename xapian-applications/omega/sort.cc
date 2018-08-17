@@ -307,7 +307,8 @@ omegascript_sort(const vector<string>& args,
     if (!uniq) {
 	// Scan linearly through items, swapping to create the desired
 	// partitioning.
-	for (size_t i = 0; i < part_f; ) {
+	size_t i = 0;
+	while (i < part_f) {
 	    int sign = string_sign(items[i], decimal);
 	    if (sign == first) {
 		// Swap value to end of the first partition.
