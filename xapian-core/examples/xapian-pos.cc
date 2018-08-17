@@ -204,7 +204,8 @@ try {
 		cout << '\n' << pos << '\t';
 		break;
 	    default:
-		cout << "\nGap of " << (pos - old_pos - 1) << " unused positions\n" << pos << '\t';
+		cout << "\nGap of " << (pos - old_pos - 1)
+		     << " unused positions\n" << pos << '\t';
 		break;
 	}
 	cout << tip->get_term();
