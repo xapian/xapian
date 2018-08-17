@@ -9,12 +9,15 @@
 /simpleindex
 /simplesearch
 /xapian-metadata
+/xapian-pos
 /copydatabase.exe
 /quest.exe
 /simpleexpand.exe
 /simpleindex.exe
 /simplesearch.exe
 /xapian-metadata.exe
+/xapian-pos.exe
 /copydatabase.1
 /quest.1
 /xapian-metadata.1
+/xapian-pos.1
