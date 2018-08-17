@@ -635,6 +635,12 @@ $sort{LIST[,OPTIONS]}
         by byte value by default.  ``OPTIONS`` is zero or more of the following
         characters which control the sort operation:
 
+        * ``#`` : "natural number" sort suitable for use when generating
+          drop-down lists.  Embedded digit sequences are handled specially:
+          they are compared numerically, and sort before non-digits at the same
+          point.  Digit sequences with the same numeric value are sorted
+          such that the sequence with more leading zeros comes first (so when
+          used with ``u`` only identical entries are removed).
         * ``r`` : reverse the sort order
         * ``u`` : output only the first (in input order) of an equal run
         * ``n`` : sort by string numerical value - the start of each entry is
@@ -644,6 +650,8 @@ $sort{LIST[,OPTIONS]}
           and so only the first is kept with ``u``.  When ``u`` is not used,
           the order within groups of equal entries is resolved with a string
           sort.
+
+        Options ``#`` and ``n`` aren't valid together.
 
 $split{STRING}
 

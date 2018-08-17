@@ -1,7 +1,7 @@
 /* @file sort.cc
  * @brief OmegaScript $sort function
  */
-/* Copyright (C) 2018 Olly Betts
+/* Copyright (C) 2001,2004,2012,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -137,6 +137,70 @@ ncmp(const string& a, const string& b, const string& decimal)
     return 0;
 }
 
+static int
+natcmp(const string& a, const string& b)
+{
+    size_t shorter = min(a.size(), b.size());
+    size_t i = 0;
+    while (i != shorter) {
+	int cha = static_cast<unsigned char>(a[i]);
+	int chb = static_cast<unsigned char>(b[i]);
+	if (!C_isdigit(cha)) {
+	    if (cha == chb) {
+		// Matching non-digits.
+		++i;
+		continue;
+	    }
+
+	    if (C_isdigit(chb)) return 1;
+	    return cha - chb;
+	}
+
+	// Sort embedded digit spans by numeric value and before non-digits.
+	if (!C_isdigit(chb)) return -1;
+
+	// Skip any leading zeros on each.
+	size_t sa = i;
+	while (a[sa] == '0') ++sa;
+	size_t sb = i;
+	while (b[sb] == '0') ++sb;
+
+	size_t ea = sa;
+	size_t eb = sb;
+	int res = 0;
+	while (true) {
+	    if (!C_isdigit(a[ea])) {
+		if (C_isdigit(b[eb])) {
+		    // Number in b is longer and so larger.
+		    return -1;
+		}
+		// Digit sequences are the same length.
+		break;
+	    }
+	    if (a[ea] != b[eb]) {
+		if (!C_isdigit(b[eb])) {
+		    // Number in a is longer and so larger.
+		    return 1;
+		}
+		// Record first difference between digits.
+		if (res == 0) res = a[ea] - b[eb];
+	    }
+	    ++ea;
+	    ++eb;
+	}
+
+	if (res == 0) {
+	    // More leading zeros sorts first.
+	    res = int(sb) - int(sa);
+	}
+	if (res) return res;
+
+	// Digit sequences were identical, so keep going.
+	i = ea;
+    }
+    return int(a.size()) - int(b.size());
+}
+
 void
 omegascript_sort(const vector<string>& args,
 		 string& value)
@@ -144,14 +208,21 @@ omegascript_sort(const vector<string>& args,
     const string &list = args[0];
     if (list.empty()) return;
 
-    bool num = false;
+    // 0 => string sort, '#' => natural, 'n' => numeric.
+    char mode = 0;
     bool uniq = false;
     bool rev = false;
     if (args.size() > 1) {
 	for (auto opt_ch : args[1]) {
 	    switch (opt_ch) {
+		case '#':
 		case 'n':
-		    num = true;
+		    if (mode != 0) {
+			string m = "Invalid $sort option combination: ";
+			m += args[1];
+			throw m;
+		    }
+		    mode = opt_ch;
 		    break;
 		case 'r':
 		    rev = true;
@@ -172,15 +243,30 @@ omegascript_sort(const vector<string>& args,
 	split = split2 + 1;
     } while (split2 != string::npos);
 
-    if (!num) {
-	// String sort.
-	if (!rev) {
-	    sort(items.begin(), items.end());
+    if (mode != 'n') {
+	if (mode == 0) {
+	    // String sort.
+	    if (!rev) {
+		sort(items.begin(), items.end());
+	    } else {
+		sort(items.begin(), items.end(),
+		     [](const string& a, const string& b) {
+			 return a > b;
+		     });
+	    }
 	} else {
-	    sort(items.begin(), items.end(),
-		 [](const string& a, const string& b) {
-		     return a > b;
-		 });
+	    // "Natural" sort - embedded natural numbers are handled specially.
+	    if (!rev) {
+		sort(items.begin(), items.end(),
+		     [](const string& a, const string& b) {
+			 return natcmp(a, b) < 0;
+		     });
+	    } else {
+		sort(items.begin(), items.end(),
+		     [](const string& a, const string& b) {
+			 return natcmp(a, b) > 0;
+		     });
+	    }
 	}
 
 	value.reserve(list.size());

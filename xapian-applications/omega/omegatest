@@ -378,7 +378,14 @@ testcase '-2|-.01|+99.99|.1|1|2|3.0|3.01|12|23|30' input='+99.99|-.01|-2|0.0|.0|
 testcase '30|23|12|3.01|3.0|3|2|1|.1|0.0|.0|+999|+99.99|-.01|-2' input='+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99' opt=nr
 testcase '30|23|12|3.01|3|2|1|.1|+999|-.01|-2' input='+999|2|1|12|23|3|30|3.01|3.0|.1|.0|0.0|-2|-.01|+99.99' opt=nur
 testcase '30|23|12|3.01|3.0|2|1|.1|+99.99|-.01|-2' input='+99.99|-.01|-2|0.0|.0|.1|3.0|3.01|30|3|23|12|1|2|+999' opt=nur
+testcase 't 42|t 42:|t 42:1|t 42:09|t 42:9|t 42:11|t 42~' input='t 42:1|t 42|t 42:11|t 42:9|t 42~|t 42:|t 42:09' opt='#'
+testcase  'A7R1:2|A7R2:6|A7R2:9|A7R2:11|A7R2:19|A7R2:47A|A7R11:1|AA|R7:1.09|R7:4A|R7:6|R7:7A|R7:404|R7:444-10|R7:1521' \
+    input='A7R1:2|R7:1521|AA|R7:4A|R7:7A|A7R2:9|R7:444-10|A7R2:6|R7:1.09|A7R2:47A|A7R11:1|R7:6|A7R2:11|R7:404|A7R2:19' \
+    opt='#'
+testcase '30|23|12|3|03|2|1|01|0|00' input='2|1|23|12|23|3|30|0|00|0|01|03' opt='#ru'
 testcase 'Exception: Unknown $sort option: x' input="b|c|b|1" opt=urx
+testcase 'Exception: Invalid $sort option combination: n#' input="b|c" opt='n#'
+testcase 'Exception: Invalid $sort option combination: #rn' input="b|1" opt='#rn'
 
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
