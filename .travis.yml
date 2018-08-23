@@ -82,12 +82,11 @@ matrix:
         - make -j2
         - make -j2 distclean
           # -w needs docker API 1.35+: - docker exec -it -w xapian-core emscripten emconfigure ./configure $confargs CXXFLAGS='-O3 -s USE_ZLIB=1' --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
-        - docker exec -it emscripten sh -c "cd xapian-core && emconfigure ./configure $confargs CXXFLAGS='-O3 -s USE_ZLIB=1 -s DISABLE_EXCEPTION_CATCHING=0' CPPFLAGS=-DFLINTLOCK_USE_FLOCK --disable-backend-honey --disable-backend-inmemory --disable-backend-remote --disable-shared"
+        - docker exec -it emscripten sh -c "cd xapian-core && emconfigure ./configure $confargs CXXFLAGS='-O3 -s USE_ZLIB=1' CPPFLAGS=-DFLINTLOCK_USE_FLOCK --disable-backend-honey --disable-backend-inmemory --disable-backend-remote --disable-shared"
       script:
         - docker exec -it emscripten emmake make -C xapian-core -j2
         - wget https://raw.githubusercontent.com/runbox/xapian/master/xapian-core/emscripten/xapianjstest.cc
-        - perl -pi -e 's/main\(\)/$& try/;s/^}/} catch (Xapian::Error e) { cout << e.get_description() << endl; }/' xapianjstest.cc
-        - docker exec -it emscripten em++ -O3 -s USE_ZLIB=1 -s DISABLE_EXCEPTION_CATCHING=0 -std=c++11 -s WASM=1 -Ixapian-core/include xapianjstest.cc xapian-core/.libs/libxapian-1.5.a -o xapianjstest.js
+        - docker exec -it emscripten em++ -O3 -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Ixapian-core/include xapianjstest.cc xapian-core/.libs/libxapian-1.5.a -o xapianjstest.js
         - node xapianjstest.js
     - os: osx
       before_install:
