@@ -60,24 +60,6 @@ Database::Internal::readahead_for_query(const Xapian::Query &) const
 {
 }
 
-Xapian::doccount
-Database::Internal::get_value_freq(Xapian::valueno) const
-{
-    throw Xapian::UnimplementedError("This backend doesn't support get_value_freq");
-}
-
-string
-Database::Internal::get_value_lower_bound(Xapian::valueno) const
-{
-    return string();
-}
-
-string
-Database::Internal::get_value_upper_bound(Xapian::valueno) const
-{
-    throw Xapian::UnimplementedError("This backend doesn't support get_value_upper_bound");
-}
-
 Xapian::termcount
 Database::Internal::get_doclength_lower_bound() const
 {
