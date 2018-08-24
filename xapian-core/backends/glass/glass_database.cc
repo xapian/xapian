@@ -1270,7 +1270,13 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	    bool pos_modified = !modifying ||
 				document.internal->positions_modified();
 	    intrusive_ptr<const GlassWritableDatabase> ptrtothis(this);
-	    GlassTermList termlist(ptrtothis, did);
+	    GlassTermList termlist(ptrtothis, did, false);
+	    // We passed false for throw_if_not_present so check at_end()
+	    // before next() to see if the document isn't present at all.
+	    if (termlist.at_end()) {
+		(void)add_document_(did, document);
+		return;
+	    }
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::termcount old_doclen = termlist.get_doclength();
 	    version_file.delete_document(old_doclen);
@@ -1358,9 +1364,6 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	    // Replace the values.
 	    value_manager.replace_document(did, document, value_stats);
 	}
-    } catch (const Xapian::DocNotFoundError &) {
-	(void)add_document_(did, document);
-	return;
     } catch (...) {
 	// If an error occurs while replacing a document, or doing any other
 	// transaction, the modifications so far must be cleared before
