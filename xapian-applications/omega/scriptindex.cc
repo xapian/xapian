@@ -469,7 +469,7 @@ parse_index_script(const string &filename)
     }
 }
 
-static bool
+static void
 index_file(const char *fname, istream &stream,
 	   Xapian::WritableDatabase &database, Xapian::TermGenerator &indexer)
 {
@@ -819,8 +819,6 @@ again:
     // in.
     if (verbose) cout << "Committing: " << endl;
     database.commit();
-
-    return true;
 }
 
 int
