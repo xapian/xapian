@@ -1286,9 +1286,7 @@ DEFINE_TESTCASE(postlist4, backend) {
 // tests long postlists
 DEFINE_TESTCASE(postlist5, backend) {
     Xapian::Database db(get_database("apitest_manydocs"));
-    // Allow for databases which don't support length
-    if (db.get_avlength() != 1)
-	TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
+    TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
     Xapian::PostingIterator i = db.postlist_begin("this");
     unsigned int j = 1;
     while (i != db.postlist_end("this")) {
