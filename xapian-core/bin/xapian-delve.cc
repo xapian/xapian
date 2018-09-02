@@ -290,8 +290,6 @@ show_termlists(Database &db,
     }
 }
 
-static Stem stemmer;
-
 int
 main(int argc, char **argv) try {
     if (argc > 1 && argv[1][0] == '-') {
@@ -310,6 +308,7 @@ main(int argc, char **argv) try {
     vector<docid> recnos;
     vector<string> terms;
     vector<string> dbs;
+    Stem stemmer;
 
     valueno slot = 0; // Avoid "may be used uninitialised" warnings.
     bool slot_set = false;
