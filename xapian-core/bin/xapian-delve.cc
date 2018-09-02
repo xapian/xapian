@@ -121,7 +121,7 @@ show_db_stats(Database &db)
 
     if (count_zero_length_docs) {
 	Xapian::doccount empty_docs = 0;
-	if (db.get_avlength() == 0) {
+	if (db.get_total_length() == 0) {
 	    // All documents are empty.
 	    empty_docs = db.get_doccount();
 	} else {
