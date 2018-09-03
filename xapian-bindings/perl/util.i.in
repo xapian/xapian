@@ -4,7 +4,7 @@
  * Based on the perl XS wrapper files.
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,7 +86,9 @@ our %EXPORT_TAGS = (
 		    'qpstem' => [ qw(
 				 STEM_NONE
 				 STEM_SOME
+				 STEM_SOME_FULL_POS
 				 STEM_ALL
+				 STEM_ALL_Z
 				 ) ]
 		   );
 $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
@@ -604,6 +606,10 @@ searches.
 
 Stem all terms.
 
+=item STEM_ALL_Z
+
+Stem all terms and add a "Z" prefix.
+
 =item STEM_NONE
 
 Don't stem any terms.
@@ -612,6 +618,10 @@ Don't stem any terms.
 
 Stem some terms, in a manner compatible with Omega (capitalised words and those
 in phrases aren't stemmed).
+
+=item STEM_SOME_FULL_POS
+
+Like STEM_SOME but also store term positions for stemmed terms.
 
 =back
 
