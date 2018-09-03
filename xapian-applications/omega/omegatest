@@ -275,6 +275,25 @@ else
     fi
 fi
 
+# Test stem_all and stem_strategy.
+printf '$if{$cgi{stem_all},$set{stem_all,$cgi{stem_all}}}$if{$cgi{stem_strategy},$set{stem_strategy,$cgi{stem_strategy}}}$querydescription' > "$TEST_TEMPLATE"
+qtestcase '((capitalised@1 AND tests@2) AND Zstem@3)' P='Capitalised "tests" stemmed'
+qtestcase '(nearing@1 NEAR 11 distances@2)' P='nearing NEAR distances'
+qtestcase '((capitalis@1 AND test@2) AND stem@3)' P='Capitalised "tests" stemmed' stem_all=true
+qtestcase '(near@1 NEAR 11 distanc@2)' P='nearing NEAR distances' stem_all=true
+qtestcase '((capitalis@1 AND test@2) AND stem@3)' P='Capitalised "tests" stemmed' stem_strategy=all
+qtestcase '(near@1 NEAR 11 distanc@2)' P='nearing NEAR distances' stem_strategy=all
+qtestcase '((Zcapitalis@1 AND Ztest@2) AND Zstem@3)' P='Capitalised "tests" stemmed' stem_strategy=all_z
+qtestcase '(Znear@1 NEAR 11 Zdistanc@2)' P='nearing NEAR distances' stem_strategy=all_z
+qtestcase '((capitalised@1 AND tests@2) AND stemmed@3)' P='Capitalised "tests" stemmed' stem_strategy=none
+qtestcase '(nearing@1 NEAR 11 distances@2)' P='nearing NEAR distances' stem_strategy=none
+qtestcase '((capitalised@1 AND tests@2) AND Zstem@3)' P='Capitalised "tests" stemmed' stem_strategy=some
+qtestcase '(nearing@1 NEAR 11 distances@2)' P='nearing NEAR distances' stem_strategy=some
+qtestcase '((capitalised@1 AND tests@2) AND Zstem@3)' P='Capitalised "tests" stemmed' stem_strategy=some_full_pos
+qtestcase '(Znear@1 NEAR 11 Zdistanc@2)' P='nearing NEAR distances' stem_strategy=some_full_pos
+qtestcase '((capitalised@1 AND tests@2) AND Zstem@3)' P='Capitalised "tests" stemmed' stem_strategy=some stem_all=true
+qtestcase '(nearing@1 NEAR 11 distances@2)' P='nearing NEAR distances' stem_strategy=some stem_all=true
+
 # Feature tests for $contains.
 printf '$contains{$cgi{a},$cgi{b}}' > "$TEST_TEMPLATE"
 testcase '6' P=text a=fish b="Hello fish"
