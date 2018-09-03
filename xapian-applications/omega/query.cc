@@ -327,7 +327,25 @@ static querytype
 parse_queries(const string& oldp)
 {
     // Parse the query string.
-    qp.set_stemming_strategy(option["stem_all"] == "true" ? Xapian::QueryParser::STEM_ALL : Xapian::QueryParser::STEM_SOME);
+    auto opt_it = option.find("stem_strategy");
+    if (opt_it != option.end()) {
+	if (opt_it->second == "all") {
+	    qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
+	} else if (opt_it->second == "all_z") {
+	    qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL_Z);
+	} else if (opt_it->second == "none") {
+	    qp.set_stemming_strategy(Xapian::QueryParser::STEM_NONE);
+	} else if (opt_it->second == "some") {
+	    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+	} else if (opt_it->second == "some_full_pos") {
+	    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME_FULL_POS);
+	}
+    } else {
+	opt_it = option.find("stem_all");
+	if (opt_it != option.end() && opt_it->second == "true") {
+	    qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
+	}
+    }
     qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
     qp.set_database(db);

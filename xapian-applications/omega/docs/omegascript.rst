@@ -474,8 +474,21 @@ $set{OPT,VALUE}
 	* stemmer - which stemming language to use ("english" by default, other
 	  values are as understood by ``Xapian::Stem``, so "none" means no
 	  stemming).
+        * stem_strategy - tell the query parser how to apply the stemmer - can
+          be one of:
+
+          + ``all``: stem all terms
+          + ``all_z``: stem all terms and add a Z prefix
+          + ``none``: don't stem any terms (ignoring any stemmer set)
+          + ``some``: the default
+          + ``some_full_pos``: like ``some`` but assume positional data has
+            been stored for stemmed terms too.
+
+          Unknown values are ignored.  Added in Omega 1.4.8.
 	* stem_all - if "true", then tell the query parser to stem all words,
-	  even capitalised ones.
+          even capitalised ones.  Now deprecated in favour of setting
+          ``stem_strategy`` to ``all``, and ignored if ``stem_strategy`` is
+          also set.
 	* fieldnames - if set to a non-empty value then the document data is
 	  parsed with each line being the value of a field, and the names
 	  are taken from entries in the list in fieldnames.  So
