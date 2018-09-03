@@ -65,6 +65,7 @@
 %constant int FLAG_DEFAULT = Xapian::QueryParser::FLAG_DEFAULT;
 %constant int STEM_NONE = Xapian::QueryParser::STEM_NONE;
 %constant int STEM_SOME = Xapian::QueryParser::STEM_SOME;
+%constant int STEM_SOME_FULL_POS = Xapian::QueryParser::STEM_SOME_FULL_POS;
 %constant int STEM_ALL = Xapian::QueryParser::STEM_ALL;
 %constant int STEM_ALL_Z = Xapian::QueryParser::STEM_ALL_Z;
 %constant int FLAG_SPELLING = Xapian::TermGenerator::FLAG_SPELLING;
