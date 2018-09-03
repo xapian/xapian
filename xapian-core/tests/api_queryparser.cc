@@ -1164,6 +1164,15 @@ DEFINE_TESTCASE(qp_flag_partial1, writable) {
     // FIXME: Used to be this, but we aren't currently doing this change:
     // TEST_STRINGS_EQUAL(qobj.get_description(), "Query(outside@1#2)");
 
+    // And now with stemming strategy STEM_SOME_FULL_POS.
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME_FULL_POS);
+    qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR out) OR out@1))");
+    qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outs) OR outs@1))");
+    qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outside) OR outside@1))");
+
     // And now with stemming strategy STEM_ALL.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
@@ -3010,5 +3019,15 @@ DEFINE_TESTCASE(qp_defaultstrategysome1, !backend) {
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("en"));
     TEST_EQUAL(qp.parse_query("testing").get_description(), "Query(Ztest@1)");
+    return true;
+}
+
+/// Test STEM_SOME_FULL_POS.
+DEFINE_TESTCASE(qp_stemsomefullpos, !backend) {
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("en"));
+    qp.set_stemming_strategy(qp.STEM_SOME_FULL_POS);
+    TEST_EQUAL(qp.parse_query("terms NEAR testing").get_description(), "Query((Zterm@1 NEAR 11 Ztest@2))");
+    TEST_EQUAL(qp.parse_query("terms ADJ testing").get_description(), "Query((Zterm@1 PHRASE 11 Ztest@2))");
     return true;
 }

@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -926,7 +926,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     } feature_flag;
 
     /// Stemming strategies, for use with set_stemming_strategy().
-    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
+    typedef enum {
+	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
+    } stem_strategy;
 
     /// Copy constructor.
     QueryParser(const QueryParser & o);
@@ -975,6 +977,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			with operators which need positional information.
      *			Stemmed terms are prefixed with 'Z'.  (default in
      *			Xapian >= 1.3.1)
+     *   - STEM_SOME_FULL_POS:
+     *			Like STEM_SOME but also stems terms used with operators
+     *			which need positional information.  Added in Xapian
+     *			1.4.8.
      *   - STEM_ALL:	Stem all terms (note: no 'Z' prefix is added).
      *   - STEM_ALL_Z:	Stem all terms (note: 'Z' prefix is added).  (new in
      *			Xapian 1.2.11 and 1.3.1)

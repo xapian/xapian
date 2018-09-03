@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017 Olly Betts
+/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -253,7 +253,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 		return true;
 
 	    if (strategy == TermGenerator::STEM_SOME ||
-		strategy == TermGenerator::STEM_NONE) {
+		strategy == TermGenerator::STEM_NONE ||
+		strategy == TermGenerator::STEM_SOME_FULL_POS) {
 		if (positional) {
 		    doc.add_posting(prefix + term, ++cur_pos, wdf_inc);
 		} else {
@@ -269,7 +270,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    if (strategy == TermGenerator::STEM_NONE ||
 		!stemmer.internal.get()) return true;
 
-	    if (strategy == TermGenerator::STEM_SOME) {
+	    if (strategy == TermGenerator::STEM_SOME ||
+		strategy == TermGenerator::STEM_SOME_FULL_POS) {
 		if (current_stop_mode == TermGenerator::STOP_STEMMED &&
 		    (*stopper)(term))
 		    return true;
@@ -289,7 +291,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    stemmed_term += prefix;
 	    stemmed_term += stem;
 	    if (strategy != TermGenerator::STEM_SOME && with_positions) {
-		doc.add_posting(stemmed_term, ++cur_pos, wdf_inc);
+		if (strategy != TermGenerator::STEM_SOME_FULL_POS) ++cur_pos;
+		doc.add_posting(stemmed_term, cur_pos, wdf_inc);
 	    } else {
 		doc.add_term(stemmed_term, wdf_inc);
 	    }

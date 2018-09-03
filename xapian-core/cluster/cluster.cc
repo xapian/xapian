@@ -645,6 +645,7 @@ StemStopper::add(const string &term)
 	    stop_words.insert(stemmer(term));
 	    break;
 	case STEM_SOME:
+	case STEM_SOME_FULL_POS:
 	    stop_words.insert(term);
 	    stop_words.insert('Z' + stemmer(term));
 	    break;

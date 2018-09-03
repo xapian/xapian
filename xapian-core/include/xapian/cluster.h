@@ -44,7 +44,9 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT StemStopper : public Xapian::Stopper {
   public:
     /// Stemming strategies
-    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
+    typedef enum {
+	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
+    } stem_strategy;
 
     /** Constructor
      *
