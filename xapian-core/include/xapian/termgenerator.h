@@ -1,7 +1,7 @@
 /** @file termgenerator.h
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2013,2014,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -118,7 +118,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     };
 
     /// Stemming strategies, for use with set_stemming_strategy().
-    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
+    typedef enum {
+	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
+    } stem_strategy;
 
     /// Stopper strategies, for use with set_stopper_strategy().
     typedef enum { STOP_NONE, STOP_ALL, STOP_STEMMED } stop_strategy;
@@ -146,7 +148,12 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *   - STEM_NONE:	Don't perform any stemming - only unstemmed terms
      *			are generated.
      *   - STEM_SOME:	Generate both stemmed (with a "Z" prefix) and unstemmed
-     *			terms.  This is the default strategy.
+     *			terms.  No positional information is stored for
+     *			unstemmed terms.  This is the default strategy.
+     *   - STEM_SOME_FULL_POS:
+     *			Like STEM_SOME but positional information is stored
+     *			for both stemmed and unstemmed terms.  Added in Xapian
+     *			1.4.8.
      *   - STEM_ALL:	Generate only stemmed terms (but without a "Z" prefix).
      *   - STEM_ALL_Z:	Generate only stemmed terms (with a "Z" prefix).
      */

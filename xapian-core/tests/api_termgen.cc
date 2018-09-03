@@ -1,7 +1,7 @@
 /** @file api_termgen.cc
  * @brief Tests of Xapian::TermGenerator
  */
-/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -51,6 +51,8 @@ struct test {
     //  - none: Set stemming strategy to STEM_NONE.
     //    (this persists for subsequent tests until it's turned off).
     //  - some: Set stemming strategy to STEM_SOME.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - some_full_pos: Set stemming strategy to STEM_SOME_FULL_POS.
     //    (this persists for subsequent tests until it's turned off).
     //  - stop=en: Add a small set of English stop words. Currently, 'a',
     //    'an' and 'the' are added to the stopword list.
@@ -169,6 +171,15 @@ static const test test_simple[] = {
 
     { "stop_all",
       "The stop words.", "stop[1] words[2]" },
+
+    { "stem=en,some_full_pos,stop_none",
+      "The stemmed words.", "Zstem[2] Zthe[1] Zword[3] stemmed[2] the[1] words[3]" },
+
+    { "stem=en,some_full_pos,stop_all",
+      "The stemmed words.", "Zstem[1] Zword[2] stemmed[1] words[2]" },
+
+    { "stem=en,some_full_pos,stop_stemmed",
+      "The stemmed words.", "Zstem[2] Zword[3] stemmed[2] the[1] words[3]" },
 
     { "stem=en,some,stop_stemmed",
       "The stemmed words.", "Zstem:1 Zword:1 stemmed[2] the[1] words[3]" },
@@ -760,6 +771,9 @@ DEFINE_TESTCASE(termgen1, !backend) {
 	    } else if (strncmp(o, "none", 4) == 0) {
 		o += 4;
 		termgen.set_stemming_strategy(termgen.STEM_NONE);
+	    } else if (strncmp(o, "some_full_pos", 13) == 0) {
+		o += 13;
+		termgen.set_stemming_strategy(termgen.STEM_SOME_FULL_POS);
 	    } else if (strncmp(o, "some", 4) == 0) {
 		o += 4;
 		termgen.set_stemming_strategy(termgen.STEM_SOME);

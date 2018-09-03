@@ -57,6 +57,7 @@ try {
     Xapian::TermGenerator indexer;
     Xapian::Stem stemmer("english");
     indexer.set_stemmer(stemmer);
+    indexer.set_stemming_strategy(indexer.STEM_SOME_FULL_POS);
 
     string para;
     while (true) {
