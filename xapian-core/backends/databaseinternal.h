@@ -183,13 +183,13 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     virtual std::string get_value_upper_bound(valueno slot) const = 0;
 
     /// Get a lower bound on the length of a document in this DB.
-    virtual termcount get_doclength_lower_bound() const;
+    virtual termcount get_doclength_lower_bound() const = 0;
 
     /// Get an upper bound on the length of a document in this DB.
-    virtual termcount get_doclength_upper_bound() const;
+    virtual termcount get_doclength_upper_bound() const = 0;
 
     /// Get an upper bound on the wdf of term @a term.
-    virtual termcount get_wdf_upper_bound(const std::string& term) const;
+    virtual termcount get_wdf_upper_bound(const std::string& term) const = 0;
 
     virtual bool term_exists(const std::string& term) const = 0;
 

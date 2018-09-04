@@ -331,6 +331,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
     std::string get_value_lower_bound(Xapian::valueno slot) const;
     std::string get_value_upper_bound(Xapian::valueno slot) const;
+    Xapian::termcount get_doclength_lower_bound() const;
+    Xapian::termcount get_doclength_upper_bound() const;
+    Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
     bool term_exists(const string & tname) const;
     bool has_positions() const;
 

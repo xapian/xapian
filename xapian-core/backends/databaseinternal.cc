@@ -60,32 +60,6 @@ Database::Internal::readahead_for_query(const Xapian::Query &) const
 {
 }
 
-Xapian::termcount
-Database::Internal::get_doclength_lower_bound() const
-{
-    // A zero-length document can't contain any terms, so we ignore such
-    // documents for the purposes of this lower bound.
-    return 1;
-}
-
-Xapian::termcount
-Database::Internal::get_doclength_upper_bound() const
-{
-    // Not a very tight bound in general, but this is only a fall-back for
-    // backends which don't store these stats.
-    return min(get_total_length(), Xapian::totallength(Xapian::termcount(-1)));
-}
-
-Xapian::termcount
-Database::Internal::get_wdf_upper_bound(const string & term) const
-{
-    // Not a very tight bound in general, but this is only a fall-back for
-    // backends which don't store these stats.
-    Xapian::termcount cf;
-    get_freqs(term, NULL, &cf);
-    return cf;
-}
-
 // Discard any exceptions - we're called from the destructors of derived
 // classes so we can't safely throw.
 void
