@@ -1031,7 +1031,7 @@ DEFINE_TESTCASE(qp_flag_wildcard2, writable) {
 }
 
 static void
-test_qp_flag_wildcard1_helper(const Xapian::Database &db,
+test_qp_flag_wildcard3_helper(const Xapian::Database &db,
 			      Xapian::termcount max_expansion,
 			      const string & query_string)
 {
@@ -1059,29 +1059,29 @@ DEFINE_TESTCASE(qp_flag_wildcard3, writable) {
     db.add_document(doc);
 
     // Test that a max of 0 doesn't set a limit.
-    test_qp_flag_wildcard1_helper(db, 0, "z*");
-    test_qp_flag_wildcard1_helper(db, 0, "m*");
+    test_qp_flag_wildcard3_helper(db, 0, "z*");
+    test_qp_flag_wildcard3_helper(db, 0, "m*");
 
     // These cases should expand to the limit given.
-    test_qp_flag_wildcard1_helper(db, 1, "z*");
-    test_qp_flag_wildcard1_helper(db, 1, "ab*");
-    test_qp_flag_wildcard1_helper(db, 2, "muscle*");
-    test_qp_flag_wildcard1_helper(db, 4, "musc*");
-    test_qp_flag_wildcard1_helper(db, 4, "mus*");
-    test_qp_flag_wildcard1_helper(db, 5, "mu*");
-    test_qp_flag_wildcard1_helper(db, 6, "m*");
+    test_qp_flag_wildcard3_helper(db, 1, "z*");
+    test_qp_flag_wildcard3_helper(db, 1, "ab*");
+    test_qp_flag_wildcard3_helper(db, 2, "muscle*");
+    test_qp_flag_wildcard3_helper(db, 4, "musc*");
+    test_qp_flag_wildcard3_helper(db, 4, "mus*");
+    test_qp_flag_wildcard3_helper(db, 5, "mu*");
+    test_qp_flag_wildcard3_helper(db, 6, "m*");
 
     // These cases should expand to one more than the limit.
     TEST_EXCEPTION(Xapian::WildcardError,
-	test_qp_flag_wildcard1_helper(db, 1, "muscle*"));
+	test_qp_flag_wildcard3_helper(db, 1, "muscle*"));
     TEST_EXCEPTION(Xapian::WildcardError,
-	test_qp_flag_wildcard1_helper(db, 3, "musc*"));
+	test_qp_flag_wildcard3_helper(db, 3, "musc*"));
     TEST_EXCEPTION(Xapian::WildcardError,
-	test_qp_flag_wildcard1_helper(db, 3, "mus*"));
+	test_qp_flag_wildcard3_helper(db, 3, "mus*"));
     TEST_EXCEPTION(Xapian::WildcardError,
-	test_qp_flag_wildcard1_helper(db, 4, "mu*"));
+	test_qp_flag_wildcard3_helper(db, 4, "mu*"));
     TEST_EXCEPTION(Xapian::WildcardError,
-	test_qp_flag_wildcard1_helper(db, 5, "m*"));
+	test_qp_flag_wildcard3_helper(db, 5, "m*"));
 
     return true;
 }
