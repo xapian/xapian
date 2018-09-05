@@ -227,6 +227,9 @@ AC_SEARCH_LIBS([socketpair], [xnet],
   [AC_DEFINE(HAVE_SOCKETPAIR, 1,
     [Define to 1 if you have the 'socketpair' function])])
 
+dnl fnmatch() is used to match ignore pattern.
+AC_CHECK_FUNCS([fnmatch])
+
 dnl Check that snprintf actually works as it's meant to.
 dnl
 dnl Linux 'man snprintf' warns:

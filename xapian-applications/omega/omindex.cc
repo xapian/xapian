@@ -37,6 +37,10 @@
 #include <cstring>
 #include "safefcntl.h"
 
+#ifdef HAVE_FNMATCH
+# include <fnmatch.h>
+#endif
+
 #include <xapian.h>
 
 #include "commonhelp.h"
@@ -68,6 +72,18 @@ static double sleep_before_opendir = 0;
 static string root;
 static string url_start_path;
 
+#ifdef HAVE_FNMATCH
+struct avoid_pattern {
+    const char* pattern;
+    bool skip;
+
+    avoid_pattern(const char* pattern_, bool skip_)
+	: pattern(pattern_), skip(skip_) {}
+};
+
+static vector<avoid_pattern> avoid_patterns;
+#endif
+
 inline static bool
 p_notalnum(unsigned int c)
 {
@@ -78,19 +94,36 @@ static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
 	   map<string, string>& mime_map)
 {
-    string ext;
-    const char * dot_ptr = strrchr(d.leafname(), '.');
-    if (dot_ptr) {
-	ext.assign(dot_ptr + 1);
-	if (ext.size() > max_ext_len)
-	    ext.resize(0);
-    }
-
     string urlterm("U");
     urlterm += url;
 
     if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
+
+    const char* leafname = d.leafname();
+#ifdef HAVE_FNMATCH
+    for (auto&& i : avoid_patterns) {
+	if (fnmatch(i.pattern, leafname, 0) == 0) {
+	    if (i.skip) {
+		string m = "Leafname '";
+		m += leafname;
+		m += "' matches skip pattern: ";
+		m += i.pattern;
+		skip(urlterm, file.substr(root.size()), m,
+		     d.get_size(), d.get_mtime(), SKIP_VERBOSE_ONLY);
+	    }
+	    return;
+	}
+    }
+#endif
+
+    string ext;
+    const char * dot_ptr = strrchr(leafname, '.');
+    if (dot_ptr) {
+	ext.assign(dot_ptr + 1);
+	if (ext.size() > max_ext_len)
+	    ext.resize(0);
+    }
 
     string mimetype = mimetype_from_ext(mime_map, ext);
     if (mimetype == "ignore") {
@@ -270,7 +303,8 @@ main(int argc, char **argv)
     string site_term, host_term;
     Xapian::Stem stemmer("english");
 
-    enum { OPT_OPENDIR_SLEEP = 256, OPT_SAMPLE };
+    enum { OPT_OPENDIR_SLEEP = 256, OPT_SAMPLE,
+	   OPT_IGNORE_PATTERN, OPT_SKIP_PATTERN };
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
 	{ "version",	no_argument,		NULL, 'V' },
@@ -296,6 +330,8 @@ main(int argc, char **argv)
 	{ "retry-failed",	no_argument,	NULL, 'R' },
 	{ "opendir-sleep",	required_argument,	NULL, OPT_OPENDIR_SLEEP },
 	{ "track-ctime",no_argument,		NULL, 'C' },
+	{ "ignore-pattern", required_argument,	NULL, OPT_IGNORE_PATTERN },
+	{ "skip-pattern", required_argument,	NULL, OPT_SKIP_PATTERN },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -369,6 +405,8 @@ main(int argc, char **argv)
 "                            on Microsoft DFS shares.\n"
 "  -C, --track-ctime         track each file's ctime so we can detect changes\n"
 "                            to ownership or permissions.\n"
+"      --ignore-pattern=GLOB ignore leaf filenames matching pattern\n"
+"      --skip-pattern=GLOB   skip leaf filename matching pattern\n"
 "  -v, --verbose             show more information about what is happening\n"
 "      --overwrite           create the database anew (the default is to update\n"
 "                            if the database already exists)" << endl;
@@ -584,6 +622,30 @@ main(int argc, char **argv)
 	case 'C':
 	    use_ctime = true;
 	    break;
+	case OPT_IGNORE_PATTERN:
+	case OPT_SKIP_PATTERN: {
+	    bool skip = (getopt_ret == OPT_SKIP_PATTERN);
+#ifndef HAVE_FNMATCH
+	    cerr << (skip ? "--skip" : "--ignore") << "-pattern isn't "
+		    "supported in this build because the fnmatch() function "
+		    "wasn't found at configure time." << endl;
+	    return 1;
+#else
+	    if (optarg[0] == '\0') {
+		cerr << (skip ? "--skip" : "--ignore") << "-pattern with an "
+			"empty pattern can never match." << endl;
+		return 1;
+	    }
+	    if (strchr(optarg, '/')) {
+		cerr << (skip ? "--skip" : "--ignore") << "-pattern only "
+			"matches against the leaf filename so a pattern "
+			"containing '/' can never match." << endl;
+		return 1;
+	    }
+	    avoid_patterns.emplace_back(optarg, skip);
+	    break;
+#endif
+	}
 	case ':': // missing param
 	    return 1;
 	case '?': // unknown option: FIXME -> char
