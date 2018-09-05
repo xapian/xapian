@@ -97,6 +97,33 @@ map_dbname_to_dir(const string &database_name)
     return database_dir + database_name;
 }
 
+// Get database(s) to search.
+static void
+parse_db_params(const pair<MCI, MCI>& dbs)
+{
+    dbname.resize(0);
+    // Only add a repeated db once.
+    set<string> seen;
+    for (MCI i = dbs.first; i != dbs.second; ++i) {
+	const string& v = i->second;
+	if (v.empty()) continue;
+	size_t p = 0, q;
+	while (true) {
+	    q = v.find('/', p);
+	    string s(v, p, q - p);
+	    if (!s.empty() && seen.find(s) == seen.end()) {
+		// Translate DB parameter to path of database directory
+		if (!dbname.empty()) dbname += '/';
+		dbname += s;
+		db.add_database(Xapian::Database(map_dbname_to_dir(s)));
+		seen.insert(s);
+	    }
+	    if (q == string::npos) break;
+	    p = q + 1;
+	}
+    }
+}
+
 int main(int argc, char *argv[])
 try {
     read_config_file();
@@ -139,29 +166,7 @@ try {
     }
 
     try {
-	// get database(s) to search
-	dbname.resize(0);
-	set<string> seen; // only add a repeated db once
-	g = cgi_params.equal_range("DB");
-	for (MCI i = g.first; i != g.second; ++i) {
-	    const string & v = i->second;
-	    if (!v.empty()) {
-		size_t p = 0, q;
-		while (true) {
-		    q = v.find('/', p);
-		    string s(v, p, q - p);
-		    if (!s.empty() && seen.find(s) == seen.end()) {
-			// Translate DB parameter to path of database directory
-			if (!dbname.empty()) dbname += '/';
-			dbname += s;
-			db.add_database(Xapian::Database(map_dbname_to_dir(s)));
-			seen.insert(s);
-		    }
-		    if (q == string::npos) break;
-		    p = q + 1;
-		}
-	    }
-	}
+	parse_db_params(cgi_params.equal_range("DB"));
 	if (dbname.empty()) {
 	    dbname = default_db;
 	    db.add_database(Xapian::Database(map_dbname_to_dir(dbname)));
