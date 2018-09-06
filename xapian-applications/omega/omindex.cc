@@ -455,7 +455,7 @@ main(int argc, char **argv)
 	    follow_symlinks = true;
 	    break;
 	case 'M': {
-	    const char * s = strchr(optarg, ':');
+	    const char * s = strrchr(optarg, ':');
 	    if (s == NULL) {
 		cerr << "Invalid MIME mapping '" << optarg << "'\n"
 			"Should be of the form EXT:TYPE, e.g. txt:text/plain\n"
