@@ -140,6 +140,7 @@ while (<>) {
 	/^\@\@ -\d+,\d+ \+(\d+),\d+\b/ and $lineno = $1;
 	$next_top_level = ($lineno == 1) ? 1 : undef;
 	$in_comment = 0;
+	$last_line_blank = 0;
 	next;
     }
     if ($pre3 eq '---' || $pre3 eq '+++') {
