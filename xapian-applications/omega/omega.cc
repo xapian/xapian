@@ -98,13 +98,14 @@ map_dbname_to_dir(const string &database_name)
 }
 
 // Get database(s) to search.
-static void
-parse_db_params(const pair<MCI, MCI>& dbs)
+template<typename IT>
+void
+parse_db_params(const pair<IT, IT>& dbs)
 {
     dbname.resize(0);
     // Only add a repeated db once.
     set<string> seen;
-    for (MCI i = dbs.first; i != dbs.second; ++i) {
+    for (auto i = dbs.first; i != dbs.second; ++i) {
 	const string& v = i->second;
 	if (v.empty()) continue;
 	size_t p = 0, q;
@@ -127,9 +128,6 @@ parse_db_params(const pair<MCI, MCI>& dbs)
 int main(int argc, char *argv[])
 try {
     read_config_file();
-
-    MCI val;
-    pair<MCI, MCI> g;
 
     option["flag_default"] = "true";
 
@@ -177,7 +175,7 @@ try {
     }
 
     hits_per_page = 0;
-    val = cgi_params.find("HITSPERPAGE");
+    auto val = cgi_params.find("HITSPERPAGE");
     if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
     if (hits_per_page == 0) {
 	hits_per_page = 10;
@@ -229,8 +227,8 @@ try {
 	// add expand/topterms terms if appropriate
 	string expand_terms;
 	if (cgi_params.find("ADD") != cgi_params.end()) {
-	    g = cgi_params.equal_range("X");
-	    for (MCI i = g.first; i != g.second; ++i) {
+	    auto g = cgi_params.equal_range("X");
+	    for (auto i = g.first; i != g.second; ++i) {
 		const string & v = i->second;
 		if (!v.empty()) {
 		    if (!expand_terms.empty())
@@ -241,8 +239,8 @@ try {
 	}
 
 	// collect the unprefixed prob fields
-	g = cgi_params.equal_range("P");
-	for (MCI i = g.first; i != g.second; ++i) {
+	auto g = cgi_params.equal_range("P");
+	for (auto i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    if (!v.empty()) {
 		// If there are expand terms, append them to the first
@@ -264,9 +262,9 @@ try {
 	}
     }
 
-    g.first = cgi_params.lower_bound("P.");
-    g.second = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
-    for (MCI i = g.first; i != g.second; ++i) {
+    auto begin = cgi_params.lower_bound("P.");
+    auto end = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    string pfx(i->first, 2, string::npos);
@@ -275,10 +273,10 @@ try {
     }
 
     // set any boolean filters
-    g = cgi_params.equal_range("B");
+    auto g = cgi_params.equal_range("B");
     if (g.first != g.second) {
 	vector<string> filter_v;
-	for (MCI i = g.first; i != g.second; ++i) {
+	for (auto i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    // we'll definitely get empty B fields from "-ALL-" options
 	    if (!v.empty() && C_isalnum(v[0])) {
@@ -317,7 +315,7 @@ try {
     g = cgi_params.equal_range("N");
     if (g.first != g.second) {
 	vector<string> filter_v;
-	for (MCI i = g.first; i != g.second; ++i) {
+	for (auto i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    // we'll definitely get empty N fields from "-ALL-" options
 	    if (!v.empty() && C_isalnum(v[0])) {

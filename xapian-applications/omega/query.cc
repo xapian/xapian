@@ -458,8 +458,6 @@ parse_queries(const string& oldp)
 static multimap<string, string> filter_map;
 static set<string> neg_filters;
 
-typedef multimap<string, string>::const_iterator FMCI;
-
 void add_bterm(const string &term) {
     string prefix;
     if (prefix_from_term(&prefix, term) > 0)
@@ -482,7 +480,7 @@ run_query()
 	vector<Xapian::Query> filter_vec;
 	vector<string> same_vec;
 	string current;
-	for (FMCI i = filter_map.begin(); ; ++i) {
+	for (auto i = filter_map.begin(); ; ++i) {
 	    bool over = (i == filter_map.end());
 	    if (over || i->first != current) {
 		switch (same_vec.size()) {
@@ -1379,14 +1377,13 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_cgi: {
-		MCI i = cgi_params.find(args[0]);
+		auto i = cgi_params.find(args[0]);
 		if (i != cgi_params.end()) value = i->second;
 		break;
 	    }
 	    case CMD_cgilist: {
-		pair<MCI, MCI> g;
-		g = cgi_params.equal_range(args[0]);
-		for (MCI i = g.first; i != g.second; ++i) {
+		auto g = cgi_params.equal_range(args[0]);
+		for (auto i = g.first; i != g.second; ++i) {
 		    value += i->second;
 		    value += '\t';
 		}
@@ -1691,7 +1688,7 @@ eval(const string &fmt, const vector<string> &param)
 		    }
 		}
 		// add any boolean terms
-		for (FMCI i = filter_map.begin(); i != filter_map.end(); ++i) {
+		for (auto i = filter_map.begin(); i != filter_map.end(); ++i) {
 		    url_query_string += "&B=";
 		    url_query_string += i->second;
 		}
@@ -2562,9 +2559,6 @@ ensure_query_parsed()
     if (query_parsed) return;
     query_parsed = true;
 
-    MCI val;
-    pair<MCI, MCI> g;
-
     // Should we discard the existing R-set recorded in R CGI parameters?
     bool discard_rset = false;
 
@@ -2574,7 +2568,7 @@ ensure_query_parsed()
 
     string v;
     // get list of terms from previous iteration of query
-    val = cgi_params.find("xP");
+    auto val = cgi_params.find("xP");
     if (val != cgi_params.end()) {
 	v = val->second;
 	// If xP given, default to discarding any RSet and forcing the first
@@ -2648,8 +2642,8 @@ ensure_query_parsed()
 
     if (!discard_rset) {
 	// put documents marked as relevant into the rset
-	g = cgi_params.equal_range("R");
-	for (MCI i = g.first; i != g.second; ++i) {
+	auto g = cgi_params.equal_range("R");
+	for (auto i = g.first; i != g.second; ++i) {
 	    const string & value = i->second;
 	    for (size_t j = 0; j < value.size(); j = value.find('.', j)) {
 		while (value[j] == '.') ++j;

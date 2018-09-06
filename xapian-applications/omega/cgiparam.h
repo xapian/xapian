@@ -24,8 +24,6 @@
 #include <map>
 #include <string>
 
-typedef std::multimap<std::string, std::string>::const_iterator MCI;
-
 /* decode the query from NAME=VALUE pairs given on the command line */
 extern void decode_argv(char **argv);
 
