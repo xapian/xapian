@@ -74,15 +74,7 @@ static string root;
 static string url_start_path;
 
 #ifdef HAVE_FNMATCH
-struct avoid_pattern {
-    const char* pattern;
-    bool skip;
-
-    avoid_pattern(const char* pattern_, bool skip_)
-	: pattern(pattern_), skip(skip_) {}
-};
-
-static vector<avoid_pattern> avoid_patterns;
+static vector<pair<const char*, const char*>> mime_patterns;
 #endif
 
 inline static bool
@@ -102,18 +94,24 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
 
     const char* leafname = d.leafname();
+
+    string mimetype;
 #ifdef HAVE_FNMATCH
-    for (auto&& i : avoid_patterns) {
-	if (fnmatch(i.pattern, leafname, 0) == 0) {
-	    if (i.skip) {
+    for (auto&& i : mime_patterns) {
+	if (fnmatch(i.first, leafname, 0) == 0) {
+	    if (strcmp(i.second, "ignore") == 0)
+		return;
+	    if (strcmp(i.second, "skip") == 0) {
 		string m = "Leafname '";
 		m += leafname;
-		m += "' matches skip pattern: ";
-		m += i.pattern;
+		m += "' matches pattern: ";
+		m += i.first;
 		skip(urlterm, file.substr(root.size()), m,
-		     d.get_size(), d.get_mtime(), SKIP_VERBOSE_ONLY);
+		     d.get_size(), d.get_mtime());
+		return;
 	    }
-	    return;
+	    mimetype = i.second;
+	    break;
 	}
     }
 #endif
@@ -126,16 +124,19 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    ext.resize(0);
     }
 
-    string mimetype = mimetype_from_ext(mime_map, ext);
-    if (mimetype == "ignore") {
-	return;
-    } else if (mimetype == "skip") {
-	// Ignore mimetype, skipped mimetype should not be quietly ignored.
-	string m = "skipping extension '";
-	m += ext;
-	m += "'";
-	skip(urlterm, file.substr(root.size()), m, d.get_size(), d.get_mtime());
-	return;
+    if (mimetype.empty()) {
+	mimetype = mimetype_from_ext(mime_map, ext);
+	if (mimetype == "ignore") {
+	    return;
+	} else if (mimetype == "skip") {
+	    // Ignore mimetype, skipped mimetype should not be quietly ignored.
+	    string m = "skipping extension '";
+	    m += ext;
+	    m += "'";
+	    skip(urlterm, file.substr(root.size()), m,
+		 d.get_size(), d.get_mtime());
+	    return;
+	}
     }
 
     // Check the file size.
@@ -304,8 +305,7 @@ main(int argc, char **argv)
     string site_term, host_term;
     Xapian::Stem stemmer("english");
 
-    enum { OPT_OPENDIR_SLEEP = 256, OPT_SAMPLE, OPT_DATE_TERMS,
-	   OPT_IGNORE_PATTERN, OPT_SKIP_PATTERN };
+    enum { OPT_OPENDIR_SLEEP = 256, OPT_SAMPLE, OPT_DATE_TERMS };
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
 	{ "version",	no_argument,		NULL, 'V' },
@@ -315,6 +315,7 @@ main(int argc, char **argv)
 	{ "db",		required_argument,	NULL, 'D' },
 	{ "url",	required_argument,	NULL, 'U' },
 	{ "mime-type",	required_argument,	NULL, 'M' },
+	{ "mime-type-match", required_argument,	NULL, 'G' },
 	{ "filter",	required_argument,	NULL, 'F' },
 	{ "depth-limit",required_argument,	NULL, 'l' },
 	{ "follow",	no_argument,		NULL, 'f' },
@@ -331,8 +332,6 @@ main(int argc, char **argv)
 	{ "opendir-sleep",	required_argument,	NULL, OPT_OPENDIR_SLEEP },
 	{ "track-ctime",no_argument,		NULL, 'C' },
 	{ "date-terms",	no_argument,		NULL, OPT_DATE_TERMS },
-	{ "ignore-pattern", required_argument,	NULL, OPT_IGNORE_PATTERN },
-	{ "skip-pattern", required_argument,	NULL, OPT_SKIP_PATTERN },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -372,7 +371,12 @@ main(int argc, char **argv)
 "  -U, --url=URL             base url BASEDIR corresponds to (default: /)\n"
 "  -M, --mime-type=EXT:TYPE  assume any file with extension EXT has MIME\n"
 "                            Content-Type TYPE, instead of using libmagic\n"
-"                            (empty TYPE removes any existing mapping for EXT)\n"
+"                            (empty TYPE removes any existing mapping for EXT;\n"
+"                            other special TYPE values: 'ignore' and 'skip')\n"
+"  -G, --mime-type-match=GLOB:TYPE\n"
+"                            assume any file with leaf name matching shell\n"
+"                            wildcard pattern GLOB has MIME Content-Type TYPE\n"
+"                            (special TYPE values: 'ignore' and 'skip')\n"
 "  -F, --filter=M[,[T][,C]]:CMD\n"
 "                            process files with MIME Content-Type M using\n"
 "                            command CMD, which produces output (on stdout or\n"
@@ -405,8 +409,6 @@ main(int argc, char **argv)
 "                            on Microsoft DFS shares.\n"
 "  -C, --track-ctime         track each file's ctime so we can detect changes\n"
 "                            to ownership or permissions.\n"
-"      --ignore-pattern=GLOB ignore leaf filenames matching pattern\n"
-"      --skip-pattern=GLOB   skip leaf filename matching pattern\n"
 "  -v, --verbose             show more information about what is happening\n"
 "      --overwrite           create the database anew (the default is to update\n"
 "                            if the database already exists)" << endl;
@@ -625,27 +627,39 @@ main(int argc, char **argv)
 	case OPT_DATE_TERMS:
 	    date_terms = true;
 	    break;
-	case OPT_IGNORE_PATTERN:
-	case OPT_SKIP_PATTERN: {
-	    bool skip = (getopt_ret == OPT_SKIP_PATTERN);
+	case 'G': {
+	    char * s = strrchr(optarg, ':');
+	    if (s == NULL) {
+		cerr << "Invalid MIME mapping '" << optarg << "'\n"
+			"Should be of the form GLOB:TYPE, e.g. *~:ignore"
+		     << endl;
+		return 1;
+	    }
 #ifndef HAVE_FNMATCH
-	    cerr << (skip ? "--skip" : "--ignore") << "-pattern isn't "
-		    "supported in this build because the fnmatch() function "
-		    "wasn't found at configure time." << endl;
+	    cerr << "--mime-type-match isn't supported in this build because "
+		    "the fnmatch() function wasn't found at configure time."
+		 << endl;
 	    return 1;
 #else
-	    if (optarg[0] == '\0') {
-		cerr << (skip ? "--skip" : "--ignore") << "-pattern with an "
-			"empty pattern can never match." << endl;
+	    if (s == optarg) {
+		cerr << "--mime-type-match with an empty pattern can never "
+			"match." << endl;
 		return 1;
 	    }
-	    if (strchr(optarg, '/')) {
-		cerr << (skip ? "--skip" : "--ignore") << "-pattern only "
-			"matches against the leaf filename so a pattern "
-			"containing '/' can never match." << endl;
+	    if (memchr(optarg, '/', s - optarg)) {
+		cerr << "--mime-type-match only matches against the leaf "
+			"filename so a pattern containing '/' can never match."
+		     << endl;
 		return 1;
 	    }
-	    avoid_patterns.emplace_back(optarg, skip);
+	    const char* type = s + 1;
+	    if (*type == '\0') {
+		cerr << "--mime-type-match doesn't support an empty MIME type"
+		     << endl;
+		return 1;
+	    }
+	    *s = '\0';
+	    mime_patterns.emplace_back(optarg, type);
 	    break;
 #endif
 	}
