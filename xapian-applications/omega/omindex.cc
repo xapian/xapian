@@ -458,7 +458,7 @@ main(int argc, char **argv)
 	    const char * s = strchr(optarg, ':');
 	    if (s == NULL) {
 		cerr << "Invalid MIME mapping '" << optarg << "'\n"
-			"Should be of the form ext:type, e.g. txt:text/plain\n"
+			"Should be of the form EXT:TYPE, e.g. txt:text/plain\n"
 			"(or txt: to delete a default mapping)" << endl;
 		return 1;
 	    }
