@@ -93,13 +93,6 @@ double
 SynonymPostList::recalc_maxweight()
 {
     LOGCALL(MATCH, double, "SynonymPostList::recalc_maxweight", NO_ARGS);
-
-    // Call recalc_maxweight on the subtree once, to ensure that the maxweights
-    // are initialised.
-    if (!have_calculated_subtree_maxweights) {
-	pl->recalc_maxweight();
-	have_calculated_subtree_maxweights = true;
-    }
     RETURN(wt->get_maxpart());
 }
 

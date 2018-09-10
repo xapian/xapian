@@ -44,9 +44,6 @@ class SynonymPostList : public WrapperPostList {
     /// Flag indicating whether the weighting object needs the wdf.
     bool want_wdf;
 
-    /// Flag indicating if we've called recalc_maxweight on the subtree yet.
-    bool have_calculated_subtree_maxweights;
-
     PostListTree* pltree;
 
     /// Lower bound on doclength in the subdatabase we're working over.
@@ -57,7 +54,6 @@ class SynonymPostList : public WrapperPostList {
 		    const Xapian::Database::Internal* db,
 		    PostListTree* pltree_)
 	: WrapperPostList(subtree), wt(NULL), want_wdf(false),
-	  have_calculated_subtree_maxweights(false),
 	  pltree(pltree_),
 	  doclen_lower_bound(db->get_doclength_lower_bound()) { }
 
