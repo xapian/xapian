@@ -58,9 +58,6 @@ class SynonymPostList : public PostList {
      */
     bool want_unique_terms;
 
-    /// Flag indicating if we've called recalc_maxweight on the subtree yet.
-    bool have_calculated_subtree_maxweights;
-
     /// Lower bound on doclength in the subdatabase we're working over.
     Xapian::termcount doclen_lower_bound;
 
@@ -69,7 +66,6 @@ class SynonymPostList : public PostList {
 		    Xapian::termcount doclen_lower_bound_)
 	: subtree(subtree_), matcher(matcher_), wt(NULL),
 	  want_doclength(false), want_wdf(false), want_unique_terms(false),
-	  have_calculated_subtree_maxweights(false),
 	  doclen_lower_bound(doclen_lower_bound_) { }
 
     ~SynonymPostList();
