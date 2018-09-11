@@ -234,13 +234,14 @@ LocalSubMatch::open_post_list(const string& term,
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
 
-    bool weighted = (factor != 0.0 && !term.empty());
+    bool weighted = false;
 
     LeafPostList * pl = NULL;
     if (term.empty()) {
 	Assert(!need_positions);
 	pl = db->open_leaf_post_list(term, false);
     } else {
+	weighted = (factor != 0.0);
 	if (!need_positions) {
 	    if ((!weighted && !in_synonym) ||
 		!wt_factory.get_sumpart_needs_wdf_()) {
