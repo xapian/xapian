@@ -1169,7 +1169,7 @@ DEFINE_TESTCASE(checkstatsweight1, backend && !remote) {
 
 	// The document order in the multi-db case isn't the same as the
 	// postlist order on the combined DB, so it's hard to compare the
-	// wdf for each document in the Weight objects, so we can sum
+	// wdf for each document in the Weight objects, but we can sum
 	// the wdfs and the squares of the wdfs which provides a decent
 	// check that we're not getting the wrong wdf values (it ensures
 	// they have the right mean and standard deviation).
@@ -1209,7 +1209,7 @@ DEFINE_TESTCASE(checkstatsweight2, backend && !remote) {
 
 	// The document order in the multi-db case isn't the same as the
 	// postlist order on the combined DB, so it's hard to compare the
-	// wdf for each document in the Weight objects, so we can sum
+	// wdf for each document in the Weight objects, but we can sum
 	// the wdfs and the squares of the wdfs which provides a decent
 	// check that we're not getting the wrong wdf values (it ensures
 	// they have the right mean and standard deviation).
@@ -1293,7 +1293,7 @@ DEFINE_TESTCASE(checkstatsweight3, backend && !remote && !multi) {
 
 	// The document order in the multi-db case isn't the same as the
 	// postlist order on the combined DB, so it's hard to compare the
-	// wdf for each document in the Weight objects, so we can sum
+	// wdf for each document in the Weight objects, but we can sum
 	// the wdfs and the squares of the wdfs which provides a decent
 	// check that we're not getting the wrong wdf values (it ensures
 	// they have the right mean and standard deviation).
@@ -1353,7 +1353,7 @@ DEFINE_TESTCASE(checkstatsweight4, backend && !remote && !multi) {
 
 	// The document order in the multi-db case isn't the same as the
 	// postlist order on the combined DB, so it's hard to compare the
-	// wdf for each document in the Weight objects, so we can sum
+	// wdf for each document in the Weight objects, but we can sum
 	// the wdfs and the squares of the wdfs which provides a decent
 	// check that we're not getting the wrong wdf values (it ensures
 	// they have the right mean and standard deviation).
