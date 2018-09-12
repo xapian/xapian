@@ -174,32 +174,32 @@ parse_index_script(const string &filename)
 	    i = find_if(j, s.end(), [](char ch) { return !C_isalnum(ch); });
 	    string action(s, j - s.begin(), i - j);
 	    Action::type code = Action::BAD;
-	    enum {NO, OPT, YES} arg = NO;
+	    unsigned min_args = 0, max_args = 0;
 	    bool takes_integer_argument = false;
 	    if (!action.empty()) {
 		switch (action[0]) {
 		    case 'b':
 			if (action == "boolean") {
 			    code = Action::BOOLEAN;
-			    arg = OPT;
+			    max_args = 1;
 			}
 			break;
 		    case 'd':
 			if (action == "date") {
 			    code = Action::DATE;
-			    arg = YES;
+			    min_args = max_args = 1;
 			}
 			break;
 		    case 'f':
 			if (action == "field") {
 			    code = Action::FIELD;
-			    arg = OPT;
+			    max_args = 1;
 			}
 			break;
 		    case 'h':
 			if (action == "hash") {
 			    code = Action::HASH;
-			    arg = OPT;
+			    max_args = 1;
 			    takes_integer_argument = true;
 			} else if (action == "hextobin") {
 			    code = Action::HEXTOBIN;
@@ -208,10 +208,10 @@ parse_index_script(const string &filename)
 		    case 'i':
 			if (action == "index") {
 			    code = Action::INDEX;
-			    arg = OPT;
+			    max_args = 1;
 			} else if (action == "indexnopos") {
 			    code = Action::INDEXNOPOS;
-			    arg = OPT;
+			    max_args = 1;
 			}
 			break;
 		    case 'l':
@@ -224,7 +224,7 @@ parse_index_script(const string &filename)
 		    case 'p':
 			if (action == "parsedate") {
 			    code = Action::PARSEDATE;
-			    arg = YES;
+			    min_args = max_args = 1;
 			}
 			break;
 		    case 's':
@@ -235,7 +235,7 @@ parse_index_script(const string &filename)
 		    case 't':
 			if (action == "truncate") {
 			    code = Action::TRUNCATE;
-			    arg = YES;
+			    min_args = max_args = 1;
 			    takes_integer_argument = true;
 			}
 			break;
@@ -244,28 +244,28 @@ parse_index_script(const string &filename)
 			    code = Action::UNHTML;
 			} else if (action == "unique") {
 			    code = Action::UNIQUE;
-			    arg = YES;
+			    min_args = max_args = 1;
 			}
 			break;
 		    case 'v':
 			if (action == "value") {
 			    code = Action::VALUE;
-			    arg = YES;
+			    min_args = max_args = 1;
 			    takes_integer_argument = true;
 			} else if (action == "valuenumeric") {
 			    code = Action::VALUENUMERIC;
-			    arg = YES;
+			    min_args = max_args = 1;
 			    takes_integer_argument = true;
 			} else if (action == "valuepacked") {
 			    code = Action::VALUEPACKED;
-			    arg = YES;
+			    min_args = max_args = 1;
 			    takes_integer_argument = true;
 			}
 			break;
 		    case 'w':
 			if (action == "weight") {
 			    code = Action::WEIGHT;
-			    arg = YES;
+			    min_args = max_args = 1;
 			    takes_integer_argument = true;
 			}
 			break;
@@ -286,12 +286,13 @@ parse_index_script(const string &filename)
 			    "'=' is deprecated." << endl;
 		}
 
-		if (arg == NO) {
+		if (max_args == 0) {
 		    cerr << filename << ':' << line_no
 			 << ": Index action '" << action
 			 << "' doesn't take an argument" << endl;
 		    exit(1);
 		}
+
 		++i;
 		j = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 		if (i != j) {
@@ -299,22 +300,74 @@ parse_index_script(const string &filename)
 			 << ": warning: putting spaces between '=' and the "
 			    "argument is deprecated." << endl;
 		}
-		string val;
-		if (j != s.end() && *j == '"') {
-		    // Quoted argument.
-		    ++j;
-		    i = find(j, s.end(), '"');
-		    if (i == s.end()) {
-			cerr << filename << ':' << line_no << ": No closing quote" << endl;
+
+		vector<string> vals;
+		while (true) {
+		    if (j != s.end() && *j == '"') {
+			// Quoted argument.
+			++j;
+			i = find(j, s.end(), '"');
+			if (i == s.end()) {
+			    cerr << filename << ':' << line_no
+				 << ": No closing quote" << endl;
+			    exit(1);
+			}
+			vals.emplace_back(j, i);
+			++i;
+			if (i == s.end() || C_isspace(*i)) break;
+			if (*i != ',') {
+			    cerr << filename << ':' << line_no
+				 << ": Unexpected character '" << *i
+				 << "' after closing quote" << endl;
+			    exit(1);
+			}
+			++i;
+		    } else if (max_args > 1) {
+			// Unquoted argument, split on comma.
+			i = find_if(j, s.end(),
+				    [](char ch) {
+					return C_isspace(ch) || ch == ',';
+				    });
+			vals.emplace_back(j, i);
+			if (*i != ',') break;
+			++i;
+		    } else {
+			// Unquoted argument, including any commas.
+			i = find_if(j, s.end(),
+				    [](char ch) { return C_isspace(ch); });
+			vals.emplace_back(j, i);
+			break;
+		    }
+
+		    if (vals.size() == max_args) {
+			cerr << filename << ':' << line_no
+			     << ": Index action '" << action
+			     << "' takes at most " << max_args << " arguments"
+			     << endl;
 			exit(1);
 		    }
-		    val.assign(j, i);
-		    ++i;
-		} else {
-		    // Unquoted argument.
-		    i = find_if(j, s.end(), [](char ch) { return C_isspace(ch); });
-		    val.assign(j, i);
 		}
+
+		if (vals.size() < min_args) {
+		    if (min_args == max_args) {
+			cerr << filename << ':' << line_no
+			     << ": Index action '" << action
+			     << "' requires " << min_args << " arguments"
+			     << endl;
+			exit(1);
+		    }
+		    cerr << filename << ':' << line_no
+			 << ": Index action '" << action
+			 << "' requires at least " << min_args << " arguments"
+			 << endl;
+		    exit(1);
+		}
+
+		string val;
+		if (!vals.empty()) {
+		    val = vals.front();
+		}
+
 		if (takes_integer_argument) {
 		    if (val.find('.') != string::npos) {
 			cerr << filename << ':' << line_no
@@ -384,10 +437,18 @@ parse_index_script(const string &filename)
 		}
 		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 	    } else {
-		if (arg == YES) {
+		if (min_args > 0) {
+		    if (min_args == max_args) {
+			cerr << filename << ':' << line_no
+			     << ": Index action '" << action
+			     << "' requires " << min_args << " arguments"
+			     << endl;
+			exit(1);
+		    }
 		    cerr << filename << ':' << line_no
 			 << ": Index action '" << action
-			 << "' must have an argument" << endl;
+			 << "' requires at least " << min_args << " arguments"
+			 << endl;
 		    exit(1);
 		}
 		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
