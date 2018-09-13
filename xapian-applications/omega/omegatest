@@ -244,10 +244,8 @@ qtestcase '(VALUE_RANGE 0 2015 201501~ AND_NOT Len)' DATEVALUE=0 START=20150101 
 
 # If faketime is available and works, test cases where the output depends on
 # "now".
-set +e
-out=`faketime -f '1980-12-08 00:00:00' date +%Y 2>&1`
-rc=$?
-set -e
+rc=0
+out=`faketime -f '1980-12-08 00:00:00' date +%Y 2>&1` || rc=$?
 if [ "$rc:$out" = "0:1980" ] ; then
     TZ=UTC
     export TZ
