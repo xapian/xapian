@@ -763,18 +763,9 @@ badhex:
 			string t = i->get_string_arg();
 			if (prefix_needs_colon(t, value[0])) t += ':';
 			t += value;
-again:
-			try {
-			    Xapian::PostingIterator p = database.postlist_begin(t);
-			    if (p != database.postlist_end(t)) {
-				docid = *p;
-			    }
-			} catch (const Xapian::Error &e) {
-			    // Hmm, what happened?
-			    cerr << "Caught exception in UNIQUE!" << endl;
-			    cerr << "E: " << e.get_description() << endl;
-			    database.commit();
-			    goto again;
+			Xapian::PostingIterator p = database.postlist_begin(t);
+			if (p != database.postlist_end(t)) {
+			    docid = *p;
 			}
 			break;
 		    }
