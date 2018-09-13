@@ -904,17 +904,9 @@ again:
 
 	    // Add the document to the database
 	    if (docid) {
-		try {
-		    database.replace_document(docid, doc);
-		    if (verbose) cout << "Replace: " << docid << endl;
-		    ++repcount;
-		} catch (const Xapian::Error &e) {
-		    cerr << "E: " << e.get_description() << endl;
-		    // Possibly the document was deleted by another
-		    // process in the meantime...?
-		    docid = database.add_document(doc);
-		    cerr << "Replace failed, adding as new: " << docid << endl;
-		}
+		database.replace_document(docid, doc);
+		if (verbose) cout << "Replace: " << docid << endl;
+		++repcount;
 	    } else {
 		docid = database.add_document(doc);
 		if (verbose) cout << "Add: " << docid << endl;
