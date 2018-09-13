@@ -92,34 +92,65 @@ private:
     type action;
     int num_arg;
     string string_arg;
+    // Offset into indexscript line.
+    size_t pos;
 public:
-    Action(type action_) : action(action_), num_arg(0) { }
-    Action(type action_, const string & arg)
-	: action(action_), string_arg(arg) {
+    Action(type action_, size_t pos_)
+	: action(action_), num_arg(0), pos(pos_) { }
+    Action(type action_, size_t pos_, const string & arg)
+	: action(action_), string_arg(arg), pos(pos_) {
 	num_arg = atoi(string_arg.c_str());
     }
-    Action(type action_, const string & arg, int num)
-	: action(action_), num_arg(num), string_arg(arg) { }
+    Action(type action_, size_t pos_, const string & arg, int num)
+	: action(action_), num_arg(num), string_arg(arg), pos(pos_) { }
     type get_action() const { return action; }
     int get_num_arg() const { return num_arg; }
     void set_num_arg(int num) { num_arg = num; }
     const string & get_string_arg() const { return string_arg; }
+    size_t get_pos() const { return pos; }
 };
+
+enum diag_type { DIAG_ERROR, DIAG_WARN, DIAG_NOTE };
+
+static void
+report_location(enum diag_type type,
+		const string& filename,
+		size_t line = 0,
+		size_t pos = string::npos)
+{
+    cerr << filename;
+    if (line != 0) {
+	cerr << ':' << line;
+    }
+    if (pos != string::npos) {
+	// The first column is numbered 1.
+	cerr << ':' << pos + 1;
+    }
+    switch (type) {
+	case DIAG_ERROR:
+	    cerr << ": error: ";
+	    break;
+	case DIAG_WARN:
+	    cerr << ": warning: ";
+	    break;
+	case DIAG_NOTE:
+	    cerr << ": note: ";
+	    break;
+    }
+}
 
 static void
 report_useless_action(const string &file, size_t line, size_t pos,
 		      const string &action)
 {
-    cerr << file << ':' << line;
-    if (pos != string::npos) cerr << ':' << pos;
-    cerr << ": Warning: Index action '" << action << "' has no effect" << endl;
+    report_location(DIAG_WARN, file, line, pos);
+    cerr << "Index action '" << action << "' has no effect" << endl;
 
     static bool given_left_to_right_warning = false;
     if (!given_left_to_right_warning) {
 	given_left_to_right_warning = true;
-	cerr << file << ':' << line
-	     << ": Warning: Note that actions are executed from left to right"
-	     << endl;
+	report_location(DIAG_NOTE, file, line, pos);
+	cerr << "Actions are executed from left to right" << endl;
     }
 }
 
@@ -130,7 +161,8 @@ parse_index_script(const string &filename)
 {
     ifstream script(filename.c_str());
     if (!script.is_open()) {
-	cerr << filename << ": " << strerror(errno) << endl;
+	report_location(DIAG_ERROR, filename);
+	cerr << strerror(errno) << endl;
 	exit(1);
     }
     string line;
@@ -146,8 +178,8 @@ parse_index_script(const string &filename)
 	if (i == s.end() || *i == '#') continue;
 	while (true) {
 	    if (!C_isalnum(*i)) {
-		cerr << filename << ':' << line_no
-		     << ": field name must start with alphanumeric" << endl;
+		report_location(DIAG_ERROR, filename, line_no, i - s.begin());
+		cerr << "field name must start with alphanumeric" << endl;
 		exit(1);
 	    }
 	    j = find_if(i, s.end(),
@@ -161,8 +193,8 @@ parse_index_script(const string &filename)
 		break;
 	    }
 	    if (i == j) {
-		cerr << filename << ':' << line_no
-		     << ": bad character '" << *j << "' in fieldname" << endl;
+		report_location(DIAG_ERROR, filename, line_no, i - s.begin());
+		cerr << "bad character '" << *i << "' in fieldname" << endl;
 		exit(1);
 	    }
 	}
@@ -171,6 +203,7 @@ parse_index_script(const string &filename)
 	map<string, Action::type> boolmap;
 	j = i;
 	while (j != s.end()) {
+	    size_t action_pos = j - s.begin();
 	    i = find_if(j, s.end(), [](char ch) { return !C_isalnum(ch); });
 	    string action(s, j - s.begin(), i - j);
 	    Action::type code = Action::BAD;
@@ -272,8 +305,8 @@ parse_index_script(const string &filename)
 		}
 	    }
 	    if (code == Action::BAD) {
-		cerr << filename << ':' << line_no
-		     << ": Unknown index action '" << action << "'" << endl;
+		report_location(DIAG_ERROR, filename, line_no, action_pos);
+		cerr << "Unknown index action '" << action << "'" << endl;
 		exit(1);
 	    }
 	    auto i_after_action = i;
@@ -281,14 +314,16 @@ parse_index_script(const string &filename)
 
 	    if (i != s.end() && *i == '=') {
 		if (i != i_after_action) {
-		    cerr << filename << ':' << line_no
-			 << ": warning: putting spaces between the action and "
-			    "'=' is deprecated." << endl;
+		    report_location(DIAG_WARN, filename, line_no,
+				    i_after_action - s.begin());
+		    cerr << "putting spaces between the action and '=' is "
+			    "deprecated." << endl;
 		}
 
 		if (max_args == 0) {
-		    cerr << filename << ':' << line_no
-			 << ": Index action '" << action
+		    report_location(DIAG_ERROR, filename, line_no,
+				    i - s.begin());
+		    cerr << "Index action '" << action
 			 << "' doesn't take an argument" << endl;
 		    exit(1);
 		}
@@ -296,9 +331,10 @@ parse_index_script(const string &filename)
 		++i;
 		j = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 		if (i != j) {
-		    cerr << filename << ':' << line_no
-			 << ": warning: putting spaces between '=' and the "
-			    "argument is deprecated." << endl;
+		    report_location(DIAG_WARN, filename, line_no,
+				    i - s.begin());
+		    cerr << "putting spaces between '=' and the argument is "
+			    "deprecated." << endl;
 		}
 
 		vector<string> vals;
@@ -308,16 +344,18 @@ parse_index_script(const string &filename)
 			++j;
 			i = find(j, s.end(), '"');
 			if (i == s.end()) {
-			    cerr << filename << ':' << line_no
-				 << ": No closing quote" << endl;
+			    report_location(DIAG_ERROR, filename, line_no,
+					    s.size());
+			    cerr << "No closing quote" << endl;
 			    exit(1);
 			}
 			vals.emplace_back(j, i);
 			++i;
 			if (i == s.end() || C_isspace(*i)) break;
 			if (*i != ',') {
-			    cerr << filename << ':' << line_no
-				 << ": Unexpected character '" << *i
+			    report_location(DIAG_ERROR, filename, line_no,
+					    i - s.begin());
+			    cerr << "Unexpected character '" << *i
 				 << "' after closing quote" << endl;
 			    exit(1);
 			}
@@ -340,8 +378,9 @@ parse_index_script(const string &filename)
 		    }
 
 		    if (vals.size() == max_args) {
-			cerr << filename << ':' << line_no
-			     << ": Index action '" << action
+			report_location(DIAG_ERROR, filename, line_no,
+					i - s.begin());
+			cerr << "Index action '" << action
 			     << "' takes at most " << max_args << " arguments"
 			     << endl;
 			exit(1);
@@ -349,15 +388,15 @@ parse_index_script(const string &filename)
 		}
 
 		if (vals.size() < min_args) {
+		    report_location(DIAG_ERROR, filename, line_no,
+				    i - s.begin());
 		    if (min_args == max_args) {
-			cerr << filename << ':' << line_no
-			     << ": Index action '" << action
+			cerr << "Index action '" << action
 			     << "' requires " << min_args << " arguments"
 			     << endl;
 			exit(1);
 		    }
-		    cerr << filename << ':' << line_no
-			 << ": Index action '" << action
+		    cerr << "Index action '" << action
 			 << "' requires at least " << min_args << " arguments"
 			 << endl;
 		    exit(1);
@@ -369,16 +408,18 @@ parse_index_script(const string &filename)
 		}
 
 		if (takes_integer_argument) {
-		    if (val.find('.') != string::npos) {
-			cerr << filename << ':' << line_no
-			     << ": Warning: Index action '" << action
+		    auto dot = val.find('.');
+		    if (dot != string::npos) {
+			report_location(DIAG_WARN, filename, line_no,
+					j - s.begin() + dot);
+			cerr << "Index action '" << action
 			     << "' takes an integer argument" << endl;
 		    }
 		}
 		switch (code) {
 		    case Action::INDEX:
 		    case Action::INDEXNOPOS:
-			actions.emplace_back(code, val, weight);
+			actions.emplace_back(code, action_pos, val, weight);
 			useless_weight_pos = string::npos;
 			break;
 		    case Action::WEIGHT:
@@ -390,7 +431,7 @@ parse_index_script(const string &filename)
 			    report_useless_action(filename, line_no,
 						  useless_weight_pos, action);
 			}
-			useless_weight_pos = j - s.begin();
+			useless_weight_pos = action_pos;
 			break;
 		    case Action::TRUNCATE:
 			if (!actions.empty() &&
@@ -403,27 +444,29 @@ parse_index_script(const string &filename)
 			    actions.pop_back();
 			    code = Action::LOAD;
 			}
-			actions.emplace_back(code, val);
+			actions.emplace_back(code, action_pos, val);
 			break;
 		    case Action::UNIQUE:
 			if (had_unique) {
-			    cerr << filename << ':' << line_no
-				<< ": Index action 'unique' used more than "
-				   "once" << endl;
+			    report_location(DIAG_ERROR, filename, line_no,
+					    action_pos);
+			    cerr << "Index action 'unique' used more than once"
+				 << endl;
 			    exit(1);
 			}
 			had_unique = true;
 			if (boolmap.find(val) == boolmap.end())
 			    boolmap[val] = Action::UNIQUE;
-			actions.emplace_back(code, val);
+			actions.emplace_back(code, action_pos, val);
 			break;
 		    case Action::HASH: {
-			actions.emplace_back(code, val);
+			actions.emplace_back(code, action_pos, val);
 			auto& obj = actions.back();
 			auto max_length = obj.get_num_arg();
 			if (max_length < 6) {
-			    cerr << filename << ':' << line_no
-				 << ": Index action 'hash' takes an integer "
+			    report_location(DIAG_ERROR, filename, line_no,
+					    obj.get_pos() + 4 + 1);
+			    cerr << "Index action 'hash' takes an integer "
 				    "argument which must be at least 6" << endl;
 			    exit(1);
 			}
@@ -433,31 +476,30 @@ parse_index_script(const string &filename)
 			boolmap[val] = Action::BOOLEAN;
 			/* FALLTHRU */
 		    default:
-			actions.emplace_back(code, val);
+			actions.emplace_back(code, action_pos, val);
 		}
 		i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
 	    } else {
 		if (min_args > 0) {
+		    report_location(DIAG_ERROR, filename, line_no,
+				    i_after_action - s.begin());
 		    if (min_args == max_args) {
-			cerr << filename << ':' << line_no
-			     << ": Index action '" << action
-			     << "' requires " << min_args << " arguments"
-			     << endl;
+			cerr << "Index action '" << action << "' requires "
+			     << min_args << " arguments" << endl;
 			exit(1);
 		    }
-		    cerr << filename << ':' << line_no
-			 << ": Index action '" << action
-			 << "' requires at least " << min_args << " arguments"
-			 << endl;
+		    cerr << "Index action '" << action << "' requires at least "
+			 << min_args << " arguments" << endl;
 		    exit(1);
 		}
 		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
 		    useless_weight_pos = string::npos;
-		    actions.emplace_back(code, "", weight);
+		    actions.emplace_back(code, action_pos, "", weight);
 		} else if (code == Action::HASH) {
-		    actions.emplace_back(code, "", MAX_SAFE_TERM_LENGTH - 1);
+		    actions.emplace_back(code, action_pos, "",
+					 MAX_SAFE_TERM_LENGTH - 1);
 		} else {
-		    actions.emplace_back(code);
+		    actions.emplace_back(code, action_pos);
 		}
 	    }
 	    j = i;
@@ -480,7 +522,8 @@ parse_index_script(const string &filename)
 		case Action::TRUNCATE:
 		case Action::UNHTML:
 		    done = false;
-		    report_useless_action(filename, line_no, string::npos,
+		    report_useless_action(filename, line_no,
+					  actions.back().get_pos(),
 					  action_names[action]);
 		    actions.pop_back();
 		    break;
@@ -493,15 +536,15 @@ parse_index_script(const string &filename)
 	map<string, Action::type>::const_iterator boolpfx;
 	for (boolpfx = boolmap.begin(); boolpfx != boolmap.end(); ++boolpfx) {
 	    if (boolpfx->second == Action::UNIQUE) {
-		cerr << filename << ':' << line_no
-		     << ": Warning: Index action 'unique=" << boolpfx->first
+		report_location(DIAG_WARN, filename, line_no);
+		cerr << "Index action 'unique=" << boolpfx->first
 		     << "' without 'boolean=" << boolpfx->first << "'" << endl;
 		static bool given_doesnt_imply_boolean_warning = false;
 		if (!given_doesnt_imply_boolean_warning) {
 		    given_doesnt_imply_boolean_warning = true;
-		    cerr << filename << ':' << line_no
-			 << ": Warning: Note 'unique' doesn't implicitly add "
-			    "a boolean term" << endl;
+		    report_location(DIAG_NOTE, filename, line_no);
+		    cerr << "'unique' doesn't implicitly add a boolean term"
+			 << endl;
 		}
 	    }
 	}
@@ -518,14 +561,15 @@ parse_index_script(const string &filename)
 		    v = actions;
 		}
 	    } else {
-		v.emplace_back(Action::NEW);
+		v.emplace_back(Action::NEW, string::npos);
 		v.insert(v.end(), actions.begin(), actions.end());
 	    }
 	}
     }
 
     if (index_spec.empty()) {
-	cerr << filename << ": No rules found in index script" << endl;
+	report_location(DIAG_ERROR, filename, line_no);
+	cerr << "No rules found in index script" << endl;
 	exit(1);
     }
 }
@@ -553,8 +597,8 @@ index_file(const char *fname, istream &stream,
 
 	    string::size_type eq = line.find('=');
 	    if (eq == string::npos && !line.empty()) {
-		cerr << fname << ':' << line_no << ": expected = somewhere "
-		    "in this line" << endl;
+		report_location(DIAG_ERROR, fname, line_no, line.size());
+		cerr << "expected = somewhere in this line" << endl;
 		// FIXME: die or what?
 	    }
 	    string field(line, 0, eq);
@@ -635,6 +679,7 @@ index_file(const char *fname, istream &stream,
 		    case Action::HEXTOBIN: {
 			size_t len = value.length();
 			if (len & 1) {
+			    report_location(DIAG_ERROR, fname, line_no);
 			    cerr << "hextobin: input must have even length"
 				 << endl;
 			} else {
@@ -644,6 +689,7 @@ index_file(const char *fname, istream &stream,
 				char a = value[j];
 				char b = value[j + 1];
 				if (!C_isxdigit(a) || !C_isxdigit(b)) {
+				    report_location(DIAG_ERROR, fname, line_no);
 				    cerr << "hextobin: input must be all hex "
 					    "digits" << endl;
 				    goto badhex;
@@ -664,6 +710,7 @@ badhex:
 			// FIXME: Use NOATIME if we own the file or are root.
 			if (!load_file(value, i->get_num_arg(), NOCACHE,
 				       value, truncated)) {
+			    report_location(DIAG_ERROR, fname, line_no);
 			    cerr << "Couldn't load file '" << value << "': "
 				 << strerror(errno) << endl;
 			    value.resize(0);
@@ -696,8 +743,8 @@ badhex:
 		    case Action::UNIQUE: {
 			// If there's no text, just issue a warning.
 			if (value.empty()) {
-			    cerr << fname << ':' << line_no
-				 << ": Ignoring UNIQUE action on empty text"
+			    report_location(DIAG_WARN, fname, line_no);
+			    cerr << "Ignoring UNIQUE action on empty text"
 				 << endl;
 			    break;
 			}
@@ -740,8 +787,8 @@ again:
 			char * end;
 			double dbl = strtod(value.c_str(), &end);
 			if (*end) {
-			    cerr << fname << ':' << line_no << ": Warning: "
-				    "Trailing characters in VALUENUMERIC: '"
+			    report_location(DIAG_WARN, fname, line_no);
+			    cerr << "Trailing characters in VALUENUMERIC: '"
 				 << value << "'" << endl;
 			}
 			doc.add_value(i->get_num_arg(),
@@ -764,8 +811,8 @@ again:
 			    }
 			}
 			if (errno) {
-			    cerr << fname << ':' << line_no << ": Warning: "
-				    "valuepacked \"" << value << "\" ";
+			    report_location(DIAG_WARN, fname, line_no);
+			    cerr << "valuepacked \"" << value << "\" ";
 			    if (errno == ERANGE) {
 				cerr << "out of range";
 			    } else {
@@ -806,15 +853,15 @@ again:
 			memset(&tm, 0, sizeof(tm));
 			auto ret = strptime(value.c_str(), dateformat.c_str(), &tm);
 			if (ret == NULL) {
-			    cerr << fname << ':' << line_no << ": Warning: "
-				    "\"" << value << "\" doesn't match format "
+			    report_location(DIAG_WARN, fname, line_no);
+			    cerr << "\"" << value << "\" doesn't match format "
 				    "\"" << dateformat << '\"' << endl;
 			    break;
 			}
 
 			if (*ret != '\0') {
-			    cerr << fname << ':' << line_no << ": Warning: "
-				    "\"" << value << "\" not fully matched by "
+			    report_location(DIAG_WARN, fname, line_no);
+			    cerr << "\"" << value << "\" not fully matched by "
 				    "format \"" << dateformat << "\" "
 				    "(\"" << ret << "\" left over) but "
 				    "indexing anyway" << endl;

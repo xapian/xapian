@@ -573,15 +573,106 @@ testcase '|A|Test|Kill' DOCIDS='1 2 3 4'
 rm -rf "$TEST_DB"
 echo hex=7g |\
     $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null |\
-    grep -q "hextobin: input must be all hex digits" ||\
+    grep -q ":1: error: hextobin: input must be all hex digits" ||\
     { echo "scriptindex hextobin didn't give error for bad hex digit";\
       failed=`expr $failed + 1`; }
 echo hex=404 |\
     $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null |\
-    grep -q "hextobin: input must have even length" ||\
+    grep -q ":1: error: hextobin: input must have even length" ||\
     { echo "scriptindex hextobin didn't give error for odd length hex string";\
       failed=`expr $failed + 1`; }
 testcase '7g|404' DOCIDS='1 2'
+
+# Test useless action warnings.
+printf 'foo : index weight=2' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
+    | grep -q ":1:13: warning: Index action 'weight' has no effect" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected warning for useless 'weight' action"
+    failed=`expr $failed + 1`
+fi
+printf 'foo : weight=2 weight=3 index' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
+    | grep -q ":1:7: warning: Index action 'weight' has no effect" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected warning for useless 'weight' action"
+    failed=`expr $failed + 1`
+fi
+printf 'foo : index lower' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
+    | grep -q ":1:13: warning: Index action 'lower' has no effect" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected warning for useless 'lower' action"
+    failed=`expr $failed + 1`
+fi
+
+# Test bad fieldname errors.
+printf 'foo *bar : index' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+rc=0
+out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+if [ $rc -eq 0 ] ; then
+    echo "scriptindex didn't exit with non-zero return code on bad fieldname"
+    failed=`expr $failed + 1`
+elif printf '%s' "$out" \
+    | grep -q ":1:5: error: field name must start with alphanumeric" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected error for a bad fieldname"
+    failed=`expr $failed + 1`
+fi
+printf 'foo b!ar : index' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+rc=0
+out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+if [ $rc -eq 0 ] ; then
+    echo "scriptindex didn't exit with non-zero return code on bad fieldname"
+    failed=`expr $failed + 1`
+elif printf '%s' "$out" \
+    | grep -q ":1:6: error: bad character '!' in fieldname" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected error for a bad fieldname"
+    failed=`expr $failed + 1`
+fi
+
+# Test unwanted action argument.
+printf 'foo : spell=test index' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+rc=0
+out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+if [ $rc -eq 0 ] ; then
+    echo "scriptindex didn't exit with non-zero return code on unwanted action argument"
+    failed=`expr $failed + 1`
+elif printf '%s' "$out" \
+    | grep -q ":1:12: error: Index action 'spell' doesn't take an argument" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected error for unwanted action argument"
+    failed=`expr $failed + 1`
+fi
+
+# Test missing closing quote.
+printf 'foo : index="XFOO' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+rc=0
+out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+if [ $rc -eq 0 ] ; then
+    echo "scriptindex didn't exit with non-zero return code for missing closing quote"
+    failed=`expr $failed + 1`
+elif printf '%s' "$out" \
+    | grep -q ":1:18: error: No closing quote" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected error for missing closing quote"
+    failed=`expr $failed + 1`
+fi
 
 # Feature tests for termprefix and unprefix.
 printf '$termprefix{$cgi{B}}|$unprefix{$cgi{B}}' > "$TEST_TEMPLATE"
@@ -634,7 +725,7 @@ fi
 printf 'url : hash=37.3 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
-    | grep -q "Index action 'hash' takes an integer argument" ; then
+    | grep -q ":1:14: warning: Index action 'hash' takes an integer argument" ; then
     : # OK
 else
     echo "scriptindex didn't reject 'hash' with a non-integer argument"
@@ -648,8 +739,13 @@ fi
 # Unknown index action ''
 printf 'url : index4' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
-    | grep -q "Unknown index action 'index4'" ; then
+rc=0
+out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+if [ $rc -eq 0 ] ; then
+    echo "scriptindex didn't exit with non-zero return code for bad index action with a digit"
+    failed=`expr $failed + 1`
+elif printf '%s' "$out" \
+    | grep -q ":1:7: error: Unknown index action 'index4'" ; then
     : # OK
 else
     echo "scriptindex didn't give expected error for bad index action with a digit"
@@ -663,8 +759,13 @@ fi
 # Unknown index action ''
 printf 'url : hash 42' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
-    | grep -q "Unknown index action '42'" ; then
+rc=0
+out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+if [ $rc -eq 0 ] ; then
+    echo "scriptindex didn't exit with non-zero return code for a missing equals sign"
+    failed=`expr $failed + 1`
+elif printf '%s' "$out" \
+    | grep -q ":1:12: error: Unknown index action '42'" ; then
     : # OK
 else
     echo "scriptindex didn't give expected error for a missing equals sign"
@@ -681,7 +782,7 @@ fi
 printf 'url : field= hash boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
-    | grep -q "warning: putting spaces between '=' and the argument is deprecated" ; then
+    | grep -q ":1:13: warning: putting spaces between '=' and the argument is deprecated" ; then
     : # OK
 else
     echo "scriptindex didn't give expected warning for space after '='"
@@ -690,7 +791,7 @@ fi
 printf 'url : field =link' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
-    | grep -q "warning: putting spaces between the action and '=' is deprecated" ; then
+    | grep -q ":1:12: warning: putting spaces between the action and '=' is deprecated" ; then
     : # OK
 else
     echo "scriptindex didn't give expected warning for space before '='"
@@ -732,8 +833,16 @@ testcase '1|19891204' P=
 # Regression test that a closing " with junk after is flagged.
 printf 'date : field="test"index' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null > /dev/null 2>&1 ; then
-    echo "scriptindex didn't reject junk after closing quote"
+rc=0
+out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+if [ $rc -eq 0 ] ; then
+    echo "scriptindex didn't exit with non-zero return code for junk after closing quote"
+    failed=`expr $failed + 1`
+elif printf '%s' "$out" \
+    | grep -q ":1:20: error: Unexpected character 'i' after closing quote" ; then
+    : # OK
+else
+    echo "scriptindex didn't give expected error for junk after closing quote"
     failed=`expr $failed + 1`
 fi
 
@@ -741,7 +850,7 @@ fi
 printf 'date : field parsedate=%%Y%%m%%d' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1 \
-    | grep -q "Warning: Index action 'parsedate' has no effect" ; then
+    | grep -q ":1:14: warning: Index action 'parsedate' has no effect" ; then
     : # OK
 else
     echo "scriptindex didn't give expected warning for useless 'parsedate'"
