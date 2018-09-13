@@ -886,7 +886,7 @@ again:
 	    if (docid) {
 		database.delete_document(docid);
 		if (verbose) cout << "Del: " << docid << endl;
-		delcount ++;
+		++delcount;
 	    }
 	} else {
 	    string data;
@@ -907,7 +907,7 @@ again:
 		try {
 		    database.replace_document(docid, doc);
 		    if (verbose) cout << "Replace: " << docid << endl;
-		    repcount ++;
+		    ++repcount;
 		} catch (const Xapian::Error &e) {
 		    cerr << "E: " << e.get_description() << endl;
 		    // Possibly the document was deleted by another
@@ -918,7 +918,7 @@ again:
 	    } else {
 		docid = database.add_document(doc);
 		if (verbose) cout << "Add: " << docid << endl;
-		addcount ++;
+		++addcount;
 	    }
 	}
     }
