@@ -30,7 +30,9 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
+#include <unordered_set>
 #include <vector>
 #include <cstring>
 
@@ -73,8 +75,8 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 const char * action_names[] = {
     "bad", "new",
     "boolean", "date", "field", "hash", "hextobin", "index", "indexnopos",
-    "load", "lower", "parsedate", "spell", "truncate", "unhtml", "unique",
-    "value", "valuenumeric", "valuepacked", "weight"
+    "load", "lower", "parsedate", "spell", "split", "truncate", "unhtml",
+    "unique", "value", "valuenumeric", "valuepacked", "weight"
 };
 
 // For debugging:
@@ -85,9 +87,10 @@ public:
     typedef enum {
 	BAD, NEW,
 	BOOLEAN, DATE, FIELD, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD, LOWER,
-	PARSEDATE, SPELL, TRUNCATE, UNHTML, UNIQUE, VALUE,
+	PARSEDATE, SPELL, SPLIT, TRUNCATE, UNHTML, UNIQUE, VALUE,
 	VALUENUMERIC, VALUEPACKED, WEIGHT
     } type;
+    enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT };
 private:
     type action;
     int num_arg;
@@ -263,6 +266,10 @@ parse_index_script(const string &filename)
 		    case 's':
 			if (action == "spell") {
 			    code = Action::SPELL;
+			} else if (action == "split") {
+			    code = Action::SPLIT;
+			    min_args = 1;
+			    max_args = 2;
 			}
 			break;
 		    case 't':
@@ -376,6 +383,7 @@ parse_index_script(const string &filename)
 			vals.emplace_back(j, i);
 			break;
 		    }
+		    j = i;
 
 		    if (vals.size() == max_args) {
 			report_location(DIAG_ERROR, filename, line_no,
@@ -433,6 +441,30 @@ parse_index_script(const string &filename)
 			}
 			useless_weight_pos = action_pos;
 			break;
+		    case Action::SPLIT: {
+			if (val.empty()) {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Split delimiter can't be empty" << endl;
+			    exit(1);
+			}
+			int operation = Action::SPLIT_NONE;
+			if (vals.size() >= 2) {
+			    if (vals[1] == "dedup") {
+				operation = Action::SPLIT_DEDUP;
+			    } else if (vals[1] == "sort") {
+				operation = Action::SPLIT_SORT;
+			    } else if (vals[1] == "none") {
+				operation = Action::SPLIT_NONE;
+			    } else {
+				report_location(DIAG_ERROR, filename, line_no);
+				cerr << "Bad split operation '" << vals[1]
+				     << "'" << endl;
+				exit(1);
+			    }
+			}
+			actions.emplace_back(code, action_pos, val, operation);
+			break;
+		    }
 		    case Action::TRUNCATE:
 			if (!actions.empty() &&
 			    actions.back().get_action() == Action::LOAD) {
@@ -574,6 +606,364 @@ parse_index_script(const string &filename)
     }
 }
 
+static bool
+run_actions(vector<Action>::const_iterator action_it,
+	    vector<Action>::const_iterator action_end,
+	    Xapian::WritableDatabase& database,
+	    Xapian::TermGenerator& indexer,
+	    const string& old_value,
+	    bool& this_field_is_content, Xapian::Document& doc,
+	    map<string, list<string>>& fields,
+	    string& field, const char* fname,
+	    size_t line_no, Xapian::docid& docid)
+{
+    string value = old_value;
+    while (action_it != action_end) {
+	auto& action = *action_it++;
+	switch (action.get_action()) {
+	    case Action::BAD:
+		abort();
+	    case Action::NEW:
+		value = old_value;
+		// We're processing the same field again - give it a reprieve.
+		this_field_is_content = true;
+		break;
+	    case Action::FIELD:
+		if (!value.empty()) {
+		    string f = action.get_string_arg();
+		    if (f.empty()) f = field;
+		    // replace newlines with spaces
+		    string s = value;
+		    string::size_type j = 0;
+		    while ((j = s.find('\n', j)) != string::npos)
+			s[j] = ' ';
+		    fields[f].push_back(s);
+		}
+		break;
+	    case Action::INDEX:
+		indexer.index_text(value,
+				   action.get_num_arg(),
+				   action.get_string_arg());
+		break;
+	    case Action::INDEXNOPOS:
+		// No positional information so phrase searching won't work.
+		// However, the database will use much less diskspace.
+		indexer.index_text_without_positions(value,
+						     action.get_num_arg(),
+						     action.get_string_arg());
+		break;
+	    case Action::BOOLEAN: {
+		// Do nothing if there's no text.
+		if (value.empty()) break;
+
+		string term = action.get_string_arg();
+		if (prefix_needs_colon(term, value[0])) term += ':';
+		term += value;
+
+		doc.add_boolean_term(term);
+		break;
+	    }
+	    case Action::HASH: {
+		unsigned int max_length = action.get_num_arg();
+		if (value.length() > max_length)
+		    value = hash_long_term(value, max_length);
+		break;
+	    }
+	    case Action::HEXTOBIN: {
+		size_t len = value.length();
+		if (len & 1) {
+		    report_location(DIAG_ERROR, fname, line_no);
+		    cerr << "hextobin: input must have even length"
+			 << endl;
+		} else {
+		    string output;
+		    output.reserve(len / 2);
+		    for (size_t j = 0; j < len; j += 2) {
+			char a = value[j];
+			char b = value[j + 1];
+			if (!C_isxdigit(a) || !C_isxdigit(b)) {
+			    report_location(DIAG_ERROR, fname, line_no);
+			    cerr << "hextobin: input must be all hex "
+				    "digits" << endl;
+			    goto badhex;
+			}
+			char r = (hex_digit(a) << 4) | hex_digit(b);
+			output.push_back(r);
+		    }
+		    value = std::move(output);
+		}
+badhex:
+		break;
+	    }
+	    case Action::LOWER:
+		value = Xapian::Unicode::tolower(value);
+		break;
+	    case Action::LOAD: {
+		bool truncated = false;
+		// FIXME: Use NOATIME if we own the file or are root.
+		if (!load_file(value, action.get_num_arg(), NOCACHE,
+			       value, truncated)) {
+		    report_location(DIAG_ERROR, fname, line_no);
+		    cerr << "Couldn't load file '" << value << "': "
+			 << strerror(errno) << endl;
+		    value.resize(0);
+		}
+		if (!truncated) break;
+	    }
+	    /* FALLTHRU */
+	    case Action::TRUNCATE:
+		utf8_truncate(value, action.get_num_arg());
+		break;
+	    case Action::SPELL:
+		indexer.set_flags(indexer.FLAG_SPELLING);
+		break;
+	    case Action::SPLIT: {
+		// Execute actions on the split up to the first NEW, if any.
+		vector<Action>::const_iterator split_end = action_it;
+		while (split_end != action_end &&
+		       split_end->get_action() != Action::NEW) {
+		    ++split_end;
+		}
+
+		if (value.empty()) {
+		    // Nothing to do.
+		} else if (action.get_num_arg() != Action::SPLIT_SORT) {
+		    // Generate split as we consume it.
+		    const string& delimiter = action.get_string_arg();
+
+		    unique_ptr<unordered_set<string>> seen;
+		    if (action.get_num_arg() == Action::SPLIT_DEDUP) {
+			seen.reset(new unordered_set<string>);
+		    }
+
+		    if (delimiter.size() == 1) {
+			// Special case for common single character delimiter.
+			char ch = delimiter[0];
+			string::size_type i = 0;
+			while (true) {
+			    string::size_type j = value.find(ch, i);
+			    if (i != j) {
+				string val(value, i, j - i);
+				if (!seen.get() || seen->insert(val).second) {
+				    run_actions(action_it, split_end,
+						database, indexer,
+						val,
+						this_field_is_content, doc,
+						fields,
+						field, fname, line_no,
+						docid);
+				}
+			    }
+			    if (j == string::npos) break;
+			    i = j + 1;
+			}
+		    } else {
+			string::size_type i = 0;
+			while (true) {
+			    string::size_type j = value.find(delimiter, i);
+			    if (i != j) {
+				string val(value, i, j - i);
+				if (!seen.get() || seen->insert(val).second) {
+				    run_actions(action_it, split_end,
+						database, indexer,
+						val,
+						this_field_is_content, doc,
+						fields,
+						field, fname, line_no,
+						docid);
+				}
+			    }
+			    if (j == string::npos) break;
+			    i = j + delimiter.size();
+			}
+		    }
+		} else {
+		    vector<string> split_values;
+		    const string& delimiter = action.get_string_arg();
+		    if (delimiter.size() == 1) {
+			// Special case for common single character delimiter.
+			char ch = delimiter[0];
+			string::size_type i = 0;
+			while (true) {
+			    string::size_type j = value.find(ch, i);
+			    if (i != j) {
+				split_values.emplace_back(value, i, j - i);
+			    }
+			    if (j == string::npos) break;
+			    i = j + 1;
+			}
+		    } else {
+			string::size_type i = 0;
+			while (true) {
+			    string::size_type j = value.find(delimiter, i);
+			    if (i != j) {
+				split_values.emplace_back(value, i, j - i);
+			    }
+			    if (j == string::npos) break;
+			    i = j + delimiter.size();
+			}
+		    }
+
+		    sort(split_values.begin(), split_values.end());
+
+		    for (auto&& val : split_values) {
+			run_actions(action_it, split_end,
+				    database, indexer, val,
+				    this_field_is_content, doc, fields,
+				    field, fname, line_no,
+				    docid);
+		    }
+		}
+
+		action_it = split_end;
+		break;
+	    }
+	    case Action::UNHTML: {
+		MyHtmlParser p;
+		try {
+		    // Default HTML character set is latin 1, though
+		    // not specifying one is deprecated these days.
+		    p.parse_html(value, "iso-8859-1", false);
+		} catch (const string & newcharset) {
+		    p.reset();
+		    p.parse_html(value, newcharset, true);
+		}
+		if (p.indexing_allowed)
+		    value = p.dump;
+		else
+		    value = "";
+		break;
+	    }
+	    case Action::UNIQUE: {
+		// If there's no text, just issue a warning.
+		if (value.empty()) {
+		    report_location(DIAG_WARN, fname, line_no);
+		    cerr << "Ignoring UNIQUE action on empty text"
+			 << endl;
+		    break;
+		}
+
+		// Ensure that the value of this field is unique.
+		// If a record already exists with the same value,
+		// it will be replaced with the new record.
+
+		// Unique fields aren't considered content - if
+		// there are no other fields in the document, the
+		// document is to be deleted.
+		this_field_is_content = false;
+
+		// Argument is the prefix to add to the field value
+		// to get the unique term.
+		string t = action.get_string_arg();
+		if (prefix_needs_colon(t, value[0])) t += ':';
+		t += value;
+		Xapian::PostingIterator p = database.postlist_begin(t);
+		if (p != database.postlist_end(t)) {
+		    docid = *p;
+		}
+		break;
+	    }
+	    case Action::VALUE:
+		if (!value.empty())
+		    doc.add_value(action.get_num_arg(), value);
+		break;
+	    case Action::VALUENUMERIC: {
+		if (value.empty()) break;
+		char * end;
+		double dbl = strtod(value.c_str(), &end);
+		if (*end) {
+		    report_location(DIAG_WARN, fname, line_no);
+		    cerr << "Trailing characters in VALUENUMERIC: '"
+			 << value << "'" << endl;
+		}
+		doc.add_value(action.get_num_arg(),
+			      Xapian::sortable_serialise(dbl));
+		break;
+	    }
+	    case Action::VALUEPACKED: {
+		uint32_t word = 0;
+		if (value.empty() || !C_isdigit(value[0])) {
+		    // strtoul() accepts leading whitespace and negated
+		    // values, neither of which we want to allow.
+		    errno = EINVAL;
+		} else {
+		    errno = 0;
+		    char* q;
+		    word = strtoul(value.c_str(), &q, 10);
+		    if (!errno && *q != '\0') {
+			// Trailing characters after converted value.
+			errno = EINVAL;
+		    }
+		}
+		if (errno) {
+		    report_location(DIAG_WARN, fname, line_no);
+		    cerr << "valuepacked \"" << value << "\" ";
+		    if (errno == ERANGE) {
+			cerr << "out of range";
+		    } else {
+			cerr << "not an unsigned integer";
+		    }
+		    cerr << endl;
+		}
+		int valueslot = action.get_num_arg();
+		doc.add_value(valueslot, int_to_binary_string(word));
+		break;
+	    }
+	    case Action::DATE: {
+		const string & type = action.get_string_arg();
+		string yyyymmdd;
+		if (type == "unix") {
+		    time_t t = atoi(value.c_str());
+		    struct tm *tm = localtime(&t);
+		    int y = tm->tm_year + 1900;
+		    int m = tm->tm_mon + 1;
+		    yyyymmdd = date_to_string(y, m, tm->tm_mday);
+		} else if (type == "yyyymmdd") {
+		    if (value.length() == 8) yyyymmdd = value;
+		}
+		if (yyyymmdd.empty()) break;
+		// Date (YYYYMMDD)
+		doc.add_boolean_term("D" + yyyymmdd);
+		yyyymmdd.resize(6);
+		// Month (YYYYMM)
+		doc.add_boolean_term("M" + yyyymmdd);
+		yyyymmdd.resize(4);
+		// Year (YYYY)
+		doc.add_boolean_term("Y" + yyyymmdd);
+		break;
+	    }
+	    case Action::PARSEDATE: {
+		string dateformat = action.get_string_arg();
+		struct tm tm;
+		memset(&tm, 0, sizeof(tm));
+		auto ret = strptime(value.c_str(), dateformat.c_str(), &tm);
+		if (ret == NULL) {
+		    report_location(DIAG_WARN, fname, line_no);
+		    cerr << "\"" << value << "\" doesn't match format "
+			    "\"" << dateformat << '\"' << endl;
+		    break;
+		}
+
+		if (*ret != '\0') {
+		    report_location(DIAG_WARN, fname, line_no);
+		    cerr << "\"" << value << "\" not fully matched by "
+			    "format \"" << dateformat << "\" "
+			    "(\"" << ret << "\" left over) but "
+			    "indexing anyway" << endl;
+		}
+
+		value = str(timegm(&tm));
+		break;
+	    }
+	    default:
+		/* Empty default case to avoid "unhandled enum value"
+		 * warnings. */
+		break;
+	}
+    }
+    return true;
+}
+
 static void
 index_file(const char *fname, istream &stream,
 	   Xapian::WritableDatabase &database, Xapian::TermGenerator &indexer)
@@ -585,7 +975,7 @@ index_file(const char *fname, istream &stream,
 	Xapian::Document doc;
 	indexer.set_document(doc);
 	Xapian::docid docid = 0;
-	map<string, list<string> > fields;
+	map<string, list<string>> fields;
 	bool seen_content = false;
 	while (!line.empty()) {
 	    // Cope with files from MS Windows (\r\n end of lines).
@@ -620,253 +1010,13 @@ index_file(const char *fname, istream &stream,
 	    // Default to not indexing spellings.
 	    indexer.set_flags(Xapian::TermGenerator::flags(0));
 
-	    const vector<Action> &v = index_spec[field];
-	    string old_value = value;
-	    vector<Action>::const_iterator i;
 	    bool this_field_is_content = true;
-	    for (i = v.begin(); i != v.end(); ++i) {
-		switch (i->get_action()) {
-		    case Action::BAD:
-			abort();
-		    case Action::NEW:
-			value = old_value;
-			// We're processing the same field again - give it a
-			// reprieve.
-			this_field_is_content = true;
-			break;
-		    case Action::FIELD:
-			if (!value.empty()) {
-			    string f = i->get_string_arg();
-			    if (f.empty()) f = field;
-			    // replace newlines with spaces
-			    string s = value;
-			    string::size_type j = 0;
-			    while ((j = s.find('\n', j)) != string::npos)
-				s[j] = ' ';
-			    fields[f].push_back(s);
-			}
-			break;
-		    case Action::INDEX:
-			indexer.index_text(value,
-					   i->get_num_arg(),
-					   i->get_string_arg());
-			break;
-		    case Action::INDEXNOPOS:
-			// No positional information so phrase searching
-			// won't work.  However, the database will use much
-			// less diskspace.
-			indexer.index_text_without_positions(value,
-							     i->get_num_arg(),
-							     i->get_string_arg());
-			break;
-		    case Action::BOOLEAN: {
-			// Do nothing if there's no text.
-			if (value.empty()) break;
-
-			string term = i->get_string_arg();
-			if (prefix_needs_colon(term, value[0])) term += ':';
-			term += value;
-
-			doc.add_boolean_term(term);
-			break;
-		    }
-		    case Action::HASH: {
-			unsigned int max_length = i->get_num_arg();
-			if (value.length() > max_length)
-			    value = hash_long_term(value, max_length);
-			break;
-		    }
-		    case Action::HEXTOBIN: {
-			size_t len = value.length();
-			if (len & 1) {
-			    report_location(DIAG_ERROR, fname, line_no);
-			    cerr << "hextobin: input must have even length"
-				 << endl;
-			} else {
-			    string output;
-			    output.reserve(len / 2);
-			    for (size_t j = 0; j < len; j += 2) {
-				char a = value[j];
-				char b = value[j + 1];
-				if (!C_isxdigit(a) || !C_isxdigit(b)) {
-				    report_location(DIAG_ERROR, fname, line_no);
-				    cerr << "hextobin: input must be all hex "
-					    "digits" << endl;
-				    goto badhex;
-				}
-				char r = (hex_digit(a) << 4) | hex_digit(b);
-				output.push_back(r);
-			    }
-			    value = std::move(output);
-			}
-badhex:
-			break;
-		    }
-		    case Action::LOWER:
-			value = Xapian::Unicode::tolower(value);
-			break;
-		    case Action::LOAD: {
-			bool truncated = false;
-			// FIXME: Use NOATIME if we own the file or are root.
-			if (!load_file(value, i->get_num_arg(), NOCACHE,
-				       value, truncated)) {
-			    report_location(DIAG_ERROR, fname, line_no);
-			    cerr << "Couldn't load file '" << value << "': "
-				 << strerror(errno) << endl;
-			    value.resize(0);
-			}
-			if (!truncated) break;
-		    }
-		    /* FALLTHRU */
-		    case Action::TRUNCATE:
-			utf8_truncate(value, i->get_num_arg());
-			break;
-		    case Action::SPELL:
-			indexer.set_flags(indexer.FLAG_SPELLING);
-			break;
-		    case Action::UNHTML: {
-			MyHtmlParser p;
-			try {
-			    // Default HTML character set is latin 1, though
-			    // not specifying one is deprecated these days.
-			    p.parse_html(value, "iso-8859-1", false);
-			} catch (const string & newcharset) {
-			    p.reset();
-			    p.parse_html(value, newcharset, true);
-			}
-			if (p.indexing_allowed)
-			    value = p.dump;
-			else
-			    value = "";
-			break;
-		    }
-		    case Action::UNIQUE: {
-			// If there's no text, just issue a warning.
-			if (value.empty()) {
-			    report_location(DIAG_WARN, fname, line_no);
-			    cerr << "Ignoring UNIQUE action on empty text"
-				 << endl;
-			    break;
-			}
-
-			// Ensure that the value of this field is unique.
-			// If a record already exists with the same value,
-			// it will be replaced with the new record.
-
-			// Unique fields aren't considered content - if
-			// there are no other fields in the document, the
-			// document is to be deleted.
-			this_field_is_content = false;
-
-			// Argument is the prefix to add to the field value
-			// to get the unique term.
-			string t = i->get_string_arg();
-			if (prefix_needs_colon(t, value[0])) t += ':';
-			t += value;
-			Xapian::PostingIterator p = database.postlist_begin(t);
-			if (p != database.postlist_end(t)) {
-			    docid = *p;
-			}
-			break;
-		    }
-		    case Action::VALUE:
-			if (!value.empty())
-			    doc.add_value(i->get_num_arg(), value);
-			break;
-		    case Action::VALUENUMERIC: {
-			if (value.empty()) break;
-			char * end;
-			double dbl = strtod(value.c_str(), &end);
-			if (*end) {
-			    report_location(DIAG_WARN, fname, line_no);
-			    cerr << "Trailing characters in VALUENUMERIC: '"
-				 << value << "'" << endl;
-			}
-			doc.add_value(i->get_num_arg(),
-				      Xapian::sortable_serialise(dbl));
-			break;
-		    }
-		    case Action::VALUEPACKED: {
-			uint32_t word = 0;
-			if (value.empty() || !C_isdigit(value[0])) {
-			    // strtoul() accepts leading whitespace and negated
-			    // values, neither of which we want to allow.
-			    errno = EINVAL;
-			} else {
-			    errno = 0;
-			    char* q;
-			    word = strtoul(value.c_str(), &q, 10);
-			    if (!errno && *q != '\0') {
-				// Trailing characters after converted value.
-				errno = EINVAL;
-			    }
-			}
-			if (errno) {
-			    report_location(DIAG_WARN, fname, line_no);
-			    cerr << "valuepacked \"" << value << "\" ";
-			    if (errno == ERANGE) {
-				cerr << "out of range";
-			    } else {
-				cerr << "not an unsigned integer";
-			    }
-			    cerr << endl;
-			}
-			int valueslot = i->get_num_arg();
-			doc.add_value(valueslot, int_to_binary_string(word));
-			break;
-		    }
-		    case Action::DATE: {
-			const string & type = i->get_string_arg();
-			string yyyymmdd;
-			if (type == "unix") {
-			    time_t t = atoi(value.c_str());
-			    struct tm *tm = localtime(&t);
-			    int y = tm->tm_year + 1900;
-			    int m = tm->tm_mon + 1;
-			    yyyymmdd = date_to_string(y, m, tm->tm_mday);
-			} else if (type == "yyyymmdd") {
-			    if (value.length() == 8) yyyymmdd = value;
-			}
-			if (yyyymmdd.empty()) break;
-			// Date (YYYYMMDD)
-			doc.add_boolean_term("D" + yyyymmdd);
-			yyyymmdd.resize(6);
-			// Month (YYYYMM)
-			doc.add_boolean_term("M" + yyyymmdd);
-			yyyymmdd.resize(4);
-			// Year (YYYY)
-			doc.add_boolean_term("Y" + yyyymmdd);
-			break;
-		    }
-		    case Action::PARSEDATE: {
-			string dateformat = i->get_string_arg();
-			struct tm tm;
-			memset(&tm, 0, sizeof(tm));
-			auto ret = strptime(value.c_str(), dateformat.c_str(), &tm);
-			if (ret == NULL) {
-			    report_location(DIAG_WARN, fname, line_no);
-			    cerr << "\"" << value << "\" doesn't match format "
-				    "\"" << dateformat << '\"' << endl;
-			    break;
-			}
-
-			if (*ret != '\0') {
-			    report_location(DIAG_WARN, fname, line_no);
-			    cerr << "\"" << value << "\" not fully matched by "
-				    "format \"" << dateformat << "\" "
-				    "(\"" << ret << "\" left over) but "
-				    "indexing anyway" << endl;
-			}
-
-			value = str(timegm(&tm));
-			break;
-		    }
-		    default:
-			/* Empty default case to avoid "unhandled enum value"
-			 * warnings. */
-			break;
-		}
-	    }
+	    const vector<Action>& v = index_spec[field];
+	    run_actions(v.begin(), v.end(),
+			database, indexer, value,
+			this_field_is_content, doc, fields,
+			field, fname, line_no,
+			docid);
 	    if (this_field_is_content) seen_content = true;
 	    if (stream.eof()) break;
 	}

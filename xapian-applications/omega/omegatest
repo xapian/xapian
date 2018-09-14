@@ -566,6 +566,87 @@ testcase 'x:y:z:y|x:y:z' text='x y z z y'
 printf '$map{foo}' > "$TEST_TEMPLATE"
 testcase 'Exception: too few arguments to $map'
 
+# Feature tests for split command scriptindex.
+printf 'STATUS : field split=| field=SPLITSTATUS\nSTATUS : field=x' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=PENDING|REVIEW
+END
+printf '$field{STATUS,1}/$field{x,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
+testcase 'PENDING|REVIEW/PENDING|REVIEW/PENDING,REVIEW' P=text
+
+# Feature tests for split dedup command scriptindex.
+printf 'STATUS : field split=|,dedup field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=REVIEW|PENDING|PENDING|REVIEW
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
+testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,PENDING' P=text
+
+# Feature tests for split sort command scriptindex.
+printf 'STATUS : field split=|,sort field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=REVIEW|PENDING|PENDING|REVIEW
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
+testcase 'REVIEW|PENDING|PENDING|REVIEW/PENDING,PENDING,REVIEW,REVIEW' P=text
+
+# Feature tests for split none command scriptindex.
+printf 'STATUS : field split=|,none field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=REVIEW|PENDING|PENDING|REVIEW
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
+testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,PENDING,PENDING,REVIEW' P=text
+
+# Feature tests for split command scriptindex without operation argument.
+printf 'STATUS : field split=| field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=PENDING|REVIEW|PENDING|REVIEW
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
+testcase 'PENDING|REVIEW|PENDING|REVIEW/PENDING,REVIEW,PENDING,REVIEW' P=text
+
+# Feature test for multi-character split delimiter.
+printf 'STATUS : field split=$. field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=PENDING$.$.REVIEW,PENDING$.REVIEW
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}' > "$TEST_TEMPLATE"
+testcase 'PENDING$.$.REVIEW,PENDING$.REVIEW/PENDING|REVIEW,PENDING|REVIEW' P=text
+
+# Feature test for multi-character split delimiter with potential overlap.
+printf 'STATUS : field split=:: field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=::Foo::::Bar:Baz:::Hello::
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}' > "$TEST_TEMPLATE"
+testcase '::Foo::::Bar:Baz:::Hello::/Foo|Bar:Baz|:Hello' P=text
+
+# Feature tests for split command with "," delimiter passed , with double quotes.
+printf 'STATUS : field split="," field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=PENDING,REVIEW,PENDING,REVIEW
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}' > "$TEST_TEMPLATE"
+testcase 'PENDING,REVIEW,PENDING,REVIEW/PENDING|REVIEW|PENDING|REVIEW' P=text
+
+# Feature test for nested split command.
+printf 'in : split=; field=one lower split="," field=two\nin : field' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+in=a,b,c;10,21,32;XY,YZ
+END
+printf '$field{in,1}/$list{$field{one,1},|}/$list{$field{two,1},|}' > "$TEST_TEMPLATE"
+testcase 'a,b,c;10,21,32;XY,YZ/a,b,c|10,21,32|XY,YZ/a|b|c|10|21|32|xy|yz' P=text
+
 # Feature tests for scriptindex hextobin action.
 printf 'hex : hextobin value=0' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
