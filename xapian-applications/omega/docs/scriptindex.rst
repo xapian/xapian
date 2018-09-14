@@ -101,6 +101,18 @@ spell
         Generate spelling correction data for any ``index`` or ``indexnopos``
         actions in the remainder of this list of actions.
 
+split=DELIMITER[,OPERATION]
+        Split the text at each occurrence of ``DELIMITER``, discard any empty
+        strings, perform ``OPERATION`` on the resulting list, and then for each
+        entry perform all the actions which follow ``split`` in the current rule.
+
+        ``OPERATION`` can be ``dedup`` (remove second and subsequent
+        occurrences from the list of any value), ``sort`` (sort), or ``none``
+        (default: none).
+
+        If you want to specify ``,`` for delimiter, you need to quote it, e.g.
+        ``split=",",dedup``.
+
 truncate=LENGTH
 	truncate to at most LENGTH bytes, but avoid chopping off a word (useful
 	for sample and title fields)
