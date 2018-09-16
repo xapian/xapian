@@ -179,6 +179,14 @@ index_add_default_filters()
     index_command("application/vnd.ms-outlook",
 		  Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html",
 			 false));
+    index_command("application/vnd.ms-visio.drawing",
+		  Filter("vsd2xhtml", "image/svg+xml", false));
+    index_command("application/vnd.ms-visio.stencil",
+		  Filter("vsd2xhtml", "image/svg+xml", false));
+    index_command("application/vnd.ms-visio.template",
+		  Filter("vsd2xhtml", "image/svg+xml", false));
+    index_command("application/vnd.visio",
+		  Filter("vsd2xhtml", "image/svg+xml", false));
     // pod2text's output character set doesn't seem to be documented, but from
     // inspecting the source it looks like it's probably iso-8859-1.  We need
     // to pass "--errors=stderr" or else minor POD formatting errors cause a
@@ -206,6 +214,8 @@ index_add_default_filters()
     index_command("message/rfc822",
 		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
 			 false));
+    index_command("text/vcard",
+		  Filter(get_pkglibbindir() + "/vcard2text", false));
     index_command("text/vcard",
 		  Filter(get_pkglibbindir() + "/vcard2text", false));
 }
@@ -589,6 +599,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			    // error messages from the command.
 			    if (cmd_it->second.output_type == "text/html") {
 				tmpout = get_tmpfile("tmp.html");
+			    } else if (cmd_it->second.output_type == "image/svg+xml") {
+				tmpout = get_tmpfile("tmp.svg");
 			    } else {
 				tmpout = get_tmpfile("tmp.txt");
 			    }
@@ -654,6 +666,14 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    sample = p.sample;
 		    author = p.author;
 		    created = p.created;
+		} else if (cmd_it->second.output_type == "image/svg+xml") {
+		    SvgParser svgparser;
+		    svgparser.parse(dump);
+		    dump = svgparser.dump;
+		    title = svgparser.title;
+		    keywords = svgparser.keywords;
+		    // FIXME: topic = svgparser.topic;
+		    author = svgparser.author;
 		} else if (!charset.empty()) {
 		    convert_to_utf8(dump, charset);
 		}

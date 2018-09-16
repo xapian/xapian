@@ -381,8 +381,8 @@ main(int argc, char **argv)
 "                            process files with MIME Content-Type M using\n"
 "                            command CMD, which produces output (on stdout or\n"
 "                            in a temporary file) with format T (Content-Type\n"
-"                            or file extension; currently txt (default) or\n"
-"                            html) in character encoding C (default: UTF-8).\n"
+"                            or file extension; currently txt (default), html\n"
+"                            or svg) in character encoding C (default: UTF-8).\n"
 "                            E.g. -Fapplication/octet-stream:'strings -n8'\n"
 "                            or -Ftext/x-foo,,utf-16:'foo2utf16 %f %t'\n"
 "  -l, --depth-limit=LIMIT   set recursion limit (0 = unlimited)\n"
@@ -499,8 +499,10 @@ main(int argc, char **argv)
 			}
 		    }
 		    if (output_type != "text/html" &&
-			output_type != "text/plain") {
-			cerr << "Currently only output types 'text/html' and 'text/plain' are supported."
+			output_type != "text/plain" &&
+			output_type != "image/svg+xml") {
+			cerr << "Currently only output types 'image/svg+xml', "
+				"'text/html' and 'text/plain' are supported."
 			     << endl;
 			return 1;
 		    }

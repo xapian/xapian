@@ -282,6 +282,8 @@ other filters too - see below):
 * MS Outlook message (.msg) if perl with Email::Outlook::Message and
   HTML::Parser modules is available
 * MS Publisher documents (.pub) if pub2xhtml is available (comes with libmspub)
+* MS Visio documents documents (.vsd, .vss, .vst, .vsw, .vsdx, .vssx, .vstx,
+  .vsdm, .vssm, .vstm) if vsd2xhtml is available (comes with libvisio)
 * AbiWord documents (.abw)
 * Compressed AbiWord documents (.zabw)
 * Rich Text Format documents (.rtf) if unrtf is available
@@ -356,9 +358,10 @@ to.
 
 You can add support for additional MIME content types (or override existing
 ones) using the ``--filter`` option to specify a command to run.  At present,
-this command needs to produce output in either HTML or plain text format
+this command needs to produce output in either HTML, SVG, or plain text format
 (as of 1.3.3, you can specify the character encoding that the output will be
-in; in earlier versions, plain text output had to be UTF-8).
+in; in earlier versions, plain text output had to be UTF-8).  Support for SVG
+output from external commands was added in 1.4.8.
 
 As of 1.3.3, the command can include certain placeholders which are substituted
 by omindex:
@@ -373,9 +376,9 @@ by omindex:
 * Any ``%t`` in this command will be replaced with a filename in a temporary
   directory (suitably escaped to protect it from the shell, so don't put
   quotes around ``%t``).  The extension of this filename will reflect the
-  expected output format (either ``.html`` or ``.txt``).  If you don't use
-  ``%t`` in the command, then omindex will expect output on ``stdout`` (prior
-  to 1.3.3, output had to be on ``stdout``).
+  expected output format (either ``.html``, ``.svg`` or ``.txt``).  If you
+  don't use ``%t`` in the command, then omindex will expect output on
+  ``stdout`` (prior to 1.3.3, output had to be on ``stdout``).
 
 * ``%%`` can be used should you need a literal ``%`` in the command.
 
