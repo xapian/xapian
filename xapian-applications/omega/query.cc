@@ -942,9 +942,9 @@ CMD_dbsize,
 CMD_def,
 CMD_defaultop,
 CMD_div,
-CMD_eq,
 CMD_emptydocs,
 CMD_env,
+CMD_eq,
 CMD_error,
 CMD_field,
 CMD_filesize,
@@ -1085,8 +1085,8 @@ T(defaultop,	   0, 0, N, 0), // default operator: "and" or "or"
 T(div,		   2, 2, N, 0), // integer divide
 T(emptydocs,	   0, 1, N, 0), // list of empty documents
 T(env,		   1, 1, N, 0), // environment variable
-T(error,	   0, 0, N, 0), // error message
 T(eq,		   2, 2, N, 0), // test equality
+T(error,	   0, 0, N, 0), // error message
 T(field,	   1, 2, N, 0), // lookup field in record
 T(filesize,	   1, 1, N, 0), // pretty printed filesize
 T(filters,	   0, 0, N, 0), // serialisation of current filters
@@ -1490,9 +1490,6 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
-	    case CMD_eq:
-		if (args[0] == args[1]) value = "true";
-		break;
 	    case CMD_emptydocs: {
 		string t;
 		if (!args.empty())
@@ -1510,6 +1507,9 @@ eval(const string &fmt, const vector<string> &param)
 		if (env != NULL) value = env;
 		break;
 	    }
+	    case CMD_eq:
+		if (args[0] == args[1]) value = "true";
+		break;
 	    case CMD_error:
 		if (error_msg.empty() && enquire == NULL && !dbname.empty()) {
 		    error_msg = "Database '" + dbname + "' couldn't be opened";
