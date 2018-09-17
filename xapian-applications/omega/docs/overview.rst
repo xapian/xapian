@@ -284,6 +284,12 @@ other filters too - see below):
 * MS Publisher documents (.pub) if pub2xhtml is available (comes with libmspub)
 * MS Visio documents (.vsd, .vss, .vst, .vsw, .vsdx, .vssx, .vstx, .vsdm,
   .vssm, .vstm) if vsd2xhtml is available (comes with libvisio)
+* Apple Keynote documents (.key) if key2text is available (comes with
+  libetonyek)
+* Apple Numbers documents (.numbers) if numbers2text is available (comes with
+  libetonyek)
+* Apple Pages documents (.pages) if pages2text is available (comes with
+  libetonyek)
 * AbiWord documents (.abw)
 * Compressed AbiWord documents (.zabw)
 * Rich Text Format documents (.rtf) if unrtf is available

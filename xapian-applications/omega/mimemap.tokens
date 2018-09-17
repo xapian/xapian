@@ -126,6 +126,11 @@ rtf		text/rtf
 # actually saves RTF when asked to save as .doc, and Microsoft Word
 # quietly loads RTF files with a .doc extension), or plain-text.
 
+# Apple iWork:
+key		application/vnd.apple.keynote
+pages		application/vnd.apple.pages
+numbers		application/vnd.apple.numbers
+
 # Visio:
 vsd		application/vnd.visio
 vss		application/vnd.visio
