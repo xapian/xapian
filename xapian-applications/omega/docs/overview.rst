@@ -282,8 +282,8 @@ other filters too - see below):
 * MS Outlook message (.msg) if perl with Email::Outlook::Message and
   HTML::Parser modules is available
 * MS Publisher documents (.pub) if pub2xhtml is available (comes with libmspub)
-* MS Visio documents documents (.vsd, .vss, .vst, .vsw, .vsdx, .vssx, .vstx,
-  .vsdm, .vssm, .vstm) if vsd2xhtml is available (comes with libvisio)
+* MS Visio documents (.vsd, .vss, .vst, .vsw, .vsdx, .vssx, .vstx, .vsdm,
+  .vssm, .vstm) if vsd2xhtml is available (comes with libvisio)
 * AbiWord documents (.abw)
 * Compressed AbiWord documents (.zabw)
 * Rich Text Format documents (.rtf) if unrtf is available
