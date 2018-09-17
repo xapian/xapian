@@ -41,7 +41,7 @@ size_t max_ext_len = max(size_t(7), MAX_BUILTIN_MIMEMAP_EXTENSION_LEN);
 const char *
 built_in_mime_map(const string & ext)
 {
-    int k = keyword(tab, ext.data(), ext.size());
+    int k = keyword2(tab, ext.data(), ext.size());
     return k >= 0 ? default_mime_map[k] : NULL;
 }
 
