@@ -246,19 +246,25 @@ HtmlParser::parse(const string &body)
 
 		if (p != body.end()) {
 		    // Check for htdig's "ignore this bit" comments.
-		    if (p - start == 15 && string(start, p - 2) == "htdig_noindex") {
-			string::size_type i;
-			i = body.find("<!--/htdig_noindex-->", p + 1 - body.begin());
+		    if (p - start == CONST_STRLEN("htdig_noindex") + 2 &&
+			memcmp(&*start, "htdig_noindex",
+			       CONST_STRLEN("htdig_noindex")) == 0) {
+			auto i = body.find("<!--/htdig_noindex-->",
+					   p + 1 - body.begin());
 			if (i == string::npos) break;
-			start = body.begin() + i + 21;
+			start = body.begin() + i +
+			    CONST_STRLEN("<!--/htdig_noindex-->");
 			continue;
 		    }
 		    // Check for udmcomment (similar to htdig's)
-		    if (p - start == 12 && string(start, p - 2) == "UdmComment") {
-			string::size_type i;
-			i = body.find("<!--/UdmComment-->", p + 1 - body.begin());
+		    if (p - start == CONST_STRLEN("UdmComment") + 2 &&
+			memcmp(&*start, "UdmComment",
+			       CONST_STRLEN("UdmComment")) == 0) {
+			auto i = body.find("<!--/UdmComment-->",
+					   p + 1 - body.begin());
 			if (i == string::npos) break;
-			start = body.begin() + i + 18;
+			start = body.begin() + i +
+			    CONST_STRLEN("<!--/UdmComment-->");
 			continue;
 		    }
 		    // If we found --> skip to there.
