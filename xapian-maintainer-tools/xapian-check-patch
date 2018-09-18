@@ -366,6 +366,12 @@ QUOTELOOP:  while (1) {
 	if (m!^\+.*;\s*(\w+)([-+]{2})\)!) {
 	    diagnostic('error', "Prefer '$2$1' to '$1$2'", $fullline);
 	}
+	if (m!^\+.*?>\s+>!) {
+	    diagnostic('error', "We assume C++11 so can write '>>' instead of '> >'", $fullline);
+	}
+	if (m!^\+.*?\b(?:enable_if|list|map|multimap|multiset|priority_queue|set|template|unordered_map|unordered_set|vector)\s+<!) {
+	    diagnostic('error', "Whitespace between template name and '<'", $fullline);
+	}
 	if (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
 	    my @pre = @-;
 	    my @post = @+;
