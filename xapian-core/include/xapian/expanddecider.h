@@ -128,7 +128,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider 
      *				TermIterator or char **).
      *  @param reject_end	End iterator for the list of terms to reject.
      */
-    template <class Iterator>
+    template<class Iterator>
     ExpandDeciderFilterTerms(Iterator reject_begin, Iterator reject_end)
 	: rejects(reject_begin, reject_end) { }
 

@@ -157,7 +157,7 @@ public:
 
 // LeafItem_wr wants to be "LeafItem with non-const p and more methods" - we can't
 // achieve that nicely with inheritance, so we use a template base class.
-template <class T> class LeafItem_base {
+template<class T> class LeafItem_base {
 protected:
     T p;
     int get_key_len() const { return p[I2]; }
@@ -297,7 +297,7 @@ public:
 
 // BItem_wr wants to be "BItem with non-const p and more methods" - we can't
 // achieve that nicely with inheritance, so we use a template base class.
-template <class T> class BItem_base {
+template<class T> class BItem_base {
 protected:
     T p;
     int get_key_len() const { return p[BYTES_PER_BLOCK_NUMBER]; }
