@@ -92,7 +92,7 @@ int main() {
 	    if (x.get_qid() != sessions_tests[i].sessions.qid) {
 		cerr << "ERROR: Query ID mismatch occurred. " << endl
 		     << "Expected: " << sessions_tests[i].sessions.qid
-		     << " Received: "<< x.get_qid() << endl;
+		     << " Received: " << x.get_qid() << endl;
 		++failure_count;
 	    }
 	    if (x.get_docids() != sessions_tests[i].sessions.docids) {
