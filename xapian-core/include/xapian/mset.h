@@ -113,7 +113,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *		   elements in the input doesn't match the total number of
      *		   documents in MSet.
      */
-    template <typename Iterator>
+    template<typename Iterator>
     void replace_weights(Iterator first, Iterator last)
     {
 	auto distance = last - first;

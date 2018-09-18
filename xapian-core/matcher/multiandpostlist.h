@@ -115,7 +115,7 @@ class MultiAndPostList : public PostList {
     /** Construct from 2 random-access iterators to a container of PostList*,
      *  a pointer to the matcher, and the document collection size.
      */
-    template <class RandomItor>
+    template<class RandomItor>
     MultiAndPostList(RandomItor pl_begin, RandomItor pl_end,
 		     PostListTree * matcher_, Xapian::doccount db_size_)
 	: did(0), n_kids(pl_end - pl_begin), plist(NULL), max_wt(NULL),

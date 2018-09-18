@@ -109,7 +109,7 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
      * @endcode
      *
      */
-    template <class Iterator>
+    template<class Iterator>
     SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
 
     /// Add a single stop word.

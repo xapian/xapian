@@ -121,7 +121,7 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
      *  The iterators must be a begin/end pair returning Xapian::valueno (or
      *  a compatible type) when dereferenced.
      */
-    template <class Iterator>
+    template<class Iterator>
     MultiValueKeyMaker(Iterator begin, Iterator end) {
 	while (begin != end) add_value(*begin++);
     }
