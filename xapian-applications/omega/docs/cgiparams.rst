@@ -139,7 +139,7 @@ xFILTERS
 	1.3.3 they were always assumed to have changed in the situation, which
 	meant you couldn't ever go past page 1 if you failed to set xFILTERS
 	in your template.  Now failing to set it means that the first page
-	won't be forced some cases where it probably should be.
+	won't be forced in some cases where it probably should be.
 
 THRESHOLD
 	apply a percentage cut-off at the value given by this parameter
