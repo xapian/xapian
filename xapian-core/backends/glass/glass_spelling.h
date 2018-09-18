@@ -74,7 +74,7 @@ class GlassSpellingTable : public GlassLazyTable {
      *  we don't need to store an additional add/remove flag for every
      *  word.
      */
-    std::map<Glass::fragment, std::set<std::string> > termlist_deltas;
+    std::map<Glass::fragment, std::set<std::string>> termlist_deltas;
 
     /** Used to track an upper bound on wordfreq. */
     Xapian::termcount wordfreq_upper_bound = 0;

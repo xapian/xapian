@@ -34,7 +34,7 @@
 using namespace Xapian;
 using namespace std;
 
-typedef set<pair<Point, double> > PSet;
+typedef set<pair<Point, double>> PSet;
 
 LCDClusterer::LCDClusterer(unsigned int k_)
     : k(k_)
@@ -114,7 +114,7 @@ LCDClusterer::cluster(const MSet &mset)
 
 	// Store distances of each point from current cluster center
 	// Iterator of each point is stored for fast deletion from 'points'
-	vector<pair<PSet::iterator, double> > dist_vector;
+	vector<pair<PSet::iterator, double>> dist_vector;
 	for (auto it = points.begin(); it != points.end(); ++it) {
 	    if (it == cluster_center)
 		continue;

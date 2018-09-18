@@ -68,11 +68,11 @@
 using namespace std;
 
 class CmpByFirstUsed {
-    const vector<pair<Xapian::docid, Xapian::docid> > & used_ranges;
+    const vector<pair<Xapian::docid, Xapian::docid>>& used_ranges;
 
   public:
     explicit
-    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid> > & ur)
+    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid>>& ur)
 	: used_ranges(ur) { }
 
     bool operator()(size_t a, size_t b) const {
@@ -156,7 +156,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
     Xapian::docid last_docid = 0;
 
     vector<Xapian::docid> offset;
-    vector<pair<Xapian::docid, Xapian::docid> > used_ranges;
+    vector<pair<Xapian::docid, Xapian::docid>> used_ranges;
     vector<const Xapian::Database::Internal*> internals;
     offset.reserve(n_shards);
     used_ranges.reserve(n_shards);
@@ -260,7 +260,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	// docid, and while we're at it check the ranges are disjoint.
 	vector<const Xapian::Database::Internal*> internals_;
 	internals_.reserve(n_shards);
-	vector<pair<Xapian::docid, Xapian::docid> > used_ranges_;
+	vector<pair<Xapian::docid, Xapian::docid>> used_ranges_;
 	used_ranges_.reserve(n_shards);
 
 	Xapian::docid last_start = 0, last_end = 0;

@@ -134,7 +134,7 @@ class HoneyValueManager {
 
     std::map<Xapian::docid, std::string> slots;
 
-    std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
+    std::map<Xapian::valueno, std::map<Xapian::docid, std::string>> changes;
 
     mutable std::unique_ptr<HoneyCursor> cursor;
 

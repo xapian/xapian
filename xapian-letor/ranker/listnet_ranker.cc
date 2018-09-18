@@ -46,7 +46,7 @@ using namespace std;
 using namespace Xapian;
 
 /// A vector holding ground truth and prediction score probability distribution vectors.
-typedef vector <vector <double> > prob_distrib_vector;
+typedef vector<vector<double>> prob_distrib_vector;
 
 ListNETRanker::~ListNETRanker() {
     LOGCALL_DTOR(API, "ListNETRanker");

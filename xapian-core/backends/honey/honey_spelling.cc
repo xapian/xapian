@@ -44,12 +44,11 @@ using namespace std;
 void
 HoneySpellingTable::merge_changes()
 {
-    map<fragment, set<string> >::const_iterator i;
-    for (i = termlist_deltas.begin(); i != termlist_deltas.end(); ++i) {
-	string key = i->first;
-	const set<string> & changes = i->second;
+    for (auto i : termlist_deltas) {
+	const string& key = i.first;
+	const set<string>& changes = i.second;
 
-	set<string>::const_iterator d = changes.begin();
+	auto d = changes.begin();
 	if (d == changes.end()) continue;
 
 	string updated;
@@ -113,13 +112,13 @@ HoneySpellingTable::merge_changes()
 void
 HoneySpellingTable::toggle_fragment(fragment frag, const string & word)
 {
-    map<fragment, set<string> >::iterator i = termlist_deltas.find(frag);
+    auto i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
 	i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
     }
     // The commonest case is that we're adding lots of words, so try insert
     // first and if that reports that the word already exists, remove it.
-    pair<set<string>::iterator, bool> res = i->second.insert(word);
+    auto res = i->second.insert(word);
     if (!res.second) {
 	// word is already in the set, so remove it.
 	i->second.erase(res.first);

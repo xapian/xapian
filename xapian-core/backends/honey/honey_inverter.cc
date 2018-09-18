@@ -43,12 +43,10 @@ HoneyInverter::store_positions(const HoneyPositionTable& position_table,
     string s;
     position_table.pack(s, posvec);
     if (modifying) {
-	map<string, map<Xapian::docid, string> >::iterator i;
-	i = pos_changes.find(term);
+	auto i = pos_changes.find(term);
 	if (i != pos_changes.end()) {
 	    map<Xapian::docid, string>& m = i->second;
-	    map<Xapian::docid, string>::iterator j;
-	    j = m.find(did);
+	    auto j = m.find(did);
 	    if (j != m.end()) {
 		// Update existing entry.
 		swap(j->second, s);
@@ -117,13 +115,11 @@ HoneyInverter::get_positionlist(Xapian::docid did,
 				const string& term,
 				string& s) const
 {
-    map<string, map<Xapian::docid, string> >::const_iterator i;
-    i = pos_changes.find(term);
+    auto i = pos_changes.find(term);
     if (i == pos_changes.end())
 	return false;
     const map<Xapian::docid, string>& m = i->second;
-    map<Xapian::docid, string>::const_iterator j;
-    j = m.find(did);
+    auto j = m.find(did);
     if (j == m.end())
 	return false;
     s = j->second;
@@ -139,12 +135,10 @@ HoneyInverter::has_positions(const HoneyPositionTable& position_table) const
     // FIXME: Can we cheaply keep track of some things to make this more
     // efficient?  E.g. how many sets and deletes we had in total perhaps.
     honey_tablesize_t changes = 0;
-    map<string, map<Xapian::docid, string> >::const_iterator i;
-    for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {
-	const map<Xapian::docid, string>& m = i->second;
-	map<Xapian::docid, string>::const_iterator j;
-	for (j = m.begin(); j != m.end(); ++j) {
-	    const string& s = j->second;
+    for (auto i : pos_changes) {
+	const map<Xapian::docid, string>& m = i.second;
+	for (auto j : m) {
+	    const string& s = j.second;
 	    if (!s.empty())
 		return true;
 	    ++changes;
@@ -225,14 +219,12 @@ HoneyInverter::flush(HoneyPostListTable& table)
 void
 HoneyInverter::flush_pos_lists(HoneyPositionTable& table)
 {
-    map<string, map<Xapian::docid, string> >::const_iterator i;
-    for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {
-	const string& term = i->first;
-	const map<Xapian::docid, string>& m = i->second;
-	map<Xapian::docid, string>::const_iterator j;
-	for (j = m.begin(); j != m.end(); ++j) {
-	    Xapian::docid did = j->first;
-	    const string& s = j->second;
+    for (auto i : pos_changes) {
+	const string& term = i.first;
+	const map<Xapian::docid, string>& m = i.second;
+	for (auto j : m) {
+	    Xapian::docid did = j.first;
+	    const string& s = j.second;
 	    if (!s.empty())
 		table.set_positionlist(did, term, s);
 	    else

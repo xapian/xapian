@@ -87,7 +87,7 @@ class HoneySpellingTable : public HoneyLazyTable {
      *  we don't need to store an additional add/remove flag for every
      *  word.
      */
-    mutable std::map<Honey::fragment, std::set<std::string> > termlist_deltas;
+    mutable std::map<Honey::fragment, std::set<std::string>> termlist_deltas;
 
     /** Used to track an upper bound on wordfreq. */
     Xapian::termcount wordfreq_upper_bound = 0;

@@ -117,7 +117,7 @@ class Inverter {
     std::map<std::string, PostingChanges> postlist_changes;
 
     /// Buffered changes to positional data.
-    std::map<std::string, std::map<Xapian::docid, std::string> > pos_changes;
+    std::map<std::string, std::map<Xapian::docid, std::string>> pos_changes;
 
     void store_positions(const GlassPositionListTable & position_table,
 			 Xapian::docid did,

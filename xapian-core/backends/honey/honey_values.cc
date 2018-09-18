@@ -120,8 +120,7 @@ void
 HoneyValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
 			     const string & val)
 {
-    map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
-    i = changes.find(slot);
+    auto i = changes.find(slot);
     if (i == changes.end()) {
 	i = changes.insert(make_pair(slot, map<Xapian::docid, string>())).first;
     }
@@ -131,8 +130,7 @@ HoneyValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
 void
 HoneyValueManager::remove_value(Xapian::docid did, Xapian::valueno slot)
 {
-    map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
-    i = changes.find(slot);
+    auto i = changes.find(slot);
     if (i == changes.end()) {
 	i = changes.insert(make_pair(slot, map<Xapian::docid, string>())).first;
     }
@@ -503,11 +501,9 @@ HoneyValueManager::replace_document(Xapian::docid did,
 string
 HoneyValueManager::get_value(Xapian::docid did, Xapian::valueno slot) const
 {
-    map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
-    i = changes.find(slot);
+    auto i = changes.find(slot);
     if (i != changes.end()) {
-	map<Xapian::docid, string>::const_iterator j;
-	j = i->second.find(did);
+	auto j = i->second.find(did);
 	if (j != i->second.end()) return j->second;
     }
 

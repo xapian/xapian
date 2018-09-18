@@ -115,7 +115,7 @@ getlabel(const Document & doc, const std::string & qid)
 {
     int label = -1;
     string id = std::to_string(doc.get_docid());
-    map<string, map<string, int> >::const_iterator outerit;
+    map<string, map<string, int>>::const_iterator outerit;
     map<string, int>::const_iterator innerit;
 
     outerit = qrel.find(qid);
@@ -131,7 +131,7 @@ getlabel(const Document & doc, const std::string & qid)
 static map<string, map<string, int>>
 load_relevance(const std::string & qrel_file)
 {
-    map<string, map<string, int>> qrel1;     // < qid, <docid, relevance_judgement> >
+    map<string, map<string, int>> qrel1;     // <qid, <docid, relevance_judgement>>
 
     string line;
     ifstream myfile(qrel_file.c_str(), ifstream::in);

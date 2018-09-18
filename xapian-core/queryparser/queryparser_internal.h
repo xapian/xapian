@@ -49,7 +49,7 @@ struct FieldInfo {
     list<string> prefixes;
 
     /// Field processors.  Currently only one is supported.
-    list<Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> > procs;
+    list<Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor>> procs;
 
     FieldInfo(filter_type type_, const string& prefix,
 	      const string& grouping_ = string())
