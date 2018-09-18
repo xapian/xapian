@@ -347,6 +347,12 @@ QUOTELOOP:  while (1) {
 	    # though for that exact case I'd suggest: while (true) {
 	    diagnostic('error', "Whitespace before ';'", $fullline);
 	}
+	if (m!^\+.*?<<"!) {
+	    diagnostic('error', "Missing space after '<<'", $fullline);
+	}
+	if (m!^\+.*?"<<!) {
+	    diagnostic('error', "Missing space before '<<'", $fullline);
+	}
 	if (m!^\+.*?\b(return)\b([^ ;]| \s)!) {
 	    diagnostic('error', "'$1' not followed by exactly one space", $fullline);
 	}
