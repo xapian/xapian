@@ -66,11 +66,11 @@
 using namespace std;
 
 class CmpByFirstUsed {
-    const vector<pair<Xapian::docid, Xapian::docid> > & used_ranges;
+    const vector<pair<Xapian::docid, Xapian::docid>>& used_ranges;
 
   public:
     explicit
-    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid> > & ur)
+    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid>>& ur)
 	: used_ranges(ur) { }
 
     bool operator()(size_t a, size_t b) const {
@@ -299,7 +299,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	// set all the offsets to 0.
 	vector<Xapian::Database::Internal *> internals_;
 	internals_.reserve(internal.size());
-	vector<pair<Xapian::docid, Xapian::docid> > used_ranges_;
+	vector<pair<Xapian::docid, Xapian::docid>> used_ranges_;
 	used_ranges_.reserve(internal.size());
 
 	Xapian::docid last_start = 0, last_end = 0;

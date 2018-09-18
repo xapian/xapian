@@ -338,7 +338,7 @@ merge_postlists(Xapian::Compactor * compactor,
     }
 
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
-    vector<pair<Xapian::docid, string> > tags;
+    vector<pair<Xapian::docid, string>> tags;
     while (true) {
 	PostlistCursor * cur = NULL;
 	if (!pq.empty()) {
@@ -365,8 +365,7 @@ merge_postlists(Xapian::Compactor * compactor,
 			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
 		}
 
-		vector<pair<Xapian::docid, string> >::const_iterator i;
-		i = tags.begin();
+		auto i = tags.begin();
 		while (++i != tags.end()) {
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';

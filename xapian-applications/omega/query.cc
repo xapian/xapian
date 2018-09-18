@@ -2050,7 +2050,7 @@ eval(const string &fmt, const vector<string> &param)
 		// document id if relevant; empty otherwise
 		Xapian::docid id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
-		map<Xapian::docid, bool>::iterator i = ticked.find(id);
+		auto i = ticked.find(id);
 		if (i != ticked.end()) {
 		    i->second = false; // icky side-effect
 		    value = str(id);
@@ -2058,10 +2058,9 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_relevants:	{
-		for (map <Xapian::docid, bool>::const_iterator i = ticked.begin();
-		     i != ticked.end(); ++i) {
-		    if (i->second) {
-			value += str(i->first);
+		for (auto i : ticked) {
+		    if (i.second) {
+			value += str(i.first);
 			value += '\t';
 		    }
 		}

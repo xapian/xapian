@@ -133,8 +133,7 @@ void
 GlassValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
 			     const string & val)
 {
-    map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
-    i = changes.find(slot);
+    auto i = changes.find(slot);
     if (i == changes.end()) {
 	i = changes.insert(make_pair(slot, map<Xapian::docid, string>())).first;
     }
@@ -144,8 +143,7 @@ GlassValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
 void
 GlassValueManager::remove_value(Xapian::docid did, Xapian::valueno slot)
 {
-    map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
-    i = changes.find(slot);
+    auto i = changes.find(slot);
     if (i == changes.end()) {
 	i = changes.insert(make_pair(slot, map<Xapian::docid, string>())).first;
     }
@@ -326,12 +324,11 @@ void
 GlassValueManager::merge_changes()
 {
     if (termlist_table->is_open()) {
-	map<Xapian::docid, string>::const_iterator i;
-	for (i = slots.begin(); i != slots.end(); ++i) {
-	    const string & enc = i->second;
-	    string key = make_slot_key(i->first);
+	for (auto i : slots) {
+	    string key = make_slot_key(i.first);
+	    const string& enc = i.second;
 	    if (!enc.empty()) {
-		termlist_table->add(key, i->second);
+		termlist_table->add(key, enc);
 	    } else {
 		termlist_table->del(key);
 	    }
@@ -339,19 +336,15 @@ GlassValueManager::merge_changes()
 	slots.clear();
     }
 
-    {
-	map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
-	for (i = changes.begin(); i != changes.end(); ++i) {
-	    Xapian::valueno slot = i->first;
-	    Glass::ValueUpdater updater(postlist_table, slot);
-	    const map<Xapian::docid, string> & slot_changes = i->second;
-	    map<Xapian::docid, string>::const_iterator j;
-	    for (j = slot_changes.begin(); j != slot_changes.end(); ++j) {
-		updater.update(j->first, j->second);
-	    }
+    for (auto i : changes) {
+	Xapian::valueno slot = i.first;
+	Glass::ValueUpdater updater(postlist_table, slot);
+	const map<Xapian::docid, string>& slot_changes = i.second;
+	for (auto j : slot_changes) {
+	    updater.update(j.first, j.second);
 	}
-	changes.clear();
     }
+    changes.clear();
 }
 
 void
@@ -477,11 +470,9 @@ GlassValueManager::replace_document(Xapian::docid did,
 string
 GlassValueManager::get_value(Xapian::docid did, Xapian::valueno slot) const
 {
-    map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
-    i = changes.find(slot);
+    auto i = changes.find(slot);
     if (i != changes.end()) {
-	map<Xapian::docid, string>::const_iterator j;
-	j = i->second.find(did);
+	auto j = i->second.find(did);
 	if (j != i->second.end()) return j->second;
     }
 

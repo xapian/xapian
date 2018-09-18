@@ -248,7 +248,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     map<string, InMemoryTerm> postlists;
     vector<InMemoryDoc> termlists;
     vector<std::string> doclists;
-    vector<std::map<Xapian::valueno, string> > valuelists;
+    vector<std::map<Xapian::valueno, string>> valuelists;
     std::map<Xapian::valueno, ValueStats> valuestats;
 
     vector<Xapian::termcount> doclengths;

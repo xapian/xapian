@@ -137,7 +137,7 @@ Query::get_terms_begin() const
     if (!internal.get())
 	return TermIterator();
 
-    vector<pair<Xapian::termpos, string> > terms;
+    vector<pair<Xapian::termpos, string>> terms;
     internal->gather_terms(static_cast<void*>(&terms));
     sort(terms.begin(), terms.end());
 
@@ -162,7 +162,7 @@ Query::get_unique_terms_begin() const
     if (!internal.get())
 	return TermIterator();
 
-    vector<pair<Xapian::termpos, string> > terms;
+    vector<pair<Xapian::termpos, string>> terms;
     internal->gather_terms(static_cast<void*>(&terms));
     sort(terms.begin(), terms.end(), [](
 		const pair<Xapian::termpos, string>& a,

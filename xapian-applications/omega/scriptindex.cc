@@ -157,7 +157,7 @@ report_useless_action(const string &file, size_t line, size_t pos,
     }
 }
 
-static map<string, vector<Action> > index_spec;
+static map<string, vector<Action>> index_spec;
 
 static void
 parse_index_script(const string &filename)

@@ -780,8 +780,8 @@ QueryTerm::gather_terms(void * void_terms) const
 {
     // Skip Xapian::Query::MatchAll (aka Xapian::Query("")).
     if (!term.empty()) {
-	vector<pair<Xapian::termpos, string> > &terms =
-	    *static_cast<vector<pair<Xapian::termpos, string> >*>(void_terms);
+	vector<pair<Xapian::termpos, string>> &terms =
+	    *static_cast<vector<pair<Xapian::termpos, string>>*>(void_terms);
 	terms.push_back(make_pair(pos, term));
     }
 }

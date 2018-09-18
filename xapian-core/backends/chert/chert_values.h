@@ -87,7 +87,7 @@ class ChertValueManager {
 
     std::map<Xapian::docid, std::string> slots;
 
-    std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
+    std::map<Xapian::valueno, std::map<Xapian::docid, std::string>> changes;
 
     mutable AutoPtr<ChertCursor> cursor;
 

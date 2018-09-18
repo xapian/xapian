@@ -69,11 +69,11 @@ DEFINE_TESTCASE(consistency3, backend) {
 }
 
 class MyPostingSource : public Xapian::PostingSource {
-    vector<pair<Xapian::docid, double> > weights;
-    vector<pair<Xapian::docid, double> >::const_iterator i;
+    vector<pair<Xapian::docid, double>> weights;
+    vector<pair<Xapian::docid, double>>::const_iterator i;
     bool started;
 
-    MyPostingSource(const vector<pair<Xapian::docid, double> > &weights_,
+    MyPostingSource(const vector<pair<Xapian::docid, double>>& weights_,
 		    double max_wt)
 	: weights(weights_), started(false)
     {
