@@ -63,9 +63,6 @@ extern bool collapse;
 
 extern map<string, string> option;
 
-extern string date_start, date_end, date_span;
-extern Xapian::valueno date_value_slot;
-
 extern const string default_dbname;
 
 extern bool set_content_type, suppress_http_headers;
