@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2006,2014,2016,2017 Olly Betts
+ * Copyright 2002,2003,2006,2014,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -141,14 +141,47 @@ whole_year_at_end:
     return Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end());
 }
 
+static int DIGIT(char ch) { return ch - '0'; }
+
+static int DIGIT2(const char *p) {
+    return DIGIT(p[0]) * 10 + DIGIT(p[1]);
+}
+
+static int DIGIT4(const char *p) {
+    return DIGIT2(p) * 100 + DIGIT2(p + 2);
+}
+
 static void
-parse_date(const string & date, int *y, int *m, int *d)
+parse_date(const string & date, int *y, int *m, int *d, bool start)
 {
-    // FIXME: for now only support YYYYMMDD (e.g. 20011119)
-    // and don't error check
-    *y = atoi(date.substr(0, 4).c_str());
-    *m = atoi(date.substr(4, 2).c_str());
-    *d = atoi(date.substr(6, 2).c_str());
+    // Support YYYYMMDD, YYYYMM and YYYY.
+    if (date.size() < 4) {
+	// We default to the start of 1970 when START isn't specified, so it
+	// seems logical to here do that here too.
+	*y = 1970;
+    } else {
+	*y = DIGIT4(date.c_str());
+    }
+    if (date.size() < 6) {
+	if (start) {
+	    *m = 1;
+	    *d = 1;
+	} else {
+	    *m = 12;
+	    *d = 31;
+	}
+	return;
+    }
+    *m = DIGIT2(date.c_str() + 4);
+    if (date.size() < 8) {
+	if (start) {
+	    *d = 1;
+	} else {
+	    *d = last_day(*y, *m);
+	}
+	return;
+    }
+    *d = DIGIT2(date.c_str() + 6);
 }
 
 Xapian::Query
@@ -159,7 +192,7 @@ date_range_filter(const string & date_start, const string & date_end,
     if (!date_span.empty()) {
 	time_t secs = atoi(date_span.c_str()) * (24 * 60 * 60);
 	if (!date_end.empty()) {
-	    parse_date(date_end, &y2, &m2, &d2);
+	    parse_date(date_end, &y2, &m2, &d2, false);
 	    struct tm t;
 	    t.tm_year = y2 - 1900;
 	    t.tm_mon = m2 - 1;
@@ -173,7 +206,7 @@ date_range_filter(const string & date_start, const string & date_end,
 	    m1 = t2->tm_mon + 1;
 	    d1 = t2->tm_mday;
 	} else if (!date_start.empty()) {
-	    parse_date(date_start, &y1, &m1, &d1);
+	    parse_date(date_start, &y1, &m1, &d1, true);
 	    struct tm t;
 	    t.tm_year = y1 - 1900;
 	    t.tm_mon = m1 - 1;
@@ -204,7 +237,7 @@ date_range_filter(const string & date_start, const string & date_end,
 	    m1 = 1;
 	    d1 = 1;
 	} else {
-	    parse_date(date_start, &y1, &m1, &d1);
+	    parse_date(date_start, &y1, &m1, &d1, true);
 	}
 	if (date_end.empty()) {
 	    time_t now = time(NULL);
@@ -213,7 +246,7 @@ date_range_filter(const string & date_start, const string & date_end,
 	    m2 = t->tm_mon + 1;
 	    d2 = t->tm_mday;
 	} else {
-	    parse_date(date_end, &y2, &m2, &d2);
+	    parse_date(date_end, &y2, &m2, &d2, false);
 	}
     }
     return date_range_filter(y1, m1, d1, y2, m2, d2);

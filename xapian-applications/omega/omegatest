@@ -313,6 +313,10 @@ qtestcase '((D20141103 OR D20141104 OR D20141105 OR D20141106 OR D20141107 OR D2
 # Check that if START, END and SPAN are all passed, START is ignored:
 qtestcase '((D20151103 OR D20151104 OR D20151105 OR D20151106) OR Dlatest)' START=19700101 END=20151106 SPAN=3
 
+# Check that YYYYMM and YYYY are accepted and handled appropriately:
+qtestcase '((Y1980 OR Y1981) OR Dlatest)' START=1980 END=1981
+qtestcase '((M198012 OR M198101 OR M198102) OR Dlatest)' START=198012 END=198102
+
 # Check .SLOT combined with term based date range filter:
 qtestcase '(VALUE_RANGE 0 201512 2015~ AND ((Y1970 OR Y1971 OR Y1972 OR Y1973 OR Y1974) OR Dlatest))' START.0=20151201 END.0=20151231 END=19741231
 
