@@ -204,8 +204,13 @@ while (<>) {
 	    if (length($expandedline) > 80 &&
 		# Logging annotations aren't really for human eyes.
 		!/^\+[ \t]*LOGCALL/ &&
+		# Allow length up to 84 if " in first column for formatting
+		# text blocks (the extra 4 being "\n").
+		(length($expandedline) > 84 || !/^\+"/) &&
+		# Allow longer copyright lines.
+		$fullline !~ m,^\+[ /]\* Copyright , &&
 		# Don't force wrapping of a long #error message.
-		!/^#\d*(error|warning)\b/) {
+		!/^\+#\d*(error|warning)\b/) {
 		diagnostic('error', "Line extends beyond column 80 (to column ".length($expandedline).")", $fullline);
 	    }
 	}
