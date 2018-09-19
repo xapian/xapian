@@ -133,9 +133,11 @@ START.\ *SLOT* END.\ *SLOT* SPAN.\ *SLOT*
         If `SPAN.`\ *SLOT* is not specified:
 
         * `START.`\ *SLOT* specifies the start of the range in the
-          format YYYYMMDD or YYYYMMDDHHMM.  Default is the start of time.
+          format YYYY, YYYYMM, YYYYMMDD or YYYYMMDDHHMM.  Default is the start
+          of time.
         * `END.`\ *SLOT* specifies the end of the range in the
-          format YYYYMMDD or YYYYMMDDHHMM.  Default is the end of time.
+          format YYYY, YYYYMM, YYYYMMDD or YYYYMMDDHHMM.  Default is the end of
+          time.
 
         Added in Xapian 1.4.8 - older versions will just ignore these
         parameters.
@@ -148,18 +150,22 @@ DATEVALUE
         formats described above (YYYYMMDDHHMM, YYYYMMDD or a raw 4 byte
         big-endian time_t).
 
+        Don't mix `START.`\ *SLOT*, `END.`\ *SLOT* and/or `SPAN.`\ *SLOT* with
+        `DATEVALUE` on the same slot number.
+
         If `DATEVALUE` isn't set then `START`, `END` and `SPAN` will perform
         date filtering using an older approach based on D-, M-, and Y-prefixed
         terms.  This approach can only filter to a granularity of one day, so
-        only the `YYYYMMDD` part of `START` and `END` are used.  Also instead
-        of `START`/`END` defaulting to the start and end of time, they instead
-        default to 1st January 1970 and today's date respectively.  The
-        term-based date range filtering also includes a special `Dlatest` term,
-        which allows flagging a document as always current.  There's no
-        equivalent to this for value-based date range filters.
+        only the `YYYYMMDD` part of `START` and `END` are used.  Support for
+        `YYYY` and `YYYYMM` in `START` and `END` for term-based date filtering
+        was added in Xapian 1.4.8 - in earlier versions this failed with an
+        error.
 
-        Don't mix `START.`\ *SLOT*, `END.`\ *SLOT* and/or `SPAN.`\ *SLOT* with
-        `DATEVALUE` on the same slot number.
+        Also instead of `START`/`END` defaulting to the start and end of time,
+        they instead default to 1st January 1970 and today's date respectively.
+        The term-based date range filtering also includes a special `Dlatest`
+        term, which allows flagging a document as always current.  There's no
+        equivalent to this for value-based date range filters.
 
 START END SPAN
         like `START.`\ *SLOT*, `END.`\ *SLOT* and `SPAN.`\ *SLOT* but for value
