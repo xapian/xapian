@@ -1,5 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.25.2
+	[Changes contributed by Olly Betts]
+	- Fix to build against Xapian <= 1.4.1 again, broken by changes in
+	  1.2.25.1.  Reported by Jim Lynch.
+
 1.2.25.1  Mon Jul  9 03:29:14 UTC 2018
 	[Changes contributed by Olly Betts]
 	- Skip testcase t/parser.t if we're using xapian-core < 1.2.21 which

@@ -51,7 +51,7 @@ QueryParser::set_database(database)
 void
 QueryParser::set_max_wildcard_expansion(termcount limit)
     CODE:
-#if defined XAPIAN_AT_LEAST && XAPIAN_AT_LEAST(1,5,0)
+#if XAPIAN_AT_LEAST(1,5,0)
 	THIS->set_max_expansion(limit,
 				Xapian::Query::WILDCARD_LIMIT_ERROR,
 				Xapian::QueryParser::FLAG_WILDCARD);

@@ -1,6 +1,12 @@
 // Disable any deprecation warnings for Xapian methods/functions/classes.
 #define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
+
+/* Dummy definition for Xapian < 1.4.2. */
+#ifndef XAPIAN_AT_LEAST
+# define XAPIAN_AT_LEAST(X,Y,Z) 0
+#endif
+
 #include <string>
 #include <vector>
 
