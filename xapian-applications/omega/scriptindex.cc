@@ -1070,12 +1070,14 @@ try {
     verbose = false;
     Xapian::Stem stemmer("english");
 
+    constexpr auto NO_ARG = no_argument;
+    constexpr auto REQ_ARG = required_argument;
     static const struct option longopts[] = {
-	{ "help",	no_argument,	NULL, 'h' },
-	{ "version",	no_argument,	NULL, 'V' },
-	{ "stemmer",	required_argument,	NULL, 's' },
-	{ "overwrite",	no_argument,	NULL, 'o' },
-	{ "verbose",	no_argument,	NULL, 'v' },
+	{ "help",	NO_ARG,		NULL, 'h' },
+	{ "version",	NO_ARG,		NULL, 'V' },
+	{ "stemmer",	REQ_ARG,	NULL, 's' },
+	{ "overwrite",	NO_ARG,		NULL, 'o' },
+	{ "verbose",	NO_ARG,		NULL, 'v' },
 	{ 0, 0, NULL, 0 }
     };
 
