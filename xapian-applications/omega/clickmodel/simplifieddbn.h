@@ -63,7 +63,7 @@ class SimplifiedDBN {
     /** Trains the model i.e. learning the values of attractiveness
      * and satisfactoriness parameters modelled by the click model.
      *
-     * @param sessions 		List of all sessions.
+     * @param sessions		List of all sessions.
      */
     void train(const std::vector<Session> &sessions);
 
