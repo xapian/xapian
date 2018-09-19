@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,9 +63,6 @@ Xapian::Database db;
 Xapian::RSet rset;
 
 map<string, string> option;
-
-string date_start, date_end, date_span;
-Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
 
 bool set_content_type = false;
 
@@ -353,6 +350,60 @@ try {
     }
 
     // date range filters
+    struct date_range {
+	string start, end, span;
+    };
+    map<Xapian::valueno, date_range> date_ranges;
+    begin = cgi_params.lower_bound("START.");
+    end = cgi_params.lower_bound("START/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    Xapian::valueno slot = atoi(i->first.c_str() +
+					CONST_STRLEN("START."));
+	    date_ranges[slot].start = v;
+	}
+    }
+    begin = cgi_params.lower_bound("END.");
+    end = cgi_params.lower_bound("END/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    Xapian::valueno slot = atoi(i->first.c_str() +
+					CONST_STRLEN("END."));
+	    date_ranges[slot].end = v;
+	}
+    }
+    begin = cgi_params.lower_bound("SPAN.");
+    end = cgi_params.lower_bound("SPAN/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    Xapian::valueno slot = atoi(i->first.c_str() +
+					CONST_STRLEN("SPAN."));
+	    date_ranges[slot].span = v;
+	}
+    }
+    if (!date_ranges.empty()) {
+	// old_filters predates START.N, END.N and SPAN.N so use of any of
+	// these means this is definitely a different query.
+	old_filters.clear();
+    }
+    for (auto i : date_ranges) {
+	auto slot = i.first;
+	auto r = i.second;
+	add_date_filter(r.start, r.end, r.span, slot);
+	filters += '$';
+	filters += str(slot);
+	filters += '$';
+	filters += r.start;
+	filters += '$';
+	filters += r.end;
+	filters += '$';
+	filters += r.span;
+    }
+
+    string date_start, date_end, date_span;
     val = cgi_params.find("START");
     if (val != cgi_params.end()) date_start = val->second;
     val = cgi_params.find("END");
@@ -360,10 +411,12 @@ try {
     val = cgi_params.find("SPAN");
     if (val != cgi_params.end()) date_span = val->second;
     val = cgi_params.find("DATEVALUE");
+    Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
     if (val != cgi_params.end()) date_value_slot = string_to_int(val->second);
+    add_date_filter(date_start, date_end, date_span, date_value_slot);
 
     // If more default_op values are supported, encode them as non-alnums
-    // other than filter_sep or '!'.
+    // other than filter_sep, '!' or '$'.
     filters += (default_op == Xapian::Query::OP_AND ? '.' : '-');
     filters += date_start;
     filters += filter_sep;

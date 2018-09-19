@@ -115,6 +115,12 @@ static Xapian::Query query;
 //static string url_query_string;
 Xapian::Query::op default_op = Xapian::Query::OP_AND; // default matching mode
 
+// Maintain an explicit date_filter_set flag - date_filter.empty() will also
+// be true if a date filter is specified which simplies to Query::MatchNothing
+// at construction time.
+static bool date_filter_set = false;
+static Xapian::Query date_filter;
+
 static Xapian::QueryParser qp;
 static Xapian::NumberRangeProcessor * size_rp = NULL;
 static Xapian::Stem *stemmer = NULL;
@@ -468,6 +474,39 @@ void add_nterm(const string &term) {
 	neg_filters.insert(term);
 }
 
+void
+add_date_filter(const string& date_start,
+		const string& date_end,
+		const string& date_span,
+		Xapian::valueno date_value_slot)
+{
+    if (date_start.empty() && date_end.empty() && date_span.empty())
+	return;
+
+    Xapian::Query q;
+    if (date_value_slot != Xapian::BAD_VALUENO) {
+	// The values can be a time_t in 4 bytes, or YYYYMMDD... (with the
+	// latter the sort order just works correctly between different
+	// precisions).
+	bool as_time_t =
+	    db.get_value_lower_bound(date_value_slot).size() == 4 &&
+	    db.get_value_upper_bound(date_value_slot).size() == 4;
+	q = date_value_range(as_time_t, date_value_slot,
+			     date_start, date_end,
+			     date_span);
+    } else {
+	q = date_range_filter(date_start, date_end, date_span);
+	q |= Xapian::Query("Dlatest");
+    }
+
+    if (date_filter_set) {
+	date_filter &= q;
+    } else {
+	date_filter_set = true;
+	date_filter = q;
+    }
+}
+
 static void
 run_query()
 {
@@ -526,25 +565,7 @@ run_query()
 	}
     }
 
-    if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
-	Xapian::Query date_filter;
-	if (date_value_slot != Xapian::BAD_VALUENO) {
-	    // The values can be a time_t in 4 bytes, or YYYYMMDD... (with the
-	    // latter the sort order just works correctly between different
-	    // precisions).
-	    bool as_time_t =
-		db.get_value_lower_bound(date_value_slot).size() == 4 &&
-		db.get_value_upper_bound(date_value_slot).size() == 4;
-	    date_filter = date_value_range(as_time_t, date_value_slot,
-					   date_start, date_end,
-					   date_span);
-	} else {
-	    date_filter = date_range_filter(date_start, date_end, date_span);
-	    date_filter = Xapian::Query(Xapian::Query::OP_OR,
-					date_filter,
-					Xapian::Query("Dlatest"));
-	}
-
+    if (date_filter_set) {
 	// If no query strings were provided then promote the daterange
 	// filter to be THE query instead of filtering an empty query.
 	if (query.empty()) {
@@ -560,7 +581,7 @@ run_query()
 	Xapian::Query filter(Xapian::Query::OP_OR,
 			     neg_filters.begin(), neg_filters.end());
 
-	if (query.empty()) {
+	if (query.empty() && !date_filter_set) {
 	    // If we only have a negative filter for the query, use MatchAll as
 	    // the query to apply the filters to.
 	    query = Xapian::Query::MatchAll;
