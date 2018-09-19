@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2018 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -26,6 +26,7 @@
 #include <config.h>
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <map>
@@ -281,6 +282,63 @@ parse_size(char* p)
     return -1;
 }
 
+static bool
+parse_filter_rule(const char* rule, map<string, string>& mime_map)
+{
+    const char* s = strchr(rule, ':');
+    if (s == NULL || s[1] == '\0') {
+	cerr << "Invalid filter mapping '" << rule << "'\n"
+		"Should be of the form TYPE:COMMAND or TYPE1,TYPE2:COMMAND or "
+		"TYPE,EXT:COMMAND\n"
+		"e.g. 'application/octet-stream:strings -n8'"
+	     << endl;
+	return false;
+    }
+
+    const char* c = static_cast<const char*>(memchr(rule, ',', s - rule));
+    string output_type, output_charset;
+    if (c) {
+	// Filter produces a specified content-type.
+	++c;
+	const char* c2 = static_cast<const char *>(memchr(c, ',', s - c));
+	if (c2) {
+	    output_type.assign(c, c2 - c);
+	    ++c2;
+	    output_charset.assign(c2, s - c2);
+	} else {
+	    output_type.assign(c, s - c);
+	}
+	--c;
+	if (output_type.find('/') == string::npos) {
+	    auto m = mime_map.find(output_type);
+	    if (m != mime_map.end()) {
+		output_type = m->second;
+	    } else {
+		const char* r = built_in_mime_map(output_type);
+		if (r) output_type = r;
+	    }
+	}
+	if (output_type != "text/html" &&
+	    output_type != "text/plain" &&
+	    output_type != "image/svg+xml") {
+	    cerr << "Currently only output types 'image/svg+xml', "
+		    "'text/html' and 'text/plain' are supported."
+		 << endl;
+	    return false;
+	}
+    } else {
+	c = s;
+    }
+
+    const char* cmd = s + 1;
+    // Analyse the command string to decide if it needs a shell.
+    bool use_shell = command_needs_shell(cmd);
+    index_command(string(rule, c - rule),
+		  Filter(string(cmd), output_type, output_charset, use_shell));
+
+    return true;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -304,7 +362,11 @@ main(int argc, char **argv)
     string site_term, host_term;
     Xapian::Stem stemmer("english");
 
-    enum { OPT_OPENDIR_SLEEP = 256, OPT_SAMPLE };
+    enum {
+	OPT_OPENDIR_SLEEP = 256,
+	OPT_SAMPLE,
+	OPT_READ_FILTERS
+    };
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
 	{ "version",	no_argument,		NULL, 'V' },
@@ -317,6 +379,7 @@ main(int argc, char **argv)
 	{ "mime-type",	required_argument,	NULL, 'M' },
 	{ "mime-type-match", required_argument,	NULL, 'G' },
 	{ "filter",	required_argument,	NULL, 'F' },
+	{ "read-filters", required_argument,	NULL, OPT_READ_FILTERS },
 	{ "depth-limit",required_argument,	NULL, 'l' },
 	{ "follow",	no_argument,		NULL, 'f' },
 	{ "ignore-exclusions",	no_argument,	NULL, 'i' },
@@ -385,6 +448,10 @@ main(int argc, char **argv)
 "                            or svg) in character encoding C (default: UTF-8).\n"
 "                            E.g. -Fapplication/octet-stream:'strings -n8'\n"
 "                            or -Ftext/x-foo,,utf-16:'foo2utf16 %f %t'\n"
+"      --read-filters=FILE   bulk-load --filter arguments from FILE, which\n"
+"                            should contain one such argument per line (e.g.\n"
+"                            text/x-bar:bar2txt --utf8).  Lines starting with #\n"
+"                            are treated as comments and ignored.\n"
 "  -l, --depth-limit=LIMIT   set recursion limit (0 = unlimited)\n"
 "  -f, --follow              follow symbolic links\n"
 "  -i, --ignore-exclusions   ignore meta robots tags and similar exclusions\n"
@@ -469,60 +536,26 @@ main(int argc, char **argv)
 	    max_ext_len = max(max_ext_len, strlen(s + 1));
 	    break;
 	}
-	case 'F': {
-	    const char * s = strchr(optarg, ':');
-	    if (s != NULL && s[1]) {
-		const char * c =
-		    static_cast<const char *>(memchr(optarg, ',', s - optarg));
-		string output_type, output_charset;
-		if (c) {
-		    // Filter produces a specified content-type.
-		    ++c;
-		    const char * c2 =
-			static_cast<const char *>(memchr(c, ',', s - c));
-		    if (c2) {
-			output_type.assign(c, c2 - c);
-			++c2;
-			output_charset.assign(c2, s - c2);
-		    } else {
-			output_type.assign(c, s - c);
-		    }
-		    --c;
-		    if (output_type.find('/') == string::npos) {
-			map<string, string>::const_iterator m;
-			m = mime_map.find(output_type);
-			if (m != mime_map.end()) {
-			    output_type = m->second;
-			} else {
-			    const char * r = built_in_mime_map(output_type);
-			    if (r) output_type = r;
-			}
-		    }
-		    if (output_type != "text/html" &&
-			output_type != "text/plain" &&
-			output_type != "image/svg+xml") {
-			cerr << "Currently only output types 'image/svg+xml', "
-				"'text/html' and 'text/plain' are supported."
-			     << endl;
-			return 1;
-		    }
-		} else {
-		    c = s;
-		}
-
-		const char * cmd = s + 1;
-		// Analyse the command string to decide if it needs a shell.
-		bool use_shell = command_needs_shell(cmd);
-		index_command(string(optarg, c - optarg),
-			      Filter(string(cmd), output_type,
-				     output_charset, use_shell));
-	    } else {
-		cerr << "Invalid filter mapping '" << optarg << "'\n"
-			"Should be of the form TYPE:COMMAND or TYPE1,TYPE2:COMMAND or TYPE,EXT:COMMAND\n"
-			"e.g. 'application/octet-stream:strings -n8'"
-		     << endl;
+	case 'F':
+	    if (!parse_filter_rule(optarg, mime_map))
+		return 1;
+	    break;
+	case OPT_READ_FILTERS: {
+	    ifstream stream(optarg);
+	    if (!stream) {
+		cerr << "Unable to open filter file '" << optarg << "' "
+			"(" << strerror(errno) << ')' << endl;
 		return 1;
 	    }
+	    string rule;
+	    bool all_ok = true;
+	    while (getline(stream, rule)) {
+		if (startswith(rule, '#')) continue;
+		if (!parse_filter_rule(rule.c_str(), mime_map))
+		    all_ok = false;
+	    }
+	    if (!all_ok)
+		return 1;
 	    break;
 	}
 	case 'D':
