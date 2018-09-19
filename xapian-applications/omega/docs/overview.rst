@@ -319,7 +319,8 @@ $ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mim
 The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.').  The ``type`` can be any
 string, but to be useful there either needs to be a filter set for that type
-- either using ``--filter`` or by ``type`` being understood by default:
+- either using ``--filter`` or ``--read-filters``, or by ``type`` being
+understood by default:
 
 .. include:: inc/mimetypes.rst
 
@@ -363,11 +364,12 @@ you can set different handling for differently cased variants if you need
 to.
 
 You can add support for additional MIME content types (or override existing
-ones) using the ``--filter`` option to specify a command to run.  At present,
-this command needs to produce output in either HTML, SVG, or plain text format
-(as of 1.3.3, you can specify the character encoding that the output will be
-in; in earlier versions, plain text output had to be UTF-8).  Support for SVG
-output from external commands was added in 1.4.8.
+ones) using the ``--filter`` and/or ``--read-filters`` options to specify a
+command to run.  At present, this command needs to produce output in either
+HTML, SVG, or plain text format (as of 1.3.3, you can specify the character
+encoding that the output will be in; in earlier versions, plain text output had
+to be UTF-8).  Support for SVG output from external commands was added in
+1.4.8.
 
 As of 1.3.3, the command can include certain placeholders which are substituted
 by omindex:
