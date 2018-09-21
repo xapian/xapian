@@ -314,7 +314,7 @@ parse_pdfinfo_field(const char * p, const char * end, string & out, const char *
 
 static void
 get_pdf_metainfo(const string & file, string &author, string &title,
-		 string &keywords, string &topic)
+		 string &keywords, string &topic, int& pages)
 {
     try {
 	string cmd = "pdfinfo -enc UTF-8";
@@ -340,6 +340,13 @@ get_pdf_metainfo(const string & file, string &author, string &title,
 		case 'K':
 		    PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
 		    break;
+		case 'P': {
+		    string s;
+		    PARSE_PDFINFO_FIELD(start, eol, s, "Pages");
+		    if (!s.empty())
+			pages = atoi(s.c_str());
+		    break;
+		}
 		case 'S':
 		    PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
 		    break;
@@ -536,6 +543,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     string author, title, sample, keywords, topic, dump;
     string md5;
     time_t created = time_t(-1);
+    int pages = -1;
 
     map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
     if (cmd_it == commands.end()) {
@@ -745,7 +753,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 				d.get_size(), d.get_mtime());
 		return;
 	    }
-	    get_pdf_metainfo(file, author, title, keywords, topic);
+	    get_pdf_metainfo(file, author, title, keywords, topic, pages);
 	} else if (mimetype == "application/postscript") {
 	    // There simply doesn't seem to be a Unicode capable PostScript to
 	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
@@ -783,7 +791,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		throw;
 	    }
 	    try {
-		get_pdf_metainfo(tmpfile, author, title, keywords, topic);
+		get_pdf_metainfo(tmpfile, author, title, keywords, topic, pages);
 	    } catch (...) {
 		unlink(tmpfile.c_str());
 		throw;
@@ -1069,6 +1077,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	if (created != static_cast<time_t>(-1)) {
 	    record += "\ncreated=";
 	    record += str(created);
+	}
+	if (pages >= 0) {
+	    record += "\npages=";
+	    record += str(pages);
 	}
 	off_t size = d.get_size();
 	record += "\nsize=";
