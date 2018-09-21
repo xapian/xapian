@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -1225,6 +1225,14 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
     } catch (const std::string & error) {
 	skip(urlterm, context, error, d.get_size(), d.get_mtime());
+    } catch (const std::bad_alloc&) {
+	// Attempt to flag the file as failed and commit changes, though that
+	// might fail too if we're low on memory rather than being asked to
+	// allocate a ludicrous amount.
+	skip(urlterm, context, "Out of memory trying to extract text from file",
+	     d.get_size(), d.get_mtime(),
+	     SKIP_SHOW_FILENAME);
+	throw CommitAndExit("Caught std::bad_alloc", "");
     }
 }
 
