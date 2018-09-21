@@ -99,6 +99,9 @@ index_init(const std::string & dbpath, const Xapian::Stem & stemmer,
 	   bool spelling, bool ignore_exclusions_, bool description_as_sample);
 
 void
+index_remove_failed_entry(const std::string & urlterm);
+
+void
 index_add_document(const std::string & urlterm, time_t last_altered,
 		   Xapian::docid did, const Xapian::Document & doc);
 
