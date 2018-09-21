@@ -89,10 +89,11 @@ index_add_default_filters();
 /// Initialise.
 void
 index_init(const std::string & dbpath, const Xapian::Stem & stemmer,
-	   const std::string & root_, const std::string & site_term_,
-	   const std::string & host_term_,
+	   const std::string & root_,
+	   const std::string & site_term_, const std::string & host_term_,
 	   empty_body_type empty_body_, dup_action_type dup_action_,
-	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
+	   size_t sample_size_, size_t title_size_,
+	   size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
 	   bool spelling, bool ignore_exclusions_, bool description_as_sample,
