@@ -54,6 +54,7 @@
 #include "csvescape.h"
 #include "date.h"
 #include "datevalue.h"
+#include "fields.h"
 #include "jsonescape.h"
 #include "utils.h"
 #include "omega.h"
@@ -879,62 +880,24 @@ print_query_string(const char *after)
 }
 #endif
 
-class Fields {
-    mutable Xapian::docid did_cached;
-    mutable map<string, string> fields;
-
-    void read_fields(Xapian::docid did) const;
+class CachedFields : private Fields {
+    Xapian::docid did_cached = 0;
 
   public:
-    Fields() : did_cached(0) { }
+    CachedFields() {}
 
-    const string & get_field(Xapian::docid did, const string & field) const {
-	if (did != did_cached) read_fields(did);
-	return fields[field];
+    const string& get_field(Xapian::docid did, const string& name) {
+	if (did != did_cached) {
+	    did_cached = did;
+	    auto it = option.find("fieldnames");
+	    Fields::parse_fields(db.get_document(did).get_data(),
+				 it == option.end() ? nullptr : &it->second);
+	}
+	return Fields::get_field(name);
     }
 };
 
-void
-Fields::read_fields(Xapian::docid did) const
-{
-    fields.clear();
-    did_cached = did;
-    const string & data = db.get_document(did).get_data();
-
-    // Parse document data.
-    string::size_type i = 0;
-    const string & names = option["fieldnames"];
-    if (!names.empty()) {
-	// Each line is a field, with fieldnames taken from corresponding
-	// entries in the tab-separated list specified by $opt{fieldnames}.
-	string::size_type n = 0;
-	do {
-	    string::size_type n0 = n;
-	    n = names.find('\t', n);
-	    string::size_type i0 = i;
-	    i = data.find('\n', i);
-	    fields.insert(make_pair(names.substr(n0, n - n0),
-				    data.substr(i0, i - i0)));
-	} while (++n && ++i);
-    } else {
-	// Each line is a field, in the format NAME=VALUE.  We assume the field
-	// name doesn't contain an "=".  Lines without an "=" are currently
-	// just ignored.
-	do {
-	    string::size_type i0 = i;
-	    i = data.find('\n', i);
-	    string line(data, i0, i - i0);
-	    string::size_type j = line.find('=');
-	    if (j != string::npos) {
-		string & value = fields[line.substr(0, j)];
-		if (!value.empty()) value += '\t';
-		value.append(line, j + 1, string::npos);
-	    }
-	} while (++i);
-    }
-}
-
-static Fields fields;
+static CachedFields fields;
 static Xapian::docid q0;
 static Xapian::doccount hit_no;
 static int percent;
