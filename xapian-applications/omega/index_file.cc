@@ -473,6 +473,12 @@ index_check_existing(const string & urlterm, time_t last_altered,
 }
 
 void
+index_remove_failed_entry(const string& urlterm)
+{
+    failed.del(urlterm);
+}
+
+void
 index_add_document(const string & urlterm, time_t last_altered,
 		   Xapian::docid did, const Xapian::Document & doc)
 {

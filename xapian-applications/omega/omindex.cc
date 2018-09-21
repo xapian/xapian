@@ -128,6 +128,8 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
     if (mimetype.empty()) {
 	mimetype = mimetype_from_ext(mime_map, ext);
 	if (mimetype == "ignore") {
+	    // Remove any existing failed entry for this file.
+	    index_remove_failed_entry(urlterm);
 	    return;
 	} else if (mimetype == "skip") {
 	    // Ignore mimetype, skipped mimetype should not be quietly ignored.
