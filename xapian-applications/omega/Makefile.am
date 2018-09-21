@@ -137,8 +137,8 @@ dist_sysconf_DATA = omega.conf
 
 noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h datetime.h\
- commonhelp.h cdb.h cdb_int.h failed.h hashterm.h jsonescape.h loadfile.h\
- md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
+ commonhelp.h cdb.h cdb_int.h failed.h fields.h hashterm.h jsonescape.h\
+ loadfile.h md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
  namedents.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
