@@ -80,7 +80,7 @@ Uuid::generate()
 #elif defined HAVE_UUID_H
     uuid_t uu;
     uint32_t status;
-    uuid_create(uu, &status);
+    uuid_create(&uu, &status);
     if (status != uuid_s_ok) {
 	// Can only be uuid_s_no_memory it seems.
 	throw std::bad_alloc();
