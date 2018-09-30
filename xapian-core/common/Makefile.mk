@@ -26,7 +26,6 @@ noinst_HEADERS +=\
 	common/pack.h\
 	common/posixy_wrapper.h\
 	common/pretty.h\
-	common/proc_uuid.h\
 	common/realtime.h\
 	common/replicate_utils.h\
 	common/replicationprotocol.h\
@@ -39,7 +38,6 @@ noinst_HEADERS +=\
 	common/safesysstat.h\
 	common/safesyswait.h\
 	common/safeunistd.h\
-	common/safeuuid.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
 	common/serialise-double.h\
@@ -50,8 +48,6 @@ noinst_HEADERS +=\
 	common/wordaccess.h
 
 EXTRA_DIST +=\
-	common/win32_uuid.cc\
-	common/win32_uuid.h\
 	common/Makefile\
 	common/Tokeniseise.pm
 
@@ -75,16 +71,6 @@ lib_src +=\
 if BUILD_BACKEND_CHERT_OR_GLASS
 lib_src +=\
 	common/compression_stream.cc
-endif
-
-if USE_WIN32_UUID_API
-lib_src +=\
-	common/win32_uuid.cc
-endif
-
-if USE_PROC_FOR_UUID
-lib_src +=\
-	common/proc_uuid.cc
 endif
 
 noinst_LTLIBRARIES += libgetopt.la

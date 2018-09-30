@@ -844,8 +844,6 @@ case $host_os in
 esac
 XAPIAN_BACKEND_ENABLE([remote], [$default_enable_backend_remote], [yes (except for MSDOS)])
 
-use_proc_for_uuid=0
-use_win32_uuid_api=0
 win32_need_lws2_32=0
 case $enable_backend_chert$enable_backend_glass in
 *yes*)
@@ -876,7 +874,6 @@ case $enable_backend_chert$enable_backend_glass in
 
   case $host_os-$win32 in
     *-yes | *cygwin*) dnl Use built-in win32 API.
-      use_win32_uuid_api=1
       AC_DEFINE([USE_WIN32_UUID_API], [1],
 		[Define to 1 to use UuidCreate(), etc])
       if test $win32 = yes ; then
@@ -911,7 +908,6 @@ case $enable_backend_chert$enable_backend_glass in
 	  AC_MSG_CHECKING([if host platform supports /proc/sys/kernel/random/uuid])
 	  case $host_os in
 	    linux*)
-	      use_proc_for_uuid=1
 	      AC_DEFINE([USE_PROC_FOR_UUID], [1],
 			[Define to 1 to read UUID from '/proc/sys/kernel/random/uuid'])
 	      AC_MSG_RESULT([yes])
@@ -946,8 +942,6 @@ case $enable_backend_chert$enable_backend_glass in
   esac
   ;;
 esac
-AM_CONDITIONAL([USE_PROC_FOR_UUID], [test "$use_proc_for_uuid" = 1])
-AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 if test "$enable_backend_remote" = yes ; then
   case $host_os-$win32 in

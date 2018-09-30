@@ -33,7 +33,7 @@
 #include <cstring> // For memcmp() and memcpy().
 #include <string>
 
-#include "common/safeuuid.h"
+#include "backends/uuids.h"
 
 using namespace std;
 
@@ -64,8 +64,8 @@ ChertVersion::create()
     v[2] = static_cast<unsigned char>((CHERT_VERSION >> 16) & 0xff);
     v[3] = static_cast<unsigned char>((CHERT_VERSION >> 24) & 0xff);
 
-    uuid_generate(uuid);
-    memcpy(buf + MAGIC_LEN + 4, uuid, 16);
+    uuid.generate();
+    memcpy(buf + MAGIC_LEN + 4, uuid.data(), 16);
 
     int fd = ::open(filename.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY|O_CLOEXEC, 0666);
 
@@ -139,5 +139,5 @@ ChertVersion::read_and_check()
 	throw Xapian::DatabaseVersionError(msg);
     }
 
-    memcpy(uuid, buf + MAGIC_LEN + 4, 16);
+    uuid.assign(buf + MAGIC_LEN + 4);
 }

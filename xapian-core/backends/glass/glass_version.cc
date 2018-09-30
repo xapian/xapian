@@ -41,7 +41,7 @@
 #include "str.h"
 #include "stringutils.h"
 
-#include "common/safeuuid.h"
+#include "backends/uuids.h"
 
 #include "xapian/constants.h"
 #include "xapian/error.h"
@@ -147,8 +147,8 @@ GlassVersion::read()
     }
 
     p += GLASS_VERSION_MAGIC_AND_VERSION_LEN;
-    memcpy(uuid, p, 16);
-    p += 16;
+    uuid.assign(p);
+    p += uuid.BINARY_SIZE;
 
     if (!unpack_uint(&p, end, &rev))
 	throw Xapian::DatabaseCorruptError("Rev file failed to decode revision");
@@ -270,7 +270,7 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
     LOGCALL(DB, const string, "GlassVersion::write", new_rev|flags);
 
     string s(GLASS_VERSION_MAGIC, GLASS_VERSION_MAGIC_AND_VERSION_LEN);
-    s.append(reinterpret_cast<const char *>(uuid), 16);
+    s.append(uuid.data(), uuid.BINARY_SIZE);
 
     pack_uint(s, new_rev);
 
@@ -388,7 +388,7 @@ void
 GlassVersion::create(unsigned blocksize)
 {
     AssertRel(blocksize,>=,2048);
-    uuid_generate(uuid);
+    uuid.generate();
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
 	root[table_no].init(blocksize, compress_min_tab[table_no]);
     }
