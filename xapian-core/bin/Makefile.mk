@@ -66,6 +66,7 @@ bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 	backends/glass/glass_freelist.cc\
 	backends/glass/glass_table.cc\
 	backends/glass/glass_version.cc\
+	backends/uuids.cc\
 	common/compression_stream.cc\
 	common/errno_to_string.cc\
 	common/io_utils.cc\
@@ -86,6 +87,7 @@ bin_xapian_inspect_honey_SOURCES = bin/xapian-inspect-honey.cc\
 	backends/honey/honey_freelist.cc\
 	backends/honey/honey_table.cc\
 	backends/honey/honey_version.cc\
+	backends/uuids.cc\
 	common/compression_stream.cc\
 	common/errno_to_string.cc\
 	common/io_utils.cc\
@@ -98,18 +100,6 @@ bin_xapian_inspect_honey_SOURCES = bin/xapian-inspect-honey.cc\
 # XAPIAN_LIBS gives us zlib and any library needed for UUIDs.
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
 bin_xapian_inspect_honey_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
-if USE_PROC_FOR_UUID
-bin_xapian_inspect_SOURCES +=\
-	common/proc_uuid.cc
-bin_xapian_inspect_honey_SOURCES +=\
-	common/proc_uuid.cc
-endif
-if USE_WIN32_UUID_API
-bin_xapian_inspect_SOURCES +=\
-	common/win32_uuid.cc
-bin_xapian_inspect_honey_SOURCES +=\
-	common/win32_uuid.cc
-endif
 
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
 bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)

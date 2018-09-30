@@ -79,16 +79,7 @@ using namespace std;
 #include "../common/overflow.h"
 #include "../common/serialise-double.cc"
 #include "../common/str.cc"
-#include "../common/safeuuid.h"
-#ifdef USE_WIN32_UUID_API
-# include "../common/win32_uuid.cc"
-#elif defined HAVE_UUID_UUID_H
-// Implementation in library.
-#elif defined HAVE_UUID_H
-// Implementation in library.
-#elif defined USE_PROC_FOR_UUID
-# include "../common/proc_uuid.cc"
-#endif
+#include "../backends/uuids.cc"
 #include "../net/length.cc"
 #include "../net/serialise-error.cc"
 #include "../api/error.cc"
@@ -621,64 +612,74 @@ static bool test_shard1()
 
 static bool test_uuid1()
 {
-    char buf[37];
-    uuid_t uuid, uuid2;
-
-    // Test null uuid.
-    uuid_clear(uuid);
-    TEST(uuid_is_null(uuid));
-    uuid_unparse_lower(uuid, buf);
-    TEST_EQUAL(buf[36], '\0');
-    TEST_EQUAL(strlen(buf), 36);
-    TEST_EQUAL(string(buf, 36), "00000000-0000-0000-0000-000000000000");
-    memset(uuid2, 0xff, sizeof(uuid));
-    uuid_parse(buf, uuid2);
-    TEST(memcmp(uuid, uuid2, sizeof(uuid)) == 0);
+    Uuid uuid, uuid2;
 
     // Test a generated uuid.
-    uuid_generate(uuid);
-    TEST(!uuid_is_null(uuid));
-    uuid_unparse_lower(uuid, buf);
-    TEST_EQUAL(buf[36], '\0');
-    TEST_EQUAL(strlen(buf), 36);
-    TEST_NOT_EQUAL(string(buf, 36), "00000000-0000-0000-0000-000000000000");
+    uuid.generate();
+    TEST(!uuid.is_null());
+    string str = uuid.to_string();
+    TEST_EQUAL(str.size(), 36);
+    TEST_NOT_EQUAL(str, "00000000-0000-0000-0000-000000000000");
     // Check UUID pattern is correct and that upper case is not used.
     for (int i = 0; i != 8; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    TEST_EQUAL(buf[8], '-');
+    TEST_EQUAL(str[8], '-');
     for (int i = 9; i != 13; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    TEST_EQUAL(buf[13], '-');
+    TEST_EQUAL(str[13], '-');
     for (int i = 14; i != 18; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    TEST_EQUAL(buf[18], '-');
+    TEST_EQUAL(str[18], '-');
     for (int i = 19; i != 23; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    TEST_EQUAL(buf[23], '-');
+    TEST_EQUAL(str[23], '-');
     for (int i = 24; i != 36; ++i) {
-	unsigned char ch = buf[i];
+	unsigned char ch = str[i];
 	TEST(isxdigit(ch));
 	TEST(!isupper(ch));
     }
-    uuid_parse(buf, uuid2);
-    TEST(memcmp(uuid, uuid2, sizeof(uuid)) == 0);
+
+    uuid2.parse(str);
+    TEST(memcmp(uuid.data(), uuid2.data(), uuid.BINARY_SIZE) == 0);
+
+    // Check the variant is "10x" and the version between 1 and 5.  Mostly this
+    // is to catch bugs where the platform's API for generating UUIDs uses a
+    // different endianness for fields (which we've run into under both WIN32
+    // and FreeBSD).
+    TEST_EQUAL(uuid.data()[8] & 0xc0, 0x80);
+    TEST_REL(str[19], >=, '8');
+    TEST_REL(str[19], <=, 'b');
+    TEST_REL(uuid.data()[6], >=, 0x10);
+    TEST_REL(uuid.data()[6], <=, 0x5f);
+    TEST_REL(str[14], >=, '1');
+    TEST_REL(str[14], <=, '5');
 
     // Test generating another uuid gives us a different non-null uuid.
-    uuid_generate(uuid2);
-    TEST(!uuid_is_null(uuid2));
-    TEST(memcmp(uuid, uuid2, sizeof(uuid)) != 0);
+    uuid2.generate();
+    TEST(!uuid2.is_null());
+    TEST(memcmp(uuid.data(), uuid2.data(), uuid.BINARY_SIZE) != 0);
+
+    // Test null uuid.
+    uuid.clear();
+    TEST(uuid.is_null());
+    str = uuid.to_string();
+    TEST_EQUAL(str, "00000000-0000-0000-0000-000000000000");
+    uuid2.generate();
+    TEST(!uuid2.is_null());
+    uuid2.parse(str);
+    TEST(memcmp(uuid.data(), uuid2.data(), uuid.BINARY_SIZE) == 0);
 
     return true;
 }
