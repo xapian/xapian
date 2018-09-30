@@ -183,7 +183,10 @@ lazy_build() {
   # Download the tarball if required.
   if [ ! -f "$tarball" ] ; then
     main_tarball=
-    main_worktree_dir=`git worktree list --porcelain|sed 's/^worktree //;q'`
+    # Older git versions don't support "git worktree", so discard stderr and
+    # then we'll skip the worktree handling because main_worktree_dir will
+    # be empty.
+    main_worktree_dir=`git worktree list --porcelain 2>/dev/null|sed 's/^worktree //;q'`
     if [ -n "$main_worktree_dir" ] ; then
       # Canonicalise main_worktree_dir before comparing with pwd.
       main_worktree_dir=`cd "$main_worktree_dir" && pwd`
