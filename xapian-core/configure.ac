@@ -921,14 +921,6 @@ case $enable_backend_chert$enable_backend_glass in
       ], [ ])
       ;;
   esac
-
-  dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
-  dnl uuid_unparse_lower(), only uuid_unparse().
-  AC_LINK_IFELSE([AC_LANG_CALL([], [uuid_unparse_lower])],
-    [
-    AC_DEFINE([HAVE_UUID_UNPARSE_LOWER], [1],
-	      [Define to 1 if you have the 'uuid_unparse_lower' function.])
-    ])
   LIBS=$SAVE_LIBS
 
   case $host_os in
