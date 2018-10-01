@@ -54,6 +54,9 @@ TcpClient::open_socket(const std::string & hostname, int port,
     int connect_errno = 0;
     for (auto&& r : Resolver(hostname, port)) {
 	int socktype = r.ai_socktype | SOCK_CLOEXEC;
+#ifdef SOCK_NONBLOCK
+	socktype |= SOCK_NONBLOCK;
+#endif
 	int fd = socket(r.ai_family, socktype, r.ai_protocol);
 	if (fd == -1)
 	    continue;
@@ -66,6 +69,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	    (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
 
+#ifndef SOCK_NONBLOCK
 #ifdef __WIN32__
 	ULONG enabled = 1;
 	int rc = ioctlsocket(fd, FIONBIO, &enabled);
@@ -83,6 +87,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	    throw Xapian::NetworkError("Couldn't set " FLAG_NAME, saved_errno);
 #undef FLAG_NAME
 	}
+#endif
 
 	if (tcp_nodelay) {
 	    int optval = 1;
