@@ -82,9 +82,13 @@ inline int open(const char *filename, int flags) {
 # endif
 #endif
 
-// If O_CLOEXEC isn't supported, we probably can't mark fds as close-on-exec.
 #ifndef O_CLOEXEC
-# define O_CLOEXEC 0
+# ifdef O_NOINHERIT
+#  define O_CLOEXEC O_NOINHERIT
+# else
+// If O_CLOEXEC isn't supported, we probably can't mark fds as close-on-exec.
+#  define O_CLOEXEC 0
+# endif
 #endif
 
 #endif /* XAPIAN_INCLUDED_SAFEFCNTL_H */
