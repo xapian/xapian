@@ -635,8 +635,8 @@ static bool test_uuid1()
     TEST_EQUAL(uuid.data()[8] & 0xc0, 0x80);
     TEST_REL(str[19], >=, '8');
     TEST_REL(str[19], <=, 'b');
-    TEST_REL(uuid.data()[6], >=, 0x10);
-    TEST_REL(uuid.data()[6], <=, 0x5f);
+    TEST_REL(int(uuid.data()[6]), >=, 0x10);
+    TEST_REL(int(uuid.data()[6]), <=, 0x5f);
     TEST_REL(str[14], >=, '1');
     TEST_REL(str[14], <=, '5');
 
