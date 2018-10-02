@@ -40,6 +40,7 @@
 # include <uuid/uuid.h>
 #elif defined HAVE_UUID_H
 // UUID API on FreeBSD, NetBSD and AIX.
+# include <arpa/inet.h> // For htonl() and htons().
 # include <exception>
 # include <uuid.h>
 #elif defined USE_WIN32_UUID_API
@@ -85,6 +86,9 @@ Uuid::generate()
 	// Can only be uuid_s_no_memory it seems.
 	throw std::bad_alloc();
     }
+    uu.time_low = htonl(uu.time_low);
+    uu.time_mid = htons(uu.time_mid);
+    uu.time_hi_and_version = htons(uu.time_hi_and_version);
     memcpy(uuid_data, &uu, BINARY_SIZE);
 #elif defined USE_WIN32_UUID_API
     UUID uuid;
