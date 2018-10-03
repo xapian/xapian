@@ -12,7 +12,7 @@ parameters (such as ``split``) since there unquoted commas are interpreted
 as separating parameters.
 
 Since Omega 1.4.8, the following C-like escape sequences are supported
-for parameter values enclosed in double quotes: ``\\`, ``\"``, ``\0``, ``\t``,
+for parameter values enclosed in double quotes: ``\\``, ``\"``, ``\0``, ``\t``,
 ``\n``, ``\r``, and ``\x`` followed by two hex digits.
 
 The actions are applied in the specified order to each field listed, and
