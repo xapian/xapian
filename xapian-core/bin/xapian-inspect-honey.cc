@@ -132,7 +132,7 @@ unescape(const string& s)
 
 bad_escaping:
     cout << "Bad escaping in specified key value, assuming literal"
-	<< endl;
+	 << endl;
     return s;
 }
 
