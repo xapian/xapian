@@ -4,8 +4,16 @@ Index scripts
 
 The basic format is one or more field names followed by a colon, followed by
 one or more actions.  Some actions take an optional or required parameter.
-Since Omega 1.4.6, the parameter value can be enclosed in double quotes
-(which is necessary if it contains whitespace).
+
+Since Omega 1.4.6, the parameter value can be enclosed in double quotes,
+which is necessary if it contains whitespace; it's also needed for
+parameter values containing a comma for actions which support multiple
+parameters (such as ``split``) since there unquoted commas are interpreted
+as separating parameters.
+
+Since Omega 1.4.8, the following C-like escape sequences are supported
+for parameter values enclosed in double quotes: ``\\`, ``\"``, ``\0``, ``\t``,
+``\n``, ``\r``, and ``\x`` followed by two hex digits.
 
 The actions are applied in the specified order to each field listed, and
 fields can be listed in several lines.

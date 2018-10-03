@@ -349,15 +349,70 @@ parse_index_script(const string &filename)
 		    if (j != s.end() && *j == '"') {
 			// Quoted argument.
 			++j;
-			i = find(j, s.end(), '"');
-			if (i == s.end()) {
-			    report_location(DIAG_ERROR, filename, line_no,
-					    s.size());
-			    cerr << "No closing quote" << endl;
-			    exit(1);
+			string arg;
+			while (true) {
+			    i = find_if(j, s.end(),
+					[](char ch) {
+					    return ch == '"' || ch == '\\';
+					});
+			    if (i == s.end()) {
+				report_location(DIAG_ERROR, filename, line_no,
+						s.size());
+				cerr << "No closing quote" << endl;
+				exit(1);
+			    }
+			    arg.append(j, i);
+			    if (*i++ == '"')
+				break;
+
+			    // Escape sequence.
+			    if (i == s.end()) {
+bad_escaping:
+				report_location(DIAG_ERROR, filename, line_no,
+						i - s.begin());
+				cerr << "Bad escaping in quoted action argument"
+				     << endl;
+				exit(1);
+			    }
+
+			    char ch = *i;
+			    switch (ch) {
+				case '\\':
+				case '"':
+				    break;
+				case '0':
+				    ch = '\0';
+				    break;
+				case 'n':
+				    ch = '\n';
+				    break;
+				case 'r':
+				    ch = '\r';
+				    break;
+				case 't':
+				    ch = '\t';
+				    break;
+				case 'x': {
+				    if (++i == s.end())
+					goto bad_escaping;
+				    char ch1 = *i;
+				    if (++i == s.end())
+					goto bad_escaping;
+				    char ch2 = *i;
+				    if (!C_isxdigit(ch1) ||
+					!C_isxdigit(ch2))
+					goto bad_escaping;
+				    ch = hex_digit(ch1) << 4 |
+					 hex_digit(ch2);
+				    break;
+				}
+				default:
+				    goto bad_escaping;
+			    }
+			    arg += ch;
+			    j = i + 1;
 			}
-			vals.emplace_back(j, i);
-			++i;
+			vals.emplace_back(std::move(arg));
 			if (i == s.end() || C_isspace(*i)) break;
 			if (*i != ',') {
 			    report_location(DIAG_ERROR, filename, line_no,

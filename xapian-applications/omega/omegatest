@@ -1002,7 +1002,7 @@ END
 printf '$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
 testcase '1480680262|2016-12-02' P=text
 
-# Feature tests for quoted argument.
+# Feature tests for quoted arguments.
 printf 'DATE : field="  spaces  " date="yyyymmdd"\nTEXT: index\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -1015,6 +1015,43 @@ testcase '1|19891204' P=text
 # Use $time to force the match to run.
 printf '$if{$time,$freq{D19891204}}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
 testcase '1|19891204' P=
+
+# Feature tests for escaping in quoted arguments.
+printf 'esc : field="\\tesca\\x70e,test\\\\\\""\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+esc=test
+END
+printf '$field{$chr{9}escape$.test\",1}' > "$TEST_TEMPLATE"
+testcase 'test' P=
+# Ensure the location of the problem is always in the same column so we can
+# test against a fixed error message including line and column.
+for badesc in \
+    '"xx\\' \
+    '"xx\\q"' \
+    '"\\x"' \
+    '"\\x1"' \
+    '"\\xg"' \
+    '"\\x1g"' \
+    '"\\x1g"' \
+    ; do
+    printf "x: split=$badesc" > "$TEST_INDEXSCRIPT"
+    rm -rf "$TEST_DB"
+    rc=0
+    out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
+    if [ $rc -eq 0 ] ; then
+	echo "scriptindex didn't exit with non-zero return code on bad escaping"
+	failed=`expr $failed + 1`
+    elif printf '%s' "$out" \
+	| grep -q ":1:14: error: Bad escaping in quoted action argument" ; then
+	: # OK
+    else
+	echo "scriptindex didn't give expected error for bad escaping"
+	echo "badesc=$badesc"
+	echo "got: $out"
+	failed=`expr $failed + 1`
+    fi
+done
 
 # Regression test that a closing " with junk after is flagged.
 printf 'date : field="test"index' > "$TEST_INDEXSCRIPT"
