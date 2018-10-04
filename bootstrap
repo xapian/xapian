@@ -681,7 +681,7 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xa
   esac
 
   echo "Bootstrapping \`$module'"
-  [ -f "$d/preautoreconf" ] && "$d/preautoreconf"
+  [ -f "$d/preautoreconf" ] && perl "$d/preautoreconf"
 
   # If we have a custom INSTALL file, preserve it since autoreconf insists on
   # replacing INSTALL with "generic installation instructions" when --force
