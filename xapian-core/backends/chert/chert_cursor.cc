@@ -63,7 +63,7 @@ ChertCursor::ChertCursor(const ChertTable *B_)
 
     for (int j = 0; j < level; j++) {
 	C[j].n = BLK_UNUSED;
-	C[j].p = new byte[B->block_size];
+	C[j].p = new uint8_t[B->block_size];
     }
     C[level].n = B->C[level].n;
     C[level].p = B->C[level].p;
@@ -89,7 +89,7 @@ ChertCursor::rebuild()
 	}
 	delete [] old_C;
 	for (int j = level; j < new_level; j++) {
-	    C[j].p = new byte[B->block_size];
+	    C[j].p = new uint8_t[B->block_size];
 	    C[j].n = BLK_UNUSED;
 	}
     }

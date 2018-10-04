@@ -42,7 +42,7 @@ class Cursor {
 	{}
 
 	/// pointer to a block
-	byte * p;
+	uint8_t * p;
 	/// offset in the block's directory
 	int c;
 	/** block number

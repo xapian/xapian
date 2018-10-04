@@ -245,7 +245,7 @@ GlassChanges::check(const string & changes_file)
 	    throw Xapian::DatabaseError("Changes file - bad block number");
 	// Although the revision number is aligned within the block, the block
 	// data may not be aligned to a word boundary here.
-	uint4 block_rev = unaligned_read4(reinterpret_cast<const byte*>(p));
+	uint4 block_rev = unaligned_read4(reinterpret_cast<const uint8_t*>(p));
 	(void)block_rev; // FIXME: Sanity check value.
 	p += 4;
 	unsigned level = static_cast<unsigned char>(*p++);

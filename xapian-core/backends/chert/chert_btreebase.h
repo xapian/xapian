@@ -144,10 +144,10 @@ class ChertTable_base {
 
 	/** the initial state of the bit map of blocks: 1 means in
 	   use, 0 means free */
-	byte *bit_map0;
+	uint8_t *bit_map0;
 
 	/** the current state of the bit map of blocks */
-	byte *bit_map;
+	uint8_t *bit_map;
 };
 
 #endif /* OM_HGUARD_CHERT_BTREEBASE_H */

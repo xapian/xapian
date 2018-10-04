@@ -147,28 +147,28 @@ inline void setD(unsigned char *p, int c, int x) { setint2(p, c, x); }
    components_of(p, c) returns the number marked 'C' above,
 */
 
-inline unsigned REVISION(const byte * b) { return aligned_read4(b); }
-inline int GET_LEVEL(const byte * b) { return getint1(b, 4); }
-inline int MAX_FREE(const byte * b) { return getint2(b, 5); }
-inline int TOTAL_FREE(const byte * b) { return getint2(b, 7); }
-inline int DIR_END(const byte * b) { return getint2(b, 9); }
+inline unsigned REVISION(const uint8_t * b) { return aligned_read4(b); }
+inline int GET_LEVEL(const uint8_t * b) { return getint1(b, 4); }
+inline int MAX_FREE(const uint8_t * b) { return getint2(b, 5); }
+inline int TOTAL_FREE(const uint8_t * b) { return getint2(b, 7); }
+inline int DIR_END(const uint8_t * b) { return getint2(b, 9); }
 const int DIR_START = 11;
 
-inline void SET_REVISION(byte * b, uint4 rev) { aligned_write4(b, rev); }
-inline void SET_LEVEL(byte * b, int x) { setint1(b, 4, x); }
-inline void SET_MAX_FREE(byte * b, int x) { setint2(b, 5, x); }
-inline void SET_TOTAL_FREE(byte * b, int x) { setint2(b, 7, x); }
-inline void SET_DIR_END(byte * b, int x) { setint2(b, 9, x); }
+inline void SET_REVISION(uint8_t * b, uint4 rev) { aligned_write4(b, rev); }
+inline void SET_LEVEL(uint8_t * b, int x) { setint1(b, 4, x); }
+inline void SET_MAX_FREE(uint8_t * b, int x) { setint2(b, 5, x); }
+inline void SET_TOTAL_FREE(uint8_t * b, int x) { setint2(b, 7, x); }
+inline void SET_DIR_END(uint8_t * b, int x) { setint2(b, 9, x); }
 
 // The item size is stored in 2 bytes, but the top bit is used to store a flag
 // for "is the tag data compressed".
 const size_t CHERT_MAX_ITEM_SIZE = 0x7fff;
 
 class Key {
-    const byte *p;
+    const uint8_t *p;
 public:
-    explicit Key(const byte * p_) : p(p_) { }
-    const byte * get_address() const { return p; }
+    explicit Key(const uint8_t * p_) : p(p_) { }
+    const uint8_t * get_address() const { return p; }
     void read(std::string * key) const {
 	key->assign(reinterpret_cast<const char *>(p + K1), length());
     }
@@ -227,19 +227,19 @@ public:
     }
 };
 
-class Item : public Item_base<const byte *> {
+class Item : public Item_base<const uint8_t *> {
 public:
     /* Item from block address and offset to item pointer */
-    Item(const byte * p_, int c) : Item_base<const byte *>(p_, c) { }
-    explicit Item(const byte * p_) : Item_base<const byte *>(p_) { }
+    Item(const uint8_t * p_, int c) : Item_base<const uint8_t *>(p_, c) { }
+    explicit Item(const uint8_t * p_) : Item_base<const uint8_t *>(p_) { }
 };
 
-class Item_wr : public Item_base<byte *> {
+class Item_wr : public Item_base<uint8_t *> {
     void set_key_len(int x) { setint1(p, I2, x); }
 public:
     /* Item_wr from block address and offset to item pointer */
-    Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
-    explicit Item_wr(byte * p_) : Item_base<byte *>(p_) { }
+    Item_wr(uint8_t * p_, int c) : Item_base<uint8_t *>(p_, c) { }
+    explicit Item_wr(uint8_t * p_) : Item_base<uint8_t *>(p_) { }
     void set_component_of(int i) {
 	setint2(p, getK(p, I2) + I2 - C2, i);
     }
@@ -692,15 +692,15 @@ class ChertTable {
 
 	bool find(Cursor *) const;
 	int delete_kt();
-	void read_block(uint4 n, byte *p) const;
-	void write_block(uint4 n, const byte *p) const;
+	void read_block(uint4 n, uint8_t *p) const;
+	void write_block(uint4 n, const uint8_t *p) const;
 	XAPIAN_NORETURN(void set_overwritten() const);
 	void block_to_cursor(Cursor *C_, int j, uint4 n) const;
 	void alter();
-	void compact(byte *p);
+	void compact(uint8_t *p);
 	void enter_key(int j, Key prevkey, Key newkey);
-	int mid_point(byte *p) const;
-	void add_item_to_block(byte *p, Item_wr kt, int c);
+	int mid_point(uint8_t *p) const;
+	void add_item_to_block(uint8_t *p, Item_wr kt, int c);
 	void add_item(Item_wr kt, int j);
 	void delete_item(int j, bool repeatedly);
 	int add_kt(bool found);
@@ -774,7 +774,7 @@ class ChertTable {
 	mutable Item_wr kt;
 
 	/// buffer of size block_size for reforming blocks
-	byte * buffer;
+	uint8_t * buffer;
 
 	/// For writing back as file baseA or baseB.
 	ChertTable_base base;
@@ -831,12 +831,12 @@ class ChertTable {
 	bool prev_for_sequential(Cursor *C_, int dummy) const;
 	bool next_for_sequential(Cursor *C_, int dummy) const;
 
-	static int find_in_block(const byte * p, Key key, bool leaf, int c);
+	static int find_in_block(const uint8_t * p, Key key, bool leaf, int c);
 
 	/** block_given_by(p, c) finds the item at block address p, directory
 	 *  offset c, and returns its tag value as an integer.
 	 */
-	static uint4 block_given_by(const byte * p, int c);
+	static uint4 block_given_by(const uint8_t * p, int c);
 
 	mutable Cursor C[BTREE_CURSOR_LEVELS];
 
@@ -845,7 +845,7 @@ class ChertTable {
 	 *  This buffer holds the split off part of the block.  It's only used
 	 *  when updating (in ChertTable::add_item().
 	 */
-	byte * split_p;
+	uint8_t * split_p;
 
 	/** DONT_COMPRESS or Z_DEFAULT_STRATEGY, Z_FILTERED, Z_HUFFMAN_ONLY,
 	 *  Z_RLE. */
@@ -864,7 +864,7 @@ class ChertTable {
 	mutable uint4 last_readahead;
 
 	/* Debugging methods */
-//	void report_block_full(int m, int n, const byte * p);
+//	void report_block_full(int m, int n, const uint8_t * p);
 };
 
 #endif /* OM_HGUARD_CHERT_TABLE_H */

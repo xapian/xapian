@@ -52,7 +52,7 @@ class Cursor {
 
 	~Cursor() { destroy(); }
 
-	byte * init(unsigned block_size) {
+	uint8_t * init(unsigned block_size) {
 	    if (data && refs() > 1) {
 		--refs();
 		data = NULL;
@@ -63,16 +63,16 @@ class Cursor {
 	    set_n(BLK_UNUSED);
 	    rewrite = false;
 	    c = -1;
-	    return reinterpret_cast<byte*>(data + 8);
+	    return reinterpret_cast<uint8_t*>(data + 8);
 	}
 
-	const byte * clone(const Cursor & o) {
+	const uint8_t * clone(const Cursor & o) {
 	    if (data != o.data) {
 		destroy();
 		data = o.data;
 		++refs();
 	    }
-	    return reinterpret_cast<byte*>(data + 8);
+	    return reinterpret_cast<uint8_t*>(data + 8);
 	}
 
 	void swap(Cursor & o) {
@@ -114,12 +114,12 @@ class Cursor {
 	 *
 	 * Returns NULL if no block is currently loaded.
 	 */
-	const byte * get_p() const {
+	const uint8_t * get_p() const {
 	    if (rare(!data)) return NULL;
-	    return reinterpret_cast<byte*>(data + 8);
+	    return reinterpret_cast<uint8_t*>(data + 8);
 	}
 
-	byte * get_modifiable_p(unsigned block_size) {
+	uint8_t * get_modifiable_p(unsigned block_size) {
 	    if (rare(!data)) return NULL;
 	    if (refs() > 1) {
 		char * new_data = new char[block_size + 8];
@@ -128,7 +128,7 @@ class Cursor {
 		data = new_data;
 		refs() = 1;
 	    }
-	    return reinterpret_cast<byte*>(data + 8);
+	    return reinterpret_cast<uint8_t*>(data + 8);
 	}
 
 	/// offset in the block's directory

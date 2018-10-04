@@ -44,16 +44,16 @@ class ChertTableCheck : public ChertTable {
 	      last_sequential_block(0) { }
 
 	void block_check(Cursor * C_, int j, int opts);
-	int block_usage(const byte * p) const;
-	void report_block(int m, int n, const byte * p) const;
-	void report_block_full(int m, int n, const byte * p) const;
+	int block_usage(const uint8_t * p) const;
+	void report_block(int m, int n, const uint8_t * p) const;
+	void report_block_full(int m, int n, const uint8_t * p) const;
 	void report_cursor(int N, const Cursor *C_) const;
 
 	XAPIAN_NORETURN(void failure(const char * msg) const);
-	void print_key(const byte * p, int c, int j) const;
-	void print_tag(const byte * p, int c, int j) const;
+	void print_key(const uint8_t * p, int c, int j) const;
+	void print_tag(const uint8_t * p, int c, int j) const;
 	void print_spaces(int n) const;
-	void print_bytes(int n, const byte * p) const;
+	void print_bytes(int n, const uint8_t * p) const;
 
 	std::ostream *out;
 

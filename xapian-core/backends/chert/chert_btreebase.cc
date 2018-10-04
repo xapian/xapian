@@ -234,8 +234,8 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
     if (!read_bitmap)
 	return true;
 
-    bit_map0 = new byte[bit_map_size];
-    bit_map = new byte[bit_map_size];
+    bit_map0 = new uint8_t[bit_map_size];
+    bit_map = new uint8_t[bit_map_size];
 
     size_t n = end - start;
     if (n < bit_map_size) {
@@ -391,12 +391,12 @@ void
 ChertTable_base::extend_bit_map()
 {
     int n = bit_map_size + BIT_MAP_INC;
-    byte *new_bit_map0 = 0;
-    byte *new_bit_map = 0;
+    uint8_t *new_bit_map0 = 0;
+    uint8_t *new_bit_map = 0;
 
     try {
-	new_bit_map0 = new byte[n];
-	new_bit_map = new byte[n];
+	new_bit_map0 = new uint8_t[n];
+	new_bit_map = new uint8_t[n];
 
 	memcpy(new_bit_map0, bit_map0, bit_map_size);
 	memset(new_bit_map0 + bit_map_size, 0, n - bit_map_size);

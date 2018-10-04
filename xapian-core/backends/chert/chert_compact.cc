@@ -639,7 +639,7 @@ merge_synonyms(ChertTable * out,
 	    pqtag.pop();
 	    if (**it != lastword) {
 		lastword = **it;
-		tag += byte(lastword.size() ^ MAGIC_XOR_VALUE);
+		tag += uint8_t(lastword.size() ^ MAGIC_XOR_VALUE);
 		tag += lastword;
 	    }
 	    ++*it;

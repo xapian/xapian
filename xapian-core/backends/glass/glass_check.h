@@ -51,15 +51,15 @@ class GlassTableCheck : public GlassTable {
 
 	void block_check(Glass::Cursor * C_, int j, int opts,
 			 GlassFreeListChecker &flcheck);
-	int block_usage(const byte * p) const;
-	void report_block(int m, int n, const byte * p) const;
-	void report_block_full(int m, int n, const byte * p) const;
+	int block_usage(const uint8_t * p) const;
+	void report_block(int m, int n, const uint8_t * p) const;
+	void report_block_full(int m, int n, const uint8_t * p) const;
 	void report_cursor(int N, const Glass::Cursor *C_) const;
 
-	void print_key(const byte * p, int c, int j) const;
-	void print_tag(const byte * p, int c, int j) const;
+	void print_key(const uint8_t * p, int c, int j) const;
+	void print_tag(const uint8_t * p, int c, int j) const;
 	void print_spaces(int n) const;
-	void print_bytes(int n, const byte * p) const;
+	void print_bytes(int n, const uint8_t * p) const;
 
 	std::ostream *out;
 };

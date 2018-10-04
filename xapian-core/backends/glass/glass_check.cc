@@ -41,12 +41,12 @@ void GlassTableCheck::print_spaces(int n) const
     while (n--) out->put(' ');
 }
 
-void GlassTableCheck::print_bytes(int n, const byte * p) const
+void GlassTableCheck::print_bytes(int n, const uint8_t * p) const
 {
     out->write(reinterpret_cast<const char *>(p), n);
 }
 
-void GlassTableCheck::print_key(const byte * p, int c, int j) const
+void GlassTableCheck::print_key(const uint8_t * p, int c, int j) const
 {
     if (j == 0) {
 	LeafItem item(p, c);
@@ -72,7 +72,7 @@ void GlassTableCheck::print_key(const byte * p, int c, int j) const
     }
 }
 
-void GlassTableCheck::print_tag(const byte * p, int c, int j) const
+void GlassTableCheck::print_tag(const uint8_t * p, int c, int j) const
 {
     if (j == 0) {
 	LeafItem item(p, c);
@@ -87,7 +87,7 @@ void GlassTableCheck::print_tag(const byte * p, int c, int j) const
     }
 }
 
-void GlassTableCheck::report_block_full(int m, int n, const byte * p) const
+void GlassTableCheck::report_block_full(int m, int n, const uint8_t * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
@@ -105,7 +105,7 @@ void GlassTableCheck::report_block_full(int m, int n, const byte * p) const
     }
 }
 
-int GlassTableCheck::block_usage(const byte * p) const
+int GlassTableCheck::block_usage(const uint8_t * p) const
 {
     int space = block_size - DIR_END(p);
     int free = TOTAL_FREE(p);
@@ -115,7 +115,7 @@ int GlassTableCheck::block_usage(const byte * p) const
 /** GlassTableCheck::report_block(m, n, p) prints the block at p, block number n,
  *  indented by m spaces.
  */
-void GlassTableCheck::report_block(int m, int n, const byte * p) const
+void GlassTableCheck::report_block(int m, int n, const uint8_t * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
@@ -155,7 +155,7 @@ void
 GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 			     GlassFreeListChecker & flcheck)
 {
-    const byte * p = C_[j].get_p();
+    const uint8_t * p = C_[j].get_p();
     uint4 n = C_[j].get_n();
     int c;
     int significant_c = j == 0 ? DIR_START : DIR_START + D2;
@@ -225,7 +225,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 
 	block_check(C_, j - 1, opts, flcheck);
 
-	const byte * q = C_[j - 1].get_p();
+	const uint8_t * q = C_[j - 1].get_p();
 	/* if j == 1, and c > DIR_START, the first key of level j - 1 must be
 	 * >= the key of p, c: */
 
