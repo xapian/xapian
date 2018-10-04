@@ -480,9 +480,21 @@ SAVE_LIBS=$LIBS
 AC_SEARCH_LIBS([timer_create], [rt],
 	       [
     AC_MSG_CHECKING([for timer_create() usability])
+    dnl Several platforms have timer_create() but it's non-functional.
+    dnl
+    dnl Some of these (at least those with a stub implementation which always
+    dnl fails with ENOSYS) could be probed for, but we'd have to run code
+    dnl which isn't possible when cross-compiling, so just maintain a list
+    dnl of such platforms for now.
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-[[#if defined _AIX || defined __GNU__
-#error timer_create known not to work
+[[#if defined _AIX
+#error timer_create always fails with EAGAIN on AIX 7.1
+#elif defined __GNU__
+#error timer_create always fails with ENOSYS on GNU Hurd
+#elif defined __NetBSD__
+#error timer_create timers never fire on NetBSD 7.1
+#elif defined __OpenBSD__
+#error timer_create always fails with ENOSYS on OpenBSD 6.2 (and no prototype)
 #endif]])],
 	[AC_MSG_RESULT([yes])
 	XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"
