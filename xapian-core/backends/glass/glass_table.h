@@ -106,18 +106,18 @@ const int X2 = 2;
    last_component(p, c) returns true if this is a final component.
 */
 
-inline uint4 REVISION(const byte * b) { return aligned_read4(b); }
-inline int GET_LEVEL(const byte * b) { return b[4]; }
-inline int MAX_FREE(const byte * b) { return unaligned_read2(b + 5); }
-inline int TOTAL_FREE(const byte * b) { return unaligned_read2(b + 7); }
-inline int DIR_END(const byte * b) { return unaligned_read2(b + 9); }
+inline uint4 REVISION(const uint8_t * b) { return aligned_read4(b); }
+inline int GET_LEVEL(const uint8_t * b) { return b[4]; }
+inline int MAX_FREE(const uint8_t * b) { return unaligned_read2(b + 5); }
+inline int TOTAL_FREE(const uint8_t * b) { return unaligned_read2(b + 7); }
+inline int DIR_END(const uint8_t * b) { return unaligned_read2(b + 9); }
 const int DIR_START = 11;
 
-inline void SET_REVISION(byte * b, uint4 rev) { aligned_write4(b, rev); }
-inline void SET_LEVEL(byte * b, int x) { AssertRel(x,<,256); b[4] = x; }
-inline void SET_MAX_FREE(byte * b, int x) { unaligned_write2(b + 5, x); }
-inline void SET_TOTAL_FREE(byte * b, int x) { unaligned_write2(b + 7, x); }
-inline void SET_DIR_END(byte * b, int x) { unaligned_write2(b + 9, x); }
+inline void SET_REVISION(uint8_t * b, uint4 rev) { aligned_write4(b, rev); }
+inline void SET_LEVEL(uint8_t * b, int x) { AssertRel(x,<,256); b[4] = x; }
+inline void SET_MAX_FREE(uint8_t * b, int x) { unaligned_write2(b + 5, x); }
+inline void SET_TOTAL_FREE(uint8_t * b, int x) { unaligned_write2(b + 7, x); }
+inline void SET_DIR_END(uint8_t * b, int x) { unaligned_write2(b + 9, x); }
 
 // The item size is stored in 2 bytes, but the top bit is used to store a flag for
 // "is the tag data compressed" and the next two bits are used to flag if this is the
@@ -137,11 +137,11 @@ const int LEVEL_FREELIST = 254;
 class RootInfo;
 
 class Key {
-    const byte *p;
+    const uint8_t *p;
 public:
-    explicit Key(const byte * p_) : p(p_) { }
-    const byte * get_address() const { return p; }
-    const byte * data() const { return p + K1; }
+    explicit Key(const uint8_t * p_) : p(p_) { }
+    const uint8_t * get_address() const { return p; }
+    const uint8_t * data() const { return p + K1; }
     void read(std::string * key) const {
 	key->assign(reinterpret_cast<const char *>(p + K1), length());
     }
@@ -160,14 +160,14 @@ template<class T> class LeafItem_base {
 protected:
     T p;
     int get_key_len() const { return p[I2]; }
-    static int getD(const byte * q, int c) {
+    static int getD(const uint8_t * q, int c) {
 	AssertRel(c, >=, DIR_START);
 	AssertRel(c, <, 65535);
 	Assert((c & 1) == 1);
 	return unaligned_read2(q + c);
     }
     int getI() const { return unaligned_read2(p); }
-    static int getX(const byte * q, int c) { return unaligned_read2(q + c); }
+    static int getX(const uint8_t * q, int c) { return unaligned_read2(q + c); }
 public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
@@ -205,25 +205,27 @@ public:
     }
 };
 
-class LeafItem : public LeafItem_base<const byte *> {
+class LeafItem : public LeafItem_base<const uint8_t *> {
 public:
     /* LeafItem from block address and offset to item pointer */
-    LeafItem(const byte * p_, int c) : LeafItem_base<const byte *>(p_, c) { }
-    explicit LeafItem(const byte * p_) : LeafItem_base<const byte *>(p_) { }
+    LeafItem(const uint8_t * p_, int c)
+	: LeafItem_base<const uint8_t *>(p_, c) { }
+    explicit LeafItem(const uint8_t * p_)
+	: LeafItem_base<const uint8_t *>(p_) { }
 };
 
-class LeafItem_wr : public LeafItem_base<byte *> {
+class LeafItem_wr : public LeafItem_base<uint8_t *> {
     void set_key_len(int x) {
 	AssertRel(x, >=, 0);
 	AssertRel(x, <=, GLASS_BTREE_MAX_KEY_LEN);
 	p[I2] = x;
     }
     void setI(int x) { unaligned_write2(p, x); }
-    static void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
+    static void setX(uint8_t * q, int c, int x) { unaligned_write2(q + c, x); }
 public:
     /* LeafItem_wr from block address and offset to item pointer */
-    LeafItem_wr(byte * p_, int c) : LeafItem_base<byte *>(p_, c) { }
-    explicit LeafItem_wr(byte * p_) : LeafItem_base<byte *>(p_) { }
+    LeafItem_wr(uint8_t * p_, int c) : LeafItem_base<uint8_t *>(p_, c) { }
+    explicit LeafItem_wr(uint8_t * p_) : LeafItem_base<uint8_t *>(p_) { }
     void set_component_of(int i) {
 	AssertRel(i,>,1);
 	*p &=~ I_FIRST_BIT;
@@ -272,7 +274,7 @@ public:
 	*p |= I_FIRST_BIT|I_LAST_BIT;
     }
     operator const LeafItem() const { return LeafItem(p); }
-    static void setD(byte * q, int c, int x) {
+    static void setD(uint8_t * q, int c, int x) {
 	AssertRel(c, >=, DIR_START);
 	AssertRel(c, <, 65535);
 	Assert((c & 1) == 1);
@@ -300,13 +302,13 @@ template<class T> class BItem_base {
 protected:
     T p;
     int get_key_len() const { return p[BYTES_PER_BLOCK_NUMBER]; }
-    static int getD(const byte * q, int c) {
+    static int getD(const uint8_t * q, int c) {
 	AssertRel(c, >=, DIR_START);
 	AssertRel(c, <, 65535);
 	Assert((c & 1) == 1);
 	return unaligned_read2(q + c);
     }
-    static int getX(const byte * q, int c) { return unaligned_read2(q + c); }
+    static int getX(const uint8_t * q, int c) { return unaligned_read2(q + c); }
 public:
     /* BItem from block address and offset to item pointer */
     BItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
@@ -328,24 +330,24 @@ public:
     }
 };
 
-class BItem : public BItem_base<const byte *> {
+class BItem : public BItem_base<const uint8_t *> {
 public:
     /* BItem from block address and offset to item pointer */
-    BItem(const byte * p_, int c) : BItem_base<const byte *>(p_, c) { }
-    explicit BItem(const byte * p_) : BItem_base<const byte *>(p_) { }
+    BItem(const uint8_t * p_, int c) : BItem_base<const uint8_t *>(p_, c) { }
+    explicit BItem(const uint8_t * p_) : BItem_base<const uint8_t *>(p_) { }
 };
 
-class BItem_wr : public BItem_base<byte *> {
+class BItem_wr : public BItem_base<uint8_t *> {
     void set_key_len(int x) {
 	AssertRel(x, >=, 0);
 	AssertRel(x, <, GLASS_BTREE_MAX_KEY_LEN);
 	p[BYTES_PER_BLOCK_NUMBER] = x;
     }
-    static void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
+    static void setX(uint8_t * q, int c, int x) { unaligned_write2(q + c, x); }
 public:
     /* BItem_wr from block address and offset to item pointer */
-    BItem_wr(byte * p_, int c) : BItem_base<byte *>(p_, c) { }
-    explicit BItem_wr(byte * p_) : BItem_base<byte *>(p_) { }
+    BItem_wr(uint8_t * p_, int c) : BItem_base<uint8_t *>(p_, c) { }
+    explicit BItem_wr(uint8_t * p_) : BItem_base<uint8_t *>(p_) { }
     void set_component_of(int i) {
 	setX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1, i);
     }
@@ -385,7 +387,7 @@ public:
 	set_component_of(0);
     }
     operator const BItem() const { return BItem(p); }
-    static void setD(byte * q, int c, int x) {
+    static void setD(uint8_t * q, int c, int x) {
 	AssertRel(c, >=, DIR_START);
 	AssertRel(c, <, 65535);
 	Assert((c & 1) == 1);
@@ -731,18 +733,19 @@ class GlassTable {
 
 	bool find(Glass::Cursor *) const;
 	int delete_kt();
-	void read_block(uint4 n, byte *p) const;
-	void write_block(uint4 n, const byte *p, bool appending = false) const;
+	void read_block(uint4 n, uint8_t *p) const;
+	void write_block(uint4 n, const uint8_t *p,
+			 bool appending = false) const;
 	[[noreturn]]
 	void set_overwritten() const;
 	void block_to_cursor(Glass::Cursor *C_, int j, uint4 n) const;
 	void alter();
-	void compact(byte *p);
+	void compact(uint8_t *p);
 	void enter_key_above_leaf(Glass::LeafItem previtem, Glass::LeafItem newitem);
 	void enter_key_above_branch(int j, Glass::BItem newitem);
-	int mid_point(byte *p) const;
-	void add_item_to_leaf(byte *p, Glass::LeafItem kt, int c);
-	void add_item_to_branch(byte *p, Glass::BItem kt, int c);
+	int mid_point(uint8_t *p) const;
+	void add_item_to_leaf(uint8_t *p, Glass::LeafItem kt, int c);
+	void add_item_to_branch(uint8_t *p, Glass::BItem kt, int c);
 	void add_leaf_item(Glass::LeafItem kt);
 	void add_branch_item(Glass::BItem kt, int j);
 	void delete_leaf_item(bool repeatedly);
@@ -797,7 +800,7 @@ class GlassTable {
 	mutable Glass::LeafItem_wr kt;
 
 	/// buffer of size block_size for reforming blocks
-	byte * buffer;
+	uint8_t * buffer;
 
 	/// List of free blocks.
 	GlassFreeList free_list;
@@ -868,14 +871,16 @@ class GlassTable {
 	bool prev_for_sequential(Glass::Cursor *C_, int dummy) const;
 	bool next_for_sequential(Glass::Cursor *C_, int dummy) const;
 
-	static int find_in_leaf(const byte * p, Glass::LeafItem item, int c, bool& exact);
-	static int find_in_branch(const byte * p, Glass::LeafItem item, int c);
-	static int find_in_branch(const byte * p, Glass::BItem item, int c);
+	static int find_in_leaf(const uint8_t * p,
+				Glass::LeafItem item, int c, bool& exact);
+	static int find_in_branch(const uint8_t * p,
+				  Glass::LeafItem item, int c);
+	static int find_in_branch(const uint8_t * p, Glass::BItem item, int c);
 
 	/** block_given_by(p, c) finds the item at block address p, directory
 	 *  offset c, and returns its tag value as an integer.
 	 */
-	static uint4 block_given_by(const byte * p, int c);
+	static uint4 block_given_by(const uint8_t * p, int c);
 
 	mutable Glass::Cursor C[Glass::BTREE_CURSOR_LEVELS];
 
@@ -884,7 +889,7 @@ class GlassTable {
 	 *  This buffer holds the split off part of the block.  It's only used
 	 *  when updating (in GlassTable::add_item().
 	 */
-	byte * split_p;
+	uint8_t * split_p;
 
 	/** Minimum size tag to try compressing (0 for no compression). */
 	uint4 compress_min;
@@ -901,7 +906,7 @@ class GlassTable {
 	off_t offset;
 
 	/* Debugging methods */
-//	void report_block_full(int m, int n, const byte * p);
+//	void report_block_full(int m, int n, const uint8_t * p);
 };
 
 namespace Glass {
@@ -927,8 +932,8 @@ int compare(ITEM1 a, ITEM2 b)
 {
     Key key1 = a.key();
     Key key2 = b.key();
-    const byte* p1 = key1.data();
-    const byte* p2 = key2.data();
+    const uint8_t* p1 = key1.data();
+    const uint8_t* p2 = key2.data();
     int key1_len = key1.length();
     int key2_len = key2.length();
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
@@ -956,8 +961,8 @@ compare(BItem a, BItem b)
 {
     Key key1 = a.key();
     Key key2 = b.key();
-    const byte* p1 = key1.data();
-    const byte* p2 = key2.data();
+    const uint8_t* p1 = key1.data();
+    const uint8_t* p2 = key2.data();
     int key1_len = key1.length();
     int key2_len = key2.length();
     if (key1_len == key2_len) {

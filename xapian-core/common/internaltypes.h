@@ -29,7 +29,6 @@
 // we care about which lack them, we could use wider types with some care
 // around where we read and write them.
 
-typedef uint8_t byte;
 typedef uint16_t uint2;
 typedef uint32_t uint4;
 typedef uint64_t uint8;

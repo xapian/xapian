@@ -53,7 +53,7 @@ GlassSynonymTable::merge_changes()
 	set<string>::const_iterator i;
 	for (i = last_synonyms.begin(); i != last_synonyms.end(); ++i) {
 	    const string & synonym = *i;
-	    tag += byte(synonym.size() ^ MAGIC_XOR_VALUE);
+	    tag += uint8_t(synonym.size() ^ MAGIC_XOR_VALUE);
 	    tag += synonym;
 	}
 
@@ -77,7 +77,7 @@ GlassSynonymTable::add_synonym(const string & term, const string & synonym)
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
-		    (len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
 		last_synonyms.insert(string(p, len));
@@ -103,7 +103,7 @@ GlassSynonymTable::remove_synonym(const string & term, const string & synonym)
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
-		    (len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
 		last_synonyms.insert(string(p, len));
@@ -153,7 +153,7 @@ GlassSynonymTable::open_termlist(const string & term)
 	while (p != end) {
 	    size_t len;
 	    if (p == end ||
-		(len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		(len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		throw Xapian::DatabaseCorruptError("Bad synonym data");
 	    ++p;
 	    synonyms.push_back(string(p, len));

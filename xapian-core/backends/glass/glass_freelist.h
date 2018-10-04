@@ -68,9 +68,9 @@ class GlassFreeList {
 
     void operator=(const GlassFreeList &);
 
-    void read_block(const GlassTable * B, uint4 n, byte * p);
+    void read_block(const GlassTable * B, uint4 n, uint8_t * p);
 
-    void write_block(const GlassTable * B, uint4 n, byte * p, uint4 rev);
+    void write_block(const GlassTable * B, uint4 n, uint8_t * p, uint4 rev);
 
   protected:
     uint4 revision;
@@ -83,10 +83,10 @@ class GlassFreeList {
 
   private:
     /// Current freelist block.
-    byte * p;
+    uint8_t * p;
 
     /// Current freelist block we're writing.
-    byte * pw;
+    uint8_t * pw;
 
   public:
     GlassFreeList() {

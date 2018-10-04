@@ -445,11 +445,11 @@ GlassSpellingTermList::next()
     if (!current_term.empty()) {
 	if (p == data.size())
 	    throw Xapian::DatabaseCorruptError("Bad spelling termlist");
-	current_term.resize(byte(data[p++]) ^ MAGIC_XOR_VALUE);
+	current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
     }
     size_t add;
     if (p == data.size() ||
-	(add = byte(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
+	(add = uint8_t(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
 	throw Xapian::DatabaseCorruptError("Bad spelling termlist");
     current_term.append(data.data() + p + 1, add);
     p += add + 1;

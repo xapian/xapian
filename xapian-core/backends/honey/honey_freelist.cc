@@ -60,7 +60,7 @@ const unsigned C_BASE = 8;
 const uint4 UNUSED = static_cast<uint4>(-1);
 
 void
-HoneyFreeList::read_block(const HoneyTable * B, uint4 n, byte * ptr)
+HoneyFreeList::read_block(const HoneyTable * B, uint4 n, uint8_t * ptr)
 {
 #ifdef SST_SEARCH
     (void)B; (void)n; (void)ptr;
@@ -72,7 +72,8 @@ HoneyFreeList::read_block(const HoneyTable * B, uint4 n, byte * ptr)
 }
 
 void
-HoneyFreeList::write_block(const HoneyTable * B, uint4 n, byte * ptr, uint4 rev)
+HoneyFreeList::write_block(const HoneyTable * B, uint4 n, uint8_t * ptr,
+			   uint4 rev)
 {
 #ifdef SST_SEARCH
     (void)B; (void)n; (void)ptr; (void)rev;
@@ -97,7 +98,7 @@ HoneyFreeList::get_block(const HoneyTable *B, uint4 block_size,
 	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 	}
 	// Actually read the current freelist block.
-	p = new byte[block_size];
+	p = new uint8_t[block_size];
 	read_block(B, fl.n, p);
     }
 
@@ -154,7 +155,7 @@ HoneyFreeList::walk(const HoneyTable *B, uint4 block_size, bool inclusive)
 	if (fl.n == UNUSED) {
 	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 	}
-	p = new byte[block_size];
+	p = new uint8_t[block_size];
 	read_block(B, fl.n, p);
 	if (inclusive) {
 	    Assert(fl.n == fl_end.n ||
@@ -203,7 +204,7 @@ HoneyFreeList::mark_block_unused(const HoneyTable * B,
     uint4 blk_to_free = BLK_UNUSED;
 
     if (!pw) {
-	pw = new byte[block_size];
+	pw = new uint8_t[block_size];
 	if (flw.c != 0) {
 	    read_block(B, flw.n, pw);
 	    flw_appending = true;
