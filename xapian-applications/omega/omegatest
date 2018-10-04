@@ -58,8 +58,8 @@ testcase() {
     output=`$FAKETIME ${FAKE_NOW+"$FAKE_NOW"} "$OMEGA" "$@"`
     if [ "$output" != "$expected" ] ; then
 	echo "$OMEGA $@:"
-	echo "  expected: «$expected»"
-	echo "  received: «$output»"
+	printf '%s\n' "  expected: «${expected}»"
+	printf '%s\n' "  received: «${output}»"
 	failed=`expr $failed + 1`
     fi
 }
@@ -999,7 +999,7 @@ else
 fi
 
 # Feature tests for datevalue command scriptindex.
-printf 'DATE : field parsedate=%%Y%%m%%d valuepacked=13\n' > "$TEST_INDEXSCRIPT"
+printf '%s\n' 'DATE : field parsedate=%Y%m%d valuepacked=13' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
 DATE=19891204
@@ -1008,7 +1008,7 @@ printf '$field{DATE,1}|$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$T
 testcase '19891204|628732800|1989-12-04' P=text
 
 # Feature tests for datevalue command scriptindex where format contains space.
-printf 'DATE : field parsedate="%%Y%%m%%d %%T" valuepacked=13\n' > "$TEST_INDEXSCRIPT"
+printf '%s\n' 'DATE : field parsedate="%Y%m%d %T" valuepacked=13' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1 <<'END'
 DATE=20161202 12:04:22.000000
@@ -1031,25 +1031,25 @@ printf '$if{$time,$freq{D19891204}}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
 testcase '1|19891204' P=
 
 # Feature tests for escaping in quoted arguments.
-printf 'esc : field="\\tesca\\x70e,test\\\\\\""\n' > "$TEST_INDEXSCRIPT"
+printf '%s\n' 'esc : field="\tesca\x70e,test\\\""' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
 esc=test
 END
-printf '$field{$chr{9}escape$.test\",1}' > "$TEST_TEMPLATE"
+printf '$field{$chr{9}escape$.test\\",1}' > "$TEST_TEMPLATE"
 testcase 'test' P=
 # Ensure the location of the problem is always in the same column so we can
 # test against a fixed error message including line and column.
 for badesc in \
-    '"xx\\' \
-    '"xx\\q"' \
-    '"\\x"' \
-    '"\\x1"' \
-    '"\\xg"' \
-    '"\\x1g"' \
-    '"\\x1g"' \
+    '"xx\' \
+    '"xx\q"' \
+    '"\x"' \
+    '"\x1"' \
+    '"\xg"' \
+    '"\x1g"' \
+    '"\x1g"' \
     ; do
-    printf "x: split=$badesc" > "$TEST_INDEXSCRIPT"
+    printf '%s' "x: split=$badesc" > "$TEST_INDEXSCRIPT"
     rm -rf "$TEST_DB"
     rc=0
     out=`$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" < /dev/null 2>&1` || rc=$?
@@ -1061,8 +1061,7 @@ for badesc in \
 	: # OK
     else
 	echo "scriptindex didn't give expected error for bad escaping"
-	echo "badesc=$badesc"
-	echo "got: $out"
+	printf '%s\n' "badesc=$badesc" "got: $out"
 	failed=`expr $failed + 1`
     fi
 done
