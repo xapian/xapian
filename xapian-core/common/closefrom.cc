@@ -1,7 +1,7 @@
 /** @file closefrom.cc
  * @brief Implementation of closefrom() function.
  */
-/* Copyright (C) 2010,2011,2012,2016 Olly Betts
+/* Copyright (C) 2010,2011,2012,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #endif
 
 #if defined __linux__
+# include "alignment_cast.h"
 # include "safedirent.h"
 # include <cstdlib>
 #elif defined __APPLE__
@@ -112,7 +113,7 @@ Xapian::Internal::closefrom(int fd)
 	    }
 	    struct dirent *d;
 	    for (ssize_t pos = 0; pos < c; pos += d->d_reclen) {
-		d = reinterpret_cast<struct dirent*>(buf + pos);
+		d = alignment_cast<struct dirent*>(buf + pos);
 		const char * leaf = d->d_name;
 		if (leaf[0] < '0' || leaf[0] > '9') {
 		    // Skip '.' and '..'.
