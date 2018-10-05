@@ -40,7 +40,6 @@
 #include "net/remoteconnection.h"
 #include "noreturn.h"
 #include "replicationprotocol.h"
-#include "safeerrno.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "net/length.h"
@@ -48,6 +47,7 @@
 #include "unicode/description_append.h"
 
 #include "autoptr.h"
+#include <cerrno>
 #include <fstream>
 #include <string>
 

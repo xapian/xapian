@@ -22,8 +22,6 @@
 
 #include <config.h>
 
-#include "safeerrno.h"
-
 #include <xapian/error.h>
 
 #include "chert_btreebase.h"
@@ -36,6 +34,7 @@
 #include "str.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <climits>
 #include <cstring>
 

@@ -27,10 +27,10 @@
 # endif
 #endif
 
+#include <cerrno>
 #include <string>
 
 #include "safefcntl.h"
-#include "safeerrno.h"
 #include "safeunistd.h"
 
 #include "md5.h"

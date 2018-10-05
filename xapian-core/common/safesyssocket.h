@@ -70,7 +70,7 @@ inline int socket_(int domain, int type, int protocol) {
 // On Linux at least, sometimes SOCK_CLOEXEC is defined but the kernel doesn't
 // handle it in socket() or socketpair():
 
-# include "safeerrno.h"
+# include <cerrno>
 
 inline int socket_(int domain, int type, int protocol) {
     // Usually type is passed a constant, so we'll collapse to one branch or

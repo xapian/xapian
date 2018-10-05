@@ -31,7 +31,7 @@ using namespace std;
 #ifdef __WIN32__
 # include <io.h>
 # include "msvcignoreinvalidparam.h"
-# include "safeerrno.h"
+# include <cerrno>
 
 /// Convert an fd (which might be a socket) to a WIN32 HANDLE.
 extern HANDLE fd_to_handle(int fd) {

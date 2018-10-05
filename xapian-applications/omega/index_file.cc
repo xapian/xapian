@@ -37,11 +37,11 @@
 
 #include <sys/types.h>
 #include "safeunistd.h"
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include "safefcntl.h"
-#include "safeerrno.h"
 #include <ctime>
 
 #include <xapian.h>

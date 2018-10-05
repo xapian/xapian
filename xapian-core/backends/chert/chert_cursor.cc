@@ -23,7 +23,7 @@
 
 #include "chert_cursor.h"
 
-#include "safeerrno.h"
+#include <cerrno>
 
 #include <xapian/error.h>
 

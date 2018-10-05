@@ -24,12 +24,12 @@
 
 #include <xapian/error.h>
 
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysselect.h"
 #include "safeunistd.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <climits>
 #include <cstdint>
 #include <string>

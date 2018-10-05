@@ -34,9 +34,9 @@
 #include "xapian/constants.h"
 #include "xapian/error.h"
 
+#include <cerrno>
 #include <cstdlib>
 #include <string>
-#include "safeerrno.h"
 
 using namespace std;
 

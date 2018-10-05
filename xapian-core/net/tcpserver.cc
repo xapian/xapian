@@ -26,7 +26,6 @@
 
 #include <xapian/error.h>
 
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safenetdb.h"
 #include "safesyssocket.h"
@@ -50,6 +49,7 @@
 
 #include <iostream>
 
+#include <cerrno>
 #include <cstring>
 #include <cstdlib>
 #include <sys/types.h>

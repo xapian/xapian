@@ -28,7 +28,7 @@
 
 #include <xapian/error.h>
 
-#include "safeerrno.h"
+#include <cerrno>
 
 #include "errno_to_string.h"
 #include "omassert.h"

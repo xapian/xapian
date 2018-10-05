@@ -42,10 +42,10 @@
 #include "net/remoteconnection.h"
 #include "replicate_utils.h"
 #include "replicationprotocol.h"
-#include "safeerrno.h"
 #include "str.h"
 #include "stringutils.h"
 
+#include <cerrno>
 #include <cstdlib>
 
 XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());

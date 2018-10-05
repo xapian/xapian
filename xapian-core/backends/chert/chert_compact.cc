@@ -29,9 +29,9 @@
 #include <algorithm>
 #include <queue>
 
+#include <cerrno>
 #include <cstdio>
 
-#include "safeerrno.h"
 #include "safeunistd.h"
 
 #include "chert_table.h"

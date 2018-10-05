@@ -31,9 +31,9 @@
 #include "posixy_wrapper.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 
+#include <cerrno>
 #include <cstring> // For memcmp().
 #include <string>
-#include "safeerrno.h"
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safefcntl.h"

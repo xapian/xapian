@@ -763,12 +763,6 @@ This ensure that safewindows.h is included before <winsock2.h> to avoid
 winsock2.h including windows.h without our namespace pollution reducing
 workarounds.
 
-<errno.h>:
-----------
-
-Don't directly '#include <errno.h>' - instead '#include "safeerrno.h"' which
-works around a problem with Compaq's C++ compiler.
-
 <sys/select.h>:
 ---------------
 

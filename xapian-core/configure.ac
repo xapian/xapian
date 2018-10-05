@@ -542,8 +542,6 @@ if test $ac_cv_func_ftime = yes ; then
 fi
 
 dnl Check how to find the hostname: uname() in sys/utsname.h, or gethostname()
-dnl Don't use default includes as inttypes.h is found by Compaq C but not C++
-dnl so it causes all header probes to fail.
 AC_CHECK_HEADERS([sys/utsname.h], [], [], [ ])
 AC_CHECK_FUNCS([gethostname])
 

@@ -25,8 +25,8 @@
 #ifndef XAPIAN_INCLUDED_FILETESTS_H
 #define XAPIAN_INCLUDED_FILETESTS_H
 
-#include "safeerrno.h"
 #include "safesysstat.h"
+#include <cerrno>
 #include <string>
 
 /** Test if a file exists.

@@ -26,7 +26,7 @@
 
 #include "errno_to_string.h"
 
-#include "safeerrno.h"
+#include <cerrno>
 // <cstring> doesn't give us strerror_r() with Sun C++ 5.9.
 #include <string.h>
 #if defined HAVE__SYS_ERRLIST_AND__SYS_NERR || \

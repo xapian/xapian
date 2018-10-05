@@ -25,8 +25,8 @@
 
 #include "stringutils.h"
 
+#include <cerrno>
 #include <cstdlib>
-#include "safeerrno.h"
 #include "common/noreturn.h"
 
 using namespace std;

@@ -21,8 +21,6 @@
 
 #include <config.h>
 
-#include "safeerrno.h"
-
 #include <xapian/error.h>
 
 #include "chert_version.h"
@@ -30,6 +28,7 @@
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 #include "str.h"
 
+#include <cerrno>
 #include <cstring> // For memcmp() and memcpy().
 #include <string>
 

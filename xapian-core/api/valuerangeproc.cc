@@ -22,8 +22,8 @@
 
 #include <xapian/queryparser.h>
 
+#include <cerrno>
 #include <cstdlib> // For atoi().
-#include "safeerrno.h"
 
 #include <string>
 #include "stringutils.h"

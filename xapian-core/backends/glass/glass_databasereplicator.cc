@@ -40,11 +40,11 @@
 #include "posixy_wrapper.h"
 #include "net/remoteconnection.h"
 #include "replicationprotocol.h"
-#include "safeerrno.h"
 #include "str.h"
 #include "stringutils.h"
 
 #include <algorithm>
+#include <cerrno>
 
 XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
 static void

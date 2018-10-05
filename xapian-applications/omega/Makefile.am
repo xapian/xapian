@@ -155,7 +155,6 @@ noinst_HEADERS +=\
 	common/omassert.h\
 	common/realtime.h\
 	common/safedirent.h\
-	common/safeerrno.h\
 	common/safefcntl.h\
 	common/safesysselect.h\
 	common/safesysstat.h\

@@ -30,9 +30,9 @@
 #include "loadfile.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <string>
 
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include <sys/types.h>
 #include "safesysstat.h"

@@ -31,9 +31,9 @@
 
 #include "gnu_getopt.h"
 
+#include <cerrno>
 #include <cstring>
 #include <cstdlib>
-#include "safeerrno.h"
 #include "unicode/description_append.h"
 
 #include "unicode/description_append.cc"

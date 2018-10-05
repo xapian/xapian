@@ -20,10 +20,10 @@
 #ifndef OMEGA_INCLUDED_DIRITOR_H
 #define OMEGA_INCLUDED_DIRITOR_H
 
+#include <cerrno>
 #include <string>
 
 #include "safedirent.h"
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"

@@ -35,7 +35,7 @@
 
 #include <cassert>
 #include <cctype>
-#include "safeerrno.h"
+#include <cerrno>
 #include <stdio.h>
 #include <cstdlib>
 #include <cstring>

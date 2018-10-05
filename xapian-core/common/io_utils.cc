@@ -24,9 +24,9 @@
 #include "io_utils.h"
 #include "posixy_wrapper.h"
 
-#include "safeerrno.h"
 #include "safeunistd.h"
 
+#include <cerrno>
 #include <cstring>
 #include <string>
 

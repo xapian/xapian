@@ -25,11 +25,11 @@
 
 #include "xapian/error.h"
 
+#include <cerrno>
 #include <cstring>
 #include "stringutils.h"
 
 #include <sys/types.h>
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safeunistd.h"
 

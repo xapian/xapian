@@ -24,12 +24,11 @@
 
 #include <xapian/compactor.h>
 
-#include "safeerrno.h"
-
 #include <algorithm>
 #include <fstream>
 #include <vector>
 
+#include <cerrno>
 #include <cstring>
 #include <ctime>
 #include "safesysstat.h"

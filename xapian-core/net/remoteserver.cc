@@ -30,8 +30,8 @@
 #include "xapian/query.h"
 #include "xapian/valueiterator.h"
 
-#include "safeerrno.h"
 #include <signal.h>
+#include <cerrno>
 #include <cstdlib>
 
 #include "autoptr.h"

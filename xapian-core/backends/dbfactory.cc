@@ -35,7 +35,7 @@
 #include "posixy_wrapper.h"
 #include "str.h"
 
-#include "safeerrno.h"
+#include <cerrno>
 #include <cstdlib> // For atoi().
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND

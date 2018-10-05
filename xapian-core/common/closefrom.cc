@@ -25,7 +25,7 @@
 
 #include "closefrom.h"
 
-#include "safeerrno.h"
+#include <cerrno>
 #include "safefcntl.h"
 #include "safeunistd.h"
 
