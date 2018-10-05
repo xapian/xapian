@@ -45,7 +45,7 @@ using namespace std;
 //  * values named instead of numbered?
 
 /** Generate a key for the "used slots" data. */
-inline string
+static inline string
 make_slot_key(Xapian::docid did)
 {
     LOGCALL_STATIC(DB, string, "make_slot_key", did);
@@ -59,7 +59,7 @@ make_slot_key(Xapian::docid did)
 }
 
 /** Generate a key for a value statistics item. */
-inline string
+static inline string
 make_valuestats_key(Xapian::valueno slot)
 {
     LOGCALL_STATIC(DB, string, "make_valuestats_key", slot);
