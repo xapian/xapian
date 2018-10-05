@@ -21,10 +21,10 @@
 #ifndef XAPIAN_INCLUDED_REMOTECONNECTION_H
 #define XAPIAN_INCLUDED_REMOTECONNECTION_H
 
+#include <cerrno>
 #include <string>
 
 #include "remoteprotocol.h"
-#include "safeerrno.h"
 #include "safenetdb.h" // For EAI_* constants.
 #include "safeunistd.h"
 
@@ -104,8 +104,7 @@ inline int socket_errno() {
 // else the socket remains in the CLOSE_WAIT state.
 # define CLOSESOCKET(S) closesocket(S)
 #else
-// Use a macro so we don't need to pull safeerrno.h in here.
-# define socket_errno() errno
+inline int socket_errno() { return errno; }
 
 # define CLOSESOCKET(S) close(S)
 #endif

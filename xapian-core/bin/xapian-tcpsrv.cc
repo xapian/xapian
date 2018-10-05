@@ -22,9 +22,8 @@
 
 #include <config.h>
 
+#include <cerrno>
 #include <cstdlib>
-
-#include "safeerrno.h"
 
 #include <iostream>
 #include <string>

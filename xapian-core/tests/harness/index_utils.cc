@@ -24,10 +24,9 @@
 #include "stringutils.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstring>
 #include <fstream>
-
-#include "safeerrno.h"
 
 using namespace std;
 

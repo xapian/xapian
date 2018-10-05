@@ -30,9 +30,8 @@
 #include <memory>
 #include <queue>
 
+#include <cerrno>
 #include <cstdio>
-
-#include "safeerrno.h"
 
 #include "backends/flint_lock.h"
 #include "glass_database.h"

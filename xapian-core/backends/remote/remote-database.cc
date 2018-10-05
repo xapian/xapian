@@ -23,7 +23,6 @@
 
 #include "remote-database.h"
 
-#include "safeerrno.h"
 #include <signal.h>
 
 #include "api/msetinternal.h"
@@ -42,6 +41,7 @@
 #include "stringutils.h" // For STRINGIZE().
 #include "weight/weightinternal.h"
 
+#include <cerrno>
 #include <memory>
 #include <string>
 #include <vector>

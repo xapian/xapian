@@ -24,7 +24,7 @@
 #include "flint_lock.h"
 
 #ifndef __WIN32__
-#include "safeerrno.h"
+#include <cerrno>
 
 #include "safefcntl.h"
 #include <unistd.h>

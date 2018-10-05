@@ -33,7 +33,6 @@
 #include "fd.h"
 #include "filetests.h"
 #include "safedirent.h"
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
@@ -43,6 +42,7 @@
 
 #include <sys/types.h>
 
+#include <cerrno>
 #include <cstdlib>
 #include <string>
 

@@ -30,13 +30,13 @@
 #include <xapian/error.h>
 
 #include "realtime.h"
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safenetdb.h"
 #include "safesysselect.h"
 #include "safesyssocket.h"
 #include "socket_utils.h"
 
+#include <cerrno>
 #include <cmath>
 #include <cstring>
 #ifndef __WIN32__

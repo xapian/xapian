@@ -27,9 +27,9 @@
 #include "index_utils.h"
 #include "unixcmds.h"
 
+#include <cerrno>
 #include <cstdio> // For rename().
 #include <cstring>
-#include "safeerrno.h"
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 

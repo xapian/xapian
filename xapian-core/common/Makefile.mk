@@ -28,7 +28,6 @@ noinst_HEADERS +=\
 	common/replicate_utils.h\
 	common/replicationprotocol.h\
 	common/safedirent.h\
-	common/safeerrno.h\
 	common/safefcntl.h\
 	common/safenetdb.h\
 	common/safesysselect.h\

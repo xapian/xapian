@@ -22,13 +22,13 @@
 
 #include <xapian/error.h>
 
-#include "safeerrno.h"
 #ifdef __WIN32__
 # include "safewindows.h"
 #else
 # include "safenetdb.h"
 #endif
 
+#include <cerrno>
 #include <cstdlib> // For abs().
 #include <cstring> // For memcmp().
 

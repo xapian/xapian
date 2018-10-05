@@ -39,11 +39,11 @@
 #include "posixy_wrapper.h"
 #include "net/remoteconnection.h"
 #include "replicationprotocol.h"
-#include "safeerrno.h"
 #include "str.h"
 #include "stringutils.h"
 
 #include <algorithm>
+#include <cerrno>
 
 [[noreturn]]
 static void

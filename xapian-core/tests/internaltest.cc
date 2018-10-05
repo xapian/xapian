@@ -25,8 +25,7 @@
 
 #include <xapian.h>
 
-#include "safeerrno.h"
-
+#include <cerrno>
 #include <iostream>
 #include <string>
 

@@ -22,12 +22,12 @@
 
 #include "unixperm.h"
 
-#include "safeerrno.h"
 #include <sys/types.h>
 #include <grp.h>
 #include <pwd.h>
 #include "safeunistd.h"
 
+#include <cerrno>
 #include <cstring>
 
 #ifdef GETGROUPLIST_TAKES_INT_P

@@ -27,8 +27,8 @@
 #include <vector>
 
 #include <sys/types.h>
-#include "safeerrno.h"
 #include "safefcntl.h"
+#include <cerrno>
 #include <cstdio>
 #include <cstring>
 #ifdef HAVE_SYS_TIME_H

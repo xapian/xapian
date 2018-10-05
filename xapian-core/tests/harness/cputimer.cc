@@ -24,8 +24,6 @@
 
 #include "testsuite.h"
 
-#include "safeerrno.h"
-
 #ifdef HAVE_GETRUSAGE
 # include <sys/time.h>
 # include <sys/resource.h>
@@ -40,6 +38,7 @@
 # include <ctime>
 #endif
 
+#include <cerrno>
 #include <cstdlib>
 #include <cstring>
 #include <string>

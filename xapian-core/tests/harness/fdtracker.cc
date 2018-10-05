@@ -26,9 +26,9 @@
 
 #include "safeunistd.h"
 #include "safedirent.h"
-#include "safeerrno.h"
 
 #include <iostream>
+#include <cerrno>
 #include <cstdlib>
 #include <cstring> // For strerror().
 #include <set>

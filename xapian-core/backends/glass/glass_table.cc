@@ -27,8 +27,6 @@
 
 #include <xapian/error.h>
 
-#include "safeerrno.h"
-
 #include "omassert.h"
 #include "posixy_wrapper.h"
 #include "str.h"
@@ -36,6 +34,7 @@
 
 #include <sys/types.h>
 
+#include <cerrno>
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
 

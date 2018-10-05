@@ -31,9 +31,8 @@
 #include <queue>
 #include <type_traits>
 
+#include <cerrno>
 #include <cstdio>
-
-#include "safeerrno.h"
 
 #include "backends/flint_lock.h"
 #include "compression_stream.h"

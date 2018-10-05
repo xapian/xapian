@@ -28,11 +28,11 @@
 #include "str.h"
 
 #include <sys/types.h>
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 
+#include <cerrno>
 #include <cstdlib> // For getenv().
 #include <string>
 

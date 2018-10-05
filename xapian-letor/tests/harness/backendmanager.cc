@@ -28,8 +28,7 @@
 # include <valgrind/memcheck.h>
 #endif
 
-#include "safeerrno.h"
-
+#include <cerrno>
 #include <cstdio>
 #include <fstream>
 #include <string>

@@ -22,7 +22,6 @@
 
 #include <config.h>
 
-#include "safeerrno.h"
 #include "safefcntl.h"
 
 #include "progclient.h"
@@ -30,6 +29,7 @@
 #include "closefrom.h"
 #include "debuglog.h"
 
+#include <cerrno>
 #include <string>
 #include <vector>
 

@@ -36,9 +36,9 @@
 #include <vector>
 #include <cstring>
 
-#include <cstdlib>
-#include "safeerrno.h"
+#include <cerrno>
 #include <cstdio>
+#include <cstdlib>
 #include <ctime>
 
 #include "commonhelp.h"

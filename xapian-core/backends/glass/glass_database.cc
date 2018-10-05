@@ -62,11 +62,11 @@
 #include "stringutils.h"
 #include "backends/valuestats.h"
 
-#include "safeerrno.h"
 #include "safesysstat.h"
 #include <sys/types.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
 #include <memory>
 #include <string>

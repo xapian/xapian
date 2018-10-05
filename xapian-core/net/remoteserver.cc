@@ -31,8 +31,8 @@
 #include "xapian/rset.h"
 #include "xapian/valueiterator.h"
 
-#include "safeerrno.h"
 #include <signal.h>
+#include <cerrno>
 #include <cstdlib>
 #include <memory>
 

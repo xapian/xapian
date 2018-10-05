@@ -23,8 +23,8 @@
 
 #include "safeunistd.h"
 #include <sys/types.h>
-#include "safeerrno.h"
 
+#include <cerrno>
 #include <cstring>
 
 using namespace std;

@@ -27,9 +27,9 @@
 #include "index_utils.h"
 #include "str.h"
 
+#include <cerrno>
 #include <cstdio> // For rename().
 #include <cstring>
-#include "safeerrno.h"
 
 using namespace std;
 

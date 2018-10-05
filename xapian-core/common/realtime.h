@@ -21,9 +21,9 @@
 #ifndef XAPIAN_INCLUDED_REALTIME_H
 #define XAPIAN_INCLUDED_REALTIME_H
 
+#include <cerrno>
 #include <cmath>
 #include <ctime>
-#include "safeerrno.h"
 
 #ifndef __WIN32__
 # ifdef HAVE_FTIME

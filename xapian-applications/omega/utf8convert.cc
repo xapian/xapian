@@ -22,9 +22,9 @@
 #include "utf8convert.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <string>
 
-#include "safeerrno.h"
 #ifdef USE_ICONV
 # include <iconv.h>
 #endif

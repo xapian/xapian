@@ -40,13 +40,13 @@
 #include "realtime.h"
 #include "net/remoteconnection.h"
 #include "replicationprotocol.h"
-#include "safeerrno.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "net/length.h"
 #include "str.h"
 #include "unicode/description_append.h"
 
+#include <cerrno>
 #include <fstream>
 #include <memory>
 #include <string>

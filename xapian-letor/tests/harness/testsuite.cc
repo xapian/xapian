@@ -29,7 +29,6 @@
 #endif
 #include "fdtracker.h"
 #include "testrunner.h"
-#include "safeerrno.h"
 #include "safeunistd.h"
 
 #ifdef HAVE_VALGRIND
@@ -42,6 +41,7 @@
 #include <iostream>
 #include <set>
 
+#include <cerrno>
 #include <cfloat> // For DBL_DIG.
 #include <cmath> // For ceil, fabs, log10.
 #include <cstdio>

@@ -38,6 +38,7 @@
 #include <iostream> // FIXME
 #endif
 
+#include <cerrno>
 #include <cstdio> // For EOF
 #include <cstdlib> // std::abort()
 #include <type_traits>
@@ -48,8 +49,6 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"
-
-#include "safeerrno.h"
 
 #include "compression_stream.h"
 #include "honey_defs.h"
