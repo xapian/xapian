@@ -1688,3 +1688,28 @@ DEFINE_TESTCASE(nodocs1, transactions && !remote) {
 
     return true;
 }
+
+/** Regression test for bug fixed in 1.4.8.
+ *
+ *  Chert and glass each has inline functions make_slot_key() with different
+ *  encodings, with is a C++ ODR violation.  With current GCC it seems we
+ *  luck out, but with clang and MSVC the wrong method gets called for one of
+ *  the backends and a corrupt database may result.
+ */
+DEFINE_TESTCASE(odrviolation1, glass || chert) {
+    const char* dbname = "odrviolation1";
+    {
+	Xapian::WritableDatabase db = get_named_writable_database(dbname);
+	Xapian::Document document;
+	document.add_value(0, "broken");
+	db.replace_document(16384, document);
+	db.commit();
+    }
+
+    size_t check_errors =
+	Xapian::Database::check(get_named_writable_database_path(dbname),
+				Xapian::DBCHECK_SHOW_STATS, &tout);
+    TEST_EQUAL(check_errors, 0);
+
+    return true;
+}
