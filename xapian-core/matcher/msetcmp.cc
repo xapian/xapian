@@ -30,7 +30,8 @@
 
 // Order by did.  Helper comparison template function, which is used as the
 // last fallback by the others.
-template<bool FORWARD_DID, bool CHECK_DID_ZERO> inline bool
+template<bool FORWARD_DID, bool CHECK_DID_ZERO>
+static inline bool
 msetcmp_by_did(const Xapian::Internal::MSetItem &a,
 	       const Xapian::Internal::MSetItem &b)
 {
@@ -47,7 +48,8 @@ msetcmp_by_did(const Xapian::Internal::MSetItem &a,
 }
 
 // Order by relevance, then docid.
-template<bool FORWARD_DID> bool
+template<bool FORWARD_DID>
+static bool
 msetcmp_by_relevance(const Xapian::Internal::MSetItem &a,
 		     const Xapian::Internal::MSetItem &b)
 {
@@ -57,7 +59,8 @@ msetcmp_by_relevance(const Xapian::Internal::MSetItem &a,
 }
 
 // Order by value, then docid.
-template<bool FORWARD_VALUE, bool FORWARD_DID> bool
+template<bool FORWARD_VALUE, bool FORWARD_DID>
+static bool
 msetcmp_by_value(const Xapian::Internal::MSetItem &a,
 		 const Xapian::Internal::MSetItem &b)
 {
@@ -73,7 +76,8 @@ msetcmp_by_value(const Xapian::Internal::MSetItem &a,
 }
 
 // Order by value, then relevance, then docid.
-template<bool FORWARD_VALUE, bool FORWARD_DID> bool
+template<bool FORWARD_VALUE, bool FORWARD_DID>
+static bool
 msetcmp_by_value_then_relevance(const Xapian::Internal::MSetItem &a,
 				const Xapian::Internal::MSetItem &b)
 {
@@ -91,7 +95,8 @@ msetcmp_by_value_then_relevance(const Xapian::Internal::MSetItem &a,
 }
 
 // Order by relevance, then value, then docid.
-template<bool FORWARD_VALUE, bool FORWARD_DID> bool
+template<bool FORWARD_VALUE, bool FORWARD_DID>
+static bool
 msetcmp_by_relevance_then_value(const Xapian::Internal::MSetItem &a,
 				const Xapian::Internal::MSetItem &b)
 {

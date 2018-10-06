@@ -47,17 +47,20 @@ using namespace std;
 
 namespace Xapian {
 
-inline bool
-U_isupper(unsigned ch) {
+static inline bool
+U_isupper(unsigned ch)
+{
     return (ch < 128 && C_isupper(static_cast<unsigned char>(ch)));
 }
 
-inline unsigned check_wordchar(unsigned ch) {
+static inline unsigned
+check_wordchar(unsigned ch)
+{
     if (Unicode::is_wordchar(ch)) return Unicode::tolower(ch);
     return 0;
 }
 
-inline bool
+static inline bool
 should_stem(const std::string & term)
 {
     const unsigned int SHOULD_STEM_MASK =
@@ -72,9 +75,11 @@ should_stem(const std::string & term)
 /** Value representing "ignore this" when returned by check_infix() or
  *  check_infix_digit().
  */
-const unsigned UNICODE_IGNORE = numeric_limits<unsigned>::max();
+static const unsigned UNICODE_IGNORE = numeric_limits<unsigned>::max();
 
-inline unsigned check_infix(unsigned ch) {
+static inline unsigned
+check_infix(unsigned ch)
+{
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
 	// Unicode includes all these except '&' in its word boundary rules,
 	// as well as 0x2019 (which we handle below) and ':' (for Swedish
@@ -90,7 +95,9 @@ inline unsigned check_infix(unsigned ch) {
     return 0;
 }
 
-inline unsigned check_infix_digit(unsigned ch) {
+static inline unsigned
+check_infix_digit(unsigned ch)
+{
     // This list of characters comes from Unicode's word identifying algorithm.
     switch (ch) {
 	case ',':
@@ -111,12 +118,14 @@ inline unsigned check_infix_digit(unsigned ch) {
     return 0;
 }
 
-inline bool
+static inline bool
 is_digit(unsigned ch) {
     return (Unicode::get_category(ch) == Unicode::DECIMAL_DIGIT_NUMBER);
 }
 
-inline unsigned check_suffix(unsigned ch) {
+static inline unsigned
+check_suffix(unsigned ch)
+{
     if (ch == '+' || ch == '#') return ch;
     // FIXME: what about '-'?
     return 0;
@@ -128,7 +137,8 @@ inline unsigned check_suffix(unsigned ch) {
  *  std::string holding the term, and positional is a bool indicating
  *  if this term carries positional information.
  */
-template<typename ACTION> void
+template<typename ACTION>
+static void
 parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION action)
 {
     while (true) {
@@ -440,7 +450,7 @@ SnipPipe::done()
 // Check if a non-word character is should be included at the start of the
 // snippet.  We want to include certain leading non-word characters, but not
 // others.
-inline bool
+static inline bool
 snippet_check_leading_nonwordchar(unsigned ch) {
     if (Unicode::is_currency(ch) ||
 	Unicode::get_category(ch) == Unicode::OPEN_PUNCTUATION ||
@@ -469,7 +479,7 @@ snippet_check_leading_nonwordchar(unsigned ch) {
     return false;
 }
 
-inline void
+static inline void
 append_escaping_xml(const char* p, const char* end, string& output)
 {
     while (p != end) {

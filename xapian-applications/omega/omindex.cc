@@ -77,7 +77,7 @@ static string url_start_path;
 static vector<pair<const char*, const char*>> mime_patterns;
 #endif
 
-inline static bool
+static inline bool
 p_notalnum(unsigned int c)
 {
     return !C_isalnum(c);

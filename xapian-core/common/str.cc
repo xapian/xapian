@@ -33,7 +33,7 @@ using namespace std;
 
 // Much faster than snprintf() - also less generated code!
 template<class T>
-inline string
+static inline string
 tostring_unsigned(T value)
 {
     static_assert(std::is_unsigned<T>::value, "Unsigned type required");
@@ -52,7 +52,7 @@ tostring_unsigned(T value)
 }
 
 template<class T>
-inline string
+static inline string
 tostring(T value)
 {
     // Special case single digit positive numbers.
@@ -118,7 +118,7 @@ str(unsigned long long value)
 }
 
 template<class T>
-inline string
+static inline string
 format(const char * fmt, T value)
 {
     char buf[128];

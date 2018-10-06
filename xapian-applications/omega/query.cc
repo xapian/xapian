@@ -731,14 +731,14 @@ string WordList::prev_list;
 unordered_map<string, int> WordList::word_to_occurrence;
 
 // Not a character in an identifier
-inline static bool
+static inline bool
 p_notid(unsigned int c)
 {
     return !C_isalnum(c) && c != '_';
 }
 
 // Not a character in an HTML tag name
-inline static bool
+static inline bool
 p_nottag(unsigned int c)
 {
     return !C_isalnum(c) && c != '.' && c != '-';

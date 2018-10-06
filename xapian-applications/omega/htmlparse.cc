@@ -44,7 +44,7 @@ using namespace std;
 #define HTML5_LEGACY_COMPAT "about:legacy-compat"
 #define HTML5_LEGACY_COMPAT_LEN CONST_STRLEN(HTML5_LEGACY_COMPAT)
 
-inline void
+static inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
@@ -52,20 +52,20 @@ lowercase_string(string &str)
     }
 }
 
-inline static bool
+static inline bool
 p_nottag(char c)
 {
     // ':' for XML namespaces.
     return !C_isalnum(c) && c != '.' && c != '-' && c != ':';
 }
 
-inline static bool
+static inline bool
 p_whitespacegt(char c)
 {
     return C_isspace(c) || c == '>';
 }
 
-inline static bool
+static inline bool
 p_whitespaceeqgt(char c)
 {
     return C_isspace(c) || c == '=' || c == '>';

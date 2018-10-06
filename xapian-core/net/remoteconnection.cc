@@ -66,7 +66,7 @@ throw_network_error_insane_message_length()
 }
 
 #ifdef __WIN32__
-inline void
+static inline void
 update_overlapped_offset(WSAOVERLAPPED & overlapped, DWORD n)
 {
     // Signed overflow is undefined so check DWORD is unsigned.
