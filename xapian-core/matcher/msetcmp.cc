@@ -31,7 +31,8 @@
  */
 
 // Order by docid, inlined.  Used as the last fallback by the others.
-template<bool FORWARD_DID> inline bool
+template<bool FORWARD_DID>
+static inline bool
 msetcmp_by_docid_inline(const Result& a, const Result& b)
 {
     if (FORWARD_DID) {
@@ -42,14 +43,16 @@ msetcmp_by_docid_inline(const Result& a, const Result& b)
 }
 
 // Order by docid, used when relevance is always 0.
-template<bool FORWARD_DID> bool
+template<bool FORWARD_DID>
+static bool
 msetcmp_by_docid(const Result& a, const Result& b)
 {
     return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by relevance, then docid.
-template<bool FORWARD_DID> bool
+template<bool FORWARD_DID>
+static bool
 msetcmp_by_relevance(const Result& a, const Result& b)
 {
     if (a.get_weight() > b.get_weight()) return true;
@@ -58,7 +61,8 @@ msetcmp_by_relevance(const Result& a, const Result& b)
 }
 
 // Order by value, then docid.
-template<bool FORWARD_VALUE, bool FORWARD_DID> bool
+template<bool FORWARD_VALUE, bool FORWARD_DID>
+static bool
 msetcmp_by_value(const Result& a, const Result& b)
 {
     int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
@@ -68,7 +72,8 @@ msetcmp_by_value(const Result& a, const Result& b)
 }
 
 // Order by value, then relevance, then docid.
-template<bool FORWARD_VALUE, bool FORWARD_DID> bool
+template<bool FORWARD_VALUE, bool FORWARD_DID>
+static bool
 msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 {
     int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
@@ -80,7 +85,8 @@ msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 }
 
 // Order by relevance, then value, then docid.
-template<bool FORWARD_VALUE, bool FORWARD_DID> bool
+template<bool FORWARD_VALUE, bool FORWARD_DID>
+static bool
 msetcmp_by_relevance_then_value(const Result& a, const Result& b)
 {
     if (a.get_weight() > b.get_weight()) return true;

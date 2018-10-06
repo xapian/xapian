@@ -35,18 +35,24 @@ using namespace std;
 #if HAVE_DECL___BUILTIN_CLZ && \
     HAVE_DECL___BUILTIN_CLZL && \
     HAVE_DECL___BUILTIN_CLZLL
-inline int do_clz(unsigned value) { return __builtin_clz(value); }
+static inline int do_clz(unsigned value) {
+    return __builtin_clz(value);
+}
 
-inline int do_clz(unsigned long value) { return __builtin_clzl(value); }
+static inline int do_clz(unsigned long value) {
+    return __builtin_clzl(value);
+}
 
-inline int do_clz(unsigned long long value) { return __builtin_clzll(value); }
+static inline int do_clz(unsigned long long value) {
+    return __builtin_clzll(value);
+}
 
 # define HAVE_DO_CLZ
 #endif
 
 // Highly optimised fls() implementation.
 template<typename T>
-inline int
+static inline int
 highest_order_bit(T mask)
 {
 #ifdef HAVE_DO_CLZ
@@ -94,7 +100,7 @@ namespace Xapian {
 
 /// Shift left that's safe for shifts wider than the type.
 template<typename T, typename U>
-constexpr inline
+static constexpr inline
 T safe_shl(T x, U shift)
 {
     return (shift >= sizeof(T) * 8 ? 0 : x << shift);

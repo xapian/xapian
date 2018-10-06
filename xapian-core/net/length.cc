@@ -54,7 +54,7 @@ throw_network_error(const char * msg)
 #endif
 
 template<typename T>
-inline void
+static inline void
 decode_length_(const char ** p, const char *end, T & out)
 {
     if (*p == end) {
@@ -79,7 +79,7 @@ decode_length_(const char ** p, const char *end, T & out)
 }
 
 template<typename T>
-inline void
+static inline void
 decode_length_and_check_(const char ** p, const char *end, T & out)
 {
     decode_length(p, end, out);

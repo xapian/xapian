@@ -95,7 +95,7 @@ uncw_path(const string & path)
     return (path.size() >= 4 && memcmp(path.data(), "\\\\?\\", 4) == 0);
 }
 
-inline bool slash(char ch)
+static inline bool slash(char ch)
 {
     return ch == '/' || ch == '\\';
 }

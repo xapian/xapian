@@ -66,7 +66,7 @@ static const qp_flag flag_tab[] = {
 };
 const int n_flag_tab = sizeof(flag_tab) / sizeof(flag_tab[0]);
 
-inline bool operator<(const qp_flag & f1, const qp_flag & f2) {
+static inline bool operator<(const qp_flag& f1, const qp_flag& f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
@@ -82,7 +82,7 @@ static const qp_op op_tab[] = {
 };
 const int n_op_tab = sizeof(op_tab) / sizeof(op_tab[0]);
 
-inline bool operator<(const qp_op & f1, const qp_op & f2) {
+static inline bool operator<(const qp_op& f1, const qp_op& f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
@@ -122,7 +122,7 @@ static const wt wt_tab[] = {
 };
 const int n_wt_tab = sizeof(wt_tab) / sizeof(wt_tab[0]);
 
-inline bool operator<(const wt & f1, const wt & f2) {
+static inline bool operator<(const wt& f1, const wt& f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 

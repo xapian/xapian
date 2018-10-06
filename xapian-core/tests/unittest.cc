@@ -122,7 +122,7 @@ DEFINE_TESTCASE_(class_exceptions_work1) {
     return false;
 }
 
-inline string
+static inline string
 r_r_p(string a, const string & b)
 {
     resolve_relative_path(a, b);

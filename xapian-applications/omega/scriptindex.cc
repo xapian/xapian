@@ -64,7 +64,7 @@ static int addcount;
 static int repcount;
 static int delcount;
 
-inline bool
+static inline bool
 prefix_needs_colon(const string & prefix, unsigned ch)
 {
     if (!C_isupper(ch) && ch != ':') return false;

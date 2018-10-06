@@ -40,7 +40,7 @@ CollTfCollLenFeature::name() const
  *
  *  Checks if the term belongs to the title or is stemmed from the title.
  */
-inline bool
+static inline bool
 is_title_term(const std::string& term)
 {
     return startswith(term, 'S') || startswith(term, "ZS");

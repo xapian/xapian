@@ -104,7 +104,7 @@ is_doclenchunk_key(const string & key)
 
 }
 
-inline static bool
+static inline bool
 termlist_key_is_values_used(const string& key)
 {
     const char* p = key.data();

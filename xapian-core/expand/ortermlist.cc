@@ -91,7 +91,7 @@ OrTermList::get_termfreq() const
 }
 
 // Helper function.
-inline void
+static inline void
 handle_prune(TermList *& old, TermList * result)
 {
     if (result) {

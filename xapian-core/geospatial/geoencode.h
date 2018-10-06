@@ -76,7 +76,7 @@ decode(const char * value, size_t len, double & lat_ref, double & lon_ref);
  * first 6 bytes) will be ignored, and it is possible for invalid inputs to
  * result in out-of-range longitudes.
  */
-inline void
+static inline void
 decode(const std::string & value, double & lat_ref, double & lon_ref)
 {
     return GeoEncode::decode(value.data(), value.size(), lat_ref, lon_ref);

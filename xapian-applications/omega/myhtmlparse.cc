@@ -35,7 +35,7 @@ using namespace std;
 
 static const char whitespace[] = "_ \t\r\r\f";
 
-inline void
+static inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
