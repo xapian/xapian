@@ -26,29 +26,12 @@
 #include <xapian/types.h>
 
 #include "omassert.h"
+#include "pack.h"
 
 #include <cmath>
 #include <vector>
 
 using namespace std;
-
-#if HAVE_DECL___BUILTIN_CLZ && \
-    HAVE_DECL___BUILTIN_CLZL && \
-    HAVE_DECL___BUILTIN_CLZLL
-static inline int do_clz(unsigned value) {
-    return __builtin_clz(value);
-}
-
-static inline int do_clz(unsigned long value) {
-    return __builtin_clzl(value);
-}
-
-static inline int do_clz(unsigned long long value) {
-    return __builtin_clzll(value);
-}
-
-# define HAVE_DO_CLZ
-#endif
 
 // Highly optimised fls() implementation.
 template<typename T>
