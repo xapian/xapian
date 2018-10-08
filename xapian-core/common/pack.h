@@ -129,11 +129,30 @@ unpack_uint_last(const char ** p, const char * end, U * result)
 #if HAVE_DECL___BUILTIN_CLZ && \
     HAVE_DECL___BUILTIN_CLZL && \
     HAVE_DECL___BUILTIN_CLZLL
-inline int do_clz(unsigned value) { return __builtin_clz(value); }
+template<typename T>
+inline int
+do_clz(T value) {
+    extern int no_clz_builtin_for_this_type(T);
+    return no_clz_builtin_for_this_type(value);
+}
 
-inline int do_clz(unsigned long value) { return __builtin_clzl(value); }
+template<>
+inline int
+do_clz(unsigned value) {
+    return __builtin_clz(value);
+}
 
-inline int do_clz(unsigned long long value) { return __builtin_clzll(value); }
+template<>
+inline int
+do_clz(unsigned long value) {
+    return __builtin_clzl(value);
+}
+
+template<>
+inline int
+do_clz(unsigned long long value) {
+    return __builtin_clzll(value);
+}
 
 # define HAVE_DO_CLZ
 #endif
