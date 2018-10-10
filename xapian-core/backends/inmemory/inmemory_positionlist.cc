@@ -35,6 +35,12 @@ InMemoryPositionList::get_approx_size() const
 }
 
 Xapian::termpos
+InMemoryPositionList::back() const
+{
+    return positions.back();
+}
+
+Xapian::termpos
 InMemoryPositionList::get_position() const
 {
     AssertRel(index, <, positions.size());

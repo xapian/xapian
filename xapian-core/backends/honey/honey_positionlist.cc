@@ -90,6 +90,13 @@ HoneyBasePositionList::get_approx_size() const
 }
 
 Xapian::termpos
+HoneyBasePositionList::back() const
+{
+    LOGCALL(DB, Xapian::termpos, "HoneyBasePositionList::back()", NO_ARGS);
+    RETURN(last);
+}
+
+Xapian::termpos
 HoneyBasePositionList::get_position() const
 {
     LOGCALL(DB, Xapian::termpos, "HoneyBasePositionList::get_position", NO_ARGS);

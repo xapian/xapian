@@ -111,6 +111,8 @@ class GlassBasePositionList : public PositionList {
     /// Returns size of position list.
     Xapian::termcount get_approx_size() const;
 
+    Xapian::termpos back() const;
+
     /** Returns current position.
      *
      *  Either next() or skip_to() must have been called before this

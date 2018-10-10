@@ -69,6 +69,8 @@ class InMemoryPositionList : public PositionList {
 
     Xapian::termcount get_approx_size() const;
 
+    Xapian::termpos back() const;
+
     Xapian::termpos get_position() const;
 
     bool next();

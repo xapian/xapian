@@ -89,6 +89,13 @@ GlassBasePositionList::get_approx_size() const
 }
 
 Xapian::termpos
+GlassBasePositionList::back() const
+{
+    LOGCALL(DB, Xapian::termpos, "GlassBasePositionList::back()", NO_ARGS);
+    RETURN(last);
+}
+
+Xapian::termpos
 GlassBasePositionList::get_position() const
 {
     LOGCALL(DB, Xapian::termpos, "GlassBasePositionList::get_position", NO_ARGS);
