@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2016 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -91,6 +91,7 @@ enum {
     WEIGHT_BM25,
     WEIGHT_BM25PLUS,
     WEIGHT_BOOL,
+    WEIGHT_COORD,
     WEIGHT_DLH,
     WEIGHT_DPH,
     WEIGHT_IFB2,
@@ -109,6 +110,7 @@ static const wt wt_tab[] = {
     { "bm25",	WEIGHT_BM25 },
     { "bm25+",	WEIGHT_BM25PLUS },
     { "bool",	WEIGHT_BOOL },
+    { "coord",	WEIGHT_COORD },
     { "dlh",	WEIGHT_DLH },
     { "dph",	WEIGHT_DPH },
     { "ifb2",	WEIGHT_IFB2 },
@@ -386,6 +388,9 @@ try {
 	    break;
 	case WEIGHT_BOOL:
 	    enquire.set_weighting_scheme(Xapian::BoolWeight());
+	    break;
+	case WEIGHT_COORD:
+	    enquire.set_weighting_scheme(Xapian::CoordWeight());
 	    break;
 	case WEIGHT_BM25:
 	    enquire.set_weighting_scheme(Xapian::BM25Weight());
