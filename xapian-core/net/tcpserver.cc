@@ -32,6 +32,7 @@
 
 #include "remoteconnection.h"
 #include "resolver.h"
+#include "socket_utils.h"
 #include "str.h"
 
 #ifdef __WIN32__
@@ -217,7 +218,7 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 int
 TcpServer::accept_connection()
 {
-    struct sockaddr_in remote_address;
+    struct sockaddr_in6 remote_address;
     SOCKLEN_T remote_address_size = sizeof(remote_address);
     // accept connections
     int con_socket = accept(listen_socket,
@@ -236,33 +237,14 @@ TcpServer::accept_connection()
 	throw Xapian::NetworkError("accept failed", socket_errno());
     }
 
-    if (remote_address_size != sizeof(remote_address)) {
-	throw Xapian::NetworkError("accept: unexpected remote address size");
-    }
-
     if (verbose) {
-	char buf[INET_ADDRSTRLEN];
-#ifndef __WIN32__
-	// Under __WIN32__, inet_ntop()'s second parameter isn't const for some
-	// reason.  We don't currently use inet_ntop() there, but allow for a
-	// non-const second parameter in case it's more widespread.
-	void * src = &remote_address.sin_addr;
-	const char * r = inet_ntop(AF_INET, src, buf, sizeof(buf));
-	if (!r)
-	    throw Xapian::NetworkError("inet_ntop failed", errno);
-#else
-	// inet_ntop() isn't always available, at least with mingw.
-	// WSAAddressToString() supports both IPv4 and IPv6, so just use that.
-	DWORD size = sizeof(buf);
-	if (WSAAddressToString(reinterpret_cast<sockaddr*>(&remote_address),
-			       sizeof(remote_address), NULL, buf, &size) != 0) {
-	    throw Xapian::NetworkError("WSAAddressToString failed",
-				       WSAGetLastError());
+	char host[PRETTY_IP6_LEN];
+	int port = pretty_ip6(&remote_address, host);
+	if (port >= 0) {
+	    cout << "Connection from " << host << " port " << port << endl;
+	} else {
+	    cout << "Connection from unknown host" << endl;
 	}
-	const char * r = buf;
-#endif
-	int port = remote_address.sin_port;
-	cout << "Connection from " << r << ", port " << port << endl;
     }
 
     return con_socket;

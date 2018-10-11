@@ -96,11 +96,11 @@ class Resolver {
 	if (host != "::1" && host != "127.0.0.1" && host != "localhost") {
 	    flags |= AI_ADDRCONFIG;
 	}
-	flags |= AI_NUMERICSERV;
+	flags |= AI_NUMERICSERV | AI_V4MAPPED;
 
 	struct addrinfo hints;
 	std::memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = AF_INET;
+	hints.ai_family = AF_INET6;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = flags;
 	hints.ai_protocol = 0;
