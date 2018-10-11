@@ -28,10 +28,11 @@
 
 using namespace std;
 
-#include <arpa/inet.h>
 #include "stringutils.h"
 
-#ifdef __WIN32__
+#ifndef __WIN32__
+# include <arpa/inet.h>
+#else
 # include <io.h>
 # include "msvcignoreinvalidparam.h"
 # include <cerrno>
