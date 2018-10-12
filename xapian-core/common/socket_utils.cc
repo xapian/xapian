@@ -108,8 +108,8 @@ pretty_ip6(const void* p, char* buf)
 {
     const sockaddr_in* a = reinterpret_cast<const sockaddr_in*>(p);
     const sockaddr_in6* a6 = reinterpret_cast<const sockaddr_in6*>(p);
-    sa_family_t af = a6->sin6_family;
-    in_port_t port;
+    auto af = a6->sin6_family;
+    int port;
     if (af == AF_INET6) {
 	port = a6->sin6_port;
     } else if (af == AF_INET) {
