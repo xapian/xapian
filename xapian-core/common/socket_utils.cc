@@ -1,7 +1,7 @@
 /** @file  socket_utils.cc
  *  @brief Socket handling utilities.
  */
-/* Copyright (C) 2006,2007,2008,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ pretty_ip6(const void* p, char* buf)
     // The mingw headers at least are also missing const from the corresponding
     // (second) parameter of inet_ntop(), so just cast away the const in case
     // this is more widespread.
-    void* src = const_cast<void*>(p);
+    auto src = reinterpret_cast<struct sockaddr*>(const_cast<void*>(p));
 #ifndef __WIN32__
     const char* r = inet_ntop(af, src, buf, PRETTY_IP6_LEN);
     if (!r)
