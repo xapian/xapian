@@ -837,7 +837,7 @@ $min{A,...}
 	minimum of the arguments
 
 $mul{A,B,...}
-multiply arguments together
+	multiply arguments together
 
 $muldiv{A,B,C}
 	returns int((A * B) / C) (or the text "divide by 0" if C is zero)
