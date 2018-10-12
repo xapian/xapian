@@ -106,14 +106,13 @@ set_socket_timeouts(int fd, double timeout)
 int
 pretty_ip6(const void* p, char* buf)
 {
-    const sockaddr_in* a = reinterpret_cast<const sockaddr_in*>(p);
-    const sockaddr_in6* a6 = reinterpret_cast<const sockaddr_in6*>(p);
-    auto af = a6->sin6_family;
+    const sockaddr* sa = reinterpret_cast<const sockaddr*>(p);
+    auto af = sa->sa_family;
     int port;
     if (af == AF_INET6) {
-	port = a6->sin6_port;
+	port = (reinterpret_cast<const sockaddr_in6*>(p))->sin6_port;
     } else if (af == AF_INET) {
-	port = a->sin_port;
+	port = (reinterpret_cast<const sockaddr_in*>(p))->sin_port;
     } else {
 	return -1;
     }
@@ -129,9 +128,11 @@ pretty_ip6(const void* p, char* buf)
 #else
     // inet_ntop() isn't always available, at least with mingw.
     // WSAAddressToString() supports both IPv4 and IPv6, so just use that.
+    DWORD in_size = (af == AF_INET6 ?
+		     sizeof(struct sockaddr_in6) :
+		     sizeof(struct sockaddr_in));
     DWORD size = PRETTY_IP6_LEN;
-    if (WSAAddressToString(reinterpret_cast<sockaddr*>(&remote_address),
-			   sizeof(remote_address), NULL, buf, &size) != 0) {
+    if (WSAAddressToString(p, in_size, NULL, buf, &size) != 0) {
 	return -1;
     }
     const char* r = buf;

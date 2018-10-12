@@ -218,7 +218,7 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 int
 TcpServer::accept_connection()
 {
-    struct sockaddr_in6 remote_address;
+    struct sockaddr_storage remote_address;
     SOCKLEN_T remote_address_size = sizeof(remote_address);
     // accept connections
     int con_socket = accept(listen_socket,
