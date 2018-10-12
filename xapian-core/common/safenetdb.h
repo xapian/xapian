@@ -1,7 +1,7 @@
 /** @file safenetdb.h
  *  @brief #include <netdb.h>, with portability workarounds.
  */
-/* Copyright (C) 2013,2015 Olly Betts
+/* Copyright (C) 2013,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +38,9 @@
 # endif
 # ifndef AI_ADDRCONFIG
 #  define AI_ADDRCONFIG 0x400
+# endif
+# ifndef AI_V4MAPPED
+#  define AI_V4MAPPED 0x800
 # endif
 
 #endif
