@@ -117,11 +117,13 @@ pretty_ip6(const void* p, char* buf)
 	return -1;
     }
 
-#ifndef __WIN32__
-    // Under __WIN32__, inet_ntop()'s second parameter isn't const for some
-    // reason.  We don't currently use inet_ntop() there, but allow for a
-    // non-const second parameter in case it's more widespread.
+    // WSAAddressToString() has a non-const first parameter.
+    //
+    // The mingw headers at least are also missing const from the corresponding
+    // (second) parameter of inet_ntop(), so just cast away the const in case
+    // this is more widespread.
     void* src = const_cast<void*>(p);
+#ifndef __WIN32__
     const char* r = inet_ntop(af, src, buf, PRETTY_IP6_LEN);
     if (!r)
 	return -1;
@@ -132,7 +134,7 @@ pretty_ip6(const void* p, char* buf)
 		     sizeof(struct sockaddr_in6) :
 		     sizeof(struct sockaddr_in));
     DWORD size = PRETTY_IP6_LEN;
-    if (WSAAddressToString(p, in_size, NULL, buf, &size) != 0) {
+    if (WSAAddressToString(src, in_size, NULL, buf, &size) != 0) {
 	return -1;
     }
     const char* r = buf;
