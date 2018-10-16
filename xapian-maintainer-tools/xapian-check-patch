@@ -153,6 +153,21 @@ while (<>) {
 
     my $fullline = $_;
     if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+	if ($lineno == 1 && m!^\+!) {
+	    if (m!^\+/\*\*\s+\@file\s+(\S+)!) {
+		my $at_file = $1;
+		if ($fnm eq $at_file ||
+		    (length $fnm > length($at_file) && substr($fnm, -length($at_file) - 1, 1) eq '/') &&
+		    substr($fnm, -length $at_file) eq $at_file) {
+		    # @file matches
+		} else {
+		    diagnostic('error', "\@file doesn't match filename", $fullline);
+		}
+	    } else {
+		diagnostic('error', "\@file missing", $fullline);
+	    }
+	}
+
 	# Uncomment commented out parameter names: foo(int /*bar*/) -> foo(int bar)
 	s!/\*([A-Za-z_][A-Za-z_0-9]*)\*/([,)])!$1$2!g;
 
@@ -481,20 +496,6 @@ QUOTELOOP:  while (1) {
 		# Platform specific names, allow for now.
 	    } else {
 		diagnostic('error', "camelCase identifier '$1' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names", $fullline);
-	    }
-	}
-	if ($lineno == 1 && m!^\+!) {
-	    if (m!^/\*\* \@file (\S+)!) {
-		my $at_file = $1;
-		if (length $fnm == length $at_file ||
-		    (length $fnm > length $at_file && substr($fnm, -length $at_file - 1, 1) eq '/') &&
-		    substr($fnm, -length $at_file) eq $at_file) {
-		    # @file matches
-		} else {
-		    diagnostic('error', "\@file doesn't match filename", $fullline);
-		}
-	    } else {
-		diagnostic('error', "\@file missing", $fullline);
 	    }
 	}
 	if (/^\+.*\b(?:class|struct)\b.*:\s*$/) {
