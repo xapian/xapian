@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014,2017 Olly Betts
+ * Copyright 2009,2011,2014,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,15 @@ class SynonymPostList : public WrapperPostList {
     /// Flag indicating whether the weighting object needs the wdf.
     bool want_wdf;
 
+    /** Are the subquery's wdf contributions disjoint?
+     *
+     *  This is true is each wdf from the document contributes at most itself
+     *  to the wdf of the subquery.  That means that the wdf of the subquery
+     *  can't possibly ever exceed the document length, so we can avoid the
+     *  need to check and clamp wdf to be <= document length.
+     */
+    bool wdf_disjoint;
+
     PostListTree* pltree;
 
     /// Lower bound on doclength in the subdatabase we're working over.
@@ -52,8 +61,10 @@ class SynonymPostList : public WrapperPostList {
   public:
     SynonymPostList(PostList * subtree,
 		    const Xapian::Database::Internal* db,
-		    PostListTree* pltree_)
+		    PostListTree* pltree_,
+		    bool wdf_disjoint_)
 	: WrapperPostList(subtree), wt(NULL), want_wdf(false),
+	  wdf_disjoint(wdf_disjoint_),
 	  pltree(pltree_),
 	  doclen_lower_bound(db->get_doclength_lower_bound()) { }
 

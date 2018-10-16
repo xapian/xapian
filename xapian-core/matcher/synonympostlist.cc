@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014,2016,2017 Olly Betts
+ * Copyright 2009,2011,2014,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,19 +66,23 @@ SynonymPostList::get_weight(Xapian::termcount doclen,
     LOGCALL(MATCH, double, "SynonymPostList::get_weight", doclen | unique_terms);
     Xapian::termcount wdf = 0;
     if (want_wdf) {
-	// The wdf returned can be higher than the doclength.  In particular,
-	// this can currently occur if the query contains a term more than
-	// once; the wdf of each occurrence is added up.
-	//
-	// However, it's reasonable for weighting algorithms to optimise by
-	// assuming that get_wdf() will never return more than doclen, since
-	// doclen is the sum of the wdfs.
-	//
-	// Therefore, we simply clamp the wdf value to doclen, to ensure that
-	// this is true.  Note that this requires doclen to be fetched even if
-	// the weight object doesn't want it.
 	wdf = get_wdf();
-	if (wdf > doclen_lower_bound) {
+	// Use doclen_lower_bound as a cheap check to sometimes avoid the
+	// need to clamp.
+	if (!disjoint_wdf && wdf > doclen_lower_bound) {
+	    // If !disjoint_wdf, the subquery isn't known to be wdf-disjoint
+	    // and so may return a wdf higher than the doclength.  In
+	    // particular, this can currently occur if the query below
+	    // OP_SYNONYM contains a term more than once; the wdf of each
+	    // occurrence is added up.
+	    //
+	    // However, it's reasonable for weighting algorithms to optimise by
+	    // assuming that get_wdf() will never return more than doclen, since
+	    // doclen is the sum of the wdfs.
+	    //
+	    // Therefore, we simply clamp the wdf value to doclen to ensure
+	    // that this is true.  Note that this requires doclen to be fetched
+	    // even if the weight object doesn't want it.
 	    if (doclen == 0) {
 		Xapian::termcount dummy;
 		pltree->get_doc_stats(doclen, dummy);

@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -196,15 +196,17 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 PostList *
 LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 				     PostList* or_pl,
-				     double factor)
+				     double factor,
+				     bool wdf_disjoint)
 {
-    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor);
+    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | wdf_disjoint);
     if (rare(or_pl->get_termfreq_max() == 0)) {
 	// or_pl is an EmptyPostList or equivalent.
 	return or_pl;
     }
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
-    unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, db, pltree));
+    unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, db, pltree,
+							wdf_disjoint));
     unique_ptr<Xapian::Weight> wt(wt_factory.clone());
 
     TermFreqs freqs;

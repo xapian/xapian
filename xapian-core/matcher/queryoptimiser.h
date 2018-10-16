@@ -1,7 +1,7 @@
 /** @file queryoptimiser.h
  * @brief Details passed around while building PostList tree from Query tree
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -100,8 +100,11 @@ class QueryOptimiser {
 					    in_synonym, this, true);
     }
 
-    PostList * make_synonym_postlist(PostList * pl, double factor) {
-	return localsubmatch.make_synonym_postlist(matcher, pl, factor);
+    PostList * make_synonym_postlist(PostList * pl,
+				     double factor,
+				     bool wdf_disjoint) {
+	return localsubmatch.make_synonym_postlist(matcher, pl, factor,
+						   wdf_disjoint);
     }
 
     const LeafPostList * get_hint_postlist() const { return hint; }
