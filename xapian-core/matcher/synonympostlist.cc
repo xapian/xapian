@@ -69,8 +69,8 @@ SynonymPostList::get_weight(Xapian::termcount doclen,
 	wdf = get_wdf();
 	// Use doclen_lower_bound as a cheap check to sometimes avoid the
 	// need to clamp.
-	if (!disjoint_wdf && wdf > doclen_lower_bound) {
-	    // If !disjoint_wdf, the subquery isn't known to be wdf-disjoint
+	if (!wdf_disjoint && wdf > doclen_lower_bound) {
+	    // If !wdf_disjoint, the subquery isn't known to be wdf-disjoint
 	    // and so may return a wdf higher than the doclength.  In
 	    // particular, this can currently occur if the query below
 	    // OP_SYNONYM contains a term more than once; the wdf of each
