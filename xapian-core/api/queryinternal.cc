@@ -1049,7 +1049,11 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
-    RETURN(qopt->make_synonym_postlist(pl, factor));
+    //
+    // We know the subqueries from a wildcard expansion are wdf-disjoint
+    // (i.e. each wdf from the document contributes at most itself to the
+    // wdf of the subquery).
+    RETURN(qopt->make_synonym_postlist(pl, factor, true));
 }
 
 termcount
@@ -1258,7 +1262,9 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
-    RETURN(qopt->make_synonym_postlist(pl, factor));
+    //
+    // FIXME: Detect if the subquery is wdf-disjoint?
+    RETURN(qopt->make_synonym_postlist(pl, factor, false));
 }
 
 PostList *

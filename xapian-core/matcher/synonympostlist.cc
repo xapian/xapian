@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014,2016 Olly Betts
+ * Copyright 2009,2011,2014,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,7 +84,7 @@ SynonymPostList::get_weight() const
     if (want_wdf) {
 	Xapian::termcount wdf = get_wdf();
 	Xapian::termcount doclen = 0;
-	if (want_doclength || wdf > doclen_lower_bound) {
+	if (want_doclength || (!wdf_disjoint && wdf > doclen_lower_bound)) {
 	    doclen = get_doclength();
 	    if (wdf > doclen) wdf = doclen;
 	}

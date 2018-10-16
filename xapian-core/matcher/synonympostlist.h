@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014 Olly Betts
+ * Copyright 2009,2011,2014,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,14 +58,25 @@ class SynonymPostList : public PostList {
      */
     bool want_unique_terms;
 
+    /** Are the subquery's wdf contributions disjoint?
+     *
+     *  This is true is each wdf from the document contributes at most itself
+     *  to the wdf of the subquery.  That means that the wdf of the subquery
+     *  can't possibly ever exceed the document length, so we can avoid the
+     *  need to check and clamp wdf to be <= document length.
+     */
+    bool wdf_disjoint;
+
     /// Lower bound on doclength in the subdatabase we're working over.
     Xapian::termcount doclen_lower_bound;
 
   public:
     SynonymPostList(PostList * subtree_, MultiMatch * matcher_,
-		    Xapian::termcount doclen_lower_bound_)
+		    Xapian::termcount doclen_lower_bound_,
+		    bool wdf_disjoint_)
 	: subtree(subtree_), matcher(matcher_), wt(NULL),
 	  want_doclength(false), want_wdf(false), want_unique_terms(false),
+	  wdf_disjoint(wdf_disjoint_),
 	  doclen_lower_bound(doclen_lower_bound_) { }
 
     ~SynonymPostList();
