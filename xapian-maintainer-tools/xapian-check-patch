@@ -576,7 +576,7 @@ QUOTELOOP:  while (1) {
     if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc|output)\.txt$!) {
 	if (/^\+.*?\b(xapain|the the|initialsing|ipv5|outputing|intened)\b/i ||
 	    # Cases which just need to be the prefix of a word
-	    /^\+.*?\b((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict)[a-z]*\b)/i ||
+	    /^\+.*?\b((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt)[a-z]*\b)/i ||
 	    # Case-sensitive cases
 	    /^\+.*?\b(and and)\b/) {
 	    diagnostic('error', "Typo '$1'", $fullline);
