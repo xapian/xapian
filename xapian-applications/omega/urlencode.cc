@@ -1,4 +1,4 @@
-/* @file urlencode.cc
+/** @file urlencode.cc
  * @brief URL encoding as described by RFC3986.
  */
 /* Copyright (C) 2011,2014,2015 Olly Betts
