@@ -1,4 +1,4 @@
-/** @file xslxparse.h
+/** @file xlsxparse.h
  * @brief Extract fields from XLSX sheet*.xml.
  */
 /* Copyright (C) 2012,2013 Olly Betts
