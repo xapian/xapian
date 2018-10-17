@@ -1,6 +1,7 @@
-/* api_valuestats.cc: tests of the value statistics functions.
- *
- * Copyright 2008 Lemur Consulting Ltd
+/** @file api_valuestats.cc
+ * @brief tests of the value statistics functions.
+ */
+/* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

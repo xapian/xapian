@@ -1,6 +1,7 @@
-/* htmlparse.cc: simple HTML parser for omega indexer
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file htmlparse.cc
+ * @brief simple HTML parser for omega indexer
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
  * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018 Olly Betts
  *

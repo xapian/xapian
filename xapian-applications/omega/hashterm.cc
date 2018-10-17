@@ -1,6 +1,7 @@
-/* hashterm.cc: generate a URL term, truncating and hashing very long URLs.
- *
- * Copyright (C) 2003 Lemur Consulting Ltd.
+/** @file hashterm.cc
+ * @brief generate a URL term, truncating and hashing very long URLs.
+ */
+/* Copyright (C) 2003 Lemur Consulting Ltd.
  * Copyright (C) 2003,2004,2006,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

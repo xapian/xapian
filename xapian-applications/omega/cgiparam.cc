@@ -1,6 +1,7 @@
-/* cgiparam.cc: Parse CGI parameters
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file cgiparam.cc
+ * @brief functions to deal with CGI parameters
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001 Ananova Ltd
  * Copyright 2002,2003,2009,2011,2015,2017 Olly Betts

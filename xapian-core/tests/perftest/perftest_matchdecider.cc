@@ -1,6 +1,7 @@
-/* perftest_matchdecider.cc: performance tests for match decider
- *
- * Copyright 2008 Lemur Consulting Ltd
+/** @file perftest_matchdecider.cc
+ * @brief performance tests for match decider
+ */
+/* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

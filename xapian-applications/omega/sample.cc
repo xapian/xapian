@@ -1,6 +1,7 @@
-/* sample.cc: generate a sample from a utf-8 string.
- *
- * Copyright (C) 2007,2013 Olly Betts
+/** @file sample.cc
+ * @brief generate a sample from a utf-8 string.
+ */
+/* Copyright (C) 2007,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -1,6 +1,7 @@
-/* utf8converttest.cc: test convert_to_utf8()
- *
- * Copyright (C) 2008,2009,2013 Olly Betts
+/** @file utf8converttest.cc
+ * @brief test convert_to_utf8()
+ */
+/* Copyright (C) 2008,2009,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

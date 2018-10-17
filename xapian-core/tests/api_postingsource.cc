@@ -1,6 +1,7 @@
-/* api_postingsource.cc: tests of posting sources
- *
- * Copyright 2008,2009,2011,2015,2016 Olly Betts
+/** @file api_postingsource.cc
+ * @brief tests of posting sources
+ */
+/* Copyright 2008,2009,2011,2015,2016 Olly Betts
  * Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *

@@ -1,6 +1,7 @@
-/* utf8itor.cc: iterate over a utf8 string.
- *
- * Copyright (C) 2006,2007,2010,2013,2015 Olly Betts
+/** @file utf8itor.cc
+ * @brief iterate over a utf8 string.
+ */
+/* Copyright (C) 2006,2007,2010,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

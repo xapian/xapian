@@ -1,6 +1,7 @@
-/* date.cc: date range parsing routines for omega
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file date.cc
+ * @brief date range parsing routines for omega
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd

@@ -1,6 +1,7 @@
-/* glass_postlist.cc: Postlists in a glass database
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file glass_postlist.cc
+ * @brief Postlists in a glass database
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014,2015,2017 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *

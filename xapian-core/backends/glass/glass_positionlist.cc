@@ -1,6 +1,7 @@
-/* glass_positionlist.cc: A position list in a glass database.
- *
- * Copyright (C) 2004,2005,2006,2008,2009,2010,2013,2017 Olly Betts
+/** @file glass_positionlist.cc
+ * @brief A position list in a glass database.
+ */
+/* Copyright (C) 2004,2005,2006,2008,2009,2010,2013,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

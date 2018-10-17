@@ -1,6 +1,7 @@
-/* net_termlist.cc
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file net_termlist.cc
+ * @brief Termlist in a remote db
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2006,2007,2008,2009,2010,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

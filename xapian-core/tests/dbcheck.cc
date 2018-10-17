@@ -1,6 +1,7 @@
-/* dbcheck.cc: test database contents and consistency.
- *
- * Copyright 2009 Richard Boulton
+/** @file dbcheck.cc
+ * @brief test database contents and consistency.
+ */
+/* Copyright 2009 Richard Boulton
  * Copyright 2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

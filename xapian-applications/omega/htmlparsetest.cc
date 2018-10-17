@@ -1,6 +1,7 @@
-/* htmlparsetest.cc: test the MyHtmlParser class
- *
- * Copyright (C) 2006,2008,2011,2012,2013,2015,2016,2018 Olly Betts
+/** @file htmlparsetest.cc
+ * @brief test the MyHtmlParser class
+ */
+/* Copyright (C) 2006,2008,2011,2012,2013,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

@@ -1,6 +1,7 @@
-/* utf8truncate.h: truncate a utf-8 string, ideally without splitting words.
- *
- * Copyright (C) 2007 Olly Betts
+/** @file utf8truncate.h
+ * @brief truncate a utf-8 string, ideally without splitting words.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

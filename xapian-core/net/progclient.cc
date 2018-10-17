@@ -1,6 +1,7 @@
-/* progclient.cc: implementation of NetClient which spawns a program.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file progclient.cc
+ * @brief implementation of NetClient which spawns a program.
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006,2007,2010,2011,2014 Olly Betts
  *

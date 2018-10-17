@@ -1,6 +1,7 @@
-/* dbfactory_remote.cc: Database factories for remote databases.
- *
- * Copyright (C) 2006,2007,2008,2010,2011,2014 Olly Betts
+/** @file dbfactory_remote.cc
+ * @brief Database factories for remote databases.
+ */
+/* Copyright (C) 2006,2007,2008,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

@@ -1,6 +1,7 @@
-/* tcpclient.cc: Open a TCP connection to a server.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file tcpclient.cc
+ * @brief Open a TCP connection to a server.
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2004,2005,2006,2007,2008,2010,2012,2013,2015,2017 Olly Betts
  *

@@ -1,6 +1,7 @@
-/* api_posdb.cc: tests which need a backend with positional information
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file api_posdb.cc
+ * @brief tests which need a backend with positional information
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2009,2016 Olly Betts
  *

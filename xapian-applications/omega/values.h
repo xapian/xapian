@@ -1,6 +1,7 @@
-/* values.h: constants and functions for document value handling.
- *
- * Copyright (C) 2006,2010,2015 Olly Betts
+/** @file values.h
+ * @brief constants and functions for document value handling.
+ */
+/* Copyright (C) 2006,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

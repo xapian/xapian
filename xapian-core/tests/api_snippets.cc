@@ -1,6 +1,7 @@
-/* api_snippets.cc: tests snippets
- *
- * Copyright 2012 Mihai Bivol
+/** @file api_snippets.cc
+ * @brief tests snippets
+ */
+/* Copyright 2012 Mihai Bivol
  * Copyright 2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or

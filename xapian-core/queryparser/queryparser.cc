@@ -1,7 +1,7 @@
-/* queryparser.cc: The non-lemon-generated parts of the QueryParser
- * class.
- *
- * Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts
+/** @file queryparser.cc
+ * @brief The non-lemon-generated parts of the QueryParser class.
+ */
+/* Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or

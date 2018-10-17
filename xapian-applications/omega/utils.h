@@ -1,6 +1,7 @@
-/* utils.h: string conversion utility functions for omega
- *
- * Copyright (C) 2006,2011 Olly Betts
+/** @file utils.h
+ * @brief string conversion utility functions for omega
+ */
+/* Copyright (C) 2006,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

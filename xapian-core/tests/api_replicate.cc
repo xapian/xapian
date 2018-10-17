@@ -1,6 +1,7 @@
-/* api_replicate.cc: tests of replication functionality
- *
- * Copyright 2008 Lemur Consulting Ltd
+/** @file api_replicate.cc
+ * @brief tests of replication functionality
+ */
+/* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish

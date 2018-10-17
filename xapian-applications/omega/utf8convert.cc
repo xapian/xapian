@@ -1,6 +1,7 @@
-/* utf8convert.cc: convert a string to UTF-8 encoding.
- *
- * Copyright (C) 2006,2007,2008,2010,2013,2017 Olly Betts
+/** @file utf8convert.cc
+ * @brief convert a string to UTF-8 encoding.
+ */
+/* Copyright (C) 2006,2007,2008,2010,2013,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

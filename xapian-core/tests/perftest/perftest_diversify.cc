@@ -1,6 +1,7 @@
-/* perftest_diversify.cc: performance tests for diversification
- *
- * Copyright 2018 Uppinder Chugh
+/** @file perftest_diversify.cc
+ * @brief performance tests for diversification
+ */
+/* Copyright 2018 Uppinder Chugh
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

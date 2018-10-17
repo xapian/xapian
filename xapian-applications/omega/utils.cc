@@ -1,6 +1,7 @@
-/* utils.cc: string conversion utility functions for omega
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file utils.cc
+ * @brief string conversion utility functions for omega
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2004,2006,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
