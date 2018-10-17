@@ -1,4 +1,4 @@
-/** @file multidatabase.h
+/** @file multi_database.h
  *  @brief Sharded database backend
  */
 /* Copyright 2017 Olly Betts

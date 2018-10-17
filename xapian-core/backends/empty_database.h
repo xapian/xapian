@@ -1,4 +1,4 @@
-/** @file emptydatabase.h
+/** @file empty_database.h
  * @brief Empty database internals
  */
 /* Copyright 2017 Olly Betts

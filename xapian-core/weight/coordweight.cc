@@ -1,4 +1,4 @@
-/** @file coordinateweight.cc
+/** @file coordweight.cc
  * @brief Xapian::CoordWeight class - coordinate matching
  */
 /* Copyright (C) 2004,2009,2011,2016 Olly Betts
