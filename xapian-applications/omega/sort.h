@@ -1,4 +1,4 @@
-/* @file sort.h
+/** @file sort.h
  * @brief OmegaScript $sort function
  */
 /* Copyright (C) 2018 Olly Betts

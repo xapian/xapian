@@ -1,4 +1,4 @@
-/* @file uuids.h
+/** @file uuids.h
  * @brief Class for handling UUIDs
  */
 /* Copyright 2008 Lemur Consulting Ltd
