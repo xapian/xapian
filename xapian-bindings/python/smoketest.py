@@ -279,10 +279,10 @@ def test_all():
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
     expect_query(qp.parse_query("foo o", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR o) OR Zo@2))")
+                 "(Zfoo@1 AND (WILDCARD SYNONYM o OR Zo@2))")
 
     expect_query(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR outside) OR Zoutsid@2))")
+                 "(Zfoo@1 AND (WILDCARD SYNONYM outside OR Zoutsid@2))")
 
     # Test supplying unicode strings
     expect_query(xapian.Query(xapian.Query.OP_OR, (u'foo', u'bar')),

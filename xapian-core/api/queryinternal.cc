@@ -1759,15 +1759,20 @@ QuerySynonym::done()
     // subqueries which are MatchNothing.
     if (subqueries.empty())
 	return NULL;
-    // Synonym of a single subquery should only be simplified if that subquery
-    // is a term (or MatchAll), or if it's also OP_SYNONYM.  Note that
-    // MatchNothing subqueries are dropped, so we'd never get here with a
-    // single MatchNothing subquery.
     if (subqueries.size() == 1) {
 	Query::op sub_type = subqueries[0].get_type();
+	// Synonym of a single subquery should only be simplified if that
+	// subquery is a term (or MatchAll), or if it's also OP_SYNONYM.  Note
+	// that MatchNothing subqueries are dropped, so we'd never get here
+	// with a single MatchNothing subquery.
 	if (sub_type == Query::LEAF_TERM || sub_type == Query::LEAF_MATCH_ALL ||
 	    sub_type == Query::OP_SYNONYM) {
 	    return subqueries[0].internal.get();
+	}
+	if (sub_type == Query::OP_WILDCARD) {
+	    auto q = static_cast<QueryWildcard*>(subqueries[0].internal.get());
+	    // SYNONYM over WILDCARD X -> WILDCARD SYNONYM for any combiner X.
+	    return q->change_combiner(Query::OP_SYNONYM);
 	}
     }
     return this;
