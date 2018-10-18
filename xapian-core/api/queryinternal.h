@@ -427,6 +427,23 @@ class QueryWildcard : public Query::Internal {
 
     void serialise(std::string & result) const;
 
+    /** Change the combining operator.
+     *
+     *  If there's only one reference to this object we change in-place
+     *  and return a pointer to the existing object; otherwise we create and
+     *  return a new QueryWildcard object.
+     */
+    QueryWildcard* change_combiner(Xapian::Query::op new_op) {
+	if (_refs == 1) {
+	    combiner = new_op;
+	    return this;
+	}
+	return new QueryWildcard(pattern,
+				 max_expansion,
+				 max_type,
+				 new_op);
+    }
+
     std::string get_description() const;
 };
 
