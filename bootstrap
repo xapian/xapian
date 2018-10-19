@@ -746,6 +746,8 @@ TOP_OF_CONFIGURE
 cat <<'MIDDLE_OF_CONFIGURE' >> configure.tmp
 # Produced escaped version of command suitable for pasting back into sh
 cmd=$0
+user_CPPFLAGS=$CPPFLAGS
+user_LDFLAGS=$LDFLAGS
 for a ; do
  case $a in
   *[^-A-Za-z0-9_+=:@/.,]*)
@@ -753,6 +755,16 @@ for a ; do
    cmd="$cmd $esc_a" ;;
   *)
    cmd="$cmd $a" ;;
+ esac
+ # Capture any command-line settings of CPPFLAGS or LDFLAGS so we can override
+ # for omega.  We follow the behaviour of autoconf-generated configure scripts
+ # in that command-line setting beats environment variable setting, and the
+ # last of multiple command-line settings is used.
+ case $a in
+   CPPFLAGS=*)
+     user_CPPFLAGS=`expr "x$a" : 'xCPPFLAGS=\(.*\)'` ;;
+   LDFLAGS=*)
+     user_LDFLAGS=`expr "x$a" : 'xLDFLAGS=\(.*\)'` ;;
  esac
 done
 
@@ -852,7 +864,7 @@ for d in $modules ; do
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" ${1+"$@"}
       ;;
     xapian-applications/omega)
-      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CPPFLAGS="-I$srcdir/INST/include" LDFLAGS="-L$srcdir/INST/lib" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CPPFLAGS="-I$srcdir/INST/include $user_CPPFLAGS" LDFLAGS="-L$srcdir/INST/lib $user_LDFLAGS" ${1+"$@"}
       ;;
     *)
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
