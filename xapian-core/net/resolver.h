@@ -1,7 +1,7 @@
 /** @file resolver.h
  * @brief Resolve hostnames and ip addresses
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,9 +93,15 @@ class Resolver {
 	// other ways to write these IP addresses and other hostnames may
 	// map onto them, but this just needs to work for the standard
 	// cases which a testsuite might use.
+#ifndef __WIN32__
 	if (host != "::1" && host != "127.0.0.1" && host != "localhost") {
 	    flags |= AI_ADDRCONFIG;
 	}
+#else
+	// Always specify AI_ADDRCONFIG under __WIN32__ as not doing so seems
+	// to cause problems.
+	flags |= AI_ADDRCONFIG;
+#endif
 	flags |= AI_NUMERICSERV | AI_V4MAPPED;
 
 	struct addrinfo hints;
