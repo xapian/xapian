@@ -1,3 +1,45 @@
+up to: 20e1bb9ec048cfd03af06e0f6cb76c15abae76c5
+
+Xapian-bindings 1.4.8 (2018-10-24):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+* Wrap new STEM_SOME_FULL_POS constant.
+
+* Add STEM_ALL_Z to qpstem export tag and POD docs.
+
+* Fix Perl bindings documentation typos.
+
+PHP:
+
+PHP7:
+
+Python:
+
+* Fix RST formatting warning during build.
+    
+Python3:
+
+* Fix RST formatting warning during build.
+    
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.4.7 (2018-07-19):
 
 Ruby:

@@ -1,3 +1,187 @@
+up to: 71ba18d279e4dfac74aefab806c34d79716873f7
+
+Xapian-core 1.4.8 (2018-10-24):
+
+API:
+
+* QueryParser,TermGenerator: Add new stemming mode STEM_SOME_FULL_POS.
+  This stores positional information for both stemmed and unstemmed terms,
+  allowing NEAR and ADJ to work with stemmed terms.  The extra positional
+  information is likely to take up a significant amount of extra disk space so
+  the default STEM_SOME is likely to be a better choice for most users.
+
+* Database::check(): Fetch and decompress the document data to catch problems
+  with the splitting of large data into multiple entries, corruption of the
+  compressed data, etc.  Also check that empty document data isn't explicitly
+  stored for glass.
+
+* Fix an incorrect type being used for term positions in the TermGenerator API.
+  These were Xapian::termcount but should be Xapian::termpos.  Both are
+  typedefs for the same 32-bit unsigned integer type by default (almost always
+  "unsigned int") so this change is entirely compatible, except that if you
+  were configuring 1.4.7 or earlier with --enable-64bit-termcount you need to
+  also use the new --enable-64bit-termpos configure option with 1.4.8 and up or
+  rebuild your applications.  This change was necessary to make
+  --enable-64bit-termpos actually useful.
+
+* Add Document::remove_postings() method which removes all postings in a
+  specified term position range much more efficiently than by calling
+  remove_posting() repeatedly.  It returns the number of postings removed.
+
+* Fix bugs with handling term positions >= 0x80000000.  Reported by Gaurav
+  Arora.
+
+* Document::add_posting(): More efficiently handle insertion of a batch of
+  extra positions in ascending order.
+
+testsuite:
+
+* Catch and report std::exception from the test harness itself.
+
+* apitest: Drop special case for not storing doc length in testcase postlist5 -
+  all backends have stored document lengths for a long time.
+
+* test_harness: Create directories in a race-free way.
+
+matcher:
+
+* Avoid needing document length for an OP_WILDCARD with combiner OP_SYNONYM.
+  We know that we can't get any duplicate terms in the expansion of a wildcard
+  so the sum of the wdf from them can't possibly exceed the document length.
+
+* OP_SYNONYM: No longer tries to initialise weights for its subquery, which
+  should reduce the time taken to set up a large wildcard query.
+
+* OP_SYNONYM: Fix frequency estimates when OP_SYNONYM is used with a
+  subquery containing OP_XOR or OP_MAX - in such cases the frequency
+  estimates for the first subquery of the OP_XOR/OP_MAX were used for
+  all its subqueries.  Also the estimated collection frequency is
+  now rounded to the nearest integer rather than always being rounded
+  down.
+
+glass backend:
+
+* Revert change made in 1.4.6:
+
+    Enable glass's "open_nearby_postlist" optimisation (which especially helps
+    large wildcard queries) for writable databases without any uncommitted
+    changes as well.
+
+  The amended check isn't conservative enough as there may be postlist changes
+  in the inverter while the table is unmodified.  This breaks testcase
+  T150-tagging.sh in notmuch's testsuite, reported by David Bremner.
+
+* When indexing a document without any terms we now avoid some unnecessary work
+  when storing its termlist.
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* New --enable-64bit-termpos configure option which makes Xapian::termpos a
+  64-bit type and enables support for storing 64-bit termpos values in the
+  glass backend in an upwardly compatible way.  Few people will actually want
+  to index documents more than 4 billion words long, but the extra numbering
+  space can be helpful if you want to use term positions in "interesting" ways.
+
+* Hook up configure --disable-sse/--enable-sse=sse options for MSVC.
+
+* Fix configure probes for builtin functions for clang.  We need to specify the
+  argument types for each builtin since otherwise AC_CHECK_DECLS tries to
+  compile code which just tries to take a pointer to the builtin function
+  causing clang to give an error saying that's not allowed.  If the argument
+  types are specified then AC_CHECK_DECLS tries to compile a call to the
+  builtin function instead.
+
+documentation:
+
+* Fix documentation comment typo.
+
+tools:
+
+* xapian-delve: Test for all docs empty using get_total_length() which is
+  slightly simpler internally than get_avlength(), and avoids an exact floating
+  point equality check.
+
+examples:
+
+* quest: Support --weight=coord.
+
+* xapian-pos: New tool to show term position info to help debugging when using
+  positional information in more complex ways.
+
+portability:
+
+* Fix undefined behaviour from C++ ODR violation due to using the same name
+  two different non-static inline functions.  It seems that with current GCC
+  versions the desired function always ends up being used, but with current
+  clang the other function is sometimes used, resulting in database corruption
+  when using value slots in docid 16384 or higher with the default glass
+  backend.  Patch from German M. Bravo.
+
+* Suppress alignment cast warning on sparc Linux.  The pointer being cast is to
+  a record returned by getdirentries(), so it should be suitable aligned.
+
+* Drop special handling for Compaq C++.  We never actually achieved a working
+  build using it, and I can find no evidence that this compiler still exists,
+  let alone that it was updated for C++11 which we now require.
+
+* Create new database directories in race-free way.
+
+* Avoid throwing and handling an exception in replace_document() when
+  adding a document with a specified docid which is <= last_docid but currently
+  unused.
+
+* Use our portable code for handling UUIDs on all platforms, and only use
+  platform-specific code for generating a new UUID.  This fixes a bug with
+  converting UUIDs to and from string representation on FreeBSD, NetBSD and
+  OpenBSD on little-endian platforms which resulted in reversed byte order in
+  the first three components, so the same database would report a different
+  UUID on these platforms compared to other platforms.  With this fix, the
+  UUIDs of existing databases will appear to change on these platforms
+  (except in rare "palindronic" cases).  Reported by Germán M. Bravo.
+
+* Fix to build with a C++17 compiler.  Previously we used a "byte" type
+  internally which clashed with "std::byte" in source files which use
+  "using namespace std;".  Fixes #768, reported by Laurent Stacul.
+
+* Adjust apitest testcase stubdb2 to allow for NetBSD oddity: NetBSD's
+  getaddrinfo() in IPv4 mode seems to resolve ::1 to an IPv4 address on the
+  local network.
+
+* Avoid timer_create() on OpenBSD and NetBSD.  On OpenBSD it always fails with
+  ENOSYS (and there's no prototype in the libc headers), while on NetBSD it
+  seems to work, but the timer never seems to fire, so it's useless to us (see
+  #770).
+
+* Use SOCK_NONBLOCK if available to avoid a call to fcntl().  It's supported by
+  at least Linux, FreeBSD, NetBSD and OpenBSD.
+
+* Use O_NOINHERIT for O_CLOEXEC on Windows.  This flag has essentially the same
+  effect, and it's common in other codebases to do this.
+
+* On AIX O_CLOEXEC may be a 64-bit constant which won't fit in an int.  To
+  workaround this stupidity we now call the non-standard open64x() instead
+  of open() when the flags don't fit in an int.
+
+* Add functions to add/multiply with overflow check.  These are implemented
+  with compiler builtins or equivalent where possible, so the overflow check
+  will typically just require a check of the processor's overflow or carry
+  flag.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.7 (2018-07-19):
 
 API:
