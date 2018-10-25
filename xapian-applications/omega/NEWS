@@ -443,8 +443,6 @@ portability:
 
 Omega 1.4.1 (2016-10-21):
 
-general:
-
 documentation:
 
 * Document bug in how $filters encodes DOCIDORDER=A.
@@ -457,11 +455,9 @@ documentation:
 
 indexers:
 
-* omindex:
-
-* Also index leafname with _ and & replaced by spaces.  Literal spaces are
-  often avoided in filenames, and "hello_world.txt" ought to be searchable for
-  via "hello" and "world".  Partly addresses #618, reported by Julien
+* omindex: Also index leafname with _ and & replaced by spaces.  Literal spaces
+  are often avoided in filenames, and "hello_world.txt" ought to be searchable
+  for via "hello" and "world".  Partly addresses #618, reported by Julien
   Pfefferkorn.
 
 omega:
@@ -511,8 +507,6 @@ portability:
   Reported on xapian-discuss by John Bankert.
 
 Omega 1.4.0 (2016-06-24):
-
-general:
 
 documentation:
 
@@ -780,8 +774,6 @@ packaging:
 Omega 1.3.2 (2014-11-24):
 
 This release includes all changes from 1.2.16-1.2.19 which are relevant.
-
-general:
 
 documentation:
 

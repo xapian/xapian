@@ -3956,8 +3956,6 @@ portability:
 
 Xapian-core 1.2.10 (2012-05-09):
 
-API:
-
 testsuite:
 
 * apitest: Extend tradweight1 to test that TradWeight(0) means that wdf and
