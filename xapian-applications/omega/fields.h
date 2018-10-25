@@ -92,7 +92,7 @@ Fields::parse_fields(const std::string& data,
 		    ++i;
 		    continue;
 		}
-		if (ch == '\0') {
+		if (i == data.size()) {
 		    return;
 		}
 	    }
@@ -103,7 +103,7 @@ Fields::parse_fields(const std::string& data,
 
 	// Scan ahead to the end of the line.
 	while ((ch = data[++i]) != '\n') {
-	    if (ch == '\0') {
+	    if (ch == '\0' && i == data.size()) {
 		i = std::string::npos;
 		break;
 	    }

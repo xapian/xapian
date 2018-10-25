@@ -899,6 +899,15 @@ testcase "${TEST_DB}2|1" ID=2 DB="$TEST_DB/${TEST_DB}2"
 testcase "${TEST_DB}|2" ID=3 DB="$TEST_DB/${TEST_DB}2"
 rm -rf "${TEST_DB}2"
 
+# Feature tests for $field.
+printf 'in : field="zer\0byte" hextobin field="field28\x02\x08"' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+in=4071004f3456
+END
+printf '$json{$field{zer$chr{0}byte,1}}|$json{$field{field28$chr{2}$chr{8},1}}|$error' > "$TEST_TEMPLATE"
+testcase '4071004f3456|@q\u0000O4V|'
+
 # Feature tests of scriptindex.
 printf 'uuid : boolean=Q unique=Q\nguid : boolean=G unique=G' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
