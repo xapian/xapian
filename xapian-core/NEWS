@@ -1,6 +1,4 @@
-up to: 71ba18d279e4dfac74aefab806c34d79716873f7
-
-Xapian-core 1.4.8 (2018-10-24):
+Xapian-core 1.4.8 (2018-10-25):
 
 API:
 
@@ -33,6 +31,11 @@ API:
 
 * Document::add_posting(): More efficiently handle insertion of a batch of
   extra positions in ascending order.
+
+* Query: Simplify OP_SYNONYM with single OP_WILDCARD subquery by converting to
+  OP_WILDCARD with combiner OP_SYNONYM, which means such cases can take
+  advantage of the new matcher optimisation in this release to avoid needing
+  document length for OP_WILDCARD with combiner OP_SYNONYM.
 
 testsuite:
 
@@ -73,15 +76,6 @@ glass backend:
 
 * When indexing a document without any terms we now avoid some unnecessary work
   when storing its termlist.
-
-chert backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
 
 build system:
 
@@ -124,7 +118,7 @@ portability:
   versions the desired function always ends up being used, but with current
   clang the other function is sometimes used, resulting in database corruption
   when using value slots in docid 16384 or higher with the default glass
-  backend.  Patch from German M. Bravo.
+  backend.  Patch from Germán M. Bravo.
 
 * Suppress alignment cast warning on sparc Linux.  The pointer being cast is to
   a record returned by getdirentries(), so it should be suitable aligned.
@@ -175,12 +169,6 @@ portability:
   with compiler builtins or equivalent where possible, so the overflow check
   will typically just require a check of the processor's overflow or carry
   flag.
-
-packaging:
-
-
-debug code:
-
 
 Xapian-core 1.4.7 (2018-07-19):
 

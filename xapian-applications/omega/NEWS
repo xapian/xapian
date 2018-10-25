@@ -1,8 +1,4 @@
-up to: 71ba18d279e4dfac74aefab806c34d79716873f7
-
-Omega 1.4.8 (2018-10-24):
-
-general:
+Omega 1.4.8 (2018-10-25):
 
 documentation:
 
@@ -101,13 +97,9 @@ omega:
   + Rewrite field parsing to be more efficient, and store fields in an
     unordered_map for faster lookup.
 
-templates:
-
 testsuite:
 
 * htmlparsetest: Test whitespace collapsing.
-
-build system:
 
 portability:
 
@@ -120,8 +112,6 @@ portability:
 * Drop special handling for Compaq C++.  We never actually achieved a working
   build using it, and I can find no evidence that this compiler still exists,
   let alone that it was updated for C++11 which we now require.
-
-packaging:
 
 Omega 1.4.7 (2018-07-19):
 
