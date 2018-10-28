@@ -60,12 +60,6 @@ matrix:
     - os: osx
       before_install:
         - brew update
-        # python is now python3, but the travis macOS build isn't there yet
-        # so we need to explicitly upgrade otherwise we end up with the old
-        # python (which is 2.7.x) and the python2 package (which is also
-        # 2.7.x). This step can be removed once travis ships with a more
-        # recent homebrew.
-        - brew upgrade python
         # "brew install" unhelpfully errors out if any package listed is
         # already installed and up-to-date, but travis change what's installed
         # by default from time to time so it's brittle to just filter out those
