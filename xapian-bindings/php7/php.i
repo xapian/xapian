@@ -2,7 +2,7 @@
 %{
 /* php.i: SWIG interface file for the PHP bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2016 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -171,11 +171,8 @@ fail: // Label which SWIG_PHP_Error needs.
 
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
 %typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
-
     ZVAL_NEW_ARR($result);
-    if (array_init($result) == FAILURE) {
-	SWIG_PHP_Error(E_ERROR, "array_init failed");
-    }
+    array_init($result);
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
 	/* We have to cast away const here because the PHP API is rather
@@ -194,9 +191,7 @@ fail: // Label which SWIG_PHP_Error needs.
 
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {
     ZVAL_NEW_ARR($input);
-    if (array_init($input) == FAILURE) {
-	SWIG_PHP_Error(E_ERROR, "array_init failed");
-    }
+    array_init($input);
 
     for (size_t i = 0; i != num_tags; ++i) {
 	const string & term = tags[i];
