@@ -659,30 +659,30 @@ RemoteConnection::do_close(bool wait)
 	    // exception.
 	    try {
 		send_message(MSG_SHUTDOWN, string(), 0.0);
+#ifdef __WIN32__
+		HANDLE hin = fd_to_handle(fdin);
+		char dummy;
+		DWORD received;
+		BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
+		if (!ok && GetLastError() == ERROR_IO_PENDING) {
+		    // Wait for asynchronous read to complete.
+		    (void)WaitForSingleObject(overlapped.hEvent, INFINITE);
+		}
+#else
+		// Wait for the connection to be closed - when this happens
+		// select() will report that a read won't block.
+		fd_set rfdset, efdset;
+		FD_ZERO(&rfdset);
+		FD_SET(fdin, &rfdset);
+		FD_ZERO(&efdset);
+		FD_SET(fdin, &efdset);
+		int res;
+		do {
+		    res = select(fdin + 1, &rfdset, 0, &efdset, NULL);
+		} while (res < 0 && errno == EINTR);
+#endif
 	    } catch (...) {
 	    }
-#ifdef __WIN32__
-	    HANDLE hin = fd_to_handle(fdin);
-	    char dummy;
-	    DWORD received;
-	    BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
-	    if (!ok && GetLastError() == ERROR_IO_PENDING) {
-		// Wait for asynchronous read to complete.
-		(void)WaitForSingleObject(overlapped.hEvent, INFINITE);
-	    }
-#else
-	    // Wait for the connection to be closed - when this happens
-	    // select() will report that a read won't block.
-	    fd_set rfdset, efdset;
-	    FD_ZERO(&rfdset);
-	    FD_SET(fdin, &rfdset);
-	    FD_ZERO(&efdset);
-	    FD_SET(fdin, &efdset);
-	    int res;
-	    do {
-		res = select(fdin + 1, &rfdset, 0, &efdset, NULL);
-	    } while (res < 0 && errno == EINTR);
-#endif
 	}
 	close_fd_or_socket(fdin);
 
