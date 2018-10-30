@@ -566,7 +566,7 @@ Xapian::Document::Internal::remove_term(const string & tname)
     }
     --termlist_size;
     if (!positions_modified) {
-	positions_modified = !i->second.positions.empty();
+	positions_modified = (i->second.positionlist_count() > 0);
     }
     i->second.remove();
 }

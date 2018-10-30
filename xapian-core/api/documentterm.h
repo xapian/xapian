@@ -75,6 +75,7 @@ class OmDocumentTerm {
 
     typedef vector<Xapian::termpos> term_positions;
 
+  private:
     /** Positional information.
      *
      *  This is a list of positions at which the term occurs in the
@@ -89,6 +90,16 @@ class OmDocumentTerm {
      *  entry in the position list for each position.
      */
     mutable term_positions positions;
+
+  public:
+    const term_positions* get_vector_termpos() const {
+	merge();
+	return &positions;
+    }
+
+    Xapian::termcount positionlist_count() const {
+	return positions.size();
+    }
 
     void remove() {
 	positions.clear();

@@ -71,15 +71,16 @@ class MapTermList : public TermList {
 	}
 
 	const std::vector<Xapian::termpos> * get_vector_termpos() const {
-	    return &(it->second.positions);
+	    return it->second.get_vector_termpos();
 	}
 
 	Xapian::PositionIterator positionlist_begin() const {
-	    return Xapian::PositionIterator(new InMemoryPositionList(it->second.positions));
+	    auto p = it->second.get_vector_termpos();
+	    return Xapian::PositionIterator(new InMemoryPositionList(*p));
 	}
 
 	Xapian::termcount positionlist_count() const {
-	    return it->second.positions.size();
+	    return it->second.positionlist_count();
 	}
 
 	TermList * next() {
