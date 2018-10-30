@@ -318,6 +318,10 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("foo"));
 
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    Xapian::Stem stem;
+
     const char *input = "[xapian-devel] Re: foo";
     TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
 		       "[xapian-devel] Re: <b>foo</b>");
