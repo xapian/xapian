@@ -275,7 +275,7 @@ OmDocumentTerm::add_position(Xapian::termcount wdf_inc, Xapian::termpos tpos)
 	    auto i = lower_bound(positions.cbegin(),
 				 positions.cbegin() + split,
 				 tpos);
-	    if (i != positions.cbegin() + split)
+	    if (i != positions.cbegin() + split && *i == tpos)
 		return false;
 	}
 	positions.push_back(tpos);

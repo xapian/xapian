@@ -1689,27 +1689,31 @@ DEFINE_TESTCASE(nodocs1, transactions && !remote) {
     return true;
 }
 
-/** Regression test for bug fixed in 1.4.8.
- *
- *  Chert and glass each has inline functions make_slot_key() with different
- *  encodings, with is a C++ ODR violation.  With current GCC it seems we
- *  luck out, but with clang and MSVC the wrong method gets called for one of
- *  the backends and a corrupt database may result.
- */
-DEFINE_TESTCASE(odrviolation1, glass || chert) {
-    const char* dbname = "odrviolation1";
-    {
-	Xapian::WritableDatabase db = get_named_writable_database(dbname);
-	Xapian::Document document;
-	document.add_value(0, "broken");
-	db.replace_document(16384, document);
-	db.commit();
+/// Regression test for split position handling - broken in 1.4.8.
+DEFINE_TESTCASE(splitpostings1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    // Add postings to create a split internally.
+    for (Xapian::termpos pos = 0; pos <= 100; pos += 10) {
+	doc.add_posting("foo", pos);
     }
+    for (Xapian::termpos pos = 5; pos <= 100; pos += 20) {
+	doc.add_posting("foo", pos);
+    }
+    db.add_document(doc);
+    db.commit();
 
-    size_t check_errors =
-	Xapian::Database::check(get_named_writable_database_path(dbname),
-				Xapian::DBCHECK_SHOW_STATS, &tout);
-    TEST_EQUAL(check_errors, 0);
+    Xapian::termpos expect = 0;
+    Xapian::termpos pos = 0;
+    for (auto p = db.positionlist_begin(1, "foo");
+	 p != db.positionlist_end(1, "foo"); ++p) {
+	TEST_REL(expect, <=, 100);
+	pos = *p;
+	TEST_EQUAL(pos, expect);
+	expect += 5;
+	if (expect % 20 == 15) expect += 5;
+    }
+    TEST_EQUAL(pos, 100);
 
     return true;
 }
