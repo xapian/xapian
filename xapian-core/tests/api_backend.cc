@@ -1708,3 +1708,32 @@ DEFINE_TESTCASE(nodocs1, transactions && !remote) {
 
     return true;
 }
+
+/// Regression test for split position handling - broken in 1.4.8.
+DEFINE_TESTCASE(splitpostings1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    // Add postings to create a split internally.
+    for (Xapian::termpos pos = 0; pos <= 100; pos += 10) {
+	doc.add_posting("foo", pos);
+    }
+    for (Xapian::termpos pos = 5; pos <= 100; pos += 20) {
+	doc.add_posting("foo", pos);
+    }
+    db.add_document(doc);
+    db.commit();
+
+    Xapian::termpos expect = 0;
+    Xapian::termpos pos = 0;
+    for (auto p = db.positionlist_begin(1, "foo");
+	 p != db.positionlist_end(1, "foo"); ++p) {
+	TEST_REL(expect, <=, 100);
+	pos = *p;
+	TEST_EQUAL(pos, expect);
+	expect += 5;
+	if (expect % 20 == 15) expect += 5;
+    }
+    TEST_EQUAL(pos, 100);
+
+    return true;
+}

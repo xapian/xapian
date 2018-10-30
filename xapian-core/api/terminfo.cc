@@ -61,7 +61,7 @@ TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
 	    auto i = lower_bound(positions.cbegin(),
 				 positions.cbegin() + split,
 				 termpos);
-	    if (i != positions.cbegin() + split)
+	    if (i != positions.cbegin() + split && *i == termpos)
 		return false;
 	}
 	positions.push_back(termpos);
