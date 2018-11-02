@@ -1,3 +1,28 @@
+Omega 1.4.9 (2018-11-02):
+
+indexers:
+
+* omindex:
+
+  + Try harder to avoid opening a file being indexed more than once by
+    reusing the file descriptor in more cases.
+
+  + Hint to the OS not to cache output from external filters which require
+    using a temporary file.
+
+* scriptindex:
+
+  + If the LOAD action successfully opens a file but hits a read error the
+    error message now reports the file name correctly.  Previously it would
+    report the partial file contents read so far instead of the file name.
+
+portability:
+
+* We no longer call posix_fadvise() with POSIX_FADV_NOREUSE under Linux,
+  since it's still not implemented there.  We also now only call
+  posix_fadvise() with POSIX_FADV_DONTNEED right before we close the file
+  descriptor under Linux.
+
 Omega 1.4.8 (2018-10-25):
 
 documentation:

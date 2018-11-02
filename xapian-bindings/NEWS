@@ -1,3 +1,11 @@
+Xapian-bindings 1.4.9 (2018-11-02):
+
+PHP7:
+
+* Fix to build with upcoming PHP 7.3 release, which changes array_init()
+  to not return a value instead of always returning the constant SUCCESS.
+  We were checking this return value but no longer do.
+
 Xapian-bindings 1.4.8 (2018-10-25):
 
 Perl:

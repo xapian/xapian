@@ -1,3 +1,18 @@
+Xapian-core 1.4.9 (2018-11-02):
+
+API:
+
+* Document::add_posting(): Fix bugs with the change in 1.4.8 to more
+  efficiently handle insertion of a batch of extra positions in ascending
+  order.  These could lead to missing positions and corrupted encoded
+  positional data.
+
+remote backend:
+
+* Avoid hang if remote connection shutdown fails by not waiting for the
+  connection to close in this situation.  Seems to fix occasional hangs seen on
+  macOS.  Patch from Germán M. Bravo.
+
 Xapian-core 1.4.8 (2018-10-25):
 
 API:
