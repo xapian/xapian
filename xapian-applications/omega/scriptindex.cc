@@ -755,13 +755,15 @@ badhex:
 		break;
 	    case Action::LOAD: {
 		bool truncated = false;
+		string filename = std::move(value);
 		// FIXME: Use NOATIME if we own the file or are root.
-		if (!load_file(value, action.get_num_arg(), NOCACHE,
+		if (!load_file(filename, action.get_num_arg(), NOCACHE,
 			       value, truncated)) {
 		    report_location(DIAG_ERROR, fname, line_no);
-		    cerr << "Couldn't load file '" << value << "': "
+		    cerr << "Couldn't load file '" << filename << "': "
 			 << strerror(errno) << endl;
 		    value.resize(0);
+		    break;
 		}
 		if (!truncated) break;
 	    }
