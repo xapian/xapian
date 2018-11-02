@@ -1015,7 +1015,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
 
 	// Compute the MD5 of the file if we haven't already.
-	if (md5.empty() && md5_file(file, md5, d.try_noatime()) == 0) {
+	if (md5.empty() && !d.md5(md5)) {
 	    if (errno == ENOENT || errno == ENOTDIR) {
 		skip(urlterm, context, "File removed during indexing",
 		     d.get_size(), d.get_mtime(),

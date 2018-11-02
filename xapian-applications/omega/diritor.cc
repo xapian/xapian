@@ -1,7 +1,7 @@
 /** @file diritor.cc
  * @brief Iterator through entries in a directory.
  */
-/* Copyright (C) 2007,2008,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011,2012,2013,2014,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,6 +94,69 @@ DirectoryIterator::build_path()
 	path += '/';
 	path += leafname();
     }
+}
+
+void
+DirectoryIterator::open_fd()
+{
+    build_path();
+    mode_t mode = O_BINARY | O_RDONLY;
+# if defined O_NOATIME && O_NOATIME != 0
+    if (try_noatime()) mode |= O_NOATIME;
+# endif
+    fd = open(path.c_str(), mode);
+# if defined O_NOATIME && O_NOATIME != 0
+    if (fd < 0 && (mode & O_NOATIME)) {
+	mode &= ~O_NOATIME;
+	fd = open(path.c_str(), mode);
+    }
+# endif
+
+    if (fd < 0) {
+	switch (errno) {
+	    case ENOENT:
+	    case ENOTDIR:
+		throw FileNotFound();
+	    case EACCES: {
+		string m("Failed to open file: ");
+		m += strerror(errno);
+		throw m;
+	    }
+	}
+	// Commit changes to files processed so far.
+	throw CommitAndExit("Can't open file", path, errno);
+    }
+
+#ifdef HAVE_POSIX_FADVISE
+    // On Linux, POSIX_FADV_NOREUSE has been a no-op since 2.6.18 (released
+    // 2006) and before that it was incorrectly implemented as an alias for
+    // POSIX_FADV_WILLNEED.  There have been a few attempts to make
+    // POSIX_FADV_NOREUSE actually work on Linux but nothing has been merged so
+    // for now let's not waste effort making a syscall we know to currently be
+    // a no-op.  We can revise this conditional if it gets usefully
+    // implemented.
+# ifndef __linux__
+    posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
+# endif
+#endif
+}
+
+void
+DirectoryIterator::close_fd()
+{
+#ifdef HAVE_POSIX_FADVISE
+# ifdef __linux__
+    // Linux doesn't implement POSIX_FADV_NOREUSE so instead we use
+    // POSIX_FADV_DONTNEED just before closing the fd.  This is a bit more
+    // aggressive than we ideally want - really we just want to stop our
+    // reads from pushing other pages out of the OS cache, but if the
+    // pages we read are already cached it would probably be better to leave
+    // them cached after the read.
+    posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+# endif
+#endif
+    close(fd);
+    fd = -1;
 }
 
 void
