@@ -162,6 +162,16 @@ build_it() {
 	;;
   esac
 
+  case $CODENAME in
+      jessie)
+	if [ "`cat debian/compat`" -gt 10 ] ; then
+	    echo 10 > debian/compat
+	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 10)/' debian/control
+	    dch -a 'debian/control: Lower debhelper compat level to 10.'
+	fi
+	;;
+  esac
+
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in
     '')
       echo 'Failed to grep debian/rules'
