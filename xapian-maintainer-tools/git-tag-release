@@ -118,3 +118,6 @@ echo "Adding to trac"
 # milestone exists, and create the ReleaseNotes and ReleaseOverview
 # pages:
 ssh thyestes.tartarus.org bin/xapian-trac-new-release "$version"
+
+echo "Checksums:"
+(cd "$RESULT" && sha256sum *.tar.*|grep -v '\.asc$')
