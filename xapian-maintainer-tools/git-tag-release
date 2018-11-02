@@ -87,7 +87,7 @@ echo "Building release tarballs"
 ./bootstrap --download-tools=always
 ./configure
 time make -sj8
-time make -sj8 distcheck
+time make -sj8 distcheck XAPIAN_CONFIG=`pwd`/xapian-core/xapian-config LD_LIBRARY_PATH=`pwd`/xapian-core/.libs
 cd ..
 
 RESULT=`mktemp -d "RESULT-$version-XXXXXXXXXX"`
