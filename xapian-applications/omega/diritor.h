@@ -276,8 +276,8 @@ class DirectoryIterator {
 	return fd;
     }
 
-    bool md5(std::string& md5) {
-	return md5_fd(get_fd(), md5);
+    bool md5(std::string& out) {
+	return md5_fd(get_fd(), out);
     }
 };
 
