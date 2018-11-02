@@ -653,7 +653,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		if (!tmpout.empty()) {
 		    // Output in temporary file.
 		    (void)stdout_to_string(cmd, use_shell);
-		    if (!load_file(tmpout, dump)) {
+		    if (!load_file(tmpout, dump, NOCACHE)) {
 			throw ReadError("Couldn't read output file");
 		    }
 		    unlink(tmpout.c_str());
