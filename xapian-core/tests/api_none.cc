@@ -963,10 +963,10 @@ DEFINE_TESTCASE(removepostings, !backend) {
     Xapian::termpos prev_pos = 1;
     Xapian::termpos pos = 1;
     while (pos < 1000) {
-	 doc.add_posting("foo", pos);
-	 auto new_pos = prev_pos + pos;
-	 prev_pos = pos;
-	 pos = new_pos;
+	doc.add_posting("foo", pos);
+	auto new_pos = prev_pos + pos;
+	prev_pos = pos;
+	pos = new_pos;
     }
 
     // Check we added exactly one term.
