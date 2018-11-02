@@ -1,6 +1,7 @@
-/* loadfile.cc: load a file into a std::string.
- *
- * Copyright (C) 2006,2010,2012,2015 Olly Betts
+/** @file loadfile.cc
+ * @brief load a file into a std::string.
+ */
+/* Copyright (C) 2006,2010,2012,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +20,6 @@
 
 #include <config.h>
 
-#ifdef HAVE_POSIX_FADVISE
-# ifdef __linux__
-#  define _POSIX_C_SOURCE 200112L // for posix_fadvise from fcntl.h
-#  define _DEFAULT_SOURCE 1 // Needed to get lstat() for glibc >= 2.20
-#  define _BSD_SOURCE 1 // Needed to get lstat() for glibc < 2.20
-# endif
-#endif
-
 #include "loadfile.h"
 
 #include <algorithm>
@@ -40,12 +33,29 @@
 
 using namespace std;
 
-int
-load_file_fd(const string &file_name, size_t max_to_read, int flags,
-	     string &output, bool &truncated)
+bool
+load_file_from_fd(int fd, string& output)
 {
-    (void)flags; // Avoid possible "unused" warning.
-    mode_t mode = O_RDONLY;
+    output.resize(0);
+    char blk[4096];
+    while (true) {
+	ssize_t c = read(fd, blk, sizeof(blk));
+	if (c <= 0) {
+	    if (c == 0) break;
+	    if (errno == EINTR) continue;
+	    return false;
+	}
+	output.append(blk, c);
+    }
+
+    return true;
+}
+
+bool
+load_file(const string& file_name, size_t max_to_read, int flags,
+	  string& output, bool* truncated)
+{
+    mode_t mode = O_BINARY | O_RDONLY;
 #if defined O_NOATIME && O_NOATIME != 0
     if (flags & NOATIME) mode |= O_NOATIME;
 #endif
@@ -57,11 +67,20 @@ load_file_fd(const string &file_name, size_t max_to_read, int flags,
 	fd = open(file_name.c_str(), mode);
     }
 #endif
-    if (fd < 0) return -1;
+    if (fd < 0) return false;
 
 #ifdef HAVE_POSIX_FADVISE
+# ifndef __linux__
+    // On Linux, POSIX_FADV_NOREUSE has been a no-op since 2.6.18 (released
+    // 2006) and before that it was incorrectly implemented as an alias for
+    // POSIX_FADV_WILLNEED.  There have been a few attempts to make
+    // POSIX_FADV_NOREUSE actually work on Linux but nothing has been merged so
+    // for now let's not waste effort making a syscall we know to currently be
+    // a no-op.  We can revise this conditional if it gets usefully
+    // implemented.
     if (flags & NOCACHE)
-	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE); // or POSIX_FADV_SEQUENTIAL
+	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
+# endif
 #endif
 
     struct stat st;
@@ -69,48 +88,51 @@ load_file_fd(const string &file_name, size_t max_to_read, int flags,
 	int errno_save = errno;
 	close(fd);
 	errno = errno_save;
-	return -1;
+	return false;
     }
 
     if (!S_ISREG(st.st_mode)) {
 	close(fd);
 	errno = EINVAL;
-	return -1;
+	return false;
     }
 
-    char blk[4096];
     size_t n = st.st_size;
-    truncated = (max_to_read && max_to_read < n);
-    if (truncated) {
+    if (max_to_read && max_to_read < n) {
 	n = max_to_read;
-	truncated = true;
+	if (truncated) *truncated = true;
+    } else {
+	if (truncated) *truncated = false;
     }
 
     output.resize(0);
     output.reserve(n);
     while (n) {
+	char blk[4096];
 	int c = read(fd, blk, min(n, sizeof(blk)));
 	if (c <= 0) {
-	    if (c < 0 && errno == EINTR) continue;
-	    break;
+	    if (c == 0) break;
+	    if (errno == EINTR) continue;
+	    return false;
 	}
 	output.append(blk, c);
 	n -= c;
     }
 
+    if (flags & NOCACHE) {
 #ifdef HAVE_POSIX_FADVISE
-    if (flags & NOCACHE)
+# ifdef __linux__
+	// Linux doesn't implement POSIX_FADV_NOREUSE so instead we use
+	// POSIX_FADV_DONTNEED just before closing the fd.  This is a bit more
+	// aggressive than we ideally want - really we just want to stop our
+	// reads from pushing other pages out of the OS cache, but if the
+	// pages we read are already cached it would probably be better to
+	// leave them cached after the read.
 	posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+# endif
 #endif
+    }
+    close(fd);
 
-    return fd;
-}
-
-bool
-load_file(const string &file_name, size_t max_to_read, int flags,
-	  string &output, bool &truncated) {
-    int fd = load_file_fd(file_name, max_to_read, flags, output, truncated);
-    if (fd >= 0)
-	close(fd);
-    return (fd >= 0);
+    return true;
 }
