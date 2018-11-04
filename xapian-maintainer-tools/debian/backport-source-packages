@@ -27,7 +27,7 @@ set -e
 MIRROR=http://httpredir.debian.org/debian/
 
 DEBIAN_CODENAMES='stretch jessie'
-UBUNTU_CODENAMES='bionic xenial trusty'
+UBUNTU_CODENAMES='cosmic bionic xenial trusty'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
@@ -128,7 +128,7 @@ build_it() {
     xapian-bindings:trusty:*)
       # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
-    xapian-bindings:xenial:*|xapian-bindings:bionic:*)
+    xapian-bindings:xenial:*|xapian-bindings:bionic:*|xapian-bindings:cosmic:*)
       # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
       # to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
