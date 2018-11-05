@@ -753,6 +753,10 @@ main(int argc, char **argv)
     }
 
     root = argv[optind];
+    if (root.empty()) {
+	cerr << PROG_NAME": start directory can not be empty." << endl;
+	return 1;
+    }
     if (!endswith(root, '/')) {
 	root += '/';
     }
