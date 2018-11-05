@@ -128,6 +128,8 @@ rtf		text/rtf
 
 # Apple iWork:
 key		application/vnd.apple.keynote
+kth		application/vnd.apple.keynote
+apxl		application/vnd.apple.keynote
 pages		application/vnd.apple.pages
 numbers		application/vnd.apple.numbers
 
