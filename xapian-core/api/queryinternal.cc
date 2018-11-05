@@ -46,6 +46,7 @@
 #include "matcher/valuegepostlist.h"
 #include "net/length.h"
 #include "serialise-double.h"
+#include "stringutils.h"
 #include "termlist.h"
 
 #include "debuglog.h"
@@ -58,6 +59,7 @@
 #include <list>
 #include <memory>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
@@ -1271,6 +1273,54 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
     PostList * pl = ctx.postlist();
     qopt->in_synonym = old_in_synonym;
 
+    bool wdf_disjoint = false;
+    Assert(!subqueries.empty());
+    auto type = subqueries.front().get_type();
+    if (type == Query::OP_WILDCARD) {
+	// Detect common easy case where all subqueries are OP_WILDCARD whose
+	// constant prefixes form a prefix-free set.
+	wdf_disjoint = true;
+	vector<string> prefixes;
+	for (auto&& q : subqueries) {
+	    if (q.get_type() != Query::OP_WILDCARD) {
+		wdf_disjoint = false;
+		break;
+	    }
+	    auto qw = static_cast<const QueryWildcard*>(q.internal.get());
+	    prefixes.push_back(qw->get_pattern());
+	}
+
+	if (wdf_disjoint) {
+	    sort(prefixes.begin(), prefixes.end());
+	    const string* prev = nullptr;
+	    for (const auto& i : prefixes) {
+		if (prev) {
+		    if (startswith(i, *prev)) {
+			wdf_disjoint = false;
+			break;
+		    }
+		}
+		prev = &i;
+	    }
+	}
+    } else if (type == Query::LEAF_TERM) {
+	// Detect common easy case where all subqueries are terms, none of
+	// which are the same.
+	wdf_disjoint = true;
+	unordered_set<string> terms;
+	for (auto&& q : subqueries) {
+	    if (q.get_type() != Query::LEAF_TERM) {
+		wdf_disjoint = false;
+		break;
+	    }
+	    auto qt = static_cast<const QueryTerm*>(q.internal.get());
+	    if (!terms.insert(qt->get_term()).second) {
+		wdf_disjoint = false;
+		break;
+	    }
+	}
+    }
+
     // We currently assume wqf is 1 for calculating the synonym's weight
     // since conceptually the synonym is one "virtual" term.  If we were
     // to combine multiple occurrences of the same synonym expansion into
@@ -1278,9 +1328,7 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
-    //
-    // FIXME: Detect if the subquery is wdf-disjoint?
-    RETURN(qopt->make_synonym_postlist(pl, factor, false));
+    RETURN(qopt->make_synonym_postlist(pl, factor, wdf_disjoint));
 }
 
 PostList *
