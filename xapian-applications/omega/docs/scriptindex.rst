@@ -85,12 +85,14 @@ indexnopos[=PREFIX]
 	database smaller, but phrase searching won't work.
 
 load
-	reads the contents of the file using the current text as the filename
-	and then sets the current text to the contents.  If the file can't be
-	loaded (not found, wrong permissions, etc) then a diagnostic message is
-	sent to stderr and the current text is set to empty.  If the next
-	action is truncate, then scriptindex is smart enough to know it only
-	needs to load the start of a large file.
+        reads the contents of the file using the current text as the filename
+        and then sets the current text to the contents.  If the current text
+        is empty, a warning is issued (since Xapian 1.4.10).  If the file can't
+        be loaded (not found, wrong permissions, etc) then an error is issued and
+        the current text is set to empty.
+
+        If the next action is ``truncate``, then scriptindex is smart enough to
+        know it only needs to load the start of a large file.
 
 lower
 	lowercase the text (useful for generating boolean terms)
