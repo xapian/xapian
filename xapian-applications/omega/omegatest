@@ -909,6 +909,14 @@ printf '$json{$field{zer$chr{0}byte,1}}|$json{$field{field28$chr{2}$chr{8},1}}|$
 testcase '4071004f3456|@q\u0000O4V|'
 
 # Feature tests of scriptindex.
+
+# Regression test: non-zero exit status for unknown option.
+if $SCRIPTINDEX --to-be-or-not-to-be "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null < /dev/null 2>&1; then
+    echo "scriptindex didn't give error for unknown option"
+    failed=`expr $failed + 1`
+fi
+
+# Regression test: error given for multiple unique actions.
 printf 'uuid : boolean=Q unique=Q\nguid : boolean=G unique=G' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 if $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null < /dev/null 2>&1; then
