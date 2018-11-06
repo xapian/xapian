@@ -1007,14 +1007,18 @@ else
     failed=`expr $failed + 1`
 fi
 
-# Feature tests for datevalue command scriptindex.
-printf '%s\n' 'DATE : field parsedate=%Y%m%d valuepacked=13' > "$TEST_INDEXSCRIPT"
+# Feature tests for date action.
+printf 'd : date=unix\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
-DATE=19891204
+d=
+
+d=0
+
+d=1541478429
 END
-printf '$field{DATE,1}|$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
-testcase '19891204|628732800|1989-12-04' P=text
+printf '$list{$map{$range{1,3},$list{$allterms{$_}, }},|}' > "$TEST_TEMPLATE"
+testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018'
 
 # Feature tests for datevalue command scriptindex where format contains space.
 printf '%s\n' 'DATE : field parsedate="%Y%m%d %T" valuepacked=13' > "$TEST_INDEXSCRIPT"
