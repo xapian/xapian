@@ -1130,6 +1130,28 @@ index_file(const char *fname, istream &stream,
     database.commit();
 }
 
+[[noreturn]]
+static void
+show_help(int exit_code)
+{
+    cout << PROG_NAME " - " PROG_DESC "\n"
+"Usage: " PROG_NAME " [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n"
+"\n"
+"Creates or updates a Xapian database with the data from the input files listed\n"
+"on the command line.  If no files are specified, data is read from stdin.\n"
+"\n"
+"See https://xapian.org/docs/omega/scriptindex.html for documentation of the\n"
+"format for INDEXER_SCRIPT.\n"
+"\n"
+"Options:\n"
+"  -v, --verbose       display additional messages to aid debugging\n"
+"      --overwrite     create the database anew (the default is to update if\n"
+"                      the database already exists)\n";
+    print_stemmer_help("");
+    print_help_and_version_help("");
+    exit(exit_code);
+}
+
 int
 main(int argc, char **argv)
 try {
@@ -1149,16 +1171,15 @@ try {
 	{ 0, 0, NULL, 0 }
     };
 
-    bool more = true, show_help = false;
-    while (more) {
-	switch (gnu_getopt_long(argc, argv, "vs:hV", longopts, NULL)) {
-	    case EOF:
-		more = false;
-		break;
+    int getopt_ret;
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "vs:hV",
+					 longopts, NULL)) != -1) {
+	switch (getopt_ret) {
 	    default:
+		show_help(1);
+		break;
 	    case 'h': // --help
-		show_help = true;
-		more = false;
+		show_help(0);
 		break;
 	    case 'V': // --version
 		print_package_info(PROG_NAME);
@@ -1184,23 +1205,8 @@ try {
 
     argv += optind;
     argc -= optind;
-    if (show_help || argc < 2) {
-	cout << PROG_NAME " - " PROG_DESC "\n"
-"Usage: " PROG_NAME " [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n"
-"\n"
-"Creates or updates a Xapian database with the data from the input files listed\n"
-"on the command line.  If no files are specified, data is read from stdin.\n"
-"\n"
-"See https://xapian.org/docs/omega/scriptindex.html for documentation of the\n"
-"format for INDEXER_SCRIPT.\n"
-"\n"
-"Options:\n"
-"  -v, --verbose       display additional messages to aid debugging\n"
-"      --overwrite     create the database anew (the default is to update if\n"
-"                      the database already exists)\n";
-	print_stemmer_help("");
-	print_help_and_version_help("");
-	exit(show_help ? 0 : 1);
+    if (argc < 2) {
+	show_help(1);
     }
 
     parse_index_script(argv[1]);
