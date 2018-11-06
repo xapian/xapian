@@ -755,6 +755,12 @@ badhex:
 		value = Xapian::Unicode::tolower(value);
 		break;
 	    case Action::LOAD: {
+		// If there's no input, just issue a warning.
+		if (value.empty()) {
+		    report_location(DIAG_WARN, fname, line_no);
+		    cerr << "Empty filename in LOAD action" << endl;
+		    break;
+		}
 		bool truncated = false;
 		string filename = std::move(value);
 		// FIXME: Use NOATIME if we own the file or are root.

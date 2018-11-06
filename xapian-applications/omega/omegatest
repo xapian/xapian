@@ -1029,6 +1029,26 @@ END
 printf '$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
 testcase '1480680262|2016-12-02' P=text
 
+# Feature tests for load action.
+printf '%s\n' 'file : load field' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+rc=0
+out=`echo 'file='|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" 2>&1 > /dev/null || rc=$?`
+if [ $rc -ne 0 ] ; then
+  echo "scriptindex gave error for empty filename in load action"
+  printf '%s\n' "$out"
+  failed=`expr $failed + 1`
+else
+  case $out in
+    *':1: warning: Empty filename in LOAD action') ;;
+    *)
+      echo "scriptindex didn't give expected warning for empty filename in load action"
+      printf '%s\n' "$out"
+      failed=`expr $failed + 1`
+      ;;
+  esac
+fi
+
 # Feature tests for quoted arguments.
 printf 'DATE : field="  spaces  " date="yyyymmdd"\nTEXT: index\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
