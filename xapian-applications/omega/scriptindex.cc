@@ -967,6 +967,9 @@ badhex:
 		break;
 	    }
 	    case Action::DATE: {
+		// Do nothing for empty input.
+		if (value.empty()) break;
+
 		const string & type = action.get_string_arg();
 		string yyyymmdd;
 		if (type == "unix") {
@@ -976,9 +979,10 @@ badhex:
 		    int m = tm->tm_mon + 1;
 		    yyyymmdd = date_to_string(y, m, tm->tm_mday);
 		} else if (type == "yyyymmdd") {
-		    if (value.length() == 8) yyyymmdd = value;
+		    if (value.length() != 8) break;
+		    yyyymmdd = value;
 		}
-		if (yyyymmdd.empty()) break;
+
 		// Date (YYYYMMDD)
 		doc.add_boolean_term("D" + yyyymmdd);
 		yyyymmdd.resize(6);
