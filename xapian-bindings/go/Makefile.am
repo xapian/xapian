@@ -2,96 +2,56 @@
 
 include ../generic/generic.mk
 
+GO_INC = /usr/include
+GO_LIBS =
+GO_SO = .so
+
 ## Test programs to be run
-TESTS = smoketest.py pythontest.py
+TESTS = smoketest.go
 AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
 	srcdir='$(srcdir)' ;\
-	PYTHON='$(PYTHON)' ;\
 	export abs_builddir ;\
 	export srcdir ;\
-	export PYTHON ;
-LOG_COMPILER = '$(srcdir)'/run-python-test
+LOG_COMPILER =
 
-# FIXME: replicationtest.py attempts to test performing replication whilst
-# modifications are in progress.  However, it sometimes fails due to a race
-# condition in it.  It also contains hard-coded paths to the replication
-# server and client, which assume the file layout in a repo checkout.
-# Therefore, we don't run it by default currently.
-# replicationtest.py
+BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.go
 
-BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
-
-EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
-	generate-python-exceptions \
-	module_top.py \
-	run-python-test \
-	testsuite.py testsuite2.py testsuite3.py \
-	test_xapian_star.py \
-	smoketest2.py smoketest3.py \
-	pythontest2.py pythontest3.py \
-	replicationtest2.py \
+EXTRA_DIST = go.i util.i extra.i extracomments.i except.i \
+	generate-go-exceptions \
+	smoketest.go \
 	$(TESTS) $(BUILT_SOURCES)
 
-pkgpylibdir = @PYTHON_LIB@/xapian
+pkggolibdir = /usr/lib/go-or-something/xapian
 
-# Install as _DATA rather than _SCRIPTS because we don't want to make these
-# executable (they don't have a #! line).
-pkgpylib_DATA = xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo
-
-pkgpylib_LTLIBRARIES = _xapian.la
+pkggolib_LTLIBRARIES = _xapian.la
 
 # Remove the .la file - _xapian.la is never linked against (it's a module)
-# and Python doesn't use libltdl.  Note that the library gets installed by
+# and Go doesn't use libltdl.  Note that the library gets installed by
 # install-data, so that's where we need to hook.
 install-data-hook:
-	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian.la
+	rm -f $(DESTDIR)$(pkggolibdir)/_xapian.la
 
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON_SO)
+	rm -f $(DESTDIR)$(pkggolibdir)/_xapian$(GO_SO)
 
-AM_CPPFLAGS = -I$(PYTHON_INC)
+AM_CPPFLAGS = -I$(GO_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
-_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
-_xapian_la_SOURCES = modern/xapian_wrap.cc
-_xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
+_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(GO_SO)" $(NO_UNDEFINED)
+_xapian_la_SOURCES = xapian_wrap.cc
+_xapian_la_LIBADD = $(XAPIAN_LIBS) $(GO_LIBS)
 
-# In a distribution, xapian.py is in $(srcdir)/modern, and python will always
-# generate the .pyc and .pyo files in the same directory as the .py file.
-# However, $(srcdir) might be shared between builds for different python
-# versions so we can't let the .pyc and .pyo files get written there.  Hence we
-# copy the .py file to the build directory from wherever it actually is and use
-# the copy.  We also rename the copy to __init__.py so that it can be installed
-# in a "xapian" directory and be treated as a package.  Finally, we take this
-# opportunity to insert a module doc string at the top of the file.
-xapian/__init__.py: modern/xapian.py
-	-test -d xapian || mkdir xapian
-	cat '$(srcdir)/module_top.py' `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py > xapian/__init__.pyT
-	mv xapian/__init__.pyT xapian/__init__.py
-
-# We "import _xapian" first so that if we fail to import the glue library
-# we don't generate a broken __init__.pyc or __init__.pyo.
-xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -c "import xapian"
-
-xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -O -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -O -c "import xapian"
-
-xapian/_xapian$(PYTHON_SO): _xapian.la
+xapian/_xapian$(GO_SO): _xapian.la
 	-test -d xapian || mkdir xapian
 	$(LIBTOOL) --config > libtoolconfig.tmp
 ## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) xapian
+	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(GO_SO) xapian
 	rm -f libtoolconfig.tmp
 
 CLEANFILES = \
-    xapian/_xapian$(PYTHON_SO) \
-    xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo \
-    $(srcdir)/*.pyc
+    xapian/_xapian$(GO_SO)
 
 # Clean the xapian directory which we created, if it's empty, and any
 # databases created by test cases.
@@ -104,39 +64,28 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-BUILT_SOURCES += except.i doccomments.i
-except.i: $(srcdir)/generate-python-exceptions ../../xapian-core/exception_data.pm
-	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-python-exceptions
+BUILT_SOURCES += except.i
+except.i: $(srcdir)/generate-go-exceptions ../../xapian-core/exception_data.pm
+	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-go-exceptions
 
-if MAINTAINER_NO_DOCS
-doccomments.i:
-	: > doccomments.i
-else
-doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/index.xml
-	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
-endif
-
-stamp = modern/xapian_wrap.stamp
+stamp = xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: $(stamp)
+xapian_wrap.cc xapian_wrap.h xapian.go xapian_wrap.d: $(stamp)
 	$(make_many_locked)
-$(stamp): except.i doccomments.i
-	-test -d modern || mkdir modern
+$(stamp): except.i
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -go -O -outdir modern \
-	    -o modern/xapian_wrap.cc '$(srcdir)/'go.i
-	$(PERL) -pi -e 's/class Error:/class Error(Exception):/' modern/xapian.go
+	    -go -intgosize 32 -o xapian_wrap.cc '$(srcdir)/'go.i
 	$(multitarget_end)
 
--include modern/xapian_wrap.d
+-include xapian_wrap.d
 
-CLEANFILES += modern/xapian_wrap.d $(stamp)
+CLEANFILES += xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
-exampledatadir = $(docdir)/python/examples
+exampledatadir = $(docdir)/go/examples
 dist_exampledata_DATA = 
 
 docdatadir = $(docdir)/go
