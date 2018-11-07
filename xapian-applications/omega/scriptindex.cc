@@ -1129,7 +1129,6 @@ index_file(const char *fname, istream &stream,
     database.commit();
 }
 
-[[noreturn]]
 static void
 show_help(int exit_code)
 {
