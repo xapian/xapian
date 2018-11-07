@@ -22,8 +22,6 @@
 
 #include <config.h>
 
-#include "safeerrno.h"
-
 #include <xapian/error.h>
 
 #include "chert_btreebase.h"
@@ -36,6 +34,7 @@
 #include "str.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <climits>
 #include <cstring>
 
@@ -116,7 +115,7 @@ ChertTable_base::~ChertTable_base()
 /** Do most of the error handling from unpack_uint() */
 static bool
 do_unpack_uint(const char **start, const char *end,
-	       uint4 *dest, string &err_msg, 
+	       uint4 *dest, string &err_msg,
 	       const string &basename,
 	       const char *varname)
 {
@@ -133,7 +132,7 @@ do_unpack_uint(const char **start, const char *end,
 
 static bool
 do_unpack_uint(const char **start, const char *end,
-	       chert_tablesize_t *dest, string &err_msg, 
+	       chert_tablesize_t *dest, string &err_msg,
 	       const string &basename,
 	       const char *varname)
 {
@@ -153,7 +152,7 @@ do { \
     if (!do_unpack_uint(start, end, &var, err_msg, basename, #var)) { \
 	return false; \
     } \
-} while(0)
+} while (0)
 
 /* How much of the base file to read at the first go (in bytes).
  * This must be big enough that the base file without bitmap
@@ -181,7 +180,7 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
     char buf[REASONABLE_BASE_SIZE];
 
     const char *start = buf;
-    const char *end = buf + io_read(h, buf, REASONABLE_BASE_SIZE, 0);
+    const char *end = buf + io_read(h, buf, REASONABLE_BASE_SIZE);
 
     DO_UNPACK_UINT_ERRCHECK(&start, end, revision);
     uint4 format;
@@ -234,8 +233,8 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
     if (!read_bitmap)
 	return true;
 
-    bit_map0 = new byte[bit_map_size];
-    bit_map = new byte[bit_map_size];
+    bit_map0 = new uint8_t[bit_map_size];
+    bit_map = new uint8_t[bit_map_size];
 
     size_t n = end - start;
     if (n < bit_map_size) {
@@ -391,16 +390,16 @@ void
 ChertTable_base::extend_bit_map()
 {
     int n = bit_map_size + BIT_MAP_INC;
-    byte *new_bit_map0 = 0;
-    byte *new_bit_map = 0;
+    uint8_t *new_bit_map0 = 0;
+    uint8_t *new_bit_map = 0;
 
     try {
-	new_bit_map0 = new byte[n];
-	new_bit_map = new byte[n];
+	new_bit_map0 = new uint8_t[n];
+	new_bit_map = new uint8_t[n];
 
 	memcpy(new_bit_map0, bit_map0, bit_map_size);
 	memset(new_bit_map0 + bit_map_size, 0, n - bit_map_size);
-	
+
 	memcpy(new_bit_map, bit_map, bit_map_size);
 	memset(new_bit_map + bit_map_size, 0, n - bit_map_size);
     } catch (...) {
@@ -434,8 +433,8 @@ ChertTable_base::next_free_block()
 	if (i >= bit_map_size) {
 	    extend_bit_map();
 	}
-        x = bit_map0[i] | bit_map[i];
-        if (x != UCHAR_MAX) break;
+	x = bit_map0[i] | bit_map[i];
+	if (x != UCHAR_MAX) break;
     }
     uint4 n = i * CHAR_BIT;
     int d = 0x1;
@@ -449,7 +448,7 @@ ChertTable_base::next_free_block()
 }
 
 bool
-ChertTable_base::find_changed_block(uint4 * n)
+ChertTable_base::find_changed_block(uint4 * n) const
 {
     // Search for a block which was free at the start of the transaction, but
     // isn't now.
@@ -462,12 +461,12 @@ ChertTable_base::find_changed_block(uint4 * n)
 	}
 	++(*n);
     }
-    
+
     return false;
 }
 
 bool
-ChertTable_base::block_free_now(uint4 n)
+ChertTable_base::block_free_now(uint4 n) const
 {
     uint4 i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;

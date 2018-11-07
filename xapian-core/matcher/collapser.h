@@ -27,6 +27,7 @@
 #include "api/postlist.h"
 
 #include <map>
+#include <vector>
 
 /// Enumeration reporting how a document was handled by the Collapser.
 typedef enum {
@@ -40,14 +41,13 @@ typedef enum {
 class CollapseData {
     /** Currently kept MSet entries for this value of the collapse key.
      *
-     *  If collapse_max > 1, then this is a min-heap once items.size()
-     *  reaches collapse_max.
+     *  If collapse_max > 1, then this is a min-heap once collapse_count > 0.
      *
      *  FIXME: We expect collapse_max to be small, so perhaps we should
      *  preallocate space for that many entries and/or allocate space in
      *  larger blocks to divvy up?
      */
-    vector<Xapian::Internal::MSetItem> items;
+    std::vector<Xapian::Internal::MSetItem> items;
 
     /// The highest weight of a document we've rejected.
     double next_best_weight;
@@ -57,9 +57,9 @@ class CollapseData {
 
   public:
     /// Construct with the given MSetItem @a item.
-    CollapseData(const Xapian::Internal::MSetItem & item)
+    explicit CollapseData(const Xapian::Internal::MSetItem & item)
 	: items(1, item), next_best_weight(0), collapse_count(0) {
-	items[0].collapse_key = string();
+	items[0].collapse_key = std::string();
     }
 
     /** Handle a new MSetItem with this collapse key value.
@@ -73,7 +73,7 @@ class CollapseData {
      */
     collapse_result add_item(const Xapian::Internal::MSetItem & item,
 			     Xapian::doccount collapse_max,
-			     const MSetCmp & mcmp,
+			     MSetCmp mcmp,
 			     Xapian::Internal::MSetItem & old_item);
 
     /// The highest weight of a document we've rejected.
@@ -142,7 +142,7 @@ class Collapser {
     collapse_result process(Xapian::Internal::MSetItem & item,
 			    PostList * postlist,
 			    Xapian::Document::Internal & vsdoc,
-			    const MSetCmp & mcmp);
+			    MSetCmp mcmp);
 
     Xapian::doccount get_collapse_count(const std::string & collapse_key,
 					int percent_cutoff,

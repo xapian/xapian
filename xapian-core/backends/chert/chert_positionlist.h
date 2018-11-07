@@ -37,7 +37,7 @@ class ChertPositionListTable : public ChertLazyTable {
   public:
     static string make_key(Xapian::docid did, const string & term) {
 	string key;
-	pack_uint_preserving_sort(key, did);
+	C_pack_uint_preserving_sort(key, did);
 	key += term;
 	return key;
     }
@@ -115,7 +115,7 @@ class ChertPositionList : public PositionList {
 		   const string & tname);
 
     /// Returns size of position list.
-    Xapian::termcount get_size() const;
+    Xapian::termcount get_approx_size() const;
 
     /** Returns current position.
      *
@@ -125,13 +125,10 @@ class ChertPositionList : public PositionList {
     Xapian::termpos get_position() const;
 
     /// Advance to the next term position in the list.
-    void next();
+    bool next();
 
     /// Advance to the first term position which is at least termpos.
-    void skip_to(Xapian::termpos termpos);
-
-    /// True if we're off the end of the list
-    bool at_end() const;
+    bool skip_to(Xapian::termpos termpos);
 };
 
 #endif /* XAPIAN_HGUARD_CHERT_POSITIONLIST_H */

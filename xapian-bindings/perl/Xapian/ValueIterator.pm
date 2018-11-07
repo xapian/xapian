@@ -23,7 +23,7 @@ Constructor. Defaults to a uninitialized iterator.
 
 =item inc
 
-Advance the iterator by one. (Called implictly by C<++> overloading )
+Advance the iterator by one. (Called implicitly by C<++> overloading )
 
 =item get_valueno
 
@@ -52,7 +52,8 @@ as the C<ne> and C<!=> operators.
 
 =head1 SEE ALSO
 
-L<Xapian>,L<Xapian::Document>
+L<Xapian>,
+L<Xapian::Document>
 
 =cut
 1;

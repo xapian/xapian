@@ -1,4 +1,4 @@
-/* @file pkglibbindir.cc
+/** @file pkglibbindir.cc
  * @brief Get the directory which helper programs live in.
  */
 /* Copyright (C) 2010,2011 Olly Betts
@@ -33,7 +33,7 @@ const string &
 get_pkglibbindir()
 {
     static string result;
-    if (result.empty())  {
+    if (result.empty()) {
 	const char * p = getenv("XAPIAN_OMEGA_PKGLIBBINDIR");
 	if (p && *p) {
 	    result = p;

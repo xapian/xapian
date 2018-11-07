@@ -1,7 +1,7 @@
 /** @file  positioniterator.h
  *  @brief Class for iterating over term positions.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,6 +54,24 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
 
     /// Assignment.
     PositionIterator & operator=(const PositionIterator & o);
+
+#ifdef XAPIAN_MOVE_SEMANTICS
+    /// Move constructor.
+    PositionIterator(PositionIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
+
+    /// Move assignment operator.
+    PositionIterator & operator=(PositionIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
+#endif
 
     /** Default constructor.
      *
@@ -121,7 +139,7 @@ XAPIAN_NOTHROW(operator==(const PositionIterator &a, const PositionIterator &b))
 
 /// Equality test for PositionIterator objects.
 inline bool
-operator==(const PositionIterator &a, const PositionIterator &b)
+operator==(const PositionIterator &a, const PositionIterator &b) XAPIAN_NOEXCEPT
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
@@ -133,7 +151,7 @@ XAPIAN_NOTHROW(operator!=(const PositionIterator &a, const PositionIterator &b))
 
 /// Inequality test for PositionIterator objects.
 inline bool
-operator!=(const PositionIterator &a, const PositionIterator &b)
+operator!=(const PositionIterator &a, const PositionIterator &b) XAPIAN_NOEXCEPT
 {
     return !(a == b);
 }

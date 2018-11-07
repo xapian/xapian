@@ -2,7 +2,8 @@
  * @brief a generic test suite engine
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005,2006,2007,2008,2009,2013 Olly Betts
+ * Copyright 2002,2003,2005,2006,2007,2008,2009,2013,2015,2016,2018 Olly Betts
+ * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +26,10 @@
 
 #include "noreturn.h"
 
-#include "output.h"
+#ifndef XAPIAN_UNITTEST
+# include "output.h"
+# define UNITTEST_CHECK_EXCEPTION
+#endif
 
 #include "stringutils.h" // For STRINGIZE().
 
@@ -51,16 +55,14 @@ class TestSkip { };
 /** Macro used to build a TestFail object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
-#define FAIL_TEST(a) do { TestFail testfail; \
-                          if (verbose) { tout << a << '\n'; } \
-		          throw testfail; } while (0)
+#define FAIL_TEST(a) do { if (verbose) { tout << a << '\n'; } \
+			  throw TestFail(); } while (0)
 
 /** Macro used to build a TestSkip object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
-#define SKIP_TEST(a) do { TestSkip testskip; \
-                          if (verbose) { tout << a << '\n'; } \
-		          throw testskip; } while (0)
+#define SKIP_TEST(a) do { if (verbose) { tout << a << '\n'; } \
+			  throw TestSkip(); } while (0)
 
 /// Type for a test function.
 typedef bool (*test_func)();
@@ -83,6 +85,9 @@ struct test_desc {
 //  expensive.
 extern int verbose;
 
+/** Set to a string explanation for testcases expected to fail. */
+extern const char* expected_failure;
+
 /// The exception type we were expecting in TEST_EXCEPTION.
 //  Used to detect if such an exception was mishandled by the
 //  compiler/runtime.
@@ -104,20 +109,32 @@ class test_driver {
 	 */
 	struct result {
 	    /// The number of tests which succeeded.
-	    unsigned int succeeded;
+	    unsigned int succeeded = 0;
 
 	    /// The number of tests which failed.
-	    unsigned int failed;
+	    unsigned int failed = 0;
 
-	    /// The number of tests which were skipped
-	    unsigned int skipped;
+	    /// The number of tests which were skipped.
+	    unsigned int skipped = 0;
 
-	    result() : succeeded(0), failed(0), skipped(0) { }
+	    /** Number of tests with result XFAIL.
+	     *
+	     *  I.e. tests which were expected to fail and did.
+	     */
+	    unsigned int xfailed = 0;
+
+	    /** Number of tests with result XFAIL.
+	     *
+	     *  I.e. tests which were expected to fail but passed.
+	     */
+	    unsigned int xpassed = 0;
 
 	    result & operator+=(const result & o) {
 		succeeded += o.succeeded;
 		failed += o.failed;
 		skipped += o.skipped;
+		xfailed += o.xfailed;
+		xpassed += o.xpassed;
 		return *this;
 	    }
 
@@ -125,6 +142,8 @@ class test_driver {
 		succeeded = 0;
 		failed = 0;
 		skipped = 0;
+		xfailed = 0;
+		xpassed = 0;
 	    }
 	};
 
@@ -182,9 +201,11 @@ class test_driver {
     private:
 	/** Prevent copying */
 	test_driver(const test_driver &);
-	test_driver & operator = (const test_driver &);
+	test_driver & operator=(const test_driver &);
 
-	typedef enum { PASS = 1, FAIL = 0, SKIP = -1 } test_result;
+	enum test_result {
+	    XPASS = 3, XFAIL = 2, PASS = 1, FAIL = 0, SKIP = -1
+	};
 
 	static std::map<int, std::string *> short_opts;
 
@@ -234,14 +255,16 @@ class test_driver {
 };
 
 /// Display the location at which a testcase occurred, with an explanation.
-#define TESTCASE_LOCN(a) __FILE__":"STRINGIZE(__LINE__)": "STRINGIZE(a)
+#define TESTCASE_LOCN(a) __FILE__ ":" STRINGIZE(__LINE__) ": " STRINGIZE(a)
 
 /** Test a condition, and display the test with an extra explanation if
  *  the condition fails.
  *  NB: wrapped in do { ... } while (0) so a trailing ';' works correctly.
  */
 #define TEST_AND_EXPLAIN(a, b) do {\
-	if (!(a)) FAIL_TEST(TESTCASE_LOCN(a) << std::endl << b << std::endl);\
+	bool test_and_explain_fail_ = !(a);\
+	UNITTEST_CHECK_EXCEPTION\
+	if (test_and_explain_fail_) FAIL_TEST(TESTCASE_LOCN(a) << std::endl << b << std::endl);\
     } while (0)
 
 /// Test a condition, without an additional explanation for failure.
@@ -249,7 +272,7 @@ class test_driver {
 
 /// Test for equality of two things.
 #define TEST_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
-	"Expected '"STRINGIZE(a)"' and '"STRINGIZE(b)"' to be equal:" \
+	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' to be equal:" \
 	" were " << (a) << " and " << (b))
 
 /** Test for equality of two strings.
@@ -258,7 +281,7 @@ class test_driver {
  *  be seen clearly.
  */
 #define TEST_STRINGS_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
-	"Expected "STRINGIZE(a)" and "STRINGIZE(b)" to be equal, were:\n\"" \
+	"Expected " STRINGIZE(a) " and " STRINGIZE(b) " to be equal, were:\n\"" \
 	<< (a) << "\"\n\"" << (b) << '"')
 
 /// Helper function for TEST_EQUAL_DOUBLE macro.
@@ -266,22 +289,44 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 
 /// Test two doubles for near equality.
 #define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(TEST_EQUAL_DOUBLE_((a), (b)), \
-	"Expected '"STRINGIZE(a)"' and '"STRINGIZE(b)"' to be (nearly) equal:" \
+	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' to be (nearly) equal:" \
 	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
 
 /// Test two doubles for non-near-equality.
 #define TEST_NOT_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(!TEST_EQUAL_DOUBLE_((a), (b)), \
-	"Expected '"STRINGIZE(a)"' and '"STRINGIZE(b)"' not to be (nearly) equal:" \
+	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be (nearly) equal:" \
 	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
 
 /// Test for non-equality of two things.
 #define TEST_NOT_EQUAL(a, b) TEST_AND_EXPLAIN(((a) != (b)), \
-	"Expected '"STRINGIZE(a)"' and '"STRINGIZE(b)"' not to be equal:" \
+	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be equal:" \
 	" were " << (a) << " and " << (b))
 
 #define DEFINE_TESTCASE(S,COND) bool test_##S()
 
 // Newer test macros:
 #include "testmacros.h"
+
+/** Mark a testcase as expected to fail.
+ *
+ *  @param msg	An static string explaining why the testcase is expected to
+ *		fail.  Must not be NULL.
+ *
+ *  This is intended to be used temporarily to mark tests for known bugs before
+ *  the bugs are fixed.  If the test fails, the result will be shown as "XFAIL"
+ *  and this won't cause the test run to fail.  However, if a test marked in
+ *  this way actually passed, the result will be shown as "XPASS" and the test
+ *  run *will* fail.  (So XFAIL is explicitly not suitable for marking "flaky"
+ *  testcases - please fix flaky testcases rather than trying to find a way to
+ *  mark them as flaky!)
+ *
+ *  This macro should be used inside the testcase code.  It can be used inside
+ *  a conditional if the testcase is only expected to fail in certain situations
+ *  (for example, only for some backends) - it only has an effect if it is
+ *  actually executed.
+ */
+inline void XFAIL(const char* msg) {
+    expected_failure = msg;
+}
 
 #endif // OM_HGUARD_TESTSUITE_H

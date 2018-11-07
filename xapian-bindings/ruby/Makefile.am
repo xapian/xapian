@@ -4,12 +4,18 @@ include ../generic/generic.mk
 
 ## Test programs to be run
 TESTS = smoketest.rb
-LOG_COMPILER = $(RUBY)
+LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(RUBY)
 AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
+installcheck-local:
+	$(MAKE) check AM_LOG_FLAGS=
 
-EXTRA_DIST = ruby.i extra.i docs/rdocs docs/index.rst $(TESTS) $(BUILT_SOURCES)
+SWIG_GENERATED = xapian_wrap.cc xapian_wrap.h
+
+EXTRA_DIST = ruby.i extra.i docs/index.rst $(TESTS) \
+	$(SWIG_GENERATED)
+
+BUILT_SOURCES = $(SWIG_GENERATED)
 
 rubylibdir = $(RUBY_LIB)
 dist_rubylib_DATA = xapian.rb
@@ -32,7 +38,7 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(RUBY_LIBS)
 CLEANFILES =
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
-RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
 xapian_wrap.cc xapian_wrap.h: $(stamp)
 	$(make_many_locked)
@@ -41,6 +47,9 @@ $(stamp):
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
 	    -o xapian_wrap.cc '$(srcdir)/'ruby.i
+	## Fix code to avoid GCC -Wconversion-null warnings.  This was fixed
+	## in SWIG git master after SWIG 3.0.12.
+	$(PERL) -pi -e 's/\b(rb_funcall\(.*, )NULL(\);)/$$1Qnil$$2/' xapian_wrap.cc
 	$(multitarget_end)
 
 -include xapian_wrap.d
@@ -59,46 +68,57 @@ dist_exampledata_DATA = \
 	docs/examples/simplematchdecider.rb \
 	docs/examples/simplesearch.rb
 
-docdatadir = $(docdir)/ruby
-dist_docdata_DATA = docs/index.html
-
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
-	@test -f docs/rdocs/index.html && cd docs || cd "$(srcdir)/docs" ; \
-	  for dir in `find rdocs -type d -print` ; do \
-	    echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
-	    $(mkinstalldirs) "$(DESTDIR)$(docdatadir)/$$dir"; \
-	  done ; \
-	  for f in `find rdocs -type f -print` ; do \
-	    echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
-	    $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
+	## In a VPATH build, install files from srcdir first.  Use
+	## $(abs_builddir) because we need to cd there having already
+	## changed directory.
+	@paths=docs ; \
+	  test '$(abs_srcdir)' = '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
+	  for docs in $$paths ; do \
+	    cd "$$docs" && for dir in `find rdocs -type d -print` ; do \
+	      echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
+	      $(mkinstalldirs) "$(DESTDIR)$(docdatadir)/$$dir"; \
+	    done && for f in `find rdocs -type f -print` ; do \
+	      echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
+	      $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
+	    done ; \
 	  done
 
 uninstall-local:
 	## Because we don't install the .la file, "make uninstall" doesn't work
 	## and we need to remove the file ourselves.
 	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
-	@test -f docs/rdocs/index.html && cd docs || cd "$(srcdir)/docs" ; \
-	  for f in `find rdocs -type f -print` ; do \
-	    echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
-	    rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
+	@paths=docs ; \
+	  test '$(abs_srcdir)' = '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
+	  for docs in $$paths ; do \
+	    cd "$$docs" && for f in `find rdocs -type f -print` ; do \
+	      echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
+	      rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
+	    done; \
 	  done
 
-if DOCUMENTATION_RULES
+docdatadir = $(docdir)/ruby
+dist_docdata_DATA = docs/index.html
+
+EXTRA_DIST += generate-rdoc-stubs docs/xapian.rb
+
 BUILT_SOURCES += docs/rdocs/index.html
-
-docs/rdocs: docs/rdocs/index.html
-
-docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
-	$(PERL) $(srcdir)/generate-rdoc-stubs
 
 docs/rdocs/index.html: docs/xapian.rb
 	rm -rf docs/rdocs
-	cd docs && $(RDOC) --op rdocs xapian.rb
+	$(MKDIR_P) docs
+	cd docs && $(RDOC) --op rdocs `test -f xapian.rb||echo '$(abs_srcdir)/docs/'`xapian.rb
+
+if DOCUMENTATION_RULES
+docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
+	$(PERL) $(srcdir)/generate-rdoc-stubs
+
+BUILT_SOURCES += docs/index.html
 
 .rst.html:
 	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
-endif
 
 CLEANFILES += docs/xapian.rb
+endif

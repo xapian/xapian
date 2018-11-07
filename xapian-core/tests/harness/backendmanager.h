@@ -2,7 +2,7 @@
  * @brief Base class for backend handling in test harness
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,25 +30,14 @@
 #ifdef __WIN32__
 // Under __WIN32__ we want \ path separators since we pass this path to
 // CreateProcess().
-# ifdef _MSC_VER
-#  ifdef DEBUG
-#   define XAPIAN_BIN_PATH "..\\win32\\Debug\\"
-#  else
-#   define XAPIAN_BIN_PATH "..\\win32\\Release\\"
-#  endif
-# else
-#  define XAPIAN_BIN_PATH "..\\bin\\" // mingw
-# endif
+# define XAPIAN_BIN_PATH "..\\bin\\"
+# define EXE_SUFFIX ".exe"
 #else
 # define XAPIAN_BIN_PATH "../bin/"
+# define EXE_SUFFIX
 #endif
-#define XAPIAN_TCPSRV XAPIAN_BIN_PATH"xapian-tcpsrv"
-#define XAPIAN_PROGSRV XAPIAN_BIN_PATH"xapian-progsrv"
-
-#if defined __SUNPRO_CC && __SUNPRO_CC - 0 < 0x580
-// Older versions of Sun's CC appears to need this to compile this file.
-class Xapian::WritableDatabase;
-#endif
+#define XAPIAN_TCPSRV XAPIAN_BIN_PATH "xapian-tcpsrv" EXE_SUFFIX
+#define XAPIAN_PROGSRV XAPIAN_BIN_PATH "xapian-progsrv" EXE_SUFFIX
 
 class BackendManager {
     /// The current data directory
@@ -80,20 +69,6 @@ class BackendManager {
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
     /// Get a writable inmemory database instance.
     Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &files);
-#endif
-
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-    /// Get a remote database instance using xapian-progsrv.
-    Xapian::Database getdb_remoteprog(const std::vector<std::string> &files);
-
-    /// Get a writable remote database instance using xapian-progsrv.
-    Xapian::WritableDatabase getwritedb_remoteprog(const std::vector<std::string> &files);
-
-    /// Get a remote database instance using xapian-tcpsrv.
-    Xapian::Database getdb_remotetcp(const std::vector<std::string> &files);
-
-    /// Get a writable remote database instance using xapian-tcpsrv.
-    Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &files);
 #endif
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND

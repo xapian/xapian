@@ -50,7 +50,7 @@ class ExtraWeightPostList : public PostList {
 	    return pl->get_termfreq_est();
 	}
 
-	Xapian::docid  get_docid() const { return pl->get_docid(); }
+	Xapian::docid get_docid() const { return pl->get_docid(); }
 
 	double get_weight() const {
 	    /* Second parameter of get_sumextra is number of unique terms in doc, which has been put

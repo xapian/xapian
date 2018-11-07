@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +24,18 @@
 
 #include <xapian/error.h>
 
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysselect.h"
 #include "safeunistd.h"
 
 #include <algorithm>
+#include <cerrno>
+#include <climits>
+#include <cstdint>
 #include <string>
+#ifdef __WIN32__
+# include <type_traits>
+#endif
 
 #include "debuglog.h"
 #include "fd.h"
@@ -53,11 +58,19 @@ throw_database_closed()
     throw Xapian::DatabaseError("Database has been closed");
 }
 
+XAPIAN_NORETURN(static void throw_network_error_insane_message_length());
+static void
+throw_network_error_insane_message_length()
+{
+    throw Xapian::NetworkError("Insane message length specified!");
+}
+
 #ifdef __WIN32__
-inline void
+static inline void
 update_overlapped_offset(WSAOVERLAPPED & overlapped, DWORD n)
 {
-    STATIC_ASSERT_UNSIGNED_TYPE(DWORD); // signed overflow is undefined.
+    // Signed overflow is undefined so check DWORD is unsigned.
+    static_assert(std::is_unsigned<DWORD>::value, "Type DWORD should be unsigned");
     overlapped.Offset += n;
     if (overlapped.Offset < n) ++overlapped.OffsetHigh;
 }
@@ -72,7 +85,7 @@ RemoteConnection::RemoteConnection(int fdin_, int fdout_,
     overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
     if (!overlapped.hEvent)
 	throw Xapian::NetworkError("Failed to setup OVERLAPPED",
-				   context, -(int)GetLastError());
+				   context, -int(GetLastError()));
 
 #endif
 }
@@ -85,12 +98,12 @@ RemoteConnection::~RemoteConnection()
 }
 #endif
 
-void
+bool
 RemoteConnection::read_at_least(size_t min_len, double end_time)
 {
-    LOGCALL_VOID(REMOTE, "RemoteConnection::read_at_least", min_len | end_time);
+    LOGCALL(REMOTE, bool, "RemoteConnection::read_at_least", min_len | end_time);
 
-    if (buffer.length() >= min_len) return;
+    if (buffer.length() >= min_len) return true;
 
 #ifdef __WIN32__
     HANDLE hin = fd_to_handle(fdin);
@@ -112,11 +125,13 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	    // Get the final result of the read.
 	    if (!GetOverlappedResult(hin, &overlapped, &received, FALSE))
 		throw Xapian::NetworkError("Failed to get overlapped result",
-					   context, -(int)GetLastError());
+					   context, -int(GetLastError()));
 	}
 
-	if (received == 0)
-	    throw Xapian::NetworkError("Received EOF", context);
+	if (received == 0) {
+	    do_close(false);
+	    return false;
+	}
 
 	buffer.append(buf, received);
 
@@ -136,12 +151,14 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 
 	if (received > 0) {
 	    buffer.append(buf, received);
-	    if (buffer.length() >= min_len) return;
+	    if (buffer.length() >= min_len) return true;
 	    continue;
 	}
 
-	if (received == 0)
-	    throw Xapian::NetworkError("Received EOF", context);
+	if (received == 0) {
+	    do_close(false);
+	    return false;
+	}
 
 	LOGLINE(REMOTE, "read gave errno = " << errno);
 	if (errno == EINTR) continue;
@@ -160,24 +177,30 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	    }
 
 	    // Use select to wait until there is data or the timeout is reached.
-	    fd_set fdset;
-	    FD_ZERO(&fdset);
-	    FD_SET(fdin, &fdset);
+	    fd_set rfdset, efdset;
+	    FD_ZERO(&rfdset);
+	    FD_SET(fdin, &rfdset);
+	    FD_ZERO(&efdset);
+	    FD_SET(fdin, &efdset);
 
 	    struct timeval tv;
 	    RealTime::to_timeval(time_diff, &tv);
-	    int select_result = select(fdin + 1, &fdset, 0, &fdset, &tv);
+	    int select_result = select(fdin + 1, &rfdset, 0, &efdset, &tv);
 	    if (select_result > 0) break;
 
 	    if (select_result == 0)
 		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
 
-	    // EINTR means select was interrupted by a signal.
-	    if (errno != EINTR)
+	    // EINTR means select was interrupted by a signal.  The Linux
+	    // select(2) man page says: "Portable programs may wish to check
+	    // for EAGAIN and loop, just as with EINTR" and that seems to be
+	    // necessary for cygwin at least.
+	    if (errno != EINTR && errno != EAGAIN)
 		throw Xapian::NetworkError("select failed during read", context, errno);
 	}
     }
 #endif
+    return true;
 }
 
 bool
@@ -190,9 +213,11 @@ RemoteConnection::ready_to_read() const
     if (!buffer.empty()) RETURN(true);
 
     // Use select to see if there's data available to be read.
-    fd_set fdset;
-    FD_ZERO(&fdset);
-    FD_SET(fdin, &fdset);
+    fd_set rfdset, efdset;
+    FD_ZERO(&rfdset);
+    FD_SET(fdin, &rfdset);
+    FD_ZERO(&efdset);
+    FD_SET(fdin, &efdset);
 
     // Set a 0.1 second timeout to avoid a busy loop.
     // FIXME: this would be much better done by exposing the fd so that the
@@ -200,7 +225,7 @@ RemoteConnection::ready_to_read() const
     struct timeval tv;
     tv.tv_sec = 0;
     tv.tv_usec = 100000;
-    RETURN(select(fdin + 1, &fdset, 0, &fdset, &tv) > 0);
+    RETURN(select(fdin + 1, &rfdset, 0, &efdset, &tv) > 0);
 }
 
 void
@@ -227,7 +252,7 @@ RemoteConnection::send_message(char type, const string &message,
 	    int errcode = GetLastError();
 	    if (errcode != ERROR_IO_PENDING)
 		throw Xapian::NetworkError("write failed", context, -errcode);
-	    // Just wait for the data to be received, or a timeout.
+	    // Just wait for the data to be sent, or a timeout.
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
@@ -237,7 +262,7 @@ RemoteConnection::send_message(char type, const string &message,
 	    // Get the final result.
 	    if (!GetOverlappedResult(hout, &overlapped, &n, FALSE))
 		throw Xapian::NetworkError("Failed to get overlapped result",
-					   context, -(int)GetLastError());
+					   context, -int(GetLastError()));
 	}
 
 	count += n;
@@ -260,7 +285,7 @@ RemoteConnection::send_message(char type, const string &message,
 
     const string * str = &header;
 
-    fd_set fdset;
+    fd_set wfdset, efdset;
     size_t count = 0;
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
@@ -284,8 +309,10 @@ RemoteConnection::send_message(char type, const string &message,
 	    throw Xapian::NetworkError("write failed", context, errno);
 
 	// Use select to wait until there is space or the timeout is reached.
-	FD_ZERO(&fdset);
-	FD_SET(fdout, &fdset);
+	FD_ZERO(&wfdset);
+	FD_SET(fdout, &wfdset);
+	FD_ZERO(&efdset);
+	FD_SET(fdout, &efdset);
 
 	double time_diff = end_time - RealTime::now();
 	if (time_diff < 0) {
@@ -295,7 +322,7 @@ RemoteConnection::send_message(char type, const string &message,
 
 	struct timeval tv;
 	RealTime::to_timeval(time_diff, &tv);
-	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
+	int select_result = select(fdout + 1, 0, &wfdset, &efdset, &tv);
 
 	if (select_result < 0) {
 	    if (errno == EINTR) {
@@ -346,7 +373,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    int errcode = GetLastError();
 	    if (errcode != ERROR_IO_PENDING)
 		throw Xapian::NetworkError("write failed", context, -errcode);
-	    // Just wait for the data to be received, or a timeout.
+	    // Just wait for the data to be sent, or a timeout.
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
@@ -356,7 +383,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    // Get the final result.
 	    if (!GetOverlappedResult(hout, &overlapped, &n, FALSE))
 		throw Xapian::NetworkError("Failed to get overlapped result",
-					   context, -(int)GetLastError());
+					   context, -int(GetLastError()));
 	}
 
 	count += n;
@@ -385,7 +412,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 				   context, errno);
     }
 
-    fd_set fdset;
+    fd_set wfdset, efdset;
     size_t count = 0;
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
@@ -417,8 +444,10 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    throw Xapian::NetworkError("write failed", context, errno);
 
 	// Use select to wait until there is space or the timeout is reached.
-	FD_ZERO(&fdset);
-	FD_SET(fdout, &fdset);
+	FD_ZERO(&wfdset);
+	FD_SET(fdout, &wfdset);
+	FD_ZERO(&efdset);
+	FD_SET(fdout, &efdset);
 
 	double time_diff = end_time - RealTime::now();
 	if (time_diff < 0) {
@@ -428,7 +457,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 
 	struct timeval tv;
 	RealTime::to_timeval(time_diff, &tv);
-	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
+	int select_result = select(fdout + 1, 0, &wfdset, &efdset, &tv);
 
 	if (select_result < 0) {
 	    if (errno == EINTR) {
@@ -446,31 +475,34 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 #endif
 }
 
-char
+int
 RemoteConnection::sniff_next_message_type(double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::sniff_next_message_type", end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::sniff_next_message_type", end_time);
     if (fdin == -1)
 	throw_database_closed();
 
-    read_at_least(1, end_time);
-    char type = buffer[0];
+    if (!read_at_least(1, end_time))
+	RETURN(-1);
+    unsigned char type = buffer[0];
     RETURN(type);
 }
 
-char
+int
 RemoteConnection::get_message(string &result, double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::get_message", result | end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::get_message", result | end_time);
     if (fdin == -1)
 	throw_database_closed();
 
-    read_at_least(2, end_time);
+    if (!read_at_least(2, end_time))
+	RETURN(-1);
     size_t len = static_cast<unsigned char>(buffer[1]);
-    read_at_least(len + 2, end_time);
+    if (!read_at_least(len + 2, end_time))
+	RETURN(-1);
     if (len != 0xff) {
 	result.assign(buffer.data() + 2, len);
-	char type = buffer[0];
+	unsigned char type = buffer[0];
 	buffer.erase(0, len + 2);
 	RETURN(type);
     }
@@ -481,7 +513,7 @@ RemoteConnection::get_message(string &result, double end_time)
     do {
 	if (i == buffer.end() || shift > 28) {
 	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
+	    throw_network_error_insane_message_length();
 	}
 	ch = *i++;
 	len |= size_t(ch & 0x7f) << shift;
@@ -489,57 +521,74 @@ RemoteConnection::get_message(string &result, double end_time)
     } while ((ch & 0x80) == 0);
     len += 255;
     size_t header_len = (i - buffer.begin());
-    read_at_least(header_len + len, end_time);
+    if (!read_at_least(header_len + len, end_time))
+	RETURN(-1);
     result.assign(buffer.data() + header_len, len);
-    char type = buffer[0];
+    unsigned char type = buffer[0];
     buffer.erase(0, header_len + len);
     RETURN(type);
 }
 
-char
+int
 RemoteConnection::get_message_chunked(double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::get_message_chunked", end_time);
+
     if (fdin == -1)
 	throw_database_closed();
 
-    read_at_least(2, end_time);
-    off_t len = static_cast<unsigned char>(buffer[1]);
+    if (!read_at_least(2, end_time))
+	RETURN(-1);
+    uint_least64_t len = static_cast<unsigned char>(buffer[1]);
     if (len != 0xff) {
-	chunked_data_left = len;
+	chunked_data_left = off_t(len);
 	char type = buffer[0];
 	buffer.erase(0, 2);
 	RETURN(type);
     }
-    read_at_least(len + 2, end_time);
+    if (!read_at_least(len + 2, end_time))
+	RETURN(-1);
     len = 0;
     string::const_iterator i = buffer.begin() + 2;
     unsigned char ch;
     int shift = 0;
     do {
-	// Allow a full 64 bits for message lengths - anything longer than that
-	// is almost certainly a corrupt value.
-	if (i == buffer.end() || shift > 63) {
+	// Allow at most 63 bits for message lengths - it's neatly a multiple
+	// of 7 bits and anything longer than this is almost certainly a
+	// corrupt value.
+	// The value also needs to be representable as an
+	// off_t (which is a signed type), so use that size if it is smaller.
+	const int SHIFT_LIMIT = 63;
+	if (rare(i == buffer.end() || shift >= SHIFT_LIMIT)) {
 	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
+	    throw_network_error_insane_message_length();
 	}
 	ch = *i++;
-	len |= off_t(ch & 0x7f) << shift;
+	uint_least64_t bits = ch & 0x7f;
+	len |= bits << shift;
 	shift += 7;
     } while ((ch & 0x80) == 0);
     len += 255;
-    chunked_data_left = len;
-    char type = buffer[0];
+
+    chunked_data_left = off_t(len);
+    if (sizeof(off_t) * CHAR_BIT < 63) {
+	// Check that the value of len fits in an off_t without loss.
+	if (rare(uint_least64_t(chunked_data_left) != len)) {
+	    throw_network_error_insane_message_length();
+	}
+    }
+
+    unsigned char type = buffer[0];
     size_t header_len = (i - buffer.begin());
     buffer.erase(0, header_len);
     RETURN(type);
 }
 
-bool
+int
 RemoteConnection::get_message_chunk(string &result, size_t at_least,
 				    double end_time)
 {
-    LOGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk", result | at_least | end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::get_message_chunk", result | at_least | end_time);
     if (fdin == -1)
 	throw_database_closed();
 
@@ -549,14 +598,15 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
     bool read_enough = (off_t(at_least) <= chunked_data_left);
     if (!read_enough) at_least = size_t(chunked_data_left);
 
-    read_at_least(at_least, end_time);
+    if (!read_at_least(at_least, end_time))
+	RETURN(-1);
 
-    size_t retlen(min(off_t(buffer.size()), chunked_data_left));
+    size_t retlen = min(off_t(buffer.size()), chunked_data_left);
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;
 
-    RETURN(read_enough);
+    RETURN(int(read_enough));
 }
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
@@ -574,10 +624,10 @@ write_all(int fd, const char * p, size_t n)
     }
 }
 
-char
+int
 RemoteConnection::receive_file(const string &file, double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::receive_file", file | end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::receive_file", file | end_time);
     if (fdin == -1)
 	throw_database_closed();
 
@@ -586,44 +636,15 @@ RemoteConnection::receive_file(const string &file, double end_time)
     if (fd == -1)
 	throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
 
-    read_at_least(2, end_time);
-    size_t len = static_cast<unsigned char>(buffer[1]);
-    read_at_least(len + 2, end_time);
-    if (len != 0xff) {
-	write_all(fd, buffer.data() + 2, len);
-	char type = buffer[0];
-	buffer.erase(0, len + 2);
-	RETURN(type);
-    }
-    len = 0;
-    string::const_iterator i = buffer.begin() + 2;
-    unsigned char ch;
-    int shift = 0;
+    int type = get_message_chunked(end_time);
     do {
-	// Allow a full 64 bits for message lengths - anything longer than that
-	// is almost certainly a corrupt value.
-	if (i == buffer.end() || shift > 63) {
-	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
-	}
-	ch = *i++;
-	len |= size_t(ch & 0x7f) << shift;
-	shift += 7;
-    } while ((ch & 0x80) == 0);
-    len += 255;
-    size_t header_len = (i - buffer.begin());
-    size_t remainlen(min(buffer.size() - header_len, len));
-    write_all(fd, buffer.data() + header_len, remainlen);
-    len -= remainlen;
-    char type = buffer[0];
-    buffer.erase(0, header_len + remainlen);
-    while (len > 0) {
-	read_at_least(min(len, size_t(CHUNKSIZE)), end_time);
-	remainlen = min(buffer.size(), len);
-	write_all(fd, buffer.data(), remainlen);
-	len -= remainlen;
-	buffer.erase(0, remainlen);
-    }
+	off_t min_read = min(chunked_data_left, off_t(CHUNKSIZE));
+	if (!read_at_least(min_read, end_time))
+	    RETURN(-1);
+	write_all(fd, buffer.data(), min_read);
+	chunked_data_left -= min_read;
+	buffer.erase(0, min_read);
+    } while (chunked_data_left);
     RETURN(type);
 }
 
@@ -638,28 +659,30 @@ RemoteConnection::do_close(bool wait)
 	    // exception.
 	    try {
 		send_message(MSG_SHUTDOWN, string(), 0.0);
+#ifdef __WIN32__
+		HANDLE hin = fd_to_handle(fdin);
+		char dummy;
+		DWORD received;
+		BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
+		if (!ok && GetLastError() == ERROR_IO_PENDING) {
+		    // Wait for asynchronous read to complete.
+		    (void)WaitForSingleObject(overlapped.hEvent, INFINITE);
+		}
+#else
+		// Wait for the connection to be closed - when this happens
+		// select() will report that a read won't block.
+		fd_set rfdset, efdset;
+		FD_ZERO(&rfdset);
+		FD_SET(fdin, &rfdset);
+		FD_ZERO(&efdset);
+		FD_SET(fdin, &efdset);
+		int res;
+		do {
+		    res = select(fdin + 1, &rfdset, 0, &efdset, NULL);
+		} while (res < 0 && errno == EINTR);
+#endif
 	    } catch (...) {
 	    }
-#ifdef __WIN32__
-	    HANDLE hin = fd_to_handle(fdin);
-	    char dummy;
-	    DWORD received;
-	    BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
-	    if (!ok && GetLastError() == ERROR_IO_PENDING) {
-		// Wait for asynchronous read to complete.
-		(void)WaitForSingleObject(overlapped.hEvent, INFINITE);
-	    }
-#else
-	    // Wait for the connection to be closed - when this happens
-	    // select() will report that a read won't block.
-	    fd_set fdset;
-	    FD_ZERO(&fdset);
-	    FD_SET(fdin, &fdset);
-	    int res;
-	    do {
-		res = select(fdin + 1, &fdset, 0, &fdset, NULL);
-	    } while (res < 0 && errno == EINTR);
-#endif
 	}
 	close_fd_or_socket(fdin);
 

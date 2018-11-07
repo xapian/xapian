@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 # collate-test: Collate testcases from several source files.
 #
-# Copyright (C) 2007,2008,2011 Olly Betts
+# Copyright (C) 2007,2008,2011,2015 Olly Betts
 # Copyright (C) 2008 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -77,8 +77,10 @@ foreach my $cond (sort keys %by_cond) {
 #	$name =~ s/\!/not_/g;
 #	$name =~ s/\(/bra_/g;
 #	$name =~ s/\)/_ket/g;
+    my $c_cond = $cond;
+    $c_cond =~ s/\b([a-z]+)\b/(properties&\U$1\E)/g;
     print COLLATED_HDR <<END;
-    if ($cond) {
+    if ($c_cond) {
 	static const test_desc tests[] = {
 END
     for (@{$by_cond{$cond}}) {

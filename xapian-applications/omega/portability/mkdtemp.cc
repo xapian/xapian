@@ -38,7 +38,7 @@
 #include "safesysstat.h"
 #include "safeunistd.h"
 
-#include "safeerrno.h"
+#include <cerrno>
 
 static int
 do_mkdtemp(char *path)

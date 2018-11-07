@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 
 #include "api/leafpostlist.h"
 #include "api/termlist.h"
+#include "backends/backends.h"
 #include "backends/database.h"
 #include "backends/valuestats.h"
 #include <map>
@@ -82,7 +83,8 @@ class InMemoryTermEntry {
 // Compare by document ID
 class InMemoryPostingLessThan {
     public:
-	int operator() (const InMemoryPosting &p1, const InMemoryPosting &p2)
+	int operator() (const InMemoryPosting &p1,
+			const InMemoryPosting &p2) const
 	{
 	    return p1.did < p2.did;
 	}
@@ -91,7 +93,8 @@ class InMemoryPostingLessThan {
 // Compare by termname
 class InMemoryTermEntryLessThan {
     public:
-	int operator() (const InMemoryTermEntry&p1, const InMemoryTermEntry&p2)
+	int operator() (const InMemoryTermEntry&p1,
+			const InMemoryTermEntry&p2) const
 	{
 	    return p1.tname < p2.tname;
 	}
@@ -123,7 +126,7 @@ class InMemoryDoc {
 	InMemoryDoc() : is_valid(false) {}
 
 	// Initialise specifying validity.
-	InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
+	explicit InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
 
 	void add_posting(const InMemoryTermEntry & post);
 };
@@ -152,10 +155,10 @@ class InMemoryPostList : public LeafPostList {
     public:
 	Xapian::doccount get_termfreq() const;
 
-	Xapian::docid       get_docid() const;     // Gets current docid
-	Xapian::termcount   get_doclength() const; // Length of current document
-	Xapian::termcount   get_unique_terms() const; // number of terms in current document
-	Xapian::termcount   get_wdf() const;	   // Within Document Frequency
+	Xapian::docid get_docid() const;     // Gets current docid
+	Xapian::termcount get_doclength() const; // Length of current document
+	Xapian::termcount get_unique_terms() const; // number of terms in current document
+	Xapian::termcount get_wdf() const;	   // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
@@ -182,10 +185,10 @@ class InMemoryAllDocsPostList : public LeafPostList {
     public:
 	Xapian::doccount get_termfreq() const;
 
-	Xapian::docid       get_docid() const;     // Gets current docid
-	Xapian::termcount   get_doclength() const; // Length of current document
-	Xapian::termcount   get_unique_terms() const; // number of terms in current document
-	Xapian::termcount   get_wdf() const;       // Within Document Frequency
+	Xapian::docid get_docid() const;     // Gets current docid
+	Xapian::termcount get_doclength() const; // Length of current document
+	Xapian::termcount get_unique_terms() const; // number of terms in current document
+	Xapian::termcount get_wdf() const;       // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
@@ -245,7 +248,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     map<string, InMemoryTerm> postlists;
     vector<InMemoryDoc> termlists;
     vector<std::string> doclists;
-    vector<std::map<Xapian::valueno, string> > valuelists;
+    vector<std::map<Xapian::valueno, string>> valuelists;
     std::map<Xapian::valueno, ValueStats> valuestats;
 
     vector<Xapian::termcount> doclengths;
@@ -254,7 +257,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     Xapian::doccount totdocs;
 
-    totlen_t totlen;
+    Xapian::totallength totlen;
 
     bool positions_present;
 
@@ -293,10 +296,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     // a problem as we only try to call them through the base class
     // (where they aren't hidden) but some compilers generate a warning
     // about the hiding.
-#ifndef _MSC_VER
     using Xapian::Database::Internal::delete_document;
     using Xapian::Database::Internal::replace_document;
-#endif
     void delete_document(Xapian::docid did);
     void replace_document(Xapian::docid did, const Xapian::Document & document);
     //@}
@@ -318,8 +319,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
     Xapian::docid get_lastdocid() const;
 
-    totlen_t get_total_length() const;
-    Xapian::doclength get_avlength() const;
+    Xapian::totallength get_total_length() const;
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
@@ -347,6 +347,11 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     TermList * open_allterms(const string & prefix) const;
 
     XAPIAN_NORETURN(static void throw_database_closed());
+
+    int get_backend_info(string * path) const {
+	if (path) *path = string();
+	return BACKEND_INMEMORY;
+    }
 };
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */

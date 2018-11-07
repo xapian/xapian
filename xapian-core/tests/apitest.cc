@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008,2009,2018 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -91,13 +91,13 @@ get_writable_database(const string &dbname)
 Xapian::WritableDatabase
 get_named_writable_database(const std::string &name, const std::string &source)
 {
-   return backendmanager->get_writable_database("dbw__" + name, source);
+    return backendmanager->get_writable_database("dbw__" + name, source);
 }
 
 std::string
 get_named_writable_database_path(const std::string &name)
 {
-   return backendmanager->get_writable_database_path("dbw__" + name);
+    return backendmanager->get_writable_database_path("dbw__" + name);
 }
 
 Xapian::Database
@@ -124,7 +124,7 @@ void
 skip_test_unless_backend(const std::string & backend_prefix)
 {
     if (!startswith(get_dbtype(), backend_prefix)) {
-	SKIP_TEST("Test only supported for " + backend_prefix + " backend");
+	SKIP_TEST("Test only supported for " << backend_prefix << " backend");
     }
 }
 
@@ -132,7 +132,16 @@ void
 skip_test_for_backend(const std::string & backend_prefix)
 {
     if (startswith(get_dbtype(), backend_prefix)) {
-	SKIP_TEST("Test not supported for " + backend_prefix + " backend");
+	SKIP_TEST("Test not supported for " << backend_prefix << " backend");
+    }
+}
+
+void
+XFAIL_FOR_BACKEND(const std::string& backend_prefix,
+		  const char* msg)
+{
+    if (startswith(get_dbtype(), backend_prefix)) {
+	XFAIL(msg);
     }
 }
 

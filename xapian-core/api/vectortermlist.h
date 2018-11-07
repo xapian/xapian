@@ -1,7 +1,7 @@
 /** @file vectortermlist.h
  * @brief A vector-like container of terms which can be iterated.
  */
-/* Copyright (C) 2011,2012 Olly Betts
+/* Copyright (C) 2011,2012,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,8 +54,7 @@ class VectorTermList : public TermList {
     {
 	// First calculate how much space we'll need so we can reserve it.
 	size_t total_size = 0;
-	I i;
-	for (i = begin; i != end; ++i) {
+	for (I i = begin; i != end; ++i) {
 	    ++num_terms;
 	    const std::string & s = *i;
 	    total_size += s.size() + 1;
@@ -68,7 +67,7 @@ class VectorTermList : public TermList {
 	data.reserve(total_size);
 
 	// Now encode all the terms into data.
-	for (i = begin; i != end; ++i) {
+	for (I i = begin; i != end; ++i) {
 	    const std::string & s = *i;
 	    data += encode_length(s.size());
 	    data += s;

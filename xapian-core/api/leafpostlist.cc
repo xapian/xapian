@@ -24,6 +24,7 @@
 #include "xapian/weight.h"
 
 #include "leafpostlist.h"
+#include "matcher/orpositionlist.h"
 #include "omassert.h"
 #include "debuglog.h"
 
@@ -109,6 +110,12 @@ Xapian::termcount
 LeafPostList::count_matching_subqs() const
 {
     return weight ? 1 : 0;
+}
+
+void
+LeafPostList::gather_position_lists(OrPositionList* orposlist)
+{
+    orposlist->add_poslist(read_position_list());
 }
 
 LeafPostList *

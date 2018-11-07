@@ -13,17 +13,53 @@ SUBDIRS = . docs
 my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.tokens
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-myhtmltags' '$(srcdir)' < '$(srcdir)/myhtmlparse.tokens'
 
-BUILT_SOURCES = extra/omegascript.vim my-html-tok.h
+# Recover from the removal of $@.  A full explanation of this is in the
+# automake manual under the heading "Multiple Outputs".
+make_many_locked = \
+@if test -f $@; then :; else \
+  trap 'rm -rf "$(stamp)-lck" "$(stamp)"' 1 2 13 15; \
+  if mkdir '$(stamp)-lck' 2>/dev/null; then \
+    rm -f '$(stamp)'; \
+    $(MAKE) $(AM_MAKEFLAGS) '$(stamp)'; \
+    result=$$?; rm -rf '$(stamp)-lck'; exit $$result; \
+  else \
+    while test -d '$(stamp)-lck'; do sleep 1; done; \
+    test -f '$(stamp)'; \
+  fi; \
+fi
 
-CLEANFILES = my-html-tok.h
+multitarget_begin = @rm -f $@-t; touch $@-t
+multitarget_end = @mv -f $@-t $@
+
+stamp = mimemap.stamp
+mimemap.h docs/inc/ignored.rst docs/inc/mimetypes.rst: $(stamp)
+	$(make_many_locked)
+$(stamp): gen-mimemap Makefile.am common/Tokeniseise.pm mimemap.tokens
+	$(multitarget_begin)
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-mimemap' '$(srcdir)' < '$(srcdir)/mimemap.tokens'
+	$(multitarget_end)
+
+namedents.h: gen-namedents Makefile.am common/Tokeniseise.pm
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-namedents' '$(srcdir)'
+
+BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
+
+MAINTAINERCLEANFILES = my-html-tok.h mimemap.h mimemap.stamp namedents.h
 
 EXTRA_DIST =\
 	common/Tokeniseise.pm \
 	extra/omegascript.vim \
 	extra/omegascript.vim.in \
+	gen-mimemap \
 	gen-myhtmltags \
+	gen-namedents \
 	gen-omegascript-vim \
+	mimemap.h \
+	mimemap.stamp \
+	mimemap.tokens \
+	my-html-tok.h \
 	myhtmlparse.tokens \
+	namedents.h \
 	templates/query \
 	templates/topterms \
 	templates/opensearch \
@@ -79,15 +115,18 @@ AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
-dist_pkglibbin_SCRIPTS = outlookmsg2html
+dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
-check_PROGRAMS = atomparsetest htmlparsetest jsonesctest md5test urlenctest utf8converttest
+check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
+dist_check_SCRIPTS = omegatest
 TESTS =	atomparsetest$(EXEEXT)\
+	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
+	omegatest\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
 
@@ -96,14 +135,14 @@ dist_omegadata_DATA = htdig2omega.script mbox2omega.script
 
 dist_sysconf_DATA = omega.conf
 
-noinst_HEADERS = omega.h query.h cgiparam.h\
- myhtmlparse.h htmlparse.h utils.h configfile.h date.h\
- commonhelp.h cdb.h cdb_int.h hashterm.h jsonescape.h loadfile.h\
- md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h pkglibbindir.h datematchdecider.h sample.h strcasecmp.h\
+noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
+ myhtmlparse.h htmlparse.h utils.h configfile.h date.h datetime.h\
+ commonhelp.h cdb.h cdb_int.h failed.h fields.h hashterm.h jsonescape.h\
+ loadfile.h md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
+ namedents.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
- xlsxparse.h opendocparse.h msxmlparse.h timegm.h\
+ xlsxparse.h opendocparse.h msxmlparse.h sort.h timegm.h csvescape.h\
  portability/mkdtemp.h
 
 # headers maintained in xapian-core
@@ -116,7 +155,6 @@ noinst_HEADERS +=\
 	common/omassert.h\
 	common/realtime.h\
 	common/safedirent.h\
-	common/safeerrno.h\
 	common/safefcntl.h\
 	common/safesysselect.h\
 	common/safesysstat.h\
@@ -141,51 +179,58 @@ libtransform_la_LIBADD = $(PCRE_LIBS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
- datematchdecider.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc
+ datevalue.cc common/str.cc sample.cc sort.cc urlencode.cc weight.cc expand.cc\
+ csvescape.cc timegm.cc
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
-omega_LDADD =  $(MAGIC_LIBS) $(XAPIAN_LIBS) libtransform.la
+omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
-omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
+omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
- opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc
+ opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc\
+ datetime.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
-omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS)
+omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
- common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
- common/safe.cc common/stringutils.cc utf8convert.cc utf8truncate.cc\
- common/keyword.cc timegm.cc
+ common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
+ utf8convert.cc utf8truncate.cc\
+ common/keyword.cc timegm.cc datetime.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
 omindex_list_SOURCES = common/getopt.cc omindex-list.cc
 omindex_list_LDADD = $(XAPIAN_LIBS)
 
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
- myhtmlparse.cc utf8convert.cc common/keyword.cc
-atomparsetest_LDADD = $(XAPIAN_LIBS)
+ myhtmlparse.cc utf8convert.cc common/keyword.cc datetime.cc timegm.cc
+atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
- utf8convert.cc common/keyword.cc
-htmlparsetest_LDADD = $(XAPIAN_LIBS)
+ utf8convert.cc common/keyword.cc datetime.cc timegm.cc
+htmlparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
+md5test_LDADD = $(NO_INSTALL)
 
 utf8converttest_SOURCES = utf8converttest.cc utf8convert.cc
-utf8converttest_LDADD = $(XAPIAN_LIBS)
+utf8converttest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 urlenctest_SOURCES = urlenctest.cc urlencode.cc
+urlenctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+
+csvesctest_SOURCES = csvesctest.cc csvescape.cc
+csvesctest_LDADD = $(NO_INSTALL)
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
-jsonesctest_LDADD = $(XAPIAN_LIBS)
+jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1 omindex-list.1
-MAINTAINERCLEANFILES = $(dist_man_MANS)
+MAINTAINERCLEANFILES += $(dist_man_MANS)
 endif
 
 if DOCUMENTATION_RULES
@@ -205,3 +250,6 @@ extra/omegascript.vim: extra/omegascript.vim.in query.cc configure.ac
 endif
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"
+
+installcheck-local:
+	$(MAKE) check SCRIPTINDEX='${bindir}/scriptindex' OMEGA='${pkglibbindir}/omega'

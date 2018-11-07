@@ -1,7 +1,7 @@
 /** @file termgenerator.h
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2013,2014,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,14 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Assignment.
     TermGenerator & operator=(const TermGenerator & o);
 
+#ifdef XAPIAN_MOVE_SEMANTICS
+    /// Move constructor.
+    TermGenerator(TermGenerator && o);
+
+    /// Move assignment operator.
+    TermGenerator & operator=(TermGenerator && o);
+#endif
+
     /// Default constructor.
     TermGenerator();
 
@@ -86,17 +94,36 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Set the database to index spelling data to.
     void set_database(const Xapian::WritableDatabase &db);
 
-    /// For backward comptibility with Xapian 1.2
+    /// For backward compatibility with Xapian 1.2
     typedef int flags;
 
     /// Flags to OR together and pass to TermGenerator::set_flags().
     enum {
 	/// Index data required for spelling correction.
-	FLAG_SPELLING = 128 // Value matches QueryParser flag.
+	FLAG_SPELLING = 128, // Value matches QueryParser flag.
+
+	/** Enable generation of n-grams from CJK text.
+	 *
+	 *  With this enabled, spans of CJK characters are split into unigrams
+	 *  and bigrams, with the unigrams carrying positional information.
+	 *  Non-CJK characters are split into words as normal.
+	 *
+	 *  The corresponding option needs to be passed to QueryParser.
+	 *
+	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  enabled in 1.2.8 and later by setting environment variable
+	 *  XAPIAN_CJK_NGRAM.
+	 */
+	FLAG_CJK_NGRAM = 2048 // Value matches QueryParser flag.
     };
 
     /// Stemming strategies, for use with set_stemming_strategy().
-    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
+    typedef enum {
+	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
+    } stem_strategy;
+
+    /// Stopper strategies, for use with set_stopper_strategy().
+    typedef enum { STOP_NONE, STOP_ALL, STOP_STEMMED } stop_strategy;
 
     /** Set flags.
      *
@@ -121,11 +148,36 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *   - STEM_NONE:	Don't perform any stemming - only unstemmed terms
      *			are generated.
      *   - STEM_SOME:	Generate both stemmed (with a "Z" prefix) and unstemmed
-     *			terms.  This is the default strategy.
+     *			terms.  No positional information is stored for
+     *			unstemmed terms.  This is the default strategy.
+     *   - STEM_SOME_FULL_POS:
+     *			Like STEM_SOME but positional information is stored
+     *			for both stemmed and unstemmed terms.  Added in Xapian
+     *			1.4.8.
      *   - STEM_ALL:	Generate only stemmed terms (but without a "Z" prefix).
      *   - STEM_ALL_Z:	Generate only stemmed terms (with a "Z" prefix).
      */
     void set_stemming_strategy(stem_strategy strategy);
+
+    /** Set the stopper strategy.
+     *
+     *  The method controls how the stopper is used.  It was added in Xapian
+     *  1.4.1.
+     *
+     *  You need to also call @a set_stopper() for this to have any effect.
+     *
+     *  @param strategy The strategy to use - possible values are:
+     *   - STOP_NONE:     Don't use the stopper.
+     *   - STOP_ALL:      If a word is identified as a stop word, skip it
+     *			  completely.
+     *   - STOP_STEMMED:  If a word is identified as a stop word, index its
+     *			  unstemmed form but skip the stem.  Unstemmed forms
+     *			  are indexed with positional information by default,
+     *			  so this allows searches for phrases containing
+     *			  stopwords to be supported.  (This is the default
+     *			  mode).
+     */
+    void set_stopper_strategy(stop_strategy strategy);
 
     /** Set the maximum length word to index.
      *
@@ -204,16 +256,16 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *
      *  @param delta	Amount to increase the term position by (default: 100).
      */
-    void increase_termpos(Xapian::termcount delta = 100);
+    void increase_termpos(Xapian::termpos delta = 100);
 
     /// Get the current term position.
-    Xapian::termcount get_termpos() const;
+    Xapian::termpos get_termpos() const;
 
     /** Set the current term position.
      *
      *  @param termpos	The new term position to set.
      */
-    void set_termpos(Xapian::termcount termpos);
+    void set_termpos(Xapian::termpos termpos);
 
     /// Return a string describing this object.
     std::string get_description() const;

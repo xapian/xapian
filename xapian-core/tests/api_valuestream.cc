@@ -51,7 +51,7 @@ DEFINE_TESTCASE(valuestream1, backend && !multi) {
 	    ++it;
 	}
     }
- 
+
     return true;
 }
 
@@ -88,7 +88,7 @@ DEFINE_TESTCASE(valuestream2, backend) {
 	    interval = interval * 3 - 1;
 	}
     }
- 
+
     return true;
 }
 
@@ -98,7 +98,7 @@ DEFINE_TESTCASE(valuestream3, backend) {
 
     // Check combinations of check with other operations.
     typedef enum {
-       	CHECK, CHECK_AND_NEXT, CHECK2, SKIP_TO, CHECK_AND_LOOP
+	CHECK, CHECK_AND_NEXT, CHECK2, SKIP_TO, CHECK_AND_LOOP
     } test_op;
     test_op operation = CHECK;
 
@@ -150,7 +150,7 @@ DEFINE_TESTCASE(valuestream3, backend) {
 	    interval = interval * 3 - 1;
 	}
     }
- 
+
     return true;
 }
 

@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,29 +24,50 @@
 
 set -e
 
-#MIRROR=http://ftp.de.debian.org/debian/
-MIRROR=http://ftp.nz.debian.org/debian/
+MIRROR=http://httpredir.debian.org/debian/
 
-DEBIAN_CODENAMES='wheezy squeeze'
-UBUNTU_CODENAMES='saucy raring quantal precise oneiric lucid'
+DEBIAN_CODENAMES='stretch jessie'
+UBUNTU_CODENAMES='cosmic bionic xenial trusty'
+UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
-case $1 in
--v)
-  V_OPT="$1$2"
+BUILD_INT=1
+HELP_RC=
+while true ; do
+  case $1 in
+  -v)
+    V_OPT="$1$2"
+    shift
+    ;;
+  -v*)
+    V_OPT=$1
+    ;;
+  -b)
+    BUILD_INT=$2
+    shift
+    ;;
+  -b*)
+    BUILD_INT=`expr substr "$1" 3 9999`
+    ;;
+  --help)
+    HELP_RC=0
+    break
+    ;;
+  -*)
+    HELP_RC=1
+    break
+    ;;
+  *)
+    break
+    ;;
+  esac
   shift
-  shift
-  ;;
--v*)
-  V_OPT=$1
-  shift
-  ;;
-esac
+done
 
-if [ x"$1" = x--help -o $# -lt 2 ] ; then
-  echo "Usage: $0 [-v <last uploaded version>] SOURCE_PKG VERSION [CODENAME...]"
+if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
+  echo "Usage: $0 [-v <last uploaded version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
   echo
-  echo "e.g.: $0 xapian-core 1.2.15-1 precise"
+  echo "e.g.: $0 xapian-core 1.2.15-1 xenial"
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
   echo "Currently, the recognised values are:"
@@ -54,7 +75,7 @@ if [ x"$1" = x--help -o $# -lt 2 ] ; then
   echo "    $UBUNTU_CODENAMES"
   echo "And the magic values which expand to the above lists:"
   echo "    debian ubuntu"
-  exit 0
+  exit ${HELP_RC:-1}
 fi
 
 PKG=$1
@@ -82,8 +103,11 @@ adjust_changelog() {
     # stopping to confirm the bad version is OK.
     if [ 1 = "$ubuntu" ] ; then
       distribution=$CODENAME
-    else
+    elif [ "`echo "$DEBIAN_CODENAMES"|cut -d' ' -f1`" = "$CODENAME" ] ; then
+      # Backport for the most recent stable debian release.
       distribution=$CODENAME-backports
+    else
+      distribution=$CODENAME-backports-sloppy
     fi
     dch --force-bad-version -v "$backport_version" -D "$distribution" \
 	"Rebuild for $CODENAME backports." < /dev/null
@@ -93,6 +117,61 @@ adjust_changelog() {
 build_it() {
   adjust_changelog
 
+  overrides=
+  case $PKG:$CODENAME:$VERSION in
+    xapian-core:*:1.2.*)
+      # So we can create the backport source packages on debian unstable.
+      overrides='libxapian_soversion=22 other_abi_suffix=v5' ;;
+    xapian-bindings:trusty:1.2.*)
+      # Make sure we add python-xapian to debian/control.
+      overrides='PYTHON_VERSIONS=dummy RUBY_VERSIONS="2.0" RUBY_PROVIDES="X-Dummy: No provides"' ;;
+    xapian-bindings:trusty:*)
+      # Make sure we add python-xapian and python3-xapian to debian/control.
+      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
+    xapian-bindings:xenial:*|xapian-bindings:bionic:*|xapian-bindings:cosmic:*)
+      # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
+      # to debian/control.
+      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
+    xapian-bindings:*:*)
+      # Make sure we add python-xapian to debian/control.
+      overrides='PYTHON_VERSIONS=dummy' ;;
+  esac
+
+  # libxapian30 (i.e. 1.4.x) is built with C++ "v5" ABI in stretch and newer
+  # and in xenial and newer, so append "v4" to the soname for backports to
+  # older versions so upgrades with the backport installed work cleanly.
+  case $PKG:$VERSION in
+  xapian-core:1.4.*)
+    case $CODENAME in
+    jessie|trusty)
+      perl -i -e 'while (<>) { print; last if /^libxapian_soversion:=/ } while (<>) { print; last unless /\\$/ } print "libxapian_soversion:=\$(libxapian_soversion)v4\n"; while (<>) { s/^(\techo .libxapian.*)>/$1|sed "s,v4,,g" >/; print }' debian/rules
+      sed -i 's/^\(Package: libxapian@LIBXAPIAN_SOVERSION@\)\(.*\)/\1\2\nConflicts: libxapian30\2\nReplaces: libxapian30\2/' debian/control.in
+      dch -a 'debian/control.in,debian/rules: Add v4 suffix to soname. (Closes: #863705)'
+      ;;
+    esac
+    ;;
+  esac
+
+  # Mainly for Survex.
+  case $CODENAME in
+      trusty|xenial|jessie|stretch)
+	if grep -q libwxgtk3.0-gtk3-dev debian/control ; then
+	    sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' debian/control
+	    dch -a 'debian/control: Build with GTK2 version of wxWidgets.'
+	fi
+	;;
+  esac
+
+  case $CODENAME in
+      jessie)
+	if [ "`cat debian/compat`" -gt 10 ] ; then
+	    echo 10 > debian/compat
+	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 10)/' debian/control
+	    dch -a 'debian/control: Lower debhelper compat level to 10.'
+	fi
+	;;
+  esac
+
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in
     '')
       echo 'Failed to grep debian/rules'
@@ -101,7 +180,7 @@ build_it() {
     [01])
       # Run maintclean and maint targets, if they exist.
       fakeroot debian/rules maintclean || true
-      fakeroot debian/rules maint || true
+      eval fakeroot debian/rules maint $overrides || true
       ;;
     *)
       # If debian/rules has at least two non-commented out references to
@@ -109,26 +188,24 @@ build_it() {
       echo "$CODENAME" > debian/codename
       # Generates control from control.in (and maybe other files).
       fakeroot debian/rules maintclean CODENAME="$CODENAME"
-      fakeroot debian/rules maint CODENAME="$CODENAME"
+      eval fakeroot debian/rules maint CODENAME="$CODENAME" $overrides
       ;;
   esac
 
-  # We don't really want to upload the orig tarball for all Ubuntu backports,
-  # only if it isn't already in the archive.  So for now, just upload it for
-  # lucid as that gets uploaded first in alphabetical order.
-  if [ lucid = "$CODENAME" ] ; then
-    include_src_opt=-sa
-  else
-    # The default is -si, which used to check for -0 or -1, but now looks for
-    # a change in upstream version number.  Once that change is in all releases
-    # we care about, we can remove this setting (FIXME).
-    include_src_opt=-sd
-  fi
+  include_src_opt=
+  case $backport_version in
+    *99$UBUNTU_FIRST+1)
+      # We don't really want to upload the orig tarball for all Ubuntu
+      # backports, only if it isn't already in the archive.  So for now, just
+      # upload it for the first codename in alphabetical order, and only if
+      # the BUILD_INT (N in the +N suffix) is 1.
+      include_src_opt=-sa ;;
+  esac
   debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
 
   if [ 1 != "$ubuntu" ] ; then
     # Debian
-    echo "sbuild --debbuildopt=$V_OPT -d $CODENAME-backports ${PKG}_$backport_version.dsc"
+    echo "cd build && sbuild --debbuildopt=$V_OPT -d $CODENAME-backports ${PKG}_$backport_version.dsc"
   fi
 }
 
@@ -166,20 +243,27 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # package to avoid conflicts with the package in unstable.
 # For Ubuntu we add ".99$CODENAME" since it should sort
 # before any other modification (and since dapper, Ubuntu codenames are
-# allocated alphabetically).  For Debian releases, we use
-# backports.org-compatible package versions - e.g. we append "~bpo60+1" for
-# Debian 6.0 (squeeze) (and a suffix starting "~" sorts as less than no suffix).
+# allocated alphabetically).  To handle the wrapping from zesty to artful,
+# we add ".999$CODENAME" for artful and later.  For Debian releases, we use
+# backports.org-compatible package versions - e.g. we append "~bpo8+1" for
+# Debian 8 (jessie) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
-wheezy)
-  BACKPORT_SUFFIX='~bpo70+1' ;;
-squeeze)
-  BACKPORT_SUFFIX='~bpo60+1' ;;
+stretch)
+  BACKPORT_SUFFIX="~bpo9+$BUILD_INT" ;;
+jessie)
+  BACKPORT_SUFFIX="~bpo8+$BUILD_INT" ;;
 *)
   if [ x"$ubuntu" = x0 ] ; then
-    echo "Debian codename '$CODENAME' not mapped to a ~bpoNN+1 suffix"
+    echo "Debian codename '$CODENAME' not mapped to a ~bpoN suffix"
     exit 1
   fi
-  BACKPORT_SUFFIX=".99$CODENAME" ;;
+  case $CODENAME in
+  trusty|xenial)
+    BACKPORT_SUFFIX=".99$CODENAME+$BUILD_INT" ;;
+  *)
+    BACKPORT_SUFFIX=".999$CODENAME+$BUILD_INT" ;;
+  esac
+  ;;
 esac
 
 # Unpack distribution tarballs, and put the debian control files into place,
@@ -193,8 +277,13 @@ cd build
   DSC=${PKG}_$VERSION$SUFFIX.dsc
   if [ -f "$DSC" ] ; then
     [ -d backup ] || mkdir backup
-    mv "$DSC" backup
+    if ! mv "$DSC" backup ; then
+      # Handle dsc being hardlinked into backup already.
+      cmp "$DSC" "backup/$DSC" && rm -f "$DSC"
+    fi
     dget -b "file://`pwd`/backup/$DSC"
+  elif [ -f "../$DSC" ] ; then
+    dget -b "file://`cd .. && pwd`/$DSC"
   else
     dget "${MIRROR}pool/main/$DIR/$PKG/$DSC"
   fi

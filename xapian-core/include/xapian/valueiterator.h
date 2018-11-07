@@ -1,7 +1,7 @@
 /** @file  valueiterator.h
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,6 +55,24 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     /// Assignment.
     ValueIterator & operator=(const ValueIterator & o);
 
+#ifdef XAPIAN_MOVE_SEMANTICS
+    /// Move constructor.
+    ValueIterator(ValueIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
+
+    /// Move assignment operator.
+    ValueIterator & operator=(ValueIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
+#endif
+
     /** Default constructor.
      *
      *  Creates an uninitialised iterator, which can't be used before being
@@ -86,7 +104,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  If we're iterating over values of a document, this method will throw
      *  Xapian::InvalidOperationError.
      */
-    Xapian::docid get_docid() const XAPIAN_PURE_FUNCTION;
+    Xapian::docid get_docid() const;
 
     /** Return the value slot number for the current position.
      *
@@ -94,7 +112,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  number.  If the iterator is over the values in a particular document,
      *  it returns the number of each slot in turn.
      */
-    Xapian::valueno get_valueno() const XAPIAN_PURE_FUNCTION;
+    Xapian::valueno get_valueno() const;
 
     /** Advance the iterator to document id or value slot @a docid_or_slot.
      *
@@ -129,7 +147,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, it returns true.  If it isn't, it returns false, and leaves the
      *  position unspecified (and hence the result of calling methods which
-     *  depends on the current position, such as get_docid(), are also
+     *  depend on the current position, such as get_docid(), are also
      *  unspecified).  In this state, next() will advance to the first matching
      *  position after document @a did, and skip_to() will act as it would if
      *  the position was the first matching position after document @a did.
@@ -156,7 +174,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 #endif
 
     /// Return a string describing this object.
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    std::string get_description() const;
 
     /** @private @internal ValueIterator is what the C++ STL calls an
      *  input_iterator.
@@ -187,7 +205,7 @@ XAPIAN_NOTHROW(operator==(const ValueIterator &a, const ValueIterator &b));
 
 /// Equality test for ValueIterator objects.
 inline bool
-operator==(const ValueIterator &a, const ValueIterator &b)
+operator==(const ValueIterator &a, const ValueIterator &b) XAPIAN_NOEXCEPT
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
@@ -199,7 +217,7 @@ XAPIAN_NOTHROW(operator!=(const ValueIterator &a, const ValueIterator &b));
 
 /// Inequality test for ValueIterator objects.
 inline bool
-operator!=(const ValueIterator &a, const ValueIterator &b)
+operator!=(const ValueIterator &a, const ValueIterator &b) XAPIAN_NOEXCEPT
 {
     return !(a == b);
 }

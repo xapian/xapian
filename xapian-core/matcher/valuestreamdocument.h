@@ -24,6 +24,7 @@
 #include "backends/document.h"
 #include "backends/valuelist.h"
 #include "omassert.h"
+#include "xapian/database.h"
 #include "xapian/types.h"
 
 #include <map>
@@ -45,8 +46,8 @@ class ValueStreamDocument : public Xapian::Document::Internal {
     mutable Xapian::Document::Internal * doc;
 
   public:
-    ValueStreamDocument(const Xapian::Database & db_)
-       	: Internal(db_.internal[0], 0), db(db_), current(0), doc(NULL) { }
+    explicit ValueStreamDocument(const Xapian::Database & db_)
+	: Internal(db_.internal[0], 0), db(db_), current(0), doc(NULL) { }
 
     void new_subdb(int n);
 
@@ -62,15 +63,15 @@ class ValueStreamDocument : public Xapian::Document::Internal {
     }
 
     // Optimise away the virtual call when the matcher wants to know a value.
-    string get_value(Xapian::valueno slot) const {
+    std::string get_value(Xapian::valueno slot) const {
 	return ValueStreamDocument::do_get_value(slot);
     }
 
   private:
     /** Implementation of virtual methods @{ */
-    string do_get_value(Xapian::valueno slot) const;
-    void do_get_all_values(map<Xapian::valueno, string> & values_) const;
-    string do_get_data() const;
+    std::string do_get_value(Xapian::valueno slot) const;
+    void do_get_all_values(std::map<Xapian::valueno, std::string> & values_) const;
+    std::string do_get_data() const;
     /** @} */
 };
 

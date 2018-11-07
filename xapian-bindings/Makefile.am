@@ -10,11 +10,12 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = fake_dbfactory.i xapian-head.i xapian-headers.i generic/except.i \
     generic/generate-generic-exceptions \
+    swig-depcomp \
     xapian-bindings.spec shortstop.list skiptest \
     HACKING
 
 SUBDIRS = . @BINDINGS@
-DIST_SUBDIRS = python python3 php java ruby tcl8 csharp perl lua go
+DIST_SUBDIRS = python python3 php php7 java ruby tcl8 csharp perl lua go
 
 if MAINTAINER_MODE
 BUILT_SOURCES = generic/except.i
@@ -33,6 +34,7 @@ DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	PYTHON2_LIB="`pwd`/../_inst/tmp_py2lib" \
 	PYTHON3_LIB="`pwd`/../_inst/tmp_py3lib" \
 	PHP_EXTENSION_DIR="`pwd`/../_inst/tmp_phpext" \
+	PHP7_EXTENSION_DIR="`pwd`/../_inst/tmp_php7ext" \
 	RUBY_LIB="`pwd`/../_inst/tmp_rubylib" \
 	RUBY_LIB_ARCH="`pwd`/../_inst/tmp_rubylibarch" \
 	TCL_LIB="`pwd`/../_inst/tmp_tcllib" \

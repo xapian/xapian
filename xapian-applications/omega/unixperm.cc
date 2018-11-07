@@ -22,12 +22,12 @@
 
 #include "unixperm.h"
 
-#include "safeerrno.h"
 #include <sys/types.h>
 #include <grp.h>
 #include <pwd.h>
 #include "safeunistd.h"
 
+#include <cerrno>
 #include <cstring>
 
 #ifdef GETGROUPLIST_TAKES_INT_P
@@ -65,7 +65,7 @@ apply_unix_permissions(Xapian::Query & query, const char * user)
 	groups = new GID_T[ngroups];
     }
 
-    for (int i = 0; i < ngroups; i++) {
+    for (int i = 0; i < ngroups; ++i) {
 	struct group * grentry = getgrgid(groups[i]);
 	if (grentry) {
 	    const char * group = grentry->gr_name;

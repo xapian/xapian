@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,8 +28,7 @@
 # include <valgrind/memcheck.h>
 #endif
 
-#include "safeerrno.h"
-
+#include <cerrno>
 #include <cstdio>
 #include <fstream>
 #include <string>
@@ -38,6 +37,7 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 
+#include "filetests.h"
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "unixcmds.h"
@@ -58,26 +58,27 @@ BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 bool
 BackendManager::create_dir_if_needed(const string &dirname)
 {
-    // create a directory if not present
-    struct stat sbuf;
-    int result = stat(dirname.c_str(), &sbuf);
-    if (result < 0) {
-	if (errno != ENOENT)
-	    throw Xapian::DatabaseOpeningError("Can't stat directory");
-	if (mkdir(dirname.c_str(), 0700) < 0)
-	    throw Xapian::DatabaseOpeningError("Can't create directory");
-	return true; // Successfully created a directory.
+    if (mkdir(dirname.c_str(), 0700) == 0) {
+	return true;
     }
-    if (!S_ISDIR(sbuf.st_mode))
-	throw Xapian::DatabaseOpeningError("Is not a directory.");
-    return false; // Already a directory.
+
+    int mkdir_errno = errno;
+    if (mkdir_errno == EEXIST) {
+	// Something exists at dirname, but we need to check if it is a directory.
+	if (dir_exists(dirname)) {
+	    return false;
+	}
+    }
+
+    throw Xapian::DatabaseOpeningError("Failed to create directory",
+				       mkdir_errno);
 }
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 Xapian::WritableDatabase
 BackendManager::getwritedb_inmemory(const vector<string> &files)
 {
-    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
     index_files_to_database(db, files);
     return db;
 }
@@ -233,9 +234,19 @@ BackendManager::get_database(const std::string &dbname,
     string dbleaf = "db__";
     dbleaf += dbname;
     const string & path = get_writable_database_path(dbleaf);
-    try {
-	return Xapian::Database(path);
-    } catch (const Xapian::DatabaseOpeningError &) {
+    if (path.empty()) {
+	// InMemory doesn't have a path but we want to support generated
+	// databases for it.
+	Xapian::WritableDatabase wdb = get_writable_database(path, path);
+	gen(wdb, arg);
+	return wdb;
+    }
+
+    if (path_exists(path)) {
+	try {
+	    return Xapian::Database(path);
+	} catch (const Xapian::DatabaseOpeningError &) {
+	}
     }
     rm_rf(path);
 
@@ -250,6 +261,8 @@ BackendManager::get_database(const std::string &dbname,
 	gen(wdb, arg);
     }
     rename(tmp_path.c_str(), path.c_str());
+    // For multi, the shards will use the temporary name, but that's not really
+    // a problem.
 
     return Xapian::Database(path);
 }
@@ -263,10 +276,12 @@ BackendManager::get_database_path(const std::string &dbname,
     string dbleaf = "db__";
     dbleaf += dbname;
     const string & path = get_writable_database_path(dbleaf);
-    try {
-	(void)Xapian::Database(path);
-	return path;
-    } catch (const Xapian::DatabaseOpeningError &) {
+    if (path_exists(path)) {
+	try {
+	    (void)Xapian::Database(path);
+	    return path;
+	} catch (const Xapian::DatabaseOpeningError &) {
+	}
     }
     rm_rf(path);
 
@@ -346,7 +361,7 @@ BackendManager::get_xapian_progsrv_command()
 {
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	return "./runsrv "XAPIAN_PROGSRV;
+	return "./runsrv " XAPIAN_PROGSRV;
     }
 #endif
     return XAPIAN_PROGSRV;

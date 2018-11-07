@@ -13,6 +13,7 @@ TESTS = \
 	t/03podcoverage.t \
 	t/04functions.t \
 	t/10query.t \
+	t/collapse.t \
 	t/create.t \
 	t/databasemodified.t \
 	t/document.t \
@@ -29,16 +30,22 @@ TESTS = \
 	t/valuerange.t \
 	t/writabledatabase.t
 AM_TESTS_ENVIRONMENT = \
+	srcdir='$(srcdir)' ;\
 	CPPFLAGS="$(CPPFLAGS)" ;\
 	CXX="$(CXX)" ;\
 	CXXFLAGS="$(CXXFLAGS)" ;\
 	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" ;\
+	export srcdir ;\
 	export CPPFLAGS ;\
 	export CXX ;\
 	export CXXFLAGS ;\
 	export XAPIAN_CONFIG ;
-LOG_COMPILER = $(PROVE)
-AM_LOG_FLAGS = -I. -I'$(srcdir)'
+LOG_COMPILER = \
+    $(LIBTOOL) -dlopen Xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PERL) \
+	$(srcdir)/run-perl-test
+
+installcheck-local:
+	$(MAKE) AM_LOG_FLAGS=
 
 clean-local:
 	rm -rf testdb* auto
@@ -55,6 +62,7 @@ auto/Xapian/Xapian$(PERL_SO): Xapian.la
 
 EXTRA_DIST = perl.i except.i $(TESTS) \
 	generate-perl-exceptions \
+	run-perl-test \
 	Xapian.pm xapian_wrap.cc \
 	t/symbol-test/SymbolTest.pm \
 	t/symbol-test/typemap \
@@ -69,9 +77,6 @@ dist_exampledata_DATA = \
 	docs/examples/simpleindex.pl \
 	docs/examples/simplematchdecider.pl \
 	docs/examples/simplesearch.pl
-
-docdatadir = $(docdir)/perl
-dist_docdata_DATA = docs/index.html
 
 perlarchdir = $(PERL_ARCH)/auto/Xapian
 perlarch_LTLIBRARIES = Xapian.la
@@ -144,16 +149,12 @@ Xapian_la_LDFLAGS = -avoid-version -module -shrext $(PERL_SO) $(NO_UNDEFINED)
 Xapian_la_SOURCES = xapian_wrap.cc
 Xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
 
+CLEANFILES =
+
 if MAINTAINER_MODE
 BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-perl-exceptions
-
-BUILT_SOURCES += docs/index.html
-docs/index.html: Xapian.pm
-	$(MKDIR_P) docs
-	pod2html Xapian.pm > docs/index.html
-	rm -f pod2htm?.tmp
 
 stamp = xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
@@ -169,6 +170,16 @@ $(stamp): except.i
 
 -include xapian_wrap.d
 
-CLEANFILES = pod2htm?.tmp xapian_wrap.d $(stamp)
+CLEANFILES += xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+
+docdatadir = $(docdir)/perl
+docdata_DATA = docs/index.html
+
+CLEANFILES += docs/index.html pod2html?.tmp
+
+docs/index.html: Xapian.pm
+	$(MKDIR_P) docs
+	$(PERL) -MPod::Html -e 'pod2html(qw(--podpath=. Xapian.pm --outfile=docs/index.html))'
+	rm -f -v pod2htm?.tmp

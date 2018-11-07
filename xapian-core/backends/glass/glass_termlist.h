@@ -83,15 +83,30 @@ class GlassTermList : public TermList {
     mutable Xapian::doccount current_termfreq;
 
   public:
-    /// Create a new GlassTermList object for document @a did_ in DB @a db_
+    /** Create a new GlassTermList object for document @a did_ in DB @a db_
+     *
+     *  @param throw_if_not_present  Specifies behaviour if document @a did_
+     *				     isn't present: if true then throw
+     *				     DocNotFoundError, otherwise the
+     *				     constructed GlassTermList object will
+     *				     signal at_end() before next() is called
+     *				     (normally at_end() isn't meaningful
+     *				     on a freshly constructed TermList).
+     */
     GlassTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> db_,
-		  Xapian::docid did_);
+		  Xapian::docid did_, bool throw_if_not_present = true);
 
     /** Return the length of this document.
      *
      *  This is a non-virtual method, used by GlassDatabase.
      */
     Xapian::termcount get_doclength() const;
+
+    /** Return the number of unique terms.
+     *
+     *  This is a non-virtual method, used by GlassDatabase.
+     */
+    Xapian::termcount get_unique_terms() const;
 
     /** Return approximate size of this termlist.
      *
@@ -119,8 +134,8 @@ class GlassTermList : public TermList {
 
     /** Advance the current position to the next term in the termlist.
      *
-     *  The list starts before the first term in the list, so next()
-     *  must be called before any methods which need the context of
+     *  The list starts before the first term in the list, so next(), skip_to()
+     *  or check() must be called before any methods which need the context of
      *  the current position.
      *
      *  @return Always returns 0 for a GlassTermList.

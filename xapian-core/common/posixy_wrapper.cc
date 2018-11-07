@@ -2,7 +2,7 @@
  * @brief Provides wrappers with POSIXy semantics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2012 Olly Betts
+ * Copyright (C) 2007,2012,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,43 @@
 
 #include <config.h>
 
-#ifdef __WIN32__ /* Ignore the whole file except for __WIN32__ */
+#ifdef __CYGWIN__
+# include "posixy_wrapper.h"
+
+# include "filetests.h"
+
+int
+posixy_unlink(const char * filename)
+{
+    // On Cygwin we seem to inexplicably get ECHILD from unlink() sometimes.
+    // The path doesn't actually exists after the call when we get ECHILD, but
+    // the correct return value depends on whether it existed before so we
+    // need to check here as well.
+    if (!path_exists(filename)) {
+	errno = ENOENT;
+	return -1;
+    }
+
+    int r = unlink(filename);
+    if (r < 0) {
+	int unlink_errno = errno;
+	if (unlink_errno == ECHILD && !path_exists(filename)) {
+	    errno = 0;
+	    return 0;
+	}
+
+	errno = unlink_errno;
+    }
+    return r;
+}
+
+#elif defined __WIN32__
 
 #include "posixy_wrapper.h"
 
 #include <io.h>
 
-#include "safeerrno.h"
+#include <cerrno>
 #include "safefcntl.h"
 #include "safewindows.h"
 
@@ -145,7 +175,7 @@ posixy_unlink(const char * filename)
 int
 posixy_open(const char *filename, int flags)
 {
-    /* Translate ANSI read mode to Windows access mode */
+    /* Translate POSIX read mode to Windows access mode */
     DWORD dwDesiredAccess = GENERIC_READ;
     switch (flags & (O_RDONLY | O_RDWR | O_WRONLY)) {
 	case O_RDONLY:
@@ -161,7 +191,7 @@ posixy_open(const char *filename, int flags)
     /* Subsequent operations may open this file to read, write or delete it */
     DWORD dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
 
-    /* Translate ANSI creation mode to Windows creation mode */
+    /* Translate POSIX creation mode to Windows creation mode */
     DWORD dwCreationDisposition = OPEN_EXISTING;
     switch (flags & (O_CREAT | O_TRUNC | O_EXCL)) {
 	case O_EXCL:
@@ -189,18 +219,18 @@ posixy_open(const char *filename, int flags)
 
     HANDLE handleWin =
 	CreateFile(filename,
-		dwDesiredAccess,
-		dwShareMode,
-		NULL,
-		dwCreationDisposition,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
+		   dwDesiredAccess,
+		   dwShareMode,
+		   NULL,
+		   dwCreationDisposition,
+		   FILE_ATTRIBUTE_NORMAL,
+		   NULL);
     if (handleWin == INVALID_HANDLE_VALUE) {
 	return set_errno_from_getlasterror();
     }
 
     /* Return a standard file descriptor. */
-    return _open_osfhandle((intptr_t)handleWin, flags|O_BINARY);
+    return _open_osfhandle(intptr_t(handleWin), flags|O_BINARY);
 }
 
 int

@@ -1,8 +1,7 @@
 /** @file positionlist.h
- * @brief Iterate positions
+ * @brief Abstract base class for iterating term positions in a document.
  */
-/* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2011 Olly Betts
+/* Copyright (C) 2007,2010,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,71 +15,66 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_POSITIONLIST_H
-#define OM_HGUARD_POSITIONLIST_H
+#ifndef XAPIAN_INCLUDED_POSITIONLIST_H
+#define XAPIAN_INCLUDED_POSITIONLIST_H
 
 #include <xapian/intrusive_ptr.h>
-#include <xapian/types.h>
-#include <xapian/error.h>
 #include <xapian/positioniterator.h>
+#include <xapian/types.h>
 
-using namespace std;
+namespace Xapian {
 
-/** Abstract base class for position lists. */
-class Xapian::PositionIterator::Internal : public Xapian::Internal::intrusive_base
+/// Abstract base class for iterating term positions in a document.
+class PositionIterator::Internal : public Xapian::Internal::intrusive_base
 {
-    private:
-	/// Copying is not allowed.
-	Internal(const Internal &);
+    /// Don't allow assignment.
+    void operator=(const Internal &) = delete;
 
-	/// Assignment is not allowed.
-	void operator=(const Internal &);
-    public:
-	/// Default constructor.
-	Internal() { }
+    /// Don't allow copying.
+    Internal(const Internal &) = delete;
 
-	/// Destructor.
-	virtual ~Internal() { }
+  protected:
+    /// Only constructable as a base class for derived classes.
+    Internal() { }
 
-	/** Gets size of position list.  This need only be an approximation.
-	 *  Typical use is to look for positional match restrictions (e.g.
-	 *  NEAR, PHRASE) around the least frequent term.
-	 */
-	virtual Xapian::termcount get_size() const = 0;
+  public:
+    /** We have virtual methods and want to be able to delete derived classes
+     *  using a pointer to the base class, so we need a virtual destructor.
+     */
+    virtual ~Internal() { }
 
-	/// Gets current position.
-	virtual Xapian::termpos get_position() const = 0;
+    /// Return approximate size of this positionlist.
+    virtual Xapian::termcount get_approx_size() const = 0;
 
-	/** Move to the next item in the list.
-	 *  Either next() or skip_to() must be called before get_position()
-	 *  - the list initially points to before the beginning of the
-	 *  list.
-	 */
-	virtual void next() = 0;
+    /// Return the current position.
+    virtual Xapian::termpos get_position() const = 0;
 
-	/** Move to the next item in the list >= the specified item.
-	 *  Either next() or skip_to() must be called before get_position()
-	 *  - the list initially points to before the beginning of the
-	 *  list.
-	 */
-	virtual void skip_to(Xapian::termpos termpos) = 0;
+    /** Advance to the next entry in the positionlist.
+     *
+     *  The list starts before the first entry, so next() or skip_to() must be
+     *  called before get_position().
+     *
+     *  @return	true if we're on a valid entry; false if we've reached the end
+     *		of the list.
+     */
+    virtual bool next() = 0;
 
-	/** True if we're off the end of the list
-	 */
-	virtual bool at_end() const = 0;
-
-	/** For use by PhrasePostList - ignored by PostingList itself.
-	 *  This isn't the most elegant place to put this, but it greatly
-	 *  eases the implementation of PhrasePostList which can't subclass
-	 *  PositionList (since it gets it from PostList::read_position_list())
-	 */
-	Xapian::termcount index;
+    /** Skip forward to the specified position.
+     *
+     *  If the specified position isn't in the list, position ourselves on the
+     *  first entry after it.
+     *
+     *  @return	true if we're on a valid entry; false if we've reached the end
+     *		of the list.
+     */
+    virtual bool skip_to(Xapian::termpos termpos) = 0;
 };
+
+}
 
 typedef Xapian::PositionIterator::Internal PositionList;
 
-#endif /* OM_HGUARD_POSITIONLIST_H */
+#endif // XAPIAN_INCLUDED_POSITIONLIST_H

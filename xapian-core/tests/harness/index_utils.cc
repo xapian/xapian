@@ -24,10 +24,9 @@
 #include "stringutils.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstring>
 #include <fstream>
-
-#include "safeerrno.h"
 
 using namespace std;
 
@@ -140,18 +139,8 @@ munge_term(const string &term)
 			char c = *++i;
 			if (!C_isxdigit(b) || !C_isxdigit(c)) {
 			    i = j - 1;
-			    break;
-			}
-			if (C_isdigit(b)) {
-			    ch = b - '0';
 			} else {
-			    ch = C_tolower(b) - 'a' + 10;
-			}
-			ch *= 16;
-			if (C_isdigit(c)) {
-			    ch |= c - '0';
-			} else {
-			    ch |= C_tolower(c) - 'a' + 10;
+			    ch = (hex_digit(b) << 4) | hex_digit(c);
 			}
 			break;
 		    }
@@ -181,7 +170,14 @@ FileIndexer::next_file()
     string filename;
     if (!datadir.empty()) {
 	filename = datadir;
-	if (!endswith(datadir, '/')) filename += '/';
+	bool need_slash = true;
+	for (char dir_sep : DIR_SEPS_LIST) {
+	    if (filename.back() == dir_sep) {
+		need_slash = false;
+		break;
+	    }
+	}
+	if (need_slash) filename += '/';
     }
     filename += *file++;
     filename += ".txt";

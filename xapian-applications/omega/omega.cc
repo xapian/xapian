@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,11 +44,19 @@
 #include "cgiparam.h"
 #include "query.h"
 #include "str.h"
+#include "stringutils.h"
 #include "expand.h"
 
 using namespace std;
 
 static const char DEFAULT_STEM_LANGUAGE[] = "english";
+
+// A character which doesn't require URL encoding, and isn't likely to appear
+// in filter values.
+const char filter_sep = '~';
+
+// What we used for filter_sep in Omega < 1.3.4.
+const char filter_sep_old = '-';
 
 Xapian::Enquire * enquire;
 Xapian::Database db;
@@ -56,17 +64,13 @@ Xapian::RSet rset;
 
 map<string, string> option;
 
-string date_start, date_end, date_span;
-
-const string default_dbname = "default";
-
 bool set_content_type = false;
 
 bool suppress_http_headers = false;
 
 string dbname;
-string fmtname = "query";
-string filters;
+string fmtname;
+string filters, old_filters;
 
 Xapian::docid topdoc = 0;
 Xapian::docid hits_per_page = 0;
@@ -75,8 +79,9 @@ Xapian::docid min_hits = 0;
 // percentage cut-off
 int threshold = 0;
 
+Xapian::MultiValueKeyMaker* sort_keymaker = NULL;
 Xapian::valueno sort_key = Xapian::BAD_VALUENO; // Don't sort.
-bool sort_ascending = true;
+bool reverse_sort = true;
 bool sort_after = false;
 Xapian::Enquire::docid_order docid_order = Xapian::Enquire::ASCENDING;
 
@@ -89,27 +94,51 @@ map_dbname_to_dir(const string &database_name)
     return database_dir + database_name;
 }
 
+// Get database(s) to search.
+template<typename IT>
+void
+parse_db_params(const pair<IT, IT>& dbs)
+{
+    dbname.resize(0);
+    // Only add a repeated db once.
+    set<string> seen;
+    for (auto i = dbs.first; i != dbs.second; ++i) {
+	const string& v = i->second;
+	if (v.empty()) continue;
+	size_t p = 0, q;
+	while (true) {
+	    q = v.find('/', p);
+	    string s(v, p, q - p);
+	    if (!s.empty() && seen.find(s) == seen.end()) {
+		// Translate DB parameter to path of database directory
+		if (!dbname.empty()) dbname += '/';
+		dbname += s;
+		db.add_database(Xapian::Database(map_dbname_to_dir(s)));
+		seen.insert(s);
+	    }
+	    if (q == string::npos) break;
+	    p = q + 1;
+	}
+    }
+}
+
 int main(int argc, char *argv[])
 try {
     read_config_file();
-
-    char *method;
-    MCI val;
-    pair<MCI, MCI> g;
 
     option["flag_default"] = "true";
 
     // set default thousands and decimal separators: e.g. "16,729 hits" "1.4K"
     option["decimal"] = ".";
     option["thousand"] = ",";
-    
+
     // set the default stemming language
     option["stemmer"] = DEFAULT_STEM_LANGUAGE;
 
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
-    //setvbuf(stdout, NULL, _IOLBF, 0);
+    // setvbuf(stdout, NULL, _IOLBF, 0);
 
-    method = getenv("REQUEST_METHOD");
+    const char * method = getenv("REQUEST_METHOD");
     if (method == NULL) {
 	if (argc > 1 && (argv[1][0] != '-' || strchr(argv[1], '='))) {
 	    // omega 'P=information retrieval' DB=papers
@@ -119,8 +148,7 @@ try {
 	} else {
 	    // Seems we're running from the command line so give version
 	    // and allow a query to be entered for testing
-	    cout << PROGRAM_NAME" - "PACKAGE" "VERSION" "
-		"(compiled "__DATE__" "__TIME__")\n";
+	    cout << PROGRAM_NAME " - " PACKAGE " " VERSION "\n";
 	    if (argc > 1) exit(0);
 	    cout << "Enter NAME=VALUE lines, end with blank line\n";
 	    decode_test();
@@ -133,41 +161,18 @@ try {
     }
 
     try {
-	// get database(s) to search
-	dbname.resize(0);
-	set<string> seen; // only add a repeated db once
-	g = cgi_params.equal_range("DB");
-	for (MCI i = g.first; i != g.second; ++i) {
-	    const string & v = i->second;
-	    if (!v.empty()) {
-		size_t p = 0, q;
-		while (true) {	    
-		    q = v.find('/', p);
-		    string s = v.substr(p, q - p);
-		    if (!s.empty() && seen.find(s) == seen.end()) {
-			// Translate DB parameter to path of database directory
-			if (!dbname.empty()) dbname += '/';
-			dbname += s;
-			db.add_database(Xapian::Database(map_dbname_to_dir(s)));
-			seen.insert(s);
-		    }
-		    if (q == string::npos) break;
-		    p = q + 1;
-		}
-	    }
-	}
+	parse_db_params(cgi_params.equal_range("DB"));
 	if (dbname.empty()) {
-	    dbname = default_dbname;
+	    dbname = default_db;
 	    db.add_database(Xapian::Database(map_dbname_to_dir(dbname)));
 	}
 	enquire = new Xapian::Enquire(db);
-    }
-    catch (const Xapian::Error &) {
+    } catch (const Xapian::Error &) {
 	enquire = NULL;
     }
 
     hits_per_page = 0;
-    val = cgi_params.find("HITSPERPAGE");
+    auto val = cgi_params.find("HITSPERPAGE");
     if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
     if (hits_per_page == 0) {
 	hits_per_page = 10;
@@ -187,11 +192,9 @@ try {
 	const string & v = val->second;
 	if (!v.empty()) fmtname = v;
     }
+    if (fmtname.empty())
+	fmtname = default_template;
 
-    // The probabilistic query string.
-    string query_string;
-
-    // Get the probabilistic query.
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
 	const string & v = val->second;
@@ -209,64 +212,71 @@ try {
 
 	    OmegaExpandDecider decider(db);
 	    set_expansion_scheme(*enquire, option);
-#if XAPIAN_AT_LEAST(1,3,2)
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
-#else
-	    Xapian::ESet eset(enquire->get_eset(40, tmprset, 0,
-						expand_param_k, &decider));
-#endif
-	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
-		if (!query_string.empty()) query_string += ' ';
-		query_string += pretty_term(*i);
+	    string morelike_query;
+	    for (auto&& term : eset) {
+		if (!morelike_query.empty()) morelike_query += ' ';
+		morelike_query += pretty_term(term);
 	    }
+	    add_query_string(string(), morelike_query);
 	}
-    }
-
-    if (query_string.empty()) {
-	// collect the unprefixed prob fields
-	g = cgi_params.equal_range("P");
-	for (MCI i = g.first; i != g.second; i++) {
-	    const string & v = i->second;
-	    if (!v.empty()) {
-		if (!query_string.empty()) query_string += ' ';
-		query_string += v;
-	    }
-	}
-
+    } else {
 	// add expand/topterms terms if appropriate
+	string expand_terms;
 	if (cgi_params.find("ADD") != cgi_params.end()) {
-	    g = cgi_params.equal_range("X");
-	    for (MCI i = g.first; i != g.second; i++) {
+	    auto g = cgi_params.equal_range("X");
+	    for (auto i = g.first; i != g.second; ++i) {
 		const string & v = i->second;
 		if (!v.empty()) {
-		    if (!query_string.empty()) query_string += ' ';
-		    query_string += v;
+		    if (!expand_terms.empty())
+			expand_terms += ' ';
+		    expand_terms += v;
 		}
 	    }
 	}
-    } 
 
-    set_probabilistic_query(string(), query_string);
+	// collect the unprefixed prob fields
+	auto g = cgi_params.equal_range("P");
+	for (auto i = g.first; i != g.second; ++i) {
+	    const string & v = i->second;
+	    if (!v.empty()) {
+		// If there are expand terms, append them to the first
+		// non-empty P parameter.
+		if (!expand_terms.empty()) {
+		    string q = v;
+		    q += ' ';
+		    q += expand_terms;
+		    add_query_string(string(), q);
+		    expand_terms = string();
+		} else {
+		    add_query_string(string(), v);
+		}
+	    }
+	}
 
-    g.first = cgi_params.lower_bound("P.");
-    g.second = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
-    for (MCI i = g.first; i != g.second; i++) {
+	if (!expand_terms.empty()) {
+	    add_query_string(string(), expand_terms);
+	}
+    }
+
+    auto begin = cgi_params.lower_bound("P.");
+    auto end = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    string pfx(i->first, 2, string::npos);
-	    set_probabilistic_query(pfx, v);
-	    // FIXME: Handled P.FOO specified more than once.
+	    add_query_string(pfx, v);
 	}
     }
 
     // set any boolean filters
-    g = cgi_params.equal_range("B");
+    auto g = cgi_params.equal_range("B");
     if (g.first != g.second) {
 	vector<string> filter_v;
-	for (MCI i = g.first; i != g.second; i++) {
+	for (auto i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    // we'll definitely get empty B fields from "-ALL-" options
-	    if (!v.empty() && isalnum(static_cast<unsigned char>(v[0]))) {
+	    if (!v.empty() && C_isalnum(v[0])) {
 		add_bterm(v);
 		filter_v.push_back(v);
 	    }
@@ -274,28 +284,171 @@ try {
 	sort(filter_v.begin(), filter_v.end());
 	vector<string>::const_iterator j;
 	for (j = filter_v.begin(); j != filter_v.end(); ++j) {
-	    filters += *j;
+	    const string & bterm = *j;
+	    string::size_type e = bterm.find(filter_sep);
+	    if (usual(e == string::npos)) {
+		filters += bterm;
+	    } else {
+		// If a filter contains filter_sep then double it to escape.
+		// Each filter must start with an alnum (checked above) and
+		// the value after the last filter is the default op, which
+		// is encoded as a non-alnum so filter_sep followed by
+		// something other than filter_sep must be separating filters.
+		string::size_type b = 0;
+		while (e != string::npos) {
+		    filters.append(bterm, b, e + 1 - b);
+		    b = e;
+		    e = bterm.find(filter_sep, b + 1);
+		}
+		filters.append(bterm, b, string::npos);
+	    }
 	    filters += filter_sep;
+	    old_filters += bterm;
+	    old_filters += filter_sep_old;
+	}
+    }
+
+    // set any negated boolean filters
+    g = cgi_params.equal_range("N");
+    if (g.first != g.second) {
+	vector<string> filter_v;
+	for (auto i = g.first; i != g.second; ++i) {
+	    const string & v = i->second;
+	    // we'll definitely get empty N fields from "-ALL-" options
+	    if (!v.empty() && C_isalnum(v[0])) {
+		add_nterm(v);
+		filter_v.push_back(v);
+	    }
+	}
+	sort(filter_v.begin(), filter_v.end());
+	vector<string>::const_iterator j;
+	for (j = filter_v.begin(); j != filter_v.end(); ++j) {
+	    const string & nterm = *j;
+	    string::size_type e = nterm.find(filter_sep);
+	    filters += '!';
+	    if (usual(e == string::npos)) {
+		filters += nterm;
+	    } else {
+		// If a filter contains filter_sep then double it to escape.
+		// Each filter must start with an alnum (checked above) and
+		// the value after the last filter is the default op, which
+		// is encoded as a non-alnum so filter_sep followed by
+		// something other than filter_sep must be separating filters.
+		string::size_type b = 0;
+		while (e != string::npos) {
+		    filters.append(nterm, b, e + 1 - b);
+		    b = e;
+		    e = nterm.find(filter_sep, b + 1);
+		}
+		filters.append(nterm, b, string::npos);
+	    }
+	    filters += filter_sep;
+	    // old_filters predates 'N' terms, so if there are 'N' terms this
+	    // is definitely a different query.
+	    old_filters.clear();
 	}
     }
 
     // date range filters
+    struct date_range {
+	string start, end, span;
+    };
+    map<Xapian::valueno, date_range> date_ranges;
+    begin = cgi_params.lower_bound("START.");
+    end = cgi_params.lower_bound("START/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    Xapian::valueno slot = atoi(i->first.c_str() +
+					CONST_STRLEN("START."));
+	    date_ranges[slot].start = v;
+	}
+    }
+    begin = cgi_params.lower_bound("END.");
+    end = cgi_params.lower_bound("END/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    Xapian::valueno slot = atoi(i->first.c_str() +
+					CONST_STRLEN("END."));
+	    date_ranges[slot].end = v;
+	}
+    }
+    begin = cgi_params.lower_bound("SPAN.");
+    end = cgi_params.lower_bound("SPAN/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    Xapian::valueno slot = atoi(i->first.c_str() +
+					CONST_STRLEN("SPAN."));
+	    date_ranges[slot].span = v;
+	}
+    }
+    if (!date_ranges.empty()) {
+	// old_filters predates START.N, END.N and SPAN.N so use of any of
+	// these means this is definitely a different query.
+	old_filters.clear();
+    }
+    for (auto i : date_ranges) {
+	auto slot = i.first;
+	auto r = i.second;
+	add_date_filter(r.start, r.end, r.span, slot);
+	filters += '$';
+	filters += str(slot);
+	filters += '$';
+	filters += r.start;
+	filters += '$';
+	filters += r.end;
+	filters += '$';
+	filters += r.span;
+    }
+
+    string date_start, date_end, date_span;
     val = cgi_params.find("START");
     if (val != cgi_params.end()) date_start = val->second;
     val = cgi_params.find("END");
     if (val != cgi_params.end()) date_end = val->second;
     val = cgi_params.find("SPAN");
     if (val != cgi_params.end()) date_span = val->second;
+    val = cgi_params.find("DATEVALUE");
+    Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
+    if (val != cgi_params.end()) date_value_slot = string_to_int(val->second);
+    add_date_filter(date_start, date_end, date_span, date_value_slot);
 
-    filters += date_start + filter_sep + date_end + filter_sep + date_span
-	+ (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
+    // If more default_op values are supported, encode them as non-alnums
+    // other than filter_sep, '!' or '$'.
+    filters += (default_op == Xapian::Query::OP_AND ? '.' : '-');
+    filters += date_start;
+    filters += filter_sep;
+    filters += date_end;
+    filters += filter_sep;
+    filters += date_span;
+    if (date_value_slot != Xapian::BAD_VALUENO) {
+	// This means we'll force the first page when reloading or changing
+	// page starting from existing URLs upon upgrade to 1.4.1, but the
+	// exact same existing URL could be for a search without the date
+	// filter where we want to force the first page, so there's an inherent
+	// ambiguity there.  Forcing first page in this case seems the least
+	// problematic side-effect.
+	filters += filter_sep;
+	filters += str(date_value_slot);
+    }
+
+    if (!old_filters.empty()) {
+	old_filters += date_start;
+	old_filters += filter_sep_old;
+	old_filters += date_end;
+	old_filters += filter_sep_old;
+	old_filters += date_span;
+	old_filters += (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
+    }
 
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
-        threshold = atoi(val->second.c_str());
-        if (threshold < 0) threshold = 0;
-        if (threshold > 100) threshold = 100;
+	threshold = atoi(val->second.c_str());
+	if (threshold < 0) threshold = 0;
+	if (threshold > 100) threshold = 100;
     }
 
     // collapsing
@@ -307,7 +460,16 @@ try {
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
+	    if (!old_filters.empty()) {
+		old_filters += filter_sep_old;
+		old_filters += str(collapse_key);
+	    }
 	}
+    }
+    if (!collapse && date_value_slot != Xapian::BAD_VALUENO) {
+	// We need to either omit filter_sep for both or neither, or else the
+	// encoding is ambiguous.
+	filters += filter_sep;
     }
 
     // docid order
@@ -319,10 +481,17 @@ try {
 	    if (ch == 'D') {
 		docid_order = Xapian::Enquire::DESCENDING;
 		filters += 'D';
+		if (!old_filters.empty()) old_filters += 'D';
 	    } else if (ch != 'A') {
 		docid_order = Xapian::Enquire::DONT_CARE;
 	    } else {
+		// This is a bug (should add nothing here and 'X' in the (ch !=
+		// 'A') case, but the current "DONT_CARE" implementation
+		// actually always results in ascending docid order so it's not
+		// worth breaking compatibility to fix - let's just do it next
+		// time we change the encoding $filters uses.
 		filters += 'X';
+		if (!old_filters.empty()) old_filters += 'X';
 	    }
 	}
     }
@@ -330,29 +499,94 @@ try {
     // sorting
     val = cgi_params.find("SORT");
     if (val != cgi_params.end()) {
-	sort_key = atoi(val->second.c_str());
+	const char * base = val->second.c_str();
+	const char * p = base;
+	do {
+	    bool rev = (*p != '+');
+	    if (*p == '-' || *p == '+') {
+		// old_filters predates support for direction in SORT, so if
+		// there's a direction specified this is definitely a different
+		// query.
+		old_filters.clear();
+		++p;
+	    }
+	    if (!C_isdigit(*p)) {
+		// Invalid.
+		break;
+	    }
+	    errno = 0;
+	    char * q;
+	    Xapian::valueno slot = strtoul(p, &q, 10);
+	    p = q;
+	    if (errno != 0) {
+		// Invalid.
+		break;
+	    }
+
+	    if (sort_key != Xapian::BAD_VALUENO) {
+		// Multiple sort keys specified, so we need a KeyMaker.
+
+		// Omit leading '+'.
+		if (reverse_sort) filters += '-';
+		filters += str(sort_key);
+
+		sort_keymaker = new Xapian::MultiValueKeyMaker;
+		sort_keymaker->add_value(sort_key, !reverse_sort);
+		sort_key = Xapian::BAD_VALUENO;
+		reverse_sort = true;
+		// old_filters predates multiple sort keys, so if there are
+		// multiple sort keys this is definitely a different query.
+		old_filters.clear();
+	    }
+
+	    if (sort_keymaker) {
+		filters += (rev ? '-' : '+');
+		filters += str(slot);
+		sort_keymaker->add_value(slot, !rev);
+	    } else {
+		sort_key = slot;
+		reverse_sort = rev;
+	    }
+	    while (C_isspace(*p) || *p == ',') ++p;
+	} while (*p);
+
 	val = cgi_params.find("SORTREVERSE");
-	if (val != cgi_params.end()) {
-	    sort_ascending = (atoi(val->second.c_str()) == 0);
+	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
+	    reverse_sort = !reverse_sort;
 	}
+
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
 	    sort_after = (atoi(val->second.c_str()) != 0);
 	}
+
 	// Add the sorting related options to filters too.
-	filters += str(sort_key);
+	//
+	// Note: old_filters really does encode a reversed sort as 'F' and a
+	// non-reversed sort as 'R' or 'r'.
+	//
+	// filters has them the other way around for sanity (except in
+	// development snapshot 1.3.4, which was when the new filter encoding
+	// was introduced).
+	if (!sort_keymaker) filters += str(sort_key);
+	if (!old_filters.empty()) old_filters += str(sort_key);
 	if (sort_after) {
-	    if (sort_ascending) {
-		filters += 'F';
-	    } else {
+	    if (reverse_sort) {
 		filters += 'R';
+		if (!old_filters.empty()) old_filters += 'F';
+	    } else {
+		filters += 'F';
+		if (!old_filters.empty()) old_filters += 'R';
 	    }
 	} else {
-	    if (!sort_ascending) {
-		filters += 'r';
+	    if (!reverse_sort) {
+		filters += 'f';
+		if (!old_filters.empty()) old_filters += 'r';
 	    }
 	}
     }
+
+    if (old_filters.empty()) old_filters = filters;
 
     // min_hits (fill mset past topdoc+(hits_per_page+1) to
     // topdoc+max(hits_per_page+1,min_hits)
@@ -361,7 +595,7 @@ try {
 	min_hits = atol(val->second.c_str());
     }
 
-    parse_omegascript(); 
+    parse_omegascript();
 } catch (const Xapian::Error &e) {
     if (!set_content_type && !suppress_http_headers)
 	cout << "Content-Type: text/html\n\n";

@@ -77,8 +77,6 @@ class ValueRangePostList : public PostList {
 
     PositionList * read_position_list();
 
-    PositionList * open_position_list() const;
-
     PostList * next(double w_min);
 
     PostList * skip_to(Xapian::docid, double w_min);
@@ -89,7 +87,7 @@ class ValueRangePostList : public PostList {
 
     Xapian::termcount count_matching_subqs() const;
 
-    string get_description() const;
+    std::string get_description() const;
 };
 
 #endif /* XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H */

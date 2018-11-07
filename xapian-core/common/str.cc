@@ -1,7 +1,7 @@
 /** @file str.cc
  * @brief Convert types to std::string
  */
-/* Copyright (C) 2009,2012 Olly Betts
+/* Copyright (C) 2009,2012,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,15 +27,16 @@
 #include <cstdio> // For snprintf() or sprintf().
 #include <cstdlib> // For abort().
 #include <string>
+#include <type_traits>
 
 using namespace std;
 
 // Much faster than snprintf() - also less generated code!
 template<class T>
-inline string
+static inline string
 tostring_unsigned(T value)
 {
-    STATIC_ASSERT_UNSIGNED_TYPE(T);
+    static_assert(std::is_unsigned<T>::value, "Unsigned type required");
     // Special case single digit positive numbers.
     // FIXME: is this actually worthwhile?
     if (value < 10) return string(1, '0' + char(value));
@@ -43,7 +44,7 @@ tostring_unsigned(T value)
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);
-	char ch(value % 10);
+	char ch = static_cast<char>(value % 10);
 	value /= 10;
 	*(--p) = ch + '0';
     } while (value);
@@ -51,7 +52,7 @@ tostring_unsigned(T value)
 }
 
 template<class T>
-inline string
+static inline string
 tostring(T value)
 {
     // Special case single digit positive numbers.
@@ -65,7 +66,7 @@ tostring(T value)
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);
-	char ch(value % 10);
+	char ch = static_cast<char>(value % 10);
 	value /= 10;
 	*(--p) = ch + '0';
     } while (value);
@@ -117,7 +118,7 @@ str(unsigned long long value)
 }
 
 template<class T>
-inline string
+static inline string
 format(const char * fmt, T value)
 {
     char buf[128];

@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,9 +25,9 @@
 #ifndef OM_HGUARD_GLASS_DATABASE_H
 #define OM_HGUARD_GLASS_DATABASE_H
 
+#include "backends/backends.h"
 #include "backends/database.h"
 #include "glass_changes.h"
-#include "glass_dbstats.h"
 #include "glass_docdata.h"
 #include "glass_inverter.h"
 #include "glass_positionlist.h"
@@ -43,6 +43,7 @@
 
 #include "noreturn.h"
 
+#include "xapian/compactor.h"
 #include "xapian/constants.h"
 
 #include <map>
@@ -108,9 +109,6 @@ class GlassDatabase : public Xapian::Database::Internal {
 
 	/// Lock object.
 	FlintLock lock;
-
-	/// Database statistics.
-	GlassDatabaseStats stats;
 
 	/// Replication changesets.
 	GlassChanges changes;
@@ -226,8 +224,10 @@ class GlassDatabase : public Xapian::Database::Internal {
 	 *                    correct value, when the database is being
 	 *                    created.
 	 */
-	GlassDatabase(const string &db_dir_, int flags = Xapian::DB_READONLY_,
-		      unsigned int block_size = 0u);
+	explicit GlassDatabase(const string &db_dir_, int flags = Xapian::DB_READONLY_,
+			       unsigned int block_size = 0u);
+
+	explicit GlassDatabase(int fd);
 
 	~GlassDatabase();
 
@@ -245,10 +245,9 @@ class GlassDatabase : public Xapian::Database::Internal {
 
 	/** Virtual methods of Database::Internal. */
 	//@{
-	Xapian::doccount  get_doccount() const;
+	Xapian::doccount get_doccount() const;
 	Xapian::docid get_lastdocid() const;
-	totlen_t get_total_length() const;
-	Xapian::doclength get_avlength() const;
+	Xapian::totallength get_total_length() const;
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::termcount get_unique_terms(Xapian::docid did) const;
 	void get_freqs(const string & term,
@@ -286,9 +285,37 @@ class GlassDatabase : public Xapian::Database::Internal {
 				    Xapian::ReplicationInfo * info);
 	string get_revision_info() const;
 	string get_uuid() const;
+
+	void request_document(Xapian::docid /*did*/) const;
+	void readahead_for_query(const Xapian::Query &query);
 	//@}
 
 	XAPIAN_NORETURN(void throw_termlist_table_close_exception() const);
+
+	int get_backend_info(string * path) const {
+	    if (path) *path = db_dir;
+	    return BACKEND_GLASS;
+	}
+
+	bool single_file() const { return version_file.single_file(); }
+
+	void get_used_docid_range(Xapian::docid & first,
+				  Xapian::docid & last) const;
+
+	/** Return true if there are uncommitted changes. */
+	virtual bool has_uncommitted_changes() const;
+
+	bool locked() const;
+
+	static void compact(Xapian::Compactor * compactor,
+			    const char * destdir,
+			    int fd,
+			    const std::vector<Xapian::Database::Internal *> & sources,
+			    const std::vector<Xapian::docid> & offset,
+			    size_t block_size,
+			    Xapian::Compactor::compaction_level compaction,
+			    unsigned flags,
+			    Xapian::docid last_docid);
 };
 
 /** A writable glass database.
@@ -318,6 +345,12 @@ class GlassWritableDatabase : public GlassDatabase {
 	 */
 	mutable Xapian::docid modify_shortcut_docid;
 
+	/** Check if we should autoflush.
+	 *
+	 *  Called at the end of each document changing operation.
+	 */
+	void check_flush_threshold();
+
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes() const;
 
@@ -343,10 +376,8 @@ class GlassWritableDatabase : public GlassDatabase {
 	// a problem as we only try to call them through the base class
 	// (where they aren't hidden) but some compilers generate a warning
 	// about the hiding.
-#ifndef _MSC_VER
 	using Xapian::Database::Internal::delete_document;
 	using Xapian::Database::Internal::replace_document;
-#endif
 	void delete_document(Xapian::docid did);
 	void replace_document(Xapian::docid did, const Xapian::Document & document);
 
@@ -374,6 +405,7 @@ class GlassWritableDatabase : public GlassDatabase {
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::termcount get_doclength(Xapian::docid did) const;
+	Xapian::termcount get_unique_terms(Xapian::docid did) const;
 	void get_freqs(const string & term,
 		       Xapian::doccount * termfreq_ptr,
 		       Xapian::termcount * collfreq_ptr) const;
@@ -401,6 +433,9 @@ class GlassWritableDatabase : public GlassDatabase {
 	void set_metadata(const string & key, const string & value);
 	void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 	//@}
+
+	/** Return true if there are uncommitted changes. */
+	bool has_uncommitted_changes() const;
 };
 
 #endif /* OM_HGUARD_GLASS_DATABASE_H */

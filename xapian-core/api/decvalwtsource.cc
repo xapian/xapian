@@ -2,7 +2,7 @@
  * @brief A posting source which returns decreasing weights from a value.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
- * Copyright (C) 2011,2012 Olly Betts
+ * Copyright (C) 2011,2012,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ DecreasingValueWeightPostingSource::get_weight() const {
 
 Xapian::DecreasingValueWeightPostingSource *
 DecreasingValueWeightPostingSource::clone() const {
-    return new DecreasingValueWeightPostingSource(slot, range_start,
+    return new DecreasingValueWeightPostingSource(get_slot(), range_start,
 						  range_end);
 }
 
@@ -58,7 +58,7 @@ DecreasingValueWeightPostingSource::name() const {
 std::string
 DecreasingValueWeightPostingSource::serialise() const {
     std::string result;
-    result += encode_length(slot);
+    result += encode_length(get_slot());
     result += encode_length(range_start);
     result += encode_length(range_end);
     return result;
@@ -68,9 +68,11 @@ Xapian::DecreasingValueWeightPostingSource *
 DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
     const char * pos = s.data();
     const char * end = pos + s.size();
-    Xapian::valueno new_slot = decode_length(&pos, end, false);
-    Xapian::docid new_range_start = decode_length(&pos, end, false);
-    Xapian::docid new_range_end = decode_length(&pos, end, false);
+    Xapian::valueno new_slot;
+    Xapian::docid new_range_start, new_range_end;
+    decode_length(&pos, end, new_slot);
+    decode_length(&pos, end, new_range_start);
+    decode_length(&pos, end, new_range_end);
     if (pos != end)
 	throw Xapian::NetworkError("Junk at end of serialised "
 				   "DecreasingValueWeightPostingSource");
@@ -81,7 +83,7 @@ DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
 void
 DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) {
     Xapian::ValueWeightPostingSource::init(db_);
-    if (range_end == 0 || db.get_doccount() <= range_end)
+    if (range_end == 0 || get_database().get_doccount() <= range_end)
 	items_at_end = false;
     else
 	items_at_end = true;
@@ -90,21 +92,21 @@ DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) {
 void
 DecreasingValueWeightPostingSource::skip_if_in_range(double min_wt)
 {
-    if (value_it == db.valuestream_end(slot)) return;
+    if (ValueWeightPostingSource::at_end()) return;
     curr_weight = Xapian::ValueWeightPostingSource::get_weight();
     Xapian::docid docid = Xapian::ValueWeightPostingSource::get_docid();
     if (docid >= range_start && (range_end == 0 || docid <= range_end)) {
 	if (items_at_end) {
 	    if (curr_weight < min_wt) {
 		// skip to end of range.
-		value_it.skip_to(range_end + 1);
-		if (value_it != db.valuestream_end(slot))
+		ValueWeightPostingSource::skip_to(range_end + 1, min_wt);
+		if (!ValueWeightPostingSource::at_end())
 		    curr_weight = Xapian::ValueWeightPostingSource::get_weight();
 	    }
 	} else {
 	    if (curr_weight < min_wt) {
 		// terminate early.
-		value_it = db.valuestream_end(slot);
+		done();
 	    } else {
 		// Update max_weight.
 		set_maxweight(curr_weight);
@@ -116,8 +118,7 @@ DecreasingValueWeightPostingSource::skip_if_in_range(double min_wt)
 void
 DecreasingValueWeightPostingSource::next(double min_wt) {
     if (get_maxweight() < min_wt) {
-	value_it = db.valuestream_end(slot);
-	started = true;
+	done();
 	return;
     }
     Xapian::ValueWeightPostingSource::next(min_wt);
@@ -128,8 +129,7 @@ void
 DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 					    double min_wt) {
     if (get_maxweight() < min_wt) {
-	value_it = db.valuestream_end(slot);
-	started = true;
+	done();
 	return;
     }
     Xapian::ValueWeightPostingSource::skip_to(min_docid, min_wt);
@@ -140,8 +140,7 @@ bool
 DecreasingValueWeightPostingSource::check(Xapian::docid min_docid,
 					  double min_wt) {
     if (get_maxweight() < min_wt) {
-	value_it = db.valuestream_end(slot);
-	started = true;
+	done();
 	return true;
     }
     bool valid = Xapian::ValueWeightPostingSource::check(min_docid, min_wt);

@@ -28,6 +28,8 @@
 #include "api/postlist.h"
 #include "xapian/weight.h"
 
+class MultiMatch;
+
 class SubMatch : public Xapian::Internal::intrusive_base {
   public:
     /** Virtual destructor.

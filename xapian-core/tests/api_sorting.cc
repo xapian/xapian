@@ -1,7 +1,8 @@
 /** @file api_sorting.cc
  * @brief tests of MSet sorting
  */
-/* Copyright (C) 2007,2008,2009,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2012,2017 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,17 +30,26 @@
 
 using namespace std;
 
-DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
+DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
     {
-	const int keys[] = { 3, 1 };
+	static const int keys[] = { 3, 1 };
 	Xapian::MultiValueKeyMaker sorter(keys, keys + 2);
 
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+
+	for (auto m = mset.begin(); m != mset.end(); ++m) {
+	    const string& data = m.get_document().get_data();
+	    string exp;
+	    exp += data[3];
+	    exp += string(2, '\0');
+	    exp += data[1];
+	    TEST_EQUAL(m.get_sort_key(), exp);
+	}
     }
 
     {
@@ -50,6 +60,16 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
+
+	for (auto m = mset.begin(); m != mset.end(); ++m) {
+	    const string& data = m.get_document().get_data();
+	    string exp;
+	    exp += data[3];
+	    exp += string(2, '\0');
+	    exp += char(0xff - data[1]);
+	    exp += string(2, '\xff');
+	    TEST_EQUAL(m.get_sort_key(), exp);
+	}
     }
 
     {
@@ -61,6 +81,17 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
+
+	for (auto m = mset.begin(); m != mset.end(); ++m) {
+	    const string& data = m.get_document().get_data();
+	    string exp;
+	    exp += string(2, '\0');
+	    exp += data[3];
+	    exp += string(2, '\0');
+	    exp += char(0xff - data[1]);
+	    exp += string(2, '\xff');
+	    TEST_EQUAL(m.get_sort_key(), exp);
+	}
     }
 
     {
@@ -71,13 +102,23 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 8, 9, 4, 5, 1, 3, 7, 6, 2);
+
+	for (auto m = mset.begin(); m != mset.end(); ++m) {
+	    const string& data = m.get_document().get_data();
+	    string exp;
+	    if (data.size() > 10) exp += data[10];
+	    exp += string(2, '\0');
+	    exp += char(0xff - data[1]);
+	    exp += string(2, '\xff');
+	    TEST_EQUAL(m.get_sort_key(), exp);
+	}
     }
 
     return true;
 }
 
 /// Test reverse sort functor.
-DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
+DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("foo");
@@ -150,6 +191,67 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
     return true;
 }
 
+// Test sort functor with some empty values.
+DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
+    Xapian::Database db(get_database("apitest_sortrel"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("woman"));
+
+    // Value 10 is set to 'a' for 1, 3, 4, 5, 8, 9, and not set otherwise.
+    {
+	// Test default sort order - missing values come first.
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10);
+
+	enquire.set_sort_by_key(&sorter, false);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+    }
+
+    {
+	// Use a default value to put the missing values to the end.
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10, false, db.get_value_upper_bound(10) + '\xff');
+
+	enquire.set_sort_by_key(&sorter, false);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
+    }
+
+    {
+	// Test using a default value and sorting in reverse order
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10, false, db.get_value_upper_bound(10) + '\xff');
+
+	enquire.set_sort_by_key(&sorter, true);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+    }
+
+    {
+	// Test using a default value and generating reverse order keys
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10, true, db.get_value_upper_bound(10) + '\xff');
+
+	enquire.set_sort_by_key(&sorter, false);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+    }
+
+    {
+	// Test using a default value, generating reverse order keys, and
+	// sorting in reverse order
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10, true, db.get_value_upper_bound(10) + '\xff');
+
+	enquire.set_sort_by_key(&sorter, true);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
+    }
+
+    return true;
+}
+
 class NeverUseMeKeyMaker : public Xapian::KeyMaker {
   public:
     std::string operator() (const Xapian::Document &) const
@@ -196,7 +298,7 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
 }
 
 /// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
-DEFINE_TESTCASE(sortfunctorempty1,backend && !remote) {
+DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -212,8 +314,8 @@ DEFINE_TESTCASE(sortfunctorempty1,backend && !remote) {
     return true;
 }
 
-DEFINE_TESTCASE(multivaluekeymaker1,!backend) {
-    const int keys[] = { 0, 1, 2, 3 };
+DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
+    static const int keys[] = { 0, 1, 2, 3 };
     Xapian::MultiValueKeyMaker sorter(keys, keys + 4);
 
     Xapian::Document doc;
@@ -226,13 +328,28 @@ DEFINE_TESTCASE(multivaluekeymaker1,!backend) {
     doc.add_value(3, "xyz");
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz", 13));
 
+    // An empty slot at the end, in reverse order, is terminated with \xff\xff
     sorter.add_value(4, true);
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff", 17));
+
+    // An empty slot at the end, in ascending order, has no effect
+    sorter.add_value(0);
+    TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff", 17));
+
+    // An empty slot at the end, with a default value
+    sorter.add_value(0, false, "hi");
+    TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi",
+				   21));
+
+    // An empty slot at the end, with a default value, in reverse sort order
+    sorter.add_value(0, true, "hi");
+    TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi"
+				   "\0\0\x97\x96\xff\xff", 27));
 
     return true;
 }
 
-DEFINE_TESTCASE(sortfunctorremote1,remote) {
+DEFINE_TESTCASE(sortfunctorremote1, remote) {
     Xapian::Enquire enquire(get_database(string()));
     NeverUseMeKeyMaker sorter;
     enquire.set_query(Xapian::Query("word"));

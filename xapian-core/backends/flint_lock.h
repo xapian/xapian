@@ -1,7 +1,7 @@
 /** @file flint_lock.h
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2012,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2012,2014,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,11 +35,11 @@
 class FlintLock {
     std::string filename;
 #if defined __CYGWIN__ || defined __WIN32__
-    HANDLE hFile;
+    HANDLE hFile = INVALID_HANDLE_VALUE;
 #elif defined FLINTLOCK_USE_FLOCK
-    int fd;
+    int fd = -1;
 #else
-    int fd;
+    int fd = -1;
     pid_t pid;
 #endif
 
@@ -51,29 +51,41 @@ class FlintLock {
 	FDLIMIT, // Process hit its file descriptor limit.
 	UNKNOWN // The attempt failed for some unspecified reason.
     } reason;
+
+    /** Standard constructor. */
+    explicit FlintLock(const std::string &filename_)
+	: filename(filename_) {
+	// Keep the same lockfile name as flint since the locking is compatible
+	// and this avoids the possibility of creating two databases in the
+	// same directory using different backends.
+	filename += "/flintlock";
+    }
+
+    /** Constructor for use in read-only cases (like single-file glass). */
+    FlintLock() {}
+
+    operator bool() const {
 #if defined __CYGWIN__ || defined __WIN32__
-    FlintLock(const std::string &filename_)
-	: filename(filename_), hFile(INVALID_HANDLE_VALUE) {
-	// Keep the same lockfile name as flint since the locking is
-	// compatible and this avoids the possibility of creating a chert and
-	// flint database in the same directory (which will result in one
-	// being corrupt since the Btree filenames overlap).
-	filename += "/flintlock";
-    }
-    operator bool() const { return hFile != INVALID_HANDLE_VALUE; }
-#elif defined FLINTLOCK_USE_FLOCK
-    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
-	filename += "/flintlock";
-    }
-    operator bool() const { return fd != -1; }
+	return hFile != INVALID_HANDLE_VALUE;
 #else
-    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
-	filename += "/flintlock";
-    }
-    operator bool() const { return fd != -1; }
+	return fd != -1;
 #endif
+    }
+
     // Release any lock held when we're destroyed.
     ~FlintLock() { release(); }
+
+    /** Test if the lock is held.
+     *
+     *  If this object holds the lock, just returns true.  Otherwise it will
+     *  try to test taking the lock, if that is possible to do on the current
+     *  platform without actually take it (fcntl() locks support this).
+     *
+     *	Throws Xapian::UnimplemenetedError if the platform doesn't support
+     *	testing the lock in this way, or Xapian::DatabaseLockError if there's
+     *	an error while trying to perform the test.
+     */
+    bool test() const;
 
     /** Attempt to obtain the lock.
      *
@@ -94,7 +106,7 @@ class FlintLock {
     XAPIAN_NORETURN(
     void throw_databaselockerror(FlintLock::reason why,
 				 const std::string & db_dir,
-				 const std::string & explanation));
+				 const std::string & explanation) const);
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H

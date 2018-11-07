@@ -1,7 +1,7 @@
 /** @file vectortermlist.cc
  * @brief A vector-like container of terms which can be iterated.
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 
 #include "vectortermlist.h"
 
+#include "net/length.h"
 #include "omassert.h"
 #include "xapian/error.h"
 
@@ -68,7 +69,8 @@ VectorTermList::next()
 	current_term.resize(0);
 	p = NULL;
     } else {
-	size_t len = decode_length(&p, end, false);
+	size_t len;
+	decode_length_and_check(&p, end, len);
 	current_term.assign(p, len);
 	p += len;
     }

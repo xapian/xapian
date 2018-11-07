@@ -86,11 +86,11 @@ that exact phrase. Hyphenated words are also treated as phrases, as are
 cases such as filenames and email addresses (e.g. ``/etc/passwd`` or
 ``president@whitehouse.gov``).
 
-Searching within a probabilistic field
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Searching within a free-text field
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If the database has been indexed with prefixes on probabilistic terms
-from certain fields, you can set up a prefix map so that the user can
+If the database has been indexed with prefixes on terms generated from
+certain free-text fields, you can set up a prefix map so that the user can
 search within those fields. For example ``author:dickens title:shop``
 might find documents by dickens with shop in the title. You can also
 specify a prefix on a quoted phrase (e.g. ``author:"charles dickens"``)
@@ -135,10 +135,11 @@ enable it, and tell the QueryParser which database to expand wildcards
 from using the ``QueryParser::set_database(database)`` method.
 
 You can limit the number of terms a wildcard will expand to by
-calling ``Xapian::QueryParser::set_max_wildcard_expansion()``. If a
-wildcard expands to more terms than that number, an exception will be
-thrown. The exception may be thrown by the QueryParser, or later when
-Enquire handles the query. The default is not to limit the expansion.
+calling ``Xapian::QueryParser::set_max_expansion()``.  This supports
+several different modes, and can also be used to limit expansion
+performed via ``FLAG_PARTIAL`` - see the API documentation for
+details.  By default, there's no limit on wildcard expansion and
+``FLAG_PARTIAL`` expands to the most frequent 100 terms.
 
 Partially entered query matching
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

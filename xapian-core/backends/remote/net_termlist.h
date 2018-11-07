@@ -119,7 +119,7 @@ class NetworkTermList : public TermList {
 	Xapian::doccount get_termfreq() const;
 	TermList * next();
 	TermList * skip_to(const std::string &term);
-	bool   at_end() const;
+	bool at_end() const;
 
 	Xapian::termcount positionlist_count() const;
 	Xapian::PositionIterator positionlist_begin() const;

@@ -1,7 +1,7 @@
 /** @file debuglog.h
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2009,2010,2011,2014 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,15 @@
 
 #ifndef XAPIAN_INCLUDED_DEBUGLOG_H
 #define XAPIAN_INCLUDED_DEBUGLOG_H
+
+// In places where we include library code in non-library contexts, we can't
+// have debug logging enabled, as the support functions aren't visible, so
+// we define XAPIAN_REALLY_NO_DEBUG_LOG there.
+#ifdef XAPIAN_REALLY_NO_DEBUG_LOG
+# ifdef XAPIAN_DEBUG_LOG
+#  undef XAPIAN_DEBUG_LOG
+# endif
+#endif
 
 #ifdef XAPIAN_DEBUG_LOG
 
@@ -75,8 +84,6 @@ enum debuglog_categories {
     /// Messages which are always logged.
     DEBUGLOG_CATEGORY_ALWAYS = 31
 };
-
-// FIXME: STATIC_ASSERT(DEBUGLOG_CATEGORY_WTCALC < DEBUGLOG_CATEGORY_ALWAYS);
 
 /// Class to actually do the logging.
 class DebugLogger {

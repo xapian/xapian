@@ -66,8 +66,10 @@ $addfilter{TERM}
         requires the query to have been parsed - see ``$setmap`` for a list
         of these commands.
 
-$allterms{docid}
-	list of all terms matching document
+$allterms[{DOCID}]
+        list of all terms indexing the document with docid `DOCID` - if used
+        without a parameter list, them the docid of the current hit is
+        implicitly used.
 
 $cgi{CGI}
         lookup the value of a CGI parameter.  If the same parameter has
@@ -77,11 +79,59 @@ $cgi{CGI}
 $cgilist{CGI}
 	return a list of all values of a CGI parameter
 
+$cgiparams
+        return a list of all the unique CGI parameter names, sorted in
+        ascending order by raw byte values.
+
+$chr{CODEPOINT}
+        return UTF-8 for the given Unicode codepoint, e.g. ``$chr{127866}``
+        should display as a beer mug if the font has a suitable glyph.
+
+        Since ASCII is a subset of Unicode, you can also produce control
+        characters, e.g. ``$chr{13}`` gives a carriage return character.
+
+        To convert a UTF-8 character to a Unicode codepoint, see ``$ord``.
+
+        Added in Omega 1.3.4.
+
 $collapsed
         number of other documents collapsed into current hit inside
         ``$hitlist``, which might be used like so::
 
              $if{$ne{$collapsed,0},at least $collapsed hidden results ($value{$cgi{COLLAPSE}})}
+
+$contains{STRING1,STRING2}
+        return position of first occurrence of STRING1 in STRING2, if present. Else return an empty string.
+        Examples:
+
+        ``$contains{fish,goldfish}`` gives ``"4"``
+
+        ``$contains{fish,shark}`` gives ``""``
+
+$csv{STRING[,ALWAYS_ESCAPE]}
+        encode STRING for use as a field in a CSV file.  By default, escaping
+        is done as described in RFC4180, except that we treat any byte value
+        not otherwise mentioned as being 'TEXTDATA' (so %x00-%x09, %x0B-%x0C,
+        %x0E-%x1F, %x7F-%xFF are also permitted there).  Examples:
+
+        ``$csv{Safe in CSV!}`` gives ``Safe in CSV!``
+
+        ``$csv{Not "safe"}`` gives ``"Not ""safe"""``
+
+        ``$csv{3$. 2$. 1}`` gives ``"3, 2, 1"``
+
+        Some CSV consumers don't follow the RFC, in which case you may need
+        to encode additional values.  For this reason, ``$csv`` provides an
+        highly conservative alternative mode in which any double quote
+        characters in the string are doubled, and the result always wrapped in
+        double quotes.  To select this mode, pass a second non-empty argument.
+        Examples:
+
+        ``$csv{Quote anyway,1}`` gives ``"Quote anyway"``
+
+        ``$csv{Not "safe",1}`` gives ``"Not ""safe"""``
+
+        Added in Omega 1.3.4.
 
 $date{TIME_T[,FMT]}
 	convert a time_t to strftime ``FMT`` (default: ``YYYY-MM-DD``).  The
@@ -123,7 +173,8 @@ $env{VAR}
 $error
 	error message (e.g. if a database wouldn't open, or the query couldn't
         be parsed, or a Xapian exception has been thrown) or empty if there
-	wasn't an error.
+	wasn't an error.  You can set the error message yourself by using
+        ``$seterror``.
 
 $field{NAME[,DOCID]}
 	lookup field ``NAME`` in document ``DOCID``.  If ``DOCID`` is omitted
@@ -139,10 +190,11 @@ $filesize{SIZE}
         ``4.0M``, ``1.3G``).  If ``SIZE`` is negative, expands to nothing.
 
 $filters
-        serialised version of filter-like settings (currently ``B``, ``START``,
-        ``END``, ``SPAN``, and ``DEFAULTOP``) - set ``xFILTERS`` to this
-        so that Omega can detect when the filters have changed and force the
-        first page.
+        serialised version of filter-like settings (currently ``B``, ``N``,
+        ``DATEVALUE``, ``START``, ``END``, ``SPAN``, ``COLLAPSE``,
+        ``DOCIDORDER``, ``SORT``, ``SORTREVERSE``, ``SORTAFTER``, and
+        ``DEFAULTOP``) - set ``xFILTERS`` to this so that Omega can detect when
+        the filters have changed and force the first page.
 
 $filterterms{PREFIX}
         list of all terms in the database with prefix ``PREFIX``, intended to
@@ -170,7 +222,7 @@ $fmt
 $freq{term}
 	frequency of a term
 
-$highlight{TEXT,LIST,[OPEN,[CLOSE]]}
+$highlight{TEXT,LIST[,OPEN[,CLOSE]]}
 	html escape string (<>&, etc) and highlight any terms from ``LIST``
         that appear in ``TEXT`` by enclosing them in ``OPEN`` and ``CLOSE``.
         If ``OPEN`` is specified, but close is omitted, ``CLOSE`` defaults to
@@ -179,8 +231,8 @@ $highlight{TEXT,LIST,[OPEN,[CLOSE]]}
 	``<b style="color:XXXXX;background-color:#YYYYYY">`` (where ``YYYYYY``
         cycles through ``ffff66`` ``99ff99`` ``99ffff`` ``ff66ff`` ``ff9999``
         ``990000`` ``009900`` ``996600`` ``006699`` ``990099`` and ``XXXXX``
-        is ``black`` is ``YYYYYY`` contains an ``f``, and otherwise ``white``)
-        and ``CLOSE`` is ``</b>``.
+        is ``black`` if ``YYYYYY`` contains an ``f``, and otherwise ``white``)
+        and ``CLOSE`` is set to ``</b>``.
 
 $hit
 	MSet index of current doc (first document in MSet is 0, so if
@@ -219,12 +271,17 @@ $json{STRING}
         encode STRING as a JSON string (not including the enclosing quotes), e.g.
         ``$json{The path is "C:\"}`` gives ``The path is \"C:\\\"``
 
+        Added in Omega 1.3.1.
+
 $jsonarray{LIST}
         encodes LIST (a string of tab-separated values) as a JSON array, e.g.
         ``$jsonarray{$split{a "b" c:\}}`` gives ``["a","\"b\"","c:\\"]``
 
+        Added in Omega 1.3.1, but buggy until 1.3.4.
+
 $last
-	MSet index of last hit on this page
+        MSet index one beyond the end of the current page (so ``$hit`` runs
+        from ``0`` to ``$sub{$last,1}``).
 
 $lastpage
 	number of last page of hits (may be an underestimate unless
@@ -287,11 +344,31 @@ $map{LIST,STUFF)
 	versions). If the tabs are a problem, use $list{$map{...},}
 	to get rid of them.
 
+$match{REGEX,STRING[,OPTIONS]}
+	perform a regex match using Perl-compatible regular expressions. Returns
+	true if a match is found, else it returns an empty string.
+
+	The optional OPTIONS argument can contain zero or more of the letters
+	``imsx``, which have the same meanings as the corresponding Perl regexp
+	modifiers:
+
+	* ``i`` - make the pattern matching case-insensitive
+	* ``m`` - make ``^``/``$`` match after/before embedded newlines
+	* ``s`` - allows ``.`` in the pattern to match a linefeed
+	* ``x`` - allow whitespace and ``#``-comments in the pattern
+
 $msize
 	estimated number of matches.
 
 $msizeexact
-	return ``true`` if ``$msize`` is exact (or "" if it is estimated).
+        return ``true`` if ``$msize`` is exact (or "" if it is estimated).
+        Exactly equivalent to: ``$eq{$msizelower,$msizeupper}``
+
+$msizelower
+        lower bound on number of matches.
+
+$msizeupper
+        upper bound on number of matches.
 
 $nice{number}
 	pretty print integer (with thousands separator).
@@ -306,6 +383,16 @@ $opt{OPT}
 
 $opt{MAP,OPT}
 	lookup an option within a map (as set by ``$setmap``).
+
+$ord{STRING}
+        return codepoint for first character of UTF-8 string.  If the argument
+        is an empty string, then an empty string is returned.
+
+        For example, ``$ord{One more time}`` gives ``79``.
+
+        To convert a Unicode code point into a UTF-8 string, see ``$chr``.
+
+        Added in Omega 1.3.4.
 
 $pack{NUMBER}
 	converts a number to a 4 byte big-endian binary string
@@ -332,19 +419,24 @@ $prettyurl{URL}
 	still work if copied and pasted.
 
 $query[{PREFIX}]
-	query string for prefix PREFIX.
+	list of query strings for prefix PREFIX.  Any tab characters in the
+	query strings are converted to spaces before adding them to the list
+	(since an OmegaScript list is a string with tabs in).
 
 	If PREFIX is omitted or empty, this is built from CGI ``P`` variable(s)
 	plus possible added terms from ``ADD`` and ``X``.
 
 	If PREFIX is non-empty, this is built from CGI ``P.PREFIX`` variables.
 
+	Note: In Omega < 1.3.3, $query simply joins together the query strings
+	with spaces rather than returning a list.
+
 $querydescription
         a human readable description of the ``Xapian::Query`` object which
         omega builds.  Mostly useful for debugging omega itself.
 
 $queryterms
-	list of probabilistic query terms.
+	list of parsed query terms.
 
 $range{START,END}
 	return list of values between ``START`` and ``END``.
@@ -376,8 +468,21 @@ $set{OPT,VALUE}
 	* stemmer - which stemming language to use ("english" by default, other
 	  values are as understood by ``Xapian::Stem``, so "none" means no
 	  stemming).
+        * stem_strategy - tell the query parser how to apply the stemmer - can
+          be one of:
+
+          + ``all``: stem all terms
+          + ``all_z``: stem all terms and add a Z prefix
+          + ``none``: don't stem any terms (ignoring any stemmer set)
+          + ``some``: the default
+          + ``some_full_pos``: like ``some`` but assume positional data has
+            been stored for stemmed terms too.
+
+          Unknown values are ignored.  Added in Omega 1.4.8.
 	* stem_all - if "true", then tell the query parser to stem all words,
-	  even capitalised ones.
+          even capitalised ones.  Now deprecated in favour of setting
+          ``stem_strategy`` to ``all``, and ignored if ``stem_strategy`` is
+          also set.
 	* spelling - if "true", then the query parser spelling correction
 	  feature is enabled and ``$suggestion`` can be used.  Deprecated -
 	  use flag_spelling_correction instead (which was added in version
@@ -397,6 +502,7 @@ $set{OPT,VALUE}
           all separated by whitespace.  Any parameters not specified will use
           their default values.  Valid scheme names are
           ``bb2`` (in Omega >= 1.3.2), ``bm25``, ``bool``,
+          ``coord`` (in Omega >= 1.4.1),
           ``dlh`` (in Omega >= 1.3.2), ``dph`` (in Omega >= 1.3.2),
           ``ifb2`` (in Omega >= 1.3.2), ``ineb2`` (in Omega >= 1.3.2),
           ``inl2`` (in Omega >= 1.3.2), ``lm`` (in Omega >= 1.3.2),
@@ -410,9 +516,15 @@ $set{OPT,VALUE}
           their default values.  Valid expansion schemes names are
           ``trad`` and ``bo1``.  e.g.
           ``$set{expansion,trad 2.0}``
+        * weightingpurefilter - normally a query consisting only of filter
+          terms won't have relevance weights calculated.  This option allows
+          you to specify a weighting scheme to use for such queries, with the
+          same values supported as for ``weighting`` above.  For example,
+          ``$set{weightingpurefilter,coord}`` will weight such queries by
+          how many filter terms match each document.
 
-	Omega 1.2.5 and later support the following options can be set to a
-	non-empty value to enable the corresponding ``QueryParser`` flag.
+	Omega 1.2.5 and later support the following options, which can be set
+	to a non-empty value to enable the corresponding ``QueryParser`` flag.
 	Omega sets ``flag_default`` to ``true`` by default - you can set it to
 	an empty value to turn it off (``$set{flag_default,}``):
 
@@ -420,21 +532,23 @@ $set{OPT,VALUE}
 	* flag_auto_synonyms
 	* flag_boolean
 	* flag_boolean_any_case
+	* flag_cjk_ngram (new in 1.2.22 and 1.3.4)
 	* flag_default
 	* flag_lovehate
 	* flag_partial
 	* flag_phrase
 	* flag_pure_not
-	* flag_spelling_correction
+	* flag_spelling_correction (see ``$suggestion`` for suggested
+	  correction)
 	* flag_synonym
 	* flag_wildcard
 
-	Omega 1.2.7 added support for search fields with a probabilistic
-	prefix, and you can set different QueryParser flags for each prefix -
-	for example, for the ``XFOO`` prefix use ``XFOO:flag_pure_not``, etc.
-	The unprefixed constants provide a default value for these.  If a flag
-	is set in the default, the prefix specific flag can unset it if it
-	is set to the empty value (e.g.
+	Omega 1.2.7 added support for parsing different query fields with
+	different prefixes and you can specify different QueryParser flags for
+	each prefix - for example, for the ``XFOO`` prefix use
+	``XFOO:flag_pure_not``, etc.  The unprefixed constants provide a
+	default value for these.  If a flag is set in the default, the prefix
+	specific flag can unset it if it is set to the empty value (e.g.
 	``$set{flag_pure_not,1}$set{XFOO:flag_pure_not,}``).
 
 	You can use ``:flag_partial``, etc to set or unset a flag just for
@@ -443,6 +557,15 @@ $set{OPT,VALUE}
 	Similarly, ``XFOO:stemmer`` specifies the stemmer to use for field
 	``XFOO``, with ``stemmer`` providing a default.
 
+$seterror{ERROR_MESSAGE}
+	set error message for the current execution, which can also be looked
+	up using ``$error``.
+
+	Using ``$seterror`` error early in template prevents running the query.
+
+	For example, ``$seterror`` can be used when the user enters a wrong
+	parameter in the search.
+
 $setrelevant{docids}
 	add documents into the RSet
 
@@ -450,6 +573,9 @@ $setmap{MAP,NAME1,VALUE1,...}
 	set a map of option values which may be looked up against using
 	``$opt{MAP,NAME}`` (maps with the same name are merged rather than
 	the old map being completely replaced).
+
+	You can create and use of maps in your own templates, but Omega also
+	has several standard maps used to control building the query:
 
 	Omega uses the "prefix" map to set the prefixes understood by the query
 	parser.  So if you wish to translate a prefix of "author:" to A and
@@ -476,8 +602,22 @@ $setmap{MAP,NAME1,VALUE1,...}
 	Don't be tempted to add whitespace around the commas, unless you want
 	it to be included in the names and values!
 
-	Note: you must set the prefix maps before the query is parsed.  This
-	is done as late as possible - the following commands require the
+	Another map (added in Omega 1.3.4) allows specifying any boolean
+	prefixes which are non-exclusive, i.e. multiple filters of that
+	type should be combined with ``OP_AND`` rather than ``OP_OR``.
+	For example, if you have have a boolean filter on "material" using
+	the ``XM``` prefix, and the items being searched are made of multiple
+	materials, you likely want multiple material filters to restrict to
+	items matching all the materials (the default it to restrict to any
+	of the materials).  To specify this use
+	``$setmap{nonexclusiveprefix,XM,true}`` (any non-empty value can
+	be used in place of ``true``) - this feature affect both filters
+	from ``B`` CGI parameters (e.g. ``B=XMglass&B=XMwood``` and those
+	from parsing the query (e.g. ``material:glass material:wood`` if
+	``$setmap{boolprefix,material,XM}`` is also in effect).
+
+	Note: you must set the prefix-related maps before the query is parsed.
+	This is done as late as possible - the following commands require the
 	query to be parsed: $prettyterm, $query, $querydescription, $queryterms,
 	$relevant, $relevants, $setrelevant, $unstem, and also these commands
 	require the match to be run which requires the query to be parsed:
@@ -497,9 +637,32 @@ $slice{LIST,POSITIONS}
 	 "$slice{LIST,$range{-10,10}}" = "a	b	c	d"
 
 $snippet{TEXT[,LENGTH]}
-	Generate a context-sensitive snippet from ``TEXT`` using the
-	``Xapian::Snipper`` class.  The snippet will be at most ``LENGTH``
-	bytes long (default: 200).
+        Generate a context-sensitive snippet from ``TEXT`` using
+        ``Xapian::MSet::snippet()``.  The snippet will be at most
+        ``LENGTH`` bytes long (default: 200).
+
+$sort{LIST[,OPTIONS]}
+        sort the entries in a list.  The sort order is an ascending string sort
+        by byte value by default.  ``OPTIONS`` is zero or more of the following
+        characters which control the sort operation:
+
+        * ``#`` : "natural number" sort suitable for use when generating
+          drop-down lists.  Embedded digit sequences are handled specially:
+          they are compared numerically, and sort before non-digits at the same
+          point.  Digit sequences with the same numeric value are sorted
+          such that the sequence with more leading zeros comes first (so when
+          used with ``u`` only identical entries are removed).
+        * ``r`` : reverse the sort order
+        * ``u`` : output only the first (in input order) of an equal run
+        * ``n`` : sort by string numerical value - the start of each entry is
+          parsed as zero or more whitespace characters, an optional ``-``, zero
+          or more digits, optionally followed by ``$opt{decimal}`` then zero or
+          more digits.  Entries are regarded as equal if the numbers are equal
+          and so only the first is kept with ``u``.  When ``u`` is not used,
+          the order within groups of equal entries is resolved with a string
+          sort.
+
+        Options ``#`` and ``n`` aren't valid together.
 
 $split{STRING}
 
@@ -507,7 +670,7 @@ $split{SPLIT,STRING}
 	returns a list by splitting the string ``STRING`` into elements at each
         occurrence of the substring ``SPLIT``.  If ``SPLIT`` isn't specified,
         it defaults to a single space.  If ``SPLIT`` is empty, ``STRING`` is
-        split into individual characters.
+        split into individual bytes.
 
 	For example::
 
@@ -517,29 +680,56 @@ $stoplist
 	returns a list of any terms in the query which were ignored as
 	stopwords.
 
+$subdb[{DOCID}]
+        return the name of the sub-database containing ``DOCID`` (or the
+        current document in the histlist if ``DOCID`` is omitted).
+
+        NB: The current implementation assumes that each omega database name
+        corresponds to a single Xapian database - if a database name refers to
+        a stub database file expanding to multiple Xapian databases then this
+        command will misbehave.
+
+$subid[{DOCID}]
+        return the docid in the sub-database corresponding to ``DOCID`` in the
+        combined database (or the current document in the histlist if ``DOCID``
+        is omitted).
+
+        NB: The current implementation assumes that each omega database name
+        corresponds to a single Xapian database - if a database name refers to
+        a stub database file expanding to multiple Xapian databases then this
+        command will misbehave.
+
 $substr{STRING,START[,LENGTH]}
-        returns the substring of ``STRING`` which starts at position ``START``
-        (the start of the string being 0) and is ``LENGTH`` characters long (or
-        to the end of ``STRING`` if ``STRING`` is less than
-        ``START``+``LENGTH`` characters long).  If ``LENGTH`` is omitted, the
+        returns the substring of ``STRING`` which starts at byte position
+        ``START`` (the start of the string being 0) and is ``LENGTH`` bytes
+        long (or to the end of ``STRING`` if ``STRING`` is less than
+        ``START``+``LENGTH`` bytes long).  If ``LENGTH`` is omitted, the
         substring from ``START`` to the end of ``STRING`` is returned.
 
 	If ``START`` is negative, it counts back from the end of ``STRING`` (so
 	``$substr{hello,-1}`` is ``o``).
 
-	If LENGTH is negative, it instead specifies the number of characters
+	If LENGTH is negative, it instead specifies the number of bytes
 	to omit from the end of STRING (so "$substr{example,2,-2}" is "amp").
 	Note that this means that "$substr{STRING,0,N}$substr{STRING,N}" is
 	"STRING" whether N is positive, negative or zero.
 
 $suggestion
-	if ``$set{spelling,true}`` was done before the query was parsed, then
-	``$suggestion`` will return any suggested spelling corrected version
-	of the query string.  If there are no spelling corrections, it will
-	return an empty string.
+        if ``$set{flag_spelling_correction,true}`` was done before the query
+        was parsed, then ``$suggestion`` will return any suggested spelling
+        corrected version of the query string.  If there are no spelling
+        corrections, it will return an empty string.
 
-$terms
-	list of matching terms for current hit.
+$termprefix{TERM}
+        return the prefix (if any) from a term.  Added in Omega 1.4.6.
+
+$terms[{PREFIX}]
+        list of query terms matching the current hit.  The ability to specify a
+        prefix was added in Omega 1.3.5.  If no prefix is specified (i.e.
+        ``$terms``), then only terms from the query string(s) are returned.
+        This is different to an empty prefix (i.e. ``$terms{}``) which returns
+        all query terms matching the current hit, so also includes filter
+        terms.
 
 $thispage
 	page number of current page.
@@ -554,7 +744,7 @@ $topdoc
 $topterms[{N}]
 	list of up to ``N`` top relevance feedback terms (default 16)
 
-$transform{REGEXP,SUBST,STRING}
+$transform{REGEXP,SUBST,STRING[,OPTIONS]}
 	transform string using Perl-compatible regular expressions.  This
 	command is sort of like the Perl code::
 
@@ -566,6 +756,16 @@ $transform{REGEXP,SUBST,STRING}
         grouping (or are empty if there is no such bracket grouping).  ``\\``
         is a literal backslash.
 
+        The optional OPTIONS argument is supported by Omega 1.3.4 and later.
+        It can contain zero or more of the letters ``gimsx``, which have the
+        same meanings as the corresponding Perl regexp modifiers:
+
+         * ``g`` - replace all occurrences of the pattern in the string
+         * ``i`` - make the pattern matching case-insensitive
+         * ``m`` - make ``^``/``$`` match after/before embedded newlines
+         * ``s`` - allows ``.`` in the pattern to match a linefeed
+         * ``x`` - allow whitespace and ``#``-comments in the pattern
+
 $truncate{STRING,LEN[,IND[,IND2]]}
 	truncate STRING to LEN bytes, but try to break after a word (unless
 	that would mean truncating to much less than LEN).  If we have to
@@ -576,12 +776,22 @@ $truncate{STRING,LEN[,IND[,IND2]]}
 	 $truncate{$field{text},500,..., ...}
 
 $uniq{LIST}
-	remove duplicates from a sorted list
+        remove adjacent duplicates, for example from an already sorted list
+        (similar to the Unix ``uniq`` command line tool).
+
+$unique{LIST}
+        remove duplicates from a list - unlike ``$uniq``, duplicates don't
+        need to be adjacent.  The first of each entry is kept, and order is
+        preserved.  If the input list is already sorted then ``$uniq`` is
+        more efficient.
 
 $unpack{BINARYSTRING}
 	converts a 4 byte big-endian binary string to a number, for example::
 
          $date{$unpack{$value{0}}}
+
+$unprefix{TERM}
+        remove the prefix (if any) from a term.  Added in Omega 1.4.6.
 
 $unstem{TERM}
 	maps a stemmed term to a list of the unstemmed forms of it used in
@@ -625,7 +835,7 @@ $min{A,...}
 	minimum of the arguments
 
 $mul{A,B,...}
-multiply arguments together
+	multiply arguments together
 
 $muldiv{A,B,C}
 	returns int((A * B) / C) (or the text "divide by 0" if C is zero)
@@ -669,9 +879,30 @@ $or{...}
 Control:
 ========
 
+$cond{COND1,THEN1[,COND2,THEN2]...[,ELSE]}
+	evaluates ``COND1``, ``COND2``, ... in turn until a non-empty value is
+        obtained, and then evaluates and returns the corresponding ``THEN``.
+        If all ``COND`` values expand to empty values, then evaluates and
+        returns ``ELSE`` (if present, otherwise returns nothing).
+
+        ``$cond`` provides a neater way of writing a cascading series of
+        ``$if`` checks.  If there's only one condition, ``$cond`` is equivalent
+        to ``$if``.
+
+        Added in Omega 1.4.6.
+
 $if{COND,THEN[,ELSE]}
-	if ``COND`` is non-empty, evaluate ``THEN``, otherwise evaluate else
-	(if present)
+        if ``COND`` is non-empty, evaluates and returns ``THEN``; otherwise
+        evaluates and returns ``ELSE`` (if present, otherwise returns nothing).
 
 $include{FILE}
 	include another OmegaScript file
+
+$switch{EXPR,CASE1,VALUE1,[CASE2,VALUE2]...[,DEFAULT]}
+        first evaluates ``EXPR``, and then evaluates ``CASE1``, ``CASE2``, ...
+        in turn until one of them has the same value as ``EXPR`` did, and then
+        evaluates and returns the corresponding ``VALUE``.  If none of the
+        ``CASE`` values matches, then evaluates and returns ``DEFAULT`` (if
+        present, otherwise returns nothing).
+
+        Added in Omega 1.4.6.

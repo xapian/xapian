@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012,2014 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ struct PrettyOStream {
     S & os;
 
     PrettyOStream(S & os_) : os(os_) { }
-    template <typename T> PrettyOStream & operator|(const T & t){
+    template<typename T> PrettyOStream & operator|(const T & t) {
 	os << ", ";
 	return *this << t;
     }
@@ -44,8 +44,8 @@ struct PrettyOStream {
 
 struct Literal {
     const char * _lit;
-    Literal(const char * lit) : _lit(lit) { }
-    Literal(const std::string & s) : _lit(s.c_str()) { }
+    explicit Literal(const char * lit) : _lit(lit) { }
+    explicit Literal(const std::string & s) : _lit(s.c_str()) { }
 };
 
 /// Default is to output as std::ostream would.
@@ -261,6 +261,7 @@ operator<<(PrettyOStream<S> &ps, const std::vector<T> & v) {
 
 namespace Xapian {
     class ExpandDecider;
+    class LatLongMetric;
     class MatchDecider;
     class Registry;
     class Weight;
@@ -297,18 +298,18 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::LatLongMetric)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
-XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext);
-XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats);
-XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight);
-XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext);
-XAPIAN_PRETTY_AS_CLASSNAME(ChertCursor);
-XAPIAN_PRETTY_AS_CLASSNAME(ChertDatabase);
-XAPIAN_PRETTY_AS_CLASSNAME(ChertTable);
-XAPIAN_PRETTY_AS_CLASSNAME(Glass::RootInfo);
-XAPIAN_PRETTY_AS_CLASSNAME(GlassCursor);
-XAPIAN_PRETTY_AS_CLASSNAME(GlassFreeListChecker);
-XAPIAN_PRETTY_AS_CLASSNAME(GlassDatabase);
-XAPIAN_PRETTY_AS_CLASSNAME(GlassTable);
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext)
+XAPIAN_PRETTY_AS_CLASSNAME(ChertCursor)
+XAPIAN_PRETTY_AS_CLASSNAME(ChertDatabase)
+XAPIAN_PRETTY_AS_CLASSNAME(ChertTable)
+XAPIAN_PRETTY_AS_CLASSNAME(Glass::RootInfo)
+XAPIAN_PRETTY_AS_CLASSNAME(GlassCursor)
+XAPIAN_PRETTY_AS_CLASSNAME(GlassFreeListChecker)
+XAPIAN_PRETTY_AS_CLASSNAME(GlassDatabase)
+XAPIAN_PRETTY_AS_CLASSNAME(GlassTable)
 
 template<class S>
 inline PrettyOStream<S> &

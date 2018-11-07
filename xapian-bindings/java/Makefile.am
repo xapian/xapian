@@ -2,11 +2,17 @@
 
 include ../generic/generic.mk
 
+# Disable parallel build for this make invocation; javac seems to write
+# .class files in place, and it also reads existing .class files - the
+# combination means that in a parallel build it can read partial .class
+# and then fail with various odd errors.
+.NOTPARALLEL:
+
 ## Test programs to be run
 TESTS = SmokeTest.class
 AM_TESTS_ENVIRONMENT = \
 	LIBTOOL="$(LIBTOOL)" ;\
-	JAVA="$(JAVA)" ;\
+	JAVA="$(JAVA) $(JAVA_CHECK_JNI_OPTION)" ;\
 	PATHSEP="$(JAVA_PATHSEP)" ;\
 	export LIBTOOL ;\
 	export JAVA ;\
@@ -14,23 +20,27 @@ AM_TESTS_ENVIRONMENT = \
 LOG_COMPILER = $(srcdir)/run-java-test
 
 CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
-	built/xapian_jni.jar\
+	MyFieldProcessor.class\
+	built/xapian.jar\
 	$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
 SmokeTest: SmokeTest.class
 
 # To get debug symbols, use: make JAVACFLAGS=-g
 .java.class:
-	$(JAVAC) $(JAVACFLAGS) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
+	$(JAVAC) $(JAVACFLAGS) -classpath .$(JAVA_PATHSEP)$(srcdir) -d . $<
 
 XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Auto.java\
 	org/xapian/BB2Weight.java\
+	org/xapian/BM25PlusWeight.java\
 	org/xapian/BM25Weight.java\
 	org/xapian/BoolWeight.java\
 	org/xapian/Chert.java\
 	org/xapian/Compactor.java\
+	org/xapian/CoordWeight.java\
 	org/xapian/Database.java\
+	org/xapian/DateRangeProcessor.java\
 	org/xapian/DateValueRangeProcessor.java\
 	org/xapian/DecreasingValueWeightPostingSource.java\
 	org/xapian/DLHWeight.java\
@@ -62,18 +72,20 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/MSet.java\
 	org/xapian/MSetIterator.java\
 	org/xapian/MultiValueKeyMaker.java\
+	org/xapian/NumberRangeProcessor.java\
 	org/xapian/NumberValueRangeProcessor.java\
+	org/xapian/PL2PlusWeight.java\
 	org/xapian/PL2Weight.java\
 	org/xapian/PositionIterator.java\
 	org/xapian/PostingIterator.java\
 	org/xapian/PostingSource.java\
 	org/xapian/Query.java\
 	org/xapian/QueryParser.java\
+	org/xapian/RangeProcessor.java\
 	org/xapian/Registry.java\
 	org/xapian/Remote.java\
 	org/xapian/RSet.java\
 	org/xapian/SimpleStopper.java\
-	org/xapian/Snipper.java\
 	org/xapian/Stem.java\
 	org/xapian/StemImplementation.java\
 	org/xapian/Stopper.java\
@@ -111,13 +123,16 @@ XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 	org/xapian/Query*op.class\
 	org/xapian/QueryParser*feature_flag.class\
 	org/xapian/QueryParser*stem_strategy.class\
-	org/xapian/TermGenerator*flags.class
+	org/xapian/TermGenerator*flags.class\
+	org/xapian/TermGenerator*stem_strategy.class\
+	org/xapian/TermGenerator*stop_strategy.class\
+	org/xapian/Weight*type_smoothing.class
 
-noinst_DATA = built/xapian_jni.jar
+noinst_DATA = built/xapian.jar
 
-built/xapian_jni.jar: $(XAPIAN_SWIG_JAVA_CLASS)
+built/xapian.jar: $(XAPIAN_SWIG_JAVA_CLASS)
 	$(MKDIR_P) built
-	$(JAR) -cf built/xapian_jni.jar org/xapian/*.class
+	$(JAR) -cf built/xapian.jar org/xapian/*.class
 ##$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
 jnidir = `pwd`/built
@@ -151,9 +166,11 @@ libxapian_jni_la_LDFLAGS = -avoid-version -module $(SHREXT) $(NO_UNDEFINED)
 libxapian_jni_la_LIBADD = $(XAPIAN_LIBS)
 libxapian_jni_la_SOURCES = xapian_wrap.cc
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS)
+SWIG_GENERATED = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS)
 
-EXTRA_DIST = run-java-test SmokeTest.java docs/index.rst $(BUILT_SOURCES)
+BUILT_SOURCES = $(SWIG_GENERATED)
+
+EXTRA_DIST = java.i run-java-test SmokeTest.java docs/index.rst $(SWIG_GENERATED)
 
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
@@ -170,8 +187,6 @@ $(stamp):
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -java -module Xapian -package org.xapian -outdir org/xapian \
 	    -o xapian_wrap.cc '$(srcdir)/'java.i
-	: # Insert code to automatically load the JNI library.
-	$(PERL) -pi -e 'print "    System.loadLibrary(\"xapian_jni\");\n" if /^\s*swig_module_init/' org/xapian/XapianJNI.java
 	: # Check that exactly the sources we expected were generated.
 	$(PERL) -e 'print "$$_\n" for sort @ARGV' org/xapian/*.java > org/xapian/list
 	$(PERL) -e 'print "$$_\n" for sort @ARGV' $(XAPIAN_SWIG_JAVA_SRCS)|diff -c - org/xapian/list
@@ -195,6 +210,8 @@ docdatadir = $(docdir)/java
 dist_docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
+BUILT_SOURCES += docs/index.html
+
 .rst.html:
 	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@

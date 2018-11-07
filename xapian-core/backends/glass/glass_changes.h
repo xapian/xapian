@@ -47,7 +47,7 @@ class GlassChanges {
     glass_revision_number_t oldest_changeset;
 
   public:
-    GlassChanges(const std::string & db_dir)
+    explicit GlassChanges(const std::string & db_dir)
 	: changes_fd(-1),
 	  changes_stem(db_dir + "/changes"),
 	  oldest_changeset(0) { }

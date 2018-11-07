@@ -51,13 +51,13 @@ source tree.
 Backend Support
 ===============
 
-Replication is supported by the chert, and glass database backends,
+Replication is supported by the glass and chert database backends,
 and can cleanly handle the
 master switching database type (a full copy is sent in this situation).  It
 doesn't make a lot of sense to support replication for the remote backend.
 Replication of inmemory databases isn't currently available.  We have a longer
 term aim to replace the current inmemory backend with the current disk based
-backend (e.g. chert) but storing its data in memory.  Once this is done, it
+backend (e.g. glass) but storing its data in memory.  Once this is done, it
 would probably be easy to support replication of inmemory databases.
 
 Setting up replicated databases
@@ -160,8 +160,7 @@ switched atomically after a database copy has occurred.  The reopen() method
 doesn't re-read the stub database file in this situation, so ends up
 attempting to read the old database which has been deleted.
 
-We intend to fix this issue in the Glass backend (currently under development
-by eliminating this hidden use of a stub database file).
+We intend to fix this issue in a future backend.
 
 Alternative approaches
 ======================

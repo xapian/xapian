@@ -11,3 +11,6 @@
 /xapian_wrap.d
 /_xapian.la
 /*.stamp
+/smoketest.rb.log
+/smoketest.rb.trs
+/test-suite.log

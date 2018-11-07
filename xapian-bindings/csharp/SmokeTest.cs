@@ -1,6 +1,6 @@
 // Simple test that we can load the xapian module and run a simple test
 //
-// Copyright (C) 2004,2005,2006,2007,2008,2011 Olly Betts
+// Copyright (C) 2004,2005,2006,2007,2008,2011,2016 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -16,17 +16,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 // USA
-
-// The Portable.NET compiler has a bug which prevents it finding static
-// member functions such as Xapian.Version.Major():
-//
-// http://savannah.gnu.org/bugs/?func=detailitem&item_id=12231
-//
-// The bug is fixed in Portable.NET CVS HEAD - the fix should make it
-// into Portable.NET 0.8.2.
-//
-// The workaround for now is to add an explicit "using Xapian;" here:
-using Xapian;
 
 class TestMatchDecider : Xapian.MatchDecider {
     public override bool Apply(Xapian.Document doc) {
@@ -74,7 +63,7 @@ class SmokeTest {
 	    doc.AddPosting(stem.Apply("out"), 4);
 	    doc.AddPosting(stem.Apply("there"), 5);
 
-	    Xapian.WritableDatabase db = Xapian.InMemory.Open();
+	    Xapian.WritableDatabase db = new Xapian.WritableDatabase("", Xapian.Xapian.DB_BACKEND_INMEMORY);
 	    db.AddDocument(doc);
 	    if (db.GetDocCount() != 1) {
 		System.Environment.Exit(1);

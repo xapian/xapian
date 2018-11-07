@@ -6,7 +6,7 @@ Instructions for hacking on Xapian
 This file is aimed to help developers get started with working on
 Xapian.  The documentation contains a section covering various internal
 aspects of the library - this can also be found on the Xapian website
-<http://xapian.org/>.
+<https://xapian.org/>.
 
 Extra options to give to configure
 ==================================
@@ -37,7 +37,7 @@ Xapian.
 	report to stderr how long each method takes to execute.  This feature
 	was removed in 1.2.1 - you are likely to get better results using
 	dedicated profiling tools - for more information see:
-	http://trac.xapian.org/wiki/ProfilingXapian
+	https://trac.xapian.org/wiki/ProfilingXapian
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
@@ -163,9 +163,9 @@ You can also use runtest to run a test program under gdb (or most other tools):
 ./runtest valgrind ./apitest -v deldoc1
 
 Some test programs take special arguments - for example, you can restrict
-apitest to the chert backend using ``-bchert``.
+apitest to the glass backend using ``-bglass``.
 
-There are a few environmental variables which the testsuite harness checks for
+There are a few environment variables which the testsuite harness checks for
 which you might find useful:
 
   XAPIAN_TESTSUITE_SIG_DFL:
@@ -201,7 +201,7 @@ Speeding up the testsuite with eatmydata
 The testsuite does a lot of small database operations, and the calls to fsync,
 fdatasync, etc which Xapian makes by default can slow down testsuite runs
 substantially.  There's a handy LD_PRELOAD library called eatmydata
-(http://www.flamingspork.com/projects/libeatmydata/), which can help here, by
+(https://www.flamingspork.com/projects/libeatmydata/), which can help here, by
 turning fsync and related calls into no-ops.
 
 You need a version of eatmydata with the eatmydata wrapper script (version 37
@@ -223,17 +223,17 @@ EATMYDATA= ./runtest ./apitest
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
 
-If you're using GCC 3.4 or newer, you can turn on debugging iterators, etc in
-the GNU C++ STL by defining _GLIBCXX_DEBUG:
+GCC's libstdc++ supports a debug mode, which checks for various misuses of
+the STL - to enable this, define _GLIBCXX_DEBUG when building Xapian:
 
   ./configure CPPFLAGS=-D_GLIBCXX_DEBUG
 
 For documentation of this option, see:
-http://gcc.gnu.org/onlinedocs/libstdc++/debug.html
+https://gcc.gnu.org/onlinedocs/libstdc++/manual/debug_mode.html
 
-Note: all C++ code must be compiled with this defined or you'll get problems -
-Xapian 0.9.7 and later add a suitable check to xapian/version.h to prevent you
-making this mistake.
+Note: all C++ code must be compiled with this defined or you'll get problems.
+Xapian's API headers include a check that the same setting is used when
+building code using Xapian as was used to build Xapian.
 
 To use valgrind (http://www.valgrind.org/), no special build options are
 required, but make sure you compile with debugging information (on by default
@@ -243,7 +243,7 @@ inlining, etc):
 
   ./configure CXXFLAGS='-O0 -g'
 
-To use gdb (http://www.gnu.org/software/gdb/), no special build options are
+To use gdb (https://www.gnu.org/software/gdb/), no special build options are
 required, but make sure you compile with debugging information (on by default
 for GCC).  You'll probably find debugging easier if you compile without
 optimisation (with optimisation, line numbers in error messages can be
@@ -265,18 +265,28 @@ To use Insure (another proprietary tool):
   ./configure CXX=insure
 
 To use lcov (at least version 1.10) to generate a test coverage report (see
-`lcov.xapian.org <http://lcov.xapian.org/>`_ for reports) there are two make
-targets:
+`lcov.xapian.org <http://lcov.xapian.org/>`_ for reports) there are three make
+targets (all in the `xapian-core` directory):
 
-  * coverage-reconfigure: reruns configure in the source tree.  See
+  * `make coverage-reconfigure`: reruns configure in the source tree.  See
     Makefile.am for details of the configure options used and why they
-    are needed.
-  
-  * coverage-check: runs "make check" and generates an HTML report in a
-    directory called "lcov".  You can specify extra arguments to pass to the
-    ``genhtml`` tool using GENHTML_ARGS, like so::
+    are needed.  If you're using ccache, make sure it's at least version
+    3.0, and ideally at least 3.2.2.
 
-    make coverage-check GENHTML_ARGS=--html-gzip
+  * `make coverage-reconfigure-maintainer-mode`: does the same thing, except
+    the tree is configured in "maintainer mode", which is what you want if
+    generating coverage reports while working on the code.
+
+  * `make coverage-check`: runs `make check` and generates an HTML report in a
+    directory called `lcov`.
+
+    + You can specify extra arguments to pass to the ``genhtml`` tool using
+      `GENHTML_ARGS`, so for example if you plan to serve the generated HTML
+      coverage report from a webserver, you might use:
+      `make coverage-check GENHTML_ARGS=--html-gzip`
+
+You ideally want lcov 1.11 or later, since 1.11 includes patches to reduce
+memory usage significantly - lcov 1.10 would run out of memory in a 1GB VM.
 
 If you have runes for using other tools, please add them above, or send them
 to us so we can.
@@ -303,18 +313,17 @@ a subdirectory to tell bootstrap to ignore it.
 
 You will need the following tools installed to build from git:
 
-* GNU m4 (for autoconf)
-* perl 5 (for automake; also for various maintainer scripts)
+* GNU m4 >= 4.6 (for autoconf)
+* perl >= 5.6 (for automake; also for various maintainer scripts)
 * python >= 2.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
-* GNU flex (for building doxygen)
-* GNU bison (for building doxygen)
+* GNU bison (for building SWIG, used for generating the bindings)
 * Tcl (to generate unicode/unicode-data.cc)
 
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison tcl
+    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget bison tcl
 
 If you want to build Omega, you'll also need::
 
@@ -345,7 +354,7 @@ parsers, SWIG-generated code, etc) because experience shows it's best to keep
 these out of version control.  To avoid requiring you to install the correct
 versions of the tools required, we either include the source to these tools in
 the repo directly (in the case of Snowball and Lemon), or the bootstrap script
-will download them as tarballs (autoconf, automake, libtool, and doxygen) or
+will download them as tarballs (autoconf, automake, libtool) or
 from git (SWIG), build them, and install them within the source tree.
 
 To download source tarballs, bootstrap will use wget, curl or lwp-request if
@@ -462,7 +471,7 @@ Additional tools are needed for these:
 * makeindex (in texlive-binaries on Debian/Ubuntu, or texlive-base-bin for older releases)
 
 Note that pdflatex, epstopdf, gs, and makeindex must all currently be on your
-path (as specified by the environmental variable PATH), since doxygen will look
+path (as specified by the environment variable PATH), since doxygen will look
 for them there.
 
 For a recent version of Debian or Ubuntu, this command should install these
@@ -476,17 +485,17 @@ On Mac OS X, if you're using macports you'll want the following:
   * texlive-basic (for makeindex in configure)
   * texlive-latex-extra (latex style)
 
-Alternatively, you can install MacTeX from http://www.tug.org/mactex/ instead
+Alternatively, you can install MacTeX from https://www.tug.org/mactex/ instead
 of texlive, texlive-basic and texlive-latex-extra.
 
 The homebrew texlive package only supports 32 bit systems, so even if you're
 using homebrew, you'll probably want to install MacTeX from
-http://www.tug.org/mactex/ instead.
+https://www.tug.org/mactex/ instead.
 
 Autotools versions
 ------------------
 
-* autoconf 2.68 is used to generate snapshots and releases.
+* autoconf 2.69 is used to generate snapshots and releases.
 
   autoconf 2.64 is a hard minimum requirement.
 
@@ -500,7 +509,7 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.15 is used to generate snapshots and releases.
+* automake 1.15.1 is used to generate snapshots and releases.
 
   automake 1.12.2 is a hard minimum requirement.  This version fixes a
   security issue (CVE-2012-3386) in the generated `make distcheck` rules.
@@ -508,7 +517,7 @@ Autotools versions
   automake 1.12 is needed to support using LOG_COMPILER to specify a testsuite
   driver (used by xapian-bindings).
 
-* libtool 2.4.4 is used to generate snapshots and releases.
+* libtool 2.4.6 is used to generate snapshots and releases.
 
   libtool 2.2.8 is the current hard minimum requirement.
 
@@ -525,15 +534,27 @@ There is a good GNU autotools tutorial at
 Building from git on Windows with MSVC
 --------------------------------------
 
-The windows build process is maintained in the xapian-maintainer-tools
-directory in the Xapian git repository.  See the win32msvc/README file in that
-directory for details of how to build from git.
+Building using MSVC is now supported by the autotools build system.  You need
+to install a set of Unix-like tools first - we recommended MSYS2:
+https://www.msys2.org/
+
+For details of how to specify MSVC to ``configure`` see the "INSTALL" document.
+
+When building from git, by default you'll need some extra tools to generate
+Unicode tables (Tcl) and build documentation (doxygen, help2man, sphinx-doc).
+We don't currently have detailed advice on how to do this (if you can provide
+some then please send a patch).
+
+You can avoid needing Tcl by copying ``xapian-core/unicode/unicode-data.cc``
+from another platform or a release which uses the same Unicode version.  You
+can avoid needing most of the documentation tools by running configure with
+the ``--disable-documentation`` option.
 
 Using a Vagrant-driven Ubuntu virtual machine
 ---------------------------------------------
 
 Note: Vagrant support is experimental. Please report bugs in the
-normal fashion, to http://trac.xapian.org/newticket, or ask for help
+normal fashion, to https://trac.xapian.org/newticket, or ask for help
 on the #xapian IRC channel on Freenode.
 
 If you have Vagrant (http://www.vagrantup.com/, tested on version
@@ -578,17 +599,26 @@ takes about 8G of disk space once up and running.
 Use of C++ Features
 ===================
 
-* STL:  We decided early on to embrace the C++ STL.  Some older compilers
-  don't include full support for this.  Often we can work around this, and we
-  should do where the effort is low compared to the gain (so a compiler
-  version which is widely used is more worth supporting than one which is
-  hardly used by anyone).
+* As of Xapian 1.3.3, a compiler with decent support for C++11 is required to
+  build Xapian.  We currently aim to allow users to use a non-C++11 compiler
+  to build code which uses Xapian.
 
-  There is now plenty of choice of compilers which provide good conformance to
-  ISO C++, so if working around problems for some compiler proves too hard we
-  should just document the issue and users will either have to upgrade to a
-  more compliant compiler, or use another STL implementation such as STLport
-  (http://stlport.sourceforge.net/).
+  There are now several compilers with good C++11 support, but there are a
+  few shortfalls in commonly deployed versions of most of them.  Often we can
+  work around this, and we should do where the effort is low compared to the
+  gain (so a compiler version which is widely used is more worth supporting
+  than one which is hardly used by anyone).
+
+  However, we shouldn't have to jump through hoops to cater for compilers where
+  their authors aren't putting in the effort to keep up with the language
+  standards.
+
+  Please avoid the following C++11 features for the time being:
+
+  * ``std::to_string()`` - this is completely missing on current versions of
+    mingw and cygwin - in the library, you can ``#include "str.h"`` and then
+    use the ``str()`` function instead for most cases.  This is also usually
+    faster than ``std::to_string()``.
 
 * C++ features we currently assume:
 
@@ -636,8 +666,9 @@ Use of C++ Features
 
 * Use C++ style casts (static_cast<>, reinterpret_cast<>, and const_cast<>)
   or constructor-syntax (e.g. ``double(value)``) in preference to C style
-  casts.  The syntax of the C++ casts is ugly, but they do make the intent much
-  clearer which is definitely a good thing.
+  casts.  The syntax of the C++ casts is ugly, but they do make the
+  intent much clearer which is definitely a good thing, and they avoid issues
+  such as casting away const when you only meant to cast the type of a pointer.
 
 * std::pair<> with an STL class as one (or both) of the members can produce
   very long symbols (over 4KB!) after name mangling - long enough to overflow
@@ -696,8 +727,8 @@ C++ Portability Issues
 Web Resources
 -------------
 
-The "C++ FAQ Lite" covers many frequently asked C++ questions:
-http://www.parashift.com/c++-faq-lite/
+The "C++ Super-FAQ" covers many frequently asked C++ questions:
+https://isocpp.org/faq
 
 Header Portability Issues
 -------------------------
@@ -731,12 +762,6 @@ Don't directly '#include <winsock2.h>' - instead '#include "safewinsock2.h"'.
 This ensure that safewindows.h is included before <winsock2.h> to avoid
 winsock2.h including windows.h without our namespace pollution reducing
 workarounds.
-
-<errno.h>:
-----------
-
-Don't directly '#include <errno.h>' - instead '#include "safeerrno.h"' which
-works around a problem with Compaq's C++ compiler.
 
 <sys/select.h>:
 ---------------
@@ -919,7 +944,7 @@ Here's an incomplete list of things to avoid:
   The autoconf manual has some useful information about writing portable
   shell code (most of it not specific to autoconf)::
 
-    http://www.gnu.org/software/autoconf/manual/autoconf.html#Portable-Shell
+    https://www.gnu.org/software/autoconf/manual/autoconf.html#Portable-Shell
 
 * Don't use "include" - it's not present in BSD make (at least some versions
   have ".include" instead, but that doesn't really seem to help...)  Automake
@@ -962,7 +987,7 @@ Here's an incomplete list of things to avoid:
   necessary, but could result in problems if the invocation of SWIG_commands
   failed after creating xapian_wrap.cc, but before creating xapian_wrap.h.
   Instead, we recommend creating an intermediate target::
-  
+
     # This rule works in most cases
     xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
     xapian_wrap.stamp: xapian.i
@@ -976,7 +1001,7 @@ Here's an incomplete list of things to avoid:
 
   However, this rule still has a problem - if the xapian_wrap.cc and
   xapian_wrap.h files are removed, but the xapian_wrap.stamp file is not, the
-  .cc and .h files will not be regenerated.   There is no simple solution to
+  .cc and .h files will not be regenerated.  There is no simple solution to
   this, but the following is a recipe taken from the automake manual which
   works.  For details of *why* it works, see the section in the automake manual
   titled "Multiple Outputs"::
@@ -1088,13 +1113,8 @@ There are several variants of Assert:
   won't be checked, but Asserts will.  You can also use AssertRelParanoid
   and AssertEqParanoid.
 
-- CompileTimeAssert(P) -- if P is a constant expression, CompileTimeAssert
-  can be used to assert it is non-zero at compile-time - the P evaluates
-  to zero, then the compilation will fail with an error.  CompileTimeAssert
-  can only be used inside a function body.  There should be no runtime
-  overhead for using CompileTimeAssert(), so CompileTimeAssert() is always
-  enabled, regardless of whether --enable-assertions is passed to configure
-  or not.
+- CompileTimeAssert(P) -- this has now been removed, since we require C++11
+  support from the compiler, and C++11 added ``static_assert``.
 
 Marking Features as Deprecated
 ==============================
@@ -1104,10 +1124,10 @@ can be marked as deprecated by using the XAPIAN_DEPRECATED() or
 XAPIAN_DEPRECATED_CLASS macros.  Note that you can't deprecate a preprocessor
 macro.
 
-For compilers with a suitable mechanism (currently GCC 3.1 or later, and
-MSVC 7.0 or later) this causes compile-time warning messages to be emitted for
-any use of the deprecated feature.  For compilers without support, the macro
-just expands to its argument.
+For compilers with a suitable mechanism (such as GCC, clang and MSVC) this
+causes compile-time warning messages to be emitted for any use of the
+deprecated feature.  For compilers without support, the macro just expands to
+its argument.
 
 Sometimes a deprecated feature will also be removed from the library itself
 (particularly something like a typedef), but if the feature is still used
@@ -1154,24 +1174,18 @@ class keyword like so::
         // ...
     };
 
-To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
-you can't mark a method which is defined inline in a class with
-``XAPIAN_DEPRECATED()`` (this works with recent GCC versions though)::
-    
+With recent versions of GCC (4.4.7 allows this, 3.3.5 doesn't), you can
+simply mark a method defined inline in a class with ``XAPIAN_DEPRECATED()``
+like so:
+
     class Foo {
       public:
-        // This fails to compile with GCC 3.3.5, so don't do this!
+        // This failed to compile with GCC 3.3.5.
         XAPIAN_DEPRECATED(int old_inline_method()) { return 42; }
     };
-    
-Instead rewrite like so::
 
-    class Foo {
-      public:
-        XAPIAN_DEPRECATED(int old_inline_method());
-    };
-
-    inline int Foo::old_inline_method() { return 42; }
+Xapian 1.3.x and later require at least GCC 4.7, so you can now just use the
+approach above.
 
 Submitting Patches:
 ===================
@@ -1179,7 +1193,7 @@ Submitting Patches:
 If you have a patch to fix a problem in Xapian, or to add a new feature,
 please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
-<http://xapian.org/lists>
+<https://xapian.org/lists>
 
 Also, please read the following section on licensing of patches before
 submitting a patch.
@@ -1218,7 +1232,7 @@ to follow the style of the existing code.  In particular:
 
   The default access for a class is always "private", so there's no need
   to specify that explicitly - in other words, write this::
-  
+
     class Foo {
         int internal_method();
 
@@ -1274,8 +1288,8 @@ to follow the style of the existing code.  In particular:
   "!container.empty()" to "container.size() != 0" or "container.size() > 0").
   Finding the size of a container may not be a constant time operation for
   all containers (e.g. std::list may not be, and indeed isn't for GCC - see
-  http://gcc.gnu.org/onlinedocs/libstdc++/23_containers/howto.html#6).  And
-  the "empty()" form makes the intent of the test more explicit.
+  https://gcc.gnu.org/onlinedocs/libstdc++/manual/containers.html#sequences.list.size).
+  Also the "empty()" form makes the intent of the test more explicit.
 
 * Prefer not to use "else" when the control flow is diverted elsewhere at the
   end of the "if" block (e.g. by "return", "continue", "break", "throw").  This
@@ -1446,6 +1460,26 @@ Tips for Submitting a Good Patch
  * If you've fixed a bug, make sure there's a regression test which
    fails on the existing code and succeeds after your changes.
 
+ * If you're adding a new testcase to demonstrate an existing bug, and not
+   checking a fix in at the same time, mark the testcase as a known failure (by
+   calling ``XFAIL("explanatory message")`` at the start of your testcase (if
+   necessary this can be conditional on backend or other factors - the backend
+   case has explicit support via ``XFAIL_FOR_BACKEND("backend", "message")``).
+
+   This will mean that this testcase failing will be reported as "XFAIL" which
+   won't cause the test run to fail.  If such a testcase in fact passes, that
+   gets reported as "XPASS" and *will* cause the test run to fail.  A testcase
+   should not be flagged as "XFAIL" for a long time, but it can be useful to be
+   able to add such testcases during development.  It also allows a patch
+   series which fixes a bug to first demonstrate the bug via a new testcase
+   marked as "XFAIL", then fix the bug and remove the "XFAIL" - this makes it
+   clear that the regression test actually failed before the fix.
+
+   Note that failures which are due to valgrind errors or leaked fds are not
+   affected by this macro - such errors are inherently not suitable for "XFAIL"
+   as they go away when the testsuite is run without valgrind or on a platform
+   where our fd leak detector code isn't supported.
+
  * Make sure all existing tests continue to pass.
 
 If you don't know how to write tests using the Xapian test rig, then
@@ -1465,21 +1499,14 @@ introduction to the Xapian test system in ``docs/tests.html``.
 
  * If you're not in there, add yourself to the AUTHORS file.
 
-4) Create a ChangeLog entry and commit
---------------------------------------
+4) Commit
+---------
 
- * We recommend using the ``xapian-commit`` script which can be found in the
-   ``xapian-maintainer-tools`` repository top-level directory.  If you must
-   do this by hand, add an entry to the ChangeLog file at the top-level of the
-   module you have modified.  The text of this should generally be the same as
-   the git commit message.  The datestamps in our ChangeLog entries are as
-   produced by the GNU date utility when invoked as::
+ * Commit:
 
-     date --utc "+%a %b %d %T GMT %Y"
-
- * If there's a trac ticket for the bug, mention it in the ChangeLog entry.
-
- * Commit to the repository.
+   + If there's a trac ticket or other reference for the bug, mention it in the
+     commit message - it's a great help to future developers trying to work out
+     why a change was made.
 
 5) Consider backporting
 -----------------------
@@ -1496,11 +1523,12 @@ introduction to the Xapian test system in ``docs/tests.html``.
    addressed by the changes you've made, then close it).
 
  * Update the release notes for the most recent release with a copy of the
-   patch.  You should remove the ChangeLog diff from this patch, as that
-   will just conflict with any other changes.  If there are conflicts in
-   test cases which aren't easy to resolve, it is acceptable to just drop
-   those changes from the patch.
- 
+   patch.  If the commit from git applies cleanly, you can just link to
+   it.  If it fails to apply, please attach an adjusted patch which does.
+   If there are conflicts in test cases which aren't easy to resolve, it is
+   acceptable to just drop those changes from the patch if we can still be
+   confident that the issue is actually fixed by the patch.
+
 API Structure Notes
 ===================
 
@@ -1524,7 +1552,7 @@ cases of iterator use.
 
 The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list
-- excerpt from http://article.gmane.org/gmane.comp.gcc.devel:50201 ::
+- excerpt from http://article.gmane.org/gmane.comp.gcc.devel/50201 ::
 
 	class some_iterator {
 	public:
@@ -1597,7 +1625,7 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Update the lists of deprecated/removed API methods in docs/deprecation.rst
 
-* Update the NEWS files using information from the ChangeLog files
+* Update the NEWS files using information from the git logs
 
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
@@ -1605,37 +1633,29 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Make sure the submitters of fixed bugs are mentioned in the "thanks" list in
   xapian-core/AUTHORS.  Check the list for the appropriate milestone::
 
-   http://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.0.14
+   https://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.4.4
 
-* On atreus, tag the source trees for the new revision - use the
-  git-tag-release script, running it with the new version number, for example:
+* Check for any unfixed bugs on the milestone for the new release, and if they
+  aren't blockers, retarget them:
 
-  xapian-maintainer-tools/git-tag-release 1.0.14
+   https://trac.xapian.org/roadmap
+
+* Tag the source trees for the new revision - use the git-tag-release script,
+  running it with the new version number, for example:
+
+  xapian-maintainer-tools/git-tag-release 1.4.4
 
   This script also generates tarballs for the new release and copies them
   across to the website.
 
-* Add the new version to the list of versions in trac:
-  http://trac.xapian.org/admin/ticket/versions
-
-* Add a new milestone for the version after this one:
-  http://trac.xapian.org/admin/ticket/milestones
-
-* Mark the current milestone as completed.  In order to do so, any unfixed bugs
-  with this milestone will need to be moved to another milestone (most likely
-  the milestone you just added).
-
 * Update the wiki:
 
-  Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
-  http://wiki.xapian.org/ReleaseNotes in place of the old current release link,
-  which should be moved to the archived section.
+  Fill in https://trac.xapian.org/wiki/ReleaseOverview/1.4.8
 
-  Also update the roadmap at http://wiki.xapian.org/RoadMap by recording the
-  date of this release and adding an entry for the next release with an
-  estimated release date.
+  Also update the roadmap at https://trac.xapian.org/wiki/RoadMap with
+  estimated date for next release.
 
-* Update the website: `generate` in the CVS module www.xapian.org contains the
+* Update the website: `generate` in the `www.xapian.org` git repo contains the
   latest version and the date it was released.
 
 * Run /home/olly/tmp/xapian-website-update/update_website.sh
@@ -1649,9 +1669,9 @@ How to make Debian packages for a new release
 
 Debian control files are stored in separate git repositories:
 
-* http://anonscm.debian.org/cgit/collab-maint/xapian-bindings.git
-* http://anonscm.debian.org/cgit/collab-maint/xapian-core.git
-* http://anonscm.debian.org/cgit/collab-maint/xapian-omega.git
+* https://anonscm.debian.org/cgit/collab-maint/xapian-bindings.git
+* https://anonscm.debian.org/cgit/collab-maint/xapian-core.git
+* https://anonscm.debian.org/cgit/collab-maint/xapian-omega.git
 
 To package a new upstream release, these should be updated as follows:
 

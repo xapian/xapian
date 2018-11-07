@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -98,7 +98,9 @@ class ValueCountTermList : public TermList {
     intrusive_ptr<Xapian::ValueCountMatchSpy::Internal> spy;
   public:
 
-    ValueCountTermList(ValueCountMatchSpy::Internal * spy_) : spy(spy_) {
+    explicit ValueCountTermList(ValueCountMatchSpy::Internal * spy_)
+	: spy(spy_)
+    {
 	it = spy->values.begin();
 	started = false;
     }
@@ -180,8 +182,7 @@ class StringAndFreqCmpByFreq {
 		    const StringAndFrequency &b) const {
 	if (a.get_frequency() > b.get_frequency()) return true;
 	if (a.get_frequency() < b.get_frequency()) return false;
-	if (a.get_string() > b.get_string()) return false;
-	return true;
+	return a.get_string() < b.get_string();
     }
 };
 
@@ -308,8 +309,7 @@ TermIterator
 ValueCountMatchSpy::values_begin() const
 {
     Assert(internal.get());
-    AutoPtr<ValueCountTermList> termlist(new ValueCountTermList(internal.get()));
-    return Xapian::TermIterator(termlist.release());
+    return Xapian::TermIterator(new ValueCountTermList(internal.get()));
 }
 
 TermIterator
@@ -347,7 +347,8 @@ ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
     const char * p = s.data();
     const char * end = p + s.size();
 
-    valueno new_slot = decode_length(&p, end, false);
+    valueno new_slot;
+    decode_length(&p, end, new_slot);
     if (p != end) {
 	throw NetworkError("Junk at end of serialised ValueCountMatchSpy");
     }
@@ -378,15 +379,20 @@ ValueCountMatchSpy::merge_results(const string & s) {
     const char * p = s.data();
     const char * end = p + s.size();
 
-    internal->total += decode_length(&p, end, false);
+    Xapian::doccount n;
+    decode_length(&p, end, n);
+    internal->total += n;
 
-    map<string, doccount>::size_type items = decode_length(&p, end, false);
+    map<string, doccount>::size_type items;
+    decode_length(&p, end, items);
     while (p != end) {
 	while (items != 0) {
-	    size_t vallen = decode_length(&p, end, true);
+	    size_t vallen;
+	    decode_length_and_check(&p, end, vallen);
 	    string val(p, vallen);
 	    p += vallen;
-	    doccount freq = decode_length(&p, end, false);
+	    doccount freq;
+	    decode_length(&p, end, freq);
 	    internal->values[val] += freq;
 	    --items;
 	}

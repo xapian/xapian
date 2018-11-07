@@ -32,6 +32,18 @@ Quick Installation Guide
 
 The simplest way to compile this package is:
 
+  0. Make sure you have the required tools installed for the languages you
+     want to build the bindings for.  Package systems often separate the
+     files you need to build the bindings into a separate package with a
+     `-dev` or `-devel` suffix.  Additional per-language dependencies are:
+
+       * python:
+         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+	   The package you want might be python-sphinx.
+       * python3:
+         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+	   The package you want might be python3-sphinx.
+
   1. 'cd' to the directory containing the package's source code and type
      './configure' to configure the package for your system.
 
@@ -49,8 +61,10 @@ The simplest way to compile this package is:
        --with-java	    enable Java bindings
        --with-lua	    enable Lua bindings
        --with-perl	    enable Perl bindings
-       --with-php	    enable PHP bindings
-       --with-python	    enable Python bindings
+       --with-php	    enable PHP 5 bindings
+       --with-php7	    enable PHP 7 bindings
+       --with-python	    enable Python 2 bindings
+       --with-python3	    enable Python 3 bindings
        --with-ruby	    enable Ruby bindings
        --with-tcl	    enable Tcl bindings
 
@@ -110,7 +124,7 @@ Installing without root access
      Note that you also need to pass a "--prefix" option to configure so that
      the documentation and examples can be installed.
 
-  PHP:
+  PHP (5 and 7):
 
      With current releases of PHP, there doesn't seem to be a good way to
      install the PHP bindings without root access such that they can be used
@@ -138,7 +152,7 @@ Installing without root access
      This will symlink all of them, but you only actually need those that
      get loaded.
 
-  Python:
+  Python 2:
 
      ./configure --with-python --prefix=$HOME/install PYTHON_LIB=$HOME/.local
      make
@@ -159,6 +173,15 @@ Installing without root access
      import sys
      sys.path.insert(0, os.environ['HOME'] + "/.local")
      import xapian
+
+  Python 3:
+
+     ./configure --with-python3 --prefix=$HOME/install PYTHON3_LIB=$HOME/.local
+     make
+     make install
+
+     Python 3 looks in ~/.local for packages automatically, so you don't need
+     to do anything special to use bindings installed there.
 
   Ruby:
 
@@ -238,9 +261,6 @@ the source directory) from the build directory, like so:
   mkdir BUILD
   cd BUILD
   ../configure
-
-IRIX make doesn't handle this correctly - either build in the source tree or
-use "smake -M" (or better still, just use GNU make if you have it installed!)
 
 Installation Names
 ==================

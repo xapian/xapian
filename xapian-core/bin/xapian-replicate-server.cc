@@ -39,7 +39,7 @@ using namespace std;
 #define OPT_VERSION 2
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_PARENT_DIRECTORY\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_PARENT_DIRECTORY\n\n"
 "Options:\n"
 "  -I, --interface=ADDR  listen on interface ADDR\n"
 "  -p, --port=PORT   port to listen on\n"
@@ -52,7 +52,7 @@ int
 main(int argc, char **argv)
 {
     const char * opts = "I:p:o";
-    const struct option long_opts[] = {
+    static const struct option long_opts[] = {
 	{"interface",	required_argument,	0, 'I'},
 	{"port",	required_argument,	0, 'p'},
 	{"one-shot",	no_argument,		0, 'o'},
@@ -79,11 +79,11 @@ main(int argc, char **argv)
 		one_shot = true;
 		break;
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    default:
 		show_usage();

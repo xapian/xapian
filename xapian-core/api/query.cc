@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2015 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,8 @@
 #include "debuglog.h"
 #include "omassert.h"
 #include "vectortermlist.h"
+
+#include "xapian/error.h"
 
 using namespace std;
 
@@ -66,8 +68,19 @@ Query::Query(op op_, const Xapian::Query & subquery, double factor)
 	throw Xapian::InvalidArgumentError("op must be OP_SCALE_WEIGHT");
     // If the subquery is MatchNothing then generate Query() which matches
     // nothing.
-    if (subquery.internal.get())
-	internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
+    if (!subquery.internal.get()) return;
+    switch (subquery.internal->get_type()) {
+	case OP_VALUE_RANGE:
+	case OP_VALUE_GE:
+	case OP_VALUE_LE:
+	    // These operators always return weight 0, so OP_SCALE_WEIGHT has
+	    // no effect on them.
+	    internal = subquery.internal;
+	    return;
+	default:
+	    break;
+    }
+    internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
 }
 
 Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
@@ -76,7 +89,7 @@ Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 
     if (op_ == OP_VALUE_GE) {
 	if (limit.empty())
-	    internal = MatchAll.internal;
+	    internal = new Xapian::Internal::QueryTerm();
 	else
 	    internal = new Xapian::Internal::QueryValueGE(slot, limit);
     } else if (usual(op_ == OP_VALUE_LE)) {
@@ -104,15 +117,17 @@ Query::Query(op op_, Xapian::valueno slot,
 Query::Query(op op_,
 	     const std::string & pattern,
 	     Xapian::termcount max_expansion,
+	     int max_type,
 	     op combiner)
 {
-    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | combiner);
+    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | max_type | combiner);
     if (rare(op_ != OP_WILDCARD))
 	throw Xapian::InvalidArgumentError("op must be OP_WILDCARD");
     if (rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
 	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or OP_MAX or OP_OR");
     internal = new Xapian::Internal::QueryWildcard(pattern,
 						   max_expansion,
+						   max_type,
 						   combiner);
 }
 
@@ -122,28 +137,54 @@ Query::get_terms_begin() const
     if (!internal.get())
 	return TermIterator();
 
-    vector<pair<Xapian::termpos, string> > terms;
+    vector<pair<Xapian::termpos, string>> terms;
     internal->gather_terms(static_cast<void*>(&terms));
     sort(terms.begin(), terms.end());
 
     vector<string> v;
-    vector<pair<Xapian::termpos, string> >::const_iterator i;
     const string * old_term = NULL;
     Xapian::termpos old_pos = 0;
-    for (i = terms.begin(); i != terms.end(); ++i) {
+    for (auto && i : terms) {
 	// Remove duplicates (same term at the same position).
-	if (old_term && old_pos == i->first && *old_term == i->second)
+	if (old_term && old_pos == i.first && *old_term == i.second)
 	    continue;
 
-	v.push_back(i->second);
-	old_pos = i->first;
-	old_term = &(i->second);
+	v.push_back(i.second);
+	old_pos = i.first;
+	old_term = &(i.second);
+    }
+    return TermIterator(new VectorTermList(v.begin(), v.end()));
+}
+
+const TermIterator
+Query::get_unique_terms_begin() const
+{
+    if (!internal.get())
+	return TermIterator();
+
+    vector<pair<Xapian::termpos, string>> terms;
+    internal->gather_terms(static_cast<void*>(&terms));
+    sort(terms.begin(), terms.end(), [](
+		const pair<Xapian::termpos, string>& a,
+		const pair<Xapian::termpos, string>& b) {
+	return a.second < b.second;
+    });
+
+    vector<string> v;
+    const string * old_term = NULL;
+    for (auto && i : terms) {
+	// Remove duplicate term names.
+	if (old_term && *old_term == i.second)
+	    continue;
+
+	v.push_back(i.second);
+	old_term = &(i.second);
     }
     return TermIterator(new VectorTermList(v.begin(), v.end()));
 }
 
 Xapian::termcount
-Query::get_length() const
+Query::get_length() const XAPIAN_NOEXCEPT
 {
     return (internal.get() ? internal->get_length() : 0);
 }
@@ -168,7 +209,7 @@ Query::unserialise(const string & s, const Registry & reg)
 }
 
 Xapian::Query::op
-Query::get_type() const
+Query::get_type() const XAPIAN_NOEXCEPT
 {
     if (!internal.get())
 	return Xapian::Query::LEAF_MATCH_NOTHING;
@@ -176,7 +217,7 @@ Query::get_type() const
 }
 
 size_t
-Query::get_num_subqueries() const
+Query::get_num_subqueries() const XAPIAN_NOEXCEPT
 {
     return internal.get() ? internal->get_num_subqueries() : 0;
 }
@@ -243,12 +284,16 @@ Query::init(op op_, size_t n_subqueries, Xapian::termcount parameter)
 	    internal = new Xapian::Internal::QueryMax(n_subqueries);
 	    break;
 	default:
+	    if (op_ == OP_INVALID && n_subqueries == 0) {
+		internal = new Xapian::Internal::QueryInvalid();
+		break;
+	    }
 	    throw InvalidArgumentError("op not valid with a list of subqueries");
     }
 }
 
 void
-Query::add_subquery(const Xapian::Query & subquery)
+Query::add_subquery(bool positional, const Xapian::Query & subquery)
 {
     // We could handle this in a type-safe way, but we'd need to at least
     // declare Xapian::Internal::QueryBranch in the API header, which seems
@@ -256,6 +301,26 @@ Query::add_subquery(const Xapian::Query & subquery)
     Xapian::Internal::QueryBranch * branch_query =
 	static_cast<Xapian::Internal::QueryBranch*>(internal.get());
     Assert(branch_query);
+    if (positional) {
+	switch (subquery.get_type()) {
+	    case LEAF_TERM:
+		break;
+	    case LEAF_POSTING_SOURCE:
+	    case LEAF_MATCH_ALL:
+	    case LEAF_MATCH_NOTHING:
+		// None of these have positions, so positional operators won't
+		// match.  Add MatchNothing as that is has special handling in
+		// AND-like queries to reduce the parent query to MatchNothing,
+		// which is appropriate in this case.
+		branch_query->add_subquery(MatchNothing);
+		return;
+	    case OP_OR:
+		// OP_OR is now handled below OP_NEAR and OP_PHRASE.
+		break;
+	    default:
+		throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support leaf subqueries");
+	}
+    }
     branch_query->add_subquery(subquery);
 }
 

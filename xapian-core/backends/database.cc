@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2014,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -50,6 +50,11 @@ Database::Internal::keep_alive()
 }
 
 
+void
+Database::Internal::readahead_for_query(const Xapian::Query &)
+{
+}
+
 Xapian::doccount
 Database::Internal::get_value_freq(Xapian::valueno) const
 {
@@ -81,7 +86,7 @@ Database::Internal::get_doclength_upper_bound() const
 {
     // Not a very tight bound in general, but this is only a fall-back for
     // backends which don't store these stats.
-    return min(get_total_length(), totlen_t(Xapian::termcount(-1)));
+    return min(get_total_length(), Xapian::totallength(Xapian::termcount(-1)));
 }
 
 Xapian::termcount
@@ -368,10 +373,17 @@ Database::Internal::invalidate_doc_object(Xapian::Document::Internal *) const
     // Do nothing, by default.
 }
 
-RemoteDatabase *
-Database::Internal::as_remotedatabase()
+void
+Database::Internal::get_used_docid_range(Xapian::docid &,
+					 Xapian::docid &) const
 {
-    return NULL;
+    throw Xapian::UnimplementedError("This backend doesn't implement get_used_docid_range()");
+}
+
+bool
+Database::Internal::locked() const
+{
+    return false;
 }
 
 }

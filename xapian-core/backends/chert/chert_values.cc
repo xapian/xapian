@@ -1,7 +1,7 @@
 /** @file chert_values.cc
  * @brief ChertValueManager class
  */
-/* Copyright (C) 2008,2009,2011,2012 Olly Betts
+/* Copyright (C) 2008,2009,2011,2012,2016 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -44,7 +44,7 @@ using namespace std;
 //  * values named instead of numbered?
 
 /** Generate a key for the "used slots" data. */
-inline string
+static inline string
 make_slot_key(Xapian::docid did)
 {
     LOGCALL_STATIC(DB, string, "make_slot_key", did);
@@ -52,13 +52,13 @@ make_slot_key(Xapian::docid did)
     // and will sort just after the corresponding termlist entry key.
     // FIXME: should we store this in the *same entry* as the list of terms?
     string key;
-    pack_uint_preserving_sort(key, did);
+    C_pack_uint_preserving_sort(key, did);
     key += '\0';
     RETURN(key);
 }
 
 /** Generate a key for a value statistics item. */
-inline string
+static inline string
 make_valuestats_key(Xapian::valueno slot)
 {
     LOGCALL_STATIC(DB, string, "make_valuestats_key", slot);
@@ -179,7 +179,7 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
 	if (v != slot) RETURN(0);
 
 	// And get the first docid for the chunk so we can return it.
-	if (!unpack_uint_preserving_sort(&p, end, &did) || p != end) {
+	if (!C_unpack_uint_preserving_sort(&p, end, &did) || p != end) {
 	    throw Xapian::DatabaseCorruptError("Bad value key");
 	}
     }
@@ -191,8 +191,6 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
 }
 
 static const size_t CHUNK_SIZE_THRESHOLD = 2000;
-
-static const Xapian::docid MAX_DOCID = static_cast<Xapian::docid>(-1);
 
 class ValueUpdater {
     ChertPostListTable * table;
@@ -240,7 +238,7 @@ class ValueUpdater {
 
   public:
     ValueUpdater(ChertPostListTable * table_, Xapian::valueno slot_)
-       	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
+	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
 
     ~ValueUpdater() {
 	while (!reader.at_end()) {
@@ -268,7 +266,7 @@ class ValueUpdater {
 	    last_allowed_did = 0;
 	}
 	if (last_allowed_did == 0) {
-	    last_allowed_did = MAX_DOCID;
+	    last_allowed_did = CHERT_MAX_DOCID;
 	    Assert(tag.empty());
 	    new_first_did = 0;
 	    AutoPtr<ChertCursor> cursor(table->cursor_get());
@@ -364,29 +362,29 @@ ChertValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 	Xapian::valueno slot = it.get_valueno();
 	string value = *it;
 
-        // Update the statistics.
-        std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-        i = value_stats.insert(make_pair(slot, ValueStats()));
+	// Update the statistics.
+	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+	i = value_stats.insert(make_pair(slot, ValueStats()));
 	ValueStats & stats = i.first->second;
-        if (i.second) {
-            // There were no statistics stored already, so read them.
-            get_value_stats(slot, stats);
-        }
+	if (i.second) {
+	    // There were no statistics stored already, so read them.
+	    get_value_stats(slot, stats);
+	}
 
-        // Now, modify the stored statistics.
-        if ((stats.freq)++ == 0) {
-            // If the value count was previously zero, set the upper and lower
-            // bounds to the newly added value.
-            stats.lower_bound = value;
-            stats.upper_bound = value;
-        } else {
-            // Otherwise, simply make sure they reflect the new value.
-            if (value < stats.lower_bound) {
-                stats.lower_bound = value;
-            } else if (value > stats.upper_bound) {
-                stats.upper_bound = value;
-            }
-        }
+	// Now, modify the stored statistics.
+	if ((stats.freq)++ == 0) {
+	    // If the value count was previously zero, set the upper and lower
+	    // bounds to the newly added value.
+	    stats.lower_bound = value;
+	    stats.upper_bound = value;
+	} else {
+	    // Otherwise, simply make sure they reflect the new value.
+	    if (value < stats.lower_bound) {
+		stats.lower_bound = value;
+	    } else if (value > stats.upper_bound) {
+		stats.upper_bound = value;
+	    }
+	}
 
 	add_value(did, slot, value);
 	if (termlist_table->is_open()) {
@@ -427,21 +425,21 @@ ChertValueManager::delete_document(Xapian::docid did,
 	slot += prev_slot + 1;
 	prev_slot = slot;
 
-        std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-        i = value_stats.insert(make_pair(slot, ValueStats()));
+	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+	i = value_stats.insert(make_pair(slot, ValueStats()));
 	ValueStats & stats = i.first->second;
-        if (i.second) {
-            // There were no statistics stored already, so read them.
-            get_value_stats(slot, stats);
-        }
+	if (i.second) {
+	    // There were no statistics stored already, so read them.
+	    get_value_stats(slot, stats);
+	}
 
-        // Now, modify the stored statistics.
-        AssertRelParanoid(stats.freq, >, 0);
-        if (--(stats.freq) == 0) {
-            stats.lower_bound.resize(0);
-            stats.upper_bound.resize(0);
-        }
- 
+	// Now, modify the stored statistics.
+	AssertRelParanoid(stats.freq, >, 0);
+	if (--(stats.freq) == 0) {
+	    stats.lower_bound.resize(0);
+	    stats.upper_bound.resize(0);
+	}
+
 	remove_value(did, slot);
     }
 }
@@ -539,11 +537,11 @@ ChertValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 	const char * end = pos + tag.size();
 
 	if (!unpack_uint(&pos, end, &(stats.freq))) {
-	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+	    if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
 	    throw Xapian::RangeError("Frequency statistic in value table is too large");
 	}
 	if (!unpack_string(&pos, end, stats.lower_bound)) {
-	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+	    if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
 	    throw Xapian::RangeError("Lower bound in value table is too large");
 	}
 	size_t len = end - pos;

@@ -22,7 +22,8 @@ If k isn't specified, the default value used is 1.
 
 =head1 SEE ALSO
 
-L<Xapian>,L<Xapian::Enquire>
+L<Xapian>,
+L<Xapian::Enquire>
 
 =cut
 1;

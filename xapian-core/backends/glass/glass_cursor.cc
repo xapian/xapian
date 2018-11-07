@@ -1,7 +1,7 @@
 /* glass_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 
 #include "glass_cursor.h"
 
-#include "safeerrno.h"
+#include <cerrno>
 
 #include <xapian/error.h>
 
@@ -42,8 +42,8 @@ hex_display_encode(const string & input)
     for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
 	unsigned char val = *i;
 	result += "\\x";
-	result += table[val/16];
-	result += table[val%16];
+	result += table[val / 16];
+	result += table[val % 16];
     }
 
     return result;
@@ -63,7 +63,7 @@ GlassCursor::GlassCursor(const GlassTable *B_, const Glass::Cursor * C_)
     B->cursor_created_since_last_modification = true;
     C = new Glass::Cursor[level + 1];
     if (!C_) C_ = B->C;
-    for (int j = 0; j <= level; j++) {
+    for (int j = 0; j <= level; ++j) {
 	C[j].clone(C_[j]);
     }
 }
@@ -73,72 +73,34 @@ GlassCursor::rebuild()
 {
     int new_level = B->level;
     if (new_level <= level) {
+	for (int j = 0; j < new_level; ++j) {
+	    C[j].clone(B->C[j]);
+	}
 	for (int j = new_level; j <= level; ++j) {
 	    C[j].destroy();
 	}
     } else {
 	Cursor * old_C = C;
 	C = new Cursor[new_level + 1];
-	for (int i = 0; i < level; i++) {
+	for (int i = 0; i < level; ++i) {
 	    C[i].swap(old_C[i]);
+	    C[i].clone(B->C[i]);
 	}
 	delete [] old_C;
-	for (int j = level; j < new_level; j++) {
+	for (int j = level; j < new_level; ++j) {
 	    C[j].init(B->block_size);
 	}
     }
     level = new_level;
     C[level].clone(B->C[level]);
     version = B->cursor_version;
+    B->cursor_created_since_last_modification = true;
 }
 
 GlassCursor::~GlassCursor()
 {
+    // We must not use B here, as it may have already been destroyed.
     delete [] C;
-}
-
-bool
-GlassCursor::prev()
-{
-    LOGCALL(DB, bool, "GlassCursor::prev", NO_ARGS);
-    Assert(!is_after_end);
-    if (B->cursor_version != version || !is_positioned) {
-	// Either the cursor needs rebuilding (in which case find_entry() will
-	// call rebuild() and then reposition the cursor), or we've read the
-	// last key and tag, and we're now not positioned (in which case we
-	// seek to the current key, and then it's as if we read the key but not
-	// the tag).
-	if (!find_entry(current_key)) {
-	    // Exact entry was no longer there after rebuild(), and we've
-	    // automatically ended up on the entry before it.
-	    RETURN(true);
-	}
-    } else if (tag_status != UNREAD) {
-	while (true) {
-	    if (! B->prev(C, 0)) {
-		is_positioned = false;
-		RETURN(false);
-	    }
-	    if (Item(C[0].get_p(), C[0].c).component_of() == 1) {
-		break;
-	    }
-	}
-    }
-
-    while (true) {
-	if (! B->prev(C, 0)) {
-	    is_positioned = false;
-	    RETURN(false);
-	}
-	if (Item(C[0].get_p(), C[0].c).component_of() == 1) {
-	    break;
-	}
-    }
-    get_key(&current_key);
-    tag_status = UNREAD;
-
-    LOGLINE(DB, "Moved to entry: key=" << hex_display_encode(current_key));
-    RETURN(true);
 }
 
 bool
@@ -153,13 +115,14 @@ GlassCursor::next()
 	// pointing to the entry before.  Either way, we now want to move to
 	// the next key.
     }
-    if (tag_status == UNREAD) {
+    if (tag_status == UNREAD || tag_status == UNREAD_ON_LAST_CHUNK) {
 	while (true) {
 	    if (! B->next(C, 0)) {
 		is_positioned = false;
 		break;
 	    }
-	    if (Item(C[0].get_p(), C[0].c).component_of() == 1) {
+	    if (tag_status == UNREAD_ON_LAST_CHUNK ||
+		LeafItem(C[0].get_p(), C[0].c).first_component()) {
 		is_positioned = true;
 		break;
 	    }
@@ -202,28 +165,49 @@ GlassCursor::find_entry(const string &key)
 	found = B->find(C);
     }
 
-    if (!found) {
+    if (found) {
+	tag_status = UNREAD;
+	current_key = key;
+    } else {
+	// Be lazy about stepping back to the first chunk, as we may never be
+	// asked to read the tag.
+	tag_status = UNREAD_ON_LAST_CHUNK;
 	if (C[0].c < DIR_START) {
+	    // It would be nice to be lazy about this too, but we need to
+	    // be on an actual entry in order to read the key.
 	    C[0].c = DIR_START;
-	    if (! B->prev(C, 0)) goto done;
-	}
-	while (Item(C[0].get_p(), C[0].c).component_of() != 1) {
 	    if (! B->prev(C, 0)) {
-		is_positioned = false;
-		throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
+		tag_status = UNREAD;
 	    }
 	}
-    }
-done:
-
-    if (found)
-	current_key = key;
-    else
 	get_key(&current_key);
-    tag_status = UNREAD;
+    }
 
     LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
     RETURN(found);
+}
+
+void
+GlassCursor::find_entry_lt(const string &key)
+{
+    LOGCALL_VOID(DB, "GlassCursor::find_entry_lt", key);
+    if (!find_entry(key)) {
+	// The entry wasn't found, so find_entry() left us on the entry before
+	// the one we asked for and we're done.
+	return;
+    }
+
+    Assert(!is_after_end);
+    Assert(is_positioned);
+
+    if (! B->prev(C, 0)) {
+	is_positioned = false;
+	return;
+    }
+    tag_status = UNREAD_ON_LAST_CHUNK;
+    get_key(&current_key);
+
+    LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
 }
 
 bool
@@ -283,7 +267,7 @@ GlassCursor::find_entry_ge(const string &key)
 	    is_positioned = false;
 	    RETURN(false);
 	}
-	Assert(Item(C[0].get_p(), C[0].c).component_of() == 1);
+	Assert(LeafItem(C[0].get_p(), C[0].c).first_component());
 	get_key(&current_key);
     }
     tag_status = UNREAD;
@@ -298,13 +282,23 @@ GlassCursor::get_key(string * key) const
     Assert(B->level <= level);
     Assert(is_positioned);
 
-    (void)Item(C[0].get_p(), C[0].c).key().read(key);
+    (void)LeafItem(C[0].get_p(), C[0].c).key().read(key);
 }
 
 bool
 GlassCursor::read_tag(bool keep_compressed)
 {
     LOGCALL(DB, bool, "GlassCursor::read_tag", keep_compressed);
+    if (tag_status == UNREAD_ON_LAST_CHUNK) {
+	// Back up to first chunk of this tag.
+	while (!LeafItem(C[0].get_p(), C[0].c).first_component()) {
+	    if (! B->prev(C, 0)) {
+		is_positioned = false;
+		throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
+	    }
+	}
+	tag_status = UNREAD;
+    }
     if (tag_status == UNREAD) {
 	Assert(B->level <= level);
 	Assert(is_positioned);

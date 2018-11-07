@@ -2,7 +2,7 @@
 %{
 /* tcl.i: SWIG interface file for the Tcl bindings
  *
- * Copyright (c) 2006,2007,2011,2012 Olly Betts
+ * Copyright (c) 2006,2007,2011,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +38,7 @@ namespace Xapian {
 
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 
-%typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
+%typemap(typecheck, precedence=100) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     int dummy;
     $1 = (Tcl_ListObjLength(interp, $input, &dummy) == TCL_OK);
     /* FIXME: if we add more array typemaps, we'll need to check the elements

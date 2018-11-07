@@ -1,7 +1,7 @@
 /** @file inmemory_document.cc
  * @brief A document read from a InMemoryDatabase.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,8 @@ InMemoryDocument::do_get_value(Xapian::valueno slot) const
     LOGCALL(DB, string, "InMemoryDocument::do_get_value", slot);
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
+    if (rare(did > db->valuelists.size()))
+	RETURN(string());
     map<Xapian::valueno, string> values_ = db->valuelists[did - 1];
     map<Xapian::valueno, string>::const_iterator i;
     i = values_.find(slot);
@@ -47,6 +49,10 @@ InMemoryDocument::do_get_all_values(map<Xapian::valueno, string> &values_) const
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (db->closed) InMemoryDatabase::throw_database_closed();
+    if (rare(did > db->valuelists.size())) {
+	values_.clear();
+	return;
+    }
     values_ = db->valuelists[did - 1];
 }
 
@@ -57,5 +63,7 @@ InMemoryDocument::do_get_data() const
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (db->closed) InMemoryDatabase::throw_database_closed();
+    if (rare(did > db->valuelists.size()))
+	RETURN(string());
     RETURN(db->doclists[did - 1]);
 }

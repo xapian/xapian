@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,9 +32,10 @@
 #include "debuglog.h"
 #include "filetests.h"
 #include "fileutils.h"
+#include "posixy_wrapper.h"
 #include "str.h"
 
-#include "safeerrno.h"
+#include <cerrno>
 #include <cstdlib> // For atoi().
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
@@ -55,15 +56,41 @@
 
 using namespace std;
 
-namespace Xapian {
-
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-WritableDatabase
-InMemory::open() {
-    LOGCALL_STATIC(API, WritableDatabase, "InMemory::open", NO_ARGS);
-    RETURN(WritableDatabase(new InMemoryDatabase));
-}
+static bool
+check_if_single_file_db(const struct stat & sb, const string & path,
+			int * fd_ptr = NULL)
+{
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    if (!S_ISREG(sb.st_mode)) return false;
+    // Look at the size as a clue - if it's 0 or not a multiple of 2048,
+    // then it's not a single-file glass database.  If it is, peek at the start
+    // of the file to determine which it is.
+    if (sb.st_size == 0 || sb.st_size % 2048 != 0) return false;
+    int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
+    if (fd != -1) {
+	char magic_buf[14];
+	// FIXME: Don't duplicate magic check here...
+	if (io_read(fd, magic_buf, 14) == 14 &&
+	    lseek(fd, 0, SEEK_SET) == 0 &&
+	    memcmp(magic_buf, "\x0f\x0dXapian Glass", 14) == 0) {
+	    if (fd_ptr) {
+		*fd_ptr = fd;
+	    } else {
+		::close(fd);
+	    }
+	    return true;
+	}
+	::close(fd);
+    }
+#else
+    (void)sb;
+    (void)path;
+    (void)fd_ptr;
 #endif
+    return false;
+}
+
+namespace Xapian {
 
 static void
 open_stub(Database &db, const string &file)
@@ -99,26 +126,29 @@ open_stub(Database &db, const string &file)
 	    continue;
 	}
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
 	if (type == "chert") {
+#ifdef XAPIAN_HAS_CHERT_BACKEND
 	    resolve_relative_path(line, file);
 	    db.add_database(Database(new ChertDatabase(line)));
 	    continue;
-	}
+#else
+	    throw FeatureUnavailableError("Chert backend disabled");
 #endif
+	}
 
-#ifdef XAPIAN_HAS_GLASS_BACKEND
 	if (type == "glass") {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	    resolve_relative_path(line, file);
 	    db.add_database(Database(new GlassDatabase(line)));
 	    continue;
-	}
+#else
+	    throw FeatureUnavailableError("Glass backend disabled");
 #endif
+	}
 
+	if (type == "remote" && !line.empty()) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	if (type == "remote") {
-	    string::size_type colon = line.find(':');
-	    if (colon == 0) {
+	    if (line[0] == ':') {
 		// prog
 		// FIXME: timeouts
 		// Is it a security risk?
@@ -131,23 +161,39 @@ open_stub(Database &db, const string &file)
 		    line.erase(0, 1);
 		}
 		db.add_database(Remote::open(line, args));
-	    } else if (colon != string::npos) {
+		continue;
+	    }
+	    string::size_type colon = line.rfind(':');
+	    if (colon != string::npos) {
 		// tcp
 		// FIXME: timeouts
-		unsigned int port = atoi(line.c_str() + colon + 1);
-		line.erase(colon);
-		db.add_database(Remote::open(line, port));
+		// Avoid misparsing an IPv6 address without a port number.  The
+		// port number is required, so just leave that case to the
+		// error handling further below.
+		if (!(line[0] == '[' && line.back() == ']')) {
+		    unsigned int port = atoi(line.c_str() + colon + 1);
+		    line.erase(colon);
+		    if (line[0] == '[' && line.back() == ']') {
+			line.erase(line.size() - 1, 1);
+			line.erase(0, 1);
+		    }
+		    db.add_database(Remote::open(line, port));
+		    continue;
+		}
 	    }
-	    continue;
-	}
+#else
+	    throw FeatureUnavailableError("Remote backend disabled");
 #endif
+	}
 
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	if (type == "inmemory" && line.empty()) {
-	    db.add_database(InMemory::open());
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+	    db.add_database(Database(string(), DB_BACKEND_INMEMORY));
 	    continue;
-	}
+#else
+	    throw FeatureUnavailableError("Inmemory backend disabled");
 #endif
+	}
 
 	if (type == "flint") {
 	    throw FeatureUnavailableError("Flint backend no longer supported");
@@ -207,26 +253,29 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 	    continue;
 	}
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
 	if (type == "chert") {
+#ifdef XAPIAN_HAS_CHERT_BACKEND
 	    resolve_relative_path(line, file);
 	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_CHERT));
 	    continue;
-	}
+#else
+	    throw FeatureUnavailableError("Chert backend disabled");
 #endif
+	}
 
-#ifdef XAPIAN_HAS_GLASS_BACKEND
 	if (type == "glass") {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	    resolve_relative_path(line, file);
 	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_GLASS));
 	    continue;
-	}
+#else
+	    throw FeatureUnavailableError("Glass backend disabled");
 #endif
+	}
 
+	if (type == "remote" && !line.empty()) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	if (type == "remote") {
-	    string::size_type colon = line.find(':');
-	    if (colon == 0) {
+	    if (line[0] == ':') {
 		// prog
 		// FIXME: timeouts
 		// Is it a security risk?
@@ -239,23 +288,39 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 		    line.erase(0, 1);
 		}
 		db.add_database(Remote::open_writable(line, args, 0, flags));
-	    } else if (colon != string::npos) {
+		continue;
+	    }
+	    string::size_type colon = line.rfind(':');
+	    if (colon != string::npos) {
 		// tcp
 		// FIXME: timeouts
-		unsigned int port = atoi(line.c_str() + colon + 1);
-		line.erase(colon);
-		db.add_database(Remote::open_writable(line, port, 0, 10000, flags));
+		// Avoid misparsing an IPv6 address without a port number.  The
+		// port number is required, so just leave that case to the
+		// error handling further below.
+		if (!(line[0] == '[' && line.back() == ']')) {
+		    unsigned int port = atoi(line.c_str() + colon + 1);
+		    line.erase(colon);
+		    if (line[0] == '[' && line.back() == ']') {
+			line.erase(line.size() - 1, 1);
+			line.erase(0, 1);
+		    }
+		    db.add_database(Remote::open_writable(line, port, 0, 10000, flags));
+		    continue;
+		}
 	    }
-	    continue;
-	}
+#else
+	    throw FeatureUnavailableError("Remote backend disabled");
 #endif
+	}
 
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	if (type == "inmemory" && line.empty()) {
-	    db.add_database(InMemory::open());
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+	    db.add_database(WritableDatabase(string(), DB_BACKEND_INMEMORY));
 	    continue;
-	}
+#else
+	    throw FeatureUnavailableError("Inmemory backend disabled");
 #endif
+	}
 
 	if (type == "flint") {
 	    throw FeatureUnavailableError("Flint backend no longer supported");
@@ -297,6 +362,13 @@ Database::Database(const string &path, int flags)
 	case DB_BACKEND_STUB:
 	    open_stub(*this, path);
 	    return;
+	case DB_BACKEND_INMEMORY:
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+	    internal.push_back(new InMemoryDatabase());
+	    return;
+#else
+	    throw FeatureUnavailableError("Inmemory backend disabled");
+#endif
     }
 
     struct stat statbuf;
@@ -305,7 +377,20 @@ Database::Database(const string &path, int flags)
     }
 
     if (S_ISREG(statbuf.st_mode)) {
-	// The path is a file, so assume it is a stub database file.
+	// Could be a stub database file, or a single file glass database.
+
+	// Initialise to avoid bogus warning from GCC 4.9.2 with -Os.
+	int fd = -1;
+	if (check_if_single_file_db(statbuf, path, &fd)) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	    // Single file glass format.
+	    internal.push_back(new GlassDatabase(fd));
+	    return;
+#else
+	    throw FeatureUnavailableError("Glass backend disabled");
+#endif
+	}
+
 	open_stub(*this, path);
 	return;
     }
@@ -350,6 +435,27 @@ Database::Database(const string &path, int flags)
 	throw FeatureUnavailableError("Flint backend no longer supported");
     }
 
+    throw DatabaseOpeningError("Couldn't detect type of database");
+}
+
+Database::Database(int fd, int flags)
+{
+    LOGCALL_CTOR(API, "Database", fd|flags);
+    if (rare(fd < 0))
+	throw InvalidArgumentError("fd < 0");
+
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    int type = flags & DB_BACKEND_MASK_;
+    switch (type) {
+	case 0: case DB_BACKEND_GLASS:
+	    internal.push_back(new GlassDatabase(fd));
+	    return;
+    }
+#else
+    (void)flags;
+#endif
+
+    (void)::close(fd);
     throw DatabaseOpeningError("Couldn't detect type of database");
 }
 
@@ -419,31 +525,25 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	case DB_BACKEND_STUB:
 	    open_stub(*this, path, flags);
 	    return;
-	case 0: {
-	    // If only one backend is enabled, there's no point checking the
-	    // environmental variable.
-#if defined XAPIAN_HAS_CHERT_BACKEND && defined XAPIAN_HAS_GLASS_BACKEND
-	    // If $XAPIAN_PREFER_GLASS is set to a non-empty value, prefer glass
-	    // if there's no existing database.
-	    const char *p = getenv("XAPIAN_PREFER_GLASS");
-	    if (p && *p)
-	       	goto glass;
+	case 0:
+	    // Fall through to first enabled case, so order the remaining cases
+	    // by preference.
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	case DB_BACKEND_GLASS:
+	    internal.push_back(new GlassWritableDatabase(path, flags, block_size));
+	    return;
 #endif
-	}
-	// Fall through to first enabled case, so order the remaining cases
-	// by preference.
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	case DB_BACKEND_CHERT:
 	    internal.push_back(new ChertWritableDatabase(path, flags, block_size));
 	    return;
 #endif
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-	case DB_BACKEND_GLASS:
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-glass:
-#endif
-	    internal.push_back(new GlassWritableDatabase(path, flags, block_size));
+	case DB_BACKEND_INMEMORY:
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+	    internal.push_back(new InMemoryDatabase());
 	    return;
+#else
+	    throw FeatureUnavailableError("Inmemory backend disabled");
 #endif
     }
 #ifndef HAVE_DISK_BACKEND

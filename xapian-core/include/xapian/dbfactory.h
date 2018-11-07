@@ -1,7 +1,7 @@
 /** @file dbfactory.h
  * @brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011,2013,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -98,8 +98,13 @@ namespace InMemory {
  *  Only a writable InMemory database can be created, since a read-only one
  *  would always remain empty.
  */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open();
+XAPIAN_DEPRECATED(WritableDatabase open());
+
+inline WritableDatabase
+open()
+{
+    return WritableDatabase(std::string(), DB_BACKEND_INMEMORY);
+}
 
 }
 #endif
@@ -153,6 +158,12 @@ open(const std::string &dir, int action, int block_size)
 /// Database factory functions for the remote backend.
 namespace Remote {
 
+#if defined __GNUC__ && defined __MINGW32__
+// Avoid deprecation warnings about useconds_t on mingw.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a TCP connection.
  *
@@ -192,6 +203,7 @@ Database open(const std::string &host, unsigned int port, useconds_t timeout = 1
  *				Xapian::NetworkTimeoutError is thrown.  A
  *				timeout of 0 means don't timeout.  (Default is
  *				10000ms, which is 10 seconds).
+ * @param flags		Xapian::DB_RETRY_LOCK or 0.
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout = 0, useconds_t connect_timeout = 10000, int flags = 0);
@@ -209,7 +221,6 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, useco
  *			then Xapian::NetworkTimeoutError is thrown.  A timeout
  *			of 0 means don't timeout.  (Default is 10000ms, which
  *			is 10 seconds).
- * @param flags		Xapian::DB_RETRY_LOCK or 0.
  */
 XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &program, const std::string &args, useconds_t timeout = 10000);
@@ -230,6 +241,10 @@ Database open(const std::string &program, const std::string &args, useconds_t ti
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 0, int flags = 0);
+
+#if defined __GNUC__ && defined __MINGW32__
+# pragma GCC diagnostic pop
+#endif
 
 }
 #endif

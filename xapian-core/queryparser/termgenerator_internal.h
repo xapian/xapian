@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.h
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2012 Olly Betts
+/* Copyright (C) 2007,2012,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <xapian/database.h>
 #include <xapian/document.h>
 #include <xapian/termgenerator.h>
+#include <xapian/queryparser.h> // For Xapian::Stopper
 #include <xapian/stem.h>
 
 namespace Xapian {
@@ -35,16 +36,17 @@ class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     friend class TermGenerator;
     Stem stemmer;
     stem_strategy strategy;
-    const Stopper * stopper;
+    Xapian::Internal::opt_intrusive_ptr<const Stopper> stopper;
+    stop_strategy stop_mode;
     Document doc;
-    termcount termpos;
+    termpos cur_pos;
     TermGenerator::flags flags;
     unsigned max_word_length;
     WritableDatabase db;
 
   public:
-    Internal() : strategy(STEM_SOME), stopper(NULL), termpos(0),
-	flags(TermGenerator::flags(0)), max_word_length(64) { }
+    Internal() : strategy(STEM_SOME), stopper(NULL), stop_mode(STOP_STEMMED),
+	cur_pos(0), flags(TermGenerator::flags(0)), max_word_length(64) { }
     void index_text(Utf8Iterator itor,
 		    termcount weight,
 		    const std::string & prefix,

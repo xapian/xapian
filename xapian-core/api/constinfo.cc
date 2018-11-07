@@ -29,6 +29,7 @@
 #include "stringutils.h"
 
 static const struct Xapian::Internal::constinfo const_info = {
+#include "unicode/c_istab.h"
     XAPIAN_MAJOR_VERSION,
     XAPIAN_MINOR_VERSION,
     XAPIAN_REVISION,
@@ -39,6 +40,8 @@ static const struct Xapian::Internal::constinfo const_info = {
 
 namespace Xapian {
 namespace Internal {
-const struct constinfo * get_constinfo_() { return & const_info; }
+const struct constinfo * get_constinfo_() XAPIAN_NOEXCEPT {
+    return & const_info;
+}
 }
 }

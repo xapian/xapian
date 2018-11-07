@@ -20,7 +20,8 @@ Constructor. Takes no arguments.
 
 =head1 SEE ALSO
 
-L<Xapian>,L<Xapian::Enquire>
+L<Xapian>,
+L<Xapian::Enquire>
 
 =cut
 1;

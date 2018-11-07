@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     const unsigned char *end;
     mutable unsigned seqlen;
 
-    bool calculate_sequence_length() const;
+    bool XAPIAN_NOTHROW(calculate_sequence_length() const);
 
     unsigned get_char() const;
 
@@ -49,12 +49,12 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
   public:
     /** Return the raw const char * pointer for the current position. */
-    const char * raw() const XAPIAN_PURE_FUNCTION {
+    const char * raw() const {
 	return reinterpret_cast<const char *>(p ? p : end);
     }
 
     /** Return the number of bytes left in the iterator's buffer. */
-    size_t left() const XAPIAN_PURE_FUNCTION { return p ? end - p : 0; }
+    size_t left() const { return p ? end - p : 0; }
 
     /** Assign a new string to the iterator.
      *
@@ -138,7 +138,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
-    unsigned operator*() const XAPIAN_PURE_FUNCTION;
+    unsigned XAPIAN_NOTHROW(operator*() const) XAPIAN_PURE_FUNCTION;
 
     /** @private @internal Get the current Unicode character
      *  value pointed to by the iterator.
@@ -150,7 +150,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
-    unsigned strict_deref() const XAPIAN_PURE_FUNCTION;
+    unsigned XAPIAN_NOTHROW(strict_deref() const) XAPIAN_PURE_FUNCTION;
 
     /** Move forward to the next Unicode character.
      *
@@ -252,7 +252,7 @@ namespace Internal {
      *  treated as UNASSIGNED with no case variants.
      */
     XAPIAN_VISIBILITY_DEFAULT
-    int get_character_info(unsigned ch) XAPIAN_CONST_FUNCTION;
+    int XAPIAN_NOTHROW(get_character_info(unsigned ch)) XAPIAN_CONST_FUNCTION;
 
     /** @private @internal Extract how to convert the case of a Unicode
      *  character from its info.
@@ -268,21 +268,23 @@ namespace Internal {
      *  character from its info.
      */
     inline int get_delta(int info) {
-	/* It's implementation defined if sign extension happens on right shift
-	 * of a signed int, hence the conditional (hopefully the compiler will
-	 * spot this and optimise it to a sign-extending shift on architectures
-	 * with a suitable instruction).
+	/* It's implementation defined if sign extension happens when right
+	 * shifting a signed int, although in practice sign extension is what
+	 * most compilers implement.
+	 *
+	 * Some compilers are smart enough to spot common idioms for sign
+	 * extension, but not all (e.g. GCC < 7 doesn't spot the one used in
+	 * the else below), so check what the implementation defined behaviour
+	 * is with a constant conditional which should get optimised away.
 	 */
-#ifdef __GNUC__
-	// GCC 4.7.1 doesn't optimise the more complex expression down
-	// (reported as http://gcc.gnu.org/PR55299), but the documented
-	// behaviour for GCC is that right shift of a signed integer performs
-	// sign extension:
-	// http://gcc.gnu.org/onlinedocs/gcc-4.7.2/gcc/Integers-implementation.html
-	return info >> 8;
-#else
-	return (info >= 0) ? (info >> 8) : (~(~info >> 8));
-#endif
+	if ((-1 >> 1) == -1) {
+	    // Right shift sign-extends.
+	    return info >> 8;
+	} else {
+	    // Right shift shifts in zeros, not before and after the shift for
+	    // negative values.
+	    return (info >= 0) ? (info >> 8) : (~(~info >> 8));
+	}
     }
 }
 

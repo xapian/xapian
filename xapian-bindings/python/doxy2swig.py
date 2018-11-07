@@ -28,6 +28,7 @@ import sys
 import textwrap
 import types
 import os.path
+import io
 
 def my_open_read(source):
     if hasattr(source, "read"):
@@ -39,7 +40,7 @@ def my_open_write(dest):
     if hasattr(dest, "write"):
         return dest
     else:
-        return open(dest, 'w')
+        return io.open(dest, 'w', encoding = 'utf8')
 
 
 class Doxy2SWIG:

@@ -19,18 +19,19 @@ xapianinclude_HEADERS =\
 	include/xapian/document.h\
 	include/xapian/enquire.h\
 	include/xapian/errorhandler.h\
+	include/xapian/eset.h\
 	include/xapian/expanddecider.h\
 	include/xapian/intrusive_ptr.h\
 	include/xapian/iterator.h\
 	include/xapian/keymaker.h\
 	include/xapian/matchspy.h\
+	include/xapian/mset.h\
 	include/xapian/positioniterator.h\
 	include/xapian/postingiterator.h\
 	include/xapian/postingsource.h\
 	include/xapian/query.h\
 	include/xapian/queryparser.h\
 	include/xapian/registry.h\
-	include/xapian/snipper.h\
 	include/xapian/stem.h\
 	include/xapian/termgenerator.h\
 	include/xapian/termiterator.h\

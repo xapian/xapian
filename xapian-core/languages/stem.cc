@@ -1,7 +1,7 @@
 /** @file stem.cc
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008,2010,2011,2012,2015 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011,2012,2015,2018 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 
 #include "steminternal.h"
 
+#include "allsnowballheaders.h"
 #include "keyword.h"
 #include "sbl-dispatch.h"
 
@@ -45,12 +46,20 @@ Stem::operator=(const Stem & o)
     return *this;
 }
 
-Stem::Stem() : internal(0) { }
+Stem::Stem(Stem &&) = default;
 
-Stem::Stem(const std::string &language) : internal(0) {
-    int l = keyword(tab, language.data(), language.size());
+Stem &
+Stem::operator=(Stem &&) = default;
+
+Stem::Stem() { }
+
+Stem::Stem(const std::string &language) {
+    int l = keyword2(tab, language.data(), language.size());
     if (l >= 0) {
 	switch (static_cast<sbl_code>(l)) {
+	    case ARABIC:
+		internal = new InternalStemArabic;
+		return;
 	    case ARMENIAN:
 		internal = new InternalStemArmenian;
 		return;
@@ -87,14 +96,26 @@ Stem::Stem(const std::string &language) : internal(0) {
 	    case HUNGARIAN:
 		internal = new InternalStemHungarian;
 		return;
+	    case INDONESIAN:
+		internal = new InternalStemIndonesian;
+		return;
+	    case IRISH:
+		internal = new InternalStemIrish;
+		return;
 	    case ITALIAN:
 		internal = new InternalStemItalian;
 		return;
 	    case KRAAIJ_POHLMANN:
 		internal = new InternalStemKraaij_pohlmann;
 		return;
+	    case LITHUANIAN:
+		internal = new InternalStemLithuanian;
+		return;
 	    case LOVINS:
 		internal = new InternalStemLovins;
+		return;
+	    case NEPALI:
+		internal = new InternalStemNepali;
 		return;
 	    case NORWEGIAN:
 		internal = new InternalStemNorwegian;
@@ -118,6 +139,9 @@ Stem::Stem(const std::string &language) : internal(0) {
 		return;
 	    case SWEDISH:
 		internal = new InternalStemSwedish;
+		return;
+	    case TAMIL:
+		internal = new InternalStemTamil;
 		return;
 	    case TURKISH:
 		internal = new InternalStemTurkish;

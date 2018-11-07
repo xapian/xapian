@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ using namespace std;
 #define PROG_DESC "Xapian command line search tool"
 
 // Stopwords:
-static const char * sw[] = {
+static const char * const sw[] = {
     "a", "about", "an", "and", "are", "as", "at",
     "be", "by",
     "en",
@@ -49,11 +49,12 @@ static const char * sw[] = {
 };
 
 struct qp_flag { const char * s; unsigned f; };
-static qp_flag flag_tab[] = {
+static const qp_flag flag_tab[] = {
     { "auto_multiword_synonyms", Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS },
     { "auto_synonyms", Xapian::QueryParser::FLAG_AUTO_SYNONYMS },
     { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
     { "boolean_any_case", Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE },
+    { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
     { "default", Xapian::QueryParser::FLAG_DEFAULT },
     { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
     { "partial", Xapian::QueryParser::FLAG_PARTIAL },
@@ -65,12 +66,12 @@ static qp_flag flag_tab[] = {
 };
 const int n_flag_tab = sizeof(flag_tab) / sizeof(flag_tab[0]);
 
-inline bool operator<(const qp_flag & f1, const qp_flag & f2) {
+static inline bool operator<(const qp_flag& f1, const qp_flag& f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
 struct qp_op { const char * s; unsigned f; };
-static qp_op op_tab[] = {
+static const qp_op op_tab[] = {
     { "and", Xapian::Query::OP_AND },
     { "elite_set", Xapian::Query::OP_ELITE_SET },
     { "max", Xapian::Query::OP_MAX },
@@ -81,46 +82,54 @@ static qp_op op_tab[] = {
 };
 const int n_op_tab = sizeof(op_tab) / sizeof(op_tab[0]);
 
-inline bool operator<(const qp_op & f1, const qp_op & f2) {
+static inline bool operator<(const qp_op& f1, const qp_op& f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
 enum {
     WEIGHT_BB2,
     WEIGHT_BM25,
+    WEIGHT_BM25PLUS,
     WEIGHT_BOOL,
+    WEIGHT_COORD,
     WEIGHT_DLH,
     WEIGHT_DPH,
     WEIGHT_IFB2,
     WEIGHT_INEB2,
     WEIGHT_INL2,
+    WEIGHT_LM,
     WEIGHT_PL2,
+    WEIGHT_PL2PLUS,
     WEIGHT_TFIDF,
     WEIGHT_TRAD
 };
 
 struct wt { const char * s; int f; };
-static wt wt_tab[] = {
+static const wt wt_tab[] = {
     { "bb2",	WEIGHT_BB2 },
     { "bm25",	WEIGHT_BM25 },
+    { "bm25+",	WEIGHT_BM25PLUS },
     { "bool",	WEIGHT_BOOL },
+    { "coord",	WEIGHT_COORD },
     { "dlh",	WEIGHT_DLH },
     { "dph",	WEIGHT_DPH },
     { "ifb2",	WEIGHT_IFB2 },
     { "ineb2",	WEIGHT_INEB2 },
     { "inl2",	WEIGHT_INL2 },
+    { "lm",	WEIGHT_LM },
     { "pl2",	WEIGHT_PL2 },
+    { "pl2+",	WEIGHT_PL2PLUS },
     { "tfidf",	WEIGHT_TFIDF },
     { "trad",	WEIGHT_TRAD }
 };
 const int n_wt_tab = sizeof(wt_tab) / sizeof(wt_tab[0]);
 
-inline bool operator<(const wt & f1, const wt & f2) {
+static inline bool operator<(const wt& f1, const wt& f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
 "Options:\n"
 "  -d, --db=DIRECTORY                database to search (multiple databases may\n"
@@ -139,7 +148,7 @@ static void show_usage() {
 	size_t len = strlen(i->s);
 	if (pos < 256) cout << ',';
 	if (pos + len >= 78) {
-	    cout << "\n"INDENT;
+	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
 	} else {
 	    cout << ' ';
@@ -155,7 +164,7 @@ static void show_usage() {
 	size_t len = strlen(i->s);
 	if (pos < 256) cout << ',';
 	if (pos + len >= 78) {
-	    cout << "\n"INDENT;
+	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
 	} else {
 	    cout << ' ';
@@ -171,7 +180,7 @@ static void show_usage() {
 	size_t len = strlen(i->s);
 	if (pos < 256) cout << ',';
 	if (pos + len >= 78) {
-	    cout << "\n"INDENT;
+	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
 	} else {
 	    cout << ' ';
@@ -335,10 +344,10 @@ try {
 		break;
 	    }
 	    case 'v':
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'h':
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case ':': // missing parameter
@@ -380,8 +389,14 @@ try {
 	case WEIGHT_BOOL:
 	    enquire.set_weighting_scheme(Xapian::BoolWeight());
 	    break;
+	case WEIGHT_COORD:
+	    enquire.set_weighting_scheme(Xapian::CoordWeight());
+	    break;
 	case WEIGHT_BM25:
 	    enquire.set_weighting_scheme(Xapian::BM25Weight());
+	    break;
+	case WEIGHT_BM25PLUS:
+	    enquire.set_weighting_scheme(Xapian::BM25PlusWeight());
 	    break;
 	case WEIGHT_DLH:
 	    enquire.set_weighting_scheme(Xapian::DLHWeight());
@@ -398,8 +413,14 @@ try {
 	case WEIGHT_INL2:
 	    enquire.set_weighting_scheme(Xapian::InL2Weight());
 	    break;
+	case WEIGHT_LM:
+	    enquire.set_weighting_scheme(Xapian::LMWeight());
+	    break;
 	case WEIGHT_PL2:
 	    enquire.set_weighting_scheme(Xapian::PL2Weight());
+	    break;
+	case WEIGHT_PL2PLUS:
+	    enquire.set_weighting_scheme(Xapian::PL2PlusWeight());
 	    break;
 	case WEIGHT_TFIDF:
 	    enquire.set_weighting_scheme(Xapian::TfIdfWeight());
@@ -412,7 +433,7 @@ try {
     Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
 
     cout << "MSet:" << endl;
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	string data = doc.get_data();
 	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";

@@ -1,7 +1,7 @@
 /** @file tmpdir.h
  * @brief create a temporary directory securely
- *
- * Copyright (C) 2011,2014 Olly Betts
+ */
+/* Copyright (C) 2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_OMEGA_INCLUDED_TMPDIR_H
-#define XAPIAN_OMEGA_INCLUDED_TMPDIR_H
+#ifndef OMEGA_INCLUDED_TMPDIR_H
+#define OMEGA_INCLUDED_TMPDIR_H
 
 #include <string>
 
@@ -67,4 +67,4 @@ inline std::string get_tmpfile(const std::string & leaf) {
  */
 void remove_tmpdir();
 
-#endif // XAPIAN_OMEGA_INCLUDED_TMPDIR_H
+#endif // OMEGA_INCLUDED_TMPDIR_H

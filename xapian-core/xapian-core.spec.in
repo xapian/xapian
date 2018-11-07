@@ -4,34 +4,38 @@
 # Tell SuSE's build scripts not to build as root:
 # norootforbuild
 
-Summary: The Xapian Probabilistic Information Retrieval Library
+Summary: The Xapian Search Engine Library
 Name: @PACKAGE@
 Version: @VERSION@
 Release: 1
 License: GPL
 Vendor: xapian.org
 Group: Applications/Databases
-URL: http://xapian.org/
+URL: https://xapian.org/
 Requires: %{name}-libs = %{version}
-Source: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.xz
+Source: https://oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.xz
 # May need e2fsprogs-devel instead of libuuid-devel on older platforms
 BuildRequires: gcc-c++ zlib-devel libuuid-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
-Xapian is an Open Source Probabilistic Information Retrieval Library. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
 
 %package libs
 Summary: Xapian search engine libraries.
 Group: System Environment/Libraries
 
 %description libs
-Xapian is an Open Source Probabilistic Information Retrieval framework. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-libraries for applications using Xapian functionality.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
+
+This package provides the libraries for applications using Xapian
+functionality.
 
 %package devel
 Group: Development/Libraries
@@ -39,10 +43,13 @@ Summary: Files needed for building packages which use Xapian.
 Requires: %{name}-libs = %{version}
 
 %description devel
-Xapian is an Open Source Probabilistic Information Retrieval framework. It
-offers a highly adaptable toolkit that allows developers to easily add advanced
-indexing and search facilities to applications. This package provides the
-files needed for building packages which use Xapian.
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models and
+also supports a rich set of boolean query operators.
+
+This package provides the files needed for building packages which use
+Xapian.
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -90,7 +97,6 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_bindir}/xapian-check
 %{_bindir}/xapian-compact
 %{_bindir}/xapian-delve
-%{_bindir}/xapian-inspect
 %{_bindir}/xapian-replicate
 %{_bindir}/xapian-replicate-server
 %{_bindir}/xapian-metadata
@@ -103,7 +109,6 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_mandir}/man1/xapian-check.1*
 %{_mandir}/man1/xapian-compact.1*
 %{_mandir}/man1/xapian-delve.1*
-%{_mandir}/man1/xapian-inspect.1*
 %{_mandir}/man1/xapian-replicate.1*
 %{_mandir}/man1/xapian-replicate-server.1*
 %{_mandir}/man1/xapian-metadata.1*

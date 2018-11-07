@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
@@ -47,7 +47,7 @@
 #include "valuestreamdocument.h"
 #include "weight/weightinternal.h"
 
-#include <xapian/errorhandler.h>
+#include <xapian/error.h>
 #include <xapian/matchspy.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
@@ -66,6 +66,7 @@
 #ifdef HAVE_TIMER_CREATE
 #include <signal.h>
 #include <time.h>
+#include "safeunistd.h" // For _POSIX_* feature test macros.
 
 extern "C" {
 
@@ -77,9 +78,26 @@ set_timeout_flag(union sigval sv)
 
 }
 
-#ifdef __sun
+// The monotonic clock is the better basis for timeouts, but not always
+// available.
+
+#ifndef _POSIX_MONOTONIC_CLOCK
+const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
+#elif defined __sun
 // Solaris defines CLOCK_MONOTONIC, but "man timer_create" doesn't mention it
-// and using it fails.
+// and when using it timer_create() fails with "EPERM" (perhaps you need to be
+// root to use it?  I can't test that).
+//
+// Solaris defines _POSIX_MONOTONIC_CLOCK so we need to special case.
+const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
+#elif defined __CYGWIN__
+// https://cygwin.com/cygwin-api/std-notes.html currently (2016-05-13) says:
+//
+//     clock_nanosleep currently supports only CLOCK_REALTIME and
+//     CLOCK_MONOTONIC.  clock_setres, clock_settime, and timer_create
+//     currently support only CLOCK_REALTIME.
+//
+// So CLOCK_MONOTONIC is defined, but not supported by timer_create().
 const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
 #else
 const clockid_t TIMEOUT_CLOCK = CLOCK_MONOTONIC;
@@ -91,7 +109,7 @@ class TimeOut {
     volatile bool expired;
 
   public:
-    TimeOut(double limit) : expired(false) {
+    explicit TimeOut(double limit) : expired(false) {
 	if (limit > 0) {
 	    sev.sigev_notify = SIGEV_THREAD;
 	    sev.sigev_notify_function = set_timeout_flag;
@@ -125,7 +143,7 @@ class TimeOut {
 #else
 class TimeOut {
   public:
-    TimeOut(double) { }
+    explicit TimeOut(double) { }
     bool timed_out() const { return false; }
 };
 #endif
@@ -139,7 +157,7 @@ const Xapian::Enquire::Internal::sort_setting REL_VAL =
 	Xapian::Enquire::Internal::REL_VAL;
 const Xapian::Enquire::Internal::sort_setting VAL =
 	Xapian::Enquire::Internal::VAL;
-#if 0 // VAL_REL isn't currently used which causes a warning with SGI CC.
+#if 0 // VAL_REL isn't currently used so avoid compiler warnings.
 const Xapian::Enquire::Internal::sort_setting VAL_REL =
 	Xapian::Enquire::Internal::VAL_REL;
 #endif
@@ -204,10 +222,9 @@ split_rset_by_db(const Xapian::RSet * rset,
  */
 static void
 prepare_sub_matches(vector<intrusive_ptr<SubMatch> > & leaves,
-		    Xapian::ErrorHandler * errorhandler,
 		    Xapian::Weight::Internal & stats)
 {
-    LOGCALL_STATIC_VOID(MATCH, "prepare_sub_matches", leaves | errorhandler | stats);
+    LOGCALL_STATIC_VOID(MATCH, "prepare_sub_matches", leaves | stats);
     // We use a vector<bool> to track which SubMatches we're already prepared.
     vector<bool> prepared;
     prepared.resize(leaves.size(), false);
@@ -216,19 +233,8 @@ prepare_sub_matches(vector<intrusive_ptr<SubMatch> > & leaves,
     while (unprepared) {
 	for (size_t leaf = 0; leaf < leaves.size(); ++leaf) {
 	    if (prepared[leaf]) continue;
-	    try {
-		SubMatch * submatch = leaves[leaf].get();
-		if (!submatch || submatch->prepare_match(nowait, stats)) {
-		    prepared[leaf] = true;
-		    --unprepared;
-		}
-	    } catch (Xapian::Error & e) {
-		if (!errorhandler) throw;
-
-		LOGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
-		(*errorhandler)(e);
-		// Continue match without this sub-match.
-		leaves[leaf] = NULL;
+	    SubMatch * submatch = leaves[leaf].get();
+	    if (!submatch || submatch->prepare_match(nowait, stats)) {
 		prepared[leaf] = true;
 		--unprepared;
 	    }
@@ -243,10 +249,11 @@ prepare_sub_matches(vector<intrusive_ptr<SubMatch> > & leaves,
 class MultipleMatchSpy : public Xapian::MatchSpy {
   private:
     /// List of match spies to call, in order.
-    const std::vector<Xapian::MatchSpy *> & spies;
+    const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies;
 
   public:
-    MultipleMatchSpy(const std::vector<Xapian::MatchSpy *> & spies_)
+    explicit
+    MultipleMatchSpy(const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies_)
 	    : spies(spies_) {}
 
     /** Implementation of virtual operator().
@@ -256,12 +263,11 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
     void operator()(const Xapian::Document &doc, double wt);
 };
 
-void 
+void
 MultipleMatchSpy::operator()(const Xapian::Document &doc, double wt) {
     LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
-    vector<Xapian::MatchSpy *>::const_iterator i;
-    for (i = spies.begin(); i != spies.end(); ++i) {
-	(**i)(doc, wt);
+    for (auto i : spies) {
+	(*i)(doc, wt);
     }
 }
 
@@ -280,10 +286,9 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::Enquire::Internal::sort_setting sort_by_,
 		       bool sort_value_forward_,
 		       double time_limit_,
-		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
 		       const Xapian::Weight * weight_,
-		       const vector<Xapian::MatchSpy *> & matchspies_,
+		       const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies_,
 		       bool have_sorter, bool have_mdecider)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
@@ -292,11 +297,11 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  sort_key(sort_key_), sort_by(sort_by_),
 	  sort_value_forward(sort_value_forward_),
 	  time_limit(time_limit_),
-	  errorhandler(errorhandler_), weight(weight_),
+	  weight(weight_),
 	  is_remote(db.internal.size()),
 	  matchspies(matchspies_)
 {
-    LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | time_limit_| errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
+    LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | time_limit_| stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
     if (query.empty()) return;
 
@@ -308,49 +313,43 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	Xapian::Database::Internal *subdb = db.internal[i].get();
 	Assert(subdb);
 	intrusive_ptr<SubMatch> smatch;
-	try {
-	    // There is currently only one special case, for network databases.
+
+	// There is currently only one special case, for network databases.
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
-	    if (rem_db) {
-		if (have_sorter) {
-		    throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
-		}
-		if (have_mdecider) {
-		    throw Xapian::UnimplementedError("Xapian::MatchDecider not supported for the remote backend");
-		}
-		// FIXME: Remote handling for time_limit with multiple
-		// databases may need some work.
-		rem_db->set_query(query, qlen, collapse_max, collapse_key,
-				  order, sort_key, sort_by, sort_value_forward,
-				  time_limit,
-				  percent_cutoff, weight_cutoff, weight,
-				  subrsets[i], matchspies);
-		bool decreasing_relevance =
-		    (sort_by == REL || sort_by == REL_VAL);
-		smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
-		is_remote[i] = true;
-	    } else {
-		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+	if (subdb->get_backend_info(NULL) == BACKEND_REMOTE) {
+	    RemoteDatabase *rem_db = static_cast<RemoteDatabase*>(subdb);
+	    if (have_sorter) {
+		throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
 	    }
-#else
-	    // Avoid unused parameter warnings.
-	    (void)have_sorter;
-	    (void)have_mdecider;
+	    if (have_mdecider) {
+		throw Xapian::UnimplementedError("Xapian::MatchDecider not supported for the remote backend");
+	    }
+	    // FIXME: Remote handling for time_limit with multiple
+	    // databases may need some work.
+	    rem_db->set_query(query, qlen, collapse_max, collapse_key,
+			      order, sort_key, sort_by, sort_value_forward,
+			      time_limit,
+			      percent_cutoff, weight_cutoff, weight,
+			      subrsets[i], matchspies);
+	    bool decreasing_relevance =
+		(sort_by == REL || sort_by == REL_VAL);
+	    smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
+	    is_remote[i] = true;
+	} else {
 	    smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
-#endif /* XAPIAN_HAS_REMOTE_BACKEND */
-	} catch (Xapian::Error & e) {
-	    if (!errorhandler) throw;
-	    LOGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
-	    (*errorhandler)(e);
-	    // Continue match without this sub-postlist.
-	    smatch = NULL;
+	    subdb->readahead_for_query(query);
 	}
+#else
+	// Avoid unused parameter warnings.
+	(void)have_sorter;
+	(void)have_mdecider;
+	smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+#endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	leaves.push_back(smatch);
     }
 
     stats.set_query(query);
-    prepare_sub_matches(leaves, errorhandler, stats);
+    prepare_sub_matches(leaves, stats);
     stats.set_bounds_from_db(db);
 }
 
@@ -381,10 +380,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     const Xapian::KeyMaker *sorter)
 {
     LOGCALL_VOID(MATCH, "MultiMatch::get_mset", first | maxitems | check_at_least | Literal("mset") | stats | Literal("mdecider") | Literal("sorter"));
-    AssertRel(check_at_least,>=,maxitems);
+    AssertRel(check_at_least,>=,first + maxitems);
 
     if (query.empty()) {
-	mset = Xapian::MSet(new Xapian::MSet::Internal());
+	mset = Xapian::MSet();
 	mset.internal->firstitem = first;
 	return;
     }
@@ -406,22 +405,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 #endif
 
     // Start matchers.
-    {
-	vector<intrusive_ptr<SubMatch> >::iterator leaf;
-	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
-	    if (!(*leaf).get()) continue;
-	    try {
-		(*leaf)->start_match(0, first + maxitems,
-				     first + check_at_least, stats);
-	    } catch (Xapian::Error & e) {
-		if (!errorhandler) throw;
-		LOGLINE(EXCEPTION, "Calling error handler for "
-				   "start_match() on a SubMatch.");
-		(*errorhandler)(e);
-		// Continue match without this sub-match.
-		*leaf = NULL;
-	    }
-	}
+    for (auto && leaf : leaves) {
+	leaf->start_match(0, first + maxitems, first + check_at_least, stats);
     }
 
     // Get postlists and term info
@@ -433,28 +418,22 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // documents it returns (because it wasn't asked for more documents).
     Xapian::doccount definite_matches_not_seen = 0;
     for (size_t i = 0; i != leaves.size(); ++i) {
-	PostList *pl;
-	try {
-	    pl = leaves[i]->get_postlist(this, &total_subqs);
-	    if (is_remote[i]) {
-		if (pl->get_termfreq_min() > first + maxitems) {
-		    LOGLINE(MATCH, "Found " <<
-				   pl->get_termfreq_min() - (first + maxitems)
-				   << " definite matches in remote submatch "
-				   "which aren't passed to local match");
-		    definite_matches_not_seen += pl->get_termfreq_min();
-		    definite_matches_not_seen -= first + maxitems;
-		}
+	// Pick the highest total subqueries answer amongst the subdatabases,
+	// as the query to postlist conversion doesn't recurse into positional
+	// queries for shards that don't have positional data when at least one
+	// other shard does.
+	Xapian::termcount total_subqs_i = 0;
+	PostList * pl = leaves[i]->get_postlist(this, &total_subqs_i);
+	total_subqs = max(total_subqs, total_subqs_i);
+	if (is_remote[i]) {
+	    if (pl->get_termfreq_min() > first + maxitems) {
+		LOGLINE(MATCH, "Found " <<
+			       pl->get_termfreq_min() - (first + maxitems)
+			       << " definite matches in remote submatch "
+			       "which aren't passed to local match");
+		definite_matches_not_seen += pl->get_termfreq_min();
+		definite_matches_not_seen -= first + maxitems;
 	    }
-	} catch (Xapian::Error & e) {
-	    if (!errorhandler) throw;
-	    LOGLINE(EXCEPTION, "Calling error handler for "
-			       "get_postlist() on a SubMatch.");
-	    (*errorhandler)(e);
-	    // FIXME: check if *ALL* the remote servers have failed!
-	    // Continue match without this sub-match.
-	    leaves[i] = NULL;
-	    pl = new EmptyPostList;
 	}
 	postlists.push_back(pl);
     }
@@ -469,7 +448,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     if (postlists.size() == 1) {
 	pl.reset(postlists.front());
     } else {
-	pl.reset(new MergePostList(postlists, this, vsdoc, errorhandler));
+	pl.reset(new MergePostList(postlists, this, vsdoc));
     }
 
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
@@ -505,7 +484,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     MultipleMatchSpy multispy(matchspies);
     if (!matchspies.empty()) {
 	if (matchspies.size() == 1) {
-	    matchspy = matchspies[0];
+	    matchspy = matchspies[0].get();
 	} else {
 	    matchspy = &multispy;
 	}
@@ -524,7 +503,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		matches_lower_bound = collapse_max;
 	}
 
-	mset = Xapian::MSet(new Xapian::MSet::Internal(
+	mset.internal = new Xapian::MSet::Internal(
 					   first,
 					   matches_upper_bound,
 					   matches_lower_bound,
@@ -533,7 +512,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   uncollapsed_lower_bound,
 					   matches_estimated,
 					   max_possible, greatest_wt, items,
-					   0));
+					   0);
 	return;
     }
 
@@ -634,12 +613,15 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	vsdoc.set_document(did);
 	LOGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
-	if (check_at_least > maxitems && timeout.timed_out()) {
-	    check_at_least = maxitems;
+	if (check_at_least > first + maxitems && timeout.timed_out()) {
+	    check_at_least = first + maxitems;
 	}
 
 	if (sort_by != REL) {
-	    if (sorter) {
+	    const string * ptr = pl->get_sort_key();
+	    if (ptr) {
+		new_item.sort_key = *ptr;
+	    } else if (sorter) {
 		new_item.sort_key = (*sorter)(doc);
 	    } else {
 		new_item.sort_key = vsdoc.get_value(sort_key);
@@ -776,7 +758,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			 MSetCmp>(items.begin(), items.end(), mcmp);
 		items.pop_back();
 
-		min_item = items.front();
+		if (!items.empty()) {
+		    // In the get_mset(0, 0, X) (X > 0) case just don't update min_item.
+		    min_item = items.front();
+		}
 		if (sort_by == REL || sort_by == REL_VAL) {
 		    if (docs_matched >= check_at_least) {
 			if (sort_by == REL) {
@@ -1043,7 +1028,7 @@ new_greatest_weight:
 	    matches_estimated =
 		Xapian::doccount(matches_estimated * estimate_scale + 0.5);
 	    if (matches_estimated < matches_lower_bound)
-	       	matches_estimated = matches_lower_bound;
+		matches_estimated = matches_lower_bound;
 	}
 
 	if (collapser || mdecider) {
@@ -1105,6 +1090,12 @@ new_greatest_weight:
 
     LOGLINE(MATCH, "sorting " << items.size() << " entries");
 
+    // We could use std::sort_heap if is_heap is true, but profiling
+    // suggests that's actually slower.  Cast to void to suppress
+    // compiler warnings that the last set value of is_heap is never
+    // used.
+    (void)is_heap;
+
     // Need a stable sort, but this is provided by comparison operator
     sort(items.begin(), items.end(), mcmp);
 
@@ -1147,7 +1138,7 @@ new_greatest_weight:
 	}
     }
 
-    mset = Xapian::MSet(new Xapian::MSet::Internal(
+    mset.internal = new Xapian::MSet::Internal(
 				       first,
 				       matches_upper_bound,
 				       matches_lower_bound,
@@ -1156,5 +1147,5 @@ new_greatest_weight:
 				       uncollapsed_lower_bound,
 				       uncollapsed_estimated,
 				       max_possible, greatest_wt, items,
-				       percent_scale * 100.0));
+				       percent_scale * 100.0);
 }

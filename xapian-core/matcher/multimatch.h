@@ -2,7 +2,7 @@
  * @brief class for performing a match
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2009,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009,2011,2013,2014,2015,2016 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -59,9 +59,6 @@ class MultiMatch
 
 	double time_limit;
 
-	/// ErrorHandler
-	Xapian::ErrorHandler * errorhandler;
-
 	/// Weighting scheme
 	const Xapian::Weight * weight;
 
@@ -74,7 +71,7 @@ class MultiMatch
 	vector<bool> is_remote;
 
 	/// The matchspies to use.
-	const vector<Xapian::MatchSpy *> & matchspies;
+	const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies;
 
 	/** get the maxweight that the postlist pl may return, calling
 	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.
@@ -97,7 +94,6 @@ class MultiMatch
 	 *  @param omrset    The relevance set (or NULL for no RSet)
 	 *  @param time_limit_ Seconds to reduce check_at_least after (or <= 0
 	 *                     for no limit)
-	 *  @param errorhandler Errorhandler object
 	 *  @param stats     The stats object to add our stats to.
 	 *  @param wtscheme  Weighting scheme
 	 *  @param matchspies_ Any the MatchSpy objects in use.
@@ -117,10 +113,9 @@ class MultiMatch
 		   Xapian::Enquire::Internal::sort_setting sort_by_,
 		   bool sort_value_forward_,
 		   double time_limit_,
-		   Xapian::ErrorHandler * errorhandler,
 		   Xapian::Weight::Internal & stats,
 		   const Xapian::Weight *wtscheme,
-		   const vector<Xapian::MatchSpy *> & matchspies_,
+		   const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies_,
 		   bool have_sorter, bool have_mdecider);
 
 	/** Run the match and generate an MSet object.
@@ -140,6 +135,10 @@ class MultiMatch
 	 */
 	void recalc_maxweight() {
 	    recalculate_w_max = true;
+	}
+
+	bool full_db_has_positions() const {
+	    return db.has_positions();
 	}
 };
 

@@ -1,7 +1,7 @@
 /** @file postlist.cc
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,6 +47,12 @@ PostingIterator::Internal::get_wdf() const
 }
 
 const string *
+PostingIterator::Internal::get_sort_key() const
+{
+    return NULL;
+}
+
+const string *
 PostingIterator::Internal::get_collapse_key() const
 {
     return NULL;
@@ -55,7 +61,7 @@ PostingIterator::Internal::get_collapse_key() const
 PositionList *
 PostList::read_position_list()
 {
-    throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support terms as subqueries");
+    throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support leaf subqueries");
 }
 
 PositionList *
@@ -76,6 +82,12 @@ PostList::count_matching_subqs() const
 {
     Assert(false);
     return 0;
+}
+
+void
+PostList::gather_position_lists(OrPositionList*)
+{
+    Assert(false);
 }
 
 }

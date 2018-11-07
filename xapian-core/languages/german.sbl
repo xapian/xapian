@@ -19,12 +19,12 @@ groupings ( v s_ending st_ending )
 
 stringescapes {}
 
-/* special characters (in ISO Latin I) */
+/* special characters */
 
-stringdef a"   hex 'E4'
-stringdef o"   hex 'F6'
-stringdef u"   hex 'FC'
-stringdef ss   hex 'DF'
+stringdef a"   '{U+00E4}'
+stringdef o"   '{U+00F6}'
+stringdef u"   '{U+00FC}'
+stringdef ss   '{U+00DF}'
 
 define v 'aeiouy{a"}{o"}{u"}'
 

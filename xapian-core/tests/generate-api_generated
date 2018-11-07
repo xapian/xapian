@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-my $copyright = 'Copyright (C) 2007,2009,2012,2014 Olly Betts';
+my $copyright = 'Copyright (C) 2007,2009,2012,2014,2015,2016,2018 Olly Betts';
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -35,30 +35,32 @@ my %uncopyableclasses = (
     'DecreasingValueWeightPostingSource' => '0',
     'ValueCountMatchSpy' => '0',
     'ValueMapPostingSource' => '0',
-    'FixedWeightPostingSource' => '0'
+    'FixedWeightPostingSource' => '0',
+    'DateRangeProcessor' => '0',
+    'DateValueRangeProcessor' => '0',
+    'MultiValueKeyMaker' => '',
+    'NumberRangeProcessor' => '0, ""',
+    'NumberValueRangeProcessor' => '0, ""',
+    'RangeProcessor' => '',
+    'SimpleStopper' => '',
+    'StringValueRangeProcessor' => '0'
 );
 
 my %copyableclasses = (
     'Database' => '',
-    'DateValueRangeProcessor' => '0',
     'Document' => '',
     'ESet' => '',
     'ESetIterator' => '',
-    'Enquire' => 'Xapian::InMemory::open()',
+    'Enquire' => 'Xapian::Database(std::string(), Xapian::DB_BACKEND_INMEMORY)',
     'MSet' => '',
     'MSetIterator' => '',
-    'MultiValueKeyMaker' => '',
-    'NumberValueRangeProcessor' => '0, ""',
     'PositionIterator' => '',
     'PostingIterator' => '',
     'Query' => '',
     'QueryParser' => '',
     'Registry' => '',
     'RSet' => '',
-    'SimpleStopper' => '',
-    'Snipper' => '',
     'Stem' => '',
-    'StringValueRangeProcessor' => '0',
     'TermGenerator' => '',
     'TermIterator' => '',
     'ValueIterator' => '',
@@ -66,9 +68,12 @@ my %copyableclasses = (
 );
 
 my %no_get_description = (
+    'DateRangeProcessor' => 1,
     'DateValueRangeProcessor' => 1,
     'MultiValueKeyMaker' => 1,
+    'NumberRangeProcessor' => 1,
     'NumberValueRangeProcessor' => 1,
+    'RangeProcessor' => 1,
     'Registry' => 1,
     'StringValueRangeProcessor' => 1,
     'BB2Weight' => 1,
@@ -110,6 +115,7 @@ print <<"END";
 
 #include "api_generated.h"
 
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "apitest.h"
@@ -143,7 +149,7 @@ END
 
 for my $class (sort keys %copyableclasses) {
     my $params = $copyableclasses{$class};
-    if ($params =~ /InMemory/) {
+    if ($params =~ /INMEMORY/) {
 	print "#ifdef XAPIAN_HAS_INMEMORY_BACKEND\n";
     }
     if ($params ne '') {
@@ -155,8 +161,14 @@ for my $class (sort keys %copyableclasses) {
     print "    $class $object$params;\n";
     print "    TEST(!$object.get_description().empty());\n" if $get_description;
     print "    $class copy_$object($object);\n";
+    print "    TEST(!copy_$object.get_description().empty());\n" if $get_description;
+    print "    $class move_$object(std::move($object));\n";
+    print "    TEST(!move_$object.get_description().empty());\n" if $get_description;
     print "    $object = copy_$object;\n";
-    if ($params =~ /InMemory/) {
+    print "    TEST(!$object.get_description().empty());\n" if $get_description;
+    print "    copy_$object = std::move(move_$object);\n";
+    print "    TEST(!copy_$object.get_description().empty());\n" if $get_description;
+    if ($params =~ /INMEMORY/) {
 	print "#endif\n";
     }
     print "\n";

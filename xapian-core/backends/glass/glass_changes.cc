@@ -1,7 +1,7 @@
 /** @file glass_changes.cc
  * @brief Glass changesets
  */
-/* Copyright 2014 Olly Betts
+/* Copyright 2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,13 +30,13 @@
 #include "posixy_wrapper.h"
 #include "str.h"
 #include "stringutils.h"
-#include "unaligned.h"
+#include "wordaccess.h"
 #include "xapian/constants.h"
 #include "xapian/error.h"
 
+#include <cerrno>
 #include <cstdlib>
 #include <string>
-#include "safeerrno.h"
 
 using namespace std;
 
@@ -134,19 +134,11 @@ GlassChanges::commit(glass_revision_number_t new_rev, int flags)
     string changes_file = changes_stem;
     changes_file += str(new_rev - 1); // FIXME: ?
 
-    if (posixy_rename(changes_tmp.c_str(), changes_file.c_str()) < 0) {
-	// With NFS, rename() failing may just mean that the server crashed
-	// after successfully renaming, but before reporting this, and then
-	// the retried operation fails.  So we need to check if the source
-	// file still exists, which we do by calling unlink(), since we want
-	// to remove the temporary file anyway.
-	int saved_errno = errno;
-	if (unlink(changes_tmp.c_str()) == 0 || errno != ENOENT) {
-	    string m = changes_tmp;
-	    m += ": Failed to rename to ";
-	    m += changes_file;
-	    throw Xapian::DatabaseError(m, saved_errno);
-	}
+    if (!io_tmp_rename(changes_tmp, changes_file)) {
+	string m = changes_tmp;
+	m += ": Failed to rename to ";
+	m += changes_file;
+	throw Xapian::DatabaseError(m, errno);
     }
 
     if (new_rev <= max_changesets) {
@@ -206,7 +198,7 @@ GlassChanges::check(const string & changes_file)
     while (true) {
 	n -= (p - buf);
 	memmove(buf, p, n);
-	n += io_read(fd, buf + n, sizeof(buf) - n, 0);
+	n += io_read(fd, buf + n, sizeof(buf) - n);
 
 	if (n == 0)
 	    throw Xapian::DatabaseError("Changes file truncated");
@@ -233,7 +225,7 @@ GlassChanges::check(const string & changes_file)
 	    if (len <= size_t(end - p)) {
 		p += len;
 	    } else {
-		if (lseek(fd, len - (end - p), SEEK_CUR) == off_t(-1))
+		if (lseek(fd, len - (end - p), SEEK_CUR) < 0)
 		    throw Xapian::DatabaseError("Changes file - version file data truncated");
 		p = end = buf;
 		n = 0;
@@ -251,14 +243,17 @@ GlassChanges::check(const string & changes_file)
 	uint4 block_number;
 	if (!unpack_uint(&p, end, &block_number))
 	    throw Xapian::DatabaseError("Changes file - bad block number");
-	uint4 block_rev = getint4(reinterpret_cast<const unsigned char *>(p), 0);
+	// Although the revision number is aligned within the block, the block
+	// data may not be aligned to a word boundary here.
+	uint4 block_rev = unaligned_read4(reinterpret_cast<const uint8_t*>(p));
 	(void)block_rev; // FIXME: Sanity check value.
-	unsigned level = (unsigned char)p[4];
+	p += 4;
+	unsigned level = static_cast<unsigned char>(*p++);
 	(void)level; // FIXME: Sanity check value.
 	if (block_size <= unsigned(end - p)) {
 	    p += block_size;
 	} else {
-	    if (lseek(fd, block_size - (end - p), SEEK_CUR) == off_t(-1))
+	    if (lseek(fd, block_size - (end - p), SEEK_CUR) < 0)
 		throw Xapian::DatabaseError("Changes file - block data truncated");
 	    p = end = buf;
 	    n = 0;

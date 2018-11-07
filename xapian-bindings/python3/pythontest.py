@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010,2011,2013,2014 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
 # Copyright (C) 2010,2011 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ def setup_database():
     """Set up and return an inmemory database with 5 documents.
 
     """
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase('', xapian.DB_BACKEND_INMEMORY)
 
     doc = xapian.Document()
     doc.set_data("is it cold?")
@@ -333,7 +333,7 @@ def test_allterms_iter():
         freqs.append(termitem.termfreq)
         expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
 
-    context("checking that items are no longer valid once the iterator has moved on");
+    context("checking that items are no longer valid once the iterator has moved on")
     termitems = [termitem for termitem in db]
 
     expect(len(termitems), len(terms))
@@ -765,7 +765,7 @@ def test_synonyms_iter():
     expect([item for item in dbr.synonym_keys('hello')], [b'hello'])
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     dbr.close()
     shutil.rmtree(dbpath)
 
@@ -816,7 +816,7 @@ def test_metadata_keys_iter():
     expect([item for item in dbr.metadata_keys('type')], [b'type'])
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     dbr.close()
     shutil.rmtree(dbpath)
 
@@ -841,7 +841,7 @@ def test_spell():
     expect([(item.term, item.termfreq) for item in dbr.spellings()], [(b'hello', 1), (b'mell', 2)])
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     dbr.close()
     shutil.rmtree(dbpath)
 
@@ -863,7 +863,7 @@ def test_queryparser_custom_vrp():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Query(0 * VALUE_RANGE 7 A5 B8)')
+           'Query(VALUE_RANGE 7 A5 B8)')
 
 def test_queryparser_custom_vrp_deallocation():
     """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
@@ -886,7 +886,54 @@ def test_queryparser_custom_vrp_deallocation():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Query(0 * VALUE_RANGE 7 A5 B8)')
+           'Query(VALUE_RANGE 7 A5 B8)')
+
+def test_queryparser_custom_rp():
+    """Test QueryParser with a custom (in python) RangeProcessor.
+
+    """
+    class MyRP(xapian.RangeProcessor):
+        def __init__(self):
+            xapian.RangeProcessor.__init__(self)
+
+        def __call__(self, begin, end):
+            begin = "A" + begin.decode('utf-8')
+            end = "B" + end.decode('utf-8')
+            return xapian.Query(xapian.Query.OP_VALUE_RANGE, 7, begin, end)
+
+    queryparser = xapian.QueryParser()
+    myrp = MyRP()
+
+    queryparser.add_rangeprocessor(myrp)
+    query = queryparser.parse_query('5..8')
+
+    expect(str(query),
+           'Query(VALUE_RANGE 7 A5 B8)')
+
+def test_queryparser_custom_rp_deallocation():
+    """Test that QueryParser doesn't delete RangeProcessors too soon.
+
+    """
+    class MyRP(xapian.RangeProcessor):
+        def __init__(self):
+            xapian.RangeProcessor.__init__(self)
+
+        def __call__(self, begin, end):
+            begin = "A" + begin.decode('utf-8')
+            end = "B" + end.decode('utf-8')
+            return xapian.Query(xapian.Query.OP_VALUE_RANGE, 7, begin, end)
+
+    def make_parser():
+        queryparser = xapian.QueryParser()
+        myrp = MyRP()
+        queryparser.add_rangeprocessor(myrp)
+        return queryparser
+
+    queryparser = make_parser()
+    query = queryparser.parse_query('5..8')
+
+    expect(str(query),
+           'Query(VALUE_RANGE 7 A5 B8)')
 
 def test_scale_weight():
     """Test query OP_SCALE_WEIGHT feature.
@@ -894,7 +941,7 @@ def test_scale_weight():
     """
     db = setup_database()
     for mult in (0, 1, 2.5):
-        context("checking queries with OP_SCALE_WEIGHT with a multipler of %r" %
+        context("checking queries with OP_SCALE_WEIGHT with a multiplier of %r" %
                 mult)
         query1 = xapian.Query("it")
         query2 = xapian.Query(xapian.Query.OP_SCALE_WEIGHT, query1, mult)
@@ -911,7 +958,7 @@ def test_scale_weight():
             expected = [(int(item.weight * mult * 1000000), item.docid) for item in mset1]
         expect([(int(item.weight * 1000000), item.docid) for item in mset2], expected)
 
-    context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
+    context("checking queries with OP_SCALE_WEIGHT with a multiplier of -1")
     query1 = xapian.Query("it")
     expect_exception(xapian.InvalidArgumentError,
                      "OP_SCALE_WEIGHT requires factor >= 0",
@@ -1003,14 +1050,19 @@ def test_postingsource():
 
         def init(self, db):
             self.current = -1
+            self.weight = db.get_doccount() + 1
+            self.set_maxweight(self.weight)
 
         def get_termfreq_min(self): return 0
         def get_termfreq_est(self): return int(self.max / 2)
         def get_termfreq_max(self): return self.max
         def __next__(self, minweight):
             self.current += 2
+            self.weight -= 1.0
+            self.set_maxweight(self.weight)
         def at_end(self): return self.current > self.max
         def get_docid(self): return self.current
+        def get_weight(self): return self.weight
 
     dbpath = 'db_test_postingsource'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
@@ -1050,9 +1102,10 @@ def test_postingsource():
     mset = enquire.get_mset(0, 10)
 
     expect([item.docid for item in mset], [1, 3, 5, 7, 9])
+    expect(mset[0].weight, db.get_doccount())
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     shutil.rmtree(dbpath)
 
 def test_postingsource2():
@@ -1080,6 +1133,49 @@ def test_postingsource2():
     db.close()
     shutil.rmtree(dbpath)
 
+def test_postingsource3():
+    """Test that ValuePostingSource can be usefully subclassed.
+
+    """
+    dbpath = 'db_test_postingsource3'
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    vals = (1, 3, 2, 4)
+    for wt in vals:
+        doc = xapian.Document()
+        doc.add_value(1, xapian.sortable_serialise(wt))
+        db.add_document(doc)
+
+    class PyValuePostingSource(xapian.ValuePostingSource):
+        def __init__(self, slot):
+            xapian.ValuePostingSource.__init__(self, slot)
+
+        def init(self, db):
+            xapian.ValuePostingSource.init(self, db)
+            self.current = -1
+            slot = self.get_slot()
+            ub = db.get_value_upper_bound(slot)
+            self.set_maxweight(xapian.sortable_unserialise(ub) ** 3)
+
+        def next(self, minweight):
+            return xapian.ValuePostingSource.next(self, minweight)
+        def get_weight(self):
+            value = self.get_value()
+            return xapian.sortable_unserialise(value) ** 3
+
+    source = PyValuePostingSource(1)
+    query = xapian.Query(source)
+    #del source # Check that query keeps a reference to it.
+
+    enquire = xapian.Enquire(db)
+    enquire.set_query(query)
+    mset = enquire.get_mset(0, 10)
+
+    expect([item.docid for item in mset], [4, 2, 3, 1])
+
+    db.close()
+    expect(xapian.Database.check(dbpath), 0)
+    shutil.rmtree(dbpath)
+
 def test_value_stats():
     """Simple test of being able to get value statistics.
 
@@ -1104,7 +1200,7 @@ def test_value_stats():
     expect(db.get_value_upper_bound(2), b"")
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     shutil.rmtree(dbpath)
 
 def test_get_uuid():
@@ -1323,7 +1419,7 @@ def test_preserve_enquire_sorter():
     """Test preservation of sorter set on enquire.
 
     """
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase('', xapian.DB_BACKEND_INMEMORY)
     doc = xapian.Document()
     doc.add_term('foo')
     doc.add_value(1, '1')
@@ -1441,7 +1537,7 @@ def test_compactor():
         db1.set_metadata('key', '1')
         db1.set_metadata('key1', '1')
         db1.add_document(doc1)
-        db1.flush()
+        db1.commit()
 
         db2 = xapian.WritableDatabase(db2path, xapian.DB_CREATE_OR_OVERWRITE)
         doc2 = xapian.Document()
@@ -1451,7 +1547,7 @@ def test_compactor():
         db2.set_metadata('key', '2')
         db2.set_metadata('key2', '2')
         db2.add_document(doc2)
-        db2.flush()
+        db2.commit()
 
         # Compact with the default compactor
         # Metadata conflicts are resolved by picking the first value
@@ -1536,7 +1632,7 @@ def test_custom_matchspy():
 
 def test_removed_features():
     ok = True
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase('', xapian.DB_BACKEND_INMEMORY)
     doc = xapian.Document()
     enq = xapian.Enquire(db)
     eset = xapian.ESet()
@@ -1593,6 +1689,74 @@ def test_removed_features():
     check_missing(titer, 'positionlist_begin')
     check_missing(titer, 'positionlist_end')
 
+def test_repr():
+    # repr() returned None in 1.4.0.
+    expect(repr(xapian.Query('foo')) is None, False)
+    expect(repr(xapian.AssertionError('foo')) is None, False)
+    expect(repr(xapian.InvalidArgumentError('foo')) is None, False)
+    expect(repr(xapian.InvalidOperationError('foo')) is None, False)
+    expect(repr(xapian.UnimplementedError('foo')) is None, False)
+    expect(repr(xapian.DatabaseError('foo')) is None, False)
+    expect(repr(xapian.DatabaseCorruptError('foo')) is None, False)
+    expect(repr(xapian.DatabaseCreateError('foo')) is None, False)
+    expect(repr(xapian.DatabaseLockError('foo')) is None, False)
+    expect(repr(xapian.DatabaseModifiedError('foo')) is None, False)
+    expect(repr(xapian.DatabaseOpeningError('foo')) is None, False)
+    expect(repr(xapian.DatabaseVersionError('foo')) is None, False)
+    expect(repr(xapian.DocNotFoundError('foo')) is None, False)
+    expect(repr(xapian.FeatureUnavailableError('foo')) is None, False)
+    expect(repr(xapian.InternalError('foo')) is None, False)
+    expect(repr(xapian.NetworkError('foo')) is None, False)
+    expect(repr(xapian.NetworkTimeoutError('foo')) is None, False)
+    expect(repr(xapian.QueryParserError('foo')) is None, False)
+    expect(repr(xapian.SerialisationError('foo')) is None, False)
+    expect(repr(xapian.RangeError('foo')) is None, False)
+    expect(repr(xapian.WildcardError('foo')) is None, False)
+    expect(repr(xapian.Document()) is None, False)
+    expect(repr(xapian.Registry()) is None, False)
+    expect(repr(xapian.Query()) is None, False)
+    expect(repr(xapian.Stem('en')) is None, False)
+    expect(repr(xapian.TermGenerator()) is None, False)
+    expect(repr(xapian.MSet()) is None, False)
+    expect(repr(xapian.ESet()) is None, False)
+    expect(repr(xapian.RSet()) is None, False)
+    expect(repr(xapian.MultiValueKeyMaker()) is None, False)
+    expect(repr(xapian.SimpleStopper()) is None, False)
+    expect(repr(xapian.RangeProcessor()) is None, False)
+    expect(repr(xapian.DateRangeProcessor(1)) is None, False)
+    expect(repr(xapian.NumberRangeProcessor(1)) is None, False)
+    expect(repr(xapian.StringValueRangeProcessor(1)) is None, False)
+    expect(repr(xapian.DateValueRangeProcessor(1)) is None, False)
+    expect(repr(xapian.NumberValueRangeProcessor(1)) is None, False)
+    expect(repr(xapian.QueryParser()) is None, False)
+    expect(repr(xapian.BoolWeight()) is None, False)
+    expect(repr(xapian.TfIdfWeight()) is None, False)
+    expect(repr(xapian.BM25Weight()) is None, False)
+    expect(repr(xapian.BM25PlusWeight()) is None, False)
+    expect(repr(xapian.TradWeight()) is None, False)
+    expect(repr(xapian.InL2Weight()) is None, False)
+    expect(repr(xapian.IfB2Weight()) is None, False)
+    expect(repr(xapian.IneB2Weight()) is None, False)
+    expect(repr(xapian.BB2Weight()) is None, False)
+    expect(repr(xapian.DLHWeight()) is None, False)
+    expect(repr(xapian.PL2Weight()) is None, False)
+    expect(repr(xapian.PL2PlusWeight()) is None, False)
+    expect(repr(xapian.DPHWeight()) is None, False)
+    expect(repr(xapian.LMWeight()) is None, False)
+    expect(repr(xapian.CoordWeight()) is None, False)
+    expect(repr(xapian.Compactor()) is None, False)
+    expect(repr(xapian.ValuePostingSource(1)) is None, False)
+    expect(repr(xapian.ValueWeightPostingSource(1)) is None, False)
+    expect(repr(xapian.DecreasingValueWeightPostingSource(1)) is None, False)
+    expect(repr(xapian.ValueMapPostingSource(1)) is None, False)
+    expect(repr(xapian.FixedWeightPostingSource(1)) is None, False)
+    expect(repr(xapian.ValueCountMatchSpy(1)) is None, False)
+    expect(repr(xapian.LatLongCoord()) is None, False)
+    expect(repr(xapian.LatLongCoords()) is None, False)
+    expect(repr(xapian.GreatCircleMetric()) is None, False)
+    expect(repr(xapian.Database()) is None, False)
+    expect(repr(xapian.WritableDatabase()) is None, False)
+
 result = True
 
 # Run all tests (ie, callables with names starting "test_").
@@ -1607,8 +1771,13 @@ run()
 if have_threads:
     print("Running tests with threads")
 
-    # This testcase seems to just block when run in a thread, so just remove
-    # it before running tests in a thread.
+    # This testcase seems to just block when run in a thread under Python 3
+    # on some plaforms.  It fails with 3.2.3 on Debian wheezy, but passes
+    # with the exact same package version on Debian unstable not long after
+    # the jessie release.  The issue it's actually serving to regression
+    # test for is covered by running it without threads, so just disable it
+    # rather than risk test failures that don't seem to indicate a problem
+    # in Xapian.
     del test_import_star
 
     t = threading.Thread(name='test runner', target=run)

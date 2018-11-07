@@ -9,9 +9,13 @@
 /SmokeTest.class
 /MyMatchDecider.class
 /MyExpandDecider.class
+/MyFieldProcessor.class
 /built
 /org
 /xapian_wrap.cc
 /xapian_wrap.d
 /xapian_wrap.h
 /xapian_wrap.stamp
+/SmokeTest.class.log
+/SmokeTest.class.trs
+/test-suite.log

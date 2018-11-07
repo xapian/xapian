@@ -2,7 +2,7 @@
  * @brief Tool to check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,7 @@ using namespace std;
 #define PROG_DESC "Check the consistency of a database or table"
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" <database directory>|<path to btree and prefix> [[F][t][f][b][v][+]]\n\n"
+    cout << "Usage: " PROG_NAME " DATABASE_DIRECTORY|PATH_TO_BTREE [[F][t][f][b][v][+]]\n\n"
 "If a whole database is checked, then additional cross-checks between\n"
 "the tables are performed.\n\n"
 "The btree(s) is/are always checked - control the output verbosity with:\n"
@@ -45,8 +45,8 @@ static void show_usage() {
 " b = show free blocks\n"
 " v = show stats about B-tree (default)\n"
 " + = same as tbv\n"
-" e.g. "PROG_NAME" /var/lib/xapian/data/default\n"
-"      "PROG_NAME" /var/lib/xapian/data/default/postlist fbv" << endl;
+" e.g. " PROG_NAME " /var/lib/xapian/data/default\n"
+"      " PROG_NAME " /var/lib/xapian/data/default/postlist fbv" << endl;
 }
 
 int
@@ -54,12 +54,12 @@ main(int argc, char **argv)
 {
     if (argc > 1 && argv[1][0] == '-') {
 	if (strcmp(argv[1], "--help") == 0) {
-	    cout << PROG_NAME" - "PROG_DESC"\n\n";
+	     cout << PROG_NAME " - " PROG_DESC "\n\n";
 	    show_usage();
 	    exit(0);
 	}
 	if (strcmp(argv[1], "--version") == 0) {
-	    cout << PROG_NAME" - "PACKAGE_STRING << endl;
+	    cout << PROG_NAME " - " PACKAGE_STRING << endl;
 	    exit(0);
 	}
     }

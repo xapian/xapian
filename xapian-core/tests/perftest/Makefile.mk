@@ -26,12 +26,12 @@ perftest_perftest_SOURCES = perftest/perftest.cc $(collated_perftest_sources) \
  perftest/freemem.cc perftest/freemem.h \
  perftest/runprocess.cc perftest/runprocess.h \
  $(testharness_sources)
-perftest_perftest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+perftest_perftest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 perftest_perftest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 if MAINTAINER_MODE
 BUILT_SOURCES += perftest/perftest_all.h perftest/perftest_collated.h \
- $(collated_perftest_sources:.cc=.h)
+ $(collated_perftest_sources:.cc=.h) perftest/perftest_collated.stamp
 
 perftest/perftest_all.h perftest/perftest_collated.h $(collated_perftest_sources:.cc=.h): perftest/perftest_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the

@@ -2,7 +2,7 @@
 %{
 /* php.i: SWIG interface file for the PHP bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -140,13 +140,13 @@ class XapianSWIGQueryItor {
 	    return Xapian::Query(string(p, len));
 	}
 
+        TSRMLS_FETCH_FROM_CTX(swig_zts_ctx);
 	Xapian::Query *subq = 0;
 	if (SWIG_ConvertPtr(*item, (void **)&subq,
 			    SWIGTYPE_p_Xapian__Query, 0) < 0) {
 	    subq = 0;
 	}
 	if (!subq) {
-	    TSRMLS_FETCH_FROM_CTX(swig_zts_ctx);
 	    SWIG_PHP_Error(E_ERROR, "Expected XapianQuery object or string");
 fail: // Label which SWIG_PHP_Error needs.
 	    return Xapian::Query();

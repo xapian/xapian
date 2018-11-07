@@ -32,7 +32,7 @@ def render_template(render_fn, name, *args):
     `render_fn` is the render function to use.
     `name` is the file name for the template.
     `args` is any arguments to supply to the render function.
-    
+
     """
     template_path = os.path.join(template_dir, name)
     t = HTMLTemplate.Template(render_fn, open(template_path, "rb").read())

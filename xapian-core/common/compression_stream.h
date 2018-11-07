@@ -2,7 +2,7 @@
  * @brief class wrapper around zlib
  */
 /* Copyright (C) 2012 Dan Colish
- * Copyright (C) 2012,2013,2014 Olly Betts
+ * Copyright (C) 2012,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,36 +26,47 @@
 #include <string>
 #include <zlib.h>
 
-#define DONT_COMPRESS -1
-
 class CompressionStream {
+    int compress_strategy;
+
+    size_t out_len;
+
+    char* out;
+
+    /// Zlib state object for deflating
+    z_stream* deflate_zstream;
+
+    /// Zlib state object for inflating
+    z_stream* inflate_zstream;
+
+    /// Allocate the zstream for deflating, if not already allocated.
+    void lazy_alloc_deflate_zstream();
+
+    /// Allocate the zstream for inflating, if not already allocated.
+    void lazy_alloc_inflate_zstream();
+
   public:
-    explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY);
+    /* Create a new CompressionStream object.
+     *
+     *  @param compress_strategy_	Z_DEFAULT_STRATEGY,
+     *					Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
+     */
+    explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY)
+	: compress_strategy(compress_strategy_),
+	  out_len(0),
+	  out(NULL),
+	  deflate_zstream(NULL),
+	  inflate_zstream(NULL)
+    { }
 
     ~CompressionStream();
 
-    int compress_strategy;
+    const char* compress(const char* buf, size_t* p_size);
 
-    int zerr;
+    void decompress_start() { lazy_alloc_inflate_zstream(); }
 
-    unsigned long out_len;
-
-    unsigned char * out;
-
-    /// Zlib state object for deflating
-    mutable z_stream *deflate_zstream;
-
-    /// Zlib state object for inflating
-    mutable z_stream *inflate_zstream;
-
-    /// Allocate the zstream for deflating, if not already allocated.
-    void lazy_alloc_deflate_zstream() const;
-
-    /// Allocate the zstream for inflating, if not already allocated.
-    void lazy_alloc_inflate_zstream() const;
-
-    void compress(std::string &);
-    void compress(const byte *, int);
+    /** Returns true if this was the final chunk. */
+    bool decompress_chunk(const char* p, int len, std::string& buf);
 };
 
 #endif // XAPIAN_INCLUDED_COMPRESSION_STREAM_H

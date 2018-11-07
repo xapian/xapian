@@ -15,32 +15,22 @@
  * will fill a supplied 16-byte array with the digest.
  */
 
-#ifndef MD5_H
-#define MD5_H
+#ifndef OMEGA_INCLUDED_MD5_H
+#define OMEGA_INCLUDED_MD5_H
 
 /* Minor tweaks for use from Omega:
  *
- * + Include netinet/in.h and/or arpa/inet.h to get uint32_t.
+ * + Include <cstdint> to get uint32_t.
  * + uint32 -> uint32_t.
  * + MD5Transform is an internal helper so prototype moved to md5.cc.
  * + Removed MD5_CTX.
  * + Changed MD5Context.in to uint32_t instead of unsigned char.
+ * + Added "OMEGA_INCLUDED_" prefix to header guard macro.
  */
 
 // To get uint32_t:
-#ifdef HAVE_WORKING_STDINT_H
-# include <stdint.h>
-#else
-# ifdef HAVE_ARPA_INET_H
-#  include <arpa/inet.h>
-# endif
-# ifdef HAVE_NETINET_IN_H
-#  include <netinet/in.h>
-# endif
-# ifdef __WIN32__
-typedef unsigned int uint32_t;
-# endif
-#endif
+#include <cstdint>
+using std::uint32_t;
 
 struct MD5Context {
     uint32_t buf[4];
@@ -53,4 +43,4 @@ void MD5Update(struct MD5Context *context, unsigned char const *buf,
 	       unsigned len);
 void MD5Final(unsigned char digest[16], struct MD5Context *context);
 
-#endif /* !MD5_H */
+#endif /* OMEGA_INCLUDED_MD5_H */

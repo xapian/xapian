@@ -1,7 +1,7 @@
 /** @file io_utils.h
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009,2011,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011,2014,2015,2016 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,40 @@
 #include "safefcntl.h"
 #include "safeunistd.h"
 #include <string>
+
+/** Open a block-based file for reading.
+ *
+ *  @param fname  The path of the file to open.
+ */
+inline int io_open_block_rd(const char * fname) {
+    return ::open(fname, O_RDONLY | O_BINARY | O_CLOEXEC);
+}
+
+/** Open a block-based file for reading.
+ *
+ *  @param fname  The path of the file to open.
+ */
+inline int io_open_block_rd(const std::string & fname)
+{
+    return io_open_block_rd(fname.c_str());
+}
+
+/** Open a block-based file for writing.
+ *
+ *  @param fname  The path of the file to open.
+ *  @param anew   If true, open the file anew (create or truncate it).
+ */
+int io_open_block_wr(const char * fname, bool anew);
+
+/** Open a block-based file for writing.
+ *
+ *  @param fname  The path of the file to open.
+ *  @param anew  If true, open the file anew (create or truncate it).
+ */
+inline int io_open_block_wr(const std::string & fname, bool anew)
+{
+    return io_open_block_wr(fname.c_str(), anew);
+}
 
 /** Ensure all data previously written to file descriptor fd has been written to
  *  disk.
@@ -69,11 +103,14 @@ inline bool io_full_sync(int fd)
 /** Read n bytes (or until EOF) into block pointed to by p from file descriptor
  *  fd.
  *
- *  If less than min bytes are read, throw an exception.
+ *  If a read error occurs, throws DatabaseError.
+ *
+ *  If @a min is specified and EOF is reached after less than @a min bytes,
+ *  throws DatabaseCorruptError.
  *
  *  Returns the number of bytes actually read.
  */
-size_t io_read(int fd, char * p, size_t n, size_t min);
+size_t io_read(int fd, char * p, size_t n, size_t min = 0);
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
 void io_write(int fd, const char * p, size_t n);
@@ -82,11 +119,21 @@ inline void io_write(int fd, const unsigned char * p, size_t n) {
     io_write(fd, reinterpret_cast<const char *>(p), n);
 }
 
-/// Read block b size n bytes into buffer p from file descriptor fd.
-void io_read_block(int fd, char * p, size_t n, off_t b);
+/** Readahead block b size n bytes from file descriptor fd.
+ *
+ *  Returns false if we can't readahead on this fd.
+ */
+#ifdef HAVE_POSIX_FADVISE
+bool io_readahead_block(int fd, size_t n, off_t b, off_t o = 0);
+#else
+inline bool io_readahead_block(int, size_t, off_t, off_t = 0) { return false; }
+#endif
 
-/// Write block b size n bytes from buffer p to file descriptor fd.
-void io_write_block(int fd, const char * p, size_t n, off_t b);
+/// Read block b size n bytes into buffer p from file descriptor fd, offset o.
+void io_read_block(int fd, char * p, size_t n, off_t b, off_t o = 0);
+
+/// Write block b size n bytes from buffer p to file descriptor fd, offset o.
+void io_write_block(int fd, const char * p, size_t n, off_t b, off_t o = 0);
 
 inline void io_write_block(int fd, const unsigned char * p, size_t n, off_t b) {
     io_write_block(fd, reinterpret_cast<const char *>(p), n, b);
@@ -105,5 +152,15 @@ inline void io_write_block(int fd, const unsigned char * p, size_t n, off_t b) {
  *		client then retries).
  */
 bool io_unlink(const std::string & filename);
+
+/** Rename a temporary file to its final position.
+ *
+ *  Attempts to deal with NFS infelicities.  If the rename fails, the temporary
+ *  file is removed.
+ *
+ *  @return	true if the rename succeeded; false if it failed (and errno will
+ *		be set appropriately).
+ */
+bool io_tmp_rename(const std::string & tmp_file, const std::string & real_file);
 
 #endif // XAPIAN_INCLUDED_IO_UTILS_H

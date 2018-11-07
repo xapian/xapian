@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014 Olly Betts
+ * Copyright 2009,2011,2014,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,7 @@ SynonymPostList::set_weight(const Xapian::Weight * wt_)
     wt = wt_;
     want_doclength = wt->get_sumpart_needs_doclength_();
     want_wdf = wt->get_sumpart_needs_wdf_();
+    want_unique_terms = wt->get_sumpart_needs_uniqueterms_();
 }
 
 PostList *
@@ -83,7 +84,7 @@ SynonymPostList::get_weight() const
     if (want_wdf) {
 	Xapian::termcount wdf = get_wdf();
 	Xapian::termcount doclen = 0;
-	if (want_doclength || wdf > doclen_lower_bound) {
+	if (want_doclength || (!wdf_disjoint && wdf > doclen_lower_bound)) {
 	    doclen = get_doclength();
 	    if (wdf > doclen) wdf = doclen;
 	}
@@ -106,13 +107,6 @@ double
 SynonymPostList::recalc_maxweight()
 {
     LOGCALL(MATCH, double, "SynonymPostList::recalc_maxweight", NO_ARGS);
-
-    // Call recalc_maxweight on the subtree once, to ensure that the maxweights
-    // are initialised.
-    if (!have_calculated_subtree_maxweights) {
-	subtree->recalc_maxweight();
-	have_calculated_subtree_maxweights = true;
-    }
     RETURN(SynonymPostList::get_maxweight());
 }
 

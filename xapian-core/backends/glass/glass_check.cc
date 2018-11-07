@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2009,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2004,2005,2008,2009,2011,2012,2013,2014,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,47 +41,60 @@ void GlassTableCheck::print_spaces(int n) const
     while (n--) out->put(' ');
 }
 
-void GlassTableCheck::print_bytes(int n, const byte * p) const
+void GlassTableCheck::print_bytes(int n, const uint8_t * p) const
 {
     out->write(reinterpret_cast<const char *>(p), n);
 }
 
-void GlassTableCheck::print_key(const byte * p, int c, int j) const
+void GlassTableCheck::print_key(const uint8_t * p, int c, int j) const
 {
-    Item item(p, c);
-    string key;
-    if (item.key().length() >= 0)
-	item.key().read(&key);
-    string escaped;
-    description_append(escaped, key);
-    *out << escaped;
     if (j == 0) {
-	*out << ' ' << item.component_of();
+	LeafItem item(p, c);
+	string key;
+	if (item.key().length() >= 0)
+	    item.key().read(&key);
+	string escaped;
+	description_append(escaped, key);
+	*out << escaped;
+	int x = item.component_of();
+	*out << ' ' << x;
+	if (item.last_component()) {
+	    *out << '/' << x;
+	}
+    } else {
+	BItem item(p, c);
+	string key;
+	if (item.key().length() >= 0)
+	    item.key().read(&key);
+	string escaped;
+	description_append(escaped, key);
+	*out << escaped;
     }
 }
 
-void GlassTableCheck::print_tag(const byte * p, int c, int j) const
+void GlassTableCheck::print_tag(const uint8_t * p, int c, int j) const
 {
-    Item item(p, c);
     if (j == 0) {
+	LeafItem item(p, c);
 	string tag;
 	item.append_chunk(&tag);
 	string escaped;
 	description_append(escaped, tag);
-	*out << '/' << item.components_of() << ' ' << escaped;
+	*out << ' ' << escaped;
     } else {
+	BItem item(p, c);
 	*out << "--> [" << item.block_given_by() << ']';
     }
 }
 
-void GlassTableCheck::report_block_full(int m, int n, const byte * p) const
+void GlassTableCheck::report_block_full(int m, int n, const uint8_t * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     *out << '\n';
     print_spaces(m);
     *out << "Block [" << n << "] level " << j << ", revision *" << REVISION(p)
-	 << " items (" << (dir_end - DIR_START)/D2 << ") usage "
+	 << " items (" << (dir_end - DIR_START) / D2 << ") usage "
 	 << block_usage(p) << "%:\n";
     for (int c = DIR_START; c < dir_end; c += D2) {
 	print_spaces(m);
@@ -92,7 +105,7 @@ void GlassTableCheck::report_block_full(int m, int n, const byte * p) const
     }
 }
 
-int GlassTableCheck::block_usage(const byte * p) const
+int GlassTableCheck::block_usage(const uint8_t * p) const
 {
     int space = block_size - DIR_END(p);
     int free = TOTAL_FREE(p);
@@ -102,18 +115,20 @@ int GlassTableCheck::block_usage(const byte * p) const
 /** GlassTableCheck::report_block(m, n, p) prints the block at p, block number n,
  *  indented by m spaces.
  */
-void GlassTableCheck::report_block(int m, int n, const byte * p) const
+void GlassTableCheck::report_block(int m, int n, const uint8_t * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     int c;
     print_spaces(m);
     *out << "[" << n << "] *" << REVISION(p) << " ("
-	 << (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
+	 << (dir_end - DIR_START) / D2 << ") " << block_usage(p) << "% ";
 
     for (c = DIR_START; c < dir_end; c += D2) {
-	if (c == DIR_START + 6) *out << "... ";
-	if (c >= DIR_START + 6 && c < dir_end - 6) continue;
+	if (c >= DIR_START + 6 && c < dir_end - 6) {
+	    if (c == DIR_START + 6) *out << "... ";
+	    continue;
+	}
 
 	print_key(p, c, j);
 	*out << ' ';
@@ -140,14 +155,14 @@ void
 GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 			     GlassFreeListChecker & flcheck)
 {
-    const byte * p = C_[j].get_p();
+    const uint8_t * p = C_[j].get_p();
     uint4 n = C_[j].get_n();
-    size_t c;
-    size_t significant_c = j == 0 ? DIR_START : DIR_START + D2;
+    int c;
+    int significant_c = j == 0 ? DIR_START : DIR_START + D2;
 	/* the first key in an index block is dummy, remember */
 
     size_t max_free = MAX_FREE(p);
-    size_t dir_end = DIR_END(p);
+    int dir_end = DIR_END(p);
     int total_free = block_size - dir_end;
 
     if (!flcheck.mark_used(n))
@@ -156,7 +171,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
     if (j != GET_LEVEL(p))
 	failure("wrong level", n);
     // dir_end must be > DIR_START, fit within the block, and be odd.
-    if (dir_end <= DIR_START || dir_end > block_size || (dir_end & 1) != 1)
+    if (dir_end <= DIR_START || dir_end > int(block_size) || (dir_end & 1) != 1)
 	failure("directory end pointer invalid", n);
 
     if (opts & Xapian::DBCHECK_SHORT_TREE)
@@ -165,21 +180,40 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
     if (opts & Xapian::DBCHECK_FULL_TREE)
 	report_block_full(3*(level - j), n, p);
 
-    for (c = DIR_START; c < dir_end; c += D2) {
-	Item item(p, c);
-	int o = item.get_address() - p;
-	if (o > int(block_size))
-	    failure("item starts outside block", n, c);
-	if (o - dir_end < max_free)
-	    failure("item overlaps directory", n, c);
+    if (j == 0) {
+	for (c = DIR_START; c < dir_end; c += D2) {
+	    LeafItem item(p, c);
+	    int o = item.get_address() - p;
+	    if (o > int(block_size))
+		failure("item starts outside block", n, c);
+	    if (o - dir_end < int(max_free))
+		failure("item overlaps directory", n, c);
 
-	int kt_len = item.size();
-	if (o + kt_len > int(block_size))
-	    failure("item ends outside block", n, c);
-	total_free -= kt_len;
+	    int kt_len = item.size();
+	    if (o + kt_len > int(block_size))
+		failure("item ends outside block", n, c);
+	    total_free -= kt_len;
 
-	if (c > significant_c && Item(p, c - D2).key() >= item.key())
-	    failure("not in sorted order", n, c);
+	    if (c > significant_c && compare(LeafItem(p, c - D2), item) >= 0)
+		failure("not in sorted order", n, c);
+	}
+    } else {
+	for (c = DIR_START; c < dir_end; c += D2) {
+	    BItem item(p, c);
+	    int o = item.get_address() - p;
+	    if (o > int(block_size))
+		failure("item starts outside block", n, c);
+	    if (o - dir_end < int(max_free))
+		failure("item overlaps directory", n, c);
+
+	    int kt_len = item.size();
+	    if (o + kt_len > int(block_size))
+		failure("item ends outside block", n, c);
+	    total_free -= kt_len;
+
+	    if (c > significant_c && compare(BItem(p, c - D2), item) >= 0)
+		failure("not in sorted order", n, c);
+	}
     }
     if (total_free != TOTAL_FREE(p))
 	failure("stored total free space value wrong", n);
@@ -187,32 +221,37 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
     if (j == 0) return;
     for (c = DIR_START; c < dir_end; c += D2) {
 	C_[j].c = c;
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
 
 	block_check(C_, j - 1, opts, flcheck);
 
-	const byte * q = C_[j - 1].get_p();
+	const uint8_t * q = C_[j - 1].get_p();
 	/* if j == 1, and c > DIR_START, the first key of level j - 1 must be
 	 * >= the key of p, c: */
 
 	if (j == 1 && c > DIR_START)
-	    if (Item(q, DIR_START).key() < Item(p, c).key())
+	    if (compare(LeafItem(q, DIR_START), BItem(p, c)) < 0)
 		failure("leaf key < left dividing key in level above", n, c);
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
 	 * >= the key of p, c: */
 
 	if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2 &&
-	    Item(q, DIR_START + D2).key() < Item(p, c).key())
+	    compare(BItem(q, DIR_START + D2), BItem(p, c)) < 0)
 	    failure("key < left dividing key in level above", n, c);
 
 	/* the last key of level j - 1 must be < the key of p, c + D2, if c +
 	 * D2 < dir_end: */
 
-	if (c + D2 < dir_end &&
-	    (j == 1 || DIR_START + D2 < DIR_END(q)) &&
-	    Item(q, DIR_END(q) - D2).key() >= Item(p, c + D2).key())
-	    failure("key >= right dividing key in level above", n, c);
+	if (c + D2 < dir_end) {
+	    if (j == 1) {
+		if (compare(LeafItem(q, DIR_END(q) - D2), BItem(p, c + D2)) >= 0)
+		    failure("leaf key >= right dividing key in level above", n, c);
+	    } else if (DIR_START + D2 < DIR_END(q)) {
+		if (compare(BItem(q, DIR_END(q) - D2), BItem(p, c + D2)) >= 0)
+		    failure("key >= right dividing key in level above", n, c);
+	    }
+	}
 
 	if (REVISION(q) > REVISION(p))
 	    failure("block has greater revision than parent", n);
@@ -220,7 +259,8 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 }
 
 GlassTableCheck *
-GlassTableCheck::check(const char * tablename, const string & path,
+GlassTableCheck::check(const char * tablename, const string & path, int fd,
+		       off_t offset_,
 		       const GlassVersion & version_file, int opts,
 		       ostream *out)
 {
@@ -230,7 +270,9 @@ GlassTableCheck::check(const char * tablename, const string & path,
     filename += '.';
 
     AutoPtr<GlassTableCheck> B(
-	    new GlassTableCheck(tablename, filename, false, out));
+	    fd < 0 ?
+	    new GlassTableCheck(tablename, filename, false, out) :
+	    new GlassTableCheck(tablename, fd, offset_, false, out));
 
     Glass::table_type tab_type;
     if (strcmp(tablename, "postlist") == 0) {
@@ -256,7 +298,7 @@ GlassTableCheck::check(const char * tablename, const string & path,
 
     if (opts & Xapian::DBCHECK_SHOW_STATS) {
 	*out << "blocksize=" << B->block_size / 1024 << "K"
-		" items="  << B->item_count
+		" items=" << B->item_count
 	     << " firstunused=" << B->free_list.get_first_unused_block()
 	     << " revision=" << B->revision_number
 	     << " levels=" << B->level
@@ -304,21 +346,22 @@ GlassTableCheck::check(const char * tablename, const string & path,
 
 	uint4 first_bad;
 	uint4 count = flcheck.count_set_bits(&first_bad);
-	if (count) {
+	// Skip this check for a single file DB for now.  FIXME
+	if (count && fd < 0) {
 	    string e = str(count);
 	    e += " unused block(s) missing from the free list, first is ";
 	    e += str(first_bad);
 	    throw Xapian::DatabaseError(e);
 	}
     }
-    if (opts) *out << "B-tree checked okay" << endl;
+    if (out && opts) *out << "B-tree checked okay" << endl;
     return B.release();
 }
 
 void GlassTableCheck::report_cursor(int N, const Glass::Cursor * C_) const
 {
     *out << N << ")\n";
-    for (int i = 0; i <= level; i++)
+    for (int i = 0; i <= level; ++i)
 	*out << "p=" << C_[i].get_p() << ", "
 		"c=" << C_[i].c << ", "
 		"n=[" << C_[i].get_n() << "], "

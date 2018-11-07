@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@
 #define OM_HGUARD_CHERT_TABLE_H
 
 #include <xapian/error.h>
-#include <xapian/visibility.h>
 
 #include "chert_types.h"
 #include "chert_btreebase.h"
@@ -35,14 +34,64 @@
 #include "omassert.h"
 #include "str.h"
 #include "stringutils.h"
-#include "unaligned.h"
+#include "wordaccess.h"
 
 #include <algorithm>
 #include <string>
 
 #include <zlib.h>
 
-#define DONT_COMPRESS -1
+// FIXME: 65536 in Asserts below is the max chert block size.  We should
+// abstract this out, and use the current block_size to catch overruns better.
+inline int
+getint1(const unsigned char *p, int c)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536);
+    return p[c];
+}
+
+inline void
+setint1(unsigned char *p, int c, int x)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536);
+    p[c] = x;
+}
+
+inline int
+getint2(const unsigned char *p, int c)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536 - 1);
+    return unaligned_read2(p + c);
+}
+
+inline void
+setint2(unsigned char *p, int c, int x)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536 - 1);
+    unaligned_write2(p + c, uint16_t(x));
+}
+
+inline int
+getint4(const unsigned char *p, int c)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536 - 3);
+    return unaligned_read4(p + c);
+}
+
+inline void
+setint4(unsigned char *p, int c, int x)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536 - 3);
+    unaligned_write4(p + c, uint32_t(x));
+}
+
+const int DONT_COMPRESS = -1;
 
 /** The largest possible value of a key_len.
  *
@@ -53,10 +102,10 @@
 
 /** Even for items of at maximum size, it must be possible to get this number of
  *  items in a block */
-#define BLOCK_CAPACITY 4
+const size_t BLOCK_CAPACITY = 4;
 
 // FIXME: This named constant probably isn't used everywhere it should be...
-#define BYTES_PER_BLOCK_NUMBER 4
+const int BYTES_PER_BLOCK_NUMBER = 4;
 
 /*  The B-tree blocks have a number of internal lengths and offsets held in 1, 2
     or 4 bytes. To make the coding a little clearer,
@@ -68,26 +117,26 @@
        C2      the 2 byte counter that ends each key and begins each tag
 */
 
-#define K1 1
-#define I2 2
-#define D2 2
-#define C2 2
+const int K1 = 1;
+const int I2 = 2;
+const int D2 = 2;
+const int C2 = 2;
 
 /*  and when getting K1 or setting D2, we use getK, setD defined as: */
 
-#define getK(p, c)    getint1(p, c)
-#define setD(p, c, x) setint2(p, c, x)
+inline int getK(const unsigned char *p, int c) { return getint1(p, c); }
+inline void setD(unsigned char *p, int c, int x) { setint2(p, c, x); }
 
 /* if you've been reading the comments from the top, the next four procedures
    will not cause any headaches.
 
    Recall that item has this form:
 
-           i k
-           | |
-           I K key x C tag
-             <--K-->
-           <------I------>
+	   i k
+	   | |
+	   I K key x C tag
+	     <--K-->
+	   <------I------>
 
 
    item_of(p, c) returns i, the address of the item at block address p,
@@ -98,24 +147,28 @@
    components_of(p, c) returns the number marked 'C' above,
 */
 
-#define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
-#define GET_LEVEL(b)     getint1(b, 4)
-#define MAX_FREE(b)      getint2(b, 5)
-#define TOTAL_FREE(b)    getint2(b, 7)
-#define DIR_END(b)       getint2(b, 9)
-#define DIR_START        11
+inline unsigned REVISION(const uint8_t * b) { return aligned_read4(b); }
+inline int GET_LEVEL(const uint8_t * b) { return getint1(b, 4); }
+inline int MAX_FREE(const uint8_t * b) { return getint2(b, 5); }
+inline int TOTAL_FREE(const uint8_t * b) { return getint2(b, 7); }
+inline int DIR_END(const uint8_t * b) { return getint2(b, 9); }
+const int DIR_START = 11;
 
-#define SET_REVISION(b, x)      setint4(b, 0, x)
-#define SET_LEVEL(b, x)         setint1(b, 4, x)
-#define SET_MAX_FREE(b, x)      setint2(b, 5, x)
-#define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
-#define SET_DIR_END(b, x)       setint2(b, 9, x)
+inline void SET_REVISION(uint8_t * b, uint4 rev) { aligned_write4(b, rev); }
+inline void SET_LEVEL(uint8_t * b, int x) { setint1(b, 4, x); }
+inline void SET_MAX_FREE(uint8_t * b, int x) { setint2(b, 5, x); }
+inline void SET_TOTAL_FREE(uint8_t * b, int x) { setint2(b, 7, x); }
+inline void SET_DIR_END(uint8_t * b, int x) { setint2(b, 9, x); }
+
+// The item size is stored in 2 bytes, but the top bit is used to store a flag
+// for "is the tag data compressed".
+const size_t CHERT_MAX_ITEM_SIZE = 0x7fff;
 
 class Key {
-    const byte *p;
+    const uint8_t *p;
 public:
-    explicit Key(const byte * p_) : p(p_) { }
-    const byte * get_address() const { return p; }
+    explicit Key(const uint8_t * p_) : p(p_) { }
+    const uint8_t * get_address() const { return p; }
     void read(std::string * key) const {
 	key->assign(reinterpret_cast<const char *>(p + K1), length());
     }
@@ -143,11 +196,11 @@ protected:
 public:
     /* Item from block address and offset to item pointer */
     Item_base(T p_, int c) : p(p_ + getint2(p_, c)) { }
-    Item_base(T p_) : p(p_) { }
+    explicit Item_base(T p_) : p(p_) { }
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
-	int item_size = getint2(p, 0) & 0x7fff;
+	int item_size = getint2(p, 0) & CHERT_MAX_ITEM_SIZE;
 	AssertRel(item_size,>=,5);
 	return item_size;
     }
@@ -174,19 +227,19 @@ public:
     }
 };
 
-class Item : public Item_base<const byte *> {
+class Item : public Item_base<const uint8_t *> {
 public:
     /* Item from block address and offset to item pointer */
-    Item(const byte * p_, int c) : Item_base<const byte *>(p_, c) { }
-    Item(const byte * p_) : Item_base<const byte *>(p_) { }
+    Item(const uint8_t * p_, int c) : Item_base<const uint8_t *>(p_, c) { }
+    explicit Item(const uint8_t * p_) : Item_base<const uint8_t *>(p_) { }
 };
 
-class Item_wr : public Item_base<byte *> {
+class Item_wr : public Item_base<uint8_t *> {
     void set_key_len(int x) { setint1(p, I2, x); }
 public:
     /* Item_wr from block address and offset to item pointer */
-    Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
-    Item_wr(byte * p_) : Item_base<byte *>(p_) { }
+    Item_wr(uint8_t * p_, int c) : Item_base<uint8_t *>(p_, c) { }
+    explicit Item_wr(uint8_t * p_) : Item_base<uint8_t *>(p_) { }
     void set_component_of(int i) {
 	setint2(p, getK(p, I2) + I2 - C2, i);
     }
@@ -222,6 +275,10 @@ public:
     }
     void set_size(int l) {
 	AssertRel(l,>=,5);
+	// We should never be able to pass too large a size here, but don't
+	// corrupt the database if this somehow happens.
+	if (rare(l &~ CHERT_MAX_ITEM_SIZE))
+	    throw Xapian::DatabaseError("item too large!");
 	setint2(p, 0, l);
     }
     /** Form an item with a null key and with block number n in the tag.
@@ -265,14 +322,14 @@ public:
 // Allow for BTREE_CURSOR_LEVELS levels in the B-tree.
 // With 10, overflow is practically impossible
 // FIXME: but we want it to be completely impossible...
-#define BTREE_CURSOR_LEVELS 10
+const int BTREE_CURSOR_LEVELS = 10;
 
 /** Class managing a Btree table in a Chert database.
  *
  *  A table is a store holding a set of key/tag pairs.
  *
  *  A key is used to access a block of data in a chert table.
- * 
+ *
  *  Keys are of limited length.
  *
  *  Keys may not be empty (each Btree has a special empty key for internal use).
@@ -287,14 +344,14 @@ public:
  *  Tags which are null strings _are_ valid, and are different from a
  *  tag simply not being in the table.
  */
-class XAPIAN_VISIBILITY_DEFAULT ChertTable {
+class ChertTable {
     friend class ChertCursor; /* Should probably fix this. */
     private:
 	/// Copying not allowed
-        ChertTable(const ChertTable &);
+	ChertTable(const ChertTable &);
 
 	/// Assignment not allowed
-        ChertTable & operator=(const ChertTable &);
+	ChertTable & operator=(const ChertTable &);
 
 	/// Return true if there are no entries in the table.
 	bool really_empty() const;
@@ -332,7 +389,9 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *
 	 *  @param permanent If true, the Btree will not reopen on demand.
 	 */
-	void close(bool permanent=false);
+	void close(bool permanent = false);
+
+	bool readahead_key(const string &key) const;
 
 	/** Determine whether the btree exists on disk.
 	 */
@@ -417,7 +476,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *
 	 *  If the key is found in the table, then the tag is copied to @a
 	 *  tag.  If the key is not found tag is left unchanged.
-	 * 
+	 *
 	 *  The result is true iff the specified key is found in the Btree.
 	 *
 	 *  @param key  The key to look for in the table.
@@ -602,10 +661,17 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	    if (block_capacity > BLOCK_CAPACITY) block_capacity = BLOCK_CAPACITY;
 	    max_item_size = (block_size - DIR_START - block_capacity * D2)
 		/ block_capacity;
+	    // Make sure we don't exceed the limit imposed by the format.
+	    if (max_item_size > CHERT_MAX_ITEM_SIZE)
+		max_item_size = CHERT_MAX_ITEM_SIZE;
 	}
 
 	/// Throw an exception indicating that the database is closed.
 	XAPIAN_NORETURN(static void throw_database_closed());
+
+	string get_path() const {
+	    return name;
+	}
 
     protected:
 
@@ -626,15 +692,15 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 
 	bool find(Cursor *) const;
 	int delete_kt();
-	void read_block(uint4 n, byte *p) const;
-	void write_block(uint4 n, const byte *p) const;
+	void read_block(uint4 n, uint8_t *p) const;
+	void write_block(uint4 n, const uint8_t *p) const;
 	XAPIAN_NORETURN(void set_overwritten() const);
 	void block_to_cursor(Cursor *C_, int j, uint4 n) const;
 	void alter();
-	void compact(byte *p);
+	void compact(uint8_t *p);
 	void enter_key(int j, Key prevkey, Key newkey);
-	int mid_point(byte *p);
-	void add_item_to_block(byte *p, Item_wr kt, int c);
+	int mid_point(uint8_t *p) const;
+	void add_item_to_block(uint8_t *p, Item_wr kt, int c);
 	void add_item(Item_wr kt, int j);
 	void delete_item(int j, bool repeatedly);
 	int add_kt(bool found);
@@ -708,7 +774,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	mutable Item_wr kt;
 
 	/// buffer of size block_size for reforming blocks
-	byte * buffer;
+	uint8_t * buffer;
 
 	/// For writing back as file baseA or baseB.
 	ChertTable_base base;
@@ -765,12 +831,12 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	bool prev_for_sequential(Cursor *C_, int dummy) const;
 	bool next_for_sequential(Cursor *C_, int dummy) const;
 
-	static int find_in_block(const byte * p, Key key, bool leaf, int c);
+	static int find_in_block(const uint8_t * p, Key key, bool leaf, int c);
 
 	/** block_given_by(p, c) finds the item at block address p, directory
 	 *  offset c, and returns its tag value as an integer.
 	 */
-	static uint4 block_given_by(const byte * p, int c);
+	static uint4 block_given_by(const uint8_t * p, int c);
 
 	mutable Cursor C[BTREE_CURSOR_LEVELS];
 
@@ -779,7 +845,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *  This buffer holds the split off part of the block.  It's only used
 	 *  when updating (in ChertTable::add_item().
 	 */
-	byte * split_p;
+	uint8_t * split_p;
 
 	/** DONT_COMPRESS or Z_DEFAULT_STRATEGY, Z_FILTERED, Z_HUFFMAN_ONLY,
 	 *  Z_RLE. */
@@ -794,8 +860,11 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	/// If true, don't create the table until it's needed.
 	bool lazy;
 
+	/// Last block readahead_key() preread.
+	mutable uint4 last_readahead;
+
 	/* Debugging methods */
-//	void report_block_full(int m, int n, const byte * p);
+//	void report_block_full(int m, int n, const uint8_t * p);
 };
 
 #endif /* OM_HGUARD_CHERT_TABLE_H */

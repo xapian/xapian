@@ -1,7 +1,7 @@
 /** @file backendmanager_remote.cc
  * @brief BackendManager subclass for remote databases.
  */
-/* Copyright (C) 2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -21,23 +21,20 @@
 
 #include <config.h>
 #include "backendmanager_remote.h"
-#include "str.h"
 #include <cstdlib>
 #include <string>
+#include "str.h"
 
 BackendManagerRemote::BackendManagerRemote(const std::string & remote_type_)
 	: remote_type(remote_type_)
 {
-    if (!(false
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	  || remote_type == "glass"
+    if (remote_type == "glass") return;
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	  || remote_type == "chert"
+    if (remote_type == "chert") return;
 #endif
-	 )) {
-	throw ("Unknown backend type \"" + remote_type + "\" specified for remote database");
-    }
+    throw ("Unknown backend type \"" + remote_type + "\" specified for remote database");
 }
 
 std::string

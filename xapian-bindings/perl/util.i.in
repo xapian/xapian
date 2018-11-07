@@ -4,7 +4,7 @@
  * Based on the perl XS wrapper files.
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -80,12 +80,15 @@ our %EXPORT_TAGS = (
 				 FLAG_SYNONYM
 				 FLAG_AUTO_SYNONYMS
 				 FLAG_AUTO_MULTIWORD_SYNONYMS
+				 FLAG_CJK_NGRAM
 				 FLAG_DEFAULT
 				 ) ],
 		    'qpstem' => [ qw(
 				 STEM_NONE
 				 STEM_SOME
+				 STEM_SOME_FULL_POS
 				 STEM_ALL
+				 STEM_ALL_Z
 				 ) ]
 		   );
 $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
@@ -379,6 +382,12 @@ package Xapian::Stopper;
 sub CLONE_SKIP { 1 }
 package Xapian::SimpleStopper;
 sub CLONE_SKIP { 1 }
+package Xapian::RangeProcessor;
+sub CLONE_SKIP { 1 }
+package Xapian::DateRangeProcessor;
+sub CLONE_SKIP { 1 }
+package Xapian::NumberRangeProcessor;
+sub CLONE_SKIP { 1 }
 package Xapian::ValueRangeProcessor;
 sub CLONE_SKIP { 1 }
 package Xapian::StringValueRangeProcessor;
@@ -413,6 +422,7 @@ package Xapian::MSet::Tied;
 sub CLONE_SKIP { 1 }
 
 # Pod document of Xapian
+=encoding utf8
 =head1 NAME
 
 Xapian - Perl frontend to the Xapian C++ search library.
@@ -443,7 +453,7 @@ more 'perlish' interface to some common operations, as demonstrated above.
 
 There are some gaps in the POD documentation for wrapped classes, but you
 can read the Xapian C++ API documentation at
-L<http://xapian.org/docs/apidoc/html/annotated.html> for details of
+L<https://xapian.org/docs/apidoc/html/annotated.html> for details of
 these.  Alternatively, take a look at the code in the examples and tests.
 
 If you want to use Xapian and the threads module together, make
@@ -454,7 +464,7 @@ destroyed more than once.
 
 If you encounter problems, or have any comments, suggestions, patches, etc
 please email the Xapian-discuss mailing list (details of which can be found at
-L<http://xapian.org/lists>).
+L<https://xapian.org/lists>).
 
 =head2 EXPORT
 
@@ -596,6 +606,10 @@ searches.
 
 Stem all terms.
 
+=item STEM_ALL_Z
+
+Stem all terms and add a "Z" prefix.
+
 =item STEM_NONE
 
 Don't stem any terms.
@@ -604,6 +618,10 @@ Don't stem any terms.
 
 Stem some terms, in a manner compatible with Omega (capitalised words and those
 in phrases aren't stemmed).
+
+=item STEM_SOME_FULL_POS
+
+Like STEM_SOME but also store term positions for stemmed terms.
 
 =back
 
@@ -717,20 +735,32 @@ ErrorHandler, user-defined Weight subclasses.
 
 =head1 CREDITS
 
-Thanks to Tye McQueen E<lt>tye@metronet.comE<gt> for explaining the
-finer points of how best to write XS frontends to C++ libraries, James
-Aylett E<lt>james@tartarus.orgE<gt> for clarifying the less obvious
-aspects of the Xapian API, Tim Brody for patches wrapping ::QueryParser and
-::Stopper and especially Olly Betts E<lt>olly@survex.comE<gt> for contributing
-advice, bugfixes, and wrapper code for the more obscure classes.
+These SWIG-generated Perl bindings were originally implemented by Kosei
+Moriyama in GSoC 2009, and made their debut in the 1.2.4 release.
+
+They take a lot of inspiration and some code from Search::Xapian, a set
+of hand-written XS bindings, originally written by Alex Bowley, and later
+maintained by Olly Betts.
+
+Search::Xapian owed thanks to Tye McQueen E<lt>tye@metronet.comE<gt> for
+explaining the finer points of how best to write XS frontends to C++ libraries,
+and James Aylett E<lt>james@tartarus.orgE<gt> for clarifying the less obvious
+aspects of the Xapian API.  Patches for wrapping missing classes and other
+things were contributed by Olly Betts, Tim Brody, Marcus Ramberg, Peter Karman,
+Benjamin Smith, Rusty Conover, Frank Lichtenheld, Henry Combrinck, Jess
+Robinson, David F. Skoll, Dave O'Neill, Andreas Marienborg, Adam Sjøgren,
+Dmitry Karasik, and Val Rosca.
 
 =head1 AUTHOR
 
-Alex Bowley E<lt>kilinrax@cpan.orgE<gt>
-
 Please report any bugs/suggestions to E<lt>xapian-discuss@lists.xapian.orgE<gt>
-or use the Xapian bug tracker L<http://xapian.org/bugs>.  Please do
-NOT use the CPAN bug tracker or mail any of the authors individually.
+or use the Xapian bug tracker L<https://xapian.org/bugs>.  Please do
+NOT use the CPAN bug tracker or mail contributors individually.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
@@ -751,7 +781,7 @@ L<Xapian::ValueIterator>,
 L<Xapian::Weight>,
 L<Xapian::WritableDatabase>,
 and
-L<http://xapian.org/>.
+L<https://xapian.org/>.
 
 =cut
 %}

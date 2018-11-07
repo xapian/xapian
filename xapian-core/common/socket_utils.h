@@ -1,7 +1,7 @@
 /** @file  socket_utils.h
  *  @brief Socket handling utilities.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -37,5 +37,15 @@ extern void close_fd_or_socket(int fd);
 // There's no distinction between sockets and other fds on UNIX.
 inline void close_fd_or_socket(int fd) { close(fd); }
 #endif
+
+/** Attempt to set socket-level timeouts.
+ *
+ *  These aren't supported by all platforms, and some platforms allow them to
+ *  set but ignore them, so we can't easily report failure.
+ *
+ *  Also sets SO_KEEPALIVE (if supported), which should ensure a stuck
+ *  connection will eventually time out, though it may take up to ~2 hours.
+ */
+void set_socket_timeouts(int fd, double timeout);
 
 #endif // XAPIAN_INCLUDED_SOCKET_UTILS_H

@@ -40,7 +40,7 @@ class ByteLengthPrefixedStringItor {
 	: p(p_), left(left_) { }
 
   public:
-    ByteLengthPrefixedStringItor(const std::string & s)
+    explicit ByteLengthPrefixedStringItor(const std::string & s)
 	: p(reinterpret_cast<const unsigned char *>(s.data())),
 	  left(s.size()) { }
 
@@ -77,7 +77,7 @@ class ByteLengthPrefixedStringItor {
 struct ByteLengthPrefixedStringItorGt {
     /// Return true if and only if a's string is strictly greater than b's.
     bool operator()(const ByteLengthPrefixedStringItor *a,
-		    const ByteLengthPrefixedStringItor *b) {
+		    const ByteLengthPrefixedStringItor *b) const {
 	return (**a > **b);
     }
 };

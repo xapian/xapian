@@ -32,9 +32,9 @@ namespace Internal {
 double
 Bo1EWeight::get_weight() const
 {
-    double F(get_collection_freq());
+    double F = get_collection_freq();
 
-    double N(get_dbsize());
+    double N = get_dbsize();
 
     double mean = F / N;
     double wt = stats.rcollection_freq * log2((1.0 + mean) / mean) + log2(1.0 + mean);

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,9 @@
 
 #include <xapian.h>
 
+#include "keyword.h"
+#include "namedents.h"
+#include "stringutils.h"
 #include "utf8convert.h"
 
 #include <algorithm>
@@ -37,57 +40,35 @@
 
 using namespace std;
 
-inline void
+// HTML5 legacy compatibility doctype.
+#define HTML5_LEGACY_COMPAT "about:legacy-compat"
+#define HTML5_LEGACY_COMPAT_LEN CONST_STRLEN(HTML5_LEGACY_COMPAT)
+
+static inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
-	*i = tolower(static_cast<unsigned char>(*i));
+	*i = C_tolower(*i);
     }
 }
 
-map<string, unsigned int> HtmlParser::named_ents;
-
-inline static bool
-p_notdigit(char c)
-{
-    return !isdigit(static_cast<unsigned char>(c));
-}
-
-inline static bool
-p_notxdigit(char c)
-{
-    return !isxdigit(static_cast<unsigned char>(c));
-}
-
-inline static bool
-p_notalnum(char c)
-{
-    return !isalnum(static_cast<unsigned char>(c));
-}
-
-inline static bool
-p_notwhitespace(char c)
-{
-    return !isspace(static_cast<unsigned char>(c));
-}
-
-inline static bool
+static inline bool
 p_nottag(char c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) &&
-	c != '.' && c != '-' && c != ':'; // ':' for XML namespaces.
+    // ':' for XML namespaces.
+    return !C_isalnum(c) && c != '.' && c != '-' && c != ':';
 }
 
-inline static bool
+static inline bool
 p_whitespacegt(char c)
 {
-    return isspace(static_cast<unsigned char>(c)) || c == '>';
+    return C_isspace(c) || c == '>';
 }
 
-inline static bool
+static inline bool
 p_whitespaceeqgt(char c)
 {
-    return isspace(static_cast<unsigned char>(c)) || c == '=' || c == '>';
+    return C_isspace(c) || c == '=' || c == '>';
 }
 
 bool
@@ -99,67 +80,72 @@ HtmlParser::get_parameter(const string & param, string & value) const
     return true;
 }
 
-HtmlParser::HtmlParser()
-{
-    static const struct ent { const char *n; unsigned int v; } ents[] = {
-#include "namedentities.h"
-	{ NULL, 0 }
-    };
-    if (named_ents.empty()) {
-	const struct ent *i = ents;
-	while (i->n) {
-	    named_ents[string(i->n)] = i->v;
-	    ++i;
-	}
-    }
-}
+// UTF-8 encoded entity is always <= the entity itself in length, even if the
+// trailing ';' is missing - for numeric (decimal and hex) entities:
+//
+// <=		UTF-8	&#<..>	&#x<..>
+// U+007F	1	5	5
+// U+07FF	2	6	6
+// U+FFFF	3	7	7
+// U+1FFFFF	4	9	9
+// U+3FFFFFF	5	10	10
+// U+7FFFFFFF	6	12	11
+//
+// Also true for named entities.  This means we can work in-place within the
+// string.
 
 void
 HtmlParser::decode_entities(string &s)
 {
-    // We need a const_iterator version of s.end() - otherwise the
-    // find() and find_if() templates don't work...
-    string::const_iterator amp = s.begin(), s_end = s.end();
-    while ((amp = find(amp, s_end, '&')) != s_end) {
+    string::iterator out = s.begin();
+    string::iterator in = out;
+    string::iterator amp = in;
+    while ((amp = find(amp, s.end(), '&')) != s.end()) {
 	unsigned int val = 0;
-	string::const_iterator end, p = amp + 1;
-	if (p != s_end && *p == '#') {
-	    p++;
-	    if (p != s_end && (*p == 'x' || *p == 'X')) {
+	string::iterator end, p = amp + 1;
+	if (p != s.end() && *p == '#') {
+	    ++p;
+	    if (p != s.end() && (*p == 'x' || *p == 'X')) {
 		// hex
-		p++;
-		end = find_if(p, s_end, p_notxdigit);
-		sscanf(s.substr(p - s.begin(), end - p).c_str(), "%x", &val);
+		while (++p != s.end() && C_isxdigit(*p)) {
+		    val = (val << 4) | hex_digit(*p);
+		}
+		end = p;
 	    } else {
 		// number
-		end = find_if(p, s_end, p_notdigit);
-		val = atoi(s.substr(p - s.begin(), end - p).c_str());
+		while (p != s.end() && C_isdigit(*p)) {
+		    val = val * 10 + (*p - '0');
+		    ++p;
+		}
+		end = p;
 	    }
 	} else {
-	    end = find_if(p, s_end, p_notalnum);
-	    string code = s.substr(p - s.begin(), end - p);
-	    map<string, unsigned int>::const_iterator i;
-	    i = named_ents.find(code);
-	    if (i != named_ents.end()) val = i->second;
+	    end = find_if(p, s.end(), C_isnotalnum);
+	    int k = keyword2(tab, s.data() + (p - s.begin()), end - p);
+	    if (k >= 0) val = named_ent_codepoint[k];
 	}
-	if (end < s_end && *end == ';') end++;
+	if (end != s.end() && *end == ';') ++end;
 	if (val) {
-	    string::size_type amp_pos = amp - s.begin();
+	    if (in != out) {
+		out = copy(in, amp, out);
+	    } else {
+		out = amp;
+	    }
+	    in = end;
 	    if (val < 0x80) {
-		s.replace(amp_pos, end - amp, 1u, char(val));
+		*out++ = char(val);
 	    } else {
 		// Convert unicode value val to UTF-8.
 		char seq[4];
 		unsigned len = Xapian::Unicode::nonascii_to_utf8(val, seq);
-		s.replace(amp_pos, end - amp, seq, len);
+		out = copy(seq, seq + len, out);
 	    }
-	    s_end = s.end();
-	    // We've modified the string, so the iterators are no longer
-	    // valid...
-	    amp = s.begin() + amp_pos + 1;
-	} else {
-	    amp = end;
 	}
+	amp = end;
+    }
+
+    if (in != out) {
+	s.erase(out, in);
     }
 }
 
@@ -182,7 +168,7 @@ HtmlParser::parse(const string &body)
 	    unsigned char ch = *(p + 1);
 
 	    // Tag, closing tag, or comment (or SGML declaration).
-	    if ((!in_script && isalpha(ch)) || ch == '/' || ch == '!') break;
+	    if ((!in_script && C_isalpha(ch)) || ch == '/' || ch == '!') break;
 
 	    if (ch == '?') {
 		// PHP code or XML declaration.
@@ -209,7 +195,7 @@ HtmlParser::parse(const string &body)
 		if (enc == string::npos || enc == decl.size()) break;
 
 		if (decl[enc] != '=') break;
-		
+
 		enc = decl.find_first_not_of(" \t\r\n", enc + 1);
 		if (enc == string::npos || enc == decl.size()) break;
 
@@ -219,16 +205,16 @@ HtmlParser::parse(const string &body)
 		size_t enc_end = decl.find(quote, enc);
 
 		if (enc != string::npos)
-		    charset = decl.substr(enc, enc_end - enc);
+		    charset.assign(decl, enc, enc_end - enc);
 
 		break;
 	    }
-	    p++;
+	    ++p;
 	}
 
 	// Process text up to start of tag.
 	if (p > start) {
-	    string text = body.substr(start - body.begin(), p - start);
+	    string text(body, start - body.begin(), p - start);
 	    convert_to_utf8(text, charset);
 	    decode_entities(text);
 	    process_text(text);
@@ -242,9 +228,11 @@ HtmlParser::parse(const string &body)
 
 	if (*start == '!') {
 	    if (++start == body.end()) break;
+
+	    // Comment, SGML declaration, or HTML5 DTD.
+	    char first_ch = *start;
 	    if (++start == body.end()) break;
-	    // comment or SGML declaration
-	    if (*(start - 1) == '-' && *start == '-') {
+	    if (first_ch == '-' && *start == '-') {
 		++start;
 		string::const_iterator close = find(start, body.end(), '>');
 		// An unterminated comment swallows rest of document
@@ -258,19 +246,25 @@ HtmlParser::parse(const string &body)
 
 		if (p != body.end()) {
 		    // Check for htdig's "ignore this bit" comments.
-		    if (p - start == 15 && string(start, p - 2) == "htdig_noindex") {
-			string::size_type i;
-			i = body.find("<!--/htdig_noindex-->", p + 1 - body.begin());
+		    if (p - start == CONST_STRLEN("htdig_noindex") + 2 &&
+			memcmp(&*start, "htdig_noindex",
+			       CONST_STRLEN("htdig_noindex")) == 0) {
+			auto i = body.find("<!--/htdig_noindex-->",
+					   p + 1 - body.begin());
 			if (i == string::npos) break;
-			start = body.begin() + i + 21;
+			start = body.begin() + i +
+			    CONST_STRLEN("<!--/htdig_noindex-->");
 			continue;
 		    }
 		    // Check for udmcomment (similar to htdig's)
-		    if (p - start == 12 && string(start, p - 2) == "UdmComment") {
-			string::size_type i;
-			i = body.find("<!--/UdmComment-->", p + 1 - body.begin());
+		    if (p - start == CONST_STRLEN("UdmComment") + 2 &&
+			memcmp(&*start, "UdmComment",
+			       CONST_STRLEN("UdmComment")) == 0) {
+			auto i = body.find("<!--/UdmComment-->",
+					   p + 1 - body.begin());
 			if (i == string::npos) break;
-			start = body.begin() + i + 18;
+			start = body.begin() + i +
+			    CONST_STRLEN("<!--/UdmComment-->");
 			continue;
 		    }
 		    // If we found --> skip to there.
@@ -279,8 +273,9 @@ HtmlParser::parse(const string &body)
 		    // Otherwise skip to the first > we found (as Netscape does).
 		    start = close;
 		}
-	    } else if (body.size() - (start - body.begin()) > 6 &&
-		       body.compare(start - body.begin() - 1, 7, "[CDATA[", 7) == 0) {
+	    } else if (first_ch == '[' &&
+		       body.size() - (start - body.begin()) > 6 &&
+		       body.compare(start - body.begin(), 6, "CDATA[", 6) == 0) {
 		start += 6;
 		string::size_type b = start - body.begin();
 		string::size_type i;
@@ -290,8 +285,71 @@ HtmlParser::parse(const string &body)
 		process_text(text);
 		if (i == string::npos) break;
 		start = body.begin() + i + 2;
+	    } else if (C_tolower(first_ch) == 'd' &&
+		       body.end() - start > 6 &&
+		       C_tolower(start[0]) == 'o' &&
+		       C_tolower(start[1]) == 'c' &&
+		       C_tolower(start[2]) == 't' &&
+		       C_tolower(start[3]) == 'y' &&
+		       C_tolower(start[4]) == 'p' &&
+		       C_tolower(start[5]) == 'e' &&
+		       C_isspace(start[6])) {
+		// DOCTYPE declaration.
+		start += 7;
+		while (start != body.end() && C_isspace(*start)) {
+		    ++start;
+		}
+		if (start == body.end()) break;
+		if (body.end() - start >= 5 &&
+		    C_tolower(start[0]) == 'h' &&
+		    C_tolower(start[1]) == 't' &&
+		    C_tolower(start[2]) == 'm' &&
+		    C_tolower(start[3]) == 'l' &&
+		    (start[4] == '>' || C_isspace(start[4]))) {
+		    start += 4;
+
+		    // HTML doctype.
+		    while (start != body.end() && C_isspace(*start)) {
+			++start;
+		    }
+		    if (start == body.end()) break;
+
+		    if (*start == '>') {
+			// <!DOCTYPE html>
+			// Default charset for HTML5 is UTF-8.
+			charset = "utf-8";
+		    }
+		} else if (body.end() - start >= 29 &&
+			   C_tolower(start[0]) == 's' &&
+			   C_tolower(start[1]) == 'y' &&
+			   C_tolower(start[2]) == 's' &&
+			   C_tolower(start[3]) == 't' &&
+			   C_tolower(start[4]) == 'e' &&
+			   C_tolower(start[5]) == 'm' &&
+			   C_isspace(start[6])) {
+		    start += 7;
+		    while (start != body.end() && C_isspace(*start)) {
+			++start;
+		    }
+		    size_t left = body.end() - start;
+		    if (left >= HTML5_LEGACY_COMPAT_LEN + 3 &&
+			(*start == '\'' || *start == '"') &&
+			start[HTML5_LEGACY_COMPAT_LEN + 1] == *start &&
+			body.compare(start - body.begin() + 1,
+				     HTML5_LEGACY_COMPAT_LEN,
+				     HTML5_LEGACY_COMPAT,
+				     HTML5_LEGACY_COMPAT_LEN) == 0) {
+			// HTML5 legacy compatibility doctype:
+			// <!DOCTYPE html SYSTEM "about:legacy-compat">
+			start += HTML5_LEGACY_COMPAT_LEN + 2;
+			// Default charset for HTML5 is UTF-8.
+			charset = "utf-8";
+		    }
+		}
+		start = find(start - 1, body.end(), '>');
+		if (start == body.end()) break;
 	    } else {
-		// just an SGML declaration, perhaps giving the DTD - ignore it
+		// Some other SGML declaration - ignore it.
 		start = find(start - 1, body.end(), '>');
 		if (start == body.end()) break;
 	    }
@@ -314,12 +372,12 @@ HtmlParser::parse(const string &body)
 
 	    if (*start == '/') {
 		closing = 1;
-		start = find_if(start + 1, body.end(), p_notwhitespace);
+		start = find_if(start + 1, body.end(), C_isnotspace);
 	    }
 
 	    p = start;
 	    start = find_if(start, body.end(), p_nottag);
-	    string tag = body.substr(p - body.begin(), start - p);
+	    string tag(body, p - body.begin(), start - p);
 	    // convert tagname to lowercase
 	    lowercase_string(tag);
 
@@ -352,17 +410,17 @@ HtmlParser::parse(const string &body)
 
 		    name.assign(body, start - body.begin(), name_len);
 
-		    p = find_if(p, body.end(), p_notwhitespace);
+		    p = find_if(p, body.end(), C_isnotspace);
 
 		    start = p;
 		    if (start != body.end() && *start == '=') {
-			start = find_if(start + 1, body.end(), p_notwhitespace);
+			start = find_if(start + 1, body.end(), C_isnotspace);
 
 			p = body.end();
 
 			int quote = *start;
 			if (quote == '"' || quote == '\'') {
-			    start++;
+			    ++start;
 			    p = find(start, body.end(), quote);
 			}
 
@@ -371,7 +429,7 @@ HtmlParser::parse(const string &body)
 			    p = find_if(start, body.end(), p_whitespacegt);
 			}
 			value.assign(body, start - body.begin(), p - start);
-			start = find_if(p, body.end(), p_notwhitespace);
+			start = find_if(p, body.end(), C_isnotspace);
 
 			if (!name.empty()) {
 			    // convert parameter name to lowercase
@@ -385,7 +443,7 @@ HtmlParser::parse(const string &body)
 #if 0
 		cout << "<" << tag;
 		map<string, string>::const_iterator x;
-		for (x = parameters.begin(); x != parameters.end(); x++) {
+		for (x = parameters.begin(); x != parameters.end(); ++x) {
 		    cout << " " << x->first << "=\"" << x->second << "\"";
 		}
 		cout << ">\n";

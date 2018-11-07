@@ -24,6 +24,7 @@
 
 #include "xapian/intrusive_ptr.h"
 #include "xapian/enquire.h"
+#include "xapian/eset.h"
 #include "xapian/types.h"
 
 #include <algorithm>

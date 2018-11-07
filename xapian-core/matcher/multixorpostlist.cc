@@ -1,7 +1,7 @@
 /** @file multixorpostlist.cc
  * @brief N-way XOR postlist
  */
-/* Copyright (C) 2007,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012,2016 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,8 +24,9 @@
 #include "multixorpostlist.h"
 
 #include "debuglog.h"
-#include "multimatch.h"
 #include "omassert.h"
+
+#include <algorithm>
 
 using namespace std;
 
@@ -42,13 +43,50 @@ MultiXorPostList::~MultiXorPostList()
 Xapian::doccount
 MultiXorPostList::get_termfreq_min() const
 {
-    // The number of matching documents is minimised when we have the maximum
-    // even overlap between the sub-postlists, but that's rather tricky to
-    // calculate in general, so just return 0 for now.
-    //
-    // FIXME: we can certainly work out a better bound in at least some cases
-    // (e.g. when tf_min(X) > sum(i!=X){ tf_max(i) } for some sub-pl X).
-    return 0;
+    Xapian::doccount result = 0;
+    Xapian::doccount max = plist[0]->get_termfreq_max();
+    Xapian::doccount sum = max;
+    bool all_exact = (max == plist[0]->get_termfreq_min());
+    unsigned overflow = 0;
+    for (size_t i = 1; i < n_kids; ++i) {
+	Xapian::doccount tf_max = plist[i]->get_termfreq_max();
+	if (tf_max > max) max = tf_max;
+
+	Xapian::doccount old_sum = sum;
+	sum += tf_max;
+	// Track how many times we overflow the type.
+	if (sum < old_sum)
+	    ++overflow;
+	if (all_exact)
+	    all_exact = (tf_max == plist[i]->get_termfreq_min());
+    }
+
+    // If tf_min(i) > sum(j!=i)(tf_max(j)) then all the other subqueries
+    // can't cancel out subquery i.  If we overflowed more than once,
+    // then the sum on the right is greater than the maximum possible
+    // tf, so there's no point checking.
+    if (overflow <= 1) {
+	for (size_t i = 0; i < n_kids; ++i) {
+	    Xapian::doccount tf_min = plist[i]->get_termfreq_min();
+	    Xapian::doccount tf_max = plist[i]->get_termfreq_max();
+
+	    Xapian::doccount all_the_rest = sum - tf_max;
+	    // If no overflow, or we un-overflowed again...
+	    if (overflow == 0 || all_the_rest > sum) {
+		if (tf_min > all_the_rest) {
+		    result = std::max(result, tf_min - all_the_rest);
+		}
+	    }
+	}
+    }
+
+    if (all_exact && result == 0) {
+	// If SUM odd, then the XOR can't be 0, so min XOR is 1 if we didn't
+	// already calculate a minimum.
+	result = sum & 1;
+    }
+
+    return result;
 }
 
 Xapian::doccount
@@ -74,7 +112,7 @@ MultiXorPostList::get_termfreq_max() const
 	// If the sub-postlist tfs are all exact, then if the sum of them has
 	// a different odd/even-ness to db_size then max tf of the XOR can't
 	// achieve db_size.
-	return db_size - ((result & 1) == (db_size & 1));
+	return db_size - ((result & 1) != (db_size & 1));
     }
     return result;
 }
@@ -111,24 +149,30 @@ MultiXorPostList::get_termfreq_est_using_stats(
     Assert(stats.collection_size);
     double scale = 1.0 / stats.collection_size;
     double P_est = freqs.termfreq * scale;
-    double Pr_est = freqs.reltermfreq * scale;
-    double Pc_est = freqs.collfreq * scale;
+    double rtf_scale = 0.0;
+    if (stats.rset_size != 0) {
+	rtf_scale = 1.0 / stats.rset_size;
+    }
+    double Pr_est = freqs.reltermfreq * rtf_scale;
+    double cf_scale = 1.0 / stats.total_term_count;
+    double Pc_est = freqs.collfreq * cf_scale;
 
     for (size_t i = 1; i < n_kids; ++i) {
+	freqs = plist[i]->get_termfreq_est_using_stats(stats);
 	double P_i = freqs.termfreq * scale;
 	P_est += P_i - 2.0 * P_est * P_i;
-	double Pc_i = freqs.collfreq * scale;
+	double Pc_i = freqs.collfreq * cf_scale;
 	Pc_est += Pc_i - 2.0 * Pc_est * Pc_i;
 	// If the rset is empty, Pr_est should be 0 already, so leave
 	// it alone.
 	if (stats.rset_size != 0) {
-	    double Pr_i = freqs.reltermfreq / stats.rset_size;
+	    double Pr_i = freqs.reltermfreq * rtf_scale;
 	    Pr_est += Pr_i - 2.0 * Pr_est * Pr_i;
 	}
     }
     RETURN(TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
 		     Xapian::doccount(Pr_est * stats.rset_size + 0.5),
-		     Xapian::termcount(Pc_est * stats.total_term_count)));
+		     Xapian::termcount(Pc_est * stats.total_term_count + 0.5)));
 }
 
 double

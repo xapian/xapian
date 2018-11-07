@@ -34,7 +34,7 @@
  */
 class AndNotPostList : public BranchPostList {
     private:
-        Xapian::docid lhead, rhead;
+	Xapian::docid lhead, rhead;
 
 	/// Number of documents in the database this postlist is across
 	Xapian::doccount dbsize;
@@ -47,7 +47,7 @@ class AndNotPostList : public BranchPostList {
 	TermFreqs get_termfreq_est_using_stats(
 	    const Xapian::Weight::Internal & stats) const;
 
-	Xapian::docid  get_docid() const;
+	Xapian::docid get_docid() const;
 	double get_weight() const;
 	double get_maxweight() const;
 
@@ -55,7 +55,7 @@ class AndNotPostList : public BranchPostList {
 
 	PostList *next(double w_min);
 	PostList *skip_to(Xapian::docid did, double w_min);
-	bool   at_end() const;
+	bool at_end() const;
 
 	std::string get_description() const;
 
@@ -66,12 +66,12 @@ class AndNotPostList : public BranchPostList {
 
 	virtual Xapian::termcount get_unique_terms() const;
 
-        AndNotPostList(PostList *left,
+	AndNotPostList(PostList *left,
 		       PostList *right,
 		       MultiMatch *matcher_,
 		       Xapian::doccount dbsize_);
 
-        PostList *sync_and_skip_to(Xapian::docid id,
+	PostList *sync_and_skip_to(Xapian::docid id,
 				   double w_min,
 				   Xapian::docid lh,
 				   Xapian::docid rh);

@@ -2,7 +2,7 @@
  * @brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009,2010,2012,2013 Olly Betts
+ * Copyright 2008,2009,2010,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -95,12 +95,12 @@ get_hostname()
 {
 #ifdef __WIN32__
     char buf[256];
-    WORD WSAVerReq = MAKEWORD(1,1);
+    WORD WSAVerReq = MAKEWORD(1, 1);
     WSADATA WSAData;
 
     if (WSAStartup(WSAVerReq, &WSAData) != 0) {
-        // wrong winsock dlls?
-        return string();
+	// wrong winsock dlls?
+	return string();
     }
     if (gethostname(buf, sizeof(buf)) != 0) {
 	*buf = '\0';
@@ -146,7 +146,7 @@ get_ncpus()
     string ncpus;
 #ifdef __WIN32__
     SYSTEM_INFO siSysInfo;
-    GetSystemInfo(&siSysInfo); 
+    GetSystemInfo(&siSysInfo);
     ncpus = str(siSysInfo.dwNumberOfProcessors);
 #else
     try {
@@ -179,7 +179,7 @@ static string
 get_distro()
 {
     string distro;
-#ifdef __WIN32__    
+#ifdef __WIN32__
     OSVERSIONINFO osvi;
     ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -245,7 +245,6 @@ PerfTestLogger::open(const string & logpath)
 	write("  <commitref>" + commit_ref + "</commitref>\n");
     write("  <version>" + string(Xapian::version_string()) + "</version>\n");
     write(" </sourceinfo>\n");
-
 
     return true;
 }
@@ -398,7 +397,7 @@ PerfTestLogger::testcase_end()
 {
     indexing_end();
     if (testcase_started) {
-    	write(" </testcase>\n");
+	write(" </testcase>\n");
 	testcase_started = false;
     }
 }

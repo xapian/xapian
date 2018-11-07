@@ -58,10 +58,6 @@ docstats_to_string(const Xapian::Database & db, Xapian::docid did);
 std::string
 termstats_to_string(const Xapian::Database & db, const std::string & term);
 
-/// Convert global statistics about the database to a string.
-std::string
-dbstats_to_string(const Xapian::Database & db);
-
 /** Check consistency of database and statistics.
  *
  *  Raises a TestFail exception if the database is inconsistent.

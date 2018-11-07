@@ -1,0 +1,109 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+my $copyright = <<'EOF';
+/* Copyright (C) 2012,2013,2015,2016,2017 Olly Betts
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+EOF
+
+use Tokeniseise;
+
+my $srcdir = shift @ARGV;
+
+-d 'docs/inc' or mkdir 'docs/inc' or die $!;
+
+my $hdr = Tokeniseise->new('mimemap.h', 'Map extension to MIME Content-Type', $copyright, 'OMEGA_INCLUDED_MIMEMAP_H', 'mime_type', 2);
+$hdr->append('static const char * const default_mime_map[] = {');
+my $max_ext_len = 0;
+my $max_mimetype_len = 0;
+my %mime_table;
+while (<STDIN>) {
+    s/#.*//;
+    next if /^\s*$/;
+    my ($ext, $mimetype) = split /\s+/;
+    my $enum = uc $mimetype;
+    $enum =~ s![-+/.]!_!g;
+    $hdr->add($ext, $enum);
+    $max_ext_len = length($ext) if length($ext) > $max_ext_len;
+    if (!exists $mime_table{$mimetype}) {
+	$hdr->append("    \"$mimetype\",");
+	if (length($mimetype) > $max_mimetype_len) {
+	    $max_mimetype_len = length($mimetype) if length($mimetype);
+	}
+	$mime_table{$mimetype} = [];
+    }
+    push @{$mime_table{$mimetype}}, $ext;
+}
+$hdr->append('};');
+$hdr->append('');
+$hdr->append("const size_t MAX_BUILTIN_MIMEMAP_EXTENSION_LEN = $max_ext_len;");
+
+$hdr->write();
+
+open IGNORED, '>', 'docs/inc/ignored.rst' or die $!;
+if (exists $mime_table{'ignore'}) {
+    foreach my $ext (sort @{$mime_table{'ignore'}}) {
+	print IGNORED "   - $ext\n";
+    }
+}
+close IGNORED or die $!;
+
+open MIMETYPES, '>', 'docs/inc/mimetypes.rst' or die $!;
+sub mimetype_order {
+    my ($a, $b) = @_;
+    $a =~ s!^text/!0/!;
+    $a =~ s!^application/!1/!;
+    $a =~ s!^image/!2/!;
+    $a =~ s!^message/!3/!;
+    $b =~ s!^text/!0/!;
+    $b =~ s!^application/!1/!;
+    $b =~ s!^image/!2/!;
+    $b =~ s!^message/!3/!;
+    return $a cmp $b;
+}
+my $fmt = "\% -${max_mimetype_len}s \% -${max_ext_len}s\n";
+my $drule = '='x$max_mimetype_len . ' ' . '='x${max_ext_len} . "\n";
+my $srule = '-'x$max_mimetype_len . ' ' . '-'x${max_ext_len} . "\n";
+print MIMETYPES $drule;
+printf MIMETYPES $fmt, 'MIME Type', 'Extensions';
+print MIMETYPES $drule;
+my $first = 1;
+foreach my $mimetype (sort {mimetype_order($a, $b)} keys %mime_table) {
+    if ($mimetype eq 'ignore') {
+	# Handled above.
+	next;
+    } elsif ($mimetype eq 'skip') {
+	# FIXME: Currently nothing is mapped to this by default.
+	next;
+    }
+    if ($first) {
+	$first = 0;
+    } else {
+	print MIMETYPES $srule;
+    }
+    my @exts = @{$mime_table{$mimetype}};
+    printf MIMETYPES $fmt, $mimetype, shift @exts;
+    for (@exts) {
+	printf MIMETYPES $fmt, '', $_;
+    }
+}
+print MIMETYPES $drule;
+close MIMETYPES or die $!;

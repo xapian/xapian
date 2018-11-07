@@ -15,3 +15,6 @@
 /XapianSharp.snk
 /*.stamp
 /generated-csharp
+/SmokeTest.exe.log
+/SmokeTest.exe.trs
+/test-suite.log

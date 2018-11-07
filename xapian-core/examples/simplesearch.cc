@@ -3,7 +3,7 @@
  *
  * See "quest" for a more sophisticated example.
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include <xapian.h>
 

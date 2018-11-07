@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2009,2010,2011 Olly Betts
+ * Copyright 2003,2004,2009,2010,2011,2017 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -37,7 +37,7 @@
  */
 class OrPostList : public BranchPostList {
     private:
-        Xapian::docid lhead, rhead;
+	Xapian::docid lhead, rhead;
 	bool lvalid, rvalid;
 	double lmax, rmax, minmax;
 	Xapian::doccount dbsize;
@@ -48,7 +48,7 @@ class OrPostList : public BranchPostList {
 	TermFreqs get_termfreq_est_using_stats(
 	    const Xapian::Weight::Internal & stats) const;
 
-	Xapian::docid  get_docid() const;
+	Xapian::docid get_docid() const;
 	double get_weight() const;
 	double get_maxweight() const;
 
@@ -57,7 +57,7 @@ class OrPostList : public BranchPostList {
 	PostList *next(double w_min);
 	PostList *skip_to(Xapian::docid did, double w_min);
 	PostList *check(Xapian::docid did, double w_min, bool &valid);
-	bool   at_end() const;
+	bool at_end() const;
 
 	std::string get_description() const;
 
@@ -73,7 +73,7 @@ class OrPostList : public BranchPostList {
 	/// Return the number of unique terms in the document.
 	virtual Xapian::termcount get_unique_terms() const;
 
-        OrPostList(PostList * left_,
+	OrPostList(PostList * left_,
 		   PostList * right_,
 		   MultiMatch * matcher_,
 		   Xapian::doccount dbsize_);
@@ -85,6 +85,8 @@ class OrPostList : public BranchPostList {
 	Xapian::termcount get_wdf() const;
 
 	Xapian::termcount count_matching_subqs() const;
+
+	void gather_position_lists(OrPositionList* orposlist);
 };
 
 #endif /* OM_HGUARD_ORPOSTLIST_H */

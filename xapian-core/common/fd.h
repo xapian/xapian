@@ -61,7 +61,7 @@ class FD {
 };
 
 inline int close(FD & fd) {
-   return fd.close();
+    return fd.close();
 }
 
 #endif

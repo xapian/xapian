@@ -4,7 +4,7 @@ Overview
 This document provides an introduction to the native C++ Xapian API.
 This API provides programmers with the ability to index and search
 through (potentially very large) bodies of data using probabilistic
-methods.
+and other ranking methods.
 
 *Note:* The portion of the API currently documented here covers only the
 part of Xapian concerned with searching through existing databases, not
@@ -14,8 +14,7 @@ This document assumes you already have Xapian installed, so if you
 haven't, it is a good idea to read `Installing Xapian <install.html>`_
 first.
 
-You may also wish to read the `QuickStart <quickstart.html>`_ reference,
-for some simple worked examples of Xapian usage, and the `Introduction
+You may also wish to read the `Introduction
 to Information Retrieval <intro_ir.html>`_ for a background into the
 Information Retrieval theories behind Xapian.
 
@@ -28,7 +27,7 @@ documentation is generated using the
 `Doxygen <http://www.doxygen.org/>`_ application. To save you having
 to generate this documentation yourself, we include the `built
 version <apidoc/html/index.html>`_ in our distributions, and also keep
-the `latest version <http://xapian.org/docs/apidoc/html/index.html>`_ on
+the `latest version <https://xapian.org/docs/apidoc/html/index.html>`_ on
 our website.
 
 Design Principles
@@ -101,10 +100,9 @@ Queries
 
 The information to be searched for is specified by a *Query*. In Xapian,
 queries are made up of a structured boolean tree, upon which
-probabilistic weightings are imposed: when the search is performed, the
+relevance weightings are imposed: when the search is performed, the
 documents returned are filtered according to the boolean structure, and
-weighted (and sorted) according to the probabilistic model of
-information retrieval.
+weighted (and sorted) according to the weighting scheme in use.
 
 Memory handling
 ---------------
@@ -170,7 +168,7 @@ using ``Xapian::DB_BACKEND_STUB``. The stub database format specifies one
 database per line. For example::
 
      remote localhost:23876
-     chert /var/spool/xapian/webindex
+     auto /var/spool/xapian/webindex
 
 Database types
 ~~~~~~~~~~~~~~
@@ -182,40 +180,21 @@ auto
     the disk based backends (e.g. "chert" or "glass") from a single specified
     path (which can be to a file or directory).
 
-brass
-    Brass was the current "under development" database format in Xapian 1.2.x,
-    1.3.0 and 1.3.1.  It was renamed to 'glass' in Xapian 1.3.2 because we
-    decided to use backend names in ascending alphabetical order to make it
-    easier to understand which backend is newest, and since 'flint' was used
-    recently, we skipped over 'd', 'e' and 'f'.
+glass
+    Glass is the default backend in Xapian 1.4.x. It supports incremental
+    modifications, concurrent single-writer and multiple-reader access to a
+    database. It's very efficient and highly scalable, and more compact than
+    chert.
 
 chert
-    Chert is the default backend in Xapian 1.2.x. It supports incremental
+    Chert was the default backend in Xapian 1.2.x. It supports incremental
     modifications, concurrent single-writer and multiple-reader access to a
     database. It's very efficient and highly scalable.
-
-flint
-    Flint was the default backend in Xapian 1.0.x, and was deprecated in
-    1.2.x and removed in 1.3.0.  If you want to migrate an existing Flint
-    database to Chert, `see the 'Admin Notes'
-    <admin_notes.html#converting-a-flint-database-to-a-chert-database%60>`_
-    for a way to do this.
-
-glass
-    Glass is the current development backend (renamed from Brass in 1.3.2),
-    It is intended to be the default backend in Xapian 1.4.x.
 
 inmemory
     This type is a database held entirely in memory. It was originally written
     for testing purposes only, but may prove useful for building up temporary
     small databases.
-
-quartz
-    Quartz was the default backend prior to Xapian 1.0, and has been removed as
-    of Xapian 1.1.0. If you want to migrate an existing Quartz database to
-    Flint, see `Admin Notes
-    <admin_notes.html#converting-a-quartz-database-to-a-flint-database%60>`_
-    for a way to do this.
 
 remote
     This can specify either a "program" or TCP remote backend, for example::
@@ -232,6 +211,29 @@ remote
     Otherwise the TCP variant of the remote backend is used, and the rest of
     the line specifies the host and port to connect to.
 
+These are no longer supported by Xapian 1.4.x:
+
+brass
+    Brass was the current "under development" database format in Xapian 1.2.x,
+    1.3.0 and 1.3.1.  It was renamed to 'glass' in Xapian 1.3.2 because we
+    decided to use backend names in ascending alphabetical order to make it
+    easier to understand which backend is newest, and since 'flint' was used
+    recently, we skipped over 'd', 'e' and 'f'.
+
+flint
+    Flint was the default backend in Xapian 1.0.x, and was deprecated in
+    1.2.x and removed in 1.3.0.  If you want to migrate an existing Flint
+    database to Chert, `see the 'Admin Notes'
+    <admin_notes.html#converting-a-flint-database-to-a-chert-database%60>`_
+    for a way to do this.
+
+quartz
+    Quartz was the default backend prior to Xapian 1.0, and has been removed as
+    of Xapian 1.1.0. If you want to migrate an existing Quartz database to
+    Flint, see `Admin Notes
+    <admin_notes.html#converting-a-quartz-database-to-a-flint-database%60>`_
+    for a way to do this.
+
 Multiple databases
 ~~~~~~~~~~~~~~~~~~
 
@@ -246,21 +248,21 @@ using a "stub database" - see above for details.
 Specifying a query
 ------------------
 
-Xapian implements both boolean and probabilistic searching. There are
+Xapian implements both boolean and weighted searching. There are
 two obvious ways in which a pure boolean query could be combined with a
-pure probabilistic query:
+weighted query:
 
 -  First perform the boolean search to create a subset of the whole
-   document collection, and then do the probabilistic search on this
+   document collection, and then do the weighted search on this
    subset, or
--  Do the probabilistic search, and then filter out the resulting
+-  Do the weighted search, and then filter out the resulting
    documents with a boolean query.
 
 There is in fact a subtle difference in these two approaches. In the
-first, the collection statistics for the probabilistic query will be
+first, the collection statistics for the weighted query will be
 determined by the document subset which is obtained by running the
 boolean query. In the second, the collection statistics for the
-probabilistic query are determined by the whole document collection.
+weighted query are determined by the whole document collection.
 These differences can affect the final result.
 
 Suppose for example the boolean query is being used to retrieve
@@ -275,10 +277,10 @@ very efficiently. The first approach is more exact, but inefficient to
 implement.
 
 Rather than implementing this approach as described above and first
-performing the probabilistic search and then filtering the results,
+performing the weighted search and then filtering the results,
 Xapian actually performs both tasks simultaneously. This allows various
 optimisations to be performed, such as giving up on calculating a
-boolean AND operation when the probabilistic weights that could result
+boolean AND operation when the weights that could result
 from further documents can have no effect on the result set. These
 optimisations have been found to often give a several-fold performance
 increase. The performance is particularly good for queries containing
@@ -350,7 +352,7 @@ the following constructor::
 The two most commonly used operators are ``Xapian::Query::OP_AND`` and
 ``Xapian::Query::OP_OR``, which enable us to construct boolean queries
 made up from the usual AND and OR operations. But in addition to this, a
-probabilistic query in its simplest form, where we have a list of terms
+"bag of words" query in its simplest form, where we have a list of terms
 which give rise to weights that need to be added together, is also made
 up from a set of terms joined together with ``Xapian::Query::OP_OR``.
 
@@ -508,10 +510,10 @@ structure internally.
 Using queries
 ~~~~~~~~~~~~~
 
-Probabilistic queries
-^^^^^^^^^^^^^^^^^^^^^
+Weighted queries
+^^^^^^^^^^^^^^^^
 
-A plain probabilistic query is created by connecting terms together with
+A simple weighted query is created by connecting terms together with
 Xapian::Query::OP\_OR operators. For example,
 ::
 
@@ -521,7 +523,7 @@ Xapian::Query::OP\_OR operators. For example,
         query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("canned"));
         query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("fish"));
 
-This creates a probabilistic query with terms `regulation`, `import`,
+This creates a weighted query with terms `regulation`, `import`,
 `export`, `canned` and `fish`.
 
 In fact this style of creation is so common that there is the shortcut
@@ -558,7 +560,7 @@ This could be built up as bquery like this,
         Xapian::Query bquery(Xapian::Query::OP_AND, bquery1, Xapian::Query(Xapian::Query::OP_AND(bquery2, bquery3)));
 
 and this can be attached as a filter to ``query`` to run the
-probabilistic query with a Boolean filter,
+weighted query with a Boolean filter,
 ::
 
         query = Xapian::Query(Xapian::Query::OP_FILTER, query, bquery);
@@ -571,7 +573,7 @@ Plus and minus terms
 ^^^^^^^^^^^^^^^^^^^^
 
 A common requirement in search engine functionality is to run a
-probabilistic query where some terms are required to index all the
+weighted query where some terms are required to index all the
 retrieved documents (`+` terms), and others are required to index none
 of the retrieved documents (`-` terms). For example,
 ::
@@ -855,9 +857,5 @@ from two different processes.
 Examples
 --------
 
-Extensively documented examples of simple usage of the Xapian API for
-creating databases and then for searching through them are given in the
-`QuickStart <quickstart.html>`_ tutorial.
-
-Further examples of usage of Xapian are available in the examples
+Examples of usage of Xapian are available in the examples
 subdirectory of xapian-core.

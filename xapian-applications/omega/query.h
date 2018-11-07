@@ -1,7 +1,7 @@
 /** @file query.h
  * @brief: Omega functions for running queries, etc.
- *
- * Copyright (C) 2007,2011 Olly Betts
+ */
+/* Copyright (C) 2007,2011,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,14 @@ extern Xapian::Query::op default_op;
 
 void add_bterm(const std::string & term);
 
-void set_probabilistic_query(const std::string & prefix,
-			     const std::string & s);
+void add_nterm(const std::string & term);
+
+void add_date_filter(const string& date_start,
+		     const string& date_end,
+		     const string& date_span,
+		     Xapian::valueno date_value_slot);
+
+void add_query_string(const std::string& prefix, const std::string& s);
 
 void parse_omegascript();
 

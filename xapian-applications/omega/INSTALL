@@ -18,6 +18,7 @@ You need the following libraries installed before building Omega.  If you
 install these from packages, make sure you install any corresponding -dev or
 -devel packages as well:
 
+  * zlib <http://www.zlib.net/>
   * PCRE <http://www.pcre.org/>
   * libmagic (which comes with the file program
     <http://www.darwinsys.com/file/>) - on RPM-based package systems, the
@@ -73,7 +74,7 @@ for details on some of the pertinent environment variables.
 by setting variables in the command line or in the environment.  Here
 is an example:
 
-     ./configure CXX=g++-4.3 CFLAGS=-O2 LIBS=-lposix
+     ./configure CXX=g++-4.9 CFLAGS=-O2 LIBS=-lposix
 
    If your system requires special flags, do let us know.  Where possible
 we'd prefer configure to determine such flags by itself, but if we can't
@@ -110,9 +111,6 @@ the source directory) from the build directory, like so:
   mkdir BUILD
   cd BUILD
   ../configure
-
-IRIX make doesn't handle this correctly - either build in the source tree or
-use "smake -M" (or better still, just use GNU make if you have it installed!)
 
 Installation Names
 ==================

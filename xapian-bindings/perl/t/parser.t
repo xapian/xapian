@@ -1,3 +1,4 @@
+use strict;
 # Before 'make install' is performed this script should be runnable with
 # 'make test'. After 'make install' it should work as 'perl test.pl'
 
@@ -10,9 +11,9 @@ my $disable_fixme = 1;
 use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
-use Test;
+use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 61 };
+BEGIN { plan tests => 107 };
 use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -20,6 +21,15 @@ ok(1); # If we made it this far, we're ok.
 
 # Insert your test code below, the Test module is use()ed here so read
 # its man page ( perldoc Test ) for help writing this test script.
+
+sub mset_expect_order (\@@) {
+    my ($m, @a) = @_;
+    my @m = map { $_->get_docid() } @{$m};
+    is( scalar @m, scalar @a );
+    for my $j (0 .. (scalar @a - 1)) {
+	is( $m[$j], $a[$j] );
+    }
+}
 
 # first create database dir, if it doesn't exist;
 my $db_dir = 'testdb';
@@ -37,10 +47,10 @@ $qp->set_default_op( OP_AND );
 my $query;
 ok( $query = $qp->parse_query( 'one or two', FLAG_BOOLEAN|FLAG_BOOLEAN_ANY_CASE|FLAG_SPELLING_CORRECTION ) );
 ok( not $qp->get_corrected_query_string());
-ok( $query->get_description(), 'Query((one@1 OR two@2))' );
+is( $query->get_description(), 'Query((one@1 OR two@2))' );
 
 ok( $query = $qp->parse_query( 'one OR (two AND three)' ) );
-ok( $query->get_description(), 'Query((one@1 OR (two@2 AND three@3)))' );
+is( $query->get_description(), 'Query((one@1 OR (two@2 AND three@3)))' );
 
 ok( my $enq = $database->enquire( $query ) );
 
@@ -54,38 +64,64 @@ ok( my $enq = $database->enquire( $query ) );
   foreach (qw(one two three four five)) {
     ok( !$stopper->stop_word($_) );
   }
-  ok( $qp->set_stopper($stopper), undef );
+  is( $qp->set_stopper($stopper), undef );
 }
 ok( $qp->parse_query("one two many") );
 
 $qp = new Xapian::QueryParser();
+my $rp;
+ok( $rp = new Xapian::RangeProcessor(1) );
+$qp->add_rangeprocessor($rp);
+$qp->add_boolean_prefix("test", "XTEST");
+my $qpo = new Xapian::QueryParser();
 my $vrp;
 ok( $vrp = new Xapian::StringValueRangeProcessor(1) );
-$qp->add_valuerangeprocessor($vrp);
-$qp->add_boolean_prefix("test", "XTEST");
+$qpo->add_valuerangeprocessor($vrp);
+$qpo->add_boolean_prefix("test", "XTEST");
 
 my $pair;
 foreach $pair (
-    [ 'a..b', '0 * VALUE_RANGE 1 a b' ],
-    [ '$50..100', '0 * VALUE_RANGE 1 $50 100' ],
-    [ '$50..$99', '0 * VALUE_RANGE 1 $50 $99' ],
+    [ 'a..b', 'VALUE_RANGE 1 a b' ],
+    [ '$50..100', 'VALUE_RANGE 1 $50 100' ],
+    [ '$50..$99', 'VALUE_RANGE 1 $50 $99' ],
     [ '$50..$100', '' ],
-    [ '02/03/1979..10/12/1980', '0 * VALUE_RANGE 1 02/03/1979 10/12/1980' ],
+    [ '02/03/1979..10/12/1980', 'VALUE_RANGE 1 02/03/1979 10/12/1980' ],
     [ 'a..b hello', '(hello@1 FILTER VALUE_RANGE 1 a b)' ],
     [ 'hello a..b', '(hello@1 FILTER VALUE_RANGE 1 a b)' ],
     [ 'hello a..b world', '((hello@1 OR world@2) FILTER VALUE_RANGE 1 a b)' ],
     [ 'hello a..b test:foo', '(hello@1 FILTER (VALUE_RANGE 1 a b AND XTESTfoo))' ],
-    [ '-5..7', '0 * VALUE_RANGE 1 -5 7' ],
+    [ '-5..7', 'VALUE_RANGE 1 -5 7' ],
     [ 'hello -5..7', '(hello@1 FILTER VALUE_RANGE 1 -5 7)' ],
     [ '-5..7 hello', '(hello@1 FILTER VALUE_RANGE 1 -5 7)' ],
     [ '"time flies" 09:00..12:30', '((time@1 PHRASE 2 flies@2) FILTER VALUE_RANGE 1 09:00 12:30)' ]
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Query($res)" );
+    is( $query->get_description(), "Query($res)" );
+    $query = $qpo->parse_query($str);
+    is( $query->get_description(), "Query($res)" );
 }
 
 $qp = new Xapian::QueryParser();
+
+my $rp1 = new Xapian::DateRangeProcessor(1);
+my $rp2 = new Xapian::NumberRangeProcessor(2);
+my $rp3 = new Xapian::RangeProcessor(3);
+my $rp4 = new Xapian::NumberRangeProcessor(4, '$', Xapian::RP_REPEATED);
+my $rp5 = new Xapian::NumberRangeProcessor(5, 'kg', Xapian::RP_REPEATED|Xapian::RP_SUFFIX);
+my $rp6 = new Xapian::RangeProcessor(6, 'country:');
+my $rp7 = new Xapian::RangeProcessor(7, ':name', Xapian::RP_SUFFIX);
+$qp->add_rangeprocessor( $rp1 );
+$qp->add_rangeprocessor( $rp2 );
+$qp->add_rangeprocessor( $rp4 );
+$qp->add_rangeprocessor( $rp5 );
+$qp->add_rangeprocessor( $rp6 );
+$qp->add_rangeprocessor( $rp7 );
+$qp->add_rangeprocessor( $rp3 );
+
+$qp->add_boolean_prefix("test", "XTEST");
+
+$qpo = new Xapian::QueryParser();
 
 my $vrp1 = new Xapian::DateValueRangeProcessor(1);
 my $vrp2 = new Xapian::NumberValueRangeProcessor(2);
@@ -94,57 +130,69 @@ my $vrp4 = new Xapian::NumberValueRangeProcessor(4, '$');
 my $vrp5 = new Xapian::NumberValueRangeProcessor(5, 'kg', 0);
 my $vrp6 = new Xapian::StringValueRangeProcessor(6, 'country:');
 my $vrp7 = new Xapian::StringValueRangeProcessor(7, ':name', 0);
-$qp->add_valuerangeprocessor( $vrp1 );
-$qp->add_valuerangeprocessor( $vrp2 );
-$qp->add_valuerangeprocessor( $vrp4 );
-$qp->add_valuerangeprocessor( $vrp5 );
-$qp->add_valuerangeprocessor( $vrp6 );
-$qp->add_valuerangeprocessor( $vrp7 );
-$qp->add_valuerangeprocessor( $vrp3 );
+$qpo->add_valuerangeprocessor( $vrp1 );
+$qpo->add_valuerangeprocessor( $vrp2 );
+$qpo->add_valuerangeprocessor( $vrp4 );
+$qpo->add_valuerangeprocessor( $vrp5 );
+$qpo->add_valuerangeprocessor( $vrp6 );
+$qpo->add_valuerangeprocessor( $vrp7 );
+$qpo->add_valuerangeprocessor( $vrp3 );
 
-$qp->add_boolean_prefix("test", "XTEST");
+$qpo->add_boolean_prefix("test", "XTEST");
+
 foreach $pair (
-    [ 'a..b', '0 * VALUE_RANGE 3 a b' ],
-    [ '1..12', "0 * VALUE_RANGE 2 \\xa0 \\xae" ],
-    [ '20070201..20070228', '0 * VALUE_RANGE 1 20070201 20070228' ],
-    [ '$10..20', "0 * VALUE_RANGE 4 \\xad \\xb1" ],
-    [ '$10..$20', "0 * VALUE_RANGE 4 \\xad \\xb1" ],
-    [ '12..42kg', "0 * VALUE_RANGE 5 \\xae \\xb5\@" ],
-    [ '12kg..42kg', "0 * VALUE_RANGE 5 \\xae \\xb5\@" ],
-    [ '12kg..42', '0 * VALUE_RANGE 3 12kg 42' ],
+    [ 'a..b', 'VALUE_RANGE 3 a b' ],
+    [ '1..12', "VALUE_RANGE 2 \\xa0 \\xae" ],
+    [ '20070201..20070228', 'VALUE_RANGE 1 20070201 20070228' ],
+    [ '$10..20', "VALUE_RANGE 4 \\xad \\xb1" ],
+    [ '$10..$20', "VALUE_RANGE 4 \\xad \\xb1" ],
+    [ '12..42kg', "VALUE_RANGE 5 \\xae \\xb5\@" ],
+    [ '12kg..42kg', "VALUE_RANGE 5 \\xae \\xb5\@" ],
+    [ '12kg..42', 'VALUE_RANGE 3 12kg 42' ],
     [ '10..$20', '' ],
-    [ '1999-03-12..2020-12-30', '0 * VALUE_RANGE 1 19990312 20201230' ],
-    [ '1999/03/12..2020/12/30', '0 * VALUE_RANGE 1 19990312 20201230' ],
-    [ '1999.03.12..2020.12.30', '0 * VALUE_RANGE 1 19990312 20201230' ],
-    [ '12/03/99..12/04/01', '0 * VALUE_RANGE 1 19990312 20010412' ],
-    [ '03-12-99..04-14-01', '0 * VALUE_RANGE 1 19990312 20010414' ],
+    [ '1999-03-12..2020-12-30', 'VALUE_RANGE 1 19990312 20201230' ],
+    [ '1999/03/12..2020/12/30', 'VALUE_RANGE 1 19990312 20201230' ],
+    [ '1999.03.12..2020.12.30', 'VALUE_RANGE 1 19990312 20201230' ],
+    [ '12/03/99..12/04/01', 'VALUE_RANGE 1 19990312 20010412' ],
+    [ '03-12-99..04-14-01', 'VALUE_RANGE 1 19990312 20010414' ],
     [ '(test:a..test:b hello)', '(hello@1 FILTER VALUE_RANGE 3 test:a test:b)' ],
-    [ 'country:chile..denmark', '0 * VALUE_RANGE 6 chile denmark' ],
-    [ 'albert..xeni:name', '0 * VALUE_RANGE 7 albert xeni' ],
+    [ 'country:chile..denmark', 'VALUE_RANGE 6 chile denmark' ],
+    [ 'albert..xeni:name', 'VALUE_RANGE 7 albert xeni' ],
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Query($res)" );
+    is( $query->get_description(), "Query($res)" );
+    $query = $qpo->parse_query($str);
+    is( $query->get_description(), "Query($res)" );
 }
 
 $qp = new Xapian::QueryParser();
 
 {
+  my $rpdate = new Xapian::DateRangeProcessor(1, Xapian::RP_DATE_PREFER_MDY, 1960);
+  $qp->add_rangeprocessor( $rpdate );
+}
+
+$qpo = new Xapian::QueryParser();
+
+{
   my $vrpdate = new Xapian::DateValueRangeProcessor(1, 1, 1960);
-  $qp->add_valuerangeprocessor( $vrpdate );
+  $qpo->add_valuerangeprocessor( $vrpdate );
 }
 
 foreach $pair (
-    [ '12/03/99..12/04/01', '0 * VALUE_RANGE 1 19991203 20011204' ],
-    [ '03-12-99..04-14-01', '0 * VALUE_RANGE 1 19990312 20010414' ],
-    [ '01/30/60..02/02/59', '0 * VALUE_RANGE 1 19600130 20590202' ],
+    [ '12/03/99..12/04/01', 'VALUE_RANGE 1 19991203 20011204' ],
+    [ '03-12-99..04-14-01', 'VALUE_RANGE 1 19990312 20010414' ],
+    [ '01/30/60..02/02/59', 'VALUE_RANGE 1 19600130 20590202' ],
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Query($res)" );
+    is( $query->get_description(), "Query($res)" );
+    $query = $qpo->parse_query($str);
+    is( $query->get_description(), "Query($res)" );
 }
 
-# Regression test for Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
+# Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
 # we tried to catch const char * not Xapian::Error, so std::terminate got
 # called.
 $qp = Xapian::QueryParser->new;
@@ -152,12 +200,37 @@ eval {
     $qp->parse_query('other* AND', FLAG_BOOLEAN|FLAG_WILDCARD);
 };
 ok($@);
-ok(ref($@), "Xapian::QueryParserError", "correct class for exception");
+is(ref($@), "Xapian::QueryParserError", "correct class for exception");
 ok($@->isa('Xapian::Error'));
-ok($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
+is($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
 ok( $disable_fixme || $@ =~ /^Exception: Syntax: <expression> AND <expression>(?: at \S+ line \d+\.)?$/ );
 
 # Check FLAG_DEFAULT is wrapped (new in 1.0.11.0).
 ok( $qp->parse_query('hello world', FLAG_DEFAULT|FLAG_BOOLEAN_ANY_CASE) );
+
+# Test OP_WILDCARD with limits.
+my ($q, @matches);
+ok( $enq = Xapian::Enquire->new($database) );
+
+$qp->set_max_expansion(1, Xapian::WILDCARD_LIMIT_FIRST);
+ok( $q = $qp->parse_query('t*', FLAG_WILDCARD) );
+$enq->set_query($q);
+@matches = $enq->matches(0, 10);
+mset_expect_order(@matches, (1, 2));
+
+$qp->set_max_expansion(1, Xapian::WILDCARD_LIMIT_MOST_FREQUENT);
+ok( $q = $qp->parse_query('t*', FLAG_WILDCARD) );
+$enq->set_query($q);
+@matches = $enq->matches(0, 10);
+mset_expect_order(@matches, (1, 2));
+
+$qp->set_max_expansion(1, Xapian::WILDCARD_LIMIT_ERROR);
+ok( $q = $qp->parse_query('t*', FLAG_WILDCARD) );
+$enq->set_query($q);
+eval {
+    @matches = $enq->matches(0, 10);
+};
+ok( $@ );
+is(ref($@), "Xapian::WildcardError", "correct class for exception");
 
 1;

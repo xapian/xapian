@@ -1,7 +1,8 @@
 Lua bindings for Xapian
 ***********************
 
-These bindings require Lua version 5.1 or later, and have been tested with Lua 5.1 and 5.2.
+These bindings require Lua version 5.1 or later, and have been tested with Lua
+5.1, 5.2 and 5.3.
 
 The Lua bindings for Xapian are packaged in the ``xapian`` namespace,
 and largely follow the C++ API, with the following differences and
@@ -127,7 +128,7 @@ wrapped like so for Lua:
 -  ``Xapian::revision()`` is wrapped as ``xapian.revision()``
 -  ``Xapian::Auto::open_stub()`` is wrapped as ``xapian.open_stub()`` (but is now deprecated)
 -  ``Xapian::Chert::open()`` is wrapped as ``xapian.chert_open()`` (but is now deprecated)
--  ``Xapian::InMemory::open()`` is wrapped as ``xapian.inmemory_open()``
+-  ``Xapian::InMemory::open()`` is wrapped as ``xapian.inmemory_open()`` (but is now deprecated)
 -  ``Xapian::Remote::open()`` is wrapped as ``xapian.remote_open()`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
 -  ``Xapian::Remote::open_writable()`` is wrapped as ``xapian.remote_open_writable()`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
 

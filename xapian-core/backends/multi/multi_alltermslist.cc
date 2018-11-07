@@ -34,13 +34,13 @@ using Xapian::Internal::intrusive_ptr;
 /// Comparison functor which orders TermList* by ascending term name.
 struct CompareTermListsByTerm {
     /// Order by ascending term name.
-    bool operator()(const TermList *a, const TermList *b) {
+    bool operator()(const TermList *a, const TermList *b) const {
 	return a->get_termname() > b->get_termname();
     }
 };
 
 template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) { delete p; }
+    void operator()(CLASS *p) const { delete p; }
 };
 
 MultiAllTermsList::MultiAllTermsList(const vector<intrusive_ptr<Xapian::Database::Internal> > & dbs,
@@ -82,19 +82,6 @@ MultiAllTermsList::get_termfreq() const
 	    total_tf += (*i)->get_termfreq();
     }
     return total_tf;
-}
-
-Xapian::termcount
-MultiAllTermsList::get_collection_freq() const
-{
-    if (termlists.empty()) return 0;
-    vector<TermList *>::const_iterator i = termlists.begin();
-    Xapian::termcount total_cf = (*i)->get_collection_freq();
-    while (++i != termlists.end()) {
-	if ((*i)->get_termname() == current_term)
-	    total_cf += (*i)->get_collection_freq();
-    }
-    return total_cf;
 }
 
 TermList *
@@ -170,7 +157,7 @@ MultiAllTermsList::skip_to(const std::string &term)
     }
 
     make_heap(termlists.begin(), termlists.end(), CompareTermListsByTerm());
-    
+
     current_term = termlists.front()->get_termname();
     return NULL;
 }

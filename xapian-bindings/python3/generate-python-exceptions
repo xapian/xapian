@@ -24,13 +24,8 @@ use exception_data;
 
 my @allclasses = (@baseclasses, @classes);
 
-my @directorclasses = qw(
-    MatchDecider ExpandDecider Stopper ValueRangeProcessor KeyMaker
-    StemImplementation Compactor MatchSpy FieldProcessor
-);
-
 my @posting_source_virtual_methods = qw(
-    get_termfreq_min 
+    get_termfreq_min
     get_termfreq_est
     get_termfreq_max
     get_maxweight
@@ -146,82 +141,6 @@ exception_data::for_each_nothrow(sub { print FD "%exception $_[0];\n" });
 print FD <<'EOF';
 
 %exception {
-    try {
-	$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-
-/* The following exception directives are for the methods defined by
- * director classes, which don't drop the GIL in the first place. */
-EOF
-for my $class (@directorclasses) {
-    print FD <<"EOF";
-%exception Xapian::${class}::operator() {
-    try {
-	\$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-EOF
-}
-
-for my $method (@posting_source_virtual_methods) {
-    print FD <<"EOF";
-%exception Xapian::PostingSource::${method} {
-    try {
-	\$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-EOF
-}
-
-for my $method (@matchspy_virtual_methods) {
-    print FD <<"EOF";
-%exception Xapian::MatchSpy::${method} {
-    try {
-	\$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-EOF
-}
-
-print FD <<'EOF';
-%exception Xapian::Stopper::get_description {
-    try {
-	$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-%exception Xapian::StemImplementation::get_description {
-    try {
-	$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-%exception Xapian::Compactor::set_status {
-    try {
-	$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-%exception Xapian::Compactor::resolve_duplicate_metadata {
     try {
 	$action
     } catch (...) {

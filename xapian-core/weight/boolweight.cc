@@ -1,7 +1,7 @@
 /** @file boolweight.cc
  * @brief Xapian::BoolWeight class - boolean weighting
  */
-/* Copyright (C) 2009,2011 Olly Betts
+/* Copyright (C) 2009,2011,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,8 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+
+#include "xapian/error.h"
 
 using namespace std;
 
@@ -52,8 +54,10 @@ BoolWeight::serialise() const
 }
 
 BoolWeight *
-BoolWeight::unserialise(const string &) const
+BoolWeight::unserialise(const string& s) const
 {
+    if (rare(!s.empty()))
+	throw Xapian::SerialisationError("Extra data in BoolWeight::unserialise()");
     return new BoolWeight;
 }
 

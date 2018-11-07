@@ -2,7 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015,2016,2017 Olly Betts
+ * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,16 +33,17 @@
 #include "safeunistd.h"
 
 #ifdef HAVE_VALGRIND
-# include "safeerrno.h"
 # include <valgrind/memcheck.h>
 # include <sys/types.h>
 # include "safefcntl.h"
 #endif
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <set>
 
+#include <cerrno>
 #include <cfloat> // For DBL_DIG.
 #include <cmath> // For ceil, fabs, log10.
 #include <cstdio>
@@ -56,8 +58,8 @@
 #include <exception>
 #ifdef USE_RTTI
 # include <typeinfo>
-# ifdef __GNUC__
-#  include <cxxabi.h> // Added in GCC 3.1 which is now required.
+# ifdef HAVE_CXXABI_H
+#  include <cxxabi.h>
 # endif
 #endif
 
@@ -93,6 +95,8 @@ static int vg_log_fd = -1;
 //  GCC 2.95 it seems)
 const char * expected_exception = NULL;
 
+const char* expected_failure;
+
 /// The debug printing stream
 std::ostringstream tout;
 
@@ -124,21 +128,15 @@ test_driver::get_srcdir()
     char *p = getenv("srcdir");
     if (p != NULL) return string(p);
 
-#ifdef __WIN32__
-    // The path on argv[0] will always use \ for the directory separator.
-    const char ARGV0_SEP = '\\';
-#else
-    const char ARGV0_SEP = '/';
-#endif
     // Default srcdir to the pathname of argv[0].
     string srcdir(argv0);
-    string::size_type i = srcdir.find_last_of(ARGV0_SEP);
+    string::size_type i = srcdir.find_last_of(DIR_SEPS);
     string srcfile;
     if (i != string::npos) {
-	srcfile = srcdir.substr(i + 1);
+	srcfile.assign(srcdir, i + 1, string::npos);
 	srcdir.erase(i);
 	// libtool may put the real executable in .libs.
-	i = srcdir.find_last_of(ARGV0_SEP);
+	i = srcdir.find_last_of(DIR_SEPS);
 	if (srcdir.substr(i + 1) == ".libs") {
 	    srcdir.erase(i);
 	    // And it may have an "lt-" prefix.
@@ -169,6 +167,7 @@ test_driver::get_srcdir()
 test_driver::test_driver(const test_desc *tests_)
 	: out(cout.rdbuf()), tests(tests_)
 {
+    tout << boolalpha;
 }
 
 static SIGJMP_BUF jb;
@@ -299,7 +298,8 @@ class SignalRedirector {
 //  If this test driver is used for anything other than
 //  Xapian tests, then this ought to be provided by
 //  the client, really.
-//  return: test_driver::PASS, test_driver::FAIL, or test_driver::SKIP
+//  return: test_driver::PASS, test_driver::FAIL, test_driver::SKIP,
+//  test_driver::XFAIL or test_driver:XPASS.
 test_driver::test_result
 test_driver::runtest(const test_desc *test)
 {
@@ -318,6 +318,7 @@ test_driver::runtest(const test_desc *test)
 	    if (catch_signals) sig.activate();
 	    try {
 		expected_exception = NULL;
+		expected_failure = NULL;
 #ifdef HAVE_VALGRIND
 		int vg_errs = 0;
 		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0;
@@ -332,9 +333,15 @@ test_driver::runtest(const test_desc *test)
 		}
 #endif
 		if (!test->run()) {
-		    out << col_red << " FAILED" << col_reset;
+		    out << ' ';
+		    if (expected_failure) {
+			out << col_yellow << "XFAIL (" << expected_failure << ")";
+		    } else {
+			out << col_red << "FAILED";
+		    }
+		    out << col_reset;
 		    write_and_clear_tout();
-		    return FAIL;
+		    return expected_failure ? XFAIL : FAIL;
 		}
 		if (verbose > 1)
 		    write_and_clear_tout();
@@ -496,35 +503,73 @@ test_driver::runtest(const test_desc *test)
 		    return FAIL;
 		}
 	    } catch (const TestFail &) {
-		out << col_red << " FAILED" << col_reset;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << "XFAIL (" << expected_failure << ")";
+		} else {
+		    out << col_red << "FAILED";
+		}
+		out << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 	    } catch (const TestSkip &) {
 		out << col_yellow << " SKIPPED" << col_reset;
 		write_and_clear_tout();
 		return SKIP;
 #ifndef NO_LIBXAPIAN
 	    } catch (const Xapian::Error &err) {
+		out << ' ';
 		string errclass = err.get_type();
 		if (expected_exception && expected_exception == errclass) {
-		    out << col_yellow << " C++ FAILED TO CATCH " << errclass << col_reset;
+		    out << col_yellow << "C++ FAILED TO CATCH " << errclass << col_reset;
 		    return SKIP;
 		}
-		out << " " << col_red << err.get_description() << col_reset;
+		if (errclass == "NetworkError" &&
+		    err.get_error_string() != NULL &&
+		    strcmp(err.get_error_string(), strerror(ECHILD)) == 0) {
+		    // ECHILD suggests we've run out of processes, and that's
+		    // much more likely to be a system issue than a Xapian bug.
+		    //
+		    // We also see apparently spurious ECHILD on Debian
+		    // buildds sometimes: https://bugs.debian.org/681941
+		    out << col_yellow << "ECHILD in network code" << col_reset;
+		    return SKIP;
+		}
+
+		if (expected_failure) {
+		    out << col_yellow << "XFAIL (" << expected_failure
+			<< "): ";
+		} else {
+		    out << col_red << "FAIL: ";
+		}
+		out << err.get_description() << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 #endif
 	    } catch (const string & msg) {
-		out << col_red << " EXCEPTION std::string " << msg << col_reset;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << "XFAIL (" << expected_failure
+			<< "): ";
+		} else {
+		    out << col_red << "FAIL: ";
+		}
+		out << "EXCEPTION std::string " << msg << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 	    } catch (const std::exception & e) {
-		out << " " << col_red;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << "XFAIL (" << expected_failure
+			<< "): ";
+		} else {
+		    out << col_red << "FAIL: ";
+		}
 #ifndef USE_RTTI
 		out << "std::exception";
 #else
 		const char * name = typeid(e).name();
-# ifdef __GNUC__
+# ifdef HAVE_CXXABI_H
 		// __cxa_demangle() apparently requires GCC >= 3.1.
 		// Demangle the name which GCC returns for type_info::name().
 		int status;
@@ -541,21 +586,42 @@ test_driver::runtest(const test_desc *test)
 #endif
 		out << ": " << e.what() << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 	    } catch (const char * msg) {
-		out << col_red;
-		if (msg) {
-		    out << " EXCEPTION char * " << msg;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << "XFAIL (" << expected_failure
+			<< "): ";
 		} else {
-		    out << " EXCEPTION (char*)NULL";
+		    out << col_red << "FAIL: ";
+		}
+		if (msg) {
+		    out << "EXCEPTION char* " << msg;
+		} else {
+		    out << "EXCEPTION (char*)NULL";
 		}
 		out << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
 	    } catch (...) {
-		out << col_red << " UNKNOWN EXCEPTION" << col_reset;
+		out << ' ';
+		if (expected_failure) {
+		    out << col_yellow << "XFAIL (" << expected_failure
+			<< "): ";
+		} else {
+		    out << col_red << "FAIL: ";
+		}
+		out << "UNKNOWN EXCEPTION" << col_reset;
 		write_and_clear_tout();
-		return FAIL;
+		return expected_failure ? XFAIL : FAIL;
+	    }
+
+	    if (expected_failure) {
+		// Testcase marked as expected to fail but actually passed.
+		out << ' ' << col_red << "XPASS (" << expected_failure << ")"
+		    << col_reset;
+		write_and_clear_tout();
+		return XPASS;
 	    }
 	    return PASS;
 	}
@@ -612,7 +678,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 
     test_driver::result res;
 
-    for (const test_desc *test = tests; test->name; test++) {
+    for (const test_desc *test = tests; test->name; ++test) {
 	bool do_this_test = !check_name;
 	if (!do_this_test && m.find(test->name) != m.end())
 	    do_this_test = true;
@@ -644,11 +710,22 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 			out << "\r                                                                               \r";
 		    }
 		    break;
+		case XFAIL:
+		    ++res.xfailed;
+		    out << endl;
+		    break;
 		case FAIL:
 		    ++res.failed;
 		    out << endl;
 		    if (abort_on_error) {
 			throw "Test failed - aborting further tests";
+		    }
+		    break;
+		case XPASS:
+		    ++res.xpassed;
+		    out << endl;
+		    if (abort_on_error) {
+			throw "Test marked as XFAIL passed - aborting further tests";
 		    }
 		    break;
 		case SKIP:
@@ -690,13 +767,21 @@ test_driver::report(const test_driver::result &r, const string &desc)
     if (r.succeeded != 0 || r.failed != 0) {
 	cout << argv0 << " " << desc << ": ";
 
-	if (r.failed == 0)
+	if (r.failed == 0 && r.xpassed == 0)
 	    cout << "All ";
 
 	cout << col_green << r.succeeded << col_reset << " tests passed";
 
 	if (r.failed != 0)
 	    cout << ", " << col_red << r.failed << col_reset << " failed";
+
+	if (r.xpassed != 0)
+	    cout << ", " << col_red << r.xpassed << col_reset
+		 << " expected failures passed";
+
+	if (r.xfailed != 0)
+	    cout << ", " << col_yellow << r.xfailed << col_reset
+		 << " expected failures";
 
 	if (r.skipped) {
 	    cout << ", " << col_yellow << r.skipped << col_reset
@@ -723,24 +808,39 @@ test_driver::parse_command_line(int argc, char **argv)
 {
     argv0 = argv[0];
 
-#ifndef __WIN32__
-    bool colourise = true;
-    const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
-    if (p == NULL || !*p || strcmp(p, "auto") == 0) {
-	colourise = isatty(1);
-    } else if (strcmp(p, "plain") == 0) {
-	colourise = false;
-    }
-    if (colourise) {
-	col_red = "\x1b[1m\x1b[31m";
-	col_green = "\x1b[1m\x1b[32m";
-	col_yellow = "\x1b[1m\x1b[33m";
-	col_reset = "\x1b[0m";
-	use_cr = true;
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	if (getenv("XAPIAN_TESTSUITE_VALGRIND") != NULL) {
+	    // Open the valgrind log file, and unlink it.
+	    char fname[64];
+	    sprintf(fname, ".valgrind.log.%lu",
+		    static_cast<unsigned long>(getpid()));
+	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK|O_CLOEXEC);
+	    if (vg_log_fd != -1) unlink(fname);
+	}
     }
 #endif
 
-    const struct option long_opts[] = {
+#ifndef __WIN32__
+    {
+	bool colourise = true;
+	const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
+	if (p == NULL || !*p || strcmp(p, "auto") == 0) {
+	    colourise = isatty(1);
+	} else if (strcmp(p, "plain") == 0) {
+	    colourise = false;
+	}
+	if (colourise) {
+	    col_red = "\x1b[1m\x1b[31m";
+	    col_green = "\x1b[1m\x1b[32m";
+	    col_yellow = "\x1b[1m\x1b[33m";
+	    col_reset = "\x1b[0m";
+	    use_cr = true;
+	}
+    }
+#endif
+
+    static const struct option long_opts[] = {
 	{"verbose",		no_argument, 0, 'v'},
 	{"abort-on-error",	no_argument, 0, 'o'},
 	{"help",		no_argument, 0, 'h'},
@@ -777,22 +877,17 @@ test_driver::parse_command_line(int argc, char **argv)
 	}
     }
 
+    if (verbose == 0) {
+	const char *p = getenv("VERBOSE");
+	if (p != NULL) {
+	    verbose = atoi(p);
+	}
+    }
+
     while (argv[optind]) {
 	test_names.push_back(string(argv[optind]));
 	optind++;
     }
-
-#ifdef HAVE_VALGRIND
-    if (RUNNING_ON_VALGRIND) {
-	if (getenv("XAPIAN_TESTSUITE_VALGRIND") != NULL) {
-	    // Open the valgrind log file, and unlink it.
-	    char fname[64];
-	    sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
-	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK|O_CLOEXEC);
-	    if (vg_log_fd != -1) unlink(fname);
-	}
-    }
-#endif
 }
 
 int
@@ -805,7 +900,9 @@ test_driver::run(const test_desc *tests)
 
     subtotal += myresult;
 
-    return bool(myresult.failed); // if 0, then everything passed
+    // Return value is a Unix-style exit code, so 0 for success and 1 for
+    // failure.
+    return myresult.failed > 0 || myresult.xpassed > 0;
 }
 
 bool

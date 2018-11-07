@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,9 +44,12 @@
 %constant int OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
 %constant int OP_SCALE_WEIGHT = Xapian::Query::OP_SCALE_WEIGHT;
 %constant int OP_ELITE_SET = Xapian::Query::OP_ELITE_SET;
-%constant int OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
 %constant int OP_VALUE_GE = Xapian::Query::OP_VALUE_GE;
+%constant int OP_SYNONYM = Xapian::Query::OP_SYNONYM;
+%constant int OP_MAX = Xapian::Query::OP_MAX;
+%constant int OP_WILDCARD = Xapian::Query::OP_WILDCARD;
 %constant int OP_VALUE_LE = Xapian::Query::OP_VALUE_LE;
+%constant int OP_INVALID = Xapian::Query::OP_INVALID;
 %constant int FLAG_BOOLEAN = Xapian::QueryParser::FLAG_BOOLEAN;
 %constant int FLAG_PHRASE = Xapian::QueryParser::FLAG_PHRASE;
 %constant int FLAG_LOVEHATE = Xapian::QueryParser::FLAG_LOVEHATE;
@@ -58,11 +61,18 @@
 %constant int FLAG_SYNONYM = Xapian::QueryParser::FLAG_SYNONYM;
 %constant int FLAG_AUTO_SYNONYMS = Xapian::QueryParser::FLAG_AUTO_SYNONYMS;
 %constant int FLAG_AUTO_MULTIWORD_SYNONYMS = Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
+%constant int FLAG_CJK_NGRAM = Xapian::QueryParser::FLAG_CJK_NGRAM;
 %constant int FLAG_DEFAULT = Xapian::QueryParser::FLAG_DEFAULT;
 %constant int STEM_NONE = Xapian::QueryParser::STEM_NONE;
 %constant int STEM_SOME = Xapian::QueryParser::STEM_SOME;
+%constant int STEM_SOME_FULL_POS = Xapian::QueryParser::STEM_SOME_FULL_POS;
 %constant int STEM_ALL = Xapian::QueryParser::STEM_ALL;
+%constant int STEM_ALL_Z = Xapian::QueryParser::STEM_ALL_Z;
 %constant int FLAG_SPELLING = Xapian::TermGenerator::FLAG_SPELLING;
+// FLAG_CJK_NGRAM already set above from QueryParser (values match).
+%constant int WILDCARD_LIMIT_ERROR = Xapian::Query::WILDCARD_LIMIT_ERROR;
+%constant int WILDCARD_LIMIT_FIRST = Xapian::Query::WILDCARD_LIMIT_FIRST;
+%constant int WILDCARD_LIMIT_MOST_FREQUENT = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
 
 /* Xapian::Enquire */
 %feature("shadow") Xapian::Enquire::get_mset
@@ -357,6 +367,15 @@ sub set_stopper {
 }
 %}
 
+%feature("shadow") Xapian::QueryParser::add_rangeprocessor
+%{
+sub add_rangeprocessor {
+    my ($self, $rproc) = @_;
+    push @{$self{_rproc}}, $rproc;
+    Xapianc::QueryParser_add_rangeprocessor( @_ );
+}
+%}
+
 %feature("shadow") Xapian::QueryParser::add_valuerangeprocessor
 %{
 sub add_valuerangeprocessor {
@@ -432,22 +451,11 @@ sub new {
   my $pkg = shift;
   my $self;
   if( scalar(@_) == 0 ) {
-    $self = Xapianc::new3_WritableDatabase(@_);
-  } else {
-    $self = Xapianc::new_WritableDatabase(@_);
+    # For compatibility with Search::Xapian
+    @_ = ('', $Xapianc::DB_BACKEND_INMEMORY);
   }
+  $self = Xapianc::new_WritableDatabase(@_);
   bless $self, $pkg if defined($self);
-}
-%}
-
-%inline %{
-Xapian::WritableDatabase * new3_WritableDatabase() {
-	try {
-	    return new Xapian::WritableDatabase(Xapian::InMemory::open());
-	}
-	catch (const Xapian::Error &error) {
-	    croak( "Exception: %s", error.get_msg().c_str() );
-	}
 }
 %}
 

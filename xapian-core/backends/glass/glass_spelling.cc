@@ -1,7 +1,7 @@
 /** @file glass_spelling.cc
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,12 +44,11 @@ using namespace std;
 void
 GlassSpellingTable::merge_changes()
 {
-    map<fragment, set<string> >::const_iterator i;
-    for (i = termlist_deltas.begin(); i != termlist_deltas.end(); ++i) {
-	string key = i->first;
-	const set<string> & changes = i->second;
+    for (auto i : termlist_deltas) {
+	const string& key = i.first;
+	const set<string>& changes = i.second;
 
-	set<string>::const_iterator d = changes.begin();
+	auto d = changes.begin();
 	if (d == changes.end()) continue;
 
 	string updated;
@@ -96,10 +95,13 @@ GlassSpellingTable::merge_changes()
     map<string, Xapian::termcount>::const_iterator j;
     for (j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
 	string key = "W" + j->first;
-	if (j->second) {
+	Xapian::termcount wordfreq = j->second;
+	if (wordfreq) {
 	    string tag;
-	    pack_uint_last(tag, j->second);
+	    pack_uint_last(tag, wordfreq);
 	    add(key, tag);
+	    if (wordfreq > wordfreq_upper_bound)
+		wordfreq_upper_bound = wordfreq;
 	} else {
 	    del(key);
 	}
@@ -110,13 +112,13 @@ GlassSpellingTable::merge_changes()
 void
 GlassSpellingTable::toggle_fragment(fragment frag, const string & word)
 {
-    map<fragment, set<string> >::iterator i = termlist_deltas.find(frag);
+    auto i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
 	i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
     }
     // The commonest case is that we're adding lots of words, so try insert
     // first and if that reports that the word already exists, remove it.
-    pair<set<string>::iterator, bool> res = i->second.insert(word);
+    auto res = i->second.insert(word);
     if (!res.second) {
 	// word is already in the set, so remove it.
 	i->second.erase(res.first);
@@ -247,7 +249,7 @@ GlassSpellingTable::toggle_word(const string & word)
 }
 
 struct TermListGreaterApproxSize {
-    bool operator()(const TermList *a, const TermList *b) {
+    bool operator()(const TermList *a, const TermList *b) const {
 	return a->get_approx_size() > b->get_approx_size();
     }
 };
@@ -438,11 +440,11 @@ GlassSpellingTermList::next()
     if (!current_term.empty()) {
 	if (p == data.size())
 	    throw Xapian::DatabaseCorruptError("Bad spelling termlist");
-	current_term.resize(byte(data[p++]) ^ MAGIC_XOR_VALUE);
+	current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
     }
     size_t add;
     if (p == data.size() ||
-	(add = byte(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
+	(add = uint8_t(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
 	throw Xapian::DatabaseCorruptError("Bad spelling termlist");
     current_term.append(data.data() + p + 1, add);
     p += add + 1;

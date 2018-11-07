@@ -1,7 +1,7 @@
 /* chert_postlist.cc: Postlists in a chert database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2014,2015 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -463,7 +463,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 
 	    // Read the new first docid
 	    Xapian::docid new_first_did;
-	    if (!unpack_uint_preserving_sort(&kpos, kend, &new_first_did)) {
+	    if (!C_unpack_uint_preserving_sort(&kpos, kend, &new_first_did)) {
 		report_read_error(kpos);
 	    }
 
@@ -531,7 +531,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 		first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend,
 							       0, 0);
 	    } else {
-		if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk))
+		if (!C_unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk))
 		    report_read_error(keypos);
 	    }
 	    bool wrong_is_last_chunk;
@@ -609,7 +609,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 	    throw Xapian::DatabaseCorruptError("Have invalid key writing to postlist");
 	}
 	Xapian::docid initial_did;
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &initial_did)) {
+	if (!C_unpack_uint_preserving_sort(&keypos, keyend, &initial_did)) {
 	    report_read_error(keypos);
 	}
 	string new_key;
@@ -710,6 +710,7 @@ ChertPostList::get_doclength() const
 {
     LOGCALL(DB, Xapian::termcount, "ChertPostList::get_doclength", NO_ARGS);
     Assert(have_started);
+    Assert(!is_at_end);
     Assert(this_db.get());
     RETURN(this_db->get_doclength(did));
 }
@@ -719,6 +720,7 @@ ChertPostList::get_unique_terms() const
 {
     LOGCALL(DB, Xapian::termcount, "ChertPostList::get_unique_terms", NO_ARGS);
     Assert(have_started);
+    Assert(!is_at_end);
     Assert(this_db.get());
     RETURN(this_db->get_unique_terms(did));
 }
@@ -765,7 +767,7 @@ ChertPostList::next_chunk()
     }
 
     Xapian::docid newdid;
-    if (!unpack_uint_preserving_sort(&keypos, keyend, &newdid)) {
+    if (!C_unpack_uint_preserving_sort(&keypos, keyend, &newdid)) {
 	report_read_error(keypos);
     }
     if (newdid <= did) {
@@ -868,7 +870,7 @@ ChertPostList::move_to_chunk_containing(Xapian::docid desired_did)
 #endif
     } else {
 	// In normal chunk
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &did)) {
+	if (!C_unpack_uint_preserving_sort(&keypos, keyend, &did)) {
 	    report_read_error(keypos);
 	}
     }
@@ -1020,7 +1022,7 @@ ChertPostListTable::get_chunk(const string &tname,
     if (is_first_chunk) {
 	first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
     } else {
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk)) {
+	if (!C_unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk)) {
 	    report_read_error(keypos);
 	}
     }
@@ -1055,7 +1057,7 @@ ChertPostListTable::get_chunk(const string &tname,
 
     // Read the new first docid
     Xapian::docid first_did_of_next_chunk;
-    if (!unpack_uint_preserving_sort(&kpos, kend, &first_did_of_next_chunk)) {
+    if (!C_unpack_uint_preserving_sort(&kpos, kend, &first_did_of_next_chunk)) {
 	report_read_error(kpos);
     }
     RETURN(first_did_of_next_chunk - 1);
@@ -1248,4 +1250,55 @@ next_chunk:
 	to->flush(this);
 	delete to;
     }
+}
+
+void
+ChertPostListTable::get_used_docid_range(Xapian::docid & first,
+					 Xapian::docid & last) const
+{
+    LOGCALL(DB, Xapian::docid, "ChertPostList::get_used_docid_range", "&first, &used");
+    AutoPtr<ChertCursor> cur(cursor_get());
+    if (!cur->find_entry(pack_chert_postlist_key(string()))) {
+	// Empty database.
+	first = last = 0;
+	return;
+    }
+
+    cur->read_tag();
+    const char * p = cur->current_tag.data();
+    const char * e = p + cur->current_tag.size();
+
+    first = read_start_of_first_chunk(&p, e, NULL, NULL);
+
+    (void)cur->find_entry(pack_glass_postlist_key(string(), CHERT_MAX_DOCID));
+    Assert(!cur->after_end());
+
+    const char * keypos = cur->current_key.data();
+    const char * keyend = keypos + cur->current_key.size();
+    // Check we're still in same postlist
+    if (!check_tname_in_key_lite(&keypos, keyend, string())) {
+	// Shouldn't happen - we already handled the empty database case above.
+	Assert(false);
+	first = last = 0;
+	return;
+    }
+
+    cur->read_tag();
+    p = cur->current_tag.data();
+    e = p + cur->current_tag.size();
+
+    Xapian::docid start_of_last_chunk;
+    if (keypos == keyend) {
+	start_of_last_chunk = first;
+	first = read_start_of_first_chunk(&p, e, NULL, NULL);
+    } else {
+	// In normal chunk
+	if (!C_unpack_uint_preserving_sort(&keypos, keyend,
+					 &start_of_last_chunk)) {
+	    report_read_error(keypos);
+	}
+    }
+
+    bool dummy;
+    last = read_start_of_chunk(&p, e, start_of_last_chunk, &dummy);
 }

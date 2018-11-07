@@ -2,7 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2008,2009,2011,2012,2013 Olly Betts
+ * Copyright (C) 2007,2008,2009,2011,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,8 +84,11 @@ NetworkPostList::next(double)
     if (pos == pos_end) {
 	pos = NULL;
     } else {
-	lastdocid += decode_length(&pos, pos_end, false) + 1;
-	lastwdf = decode_length(&pos, pos_end, false);
+	Xapian::docid inc;
+	decode_length(&pos, pos_end, inc);
+	lastdocid += inc + 1;
+
+	decode_length(&pos, pos_end, lastwdf);
     }
 
     return NULL;

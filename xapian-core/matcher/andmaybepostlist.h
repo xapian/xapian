@@ -6,7 +6,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2009,2011 Olly Betts
+ * Copyright 2003,2004,2009,2011,2017 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -66,7 +66,7 @@ class AndMaybePostList : public BranchPostList {
 	TermFreqs get_termfreq_est_using_stats(
 	    const Xapian::Weight::Internal & stats) const;
 
-	Xapian::docid  get_docid() const;
+	Xapian::docid get_docid() const;
 	double get_weight() const;
 	double get_maxweight() const;
 
@@ -74,7 +74,7 @@ class AndMaybePostList : public BranchPostList {
 
 	PostList *next(double w_min);
 	PostList *skip_to(Xapian::docid did, double w_min);
-	bool   at_end() const;
+	bool at_end() const;
 
 	std::string get_description() const;
 
@@ -85,7 +85,7 @@ class AndMaybePostList : public BranchPostList {
 
 	virtual Xapian::termcount get_unique_terms() const;
 
-        AndMaybePostList(PostList *left_,
+	AndMaybePostList(PostList *left_,
 			 PostList *right_,
 			 MultiMatch *matcher_,
 			 Xapian::doccount dbsize_)
@@ -96,7 +96,7 @@ class AndMaybePostList : public BranchPostList {
 	}
 
 	/// Constructor for use by decomposing OrPostList
-        AndMaybePostList(PostList *left_,
+	AndMaybePostList(PostList *left_,
 			 PostList *right_,
 			 MultiMatch *matcher_,
 			 Xapian::doccount dbsize_,
@@ -123,6 +123,8 @@ class AndMaybePostList : public BranchPostList {
 	Xapian::termcount get_wdf() const;
 
 	Xapian::termcount count_matching_subqs() const;
+
+	void gather_position_lists(OrPositionList* orposlist);
 };
 
 #endif /* OM_HGUARD_ANDMAYBEPOSTLIST_H */

@@ -4,33 +4,38 @@ EXTRA_DIST +=\
 bin_PROGRAMS +=\
 	bin/xapian-delve
 
+noinst_PROGRAMS =
+
 if BUILD_BACKEND_CHERT_OR_GLASS
 bin_PROGRAMS +=\
 	bin/xapian-check\
-	bin/xapian-compact\
-	bin/xapian-inspect\
-	bin/xapian-replicate\
-	bin/xapian-replicate-server
+	bin/xapian-compact
+
+if BUILD_BACKEND_CHERT
+noinst_PROGRAMS +=\
+	bin/xapian-inspect
+endif
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-check.1\
 	bin/xapian-compact.1\
-	bin/xapian-delve.1\
-	bin/xapian-inspect.1\
-	bin/xapian-replicate.1\
-	bin/xapian-replicate-server.1
+	bin/xapian-delve.1
 endif
 endif
 
 if BUILD_BACKEND_REMOTE
 bin_PROGRAMS +=\
 	bin/xapian-progsrv\
+	bin/xapian-replicate\
+	bin/xapian-replicate-server\
 	bin/xapian-tcpsrv
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-progsrv.1\
+	bin/xapian-replicate.1\
+	bin/xapian-replicate-server.1\
 	bin/xapian-tcpsrv.1
 endif
 endif
@@ -44,9 +49,30 @@ bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 bin_xapian_delve_SOURCES = bin/xapian-delve.cc
 bin_xapian_delve_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_inspect_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/backends/chert
-bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc
-bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+bin_xapian_inspect_CPPFLAGS =\
+	$(AM_CPPFLAGS)\
+	-DXAPIAN_REALLY_NO_DEBUG_LOG\
+	-I$(top_srcdir)/backends/glass
+bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
+	api/constinfo.cc\
+	api/error.cc\
+	backends/glass/glass_changes.cc\
+	backends/glass/glass_cursor.cc\
+	backends/glass/glass_freelist.cc\
+	backends/glass/glass_table.cc\
+	backends/glass/glass_version.cc\
+	backends/uuids.cc\
+	common/compression_stream.cc\
+	common/errno_to_string.cc\
+	common/io_utils.cc\
+	common/posixy_wrapper.cc\
+	common/str.cc\
+	unicode/description_append.cc\
+	unicode/unicode-data.cc\
+	unicode/utf8itor.cc
+
+# XAPIAN_LIBS gives us zlib and any library needed for UUIDs.
+bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
 
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
 bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
@@ -69,9 +95,6 @@ bin/xapian-compact.1: bin/xapian-compact$(EXEEXT) makemanpage
 
 bin/xapian-delve.1: bin/xapian-delve$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-delve $(srcdir)/bin/xapian-delve.cc bin/xapian-delve.1
-
-bin/xapian-inspect.1: bin/xapian-inspect$(EXEEXT) makemanpage
-	./makemanpage bin/xapian-inspect $(srcdir)/bin/xapian-inspect.cc bin/xapian-inspect.1
 
 bin/xapian-progsrv.1: bin/xapian-progsrv$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-progsrv $(srcdir)/bin/xapian-progsrv.cc bin/xapian-progsrv.1

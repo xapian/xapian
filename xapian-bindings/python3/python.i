@@ -1,8 +1,8 @@
-%module(directors="1") xapian
+%module(directors="1", moduleimport="from . import _xapian") xapian
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013,2014 Olly Betts
+ * Copyright (C) 2011,2012,2013,2014,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,12 +21,42 @@
  */
 %}
 
+%pythonbegin %{
+"""
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models
+and also supports a rich set of boolean query operators.
+
+In addition to the doc strings provided by this python library, you
+may wish to look at the library's overall documentation, either
+installed along with the bindings or online at
+<https://xapian.org/docs/bindings/python/>, as well as the library's
+documentation, possibly installed with the library or with its
+development files, or again online at <https://xapian.org/docs/>.
+"""
+%}
+
 /* These were deprecated before Python 3 support was released. */
 #define XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
 
 %begin %{
 #include <config.h>
+
+#ifdef __clang__
+// The Python 3.3 headers have several uses of the C register keyword, which
+// result in warnings from clang++ 6.  There's nothing we can really do about
+// them, so just suppress them.  This appears to have been addressed in Python
+// 3.4 and later.
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wdeprecated-register"
+#endif
+
 #include <Python.h>
+
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
 
 /* Override SWIG's standard GIL locking machinery - we want to avoid the
  * overhead of thread locking when the user's code isn't using threads,

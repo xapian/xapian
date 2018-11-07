@@ -33,8 +33,8 @@ in the box so the OS can cache lots of disk blocks (the access patterns
 typically mean that you only need to cache a few percent of the database
 to eliminate most disk cache misses).
 
-It also means that reducing the database size is usually a win. The
-Chert backend compresses the information in the tables in ways which
+It also means that reducing the database size is usually a win.  Xapian's
+disk-based databases compress the information in the tables in ways which
 work well given the nature of the data but aren't too expensive to
 unpack (e.g. lists of sorted docids are stored as differences with
 smaller values encoded in fewer bytes). There is further potential for
@@ -65,30 +65,25 @@ documents should expire from the index.
 Size Limits in Xapian
 ---------------------
 
-The chert backend (which is currently the default and recommended
+The glass backend (which is currently the default and recommended
 backend) stores the indexes in several files containing Btree tables. If
 you're indexing with positional information (for phrase searching) the
 term positions table is usually the largest.
 
 The current limits are:
 
--  Xapian uses unsigned 32-bit ints for document ids, so you're limited
-   to just over 4 billion documents in a database. The other limits will
-   cut in first for a single database, but searches over multiple
-   databases are done by interleaving the document ids, so this might
-   start to matter (especially if one database is much larger than the
-   others). This interleaving technique could be changed fairly easily
-   if it proves problematic.
+-  Xapian uses unsigned 32-bit integers for document ids by default, which
+   means a limit of just over 4 billion documents in a database.  Xapian 1.4
+   can be built to use 64-bit document ids and term counts, and the glass
+   backend will then handle 64-bit document ids (and the databases are
+   compatible with a standard build provided you don't actually use docids >=
+   2\ :sup:`32`).
 -  If you search many databases concurrently, you may hit the
-   per-process file-descriptor limit - each chert database uses between
-   3 and 7 fds depending which tables are present. Some Unix-like OSes
+   per-process file-descriptor limit - each glass database uses between
+   1 and 6 fds depending which tables are present. Some Unix-like OSes
    allow this limit to be raised. Another way to avoid it (and to spread
    the search load) is to use the remote backend to search databases on
-   a cluster of machines. Chert could be made to not open fds for tables
-   which aren't being used during search (values and positions may not
-   be), or to juggle fds - the record table is typically only used for
-   results, while the posting table is typically only used during
-   matching.
+   a cluster of machines.
 -  If the OS has a filesize limit, that obviously applies to Xapian (a
    2GB limit used to be common for older operating systems). The
    xapian-core configure script will attempt to detect and automatically

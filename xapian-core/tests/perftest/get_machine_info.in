@@ -25,12 +25,12 @@ BEGIN{$^W = 1} # equivalent of -w
 # Rights Reserved.
 
 # complete rewrite by Ken Estes, Mail.com (kestes@staff.mail.com).
-# Contributor(s): 
+# Contributor(s):
 
 # $Revision: 1.14 $
 # $Date: 2002/01/02 18:09:59 $
 # $Author: kestes%walrus.com $
-# $Name:  $ 
+# $Name:  $
 
 use strict;
 
@@ -80,7 +80,7 @@ if (lc $OS eq "linux") {
                 }
             }
         }
-    } elsif (open F, "/etc/redhat-release") { 
+    } elsif (open F, "/etc/redhat-release") {
         # e.g. "Red Hat Linux release 7.2 (Enigma)"
         # or "Red Hat Enterprise Linux AS release 3 (Taroon Update 1)"
         # or "Red Hat Enterprise Linux ES release 3 (Taroon Update 3)"
@@ -96,7 +96,7 @@ if (lc $OS eq "linux") {
             $distro = "RH $1";
         }
     } elsif (open F, "/etc/SuSE-release") {
-        # e.g. "SuSE Linux 8.1 (i386)" "VERSION = 8.1" 
+        # e.g. "SuSE Linux 8.1 (i386)" "VERSION = 8.1"
         <F>;
         chomp($_ = <F>);
         /VERSION *= *(.*)/;

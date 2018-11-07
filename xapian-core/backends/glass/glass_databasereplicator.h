@@ -56,7 +56,7 @@ class GlassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	void commit() const;
 
     public:
-	GlassDatabaseReplicator(const std::string & db_dir_);
+	explicit GlassDatabaseReplicator(const std::string & db_dir_);
 
 	~GlassDatabaseReplicator();
 

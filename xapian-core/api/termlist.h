@@ -68,17 +68,10 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Return the term frequency for the term at the current position.
     virtual Xapian::doccount get_termfreq() const = 0;
 
-    /** Return the collection frequency for the term at the current position.
-     *
-     *  This method is only implemented for subclasses of AllTermsList
-     *  (and isn't currently used).
-     */
-    virtual Xapian::termcount get_collection_freq() const;
-
     /** Advance the current position to the next term in the termlist.
      *
-     *  The list starts before the first term in the list, so next()
-     *  must be called before any methods which need the context of
+     *  The list starts before the first term in the list, so next(), skip_to()
+     *  or check() must be called before any methods which need the context of
      *  the current position.
      *
      *  @return	If a non-NULL pointer is returned, then the caller should

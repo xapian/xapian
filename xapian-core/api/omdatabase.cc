@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 
 #include "autoptr.h"
 
+#include <xapian/constants.h>
 #include <xapian/error.h>
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
@@ -41,7 +42,9 @@
 #include "backends/database.h"
 #include "editdistance.h"
 #include "expand/ortermlist.h"
+#include "internaltypes.h"
 #include "noreturn.h"
+#include "pack.h"
 
 #include <algorithm>
 #include <cstdlib> // For abs().
@@ -82,6 +85,11 @@ sub_docid(Xapian::docid did, size_t n_dbs)
 }
 
 namespace Xapian {
+
+Database::Database(Database&&) = default;
+
+Database&
+Database::operator=(Database&&) = default;
 
 Database::Database()
 {
@@ -286,19 +294,29 @@ Database::get_avlength() const
 {
     LOGCALL(API, Xapian::doclength, "Database::get_avlength", NO_ARGS);
     Xapian::doccount docs = 0;
-    Xapian::doclength totlen = 0;
+    Xapian::totallength totlen = 0;
 
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	Xapian::doccount db_doccount = (*i)->get_doccount();
-	docs += db_doccount;
-	totlen += (*i)->get_avlength() * db_doccount;
+	docs += (*i)->get_doccount();
+	totlen += (*i)->get_total_length();
     }
     LOGLINE(UNKNOWN, "get_avlength() = " << totlen << " / " << docs <<
 	    " (from " << internal.size() << " dbs)");
 
     if (docs == 0) RETURN(0.0);
-    RETURN(totlen / docs);
+    RETURN(totlen / double(docs));
+}
+
+Xapian::totallength
+Database::get_total_length() const
+{
+    LOGCALL(API, Xapian::totallength, "Database::get_total_length", NO_ARGS);
+    Xapian::totallength total_length = 0;
+    for (auto&& sub_db : internal) {
+	total_length += sub_db->get_total_length();
+    }
+    RETURN(total_length);
 }
 
 Xapian::doccount
@@ -353,12 +371,13 @@ Database::get_value_lower_bound(Xapian::valueno slot) const
 
     if (rare(internal.empty())) RETURN(string());
 
-    vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    i = internal.begin();
-    string full_lb = (*i)->get_value_lower_bound(slot);
-    while (++i != internal.end()) {
-	string lb = (*i)->get_value_lower_bound(slot);
-	if (lb < full_lb) full_lb = lb;
+    string full_lb;
+    for (auto&& subdb : internal) {
+	string lb = subdb->get_value_lower_bound(slot);
+	if (lb.empty())
+	    continue;
+	if (full_lb.empty() || lb < full_lb)
+	    full_lb = std::move(lb);
     }
     RETURN(full_lb);
 }
@@ -385,12 +404,15 @@ Database::get_doclength_lower_bound() const
 
     if (rare(internal.empty())) RETURN(0);
 
+    Xapian::termcount full_lb = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    i = internal.begin();
-    Xapian::termcount full_lb = (*i)->get_doclength_lower_bound();
-    while (++i != internal.end()) {
-	Xapian::termcount lb = (*i)->get_doclength_lower_bound();
-	if (lb < full_lb) full_lb = lb;
+    for (i = internal.begin(); i != internal.end(); ++i) {
+	// Skip sub-databases which are empty or only contain documents with
+	// doclen==0.
+	if ((*i)->get_total_length() != 0) {
+	    Xapian::termcount lb = (*i)->get_doclength_lower_bound();
+	    if (full_lb == 0 || lb < full_lb) full_lb = lb;
+	}
     }
     RETURN(full_lb);
 }
@@ -429,7 +451,7 @@ Database::valuestream_begin(Xapian::valueno slot) const
 {
     LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
     if (internal.size() == 0)
-       	RETURN(ValueIterator());
+	RETURN(ValueIterator());
     if (internal.size() != 1)
 	RETURN(ValueIterator(new MultiValueList(internal, slot)));
     RETURN(ValueIterator(internal[0]->open_value_list(slot)));
@@ -479,6 +501,23 @@ Database::get_document(Xapian::docid did) const
 
     // Open non-lazily so we throw DocNotFoundError if the doc doesn't exist.
     RETURN(Document(internal[n]->open_document(m, false)));
+}
+
+Document
+Database::get_document(Xapian::docid did, unsigned flags) const
+{
+    LOGCALL(API, Document, "Database::get_document", did|flags);
+    if (did == 0)
+	docid_zero_invalid();
+
+    unsigned int multiplier = internal.size();
+    if (rare(multiplier == 0))
+	no_subdatabases();
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+    bool assume_valid = flags & Xapian::DOC_ASSUME_VALID;
+    RETURN(Document(internal[n]->open_document(m, assume_valid)));
 }
 
 bool
@@ -572,18 +611,9 @@ Database::get_spelling_suggestion(const string &word,
     if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
-#if ! defined __SUNPRO_CC || __SUNPRO_CC - 0 >= 0x580
     // Extra brackets needed to avoid this being misparsed as a function
     // prototype.
     vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
-#else
-    // Older versions of Sun's C++ compiler need this workaround, but 5.8
-    // doesn't.  Unsure of the exact version it was fixed in.
-    vector<unsigned> utf32_word;
-    for (Utf8Iterator sunpro_it(word); sunpro_it != Utf8Iterator(); ++sunpro_it) {
-	utf32_word.push_back(*sunpro_it);
-    }
-#endif
 
     vector<unsigned> utf32_term;
 
@@ -756,6 +786,36 @@ Database::get_uuid() const
     RETURN(uuid);
 }
 
+bool
+Database::locked() const
+{
+    LOGCALL(API, bool, "Database::locked", NO_ARGS);
+    for (const auto & subdb : internal) {
+	// If any of the sub-databases is locked, return true.
+	if (subdb->locked())
+	    RETURN(true);
+    }
+    RETURN(false);
+}
+
+Xapian::rev
+Database::get_revision() const
+{
+    LOGCALL(API, Xapian::rev, "Database::get_revision", NO_ARGS);
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs != 1))
+	throw Xapian::InvalidOperationError("Database::get_revision() requires "
+					    "exactly one subdatabase");
+    const string& s = internal[0]->get_revision_info();
+    const char* p = s.data();
+    const char* end = p + s.size();
+    Xapian::rev revision;
+    if (!unpack_uint(&p, end, &revision))
+	throw Xapian::UnimplementedError("Database::get_revision() only "
+					 "supported for chert and glass");
+    return revision;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 WritableDatabase::WritableDatabase() : Database()
@@ -912,7 +972,11 @@ WritableDatabase::replace_document(const std::string & unique_term,
     // If no unique_term in the database, this is just an add_document().
     if (postit == postlist_end(unique_term)) {
 	// Which database will the next never used docid be in?
-	size_t i = sub_db(get_lastdocid() + 1, n_dbs);
+	Xapian::docid did = get_lastdocid() + 1;
+	if (rare(did == 0)) {
+	    throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
+	}
+	size_t i = sub_db(did, n_dbs);
 	RETURN(internal[i]->add_document(document));
     }
 

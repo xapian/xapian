@@ -24,7 +24,10 @@ DB
 xDB
 	database(s) used for last query (separated by / if appropriate).
 	If the database(s) used change then relevance judgements are
-	discarded and the first page of matches is shown.
+	discarded and the first page of matches is shown.  If xDB is not set,
+	the database is assumed not to have changed, which means if you only
+	deal with one database you don't have to pass a useless extra parameter
+	around.
 
 DEFAULTOP
 	default operator - values recognised ``AND``, ``and``, ``OR``, ``or``.
@@ -32,22 +35,31 @@ DEFAULTOP
 	If you want to implement "match any words", set ``DEFAULTOP=or``.
 
 P
-	probabilistic query (may occur multiple times).
+	query string to parse (may occur multiple times - if so, each will be
+	parsed and the results combined with ``OP_AND``).
+
+P.\ *PREFIX*
+	like ``P``, but parsed with the default prefix set to *PREFIX*.  For
+	example, ``P.A`` will search the author by default.
 
 xP
-	terms from previous probabilistic query - used to decide if
+	terms from the previous parsed query - used to decide if
 	this is a fresh query (in which case relevance judgements are
 	discarded and the first page of matches is shown), an extended query
 	(in which case the first page of matches is shown), or an unchanged
 	query.
 
 ADD
-	if present, any X parameters are added to the probabilistic
-	query (used for topterms support when JavaScript isn't
-	supported or is disabled).
+	if present, any ``X`` parameters are appended to the value of the first
+	non-empty ``P`` parameter, or used to build a query if there are no
+	non-empty ``P`` parameters (used for topterms support when JavaScript
+	isn't supported or is disabled).
 
 X
-	topterms to add to query.
+	topterms to add to query (each term in a separate ``X`` parameter).  If
+	``ADD`` is set, these will be appended to the value of the first
+	non-empty ``P`` parameter, or used to build a query if there are no
+	non-empty ``P`` parameters.
 
 R
 	relevant document(s) (multiple values separated by ".")
@@ -78,42 +90,98 @@ Filtering parameters
 --------------------
 
 B
-        general boolean filter terms.  See the `overview document
-        <overview.html>`_ for details of how multiple B parameters are handled.
+        general boolean filter terms.
+
+        See the `overview document <overview.html>`_ for details of how
+        multiple `B` and `N` parameters are handled.
+
+N
+        negated general boolean filter terms (new in Omega 1.3.5 - older
+        versions will just ignore any `N` parameters).
+
+        See the `overview document <overview.html>`_ for details of how
+        multiple `B` and `N` parameters are handled.
 
 COLLAPSE
-	value number to use for removing duplicate documents.
+	value slot number to use for removing duplicate documents.
 	Additional documents in the MSet with the same value will be
 	removed from the MSet. $value{$cgi{COLLAPSE}} can be used to
 	access the actual value for each hit.
 
+
+START.\ *SLOT* END.\ *SLOT* SPAN.\ *SLOT*
+        One or more of these parameters can be specified for each *SLOT* to
+        perform value-based date range filtering.  A document must fall into
+        all of the specified ranges to match.
+
+        The values stored in the database in the specified *SLOT* need to be
+        be in one of these formats with the format detected by looking at
+        the length of the value bounds (each slot must use a single format,
+        but different slots can use different formats):
+
+        * YYYYMMDDHHMM (e.g. 200702142359)
+        * YYYYMMDD (e.g. 20070214)
+        * a raw 4 byte big-endian value representing a time_t (omindex adds
+          the last modified time in value slot 0 in this format).
+
+        `SPAN.`\ *SLOT* specifies the number of days either up to
+        `END.`\ *SLOT* (if set), after `START.`\ *SLOT* (if set) or before
+        today's date (if neither the start nor end are given) (if all three
+        parameters are specified for the same *SLOT* then `START.`\ *SLOT*
+        is ignored).
+
+        If `SPAN.`\ *SLOT* is not specified:
+
+        * `START.`\ *SLOT* specifies the start of the range in the
+          format YYYY, YYYYMM, YYYYMMDD or YYYYMMDDHHMM.  Default is the start
+          of time.
+        * `END.`\ *SLOT* specifies the end of the range in the
+          format YYYY, YYYYMM, YYYYMMDD or YYYYMMDDHHMM.  Default is the end of
+          time.
+
+        Added in Xapian 1.4.8 - older versions will just ignore these
+        parameters.
+
 DATEVALUE
-	value number to use for date range filtering.  If this isn't set then
-	date filtering will use the older approach based on D-, M-, and
-	Y-prefixed terms.  The values must be of the format YYYYMMDDHHMM
-        (e.g. 200702142359), YYYYMMDD (e.g. 20070214), or a raw 4 byte
-        big-endian value representing a time_t (omindex adds this as value 0
-	by default).
+        This is an older way to specify a value-based date range filter, which
+        only allows one date range filter to be applied to each query.
+        `DATEVALUE` specifies the value slot number to use.  The format of
+        the values stored in this slot in the database must be in one of the
+        formats described above (YYYYMMDDHHMM, YYYYMMDD or a raw 4 byte
+        big-endian time_t).
 
-SPAN
-	filter on this number of days up to END (if set), or after
-	START (if set), or before today's date (otherwise).
-	
-START
-	start of date range, in the format YYYYMMDD (defaults to 1st January
-	1970).  If value-based date ranges are used (see DATEVALUE parameter)
-	then the format YYYYMMDDHHMM is also valid.
+        Don't mix `START.`\ *SLOT*, `END.`\ *SLOT* and/or `SPAN.`\ *SLOT* with
+        `DATEVALUE` on the same slot number.
 
-END
-	end of date range, in the format YYYYMMDD (defaults to today's date).
-	If value-based date ranges are used (see DATEVALUE parameter) then the
-	format YYYYMMDDHHMM is also valid.
+        If `DATEVALUE` isn't set then `START`, `END` and `SPAN` will perform
+        date filtering using an older approach based on D-, M-, and Y-prefixed
+        terms.  This approach can only filter to a granularity of one day, so
+        only the `YYYYMMDD` part of `START` and `END` are used.  Support for
+        `YYYY` and `YYYYMM` in `START` and `END` for term-based date filtering
+        was added in Xapian 1.4.8 - in earlier versions this failed with an
+        error.
+
+        Also instead of `START`/`END` defaulting to the start and end of time,
+        they instead default to 1st January 1970 and today's date respectively.
+        The term-based date range filtering also includes a special `Dlatest`
+        term, which allows flagging a document as always current.  There's no
+        equivalent to this for value-based date range filters.
+
+START END SPAN
+        like `START.`\ *SLOT*, `END.`\ *SLOT* and `SPAN.`\ *SLOT* but for value
+        slot `DATEVALUE`, or for term-based date range filtering if `DATEVALUE`
+        isn't set.
 
 xFILTERS
 	used to spot when the filters have changed from the previous search.
 	Set this to $html{$filters} in your query template ($filters is a
 	compact serialisation of the currently set B filters, date-range
-	filters, COLLAPSE, and DEFAULTOP).
+	filters, COLLAPSE, and DEFAULTOP).  If xFILTERS is unset, the filters
+	are assumed not to have changed (unlike xP).  In Omega <= 1.2.21 and <=
+	1.3.3 they were always assumed to have changed in the situation, which
+	meant you couldn't ever go past page 1 if you failed to set xFILTERS
+	in your template.  Now failing to set it means that the first page
+	won't be forced in some cases where it probably should be.
 
 THRESHOLD
 	apply a percentage cut-off at the value given by this parameter
@@ -123,14 +191,30 @@ Reordering parameters
 ---------------------
 
 SORT
-	reorder results by this value number.  The comparison used is a string
-	compare of the unsigned byte values, and greater values are better
-	by default (but this can be changed by setting SORTREVERSE to a
-	non-zero value).
+	specifies one or more value slot numbers to order results by.  The
+	comparison used is a string compare of the unsigned byte values.
+
+	The format of this parameter's value is a `+` or `-` specifying the
+	direction of the sort followed by an unsigned integer value slot
+	number.  Normally `+` means an ascending sort (so the first result has
+	the lowest value of the sort key) and `-` means a descending sort -
+	however `SORTREVERSE` can change this (see below).
+
+	The sort direction character was added in 1.3.5 - earlier versions
+	defaulted to a descending sort (and for compatibility this is still
+	the behaviour if you omit the `+` or `-`).
+
+	Earlier versions also parsed the value as a signed integer and then
+	cast it to unsigned, so beware of using updated templates with older
+	versions.
+
+	The ability to specify more than one value slot number was added
+	in 1.4.1.  Multiple slot specifiers are separated by zero or more
+	whitespace and/or commas - e.g. `SORT=+1-0+4`, `SORT=+1, -2`, etc.
 
 SORTREVERSE
-	if non-zero, reverse the sort order so that lower values are better.
-	This parameter has no effect unless SORT is also specified.
+	if non-zero, reverses the sort order specified by `SORT`.  This
+	parameter has no effect unless `SORT` is also specified.
 
 SORTAFTER
 	if non-zero, order results by relevance, only sorting by value to
@@ -143,9 +227,9 @@ DOCIDORDER
 	DOCIDORDER isn't set or is empty) this puts them in ASCENDING order
 	(the lowest document id ranks highest).  If DOCIDORDER is specified
 	and non-empty it can begin with "D" for DESCENDING order, "A" for
-	ASCENDING order or any other character for DONT_CARE (the Xapian
-	database backend will use whichever order is most efficient).  Any
-	characters after the first are ignored.
+	ASCENDING order or any other character ("X" by convention) for
+	DONT_CARE (the Xapian database backend will use whichever order is most
+	efficient).  Any characters after the first are ignored.
 
 Display parameters and navigation
 ---------------------------------
@@ -175,29 +259,43 @@ parameters and use a normal anchor.
 Modification of CGI parameters
 ------------------------------
 
-For an image button, two CGI parameters are passed from the HTML
-client, of the form "PARAM.x" and "PARAM.y" (the x and y coordinates
-within the image that were clicked).
+Omega does some special mangling of CGI parameter names which is intended
+to help with using image buttons, and also to enable providing nicer "alt" text
+in older browsers.
 
-The PARAM part of the parameters are taken from the value attribute of
-the <input> element that specified that image button in the HTML
-page. We regularly use image buttons to provide pretty navigation
-within search results (they are part of a form because it is easier to
-treat more or less all of Omega as a single form, rather than
-generating very long GET requests for every button on the results
-page), so Omega does some mangling of these parameters:
+In the intervening decades HTML4 introduced the `alt` tag and CSS now provides
+cleaner ways to handle image buttons, so this mangling isn't as useful as it
+once was, but for now we've left it in place for compatibility.
 
- * PARAM.y is silently dropped
- * PARAM.x is truncated to PARAM
- * if PARAM contains a space (the CGI parameter name, not the value):
-    * the value becomes everything after the first space; the
-      original value is dropped. (e.g.: [ 2 ].x=NNN becomes [=2 ])
+Image Buttons
+~~~~~~~~~~~~~
 
-   otherwise:
-    * if PARAM is entirely numeric, the name becomes '#' and the value
-      becomes PARAM. (e.g.: 2.x=NNN becomes #=2)
-    * if PARAM is not entirely numeric, the value is copied from PARAM
-      (e.g.: >.x=NNN becomes >=>)
+When the user clicks on an image button `<input type="image" name="PARAM">`,
+the browser passes two CGI parameters `PARAM.x` and `PARAM.y` whose values
+report the x and y coordinates within the image that were clicked.
 
-Then, for ALL CGI parameters, the name is truncated at the first
-space. So [ page two ]=2 becomes [=2.
+Image buttons allow for prettier navigation within search results, but what
+the browser passes is unhelpful so Omega does some special mangling of
+parameters with a `.x` or `.y` suffix:
+
+ * `PARAM.y` is silently dropped
+ * `PARAM.x` is truncated to `PARAM`
+
+Then:
+
+ * if the parameter name contains a space or (since 1.4.4) a tab, the value
+   becomes everything after the first space/tab and the original value is
+   ignored. (e.g.: `[ 2 ].x=NNN` becomes `[=2 ]`).
+ * if the parameter name doesn't contain a space or (since 1.4.4) a tab:
+    * if the parameter name is entirely numeric, the name becomes `#` and the
+      value becomes the parameter name. (e.g.: `2.x=NNN` becomes `#=2`)
+    * otherwise, the value is replaced with the parameter name (e.g.:
+      `>.x=NNN` becomes `>=>`)
+
+Then general processing (as below) is applied.
+
+General
+~~~~~~~
+
+For **ALL** CGI parameters, the name is truncated at the first space or (since
+1.4.4) a tab. So `[ page two ]=2` becomes `[=2`.

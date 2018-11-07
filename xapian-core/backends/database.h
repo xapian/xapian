@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2013,2014,2015,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -48,6 +48,7 @@ typedef Xapian::ValueIterator::Internal ValueList;
 
 namespace Xapian {
 
+class Query;
 struct ReplicationInfo;
 
 /** Base class for databases.
@@ -105,6 +106,8 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	virtual void keep_alive();
 
+	virtual void readahead_for_query(const Xapian::Query & query);
+
 	//////////////////////////////////////////////////////////////////
 	// Database statistics:
 	// ====================
@@ -118,14 +121,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	virtual Xapian::docid get_lastdocid() const = 0;
 
 	/** Return the total length of all documents in this database. */
-	virtual totlen_t get_total_length() const = 0;
-
-	/** Return the average length of a document in this (sub) database.
-	 *
-	 *  See Database::Internal::get_doclength() for the meaning of document
-	 *  length within Xapian.
-	 */
-	virtual Xapian::doclength get_avlength() const = 0;
+	virtual Xapian::totallength get_total_length() const = 0;
 
 	/** Get the length of a given document.
 	 *
@@ -509,17 +505,34 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	virtual void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 
-	//////////////////////////////////////////////////////////////////
-	// Introspection methods:
-	// ======================
-
-	/** Return a pointer to this object as a RemoteDatabase, or NULL.
+	/** Get backend information about this database.
 	 *
-	 *  This method is used by MultiMatch to decide whether to use a
-	 *  LocalSubMatch or a RemoteSubMatch to perform a search over the
-	 *  database.
+	 *  @param path  If non-NULL, and set the pointed to string to the file
+	 *		 path of this database (or if to some string describing
+	 *		 the database in a backend-specified format if "path"
+	 *		 isn't a concept which  make sense).
+	 *
+	 *  @return	A constant indicating the backend type.
 	 */
-	virtual RemoteDatabase * as_remotedatabase();
+	virtual int get_backend_info(string * path) const = 0;
+
+	/** Find lowest and highest docids actually in use.
+	 *
+	 *  Only used by compaction, so only needs to be implemented by
+	 *  backends which support compaction.
+	 */
+	virtual void get_used_docid_range(Xapian::docid & first,
+					  Xapian::docid & last) const;
+
+	/** Return true if the database is open for writing.
+	 *
+	 *  If this is a WritableDatabase, always returns true.
+	 *
+	 *  For a Database, test if there's a writer holding the lock (or if
+	 *  we can't test for a lock without taking it on the current platform,
+	 *  throw Xapian::UnimplementedError).
+	 */
+	virtual bool locked() const;
 };
 
 }

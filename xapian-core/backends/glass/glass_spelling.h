@@ -1,7 +1,7 @@
 /** @file glass_spelling.h
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,12 +42,12 @@ struct fragment {
     fragment() { }
 
     // Allow implicit conversion.
-    fragment(char data_[4]) { std::memcpy(data, data_, 4); }
+    explicit fragment(char data_[4]) { std::memcpy(data, data_, 4); }
 
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
 
-    operator std::string () const {
+    operator std::string() const {
 	return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 
@@ -74,7 +74,10 @@ class GlassSpellingTable : public GlassLazyTable {
      *  we don't need to store an additional add/remove flag for every
      *  word.
      */
-    std::map<Glass::fragment, std::set<std::string> > termlist_deltas;
+    std::map<Glass::fragment, std::set<std::string>> termlist_deltas;
+
+    /** Used to track an upper bound on wordfreq. */
+    Xapian::termcount wordfreq_upper_bound = 0;
 
   public:
     /** Create a new GlassSpellingTable object.
@@ -86,10 +89,15 @@ class GlassSpellingTable : public GlassLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     GlassSpellingTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("spelling", dbdir + "/spelling.", readonly,
-			 Z_DEFAULT_STRATEGY) { }
+	: GlassLazyTable("spelling", dbdir + "/spelling.", readonly) { }
 
-    // Merge in batched-up changes.
+    GlassSpellingTable(int fd, off_t offset_, bool readonly)
+	: GlassLazyTable("spelling", fd, offset_, readonly) { }
+
+    /** Merge in batched-up changes.
+     *
+     *  @return Updated upperbound on the word frequency.
+     */
     void merge_changes();
 
     void add_word(const std::string & word, Xapian::termcount freqinc);
@@ -98,6 +106,10 @@ class GlassSpellingTable : public GlassLazyTable {
     TermList * open_termlist(const std::string & word);
 
     Xapian::doccount get_word_frequency(const std::string & word) const;
+
+    void set_wordfreq_upper_bound(Xapian::termcount ub) {
+	wordfreq_upper_bound = ub;
+    }
 
     /** Override methods of GlassTable.
      *
@@ -110,9 +122,11 @@ class GlassSpellingTable : public GlassLazyTable {
 	return !wordfreq_changes.empty() || GlassTable::is_modified();
     }
 
-    void flush_db() {
+    /** Returns updated wordfreq upper bound. */
+    Xapian::termcount flush_db() {
 	merge_changes();
 	GlassTable::flush_db();
+	return wordfreq_upper_bound;
     }
 
     void cancel(const RootInfo & root_info, glass_revision_number_t rev) {
@@ -145,7 +159,7 @@ class GlassSpellingTermList : public TermList {
 
   public:
     /// Constructor.
-    GlassSpellingTermList(const std::string & data_)
+    explicit GlassSpellingTermList(const std::string & data_)
 	: data(data_), p(0) { }
 
     Xapian::termcount get_approx_size() const;

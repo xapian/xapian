@@ -4,7 +4,7 @@
 -- basic functionality successfully.
 --
 -- Copyright (C) 2011 Xiaona Han
--- Copyright (C) 2011,2012,2014 Olly Betts
+-- Copyright (C) 2011,2012,2014,2016,2017 Olly Betts
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -57,8 +57,8 @@ function run_tests()
   doc:add_posting(stem("out"), 4)
   doc:add_posting(stem("there"), 5)
   doc:add_term("XYzzy")
-  db = xapian.inmemory_open()
-  db2 = xapian.inmemory_open()
+  db = xapian.WritableDatabase("", xapian.DB_BACKEND_INMEMORY)
+  db2 = xapian.WritableDatabase("", xapian.DB_BACKEND_INMEMORY)
   db:add_document(doc)
   enq = xapian.Enquire(db)
 
@@ -70,7 +70,7 @@ function run_tests()
   end
 
   -- Test the version number reporting functions give plausible results.
-  v = xapian.major_version() .. "." .. xapian.minor_version() .. "." .. xapian.revision()
+  v = string.format("%d.%d.%d", xapian.major_version(), xapian.minor_version(), xapian.revision())
   v2 = xapian.version_string()
   expect(v, v2)
 
@@ -181,12 +181,19 @@ function run_tests()
   -- Regression test for bug#192 - fixed in 1.0.3.
   enq:set_cutoff(100)
 
+  -- Check DateRangeProcessor works
+  qp = xapian.QueryParser()
+  rpdate = xapian.DateRangeProcessor(1, xapian.RP_DATE_PREFER_MDY, 1960)
+  qp:add_rangeprocessor(rpdate)
+  query = qp:parse_query("12/03/99..12/04/01")
+  expect(tostring(query), "Query(VALUE_RANGE 1 19991203 20011204)")
+
   -- Check DateValueRangeProcessor works
   qp = xapian.QueryParser()
   vrpdate = xapian.DateValueRangeProcessor(1, true, 1960)
   qp:add_valuerangeprocessor(vrpdate)
   query = qp:parse_query("12/03/99..12/04/01")
-  expect(tostring(query), "Query(0 * VALUE_RANGE 1 19991203 20011204)")
+  expect(tostring(query), "Query(VALUE_RANGE 1 19991203 20011204)")
 
   -- Check FieldProcessor works
   qp:add_prefix('test', function (s) return "foo" end)
@@ -372,7 +379,7 @@ function run_tests()
   -- Test use of matchspies
   function setup_database()
     -- Set up and return an inmemory database with 5 documents.
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase("", xapian.DB_BACKEND_INMEMORY)
 
     doc = xapian.Document()
     doc:set_data("is it cold?")

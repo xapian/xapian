@@ -1,3 +1,4 @@
+use strict;
 # Before 'make install' is performed this script should be runnable with
 # 'make test'. After 'make install' it should work as 'perl test.pl'
 
@@ -52,7 +53,7 @@ for my $num (qw(three four five)) {
   $doc->add_value(0, $num);
   $write->add_document( $doc );
 }
-$write->flush();
+$write->commit();
 
 my $doccount = $write->get_doccount();
 is($doccount, 1003, "check number of documents in WritableDatabase");
@@ -71,7 +72,7 @@ ok(!$write->term_exists($num), "check term exists");
 is($write->get_document($docid)->get_data(), "$term $docid", "check document data");
 
 $write->replace_document($docid, $repdoc);
-$write->flush();
+$write->commit();
 
 $write->keep_alive();
 
@@ -89,7 +90,7 @@ $repdoc->set_data( "$term $num" );
 $repdoc->add_posting( $term, 0 );
 $repdoc->add_posting( $num, 1 );
 $repdoc->add_value(0, $num);
-$repterm = "five";
+my $repterm = "five";
 
 ok(!$write->term_exists($num), "check term exists");
 ok($write->term_exists($repterm), "check term exists");
@@ -97,7 +98,7 @@ is($write->get_termfreq($num), 0, "check term frequency");
 is($write->get_termfreq($repterm), 1, "check term frequency");
 
 $write->replace_document_by_term($repterm, $repdoc);
-$write->flush();
+$write->commit();
 
 ok($write->term_exists($num), "check term exists");
 ok(!$write->term_exists($repterm), "check term exists");
@@ -117,7 +118,7 @@ is($write->get_termfreq($term), $doccount, "check term frequency");
 is($write->get_termfreq($num), 0, "check term frequency");
 
 $write->replace_document_by_term($num, $repdoc);
-$write->flush();
+$write->commit();
 
 $doccount = $write->get_doccount();
 is($doccount, 1004, "check doccount");
@@ -136,7 +137,7 @@ $repdoc->add_posting( $num, 1 );
 $repdoc->add_value(0, $num);
 
 $write->replace_document_by_term($term, $repdoc);
-$write->flush();
+$write->commit();
 my $doc = $write->get_document(1);
 
 is($write->get_doccount(), 1, "check document count");
@@ -154,7 +155,7 @@ for my $num (qw(one two three four five)) {
   $doc->add_value(0, $num);
   $write->add_document( $doc );
 }
-$write->flush();
+$write->commit();
 
 $doccount = $write->get_doccount();
 is($doccount, 6, "check number of documents in WritableDatabase");
@@ -165,7 +166,7 @@ my $lastdocterm = $write->get_document($lastdocid)->get_value(0);
 ok($write->term_exists($lastdocterm), "check term exists");
 
 $write->delete_document($lastdocid);
-$write->flush();
+$write->commit();
 
 is($write->get_doccount(), $doccount - 1, "check number of documents in WritableDatabase");
 ok(!$write->term_exists($lastdocterm), "check term exists");
@@ -176,7 +177,7 @@ ok($write->term_exists($delterm), 'check term exists before deleting a document'
 is($write->get_termfreq($delterm), 1, 'check term frequency before deleting a document');
 
 $write->delete_document_by_term($delterm);
-$write->flush();
+$write->commit();
 
 is($write->get_doccount(), $doccount - 2, 'check WritableDatabase after deleting a document');
 ok(!$write->term_exists($delterm), 'check term exists after deleting a document');
@@ -188,7 +189,7 @@ ok($write->term_exists($delterm), 'check term exists of documents which has term
 is($write->get_termfreq($delterm), $doccount - 2, 'check term frequency of term "test"');
 
 $write->delete_document_by_term($delterm);
-$write->flush();
+$write->commit();
 
 is($write->get_doccount(), 0, 'check WritableDatabase after deleting all documents');
 ok(!$write->term_exists($delterm), 'check term exists after deleting all documents');

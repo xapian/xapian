@@ -1,7 +1,7 @@
 /** @file glass_values.cc
  * @brief GlassValueManager class
  */
-/* Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2016,2017 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,7 @@ using namespace std;
 //  * values named instead of numbered?
 
 /** Generate a key for the "used slots" data. */
-inline string
+static inline string
 make_slot_key(Xapian::docid did)
 {
     LOGCALL_STATIC(DB, string, "make_slot_key", did);
@@ -59,7 +59,7 @@ make_slot_key(Xapian::docid did)
 }
 
 /** Generate a key for a value statistics item. */
-inline string
+static inline string
 make_valuestats_key(Xapian::valueno slot)
 {
     LOGCALL_STATIC(DB, string, "make_valuestats_key", slot);
@@ -133,8 +133,7 @@ void
 GlassValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
 			     const string & val)
 {
-    map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
-    i = changes.find(slot);
+    auto i = changes.find(slot);
     if (i == changes.end()) {
 	i = changes.insert(make_pair(slot, map<Xapian::docid, string>())).first;
     }
@@ -144,8 +143,7 @@ GlassValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
 void
 GlassValueManager::remove_value(Xapian::docid did, Xapian::valueno slot)
 {
-    map<Xapian::valueno, map<Xapian::docid, string> >::iterator i;
-    i = changes.find(slot);
+    auto i = changes.find(slot);
     if (i == changes.end()) {
 	i = changes.insert(make_pair(slot, map<Xapian::docid, string>())).first;
     }
@@ -192,8 +190,6 @@ GlassValueManager::get_chunk_containing_did(Xapian::valueno slot,
 }
 
 static const size_t CHUNK_SIZE_THRESHOLD = 2000;
-
-static const Xapian::docid MAX_DOCID = static_cast<Xapian::docid>(-1);
 
 namespace Glass {
 
@@ -243,7 +239,7 @@ class ValueUpdater {
 
   public:
     ValueUpdater(GlassPostListTable * table_, Xapian::valueno slot_)
-       	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
+	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
 
     ~ValueUpdater() {
 	while (!reader.at_end()) {
@@ -271,7 +267,7 @@ class ValueUpdater {
 	    last_allowed_did = 0;
 	}
 	if (last_allowed_did == 0) {
-	    last_allowed_did = MAX_DOCID;
+	    last_allowed_did = GLASS_MAX_DOCID;
 	    Assert(tag.empty());
 	    new_first_did = 0;
 	    AutoPtr<GlassCursor> cursor(table->cursor_get());
@@ -328,12 +324,11 @@ void
 GlassValueManager::merge_changes()
 {
     if (termlist_table->is_open()) {
-	map<Xapian::docid, string>::const_iterator i;
-	for (i = slots.begin(); i != slots.end(); ++i) {
-	    const string & enc = i->second;
-	    string key = make_slot_key(i->first);
+	for (auto i : slots) {
+	    string key = make_slot_key(i.first);
+	    const string& enc = i.second;
 	    if (!enc.empty()) {
-		termlist_table->add(key, i->second);
+		termlist_table->add(key, enc);
 	    } else {
 		termlist_table->del(key);
 	    }
@@ -341,19 +336,15 @@ GlassValueManager::merge_changes()
 	slots.clear();
     }
 
-    {
-	map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
-	for (i = changes.begin(); i != changes.end(); ++i) {
-	    Xapian::valueno slot = i->first;
-	    Glass::ValueUpdater updater(postlist_table, slot);
-	    const map<Xapian::docid, string> & slot_changes = i->second;
-	    map<Xapian::docid, string>::const_iterator j;
-	    for (j = slot_changes.begin(); j != slot_changes.end(); ++j) {
-		updater.update(j->first, j->second);
-	    }
+    for (auto i : changes) {
+	Xapian::valueno slot = i.first;
+	Glass::ValueUpdater updater(postlist_table, slot);
+	const map<Xapian::docid, string>& slot_changes = i.second;
+	for (auto j : slot_changes) {
+	    updater.update(j.first, j.second);
 	}
-	changes.clear();
     }
+    changes.clear();
 }
 
 void
@@ -369,29 +360,29 @@ GlassValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 	Xapian::valueno slot = it.get_valueno();
 	string value = *it;
 
-        // Update the statistics.
-        std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-        i = value_stats.insert(make_pair(slot, ValueStats()));
+	// Update the statistics.
+	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+	i = value_stats.insert(make_pair(slot, ValueStats()));
 	ValueStats & stats = i.first->second;
-        if (i.second) {
-            // There were no statistics stored already, so read them.
-            get_value_stats(slot, stats);
-        }
+	if (i.second) {
+	    // There were no statistics stored already, so read them.
+	    get_value_stats(slot, stats);
+	}
 
-        // Now, modify the stored statistics.
-        if ((stats.freq)++ == 0) {
-            // If the value count was previously zero, set the upper and lower
-            // bounds to the newly added value.
-            stats.lower_bound = value;
-            stats.upper_bound = value;
-        } else {
-            // Otherwise, simply make sure they reflect the new value.
-            if (value < stats.lower_bound) {
-                stats.lower_bound = value;
-            } else if (value > stats.upper_bound) {
-                stats.upper_bound = value;
-            }
-        }
+	// Now, modify the stored statistics.
+	if ((stats.freq)++ == 0) {
+	    // If the value count was previously zero, set the upper and lower
+	    // bounds to the newly added value.
+	    stats.lower_bound = value;
+	    stats.upper_bound = value;
+	} else {
+	    // Otherwise, simply make sure they reflect the new value.
+	    if (value < stats.lower_bound) {
+		stats.lower_bound = value;
+	    } else if (value > stats.upper_bound) {
+		stats.upper_bound = value;
+	    }
+	}
 
 	add_value(did, slot, value);
 	if (termlist_table->is_open()) {
@@ -432,21 +423,21 @@ GlassValueManager::delete_document(Xapian::docid did,
 	slot += prev_slot + 1;
 	prev_slot = slot;
 
-        std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-        i = value_stats.insert(make_pair(slot, ValueStats()));
+	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+	i = value_stats.insert(make_pair(slot, ValueStats()));
 	ValueStats & stats = i.first->second;
-        if (i.second) {
-            // There were no statistics stored already, so read them.
-            get_value_stats(slot, stats);
-        }
+	if (i.second) {
+	    // There were no statistics stored already, so read them.
+	    get_value_stats(slot, stats);
+	}
 
-        // Now, modify the stored statistics.
-        AssertRelParanoid(stats.freq, >, 0);
-        if (--(stats.freq) == 0) {
-            stats.lower_bound.resize(0);
-            stats.upper_bound.resize(0);
-        }
- 
+	// Now, modify the stored statistics.
+	AssertRelParanoid(stats.freq, >, 0);
+	if (--(stats.freq) == 0) {
+	    stats.lower_bound.resize(0);
+	    stats.upper_bound.resize(0);
+	}
+
 	remove_value(did, slot);
     }
 }
@@ -456,10 +447,22 @@ GlassValueManager::replace_document(Xapian::docid did,
 				    const Xapian::Document &doc,
 				    map<Xapian::valueno, ValueStats> & value_stats)
 {
-    // Load the values into the document from the database, if they haven't
-    // been already.  (If we don't do this before deleting the old values,
-    // replacing a document with itself will lose the values.)
-    doc.internal->need_values();
+    if (doc.get_docid() == did) {
+	// If we're replacing a document with itself, but the optimisation for
+	// this higher up hasn't kicked in (e.g. because we've added/replaced
+	// a document since this one was read) and the values haven't changed,
+	// then the call to delete_document() below will remove the values
+	// before the subsequent add_document() can read them.
+	//
+	// The simplest way to handle this is to force the document to read its
+	// values, which we only need to do this is the docid matches.  Note
+	// that this check can give false positives as we don't also check the
+	// database, so for example replacing document 4 in one database with
+	// document 4 from another will unnecessarily trigger this, but forcing
+	// the values to be read is fairly harmless, and this is unlikely to be
+	// a common case.
+	doc.internal->need_values();
+    }
     delete_document(did, value_stats);
     add_document(did, doc, value_stats);
 }
@@ -467,11 +470,9 @@ GlassValueManager::replace_document(Xapian::docid did,
 string
 GlassValueManager::get_value(Xapian::docid did, Xapian::valueno slot) const
 {
-    map<Xapian::valueno, map<Xapian::docid, string> >::const_iterator i;
-    i = changes.find(slot);
+    auto i = changes.find(slot);
     if (i != changes.end()) {
-	map<Xapian::docid, string>::const_iterator j;
-	j = i->second.find(did);
+	auto j = i->second.find(did);
 	if (j != i->second.end()) return j->second;
     }
 
@@ -535,8 +536,6 @@ void
 GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) const
 {
     LOGCALL_VOID(DB, "GlassValueManager::get_value_stats", slot | Literal("[stats]"));
-    // Invalidate the cache first in case an exception is thrown.
-    mru_slot = Xapian::BAD_VALUENO;
 
     string tag;
     if (postlist_table->get_exact_entry(make_valuestats_key(slot), tag)) {
@@ -544,11 +543,11 @@ GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 	const char * end = pos + tag.size();
 
 	if (!unpack_uint(&pos, end, &(stats.freq))) {
-	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+	    if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
 	    throw Xapian::RangeError("Frequency statistic in value table is too large");
 	}
 	if (!unpack_string(&pos, end, stats.lower_bound)) {
-	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+	    if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
 	    throw Xapian::RangeError("Lower bound in value table is too large");
 	}
 	size_t len = end - pos;
@@ -560,8 +559,6 @@ GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
     } else {
 	stats.clear();
     }
-
-    mru_slot = slot;
 }
 
 void

@@ -1,7 +1,7 @@
 /** @file remotesubmatch.h
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007,2009,2011,2014 Olly Betts
+/* Copyright (C) 2006,2007,2009,2011,2014,2015 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -51,13 +51,13 @@ class RemoteSubMatch : public SubMatch {
     double percent_factor;
 
     /// The matchspies to use.
-    const vector<Xapian::MatchSpy *> & matchspies;
+    const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies;
 
   public:
     /// Constructor.
     RemoteSubMatch(RemoteDatabase *db_,
 		   bool decreasing_relevance_,
-		   const vector<Xapian::MatchSpy *> & matchspies);
+		   const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
 
     /// Fetch and collate statistics.
     bool prepare_match(bool nowait, Xapian::Weight::Internal & total_stats);

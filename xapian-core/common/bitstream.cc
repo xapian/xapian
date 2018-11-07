@@ -1,7 +1,7 @@
 /** @file bitstream.cc
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2013,2014 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2013,2014,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,54 +26,75 @@
 #include <xapian/types.h>
 
 #include "omassert.h"
+#include "pack.h"
 
 #include <cmath>
 #include <vector>
 
 using namespace std;
 
-static const unsigned char flstab[256] = {
-    0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
-};
-
 // Highly optimised fls() implementation.
-inline int highest_order_bit(unsigned mask)
+template<typename T>
+static inline int
+highest_order_bit(T mask)
 {
+#ifdef HAVE_DO_CLZ
+    return mask ? sizeof(T) * 8 - do_clz(mask) : 0;
+#else
+    static const unsigned char flstab[256] = {
+	0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
+	5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+	6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
+    };
+
     int result = 0;
+    if (sizeof(T) > 4) {
+	if (mask >= 0x100000000ul) {
+	    mask >>= 32;
+	    result += 32;
+	}
+    }
     if (mask >= 0x10000u) {
 	mask >>= 16;
-	result = 16;
+	result += 16;
     }
     if (mask >= 0x100u) {
 	mask >>= 8;
 	result += 8;
     }
     return result + flstab[mask];
+#endif
 }
 
 namespace Xapian {
 
+/// Shift left that's safe for shifts wider than the type.
+template<typename T, typename U>
+static constexpr inline
+T safe_shl(T x, U shift)
+{
+    return (shift >= sizeof(T) * 8 ? 0 : x << shift);
+}
+
 void
-BitWriter::encode(size_t value, size_t outof)
+BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
 {
     Assert(value < outof);
-    size_t bits = highest_order_bit(outof - 1);
-    const size_t spare = (1 << bits) - outof;
+    unsigned bits = highest_order_bit(outof - Xapian::termpos(1));
+    const Xapian::termpos spare = safe_shl(Xapian::termpos(1), bits) - outof;
     if (spare) {
 	/* If we have spare values, we can use one fewer bit to encode some
 	 * values.  We shorten the values in the middle of the range, as
@@ -101,19 +122,20 @@ BitWriter::encode(size_t value, size_t outof)
 	 * Note the LSB comes first in the bitstream, so these codes need to be
 	 * suffix-free to be decoded.
 	 */
-	const size_t mid_start = (outof - spare) / 2;
+	const Xapian::termpos mid_start = (outof - spare) / 2;
 	if (value >= mid_start + spare) {
-	    value = (value - (mid_start + spare)) | (1 << (bits - 1));
+	    value = (value - (mid_start + spare)) |
+		    (Xapian::termpos(1) << (bits - 1));
 	} else if (value >= mid_start) {
 	    --bits;
 	}
     }
 
-    if (bits + n_bits > 32) {
+    if (bits + n_bits > sizeof(acc) * 8) {
 	// We need to write more bits than there's empty room for in
 	// the accumulator.  So we arrange to shift out 8 bits, then
 	// adjust things so we're adding 8 fewer bits.
-	Assert(bits <= 32);
+	Assert(bits <= sizeof(acc) * 8);
 	acc |= (value << n_bits);
 	buf += char(acc);
 	acc >>= 8;
@@ -136,12 +158,12 @@ BitWriter::encode_interpolative(const vector<Xapian::termpos> &pos, int j, int k
     // Gigabytes" - pages 126-127 in the second edition.  You can probably
     // view those pages in google books.
     while (j + 1 < k) {
-	const size_t mid = (j + k) / 2;
+	const Xapian::termpos mid = j + (k - j) / 2;
 	// Encode one out of (pos[k] - pos[j] + 1) values
 	// (less some at either end because we must be able to fit
 	// all the intervening pos in)
-	const size_t outof = pos[k] - pos[j] + j - k + 1;
-	const size_t lowest = pos[j] + mid - j;
+	const Xapian::termpos outof = pos[k] - pos[j] + j - k + 1;
+	const Xapian::termpos lowest = pos[j] + mid - j;
 	encode(pos[mid] - lowest, outof);
 	encode_interpolative(pos, j, mid);
 	j = mid;
@@ -153,9 +175,9 @@ BitReader::decode(Xapian::termpos outof, bool force)
 {
     (void)force;
     Assert(force == di_current.is_initialized());
-    size_t bits = highest_order_bit(outof - 1);
-    const size_t spare = (1 << bits) - outof;
-    const size_t mid_start = (outof - spare) / 2;
+    Xapian::termpos bits = highest_order_bit(outof - Xapian::termpos(1));
+    const Xapian::termpos spare = safe_shl(Xapian::termpos(1), bits) - outof;
+    const Xapian::termpos mid_start = (outof - spare) / 2;
     Xapian::termpos p;
     if (spare) {
 	p = read_bits(bits - 1);
@@ -169,25 +191,28 @@ BitReader::decode(Xapian::termpos outof, bool force)
     return p;
 }
 
-unsigned int
+Xapian::termpos
 BitReader::read_bits(int count)
 {
-    unsigned int result;
-    if (count > 25) {
-	// If we need more than 25 bits, read in two goes to ensure that we
-	// don't overflow acc.  This is a little more conservative than it
-	// needs to be, but such large values will inevitably be rare (because
-	// you can't fit very many of them into 2^32!)
-	Assert(count <= 32);
-	result = read_bits(16);
-	return result | (read_bits(count - 16) << 16);
+    Xapian::termpos result;
+    if (count > int(sizeof(acc) * 8 - 7)) {
+	// If we need more than 7 bits less than fit in acc do the read in two
+	// goes to ensure that we don't overflow acc.  This is a little more
+	// conservative than it needs to be, but such large values will
+	// inevitably be rare (because you can't fit very many of them into
+	// the full Xapian::termpos range).
+	Assert(count <= int(sizeof(acc) * 8));
+	const size_t half_the_bits = sizeof(acc) * 4;
+	result = read_bits(half_the_bits);
+	return result | (read_bits(count - half_the_bits) << half_the_bits);
     }
     while (n_bits < count) {
 	Assert(idx < buf.size());
-	acc |= static_cast<unsigned char>(buf[idx++]) << n_bits;
+	unsigned char byte = buf[idx++];
+	acc |= Xapian::termpos(byte) << n_bits;
 	n_bits += 8;
     }
-    result = acc & ((1u << count) - 1);
+    result = acc & ((Xapian::termpos(1) << count) - Xapian::termpos(1));
     acc >>= count;
     n_bits -= count;
     return result;
@@ -218,8 +243,8 @@ BitReader::decode_interpolative_next()
 	}
 	di_stack.push_back(di_current);
 	int mid = (di_current.j + di_current.k) / 2;
-	int pos_mid = decode(di_current.outof(), true) +
-	    (di_current.pos_j + mid - di_current.j);
+	Xapian::termpos pos_mid = decode(di_current.outof(), true) +
+				  (di_current.pos_j + mid - di_current.j);
 	di_current.set_k(mid, pos_mid);
     }
 #ifdef XAPIAN_ASSERTIONS

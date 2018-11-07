@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016,2017 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "safenetdb.h" // For gai_strerror().
 #include "safesysstat.h" // For mkdir().
 #include "safeunistd.h" // For sleep().
 
@@ -105,18 +106,121 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	<< ' ' << get_database_path("apitest_simpledata") << endl;
     out.close();
 
-    {
+    try {
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
+    } catch (Xapian::FeatureUnavailableError&) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	throw;
+#endif
     }
-    {
+
+    try {
 	Xapian::Database db(dbpath);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
+    } catch (Xapian::FeatureUnavailableError&) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	throw;
+#endif
     }
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    out << "remote" << endl;
+    out.close();
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+# define EXPECTED_EXCEPTION Xapian::DatabaseOpeningError
+#else
+# define EXPECTED_EXCEPTION Xapian::FeatureUnavailableError
+#endif
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    out << "remote foo" << endl;
+    out.close();
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(EXPECTED_EXCEPTION,
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(EXPECTED_EXCEPTION,
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    out.open(dbpath);
+    TEST(out.is_open());
+    out << "remote [::1]:65535" << endl;
+    out.close();
+
+    try {
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
+    } catch (const Xapian::NetworkError& e) {
+	// 1.4.0 threw (on Linux) the confusing message:
+	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (nodename nor servname provided, or not known)
+	// or on OS X (EAI_NONAME):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (Address family for hostname not supported)
+	//
+	// But NetBSD seems to resolve ::1 to an IPv4 address and then tries
+	// to connect to it (which hopefully fails), so just test the message
+	// doesn't match the bad 1.4.0 result.
+	TEST(e.get_msg().find("host [") == string::npos);
+    }
+
+    try {
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB);
+    } catch (const Xapian::NetworkError& e) {
+	// 1.4.0 threw (Linux):
+	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (nodename nor servname provided, or not known)
+	// or on OS X (EAI_NONAME):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:65535)) (Address family for hostname not supported)
+	// So we test the message instead of the error string for portability.
+	//
+	// But NetBSD seems to resolve ::1 to an IPv4 address and then tries
+	// to connect to it (which hopefully fails), so just test the message
+	// doesn't match the bad 1.4.0 result.
+	TEST(e.get_msg().find("host [") == string::npos);
+    }
+#endif
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    // Invalid - the port number is required.
+    out << "remote [::1]" << endl;
+    out.close();
+
+    // 1.4.0 threw:
+    // NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+    TEST_EXCEPTION(EXPECTED_EXCEPTION,
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
+    );
+
+    // 1.4.0 threw:
+    // NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+    TEST_EXCEPTION(EXPECTED_EXCEPTION,
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB);
+    );
 
     return true;
 }
@@ -223,7 +327,29 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
 	db.add_document(Xapian::Document());
 	TEST_EQUAL(db.get_doccount(), 1);
     }
- 
+
+    return true;
+}
+
+/// Test error running Database::check() on a stub database.
+// Regression test - in 1.4.3 and earlier this threw
+// Xapian::DatabaseError.
+DEFINE_TESTCASE(stubdb8, inmemory) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb8";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "inmemory\n";
+    out.close();
+
+    try {
+	Xapian::Database::check(dbpath);
+	FAIL_TEST("Managed to check inmemory stub");
+    } catch (const Xapian::DatabaseOpeningError & e) {
+	// Check the message is appropriate.
+	TEST_STRINGS_EQUAL(e.get_msg(),
+			   "File is not a Xapian database or database table");
+    }
     return true;
 }
 
@@ -368,12 +494,16 @@ DEFINE_TESTCASE(multierrhandler1, backend) {
 }
 #endif
 
-class myMatchDecider : public Xapian::MatchDecider {
-    public:
-	bool operator()(const Xapian::Document &doc) const {
-	    // Note that this is not recommended usage of get_data()
-	    return doc.get_data().find("This is") != string::npos;
-	}
+class GrepMatchDecider : public Xapian::MatchDecider {
+    string needle;
+  public:
+    explicit GrepMatchDecider(const string& needle_)
+	: needle(needle_) {}
+
+    bool operator()(const Xapian::Document &doc) const {
+	// Note that this is not recommended usage of get_data()
+	return doc.get_data().find(needle) != string::npos;
+    }
 };
 
 // Test Xapian::MatchDecider functor.
@@ -382,7 +512,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
 
-    myMatchDecider myfunctor;
+    GrepMatchDecider myfunctor("This is");
 
     Xapian::MSet mymset = enquire.get_mset(0, 100, 0, &myfunctor);
 
@@ -511,7 +641,7 @@ DEFINE_TESTCASE(matchdecider2, backend && !remote) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
 
-    myMatchDecider myfunctor;
+    GrepMatchDecider myfunctor("This is");
 
     Xapian::MSet mymset = enquire.get_mset(0, 100, 0, NULL, &myfunctor);
 
@@ -538,15 +668,6 @@ DEFINE_TESTCASE(matchdecider2, backend && !remote) {
     return true;
 }
 
-class myMatchDecider2 : public Xapian::MatchDecider {
-    public:
-	bool operator()(const Xapian::Document &doc) const {
-	    // Note that this is not recommended usage of get_data()
-	    return doc.get_data().find("We produce") == string::npos;
-	}
-};
-
-
 // Regression test for lower bound using functor, sorting and collapsing.
 DEFINE_TESTCASE(matchdecider3, backend && !remote) {
     Xapian::Database db(get_database("etext"));
@@ -555,7 +676,7 @@ DEFINE_TESTCASE(matchdecider3, backend && !remote) {
     enquire.set_collapse_key(12);
     enquire.set_sort_by_value(11, true);
 
-    myMatchDecider2 myfunctor;
+    GrepMatchDecider myfunctor("We produce");
 
     Xapian::MSet mset1 = enquire.get_mset(0, 2, 0, NULL, &myfunctor);
     Xapian::MSet mset2 = enquire.get_mset(0, 1000, 0, NULL, &myfunctor);
@@ -1101,8 +1222,8 @@ DEFINE_TESTCASE(specialterms1, backend) {
 	if (value_no == 0) {
 	    TEST(value.size() > 263);
 	    TEST_EQUAL(static_cast<unsigned char>(value[262]), 255);
-	    for (int k = 0; k < 256; k++) {
-		TEST_EQUAL(static_cast<unsigned char>(value[k+7]), k);
+	    for (int k = 0; k < 256; ++k) {
+		TEST_EQUAL(static_cast<unsigned char>(value[k + 7]), k);
 	    }
 	}
     }
@@ -1330,9 +1451,7 @@ DEFINE_TESTCASE(postlist4, backend) {
 // tests long postlists
 DEFINE_TESTCASE(postlist5, backend) {
     Xapian::Database db(get_database("apitest_manydocs"));
-    // Allow for databases which don't support length
-    if (db.get_avlength() != 1)
-	TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
+    TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
     Xapian::PostingIterator i = db.postlist_begin("this");
     unsigned int j = 1;
     while (i != db.postlist_end("this")) {
@@ -1351,7 +1470,13 @@ DEFINE_TESTCASE(postlist6, backend) {
     TEST(i != db.postlist_end("this"));
     while (i != db.postlist_end("this")) {
 	TEST_EQUAL(i.get_doclength(), db.get_doclength(*i));
+	TEST_EQUAL(i.get_unique_terms(), db.get_unique_terms(*i));
 	TEST_REL(i.get_wdf(),<=,i.get_doclength());
+	TEST_REL(1,<=,i.get_unique_terms());
+	// The next two aren't necessarily true if there are terms with wdf=0
+	// in the document, but that isn't the case here.
+	TEST_REL(i.get_unique_terms(),<=,i.get_doclength());
+	TEST_REL(i.get_wdf() + i.get_unique_terms() - 1,<=,i.get_doclength());
 	++i;
     }
     return true;
@@ -1454,8 +1579,7 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 		}
 	    }
 	}
-    }
-    catch (const Xapian::NetworkTimeoutError &) {
+    } catch (const Xapian::NetworkTimeoutError &) {
 	// consistency1 is a long test - may timeout with the remote backend...
 	SKIP_TEST("Test taking too long");
     }
@@ -1573,15 +1697,15 @@ DEFINE_TESTCASE(sortrel1, backend) {
     enquire.set_sort_by_value(1, true);
     enquire.set_query(Xapian::Query("woman"));
 
-    const Xapian::docid order1[] = { 1,2,3,4,5,6,7,8,9 };
-    const Xapian::docid order2[] = { 2,1,3,6,5,4,7,9,8 };
-    const Xapian::docid order3[] = { 3,2,1,6,5,4,9,8,7 };
-    const Xapian::docid order4[] = { 7,8,9,4,5,6,1,2,3 };
-    const Xapian::docid order5[] = { 9,8,7,6,5,4,3,2,1 };
-    const Xapian::docid order6[] = { 7,9,8,6,5,4,2,1,3 };
-    const Xapian::docid order7[] = { 7,9,8,6,5,4,2,1,3 };
-    const Xapian::docid order8[] = { 2,6,7,1,5,9,3,4,8 };
-    const Xapian::docid order9[] = { 7,6,2,9,5,1,8,4,3 };
+    static const Xapian::docid order1[] = { 1,2,3,4,5,6,7,8,9 };
+    static const Xapian::docid order2[] = { 2,1,3,6,5,4,7,9,8 };
+    static const Xapian::docid order3[] = { 3,2,1,6,5,4,9,8,7 };
+    static const Xapian::docid order4[] = { 7,8,9,4,5,6,1,2,3 };
+    static const Xapian::docid order5[] = { 9,8,7,6,5,4,3,2,1 };
+    static const Xapian::docid order6[] = { 7,9,8,6,5,4,2,1,3 };
+    static const Xapian::docid order7[] = { 7,9,8,6,5,4,2,1,3 };
+    static const Xapian::docid order8[] = { 2,6,7,1,5,9,3,4,8 };
+    static const Xapian::docid order9[] = { 7,6,2,9,5,1,8,4,3 };
 
     Xapian::MSet mset;
     size_t i;
@@ -1698,7 +1822,7 @@ DEFINE_TESTCASE(netstats1, remote) {
     BackendManagerLocal local_manager;
     local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
 
-    const char * words[] = { "paragraph", "word" };
+    static const char * const words[] = { "paragraph", "word" };
     Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
     const size_t MSET_SIZE = 10;
 
@@ -1784,9 +1908,6 @@ class MyWeight : public Xapian::Weight {
     std::string name() const { return "MyWeight"; }
     string serialise() const { return string(); }
     MyWeight * unserialise(const string &) const { return new MyWeight; }
-    double get_sumpart(Xapian::termcount, Xapian::termcount) const {
-	return scale_factor;
-    }
     double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
 	return scale_factor;
     }
@@ -1802,7 +1923,9 @@ class MyWeight : public Xapian::Weight {
 DEFINE_TESTCASE(userweight1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(MyWeight());
-    const char * query[] = { "this", "line", "paragraph", "rubbish" };
+    static const char * const query[] = {
+	"this", "line", "paragraph", "rubbish"
+    };
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, query,
 				    query + sizeof(query) / sizeof(query[0])));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
@@ -1845,7 +1968,7 @@ DEFINE_TESTCASE(matchall1, backend) {
     TEST_EQUAL(mset[mset.size() - 1].get_weight(), 0);
     TEST_EQUAL(*mset[0], 1);
     TEST_EQUAL(*mset[mset.size() - 1], mset.size());
- 
+
     return true;
 }
 

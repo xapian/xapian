@@ -28,6 +28,7 @@ namespace Internal {
 
 /** @private @internal */
 struct constinfo {
+    unsigned char C_tab[256];
     int major, minor, revision;
     char str[8];
     unsigned stemmer_name_len;

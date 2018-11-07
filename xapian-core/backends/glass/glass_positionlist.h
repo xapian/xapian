@@ -1,7 +1,7 @@
 /** @file glass_positionlist.h
  * @brief A position list in a glass database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013 Olly Betts
+/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,8 +52,10 @@ class GlassPositionListTable : public GlassLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     GlassPositionListTable(const string & dbdir, bool readonly)
-	: GlassLazyTable("position", dbdir + "/position.", readonly,
-			 DONT_COMPRESS) { }
+	: GlassLazyTable("position", dbdir + "/position.", readonly) { }
+
+    GlassPositionListTable(int fd, off_t offset_, bool readonly_)
+	: GlassLazyTable("position", fd, offset_, readonly_) { }
 
     /** Pack a position list into a string.
      *
@@ -128,7 +130,7 @@ class GlassPositionList : public PositionList {
 		   const string & tname);
 
     /// Returns size of position list.
-    Xapian::termcount get_size() const;
+    Xapian::termcount get_approx_size() const;
 
     /** Returns current position.
      *
@@ -138,13 +140,10 @@ class GlassPositionList : public PositionList {
     Xapian::termpos get_position() const;
 
     /// Advance to the next term position in the list.
-    void next();
+    bool next();
 
     /// Advance to the first term position which is at least termpos.
-    void skip_to(Xapian::termpos termpos);
-
-    /// True if we're off the end of the list
-    bool at_end() const;
+    bool skip_to(Xapian::termpos termpos);
 };
 
 #endif /* XAPIAN_HGUARD_GLASS_POSITIONLIST_H */

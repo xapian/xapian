@@ -43,12 +43,11 @@ using namespace std;
 void
 ChertSpellingTable::merge_changes()
 {
-    map<fragment, set<string> >::const_iterator i;
-    for (i = termlist_deltas.begin(); i != termlist_deltas.end(); ++i) {
-	string key = i->first;
-	const set<string> & changes = i->second;
+    for (auto i : termlist_deltas) {
+	const string& key = i.first;
+	const set<string>& changes = i.second;
 
-	set<string>::const_iterator d = changes.begin();
+	auto d = changes.begin();
 	if (d == changes.end()) continue;
 
 	string updated;
@@ -109,13 +108,13 @@ ChertSpellingTable::merge_changes()
 void
 ChertSpellingTable::toggle_fragment(fragment frag, const string & word)
 {
-    map<fragment, set<string> >::iterator i = termlist_deltas.find(frag);
+    auto i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
 	i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
     }
     // The commonest case is that we're adding lots of words, so try insert
     // first and if that reports that the word already exists, remove it.
-    pair<set<string>::iterator, bool> res = i->second.insert(word);
+    auto res = i->second.insert(word);
     if (!res.second) {
 	// word is already in the set, so remove it.
 	i->second.erase(res.first);
@@ -246,7 +245,7 @@ ChertSpellingTable::toggle_word(const string & word)
 }
 
 struct TermListGreaterApproxSize {
-    bool operator()(const TermList *a, const TermList *b) {
+    bool operator()(const TermList *a, const TermList *b) const {
 	return a->get_approx_size() > b->get_approx_size();
     }
 };
@@ -437,11 +436,11 @@ ChertSpellingTermList::next()
     if (!current_term.empty()) {
 	if (p == data.size())
 	    throw Xapian::DatabaseCorruptError("Bad spelling termlist");
-	current_term.resize(byte(data[p++]) ^ MAGIC_XOR_VALUE);
+	current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
     }
     size_t add;
     if (p == data.size() ||
-	(add = byte(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
+	(add = uint8_t(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
 	throw Xapian::DatabaseCorruptError("Bad spelling termlist");
     current_term.append(data.data() + p + 1, add);
     p += add + 1;

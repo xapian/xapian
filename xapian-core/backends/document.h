@@ -71,6 +71,14 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	/// The terms (and their frequencies and positions) in this document.
 	mutable document_terms terms;
 
+	/** The number of distinct terms in @a terms.
+	 *
+	 *  Only valid when terms_here is true.
+	 *
+	 *  This may be less than terms.size() if any terms have been deleted.
+	 */
+	mutable Xapian::termcount termlist_size;
+
     protected:
 	/** The document ID of the document in that database.
 	 *
@@ -124,6 +132,9 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	void add_posting(const string &, Xapian::termpos, Xapian::termcount);
 	void add_term(const string &, Xapian::termcount);
 	void remove_posting(const string &, Xapian::termpos, Xapian::termcount);
+	Xapian::termpos remove_postings(const string &,
+					Xapian::termpos, Xapian::termpos,
+					Xapian::termcount);
 	void remove_term(const string &);
 	void clear_terms();
 	Xapian::termcount termlist_count() const;
@@ -211,7 +222,7 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	      terms_here(false), positions_modified(false), did(did_) { }
 
 	Internal()
-	    : database(0), data_here(false), values_here(false),
+	    : database(), data_here(false), values_here(false),
 	      terms_here(false), positions_modified(false), did(0) { }
 
 	/** Destructor.

@@ -1,7 +1,7 @@
 /** @file api_scalability.cc
  * @brief Tests of scalability.
  */
-/* Copyright (C) 2008,2009,2011,2013 Olly Betts
+/* Copyright (C) 2008,2009,2011,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

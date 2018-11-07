@@ -2,7 +2,7 @@
  * @brief Provides wrappers with POSIXy semantics.
  */
 /* Copyright 2007 Lemur Consulting Ltd
- * Copyright 2007,2012,2014 Olly Betts
+ * Copyright 2007,2012,2014,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,6 @@
 #define XAPIAN_INCLUDED_POSIXY_WRAPPER_H
 
 #ifdef __WIN32__
-/** Version of unlink() with POSIX-like semantics (open files can be unlinked).
- *
- *  NB The file must have been opened with posixy_open() for this to work.
- */
-int posixy_unlink(const char * filename);
-
 /** Version of open() which allows the file to be unlinked while open. */
 int posixy_open(const char *filename, int flags);
 
@@ -48,9 +42,18 @@ int posixy_rename(const char *from, const char *to);
 # include <sys/types.h>
 # include "safesysstat.h"
 # include "safefcntl.h"
-# define posixy_unlink(F) unlink(F)
 # define posixy_open ::open
 # define posixy_rename(F, T) std::rename(F, T)
+#endif
+
+#if defined __CYGWIN__ || defined __WIN32__
+/** Version of unlink() with POSIX-like semantics (open files can be unlinked).
+ *
+ *  NB The file must have been opened with posixy_open() for this to work.
+ */
+int posixy_unlink(const char * filename);
+#else
+# define posixy_unlink(F) unlink(F)
 #endif
 
 #endif /* XAPIAN_INCLUDED_POSIXY_WRAPPER_H */

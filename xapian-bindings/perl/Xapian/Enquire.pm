@@ -49,20 +49,22 @@ Set the direction in which documents are ordered by document id
 in the returned MSet.
 
 This order only has an effect on documents which would otherwise
-have equal rank.  For a weighted probabilistic match with no sort
-value, this means documents with equal weight.  For a boolean match,
-with no sort value, this means all documents.  And if a sort value
-is used, this means documents with equal sort value (and also equal
-weight if ordering on relevance after the sort).
+have equal rank.  When ordering by relevance without a sort key,
+this means documents with equal weight.  For a boolean match
+with no sort key, this means all documents.  And if a sort key
+is used, this means documents with equal sort key (and also equal
+weight if ordering on relevance before or after the sort key).
 
 order can be ENQ_ASCENDING (the default, docids sort in ascending order),
 ENQ_DESCENDING (docds sort in descending order), or ENQ_DONT_CARE (docids sort
 in whatever order is most efficient for the backend.)
 
 Note: If you add documents in strict date order, then a boolean
-search - i.e. set_weighting_scheme(Xapian::BoolWeight->new())
-- with set_docid_order(ENQ_DESCENDING) is a very efficient
-way to perform "sort by date, newest first".
+search - i.e. set_weighting_scheme(Xapian::BoolWeight()) - with
+set_docid_order(Xapian::Enquire::DESCENDING) is an efficient
+way to perform "sort by date, newest first", and with
+set_docid_order(Xapian::Enquire::ASCENDING) a very efficient way
+to perform "sort by date, oldest first".
 
 =item set_cutoff <percent_cutoff> [<weight_cutoff>]
 
@@ -161,7 +163,8 @@ Return a description of this object.
 
 =head1 SEE ALSO
 
-L<Xapian::Query>, L<Xapian::Database>
+L<Xapian::Query>,
+L<Xapian::Database>
 
 =cut
 1;

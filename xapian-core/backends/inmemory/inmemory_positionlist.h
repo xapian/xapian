@@ -56,17 +56,18 @@ class InMemoryPositionList : public PositionList
 	InMemoryPositionList() : iterating_in_progress(false) { }
 
 	/// Construct an empty InMemoryPositionList.
-	InMemoryPositionList(bool)
+	explicit InMemoryPositionList(bool)
 	    : mypos(positions.begin()), iterating_in_progress(false) { }
 
 	/// Construct, fill list with data, and move the position to the start.
+	explicit
 	InMemoryPositionList(const OmDocumentTerm::term_positions & positions_);
 
 	/// Fill list with data, and move the position to the start.
 	void set_data(const OmDocumentTerm::term_positions & positions_);
 
 	/// Gets size of position list.
-	Xapian::termcount get_size() const;
+	Xapian::termcount get_approx_size() const;
 
 	/// Gets current position.
 	Xapian::termpos get_position() const;
@@ -75,16 +76,13 @@ class InMemoryPositionList : public PositionList
 	 *  Either next() or skip_to() must be called before any other
 	 *  methods.
 	 */
-	void next();
+	bool next();
 
 	/** Move to the next item in the list.
 	 *  Either next() or skip_to() must be called before any other
 	 *  methods.
 	 */
-	void skip_to(Xapian::termpos termpos);
-
-	/// True if we're off the end of the list
-	bool at_end() const;
+	bool skip_to(Xapian::termpos termpos);
 };
 
 #endif /* OM_HGUARD_INMEMORY_POSITIONLIST_H */

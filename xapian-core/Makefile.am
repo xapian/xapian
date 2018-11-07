@@ -13,7 +13,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
 # include/xapian/error.h and include/xapian/errordispatch.h
-AM_CPPFLAGS += -I$(top_builddir)/include
+AM_CPPFLAGS += -I'$(top_builddir)/include'
 endif
 
 # Order is relevant: when building, tests must be after ".".
@@ -44,10 +44,12 @@ check-@PERCENT@:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
 
 ## --disable-shared as shared builds fail for me on x86-64 Debian etch.
-## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.
+## If you're using ccache, you need ccache >= 3.0, released 2010-06-20 (older
+## versions don't handle --coverage properly).  You need ccache >= 3.2.2 to
+## actually cache compilations with --coverage - older 3.x just disables
+## caching for them.
 COVERAGE_CONFIGURE = \
-    $(srcdir)/configure CXXFLAGS='-O0 --coverage' \
-    --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
+    $(srcdir)/configure CXXFLAGS='-O0 --coverage' --disable-shared VALGRIND=
 
 coverage-reconfigure: distclean
 	$(COVERAGE_CONFIGURE)
@@ -65,7 +67,21 @@ coverage-check:
 	rm -rf lcov
 	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
 
-bin_SCRIPTS = xapian-config
+# We want to clean out build tree paths from the copy of xapian-config we
+# install, mostly in the interests of facilitating reproducible builds.
+bin_SCRIPTS = installable/xapian-config
+
+# Create the installable version in a subdirectory.  It's not made executable
+# until install time, which hopefully should avoid people trying to use it when
+# building against an uninstalled xapian-core.
+installable/xapian-config: xapian-config
+	$(MKDIR_P) installable
+	$(SED) '/##UNINSTONLYBEGIN/,/##UNINSTONLYEND/d' xapian-config > installable/xapian-config.tmp
+	mv installable/xapian-config.tmp installable/xapian-config
+
+CLEANFILES += installable/xapian-config
+
+noinst_SCRIPTS = xapian-config
 
 DISTCLEANFILES += xapian-config
 
@@ -82,19 +98,19 @@ include docsource.mk
 
 # Install the m4 file containing the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
-dist_m4data_DATA = m4-macros/xapian-1.3.m4
+dist_m4data_DATA = m4-macros/xapian.m4
 
 # Install the pkg-config file containing the correct compiler options.
 pkgconfigdir = $(libdir)/pkgconfig
-nodist_pkgconfig_DATA = pkgconfig/xapian-core-1.3.pc
-DISTCLEANFILES += pkgconfig/xapian-core-1.3.pc
+nodist_pkgconfig_DATA = pkgconfig/xapian-core.pc
+DISTCLEANFILES += pkgconfig/xapian-core.pc
 
-libxapian_la = libxapian-1.3.la
-lib_LTLIBRARIES = libxapian-1.3.la
-libxapian_1_3_la_SOURCES = $(lib_src)
-libxapian_1_3_la_LIBADD = $(XAPIAN_LIBS)
-libxapian_1_3_la_LDFLAGS = \
-    $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
+libxapian_la = libxapian.la
+lib_LTLIBRARIES = libxapian.la
+libxapian_la_SOURCES = $(lib_src)
+libxapian_la_LIBADD = $(XAPIAN_LIBS)
+libxapian_la_LDFLAGS = \
+    $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
 
 lib_src =
 
@@ -118,6 +134,10 @@ include unicode/Makefile.mk
 include weight/Makefile.mk
 
 xapianinclude_HEADERS += include/xapian/error.h
+
+# If these files change, we need to rerun configure to reprocess them -
+# making them dependencies of config.status achieves that.
+CONFIG_STATUS_DEPENDENCIES = include/xapian/version_h.cc
 
 if MAINTAINER_MODE
 BUILT_SOURCES += include/xapian/error.h include/xapian/errordispatch.h

@@ -1,7 +1,7 @@
 /* lua/util.i: custom lua typemaps for xapian-bindings
  *
  * Copyright (C) 2011 Xiaona Han
- * Copyright (C) 2011,2012 Olly Betts
+ * Copyright (C) 2011,2012,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -104,7 +104,7 @@ class luaMatchDecider : public Xapian::MatchDecider {
 	}
 
 	SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
-	if (lua_pcall(L, 1, 1, 0) != 0){
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isboolean(L, -1)) {
@@ -142,7 +142,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	}
 
 	lua_pushlstring(L, (char *)word.c_str(), word.length());
-	if (lua_pcall(L, 1, 1, 0) != 0){
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isstring(L, -1)) {
@@ -161,7 +161,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	if (lua_pcall(L, 0, 1, 0) != 0){
+	if (lua_pcall(L, 0, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isstring(L, -1)) {
@@ -202,7 +202,7 @@ class luaKeyMaker : public Xapian::KeyMaker {
 	}
 
 	SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
-	if (lua_pcall(L, 1, 1, 0) != 0){
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isstring(L, -1)) {
@@ -213,6 +213,60 @@ class luaKeyMaker : public Xapian::KeyMaker {
 	std::string result(p, len);
 	lua_pop(L, 1);
 	return result;
+    }
+};
+%}
+
+%{
+class luaRangeProcessor : public Xapian::RangeProcessor {
+    int r;
+    lua_State* L;
+
+  public:
+    luaRangeProcessor(lua_State* S) {
+	L = S;
+	if (!lua_isfunction(L, -1)) {
+	    luaL_typerror(L, -1, "function");
+	}
+	r = luaL_ref(L, LUA_REGISTRYINDEX);
+    }
+
+    ~luaRangeProcessor() {
+	luaL_unref(L, LUA_REGISTRYINDEX, r);
+    }
+
+    Xapian::Query operator()(const std::string& begin, const std::string& end) {
+	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+	if (!lua_isfunction(L, -1)) {
+	    luaL_typerror(L, -1, "function");
+	}
+
+	lua_pushlstring(L, (char *)begin.c_str(), begin.length());
+	lua_pushlstring(L, (char *)end.c_str(), end.length());
+
+	if (lua_pcall(L, 2, 1, 0) != 0) {
+	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
+	}
+
+	// Allow the function to return a string or Query object.
+	if (lua_isstring(L, -1)) {
+	    size_t len;
+	    const char * p = lua_tolstring(L, -1, &len);
+	    std::string result(p, len);
+	    lua_pop(L, 1);
+	    return Xapian::Query(result);
+	}
+
+	Xapian::Query *subq = 0;
+	if (!lua_isuserdata(L, -1) ||
+	    SWIG_ConvertPtr(L, -1, (void **)&subq,
+			    SWIGTYPE_p_Xapian__Query, 0) == -1) {
+	    lua_pop(L, 1);
+	    luaL_error(L, "function must return a string or Query object");
+	}
+
+	lua_pop(L, 1);
+	return *subq;
     }
 };
 %}
@@ -244,7 +298,7 @@ class luaValueRangeProcessor : public Xapian::ValueRangeProcessor {
 	lua_pushlstring(L, (char *)begin.c_str(), begin.length());
 	lua_pushlstring(L, (char *)end.c_str(), end.length());
 
-	if (lua_pcall(L, 2, 1, 0) != 0){
+	if (lua_pcall(L, 2, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isnumber(L, -1)) {
@@ -336,7 +390,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
 
 	SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
 	SWIG_NewPointerObj(L, &wt, SWIGTYPE_p_Xapian__Weight, 0);
-	if (lua_pcall(L, 2, 1, 0) != 0){
+	if (lua_pcall(L, 2, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
     }
@@ -357,7 +411,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
     if (lua_isfunction(L, $input)) {
 	$1 = new lua##CLASS(L);
     } else {
-	if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, $descriptor(NS::CLASS *), 0))){
+	if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, $descriptor(NS::CLASS *), 0))) {
 	    SWIG_fail;
 	}
     }
@@ -369,6 +423,7 @@ SUB_CLASS_TYPEMAPS(Xapian, ExpandDecider)
 SUB_CLASS_TYPEMAPS(Xapian, Stopper)
 SUB_CLASS_TYPEMAPS(Xapian, StemImplementation)
 SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
+SUB_CLASS_TYPEMAPS(Xapian, RangeProcessor)
 SUB_CLASS_TYPEMAPS(Xapian, ValueRangeProcessor)
 SUB_CLASS_TYPEMAPS(Xapian, FieldProcessor)
 

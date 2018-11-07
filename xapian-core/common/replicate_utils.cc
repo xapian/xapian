@@ -28,13 +28,13 @@
 #include "io_utils.h"
 #include "posixy_wrapper.h"
 
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 
 #include <sys/types.h>
 
+#include <cerrno>
 #include <string>
 
 using namespace std;

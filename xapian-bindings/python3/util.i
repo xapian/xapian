@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016,2017 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -159,28 +159,6 @@ namespace Xapian {
 	}
     }
     %rename(_ESetIterator) ESetIterator;
-
-    %extend MSet {
-	// for comparison
-	int __cmp__(const MSet &other) {
-	    if (self->get_max_possible() != other.get_max_possible()) {
-		return (self->get_max_possible() < other.get_max_possible())? -1 : 1;
-	    }
-	    if (self->size() != other.size()) {
-		return (self->size() < other.size())? -1 : 1;
-	    }
-
-	    for (size_t i=0; i<self->size(); ++i) {
-		if (*(*self)[i] != *other[i]) {
-		    return (*(*self)[i] < *other[i])? -1 : 1;
-		}
-		if ((*self)[i].get_weight() != other[i].get_weight()) {
-		    return ((*self)[i].get_weight() < other[i].get_weight())? -1 : 1;
-		}
-	    }
-	    return 0;
-	}
-    }
 }
 
 %fragment("XapianSWIG_anystring_as_ptr", "header", fragment="SWIG_AsPtr_std_string") {
@@ -197,13 +175,13 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 	PyBytes_AsStringAndSize(strobj, &p, &len);
 	if (val) *val = new std::string(p, len);
 	Py_DECREF(strobj);
-	return SWIG_OK;
+	return SWIG_NEWOBJ;
     } else if (PyBytes_Check(obj)) {
 	char *p;
 	Py_ssize_t len;
 	PyBytes_AsStringAndSize(obj, &p, &len);
 	if (val) *val = new std::string(p, len);
-	return SWIG_OK;
+	return SWIG_NEWOBJ;
     } else {
 	return SWIG_AsPtr_std_string(obj, val);
     }
@@ -238,6 +216,32 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 }
 %typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string & {
     if (PyUnicode_Check($input)) {
+	$1 = 1;
+    } else if (PyBytes_Check($input)) {
+	$1 = 1;
+    } else {
+	int res = SWIG_AsPtr_std_string($input, (std::string**)(0));
+	$1 = SWIG_CheckState(res);
+    }
+}
+
+%typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string *(int res = SWIG_OLDOBJ) {
+    std::string *ptr = (std::string *)0;
+    if ($input != Py_None) {
+        res = XapianSWIG_anystring_as_ptr($input, &ptr);
+        if (!SWIG_IsOK(res)) {
+            %argument_fail(res, "$type", $symname, $argnum);
+        }
+    }
+    $1 = ptr;
+}
+%typemap(freearg, noblock=1, match="in") const std::string * {
+    if (SWIG_IsNewObj(res$argnum)) %delete($1);
+}
+%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string * {
+    if ($input == Py_None) {
+	$1 = 1;
+    } else if (PyUnicode_Check($input)) {
 	$1 = 1;
     } else if (PyBytes_Check($input)) {
 	$1 = 1;

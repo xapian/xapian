@@ -1,5 +1,6 @@
 noinst_HEADERS +=\
 	backends/alltermslist.h\
+	backends/backends.h\
 	backends/byte_length_strings.h\
 	backends/contiguousalldocspostlist.h\
 	backends/database.h\
@@ -10,6 +11,7 @@ noinst_HEADERS +=\
 	backends/positionlist.h\
 	backends/prefix_compressed_strings.h\
 	backends/slowvaluelist.h\
+	backends/uuids.h\
 	backends/valuelist.h\
 	backends/valuestats.h
 
@@ -23,6 +25,7 @@ lib_src +=\
 	backends/databasereplicator.cc\
 	backends/dbfactory.cc\
 	backends/slowvaluelist.cc\
+	backends/uuids.cc\
 	backends/valuelist.cc
 
 if BUILD_BACKEND_REMOTE

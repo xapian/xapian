@@ -104,7 +104,7 @@ DEFINE_TESTCASE(serialise_document1, !backend) {
     TEST_EQUAL(k, doc2.values_end());
 
     TEST_EQUAL(doc2.get_data(), "baz");
- 
+
     return true;
 }
 
@@ -173,7 +173,7 @@ DEFINE_TESTCASE(serialise_document2, writable) {
     TEST_EQUAL(k, doc2.values_end());
 
     TEST_EQUAL(doc2.get_data(), "baz");
- 
+
     return true;
 }
 
@@ -207,7 +207,7 @@ DEFINE_TESTCASE(serialise_query1, !backend) {
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Query((hello@1 OR world@1))");
 
-    static const char * phrase[] = { "shaken", "not", "stirred" };
+    static const char * const phrase[] = { "shaken", "not", "stirred" };
     q = Xapian::Query(q.OP_PHRASE, phrase, phrase + 3);
     q = Xapian::Query(q.OP_OR, Xapian::Query("007"), q);
     q = Xapian::Query(q.OP_SCALE_WEIGHT, q, 3.14);
@@ -384,7 +384,7 @@ DEFINE_TESTCASE(registry1, !backend) {
 
 	// Either the old entry should be removed, or it should work.
 	const Xapian::PostingSource * p;
-        p = reg.get_posting_source("ExceptionalPostingSource");
+	p = reg.get_posting_source("ExceptionalPostingSource");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalPostingSource");
 	}
@@ -413,9 +413,6 @@ class ExceptionalWeight : public Xapian::Weight {
 
     void init(double) { }
 
-    double get_sumpart(Xapian::termcount, Xapian::termcount) const {
-	return 0;
-    }
     double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
 	return 0;
     }
@@ -442,7 +439,7 @@ DEFINE_TESTCASE(registry2, !backend) {
 
 	// Either the old entry should be removed, or it should work.
 	const Xapian::Weight * p;
-        p = reg.get_weighting_scheme("ExceptionalWeight");
+	p = reg.get_weighting_scheme("ExceptionalWeight");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalWeight");
 	}
@@ -490,7 +487,7 @@ DEFINE_TESTCASE(registry3, !backend) {
 
 	// Either the old entry should be removed, or it should work.
 	const Xapian::MatchSpy * p;
-        p = reg.get_match_spy("ExceptionalMatchSpy");
+	p = reg.get_match_spy("ExceptionalMatchSpy");
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalMatchSpy");
 	}

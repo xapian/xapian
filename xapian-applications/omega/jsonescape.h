@@ -1,5 +1,4 @@
-
-/* @file jsonescape.h
+/** @file jsonescape.h
  * @brief JSON escape a string
  */
 /* Copyright (C) 2013 Olly Betts

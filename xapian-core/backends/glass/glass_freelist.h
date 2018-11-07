@@ -68,9 +68,9 @@ class GlassFreeList {
 
     void operator=(const GlassFreeList &);
 
-    void read_block(const GlassTable * B, uint4 n, byte * p);
+    void read_block(const GlassTable * B, uint4 n, uint8_t * p);
 
-    void write_block(const GlassTable * B, uint4 n, byte * p, uint4 rev);
+    void write_block(const GlassTable * B, uint4 n, uint8_t * p, uint4 rev);
 
   protected:
     uint4 revision;
@@ -83,10 +83,10 @@ class GlassFreeList {
 
   private:
     /// Current freelist block.
-    byte * p;
+    uint8_t * p;
 
     /// Current freelist block we're writing.
-    byte * pw;
+    uint8_t * pw;
 
   public:
     GlassFreeList() {
@@ -117,6 +117,9 @@ class GlassFreeList {
     void set_revision(uint4 revision_) { revision = revision_; }
 
     uint4 get_first_unused_block() const { return first_unused_block; }
+
+    // Used when compacting to a single file.
+    void set_first_unused_block(uint4 base) { first_unused_block = base; }
 
     void commit(const GlassTable * B, uint4 block_size);
 
@@ -154,9 +157,12 @@ class GlassFreeListChecker {
 
     elt_type * bitmap;
 
+    // Prevent copying
+    GlassFreeListChecker(const GlassFreeListChecker&);
+    GlassFreeListChecker& operator=(const GlassFreeListChecker&);
 
   public:
-    GlassFreeListChecker(const GlassFreeList & fl);
+    explicit GlassFreeListChecker(const GlassFreeList & fl);
 
     ~GlassFreeListChecker() {
 	delete [] bitmap;

@@ -1,0 +1,15 @@
+/.*.sw?
+/*.lo
+/Makefile.in
+/Makefile
+/.deps
+/.libs
+/docs/conf.py
+/docs/index.html
+/xapian.la
+/php7
+/xapian_wrap.d
+/except.i
+/smoketest.php.log
+/smoketest.php.trs
+/test-suite.log

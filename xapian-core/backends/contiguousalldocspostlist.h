@@ -27,7 +27,7 @@
 #include "database.h"
 #include "api/leafpostlist.h"
 
-/// A PostList iteratating all docids when they form a contiguous range.
+/// A PostList iterating all docids when they form a contiguous range.
 class ContiguousAllDocsPostList : public LeafPostList {
     /// Don't allow assignment.
     void operator=(const ContiguousAllDocsPostList &);

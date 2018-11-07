@@ -24,7 +24,7 @@
 #include <cstring>
 #include <string>
 
-#include "common/safeuuid.h"
+#include "backends/uuids.h"
 
 /** The ChertVersion class manages the "iamchert" file.
  *
@@ -35,14 +35,11 @@ class ChertVersion {
     /// The filename of the version file.
     std::string filename;
 
-    /** The UUID of this database.
-     *
-     *  This is mutable for older uuid libraries which take non-const uuid_t.
-     */
-    mutable uuid_t uuid;
+    /// The UUID of this database.
+    Uuid uuid;
 
   public:
-    ChertVersion(const std::string & dbdir) : filename(dbdir) {
+    explicit ChertVersion(const std::string & dbdir) : filename(dbdir) {
 	filename += "/iamchert";
     }
 
@@ -57,31 +54,13 @@ class ChertVersion {
 
     /// Return pointer to 16 byte UUID.
     const char * get_uuid() const {
-	// uuid is unsigned char[].
-	return reinterpret_cast<const char *>(uuid);
+	return uuid.data();
     }
 
     /// Return UUID in the standard 36 character string format.
     std::string get_uuid_string() const {
-	char buf[37];
-	uuid_unparse_lower(uuid, buf);
-	return std::string(buf, 36);
+	return uuid.to_string();
     }
-
-#if 0 // Unused currently.
-    /// Set the UUID from 16 byte binary value @a data.
-    void set_uuid(const void * data) {
-	std::memcpy(uuid, data, 16);
-    }
-
-    /** Set the UUID from the standard 36 character string format.
-     *
-     *  @return true if @a s was successfully parsed; false otherwise.
-     */
-    bool set_uuid_string(const std::string & s) {
-	return uuid_parse(s.c_str(), uuid);
-    }
-#endif
 };
 
 #endif

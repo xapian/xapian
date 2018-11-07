@@ -8,7 +8,7 @@ the xapian-core module.
 If you're new to hacking on Xapian, you should probably start by reading the
 xapian-core/HACKING file.  If you're new to Xapian entirely, you should
 probably read the xapian-core/README file, or you can find further information
-on our website at http://xapian.org/
+on our website at https://xapian.org/
 
 See the section "Building from git" in xapian-core/HACKING for details
 on getting started.

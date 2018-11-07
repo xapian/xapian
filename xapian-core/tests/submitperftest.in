@@ -73,7 +73,7 @@ def submit_perftest(filepath):
         return
     print "Successful submission: server said:\n"
     print '\n'.join(lines[1:])
-    
+
 
 def main():
     submit_perftest(os.path.join(r"@builddir@", "perflog.xml"))

@@ -1,6 +1,7 @@
-/* diritor.h: Iterator through entries in a directory.
- *
- * Copyright (C) 2007,2008,2010,2011,2012,2013,2014 Olly Betts
+/** @file diritor.h
+ * @brief Iterator through entries in a directory.
+ */
+/* Copyright (C) 2007,2008,2010,2011,2012,2013,2014,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +21,10 @@
 #ifndef OMEGA_INCLUDED_DIRITOR_H
 #define OMEGA_INCLUDED_DIRITOR_H
 
+#include <cerrno>
 #include <string>
 
 #include "safedirent.h"
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
@@ -36,10 +37,12 @@
 #endif
 
 #include <magic.h>
+#include <zlib.h>
 
 #include "common/noreturn.h"
 
 #include "loadfile.h"
+#include "md5wrap.h"
 #include "runfilter.h" // For class ReadError.
 
 struct FileNotFound { };
@@ -84,6 +87,10 @@ class DirectoryIterator {
 
     void build_path();
 
+    void open_fd();
+
+    void close_fd();
+
   public:
 
     explicit DirectoryIterator(bool follow_symlinks_)
@@ -91,7 +98,7 @@ class DirectoryIterator {
 
     ~DirectoryIterator() {
 	if (dir) closedir(dir);
-	if (fd >= 0) close(fd);
+	if (fd >= 0) close_fd();
     }
 
     /// Start iterating through entries in @a path.
@@ -105,10 +112,7 @@ class DirectoryIterator {
     //
     //  @return false if there are no more entries.
     bool next() {
-	if (fd >= 0) {
-	    close(fd);
-	    fd = -1;
-	}
+	if (fd >= 0) close_fd();
 	path.resize(path_len);
 	errno = 0;
 	do {
@@ -165,6 +169,11 @@ class DirectoryIterator {
     time_t get_mtime() {
 	ensure_statbuf_valid();
 	return statbuf.st_mtime;
+    }
+
+    time_t get_ctime() {
+	ensure_statbuf_valid();
+	return statbuf.st_ctime;
     }
 
     const char * get_owner() {
@@ -227,16 +236,49 @@ class DirectoryIterator {
     std::string get_magic_mimetype();
 
     std::string file_to_string() {
-	build_path();
 	std::string out;
-	int flags = NOCACHE;
-	if (try_noatime()) flags |= NOATIME;
-	fd = load_file_fd(path, out, flags);
-	if (fd < 0) {
-	    if (errno == ENOENT || errno == ENOTDIR) throw FileNotFound();
-	    throw ReadError("load_file failed");
+	if (!load_file_from_fd(get_fd(), out)) {
+	    throw ReadError("loading file failed");
 	}
 	return out;
+    }
+
+    std::string gzfile_to_string() {
+	int dup_fd = dup(get_fd());
+	if (fd < 0) {
+	    throw ReadError("dup() failed");
+	}
+	gzFile zfh = gzdopen(dup_fd, "rb");
+	if (zfh == NULL) {
+	    throw ReadError("gzdopen() failed");
+	}
+	std::string out;
+	char buf[8192];
+	while (true) {
+	    int r = gzread(zfh, buf, sizeof(buf));
+	    if (r < 0) {
+		gzclose(zfh);
+		throw ReadError("gzread() failed");
+	    }
+	    out.append(buf, r);
+	    if (unsigned(r) < sizeof(buf)) break;
+	}
+	gzclose(zfh);
+	return out;
+    }
+
+    int get_fd() {
+	if (fd < 0) {
+	    open_fd();
+	} else {
+	    if (lseek(fd, 0, SEEK_SET) < 0)
+		throw CommitAndExit("Can't rewind file descriptor", path, errno);
+	}
+	return fd;
+    }
+
+    bool md5(std::string& out) {
+	return md5_fd(get_fd(), out);
     }
 };
 

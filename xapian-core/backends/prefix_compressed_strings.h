@@ -43,7 +43,7 @@ class PrefixCompressedStringItor {
 	: p(p_), left(left_), current(current_) { }
 
   public:
-    PrefixCompressedStringItor(const std::string & s)
+    explicit PrefixCompressedStringItor(const std::string & s)
 	: p(reinterpret_cast<const unsigned char *>(s.data())),
 	  left(s.size()) {
 	if (left) {
@@ -93,7 +93,7 @@ class PrefixCompressedStringWriter {
     std::string & out;
 
   public:
-    PrefixCompressedStringWriter(std::string & out_) : out(out_) { }
+    explicit PrefixCompressedStringWriter(std::string & out_) : out(out_) { }
 
     void append(const std::string & word) {
 	// If this isn't the first entry, see how much of the previous one
@@ -118,7 +118,7 @@ class PrefixCompressedStringWriter {
 struct PrefixCompressedStringItorGt {
     /// Return true if and only if a's string is strictly greater than b's.
     bool operator()(const PrefixCompressedStringItor *a,
-		    const PrefixCompressedStringItor *b) {
+		    const PrefixCompressedStringItor *b) const {
 	return (**a > **b);
     }
 };

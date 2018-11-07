@@ -8,7 +8,6 @@ noinst_HEADERS +=\
 	backends/chert/chert_alltermslist.h\
 	backends/chert/chert_btreebase.h\
 	backends/chert/chert_check.h\
-	backends/chert/chert_compact.h\
 	backends/chert/chert_cursor.h\
 	backends/chert/chert_database.h\
 	backends/chert/chert_databasereplicator.h\
@@ -42,7 +41,6 @@ lib_src +=\
 	backends/chert/chert_compact.cc\
 	backends/chert/chert_cursor.cc\
 	backends/chert/chert_database.cc\
-	backends/chert/chert_databasereplicator.cc\
 	backends/chert/chert_dbcheck.cc\
 	backends/chert/chert_dbstats.cc\
 	backends/chert/chert_document.cc\
@@ -60,5 +58,10 @@ lib_src +=\
 	backends/chert/chert_valuelist.cc\
 	backends/chert/chert_values.cc\
 	backends/chert/chert_version.cc
+
+if BUILD_BACKEND_REMOTE
+lib_src += \
+	backends/chert/chert_databasereplicator.cc
+endif
 
 endif

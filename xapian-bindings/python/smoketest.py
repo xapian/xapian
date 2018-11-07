@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2015 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2015,2016,2017 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -85,7 +85,7 @@ def test_all():
     doc.add_posting(stem("out"), 4)
     doc.add_posting(stem("there"), 5)
 
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase('', xapian.DB_BACKEND_INMEMORY)
     db.add_document(doc)
     expect(db.get_doccount(), 1, "Unexpected db.get_doccount()")
     terms = ["smoke", "test", "terms"]
@@ -284,10 +284,10 @@ def test_all():
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
     expect_query(qp.parse_query("foo o", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR o) OR Zo@2))")
+                 "(Zfoo@1 AND (WILDCARD SYNONYM o OR Zo@2))")
 
     expect_query(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR outside) OR Zoutsid@2))")
+                 "(Zfoo@1 AND (WILDCARD SYNONYM outside OR Zoutsid@2))")
 
     # Test supplying unicode strings
     expect_query(xapian.Query(xapian.Query.OP_OR, (u'foo', u'bar')),
@@ -367,7 +367,7 @@ def test_all():
     vrpdate = xapian.DateValueRangeProcessor(1, 1, 1960)
     qp.add_valuerangeprocessor(vrpdate)
     query = qp.parse_query('12/03/99..12/04/01')
-    expect(str(query), 'Query(0 * VALUE_RANGE 1 19991203 20011204)')
+    expect(str(query), 'Query(VALUE_RANGE 1 19991203 20011204)')
 
     # Regression test for bug#193, fixed in 1.0.3.
     context("running regression test for bug#193")
@@ -389,6 +389,10 @@ def test_all():
 
     qp.add_prefix('spam', testfieldprocessor())
     qp.add_boolean_prefix('boolspam', testfieldprocessor())
+    qp.add_boolean_prefix('boolspam2', testfieldprocessor(), False) # Old-style
+    qp.add_boolean_prefix('boolspam3', testfieldprocessor(), '')
+    qp.add_boolean_prefix('boolspam4', testfieldprocessor(), 'group')
+    qp.add_boolean_prefix('boolspam5', testfieldprocessor(), None)
     query = qp.parse_query('spam:ignored')
     expect(str(query), 'Query(spam)')
 
@@ -404,6 +408,17 @@ def test_all():
     # Regression test - fixed in 0.9.10.1.
     oqparser = xapian.QueryParser()
     oquery = oqparser.parse_query("I like tea")
+
+    # Regression test for bug fixed in 1.4.4:
+    # https://bugs.debian.org/849722
+    oqparser.add_boolean_prefix('tag', 'K', '')
+    # Make sure other cases also work:
+    oqparser.add_boolean_prefix('zag', 'XR', False) # Old-style
+    oqparser.add_boolean_prefix('rag', 'XR', None)
+    oqparser.add_boolean_prefix('nag', 'XB', '')
+    oqparser.add_boolean_prefix('bag', 'XB', 'blergh')
+    oqparser.add_boolean_prefix('gag', 'XB', u'blergh')
+    oqparser.add_boolean_prefix('jag', 'XB', b'blergh')
 
     # Regression test for bug#192 - fixed in 1.0.3.
     enq.set_cutoff(100)
@@ -444,6 +459,26 @@ def test_userstem():
     parser.set_stemmer(xapian.Stem(MyStemmer()))
     parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)
     expect_query(parser.parse_query('color television'), '(clr@1 OR tlvsn@2)')
+
+def test_internal_enums_not_wrapped():
+    leaf_constants = [c for c in dir(xapian.Query) if c.startswith('LEAF_')]
+    expect(leaf_constants, [])
+
+def test_internals_not_wrapped():
+    internals = []
+    for c in dir(xapian):
+        # Skip Python stuff like __file__ and __version__.
+        if c.startswith('__'): continue
+        if c.endswith('_'): internals.append(c)
+        # Skip non-classes
+        if not c[0].isupper(): continue
+        cls = eval('xapian.' + c)
+        if type(cls) != type(object): continue
+        for m in dir(cls):
+            if m.startswith('__'): continue
+            if m.endswith('_'): internals.append(c + '.' + m)
+
+    expect(internals, [])
 
 def test_zz9_check_leaks():
     import gc

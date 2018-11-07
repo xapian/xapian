@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_CHERT_CURSOR_H
 #define OM_HGUARD_CHERT_CURSOR_H
 
-#include <xapian/visibility.h>
-
 #include "chert_types.h"
 
 #include <string>
@@ -34,9 +32,9 @@ using std::string;
 
 class Cursor {
     private:
-        // Prevent copying
-        Cursor(const Cursor &);
-        Cursor & operator=(const Cursor &);
+	// Prevent copying
+	Cursor(const Cursor &);
+	Cursor & operator=(const Cursor &);
 
     public:
 	/// Constructor, to initialise important elements.
@@ -44,14 +42,14 @@ class Cursor {
 	{}
 
 	/// pointer to a block
-	byte * p;
+	uint8_t * p;
 	/// offset in the block's directory
 	int c;
 	/** block number
 	 *
 	 * n is kept in tandem with p.  The unassigned state is when
 	 * p == 0 and n == BLK_UNUSED.
-	 * 
+	 *
 	 * Setting n to BLK_UNUSED is necessary in at least some cases.
 	 */
 
@@ -65,13 +63,13 @@ class ChertTable;
 /** A cursor pointing to a position in a Btree table, for reading several
  *  entries in order, or finding approximate matches.
  */
-class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
+class ChertCursor {
     private:
 	/// Copying not allowed
-        ChertCursor(const ChertCursor &);
+	ChertCursor(const ChertCursor &);
 
 	/// Assignment not allowed
-        ChertCursor & operator=(const ChertCursor &);
+	ChertCursor & operator=(const ChertCursor &);
 
 	/** Rebuild the cursor.
 	 *
@@ -141,7 +139,7 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	 *  attached to is destroyed.  It's safe to destroy the ChertCursor
 	 *  after the Btree though, you just may not use the ChertCursor.
 	 */
-	ChertCursor(const ChertTable *B);
+	explicit ChertCursor(const ChertTable *B);
 
 	/** Destroy the ChertCursor */
 	~ChertCursor();
@@ -177,14 +175,14 @@ class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
 	 *  Btree the cursor is made unpositioned, and the result is false.
 	 *  Otherwise the cursor is moved to the next item in the B-tree,
 	 *  and the result is true.
-	 *  
+	 *
 	 *  Effectively, ChertCursor::next() loses the position of BC when it
 	 *  drops off the end of the list of items. If this is awkward, one can
 	 *  always arrange for a key to be present which has a rightmost
 	 *  position in a set of keys,
 	 */
 	bool next();
- 
+
 	/** Move to the previous key.
 	 *
 	 *  This is like ChertCursor::next, but BC is taken to the previous
@@ -258,7 +256,7 @@ class MutableChertCursor : public ChertCursor {
      *  attached to is destroyed.  It's safe to destroy the MutableChertCursor
      *  after the Btree though, you just may not use the MutableChertCursor.
      */
-    MutableChertCursor(ChertTable *B_) : ChertCursor(B_) { }
+    explicit MutableChertCursor(ChertTable *B_) : ChertCursor(B_) { }
 
     /** Delete the current key/tag pair, leaving the cursor on the next
      *  entry.

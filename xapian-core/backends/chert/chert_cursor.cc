@@ -1,7 +1,7 @@
 /* chert_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 
 #include "chert_cursor.h"
 
-#include "safeerrno.h"
+#include <cerrno>
 
 #include <xapian/error.h>
 
@@ -40,8 +40,8 @@ hex_display_encode(const string & input)
     for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
 	unsigned char val = *i;
 	result += "\\x";
-	result += table[val/16];
-	result += table[val%16];
+	result += table[val / 16];
+	result += table[val % 16];
     }
 
     return result;
@@ -62,8 +62,8 @@ ChertCursor::ChertCursor(const ChertTable *B_)
     C = new Cursor[level + 1];
 
     for (int j = 0; j < level; j++) {
-        C[j].n = BLK_UNUSED;
-	C[j].p = new byte[B->block_size];
+	C[j].n = BLK_UNUSED;
+	C[j].p = new uint8_t[B->block_size];
     }
     C[level].n = B->C[level].n;
     C[level].p = B->C[level].p;
@@ -78,7 +78,7 @@ ChertCursor::rebuild()
 	    C[i].n = BLK_UNUSED;
 	}
 	for (int j = new_level; j < level; ++j) {
-	    delete C[j].p;
+	    delete [] C[j].p;
 	}
     } else {
 	Cursor * old_C = C;
@@ -89,7 +89,7 @@ ChertCursor::rebuild()
 	}
 	delete [] old_C;
 	for (int j = level; j < new_level; j++) {
-	    C[j].p = new byte[B->block_size];
+	    C[j].p = new uint8_t[B->block_size];
 	    C[j].n = BLK_UNUSED;
 	}
     }
@@ -97,6 +97,7 @@ ChertCursor::rebuild()
     C[level].n = B->C[level].n;
     C[level].p = B->C[level].p;
     version = B->cursor_version;
+    B->cursor_created_since_last_modification = true;
 }
 
 ChertCursor::~ChertCursor()

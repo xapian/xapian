@@ -1,7 +1,7 @@
 /** @file remotetcpserver.h
  *  @brief TCP/IP socket based server for RemoteDatabase.
  */
-/* Copyright (C) 2007,2008,2010 Olly Betts
+/* Copyright (C) 2007,2008,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@
 #include "tcpserver.h"
 
 #include <xapian/database.h>
+#include <xapian/registry.h>
 #include <xapian/visibility.h>
 
 #include <string>
@@ -55,6 +56,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteTcpServer : public TcpServer {
     /** Timeout between operations (in seconds). */
     double idle_timeout;
 
+    /** Registry used for (un)serialisation. */
+    Xapian::Registry reg;
+
     /** Accept a connection and return the filedescriptor for it. */
     int accept_connection();
 
@@ -77,6 +81,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteTcpServer : public TcpServer {
 		    const std::string &host, int port,
 		    double active_timeout, double idle_timeout,
 		    bool writable, bool verbose);
+
+    /// Set the registry used for (un)serialisation.
+    void set_registry(const Xapian::Registry & reg_) { reg = reg_; }
 
     /** Handle a single connection on an already connected socket.
      *

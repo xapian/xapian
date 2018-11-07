@@ -24,7 +24,6 @@
 #include "maxpostlist.h"
 
 #include "debuglog.h"
-#include "multimatch.h"
 #include "omassert.h"
 
 using namespace std;
@@ -44,7 +43,7 @@ MaxPostList::get_termfreq_min() const
 {
     Xapian::doccount res = plist[0]->get_termfreq_min();
     for (size_t i = 1; i < n_kids; ++i) {
-	res = std::max(res, plist[i]->get_termfreq_min());
+	res = max(res, plist[i]->get_termfreq_min());
     }
     return res;
 }
@@ -93,24 +92,30 @@ MaxPostList::get_termfreq_est_using_stats(
     Assert(stats.collection_size);
     double scale = 1.0 / stats.collection_size;
     double P_est = freqs.termfreq * scale;
-    double Pr_est = freqs.reltermfreq * scale;
-    double Pc_est = freqs.collfreq * scale;
+    double rtf_scale = 0.0;
+    if (stats.rset_size != 0) {
+	rtf_scale = 1.0 / stats.rset_size;
+    }
+    double Pr_est = freqs.reltermfreq * rtf_scale;
+    double cf_scale = 1.0 / stats.total_term_count;
+    double Pc_est = freqs.collfreq * cf_scale;
 
     for (size_t i = 1; i < n_kids; ++i) {
+	freqs = plist[i]->get_termfreq_est_using_stats(stats);
 	double P_i = freqs.termfreq * scale;
 	P_est += P_i - P_est * P_i;
-	double Pc_i = freqs.collfreq * scale;
+	double Pc_i = freqs.collfreq * cf_scale;
 	Pc_est += Pc_i - Pc_est * Pc_i;
 	// If the rset is empty, Pr_est should be 0 already, so leave
 	// it alone.
 	if (stats.rset_size != 0) {
-	    double Pr_i = freqs.reltermfreq / stats.rset_size;
+	    double Pr_i = freqs.reltermfreq * rtf_scale;
 	    Pr_est += Pr_i - Pr_est * Pr_i;
 	}
     }
     return TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
 		     Xapian::doccount(Pr_est * stats.rset_size + 0.5),
-		     Xapian::termcount(Pc_est * stats.total_term_count));
+		     Xapian::termcount(Pc_est * stats.total_term_count + 0.5));
 }
 
 double
@@ -172,7 +177,7 @@ MaxPostList::get_weight() const
     double res = 0.0;
     for (size_t i = 0; i < n_kids; ++i) {
 	if (plist[i]->get_docid() == did)
-	    res = std::max(res, plist[i]->get_weight());
+	    res = max(res, plist[i]->get_weight());
     }
     return res;
 }
@@ -188,7 +193,7 @@ MaxPostList::recalc_maxweight()
 {
     max_cached = plist[0]->recalc_maxweight();
     for (size_t i = 1; i < n_kids; ++i) {
-	max_cached = std::max(max_cached, plist[i]->recalc_maxweight());
+	max_cached = max(max_cached, plist[i]->recalc_maxweight());
     }
     return max_cached;
 }

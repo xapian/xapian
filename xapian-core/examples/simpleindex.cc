@@ -1,7 +1,7 @@
 /** @file simpleindex.cc
  * @brief Index each paragraph of a text file as a Xapian document.
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #include <xapian.h>
 
@@ -53,6 +57,7 @@ try {
     Xapian::TermGenerator indexer;
     Xapian::Stem stemmer("english");
     indexer.set_stemmer(stemmer);
+    indexer.set_stemming_strategy(indexer.STEM_SOME_FULL_POS);
 
     string para;
     while (true) {

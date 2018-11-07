@@ -48,8 +48,8 @@ static void byteReverse(uint32_t *buf, unsigned longs)
     uint32_t t;
     do {
 	unsigned char * p = (unsigned char *)buf;
-	t = (uint32_t) ((unsigned) p[3] << 8 | p[2]) << 16 |
-	    ((unsigned) p[1] << 8 | p[0]);
+	t = uint32_t(unsigned(p[3]) << 8 | p[2]) << 16 |
+	    (unsigned(p[1]) << 8 | p[0]);
 	*buf++ = t;
     } while (--longs);
 }
@@ -84,7 +84,7 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
     /* Update bitcount */
 
     t = ctx->bits[0];
-    if ((ctx->bits[0] = t + ((uint32_t) len << 3)) < t)
+    if ((ctx->bits[0] = t + (uint32_t(len) << 3)) < t)
 	ctx->bits[1]++;		/* Carry from low to high */
     ctx->bits[1] += len >> 29;
 
@@ -93,7 +93,8 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
     /* Handle any leading odd-sized chunks */
 
     if (t) {
-	unsigned char *p = (unsigned char *) ctx->in + t;
+	unsigned char *p =
+	   reinterpret_cast<unsigned char *>(ctx->in) + t;
 
 	t = 64 - t;
 	if (len < t) {
@@ -135,7 +136,7 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
 
     /* Set the first char of padding to 0x80.  This is safe since there is
        always at least one byte free */
-    p = (unsigned char *)ctx->in + count;
+    p = reinterpret_cast<unsigned char *>(ctx->in) + count;
     *p++ = 0x80;
 
     /* Bytes of padding needed to make 64 bytes */
@@ -187,7 +188,7 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
  */
 static void MD5Transform(uint32_t buf[4], uint32_t const in[16])
 {
-    register uint32_t a, b, c, d;
+    uint32_t a, b, c, d;
 
     a = buf[0];
     b = buf[1];

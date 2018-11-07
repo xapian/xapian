@@ -11,7 +11,9 @@ endif
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
-CLEANFILES =
+# If tests are run under valgrind and the test is killed at the wrong moment
+# then a log file is left behind.
+CLEANFILES = .valgrind.log.*
 
 libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 
@@ -31,14 +33,10 @@ up:
 check-none: apitest$(EXEEXT) \
             internaltest$(EXEEXT) \
 	    stemtest$(EXEEXT) \
-	    queryparsertest$(EXEEXT) \
-	    termgentest$(EXEEXT) \
 	    unittest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b none
 	$(TESTS_ENVIRONMENT) ./internaltest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./stemtest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./queryparsertest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./termgentest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./unittest$(EXEEXT)
 
 check-inmemory: apitest$(EXEEXT)
@@ -46,6 +44,9 @@ check-inmemory: apitest$(EXEEXT)
 
 check-multi: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi
+
+check-singlefile: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile
 
 if BUILD_BACKEND_REMOTE
 check-remote: check-remoteprog check-remotetcp
@@ -86,6 +87,8 @@ check-multi-glass: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_glass
 check-glass: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b glass
+check-singlefile-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile_glass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -97,11 +100,11 @@ endif
 
 ## Test programs to be run
 TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
- queryparsertest$(EXEEXT) termgentest$(EXEEXT) unittest$(EXEEXT)
+ unittest$(EXEEXT)
 
 ## Programs to build
 check_PROGRAMS = \
-	apitest internaltest stemtest queryparsertest termgentest unittest
+	apitest internaltest stemtest unittest
 
 # Make sure runtest is up to date before running tests
 check_SCRIPTS = runtest
@@ -116,6 +119,7 @@ collated_apitest_sources = \
  api_closedb.cc \
  api_collapse.cc \
  api_compact.cc \
+ api_compactold.cc \
  api_db.cc \
  api_generated.cc \
  api_geospatial.cc \
@@ -130,14 +134,16 @@ collated_apitest_sources = \
  api_postingsource.cc \
  api_qpbackend.cc \
  api_query.cc \
+ api_queryparser.cc \
  api_replacedoc.cc \
  api_replicate.cc \
  api_scalability.cc \
  api_serialise.cc \
- api_snipper.cc \
+ api_snippets.cc \
  api_sorting.cc \
  api_spelling.cc \
  api_stem.cc \
+ api_termgen.cc \
  api_transdb.cc \
  api_unicode.cc \
  api_valuestats.cc \
@@ -148,34 +154,26 @@ collated_apitest_sources = \
 apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
-apitest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+apitest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 apitest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 stemtest_SOURCES = stemtest.cc $(testharness_sources)
-stemtest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+stemtest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 stemtest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
-internaltest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+internaltest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 internaltest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
-queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
-queryparsertest_LDFLAGS = @NO_INSTALL@ $(ldflags)
-queryparsertest_LDADD = ../libgetopt.la ../$(libxapian_la)
-
-termgentest_SOURCES = termgentest.cc $(testharness_sources)
-termgentest_LDFLAGS = @NO_INSTALL@ $(ldflags)
-termgentest_LDADD = ../libgetopt.la ../$(libxapian_la)
-
 unittest_SOURCES = unittest.cc $(utestharness_sources)
-unittest_LDFLAGS = @NO_INSTALL@ $(ldflags)
-unittest_LDADD = ../libgetopt.la
+unittest_LDFLAGS = $(NO_INSTALL) $(ldflags)
+unittest_LDADD = ../libgetopt.la $(XAPIAN_LIBS)
 
 BUILT_SOURCES =
 
 if MAINTAINER_MODE
 BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
- api_generated.cc
+ api_collated.stamp api_generated.cc
 
 api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
@@ -201,7 +199,7 @@ api_generated.cc: generate-api_generated
 endif
 
 EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
-	$(collated_apitest_sources:.cc=.h)
+	$(collated_apitest_sources:.cc=.h) api_collated.stamp
 
 ## Distribute test data:
 EXTRA_DIST +=\
@@ -223,10 +221,11 @@ EXTRA_DIST +=\
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/apitest_declen.txt \
-	testdata/etext.txt
+	testdata/etext.txt \
+	testdata/snippet.txt
 
 remove-cached-databases:
-	rm -rf .chert .glass .multichert .multiglass .replicatmp .stub
+	rm -rf .chert .glass .multichert .multiglass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 
@@ -244,11 +243,12 @@ check_SCRIPTS += zlib-vg.so
 CLEANFILES += zlib-vg.so
 
 zlib-vg.so: zlib-vg.c
-	$(CC_FOR_BUILD) -fPIC -shared -o zlib-vg.so $(srcdir)/zlib-vg.c -ldl
+	$(CC) -fPIC -shared -o zlib-vg.so $(srcdir)/zlib-vg.c -ldl
 endif
 
-
 .PHONY: check-syntax
+
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 check-syntax:
 	$(CXXCOMPILE) -fsyntax-only -gstabs+ $(CHK_SOURCES)

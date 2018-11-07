@@ -31,8 +31,8 @@ utf8_truncate(string & value, string::size_type maxlen)
 
     string::size_type len = maxlen;
     // Skip back to (and past) the last whitespace.
-    while (len && (unsigned char)value[len - 1] > 32) --len;
-    while (len && (unsigned char)value[len - 1] <= 32) --len;
+    while (len && static_cast<unsigned char>(value[len - 1]) > 32) --len;
+    while (len && static_cast<unsigned char>(value[len - 1]) <= 32) --len;
 
     // If the first word is too long, truncate it.
     if (!len) {

@@ -2,7 +2,7 @@
  * @brief Check consistency of a glass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 #include "glass_cursor.h"
 #include "glass_defs.h"
 #include "glass_table.h"
+#include "glass_version.h"
 #include "pack.h"
 #include "backends/valuestats.h"
 
@@ -57,35 +58,39 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_glass_table(const char * tablename, const string &db_dir,
+check_glass_table(const char * tablename, const string &db_dir, int fd,
+		  off_t offset_,
 		  const GlassVersion & version_file, int opts,
-		  vector<Xapian::termcount> & doclens,
-		  Xapian::docid db_last_docid, ostream * out)
+		  vector<Xapian::termcount> & doclens, ostream * out)
 {
+    Xapian::docid db_last_docid = version_file.get_last_docid();
     if (out)
 	*out << tablename << ":\n";
-    if (strcmp(tablename, "postlist") != 0) {
-	// Other filenames are created lazily, so may not exist.
-	string filename(db_dir);
-	filename += '/';
-	filename += tablename;
-	filename += "."GLASS_TABLE_EXTENSION;
-	if (!file_exists(filename)) {
-	    if (out) {
-		if (strcmp(tablename, "termlist") == 0) {
-		    *out << "Not present.\n";
-		} else {
-		    *out << "Lazily created, and not yet used.\n";
+    if (fd < 0) {
+	if (strcmp(tablename, "postlist") != 0) {
+	    // Other filenames are created lazily, so may not exist.
+	    string filename(db_dir);
+	    filename += '/';
+	    filename += tablename;
+	    filename += "." GLASS_TABLE_EXTENSION;
+	    if (!file_exists(filename)) {
+		if (out) {
+		    if (strcmp(tablename, "termlist") == 0) {
+			*out << "Not present.\n";
+		    } else {
+			*out << "Lazily created, and not yet used.\n";
+		    }
+		    *out << endl;
 		}
-		*out << endl;
+		return 0;
 	    }
-	    return 0;
 	}
     }
 
     // Check the btree structure.
     AutoPtr<GlassTable> table(
-	    GlassTableCheck::check(tablename, db_dir, version_file, opts, out));
+	    GlassTableCheck::check(tablename, db_dir, fd, offset_,
+				   version_file, opts, out));
 
     // Now check the glass structures inside the btree.
     AutoPtr<GlassCursor> cursor(table->cursor_get());
@@ -102,56 +107,7 @@ check_glass_table(const char * tablename, const string &db_dir,
 	Xapian::docid lastdid = 0;
 	Xapian::termcount termfreq = 0, collfreq = 0;
 	Xapian::termcount tf = 0, cf = 0;
-	bool have_metainfo_key = false;
-
-	// The first key/tag pair should be the METAINFO - though this may be
-	// missing if the table only contains user-metadata.
-	if (!cursor->after_end()) {
-	    if (cursor->current_key == string("", 1)) {
-		have_metainfo_key = true;
-		cursor->read_tag();
-		// Check format of the METAINFO key.
-		totlen_t total_doclen;
-		Xapian::doccount doccount;
-		Xapian::docid last_docid;
-		Xapian::termcount doclen_lbound;
-		Xapian::termcount doclen_ubound;
-		Xapian::termcount wdf_ubound;
-
-		const char * data = cursor->current_tag.data();
-		const char * end = data + cursor->current_tag.size();
-		if (!unpack_uint(&data, end, &doccount)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read doccount)." << endl;
-		    ++errors;
-		} else if (!unpack_uint(&data, end, &last_docid)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read last_docid)." << endl;
-		    ++errors;
-		} else if (!unpack_uint(&data, end, &doclen_lbound)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read doclen_lbound)." << endl;
-		    ++errors;
-		} else if (!unpack_uint(&data, end, &wdf_ubound)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read wdf_ubound)." << endl;
-		    ++errors;
-		} else if (!unpack_uint(&data, end, &doclen_ubound)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read doclen_ubound)." << endl;
-		    ++errors;
-		} else if (!unpack_uint_last(&data, end, &total_doclen)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read total_doclen)." << endl;
-		    ++errors;
-		} else if (data != end) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (junk at end)." << endl;
-		    ++errors;
-		}
-		cursor->next();
-	    }
-	}
+	Xapian::doccount num_doclens = 0;
 
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
@@ -168,13 +124,6 @@ check_glass_table(const char * tablename, const string &db_dir,
 		continue;
 	    }
 
-	    if (!have_metainfo_key) {
-		have_metainfo_key = true;
-		if (out)
-		    *out << "METAINFO key missing from postlist table" << endl;
-		++errors;
-	    }
-
 	    if (key.size() >= 2 && key[0] == '\0' && key[1] == '\xe0') {
 		// doclen chunk
 		const char * pos, * end;
@@ -189,6 +138,12 @@ check_glass_table(const char * tablename, const string &db_dir,
 			    *out << "Error unpacking docid from doclen key" << endl;
 			++errors;
 			continue;
+		    }
+		    if (did <= lastdid) {
+			if (out)
+			    *out << "First did in this doclen chunk is <= last in "
+				    "prev chunk" << endl;
+			++errors;
 		    }
 		}
 
@@ -211,12 +166,6 @@ check_glass_table(const char * tablename, const string &db_dir,
 			continue;
 		    }
 		    ++did;
-		    if (did <= lastdid) {
-			if (out)
-			    *out << "First did in this chunk is <= last in "
-				    "prev chunk" << endl;
-			++errors;
-		    }
 		}
 
 		bool is_last_chunk;
@@ -244,6 +193,8 @@ check_glass_table(const char * tablename, const string &db_dir,
 			bad = true;
 			break;
 		    }
+
+		    ++num_doclens;
 
 		    if (did > db_last_docid) {
 			if (out)
@@ -625,6 +576,14 @@ check_glass_table(const char * tablename, const string &db_dir,
 	    ++errors;
 	}
 
+	Xapian::doccount doccount = version_file.get_doccount();
+	if (num_doclens != doccount) {
+	    if (out)
+		*out << "Document length list has " << num_doclens
+		     << " entries, should be " << doccount << endl;
+	    ++errors;
+	}
+
 	map<Xapian::valueno, VStats>::const_iterator i;
 	for (i = valuestats.begin(); i != valuestats.end(); ++i) {
 	    if (i->second.freq != i->second.freq_real) {
@@ -636,8 +595,18 @@ check_glass_table(const char * tablename, const string &db_dir,
 	    }
 	}
     } else if (strcmp(tablename, "docdata") == 0) {
-	// Now check the contents of the docdata table.  Any data is valid as
-	// the tag so we don't check the tags.
+	// glass doesn't store a docdata entry if the document data is empty,
+	// so we can only check there aren't more docdata entries than
+	// documents.
+	Xapian::doccount doccount = version_file.get_doccount();
+	if (table->get_entry_count() > doccount) {
+	    if (out)
+		*out << "More document data (" << table->get_entry_count()
+		     << ") then documents (" << doccount << ")" << endl;
+	    ++errors;
+	}
+
+	// Now check the contents of the docdata table.
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
 
@@ -654,10 +623,32 @@ check_glass_table(const char * tablename, const string &db_dir,
 		if (out)
 		    *out << "Extra junk in key" << endl;
 		++errors;
+	    } else {
+		if (did > db_last_docid) {
+		    if (out)
+			*out << "document id " << did << " in docdata table "
+				"is larger than get_last_docid() "
+			     << db_last_docid << endl;
+		    ++errors;
+		}
+	    }
+
+	    // Fetch and decompress the document data to catch problems with
+	    // the splitting into multiple items, corruption of the compressed
+	    // data, etc.
+	    cursor->read_tag();
+	    if (cursor->current_tag.empty()) {
+		// We shouldn't store empty document data.
+		if (out)
+		    *out << "Empty document data explicitly stored for "
+			    "document id " << did << endl;
+		++errors;
 	    }
 	}
     } else if (strcmp(tablename, "termlist") == 0) {
 	// Now check the contents of the termlist table.
+	Xapian::doccount num_termlists = 0;
+	Xapian::doccount num_slotsused_entries = 0;
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
 
@@ -673,8 +664,17 @@ check_glass_table(const char * tablename, const string &db_dir,
 		continue;
 	    }
 
+	    if (did > db_last_docid) {
+		if (out)
+		    *out << "document id " << did << " in termlist table "
+			    "is larger than get_last_docid() "
+			 << db_last_docid << endl;
+		++errors;
+	    }
+
 	    if (end - pos == 1 && *pos == '\0') {
 		// Value slots used entry.
+		++num_slotsused_entries;
 		cursor->read_tag();
 
 		pos = cursor->current_tag.data();
@@ -722,6 +722,7 @@ check_glass_table(const char * tablename, const string &db_dir,
 		continue;
 	    }
 
+	    ++num_termlists;
 	    cursor->read_tag();
 
 	    pos = cursor->current_tag.data();
@@ -746,6 +747,20 @@ check_glass_table(const char * tablename, const string &db_dir,
 		}
 		++errors;
 		continue;
+	    }
+
+	    // Check doclen with doclen lower and upper bounds
+	    if (doclen > version_file.get_doclength_upper_bound()) {
+		if (out)
+		    *out << "doclen " << doclen << " > upper bound "
+			 << version_file.get_doclength_upper_bound() << endl;
+		++errors;
+	    } else if (doclen < version_file.get_doclength_lower_bound() &&
+		       doclen != 0) {
+		if (out)
+		    *out << "doclen " << doclen << " < lower bound "
+			 << version_file.get_doclength_lower_bound() << endl;
+		++errors;
 	    }
 
 	    // Read termlist_size
@@ -827,6 +842,26 @@ check_glass_table(const char * tablename, const string &db_dir,
 	    if (doclens.size() <= did) doclens.resize(did + 1);
 	    doclens[did] = actual_doclen;
 	}
+
+	Xapian::doccount doccount = version_file.get_doccount();
+
+	// glass doesn't store a termlist entry if there are no terms, so we
+	// can only check there aren't more termlists than documents.
+	if (num_termlists > doccount) {
+	    if (out)
+		*out << "More termlists (" << num_termlists
+		     << ") then documents (" << doccount << ")" << endl;
+	    ++errors;
+	}
+
+	// glass doesn't store a valueslots used entry if there are no terms,
+	// so we can only check there aren't more such entries than documents.
+	if (num_slotsused_entries > doccount) {
+	    if (out)
+		*out << "More slots-used entries (" << num_slotsused_entries
+		     << ") then documents (" << doccount << ")" << endl;
+	    ++errors;
+	}
     } else if (strcmp(tablename, "position") == 0) {
 	// Now check the contents of the position table.
 	for ( ; !cursor->after_end(); cursor->next()) {
@@ -859,7 +894,13 @@ check_glass_table(const char * tablename, const string &db_dir,
 		continue;
 	    }
 
-	    if (!doclens.empty()) {
+	    if (did > db_last_docid) {
+		if (out)
+		    *out << "document id " << did << " in position table "
+			    "is larger than get_last_docid() "
+			 << db_last_docid << endl;
+		++errors;
+	    } else if (!doclens.empty()) {
 		// In glass, a document without terms doesn't get a
 		// termlist entry, so we can't tell the difference
 		// easily.
@@ -868,7 +909,6 @@ check_glass_table(const char * tablename, const string &db_dir,
 			*out << "Position list entry for document " << did
 			     << " which doesn't exist or has no terms" << endl;
 		    ++errors;
-		    continue;
 		}
 	    }
 
@@ -912,7 +952,7 @@ check_glass_table(const char * tablename, const string &db_dir,
 		    if (out)
 			*out << tablename << " table: Junk after position data"
 			     << endl;
-		    ++errors ;
+		    ++errors;
 		}
 	    }
 	}

@@ -70,6 +70,20 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
      */
     Registry & operator=(const Registry & other);
 
+#ifdef XAPIAN_MOVE_SEMANTICS
+    /** Move constructor.
+     *
+     * @param other	The object to move.
+     */
+    Registry(Registry && other);
+
+    /** Move assignment operator.
+     *
+     * @param other	The object to move.
+     */
+    Registry & operator=(Registry && other);
+#endif
+
     /** Default constructor.
      *
      *  The registry will contain all standard subclasses of user-subclassable

@@ -181,8 +181,12 @@ sub for_each_nothrow {
     my $func = shift @_;
     my $class = '';
     foreach my $header ('include/xapian.h', <include/xapian/*.h>) {
+	local $/ = undef;
 	open H, '<', $header or die $!;
-	while (<H>) {
+	my $header_text = <H>;
+	# Strip comments, which might contain text describing XAPIAN_NOTHROW().
+	$header_text =~ s!/(?:/[^\n]*|\*.*?\*/)! !gs;
+	for (split /\n/, $header_text) {
 	    if (/^\s*class\s+XAPIAN_VISIBILITY_DEFAULT\s+(\w+)/) {
 		$class = "$1::";
 		next;

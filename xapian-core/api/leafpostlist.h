@@ -1,7 +1,7 @@
 /** @file leafpostlist.h
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011,2013,2015 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2015,2016 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ class LeafPostList : public PostList {
     std::string term;
 
     /// Only constructable as a base class for derived classes.
-    LeafPostList(const std::string & term_)
+    explicit LeafPostList(const std::string & term_)
 	: weight(0), need_doclength(false), need_unique_terms(false),
 	  term(term_) { }
 
@@ -79,7 +79,7 @@ class LeafPostList : public PostList {
 	// There should be an existing LazyWeight set already.
 	Assert(weight);
 	const Xapian::Weight * const_weight_ = weight_;
-	swap(weight, const_weight_);
+	std::swap(weight, const_weight_);
 	delete const_weight_;
 	need_doclength = weight->get_sumpart_needs_doclength_();
 	stats->termfreqs[term].max_part += weight->get_maxpart();
@@ -106,6 +106,8 @@ class LeafPostList : public PostList {
 
     Xapian::termcount count_matching_subqs() const;
 
+    void gather_position_lists(OrPositionList* orposlist);
+
     /** Open another postlist from the same database.
      *
      *  @param term_	The term to open a postlist for.  If term_ is near to
@@ -115,10 +117,19 @@ class LeafPostList : public PostList {
      *			wildcard expansion much more memory efficient.
      *
      *  @return		The new postlist object, or NULL if not supported
-     *			(in which case the caller should probably the postlist
-     *			via the database instead).
+     *			(in which case the caller should probably open the
+     *			postlist via the database instead).
      */
     virtual LeafPostList * open_nearby_postlist(const std::string & term_) const;
+
+    /** Set the term name.
+     *
+     *  This is useful when we optimise a term matching all documents to an
+     *  all documents postlist under OP_SYNONYM, as the term name is used by
+     *  LeafPostList::get_termfreq_est_using_stats() to locate the appropriate
+     *  TermFreqs object.
+     */
+    void set_term(const std::string & term_) { term = term_; }
 };
 
 #endif // XAPIAN_INCLUDED_LEAFPOSTLIST_H

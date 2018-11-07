@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -50,6 +50,7 @@
 #include "glass_values.h"
 #include "debuglog.h"
 #include "fd.h"
+#include "filetests.h"
 #include "io_utils.h"
 #include "pack.h"
 #include "net/remoteconnection.h"
@@ -61,12 +62,12 @@
 #include "stringutils.h"
 #include "backends/valuestats.h"
 
-#include "safeerrno.h"
 #include "safesysstat.h"
 #include <sys/types.h>
 
 #include <algorithm>
 #include "autoptr.h"
+#include <cerrno>
 #include <cstdlib>
 #include <string>
 
@@ -78,11 +79,13 @@ using Xapian::Internal::intrusive_ptr;
 // store the term using pack_string_preserving_sort() which takes the
 // length of the string plus an extra byte (assuming the string doesn't
 // contain any zero bytes), followed by the docid with encoded with
-// pack_uint_preserving_sort() which takes up to 5 bytes.
+// pack_uint_preserving_sort() which takes up to 5 bytes (for a 32-bit
+// docid).
 //
-// The Btree manager's key length limit is 252 bytes so the maximum safe term
-// length is 252 - 1 - 5 = 246 bytes.  We use 245 rather than 246 for
-// consistency with flint.
+// The Btree manager's key length limit is 255 bytes so the maximum safe term
+// length is 255 - 1 - 5 = 249 bytes.  We actually set the limit at 245 for
+// consistency with flint and chert, and also because this allows for 64-bit
+// docids.
 //
 // If the term contains zero bytes, the limit is lower (by one for each zero
 // byte in the term).
@@ -98,7 +101,9 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 	  version_file(db_dir),
 	  postlist_table(db_dir, readonly),
 	  position_table(db_dir, readonly),
-	  termlist_table(db_dir, readonly),
+	  // Note: (Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST) is true,
+	  // so opening to read we always permit the termlist to be missing.
+	  termlist_table(db_dir, readonly, (flags & Xapian::DB_NO_TERMLIST)),
 	  value_manager(&postlist_table, &termlist_table),
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
@@ -121,20 +126,16 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 
     int action = flags & Xapian::DB_ACTION_MASK_;
     if (action != Xapian::DB_OPEN && !database_exists()) {
-
 	// Create the directory for the database, if it doesn't exist
 	// already.
-	bool fail = false;
-	struct stat statbuf;
-	if (stat(db_dir.c_str(), &statbuf) == 0) {
-	    if (!S_ISDIR(statbuf.st_mode)) fail = true;
-	} else if (errno != ENOENT || mkdir(db_dir.c_str(), 0755) == -1) {
-	    fail = true;
+	if (mkdir(db_dir.c_str(), 0755) < 0) {
+	    int mkdir_errno = errno;
+	    if (mkdir_errno != EEXIST || !dir_exists(db_dir)) {
+		throw Xapian::DatabaseCreateError(db_dir + ": mkdir failed",
+						  mkdir_errno);
+	    }
 	}
-	if (fail) {
-	    throw Xapian::DatabaseCreateError("Cannot create directory '" +
-					      db_dir + "'", errno);
-	}
+
 	get_database_write_lock(flags, true);
 
 	create_and_open_tables(flags, block_size);
@@ -158,6 +159,24 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
     open_tables(flags);
 }
 
+GlassDatabase::GlassDatabase(int fd)
+	: db_dir(),
+	  readonly(true),
+	  version_file(fd),
+	  postlist_table(fd, version_file.get_offset(), readonly),
+	  position_table(fd, version_file.get_offset(), readonly),
+	  termlist_table(fd, version_file.get_offset(), readonly, true),
+	  value_manager(&postlist_table, &termlist_table),
+	  synonym_table(fd, version_file.get_offset(), readonly),
+	  spelling_table(fd, version_file.get_offset(), readonly),
+	  docdata_table(fd, version_file.get_offset(), readonly),
+	  lock(),
+	  changes(string())
+{
+    LOGCALL_CTOR(DB, "GlassDatabase", fd);
+    open_tables(Xapian::DB_READONLY_);
+}
+
 GlassDatabase::~GlassDatabase()
 {
     LOGCALL_DTOR(DB, "GlassDatabase");
@@ -177,18 +196,24 @@ GlassDatabase::create_and_open_tables(int flags, unsigned int block_size)
     // The caller is expected to create the database directory if it doesn't
     // already exist.
 
-    version_file.create(block_size, flags);
+    GlassVersion &v = version_file;
+    v.create(block_size);
 
-    position_table.create_and_open(flags, block_size);
-    synonym_table.create_and_open(flags, block_size);
-    spelling_table.create_and_open(flags, block_size);
-    docdata_table.create_and_open(flags, block_size);
-    termlist_table.create_and_open(flags, block_size);
-    postlist_table.create_and_open(flags, block_size);
+    glass_revision_number_t rev = v.get_revision();
+    const string& tmpfile = v.write(rev, flags);
+
+    position_table.create_and_open(flags, v.get_root(Glass::POSITION));
+    synonym_table.create_and_open(flags, v.get_root(Glass::SYNONYM));
+    spelling_table.create_and_open(flags, v.get_root(Glass::SPELLING));
+    docdata_table.create_and_open(flags, v.get_root(Glass::DOCDATA));
+    termlist_table.create_and_open(flags, v.get_root(Glass::TERMLIST));
+    postlist_table.create_and_open(flags, v.get_root(Glass::POSTLIST));
+
+    if (!v.sync(tmpfile, rev, flags)) {
+	throw Xapian::DatabaseCreateError("Failed to create iamglass file");
+    }
 
     Assert(database_exists());
-
-    stats.zero();
 }
 
 bool
@@ -223,12 +248,13 @@ GlassDatabase::open_tables(int flags)
     position_table.open(flags, version_file.get_root(Glass::POSITION), rev);
     postlist_table.open(flags, version_file.get_root(Glass::POSTLIST), rev);
 
+    Xapian::termcount swfub = version_file.get_spelling_wordfreq_upper_bound();
+    spelling_table.set_wordfreq_upper_bound(swfub);
+
     value_manager.reset();
 
-    stats.read(postlist_table);
-
     if (!readonly) {
-	changes.set_oldest_changeset(stats.get_oldest_changeset());
+	changes.set_oldest_changeset(version_file.get_oldest_changeset());
 	glass_revision_number_t revision = version_file.get_revision();
 	GlassChanges * p = changes.start(revision, revision + 1, flags);
 	version_file.set_changes(p);
@@ -266,32 +292,31 @@ GlassDatabase::get_changeset_revisions(const string & path,
 {
     FD fd(posixy_open(path.c_str(), O_RDONLY | O_CLOEXEC));
     if (fd < 0) {
-	string message = string("Couldn't open changeset ")
-		+ path + " to read";
+	string message = string("Couldn't open changeset ") +
+		path + " to read";
 	throw Xapian::DatabaseError(message, errno);
     }
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + io_read(fd, buf,
-				    REASONABLE_CHANGESET_SIZE, 0);
-    if (strncmp(start, CHANGES_MAGIC_STRING,
-		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
-	string message = string("Changeset at ")
-		+ path + " does not contain valid magic string";
+    const char *end = buf + io_read(fd, buf, REASONABLE_CHANGESET_SIZE);
+    if (size_t(end - start) < CONST_STRLEN(CHANGES_MAGIC_STRING))
+	throw Xapian::DatabaseError("Changeset too short at " + path);
+    if (memcmp(start, CHANGES_MAGIC_STRING,
+	       CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
+	string message = string("Changeset at ") +
+		path + " does not contain valid magic string";
 	throw Xapian::DatabaseError(message);
     }
     start += CONST_STRLEN(CHANGES_MAGIC_STRING);
-    if (start >= end)
-	throw Xapian::DatabaseError("Changeset too short at " + path);
 
     unsigned int changes_version;
     if (!unpack_uint(&start, end, &changes_version))
 	throw Xapian::DatabaseError("Couldn't read a valid version number for "
 				    "changeset at " + path);
     if (changes_version != CHANGES_VERSION)
-	throw Xapian::DatabaseError("Don't support version of changeset at "
-				    + path);
+	throw Xapian::DatabaseError("Don't support version of changeset at " +
+				    path);
 
     if (!unpack_uint(&start, end, startrev))
 	throw Xapian::DatabaseError("Couldn't read a valid start revision from "
@@ -322,7 +347,7 @@ GlassDatabase::set_revision_number(int flags, glass_revision_number_t new_revisi
     position_table.flush_db();
     termlist_table.flush_db();
     synonym_table.flush_db();
-    spelling_table.flush_db();
+    version_file.set_spelling_wordfreq_upper_bound(spelling_table.flush_db());
     docdata_table.flush_db();
 
     postlist_table.commit(new_revision, version_file.root_to_set(Glass::POSTLIST));
@@ -345,6 +370,23 @@ GlassDatabase::set_revision_number(int flags, glass_revision_number_t new_revisi
     }
 
     changes.commit(new_revision, flags);
+}
+
+void
+GlassDatabase::request_document(Xapian::docid did) const
+{
+    docdata_table.readahead_for_document(did);
+}
+
+void
+GlassDatabase::readahead_for_query(const Xapian::Query &query)
+{
+    Xapian::TermIterator t;
+    for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
+	const string & term = *t;
+	if (!postlist_table.readahead_key(GlassPostListTable::make_key(term)))
+	    break;
+    }
 }
 
 bool
@@ -393,7 +435,7 @@ void
 GlassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 {
     LOGCALL_VOID(DB, "GlassDatabase::send_whole_database", conn | end_time);
-
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     // Send the current revision number in the header.
     string buf;
     string uuid = get_uuid();
@@ -405,12 +447,12 @@ GlassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
     // Send all the tables.  The tables which we want to be cached best after
     // the copy finishes are sent last.
     static const char filenames[] =
-	"termlist."GLASS_TABLE_EXTENSION"\0"
-	"synonym."GLASS_TABLE_EXTENSION"\0"
-	"spelling."GLASS_TABLE_EXTENSION"\0"
-	"docdata."GLASS_TABLE_EXTENSION"\0"
-	"position."GLASS_TABLE_EXTENSION"\0"
-	"postlist."GLASS_TABLE_EXTENSION"\0"
+	"termlist." GLASS_TABLE_EXTENSION "\0"
+	"synonym." GLASS_TABLE_EXTENSION "\0"
+	"spelling." GLASS_TABLE_EXTENSION "\0"
+	"docdata." GLASS_TABLE_EXTENSION "\0"
+	"position." GLASS_TABLE_EXTENSION "\0"
+	"postlist." GLASS_TABLE_EXTENSION "\0"
 	"iamglass\0";
     string filepath = db_dir;
     filepath += '/';
@@ -425,6 +467,10 @@ GlassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 	}
 	p += len + 1;
     } while (*p);
+#else
+    (void)conn;
+    (void)end_time;
+#endif
 }
 
 void
@@ -434,7 +480,7 @@ GlassDatabase::write_changesets_to_fd(int fd,
 				      ReplicationInfo * info)
 {
     LOGCALL_VOID(DB, "GlassDatabase::write_changesets_to_fd", fd | revision | need_whole_db | info);
-
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
     glass_revision_number_t start_rev_num = 0;
     string start_uuid = get_uuid();
@@ -550,6 +596,12 @@ GlassDatabase::write_changesets_to_fd(int fd,
 	}
     }
     conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), 0.0);
+#else
+    (void)fd;
+    (void)revision;
+    (void)need_whole_db;
+    (void)info;
+#endif
 }
 
 void
@@ -572,6 +624,9 @@ GlassDatabase::modifications_failed(glass_revision_number_t new_revision,
 	termlist_table.open(flags, version_file.get_root(Glass::TERMLIST), old_revision);
 	position_table.open(flags, version_file.get_root(Glass::POSITION), old_revision);
 	postlist_table.open(flags, version_file.get_root(Glass::POSTLIST), old_revision);
+
+	Xapian::termcount ub = version_file.get_spelling_wordfreq_upper_bound();
+	spelling_table.set_wordfreq_upper_bound(ub);
 
 	value_manager.reset();
 
@@ -650,34 +705,30 @@ GlassDatabase::cancel()
     synonym_table.cancel(version_file.get_root(Glass::SYNONYM), rev);
     spelling_table.cancel(version_file.get_root(Glass::SPELLING), rev);
     docdata_table.cancel(version_file.get_root(Glass::DOCDATA), rev);
+
+    Xapian::termcount ub = version_file.get_spelling_wordfreq_upper_bound();
+    spelling_table.set_wordfreq_upper_bound(ub);
 }
 
 Xapian::doccount
 GlassDatabase::get_doccount() const
 {
     LOGCALL(DB, Xapian::doccount, "GlassDatabase::get_doccount", NO_ARGS);
-    RETURN(stats.get_doccount());
+    RETURN(version_file.get_doccount());
 }
 
 Xapian::docid
 GlassDatabase::get_lastdocid() const
 {
     LOGCALL(DB, Xapian::docid, "GlassDatabase::get_lastdocid", NO_ARGS);
-    RETURN(stats.get_last_docid());
+    RETURN(version_file.get_last_docid());
 }
 
-totlen_t
+Xapian::totallength
 GlassDatabase::get_total_length() const
 {
-    LOGCALL(DB, totlen_t, "GlassDatabase::get_total_length", NO_ARGS);
-    RETURN(stats.get_total_doclen());
-}
-
-Xapian::doclength
-GlassDatabase::get_avlength() const
-{
-    LOGCALL(DB, Xapian::doclength, "GlassDatabase::get_avlength", NO_ARGS);
-    RETURN(stats.get_avlength());
+    LOGCALL(DB, Xapian::totallength, "GlassDatabase::get_total_length", NO_ARGS);
+    RETURN(version_file.get_total_doclen());
 }
 
 Xapian::termcount
@@ -695,9 +746,7 @@ GlassDatabase::get_unique_terms(Xapian::docid did) const
     LOGCALL(DB, Xapian::termcount, "GlassDatabase::get_unique_terms", did);
     Assert(did != 0);
     intrusive_ptr<const GlassDatabase> ptrtothis(this);
-    GlassTermList termlist(ptrtothis, did);
-    // The "approximate" size should be exact in this case.
-    RETURN(termlist.get_approx_size());
+    RETURN(GlassTermList(ptrtothis, did).get_unique_terms());
 }
 
 void
@@ -734,21 +783,22 @@ GlassDatabase::get_value_upper_bound(Xapian::valueno slot) const
 Xapian::termcount
 GlassDatabase::get_doclength_lower_bound() const
 {
-    return stats.get_doclength_lower_bound();
+    return version_file.get_doclength_lower_bound();
 }
 
 Xapian::termcount
 GlassDatabase::get_doclength_upper_bound() const
 {
-    return stats.get_doclength_upper_bound();
+    return version_file.get_doclength_upper_bound();
 }
 
 Xapian::termcount
 GlassDatabase::get_wdf_upper_bound(const string & term) const
 {
-    Xapian::termcount cf;
-    get_freqs(term, NULL, &cf);
-    return min(cf, stats.get_wdf_upper_bound());
+    Assert(!term.empty());
+    Xapian::termcount wdfub;
+    postlist_table.get_freqs(term, NULL, NULL, &wdfub);
+    return min(wdfub, version_file.get_wdf_upper_bound());
 }
 
 bool
@@ -773,7 +823,7 @@ GlassDatabase::open_post_list(const string& term) const
 
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
-	if (stats.get_last_docid() == doccount) {
+	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
 	RETURN(new GlassAllDocsPostList(ptrtothis, doccount));
@@ -921,10 +971,35 @@ GlassDatabase::throw_termlist_table_close_exception() const
     throw Xapian::FeatureUnavailableError("Database has no termlist");
 }
 
+void
+GlassDatabase::get_used_docid_range(Xapian::docid & first,
+				    Xapian::docid & last) const
+{
+    last = version_file.get_last_docid();
+    if (last == version_file.get_doccount()) {
+	// Contiguous range starting at 1.
+	first = 1;
+	return;
+    }
+    postlist_table.get_used_docid_range(first, last);
+}
+
+bool
+GlassDatabase::has_uncommitted_changes() const
+{
+    return false;
+}
+
+bool
+GlassDatabase::locked() const
+{
+    return lock.test();
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
-					       int block_size)
+					     int block_size)
 	: GlassDatabase(dir, flags, block_size),
 	  change_count(0),
 	  flush_threshold(0),
@@ -956,10 +1031,21 @@ GlassWritableDatabase::commit()
 }
 
 void
+GlassWritableDatabase::check_flush_threshold()
+{
+    // FIXME: this should be done by checking memory usage, not the number of
+    // changes.  We could also look at the amount of data the inverter object
+    // currently holds.
+    if (++change_count >= flush_threshold) {
+	flush_postlist_changes();
+	if (!transaction_active()) apply();
+    }
+}
+
+void
 GlassWritableDatabase::flush_postlist_changes() const
 {
-    stats.set_oldest_changeset(changes.get_oldest_changeset());
-    stats.write(postlist_table);
+    version_file.set_oldest_changeset(changes.get_oldest_changeset());
     inverter.flush(postlist_table);
     inverter.flush_pos_lists(position_table);
 
@@ -989,10 +1075,10 @@ GlassWritableDatabase::add_document(const Xapian::Document & document)
 {
     LOGCALL(DB, Xapian::docid, "GlassWritableDatabase::add_document", document);
     // Make sure the docid counter doesn't overflow.
-    if (stats.get_last_docid() == Xapian::docid(-1))
+    if (version_file.get_last_docid() == GLASS_MAX_DOCID)
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
     // Use the next unused document ID.
-    RETURN(add_document_(stats.get_next_docid(), document));
+    RETURN(add_document_(version_file.get_next_docid(), document));
 }
 
 Xapian::docid
@@ -1015,11 +1101,11 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 		termcount wdf = term.get_wdf();
 		// Calculate the new document length
 		new_doclen += wdf;
-		stats.check_wdf(wdf);
+		version_file.check_wdf(wdf);
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
+		    throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + tname);
 
 		inverter.add_posting(did, tname, wdf);
 		inverter.set_positionlist(position_table, did, tname, term);
@@ -1033,7 +1119,7 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 
 	// Set the new document length
 	inverter.set_doclength(did, new_doclen, true);
-	stats.add_document(new_doclen);
+	version_file.add_document(new_doclen);
     } catch (...) {
 	// If an error occurs while adding a document, or doing any other
 	// transaction, the modifications so far must be cleared before
@@ -1043,13 +1129,7 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 	throw;
     }
 
-    // FIXME: this should be done by checking memory usage, not the number of
-    // changes.  We could also look at the amount of data the inverter object
-    // currently holds.
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 
     RETURN(did);
 }
@@ -1088,7 +1168,7 @@ GlassWritableDatabase::delete_document(Xapian::docid did)
 	intrusive_ptr<const GlassWritableDatabase> ptrtothis(this);
 	GlassTermList termlist(ptrtothis, did);
 
-	stats.delete_document(termlist.get_doclength());
+	version_file.delete_document(termlist.get_doclength());
 
 	termlist.next();
 	while (!termlist.at_end()) {
@@ -1115,10 +1195,7 @@ GlassWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 void
@@ -1129,8 +1206,8 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
     Assert(did != 0);
 
     try {
-	if (did > stats.get_last_docid()) {
-	    stats.set_last_docid(did);
+	if (did > version_file.get_last_docid()) {
+	    version_file.set_last_docid(did);
 	    // If this docid is above the highwatermark, then we can't be
 	    // replacing an existing document.
 	    (void)add_document_(did, document);
@@ -1175,10 +1252,16 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	    bool pos_modified = !modifying ||
 				document.internal->term_positions_modified();
 	    intrusive_ptr<const GlassWritableDatabase> ptrtothis(this);
-	    GlassTermList termlist(ptrtothis, did);
+	    GlassTermList termlist(ptrtothis, did, false);
+	    // We passed false for throw_if_not_present so check at_end()
+	    // before next() to see if the document isn't present at all.
+	    if (termlist.at_end()) {
+		(void)add_document_(did, document);
+		return;
+	    }
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::termcount old_doclen = termlist.get_doclength();
-	    stats.delete_document(old_doclen);
+	    version_file.delete_document(old_doclen);
 	    Xapian::termcount new_doclen = old_doclen;
 
 	    string old_tname, new_tname;
@@ -1211,9 +1294,9 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    // Term new_tname as been added.
 		    termcount new_wdf = term.get_wdf();
 		    new_doclen += new_wdf;
-		    stats.check_wdf(new_wdf);
+		    version_file.check_wdf(new_wdf);
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
-			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+			throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 		    inverter.add_posting(did, new_tname, new_wdf);
 		    if (pos_modified) {
 			inverter.set_positionlist(position_table, did, new_tname, term);
@@ -1227,10 +1310,10 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    // Check the stats even if wdf hasn't changed, because if
 		    // this is the only document, the stats will have been
 		    // zeroed.
-		    stats.check_wdf(new_wdf);
+		    version_file.check_wdf(new_wdf);
 
 		    if (old_wdf != new_wdf) {
-		    	new_doclen += new_wdf - old_wdf;
+			new_doclen += new_wdf - old_wdf;
 			inverter.update_posting(did, new_tname, old_wdf, new_wdf);
 		    }
 
@@ -1251,7 +1334,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	    // Set the new document length
 	    if (new_doclen != old_doclen)
 		inverter.set_doclength(did, new_doclen, false);
-	    stats.add_document(new_doclen);
+	    version_file.add_document(new_doclen);
 	}
 
 	if (!modifying || document.internal->data_modified()) {
@@ -1263,9 +1346,6 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	    // Replace the values.
 	    value_manager.replace_document(did, document, value_stats);
 	}
-    } catch (const Xapian::DocNotFoundError &) {
-	(void)add_document_(did, document);
-	return;
     } catch (...) {
 	// If an error occurs while replacing a document, or doing any other
 	// transaction, the modifications so far must be cleared before
@@ -1275,10 +1355,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 Xapian::Document::Internal *
@@ -1300,6 +1377,25 @@ GlassWritableDatabase::get_doclength(Xapian::docid did) const
     if (inverter.get_doclength(did, doclen))
 	RETURN(doclen);
     RETURN(GlassDatabase::get_doclength(did));
+}
+
+Xapian::termcount
+GlassWritableDatabase::get_unique_terms(Xapian::docid did) const
+{
+    LOGCALL(DB, Xapian::termcount, "GlassWritableDatabase::get_unique_terms", did);
+    Assert(did != 0);
+    // Note that the "approximate" size should be exact in this case.
+    //
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    Xapian::termcount doclen;
+    if (inverter.get_doclength(did, doclen)) {
+	intrusive_ptr<const GlassDatabase> ptrtothis(this);
+	GlassTermList termlist(ptrtothis, did);
+	RETURN(min(doclen, termlist.get_approx_size()));
+    }
+    RETURN(GlassDatabase::get_unique_terms(did));
 }
 
 void
@@ -1372,7 +1468,7 @@ GlassWritableDatabase::open_post_list(const string& tname) const
 
     if (tname.empty()) {
 	Xapian::doccount doccount = get_doccount();
-	if (stats.get_last_docid() == doccount) {
+	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
 	inverter.flush_doclengths(postlist_table);
@@ -1449,8 +1545,6 @@ void
 GlassWritableDatabase::cancel()
 {
     GlassDatabase::cancel();
-    stats.read(postlist_table);
-
     inverter.clear();
     value_stats.clear();
     change_count = 0;
@@ -1524,4 +1618,17 @@ GlassWritableDatabase::invalidate_doc_object(Xapian::Document::Internal * obj) c
 	modify_shortcut_document = NULL;
 	modify_shortcut_docid = 0;
     }
+}
+
+bool
+GlassWritableDatabase::has_uncommitted_changes() const
+{
+    return change_count > 0 ||
+	   postlist_table.is_modified() ||
+	   position_table.is_modified() ||
+	   termlist_table.is_modified() ||
+	   value_manager.is_modified() ||
+	   synonym_table.is_modified() ||
+	   spelling_table.is_modified() ||
+	   docdata_table.is_modified();
 }

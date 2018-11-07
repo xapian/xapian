@@ -1,7 +1,7 @@
 /** @file flint_lock.cc
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #include "flint_lock.h"
 
 #ifndef __WIN32__
-#include "safeerrno.h"
+#include <cerrno>
 
 #include "safefcntl.h"
 #include <unistd.h>
@@ -41,7 +41,8 @@
 #include "omassert.h"
 
 #ifdef __CYGWIN__
-#include <sys/cygwin.h>
+# include <cygwin/version.h>
+# include <sys/cygwin.h>
 #endif
 
 #ifdef FLINTLOCK_USE_FLOCK
@@ -61,6 +62,64 @@ using namespace std;
 #  define F_OFD_SETLKW	38
 # endif
 #endif
+
+XAPIAN_NORETURN(static void throw_cannot_test_lock());
+static void
+throw_cannot_test_lock()
+{
+    throw Xapian::FeatureUnavailableError("Can't test lock without trying to "
+					  "take it");
+}
+
+bool
+FlintLock::test() const
+{
+    // A database which doesn't support update can't be locked for update.
+    if (filename.empty()) return false;
+
+#if defined __CYGWIN__ || defined __WIN32__
+    if (hFile != INVALID_HANDLE_VALUE) return true;
+    // Doesn't seem to be possible to check if the lock is held without briefly
+    // taking the lock.
+    throw_cannot_test_lock();
+#elif defined FLINTLOCK_USE_FLOCK
+    if (fd != -1) return true;
+    // Doesn't seem to be possible to check if the lock is held without briefly
+    // taking the lock.
+    throw_cannot_test_lock();
+#else
+    if (fd != -1) return true;
+    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+    if (lockfd < 0) {
+	// Couldn't open lockfile.
+	reason why = ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
+	throw_databaselockerror(why, filename, "Testing lock");
+    }
+
+    struct flock fl;
+    fl.l_type = F_WRLCK;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 1;
+    fl.l_pid = 0;
+    while (fcntl(lockfd, F_GETLK, &fl) == -1) {
+	if (errno != EINTR) {
+	    // Translate known errno values into a reason code.
+	    int e = errno;
+	    close(lockfd);
+	    if (e == ENOSYS) {
+		// F_GETLK isn't implemented by GNU Hurd, and always fails with
+		// ENOSYS: https://bugs.debian.org/190367
+		throw_cannot_test_lock();
+	    }
+	    reason why = (e == ENOLCK ? UNSUPPORTED : UNKNOWN);
+	    throw_databaselockerror(why, filename, "Testing lock");
+	}
+    }
+    close(lockfd);
+    return fl.l_type != F_UNLCK;
+#endif
+}
 
 FlintLock::reason
 FlintLock::lock(bool exclusive, bool wait, string & explanation) {
@@ -201,10 +260,23 @@ no_ofd_support:
     // be 0 or 1.  We need fds 0 and 1 to be available in the child process to
     // be stdin and stdout, and we can't use dup() on lockfd after locking it,
     // as the lock won't be transferred, so we handle this corner case here by
-    // using dup() once or twice to get lockfd to be >= 2.
+    // using F_DUPFD or by calling dup() once or twice so that lockfd >= 2.
     if (rare(lockfd < 2)) {
 	// Note this temporarily requires one or two spare fds to work, but
 	// then we need two spare for socketpair() to succeed below anyway.
+#ifdef F_DUPFD
+	// Where available, F_DUPFD allows us to directly get the first unused
+	// fd which is at least 2.
+	int lockfd_dup = fcntl(lockfd, F_DUPFD, 2);
+	int eno = errno;
+	close(lockfd);
+	if (lockfd_dup < 0) {
+	    return ((eno == EMFILE || eno == ENFILE) ? FDLIMIT : UNKNOWN);
+	}
+	lockfd = lockfd_dup;
+#else
+	// Otherwise we have to call dup() until we get one, though at least
+	// that's only at most twice.
 	int lockfd_dup = dup(lockfd);
 	if (rare(lockfd_dup < 2)) {
 	    int eno = 0;
@@ -227,6 +299,7 @@ no_ofd_support:
 	    close(lockfd);
 	    lockfd = lockfd_dup;
 	}
+#endif
     }
 
     int fds[2];
@@ -311,7 +384,7 @@ no_ofd_support:
 	    if (why != SUCCESS) _exit(0);
 	}
 
-	// Make sure we don't block unmount() of partition holding the current
+	// Make sure we don't block unmount of partition holding the current
 	// directory.
 	if (chdir("/") < 0) {
 	    // We can't usefully do anything in response to an error, so just
@@ -326,7 +399,9 @@ no_ofd_support:
 	execl("/bin/cat", "/bin/cat", static_cast<void*>(NULL));
 	// Emulate cat ourselves (we try to avoid this to reduce VM overhead).
 	char ch;
-	while (read(0, &ch, 1) != 0) { /* Do nothing */ }
+	while (read(0, &ch, 1) != 0) {
+	    /* Do nothing */
+	}
 	_exit(0);
     }
 
@@ -418,7 +493,7 @@ FlintLock::release() {
 void
 FlintLock::throw_databaselockerror(FlintLock::reason why,
 				   const string & db_dir,
-				   const string & explanation)
+				   const string & explanation) const
 {
     string msg("Unable to get write lock on ");
     msg += db_dir;

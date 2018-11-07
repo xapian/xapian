@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -63,12 +63,12 @@
 #include "stringutils.h"
 #include "backends/valuestats.h"
 
-#include "safeerrno.h"
 #include "safesysstat.h"
 #include <sys/types.h>
 
 #include <algorithm>
 #include "autoptr.h"
+#include <cerrno>
 #include <cstdlib>
 #include <string>
 
@@ -80,7 +80,7 @@ using Xapian::Internal::intrusive_ptr;
 // store the term using pack_string_preserving_sort() which takes the
 // length of the string plus an extra byte (assuming the string doesn't
 // contain any zero bytes), followed by the docid with encoded with
-// pack_uint_preserving_sort() which takes up to 5 bytes.
+// C_pack_uint_preserving_sort() which takes up to 5 bytes.
 //
 // The Btree manager's key length limit is 252 bytes so the maximum safe term
 // length is 252 - 1 - 5 = 246 bytes.  We use 245 rather than 246 for
@@ -348,17 +348,16 @@ ChertDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + io_read(changes_fd, buf,
-				    REASONABLE_CHANGESET_SIZE, 0);
-    if (strncmp(start, CHANGES_MAGIC_STRING,
-		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
+    const char *end = buf + io_read(changes_fd, buf, REASONABLE_CHANGESET_SIZE);
+    if (size_t(end - start) < CONST_STRLEN(CHANGES_MAGIC_STRING))
+	throw Xapian::DatabaseError("Changeset too short at " + path);
+    if (memcmp(start, CHANGES_MAGIC_STRING,
+	       CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
 		+ path + " does not contain valid magic string";
 	throw Xapian::DatabaseError(message);
     }
     start += CONST_STRLEN(CHANGES_MAGIC_STRING);
-    if (start >= end)
-	throw Xapian::DatabaseError("Changeset too short at " + path);
 
     unsigned int changes_version;
     if (!unpack_uint(&start, end, &changes_version))
@@ -400,7 +399,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
     } else {
 	max_changesets = 0;
     }
- 
+
     if (max_changesets > 0) {
 	chert_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
@@ -453,7 +452,6 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	    pack_uint(changes_tail, new_revision);
 	}
 	record_table.commit(new_revision, changes_fd, &changes_tail);
-
     } catch (...) {
 	// Remove the changeset, if there was one.
 	if (changes_fd >= 0) {
@@ -462,13 +460,30 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 
 	throw;
     }
-    
+
     if (changes_fd >= 0 && max_changesets < new_revision) {
 	// While change sets less than N - max_changesets exist, delete them
 	// 1 must be subtracted so we don't delete the changeset we just wrote
 	// when max_changesets = 1
 	unsigned rev = new_revision - max_changesets - 1;
 	while (io_unlink(db_dir + "/changes" + str(rev--))) { }
+    }
+}
+
+void
+ChertDatabase::request_document(Xapian::docid did) const
+{
+    record_table.readahead_for_record(did);
+}
+
+void
+ChertDatabase::readahead_for_query(const Xapian::Query &query)
+{
+    Xapian::TermIterator t;
+    for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
+	const string & term = *t;
+	if (!postlist_table.readahead_key(ChertPostListTable::make_key(term)))
+	    break;
     }
 }
 
@@ -515,7 +530,7 @@ void
 ChertDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 {
     LOGCALL_VOID(DB, "ChertDatabase::send_whole_database", conn | end_time);
-
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     // Send the current revision number in the header.
     string buf;
     string uuid = get_uuid();
@@ -545,6 +560,10 @@ ChertDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
 	}
     }
+#else
+    (void)conn;
+    (void)end_time;
+#endif
 }
 
 void
@@ -554,7 +573,7 @@ ChertDatabase::write_changesets_to_fd(int fd,
 				      ReplicationInfo * info)
 {
     LOGCALL_VOID(DB, "ChertDatabase::write_changesets_to_fd", fd | revision | need_whole_db | info);
-
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     int whole_db_copies_left = MAX_DB_COPIES_PER_CONVERSATION;
     chert_revision_number_t start_rev_num = 0;
     string start_uuid = get_uuid();
@@ -670,6 +689,12 @@ ChertDatabase::write_changesets_to_fd(int fd,
 	}
     }
     conn.send_message(REPL_REPLY_END_OF_CHANGES, string(), 0.0);
+#else
+    (void)fd;
+    (void)revision;
+    (void)need_whole_db;
+    (void)info;
+#endif
 }
 
 void
@@ -755,23 +780,11 @@ ChertDatabase::get_lastdocid() const
     RETURN(stats.get_last_docid());
 }
 
-totlen_t
+Xapian::totallength
 ChertDatabase::get_total_length() const
 {
-    LOGCALL(DB, totlen_t, "ChertDatabase::get_total_length", NO_ARGS);
+    LOGCALL(DB, Xapian::totallength, "ChertDatabase::get_total_length", NO_ARGS);
     RETURN(stats.get_total_doclen());
-}
-
-Xapian::doclength
-ChertDatabase::get_avlength() const
-{
-    LOGCALL(DB, Xapian::doclength, "ChertDatabase::get_avlength", NO_ARGS);
-    Xapian::doccount doccount = record_table.get_doccount();
-    if (doccount == 0) {
-	// Avoid dividing by zero when there are no documents.
-	RETURN(0);
-    }
-    RETURN(double(stats.get_total_doclen()) / doccount);
 }
 
 Xapian::termcount
@@ -790,8 +803,13 @@ ChertDatabase::get_unique_terms(Xapian::docid did) const
     Assert(did != 0);
     intrusive_ptr<const ChertDatabase> ptrtothis(this);
     ChertTermList termlist(ptrtothis, did);
-    // The "approximate" size should be exact in this case.
-    RETURN(termlist.get_approx_size());
+    // Note that the "approximate" size should be exact in this case.
+    //
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    RETURN(min(termlist.get_approx_size(),
+	       postlist_table.get_doclength(did, ptrtothis)));
 }
 
 void
@@ -1015,6 +1033,31 @@ ChertDatabase::throw_termlist_table_close_exception() const
     throw Xapian::FeatureUnavailableError("Database has no termlist");
 }
 
+void
+ChertDatabase::get_used_docid_range(Xapian::docid & first,
+				    Xapian::docid & last) const
+{
+    last = stats.get_last_docid();
+    if (last == record_table.get_doccount()) {
+	// Contiguous range starting at 1.
+	first = 1;
+	return;
+    }
+    postlist_table.get_used_docid_range(first, last);
+}
+
+bool
+ChertDatabase::locked() const
+{
+    return lock.test();
+}
+
+bool
+ChertDatabase::has_uncommitted_changes() const
+{
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
@@ -1050,6 +1093,25 @@ ChertWritableDatabase::commit()
 	throw Xapian::InvalidOperationError("Can't commit during a transaction");
     if (change_count) flush_postlist_changes();
     apply();
+}
+
+void
+ChertWritableDatabase::check_flush_threshold()
+{
+    // FIXME: this should be done by checking memory usage, not the number of
+    // changes.
+    // We could also look at:
+    // * mod_plists.size()
+    // * doclens.size()
+    // * freq_deltas.size()
+    //
+    // cout << "+++ mod_plists.size() " << mod_plists.size() <<
+    //     ", doclens.size() " << doclens.size() <<
+    //	   ", freq_deltas.size() " << freq_deltas.size() << endl;
+    if (++change_count >= flush_threshold) {
+	flush_postlist_changes();
+	if (!transaction_active()) apply();
+    }
 }
 
 void
@@ -1145,7 +1207,7 @@ ChertWritableDatabase::add_document(const Xapian::Document & document)
 {
     LOGCALL(DB, Xapian::docid, "ChertWritableDatabase::add_document", document);
     // Make sure the docid counter doesn't overflow.
-    if (stats.get_last_docid() == Xapian::docid(-1))
+    if (stats.get_last_docid() == CHERT_MAX_DOCID)
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
     // Use the next unused document ID.
     RETURN(add_document_(stats.get_next_docid(), document));
@@ -1175,7 +1237,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
+		    throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + tname);
 		add_freq_delta(tname, 1, wdf);
 		insert_mod_plist(did, tname, wdf);
 
@@ -1206,20 +1268,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 	throw;
     }
 
-    // FIXME: this should be done by checking memory usage, not the number of
-    // changes.
-    // We could also look at:
-    // * mod_plists.size()
-    // * doclens.size()
-    // * freq_deltas.size()
-    //
-    // cout << "+++ mod_plists.size() " << mod_plists.size() <<
-    //     ", doclens.size() " << doclens.size() <<
-    //	   ", freq_deltas.size() " << freq_deltas.size() << endl;
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 
     RETURN(did);
 }
@@ -1282,10 +1331,7 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 void
@@ -1381,7 +1427,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    new_doclen += new_wdf;
 		    stats.check_wdf(new_wdf);
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
-			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+			throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 		    add_freq_delta(new_tname, 1, new_wdf);
 		    update_mod_plist(did, new_tname, 'A', new_wdf);
 		    if (pos_modified) {
@@ -1404,7 +1450,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    stats.check_wdf(new_wdf);
 
 		    if (old_wdf != new_wdf) {
-		    	new_doclen += new_wdf - old_wdf;
+			new_doclen += new_wdf - old_wdf;
 			add_freq_delta(new_tname, 0, new_wdf - old_wdf);
 			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
@@ -1457,10 +1503,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 Xapian::Document::Internal *
@@ -1487,6 +1530,29 @@ ChertWritableDatabase::get_doclength(Xapian::docid did) const
 	RETURN(doclen);
     }
     RETURN(ChertDatabase::get_doclength(did));
+}
+
+Xapian::termcount
+ChertWritableDatabase::get_unique_terms(Xapian::docid did) const
+{
+    LOGCALL(DB, Xapian::termcount, "ChertWritableDatabase::get_unique_terms", did);
+    Assert(did != 0);
+    // Note that the "approximate" size should be exact in this case.
+    //
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    map<docid, termcount>::const_iterator i = doclens.find(did);
+    if (i != doclens.end()) {
+	Xapian::termcount doclen = i->second;
+	if (doclen == static_cast<Xapian::termcount>(-1)) {
+	    throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
+	}
+	intrusive_ptr<const ChertDatabase> ptrtothis(this);
+	ChertTermList termlist(ptrtothis, did);
+	RETURN(min(doclen, termlist.get_approx_size()));
+    }
+    RETURN(ChertDatabase::get_unique_terms(did));
 }
 
 void
@@ -1676,4 +1742,17 @@ ChertWritableDatabase::invalidate_doc_object(Xapian::Document::Internal * obj) c
 	modify_shortcut_document = NULL;
 	modify_shortcut_docid = 0;
     }
+}
+
+bool
+ChertWritableDatabase::has_uncommitted_changes() const
+{
+    return change_count > 0 ||
+	   postlist_table.is_modified() ||
+	   position_table.is_modified() ||
+	   termlist_table.is_modified() ||
+	   value_manager.is_modified() ||
+	   synonym_table.is_modified() ||
+	   spelling_table.is_modified() ||
+	   record_table.is_modified();
 }

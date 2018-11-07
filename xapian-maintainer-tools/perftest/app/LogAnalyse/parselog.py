@@ -31,7 +31,7 @@ class LogParseError(KeyError):
 
 def get_element(parent, name, required=True):
     """Get a named child node from a parent.
-    
+
     Errors if the named node doesn't occur exactly 1 time.
 
     """
@@ -44,7 +44,7 @@ def get_element(parent, name, required=True):
         raise LogParseError("Element %r occurred multiple times", name)
     return nodes[0]
 
-def get_text(parent, name, required=True): 
+def get_text(parent, name, required=True):
     """Get the text from a named child node of the parent.
 
     Errors if the named node doesn't occur exactly 1 time.
@@ -81,7 +81,7 @@ class IndexRun(object):
                 freemem,
             )
             self.items.append((time, adds, others))
-        
+
     def __str__(self):
         return "IndexRun(dbname=%s, %d items)" % (self.dbname, len(self.items))
 
@@ -132,7 +132,7 @@ class ParsedLog(object):
 
 def parselog(filename):
     """Parse a log file.
-    
+
     """
     try:
         doc = xml.dom.minidom.parse(filename)

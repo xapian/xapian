@@ -1,7 +1,7 @@
 /** @file cputimer.cc
  * @brief Measure CPU time.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,8 +24,6 @@
 
 #include "testsuite.h"
 
-#include "safeerrno.h"
-
 #ifdef HAVE_GETRUSAGE
 # include <sys/time.h>
 # include <sys/resource.h>
@@ -40,6 +38,8 @@
 # include <ctime>
 #endif
 
+#include <cerrno>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 
@@ -48,19 +48,27 @@ using namespace std;
 double
 CPUTimer::get_current_cputime() const
 {
+#ifdef XAPIAN_DEBUG_LOG
+    SKIP_TEST("Skipping timed test because configured with --enable-log");
+#else
+    static bool skip = (getenv("AUTOMATED_TESTING") != NULL);
+    if (skip) {
+	SKIP_TEST("Skipping timed test because $AUTOMATED_TESTING is set");
+    }
+
     double t = 0;
 #ifdef HAVE_GETRUSAGE
     struct rusage r;
     if (getrusage(RUSAGE_SELF, &r) == -1) {
-	FAIL_TEST(string("Couldn't measure CPU for self: ") + strerror(errno));
+	FAIL_TEST("Couldn't measure CPU for self: " << strerror(errno));
     }
 
     t = r.ru_utime.tv_sec + r.ru_stime.tv_sec;
     t += (r.ru_utime.tv_usec + r.ru_stime.tv_usec) * 0.000001;
 #elif defined HAVE_TIMES
     struct tms b;
-    if (times(&b) == (clock_t)-1) {
-	FAIL_TEST(string("Couldn't measure CPU: ") + strerror(errno));
+    if (times(&b) == clock_t(-1)) {
+	FAIL_TEST("Couldn't measure CPU: " << strerror(errno));
     }
     t = (double)(b.tms_utime + b.tms_stime);
 # ifdef HAVE_SYSCONF
@@ -72,7 +80,7 @@ CPUTimer::get_current_cputime() const
     // FIXME: Fallback to just using wallclock time, which is probably only
     // going to be used on Microsoft Windows, where nobody has implemented
     // the code required to get the CPU time used by a process.
-# ifdef HAVE_FTIME 
+# ifdef HAVE_FTIME
     struct timeb tb;
 #  ifdef FTIME_RETURNS_VOID
     ftime(&tb);
@@ -90,4 +98,5 @@ CPUTimer::get_current_cputime() const
 #endif
 
     return t;
+#endif
 }

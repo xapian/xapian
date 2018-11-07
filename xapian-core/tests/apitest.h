@@ -72,4 +72,7 @@ void skip_test_for_backend(const std::string & backend_prefix);
 #define SKIP_TEST_UNLESS_BACKEND(B) skip_test_unless_backend(B)
 #define SKIP_TEST_FOR_BACKEND(B) skip_test_for_backend(B)
 
+void XFAIL_FOR_BACKEND(const std::string& backend_prefix,
+		       const char* msg);
+
 #endif // XAPIAN_INCLUDED_APITEST_H

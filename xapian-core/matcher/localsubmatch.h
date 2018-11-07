@@ -1,7 +1,7 @@
 /** @file localsubmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,12 +24,15 @@
 
 #include "backends/database.h"
 #include "debuglog.h"
+#include "api/leafpostlist.h"
 #include "api/queryinternal.h"
 #include "submatch.h"
 #include "xapian/enquire.h"
 #include "xapian/weight.h"
 
 #include <map>
+
+class LeafPostList;
 
 class LocalSubMatch : public SubMatch {
     /// Don't allow assignment.
@@ -88,13 +91,15 @@ class LocalSubMatch : public SubMatch {
     /** Convert a postlist into a synonym postlist.
      */
     PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
-				     double factor);
+				     double factor,
+				     bool wdf_disjoint);
 
     LeafPostList * open_post_list(const std::string& term,
 				  Xapian::termcount wqf,
 				  double factor,
 				  bool need_positions,
-				  LeafPostList ** hint,
+				  bool in_synonym,
+				  QueryOptimiser * qopt,
 				  bool lazy_weight);
 };
 

@@ -1,7 +1,7 @@
 // Alias:
 
 strings ( ch )
-integers ( x p1 p2 )
+integers ( p1 p2 )
 booleans ( Y_found stemmed GE_removed )
 
 routines (
@@ -22,8 +22,6 @@ groupings ( v v_WX AOU AIOU )
 
 stringescapes {}
 
-stringdef '   hex '27'  // yuk
-
 define v        'aeiouy'
 define v_WX     v + 'wx'
 define AOU      'aou'
@@ -31,8 +29,8 @@ define AIOU     'aiou'
 
 backwardmode (
 
-    define R1 as (setmark x $x >= p1)
-    define R2 as (setmark x $x >= p2)
+    define R1 as ($p1 <= cursor)
+    define R2 as ($p2 <= cursor)
 
     define V  as test (v or 'ij')
     define VX as test (next v or 'ij')

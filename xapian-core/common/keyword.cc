@@ -1,7 +1,7 @@
 /** @file keyword.cc
  * @brief Efficient keyword to enum lookup
  */
-/* Copyright (C) 2012 Olly Betts
+/* Copyright (C) 2012,2016 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -34,9 +34,36 @@ keyword(const unsigned char * p, const char * s, size_t len)
     if (len == 0 || len > p[0] || p[len] == 1)
 	return -1;
     p = p + p[0] + p[len] + 3;
-    const unsigned char * q = p + (len + 1) * (p[-2] + 1);
-    /* Binary chop between p and q */
     size_t n = len + 1;
+    const unsigned char * q = p + n * (p[-2] + 1);
+    /* Binary chop between p and q */
+    size_t d = n * 2;
+    while (p < q) {
+	const unsigned char * m = p + (q - p) / d * n;
+	int cmp = memcmp(s, m, len);
+	if (cmp < 0) {
+	    q = m;
+	} else if (cmp > 0) {
+	    p = m + n;
+	} else {
+	    return m[-1];
+	}
+    }
+    return -1;
+}
+
+int
+keyword2(const unsigned char * p, const char * s, size_t len)
+{
+    if (len == 0 || len > p[0])
+	return -1;
+    unsigned offset = (p[len * 2 - 1] | p[len * 2] << 8);
+    if (offset == 1)
+	return -1;
+    p = p + 2 * p[0] + offset + 3;
+    size_t n = len + 1;
+    const unsigned char * q = p + n * (p[-2] + 1);
+    /* Binary chop between p and q */
     size_t d = n * 2;
     while (p < q) {
 	const unsigned char * m = p + (q - p) / d * n;

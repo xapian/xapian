@@ -54,7 +54,7 @@ class LogImporter(threading.Thread):
     def wait_for_start(self):
         """Block until the thread has started.
 
-        When this returns, the database is 
+        When this returns, the database is
 
         """
         self.started.wait()

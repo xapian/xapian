@@ -1,7 +1,7 @@
 /** @file replicatetcpclient.h
  *  @brief TCP/IP replication client class.
  */
-/* Copyright (C) 2008,2010,2011 Olly Betts
+/* Copyright (C) 2008,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,9 +66,10 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
      *  Give up trying to connect after @a timeout_connect seconds.
      *
      *  @param timeout_connect	 Timeout for trying to connect (in seconds).
+     *  @param socket_timeout	 Socket timeout (in seconds); 0 for no timeout.
      */
     ReplicateTcpClient(const std::string & hostname, int port,
-		       double timeout_connect);
+		       double timeout_connect, double socket_timeout);
 
     void update_from_master(const std::string & path,
 			    const std::string & remotedb,

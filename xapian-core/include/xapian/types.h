@@ -1,7 +1,7 @@
 /** @file xapian/types.h
  *  @brief typedefs for Xapian
  */
-/* Copyright (C) 2007,2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2007,2010,2011,2013,2014,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #endif
 
 #include <xapian/deprecated.h>
+#include <xapian/version.h>
 
 namespace Xapian {
 
@@ -34,21 +35,21 @@ namespace Xapian {
  *  This is used to hold values such as the number of documents in a database
  *  and the frequency of a term in the database.
  */
-typedef unsigned doccount;
+typedef unsigned XAPIAN_DOCID_BASE_TYPE doccount;
 
 /** A signed difference between two counts of documents.
  *
  *  This is used by the Xapian classes which are STL containers of documents
  *  for "difference_type".
  */
-typedef int doccount_diff; /* FIXME: can overflow with more than 2^31 docs. */
+typedef XAPIAN_DOCID_BASE_TYPE doccount_diff;
 
 /** A unique identifier for a document.
  *
  *  Docid 0 is invalid, providing an "out of range" value which can be
  *  used to mean "not a valid document".
  */
-typedef unsigned docid;
+typedef unsigned XAPIAN_DOCID_BASE_TYPE docid;
 
 /** A normalised document length.
  *
@@ -68,25 +69,25 @@ XAPIAN_DEPRECATED(typedef int percent);
  *
  *  This is used to hold values such as the Within Document Frequency (wdf).
  */
-typedef unsigned termcount;
+typedef unsigned XAPIAN_TERMCOUNT_BASE_TYPE termcount;
 
 /** A signed difference between two counts of terms.
  *
  *  This is used by the Xapian classes which are STL containers of terms
  *  for "difference_type".
  */
-typedef int termcount_diff; /* FIXME: can overflow with more than 2^31 terms. */
+typedef XAPIAN_TERMCOUNT_BASE_TYPE termcount_diff;
 
 /** A term position within a document or query.
  */
-typedef unsigned termpos;
+typedef unsigned XAPIAN_TERMPOS_BASE_TYPE termpos;
 
 /** A signed difference between two term positions.
  *
  *  This is used by the Xapian classes which are STL containers of positions
  *  for "difference_type".
  */
-typedef int termpos_diff; /* FIXME: can overflow. */
+typedef XAPIAN_TERMPOS_BASE_TYPE termpos_diff; /* FIXME: can overflow. */
 
 /** A timeout value in milliseconds.
  *
@@ -122,6 +123,20 @@ XAPIAN_DEPRECATED(typedef double weight);
 
 /** Reserved value to indicate "no valueno". */
 const valueno BAD_VALUENO = 0xffffffff;
+
+/** Revision number of a database.
+ *
+ *  For databases which support this, it increases with each commit.
+ *
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
+ */
+typedef XAPIAN_REVISION_TYPE rev;
+
+/** The total length of all documents in a database.
+ *
+ *  Added in Xapian 1.4.5.
+ */
+typedef XAPIAN_TOTALLENGTH_TYPE totallength;
 
 }
 

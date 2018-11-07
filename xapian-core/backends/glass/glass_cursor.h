@@ -2,7 +2,7 @@
  * @brief Interface to Btree cursors
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 
 #include "glass_defs.h"
 
+#include "alignment_cast.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -38,9 +39,9 @@ namespace Glass {
 
 class Cursor {
     private:
-        // Prevent copying
-        Cursor(const Cursor &);
-        Cursor & operator=(const Cursor &);
+	// Prevent copying
+	Cursor(const Cursor &);
+	Cursor & operator=(const Cursor &);
 
 	/// Pointer to reference counted data.
 	char * data;
@@ -51,7 +52,7 @@ class Cursor {
 
 	~Cursor() { destroy(); }
 
-	byte * init(unsigned block_size) {
+	uint8_t * init(unsigned block_size) {
 	    if (data && refs() > 1) {
 		--refs();
 		data = NULL;
@@ -62,16 +63,16 @@ class Cursor {
 	    set_n(BLK_UNUSED);
 	    rewrite = false;
 	    c = -1;
-	    return reinterpret_cast<byte*>(data + 8);
+	    return reinterpret_cast<uint8_t*>(data + 8);
 	}
 
-	const byte * clone(const Cursor & o) {
+	const uint8_t * clone(const Cursor & o) {
 	    if (data != o.data) {
 		destroy();
 		data = o.data;
 		++refs();
 	    }
-	    return reinterpret_cast<byte*>(data + 8);
+	    return reinterpret_cast<uint8_t*>(data + 8);
 	}
 
 	void swap(Cursor & o) {
@@ -91,7 +92,7 @@ class Cursor {
 
 	uint4 & refs() const {
 	    Assert(data);
-	    return *reinterpret_cast<uint4*>(data);
+	    return *alignment_cast<uint4*>(data);
 	}
 
 	/** Get the block number.
@@ -100,25 +101,25 @@ class Cursor {
 	 */
 	uint4 get_n() const {
 	    Assert(data);
-	    return *reinterpret_cast<uint4*>(data + 4);
+	    return *alignment_cast<uint4*>(data + 4);
 	}
 
 	void set_n(uint4 n) {
 	    Assert(data);
-	    //Assert(refs() == 1);
-	    *reinterpret_cast<uint4*>(data + 4) = n;
+	    // Assert(refs() == 1);
+	    *alignment_cast<uint4*>(data + 4) = n;
 	}
 
 	/** Get pointer to block.
 	 *
 	 * Returns NULL if no block is currently loaded.
 	 */
-	const byte * get_p() const {
+	const uint8_t * get_p() const {
 	    if (rare(!data)) return NULL;
-	    return reinterpret_cast<byte*>(data + 8);
+	    return reinterpret_cast<uint8_t*>(data + 8);
 	}
 
-	byte * get_modifiable_p(unsigned block_size) {
+	uint8_t * get_modifiable_p(unsigned block_size) {
 	    if (rare(!data)) return NULL;
 	    if (refs() > 1) {
 		char * new_data = new char[block_size + 8];
@@ -127,7 +128,7 @@ class Cursor {
 		data = new_data;
 		refs() = 1;
 	    }
-	    return reinterpret_cast<byte*>(data + 8);
+	    return reinterpret_cast<uint8_t*>(data + 8);
 	}
 
 	/// offset in the block's directory
@@ -147,10 +148,10 @@ class GlassTable;
 class GlassCursor {
     private:
 	/// Copying not allowed
-        GlassCursor(const GlassCursor &);
+	GlassCursor(const GlassCursor &);
 
 	/// Assignment not allowed
-        GlassCursor & operator=(const GlassCursor &);
+	GlassCursor & operator=(const GlassCursor &);
 
 	/** Rebuild the cursor.
 	 *
@@ -172,7 +173,7 @@ class GlassCursor {
 
     private:
 	/** Status of the current_tag member. */
-	enum { UNREAD, UNCOMPRESSED, COMPRESSED } tag_status;
+	enum { UNREAD, UNREAD_ON_LAST_CHUNK, UNCOMPRESSED, COMPRESSED } tag_status;
 
     protected:
 	/// The Btree table
@@ -220,7 +221,8 @@ class GlassCursor {
 	 *  attached to is destroyed.  It's safe to destroy the GlassCursor
 	 *  after the Btree though, you just may not use the GlassCursor.
 	 */
-	GlassCursor(const GlassTable *B, const Glass::Cursor * C_ = NULL);
+	explicit GlassCursor(const GlassTable *B,
+			     const Glass::Cursor * C_ = NULL);
 
 	/** Clone a cursor.
 	 *
@@ -265,20 +267,13 @@ class GlassCursor {
 	 *  Btree the cursor is made unpositioned, and the result is false.
 	 *  Otherwise the cursor is moved to the next item in the B-tree,
 	 *  and the result is true.
-	 *  
+	 *
 	 *  Effectively, GlassCursor::next() loses the position of BC when it
 	 *  drops off the end of the list of items. If this is awkward, one can
 	 *  always arrange for a key to be present which has a rightmost
 	 *  position in a set of keys,
 	 */
 	bool next();
- 
-	/** Move to the previous key.
-	 *
-	 *  This is like GlassCursor::next, but BC is taken to the previous
-	 *  rather than next item.
-	 */
-	bool prev();
 
 	/** Position the cursor on the highest entry with key <= @a key.
 	 *
@@ -315,9 +310,7 @@ class GlassCursor {
 	bool find_exact(const string &key);
 
 	/// Position the cursor on the highest entry with key < @a key.
-	void find_entry_lt(const string &key) {
-	    if (find_entry(key)) prev();
-	}
+	void find_entry_lt(const string &key);
 
 	/** Position the cursor on the lowest entry with key >= @a key.
 	 *
@@ -356,7 +349,7 @@ class MutableGlassCursor : public GlassCursor {
      *  attached to is destroyed.  It's safe to destroy the MutableGlassCursor
      *  after the Btree though, you just may not use the MutableGlassCursor.
      */
-    MutableGlassCursor(GlassTable *B_) : GlassCursor(B_) { }
+    explicit MutableGlassCursor(GlassTable *B_) : GlassCursor(B_) { }
 
     /** Delete the current key/tag pair, leaving the cursor on the next
      *  entry.

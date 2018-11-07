@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,8 @@
 #include "synonympostlist.h"
 #include "api/termlist.h"
 #include "weight/weightinternal.h"
+
+#include "xapian/error.h"
 
 #include "autoptr.h"
 #include <map>
@@ -218,16 +220,18 @@ LocalSubMatch::get_postlist(MultiMatch * matcher,
 
 PostList *
 LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
-				     double factor)
+				     double factor,
+				     bool wdf_disjoint)
 {
-    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", or_pl | matcher | factor);
+    LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", or_pl | matcher | factor | wdf_disjoint);
     if (rare(or_pl->get_termfreq_max() == 0)) {
 	// or_pl is an EmptyPostList or equivalent.
 	return or_pl;
     }
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
     Xapian::termcount len_lb = db->get_doclength_lower_bound();
-    AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher, len_lb));
+    AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher, len_lb,
+						     wdf_disjoint));
     AutoPtr<Xapian::Weight> wt(wt_factory->clone());
 
     TermFreqs freqs;
@@ -251,16 +255,18 @@ LocalSubMatch::open_post_list(const string& term,
 			      Xapian::termcount wqf,
 			      double factor,
 			      bool need_positions,
-			      LeafPostList ** hint,
+			      bool in_synonym,
+			      QueryOptimiser * qopt,
 			      bool lazy_weight)
 {
-    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | hint);
+    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
 
     bool weighted = (factor != 0.0 && !term.empty());
 
     LeafPostList * pl = NULL;
     if (!term.empty() && !need_positions) {
-	if (!weighted || !wt_factory->get_sumpart_needs_wdf_()) {
+	if ((!weighted && !in_synonym) ||
+	    !wt_factory->get_sumpart_needs_wdf_()) {
 	    Xapian::doccount sub_tf;
 	    db->get_freqs(term, &sub_tf, NULL);
 	    if (sub_tf == db->get_doccount()) {
@@ -269,16 +275,23 @@ LocalSubMatch::open_post_list(const string& term,
 		// MatchAll postlist, which is especially efficient if there
 		// are no gaps in the docids.
 		pl = db->open_post_list(string());
+		// Set the term name so the postlist looks up the correct term
+		// frequencies - this is necessary if the weighting scheme
+		// needs collection frequency or reltermfreq (termfreq would be
+		// correct anyway since it's just the collection size in this
+		// case).
+		pl->set_term(term);
 	    }
 	}
     }
 
     if (!pl) {
-	if (*hint)
-	    pl = (*hint)->open_nearby_postlist(term);
+	const LeafPostList * hint = qopt->get_hint_postlist();
+	if (hint)
+	    pl = hint->open_nearby_postlist(term);
 	if (!pl)
 	    pl = db->open_post_list(term);
-	*hint = pl;
+	qopt->set_hint_postlist(pl);
     }
 
     if (lazy_weight) {

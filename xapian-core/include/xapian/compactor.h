@@ -1,7 +1,7 @@
 /** @file compactor.h
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,11 +27,15 @@
 # error "Never use <xapian/compactor.h> directly; include <xapian.h> instead."
 #endif
 
+#include <xapian/constants.h>
+#include <xapian/deprecated.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
 #include <string>
 
 namespace Xapian {
+
+class Database;
 
 /** Compact a database, or merge and compact several.
  */
@@ -40,11 +44,22 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
     /// Class containing the implementation.
     class Internal;
 
-    typedef enum { STANDARD, FULL, FULLER } compaction_level;
+    /** Compaction level. */
+    typedef enum {
+	/** Don't split items unnecessarily. */
+	STANDARD = 0,
+	/** Split items whenever it saves space (the default). */
+	FULL = 1,
+	/** Allow oversize items to save more space (not recommended if you
+	 *  ever plan to update the compacted database). */
+	FULLER = 2
+    } compaction_level;
 
   private:
     /// @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
+
+    void set_flags_(unsigned flags, unsigned mask = 0);
 
   public:
     Compactor();
@@ -58,7 +73,7 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *				with the default being 8192, but the valid
      *				sizes and default may change in the future.
      */
-    void set_block_size(size_t block_size);
+    XAPIAN_DEPRECATED(void set_block_size(size_t block_size));
 
     /** Set whether to preserve existing document id values.
      *
@@ -72,7 +87,10 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *			in each source must not overlap either, though this
      *			restriction may be removed in the future.
      */
-    void set_renumber(bool renumber);
+    XAPIAN_DEPRECATED(void set_renumber(bool renumber)) {
+	set_flags_(renumber ? 0 : DBCOMPACT_NO_RENUMBER,
+		   ~unsigned(DBCOMPACT_NO_RENUMBER));
+    }
 
     /** Set whether to merge postlists in multiple passes.
      *
@@ -81,7 +99,10 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  requires more disk space for temporary files.  By default we don't do
      *  this.
      */
-    void set_multipass(bool multipass);
+    XAPIAN_DEPRECATED(void set_multipass(bool multipass)) {
+	set_flags_(multipass ? DBCOMPACT_MULTIPASS : 0,
+		   ~unsigned(DBCOMPACT_MULTIPASS));
+    }
 
     /** Set the compaction level.
      *
@@ -92,9 +113,13 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  - Xapian::Compactor::FULLER   - Allow oversize items to save more space
      *    (not recommended if you ever plan to update the compacted database).
      */
-    void set_compaction_level(compaction_level compaction);
+    XAPIAN_DEPRECATED(void set_compaction_level(compaction_level compaction)) {
+	set_flags_(compaction, ~unsigned(STANDARD|FULL|FULLER));
+    }
 
     /** Set where to write the output.
+     *
+     *  @deprecated Use Database::compact(destdir[, compactor]) instead.
      *
      *  @param destdir	Output path.  This can be the same as an input if that
      *			input is a stub database (in which case the database(s)
@@ -102,16 +127,21 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *			and then the stub will be atomically updated to point
      *			to this new database).
      */
-    void set_destdir(const std::string & destdir);
+    XAPIAN_DEPRECATED(void set_destdir(const std::string & destdir));
 
     /** Add a source database.
      *
+     *  @deprecated Use Database::compact(destdir[, compactor]) instead.
+     *
      *  @param srcdir	The path to the source database to add.
      */
-    void add_source(const std::string & srcdir);
+    XAPIAN_DEPRECATED(void add_source(const std::string & srcdir));
 
-    /// Perform the actual compaction/merging operation.
-    void compact();
+    /** Perform the actual compaction/merging operation.
+     *
+     *  @deprecated Use Database::compact(destdir[, compactor]) instead.
+     */
+    XAPIAN_DEPRECATED(void compact());
 
     /** Update progress.
      *
@@ -138,6 +168,11 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  For multipass this will currently get called multiple times for the
      *  same key if there are duplicates to resolve in each pass, but this
      *  may change in the future.
+     *
+     *  Since 1.4.6, an implementation of this method can return an empty
+     *  string to indicate that the appropriate result is to not set a value
+     *  for this user metadata key in the output database.  In older versions,
+     *  you should not return an empty string.
      *
      *  @param key	The metadata key with duplicate entries.
      *  @param num_tags	How many tags there are.

@@ -1,7 +1,7 @@
 /** @file stringutils.h
  * @brief Various handy helpers which std::string really should provide.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_STRINGUTILS_H
 #define XAPIAN_INCLUDED_STRINGUTILS_H
 
-#include <xapian/visibility.h>
+#include <xapian/constinfo.h>
 
 #include <algorithm>
 #include <string>
@@ -106,32 +106,29 @@ common_prefix_length(const std::string &a, const std::string &b)
 //  (b) handle signed char as well as unsigned char
 //  (c) have a suitable signature for use as predicates with find_if()
 //  (d) add negated versions isnotXXXXX() which are useful as predicates
-//  (e) add some extra categories we find useful
 
 namespace Xapian {
     namespace Internal {
-	const unsigned char IS_DIGIT = 0x01;
-	const unsigned char IS_LOWER = 0x02;
-	const unsigned char IS_UPPER = 0x04;
-	const unsigned char IS_HEX   = 0x08;
-	const unsigned char IS_SIGN  = 0x10;
-	const unsigned char IS_SPACE = 0x20;
-	XAPIAN_VISIBILITY_DEFAULT
-	extern const unsigned char is_tab[];
-	XAPIAN_VISIBILITY_DEFAULT
-	extern const unsigned char lo_tab[];
-	XAPIAN_VISIBILITY_DEFAULT
-	extern const unsigned char up_tab[];
+	const unsigned char HEX_MASK = 0x0f;
+	const unsigned char IS_UPPER = 0x10;
+	const unsigned char IS_ALPHA = 0x20; // NB Same as ASCII "case bit".
+	const unsigned char IS_DIGIT = 0x40;
+	const unsigned char IS_SPACE = 0x80;
     }
 }
+
+// FIXME: These functions assume ASCII or an ASCII compatible character set
+// such as ISO-8859-N or UTF-8.  EBCDIC would need some work (patches
+// welcome!)
+static_assert('\x20' == ' ', "character set isn't a superset of ASCII");
 
 // Add explicit conversion to bool to prevent compiler warning from "aCC +w":
 // Warning (suggestion) 818: [...] # Type `int' is larger than type `bool',
 // truncation in value may result.
 
 inline unsigned char C_tab_(char ch) {
-    using Xapian::Internal::is_tab;
-    return is_tab[static_cast<unsigned char>(ch)];
+    const unsigned char * C_tab = Xapian::Internal::get_constinfo_()->C_tab;
+    return C_tab[static_cast<unsigned char>(ch)];
 }
 
 inline bool C_isdigit(char ch) {
@@ -141,12 +138,8 @@ inline bool C_isdigit(char ch) {
 
 inline bool C_isxdigit(char ch) {
     using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & IS_HEX);
-}
-
-inline bool C_islcxdigit(char ch) {
-    using namespace Xapian::Internal;
-    return (C_tab_(ch) & (IS_UPPER|IS_HEX)) == IS_HEX;
+    // Include IS_DIGIT so '0' gives true.
+    return bool(C_tab_(ch) & (HEX_MASK|IS_DIGIT));
 }
 
 inline bool C_isupper(char ch) {
@@ -156,32 +149,22 @@ inline bool C_isupper(char ch) {
 
 inline bool C_islower(char ch) {
     using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & IS_LOWER);
+    return (C_tab_(ch) & (IS_ALPHA|IS_UPPER)) == IS_ALPHA;
 }
 
 inline bool C_isalpha(char ch) {
     using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & (IS_UPPER|IS_LOWER));
+    return bool(C_tab_(ch) & IS_ALPHA);
 }
 
 inline bool C_isalnum(char ch) {
     using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & (IS_UPPER|IS_LOWER|IS_DIGIT));
+    return bool(C_tab_(ch) & (IS_ALPHA|IS_DIGIT));
 }
 
 inline bool C_isspace(char ch) {
     using namespace Xapian::Internal;
     return bool(C_tab_(ch) & IS_SPACE);
-}
-
-inline bool C_issign(char ch) {
-    using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & IS_SIGN);
-}
-
-inline bool C_isupdig(char ch) {
-    using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & (IS_UPPER|IS_DIGIT));
 }
 
 inline bool C_isnotdigit(char ch) { return !C_isdigit(ch); }
@@ -191,16 +174,20 @@ inline bool C_isnotlower(char ch) { return !C_islower(ch); }
 inline bool C_isnotalpha(char ch) { return !C_isalpha(ch); }
 inline bool C_isnotalnum(char ch) { return !C_isalnum(ch); }
 inline bool C_isnotspace(char ch) { return !C_isspace(ch); }
-inline bool C_isnotsign(char ch) { return !C_issign(ch); }
 
 inline char C_tolower(char ch) {
     using namespace Xapian::Internal;
-    return lo_tab[static_cast<unsigned char>(ch)];
+    return ch | (C_tab_(ch) & IS_ALPHA);
 }
 
 inline char C_toupper(char ch) {
     using namespace Xapian::Internal;
-    return up_tab[static_cast<unsigned char>(ch)];
+    return ch &~ (C_tab_(ch) & IS_ALPHA);
+}
+
+inline int hex_digit(char ch) {
+    using namespace Xapian::Internal;
+    return C_tab_(ch) & HEX_MASK;
 }
 
 #endif // XAPIAN_INCLUDED_STRINGUTILS_H

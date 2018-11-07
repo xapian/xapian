@@ -13,6 +13,10 @@ AM_TESTS_ENVIRONMENT = \
 	export PYTHON ;
 LOG_COMPILER = '$(srcdir)'/run-python-test
 
+installcheck-local:
+	$(MAKE) check  LOG_COMPILER='$(PYTHON2)' AM_TESTS_ENVIRONMENT= \
+	    PYTHONDONTWRITEBYTECODE=1
+
 RST_DOCS = \
 	docs/examples.rst \
 	docs/index.rst \
@@ -26,11 +30,12 @@ RST_DOCS = \
 # Therefore, we don't run it by default currently.
 # replicationtest.py
 
-BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
+BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
+	doxy2swig.py \
+	fixup-swig-py2-wrapper \
 	generate-python-exceptions \
-	module_top.py \
 	run-python-test \
 	testsuite.py \
 	test_xapian_star.py \
@@ -61,31 +66,31 @@ uninstall-local:
 AM_CPPFLAGS = -I$(PYTHON2_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 _xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON2_SO)" $(NO_UNDEFINED)
-_xapian_la_SOURCES = modern/xapian_wrap.cc
+_xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON2_LIBS)
 
-# In a distribution, xapian.py is in $(srcdir)/modern, and python will always
-# generate the .pyc and .pyo files in the same directory as the .py file.
-# However, $(srcdir) might be shared between builds for different python
-# versions so we can't let the .pyc and .pyo files get written there.  Hence we
-# copy the .py file to the build directory from wherever it actually is and use
-# the copy.  We also rename the copy to __init__.py so that it can be installed
-# in a "xapian" directory and be treated as a package.  Finally, we take this
-# opportunity to insert a module doc string at the top of the file.
-xapian/__init__.py: modern/xapian.py
+# We want `xapian/__init__.py` rather than xapian.py so the module is treated
+# as a package.
+xapian/__init__.py: xapian.py
 	$(MKDIR_P) xapian
-	cat '$(srcdir)/module_top.py' `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py > xapian/__init__.pyT
-	mv xapian/__init__.pyT xapian/__init__.py
+	cp `test -f xapian.py || echo '$(srcdir)/'`xapian.py xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
-# we don't generate a broken .pyc or .pyo.
+# we don't generate a broken .pyc or .pyo, and we do it with the current
+# directory set to where the module is as Python with -c always searches the
+# current directory first.
+#
+# We then "import xapian" as a separate command, as that's more like how things
+# are once installed - in particular this will fail if the SWIG shadow wrapper
+# doesn't cope with being xapian/__init__.py (currently it needs fixing
+# up, which is done by fixup-swig-py2-wrapper).
 xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON2_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON2) -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON2) -c "import xapian"
+	$(OSX_SIP_HACK_ENV) $(PYTHON2) -c 'import os;os.chdir("xapian");import _xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON2) -c 'import xapian'
 
 xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON2_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON2) -O -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON2) -O -c "import xapian"
+	$(OSX_SIP_HACK_ENV) $(PYTHON2) -O -c 'import os;os.chdir("xapian");import _xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON2) -O -c 'import xapian'
 
 xapian/_xapian$(PYTHON2_SO): _xapian.la
 	$(MKDIR_P) xapian
@@ -122,24 +127,23 @@ endif
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-stamp = modern/xapian_wrap.stamp
+stamp = xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: $(stamp)
+xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: $(stamp)
 	$(make_many_locked)
-$(stamp): except.i doccomments.i
-	$(MKDIR_P) modern
+$(stamp): except.i doccomments.i fixup-swig-py2-wrapper
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -python -threads -shadow -modern -O -outdir modern \
-	    -o modern/xapian_wrap.cc '$(srcdir)/'python.i
-	$(PERL) -pi -e 's/class Error:/class Error(Exception):/' modern/xapian.py
+	    -python -threads -shadow -modern -O \
+	    -o xapian_wrap.cc '$(srcdir)/'python.i
+	$(PERL) -i $(srcdir)/fixup-swig-py2-wrapper xapian.py
 	$(multitarget_end)
 
--include modern/xapian_wrap.d
+-include xapian_wrap.d
 
-CLEANFILES += modern/xapian_wrap.d $(stamp)
+CLEANFILES += xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
@@ -152,17 +156,23 @@ dist_exampledata_DATA = \
 
 sphinxdocs = docs/html/index.html
 
-dist-hook:
-	$(MKDIR_P) '$(distdir)/docs'
-	cp -R -p docs/html $(distdir)/docs
-
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(docdir)/python
-	cp -R -p docs/html $(DESTDIR)$(docdir)/python
+	$(mkinstalldirs) '$(DESTDIR)$(docdir)/python'
+	cp -R -p `test -r docs/html || echo '$(srcdir)/'`docs/html '$(DESTDIR)$(docdir)/python'
 
-if DOCUMENTATION_RULES
 all-local: $(sphinxdocs)
 
-$(sphinxdocs): xapian/__init__.py docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
-	PYTHONPATH=..:$$PYTHONPATH $(PYTHON2) $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
-endif
+$(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON2_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
+## We need to run Sphinx for the right version of Python here, so we can't
+## just run sphinx-build as that might be for a different version.
+##
+## sphinx >= 1.7.0 no longer skips the first argument passed to
+## sphinx.main(). Therefore we have to skip it ourselves (by
+## taking a slice of sys.argv), and then have a skippable first
+## argument for sphinx < 1.7.0. -bhtml duplicates the subsequent
+## -b html, and so apparently is safe.
+##
+## Change was merged here: https://github.com/sphinx-doc/sphinx/pull/3668
+	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON2) \
+		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv[1:]))' \
+		-bhtml -b html -d doctrees -c docs $(srcdir)/docs docs/html

@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2009,2011,2015,2016 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -59,15 +59,15 @@ class MergePostList : public PostList {
 	 */
 	ValueStreamDocument & vsdoc;
 
-	Xapian::ErrorHandler * errorhandler;
     public:
 	Xapian::termcount get_wdf() const;
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_min() const;
 	Xapian::doccount get_termfreq_est() const;
 
-	Xapian::docid  get_docid() const;
+	Xapian::docid get_docid() const;
 	double get_weight() const;
+	const string * get_sort_key() const;
 	const string * get_collapse_key() const;
 
 	double get_maxweight() const;
@@ -76,7 +76,7 @@ class MergePostList : public PostList {
 
 	PostList *next(double w_min);
 	PostList *skip_to(Xapian::docid did, double w_min);
-	bool   at_end() const;
+	bool at_end() const;
 
 	string get_description() const;
 
@@ -92,10 +92,9 @@ class MergePostList : public PostList {
 
 	MergePostList(const std::vector<PostList *> & plists_,
 		      MultiMatch *matcher_,
-		      ValueStreamDocument & vsdoc_,
-		      Xapian::ErrorHandler * errorhandler_)
-	    : plists(plists_), current(-1), matcher(matcher_), vsdoc(vsdoc_),
-	      errorhandler(errorhandler_) { }
+		      ValueStreamDocument & vsdoc_)
+	    : plists(plists_), current(-1), matcher(matcher_), vsdoc(vsdoc_)
+	{ }
 
 	~MergePostList();
 };

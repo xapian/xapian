@@ -51,17 +51,17 @@ module Xapian
   # underlying Iterator
   def _safelyIterate(dangerousStart, dangerousEnd) #:nodoc:
     retval = Array.new
-    
+
     item = dangerousStart
     lastTerm = dangerousEnd
-    
+
     return retval if dangerousStart.equals(dangerousEnd)
 
-    begin      
+    begin
       retval.push(yield(item))
       item.next()
-    end while not item.equals(lastTerm) # must use primitive C++ comparator 
-    
+    end while not item.equals(lastTerm) # must use primitive C++ comparator
+
     return retval
   end # _safelyIterate
   module_function :_safelyIterate
@@ -87,7 +87,7 @@ module Xapian
   # non-iterative data.
   # (MSetIterator is not dangerous, but it is inconvenient to use from a Ruby
   # idiom, so we wrap it..)
-  class Xapian::Match     
+  class Xapian::Match
     attr_accessor :docid, :document, :rank, :weight, :collapse_count, :percent
 
     def initialize(docid, document, rank, weight, collapse_count, percent)
@@ -100,7 +100,7 @@ module Xapian
     end # initialize
 
     def ==(other)
-      return other.is_a?(Xapian::Match) && other.docid == @docid && other.rank == @rank && 
+      return other.is_a?(Xapian::Match) && other.docid == @docid && other.rank == @rank &&
         other.weight == @weight && other.collapse_count == @collapse_count && other.percent == @percent
     end
   end # class Xapian::Match
@@ -125,7 +125,7 @@ module Xapian
   # Ruby wrapper for Xapian::ValueIterator
   class Xapian::Value
     attr_accessor :value, :valueno, :docid
-    
+
     def initialize(value, valueno, docid)
       @value = value
       @valueno = valueno
@@ -138,7 +138,7 @@ module Xapian
   end # Xapian::Value
 
   # Refer to the
-  # {Xapian::Document C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Document.html]
+  # {Xapian::Document C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1Document.html]
   # for methods not specific to Ruby.
   #--
   # Extend Xapian::Document with a nice wrapper for its nasty input_iterators
@@ -158,7 +158,7 @@ module Xapian
   end # class Xapian::Document
 
   # Refer to the
-  # {Xapian::Query C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html]
+  # {Xapian::Query C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1Query.html]
   # for methods not specific to Ruby.
   #--
   # Extend Xapian::Query with a nice wrapper for its dangerous iterators
@@ -172,7 +172,7 @@ module Xapian
   end # Xapian::Query
 
   # Refer to the
-  # {Xapian::Enquire C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html]
+  # {Xapian::Enquire C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html]
   # for methods not specific to Ruby.
   #--
   # Extend Xapian::Enquire with a nice wrapper for its dangerous iterators
@@ -180,7 +180,7 @@ module Xapian
     # Get matching terms for some document.
     # document can be either a Xapian::DocID or a Xapian::MSetIterator
     def matching_terms(document)
-      Xapian._safelyIterate(self._dangerous_matching_terms_begin(document), 
+      Xapian._safelyIterate(self._dangerous_matching_terms_begin(document),
                             self._dangerous_matching_terms_end(document)) { |item|
         Xapian::Term.new(item.term, item.wdf)
       }
@@ -188,14 +188,14 @@ module Xapian
   end # Xapian::Enquire
 
   # Refer to the
-  # {Xapian::MSet C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1MSet.html]
+  # {Xapian::MSet C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1MSet.html]
   # for methods not specific to Ruby.
   #--
   # MSetIterators are not dangerous, just inconvenient to use within a Ruby
   # programming idiom. So we wrap them.
   class Xapian::MSet
     def matches
-      Xapian._safelyIterate(self._begin(), 
+      Xapian._safelyIterate(self._begin(),
                             self._end()) { |item|
         Xapian::Match.new(item.docid, item.document, item.rank, item.weight, item.collapse_count, item.percent)
       }
@@ -204,14 +204,14 @@ module Xapian
   end # Xapian::MSet
 
   # Refer to the
-  # {Xapian::ESet C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1ESet.html]
+  # {Xapian::ESet C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1ESet.html]
   # for methods not specific to Ruby.
   #--
   # ESetIterators are not dangerous, just inconvenient to use within a Ruby
   # programming idiom. So we wrap them.
   class Xapian::ESet
     def terms
-      Xapian._safelyIterate(self._begin(), 
+      Xapian._safelyIterate(self._begin(),
                             self._end()) { |item|
 	# note: in the ExpandTerm wrapper, we implicitly rename
 	# ESetIterator#term() (defined in xapian-headers.i) to ExpandTerm#term()
@@ -240,7 +240,7 @@ module Xapian
   end # Xapian::Posting
 
   # Refer to the
-  # {Xapian::Database C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Database.html]
+  # {Xapian::Database C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1Database.html]
   # for methods not specific to Ruby.
   #--
   # Wrap some dangerous iterators.
@@ -256,10 +256,10 @@ module Xapian
     # Returns an Array of Xapian::Postings for the given term.
     # term is a string.
     def postlist(term)
-      Xapian._safelyIterate(self._dangerous_postlist_begin(term), 
+      Xapian._safelyIterate(self._dangerous_postlist_begin(term),
                             self._dangerous_postlist_end(term)) { |item|
         Xapian::Posting.new(item.docid, item.doclength, item.wdf)
-      }      
+      }
     end # postlist(term)
 
     # Returns an Array of Terms for the given docid.
@@ -269,7 +269,7 @@ module Xapian
         Xapian::Term.new(item.term, item.wdf, item.termfreq)
       }
     end # termlist(docid)
-    
+
     # Returns an Array of Xapian::Termpos objects for the given term (a String)
     # in the given docid.
     def positionlist(docid, term)
@@ -290,7 +290,7 @@ module Xapian
   end # Xapian::Database
 
   # Refer to the
-  # {Xapian::ValueCountMatchSpy C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1ValueCountMatchSpy.html]
+  # {Xapian::ValueCountMatchSpy C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1ValueCountMatchSpy.html]
   # for methods not specific to Ruby.
   #--
   # Wrap some dangerous iterators.
@@ -313,7 +313,7 @@ module Xapian
   end # Xapian::Database
 
   # Refer to the
-  # {Xapian::LatLongCoords C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1LatLongCoords.html]
+  # {Xapian::LatLongCoords C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1LatLongCoords.html]
   # for methods not specific to Ruby.
   #--
   # Wrap some dangerous iterators.

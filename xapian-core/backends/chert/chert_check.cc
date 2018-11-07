@@ -41,12 +41,12 @@ void ChertTableCheck::print_spaces(int n) const
     while (n--) out->put(' ');
 }
 
-void ChertTableCheck::print_bytes(int n, const byte * p) const
+void ChertTableCheck::print_bytes(int n, const uint8_t * p) const
 {
     out->write(reinterpret_cast<const char *>(p), n);
 }
 
-void ChertTableCheck::print_key(const byte * p, int c, int j) const
+void ChertTableCheck::print_key(const uint8_t * p, int c, int j) const
 {
     Item item(p, c);
     string key;
@@ -60,7 +60,7 @@ void ChertTableCheck::print_key(const byte * p, int c, int j) const
     }
 }
 
-void ChertTableCheck::print_tag(const byte * p, int c, int j) const
+void ChertTableCheck::print_tag(const uint8_t * p, int c, int j) const
 {
     Item item(p, c);
     if (j == 0) {
@@ -74,14 +74,14 @@ void ChertTableCheck::print_tag(const byte * p, int c, int j) const
     }
 }
 
-void ChertTableCheck::report_block_full(int m, int n, const byte * p) const
+void ChertTableCheck::report_block_full(int m, int n, const uint8_t * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     *out << '\n';
     print_spaces(m);
     *out << "Block [" << n << "] level " << j << ", revision *" << REVISION(p)
-	 << " items (" << (dir_end - DIR_START)/D2 << ") usage "
+	 << " items (" << (dir_end - DIR_START) / D2 << ") usage "
 	 << block_usage(p) << "%:\n";
     for (int c = DIR_START; c < dir_end; c += D2) {
 	print_spaces(m);
@@ -92,7 +92,7 @@ void ChertTableCheck::report_block_full(int m, int n, const byte * p) const
     }
 }
 
-int ChertTableCheck::block_usage(const byte * p) const
+int ChertTableCheck::block_usage(const uint8_t * p) const
 {
     int space = block_size - DIR_END(p);
     int free = TOTAL_FREE(p);
@@ -102,18 +102,20 @@ int ChertTableCheck::block_usage(const byte * p) const
 /** ChertTableCheck::report_block(m, n, p) prints the block at p, block number n,
  *  indented by m spaces.
  */
-void ChertTableCheck::report_block(int m, int n, const byte * p) const
+void ChertTableCheck::report_block(int m, int n, const uint8_t * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     int c;
     print_spaces(m);
     *out << "[" << n << "] *" << REVISION(p) << " ("
-	 << (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
+	 << (dir_end - DIR_START) / D2 << ") " << block_usage(p) << "% ";
 
     for (c = DIR_START; c < dir_end; c += D2) {
-	if (c == DIR_START + 6) *out << "... ";
-	if (c >= DIR_START + 6 && c < dir_end - 6) continue;
+	if (c >= DIR_START + 6 && c < dir_end - 6) {
+	    if (c == DIR_START + 6) *out << "... ";
+	    continue;
+	}
 
 	print_key(p, c, j);
 	*out << ' ';
@@ -129,14 +131,14 @@ void ChertTableCheck::failure(const char * msg) const
 void
 ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 {
-    byte * p = C_[j].p;
+    uint8_t * p = C_[j].p;
     uint4 n = C_[j].n;
-    size_t c;
-    size_t significant_c = j == 0 ? DIR_START : DIR_START + D2;
+    int c;
+    int significant_c = j == 0 ? DIR_START : DIR_START + D2;
 	/* the first key in an index block is dummy, remember */
 
     size_t max_free = MAX_FREE(p);
-    size_t dir_end = DIR_END(p);
+    int dir_end = DIR_END(p);
     int total_free = block_size - dir_end;
 
     if (opts & Xapian::DBCHECK_FIX) {
@@ -152,7 +154,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     if (j != GET_LEVEL(p))
 	failure("Block has wrong level");
     // dir_end must be > DIR_START, fit within the block, and be odd.
-    if (dir_end <= DIR_START || dir_end > block_size || (dir_end & 1) != 1)
+    if (dir_end <= DIR_START || dir_end > int(block_size) || (dir_end & 1) != 1)
 	failure("directory end pointer invalid");
 
     if (opts & Xapian::DBCHECK_SHORT_TREE)
@@ -166,7 +168,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 	int o = item.get_address() - p;
 	if (o > int(block_size))
 	    failure("Item starts outside block");
-	if (o - dir_end < max_free)
+	if (o - dir_end < int(max_free))
 	    failure("Item overlaps directory");
 
 	int kt_len = item.size();
@@ -201,7 +203,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 
 	block_check(C_, j - 1, opts);
 
-	byte * q = C_[j - 1].p;
+	uint8_t * q = C_[j - 1].p;
 	/* if j == 1, and c > DIR_START, the first key of level j - 1 must be
 	 * >= the key of p, c: */
 
@@ -272,7 +274,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	if (fd < 0) throw;
 	unsigned char buf[65536];
 	uint4 blocksize = 8192; // Default.
-	size_t read = io_read(fd, (char*)buf, sizeof(buf), 0);
+	size_t read = io_read(fd, reinterpret_cast<char*>(buf), sizeof(buf));
 	if (read > 0) {
 	    int dir_end = DIR_END(buf);
 	    blocksize = dir_end + TOTAL_FREE(buf);
@@ -289,7 +291,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	    // Scan for root block.
 	    bool found = false;
 	    for (blk_no = 0;
-		 io_read(fd, (char*)buf, blocksize, 0) == blocksize;
+		 io_read(fd, reinterpret_cast<char*>(buf), blocksize) == blocksize;
 		 ++blk_no) {
 		uint4 rev = REVISION(buf);
 		if (rev_ptr && *rev_ptr) {
@@ -384,7 +386,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
     Cursor * C = B.C;
 
     if (opts & Xapian::DBCHECK_SHOW_STATS) {
-	*out << "base" << (char)B.base_letter
+	*out << "base" << char(B.base_letter)
 	     << " blocksize=" << B.block_size / 1024 << "K"
 		" items=" << B.item_count
 	     << " lastblock=" << B.base.get_last_block()

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008,2009,2011,2013,2014 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008,2009,2011,2013,2014,2018 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include "documentvaluelist.h"
 #include "maptermlist.h"
 #include "net/serialise.h"
+#include "overflow.h"
 #include "str.h"
 #include "unicode/description_append.h"
 
@@ -48,6 +49,11 @@ namespace Xapian {
 Document::Document(Document::Internal *internal_) : internal(internal_)
 {
 }
+
+Document::Document(Document&&) = default;
+
+Document&
+Document::operator=(Document&&) = default;
 
 Document::Document() : internal(new Xapian::Document::Internal)
 {
@@ -93,7 +99,7 @@ Document::~Document()
 string
 Document::get_description() const
 {
-    return "Document(" + internal->get_description() + ")";
+    return internal->get_description();
 }
 
 void
@@ -148,6 +154,22 @@ Document::remove_posting(const string & tname, Xapian::termpos tpos,
 	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
     internal->remove_posting(tname, tpos, wdfdec);
+}
+
+Xapian::termpos
+Document::remove_postings(const string& term,
+			  Xapian::termpos termpos_first,
+			  Xapian::termpos termpos_last,
+			  Xapian::termcount wdf_dec)
+{
+    if (term.empty()) {
+	throw InvalidArgumentError("Empty termnames aren't allowed.");
+    }
+    if (rare(termpos_first > termpos_last)) {
+	return 0;
+    }
+    return internal->remove_postings(term, termpos_first, termpos_last,
+				     wdf_dec);
 }
 
 void
@@ -219,15 +241,56 @@ Document::unserialise(const std::string &s)
 /////////////////////////////////////////////////////////////////////////////
 
 void
-OmDocumentTerm::add_position(Xapian::termpos tpos)
+OmDocumentTerm::merge() const
 {
-    LOGCALL_VOID(DB, "OmDocumentTerm::add_position", tpos);
+    Assert(!is_deleted());
+    inplace_merge(positions.begin(),
+		  positions.begin() + split,
+		  positions.end());
+    split = 0;
+}
 
-    // We generally expect term positions to be added in approximately
-    // increasing order, so check the end first
-    if (positions.empty() || tpos > positions.back()) {
+bool
+OmDocumentTerm::add_position(Xapian::termcount wdf_inc, Xapian::termpos tpos)
+{
+    LOGCALL(DB, bool, "OmDocumentTerm::add_position", wdf_inc | tpos);
+
+    if (rare(is_deleted())) {
+	wdf = wdf_inc;
+	split = 0;
 	positions.push_back(tpos);
-	return;
+	return true;
+    }
+
+    wdf += wdf_inc;
+
+    // Optimise the common case of adding positions in ascending order.
+    if (positions.empty()) {
+	positions.push_back(tpos);
+	return false;
+    }
+    if (tpos > positions.back()) {
+	if (split) {
+	    // Check for duplicate before split.
+	    auto i = lower_bound(positions.cbegin(),
+				 positions.cbegin() + split,
+				 tpos);
+	    if (i != positions.cbegin() + split && *i == tpos)
+		return false;
+	}
+	positions.push_back(tpos);
+	return false;
+    }
+
+    if (tpos == positions.back()) {
+	// Duplicate of last entry.
+	return false;
+    }
+
+    if (split > 0) {
+	// We could merge in the new entry at the same time, but that seems to
+	// make things much more complex for minor gains.
+	merge();
     }
 
     // Search for the position the term occurs at.  Use binary chop to
@@ -235,24 +298,89 @@ OmDocumentTerm::add_position(Xapian::termpos tpos)
     vector<Xapian::termpos>::iterator i;
     i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
-	positions.insert(i, tpos);
+	auto new_split = positions.size();
+	if (sizeof(split) < sizeof(Xapian::termpos)) {
+	    if (rare(new_split > numeric_limits<decltype(split)>::max())) {
+		// The split point would be beyond the size of the type used to
+		// hold it, which is really unlikely if that type is 32-bit.
+		// Just insert the old way in this case.
+		positions.insert(i, tpos);
+		return false;
+	    }
+	} else {
+	    // This assertion should always be true because we shouldn't have
+	    // duplicate entries and the split point can't be after the final
+	    // entry.
+	    AssertRel(new_split, <=, numeric_limits<decltype(split)>::max());
+	}
+	split = new_split;
+	positions.push_back(tpos);
     }
+    return false;
 }
 
 void
 OmDocumentTerm::remove_position(Xapian::termpos tpos)
 {
     LOGCALL_VOID(DB, "OmDocumentTerm::remove_position", tpos);
-    
-    // Search for the position the term occurs at.  Use binary chop to
-    // search, since this is a sorted list.
-    vector<Xapian::termpos>::iterator i;
-    i = lower_bound(positions.begin(), positions.end(), tpos);
-    if (i == positions.end() || *i != tpos) {
+
+    Assert(!is_deleted());
+
+    if (rare(positions.empty())) {
+not_there:
 	throw Xapian::InvalidArgumentError("Position " + str(tpos) +
-				     " not in list, can't remove");
+					   " not in list, can't remove");
+    }
+
+    // Special case removing the final position, which we can handle in O(1).
+    if (positions.back() == tpos) {
+	positions.pop_back();
+	if (split == positions.size()) {
+	    split = 0;
+	    // We removed the only entry from after the split.
+	}
+	return;
+    }
+
+    if (split > 0) {
+	// We could remove the requested entry at the same time, but that seems
+	// fiddly to do.
+	merge();
+    }
+
+    // We keep positions sorted, so use lower_bound() which can binary chop to
+    // find the entry.
+    auto i = lower_bound(positions.begin(), positions.end(), tpos);
+    if (i == positions.end() || *i != tpos) {
+	goto not_there;
     }
     positions.erase(i);
+}
+
+Xapian::termpos
+OmDocumentTerm::remove_positions(Xapian::termpos termpos_first,
+				 Xapian::termpos termpos_last)
+{
+    LOGCALL(DB, Xapian::termpos, "OmDocumentTerm::remove_position", termpos_first | termpos_last);
+
+    Assert(!is_deleted());
+
+    if (split > 0) {
+	// We could remove the requested entries at the same time, but that
+	// seems fiddly to do.
+	merge();
+    }
+
+    // Find the range [i, j) that the specified termpos range maps to.  Use
+    // binary chop to search, since this is a sorted list.
+    auto i = lower_bound(positions.begin(), positions.end(), termpos_first);
+    if (i == positions.end() || *i > termpos_last) {
+	return 0;
+    }
+    auto j = upper_bound(i, positions.end(), termpos_last);
+    size_t size_before = positions.size();
+    positions.erase(i, j);
+    return Xapian::termpos(size_before - positions.size());
 }
 
 string
@@ -279,7 +407,7 @@ Xapian::Document::Internal::get_value(Xapian::valueno slot) const
     if (!database.get()) return string();
     return do_get_value(slot);
 }
-	
+
 string
 Xapian::Document::Internal::get_data() const
 {
@@ -350,12 +478,13 @@ Xapian::Document::Internal::add_posting(const string & tname, Xapian::termpos tp
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
     if (i == terms.end()) {
+	++termlist_size;
 	OmDocumentTerm newterm(wdfinc);
-	newterm.add_position(tpos);
+	newterm.append_position(tpos);
 	terms.insert(make_pair(tname, newterm));
     } else {
-	i->second.add_position(tpos);
-	if (wdfinc) i->second.inc_wdf(wdfinc);
+	if (i->second.add_position(wdfinc, tpos))
+	    ++termlist_size;
     }
 }
 
@@ -367,30 +496,61 @@ Xapian::Document::Internal::add_term(const string & tname, Xapian::termcount wdf
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
     if (i == terms.end()) {
+	++termlist_size;
 	OmDocumentTerm newterm(wdfinc);
 	terms.insert(make_pair(tname, newterm));
     } else {
-	if (wdfinc) i->second.inc_wdf(wdfinc);
+	if (i->second.increase_wdf(wdfinc))
+	    ++termlist_size;
     }
 }
 
 void
 Xapian::Document::Internal::remove_posting(const string & tname,
 					   Xapian::termpos tpos,
-					   Xapian::termcount wdfdec)	
+					   Xapian::termcount wdfdec)
 {
     need_terms();
 
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
-    if (i == terms.end()) {
+    if (i == terms.end() || i->second.is_deleted()) {
 	throw Xapian::InvalidArgumentError("Term '" + tname +
 		"' is not present in document, in "
 		"Xapian::Document::Internal::remove_posting()");
     }
     i->second.remove_position(tpos);
-    if (wdfdec) i->second.dec_wdf(wdfdec);
+    if (wdfdec) i->second.decrease_wdf(wdfdec);
     positions_modified = true;
+}
+
+Xapian::termpos
+Xapian::Document::Internal::remove_postings(const string& term,
+					    Xapian::termpos termpos_first,
+					    Xapian::termpos termpos_last,
+					    Xapian::termcount wdf_dec)
+{
+    need_terms();
+
+    auto i = terms.find(term);
+    if (i == terms.end() || i->second.is_deleted()) {
+	throw Xapian::InvalidArgumentError("Term '" + term +
+		"' is not present in document, in "
+		"Xapian::Document::Internal::remove_postings()");
+    }
+    auto n_removed = i->second.remove_positions(termpos_first, termpos_last);
+    if (n_removed) {
+	positions_modified = true;
+	if (wdf_dec) {
+	    Xapian::termcount wdf_delta;
+	    if (mul_overflows(n_removed, wdf_dec, wdf_delta)) {
+		// Decreasing by the maximum value will zero the wdf.
+		wdf_delta = numeric_limits<Xapian::termcount>::max();
+	    }
+	    i->second.decrease_wdf(wdf_delta);
+	}
+    }
+    return n_removed;
 }
 
 void
@@ -399,19 +559,23 @@ Xapian::Document::Internal::remove_term(const string & tname)
     need_terms();
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
-    if (i == terms.end()) {
+    if (i == terms.end() || i->second.is_deleted()) {
 	throw Xapian::InvalidArgumentError("Term '" + tname +
 		"' is not present in document, in "
 		"Xapian::Document::Internal::remove_term()");
     }
-    positions_modified = !i->second.positions.empty();
-    terms.erase(i);
+    --termlist_size;
+    if (!positions_modified) {
+	positions_modified = (i->second.positionlist_count() > 0);
+    }
+    i->second.remove();
 }
-	
+
 void
 Xapian::Document::Internal::clear_terms()
 {
     terms.clear();
+    termlist_size = 0;
     terms_here = true;
     // Assume there was a term with positions for now.
     // FIXME: may be worth checking...
@@ -427,7 +591,7 @@ Xapian::Document::Internal::termlist_count() const
 	need_terms();
     }
     Assert(terms_here);
-    return terms.size();
+    return termlist_size;
 }
 
 void
@@ -441,11 +605,12 @@ Xapian::Document::Internal::need_terms() const
 	    Xapian::PositionIterator p = t.positionlist_begin();
 	    OmDocumentTerm term(t.get_wdf());
 	    for ( ; p != t.positionlist_end(); ++p) {
-		term.add_position(*p);
+		term.append_position(*p);
 	    }
 	    terms.insert(make_pair(*t, term));
 	}
     }
+    termlist_size = terms.size();
     terms_here = true;
 }
 
@@ -461,29 +626,39 @@ Xapian::Document::Internal::values_count() const
 string
 Xapian::Document::Internal::get_description() const
 {
-    string description = "Xapian::Document::Internal(";
+    string desc = "Document(";
 
-    if (data_here) description += "data='" + data + "'";
+    // description_append ?
+    if (data_here) {
+	desc += "data='";
+	description_append(desc, data);
+	desc += "'";
+    }
 
     if (values_here) {
-	if (data_here) description += ", ";
-	description += "values[" + str(values.size()) + "]";
+	if (data_here) desc += ", ";
+	desc += "values[";
+	desc += str(values.size());
+	desc += ']';
     }
 
     if (terms_here) {
-	if (data_here || values_here) description += ", ";
-	description += "terms[" + str(terms.size()) + "]";
+	if (data_here || values_here) desc += ", ";
+	desc += "terms[";
+	desc += str(termlist_size);
+	desc += ']';
     }
 
     if (database.get()) {
-	if (data_here || values_here || terms_here) description += ", ";
-	description += "doc=";
-	description += "?"; // do_get_description(); ?
+	if (data_here || values_here || terms_here) desc += ", ";
+	// database->get_description() if/when that returns a non-generic
+	// result.
+	desc += "db:yes";
     }
 
-    description += ')';
+    desc += ')';
 
-    return description;
+    return desc;
 }
 
 void

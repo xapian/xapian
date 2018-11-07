@@ -44,7 +44,7 @@ struct SubValueList {
 
     void skip_to(Xapian::docid did, size_t multiplier) {
 	// Translate did from merged docid.
-	did = (did - db_idx - 2 + multiplier) / multiplier + 1;
+	did = (did - 1) / multiplier + 1 + ((did - 1) % multiplier > db_idx);
 	valuelist->skip_to(did);
     }
 
@@ -68,7 +68,7 @@ struct SubValueList {
 /// Comparison functor which orders SubValueList* by ascending docid.
 struct CompareSubValueListsByDocId {
     /// Order by ascending docid.
-    bool operator()(const SubValueList *a, const SubValueList *b) {
+    bool operator()(const SubValueList *a, const SubValueList *b) const {
 	Xapian::docid did_a = a->get_docid();
 	Xapian::docid did_b = b->get_docid();
 	if (did_a > did_b) return true;
@@ -78,7 +78,7 @@ struct CompareSubValueListsByDocId {
 };
 
 template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) { delete p; }
+    void operator()(CLASS *p) const { delete p; }
 };
 
 MultiValueList::MultiValueList(const vector<intrusive_ptr<Xapian::Database::Internal> > & dbs,
@@ -137,8 +137,8 @@ void
 MultiValueList::next()
 {
     if (current_docid == 0) {
-	// Make valuelists into a heap so that the one (or one of the ones) with
-	// earliest sorting term is at the top of the heap.
+	// Make valuelists into a heap so that the one with the earliest
+	// sorting docid is at the top of the heap.
 	vector<SubValueList *>::iterator i = valuelists.begin();
 	while (i != valuelists.end()) {
 	    (*i)->next();

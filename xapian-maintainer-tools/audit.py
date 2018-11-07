@@ -11,7 +11,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -452,7 +452,7 @@ class SourceChecker:
                                                proportion_date,
                                                proportion_equal * file.length,
                                                proportion_date * file.length,]
-            
+
             for license in file.licenses:
                 try:
                     license_owners = owners[license]
@@ -492,7 +492,7 @@ class SourceChecker:
             license_owners.reverse()
             result.append((license, license_owners))
         return tuple(result)
-                
+
     def get_fixmes(self):
         """Get a dict holding fixmes, keyed by milestone.
 

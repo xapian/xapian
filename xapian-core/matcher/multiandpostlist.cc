@@ -1,7 +1,7 @@
 /** @file multiandpostlist.cc
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009,2011,2012 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2015,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,14 @@
 #include "omassert.h"
 #include "debuglog.h"
 
+using namespace std;
+
 void
 MultiAndPostList::allocate_plist_and_max_wt()
 {
     plist = new PostList * [n_kids];
     try {
-	max_wt = new double [n_kids];
+	max_wt = new double [n_kids]();
     } catch (...) {
 	delete [] plist;
 	plist = NULL;
@@ -95,7 +97,7 @@ MultiAndPostList::get_termfreq_est() const
     // We calculate the estimate assuming independence.  With this assumption,
     // the estimate is the product of the estimates for the sub-postlists
     // divided by db_size (n_kids - 1) times.
-    double result(plist[0]->get_termfreq_est());
+    double result = plist[0]->get_termfreq_est();
     for (size_t i = 1; i < n_kids; ++i) {
 	result = (result * plist[i]->get_termfreq_est()) / db_size;
     }
@@ -275,4 +277,12 @@ MultiAndPostList::count_matching_subqs() const
 	total += plist[i]->count_matching_subqs();
     }
     return total;
+}
+
+void
+MultiAndPostList::gather_position_lists(OrPositionList* orposlist)
+{
+    for (size_t i = 0; i < n_kids; ++i) {
+	plist[i]->gather_position_lists(orposlist);
+    }
 }

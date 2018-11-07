@@ -35,7 +35,7 @@ inline string
 make_key(Xapian::docid did)
 {
     string key;
-    pack_uint_preserving_sort(key, did);
+    C_pack_uint_preserving_sort(key, did);
     return key;
 }
 
@@ -44,17 +44,16 @@ ChertRecordTable::get_record(Xapian::docid did) const
 {
     LOGCALL(DB, string, "ChertRecordTable::get_record", did);
     string tag;
-
-    if (!get_exact_entry(make_key(did), tag)) {
-	throw Xapian::DocNotFoundError("Document " + str(did) + " not found.");
-    }
-
+    // get_document() checks that the docid is valid, unless DOC_ASSUME_VALID
+    // is used in which case returning an empty string here is the most
+    // sensible behaviour.
+    (void)get_exact_entry(make_key(did), tag);
     RETURN(tag);
 }
 
 Xapian::doccount
 ChertRecordTable::get_doccount() const
-{   
+{
     LOGCALL(DB, Xapian::doccount, "ChertRecordTable::get_doccount", NO_ARGS);
     chert_tablesize_t count = get_entry_count();
     if (rare(count > chert_tablesize_t(Xapian::doccount(-1)))) {
@@ -78,4 +77,10 @@ ChertRecordTable::delete_record(Xapian::docid did)
     LOGCALL_VOID(DB, "ChertRecordTable::delete_record", did);
     if (!del(make_key(did)))
 	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + str(did));
+}
+
+void
+ChertRecordTable::readahead_for_record(Xapian::docid did) const
+{
+    readahead_key(make_key(did));
 }

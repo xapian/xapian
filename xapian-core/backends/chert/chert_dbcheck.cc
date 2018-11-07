@@ -2,7 +2,7 @@
  * @brief Check consistency of a chert table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,11 +56,15 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_chert_table(const char * tablename, string filename,
+check_chert_table(const char * tablename, const string& dir,
 		  chert_revision_number_t * rev_ptr, int opts,
 		  vector<Xapian::termcount> & doclens,
-		  Xapian::docid db_last_docid, ostream * out)
+		  Xapian::doccount doccount, Xapian::docid db_last_docid,
+		  ostream * out)
 {
+    string filename = dir;
+    filename += '/';
+    filename += tablename;
     filename += '.';
 
     try {
@@ -97,6 +101,7 @@ check_chert_table(const char * tablename, string filename,
 	Xapian::docid lastdid = 0;
 	Xapian::termcount termfreq = 0, collfreq = 0;
 	Xapian::termcount tf = 0, cf = 0;
+	Xapian::doccount num_doclens = 0;
 	bool have_metainfo_key = false;
 
 	// The first key/tag pair should be the METAINFO - though this may be
@@ -106,7 +111,7 @@ check_chert_table(const char * tablename, string filename,
 		have_metainfo_key = true;
 		cursor->read_tag();
 		// Check format of the METAINFO key.
-		totlen_t total_doclen;
+		Xapian::totallength total_doclen;
 		Xapian::docid last_docid;
 		Xapian::termcount doclen_lbound;
 		Xapian::termcount doclen_ubound;
@@ -180,7 +185,7 @@ check_chert_table(const char * tablename, string filename,
 		    pos = key.data();
 		    end = pos + key.size();
 		    pos += 2;
-		    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+		    if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 			if (out)
 			    *out << "Error unpacking docid from doclen key" << endl;
 			++errors;
@@ -241,6 +246,8 @@ check_chert_table(const char * tablename, string filename,
 			bad = true;
 			break;
 		    }
+
+		    ++num_doclens;
 
 		    if (did > db_last_docid) {
 			if (out)
@@ -366,7 +373,7 @@ check_chert_table(const char * tablename, string filename,
 		    continue;
 		}
 		Xapian::docid did;
-		if (!unpack_uint_preserving_sort(&p, end, &did)) {
+		if (!C_unpack_uint_preserving_sort(&p, end, &did)) {
 		    if (out)
 			*out << "Bad value chunk key (no docid)" << endl;
 		    ++errors;
@@ -526,7 +533,7 @@ check_chert_table(const char * tablename, string filename,
 		    current_term = term;
 		}
 		AssertEq(current_term, term);
-		if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+		if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 		    if (out)
 			*out << "Failed to unpack did from key" << endl;
 		    ++errors;
@@ -622,6 +629,13 @@ check_chert_table(const char * tablename, string filename,
 	    ++errors;
 	}
 
+	if (num_doclens != doccount && doccount != Xapian::doccount(-1)) {
+	    if (out)
+		*out << "Document length list has " << num_doclens
+		     << " entries, should be " << doccount << endl;
+	    ++errors;
+	}
+
 	map<Xapian::valueno, VStats>::const_iterator i;
 	for (i = valuestats.begin(); i != valuestats.end(); ++i) {
 	    if (i->second.freq != i->second.freq_real) {
@@ -633,6 +647,14 @@ check_chert_table(const char * tablename, string filename,
 	    }
 	}
     } else if (strcmp(tablename, "record") == 0) {
+	if (table.get_entry_count() != doccount &&
+	    doccount != Xapian::doccount(-1)) {
+	    if (out)
+		*out << "Document data entry count (" << table.get_entry_count()
+		     << ") != get_doccount() (" << doccount << ")" << endl;
+	    ++errors;
+	}
+
 	// Now check the contents of the record table.  Any data is valid as
 	// the tag so we don't check the tags.
 	for ( ; !cursor->after_end(); cursor->next()) {
@@ -643,7 +665,7 @@ check_chert_table(const char * tablename, string filename,
 	    const char * end = pos + key.size();
 
 	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+	    if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 		if (out)
 		    *out << "Error unpacking docid from key" << endl;
 		++errors;
@@ -651,10 +673,20 @@ check_chert_table(const char * tablename, string filename,
 		if (out)
 		    *out << "Extra junk in key" << endl;
 		++errors;
+	    } else {
+		if (did > db_last_docid) {
+		    if (out)
+			*out << "document id " << did << " in docdata table "
+				"is larger than get_last_docid() "
+			     << db_last_docid << endl;
+		    ++errors;
+		}
 	    }
 	}
     } else if (strcmp(tablename, "termlist") == 0) {
 	// Now check the contents of the termlist table.
+	Xapian::doccount num_termlists = 0;
+	Xapian::doccount num_slotsused_entries = 0;
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
 
@@ -663,15 +695,24 @@ check_chert_table(const char * tablename, string filename,
 	    const char * end = pos + key.size();
 
 	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+	    if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 		if (out)
 		    *out << "Error unpacking docid from key" << endl;
 		++errors;
 		continue;
 	    }
 
+	    if (did > db_last_docid) {
+		if (out)
+		    *out << "document id " << did << " in termlist table "
+			    "is larger than get_last_docid() "
+			 << db_last_docid << endl;
+		++errors;
+	    }
+
 	    if (end - pos == 1 && *pos == '\0') {
 		// Value slots used entry.
+		++num_slotsused_entries;
 		cursor->read_tag();
 
 		pos = cursor->current_tag.data();
@@ -719,6 +760,7 @@ check_chert_table(const char * tablename, string filename,
 		continue;
 	    }
 
+	    ++num_termlists;
 	    cursor->read_tag();
 
 	    pos = cursor->current_tag.data();
@@ -824,6 +866,23 @@ check_chert_table(const char * tablename, string filename,
 	    if (doclens.size() <= did) doclens.resize(did + 1);
 	    doclens[did] = actual_doclen;
 	}
+
+	if (num_termlists != doccount && doccount != Xapian::doccount(-1)) {
+	    if (out)
+		*out << "Number of termlists (" << num_termlists
+		     << ") != get_doccount() (" << doccount << ")" << endl;
+	    ++errors;
+	}
+
+	// chert doesn't store a valueslots used entry if there are no terms,
+	// so we can only check there aren't more such entries than documents.
+	if (num_slotsused_entries > doccount &&
+	    doccount != Xapian::doccount(-1)) {
+	    if (out)
+		*out << "More slots-used entries (" << num_slotsused_entries
+		     << ") then documents (" << doccount << ")" << endl;
+	    ++errors;
+	}
     } else if (strcmp(tablename, "position") == 0) {
 	// Now check the contents of the position table.
 	for ( ; !cursor->after_end(); cursor->next()) {
@@ -834,14 +893,20 @@ check_chert_table(const char * tablename, string filename,
 	    const char * end = pos + key.size();
 
 	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+	    if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 		if (out)
 		    *out << "Error unpacking docid from key" << endl;
 		++errors;
 		continue;
 	    }
 
-	    if (!doclens.empty()) {
+	    if (did > db_last_docid) {
+		if (out)
+		    *out << "document id " << did << " in position table "
+			    "is larger than get_last_docid() "
+			 << db_last_docid << endl;
+		++errors;
+	    } else if (!doclens.empty()) {
 		// In chert, a document without terms doesn't get a
 		// termlist entry, so we can't tell the difference
 		// easily.
@@ -850,7 +915,6 @@ check_chert_table(const char * tablename, string filename,
 			*out << "Position list entry for document " << did
 			     << " which doesn't exist or has no terms" << endl;
 		    ++errors;
-		    continue;
 		}
 	    }
 

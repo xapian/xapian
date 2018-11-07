@@ -1,7 +1,7 @@
 /** @file glass_freelist.cc
  * @brief Glass freelist
  */
-/* Copyright 2014,2015 Olly Betts
+/* Copyright 2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,10 +26,16 @@
 #include "glass_table.h"
 #include "xapian/error.h"
 
-#include "unaligned.h"
+#include "omassert.h"
+#include "wordaccess.h"
 #include <cstring>
 
+#if HAVE_DECL___POPCNT || HAVE_DECL___POPCNT64
+# include <intrin.h>
+#endif
+
 using namespace std;
+using namespace Glass;
 
 // Allow forcing the freelist to be shorter to tickle bugs.
 // FIXME: Sort out a way we can set this dynamically while running the
@@ -50,8 +56,11 @@ using namespace std;
  */
 const unsigned C_BASE = 8;
 
+/// Invalid freelist block value, so we can detect overreading bugs, etc.
+const uint4 UNUSED = static_cast<uint4>(-1);
+
 void
-GlassFreeList::read_block(const GlassTable * B, uint4 n, byte * ptr)
+GlassFreeList::read_block(const GlassTable * B, uint4 n, uint8_t * ptr)
 {
     B->read_block(n, ptr);
     if (rare(GET_LEVEL(ptr) != LEVEL_FREELIST))
@@ -59,10 +68,11 @@ GlassFreeList::read_block(const GlassTable * B, uint4 n, byte * ptr)
 }
 
 void
-GlassFreeList::write_block(const GlassTable * B, uint4 n, byte * ptr, uint4 rev)
+GlassFreeList::write_block(const GlassTable * B, uint4 n, uint8_t * ptr,
+			   uint4 rev)
 {
     SET_REVISION(ptr, rev);
-    setint4(ptr, 4, 0);
+    aligned_write4(ptr + 4, 0);
     SET_LEVEL(ptr, LEVEL_FREELIST);
     B->write_block(n, ptr, flw_appending);
 }
@@ -76,21 +86,21 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
     }
 
     if (p == 0) {
-	if (fl.n == glass_block_t(-1)) {
+	if (fl.n == UNUSED) {
 	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 	}
 	// Actually read the current freelist block.
-	p = new byte[block_size];
+	p = new uint8_t[block_size];
 	read_block(B, fl.n, p);
     }
 
     // Either the freelist end is in this block, or this freelist block has a
     // next pointer.
-    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
+    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 
     if (fl.c != FREELIST_END - 4) {
-	uint4 blk = getint4(p, fl.c);
-	if (blk == uint4(-1))
+	uint4 blk = aligned_read4(p + fl.c);
+	if (blk == UNUSED)
 	    throw Xapian::DatabaseCorruptError("Ran off end of freelist (" + str(fl.n) + ", " + str(fl.c) + ")");
 	fl.c += 4;
 	return blk;
@@ -100,8 +110,8 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
     // started a new one.
     uint4 old_fl_blk = fl.n;
 
-    fl.n = getint4(p, fl.c);
-    if (fl.n == glass_block_t(-1)) {
+    fl.n = aligned_read4(p + fl.c);
+    if (fl.n == UNUSED) {
 	throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
     }
     // Allow for mini-header at start of freelist block.
@@ -110,7 +120,7 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
 
     // Either the freelist end is in this block, or this freelist block has
     // a next pointer.
-    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
+    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 
     if (blk_to_free) {
 	Assert(*blk_to_free == BLK_UNUSED);
@@ -127,33 +137,33 @@ GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
 {
     if (fl == fl_end) {
 	// It's expected that the caller checks !empty() first.
-	return static_cast<uint4>(-1);
+	return UNUSED;
     }
 
     if (p == 0) {
-	if (fl.n == glass_block_t(-1)) {
+	if (fl.n == UNUSED) {
 	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 	}
-	p = new byte[block_size];
+	p = new uint8_t[block_size];
 	read_block(B, fl.n, p);
 	if (inclusive) {
-	    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
+	    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 	    return fl.n;
 	}
     }
 
     // Either the freelist end is in this block, or this freelist block has
     // a next pointer.
-    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
+    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 
     if (fl.c != FREELIST_END - 4) {
-	uint4 blk = getint4(p, fl.c);
+	uint4 blk = aligned_read4(p + fl.c);
 	fl.c += 4;
 	return blk;
     }
 
-    fl.n = getint4(p, fl.c);
-    if (fl.n == glass_block_t(-1)) {
+    fl.n = aligned_read4(p + fl.c);
+    if (fl.n == UNUSED) {
 	throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
     }
     // Allow for mini-header at start of freelist block.
@@ -162,7 +172,7 @@ GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
 
     // Either the freelist end is in this block, or this freelist block has
     // a next pointer.
-    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
+    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 
     if (inclusive)
 	return fl.n;
@@ -180,7 +190,7 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
     uint4 blk_to_free = BLK_UNUSED;
 
     if (!pw) {
-	pw = new byte[block_size];
+	pw = new uint8_t[block_size];
 	if (flw.c != 0) {
 	    read_block(B, flw.n, pw);
 	    flw_appending = true;
@@ -194,12 +204,12 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
 	    fl = fl_end = flw;
 	}
 	flw_appending = (n == first_unused_block - 1);
-	setint4(pw, FREELIST_END - 4, -1);
+	aligned_write4(pw + FREELIST_END - 4, UNUSED);
     } else if (flw.c == FREELIST_END - 4) {
 	// blk is free *after* the current revision gets released, so we can't
 	// just use blk as the next block in the freelist chain.
 	uint4 n = get_block(B, block_size, &blk_to_free);
-	setint4(pw, flw.c, n);
+	aligned_write4(pw + flw.c, n);
 #ifdef GLASS_FREELIST_SIZE
 	if (block_size != FREELIST_END) {
 	    memset(pw + FREELIST_END, 0, block_size - FREELIST_END);
@@ -209,15 +219,15 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
 	if (p && flw.n == fl.n) {
 	    // FIXME: share and refcount?
 	    memcpy(p, pw, block_size);
-	    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
+	    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 	}
 	flw.n = n;
 	flw.c = C_BASE;
 	flw_appending = (n == first_unused_block - 1);
-	setint4(pw, FREELIST_END - 4, -1);
+	aligned_write4(pw + FREELIST_END - 4, UNUSED);
     }
 
-    setint4(pw, flw.c, blk);
+    aligned_write4(pw + flw.c, blk);
     flw.c += 4;
 
     if (blk_to_free != BLK_UNUSED)
@@ -238,7 +248,7 @@ GlassFreeList::commit(const GlassTable * B, uint4 block_size)
 	if (p && flw.n == fl.n) {
 	    // FIXME: share and refcount?
 	    memcpy(p, pw, block_size);
-	    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
+	    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
 	}
 	flw_appending = true;
 	fl_end = flw;
@@ -273,25 +283,20 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	    continue;
 	if (c == 0 && p_first_bad_blk) {
 	    uint4 first_bad_blk = i * BITS_PER_ELT;
-#if defined __GNUC__
-#if __GNUC__ * 100 + __GNUC_MINOR__ >= 304
-	    // GCC 3.4 added __builtin_ctz() (with l and ll variants).
-	    if (sizeof(elt_type) == sizeof(unsigned))
+	    if (false) {
+#if HAVE_DECL___BUILTIN_CTZ
+	    } else if (sizeof(elt_type) == sizeof(unsigned)) {
 		first_bad_blk += __builtin_ctz(elt);
-	    else if (sizeof(elt_type) == sizeof(unsigned long))
+#endif
+#if HAVE_DECL___BUILTIN_CTZL
+	    } else if (sizeof(elt_type) == sizeof(unsigned long)) {
 		first_bad_blk += __builtin_ctzl(elt);
-	    else if (sizeof(elt_type) == sizeof(unsigned long long))
+#endif
+#if HAVE_DECL___BUILTIN_CTZLL
+	    } else if (sizeof(elt_type) == sizeof(unsigned long long)) {
 		first_bad_blk += __builtin_ctzll(elt);
-#else
-	    // GCC has had __builtin_ffs() in all versions we support, which
-	    // returns one more than ctz (and is defined for an input of 0,
-	    // which we don't need).
-	    if (sizeof(elt_type) == sizeof(unsigned))
-		first_bad_blk += __builtin_ffs(elt) - 1;
 #endif
-	    else
-#endif
-	    {
+	    } else {
 		for (elt_type mask = 1; (elt & mask) == 0; mask <<= 1) {
 		    ++first_bad_blk;
 		}
@@ -300,23 +305,26 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	}
 
 	// Count set bits in elt.
-	// GCC 3.4 added __builtin_popcount and variants.
-#if defined __GNUC__ && __GNUC__ * 100 + __GNUC_MINOR__ >= 304
-	if (sizeof(elt_type) == sizeof(unsigned))
+	if (false) {
+#if HAVE_DECL___BUILTIN_POPCOUNT
+	} else if (sizeof(elt_type) == sizeof(unsigned)) {
 	    c += __builtin_popcount(elt);
-	else if (sizeof(elt_type) == sizeof(unsigned long))
-	    c += __builtin_popcountl(elt);
-	else if (sizeof(elt_type) == sizeof(unsigned long long))
-	    c += __builtin_popcountll(elt);
-	else
-#elif defined _MSC_VER
-	if (sizeof(elt_type) == sizeof(unsigned))
+#elif HAVE_DECL___POPCNT
+	} else if (sizeof(elt_type) == sizeof(unsigned)) {
 	    c += __popcnt(elt);
-	else if (sizeof(elt_type) == sizeof(__int64))
-	    c += __popcnt64(elt);
-	else
 #endif
-	{
+#if HAVE_DECL___BUILTIN_POPCOUNTL
+	} else if (sizeof(elt_type) == sizeof(unsigned long)) {
+	    c += __builtin_popcountl(elt);
+#endif
+#if HAVE_DECL___BUILTIN_POPCOUNTLL
+	} else if (sizeof(elt_type) == sizeof(unsigned long long)) {
+	    c += __builtin_popcountll(elt);
+#elif HAVE_DECL___POPCNT64
+	} else if (sizeof(elt_type) == sizeof(unsigned long long)) {
+	    c += __popcnt64(elt);
+#endif
+	} else {
 	    do {
 		++c;
 		elt &= elt - 1;

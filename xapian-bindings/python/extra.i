@@ -191,7 +191,7 @@ class ESetIter(object):
 
 def _eset_gen_iter(self):
     """Return an iterator over the ESet.
-    
+
     The iterator will return ESetItem objects.
 
     """
@@ -568,7 +568,7 @@ Document.termlist = _document_gen_termlist_iter
 # Modify QueryParser to add a "stoplist()" method.
 def _queryparser_gen_stoplist_iter(self):
     """Get an iterator over all the stopped terms from the previous query.
-    
+
     This returns an iterator over all the terms which were omitted from the
     previously parsed query due to being considered to be stopwords.  Each
     instance of a word omitted from the query is represented in the returned
@@ -584,7 +584,7 @@ QueryParser.stoplist = _queryparser_gen_stoplist_iter
 # Modify QueryParser to add an "unstemlist()" method.
 def _queryparser_gen_unstemlist_iter(self, tname):
     """Get an iterator over all the unstemmed forms of a stemmed term.
-    
+
     This returns an iterator which returns all the unstemmed words which were
     stemmed to the stemmed form specified by `tname` when parsing the previous
     query.  Each instance of a word which stems to `tname` is returned by the
@@ -702,6 +702,19 @@ def _queryparser_add_valuerangeprocessor(self, vrproc):
 _queryparser_add_valuerangeprocessor.__doc__ = __queryparser_add_valuerangeprocessor_orig.__doc__
 QueryParser.add_valuerangeprocessor = _queryparser_add_valuerangeprocessor
 del _queryparser_add_valuerangeprocessor
+
+# When we set a RangeProcessor into the QueryParser, keep a python
+# reference so it won't be deleted. This hack can probably be removed once
+# xapian bug #186 is fixed.
+__queryparser_add_rangeprocessor_orig = QueryParser.add_rangeprocessor
+def _queryparser_add_rangeprocessor(self, rproc):
+    if not hasattr(self, '_rps'):
+        self._rps = []
+    self._rps.append(rproc)
+    return __queryparser_add_rangeprocessor_orig(self, rproc)
+_queryparser_add_rangeprocessor.__doc__ = __queryparser_add_rangeprocessor_orig.__doc__
+QueryParser.add_rangeprocessor = _queryparser_add_rangeprocessor
+del _queryparser_add_rangeprocessor
 
 # When we set a FieldProcessor into the QueryParser, keep a python
 # reference so it won't be deleted. This hack can probably be removed once
@@ -940,7 +953,7 @@ class PositionIter(object):
 # Modify Database to add a "positionlist()" method.
 def _database_gen_positionlist_iter(self, docid, tname):
     """Get an iterator over all the positions in a given document of a term.
-    
+
     The iterator will return integers, in ascending order.
 
     """

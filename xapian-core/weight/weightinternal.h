@@ -51,7 +51,7 @@ struct TermFreqs {
 	  collfreq(collfreq_),
 	  max_part(max_part_) {}
 
-    void operator +=(const TermFreqs & other) {
+    void operator+=(const TermFreqs & other) {
 	termfreq += other.termfreq;
 	reltermfreq += other.reltermfreq;
 	collfreq += other.collfreq;
@@ -81,7 +81,7 @@ class Weight::Internal {
 
   public:
     /** Total length of all documents in the collection. */
-    totlen_t total_length;
+    Xapian::totallength total_length;
 
     /** Number of documents in the collection. */
     Xapian::doccount collection_size;
@@ -121,7 +121,7 @@ class Weight::Internal {
      *  Used for remote databases, where we pass across a serialised stats
      *  object, unserialise it, and add it to our total.
      */
-    Internal & operator +=(const Internal & inc);
+    Internal & operator+=(const Internal & inc);
 
     void set_query(const Xapian::Query &query_) {
 	AssertEq(subdbs, 0);
@@ -159,7 +159,7 @@ class Weight::Internal {
 	    return true;
 	}
 
-	map<string, TermFreqs>::const_iterator i = termfreqs.find(term);
+	auto i = termfreqs.find(term);
 	if (i == termfreqs.end()) {
 	    termfreq = reltermfreq = collfreq = 0;
 	    return false;
@@ -180,7 +180,7 @@ class Weight::Internal {
     }
 
     /// Get the termweight.
-    bool get_termweight(const std::string & term, double & termweight) {
+    bool get_termweight(const std::string & term, double & termweight) const {
 #ifdef XAPIAN_ASSERTIONS
 	finalised = true;
 #endif
@@ -189,7 +189,7 @@ class Weight::Internal {
 	    return false;
 	}
 
-	map<string, TermFreqs>::const_iterator i = termfreqs.find(term);
+	auto i = termfreqs.find(term);
 	if (i == termfreqs.end()) {
 	    return false;
 	}
@@ -198,11 +198,33 @@ class Weight::Internal {
 	return true;
     }
 
+    /** Get the minimum and maximum termweights.
+     *
+     *  Used by the snippet code.
+     */
+    void get_max_termweight(double & min_tw, double & max_tw) {
+	auto i = termfreqs.begin();
+	while (i != termfreqs.end() && i->second.max_part == 0.0) ++i;
+	if (rare(i == termfreqs.end())) {
+	    min_tw = max_tw = 0.0;
+	    return;
+	}
+	min_tw = max_tw = i->second.max_part;
+	while (++i != termfreqs.end()) {
+	    double max_part = i->second.max_part;
+	    if (max_part > max_tw) {
+		max_tw = max_part;
+	    } else if (max_part < min_tw && max_part != 0.0) {
+		min_tw = max_part;
+	    }
+	}
+    }
+
     /// Set max_part for a term.
     void set_max_part(const std::string & term, double max_part) {
 	have_max_part = true;
 	Assert(!term.empty());
-	map<string, TermFreqs>::iterator i = termfreqs.find(term);
+	auto i = termfreqs.find(term);
 	if (i != termfreqs.end())
 	    i->second.max_part += max_part;
     }

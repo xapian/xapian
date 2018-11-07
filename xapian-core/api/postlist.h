@@ -1,7 +1,7 @@
 /** @file postlist.h
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2015,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,8 @@
 
 #include "backends/positionlist.h"
 #include "weight/weightinternal.h"
+
+class OrPositionList;
 
 /// Abstract base class for postlists.
 class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_base {
@@ -95,6 +97,8 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
     /// Return the weight contribution for the current position.
     virtual double get_weight() const = 0;
 
+    virtual const std::string * get_sort_key() const;
+
     /** If the collapse key is already known, return it.
      *
      *  This is implemented by MSetPostList (and MergePostList).  Other
@@ -132,9 +136,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
 
     /** Advance the current position to the next document in the postlist.
      *
-     *  The list starts before the first entry in the list, so next()
-     *  must be called before any methods which need the context of
-     *  the current position.
+     *  The list starts before the first entry in the list, so next(),
+     *  skip_to() or check() must be called before any methods which need the
+     *  context of the current position.
      *
      *  @param w_min	The minimum weight contribution that is needed (this is
      *			just a hint which PostList subclasses may ignore).
@@ -159,7 +163,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *		delete us.  This "pruning" can only happen for a non-leaf
      *		subclass of this class.
      */
-    virtual Internal * skip_to(Xapian::docid, double w_min) = 0;
+    virtual Internal * skip_to(Xapian::docid did, double w_min) = 0;
 
     /** Check if the specified docid occurs in this postlist.
      *
@@ -172,11 +176,12 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, @a valid is set to true.  If it isn't, it sets @a valid to
      *  false, and leaves the position unspecified (and hence the result of
-     *  calling methods which depends on the current position, such as
-     *  get_docid(), are also unspecified).  In this state, next() will
-     *  advance to the first matching position after @a docid, and skip_to()
-     *  will act as it would if the position was the first matching position
-     *  after @a docid.
+     *  calling methods which depend on the current position, such as
+     *  get_docid() and at_end(), are also unspecified).  In this state, next()
+     *  will advance to the first matching position after @a docid, and
+     *  skip_to() will act as it would if the position was the first matching
+     *  position after @a docid.  If @a valid is set to false, then NULL must
+     *  be returned (pruning in this situation doesn't make sense).
      *
      *  The default implementation calls skip_to().
      */
@@ -196,6 +201,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
 
     /// Count the number of leaf subqueries which match at the current position.
     virtual Xapian::termcount count_matching_subqs() const;
+
+    /// Gather PositionList* objects for a subtree.
+    virtual void gather_position_lists(OrPositionList* orposlist);
 
     /// Return a string description of this object.
     virtual std::string get_description() const = 0;

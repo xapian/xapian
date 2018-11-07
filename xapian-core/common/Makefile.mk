@@ -1,4 +1,5 @@
 noinst_HEADERS +=\
+	common/alignment_cast.h\
 	common/append_filename_arg.h\
 	common/autoptr.h\
 	common/bitstream.h\
@@ -6,6 +7,7 @@ noinst_HEADERS +=\
 	common/compression_stream.h\
 	common/debuglog.h\
 	common/errno_to_string.h\
+	common/exp10.h\
 	common/fd.h\
 	common/filetests.h\
 	common/fileutils.h\
@@ -15,19 +17,19 @@ noinst_HEADERS +=\
 	common/keyword.h\
 	common/log2.h\
 	common/msvc_dirent.h\
+	common/msvcignoreinvalidparam.h\
 	common/noreturn.h\
 	common/omassert.h\
 	common/output.h\
 	common/output-internal.h\
+	common/overflow.h\
 	common/pack.h\
 	common/posixy_wrapper.h\
 	common/pretty.h\
 	common/realtime.h\
-	common/remoteprotocol.h\
 	common/replicate_utils.h\
 	common/replicationprotocol.h\
 	common/safedirent.h\
-	common/safeerrno.h\
 	common/safefcntl.h\
 	common/safenetdb.h\
 	common/safesysselect.h\
@@ -35,7 +37,6 @@ noinst_HEADERS +=\
 	common/safesysstat.h\
 	common/safesyswait.h\
 	common/safeunistd.h\
-	common/safeuuid.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
 	common/serialise-double.h\
@@ -43,11 +44,9 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h\
 	common/submatch.h\
-	common/unaligned.h
+	common/wordaccess.h
 
 EXTRA_DIST +=\
-	common/win32_uuid.cc\
-	common/win32_uuid.h\
 	common/Makefile\
 	common/Tokeniseise.pm
 
@@ -66,18 +65,11 @@ lib_src +=\
 	common/safe.cc\
 	common/serialise-double.cc\
 	common/socket_utils.cc\
-	common/str.cc\
-	common/stringutils.cc
+	common/str.cc
 
 if BUILD_BACKEND_CHERT_OR_GLASS
 lib_src +=\
 	common/compression_stream.cc
-endif
-
-if USE_WIN32_UUID_API
-lib_src +=\
-	common/win32_uuid.cc
-libxapian_1_3_la_LDFLAGS += -lrpcrt4
 endif
 
 noinst_LTLIBRARIES += libgetopt.la

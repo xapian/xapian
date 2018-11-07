@@ -79,13 +79,13 @@ get_free_physical_memory()
     /* HP-UX: */
     struct pst_dynamic info;
     if (pstat_getdynamic(&info, sizeof(info), 1, 0) == 1) {
-        pagesize = getpagesize();
-        pages = info.psd_free;
+	pagesize = getpagesize();
+	pages = info.psd_free;
     }
 #elif defined CTL_VM && (defined VM_TOTAL || defined VM_METER)
     /* FreeBSD: */
     struct vmtotal vm_info;
-    int mib[2] = {
+    static const int mib[2] = {
 	CTL_VM,
 #ifdef VM_TOTAL
 	VM_TOTAL
@@ -140,13 +140,13 @@ get_total_physical_memory()
     /* HP-UX: */
     struct pst_dynamic info;
     if (pstat_getdynamic(&info, sizeof(info), 1, 0) == 1) {
-        pagesize = getpagesize();
-        pages = info.psd_rm;
+	pagesize = getpagesize();
+	pages = info.psd_rm;
     }
 #elif defined CTL_VM && (defined VM_TOTAL || defined VM_METER)
     /* FreeBSD: */
     struct vmtotal vm_info;
-    int mib[2] = {
+    static const int mib[2] = {
 	CTL_VM,
 #ifdef VM_TOTAL
 	VM_TOTAL

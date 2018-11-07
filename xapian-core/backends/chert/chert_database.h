@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 #ifndef OM_HGUARD_CHERT_DATABASE_H
 #define OM_HGUARD_CHERT_DATABASE_H
 
+#include "backends/backends.h"
 #include "backends/database.h"
 #include "chert_dbstats.h"
 #include "chert_positionlist.h"
@@ -41,9 +42,12 @@
 
 #include "noreturn.h"
 
+#include "xapian/compactor.h"
 #include "xapian/constants.h"
 
 #include <map>
+#include <vector>
+#include <string>
 
 class ChertTermList;
 class ChertAllDocsPostList;
@@ -257,10 +261,9 @@ class ChertDatabase : public Xapian::Database::Internal {
 
 	/** Virtual methods of Database::Internal. */
 	//@{
-	Xapian::doccount  get_doccount() const;
+	Xapian::doccount get_doccount() const;
 	Xapian::docid get_lastdocid() const;
-	totlen_t get_total_length() const;
-	Xapian::doclength get_avlength() const;
+	Xapian::totallength get_total_length() const;
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::termcount get_unique_terms(Xapian::docid did) const;
 	void get_freqs(const string & term,
@@ -298,9 +301,34 @@ class ChertDatabase : public Xapian::Database::Internal {
 				    Xapian::ReplicationInfo * info);
 	string get_revision_info() const;
 	string get_uuid() const;
+
+	void request_document(Xapian::docid /*did*/) const;
+	void readahead_for_query(const Xapian::Query &query);
 	//@}
 
 	XAPIAN_NORETURN(void throw_termlist_table_close_exception() const);
+
+	int get_backend_info(string * path) const {
+	    if (path) *path = db_dir;
+	    return BACKEND_CHERT;
+	}
+
+	void get_used_docid_range(Xapian::docid & first,
+				  Xapian::docid & last) const;
+
+	bool locked() const;
+
+	/** Return true if there are uncommitted changes. */
+	virtual bool has_uncommitted_changes() const;
+
+	static void compact(Xapian::Compactor * compactor,
+			    const char * destdir,
+			    const std::vector<Xapian::Database::Internal *> & sources,
+			    const std::vector<Xapian::docid> & offset,
+			    size_t block_size,
+			    Xapian::Compactor::compaction_level compaction,
+			    unsigned flags,
+			    Xapian::docid last_docid);
 };
 
 /** A writable chert database.
@@ -338,6 +366,12 @@ class ChertWritableDatabase : public ChertDatabase {
 	/** The document ID for the last document returned by open_document().
 	 */
 	mutable Xapian::docid modify_shortcut_docid;
+
+	/** Check if we should autoflush.
+	 *
+	 *  Called at the end of each document changing operation.
+	 */
+	void check_flush_threshold();
 
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes() const;
@@ -431,6 +465,7 @@ class ChertWritableDatabase : public ChertDatabase {
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::termcount get_doclength(Xapian::docid did) const;
+	Xapian::termcount get_unique_terms(Xapian::docid did) const;
 	void get_freqs(const string & term,
 		       Xapian::doccount * termfreq_ptr,
 		       Xapian::termcount * collfreq_ptr) const;
@@ -455,6 +490,9 @@ class ChertWritableDatabase : public ChertDatabase {
 	void set_metadata(const string & key, const string & value);
 	void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 	//@}
+
+	/** Return true if there are uncommitted changes. */
+	bool has_uncommitted_changes() const;
 };
 
 #endif /* OM_HGUARD_CHERT_DATABASE_H */

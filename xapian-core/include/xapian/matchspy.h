@@ -1,7 +1,7 @@
 /** @file matchspy.h
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -46,7 +46,8 @@ class Registry;
  *  to calculate aggregate functions, or other profiles of the matching
  *  documents.
  */
-class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
+class XAPIAN_VISIBILITY_DEFAULT MatchSpy
+    : public Xapian::Internal::opt_intrusive_base {
   private:
     /// Don't allow assignment.
     void operator=(const MatchSpy &);
@@ -54,11 +55,10 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
     /// Don't allow copying.
     MatchSpy(const MatchSpy &);
 
-  protected:
+  public:
     /// Default constructor, needed by subclass constructors.
     XAPIAN_NOTHROW(MatchSpy()) {}
 
-  public:
     /** Virtual destructor, because we have virtual methods. */
     virtual ~MatchSpy();
 
@@ -91,7 +91,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  (for example when wrapping the Xapian API for use from another
      *  language) then you can define a static <code>operator delete</code>
      *  method in your subclass as shown here:
-     *  http://trac.xapian.org/ticket/554#comment:1
+     *  https://trac.xapian.org/ticket/554#comment:1
      */
     virtual MatchSpy * clone() const;
 
@@ -133,7 +133,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  (for example when wrapping the Xapian API for use from another
      *  language) then you can define a static <code>operator delete</code>
      *  method in your subclass as shown here:
-     *  http://trac.xapian.org/ticket/554#comment:1
+     *  https://trac.xapian.org/ticket/554#comment:1
      *
      *  @param serialised	A string containing the serialised results.
      *  @param context	Registry object to use for unserialisation to permit
@@ -173,6 +173,30 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  subclass).
      */
     virtual std::string get_description() const;
+
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
+    MatchSpy * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
+    const MatchSpy * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 
@@ -183,6 +207,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     struct Internal;
 
 #ifndef SWIG // SWIG doesn't need to know about the internal class
+    /// @private @internal
     struct XAPIAN_VISIBILITY_DEFAULT Internal
 	    : public Xapian::Internal::intrusive_base
     {
@@ -196,19 +221,20 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 	std::map<std::string, Xapian::doccount> values;
 
 	Internal() : slot(Xapian::BAD_VALUENO), total(0) {}
-	Internal(Xapian::valueno slot_) : slot(slot_), total(0) {}
+	explicit Internal(Xapian::valueno slot_) : slot(slot_), total(0) {}
     };
 #endif
 
   protected:
+    /** @private @internal Reference counted internals. */
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
     /// Construct an empty ValueCountMatchSpy.
-    ValueCountMatchSpy() : internal() {}
+    ValueCountMatchSpy() {}
 
     /// Construct a MatchSpy which counts the values in a particular slot.
-    ValueCountMatchSpy(Xapian::valueno slot_)
+    explicit ValueCountMatchSpy(Xapian::valueno slot_)
 	    : internal(new Internal(slot_)) {}
 
     /** Return the total number of documents tallied. */

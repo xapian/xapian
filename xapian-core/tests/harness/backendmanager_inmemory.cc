@@ -42,3 +42,9 @@ BackendManagerInMemory::get_writable_database(const string &,
 {
     return getwritedb_inmemory(vector<string>(1, file));
 }
+
+string
+BackendManagerInMemory::get_writable_database_path(const std::string&)
+{
+    return string();
+}

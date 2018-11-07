@@ -4,18 +4,21 @@ include ../generic/generic.mk
 
 ## Test programs to be run
 TESTS = SmokeTest.exe
-LOG_COMPILER = $(RUN_CSHARP)
+LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(RUN_CSHARP)
 
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Auto.cs \
 	generated-csharp/BB2Weight.cs \
+	generated-csharp/BM25PlusWeight.cs\
 	generated-csharp/BM25Weight.cs \
 	generated-csharp/BoolWeight.cs \
 	generated-csharp/Chert.cs \
 	generated-csharp/Compactor.cs \
+	generated-csharp/CoordWeight.cs \
 	generated-csharp/Database.cs \
+	generated-csharp/DateRangeProcessor.cs \
 	generated-csharp/DateValueRangeProcessor.cs \
 	generated-csharp/DecreasingValueWeightPostingSource.cs \
 	generated-csharp/DLHWeight.cs \
@@ -47,7 +50,9 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/MSet.cs \
 	generated-csharp/MSetIterator.cs \
 	generated-csharp/MultiValueKeyMaker.cs \
+	generated-csharp/NumberRangeProcessor.cs \
 	generated-csharp/NumberValueRangeProcessor.cs \
+	generated-csharp/PL2PlusWeight.cs \
 	generated-csharp/PL2Weight.cs \
 	generated-csharp/PositionIterator.cs \
 	generated-csharp/PostingIterator.cs \
@@ -57,9 +62,9 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Remote.cs \
 	generated-csharp/RSet.cs \
 	generated-csharp/SWIGTYPE_p_std__string.cs \
+	generated-csharp/RangeProcessor.cs \
 	generated-csharp/Registry.cs \
 	generated-csharp/SimpleStopper.cs \
-	generated-csharp/Snipper.cs \
 	generated-csharp/Stem.cs \
 	generated-csharp/StemImplementation.cs \
 	generated-csharp/Stopper.cs \
@@ -94,9 +99,11 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 	    `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
 	    AssemblyInfo.cs
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
+SWIG_GENERATED = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
 
-EXTRA_DIST = csharp.i SmokeTest.cs docs/index.rst $(BUILT_SOURCES)
+BUILT_SOURCES = $(SWIG_GENERATED)
+
+EXTRA_DIST = csharp.i SmokeTest.cs docs/index.rst $(SWIG_GENERATED)
 
 lib_LTLIBRARIES = _XapianSharp.la
 
@@ -167,6 +174,8 @@ docdatadir = $(docdir)/csharp
 dist_docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
+BUILT_SOURCES += docs/index.html
+
 .rst.html:
 	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@

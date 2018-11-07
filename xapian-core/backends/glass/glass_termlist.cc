@@ -36,14 +36,20 @@ using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 GlassTermList::GlassTermList(intrusive_ptr<const GlassDatabase> db_,
-			     Xapian::docid did_)
+			     Xapian::docid did_,
+			     bool throw_if_not_present)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    LOGCALL_CTOR(DB, "GlassTermList", db_ | did_);
+    LOGCALL_CTOR(DB, "GlassTermList", db_ | did_ | throw_if_not_present);
 
     if (!db->termlist_table.get_exact_entry(GlassTermListTable::make_key(did),
-					    data))
+					    data)) {
+	if (!throw_if_not_present) {
+	    pos = NULL;
+	    return;
+	}
 	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
+    }
 
     pos = data.data();
     end = pos + data.size();
@@ -82,6 +88,16 @@ GlassTermList::get_doclength() const
 {
     LOGCALL(DB, Xapian::termcount, "GlassTermList::get_doclength", NO_ARGS);
     RETURN(doclen);
+}
+
+Xapian::termcount
+GlassTermList::get_unique_terms() const
+{
+    LOGCALL(DB, Xapian::termcount, "GlassTermList::get_unique_terms", NO_ARGS);
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    RETURN(min(termlist_size, doclen));
 }
 
 Xapian::termcount

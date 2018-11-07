@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,6 +49,7 @@ RemoteTcpServer::handle_one_connection(int socket)
     try {
 	RemoteServer sserv(dbpaths, socket, socket,
 			   active_timeout, idle_timeout, writable);
+	sserv.set_registry(reg);
 	sserv.run();
     } catch (const Xapian::NetworkTimeoutError &e) {
 	if (verbose)

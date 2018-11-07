@@ -2,7 +2,7 @@
 %{
 /* csharp.i: SWIG interface file for the C# bindings
  *
- * Copyright (c) 2005,2006,2008,2009,2011,2012 Olly Betts
+ * Copyright (c) 2005,2006,2008,2009,2011,2012,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,9 +19,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
-// In C#, we don't get SWIG_exception in the generated C++ wrapper sources.
-#define XapianException(TYPE, MSG) SWIG_CSharpException(TYPE, (MSG).c_str())
 %}
 
 // Use SWIG directors for C# wrappers.

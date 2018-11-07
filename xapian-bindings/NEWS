@@ -1,3 +1,712 @@
+Xapian-bindings 1.4.9 (2018-11-02):
+
+PHP7:
+
+* Fix to build with upcoming PHP 7.3 release, which changes array_init()
+  to not return a value instead of always returning the constant SUCCESS.
+  We were checking this return value but no longer do.
+
+Xapian-bindings 1.4.8 (2018-10-25):
+
+Perl:
+
+* Wrap new STEM_SOME_FULL_POS constant.
+
+* Add STEM_ALL_Z to qpstem export tag and POD docs.
+
+* Fix Perl bindings documentation typos.
+
+Python:
+
+* Fix RST formatting warning during build.
+    
+Python3:
+
+* Fix RST formatting warning during build.
+    
+Xapian-bindings 1.4.7 (2018-07-19):
+
+Ruby:
+
+* Fix -Wconversion-null warnings with newer GCC.
+
+Xapian-bindings 1.4.6 (2018-07-02):
+
+Documentation:
+
+* Stop using "probabilistic" to mean "weighted" - we've supported other
+  families of weighting schemes since 1.3.2.
+
+Packaging:
+
+* Use https for tarball URLs in .spec files.  This provides protection against
+  MITM attacks on people building packages using these spec files, and is also
+  slightly more efficient as the http: URLs redirect to the https: versions
+  anyway.
+
+CSharp:
+
+* Use SWIG_exception() to handle exceptions.  It seems this didn't used to work
+  with older SWIG, but it does with current versions, and using it means that
+  we skip any return value translation logic when an exception has been thrown.
+
+Java:
+
+* Use SWIG_exception() to handle exceptions.  It seems this didn't used to work
+  with older SWIG, but it does with current versions, and using it means that
+  we skip any return value translation logic when an exception has been thrown.
+
+* Fix leaks in binary std::string typemaps.  These are used for document values
+  and serialised data.
+
+* Improve VPATH build.  Previously we looked for class files and java sources
+  in srcdir first, then in builddir.  That's backwards from how autotools
+  VPATH builds search for targets and prerequisites so reverse this order to
+  make handling of Java files more consistent.
+
+Perl:
+
+* Invoke prove via the App::Prove module.  This avoids potentially using
+  prove from a different Perl installation to perl (previously the user
+  needed to manually specify the corresponding PROVE= if they specify PERL= to
+  configure).  In particular this is useful on macOS when using Perl from
+  homebrew.
+
+* Improve Perl Enquire::set_docid_order documentation by syncing improvements
+  from the C++ API docs.
+
+Python:
+
+* Support sphinx >= 1.7 while still working with < 1.7.  Patch from
+  James Aylett.
+
+* Suppress clang -Wdeprecated-register warnings about uses register in C code
+  in Python.h.  We can't do anything about these other than suppress them.
+
+Python3:
+
+* Support sphinx >= 1.7 while still working with < 1.7.  Patch from
+  James Aylett.
+
+* Suppress clang -Wdeprecated-register warnings about uses register in C code
+  in Python.h.  We can't do anything about these other than suppress them
+  (and they appear to have been removed in Python 3.4 and later).
+
+* Remove unused MSet::__cmp__ extend method.  This was used in Python 2, but
+  Python 3 does things differently.  There doesn't seem a good reason to
+  provide comparison operations for MSet objects, and we don't for other
+  classes, so let's just drop this feature - it seems nobody has noticed it has
+  gone.
+
+* Simplify generated wrapper post-processing.
+
+Xapian-bindings 1.4.5 (2017-10-16):
+
+Documentation:
+
+* HACKING: Add details of Debian PHP7 packages to install for development.
+
+General:
+
+* Use a pattern match to ignore methods meant for internal use only rather
+  than having to list them all - they're consistently named to end with an
+  underscore.
+
+* Stop using deprecated Xapian::percent typedef in bindings-specific code.
+  Deprecation warnings are suppressed when building the bindings (because the
+  bindings usually still need to wrap deprecated C++ features) so this probably
+  has no user-visible consequences.
+
+Java:
+
+* Fix JNI code to be compatible with Java 6 and earlier, where the final
+  parameter of SetByteArrayRegion() was not const.  This also seems to affect
+  GCJ (though GCJ was removed in GCC 7).  The incompatibility was introduced in
+  1.4.4.
+
+Lua:
+
+* Support subclassing of RangeProcessor in Lua.
+
+Perl:
+
+* Add CLONE_SKIP to RangeProcessor and subclases to avoid double deletion
+  if the Perl threads module is in use.
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Use RangeProcessor instead of ValueRangeProcessor in perl examples, as
+  ValueRangeProcessor is now deprecated.
+
+PHP:
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Add type hints to QueryParser::add_rangeprocessor().
+
+PHP7:
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Add type hints to QueryParser::add_rangeprocessor().
+
+* Fix PHP7 "make check" to use right path separator.  It was using the PHP5
+  one, which in general is going to be the same but we won't have probed for
+  that unless we're also building the PHP5 bindings, which means "make check"
+  failed for PHP7 unless you also had the PHP5 bindings enabled.
+
+Python3:
+
+* Fix "make check" under Python 3.2, which was broken in 1.4.4 because Python
+  3.2 doesn't support the u'foo' syntax.
+
+* Copy over Python2 check which aims to catch any internal functions, methods,
+  constants, etc which have accidentally been wrapped.
+
+Ruby:
+
+* Fix dependency generation for Ruby SWIG command (only relevant at all if
+  you configure with --enable-maintainer-mode).
+
+Xapian-bindings 1.4.4 (2017-04-19):
+
+General:
+
+* Update tests for xapian-core changes to avoid unnecessary "0 *" in query
+  descriptions in certain cases.
+
+Packaging:
+
+* Ship java.i in tarball.
+
+Java:
+
+* Handle object serialisations and document values as Java byte[].  These will
+  usually contain binary data, so Java String doesn't work well and byte[] is a
+  much better fit.
+
+* Correct various errors in java examples and documentation on how to run them.
+
+* Fix java examples not to abuse doc values as fields - use the document data
+  instead.
+
+* "make clean" now removes additional class files.
+
+PHP7:
+
+* Update version of SWIG required to >= 3.0.12 so that the code generated
+  for PHP7 no longer results in a segmentation fault on module unload with
+  PHP 7.1.  Fixes #748, reported by Victor Sakovich.
+
+Python:
+
+* Fix QueryParser methods add_boolean_prefix() and add_prefix() to accept a
+  string for the `grouping` parameter.  Reported by Jameson Graef Rollins in
+  https://bugs.debian.org/849722
+
+* Fix configure --with-python to fail if sphinx isn't found.  Patch from
+  Patricio Paez.  Fixes #749.
+
+Python3:
+
+* Fix QueryParser methods add_boolean_prefix() and add_prefix() to accept a
+  string for the `grouping` parameter.  Reported by Jameson Graef Rollins in
+  https://bugs.debian.org/849722
+
+Xapian-bindings 1.4.3 (2017-01-25):
+
+Python:
+
+* Remove compatibility code for Python < 2.5 - 1.4.x requires Python >= 2.6.
+
+* Avoid unnecessary pointer indirection in XapianSWIG_anystring() helper
+  function, which should be a little more efficient and makes the Python 2
+  code more closely match the Python 3 code.
+
+Ruby:
+
+* "make clean" should only remove docs/xapian.rb if configure option
+  --enable-documentation was used to enable all rules to rebuild documentation.
+  Reported by Samuel Williams on xapian-discuss.
+
+* Fix make rule for running rdoc for the cases where srcdir != builddir.
+
+* Use 'test a = b' rather than 'test a == b' - the former is portable, the
+  latter a bashism.  In many cases the autotools will set SHELL = /bin/bash in
+  the makefiles, but if it doesn't and /bin/sh isn't bash, then this will
+  cause "make install" and "make uninstall" to fail for the Ruby bindings.
+
+Xapian-bindings 1.4.2 (2016-12-26):
+
+General:
+
+* configure: Fail with clear error with xapian-core < 1.4.0.
+
+* Work around OS X "System Integrity Protection".  We can't address the problem
+  of being unable to run tests against an uninstalled tree when the interpreter
+  is in a system directory (you have to "make install" in xapian-core for that
+  case), but we can at least make this work for interpreters which aren't in
+  system directories.
+
+Java:
+
+* Disable parallel make for java subdirectory as it causes random build
+  failures.  Reported by Lucas Nussbaum in https://bugs.debian.org/848733
+
+* Disable automatic use of -Xcheck:jni for now as it seems to report false
+  positives with OpenJDK 8 and 9.
+
+PHP:
+
+* Generates smaller PHP wrappers by only emitting each unique arginfo
+  combination once (~6% saving in stripped extension module size for
+  PHP7 on x86_64 Linux).
+
+* Fix to work again with a version of PHP5 built with ZTS enabled (which is the
+  default on Microsoft Windows).
+
+* Add support for PHP7.
+
+* Drop workaround for PHP4 from test code.
+
+Python:
+
+* Handle sphinx-build being a shell script wrapper by invoking sphinx.main()
+  from a command line Python code snippet.  Reported by Alex Dunn in
+  https://github.com/xapian/xapian/pull/126 and solved with help from James
+  Aylett.
+
+* Hold python reference to set RangeProcessor objects - until #714 is fixed we
+  need to keep such a reference (as we already do for ValueRangeProcessor and
+  several other classes).
+
+Python3:
+
+* Handle sphinx-build being a shell script wrapper by invoking sphinx.main()
+  from a command line Python code snippet.  Reported by Alex Dunn in
+  https://github.com/xapian/xapian/pull/126 and solved with help from James
+  Aylett.
+
+* Hold python reference to set RangeProcessor objects - until #714 is fixed we
+  need to keep such a reference (as we already do for ValueRangeProcessor and
+  several other classes).
+
+Ruby:
+
+* Use more conventional Ruby variable names in the examples (Ruby convention
+  uses underscores not camelcase) and fix comma/space transposition in a couple
+  of places.
+
+Xapian-bindings 1.4.1 (2016-10-21):
+
+Documentation:
+
+* Fix --disable-documentation - in maintainer-mode, we still tried to make
+  docs/index.html for most of the bindings, which failed because the rule to do
+  so was disabled.
+
+General:
+
+* Update for additions to C++ API.
+
+* When a backend is disabled in the xapian-core we're building against, we
+  have a stub version of any factory functions so the bindings still have
+  something to wrap.  Update these for 1.4:
+  + Disable stub for InMemory::open() when
+    XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES is defined (Perl, Python3).
+  + Add new optional flags parameter to both overloaded forms of
+    Remote::open_writable().
+
+Portability:
+
+* Drop compiler options that are no longer useful:
+  + -fshow-column is the default in all GCC versions we now support
+    (checked as GCC 4.6).
+  + -Wno-long-long is no longer necessary now that we require C++11 where
+    "long long" is a standard type.
+
+Java:
+
+* Use a cleaner technique to insert the Java code to load JNI library into the
+  generated wrapper - we now use "%pragma(java) jniclasscode" instead of using
+  Perl to post-process the generated wrapper.  Suggested by James Aylett.
+
+* Run Java tests with -Xcheck:jni if supported, which should help catch any
+  any bugs in the JNI code.
+
+* Fix configure to find jni_md.h under Cygwin.  There doesn't seem to be an way
+  to automatically determine the machine-dependent JNI include path, so add
+  another case to use "win32" on Cygwin.  Reported by John Bankert on
+  xapian-discuss.
+
+* Add more special cases to find jni_md.h on Cygwin, OS X, *BSD, AIX.
+  There doesn't seem to be an explicit list of these directories anywhere, but
+  grepping the OpenJDK 8 source code finds additional values "darwin" and
+  "aix", *BSD seems to use "bsd", and Cygwin uses "win32" (reported by John
+  Bankert on xapian-discuss).
+
+* Generate xapian.jar rather than xapian_jni.jar - the fact that JNI is
+  involved is really just an implementation detail.
+
+* SmokeTest.java: Add simple test of subclassing FieldProcessor.
+
+Perl:
+
+* Merge Perl POD doc improvements from Search::Xapian.  The most notable
+  improvement is a number of methods previously lacking docs now have them.
+
+* Fix typo in POD docs for Perl bindings ("outputing" -> "outputting").
+  Reported by knowledgejunkie in #730.
+
+Python:
+
+* Fix repr() to not return None.  Reported by Stuart Prescott on IRC.
+
+* Fix Python2 bindings to work out of the box.  SWIG changed the code it
+  generates for importing the compiled module in a recent version, and
+  the newer code no longer works with the wrapper renamed to
+  xapian/__init__.py.  There's currently no way to configure SWIG to produce
+  what we need so for now we run a "fixup" script over the generated wrapper
+  which replaces the complex import code with a single statement which does
+  what we want.  It also strips out various unneeded code, mostly to do with
+  handling Python 3.x (which we don't need since we have an entirely
+  separate set of bindings for that).  Reported by James Aylett in #731.
+  The way we were importing the bindings to generate the .pyc and .pyo
+  files was masking this problem, so rework that as suggested by James.
+
+* Make sphinx docs dependent on SWIG wrapper.  Without this dependency,
+  parallel builds (make -j) may attempt to schedule the sphinx doc build before
+  the relevant wrapper has been compiled and moved into position.  This won't
+  result in a build failure, but will silently omit API docs that sphinx
+  would otherwise include.  Patch from James Aylett.
+
+* doxy2swig: Specify encoding when reading doxygen's XML output so UTF-8 in
+  doxygen comments is handled.  Patch from Vivek Pal.
+
+* Specify Python2 wrapper encoding is UTF-8.  This is needed when we pick up
+  doxygen comments from the C++ API which contain UTF-8.  For Python3, the
+  default source encoding is UTF-8, so we don't need the equivalent change
+  there.
+
+Python3:
+
+* Fix repr() to not return None.  Reported by Stuart Prescott on IRC.
+
+* Fix Python3 bindings to work out of the box.  SWIG changed the code it
+  generates for importing the compiled module in a recent version, and
+  the newer code no longer works with the wrapper renamed to
+  xapian/__init__.py.  There's currently no way to configure SWIG to produce
+  what we need so for now we run a "fixup" script over the generated wrapper
+  which replaces the complex import code with a single statement which does
+  what we want.  It also strips out various unneeded code, mostly to do with
+  handling Python 2.x (which we don't need since we have an entirely
+  separate set of bindings for that).  Reported by James Aylett in #731.
+  The way we were importing the bindings to generate the .pyc and .pyo
+  files was masking this problem, so rework that as suggested by James.
+
+* Make sphinx docs dependent on SWIG wrapper.  Without this dependency,
+  parallel builds (make -j) may attempt to schedule the sphinx doc build before
+  the relevant wrapper has been compiled and moved into position.  This won't
+  result in a build failure, but will silently omit API docs that sphinx
+  would otherwise include.  Patch from James Aylett.
+
+* Fix memory leak converting string from Python to C++.
+  XapianSWIG_anystring_as_ptr() was failing to flag the returned value as
+  allocated, so it wasn't being deleted.  Reported by Sean Robinson in #729.
+
+Xapian-bindings 1.4.0 (2016-06-24):
+
+Documentation:
+
+* Mark SWIG-generated Java and Perl bindings as "experimental" until we've
+  had a chance to sort out any remaining changes we want to make.
+
+Xapian-bindings 1.3.7 (2016-06-01):
+
+Documentation:
+
+* Remove long out-dated reference to tinderbox.
+
+General:
+
+* Use SWIG 3.0.9 to generate the bindings.  There's nothing very important to
+  us in the changes since the git snapshot we were using - mostly this means
+  we're using a released version, which seems preferable.
+
+Tcl:
+
+* Fix segfault in tcl bindings "make check".  The location of tclConfig.sh
+  wasn't being found, so libtclstub wasn't being linked to, which is required
+  with Tcl >= 8.6.
+
+Xapian-bindings 1.3.6 (2016-05-09):
+
+General:
+
+* Update for changes to the C++ API.
+
+* Use WritableDatabase::commit() instead of flush() in testcases, as the
+  latter is now formally deprecated.
+
+Java:
+
+* Fix syntax error in SmokeTest.java, introduced by the DB_BACKEND_INMEMORY
+  change.  Noted on #xapian-discuss by Aakash Muttineni.
+
+* Update Java TODO list.
+
+* SmokeTest.java: Port over version checks from SmokeTest.cs.
+
+* Update list of recently tested JDK versions.
+
+Lua:
+
+* Note Lua bindings work with Lua 5.3.
+
+Perl:
+
+* Explicitly specify POD docs encoding as utf8.  Fixes warning in generated
+  HTML docs.
+
+* Convert POD to HTML when building from a source tarball - the conversion
+  code comes as standard with Perl.  In 1.3.5 we were failing to ship the HTML
+  output, as reported by Anthony Basile.
+
+* For extra robustness, convert POD to HTML using the bundled Pod::Html module
+  from the Perl interpreter found by configure, rather than assuming pod2html
+  is on PATH, and the right one (this matters more now that it's not just
+  people building from git who build these docs).
+
+* Improve Perl bindings POD documentation.
+
+* Remove workaround for Perl macro vs C++11 header.  SWIG 3.0.6 and later adds
+  a different workaround to the generated C++ wrapper file, and we require SWIG
+  3.0.8 for a Python fix, so we no longer need our workaround.
+
+Python:
+
+* Fix "make check" in VPATH build.  Nothing seems to have changed in our build
+  system, so I'm guessing this is now required due to a change in the code SWIG
+  generates.
+
+Python3:
+
+* Fix "make check" in VPATH build.  Nothing seems to have changed in our build
+  system, so I'm guessing this is now required due to a change in the code SWIG
+  generates.
+
+* Fix install location for python3 docs.  They were being install to the same
+  path as the python docs - now the path includes "python3" instead of
+  "python".
+
+Ruby:
+
+* Increase minimum Ruby version to 2.1, as older versions are no longer
+  supported by the Ruby developers.
+
+Xapian-bindings 1.3.5 (2016-04-01):
+
+This release includes all changes from 1.2.23 which are relevant.
+
+Documentation:
+
+* Fix to install docs when not in maintainer-mode.
+
+* Note open_stub() is deprecated (most of the bindings already noted this, but
+  now ruby and tcl do too).
+
+General:
+
+* Update for changes to the C++ API.
+
+* PostingSource is now fully wrapped for the bindings.  Fixes #499, reported by
+  Joost Cassee.
+
+* Ship swig-depcomp and doxy2swig scripts in the source tarball.
+
+* Add installcheck-local make targets for most languages - these run the
+  testsuites using the installed bindings.
+
+CSharp:
+
+* configure: Stop checking for obsolete mono compiler names - gmcs, smcs and
+  dmcs were all deprecated in Mono 2.11.
+
+* configure: Strip out handling of DotGNU - it's been inactive for years, and
+  was officially "decommissioned" in December 2012.
+
+* README: Update list of mono versions recently tested with.
+
+Lua:
+
+* smoketest.lua: Fix to work with newer lua - coercing a number to a string
+  now appends ".0" for whole numbers.
+
+Perl:
+
+* Run pod2html with explicit --podpath=. - recent versions of pod2html seem to
+  need this to correctly handle references to other Xapian classes.  Reported
+  on #xapian-discuss by HowManny and abhishek_rand0wn.
+
+Python:
+
+* Run sphinx at build time.  It's an extra tool for people building from source
+  to have to install, but its output is rather large (this change reduces our
+  tar.xz size by ~20%), and its output includes a source-less minified copy of
+  jquery.
+
+Python3:
+
+* Run sphinx at build time.  It's an extra tool for people building from source
+  to have to install, but its output is rather large (this change reduces our
+  tar.xz size by ~20%), and its output includes a source-less minified copy of
+  jquery.
+
+* Fix handling of integer values larger than a C int by bootstraping with a
+  newer version of SWIG.  Fixes #703, reported by Barry Warsaw.
+
+* Remove xapian.inmemory_open() - we've deprecated the corresponding C++
+  function, and the Python3 bindings haven't yet had a stable release.
+
+Ruby:
+
+* Run rdoc at build time - it is included as part of the Ruby core
+  distribution, so we can assume it is available if ruby is, and avoid shipping
+  its rather large generated output in our source tarball.
+
+Xapian-bindings 1.3.4 (2016-01-01):
+
+This release includes all changes from 1.2.22 which are relevant.
+
+General:
+
+* Wrap new and changed features in C++ API.
+
+* PostingSource set_maxweight() is now accessible to the bindings.  Fixes #498,
+  reported by Richard Boulton.
+
+* configure script now defaults to looking for xapian-config-1.3.  This is now
+  automatically done for development series (odd middle component of the
+  version number), but not for stable series (even middle component).  Fixes
+  #695, reported by Jorge C. Leitão
+
+PHP:
+
+* Make PHP 5.5 the minimum officially supported version, as 5.4 has now reached
+  EOL.
+
+* In the examples, when iterating an MSet with foreach, don't throw the docid
+  away as $dummy, put it in $docid and use it - the code looks cleaner, and
+  this avoids an extra call to C++ to get the docid on each iteration.
+
+Python:
+
+* Drop support for Python 2.5.
+
+Python3:
+
+* Document installation of Python 3 bindings.  Fixes #694, reported by Jorge C.
+  Leitão.
+
+* Fix testsuite for changes in Python 3.5.  Fixes #690, patch from UsusDei.
+
+* Handle renaming of .pyo to .opt-1.pyc files due to PEP-0488.  Fixes #689,
+  patch from UsusDei.
+
+* Fix Python 3 version check to accept 3.10.
+
+Xapian-bindings 1.3.3 (2015-06-01):
+
+This release includes all changes from 1.2.20-1.2.21 which are relevant.
+
+Documentation:
+
+* INSTALL: IRIX is past EOL so drop information about IRIX make.
+
+General:
+
+* Add DB_RETRY_LOCK as a constant to wrap.
+
+* Don't wrap Query::LEAF_* - they're for internal use in xapian-core.
+
+* Fix "make install" from a git tree configured with --disable-documentation.
+  (Fixes #658, reported by Germán M. Bravo)
+
+* Fix "make install" when building from git with --disable-documentation.
+
+* Fix to handle a VPATH build from a tarball when the generated docs will be in
+  $(srcdir).
+
+* Update testcases for lazy wildcard expansion change in xapian-core.
+
+* Update for addition of XAPIAN_NOEXCEPT.
+
+* Don't wrap internal methods of Xapian::Weight.
+
+Portability:
+
+* Require a compiler with good C++11 support, like xapian-core now does.
+
+* doxygen_xml.conf.in: Update to avoid warnings about obsolete tags from newer
+  doxygen.
+
+* configure: Update check for -fvisibility to match xapian-core's.
+
+CSharp:
+
+* Fix configure test for whether $CLI can run CSharp programs - previously it
+  would always fail, which would mean that the CSharp tests wouldn't be run on
+  platforms where CSharp programs can't be run directly.
+
+Java:
+
+* java/docs/examples/SimpleSearch.java: Update to actually build and work.
+
+Lua:
+
+* The Lua bindings are no longer considered to be "experimental" (in reality
+  they haven't been for some time).
+
+Perl:
+
+* Add a "LICENSE" section to the main POD.
+
+* Add 'use strict' to all testcases, and add missing instances of 'my' that
+  this change uncovered.
+
+* Wrap new WILDCARD_LIMIT_* constants as constants.
+
+Python:
+
+* Don't release the GIL when constructing a Query object from a sequence of
+  Query objects and/or strings.
+
+* python/smoketest.py: Add new testcase to catch any internal functions,
+  methods, constants, etc which have accidentally been wrapped.
+
+Python3:
+
+* The Python3 bindings are no longer considered to be "experimental".
+
+* Don't release the GIL when constructing a Query object from a sequence of
+  Query objects and/or strings.  (fixes #346)
+
+* python3/pythontest.py: Expand comment about disabling test_import_star under
+  threads.
+
+Tcl:
+
+* Require Tcl 8.5 as older versions are no longer supported upstream, and this
+  version added ::tcl::pkgconfig, which makes the configure tests simpler and
+  more reliable.
+
+* Adjust precedence of the typecheck typemap for wrapping constructing a query
+  from a Tcl list so that we disambiguate this from the new OP_WILDCARD
+  constructor correctly.
+
 Xapian-bindings 1.3.2 (2014-11-24):
 
 This release includes all changes from 1.2.16-1.2.19 which are relevant.
@@ -41,7 +750,8 @@ CSharp:
 
 Java:
 
-* Add testcase that FLAG_SPELLING is now wrapped in a usable way.  (see #616)
+* Add testcase that FLAG_SPELLING is now wrapped in a usable way.  Patch from
+  Anish Kanchan.  (see #616, reported by "Naveen")
 
 Lua:
 
@@ -330,6 +1040,144 @@ Tcl:
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
+
+Xapian-bindings 1.2.23 (2016-03-28):
+
+Documentation:
+
+* Update links to Xapian website and trac to use https, which is now supported,
+  thanks to James Aylett.
+
+PHP:
+
+* Check that the PHP interpreter we find is actually PHP5, and if not look
+  harder.  On current Debian unstable, php-config5 --php-binary reports
+  /usr/bin/php which can be PHP7.
+
+* Document that PHP7 isn't currently supported, and explicitly check for and
+  reject it in configure.
+
+Ruby:
+
+* configure: Stop preferring rdoc-1.8 to rdoc (this only happened in a
+  fall-back case when rdoc wasn't found in the same directory as the ruby
+  interpreter).
+
+Xapian-bindings 1.2.22 (2015-12-29):
+
+Documentation:
+
+* Stop maintaining ChangeLog files.  They make merging patches harder, and stop
+  'git cherry-pick' from working as it should.  The git repo history should be
+  sufficient for complying with GPLv2 2(a).
+
+General:
+
+* Stop wrapping internal methods of Xapian::Weight.
+
+* Return Error::get_description() rather than get_type + ": " + get_msg().  In
+  many cases this is the same, but if context or errno are available,
+  get_description() includes them.
+
+* Catch and report std::exception rather than handling it as an unknown error
+  (so in particular std::bad_alloc will now be reported more helpfully).
+
+CSharp:
+
+* Fix configure test for whether $MONO can run CSharp programs - previously it
+  would always fail, which would mean that the CSharp tests would only be run
+  on systems where CSharp programs can be run directly.
+
+Lua:
+
+* Send stderr from lua version check to config.log instead of letting it appear
+  on the terminal.
+
+PHP:
+
+* Fix memory leak and crash when using PHP subclasses of Xapian functors.
+
+* Subclasses of XapianMatchSpy and XapianPostingSource with implicit
+  constructors now work.
+
+Python:
+
+* Add new testcase to catch any internal functions, methods, constants, etc
+  which have accidentally been wrapped.
+
+Xapian-bindings 1.2.21 (2015-05-20):
+
+Lua:
+
+* README: Remove note about the Lua bindings being experimental - it's not
+  really been true for some time now.
+
+Perl:
+
+* Wrap missing constants OP_SYNONYM and STEM_ALL_Z.
+
+* Add workaround for Perl defining a seed() macro which breaks compilation with
+  GCC in C++11 mode (due to <algorithm> now pulling in random number generation
+  classes with a method called seed).
+
+* Update list of unwrapped things in POD documentation.
+
+* Perl tests are ordering-dependent, so use .NOTPARALLEL to avoid problems
+  during parallel builds.
+
+* Add test coverage for Enquire::set_collapse_key() with 1 and 2 parameters.
+
+* Add test that we can create all the stemmers returned by
+  Stem::get_available_languages().
+
+* t/symbol-test.t: If the symboltest module build fails, skip the test - it's
+  likely due to external reasons, like incompatible compiler flags being taken
+  from Perl's Config module, due to Perl having been built with a different
+  compiler to Xapian.
+
+* Use croak_sv() or ERRSV if defined.
+
+PHP:
+
+* README: Remove note about the subclassing bug with PHP 5.4 and later - that
+  was fixed in 1.2.19.
+
+Python:
+
+* README: Add note that 1.3.2 has Python 3 support, and that this will be in
+  stable release 1.4.0.
+
+Ruby:
+
+* smoketest.rb: Fix "warning: assigned but unused variable - mset".
+
+* Ship generate-rdoc-stubs in the tarball.  Reported by Matthias Klose in
+  https://bugs.debian.org/782270
+
+Xapian-bindings 1.2.20 (2015-03-04):
+
+Portability:
+
+* configure: Avoid using \? in sed command in Lua detection - it isn't
+  supported by all sed implementations.
+
+Lua:
+
+* configure: Rework LUA_SO checks to be clearer and to properly handle LUA_SO
+  being specified without a leading '.'.
+
+* configure: Add an example of specifying LUA_SO to --help output.
+
+PHP:
+
+* Remove text about subclassing bug with PHP 5.4 and later - that was fixed in
+  1.2.19.
+
+* In current PHP releases, dl() is disabled in most SAPIs, and even where
+  available it will now only look in the configured extension directory.  The
+  upshot is that there no longer seems to be a sane way to install the PHP
+  bindings without being root, so update the documentation to reflect this.
+  Fixes #661, reported by Felix Ostmann.
 
 Xapian-bindings 1.2.19 (2014-10-21):
 

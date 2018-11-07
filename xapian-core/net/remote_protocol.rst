@@ -1,9 +1,9 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 38.0* of the protocol used by Xapian's
-remote backend. The major protocol version increased to 38 in Xapian
-1.3.2.
+This document describes *version 39.0* of the protocol used by Xapian's
+remote backend. The major protocol version increased to 39 in Xapian
+1.3.3.
 
 .. , and the minor protocol version to 1 in Xapian 1.2.4.
 
@@ -22,7 +22,7 @@ All messages start with a single byte identifying code. A message from
 client to server has a ``MSG_XXX`` identifying code, while a message
 from server to client has a ``REPLY_XXX`` identifying code (but note
 that a reply might not actually be in response to a message -
-REPLY\_UPDATE is sent by the server when the connection is opened - and some
+``REPLY_UPDATE`` is sent by the server when the connection is opened - and some
 messages result in multiple replies).
 
 The identifying code is followed by the encoded length of the contents
@@ -39,7 +39,7 @@ Integers are encoded using the same encoding used for string lengths
 
 Floating pointing values are passed using a bit packed encoding of the
 sign and exponent and a base-256 encoding of the mantissa which avoids
-any rounding issues (assuming that both machines have FLT\_RADIX equal
+any rounding issues (assuming that both machines have ``FLT_RADIX`` equal
 to some power of 2). This is indicated by ``F<...>`` below.
 
 Boolean values are passed as a single byte which is the ASCII character

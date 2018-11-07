@@ -1,7 +1,7 @@
 /** @file query.h
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -50,7 +50,22 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     /// @private @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
+    /** A query matching no documents.
+     *
+     *  This is a static instance of a default-constructed Xapian::Query
+     *  object.  It is safe to use concurrently from different threads,
+     *  unlike @a MatchAll (this is because MatchNothing has a NULL
+     *  internal object so there's no reference counting happening).
+     */
     static const Xapian::Query MatchNothing;
+
+    /** A query matching all documents.
+     *
+     *  This is a static instance of Xapian::Query(std::string()).  If
+     *  you are constructing Query objects in different threads, avoid
+     *  using @a MatchAll as the reference counting of the static object
+     *  can get messed up by concurrent access).
+     */
     static const Xapian::Query MatchAll;
 
     /** Query operators. */
@@ -108,8 +123,22 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	OP_VALUE_GE = 11,
 	OP_VALUE_LE = 12,
 	OP_SYNONYM = 13,
+	/** Pick the maximum weight of any subquery.
+	 *
+	 *  Matches the same documents as @a OP_OR, but the weight contributed
+	 *  is the maximum weight from any matching subquery (for OP_OR, it's
+	 *  the sum of the weights from the matching subqueries).
+	 *
+	 *  Added in Xapian 1.3.2.
+	 */
 	OP_MAX = 14,
+	/** Wildcard expansion.
+	 *
+	 *  Added in Xapian 1.3.3.
+	 */
 	OP_WILDCARD = 15,
+
+	OP_INVALID = 99,
 
 	LEAF_TERM = 100,
 	LEAF_POSTING_SOURCE,
@@ -117,9 +146,33 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	LEAF_MATCH_NOTHING
     };
 
+    enum {
+	/** Throw an error if OP_WILDCARD exceeds its expansion limit.
+	 *
+	 *  Xapian::WildcardError will be thrown when the query is actually
+	 *  run.
+	 */
+	WILDCARD_LIMIT_ERROR,
+	/** Stop expanding when OP_WILDCARD reaches its expansion limit.
+	 *
+	 *  This makes the wildcard expand to only the first N terms (sorted
+	 *  by byte order).
+	 */
+	WILDCARD_LIMIT_FIRST,
+	/** Limit OP_WILDCARD expansion to the most frequent terms.
+	 *
+	 *  If OP_WILDCARD would expand to more than its expansion limit, the
+	 *  most frequent terms are taken.  This approach works well for cases
+	 *  such as expanding a partial term at the end of a query string which
+	 *  the user hasn't finished typing yet - as well as being less expense
+	 *  to evaluate than the full expansion, using only the most frequent
+	 *  terms tends to give better results too.
+	 */
+	WILDCARD_LIMIT_MOST_FREQUENT
+    };
+
     /// Default constructor.
-    XAPIAN_NOTHROW(Query())
-	: internal(0) { }
+    XAPIAN_NOTHROW(Query()) { }
 
     /// Destructor.
     ~Query() { }
@@ -136,130 +189,253 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      */
     Query & operator=(const Query & o) { internal = o.internal; return *this; }
 
+#ifdef XAPIAN_MOVE_SEMANTICS
+    /// Move constructor.
+    Query(Query &&) = default;
+
+    /// Move assignment operator.
+    Query & operator=(Query &&) = default;
+#endif
+
     /** Construct a Query object for a term. */
     Query(const std::string & term,
 	  Xapian::termcount wqf = 1,
 	  Xapian::termpos pos = 0);
 
     /** Construct a Query object for a PostingSource. */
-    Query(Xapian::PostingSource * source);
+    explicit Query(Xapian::PostingSource * source);
 
-    // FIXME: new form for OP_SCALE_WEIGHT - do we want this?
+    /** Scale using OP_SCALE_WEIGHT.
+     *
+     *  @param factor Non-negative real number to multiply weights by.
+     *  @param subquery Query object to scale weights from.
+     */
     Query(double factor, const Xapian::Query & subquery);
 
-    // FIXME: legacy form of above (assuming we want to add that...)
+    /** Scale using OP_SCALE_WEIGHT.
+     *
+     *  In this form, the op_ parameter is totally redundant - use
+     *  Query(factor, subquery) in preference.
+     *
+     *  @param op_	Must be OP_SCALE_WEIGHT.
+     *  @param factor	Non-negative real number to multiply weights by.
+     *  @param subquery	Query object to scale weights from.
+     */
     Query(op op_, const Xapian::Query & subquery, double factor);
 
-    // Pairwise.
+    /** Construct a Query object by combining two others.
+     *
+     *  @param op_	The operator to combine the queries with.
+     *  @param a	First subquery.
+     *  @param b	Second subquery.
+     */
     Query(op op_, const Xapian::Query & a, const Xapian::Query & b)
     {
 	init(op_, 2);
-	add_subquery(a);
-	add_subquery(b);
+	bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
+	add_subquery(positional, a);
+	add_subquery(positional, b);
 	done();
     }
 
-    // Pairwise with std::string.
+    /** Construct a Query object by combining two terms.
+     *
+     *  @param op_	The operator to combine the terms with.
+     *  @param a	First term.
+     *  @param b	Second term.
+     */
     Query(op op_, const std::string & a, const std::string & b)
     {
 	init(op_, 2);
-	add_subquery(a);
-	add_subquery(b);
+	add_subquery(false, a);
+	add_subquery(false, b);
 	done();
     }
 
-    // OP_VALUE_GE/OP_VALUE_LE
-    Query(op op_, Xapian::valueno slot, const std::string & limit);
+    /** Construct a Query object for a single-ended value range.
+     *
+     *  @param op_		Must be OP_VALUE_LE or OP_VALUE_GE currently.
+     *  @param slot		The value slot to work over.
+     *  @param range_limit	The limit of the range.
+     */
+    Query(op op_, Xapian::valueno slot, const std::string & range_limit);
 
-    // OP_VALUE_RANGE
+    /** Construct a Query object for a value range.
+     *
+     *  @param op_		Must be OP_VALUE_RANGE currently.
+     *  @param slot		The value slot to work over.
+     *  @param range_lower	Lower end of the range.
+     *  @param range_upper	Upper end of the range.
+     */
     Query(op op_, Xapian::valueno slot,
-	  const std::string & begin, const std::string & end);
+	  const std::string & range_lower, const std::string & range_upper);
 
-    // OP_WILDCARD
+    /** Query constructor for OP_WILDCARD queries.
+     *
+     *  @param op_	Must be OP_WILDCARD
+     *  @param pattern	The wildcard pattern - currently this is just a string
+     *			and the wildcard expands to terms which start with
+     *			exactly this string.
+     *	@param max_expansion	The maximum number of terms to expand to
+     *				(default: 0, which means no limit)
+     *	@param max_type	How to enforce max_expansion - one of
+     *			@a WILDCARD_LIMIT_ERROR (the default),
+     *			@a WILDCARD_LIMIT_FIRST or
+     *			@a WILDCARD_LIMIT_MOST_FREQUENT.
+     *			When searching multiple databases, the expansion limit
+     *			is currently applied independently for each database,
+     *			so the total number of terms may be higher than the
+     *			limit.  This is arguably a bug, and may change in
+     *			future versions.
+     *	@param combiner The @a op_ to combine the terms with - one of
+     *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
+     */
     Query(op op_,
 	  const std::string & pattern,
 	  Xapian::termcount max_expansion = 0,
+	  int max_type = WILDCARD_LIMIT_ERROR,
 	  op combiner = OP_SYNONYM);
 
+    /** Construct a Query object from a begin/end iterator pair.
+     *
+     *  Dereferencing the iterator should return a Xapian::Query, a non-NULL
+     *  Xapian::Query*, a std::string or a type which converts to one of
+     *  these (e.g. const char*).
+     *
+     *  @param op_	The operator to combine the queries with.
+     *  @param begin	Begin iterator.
+     *  @param end	End iterator.
+     *  @param window	Window size for OP_NEAR and OP_PHRASE, or 0 to use the
+     *			number of subqueries as the window size (default: 0).
+     */
     template<typename I>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
 	if (begin != end) {
 	    typedef typename std::iterator_traits<I>::iterator_category iterator_category;
 	    init(op_, window, begin, end, iterator_category());
+	    bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
 	    for (I i = begin; i != end; ++i) {
-		add_subquery(*i);
+		add_subquery(positional, *i);
 	    }
+	    done();
 	}
-	done();
     }
 
 #ifdef SWIG
     // SWIG's %template doesn't seem to handle a templated ctor so we
     // provide this fake specialised form of the above prototype.
-    Query::Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-		 Xapian::termcount parameter = 0);
+    Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
+	  Xapian::termcount parameter = 0);
 
 # ifdef SWIGJAVA
-    Query::Query(op op_, XapianSWIGStrItor qbegin, XapianSWIGStrItor qend,
-		 Xapian::termcount parameter = 0);
+    Query(op op_, XapianSWIGStrItor qbegin, XapianSWIGStrItor qend,
+	  Xapian::termcount parameter = 0);
 # endif
 #endif
 
+    /** Begin iterator for terms in the query object.
+     *
+     *  The iterator returns terms in ascending query position order, and
+     *  will return the same term in each unique position it occurs in.
+     *  If you want the terms in sorted order and without duplicates, see
+     *  get_unique_terms_begin().
+     */
     const TermIterator get_terms_begin() const;
 
+    /// End iterator for terms in the query object.
     const TermIterator XAPIAN_NOTHROW(get_terms_end() const) {
 	return TermIterator();
     }
 
-    Xapian::termcount get_length() const XAPIAN_PURE_FUNCTION;
+    /** Begin iterator for unique terms in the query object.
+     *
+     *  Terms are sorted and terms with the same name removed from the list.
+     *
+     *  If you want the terms in ascending query position order, see
+     *  get_terms_begin().
+     */
+    const TermIterator get_unique_terms_begin() const;
 
-    bool XAPIAN_NOTHROW(empty() const) XAPIAN_PURE_FUNCTION {
+    /** Return the length of this query object. */
+    Xapian::termcount XAPIAN_NOTHROW(get_length() const) XAPIAN_PURE_FUNCTION;
+
+    /** Check if this query is Xapian::Query::MatchNothing. */
+    bool XAPIAN_NOTHROW(empty() const) {
 	return internal.get() == 0;
     }
 
+    /** Serialise this object into a string. */
     std::string serialise() const;
 
+    /** Unserialise a string and return a Query object.
+     *
+     *  @param serialised	the string to unserialise.
+     *  @param reg		Xapian::Registry object to use to unserialise
+     *				user-subclasses of Xapian::PostingSource
+     *				(default: standard registry).
+     */
     static const Query unserialise(const std::string & serialised,
 				   const Registry & reg = Registry());
 
     /** Get the type of the top level of the query. */
-    op get_type() const XAPIAN_PURE_FUNCTION;
+    op XAPIAN_NOTHROW(get_type() const) XAPIAN_PURE_FUNCTION;
 
     /** Get the number of subqueries of the top level query. */
-    size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
+    size_t XAPIAN_NOTHROW(get_num_subqueries() const) XAPIAN_PURE_FUNCTION;
 
     /** Read a top level subquery.
       *
       * @param n  Return the n-th subquery (starting from 0) - only valid when
       *		  0 <= n < get_num_subqueries().
       */
-    const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
+    const Query get_subquery(size_t n) const;
 
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    /// Return a string describing this object.
+    std::string get_description() const;
 
+    /** Combine with another Xapian::Query object using OP_AND. */
     const Query operator&=(const Query & o) {
 	return (*this = Query(OP_AND, *this, o));
     }
 
+    /** Combine with another Xapian::Query object using OP_OR. */
     const Query operator|=(const Query & o) {
 	return (*this = Query(OP_OR, *this, o));
     }
 
+    /** Combine with another Xapian::Query object using OP_XOR. */
     const Query operator^=(const Query & o) {
 	return (*this = Query(OP_XOR, *this, o));
     }
 
+    /** Scale using OP_SCALE_WEIGHT.
+     *
+     *  @param factor Non-negative real number to multiply weights by.
+     */
     const Query operator*=(double factor) {
 	return (*this = Query(factor, *this));
     }
 
+    /** Inverse scale using OP_SCALE_WEIGHT.
+     *
+     *  @param factor Positive real number to divide weights by.
+     */
     const Query operator/=(double factor) {
 	return (*this = Query(1.0 / factor, *this));
     }
 
     /** @private @internal */
-    Query(Internal * internal_) : internal(internal_) { }
+    explicit Query(Internal * internal_) : internal(internal_) { }
+
+    /** Construct with just an operator.
+     *
+     *  @param op_ The operator to use - currently only OP_INVALID is useful.
+     */
+    explicit Query(Query::op op_) {
+	init(op_, 0);
+	if (op_ != Query::OP_INVALID) done();
+    }
 
   private:
     void init(Query::op op_, size_t n_subqueries, Xapian::termcount window = 0);
@@ -278,69 +454,88 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	init(op_, 0, window);
     }
 
-    void add_subquery(const Xapian::Query & subquery);
+    void add_subquery(bool positional, const Xapian::Query & subquery);
 
-    void add_subquery(const std::string & subquery) {
-	add_subquery(Xapian::Query(subquery));
+    void add_subquery(bool, const std::string & subquery) {
+	add_subquery(false, Xapian::Query(subquery));
     }
 
-    void add_subquery(const Xapian::Query * subquery) {
+    void add_subquery(bool positional, const Xapian::Query * subquery) {
 	// FIXME: subquery NULL?
-	add_subquery(*subquery);
+	add_subquery(positional, *subquery);
     }
 
     void done();
 };
 
+/** Combine two Xapian::Query objects using OP_AND. */
 inline const Query
 operator&(const Query & a, const Query & b)
 {
     return Query(Query::OP_AND, a, b);
 }
 
+/** Combine two Xapian::Query objects using OP_OR. */
 inline const Query
 operator|(const Query & a, const Query & b)
 {
     return Query(Query::OP_OR, a, b);
 }
 
+/** Combine two Xapian::Query objects using OP_XOR. */
 inline const Query
 operator^(const Query & a, const Query & b)
 {
     return Query(Query::OP_XOR, a, b);
 }
 
+/** Scale a Xapian::Query object using OP_SCALE_WEIGHT.
+ *
+ *  @param factor Non-negative real number to multiply weights by.
+ *  @param q Xapian::Query object.
+ */
 inline const Query
 operator*(double factor, const Query & q)
 {
     return Query(factor, q);
 }
 
+/** Scale a Xapian::Query object using OP_SCALE_WEIGHT.
+ *
+ *  @param q Xapian::Query object.
+ *  @param factor Non-negative real number to multiply weights by.
+ */
 inline const Query
 operator*(const Query & q, double factor)
 {
     return Query(factor, q);
 }
 
+/** Inverse-scale a Xapian::Query object using OP_SCALE_WEIGHT.
+ *
+ *  @param factor Positive real number to divide weights by.
+ *  @param q Xapian::Query object.
+ */
 inline const Query
 operator/(const Query & q, double factor)
 {
     return Query(1.0 / factor, q);
 }
 
+/** @private @internal */
 class InvertedQuery_ {
     const Query & query;
 
     void operator=(const InvertedQuery_ &);
 
-    InvertedQuery_(const Query & query_) : query(query_) { }
+    explicit InvertedQuery_(const Query & query_) : query(query_) { }
 
   public:
     // GCC 4.2 seems to needs a copy ctor.
     InvertedQuery_(const InvertedQuery_ & o) : query(o.query) { }
 
     operator Query() const {
-	return Query(Query::OP_AND_NOT, Query::MatchAll, query);
+	return Query(Query::OP_AND_NOT, Query(std::string()), query);
     }
 
     friend const InvertedQuery_ operator~(const Query &q);
@@ -348,17 +543,24 @@ class InvertedQuery_ {
     friend const Query operator&(const Query & a, const InvertedQuery_ & b);
 };
 
+/** Combine two Xapian::Query objects using OP_AND_NOT.
+ *
+ *  E.g. Xapian::Query q = q1 &~ q2;
+ */
 inline const Query
 operator&(const Query & a, const InvertedQuery_ & b)
 {
     return Query(Query::OP_AND_NOT, a, b.query);
 }
 
+#ifndef DOXYGEN /* @internal doesn't seem to avoid a warning here. */
+/** @internal Helper to allow q1 &~ q2 to work. */
 inline const InvertedQuery_
 operator~(const Query &q)
 {
     return InvertedQuery_(q);
 }
+#endif
 
 namespace Internal {
 class AndContext;
@@ -366,6 +568,7 @@ class OrContext;
 class XorContext;
 }
 
+/** @private @internal */
 class Query::Internal : public Xapian::Internal::intrusive_base {
   public:
     XAPIAN_NOTHROW(Internal()) { }
@@ -386,17 +589,17 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 				  QueryOptimiser * qopt,
 				  double factor) const;
 
-    virtual termcount get_length() const XAPIAN_PURE_FUNCTION;
+    virtual termcount XAPIAN_NOTHROW(get_length() const) XAPIAN_PURE_FUNCTION;
 
     virtual void serialise(std::string & result) const = 0;
 
     static Query::Internal * unserialise(const char ** p, const char * end, const Registry & reg);
 
-    virtual Query::op get_type() const XAPIAN_PURE_FUNCTION = 0;
-    virtual size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
-    virtual const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
+    virtual Query::op XAPIAN_NOTHROW(get_type() const) XAPIAN_PURE_FUNCTION = 0;
+    virtual size_t XAPIAN_NOTHROW(get_num_subqueries() const) XAPIAN_PURE_FUNCTION;
+    virtual const Query get_subquery(size_t n) const;
 
-    virtual std::string get_description() const XAPIAN_PURE_FUNCTION = 0;
+    virtual std::string get_description() const = 0;
 
     // Pass argument as void* to avoid need to include <vector>.
     virtual void gather_terms(void * void_terms) const;

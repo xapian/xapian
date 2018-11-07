@@ -1,7 +1,7 @@
 /** @file  iterator.h
  *  @brief Functions to assist creating language-idiomatic iterator wrappers.
  */
-/* Copyright (C) 2014 Olly Betts
+/* Copyright (C) 2014,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
  * Currently known users:
  *
  *  * xapian-bindings:
+ *    + Java
  *    + PHP
  */
 
@@ -40,42 +41,52 @@
 namespace Xapian {
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::ESetIterator & it) {
-    return it.index != it.eset.size();
+inline bool iterator_valid(const Xapian::ESetIterator & it) {
+    return it.off_from_end != 0;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::MSetIterator & it) {
-    return it.index != it.mset.size();
+inline bool iterator_valid(const Xapian::MSetIterator & it) {
+    return it.off_from_end != 0;
 }
 
 /** @internal Rewind iterator. */
-void iterator_rewind(Xapian::ESetIterator & it) {
-    it.index = 0;
+inline void iterator_rewind(Xapian::ESetIterator & it) {
+    it.off_from_end = it.eset.size();
 }
 
 /** @internal Rewind iterator. */
-void iterator_rewind(Xapian::MSetIterator & it) {
-    it.index = 0;
+inline void iterator_rewind(Xapian::MSetIterator & it) {
+    it.off_from_end = it.mset.size();
+}
+
+/** @internal Is the iterator at the start? */
+inline bool iterator_rewound(Xapian::ESetIterator & it) {
+    return it.off_from_end == it.eset.size();
+}
+
+/** @internal Is the iterator at the start? */
+inline bool iterator_rewound(Xapian::MSetIterator & it) {
+    return it.off_from_end == it.mset.size();
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::PositionIterator & it) {
+inline bool iterator_valid(const Xapian::PositionIterator & it) {
     return it.internal != NULL;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::PostingIterator & it) {
+inline bool iterator_valid(const Xapian::PostingIterator & it) {
     return it.internal != NULL;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::TermIterator & it) {
+inline bool iterator_valid(const Xapian::TermIterator & it) {
     return it.internal != NULL;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::ValueIterator & it) {
+inline bool iterator_valid(const Xapian::ValueIterator & it) {
     return it.internal != NULL;
 }
 

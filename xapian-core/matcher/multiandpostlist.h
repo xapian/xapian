@@ -1,7 +1,7 @@
 /** @file multiandpostlist.h
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,15 +26,17 @@
 #include "omassert.h"
 #include "api/postlist.h"
 
+#include <algorithm>
+
 /// N-way AND postlist.
 class MultiAndPostList : public PostList {
     /** Comparison functor which orders PostList* by ascending
      *  get_termfreq_est(). */
     struct ComparePostListTermFreqAscending {
 	/// Order by ascending get_termfreq_est().
-        bool operator()(const PostList *a, const PostList *b) {
-            return a->get_termfreq_est() < b->get_termfreq_est();
-        }
+	bool operator()(const PostList *a, const PostList *b) const {
+	    return a->get_termfreq_est() < b->get_termfreq_est();
+	}
     };
 
     /// Don't allow assignment.
@@ -113,7 +115,7 @@ class MultiAndPostList : public PostList {
     /** Construct from 2 random-access iterators to a container of PostList*,
      *  a pointer to the matcher, and the document collection size.
      */
-    template <class RandomItor>
+    template<class RandomItor>
     MultiAndPostList(RandomItor pl_begin, RandomItor pl_end,
 		     MultiMatch * matcher_, Xapian::doccount db_size_)
 	: did(0), n_kids(pl_end - pl_begin), plist(NULL), max_wt(NULL),
@@ -175,9 +177,9 @@ class MultiAndPostList : public PostList {
 
     double recalc_maxweight();
 
-    Internal *next(double w_min);
+    PostList* next(double w_min);
 
-    Internal *skip_to(Xapian::docid, double w_min);
+    PostList* skip_to(Xapian::docid, double w_min);
 
     std::string get_description() const;
 
@@ -191,6 +193,8 @@ class MultiAndPostList : public PostList {
     Xapian::termcount get_wdf() const;
 
     Xapian::termcount count_matching_subqs() const;
+
+    void gather_position_lists(OrPositionList* orposlist);
 };
 
 #endif // XAPIAN_INCLUDED_MULTIANDPOSTLIST_H

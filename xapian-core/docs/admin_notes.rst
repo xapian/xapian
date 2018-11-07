@@ -1,8 +1,6 @@
 
 .. Copyright (C) 2006 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
-
-.. FIXME: Once glass settles down, update this for glass
+.. Copyright (C) 2007,2008,2009,2010,2011,2012,2016 Olly Betts
 
 ============================
 Xapian Administrator's Guide
@@ -23,31 +21,88 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is up-to-date for Xapian version 1.3.0 (probably!)
+The document is up-to-date for Xapian version 1.3.5 (probably!)
 
-.. FIXME:1.3.0: ensure this is up to date for 1.3.0
+.. FIXME:1.4.0: ensure this is up to date for 1.4.0
 
 Databases
 =========
 
 Xapian databases hold all the information needed to perform searches in a set
-of tables.  The following tables always exist:
+of tables.  The default database backend for the 1.4 release series is called
+`glass`.  The default backend for the 1.2 release series was called `chert`,
+and this is also supported by 1.4.
 
- - A posting list table, which holds a list of all the documents indexed by
+Glass Backend
+-------------
+
+The following table always exists:
+
+ - The `postlist` table holds a list of all the documents indexed by each term
+   in the database (`postings`), and also chunked streams of the values in each
+   value slot.
+
+The following table exists by default, but you can choose not to have it:
+
+ - The `termlist` table holds a list of all the terms which index each
+   document, and also the value slots used in each document.  Without this,
+   some features aren't supported - see `Xapian::DB_NO_TERMLIST` for details.
+
+And the following optional tables exist only when there is data to store in
+them:
+
+ - The `docdata` table holds the document data associated with each document
+   in the database.  If you never set any term positions, this table won't
+   exist.
+ - The `position` table holds a list of all the word positions in each document
+   which each term occurs at.  If you never set positional data, this table
+   won't exist.
+ - The `spelling` table holds data for suggesting spelling corrections.
+ - The `synonym` table holds a synonym dictionary.
+
+Each of the tables is held in a separate file with extension `.glass` (e.g.
+`postlist.glass`), allowing an administrator to see how much data is being used
+for each of the above purposes.
+
+The `.glass` file actually stores the data, and is structured as a tree of
+blocks, which have a default size of 8KB (though this can be set, either
+through the Xapian API, or with some of the tools detailed later in this
+document).
+
+Changing the blocksize may have performance implications, but it is hard to
+know whether these will be positive or negative for a particular combination
+of hardware and software without doing some profiling.
+
+The `.baseA` and `.baseB` files you may remember if you've worked Xapian
+database backends no longer exist in glass databases - the information about
+unused blocks is stored in a freelist (itself stored in unused blocks in
+the `.glass` file, and the other information is stored in the `iamglass`
+file.
+
+Glass also supports databases stored in a single file - currently these only
+support read operations, and have to be created by compacting an existing
+glass database.
+
+Chert Backend
+-------------
+
+The following tables always exist:
+
+ - The `postlist` holds a list of all the documents indexed by
    each term in the database, and also chunked streams of the values in each
    value slot.
- - A record table, which holds the document data associated with each document
+ - The `record` holds the document data associated with each document
    in the database.
- - A termlist table, which holds a list of all the terms which index each
+ - The `termlist` holds a list of all the terms which index each
    document, and also the value slots used in each document.
 
 And the following optional tables exist only when there is data to store in
 them:
 
- - A position list table, which holds a list of all the word positions in each
+ - The `position` holds a list of all the word positions in each
    document which each term occurs at.
- - A spelling table, which holds data for suggesting spelling corrections.
- - A synonym table, which holds a synonym dictionary.
+ - The `spelling` holds data for suggesting spelling corrections.
+ - The `synonym` holds a synonym dictionary.
 
 Each of the tables is held in a separate file, allowing an administrator to
 see how much data is being used for each of the above purposes.  It is not
@@ -175,20 +230,23 @@ this requires a lock daemon to be running.
 Which database format to use?
 -----------------------------
 
-As of release 1.2.0, you should generally use the chert format (which is now
+As of release 1.4.0, you should generally use the glass format (which is now
 the default).
 
 Support for the pre-1.0 quartz format (deprecated in 1.0) was removed in 1.1.0.
 See below for how to convert a quartz database to a flint one.
 
-The flint backend (the default for 1.0) is still supported by 1.2.x, but
-deprecated - only use it if you already have flint databases; and plan to
-migrate away.
+The flint backend (the default for 1.0, and still supported by 1.2.x) was
+removed in 1.3.0.  See below for how to convert a flint database to a chert one.
 
-There's also a development backend called glass.  The main distinguishing
-feature of this is that the format may change incompatibly from time to time.
-It passes Xapian's extensive testsuite, but has seen less real world use
-than chert.
+The chert backend (the default for 1.2) is still supported by 1.4.x, but
+deprecated - only use it if you already have databases in this format; and plan
+to migrate away.
+
+.. There's also a development backend called XXXXX.  The main distinguishing
+.. feature of this is that the format may change incompatibly from time to time.
+.. It passes Xapian's extensive testsuite, but has seen less real world use
+.. than glass.
 
 Can I put other files in the database directory?
 ------------------------------------------------
@@ -203,8 +261,7 @@ which will break this technique, so as long as you don't choose a filename
 that Xapian uses itself, there should be no problems.  However, be aware that
 new versions of Xapian may use new files in the database directory, and it is
 also possible that new backend formats may not be compatible with the
-technique (e.g., it is possible that a future backend could store its entire
-database in a single file, not in a directory).
+technique.  And of course you can't do this with a single-file glass database.
 
 
 Backup Strategies
@@ -387,6 +444,27 @@ capable of:
 To fix such issues, run xapian-check like so::
 
   xapian-check /path/to/database F
+
+
+Converting a chert database to a glass database
+-----------------------------------------------
+
+This can be done using the "copydatabase" example program included with Xapian.
+This is a lot slower to run than "xapian-compact", since it has to perform the
+sorting of the term occurrence data from scratch, but should be faster than a
+re-index from source data since it doesn't need to perform the tokenisation
+step.  It is also useful if you no longer have the source data available.
+
+The following command will copy a database from "SOURCE" to "DESTINATION",
+creating the new database at "DESTINATION" as a chert database::
+
+  copydatabase SOURCE DESTINATION
+
+By default copydatabase will renumber your documents starting with docid 1.
+If the docids are stored in or come from some external system, you should
+preserve them by using the --no-renumber option::
+
+  copydatabase --no-renumber SOURCE DESTINATION
 
 
 Converting a pre-1.1.4 chert database to a chert database

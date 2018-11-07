@@ -1,6 +1,6 @@
 /* htmlparsetest.cc: test the MyHtmlParser class
  *
- * Copyright (C) 2006,2008,2011,2012,2013 Olly Betts
+ * Copyright (C) 2006,2008,2011,2012,2013,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,6 +52,17 @@ static const testcase tests[] = {
     { "<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><meta charset='utf-8'><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><title>\xc2\xae</title><meta charset=\"utf-8\"></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<html><body><p>This is \nthe text</p><p>This is \nthe tex</p></body></html>", "This is the text\rThis is the tex", "", "", "" },
+    // Check we default to UTF-8 for HTML5.
+    { "<!DOCTYPE html><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!Doctype\tHTML  ><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!Doctype  HTML\t><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!DOCTYPE system 'about:legacy-compat'><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!doctype SyStem \"about:legacy-compat\" ><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    // Check we default to UTF-8 for XML.
+    { "<?xml version=\"1.0\"?><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    // Check we handle specify a charset for XML.
+    { "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc3\x82\xc2\xa3", "\xc3\x82\xc2\xae", "", "" },
     { "<!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
     { "Foo<![CDATA[ & bar <literal>\"]]> ok", "Foo & bar <literal>\" ok", "", "", "" },
     { "Foo<![CDATA", "Foo", "", "", "" },
@@ -60,6 +71,12 @@ static const testcase tests[] = {
     { "a<html>b<head>c<title>bad</title>d</head>e<body>f</body>g<body>h</body>i</html>j<body>k", "abcdefghijk", "bad", "", "" },
     { "check<object id='foo'>for<applet foo=\"bar\" />spaces<br> in <p>\tout</p>put\r\n", "check for spaces\rin\rout\rput", "", "", "" },
     { "tab:<table><tr><th>col 1</th><th>col 2</th></tr><tr><td>test</td><td><img src='foo.jpg'> <img src='bar.jpg'></td></tr><tr><td colspan=2>hello world</td></tr></table>done", "tab:\rcol 1\tcol 2\rtest\rhello world\rdone", "", "", "" },
+    // Test entities.
+    { "<html><body>1 &lt; 2, 3 &gt; 2</body></html>", "1 < 2, 3 > 2", "", "", "" },
+    { "<html><body>&amp;amp;</body></html>", "&amp;", "", "", "" },
+    { "<html><body>&lt;Unknown &ent;-ity&gt;</body></html>", "<Unknown &ent;-ity>", "", "", "" },
+    { "<html><body>&#68;oes &#97; &lt; &auml; &#x3f</body></html>", "Does a < ä ?", "", "", "" },
+    { "&#65;&#x40;&gt", "A@>", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 

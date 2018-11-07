@@ -31,21 +31,11 @@
 # define NOMINMAX
 #endif
 
-// Make more modern interfaces visible.
-#ifndef WINVER
-# define WINVER 0x0500
-#endif
-
 // Prevent windows.h from including lots of obscure win32 api headers
 // which we don't care about and will just slow down compilation and
 // increase the risk of symbol collisions.
 #define WIN32_LEAN_AND_MEAN
 #define NOGDI
 #include <windows.h>
-
-// FOF_NOERRORUI isn't defined by older versions of the mingw headers.
-#ifndef FOF_NOERRORUI
-# define FOF_NOERRORUI 1024
-#endif
 
 #endif // XAPIAN_INCLUDED_SAFEWINDOWS_H

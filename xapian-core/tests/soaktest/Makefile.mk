@@ -20,12 +20,12 @@ soaktest_soaktest_SOURCES = \
  soaktest/soaktest_all.h \
  soaktest/soaktest_collated.h \
  $(testharness_sources)
-soaktest_soaktest_LDFLAGS = -no-install $(ldflags)
+soaktest_soaktest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 soaktest_soaktest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 if MAINTAINER_MODE
 BUILT_SOURCES += soaktest/soaktest_all.h soaktest/soaktest_collated.h \
- $(collated_soaktest_sources:.cc=.h)
+ $(collated_soaktest_sources:.cc=.h) soaktest/soaktest_collated.stamp
 
 soaktest/soaktest_all.h soaktest/soaktest_collated.h $(collated_soaktest_sources:.cc=.h): soaktest/soaktest_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
@@ -42,6 +42,9 @@ soaktest/soaktest_all.h soaktest/soaktest_collated.h $(collated_soaktest_sources
 	  fi; \
 	fi
 soaktest/soaktest_collated.stamp: $(collated_soaktest_sources) collate-test soaktest/Makefile.mk
+	## Need to create the directory here in a VPATH build configured with:
+	## --enable-maintainer-mode --disable-dependency-tracking
+	$(MKDIR_P) soaktest
 	$(PERL) "$(srcdir)/collate-test" "$(srcdir)" soaktest/soaktest_collated.h soaktest/soaktest_all.h $(collated_soaktest_sources)
 	touch $@
 endif

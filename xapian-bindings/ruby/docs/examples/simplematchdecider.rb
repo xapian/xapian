@@ -4,7 +4,7 @@
 #
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2006,2007 Olly Betts
+# Copyright (C) 2006,2007,2016 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ enquire = Xapian::Enquire.new(database)
 # Combine the rest of the command line arguments with spaces between
 # them, so that simple queries don't have to be quoted at the shell
 # level.
-queryString = ARGV[2..-1].join(' ')
+query_string = ARGV[2..-1].join(' ')
 
 # Parse the query string to produce a Xapian::Query object.
 qp = Xapian::QueryParser.new()
@@ -56,7 +56,7 @@ stemmer = Xapian::Stem.new("english")
 qp.stemmer = stemmer
 qp.database = database
 qp.stemming_strategy = Xapian::QueryParser::STEM_SOME
-query = qp.parse_query(queryString)
+query = qp.parse_query(query_string)
 
 puts "Parsed query is: #{query.description()}"
 

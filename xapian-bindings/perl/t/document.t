@@ -1,3 +1,4 @@
+use strict;
 # Before 'make install' is performed this script should be runnable with
 # 'make test'. After 'make install' it should work as 'perl test.pl'
 
@@ -24,7 +25,7 @@ my $disable_fixme = 1;
 # its man page ( perldoc Test ) for help writing this test script.
 
 my $doc = Xapian::Document->new();
-$data = "hello world";
+my $data = "hello world";
 $doc->set_data($data);
 ok( $doc->get_data() eq $data );
 $doc->add_value(1, "fudge");

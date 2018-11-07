@@ -1,0 +1,32 @@
+diff -ru a/build-aux/compile b/build-aux/compile
+--- a/build-aux/compile	2015-01-17 07:32:31.000000000 +1300
++++ b/build-aux/compile	2017-10-22 11:21:34.725960435 +1300
+@@ -143,7 +143,7 @@
+ 	  # configure might choose to run compile as 'compile cc -o foo foo.c'.
+ 	  eat=1
+ 	  case $2 in
+-	    *.o | *.[oO][bB][jJ])
++	    *.o | *.lo | *.[oO][bB][jJ])
+ 	      func_file_conv "$2"
+ 	      set x "$@" -Fo"$file"
+ 	      shift
+diff -ru a/m4/libtool.m4 b/m4/libtool.m4
+--- a/m4/libtool.m4	2015-01-21 05:15:19.000000000 +1300
++++ b/m4/libtool.m4	2017-10-22 11:15:33.516767555 +1300
+@@ -5571,14 +5571,14 @@
+ 	# Tell ltmain to make .dll files, not .so files.
+ 	shrext_cmds=.dll
+ 	# FIXME: Setting linknames here is a bad hack.
+-	_LT_TAGVAR(archive_cmds, $1)='$CC -o $output_objdir/$soname $libobjs $compiler_flags $deplibs -Wl,-DLL,-IMPLIB:"$tool_output_objdir$libname.dll.lib"~linknames='
++	_LT_TAGVAR(archive_cmds, $1)='$CC -Fe $output_objdir/$soname $libobjs $compiler_flags $deplibs -Wl,-DLL,-IMPLIB:"$tool_output_objdir$libname.dll.lib"~linknames='
+ 	_LT_TAGVAR(archive_expsym_cmds, $1)='if _LT_DLL_DEF_P([$export_symbols]); then
+             cp "$export_symbols" "$output_objdir/$soname.def";
+             echo "$tool_output_objdir$soname.def" > "$output_objdir/$soname.exp";
+           else
+             $SED -e '\''s/^/-link -EXPORT:/'\'' < $export_symbols > $output_objdir/$soname.exp;
+           fi~
+-          $CC -o $tool_output_objdir$soname $libobjs $compiler_flags $deplibs "@$tool_output_objdir$soname.exp" -Wl,-DLL,-IMPLIB:"$tool_output_objdir$libname.dll.lib"~
++          $CC -Fe $tool_output_objdir$soname $libobjs $compiler_flags $deplibs "@$tool_output_objdir$soname.exp" -Wl,-DLL,-IMPLIB:"$tool_output_objdir$libname.dll.lib"~
+           linknames='
+ 	# The linker will not automatically build a static lib if we build a DLL.
+ 	# _LT_TAGVAR(old_archive_from_new_cmds, $1)='true'

@@ -9,7 +9,7 @@ set -e
 echo 'Updating package list.'
 apt-get -qq update
 echo 'Installing required packages (can take a long while the first time).'
-apt-get -yqq install git build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison tcl libpcre3-dev libmagic-dev doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush mono-devel openjdk-6-jdk lua5.2 liblua5.2-dev php5-dev php5-cli python-dev ruby-dev tcl-dev eatmydata valgrind
+apt-get -yqq install git build-essential m4 perl python zlib1g-dev uuid-dev wget bison tcl libpcre3-dev libmagic-dev doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush mono-devel openjdk-6-jdk lua5.2 liblua5.2-dev php5-dev php5-cli python-dev ruby-dev tcl-dev eatmydata valgrind
 echo 'Upgrading existing packages as needed.'
 apt-get -yqq upgrade
 END
@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
   config.vm.hostname = "xapian"
   config.vm.box      = "devfort-ubuntu-13.04-provisionerless"
   config.vm.box_url  = "http://devfort.s3.amazonaws.com/boxes/devfort-ubuntu-13.04-provisionerless-virtualbox.box"
-  
+
   config.vm.provision "shell", inline: $packages
   config.vm.provision "shell", inline: $bootstrap, privileged: false
   config.vm.provision "shell", inline: $configure, privileged: false

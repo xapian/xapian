@@ -69,11 +69,11 @@ DEFINE_TESTCASE(consistency3, backend) {
 }
 
 class MyPostingSource : public Xapian::PostingSource {
-    vector<pair<Xapian::docid, double> > weights;
-    vector<pair<Xapian::docid, double> >::const_iterator i;
+    vector<pair<Xapian::docid, double>> weights;
+    vector<pair<Xapian::docid, double>>::const_iterator i;
     bool started;
 
-    MyPostingSource(const vector<pair<Xapian::docid, double> > &weights_,
+    MyPostingSource(const vector<pair<Xapian::docid, double>>& weights_,
 		    double max_wt)
 	: weights(weights_), started(false)
     {
@@ -120,7 +120,6 @@ class MyPostingSource : public Xapian::PostingSource {
 	return "MyPostingSource";
     }
 };
-
 
 /// Test for rounding errors in percentage weight calculations and cutoffs.
 DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
@@ -208,7 +207,7 @@ DEFINE_TESTCASE(topercent3, remote) {
     Xapian::Enquire enquire(db);
     enquire.set_sort_by_value(1, false);
 
-    const char * terms[] = { "paragraph", "banana" };
+    static const char * const terms[] = { "paragraph", "banana" };
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, terms, terms + 2));
 
     Xapian::MSet mset = enquire.get_mset(0, 20);
@@ -255,7 +254,7 @@ DEFINE_TESTCASE(topercent5, backend) {
     // It would be odd if the non-existent term was worth more, but in 1.0.x
     // the top hit got 4% in this testcase.  In 1.2.x it gets 50%, which is
     // better, but >50% would be more natural.
-    TEST(mset[0].get_percent() >= 50);
+    TEST_REL(mset[0].get_percent(), >=, 50);
     return true;
 }
 
@@ -346,7 +345,7 @@ DEFINE_TESTCASE(checkzeromaxpartopt1, backend && !remote) {
     Xapian::Enquire enquire(db);
     // "this" indexes all documents, so will get replaced with MatchAll
     // internally.
-    const char * terms[] = { "this", "spoken", "blank" };
+    static const char * const terms[] = { "this", "spoken", "blank" };
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, terms, terms + 3));
     ZWeight wt;
     enquire.set_weighting_scheme(wt);

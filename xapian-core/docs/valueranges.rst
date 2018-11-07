@@ -7,7 +7,7 @@ Value Ranges
 Introduction
 ============
 
-The ``Xapian::ValueRangeProcessor`` was introduced in Xapian 1.0.0.  It
+The ``Xapian::ValueRangeProcessor`` class was introduced in Xapian 1.0.0.  It
 provides a powerful and flexible way to parse range queries in the users'
 query string.
 

@@ -6,7 +6,7 @@
 # Originally based on smoketest.php from the PHP4 bindings.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008,2009,2010,2011 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2016 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ end
 
 class XapianSmoketest < Test::Unit::TestCase
 
-  def setup 
+  def setup
     @stem = Xapian::Stem.new("english")
 
     @doc = Xapian::Document.new()
@@ -45,7 +45,7 @@ class XapianSmoketest < Test::Unit::TestCase
     @doc.add_posting(@stem.call("there"), 2)
     @doc.add_posting(@stem.call("anybody"), 3)
     @doc.add_posting(@stem.call("out"), 4)
-    @doc.add_posting(@stem.call("there"), 5)    
+    @doc.add_posting(@stem.call("there"), 5)
     @doc.add_term("XYzzy")
 
     @db = Xapian::inmemory_open()
@@ -63,7 +63,7 @@ class XapianSmoketest < Test::Unit::TestCase
   end # test_version
 
   def test_stem
-    assert_equal("Xapian::Stem(english)", @stem.description())    
+    assert_equal("Xapian::Stem(english)", @stem.description())
 
     assert_equal("is", @stem.call("is"))
     assert_equal("go", @stem.call("going"))
@@ -94,18 +94,18 @@ class XapianSmoketest < Test::Unit::TestCase
 
   def test_002_queries
     assert_equal("Query((smoke OR test OR terms))",
-                 Xapian::Query.new(Xapian::Query::OP_OR ,["smoke", "test", "terms"]).description())
+                 Xapian::Query.new(Xapian::Query::OP_OR, ["smoke", "test", "terms"]).description())
 
-    phraseQuery = Xapian::Query.new(Xapian::Query::OP_PHRASE ,["smoke", "test", "tuple"])
-    xorQuery = Xapian::Query.new(Xapian::Query::OP_XOR, [ Xapian::Query.new("smoke"), phraseQuery, "string" ])
+    phrase_query = Xapian::Query.new(Xapian::Query::OP_PHRASE, ["smoke", "test", "tuple"])
+    xor_query = Xapian::Query.new(Xapian::Query::OP_XOR, [ Xapian::Query.new("smoke"), phrase_query, "string" ])
 
-    assert_equal("Query((smoke PHRASE 3 test PHRASE 3 tuple))", phraseQuery.description())
-    assert_equal("Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))", xorQuery.description())
+    assert_equal("Query((smoke PHRASE 3 test PHRASE 3 tuple))", phrase_query.description())
+    assert_equal("Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))", xor_query.description())
 
-    assert_equal([Xapian::Term.new("smoke", 1), 
-                  Xapian::Term.new("string", 1), 
-                  Xapian::Term.new("test", 1), 
-                  Xapian::Term.new("tuple", 1)], xorQuery.terms())
+    assert_equal([Xapian::Term.new("smoke", 1),
+                  Xapian::Term.new("string", 1),
+                  Xapian::Term.new("test", 1),
+                  Xapian::Term.new("tuple", 1)], xor_query.terms())
 
     assert_equal(Xapian::Query::OP_ELITE_SET, 10)
 
@@ -116,7 +116,7 @@ class XapianSmoketest < Test::Unit::TestCase
   def test_003_enquire
     @enq = Xapian::Enquire.new(@db)
     assert_not_nil(@enq)
-    
+
     @enq.query = Xapian::Query.new(Xapian::Query::OP_OR, "there", "is")
     mset = @enq.mset(0, 10)
 
@@ -131,7 +131,7 @@ class XapianSmoketest < Test::Unit::TestCase
   def test_004_mset_iterator
     @enq = Xapian::Enquire.new(@db)
     assert_not_nil(@enq)
-    
+
     @enq.query = Xapian::Query.new(Xapian::Query::OP_OR, "there", "is")
     mset = @enq.mset(0, 10)
 
@@ -160,7 +160,7 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(1, ou_terms.size())
     assert_equal('out', ou_terms[0].term)
   end
-  
+
   # Feature test for Database.postlist
   def test_007_database_postlist
     assert_equal(1, @db.postlist("there").size())
@@ -249,10 +249,6 @@ class XapianSmoketest < Test::Unit::TestCase
   end
 
   def test_016_compactor
-    if ! Dir.respond_to?("mktmpdir")
-      # Older Ruby 1.8.x doesn't have Dir.mktmpdir() - just skip if so.
-      return
-    end
     Dir.mktmpdir("smokerb") {|tmpdir|
         db1path = "#{tmpdir}db1"
         db2path = "#{tmpdir}db2"
@@ -267,7 +263,7 @@ class XapianSmoketest < Test::Unit::TestCase
         db1.set_metadata('key', '1')
         db1.set_metadata('key1', '1')
         db1.add_document(doc1)
-        db1.flush()
+        db1.commit()
 
         db2 = Xapian::WritableDatabase.new(db2path, Xapian::DB_CREATE_OR_OVERWRITE)
         doc2 = Xapian::Document.new()
@@ -277,7 +273,7 @@ class XapianSmoketest < Test::Unit::TestCase
         db2.set_metadata('key', '2')
         db2.set_metadata('key2', '2')
         db2.add_document(doc2)
-        db2.flush()
+        db2.commit()
 
         # Compact with the default compactor
         # Metadata conflicts are resolved by picking the first value

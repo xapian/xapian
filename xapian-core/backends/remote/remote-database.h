@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@
 #ifndef XAPIAN_INCLUDED_REMOTE_DATABASE_H
 #define XAPIAN_INCLUDED_REMOTE_DATABASE_H
 
+#include "backends/backends.h"
 #include "backends/database.h"
 #include "api/omenquireinternal.h"
 #include "api/queryinternal.h"
@@ -64,7 +65,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     mutable Xapian::termcount doclen_ubound;
 
     /// The total length of all documents in this database.
-    mutable totlen_t total_length;
+    mutable Xapian::totallength total_length;
 
     /// Has positional information?
     mutable bool has_positional_info;
@@ -108,7 +109,19 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   bool writable, int flags);
 
     /// Receive a message from the server.
-    reply_type get_message(string & message, reply_type required_type = REPLY_MAX) const;
+    reply_type get_message(std::string& message,
+			   reply_type required_type,
+			   reply_type required_type2) const;
+
+    void get_message(std::string& message,
+		     reply_type required_type) const {
+	(void)get_message(message, required_type, required_type);
+    }
+
+    bool get_message_or_done(std::string& message,
+			     reply_type required_type) const {
+	return get_message(message, required_type, REPLY_DONE) != REPLY_DONE;
+    }
 
     /// Send a message to the server.
     void send_message(message_type type, const string & data) const;
@@ -122,9 +135,6 @@ class RemoteDatabase : public Xapian::Database::Internal {
     double timeout;
 
   public:
-    /// Return this pointer as a RemoteDatabase*.
-    RemoteDatabase * as_remotedatabase();
-
     /// Send a keep-alive message.
     void keep_alive();
 
@@ -146,7 +156,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      * @param weight_cutoff		Weight cutoff.
      * @param wtscheme			Weighting scheme.
      * @param omrset			The rset.
-     * @param matchspies                The matchspies to use.  NULL if none.
+     * @param matchspies                The matchspies to use.
      */
     void set_query(const Xapian::Query& query,
 		   Xapian::termcount qlen,
@@ -160,7 +170,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   int percent_cutoff, double weight_cutoff,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,
-		   const vector<Xapian::MatchSpy *> & matchspies);
+		   const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
 
     /** Get the stats from the remote server.
      *
@@ -176,7 +186,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// Get the MSet from the remote server.
     void get_mset(Xapian::MSet &mset,
-		  const vector<Xapian::MatchSpy *> & matchspies);
+		  const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
 
     /// Get remote metadata key list.
     TermList * open_metadata_keylist(const std::string & prefix) const;
@@ -209,10 +219,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Get the last used docid.
     Xapian::docid get_lastdocid() const;
 
-    totlen_t get_total_length() const;
-
-    /// Find out the remote average document length.
-    Xapian::doclength get_avlength() const;
+    Xapian::totallength get_total_length() const;
 
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
@@ -255,7 +262,14 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void add_spelling(const std::string&, Xapian::termcount) const;
 
-    void remove_spelling(const std::string&,  Xapian::termcount freqdec) const;
+    void remove_spelling(const std::string&, Xapian::termcount freqdec) const;
+
+    int get_backend_info(string * path) const {
+	if (path) *path = context;
+	return BACKEND_REMOTE;
+    }
+
+    bool locked() const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H

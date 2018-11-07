@@ -106,13 +106,13 @@ class TestRunner(object):
             self._out.write_colour(" #green#ok##\n")
             self._out.flush()
 
-    def expect_exception(self, expectedclass, expectedmsg, callable, *args):
+    def expect_exception(self, expectedclass, expectedmsg, code, *args):
         """Check that an exception is raised.
 
          - expectedclass is the class of the exception to check for.
-         - expectedmsg is the message to check for, or None to skip checking
-           the message.
-         - callable is the thing to call.
+         - expectedmsg is the message to check for (which can be a string or
+           a callable), or None to skip checking the message.
+         - code is the thing to call.
          - args are the arguments to pass to it.
 
         """
@@ -121,18 +121,30 @@ class TestRunner(object):
             self._out.write("Checking for exception: %s(%r) ... " % (str(expectedclass), expectedmsg))
             self._out.flush()
         try:
-            callable(*args)
+            code(*args)
             if self._verbose > 2:
                 self._out.write_colour(" #red#failed##: no exception occurred\n")
                 self._out.flush()
             raise TestFail("Expected %s(%r) exception" % (str(expectedclass), expectedmsg))
         except expectedclass as e:
-            if expectedmsg is not None and str(e) != expectedmsg:
-                if self._verbose > 2:
-                    self._out.write_colour(" #red#failed##")
-                    self._out.write(": exception string not as expected: got '%s'\n" % str(e))
-                    self._out.flush()
-                raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
+            if expectedmsg is None:
+                pass
+            elif isinstance(expectedmsg, str):
+                if str(e) != expectedmsg:
+                    if self._verbose > 2:
+                        self._out.write_colour(" #red#failed##")
+                        self._out.write(": exception string not as expected: got '%s'\n" % str(e))
+                        self._out.flush()
+                    raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
+            elif callable(expectedmsg):
+                if not expectedmsg(str(e)):
+                    if self._verbose > 2:
+                        self._out.write_colour(" #red#failed##")
+                        self._out.write(": exception string not as expected: got '%s'\n" % str(e))
+                        self._out.flush()
+                    raise TestFail("Exception string not as expected: got '%s', expected pattern '%s'" % (str(e), expectedmsg.pattern))
+            else:
+                raise TestFail("Unexpected expectedmsg: %r" % (expectedmsg,))
             if e.__class__ != expectedclass:
                 if self._verbose > 2:
                     self._out.write_colour(" #red#failed##")
