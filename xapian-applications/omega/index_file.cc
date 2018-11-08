@@ -652,7 +652,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    try {
 		if (!tmpout.empty()) {
 		    // Output in temporary file.
-		    (void)stdout_to_string(cmd, use_shell);
+		    run_filter(cmd, use_shell);
 		    if (!load_file(tmpout, dump, NOCACHE)) {
 			throw ReadError("Couldn't read output file");
 		    }
@@ -662,7 +662,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // filing system.
 		} else {
 		    // Output on stdout.
-		    dump = stdout_to_string(cmd, use_shell);
+		    run_filter(cmd, use_shell, &dump);
 		}
 		const string & charset = cmd_it->second.output_charset;
 		if (cmd_it->second.output_type == "text/html") {
@@ -756,7 +756,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    cmd += " -";
 	    try {
-		dump = stdout_to_string(cmd, false);
+		run_filter(cmd, false, &dump);
 	    } catch (ReadError) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
@@ -785,11 +785,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    append_filename_argument(cmd, tmpfile);
 	    try {
-		(void)stdout_to_string(cmd, false);
+		run_filter(cmd, false);
 		cmd = "pdftotext -enc UTF-8";
 		append_filename_argument(cmd, tmpfile);
 		cmd += " -";
-		dump = stdout_to_string(cmd, false);
+		run_filter(cmd, false, &dump);
 	    } catch (ReadError) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
@@ -927,7 +927,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    cmd += " 'Documents/1/Pages/*.fpage'";
 	    try {
 		XpsXmlParser xpsparser;
-		dump = stdout_to_string(cmd, false);
+		run_filter(cmd, false, &dump);
 		// Look for Byte-Order Mark (BOM).
 		if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
 		    // UTF-16 in big-endian/little-endian order - we just
@@ -979,7 +979,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    string cmd("dpkg-deb -f");
 	    append_filename_argument(cmd, file);
 	    cmd += " Description";
-	    const string & desc = stdout_to_string(cmd, false);
+	    string desc;
+	    run_filter(cmd, false, &desc);
 	    // First line is short description, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
@@ -990,7 +991,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		   mimetype == "application/x-rpm") {
 	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p");
 	    append_filename_argument(cmd, file);
-	    const string & desc = stdout_to_string(cmd, false);
+	    string desc;
+	    run_filter(cmd, false, &desc);
 	    // First line is summary, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
