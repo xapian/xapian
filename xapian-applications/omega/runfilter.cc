@@ -58,6 +58,8 @@
 
 using namespace std;
 
+static int devnull = -1;
+
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
 bool
 command_needs_shell(const char * p)
@@ -154,8 +156,8 @@ handle_signal(int signum)
 
 }
 
-void
-runfilter_init()
+static inline void
+runfilter_init_signal_handlers_()
 {
     struct sigaction sa;
     sa.sa_handler = handle_signal;
@@ -203,8 +205,8 @@ handle_signal(int signum)
 
 }
 
-void
-runfilter_init()
+static inline void
+runfilter_init_signal_handlers_()
 {
     old_hup_handler = signal(SIGHUP, handle_signal);
     old_int_handler = signal(SIGINT, handle_signal);
@@ -221,11 +223,29 @@ command_needs_shell(const char *)
     return true;
 }
 
-void
-runfilter_init()
+static inline void
+runfilter_init_signal_handlers_()
 {
 }
 #endif
+
+void
+runfilter_init()
+{
+    runfilter_init_signal_handlers_();
+    devnull = open("/dev/null", O_WRONLY);
+    if (devnull < 0) {
+	cerr << "Failed to open /dev/null: " << strerror(errno) << endl;
+	exit(1);
+    }
+    // Ensure that devnull isn't fd 0, 1 or 2 (stdin, stdout or stderr) and
+    // that we have open fds for stdin, stdout and stderr.  This simplifies the
+    // code after fork() because it doesn't need to worry about such corner
+    // cases.
+    while (devnull <= 2) {
+	devnull = dup(devnull);
+    }
+}
 
 void
 run_filter(const string& cmd, bool use_shell, string* out, int alt_status)
@@ -332,19 +352,11 @@ use_shell_after_all:
 	    if (!quoted) {
 		// Handle simple cases of redirection.
 		if (strcmp(word, ">/dev/null") == 0) {
-		    int fd = open(word + 1, O_WRONLY);
-		    if (fd != -1 && fd != 1) {
-			dup2(fd, 1);
-			close(fd);
-		    }
+		    dup2(devnull, 1);
 		    continue;
 		}
 		if (strcmp(word, "2>/dev/null") == 0) {
-		    int fd = open(word + 2, O_WRONLY);
-		    if (fd != -1 && fd != 2) {
-			dup2(fd, 2);
-			close(fd);
-		    }
+		    dup2(devnull, 2);
 		    continue;
 		}
 		if (strcmp(word, "2>&1") == 0) {
