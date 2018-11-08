@@ -334,14 +334,18 @@ use_shell_after_all:
 		// Handle simple cases of redirection.
 		if (strcmp(word, ">/dev/null") == 0) {
 		    int fd = open(word + 1, O_WRONLY);
-		    if (fd != -1 && fd != 1) dup2(fd, 1);
-		    close(fd);
+		    if (fd != -1 && fd != 1) {
+			dup2(fd, 1);
+			close(fd);
+		    }
 		    continue;
 		}
 		if (strcmp(word, "2>/dev/null") == 0) {
 		    int fd = open(word + 2, O_WRONLY);
-		    if (fd != -1 && fd != 2) dup2(fd, 2);
-		    close(fd);
+		    if (fd != -1 && fd != 2) {
+			dup2(fd, 2);
+			close(fd);
+		    }
 		    continue;
 		}
 		if (strcmp(word, "2>&1") == 0) {
