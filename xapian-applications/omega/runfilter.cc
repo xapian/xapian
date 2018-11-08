@@ -1,7 +1,7 @@
 /** @file runfilter.cc
  * @brief Run an external filter and capture its output in a std::string.
  */
-/* Copyright (C) 2003,2006,2007,2009,2010,2011,2013,2015,2017 Olly Betts
+/* Copyright (C) 2003,2006,2007,2009,2010,2011,2013,2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -227,10 +227,9 @@ runfilter_init()
 }
 #endif
 
-string
-stdout_to_string(const string &cmd, bool use_shell, int alt_status)
+void
+run_filter(const string& cmd, bool use_shell, string* out, int alt_status)
 {
-    string out;
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
     // We want to be able to get the exit status of the child process.
     signal(SIGCHLD, SIG_DFL);
@@ -432,7 +431,7 @@ use_shell_after_all:
 	    pid_to_kill_on_signal = 0;
 	    throw ReadError(status);
 	}
-	out.append(buf, res);
+	if (out) out->append(buf, res);
     }
 
     close(fd);
@@ -456,7 +455,7 @@ use_shell_after_all:
 	    (void)pclose(fh);
 	    throw ReadError("fread failed");
 	}
-	out.append(buf, len);
+	if (out) out->append(buf, len);
     }
     int status = pclose(fh);
 #endif
@@ -464,7 +463,7 @@ use_shell_after_all:
     if (WIFEXITED(status)) {
 	int exit_status = WEXITSTATUS(status);
 	if (exit_status == 0 || exit_status == alt_status)
-	    return out;
+	    return;
 	if (exit_status == 127)
 	    throw NoSuchFilter();
     }
