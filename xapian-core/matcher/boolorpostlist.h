@@ -1,8 +1,7 @@
-/** @file maxpostlist.h
- * @brief N-way OR postlist with wt=max(wt_i)
+/** @file boolorpostlist.h
+ * @brief PostList class implementing unweighted Query::OP_OR
  */
-/* Copyright (C) 2007,2009,2010,2011,2012,2013,2017,2018 Olly Betts
- * Copyright (C) 2009 Lemur Consulting Ltd
+/* Copyright 2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,19 +18,20 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_MAXPOSTLIST_H
-#define XAPIAN_INCLUDED_MAXPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_BOOLORPOSTLIST_H
+#define XAPIAN_INCLUDED_BOOLORPOSTLIST_H
 
 #include "api/postlist.h"
-#include "postlisttree.h"
 
-/// N-way OR postlist with wt=max(wt_i).
-class MaxPostList : public PostList {
+class PostListTree;
+
+/// PostList class implementing unweighted Query::OP_OR
+class BoolOrPostList : public PostList {
     /// Don't allow assignment.
-    void operator=(const MaxPostList &);
+    void operator=(const BoolOrPostList&) = delete;
 
     /// Don't allow copying.
-    MaxPostList(const MaxPostList &);
+    BoolOrPostList(const BoolOrPostList&) = delete;
 
     /// The current docid, or zero if we haven't started or are at_end.
     Xapian::docid did;
@@ -39,43 +39,45 @@ class MaxPostList : public PostList {
     /// The number of sub-postlists.
     size_t n_kids;
 
-    /// Array of pointers to sub-postlists.
-    PostList ** plist;
+    struct PostListAndDocID {
+	PostList* pl;
 
-    /// The number of documents in the database.
+	Xapian::docid did = 0;
+
+	PostListAndDocID() : pl(nullptr) { }
+
+	PostListAndDocID(PostList* pl_) : pl(pl_) { }
+
+	bool operator>(const PostListAndDocID& o) const {
+	    return did > o.did;
+	}
+    };
+
+    /// Array of pointers to sub-postlists.
+    PostListAndDocID* plist;
+
+    /** Total number of documents in the database. */
     Xapian::doccount db_size;
 
-    /// Pointer to the matcher object, so we can report pruning.
-    PostListTree *matcher;
-
-    /// Erase a sub-postlist.
-    void erase_sublist(size_t i) {
-	delete plist[i];
-	--n_kids;
-	for (size_t j = i; j < n_kids; ++j) {
-	    plist[j] = plist[j + 1];
-	}
-	matcher->force_recalc();
-    }
+    PostListTree* pltree;
 
   public:
     /** Construct from 2 random-access iterators to a container of PostList*,
      *  a pointer to the matcher, and the document collection size.
      */
     template<class RandomItor>
-    MaxPostList(RandomItor pl_begin, RandomItor pl_end,
-		PostListTree * matcher_, Xapian::doccount db_size_)
+    BoolOrPostList(RandomItor pl_begin, RandomItor pl_end,
+		   PostListTree* pltree_, Xapian::doccount db_size_)
 	: did(0), n_kids(pl_end - pl_begin), plist(NULL),
-	  db_size(db_size_), matcher(matcher_)
+	  db_size(db_size_), pltree(pltree_)
     {
-	plist = new PostList * [n_kids];
-	auto it = plist;
-	while (pl_begin != pl_end) {
-	    *it++ = (*pl_begin++).pl;
-	}
+	plist = new PostListAndDocID[n_kids];
+	// This initialises all entries to have did 0, so all entries are
+	// equal, which is a valid heap.
+	std::copy(pl_begin, pl_end, plist);
     }
 
-    ~MaxPostList();
+    ~BoolOrPostList();
 
     Xapian::doccount get_termfreq_min() const;
 
@@ -84,7 +86,7 @@ class MaxPostList : public PostList {
     Xapian::doccount get_termfreq_est() const;
 
     TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
+	    const Xapian::Weight::Internal& stats) const;
 
     Xapian::docid get_docid() const;
 
@@ -95,26 +97,17 @@ class MaxPostList : public PostList {
 
     double recalc_maxweight();
 
-    PositionList * read_position_list() {
-	return NULL;
-    }
-
     PostList* next(double w_min);
 
-    PostList* skip_to(Xapian::docid, double w_min);
+    PostList* skip_to(Xapian::docid did, double w_min);
 
     std::string get_description() const;
 
-    /** get_wdf() for MaxPostlist returns the sum of the wdfs of the
-     *  sub postlists which match the current docid.
-     *
-     *  The wdf isn't really meaningful in many situations, but if the lists
-     *  are being combined as a synonym we want the sum of the wdfs, so we do
-     *  that in general.
-     */
     Xapian::termcount get_wdf() const;
 
     Xapian::termcount count_matching_subqs() const;
+
+    void gather_position_lists(OrPositionList* orposlist);
 };
 
-#endif // XAPIAN_INCLUDED_MAXPOSTLIST_H
+#endif // XAPIAN_INCLUDED_BOOLORPOSTLIST_H

@@ -566,6 +566,7 @@ operator~(const Query &q)
 
 namespace Internal {
 class AndContext;
+class BoolOrContext;
 class OrContext;
 class XorContext;
 
@@ -587,6 +588,9 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
     virtual void postlist_sub_and_like(Xapian::Internal::AndContext& ctx,
 				       Xapian::Internal::QueryOptimiser* qopt,
 				       double factor) const;
+
+    virtual void postlist_sub_bool_or_like(Xapian::Internal::BoolOrContext& ctx,
+					   Xapian::Internal::QueryOptimiser* qopt) const;
 
     virtual void postlist_sub_or_like(Xapian::Internal::OrContext& ctx,
 				      Xapian::Internal::QueryOptimiser* qopt,

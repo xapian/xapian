@@ -31,6 +31,7 @@
 #include "leafpostlist.h"
 #include "matcher/andmaybepostlist.h"
 #include "matcher/andnotpostlist.h"
+#include "matcher/boolorpostlist.h"
 #include "emptypostlist.h"
 #include "matcher/exactphrasepostlist.h"
 #include "matcher/externalpostlist.h"
@@ -70,11 +71,22 @@ template<class CLASS> struct delete_ptr {
 
 using Xapian::Internal::AndContext;
 using Xapian::Internal::OrContext;
+using Xapian::Internal::BoolOrContext;
 using Xapian::Internal::XorContext;
 
 namespace Xapian {
 
 namespace Internal {
+
+struct PostListAndTermFreq {
+    PostList* pl;
+    Xapian::doccount tf = 0;
+
+    PostListAndTermFreq() : pl(nullptr) {}
+
+    explicit
+    PostListAndTermFreq(PostList* pl_) : pl(pl_) {}
+};
 
 /** Class providing an operator which sorts postlists to select max or terms.
  *  This returns true if a has a (strictly) greater termweight than b.
@@ -86,7 +98,10 @@ namespace Internal {
  */
 struct CmpMaxOrTerms {
     /** Return true if and only if a has a strictly greater termweight than b. */
-    bool operator()(PostList *a, PostList *b) {
+    bool operator()(const PostListAndTermFreq& elt_a,
+		    const PostListAndTermFreq& elt_b) {
+	PostList* a = elt_a.pl;
+	PostList* b = elt_b.pl;
 #if (defined(__i386__) && !defined(__SSE_MATH__)) || \
     defined(__mc68000__) || defined(__mc68010__) || \
     defined(__mc68020__) || defined(__mc68030__)
@@ -119,27 +134,65 @@ struct CmpMaxOrTerms {
     }
 };
 
-/// Comparison functor which orders PostList* by descending get_termfreq_est().
+/// Comparison functor which orders by descending termfreq.
 struct ComparePostListTermFreqAscending {
-    /// Order by descending get_termfreq_est().
-    bool operator()(const PostList *a, const PostList *b) const {
+    /// Order PostListAndTermFreq by descending tf.
+    bool operator()(const PostListAndTermFreq& a,
+		    const PostListAndTermFreq& b) const {
+	return a.tf > b.tf;
+    }
+
+    /// Order PostList* by descending get_termfreq_est().
+    bool operator()(const PostList* a,
+		    const PostList* b) const {
 	return a->get_termfreq_est() > b->get_termfreq_est();
     }
 };
 
+template<typename T>
 class Context {
+    /** Helper for initialisation when T = PostList*.
+     *
+     *  No initialisation is needed for this case.
+     */
+    void init_tf_(vector<PostList*>&) { }
+
+    /** Helper for initialisation when T = PostListAndTermFreq. */
+    void init_tf_(vector<PostListAndTermFreq>&) {
+	if (pls.empty() || pls.front().tf != 0) return;
+	for (auto&& elt : pls) {
+	    elt.tf = elt.pl->get_termfreq_est();
+	}
+    }
+
   protected:
     QueryOptimiser* qopt;
 
-    vector<PostList*> pls;
+    vector<T> pls;
+
+    /** Helper for initialisation.
+     *
+     *  Use with BoolOrContext and OrContext.
+     */
+    void init_tf() { init_tf_(pls); }
+
+    /** Helper for dereferencing when T = PostList*. */
+    PostList* as_postlist(PostList* pl) { return pl; }
+
+    /** Helper for dereferencing when T = PostListAndTermFreq. */
+    PostList* as_postlist(const PostListAndTermFreq& x) { return x.pl; }
 
   public:
-    Context(QueryOptimiser* qopt_, size_t reserve);
+    Context(QueryOptimiser* qopt_, size_t reserve) : qopt(qopt_) {
+	pls.reserve(reserve);
+    }
 
-    ~Context();
+    ~Context() {
+	shrink(0);
+    }
 
     void add_postlist(PostList * pl) {
-	pls.push_back(pl);
+	pls.emplace_back(pl);
     }
 
     bool empty() const {
@@ -150,52 +203,115 @@ class Context {
 	return pls.size();
     }
 
-    void shrink(size_t new_size);
+    void shrink(size_t new_size) {
+	AssertRel(new_size, <=, pls.size());
+	if (new_size >= pls.size())
+	    return;
+
+	const PostList * hint_pl = qopt->get_hint_postlist();
+	for (auto&& i = pls.begin() + new_size; i != pls.end(); ++i) {
+	    const PostList * pl = as_postlist(*i);
+	    if (rare(pl == hint_pl)) {
+		// We were about to delete qopt's hint - instead tell qopt to
+		// take ownership.
+		qopt->take_hint_ownership();
+		hint_pl = NULL;
+	    } else {
+		delete pl;
+	    }
+	}
+	pls.resize(new_size);
+    }
+
+    /** Expand a wildcard query.
+     *
+     *  Used with BoolOrContext and OrContext.
+     */
+    void expand_wildcard(const QueryWildcard* query, double factor);
 };
 
-Context::Context(QueryOptimiser* qopt_, size_t reserve)
-    : qopt(qopt_)
+template<typename T>
+inline void
+Context<T>::expand_wildcard(const QueryWildcard* query,
+			    double factor)
 {
-    pls.reserve(reserve);
-}
+    unique_ptr<TermList> t(qopt->db.open_allterms(query->get_pattern()));
+    auto max_type = query->get_max_type();
+    Xapian::termcount expansions_left = query->get_max_expansion();
+    // If there's no expansion limit, set expansions_left to the maximum
+    // value Xapian::termcount can hold.
+    if (expansions_left == 0)
+	--expansions_left;
+    while (true) {
+	t->next();
+	if (t->at_end())
+	    break;
+	if (max_type < Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
+	    if (expansions_left-- == 0) {
+		if (max_type == Xapian::Query::WILDCARD_LIMIT_FIRST)
+		    break;
+		string msg("Wildcard ");
+		msg += query->get_pattern();
+		msg += "* expands to more than ";
+		msg += str(query->get_max_expansion());
+		msg += " terms";
+		throw Xapian::WildcardError(msg);
+	    }
+	}
+	const string & term = t->get_termname();
+	add_postlist(qopt->open_lazy_post_list(term, 1, factor));
+    }
 
-void
-Context::shrink(size_t new_size)
-{
-    AssertRel(new_size, <=, pls.size());
-    if (new_size >= pls.size())
-	return;
-
-    const PostList * hint_pl = qopt->get_hint_postlist();
-    for (auto&& i = pls.begin() + new_size; i != pls.end(); ++i) {
-	const PostList * pl = *i;
-	if (rare(pl == hint_pl)) {
-	    // We were about to delete qopt's hint - instead tell qopt to take
-	    // ownership.
-	    qopt->take_hint_ownership();
-	    hint_pl = NULL;
-	} else {
-	    delete pl;
+    if (max_type == Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
+	// FIXME: open_lazy_post_list() results in the term getting registered
+	// for stats, so we still incur an avoidable cost from the full
+	// expansion size of the wildcard, which is most likely to be visible
+	// with the remote backend.  Perhaps we should split creating the lazy
+	// postlist from registering the term for stats.
+	auto set_size = query->get_max_expansion();
+	if (size() > set_size) {
+	    init_tf();
+	    auto begin = pls.begin();
+	    nth_element(begin, begin + set_size - 1, pls.end(),
+			ComparePostListTermFreqAscending());
+	    shrink(set_size);
 	}
     }
-    pls.resize(new_size);
 }
 
-Context::~Context()
+class BoolOrContext : public Context<PostList*> {
+  public:
+    BoolOrContext(QueryOptimiser* qopt_, size_t reserve)
+	: Context(qopt_, reserve) { }
+
+    PostList * postlist();
+};
+
+PostList *
+BoolOrContext::postlist()
 {
-    shrink(0);
+    Assert(!pls.empty());
+
+    PostList* pl;
+    if (pls.size() == 1) {
+	pl = pls[0];
+    } else {
+	pl = new BoolOrPostList(pls.begin(), pls.end(), qopt->matcher,
+				qopt->db_size);
+    }
+
+    // Empty pls so our destructor doesn't delete them all!
+    pls.clear();
+    return pl;
 }
 
-class OrContext : public Context {
+class OrContext : public Context<PostListAndTermFreq> {
   public:
     OrContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
 
     /// Select the best set_size postlists from the last out_of added.
     void select_elite_set(size_t set_size, size_t out_of);
-
-    /// Select the set_size postlists with the highest term frequency.
-    void select_most_frequent(size_t set_size);
 
     PostList * postlist();
     PostList * postlist_max();
@@ -204,18 +320,9 @@ class OrContext : public Context {
 void
 OrContext::select_elite_set(size_t set_size, size_t out_of)
 {
-    vector<PostList*>::iterator begin = pls.begin() + pls.size() - out_of;
+    auto begin = pls.begin() + pls.size() - out_of;
     nth_element(begin, begin + set_size - 1, pls.end(), CmpMaxOrTerms());
     shrink(pls.size() - out_of + set_size);
-}
-
-void
-OrContext::select_most_frequent(size_t set_size)
-{
-    vector<PostList*>::iterator begin = pls.begin();
-    nth_element(begin, begin + set_size - 1, pls.end(),
-		ComparePostListTermFreqAscending());
-    shrink(set_size);
 }
 
 PostList *
@@ -224,13 +331,14 @@ OrContext::postlist()
     Assert(!pls.empty());
 
     if (pls.size() == 1) {
-	PostList * pl = pls[0];
+	PostList * pl = pls[0].pl;
 	pls.clear();
 	return pl;
     }
 
     // Make postlists into a heap so that the postlist with the greatest term
     // frequency is at the top of the heap.
+    init_tf();
     Heap::make(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
 
     // Now build a tree of binary OrPostList objects.
@@ -247,18 +355,20 @@ OrContext::postlist()
 	//
 	// We do this so that the OrPostList class can be optimised assuming
 	// that this is the case.
-	PostList * r = pls.front();
+	PostList * r = pls.front().pl;
+	auto tf = pls.front().tf;
 	Heap::pop(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
 	pls.pop_back();
 	PostList * pl;
-	pl = new OrPostList(pls.front(), r, qopt->matcher, qopt->db_size);
+	pl = new OrPostList(pls.front().pl, r, qopt->matcher, qopt->db_size);
 
 	if (pls.size() == 1) {
 	    pls.clear();
 	    return pl;
 	}
 
-	pls[0] = pl;
+	pls[0].pl = pl;
+	pls[0].tf += tf;
 	Heap::replace(pls.begin(), pls.end(),
 		      ComparePostListTermFreqAscending());
     }
@@ -270,13 +380,14 @@ OrContext::postlist_max()
     Assert(!pls.empty());
 
     if (pls.size() == 1) {
-	PostList * pl = pls[0];
+	PostList * pl = pls[0].pl;
 	pls.clear();
 	return pl;
     }
 
     // Sort the postlists so that the postlist with the greatest term frequency
     // is first.
+    init_tf();
     sort(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
 
     PostList * pl;
@@ -286,7 +397,7 @@ OrContext::postlist_max()
     return pl;
 }
 
-class XorContext : public Context {
+class XorContext : public Context<PostList*> {
   public:
     XorContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -306,7 +417,7 @@ XorContext::postlist()
     return pl;
 }
 
-class AndContext : public Context {
+class AndContext : public Context<PostList*> {
     class PosFilter {
 	Xapian::Query::op op_;
 
@@ -663,6 +774,13 @@ Query::Internal::postlist_sub_or_like(OrContext& ctx,
 }
 
 void
+Query::Internal::postlist_sub_bool_or_like(BoolOrContext& ctx,
+					   QueryOptimiser * qopt) const
+{
+    ctx.add_postlist(postlist(qopt, 0.0));
+}
+
+void
 Query::Internal::postlist_sub_xor(XorContext& ctx,
 				  QueryOptimiser * qopt,
 				  double factor) const
@@ -994,66 +1112,47 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryWildcard::postlist", qopt | factor);
     Query::op op = combiner;
-    double or_factor = 0.0;
-    if (factor == 0.0) {
-	// If we have a factor of 0, we don't care about the weights, so
-	// we're just like a normal OR query.
-	op = Query::OP_OR;
-    } else if (op != Query::OP_SYNONYM) {
-	or_factor = factor;
-    }
+    if (factor == 0.0 || op == Query::OP_SYNONYM) {
+	if (factor == 0.0) {
+	    // If we have a factor of 0, we don't care about the weights, so
+	    // we're just like a normal OR query.
+	    op = Query::OP_OR;
+	}
 
-    bool old_in_synonym = qopt->in_synonym;
-    if (!old_in_synonym) {
-	qopt->in_synonym = (op == Query::OP_SYNONYM);
+	bool old_in_synonym = qopt->in_synonym;
+	if (!old_in_synonym) {
+	    qopt->in_synonym = (op == Query::OP_SYNONYM);
+	}
+
+	BoolOrContext ctx(qopt, 0);
+	ctx.expand_wildcard(this, 0.0);
+
+	if (op == Query::OP_SYNONYM) {
+	    qopt->inc_total_subqs();
+	}
+
+	qopt->in_synonym = old_in_synonym;
+
+	if (ctx.empty())
+	    RETURN(new EmptyPostList);
+
+	PostList * pl = ctx.postlist();
+	if (op != Query::OP_SYNONYM)
+	    RETURN(pl);
+
+	// We build an OP_OR tree for OP_SYNONYM and then wrap it in a
+	// SynonymPostList, which supplies the weights.
+	//
+	// We know the subqueries from a wildcard expansion are wdf-disjoint
+	// (i.e. each wdf from the document contributes at most itself to the
+	// wdf of the subquery).
+	RETURN(qopt->make_synonym_postlist(pl, factor, true));
     }
 
     OrContext ctx(qopt, 0);
-    unique_ptr<TermList> t(qopt->db.open_allterms(pattern));
-    Xapian::termcount expansions_left = max_expansion;
-    // If there's no expansion limit, set expansions_left to the maximum
-    // value Xapian::termcount can hold.
-    if (expansions_left == 0)
-	--expansions_left;
-    while (true) {
-	t->next();
-	if (t->at_end())
-	    break;
-	if (max_type < Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
-	    if (expansions_left-- == 0) {
-		if (max_type == Xapian::Query::WILDCARD_LIMIT_FIRST)
-		    break;
-		string msg("Wildcard ");
-		msg += pattern;
-		msg += "* expands to more than ";
-		msg += str(max_expansion);
-		msg += " terms";
-		throw Xapian::WildcardError(msg);
-	    }
-	}
-	const string & term = t->get_termname();
-	ctx.add_postlist(qopt->open_lazy_post_list(term, 1, or_factor));
-    }
+    ctx.expand_wildcard(this, factor);
 
-    if (max_type == Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
-	// FIXME: open_lazy_post_list() results in the term getting registered
-	// for stats, so we still incur an avoidable cost from the full
-	// expansion size of the wildcard, which is most likely to be visible
-	// with the remote backend.  Perhaps we should split creating the lazy
-	// postlist from registering the term for stats.
-	if (ctx.size() > max_expansion)
-	    ctx.select_most_frequent(max_expansion);
-    }
-
-    if (factor != 0.0) {
-	if (op != Query::OP_SYNONYM) {
-	    qopt->set_total_subqs(qopt->get_total_subqs() + ctx.size());
-	} else {
-	    qopt->inc_total_subqs();
-	}
-    }
-
-    qopt->in_synonym = old_in_synonym;
+    qopt->set_total_subqs(qopt->get_total_subqs() + ctx.size());
 
     if (ctx.empty())
 	RETURN(new EmptyPostList);
@@ -1061,17 +1160,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
     if (op == Query::OP_MAX)
 	RETURN(ctx.postlist_max());
 
-    PostList * pl = ctx.postlist();
-    if (op == Query::OP_OR)
-	RETURN(pl);
-
-    // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
-    // SynonymPostList, which supplies the weights.
-    //
-    // We know the subqueries from a wildcard expansion are wdf-disjoint
-    // (i.e. each wdf from the document contributes at most itself to the
-    // wdf of the subquery).
-    RETURN(qopt->make_synonym_postlist(pl, factor, true));
+    RETURN(ctx.postlist());
 }
 
 termcount
@@ -1227,6 +1316,28 @@ QueryBranch::gather_terms(void * void_terms) const
 }
 
 void
+QueryBranch::do_bool_or_like(BoolOrContext& ctx, QueryOptimiser* qopt) const
+{
+    LOGCALL_VOID(MATCH, "QueryBranch::do_bool_or_like", ctx | qopt);
+
+    // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
+    // for AND-like operations.
+
+    // OP_SYNONYM with a single subquery is only simplified by
+    // QuerySynonym::done() if the single subquery is a term or MatchAll.
+    Assert(subqueries.size() >= 2 || get_op() == Query::OP_SYNONYM);
+
+    vector<PostList *> postlists;
+    postlists.reserve(subqueries.size());
+
+    for (auto q : subqueries) {
+	// MatchNothing subqueries should have been removed by done().
+	Assert(q.internal.get());
+	q.internal->postlist_sub_bool_or_like(ctx, qopt);
+    }
+}
+
+void
 QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
 			Xapian::termcount elite_set_size, size_t first) const
 {
@@ -1259,17 +1370,18 @@ PostList *
 QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(MATCH, PostList *, "QueryBranch::do_synonym", qopt | factor);
-    OrContext ctx(qopt, subqueries.size());
+    BoolOrContext ctx(qopt, subqueries.size());
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
 	// we're just like a normal OR query.
-	do_or_like(ctx, qopt, 0.0);
+	do_bool_or_like(ctx, qopt);
 	return ctx.postlist();
     }
 
     bool old_in_synonym = qopt->in_synonym;
+    Assert(!old_in_synonym);
     qopt->in_synonym = true;
-    do_or_like(ctx, qopt, 0.0);
+    do_bool_or_like(ctx, qopt);
     PostList * pl = ctx.postlist();
     qopt->in_synonym = old_in_synonym;
 

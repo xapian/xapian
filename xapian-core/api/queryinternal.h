@@ -182,6 +182,8 @@ class QueryBranch : public Query::Internal {
 
     void serialise_(std::string & result, Xapian::termcount parameter = 0) const;
 
+    void do_bool_or_like(BoolOrContext& ctx, QueryOptimiser* qopt) const;
+
     void do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
 		    Xapian::termcount elite_set_size = 0, size_t first = 0) const;
 
@@ -424,6 +426,10 @@ class QueryWildcard : public Query::Internal {
     Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
 
     const std::string & get_pattern() const { return pattern; }
+
+    Xapian::termcount get_max_expansion() const { return max_expansion; }
+
+    int get_max_type() const { return max_type; }
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
