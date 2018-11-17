@@ -253,61 +253,12 @@ BoolOrPostList::get_description() const
     return desc;
 }
 
-/** Helper function to apply operation to all postlists matching current docid.
- *
- *  This function makes use of the heap structure, descending to any children
- *  which match the current docid in an effectively recursive way which needs
- *  O(1) storage, and evaluating func for each of them.
- *
- *  There's support for accumulating a value of type Xapian::termcount, which
- *  is returned (of the three current uses, two want to accumulate a value of
- *  this type, while the other doesn't need to accumulate a value).
- */
-template<typename F>
-static inline Xapian::termcount
-for_all_matches(F func,
-		BoolOrPostList::PostListAndDocID* plist,
-		size_t n_kids,
-		Xapian::docid did)
-{
-    size_t i = 0;
-    Xapian::termcount result = 0;
-    AssertEq(plist[0].did, did);
-    while (true) {
-	result += func(plist[i].pl);
-	// Children of i are (2 * i + 1) and (2 * i + 2).
-	size_t j = 2 * i + 1;
-	if (j < n_kids && plist[j].did == did) {
-	    // Down left.
-	    i = j;
-	    continue;
-	}
-	if (j + 1 < n_kids && plist[j + 1].did == did) {
-	    // Down right.
-	    i = j + 1;
-	    continue;
-	}
-try_right:
-	if ((i & 1) && i + 1 < n_kids && plist[i + 1].did == did) {
-	    // Right.
-	    ++i;
-	    continue;
-	}
-	// Up.
-	i = (i - 1) / 2;
-	if (i == 0) break;
-	goto try_right;
-    }
-    return result;
-}
-
 Xapian::termcount
 BoolOrPostList::get_wdf() const
 {
     return for_all_matches([](PostList* pl) {
 			       return pl->get_wdf();
-			   },
-			   plist, n_kids, did);
+			   });
 }
 
 Xapian::termcount
@@ -315,8 +266,7 @@ BoolOrPostList::count_matching_subqs() const
 {
     return for_all_matches([](PostList* pl) {
 			       return pl->count_matching_subqs();
-			   },
-			   plist, n_kids, did);
+			   });
 }
 
 void
@@ -325,6 +275,5 @@ BoolOrPostList::gather_position_lists(OrPositionList* orposlist)
     for_all_matches([&orposlist](PostList* pl) {
 			pl->gather_position_lists(orposlist);
 			return 0;
-		    },
-		    plist, n_kids, did);
+		    });
 }

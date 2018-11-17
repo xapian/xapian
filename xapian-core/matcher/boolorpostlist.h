@@ -61,6 +61,52 @@ class BoolOrPostList : public PostList {
 
     PostListTree* pltree;
 
+    /** Helper to apply operation to all postlists matching current docid.
+     *
+     *  This function makes use of the heap structure, descending to any
+     *  children which match the current docid in an effectively recursive way
+     *  which needs O(1) storage, and evaluating func for each of them.
+     *
+     *  There's support for accumulating a value of type Xapian::termcount,
+     *  which is returned (of the three current uses, two want to accumulate a
+     *  value of this type, while the other doesn't need to accumulate a
+     *  value).
+     */
+    template<typename F>
+    Xapian::termcount
+    for_all_matches(F func) const
+    {
+	size_t i = 0;
+	Xapian::termcount result = 0;
+	AssertEq(plist[0].did, did);
+	while (true) {
+	    result += func(plist[i].pl);
+	    // Children of i are (2 * i + 1) and (2 * i + 2).
+	    size_t j = 2 * i + 1;
+	    if (j < n_kids && plist[j].did == did) {
+		// Down left.
+		i = j;
+		continue;
+	    }
+	    if (j + 1 < n_kids && plist[j + 1].did == did) {
+		// Down right.
+		i = j + 1;
+		continue;
+	    }
+    try_right:
+	    if ((i & 1) && i + 1 < n_kids && plist[i + 1].did == did) {
+		// Right.
+		++i;
+		continue;
+	    }
+	    // Up.
+	    i = (i - 1) / 2;
+	    if (i == 0) break;
+	    goto try_right;
+	}
+	return result;
+    }
+
   public:
     /** Construct from 2 random-access iterators to a container of PostList*,
      *  a pointer to the matcher, and the document collection size.
