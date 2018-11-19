@@ -570,7 +570,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	if (cmd_it != commands.end()) {
 	    // Easy "run a command and read text or HTML from stdout or a
 	    // temporary file" cases.
-	    string cmd = cmd_it->second.cmd;
+	    auto& filter = cmd_it->second;
+	    string cmd = filter.cmd;
 	    if (cmd.empty()) {
 		skip(urlterm, context, "required filter not installed",
 		     d.get_size(), d.get_mtime(), SKIP_VERBOSE_ONLY);
@@ -586,7 +587,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		     SKIP_VERBOSE_ONLY);
 		return;
 	    }
-	    bool use_shell = cmd_it->second.use_shell();
+	    bool use_shell = filter.use_shell();
 	    bool substituted = false;
 	    string tmpout;
 	    size_t pcent = 0;
@@ -616,9 +617,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			    // Use a temporary file with a suitable extension
 			    // in case the command cares, and for more helpful
 			    // error messages from the command.
-			    if (cmd_it->second.output_type == "text/html") {
+			    if (filter.output_type == "text/html") {
 				tmpout = get_tmpfile("tmp.html");
-			    } else if (cmd_it->second.output_type == "image/svg+xml") {
+			    } else if (filter.output_type == "image/svg+xml") {
 				tmpout = get_tmpfile("tmp.svg");
 			    } else {
 				tmpout = get_tmpfile("tmp.txt");
@@ -661,8 +662,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // Output on stdout.
 		    run_filter(cmd, use_shell, &dump);
 		}
-		const string & charset = cmd_it->second.output_charset;
-		if (cmd_it->second.output_type == "text/html") {
+		const string & charset = filter.output_charset;
+		if (filter.output_type == "text/html") {
 		    MyHtmlParser p;
 		    p.ignore_metarobots();
 		    p.description_as_sample = description_as_sample;
@@ -685,7 +686,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    sample = p.sample;
 		    author = p.author;
 		    created = p.created;
-		} else if (cmd_it->second.output_type == "image/svg+xml") {
+		} else if (filter.output_type == "image/svg+xml") {
 		    SvgParser svgparser;
 		    svgparser.parse(dump);
 		    dump = svgparser.dump;
