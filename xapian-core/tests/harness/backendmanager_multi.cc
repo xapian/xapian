@@ -118,7 +118,7 @@ BackendManagerMulti::createdb_multi(const string& name,
     dbs.close();
 
     if (rename(tmpfile.c_str(), db_path.c_str()) < 0) {
-	throw Xapian::Database("rename failed", errno);
+	throw Xapian::DatabaseError("rename failed", errno);
     }
 
     last_wdb_path = db_path;
