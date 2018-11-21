@@ -65,7 +65,7 @@ BackendManagerChert::do_get_database_path(const vector<string> & files)
 	index_files_to_database(wdb, files);
 	wdb.close();
 	if (rename(tmp_path.c_str(), db_path.c_str()) < 0) {
-	    throw Xapian::Database("rename failed", errno);
+	    throw Xapian::DatabaseError("rename failed", errno);
 	}
     }
 
