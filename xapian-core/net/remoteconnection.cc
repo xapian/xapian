@@ -218,12 +218,9 @@ RemoteConnection::ready_to_read() const
     FD_ZERO(&efdset);
     FD_SET(fdin, &efdset);
 
-    // Set a 0.1 second timeout to avoid a busy loop.
-    // FIXME: this would be much better done by exposing the fd so that the
-    // matcher can call select on all the fds involved...
     struct timeval tv;
     tv.tv_sec = 0;
-    tv.tv_usec = 100000;
+    tv.tv_usec = 0;
     RETURN(select(fdin + 1, &rfdset, 0, &efdset, &tv) > 0);
 }
 
