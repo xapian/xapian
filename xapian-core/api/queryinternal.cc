@@ -53,6 +53,7 @@
 #include "debuglog.h"
 #include "omassert.h"
 #include "str.h"
+#include "stringutils.h"
 #include "unicode/description_append.h"
 
 #include <algorithm>
@@ -64,6 +65,8 @@
 #include <vector>
 
 using namespace std;
+
+static constexpr unsigned MAX_UTF_8_CHARACTER_LENGTH = 4;
 
 template<class CLASS> struct delete_ptr {
     void operator()(CLASS *p) const { delete p; }
@@ -235,7 +238,8 @@ inline void
 Context<T>::expand_wildcard(const QueryWildcard* query,
 			    double factor)
 {
-    unique_ptr<TermList> t(qopt->db.open_allterms(query->get_pattern()));
+    unique_ptr<TermList> t(qopt->db.open_allterms(query->get_fixed_prefix()));
+    bool skip_ucase = query->get_fixed_prefix().empty();
     auto max_type = query->get_max_type();
     Xapian::termcount expansions_left = query->get_max_expansion();
     // If there's no expansion limit, set expansions_left to the maximum
@@ -246,19 +250,41 @@ Context<T>::expand_wildcard(const QueryWildcard* query,
 	t->next();
 	if (t->at_end())
 	    break;
+
+	const string & term = t->get_termname();
+	if (skip_ucase && term[0] >= 'A') {
+	    // If there's a leading wildcard then skip terms that start
+	    // with A-Z, as we don't want the expansion to include prefixed
+	    // terms.
+	    //
+	    // This assumes things about the structure of terms which the
+	    // Query class otherwise doesn't need to care about, but it
+	    // seems hard to avoid here.
+	    skip_ucase = false;
+	    if (term[0] <= 'Z') {
+		static_assert('Z' + 1 == '[', "'Z' + 1 == '['");
+		t->skip_to("[");
+		continue;
+	    }
+	}
+
+	if (!query->test_prefix_known(term)) continue;
+
 	if (max_type < Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
 	    if (expansions_left-- == 0) {
 		if (max_type == Xapian::Query::WILDCARD_LIMIT_FIRST)
 		    break;
 		string msg("Wildcard ");
 		msg += query->get_pattern();
-		msg += "* expands to more than ";
+		if (query->get_just_flags() == 0)
+		    msg += '*';
+		msg += " expands to more than ";
 		msg += str(query->get_max_expansion());
 		msg += " terms";
 		throw Xapian::WildcardError(msg);
 	    }
 	}
-	const string & term = t->get_termname();
+
 	add_postlist(qopt->open_lazy_post_list(term, 1, factor));
     }
 
@@ -699,7 +725,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    decode_length(p, end, max_expansion);
 		    if (end - *p < 2)
 			throw SerialisationError("not enough data");
-		    int max_type = static_cast<unsigned char>(*(*p)++);
+		    int flags = static_cast<unsigned char>(*(*p)++);
 		    op combiner = static_cast<op>(*(*p)++);
 		    size_t len;
 		    decode_length_and_check(p, end, len);
@@ -707,7 +733,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    *p += len;
 		    return new Xapian::Internal::QueryWildcard(pattern,
 							       max_expansion,
-							       max_type,
+							       flags,
 							       combiner);
 		}
 		case 0x0c: { // PostingSource
@@ -1107,6 +1133,162 @@ QueryValueGE::get_description() const
     return desc;
 }
 
+QueryWildcard::QueryWildcard(const std::string &pattern_,
+			     Xapian::termcount max_expansion_,
+			     int flags_,
+			     Query::op combiner_)
+    : pattern(pattern_),
+      max_expansion(max_expansion_),
+      flags(flags_),
+      combiner(combiner_)
+{
+    if ((flags & ~Query::WILDCARD_LIMIT_MASK_) == 0) {
+	head = min_len = pattern.size();
+	max_len = numeric_limits<decltype(max_len)>::max();
+	prefix = pattern;
+	return;
+    }
+
+    size_t i = 0;
+    while (i != pattern.size()) {
+	// Check for characters with special meaning.
+	switch (pattern[i]) {
+	    case '*':
+		if (flags & Query::WILDCARD_PATTERN_MULTI)
+		    goto found_special;
+		break;
+	    case '?':
+		if (flags & Query::WILDCARD_PATTERN_SINGLE)
+		    goto found_special;
+		break;
+	}
+	prefix += pattern[i];
+	++i;
+	head = i;
+    }
+found_special:
+
+    min_len = max_len = prefix.size();
+
+    tail = i;
+    bool had_qm = false, had_star = false;
+    while (i != pattern.size()) {
+	switch (pattern[i]) {
+	    default:
+default_case:
+		suffix += pattern[i];
+		++min_len;
+		++max_len;
+		break;
+
+	    case '*':
+		if (!(flags & Query::WILDCARD_PATTERN_MULTI))
+		    goto default_case;
+		// Matches zero or more characters.
+		had_star = true;
+		tail = i + 1;
+		if (!suffix.empty()) {
+		    check_pattern = true;
+		    suffix.clear();
+		}
+		break;
+
+	    case '?':
+		if (!(flags & Query::WILDCARD_PATTERN_SINGLE))
+		    goto default_case;
+		// Matches exactly one character.
+		tail = i + 1;
+		if (!suffix.empty()) {
+		    check_pattern = true;
+		    suffix.clear();
+		}
+		// `?` matches one Unicode character, which is 1-4 bytes in
+		// UTF-8, so we have to actually check the pattern if there's
+		// more than one `?` in it.
+		if (had_qm) {
+		    check_pattern = true;
+		}
+		had_qm = true;
+		++min_len;
+		max_len += MAX_UTF_8_CHARACTER_LENGTH;
+		break;
+	}
+
+	++i;
+    }
+
+    if (had_star) {
+	max_len = numeric_limits<decltype(max_len)>::max();
+    } else {
+	// If the pattern only contains `?` wildcards we'll need to check it
+	// since `?` matches one Unicode character, which is 1-4 bytes in
+	// UTF-8.  FIXME: We can avoid this if there's only one `?` wildcard
+	// and the candidate is min_len bytes long.
+	check_pattern = true;
+    }
+}
+
+bool
+QueryWildcard::test_wildcard_(const string& candidate, size_t o, size_t p,
+			      size_t i) const
+{
+    // FIXME: Optimisation potential here.  We could compile the pattern to a
+    // regex, or other tricks like calculating the min length needed after each
+    // position that we test with this method - e.g. for foo*bar*x*baz there
+    // must be at least 7 bytes after a position or there's no point testing if
+    // "bar" matches there.
+    for ( ; i != tail; ++i) {
+	if ((flags & Query::WILDCARD_PATTERN_MULTI) && pattern[i] == '*') {
+	   if (++i == tail) {
+	       // '*' at end of variable part is easy!
+	       return true;
+	   }
+	   for (size_t test_o = o; test_o <= p; ++test_o) {
+	       if (test_wildcard_(candidate, test_o, p, i))
+		   return true;
+	   }
+	   return false;
+	}
+	if (o == p) return false;
+	if ((flags & Query::WILDCARD_PATTERN_SINGLE) && pattern[i] == '?') {
+	    unsigned char b = candidate[o];
+	    if (b < 0xc0) {
+		++o;
+		continue;
+	    }
+	    unsigned seqlen;
+	    if (b < 0xe0) {
+		seqlen = 2;
+	    } else if (b < 0xf0) {
+		seqlen = 3;
+	    } else {
+		seqlen = 4;
+	    }
+	    if (rare(p - o < seqlen)) return false;
+	    o += seqlen;
+	    continue;
+	}
+
+	if (pattern[i] != candidate[o]) return false;
+	++o;
+    }
+    return (o == p);
+}
+
+bool
+QueryWildcard::test_prefix_known(const string& candidate) const
+{
+    if (candidate.size() < min_len) return false;
+    if (candidate.size() > max_len) return false;
+    if (!endswith(candidate, suffix)) return false;
+
+    if (!check_pattern) return true;
+
+    return test_wildcard_(candidate, prefix.size(),
+			  candidate.size() - suffix.size(),
+			  head);
+}
+
 PostList*
 QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 {
@@ -1178,7 +1360,7 @@ QueryWildcard::serialise(string & result) const
 {
     result += static_cast<char>(0x0b);
     result += encode_length(max_expansion);
-    result += static_cast<unsigned char>(max_type);
+    result += static_cast<unsigned char>(flags);
     result += static_cast<unsigned char>(combiner);
     result += encode_length(pattern.size());
     result += pattern;
@@ -1399,7 +1581,7 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 		break;
 	    }
 	    auto qw = static_cast<const QueryWildcard*>(q.internal.get());
-	    prefixes.push_back(qw->get_pattern());
+	    prefixes.push_back(qw->get_fixed_prefix());
 	}
 
 	if (wdf_disjoint) {

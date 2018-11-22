@@ -544,6 +544,9 @@ $set{OPT,VALUE}
 	  correction)
 	* flag_synonym
 	* flag_wildcard
+        * flag_wildcard_glob (new in 1.5.0)
+        * flag_wildcard_multi (new in 1.5.0)
+        * flag_wildcard_single (new in 1.5.0)
 
 	Omega 1.2.7 added support for parsing different query fields with
 	different prefixes and you can specify different QueryParser flags for

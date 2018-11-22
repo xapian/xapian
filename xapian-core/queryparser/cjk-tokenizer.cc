@@ -4,7 +4,7 @@
 /* Copyright (c) 2007, 2008 Yung-chung Lin (henearkrxern@gmail.com)
  * Copyright (c) 2011 Richard Boulton (richard@tartarus.org)
  * Copyright (c) 2011 Brandon Schaefer (brandontschaefer@gmail.com)
- * Copyright (c) 2011 Olly Betts
+ * Copyright (c) 2011,2018 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,13 +85,15 @@ CJK::codepoint_is_cjk(unsigned p)
 }
 
 string
-CJK::get_cjk(Xapian::Utf8Iterator &it)
+CJK::get_cjk(Xapian::Utf8Iterator &it, size_t& char_count)
 {
     string str;
+    char_count = 0;
     while (it != Xapian::Utf8Iterator() &&
 	   codepoint_is_cjk(*it) &&
 	   Xapian::Unicode::is_wordchar(*it)) {
 	Xapian::Unicode::append_utf8(str, *it);
+	++char_count;
 	++it;
     }
     return str;

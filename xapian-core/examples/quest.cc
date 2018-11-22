@@ -63,7 +63,10 @@ static const qp_flag flag_tab[] = {
     { "pure_not", Xapian::QueryParser::FLAG_PURE_NOT },
     { "spelling_correction", Xapian::QueryParser::FLAG_SPELLING_CORRECTION },
     { "synonym", Xapian::QueryParser::FLAG_SYNONYM },
-    { "wildcard", Xapian::QueryParser::FLAG_WILDCARD }
+    { "wildcard", Xapian::QueryParser::FLAG_WILDCARD },
+    { "wildcard_glob", Xapian::QueryParser::FLAG_WILDCARD_GLOB },
+    { "wildcard_multi", Xapian::QueryParser::FLAG_WILDCARD_MULTI },
+    { "wildcard_single", Xapian::QueryParser::FLAG_WILDCARD_SINGLE }
 };
 const int n_flag_tab = sizeof(flag_tab) / sizeof(flag_tab[0]);
 

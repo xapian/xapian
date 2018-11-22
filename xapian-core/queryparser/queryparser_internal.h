@@ -1,7 +1,7 @@
 /** @file queryparser_internal.h
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015,2016,2018 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -109,6 +109,10 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
     int max_partial_type;
 
+    unsigned min_wildcard_prefix_len = 0;
+
+    unsigned min_partial_prefix_len = 2;
+
     void add_prefix(const string &field, const string &prefix);
 
     void add_prefix(const string &field, Xapian::FieldProcessor *proc);
@@ -120,8 +124,10 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 			    const string* grouping);
 
     std::string parse_term(Utf8Iterator &it, const Utf8Iterator &end,
-			   bool cjk_ngram, bool &is_cjk_term,
-			   bool &was_acronym);
+			   bool cjk_ngram, unsigned flags,
+			   bool &is_cjk_term, bool &was_acronym,
+			   size_t& first_wildcard,
+			   size_t& char_count);
 
   public:
     Internal() : stem_action(STEM_SOME), stopper(NULL),

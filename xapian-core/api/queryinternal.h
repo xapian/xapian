@@ -23,6 +23,7 @@
 
 #include "postlist.h"
 #include "queryvector.h"
+#include "stringutils.h"
 #include "xapian/intrusive_ptr.h"
 #include "xapian/query.h"
 
@@ -406,30 +407,57 @@ class QueryWildcard : public Query::Internal {
 
     Xapian::termcount max_expansion;
 
-    int max_type;
+    int flags;
 
     Query::op combiner;
 
+    /** Fixed head and tail lengths, and min/max length term that can match.
+     *
+     *  All in bytes.
+     */
+    size_t head = 0, tail = 0, min_len = 0, max_len = 0;
+
+    // If the pattern is fixed apart from `*` or `*?` or `?*` then the length
+    // checks and head/tail checks are sufficient.  This covers a lot of common
+    // cases, so special-case it.  Note that we can't handle cases like `*??`
+    // here since `?` matches a single UTF-8 character, which can be more than
+    // one byte.
+    bool check_pattern = false;
+
+    std::string prefix, suffix;
+
     Xapian::Query::op get_op() const;
+
+    bool test_wildcard_(const std::string& candidate, size_t o, size_t p,
+			size_t i) const;
 
   public:
     QueryWildcard(const std::string &pattern_,
 		  Xapian::termcount max_expansion_,
-		  int max_type_,
-		  Query::op combiner_)
-	: pattern(pattern_),
-	  max_expansion(max_expansion_),
-	  max_type(max_type_),
-	  combiner(combiner_)
-    { }
+		  int flags_,
+		  Query::op combiner_);
+
+    /// Perform wildcard test on candidate known to match prefix.
+    bool test_prefix_known(const std::string& candidate) const;
+
+    /// Perform full wildcard test on candidate.
+    bool test(const std::string& candidate) const {
+	return startswith(candidate, prefix) && test_prefix_known(candidate);
+    }
 
     Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
 
-    const std::string & get_pattern() const { return pattern; }
+    std::string get_pattern() const { return pattern; }
 
     Xapian::termcount get_max_expansion() const { return max_expansion; }
 
-    int get_max_type() const { return max_type; }
+    int get_just_flags() const {
+	return flags &~ Xapian::Query::WILDCARD_LIMIT_MASK_;
+    }
+
+    int get_max_type() const {
+	return flags & Xapian::Query::WILDCARD_LIMIT_MASK_;
+    }
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
@@ -450,9 +478,12 @@ class QueryWildcard : public Query::Internal {
 	}
 	return new QueryWildcard(pattern,
 				 max_expansion,
-				 max_type,
+				 flags,
 				 new_op);
     }
+
+    /// Return the fixed prefix from the wildcard pattern.
+    std::string get_fixed_prefix() const { return prefix; }
 
     std::string get_description() const;
 };

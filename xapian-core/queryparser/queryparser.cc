@@ -153,6 +153,18 @@ QueryParser::set_max_expansion(Xapian::termcount max_expansion,
     }
 }
 
+void
+QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len,
+				     unsigned flags)
+{
+    if (flags & FLAG_WILDCARD) {
+	internal->min_wildcard_prefix_len = min_prefix_len;
+    }
+    if (flags & FLAG_PARTIAL) {
+	internal->min_partial_prefix_len = min_prefix_len;
+    }
+}
+
 Query
 QueryParser::parse_query(const string &query_string, unsigned flags,
 			 const string &default_prefix)

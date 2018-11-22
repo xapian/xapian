@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009,2012,2013,2015,2016,2017 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -400,6 +400,157 @@ DEFINE_TESTCASE(dualprefixwildcard1, backend) {
     Xapian::Enquire enq(db);
     enq.set_query(q);
     TEST_EQUAL(enq.get_mset(0, 5).size(), 2);
+    return true;
+}
+
+/// Test special case wildcards.
+DEFINE_TESTCASE(specialwildcard1, !backend) {
+    const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
+    const auto f = Xapian::Query::WILDCARD_PATTERN_GLOB;
+
+    // Empty wildcard -> MatchNothing.
+    TEST_EQUAL(Xapian::Query(o, "", 0, f).get_description(), "Query()");
+
+    // "*", "?*", etc -> MatchAll.
+#define QUERY_ALLDOCS "Query(<alldocuments>)"
+    TEST_EQUAL(Xapian::Query(o, "*", 0, f).get_description(), QUERY_ALLDOCS);
+    TEST_EQUAL(Xapian::Query(o, "**", 0, f).get_description(), QUERY_ALLDOCS);
+    TEST_EQUAL(Xapian::Query(o, "?*", 0, f).get_description(), QUERY_ALLDOCS);
+    TEST_EQUAL(Xapian::Query(o, "*?", 0, f).get_description(), QUERY_ALLDOCS);
+    TEST_EQUAL(Xapian::Query(o, "*?*", 0, f).get_description(), QUERY_ALLDOCS);
+
+    return true;
+}
+
+/// Test `?` extended wildcard.
+DEFINE_TESTCASE(singlecharwildcard1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    {
+	Xapian::Document doc;
+	doc.add_term("test");
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("t\xc3\xaast");
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("t\xe1\x80\x80st");
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("t\xf3\x80\x80\x80st");
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("toast");
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("t*t");
+	db.add_document(doc);
+    }
+    db.commit();
+
+    Xapian::Enquire enq(db);
+    enq.set_weighting_scheme(Xapian::BoolWeight());
+
+    const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
+    const auto f = Xapian::Query::WILDCARD_PATTERN_SINGLE;
+
+    {
+	// Check that `?` matches one Unicode character.
+	enq.set_query(Xapian::Query(o, "t?st", 0, f));
+	Xapian::MSet mset = enq.get_mset(0, 100);
+	mset_expect_order(mset, 1, 2, 3, 4);
+    }
+
+    {
+	// Check that `??` doesn't match a single two-byte UTF-8 character.
+	enq.set_query(Xapian::Query(o, "t??st", 0, f));
+	Xapian::MSet mset = enq.get_mset(0, 100);
+	mset_expect_order(mset, 5);
+    }
+
+    {
+	// Check that `*` is handled as a literal character not a wildcard.
+	enq.set_query(Xapian::Query(o, "t*t", 0, f));
+	Xapian::MSet mset = enq.get_mset(0, 100);
+	mset_expect_order(mset, 6);
+    }
+
+    return true;
+}
+
+/// Test `*` extended wildcard.
+DEFINE_TESTCASE(multicharwildcard1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    {
+	Xapian::Document doc;
+	doc.add_term("ananas");
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("annas");
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("bananas");
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("banannas");
+	db.add_document(doc);
+    }
+    {
+	Xapian::Document doc;
+	doc.add_term("b?nanas");
+	db.add_document(doc);
+    }
+    db.commit();
+
+    Xapian::Enquire enq(db);
+    enq.set_weighting_scheme(Xapian::BoolWeight());
+
+    const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
+    const auto f = Xapian::Query::WILDCARD_PATTERN_MULTI;
+
+    {
+	// Check `*` can handle partial matches before and after.
+	enq.set_query(Xapian::Query(o, "b*anas", 0, f));
+	Xapian::MSet mset = enq.get_mset(0, 100);
+	mset_expect_order(mset, 3, 5);
+    }
+
+    {
+	// Check leading `*` works.
+	enq.set_query(Xapian::Query(o, "*anas", 0, f));
+	Xapian::MSet mset = enq.get_mset(0, 100);
+	mset_expect_order(mset, 1, 3, 5);
+    }
+
+    {
+	// Check more than one `*` works.
+	enq.set_query(Xapian::Query(o, "*ann*", 0, f));
+	Xapian::MSet mset = enq.get_mset(0, 100);
+	mset_expect_order(mset, 2, 4);
+    }
+
+    {
+	// Check that `?` is handled as a literal character not a wildcard.
+	enq.set_query(Xapian::Query(o, "b?n*", 0, f));
+	Xapian::MSet mset = enq.get_mset(0, 100);
+	mset_expect_order(mset, 5);
+    }
+
     return true;
 }
 

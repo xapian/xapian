@@ -87,6 +87,9 @@ is_digit(unsigned ch) {
 
 // FIXME: we used to keep trailing "-" (e.g. Cl-) but it's of dubious utility
 // and there's the risk of hyphens getting stuck onto the end of terms...
+//
+// There are currently assumptions below that this only matches ASCII
+// characters.
 inline bool
 is_suffix(unsigned ch) {
     return ch == '+' || ch == '#';
@@ -277,12 +280,20 @@ class State {
 	return qpi->max_wildcard_type;
     }
 
+    unsigned get_min_wildcard_prefix_len() const {
+	return qpi->min_wildcard_prefix_len;
+    }
+
     Xapian::termcount get_max_partial_expansion() const {
 	return qpi->max_partial_expansion;
     }
 
     int get_max_partial_type() const {
 	return qpi->max_partial_type;
+    }
+
+    unsigned get_min_partial_prefix_len() const {
+	return qpi->min_partial_prefix_len;
     }
 };
 
@@ -450,14 +461,18 @@ Term::as_wildcarded_query(State * state_) const
     const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
     Xapian::termcount max = state_->get_max_wildcard_expansion();
-    int max_type = state_->get_max_wildcard_type();
+    int query_flags = state_->get_max_wildcard_type();
+    if (state_->flags & QueryParser::FLAG_WILDCARD_SINGLE)
+	query_flags |= Query::WILDCARD_PATTERN_SINGLE;
+    if (state_->flags & QueryParser::FLAG_WILDCARD_MULTI)
+	query_flags |= Query::WILDCARD_PATTERN_MULTI;
     vector<Query> subqs;
     subqs.reserve(prefixes.size());
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
-	subqs.push_back(Query(Query::OP_WILDCARD, root, max, max_type,
+	subqs.push_back(Query(Query::OP_WILDCARD, root, max, query_flags,
 			      Query::OP_OR));
     }
     Query * q = new Query(Query::OP_SYNONYM, subqs.begin(), subqs.end());
@@ -686,12 +701,23 @@ QueryParser::Internal::add_boolean_prefix(const string &field,
    }
 }
 
+inline bool
+is_extended_wildcard(unsigned ch, unsigned flags)
+{
+    if (ch == '*') return (flags & QueryParser::FLAG_WILDCARD_MULTI);
+    if (ch == '?') return (flags & QueryParser::FLAG_WILDCARD_SINGLE);
+    return false;
+}
+
 string
 QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
-				  bool cjk_ngram, bool & is_cjk_term,
-				  bool &was_acronym)
+				  bool cjk_ngram, unsigned flags,
+				  bool & is_cjk_term, bool &was_acronym,
+				  size_t& first_wildcard,
+				  size_t& char_count)
 {
     string term;
+    char_count = 0;
     // Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
     // Don't worry if there's a trailing '.' or not.
     if (U_isupper(*it)) {
@@ -699,6 +725,7 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 	Utf8Iterator p = it;
 	do {
 	    Unicode::append_utf8(t, *p++);
+	    ++char_count;
 	} while (p != end && *p == '.' && ++p != end && U_isupper(*p));
 	// One letter does not make an acronym!  If we handled a single
 	// uppercase letter here, we wouldn't catch M&S below.
@@ -709,30 +736,53 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 	    if (p == end || !is_wordchar(*p)) {
 		it = p;
 		swap(term, t);
+	    } else {
+		char_count = 0;
 	    }
 	}
     }
     was_acronym = !term.empty();
 
     if (cjk_ngram && term.empty() && CJK::codepoint_is_cjk(*it)) {
-	term = CJK::get_cjk(it);
+	term = CJK::get_cjk(it, char_count);
 	is_cjk_term = true;
     }
 
     if (term.empty()) {
 	unsigned prevch = *it;
+	if (first_wildcard == term.npos &&
+	    is_extended_wildcard(prevch, flags)) {
+	    // Leading wildcard.
+	    first_wildcard = 0;
+	}
 	Unicode::append_utf8(term, prevch);
+	char_count = 1;
 	while (++it != end) {
 	    if (cjk_ngram && CJK::codepoint_is_cjk(*it)) break;
 	    unsigned ch = *it;
-	    if (!is_wordchar(ch)) {
+	    if (is_extended_wildcard(ch, flags)) {
+		if (first_wildcard == term.npos) {
+		    first_wildcard = char_count;
+		}
+	    } else if (!is_wordchar(ch)) {
 		// Treat a single embedded '&' or "'" or similar as a word
 		// character (e.g. AT&T, Fred's).  Also, normalise
 		// apostrophes to ASCII apostrophe.
 		Utf8Iterator p = it;
 		++p;
-		if (p == end || !is_wordchar(*p)) break;
+		if (p == end) break;
 		unsigned nextch = *p;
+		if (is_extended_wildcard(nextch, flags)) {
+		    // A wildcard follows, which could expand to a digit or a non-digit.
+		    unsigned ch_orig = ch;
+		    ch = check_infix(ch);
+		    if (!ch && is_digit(prevch))
+			ch = check_infix_digit(ch_orig);
+		    if (!ch)
+			break;
+		} else {
+		    if (!is_wordchar(nextch)) break;
+		}
 		if (is_digit(prevch) && is_digit(nextch)) {
 		    ch = check_infix_digit(ch);
 		} else {
@@ -743,6 +793,7 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 		    continue;
 	    }
 	    Unicode::append_utf8(term, ch);
+	    ++char_count;
 	    prevch = ch;
 	}
 	if (it != end && is_suffix(*it)) {
@@ -750,6 +801,7 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 	    Utf8Iterator p = it;
 	    // Keep trailing + (e.g. C++, Na+) or # (e.g. C#).
 	    do {
+		// Assumes is_suffix() only matches ASCII.
 		if (suff_term.size() - term.size() == 3) {
 		    suff_term.resize(0);
 		    break;
@@ -770,9 +822,19 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 		    if (!db.term_exists(lc)) use_suff_term = true;
 		}
 		if (use_suff_term) {
+		    // Assumes is_suffix() only matches ASCII.
+		    char_count += (suff_term.size() - term.size());
 		    term = suff_term;
 		    it = p;
 		}
+	    }
+	}
+	if (first_wildcard == term.npos &&
+	    (flags & QueryParser::FLAG_WILDCARD)) {
+	    // Check for right-truncation.
+	    if (it != end && *it == '*') {
+		++it;
+		first_wildcard = char_count;
 	    }
 	}
     }
@@ -905,6 +967,7 @@ just_had_operator_needing_term:
 
 	if (!is_wordchar(*it)) {
 	    unsigned prev = newprev;
+	    Utf8Iterator p = it;
 	    unsigned ch = *it++;
 	    newprev = ch;
 	    // Drop out of IN_GROUP mode.
@@ -1022,6 +1085,18 @@ just_had_operator_needing_term:
 		    goto just_had_operator_needing_term;
 		}
 		break;
+	      case '*':
+		if (flags & FLAG_WILDCARD_MULTI) {
+		    it = p;
+		    goto leading_wildcard;
+		}
+		break;
+	      case '?':
+		if (flags & FLAG_WILDCARD_SINGLE) {
+		    it = p;
+		    goto leading_wildcard;
+		}
+		break;
 	    }
 	    // Skip any other characters.
 	    continue;
@@ -1029,6 +1104,7 @@ just_had_operator_needing_term:
 
 	Assert(is_wordchar(*it));
 
+leading_wildcard:
 	size_t term_start_index = it.raw() - qs.data();
 
 	newprev = 'A'; // Any letter will do...
@@ -1142,10 +1218,15 @@ not_prefix:
 phrased_term:
 	bool was_acronym;
 	bool is_cjk_term = false;
-	string term = parse_term(it, end, cjk_ngram, is_cjk_term, was_acronym);
+	size_t first_wildcard = string::npos;
+	size_t term_char_count;
+	string term = parse_term(it, end, cjk_ngram, flags,
+				 is_cjk_term, was_acronym, first_wildcard,
+				 term_char_count);
 
 	// Boolean operators.
-	if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
+	if (first_wildcard == string::npos &&
+	    (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
@@ -1230,6 +1311,8 @@ phrased_term:
 		if (!stemmer.internal.get()) {
 		    // No stemmer is set.
 		    stem_term = STEM_NONE;
+		} else if (first_wildcard != string::npos) {
+		    stem_term = STEM_NONE;
 		} else if (stem_term == STEM_SOME ||
 			   stem_term == STEM_SOME_FULL_POS) {
 		    if (!should_stem(unstemmed_term) ||
@@ -1240,8 +1323,27 @@ phrased_term:
 		}
 	    }
 
+	    if (first_wildcard != string::npos) {
+		if (first_wildcard < state.get_min_wildcard_prefix_len()) {
+		    errmsg = "Too few characters before wildcard";
+		    return state.query;
+		}
+	    }
+
 	    Term * term_obj = new Term(&state, term, field_info,
 				       unstemmed_term, stem_term, term_pos++);
+
+	    if (first_wildcard != string::npos) {
+		if (mode == IN_GROUP || mode == IN_GROUP2) {
+		    // Drop out of IN_GROUP and flag that the group
+		    // can be empty if all members are stopwords.
+		    if (mode == IN_GROUP2)
+			Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
+		    mode = DEFAULT;
+		}
+		Parse(&parser, WILD_TERM, term_obj, &state);
+		continue;
+	    }
 
 	    if (is_cjk_term) {
 		Parse(&parser, CJKTERM, term_obj, &state);
@@ -1250,27 +1352,9 @@ phrased_term:
 	    }
 
 	    if (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) {
-		if (it != end) {
-		    if ((flags & FLAG_WILDCARD) && *it == '*') {
-			Utf8Iterator p(it);
-			++p;
-			if (p == end || !is_wordchar(*p)) {
-			    it = p;
-			    if (mode == IN_GROUP || mode == IN_GROUP2) {
-				// Drop out of IN_GROUP and flag that the group
-				// can be empty if all members are stopwords.
-				if (mode == IN_GROUP2)
-				    Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
-				mode = DEFAULT;
-			    }
-			    // Wildcard at end of term (also known as
-			    // "right truncation").
-			    Parse(&parser, WILD_TERM, term_obj, &state);
-			    continue;
-			}
-		    }
-		} else {
-		    if (flags & FLAG_PARTIAL) {
+		if (it == end && (flags & FLAG_PARTIAL)) {
+		    auto min_len = state.get_min_partial_prefix_len();
+		    if (term_char_count >= min_len) {
 			if (mode == IN_GROUP || mode == IN_GROUP2) {
 			    // Drop out of IN_GROUP and flag that the group
 			    // can be empty if all members are stopwords.
@@ -1802,13 +1886,12 @@ Term::as_positional_cjk_term(Terms * terms) const
 // of all punctuation which does this).
 %destructor PHR_TERM {delete $$;}
 
-// WILD_TERM is like a TERM, but has a trailing wildcard which needs to be
-// expanded.
+// WILD_TERM is like a TERM, but with wildcards which needs to be expanded.
 %destructor WILD_TERM {delete $$;}
 
 // PARTIAL_TERM is like a TERM, but it's at the end of the query string and
-// we're doing "search as you type".  It expands to something like WILD_TERM
-// OR stemmed_form.
+// we're doing "search as you type".  It expands to something like:
+//     WILD_TERM($$+"*") OR stemmed_form
 %destructor PARTIAL_TERM {delete $$;}
 
 // BOOLEAN_FILTER is a query term with a prefix registered using

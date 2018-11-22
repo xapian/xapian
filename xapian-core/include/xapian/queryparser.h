@@ -825,7 +825,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	FLAG_BOOLEAN_ANY_CASE = 8,
 	/** Support wildcards.
 	 *
-	 *  At present only right truncation (e.g. Xap*) is supported.
+	 *  This flag only enables support for right truncation (e.g. Xap*) -
+	 *  see FLAG_WILDCARD_MULTI, FLAG_WILDCARD_SINGLE and FLAG_WILDCARD_GLOB
+	 *  for extended wildcard support.
 	 *
 	 *  Currently you can't use wildcards with boolean filter prefixes,
 	 *  or in a phrase (either an explicitly quoted one, or one implicitly
@@ -914,6 +916,47 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  XAPIAN_CJK_NGRAM.
 	 */
 	FLAG_CJK_NGRAM = 2048,
+
+	/** Support extended wildcard '*'.
+	 *
+	 *  This flag enables support for wildcard '*' matching zero
+	 *  or more characters, which may be used anywhere in a word.
+	 *
+	 *  Such wildcards can be relatively expensive to expand and to match
+	 *  so benchmark your system carefully if you have a lot of documents
+	 *  and/or a high search load.
+	 *
+	 *  FLAG_WILDCARD is ignored if this flag is specified.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	FLAG_WILDCARD_MULTI = 8192,
+
+	/** Support extended wildcard '?'.
+	 *
+	 *  This flag enables support for wildcard '?' matching exactly one
+	 *  character, which may be use anywhere in a word.
+	 *
+	 *  Such wildcards can be relatively expensive to expand and to match
+	 *  so benchmark your system carefully if you have a lot of documents
+	 *  and/or a high search load.
+	 *
+	 *  FLAG_WILDCARD is ignored if this flag is specified.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	FLAG_WILDCARD_SINGLE = 16384,
+
+	/** Enable glob-style wildcarding.
+	 *
+	 *  This enables all supported glob-style wildcard pattern flags
+	 *  - currently that's FLAG_WILDCARD_MULTI and FLAG_WILDCARD_SINGLE.
+	 *
+	 *  FLAG_WILDCARD is ignored if this flag is specified.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	FLAG_WILDCARD_GLOB = FLAG_WILDCARD_MULTI | FLAG_WILDCARD_SINGLE,
 
 	/** The default flags.
 	 *
@@ -1050,6 +1093,32 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     void set_max_expansion(Xapian::termcount max_expansion,
 			   int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR,
 			   unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
+
+    /** Specify minimum length for fixed initial portion in wildcard patterns.
+     *
+     *  It can be desirable for performance reasons to restrict use of
+     *  wildcards to patterns with a fixed initial portion, so this method
+     *  provides a way to specify a minimum length.  A wildcard pattern
+     *  with a shorter (or no) fixed initial portion will result in
+     *  Xapian::QueryParser being thrown.  The default minimum length is 0.
+     *
+     *  It also provides a way to specify the minimum length of a word to
+     *  expand for partial matching (see @a FLAG_PARTIAL).  In this case
+     *  a shorter word at the end of the query simply result in no partial
+     *  matching.  The default minimum length for this case is 2 (since
+     *  1.5.0 - in earlier versions it was effectively 0).
+     *
+     *  @param min_prefix_len	Minimum length of fixed initial portion in
+     *			        Unicode characters.
+     *  @param flags		What to set the minimum length for
+     *				(default: FLAG_WILDCARD|FLAG_PARTIAL, setting
+     *				the limit for both wildcards and partial
+     *				terms).
+     *
+     *  Added in Xapian 1.5.0.
+     */
+    void set_min_wildcard_prefix(unsigned min_prefix_len,
+				 unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
 
     /** Parse a query.
      *

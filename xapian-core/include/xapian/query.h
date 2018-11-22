@@ -150,13 +150,13 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  Xapian::WildcardError will be thrown when the query is actually
 	 *  run.
 	 */
-	WILDCARD_LIMIT_ERROR,
+	WILDCARD_LIMIT_ERROR = 0x00,
 	/** Stop expanding when OP_WILDCARD reaches its expansion limit.
 	 *
 	 *  This makes the wildcard expand to only the first N terms (sorted
 	 *  by byte order).
 	 */
-	WILDCARD_LIMIT_FIRST,
+	WILDCARD_LIMIT_FIRST = 0x01,
 	/** Limit OP_WILDCARD expansion to the most frequent terms.
 	 *
 	 *  If OP_WILDCARD would expand to more than its expansion limit, the
@@ -166,7 +166,27 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  to evaluate than the full expansion, using only the most frequent
 	 *  terms tends to give better results too.
 	 */
-	WILDCARD_LIMIT_MOST_FREQUENT
+	WILDCARD_LIMIT_MOST_FREQUENT = 0x02,
+
+	WILDCARD_LIMIT_MASK_ = 0x03,
+
+	/** Support * which matches 0 or more characters.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	WILDCARD_PATTERN_MULTI = 0x10,
+
+	/** Support ? which matches a single character.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	WILDCARD_PATTERN_SINGLE = 0x20,
+
+	/** Enable all supported glob-like features.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	WILDCARD_PATTERN_GLOB = WILDCARD_PATTERN_MULTI|WILDCARD_PATTERN_SINGLE
     };
 
     /// Default constructor.
@@ -269,27 +289,43 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     /** Query constructor for OP_WILDCARD queries.
      *
      *  @param op_	Must be OP_WILDCARD
-     *  @param pattern	The wildcard pattern - currently this is just a string
-     *			and the wildcard expands to terms which start with
-     *			exactly this string.
+     *  @param pattern	The wildcard pattern.  See @a flags which affects
+     *		        how this pattern is interpreted.
      *	@param max_expansion	The maximum number of terms to expand to
      *				(default: 0, which means no limit)
-     *	@param max_type	How to enforce max_expansion - one of
-     *			@a WILDCARD_LIMIT_ERROR (the default),
-     *			@a WILDCARD_LIMIT_FIRST or
-     *			@a WILDCARD_LIMIT_MOST_FREQUENT.
-     *			When searching multiple databases, the expansion limit
-     *			is currently applied independently for each database,
-     *			so the total number of terms may be higher than the
-     *			limit.  This is arguably a bug, and may change in
-     *			future versions.
+     *	@param flags	Flags controlling aspects of the wildcarding - this
+     *			consists of a bitwise OR of:
+     *
+     *			* At most one of @a WILDCARD_LIMIT_ERROR (the default),
+     *			  @a WILDCARD_LIMIT_FIRST or
+     *			  @a WILDCARD_LIMIT_MOST_FREQUENT specifying how to
+     *			  enforce max_expansion.
+     *
+     *			  When searching multiple databases, the expansion
+     *			  limit is currently applied independently for each
+     *			  database, so the total number of terms may be higher
+     *			  than the limit.  This is arguably a bug, and may
+     *			  change in future versions.
+     *
+     *			* Zero or more of @a WILDCARD_PATTERN_MULTI and
+     *			  @a WILDCARD_PATTERN_SINGLE, which specify whether
+     *			  '*' (matching zero or more characters) and '?'
+     *			  (matching exactly one character) are supported.
+     *			  If neither is specified, then a Xapian-1.4-compatible
+     *			  mode is used where the pattern matches terms which
+     *			  start with the pattern interpreted as a literal
+     *			  string.
+     *
      *	@param combiner The @a op_ to combine the terms with - one of
      *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
+     *
+     *	A leading wildcard won't match terms starting with an ASCII capital
+     *	letter, as this is assumed to be part of a term prefix.
      */
     Query(op op_,
 	  const std::string & pattern,
 	  Xapian::termcount max_expansion = 0,
-	  int max_type = WILDCARD_LIMIT_ERROR,
+	  int flags = WILDCARD_LIMIT_ERROR,
 	  op combiner = OP_SYNONYM);
 
     /** Construct a Query object from a begin/end iterator pair.

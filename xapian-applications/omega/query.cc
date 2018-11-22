@@ -319,6 +319,20 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 		    mask = Xapian::QueryParser::FLAG_WILDCARD;
 		    break;
 		}
+#if XAPIAN_AT_LEAST(1,5,0)
+		if (strcmp(s, "wildcard_glob") == 0) {
+		    mask = Xapian::QueryParser::FLAG_WILDCARD_GLOB;
+		    break;
+		}
+		if (strcmp(s, "wildcard_multi") == 0) {
+		    mask = Xapian::QueryParser::FLAG_WILDCARD_MULTI;
+		    break;
+		}
+		if (strcmp(s, "wildcard_single") == 0) {
+		    mask = Xapian::QueryParser::FLAG_WILDCARD_SINGLE;
+		    break;
+		}
+#endif
 		break;
 	}
 

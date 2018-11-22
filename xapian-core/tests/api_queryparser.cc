@@ -1,7 +1,7 @@
 /** @file api_queryparser.cc
  * @brief Tests of Xapian::QueryParser
  */
-/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018 Olly Betts
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1086,6 +1086,102 @@ DEFINE_TESTCASE(qp_flag_wildcard3, writable) {
     return true;
 }
 
+/// Feature test for set_min_wildcard_prefix().
+DEFINE_TESTCASE(qp_flag_wildcard4, !backend) {
+    struct qp_flag_wildcard4_test {
+	unsigned min_len;
+	const char* query_string;
+	const char* expectw;
+	const char* expectp;
+    };
+
+    static const qp_flag_wildcard4_test testcases[] = {
+	{0, "", "<alldocuments>", ""},
+	// Perhaps set_min_wildcard_prefix() shouldn't be applied to a lone "*"
+	// wildcard which converts to <alldocuments>, but whether than happens
+	// depends on what prefixes are active so doing that seems more
+	// confusing than not.
+	{1, "", NULL, ""},
+	{0, "m", "WILDCARD SYNONYM m*", NULL},
+	{1, "m", "WILDCARD SYNONYM m*", NULL},
+	{1, "ê", "WILDCARD SYNONYM ê*", NULL},
+	{2, "m", NULL, "m@1"},
+	{2, "ê", NULL, "ê@1"},
+	{2, "\xe0\xa1\xa2", NULL, "\xe0\xa1\xa2@1"},
+	{2, "\xf0\x90\xb3\x97", NULL, "\xf0\x90\xb3\x97@1"},
+	{2, "mu", "WILDCARD SYNONYM mu*", NULL},
+	{2, "mus", "WILDCARD SYNONYM mus*", NULL},
+	{3, "mus", "WILDCARD SYNONYM mus*", NULL},
+	{2, "\xf0\x90\xb3\x97\xf0\x90\xb3\x83", "WILDCARD SYNONYM \xf0\x90\xb3\x97\xf0\x90\xb3\x83*", NULL},
+	{4, "mus", NULL, "mus@1"},
+	{3, "\xf0\x90\xb3\x97\xf0\x90\xb3\x83", NULL, "\xf0\x90\xb3\x97\xf0\x90\xb3\x83@1"},
+    };
+
+    constexpr auto FLAG_PARTIAL = Xapian::QueryParser::FLAG_PARTIAL;
+    constexpr auto FLAG_WILDCARD = Xapian::QueryParser::FLAG_WILDCARD;
+    constexpr auto FLAG_WILDCARD_GLOB = Xapian::QueryParser::FLAG_WILDCARD_GLOB;
+
+    Xapian::QueryParser qp;
+
+    for (const auto& test : testcases) {
+	tout << test.min_len << ' ' << test.query_string << endl;
+	qp.set_min_wildcard_prefix(test.min_len, FLAG_WILDCARD | FLAG_PARTIAL);
+
+	string query_string = string(test.query_string) + '*';
+	if (test.expectw) {
+	    string expect = "Query(";
+	    // FLAG_WILDCARD doesn't expand a lone "*".
+	    if (test.query_string[0]) {
+		expect += test.expectw;
+		// OP_WILDCARD query descriptions don't include the "*".
+		if (expect.back() == '*') expect.pop_back();
+	    }
+	    expect += ')';
+	    Xapian::Query q = qp.parse_query(query_string, FLAG_WILDCARD);
+	    TEST_STRINGS_EQUAL(q.get_description(), expect);
+
+	    string expect_e = "Query(";
+	    expect_e += test.expectw;
+	    expect_e += ')';
+	    q = qp.parse_query(query_string, FLAG_WILDCARD_GLOB);
+	    TEST_STRINGS_EQUAL(q.get_description(), expect_e);
+	} else {
+	    // If expectw is NULL, QueryParserError should be thrown.
+
+	    if (test.query_string[0]) {
+		TEST_EXCEPTION(Xapian::QueryParserError,
+			       qp.parse_query(query_string, FLAG_WILDCARD));
+	    }
+
+	    TEST_EXCEPTION(Xapian::QueryParserError,
+			   qp.parse_query(query_string, FLAG_WILDCARD_GLOB));
+	}
+
+	string expect;
+	if (test.expectp) {
+	    expect = "Query(";
+	    expect += test.expectp;
+	    expect += ')';
+	} else {
+	    // If expectp is NULL, the partial result is expectw but with a
+	    // term ORed in.
+	    expect = "Query((";
+	    expect += test.expectw;
+	    expect.pop_back();
+	    size_t end = expect.size();
+	    size_t begin = expect.find_last_of(' ') + 1;
+	    expect += " OR ";
+	    expect.append(expect, begin, end - begin);
+	    expect += "@1))";
+	}
+
+	auto q = qp.parse_query(test.query_string, FLAG_PARTIAL);
+	TEST_STRINGS_EQUAL(q.get_description(), expect);
+    }
+
+    return true;
+}
+
 // Test partial queries.
 DEFINE_TESTCASE(qp_flag_partial1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
@@ -1120,9 +1216,13 @@ DEFINE_TESTCASE(qp_flag_partial1, writable) {
     qp.add_prefix("double", "XONE");
     qp.add_prefix("double", "XTWO");
 
-    // Check behaviour with unstemmed terms
+    // Default minimum length for partial term is 2 bytes.
     Xapian::Query qobj = qp.parse_query("a", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM a OR Za@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(Za@1)");
+    qobj = qp.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(Zo@1)");
+
+    // Check behaviour with unstemmed terms
     qobj = qp.parse_query("ab", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM ab OR Zab@1))");
     qobj = qp.parse_query("muscle", Xapian::QueryParser::FLAG_PARTIAL);
@@ -1139,8 +1239,6 @@ DEFINE_TESTCASE(qp_flag_partial1, writable) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM a OR (WILDCARD SYNONYM mutt OR Zmutt@2)))");
 
     // Check behaviour with stemmed terms, and stem strategy STEM_SOME.
-    qobj = qp.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM o OR Zo@1))");
     qobj = qp.parse_query("ou", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM ou OR Zou@1))");
     qobj = qp.parse_query("out", Xapian::QueryParser::FLAG_PARTIAL);
@@ -1222,6 +1320,14 @@ DEFINE_TESTCASE(qp_flag_partial1, writable) {
     qobj = qp.parse_query("double:partial", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpartial SYNONYM WILDCARD OR XTWOpartial) OR (XONEpartial@1 SYNONYM XTWOpartial@1)))");
 
+    // Set minimum length to 1 byte and retest the shortest cases.
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    qp.set_min_wildcard_prefix(1, Xapian::QueryParser::FLAG_PARTIAL);
+    qobj = qp.parse_query("a", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM a OR Za@1))");
+    qobj = qp.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM o OR Zo@1))");
+
     return true;
 }
 
@@ -1257,6 +1363,57 @@ DEFINE_TESTCASE(wildquery1, backend) {
     mymset = enquire.get_mset(0, 10);
     // Check that 0 documents were returned.
     TEST_MSET_SIZE(mymset, 0);
+
+    return true;
+}
+
+// Tests for extended wildcarded queries.
+DEFINE_TESTCASE(wildquery2, !backend) {
+    Xapian::QueryParser queryparser;
+    unsigned flags = Xapian::QueryParser::FLAG_DEFAULT |
+		     Xapian::QueryParser::FLAG_WILDCARD_GLOB;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
+
+    Xapian::Query qobj;
+    qobj = queryparser.parse_query("*th", flags);
+    TEST_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM *th)");
+
+    qobj = queryparser.parse_query("?th", flags);
+    TEST_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM ?th)");
+
+    qobj = queryparser.parse_query("?th*", flags);
+    TEST_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM ?th*)");
+
+    qobj = queryparser.parse_query("*th", flags);
+    TEST_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM *th)");
+
+    qobj = queryparser.parse_query("?th", flags);
+    TEST_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM ?th)");
+
+    qobj = queryparser.parse_query("foo *?x?", flags);
+    TEST_EQUAL(qobj.get_description(),
+	       "Query((foo@1 OR WILDCARD SYNONYM *?x?))");
+
+    qobj = queryparser.parse_query("* ?", flags);
+    TEST_EQUAL(qobj.get_description(),
+	       "Query((<alldocuments> OR WILDCARD SYNONYM ?))");
+
+    qobj = queryparser.parse_query("** test", flags);
+    TEST_EQUAL(qobj.get_description(),
+	       "Query((<alldocuments> OR test@2))");
+
+    qobj = queryparser.parse_query("?? test", flags);
+    TEST_EQUAL(qobj.get_description(),
+	       "Query((WILDCARD SYNONYM ?""? OR test@2))");
+
+    qobj = queryparser.parse_query("??* test", flags);
+    TEST_EQUAL(qobj.get_description(),
+	       "Query((WILDCARD SYNONYM ??* OR test@2))");
+
+    qobj = queryparser.parse_query("*?* test", flags);
+    TEST_EQUAL(qobj.get_description(),
+	       "Query((<alldocuments> OR test@2))");
 
     return true;
 }
