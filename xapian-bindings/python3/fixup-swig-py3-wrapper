@@ -95,3 +95,6 @@ s/^def _swig_setattr_nondynamic_method\(set\):\n.*?\n\n//sm or
     die "Failed to fully fix up _swig_setattr_nondynamic_method";
 
 print;
+
+# Workaround Perl 5.28 -i quirk:
+<>;
