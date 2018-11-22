@@ -278,8 +278,8 @@ def test_all():
     qp.set_default_op(xapian.Query.OP_AND)
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
-    expect_query(qp.parse_query("foo o", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND (WILDCARD SYNONYM o OR Zo@2))")
+    expect_query(qp.parse_query("foo ox", qp.FLAG_PARTIAL),
+                 "(Zfoo@1 AND (WILDCARD SYNONYM ox OR Zox@2))")
 
     expect_query(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
                  "(Zfoo@1 AND (WILDCARD SYNONYM outside OR Zoutsid@2))")
