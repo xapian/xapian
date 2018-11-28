@@ -42,13 +42,10 @@ class RemoteSubMatch {
 
     typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
 
-    /// The matchspies to use.
-    const std::vector<opt_ptr_spy>& matchspies;
-
   public:
     /// Constructor.
-    RemoteSubMatch(const RemoteDatabase *db_,
-		   const std::vector<opt_ptr_spy>& matchspies);
+    explicit
+    RemoteSubMatch(const RemoteDatabase *db_) : db(db_) {}
 
     /** Fetch and collate statistics.
      *
@@ -84,8 +81,13 @@ class RemoteSubMatch {
 		     Xapian::doccount check_at_least,
 		     Xapian::Weight::Internal& total_stats);
 
-    /// Get MSet.
-    Xapian::MSet get_mset() { return db->get_mset(matchspies); }
+    /** Get MSet.
+     *
+     *  @param matchspies   The matchspies to use.
+     */
+    Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) {
+	return db->get_mset(matchspies);
+    }
 };
 
 #endif /* XAPIAN_INCLUDED_REMOTESUBMATCH_H */

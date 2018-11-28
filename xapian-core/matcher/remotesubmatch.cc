@@ -29,14 +29,6 @@
 
 using namespace std;
 
-RemoteSubMatch::RemoteSubMatch(const RemoteDatabase *db_,
-			       const vector<opt_ptr_spy>& matchspies_)
-	: db(db_),
-	  matchspies(matchspies_)
-{
-    LOGCALL_CTOR(MATCH, "RemoteSubMatch", db_ | matchspies_);
-}
-
 bool
 RemoteSubMatch::prepare_match(bool block,
 			      Xapian::Weight::Internal & total_stats)

@@ -123,7 +123,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 			      subrsets[i], matchspies);
 	    if (remotes.size() != i)
 		remotes.resize(i);
-	    remotes.emplace_back(new RemoteSubMatch(as_rem, matchspies));
+	    remotes.emplace_back(new RemoteSubMatch(as_rem));
 	    continue;
 	}
 #else
@@ -405,7 +405,7 @@ Matcher::get_mset(Xapian::doccount first,
 	// Short cut for a single remote database.
 	Assert(remotes[0].get());
 	remotes[0]->start_match(first, maxitems, check_at_least, stats);
-	return remotes[0]->get_mset();
+	return remotes[0]->get_mset(matchspies);
     }
 #endif
 
@@ -467,7 +467,7 @@ Matcher::get_mset(Xapian::doccount first,
 	auto submatch = remotes[i].get();
 	if (!submatch)
 	    continue;
-	Xapian::MSet remote_mset = submatch->get_mset();
+	Xapian::MSet remote_mset = submatch->get_mset(matchspies);
 	merged_mset.internal->merge_stats(remote_mset.internal.get());
 	if (remote_mset.empty()) {
 	    continue;
