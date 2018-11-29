@@ -1272,12 +1272,10 @@ retry:
 	struct timeval tv;
 	tv.tv_sec = 3;
 	tv.tv_usec = 0;
-	fd_set fr, fe;
-	FD_ZERO(&fr);
-	FD_SET(fds[1], &fr);
-	FD_ZERO(&fe);
-	FD_SET(fds[1], &fe);
-	int sr = select(fds[1] + 1, &fr, NULL, &fe, &tv);
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(fds[1], &fdset);
+	int sr = select(fds[1] + 1, &fdset, NULL, NULL, &tv);
 	if (sr == 0) {
 	    // Timed out.
 	    result[0] = 'T';

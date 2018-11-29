@@ -119,17 +119,15 @@ TcpClient::open_socket(const std::string & hostname, int port,
 #endif
 	    ) {
 	    // Wait for the socket to be writable, with a timeout.
-	    fd_set wfdset, efdset;
-	    FD_ZERO(&wfdset);
-	    FD_SET(fd, &wfdset);
-	    FD_ZERO(&efdset);
-	    FD_SET(fd, &efdset);
+	    fd_set fdset;
+	    FD_ZERO(&fdset);
+	    FD_SET(fd, &fdset);
 
 	    do {
 		// FIXME: Reduce the timeout if we retry on EINTR.
 		struct timeval tv;
 		RealTime::to_timeval(timeout_connect, &tv);
-		retval = select(fd + 1, 0, &wfdset, &efdset, &tv);
+		retval = select(fd + 1, 0, &fdset, 0, &tv);
 	    } while (retval < 0 && (errno == EINTR || errno == EAGAIN));
 
 	    if (retval <= 0) {
