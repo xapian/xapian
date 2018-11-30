@@ -33,9 +33,14 @@
 #include "realtime.h"
 #include "safefcntl.h"
 #include "safenetdb.h"
-#include "safesysselect.h"
 #include "safesyssocket.h"
 #include "socket_utils.h"
+
+#ifdef HAVE_POLL_H
+# include <poll.h>
+#else
+# include "safesysselect.h"
+#endif
 
 #include <cerrno>
 #include <cmath>
@@ -118,23 +123,33 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	    err == EINPROGRESS
 #endif
 	    ) {
-	    // Wait for the socket to be writable, with a timeout.
+	    // Wait for the socket to be writable or give an error, with a
+	    // timeout.
+#ifdef HAVE_POLL
+	    struct pollfd fds;
+	    fds.fd = fd;
+	    fds.events = POLLOUT;
+	    do {
+		retval = poll(&fds, 1, int(timeout_connect * 1000));
+	    } while (retval < 0 && (errno == EINTR || errno == EAGAIN));
+#else
 	    fd_set fdset;
 	    FD_ZERO(&fdset);
-	    FD_SET(fd, &fdset);
-
 	    do {
+		FD_SET(fd, &fdset);
 		// FIXME: Reduce the timeout if we retry on EINTR.
 		struct timeval tv;
 		RealTime::to_timeval(timeout_connect, &tv);
 		retval = select(fd + 1, 0, &fdset, 0, &tv);
 	    } while (retval < 0 && (errno == EINTR || errno == EAGAIN));
+#endif
 
 	    if (retval <= 0) {
 		int saved_errno = errno;
 		close_fd_or_socket(fd);
 		if (retval < 0)
-		    throw Xapian::NetworkError("Couldn't connect (select() on socket failed)",
+		    throw Xapian::NetworkError("Couldn't connect (poll() or "
+					       "select() on socket failed)",
 					       saved_errno);
 		throw Xapian::NetworkTimeoutError("Timed out waiting to connect", ETIMEDOUT);
 	    }

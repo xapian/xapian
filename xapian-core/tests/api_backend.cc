@@ -1202,6 +1202,8 @@ DEFINE_TESTCASE(retrylock1, writable && path) {
     if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	FAIL_TEST("socketpair() failed");
     }
+    if (fds[1] >= FD_SETSIZE)
+	SKIP_TEST("socketpair() gave fd >= FD_SETSIZE");
     if (fcntl(fds[1], F_SETFL, O_NONBLOCK) < 0)
 	FAIL_TEST("fcntl() failed to set O_NONBLOCK");
     pid_t child = fork();

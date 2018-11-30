@@ -463,6 +463,9 @@ AC_CHECK_DECLS([__builtin_popcount(unsigned),
 		__builtin_popcountll(unsigned long long)], [], [], [ ])
 AC_CHECK_DECLS([__popcnt, __popcnt64], [], [], [#include <intrin.h>])
 
+dnl Check for poll().
+AC_CHECK_FUNCS([poll])
+
 dnl Check for time functions.
 AC_CHECK_FUNCS([clock_gettime sleep nanosleep gettimeofday ftime])
 
@@ -658,7 +661,8 @@ if test x"$enable_documentation" = xyes ; then
 fi
 
 dnl Checks for header files.
-AC_CHECK_HEADERS([fcntl.h limits.h sys/select.h sys/uio.h], [], [], [ ])
+AC_CHECK_HEADERS([fcntl.h limits.h poll.h sys/select.h sys/uio.h],
+		 [], [], [ ])
 AC_CHECK_HEADERS([sys/resource.h],
 		 [], [], [#include <sys/types.h>])
 
