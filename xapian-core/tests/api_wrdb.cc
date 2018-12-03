@@ -531,16 +531,20 @@ DEFINE_TESTCASE(databaseassign1, writable) {
     Xapian::Database d2(actually_wdb);
     d2 = wdb;
     d2 = actually_wdb;
-#ifdef __clang__
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
     // Suppress warning from newer clang about self-assignment so we can
     // test that self-assignment works!
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
 #endif
     wdb = wdb; // check assign to itself works
     db = db; // check assign to itself works
-#ifdef __clang__
-# pragma clang diagnostic pop
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
 #endif
     return true;
 }
