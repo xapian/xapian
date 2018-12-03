@@ -99,12 +99,12 @@ check_at_least() {
   return 0
 }
 
-lazy_build() {
+need_to_build() {
   # This function is expected to be used in 'if' so we can't rely on set -e
   # being in effect here.
   package=$1
-  binary=$2
-  version=$3
+  version=$2
+  binary=$3
 
   case $download_tools in
     always) ;;
@@ -133,10 +133,15 @@ lazy_build() {
       fi
       ;;
   esac
+  return 0
+}
 
+lazy_build() {
+  package=$1
+  version=$2
   basename=$package-$version
-  ext=$4
-  checksum=$5
+  ext=$3
+  checksum=$4
 
   if [ "$ext" = "tar.xz" ] ; then
     if [ -z "$xz_ok" ] ; then
@@ -148,8 +153,8 @@ lazy_build() {
     fi
     if [ "$xz_ok" = 0 ] ; then
       shift 2
-      ext=$4
-      checksum=$5
+      ext=$3
+      checksum=$4
     fi
   fi
   if [ "$ext" = "tar.bz2" ] ; then
@@ -164,8 +169,8 @@ lazy_build() {
     fi
     if [ "$bz2_ok" = 0 ] ; then
       shift 2
-      ext=$4
-      checksum=$5
+      ext=$3
+      checksum=$4
     fi
   fi
   tarball=$basename.$ext
@@ -574,10 +579,11 @@ instdir=`pwd`/INST
 cd BUILD
 
 # The hex strings are SHA256 checksums for the preceding extension.
-if lazy_build autoconf autoconf 2.69 \
+args='autoconf 2.69'
+if need_to_build $args autoconf ; then
+  lazy_build $args \
     tar.xz 64ebcec9f8ac5b2487125a86a7760d2591ac9e1d3dbd59489633f9de62a57684 \
-    tar.gz 954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969 \
-    ; then
+    tar.gz 954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
   AUTOCONF=$instdir/bin/autoconf
   export AUTOCONF
   AUTORECONF=$instdir/bin/autoreconf
@@ -587,19 +593,21 @@ if lazy_build autoconf autoconf 2.69 \
   AUTOM4TE=$instdir/bin/autom4te
   export AUTOM4TE
 fi
-if lazy_build automake automake 1.15.1 \
+args='automake 1.15.1'
+if need_to_build $args automake ; then
+  lazy_build $args \
     tar.xz af6ba39142220687c500f79b4aa2f181d9b24e4f8d8ec497cea4ba26c64bedaf \
-    tar.gz 988e32527abe052307d21c8ca000aa238b914df363a617e38f4fb89f5abf6260 \
-    ; then
+    tar.gz 988e32527abe052307d21c8ca000aa238b914df363a617e38f4fb89f5abf6260
   ACLOCAL=$instdir/bin/aclocal
   export ACLOCAL
   AUTOMAKE=$instdir/bin/automake
   export AUTOMAKE
 fi
-if lazy_build libtool libtool 2.4.6 \
+args='libtool 2.4.6'
+if need_to_build $args libtool ; then
+  lazy_build $args \
     tar.xz 7c87a8c2c8c0fc9cd5019e402bed4292462d00a718a7cd5f11218153bf28b26f \
-    tar.gz e3bd4d5d3d025a36c21dd6af7ea818a2afcd4dfc1ea5a17b39d7854bcd0c06e3 \
-    ; then
+    tar.gz e3bd4d5d3d025a36c21dd6af7ea818a2afcd4dfc1ea5a17b39d7854bcd0c06e3
   LIBTOOLIZE=$instdir/bin/libtoolize
   export LIBTOOLIZE
   libtool_aclocal=$instdir/share/aclocal
@@ -617,9 +625,9 @@ if [ "`${ACLOCAL-aclocal} --print-ac-dir`" != "$libtool_aclocal" ] ; then
 fi
 
 if [ "$1" = "--deps=libmagic" ] ; then
-    shift
-    lazy_build file '' 5.32 \
-      tar.gz 8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
+  shift
+  lazy_build file 5.3.2 \
+    tar.gz 8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
 fi
 
 cd ..
