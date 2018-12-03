@@ -239,7 +239,7 @@ BackendManager::get_database(const std::string &dbname,
 	// databases for it.
 	Xapian::WritableDatabase wdb = get_writable_database(path, path);
 	gen(wdb, arg);
-	return wdb;
+	return std::move(wdb);
     }
 
     if (path_exists(path)) {
