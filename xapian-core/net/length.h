@@ -45,7 +45,7 @@ encode_length(T len)
 	    unsigned char b = static_cast<unsigned char>(len & 0x7f);
 	    len >>= 7;
 	    if (!len) {
-		result += (b | static_cast<unsigned char>(0x80));
+		result += char(b | static_cast<unsigned char>(0x80));
 		break;
 	    }
 	    result += b;

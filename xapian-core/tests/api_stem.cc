@@ -108,7 +108,7 @@ DEFINE_TESTCASE(stemempty1, !backend) {
 DEFINE_TESTCASE(stemlangs2, !backend) {
     string lang("xdummy");
     for (unsigned ch = 0; ch <= 255; ++ch) {
-	lang[0] = ch;
+	lang[0] = char(ch);
 	TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stem(lang));
     }
     return true;
