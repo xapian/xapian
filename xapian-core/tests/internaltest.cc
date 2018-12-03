@@ -125,7 +125,16 @@ static bool test_refcnt2()
 
     Xapian::Internal::intrusive_ptr<test_refcnt> rcp(p);
 
+#ifdef __clang__
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#endif
     rcp = rcp;
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
 
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
 
