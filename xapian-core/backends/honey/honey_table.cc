@@ -207,7 +207,7 @@ HoneyTable::read_key(std::string& key,
 	    if (ch2 == EOF) {
 		break;
 	    }
-	    *p++ = ch2;
+	    *p++ = char(ch2);
 	    if (ch2 < 128) break;
 	}
 	r = p - buf;
@@ -258,7 +258,8 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 	case EOF:
 	    return false;
 	case 0x00: {
-	    unsigned char first = key[0] - store.read();
+	    unsigned char first =
+		static_cast<unsigned char>(key[0] - store.read());
 	    unsigned char range = store.read();
 	    if (first > range)
 		return false;

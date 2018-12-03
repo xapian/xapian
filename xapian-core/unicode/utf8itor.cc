@@ -37,21 +37,21 @@ unsigned
 nonascii_to_utf8(unsigned ch, char * buf)
 {
     if (ch < 0x800) {
-	buf[0] = 0xc0 | (ch >> 6);
-	buf[1] = 0x80 | (ch & 0x3f);
+	buf[0] = char(0xc0 | (ch >> 6));
+	buf[1] = char(0x80 | (ch & 0x3f));
 	return 2;
     }
     if (ch < 0x10000) {
-	buf[0] = 0xe0 | (ch >> 12);
-	buf[1] = 0x80 | ((ch >> 6) & 0x3f);
-	buf[2] = 0x80 | (ch & 0x3f);
+	buf[0] = char(0xe0 | (ch >> 12));
+	buf[1] = char(0x80 | ((ch >> 6) & 0x3f));
+	buf[2] = char(0x80 | (ch & 0x3f));
 	return 3;
     }
     if (ch < 0x200000) {
-	buf[0] = 0xf0 | (ch >> 18);
-	buf[1] = 0x80 | ((ch >> 12) & 0x3f);
-	buf[2] = 0x80 | ((ch >> 6) & 0x3f);
-	buf[3] = 0x80 | (ch & 0x3f);
+	buf[0] = char(0xf0 | (ch >> 18));
+	buf[1] = char(0x80 | ((ch >> 12) & 0x3f));
+	buf[2] = char(0x80 | ((ch >> 6) & 0x3f));
+	buf[3] = char(0x80 | (ch & 0x3f));
 	return 4;
     }
     // Unicode doesn't specify any characters above 0x10ffff.

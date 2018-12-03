@@ -406,7 +406,7 @@ static bool test_chartype1()
     }
 
     // Non-ASCII characters aren't anything for these functions.
-    for (int ch = 128; ch != 256; ++ch) {
+    for (unsigned char ch = 128; ch != 0; ++ch) {
 	TEST(!C_isupper(ch));
 	TEST(!C_islower(ch));
 	TEST(!C_isalpha(ch));
@@ -424,7 +424,7 @@ static bool test_chartype1()
     }
 
     // Check signed char values work the same way.
-    for (int ch = -128; ch != 0; ++ch) {
+    for (signed char ch = -128; ch != 0; ++ch) {
 	TEST(!C_isupper(ch));
 	TEST(!C_islower(ch));
 	TEST(!C_isalpha(ch));

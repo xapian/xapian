@@ -99,7 +99,7 @@ HoneyCursor::next_from_index()
 	    if (ch2 == EOF) {
 		break;
 	    }
-	    *p++ = ch2;
+	    *p++ = char(ch2);
 	    if (ch2 < 128) break;
 	}
 	r = p - buf;

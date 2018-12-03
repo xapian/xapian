@@ -90,7 +90,7 @@ test_stemjunk()
     string word;
     int stemmed_size = 0;
     for (int c = JUNKSIZE; c; --c) {
-	char ch = rand() >> 8;
+	char ch = char(rand() >> 8);
 	if (ch) {
 	    word += ch;
 	    continue;
