@@ -42,8 +42,6 @@ autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
 FETCH_URL_TOOL=
 
 check_checksum() {
-  # This function is expected to be used in 'if' so we can't rely on set -e
-  # being in effect here.
   checksum_=$1
   tarball_=$2
 
