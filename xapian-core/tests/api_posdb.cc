@@ -479,28 +479,28 @@ DEFINE_TESTCASE(poslist1, positional) {
     Xapian::PositionIterator pli = mydb.positionlist_begin(2, term);
 
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 1);
+    TEST_EQUAL(*pli, 1);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 2);
+    TEST_EQUAL(*pli, 2);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 3);
+    TEST_EQUAL(*pli, 3);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 5);
+    TEST_EQUAL(*pli, 5);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 8);
+    TEST_EQUAL(*pli, 8);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 13);
+    TEST_EQUAL(*pli, 13);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 21);
+    TEST_EQUAL(*pli, 21);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 34);
+    TEST_EQUAL(*pli, 34);
     pli++;
     TEST(pli == mydb.positionlist_end(2, term));
 
