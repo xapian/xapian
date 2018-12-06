@@ -246,8 +246,7 @@ DEFINE_TESTCASE(stubdb3, backend && !inmemory && !remote) {
 }
 
 // Test a stub database with just a bad entry.
-DEFINE_TESTCASE(stubdb4, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb4, !backend) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb4";
     ofstream out(dbpath);
