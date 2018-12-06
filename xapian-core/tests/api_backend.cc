@@ -1194,7 +1194,7 @@ DEFINE_TESTCASE(phrasebug1, generated && positional) {
 }
 
 /// Feature test for Xapian::DB_RETRY_LOCK
-DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
+DEFINE_TESTCASE(retrylock1, writable && path) {
     // FIXME: Can't see an easy way to test this for remote databases - the
     // harness doesn't seem to provide a suitable way to reopen a remote.
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR

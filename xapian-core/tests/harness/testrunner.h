@@ -87,6 +87,8 @@ class TestRunner {
 	GLASS		= 0x00004000,
 	COMPACT		= 0x00008000,
 	HONEY		= 0x00010000,
+	/// Requires get_database_path() or similar.
+	PATH		= 0x00020000,
     };
 
   public:
