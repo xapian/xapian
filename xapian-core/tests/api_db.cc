@@ -70,8 +70,7 @@ DEFINE_TESTCASE(termstats, backend) {
 }
 
 // Check that stub databases work.
-DEFINE_TESTCASE(stubdb1, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb1, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb1";
     ofstream out(dbpath);
@@ -96,8 +95,7 @@ DEFINE_TESTCASE(stubdb1, backend && !inmemory && !remote) {
 }
 
 // Check that stub databases work remotely.
-DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb2, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb2";
     ofstream out(dbpath);
@@ -226,8 +224,7 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 }
 
 // Regression test - bad entries were ignored after a good entry prior to 1.0.8.
-DEFINE_TESTCASE(stubdb3, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb3, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb3";
     ofstream out(dbpath);
@@ -265,8 +262,7 @@ DEFINE_TESTCASE(stubdb4, !backend) {
 
 // Test a stub database with a bad entry with no spaces (prior to 1.1.0 this
 // was deliberately allowed, though not documented.
-DEFINE_TESTCASE(stubdb5, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb5, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb5";
     ofstream out(dbpath);
