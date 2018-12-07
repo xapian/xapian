@@ -909,7 +909,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     TEST_EQUAL_DOUBLE(mset[4].get_weight(), 1.0);
 
     // Check for "ntn" when termfreq=N
-    enquire.set_query(Xapian::Query("this"));  // N=termfreq amd so idfn=0 for "t"
+    enquire.set_query(Xapian::Query("this"));  // N=termfreq and so idfn=0 for "t"
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 6);
