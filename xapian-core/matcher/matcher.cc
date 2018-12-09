@@ -1,7 +1,7 @@
 /** @file matcher.cc
  * @brief Matcher class
  */
-/* Copyright (C) 2006,2008,2009,2010,2011,2017 Olly Betts
+/* Copyright (C) 2006,2008,2009,2010,2011,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,12 @@
 #include <cfloat> // For DBL_EPSILON.
 #include <vector>
 
+#ifdef HAVE_POLL_H
+# include <poll.h>
+#else
+# include "safesysselect.h"
+#endif
+
 using namespace std;
 using Xapian::Internal::opt_intrusive_ptr;
 
@@ -61,6 +67,107 @@ static constexpr auto VAL_REL = Xapian::Enquire::Internal::VAL_REL;
 static void unimplemented(const char* msg)
 {
     throw Xapian::UnimplementedError(msg);
+}
+
+template<typename Action>
+inline void
+Matcher::for_all_remotes(Action action)
+{
+#ifdef HAVE_POLL
+    size_t n_remotes = remotes.size();
+    if (n_remotes <= 1) {
+	// We only need to use poll() when there are at least 2 remote
+	// databases we need to wait for.
+	if (n_remotes == 1) {
+	    // Just execute action and block if it's not ready.
+	    action(remotes[0].get());
+	}
+	return;
+    }
+
+    unique_ptr<struct pollfd[]> fds(new struct pollfd[n_remotes]);
+    for (size_t i = 0; i != n_remotes; ++i) {
+	fds[i].fd = remotes[i]->get_read_fd();
+	fds[i].events = POLLIN;
+	fds[i].revents = 0;
+    }
+    do {
+	int r = poll(fds.get(), n_remotes, -1);
+	if (r <= 0) {
+	    // We shouldn't get a timeout, but if we do retry.
+	    if (r == 0 || errno == EINTR || errno == EAGAIN) {
+		continue;
+	    }
+	    throw Xapian::NetworkError("poll() failed waiting for remotes",
+				       errno);
+	}
+	size_t i = 0;
+	while (i != n_remotes) {
+	    if (fds[i].revents) {
+		action(remotes[i].get());
+		// Swap such that entries we still need to handle are first.
+		swap(remotes[i], remotes[--n_remotes]);
+		fds[i] = fds[n_remotes];
+		// r is number of ready fds.
+		if (--r == 0) break;
+	    } else {
+		++i;
+	    }
+	}
+    } while (n_remotes > 1);
+
+    // If there's only one remote left just execute action and block if it's
+    // not ready.
+    if (n_remotes == 1) {
+	action(remotes[0].get());
+    }
+#else
+    size_t n_remotes = first_oversize;
+    fd_set fds;
+    while (n_remotes > 1) {
+	int nfds = 0;
+	FD_ZERO(&fds);
+	for (size_t i = 0; i != n_remotes; ++i) {
+	    int fd = remotes[i]->get_read_fd();
+	    FD_SET(fd, &fds);
+	    if (fd >= nfds) nfds = fd + 1;
+	}
+
+	int r = select(nfds, &fds, NULL, NULL, NULL);
+	if (r <= 0) {
+	    // We shouldn't get a timeout, but if we do retry.
+	    if (r == 0 || errno == EINTR || errno == EAGAIN) {
+		continue;
+	    }
+	    throw Xapian::NetworkError("select() failed waiting for remotes",
+				       errno);
+	}
+	size_t i = 0;
+	while (i != n_remotes) {
+	    int fd = remotes[i]->get_read_fd();
+	    if (FD_ISSET(fd, &fds)) {
+		action(remotes[i].get());
+		// Swap such that entries we still need to handle are first.
+		swap(remotes[i], remotes[--n_remotes]);
+		// r is number of ready fds.
+		if (--r == 0) break;
+	    } else {
+		++i;
+	    }
+	}
+    }
+
+    // If there's only one remote left just execute action and block if it's
+    // not ready.
+    if (n_remotes == 1) {
+	action(remotes[0].get());
+    }
+
+    // Handle any remotes with fd >= FD_SETSIZE
+    for (size_t i = first_oversize; i != remotes.size(); ++i) {
+	action(remotes[i].get());
+    }
+#endif
 }
 #endif
 
@@ -121,9 +228,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 			      weight_threshold,
 			      wtscheme,
 			      subrsets[i], matchspies);
-	    if (remotes.size() != i)
-		remotes.resize(i);
-	    remotes.emplace_back(new RemoteSubMatch(as_rem));
+	    remotes.emplace_back(new RemoteSubMatch(as_rem, i));
 	    continue;
 	}
 #else
@@ -151,30 +256,40 @@ Matcher::Matcher(const Xapian::Database& db_,
 
     if (!locals.empty() && locals.size() != n_shards)
 	locals.resize(n_shards);
+
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    if (!remotes.empty() && remotes.size() != n_shards)
-	remotes.resize(n_shards);
+# ifndef HAVE_POLL
+#  ifndef __WIN32__
+    {
+	// Unfortunately select() can't monitor fds >= FD_SETSIZE, so swap those to
+	// the end here and then handle those last letting them just block if not
+	// ready.
+	first_oversize = remotes.size();
+	size_t i = 0;
+	while (i != first_oversize) {
+	    int fd = remotes[i]->get_read_fd();
+	    if (fd >= FD_SETSIZE) {
+		swap(remotes[i], remotes[--first_oversize]);
+	    } else {
+		++i;
+	    }
+	}
+    }
+#  else
+    // __WIN32__ has its own special meaning for FD_SETSIZE - it's the maximum
+    // number of fds you can add to an fdset.
+    first_oversize = min(size_t(FD_SETSIZE), remotes.size());
+#  endif
+# endif
 #endif
 
     stats.set_query(query);
 
-    /* To improve overall performance in the case of mixed local-and-remote
-     * searches we prepare remote matchers non-blocking, then local matchers,
-     * and finally do a blocking pass waiting for remote matchers to finish
-     * preparing.
+    /* To improve overall performance in the case of searches over a mix of
+     * local and remote shards we set the queries for remote shards above,
+     * then prepare local shards here, then finish preparing remote shards
+     * below.
      */
-
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-    // Track which RemoteSubMatch objects still need preparing.
-    vector<RemoteSubMatch*> todo;
-
-    // Do a non-blocking pass preparing remote matches.
-    for (auto&& submatch : remotes) {
-	if (submatch.get() && !submatch->prepare_match(false, stats)) {
-	    todo.push_back(submatch.get());
-	}
-    }
-#endif
 
     if (!locals.empty()) {
 	// Prepare local matches.
@@ -187,10 +302,10 @@ Matcher::Matcher(const Xapian::Database& db_,
     }
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    // Do a blocking pass preparing any remaining remote matches.
-    for (auto&& submatch : todo) {
-	(void)submatch->prepare_match(true, stats);
-    }
+    for_all_remotes(
+	[&](RemoteSubMatch* submatch) {
+	    submatch->prepare_match(stats);
+	});
 #endif
 
     stats.set_bounds_from_db(db);
@@ -462,19 +577,17 @@ Matcher::get_mset(Xapian::doccount first,
 	merged_mset.internal->merge_stats(local_mset.internal.get());
     }
 
-    size_t n_shards = db.internal->size();
-    for (size_t i = 0; i != n_shards; ++i) {
-	auto submatch = remotes[i].get();
-	if (!submatch)
-	    continue;
-	Xapian::MSet remote_mset = submatch->get_mset(matchspies);
-	merged_mset.internal->merge_stats(remote_mset.internal.get());
-	if (remote_mset.empty()) {
-	    continue;
-	}
-	remote_mset.internal->unshard_docids(i, n_shards);
-	msets.push_back({remote_mset, 0});
-    }
+    for_all_remotes(
+	[&](RemoteSubMatch* submatch) {
+	    Xapian::MSet remote_mset = submatch->get_mset(matchspies);
+	    merged_mset.internal->merge_stats(remote_mset.internal.get());
+	    if (remote_mset.empty()) {
+		return;
+	    }
+	    remote_mset.internal->unshard_docids(submatch->get_shard(),
+						 db.internal->size());
+	    msets.push_back({remote_mset, 0});
+	});
 
     if (merged_mset.internal->max_possible == 0.0) {
 	// All the weights are zero.

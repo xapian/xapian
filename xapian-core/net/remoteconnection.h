@@ -239,11 +239,8 @@ class RemoteConnection {
     ~RemoteConnection();
 #endif
 
-    /** See if there is data available to read.
-     *
-     *  @return		true if there is data waiting to be read.
-     */
-    bool ready_to_read() const;
+    /** Return the underlying fd this remote connection reads from. */
+    int get_read_fd() const { return fdin; }
 
     /** Check what the next message type is.
      *

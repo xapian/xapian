@@ -1,7 +1,7 @@
 /** @file remotesubmatch.cc
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2018 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,15 +29,13 @@
 
 using namespace std;
 
-bool
-RemoteSubMatch::prepare_match(bool block,
-			      Xapian::Weight::Internal & total_stats)
+void
+RemoteSubMatch::prepare_match(Xapian::Weight::Internal& total_stats)
 {
-    LOGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", block | total_stats);
+    LOGCALL_VOID(MATCH, "RemoteSubMatch::prepare_match", total_stats);
     Xapian::Weight::Internal remote_stats;
-    if (!db->get_remote_stats(block, remote_stats)) RETURN(false);
+    db->get_remote_stats(remote_stats);
     total_stats += remote_stats;
-    RETURN(true);
 }
 
 void

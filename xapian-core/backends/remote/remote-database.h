@@ -181,13 +181,17 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   const Xapian::RSet &omrset,
 		   const std::vector<opt_ptr_spy>& matchspies) const;
 
-    /** Get the stats from the remote server.
+    /** Get the underlying fd this remote connection reads from.
      *
-     *  @param block	If true, block waiting for answer (and return true).
-     *
-     *  @return	true if we got the remote stats; false if we should try again.
+     *  This allows the matcher to efficiently wait for remote databases to be
+     *  ready in parallel using poll() or select().
      */
-    bool get_remote_stats(bool block, Xapian::Weight::Internal &out) const;
+    int get_read_fd() const {
+	return link.get_read_fd();
+    }
+
+    /// Get the stats from the remote server.
+    void get_remote_stats(Xapian::Weight::Internal& out) const;
 
     /// Send the global stats to the remote server.
     void send_global_stats(Xapian::doccount first,

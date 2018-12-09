@@ -1,7 +1,7 @@
 /** @file remotesubmatch.h
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007,2009,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2011,2014,2015,2018 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -40,34 +40,27 @@ class RemoteSubMatch {
     /// The remote database.
     const RemoteDatabase *db;
 
-    typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
+    /// Index of this subdatabase.
+    size_t shard;
 
   public:
     /// Constructor.
-    explicit
-    RemoteSubMatch(const RemoteDatabase *db_) : db(db_) {}
+    RemoteSubMatch(const RemoteDatabase *db_, size_t shard_)
+	: db(db_), shard(shard_) {}
+
+    int get_read_fd() const {
+	return db->get_read_fd();
+    }
 
     /** Fetch and collate statistics.
      *
      *  Before we can calculate term weights we need to fetch statistics from
      *  each database involved and collate them.
      *
-     *  @param block	A RemoteSubMatch may not be able to report statistics
-     *			when first asked.  If block is false, it will return
-     *			false in this situation allowing the matcher to prepare
-     *			other submatches.  If block is true, then this method
-     *			will block until statistics are available.
-     *
      *  @param total_stats A stats object to which the statistics should be
      *			added.
-     *
-     *  @return		If block is false and results aren't available yet
-     *			then false will be returned and this method must be
-     *			called again before the match can proceed.  If results
-     *			are available or block is true, then this method
-     *			returns true.
      */
-    bool prepare_match(bool block, Xapian::Weight::Internal& total_stats);
+    void prepare_match(Xapian::Weight::Internal& total_stats);
 
     /** Start the match.
      *
@@ -81,6 +74,8 @@ class RemoteSubMatch {
 		     Xapian::doccount check_at_least,
 		     Xapian::Weight::Internal& total_stats);
 
+    typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
+
     /** Get MSet.
      *
      *  @param matchspies   The matchspies to use.
@@ -88,6 +83,9 @@ class RemoteSubMatch {
     Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) {
 	return db->get_mset(matchspies);
     }
+
+    /// Return the index of the corresponding Database shard.
+    size_t get_shard() const { return shard; }
 };
 
 #endif /* XAPIAN_INCLUDED_REMOTESUBMATCH_H */

@@ -1,7 +1,7 @@
 /** @file matcher.h
  * @brief Matcher class
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,10 +46,34 @@ class Matcher {
 
     Xapian::Query query;
 
+    /** LocalSubMatch objects for local databases.
+     *
+     *  The entries are at the same index as the corresponding shard in the
+     *  Database object, with NULL entries for any remote shards.
+     */
     std::vector<std::unique_ptr<LocalSubMatch>> locals;
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
+    /** RemoteSubMatch objects for remote databases.
+     *
+     *  Unlike @a locals, this *only* contains entries for remote shards, and
+     *  each RemoteSubMatch object knows its shard index.
+     *
+     *  If poll() isn't available so that select() has to be used to
+     *  wait for fds to become ready to read, objects with an fd < FD_SETSIZE
+     *  come first, and those with an fd >= FD_SETSIZE are put at the end with
+     *  @a first_oversize recording the partition point.
+     */
     std::vector<std::unique_ptr<RemoteSubMatch>> remotes;
+
+# ifndef HAVE_POLL
+    /** Partition point in @a remotes for fds < FD_SETSIZE.
+     *
+     *  remotes[i]->get_read_fd() < FD_SETSIZE for i < first_oversize,
+     *  remotes[i]->get_read_fd() >= FD_SETSIZE for i >= first_oversize.
+     */
+    std::size_t first_oversize;
+# endif
 #endif
 
     Matcher(const Matcher&) = delete;
@@ -73,6 +97,9 @@ class Matcher {
 				bool sort_val_reverse,
 				double time_limit,
 				const std::vector<opt_ptr_spy>& matchspies);
+
+    /// Perform action on remotes as they become ready using poll() or select().
+    template<typename Action> void for_all_remotes(Action action);
 
   public:
     /** Constructor.

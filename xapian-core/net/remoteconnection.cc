@@ -236,39 +236,6 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
     return true;
 }
 
-bool
-RemoteConnection::ready_to_read() const
-{
-    LOGCALL(REMOTE, bool, "RemoteConnection::ready_to_read", NO_ARGS);
-    if (fdin == -1)
-	throw_database_closed();
-
-    if (!buffer.empty()) RETURN(true);
-
-    // See if there's data available to be read.
-#ifdef HAVE_POLL
-    struct pollfd fds;
-    fds.fd = fdin;
-    fds.events = POLLIN;
-    RETURN(poll(&fds, 1, 0) > 0);
-#else
-# ifndef __WIN32__
-    if (fdin >= FD_SETSIZE) {
-	// Not ideal, but OK for how this method is currently used.
-	RETURN(true);
-    }
-# endif
-    fd_set fdset;
-    FD_ZERO(&fdset);
-    FD_SET(fdin, &fdset);
-
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-    RETURN(select(fdin + 1, &fdset, 0, 0, &tv) > 0);
-#endif
-}
-
 void
 RemoteConnection::send_message(char type, const string &message,
 			       double end_time)

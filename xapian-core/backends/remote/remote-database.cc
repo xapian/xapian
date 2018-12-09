@@ -697,17 +697,12 @@ RemoteDatabase::set_query(const Xapian::Query& query,
     send_message(MSG_QUERY, message);
 }
 
-bool
-RemoteDatabase::get_remote_stats(bool block,
-				 Xapian::Weight::Internal& out) const
+void
+RemoteDatabase::get_remote_stats(Xapian::Weight::Internal& out) const
 {
-    if (!block && !link.ready_to_read()) return false;
-
     string message;
     get_message(message, REPLY_STATS);
     unserialise_stats(message, out);
-
-    return true;
 }
 
 void
