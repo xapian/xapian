@@ -277,7 +277,7 @@ try {
 		check_at_least = static_cast<Xapian::doccount>(v);
 		if (*p || v != check_at_least) {
 		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for check_at_least " << endl;
+			 << "' passed for check_at_least" << endl;
 		    exit(1);
 		}
 		break;
