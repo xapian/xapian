@@ -1026,20 +1026,25 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
     const string & lb = db.get_value_lower_bound(slot);
-    // If lb.empty(), the backend doesn't provide value bounds.
-    if (!lb.empty()) {
-	if (limit < lb) {
-	    RETURN(new EmptyPostList);
-	}
-	if (limit >= db.get_value_upper_bound(slot)) {
-	    // The range check isn't needed, but we do still need to consider
-	    // which documents have a value set in this slot.  If this value is
-	    // set for all documents, we can replace it with the MatchAll
-	    // postlist, which is especially efficient if there are no gaps in
-	    // the docids.
-	    if (db.get_value_freq(slot) == db.get_doccount()) {
-		RETURN(db.open_post_list(string()));
-	    }
+    if (lb.empty()) {
+	// This should only happen if there are no values in this slot (which
+	// could be because the backend just doesn't support values at all).
+	// If there were values in the slot, the backend should have a
+	// non-empty lower bound, even if it isn't a tight one.
+	AssertEq(db.get_value_freq(slot), 0);
+	RETURN(new EmptyPostList);
+    }
+    if (limit < lb) {
+	RETURN(new EmptyPostList);
+    }
+    if (limit >= db.get_value_upper_bound(slot)) {
+	// The range check isn't needed, but we do still need to consider
+	// which documents have a value set in this slot.  If this value is
+	// set for all documents, we can replace it with the MatchAll
+	// postlist, which is especially efficient if there are no gaps in
+	// the docids.
+	if (db.get_value_freq(slot) == db.get_doccount()) {
+	    RETURN(db.open_post_list(string()));
 	}
     }
     RETURN(new ValueRangePostList(&db, slot, string(), limit));
@@ -1085,20 +1090,25 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
     const string & lb = db.get_value_lower_bound(slot);
-    // If lb.empty(), the backend doesn't provide value bounds.
-    if (!lb.empty()) {
-	if (limit > db.get_value_upper_bound(slot)) {
-	    RETURN(new EmptyPostList);
-	}
-	if (limit < lb) {
-	    // The range check isn't needed, but we do still need to consider
-	    // which documents have a value set in this slot.  If this value is
-	    // set for all documents, we can replace it with the MatchAll
-	    // postlist, which is especially efficient if there are no gaps in
-	    // the docids.
-	    if (db.get_value_freq(slot) == db.get_doccount()) {
-		RETURN(db.open_post_list(string()));
-	    }
+    if (lb.empty()) {
+	// This should only happen if there are no values in this slot (which
+	// could be because the backend just doesn't support values at all).
+	// If there were values in the slot, the backend should have a
+	// non-empty lower bound, even if it isn't a tight one.
+	AssertEq(db.get_value_freq(slot), 0);
+	RETURN(new EmptyPostList);
+    }
+    if (limit > db.get_value_upper_bound(slot)) {
+	RETURN(new EmptyPostList);
+    }
+    if (limit < lb) {
+	// The range check isn't needed, but we do still need to consider
+	// which documents have a value set in this slot.  If this value is
+	// set for all documents, we can replace it with the MatchAll
+	// postlist, which is especially efficient if there are no gaps in
+	// the docids.
+	if (db.get_value_freq(slot) == db.get_doccount()) {
+	    RETURN(db.open_post_list(string()));
 	}
     }
     RETURN(new ValueGePostList(&db, slot, limit));
