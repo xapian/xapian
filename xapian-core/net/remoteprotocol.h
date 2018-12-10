@@ -1,7 +1,7 @@
 /** @file remoteprotocol.h
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014,2015,2017,2018 Olly Betts
  * Copyright (C) 2007,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,8 +50,9 @@
 // 38: 1.3.2 Stats serialisation now includes collection freq, and more...
 // 39: 1.3.3 New query operator OP_WILDCARD; sort keys in serialised MSet.
 // 39.1: pre-1.5.0 MSG_POSITIONLISTCOUNT added.
-// 40: 1.5.0 REPLY_REMOVESPELLING added.
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 40
+// 40: pre-1.5.0 REPLY_REMOVESPELLING added.
+// 41: 1.5.0 Changed REPLY_ALLTERMS, REPLY_METADATAKEYLIST, REPLY_TERMLIST.
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 41
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
@@ -122,6 +123,7 @@ enum reply_type {
     REPLY_UNIQUETERMS,		// Get number of unique terms in doc
     REPLY_POSITIONLISTCOUNT,	// Get PositionList length
     REPLY_REMOVESPELLING,	// Remove a spelling
+    REPLY_TERMLIST0,		// Header for get Termlist
     REPLY_MAX
 };
 

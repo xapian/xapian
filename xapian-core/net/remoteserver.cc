@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@
 #include <memory>
 
 #include "api/msetinternal.h"
+#include "api/termlist.h"
 #include "length.h"
 #include "matcher/matcher.h"
 #include "omassert.h"
@@ -294,26 +295,25 @@ RemoteServer::run()
 }
 
 void
-RemoteServer::msg_allterms(const string &message)
+RemoteServer::msg_allterms(const string& message)
 {
-    string prev = message;
     string reply;
-
-    const string & prefix = message;
-    const Xapian::TermIterator end = db->allterms_end(prefix);
-    for (Xapian::TermIterator t = db->allterms_begin(prefix); t != end; ++t) {
+    string prev = message;
+    const string& prefix = message;
+    for (Xapian::TermIterator t = db->allterms_begin(prefix);
+	 t != db->allterms_end(prefix);
+	 ++t) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
-	const string & v = *t;
-	size_t reuse = common_prefix_length(prev, v);
-	reply = encode_length(t.get_termfreq());
+	const string& term = *t;
+	size_t reuse = common_prefix_length(prev, term);
+	reply += encode_length(t.get_termfreq());
 	reply.append(1, char(reuse));
-	reply.append(v, reuse, string::npos);
-	send_message(REPLY_ALLTERMS, reply);
-	prev = v;
+	reply += encode_length(term.size() - reuse);
+	reply.append(term, reuse, string::npos);
+	prev = term;
     }
-
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_ALLTERMS, reply);
 }
 
 void
@@ -323,24 +323,28 @@ RemoteServer::msg_termlist(const string &message)
     const char *p_end = p + message.size();
     Xapian::docid did;
     decode_length(&p, p_end, did);
-
-    send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
+    Xapian::TermIterator t = db->termlist_begin(did);
+    Xapian::termcount num_terms = 0;
+    if (t.internal)
+	num_terms = t.internal->get_approx_size();
+    send_message(REPLY_TERMLIST0, encode_length(db->get_doclength(did)) +
+				  encode_length(num_terms));
+    string reply;
     string prev;
-    const Xapian::TermIterator end = db->termlist_end(did);
-    for (Xapian::TermIterator t = db->termlist_begin(did); t != end; ++t) {
+    while (t != db->termlist_end(did)) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
-	const string & v = *t;
-	size_t reuse = common_prefix_length(prev, v);
-	string reply = encode_length(t.get_wdf());
+	const string& term = *t;
+	size_t reuse = common_prefix_length(prev, term);
+	reply += encode_length(t.get_wdf());
 	reply += encode_length(t.get_termfreq());
 	reply.append(1, char(reuse));
-	reply.append(v, reuse, string::npos);
-	send_message(REPLY_TERMLIST, reply);
-	prev = v;
+	reply += encode_length(term.size() - reuse);
+	reply.append(term, reuse, string::npos);
+	prev = term;
+	++t;
     }
-
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_TERMLIST, reply);
 }
 
 void
@@ -803,25 +807,24 @@ RemoteServer::msg_getmetadata(const string & message)
 }
 
 void
-RemoteServer::msg_metadatakeylist(const string & message)
+RemoteServer::msg_metadatakeylist(const string& message)
 {
-    string prev = message;
     string reply;
-
-    const string & prefix = message;
-    const Xapian::TermIterator end = db->metadata_keys_end(prefix);
-    Xapian::TermIterator t = db->metadata_keys_begin(prefix);
-    for (; t != end; ++t) {
+    string prev = message;
+    const string& prefix = message;
+    for (Xapian::TermIterator t = db->metadata_keys_begin(prefix);
+	 t != db->metadata_keys_end(prefix);
+	 ++t) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
-	const string & v = *t;
-	size_t reuse = common_prefix_length(prev, v);
-	reply.assign(1, char(reuse));
-	reply.append(v, reuse, string::npos);
-	send_message(REPLY_METADATAKEYLIST, reply);
-	prev = v;
+	const string& term = *t;
+	size_t reuse = common_prefix_length(prev, term);
+	reply.append(1, char(reuse));
+	reply += encode_length(term.size() - reuse);
+	reply.append(term, reuse, string::npos);
+	prev = term;
     }
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_METADATAKEYLIST, reply);
 }
 
 void

@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2018 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,13 +29,15 @@
 #include "api/smallvector.h"
 #include "backends/inmemory/inmemory_positionlist.h"
 #include "net_postlist.h"
-#include "net_termlist.h"
 #include "remote-document.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "net/length.h"
 #include "net/serialise.h"
 #include "net/serialise-error.h"
+#include "remote_alltermslist.h"
+#include "remote_metadatatermlist.h"
+#include "remote_termlist.h"
 #include "serialise-double.h"
 #include "str.h"
 #include "stringutils.h" // For STRINGIZE().
@@ -130,32 +132,13 @@ RemoteDatabase::keep_alive()
     get_message(message, REPLY_DONE);
 }
 
-TermList *
-RemoteDatabase::open_metadata_keylist(const std::string &prefix) const
+TermList*
+RemoteDatabase::open_metadata_keylist(const std::string& prefix) const
 {
-    // Ensure that total_length and doccount are up-to-date.
-    if (!cached_stats_valid) update_stats();
-
     send_message(MSG_METADATAKEYLIST, prefix);
-
     string message;
-    unique_ptr<NetworkTermList> tlist(
-	new NetworkTermList(0, doccount,
-			    intrusive_ptr<const RemoteDatabase>(this),
-			    0));
-    vector<NetworkTermListItem> & items = tlist->items;
-
-    string term = prefix;
-    while (get_message_or_done(message, REPLY_METADATAKEYLIST)) {
-	NetworkTermListItem item;
-	term.resize(size_t(static_cast<unsigned char>(message[0])));
-	term.append(message, 1, string::npos);
-	item.tname = term;
-	items.push_back(item);
-    }
-
-    tlist->current_position = tlist->items.begin();
-    return tlist.release();
+    get_message(message, REPLY_METADATAKEYLIST);
+    return new RemoteMetadataTermList(prefix, std::move(message));
 }
 
 TermList *
@@ -169,36 +152,21 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
     send_message(MSG_TERMLIST, encode_length(did));
 
     string message;
-    get_message(message, REPLY_DOCLENGTH);
+    get_message(message, REPLY_TERMLIST0);
     const char * p = message.c_str();
     const char * p_end = p + message.size();
     Xapian::termcount doclen;
     decode_length(&p, p_end, doclen);
+    Xapian::termcount num_entries;
+    decode_length(&p, p_end, num_entries);
     if (p != p_end) {
-	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH message received", context);
+	throw Xapian::NetworkError("Bad REPLY_TERMLIST0 message received",
+				   context);
     }
-
-    unique_ptr<NetworkTermList> tlist(
-	new NetworkTermList(doclen, doccount,
-			    intrusive_ptr<const RemoteDatabase>(this),
-			    did));
-    vector<NetworkTermListItem> & items = tlist->items;
-
-    string term;
-    while (get_message_or_done(message, REPLY_TERMLIST)) {
-	NetworkTermListItem item;
-	p = message.data();
-	p_end = p + message.size();
-	decode_length(&p, p_end, item.wdf);
-	decode_length(&p, p_end, item.termfreq);
-	term.resize(size_t(static_cast<unsigned char>(*p++)));
-	term.append(p, p_end);
-	item.tname = term;
-	items.push_back(item);
-    }
-
-    tlist->current_position = tlist->items.begin();
-    return tlist.release();
+    string reply;
+    get_message(message, REPLY_TERMLIST);
+    return new RemoteTermList(num_entries, doclen, doccount, this, did,
+			      std::move(message));
 }
 
 TermList *
@@ -207,34 +175,13 @@ RemoteDatabase::open_term_list_direct(Xapian::docid did) const
     return RemoteDatabase::open_term_list(did);
 }
 
-TermList *
-RemoteDatabase::open_allterms(const string & prefix) const {
-    // Ensure that total_length and doccount are up-to-date.
-    if (!cached_stats_valid) update_stats();
-
+TermList*
+RemoteDatabase::open_allterms(const string& prefix) const
+{
     send_message(MSG_ALLTERMS, prefix);
-
-    unique_ptr<NetworkTermList> tlist(
-	new NetworkTermList(0, doccount,
-			    intrusive_ptr<const RemoteDatabase>(this),
-			    0));
-    vector<NetworkTermListItem> & items = tlist->items;
-
-    string term = prefix;
     string message;
-    while (get_message_or_done(message, REPLY_ALLTERMS)) {
-	NetworkTermListItem item;
-	const char * p = message.data();
-	const char * p_end = p + message.size();
-	decode_length(&p, p_end, item.termfreq);
-	term.resize(size_t(static_cast<unsigned char>(*p++)));
-	term.append(p, p_end);
-	item.tname = term;
-	items.push_back(item);
-    }
-
-    tlist->current_position = tlist->items.begin();
-    return tlist.release();
+    get_message(message, REPLY_ALLTERMS);
+    return new RemoteAllTermsList(prefix, std::move(message));
 }
 
 PostList *

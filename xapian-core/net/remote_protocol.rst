@@ -94,10 +94,8 @@ rarely so real-time critical as searching.
 All Terms
 ---------
 
--  ``MSG_ALLTERMS``
--  ``REPLY_ALLTERMS I<term freq> C<chars of previous term to reuse> <string to append>``
--  ``...``
--  ``REPLY_DONE``
+-  ``MSG_ALLTERMS <prefix>``
+-  ``REPLY_ALLTERMS [I<term freq> C<chars of previous term to reuse> L<string to append>]...``
 
 Term Exists
 -----------
@@ -165,10 +163,8 @@ Termlist
 --------
 
 -  ``MSG_TERMLIST I<document id>``
--  ``REPLY_DOCLENGTH I<document length>``
--  ``REPLY_TERMLIST I<wdf> I<term freq> C<chars of previous term to reuse> <string to append>``
--  ``...``
--  ``REPLY_DONE``
+-  ``REPLY_TERMLIST0 I<document length> I<number of entries>``
+-  ``REPLY_TERMLIST [I<wdf> I<term freq> C<chars of previous term to reuse> L<string to append>]...``
 
 Positionlist
 ------------
@@ -277,9 +273,7 @@ Metadata keys
 -------------
 
 -  ``MSG_METADATAKEYLIST <prefix>``
--  ``REPLY_METADATAKEYLIST C<chars of previous key to reuse> <string to append>``
--  ``...``
--  ``REPLY_DONE``
+-  ``REPLY_METADATAKEYLIST [C<chars of previous term to reuse> L<string to append>]...``
 
 Add spelling
 ------------
