@@ -70,7 +70,7 @@ throw_network_error_insane_message_length()
     throw Xapian::NetworkError("Insane message length specified!");
 }
 
-[[noreturn]]
+XAPIAN_NORETURN(static void throw_timeout(const char*, const string&));
 static void
 throw_timeout(const char* msg, const string& context)
 {
