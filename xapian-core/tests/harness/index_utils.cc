@@ -95,7 +95,7 @@ FileIndexer::index_to(Xapian::WritableDatabase & db)
 	// Value 13 contains the first 3 letters of the paragraph
 	doc.add_value(13, para.substr(0, 3));
 
-	Xapian::termcount pos = 0;
+	Xapian::termpos pos = 0;
 	string::const_iterator word_end = para.begin();
 	// Need a const_iterator version of para.end() for find_if.
 	const string::const_iterator para_end = para.end();
