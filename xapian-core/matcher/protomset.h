@@ -193,6 +193,61 @@ class ProtoMSet {
 	return false;
     }
 
+    /** Resolve a pending min_weight change.
+     *
+     *  Only called when there's a percentage weight cut-off.
+     */
+    bool handle_min_weight_pending(bool finalising = false) {
+	// min_weight_pending shouldn't get set when unweighted.
+	Assert(sort_by != Xapian::Enquire::Internal::DOCID);
+	min_weight_pending = false;
+	bool weight_first = (sort_by == Xapian::Enquire::Internal::REL ||
+			     sort_by == Xapian::Enquire::Internal::REL_VAL);
+	double new_min_weight = HUGE_VAL;
+	size_t j = 0;
+	size_t min_elt = 0;
+	for (size_t i = 0; i != results.size(); ++i) {
+	    if (results[i].get_weight() < min_weight) {
+		continue;
+	    }
+	    if (i != j) {
+		if (collapser && !results[i].get_collapse_key().empty()) {
+		    // FIXME: This breaks if we're collapsing (but
+		    // should be OK if there's no collapse key).
+		    throw Xapian::FeatureUnavailableError("collapsing "
+			    "and a percentage cut-off not fully supported");
+		}
+		results[j] = std::move(results[i]);
+	    }
+	    if (weight_first && results[j].get_weight() < new_min_weight) {
+		new_min_weight = results[j].get_weight();
+		min_elt = j;
+	    }
+	    ++j;
+	}
+	if (weight_first) {
+	    if (finalising) {
+		if (known_matching_docs >= check_at_least)
+		    min_weight = new_min_weight;
+	    } else {
+		if (checked_enough())
+		    min_weight = new_min_weight;
+	    }
+	}
+	if (j != results.size()) {
+	    results.erase(results.begin() + j, results.end());
+	    if (!finalising) {
+		return false;
+	    }
+	}
+	if (!finalising && min_elt != 0 && !collapser) {
+	    // Install the correct element at the tip of the heap, so
+	    // that Heap::make() has less to do.  NB Breaks collapsing.
+	    swap(results[0], results[min_elt]);
+	}
+	return true;
+    }
+
     bool early_reject(Result& new_item,
 		      bool calculated_weight,
 		      SpyMaster& spymaster,
@@ -308,49 +363,9 @@ class ProtoMSet {
 	    // but can be used if we aren't (and could be for elements with
 	    // no collapse key too - FIXME).
 	    if (min_weight_pending) {
-		// min_weight_pending shouldn't get set when unweighted.
-		Assert(sort_by != Xapian::Enquire::Internal::DOCID);
-		min_weight_pending = false;
-		bool weight_first =
-		    sort_by == Xapian::Enquire::Internal::REL ||
-		    sort_by == Xapian::Enquire::Internal::REL_VAL;
-		double new_min_weight = HUGE_VAL;
-		size_t j = 0;
-		size_t min_elt = 0;
-		for (size_t i = 0; i != results.size(); ++i) {
-		    if (results[i].get_weight() < min_weight) {
-			continue;
-		    }
-		    if (i != j) {
-			if (collapser &&
-			    !results[i].get_collapse_key().empty()) {
-			    // FIXME: This breaks if we're collapsing (but
-			    // should be OK if there's no collapse key).
-			    throw Xapian::FeatureUnavailableError("collapsing "
-				    "and a percentage cut-off not fully "
-				    "supported");
-			}
-			results[j] = std::move(results[i]);
-		    }
-		    if (weight_first &&
-			results[j].get_weight() < new_min_weight) {
-			new_min_weight = results[j].get_weight();
-			min_elt = j;
-		    }
-		    ++j;
-		}
-		if (weight_first && checked_enough()) {
-		    min_weight = new_min_weight;
-		}
-		if (j != results.size()) {
-		    results.erase(results.begin() + j, results.end());
+		if (!handle_min_weight_pending()) {
 		    results.push_back(item);
 		    return results.size() - 1;
-		}
-		if (min_elt != 0 && !collapser) {
-		    // Install the correct element at the tip of the heap, so
-		    // that Heap::make() has less to do.  NB Breaks collapsing.
-		    swap(results[0], results[min_elt]);
 		}
 	    }
 
@@ -465,40 +480,7 @@ class ProtoMSet {
 	// Truncate the results if necessary.
 	set_new_min_weight(percent_threshold_factor / percent_scale);
 	if (min_weight_pending) {
-	    // min_weight_pending shouldn't get set when unweighted.
-	    Assert(sort_by != Xapian::Enquire::Internal::DOCID);
-	    min_weight_pending = false;
-	    bool weight_first = (sort_by == Xapian::Enquire::Internal::REL ||
-				 sort_by == Xapian::Enquire::Internal::REL_VAL);
-	    double new_min_weight = HUGE_VAL;
-	    size_t j = 0;
-	    size_t min_elt = 0;
-	    (void)min_elt;
-	    for (size_t i = 0; i != results.size(); ++i) {
-		if (results[i].get_weight() < min_weight) {
-		    continue;
-		}
-		if (i != j) {
-		    if (collapser && !results[i].get_collapse_key().empty()) {
-			// FIXME: This breaks if we're collapsing (but
-			// should be OK if there's no collapse key).
-			throw Xapian::FeatureUnavailableError("collapsing "
-				"and a percentage cut-off not fully supported");
-		    }
-		    results[j] = std::move(results[i]);
-		}
-		if (weight_first && results[j].get_weight() < new_min_weight) {
-		    new_min_weight = results[j].get_weight();
-		    min_elt = j;
-		}
-		++j;
-	    }
-	    if (weight_first && known_matching_docs >= check_at_least) {
-		min_weight = new_min_weight;
-	    }
-	    if (j != results.size()) {
-		results.erase(results.begin() + j, results.end());
-	    }
+	    handle_min_weight_pending(true);
 	}
     }
 
