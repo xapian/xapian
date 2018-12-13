@@ -316,48 +316,67 @@ parse_pdfinfo_field(const char * p, const char * end, string & out, const char *
     parse_pdfinfo_field((P), (END), (OUT), FIELD":", CONST_STRLEN(FIELD) + 1)
 
 static void
-get_pdf_metainfo(const string & file, string &author, string &title,
+parse_pdf_metainfo(const string& pdfinfo, string &author, string &title,
+		   string &keywords, string &topic, int& pages)
+{
+    const char * p = pdfinfo.data();
+    const char * end = p + pdfinfo.size();
+    while (p != end) {
+	const char * start = p;
+	p = static_cast<const char *>(memchr(p, '\n', end - p));
+	const char * eol;
+	if (p) {
+	    eol = p;
+	    ++p;
+	} else {
+	    p = eol = end;
+	}
+	switch (*start) {
+	    case 'A':
+		PARSE_PDFINFO_FIELD(start, eol, author, "Author");
+		break;
+	    case 'K':
+		PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
+		break;
+	    case 'P': {
+		string s;
+		PARSE_PDFINFO_FIELD(start, eol, s, "Pages");
+		if (!s.empty())
+		    pages = atoi(s.c_str());
+		break;
+	    }
+	    case 'S':
+		PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
+		break;
+	    case 'T':
+		PARSE_PDFINFO_FIELD(start, eol, title, "Title");
+		break;
+	}
+    }
+}
+
+static void
+get_pdf_metainfo(int fd, string &author, string &title,
+		 string &keywords, string &topic, int& pages)
+{
+    try {
+	string pdfinfo;
+	run_filter(fd, "pdfinfo -enc UTF-8 -", false, &pdfinfo);
+	parse_pdf_metainfo(pdfinfo, author, title, keywords, topic, pages);
+    } catch (ReadError) {
+	// It's probably best to index the document even if pdfinfo fails.
+    }
+}
+
+static void
+get_pdf_metainfo(const string& file, string &author, string &title,
 		 string &keywords, string &topic, int& pages)
 {
     try {
 	string cmd = "pdfinfo -enc UTF-8";
 	append_filename_argument(cmd, file);
-	string pdfinfo = stdout_to_string(cmd, false);
-
-	const char * p = pdfinfo.data();
-	const char * end = p + pdfinfo.size();
-	while (p != end) {
-	    const char * start = p;
-	    p = static_cast<const char *>(memchr(p, '\n', end - p));
-	    const char * eol;
-	    if (p) {
-		eol = p;
-		++p;
-	    } else {
-		p = eol = end;
-	    }
-	    switch (*start) {
-		case 'A':
-		    PARSE_PDFINFO_FIELD(start, eol, author, "Author");
-		    break;
-		case 'K':
-		    PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
-		    break;
-		case 'P': {
-		    string s;
-		    PARSE_PDFINFO_FIELD(start, eol, s, "Pages");
-		    if (!s.empty())
-			pages = atoi(s.c_str());
-		    break;
-		}
-		case 'S':
-		    PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
-		    break;
-		case 'T':
-		    PARSE_PDFINFO_FIELD(start, eol, title, "Title");
-		    break;
-	    }
-	}
+	parse_pdf_metainfo(stdout_to_string(cmd, false),
+			   author, title, keywords, topic, pages);
     } catch (ReadError) {
 	// It's probably best to index the document even if pdfinfo fails.
     }
@@ -753,17 +772,15 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 	} else if (mimetype == "application/pdf") {
-	    string cmd = "pdftotext -enc UTF-8";
-	    append_filename_argument(cmd, file);
-	    cmd += " -";
+	    const char* cmd = "pdftotext -enc UTF-8 - -";
 	    try {
-		run_filter(cmd, false, &dump);
+		run_filter(d.get_fd(), cmd, false, &dump);
 	    } catch (ReadError) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
 	    }
-	    get_pdf_metainfo(file, author, title, keywords, topic, pages);
+	    get_pdf_metainfo(d.get_fd(), author, title, keywords, topic, pages);
 	} else if (mimetype == "application/postscript") {
 	    // There simply doesn't seem to be a Unicode capable PostScript to
 	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
@@ -801,7 +818,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		throw;
 	    }
 	    try {
-		get_pdf_metainfo(tmpfile, author, title, keywords, topic, pages);
+		get_pdf_metainfo(tmpfile, author, title, keywords, topic,
+				 pages);
 	    } catch (...) {
 		unlink(tmpfile.c_str());
 		throw;
@@ -977,11 +995,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    author = svgparser.author;
 	} else if (mimetype == "application/vnd.debian.binary-package" ||
 		   mimetype == "application/x-debian-package") {
-	    string cmd("dpkg-deb -f");
-	    append_filename_argument(cmd, file);
-	    cmd += " Description";
+	    const char* cmd = "dpkg-deb -f - Description";
 	    string desc;
-	    run_filter(cmd, false, &desc);
+	    run_filter(d.get_fd(), cmd, false, &desc);
 	    // First line is short description, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
