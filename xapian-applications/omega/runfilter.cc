@@ -248,7 +248,8 @@ runfilter_init()
 }
 
 void
-run_filter(const string& cmd, bool use_shell, string* out, int alt_status)
+run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
+	   int alt_status)
 {
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
     // We want to be able to get the exit status of the child process.
@@ -273,6 +274,12 @@ run_filter(const string& cmd, bool use_shell, string* out, int alt_status)
 
 	// Close the parent's side of the socket pair.
 	close(fds[0]);
+
+	if (fd_in != -1) {
+	    // Connect piped input to stdin.
+	    dup2(fd_in, 0);
+	    close(fd_in);
+	}
 
 	// Connect stdout to our side of the socket pair.
 	dup2(fds[1], 1);
