@@ -23,6 +23,7 @@
 
 #include "backends/documentinternal.h"
 #include "msetcmp.h"
+#include "omassert.h"
 #include "api/postlist.h"
 #include "api/result.h"
 
@@ -104,6 +105,22 @@ class CollapseData {
 		  Xapian::doccount item,
 		  Xapian::doccount collapse_max,
 		  MSetCmp mcmp);
+
+    /** Process relocation of entry in results.
+     *
+     *  @param from	The old item (index into results).
+     *  @param to  	The new item (index into results).
+     */
+    void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
+	for (auto&& item : items) {
+	    if (item.first == from) {
+		item.first = to;
+		return;
+	    }
+	}
+	// The entry ought to be present.
+	Assert(false);
+    }
 
     /// The highest weight of a document we've rejected.
     double get_next_best_weight() const { return next_best_weight; }
@@ -195,6 +212,27 @@ class Collapser {
      *  @param item	The new item (index into results).
      */
     void process(collapse_result action, Xapian::doccount item);
+
+    /** Process relocation of entry in results.
+     *
+     *  @param from		The old item (index into results).
+     *  @param to  		The new item (index into results).
+     */
+    void result_has_moved(Xapian::doccount from, Xapian::doccount to) {
+	const string& collapse_key = results[to].get_collapse_key();
+	if (collapse_key.empty()) {
+	    return;
+	}
+	auto it = table.find(collapse_key);
+	if (rare(it == table.end())) {
+	    // The entry ought to be present.
+	    Assert(false);
+	    return;
+	}
+
+	CollapseData& collapse_data = it->second;
+	collapse_data.result_has_moved(from, to);
+    }
 
     Xapian::doccount get_collapse_count(const std::string & collapse_key,
 					int percent_threshold,

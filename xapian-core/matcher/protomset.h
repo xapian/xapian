@@ -211,13 +211,10 @@ class ProtoMSet {
 		continue;
 	    }
 	    if (i != j) {
-		if (collapser && !results[i].get_collapse_key().empty()) {
-		    // FIXME: This breaks if we're collapsing (but
-		    // should be OK if there's no collapse key).
-		    throw Xapian::FeatureUnavailableError("collapsing "
-			    "and a percentage cut-off not fully supported");
-		}
 		results[j] = std::move(results[i]);
+		if (collapser) {
+		    collapser.result_has_moved(i, j);
+		}
 	    }
 	    if (weight_first && results[j].get_weight() < new_min_weight) {
 		new_min_weight = results[j].get_weight();

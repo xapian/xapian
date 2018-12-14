@@ -81,3 +81,30 @@ DEFINE_TESTCASE(collapsekey5, backend) {
 
     return true;
 }
+
+/// Test collapsing with a percentage cut-off.
+DEFINE_TESTCASE(collapsekey6, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    // "this" matches all documents.
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet full_mset = enquire.get_mset(0, db.get_doccount());
+
+    for (Xapian::valueno slot = 0; slot < 10; ++slot) {
+	for (Xapian::doccount cmax = db.get_doccount() + 1; cmax > 0; --cmax) {
+	    for (int percent = 65; percent != 100; ++percent) {
+		tout << "Collapsing on slot " << slot << " max " << cmax
+		     << " cutoff " << percent << endl;
+		enquire.set_collapse_key(slot, cmax);
+		enquire.set_cutoff(percent);
+		Xapian::MSet mset = enquire.get_mset(0, full_mset.size());
+		for (Xapian::MSetIterator j = mset.begin(); j != mset.end(); ++j) {
+		    TEST_REL(j.get_percent(), >=, percent);
+		}
+	    }
+	}
+    }
+
+    return true;
+}
