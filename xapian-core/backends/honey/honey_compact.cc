@@ -1730,6 +1730,7 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 template<typename T> void
 merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
 		  const vector<Xapian::docid> & offset,
+		  Xapian::termcount & ut_lb, Xapian::termcount & ut_ub,
 		  int table_type = 0)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
@@ -1858,6 +1859,15 @@ next_without_next:
 		    if (!unpack_uint(&pos, end, &termlist_size)) {
 			throw_database_corrupt("termlist length", pos);
 		    }
+
+		    auto uniq_terms = min(termlist_size, doclen);
+		    if (uniq_terms &&
+			(ut_lb == 0 || uniq_terms < ut_lb)) {
+			ut_lb = uniq_terms;
+		    }
+		    if (uniq_terms > ut_ub)
+			ut_ub = uniq_terms;
+
 		    pack_uint(newtag, termlist_size - 1);
 		    pack_uint(newtag, doclen);
 
@@ -2022,12 +2032,18 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	    auto db = static_cast<const GlassDatabase*>(sources[i]);
 	    auto& v_in = db->version_file;
 	    auto& v_out = version_file_out;
+	    // Glass backend doesn't track unique term bounds, hence setting
+	    // them to 0. We calculate the unique term bounds as we convert the
+	    // termlist table and fill in the correct values before we write out
+	    // version_file_out.
 	    v_out->merge_stats(v_in.get_doccount(),
 			       v_in.get_doclength_lower_bound(),
 			       v_in.get_doclength_upper_bound(),
 			       v_in.get_wdf_upper_bound(),
 			       v_in.get_total_doclen(),
-			       v_in.get_spelling_wordfreq_upper_bound());
+			       v_in.get_spelling_wordfreq_upper_bound(),
+			       0,
+			       0);
 	    source_single_file = db->single_file();
 #else
 	    Assert(false);
@@ -2228,10 +2244,16 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    case Honey::POSITION:
 		merge_positions(out, inputs, offset);
 		break;
-	    default:
-		// DocData, Termlist
-		merge_docid_keyed(out, inputs, offset, t->type);
-		break;
+	    default: {
+		 // DocData, Termlist
+		 auto & v_out = version_file_out;
+		 auto ut_lb = v_out->get_uniq_terms_lower_bound();
+		 auto ut_ub = v_out->get_uniq_terms_upper_bound();
+		 merge_docid_keyed(out, inputs, offset, ut_lb, ut_ub, t->type);
+		 version_file_out->set_uniq_terms_lower_bound(ut_lb);
+		 version_file_out->set_uniq_terms_upper_bound(ut_ub);
+		 break;
+	     }
 	}
 
 	// Commit as revision 1.
