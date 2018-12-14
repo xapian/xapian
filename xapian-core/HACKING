@@ -1286,10 +1286,12 @@ to follow the style of the existing code.  In particular:
 
 * Prefer "container.empty()" to "container.size() == 0" (and
   "!container.empty()" to "container.size() != 0" or "container.size() > 0").
-  Finding the size of a container may not be a constant time operation for
-  all containers (e.g. std::list may not be, and indeed isn't for GCC - see
-  https://gcc.gnu.org/onlinedocs/libstdc++/manual/containers.html#sequences.list.size).
-  Also the "empty()" form makes the intent of the test more explicit.
+  Some containers (e.g. std::forward_list) support "empty()" but not "size()".
+  Pre-C++11 finding the size of a container wasn't necessarily a constant time
+  operation for some containers (e.g. std::list with GCC) - that's no longer
+  the case for any STL containers since C++11, but it could still be true for
+  non-STL containers.  Also the "empty()" form is a little more concise and
+  makes the intent of the test more explicit.
 
 * Prefer not to use "else" when the control flow is diverted elsewhere at the
   end of the "if" block (e.g. by "return", "continue", "break", "throw").  This
