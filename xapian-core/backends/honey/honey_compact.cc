@@ -2245,15 +2245,15 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		merge_positions(out, inputs, offset);
 		break;
 	    default: {
-		 // DocData, Termlist
-		 auto & v_out = version_file_out;
-		 auto ut_lb = v_out->get_uniq_terms_lower_bound();
-		 auto ut_ub = v_out->get_uniq_terms_upper_bound();
-		 merge_docid_keyed(out, inputs, offset, ut_lb, ut_ub, t->type);
-		 version_file_out->set_uniq_terms_lower_bound(ut_lb);
-		 version_file_out->set_uniq_terms_upper_bound(ut_ub);
-		 break;
-	     }
+		// DocData, Termlist
+		auto & v_out = version_file_out;
+		auto ut_lb = v_out->get_uniq_terms_lower_bound();
+		auto ut_ub = v_out->get_uniq_terms_upper_bound();
+		merge_docid_keyed(out, inputs, offset, ut_lb, ut_ub, t->type);
+		version_file_out->set_uniq_terms_lower_bound(ut_lb);
+		version_file_out->set_uniq_terms_upper_bound(ut_ub);
+		break;
+	    }
 	}
 
 	// Commit as revision 1.
