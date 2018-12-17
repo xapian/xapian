@@ -387,10 +387,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     Xapian::termcount get_wdf_upper_bound(const std::string& term) const;
 
     /// Get a lower bound on the unique terms size of a document in this DB.
-    Xapian::termcount get_uniq_terms_lower_bound() const;
+    Xapian::termcount get_unique_terms_lower_bound() const;
 
     /// Get an upper bound on the unique terms size of a document in this DB.
-    Xapian::termcount get_uniq_terms_upper_bound() const;
+    Xapian::termcount get_unique_terms_upper_bound() const;
 
     /// Return an iterator over the value in slot @a slot for each document.
     ValueIterator valuestream_begin(Xapian::valueno slot) const;

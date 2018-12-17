@@ -314,15 +314,15 @@ Database::get_wdf_upper_bound(const string& term) const
 }
 
 Xapian::termcount
-Database::get_uniq_terms_lower_bound() const
+Database::get_unique_terms_lower_bound() const
 {
-    return internal->get_uniq_terms_lower_bound();
+    return internal->get_unique_terms_lower_bound();
 }
 
 Xapian::termcount
-Database::get_uniq_terms_upper_bound() const
+Database::get_unique_terms_upper_bound() const
 {
-    return internal->get_uniq_terms_upper_bound();
+    return internal->get_unique_terms_upper_bound();
 }
 
 ValueIterator
