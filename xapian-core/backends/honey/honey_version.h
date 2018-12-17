@@ -218,11 +218,11 @@ class HoneyVersion {
 	return oldest_changeset;
     }
 
-    Xapian::termcount get_uniq_terms_lower_bound() const {
+    Xapian::termcount get_unique_terms_lower_bound() const {
 	return uniq_terms_lbound;
     }
 
-    Xapian::termcount get_uniq_terms_upper_bound() const {
+    Xapian::termcount get_unique_terms_upper_bound() const {
 	return uniq_terms_ubound;
     }
 
@@ -236,11 +236,11 @@ class HoneyVersion {
 	spelling_wordfreq_ubound = ub;
     }
 
-    void set_uniq_terms_lower_bound(Xapian::termcount ub) {
+    void set_unique_terms_lower_bound(Xapian::termcount ub) {
 	uniq_terms_lbound = ub;
     }
 
-    void set_uniq_terms_upper_bound(Xapian::termcount ub) {
+    void set_unique_terms_upper_bound(Xapian::termcount ub) {
 	uniq_terms_ubound = ub;
     }
 

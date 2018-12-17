@@ -220,15 +220,15 @@ HoneyDatabase::get_wdf_upper_bound(const string& term) const
 }
 
 Xapian::termcount
-HoneyDatabase::get_uniq_terms_lower_bound() const
+HoneyDatabase::get_unique_terms_lower_bound() const
 {
-    return version_file.get_uniq_terms_lower_bound();
+    return version_file.get_unique_terms_lower_bound();
 }
 
 Xapian::termcount
-HoneyDatabase::get_uniq_terms_upper_bound() const
+HoneyDatabase::get_unique_terms_upper_bound() const
 {
-    return version_file.get_uniq_terms_upper_bound();
+    return version_file.get_unique_terms_upper_bound();
 }
 
 bool
