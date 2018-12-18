@@ -494,8 +494,9 @@ GlassValueManager::get_all_values(map<Xapian::valueno, string> & values,
 {
     Assert(values.empty());
     if (!termlist_table->is_open()) {
-	// Either the database has been closed, or else there's no termlist table.
-	// Check if the postlist table is open to determine which is the case.
+	// Either the database has been closed, or else there's no termlist
+	// table.  Check if the postlist table is open to determine which is
+	// the case.
 	if (!postlist_table->is_open())
 	    GlassTable::throw_database_closed();
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
