@@ -126,6 +126,16 @@ class HoneyVersion {
     /// Oldest changeset removed when max_changesets is set
     mutable honey_revision_number_t oldest_changeset;
 
+    /** A lower bound on the number of unique terms in a document in this
+     *  database.
+     */
+    Xapian::termcount uniq_terms_lbound;
+
+    /** An upper bound on the number of unique terms in a document in this
+     *  database.
+     */
+    Xapian::termcount uniq_terms_ubound;
+
     /// The serialised database stats.
     std::string serialised_stats;
 
@@ -141,7 +151,8 @@ class HoneyVersion {
 	  doccount(0), total_doclen(0), last_docid(0),
 	  doclen_lbound(0), doclen_ubound(0),
 	  wdf_ubound(0), spelling_wordfreq_ubound(0),
-	  oldest_changeset(0) { }
+	  oldest_changeset(0),
+	  uniq_terms_lbound(0), uniq_terms_ubound(0) { }
 
     explicit HoneyVersion(int fd_);
 
@@ -207,6 +218,14 @@ class HoneyVersion {
 	return oldest_changeset;
     }
 
+    Xapian::termcount get_unique_terms_lower_bound() const {
+	return uniq_terms_lbound;
+    }
+
+    Xapian::termcount get_unique_terms_upper_bound() const {
+	return uniq_terms_ubound;
+    }
+
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
     void set_oldest_changeset(honey_revision_number_t changeset) const {
@@ -215,6 +234,14 @@ class HoneyVersion {
 
     void set_spelling_wordfreq_upper_bound(Xapian::termcount ub) {
 	spelling_wordfreq_ubound = ub;
+    }
+
+    void set_unique_terms_lower_bound(Xapian::termcount ub) {
+	uniq_terms_lbound = ub;
+    }
+
+    void set_unique_terms_upper_bound(Xapian::termcount ub) {
+	uniq_terms_ubound = ub;
     }
 
     void add_document(Xapian::termcount doclen) {
@@ -255,7 +282,9 @@ class HoneyVersion {
 		     Xapian::termcount o_doclen_ubound,
 		     Xapian::termcount o_wdf_ubound,
 		     Xapian::totallength o_total_doclen,
-		     Xapian::termcount o_spelling_wordfreq_ubound);
+		     Xapian::termcount o_spelling_wordfreq_ubound,
+		     Xapian::termcount o_uniq_terms_lbound,
+		     Xapian::termcount o_uniq_terms_ubound);
 
     bool single_file() const { return db_dir.empty(); }
 

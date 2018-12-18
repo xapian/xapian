@@ -180,6 +180,13 @@ DEFINE_TESTCASE(dbstats1, backend) {
     // 1.3.2.
     TEST_EQUAL(db.get_wdf_upper_bound(""), 0);
 
+    if (get_dbtype() == "honey") {
+	const Xapian::termcount min_unique_len = 2;
+	const Xapian::termcount max_unique_len = 272;
+	TEST_EQUAL(db.get_unique_terms_lower_bound(), min_unique_len);
+	TEST_EQUAL(db.get_unique_terms_upper_bound(), max_unique_len);
+    }
+
     return true;
 }
 
@@ -214,6 +221,13 @@ DEFINE_TESTCASE(dbstats2, backend) {
     }
 
     TEST_EQUAL(db.get_wdf_upper_bound(""), 0);
+
+    if (get_dbtype() == "honey") {
+	const Xapian::termcount min_unique_len = 9;
+	const Xapian::termcount max_unique_len = 9;
+	TEST_EQUAL(db.get_unique_terms_lower_bound(), min_unique_len);
+	TEST_EQUAL(db.get_unique_terms_upper_bound(), max_unique_len);
+    }
 
     return true;
 }

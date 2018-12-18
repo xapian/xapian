@@ -219,6 +219,18 @@ HoneyDatabase::get_wdf_upper_bound(const string& term) const
     return wdf_bound;
 }
 
+Xapian::termcount
+HoneyDatabase::get_unique_terms_lower_bound() const
+{
+    return version_file.get_unique_terms_lower_bound();
+}
+
+Xapian::termcount
+HoneyDatabase::get_unique_terms_upper_bound() const
+{
+    return version_file.get_unique_terms_upper_bound();
+}
+
 bool
 HoneyDatabase::term_exists(const string& term) const
 {

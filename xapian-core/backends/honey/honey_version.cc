@@ -95,7 +95,8 @@ HoneyVersion::HoneyVersion(int fd_)
       doccount(0), total_doclen(0), last_docid(0),
       doclen_lbound(0), doclen_ubound(0),
       wdf_ubound(0), spelling_wordfreq_ubound(0),
-      oldest_changeset(0)
+      oldest_changeset(0),
+      uniq_terms_lbound(0), uniq_terms_ubound(0)
 {
     offset = lseek(fd, 0, SEEK_CUR);
     if (rare(offset == off_t(-1))) {
@@ -206,6 +207,11 @@ HoneyVersion::serialise_stats()
     pack_uint(serialised_stats, oldest_changeset);
     pack_uint(serialised_stats, total_doclen);
     pack_uint(serialised_stats, spelling_wordfreq_ubound);
+    // We rely on uniq_terms_lbound being non-zero to detect if it's present
+    // for a single file DB.
+    Assert(uniq_terms_lbound != 0);
+    pack_uint(serialised_stats, uniq_terms_lbound);
+    pack_uint(serialised_stats, uniq_terms_ubound);
 }
 
 void
@@ -222,6 +228,8 @@ HoneyVersion::unserialise_stats()
 	wdf_ubound = 0;
 	oldest_changeset = 0;
 	spelling_wordfreq_ubound = 0;
+	uniq_terms_lbound = 0;
+	uniq_terms_ubound = 0;
 	return;
     }
 
@@ -239,17 +247,33 @@ HoneyVersion::unserialise_stats()
 	throw Xapian::DatabaseCorruptError(m);
     }
 
-    // Don't check if there's undecoded data between p and end - in the
-    // single-file DB case there will be extra data in serialised_stats, and
-    // more generally it's useful to be able to add new stats when it is
-    // safe for old versions to just ignore them.
-
     // last_docid must always be >= doccount.
     last_docid += doccount;
     // doclen_ubound should always be >= wdf_ubound, so we store the
     // difference as it may encode smaller.  wdf_ubound is likely to
     // be larger than doclen_lbound.
     doclen_ubound += wdf_ubound;
+
+    // We don't check if there's undecoded data between p and end - in the
+    // single-file DB case there will be extra zero bytes in serialised_stats,
+    // and more generally it's useful to be able to add new stats when it is
+    // safe for old versions to just ignore them and there are sensible values
+    // to use when a new version reads an old database.
+
+    // Read bounds on unique_terms if stored.  This test relies on the first
+    // byte of pack_uint(x) being zero if and only if x is zero, and on
+    // uniq_terms_lbound being non-zero.
+    if (p == end || *p == '\0') {
+	// No bounds stored so use weak bounds based on other stats.
+	uniq_terms_lbound = 1;
+	uniq_terms_ubound = doclen_ubound;
+    } else if (!unpack_uint(&p, end, &uniq_terms_lbound) ||
+	       !unpack_uint(&p, end, &uniq_terms_ubound)) {
+	const char * m = p ?
+	    "Bad serialised unique_terms bounds (overflowed)" :
+	    "Bad serialised unique_terms bounds (out of data)";
+	throw Xapian::DatabaseCorruptError(m);
+    }
 }
 
 void
@@ -275,6 +299,15 @@ HoneyVersion::merge_stats(const HoneyVersion & o)
 
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o.get_spelling_wordfreq_upper_bound();
+
+    auto o_uniq_terms_lbound = o.get_unique_terms_lower_bound();
+    if (o_uniq_terms_lbound > 0) {
+	if (uniq_terms_lbound == 0 || o_uniq_terms_lbound < uniq_terms_lbound)
+	    uniq_terms_lbound = o_uniq_terms_lbound;
+    }
+
+    uniq_terms_ubound = max(uniq_terms_ubound,
+			    o.get_unique_terms_upper_bound());
 }
 
 void
@@ -283,7 +316,9 @@ HoneyVersion::merge_stats(Xapian::doccount o_doccount,
 			  Xapian::termcount o_doclen_ubound,
 			  Xapian::termcount o_wdf_ubound,
 			  Xapian::totallength o_total_doclen,
-			  Xapian::termcount o_spelling_wordfreq_ubound)
+			  Xapian::termcount o_spelling_wordfreq_ubound,
+			  Xapian::termcount o_uniq_terms_lbound,
+			  Xapian::termcount o_uniq_terms_ubound)
 {
     doccount += o_doccount;
     if (doccount < o_doccount) {
@@ -304,6 +339,13 @@ HoneyVersion::merge_stats(Xapian::doccount o_doccount,
 
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o_spelling_wordfreq_ubound;
+
+    if (o_uniq_terms_lbound > 0) {
+	if (uniq_terms_lbound == 0 || o_uniq_terms_lbound < uniq_terms_lbound)
+	    uniq_terms_lbound = o_uniq_terms_lbound;
+    }
+
+    uniq_terms_ubound = max(uniq_terms_ubound, o_uniq_terms_ubound);
 }
 
 void
