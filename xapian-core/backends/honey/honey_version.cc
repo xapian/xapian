@@ -207,6 +207,9 @@ HoneyVersion::serialise_stats()
     pack_uint(serialised_stats, oldest_changeset);
     pack_uint(serialised_stats, total_doclen);
     pack_uint(serialised_stats, spelling_wordfreq_ubound);
+    // We rely on uniq_terms_lbound being non-zero to detect if it's present
+    // for a single file DB.
+    Assert(uniq_terms_lbound != 0);
     pack_uint(serialised_stats, uniq_terms_lbound);
     pack_uint(serialised_stats, uniq_terms_ubound);
 }
@@ -237,19 +240,12 @@ HoneyVersion::unserialise_stats()
 	!unpack_uint(&p, end, &doclen_ubound) ||
 	!unpack_uint(&p, end, &oldest_changeset) ||
 	!unpack_uint(&p, end, &total_doclen) ||
-	!unpack_uint(&p, end, &spelling_wordfreq_ubound) ||
-	!unpack_uint(&p, end, &uniq_terms_lbound) ||
-	!unpack_uint(&p, end, &uniq_terms_ubound)) {
+	!unpack_uint(&p, end, &spelling_wordfreq_ubound)) {
 	const char * m = p ?
 	    "Bad serialised DB stats (overflowed)" :
 	    "Bad serialised DB stats (out of data)";
 	throw Xapian::DatabaseCorruptError(m);
     }
-
-    // Don't check if there's undecoded data between p and end - in the
-    // single-file DB case there will be extra data in serialised_stats, and
-    // more generally it's useful to be able to add new stats when it is
-    // safe for old versions to just ignore them.
 
     // last_docid must always be >= doccount.
     last_docid += doccount;
@@ -257,6 +253,27 @@ HoneyVersion::unserialise_stats()
     // difference as it may encode smaller.  wdf_ubound is likely to
     // be larger than doclen_lbound.
     doclen_ubound += wdf_ubound;
+
+    // We don't check if there's undecoded data between p and end - in the
+    // single-file DB case there will be extra zero bytes in serialised_stats,
+    // and more generally it's useful to be able to add new stats when it is
+    // safe for old versions to just ignore them and there are sensible values
+    // to use when a new version reads an old database.
+
+    // Read bounds on unique_terms if stored.  This test relies on the first
+    // byte of pack_uint(x) being zero if and only if x is zero, and on
+    // uniq_terms_lbound being non-zero.
+    if (p == end || *p == '\0') {
+	// No bounds stored so use weak bounds based on other stats.
+	uniq_terms_lbound = 1;
+	uniq_terms_ubound = doclen_ubound;
+    } else if (!unpack_uint(&p, end, &uniq_terms_lbound) ||
+	       !unpack_uint(&p, end, &uniq_terms_ubound)) {
+	const char * m = p ?
+	    "Bad serialised unique_terms bounds (overflowed)" :
+	    "Bad serialised unique_terms bounds (out of data)";
+	throw Xapian::DatabaseCorruptError(m);
+    }
 }
 
 void
