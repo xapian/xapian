@@ -382,6 +382,12 @@ QUOTELOOP:  while (1) {
 	if (m!^\+.*?(?:}|}\s{2,}|}\t)\b(else|while)\b!) {
 	    diagnostic('error', "'}' and '$1' not separated by exactly one space", $fullline);
 	}
+	if (m,^\+.*?\belse\b\s*(?!if)[^\s{],) {
+	    diagnostic('error', "Code after 'else' on same line", $fullline);
+	}
+	if (m,^\+.*?\belse\s+if.*;\s*$,) {
+	    diagnostic('error', "Code after 'else if' on same line", $fullline);
+	}
 	if (m!^\+.*\((?: [^;]|\t)!) {
 	    # Allow: for ( ; i != 10; ++i)
 	    diagnostic('error', "Whitespace after '('", $fullline);
