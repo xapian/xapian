@@ -27,11 +27,13 @@
 
 #include "omassert.h"
 
+#include <algorithm>
 #include <cstring>
 #include <string>
 
 #include "backends/uuids.h"
 #include "internaltypes.h"
+#include "min_non_zero.h"
 #include "xapian/types.h"
 
 namespace Glass {
@@ -238,10 +240,8 @@ class GlassVersion {
 
     void add_document(Xapian::termcount doclen) {
 	++doccount;
-	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))
-	    doclen_lbound = doclen;
-	if (doclen > doclen_ubound)
-	    doclen_ubound = doclen;
+	doclen_lbound = min_non_zero(doclen_lbound, doclen);
+	doclen_ubound = std::max(doclen_ubound, doclen);
 	total_doclen += doclen;
     }
 

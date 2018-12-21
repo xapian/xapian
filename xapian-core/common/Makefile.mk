@@ -16,6 +16,7 @@ noinst_HEADERS +=\
 	common/io_utils.h\
 	common/keyword.h\
 	common/log2.h\
+	common/min_non_zero.h\
 	common/msvc_dirent.h\
 	common/msvcignoreinvalidparam.h\
 	common/noreturn.h\
