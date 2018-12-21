@@ -27,6 +27,7 @@
 #include "fd.h"
 #include "honey_defs.h"
 #include "io_utils.h"
+#include "min_non_zero.h"
 #include "omassert.h"
 #include "pack.h"
 #include "posixy_wrapper.h"
@@ -284,12 +285,7 @@ HoneyVersion::merge_stats(const HoneyVersion & o)
 	throw Xapian::DatabaseError("doccount overflowed!");
     }
 
-    Xapian::termcount o_doclen_lbound = o.get_doclength_lower_bound();
-    if (o_doclen_lbound > 0) {
-	if (doclen_lbound == 0 || o_doclen_lbound < doclen_lbound)
-	    doclen_lbound = o_doclen_lbound;
-    }
-
+    doclen_lbound = min_non_zero(doclen_lbound, o.get_doclength_lower_bound());
     doclen_ubound = max(doclen_ubound, o.get_doclength_upper_bound());
     wdf_ubound = max(wdf_ubound, o.get_wdf_upper_bound());
     total_doclen += o.get_total_doclen();
@@ -300,12 +296,8 @@ HoneyVersion::merge_stats(const HoneyVersion & o)
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o.get_spelling_wordfreq_upper_bound();
 
-    auto o_uniq_terms_lbound = o.get_unique_terms_lower_bound();
-    if (o_uniq_terms_lbound > 0) {
-	if (uniq_terms_lbound == 0 || o_uniq_terms_lbound < uniq_terms_lbound)
-	    uniq_terms_lbound = o_uniq_terms_lbound;
-    }
-
+    uniq_terms_lbound = min_non_zero(uniq_terms_lbound,
+				     o.get_unique_terms_lower_bound());
     uniq_terms_ubound = max(uniq_terms_ubound,
 			    o.get_unique_terms_upper_bound());
 }
@@ -325,11 +317,7 @@ HoneyVersion::merge_stats(Xapian::doccount o_doccount,
 	throw Xapian::DatabaseError("doccount overflowed!");
     }
 
-    if (o_doclen_lbound > 0) {
-	if (doclen_lbound == 0 || o_doclen_lbound < doclen_lbound)
-	    doclen_lbound = o_doclen_lbound;
-    }
-
+    doclen_lbound = min_non_zero(doclen_lbound, o_doclen_lbound);
     doclen_ubound = max(doclen_ubound, o_doclen_ubound);
     wdf_ubound = max(wdf_ubound, o_wdf_ubound);
     total_doclen += o_total_doclen;
@@ -340,11 +328,7 @@ HoneyVersion::merge_stats(Xapian::doccount o_doccount,
     // The upper bounds might be on the same word, so we must sum them.
     spelling_wordfreq_ubound += o_spelling_wordfreq_ubound;
 
-    if (o_uniq_terms_lbound > 0) {
-	if (uniq_terms_lbound == 0 || o_uniq_terms_lbound < uniq_terms_lbound)
-	    uniq_terms_lbound = o_uniq_terms_lbound;
-    }
-
+    uniq_terms_lbound = min_non_zero(uniq_terms_lbound, o_uniq_terms_lbound);
     uniq_terms_ubound = max(uniq_terms_ubound, o_uniq_terms_ubound);
 }
 

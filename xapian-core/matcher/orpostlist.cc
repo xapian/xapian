@@ -23,6 +23,7 @@
 #include "orpostlist.h"
 
 #include "andmaybepostlist.h"
+#include "min_non_zero.h"
 #include "multiandpostlist.h"
 #include "postlisttree.h"
 
@@ -86,7 +87,7 @@ OrPostList::get_docid() const
 {
     // Handle l_did or r_did being zero correctly (which means the last call on
     // that side was a check() which came back !valid).
-    return min(l_did - 1, r_did - 1) + 1;
+    return min_non_zero(l_did, r_did);
 }
 
 double
