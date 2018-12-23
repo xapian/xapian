@@ -1425,27 +1425,27 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-DEFINE_TESTCASE(glassdatabaseopeningerror1, glass) {
+DEFINE_TESTCASE(glassdatabasenotfounderror1, glass) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     mkdir(".glass", 0755);
 
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database(".glass/nosuchdirectory",
 		Xapian::DB_BACKEND_GLASS));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::WritableDatabase(".glass/nosuchdirectory",
 		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
 
     mkdir(".glass/emptydirectory", 0700);
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database(".glass/emptydirectory",
 		Xapian::DB_BACKEND_GLASS));
 
     touch(".glass/somefile");
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database(".glass/somefile",
 		Xapian::DB_BACKEND_GLASS));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::WritableDatabase(".glass/somefile",
 		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
