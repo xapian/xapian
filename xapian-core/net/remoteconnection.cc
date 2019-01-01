@@ -60,7 +60,7 @@ using namespace std;
 static void
 throw_database_closed()
 {
-    throw Xapian::DatabaseError("Database has been closed");
+    throw Xapian::DatabaseClosedError("Database has been closed");
 }
 
 [[noreturn]]

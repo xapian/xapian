@@ -174,7 +174,7 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 	    // We get EINTR if the syscall was interrupted by a signal.
 	    // In this case we should retry the read.
 	    if (errno == EINTR) continue;
-	    throw Xapian::DatabaseError("Error reading database", errno);
+	    throw Xapian::DatabaseClosedError("Error reading database", errno);
 	}
 	total += c;
 	if (total >= min)

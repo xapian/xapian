@@ -177,6 +177,11 @@ errorclass(19, 'WildcardError', 'RuntimeError', <<'DOC');
  */
 DOC
 
+errorclass(21, 'DatabaseClosedError', 'DatabaseError', <<'DOC');
+/**  indicates an attempt to access a closed database.
+ */
+DOC
+
 sub for_each_nothrow {
     my $func = shift @_;
     my $class = '';
