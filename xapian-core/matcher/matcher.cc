@@ -135,12 +135,13 @@ Matcher::for_all_remotes(Action action)
 
 	int r = select(nfds, &fds, NULL, NULL, NULL);
 	if (r <= 0) {
+	    int eno = socket_errno();
 	    // We shouldn't get a timeout, but if we do retry.
-	    if (r == 0 || errno == EINTR || errno == EAGAIN) {
+	    if (r == 0 || eno == EINTR || eno == EAGAIN) {
 		continue;
 	    }
 	    throw Xapian::NetworkError("select() failed waiting for remotes",
-				       errno);
+				       eno);
 	}
 	size_t i = 0;
 	while (i != n_remotes) {
