@@ -204,7 +204,6 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	    // xapian-tcpsrv failed to bind to the requested port.
 	    exit(77); // FIXME: calling exit() here isn't ideal...
 	}
-	CLOSESOCKET(socketfd);
 	throw Xapian::NetworkError("bind failed", bind_errno);
     }
 
