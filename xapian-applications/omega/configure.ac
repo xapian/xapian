@@ -202,6 +202,10 @@ dnl Add in portable replacement for mkdtemp() on platforms which lack it.
 AC_CHECK_FUNCS(mkdtemp)
 AM_CONDITIONAL(NEED_MKDTEMP, [test yes != "$ac_cv_func_mkdtemp"])
 
+dnl Add in portable replacement for strptime() on platforms which lack it.
+AC_CHECK_FUNCS(strptime)
+AM_CONDITIONAL(NEED_STRPTIME, [test yes != "$ac_cv_func_strptime"])
+
 AC_CHECK_FUNCS([posix_fadvise])
 
 dnl omindex uses fork(), socketpair(), and setrlimit() to impose resource

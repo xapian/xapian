@@ -53,6 +53,10 @@
 #include "utils.h"
 #include "values.h"
 
+#ifndef HAVE_STRPTIME
+#include "portability/strptime.h"
+#endif
+
 #include "gnu_getopt.h"
 
 using namespace std;

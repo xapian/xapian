@@ -145,7 +145,8 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
  xlsxparse.h opendocparse.h msxmlparse.h sort.h timegm.h csvescape.h\
- portability/mkdtemp.h clickmodel/simplifieddbn.h clickmodel/session.h
+ portability/mkdtemp.h portability/strptime.h\
+ clickmodel/simplifieddbn.h clickmodel/session.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -194,6 +195,9 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  datetime.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
+endif
+if NEED_STRPTIME
+omindex_SOURCES += portability/strptime.cc
 endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS)
 
