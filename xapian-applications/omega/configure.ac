@@ -202,6 +202,10 @@ dnl Add in portable replacement for mkdtemp() on platforms which lack it.
 AC_CHECK_FUNCS(mkdtemp)
 AM_CONDITIONAL(NEED_MKDTEMP, [test yes != "$ac_cv_func_mkdtemp"])
 
+dnl Add in portable replacement for strptime() on platforms which lack it.
+AC_CHECK_FUNCS(strptime)
+AM_CONDITIONAL(NEED_STRPTIME, [test yes != "$ac_cv_func_strptime"])
+
 dnl Need a full link check for posix_fadvise.
 AC_LINK_IFELSE([
   AC_LANG_PROGRAM(
