@@ -19,11 +19,11 @@ Perl:
 Python:
 
 * Fix RST formatting warning during build.
-    
+
 Python3:
 
 * Fix RST formatting warning during build.
-    
+
 Xapian-bindings 1.4.7 (2018-07-19):
 
 Ruby:
