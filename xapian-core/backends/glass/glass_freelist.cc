@@ -30,8 +30,12 @@
 #include "wordaccess.h"
 #include <cstring>
 
-#if HAVE_DECL___POPCNT || HAVE_DECL___POPCNT64
-# include <intrin.h>
+#if !HAVE_DECL___BUILTIN_POPCOUNT
+// Only include <intrin.h> if we have to as it can result in warnings about
+// duplicate declarations of builtin functions under mingw.
+# if HAVE_DECL___POPCNT || HAVE_DECL___POPCNT64
+#  include <intrin.h>
+# endif
 #endif
 
 using namespace std;
