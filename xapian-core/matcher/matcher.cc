@@ -122,6 +122,7 @@ Matcher::for_all_remotes(Action action)
 	action(remotes[0].get());
     }
 #else
+#ifndef __WIN32__
     size_t n_remotes = first_oversize;
     fd_set fds;
     while (n_remotes > 1) {
@@ -163,6 +164,7 @@ Matcher::for_all_remotes(Action action)
     if (n_remotes == 1) {
 	action(remotes[0].get());
     }
+#endif
 
     // Handle any remotes with fd >= FD_SETSIZE
     for (size_t i = first_oversize; i != remotes.size(); ++i) {
@@ -277,9 +279,14 @@ Matcher::Matcher(const Xapian::Database& db_,
 	}
     }
 #  else
-    // __WIN32__ has its own special meaning for FD_SETSIZE - it's the maximum
-    // number of fds you can add to an fdset.
-    first_oversize = min(size_t(FD_SETSIZE), remotes.size());
+    // We can only use select() on sockets under __WIN32__ and with the remote
+    // prog backend the fds aren't sockets so just avoid using select() for
+    // now.
+    //
+    // FIXME: perhaps we should use WaitForMultipleObjects(), but that seems a
+    // bit tricky to hook up as it probably needs an async ReadFile() to be
+    // active.
+    first_oversize = 0;
 #  endif
 # endif
 #endif
