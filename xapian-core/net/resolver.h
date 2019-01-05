@@ -93,20 +93,14 @@ class Resolver {
 	// other ways to write these IP addresses and other hostnames may
 	// map onto them, but this just needs to work for the standard
 	// cases which a testsuite might use.
-#ifndef __WIN32__
 	if (host != "::1" && host != "127.0.0.1" && host != "localhost") {
 	    flags |= AI_ADDRCONFIG;
 	}
-#else
-	// Always specify AI_ADDRCONFIG under __WIN32__ as not doing so seems
-	// to cause problems.
-	flags |= AI_ADDRCONFIG;
-#endif
-	flags |= AI_NUMERICSERV | AI_V4MAPPED;
+	flags |= AI_NUMERICSERV;
 
 	struct addrinfo hints;
 	std::memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = AF_INET6;
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = flags;
 	hints.ai_protocol = 0;
