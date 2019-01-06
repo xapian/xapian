@@ -74,8 +74,11 @@ install:
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
   - if "%TOOLCHAIN%"=="mingw64" bash -c 'pacman -Sy --noconfirm zlib-devel'
-  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x64" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P zlib-devel
-  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x86" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P cygwin32-zlib -P cygwin32-gcc-core -P cygwin32-gcc-g++
+  # Install cygwin git and patch packages since those installed in the image
+  # want the 32-bit cygwin1.dll which means they fail to work if the 64-bit
+  # cygwin1.dll is first on PATH.
+  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x64" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P zlib-devel -P git -P patch
+  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x86" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P cygwin32-zlib -P cygwin32-gcc-core -P cygwin32-gcc-g++ -P git -P patch
   - bash -c 'time ./bootstrap --fetch-url-command="curl -L" xapian-core'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - if "%TOOLCHAIN%"=="msvc" mkdir zlib
