@@ -50,17 +50,26 @@ class TestFail { };
  */
 class TestSkip { };
 
-/** Macro used to build a TestFail object and throw it.
- */
-// Don't bracket a, because it may have <<'s in it
-#define FAIL_TEST(a) do { if (verbose) { tout << a << '\n'; } \
-			  throw TestFail(); } while (0)
+/// Helper macro.
+#define THROW_TEST_(EXCEPTION, MSG) \
+    do { \
+	if (verbose) { \
+	    tout << __FILE__ ":" STRINGIZE(__LINE__) ": " << MSG << std::endl; \
+	} \
+	throw EXCEPTION(); \
+    } while (0)
 
-/** Macro used to build a TestSkip object and throw it.
+/** Fail the current testcase with message MSG.
+ *
+ *  MSG is written to an std::ostream and so can contain <<.
  */
-// Don't bracket a, because it may have <<'s in it
-#define SKIP_TEST(a) do { if (verbose) { tout << a << '\n'; } \
-			  throw TestSkip(); } while (0)
+#define FAIL_TEST(MSG) THROW_TEST_(TestFail, MSG)
+
+/** Skip the current testcase with message MSG.
+ *
+ *  MSG is written to an std::ostream and so can contain <<.
+ */
+#define SKIP_TEST(MSG) THROW_TEST_(TestSkip, MSG)
 
 /// Type for a test function.
 typedef bool (*test_func)();
@@ -253,9 +262,6 @@ class test_driver {
 	static bool use_cr;
 };
 
-/// Display the location at which a testcase occurred, with an explanation.
-#define TESTCASE_LOCN(a) __FILE__ ":" STRINGIZE(__LINE__) ": " STRINGIZE(a)
-
 /** Test a condition, and display the test with an extra explanation if
  *  the condition fails.
  *  NB: wrapped in do { ... } while (0) so a trailing ';' works correctly.
@@ -263,7 +269,8 @@ class test_driver {
 #define TEST_AND_EXPLAIN(a, b) do {\
 	bool test_and_explain_fail_ = !(a);\
 	UNITTEST_CHECK_EXCEPTION\
-	if (test_and_explain_fail_) FAIL_TEST(TESTCASE_LOCN(a) << std::endl << b << std::endl);\
+	if (test_and_explain_fail_)\
+	    FAIL_TEST(STRINGIZE(a) << std::endl << b << std::endl);\
     } while (0)
 
 /// Test a condition, without an additional explanation for failure.
