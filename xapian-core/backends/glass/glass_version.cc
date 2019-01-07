@@ -103,7 +103,7 @@ GlassVersion::read()
 	if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
 	    string msg = "Failed to rewind file descriptor ";
 	    msg += str(fd);
-	    throw Xapian::DatabaseNotFoundError(msg, errno);
+	    throw Xapian::DatabaseOpeningError(msg, errno);
 	}
 	fd_in = fd;
     } else {
