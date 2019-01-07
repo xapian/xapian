@@ -46,6 +46,7 @@
 #include "fd.h"
 #include "filetests.h"
 #include "omassert.h"
+#include "overflow.h"
 #include "posixy_wrapper.h"
 #include "realtime.h"
 #include "length.h"
@@ -80,10 +81,8 @@ throw_timeout(const char* msg, const string& context)
 static inline void
 update_overlapped_offset(WSAOVERLAPPED & overlapped, DWORD n)
 {
-    // Signed overflow is undefined so check DWORD is unsigned.
-    static_assert(std::is_unsigned<DWORD>::value, "Type DWORD should be unsigned");
-    overlapped.Offset += n;
-    if (overlapped.Offset < n) ++overlapped.OffsetHigh;
+    if (add_overflows(overlapped.Offset, n, overlapped.Offset))
+	++overlapped.OffsetHigh;
 }
 #endif
 
