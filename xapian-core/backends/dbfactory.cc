@@ -360,7 +360,7 @@ open_stub(WritableDatabase &db, const string &file, int flags)
     }
 
     if (db.internal->size() == 0) {
-	throw DatabaseNotFoundError(file + ": No databases listed");
+	throw DatabaseOpeningError(file + ": No databases listed");
     }
 }
 
