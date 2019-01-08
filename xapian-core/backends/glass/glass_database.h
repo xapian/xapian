@@ -254,6 +254,7 @@ class GlassDatabase : public Xapian::Database::Internal {
 	Xapian::termcount get_doclength_lower_bound() const;
 	Xapian::termcount get_doclength_upper_bound() const;
 	Xapian::termcount get_wdf_upper_bound(const string & term) const;
+	Xapian::termcount get_unique_terms_lower_bound() const;
 	bool term_exists(const string & tname) const;
 	bool has_positions() const;
 

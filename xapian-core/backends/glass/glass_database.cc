@@ -801,6 +801,12 @@ GlassDatabase::get_wdf_upper_bound(const string & term) const
     return min(wdfub, version_file.get_wdf_upper_bound());
 }
 
+Xapian::termcount
+GlassDatabase::get_unique_terms_lower_bound() const
+{
+    return version_file.get_unique_terms_lower_bound();
+}
+
 bool
 GlassDatabase::term_exists(const string & term) const
 {

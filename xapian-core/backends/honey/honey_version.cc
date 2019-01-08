@@ -271,8 +271,14 @@ HoneyVersion::unserialise_stats()
     // uniq_terms_lbound being non-zero.
     if (p == end || *p == '\0') {
 	// No bounds stored so use weak bounds based on other stats.
-	uniq_terms_lbound = 1;
-	uniq_terms_ubound = doclen_ubound;
+	if (total_doclen == 0) {
+	    uniq_terms_lbound = uniq_terms_ubound = 0;
+	} else {
+	    Assert(doclen_lbound != 0);
+	    Assert(wdf_ubound != 0);
+	    uniq_terms_lbound = (doclen_lbound - 1) / wdf_ubound + 1;
+	    uniq_terms_ubound = doclen_ubound;
+	}
     } else if (!unpack_uint(&p, end, &uniq_terms_lbound) ||
 	       !unpack_uint(&p, end, &uniq_terms_ubound)) {
 	const char * m = p ?

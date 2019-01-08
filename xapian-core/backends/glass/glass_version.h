@@ -230,6 +230,13 @@ class GlassVersion {
 	return oldest_changeset;
     }
 
+    Xapian::termcount get_unique_terms_lower_bound() const {
+	if (total_doclen == 0) return 0;
+	Assert(doclen_lbound != 0);
+	Assert(wdf_ubound != 0);
+	return (doclen_lbound - 1) / wdf_ubound + 1;
+    }
+
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
     void set_oldest_changeset(glass_revision_number_t changeset) const {
