@@ -208,11 +208,16 @@ HoneyVersion::serialise_stats()
     pack_uint(serialised_stats, oldest_changeset);
     pack_uint(serialised_stats, total_doclen);
     pack_uint(serialised_stats, spelling_wordfreq_ubound);
-    // We rely on uniq_terms_lbound being non-zero to detect if it's present
-    // for a single file DB.
-    Assert(uniq_terms_lbound != 0);
-    pack_uint(serialised_stats, uniq_terms_lbound);
-    pack_uint(serialised_stats, uniq_terms_ubound);
+    // If total_doclen == 0 then unique_terms is always zero (or there are no
+    // documents at all) so storing these just complicates things because
+    // uniq_terms_lbound could legitimately be zero.
+    if (total_doclen != 0) {
+	// We rely on uniq_terms_lbound being non-zero to detect if it's present
+	// for a single file DB.
+	Assert(uniq_terms_lbound != 0);
+	pack_uint(serialised_stats, uniq_terms_lbound);
+	pack_uint(serialised_stats, uniq_terms_ubound);
+    }
 }
 
 void
