@@ -32,6 +32,8 @@ class HoneyCursor {
      */
     bool do_find(const std::string& key, bool greater_than);
 
+    bool do_next();
+
     /** Handle the value part of the (key,value). */
     bool next_from_index();
 
@@ -91,7 +93,13 @@ class HoneyCursor {
 
     bool after_end() const { return is_at_end; }
 
-    bool next();
+    bool next() {
+	if (store.was_forced_closed()) {
+	    HoneyTable::throw_database_closed();
+	}
+
+	return do_next();
+    }
 
     bool read_tag(bool keep_compressed = false);
 

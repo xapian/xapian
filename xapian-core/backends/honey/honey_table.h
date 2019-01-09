@@ -70,10 +70,24 @@ const uint4 BLK_UNUSED = uint4(-1);
 
 class HoneyFreeListChecker;
 
-class BufferedFile {
+class BufferedFileCommon {
+    friend class BufferedFile;
     int fd = -1;
-    mutable off_t pos = 0;
+    unsigned _refs = 0;
     off_t offset = 0;
+
+    BufferedFileCommon(int fd_, off_t offset_)
+	: fd(fd_), _refs(1), offset(offset_) {}
+
+    BufferedFileCommon(const BufferedFileCommon&) = delete;
+
+    BufferedFileCommon& operator=(const BufferedFileCommon&) = delete;
+};
+
+class BufferedFile {
+    BufferedFileCommon* common = nullptr;
+
+    mutable off_t pos = 0;
     bool read_only = true;
     mutable size_t buf_end = 0;
     mutable char buf[4096];
@@ -83,8 +97,9 @@ class BufferedFile {
   public:
     BufferedFile() { }
 
-    BufferedFile(const BufferedFile& o) : fd(o.fd), offset(o.offset) {
+    BufferedFile(const BufferedFile& o) : common(o.common) {
 	if (!o.read_only) std::abort();
+	if (common) ++common->_refs;
 #if 0
 	if (o.buf_end) {
 	    buf_end = o.buf_end;
@@ -94,35 +109,42 @@ class BufferedFile {
     }
 
     BufferedFile(int fd_, off_t offset_, off_t pos_, bool read_only_)
-	: fd(fd_), pos(pos_), offset(offset_), read_only(read_only_) {}
+	: common(new BufferedFileCommon(fd_, offset_)),
+	  pos(pos_), read_only(read_only_) {}
 
     ~BufferedFile() {
-//	if (fd >= 0) ::close(fd);
+	if (common && --common->_refs == 0)
+	    delete common;
     }
 
-//    void set_offset(off_t offset_) { offset = offset_; }
-
-    off_t get_offset() const { return offset; }
+    off_t get_offset() const { return common->offset; }
 
     void close(bool fd_owned) {
-	if (fd >= 0) {
-	    if (fd_owned) ::close(fd);
-	    fd = -1;
+	if (common && common->fd >= 0) {
+	    if (fd_owned) ::close(common->fd);
+	    common->fd = -1;
 	}
     }
 
     void force_close(bool fd_owned) {
-	close(fd_owned);
-	fd = FORCED_CLOSE;
+	if (common) {
+	    if (fd_owned && common->fd >= 0) ::close(common->fd);
+	    common->fd = FORCED_CLOSE;
+	}
     }
 
-    bool is_open() const { return fd >= 0; }
+    bool is_open() const { return common && common->fd >= 0; }
 
-    bool was_forced_closed() const { return fd == FORCED_CLOSE; }
+    bool was_forced_closed() const {
+	return !common || common->fd == FORCED_CLOSE;
+    }
 
     bool open(const std::string& path, bool read_only_) {
-//	if (fd >= 0) ::close(fd);
+	if (common && --common->_refs == 0)
+	    delete common;
+	common = nullptr;
 	read_only = read_only_;
+	int fd;
 	if (read_only) {
 	    // FIXME: add new io_open_stream_rd() etc?
 	    fd = io_open_block_rd(path);
@@ -130,7 +152,9 @@ class BufferedFile {
 	    // FIXME: Always create anew for now...
 	    fd = io_open_block_wr(path, true);
 	}
-	return fd >= 0;
+	if (fd < 0) return false;
+	common = new BufferedFileCommon(fd, 0);
+	return true;
     }
 
     off_t get_pos() const {
@@ -172,7 +196,7 @@ class BufferedFile {
     void write(unsigned char ch) {
 	if (buf_end == sizeof(buf)) {
 	    // writev()?
-	    io_write(fd, buf, buf_end);
+	    io_write(common->fd, buf, buf_end);
 	    pos += buf_end;
 	    buf_end = 0;
 	}
@@ -194,7 +218,7 @@ class BufferedFile {
 	    iov[0].iov_len = buf_end;
 	    iov[1].iov_base = const_cast<char*>(p);
 	    iov[1].iov_len = len;
-	    ssize_t n_ = writev(fd, iov, 2);
+	    ssize_t n_ = writev(common->fd, iov, 2);
 	    if (n_ < 0) std::abort();
 	    size_t n = n_;
 	    if (n == buf_end + len) {
@@ -207,7 +231,7 @@ class BufferedFile {
 		n -= buf_end;
 		p += n;
 		len -= n;
-		io_write(fd, p, len);
+		io_write(common->fd, p, len);
 		buf_end = 0;
 		return;
 	    }
@@ -215,11 +239,11 @@ class BufferedFile {
 	    memmove(buf, buf + n, buf_end);
 	}
 #else
-	io_write(fd, buf, buf_end);
+	io_write(common->fd, buf, buf_end);
 	pos += buf_end;
 	if (len >= sizeof(buf)) {
 	    // If it's bigger than our buffer, just write it directly.
-	    io_write(fd, p, len);
+	    io_write(common->fd, p, len);
 	    pos += len;
 	    buf_end = 0;
 	    return;
@@ -233,7 +257,7 @@ class BufferedFile {
 	if (buf_end == 0) {
 	    // The buffer is currently empty, so we need to read at least one
 	    // byte.
-	    size_t r = io_pread(fd, buf, sizeof(buf), pos, 0);
+	    size_t r = io_pread(common->fd, buf, sizeof(buf), pos, 0);
 	    if (r < sizeof(buf)) {
 		if (r == 0) {
 		    return EOF;
@@ -267,7 +291,7 @@ class BufferedFile {
 	    buf_end = 0;
 	}
 	// FIXME: refill buffer if len < sizeof(buf)
-	size_t r = io_pread(fd, p, len, pos + offset, len);
+	size_t r = io_pread(common->fd, p, len, pos + common->offset, len);
 	// io_pread() should throw an exception if it read < len bytes.
 	AssertEq(r, len);
 	pos += r;
@@ -275,14 +299,14 @@ class BufferedFile {
 
     void flush() {
 	if (!read_only && buf_end) {
-	    io_write(fd, buf, buf_end);
+	    io_write(common->fd, buf, buf_end);
 	    pos += buf_end;
 	    buf_end = 0;
 	}
     }
 
     void sync() {
-	io_sync(fd);
+	io_sync(common->fd);
     }
 
     void rewind(off_t start) {

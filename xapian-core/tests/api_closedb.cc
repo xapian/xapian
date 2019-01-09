@@ -25,6 +25,8 @@
 
 #include <xapian.h>
 
+#include "safeunistd.h"
+
 #include "apitest.h"
 #include "testutils.h"
 
@@ -212,6 +214,14 @@ DEFINE_TESTCASE(closedb1, backend) {
     // Close the database.
     db.close();
 
+    // Dup stdout to the fds which the database was using, to try to catch
+    // issues with lingering references to closed fds (regression test for
+    // early development versions of honey).
+    vector<int> fds;
+    for (int i = 0; i != 6; ++i) {
+	fds.push_back(dup(1));
+    }
+
     // Reopening a closed database should always raise DatabaseError.
     TEST_EXCEPTION(Xapian::DatabaseError, db.reopen());
 
@@ -227,6 +237,9 @@ DEFINE_TESTCASE(closedb1, backend) {
     // Calling close repeatedly is okay.
     db.close();
 
+    for (int fd : fds) {
+	close(fd);
+    }
     return true;
 }
 

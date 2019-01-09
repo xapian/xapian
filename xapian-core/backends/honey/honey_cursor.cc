@@ -33,7 +33,7 @@
 using namespace std;
 
 bool
-HoneyCursor::next()
+HoneyCursor::do_next()
 {
     if (is_at_end) {
 	Assert(false);
@@ -126,6 +126,10 @@ bool
 HoneyCursor::read_tag(bool keep_compressed)
 {
     if (val_size) {
+	if (store.was_forced_closed()) {
+	    HoneyTable::throw_database_closed();
+	}
+
 	current_tag.resize(val_size);
 	store.read(&(current_tag[0]), val_size);
 #ifdef DEBUGGING
@@ -189,6 +193,10 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 	    // an array index won't help us.
 	    use_index = false;
 	}
+    }
+
+    if (store.was_forced_closed()) {
+	HoneyTable::throw_database_closed();
     }
 
     if (use_index) {
@@ -357,7 +365,7 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 	val_size = 0;
     }
 
-    while (next()) {
+    while (do_next()) {
 	int cmp = current_key.compare(key);
 	if (cmp == 0) return true;
 	if (cmp > 0) break;
@@ -368,6 +376,10 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 bool
 HoneyCursor::prev()
 {
+    if (store.was_forced_closed()) {
+	HoneyTable::throw_database_closed();
+    }
+
     string key;
     if (is_at_end) {
 	// To position on the last key we just do a < search for a key greater
@@ -396,7 +408,7 @@ HoneyCursor::prev()
 	k = current_key;
 	vs = val_size;
 	compressed = current_compressed;
-    } while (next() && current_key < key);
+    } while (do_next() && current_key < key);
 
     // Back up to previous entry.
     is_at_end = false;
