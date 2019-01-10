@@ -218,7 +218,6 @@ DEFINE_TESTCASE(closedb1, backend) {
     // Close the database.
     db.close();
 
-<<<<<<< HEAD
     // Dup stdout to the fds which the database was using, to try to catch
     // issues with lingering references to closed fds (regression test for
     // early development versions of honey).
@@ -227,12 +226,8 @@ DEFINE_TESTCASE(closedb1, backend) {
 	fds.push_back(dup(1));
     }
 
-    // Reopening a closed database should always raise DatabaseError.
-    TEST_EXCEPTION(Xapian::DatabaseError, db.reopen());
-=======
     // Reopening a closed database should always raise DatabaseClosedError.
     TEST_EXCEPTION(Xapian::DatabaseClosedError, db.reopen());
->>>>>>> Added a new class DatabaseClosedError
 
     // Run the test again, checking that we get some "closed" exceptions.
     closedexc_count = iters.perform();
