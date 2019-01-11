@@ -60,6 +60,23 @@ inline uint32_t do_bswap(uint32_t value) {
 # endif
 }
 
+inline uint64_t do_bswap(uint64_t value) {
+# if HAVE_DECL___BUILTIN_BSWAP64
+    return __builtin_bswap64(value);
+# elif HAVE_DECL__BYTESWAP_UINT64
+    return _byteswap_uint64(value);
+# else
+    return (value << 56) |
+	   ((value & 0xff00) << 40) |
+	   ((value & 0xff0000) << 24) |
+	   ((value & 0xff000000) << 8) |
+	   ((value >> 8) & 0xff000000) |
+	   ((value >> 24) & 0xff0000) |
+	   ((value >> 40) & 0xff00) |
+	   (value >> 56);
+# endif
+}
+
 #endif
 
 template<typename UINT>
