@@ -750,7 +750,7 @@ DEFINE_TESTCASE(termgen1, !backend) {
 		nopos = true;
 	    } else if (strncmp(o, "weight=", 7) == 0) {
 		o += 7;
-		weight = atoi(o);
+		weight = strtol(o,NULL,10);
 		while (*o >= '0' && *o <= '9')
 		    ++o;
 	    } else if (strncmp(o, "stem=", 5) == 0) {

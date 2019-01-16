@@ -342,7 +342,7 @@ parse_pdf_metainfo(const string& pdfinfo, string &author, string &title,
 		string s;
 		PARSE_PDFINFO_FIELD(start, eol, s, "Pages");
 		if (!s.empty())
-		    pages = atoi(s.c_str());
+		    pages = strtol(s.c_str(),NULL,10);
 		break;
 	    }
 	    case 'S':

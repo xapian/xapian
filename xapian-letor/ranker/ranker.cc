@@ -100,7 +100,7 @@ load_list_fvecs(const string & filename)
 	string did;
 	train_file >> did;               // <label> qid:<xxx> n:<fval> *#docid=<xxx>*
 	did = did.substr(did.find("=") + 1, did.length()); // #docid=*<xxx>*
-	Xapian::docid docid = (Xapian::docid) atoi(did.c_str());
+	Xapian::docid docid = (Xapian::docid) strtoul(did.c_str(),NULL,10);
 	fv.set_did(docid);
 	train_file.ignore();
 
