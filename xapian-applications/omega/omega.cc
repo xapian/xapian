@@ -174,9 +174,7 @@ try {
 
     hits_per_page = 0;
     auto val = cgi_params.find("HITSPERPAGE");
-    if (val != cgi_params.end()) {
-		hits_per_page = strtoul(val->second.c_str(),NULL,10);
-	}
+    if (val != cgi_params.end()) hits_per_page = strtoul(val->second.c_str(),NULL,10);
     if (hits_per_page == 0) {
 	hits_per_page = 10;
     } else if (hits_per_page > 1000) {
