@@ -136,7 +136,7 @@ decode_post()
 
     content_length = getenv("CONTENT_LENGTH");
     /* Netscape Fasttrack server for NT doesn't give CONTENT_LENGTH */
-    if (content_length) cl = strtol(content_length,NULL,10);
+    if (content_length) cl = strtol(content_length, NULL, 10);
     cgi_params.clear();
     url_decode(CGIParameterHandler(), StdinItor(cl), StdinItor());
 }

@@ -83,9 +83,9 @@ decode_xxy(const string & s, int & x1, int &x2, int &y)
 	return false;
     x1 = stoi(s);
     if (x1 < 1 || x1 > 31) return false;
-    x2 = strtol(s.c_str() + i + 1,NULL,10);
+    x2 = strtol(s.c_str() + i + 1, NULL, 10);
     if (x2 < 1 || x2 > 31) return false;
-    y = strtol(s.c_str() + j + 1,NULL,10);
+    y = strtol(s.c_str() + j + 1, NULL, 10);
     return true;
 }
 

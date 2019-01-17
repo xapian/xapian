@@ -53,7 +53,7 @@ using namespace std;
 int
 string_to_int(const string &s)
 {
-    return strtol(s.c_str(),NULL,10);
+    return strtol(s.c_str(), NULL, 10);
 }
 
 string

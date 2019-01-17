@@ -283,7 +283,7 @@ PerfTestLogger::indexing_begin(const string & dbname,
 	Xapian::doccount flush_threshold = 0;
 	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
 	if (p)
-	    flush_threshold = strtoul(p,NULL,10);
+	    flush_threshold = strtoul(p, NULL, 10);
 	if (flush_threshold == 0)
 	    flush_threshold = 10000;
 	write("    <param name=\"flush_threshold\">" +

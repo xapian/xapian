@@ -74,7 +74,7 @@ try {
 		have_database = true;
 		break;
 	    case 'm':
-		msize = strotl(optarg,NULL,10);
+		msize = strtol(optarg, NULL, 10);
 		break;
 	    case OPT_HELP:
 		cout << PROG_NAME " - " PROG_DESC "\n\n";

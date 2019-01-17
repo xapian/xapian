@@ -100,7 +100,7 @@ FDTracker::init()
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
 
-	mark_fd(strtol(name,NULL,10));
+	mark_fd(strtol(name, NULL, 10));
     }
 }
 
@@ -130,7 +130,7 @@ FDTracker::check()
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
 
-	int fd = strtol(name,NULL,10);
+	int fd = strtol(name, NULL, 10);
 	if (check_fd(fd)) {
 	    // This fd was already open before the testcase.
 	    continue;
