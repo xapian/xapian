@@ -450,7 +450,6 @@ DEFINE_TESTCASE(snippet_small_zerolength, backend) {
 	{ "Rubbish and junk", 0, "" },
 	{ "Project R.U.B.B.I.S.H. greenlit", 0, "" },
 	{ "What a load of rubbish", 0, "" },
-	{ "What a load of rubbish", 0, "" },
 	{ "rubbish mention rubbish mention", 0, "" },
     };
 
