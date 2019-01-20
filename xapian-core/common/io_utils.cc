@@ -121,9 +121,9 @@ io_open_block_wr(const char * fname, bool anew)
 size_t
 io_read(int fd, char * p, size_t n, size_t min)
 {
-	if (fd == -2) {
-	    throw Xapian::DatabaseClosedError("Database is closed", errno);
-	}
+    if (fd == -2) {
+	    throw Xapian::DatabaseClosedError("Database has been closed", errno);
+    }
     size_t total = 0;
     while (n) {
 	ssize_t c = read(fd, p, n);
@@ -146,9 +146,9 @@ io_read(int fd, char * p, size_t n, size_t min)
 void
 io_write(int fd, const char * p, size_t n)
 {
-	if (fd == -2) {
-	    throw Xapian::DatabaseClosedError("Database is closed", errno);
-	}
+    if (fd == -2) {
+	    throw Xapian::DatabaseClosedError("Database has been closed", errno);
+    }
     while (n) {
 	ssize_t c = write(fd, p, n);
 	if (c < 0) {
@@ -163,9 +163,9 @@ io_write(int fd, const char * p, size_t n)
 size_t
 io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 {
-	if (fd == -2) {
-	    throw Xapian::DatabaseClosedError("Database is closed", errno);
-	}
+    if (fd == -2) {
+	    throw Xapian::DatabaseClosedError("Database has been closed", errno);
+    }
     size_t total = 0;
 #ifdef HAVE_PREAD
     while (true) {
@@ -223,9 +223,9 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
 void
 io_pwrite(int fd, const char * p, size_t n, off_t o)
 {
-	if (fd == -2) {
-	    throw Xapian::DatabaseClosedError("Database is closed", errno);
-	}
+    if (fd == -2) {
+	    throw Xapian::DatabaseClosedError("Database has been closed", errno);
+    }
 #ifdef HAVE_PWRITE
     while (n) {
 	ssize_t c = pwrite(fd, p, n, o);
@@ -271,9 +271,9 @@ io_readahead_block(int fd, size_t n, off_t b, off_t o)
 void
 io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 {
-	if (fd == -2) {
-	    throw Xapian::DatabaseClosedError("Database is closed", errno);
-	}
+    if (fd == -2) {
+	    throw Xapian::DatabaseClosedError("Database has been closed", errno);
+    }
     o += b * n;
     // Prefer pread if available since it's typically implemented as a
     // separate syscall, and that eliminates the overhead of an extra syscall
@@ -322,9 +322,9 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 void
 io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 {
-	if (fd == -2) {
-	    throw Xapian::DatabaseClosedError("Database is closed", errno);
-	}
+    if (fd == -2) {
+	    throw Xapian::DatabaseClosedError("Database has been closed", errno);
+    }
     o += b * n;
     // Prefer pwrite if available since it's typically implemented as a
     // separate syscall, and that eliminates the overhead of an extra syscall

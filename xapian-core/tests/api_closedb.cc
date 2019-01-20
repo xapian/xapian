@@ -33,11 +33,11 @@
 using namespace std;
 
 #define COUNT_CLOSEDEXC(CODE) \
-    try { \
-		CODE; \
+	try { \
+	    CODE; \
 	} catch (const Xapian::DatabaseClosedError &) { \
-		++closedexc_count; \
-	}
+	    ++closedexc_count; \
+    }
 
 #define IF_NOT_CLOSEDEXC(CODE) \
     do { \
