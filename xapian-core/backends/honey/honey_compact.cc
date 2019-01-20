@@ -912,9 +912,9 @@ merge_postlists(Xapian::Compactor * compactor,
 		Xapian::docid last_did = tags.back().last;
 		Xapian::termcount wdf_max =
 		    max_element(tags.begin(), tags.end(),
-				[](const HoneyPostListChunk& a,
-				   const HoneyPostListChunk& b) {
-				    return a.wdf_max < b.wdf_max;
+				[](const HoneyPostListChunk& x,
+				   const HoneyPostListChunk& y) {
+				    return x.wdf_max < y.wdf_max;
 				})->wdf_max;
 
 		bool have_wdfs = true;
