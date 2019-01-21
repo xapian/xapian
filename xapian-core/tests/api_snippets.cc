@@ -430,3 +430,32 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
 
     return true;
 }
+
+/// Test snippets with small and zero length.
+DEFINE_TESTCASE(snippet_small_zerolength, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				    Xapian::Query("rubbish"),
+				    Xapian::Query("mention")));
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    static const snippet_testcase testcases[] = {
+	// Test with small length
+	{ "mention junk rubbish", 3, "" },
+	{ "Project R.U.B.B.I.S.H. greenlit", 5, "" },
+	{ "What load rubbish", 3, "" },
+	{ "Mention rubbish", 4, "" },
+
+	// Test with zero length.
+	{ "Rubbish and junk", 0, "" },
+	{ "Project R.U.B.B.I.S.H. greenlit", 0, "" },
+	{ "What a load of rubbish", 0, "" },
+	{ "rubbish mention rubbish mention", 0, "" },
+    };
+
+    for (auto i : testcases) {
+	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len), i.expect);
+    }
+
+    return true;
+}
