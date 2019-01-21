@@ -86,6 +86,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/SimpleStopper.java\
 	org/xapian/Stem.java\
 	org/xapian/StemImplementation.java\
+	org/xapian/KrovetzStemmer.java\
 	org/xapian/Stopper.java\
 	org/xapian/StringValueRangeProcessor.java\
 	org/xapian/SWIGTYPE_p_std__string.java\

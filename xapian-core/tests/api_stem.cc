@@ -113,3 +113,21 @@ DEFINE_TESTCASE(stemlangs2, !backend) {
     }
     return true;
 }
+
+/// Test for KrovetzStemmer
+DEFINE_TESTCASE(KrovetzStemmer, !backend) {
+    Xapian::KrovetzStemmer * stemmer = new Xapian::KrovetzStemmer();
+    Xapian::Stem Krovetz(stemmer);
+
+    TEST_EQUAL(Krovetz("aback"), "aback");
+    TEST_EQUAL(Krovetz("abandon"), "abandon");
+    TEST_EQUAL(Krovetz("abandoned"), "abandoned");
+    TEST_EQUAL(Krovetz("abandoning"), "abandon");
+    TEST_EQUAL(Krovetz("abjectness"), "abject");
+    TEST_EQUAL(Krovetz("abnormality"), "abnormal");
+    TEST_EQUAL(Krovetz("hounded"), "hound");
+    TEST_EQUAL(Krovetz("hostages"), "hostage");
+
+    TEST_EQUAL(Krovetz.get_description(), "Xapian::Stem(KrovetzStemmer)");
+    return true;
+}

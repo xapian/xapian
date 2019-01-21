@@ -65,6 +65,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/SimpleStopper.cs \
 	generated-csharp/Stem.cs \
 	generated-csharp/StemImplementation.cs \
+	generated-csharp/KrovetzStemmer.cs \
 	generated-csharp/Stopper.cs \
 	generated-csharp/StringValueRangeProcessor.cs \
 	generated-csharp/TermGenerator.cs \
