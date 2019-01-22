@@ -177,6 +177,11 @@ errorclass(19, 'WildcardError', 'RuntimeError', <<'DOC');
  */
 DOC
 
+errorclass(20, 'DatabaseNotFoundError', 'DatabaseOpeningError', <<'DOC');
+/** Indicates an attempt to access a database not present.
+ */
+DOC
+
 sub for_each_nothrow {
     my $func = shift @_;
     my $class = '';

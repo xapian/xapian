@@ -976,9 +976,9 @@ DEFINE_TESTCASE(emptydb1, backend) {
 /// Test error opening non-existent stub databases.
 // Regression test for bug fixed in 1.3.1 and 1.2.11.
 DEFINE_TESTCASE(stubdb7, !backend) {
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database("nosuchdirectory", Xapian::DB_BACKEND_STUB));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::WritableDatabase("nosuchdirectory",
 		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB));
     return true;

@@ -1725,6 +1725,7 @@ def test_repr():
     expect(repr(xapian.DatabaseModifiedError('foo')) is None, False)
     expect(repr(xapian.DatabaseOpeningError('foo')) is None, False)
     expect(repr(xapian.DatabaseVersionError('foo')) is None, False)
+    expect(repr(xapian.DatabaseNotFoundError('foo')) is None, False)
     expect(repr(xapian.DocNotFoundError('foo')) is None, False)
     expect(repr(xapian.FeatureUnavailableError('foo')) is None, False)
     expect(repr(xapian.InternalError('foo')) is None, False)

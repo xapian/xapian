@@ -106,7 +106,7 @@ open_stub(Database &db, const string &file)
     if (!stub) {
 	string msg = "Couldn't open stub database file: ";
 	msg += file;
-	throw Xapian::DatabaseOpeningError(msg, errno);
+	throw Xapian::DatabaseNotFoundError(msg, errno);
     }
     string line;
     unsigned int line_no = 0;
@@ -231,7 +231,7 @@ open_stub(WritableDatabase &db, const string &file, int flags)
     if (!stub) {
 	string msg = "Couldn't open stub database file: ";
 	msg += file;
-	throw Xapian::DatabaseOpeningError(msg, errno);
+	throw Xapian::DatabaseNotFoundError(msg, errno);
     }
     string line;
     unsigned int line_no = 0;

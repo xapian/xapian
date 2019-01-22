@@ -120,17 +120,17 @@ def test_all():
             lambda msg: msg.find("has no attribute 'chert_open'") != -1,
             lambda : xapian.chert_open(b"nosuchdir/nosuchdb", xapian.DB_CREATE))
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_STUB))
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_OPEN|xapian.DB_BACKEND_STUB))
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_GLASS))
     expect_exception(xapian.DatabaseCreateError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_GLASS))
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_CHERT))
     expect_exception(xapian.DatabaseCreateError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_CHERT))

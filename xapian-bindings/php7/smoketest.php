@@ -80,7 +80,7 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
 	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
@@ -92,8 +92,8 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
 }
@@ -104,7 +104,7 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
 	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
@@ -117,8 +117,8 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
 }

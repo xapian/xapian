@@ -97,6 +97,9 @@ ChertVersion::read_and_check()
     if (fd < 0) {
 	string msg = filename;
 	msg += ": Failed to open chert version file for reading";
+	if (errno == ENOENT || errno == ENOTDIR) {
+	    throw Xapian::DatabaseNotFoundError(msg, errno);
+	}
 	throw Xapian::DatabaseOpeningError(msg, errno);
     }
 
