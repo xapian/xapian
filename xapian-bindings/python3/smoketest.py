@@ -105,12 +105,12 @@ def test_all():
 
     # Check database factory functions are wrapped as expected:
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_STUB))
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_OPEN|xapian.DB_BACKEND_STUB))
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_GLASS))
     expect_exception(xapian.DatabaseCreateError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_GLASS))
