@@ -137,8 +137,6 @@ namespace Xapian {
         if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
-        } else {
-            tmp = "";
         }
         return tmp;
     }
@@ -152,8 +150,6 @@ namespace Xapian {
         if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
-        } else {
-            tmp = "";
         }
         return tmp;
     }
@@ -167,8 +163,6 @@ namespace Xapian {
 	if (Xapian::iterator_valid(*self)) {
 	    tmp = (**self);
 	    ++(*self);
-	} else {
-	    tmp = "";
 	}
 	return tmp;
     }
