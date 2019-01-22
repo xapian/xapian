@@ -116,8 +116,6 @@ namespace Xapian {
 %ignore revision;
 
 // For compatibility with the original JNI wrappers.
-// FIXME: These make use of the fact that the default ctor for PostingIterator,
-// TermIterator, and ValueIterator produces an end iterator.
 %extend PostingIterator {
     Xapian::docid next () {
         Xapian::docid tmp;
