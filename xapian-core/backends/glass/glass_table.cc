@@ -2187,5 +2187,5 @@ GlassTable::next_default(Glass::Cursor * C_, int j) const
 void
 GlassTable::throw_database_closed()
 {
-    throw Xapian::DatabaseError("Database has been closed");
+    throw Xapian::DatabaseClosedError("Database has been closed");
 }

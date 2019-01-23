@@ -364,16 +364,16 @@ DEFINE_TESTCASE(testlock1, chert || glass) {
 	TEST(db.locked());
 	TEST(rdb.locked());
 	// After close(), locked() should either work as if close() hadn't been
-	// called or throw Xapian::DatabaseError.
+	// called or throw Xapian::DatabaseClosedError.
 	try {
 	    TEST(db_as_database.locked());
-	} catch (const Xapian::DatabaseError&) {
+	} catch (const Xapian::DatabaseClosedError&) {
 	}
 	db.close();
 	TEST(!rdb.locked());
 	try {
 	    TEST(!db_as_database.locked());
-	} catch (const Xapian::DatabaseError&) {
+	} catch (const Xapian::DatabaseClosedError&) {
 	}
     }
     TEST(!rdb.locked());

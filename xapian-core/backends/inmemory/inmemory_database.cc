@@ -944,5 +944,5 @@ InMemoryDatabase::open_allterms(const string & prefix) const
 void
 InMemoryDatabase::throw_database_closed()
 {
-    throw Xapian::DatabaseError("Database has been closed");
+    throw Xapian::DatabaseClosedError("Database has been closed");
 }

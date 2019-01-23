@@ -61,7 +61,7 @@ XAPIAN_NORETURN(static void throw_database_closed());
 static void
 throw_database_closed()
 {
-    throw Xapian::DatabaseError("Database has been closed");
+    throw Xapian::DatabaseClosedError("Database has been closed");
 }
 
 XAPIAN_NORETURN(static void throw_network_error_insane_message_length());

@@ -182,6 +182,11 @@ errorclass(20, 'DatabaseNotFoundError', 'DatabaseOpeningError', <<'DOC');
  */
 DOC
 
+errorclass(21, 'DatabaseClosedError', 'DatabaseError', <<'DOC');
+/** Indicates an attempt to access a closed database.
+ */
+DOC
+
 sub for_each_nothrow {
     my $func = shift @_;
     my $class = '';
