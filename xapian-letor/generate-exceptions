@@ -61,14 +61,21 @@ EOF
 
 for (@classes) {
     chomp;
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class, $parent, $synopsis, $description) = @{$_};
+    $description //= '';
+    if ($description ne '') {
+	$description =~ s!^! *  !mg;
+	$description =~ s! +$!!mg;
+	$description = " *\n" . $description;
+    }
     my $code = sprintf('\%03o', $classcode{$class});
 
     print DISPATCH "case '$code': throw Xapian::$class(msg, context, error_string);\n";
 
     print HDR <<EOF;
 
-$comment
+/** $synopsis
+$description */
 class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
   public:
     /** \@private \@internal

@@ -48,7 +48,7 @@ void handle_exception(lua_State* L) {
 EOF
 
 for (reverse @allclasses) {
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class) = @{$_};
     print FD <<"EOF";
     } catch (const Xapian::$class &e) {
 	SWIG_NewPointerObj(L, (void *)new $class(e), SWIGTYPE_p_Xapian__$class, 1);
