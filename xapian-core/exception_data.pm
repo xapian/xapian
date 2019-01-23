@@ -177,8 +177,13 @@ errorclass(19, 'WildcardError', 'RuntimeError', <<'DOC');
  */
 DOC
 
+errorclass(20, 'DatabaseNotFoundError', 'DatabaseOpeningError', <<'DOC');
+/** Indicates an attempt to access a database not present.
+ */
+DOC
+
 errorclass(21, 'DatabaseClosedError', 'DatabaseError', <<'DOC');
-/**  indicates an attempt to access a closed database.
+/** Indicates an attempt to access a closed database.
  */
 DOC
 
