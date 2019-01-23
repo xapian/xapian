@@ -666,7 +666,7 @@ class HoneyTable {
     bool is_open() const { return store.is_open(); }
 
     static void throw_database_closed() {
-	throw Xapian::DatabaseError("Closed!");
+	throw Xapian::DatabaseClosedError("Closed!");
     }
 
     honey_tablesize_t get_entry_count() const { return num_entries; }
