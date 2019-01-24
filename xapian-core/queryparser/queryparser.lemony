@@ -2227,5 +2227,4 @@ adj_expr(P) ::= adj_expr(P) ADJ(N) TERM(T). {
     }
 }
 
-// Select yacc syntax highlighting in vim editor: vim: syntax=yacc
-// (lemon syntax colouring isn't supplied by default; yacc does an OK job).
+// Select lemon syntax highlighting in vim editor: vim: syntax=lemon
