@@ -55,16 +55,6 @@ A subclass of LogicError will be thrown if Xapian detects a violation
 of a class invariant or a logical precondition or postcondition, etc.
 DOC
 
-errorclass(0, 'AssertionError', 'LogicError',
-	   'AssertionError is thrown if a logical assertion inside Xapian fails.',
-	   <<'DOC');
-In a debug build of Xapian, a failed assertion in the core library code
-will cause AssertionError to be thrown.
-
-This represents a bug in Xapian (either an invariant, precondition, etc
-has been violated, or the assertion is incorrect!)
-DOC
-
 # RuntimeError and subclasses:
 
 errorbaseclass('RuntimeError', 'Error',
