@@ -104,7 +104,8 @@ LCDClusterer::cluster(const MSet &mset)
     unsigned x = (size / k_) + 1;
     AssertEq(n * (x - 1) + (k_ - n) * x, size);
 
-    for (unsigned int cnum = 1; cnum <= k_; ++cnum) {
+    unsigned cnum = 1;
+    while (true) {
 	// Container for new cluster
 	Cluster new_cluster;
 
@@ -135,21 +136,22 @@ LCDClusterer::cluster(const MSet &mset)
 	    points.erase(piterator);
 	}
 
-	// Now select a new cluster center which is the point that is
-	// farthest away from the current cluster center
-	PSet::iterator new_cluster_center = dist_vector.back().first;
-
 	// Add cluster_center to current cluster
 	new_cluster.add_point(cluster_center->first);
 
 	// Add cluster to cset
 	cset.add_cluster(new_cluster);
 
+	if (cnum == k_) break;
+
 	// Remove current cluster_center from points
 	points.erase(cluster_center);
 
-	// Update current cluster center
-	cluster_center = new_cluster_center;
+	// Select a new cluster center which is the point that is farthest away
+	// from the current cluster center
+	cluster_center = dist_vector.back().first;
+
+	++cnum;
     }
 
     return cset;
