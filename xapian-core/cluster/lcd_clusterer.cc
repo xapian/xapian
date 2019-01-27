@@ -34,7 +34,21 @@
 using namespace Xapian;
 using namespace std;
 
-typedef set<pair<Point, double>> PSet;
+struct pcompare {
+    bool operator()(const pair<Point, double>& a,
+		    const pair<Point, double>& b) const {
+	return a.second > b.second;
+    }
+};
+
+typedef set<pair<Point, double>, pcompare> PSet;
+
+struct dcompare {
+    bool operator()(const pair<PSet::iterator, double>& a,
+		    const pair<PSet::iterator, double>& b) const {
+	return a.second < b.second;
+    }
+};
 
 LCDClusterer::LCDClusterer(unsigned int k_)
     : k(k_)
@@ -50,20 +64,6 @@ LCDClusterer::get_description() const
 {
     return "LCDClusterer()";
 }
-
-struct pcompare {
-    bool operator() (const pair<Point, double> &a,
-		     const pair<Point, double> &b) const {
-	return a.second > b.second;
-    }
-};
-
-struct dcompare {
-    bool operator() (const pair<PSet::iterator, double> &a,
-		     const pair<PSet::iterator, double> &b) const {
-	return a.second < b.second;
-    }
-};
 
 ClusterSet
 LCDClusterer::cluster(const MSet &mset)
