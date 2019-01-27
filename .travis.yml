@@ -34,6 +34,7 @@ matrix:
             - python3-dev
             - tcl
             - libsvm-dev
+      env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
       # Clang is already installed, but we want to build using the
