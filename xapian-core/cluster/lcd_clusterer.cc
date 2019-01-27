@@ -78,7 +78,7 @@ LCDClusterer::cluster(const MSet &mset)
     // Store each document and its rel score from given mset
     set<pair<Point, double>, pcompare> points;
 
-    // Initiliase points
+    // Initialise points
     TermListGroup tlg(mset);
     for (MSetIterator it = mset.begin(); it != mset.end(); ++it)
 	points.emplace(Point(tlg, it.get_document()), it.get_weight());
@@ -109,7 +109,7 @@ LCDClusterer::cluster(const MSet &mset)
 	Cluster new_cluster;
 
 	// Select (num_points - 1) nearest points to cluster_center from
-	// from 'points' and form a new cluster
+	// 'points' and form a new cluster
 	unsigned int num_points = cnum <= n ? x - 1 : x;
 
 	// Store distances of each point from current cluster center
