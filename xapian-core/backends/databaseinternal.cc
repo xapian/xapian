@@ -185,7 +185,7 @@ Database::Internal::delete_document(Xapian::docid)
 void
 Database::Internal::delete_document(const string& unique_term)
 {
-    // Default implementation - overridden for remote databases
+    // Default implementation - overridden for remote and sharded databases.
 
     if (is_read_only()) {
 	// This can happen if a read-only shard gets added to a
@@ -226,7 +226,7 @@ Xapian::docid
 Database::Internal::replace_document(const string & unique_term,
 				     const Xapian::Document & document)
 {
-    // Default implementation - overridden for remote databases
+    // Default implementation - overridden for remote and sharded databases.
 
     if (is_read_only()) {
 	// This can happen if a read-only shard gets added to a
