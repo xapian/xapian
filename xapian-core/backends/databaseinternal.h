@@ -202,6 +202,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     /** Check whether this database contains any positional information. */
     virtual bool has_positions() const = 0;
 
+    /** Return a PostList suitable for use in a PostingIterator. */
     virtual PostList* open_post_list(const std::string& term) const = 0;
 
     virtual LeafPostList* open_leaf_post_list(const std::string& term,
