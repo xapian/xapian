@@ -1,7 +1,7 @@
 /* glass_postlist.cc: Postlists in a glass database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014,2015,2019 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -848,7 +848,7 @@ GlassPostList::read_position_list()
 {
     LOGCALL(DB, PositionList *, "GlassPostList::read_position_list", NO_ARGS);
     Assert(this_db.get());
-    positionlist.read_data(&this_db->position_table, did, term);
+    this_db->read_position_list(&positionlist, did, term);
     RETURN(&positionlist);
 }
 
@@ -857,7 +857,7 @@ GlassPostList::open_position_list() const
 {
     LOGCALL(DB, PositionList *, "GlassPostList::open_position_list", NO_ARGS);
     Assert(this_db.get());
-    RETURN(new GlassPositionList(&this_db->position_table, did, term));
+    RETURN(this_db->open_position_list(did, term));
 }
 
 PostList *

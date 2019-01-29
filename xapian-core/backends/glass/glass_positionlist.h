@@ -1,7 +1,7 @@
 /** @file glass_positionlist.h
  * @brief A position list in a glass database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016 Olly Betts
+/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,6 +75,9 @@ class GlassPositionListTable : public GlassLazyTable {
 	del(make_key(did, tname));
     }
 
+    /// Return the number of entries in specified position list data.
+    Xapian::termcount positionlist_count(const string& data) const;
+
     /// Return the number of entries in specified position list.
     Xapian::termcount positionlist_count(Xapian::docid did,
 					 const string & term) const;
@@ -109,6 +112,12 @@ class GlassPositionList : public PositionList {
   public:
     /// Default constructor.
     GlassPositionList() { }
+
+    /// Construct and initialise with data.
+    explicit
+    GlassPositionList(const string& data) {
+	read_data(data);
+    }
 
     /// Construct and initialise with data.
     GlassPositionList(const GlassTable * table, Xapian::docid did,

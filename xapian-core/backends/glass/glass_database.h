@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2019 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -266,6 +266,11 @@ class GlassDatabase : public Xapian::Database::Internal {
 	ValueList * open_value_list(Xapian::valueno slot) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 
+	virtual void read_position_list(GlassPositionList* pos_list,
+					Xapian::docid did,
+					const string& term) const;
+	virtual Xapian::termcount positionlist_count(Xapian::docid did,
+						     const string& term) const;
 	PositionList * open_position_list(Xapian::docid did, const string & term) const;
 	TermList * open_term_list(Xapian::docid did) const;
 	TermList * open_allterms(const string & prefix) const;
@@ -417,8 +422,13 @@ class GlassWritableDatabase : public GlassDatabase {
 
 	LeafPostList * open_post_list(const string & tname) const;
 	ValueList * open_value_list(Xapian::valueno slot) const;
+
+	void read_position_list(GlassPositionList* pos_list,
+				Xapian::docid did,
+				const string& term) const;
+	Xapian::termcount positionlist_count(Xapian::docid did,
+					     const string& term) const;
 	PositionList * open_position_list(Xapian::docid did, const string & term) const;
-	TermList * open_term_list(Xapian::docid did) const;
 	TermList * open_allterms(const string & prefix) const;
 
 	void add_spelling(const string & word, Xapian::termcount freqinc) const;

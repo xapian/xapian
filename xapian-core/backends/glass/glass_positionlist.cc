@@ -1,6 +1,6 @@
 /* glass_positionlist.cc: A position list in a glass database.
  *
- * Copyright (C) 2004,2005,2006,2008,2009,2010,2013 Olly Betts
+ * Copyright (C) 2004,2005,2006,2008,2009,2010,2013,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,15 +52,11 @@ GlassPositionListTable::pack(string & s,
 }
 
 Xapian::termcount
-GlassPositionListTable::positionlist_count(Xapian::docid did,
-					   const string & term) const
+GlassPositionListTable::positionlist_count(const string& data) const
 {
-    LOGCALL(DB, Xapian::termcount, "GlassPositionListTable::positionlist_count", did | term);
+    LOGCALL(DB, Xapian::termcount, "GlassPositionListTable::positionlist_count", data);
 
-    string data;
-    if (!get_exact_entry(make_key(did, term), data)) {
-	RETURN(0);
-    }
+    Assert(!data.empty());
 
     const char * pos = data.data();
     const char * end = pos + data.size();
@@ -78,6 +74,20 @@ GlassPositionListTable::positionlist_count(Xapian::docid did,
     Xapian::termpos pos_first = rd.decode(pos_last);
     Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
     RETURN(pos_size);
+}
+
+Xapian::termcount
+GlassPositionListTable::positionlist_count(Xapian::docid did,
+					   const string & term) const
+{
+    LOGCALL(DB, Xapian::termcount, "GlassPositionListTable::positionlist_count", did | term);
+
+    string data;
+    if (!get_exact_entry(make_key(did, term), data)) {
+	RETURN(0);
+    }
+
+    RETURN(positionlist_count(data));
 }
 
 ///////////////////////////////////////////////////////////////////////////
