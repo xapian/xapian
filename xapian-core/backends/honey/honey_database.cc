@@ -252,14 +252,14 @@ HoneyDatabase::open_post_list(const string& term) const
 }
 
 LeafPostList*
-HoneyDatabase::open_leaf_post_list(const string& term, bool need_pos) const
+HoneyDatabase::open_leaf_post_list(const string& term, bool need_read_pos) const
 {
     if (term.empty()) {
-	Assert(!need_pos);
+	Assert(!need_read_pos);
 	return new HoneyAllDocsPostList(this, get_doccount());
     }
 
-    return postlist_table.open_post_list(this, term, need_pos);
+    return postlist_table.open_post_list(this, term, need_read_pos);
 }
 
 ValueList*

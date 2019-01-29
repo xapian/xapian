@@ -189,7 +189,7 @@ class HoneyPostList : public LeafPostList {
     Xapian::doccount get_termfreq() const;
 
     LeafPostList* open_nearby_postlist(const std::string& term_,
-				       bool need_pos) const;
+				       bool need_read_pos) const;
 
     Xapian::docid get_docid() const;
 

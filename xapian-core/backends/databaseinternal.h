@@ -205,8 +205,18 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
     /** Return a PostList suitable for use in a PostingIterator. */
     virtual PostList* open_post_list(const std::string& term) const = 0;
 
+    /** Create a LeafPostList for use during a match.
+     *
+     *  @param term		The term to open a postlist for, or the empty
+     *				string to create an all-docs postlist.
+     *
+     *  @param need_read_pos	Does the postlist need to support
+     *				read_position_list()?  Note that
+     *				open_position_list() may still be called even
+     *				if need_read_pos is false.
+     */
     virtual LeafPostList* open_leaf_post_list(const std::string& term,
-					      bool need_pos) const = 0;
+					      bool need_read_pos) const = 0;
 
     /** Open a value stream.
      *

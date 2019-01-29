@@ -260,7 +260,7 @@ class GlassDatabase : public Xapian::Database::Internal {
 
 	PostList * open_post_list(const string & tname) const;
 	LeafPostList* open_leaf_post_list(const string& term,
-					  bool need_pos) const;
+					  bool need_read_pos) const;
 	ValueList * open_value_list(Xapian::valueno slot) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;
 
@@ -423,7 +423,7 @@ class GlassWritableDatabase : public GlassDatabase {
 
 	PostList * open_post_list(const string & tname) const;
 	LeafPostList* open_leaf_post_list(const string& term,
-					  bool need_pos) const;
+					  bool need_read_pos) const;
 	ValueList * open_value_list(Xapian::valueno slot) const;
 	PositionList * open_position_list(Xapian::docid did, const string & term) const;
 	TermList * open_term_list(Xapian::docid did) const;

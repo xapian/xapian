@@ -831,14 +831,14 @@ GlassDatabase::open_post_list(const string& term) const
 }
 
 LeafPostList*
-GlassDatabase::open_leaf_post_list(const string& term, bool need_pos) const
+GlassDatabase::open_leaf_post_list(const string& term, bool need_read_pos) const
 {
-    LOGCALL(DB, LeafPostList *, "GlassDatabase::open_leaf_post_list", term | need_pos);
-    (void)need_pos;
+    LOGCALL(DB, LeafPostList *, "GlassDatabase::open_leaf_post_list", term | need_read_pos);
+    (void)need_read_pos;
     intrusive_ptr<const GlassDatabase> ptrtothis(this);
 
     if (term.empty()) {
-	Assert(!need_pos);
+	Assert(!need_read_pos);
 	Xapian::doccount doccount = get_doccount();
 	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(doccount));
@@ -1497,14 +1497,14 @@ GlassWritableDatabase::open_post_list(const string& term) const
 
 LeafPostList *
 GlassWritableDatabase::open_leaf_post_list(const string& term,
-					   bool need_pos) const
+					   bool need_read_pos) const
 {
-    LOGCALL(DB, LeafPostList *, "GlassWritableDatabase::open_leaf_post_list", term | need_pos);
-    (void)need_pos;
+    LOGCALL(DB, LeafPostList *, "GlassWritableDatabase::open_leaf_post_list", term | need_read_pos);
+    (void)need_read_pos;
     intrusive_ptr<const GlassWritableDatabase> ptrtothis(this);
 
     if (term.empty()) {
-	Assert(!need_pos);
+	Assert(!need_read_pos);
 	Xapian::doccount doccount = get_doccount();
 	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(doccount));

@@ -754,10 +754,10 @@ GlassPostList::~GlassPostList()
 
 LeafPostList *
 GlassPostList::open_nearby_postlist(const std::string & term_,
-				    bool need_pos) const
+				    bool need_read_pos) const
 {
-    LOGCALL(DB, LeafPostList *, "GlassPostList::open_nearby_postlist", term_ | need_pos);
-    (void)need_pos;
+    LOGCALL(DB, LeafPostList *, "GlassPostList::open_nearby_postlist", term_ | need_read_pos);
+    (void)need_read_pos;
     if (term_.empty())
 	RETURN(NULL);
     if (!this_db.get() || this_db->postlist_table.is_writable())
