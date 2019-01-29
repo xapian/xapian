@@ -1,7 +1,7 @@
 /** @file honey_positionlist.cc
  * @brief A position list in a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2008,2009,2010,2013,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2009,2010,2013,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -83,6 +83,44 @@ HoneyPositionTable::positionlist_count(Xapian::docid did,
 
 ///////////////////////////////////////////////////////////////////////////
 
+void
+HoneyBasePositionList::set_data(const string& data)
+{
+    LOGCALL_VOID(DB, "HoneyBasePositionList::set_data", data);
+
+    have_started = false;
+
+    if (data.empty()) {
+	// There's no positional information for this term.
+	size = 0;
+	last = 0;
+	current_pos = 1;
+	return;
+    }
+
+    const char* pos = data.data();
+    const char* end = pos + data.size();
+    Xapian::termpos pos_last;
+    if (!unpack_uint(&pos, end, &pos_last)) {
+	throw Xapian::DatabaseCorruptError("Position list data corrupt");
+    }
+
+    if (pos == end) {
+	// Special case for single entry position list.
+	size = 1;
+	current_pos = last = pos_last;
+	return;
+    }
+
+    rd.init(pos, end);
+    Xapian::termpos pos_first = rd.decode(pos_last);
+    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
+    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+    size = pos_size;
+    last = pos_last;
+    current_pos = pos_first;
+}
+
 Xapian::termcount
 HoneyBasePositionList::get_approx_size() const
 {
@@ -141,44 +179,13 @@ HoneyBasePositionList::skip_to(Xapian::termpos termpos)
     return true;
 }
 
-HoneyPositionList::HoneyPositionList(const string& data)
+HoneyPositionList::HoneyPositionList(string&& data)
 {
     LOGCALL_CTOR(DB, "HoneyPositionList", data);
 
-    have_started = false;
+    pos_data = std::move(data);
 
-    if (data.empty()) {
-	// There's no positional information for this term.
-	size = 0;
-	last = 0;
-	current_pos = 1;
-	return;
-    }
-
-    const char* pos = data.data();
-    const char* end = pos + data.size();
-    Xapian::termpos pos_last;
-    if (!unpack_uint(&pos, end, &pos_last)) {
-	throw Xapian::DatabaseCorruptError("Position list data corrupt");
-    }
-
-    if (pos == end) {
-	// Special case for single entry position list.
-	size = 1;
-	current_pos = last = pos_last;
-	return;
-    }
-
-    // Copy the rest of the data and lazily decode from that copy.
-    pos_data.assign(pos, end);
-
-    rd.init(pos_data.data(), pos_data.size());
-    Xapian::termpos pos_first = rd.decode(pos_last);
-    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
-    size = pos_size;
-    last = pos_last;
-    current_pos = pos_first;
+    set_data(pos_data);
 }
 
 HoneyPositionList::HoneyPositionList(const HoneyTable& table,
@@ -187,38 +194,25 @@ HoneyPositionList::HoneyPositionList(const HoneyTable& table,
 {
     LOGCALL_CTOR(DB, "HoneyPositionList", table | did | term);
 
-    have_started = false;
-
     if (!table.get_exact_entry(HoneyPositionTable::make_key(did, term),
 			       pos_data)) {
-	// There's no positional information for this term.
-	size = 0;
-	last = 0;
-	current_pos = 1;
-	return;
+	pos_data.clear();
     }
 
-    const char* pos = pos_data.data();
-    const char* end = pos + pos_data.size();
-    Xapian::termpos pos_last;
-    if (!unpack_uint(&pos, end, &pos_last)) {
-	throw Xapian::DatabaseCorruptError("Position list data corrupt");
-    }
+    set_data(pos_data);
+}
 
-    if (pos == end) {
-	// Special case for single entry position list.
-	size = 1;
-	current_pos = last = pos_last;
-	return;
-    }
+void
+HoneyRePositionList::assign_data(string&& data)
+{
+    LOGCALL_VOID(DB, "HoneyRePositionList::assign_data", data);
 
-    rd.init(pos, end);
-    Xapian::termpos pos_first = rd.decode(pos_last);
-    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
-    size = pos_size;
-    last = pos_last;
-    current_pos = pos_first;
+    // We need to ensure the data stays valid while in use, so abuse the cursor
+    // current_tag member as somewhere to store it.
+    cursor.to_end();
+    cursor.current_tag = std::move(data);
+
+    set_data(cursor.current_tag);
 }
 
 void
@@ -227,36 +221,11 @@ HoneyRePositionList::read_data(Xapian::docid did,
 {
     LOGCALL_VOID(DB, "HoneyRePositionList::read_data", did | term);
 
-    have_started = false;
-
     if (!cursor.find_exact(HoneyPositionTable::make_key(did, term))) {
-	// There's no positional information for this term.
-	size = 0;
-	last = 0;
-	current_pos = 1;
-	return;
+	cursor.current_tag.clear();
+    } else {
+	cursor.read_tag();
     }
 
-    cursor.read_tag();
-    const char* pos = cursor.current_tag.data();
-    const char* end = pos + cursor.current_tag.size();
-    Xapian::termpos pos_last;
-    if (!unpack_uint(&pos, end, &pos_last)) {
-	throw Xapian::DatabaseCorruptError("Position list data corrupt");
-    }
-
-    if (pos == end) {
-	// Special case for single entry position list.
-	size = 1;
-	current_pos = last = pos_last;
-	return;
-    }
-
-    rd.init(pos, end);
-    Xapian::termpos pos_first = rd.decode(pos_last);
-    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
-    size = pos_size;
-    last = pos_last;
-    current_pos = pos_first;
+    set_data(cursor.current_tag);
 }

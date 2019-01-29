@@ -1,7 +1,7 @@
 /** @file honey_positionlist.h
  * @brief A position list in a honey database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2017 Olly Betts
+/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -104,6 +104,13 @@ class HoneyBasePositionList : public PositionList {
     /// Have we started iterating yet?
     bool have_started;
 
+    /** Set positional data and start to decode it.
+     *
+     *  @param data	The positional data.  Must stay valid
+     *			while this object is using it.
+     */
+    void set_data(const string& data);
+
   public:
     /// Default constructor.
     HoneyBasePositionList() {}
@@ -141,7 +148,7 @@ class HoneyPositionList : public HoneyBasePositionList {
   public:
     /// Construct and initialise with data.
     explicit
-    HoneyPositionList(const string& data);
+    HoneyPositionList(string&& data);
 
     /// Construct and initialise with data.
     HoneyPositionList(const HoneyTable& table,
@@ -165,6 +172,9 @@ class HoneyRePositionList : public HoneyBasePositionList {
     explicit
     HoneyRePositionList(const HoneyTable& table)
 	: cursor(&table) {}
+
+    /** Fill list with data, and move the position to the start. */
+    void assign_data(string&& data);
 
     /** Fill list with data, and move the position to the start. */
     void read_data(Xapian::docid did, const string& term);

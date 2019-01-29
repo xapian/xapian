@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -888,6 +888,21 @@ GlassDatabase::open_document(Xapian::docid did, bool lazy) const
     RETURN(new GlassDocument(ptrtothis, did, &value_manager, &docdata_table));
 }
 
+void
+GlassDatabase::read_position_list(GlassRePositionList* pos_list,
+				  Xapian::docid did,
+				  const string& term) const
+{
+    Assert(did != 0);
+    pos_list->read_data(did, term);
+}
+
+Xapian::termcount
+GlassDatabase::positionlist_count(Xapian::docid did, const string& term) const
+{
+    return position_table.positionlist_count(did, term);
+}
+
 PositionList *
 GlassDatabase::open_position_list(Xapian::docid did, const string& term) const
 {
@@ -1516,7 +1531,6 @@ GlassWritableDatabase::open_leaf_post_list(const string& term,
     // Flush any buffered changes for this term's postlist so we can just
     // iterate from the flushed state.
     inverter.flush_post_list(postlist_table, term);
-    inverter.flush_pos_lists(position_table);
     RETURN(new GlassPostList(ptrtothis, term, true));
 }
 
@@ -1531,19 +1545,32 @@ GlassWritableDatabase::open_value_list(Xapian::valueno slot) const
     RETURN(GlassDatabase::open_value_list(slot));
 }
 
-TermList *
-GlassWritableDatabase::open_term_list(Xapian::docid did) const
+void
+GlassWritableDatabase::read_position_list(GlassRePositionList* pos_list,
+					  Xapian::docid did,
+					  const string& term) const
 {
-    LOGCALL(DB, TermList *, "GlassWritableDatabase::open_term_list", did);
     Assert(did != 0);
-    inverter.flush_pos_lists(position_table);
-    RETURN(GlassDatabase::open_term_list(did));
+    string data;
+    if (inverter.get_positionlist(did, term, data)) {
+	pos_list->assign_data(std::move(data));
+	return;
+    }
+    GlassDatabase::read_position_list(pos_list, did, term);
 }
 
-TermList *
-GlassWritableDatabase::open_term_list_direct(Xapian::docid did) const
+Xapian::termcount
+GlassWritableDatabase::positionlist_count(Xapian::docid did,
+					  const string& term) const
 {
-    return GlassWritableDatabase::open_term_list(did);
+    Assert(did != 0);
+    string data;
+    if (inverter.get_positionlist(did, term, data)) {
+	if (data.empty())
+	    return 0;
+	return position_table.positionlist_count(data);
+    }
+    return GlassDatabase::positionlist_count(did, term);
 }
 
 PositionList *
@@ -1552,7 +1579,7 @@ GlassWritableDatabase::open_position_list(Xapian::docid did, const string& term)
     Assert(did != 0);
     string data;
     if (inverter.get_positionlist(did, term, data)) {
-	return new GlassPositionList(data);
+	return new GlassPositionList(std::move(data));
     }
     return GlassDatabase::open_position_list(did, term);
 }
@@ -1566,10 +1593,10 @@ GlassWritableDatabase::open_allterms(const string & prefix) const
 	// we need to flush changes for terms with the specified prefix (but
 	// don't commit - there may be a transaction in progress).
 	inverter.flush_post_lists(postlist_table, prefix);
-	inverter.flush_pos_lists(position_table);
 	if (prefix.empty()) {
-	    // We've flushed all the posting list changes, but the document
-	    // length and stats haven't been written, so set change_count to 1.
+	    // We've flushed all the posting list changes, but the positions,
+	    // document lengths and stats haven't been written, so set
+	    // change_count to 1.
 	    // FIXME: Can we handle this better?
 	    change_count = 1;
 	}
