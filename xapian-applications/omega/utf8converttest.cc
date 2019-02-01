@@ -42,7 +42,7 @@ static const testcase tests[] = {
     { "iso-8859-1", "Hello\xa0world", 0, "Hello\xc2\xa0world" },
     { "ISO-8859-1", "Hello\xa0world", 0, "Hello\xc2\xa0world" },
     { "ISO8859-1", "Hello\xa0world", 0, "Hello\xc2\xa0world" },
-#if !defined USE_ICONV || defined __GNU_LIBRARY__
+#if !defined HAVE_ICONV || defined __GNU_LIBRARY__
     // "8859_1" is not understood by Solaris iconv, for example.
     { "8859_1", "Hello\xa0world", 0, "Hello\xc2\xa0world" },
 #endif
