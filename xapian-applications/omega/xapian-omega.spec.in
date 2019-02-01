@@ -49,9 +49,6 @@ mkdir -p %{buildroot}%{logdir}/omega
 # Default templates
 mkdir -p %{buildroot}%{contentdir}/omega/templates
 cp -r templates/* %{buildroot}%{contentdir}/omega/templates/
-# Images
-mkdir -p %{buildroot}/var/www/icons/omega
-cp -r images/* %{buildroot}/var/www/icons/omega/
 # Configuration file
 mkdir -p %{buildroot}/etc
 install -D -m644 omega.conf %{buildroot}/etc/omega.conf
@@ -78,7 +75,6 @@ cp AUTHORS ChangeLog COPYING NEWS README TODO %{buildroot}/usr/share/doc/%{name}
 %{contentdir}/omega
 %{logdir}/omega
 /var/www/cgi-bin/omega
-/var/www/icons/omega
 %{_datadir}/%{name}
 %config(noreplace) /etc/omega.conf
 %doc %{_datadir}/doc/%{name}-%{version}
