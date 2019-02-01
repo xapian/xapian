@@ -11,6 +11,12 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIRS([m4])
 
+dnl The AM_ICONV macro requires a stack of macros including AC_LIB_PROG_LD,
+dnl which is just a copy of libtool's LT_PATH_LD with the name changed.
+dnl We will already have run LT_PATH_LD, so make AC_LIB_PROG_LD a no-op
+dnl as LT_PATH_LD will already have set the with_gnu_ld variable.
+AC_DEFUN([AC_LIB_PROG_LD], [])
+
 LT_PREREQ([2.2.6])
 LT_INIT
 
@@ -295,77 +301,16 @@ AC_ARG_WITH(iconv,
   [with_iconv=$withval], [with_iconv=auto])
 
 if test no != "$with_iconv" ; then
-  ICONV_LDFLAGS=
-  AC_SEARCH_LIBS(iconv, iconv, [], [
-    if test -f "/sw/etc/fink.conf" ; then
-      dnl For fink on OS X.
-      case $host_os in
-      darwin*)
-	ICONV_LDFLAGS=-L/sw/lib
-	SAVE_LDFLAGS=$LDFLAGS
-	LDFLAGS="$LDFLAGS $ICONV_LDFLAGS"
-	AC_CHECK_LIB(iconv, iconv, [], [
-	  ICONV_LDFLAGS=
-	  with_iconv=bad-$with_iconv
-	])
-	LDFLAGS=$SAVE_LDFLAGS ;;
-      esac
-    else
-      with_iconv=bad-$with_iconv
-    fi
-
-    case $with_iconv in
-    bad-yes)
-      AC_MSG_ERROR([iconv not found, but --with-iconv specified]) ;;
-    bad-*)
-      with_iconv=no ;;
-    esac
-  ])
-  AC_SUBST(ICONV_LDFLAGS)
-fi
-
-if test no != "$with_iconv" ; then
-  dnl Check if iconv take "char**" or "const char**" as its input.
-  dnl Solaris 2.9 has "const char **"; GNU iconv has "char **".
-  AC_MSG_CHECKING([for type of input pointer for iconv])
-  AC_CACHE_VAL([xo_cv_iconv_input],
-    [
-      xo_cv_iconv_input=
-      for t in 'char*' 'const char *' ; do
-	dnl Use a link check as just compiling was falsely detecting a
-	dnl working iconv installation on some platforms.
-	AC_LINK_IFELSE(
-	  [AC_LANG_PROGRAM(
-	    [#include <iconv.h>],
-	    [[
-	      char buf[20];
-	      $t in = const_cast<char *>("hello");
-	      size_t in_len = 5;
-	      char * out = buf;
-	      size_t out_len = 20;
-	      iconv((iconv_t)-1, &in, &in_len, &out, &out_len);
-	    ]])],
-	  [
-	  xo_cv_iconv_input=$t
-	  break
-	])
-      done
-      if test -z "$xo_cv_iconv_input"; then
-	if test yes = "$with_iconv" ; then
-	  AC_MSG_RESULT([not found])
-	  AC_MSG_ERROR([Failed to work out how to call iconv but --with-iconv specified])
-	fi
-	AC_MSG_RESULT([not found - not using iconv])
-	with_iconv=no
-      fi
-    ])
-  AC_MSG_RESULT([$xo_cv_iconv_input])
-  AC_DEFINE_UNQUOTED(ICONV_INPUT_TYPE, [$xo_cv_iconv_input],
-		     [type of input pointer for iconv])
-fi
-
-if test no != "$with_iconv" ; then
-  AC_DEFINE(USE_ICONV, 1, [Define if iconv() should be used for converting character sets.])
+  dnl AM_ICONV modifies CPPFLAGS if it succeeds which is undesirable (configure
+  dnl shouldn't modify user variables like CPPFLAGS) so save and restore
+  dnl CPPFLAGS around it.  We then add INCICONV where needed instead.
+  save_CPPFLAGS=$CPPFLAGS
+  AM_ICONV
+  CPPFLAGS=$save_CPPFLAGS
+  AC_SUBST([INCICONV])
+  if test yes = "$with_iconv" && test yes != "$am_cv_func_iconv" ; then
+    AC_MSG_ERROR([iconv not found, but --with-iconv specified])
+  fi
 fi
 
 dnl Check processor endianness.
