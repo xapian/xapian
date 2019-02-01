@@ -146,7 +146,7 @@ libtransform_la_LIBADD = $(PCRE_LIBS)
 
 libutf8convert_la_SOURCES = utf8convert.cc
 libutf8convert_la_CPPFLAGS = $(AM_CPPFLAGS) $(INCICONV)
-libutf8convert_la_LIBADD = $(LTLIBICONV)
+libutf8convert_la_LIBADD = $(XAPIAN_LIBS) $(LTLIBICONV)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
