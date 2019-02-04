@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009,2012,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013,2015,2016,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,6 +67,10 @@ DEFINE_TESTCASE(overload1, !backend) {
     q = Xapian::Query("foo") & Xapian::Query("bar");
     TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar))");
     q = Xapian::Query("foo") &~ Xapian::Query("bar");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND_NOT bar))");
+    // In 1.4.9 and earlier this gave (foo AND (<alldocuments> AND_NOT bar)).
+    q = Xapian::Query("foo");
+    q &= ~Xapian::Query("bar");
     TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND_NOT bar))");
     q = ~Xapian::Query("bar");
     TEST_STRINGS_EQUAL(q.get_description(), "Query((<alldocuments> AND_NOT bar))");
