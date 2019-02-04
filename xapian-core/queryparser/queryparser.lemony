@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -421,7 +421,13 @@ add_to_query(Query *& q, Query::op op, Query * term)
 {
     Assert(term);
     if (q) {
-	*q = Query(op, *q, *term);
+	if (op == Query::OP_OR) {
+	    *q |= *term;
+	} else if (op == Query::OP_AND) {
+	    *q &= *term;
+	} else {
+	    *q = Query(op, *q, *term);
+	}
 	delete term;
     } else {
 	q = term;
@@ -432,7 +438,13 @@ static void
 add_to_query(Query *& q, Query::op op, const Query & term)
 {
     if (q) {
-	*q = Query(op, *q, term);
+	if (op == Query::OP_OR) {
+	    *q |= term;
+	} else if (op == Query::OP_AND) {
+	    *q &= term;
+	} else {
+	    *q = Query(op, *q, term);
+	}
     } else {
 	q = new Query(term);
     }
@@ -450,7 +462,7 @@ Term::get_query() const
     list<string>::const_iterator piter = prefixes.begin();
     Query q(make_term(*piter), 1, pos);
     while (++piter != prefixes.end()) {
-	q = Query(Query::OP_OR, q, Query(make_term(*piter), 1, pos));
+	q |= Query(make_term(*piter), 1, pos);
     }
     return q;
 }
@@ -1511,8 +1523,11 @@ struct ProbQuery {
 	    // We OR multiple filters with the same prefix if they're
 	    // exclusive, otherwise we AND them.
 	    bool exclusive = !grouping.empty();
-	    Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
-	    q = Query(op, q, qnew);
+	    if (exclusive) {
+		q |= qnew;
+	    } else {
+		q &= qnew;
+	    }
 	}
     }
 
@@ -1522,7 +1537,7 @@ struct ProbQuery {
 
     void append_filter_range(const string& grouping, const Query & range) {
 	Query & q = filter[grouping];
-	q = Query(Query::OP_OR, q, range);
+	q |= range;
     }
 
     Query merge_filters() const {
@@ -1530,7 +1545,7 @@ struct ProbQuery {
 	Assert(i != filter.end());
 	Query q = i->second;
 	while (++i != filter.end()) {
-	    q = Query(Query::OP_AND, q, i->second);
+	    q &= i->second;
 	}
 	return q;
     }
@@ -1834,17 +1849,14 @@ Term::as_positional_cjk_term(Terms * terms) const
     delete this;
 }
 
-// Helper macro for converting a boolean operation into a Xapian::Query.
-#define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
+// Helper macro to check for missing arguments to a boolean operator.
+#define VET_BOOL_ARGS(A, B, OP_TXT) \
     do {\
 	if (!A || !B) {\
 	    state->error = "Syntax: <expression> " OP_TXT " <expression>";\
 	    yy_parse_failed(yypParser);\
 	    return;\
 	}\
-	E = new Query(OP, *A, *B);\
-	delete A;\
-	delete B;\
     } while (0)
 
 }
@@ -1928,28 +1940,45 @@ query ::= . {
 
 expr(E) ::= prob_expr(E).
 
-expr(E) ::= bool_arg(A) AND bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND, B, "AND"); }
+expr(A) ::= bool_arg(A) AND bool_arg(B). {
+    VET_BOOL_ARGS(A, B, "AND");
+    *A &= *B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) NOT bool_arg(B). {
+expr(A) ::= bool_arg(A) NOT bool_arg(B). {
     // 'NOT foo' -> '<alldocuments> NOT foo'
     if (!A && (state->flags & QueryParser::FLAG_PURE_NOT)) {
 	A = new Query("", 1, 0);
     }
-    BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT");
+    VET_BOOL_ARGS(A, B, "NOT");
+    *A &= ~*B;
+    delete B;
 }
 
-expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+expr(A) ::= bool_arg(A) AND NOT bool_arg(B). [NOT] {
+    VET_BOOL_ARGS(A, B, "AND NOT");
+    *A &= ~*B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) AND HATE_AFTER_AND bool_arg(B). [AND]
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND"); }
+expr(A) ::= bool_arg(A) AND HATE_AFTER_AND bool_arg(B). [AND] {
+    VET_BOOL_ARGS(A, B, "AND");
+    *A &= ~*B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) OR bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }
+expr(A) ::= bool_arg(A) OR bool_arg(B). {
+    VET_BOOL_ARGS(A, B, "OR");
+    *A |= *B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) XOR bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_XOR, B, "XOR"); }
+expr(A) ::= bool_arg(A) XOR bool_arg(B). {
+    VET_BOOL_ARGS(A, B, "XOR");
+    *A ^= *B;
+    delete B;
+}
 
 // bool_arg - an argument to a boolean operator such as AND or OR.
 
@@ -2115,7 +2144,7 @@ prob(P) ::= stop_prob(P) LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     // We OR filters with the same prefix...
     Query & q = P->filter[T->get_grouping()];
-    q = Query(Query::OP_OR, q, T->get_query());
+    q |= T->get_query();
     delete T;
 }
 
