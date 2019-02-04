@@ -394,20 +394,32 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     /// Return a string describing this object.
     std::string get_description() const;
 
-    /** Combine with another Xapian::Query object using OP_AND. */
-    const Query operator&=(const Query & o) {
-	return (*this = Query(OP_AND, *this, o));
-    }
+    /** Combine with another Xapian::Query object using OP_AND.
+     *
+     *  @since Since Xapian 1.4.10, when called on a Query object which is
+     *  OP_AND and has a reference count of 1, then @a o is appended as a new
+     *  subquery (provided @a o is a different Query object and
+     *  <code>!o.empty()</code>).
+     */
+    const Query operator&=(const Query & o);
 
-    /** Combine with another Xapian::Query object using OP_OR. */
-    const Query operator|=(const Query & o) {
-	return (*this = Query(OP_OR, *this, o));
-    }
+    /** Combine with another Xapian::Query object using OP_OR.
+     *
+     *  @since Since Xapian 1.4.10, when called on a Query object which is
+     *  OP_OR and has a reference count of 1, then @a o is appended as a new
+     *  subquery (provided @a o is a different Query object and
+     *  <code>!o.empty()</code>).
+     */
+    const Query operator|=(const Query & o);
 
-    /** Combine with another Xapian::Query object using OP_XOR. */
-    const Query operator^=(const Query & o) {
-	return (*this = Query(OP_XOR, *this, o));
-    }
+    /** Combine with another Xapian::Query object using OP_XOR.
+     *
+     *  @since Since Xapian 1.4.10, when called on a Query object which is
+     *  OP_XOR and has a reference count of 1, then @a o is appended as a new
+     *  subquery (provided @a o is a different Query object and
+     *  <code>!o.empty()</code>).
+     */
+    const Query operator^=(const Query & o);
 
     /** Scale using OP_SCALE_WEIGHT.
      *
@@ -616,6 +628,60 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
     // Pass argument as void* to avoid need to include <vector>.
     virtual void gather_terms(void * void_terms) const;
 };
+
+inline const Query
+Query::operator&=(const Query & o)
+{
+    if (o.empty()) {
+	// q &= empty_query sets q to empty_query.
+	*this = o;
+    } else if (this != &o &&
+	       internal.get() &&
+	       internal->_refs == 1 &&
+	       get_type() == OP_AND) {
+	// Appending a subquery to an existing AND.
+	add_subquery(false, o);
+    } else {
+	*this = std::move(Query(OP_AND, *this, o));
+    }
+    return *this;
+}
+
+inline const Query
+Query::operator|=(const Query & o)
+{
+    if (o.empty()) {
+	// q |= empty_query is a no-op.
+    } else if (this != &o &&
+	       internal.get() &&
+	       internal->_refs == 1 &&
+	       get_type() == OP_OR) {
+	// Appending a subquery to an existing OR.
+	add_subquery(false, o);
+    } else {
+	*this = std::move(Query(OP_OR, *this, o));
+    }
+    return *this;
+}
+
+inline const Query
+Query::operator^=(const Query & o)
+{
+    if (o.empty()) {
+	// q ^= empty_query is a no-op.
+    } else if (internal.get() == o.internal.get()) {
+	// q ^= q gives MatchNothing.
+	internal = NULL;
+    } else if (internal.get() &&
+	       internal->_refs == 1 &&
+	       get_type() == OP_XOR) {
+	// Appending a subquery to an existing XOR.
+	add_subquery(false, o);
+    } else {
+	*this = std::move(Query(OP_XOR, *this, o));
+    }
+    return *this;
+}
 
 }
 
