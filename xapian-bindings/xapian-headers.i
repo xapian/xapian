@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2019 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -212,6 +212,7 @@ STANDARD_IGNORES(Xapian, Query)
 %ignore *::operator&(const Xapian::Query &, const Xapian::InvertedQuery_ &);
 %ignore *::operator~;
 %ignore *::operator&=;
+%ignore ::operator&=;
 %ignore *::operator|=;
 %ignore *::operator^=;
 %ignore *::operator*=;

@@ -1,7 +1,7 @@
 /** @file query.h
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -541,6 +541,8 @@ class InvertedQuery_ {
     friend const InvertedQuery_ operator~(const Query &q);
 
     friend const Query operator&(const Query & a, const InvertedQuery_ & b);
+
+    friend const Query operator&=(Query & a, const InvertedQuery_ & b);
 };
 
 /** Combine two Xapian::Query objects using OP_AND_NOT.
@@ -551,6 +553,16 @@ inline const Query
 operator&(const Query & a, const InvertedQuery_ & b)
 {
     return Query(Query::OP_AND_NOT, a, b.query);
+}
+
+/** Combine two Xapian::Query objects using OP_AND_NOT with result in the first.
+ *
+ *  E.g. q1 &=~ q2;
+ */
+inline const Query
+operator&=(Query & a, const InvertedQuery_ & b)
+{
+    return (a = Query(Query::OP_AND_NOT, a, b.query));
 }
 
 #ifndef DOXYGEN /* @internal doesn't seem to avoid a warning here. */
