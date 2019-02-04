@@ -310,8 +310,8 @@ case $ac_cv_func_snprintf in
 esac
 
 AC_ARG_WITH(iconv,
-  AC_HELP_STRING([--with-iconv], [force use of iconv (error if not found)])
-  AC_HELP_STRING([--without-iconv], [don't use iconv]),
+[AS_HELP_STRING([--with-iconv], [force use of iconv (error if not found)])
+AS_HELP_STRING([--without-iconv], [don't use iconv])],
   [with_iconv=$withval], [with_iconv=auto])
 
 if test no != "$with_iconv" ; then
