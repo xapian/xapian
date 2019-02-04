@@ -1,8 +1,7 @@
-# Right now, we build on containerised linux, which defaults to the
-# ancient Ubuntu 12.04 LTS.  Specify "dist: trusty" so we get something
-# which is "only" 2.5 years old.
+# Use "dist: trusty" for now - while it's a bit old, it serves as a useful
+# check that things still work with older versions of compilers and other
+# tools.
 dist: trusty
-sudo: false
 language: cpp
 notifications:
   irc: "chat.freenode.net#xapian-devel"
