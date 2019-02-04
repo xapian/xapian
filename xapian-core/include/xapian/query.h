@@ -42,6 +42,26 @@ class PostingSource;
 
 /// Class representing a query.
 class XAPIAN_VISIBILITY_DEFAULT Query {
+  protected:
+    /** @private @internal */
+    class InvertedQuery_ {
+	friend class Query;
+
+	const Query & query;
+
+	void operator=(const InvertedQuery_ &);
+
+      public:
+	explicit InvertedQuery_(const Query & query_) : query(query_) { }
+
+	// GCC 4.2 seems to needs a copy ctor.
+	InvertedQuery_(const InvertedQuery_ & o) : query(o.query) { }
+
+	operator Query() const {
+	    return Query(Query::OP_AND_NOT, Query(std::string()), query);
+	}
+    };
+
   public:
     /// Class representing the query internals.
     class Internal;
@@ -459,6 +479,31 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      */
     const Query operator^=(const Query & o);
 
+    /** Invert a Xapian::Query object.
+     *
+     *  When used in combination with & or &=, this provides an operator
+     *  overload way to specify OP_AND_NOT.
+     */
+    const InvertedQuery_ operator~() const {
+	return InvertedQuery_(*this);
+    }
+
+    /** Combine two Xapian::Query objects using OP_AND_NOT.
+     *
+     *  E.g. Xapian::Query q = q1 &~ q2;
+     */
+    const Query operator&(const InvertedQuery_& o) const {
+	return Query(Query::OP_AND_NOT, *this, o.query);
+    }
+
+    /** Combine two Xapian::Query objects using OP_AND_NOT with result in the first.
+     *
+     *  E.g. q1 &=~ q2;
+     */
+    const Query operator&=(const InvertedQuery_& o) {
+	return (*this = Query(Query::OP_AND_NOT, *this, o.query));
+    }
+
     /** Scale using OP_SCALE_WEIGHT.
      *
      *  @param factor Non-negative real number to multiply weights by.
@@ -571,58 +616,6 @@ operator/(const Query & q, double factor)
 {
     return Query(1.0 / factor, q);
 }
-
-/** @private @internal */
-class InvertedQuery_ {
-    const Query & query;
-
-    void operator=(const InvertedQuery_ &);
-
-    explicit InvertedQuery_(const Query & query_) : query(query_) { }
-
-  public:
-    // GCC 4.2 seems to needs a copy ctor.
-    InvertedQuery_(const InvertedQuery_ & o) : query(o.query) { }
-
-    operator Query() const {
-	return Query(Query::OP_AND_NOT, Query(std::string()), query);
-    }
-
-    friend const InvertedQuery_ operator~(const Query &q);
-
-    friend const Query operator&(const Query & a, const InvertedQuery_ & b);
-
-    friend const Query operator&=(Query & a, const InvertedQuery_ & b);
-};
-
-/** Combine two Xapian::Query objects using OP_AND_NOT.
- *
- *  E.g. Xapian::Query q = q1 &~ q2;
- */
-inline const Query
-operator&(const Query & a, const InvertedQuery_ & b)
-{
-    return Query(Query::OP_AND_NOT, a, b.query);
-}
-
-/** Combine two Xapian::Query objects using OP_AND_NOT with result in the first.
- *
- *  E.g. q1 &=~ q2;
- */
-inline const Query
-operator&=(Query & a, const InvertedQuery_ & b)
-{
-    return (a = Query(Query::OP_AND_NOT, a, b.query));
-}
-
-#ifndef DOXYGEN /* @internal doesn't seem to avoid a warning here. */
-/** @internal Helper to allow q1 &~ q2 to work. */
-inline const InvertedQuery_
-operator~(const Query &q)
-{
-    return InvertedQuery_(q);
-}
-#endif
 
 namespace Internal {
 class AndContext;
