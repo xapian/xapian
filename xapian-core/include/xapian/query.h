@@ -642,7 +642,7 @@ Query::operator&=(const Query & o)
 	// Appending a subquery to an existing AND.
 	add_subquery(false, o);
     } else {
-	*this = std::move(Query(OP_AND, *this, o));
+	*this = Query(OP_AND, *this, o);
     }
     return *this;
 }
@@ -659,7 +659,7 @@ Query::operator|=(const Query & o)
 	// Appending a subquery to an existing OR.
 	add_subquery(false, o);
     } else {
-	*this = std::move(Query(OP_OR, *this, o));
+	*this = Query(OP_OR, *this, o);
     }
     return *this;
 }
@@ -678,7 +678,7 @@ Query::operator^=(const Query & o)
 	// Appending a subquery to an existing XOR.
 	add_subquery(false, o);
     } else {
-	*this = std::move(Query(OP_XOR, *this, o));
+	*this = Query(OP_XOR, *this, o);
     }
     return *this;
 }
