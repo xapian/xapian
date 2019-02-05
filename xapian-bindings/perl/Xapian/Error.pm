@@ -6,9 +6,8 @@ Xapian::Error - Base class for all exceptions in Xapian
 
 =head1 DESCRIPTION
 
-This is an abstract class in C++, i.e. it cannot be instantiated directly.
-In Perl there is no such concept, but you should not need to create instances
-of this class yourself.
+This is an abstract class in C++, i.e. it cannot be instantiated directly,
+hence in Perl it has no C<new> method.
 
 =head1 METHODS
 
