@@ -813,7 +813,7 @@ Wed Dec 18 23:10:53 GMT 2013  Olly Betts <olly@survex.com>
 Fri Dec 06 05:29:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Link against -ltclstubX.Y for Tcl 8.5 and later
-	  (reported by Sergei Golovan in http://bugs.debian.org/724830).
+	  (reported by Sergei Golovan in https://bugs.debian.org/724830).
 	  Also, use a better check for TCL_INC for Tcl 8.5 and later.
 
 Fri Dec 06 03:31:50 GMT 2013  Olly Betts <olly@survex.com>
@@ -2850,7 +2850,7 @@ Mon May 09 01:36:56 GMT 2011  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py: With Python 2.7, gc.collect() doesn't always
 	  collect all the garbage, so repeat until no further objects are
-	  freed.  (http://bugs.debian.org/625679 and
+	  freed.  (https://bugs.debian.org/625679 and
 	  https://bugs.gentoo.org/349484).
 
 Mon Apr 04 13:58:45 GMT 2011  Olly Betts <olly@survex.com>
@@ -6897,7 +6897,7 @@ Fri Apr 13 16:30:56 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 	  the python bindings (it's still quite messy, but much better than
 	  nothing).  Unfortunately, a bug in SWIG means that not all the
 	  documentation is visible - I've put a patch at
-	  http://sf.net/tracker/index.php?func=detail&aid=1700146&group_id=1645&atid=301645
+	  https://sf.net/tracker/index.php?func=detail&aid=1700146&group_id=1645&atid=301645
 	* python/util.i: Include generated doccomments.i file.
 	* configure.ac: Add rules to generate python/doxy2swig.
 	* python/Makefile.am: Rules to generate and depend on doccomments.i

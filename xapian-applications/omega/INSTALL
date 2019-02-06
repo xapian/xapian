@@ -18,10 +18,10 @@ You need the following libraries installed before building Omega.  If you
 install these from packages, make sure you install any corresponding -dev or
 -devel packages as well:
 
-  * zlib <http://www.zlib.net/>
-  * PCRE <http://www.pcre.org/>
+  * zlib <https://www.zlib.net/>
+  * PCRE <https://www.pcre.org/>
   * libmagic (which comes with the file program
-    <http://www.darwinsys.com/file/>) - on RPM-based package systems, the
+    <https://www.darwinsys.com/file/>) - on RPM-based package systems, the
     package with the header in is often named file-devel
 
 Quick Installation Guide

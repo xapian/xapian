@@ -20,7 +20,7 @@
 #ifndef XAPIAN_INCLUDED_VISIBILITY_H
 #define XAPIAN_INCLUDED_VISIBILITY_H
 
-// See http://gcc.gnu.org/wiki/Visibility for more information about GCC's
+// See https://gcc.gnu.org/wiki/Visibility for more information about GCC's
 // symbol visibility support.
 
 #include "xapian/version.h"

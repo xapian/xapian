@@ -38,10 +38,10 @@ The simplest way to compile this package is:
      `-dev` or `-devel` suffix.  Additional per-language dependencies are:
 
        * python:
-         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+         - Sphinx Documentation Generator: https://www.sphinx-doc.org/
 	   The package you want might be python-sphinx.
        * python3:
-         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+         - Sphinx Documentation Generator: https://www.sphinx-doc.org/
 	   The package you want might be python3-sphinx.
 
   1. 'cd' to the directory containing the package's source code and type

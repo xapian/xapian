@@ -3179,7 +3179,7 @@ Thu Sep 26 02:02:24 GMT 2013  Olly Betts <olly@survex.com>
 	  consistency checking to always open all the tables at the same
 	  revision, which could lead to false errors being reported after
 	  a commit interrupted by the process being killed or the machine
-	  crashing.  Reported by Joey Hess in http://bugs.debian.org/724610
+	  crashing.  Reported by Joey Hess in https://bugs.debian.org/724610
 
 Wed Sep 25 02:21:29 GMT 2013  Olly Betts <olly@survex.com>
 
@@ -6181,14 +6181,14 @@ Mon Oct 03 00:53:13 GMT 2011  Olly Betts <olly@survex.com>
 
 Sun Oct 02 23:31:52 GMT 2011  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/d8bab8cf0b:
+	* queryparser/lemon.c: Merge https://www.sqlite.org/src/info/d8bab8cf0b:
 	  'Added %expect directive, to consider a certain number of conflicts
 	  "correct." This has the side effect of changing the process exit
 	  code to never overflow.'
 
 Sun Oct 02 23:26:34 GMT 2011  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e6cbe1e5ee:
+	* queryparser/lemon.c: Merge https://www.sqlite.org/src/info/e6cbe1e5ee:
 	  "Added -T option, to specify a template filename on the command
 	  line.  The default is still "lempar.c", though."  Not currently
 	  useful to us, but trying to minimise differences with upstream
@@ -6196,14 +6196,14 @@ Sun Oct 02 23:26:34 GMT 2011  Olly Betts <olly@survex.com>
 
 Sun Oct 02 23:14:32 GMT 2011  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/e22c090f35:
+	* queryparser/lemon.c: Merge https://www.sqlite.org/src/info/e22c090f35:
 	  "Another attempt at fixing the table generator in lemon. Again, this
 	  does not effect the SQLite grammar."  No change to generated grammar
 	  for QueryParser.
 
 Sun Oct 02 22:59:28 GMT 2011  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/077a6bee2d:
+	* queryparser/lemon.c: Merge https://www.sqlite.org/src/info/077a6bee2d:
 	  "Fix an issue with lemon generating incorrect grammars. This issue
 	  does not effect SQLite."  This means we now get the same tables
 	  generated as before the previous change.
@@ -6211,14 +6211,14 @@ Sun Oct 02 22:59:28 GMT 2011  Olly Betts <olly@survex.com>
 Sun Oct 02 22:25:54 GMT 2011  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c,queryparser/queryparser.lt: Merge
-	  http://www.sqlite.org/src/info/27d8e684db: Enhancements to lemon to
+	  https://www.sqlite.org/src/info/27d8e684db: Enhancements to lemon to
 	  generate more compact action tables and to avoid making array bounds
 	  tests that can never fail on action table calculations.  This
 	  reduces the size of QueryParser's tables a little.
 
 Sun Oct 02 21:47:36 GMT 2011  Olly Betts <olly@survex.com>
 
-	* queryparser/lemon.c: Merge http://www.sqlite.org/src/info/d66a0f31eb:
+	* queryparser/lemon.c: Merge https://www.sqlite.org/src/info/d66a0f31eb:
 	  Adjust the lemon implementation so that it always computes the same
 	  PDA regardless of qsort() implementation on the host platform. In
 	  other words, make all sorts in lemon stable.

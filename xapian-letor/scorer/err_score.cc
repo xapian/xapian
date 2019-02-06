@@ -69,7 +69,7 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 	/* Compute the probability of relevance for the document.
 	 * Probability of relevance is calculated in accordance with the gain
 	 * function for the Discounted Cumulative Gain in the paper:
-	 * http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.74.9057&rep=rep1&type=pdf
+	 * https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.74.9057&rep=rep1&type=pdf
 	 */
 	auto label = fvv[rank - 1].get_label();
 	double relevance_probability = (exp2(label) - 1) / max_value;

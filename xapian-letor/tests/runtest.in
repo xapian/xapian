@@ -83,7 +83,7 @@ if test -z "$VALGRIND" ; then
     # If we're using glibc, tell it to fill newly allocated memory (unless
     # allocated by calloc) with this byte value and overwrite memory released
     # by free with this value xor 0xff.
-    # http://udrepper.livejournal.com/11429.html
+    # https://udrepper.livejournal.com/11429.html
     # Just some value, y'know?
     MALLOC_PERTURB_=42
     export MALLOC_PERTURB_

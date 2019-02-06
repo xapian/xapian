@@ -525,7 +525,7 @@ Please tell us if you find that newer versions of any of these tools work or
 fail to work.
 
 There is a good GNU autotools tutorial at
-<http://www.lrde.epita.fr/~adl/autotools.html>.
+<https://www.lrde.epita.fr/~adl/autotools.html>.
 
 Building from git on Windows with MSVC
 --------------------------------------
@@ -553,7 +553,7 @@ Note: Vagrant support is experimental. Please report bugs in the
 normal fashion, to https://trac.xapian.org/newticket, or ask for help
 on the #xapian IRC channel on Freenode.
 
-If you have Vagrant (http://www.vagrantup.com/, tested on version
+If you have Vagrant (https://www.vagrantup.com/, tested on version
 1.5.2) and VirtualBox (https://www.virtualbox.org/, tested on version
 4.3.10) installed, `vagrant up` will make a virtual machine suitable
 for developing Xapian:
@@ -1546,7 +1546,7 @@ cases of iterator use.
 
 The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list
-- excerpt from http://article.gmane.org/gmane.comp.gcc.devel/50201 ::
+- excerpt from https://article.gmane.org/gmane.comp.gcc.devel/50201 ::
 
 	class some_iterator {
 	public:
@@ -1608,7 +1608,7 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Email Fabrice Colin and Tim Brody so they can check RPM packaging.
 
 * Check if `config/config.guess` and `config/config.sub` need updating to
-  more recent versions from http://git.savannah.gnu.org/gitweb/?p=config.git
+  more recent versions from https://git.savannah.gnu.org/gitweb/?p=config.git
 
 * Check the revision currently specified in the bootstrap for the common
   subdirectory.  Unless there's a good reason, we should release
