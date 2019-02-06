@@ -1369,7 +1369,7 @@ to follow the style of the existing code.  In particular:
   derived type is thrown.  Even if derived types aren't a worry, it also causes
   the copy constructor to be called needlessly.
 
-  See also: http://www.parashift.com/c++-faq-lite/exceptions.html#faq-17.7
+  See also: https://isocpp.org/wiki/faq/exceptions#what-to-catch
 
   A const reference is preferable to a non-const reference as it stops the
   object being inadvertently modified.  In the rare cases when you want to

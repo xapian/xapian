@@ -27,7 +27,7 @@ Xapian also requires a way to generate UUIDs.  On FreeBSD, NetBSD, and
 Microsoft Windows, Xapian makes use of built-in UUID APIs.  On Linux and
 Android, Xapian 1.4.2 and higher can read UUIDs from a special file under
 /proc.  Otherwise you need to install libuuid which you can find in
-util-linux-ng (http://userweb.kernel.org/~kzak/util-linux-ng/).  On Debian and
+util-linux (https://github.com/karelzak/util-linux).  On Debian and
 Ubuntu, the package to install is uuid-dev, while on Fedora, it is
 libuuid-devel (on older Fedora versions you instead need e2fsprogs-devel).
 
