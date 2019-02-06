@@ -48,7 +48,7 @@ if ($v != $v2) {
 $db = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 $db2 = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 
-# Check PHP5 handling of Xapian::DocNotFoundError
+# Check handling of Xapian::DocNotFoundError
 try {
     $doc2 = $db->get_document(2);
     print "Retrieved non-existent document\n";

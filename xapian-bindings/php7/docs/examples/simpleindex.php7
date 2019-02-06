@@ -1,5 +1,5 @@
 <?php
-/* PHP5 script to index each paragraph of a text file as a Xapian document.
+/* PHP7 script to index each paragraph of a text file as a Xapian document.
  *
  * Copyright (C) 2007,2009 Olly Betts
  *
