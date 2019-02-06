@@ -242,11 +242,6 @@ AC_ARG_WITH(python3,
   [],
   [with_python3=])
 
-AC_ARG_WITH(php,
-  AC_HELP_STRING([--with-php], [enable PHP 5 bindings]),
-  [],
-  [with_php=])
-
 AC_ARG_WITH(php7,
   AC_HELP_STRING([--with-php7], [enable PHP 7 bindings]),
   [],
@@ -282,12 +277,11 @@ AC_ARG_WITH(lua,
   [],
   [with_lua=])
 
-case $with_python$with_python3$with_php$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
   test -z "$with_python3" && with_python3=no
-  test -z "$with_php" && with_php=no
   test -z "$with_php7" && with_php7=no
   test -z "$with_tcl" && with_tcl=no
   test -z "$with_csharp" && with_csharp=no
@@ -514,115 +508,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
     AC_PATH_PROGS(PYTHON, [python2 python python3], [])
   fi
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
-fi
-
-if test no != "$with_php" ; then
-  dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  if test -n "$PHP_CONFIG" ; then
-    AC_PATH_PROGS(PHP_CONFIG, ["$PHP_CONFIG"], [])
-  fi
-  if test -z "$PHP_CONFIG" ; then
-    AC_PATH_PROGS(PHP_CONFIG, [php-config5 php-config], [])
-  fi
-  AC_ARG_VAR(PHP_CONFIG, [php-config utility for PHP5])
-  AC_ARG_VAR(PHP, [PHP5 interpreter (optional - only needed to run PHP5 testsuite with)])
-  if test -n "$PHP_CONFIG" ; then
-    AC_MSG_CHECKING([$PHP_CONFIG version])
-    version=`$PHP_CONFIG --version 2>/dev/null`
-    case $version in
-    [[01234].*|5.[01234].*|[6789].*])
-      AC_MSG_RESULT([$version (not supported, PHP5 bindings need PHP 5.x where x >= 5)])
-      if test yes = "$with_php" ; then
-	AC_MSG_ERROR([$PHP_CONFIG reports version $version - PHP5 bindings need PHP 5.x where x >= 5])
-      fi
-      with_php=no
-      ;;
-    *)
-      AC_MSG_RESULT([$version])
-      PHP_MAJOR_VERSION=`echo "$version"|cut -d. -f1`
-      ;;
-    esac
-    AC_SUBST(PHP_MAJOR_VERSION)
-
-    if test no != "$with_php" ; then
-      AC_MSG_CHECKING([for PHP5 extension directory])
-      if test -z "$PHP_EXTENSION_DIR" ; then
-	PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
-      fi
-      AC_MSG_RESULT([$PHP_EXTENSION_DIR])
-      AC_ARG_VAR(PHP_EXTENSION_DIR, [Directory to install PHP5 extensions in])
-    fi
-
-    if test no != "$with_php" ; then
-      PHP_INC=`$PHP_CONFIG --includes`
-      AC_SUBST(PHP_INC)
-      save_CPPFLAGS=$CPPFLAGS
-      CPPFLAGS="$CPPFLAGS $PHP_INC"
-      dnl One of SGI's SuSE boxes has php-config but no headers.
-      AC_CHECK_HEADER(zend.h, [], [
-	if test yes = "$with_php" ; then
-	  AC_MSG_ERROR(['$PHP_CONFIG --includes' reports '$PHP_INC' but zend.h can't be included from there])
-	fi
-	with_php=no], [ ])
-      CPPFLAGS=$save_CPPFLAGS
-    fi
-
-    if test no != "$with_php" ; then
-      if test x"$PHP" = x ; then
-	AC_MSG_CHECKING([for PHP5 interpreter])
-	dnl PHP5's php-config supports --php-binary, so just use that.
-	PHP=`$PHP_CONFIG --php-binary 2>/dev/null`
-	if test x"$PHP" != x ; then
-	  if $PHP -r 'exit(0);' 2> /dev/null ; then
-	    if $PHP -r 'exit(PHP_MAJOR_VERSION==5?0:1);' 2> /dev/null ; then
-	      AC_MSG_RESULT([$PHP])
-	    else
-	      dnl We get /usr/bin/php on Debian, which might be PHP7:
-	      dnl https://bugs.debian.org/819139
-	      if ${PHP}5 -r 'exit(PHP_MAJOR_VERSION==5?0:1);' 2> /dev/null ; then
-		PHP=${PHP}5
-		AC_MSG_RESULT([$PHP])
-	      else
-		AC_MSG_RESULT([no ($PHP isn't PHP5)])
-		PHP=
-	      fi
-	    fi
-	  else
-	    AC_MSG_RESULT([no ($PHP does not work)])
-	    PHP=
-	  fi
-	else
-	  AC_MSG_RESULT([not found])
-	fi
-      else
-	AC_PATH_PROGS(PHP, ["$PHP"], [])
-      fi
-      if test x"$PHP" = x ; then
-	AC_MSG_WARN([No PHP5 interpreter found - PHP5 bindings tests will be skipped])
-	dnl The skiptest script just returns exit code 77.
-	PHP='$(top_srcdir)/skiptest'
-      else
-	AC_MSG_CHECKING([for PHP5 path separator])
-	PHP_PATH_SEPARATOR=`$PHP -r 'echo PATH_SEPARATOR;'`
-	AC_SUBST([PHP_PATH_SEPARATOR])
-	AC_MSG_RESULT([$PHP_PATH_SEPARATOR])
-      fi
-
-      case $host_os in
-      mingw* | pw32*)
-	dnl This is a bit of an informed guess, pending more information from
-	dnl someone who actually has mingw and wants to build the PHP bindings
-	dnl there.  FIXME.
-	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${PHP_MAJOR_VERSION}ts" ;;
-      cygwin*)
-	PHP_LIBS="-lphp${PHP_MAJOR_VERSION}lib" ;;
-      *)
-	PHP_LIBS= ;;
-      esac
-      AC_SUBST(PHP_LIBS)
-      BINDINGS="$BINDINGS php"
-    fi
-  fi
 fi
 
 if test no != "$with_php7" ; then
@@ -1451,7 +1336,6 @@ AC_CONFIG_FILES([Makefile
  xapian-version.h
  python/Makefile python/docs/conf.py python/version.i
  python3/Makefile python3/docs/conf.py python3/version.i
- php/Makefile
  php7/Makefile
  java/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
