@@ -1384,7 +1384,7 @@ if test yes = "$GXX" ; then
   dnl Python itself is compiled with -fno-strict-aliasing, and it appears
   dnl it's safest to follow this lead when compiling the SWIG generated
   dnl interface code.  E.g.:
-  dnl   http://article.gmane.org/gmane.comp.gcc.devel/74692
+  dnl   https://article.gmane.org/gmane.comp.gcc.devel/74692
   dnl The code SWIG generates for other languages seems to have similar
   dnl issues too, so just turn this on for all of them.
   dnl

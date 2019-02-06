@@ -3515,7 +3515,7 @@ documentation:
 tools:
 
 * xapian-chert-update: Fix -b to work rather than always segfaulting (reported
-  in http://bugs.debian.org/716484).
+  in https://bugs.debian.org/716484).
 
 * xapian-chert-update: The documented alias --blocksize for -b has never
   actually been supported, so just drop mentions of it from --help and the man
@@ -3538,7 +3538,7 @@ tools:
   + Fix database consistency checking to always open all the tables at the same
     revision - not doing this could lead to false errors being reported after a
     commit interrupted by the process being killed or the machine crashing.
-    Reported by Joey Hess in http://bugs.debian.org/724610
+    Reported by Joey Hess in https://bugs.debian.org/724610
 
 examples:
 

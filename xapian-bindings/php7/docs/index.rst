@@ -79,7 +79,7 @@ Unicode Support
 
 The Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
-to index strings in a different encoding, use the PHP `iconv function <http://php.net/iconv>`_ to convert them to UTF-8 before passing them to Xapian, and when reading values back from Xapian.
+to index strings in a different encoding, use the PHP `iconv function <https://secure.php.net/iconv>`_ to convert them to UTF-8 before passing them to Xapian, and when reading values back from Xapian.
 
 Iterators
 #########

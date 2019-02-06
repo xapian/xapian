@@ -394,7 +394,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
  *  formula is subject to inaccuracy due to numerical errors for coordinates on
  *  the opposite side of the sphere.
  *
- *  See http://en.wikipedia.org/wiki/Haversine_formula
+ *  See https://en.wikipedia.org/wiki/Haversine_formula
  */
 class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
     /** The radius of the sphere in metres.

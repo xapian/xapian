@@ -517,7 +517,7 @@ SnipPipe::drain(const string & input,
 
 	// See if this is the end of a sentence.
 	// FIXME: This is quite simplistic - look at the Unicode rules:
-	// http://unicode.org/reports/tr29/#Sentence_Boundaries
+	// https://unicode.org/reports/tr29/#Sentence_Boundaries
 	bool punc = false;
 	Utf8Iterator i(input.data() + best_end, tail_len);
 	while (i != Utf8Iterator()) {

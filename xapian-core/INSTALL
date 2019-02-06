@@ -13,7 +13,7 @@ the following 3 simple steps:
 Prerequisites
 =============
 
-You'll need to have zlib installed (http://www.zlib.net/) before you can build
+You'll need to have zlib installed (https://www.zlib.net/) before you can build
 Xapian.  The zlib library is very widely used, so you'll probably have it
 installed already if you're using Linux, FreeBSD, or similar, but you may need
 to install a "zlib development" package to get the zlib library headers.

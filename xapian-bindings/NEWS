@@ -1252,7 +1252,7 @@ Ruby:
 Tcl:
 
 * Link against -ltclstubX.Y for Tcl 8.5 and later (reported by Sergei Golovan
-  in http://bugs.debian.org/724830).
+  in https://bugs.debian.org/724830).
 
 * Use a better check for TCL_INC for Tcl 8.5 and later.
 
@@ -1661,7 +1661,7 @@ Python:
 
 * python/pythontest2.py: With Python 2.7, gc.collect() doesn't always collect
   all the garbage, so repeat until no further objects are freed.
-  (http://bugs.debian.org/625679 and https://bugs.gentoo.org/349484).
+  (https://bugs.debian.org/625679 and https://bugs.gentoo.org/349484).
 
 Ruby:
 

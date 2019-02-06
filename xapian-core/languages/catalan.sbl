@@ -1,7 +1,7 @@
 // Alias: ca
-// From: http://snowballstem.org/algorithms/catalan/stemmer.html
+// From: https://snowballstem.org/algorithms/catalan/stemmer.html
 // Author: Israel Olalla
-// Licence: 3-clause BSD, as per http://snowballstem.org/license.html
+// Licence: 3-clause BSD, as per https://snowballstem.org/license.html
 
 routines (
            cleaning mark_regions
@@ -201,7 +201,7 @@ define stem as (
 )
 /*
      First works 2010/07/19
-     First Gramatical Reviews: http://ca.wikipedia.org/wiki/Gram%C3%A0tica_catalana
+     First Gramatical Reviews: https://ca.wikipedia.org/wiki/Gram%C3%A0tica_catalana
      Sufix list: http://wapedia.mobi/ca/Llista_de_sufixos
-     Irregular Verbs: http://ca.wikipedia.org/wiki/Flexi%C3%B3_verbal_del_catal%C3%A0
+     Irregular Verbs: https://ca.wikipedia.org/wiki/Flexi%C3%B3_verbal_del_catal%C3%A0
 */

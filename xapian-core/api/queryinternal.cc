@@ -97,7 +97,7 @@ struct CmpMaxOrTerms {
 	//
 	// Note that m68k only has excess precision in earlier models - 68040
 	// and later are OK:
-	// http://gcc.gnu.org/ml/gcc-patches/2008-11/msg00105.html
+	// https://gcc.gnu.org/ml/gcc-patches/2008-11/msg00105.html
 	//
 	// To avoid this, we store each result in a volatile double prior to
 	// comparing them.  This means that the result of this test should
