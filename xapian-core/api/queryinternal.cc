@@ -322,8 +322,7 @@ BoolOrContext::postlist()
     if (pls.size() == 1) {
 	pl = pls[0];
     } else {
-	pl = new BoolOrPostList(pls.begin(), pls.end(), qopt->matcher,
-				qopt->db_size);
+	pl = new BoolOrPostList(pls.begin(), pls.end(), qopt->db_size);
     }
 
     // Empty pls so our destructor doesn't delete them all!

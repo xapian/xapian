@@ -78,7 +78,6 @@ BoolOrPostList::next(double)
 	if (res) {
 	    delete plist[0].pl;
 	    plist[0].pl = res;
-	    pltree->force_recalc();
 	}
 
 	if (plist[0].pl->at_end()) {
@@ -118,7 +117,6 @@ BoolOrPostList::skip_to(Xapian::docid did_min, double)
 	    if (res) {
 		delete plist[i].pl;
 		plist[j].pl = res;
-		pltree->force_recalc();
 	    } else {
 		plist[j].pl = plist[i].pl;
 	    }

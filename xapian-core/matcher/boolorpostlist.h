@@ -23,8 +23,6 @@
 
 #include "api/postlist.h"
 
-class PostListTree;
-
 /// PostList class implementing unweighted Query::OP_OR
 class BoolOrPostList : public PostList {
     /// Don't allow assignment.
@@ -58,8 +56,6 @@ class BoolOrPostList : public PostList {
 
     /** Total number of documents in the database. */
     Xapian::doccount db_size;
-
-    PostListTree* pltree;
 
     /** Helper to apply operation to all postlists matching current docid.
      *
@@ -113,9 +109,9 @@ class BoolOrPostList : public PostList {
      */
     template<class RandomItor>
     BoolOrPostList(RandomItor pl_begin, RandomItor pl_end,
-		   PostListTree* pltree_, Xapian::doccount db_size_)
+		   Xapian::doccount db_size_)
 	: did(0), n_kids(pl_end - pl_begin), plist(NULL),
-	  db_size(db_size_), pltree(pltree_)
+	  db_size(db_size_)
     {
 	plist = new PostListAndDocID[n_kids];
 	// This initialises all entries to have did 0, so all entries are
