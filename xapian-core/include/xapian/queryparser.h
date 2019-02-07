@@ -204,7 +204,10 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *			by the user (empty string for no upper limit).
      *
      *  @return		An OP_VALUE_RANGE Query object (or if end.empty(), an
-     *			OP_VALUE_GE Query object).
+     *			OP_VALUE_GE Query object).  Or if the range isn't one
+     *			which this object can handle then
+     *			Xapian::Query(Xapian::Query::OP_INVALID) will be
+     *			returned.
      */
     virtual Xapian::Query
 	operator()(const std::string &begin, const std::string &end);
