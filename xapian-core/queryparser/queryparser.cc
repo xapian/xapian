@@ -58,8 +58,6 @@ SimpleStopper::get_description() const
 
 RangeProcessor::~RangeProcessor() { }
 
-ValueRangeProcessor::~ValueRangeProcessor() { }
-
 FieldProcessor::~FieldProcessor() { }
 
 QueryParser::QueryParser(const QueryParser &) = default;

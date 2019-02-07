@@ -388,14 +388,6 @@ package Xapian::DateRangeProcessor;
 sub CLONE_SKIP { 1 }
 package Xapian::NumberRangeProcessor;
 sub CLONE_SKIP { 1 }
-package Xapian::ValueRangeProcessor;
-sub CLONE_SKIP { 1 }
-package Xapian::StringValueRangeProcessor;
-sub CLONE_SKIP { 1 }
-package Xapian::DateValueRangeProcessor;
-sub CLONE_SKIP { 1 }
-package Xapian::NumberValueRangeProcessor;
-sub CLONE_SKIP { 1 }
 package Xapian::FieldProcessor;
 sub CLONE_SKIP { 1 }
 package Xapian::QueryParser;

@@ -99,20 +99,6 @@ try {
     }
 }
 
-# Regression test for bug#193, fixed in 1.0.3.
-$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
-$a = '$10';
-$b = '20';
-$vrp->apply($a, $b);
-if (Xapian::sortable_unserialise($a) != 10) {
-    print Xapian::sortable_unserialise($a)." != 10\n";
-    exit(1);
-}
-if (Xapian::sortable_unserialise($b) != 20) {
-    print Xapian::sortable_unserialise($b)." != 20\n";
-    exit(1);
-}
-
 $stem = new XapianStem("english");
 if ($stem->get_description() != "Xapian::Stem(english)") {
     print "Unexpected \$stem->get_description()\n";
@@ -279,19 +265,6 @@ add_rp_date($qp);
 $query = $qp->parse_query('12/03/99..12/04/01');
 if ($query->get_description() !== 'Query(VALUE_RANGE 1 19991203 20011204)') {
     print "XapianDateRangeProcessor didn't work - result was ".$query->get_description()."\n";
-    exit(1);
-}
-
-# Check DateValueRangeProcessor works.
-function add_vrp_date(&$qp) {
-    $vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
-    $qp->add_valuerangeprocessor($vrpdate);
-}
-$qp = new XapianQueryParser();
-add_vrp_date($qp);
-$query = $qp->parse_query('12/03/99..12/04/01');
-if ($query->get_description() !== 'Query(VALUE_RANGE 1 19991203 20011204)') {
-    print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
     exit(1);
 }
 

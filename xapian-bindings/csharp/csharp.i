@@ -60,8 +60,6 @@
 %rename("GetMSet") get_mset;
 %rename("GetESet") get_eset;
 
-%ignore ValueRangeProcessor::operator();
-
 %inline {
 namespace Xapian {
 

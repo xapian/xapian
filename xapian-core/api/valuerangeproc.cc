@@ -1,5 +1,5 @@
 /** @file valuerangeproc.cc
- * @brief Standard ValueRangeProcessor subclass implementations
+ * @brief Standard RangeProcessor subclass implementations
  */
 /* Copyright (C) 2007,2008,2009,2010,2012,2016,2018 Olly Betts
  *
@@ -31,37 +31,6 @@
 using namespace std;
 
 namespace Xapian {
-
-Xapian::valueno
-StringValueRangeProcessor::operator()(string &begin, string &end)
-{
-    if (str.size()) {
-	if (prefix) {
-	    // If there's a prefix, require it on the start of the range.
-	    if (!startswith(begin, str)) {
-		// Prefix not given.
-		return Xapian::BAD_VALUENO;
-	    }
-	    begin.erase(0, str.size());
-	    // But it's optional on the end of the range, e.g. $10..50
-	    if (startswith(end, str)) {
-		end.erase(0, str.size());
-	    }
-	} else {
-	    // If there's a suffix, require it on the end of the range.
-	    if (!endswith(end, str)) {
-		// Suffix not given.
-		return Xapian::BAD_VALUENO;
-	    }
-	    end.resize(end.size() - str.size());
-	    // But it's optional on the start of the range, e.g. 10..50kg
-	    if (endswith(begin, str)) {
-		begin.resize(begin.size() - str.size());
-	    }
-	}
-    }
-    return valno;
-}
 
 static bool
 decode_xxy(const string & s, int & x1, int &x2, int &y)
@@ -138,123 +107,6 @@ format_yyyymmdd(char * p, int y, int m, int d)
     format_int_fixed_width(p, y, 4);
     format_int_fixed_width(p + 4, m, 2);
     format_int_fixed_width(p + 6, d, 2);
-}
-
-Xapian::valueno
-DateValueRangeProcessor::operator()(string &begin, string &end)
-{
-    if (StringValueRangeProcessor::operator()(begin, end) == BAD_VALUENO)
-	return BAD_VALUENO;
-
-    if ((begin.size() == 8 || begin.size() == 0) &&
-	(end.size() == 8 || end.size() == 0) &&
-	begin.find_first_not_of("0123456789") == string::npos &&
-	end.find_first_not_of("0123456789") == string::npos) {
-	// YYYYMMDD
-	return valno;
-    }
-    if ((begin.size() == 10 || begin.size() == 0) &&
-	(end.size() == 10 || end.size() == 0)) {
-	if ((begin.empty() || is_yyyy_mm_dd(begin)) &&
-	    (end.empty() || is_yyyy_mm_dd(end))) {
-	    // YYYY-MM-DD
-	    if (!begin.empty()) {
-		begin.erase(7, 1);
-		begin.erase(4, 1);
-	    }
-	    if (!end.empty()) {
-		end.erase(7, 1);
-		end.erase(4, 1);
-	    }
-	    return valno;
-	}
-    }
-
-    int b_d, b_m, b_y;
-    int e_d, e_m, e_y;
-    if (!decode_xxy(begin, b_d, b_m, b_y) || !decode_xxy(end, e_d, e_m, e_y))
-	return Xapian::BAD_VALUENO;
-
-    // Check that the month and day are within range.  Also assume "start" <=
-    // "end" to help decide ambiguous cases.
-    if (!prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m) &&
-	(b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
-	// OK.
-    } else if (vet_dm(b_m, b_d) && vet_dm(e_m, e_d) &&
-	(b_y != e_y || b_d < e_d || (b_d == e_d && b_m <= e_m))) {
-	swap(b_m, b_d);
-	swap(e_m, e_d);
-    } else if (prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m) &&
-	       (b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
-	// OK.
-    } else {
-	return Xapian::BAD_VALUENO;
-    }
-
-    char buf[8];
-    if (!begin.empty()) {
-	if (b_y < 100) {
-	    b_y += 1900;
-	    if (b_y < epoch_year) b_y += 100;
-	}
-	format_yyyymmdd(buf, b_y, b_m, b_d);
-	begin.assign(buf, 8);
-    }
-    if (!end.empty()) {
-	if (e_y < 100) {
-	    e_y += 1900;
-	    if (e_y < epoch_year) e_y += 100;
-	}
-	format_yyyymmdd(buf, e_y, e_m, e_d);
-	end.assign(buf, 8);
-    }
-    return valno;
-}
-
-Xapian::valueno
-NumberValueRangeProcessor::operator()(string &begin, string &end)
-{
-    if (StringValueRangeProcessor::operator()(begin, end) == BAD_VALUENO)
-	return BAD_VALUENO;
-
-    // Parse the numbers to floating point.
-    double beginnum;
-
-    if (!begin.empty()) {
-	errno = 0;
-	const char * startptr = begin.c_str();
-	char * endptr;
-	beginnum = strtod(startptr, &endptr);
-	if (endptr != startptr + begin.size())
-	    // Invalid characters in string
-	    return Xapian::BAD_VALUENO;
-	if (errno)
-	    // Overflow or underflow
-	    return Xapian::BAD_VALUENO;
-    } else {
-	// Silence GCC warning.
-	beginnum = 0.0;
-    }
-
-    if (!end.empty()) {
-	errno = 0;
-	const char * startptr = end.c_str();
-	char * endptr;
-	double endnum = strtod(startptr, &endptr);
-	if (endptr != startptr + end.size())
-	    // Invalid characters in string
-	    return Xapian::BAD_VALUENO;
-	if (errno)
-	    // Overflow or underflow
-	    return Xapian::BAD_VALUENO;
-	end.assign(Xapian::sortable_serialise(endnum));
-    }
-
-    if (!begin.empty()) {
-	begin.assign(Xapian::sortable_serialise(beginnum));
-    }
-
-    return valno;
 }
 
 Xapian::Query

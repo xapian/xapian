@@ -690,19 +690,6 @@ _enquire_get_query.__doc__ = __enquire_get_query_orig.__doc__
 Enquire.get_query = _enquire_get_query
 del _enquire_get_query
 
-# When we set a ValueRangeProcessor into the QueryParser, keep a python
-# reference so it won't be deleted. This hack can probably be removed once
-# xapian bug #186 is fixed.
-__queryparser_add_valuerangeprocessor_orig = QueryParser.add_valuerangeprocessor
-def _queryparser_add_valuerangeprocessor(self, vrproc):
-    if not hasattr(self, '_vrps'):
-        self._vrps = []
-    self._vrps.append(vrproc)
-    return __queryparser_add_valuerangeprocessor_orig(self, vrproc)
-_queryparser_add_valuerangeprocessor.__doc__ = __queryparser_add_valuerangeprocessor_orig.__doc__
-QueryParser.add_valuerangeprocessor = _queryparser_add_valuerangeprocessor
-del _queryparser_add_valuerangeprocessor
-
 # When we set a RangeProcessor into the QueryParser, keep a python
 # reference so it won't be deleted. This hack can probably be removed once
 # xapian bug #186 is fixed.

@@ -64,8 +64,6 @@ while (<>) {
 	# OK!
     } elsif (s/(function add_rangeprocessor\()(\$r)/$1XapianRangeProcessor $2/) {
 	# OK!
-    } elsif (s/(function add_valuerangeprocessor\()(\$v)/$1XapianValueRangeProcessor $2/) {
-	# OK!
     } elsif (s/(function register_weighting_scheme\()(\$w)/$1XapianWeight $2/) {
 	# OK!
     } elsif (s/(function register_posting_source\()(\$)/$1XapianPostingSource $2/) {

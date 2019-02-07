@@ -37,13 +37,10 @@ my %uncopyableclasses = (
     'ValueMapPostingSource' => '0',
     'FixedWeightPostingSource' => '0',
     'DateRangeProcessor' => '0',
-    'DateValueRangeProcessor' => '0',
     'MultiValueKeyMaker' => '',
     'NumberRangeProcessor' => '0, ""',
-    'NumberValueRangeProcessor' => '0, ""',
     'RangeProcessor' => '',
     'SimpleStopper' => '',
-    'StringValueRangeProcessor' => '0'
 );
 
 my %copyableclasses = (
@@ -70,13 +67,10 @@ my %copyableclasses = (
 
 my %no_get_description = (
     'DateRangeProcessor' => 1,
-    'DateValueRangeProcessor' => 1,
     'MultiValueKeyMaker' => 1,
     'NumberRangeProcessor' => 1,
-    'NumberValueRangeProcessor' => 1,
     'RangeProcessor' => 1,
     'Registry' => 1,
-    'StringValueRangeProcessor' => 1,
     'BB2Weight' => 1,
     'BM25Weight' => 1,
     'BoolWeight' => 1,

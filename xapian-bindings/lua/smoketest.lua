@@ -188,13 +188,6 @@ function run_tests()
   query = qp:parse_query("12/03/99..12/04/01")
   expect(tostring(query), "Query(VALUE_RANGE 1 19991203 20011204)")
 
-  -- Check DateValueRangeProcessor works
-  qp = xapian.QueryParser()
-  vrpdate = xapian.DateValueRangeProcessor(1, true, 1960)
-  qp:add_valuerangeprocessor(vrpdate)
-  query = qp:parse_query("12/03/99..12/04/01")
-  expect(tostring(query), "Query(VALUE_RANGE 1 19991203 20011204)")
-
   -- Check FieldProcessor works
   qp:add_prefix('test', function (s) return "foo" end)
   qp:add_prefix('rev', function (s) return xapian.Query(s:reverse()) end)

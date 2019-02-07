@@ -356,23 +356,13 @@ def test_all():
     expect([(item.term, item.wdf, [pos for pos in item.positer]) for item in doc.termlist()], [(b'bar', 1, [2]), (b'baz', 1, [3]), (b'foo', 2, [1, 4])])
 
 
-    # Check DateValueRangeProcessor works
-    context("checking that DateValueRangeProcessor works")
+    # Check DateRangeProcessor works
+    context("checking that DateRangeProcessor works")
     qp = xapian.QueryParser()
-    vrpdate = xapian.DateValueRangeProcessor(1, 1, 1960)
-    qp.add_valuerangeprocessor(vrpdate)
+    rpdate = xapian.DateRangeProcessor(1, xapian.RP_DATE_PREFER_MDY, 1960)
+    qp.add_rangeprocessor(rpdate)
     query = qp.parse_query(b'12/03/99..12/04/01')
     expect(str(query), 'Query(VALUE_RANGE 1 19991203 20011204)')
-
-    # Regression test for bug#193, fixed in 1.0.3.
-    context("running regression test for bug#193")
-    vrp = xapian.NumberValueRangeProcessor(0, b'$', True)
-    a = '$10'
-    b = '20'
-    slot, a, b = vrp(a, b.encode('utf-8'))
-    expect(slot, 0)
-    expect(xapian.sortable_unserialise(a), 10)
-    expect(xapian.sortable_unserialise(b), 20)
 
     # Feature test for xapian.FieldProcessor
     context("running feature test for xapian.FieldProcessor")

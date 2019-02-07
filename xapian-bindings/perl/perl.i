@@ -376,15 +376,6 @@ sub add_rangeprocessor {
 }
 %}
 
-%feature("shadow") Xapian::QueryParser::add_valuerangeprocessor
-%{
-sub add_valuerangeprocessor {
-    my ($self, $vrproc) = @_;
-    push @{$self{_vrproc}}, $vrproc;
-    Xapianc::QueryParser_add_valuerangeprocessor( @_ );
-}
-%}
-
 /* Xapian::SimpleStopper */
 %feature("shadow") Xapian::SimpleStopper::SimpleStopper
 %{
