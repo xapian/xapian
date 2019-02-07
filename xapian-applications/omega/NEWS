@@ -1,3 +1,70 @@
+Omega 1.4.10 (2019-02-08):
+
+documentation:
+
+* Use https for URLs where supported.
+
+indexers:
+
+* omindex:
+
+  + Index .apxl and .kth files as Apple Keynote.  The .apxl extension is used
+    for the XML files inside .key bundles/directories which hold the text
+    content of the presentation, and by handling them we can index .key
+    directories more usefully.  It seems they are also sometimes found by
+    themselves.  Keynote themes have a .kth extension, and key2text can also
+    handle these.
+
+  + Pipe input to pdftotext, pdfinto and dpkg.  These tools all support piping
+    an input file on stdin, which can be a little more efficient when we
+    already have the file open (e.g.  to determine its type using libmagic, or
+    to calculate its checksum).
+
+  + An empty string for the start directory is now flagged as an error.
+    Previously `/` was used instead, which is unlikely to be what is wanted
+    (and `/` can be explicitly specified if that really is what is wanted).
+
+  + Fix emulation of stderr redirection when the indexer's stderr has been
+    closed.  We try to avoid using the shell when running external filters, and
+    emulate 2>/dev/null in commands, but if the indexer's stderr was closed
+    this emulation was buggy and would make give the filter a closed stderr
+    instead of one redirected to /dev/null.
+
+  + When emulating redirection to /dev/null, we now open /dev/null once and
+    dup that fd each time which is a little more efficient and simplifies the
+    code.
+
+* scriptindex:
+
+  + date=unix is now a no-op for empty input - previously it would unhelpfully
+    add boolean date terms for 1970-01-01.
+
+  + Warn for empty filename in LOAD action.  Previously this gave a slightly
+    confusing error: "Couldn't load file '': No such file or directory"
+
+  + Unknown command-line options now cause scriptindex to give a non-zero exit
+    status.
+
+testsuite:
+
+* omegatest: Add testcase for SPAN.n on different slots.
+
+* omegatest: Update expected QueryParser output for the xapian-core change to
+  produce flatter Query trees.
+
+build system:
+
+* Use AM_ICONV to detect iconv() which should handle non-system install of GNU
+  libiconv properly.  Fixes #775, reported by Ryan Schmidt.
+
+portability:
+
+* Provide fall-back strptime() implementation for platforms which don't provide
+  it, using the C++11 std::get_time() function.  We use strptime() directly
+  where it's available as some older C++11 compilers seem to lack
+  std::get_time() (GCC 4.8 for example).  This is used by the parsedate action,
+  which was added in 1.4.6.
+
 Omega 1.4.9 (2018-11-02):
 
 indexers:

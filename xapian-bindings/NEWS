@@ -1,3 +1,41 @@
+Xapian-bindings 1.4.10 (2019-02-08):
+
+Documentation:
+
+* Use https for URLs where supported.
+
+General:
+
+* Wrap new DatabaseClosedError and DatabaseNotFoundError exceptions.
+  See #772 and #773.  Patches from Vaibhav Kansagara.
+
+* Update expected query descriptions in tests for the xapian-core
+  change to produce flatter Query trees.
+
+* Workaround Perl 5.28 -i quirk when postprocessing SWIG-generated code.
+  The commands in question are only run when maintainer-mode is enabled.
+
+Java:
+
+* Remove redundant std::string initialisation.
+
+Perl:
+
+* Note in the POD documentation that the Error base classes which are abstract
+  in C++ don't have a new method in Perl.
+
+PHP7:
+
+* configure: Check for php-config7.3 and php-config7.2 as well as
+  php-config7.1, php-config7.0 and php-config.
+
+* Correct references to PHP5 in PHP7 script comments.
+
+Ruby:
+
+* We now recommend using String#encode instead of the Iconv class, since the
+  latter is no longer included with Ruby.
+
 Xapian-bindings 1.4.9 (2018-11-02):
 
 PHP7:

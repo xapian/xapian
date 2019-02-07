@@ -1,3 +1,135 @@
+Xapian-core 1.4.10 (2019-02-08):
+
+API:
+
+* DatabaseClosedError: New exception class thrown instead of DatabaseError when
+  an operation is attempted which can't be completed because it involves a
+  database which close() was previously called on.  DatabaseClosedError is a
+  subclass of DatabaseError so existing code catching DatabaseError will still
+  work as before.  Fixes #772, reported by Germán M. Bravo.  Patch from
+  Vaibhav Kansagara.
+
+* DatabaseNotFoundError: New exception class thrown instead of
+  DatabaseOpeningError when the problem is the problem is "file not found" or
+  similar.  DatabaseNotFoundError is a subclass of DatabaseOpeningError so
+  existing code catching DatabaseOpeningError will still work as before.  Fixes
+  #773, reported by Germán M. Bravo.  Patch from Vaibhav Kansagara.
+
+* Query: Make &=, |= and ^= on Query objects opportunistically append to
+  an existing query with a matching query operator which has a reference
+  count of 1.  This provides an easy way to incrementally build flatter query
+  trees.
+
+* Query: Support `query &= ~query2` better - this now is handled exactly
+  equivalent to `query = query & ~query2` and gives `query AND_NOT query2`
+  instead of `query AND (<alldocuments> AND_NOT query2)`.
+
+* QueryParser: Now uses &=, |= and ^= to produce flatter query trees.  This
+  fixes problems with running out of stack space when handling Query object
+  trees built by abusing QueryParser to parse very large machine-generated
+  queries.
+
+* Stopper: Fix incorrect accents in Hungarian stopword list.  Patch from David
+  Corbett.
+
+testsuite:
+
+* Test MSet::snippet() with small and zero lengths.  Fixes #759.  Patch from
+  Vaibhav Kansagara.
+
+* Fix testcase stubdb4 annotations - this testcase doesn't need a backend.
+
+* Add PATH annotation for testcases needing get_database_path() to avoid having
+  to repeatedly list the backends where this is supported in testcase
+  annotations.
+
+* TEST_EXCEPTION helper macro now checks that the exact specified exception
+  type is thrown.  Previously it would allow a subclass of the specified
+  exception type, but in testcases we really want to be able to test for an
+  exact type.  Issue noted by Vaibhav Kansagara on IRC.
+
+matcher:
+
+* Map OP_VALUE_GE/OP_VALUE_LE on an empty slot to EmptyPostList.  We already do
+  this for OP_VALUE_RANGE, and it's a little more efficient than creating a
+  postlist object which checks the empty value slot.
+
+glass backend:
+
+* We no longer flush all pending positional changes when a postlist, termlist
+  or all-terms is opened on a modified WritableDatabase.  Doing so was
+  incurring a significant performance cost, and the first of these happens
+  internally when `replace_document(term, doc)` is used, which is the usual way
+  to support non-numeric unique ids.  We now only flush pending positional
+  changes when committing.  Reported and diagnosed by Germán M. Bravo.
+
+remote backend:
+
+* Use poll() where available instead of select().  poll() is specified by
+  POSIX.1-2001 so should be widely available by now, and it allows watching any
+  fd (select() is limited to watching fds < FD_SETSIZE).  For any platforms
+  which still lack poll() we now workaround this select() limitation when a
+  high numbered fd needs to be watched (for example, by trying a non-blocking
+  read or write and on EAGAIN sleeping for a bit before retrying).
+
+* Stop watching fds for "exceptional conditions" - none of these are relevant
+  to our usage.
+
+* Remove 0.1s timeout in ready_to_read().  The comment says this is to avoid a
+  busy loop, but that's out of date - the matcher first checks which remotes
+  are ready to read and then does a second pass to handle those which weren't
+  with a blocking read.
+
+build system:
+
+* Stop probing for header sys/errno.h which is no longer used - it was only
+  needed for Compaq C++, support for which was dropped in 1.4.8.
+
+documentation:
+
+* docs/valueranges.html: Update to document RangeProcessor instead of
+  ValueRangeProcessor - the latter is deprecated and will be gone in the next
+  release series.
+
+* Document RangeProcessor::operator()() returns OP_INVALID to signal it doesn't
+  recognise a range.
+
+* Update some URLs for pages which have moved.
+
+* Use https for URLs where available.
+
+* HACKING: Update "empty()" section for changes in C++11.
+
+portability:
+
+* Suppress clang warnings for self-assignment tests.  Some testcases trigger
+  this new-ish clang warning while testing that self-assignment works, which
+  seems a useful thing to be testing - at least one of these is a regression
+  test.
+
+* Add std::move to fix clang -Wreturn-std-move warning (which is enabled by
+  -Wall).
+
+* Add casts to fix ubsan warnings.  These cases aren't undefined behaviour, but
+  are reported by ubsan extra checks implicit-integer-truncation and/or
+  implicit-conversion which it is useful to be able to enable to catch
+  potential bugs.
+
+* Fix check for when to use _byteswap_ulong() - in practice this would only
+  have caused a problem if a platform provided _byteswap_ushort() but not
+  _byteswap_ulong(), but we're not aware of any which do.
+
+* Fix return values of do_bswap() helpers to match parameter types (previously
+  we always returned int and only supported swapping types up to 32 bits, so
+  this probably doesn't result in any behavioural changes).
+
+* Only include <intrin.h> if we'll use it instead of always including it when
+  it exists.  Including <intrin.h> can result in warnings about duplicate
+  declarations of builtin functions under mingw.
+
+* Remove call to close()/closesocket() when the argument is always -1 (since
+  the change to use getaddrinfo() in 1.3.3).
+
 Xapian-core 1.4.9 (2018-11-02):
 
 API:
