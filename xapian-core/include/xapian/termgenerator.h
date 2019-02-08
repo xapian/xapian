@@ -215,7 +215,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     void index_text(const std::string & text,
 		    Xapian::termcount wdf_inc = 1,
 		    const std::string & prefix = std::string()) {
-	return index_text(Utf8Iterator(text), wdf_inc, prefix);
+	index_text(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Index some text without positional information.
@@ -245,7 +245,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     void index_text_without_positions(const std::string & text,
 				      Xapian::termcount wdf_inc = 1,
 				      const std::string & prefix = std::string()) {
-	return index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
+	index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Increase the term position used by index_text.
