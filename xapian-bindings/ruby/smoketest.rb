@@ -52,6 +52,11 @@ class XapianSmoketest < Test::Unit::TestCase
     @db.add_document(@doc)
 
     @enq = Xapian::Enquire.new(@db)
+
+    # This ought to be wrapped as a constant, but this tests how it has been
+    # wrapped for some time, which we need to maintain for compatibility with
+    # existing user code.
+    @enq.collapse_key = Xapian::BAD_VALUENO()
   end # setup
 
   def test_version

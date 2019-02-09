@@ -200,6 +200,12 @@ if ($query3->get_description() != "Query((a OR b))") {
     exit(1);
 }
 $enq = new XapianEnquire($db);
+
+// This ought to be wrapped as a constant, but this tests how it has been
+// wrapped for some time in PHP bindings, which we need to maintain for
+// compatibility with existing user code.
+$enq->set_collapse_key(Xapian::BAD_VALUENO_get());
+
 $enq->set_query(new XapianQuery(XapianQuery::OP_OR, "there", "is"));
 $mset = $enq->get_mset(0, 10);
 if ($mset->size() != 1) {
