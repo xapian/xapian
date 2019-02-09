@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2015,2016,2017 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2015,2016,2017,2019 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -129,6 +129,10 @@ def test_all():
     expect(term_count, 4, "Unexpected number of terms in query2")
 
     enq = xapian.Enquire(db)
+
+    # Check Xapian::BAD_VALUENO is wrapped suitably.
+    enq.set_collapse_key(xapian.BAD_VALUENO)
+
     enq.set_query(xapian.Query(xapian.Query.OP_OR, "there", "is"))
     mset = enq.get_mset(0, 10)
     expect(mset.size(), 1, "Unexpected mset.size()")

@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005,2006,2007,2008,2011,2016,2017 Olly Betts
+// Copyright (C) 2005,2006,2007,2008,2011,2016,2017,2019 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -129,6 +129,13 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 	    Enquire enq = new Enquire(db);
+
+	    // This ought to be wrapped as a constant, but this tests how it
+	    // has been wrapped for some time in the SWIG-based Xapian Java
+	    // bindings, which we need to maintain for compatibility with
+	    // existing user code.
+	    enq.setCollapseKey(Xapian.getBAD_VALUENO());
+
 	    enq.setQuery(new Query(Query.OP_OR, "there", "is"));
 	    MSet mset = enq.getMSet(0, 10);
 	    if (mset.size() != 1) {
