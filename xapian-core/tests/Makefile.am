@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = 1.12.2 serial-tests subdir-objects
+AUTOMAKE_OPTIONS = 1.12.2 parallel-tests subdir-objects
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
@@ -82,8 +82,8 @@ check-honey: apitest$(EXEEXT)
 endif
 
 ## Test programs to be run
-TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
- unittest$(EXEEXT)
+TESTS = run_honey run_none run_inmemory run_glass \
+	internaltest$(EXTEXT) stemtest$(EXTEXT) unittest$(EXTEXT)
 
 ## Programs to build
 check_PROGRAMS = \

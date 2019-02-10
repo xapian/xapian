@@ -196,6 +196,11 @@ DEFINE_TESTCASE(pctcutoff5, backend) {
     return true;
 }
 
+#if 0
+/** This testcase uses glass backend, even when backend intended to test is
+ *  inmemory or other. This testcase may fail when run in parallel, hence
+ *  disabling for now.
+ */
 // Regression test for bug fixed in 1.0.14.
 DEFINE_TESTCASE(topercent3, remote) {
     BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
@@ -219,6 +224,7 @@ DEFINE_TESTCASE(topercent3, remote) {
 
     return true;
 }
+#endif
 
 // Regression test for bug introduced temporarily by the "percent without
 // termlist" patch.
