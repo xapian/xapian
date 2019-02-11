@@ -86,10 +86,6 @@
 class XapianSWIGQueryItor {
     Bucket *p;
 
-#ifdef ZTS
-    void *** swig_zts_ctx;
-#endif
-
   public:
     typedef std::random_access_iterator_tag iterator_category;
     typedef Xapian::Query value_type;
@@ -100,15 +96,13 @@ class XapianSWIGQueryItor {
     XapianSWIGQueryItor()
 	: p(NULL) { }
 
-    void begin(zval * input TSRMLS_DC) {
+    void begin(zval * input) {
 	HashTable *ht = Z_ARRVAL_P(input);
-	TSRMLS_SET_CTX(swig_zts_ctx);
 	p = ht->arData;
     }
 
-    void end(zval * input TSRMLS_DC) {
+    void end(zval * input) {
 	HashTable *ht = Z_ARRVAL_P(input);
-	TSRMLS_SET_CTX(swig_zts_ctx);
 	p = ht->arData + ht->nNumUsed;
     }
 
@@ -132,7 +126,6 @@ class XapianSWIGQueryItor {
 	    subq = 0;
 	}
 	if (!subq) {
-	    TSRMLS_FETCH_FROM_CTX(swig_zts_ctx);
 	    SWIG_PHP_Error(E_ERROR, "Expected XapianQuery object or string");
 fail: // Label which SWIG_PHP_Error needs.
 	    return Xapian::Query();
@@ -159,8 +152,8 @@ fail: // Label which SWIG_PHP_Error needs.
     // $1 and $2 are default initialised where SWIG declares them.
     if (Z_TYPE($input) == IS_ARRAY) {
 	// The typecheck typemap should have ensured this is an array.
-	$1.begin(&$input TSRMLS_CC);
-	$2.end(&$input TSRMLS_CC);
+	$1.begin(&$input);
+	$2.end(&$input);
     }
 }
 
