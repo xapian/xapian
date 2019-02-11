@@ -4,7 +4,7 @@
  * Based on the perl XS wrapper files.
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016,2018 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -120,6 +120,10 @@ our @STEM_NAMES;
 foreach (@{ $EXPORT_TAGS{'qpstem'} }) {
   $STEM_NAMES[eval $_] = $_;
 }
+
+# Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
+# xapian-bindings 1.4.10).
+our $BAD_VALUENO = BAD_VALUENO;
 
 package Xapian::Database;
 sub enquire {

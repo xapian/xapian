@@ -2,7 +2,7 @@
 %{
 /* java.i: SWIG interface file for the Java bindings
  *
- * Copyright (c) 2007,2009,2011,2012,2014,2016,2017,2018 Olly Betts
+ * Copyright (c) 2007,2009,2011,2012,2014,2016,2017,2018,2019 Olly Betts
  * Copyright (c) 2012 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -452,3 +452,14 @@ typedef std::string binary_std_string;
 
 %include ../generic/except.i
 %include ../xapian-headers.i
+
+// Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
+// xapian-bindings 1.4.10).
+%rename("getBAD_VALUENO") getBAD_VALUENO;
+%inline %{
+namespace Xapian {
+static Xapian::valueno getBAD_VALUENO() { return Xapian::BAD_VALUENO; }
+}
+%}
+// Can't throw an exception.
+%exception Xapian::getBAD_VALUENO "$action"

@@ -31,9 +31,10 @@ ok( $db = Xapian::Database->new( 'testdb' ), "test db opened ok" );
 my $enq;
 ok( $enq = $db->enquire(), "db enquirable" );
 
-# This ought to be wrapped as a constant, but this tests how it has been
-# wrapped for some time in the SWIG-based Xapian Perl bindings, which we need
-# to maintain for compatibility with existing user code.
+# Check Xapian::BAD_VALUENO is wrapped suitably.
+$enq->set_collapse_key(Xapian::BAD_VALUENO);
+
+# Test that the non-constant wrapping prior to 1.4.10 still works.
 $enq->set_collapse_key($Xapian::BAD_VALUENO);
 
 my @subqueries;

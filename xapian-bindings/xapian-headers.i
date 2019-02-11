@@ -155,6 +155,8 @@
  */
 /* %include <xapian/version.h> */
 
+CONSTANT(Xapian::valueno, Xapian, BAD_VALUENO);
+
 /* Types are needed by most of the other headers. */
 %include <xapian/types.h>
 
