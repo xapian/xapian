@@ -70,15 +70,6 @@
     $1 = (Z_TYPE($input) == IS_TRUE || Z_TYPE($input) == IS_FALSE || Z_TYPE($input) == IS_LONG);
 }
 
-/* SWIG's default typemap accepts "Null" when an object is passed by
-   reference, and the C++ wrapper code then dereferences a NULL pointer
-   which causes a SEGV. */
-%typemap(in) SWIGTYPE & {
-    if (SWIG_ConvertPtr(&$input, (void**)&$1, $1_descriptor, 0) < 0 || $1 == NULL) {
-	SWIG_PHP_Error(E_ERROR, "Type error in argument $argnum of $symname. Expected $1_descriptor");
-    }
-}
-
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 
 %typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
