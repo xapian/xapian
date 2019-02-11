@@ -130,10 +130,10 @@ public class SmokeTest {
 	    }
 	    Enquire enq = new Enquire(db);
 
-	    // This ought to be wrapped as a constant, but this tests how it
-	    // has been wrapped for some time in the SWIG-based Xapian Java
-	    // bindings, which we need to maintain for compatibility with
-	    // existing user code.
+	    // Check Xapian::BAD_VALUENO is wrapped suitably.
+	    enq.setCollapseKey(Xapian.BAD_VALUENO);
+
+	    // Test that the non-constant wrapping prior to 1.4.10 still works.
 	    enq.setCollapseKey(Xapian.getBAD_VALUENO());
 
 	    enq.setQuery(new Query(Query.OP_OR, "there", "is"));

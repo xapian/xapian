@@ -71,12 +71,6 @@
 /* We replace the get_hit() method with one which returns an MSetitem. */
 %rename(_get_hit_internal) Xapian::MSet::get_hit;
 
-/* Force xapian.BAD_VALUENO to be handled as a constant rather than a
- * read-only variable (ticket#297).
- */
-%ignore Xapian::BAD_VALUENO;
-%constant Xapian::valueno BAD_VALUENO = Xapian::BAD_VALUENO;
-
 %{
 namespace Xapian {
     Query *get_py_query(PyObject *obj) {

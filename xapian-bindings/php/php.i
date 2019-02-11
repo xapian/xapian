@@ -2,7 +2,7 @@
 %{
 /* php.i: SWIG interface file for the PHP bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2016 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2016,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -238,3 +238,13 @@ PHP_ITERATOR(Xapian, ValueIterator, std::string, )
 %include except.i
 
 %include ../xapian-headers.i
+
+// Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
+// xapian-bindings 1.4.10).
+%inline %{
+namespace Xapian {
+static Xapian::valueno BAD_VALUENO_get() { return Xapian::BAD_VALUENO; }
+}
+%}
+// Can't throw an exception.
+%exception Xapian::BAD_VALUENO_get "$action"

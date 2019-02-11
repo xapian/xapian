@@ -4,7 +4,7 @@
 # Original version by Paul Legato (plegato@nks.net), 4/20/06.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008,2011 Olly Betts
+# Copyright (C) 2008,2011,2019 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -326,5 +326,11 @@ module Xapian
       }
     end # allterms
   end # Xapian::LatLongCoords
+
+  # Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
+  # xapian-bindings 1.4.10).
+  def Xapian::BAD_VALUENO()
+    return Xapian::BAD_VALUENO
+  end
 
 end # Xapian module

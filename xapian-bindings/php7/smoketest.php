@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -201,9 +201,10 @@ if ($query3->get_description() != "Query((a OR b))") {
 }
 $enq = new XapianEnquire($db);
 
-// This ought to be wrapped as a constant, but this tests how it has been
-// wrapped for some time in PHP bindings, which we need to maintain for
-// compatibility with existing user code.
+// Check Xapian::BAD_VALUENO is wrapped suitably.
+$enq->set_collapse_key(Xapian::BAD_VALUENO);
+
+// Test that the non-constant wrapping prior to 1.4.10 still works.
 $enq->set_collapse_key(Xapian::BAD_VALUENO_get());
 
 $enq->set_query(new XapianQuery(XapianQuery::OP_OR, "there", "is"));
