@@ -1,3 +1,96 @@
+Xapian-bindings 1.4.10 (2019-02-12):
+
+Documentation:
+
+* Use https for URLs where supported.
+
+General:
+
+* Wrap new DatabaseClosedError and DatabaseNotFoundError exceptions.
+  See #772 and #773.  Patches from Vaibhav Kansagara.
+
+* Update expected query descriptions in tests for the xapian-core
+  change to produce flatter Query trees.
+
+* Workaround Perl 5.28 -i quirk when postprocessing SWIG-generated code.
+  The commands in question are only run when maintainer-mode is enabled.
+
+CSharp:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped without using a getter.
+  This shouldn't affect existing user code.
+
+Java:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as Java constant
+  Xapian.BAD_VALUENO.  The previous Java wrapping as function
+  Xapian.getBAD_VALUENO() is still supported for compatibility with
+  existing code.
+
+* Remove redundant std::string initialisation.
+
+Lua:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as a constant rather than
+  an immutable attribute.  This shouldn't affect existing user code.
+
+Perl:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as Perl constant
+  Xapian::BAD_VALUENO.  The previous Perl wrapping as variable
+  $Xapian::BAD_VALUENO is still supported for compatibility with existing
+  code.
+
+* Note in the POD documentation that the Error base classes which are abstract
+  in C++ don't have a new method in Perl.
+
+PHP:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as PHP constant
+  Xapian::BAD_VALUENO.  The previous PHP wrapping as function
+  Xapian::BAD_VALUENO_get() is still supported for compatibility with existing
+  code.
+
+* Remove code to work around a SWIG bug which was fixed in 2006.
+
+PHP7:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as PHP constant
+  Xapian::BAD_VALUENO.  The previous PHP wrapping as function
+  Xapian::BAD_VALUENO_get() is still supported for compatibility with existing
+  code.
+
+* configure: Check for php-config7.3 and php-config7.2 as well as
+  php-config7.1, php-config7.0 and php-config.
+
+* Correct references to PHP5 in PHP7 script comments.
+
+* Remove some C code which is no longer needed with PHP7.
+
+Ruby:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as Ruby constant
+  Xapian::BAD_VALUENO.  The previous Ruby wrapping as function
+  Xapian::BAD_VALUENO() is still supported for compatibility with existing
+  code.
+
+* We now recommend using String#encode instead of the Iconv class, since the
+  latter is no longer included with Ruby.
+
+Tcl:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as a constant rather than
+  variable which can't be written to.  This shouldn't affect existing user
+  code.
+
+Xapian-bindings 1.4.9 (2018-11-02):
+
+PHP7:
+
+* Fix to build with upcoming PHP 7.3 release, which changes array_init()
+  to not return a value instead of always returning the constant SUCCESS.
+  We were checking this return value but no longer do.
+
 Xapian-bindings 1.4.8 (2018-10-25):
 
 Perl:
@@ -11,11 +104,11 @@ Perl:
 Python:
 
 * Fix RST formatting warning during build.
-    
+
 Python3:
 
 * Fix RST formatting warning during build.
-    
+
 Xapian-bindings 1.4.7 (2018-07-19):
 
 Ruby:
