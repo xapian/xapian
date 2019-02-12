@@ -1,7 +1,7 @@
 /** @file result.h
  * @brief A result in an MSet
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,11 +39,9 @@ class Result {
     std::string sort_key;
 
   public:
-    /// FIXME: Try to eliminate non-move assignment.
-    Result& operator=(const Result&) = default;
+    Result& operator=(const Result&) = delete;
 
-    /// FIXME: Try to eliminate copying.
-    Result(const Result&) = default;
+    Result(const Result&) = delete;
 
     /// Move constructor.
     Result(Result&&) = default;

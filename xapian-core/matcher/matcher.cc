@@ -1,7 +1,7 @@
 /** @file matcher.cc
  * @brief Matcher class
  */
-/* Copyright (C) 2006,2008,2009,2010,2011,2017,2018 Olly Betts
+/* Copyright (C) 2006,2008,2009,2010,2011,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -490,7 +490,7 @@ Matcher::get_local_mset(Xapian::doccount first,
 	    new_item.set_weight(weight);
 	}
 
-	if (!proto_mset.process(new_item, vsdoc))
+	if (!proto_mset.process(std::move(new_item), vsdoc))
 	    break;
     }
 
@@ -646,7 +646,7 @@ Matcher::get_mset(Xapian::doccount first,
 	if (first) {
 	    --first;
 	} else {
-	    merged_mset.internal->items.push_back(result);
+	    merged_mset.internal->items.push_back(std::move(result));
 	}
 	auto n = msets.front().second + 1;
 	if (n == msets.front().first.size()) {
