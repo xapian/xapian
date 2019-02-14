@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.h
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2009,2017 Olly Betts
+/* Copyright (C) 2007,2009,2017,2019 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -64,6 +64,8 @@ class BackendManagerMulti : public BackendManager {
 
     /// Create a Database object for the last opened WritableDatabase.
     Xapian::Database get_writable_database_as_database();
+
+    std::string get_generated_database_path(const std::string& name);
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
     Xapian::WritableDatabase get_writable_database_again();

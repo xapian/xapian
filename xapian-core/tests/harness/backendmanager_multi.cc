@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017,2019 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -155,6 +155,12 @@ Xapian::Database
 BackendManagerMulti::get_writable_database_as_database()
 {
     return Xapian::Database(last_wdb_path);
+}
+
+string
+BackendManagerMulti::get_generated_database_path(const string& name)
+{
+    return BackendManagerMulti::get_writable_database_path(name);
 }
 
 Xapian::WritableDatabase
