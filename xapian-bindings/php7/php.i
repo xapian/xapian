@@ -149,17 +149,8 @@ fail: // Label which SWIG_PHP_Error needs.
     array_init($result);
 
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-	/* We have to cast away const here because the PHP API is rather
-	 * poorly thought out - really there should be two API methods
-	 * one of which takes a const char * and copies the string and
-	 * the other which takes char * and takes ownership of the string.
-	 *
-	 * Passing 1 as the last parameter of add_next_index_stringl() tells
-	 * PHP to copy the string pointed to by p, so it won't be modified.
-	 */
-	const string & term = *i;
-	char *p = const_cast<char*>(term.data());
-	add_next_index_stringl($result, p, term.length());
+	const string& term = *i;
+	add_next_index_stringl($result, term.data(), term.length());
     }
 }
 
@@ -168,9 +159,8 @@ fail: // Label which SWIG_PHP_Error needs.
     array_init($input);
 
     for (size_t i = 0; i != num_tags; ++i) {
-	const string & term = tags[i];
-	char *p = const_cast<char*>(term.data());
-	add_next_index_stringl($input, p, term.length());
+	const string& term = tags[i];
+	add_next_index_stringl($input, term.data(), term.length());
     }
 }
 
