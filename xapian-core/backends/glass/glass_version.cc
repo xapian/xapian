@@ -296,20 +296,17 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 	    tmpfile += "/v.tmp";
 
 #ifdef __EMSCRIPTEN__
-	/*
-	* Emscripten crashes if trying to
-	* truncate a non-existing file. Skip
-	* using O_TRUNC and rather truncate
-	* when the file is opened
-	*/
+	// Emscripten crashes if trying to truncate a non-existant file. Skip
+	// using O_TRUNC and instead truncate when the file is opened.
 	fd = posixy_open(tmpfile.c_str(),
-			O_CREAT|O_WRONLY|O_BINARY, 0666);
+			 O_CREAT|O_WRONLY|O_BINARY,
+			 0666);
 	if (fd >= 0)
-		ftruncate(fd, 0);
+	    ftruncate(fd, 0);
 #else
 	fd = posixy_open(tmpfile.c_str(),
-			O_CREAT|O_TRUNC|O_WRONLY|O_BINARY,
-			0666);
+			 O_CREAT|O_TRUNC|O_WRONLY|O_BINARY,
+			 0666);
 #endif
 
 	if (rare(fd < 0))
