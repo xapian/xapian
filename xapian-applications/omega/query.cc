@@ -2099,8 +2099,7 @@ eval(const string &fmt, const vector<string> &param)
 		string::size_type i = 0, j;
 		while (true) {
 		    j = args[0].find_first_not_of("0123456789", i);
-		    Xapian::docid id = strtoul(args[0].substr(i, j - i).c_str(),
-				     NULL, 10);
+		    Xapian::docid id = atoi(args[0].substr(i, j - i).c_str());
 		    if (id) {
 			rset.add_document(id);
 			ticked[id] = true;
@@ -2616,7 +2615,12 @@ ensure_query_parsed()
 	// to display
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end()) {
-	    topdoc = strtoul(val->second.c_str(), NULL, 10);
+	    if(val->second[0] < '0' || val->second[0] > '9' || 
+	        val->second[0] == '-'){
+	        cerr << "Value entered is not in range\n"
+	            << "Range is a positive number";
+	    }
+	    topdoc = atoi(val->second.c_str());
 	}
 
 	// Handle next, previous, and page links
@@ -2629,7 +2633,12 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    long page = strtol(val->second.c_str(), NULL, 10);
+	    if(val->second[0] < '0' || val->second[0] > '9' || 
+	        val->second[0] == '-'){
+	        cerr << "Value entered is not in range\n"
+	            << "Range is a positive number";
+	    }
+	    long page = atoi(val->second.c_str());
 	    // Do something sensible for page 0 (we count pages from 1).
 	    if (page == 0) page = 1;
 	    topdoc = (page - 1) * hits_per_page;
@@ -2643,7 +2652,12 @@ ensure_query_parsed()
 	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
 	if (val != cgi_params.end()) {
-	    raw_search = bool(strtol(val->second.c_str(), NULL, 10));
+	    if(val->second[0] < '0' || val->second[0] > '9' || 
+	        val->second[0] == '-'){
+	        cerr << "Value entered is not in range\n"
+	            << "Range is a 0-1";
+	    }
+	    raw_search = bool(atoi(val->second.c_str()));
 	}
 
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
@@ -2656,7 +2670,7 @@ ensure_query_parsed()
 	    const string & value = i->second;
 	    for (size_t j = 0; j < value.size(); j = value.find('.', j)) {
 		while (value[j] == '.') ++j;
-		Xapian::docid d = strtoul(value.c_str() + j, NULL, 10);
+		Xapian::docid d = atoi(value.c_str() + j);
 		if (d) {
 		    rset.add_document(d);
 		    ticked[d] = true;

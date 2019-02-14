@@ -106,19 +106,19 @@ main(int argc, char **argv)
 		host.assign(optarg);
 		break;
 	    case 'p':
-		port = strtol(optarg, NULL, 10);
+		port = atoi(optarg);
 		break;
 	    case 'm':
 		masterdb.assign(optarg);
 		break;
 	    case 'i':
-		interval = strtol(optarg, NULL, 10);
+		interval = atoi(optarg);
 		break;
 	    case 'r':
-		reader_close_time = strtol(optarg, NULL, 10);
+		reader_close_time = atoi(optarg);
 		break;
 	    case 't':
-		timeout = strtol(optarg, NULL, 10);
+		timeout = atoi(optarg);
 		break;
 	    case 'f':
 		force_copy = true;

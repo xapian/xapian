@@ -27,7 +27,7 @@
 #include <cassert>
 #include <stdio.h> // for sprintf/snprintf
 #include <cstdlib>
-
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -53,7 +53,10 @@ using namespace std;
 int
 string_to_int(const string &s)
 {
-    return strtol(s.c_str(), NULL, 10);
+    if(s[0] < '0' || s[0] > '9'){
+        cerr << "Value entered is not an integer\n";
+    }
+    return atoi(s.c_str());
 }
 
 string

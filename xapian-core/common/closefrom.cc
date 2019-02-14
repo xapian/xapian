@@ -119,7 +119,7 @@ Xapian::Internal::closefrom(int fd)
 		    // Skip '.' and '..'.
 		    continue;
 		}
-		int n = strtol(leaf, NULL, 10);
+		int n = atoi(leaf);
 		if (n < fd) {
 		    // FD below threshold.
 		    continue;
@@ -192,7 +192,7 @@ Xapian::Internal::closefrom(int fd)
 		    // Skip '.' and '..'.
 		    continue;
 		}
-		int n = strtol(leaf, NULL, 10);
+		int n = atoi(leaf);
 		if (n < fd) {
 		    // FD below threshold.
 		    continue;

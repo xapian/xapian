@@ -880,7 +880,7 @@ test_driver::parse_command_line(int argc, char **argv)
     if (verbose == 0) {
 	const char *p = getenv("VERBOSE");
 	if (p != NULL) {
-	    verbose = strtol(p, NULL, 10);
+	    verbose = atoi(p);
 	}
     }
 

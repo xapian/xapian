@@ -101,7 +101,7 @@ try {
 		have_database = true;
 		break;
 	    case 'm':
-		msize = strtol(optarg, NULL, 10);
+		msize = atoi(optarg);
 		break;
 	    case 's':
 		try {
