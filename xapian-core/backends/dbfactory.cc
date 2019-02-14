@@ -37,7 +37,7 @@
 #include "str.h"
 
 #include <cerrno>
-#include <cstdlib> // For strtoul().
+#include <cstdlib> // For atoi().
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 # include "glass/glass_database.h"

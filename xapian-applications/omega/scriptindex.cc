@@ -494,7 +494,7 @@ bad_escaping:
 			// We don't push an Action for WEIGHT - instead we
 			// store it ready to use in the INDEX and INDEXNOPOS
 			// Actions.
-			weight = strtol(val.c_str(), NULL, 10);
+			weight = atoi(val.c_str());
 			if (useless_weight_pos != string::npos) {
 			    report_useless_action(filename, line_no,
 						  useless_weight_pos, action);

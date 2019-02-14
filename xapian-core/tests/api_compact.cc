@@ -36,7 +36,7 @@
 
 #include <cstdlib>
 #include <fstream>
-#include <iostream> 
+
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safefcntl.h"

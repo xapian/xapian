@@ -99,6 +99,7 @@ FDTracker::init()
 	// Ignore at least '.' and '..'.
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
+
 	mark_fd(atoi(name));
     }
 }
@@ -128,6 +129,7 @@ FDTracker::check()
 	// Ignore at least '.' and '..'.
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
+
 	int fd = atoi(name);
 	if (check_fd(fd)) {
 	    // This fd was already open before the testcase.
