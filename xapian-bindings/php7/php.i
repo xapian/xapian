@@ -45,16 +45,6 @@
 /* Handle op as an int rather than an enum. */
 %apply int { Xapian::Query::op };
 
-%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER) const SWIGTYPE & {
-    void *ptr;
-    $1 = (SWIG_ConvertPtr(&$input, (void **)&ptr, $1_descriptor, 0) >= 0);
-}
-
-%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER) SWIGTYPE {
-    void *ptr;
-    $1 = (SWIG_ConvertPtr(&$input, (void **)&ptr, $&1_descriptor, 0) >= 0);
-}
-
 /* STRING has a lower precedence that numbers, but the SWIG PHP check for
  * number (in 1.3.28 at least) includes IS_STRING which means that for a
  * method taking either int or string, the int version will always be used.
