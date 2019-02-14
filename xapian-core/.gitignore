@@ -37,3 +37,4 @@
 /xapian-core-*.tar.xz
 /xapian-core.spec
 /xapian-config.1
+/a.out*
