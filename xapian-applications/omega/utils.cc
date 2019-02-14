@@ -54,7 +54,7 @@ int
 string_to_int(const string &s)
 {
     if (s[0] < '0' || s[0] > '9') {
-        cerr << "Value entered is not an integer\n";
+	cerr << "Value entered is not an integer\n";
     }
     return atoi(s.c_str());
 }
