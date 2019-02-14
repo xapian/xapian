@@ -374,8 +374,9 @@ try {
 	if (!v.empty()) {
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("START."));
-	    if (i->first[0] < '0' || i->first[0] > '9' ||
-		i->first[0] == '-') {
+	    if (i->first[CONST_STRLEN("START.")] < '0' ||
+		i->first[CONST_STRLEN("START.")] > '9' ||
+		i->first[CONST_STRLEN("START.")] == '-') {
 		cerr << "Format entered is not valid\n"
 		    << "Valid formats are YYYY,YYYYMM,"
 		    << "YYYYMMDD or YYYYMMDDHHMM";
@@ -390,8 +391,9 @@ try {
 	if (!v.empty()) {
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("END."));
-	    if (i->first[0] < '0' || i->first[0] > '9' ||
-		i->first[0] == '-') {
+	    if (i->first[CONST_STRLEN("END.")] < '0' ||
+		i->first[CONST_STRLEN("END.")] > '9' ||
+		i->first[CONST_STRLEN("END.")] == '-') {
 		cerr << "Format entered is not valid\n"
 		    << "Valid formats are YYYY,YYYYMM,"
 		    << "YYYYMMDD or YYYYMMDDHHMM";
@@ -406,8 +408,9 @@ try {
 	if (!v.empty()) {
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("SPAN."));
-	    if (i->first[0] < '0' || i->first[0] > '9' ||
-		i->first[0] == '-') {
+	    if (i->first[CONST_STRLEN("SPAN.")] < '0' ||
+		i->first[CONST_STRLEN("SPAN.")] > '9' ||
+		i->first[CONST_STRLEN("SPAN.")] == '-') {
 		cerr << "Value entered is not in range\n"
 		    << "Valid range is a positive number";
 	    }
@@ -590,8 +593,8 @@ try {
 	} while (*p);
 
 	val = cgi_params.find("SORTREVERSE");
-	if (val->second[0] < '0' || val->second[0] > '9' ||
-	    val->second[0] == '-') {
+	if (val != cgi_params.end() && (val->second[0] < '0' ||
+	    val->second[0] > '9' || val->second[0] == '-')) {
 	    cerr << "Value entered is not in range\n"
 		<< "Range is 0-1";
 	}
