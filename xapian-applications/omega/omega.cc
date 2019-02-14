@@ -175,10 +175,10 @@ try {
     hits_per_page = 0;
     auto val = cgi_params.find("HITSPERPAGE");
     if (val != cgi_params.end()) {
-	if(val->second[0] < '0' || val->second[0] > '9' || 
-	    val->second[0] == '-'){
+	if (val->second[0] < '0' || val->second[0] > '9' ||
+	    val->second[0] == '-') {
 	    cerr << "Value entered is not in range\n"
-	        << "Range is 10-1000";
+		<< "Range is 10-1000";
 	}
 	hits_per_page = atoi(val->second.c_str());
     }
@@ -206,10 +206,10 @@ try {
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
 	const string & v = val->second;
-	if(val->second[0] < '0' || val->second[0] > '9' || 
-	    val->second[0] == '-'){
+	if (val->second[0] < '0' || val->second[0] > '9' ||
+	    val->second[0] == '-') {
 	    cerr << "Value entered is not in range\n"
-	        << "Range is a positive number";
+		<< "Range is a positive number";
 	}
 	Xapian::docid docid = atoi(v.c_str());
 	if (docid == 0) {
@@ -374,11 +374,11 @@ try {
 	if (!v.empty()) {
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("START."));
-	    if(i->first[0] < '0' || i->first[0] > '9' || 
-	        i->first[0] == '-'){
+	    if (i->first[0] < '0' || i->first[0] > '9' ||
+	        i->first[0] == '-') {
 	        cerr << "Format entered is not valid\n"
-	            << "Valid formats are YYYY,YYYYMM,"
-	            << "YYYYMMDD or YYYYMMDDHHMM";
+		    << "Valid formats are YYYY,YYYYMM,"
+		    << "YYYYMMDD or YYYYMMDDHHMM";
 	    }
 	    date_ranges[slot].start = v;
 	}
@@ -390,11 +390,11 @@ try {
 	if (!v.empty()) {
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("END."));
-	    if(i->first[0] < '0' || i->first[0] > '9' || 
-	        i->first[0] == '-'){
+	    if (i->first[0] < '0' || i->first[0] > '9' ||
+	        i->first[0] == '-') {
 	        cerr << "Format entered is not valid\n"
-	            << "Valid formats are YYYY,YYYYMM,"
-	            << "YYYYMMDD or YYYYMMDDHHMM";
+		    << "Valid formats are YYYY,YYYYMM,"
+		    << "YYYYMMDD or YYYYMMDDHHMM";
 	    }
 	    date_ranges[slot].end = v;
 	}
@@ -406,10 +406,10 @@ try {
 	if (!v.empty()) {
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("SPAN."));
-	    if(i->first[0] < '0' || i->first[0] > '9' || 
-	        i->first[0] == '-'){
+	    if (i->first[0] < '0' || i->first[0] > '9' ||
+	        i->first[0] == '-') {
 	        cerr << "Value entered is not in range\n"
-	            << "Valid range is a positive number";
+		    << "Valid range is a positive number";
 	    }
 	    date_ranges[slot].span = v;
 	}
@@ -476,10 +476,10 @@ try {
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
-	if(val->second[0] < '0' || val->second[0] > '9' || 
-	    val->second[0] == '-'){
+	if (val->second[0] < '0' || val->second[0] > '9' ||
+	    val->second[0] == '-') {
 	    cerr << "Value entered is not in range\n"
-	        << "Range is 0-100";
+		<< "Range is 0-100";
 	}
 	threshold = atoi(val->second.c_str());
 	if (threshold < 0) threshold = 0;
@@ -491,9 +491,9 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (!v.empty()) {
-	    if(v[0] < '0' || v[0] > '9' || v[0] == '-'){
+	    if (v[0] < '0' || v[0] > '9' || v[0] == '-') {
 	        cerr << "Value entered is not in range\n"
-	            << "Range is a positive number";
+		    << "Range is a positive number";
 	    }
 	    collapse_key = atoi(v.c_str());
 	    collapse = true;
@@ -590,20 +590,20 @@ try {
 	} while (*p);
 
 	val = cgi_params.find("SORTREVERSE");
-	if(val->second[0] < '0' || val->second[0] > '9' || 
-	    val->second[0] == '-'){
+	if (val->second[0] < '0' || val->second[0] > '9' ||
+	    val->second[0] == '-') {
 	    cerr << "Value entered is not in range\n"
-	        << "Range is 0-1";
+		<< "Range is 0-1";
 	}
 	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
 	    reverse_sort = !reverse_sort;
 	}
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
-	    if(val->second[0] < '0' || val->second[0] > '9' || 
-	        val->second[0] == '-'){
+	    if (val->second[0] < '0' || val->second[0] > '9' ||
+	        val->second[0] == '-') {
 	        cerr << "Value entered is not in range\n"
-	            << "Range is 0-1";
+		    << "Range is 0-1";
 	    }
 	    sort_after = (atoi(val->second.c_str()) != 0);
 	}
@@ -641,10 +641,10 @@ try {
     val = cgi_params.find("MINHITS");
     if (val != cgi_params.end()) {
 	min_hits = atoi(val->second.c_str());
-	if(val->second[0] < '0' || val->second[0] > '9' || 
-	    val->second[0] == '-'){
+	if (val->second[0] < '0' || val->second[0] > '9' ||
+	    val->second[0] == '-') {
 	    cerr << "Value entered is not in range\n"
-	        << "Range is a positive number";
+		<< "Range is a positive number";
 	}
     }
 

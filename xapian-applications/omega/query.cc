@@ -2615,10 +2615,10 @@ ensure_query_parsed()
 	// to display
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end()) {
-	    if(val->second[0] < '0' || val->second[0] > '9' || 
-	        val->second[0] == '-'){
+	    if (val->second[0] < '0' || val->second[0] > '9' ||
+	        val->second[0] == '-') {
 	        cerr << "Value entered is not in range\n"
-	            << "Range is a positive number";
+		    << "Range is a positive number";
 	    }
 	    topdoc = atoi(val->second.c_str());
 	}
@@ -2633,10 +2633,10 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    if(val->second[0] < '0' || val->second[0] > '9' || 
-	        val->second[0] == '-'){
+	    if (val->second[0] < '0' || val->second[0] > '9' ||
+	        val->second[0] == '-') {
 	        cerr << "Value entered is not in range\n"
-	            << "Range is a positive number";
+		    << "Range is a positive number";
 	    }
 	    long page = atoi(val->second.c_str());
 	    // Do something sensible for page 0 (we count pages from 1).
@@ -2652,10 +2652,10 @@ ensure_query_parsed()
 	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
 	if (val != cgi_params.end()) {
-	    if(val->second[0] < '0' || val->second[0] > '9' || 
-	        val->second[0] == '-'){
+	    if (val->second[0] < '0' || val->second[0] > '9' ||
+	        val->second[0] == '-') {
 	        cerr << "Value entered is not in range\n"
-	            << "Range is a 0-1";
+		    << "Range is a 0-1";
 	    }
 	    raw_search = bool(atoi(val->second.c_str()));
 	}
