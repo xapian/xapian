@@ -68,6 +68,7 @@ FDTracker::init()
 	const char * name = entry->d_name;
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
+
 	int fd = atoi(name);
 	fds.insert(fd);
     }
@@ -100,6 +101,7 @@ FDTracker::check()
 	// Ignore at least '.' and '..'.
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
+
 	int fd = atoi(name);
 	if (fds.find(fd) != fds.end()) continue;
 

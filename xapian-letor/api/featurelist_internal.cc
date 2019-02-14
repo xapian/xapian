@@ -125,11 +125,11 @@ FeatureList::Internal::compute_collection_length()
 	!featurelist_db.get_metadata("collection_len_body").empty() &&
 	!featurelist_db.get_metadata("collection_len_whole").empty()) {
 	len["title"] =
-	    atoi(featurelist_db.get_metadata("collection_len_title").c_str());
+	    atol(featurelist_db.get_metadata("collection_len_title").c_str());
 	len["body"] =
-	    atoi(featurelist_db.get_metadata("collection_len_body").c_str());
+	    atol(featurelist_db.get_metadata("collection_len_body").c_str());
 	len["whole"] =
-	    atoi(featurelist_db.get_metadata("collection_len_whole").c_str());
+	    atol(featurelist_db.get_metadata("collection_len_whole").c_str());
     } else {
 	Xapian::termcount title_len = 0;
 	Xapian::TermIterator dt = featurelist_db.allterms_begin("S");
