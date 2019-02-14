@@ -79,7 +79,6 @@ matrix:
         - ./configure CXXFLAGS=-O0 --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
         - make -j2
         - make -j2 distclean
-          # -w needs docker API 1.35+: - docker exec -it -w xapian-core emscripten emconfigure ./configure $confargs CXXFLAGS='-O3 -s USE_ZLIB=1' --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
         - cd xapian-core
         - docker run -v $(pwd):/src trzeci/emscripten emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1' --disable-backend-honey --disable-backend-inmemory --disable-shared --disable-backend-remote
       script:
