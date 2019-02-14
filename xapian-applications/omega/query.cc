@@ -2620,7 +2620,7 @@ ensure_query_parsed()
 		cerr << "Value entered is not in range\n"
 		    << "Range is a positive number";
 	    }
-	    topdoc = atoi(val->second.c_str());
+	    topdoc = atol(val->second.c_str());
 	}
 
 	// Handle next, previous, and page links
@@ -2638,7 +2638,7 @@ ensure_query_parsed()
 		cerr << "Value entered is not in range\n"
 		    << "Range is a positive number";
 	    }
-	    long page = atoi(val->second.c_str());
+	    long page = atol(val->second.c_str());
 	    // Do something sensible for page 0 (we count pages from 1).
 	    if (page == 0) page = 1;
 	    topdoc = (page - 1) * hits_per_page;
@@ -2657,7 +2657,7 @@ ensure_query_parsed()
 		cerr << "Value entered is not in range\n"
 		    << "Range is a 0-1";
 	    }
-	    raw_search = bool(atoi(val->second.c_str()));
+	    raw_search = bool(atol(val->second.c_str()));
 	}
 
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;

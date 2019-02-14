@@ -180,7 +180,7 @@ try {
 	    cerr << "Value entered is not in range\n"
 		<< "Range is 10-1000";
 	}
-	hits_per_page = atoi(val->second.c_str());
+	hits_per_page = atol(val->second.c_str());
     }
     if (hits_per_page == 0) {
 	hits_per_page = 10;
@@ -211,7 +211,7 @@ try {
 	    cerr << "Value entered is not in range\n"
 		<< "Range is a positive number";
 	}
-	Xapian::docid docid = atoi(v.c_str());
+	Xapian::docid docid = atol(v.c_str());
 	if (docid == 0) {
 	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
 	    // from an external source - we just find the correspond docid
@@ -372,8 +372,6 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("START."));
 	    if (i->first[CONST_STRLEN("START.")] < '0' ||
 		i->first[CONST_STRLEN("START.")] > '9' ||
 		i->first[CONST_STRLEN("START.")] == '-') {
@@ -381,6 +379,8 @@ try {
 		    << "Valid formats are YYYY,YYYYMM,"
 		    << "YYYYMMDD or YYYYMMDDHHMM";
 	    }
+	    Xapian::valueno slot = atoi(i->first.c_str() +
+					CONST_STRLEN("START."));
 	    date_ranges[slot].start = v;
 	}
     }
@@ -389,8 +389,6 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("END."));
 	    if (i->first[CONST_STRLEN("END.")] < '0' ||
 		i->first[CONST_STRLEN("END.")] > '9' ||
 		i->first[CONST_STRLEN("END.")] == '-') {
@@ -398,6 +396,8 @@ try {
 		    << "Valid formats are YYYY,YYYYMM,"
 		    << "YYYYMMDD or YYYYMMDDHHMM";
 	    }
+	    Xapian::valueno slot = atoi(i->first.c_str() +
+					CONST_STRLEN("END."));
 	    date_ranges[slot].end = v;
 	}
     }
@@ -406,14 +406,14 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("SPAN."));
 	    if (i->first[CONST_STRLEN("SPAN.")] < '0' ||
 		i->first[CONST_STRLEN("SPAN.")] > '9' ||
 		i->first[CONST_STRLEN("SPAN.")] == '-') {
 		cerr << "Value entered is not in range\n"
 		    << "Valid range is a positive number";
 	    }
+	    Xapian::valueno slot = atoi(i->first.c_str() +
+					CONST_STRLEN("SPAN."));
 	    date_ranges[slot].span = v;
 	}
     }
@@ -643,12 +643,12 @@ try {
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
     if (val != cgi_params.end()) {
-	min_hits = atoi(val->second.c_str());
 	if (val->second[0] < '0' || val->second[0] > '9' ||
 	    val->second[0] == '-') {
 	    cerr << "Value entered is not in range\n"
 		<< "Range is a positive number";
 	}
+	min_hits = atol(val->second.c_str());
     }
 
     parse_omegascript();
