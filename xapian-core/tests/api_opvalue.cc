@@ -1,7 +1,7 @@
 /** @file api_opvalue.cc
  * @brief Tests of the OP_VALUE_* query operators.
  */
-/* Copyright 2007,2008,2009,2010,2010,2011,2017 Olly Betts
+/* Copyright 2007,2008,2009,2010,2010,2011,2017,2019 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -272,9 +272,18 @@ DEFINE_TESTCASE(valuerange7, generated) {
     query = Xapian::Query(OP_VALUE_RANGE, 0, "ZAP", "ZERO");
     enq.set_query(query);
     mset = enq.get_mset(0, 0);
-    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mset.get_matches_estimated(), 1);
-    TEST_EQUAL(mset.get_matches_upper_bound(), 2);
+    if (startswith(get_dbtype(), "multi")) {
+	// The second shard will just have one document with "ZERO" in the slot
+	// so we can tell there's exactly one match there, and the first shard
+	// has one "ZERO\0" and one empty entry, so we can tell that can't
+	// match.
+	TEST_EQUAL(mset.get_matches_lower_bound(), 1);
+	TEST_EQUAL(mset.get_matches_upper_bound(), 1);
+    } else {
+	TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+	TEST_EQUAL(mset.get_matches_upper_bound(), 2);
+    }
 
     return true;
 }

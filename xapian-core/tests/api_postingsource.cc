@@ -1,7 +1,7 @@
 /** @file api_postingsource.cc
  * @brief tests of posting sources
  */
-/* Copyright 2008,2009,2011,2015,2016 Olly Betts
+/* Copyright 2008,2009,2011,2015,2016,2019 Olly Betts
  * Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -637,8 +637,7 @@ make_matchtimelimit1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 // FIXME: This doesn't run for remote databases (we'd need to register
-// SlowDecreasingValueWeightPostingSource on the remote) or for multi
-// databases (they don't support "generated" currently).
+// SlowDecreasingValueWeightPostingSource on the remote).
 DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
 {
 #ifndef HAVE_TIMER_CREATE

@@ -2,7 +2,7 @@
  * @brief tests of MatchSpy usage
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2012,2015 Olly Betts
+ * Copyright 2009,2011,2012,2015,2019 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -150,6 +150,11 @@ DEFINE_TESTCASE(matchspy2, generated)
     Xapian::Enquire enq(db);
 
     enq.set_query(Xapian::Query("all"));
+    if (startswith(get_dbtype(), "multi")) {
+	// Without this, we short-cut on the second shard because we don't get
+	// the documents in ascending weight order.
+	enq.set_weighting_scheme(Xapian::CoordWeight());
+    }
 
     enq.add_matchspy(&spy0);
     enq.add_matchspy(&spy1);
@@ -190,6 +195,11 @@ DEFINE_TESTCASE(matchspy4, generated)
     Xapian::Enquire enqb(db);
 
     enqa.set_query(Xapian::Query("all"));
+    if (startswith(get_dbtype(), "multi")) {
+	// Without this, we short-cut on the second shard because we don't get
+	// the documents in ascending weight order.
+	enqa.set_weighting_scheme(Xapian::CoordWeight());
+    }
     enqb.set_query(Xapian::Query("all"));
 
     enqa.add_matchspy(&spya0);

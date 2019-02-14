@@ -2,7 +2,7 @@
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2008,2009,2010,2011,2015,2017,2018 Olly Betts
+ * Copyright 2008,2009,2010,2011,2015,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,7 +78,7 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	},
 	{ "multi_glass", MULTI|
 	    BACKEND|POSITIONAL|WRITABLE|METADATA|
-	    SYNONYMS|VALUESTATS|COMPACT|PATH },
+	    SYNONYMS|VALUESTATS|GENERATED|COMPACT|PATH },
 	{ "remoteprog_glass", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
 	{ "remotetcp_glass", REMOTE|
