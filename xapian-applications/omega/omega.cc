@@ -375,8 +375,8 @@ try {
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("START."));
 	    if (i->first[0] < '0' || i->first[0] > '9' ||
-	        i->first[0] == '-') {
-	        cerr << "Format entered is not valid\n"
+		i->first[0] == '-') {
+		cerr << "Format entered is not valid\n"
 		    << "Valid formats are YYYY,YYYYMM,"
 		    << "YYYYMMDD or YYYYMMDDHHMM";
 	    }
@@ -391,8 +391,8 @@ try {
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("END."));
 	    if (i->first[0] < '0' || i->first[0] > '9' ||
-	        i->first[0] == '-') {
-	        cerr << "Format entered is not valid\n"
+		i->first[0] == '-') {
+		cerr << "Format entered is not valid\n"
 		    << "Valid formats are YYYY,YYYYMM,"
 		    << "YYYYMMDD or YYYYMMDDHHMM";
 	    }
@@ -407,8 +407,8 @@ try {
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("SPAN."));
 	    if (i->first[0] < '0' || i->first[0] > '9' ||
-	        i->first[0] == '-') {
-	        cerr << "Value entered is not in range\n"
+		i->first[0] == '-') {
+		cerr << "Value entered is not in range\n"
 		    << "Valid range is a positive number";
 	    }
 	    date_ranges[slot].span = v;
@@ -492,7 +492,7 @@ try {
 	const string & v = val->second;
 	if (!v.empty()) {
 	    if (v[0] < '0' || v[0] > '9' || v[0] == '-') {
-	        cerr << "Value entered is not in range\n"
+		cerr << "Value entered is not in range\n"
 		    << "Range is a positive number";
 	    }
 	    collapse_key = atoi(v.c_str());
@@ -601,8 +601,8 @@ try {
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
 	    if (val->second[0] < '0' || val->second[0] > '9' ||
-	        val->second[0] == '-') {
-	        cerr << "Value entered is not in range\n"
+		val->second[0] == '-') {
+		cerr << "Value entered is not in range\n"
 		    << "Range is 0-1";
 	    }
 	    sort_after = (atoi(val->second.c_str()) != 0);
