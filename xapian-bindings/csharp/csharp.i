@@ -145,8 +145,8 @@ WRAP_INPUT_ITERATOR(PostingIterator)
 WRAP_INPUT_ITERATOR(PositionIterator)
 
 %typemap(cscode) class Query %{
-  public static Query MatchAll = new Query("");
-  public static Query MatchNothing = new Query();
+  public static readonly Query MatchAll = new Query("");
+  public static readonly Query MatchNothing = new Query();
 %}
 
 }
