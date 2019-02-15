@@ -1,7 +1,7 @@
 /* lua/util.i: custom lua typemaps for xapian-bindings
  *
  * Copyright (C) 2011 Xiaona Han
- * Copyright (C) 2011,2012,2017 Olly Betts
+ * Copyright (C) 2011,2012,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,7 +60,7 @@ class lua##CLASS : public NS::CLASS {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	lua_pushlstring(L, (char *)term.c_str(), term.length());
+	lua_pushlstring(L, term.data(), term.length());
 	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
@@ -141,7 +141,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	lua_pushlstring(L, (char *)word.c_str(), word.length());
+	lua_pushlstring(L, word.data(), word.length());
 	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
@@ -241,8 +241,8 @@ class luaRangeProcessor : public Xapian::RangeProcessor {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	lua_pushlstring(L, (char *)begin.c_str(), begin.length());
-	lua_pushlstring(L, (char *)end.c_str(), end.length());
+	lua_pushlstring(L, begin.data(), begin.length());
+	lua_pushlstring(L, end.data(), end.length());
 
 	if (lua_pcall(L, 2, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
@@ -335,7 +335,7 @@ class luaFieldProcessor : public Xapian::FieldProcessor {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	lua_pushlstring(L, (char *)str.c_str(), str.length());
+	lua_pushlstring(L, str.data(), str.length());
 
 	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
