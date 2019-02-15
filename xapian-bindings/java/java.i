@@ -321,16 +321,16 @@ class XapianSWIGQueryItor {
 
 %typemap(javacode) Xapian::Query %{
     // For compatibility with the original JNI wrappers.
-    public final static op OP_AND = new op("OP_AND");
-    public final static op OP_OR = new op("OP_OR");
-    public final static op OP_AND_NOT = new op("OP_AND_NOT");
-    public final static op OP_XOR = new op("OP_XOR");
-    public final static op OP_AND_MAYBE = new op("OP_AND_MAYBE");
-    public final static op OP_FILTER = new op("OP_FILTER");
-    public final static op OP_NEAR = new op("OP_NEAR");
-    public final static op OP_PHRASE = new op("OP_PHRASE");
-    public final static op OP_ELITE_SET = new op("OP_ELITE_SET");
-    public final static op OP_VALUE_RANGE = new op("OP_VALUE_RANGE");
+    public final static op OP_AND = op.OP_AND;
+    public final static op OP_OR = op.OP_OR;
+    public final static op OP_AND_NOT = op.OP_AND_NOT;
+    public final static op OP_XOR = op.OP_XOR;
+    public final static op OP_AND_MAYBE = op.OP_AND_MAYBE;
+    public final static op OP_FILTER = op.OP_FILTER;
+    public final static op OP_NEAR = op.OP_NEAR;
+    public final static op OP_PHRASE = op.OP_PHRASE;
+    public final static op OP_ELITE_SET = op.OP_ELITE_SET;
+    public final static op OP_VALUE_RANGE = op.OP_VALUE_RANGE;
 
     public final static Query MatchAll = new Query("");
     public final static Query MatchNothing = new Query();
