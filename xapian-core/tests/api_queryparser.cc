@@ -824,7 +824,7 @@ static const test test_and_queries[] = {
     { "author:험가 OR subject:万众 hello world!", "((A험@1 AND A험가@1 AND A가@1) OR (XT万@2 AND XT万众@2 AND XT众@2 AND (Zhello@3 AND Zworld@4)))" },
     { "洛伊one儿差点two脸three", "(洛@1 AND 洛伊@1 AND 伊@1 AND Zone@2 AND (儿@3 AND 儿差@3 AND 差@3 AND 差点@3 AND 点@3) AND Ztwo@4 AND 脸@5 AND Zthree@6)" },
     { NULL, "CJK_WORDS" }, // Enable FLAG_CJK_WORDS
-    // Test n-gram generation:
+    // Test CJK word splitting
     { "author:험가 OR subject:万众 hello world!", "(A험가@1 OR (XT万@2 AND XT众@2 AND (Zhello@3 AND Zworld@4)))" },
     { "洛伊one儿差点two脸three", "(洛伊@1 AND Zone@2 AND (儿@3 AND 差点@3) AND Ztwo@4 AND 脸@5 AND Zthree@6)" },
     { NULL, NULL }
