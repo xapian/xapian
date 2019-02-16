@@ -720,14 +720,14 @@ static const test test_or_queries[] = {
     { "久有 归天愿", "((久@1 AND 有@1) OR (归天@2 AND 愿@2))" },
     { "久有！归天愿", "((久@1 AND 有@1) OR (归天@2 AND 愿@2))" },
 
-    { "title:久有 归 天愿", "(((XT久@1 AND XT有@1) OR 归@2) OR (天@3 AND 愿@3))" },
+    { "title:久有 归 天愿", "((XT久@1 AND XT有@1) OR 归@2 OR (天@3 AND 愿@3))" },
 
-    { "h众ello万众", "(((Zh@1 OR 众@2) OR Zello@3) OR (万@4 AND 众@4))" },
+    { "h众ello万众", "(Zh@1 OR 众@2 OR Zello@3 OR (万@4 AND 众@4))" },
 
     // Korean splits some words by whitespace, and there is no available tool
     // to crosscheck Korean word splits for these tests. So the expected values
     // here are best guess only.
-    { "世(の中)TEST_tm", "((世@1 OR Zの中@2) OR test_tm@3)" },
+    { "世(の中)TEST_tm", "(世@1 OR Zの中@2 OR test_tm@3)" },
     { "다녀 AND 와야", "(다녀@1 AND 와야@2)" },
     { "authortitle:학술 OR 연구를", "((A학술@1 AND XT학술@1) OR 연구를@2)" },
 
@@ -825,8 +825,8 @@ static const test test_and_queries[] = {
     { "洛伊one儿差点two脸three", "(洛@1 AND 洛伊@1 AND 伊@1 AND Zone@2 AND (儿@3 AND 儿差@3 AND 差@3 AND 差点@3 AND 点@3) AND Ztwo@4 AND 脸@5 AND Zthree@6)" },
     { NULL, "CJK_WORDS" }, // Enable FLAG_CJK_WORDS
     // Test n-gram generation:
-    { "author:험가 OR subject:万众 hello world!", "(A험가@1 OR ((XT万@2 AND XT众@2) AND (Zhello@3 AND Zworld@4)))" },
-    { "洛伊one儿差点two脸three", "(((((洛伊@1 AND Zone@2) AND (儿@3 AND 差点@3)) AND Ztwo@4) AND 脸@5) AND Zthree@6)" },
+    { "author:험가 OR subject:万众 hello world!", "(A험가@1 OR (XT万@2 AND XT众@2 AND (Zhello@3 AND Zworld@4)))" },
+    { "洛伊one儿差点two脸three", "(洛伊@1 AND Zone@2 AND (儿@3 AND 差点@3) AND Ztwo@4 AND 脸@5 AND Zthree@6)" },
     { NULL, NULL }
 };
 
