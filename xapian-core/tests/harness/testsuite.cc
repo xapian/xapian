@@ -66,6 +66,7 @@
 #ifndef NO_LIBXAPIAN
 # include <xapian/error.h>
 #endif
+#include "errno_to_string.h"
 #include "filetests.h"
 #include "noreturn.h"
 #include "stringutils.h"
