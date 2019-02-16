@@ -27,6 +27,7 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
+#include "errno_to_string.h"
 #include "filetests.h"
 #include "str.h"
 #include "testrunner.h"
@@ -1257,7 +1258,7 @@ DEFINE_TESTCASE(retrylock1, writable && path) {
 	    result[0] = 'y';
 	} else {
 	    // Error.
-	    tout << "errno=" << errno << ": " << strerror(errno) << endl;
+	    tout << "errno=" << errno << ": " << errno_to_string(errno) << endl;
 	    result[0] = 'e';
 	}
 	r = 1;
@@ -1299,14 +1300,16 @@ retry:
 	} else if (sr == -1) {
 	    if (errno == EINTR || errno == EAGAIN)
 		goto retry;
-	    tout << "select() failed with errno=" << errno << ": " << strerror(errno) << endl;
+	    tout << "select() failed with errno=" << errno << ": "
+		 << errno_to_string(errno) << endl;
 	    result[0] = 'S';
 	    r = 1;
 	} else {
 	    r = read(fds[1], result, sizeof(result));
 	    if (r == -1) {
 		// Error.
-		tout << "read failed with errno=" << errno << ": " << strerror(errno) << endl;
+		tout << "read() failed with errno=" << errno << ": "
+		     << errno_to_string(errno) << endl;
 		result[0] = 'R';
 		r = 1;
 	    } else if (r == 0) {
