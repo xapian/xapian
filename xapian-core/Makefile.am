@@ -110,6 +110,7 @@ libxapian_1_5_la_SOURCES = $(lib_src)
 libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS) $(ICU_LIBS)
 libxapian_1_5_la_LDFLAGS = \
     $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO) $(lib_ldflags)
+
 lib_src =
 lib_ldflags =
 

@@ -105,7 +105,6 @@ class CJKTokenIterator {
 };
 
 class CJKNgramIterator : public CJKTokenIterator {
-
     mutable Xapian::Utf8Iterator p;
 
   public:

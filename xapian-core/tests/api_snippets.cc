@@ -462,7 +462,6 @@ DEFINE_TESTCASE(snippet_small_zerolength, backend) {
 
 /// Test CJK word segmentation.
 DEFINE_TESTCASE(snippet_cjkwords, backend) {
-
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("已經"));
 
