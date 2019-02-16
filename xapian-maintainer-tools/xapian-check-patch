@@ -114,6 +114,9 @@ while (<>) {
 		$lang = 'h';
 		$want_tabs = 1 unless ($fnm =~ m!/omega/cdb!);
 	    }
+	} elsif ($fnm =~ /\.l(?:emony|t)$/) {
+	    $lang = 'c++';
+	    $want_tabs = 1;
 	} elsif ($fnm =~ /\.py(?:\.in)?$/) {
 	    $lang = 'py';
 	    $want_tabs = 0;
