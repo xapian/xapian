@@ -81,10 +81,8 @@ DebugLogger::initialise_categories_mask()
 		// user will probably miss the message about the debug log
 		// failing to open!
 		fd = 2;
-		string e;
-		errno_to_string(errno, e);
 		LOGLINE(ALWAYS, PACKAGE_STRING": Failed to open debug log '"
-			<< fnm << "' (" << e << ')');
+			<< fnm << "' (" << errno_to_string(errno) << ')');
 		fd = -2;
 	    }
 	}
@@ -136,10 +134,8 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
 	    // logging.
 	    (void)close(fd);
 	    fd = 2;
-	    string e;
-	    errno_to_string(errno, e);
 	    LOGLINE(ALWAYS, PACKAGE_STRING": Failed to write log output ("
-		    << e << ')');
+		    << errno_to_string(errno) << ')');
 	    fd = -2;
 	    break;
 	}
