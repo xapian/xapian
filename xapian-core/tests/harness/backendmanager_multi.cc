@@ -23,6 +23,7 @@
 
 #include "backendmanager_multi.h"
 
+#include "errno_to_string.h"
 #include "filetests.h"
 #include "index_utils.h"
 #include "str.h"
@@ -87,7 +88,7 @@ BackendManagerMulti::createdb_multi(const string& name,
 	string msg = "Couldn't create file '";
 	msg += tmpfile;
 	msg += "' (";
-	msg += strerror(errno);
+	errno_to_string(errno, msg);
 	msg += ')';
 	throw msg;
     }

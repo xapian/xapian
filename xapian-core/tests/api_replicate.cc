@@ -896,7 +896,7 @@ DEFINE_TESTCASE(replicate7, replicas) {
 	    if (!entry) {
 		if (errno == 0)
 		    break;
-		FAIL_TEST("readdir failed: " << strerror(errno));
+		FAIL_TEST("readdir failed: " << errno_to_string(errno));
 	    }
 
 	    // Skip '.' and '..'.

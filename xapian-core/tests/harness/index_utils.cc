@@ -21,6 +21,7 @@
 
 #include "index_utils.h"
 
+#include "errno_to_string.h"
 #include "stringutils.h"
 
 #include <algorithm>
@@ -188,7 +189,7 @@ FileIndexer::next_file()
 	string msg = "Can't read file '";
 	msg += filename;
 	msg += "' for indexing (";
-	msg += strerror(errno);
+	errno_to_string(errno, msg);
 	msg += ')';
 	throw msg;
     }
