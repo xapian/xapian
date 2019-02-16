@@ -31,6 +31,7 @@
 
 #include "apitest.h"
 #include "dbcheck.h"
+#include "errno_to_string.h"
 #include "fd.h"
 #include "filetests.h"
 #include "safedirent.h"
