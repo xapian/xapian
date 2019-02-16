@@ -827,13 +827,15 @@ DEFINE_TESTCASE(termgen1, !backend) {
 		}
 	    } else if (strncmp(o, "cjkngram", 8) == 0) {
 		o += 8;
-		termgen.set_flags(termgen.FLAG_CJK_NGRAM, ~termgen.FLAG_CJK_NGRAM);
+		termgen.set_flags(termgen.FLAG_CJK_NGRAM,
+				  ~termgen.FLAG_CJK_NGRAM);
 	    } else if (strncmp(o, "!cjkngram", 9) == 0) {
 		o += 9;
 		termgen.set_flags(0, ~termgen.FLAG_CJK_NGRAM);
 	    } else if (strncmp(o, "cjkwords", 8) == 0) {
 		o += 8;
-		termgen.set_flags(termgen.FLAG_CJK_WORDS, ~termgen.FLAG_CJK_WORDS);
+		termgen.set_flags(termgen.FLAG_CJK_WORDS,
+				  ~termgen.FLAG_CJK_WORDS);
 	    } else if (strncmp(o, "!cjkwords", 9) == 0) {
 		o += 9;
 		termgen.set_flags(0, ~termgen.FLAG_CJK_WORDS);

@@ -891,7 +891,8 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    bool cjk_enable = (flags & (FLAG_CJK_NGRAM|FLAG_CJK_WORDS)) || CJK::is_cjk_enabled();
+    bool cjk_enable =
+	(flags & (FLAG_CJK_NGRAM|FLAG_CJK_WORDS)) || CJK::is_cjk_enabled();
 
     // Set ranges if we may have to handle ranges in the query.
     bool ranges = !rangeprocs.empty() && (qs.find("..") != string::npos);
