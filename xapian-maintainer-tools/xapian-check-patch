@@ -228,6 +228,8 @@ while (<>) {
 		(length($expandedline) > 84 || !/^\+"/) &&
 		# Allow longer copyright lines.
 		$fullline !~ m,^\+[ /]\* Copyright , &&
+		# Allow long initialisers (e.g. for testcases).
+		! /^\+\s*\{.*\},?$/ &&
 		# Don't force wrapping of a long #error message.
 		!/^\+#\d*(error|warning)\b/) {
 		diagnostic('error', "Line extends beyond column 80 (to column ".length($expandedline).")", $fullline);
