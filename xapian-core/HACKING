@@ -72,8 +72,16 @@ message you're interested by setting environment variables.  You can:
  * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
    output to be appended to, or to the special value ``-`` to indicate that you
    would like debugging output to be sent to stderr.  Unless XAPIAN_DEBUG_LOG
-   is set, no debug logging will be performed.  Occurrences of %p in
+   is set, no debug logging will be performed.  Occurrences of ``%p`` in
    XAPIAN_DEBUG_LOG will be replaced with the current process-id.
+
+   If you're debugging a crash and want to avoid losing the most recent log
+   messages then include ``%!`` in XAPIAN_DEBUG_LOG (which is replaced with
+   the empty string).  This will cause the log file to be opened with
+   ``O_DSYNC`` or ``O_SYNC`` or similar if running on a platform that supports
+   a suitable mechanism.  In 1.4.10 and earlier this was on by default (and
+   ``%!`` has no special meaning) but it can incur a significant performance
+   overhead and in most cases isn't necessary.
 
  * set XAPIAN_DEBUG_FLAGS to a string of capital letters indicating the types
    of debugging message you would like to display (the default is to log calls
