@@ -74,47 +74,43 @@ get_cjk(Xapian::Utf8Iterator &it)
 
 class CJKTokenIterator {
   protected:
-    Xapian::Utf8Iterator it;
-
     mutable unsigned len;
 
     mutable std::string current_token;
 
-    virtual bool equal_to(const CJKTokenIterator & other) const;
-
   public:
-    explicit CJKTokenIterator(const std::string & s)
-	: it(s) { }
-
-    explicit CJKTokenIterator(const Xapian::Utf8Iterator & it_)
-	: it(it_) { }
-
-    CJKTokenIterator()
-	: it() { }
-
-    virtual ~CJKTokenIterator() {};
-
-    virtual const std::string & operator*() const = 0;
-
-    virtual CJKTokenIterator & operator++() = 0;
-
     /// Get the length of the current token in Unicode characters.
     unsigned get_length() const { return len; }
-
-    friend bool operator==(const CJKTokenIterator &, const CJKTokenIterator &);
 };
 
 class CJKNgramIterator : public CJKTokenIterator {
+    Xapian::Utf8Iterator it;
+
     mutable Xapian::Utf8Iterator p;
 
   public:
-    CJKNgramIterator(const std::string & s) : CJKTokenIterator(s) {}
+    explicit CJKNgramIterator(const std::string & s)
+	: it(s) { }
 
-    CJKNgramIterator() : CJKTokenIterator() {}
+    explicit CJKNgramIterator(const Xapian::Utf8Iterator & it_)
+	: it(it_) { }
 
-    CJKTokenIterator & operator++();
+    CJKNgramIterator()
+	: it() { }
+
+    CJKNgramIterator& operator++();
 
     const std::string & operator*() const;
+
+    bool operator==(const CJKNgramIterator & other) const {
+	// We only really care about comparisons where one or other is an end
+	// iterator.
+	return it == other.it;
+    }
+
+    bool operator!=(const CJKNgramIterator & other) const {
+	return !(*this == other);
+    }
 };
 
 class CJKWordIterator : public CJKTokenIterator {
@@ -129,31 +125,25 @@ class CJKWordIterator : public CJKTokenIterator {
     icu::UnicodeString ustr;
     icu::BreakIterator *brk;
 
-  protected:
-    bool equal_to(const CJKTokenIterator & other) const;
-
   public:
     CJKWordIterator(const std::string & s);
 
-    CJKWordIterator() : CJKTokenIterator() { p = q = done; brk = NULL; }
+    CJKWordIterator()
+	: p(done), q(done), brk(NULL) { }
 
     ~CJKWordIterator() { delete brk; }
 
-    CJKTokenIterator & operator++();
+    CJKWordIterator & operator++();
 
     const std::string & operator*() const;
+
+    bool operator==(const CJKWordIterator & other) const {
+	return p == other.p && q == other.q;
+    }
+
+    bool operator!=(const CJKWordIterator & other) const {
+	return !(*this == other);
+    }
 };
-
-inline bool
-operator==(const CJKTokenIterator & a, const CJKTokenIterator & b)
-{
-    return a.equal_to(b);
-}
-
-inline bool
-operator!=(const CJKTokenIterator & a, const CJKTokenIterator & b)
-{
-    return !(a == b);
-}
 
 #endif // XAPIAN_INCLUDED_CJK_TOKENIZER_H

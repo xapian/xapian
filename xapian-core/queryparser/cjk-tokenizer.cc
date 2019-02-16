@@ -104,14 +104,6 @@ CJK::get_cjk(Xapian::Utf8Iterator &it, size_t& char_count)
     return str;
 }
 
-bool
-CJKTokenIterator::equal_to(const CJKTokenIterator & other) const
-{
-    // We only really care about comparisons where one or other is an end
-    // iterator.
-    return it == other.it;
-}
-
 const string &
 CJKNgramIterator::operator*() const
 {
@@ -125,7 +117,7 @@ CJKNgramIterator::operator*() const
     return current_token;
 }
 
-CJKTokenIterator &
+CJKNgramIterator &
 CJKNgramIterator::operator++()
 {
     if (len < NGRAM_SIZE && p != Xapian::Utf8Iterator()) {
@@ -140,31 +132,16 @@ CJKNgramIterator::operator++()
     return *this;
 }
 
-bool
-CJKWordIterator::equal_to(const CJKTokenIterator & other) const
+CJKWordIterator::CJKWordIterator(const std::string & s)
 {
-    CJKWordIterator const* o = dynamic_cast<CJKWordIterator const*>(&other);
-    if (o) {
-	return p == o->p && q == o->q;
-    } else {
-	return false;
-    }
-}
-
-CJKWordIterator::CJKWordIterator(const std::string & s) : CJKTokenIterator(s)
-{
-    unsigned c;
-    while (it != Xapian::Utf8Iterator()) {
-	c = *it;
-	++it;
-	ustr.append(static_cast<UChar32>(c));
+    for (Xapian::Utf8Iterator it(s); it != Xapian::Utf8Iterator(); ++it) {
+	ustr.append(static_cast<UChar32>(*it));
     }
 
     UErrorCode err = U_ZERO_ERROR;
     brk = icu::BreakIterator::createWordInstance(0/*unknown locale*/, err);
     if (U_FAILURE(err))
-	throw Xapian::InternalError(string("ICU error: ") +
-			string(u_errorName(err)));
+	throw Xapian::InternalError(string("ICU error: ") + u_errorName(err));
     brk->setText(ustr);
     q = brk->first();
     p = brk->next();
@@ -186,7 +163,7 @@ CJKWordIterator::operator*() const
 }
 
 
-CJKTokenIterator &
+CJKWordIterator &
 CJKWordIterator::operator++()
 {
     q = p;
