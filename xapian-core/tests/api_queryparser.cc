@@ -791,6 +791,12 @@ DEFINE_TESTCASE(queryparser1, !backend) {
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
+#ifndef USE_ICU
+	if (flags & queryparser.FLAG_CJK_WORDS) {
+	    expect = "FeatureUnavailableError: FLAG_CJK_WORDS requires "
+		     "building Xapian to use ICU";
+	}
+#endif
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
