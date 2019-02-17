@@ -272,8 +272,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
     unsigned cjk_flags = flags & (FLAG_CJK_NGRAM|FLAG_CJK_WORDS);
-    if (CJK::is_cjk_enabled()) {
-	cjk_flags |= FLAG_CJK_NGRAM;
+    if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
+	cjk_flags = FLAG_CJK_NGRAM;
     }
 
     stop_strategy current_stop_mode;
