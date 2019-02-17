@@ -527,21 +527,16 @@ Term::as_cjk_query() const
     Query *q;
 
     if (state->flags & QueryParser::FLAG_CJK_WORDS) {
-	CJKWordIterator *begin = new CJKWordIterator(name);
-	CJKWordIterator *end = new CJKWordIterator();
 	vector<Query> prefix_cjk;
 	list<string>::const_iterator piter;
 
-	for (CJKWordIterator *tk = begin; *tk != *end; ++(*tk)) {
+	for (CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
 	    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 		string cjk = *piter;
-		cjk += *(*tk);
+		cjk += *tk;
 		prefix_cjk.push_back(Query(cjk, 1, pos));
 	    }
 	}
-
-	delete begin;
-	delete end;
 
 	q = new Query(Query::OP_AND, prefix_cjk.begin(), prefix_cjk.end());
     } else {
@@ -550,19 +545,14 @@ Term::as_cjk_query() const
 	list<string>::const_iterator piter;
 
 	for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	    CJKNgramIterator *begin = new CJKNgramIterator(name);
-	    CJKNgramIterator *end = new CJKNgramIterator();
 	    const string& prefix = *piter;
 
-	    for (CJKNgramIterator *tk = begin; *tk != *end; ++(*tk)) {
-		cjk_subqs.push_back(Query(prefix + *(*tk), 1, pos));
+	    for (CJKNgramIterator tk(name); tk != CJKNgramIterator(); ++tk) {
+		cjk_subqs.push_back(Query(prefix + *tk, 1, pos));
 	    }
 	    prefix_subqs.push_back(Query(Query::OP_AND,
 					 cjk_subqs.begin(), cjk_subqs.end()));
 	    cjk_subqs.clear();
-
-	    delete begin;
-	    delete end;
 	}
 	q = new Query(Query::OP_OR, prefix_subqs.begin(), prefix_subqs.end());
     }
