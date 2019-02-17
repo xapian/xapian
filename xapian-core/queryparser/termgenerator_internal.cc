@@ -138,12 +138,17 @@ parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
     const string & cjk = CJK::get_cjk(itor);
     size_t cjk_left = cjk.length();
     if (cjk_flags & TermGenerator::FLAG_CJK_WORDS) {
+#ifdef USE_ICU
 	for (CJKWordIterator tk(cjk); tk != CJKWordIterator(); ++tk) {
 	    const string & cjk_token = *tk;
 	    cjk_left -= cjk_token.length();
 	    if (!action(cjk_token, with_positions, itor.left() + cjk_left))
 		return false;
 	}
+#else
+	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
+					      "building Xapian to use ICU");
+#endif
     } else {
 	for (CJKNgramIterator tk(cjk); tk != CJKNgramIterator(); ++tk) {
 	    const string & cjk_token = *tk;

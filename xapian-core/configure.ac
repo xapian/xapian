@@ -822,8 +822,13 @@ case $ac_cv_func_snprintf in
     ;;
 esac
 
-dnl Check for ICU. We require this for CJK word tokenisation.
-PKG_CHECK_MODULES([ICU], [icu-uc])
+dnl Check for ICU, which we can optionally use for CJK word tokenisation.
+PKG_CHECK_MODULES([ICU], [icu-uc],
+  [AC_MSG_RESULT([yes])
+   AC_DEFINE([USE_ICU], [1], [Define to use ICU for CJK segmentation])],
+  [AC_MSG_RESULT([no])
+   ICU_CFLAGS=
+   ICU_LIBS=])
 AC_SUBST([ICU_CFLAGS])
 AC_SUBST([ICU_LIBS])
 

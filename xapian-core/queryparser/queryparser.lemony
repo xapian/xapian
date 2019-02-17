@@ -527,6 +527,7 @@ Term::as_cjk_query() const
     Query *q;
 
     if (state->flags & QueryParser::FLAG_CJK_WORDS) {
+#ifdef USE_ICU
 	vector<Query> prefix_cjk;
 	list<string>::const_iterator piter;
 
@@ -539,6 +540,10 @@ Term::as_cjk_query() const
 	}
 
 	q = new Query(Query::OP_AND, prefix_cjk.begin(), prefix_cjk.end());
+#else
+	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
+					      "building Xapian to use ICU");
+#endif
     } else {
 	vector<Query> prefix_subqs;
 	vector<Query> cjk_subqs;

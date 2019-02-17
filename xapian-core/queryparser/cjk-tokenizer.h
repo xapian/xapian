@@ -32,20 +32,22 @@
 
 #include <string>
 
-#ifdef __GNUC__
-// turn off some warnings for libicu headers
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Wundef"
-#endif // __GNUC__
+#ifdef USE_ICU
+# ifdef __GNUC__
+// Turn off some warnings for libicu headers.
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#  pragma GCC diagnostic ignored "-Wundef"
+# endif
 
-#include <unicode/brkiter.h>
-#include <unicode/unistr.h>
+# include <unicode/brkiter.h>
+# include <unicode/unistr.h>
 
-#ifdef __GNUC__
-// turn the warnings back on
-#pragma GCC diagnostic pop
-#endif // __GNUC__
+# ifdef __GNUC__
+// Restore the original warning state.
+#  pragma GCC diagnostic pop
+# endif
+#endif
 
 namespace CJK {
 
@@ -113,6 +115,7 @@ class CJKNgramIterator : public CJKTokenIterator {
     }
 };
 
+#ifdef USE_ICU
 class CJKWordIterator : public CJKTokenIterator {
     mutable int32_t p, q;
 
@@ -145,5 +148,6 @@ class CJKWordIterator : public CJKTokenIterator {
 	return !(*this == other);
     }
 };
+#endif
 
 #endif // XAPIAN_INCLUDED_CJK_TOKENIZER_H

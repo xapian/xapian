@@ -132,6 +132,7 @@ CJKNgramIterator::operator++()
     return *this;
 }
 
+#ifdef USE_ICU
 CJKWordIterator::CJKWordIterator(const std::string & s)
 {
     for (Xapian::Utf8Iterator it(s); it != Xapian::Utf8Iterator(); ++it) {
@@ -179,3 +180,4 @@ CJKWordIterator::operator++()
     }
     return *this;
 }
+#endif
