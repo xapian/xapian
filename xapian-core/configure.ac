@@ -823,13 +823,26 @@ case $ac_cv_func_snprintf in
 esac
 
 dnl Check for ICU, which we can optionally use for CJK word tokenisation.
-PKG_CHECK_MODULES([ICU], [icu-uc],
-  [AC_MSG_RESULT([yes])
-   AC_DEFINE([USE_ICU], [1], [Define to use ICU for CJK segmentation])],
-  [AC_MSG_RESULT([no])
-   ICU_CFLAGS=
-   ICU_LIBS=])
+AC_ARG_VAR([PKG_CONFIG], [Location of pkg-config])
+AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
+if test -n "$PKG_CONFIG" ; then
+  AC_MSG_CHECKING([for ICU])
+  icu_config="$PKG_CONFIG icu-uc"
+  try_libs=`$icu_config --libs 2>&AS_MESSAGE_LOG_FD`
+  if test $? -eq 0 ; then
+    AC_MSG_RESULT([yes])
+    AC_DEFINE([USE_ICU], [1], [Define to use ICU for CJK segmentation])
+    dnl The split here isn't perfect - e.g. -DFOO really ought to be in
+    dnl CPPFLAGS, but hopefully this won't be a problem in practice.
+    ICU_CFLAGS=`$icu_config --cflags-only-other`
+    ICU_CPPFLAGS=`$icu_config --cflags-only-I`
+    ICU_LIBS=$try_libs
+  else
+    AC_MSG_RESULT([no])
+  fi
+fi
 AC_SUBST([ICU_CFLAGS])
+AC_SUBST([ICU_CPPFLAGS])
 AC_SUBST([ICU_LIBS])
 
 dnl ***************************
