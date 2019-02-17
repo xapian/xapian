@@ -171,10 +171,6 @@ CJKWordIterator::operator++()
     p = brk->next();
     if (p != done) {
 	current_token.resize(0);
-	if (p != q) {
-	    // refresh current_token and len
-	    current_token = (*(*this));
-	}
     } else {
 	q = done;
     }
