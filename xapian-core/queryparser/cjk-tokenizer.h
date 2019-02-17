@@ -117,7 +117,7 @@ class CJKNgramIterator : public CJKTokenIterator {
 
 #ifdef USE_ICU
 class CJKWordIterator : public CJKTokenIterator {
-    mutable int32_t p, q;
+    int32_t p, q;
 
     // copy UBRK_DONE to avoid GCC old-style cast error
 #pragma GCC diagnostic push
