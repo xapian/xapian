@@ -532,10 +532,9 @@ Term::as_cjk_query() const
 	list<string>::const_iterator piter;
 
 	for (CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
+	    const string& token = *tk;
 	    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-		string cjk = *piter;
-		cjk += *tk;
-		prefix_cjk.push_back(Query(cjk, 1, pos));
+		prefix_cjk.push_back(Query(*piter + token, 1, pos));
 	    }
 	}
 

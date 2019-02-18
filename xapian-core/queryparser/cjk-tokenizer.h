@@ -76,19 +76,27 @@ get_cjk(Xapian::Utf8Iterator &it)
 
 class CJKTokenIterator {
   protected:
-    mutable std::string current_token;
+    std::string current_token;
+
+  public:
+    const std::string & operator*() const { return current_token; }
 };
 
 class CJKNgramIterator : public CJKTokenIterator {
     Xapian::Utf8Iterator it;
 
-    mutable Xapian::Utf8Iterator p;
+    Xapian::Utf8Iterator p;
 
-    mutable unsigned len;
+    unsigned len;
 
   public:
     explicit CJKNgramIterator(const std::string & s)
-	: it(s) { }
+	: it(s) {
+	p = it;
+	Xapian::Unicode::append_utf8(current_token, *p);
+	++p;
+	len = 1;
+    }
 
     explicit CJKNgramIterator(const Xapian::Utf8Iterator & it_)
 	: it(it_) { }
@@ -97,8 +105,6 @@ class CJKNgramIterator : public CJKTokenIterator {
 	: it() { }
 
     CJKNgramIterator& operator++();
-
-    const std::string & operator*() const;
 
     /// Get the length of the current token in Unicode characters.
     unsigned get_length() const { return len; }
@@ -137,8 +143,6 @@ class CJKWordIterator : public CJKTokenIterator {
     ~CJKWordIterator() { delete brk; }
 
     CJKWordIterator & operator++();
-
-    const std::string & operator*() const;
 
     bool operator==(const CJKWordIterator & other) const {
 	return p == other.p;

@@ -104,19 +104,6 @@ CJK::get_cjk(Xapian::Utf8Iterator &it, size_t& char_count)
     return str;
 }
 
-const string &
-CJKNgramIterator::operator*() const
-{
-    if (current_token.empty()) {
-	Assert(it != Xapian::Utf8Iterator());
-	p = it;
-	Xapian::Unicode::append_utf8(current_token, *p);
-	++p;
-	len = 1;
-    }
-    return current_token;
-}
-
 CJKNgramIterator &
 CJKNgramIterator::operator++()
 {
@@ -127,7 +114,13 @@ CJKNgramIterator::operator++()
     } else {
 	Assert(it != Xapian::Utf8Iterator());
 	++it;
-	current_token.resize(0);
+	if (it != Xapian::Utf8Iterator()) {
+	    current_token.resize(0);
+	    p = it;
+	    Xapian::Unicode::append_utf8(current_token, *p);
+	    ++p;
+	    len = 1;
+	}
     }
     return *this;
 }
@@ -149,25 +142,17 @@ CJKWordIterator::CJKWordIterator(const std::string & s)
     q = brk->first();
     p = brk->next();
     utf8_ptr = s.data();
+    current_token.assign(utf8_ptr + q, p - q);
 }
-
-const string &
-CJKWordIterator::operator*() const
-{
-    if (current_token.empty()) {
-	Assert(p != q);
-	current_token.assign(utf8_ptr + q, p - q);
-    }
-    return current_token;
-}
-
 
 CJKWordIterator &
 CJKWordIterator::operator++()
 {
-    current_token.resize(0);
     q = p;
     p = brk->next();
+    if (usual(p != done)) {
+	current_token.assign(utf8_ptr + q, p - q);
+    }
     return *this;
 }
 #endif
