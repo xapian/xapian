@@ -132,7 +132,7 @@ class CJKWordIterator : public CJKTokenIterator {
     CJKWordIterator(const std::string & s);
 
     CJKWordIterator()
-	: p(done), q(done), brk(NULL) { }
+	: p(done), brk(NULL) { }
 
     ~CJKWordIterator() { delete brk; }
 
@@ -141,7 +141,7 @@ class CJKWordIterator : public CJKTokenIterator {
     const std::string & operator*() const;
 
     bool operator==(const CJKWordIterator & other) const {
-	return p == other.p && q == other.q;
+	return p == other.p;
     }
 
     bool operator!=(const CJKWordIterator & other) const {

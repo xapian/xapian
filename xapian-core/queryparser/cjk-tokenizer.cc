@@ -167,13 +167,9 @@ CJKWordIterator::operator*() const
 CJKWordIterator &
 CJKWordIterator::operator++()
 {
+    current_token.resize(0);
     q = p;
     p = brk->next();
-    if (p != done) {
-	current_token.resize(0);
-    } else {
-	q = done;
-    }
     return *this;
 }
 #endif
