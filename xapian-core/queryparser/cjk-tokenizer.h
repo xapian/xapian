@@ -118,13 +118,14 @@ class CJKNgramIterator : public CJKTokenIterator {
 class CJKWordIterator : public CJKTokenIterator {
     int32_t p, q;
 
+    const char* utf8_ptr;
+
     // copy UBRK_DONE to avoid GCC old-style cast error
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
     static const int32_t done = UBRK_DONE;
 #pragma GCC diagnostic pop
 
-    icu::UnicodeString ustr;
     icu::BreakIterator *brk;
 
   public:

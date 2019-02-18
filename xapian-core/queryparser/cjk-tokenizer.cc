@@ -135,17 +135,20 @@ CJKNgramIterator::operator++()
 #ifdef USE_ICU
 CJKWordIterator::CJKWordIterator(const std::string & s)
 {
-    for (Xapian::Utf8Iterator it(s); it != Xapian::Utf8Iterator(); ++it) {
-	ustr.append(static_cast<UChar32>(*it));
-    }
-
     UErrorCode err = U_ZERO_ERROR;
+    UText utext = UTEXT_INITIALIZER;
     brk = icu::BreakIterator::createWordInstance(0/*unknown locale*/, err);
-    if (U_FAILURE(err))
+    if (usual(U_SUCCESS(err))) {
+	utext_openUTF8(&utext, s.data(), s.size(), &err);
+	if (usual(U_SUCCESS(err)))
+	    brk->setText(&utext, err);
+	utext_close(&utext);
+    }
+    if (rare(U_FAILURE(err)))
 	throw Xapian::InternalError(string("ICU error: ") + u_errorName(err));
-    brk->setText(ustr);
     q = brk->first();
     p = brk->next();
+    utf8_ptr = s.data();
 }
 
 const string &
@@ -153,10 +156,7 @@ CJKWordIterator::operator*() const
 {
     if (current_token.empty()) {
 	Assert(p != q);
-	icu::UnicodeString uword = ustr.tempSubString(q, p - q);
-	for (int32_t i = 0; i < uword.length(); i = uword.getChar32Limit(++i)) {
-	    Xapian::Unicode::append_utf8(current_token, uword.char32At(i));
-	}
+	current_token.assign(utf8_ptr + q, p - q);
     }
     return current_token;
 }
