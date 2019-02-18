@@ -153,11 +153,9 @@ CJKWordIterator::operator*() const
 {
     if (current_token.empty()) {
 	Assert(p != q);
-	len = 0;
 	icu::UnicodeString uword = ustr.tempSubString(q, p - q);
 	for (int32_t i = 0; i < uword.length(); i = uword.getChar32Limit(++i)) {
 	    Xapian::Unicode::append_utf8(current_token, uword.char32At(i));
-	    len++;
 	}
     }
     return current_token;

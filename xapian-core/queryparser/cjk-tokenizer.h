@@ -76,19 +76,15 @@ get_cjk(Xapian::Utf8Iterator &it)
 
 class CJKTokenIterator {
   protected:
-    mutable unsigned len;
-
     mutable std::string current_token;
-
-  public:
-    /// Get the length of the current token in Unicode characters.
-    unsigned get_length() const { return len; }
 };
 
 class CJKNgramIterator : public CJKTokenIterator {
     Xapian::Utf8Iterator it;
 
     mutable Xapian::Utf8Iterator p;
+
+    mutable unsigned len;
 
   public:
     explicit CJKNgramIterator(const std::string & s)
@@ -103,6 +99,9 @@ class CJKNgramIterator : public CJKTokenIterator {
     CJKNgramIterator& operator++();
 
     const std::string & operator*() const;
+
+    /// Get the length of the current token in Unicode characters.
+    unsigned get_length() const { return len; }
 
     bool operator==(const CJKNgramIterator & other) const {
 	// We only really care about comparisons where one or other is an end
