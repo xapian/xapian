@@ -27,6 +27,7 @@
 
 #include <cstdint>
 #include <type_traits>
+#include <cstring>
 
 #include "alignment_cast.h"
 #include "omassert.h"
