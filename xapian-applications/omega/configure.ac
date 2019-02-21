@@ -14,6 +14,11 @@ AC_CONFIG_MACRO_DIRS([m4])
 LT_PREREQ([2.2.6])
 LT_INIT
 
+dnl We need to specify the argument types for builtin functions, or else
+dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
+AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
+    __builtin_mul_overflow(int, int, int*)], [], [], [ ])
+    
 dnl -no-undefined can cause problems on some platforms, so only pass it
 dnl on platforms where it is required in order to link a shared library at
 dnl all (Windows is the main one).

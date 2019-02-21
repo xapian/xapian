@@ -47,6 +47,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "expand.h"
+#include "common/parseint.h"
 
 using namespace std;
 
@@ -175,12 +176,9 @@ try {
     hits_per_page = 0;
     auto val = cgi_params.find("HITSPERPAGE");
     if (val != cgi_params.end()) {
-	if (val->second[0] < '0' || val->second[0] > '9' ||
-	    val->second[0] == '-') {
-	    cerr << "Value entered is not in range\n"
-		<< "Range is 10-1000";
+	if (!parse_unsigned(val->second.c_str(),hits_per_page)){
+	    throw "HITSPERPAGE parameter must be >= 0\n";
 	}
-	hits_per_page = atol(val->second.c_str());
     }
     if (hits_per_page == 0) {
 	hits_per_page = 10;
@@ -206,11 +204,6 @@ try {
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
 	const string & v = val->second;
-	if (val->second[0] < '0' || val->second[0] > '9' ||
-	    val->second[0] == '-') {
-	    cerr << "Value entered is not in range\n"
-		<< "Range is a positive number";
-	}
 	Xapian::docid docid = atol(v.c_str());
 	if (docid == 0) {
 	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
@@ -373,11 +366,8 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    if (i->first[CONST_STRLEN("START.")] < '0' ||
-		i->first[CONST_STRLEN("START.")] > '9' ||
-		i->first[CONST_STRLEN("START.")] == '-') {
-		cerr << "Format entered is not valid\n"
-		    << "Valid formats are YYYY,YYYYMM,"
-		    << "YYYYMMDD or YYYYMMDDHHMM";
+		i->first[CONST_STRLEN("START.")] > '9') {
+		throw "START slot value must be >= 0\n";
 	    }
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("START."));
@@ -390,11 +380,8 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    if (i->first[CONST_STRLEN("END.")] < '0' ||
-		i->first[CONST_STRLEN("END.")] > '9' ||
-		i->first[CONST_STRLEN("END.")] == '-') {
-		cerr << "Format entered is not valid\n"
-		    << "Valid formats are YYYY,YYYYMM,"
-		    << "YYYYMMDD or YYYYMMDDHHMM";
+		i->first[CONST_STRLEN("END.")] > '9') {
+		throw "END slot value must be >= 0\n";
 	    }
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("END."));
@@ -407,10 +394,8 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    if (i->first[CONST_STRLEN("SPAN.")] < '0' ||
-		i->first[CONST_STRLEN("SPAN.")] > '9' ||
-		i->first[CONST_STRLEN("SPAN.")] == '-') {
-		cerr << "Value entered is not in range\n"
-		    << "Valid range is a positive number";
+		i->first[CONST_STRLEN("SPAN.")] > '9') {
+		throw "SPAN slot value must be >= 0\n";
 	    }
 	    Xapian::valueno slot = atoi(i->first.c_str() +
 					CONST_STRLEN("SPAN."));
@@ -445,7 +430,9 @@ try {
     if (val != cgi_params.end()) date_span = val->second;
     val = cgi_params.find("DATEVALUE");
     Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
-    if (val != cgi_params.end()) date_value_slot = string_to_int(val->second);
+    if (val != cgi_params.end() && !parse_unsigned(val->second.c_str(),date_value_slot)) {
+	throw "DATEVALUE slot must be >= 0\n";
+    }
     add_date_filter(date_start, date_end, date_span, date_value_slot);
 
     // If more default_op values are supported, encode them as non-alnums
@@ -479,14 +466,11 @@ try {
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
-	if (val->second[0] < '0' || val->second[0] > '9' ||
-	    val->second[0] == '-') {
-	    cerr << "Value entered is not in range\n"
-		<< "Range is 0-100";
+	unsigned int temp;
+	if (!parse_unsigned(val->second.c_str(),temp) || temp > 100) {
+	    throw "THRESHOLD parameter must be in the range 0-100\n";
 	}
-	threshold = atoi(val->second.c_str());
-	if (threshold < 0) threshold = 0;
-	if (threshold > 100) threshold = 100;
+	threshold = temp;
     }
 
     // collapsing
@@ -494,11 +478,9 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (!v.empty()) {
-	    if (v[0] < '0' || v[0] > '9' || v[0] == '-') {
-		cerr << "Value entered is not in range\n"
-		    << "Range is a positive number";
+	    if (!parse_unsigned(val->second.c_str(),collapse_key)) {
+		throw "COLLAPSE parameter must be >= 0\n";
 	    }
-	    collapse_key = atoi(v.c_str());
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
@@ -593,22 +575,22 @@ try {
 	} while (*p);
 
 	val = cgi_params.find("SORTREVERSE");
-	if (val != cgi_params.end() && (val->second[0] < '0' ||
-	    val->second[0] > '9' || val->second[0] == '-')) {
-	    cerr << "Value entered is not in range\n"
-		<< "Range is 0-1";
-	}
-	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
-	    reverse_sort = !reverse_sort;
+	if (val != cgi_params.end()) {
+	    unsigned int temp;
+	    if (!parse_unsigned(val->second.c_str(),temp)) {
+		throw "SORTREVERSE parameter must be >= 0\n";
+	    }
+	    if (temp != 0){
+		reverse_sort = !reverse_sort;
+	    }
 	}
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
-	    if (val->second[0] < '0' || val->second[0] > '9' ||
-		val->second[0] == '-') {
-		cerr << "Value entered is not in range\n"
-		    << "Range is 0-1";
+	    unsigned int temp;
+	    if (!parse_unsigned(val->second.c_str(),temp)) {
+		throw "SORTAFTER parameter must be >= 0\n";
 	    }
-	    sort_after = (atoi(val->second.c_str()) != 0);
+	    sort_after = bool(temp);
 	}
 
 	// Add the sorting related options to filters too.
@@ -643,12 +625,9 @@ try {
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
     if (val != cgi_params.end()) {
-	if (val->second[0] < '0' || val->second[0] > '9' ||
-	    val->second[0] == '-') {
-	    cerr << "Value entered is not in range\n"
-		<< "Range is a positive number";
+	if (!parse_unsigned(val->second.c_str(),min_hits)) {
+	    throw "MINHITS parameter must be > 0\n";
 	}
-	min_hits = atol(val->second.c_str());
     }
 
     parse_omegascript();

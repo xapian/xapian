@@ -43,7 +43,8 @@ noinst_HEADERS +=\
 	common/stdclamp.h\
 	common/str.h\
 	common/stringutils.h\
-	common/wordaccess.h
+	common/wordaccess.h\
+	common/parseint.h
 
 EXTRA_DIST +=\
 	common/Makefile\
