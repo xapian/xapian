@@ -616,7 +616,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
 	check_equal_dbs(masterpath, replicapath);
 	TEST(!file_exists(masterpath + "/changes1"));
 
-	// Turn off replication, make sure we dont write anything
+	// Turn off replication, make sure we don't write anything.
 	if (get_dbtype() == "chert") {
 	    set_max_changesets(0);
 	}
