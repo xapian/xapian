@@ -176,7 +176,7 @@ try {
     hits_per_page = 0;
     auto val = cgi_params.find("HITSPERPAGE");
     if (val != cgi_params.end()) {
-	if (!parse_unsigned(val->second.c_str(),hits_per_page)){
+	if (!parse_unsigned(val->second.c_str(),hits_per_page)) {
 	    throw "HITSPERPAGE parameter must be >= 0\n";
 	}
     }
@@ -430,7 +430,8 @@ try {
     if (val != cgi_params.end()) date_span = val->second;
     val = cgi_params.find("DATEVALUE");
     Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
-    if (val != cgi_params.end() && !parse_unsigned(val->second.c_str(),date_value_slot)) {
+    if (val != cgi_params.end() &&
+	!parse_unsigned(val->second.c_str(),date_value_slot)) {
 	throw "DATEVALUE slot must be >= 0\n";
     }
     add_date_filter(date_start, date_end, date_span, date_value_slot);
@@ -580,7 +581,7 @@ try {
 	    if (!parse_unsigned(val->second.c_str(),temp)) {
 		throw "SORTREVERSE parameter must be >= 0\n";
 	    }
-	    if (temp != 0){
+	    if (temp != 0) {
 		reverse_sort = !reverse_sort;
 	    }
 	}
