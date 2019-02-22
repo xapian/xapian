@@ -138,8 +138,7 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 			unsigned flags,
 			const std::string & hi_start,
 			const std::string & hi_end,
-			const std::string & omit,
-			unsigned cjk_flags) const;
+			const std::string & omit) const;
 
     /** Serialise this object.
      *

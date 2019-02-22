@@ -135,7 +135,9 @@ template<typename ACTION> bool
 parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
 	  ACTION action)
 {
-    if (cjk_flags & TermGenerator::FLAG_CJK_WORDS) {
+    static_assert(int(MSet::SNIPPET_CJK_WORDS) == TermGenerator::FLAG_CJK_WORDS,
+		  "CJK_WORDS flags have same value");
+    if (cjk_flags & MSet::SNIPPET_CJK_WORDS) {
 #ifdef USE_ICU
 	const char* cjk_start = itor.raw();
 	(void)CJK::get_cjk(itor);
@@ -278,7 +280,7 @@ void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
-    unsigned cjk_flags = flags & (FLAG_CJK_NGRAM|FLAG_CJK_WORDS);
+    unsigned cjk_flags = flags & (FLAG_CJK_NGRAM | FLAG_CJK_WORDS);
     if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
 	cjk_flags = FLAG_CJK_NGRAM;
     }
@@ -736,17 +738,17 @@ MSet::Internal::snippet(const string & text,
 			unsigned flags,
 			const string & hi_start,
 			const string & hi_end,
-			const string & omit,
-			unsigned cjk_flags) const
+			const string & omit) const
 {
     if (hi_start.empty() && hi_end.empty() && text.size() <= length) {
 	// Too easy!
 	return text;
     }
 
-    cjk_flags |= (flags & MSet::SNIPPET_CJK_NGRAM);
+    auto SNIPPET_CJK_MASK = MSet::SNIPPET_CJK_NGRAM | MSet::SNIPPET_CJK_WORDS;
+    unsigned cjk_flags = flags & SNIPPET_CJK_MASK;
     if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
-	cjk_flags = TermGenerator::FLAG_CJK_NGRAM;
+	cjk_flags = MSet::SNIPPET_CJK_NGRAM;
     }
 
     size_t term_start = 0;

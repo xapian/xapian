@@ -267,7 +267,21 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *
 	 *  @since Added in Xapian 1.4.11.
 	 */
-	SNIPPET_CJK_NGRAM = 2048
+	SNIPPET_CJK_NGRAM = 2048,
+
+	/** Enable generation of words from CJK text.
+	 *
+	 *  This option highlights CJK searches made using the QueryParser
+	 *  FLAG_CJK_WORDS flag.  Spans of CJK characters are split into CJK
+	 *  words using text boundary heuristics.  Non-CJK characters are
+	 *  split into words as normal.
+	 *
+	 *  The TermGenerator FLAG_CJK_WORDS flag needs to have been used at
+	 *  index time.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	SNIPPET_CJK_WORDS = 4096
     };
 
     /** Generate a snippet.
@@ -305,8 +319,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 			unsigned flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE,
 			const std::string & hi_start = "<b>",
 			const std::string & hi_end = "</b>",
-			const std::string & omit = "...",
-			unsigned cjk_flags = 0) const;
+			const std::string & omit = "...") const;
 
     /** Prefetch hint a range of items.
      *

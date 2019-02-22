@@ -187,12 +187,11 @@ MSet::snippet(const std::string& text,
 	      unsigned flags,
 	      const std::string& hi_start,
 	      const std::string& hi_end,
-	      const std::string& omit,
-	      unsigned cjk_flags) const
+	      const std::string& omit) const
 {
     // The actual implementation is in queryparser/termgenerator_internal.cc.
     return internal->snippet(text, length, stemmer, flags,
-			     hi_start, hi_end, omit, cjk_flags);
+			     hi_start, hi_end, omit);
 }
 
 std::string

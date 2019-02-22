@@ -507,7 +507,7 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
     const char *input2 = "明末時已經有香港地方的概念. Hello!";
     size_t len = strlen(input);
 
-    unsigned cjk_flags = Xapian::TermGenerator::FLAG_CJK_WORDS;
+    unsigned cjk_flags = Xapian::MSet::SNIPPET_CJK_WORDS;
 
 #ifdef USE_ICU
 # define DO_TEST(CODE, RESULT) TEST_STRINGS_EQUAL(CODE, RESULT)
@@ -522,9 +522,9 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
 	    "FLAG_CJK_WORDS requires building Xapian to use ICU"); \
     }
 #endif
-    DO_TEST(mset.snippet(input, len, stem, 0, "<b>", "</b>", "...", cjk_flags),
+    DO_TEST(mset.snippet(input, len, stem, cjk_flags, "<b>", "</b>", "..."),
 	    "明末時<b>已經</b>有香港地方的概念");
-    DO_TEST(mset.snippet(input2, len / 2, stem, 0, "[", "]", "~", cjk_flags),
+    DO_TEST(mset.snippet(input2, len / 2, stem, cjk_flags, "[", "]", "~"),
 	    "~時[已經]有香港~");
 #undef DO_TEST
 
