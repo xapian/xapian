@@ -136,13 +136,14 @@ parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
 	  ACTION action)
 {
     if (cjk_flags & TermGenerator::FLAG_CJK_WORDS) {
+#ifdef USE_ICU
 	const char* cjk_start = itor.raw();
 	(void)CJK::get_cjk(itor);
 	size_t cjk_left = itor.raw() - cjk_start;
-	string cjk(cjk_start, cjk_left);
-#ifdef USE_ICU
-	for (CJKWordIterator tk(cjk); tk != CJKWordIterator(); ++tk) {
-	    const string & cjk_token = *tk;
+	for (CJKWordIterator tk(cjk_start, cjk_left);
+	     tk != CJKWordIterator();
+	     ++tk) {
+	    const string& cjk_token = *tk;
 	    cjk_left -= cjk_token.length();
 	    if (!action(cjk_token, with_positions, itor.left() + cjk_left))
 		return false;

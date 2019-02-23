@@ -132,7 +132,10 @@ class CJKWordIterator {
     icu::BreakIterator *brk;
 
   public:
-    CJKWordIterator(const std::string & s);
+    CJKWordIterator(const char* ptr, size_t len);
+
+    explicit CJKWordIterator(const std::string &s)
+	: CJKWordIterator(s.data(), s.size()) { }
 
     CJKWordIterator()
 	: p(done), brk(NULL) { }

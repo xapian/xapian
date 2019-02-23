@@ -504,17 +504,17 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
 
     Xapian::Stem stem;
     const char *input = "明末時已經有香港地方的概念";
+    const char *input2 = "明末時已經有香港地方的概念. Hello!";
     size_t len = strlen(input);
 
     unsigned cjk_flags = Xapian::TermGenerator::FLAG_CJK_WORDS;
 
 #ifdef USE_ICU
-# define DO_TEST(C) \
-    TEST_STRINGS_EQUAL(C, "明末時<b>已經</b>有香港地方的概念")
+# define DO_TEST(CODE, RESULT) TEST_STRINGS_EQUAL(CODE, RESULT)
 #else
-# define DO_TEST(C) \
+# define DO_TEST(CODE, RESULT) \
     try { \
-	C; \
+	CODE; \
 	FAIL_TEST("No exception thrown, expected FeatureUnavailableError"); \
     } catch (const Xapian::FeatureUnavailableError& e) { \
 	TEST_STRINGS_EQUAL( \
@@ -522,7 +522,10 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
 	    "FLAG_CJK_WORDS requires building Xapian to use ICU"); \
     }
 #endif
-    DO_TEST(mset.snippet(input, len, stem, 0, "<b>", "</b>", "...", cjk_flags));
+    DO_TEST(mset.snippet(input, len, stem, 0, "<b>", "</b>", "...", cjk_flags),
+	    "明末時<b>已經</b>有香港地方的概念");
+    DO_TEST(mset.snippet(input2, len / 2, stem, 0, "[", "]", "~", cjk_flags),
+	    "~時[已經]有香港~");
 #undef DO_TEST
 
     return true;

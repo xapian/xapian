@@ -138,13 +138,13 @@ CJKNgramIterator::operator++()
 }
 
 #ifdef USE_ICU
-CJKWordIterator::CJKWordIterator(const std::string & s)
+CJKWordIterator::CJKWordIterator(const char* ptr, size_t len)
 {
     UErrorCode err = U_ZERO_ERROR;
     UText utext = UTEXT_INITIALIZER;
     brk = icu::BreakIterator::createWordInstance(0/*unknown locale*/, err);
     if (usual(U_SUCCESS(err))) {
-	utext_openUTF8(&utext, s.data(), s.size(), &err);
+	utext_openUTF8(&utext, ptr, len, &err);
 	if (usual(U_SUCCESS(err)))
 	    brk->setText(&utext, err);
 	utext_close(&utext);
@@ -153,7 +153,7 @@ CJKWordIterator::CJKWordIterator(const std::string & s)
 	throw Xapian::InternalError(string("ICU error: ") + u_errorName(err));
     q = brk->first();
     p = brk->next();
-    utf8_ptr = s.data();
+    utf8_ptr = ptr;
     current_token.assign(utf8_ptr + q, p - q);
 }
 
