@@ -1,7 +1,7 @@
 /** @file  mset.h
  *  @brief Class representing a list of search results
  */
-/* Copyright (C) 2015,2016 Olly Betts
+/* Copyright (C) 2015,2016,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -179,7 +179,23 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  was found in text. If not enabled, snippet() returns a (sub)string
 	 *  of text without any highlighted terms.
 	 */
-	SNIPPET_EMPTY_WITHOUT_MATCH = 4
+	SNIPPET_EMPTY_WITHOUT_MATCH = 4,
+
+	/** Enable generation of n-grams from CJK text.
+	 *
+	 *  This option highlights CJK searches made using the QueryParser
+	 *  FLAG_CJK_NGRAM flag.  Non-CJK characters are split into words as
+	 *  normal.
+	 *
+	 *  The TermGenerator FLAG_CJK_NGRAM flag needs to have been used at
+	 *  index time.
+	 *
+	 *  This mode can also be enabled by setting environment variable
+	 *  XAPIAN_CJK_NGRAM to a non-empty value.
+	 *
+	 *  @since Added in Xapian 1.4.11.
+	 */
+	SNIPPET_CJK_NGRAM = 2048
     };
 
     /** Generate a snippet.
