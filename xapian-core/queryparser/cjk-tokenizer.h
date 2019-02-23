@@ -4,7 +4,7 @@
 /* Copyright (c) 2007, 2008 Yung-chung Lin (henearkrxern@gmail.com)
  * Copyright (c) 2011 Richard Boulton (richard@tartarus.org)
  * Copyright (c) 2011 Brandon Schaefer (brandontschaefer@gmail.com)
- * Copyright (c) 2011,2018 Olly Betts
+ * Copyright (c) 2011,2018,2019 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,65 +63,62 @@ bool codepoint_is_cjk(unsigned codepoint);
 
 bool codepoint_is_cjk_wordchar(unsigned codepoint);
 
-std::string get_cjk(Xapian::Utf8Iterator &it, size_t& char_count);
-
-static inline std::string
-get_cjk(Xapian::Utf8Iterator &it)
-{
-    size_t dummy;
-    return get_cjk(it, dummy);
-}
+size_t get_cjk(Xapian::Utf8Iterator& it);
 
 }
 
-class CJKTokenIterator {
-  protected:
-    std::string current_token;
-
-  public:
-    const std::string & operator*() const { return current_token; }
-};
-
-class CJKNgramIterator : public CJKTokenIterator {
+/// Iterator returning unigrams and bigrams.
+class CJKNgramIterator {
     Xapian::Utf8Iterator it;
 
-    Xapian::Utf8Iterator p;
+    /** Offset to penultimate Unicode character in current_token.
+     *
+     *  If current_token has one Unicode character, this is 0.
+     */
+    unsigned offset = 0;
 
-    unsigned len;
+    std::string current_token;
+
+    /// Call to set current_token at the start.
+    void init();
 
   public:
-    explicit CJKNgramIterator(const std::string & s)
-	: it(s) {
-	p = it;
-	Xapian::Unicode::append_utf8(current_token, *p);
-	++p;
-	len = 1;
+    explicit CJKNgramIterator(const std::string& s) : it(s) {
+	init();
     }
 
-    explicit CJKNgramIterator(const Xapian::Utf8Iterator & it_)
-	: it(it_) { }
+    explicit CJKNgramIterator(const Xapian::Utf8Iterator& it_) : it(it_) {
+	init();
+    }
 
-    CJKNgramIterator()
-	: it() { }
+    CJKNgramIterator() { }
+
+    const std::string& operator*() const {
+	return current_token;
+    }
 
     CJKNgramIterator& operator++();
 
-    /// Get the length of the current token in Unicode characters.
-    unsigned get_length() const { return len; }
+    /// Is this a unigram?
+    bool unigram() const { return offset == 0; }
 
-    bool operator==(const CJKNgramIterator & other) const {
+    const Xapian::Utf8Iterator& get_utf8iterator() const { return it; }
+
+    bool operator==(const CJKNgramIterator& other) const {
 	// We only really care about comparisons where one or other is an end
 	// iterator.
-	return it == other.it;
+	return current_token.empty() && other.current_token.empty();
     }
 
-    bool operator!=(const CJKNgramIterator & other) const {
+    bool operator!=(const CJKNgramIterator& other) const {
 	return !(*this == other);
     }
 };
 
 #ifdef USE_ICU
-class CJKWordIterator : public CJKTokenIterator {
+class CJKWordIterator {
+    std::string current_token;
+
     int32_t p, q;
 
     const char* utf8_ptr;
@@ -141,6 +138,10 @@ class CJKWordIterator : public CJKTokenIterator {
 	: p(done), brk(NULL) { }
 
     ~CJKWordIterator() { delete brk; }
+
+    const std::string& operator*() const {
+	return current_token;
+    }
 
     CJKWordIterator & operator++();
 

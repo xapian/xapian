@@ -4,7 +4,7 @@
 /* Copyright (c) 2007, 2008 Yung-chung Lin (henearkrxern@gmail.com)
  * Copyright (c) 2011 Richard Boulton (richard@tartarus.org)
  * Copyright (c) 2011 Brandon Schaefer (brandontschaefer@gmail.com)
- * Copyright (c) 2011,2018 Olly Betts
+ * Copyright (c) 2011,2018,2019 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,8 +37,6 @@
 #include <string>
 
 using namespace std;
-
-static unsigned NGRAM_SIZE = 2;
 
 bool
 CJK::is_cjk_enabled()
@@ -91,36 +89,50 @@ CJK::codepoint_is_cjk_wordchar(unsigned p)
     return codepoint_is_cjk(p) && Xapian::Unicode::is_wordchar(p);
 }
 
-string
-CJK::get_cjk(Xapian::Utf8Iterator &it, size_t& char_count)
+size_t
+CJK::get_cjk(Xapian::Utf8Iterator& it)
 {
-    string str;
-    char_count = 0;
-    while (it != Xapian::Utf8Iterator() && codepoint_is_cjk_wordchar(*it)) {
-	Xapian::Unicode::append_utf8(str, *it);
+    size_t char_count = 0;
+    while (it != Xapian::Utf8Iterator() &&
+	   codepoint_is_cjk_wordchar(*it)) {
 	++char_count;
 	++it;
     }
-    return str;
+    return char_count;
 }
 
-CJKNgramIterator &
+void
+CJKNgramIterator::init() {
+    if (it != Xapian::Utf8Iterator()) {
+	unsigned ch = *it;
+	if (CJK::codepoint_is_cjk_wordchar(ch)) {
+	    Xapian::Unicode::append_utf8(current_token, ch);
+	    ++it;
+	} else {
+	    current_token.resize(0);
+	}
+    }
+}
+
+CJKNgramIterator&
 CJKNgramIterator::operator++()
 {
-    if (len < NGRAM_SIZE && p != Xapian::Utf8Iterator()) {
-	Xapian::Unicode::append_utf8(current_token, *p);
-	++p;
-	++len;
-    } else {
-	Assert(it != Xapian::Utf8Iterator());
-	++it;
+    if (offset == 0) {
 	if (it != Xapian::Utf8Iterator()) {
+	    unsigned ch = *it;
+	    if (CJK::codepoint_is_cjk_wordchar(ch)) {
+		offset = current_token.size();
+		Xapian::Unicode::append_utf8(current_token, ch);
+		++it;
+	    } else {
+		current_token.resize(0);
+	    }
+	} else {
 	    current_token.resize(0);
-	    p = it;
-	    Xapian::Unicode::append_utf8(current_token, *p);
-	    ++p;
-	    len = 1;
 	}
+    } else {
+	current_token.erase(0, offset);
+	offset = 0;
     }
     return *this;
 }

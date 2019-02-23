@@ -1518,9 +1518,6 @@ QueryBranch::do_bool_or_like(BoolOrContext& ctx, QueryOptimiser* qopt) const
     // QuerySynonym::done() if the single subquery is a term or MatchAll.
     Assert(subqueries.size() >= 2 || get_op() == Query::OP_SYNONYM);
 
-    vector<PostList *> postlists;
-    postlists.reserve(subqueries.size());
-
     for (auto q : subqueries) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert(q.internal.get());
@@ -1541,9 +1538,7 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
     // QuerySynonym::done() if the single subquery is a term or MatchAll.
     Assert(subqueries.size() >= 2 || get_op() == Query::OP_SYNONYM);
 
-    vector<PostList *> postlists;
-    postlists.reserve(subqueries.size() - first);
-
+    size_t size_before = ctx.size();
     QueryVector::const_iterator q;
     for (q = subqueries.begin() + first; q != subqueries.end(); ++q) {
 	// MatchNothing subqueries should have been removed by done().
@@ -1551,9 +1546,18 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
 	(*q).internal->postlist_sub_or_like(ctx, qopt, factor);
     }
 
-    if (elite_set_size && elite_set_size < subqueries.size()) {
-	ctx.select_elite_set(elite_set_size, subqueries.size());
-	// FIXME: not right!
+    size_t out_of = ctx.size() - size_before;
+    if (elite_set_size && elite_set_size < out_of) {
+	ctx.select_elite_set(elite_set_size, out_of);
+	// FIXME: This isn't quite right as we flatten ORs under the ELITE_SET
+	// and then pick from amongst all the subqueries.  Consider:
+	//
+	// Query subqs[] = {q1 | q2, q3 | q4};
+	// Query q(OP_ELITE_SET, begin(subqs), end(subqs), 1);
+	//
+	// Here q should be either q1 | q2 or q3 | q4, but actually it'll be
+	// just one of q1 or q2 or q3 or q4 (assuming those aren't themselves
+	// OP_OR or OP_OR-like queries).
     }
 }
 

@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,9 +135,11 @@ template<typename ACTION> bool
 parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
 	  ACTION action)
 {
-    const string & cjk = CJK::get_cjk(itor);
-    size_t cjk_left = cjk.length();
     if (cjk_flags & TermGenerator::FLAG_CJK_WORDS) {
+	const char* cjk_start = itor.raw();
+	(void)CJK::get_cjk(itor);
+	size_t cjk_left = itor.raw() - cjk_start;
+	string cjk(cjk_start, cjk_left);
 #ifdef USE_ICU
 	for (CJKWordIterator tk(cjk); tk != CJKWordIterator(); ++tk) {
 	    const string & cjk_token = *tk;
@@ -150,13 +152,17 @@ parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
 					      "building Xapian to use ICU");
 #endif
     } else {
-	for (CJKNgramIterator tk(cjk); tk != CJKNgramIterator(); ++tk) {
-	    const string & cjk_token = *tk;
-	    // FLAG_CJK_NGRAM only sets positions for tokens of length 1
-	    bool with_pos = with_positions && tk.get_length() == 1;
-	    if (!action(cjk_token, with_pos, itor.left() + cjk_left))
+	CJKNgramIterator tk(itor);
+	while (tk != CJKNgramIterator()) {
+	    const string& cjk_token = *tk;
+	    // FLAG_CJK_NGRAM only sets positions for tokens of length 1.
+	    bool with_pos = with_positions && tk.unigram();
+	    if (!action(cjk_token, with_pos, tk.get_utf8iterator().left()))
 		return false;
+	    ++tk;
 	}
+	// Update itor to end of CJK text span.
+	itor = tk.get_utf8iterator();
     }
     return true;
 }
@@ -737,6 +743,7 @@ MSet::Internal::snippet(const string & text,
 	return text;
     }
 
+    cjk_flags |= (flags & MSet::SNIPPET_CJK_NGRAM);
     if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
 	cjk_flags = TermGenerator::FLAG_CJK_NGRAM;
     }
