@@ -756,7 +756,9 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     was_acronym = !term.empty();
 
     if (cjk_ngram && term.empty() && CJK::codepoint_is_cjk(*it)) {
-	term = CJK::get_cjk(it, char_count);
+	const char* cjk = it.raw();
+	char_count = CJK::get_cjk(it);
+	term.assign(cjk, it.raw() - cjk);
 	is_cjk_term = true;
     }
 

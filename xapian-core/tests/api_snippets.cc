@@ -2,7 +2,7 @@
  * @brief tests snippets
  */
 /* Copyright 2012 Mihai Bivol
- * Copyright 2015,2016,2017 Olly Betts
+ * Copyright 2015,2016,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -456,6 +456,41 @@ DEFINE_TESTCASE(snippet_small_zerolength, backend) {
     for (auto i : testcases) {
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len), i.expect);
     }
+
+    return true;
+}
+
+/// Test CJK ngrams.
+DEFINE_TESTCASE(snippet_cjkngrams, generated) {
+    Xapian::Database db = get_database("snippet_cjkngrams",
+	[](Xapian::WritableDatabase& wdb,
+	   const string&)
+	{
+	    Xapian::Document doc;
+	    Xapian::TermGenerator tg;
+	    tg.set_flags(Xapian::TermGenerator::FLAG_CJK_NGRAM);
+	    tg.set_document(doc);
+	    tg.index_text("明末時已經有香港地方的概念");
+	    wdb.add_document(doc);
+	});
+    Xapian::Enquire enquire(db);
+    Xapian::QueryParser qp;
+    auto q = qp.parse_query("已經完成", qp.FLAG_DEFAULT | qp.FLAG_CJK_NGRAM);
+    enquire.set_query(q);
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    Xapian::Stem stem;
+    const char *input = "明末時已經有香港地方的概念";
+    size_t len = strlen(input);
+
+    unsigned flags = Xapian::MSet::SNIPPET_CJK_NGRAM;
+    string s;
+    s = mset.snippet(input, len, stem, flags, "<b>", "</b>", "...");
+    TEST_STRINGS_EQUAL(s, "明末時<b>已</b><b>經</b>有香港地方的概念");
+
+    s = mset.snippet(input, len / 2, stem, flags, "<b>", "</b>", "...");
+    TEST_STRINGS_EQUAL(s, "...<b>已</b><b>經</b>有香港地...");
 
     return true;
 }
