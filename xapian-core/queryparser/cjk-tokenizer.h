@@ -32,6 +32,23 @@
 
 #include <string>
 
+#ifdef USE_ICU
+# ifdef __GNUC__
+// Turn off some warnings for libicu headers.
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#  pragma GCC diagnostic ignored "-Wundef"
+# endif
+
+# include <unicode/brkiter.h>
+# include <unicode/unistr.h>
+
+# ifdef __GNUC__
+// Restore the original warning state.
+#  pragma GCC diagnostic pop
+# endif
+#endif
+
 namespace CJK {
 
 /** Should we use the CJK n-gram code?
@@ -44,12 +61,14 @@ bool is_cjk_enabled();
 
 bool codepoint_is_cjk(unsigned codepoint);
 
+bool codepoint_is_cjk_wordchar(unsigned codepoint);
+
 size_t get_cjk(Xapian::Utf8Iterator& it);
 
 }
 
 /// Iterator returning unigrams and bigrams.
-class CJKTokenIterator {
+class CJKNgramIterator {
     Xapian::Utf8Iterator it;
 
     /** Offset to penultimate Unicode character in current_token.
@@ -64,36 +83,79 @@ class CJKTokenIterator {
     void init();
 
   public:
-    explicit CJKTokenIterator(const std::string& s) : it(s) {
+    explicit CJKNgramIterator(const std::string& s) : it(s) {
 	init();
     }
 
-    explicit CJKTokenIterator(const Xapian::Utf8Iterator& it_) : it(it_) {
+    explicit CJKNgramIterator(const Xapian::Utf8Iterator& it_) : it(it_) {
 	init();
     }
 
-    CJKTokenIterator() { }
+    CJKNgramIterator() { }
 
     const std::string& operator*() const {
 	return current_token;
     }
 
-    CJKTokenIterator& operator++();
+    CJKNgramIterator& operator++();
 
     /// Is this a unigram?
     bool unigram() const { return offset == 0; }
 
     const Xapian::Utf8Iterator& get_utf8iterator() const { return it; }
 
-    bool operator==(const CJKTokenIterator& other) const {
+    bool operator==(const CJKNgramIterator& other) const {
 	// We only really care about comparisons where one or other is an end
 	// iterator.
 	return current_token.empty() && other.current_token.empty();
     }
 
-    bool operator!=(const CJKTokenIterator& other) const {
+    bool operator!=(const CJKNgramIterator& other) const {
 	return !(*this == other);
     }
 };
+
+#ifdef USE_ICU
+class CJKWordIterator {
+    std::string current_token;
+
+    int32_t p;
+
+    const char* utf8_ptr;
+
+    // copy UBRK_DONE to avoid GCC old-style cast error
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+    static const int32_t done = UBRK_DONE;
+#pragma GCC diagnostic pop
+
+    icu::BreakIterator *brk;
+
+  public:
+    CJKWordIterator(const char* ptr, size_t len);
+
+    explicit CJKWordIterator(const std::string &s)
+	: CJKWordIterator(s.data(), s.size()) { }
+
+    CJKWordIterator()
+	: p(done), brk(NULL) { }
+
+    ~CJKWordIterator() { delete brk; }
+
+    const std::string& operator*() const {
+	return current_token;
+    }
+
+    CJKWordIterator & operator++();
+
+    bool operator==(const CJKWordIterator & other) const {
+	return p == other.p;
+    }
+
+    bool operator!=(const CJKWordIterator & other) const {
+	return !(*this == other);
+    }
+};
+#endif
 
 #endif // XAPIAN_INCLUDED_CJK_TOKENIZER_H

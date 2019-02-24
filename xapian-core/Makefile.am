@@ -8,7 +8,8 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include $(ICU_CPPFLAGS)
+AM_CXXFLAGS = $(ICU_CFLAGS)
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
 # include/xapian/error.h and include/xapian/errordispatch.h
@@ -107,7 +108,7 @@ DISTCLEANFILES += pkgconfig/xapian-core-1.5.pc
 libxapian_la = libxapian-1.5.la
 lib_LTLIBRARIES = libxapian-1.5.la
 libxapian_1_5_la_SOURCES = $(lib_src)
-libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS)
+libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS) $(ICU_LIBS)
 libxapian_1_5_la_LDFLAGS = \
     $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO) $(lib_ldflags)
 

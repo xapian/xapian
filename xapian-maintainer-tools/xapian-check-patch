@@ -500,14 +500,17 @@ QUOTELOOP:  while (1) {
 	if ($fnm !~ m!/(?:md5|posixy_wrapper|perftest)\.cc$! &&
 	    m,^\+.*[^\w\.>]([a-z][a-z0-9]*[A-Z]\w*),) {
 	    my $symbol = $1;
+	    my $symbol_idx = $-[1];
 	    if ($symbol eq 'gzFile' || $symbol eq 'uInt' || $symbol =~ /^(?:de|in)flate[A-Z]/) {
 		# Whitelist symbols from APIs we use.
 	    } elsif ($symbol =~ /^[gs]et[A-Z]$/) {
 		# For now, allow setD(), etc.
 	    } elsif ($symbol =~ /^h(?:File|Read|Write|Pipe|Client)$/ || $symbol eq 'fdwCtrlType' || $symbol eq 'pShutdownSocket') {
 		# Platform specific names, allow for now.
+	    } elsif (substr($_, 0, $symbol_idx) =~ /\bicu::(\w+::)?$/) {
+		# ICU library namespace uses camelCase method names.
 	    } else {
-		diagnostic('error', "camelCase identifier '$1' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names", $fullline);
+		diagnostic('error', "camelCase identifier '$symbol' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names", $fullline);
 	    }
 	}
 	if (/^\+.*\b(?:class|struct)\b.*:\s*$/) {

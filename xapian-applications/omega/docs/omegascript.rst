@@ -535,6 +535,7 @@ $set{OPT,VALUE}
 	* flag_boolean
 	* flag_boolean_any_case
 	* flag_cjk_ngram (new in 1.2.22 and 1.3.4)
+	* flag_cjk_words (new in 1.5.0)
 	* flag_default
 	* flag_lovehate
 	* flag_partial

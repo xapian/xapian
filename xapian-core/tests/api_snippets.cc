@@ -494,3 +494,39 @@ DEFINE_TESTCASE(snippet_cjkngrams, generated) {
 
     return true;
 }
+
+/// Test CJK word segmentation.
+DEFINE_TESTCASE(snippet_cjkwords, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("已經"));
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    Xapian::Stem stem;
+    const char *input = "明末時已經有香港地方的概念";
+    const char *input2 = "明末時已經有香港地方的概念. Hello!";
+    size_t len = strlen(input);
+
+    unsigned cjk_flags = Xapian::MSet::SNIPPET_CJK_WORDS;
+
+#ifdef USE_ICU
+# define DO_TEST(CODE, RESULT) TEST_STRINGS_EQUAL(CODE, RESULT)
+#else
+# define DO_TEST(CODE, RESULT) \
+    try { \
+	CODE; \
+	FAIL_TEST("No exception thrown, expected FeatureUnavailableError"); \
+    } catch (const Xapian::FeatureUnavailableError& e) { \
+	TEST_STRINGS_EQUAL( \
+	    e.get_msg(), \
+	    "SNIPPET_CJK_WORDS requires building Xapian to use ICU"); \
+    }
+#endif
+    DO_TEST(mset.snippet(input, len, stem, cjk_flags, "<b>", "</b>", "..."),
+	    "明末時<b>已經</b>有香港地方的概念");
+    DO_TEST(mset.snippet(input2, len / 2, stem, cjk_flags, "[", "]", "~"),
+	    "~時[已經]有香港~");
+#undef DO_TEST
+
+    return true;
+}

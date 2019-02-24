@@ -523,21 +523,44 @@ Term::as_partial_query(State * state_) const
 Query *
 Term::as_cjk_query() const
 {
+    const list<string> & prefixes = field_info->prefixes;
+    Query *q;
+
+#ifdef USE_ICU
+    if (state->flags & QueryParser::FLAG_CJK_WORDS) {
+	vector<Query> prefix_cjk;
+	list<string>::const_iterator piter;
+
+	for (CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
+	    const string& token = *tk;
+	    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+		prefix_cjk.push_back(Query(*piter + token, 1, pos));
+	    }
+	}
+
+	q = new Query(Query::OP_AND, prefix_cjk.begin(), prefix_cjk.end());
+
+	delete this;
+	return q;
+    }
+#endif
+
     vector<Query> prefix_subqs;
     vector<Query> cjk_subqs;
-    const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
+
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	const string& prefix = *piter;
-	for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
+
+	for (CJKNgramIterator tk(name); tk != CJKNgramIterator(); ++tk) {
 	    cjk_subqs.push_back(Query(prefix + *tk, 1, pos));
 	}
 	prefix_subqs.push_back(Query(Query::OP_AND,
 				     cjk_subqs.begin(), cjk_subqs.end()));
 	cjk_subqs.clear();
     }
-    Query * q = new Query(Query::OP_OR,
-			  prefix_subqs.begin(), prefix_subqs.end());
+    q = new Query(Query::OP_OR, prefix_subqs.begin(), prefix_subqs.end());
+
     delete this;
     return q;
 }
@@ -723,7 +746,7 @@ is_extended_wildcard(unsigned ch, unsigned flags)
 
 string
 QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
-				  bool cjk_ngram, unsigned flags,
+				  bool cjk_enable, unsigned flags,
 				  bool & is_cjk_term, bool &was_acronym,
 				  size_t& first_wildcard,
 				  size_t& char_count)
@@ -755,7 +778,7 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     }
     was_acronym = !term.empty();
 
-    if (cjk_ngram && term.empty() && CJK::codepoint_is_cjk(*it)) {
+    if (cjk_enable && term.empty() && CJK::codepoint_is_cjk(*it)) {
 	const char* cjk = it.raw();
 	char_count = CJK::get_cjk(it);
 	term.assign(cjk, it.raw() - cjk);
@@ -772,7 +795,7 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 	Unicode::append_utf8(term, prevch);
 	char_count = 1;
 	while (++it != end) {
-	    if (cjk_ngram && CJK::codepoint_is_cjk(*it)) break;
+	    if (cjk_enable && CJK::codepoint_is_cjk(*it)) break;
 	    unsigned ch = *it;
 	    if (is_extended_wildcard(ch, flags)) {
 		if (first_wildcard == term.npos) {
@@ -864,7 +887,17 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
+#ifndef USE_ICU
+    // Overall it seems best to check for this up front - otherwise we create
+    // the unhelpful situation where a failure to enable ICU in the build could
+    // be missed because non-CJK queries still work fine.
+    if (flags & FLAG_CJK_WORDS) {
+	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
+					      "building Xapian to use ICU");
+    }
+#endif
+    bool cjk_enable =
+	(flags & (FLAG_CJK_NGRAM|FLAG_CJK_WORDS)) || CJK::is_cjk_enabled();
 
     // Set ranges if we may have to handle ranges in the query.
     bool ranges = !rangeprocs.empty() && (qs.find("..") != string::npos);
@@ -1234,7 +1267,7 @@ phrased_term:
 	bool is_cjk_term = false;
 	size_t first_wildcard = string::npos;
 	size_t term_char_count;
-	string term = parse_term(it, end, cjk_ngram, flags,
+	string term = parse_term(it, end, cjk_enable, flags,
 				 is_cjk_term, was_acronym, first_wildcard,
 				 term_char_count);
 
@@ -1837,6 +1870,17 @@ class Terms {
 void
 Term::as_positional_cjk_term(Terms * terms) const
 {
+#ifdef USE_ICU
+    if (state->flags & QueryParser::FLAG_CJK_WORDS) {
+	for (CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
+	    const string& t = *tk;
+	    Term * c = new Term(state, t, field_info, unstemmed, stem, pos);
+	    terms->add_positional_term(c);
+	}
+	delete this;
+	return;
+    }
+#endif
     // Add each individual CJK character to the phrase.
     string t;
     for (Utf8Iterator it(name); it != Utf8Iterator(); ++it) {

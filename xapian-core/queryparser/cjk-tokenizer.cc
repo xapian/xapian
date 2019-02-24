@@ -31,6 +31,7 @@
 
 #include "omassert.h"
 #include "xapian/unicode.h"
+#include "xapian/error.h"
 
 #include <cstdlib>
 #include <string>
@@ -82,13 +83,18 @@ CJK::codepoint_is_cjk(unsigned p)
 	    (p >= 0x2F800 && p <= 0x2FA1F));
 }
 
+bool
+CJK::codepoint_is_cjk_wordchar(unsigned p)
+{
+    return codepoint_is_cjk(p) && Xapian::Unicode::is_wordchar(p);
+}
+
 size_t
 CJK::get_cjk(Xapian::Utf8Iterator& it)
 {
     size_t char_count = 0;
     while (it != Xapian::Utf8Iterator() &&
-	   codepoint_is_cjk(*it) &&
-	   Xapian::Unicode::is_wordchar(*it)) {
+	   codepoint_is_cjk_wordchar(*it)) {
 	++char_count;
 	++it;
     }
@@ -96,10 +102,10 @@ CJK::get_cjk(Xapian::Utf8Iterator& it)
 }
 
 void
-CJKTokenIterator::init() {
+CJKNgramIterator::init() {
     if (it != Xapian::Utf8Iterator()) {
 	unsigned ch = *it;
-	if (CJK::codepoint_is_cjk(ch) && Xapian::Unicode::is_wordchar(ch)) {
+	if (CJK::codepoint_is_cjk_wordchar(ch)) {
 	    Xapian::Unicode::append_utf8(current_token, ch);
 	    ++it;
 	} else {
@@ -108,13 +114,13 @@ CJKTokenIterator::init() {
     }
 }
 
-CJKTokenIterator&
-CJKTokenIterator::operator++()
+CJKNgramIterator&
+CJKNgramIterator::operator++()
 {
     if (offset == 0) {
 	if (it != Xapian::Utf8Iterator()) {
 	    unsigned ch = *it;
-	    if (CJK::codepoint_is_cjk(ch) && Xapian::Unicode::is_wordchar(ch)) {
+	    if (CJK::codepoint_is_cjk_wordchar(ch)) {
 		offset = current_token.size();
 		Xapian::Unicode::append_utf8(current_token, ch);
 		++it;
@@ -130,3 +136,35 @@ CJKTokenIterator::operator++()
     }
     return *this;
 }
+
+#ifdef USE_ICU
+CJKWordIterator::CJKWordIterator(const char* ptr, size_t len)
+{
+    UErrorCode err = U_ZERO_ERROR;
+    UText utext = UTEXT_INITIALIZER;
+    brk = icu::BreakIterator::createWordInstance(0/*unknown locale*/, err);
+    if (usual(U_SUCCESS(err))) {
+	utext_openUTF8(&utext, ptr, len, &err);
+	if (usual(U_SUCCESS(err)))
+	    brk->setText(&utext, err);
+	utext_close(&utext);
+    }
+    if (rare(U_FAILURE(err)))
+	throw Xapian::InternalError(string("ICU error: ") + u_errorName(err));
+    int32_t first = brk->first();
+    p = brk->next();
+    utf8_ptr = ptr;
+    current_token.assign(utf8_ptr + first, p - first);
+}
+
+CJKWordIterator &
+CJKWordIterator::operator++()
+{
+    int32_t first = p;
+    p = brk->next();
+    if (usual(p != done)) {
+	current_token.assign(utf8_ptr + first, p - first);
+    }
+    return *this;
+}
+#endif
