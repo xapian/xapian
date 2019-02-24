@@ -177,15 +177,23 @@ print DISPATCH <<'EOF';
 #ifndef DOXYGEN
 EOF
 
+# Format description for embedding in C /* ... */ comment.
+sub c_format_description {
+    my $d = shift;
+    if (defined $d && $d ne '') {
+	$d =~ s!^! *  !mg;
+	$d =~ s! +$!!mg;
+	$d = " *\n" . $d;
+    } else {
+	$d = '';
+    }
+    return $d;
+}
+
 for (@baseclasses) {
     chomp;
     my ($class, $parent, $synopsis, $description) = @{$_};
-    $description //= '';
-    if ($description ne '') {
-	$description =~ s!^! *  !mg;
-	$description =~ s! +$!!mg;
-	$description = " *\n" . $description;
-    }
+    $description = c_format_description($description);
     print HDR <<EOF;
 
 /** $synopsis
@@ -210,12 +218,7 @@ EOF
 for (@classes) {
     chomp;
     my ($class, $parent, $synopsis, $description) = @{$_};
-    $description //= '';
-    if ($description ne '') {
-	$description =~ s!^! *  !mg;
-	$description =~ s! +$!!mg;
-	$description = " *\n" . $description;
-    }
+    $description = c_format_description($description);
     my $code = sprintf('\%03o', $classcode{$class});
 
     print DISPATCH "case '$code': throw Xapian::$class(msg, context, error_string);\n";
