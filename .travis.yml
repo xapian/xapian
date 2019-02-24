@@ -1,7 +1,4 @@
-# Use "dist: trusty" for now - while it's a bit old, it serves as a useful
-# check that things still work with older versions of compilers and other
-# tools.
-dist: trusty
+dist: xenial
 language: cpp
 notifications:
   irc: "chat.freenode.net#xapian-devel"
@@ -26,8 +23,8 @@ matrix:
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
-            - lua5.2
-            - liblua5.2-dev
+            - lua5.3
+            - liblua5.3-dev
             - mono-devel
             - python-dev
             - python3-dev
@@ -61,8 +58,31 @@ matrix:
       # We also have to disable an error, because (older?)
       # perl header files don't play nicely with clang.
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS=-Wno-error=reserved-user-defined-literal
+    - compiler: gcc
+      os: linux
+      # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
+      # aim to support.
+      dist: trusty
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - lua5.2
+            - liblua5.2-dev
+            - mono-devel
+            - python-dev
+            - python3-dev
+            - tcl
+            - libsvm-dev
     - os: linux
-      sudo: required
       addons:
         apt:
           packages:
