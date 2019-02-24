@@ -277,6 +277,10 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 		    mask = Xapian::QueryParser::FLAG_CJK_NGRAM;
 		    break;
 		}
+		if (strcmp(s, "cjk_words") == 0) {
+		    mask = Xapian::QueryParser::FLAG_CJK_WORDS;
+		    break;
+		}
 		break;
 	    case 'd':
 		if (strcmp(s, "default") == 0) {
