@@ -162,10 +162,8 @@ static const test test_simple[] = {
     { "", "극지라", "극지라[1]" },
     { "", "ウルス アップ", "アップ[2] ウルス[1]" },
 
-#ifdef USE_ICU
     // Non-CJK in CJK word mode:
     { "", "hello World Test", "hello[1] test[3] world[2]" },
-#endif
 
     // CJK with prefix:
     { "prefix=XA", "发送从", "XA从[2] XA发送[1]" },

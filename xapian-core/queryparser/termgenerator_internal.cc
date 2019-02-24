@@ -137,8 +137,8 @@ parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
 {
     static_assert(int(MSet::SNIPPET_CJK_WORDS) == TermGenerator::FLAG_CJK_WORDS,
 		  "CJK_WORDS flags have same value");
-    if (cjk_flags & MSet::SNIPPET_CJK_WORDS) {
 #ifdef USE_ICU
+    if (cjk_flags & MSet::SNIPPET_CJK_WORDS) {
 	const char* cjk_start = itor.raw();
 	(void)CJK::get_cjk(itor);
 	size_t cjk_left = itor.raw() - cjk_start;
@@ -150,23 +150,21 @@ parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
 	    if (!action(cjk_token, with_positions, itor.left() + cjk_left))
 		return false;
 	}
-#else
-	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
-					      "building Xapian to use ICU");
-#endif
-    } else {
-	CJKNgramIterator tk(itor);
-	while (tk != CJKNgramIterator()) {
-	    const string& cjk_token = *tk;
-	    // FLAG_CJK_NGRAM only sets positions for tokens of length 1.
-	    bool with_pos = with_positions && tk.unigram();
-	    if (!action(cjk_token, with_pos, tk.get_utf8iterator().left()))
-		return false;
-	    ++tk;
-	}
-	// Update itor to end of CJK text span.
-	itor = tk.get_utf8iterator();
+	return true;
     }
+#endif
+
+    CJKNgramIterator tk(itor);
+    while (tk != CJKNgramIterator()) {
+	const string& cjk_token = *tk;
+	// FLAG_CJK_NGRAM only sets positions for tokens of length 1.
+	bool with_pos = with_positions && tk.unigram();
+	if (!action(cjk_token, with_pos, tk.get_utf8iterator().left()))
+	    return false;
+	++tk;
+    }
+    // Update itor to end of CJK text span.
+    itor = tk.get_utf8iterator();
     return true;
 }
 
@@ -280,6 +278,12 @@ void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
+#ifndef USE_ICU
+    if (flags & FLAG_CJK_WORDS) {
+	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
+					      "building Xapian to use ICU");
+    }
+#endif
     unsigned cjk_flags = flags & (FLAG_CJK_NGRAM | FLAG_CJK_WORDS);
     if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
 	cjk_flags = FLAG_CJK_NGRAM;
@@ -745,6 +749,12 @@ MSet::Internal::snippet(const string & text,
 	return text;
     }
 
+#ifndef USE_ICU
+    if (flags & MSet::SNIPPET_CJK_WORDS) {
+	throw Xapian::FeatureUnavailableError("SNIPPET_CJK_WORDS requires "
+					      "building Xapian to use ICU");
+    }
+#endif
     auto SNIPPET_CJK_MASK = MSet::SNIPPET_CJK_NGRAM | MSet::SNIPPET_CJK_WORDS;
     unsigned cjk_flags = flags & SNIPPET_CJK_MASK;
     if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
