@@ -732,8 +732,8 @@ static const test test_or_queries[] = {
     { "authortitle:학술 OR 연구를", "((A학술@1 AND XT학술@1) OR 연구를@2)" },
 
     // FIXME: These should really filter by bigrams to accelerate:
-    { "\"久有归\"", "(久@1 PHRASE 3 有@1 PHRASE 3 归@1)" },
-    { "\"久有test归\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归@3)" },
+    { "\"久有归天愿\"", "(久@1 PHRASE 4 有@1 PHRASE 4 归天@1 PHRASE 4 愿@1)" },
+    { "\"久有test归天\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归天@3)" },
     // FIXME: this should work: { "久 NEAR 有", "(久@1 NEAR 11 有@2)" },
     //
     { NULL, NULL }

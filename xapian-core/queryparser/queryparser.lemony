@@ -1861,16 +1861,29 @@ class Terms {
 void
 Term::as_positional_cjk_term(Terms * terms) const
 {
-    // Add each individual CJK character to the phrase.
-    string t;
-    for (Utf8Iterator it(name); it != Utf8Iterator(); ++it) {
-	Unicode::append_utf8(t, *it);
-	Term * c = new Term(state, t, field_info, unstemmed, stem, pos);
-	terms->add_positional_term(c);
-	t.resize(0);
-    }
+    if (state->flags & QueryParser::FLAG_CJK_WORDS) {
+#ifdef USE_ICU
+	for (CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
+	    const string& t = *tk;
+	    Term * c = new Term(state, t, field_info, unstemmed, stem, pos);
+	    terms->add_positional_term(c);
+	}
+#else
+	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
+					      "building Xapian to use ICU");
+#endif
+    } else {
+	// Add each individual CJK character to the phrase.
+	string t;
+	for (Utf8Iterator it(name); it != Utf8Iterator(); ++it) {
+	    Unicode::append_utf8(t, *it);
+	    Term * c = new Term(state, t, field_info, unstemmed, stem, pos);
+	    terms->add_positional_term(c);
+	    t.resize(0);
+	}
 
-    // FIXME: we want to add the n-grams as filters too for efficiency.
+	// FIXME: we want to add the n-grams as filters too for efficiency.
+    }
 
     delete this;
 }
