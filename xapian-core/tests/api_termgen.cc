@@ -162,8 +162,10 @@ static const test test_simple[] = {
     { "", "극지라", "극지라[1]" },
     { "", "ウルス アップ", "アップ[2] ウルス[1]" },
 
+#ifdef USE_ICU
     // Non-CJK in CJK word mode:
     { "", "hello World Test", "hello[1] test[3] world[2]" },
+#endif
 
     // CJK with prefix:
     { "prefix=XA", "发送从", "XA从[2] XA发送[1]" },
@@ -761,6 +763,7 @@ DEFINE_TESTCASE(termgen1, !backend) {
     termgen.set_document(doc);
     string prefix;
 
+    unsigned flags = 0;
     for (const test *p = test_simple; p->text; ++p) {
 	int weight = 1;
 	bool new_doc = true;
@@ -827,17 +830,21 @@ DEFINE_TESTCASE(termgen1, !backend) {
 		}
 	    } else if (strncmp(o, "cjkngram", 8) == 0) {
 		o += 8;
+		flags |= termgen.FLAG_CJK_NGRAM;
 		termgen.set_flags(termgen.FLAG_CJK_NGRAM,
 				  ~termgen.FLAG_CJK_NGRAM);
 	    } else if (strncmp(o, "!cjkngram", 9) == 0) {
 		o += 9;
+		flags &= ~termgen.FLAG_CJK_NGRAM;
 		termgen.set_flags(0, ~termgen.FLAG_CJK_NGRAM);
 	    } else if (strncmp(o, "cjkwords", 8) == 0) {
 		o += 8;
+		flags |= termgen.FLAG_CJK_WORDS;
 		termgen.set_flags(termgen.FLAG_CJK_WORDS,
 				  ~termgen.FLAG_CJK_WORDS);
 	    } else if (strncmp(o, "!cjkwords", 9) == 0) {
 		o += 9;
+		flags &= ~termgen.FLAG_CJK_WORDS;
 		termgen.set_flags(0, ~termgen.FLAG_CJK_WORDS);
 	    } else {
 		FAIL_TEST("Invalid options string: " << p->options);
@@ -865,6 +872,12 @@ DEFINE_TESTCASE(termgen1, !backend) {
 	} catch (...) {
 	    output = "Unknown exception!";
 	}
+#ifndef USE_ICU
+	if (flags & termgen.FLAG_CJK_WORDS) {
+	    expect = "FeatureUnavailableError: FLAG_CJK_WORDS requires "
+		     "building Xapian to use ICU";
+	}
+#endif
 	if (prefix.empty())
 	    tout << "Text: " << p->text << '\n';
 	else
