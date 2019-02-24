@@ -519,7 +519,7 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
     } catch (const Xapian::FeatureUnavailableError& e) { \
 	TEST_STRINGS_EQUAL( \
 	    e.get_msg(), \
-	    "FLAG_CJK_WORDS requires building Xapian to use ICU"); \
+	    "SNIPPET_CJK_WORDS requires building Xapian to use ICU"); \
     }
 #endif
     DO_TEST(mset.snippet(input, len, stem, cjk_flags, "<b>", "</b>", "..."),
