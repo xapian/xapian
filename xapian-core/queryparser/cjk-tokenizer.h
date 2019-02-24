@@ -119,7 +119,7 @@ class CJKNgramIterator {
 class CJKWordIterator {
     std::string current_token;
 
-    int32_t p, q;
+    int32_t p;
 
     const char* utf8_ptr;
 

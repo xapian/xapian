@@ -151,19 +151,19 @@ CJKWordIterator::CJKWordIterator(const char* ptr, size_t len)
     }
     if (rare(U_FAILURE(err)))
 	throw Xapian::InternalError(string("ICU error: ") + u_errorName(err));
-    q = brk->first();
+    int32_t first = brk->first();
     p = brk->next();
     utf8_ptr = ptr;
-    current_token.assign(utf8_ptr + q, p - q);
+    current_token.assign(utf8_ptr + first, p - first);
 }
 
 CJKWordIterator &
 CJKWordIterator::operator++()
 {
-    q = p;
+    int32_t first = p;
     p = brk->next();
     if (usual(p != done)) {
-	current_token.assign(utf8_ptr + q, p - q);
+	current_token.assign(utf8_ptr + first, p - first);
     }
     return *this;
 }
