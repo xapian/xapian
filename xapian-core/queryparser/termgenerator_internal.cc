@@ -152,6 +152,8 @@ parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
 	}
 	return true;
     }
+#else
+    (void)cjk_flags;
 #endif
 
     CJKNgramIterator tk(itor);
