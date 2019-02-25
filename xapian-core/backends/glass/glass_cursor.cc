@@ -24,8 +24,6 @@
 
 #include "glass_cursor.h"
 
-#include <cerrno>
-
 #include <xapian/error.h>
 
 #include "glass_table.h"

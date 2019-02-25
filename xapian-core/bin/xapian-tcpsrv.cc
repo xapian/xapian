@@ -23,7 +23,6 @@
 
 #include <config.h>
 
-#include <cerrno>
 #include <cstdlib>
 
 #include <iostream>
