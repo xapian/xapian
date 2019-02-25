@@ -279,12 +279,12 @@ if test no != "$with_python" ; then
   fi
   AC_ARG_VAR(PYTHON2, [Python 2 interpreter])
   if test -n "$PYTHON2" ; then
-    dnl Require Python 2.6 or newer.  Older versions are essentially
-    dnl unsupported upstream.
+    dnl Require Python 2.7 or newer.  Older versions are essentially
+    dnl unsupported upstream, and SWIG 4.0.0 dropped support for them too.
     AC_MSG_CHECKING([$PYTHON2 version])
     version=`$PYTHON2 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [2.[6-9]*|2.[1-5][0-9]*])
+    [2.[7-9]*|2.[1-5][0-9]*])
       AC_MSG_RESULT([$version])
       ;;
     [[3-9].*])

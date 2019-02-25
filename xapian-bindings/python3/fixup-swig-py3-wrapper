@@ -27,11 +27,8 @@ $_ = <>;
 
 my ($pos, $find, $replace);
 
-s/^(from \. import _xapian\n)(?:.*\n)+? *import __builtin__\n/$1/m or
+s/^try:\n    import builtins as __builtin__.*?\n    import __builtin__\n//sm or
     die "Failed to fix up import code";
-
-/\bnew_instancemethod\b/ and
-    die "Failed to fully fix up new_instancemethod";
 
 $replace = << '__END__';
 def _swig_repr(self):
@@ -44,9 +41,6 @@ s/^(?:def _swig_setattr_nondynamic\(self.*?\n)?def _swig_repr\(self\):.*?(\n    
 
 s/^def _swig_setattr_nondynamic.*?\nclass _SwigNonDynamicMeta\(type\):.*?\n\n//sm or
     die "Failed to fix up _swig_setattr_nondynamic";
-
-s/^def _swig_repr\(self\):.*?(\n    return)/$replace$1/sm or
-    die "Failed to fix up _swig_repr";
 
 /\b__builtin__\b/ and
     die "Failed to fully fix up __builtin__";
