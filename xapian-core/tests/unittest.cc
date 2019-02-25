@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include <cctype>
+#include <cerrno>
 #include <cfloat>
 #include <climits>
 #include <cmath>

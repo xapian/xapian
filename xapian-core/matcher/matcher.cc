@@ -44,6 +44,7 @@
 #endif
 
 #include <algorithm>
+#include <cerrno>
 #include <cfloat> // For DBL_EPSILON.
 #include <vector>
 
