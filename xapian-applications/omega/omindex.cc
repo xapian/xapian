@@ -33,6 +33,7 @@
 
 #include <sys/types.h>
 #include "safeunistd.h"
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

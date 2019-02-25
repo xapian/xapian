@@ -28,6 +28,7 @@
 // get_eset() unless we suppress such warnings here.
 #define XAPIAN_DEPRECATED(D) D
 
+#include <cerrno>
 #include <cstdio>
 #include <ctime>
 

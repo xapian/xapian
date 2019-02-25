@@ -34,6 +34,7 @@
 #include "testsuite.h"
 #include "testutils.h"
 
+#include <cerrno>
 #include <cstdlib>
 #include <fstream>
 

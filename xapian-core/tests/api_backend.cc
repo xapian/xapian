@@ -47,6 +47,7 @@
 # include "safesyswait.h"
 #endif
 
+#include <cerrno>
 #include <fstream>
 #include <iterator>
 

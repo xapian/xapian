@@ -21,6 +21,8 @@
 
 #include <config.h>
 
+#include <cerrno>
+
 #ifdef __CYGWIN__
 # include "posixy_wrapper.h"
 

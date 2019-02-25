@@ -27,6 +27,7 @@
 #include <iostream>
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
 #include <limits>
 
