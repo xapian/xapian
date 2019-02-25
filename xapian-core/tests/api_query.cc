@@ -72,7 +72,20 @@ DEFINE_TESTCASE(overload1, !backend) {
     TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar AND baz))");
     // But not if the RHS is the same query:
     q = Xapian::Query("foo") & Xapian::Query("bar");
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
     q &= q;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
     TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo AND bar) AND (foo AND bar)))");
     {
 	// Also not if the query has a refcount > 1.
@@ -98,7 +111,20 @@ DEFINE_TESTCASE(overload1, !backend) {
     TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar OR baz))");
     // But not if the RHS is the same query:
     q = Xapian::Query("foo") | Xapian::Query("bar");
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
     q |= q;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
     TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo OR bar) OR (foo OR bar)))");
     {
 	// Also not if the query has a refcount > 1.
@@ -124,7 +150,20 @@ DEFINE_TESTCASE(overload1, !backend) {
     TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar XOR baz))");
     // But a query ^= itself gives an empty query.
     q = Xapian::Query("foo") ^ Xapian::Query("bar");
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
     q ^= q;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
     TEST_STRINGS_EQUAL(q.get_description(), "Query()");
     {
 	// Even if the reference count > 1.
