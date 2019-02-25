@@ -59,7 +59,6 @@ posixy_unlink(const char * filename)
 
 #include <io.h>
 
-#include <cerrno>
 #include "safefcntl.h"
 #include "safewindows.h"
 

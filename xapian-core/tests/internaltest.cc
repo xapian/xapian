@@ -25,7 +25,6 @@
 
 #include <xapian.h>
 
-#include <cerrno>
 #include <iostream>
 #include <string>
 
