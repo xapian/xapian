@@ -158,19 +158,17 @@ Installing without root access
      make install
 
      Python 2.6 and later will look in ~/.local for packages automatically
-     so the above is all that is required.
+     so the above is all that is required by default.  If you set PYTHON_LIB to
+     a different directory, you'll need to tell Python to look for modules in
+     that directory.  Here are two possible ways to do that:
 
-     For older Python versions, or if you set PYTHON_LIB to a different
-     directory, you'll need to tell Python to look for modules in that
-     directory.  Here are two possible ways to do that:
-
-     setenv PYTHONPATH=$HOME/.local python myscript.py
+     setenv PYTHONPATH=$HOME/mypymods python myscript.py
 
      Or you can add this to the start of your Python scripts:
 
      import os
      import sys
-     sys.path.insert(0, os.environ['HOME'] + "/.local")
+     sys.path.insert(0, os.environ['HOME'] + "/mypymods")
      import xapian
 
   Python 3:

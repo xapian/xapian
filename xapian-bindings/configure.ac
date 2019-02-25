@@ -187,14 +187,12 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   fi
   dnl Check for new enough SWIG.
   dnl
-  dnl 3.0.6 fixes compiling the Perl bindings under C++11 ("seed" macro issue).
-  dnl 3.0.8 fixes conversion of integers large than an int in Python 3.
-  dnl 3.0.9 fixes generation of unnecessary _swigconstant helpers for Python.
   dnl 3.0.12 fixes segfault on unload with PHP 7.1
+  dnl 4.0.0 includes fixes for many languages
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-    [[012].*|3.0.?|3.0.1[01]|""])
-      msg="SWIG >= 3.0.12 required (you have ${v:-an unknown version})"
+    [[0123].*|""])
+      msg="SWIG >= 4.0.0 required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])
@@ -309,12 +307,12 @@ if test no != "$with_python" ; then
   fi
   AC_ARG_VAR(PYTHON2, [Python 2 interpreter])
   if test -n "$PYTHON2" ; then
-    dnl Require Python 2.6 or newer.  Older versions are essentially
-    dnl unsupported upstream.
+    dnl Require Python 2.7 or newer.  Older versions are essentially
+    dnl unsupported upstream, and SWIG 4.0.0 dropped support for them too.
     AC_MSG_CHECKING([$PYTHON2 version])
     version=`$PYTHON2 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [2.[6-9]*|2.[1-5][0-9]*])
+    [2.[7-9]*|2.[1-5][0-9]*])
       AC_MSG_RESULT([$version])
       ;;
     [[3-9].*])
