@@ -9,7 +9,7 @@ export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include $(ICU_CPPFLAGS)
-AM_CXXFLAGS = $(ICU_CFLAGS)
+AM_CXXFLAGS += $(ICU_CFLAGS)
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
 # include/xapian/error.h and include/xapian/errordispatch.h
