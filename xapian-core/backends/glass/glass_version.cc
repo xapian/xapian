@@ -296,8 +296,14 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 	    tmpfile += "/v.tmp";
 
 #ifdef __EMSCRIPTEN__
-	// Emscripten crashes if trying to truncate a non-existant file. Skip
-	// using O_TRUNC and instead truncate when the file is opened.
+	// Emscripten fails to create a file if O_TRUNC is specified and the
+	// filename is the previous name of a renamed file (which it will be
+	// the second time we write out the version file for a DB):
+	//
+	// https://github.com/emscripten-core/emscripten/issues/8187
+	//
+	// We avoid triggering this bug by not using O_TRUNC and instead
+	// truncating once the file is opened.
 	fd = posixy_open(tmpfile.c_str(),
 			 O_CREAT|O_WRONLY|O_BINARY,
 			 0666);
