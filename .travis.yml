@@ -4,8 +4,6 @@ notifications:
   irc: "chat.freenode.net#xapian-devel"
 env:
   global:
-    # Tell bootstrap where to clone ./common from
-    - XAPIAN_COMMON_CLONE_URL=https://github.com/xapian/xapian.git
     - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libiconv libmagic pcre libsvm lua mono python2 python icu4c'
 matrix:
   include:
