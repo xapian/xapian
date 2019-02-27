@@ -53,8 +53,11 @@ CJK::codepoint_is_cjk(unsigned p)
     // Array containing the last value in each range of codepoints which
     // are either all CJK or all non-CJK.
     static const unsigned splits[] = {
+	// 1100..11FF; Hangul Jamo
+	0x1100 - 1, 0x11FF,
 	// 2E80..2EFF; CJK Radicals Supplement
-	0x2E80 - 1, 0x2EFF,
+	// 2F00..2FDF; Kangxi Radicals
+	0x2E80 - 1, 0x2FDF,
 	// 3000..303F; CJK Symbols and Punctuation
 	// 3040..309F; Hiragana
 	// 30A0..30FF; Katakana
@@ -72,16 +75,29 @@ CJK::codepoint_is_cjk(unsigned p)
 	0x3000 - 1, 0x9FFF,
 	// A700..A71F; Modifier Tone Letters
 	0xA700 - 1, 0xA71F,
+	// A960..A97F; Hangul Jamo Extended-A
+	0xA960 - 1, 0xA97F,
 	// AC00..D7AF; Hangul Syllables
-	0xAC00 - 1, 0xD7AF,
+	// D7B0..D7FF; Hangul Jamo Extended-B
+	0xAC00 - 1, 0xD7FF,
 	// F900..FAFF; CJK Compatibility Ideographs
 	0xF900 - 1, 0xFAFF,
 	// FE30..FE4F; CJK Compatibility Forms
 	0xFE30 - 1, 0xFE4F,
 	// FF00..FFEF; Halfwidth and Fullwidth Forms
 	0xFF00 - 1, 0xFFEF,
+	// 1B000..1B0FF; Kana Supplement
+	// 1B100..1B12F; Kana Extended-A
+	0x1B000 - 1, 0x1B12F,
+	// 1F200..1F2FF; Enclosed Ideographic Supplement
+	0x1F200 - 1, 0x1F2FF,
 	// 20000..2A6DF; CJK Unified Ideographs Extension B
 	0x20000 - 1, 0x2A6DF,
+	// 2A700..2B73F; CJK Unified Ideographs Extension C
+	// 2B740..2B81F; CJK Unified Ideographs Extension D
+	// 2B820..2CEAF; CJK Unified Ideographs Extension E
+	// 2CEB0..2EBEF; CJK Unified Ideographs Extension F
+	0x2A700 - 1, 0x2EBEF,
 	// 2F800..2FA1F; CJK Compatibility Ideographs Supplement
 	0x2F800 - 1, 0x2FA1F,
     };
