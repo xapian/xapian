@@ -42,32 +42,32 @@ using namespace std;
 
 string serialise_double(double v)
 {
-    size_t double_size = sizeof(double);
 #ifdef WORDS_BIGENDIAN
     uint64_t temp;
     static_assert(sizeof(temp) == sizeof(v));
-    memcpy(&temp, &v, double_size);
+    memcpy(&temp, &v, sizeof(double));
     temp = do_bswap(temp);
-    return string(reinterpret_cast<const char *>(&temp), double_size);
+    return string(reinterpret_cast<const char *>(&temp), sizeof(double));
+#else
+    return string(reinterpret_cast<const char *>(&v), sizeof(double));
 #endif
-    return string(reinterpret_cast<const char *>(&v), double_size);
 }
 
 double unserialise_double(const char ** p, const char * end)
 {
     if (end - *p < 8) {
-		throw Xapian::SerialisationError(
-				"Bad encoded double: insufficient data");
+	throw Xapian::SerialisationError(
+	    "Bad encoded double: insufficient data");
     }
-    size_t double_size = sizeof(double);
     double result;
-    memcpy(&result, *p, double_size);
 #ifdef WORDS_BIGENDIAN
     uint64_t temp;
-    static_assert(sizeof(temp) == sizeof(result));
-    memcpy(&temp, &result, double_size)
+    static_assert(sizeof(temp) == sizeof(double));
+    memcpy(&temp, *p, sizeof(double));
     temp = do_bswap(temp);
-    memcpy(&result, &temp, double_size);
+    memcpy(&result, &temp, sizeof(double));
+#else
+    memcpy(&result, *p, sizeof(double));
 #endif
     *p += 8;
     return result;
