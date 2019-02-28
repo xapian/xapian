@@ -31,4 +31,3 @@
 
 //%include ../generic/except.i
 %include ../xapian-headers.i
-
