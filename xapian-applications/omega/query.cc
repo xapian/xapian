@@ -2611,56 +2611,50 @@ ensure_query_parsed()
     }
 
     if (!force_first_page) {
-	try {
-	// Work out which mset element is the first hit we want
-	// to display
-	    val = cgi_params.find("TOPDOC");
-	    if (val != cgi_params.end()) {
-		if (!parse_unsigned(val->second.c_str(),topdoc)) {
-		    throw "TOPDOC parameter must be >= 0\n";
-		}
-	    }
-
-	    // Handle next, previous, and page links
-	    if (cgi_params.find(">") != cgi_params.end()) {
-		topdoc += hits_per_page;
-	    } else if (cgi_params.find("<") != cgi_params.end()) {
-		if (topdoc >= hits_per_page)
-		    topdoc -= hits_per_page;
-		else
-		    topdoc = 0;
-	    } else if ((val = cgi_params.find("[")) != cgi_params.end() ||
-		       (val = cgi_params.find("#")) != cgi_params.end()) {
-		if (val->second[0] < '0' || val->second[0] > '9') {
-		    throw "Page parameter must be >= 0\n";
-		}
-		long page = atol(val->second.c_str());
-		// Do something sensible for page 0 (we count pages from 1).
-		if (page == 0) page = 1;
-		topdoc = (page - 1) * hits_per_page;
-	    }
-
-	    // raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
-	    // Normally we snap TOPDOC like this so that things work nicely if
-	    // HITSPERPAGE is in a <select> or on radio buttons.  If we're
-	    // postprocessing the output of omega and want variable sized pages,
-	    // this is unhelpful.
-	    bool raw_search = false;
-	    val = cgi_params.find("RAWSEARCH");
-	    if (val != cgi_params.end()) {
-		unsigned int temp;
-		if (!parse_unsigned(val->second.c_str(),temp)) {
-		    throw "RAWSEARCH parameter must be >= 0\n";
-		}
-		raw_search = bool(temp);
-	    }
-
-	    if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
-	} catch (const char *s) {
-	    if (!set_content_type && !suppress_http_headers)
-	    cout << "Content-Type: text/html\n\n";
-	    cout << "Exception: " << html_escape(s) << endl;
+// Work out which mset element is the first hit we want
+// to display
+	val = cgi_params.find("TOPDOC");
+	if (val != cgi_params.end()) {
+	if (!parse_unsigned(val->second.c_str(),topdoc)) {
+		throw "TOPDOC parameter must be >= 0\n";
 	}
+	}
+
+	// Handle next, previous, and page links
+	if (cgi_params.find(">") != cgi_params.end()) {
+	topdoc += hits_per_page;
+	} else if (cgi_params.find("<") != cgi_params.end()) {
+	if (topdoc >= hits_per_page)
+		topdoc -= hits_per_page;
+	else
+		topdoc = 0;
+	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
+			(val = cgi_params.find("#")) != cgi_params.end()) {
+	if (val->second[0] < '0' || val->second[0] > '9') {
+		throw "Page parameter must be >= 0\n";
+	}
+	long page = atol(val->second.c_str());
+	// Do something sensible for page 0 (we count pages from 1).
+	if (page == 0) page = 1;
+	topdoc = (page - 1) * hits_per_page;
+	}
+
+	// raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
+	// Normally we snap TOPDOC like this so that things work nicely if
+	// HITSPERPAGE is in a <select> or on radio buttons.  If we're
+	// postprocessing the output of omega and want variable sized pages,
+	// this is unhelpful.
+	bool raw_search = false;
+	val = cgi_params.find("RAWSEARCH");
+	if (val != cgi_params.end()) {
+	unsigned int temp;
+	if (!parse_unsigned(val->second.c_str(),temp)) {
+		throw "RAWSEARCH parameter must be >= 0\n";
+	}
+	raw_search = bool(temp);
+	}
+
+	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
     }
 
     if (!discard_rset) {

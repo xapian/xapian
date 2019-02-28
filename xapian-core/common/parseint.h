@@ -20,10 +20,6 @@
 #ifndef XAPIAN_INCLUDED_PARSEINT_H
 #define XAPIAN_INCLUDED_PARSEINT_H
 
-#ifndef PACKAGE
-# error config.h must be included first in each C++ source file
-#endif
-
 #include "overflow.h"
 
 template<typename T>
@@ -31,10 +27,10 @@ bool parse_unsigned(const char* p, T& res)
 {
     res = 0;
     do {
-    unsigned char digit = *p - '0';
-    if (digit > 9 ||
-	mul_overflows(res, (unsigned int)10, res) ||
-	add_overflows(res, digit, res)) {
+	unsigned char digit = *p - '0';
+	if (digit > 9 ||
+	    mul_overflows(res, (unsigned int)10, res) ||
+	    add_overflows(res, digit, res)) {
 	return false;
     }
 } while (*++p);

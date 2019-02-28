@@ -23,6 +23,7 @@ noinst_HEADERS +=\
 	common/output.h\
 	common/overflow.h\
 	common/pack.h\
+	common/parseint.h\
 	common/posixy_wrapper.h\
 	common/pretty.h\
 	common/realtime.h\
@@ -43,8 +44,7 @@ noinst_HEADERS +=\
 	common/stdclamp.h\
 	common/str.h\
 	common/stringutils.h\
-	common/wordaccess.h\
-	common/parseint.h
+	common/wordaccess.h
 
 EXTRA_DIST +=\
 	common/Makefile\
