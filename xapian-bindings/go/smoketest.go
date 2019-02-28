@@ -35,7 +35,7 @@ func TestVersion(t *testing.T) {
   }
   if strings.Split(Version_string(),".")[0] != "1" {
     t.Errorf("Version_string() not 1.Y.Z")
-  } 
+  }
 }
 
 func TestGeneric1(t *testing.T) {
@@ -64,7 +64,7 @@ func TestGeneric1(t *testing.T) {
   if db.Get_doccount() != 1 {
     t.Errorf("Unexpected db.get_doccount()")
   }
-  
+
   if NewQuery(XapianQueryOp(QueryOP_OR), NewQuery(XapianQueryOp(QueryOP_OR), "smoke", "test"), NewQuery("terms")).Get_description() != "Query(((smoke OR test) OR terms))" {
     t.Errorf("Expected query Query(((smoke OR test) OR terms))");
   }
