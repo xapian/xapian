@@ -12,8 +12,8 @@ AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
 	srcdir='$(srcdir)' ;\
 	export abs_builddir ;\
-	export srcdir ;\
-LOG_COMPILER =
+	export srcdir ;
+LOG_COMPILER = go test xapian.go
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.go
 
