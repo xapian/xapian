@@ -431,7 +431,7 @@ try {
     val = cgi_params.find("DATEVALUE");
     Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
     if (val != cgi_params.end() &&
-	!parse_unsigned(val->second.c_str(),date_value_slot)) {
+	!parse_unsigned(val->second.c_str(), date_value_slot)) {
 	throw "DATEVALUE slot must be >= 0\n";
     }
     add_date_filter(date_start, date_end, date_span, date_value_slot);

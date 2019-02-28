@@ -2611,32 +2611,32 @@ ensure_query_parsed()
     }
 
     if (!force_first_page) {
-// Work out which mset element is the first hit we want
-// to display
+	// Work out which mset element is the first hit we want
+	// to display
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end()) {
-	if (!parse_unsigned(val->second.c_str(),topdoc)) {
+	    if (!parse_unsigned(val->second.c_str(),topdoc)) {
 		throw "TOPDOC parameter must be >= 0\n";
-	}
+	    }
 	}
 
 	// Handle next, previous, and page links
 	if (cgi_params.find(">") != cgi_params.end()) {
-	topdoc += hits_per_page;
+	    topdoc += hits_per_page;
 	} else if (cgi_params.find("<") != cgi_params.end()) {
-	if (topdoc >= hits_per_page)
+	    if (topdoc >= hits_per_page)
 		topdoc -= hits_per_page;
-	else
+	    else
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
-			(val = cgi_params.find("#")) != cgi_params.end()) {
-	if (val->second[0] < '0' || val->second[0] > '9') {
+		   (val = cgi_params.find("#")) != cgi_params.end()) {
+	    if (val->second[0] < '0' || val->second[0] > '9') {
 		throw "Page parameter must be >= 0\n";
-	}
-	long page = atol(val->second.c_str());
-	// Do something sensible for page 0 (we count pages from 1).
-	if (page == 0) page = 1;
-	topdoc = (page - 1) * hits_per_page;
+	    }
+	    long page = atol(val->second.c_str());
+	    // Do something sensible for page 0 (we count pages from 1).
+	    if (page == 0) page = 1;
+	    topdoc = (page - 1) * hits_per_page;
 	}
 
 	// raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
@@ -2647,11 +2647,11 @@ ensure_query_parsed()
 	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
 	if (val != cgi_params.end()) {
-	unsigned int temp;
-	if (!parse_unsigned(val->second.c_str(),temp)) {
+	    unsigned int temp;
+	    if (!parse_unsigned(val->second.c_str(),temp)) {
 		throw "RAWSEARCH parameter must be >= 0\n";
-	}
-	raw_search = bool(temp);
+	    }
+	    raw_search = bool(temp);
 	}
 
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
