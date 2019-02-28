@@ -216,7 +216,11 @@ STANDARD_IGNORES(Xapian, Query)
 %ignore *::operator^=;
 %ignore *::operator*=;
 %ignore *::operator/=;
-#if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGLUA || defined SWIGPHP
+#if defined SWIGCSHARP || \
+    defined SWIGGO || \
+    defined SWIGJAVA || \
+    defined SWIGLUA || \
+    defined SWIGPHP
 %ignore *::operator&;
 %ignore *::operator|;
 %ignore *::operator^;
