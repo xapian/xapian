@@ -21,6 +21,10 @@
 #ifndef XAPIAN_INCLUDED_HONEY_TABLE_H
 #define XAPIAN_INCLUDED_HONEY_TABLE_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #define SSTINDEX_ARRAY
 //#define SSTINDEX_BINARY_CHOP
 //#define SSTINDEX_SKIPLIST

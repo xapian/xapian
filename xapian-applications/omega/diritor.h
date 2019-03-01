@@ -21,6 +21,10 @@
 #ifndef OMEGA_INCLUDED_DIRITOR_H
 #define OMEGA_INCLUDED_DIRITOR_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include <cerrno>
 #include <string>
 

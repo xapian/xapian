@@ -25,6 +25,10 @@
 #ifndef XAPIAN_INCLUDED_SMALLVECTOR_H
 #define XAPIAN_INCLUDED_SMALLVECTOR_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include <algorithm>
 #include <cstddef> // For std::size_t
 #include <cstring> // For std::memcpy
