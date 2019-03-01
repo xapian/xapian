@@ -99,6 +99,11 @@ dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
+AC_CHECK_DECLS([__builtin_bswap32(uint32_t)], [], [],
+	       [#include <stdint.h>])
+AC_CHECK_DECLS([_byteswap_ulong], [], [],
+	       [#include <stdlib.h>])
+
 dnl Check for time functions.
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime sleep nanosleep gettimeofday ftime])
@@ -131,7 +136,7 @@ AM_CONDITIONAL([VPATH_BUILD], [test yes = "$vpath_build"])
 
 dnl Check for headers.
 AC_CHECK_HEADERS([strings.h sys/select.h], [], [], [ ])
-AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
+AC_CHECK_HEADERS([sys/time.h]dnl
 		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
 		 [], [], [#include <sys/types.h>])
