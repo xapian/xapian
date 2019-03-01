@@ -165,9 +165,14 @@ retry:
     // least on platforms where flock() isn't just a compatibility wrapper
     // around fcntl()).  We can't simply switch to this without breaking
     // locking compatibility with previous releases, though it might be useful
-    // for porting to platforms without fcntl() locking.  Also, flock()
-    // apparently doesn't work over NFS - perhaps that's OK, but we should at
-    // least check the failure mode.
+    // for porting to platforms without fcntl() locking.
+    //
+    // Also, flock() is problematic over NFS at least on Linux - it's been
+    // supported since Linux 2.6.12 but it's actually emulated by taking out an
+    // fcntl() byte-range lock on the entire file, which means that a process
+    // on the NFS server can get a (genuine) flock() lock on the same file a
+    // process on an NFS client has locked by flock() emulated as an fcntl()
+    // lock.
     Assert(fd == -1);
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (lockfd < 0) {
