@@ -589,9 +589,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *
 	 *  The corresponding option needs to have been used at index time.
 	 *
-	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  Flag added in Xapian 1.3.4 and 1.2.22.  This mode can be
 	 *  enabled in 1.2.8 and later by setting environment variable
-	 *  XAPIAN_CJK_NGRAM.
+	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+	 *  in 1.4.11).
 	 */
 	FLAG_CJK_NGRAM = 2048,
 

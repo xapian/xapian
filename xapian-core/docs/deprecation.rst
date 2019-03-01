@@ -213,6 +213,9 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
+1.4.11     1.7.0  Environment variable                Specify via the flags ``Xapian::QueryParser::FLAG_CJK_NGRAM``,
+                  ``XAPIAN_CJK_NGRAM``                ``Xapian::TermGenerator::FLAG_CJK_NGRAM`` and
+                                                      ``Xapian::MSet::SNIPPET_CJK_NGRAM`` instead.
 ========== ====== =================================== ========================================================================
 
 Bindings
