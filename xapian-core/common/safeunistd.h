@@ -22,6 +22,10 @@
 #ifndef XAPIAN_INCLUDED_SAFEUNISTD_H
 #define XAPIAN_INCLUDED_SAFEUNISTD_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #ifndef _MSC_VER
 # include <unistd.h>
 #else

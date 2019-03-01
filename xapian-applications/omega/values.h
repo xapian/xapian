@@ -20,6 +20,10 @@
 #ifndef OMEGA_INCLUDED_VALUES_H
 #define OMEGA_INCLUDED_VALUES_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include <cstring>
 #include <string>
 

@@ -21,6 +21,10 @@
 #ifndef XAPIAN_INCLUDED_PACK_H
 #define XAPIAN_INCLUDED_PACK_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include <cstring>
 #include <string>
 #include <type_traits>
