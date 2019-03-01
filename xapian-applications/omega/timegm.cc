@@ -37,7 +37,7 @@ timegm(struct tm *tm)
 {
     static bool set_tz = false;
     if (!set_tz) {
-#ifdef HAVE__PUTENV_S
+#if HAVE_DECL__PUTENV_S
 	_putenv_s("TZ", "");
 #elif defined HAVE_SETENV
 	setenv("TZ", "", 1);
