@@ -83,6 +83,9 @@ $(stamp): except.i add-php-ref-handling add-php-type-hints
 	$(PERL) '$(srcdir)/'add-php-ref-handling php7/xapian.php | \
 	    $(PERL) '$(srcdir)/'add-php-type-hints > php7/xapian.tmp
 	mv php7/xapian.tmp php7/xapian.php
+	$(PERL) -pe 's/(^#define SWIG_Error(Msg|Code)\(\) )\(xapian_globals\./$$1ZEND_MODULE_GLOBALS_ACCESSOR(xapian, /' \
+	    php7/xapian_wrap.cc > php7/xapian_wrap.tmp
+	mv php7/xapian_wrap.tmp php7/xapian_wrap.cc
 	$(multitarget_end)
 
 -include php7/xapian_wrap.d
