@@ -8,12 +8,9 @@ abs_builddir = @abs_builddir@
 TESTS = smoketest.php
 LOG_COMPILER = \
     $(LIBTOOL) -dlopen xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PHP)
-# Use -n to disable use of the system php.ini (which might prevent php from
-# using dl() which would make our test fail).  It would be nicer to use "-c"
-# and provide an alternative php.ini but with "-c" it seems PHP still loads the
-# system.ini first (at least with PHP 4.3.10).
-AM_LOG_FLAGS = -n -d safe_mode=off -d enable_dl=on \
-	-d extension_dir='$(abs_builddir)/.libs' \
+# Use -n to disable use of the system php.ini to avoid custom configuration
+# settings there which might interfere with our tests.
+AM_LOG_FLAGS = -n -d extension_dir='$(abs_builddir)/.libs' -d extension=xapian \
 	-d include_path='php5$(PHP_PATH_SEPARATOR)$(srcdir)/php5'
 
 installcheck-local:
