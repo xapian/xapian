@@ -84,9 +84,9 @@ ValueRangePostList::get_termfreq_est() const
 	    if (common_prefix_len != hi.size())
 		break;
 	    // All values in the slot are the same.  We should have optimised
-	    // to EmptyPostList if that singular value is outside the range,
-	    // and if it's inside the range then we know that the frequency is
-	    // exactly the value frequency.
+	    // to NULL if that singular value is outside the range, and if it's
+	    // inside the range then we know that the frequency is exactly the
+	    // value frequency.
 	    Assert(begin <= lo && (end.empty() || hi <= end));
 	    return db->get_value_freq(slot);
 	}
@@ -109,9 +109,9 @@ ValueRangePostList::get_termfreq_est() const
 	    return db->get_value_freq(slot);
 	}
 
-	// The must be partial overlap - we just checked if the range dominates
-	// the bounds, and a range which is entirely outside the bounds is
-	// optimised to EmptyPostList at a higher level.
+	// There must be partial overlap - we just checked if the range
+	// dominates the bounds, and a range which is entirely outside the
+	// bounds is optimised to NULL at a higher level.
 	return db->get_value_freq(slot) / 2;
     }
 

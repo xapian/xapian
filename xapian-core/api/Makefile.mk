@@ -2,7 +2,6 @@ noinst_HEADERS +=\
 	api/documenttermlist.h\
 	api/documentvaluelist.h\
 	api/editdistance.h\
-	api/emptypostlist.h\
 	api/enquireinternal.h\
 	api/leafpostlist.h\
 	api/msetinternal.h\
@@ -31,7 +30,6 @@ lib_src +=\
 	api/documenttermlist.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
-	api/emptypostlist.cc\
 	api/enquire.cc\
 	api/error.cc\
 	api/expanddecider.cc\

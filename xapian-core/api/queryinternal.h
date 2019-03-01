@@ -223,7 +223,9 @@ class QueryAndLike : public QueryBranch {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
-    void postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const;
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
 };
 
 class QueryOrLike : public QueryBranch {
@@ -310,7 +312,9 @@ class QueryFilter : public QueryAndLike {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
-    void postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const;
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
 
     std::string get_description() const;
 };
@@ -322,7 +326,7 @@ class QueryWindowed : public QueryAndLike {
     QueryWindowed(size_t n_subqueries, Xapian::termcount window_)
 	: QueryAndLike(n_subqueries), window(window_) { }
 
-    void postlist_windowed(Xapian::Query::op op, AndContext& ctx,
+    bool postlist_windowed(Xapian::Query::op op, AndContext& ctx,
 			   QueryOptimiser * qopt, double factor) const;
 
   public:
@@ -340,7 +344,9 @@ class QueryNear : public QueryWindowed {
 
     void serialise(std::string & result) const;
 
-    void postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const;
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
 
     std::string get_description() const;
 };
@@ -354,7 +360,9 @@ class QueryPhrase : public QueryWindowed {
 
     void serialise(std::string & result) const;
 
-    void postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const;
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
 
     std::string get_description() const;
 };

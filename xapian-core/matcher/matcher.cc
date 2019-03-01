@@ -349,6 +349,7 @@ Matcher::get_local_mset(Xapian::doccount first,
     postlists.reserve(locals.size());
     PostListTree pltree(vsdoc, db, wtscheme);
     Xapian::termcount total_subqs = 0;
+    bool all_null = true;
     for (size_t i = 0; i != locals.size(); ++i) {
 	if (!locals[i].get()) {
 	    postlists.push_back(NULL);
@@ -361,12 +362,22 @@ Matcher::get_local_mset(Xapian::doccount first,
 	Xapian::termcount total_subqs_i = 0;
 	PostList* pl = locals[i]->get_postlist(&pltree, &total_subqs_i);
 	total_subqs = max(total_subqs, total_subqs_i);
-	if (mdecider) {
-	    pl = new DeciderPostList(pl, mdecider, &vsdoc, &pltree);
+	if (pl != NULL) {
+	    all_null = false;
+	    if (mdecider) {
+		pl = new DeciderPostList(pl, mdecider, &vsdoc, &pltree);
+	    }
 	}
 	postlists.push_back(pl);
     }
     Assert(!postlists.empty());
+
+    if (all_null) {
+	vector<Result> dummy;
+	return Xapian::MSet(new Xapian::MSet::Internal(first, 0, 0, 0, 0, 0, 0,
+						       0.0, 0.0,
+						       std::move(dummy), 0));
+    }
 
     Xapian::doccount n_shards = postlists.size();
     pltree.set_postlists(&postlists[0], n_shards);
