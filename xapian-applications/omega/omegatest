@@ -1078,7 +1078,7 @@ END
 printf '$freq{D19891204}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
 testcase '1|19891204' P=text
 # Use $time to force the match to run.
-printf '$if{$time,$freq{D19891204}}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
+printf '$if{x$time,$freq{D19891204}}|$field{  spaces  ,1}' > "$TEST_TEMPLATE"
 testcase '1|19891204' P=
 
 # Feature tests for escaping in quoted arguments.
