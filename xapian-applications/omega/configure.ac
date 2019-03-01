@@ -20,9 +20,9 @@ AC_DEFUN([AC_LIB_PROG_LD], [])
 LT_PREREQ([2.2.6])
 LT_INIT
 
-dnl -no-undefined can cause problems on some platforms, so only pass it
-dnl on platforms where it is required in order to link a shared library at
-dnl all (Windows is the main one).
+dnl -no-undefined causes problems on Solaris with Sun CC in C++11 mode, so only
+dnl pass -no-undefined on platforms where it is required in order to link a
+dnl shared library at all (Windows is the main one).
 NO_UNDEFINED=
 if test unsupported = "$allow_undefined_flag" ; then
   NO_UNDEFINED=-no-undefined
@@ -82,8 +82,8 @@ AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
   XTC_save_CXXFLAGS=$CXXFLAGS
   CXXFLAGS="$CXXFLAGS $1"
   AC_TRY_COMPILE([], [],
-		 [$2="${$2} $1"
-		  CXXFLAGS=$XTC_save_CXXFLAGS
+		 [CXXFLAGS=$XTC_save_CXXFLAGS
+		  $2="${$2} $1"
 		  $3],
 		 [CXXFLAGS=$XTC_save_CXXFLAGS
 		  $4])
@@ -98,6 +98,11 @@ XO_REQUIRE([1.4.0])
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
+
+dnl Check for time functions.
+AC_FUNC_STRFTIME
+AC_CHECK_FUNCS([clock_gettime sleep nanosleep gettimeofday ftime])
+AC_CHECK_FUNCS([gmtime_r timegm])
 
 case $host_os in
   *mingw*)
@@ -147,6 +152,18 @@ ZLIB_LIBS=$LIBS
 AC_SUBST([ZLIB_LIBS])
 LIBS=$SAVE_LIBS
 
+dnl Solaris < 10 only has putenv().
+dnl
+dnl Microsoft have marked putenv() as deprecated, so we use _putenv_s() under
+dnl MSVC to avoid deprecation warnings.  We probe here since mingw doesn't
+dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
+dnl on __WIN32__ being defined.  We need to check for a declaration rather
+dnl than just seeing if the symbol exists, as the symbol will exist in the C
+dnl runtime DLL even if mingw doesn't declare it in its headers.
+AC_CHECK_FUNCS([setenv putenv])
+AC_CHECK_DECLS([_putenv_s(const char *,const char *)], [], [],
+[#include <stdlib.h>])
+
 dnl libmagic used to detect MIME types for files we don't detect by extension.
 AC_CHECK_HEADERS([magic.h])
 if test $ac_cv_header_magic_h != yes ; then
@@ -165,30 +182,22 @@ dnl not really gain us much - we know it is -lmagic.
 MAGIC_LIBS=-lmagic
 AC_SUBST([MAGIC_LIBS])
 
-dnl mingw (for instance) lacks ssize_t
-AC_CHECK_TYPE(ssize_t, int)
-AC_TYPE_MODE_T
-AC_TYPE_PID_T
-
-dnl Check for time functions.
-AC_FUNC_STRFTIME
-AC_CHECK_FUNCS(gettimeofday ftime gmtime_r timegm sleep)
-
-dnl See if ftime() returns void (as it does on mingw).
+dnl See if ftime returns void (as it does on mingw)
+AC_MSG_CHECKING([return type of ftime])
 if test $ac_cv_func_ftime = yes ; then
   AC_TRY_COMPILE([#include <sys/timeb.h>],
     [struct timeb tp; int i = ftime(&tp);],
-    ,
-    AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
+    AC_MSG_RESULT([int]),
+    AC_MSG_RESULT([void])
+    AC_DEFINE([FTIME_RETURNS_VOID], [1], [Define if ftime returns void]))
 fi
 
-dnl Solaris < 10 only has putenv().
-dnl
-dnl Microsoft have marked putenv() as deprecated, so we use _putenv_s() under
-dnl MSVC to avoid deprecation warnings.  We probe here since mingw doesn't
-dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
-dnl on __WIN32__ being defined.
-AC_CHECK_FUNCS([setenv putenv _putenv_s])
+dnl mingw (for instance) lacks ssize_t
+AC_TYPE_SSIZE_T
+
+AC_TYPE_PID_T
+
+AC_TYPE_MODE_T
 
 dnl Use for Unix permission checks.
 AC_CHECK_FUNCS([getgrouplist])
