@@ -82,7 +82,11 @@ $(stamp): except.i add-php-ref-handling add-php-type-hints
 	$(PERL) '$(srcdir)/'add-php-ref-handling php7/xapian.php | \
 	    $(PERL) '$(srcdir)/'add-php-type-hints > php7/xapian.tmp
 	mv php7/xapian.tmp php7/xapian.php
-	$(PERL) -pe 's/(^#define SWIG_Error(Msg|Code)\(\) )\(xapian_globals\./$$1ZEND_MODULE_GLOBALS_ACCESSOR(xapian, /' \
+	$(PERL) -pe 's/(^#define SWIG_Error(Msg|Code)\(\) )\(xapian_globals\./$$1ZEND_MODULE_GLOBALS_ACCESSOR(xapian, /;' \
+	    -e 's/(SWIG_InitializeModule\()0/$$1(void*)&module_number/;' \
+	    -e 's/(^#define SWIG_SetModule\(clientdata, pointer\) SWIG_Php_SetModule\(pointer)\)/$$1, *(int*)clientdata)/;' \
+	    -e 's/(^static void SWIG_Php_SetModule\(swig_module_info \*pointer)\)/$$1, int module_number)/;' \
+	    -e 's/REGISTER_MAIN_LONG_CONSTANT/REGISTER_LONG_CONSTANT/' \
 	    php7/xapian_wrap.cc > php7/xapian_wrap.tmp
 	mv php7/xapian_wrap.tmp php7/xapian_wrap.cc
 	$(multitarget_end)
