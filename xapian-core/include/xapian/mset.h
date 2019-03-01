@@ -191,7 +191,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  index time.
 	 *
 	 *  This mode can also be enabled by setting environment variable
-	 *  XAPIAN_CJK_NGRAM to a non-empty value.
+	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+	 *  in 1.4.11).
 	 *
 	 *  @since Added in Xapian 1.4.11.
 	 */
