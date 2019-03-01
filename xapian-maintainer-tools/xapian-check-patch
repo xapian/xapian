@@ -347,7 +347,9 @@ QUOTELOOP:  while (1) {
 	    diagnostic('error', "line indented by ".length($1)." spaces", $fullline);
 	}
 	if (m!^\+.*\b([A-Za-z_][A-Za-z_0-9]*)\s+\(! &&
-	    $1 !~ /^(bool|case|catch|double|for|if|int|return|switch|throw|void|while)$/) {
+	    # `delete (*i)->foo();` rather than `delete(*i)->foo()'` - the `(`
+	    # isn't around function parameters here.
+	    $1 !~ /^(bool|case|catch|delete|double|for|if|int|return|switch|throw|void|while)$/) {
 	    if (!$preproc) {
 		diagnostic('error', "Whitespace between '$1' and '('", $fullline);
 	    } else {
