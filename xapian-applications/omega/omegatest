@@ -1019,7 +1019,9 @@ fi
 # Feature tests for date action.
 printf 'd : date=unix\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
-$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+# date=unix works in the current timezone, so set that explicitly so the
+# build doesn't fail if run in a timezone which is behind UTC.
+TZ=UTC $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
 d=
 
 d=0
