@@ -1,7 +1,7 @@
 /** @file values.h
  * @brief constants and functions for document value handling.
  */
-/* Copyright (C) 2006,2010,2015 Olly Betts
+/* Copyright (C) 2006,2010,2015,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,21 +29,6 @@
 #include <string>
 
 #include <cstdint>
-using std::uint32_t;
-
-// Include these to get htonl, etc.
-#ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-#ifdef __WIN32__
-inline uint32_t htonl(uint32_t v) {
-    return (v << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24);
-}
-# define ntohl(V) htonl(V)
-#endif
 
 enum value_slot {
     VALUE_LASTMOD = 0,	// 4 byte big endian value - seconds since 1970.
@@ -52,17 +37,34 @@ enum value_slot {
     VALUE_CTIME = 3	// Like VALUE_LASTMOD, but for last metadata change.
 };
 
-inline uint32_t binary_string_to_int(const std::string &s)
+#ifndef WORDS_BIGENDIAN
+inline std::uint32_t bswap32(std::uint32_t v) {
+# if HAVE_DECL___BUILTIN_BSWAP32
+    return __builtin_bswap32(v);
+# elif HAVE_DECL__BYTESWAP_ULONG
+    return _byteswap_ulong(v);
+# else
+    return (v << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24);
+# endif
+}
+#endif
+
+inline std::uint32_t binary_string_to_int(const std::string &s)
 {
-    if (s.size() != 4) return static_cast<uint32_t>(-1);
-    uint32_t v;
+    if (s.size() != 4) return static_cast<std::uint32_t>(-1);
+    std::uint32_t v;
     std::memcpy(&v, s.data(), 4);
-    return ntohl(v);
+#ifndef WORDS_BIGENDIAN
+    v = bswap32(v);
+#endif
+    return v;
 }
 
-inline std::string int_to_binary_string(uint32_t v)
+inline std::string int_to_binary_string(std::uint32_t v)
 {
-    v = htonl(v);
+#ifndef WORDS_BIGENDIAN
+    v = bswap32(v);
+#endif
     return std::string(reinterpret_cast<const char*>(&v), 4);
 }
 
