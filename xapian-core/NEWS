@@ -1,3 +1,85 @@
+Xapian-core 1.4.11 (2019-03-02):
+
+API:
+
+* MSet::SNIPPET_CJK_NGRAM - new flag for use with MSet::snippet() to enable
+  support for selecting and highlighting snippets which works with the
+  QueryParser and TermGenerator FLAG_CJK_NGRAM flags.  This mode can also be
+  enabled by setting environment variable XAPIAN_CJK_NGRAM to a non-empty
+  value.  (There was nominally already support for XAPIAN_CJK_NGRAM in
+  MSet::snippet(), but it didn't work usefully - the highlighting added was all
+  empty start/end pairs at the end of the span of CJK characters containing the
+  CJK ngram terms, which to the user would typically look like it was selecting
+  the end of the text and not highlighting anything).
+
+* Deprecate XAPIAN_CJK_NGRAM environment variable.  There are now flags which
+  can be used instead in all cases, and there's sadly no portable thread-safe
+  way to read an environment variable so checking environment variables is
+  problematic in library code that may be used in multithreaded programs.
+
+* Query::OP_ELITE_SET currently incorrectly recursively flattens any OP_OR (or
+  OP_OR-like) subqueries into the list of subqueries it selects from - until
+  that's fixed, we now select from the full exploded list rather than the last
+  n (where n is the number of direct subqueries of the OP_ELITE_SET).
+
+testsuite:
+
+* Testcases which need a generated database now get run with a sharded
+  database.
+
+* Avoid using strerror() in the testsuite which removes an obstacle to running
+  tests in parallel in separate threads.
+
+matcher:
+
+* Extend detection of cases of OP_SYNONYM with disjoint subqueries (which means
+  we don't need document length) which was added in 1.4.8 - we now detect when
+  all subqueries are different terms, or when all subqueries are
+  non-overlapping wildcards.  The second case is what QueryParser produces for
+  a wildcard or partial query with a query prefix which maps to more than one
+  term prefix.
+
+glass backend:
+
+* Handle an empty value slot lower bound gracefully.  This shouldn't happen for
+  a non-empty slot, but has been reported by a notmuch user so it seems there
+  is (or perhaps was as the database was several years old) a way it can come
+  about.  We now check for this situation and set the smallest possible valid
+  lower bound instead, so other code assuming a valid lower bound will work
+  correctly.  Reported by jb55.
+
+chert backend:
+
+* Handle an empty value slot lower bound gracefully, equivalent to the change
+  made for glass.
+
+documentation:
+
+* HACKING: We no longer use auto_ptr<>.
+
+* NEWS: Correct factual error in old entry - the 0.4.1 release was Open Muscat
+  not OmSee (the OmSee name was only applied after that final release was made,
+  and only used internally to BrightStation).
+
+portability:
+
+* Suppress more clang -Wself-assign-overloaded warnings in testcases which are
+  deliberately testing handling of self-assignment.
+
+* Add missing includes of <cerrno>.  Fixes #776, reported by Matthieu Gautier.
+
+debug code:
+
+* When configured with --enable-log, the O_SYNC flag was always specified when
+  opening the logfile, with the intention that the most recent log entries
+  wouldn't get lost if there was a crash, but O_SYNC can incur a significant
+  performance overhead and most debugging is not of such crashes.  So we no
+  longer specify O_SYNC by default, but you can now request synchronous logging
+  by including %! anywhere in the filename specified with XAPIAN_DEBUG_LOG
+  (the %! is replaced with the empty string).  We also now use O_DSYNC if
+  available in preference to O_SYNC, since the mtime of the log file isn't
+  important.
+
 Xapian-core 1.4.10 (2019-02-12):
 
 API:

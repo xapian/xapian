@@ -1,3 +1,32 @@
+Xapian-bindings 1.4.11 (2019-03-02):
+
+CSharp:
+
+* Make MatchAll and MatchNothing readonly.
+
+Java:
+
+* Simplify load-time setup of Query.OP_OR, etc which are provided for
+  compatibility with the original hand-written JNI bindings.
+
+PHP:
+
+* We now load the module for "make check" using -d extension=xapian which
+  avoids needing to turn off safe_mode and turn on enable_dl, and matches how
+  the module is usually loaded in production use.
+
+PHP7:
+
+* Fix access to already released memory during PHP module shutdown, which often
+  didn't cause visible problems, but could result in segmentation faults, bus
+  errors, etc.
+
+* Fix generated code to compile when using a ZTS-enabled build of PHP.
+
+* We now load the module for "make check" using -d extension=xapian which
+  avoids needing to turn off safe_mode and turn on enable_dl, and matches how
+  the module is usually loaded in production use.
+
 Xapian-bindings 1.4.10 (2019-02-12):
 
 Documentation:

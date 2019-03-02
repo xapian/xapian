@@ -1,3 +1,36 @@
+Omega 1.4.11 (2019-03-02):
+
+indexers:
+
+* omindex:
+
+  + outlookmsg2html: Handle Subject, Date, and From headers.
+
+omega:
+
+* In $div and $mod we were converting a non-zero denominator from string to int
+  twice for no good reason.
+
+testsuite:
+
+* omegatest: Fix testcase which was failing if the local timezone was behind
+  UTC.  This testcase was added in 1.4.10.
+
+* omegatest: Tweak to not fail when $time not supported - it seems that the
+  OS time functions we use report an error on GNU Hurd for unknown reasons.
+
+build system:
+
+* Sync up probes for OS time functions in omega's configure with those in
+  xapian-core which may solve $time not being supported on GNU Hurd.
+
+portability:
+
+* Add missing includes of <cerrno>.  Fixes #776, reported by Matthieu Gautier.
+
+* Stop using htonl()/ntohl() in a non-network context which should improve
+  portability to platforms without a POSIX-like socket API.
+
 Omega 1.4.10 (2019-02-12):
 
 documentation:
