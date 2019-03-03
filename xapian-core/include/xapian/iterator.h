@@ -34,6 +34,9 @@
  *  * xapian-bindings:
  *    + Java
  *    + PHP
+ *  * xapian-core:
+ *    + examples/xapian-pos.cc
+ *  * xapian-glib
  */
 
 #include <xapian.h>
