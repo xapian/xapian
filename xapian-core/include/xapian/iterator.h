@@ -1,7 +1,7 @@
 /** @file  iterator.h
  *  @brief Functions to assist creating language-idiomatic iterator wrappers.
  */
-/* Copyright (C) 2014,2016,2017 Olly Betts
+/* Copyright (C) 2014,2016,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,6 +88,11 @@ inline bool iterator_valid(const Xapian::TermIterator& it) {
 /** @internal Determine if iterator is valid to dereference. */
 inline bool iterator_valid(const Xapian::ValueIterator& it) {
     return it.internal != NULL;
+}
+
+/** @internal Determine if iterator is valid to dereference. */
+inline bool iterator_valid(const Xapian::Utf8Iterator& it) {
+    return it != Xapian::Utf8Iterator();
 }
 
 }
