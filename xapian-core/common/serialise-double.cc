@@ -181,7 +181,7 @@ double unserialise_double(const char ** p, const char * end) {
 # if FLT_RADIX == 2
     double result = scalbn(mantissa, exp);
 # else
-    double result = ldexp(mantissa, exp >> 2);
+    double result = ldexp(mantissa, exp);
 # endif
     if (negative) result = -result;
     return result;
