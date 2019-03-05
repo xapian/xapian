@@ -801,6 +801,7 @@ using namespace std;
     [ac_cv_func_snprintf=unknown;break]
   )
 done
+
 AC_MSG_RESULT([$ac_cv_func_snprintf])
 case $ac_cv_func_snprintf in
   no)
@@ -1214,6 +1215,31 @@ fi
 if test yes = "$enable_log"; then
   AC_DEFINE([XAPIAN_DEBUG_LOG],,
     [Define if you want a log of methods called and other debug messages])
+fi
+
+dnl Check if IEEE-754 is followed for representing floating point numbers by the platform.
+AC_RUN_IFELSE([
+  AC_LANG_PROGRAM(
+    [[
+#include <cstdint>
+#include <cstring>
+using namespace std;
+    ]],
+    [[
+      double a = 2353.3523423;
+      uint64_t bit_pattern =
+      0b0100000010100010011000101011010001100110001101011011111011111111;
+      if (memcmp(&bit_pattern, &a, sizeof(double)) == 0) return 0;
+      return 1;
+    ]]
+  )],
+  [ieee_followed=1],
+  [ieee_followed=0],
+  [ieee_followed=0]
+)
+
+if test "$ieee_followed" = 1; then
+    AC_DEFINE([FOLLOWS_IEEE], [1], [Defined if system uses ieee format to store floating point numbers])
 fi
 
 dnl ******************************
