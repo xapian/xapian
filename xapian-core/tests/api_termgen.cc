@@ -110,6 +110,10 @@ static const test test_simple[] = {
     { "", "1.0 1000,000.99 0.9.9,", "0.9.9[3] 1.0[1] 1000,000.99[2]" },
     { "", "Pi is 3.1415926536 approximately", "3.1415926536[3] Zapproxim:1 Zis:1 Zpi:1 approximately[4] is[2] pi[1]"},
 
+    // Test mixed CJK numbers
+    { "", "有2千3百", "2千3百[2] 有[1]"},
+    { "", "there are3万4千零1apples", "there[1] are[2] 3万4千零1[3] apples[4]"},
+
     // Test parsing some capitalised words
     { "", "hello World Test", "Zhello:1 Ztest:1 Zworld:1 hello[1] test[3] world[2]" },
     { "prefix=XA", "hello", "XAhello[1] ZXAhello:1" },
