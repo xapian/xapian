@@ -108,7 +108,7 @@ string serialise_double(double v){
 
     if (exp == 0 && v == 0.0) {
 	result = 0;
-	return string(reinterpret_cast<const char *>(&result), 
+	return string(reinterpret_cast<const char *>(&result),
 		      sizeof(uint64_t));
     }
 
