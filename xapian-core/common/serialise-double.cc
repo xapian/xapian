@@ -78,11 +78,11 @@ double unserialise_double(const char ** p, const char * end)
 #else
 
 string serialise_double(double v){
-    /* 
+    /*
      * First bit(msb) -> sign (1 means negative)
      * next 11 bits -> exponent
      * last 52 bits -> mantissa
-     * 
+     *
      * frexp gives fraction within the range [0.5, 1)
      * We multiply it by 2 to change the range to [1.0, 2.0)
      * and reduce exp by 1, since this is the way doubles
@@ -92,7 +92,7 @@ string serialise_double(double v){
      * to bits is done by repeatedly multiplying it by 2,
      * checking if it is greater than 1, and turning the
      * corresponding bit on, if it is.
-     * 
+     *
      */
     uint64_t result = 0;
 
@@ -108,7 +108,8 @@ string serialise_double(double v){
 
     if (exp == 0 && v == 0.0) {
 	result = 0;
-	return string(reinterpret_cast<const char *>(&result), sizeof(uint64_t));
+	return string(reinterpret_cast<const char *>(&result), 
+		      sizeof(uint64_t));
     }
 
     exp += 1022;
@@ -152,7 +153,7 @@ double unserialise_double(const char ** p, const char * end) {
     exp |= (second & (15 << 4)) >> 4;
     exp -= 1023;
 
-    double mantissa = 1.0; //implicit 1 in IEEE
+    double mantissa = 1.0; // implicit 1 in IEEE
     double pows2 = 0.5; // powers of 2
 
     int second_byte_counter = 1 << 3;
@@ -168,7 +169,7 @@ double unserialise_double(const char ** p, const char * end) {
 	--byte_counter;
 	int cur_byte_counter = 1 << 7;
 	for (int i = 0; i < 8; ++i) {
-	    if(cur_byte & cur_byte_counter) mantissa += pows2;
+	    if (cur_byte & cur_byte_counter) mantissa += pows2;
 	    pows2 /= 2.0;
 	    cur_byte_counter >>= 1;
 	}
