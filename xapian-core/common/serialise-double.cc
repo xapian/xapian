@@ -46,7 +46,7 @@ string serialise_double(double v)
 {
 # ifdef WORDS_BIGENDIAN
     uint64_t temp;
-    static_assert(sizeof(temp) == sizeof(v));
+    static_assert(sizeof(temp) == sizeof(v), "Check if size of double and 64 bit int is same");
     memcpy(&temp, &v, sizeof(double));
     temp = do_bswap(temp);
     return string(reinterpret_cast<const char *>(&temp), sizeof(double));
@@ -64,7 +64,7 @@ double unserialise_double(const char ** p, const char * end)
     double result;
 # ifdef WORDS_BIGENDIAN
     uint64_t temp;
-    static_assert(sizeof(temp) == sizeof(double));
+    static_assert(sizeof(temp) == sizeof(double), "Check if size of double and 64 bit int is same");
     memcpy(&temp, *p, sizeof(double));
     temp = do_bswap(temp);
     memcpy(&result, &temp, sizeof(double));
@@ -88,11 +88,10 @@ string serialise_double(double v){
      * and reduce exp by 1, since this is the way doubles
      * are stored in IEEE-754.
      *
-     * Conversion of the fractional part of the new mantissa
-     * to bits is done by repeatedly multiplying it by 2,
-     * checking if it is greater than 1, and turning the
-     * corresponding bit on, if it is.
-     *
+     * conversion of mantissa to bits is done by multiplying
+     * mantissa with 2^26, extracting the integer part and
+     * or-ing it with result, then repeating this step once
+     * more.
      */
     uint64_t result = 0;
 
@@ -104,31 +103,38 @@ string serialise_double(double v){
 
     int exp;
     v = frexp(v, &exp);
-    v *= 2.0;
 
     if (exp == 0 && v == 0.0) {
-	result = 0;
+	result = 0.0;
 	return string(reinterpret_cast<const char *>(&result),
 		      sizeof(uint64_t));
     }
+
+    v *= 2.0;
+    v -= 1.0;
 
     exp += 1022;
 
     result |= (uint64_t)exp << 52;
 
-    // mantissa bit pointer
-    uint64_t mbp = (uint64_t)1 << 51;
+# if FLT_RADIX == 2
+    double scaled_v = scalbn(v, 26);
+# else
+    double scaled_v = ldexp(v, 26);
+# endif
 
-    v -= 1.0;
+    uint64_t scaled_v_int = static_cast<uint64_t>(scaled_v);
+    result |= scaled_v_int << 26;
+    scaled_v -= static_cast<double>(scaled_v_int);
 
-    for (int i = 51; i >= 0; --i) {
-	v *= 2.0;
-	if (v >= 1.0) {
-	    result |= mbp;
-	    v -= 1.0;
-	}
-	mbp >>= 1;
-    }
+# if FLT_RADIX == 2
+    scaled_v = scalbn(scaled_v, 26);
+# else
+    scaled_v = ldexp(scaled_v, 26);
+# endif
+
+    scaled_v_int = static_cast<uint64_t>(scaled_v);
+    result |= scaled_v_int;
 
 # ifdef WORDS_BIGENDIAN
     result = do_bswap(result);
@@ -184,9 +190,9 @@ double unserialise_double(const char ** p, const char * end) {
 # else
     double result = ldexp(mantissa, exp);
 # endif
+
     if (negative) result = -result;
     return result;
 }
 
 #endif
-
