@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -308,6 +308,16 @@ DEFINE_TESTCASE(unicode1, !backend) {
     // U+10D0 "GEORGIAN LETTER AN"
     TEST_EQUAL(Unicode::get_category(0x10D0), Unicode::LOWERCASE_LETTER);
 
+    // Added in Unicode 12.0.0:
+    // U+0C77 "TELUGU SIGN SIDDHAM"
+    TEST_EQUAL(Unicode::get_category(0x0C77), Unicode::OTHER_PUNCTUATION);
+    // U+2BC9 "NEPTUNE FORM TWO"
+    TEST_EQUAL(Unicode::get_category(0x2BC9), Unicode::OTHER_SYMBOL);
+    // U+A7C5 "LATIN CAPITAL LETTER S WITH HOOK"
+    TEST_EQUAL(Unicode::get_category(0xA7C5), Unicode::UPPERCASE_LETTER);
+    // U+1FA90 "RINGED PLANET"
+    TEST_EQUAL(Unicode::get_category(0x1FA90), Unicode::OTHER_SYMBOL);
+
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -440,6 +450,12 @@ DEFINE_TESTCASE(caseconvert2, !backend) {
     TEST_EQUAL(Unicode::tolower(0x1C90), 0x10D0);
     TEST_EQUAL(Unicode::toupper(0x1C90), 0x1C90);
 
+    // U+A7C5 was added in Unicode 12.0.0 as an uppercase form of U+0282.
+    TEST_EQUAL(Unicode::tolower(0xA7C5), 0x0282);
+    TEST_EQUAL(Unicode::toupper(0xA7C5), 0xA7C5);
+    TEST_EQUAL(Unicode::tolower(0x0282), 0x0282);
+    TEST_EQUAL(Unicode::toupper(0x0282), 0xA7C5);
+
     return true;
 }
 
@@ -493,17 +509,20 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	// OTHER_LETTER
 	0x8bb, // Added in Unicode 9.0.0
 	0xc80, // Added in Unicode 9.0.0
+	0xe86, // Added in Unicode 12.0.0
 	0x312e, // Added in Unicode 10.0.0
 	0x10345,
 	// MODIFIER_LETTER
 	0x2ec, // Added in Unicode 5.1.0
 	0x374, // Added in Unicode 5.1.0
 	0x16fe1, // Added in Unicode 10.0.0
+	0x16fe3, // Added in Unicode 12.0.0
 	// NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
 	0x651,
 	0x487, // Added in Unicode 5.1.0
 	0x8d3, // Added in Unicode 11.0.0
 	0x8db, // Added in Unicode 9.0.0
+	0xeba, // Added in Unicode 12.0.0
 	0x11d47, // Added in Unicode 10.0.0
 	0
     };
@@ -518,6 +537,8 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x20bf,
 	// CURRENCY_SYMBOL (added in Unicode 11.0.0)
 	0x7fe,
+	// CURRENCY_SYMBOL (added in Unicode 12.0.0)
+	0x1e2ff,
 	0
     };
     static const unsigned whitespace[] = {
