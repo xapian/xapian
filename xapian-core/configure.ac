@@ -801,7 +801,6 @@ using namespace std;
     [ac_cv_func_snprintf=unknown;break]
   )
 done
-
 AC_MSG_RESULT([$ac_cv_func_snprintf])
 case $ac_cv_func_snprintf in
   no)
@@ -1227,8 +1226,7 @@ using namespace std;
     ]],
     [[
       double a = 2353.3523423;
-      uint64_t bit_pattern =
-      0b0100000010100010011000101011010001100110001101011011111011111111;
+      uint64_t bit_pattern = 0x40A262B46635BEFF;
       if (memcmp(&bit_pattern, &a, sizeof(double)) == 0) return 0;
       return 1;
     ]]
