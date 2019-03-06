@@ -46,7 +46,8 @@ string serialise_double(double v)
 {
 # ifdef WORDS_BIGENDIAN
     uint64_t temp;
-    static_assert(sizeof(temp) == sizeof(v), "Check if size of double and 64 bit int is same");
+    static_assert(sizeof(temp) == sizeof(v),
+		  "Check if size of double and 64 bit int is same");
     memcpy(&temp, &v, sizeof(double));
     temp = do_bswap(temp);
     return string(reinterpret_cast<const char *>(&temp), sizeof(double));
@@ -64,7 +65,8 @@ double unserialise_double(const char ** p, const char * end)
     double result;
 # ifdef WORDS_BIGENDIAN
     uint64_t temp;
-    static_assert(sizeof(temp) == sizeof(double), "Check if size of double and 64 bit int is same");
+    static_assert(sizeof(temp) == sizeof(double),
+		  "Check if size of double and 64 bit int is same");
     memcpy(&temp, *p, sizeof(double));
     temp = do_bswap(temp);
     memcpy(&result, &temp, sizeof(double));
@@ -190,7 +192,6 @@ double unserialise_double(const char ** p, const char * end) {
 # else
     double result = ldexp(mantissa, exp);
 # endif
-
     if (negative) result = -result;
     return result;
 }
