@@ -423,21 +423,21 @@ if test -n "$use_valgrind_if_non_empty" ; then
     dnl
     dnl No need to check for VALGRIND_COUNT_LEAKS now - that was added before
     dnl 2.0.0.
-    AC_MSG_CHECKING([if valgrind supports --log-file with %p])
+    AC_MSG_CHECKING([if valgrind supports --log-file with %p and --child-silent-after-fork=yes])
     vglog=config.vglog.%p.tmp
     vglogwild="config.vglog.*.tmp*"
     rm -f $vglogwild
-    if $VALGRIND --log-file="$vglog" -q true 2>&AS_MESSAGE_LOG_FD ; then
+    if $VALGRIND --log-file="$vglog" --child-silent-after-fork=yes -q true 2>&AS_MESSAGE_LOG_FD ; then
       for f in $vglogwild ; do
-        case $f in
-    $vglog*) VALGRIND= ;;
-    esac
+	case $f in
+	$vglog*) VALGRIND= ;;
+	esac
       done
       if test x"$VALGRIND" = x ; then
-    AC_MSG_RESULT([no])
+	AC_MSG_RESULT([no])
       else
-    AC_MSG_RESULT([yes])
-    AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
+	AC_MSG_RESULT([yes])
+	AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
       fi
     else
       dnl The valgrind detected doesn't seem to work!  Perhaps this is an
