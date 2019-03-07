@@ -667,8 +667,17 @@ AC_CHECK_HEADERS([cxxabi.h], [], [], [ ])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
-dnl don't use valgrind.
-if test -n "${VALGRIND-unset}" ; then
+dnl don't use valgrind.  On macOS only use valgrind if VALGRIND is set to a
+dnl no empty value, as valgrind on macOS gives a lot of false positives.
+use_valgrind_if_non_empty=
+case $host in
+  *-*-darwin*)
+    use_valgrind_if_non_empty=$VALGRIND ;;
+  *)
+    use_valgrind_if_non_empty=${VALGRIND-unset} ;;
+esac
+
+if test -n "$use_valgrind_if_non_empty" ; then
   AC_PATH_PROG([VALGRIND], [valgrind], [])
   if test -n "$VALGRIND" ; then
     dnl Check that the installed valgrind version works, and supports the
