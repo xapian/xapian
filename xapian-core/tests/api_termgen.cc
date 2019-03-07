@@ -110,10 +110,6 @@ static const test test_simple[] = {
     { "", "1.0 1000,000.99 0.9.9,", "0.9.9[3] 1.0[1] 1000,000.99[2]" },
     { "", "Pi is 3.1415926536 approximately", "3.1415926536[3] Zapproxim:1 Zis:1 Zpi:1 approximately[4] is[2] pi[1]"},
 
-    // Test mixed CJK numbers
-    { "", "有2千3百", "2千3百[2] 有[1]"},
-    { "", "there are3万4千零1apples", "there[1] are[2] 3万4千零1[3] apples[4]"},
-
     // Test parsing some capitalised words
     { "", "hello World Test", "Zhello:1 Ztest:1 Zworld:1 hello[1] test[3] world[2]" },
     { "prefix=XA", "hello", "XAhello[1] ZXAhello:1" },
@@ -143,6 +139,15 @@ static const test test_simple[] = {
     { "stem=,cjkngram", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
     { "", "극지라", "극[1] 극지:1 라[3] 지[2] 지라:1" },
     { "", "ウルス アップ", "ア[4] アッ:1 ウ[1] ウル:1 ス[3] ッ[5] ップ:1 プ[6] ル[2] ルス:1" },
+
+    // Test parsing mixed CJK numbers (only with Chinese now)
+    { "", "有2千3百", "2千3百:1 有[1]"},
+    { "", "我有2千3百块钱", "2千3百:1 块[3] 块钱:1 我[1] 我有:1 有[2] 钱[4]"},
+    // FIXME: The test cases below would fail with current definition to the function
+    // (as commented code, the unuse ones would be deleted after clarifying the definition)
+    // { "", "我有 2千3百块钱", "2千3百:1 块[3] 块钱:1 我[1] 我有:1 有[2] 钱[4]"},
+    // { "", "there are 3万4千零1 apples", "3万4千零1:1 apples[4] are[2] there[1] "},
+    // { "", "我有两千3百块钱", "两千3百:1 块[3] 块钱:1 我[1] 我有:1 有[2] 钱[4]"},
 
     // Non-CJK in CJK-mode:
     { "", "hello World Test", "hello[1] test[3] world[2]" },
