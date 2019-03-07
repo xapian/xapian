@@ -119,18 +119,25 @@ coverage.
 If you have a new enough version of valgrind installed, it's automatically
 detected by configure and used when running the testsuite.  The testsuite runs
 more slowly under valgrind, so if you wish to disable this auto-detection you
-can run configure with:
+can run configure with::
 
 ./configure VALGRIND=
 
 Or you can disable use of valgrind during a particular run of "make check"
-like so:
+like so::
 
 make check VALGRIND=
 
-Or disable it while running a test directly (under sh or bash):
+Or disable it while running a test directly (under sh or bash)::
 
 VALGRIND= ./runtest ./apitest
+
+Current versions of valgrind result in false positives on current versions
+of macOS, so on this platform configure only enables use of valgrind if
+it's specified explicitly, for example if valgrind is on your ``PATH``
+you can just use::
+
+./configure VALGRIND=valgrind
 
 Running test programs
 =====================
