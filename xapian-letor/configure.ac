@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-m4_define([project_version], [1.3.0])
+m4_define([project_version], [1.5.0])
 AC_INIT([xapian-letor], project_version, [https://xapian.org/bugs])
 
 AC_PREREQ([2.64])
