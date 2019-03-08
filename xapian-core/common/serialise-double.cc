@@ -90,12 +90,22 @@ string serialise_double(double v){
      * and reduce exp by 1, since this is the way doubles
      * are stored in IEEE-754.
      *
-     * conversion of mantissa to bits is done by multiplying
-     * mantissa with 2^26, extracting the integer part and
-     * or-ing it with result, then repeating this step once
-     * more.
+     * Conversion of mantissa to bits is done by
+     * multiplying the mantissa with 2^52, converting
+     * it to a 64 bit integer representation of the original
+     * double.
      */
+
+    static_assert((uint64_t)1 << 52 <= numeric_limits<double>::max(),
+		  "Check if 2^52 can be represented by a double");
+
     uint64_t result = 0;
+
+    if (v == 0.0) {
+	result = 0.0;
+	return string(reinterpret_cast<const char *>(&result),
+		      sizeof(uint64_t));
+    }
 
     bool negative = (v < 0.0);
     if (negative) {
@@ -114,28 +124,17 @@ string serialise_double(double v){
 
     v *= 2.0;
     v -= 1.0;
-
     exp += 1022;
 
     result |= (uint64_t)exp << 52;
 
 # if FLT_RADIX == 2
-    double scaled_v = scalbn(v, 26);
+    double scaled_v = scalbn(v, 52);
 # else
-    double scaled_v = ldexp(v, 26);
+    double scaled_v = ldexp(v, 52);
 # endif
 
     uint64_t scaled_v_int = static_cast<uint64_t>(scaled_v);
-    result |= scaled_v_int << 26;
-    scaled_v -= static_cast<double>(scaled_v_int);
-
-# if FLT_RADIX == 2
-    scaled_v = scalbn(scaled_v, 26);
-# else
-    scaled_v = ldexp(scaled_v, 26);
-# endif
-
-    scaled_v_int = static_cast<uint64_t>(scaled_v);
     result |= scaled_v_int;
 
 # ifdef WORDS_BIGENDIAN
