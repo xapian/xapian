@@ -126,20 +126,20 @@ is_digit(unsigned ch)
 static const set<unsigned> CHINESE_DIGIT_CHARS = {
 	// Simplified Chinese
         // 0-9
-	u'零', u'一', u'二', u'两'/*another 2*/, u'三', u'四',
-        u'五', u'六', u'七', u'八', u'九',
+	0x96f6, 0x4e00, 0x4e8c/*another 2*/, 0x4e24, 0x4e09, 0x56db,
+	0x4e94, 0x516d, 0x4e03, 0x516b, 0x4e5d,
 	// ten, hundred, thousand, ten thousand, hundred million
-	u'十', u'百', u'千', u'万', u'亿',
+	0x5341, 0x767e, 0x5343, 0x4e07, 0x4ebf,
 
 	// Traditional Chinese
         // 1-9, while zero is the same as Simplified Chinese
-	u'壹', u'贰', u'叁', u'肆',
-        u'伍', u'陆', u'柒', u'捌', u'玖',
+	0x58f9, 0x8d30, 0x53c1, 0x8086,
+	0x4f0d, 0x9646, 0x67d2, 0x634c, 0x7396,
 	// ten, hundred, thousand, ten thousand, hundred million
-	u'拾', u'佰', u'仟', u'萬', u'億',
+	0x62fe, 0x4f70, 0x4edf, 0x842c, 0x5104,
 };
 
-static inline bool 
+static inline bool
 codepoint_is_chinese_digits(unsigned p) {
     return (CHINESE_DIGIT_CHARS.find(p) != CHINESE_DIGIT_CHARS.end());
 }
