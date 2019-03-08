@@ -170,17 +170,17 @@ CJKNgramIterator::operator++()
 	if (it != Xapian::Utf8Iterator()) {
 	    unsigned ch = *it;
 
-		if (is_digit(ch)) {
+            if (is_digit(ch)) {
 		//deal with mixed Chinese numbers inner CJK text
 		current_token.resize(0);
 		do{
-			Xapian::Unicode::append_utf8(current_token, ch);
-			++it;
+		    Xapian::Unicode::append_utf8(current_token, ch);
+	            ++it;
 		} while ((it != Xapian::Utf8Iterator()) && 
-			(ch = *it) &&
+		    (ch = *it) &&
 		    (is_digit(ch) || codepoint_is_chinese_digits(ch)));
 		offset = current_token.size();
-		} else if (CJK::codepoint_is_cjk_wordchar(ch)) {
+            } else if (CJK::codepoint_is_cjk_wordchar(ch)) {
 		offset = current_token.size();
 		Xapian::Unicode::append_utf8(current_token, ch);
 		++it;
