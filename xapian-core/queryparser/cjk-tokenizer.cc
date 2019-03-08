@@ -116,26 +116,32 @@ CJK::codepoint_is_cjk_wordchar(unsigned p)
 
 /// it is a duplication of function defined in termgenerator_internal.cc
 static inline bool
-is_digit(unsigned ch) {
-    return (Xapian::Unicode::get_category(ch) == Xapian::Unicode::DECIMAL_DIGIT_NUMBER);
+is_digit(unsigned ch)
+{
+    return (Xapian::Unicode::get_category(ch) ==
+        Xapian::Unicode::DECIMAL_DIGIT_NUMBER);
 }
 
-/// Set of Chinese Unicode charactors about digit
+/// Set of Chinese Unicode characters about digit
 static const set<unsigned> CHINESE_DIGIT_CHARS = {
-	// Simplified Chinese 0-9
-	u'零', u'一', u'二', u'两'/*another 2*/, u'三', u'四', u'五', u'六', u'七', u'八', u'九',
-	// Simplified Chiniese ten, hundred, thousand, ten thousand, hundred million
+	// Simplified Chinese
+        // 0-9
+	u'零', u'一', u'二', u'两'/*another 2*/, u'三', u'四',
+        u'五', u'六', u'七', u'八', u'九',
+	// ten, hundred, thousand, ten thousand, hundred million
 	u'十', u'百', u'千', u'万', u'亿',
 
-	// Traditional Chinese 1-9, while zero is the same as Simplified Chinese
-	u'壹', u'贰', u'叁', u'肆', u'伍', u'陆', u'柒', u'捌', u'玖',
-	// Traditional Chiniese ten, hundred, thousand, ten thousand, hundred million
+	// Traditional Chinese
+        // 1-9, while zero is the same as Simplified Chinese
+	u'壹', u'贰', u'叁', u'肆',
+        u'伍', u'陆', u'柒', u'捌', u'玖',
+	// ten, hundred, thousand, ten thousand, hundred million
 	u'拾', u'佰', u'仟', u'萬', u'億',
 };
 
 static inline bool 
-codepoint_is_chinese_digits(unsigned p){
-	return (CHINESE_DIGIT_CHARS.find(p) != CHINESE_DIGIT_CHARS.end());
+codepoint_is_chinese_digits(unsigned p) {
+    return (CHINESE_DIGIT_CHARS.find(p) != CHINESE_DIGIT_CHARS.end());
 }
 
 size_t
@@ -169,18 +175,17 @@ CJKNgramIterator::operator++()
     if (offset == 0) {
 	if (it != Xapian::Utf8Iterator()) {
 	    unsigned ch = *it;
-
-            if (is_digit(ch)) {
-		//deal with mixed Chinese numbers inner CJK text
+	    if (is_digit(ch)) {
+		// deal with mixed Chinese numbers inner CJK text
 		current_token.resize(0);
-		do{
+		do {
 		    Xapian::Unicode::append_utf8(current_token, ch);
-	            ++it;
-		} while ((it != Xapian::Utf8Iterator()) && 
+		    ++it;
+		} while ((it != Xapian::Utf8Iterator()) &&
 		    (ch = *it) &&
 		    (is_digit(ch) || codepoint_is_chinese_digits(ch)));
 		offset = current_token.size();
-            } else if (CJK::codepoint_is_cjk_wordchar(ch)) {
+	    } else if (CJK::codepoint_is_cjk_wordchar(ch)) {
 		offset = current_token.size();
 		Xapian::Unicode::append_utf8(current_token, ch);
 		++it;

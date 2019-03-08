@@ -143,11 +143,6 @@ static const test test_simple[] = {
     // Test parsing mixed CJK numbers (only with Chinese now)
     { "", "有2千3百", "2千3百:1 有[1]"},
     { "", "我有2千3百块钱", "2千3百:1 块[3] 块钱:1 我[1] 我有:1 有[2] 钱[4]"},
-    // FIXME: The test cases below would fail with current definition to the function
-    // (as commented code, the unuse ones would be deleted after clarifying the definition)
-    // { "", "我有 2千3百块钱", "2千3百:1 块[3] 块钱:1 我[1] 我有:1 有[2] 钱[4]"},
-    // { "", "there are 3万4千零1 apples", "3万4千零1:1 apples[4] are[2] there[1] "},
-    // { "", "我有两千3百块钱", "两千3百:1 块[3] 块钱:1 我[1] 我有:1 有[2] 钱[4]"},
 
     // Non-CJK in CJK-mode:
     { "", "hello World Test", "hello[1] test[3] world[2]" },
