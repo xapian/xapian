@@ -396,11 +396,7 @@ Database::get_spelling_suggestion(const string& word,
     if (!merger.get())
 	return string();
 
-    // Convert word to UTF-32.
-    vector<unsigned> utf32_word{Utf8Iterator(word), Utf8Iterator()};
-
-    vector<unsigned> utf32_term;
-
+    EditDistanceCalculator edcalc(word);
     Xapian::termcount best = 1;
     string result;
     int edist_best = max_edit_distance;
@@ -420,37 +416,7 @@ Database::get_spelling_suggestion(const string& word,
 	if (score + TRIGRAM_SCORE_THRESHOLD >= best) {
 	    if (score > best) best = score;
 
-	    // There's no point considering a word where the difference
-	    // in length is greater than the smallest number of edits we've
-	    // found so far.
-
-	    // First check the length of the encoded UTF-8 version of term.
-	    // Each UTF-32 character is 1-4 bytes in UTF-8.
-	    if (abs(long(term.size()) - long(word.size())) > edist_best * 4) {
-		LOGLINE(SPELLING, "Lengths much too different");
-		continue;
-	    }
-
-	    // Now convert to UTF-32, and compare the true lengths more
-	    // strictly.
-	    utf32_term.assign(Utf8Iterator(term), Utf8Iterator());
-
-	    // Check a very cheap length-based lower bound first.
-	    long lb = abs(long(utf32_term.size()) - long(utf32_word.size()));
-	    if (lb > edist_best) {
-		continue;
-	    }
-
-	    if (freq_edit_lower_bound(utf32_term, utf32_word) > edist_best) {
-		LOGLINE(SPELLING, "Rejected by character frequency test");
-		continue;
-	    }
-
-	    int edist = edit_distance_unsigned(&utf32_term[0],
-					       int(utf32_term.size()),
-					       &utf32_word[0],
-					       int(utf32_word.size()),
-					       edist_best);
+	    int edist = edcalc(term, edist_best);
 	    LOGVALUE(SPELLING, edist);
 
 	    if (edist <= edist_best) {
