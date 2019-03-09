@@ -1012,8 +1012,11 @@ DEFINE_TESTCASE(keepalive1, remote) {
     /* Test that things break without keepalives */
     sleep(10);
     enquire.set_query(Xapian::Query("word"));
-    TEST_EXCEPTION(Xapian::NetworkError,
-		   enquire.get_mset(0, 10));
+    /* Currently this can throw NetworkError or NetworkTimeoutError (which is
+     * a subclass of NetworkError).
+     */
+    TEST_EXCEPTION_BASE_CLASS(Xapian::NetworkError,
+			      enquire.get_mset(0, 10));
 
     return true;
 }
