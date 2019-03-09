@@ -55,7 +55,7 @@ matrix:
             - pkg-config
       # We also have to disable an error, because (older?)
       # perl header files don't play nicely with clang.
-      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS=-Wno-error=reserved-user-defined-literal
+      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS='-O2 -g -Wno-error=reserved-user-defined-literal'
     - compiler: gcc
       os: linux
       # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
@@ -122,7 +122,7 @@ matrix:
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
-      env: PYTHON2=/usr/local/bin/python2 CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
+      env: PYTHON2=/usr/local/bin/python2 CXXFLAGS='-O2 -g -Wno-error=reserved-user-defined-literal' CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"
