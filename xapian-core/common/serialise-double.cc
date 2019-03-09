@@ -96,13 +96,13 @@ string serialise_double(double v){
      * double.
      */
 
-    static_assert((uint64_t)1 << 52 <= numeric_limits<double>::max(),
+    static_assert(uint64_t(1) << 52 < numeric_limits<double>::max(),
 		  "Check if 2^52 can be represented by a double");
 
     uint64_t result = 0;
 
     if (v == 0.0) {
-	result = 0.0;
+	result = 0;
 	return string(reinterpret_cast<const char *>(&result),
 		      sizeof(uint64_t));
     }
@@ -110,23 +110,16 @@ string serialise_double(double v){
     bool negative = (v < 0.0);
     if (negative) {
 	v = -v;
-	result |= (uint64_t)1 << 63;
+	result |= uint64_t(1) << 63;
     }
 
     int exp;
     v = frexp(v, &exp);
-
-    if (exp == 0 && v == 0.0) {
-	result = 0.0;
-	return string(reinterpret_cast<const char *>(&result),
-		      sizeof(uint64_t));
-    }
-
     v *= 2.0;
     v -= 1.0;
     exp += 1022;
 
-    result |= (uint64_t)exp << 52;
+    result |= uint64_t(exp) << 52;
 
 # if FLT_RADIX == 2
     double scaled_v = scalbn(v, 52);
