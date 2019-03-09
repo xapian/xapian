@@ -8,13 +8,14 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include $(ICU_CPPFLAGS)
-AM_CXXFLAGS += $(ICU_CFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
 # include/xapian/error.h and include/xapian/errordispatch.h
 AM_CPPFLAGS += -I'$(top_builddir)/include'
 endif
+AM_CPPFLAGS += $(ICU_CPPFLAGS)
+AM_CXXFLAGS += $(ICU_CFLAGS)
 
 # Order is relevant: when building, tests must be after ".".
 SUBDIRS = . docs tests
