@@ -74,8 +74,8 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	(M).size() << "' expected '" << (S) << "':\n" << \
 	"Full mset was:\n" << (M))
 
-/// Check that CODE throws exactly Xapian exception TYPE.
-#define TEST_EXCEPTION(TYPE, CODE) \
+/// Helper macro.
+#define TEST_EXCEPTION_(TYPE, CODE, EXACT) \
     do { \
 	expected_exception = STRINGIZE(TYPE); \
 	if (strncmp(expected_exception, "Xapian::", \
@@ -86,12 +86,20 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	    CODE; \
 	    FAIL_TEST("Expected " << expected_exception << " not thrown"); \
 	} catch (const TYPE& e) { \
-	    if (strcmp(expected_exception, e.get_type()) != 0) { \
-		FAIL_TEST("Caught subclass " << e.get_type() << \
-			  " of expected " << expected_exception); \
+	    if (EXACT) { \
+		if (strcmp(expected_exception, e.get_type()) != 0) { \
+		    FAIL_TEST("Caught subclass " << e.get_type() << \
+			      " of expected " << expected_exception); \
+		} \
 	    } \
 	} \
 	expected_exception = NULL;\
     } while (0)
+
+/// Check that CODE throws Xapian exception derived from TYPE.
+#define TEST_EXCEPTION_BASE_CLASS(TYPE, CODE) TEST_EXCEPTION_(TYPE, CODE, false)
+
+/// Check that CODE throws exactly Xapian exception TYPE.
+#define TEST_EXCEPTION(TYPE, CODE) TEST_EXCEPTION_(TYPE, CODE, true)
 
 #endif // XAPIAN_INCLUDED_TESTUTILS_H
