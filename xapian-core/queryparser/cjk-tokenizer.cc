@@ -119,7 +119,7 @@ static inline bool
 is_digit(unsigned ch)
 {
     return (Xapian::Unicode::get_category(ch) ==
-        Xapian::Unicode::DECIMAL_DIGIT_NUMBER);
+	Xapian::Unicode::DECIMAL_DIGIT_NUMBER);
 }
 
 /// Set of Chinese Unicode characters about digit
