@@ -157,22 +157,16 @@ double unserialise_double(const char ** p, const char * end) {
     memcpy(&mantissa_bp, *p, sizeof(double));
     mantissa_bp &= (uint64_t(1) << 52) - 1;
 
-# if FLT_RADIX == 2
-    double mantissa = scalbn(mantissa_bp, -52);
-# else
-    double mantissa = ldexp(mantissa_bp, -52);
-# endif
-
-    mantissa += 1.0;
-
     *p += 8;
 
-    if (exp + 1023 == 0 && mantissa == 1.0) return 0.0;
+    if (exp + 1023 == 0 && mantissa_bp == 0) return 0.0;
 
 # if FLT_RADIX == 2
-    double result = scalbn(mantissa, exp);
+    double result = scalbn(mantissa_bp, -52);
+    result = scalbn(result + 1.0, exp);
 # else
-    double result = ldexp(mantissa, exp);
+    double result = ldexp(mantissa_bp, -52);
+    result = ldexp(result + 1.0, exp);
 # endif
 
     if (negative) result = -result;
