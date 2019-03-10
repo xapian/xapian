@@ -51,8 +51,9 @@
 // 39: 1.3.3 New query operator OP_WILDCARD; sort keys in serialised MSet.
 // 39.1: pre-1.5.0 MSG_POSITIONLISTCOUNT added.
 // 40: pre-1.5.0 REPLY_REMOVESPELLING added.
-// 41: 1.5.0 Changed REPLY_ALLTERMS, REPLY_METADATAKEYLIST, REPLY_TERMLIST.
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 41
+// 41: pre-1.5.0 Changed REPLY_ALLTERMS, REPLY_METADATAKEYLIST, REPLY_TERMLIST.
+// 42: 1.5.0 Use little-endian IEEE for doubles
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 42
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
