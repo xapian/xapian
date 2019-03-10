@@ -198,38 +198,6 @@ follows::
     def __call__(self, doc):
       return 1
 
-ValueRangeProcessor
-===================
-
-The ValueRangeProcessor class (and its subclasses) provide an operator() method
-(which is exposed in python as a __call__() method, making the class instances
-into callables).  This method checks whether a beginning and end of a range are
-in a format understood by the ValueRangeProcessor, and if so, converts the
-beginning and end into strings which sort appropriately.  ValueRangeProcessors
-can be defined in python (and then passed to the QueryParser), or there are
-several default built-in ones which can be used.
-
-In C++ the operator() method takes two std::string arguments by reference,
-which the subclassed method can modify, and returns a value slot number.
-In Python, we wrap this by passing two `bytes` objects to
-__call__ and having it return a tuple of (value_slot, modified_begin,
-modified_end).  For example::
-
-  vrp = xapian.NumberValueRangeProcessor(0, '$', True)
-  a = '$10'
-  b = '20'
-  slot, a, b = vrp(a, b)
-
-You can implement your own ValueRangeProcessor in Python.  The Python
-implementation should override the __call__() method with its own
-implementation, which returns a tuple as above.  For example::
-
-  class MyVRP(xapian.ValueRangeProcessor):
-    def __init__(self):
-      xapian.ValueRangeProcessor.__init__(self)
-    def __call__(self, begin, end):
-      return (7, "A"+begin, "B"+end)
-
 Apache and mod_python/mod_wsgi
 ==============================
 

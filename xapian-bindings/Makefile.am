@@ -13,7 +13,7 @@ EXTRA_DIST = xapian-head.i xapian-headers.i generic/except.i \
     HACKING
 
 SUBDIRS = . @BINDINGS@
-DIST_SUBDIRS = python python3 php php7 java ruby tcl8 csharp perl lua
+DIST_SUBDIRS = python python3 php7 java ruby tcl8 csharp perl lua
 
 if MAINTAINER_MODE
 BUILT_SOURCES = generic/except.i
@@ -31,7 +31,6 @@ endif
 DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	PYTHON2_LIB="`pwd`/../_inst/tmp_py2lib" \
 	PYTHON3_LIB="`pwd`/../_inst/tmp_py3lib" \
-	PHP_EXTENSION_DIR="`pwd`/../_inst/tmp_phpext" \
 	PHP7_EXTENSION_DIR="`pwd`/../_inst/tmp_php7ext" \
 	RUBY_LIB="`pwd`/../_inst/tmp_rubylib" \
 	RUBY_LIB_ARCH="`pwd`/../_inst/tmp_rubylibarch" \

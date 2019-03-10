@@ -122,7 +122,8 @@ HoneyPostList::get_termfreq() const
 }
 
 LeafPostList*
-HoneyPostList::open_nearby_postlist(const string& term_, bool need_pos) const
+HoneyPostList::open_nearby_postlist(const string& term_,
+				    bool need_read_pos) const
 {
     Assert(!term_.empty());
     if (!cursor) return NULL;
@@ -137,11 +138,11 @@ HoneyPostList::open_nearby_postlist(const string& term_, bool need_pos) const
 	// not supported" though.
 	// return NULL;
 	//
-	// No need to consider need_pos for an empty posting list.
+	// No need to consider need_read_pos for an empty posting list.
 	return new HoneyPostList(db, term_, NULL);
     }
 
-    if (need_pos)
+    if (need_read_pos)
 	return new HoneyPosPostList(db, term_, new_cursor.release());
     return new HoneyPostList(db, term_, new_cursor.release());
 }

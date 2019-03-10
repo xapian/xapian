@@ -338,7 +338,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     bool has_positions() const;
 
     PostList * open_post_list(const string & tname) const;
-    LeafPostList* open_leaf_post_list(const string& term, bool need_pos) const;
+    LeafPostList* open_leaf_post_list(const string& term,
+				      bool need_read_pos) const;
     TermList * open_term_list(Xapian::docid did) const;
     TermList * open_term_list_direct(Xapian::docid did) const;
     Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy) const;

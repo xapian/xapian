@@ -1,7 +1,7 @@
 /** @file protomset.h
  * @brief ProtoMSet class
  */
-/* Copyright (C) 2004,2007,2017,2018 Olly Betts
+/* Copyright (C) 2004,2007,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -292,13 +292,13 @@ class ProtoMSet {
      *  Conceptually this is "add new_item", but taking into account
      *  collapsing.
      */
-    bool process(Result& new_item,
+    bool process(Result&& new_item,
 		 ValueStreamDocument& vsdoc) {
 	update_max_weight(new_item.get_weight());
 
 	if (!collapser) {
 	    // No collapsing, so just add the item.
-	    add(new_item);
+	    add(std::move(new_item));
 	} else {
 	    auto res = collapser.check(new_item, vsdoc);
 	    switch (res) {
@@ -314,14 +314,14 @@ class ProtoMSet {
 		    // entries with this key which we've seen so far.  The
 		    // entry with this key which it displaced is still in the
 		    // proto-MSet so replace it.
-		    replace(collapser.old_item, new_item);
+		    replace(collapser.old_item, std::move(new_item));
 		    return true;
 
 		default:
 		    break;
 	    }
 
-	    auto elt = add(new_item);
+	    auto elt = add(std::move(new_item));
 	    if (res != EMPTY && elt != Xapian::doccount(-1)) {
 		collapser.process(res, elt);
 	    }
@@ -337,7 +337,7 @@ class ProtoMSet {
     }
 
     // Returns the new item's index, or Xapian::doccount(-1) if not added.
-    Xapian::doccount add(const Result& item) {
+    Xapian::doccount add(Result&& item) {
 	++known_matching_docs;
 
 	if (item.get_weight() < min_weight) {
@@ -350,7 +350,7 @@ class ProtoMSet {
 
 	if (results.size() < max_size) {
 	    // We're still filling, or just about to become full.
-	    results.push_back(item);
+	    results.push_back(std::move(item));
 	    Assert(min_heap.empty());
 	    return results.size() - 1;
 	}
@@ -361,7 +361,7 @@ class ProtoMSet {
 	    // no collapse key too - FIXME).
 	    if (min_weight_pending) {
 		if (!handle_min_weight_pending()) {
-		    results.push_back(item);
+		    results.push_back(std::move(item));
 		    return results.size() - 1;
 		}
 	    }
@@ -388,7 +388,7 @@ class ProtoMSet {
 	    return Xapian::doccount(-1);
 	}
 
-	results[worst_idx] = item;
+	results[worst_idx] = std::move(item);
 	Heap::replace(min_heap.begin(), min_heap.end(), MCmpAdaptor(this));
 	if (sort_by == Xapian::Enquire::Internal::REL ||
 	    sort_by == Xapian::Enquire::Internal::REL_VAL) {
@@ -399,8 +399,8 @@ class ProtoMSet {
 	return worst_idx;
     }
 
-    void replace(Xapian::doccount old_item, const Result& b) {
-	results[old_item] = b;
+    void replace(Xapian::doccount old_item, Result&& b) {
+	results[old_item] = std::move(b);
 	if (min_heap.empty())
 	    return;
 

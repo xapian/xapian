@@ -17,7 +17,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/CoordWeight.cs \
 	generated-csharp/Database.cs \
 	generated-csharp/DateRangeProcessor.cs \
-	generated-csharp/DateValueRangeProcessor.cs \
 	generated-csharp/DecreasingValueWeightPostingSource.cs \
 	generated-csharp/DiceCoeffWeight.cs \
 	generated-csharp/DLHWeight.cs \
@@ -49,7 +48,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/MSetIterator.cs \
 	generated-csharp/MultiValueKeyMaker.cs \
 	generated-csharp/NumberRangeProcessor.cs \
-	generated-csharp/NumberValueRangeProcessor.cs \
 	generated-csharp/PL2PlusWeight.cs \
 	generated-csharp/PL2Weight.cs \
 	generated-csharp/PositionIterator.cs \
@@ -66,7 +64,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Stem.cs \
 	generated-csharp/StemImplementation.cs \
 	generated-csharp/Stopper.cs \
-	generated-csharp/StringValueRangeProcessor.cs \
 	generated-csharp/TermGenerator.cs \
 	generated-csharp/TermIterator.cs \
 	generated-csharp/TfIdfWeight.cs \
@@ -76,7 +73,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/ValueIterator.cs \
 	generated-csharp/ValueMapPostingSource.cs \
 	generated-csharp/ValuePostingSource.cs \
-	generated-csharp/ValueRangeProcessor.cs \
 	generated-csharp/ValueSetMatchDecider.cs \
 	generated-csharp/ValueWeightPostingSource.cs \
 	generated-csharp/Version.cs \

@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009,2012,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013,2015,2016,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,7 +66,135 @@ DEFINE_TESTCASE(overload1, !backend) {
     Xapian::Query q;
     q = Xapian::Query("foo") & Xapian::Query("bar");
     TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar))");
+
+    // Test &= appends a same-type subquery (since Xapian 1.4.10).
+    q &= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar AND baz))");
+    // But not if the RHS is the same query:
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
+    q &= q;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo AND bar) AND (foo AND bar)))");
+    {
+	// Also not if the query has a refcount > 1.
+	q = Xapian::Query("foo") & Xapian::Query("bar");
+	Xapian::Query qcopy = q;
+	qcopy &= Xapian::Query("baz");
+	TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo AND bar) AND baz))");
+	// And q shouldn't change.
+	TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar))");
+    }
+    // Check that MatchNothing still results in MatchNothing:
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+    q &= Xapian::Query::MatchNothing;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query()");
+    // Check we don't combine for other operators:
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+    q &= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo OR bar) AND baz))");
+
+    // Test |= appends a same-type subquery (since Xapian 1.4.10).
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+    q |= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar OR baz))");
+    // But not if the RHS is the same query:
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
+    q |= q;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo OR bar) OR (foo OR bar)))");
+    {
+	// Also not if the query has a refcount > 1.
+	q = Xapian::Query("foo") | Xapian::Query("bar");
+	Xapian::Query qcopy = q;
+	qcopy |= Xapian::Query("baz");
+	TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo OR bar) OR baz))");
+	// And q shouldn't change.
+	TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar))");
+    }
+    // Check that MatchNothing still results in no change:
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+    q |= Xapian::Query::MatchNothing;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar))");
+    // Check we don't combine for other operators:
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+    q |= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo AND bar) OR baz))");
+
+    // Test ^= appends a same-type subquery (since Xapian 1.4.10).
+    q = Xapian::Query("foo") ^ Xapian::Query("bar");
+    q ^= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar XOR baz))");
+    // But a query ^= itself gives an empty query.
+    q = Xapian::Query("foo") ^ Xapian::Query("bar");
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
+    q ^= q;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
+    TEST_STRINGS_EQUAL(q.get_description(), "Query()");
+    {
+	// Even if the reference count > 1.
+	q = Xapian::Query("foo") ^ Xapian::Query("bar");
+	Xapian::Query qcopy = q;
+	q ^= qcopy;
+	TEST_STRINGS_EQUAL(q.get_description(), "Query()");
+    }
+    {
+	// Also not if the query has a refcount > 1.
+	q = Xapian::Query("foo") ^ Xapian::Query("bar");
+	Xapian::Query qcopy = q;
+	qcopy ^= Xapian::Query("baz");
+	TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo XOR bar) XOR baz))");
+	// And q shouldn't change.
+	TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar))");
+    }
+    // Check that MatchNothing still results in no change:
+    q = Xapian::Query("foo") ^ Xapian::Query("bar");
+    q ^= Xapian::Query::MatchNothing;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar))");
+    // Check we don't combine for other operators:
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+    q ^= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo AND bar) XOR baz))");
+
     q = Xapian::Query("foo") &~ Xapian::Query("bar");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND_NOT bar))");
+    // In 1.4.9 and earlier this gave (foo AND (<alldocuments> AND_NOT bar)).
+    q = Xapian::Query("foo");
+    q &= ~Xapian::Query("bar");
     TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND_NOT bar))");
     q = ~Xapian::Query("bar");
     TEST_STRINGS_EQUAL(q.get_description(), "Query((<alldocuments> AND_NOT bar))");

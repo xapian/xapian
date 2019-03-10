@@ -447,9 +447,10 @@ dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
 AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
 		__builtin_mul_overflow(int, int, int*)], [], [], [ ])
 AC_CHECK_DECLS([__builtin_bswap16(uint16_t),
-		__builtin_bswap32(uint32_t)], [], [],
+		__builtin_bswap32(uint32_t),
+		__builtin_bswap64(uint64_t)], [], [],
 	       [#include <stdint.h>])
-AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong], [], [],
+AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong, _byteswap_uint64], [], [],
 	       [#include <stdlib.h>])
 AC_CHECK_DECLS([__builtin_clz(unsigned),
 		__builtin_clzl(unsigned long),
@@ -672,8 +673,17 @@ AC_CHECK_HEADERS([cxxabi.h], [], [], [ ])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
-dnl don't use valgrind.
-if test -n "${VALGRIND-unset}" ; then
+dnl don't use valgrind.  On macOS only use valgrind if VALGRIND is set to a
+dnl no empty value, as valgrind on macOS gives a lot of false positives.
+use_valgrind_if_non_empty=
+case $host in
+  *-*-darwin*)
+    use_valgrind_if_non_empty=$VALGRIND ;;
+  *)
+    use_valgrind_if_non_empty=${VALGRIND-unset} ;;
+esac
+
+if test -n "$use_valgrind_if_non_empty" ; then
   AC_PATH_PROG([VALGRIND], [valgrind], [])
   if test -n "$VALGRIND" ; then
     dnl Check that the installed valgrind version works, and supports the
@@ -820,6 +830,37 @@ case $ac_cv_func_snprintf in
        [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
     ;;
 esac
+
+dnl Check for ICU, which we can optionally use for CJK word tokenisation.
+AC_ARG_VAR([PKG_CONFIG], [Location of pkg-config])
+AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
+if test -n "$PKG_CONFIG" ; then
+  dnl ICU's UTF-8 word boundary code was broken before 54.1.
+  m4_define([icu_min], [54.1])
+  m4_define([icu_mod], [icu-uc])
+  AC_MSG_CHECKING([for ICU (icu_mod >= icu_min)])
+  icu_config="$PKG_CONFIG icu_mod"
+  try_libs=`$PKG_CONFIG 'icu_mod >= icu_min' --libs 2>&AS_MESSAGE_LOG_FD`
+  if test $? -eq 0 ; then
+    AC_MSG_RESULT([yes])
+    AC_DEFINE([USE_ICU], [1], [Define to use ICU for CJK segmentation])
+    dnl The split here isn't perfect - e.g. -DFOO really ought to be in
+    dnl CPPFLAGS, but hopefully this won't be a problem in practice.
+    ICU_CFLAGS=`$icu_config --cflags-only-other`
+    ICU_CPPFLAGS=`$icu_config --cflags-only-I`
+    ICU_LIBS=$try_libs
+  else
+    icu_version=`$icu_config --modversion 2>&AS_MESSAGE_LOG_FD`
+    if test $? -eq 0 ; then
+      AC_MSG_RESULT([no ($icu_version)])
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
+fi
+AC_SUBST([ICU_CFLAGS])
+AC_SUBST([ICU_CPPFLAGS])
+AC_SUBST([ICU_LIBS])
 
 dnl ***************************
 dnl * Select modules to build *

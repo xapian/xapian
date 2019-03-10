@@ -136,11 +136,6 @@ class BitReader {
 	di_current.uninit();
     }
 
-    // Initialise with fresh data.
-    void init(const char* p_, size_t len) {
-	init(p_, p_ + len);
-    }
-
     // Decode value, known to be less than outof.
     Xapian::termpos decode(Xapian::termpos outof, bool force = false);
 

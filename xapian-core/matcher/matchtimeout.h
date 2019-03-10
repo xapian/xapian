@@ -22,6 +22,10 @@
 #ifndef XAPIAN_INCLUDED_MATCHTIMEOUT_H
 #define XAPIAN_INCLUDED_MATCHTIMEOUT_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #ifdef HAVE_TIMER_CREATE
 #include "realtime.h"
 

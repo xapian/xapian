@@ -32,7 +32,6 @@
 #include "matcher/andmaybepostlist.h"
 #include "matcher/andnotpostlist.h"
 #include "matcher/boolorpostlist.h"
-#include "emptypostlist.h"
 #include "matcher/exactphrasepostlist.h"
 #include "matcher/externalpostlist.h"
 #include "matcher/maxpostlist.h"
@@ -121,7 +120,7 @@ struct CmpMaxOrTerms {
 	//
 	// Note that m68k only has excess precision in earlier models - 68040
 	// and later are OK:
-	// http://gcc.gnu.org/ml/gcc-patches/2008-11/msg00105.html
+	// https://gcc.gnu.org/ml/gcc-patches/2008-11/msg00105.html
 	//
 	// To avoid this, we store each result in a volatile double prior to
 	// comparing them.  This means that the result of this test should
@@ -195,7 +194,8 @@ class Context {
     }
 
     void add_postlist(PostList * pl) {
-	pls.emplace_back(pl);
+	if (pl)
+	    pls.emplace_back(pl);
     }
 
     bool empty() const {
@@ -214,7 +214,7 @@ class Context {
 	const PostList * hint_pl = qopt->get_hint_postlist();
 	for (auto&& i = pls.begin() + new_size; i != pls.end(); ++i) {
 	    const PostList * pl = as_postlist(*i);
-	    if (rare(pl == hint_pl)) {
+	    if (rare(pl == hint_pl && hint_pl)) {
 		// We were about to delete qopt's hint - instead tell qopt to
 		// take ownership.
 		qopt->take_hint_ownership();
@@ -316,14 +316,16 @@ class BoolOrContext : public Context<PostList*> {
 PostList *
 BoolOrContext::postlist()
 {
-    Assert(!pls.empty());
-
     PostList* pl;
-    if (pls.size() == 1) {
-	pl = pls[0];
-    } else {
-	pl = new BoolOrPostList(pls.begin(), pls.end(), qopt->matcher,
-				qopt->db_size);
+    switch (pls.size()) {
+	case 0:
+	    pl = NULL;
+	    break;
+	case 1:
+	    pl = pls[0];
+	    break;
+	default:
+	    pl = new BoolOrPostList(pls.begin(), pls.end(), qopt->db_size);
     }
 
     // Empty pls so our destructor doesn't delete them all!
@@ -354,12 +356,14 @@ OrContext::select_elite_set(size_t set_size, size_t out_of)
 PostList *
 OrContext::postlist()
 {
-    Assert(!pls.empty());
-
-    if (pls.size() == 1) {
-	PostList * pl = pls[0].pl;
-	pls.clear();
-	return pl;
+    switch (pls.size()) {
+	case 0:
+	    return NULL;
+	case 1: {
+	    PostList* pl = pls[0].pl;
+	    pls.clear();
+	    return pl;
+	}
     }
 
     // Make postlists into a heap so that the postlist with the greatest term
@@ -403,12 +407,14 @@ OrContext::postlist()
 PostList *
 OrContext::postlist_max()
 {
-    Assert(!pls.empty());
-
-    if (pls.size() == 1) {
-	PostList * pl = pls[0].pl;
-	pls.clear();
-	return pl;
+    switch (pls.size()) {
+	case 0:
+	    return NULL;
+	case 1: {
+	    PostList* pl = pls[0].pl;
+	    pls.clear();
+	    return pl;
+	}
     }
 
     // Sort the postlists so that the postlist with the greatest term frequency
@@ -434,6 +440,9 @@ class XorContext : public Context<PostList*> {
 PostList *
 XorContext::postlist()
 {
+    if (pls.empty())
+	return NULL;
+
     Xapian::doccount db_size = qopt->db_size;
     PostList * pl;
     pl = new MultiXorPostList(pls.begin(), pls.end(), qopt->matcher, db_size);
@@ -467,6 +476,15 @@ class AndContext : public Context<PostList*> {
   public:
     AndContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
+
+    bool add_postlist(PostList* pl) {
+	if (!pl) {
+	    shrink(0);
+	    return false;
+	}
+	pls.emplace_back(pl);
+	return true;
+    }
 
     void add_pos_filter(Query::op op_,
 			size_t n_subqs,
@@ -513,10 +531,7 @@ PostList *
 AndContext::postlist()
 {
     if (pls.empty()) {
-	// This case only happens if this sub-database has no positional data
-	// (but another sub-database does).
-	Assert(pos_filters.empty());
-	return new EmptyPostList;
+	return NULL;
     }
 
     unique_ptr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
@@ -783,12 +798,12 @@ Query::Internal::unserialise(const char ** p, const char * end,
     throw SerialisationError(msg);
 }
 
-void
+bool
 Query::Internal::postlist_sub_and_like(AndContext& ctx,
 				       QueryOptimiser * qopt,
 				       double factor) const
 {
-    ctx.add_postlist(postlist(qopt, factor));
+    return ctx.add_postlist(postlist(qopt, factor));
 }
 
 void
@@ -962,14 +977,14 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
 	// If there were values in the slot, the backend should have a
 	// non-empty lower bound, even if it isn't a tight one.
 	AssertEq(db.get_value_freq(slot), 0);
-	RETURN(new EmptyPostList);
+	RETURN(NULL);
     }
     if (end < lb) {
-	RETURN(new EmptyPostList);
+	RETURN(NULL);
     }
     const string & ub = db.get_value_upper_bound(slot);
     if (begin > ub) {
-	RETURN(new EmptyPostList);
+	RETURN(NULL);
     }
     if (end >= ub) {
 	// If begin <= lb too, then the range check isn't needed, but we do
@@ -1032,10 +1047,10 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	// If there were values in the slot, the backend should have a
 	// non-empty lower bound, even if it isn't a tight one.
 	AssertEq(db.get_value_freq(slot), 0);
-	RETURN(new EmptyPostList);
+	RETURN(NULL);
     }
     if (limit < lb) {
-	RETURN(new EmptyPostList);
+	RETURN(NULL);
     }
     if (limit >= db.get_value_upper_bound(slot)) {
 	// The range check isn't needed, but we do still need to consider
@@ -1096,10 +1111,10 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 	// If there were values in the slot, the backend should have a
 	// non-empty lower bound, even if it isn't a tight one.
 	AssertEq(db.get_value_freq(slot), 0);
-	RETURN(new EmptyPostList);
+	RETURN(NULL);
     }
     if (limit > db.get_value_upper_bound(slot)) {
-	RETURN(new EmptyPostList);
+	RETURN(NULL);
     }
     if (limit < lb) {
 	// The range check isn't needed, but we do still need to consider
@@ -1326,7 +1341,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	qopt->in_synonym = old_in_synonym;
 
 	if (ctx.empty())
-	    RETURN(new EmptyPostList);
+	    RETURN(NULL);
 
 	PostList * pl = ctx.postlist();
 	if (op != Query::OP_SYNONYM)
@@ -1347,7 +1362,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
     qopt->set_total_subqs(qopt->get_total_subqs() + ctx.size());
 
     if (ctx.empty())
-	RETURN(new EmptyPostList);
+	RETURN(NULL);
 
     if (op == Query::OP_MAX)
 	RETURN(ctx.postlist_max());
@@ -1519,9 +1534,6 @@ QueryBranch::do_bool_or_like(BoolOrContext& ctx, QueryOptimiser* qopt) const
     // QuerySynonym::done() if the single subquery is a term or MatchAll.
     Assert(subqueries.size() >= 2 || get_op() == Query::OP_SYNONYM);
 
-    vector<PostList *> postlists;
-    postlists.reserve(subqueries.size());
-
     for (auto q : subqueries) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert(q.internal.get());
@@ -1542,9 +1554,7 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
     // QuerySynonym::done() if the single subquery is a term or MatchAll.
     Assert(subqueries.size() >= 2 || get_op() == Query::OP_SYNONYM);
 
-    vector<PostList *> postlists;
-    postlists.reserve(subqueries.size() - first);
-
+    size_t size_before = ctx.size();
     QueryVector::const_iterator q;
     for (q = subqueries.begin() + first; q != subqueries.end(); ++q) {
 	// MatchNothing subqueries should have been removed by done().
@@ -1552,9 +1562,18 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
 	(*q).internal->postlist_sub_or_like(ctx, qopt, factor);
     }
 
-    if (elite_set_size && elite_set_size < subqueries.size()) {
-	ctx.select_elite_set(elite_set_size, subqueries.size());
-	// FIXME: not right!
+    size_t out_of = ctx.size() - size_before;
+    if (elite_set_size && elite_set_size < out_of) {
+	ctx.select_elite_set(elite_set_size, out_of);
+	// FIXME: This isn't quite right as we flatten ORs under the ELITE_SET
+	// and then pick from amongst all the subqueries.  Consider:
+	//
+	// Query subqs[] = {q1 | q2, q3 | q4};
+	// Query q(OP_ELITE_SET, begin(subqs), end(subqs), 1);
+	//
+	// Here q should be either q1 | q2 or q3 | q4, but actually it'll be
+	// just one of q1 or q2 or q3 or q4 (assuming those aren't themselves
+	// OP_OR or OP_OR-like queries).
     }
 }
 
@@ -1575,6 +1594,7 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
     qopt->in_synonym = true;
     do_bool_or_like(ctx, qopt);
     PostList * pl = ctx.postlist();
+    if (!pl) return NULL;
     qopt->in_synonym = old_in_synonym;
 
     bool wdf_disjoint = false;
@@ -1829,19 +1849,21 @@ QueryAndLike::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryAndLike::postlist", qopt | factor);
     AndContext ctx(qopt, subqueries.size());
-    postlist_sub_and_like(ctx, qopt, factor);
+    (void)postlist_sub_and_like(ctx, qopt, factor);
     RETURN(ctx.postlist());
 }
 
-void
+bool
 QueryAndLike::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const
 {
     QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*i).internal.get());
-	(*i).internal->postlist_sub_and_like(ctx, qopt, factor);
+	if (!(*i).internal->postlist_sub_and_like(ctx, qopt, factor))
+	    return false;
     }
+    return true;
 }
 
 void
@@ -1953,9 +1975,15 @@ QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
     LOGCALL(QUERY, PostList*, "QueryAndNot::postlist", qopt | factor);
     // FIXME: Combine and-like side with and-like stuff above.
     unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
+    if (!l.get()) {
+	RETURN(NULL);
+    }
     OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, 0.0, 0, 1);
     unique_ptr<PostList> r(ctx.postlist());
+    if (!r.get()) {
+	RETURN(l.release());
+    }
     RETURN(new AndNotPostList(l.release(), r.release(),
 			      qopt->matcher, qopt->db_size));
 }
@@ -1986,6 +2014,9 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
     LOGCALL(QUERY, PostList*, "QueryAndMaybe::postlist", qopt | factor);
     // FIXME: Combine and-like side with and-like stuff above.
     unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
+    if (!l.get()) {
+	RETURN(NULL);
+    }
     if (factor == 0.0) {
 	// An unweighted OP_AND_MAYBE can be replaced with its left branch.
 	RETURN(l.release());
@@ -1993,6 +2024,9 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
     OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, factor, 0, 1);
     unique_ptr<PostList> r(ctx.postlist());
+    if (!r.get()) {
+	RETURN(l.release());
+    }
     RETURN(new AndMaybePostList(l.release(), r.release(),
 				qopt->matcher, qopt->db_size));
 }
@@ -2005,31 +2039,34 @@ QueryFilter::postlist(QueryOptimiser * qopt, double factor) const
     AssertEq(subqueries.size(), 2);
     PostList * pls[2];
     unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
+    if (!l.get()) RETURN(NULL);
     pls[1] = subqueries[1].internal->postlist(qopt, 0.0);
+    if (!pls[1]) RETURN(NULL);
     pls[0] = l.release();
     RETURN(new MultiAndPostList(pls, pls + 2, qopt->matcher, qopt->db_size));
 }
 
-void
+bool
 QueryFilter::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const
 {
     QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*i).internal.get());
-	(*i).internal->postlist_sub_and_like(ctx, qopt, factor);
+	if (!(*i).internal->postlist_sub_and_like(ctx, qopt, factor))
+	    return false;
 	// Second and subsequent subqueries are unweighted.
 	factor = 0.0;
     }
+    return true;
 }
 
-void
+bool
 QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser * qopt, double factor) const
 {
     if (!qopt->full_db_has_positions) {
 	// No positional data anywhere, so just handle as AND.
-	QueryAndLike::postlist_sub_and_like(ctx, qopt, factor);
-	return;
+	return QueryAndLike::postlist_sub_and_like(ctx, qopt, factor);
     }
 
     if (!qopt->db.has_positions()) {
@@ -2041,38 +2078,57 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
 	// the phrase, but at least one shard will count them, and the matcher
 	// takes the highest answer (since 1.4.6).
 	ctx.shrink(0);
-	return;
+	return false;
     }
 
     bool old_need_positions = qopt->need_positions;
     qopt->need_positions = true;
 
+    bool result = true;
     QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*i).internal.get());
 	bool is_term = ((*i).internal->get_type() == Query::LEAF_TERM);
 	PostList* pl = (*i).internal->postlist(qopt, factor);
-	if (!is_term)
+	if (pl && !is_term)
 	    pl = new OrPosPostList(pl);
-	ctx.add_postlist(pl);
+	result = ctx.add_postlist(pl);
+	if (!result) {
+	    if (factor == 0.0) break;
+	    // If we don't complete the iteration, the subquery count may be
+	    // wrong, and weighting information may not be filled in.
+	    while (i != subqueries.end()) {
+		// MatchNothing subqueries should have been removed by done().
+		// FIXME: Can we handle this more gracefully?
+		Assert((*i).internal.get());
+		delete (*i).internal->postlist(qopt, factor);
+		++i;
+	    }
+	    break;
+	}
     }
-    // Record the positional filter to apply higher up the tree.
-    ctx.add_pos_filter(op, subqueries.size(), window);
+    if (result) {
+	// Record the positional filter to apply higher up the tree.
+	ctx.add_pos_filter(op, subqueries.size(), window);
+    }
 
     qopt->need_positions = old_need_positions;
+    return result;
 }
 
-void
+bool
 QueryPhrase::postlist_sub_and_like(AndContext & ctx, QueryOptimiser * qopt, double factor) const
 {
-    QueryWindowed::postlist_windowed(Query::OP_PHRASE, ctx, qopt, factor);
+    constexpr auto OP_PHRASE = Query::OP_PHRASE;
+    return QueryWindowed::postlist_windowed(OP_PHRASE, ctx, qopt, factor);
 }
 
-void
+bool
 QueryNear::postlist_sub_and_like(AndContext & ctx, QueryOptimiser * qopt, double factor) const
 {
-    QueryWindowed::postlist_windowed(Query::OP_NEAR, ctx, qopt, factor);
+    constexpr auto OP_NEAR = Query::OP_NEAR;
+    return QueryWindowed::postlist_windowed(OP_NEAR, ctx, qopt, factor);
 }
 
 PostList*

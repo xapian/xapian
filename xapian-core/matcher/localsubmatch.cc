@@ -25,7 +25,6 @@
 
 #include "backends/databaseinternal.h"
 #include "debuglog.h"
-#include "api/emptypostlist.h"
 #include "extraweightpostlist.h"
 #include "api/leafpostlist.h"
 #include "omassert.h"
@@ -169,7 +168,7 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
     LOGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", matcher | total_subqs_ptr);
 
     if (query.empty())
-	RETURN(new EmptyPostList); // MatchNothing
+	RETURN(NULL); // MatchNothing
 
     // Build the postlist tree for the query.  This calls
     // LocalSubMatch::open_post_list() for each term in the query.
@@ -180,14 +179,16 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 	*total_subqs_ptr = opt.get_total_subqs();
     }
 
-    unique_ptr<Xapian::Weight> extra_wt(wt_factory.clone());
-    // Only uses term-independent stats.
-    extra_wt->init_(*total_stats, qlen);
-    if (extra_wt->get_maxextra() != 0.0) {
-	// There's a term-independent weight contribution, so we combine the
-	// postlist tree with an ExtraWeightPostList which adds in this
-	// contribution.
-	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
+    if (pl) {
+	unique_ptr<Xapian::Weight> extra_wt(wt_factory.clone());
+	// Only uses term-independent stats.
+	extra_wt->init_(*total_stats, qlen);
+	if (extra_wt->get_maxextra() != 0.0) {
+	    // There's a term-independent weight contribution, so we combine
+	    // the postlist tree with an ExtraWeightPostList which adds in this
+	    // contribution.
+	    pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
+	}
     }
 
     RETURN(pl);
@@ -201,8 +202,9 @@ LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | wdf_disjoint);
     if (rare(or_pl->get_termfreq_max() == 0)) {
-	// or_pl is an EmptyPostList or equivalent.
-	return or_pl;
+	// We know or_pl doesn't match anything.
+	delete or_pl;
+	RETURN(NULL);
     }
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
     unique_ptr<SynonymPostList> res(new SynonymPostList(or_pl, db, pltree,

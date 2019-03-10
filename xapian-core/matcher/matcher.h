@@ -21,6 +21,10 @@
 #ifndef XAPIAN_INCLUDED_MATCHER_H
 #define XAPIAN_INCLUDED_MATCHER_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include "api/enquireinternal.h"
 #include "localsubmatch.h"
 #include "remotesubmatch.h"

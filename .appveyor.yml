@@ -40,6 +40,13 @@ environment:
     platform: x64
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
+matrix:
+  allow_failures:
+  # mingw build currently sometimes fails due to trying to delete open files.
+  # It's unclear what the problem is, so until we manage to debug this allow
+  # this build to fail without flagging CI as having failed.
+  - TOOLCHAIN: mingw
+    platform: x86
 install:
   - ps: >-
       $env:CONFIGOPTS="--disable-documentation"
@@ -87,7 +94,7 @@ install:
   - if "%TOOLCHAIN%"=="msvc" nmake -nologo -f win32\Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" cd ..
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
-  - curl https://oligarchy.co.uk/xapian/patches/unicode-data11.cc > xapian-core\unicode\unicode-data.cc
+  - curl https://oligarchy.co.uk/xapian/patches/unicode-data12.cc > xapian-core\unicode\unicode-data.cc
   - ps: >-
       if ($env:TOOLCHAIN -eq "msvc") {
         $env:CC="cl -nologo"

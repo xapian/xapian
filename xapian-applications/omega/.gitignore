@@ -42,6 +42,7 @@
 /*test.log
 /*test.trs
 /libtransform.la
+/libutf8convert.la
 /xapian-omega-*.tar.xz
 /xapian-omega.spec
 /makemanpage

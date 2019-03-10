@@ -176,7 +176,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
     PostList* open_post_list(const std::string& term) const;
 
     LeafPostList* open_leaf_post_list(const std::string& term,
-				      bool need_pos) const;
+				      bool need_read_pos) const;
 
     /** Open a value stream.
      *

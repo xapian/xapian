@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -155,6 +155,8 @@
  */
 /* %include <xapian/version.h> */
 
+CONSTANT(Xapian::valueno, Xapian, BAD_VALUENO);
+
 /* Types are needed by most of the other headers. */
 %include <xapian/types.h>
 
@@ -212,6 +214,7 @@ STANDARD_IGNORES(Xapian, Query)
 %ignore *::operator&(const Xapian::Query &, const Xapian::InvertedQuery_ &);
 %ignore *::operator~;
 %ignore *::operator&=;
+%ignore ::operator&=;
 %ignore *::operator|=;
 %ignore *::operator^=;
 %ignore *::operator*=;
@@ -362,10 +365,8 @@ SUBCLASSABLE(Xapian, FieldProcessor)
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::Stopper;
 SUBCLASSABLE(Xapian, RangeProcessor)
 SUBCLASSABLE(Xapian, Stopper)
-SUBCLASSABLE(Xapian, ValueRangeProcessor)
 // Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::RangeProcessor;
-%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::ValueRangeProcessor;
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::FieldProcessor;
 STANDARD_IGNORES(Xapian, QueryParser)
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);

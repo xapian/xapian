@@ -115,6 +115,9 @@ while (<>) {
 		$lang = 'h';
 		$want_tabs = 1 unless ($fnm =~ m!/omega/cdb!);
 	    }
+	} elsif ($fnm =~ /\.l(?:emony|t)$/) {
+	    $lang = 'c++';
+	    $want_tabs = 1;
 	} elsif ($fnm =~ /\.py(?:\.in)?$/) {
 	    $lang = 'py';
 	    $want_tabs = 0;
@@ -225,6 +228,8 @@ while (<>) {
 		(length($expandedline) > 84 || !/^\+"/) &&
 		# Allow longer copyright lines.
 		$fullline !~ m,^\+[ /]\* Copyright , &&
+		# Allow long initialisers (e.g. for testcases).
+		! /^\+\s*\{.*\},?$/ &&
 		# Don't force wrapping of a long #error message.
 		!/^\+#\d*(error|warning)\b/) {
 		diagnostic('error', "Line extends beyond column 80 (to column ".length($expandedline).")", $fullline);
@@ -342,7 +347,9 @@ QUOTELOOP:  while (1) {
 	    diagnostic('error', "line indented by ".length($1)." spaces", $fullline);
 	}
 	if (m!^\+.*\b([A-Za-z_][A-Za-z_0-9]*)\s+\(! &&
-	    $1 !~ /^(bool|case|catch|double|for|if|int|return|switch|throw|void|while)$/) {
+	    # `delete (*i)->foo();` rather than `delete(*i)->foo()'` - the `(`
+	    # isn't around function parameters here.
+	    $1 !~ /^(bool|case|catch|delete|double|for|if|int|return|switch|throw|void|while)$/) {
 	    if (!$preproc) {
 		diagnostic('error', "Whitespace between '$1' and '('", $fullline);
 	    } else {
@@ -495,14 +502,17 @@ QUOTELOOP:  while (1) {
 	if ($fnm !~ m!/(?:md5|posixy_wrapper|perftest)\.cc$! &&
 	    m,^\+.*[^\w\.>]([a-z][a-z0-9]*[A-Z]\w*),) {
 	    my $symbol = $1;
+	    my $symbol_idx = $-[1];
 	    if ($symbol eq 'gzFile' || $symbol eq 'uInt' || $symbol =~ /^(?:de|in)flate[A-Z]/) {
 		# Whitelist symbols from APIs we use.
 	    } elsif ($symbol =~ /^[gs]et[A-Z]$/) {
 		# For now, allow setD(), etc.
 	    } elsif ($symbol =~ /^h(?:File|Read|Write|Pipe|Client)$/ || $symbol eq 'fdwCtrlType' || $symbol eq 'pShutdownSocket') {
 		# Platform specific names, allow for now.
+	    } elsif (substr($_, 0, $symbol_idx) =~ /\bicu::(\w+::)?$/) {
+		# ICU library namespace uses camelCase method names.
 	    } else {
-		diagnostic('error', "camelCase identifier '$1' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names", $fullline);
+		diagnostic('error', "camelCase identifier '$symbol' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names", $fullline);
 	    }
 	}
 	if (/^\+.*\b(?:class|struct)\b.*:\s*$/) {
@@ -580,12 +590,12 @@ QUOTELOOP:  while (1) {
 	    diagnostic('error', "';' at end of line of python code", $fullline);
 	}
     }
-    if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc|output)\.txt$!) {
-	if (/^\+.*?\b(xapain|the the|initialsing|ipv5|outputing|intened)\b/i ||
+    if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output)\.txt$!) {
+	if ($fullline =~ /^\+.*?\b(xapain|the the|initialsing|ipv5|outputing|intened|dont)\b/i ||
 	    # Cases which just need to be the prefix of a word
-	    /^\+.*?\b((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment)[a-z]*\b)/i ||
+	    $fullline =~ /^\+.*?\b((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil)[a-z]*\b)/i ||
 	    # Case-sensitive cases
-	    /^\+.*?\b(and and)\b/) {
+	    $fullline =~ /^\+.*?\b(and and)\b/) {
 	    diagnostic('error', "Typo '$1'", $fullline);
 	}
     }

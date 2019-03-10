@@ -400,7 +400,7 @@ case $srcdir in
 esac
 
 # Commit hash to pass to handle_git_external for swig.
-swig_git_commit_hash=2c910e47ae788412b95e356c99cef5862808bf9a
+swig_git_commit_hash=613ff08150e6264a5a4a964f2badeb6bba221398
 
 # Commit hashes to use for common in omega and letor respectively:
 omega_common_commit_hash=0003b29ceac12220b7e4bb11ba4c6e47ac20b05b
@@ -684,6 +684,13 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ;
       # Pick omega_common_commit_hash or letor_common_commit_hash:
       var=`echo "$d"|sed 's!.*[-/]!!g'`_common_commit_hash
       hash=`eval echo \\\$"$var"`
+      if [ -f .git/shallow ] ; then
+	if git reflog "$hash" -- 2> /dev/null ; then
+	  : # Already have the desired commit.
+	else
+	  git fetch --unshallow
+	fi
+      fi
       handle_git_external "$d/.common.git" "$hash" "$xapian_common_clone_url"
       ln -sf .common.git/xapian-core/common "$d/common"
     fi

@@ -22,6 +22,10 @@
 #ifndef XAPIAN_INCLUDED_HONEY_ALLDOCSPOSTLIST_H
 #define XAPIAN_INCLUDED_HONEY_ALLDOCSPOSTLIST_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include "api/leafpostlist.h"
 #include "honey_defs.h"
 #include "pack.h"

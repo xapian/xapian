@@ -113,6 +113,9 @@ GlassVersion::read()
 	if (rare(fd_in < 0)) {
 	    string msg = filename;
 	    msg += ": Failed to open glass revision file for reading";
+	    if (errno == ENOENT || errno == ENOTDIR) {
+		throw Xapian::DatabaseNotFoundError(msg, errno);
+	    }
 	    throw Xapian::DatabaseOpeningError(msg, errno);
 	}
 	close_fd = fd_in;
@@ -292,7 +295,26 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 	else
 	    tmpfile += "/v.tmp";
 
-	fd = posixy_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
+#ifdef __EMSCRIPTEN__
+	// Emscripten fails to create a file if O_TRUNC is specified and the
+	// filename is the previous name of a renamed file (which it will be
+	// the second time we write out the version file for a DB):
+	//
+	// https://github.com/emscripten-core/emscripten/issues/8187
+	//
+	// We avoid triggering this bug by not using O_TRUNC and instead
+	// truncating once the file is opened.
+	fd = posixy_open(tmpfile.c_str(),
+			 O_CREAT|O_WRONLY|O_BINARY,
+			 0666);
+	if (fd >= 0)
+	    ftruncate(fd, 0);
+#else
+	fd = posixy_open(tmpfile.c_str(),
+			 O_CREAT|O_TRUNC|O_WRONLY|O_BINARY,
+			 0666);
+#endif
+
 	if (rare(fd < 0))
 	    throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
 					       errno);

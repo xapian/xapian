@@ -213,19 +213,9 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.3.6      1.5.0  Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
-                                                      ``Xapian::Query`` from ``operator()()`` (added in 1.3.6).
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  |DateVRP|                           Use ``Xapian::DateRangeProcessor`` instead (added in 1.3.6).
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  |NumberVRP|                         Use ``Xapian::NumberRangeProcessor`` instead (added in 1.3.6).
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  |StringVRP|                         Use ``Xapian::RangeProcessor`` instead, which includes equivalent
-                                                      support for prefix/suffix checking (added in 1.3.6).
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  |add_valuerangeprocessor|           Use ``Xapian::QueryParser::add_rangeprocessor()`` instead, with a
-                                                      ``Xapian::RangeProcessor`` object instead of a |VRP| object (added in
-                                                      1.3.6).
+1.4.11     1.7.0  Environment variable                Specify via the flags ``Xapian::QueryParser::FLAG_CJK_NGRAM``,
+                  ``XAPIAN_CJK_NGRAM``                ``Xapian::TermGenerator::FLAG_CJK_NGRAM`` and
+                                                      ``Xapian::MSet::SNIPPET_CJK_NGRAM`` instead.
 ========== ====== =================================== ========================================================================
 
 Bindings
@@ -506,6 +496,19 @@ Removed Feature name                        Upgrade suggestion and comments
 1.5.0   ``Xapian::ErrorHandler``            This API was a no-op in 1.4.x, so you can just remove any lingering uses.  Longer
                                             term we hope to replace it with a better thought out version.  You can find more
                                             information at https://trac.xapian.org/ticket/3#comment:8
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
+                                            ``Xapian::Query`` from ``operator()()`` (added in 1.3.6).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |DateVRP|                           Use ``Xapian::DateRangeProcessor`` instead (added in 1.3.6).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |NumberVRP|                         Use ``Xapian::NumberRangeProcessor`` instead (added in 1.3.6).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |StringVRP|                         Use ``Xapian::RangeProcessor`` instead, which includes equivalent support for
+                                            prefix/suffix checking (added in 1.3.6).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |add_valuerangeprocessor|           Use ``Xapian::QueryParser::add_rangeprocessor()`` instead, with a
+                                            ``Xapian::RangeProcessor`` object instead of a |VRP| object (added in 1.3.6).
 ======= =================================== ==================================================================================
 
 

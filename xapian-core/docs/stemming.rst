@@ -4,7 +4,7 @@ Stemming Algorithms
 ===================
 
 Xapian uses the `Snowball Stemming
-Algorithms <http://snowballstem.org/>`_. At present, these support
+Algorithms <https://snowballstem.org/>`_. At present, these support
 Armenian, Basque, Catalan, Danish, Dutch, English, Finnish, French, German,
 Hungarian, Italian, Norwegian, Portuguese, Romanian, Russian, Spanish, Swedish,
 and Turkish.

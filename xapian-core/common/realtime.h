@@ -21,6 +21,10 @@
 #ifndef XAPIAN_INCLUDED_REALTIME_H
 #define XAPIAN_INCLUDED_REALTIME_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include <cerrno>
 #include <cmath>
 #include <ctime>

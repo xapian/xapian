@@ -31,6 +31,7 @@
 
 #include "apitest.h"
 #include "dbcheck.h"
+#include "errno_to_string.h"
 #include "fd.h"
 #include "filetests.h"
 #include "safedirent.h"
@@ -616,7 +617,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
 	check_equal_dbs(masterpath, replicapath);
 	TEST(!file_exists(masterpath + "/changes1"));
 
-	// Turn off replication, make sure we dont write anything
+	// Turn off replication, make sure we don't write anything.
 	if (get_dbtype() != "glass") {
 	    set_max_changesets(0);
 	}
@@ -896,7 +897,7 @@ DEFINE_TESTCASE(replicate7, replicas) {
 	    if (!entry) {
 		if (errno == 0)
 		    break;
-		FAIL_TEST("readdir failed: " << strerror(errno));
+		FAIL_TEST("readdir failed: " << errno_to_string(errno));
 	    }
 
 	    // Skip '.' and '..'.

@@ -27,6 +27,7 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
+#include "errno_to_string.h"
 #include "filetests.h"
 #include "str.h"
 #include "testrunner.h"
@@ -45,6 +46,7 @@
 # include "safesyswait.h"
 #endif
 
+#include <cerrno>
 #include <fstream>
 #include <iterator>
 
@@ -377,16 +379,16 @@ DEFINE_TESTCASE(testlock1, glass) {
 	TEST(db.locked());
 	TEST(rdb.locked());
 	// After close(), locked() should either work as if close() hadn't been
-	// called or throw Xapian::DatabaseError.
+	// called or throw Xapian::DatabaseClosedError.
 	try {
 	    TEST(db_as_database.locked());
-	} catch (const Xapian::DatabaseError&) {
+	} catch (const Xapian::DatabaseClosedError&) {
 	}
 	db.close();
 	TEST(!rdb.locked());
 	try {
 	    TEST(!db_as_database.locked());
-	} catch (const Xapian::DatabaseError&) {
+	} catch (const Xapian::DatabaseClosedError&) {
 	}
     }
     TEST(!rdb.locked());
@@ -989,9 +991,9 @@ DEFINE_TESTCASE(emptydb1, backend) {
 /// Test error opening non-existent stub databases.
 // Regression test for bug fixed in 1.3.1 and 1.2.11.
 DEFINE_TESTCASE(stubdb7, !backend) {
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database("nosuchdirectory", Xapian::DB_BACKEND_STUB));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::WritableDatabase("nosuchdirectory",
 		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB));
     return true;
@@ -1257,7 +1259,7 @@ DEFINE_TESTCASE(retrylock1, writable && path) {
 	    result[0] = 'y';
 	} else {
 	    // Error.
-	    tout << "errno=" << errno << ": " << strerror(errno) << endl;
+	    tout << "errno=" << errno << ": " << errno_to_string(errno) << endl;
 	    result[0] = 'e';
 	}
 	r = 1;
@@ -1299,14 +1301,16 @@ retry:
 	} else if (sr == -1) {
 	    if (errno == EINTR || errno == EAGAIN)
 		goto retry;
-	    tout << "select() failed with errno=" << errno << ": " << strerror(errno) << endl;
+	    tout << "select() failed with errno=" << errno << ": "
+		 << errno_to_string(errno) << endl;
 	    result[0] = 'S';
 	    r = 1;
 	} else {
 	    r = read(fds[1], result, sizeof(result));
 	    if (r == -1) {
 		// Error.
-		tout << "read failed with errno=" << errno << ": " << strerror(errno) << endl;
+		tout << "read() failed with errno=" << errno << ": "
+		     << errno_to_string(errno) << endl;
 		result[0] = 'R';
 		r = 1;
 	    } else if (r == 0) {

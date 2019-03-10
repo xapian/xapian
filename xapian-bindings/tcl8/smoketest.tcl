@@ -1,6 +1,6 @@
 # Simple test that we can load the xapian module and run a simple test
 #
-# Copyright (C) 2004,2006,2009,2011,2017 Olly Betts
+# Copyright (C) 2004,2006,2009,2011,2017,2019 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -101,6 +101,10 @@ if { [$xapian::Query_MatchNothing get_description] != "Query()" } {
 }
 
 xapian::Enquire enq db
+
+# Check Xapian::BAD_VALUENO is wrapped suitably.
+enq set_collapse_key $xapian::BAD_VALUENO
+
 xapian::Query q $xapian::Query_OP_OR "there" "is"
 enq set_query q
 set mset [enq get_mset 0 10]

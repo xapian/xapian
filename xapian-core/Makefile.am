@@ -14,6 +14,8 @@ if VPATH_BUILD
 # include/xapian/error.h and include/xapian/errordispatch.h
 AM_CPPFLAGS += -I'$(top_builddir)/include'
 endif
+AM_CPPFLAGS += $(ICU_CPPFLAGS)
+AM_CXXFLAGS += $(ICU_CFLAGS)
 
 # Order is relevant: when building, tests must be after ".".
 SUBDIRS = . docs tests
@@ -107,7 +109,7 @@ DISTCLEANFILES += pkgconfig/xapian-core-1.5.pc
 libxapian_la = libxapian-1.5.la
 lib_LTLIBRARIES = libxapian-1.5.la
 libxapian_1_5_la_SOURCES = $(lib_src)
-libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS)
+libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS) $(ICU_LIBS)
 libxapian_1_5_la_LDFLAGS = \
     $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO) $(lib_ldflags)
 

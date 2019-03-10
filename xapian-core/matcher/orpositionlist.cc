@@ -40,7 +40,7 @@ OrPositionList::get_approx_size() const
 Xapian::termpos
 OrPositionList::back() const
 {
-    LOGCALL(EXPAND, Xapian::termpos, "OrPositionList::back()", NO_ARGS);
+    LOGCALL(EXPAND, Xapian::termpos, "OrPositionList::back", NO_ARGS);
     Xapian::termpos result = 0;
     for (auto pl : pls) {
 	result = max(result, pl->back());

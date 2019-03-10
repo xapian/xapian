@@ -41,7 +41,7 @@ using namespace std;
 // The serialisation we use for doubles is inspired by a comp.lang.c post
 // by Jens Moeller:
 //
-// http://groups.google.com/group/comp.lang.c/browse_thread/thread/6558d4653f6dea8b/75a529ec03148c98
+// https://groups.google.com/group/comp.lang.c/browse_thread/thread/6558d4653f6dea8b/75a529ec03148c98
 //
 // The clever part is that the mantissa is encoded as a base-256 number which
 // means there's no rounding error provided both ends have FLT_RADIX as some

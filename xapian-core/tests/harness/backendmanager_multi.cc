@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017,2018,2019 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@
 
 #include "backendmanager_multi.h"
 
+#include "errno_to_string.h"
 #include "filetests.h"
 #include "index_utils.h"
 #include "str.h"
@@ -82,7 +83,7 @@ BackendManagerMulti::createdb_multi(const string& name,
 	string msg = "Couldn't create file '";
 	msg += tmpfile;
 	msg += "' (";
-	msg += strerror(errno);
+	errno_to_string(errno, msg);
 	msg += ')';
 	throw msg;
     }
@@ -149,6 +150,12 @@ string
 BackendManagerMulti::get_compaction_output_path(const string& name)
 {
     return cachedir + "/" + name;
+}
+
+string
+BackendManagerMulti::get_generated_database_path(const string& name)
+{
+    return BackendManagerMulti::get_writable_database_path(name);
 }
 
 Xapian::WritableDatabase

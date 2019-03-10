@@ -31,9 +31,6 @@
 
 #include "xapian/error.h"
 
-#include <cerrno>
-#include <cstdlib>
-
 using namespace std;
 
 namespace Xapian {

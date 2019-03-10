@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of Database::compact()
  */
-/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,7 @@
 #include "testsuite.h"
 #include "testutils.h"
 
+#include <cerrno>
 #include <cstdlib>
 #include <fstream>
 
@@ -100,7 +101,8 @@ check_sparse_uid_terms(const string & path)
     }
 }
 
-DEFINE_TESTCASE(compactnorenumber1, compact && generated) {
+// With multi the docids in the shards change the behaviour.
+DEFINE_TESTCASE(compactnorenumber1, compact && generated && !multi) {
     string a = get_database_path("compactnorenumber1a", make_sparse_db,
 				 "5-7 24 76 987 1023-1027 9999 !9999");
     string a_uuid;

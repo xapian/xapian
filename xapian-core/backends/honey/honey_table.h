@@ -21,6 +21,10 @@
 #ifndef XAPIAN_INCLUDED_HONEY_TABLE_H
 #define XAPIAN_INCLUDED_HONEY_TABLE_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #define SSTINDEX_ARRAY
 //#define SSTINDEX_BINARY_CHOP
 //#define SSTINDEX_SKIPLIST
@@ -666,7 +670,7 @@ class HoneyTable {
     bool is_open() const { return store.is_open(); }
 
     static void throw_database_closed() {
-	throw Xapian::DatabaseError("Closed!");
+	throw Xapian::DatabaseClosedError("Closed!");
     }
 
     honey_tablesize_t get_entry_count() const { return num_entries; }

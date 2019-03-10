@@ -4,7 +4,7 @@
 -- basic functionality successfully.
 --
 -- Copyright (C) 2011 Xiaona Han
--- Copyright (C) 2011,2012,2014,2016,2017 Olly Betts
+-- Copyright (C) 2011,2012,2014,2016,2017,2019 Olly Betts
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -61,6 +61,9 @@ function run_tests()
   db2 = xapian.WritableDatabase("", xapian.DB_BACKEND_INMEMORY)
   db:add_document(doc)
   enq = xapian.Enquire(db)
+
+  -- Check Xapian::BAD_VALUENO is wrapped suitably.
+  enq:set_collapse_key(xapian.BAD_VALUENO)
 
   it = db:positionlist_begin(1, "is")
   _end = db:positionlist_end(1, "is")
@@ -185,13 +188,6 @@ function run_tests()
   qp = xapian.QueryParser()
   rpdate = xapian.DateRangeProcessor(1, xapian.RP_DATE_PREFER_MDY, 1960)
   qp:add_rangeprocessor(rpdate)
-  query = qp:parse_query("12/03/99..12/04/01")
-  expect(tostring(query), "Query(VALUE_RANGE 1 19991203 20011204)")
-
-  -- Check DateValueRangeProcessor works
-  qp = xapian.QueryParser()
-  vrpdate = xapian.DateValueRangeProcessor(1, true, 1960)
-  qp:add_valuerangeprocessor(vrpdate)
   query = qp:parse_query("12/03/99..12/04/01")
   expect(tostring(query), "Query(VALUE_RANGE 1 19991203 20011204)")
 

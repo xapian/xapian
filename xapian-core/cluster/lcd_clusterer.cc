@@ -34,7 +34,21 @@
 using namespace Xapian;
 using namespace std;
 
-typedef set<pair<Point, double>> PSet;
+struct pcompare {
+    bool operator()(const pair<Point, double>& a,
+		    const pair<Point, double>& b) const {
+	return a.second > b.second;
+    }
+};
+
+typedef set<pair<Point, double>, pcompare> PSet;
+
+struct dcompare {
+    bool operator()(const pair<PSet::iterator, double>& a,
+		    const pair<PSet::iterator, double>& b) const {
+	return a.second < b.second;
+    }
+};
 
 LCDClusterer::LCDClusterer(unsigned int k_)
     : k(k_)
@@ -51,20 +65,6 @@ LCDClusterer::get_description() const
     return "LCDClusterer()";
 }
 
-struct pcompare {
-    bool operator() (const pair<Point, double> &a,
-		     const pair<Point, double> &b) const {
-	return a.second > b.second;
-    }
-};
-
-struct dcompare {
-    bool operator() (const pair<PSet::iterator, double> &a,
-		     const pair<PSet::iterator, double> &b) const {
-	return a.second < b.second;
-    }
-};
-
 ClusterSet
 LCDClusterer::cluster(const MSet &mset)
 {
@@ -78,7 +78,7 @@ LCDClusterer::cluster(const MSet &mset)
     // Store each document and its rel score from given mset
     set<pair<Point, double>, pcompare> points;
 
-    // Initiliase points
+    // Initialise points
     TermListGroup tlg(mset);
     for (MSetIterator it = mset.begin(); it != mset.end(); ++it)
 	points.emplace(Point(tlg, it.get_document()), it.get_weight());
@@ -104,12 +104,13 @@ LCDClusterer::cluster(const MSet &mset)
     unsigned x = (size / k_) + 1;
     AssertEq(n * (x - 1) + (k_ - n) * x, size);
 
-    for (unsigned int cnum = 1; cnum <= k_; ++cnum) {
+    unsigned cnum = 1;
+    while (true) {
 	// Container for new cluster
 	Cluster new_cluster;
 
 	// Select (num_points - 1) nearest points to cluster_center from
-	// from 'points' and form a new cluster
+	// 'points' and form a new cluster
 	unsigned int num_points = cnum <= n ? x - 1 : x;
 
 	// Store distances of each point from current cluster center
@@ -135,21 +136,22 @@ LCDClusterer::cluster(const MSet &mset)
 	    points.erase(piterator);
 	}
 
-	// Now select a new cluster center which is the point that is
-	// farthest away from the current cluster center
-	PSet::iterator new_cluster_center = dist_vector.back().first;
-
 	// Add cluster_center to current cluster
 	new_cluster.add_point(cluster_center->first);
 
 	// Add cluster to cset
 	cset.add_cluster(new_cluster);
 
+	if (cnum == k_) break;
+
 	// Remove current cluster_center from points
 	points.erase(cluster_center);
 
-	// Update current cluster center
-	cluster_center = new_cluster_center;
+	// Select a new cluster center which is the point that is farthest away
+	// from the current cluster center
+	cluster_center = dist_vector.back().first;
+
+	++cnum;
     }
 
     return cset;

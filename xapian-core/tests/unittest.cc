@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include <cctype>
+#include <cerrno>
 #include <cfloat>
 #include <climits>
 #include <cmath>
@@ -383,7 +384,7 @@ static bool test_serialiselength2()
 // Check serialisation of Xapian::Error.
 static bool test_serialiseerror1()
 {
-    string enoent_msg(strerror(ENOENT));
+    string enoent_msg = errno_to_string(ENOENT);
     Xapian::DatabaseOpeningError e("Failed to open database", ENOENT);
     // Regression test for bug in 1.0.0 - it didn't convert errno values for
     // get_description() if they hadn't already been converted.

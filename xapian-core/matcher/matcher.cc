@@ -1,7 +1,7 @@
 /** @file matcher.cc
  * @brief Matcher class
  */
-/* Copyright (C) 2006,2008,2009,2010,2011,2017,2018 Olly Betts
+/* Copyright (C) 2006,2008,2009,2010,2011,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@
 #endif
 
 #include <algorithm>
+#include <cerrno>
 #include <cfloat> // For DBL_EPSILON.
 #include <vector>
 
@@ -348,6 +349,7 @@ Matcher::get_local_mset(Xapian::doccount first,
     postlists.reserve(locals.size());
     PostListTree pltree(vsdoc, db, wtscheme);
     Xapian::termcount total_subqs = 0;
+    bool all_null = true;
     for (size_t i = 0; i != locals.size(); ++i) {
 	if (!locals[i].get()) {
 	    postlists.push_back(NULL);
@@ -360,12 +362,22 @@ Matcher::get_local_mset(Xapian::doccount first,
 	Xapian::termcount total_subqs_i = 0;
 	PostList* pl = locals[i]->get_postlist(&pltree, &total_subqs_i);
 	total_subqs = max(total_subqs, total_subqs_i);
-	if (mdecider) {
-	    pl = new DeciderPostList(pl, mdecider, &vsdoc, &pltree);
+	if (pl != NULL) {
+	    all_null = false;
+	    if (mdecider) {
+		pl = new DeciderPostList(pl, mdecider, &vsdoc, &pltree);
+	    }
 	}
 	postlists.push_back(pl);
     }
     Assert(!postlists.empty());
+
+    if (all_null) {
+	vector<Result> dummy;
+	return Xapian::MSet(new Xapian::MSet::Internal(first, 0, 0, 0, 0, 0, 0,
+						       0.0, 0.0,
+						       std::move(dummy), 0));
+    }
 
     Xapian::doccount n_shards = postlists.size();
     pltree.set_postlists(&postlists[0], n_shards);
@@ -490,7 +502,7 @@ Matcher::get_local_mset(Xapian::doccount first,
 	    new_item.set_weight(weight);
 	}
 
-	if (!proto_mset.process(new_item, vsdoc))
+	if (!proto_mset.process(std::move(new_item), vsdoc))
 	    break;
     }
 
@@ -646,7 +658,7 @@ Matcher::get_mset(Xapian::doccount first,
 	if (first) {
 	    --first;
 	} else {
-	    merged_mset.internal->items.push_back(result);
+	    merged_mset.internal->items.push_back(std::move(result));
 	}
 	auto n = msets.front().second + 1;
 	if (n == msets.front().first.size()) {

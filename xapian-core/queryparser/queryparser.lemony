@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -421,7 +421,13 @@ add_to_query(Query *& q, Query::op op, Query * term)
 {
     Assert(term);
     if (q) {
-	*q = Query(op, *q, *term);
+	if (op == Query::OP_OR) {
+	    *q |= *term;
+	} else if (op == Query::OP_AND) {
+	    *q &= *term;
+	} else {
+	    *q = Query(op, *q, *term);
+	}
 	delete term;
     } else {
 	q = term;
@@ -432,7 +438,13 @@ static void
 add_to_query(Query *& q, Query::op op, const Query & term)
 {
     if (q) {
-	*q = Query(op, *q, term);
+	if (op == Query::OP_OR) {
+	    *q |= term;
+	} else if (op == Query::OP_AND) {
+	    *q &= term;
+	} else {
+	    *q = Query(op, *q, term);
+	}
     } else {
 	q = new Query(term);
     }
@@ -450,7 +462,7 @@ Term::get_query() const
     list<string>::const_iterator piter = prefixes.begin();
     Query q(make_term(*piter), 1, pos);
     while (++piter != prefixes.end()) {
-	q = Query(Query::OP_OR, q, Query(make_term(*piter), 1, pos));
+	q |= Query(make_term(*piter), 1, pos);
     }
     return q;
 }
@@ -511,21 +523,44 @@ Term::as_partial_query(State * state_) const
 Query *
 Term::as_cjk_query() const
 {
+    const list<string> & prefixes = field_info->prefixes;
+    Query *q;
+
+#ifdef USE_ICU
+    if (state->flags & QueryParser::FLAG_CJK_WORDS) {
+	vector<Query> prefix_cjk;
+	list<string>::const_iterator piter;
+
+	for (CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
+	    const string& token = *tk;
+	    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+		prefix_cjk.push_back(Query(*piter + token, 1, pos));
+	    }
+	}
+
+	q = new Query(Query::OP_AND, prefix_cjk.begin(), prefix_cjk.end());
+
+	delete this;
+	return q;
+    }
+#endif
+
     vector<Query> prefix_subqs;
     vector<Query> cjk_subqs;
-    const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
+
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	const string& prefix = *piter;
-	for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
+
+	for (CJKNgramIterator tk(name); tk != CJKNgramIterator(); ++tk) {
 	    cjk_subqs.push_back(Query(prefix + *tk, 1, pos));
 	}
 	prefix_subqs.push_back(Query(Query::OP_AND,
 				     cjk_subqs.begin(), cjk_subqs.end()));
 	cjk_subqs.clear();
     }
-    Query * q = new Query(Query::OP_OR,
-			  prefix_subqs.begin(), prefix_subqs.end());
+    q = new Query(Query::OP_OR, prefix_subqs.begin(), prefix_subqs.end());
+
     delete this;
     return q;
 }
@@ -711,7 +746,7 @@ is_extended_wildcard(unsigned ch, unsigned flags)
 
 string
 QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
-				  bool cjk_ngram, unsigned flags,
+				  bool cjk_enable, unsigned flags,
 				  bool & is_cjk_term, bool &was_acronym,
 				  size_t& first_wildcard,
 				  size_t& char_count)
@@ -743,8 +778,10 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     }
     was_acronym = !term.empty();
 
-    if (cjk_ngram && term.empty() && CJK::codepoint_is_cjk(*it)) {
-	term = CJK::get_cjk(it, char_count);
+    if (cjk_enable && term.empty() && CJK::codepoint_is_cjk(*it)) {
+	const char* cjk = it.raw();
+	char_count = CJK::get_cjk(it);
+	term.assign(cjk, it.raw() - cjk);
 	is_cjk_term = true;
     }
 
@@ -758,7 +795,7 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 	Unicode::append_utf8(term, prevch);
 	char_count = 1;
 	while (++it != end) {
-	    if (cjk_ngram && CJK::codepoint_is_cjk(*it)) break;
+	    if (cjk_enable && CJK::codepoint_is_cjk(*it)) break;
 	    unsigned ch = *it;
 	    if (is_extended_wildcard(ch, flags)) {
 		if (first_wildcard == term.npos) {
@@ -850,7 +887,17 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
+#ifndef USE_ICU
+    // Overall it seems best to check for this up front - otherwise we create
+    // the unhelpful situation where a failure to enable ICU in the build could
+    // be missed because non-CJK queries still work fine.
+    if (flags & FLAG_CJK_WORDS) {
+	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
+					      "building Xapian to use ICU");
+    }
+#endif
+    bool cjk_enable =
+	(flags & (FLAG_CJK_NGRAM|FLAG_CJK_WORDS)) || CJK::is_cjk_enabled();
 
     // Set ranges if we may have to handle ranges in the query.
     bool ranges = !rangeprocs.empty() && (qs.find("..") != string::npos);
@@ -1220,7 +1267,7 @@ phrased_term:
 	bool is_cjk_term = false;
 	size_t first_wildcard = string::npos;
 	size_t term_char_count;
-	string term = parse_term(it, end, cjk_ngram, flags,
+	string term = parse_term(it, end, cjk_enable, flags,
 				 is_cjk_term, was_acronym, first_wildcard,
 				 term_char_count);
 
@@ -1511,8 +1558,11 @@ struct ProbQuery {
 	    // We OR multiple filters with the same prefix if they're
 	    // exclusive, otherwise we AND them.
 	    bool exclusive = !grouping.empty();
-	    Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
-	    q = Query(op, q, qnew);
+	    if (exclusive) {
+		q |= qnew;
+	    } else {
+		q &= qnew;
+	    }
 	}
     }
 
@@ -1522,7 +1572,7 @@ struct ProbQuery {
 
     void append_filter_range(const string& grouping, const Query & range) {
 	Query & q = filter[grouping];
-	q = Query(Query::OP_OR, q, range);
+	q |= range;
     }
 
     Query merge_filters() const {
@@ -1530,7 +1580,7 @@ struct ProbQuery {
 	Assert(i != filter.end());
 	Query q = i->second;
 	while (++i != filter.end()) {
-	    q = Query(Query::OP_AND, q, i->second);
+	    q &= i->second;
 	}
 	return q;
     }
@@ -1820,6 +1870,17 @@ class Terms {
 void
 Term::as_positional_cjk_term(Terms * terms) const
 {
+#ifdef USE_ICU
+    if (state->flags & QueryParser::FLAG_CJK_WORDS) {
+	for (CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
+	    const string& t = *tk;
+	    Term * c = new Term(state, t, field_info, unstemmed, stem, pos);
+	    terms->add_positional_term(c);
+	}
+	delete this;
+	return;
+    }
+#endif
     // Add each individual CJK character to the phrase.
     string t;
     for (Utf8Iterator it(name); it != Utf8Iterator(); ++it) {
@@ -1834,17 +1895,14 @@ Term::as_positional_cjk_term(Terms * terms) const
     delete this;
 }
 
-// Helper macro for converting a boolean operation into a Xapian::Query.
-#define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
+// Helper macro to check for missing arguments to a boolean operator.
+#define VET_BOOL_ARGS(A, B, OP_TXT) \
     do {\
 	if (!A || !B) {\
 	    state->error = "Syntax: <expression> " OP_TXT " <expression>";\
 	    yy_parse_failed(yypParser);\
 	    return;\
 	}\
-	E = new Query(OP, *A, *B);\
-	delete A;\
-	delete B;\
     } while (0)
 
 }
@@ -1928,28 +1986,45 @@ query ::= . {
 
 expr(E) ::= prob_expr(E).
 
-expr(E) ::= bool_arg(A) AND bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND, B, "AND"); }
+expr(A) ::= bool_arg(A) AND bool_arg(B). {
+    VET_BOOL_ARGS(A, B, "AND");
+    *A &= *B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) NOT bool_arg(B). {
+expr(A) ::= bool_arg(A) NOT bool_arg(B). {
     // 'NOT foo' -> '<alldocuments> NOT foo'
     if (!A && (state->flags & QueryParser::FLAG_PURE_NOT)) {
 	A = new Query("", 1, 0);
     }
-    BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT");
+    VET_BOOL_ARGS(A, B, "NOT");
+    *A &= ~*B;
+    delete B;
 }
 
-expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+expr(A) ::= bool_arg(A) AND NOT bool_arg(B). [NOT] {
+    VET_BOOL_ARGS(A, B, "AND NOT");
+    *A &= ~*B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) AND HATE_AFTER_AND bool_arg(B). [AND]
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND"); }
+expr(A) ::= bool_arg(A) AND HATE_AFTER_AND bool_arg(B). [AND] {
+    VET_BOOL_ARGS(A, B, "AND");
+    *A &= ~*B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) OR bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }
+expr(A) ::= bool_arg(A) OR bool_arg(B). {
+    VET_BOOL_ARGS(A, B, "OR");
+    *A |= *B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) XOR bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_XOR, B, "XOR"); }
+expr(A) ::= bool_arg(A) XOR bool_arg(B). {
+    VET_BOOL_ARGS(A, B, "XOR");
+    *A ^= *B;
+    delete B;
+}
 
 // bool_arg - an argument to a boolean operator such as AND or OR.
 
@@ -2115,7 +2190,7 @@ prob(P) ::= stop_prob(P) LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     // We OR filters with the same prefix...
     Query & q = P->filter[T->get_grouping()];
-    q = Query(Query::OP_OR, q, T->get_query());
+    q |= T->get_query();
     delete T;
 }
 
@@ -2310,5 +2385,4 @@ adj_expr(P) ::= adj_expr(P) ADJ(N) TERM(T). {
     }
 }
 
-// Select yacc syntax highlighting in vim editor: vim: syntax=yacc
-// (lemon syntax colouring isn't supplied by default; yacc does an OK job).
+// Select lemon syntax highlighting in vim editor: vim: syntax=lemon

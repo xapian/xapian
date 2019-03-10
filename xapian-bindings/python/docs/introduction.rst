@@ -307,47 +307,6 @@ useful) would be as follows:
     def __call__(self, doc):
       return 1
 
-ValueRangeProcessors
-####################
-
-The ValueRangeProcessor class (and its subclasses) provide an operator() method
-(which is exposed in python as a __call__() method, making the class instances
-into callables).  This method checks whether a beginning and end of a range are
-in a format understood by the ValueRangeProcessor, and if so, converts the
-beginning and end into strings which sort appropriately.  ValueRangeProcessors
-can be defined in python (and then passed to the QueryParser), or there are
-several default built-in ones which can be used.
-
-Unfortunately, in C++ the operator() method takes two std::string arguments by
-reference, and returns values by modifying these arguments.  This is not
-possible in Python, since strings are immutable objects.  Instead, in the
-Python implementation, when the __call__ method is called, the resulting values
-of these arguments are returned as part of a tuple.  The operator() method in
-C++ returns a value number; the return value of __call__ in python consists of
-a 3-tuple starting with this value number, followed by the returned "begin"
-value, followed by the returned "end" value.  For example:
-
-::
-
-  vrp = xapian.NumberValueRangeProcessor(0, '$', True)
-  a = '$10'
-  b = '20'
-  slot, a, b = vrp(a, b)
-
-Additionally, a ValueRangeProcessor may be implemented in Python.  The Python
-implementation should override the __call__() method with its own
-implementation, and, again, since it cannot return values by reference, it
-should return a tuple of (value number, begin, end).  For example:
-
-::
-
-  class MyVRP(xapian.ValueRangeProcessor):
-      def __init__(self):
-          xapian.ValueRangeProcessor.__init__(self)
-      def __call__(self, begin, end):
-          return (7, "A"+begin, "B"+end)
-
-
 Apache and mod_python/mod_wsgi
 ##############################
 

@@ -54,7 +54,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
      */
     FeatureList();
 
-    /** Constructor initialsing with custom Feature objects.
+    /** Constructor initialising with custom Feature objects.
      *
      * @param f Vector of Feature pointer objects.
      * e.g. vector<Feature*> features;

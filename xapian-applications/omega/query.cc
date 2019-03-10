@@ -5,7 +5,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -275,6 +275,10 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 	    case 'c':
 		if (strcmp(s, "cjk_ngram") == 0) {
 		    mask = Xapian::QueryParser::FLAG_CJK_NGRAM;
+		    break;
+		}
+		if (strcmp(s, "cjk_words") == 0) {
+		    mask = Xapian::QueryParser::FLAG_CJK_WORDS;
 		    break;
 		}
 		break;
@@ -1484,8 +1488,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (denom == 0) {
 		    value = "divide by 0";
 		} else {
-		    value = str(string_to_int(args[0]) /
-				string_to_int(args[1]));
+		    value = str(string_to_int(args[0]) / denom);
 		}
 		break;
 	    }
@@ -1941,8 +1944,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (denom == 0) {
 		    value = "divide by 0";
 		} else {
-		    value = str(string_to_int(args[0]) %
-				string_to_int(args[1]));
+		    value = str(string_to_int(args[0]) % denom);
 		}
 		break;
 	    }

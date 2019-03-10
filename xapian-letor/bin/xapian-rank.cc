@@ -204,7 +204,7 @@ try {
     ranker->set_database_path(db_path);
     ranker->set_query(query);
 
-    // Get vector of re-ranked docids
+    // Re-rank the existing mset using the letor model.
     ranker->rank(mset, model_metadata_key);
 
     cout << "Docids after re-ranking by LTR model:\n" << endl;

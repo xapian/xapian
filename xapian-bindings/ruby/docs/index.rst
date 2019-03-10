@@ -44,12 +44,12 @@ the Ruby process to segfault.
 Unicode Support
 ###############
 
-In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
-Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
-to index strings in a different encoding, use the Ruby
-`Iconv Class <http://www.ruby-doc.org/stdlib/libdoc/iconv/rdoc/index.html>`_
-to convert them to UTF-8 before passing them to Xapian, and
-when reading values back from Xapian.
+In Xapian 1.0.0 and later, the ``Xapian::Stem``, ``Xapian::QueryParser``, and
+``Xapian::TermGenerator`` classes all assume text is in UTF-8.  If you want
+to index or search for strings in a different encoding, convert them to UTF-8
+before passing them to Xapian, and when getting strings back from Xapian.
+The recommended way to do this is using the `String#encode
+<https://ruby-doc.org/core/String.html#method-i-encode>`_ method.
 
 .. Exceptions
 .. ##########

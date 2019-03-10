@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2014 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2014,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -206,14 +206,14 @@ Xapian::termcount
 GlassTermList::positionlist_count() const
 {
     LOGCALL(DB, Xapian::termcount, "GlassTermList::positionlist_count", NO_ARGS);
-    RETURN(db->position_table.positionlist_count(did, current_term));
+    RETURN(db->positionlist_count(did, current_term));
 }
 
 PositionList*
 GlassTermList::positionlist_begin() const
 {
     LOGCALL(DB, PositionList*, "GlassTermList::positionlist_begin", NO_ARGS);
-    RETURN(new GlassPositionList(&db->position_table, did, current_term));
+    RETURN(db->open_position_list(did, current_term));
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN

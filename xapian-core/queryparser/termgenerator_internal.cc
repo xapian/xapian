@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -131,6 +131,45 @@ check_suffix(unsigned ch)
     return 0;
 }
 
+template<typename ACTION> bool
+parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
+	  ACTION action)
+{
+    static_assert(int(MSet::SNIPPET_CJK_WORDS) == TermGenerator::FLAG_CJK_WORDS,
+		  "CJK_WORDS flags have same value");
+#ifdef USE_ICU
+    if (cjk_flags & MSet::SNIPPET_CJK_WORDS) {
+	const char* cjk_start = itor.raw();
+	(void)CJK::get_cjk(itor);
+	size_t cjk_left = itor.raw() - cjk_start;
+	for (CJKWordIterator tk(cjk_start, cjk_left);
+	     tk != CJKWordIterator();
+	     ++tk) {
+	    const string& cjk_token = *tk;
+	    cjk_left -= cjk_token.length();
+	    if (!action(cjk_token, with_positions, itor.left() + cjk_left))
+		return false;
+	}
+	return true;
+    }
+#else
+    (void)cjk_flags;
+#endif
+
+    CJKNgramIterator tk(itor);
+    while (tk != CJKNgramIterator()) {
+	const string& cjk_token = *tk;
+	// FLAG_CJK_NGRAM only sets positions for tokens of length 1.
+	bool with_pos = with_positions && tk.unigram();
+	if (!action(cjk_token, with_pos, tk.get_utf8iterator().left()))
+	    return false;
+	++tk;
+    }
+    // Update itor to end of CJK text span.
+    itor = tk.get_utf8iterator();
+    return true;
+}
+
 /** Templated framework for processing terms.
  *
  *  Calls action(term, positional) for each term to add, where term is a
@@ -139,7 +178,8 @@ check_suffix(unsigned ch)
  */
 template<typename ACTION>
 static void
-parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION action)
+parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions,
+	    ACTION action)
 {
     while (true) {
 	// Advance to the start of the next term.
@@ -174,15 +214,9 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 	}
 
 	while (true) {
-	    if (cjk_ngram &&
-		CJK::codepoint_is_cjk(*itor) &&
-		Unicode::is_wordchar(*itor)) {
-		const string & cjk = CJK::get_cjk(itor);
-		for (CJKTokenIterator tk(cjk); tk != CJKTokenIterator(); ++tk) {
-		    const string & cjk_token = *tk;
-		    if (!action(cjk_token, with_positions && tk.get_length() == 1, itor))
-			return;
-		}
+	    if (cjk_flags && CJK::codepoint_is_cjk_wordchar(*itor)) {
+		if (!parse_cjk(itor, cjk_flags, with_positions, action))
+		    return;
 		while (true) {
 		    if (itor == Utf8Iterator()) return;
 		    ch = check_wordchar(*itor);
@@ -196,7 +230,7 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 		Unicode::append_utf8(term, ch);
 		prevch = ch;
 		if (++itor == Utf8Iterator() ||
-		    (cjk_ngram && CJK::codepoint_is_cjk(*itor)))
+		    (cjk_flags && CJK::codepoint_is_cjk(*itor)))
 		    goto endofterm;
 		ch = check_wordchar(*itor);
 	    } while (ch);
@@ -237,7 +271,7 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 	}
 
 endofterm:
-	if (!action(term, with_positions, itor))
+	if (!action(term, with_positions, itor.left()))
 	    return;
     }
 }
@@ -246,7 +280,16 @@ void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
-    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
+#ifndef USE_ICU
+    if (flags & FLAG_CJK_WORDS) {
+	throw Xapian::FeatureUnavailableError("FLAG_CJK_WORDS requires "
+					      "building Xapian to use ICU");
+    }
+#endif
+    unsigned cjk_flags = flags & (FLAG_CJK_NGRAM | FLAG_CJK_WORDS);
+    if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
+	cjk_flags = FLAG_CJK_NGRAM;
+    }
 
     stop_strategy current_stop_mode;
     if (!stopper.get()) {
@@ -255,8 +298,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	current_stop_mode = stop_mode;
     }
 
-    parse_terms(itor, cjk_ngram, with_positions,
-	[=](const string & term, bool positional, const Utf8Iterator &) {
+    parse_terms(itor, cjk_flags, with_positions,
+	[=](const string & term, bool positional, size_t) {
 	    if (term.size() > max_word_length) return true;
 
 	    if (current_stop_mode == TermGenerator::STOP_ALL && (*stopper)(term))
@@ -517,7 +560,7 @@ SnipPipe::drain(const string & input,
 
 	// See if this is the end of a sentence.
 	// FIXME: This is quite simplistic - look at the Unicode rules:
-	// http://unicode.org/reports/tr29/#Sentence_Boundaries
+	// https://unicode.org/reports/tr29/#Sentence_Boundaries
 	bool punc = false;
 	Utf8Iterator i(input.data() + best_end, tail_len);
 	while (i != Utf8Iterator()) {
@@ -708,7 +751,17 @@ MSet::Internal::snippet(const string & text,
 	return text;
     }
 
-    bool cjk_ngram = CJK::is_cjk_enabled();
+#ifndef USE_ICU
+    if (flags & MSet::SNIPPET_CJK_WORDS) {
+	throw Xapian::FeatureUnavailableError("SNIPPET_CJK_WORDS requires "
+					      "building Xapian to use ICU");
+    }
+#endif
+    auto SNIPPET_CJK_MASK = MSet::SNIPPET_CJK_NGRAM | MSet::SNIPPET_CJK_WORDS;
+    unsigned cjk_flags = flags & SNIPPET_CJK_MASK;
+    if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
+	cjk_flags = MSet::SNIPPET_CJK_NGRAM;
+    }
 
     size_t term_start = 0;
     double min_tw = 0, max_tw = 0;
@@ -755,8 +808,8 @@ MSet::Internal::snippet(const string & text,
     if (longest_phrase) phrase.resize(longest_phrase - 1);
     size_t phrase_next = 0;
     bool matchfound = false;
-    parse_terms(Utf8Iterator(text), cjk_ngram, true,
-	[&](const string & term, bool positional, const Utf8Iterator & it) {
+    parse_terms(Utf8Iterator(text), cjk_flags, true,
+	[&](const string & term, bool positional, size_t left) {
 	    // FIXME: Don't hardcode this here.
 	    const size_t max_word_length = 64;
 
@@ -766,7 +819,7 @@ MSet::Internal::snippet(const string & text,
 	    // We get segments with any "inter-word" characters in front of
 	    // each word, e.g.:
 	    // [The][ cat][ sat][ on][ the][ mat]
-	    size_t term_end = text.size() - it.left();
+	    size_t term_end = text.size() - left;
 
 	    double* relevance = 0;
 	    size_t highlight = 0;

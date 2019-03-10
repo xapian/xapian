@@ -1,16 +1,10 @@
-# Right now, we build on containerised linux, which defaults to the
-# ancient Ubuntu 12.04 LTS.  Specify "dist: trusty" so we get something
-# which is "only" 2.5 years old.
-dist: trusty
-sudo: false
+dist: xenial
 language: cpp
 notifications:
   irc: "chat.freenode.net#xapian-devel"
 env:
   global:
-    # Tell bootstrap where to clone ./common from
-    - XAPIAN_COMMON_CLONE_URL=https://github.com/xapian/xapian.git
-    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libmagic pcre libsvm lua mono python2 python'
+    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libiconv libmagic pcre libsvm lua mono python2 python icu4c'
 matrix:
   include:
     - compiler: gcc
@@ -27,13 +21,16 @@ matrix:
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
-            - lua5.2
-            - liblua5.2-dev
+            - lua5.3
+            - liblua5.3-dev
             - mono-devel
             - python-dev
             - python3-dev
             - tcl
             - libsvm-dev
+            - libicu-dev
+            - pkg-config
+      env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
       # Clang is already installed, but we want to build using the
@@ -54,9 +51,62 @@ matrix:
             - tcl
             - libsvm-dev
             - libc++-dev
+            - libicu-dev
+            - pkg-config
       # We also have to disable an error, because (older?)
       # perl header files don't play nicely with clang.
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS=-Wno-error=reserved-user-defined-literal
+    - compiler: gcc
+      os: linux
+      # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
+      # aim to support.
+      dist: trusty
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - lua5.2
+            - liblua5.2-dev
+            - mono-devel
+            - python-dev
+            - python3-dev
+            - tcl
+            - libsvm-dev
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - python-pygments
+            - pngcrush
+      language: node_js
+      node_js:
+        - node
+      services:
+        - docker
+      before_script:
+        # Bootstrap only xapian-core for emscripten build.
+        - ./bootstrap xapian-core
+        - ./configure CXXFLAGS=-O0 --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
+        - make -j2
+        - make -j2 distclean
+        - cd xapian-core
+        - docker run -v $(pwd):/src trzeci/emscripten emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti' --disable-backend-honey --disable-backend-inmemory --disable-shared --disable-backend-remote
+      script:
+        - docker run -v $(pwd):/src trzeci/emscripten emmake make
+        - docker run -v $(pwd):/src trzeci/emscripten em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
+        - cd emscripten && node xapianjstest.js
     - os: osx
       before_install:
         - brew update
@@ -72,7 +122,7 @@ matrix:
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
-      env: PYTHON2=/usr/local/bin/python2 CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
+      env: PYTHON2=/usr/local/bin/python2 CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"

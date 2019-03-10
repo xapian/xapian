@@ -845,49 +845,6 @@ def test_spell():
     dbr.close()
     shutil.rmtree(dbpath)
 
-def test_queryparser_custom_vrp():
-    """Test QueryParser with a custom (in python) ValueRangeProcessor.
-
-    """
-    class MyVRP(xapian.ValueRangeProcessor):
-        def __init__(self):
-            xapian.ValueRangeProcessor.__init__(self)
-
-        def __call__(self, begin, end):
-            return (7, "A"+begin, "B"+end)
-
-    queryparser = xapian.QueryParser()
-    myvrp = MyVRP()
-
-    queryparser.add_valuerangeprocessor(myvrp)
-    query = queryparser.parse_query('5..8')
-
-    expect(str(query),
-           'Query(VALUE_RANGE 7 A5 B8)')
-
-def test_queryparser_custom_vrp_deallocation():
-    """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
-
-    """
-    class MyVRP(xapian.ValueRangeProcessor):
-        def __init__(self):
-            xapian.ValueRangeProcessor.__init__(self)
-
-        def __call__(self, begin, end):
-            return (7, "A"+begin, "B"+end)
-
-    def make_parser():
-        queryparser = xapian.QueryParser()
-        myvrp = MyVRP()
-        queryparser.add_valuerangeprocessor(myvrp)
-        return queryparser
-
-    queryparser = make_parser()
-    query = queryparser.parse_query('5..8')
-
-    expect(str(query),
-           'Query(VALUE_RANGE 7 A5 B8)')
-
 def test_queryparser_custom_rp():
     """Test QueryParser with a custom (in python) RangeProcessor.
 
@@ -1324,7 +1281,7 @@ def test_value_mods():
     check_vals(db, vals)
 
     db.close()
-    expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
+    expect_exception(xapian.DatabaseClosedError, "Database has been closed", check_vals, db, vals)
     shutil.rmtree(dbpath)
 
 def test_serialise_document():
@@ -1696,12 +1653,14 @@ def test_repr():
     expect(repr(xapian.InvalidOperationError('foo')) is None, False)
     expect(repr(xapian.UnimplementedError('foo')) is None, False)
     expect(repr(xapian.DatabaseError('foo')) is None, False)
+    expect(repr(xapian.DatabaseClosedError('foo')) is None, False)
     expect(repr(xapian.DatabaseCorruptError('foo')) is None, False)
     expect(repr(xapian.DatabaseCreateError('foo')) is None, False)
     expect(repr(xapian.DatabaseLockError('foo')) is None, False)
     expect(repr(xapian.DatabaseModifiedError('foo')) is None, False)
     expect(repr(xapian.DatabaseOpeningError('foo')) is None, False)
     expect(repr(xapian.DatabaseVersionError('foo')) is None, False)
+    expect(repr(xapian.DatabaseNotFoundError('foo')) is None, False)
     expect(repr(xapian.DocNotFoundError('foo')) is None, False)
     expect(repr(xapian.FeatureUnavailableError('foo')) is None, False)
     expect(repr(xapian.InternalError('foo')) is None, False)
@@ -1724,9 +1683,6 @@ def test_repr():
     expect(repr(xapian.RangeProcessor()) is None, False)
     expect(repr(xapian.DateRangeProcessor(1)) is None, False)
     expect(repr(xapian.NumberRangeProcessor(1)) is None, False)
-    expect(repr(xapian.StringValueRangeProcessor(1)) is None, False)
-    expect(repr(xapian.DateValueRangeProcessor(1)) is None, False)
-    expect(repr(xapian.NumberValueRangeProcessor(1)) is None, False)
     expect(repr(xapian.QueryParser()) is None, False)
     expect(repr(xapian.BoolWeight()) is None, False)
     expect(repr(xapian.TfIdfWeight()) is None, False)

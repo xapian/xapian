@@ -10,7 +10,7 @@
  *  http://berghel.net/publications/asm/asm.php
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007,2008,2009,2017 Olly Betts
+ * Copyright (C) 2007,2008,2009,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include "omassert.h"
 
 #include <algorithm>
+#include <climits>
 #include <cstdlib>
 #include <cstring>
 
@@ -49,10 +50,10 @@ struct edist_seq {
 template<class CHR>
 class edist_state {
     /// Don't allow assignment.
-    void operator=(const edist_state &);
+    edist_state& operator=(const edist_state&) = delete;
 
     /// Don't allow copying.
-    edist_state(const edist_state &);
+    edist_state(const edist_state&) = delete;
 
     edist_seq<CHR> seq1;
     edist_seq<CHR> seq2;
@@ -74,10 +75,27 @@ class edist_state {
     }
 
   public:
-
-    edist_state(const CHR * ptr1, int len1, const CHR * ptr2, int len2);
-
-    ~edist_state();
+    edist_state(const CHR* ptr1, int len1, const CHR* ptr2, int len2,
+		int* fkp_)
+	: seq1(ptr1, len1), seq2(ptr2, len2), fkp(fkp_), maxdist(len2) {
+	Assert(len2 >= len1);
+	// fkp is stored as a rectangular array, row by row.  Each entry
+	// represents a value of p, from -1 to maxdist or the special value
+	// INT_MIN.
+	fkp_cols = maxdist + 2;
+	set_f_kp(0, -1, -1);
+	for (int k = 1; k <= maxdist; ++k) {
+	    for (int p = -1; p <= maxdist; ++p) {
+		if (p == k - 1) {
+		    set_f_kp(k, p, -1);
+		    set_f_kp(-k, p, k - 1);
+		} else if (p < k) {
+		    set_f_kp(k, p, INT_MIN);
+		    set_f_kp(-k, p, INT_MIN);
+		}
+	    }
+	}
+    }
 
     int get_f_kp(int k, int p) const {
 	return fkp[calc_index(k, p)];
@@ -135,44 +153,10 @@ void edist_state<CHR>::edist_calc_f_kp(int k, int p)
     set_f_kp(k, p, maxlen);
 }
 
-#define INF 1000000
-template<class CHR>
-edist_state<CHR>::edist_state(const CHR * ptr1, int len1,
-			      const CHR * ptr2, int len2)
-    : seq1(ptr1, len1), seq2(ptr2, len2), maxdist(len2)
-{
-    Assert(len2 >= len1);
-    /* Each row represents a value of k, from -maxdist to maxdist. */
-    int fkp_rows = maxdist * 2 + 1;
-    /* Each column represents a value of p, from -1 to maxdist. */
-    fkp_cols = maxdist + 2;
-    /* fkp is stored as a rectangular array, row by row. */
-    fkp = new int[fkp_rows * fkp_cols];
-
-    for (int k = -maxdist; k <= maxdist; ++k) {
-	for (int p = -1; p <= maxdist; ++p) {
-	    if (p == abs(k) - 1) {
-		if (k < 0) {
-		    set_f_kp(k, p, abs(k) - 1);
-		} else {
-		    set_f_kp(k, p, -1);
-		}
-	    } else if (p < abs(k)) {
-		set_f_kp(k, p, -INF);
-	    }
-	}
-    }
-}
-
-template<class CHR>
-edist_state<CHR>::~edist_state() {
-    delete [] fkp;
-}
-
 template<class CHR>
 static int
-seqcmp_editdist(const CHR * ptr1, int len1, const CHR * ptr2, int len2,
-		int max_distance)
+seqcmp_editdist(const CHR* ptr1, int len1, const CHR* ptr2, int len2,
+		int* fkp_, int max_distance)
 {
     int lendiff = len2 - len1;
     /* Make sure second sequence is longer (or same length). */
@@ -185,7 +169,7 @@ seqcmp_editdist(const CHR * ptr1, int len1, const CHR * ptr2, int len2,
     /* Special case for if one or both sequences are empty. */
     if (len1 == 0) return len2;
 
-    edist_state<CHR> state(ptr1, len1, ptr2, len2);
+    edist_state<CHR> state(ptr1, len1, ptr2, len2, fkp_);
 
     int p = lendiff; /* This is the minimum possible edit distance. */
     while (p <= max_distance) {
@@ -208,44 +192,43 @@ seqcmp_editdist(const CHR * ptr1, int len1, const CHR * ptr2, int len2,
 }
 
 int
-edit_distance_unsigned(const unsigned * ptr1, int len1,
-		       const unsigned * ptr2, int len2,
-		       int max_distance)
+EditDistanceCalculator::calc(const unsigned* ptr, int len,
+			     int max_distance) const
 {
-    return seqcmp_editdist<unsigned>(ptr1, len1, ptr2, len2, max_distance);
-}
-
-// We sum the character frequency histogram absolute differences to compute a
-// lower bound on the edit distance.  Rather than counting each Unicode code
-// point uniquely, we use an array with VEC_SIZE elements and tally code points
-// modulo VEC_SIZE which can only reduce the bound we calculate.
-//
-// There will be a trade-off between how good the bound is and how large and
-// array is used (a larger array takes more time to clear and sum over).  The
-// value 64 is somewhat arbitrary - it works as well as 128 for the testsuite
-// but that may not reflect real world performance.  FIXME: profile and tune.
-
-#define VEC_SIZE 64
-
-int
-freq_edit_lower_bound(const vector<unsigned> & a, const vector<unsigned> & b)
-{
-    int vec[VEC_SIZE];
-    memset(vec, 0, sizeof(vec));
-    vector<unsigned>::const_iterator i;
-    for (i = a.begin(); i != a.end(); ++i) {
-	++vec[(*i) % VEC_SIZE];
-    }
-    for (i = b.begin(); i != b.end(); ++i) {
-	--vec[(*i) % VEC_SIZE];
+    // Calculate a cheap lower bound on the edit distance by considering
+    // frequency histograms.
+    int freqs[VEC_SIZE];
+    memcpy(freqs, target_freqs, sizeof(freqs));
+    for (int i = 0; i != len; ++i) {
+	unsigned ch = ptr[i];
+	--freqs[ch % VEC_SIZE];
     }
     unsigned int total = 0;
-    for (size_t j = 0; j < VEC_SIZE; ++j) {
-	total += abs(vec[j]);
+    for (int count : freqs) {
+	total += abs(count);
     }
     // Each insertion or deletion adds at most 1 to total.  Each transposition
     // doesn't change it at all.  But each substitution can change it by 2 so
     // we need to divide it by 2.  Rounding up is OK, since the odd change must
     // be due to an actual edit.
-    return (total + 1) / 2;
+    int ed_lower_bound = (total + 1) / 2;
+    if (ed_lower_bound > max_distance) {
+	// It's OK to return any distance > max_distance if the true answer is
+	// > max_distance.
+	return ed_lower_bound;
+    }
+
+    if (!array) {
+	// Allocate space for the largest case we need to consider, which is
+	// when the second sequence is len + max_distance long.  Any second
+	// sequence which is longer must be more than max_distance edits
+	// away.
+	int maxdist = target.size() + max_distance;
+	int max_cols = maxdist * 2;
+	int max_rows = maxdist * 2 + 1;
+	array = new int[max_rows * max_cols];
+    }
+
+    return seqcmp_editdist<unsigned>(ptr, len, &target[0], target.size(),
+				     array, max_distance);
 }

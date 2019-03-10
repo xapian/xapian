@@ -85,7 +85,7 @@ namespace Xapian {
 EOF
 
 for (@allclasses) {
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class) = @{$_};
     print FD "%exceptionclass $class;\n";
 }
 
@@ -105,7 +105,7 @@ SWIGEXPORT void SetPythonException() {
 EOF
 
 for (reverse @allclasses) {
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class) = @{$_};
     print FD <<"EOF";
     } catch (const Xapian::$class &e) {
 	SWIG_Python_Raise(SWIG_NewPointerObj((new Xapian::$class(e)),

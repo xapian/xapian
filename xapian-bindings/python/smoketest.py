@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2015,2016,2017 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2015,2016,2017,2019 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -102,9 +102,9 @@ def test_all():
 
     # Check database factory functions are wrapped as expected:
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
                      xapian.Database, "nosuchdir/nosuchdb", xapian.DB_BACKEND_STUB)
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
                      xapian.WritableDatabase, "nosuchdir/nosuchdb", xapian.DB_OPEN|xapian.DB_BACKEND_STUB)
 
     expect_exception(xapian.NetworkError, None,
@@ -129,6 +129,10 @@ def test_all():
     expect(term_count, 4, "Unexpected number of terms in query2")
 
     enq = xapian.Enquire(db)
+
+    # Check Xapian::BAD_VALUENO is wrapped suitably.
+    enq.set_collapse_key(xapian.BAD_VALUENO)
+
     enq.set_query(xapian.Query(xapian.Query.OP_OR, "there", "is"))
     mset = enq.get_mset(0, 10)
     expect(mset.size(), 1, "Unexpected mset.size()")
@@ -356,23 +360,13 @@ def test_all():
     expect([(item.term, item.wdf, [pos for pos in item.positer]) for item in doc.termlist()], [('bar', 1, [2]), ('baz', 1, [3]), ('foo', 2, [1, 4])])
 
 
-    # Check DateValueRangeProcessor works
-    context("checking that DateValueRangeProcessor works")
+    # Check DateRangeProcessor works
+    context("checking that DateRangeProcessor works")
     qp = xapian.QueryParser()
-    vrpdate = xapian.DateValueRangeProcessor(1, 1, 1960)
-    qp.add_valuerangeprocessor(vrpdate)
+    rpdate = xapian.DateRangeProcessor(1, xapian.RP_DATE_PREFER_MDY, 1960)
+    qp.add_rangeprocessor(rpdate)
     query = qp.parse_query('12/03/99..12/04/01')
     expect(str(query), 'Query(VALUE_RANGE 1 19991203 20011204)')
-
-    # Regression test for bug#193, fixed in 1.0.3.
-    context("running regression test for bug#193")
-    vrp = xapian.NumberValueRangeProcessor(0, '$', True)
-    a = '$10'
-    b = '20'
-    slot, a, b = vrp(a, b)
-    expect(slot, 0)
-    expect(xapian.sortable_unserialise(a), 10)
-    expect(xapian.sortable_unserialise(b), 20)
 
     # Feature test for xapian.FieldProcessor
     context("running feature test for xapian.FieldProcessor")

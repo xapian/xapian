@@ -29,8 +29,6 @@
 // we care about which lack them, we could use wider types with some care
 // around where we read and write them.
 
-typedef uint16_t uint2;
 typedef uint32_t uint4;
-typedef uint64_t uint8;
 
 #endif // XAPIAN_INCLUDED_INTERNALTYPES_H

@@ -13,7 +13,7 @@ the following 3 simple steps:
 Prerequisites
 =============
 
-You'll need to have zlib installed (http://www.zlib.net/) before you can build
+You'll need to have zlib installed (https://www.zlib.net/) before you can build
 Xapian.  The zlib library is very widely used, so you'll probably have it
 installed already if you're using Linux, FreeBSD, or similar, but you may need
 to install a "zlib development" package to get the zlib library headers.
@@ -27,9 +27,13 @@ Xapian also requires a way to generate UUIDs.  On FreeBSD, NetBSD, and
 Microsoft Windows, Xapian makes use of built-in UUID APIs.  On Linux and
 Android, Xapian 1.4.2 and higher can read UUIDs from a special file under
 /proc.  Otherwise you need to install libuuid which you can find in
-util-linux-ng (http://userweb.kernel.org/~kzak/util-linux-ng/).  On Debian and
+util-linux (https://github.com/karelzak/util-linux).  On Debian and
 Ubuntu, the package to install is uuid-dev, while on Fedora, it is
 libuuid-devel (on older Fedora versions you instead need e2fsprogs-devel).
+
+Optionally, ICU can be used for finding words boundaries in CJK text.  This
+is enabled automatically by configure if both ICU 54.1 and pkg-config are
+found.
 
 Compilers
 =========

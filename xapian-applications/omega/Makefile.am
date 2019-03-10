@@ -51,6 +51,7 @@ EXTRA_DIST =\
 	common/Tokeniseise.pm \
 	extra/omegascript.vim \
 	extra/omegascript.vim.in \
+	config.rpath \
 	gen-mimemap \
 	gen-myhtmltags \
 	gen-namedents \
@@ -69,43 +70,6 @@ EXTRA_DIST =\
 	templates/inc/anyalldropbox \
 	templates/inc/anyallradio \
 	templates/inc/toptermsjs \
-	images/nextoff.png \
-	images/next.png \
-	images/page-10.png \
-	images/page-10s.png \
-	images/page-11.png \
-	images/page-11s.png \
-	images/page-1.png \
-	images/page-1s.png \
-	images/page-2.png \
-	images/page-2s.png \
-	images/page-3.png \
-	images/page-3s.png \
-	images/page-4.png \
-	images/page-4s.png \
-	images/page-5.png \
-	images/page-5s.png \
-	images/page-6.png \
-	images/page-6s.png \
-	images/page-7.png \
-	images/page-7s.png \
-	images/page-8.png \
-	images/page-8s.png \
-	images/page-9.png \
-	images/page-9s.png \
-	images/previous.png \
-	images/prevoff.png \
-	images/score-0.png \
-	images/score-10.png \
-	images/score-1.png \
-	images/score-2.png \
-	images/score-3.png \
-	images/score-4.png \
-	images/score-5.png \
-	images/score-6.png \
-	images/score-7.png \
-	images/score-8.png \
-	images/score-9.png \
 	xapian-omega.spec
 
 AM_CPPFLAGS = \
@@ -167,17 +131,22 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h
 
-AM_LDFLAGS = $(NO_UNDEFINED) $(ICONV_LDFLAGS) $(MAGIC_LDFLAGS)
+AM_LDFLAGS = $(NO_UNDEFINED) $(MAGIC_LDFLAGS)
 
 # We want to compile transform.cc with PCRE_CFLAGS, but if this adds a -I for
 # a directory with a different version of iconv, then we get problems (this
-# has been reported on Mac OS X).  So we only add PCRE_CFLAGS when compiling
-# transform.cc, using the convenience library technique suggested by the
-# automake manual.
-noinst_LTLIBRARIES = libtransform.la
+# has been reported on macOS).  We solve this using a technique suggested by
+# the automake manual: compile each of transform.cc and utf8convert.cc into
+# its own convenience library so each only gets its own CPPFLAGS.
+noinst_LTLIBRARIES = libtransform.la libutf8convert.la
+
 libtransform_la_SOURCES = transform.cc
 libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
 libtransform_la_LIBADD = $(PCRE_LIBS)
+
+libutf8convert_la_SOURCES = utf8convert.cc
+libutf8convert_la_CPPFLAGS = $(AM_CPPFLAGS) $(INCICONV)
+libutf8convert_la_LIBADD = $(XAPIAN_LIBS) $(LTLIBICONV)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
@@ -188,7 +157,7 @@ omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
- md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
+ md5wrap.cc xmlparse.cc metaxmlparse.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
  opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc\
@@ -199,13 +168,13 @@ endif
 if NEED_STRPTIME
 omindex_SOURCES += portability/strptime.cc
 endif
-omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS)
+omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
- utf8convert.cc utf8truncate.cc\
+ utf8truncate.cc\
  common/keyword.cc timegm.cc datetime.cc
-scriptindex_LDADD = $(XAPIAN_LIBS)
+scriptindex_LDADD = $(XAPIAN_LIBS) libutf8convert.la
 
 omindex_list_SOURCES = common/getopt.cc omindex-list.cc
 omindex_list_LDADD = $(XAPIAN_LIBS)
@@ -215,18 +184,18 @@ generate_qrel_file_SOURCES = generate-qrel-file.cc clickmodel/simplifieddbn.cc\
 generate_qrel_file_LDADD = $(XAPIAN_LIBS)
 
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
- myhtmlparse.cc utf8convert.cc common/keyword.cc datetime.cc timegm.cc
-atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+ myhtmlparse.cc common/keyword.cc datetime.cc timegm.cc
+atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
- utf8convert.cc common/keyword.cc datetime.cc timegm.cc
-htmlparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+ common/keyword.cc datetime.cc timegm.cc
+htmlparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
 md5test_LDADD = $(NO_INSTALL)
 
-utf8converttest_SOURCES = utf8converttest.cc utf8convert.cc
-utf8converttest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+utf8converttest_SOURCES = utf8converttest.cc
+utf8converttest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
 
 urlenctest_SOURCES = urlenctest.cc urlencode.cc
 urlenctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)

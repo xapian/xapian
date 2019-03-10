@@ -2,7 +2,7 @@
 %{
 /* java.i: SWIG interface file for the Java bindings
  *
- * Copyright (c) 2007,2009,2011,2012,2014,2016,2017,2018 Olly Betts
+ * Copyright (c) 2007,2009,2011,2012,2014,2016,2017,2018,2019 Olly Betts
  * Copyright (c) 2012 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -116,8 +116,6 @@ namespace Xapian {
 %ignore revision;
 
 // For compatibility with the original JNI wrappers.
-// FIXME: These make use of the fact that the default ctor for PostingIterator,
-// TermIterator, and ValueIterator produces an end iterator.
 %extend PostingIterator {
     Xapian::docid next () {
         Xapian::docid tmp;
@@ -139,8 +137,6 @@ namespace Xapian {
         if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
-        } else {
-            tmp = "";
         }
         return tmp;
     }
@@ -154,8 +150,6 @@ namespace Xapian {
         if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
-        } else {
-            tmp = "";
         }
         return tmp;
     }
@@ -169,8 +163,6 @@ namespace Xapian {
 	if (Xapian::iterator_valid(*self)) {
 	    tmp = (**self);
 	    ++(*self);
-	} else {
-	    tmp = "";
 	}
 	return tmp;
     }
@@ -329,16 +321,16 @@ class XapianSWIGQueryItor {
 
 %typemap(javacode) Xapian::Query %{
     // For compatibility with the original JNI wrappers.
-    public final static op OP_AND = new op("OP_AND");
-    public final static op OP_OR = new op("OP_OR");
-    public final static op OP_AND_NOT = new op("OP_AND_NOT");
-    public final static op OP_XOR = new op("OP_XOR");
-    public final static op OP_AND_MAYBE = new op("OP_AND_MAYBE");
-    public final static op OP_FILTER = new op("OP_FILTER");
-    public final static op OP_NEAR = new op("OP_NEAR");
-    public final static op OP_PHRASE = new op("OP_PHRASE");
-    public final static op OP_ELITE_SET = new op("OP_ELITE_SET");
-    public final static op OP_VALUE_RANGE = new op("OP_VALUE_RANGE");
+    public final static op OP_AND = op.OP_AND;
+    public final static op OP_OR = op.OP_OR;
+    public final static op OP_AND_NOT = op.OP_AND_NOT;
+    public final static op OP_XOR = op.OP_XOR;
+    public final static op OP_AND_MAYBE = op.OP_AND_MAYBE;
+    public final static op OP_FILTER = op.OP_FILTER;
+    public final static op OP_NEAR = op.OP_NEAR;
+    public final static op OP_PHRASE = op.OP_PHRASE;
+    public final static op OP_ELITE_SET = op.OP_ELITE_SET;
+    public final static op OP_VALUE_RANGE = op.OP_VALUE_RANGE;
 
     public final static Query MatchAll = new Query("");
     public final static Query MatchNothing = new Query();
@@ -460,3 +452,14 @@ typedef std::string binary_std_string;
 
 %include ../generic/except.i
 %include ../xapian-headers.i
+
+// Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
+// xapian-bindings 1.4.10).
+%rename("getBAD_VALUENO") getBAD_VALUENO;
+%inline %{
+namespace Xapian {
+static Xapian::valueno getBAD_VALUENO() { return Xapian::BAD_VALUENO; }
+}
+%}
+// Can't throw an exception.
+%exception Xapian::getBAD_VALUENO "$action"

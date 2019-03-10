@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-m4_define([project_version], [1.3.0])
+m4_define([project_version], [1.5.0])
 AC_INIT([xapian-letor], project_version, [https://xapian.org/bugs])
 
 AC_PREREQ([2.64])
@@ -403,8 +403,17 @@ AC_SUBST([PERCENT])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
-dnl don't use valgrind.
-if test -n "${VALGRIND-unset}" ; then
+dnl don't use valgrind.  On macOS only use valgrind if VALGRIND is set to a
+dnl no empty value, as valgrind on macOS gives a lot of false positives.
+use_valgrind_if_non_empty=
+case $host in
+  *-*-darwin*)
+    use_valgrind_if_non_empty=$VALGRIND ;;
+  *)
+    use_valgrind_if_non_empty=${VALGRIND-unset} ;;
+esac
+
+if test -n "$use_valgrind_if_non_empty" ; then
   AC_PATH_PROG([VALGRIND], [valgrind], [])
   if test -n "$VALGRIND" ; then
     dnl Check that the installed valgrind version works, and supports the
@@ -414,21 +423,21 @@ if test -n "${VALGRIND-unset}" ; then
     dnl
     dnl No need to check for VALGRIND_COUNT_LEAKS now - that was added before
     dnl 2.0.0.
-    AC_MSG_CHECKING([if valgrind supports --log-file with %p])
+    AC_MSG_CHECKING([if valgrind supports --log-file with %p and --child-silent-after-fork=yes])
     vglog=config.vglog.%p.tmp
     vglogwild="config.vglog.*.tmp*"
     rm -f $vglogwild
-    if $VALGRIND --log-file="$vglog" -q true 2>&AS_MESSAGE_LOG_FD ; then
+    if $VALGRIND --log-file="$vglog" --child-silent-after-fork=yes -q true 2>&AS_MESSAGE_LOG_FD ; then
       for f in $vglogwild ; do
-        case $f in
-    $vglog*) VALGRIND= ;;
-    esac
+	case $f in
+	$vglog*) VALGRIND= ;;
+	esac
       done
       if test x"$VALGRIND" = x ; then
-    AC_MSG_RESULT([no])
+	AC_MSG_RESULT([no])
       else
-    AC_MSG_RESULT([yes])
-    AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
+	AC_MSG_RESULT([yes])
+	AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
       fi
     else
       dnl The valgrind detected doesn't seem to work!  Perhaps this is an

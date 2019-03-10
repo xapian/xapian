@@ -1,7 +1,7 @@
 /** @file quest.cc
  * @brief Command line search tool using Xapian::QueryParser.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2016,2018 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2016,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,6 +56,7 @@ static const qp_flag flag_tab[] = {
     { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
     { "boolean_any_case", Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE },
     { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
+    { "cjk_words", Xapian::QueryParser::FLAG_CJK_WORDS },
     { "default", Xapian::QueryParser::FLAG_DEFAULT },
     { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
     { "partial", Xapian::QueryParser::FLAG_PARTIAL },

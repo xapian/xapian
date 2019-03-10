@@ -357,7 +357,7 @@ io_tmp_rename(const std::string & tmp_file, const std::string & real_file)
     // case someone calls this with files on different devices.
     //
     // We're not sure exactly which kernels are buggy in this way, but there's
-    // discussion here: http://www.spinics.net/lists/linux-nfs/msg17306.html
+    // discussion here: https://www.spinics.net/lists/linux-nfs/msg17306.html
     //
     // Reported at: https://trac.xapian.org/ticket/698
     int retries = 5;

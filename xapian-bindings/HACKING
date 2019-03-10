@@ -47,13 +47,6 @@ Perl
 
 Debian wheezy: all required are packages installed by default.
 
-PHP5
-----
-
-Debian wheezy::
-
-apt-get install php5-dev php5-cli
-
 PHP7
 ----
 
@@ -146,10 +139,8 @@ Currently we don't have an equivalent of the C++ ``XAPIAN_DEPRECATED()`` macro
 for the bindings, but it would be good to have.  Here are some notes on how
 this could be achieved for various languages we support:
 
-  * PHP 5.3 added an E_USER_DEPRECATED error level, and we now require at
-    least 5.5.
-
-    And then in a deprecated method we do:
+  * PHP now has a E_USER_DEPRECATED error level - in a deprecated method we
+    could do::
 
       trigger_error('World::hi() is deprecated, use World::hello() instead', XAPIAN_DEPRECATED);
 

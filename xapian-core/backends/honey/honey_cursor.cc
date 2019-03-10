@@ -24,6 +24,7 @@
 
 #include "honey_cursor.h"
 
+#include <cerrno>
 #include <string>
 
 #ifdef DEBUGGING

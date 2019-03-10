@@ -164,7 +164,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     // macro.  Apple have deprecated check() in favour of __Check() and
     // plan to remove check() in a "future release", but for now prevent
     // expansion of check by adding parentheses in the method prototype:
-    // http://www.opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/AssertMacros.h
+    // https://www.opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/AssertMacros.h
     //
     // We do this conditionally, as these parentheses trip up SWIG's
     // parser:

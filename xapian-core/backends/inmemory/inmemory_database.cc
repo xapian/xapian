@@ -417,12 +417,12 @@ InMemoryDatabase::open_post_list(const string& term) const
 }
 
 LeafPostList*
-InMemoryDatabase::open_leaf_post_list(const string& term, bool need_pos) const
+InMemoryDatabase::open_leaf_post_list(const string& term, bool need_read_pos) const
 {
-    (void)need_pos;
+    (void)need_read_pos;
     if (closed) InMemoryDatabase::throw_database_closed();
     if (term.empty()) {
-	Assert(!need_pos);
+	Assert(!need_read_pos);
 	intrusive_ptr<const InMemoryDatabase> ptrtothis(this);
 	return new InMemoryAllDocsPostList(ptrtothis);
     }
@@ -960,7 +960,7 @@ InMemoryDatabase::open_allterms(const string & prefix) const
 void
 InMemoryDatabase::throw_database_closed()
 {
-    throw Xapian::DatabaseError("Database has been closed");
+    throw Xapian::DatabaseClosedError("Database has been closed");
 }
 
 string

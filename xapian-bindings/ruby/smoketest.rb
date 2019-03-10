@@ -52,6 +52,12 @@ class XapianSmoketest < Test::Unit::TestCase
     @db.add_document(@doc)
 
     @enq = Xapian::Enquire.new(@db)
+
+    # Check Xapian::BAD_VALUENO is wrapped suitably.
+    @enq.collapse_key = Xapian::BAD_VALUENO
+
+    # Test that the non-constant wrapping prior to 1.4.10 still works.
+    @enq.collapse_key = Xapian::BAD_VALUENO()
   end # setup
 
   def test_version
