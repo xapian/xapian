@@ -153,27 +153,17 @@ double unserialise_double(const char ** p, const char * end) {
     exp |= (second & (15 << 4)) >> 4;
     exp -= 1023;
 
-    double mantissa = 1.0; // implicit 1 in IEEE
-    double pows2 = 0.5; // powers of 2
+    uint64_t mantissa_bp; // variable to store bit pattern of mantissa;
+    memcpy(&mantissa_bp, *p, sizeof(double));
+    mantissa_bp &= (uint64_t(1) << 52) - 1;
 
-    int second_byte_counter = 1 << 3;
-    for (int i = 0; i < 4; ++i) {
-	if (second & second_byte_counter) mantissa += pows2;
-	pows2 /= 2.0;
-	second_byte_counter >>= 1;
-    }
+# if FLT_RADIX == 2
+    double mantissa = scalbn(mantissa_bp, -52);
+# else
+    double mantissa = ldexp(mantissa_bp, -52);
+# endif
 
-    int byte_counter = 5; // starting with the third byte onwards
-    while (byte_counter >= 0) {
-	unsigned char cur_byte = *(*p + byte_counter);
-	--byte_counter;
-	int cur_byte_counter = 1 << 7;
-	for (int i = 0; i < 8; ++i) {
-	    if (cur_byte & cur_byte_counter) mantissa += pows2;
-	    pows2 /= 2.0;
-	    cur_byte_counter >>= 1;
-	}
-    }
+    mantissa += 1.0;
 
     *p += 8;
 
@@ -184,6 +174,7 @@ double unserialise_double(const char ** p, const char * end) {
 # else
     double result = ldexp(mantissa, exp);
 # endif
+
     if (negative) result = -result;
     return result;
 }
