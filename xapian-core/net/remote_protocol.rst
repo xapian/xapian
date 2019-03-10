@@ -1,8 +1,8 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 40.0* of the protocol used by Xapian's
-remote backend. The major protocol version increased to 40 in Xapian
+This document describes *version 42.0* of the protocol used by Xapian's
+remote backend. The major protocol version increased to 42 in Xapian
 1.5.0.
 
 .. , and the minor protocol version to 1 in Xapian 1.2.4.
@@ -37,10 +37,8 @@ so we don't need to explicitly specify it (indicated by ``<...>`` below).
 Integers are encoded using the same encoding used for string lengths
 (indicated by ``I<...>`` below).
 
-Floating pointing values are passed using a bit packed encoding of the
-sign and exponent and a base-256 encoding of the mantissa which avoids
-any rounding issues (assuming that both machines have ``FLT_RADIX`` equal
-to some power of 2). This is indicated by ``F<...>`` below.
+Floating pointing values are passed in little-endian IEEE754 double format,
+which means a fixed 8-byte size.  This is indicated by ``F<...>`` below.
 
 Boolean values are passed as a single byte which is the ASCII character
 value for ``0`` or ``1``. This is indicated by ``B<...>`` below.

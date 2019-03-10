@@ -1256,6 +1256,30 @@ if test yes = "$enable_log"; then
     [Define if you want a log of methods called and other debug messages])
 fi
 
+dnl Check if IEEE-754 is followed for representing floating point numbers by the platform.
+AC_RUN_IFELSE([
+  AC_LANG_PROGRAM(
+    [[
+#include <cstdint>
+#include <cstring>
+using namespace std;
+    ]],
+    [[
+      double a = 2353.3523423;
+      uint64_t bit_pattern = 0x40A262B46635BEFF;
+      if (memcmp(&bit_pattern, &a, sizeof(double)) == 0) return 0;
+      return 1;
+    ]]
+  )],
+  [ieee_followed=1],
+  [ieee_followed=0],
+  [ieee_followed=0]
+)
+
+if test "$ieee_followed" = 1; then
+    AC_DEFINE([FOLLOWS_IEEE], [1], [Defined if system uses ieee format to store floating point numbers])
+fi
+
 dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
