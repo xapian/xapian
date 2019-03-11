@@ -118,14 +118,14 @@ namespace Xapian {
 // For compatibility with the original JNI wrappers.
 %extend PostingIterator {
     Xapian::docid next () {
-        Xapian::docid tmp;
-        if (Xapian::iterator_valid(*self)) {
-            tmp = (**self);
-            ++(*self);
-        } else {
-            tmp = -1;
-        }
-        return tmp;
+	Xapian::docid tmp;
+	if (Xapian::iterator_valid(*self)) {
+	    tmp = (**self);
+	    ++(*self);
+	} else {
+	    tmp = -1;
+	}
+	return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -133,12 +133,12 @@ namespace Xapian {
 
 %extend TermIterator {
     std::string next () {
-        std:string tmp;
-        if (Xapian::iterator_valid(*self)) {
-            tmp = (**self);
-            ++(*self);
-        }
-        return tmp;
+	std:string tmp;
+	if (Xapian::iterator_valid(*self)) {
+	    tmp = (**self);
+	    ++(*self);
+	}
+	return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -146,12 +146,12 @@ namespace Xapian {
 
 %extend ValueIterator {
     std::string next () {
-        std:string tmp;
-        if (Xapian::iterator_valid(*self)) {
-            tmp = (**self);
-            ++(*self);
-        }
-        return tmp;
+	std:string tmp;
+	if (Xapian::iterator_valid(*self)) {
+	    tmp = (**self);
+	    ++(*self);
+	}
+	return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
@@ -207,13 +207,13 @@ class XapianSWIGStrItor {
     XapianSWIGStrItor() { }
 
     void begin(JNIEnv * jenv_, jobjectArray array_) {
-        jenv = jenv_;
-        array = array_;
-        i = 0;
+	jenv = jenv_;
+	array = array_;
+	i = 0;
     }
 
     void end(jsize len_) {
-        i = len_;
+	i = len_;
     }
 
     XapianSWIGStrItor & operator++() {
@@ -239,7 +239,7 @@ class XapianSWIGStrItor {
     }
 
     difference_type operator-(const XapianSWIGStrItor &o) const {
-        return i - o.i;
+	return i - o.i;
     }
 };
 
@@ -275,7 +275,7 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        return p - o.p;
+	return p - o.p;
     }
 };
 
@@ -420,10 +420,10 @@ class XapianSWIGQueryItor {
     $input = jenv->NewByteArray($1_len);
     Swig::LocalRefGuard $1_refguard(jenv, $input);
     {
-        const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
-        // Final parameter was not const in Java 6 and earlier.
-        jbyte* data_nc = const_cast<jbyte*>(data);
-        jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
+	const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
+	// Final parameter was not const in Java 6 and earlier.
+	jbyte* data_nc = const_cast<jbyte*>(data);
+	jenv->SetByteArrayRegion($input, 0, $1_len, data_nc);
     }
 }
 

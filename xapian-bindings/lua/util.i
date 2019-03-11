@@ -29,7 +29,7 @@
 // luaL_typerror was removed in Lua 5.2.
 int luaL_typerror (lua_State *L, int narg, const char *tname) {
   const char *msg = lua_pushfstring(L, "%s expected, got %s",
-                                    tname, luaL_typename(L, narg));
+				    tname, luaL_typename(L, narg));
   return luaL_argerror(L, narg, msg);
 }
 #endif
@@ -299,16 +299,16 @@ class luaFieldProcessor : public Xapian::FieldProcessor {
 
 	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
-        }
+	}
 
-        // Allow the function to return a string or Query object.
+	// Allow the function to return a string or Query object.
 	if (lua_isstring(L, -1)) {
-            size_t len;
-            const char * p = lua_tolstring(L, -1, &len);
-            std::string result(p, len);
-            lua_pop(L, 1);
-            return Xapian::Query(result);
-        }
+	    size_t len;
+	    const char * p = lua_tolstring(L, -1, &len);
+	    std::string result(p, len);
+	    lua_pop(L, 1);
+	    return Xapian::Query(result);
+	}
 
 	Xapian::Query *subq = 0;
 	if (!lua_isuserdata(L, -1) ||
@@ -484,7 +484,7 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        return i - o.i;
+	return i - o.i;
     }
 };
 

@@ -241,7 +241,7 @@ STANDARD_IGNORES(Xapian, Query)
 #endif
 #ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 %ignore Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-              Xapian::termcount parameter = 0);
+	      Xapian::termcount parameter = 0);
 #endif
 %include <xapian/query.h>
 
