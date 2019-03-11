@@ -469,7 +469,7 @@ try {
 	if (!parse_unsigned(val->second.c_str(), temp)) {
 	    throw "THRESHOLD parameter must be in the range >= 0";
 	}
-	threshold = temp;
+	threshold = min(temp,100);
     }
 
     // collapsing
