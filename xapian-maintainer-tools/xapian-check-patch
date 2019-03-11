@@ -57,11 +57,26 @@ sub diagnostic {
     ++$count{$type};
 }
 
+sub count_columns {
+    my $s = shift;
+    my $len = 0;
+    for my $i (0 .. length($s) - 1) {
+	if (substr($s, $i, 1) eq "\t") {
+	    # Advance to next multiple of 8 column.
+	    $len = $len + (8 - $len % 8);
+	} else {
+	    ++$len;
+	}
+    }
+    return $len;
+}
+
 my $add_lines = 0;
 my $del_lines = 0;
 my $files = 0;
 # SVN property changes don't have an "Index: [...]" line.
 my $want_tabs = -1;
+my $check_indent = 0;
 my $check_trailing = 0;
 my $check_space_tab = 0;
 my $in_comment = 0;
@@ -73,6 +88,11 @@ my $preproc;
 my $preproc_continuation;
 my ($top_level, $next_top_level); # undef for unknown, 0 for no, 1 for yes.
 my $last_line_blank = 0;
+# Indent in columns expected for this line (undef if we don't know).
+my $indent;
+# True if the indent increased due to a "case" or "default" without a { - this
+# means that a following "case"/"default" should not be indented.
+my $case_no_brace;
 while (<>) {
     if (defined $next_top_level) {
 	$top_level = $next_top_level;
@@ -92,6 +112,7 @@ while (<>) {
 	$top_level = undef;
 	# Don't know!
 	$want_tabs = -1;
+	$check_indent = 0;
 	if ($fnm =~ /\.cc$/) {
 	    if ($fnm !~ m!\b(?:cdb|portability/)! &&
 		$fnm !~ m!\bcommon/getopt\.cc$! &&
@@ -99,19 +120,24 @@ while (<>) {
 		$fnm !~ m!\bcommon/msvc_dirent\.cc$!) {
 		$lang = 'c++';
 		$want_tabs = 1 unless ($fnm =~ m!\blanguages/steminternal\.cc$!);
+		$check_indent = 1;
 	    }
 	} elsif ($fnm =~ /\.c$/) {
 	    if ($fnm !~ m!\blanguages/compiler/! &&
 		$fnm !~ m!/lemon\.c$!) {
 		$lang = 'c';
 		$want_tabs = 1;
+		$check_indent = 1;
 	    }
 	} elsif ($fnm =~ /\.h$/) {
 	    if ($fnm !~ m!\binclude/xapian/intrusive_ptr\.h! &&
 		$fnm !~ m!\blanguages/compiler/! &&
 		$fnm !~ m!\bcommon/msvc_dirent\.h$!) {
 		$lang = 'h';
-		$want_tabs = 1 unless ($fnm =~ m!/omega/cdb!);
+		unless ($fnm =~ m!/omega/cdb!) {
+		    $want_tabs = 1;
+		    $check_indent = 1;
+		}
 	    }
 	} elsif ($fnm =~ /\.l(?:emony|t)$/) {
 	    $lang = 'c++';
@@ -142,6 +168,7 @@ while (<>) {
 	$next_top_level = ($lineno == 1) ? 1 : undef;
 	$in_comment = 0;
 	$last_line_blank = 0;
+	$indent = undef;
 	next;
     }
     if ($pre3 eq '---' || $pre3 eq '+++') {
@@ -596,6 +623,58 @@ QUOTELOOP:  while (1) {
     }
 
     my $first_char = substr($fullline, 0, 1);
+
+    if ($check_indent) {
+	# Check indentation.
+	if (defined $indent && $first_char eq '+' &&
+	    # blank
+	    !/^\+\s*$/ &&
+	    # special handling for access specifiers... FIXME: sort out properly
+	    !/^\+\s*(?:private|protected|public):/ &&
+	    # Preprocessor line
+	    !/^\+\s*#/ &&
+	    # Label for goto
+	    !/^\+[A-Za-z_][A-Za-z_0-9]*:/ &&
+	    # outdent
+	    !/^\+\s*}/) {
+	    if ($case_no_brace && /^\+(?:[ \t]*)(?:case\b.*|default):(?:\s*\{)?$/) {
+		# case or default following a case or default without a '{', so
+		# shouldn't be indented - reduce $ident by 4 columns.
+		$indent -= 4;
+	    }
+	    my $this_indent = 0;
+	    if ($fullline =~ /^.([ \t]+)/) {
+		$this_indent = count_columns($1);
+	    }
+	    my $extra = $this_indent - $indent;
+	    if ($extra) {
+		my $which = 'over';
+		if ($extra < 0) {
+		    $extra = -$extra;
+		    $which = 'under';
+		}
+		my $s = '';
+		$s = 's' if $extra > 1;
+		print "$fnm:$lineno: Line ${which}indented by $extra column$s: $fullline";
+	    }
+	}
+
+	#if (/^[-+ ]([ \t]*)(?:(?:(?:catch|for|if|for|switch|while)\b.*\)|(?:case|class|do|else|struct|try|union)\b.*) \{|case\b.*:)$/) {
+	if (/^[-+ ]([ \t]*)(?:(?:catch|for|if|for|switch|while|case|class|default|do|else|struct|try|union)\b.* \{|(case\b.*|default):)$/) {
+	    $indent = count_columns($1);
+	    $case_no_brace = $2;
+	    # FIXME: Might be OK in e.g. lambdas
+	    #if (/^\+/ && $indent % 4 != 0) {
+	    #    print "$fnm:$lineno: Indented by $len columns - not a multiple of 4: $fullline";
+	    #}
+	    $indent += 4;
+	} elsif (!/^.\s*$/) {
+	    # Only reset for a non-blank line (after comment removal).
+	    $indent = undef;
+	    $case_no_brace = undef;
+	}
+    }
+
     if ($first_char eq ' ') {
 	++$lineno;
     } elsif ($first_char eq '+') {
