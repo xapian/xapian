@@ -81,8 +81,8 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        // Note: n counts *DOWN*, so reverse subtract.
-        return o.n - n;
+	// Note: n counts *DOWN*, so reverse subtract.
+	return o.n - n;
     }
 };
 

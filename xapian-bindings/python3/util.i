@@ -222,10 +222,10 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 %typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string *(int res = SWIG_OLDOBJ) {
     std::string *ptr = (std::string *)0;
     if ($input != Py_None) {
-        res = XapianSWIG_anystring_as_ptr($input, &ptr);
-        if (!SWIG_IsOK(res)) {
-            %argument_fail(res, "$type", $symname, $argnum);
-        }
+	res = XapianSWIG_anystring_as_ptr($input, &ptr);
+	if (!SWIG_IsOK(res)) {
+	    %argument_fail(res, "$type", $symname, $argnum);
+	}
     }
     $1 = ptr;
 }
