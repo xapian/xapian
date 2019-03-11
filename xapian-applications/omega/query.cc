@@ -74,7 +74,7 @@
 #include "weight.h"
 #include "expand.h"
 #include "md5wrap.h"
-#include "common/parseint.h"
+#include "parseint.h"
 #include <xapian.h>
 
 using namespace std;

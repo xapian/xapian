@@ -367,7 +367,8 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    Xapian::valueno slot;
-	    if (!parse_unsigned(i->first.c_str() + CONST_STRLEN("START."), slot)) {
+	    if (!parse_unsigned(i->first.c_str() + 
+		CONST_STRLEN("START."), slot)) {
 		throw "START slot value must be >= 0";
 	    }
 	    date_ranges[slot].start = v;
@@ -379,7 +380,8 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    Xapian::valueno slot;
-	    if (!parse_unsigned(i->first.c_str() + CONST_STRLEN("END."), slot)) {
+	    if (!parse_unsigned(i->first.c_str() + 
+		CONST_STRLEN("END."), slot)) {
 		throw "END slot value must be >= 0";
 	    }
 	    date_ranges[slot].end = v;
@@ -391,7 +393,8 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    Xapian::valueno slot;
-	    if (!parse_unsigned(i->first.c_str() + CONST_STRLEN("SPAN."), slot)) {
+	    if (!parse_unsigned(i->first.c_str() + 
+		CONST_STRLEN("SPAN."), slot)) {
 		throw "SPAN slot value must be >= 0";
 	    }
 	    date_ranges[slot].span = v;
