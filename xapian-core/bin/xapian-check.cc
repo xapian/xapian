@@ -54,7 +54,7 @@ main(int argc, char **argv)
 {
     if (argc > 1 && argv[1][0] == '-') {
 	if (strcmp(argv[1], "--help") == 0) {
-	     cout << PROG_NAME " - " PROG_DESC "\n\n";
+	    cout << PROG_NAME " - " PROG_DESC "\n\n";
 	    show_usage();
 	    exit(0);
 	}

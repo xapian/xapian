@@ -1264,15 +1264,15 @@ QueryWildcard::test_wildcard_(const string& candidate, size_t o, size_t p,
     // "bar" matches there.
     for ( ; i != tail; ++i) {
 	if ((flags & Query::WILDCARD_PATTERN_MULTI) && pattern[i] == '*') {
-	   if (++i == tail) {
-	       // '*' at end of variable part is easy!
-	       return true;
-	   }
-	   for (size_t test_o = o; test_o <= p; ++test_o) {
-	       if (test_wildcard_(candidate, test_o, p, i))
-		   return true;
-	   }
-	   return false;
+	    if (++i == tail) {
+		// '*' at end of variable part is easy!
+		return true;
+	    }
+	    for (size_t test_o = o; test_o <= p; ++test_o) {
+		if (test_wildcard_(candidate, test_o, p, i))
+		    return true;
+	    }
+	    return false;
 	}
 	if (o == p) return false;
 	if ((flags & Query::WILDCARD_PATTERN_SINGLE) && pattern[i] == '?') {

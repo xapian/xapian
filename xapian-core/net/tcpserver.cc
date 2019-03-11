@@ -437,10 +437,10 @@ TcpServer::run()
 	    thread_param *param = new thread_param(this, connected_socket);
 	    HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread, param, 0, NULL);
 	    if (hthread == 0) {
-	       // errno holds the error code from _beginthreadex, and
-	       // closesocket() doesn't set errno.
-	       closesocket(connected_socket);
-	       throw Xapian::NetworkError("_beginthreadex failed", errno);
+		// errno holds the error code from _beginthreadex, and
+		// closesocket() doesn't set errno.
+		closesocket(connected_socket);
+		throw Xapian::NetworkError("_beginthreadex failed", errno);
 	    }
 
 	    // FIXME: keep track of open thread handles so we can gracefully
