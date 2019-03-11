@@ -469,7 +469,7 @@ try {
 	if (!parse_unsigned(val->second.c_str(), temp)) {
 	    throw "THRESHOLD parameter must be in the range >= 0";
 	}
-	if(temp > 100) threshold = 100;
+	if (temp > 100) threshold = 100;
 	else threshold = temp;
     }
 
