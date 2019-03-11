@@ -102,8 +102,7 @@ while (<>) {
 	    }
 	} elsif ($fnm =~ /\.c$/) {
 	    if ($fnm !~ m!\blanguages/compiler/! &&
-		$fnm !~ m!/lemon\.c$! &&
-		$fnm !~ m!/xapdep\.c$!) {
+		$fnm !~ m!/lemon\.c$!) {
 		$lang = 'c';
 		$want_tabs = 1;
 	    }
