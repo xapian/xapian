@@ -367,7 +367,7 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    Xapian::valueno slot;
-	    if (!parse_unsigned(i->first.c_str() + 
+	    if (!parse_unsigned(i->first.c_str() +
 		CONST_STRLEN("START."), slot)) {
 		throw "START slot value must be >= 0";
 	    }
@@ -380,7 +380,7 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    Xapian::valueno slot;
-	    if (!parse_unsigned(i->first.c_str() + 
+	    if (!parse_unsigned(i->first.c_str() +
 		CONST_STRLEN("END."), slot)) {
 		throw "END slot value must be >= 0";
 	    }
@@ -393,7 +393,7 @@ try {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    Xapian::valueno slot;
-	    if (!parse_unsigned(i->first.c_str() + 
+	    if (!parse_unsigned(i->first.c_str() +
 		CONST_STRLEN("SPAN."), slot)) {
 		throw "SPAN slot value must be >= 0";
 	    }
