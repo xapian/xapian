@@ -2617,8 +2617,8 @@ ensure_query_parsed()
 	// to display
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end()) {
-	    if (!parse_unsigned(val->second.c_str(),topdoc)) {
-		throw "TOPDOC parameter must be >= 0\n";
+	    if (!parse_unsigned(val->second.c_str(), topdoc)) {
+		throw "TOPDOC parameter must be >= 0";
 	    }
 	}
 
@@ -2632,8 +2632,8 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    if (val->second[0] < '0' || val->second[0] > '9') {
-		throw "Page parameter must be >= 0\n";
+	    if (!C_isdigit(val->second[0])) {
+		throw "Page parameter must be >= 0";
 	    }
 	    long page = atol(val->second.c_str());
 	    // Do something sensible for page 0 (we count pages from 1).
@@ -2650,8 +2650,8 @@ ensure_query_parsed()
 	val = cgi_params.find("RAWSEARCH");
 	if (val != cgi_params.end()) {
 	    unsigned int temp;
-	    if (!parse_unsigned(val->second.c_str(),temp)) {
-		throw "RAWSEARCH parameter must be >= 0\n";
+	    if (!parse_unsigned(val->second.c_str(), temp)) {
+		throw "RAWSEARCH parameter must be >= 0";
 	    }
 	    raw_search = bool(temp);
 	}

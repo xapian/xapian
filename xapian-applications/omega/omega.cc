@@ -48,7 +48,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "expand.h"
-#include "common/parseint.h"
+#include "parseint.h"
 
 using namespace std;
 
@@ -177,8 +177,8 @@ try {
     hits_per_page = 0;
     auto val = cgi_params.find("HITSPERPAGE");
     if (val != cgi_params.end()) {
-	if (!parse_unsigned(val->second.c_str(),hits_per_page)) {
-	    throw "HITSPERPAGE parameter must be >= 0\n";
+	if (!parse_unsigned(val->second.c_str(), hits_per_page)) {
+	    throw "HITSPERPAGE parameter must be >= 0";
 	}
     }
     if (hits_per_page == 0) {
@@ -366,12 +366,10 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    if (i->first[CONST_STRLEN("START.")] < '0' ||
-		i->first[CONST_STRLEN("START.")] > '9') {
-		throw "START slot value must be >= 0\n";
+	    Xapian::valueno slot;
+	    if (!parse_unsigned(i->first.c_str() + CONST_STRLEN("START."), slot)) {
+		throw "START slot value must be >= 0";
 	    }
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("START."));
 	    date_ranges[slot].start = v;
 	}
     }
@@ -380,12 +378,10 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    if (i->first[CONST_STRLEN("END.")] < '0' ||
-		i->first[CONST_STRLEN("END.")] > '9') {
-		throw "END slot value must be >= 0\n";
+	    Xapian::valueno slot;
+	    if (!parse_unsigned(i->first.c_str() + CONST_STRLEN("END."), slot)) {
+		throw "END slot value must be >= 0";
 	    }
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("END."));
 	    date_ranges[slot].end = v;
 	}
     }
@@ -394,12 +390,10 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    if (i->first[CONST_STRLEN("SPAN.")] < '0' ||
-		i->first[CONST_STRLEN("SPAN.")] > '9') {
-		throw "SPAN slot value must be >= 0\n";
+	    Xapian::valueno slot;
+	    if (!parse_unsigned(i->first.c_str() + CONST_STRLEN("SPAN."), slot)) {
+		throw "SPAN slot value must be >= 0";
 	    }
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("SPAN."));
 	    date_ranges[slot].span = v;
 	}
     }
@@ -433,7 +427,7 @@ try {
     Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
     if (val != cgi_params.end() &&
 	!parse_unsigned(val->second.c_str(), date_value_slot)) {
-	throw "DATEVALUE slot must be >= 0\n";
+	throw "DATEVALUE slot must be >= 0";
     }
     add_date_filter(date_start, date_end, date_span, date_value_slot);
 
@@ -469,8 +463,8 @@ try {
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
 	unsigned int temp;
-	if (!parse_unsigned(val->second.c_str(),temp) || temp > 100) {
-	    throw "THRESHOLD parameter must be in the range 0-100\n";
+	if (!parse_unsigned(val->second.c_str(), temp)) {
+	    throw "THRESHOLD parameter must be in the range >= 0";
 	}
 	threshold = temp;
     }
@@ -480,8 +474,8 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (!v.empty()) {
-	    if (!parse_unsigned(val->second.c_str(),collapse_key)) {
-		throw "COLLAPSE parameter must be >= 0\n";
+	    if (!parse_unsigned(val->second.c_str(), collapse_key)) {
+		throw "COLLAPSE parameter must be >= 0";
 	    }
 	    collapse = true;
 	    filters += filter_sep;
@@ -579,8 +573,8 @@ try {
 	val = cgi_params.find("SORTREVERSE");
 	if (val != cgi_params.end()) {
 	    unsigned int temp;
-	    if (!parse_unsigned(val->second.c_str(),temp)) {
-		throw "SORTREVERSE parameter must be >= 0\n";
+	    if (!parse_unsigned(val->second.c_str(), temp)) {
+		throw "SORTREVERSE parameter must be >= 0";
 	    }
 	    if (temp != 0) {
 		reverse_sort = !reverse_sort;
@@ -589,8 +583,8 @@ try {
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
 	    unsigned int temp;
-	    if (!parse_unsigned(val->second.c_str(),temp)) {
-		throw "SORTAFTER parameter must be >= 0\n";
+	    if (!parse_unsigned(val->second.c_str(), temp)) {
+		throw "SORTAFTER parameter must be >= 0";
 	    }
 	    sort_after = bool(temp);
 	}
@@ -627,8 +621,8 @@ try {
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
     if (val != cgi_params.end()) {
-	if (!parse_unsigned(val->second.c_str(),min_hits)) {
-	    throw "MINHITS parameter must be > 0\n";
+	if (!parse_unsigned(val->second.c_str(), min_hits)) {
+	    throw "MINHITS parameter must be >= 0";
 	}
     }
 
