@@ -44,6 +44,7 @@ END
 }
 
 my ($fnm, $lineno);
+my $ext;
 my %count;
 
 sub diagnostic {
@@ -102,6 +103,7 @@ while (<>) {
     if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
 	++$files;
 	$fnm = $1;
+	(($ext) = ($fnm =~ /\.([\w.]+)$/)) or $ext = '';
 	$lineno = 1;
 	$lang = undef;
 	$in_comment = 0;
@@ -113,7 +115,7 @@ while (<>) {
 	# Don't know!
 	$want_tabs = -1;
 	$check_indent = 0;
-	if ($fnm =~ /\.cc$/) {
+	if ($ext eq 'cc') {
 	    if ($fnm !~ m!\b(?:cdb|portability/)! &&
 		$fnm !~ m!\bcommon/getopt\.cc$! &&
 		$fnm !~ m!\bomega/md5\.cc$! &&
@@ -122,14 +124,14 @@ while (<>) {
 		$want_tabs = 1 unless ($fnm =~ m!\blanguages/steminternal\.cc$!);
 		$check_indent = 1;
 	    }
-	} elsif ($fnm =~ /\.c$/) {
+	} elsif ($ext eq 'c') {
 	    if ($fnm !~ m!\blanguages/compiler/! &&
 		$fnm !~ m!/lemon\.c$!) {
 		$lang = 'c';
 		$want_tabs = 1;
 		$check_indent = 1;
 	    }
-	} elsif ($fnm =~ /\.h$/) {
+	} elsif ($ext eq 'h') {
 	    if ($fnm !~ m!\binclude/xapian/intrusive_ptr\.h! &&
 		$fnm !~ m!\blanguages/compiler/! &&
 		$fnm !~ m!\bcommon/msvc_dirent\.h$! &&
@@ -140,10 +142,10 @@ while (<>) {
 		    $check_indent = 1;
 		}
 	    }
-	} elsif ($fnm =~ /\.l(?:emony|t)$/) {
+	} elsif ($ext eq 'lemony' || $ext eq 'lt') {
 	    $lang = 'c++';
 	    $want_tabs = 1;
-	} elsif ($fnm =~ /\.py(?:\.in)?$/) {
+	} elsif ($ext eq 'py' || $ext eq 'py.in') {
 	    $lang = 'py';
 	    $want_tabs = 0;
 	} elsif ($fnm =~ m!(?:^|/)ChangeLog\b!) {
@@ -151,15 +153,15 @@ while (<>) {
 	    $want_tabs = 1;
 	}
 	$check_trailing =
-	    $fnm !~ /\.sbl$/ &&
+	    $ext ne 'sbl' &&
 	    $fnm !~ m!\bcommon/msvc_dirent\.! &&
 	    $fnm !~ m!/lemon\.c$! &&
 	    $fnm !~ m!/queryparser\.lt$! &&
 	    $fnm !~ m!\bcdb! &&
 	    $fnm !~ m!/testdata/etext\.txt$!;
 	$check_space_tab =
-	    $fnm !~ /\.patch$/ &&
-	    $fnm !~ /\.sbl$/;
+	    $ext ne 'patch' &&
+	    $ext ne 'sbl';
 	# print STDERR "$fnm: lang=" . ($lang // "UNKNOWN") . "\;
 	next;
     }
@@ -202,8 +204,12 @@ while (<>) {
 	s!/\*([A-Za-z_][A-Za-z_0-9]*)\*/([,)])!$1$2!g;
 
 	# Check for comments without a space before the comment text.
-	if (m!^\+.*\s/[*/]{1,2}[A-Za-z0-9]!) {
-	    diagnostic('error', "Missing space between comment characters and comment text", $fullline);
+	if (m!^\+.*\s/([*/]{1,2})[A-Za-z0-9]!) {
+	    if ($ext eq 'lemony' && $1 eq '*' && $' =~ m!^\w*-overwrites-\w+\*/!) {
+		# Magic comment in lemon grammar - lemon requires no spaces.
+	    } else {
+		diagnostic('error', "Missing space between comment characters and comment text", $fullline);
+	    }
 	}
 
 	# Trim comments:
