@@ -36,7 +36,6 @@
 #include <algorithm>
 #include <cstdlib>
 #include <string>
-#include <set>
 
 using namespace std;
 
@@ -114,36 +113,6 @@ CJK::codepoint_is_cjk_wordchar(unsigned p)
     return codepoint_is_cjk(p) && Xapian::Unicode::is_wordchar(p);
 }
 
-/// it is a duplication of function defined in termgenerator_internal.cc
-static inline bool
-is_digit(unsigned ch)
-{
-    return (Xapian::Unicode::get_category(ch) ==
-	Xapian::Unicode::DECIMAL_DIGIT_NUMBER);
-}
-
-/// Set of Chinese Unicode characters about digit
-static const set<unsigned> CHINESE_DIGIT_CHARS = {
-	// Simplified Chinese
-        // 0-9
-	0x96f6, 0x4e00, 0x4e8c/*another 2*/, 0x4e24, 0x4e09, 0x56db,
-	0x4e94, 0x516d, 0x4e03, 0x516b, 0x4e5d,
-	// ten, hundred, thousand, ten thousand, hundred million
-	0x5341, 0x767e, 0x5343, 0x4e07, 0x4ebf,
-
-	// Traditional Chinese
-        // 1-9, while zero is the same as Simplified Chinese
-	0x58f9, 0x8d30, 0x53c1, 0x8086,
-	0x4f0d, 0x9646, 0x67d2, 0x634c, 0x7396,
-	// ten, hundred, thousand, ten thousand, hundred million
-	0x62fe, 0x4f70, 0x4edf, 0x842c, 0x5104,
-};
-
-static inline bool
-codepoint_is_chinese_digits(unsigned p) {
-    return (CHINESE_DIGIT_CHARS.find(p) != CHINESE_DIGIT_CHARS.end());
-}
-
 size_t
 CJK::get_cjk(Xapian::Utf8Iterator& it)
 {
@@ -175,17 +144,7 @@ CJKNgramIterator::operator++()
     if (offset == 0) {
 	if (it != Xapian::Utf8Iterator()) {
 	    unsigned ch = *it;
-	    if (is_digit(ch)) {
-		// deal with mixed Chinese numbers inner CJK text
-		current_token.resize(0);
-		do {
-		    Xapian::Unicode::append_utf8(current_token, ch);
-		    ++it;
-		} while ((it != Xapian::Utf8Iterator()) &&
-		    (ch = *it) &&
-		    (is_digit(ch) || codepoint_is_chinese_digits(ch)));
-		offset = current_token.size();
-	    } else if (CJK::codepoint_is_cjk_wordchar(ch)) {
+	    if (CJK::codepoint_is_cjk_wordchar(ch)) {
 		offset = current_token.size();
 		Xapian::Unicode::append_utf8(current_token, ch);
 		++it;
