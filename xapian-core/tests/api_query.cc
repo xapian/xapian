@@ -435,8 +435,7 @@ wildcard_testcase wildcard1_testcases[] = {
     { "th",	6, 'E', WILDCARD_EXCEPTION },
     { "thou",	1, 'E', { "though", 0, 0, 0 } },
     { "s",	2, 'F', { "say", "search", 0, 0 } },
-    { "s",	2, 'M', { "simpl", "so", 0, 0 } },
-    { 0,	0, 0, { 0, 0, 0, 0 } }
+    { "s",	2, 'M', { "simpl", "so", 0, 0 } }
 };
 
 DEFINE_TESTCASE(wildcard1, backend) {
@@ -450,16 +449,15 @@ DEFINE_TESTCASE(wildcard1, backend) {
     Xapian::Enquire enq(db);
     const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
 
-    const wildcard_testcase * p = wildcard1_testcases;
-    while (p->pattern) {
-	tout << p->pattern << endl;
-	const char * const * tend = p->terms + 4;
+    for (auto&& test : wildcard1_testcases) {
+	tout << test.pattern << endl;
+	auto tend = test.terms + 4;
 	while (tend[-1] == NULL) --tend;
-	bool expect_exception = (tend - p->terms == 4 && tend[-1][0] == '\0');
+	bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
 	Xapian::Query q;
-	if (p->max_type) {
+	if (test.max_type) {
 	    int max_type;
-	    switch (p->max_type) {
+	    switch (test.max_type) {
 		case 'E':
 		    max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
 		    break;
@@ -472,15 +470,15 @@ DEFINE_TESTCASE(wildcard1, backend) {
 		default:
 		    return false;
 	    }
-	    q = Xapian::Query(o, p->pattern, p->max_expansion, max_type);
+	    q = Xapian::Query(o, test.pattern, test.max_expansion, max_type);
 	} else {
-	    q = Xapian::Query(o, p->pattern, p->max_expansion);
+	    q = Xapian::Query(o, test.pattern, test.max_expansion);
 	}
 	enq.set_query(q);
 	try {
 	    Xapian::MSet mset = enq.get_mset(0, 10);
 	    TEST(!expect_exception);
-	    q = Xapian::Query(q.OP_SYNONYM, p->terms, tend);
+	    q = Xapian::Query(q.OP_SYNONYM, test.terms, tend);
 	    enq.set_query(q);
 	    Xapian::MSet mset2 = enq.get_mset(0, 10);
 	    TEST_EQUAL(mset.size(), mset2.size());
@@ -488,7 +486,6 @@ DEFINE_TESTCASE(wildcard1, backend) {
 	} catch (const Xapian::WildcardError &) {
 	    TEST(expect_exception);
 	}
-	++p;
     }
 
     return true;
@@ -695,8 +692,7 @@ positional_testcase loosephrase1_testcases[] = {
     { 5, { "if", "word", "doesnt", 0 }, 0 },
     { 5, { "at", "line", "three", 0 }, 0 },
     { 5, { "paragraph", "other", "the", 0 }, 0 },
-    { 5, { "other", "the", "with", 0 }, 0 },
-    { 0, { 0, 0, 0, 0 }, 0 }
+    { 5, { "other", "the", "with", 0 }, 0 }
 };
 
 /// Regression test for bug fixed in 1.3.3 and 1.2.21.
@@ -704,20 +700,19 @@ DEFINE_TESTCASE(loosephrase1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
 
-    const positional_testcase * p = loosephrase1_testcases;
-    while (p->window) {
-	const char * const * tend = p->terms + 4;
+    for (auto&& test : loosephrase1_testcases) {
+	auto tend = test.terms + 4;
 	while (tend[-1] == NULL) --tend;
-	Xapian::Query q(Xapian::Query::OP_PHRASE, p->terms, tend, p->window);
+	auto OP_PHRASE = Xapian::Query::OP_PHRASE;
+	Xapian::Query q(OP_PHRASE, test.terms, tend, test.window);
 	enq.set_query(q);
 	Xapian::MSet mset = enq.get_mset(0, 10);
-	if (p->result == 0) {
+	if (test.result == 0) {
 	    TEST(mset.empty());
 	} else {
 	    TEST_EQUAL(mset.size(), 1);
-	    TEST_EQUAL(*mset[0], p->result);
+	    TEST_EQUAL(*mset[0], test.result);
 	}
-	++p;
     }
 
     return true;
@@ -732,8 +727,7 @@ positional_testcase loosenear1_testcases[] = {
     { 3, { "banana", "banana", 0, 0 }, 0 },
     { 2, { "word", "word", 0, 0 }, 2 },
     { 4, { "work", "meant", "work", 0 }, 0 },
-    { 4, { "this", "one", "yet", "one" }, 0 },
-    { 0, { 0, 0, 0, 0 }, 0 }
+    { 4, { "this", "one", "yet", "one" }, 0 }
 };
 
 /// Regression tests for bugs fixed in 1.3.3 and 1.2.21.
@@ -741,20 +735,18 @@ DEFINE_TESTCASE(loosenear1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
 
-    const positional_testcase * p = loosenear1_testcases;
-    while (p->window) {
-	const char * const * tend = p->terms + 4;
+    for (auto&& test : loosenear1_testcases) {
+	auto tend = test.terms + 4;
 	while (tend[-1] == NULL) --tend;
-	Xapian::Query q(Xapian::Query::OP_NEAR, p->terms, tend, p->window);
+	Xapian::Query q(Xapian::Query::OP_NEAR, test.terms, tend, test.window);
 	enq.set_query(q);
 	Xapian::MSet mset = enq.get_mset(0, 10);
-	if (p->result == 0) {
+	if (test.result == 0) {
 	    TEST(mset.empty());
 	} else {
 	    TEST_EQUAL(mset.size(), 1);
-	    TEST_EQUAL(*mset[0], p->result);
+	    TEST_EQUAL(*mset[0], test.result);
 	}
-	++p;
     }
 
     return true;
