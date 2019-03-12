@@ -466,11 +466,23 @@ try {
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
 	unsigned int temp;
-	if (!parse_unsigned(val->second.c_str(), temp)) {
-	    throw "THRESHOLD parameter must be in the range >= 0";
+	if (val->second[0] == '-') {
+	    if (!parse_unsigned(val->second.c_str() + 1, temp)) {
+		throw "THRESHOLD parameter must be an integer";
+	    }
+	    else {
+		threshold = 0;
+	    }
 	}
-	if (temp > 100) threshold = 100;
-	else threshold = temp;
+	else if (!parse_unsigned(val->second.c_str(), temp)) {
+	    throw "THRESHOLD parameter must be an integer";
+	}
+	if (temp > 100) {
+	    threshold = 100;
+	}
+	else {
+	    threshold = temp;
+	}
     }
 
     // collapsing
