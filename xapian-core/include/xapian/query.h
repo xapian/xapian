@@ -316,7 +316,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			  start with the pattern interpreted as a literal
      *			  string.
      *
-     *	@param combiner The @a op_ to combine the terms with - one of
+     *	@param combiner The @a Query::op to combine the terms with - one of
      *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
      *
      *	A leading wildcard won't match terms starting with an ASCII capital
