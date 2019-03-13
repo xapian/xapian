@@ -98,6 +98,9 @@ AC_SUBST([NO_INSTALL])
 dnl Probe for any options needed to enable C++11 support.
 AX_CXX_COMPILE_STDCXX_11
 
+dnl Check endianness.
+AC_C_BIGENDIAN
+
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
@@ -110,6 +113,16 @@ XO_REQUIRE([1.4.0])
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
+
+dnl We need to specify the argument types for builtin functions, or else
+dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
+AC_CHECK_DECLS([__builtin_bswap16(uint16_t),
+		__builtin_bswap32(uint32_t),
+		__builtin_bswap64(uint64_t)], [], [],
+	       [#include <stdint.h>])
+AC_CHECK_DECLS([_byteswap_ushort, _byteswap_ulong, _byteswap_uint64], [], [],
+	       [#include <stdlib.h>])
+
 dnl mingw (for instance) lacks ssize_t
 AC_TYPE_SSIZE_T
 
