@@ -74,7 +74,7 @@
 #include "weight.h"
 #include "expand.h"
 #include "md5wrap.h"
-
+#include "parseint.h"
 #include <xapian.h>
 
 using namespace std;
@@ -2617,7 +2617,9 @@ ensure_query_parsed()
 	// to display
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end()) {
-	    topdoc = atol(val->second.c_str());
+	    if (!parse_unsigned(val->second.c_str(), topdoc)) {
+		throw "TOPDOC parameter must be >= 0";
+	    }
 	}
 
 	// Handle next, previous, and page links
@@ -2630,6 +2632,9 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
+	    if (!C_isdigit(val->second[0])) {
+		throw "Page parameter must be >= 0";
+	    }
 	    long page = atol(val->second.c_str());
 	    // Do something sensible for page 0 (we count pages from 1).
 	    if (page == 0) page = 1;
@@ -2644,7 +2649,11 @@ ensure_query_parsed()
 	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
 	if (val != cgi_params.end()) {
-	    raw_search = bool(atol(val->second.c_str()));
+	    unsigned int temp;
+	    if (!parse_unsigned(val->second.c_str(), temp)) {
+		throw "RAWSEARCH parameter must be >= 0";
+	    }
+	    raw_search = bool(temp);
 	}
 
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;

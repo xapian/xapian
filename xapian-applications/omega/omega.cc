@@ -48,6 +48,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "expand.h"
+#include "parseint.h"
 
 using namespace std;
 
@@ -175,7 +176,11 @@ try {
 
     hits_per_page = 0;
     auto val = cgi_params.find("HITSPERPAGE");
-    if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
+    if (val != cgi_params.end()) {
+	if (!parse_unsigned(val->second.c_str(), hits_per_page)) {
+	    throw "HITSPERPAGE parameter must be >= 0";
+	}
+    }
     if (hits_per_page == 0) {
 	hits_per_page = 10;
     } else if (hits_per_page > 1000) {
@@ -361,8 +366,11 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("START."));
+	    Xapian::valueno slot;
+	    if (!parse_unsigned(i->first.c_str() +
+				CONST_STRLEN("START."), slot)) {
+		throw "START slot value must be >= 0";
+	    }
 	    date_ranges[slot].start = v;
 	}
     }
@@ -371,8 +379,11 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("END."));
+	    Xapian::valueno slot;
+	    if (!parse_unsigned(i->first.c_str() +
+				CONST_STRLEN("END."), slot)) {
+		throw "END slot value must be >= 0";
+	    }
 	    date_ranges[slot].end = v;
 	}
     }
@@ -381,8 +392,11 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("SPAN."));
+	    Xapian::valueno slot;
+	    if (!parse_unsigned(i->first.c_str() +
+				CONST_STRLEN("SPAN."), slot)) {
+		throw "SPAN slot value must be >= 0";
+	    }
 	    date_ranges[slot].span = v;
 	}
     }
@@ -414,7 +428,10 @@ try {
     if (val != cgi_params.end()) date_span = val->second;
     val = cgi_params.find("DATEVALUE");
     Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
-    if (val != cgi_params.end()) date_value_slot = string_to_int(val->second);
+    if (val != cgi_params.end() &&
+	!parse_unsigned(val->second.c_str(), date_value_slot)) {
+	throw "DATEVALUE slot must be >= 0";
+    }
     add_date_filter(date_start, date_end, date_span, date_value_slot);
 
     // If more default_op values are supported, encode them as non-alnums
@@ -448,9 +465,20 @@ try {
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
-	threshold = atoi(val->second.c_str());
-	if (threshold < 0) threshold = 0;
-	if (threshold > 100) threshold = 100;
+	unsigned int temp;
+	if (val->second[0] == '-') {
+	    if (!parse_unsigned(val->second.c_str() + 1, temp)) {
+		throw "THRESHOLD parameter must be an integer";
+	    }
+	    threshold = 0;
+	} else if (!parse_unsigned(val->second.c_str(), temp)) {
+	    throw "THRESHOLD parameter must be an integer";
+	}
+	if (temp > 100) {
+	    threshold = 100;
+	} else {
+	    threshold = temp;
+	}
     }
 
     // collapsing
@@ -458,7 +486,9 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (!v.empty()) {
-	    collapse_key = atoi(v.c_str());
+	    if (!parse_unsigned(val->second.c_str(), collapse_key)) {
+		throw "COLLAPSE parameter must be >= 0";
+	    }
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
@@ -553,13 +583,22 @@ try {
 	} while (*p);
 
 	val = cgi_params.find("SORTREVERSE");
-	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
-	    reverse_sort = !reverse_sort;
+	if (val != cgi_params.end()) {
+	    unsigned int temp;
+	    if (!parse_unsigned(val->second.c_str(), temp)) {
+		throw "SORTREVERSE parameter must be >= 0";
+	    }
+	    if (temp != 0) {
+		reverse_sort = !reverse_sort;
+	    }
 	}
-
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
-	    sort_after = (atoi(val->second.c_str()) != 0);
+	    unsigned int temp;
+	    if (!parse_unsigned(val->second.c_str(), temp)) {
+		throw "SORTAFTER parameter must be >= 0";
+	    }
+	    sort_after = bool(temp);
 	}
 
 	// Add the sorting related options to filters too.
@@ -594,7 +633,9 @@ try {
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
     if (val != cgi_params.end()) {
-	min_hits = atol(val->second.c_str());
+	if (!parse_unsigned(val->second.c_str(), min_hits)) {
+	    throw "MINHITS parameter must be >= 0";
+	}
     }
 
     parse_omegascript();
