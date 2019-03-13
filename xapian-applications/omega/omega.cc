@@ -469,7 +469,7 @@ try {
 	if (val->second[0] == '-') {
 	    if (!parse_unsigned(val->second.c_str() + 1, temp)) {
 		throw "THRESHOLD parameter must be an integer";
-		}
+	    }
 	    threshold = 0;
 	} else if (!parse_unsigned(val->second.c_str(), temp)) {
 	    throw "THRESHOLD parameter must be an integer";
