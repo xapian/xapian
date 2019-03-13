@@ -89,6 +89,7 @@ my $preproc;
 my $preproc_continuation;
 my ($top_level, $next_top_level); # undef for unknown, 0 for no, 1 for yes.
 my $last_line_blank = 0;
+my $last_line_block_end;
 # Indent in columns expected for this line (undef if we don't know).
 my $indent;
 # True if the indent increased due to a "case" or "default" without a { - this
@@ -170,6 +171,7 @@ while (<>) {
 	$next_top_level = ($lineno == 1) ? 1 : undef;
 	$in_comment = 0;
 	$last_line_blank = 0;
+	$last_line_block_end = undef;
 	$indent = undef;
 	next;
     }
@@ -613,6 +615,12 @@ QUOTELOOP:  while (1) {
 		diagnostic('error', "include guard macro defined in non-header", $fullline);
 	    }
 	}
+
+	if (defined $last_line_block_end &&
+	    /^\+${last_line_block_end}(catch|else)\b/) {
+	    # FIXME: while in do { ... } while can't be as easily checked.
+	    diagnostic('error', "'$1' should be on same line as preceding '}'", $fullline);
+	}
     } elsif (defined $lang && $lang eq 'py') {
 	if (/^\+.*;\s*$/) {
 	    diagnostic('error', "';' at end of line of python code", $fullline);
@@ -697,6 +705,11 @@ QUOTELOOP:  while (1) {
     }
     $last_first_char = $first_char;
     $last_line_blank = $line_blank;
+    if (/^.([ \t]+)}$/) {
+	$last_line_block_end = $1;
+    } else  {
+	$last_line_block_end = undef;
+    }
 }
 if (scalar keys %count) {
     for (sort keys %count) {
