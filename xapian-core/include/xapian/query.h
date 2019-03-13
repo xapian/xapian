@@ -287,7 +287,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			so the total number of terms may be higher than the
      *			limit.  This is arguably a bug, and may change in
      *			future versions.
-     *	@param combiner The @a op_ to combine the terms with - one of
+     *	@param combiner The @a Query::op to combine the terms with - one of
      *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
      */
     Query(op op_,
