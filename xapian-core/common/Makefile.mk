@@ -25,6 +25,7 @@ noinst_HEADERS +=\
 	common/output-internal.h\
 	common/overflow.h\
 	common/pack.h\
+	common/parseint.h\
 	common/posixy_wrapper.h\
 	common/pretty.h\
 	common/realtime.h\
