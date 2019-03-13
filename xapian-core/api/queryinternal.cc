@@ -248,6 +248,7 @@ Context<T>::expand_wildcard(const QueryWildcard* query,
 	--expansions_left;
     while (true) {
 	t->next();
+done_skip_to:
 	if (t->at_end())
 	    break;
 
@@ -264,7 +265,7 @@ Context<T>::expand_wildcard(const QueryWildcard* query,
 	    if (term[0] <= 'Z') {
 		static_assert('Z' + 1 == '[', "'Z' + 1 == '['");
 		t->skip_to("[");
-		continue;
+		goto done_skip_to;
 	    }
 	}
 

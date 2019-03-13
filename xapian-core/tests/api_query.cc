@@ -516,6 +516,31 @@ DEFINE_TESTCASE(wildcard2, backend) {
     return true;
 }
 
+/// Regression test for bug fixed in 1.4.12 - if any terms start with A-Z then
+//  the next term that doesn't isn't considered.
+DEFINE_TESTCASE(wildcard3, generated) {
+    Xapian::Database db = get_database("wildcard3",
+				       [](Xapian::WritableDatabase& wdb,
+					  const string&)
+				       {
+					   Xapian::Document doc;
+					   doc.add_term("Zfoo");
+					   doc.add_term("a");
+					   wdb.add_document(doc);
+					   doc.add_term("abc");
+					   wdb.add_document(doc);
+				       });
+
+    Xapian::Enquire enq(db);
+    Xapian::Query q(Xapian::Query::OP_WILDCARD, "?", 0,
+		    Xapian::Query::WILDCARD_PATTERN_GLOB);
+    enq.set_query(q);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+
+    return true;
+}
+
 DEFINE_TESTCASE(dualprefixwildcard1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Query q(Xapian::Query::OP_SYNONYM,
