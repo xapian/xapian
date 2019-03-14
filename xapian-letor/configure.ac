@@ -98,6 +98,11 @@ AC_SUBST([NO_INSTALL])
 dnl Probe for any options needed to enable C++11 support.
 AX_CXX_COMPILE_STDCXX_11
 
+dnl We don't use a C compiler to compile Xapian's code, but on some platforms
+dnl (e.g. mingw) libtool uses $LTCC which defaults to $CC, and it's also use to
+dnl build auxiliary tools like snowball and lemon.
+AC_PROG_CC
+
 dnl Check endianness.
 AC_C_BIGENDIAN
 
