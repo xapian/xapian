@@ -95,11 +95,17 @@ check_infix(unsigned ch)
     return 0;
 }
 
+static inline bool
+is_ascii_digit(unsigned ch)
+{
+    return ((ch < 128) && C_isdigit(ch));
+}
+
 /// check if ch is a Chinese character about digits
 static inline bool
-is_Chinese_digit(unsigned ch)
+is_chinese_digit(unsigned ch)
 {
-    // Below are Chinese characters reprensent digits
+    // Below are Chinese characters represent digits
     switch (ch) {
 	case 0x96f6: // CHINESE ZERO (the same in Simplified and Traditional)
 	case 0x4e00: // SIMPLIFIED CHINESE ONE
@@ -270,20 +276,22 @@ parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions,
 	    do {
 		Unicode::append_utf8(term, ch);
 		prevch = ch;
-		if (++itor == Utf8Iterator())
+		if (++itor == Utf8Iterator()) {
 		    goto endofterm;
-		else if (cjk_flags) {
+		}
+		if (cjk_flags) {
 		    // Only deal mixed Chinese numbers which start
-		    // with an Arabic digit and next is a Chinese digit.
-		    if (is_digit(prevch) && is_Chinese_digit(*itor)) {
+		    // with an ASCII digit and next is a Chinese digit.
+		    if (is_ascii_digit(prevch) && is_chinese_digit(*itor)) {
 			do {
 			    ch = *itor;
 			    Unicode::append_utf8(term, ch);
 			} while (++itor != Utf8Iterator() &&
-			(is_digit(*itor) || is_Chinese_digit(*itor)));
+				 (is_ascii_digit(*itor) ||
+				  is_chinese_digit(*itor)));
 			goto endofterm;
 		    }
-		    else if (CJK::codepoint_is_cjk(*itor)) {
+		    if (CJK::codepoint_is_cjk(*itor)) {
 			goto endofterm;
 		    }
 		}
