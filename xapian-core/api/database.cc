@@ -126,7 +126,7 @@ Database::add_database_(const Database& o, bool read_only)
     }
 
 #if 0
-    // This doesn't work - for example:
+    // The check below doesn't work - for example:
     //
     // Database db;
     // db.add_database(WritableDatabase("one.db"));
@@ -142,7 +142,7 @@ Database::add_database_(const Database& o, bool read_only)
     // WritableDatabase db;
     // db.add_database(Database("one.db"));
     //
-    // The case we don't catch is:
+    // The case we don't catch at compile time is:
     //
     // WritableDatabase db;
     // Database ro_db = db;
