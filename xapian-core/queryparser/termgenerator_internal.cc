@@ -98,7 +98,7 @@ check_infix(unsigned ch)
 static inline bool
 is_ascii_digit(unsigned ch)
 {
-    return ((ch < 128) && C_isdigit(ch));
+    return (ch < 128 && C_isdigit(static_cast<unsigned char>(ch)));
 }
 
 /// check if ch is a Chinese character about digits
