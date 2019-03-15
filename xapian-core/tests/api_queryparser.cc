@@ -710,6 +710,12 @@ static const test test_or_queries[] = {
     { "世(の中)TEST_tm", "(世@1 OR (の@2 AND の中@2 AND 中@2) OR test_tm@3)" },
     { "다녀 AND 와야", "(다@1 AND 다녀@1 AND 녀@1 AND (와@2 AND 와야@2 AND 야@2))" },
     { "authortitle:학술 OR 연구를", "((A학@1 AND A학술@1 AND A술@1) OR (XT학@1 AND XT학술@1 AND XT술@1) OR (연@2 AND 연구@2 AND 구@2 AND 구를@2 AND 를@2))" },
+    // Test parsing mixed CJK numbers (only with Chinese now)
+    { "2千3百", "2千3百@1"},
+    { "有2千三百", "(有@1 OR 2千三百@2)"},
+    { "我有 2千3百零一块钱", "((我@1 AND 我有@1 AND 有@1) OR 2千3百零一@2 OR (块@3 AND 块钱@3 AND 钱@3))"},
+    { "二千3百", "((二@1 AND 二千@1 AND 千@1) OR 3百@2)"},
+    { "二千三百", "(二@1 AND 二千@1 AND 千@1 AND 千三@1 AND 三@1 AND 三百@1 AND 百@1)"},
     // FIXME: These should really filter by bigrams to accelerate:
     { "\"久有归\"", "(久@1 PHRASE 3 有@1 PHRASE 3 归@1)" },
     { "\"久有test归\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归@3)" },

@@ -795,7 +795,17 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 	Unicode::append_utf8(term, prevch);
 	char_count = 1;
 	while (++it != end) {
-	    if (cjk_enable && CJK::codepoint_is_cjk(*it)) break;
+	    if (cjk_enable) {
+		if(U_isdigit(prevch) && CJK::is_chinese_digit(*it)) {
+		    do {
+			Unicode::append_utf8(term, *it);
+		    } while (++it != Utf8Iterator() &&
+			     (U_isdigit(*it) ||
+			      CJK::is_chinese_digit(*it)));
+		    break;
+		}
+		if(CJK::codepoint_is_cjk(*it)) break;
+	    }
 	    unsigned ch = *it;
 	    if (is_extended_wildcard(ch, flags)) {
 		if (first_wildcard == term.npos) {

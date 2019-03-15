@@ -113,6 +113,47 @@ CJK::codepoint_is_cjk_wordchar(unsigned p)
     return codepoint_is_cjk(p) && Xapian::Unicode::is_wordchar(p);
 }
 
+/// check if ch is a Chinese character about digits
+bool
+CJK::is_chinese_digit(unsigned ch)
+{
+    // Below are Chinese characters represent digits
+    switch (ch) {
+	case 0x96f6: // CHINESE ZERO (the same in Simplified and Traditional)
+	case 0x4e00: // SIMPLIFIED CHINESE ONE
+	case 0x4e8c: // SIMPLIFIED CHINESE TWO
+	case 0x4e24: // SIMPLIFIED CHINESE ANOTHER TWO
+	case 0x4e09: // SIMPLIFIED CHINESE THREE
+	case 0x56db: // SIMPLIFIED CHINESE FOUR
+	case 0x4e94: // SIMPLIFIED CHINESE FIVE
+	case 0x516d: // SIMPLIFIED CHINESE SIX
+	case 0x4e03: // SIMPLIFIED CHINESE SEVEN
+	case 0x516b: // SIMPLIFIED CHINESE EIGHT
+	case 0x4e5d: // SIMPLIFIED CHINESE NINE
+	case 0x5341: // SIMPLIFIED CHINESE TEN
+	case 0x767e: // SIMPLIFIED CHINESE HUNDRED
+	case 0x5343: // SIMPLIFIED CHINESE THOUSAND
+	case 0x4e07: // SIMPLIFIED CHINESE TEN THOUSAND
+	case 0x4ebf: // SIMPLIFIED CHINESE HUNDRED MILLION
+	case 0x58f9: // TRADITIONAL CHINESE ONE
+	case 0x8d30: // TRADITIONAL CHINESE TWO
+	case 0x53c1: // TRADITIONAL CHINESE THREE
+	case 0x8086: // TRADITIONAL CHINESE FOUR
+	case 0x4f0d: // TRADITIONAL CHINESE FIVE
+	case 0x9646: // TRADITIONAL CHINESE SIX
+	case 0x67d2: // TRADITIONAL CHINESE SEVEN
+	case 0x634c: // TRADITIONAL CHINESE EIGHT
+	case 0x7396: // TRADITIONAL CHINESE NINE
+	case 0x62fe: // TRADITIONAL CHINESE TEN
+	case 0x4f70: // TRADITIONAL CHINESE HUNDRED
+	case 0x4edf: // TRADITIONAL CHINESE THOUSAND
+	case 0x842c: // TRADITIONAL CHINESE TEN THOUSAND
+	case 0x5104: // TRADITIONAL CHINESE HUNDRED MILLION
+	    return true;
+    }
+    return false;
+}
+
 size_t
 CJK::get_cjk(Xapian::Utf8Iterator& it)
 {

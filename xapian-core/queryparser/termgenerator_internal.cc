@@ -101,47 +101,6 @@ is_ascii_digit(unsigned ch)
     return ch < 128 && C_isdigit(static_cast<unsigned char>(ch));
 }
 
-/// check if ch is a Chinese character about digits
-static inline bool
-is_chinese_digit(unsigned ch)
-{
-    // Below are Chinese characters represent digits
-    switch (ch) {
-	case 0x96f6: // CHINESE ZERO (the same in Simplified and Traditional)
-	case 0x4e00: // SIMPLIFIED CHINESE ONE
-	case 0x4e8c: // SIMPLIFIED CHINESE TWO
-	case 0x4e24: // SIMPLIFIED CHINESE ANOTHER TWO
-	case 0x4e09: // SIMPLIFIED CHINESE THREE
-	case 0x56db: // SIMPLIFIED CHINESE FOUR
-	case 0x4e94: // SIMPLIFIED CHINESE FIVE
-	case 0x516d: // SIMPLIFIED CHINESE SIX
-	case 0x4e03: // SIMPLIFIED CHINESE SEVEN
-	case 0x516b: // SIMPLIFIED CHINESE EIGHT
-	case 0x4e5d: // SIMPLIFIED CHINESE NINE
-	case 0x5341: // SIMPLIFIED CHINESE TEN
-	case 0x767e: // SIMPLIFIED CHINESE HUNDRED
-	case 0x5343: // SIMPLIFIED CHINESE THOUSAND
-	case 0x4e07: // SIMPLIFIED CHINESE TEN THOUSAND
-	case 0x4ebf: // SIMPLIFIED CHINESE HUNDRED MILLION
-	case 0x58f9: // TRADITIONAL CHINESE ONE
-	case 0x8d30: // TRADITIONAL CHINESE TWO
-	case 0x53c1: // TRADITIONAL CHINESE THREE
-	case 0x8086: // TRADITIONAL CHINESE FOUR
-	case 0x4f0d: // TRADITIONAL CHINESE FIVE
-	case 0x9646: // TRADITIONAL CHINESE SIX
-	case 0x67d2: // TRADITIONAL CHINESE SEVEN
-	case 0x634c: // TRADITIONAL CHINESE EIGHT
-	case 0x7396: // TRADITIONAL CHINESE NINE
-	case 0x62fe: // TRADITIONAL CHINESE TEN
-	case 0x4f70: // TRADITIONAL CHINESE HUNDRED
-	case 0x4edf: // TRADITIONAL CHINESE THOUSAND
-	case 0x842c: // TRADITIONAL CHINESE TEN THOUSAND
-	case 0x5104: // TRADITIONAL CHINESE HUNDRED MILLION
-	    return true;
-    }
-    return false;
-}
-
 static inline unsigned
 check_infix_digit(unsigned ch)
 {
@@ -282,13 +241,14 @@ parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions,
 		if (cjk_flags) {
 		    // Only deal mixed Chinese numbers which start
 		    // with an ASCII digit and next is a Chinese digit.
-		    if (is_ascii_digit(prevch) && is_chinese_digit(*itor)) {
+		    if (is_ascii_digit(prevch) &&
+			CJK::is_chinese_digit(*itor)) {
 			do {
 			    ch = *itor;
 			    Unicode::append_utf8(term, ch);
 			} while (++itor != Utf8Iterator() &&
 				 (is_ascii_digit(*itor) ||
-				  is_chinese_digit(*itor)));
+				  CJK::is_chinese_digit(*itor)));
 			goto endofterm;
 		    }
 		    if (CJK::codepoint_is_cjk(*itor)) {
