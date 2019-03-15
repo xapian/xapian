@@ -38,7 +38,7 @@ using namespace std;
 static void
 show_usage()
 {
-    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS]\n"
 "  -d, --db=DIRECTORY  database to update stats for\n"
 "  -h, --help          display this help and exit\n"
 "  -v, --version       output version information and exit\n";
@@ -79,7 +79,7 @@ try {
 	}
     }
 
-    if (!have_db || argc - optind != 1) {
+    if (!have_db || argc - optind != 0) {
 	show_usage();
 	exit(1);
     }
