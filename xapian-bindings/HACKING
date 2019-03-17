@@ -24,54 +24,54 @@ Packages to install for each language
 C#
 --
 
-Debian wheezy::
+Debian stretch::
 
 apt-get install mono-devel
 
 Java
 ----
 
-Debian wheezy::
+Debian stretch::
 
-apt-get install openjdk-6-jdk
+apt-get install openjdk-8-jdk
 
 Lua
 ---
 
-Debian wheezy::
+Debian stretch::
 
-apt-get install lua5.2 liblua5.2-dev
+apt-get install lua5.3 liblua5.3-dev
 
 Perl
 ----
 
-Debian wheezy: all required are packages installed by default.
+Debian stretch: all required are packages installed by default.
 
 PHP7
 ----
 
 Debian stretch::
 
-apt-get install php7.0-cli php7.0-dev
+apt-get install php-cli php-dev
 
 Python
 ------
 
-Debian wheezy::
+Debian stretch::
 
 apt-get install python-dev
 
 Ruby
 ----
 
-Debian wheezy::
+Debian stretch::
 
 apt-get install ruby-dev
 
 Tcl
 ---
 
-Debian wheezy::
+Debian stretch::
 
 apt-get install tcl-dev
 
@@ -81,9 +81,8 @@ Adding support for other programming languages
 Many languages can be done using SWIG, and it's probably easier to do so
 even though some languages may have better tools available just because it's
 less overall work.  SWIG makes it particularly easy to wrap a new method for
-all the supported languages at once, often by just copying the new method
-prototype into xapian.i (and for some headers we parse the Xapian header
-directly so no work is needed!)
+all the supported languages at once - in many cases just adding the method
+to the C++ API is enough, since SWIG parses the C++ API headers.
 
 What's really needed is someone interested in bindings for a particular
 language who knows that language well and will be using them actively.
@@ -105,24 +104,29 @@ language, how well you know it, and how well SWIG supports it.
 XS bindings for Perl have been contributed for Perl, and these are available
 on CPAN as `Search::Xapian`.  We also have SWIG-based Perl bindings which are
 in the ``perl`` subdirectory here, as a `Xapian` module.  These are replacing
-the XS-based `Search::Xapian`, and will eventually be on CPAN (certainly once
-1.4.0 is out, and probably before).  Currently SWIG's Perl backend doesn't
-support directors, so doesn't give us an easy mechanism for callbacks (e.g. for
-Xapian::MatchDecider) but perhaps we can do these by hand as they are in the XS
-bindings.
+the XS-based `Search::Xapian`, and will eventually be on CPAN.
 
 These are languages which SWIG supports and which people have done some work
 on producing Xapian bindings for:
+
+Go		There are some basic Go bindings written by Marius Tibeica in
+		the "golang" branch, which is currently based on the
+		RELEASE/1.4 branch.
+
+Ocaml		Dan Colish did some initial work on Ocaml support -
+		see: https://trac.xapian.org/ticket/588
+
+Guile		rm@fabula.de did some work on getting Guile bindings working,
+		but sadly most of this was lost when his laptop's hard disk
+		died.
 
 Pike		Bill Welliver has written some Pike bindings for Xapian
 		covering some of the API, which are available from here:
 		http://modules.gotpike.org/module_info.html?module_id=42
 		These bindings appear to be hand-coded rather than generated
-		using SWIG.
-
-Guile		rm@fabula.de did some work on getting Guile bindings working,
-		but sadly most of this was lost when his laptop's hard disk
-		died.
+		using SWIG.  SWIG 4.0.0 has disabled Pike support due to
+		lack of recent maintenance, so SWIG is probably not a good
+		option here.
 
 There are a number of other languages which SWIG supports, but which nobody has
 yet (to our knowledge!) worked on producing Xapian bindings for - see
