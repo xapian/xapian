@@ -447,6 +447,12 @@ $queryterms
 $range{START,END}
 	return list of values between ``START`` and ``END``.
 
+$random{HIGH}
+
+$random{LOW,HIGH}
+	return a random value in the range [``LOW``, ``HIGH``).
+	If the value of ``LOW`` is ommitted, the range [0, ``HIGH``) is used instead.
+
 $record[{ID}]
 	raw record contents of document ``ID``.
 
@@ -681,6 +687,9 @@ $split{SPLIT,STRING}
 	For example::
 
 	 "$split{one two three}" = "one	two	three"
+
+$srandom{SEED}
+	``SEED`` specifies a seed for random number generation.
 
 $stoplist
 	returns a list of any terms in the query which were ignored as

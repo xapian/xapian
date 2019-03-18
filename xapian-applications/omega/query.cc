@@ -1007,6 +1007,7 @@ CMD_query,
 CMD_querydescription,
 CMD_queryterms,
 CMD_range,
+CMD_random,
 CMD_record,
 CMD_relevant,
 CMD_relevants,
@@ -1019,6 +1020,7 @@ CMD_slice,
 CMD_snippet,
 CMD_sort,
 CMD_split,
+CMD_srandom,
 CMD_stoplist,
 CMD_sub,
 CMD_subdb,
@@ -1148,6 +1150,7 @@ T(query,	   0, 1, N, Q), // query
 T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
 T(queryterms,	   0, 0, N, Q), // list of query terms
 T(range,	   2, 2, N, 0), // return list of values between start and end
+T(random,	   0, 2, N, 0), // return a random number
 T(record,	   0, 1, N, 0), // record contents of document
 T(relevant,	   0, 1, N, Q), // is document relevant?
 T(relevants,	   0, 0, N, Q), // return list of relevant documents
@@ -1160,6 +1163,7 @@ T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 2, N, M), // generate snippet from text
 T(sort,		   1, 2, N, M), // alpha sort a list
 T(split,	   1, 2, N, 0), // split a string to give a list
+T(srandom,	   1, 1, N, 0), // seed for random number
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
 T(subdb,	   0, 1, N, 0), // name of subdb docid is in
@@ -2051,6 +2055,23 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
+	    case CMD_random: {
+		int rand_number;
+		if (args.empty())
+		    rand_number = rand();
+		else if (args.size() == 1)
+		    rand_number = rand() % string_to_int(args[0]);
+		else if (string_to_int(args[0]) < string_to_int(args[1])) {
+		    // Low inclusive, high exclusive range
+		    int high = string_to_int(args[1]);
+		    int low = string_to_int(args[0]);
+		    rand_number = rand() % (high - low) + low;
+		}
+		else
+		    throw "incorrect range";
+		value = str(rand_number);
+		break;
+	    }
 	    case CMD_record: {
 		Xapian::docid id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
@@ -2173,6 +2194,11 @@ eval(const string &fmt, const vector<string> &param)
 		    value.replace(i, split.size(), 1, '\t');
 		    ++i;
 		}
+		break;
+	    }
+	    case CMD_srandom: {
+		int seed = string_to_int(args[0]);
+		srand(seed);
 		break;
 	    }
 	    case CMD_stoplist: {
