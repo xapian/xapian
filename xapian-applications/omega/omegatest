@@ -655,6 +655,28 @@ testcase 'b4c216e4da73d1d01277ef46d0514821' text="simple query"
 testcase 'd41d8cd98f00b204e9800998ecf8427e' text=""
 testcase '3302c94d3500c3f695b7e09b7acd420d' text=" test "
 
+# Feature tests for random{}
+rng_test_failed=0
+rng_test() {
+    expected=$1
+    shift
+    [ "$#" != 0 ] || { set x dummy; shift; }
+    output=`$FAKETIME ${FAKE_NOW+"$FAKE_NOW"} "$OMEGA" "$@"`
+    if [ "$output" -gt "$expected" ] || [ "$output" -lt 0 ]; then
+	echo "$OMEGA $@:"
+	printf '%s\n' "  expected: «${expected}»"
+	printf '%s\n' "  received: «${output}»"
+	if [ "$rng_test_failed" -eq 0 ]; then
+            failed=`expr $failed + 1`
+            rng_test_failed=1
+        fi
+    fi
+}
+for i in `seq 100`; do
+    printf '$random{$cgi{x}}' > "$TEST_TEMPLATE"
+    rng_test '6' x=6
+done
+
 # Regression test - original implementation truncated data at first zero byte.
 printf '$hash{$cgi{text}$chr{0},md5}' > "$TEST_TEMPLATE"
 testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
