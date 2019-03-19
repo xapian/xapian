@@ -2066,8 +2066,7 @@ eval(const string &fmt, const vector<string> &param)
 		    int high = string_to_int(args[1]);
 		    int low = string_to_int(args[0]);
 		    rand_number = rand() % (high - low) + low;
-		}
-		else
+		} else
 		    throw "incorrect range";
 		value = str(rand_number);
 		break;

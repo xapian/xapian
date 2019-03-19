@@ -662,10 +662,6 @@ testcase '89' x=89 y=90
 printf '$random{$cgi{x}}' > "$TEST_TEMPLATE"
 testcase '0' x=1
 
-# Feature tests for srandom{}
-printf '$srandom{$cgi{x}}$random{$cgi{y}}' > "$TEST_TEMPLATE"
-testcase '193' x=123 y=200
-
 # Regression test - original implementation truncated data at first zero byte.
 printf '$hash{$cgi{text}$chr{0},md5}' > "$TEST_TEMPLATE"
 testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
