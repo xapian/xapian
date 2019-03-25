@@ -1,5 +1,7 @@
-/*
- * Compile the profiler with:
+/** @file profiler.c
+ * @brief C file implementing IO logging
+ */
+/* Compile the profiler with:
  * gcc -shared -fPIC -o profiler.so profiler.c -ldl
  *
  * To use it with a process, use:
