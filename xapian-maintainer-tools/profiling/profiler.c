@@ -9,7 +9,7 @@
  *
  * Running this library will produce an strace.log file,
  * which can be fed to strace-analyse to produce a log, by running:
- * strace-analyse strace.log
+ * ./strace-analyse strace.log
  */
 
 #define _GNU_SOURCE
