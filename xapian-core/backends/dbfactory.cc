@@ -198,7 +198,7 @@ open_stub(Database &db, const string &file)
 		// port number is required, so just leave that case to the
 		// error handling further below.
 		if (!(line[0] == '[' && line.back() == ']')) {
-		    unsigned int port = atoi(line.c_str() + colon + 1);
+		    unsigned int port = strtoul(line.c_str() + colon + 1, NULL, 10);
 		    line.erase(colon);
 		    if (line[0] == '[' && line.back() == ']') {
 			line.erase(line.size() - 1, 1);
@@ -319,7 +319,7 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 		// port number is required, so just leave that case to the
 		// error handling further below.
 		if (!(line[0] == '[' && line.back() == ']')) {
-		    unsigned int port = atoi(line.c_str() + colon + 1);
+		    unsigned int port = strtoul(line.c_str() + colon + 1, NULL, 10);
 		    line.erase(colon);
 		    if (line[0] == '[' && line.back() == ']') {
 			line.erase(line.size() - 1, 1);

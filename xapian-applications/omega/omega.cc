@@ -361,8 +361,8 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("START."));
+	    Xapian::valueno slot = strtoul(i->first.c_str() +
+					CONST_STRLEN("START."), NULL, 10);
 	    date_ranges[slot].start = v;
 	}
     }
@@ -371,8 +371,8 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("END."));
+	    Xapian::valueno slot = strtoul(i->first.c_str() +
+					CONST_STRLEN("END."), NULL, 10);
 	    date_ranges[slot].end = v;
 	}
     }
@@ -381,8 +381,8 @@ try {
     for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
-	    Xapian::valueno slot = atoi(i->first.c_str() +
-					CONST_STRLEN("SPAN."));
+	    Xapian::valueno slot = strtoul(i->first.c_str() +
+					CONST_STRLEN("SPAN."), NULL, 10);
 	    date_ranges[slot].span = v;
 	}
     }
@@ -448,7 +448,7 @@ try {
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
-	threshold = atoi(val->second.c_str());
+	threshold = strtol(val->second.c_str(), NULL, 10);
 	if (threshold < 0) threshold = 0;
 	if (threshold > 100) threshold = 100;
     }
@@ -458,7 +458,7 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (!v.empty()) {
-	    collapse_key = atoi(v.c_str());
+	    collapse_key = strtoul(v.c_str(), NULL, 10);
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);

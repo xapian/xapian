@@ -191,7 +191,7 @@ date_range_filter(const string & date_start, const string & date_end,
 {
     int y1, m1, d1, y2, m2, d2;
     if (!date_span.empty()) {
-	time_t secs = atoi(date_span.c_str()) * (24 * 60 * 60);
+	time_t secs = strtol(date_span.c_str(), NULL, 10) * (24 * 60 * 60);
 	if (!date_end.empty()) {
 	    parse_date(date_end, &y2, &m2, &d2, false);
 	    struct tm t;

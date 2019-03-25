@@ -520,7 +520,7 @@ main(int argc, char **argv)
 	    delete_removed_documents = false;
 	    break;
 	case 'l': { // Set recursion limit
-	    int arg = atoi(optarg);
+	    int arg = strtol(optarg, NULL, 10);
 	    if (arg < 0) arg = 0;
 	    depth_limit = size_t(arg);
 	    break;

@@ -71,7 +71,7 @@ try {
     Xapian::RSet rset;
     if (*argv) {
 	while (*++argv) {
-	    rset.add_document(atoi(*argv));
+	    rset.add_document(strtol(*argv, NULL, 10));
 	}
     }
 
