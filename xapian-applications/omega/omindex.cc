@@ -521,15 +521,15 @@ main(int argc, char **argv)
 	    delete_removed_documents = false;
 	    break;
 	case 'l': { // Set recursion limit
-		unsigned int arg;
-		if (optarg && optarg[0] == '-') {
-			if (!parse_unsigned(optarg + 1, arg)) {
-				throw "Recursion limit must be an integer";
-			}
-			arg = 0;
-		} else if (!parse_unsigned(optarg, arg)) {
+	    unsigned int arg;
+	    if (optarg && optarg[0] == '-') {
+		if (!parse_unsigned(optarg + 1, arg)) {
 		    throw "Recursion limit must be an integer";
 		}
+		arg = 0;
+	    } else if (!parse_unsigned(optarg, arg)) {
+		throw "Recursion limit must be an integer";
+	    }
 	    depth_limit = size_t(arg);
 	    break;
 	}

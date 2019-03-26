@@ -2035,11 +2035,13 @@ eval(const string &fmt, const vector<string> &param)
 		unsigned int temp;
 		if (!args.empty() && args[0][0] == '-') {
 		    if (!parse_unsigned(args[0].c_str() + 1, temp)) {
-		    	throw "NUMBER parameter for pack command must be an integer";
+			throw "NUMBER parameter for pack command"
+			    " must be an integer";
 		    }
 		    temp *= -1;
 		} else if (!parse_unsigned(args[0].c_str(), temp)) {
-		    throw "NUMBER parameter for pack command must be an integer";
+		    throw "NUMBER parameter for pack command"
+		    	" must be an integer";
 		}
 		value = int_to_binary_string(temp);
 		break;
@@ -2079,24 +2081,28 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_range: {
 		unsigned int temp;
-		int start,end;
+		int start, end;
 		if (!args[0].empty() && args[0][0] == '-') {
 		    if (!parse_unsigned(args[0].c_str() + 1, temp)) {
-			throw "Start value for range command must be an integer";
+			throw "Start value for range command "
+			      "must be an integer";
 		    }
 		    start = -temp;
 		} else if (!parse_unsigned(args[0].c_str(), temp)) {
-		    throw "Start value for range command must be an integer";
+		    throw "Start value for range command "
+		    	   "must be an integer";
 		} else {
 		    start = temp;
 		}
 		if (!args[1].empty() && args[1][0] == '-') {
 		    if (!parse_unsigned(args[1].c_str() + 1, temp)) {
-			throw "End value for range command must be an integer";
+			throw "End value for range command"
+			      " must be an integer";
 		    }
 		    end = -temp;
 		} else if (!parse_unsigned(args[1].c_str(), temp)) {
-		    throw "End value for range command must be an integer";
+		    throw "End value for range command"
+		    	   " must be an integer";
 		} else {
 		    end = temp;
 		}
@@ -2276,11 +2282,13 @@ eval(const string &fmt, const vector<string> &param)
 		unsigned int temp;
 		if (args[1][0] == '-') {
 		    if (!parse_unsigned(args[1].c_str() + 1, temp)) {
-			throw "Start value for substr command must be an integer";
+			throw "Start value for substr command"
+			      " must be an integer";
 		    }
 		    start = -temp;
 		} else if (!parse_unsigned(args[1].c_str(), temp)) {
-		    throw "Start value for substr command must be an integer";
+		    throw "Start value for substr command"
+		    	   " must be an integer";
 		} else {
 		    start = temp;
 		}
@@ -2298,11 +2306,13 @@ eval(const string &fmt, const vector<string> &param)
 		    int int_len;
 		    if (!args[2].empty() && args[2][0] == '-') {
 			if (!parse_unsigned(args[2].c_str() + 1, temp)) {
-			    throw "Length value for substr command must be an integer";
+			    throw "Length value for substr command"
+			    	  " must be an integer";
 			}
 			int_len = -temp;
 		    } else if (!parse_unsigned(args[2].c_str(), temp)) {
-			throw "Length value for substr command must be an integer";
+			throw "Length value for substr command"
+			      " must be an integer";
 		    } else {
 			int_len = temp;
 		    }
@@ -2397,11 +2407,13 @@ eval(const string &fmt, const vector<string> &param)
 		    if (!args.empty()) {
 			if (!args[0].empty() && args[0][0] == '-') {
 			    if (!parse_unsigned(args[0].c_str() + 1, temp)) {
-				throw "Number of terms for command topterms must be an integer";
+				throw "Number of terms for command"
+				      " topterms must be an integer";
 			    }
 			    howmany = 0;
 			} else if (!parse_unsigned(args[0].c_str(), temp)) {
-			    throw "Number of terms for command topterms must be an integer";
+			    throw "Number of terms for command"
+			    	  " topterms must be an integer";
 			} else {
 			    howmany = temp;
 			}

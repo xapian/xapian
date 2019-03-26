@@ -228,9 +228,9 @@ date_value_range(bool as_time_t,
 	time_t span;
 	unsigned int temp;
 	if (!parse_unsigned(date_span.c_str(), temp)) {
-		throw "Datespan value must be >= 0";
+	    throw "Datespan value must be >= 0";
 	} else {
-		span = temp * (24 * 60 * 60) - 1;
+	    span = temp * (24 * 60 * 60) - 1;
 	}
 	if (end.is_set()) {
 	    // If START, END and SPAN are all set, we (somewhat arbitrarily)

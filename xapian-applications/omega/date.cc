@@ -195,9 +195,9 @@ date_range_filter(const string & date_start, const string & date_end,
 	time_t secs;
 	unsigned int temp;
 	if (!parse_unsigned(date_span.c_str(), temp)) {
-		throw "Datespan value must be >= 0";
+	    throw "Datespan value must be >= 0";
 	} else {
-		secs = temp * (24 * 60 * 60);
+	    secs = temp * (24 * 60 * 60);
 	}
 	if (!date_end.empty()) {
 	    parse_date(date_end, &y2, &m2, &d2, false);
