@@ -2062,7 +2062,8 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_random: {
 		if (args.size() == 1) {
-		    uniform_int_distribution<int> distr(0, string_to_int(args[0]));
+		    uniform_int_distribution<int>
+			distr(0, string_to_int(args[0]));
 		    value = str(distr(rng));
 		} else {
 		    throw "$random requires exactly 1 argument";
