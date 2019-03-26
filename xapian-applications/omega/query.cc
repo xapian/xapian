@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <random>
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
@@ -1150,7 +1151,7 @@ T(query,	   0, 1, N, Q), // query
 T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
 T(queryterms,	   0, 0, N, Q), // list of query terms
 T(range,	   2, 2, N, 0), // return list of values between start and end
-T(random,	   0, 2, N, 0), // return a random number
+T(random,	   1, 1, N, 0), // return a random number
 T(record,	   0, 1, N, 0), // record contents of document
 T(relevant,	   0, 1, N, Q), // is document relevant?
 T(relevants,	   0, 0, N, Q), // return list of relevant documents
@@ -1231,6 +1232,10 @@ get_subdbs()
     }
     return subdbs;
 }
+
+// mersenne twister for RNG
+random_device rd;
+mt19937 rng(rd());
 
 static string
 eval(const string &fmt, const vector<string> &param)
@@ -2056,19 +2061,12 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_random: {
-		int rand_number;
-		if (args.empty())
-		    rand_number = rand();
-		else if (args.size() == 1)
-		    rand_number = rand() % string_to_int(args[0]);
-		else if (string_to_int(args[0]) < string_to_int(args[1])) {
-		    // Low inclusive, high exclusive range
-		    int high = string_to_int(args[1]);
-		    int low = string_to_int(args[0]);
-		    rand_number = rand() % (high - low) + low;
-		} else
-		    throw "incorrect range";
-		value = str(rand_number);
+		if (args.size() == 1) {
+		    uniform_int_distribution<int> distr(0, string_to_int(args[0]));
+		    value = str(distr(rng));
+		} else {
+		    throw "$random requires exactly 1 argument";
+		}
 		break;
 	    }
 	    case CMD_record: {
@@ -2197,7 +2195,7 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_srandom: {
 		int seed = string_to_int(args[0]);
-		srand(seed);
+		rng.seed(seed);
 		break;
 	    }
 	    case CMD_stoplist: {

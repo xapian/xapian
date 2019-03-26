@@ -447,14 +447,9 @@ $queryterms
 $range{START,END}
 	return list of values between ``START`` and ``END``.
 
-$random
 
 $random{HIGH}
-
-$random{LOW,HIGH}
-	return a random value in the range [``LOW``, ``HIGH``).
-	If the value of ``LOW`` is ommitted, then the range [0, ``HIGH``) is used.
-	If both the values are ommitted, then the range [0, RAND_MAX] is used.
+	return a random value in the range [0, ``HIGH``].
 
 $record[{ID}]
 	raw record contents of document ``ID``.
