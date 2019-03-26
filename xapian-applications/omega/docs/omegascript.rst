@@ -447,7 +447,6 @@ $queryterms
 $range{START,END}
 	return list of values between ``START`` and ``END``.
 
-
 $random{HIGH}
 	return a random value in the range [0, ``HIGH``].
 
