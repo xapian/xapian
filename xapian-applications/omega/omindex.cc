@@ -51,6 +51,7 @@
 #include "hashterm.h"
 #include "index_file.h"
 #include "mime.h"
+#include "parseint.h"
 #include "realtime.h"
 #include "str.h"
 #include "stringutils.h"
@@ -503,7 +504,10 @@ main(int argc, char **argv)
 	    delete_removed_documents = false;
 	    break;
 	case 'l': { // Set recursion limit
-	    int arg = atoi(optarg);
+	    int arg;
+	    if (!parse_signed(optarg, arg)) {
+		throw "Recursion limit must be an integer";
+	    }
 	    if (arg < 0) arg = 0;
 	    depth_limit = size_t(arg);
 	    break;

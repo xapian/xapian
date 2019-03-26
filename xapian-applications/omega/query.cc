@@ -1375,7 +1375,10 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_allterms: {
 		// list of all terms indexing document
 		Xapian::docid id = q0;
-		if (!args.empty()) id = string_to_int(args[0]);
+		if (!args.empty() &&
+		    (!parse_unsigned(args[0].c_str(), id) || id == 0)) {
+		    throw "Document id for command allterms should be > 0";
+		}
 		for (Xapian::TermIterator term = db.termlist_begin(id);
 		     term != db.termlist_end(id); ++term) {
 		    value += *term;
@@ -1420,9 +1423,14 @@ eval(const string &fmt, const vector<string> &param)
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
-	    case CMD_chr:
-		Xapian::Unicode::append_utf8(value, string_to_int(args[0]));
+	    case CMD_chr: {
+		unsigned int codepoint;
+		if (!parse_unsigned(args[0].c_str(), codepoint)) {
+		    throw "Unicode codepoint for command chr should be >= 0";
+		}
+		Xapian::Unicode::append_utf8(value, codepoint);
 		break;
+	    }
 	    case CMD_collapsed: {
 		value = str(collapsed);
 		break;
@@ -1459,7 +1467,11 @@ eval(const string &fmt, const vector<string> &param)
 		value = args[0];
 		if (!value.empty()) {
 		    char buf[64] = "";
-		    time_t date = string_to_int(value);
+		    time_t date;
+		    if (!parse_signed(value.c_str(), date)) {
+			throw "Date (in secs) for command date should "
+			      "be an integer";
+		    }
 		    if (date != static_cast<time_t>(-1)) {
 			struct tm *then;
 			then = gmtime(&date);
@@ -1535,13 +1547,19 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_field: {
 		Xapian::docid did = q0;
-		if (args.size() > 1) did = string_to_int(args[1]);
+		if (args.size() > 1 &&
+		    (!parse_unsigned(args[1].c_str(), did) || did == 0)) {
+		    throw "Document id for command field should be > 0";
+		}
 		value = fields.get_field(did, args[0]);
 		break;
 	    }
 	    case CMD_filesize: {
 		// FIXME: rounding?  i18n?
-		int size = string_to_int(args[0]);
+		int size;
+		if (!parse_signed(args[0].c_str(), size)) {
+		    throw "Filesize must be an integer";
+		}
 		int intpart = size;
 		int fraction = -1;
 		const char * format = 0;
@@ -2022,9 +2040,15 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
-	    case CMD_pack:
-		value = int_to_binary_string(string_to_int(args[0]));
+	    case CMD_pack: {
+		int number;
+		if (!parse_signed(args[0].c_str(), number)) {
+		    throw "NUMBER parameter for pack command "
+			  "must be an integer";
+		}
+		value = int_to_binary_string(number);
 		break;
+	    }
 	    case CMD_percentage:
 		// percentage score
 		value = str(percent);
@@ -2059,8 +2083,15 @@ eval(const string &fmt, const vector<string> &param)
 		value = queryterms;
 		break;
 	    case CMD_range: {
-		int start = string_to_int(args[0]);
-		int end = string_to_int(args[1]);
+		int start, end;
+		if (!parse_signed(args[0].c_str(), start)) {
+		    throw "Start value for range command "
+			  "must be an integer";
+		}
+		if (!parse_signed(args[1].c_str(), end)) {
+		    throw "End value for range command "
+			  "must be an integer";
+		}
 		while (start <= end) {
 		    value += str(start);
 		    if (start < end) value += '\t';
@@ -2081,14 +2112,20 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_record: {
 		Xapian::docid id = q0;
-		if (!args.empty()) id = string_to_int(args[0]);
+		if (!args.empty() &&
+		    (!parse_unsigned(args[0].c_str(), id) || id == 0)) {
+		    throw "Document id for command record should be > 0";
+		}
 		value = db.get_document(id).get_data();
 		break;
 	    }
 	    case CMD_relevant: {
 		// document id if relevant; empty otherwise
 		Xapian::docid id = q0;
-		if (!args.empty()) id = string_to_int(args[0]);
+		if (!args.empty() &&
+		    (!parse_unsigned(args[0].c_str(), id) || id == 0)) {
+		    throw "Document id for command relevant should be > 0";
+		}
 		auto i = ticked.find(id);
 		if (i != ticked.end()) {
 		    i->second = false; // icky side-effect
@@ -2166,10 +2203,13 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_snippet: {
 		size_t length = 200;
-		unsigned flags;
 		if (args.size() > 1 && !args[1].empty()) {
-		    length = string_to_int(args[1]);
+		    if (!parse_unsigned(args[1].c_str(), length)) {
+			throw "Snippet length must be >= 0";
+		    }
 		}
+		unsigned flags = mset.SNIPPET_BACKGROUND_MODEL |
+				 mset.SNIPPET_EXHAUSTIVE;
 		if (args.size() > 2 && !args[2].empty()) {
 		    flags = 0;
 		    const string& s = args[2];
@@ -2199,9 +2239,6 @@ eval(const string &fmt, const vector<string> &param)
 			if (j == string::npos) break;
 			i = j + 1;
 		    }
-		} else {
-		    flags = mset.SNIPPET_BACKGROUND_MODEL |
-			    mset.SNIPPET_EXHAUSTIVE;
 		}
 		string bra, ket, gap;
 		if (args.size() > 3) {
@@ -2272,19 +2309,29 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_subdb: {
 		Xapian::docid id = q0;
-		if (args.size() > 0) id = string_to_int(args[0]);
+		if (args.size() > 0 &&
+		    (!parse_unsigned(args[0].c_str(), id) || id == 0)) {
+		    throw "Document id of the subdb command should be > 0";
+		}
 		auto subdbs = get_subdbs();
 		value = subdbs[(id - 1) % subdbs.size()];
 		break;
 	    }
 	    case CMD_subid: {
 		Xapian::docid id = q0;
-		if (args.size() > 0) id = string_to_int(args[0]);
+		if (args.size() > 0 &&
+		    (!parse_unsigned(args[0].c_str(), id) || id == 0)) {
+		    throw "Document id of the subid command should be > 0";
+		}
 		value = str(((id - 1) / get_subdbs().size()) + 1);
 		break;
 	    }
 	    case CMD_substr: {
-		int start = string_to_int(args[1]);
+		int start;
+		if (!parse_signed(args[1].c_str(), start)) {
+		    throw "Start value for substr command "
+			  "must be an integer";
+		}
 		if (start < 0) {
 		    if (static_cast<size_t>(-start) >= args[0].size()) {
 			start = 0;
@@ -2296,7 +2343,11 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		size_t len = string::npos;
 		if (args.size() > 2) {
-		    int int_len = string_to_int(args[2]);
+		    int int_len;
+		    if (!parse_signed(args[2].c_str(), int_len)) {
+			throw "Length value for substr command "
+			      "must be an integer";
+		    }
 		    if (int_len >= 0) {
 			len = size_t(int_len);
 		    } else {
@@ -2384,9 +2435,13 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_topterms:
 		if (enquire) {
 		    int howmany = 16;
-		    if (!args.empty()) howmany = string_to_int(args[0]);
+		    if (!args.empty()) {
+			if (!parse_signed(args[0].c_str(), howmany)) {
+			    throw "Number of terms for command "
+				  "topterms must be an integer";
+			}
+		    }
 		    if (howmany < 0) howmany = 0;
-
 		    // List of expand terms
 		    Xapian::ESet eset;
 		    OmegaExpandDecider decider(db, &termset);
@@ -2427,12 +2482,17 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_transform:
 		omegascript_transform(value, args);
 		break;
-	    case CMD_truncate:
+	    case CMD_truncate: {
+		unsigned int length;
+		if (!parse_unsigned(args[1].c_str(), length)) {
+		    throw "Length for truncate command must be >= 0 ";
+		}
 		value = generate_sample(args[0],
-					string_to_int(args[1]),
+					length,
 					args.size() > 2 ? args[2] : string(),
 					args.size() > 3 ? args[3] : string());
 		break;
+	    }
 	    case CMD_uniq: {
 		const string &list = args[0];
 		if (list.empty()) break;
@@ -2496,8 +2556,14 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_value: {
 		Xapian::docid id = q0;
-		Xapian::valueno value_no = string_to_int(args[0]);
-		if (args.size() > 1) id = string_to_int(args[1]);
+		Xapian::valueno value_no;
+		if (!parse_unsigned(args[0].c_str(), value_no)) {
+		    throw "Valueno of the value command should be >= 0";
+		}
+		if (args.size() > 1 &&
+		    (!parse_unsigned(args[1].c_str(), id) || id == 0)) {
+		    throw "Document id for value command must be > 0";
+		}
 		value = db.get_document(id).get_value(value_no);
 		break;
 	    }
@@ -2748,7 +2814,10 @@ ensure_query_parsed()
 	    const string & value = i->second;
 	    for (size_t j = 0; j < value.size(); j = value.find('.', j)) {
 		while (value[j] == '.') ++j;
-		Xapian::docid d = atoi(value.c_str() + j);
+		Xapian::docid d;
+		if (!parse_unsigned(value.c_str() + j, d) || d == 0) {
+		    throw "Document id for 'R' parameter must be > 0";
+		}
 		if (d) {
 		    rset.add_document(d);
 		    ticked[d] = true;
