@@ -43,17 +43,18 @@ void logcall(const char *call)
 
 // wrapper for open()
 
-typedef int(*real_open_t)(const char *, int, ...);
+typedef int (*real_open_t)(const char *, int, ...);
 
 int open(const char *pathname, int flags, ...)
 {
     int fd;
-    if (flags & O_CREAT || flags & O_TMPFILE) {
+    if (flags & (O_CREAT | O_TMPFILE)) {
 	va_list args_ptr;
 	va_start(args_ptr, flags);
 	fd =
 	    ((real_open_t)dlsym(RTLD_NEXT, "open"))
 	    (pathname, flags, va_arg(args_ptr, mode_t));
+        va_end(args_ptr);
     } else {
 	fd = ((real_open_t)dlsym(RTLD_NEXT, "open"))(pathname, flags);
     }
@@ -67,7 +68,7 @@ int open(const char *pathname, int flags, ...)
 
 // wrapper for close()
 
-typedef int(*real_close_t)(int);
+typedef int (*real_close_t)(int);
 
 int close(int fd)
 {
@@ -80,7 +81,7 @@ int close(int fd)
 
 // wrapper for fdatasync()
 
-typedef ssize_t(*real_fdatasync_t)(int);
+typedef ssize_t (*real_fdatasync_t)(int);
 
 ssize_t fdatasync(int fd)
 {
@@ -93,7 +94,7 @@ ssize_t fdatasync(int fd)
 
 // wrapper for fsync()
 
-typedef ssize_t(*real_fsync_t)(int);
+typedef ssize_t (*real_fsync_t)(int);
 
 ssize_t fsync(int fd)
 {
@@ -106,7 +107,7 @@ ssize_t fsync(int fd)
 
 // wrapper for pread()
 
-typedef ssize_t(*real_pread_t)(int, void *, size_t, off_t);
+typedef ssize_t (*real_pread_t)(int, void *, size_t, off_t);
 
 ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 {
@@ -127,7 +128,7 @@ ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 
 // wrapper for pread64()
 
-typedef ssize_t(*real_pread64_t)(int, void *, size_t, off_t);
+typedef ssize_t (*real_pread64_t)(int, void *, size_t, off_t);
 
 ssize_t pread64(int fd, void *buf, size_t count, off_t offset)
 {
@@ -148,7 +149,7 @@ ssize_t pread64(int fd, void *buf, size_t count, off_t offset)
 
 // wrapper for pwrite()
 
-typedef ssize_t(*real_pwrite_t)(int, const void *, size_t, off_t);
+typedef ssize_t (*real_pwrite_t)(int, const void *, size_t, off_t);
 
 ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 {
@@ -169,7 +170,7 @@ ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 
 // wrapper for pwrite64()
 
-typedef ssize_t(*real_pwrite64_t)(int, const void *, size_t, off_t);
+typedef ssize_t (*real_pwrite64_t)(int, const void *, size_t, off_t);
 
 ssize_t pwrite64(int fd, const void *buf, size_t count, off_t offset)
 {
