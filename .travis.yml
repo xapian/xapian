@@ -54,9 +54,7 @@ matrix:
             - libmagic-dev
             - tcl
             - libc++-dev
-      # We also have to disable an error, because (older?)
-      # perl header files don't play nicely with clang.
-      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS='-O2 -g -Wno-error=reserved-user-defined-literal'
+      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
       # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
@@ -94,7 +92,7 @@ matrix:
         - brew list --versions $HOMEBREW_PACKAGES
         - pip2 install sphinx docutils
         - pip3 install sphinx
-      env: PYTHON2=/usr/local/bin/python2 CXXFLAGS='-O2 -g -Wno-error=reserved-user-defined-literal' confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
+      env: PYTHON2=/usr/local/bin/python2 confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"

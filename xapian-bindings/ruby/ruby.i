@@ -6,7 +6,7 @@
  * Based on the php4 and python util.i files.
  *
  * Copyright (C) 2006 Networked Knowledge Systems, Inc.
- * Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,29 @@
  * USA
  */
 
+%}
+
+%begin %{
+// The Ruby 2.3 headers contain things which cause warnings with more recent
+// C++ compilers.  There's nothing we can really do about them, so just
+// suppress them.
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wdeprecated-register"
+# pragma clang diagnostic ignored "-Wreserved-user-defined-literal"
+#elif defined __GNUC__
+// Warning added in GCC 4.8 and we don't support anything older.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wliteral-suffix"
+#endif
+
+#include <ruby.h>
+
+#ifdef __clang__
+# pragma clang diagnostic pop
+#elif defined __GNUC__
+# pragma GCC diagnostic pop
+#endif
 %}
 
 // Use SWIG directors for Ruby wrappers.
