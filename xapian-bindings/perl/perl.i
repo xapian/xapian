@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,32 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+%}
+
+%begin %{
+// Older Perl headers contain things which cause warnings with more recent
+// C++ compilers.  There's nothing we can really do about them, so just
+// suppress them.
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wreserved-user-defined-literal"
+#elif defined __GNUC__
+// Warning added in GCC 4.8 and we don't support anything older.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wliteral-suffix"
+#endif
+
+extern "C" {
+#include "EXTERN.h"
+#include "perl.h"
+#include "XSUB.h"
+}
+
+#ifdef __clang__
+# pragma clang diagnostic pop
+#elif defined __GNUC__
+# pragma GCC diagnostic pop
+#endif
 %}
 
 /* The XS Xapian never wrapped these, and they're now deprecated. */
