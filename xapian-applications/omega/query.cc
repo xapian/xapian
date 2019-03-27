@@ -2041,7 +2041,7 @@ eval(const string &fmt, const vector<string> &param)
 		    temp *= -1;
 		} else if (!parse_unsigned(args[0].c_str(), temp)) {
 		    throw "NUMBER parameter for pack command"
-		    	" must be an integer";
+			" must be an integer";
 		}
 		value = int_to_binary_string(temp);
 		break;
@@ -2090,7 +2090,7 @@ eval(const string &fmt, const vector<string> &param)
 		    start = -temp;
 		} else if (!parse_unsigned(args[0].c_str(), temp)) {
 		    throw "Start value for range command "
-		    	   "must be an integer";
+			  "must be an integer";
 		} else {
 		    start = temp;
 		}
@@ -2102,7 +2102,7 @@ eval(const string &fmt, const vector<string> &param)
 		    end = -temp;
 		} else if (!parse_unsigned(args[1].c_str(), temp)) {
 		    throw "End value for range command"
-		    	   " must be an integer";
+			   " must be an integer";
 		} else {
 		    end = temp;
 		}
@@ -2288,7 +2288,7 @@ eval(const string &fmt, const vector<string> &param)
 		    start = -temp;
 		} else if (!parse_unsigned(args[1].c_str(), temp)) {
 		    throw "Start value for substr command"
-		    	   " must be an integer";
+			   " must be an integer";
 		} else {
 		    start = temp;
 		}
@@ -2307,7 +2307,7 @@ eval(const string &fmt, const vector<string> &param)
 		    if (!args[2].empty() && args[2][0] == '-') {
 			if (!parse_unsigned(args[2].c_str() + 1, temp)) {
 			    throw "Length value for substr command"
-			    	  " must be an integer";
+				  " must be an integer";
 			}
 			int_len = -temp;
 		    } else if (!parse_unsigned(args[2].c_str(), temp)) {
@@ -2413,7 +2413,7 @@ eval(const string &fmt, const vector<string> &param)
 			    howmany = 0;
 			} else if (!parse_unsigned(args[0].c_str(), temp)) {
 			    throw "Number of terms for command"
-			    	  " topterms must be an integer";
+				  " topterms must be an integer";
 			} else {
 			    howmany = temp;
 			}
