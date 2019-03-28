@@ -1908,7 +1908,7 @@ Term::as_positional_cjk_term(Terms * terms) const
 }
 
 %token_type {Term *}
-%token_destructor {delete $$;}
+%token_destructor { delete $$; }
 
 %extra_argument {State * state}
 
@@ -1932,30 +1932,30 @@ Term::as_positional_cjk_term(Terms * terms) const
 // Destructors for terminal symbols:
 
 // TERM is a query term, including prefix (if any).
-%destructor TERM {delete $$;}
+%destructor TERM { delete $$; }
 
 // GROUP_TERM is a query term which follows a TERM or another GROUP_TERM and
 // is only separated by whitespace characters.
-%destructor GROUP_TERM {delete $$;}
+%destructor GROUP_TERM { delete $$; }
 
 // PHR_TERM is a query term which follows a TERM or another PHR_TERM and is
 // separated only by one or more phrase generator characters (hyphen and
 // apostrophe are common examples - see is_phrase_generator() for the list
 // of all punctuation which does this).
-%destructor PHR_TERM {delete $$;}
+%destructor PHR_TERM { delete $$; }
 
 // WILD_TERM is like a TERM, but with wildcards which needs to be expanded.
-%destructor WILD_TERM {delete $$;}
+%destructor WILD_TERM { delete $$; }
 
 // PARTIAL_TERM is like a TERM, but it's at the end of the query string and
 // we're doing "search as you type".  It expands to something like:
 //     WILD_TERM($$+"*") OR stemmed_form
-%destructor PARTIAL_TERM {delete $$;}
+%destructor PARTIAL_TERM { delete $$; }
 
 // BOOLEAN_FILTER is a query term with a prefix registered using
 // add_boolean_prefix().  It's added to the query using an OP_FILTER operator,
 // (or OP_AND_NOT if it's negated) e.g. site:xapian.org or -site:xapian.org
-%destructor BOOLEAN_FILTER {delete $$;}
+%destructor BOOLEAN_FILTER { delete $$; }
 
 // Grammar rules:
 
@@ -1982,7 +1982,7 @@ query ::= . {
 // expr - A query expression.
 
 %type expr {Query *}
-%destructor expr {delete $$;}
+%destructor expr { delete $$; }
 
 expr(E) ::= prob_expr(E).
 
@@ -2029,7 +2029,7 @@ expr(A) ::= bool_arg(A) XOR bool_arg(B). {
 // bool_arg - an argument to a boolean operator such as AND or OR.
 
 %type bool_arg {Query *}
-%destructor bool_arg {delete $$;}
+%destructor bool_arg { delete $$; }
 
 bool_arg(A) ::= expr(A).
 
@@ -2043,7 +2043,7 @@ bool_arg(A) ::= . [ERROR] {
 // prob_expr - a single compound term, or a prob.
 
 %type prob_expr {Query *}
-%destructor prob_expr {delete $$;}
+%destructor prob_expr { delete $$; }
 
 prob_expr(E) ::= prob(P). {
     E = P->query;
@@ -2091,7 +2091,7 @@ prob_expr(E) ::= term(E).
 // Note: stop_term can also be several other things other than a simple term!
 
 %type prob {ProbQuery *}
-%destructor prob {delete $$;}
+%destructor prob { delete $$; }
 
 prob(P) ::= RANGE(R). {
     string grouping = R->name;
@@ -2197,7 +2197,7 @@ prob(P) ::= stop_prob(P) LOVE BOOLEAN_FILTER(T). {
 // stop_prob - A prob or a stop_term.
 
 %type stop_prob {ProbQuery *}
-%destructor stop_prob {delete $$;}
+%destructor stop_prob { delete $$; }
 
 stop_prob(P) ::= prob(P).
 
@@ -2212,7 +2212,7 @@ stop_prob(P) ::= stop_term(T). {
 // stopword list, so stop_term isn't used there (instead term is).
 
 %type stop_term {Query *}
-%destructor stop_term {delete $$;}
+%destructor stop_term { delete $$; }
 
 stop_term(T) ::= TERM(U). {
     if (state->is_stopword(U)) {
@@ -2229,7 +2229,7 @@ stop_term(T) ::= compound_term(T).
 // term - A term or a compound_term.
 
 %type term {Query *}
-%destructor term {delete $$;}
+%destructor term { delete $$; }
 
 term(T) ::= TERM(U). {
     T = new Query(U->get_query_with_auto_synonyms());
@@ -2243,7 +2243,7 @@ term(T) ::= compound_term(T).
 // or without prefix).
 
 %type compound_term {Query *}
-%destructor compound_term {delete $$;}
+%destructor compound_term { delete $$; }
 
 compound_term(T) ::= WILD_TERM(U).
 	{ T = U->as_wildcarded_query(state); /*T-overwrites-U*/ }
@@ -2282,7 +2282,7 @@ compound_term(T) ::= CJKTERM(U). {
 
 %type phrase {Terms *}
 
-%destructor phrase {delete $$;}
+%destructor phrase { delete $$; }
 
 phrase(P) ::= TERM(T). {
     P = Terms::create();
@@ -2307,7 +2307,7 @@ phrase(P) ::= phrase(P) CJKTERM(T). {
 // at least 2 terms in order to be able to have punctuation between the terms!
 
 %type phrased_term {Terms *}
-%destructor phrased_term {delete $$;}
+%destructor phrased_term { delete $$; }
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
     P = Terms::create();
@@ -2323,7 +2323,7 @@ phrased_term(P) ::= phrased_term(P) PHR_TERM(T). {
 // multi-term synonyms.
 
 %type group {TermGroup *}
-%destructor group {delete $$;}
+%destructor group { delete $$; }
 
 group(P) ::= TERM(T) GROUP_TERM(U). {
     P = TermGroup::create(T, U); /*P-overwrites-T*/
@@ -2341,7 +2341,7 @@ group(P) ::= group(P) EMPTY_GROUP_OK. {
 // terms in order for there to be any NEAR operators!
 
 %type near_expr {Terms *}
-%destructor near_expr {delete $$;}
+%destructor near_expr { delete $$; }
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
     P = Terms::create();
@@ -2365,7 +2365,7 @@ near_expr(P) ::= near_expr(P) NEAR(N) TERM(T). {
 // terms in order for there to be any ADJ operators!
 
 %type adj_expr {Terms *}
-%destructor adj_expr {delete $$;}
+%destructor adj_expr { delete $$; }
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
     P = Terms::create();
