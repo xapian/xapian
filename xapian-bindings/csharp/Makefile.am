@@ -87,7 +87,10 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/XapianPINVOKE.cs
 
 XapianSharp.snk:
-	$(SN) -k $@
+## Older cli-sn fails with certain TERM setting (e.g. xterm-256color) due to:
+## https://github.com/mono/mono/issues/6752
+## Seen on Kubuntu 18.10.
+	TERM= $(SN) -k $@
 
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 ## We specify both -keyfile and -keycontainer - hopefully this means that if
