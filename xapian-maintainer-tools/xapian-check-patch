@@ -214,6 +214,11 @@ while (<>) {
 	}
 
 	# Trim comments:
+	if (s! /\*.*?\*/ ! !g) {
+	    # C-style comment with spaces around, e.g.
+	    # { T = P->as_phrase_query(); /*T-overwrites-P*/ }
+	    s/\s+$//;
+	}
 	if (s!/(?:\*.*?\*/|/.*)!!g) {
 	    s/\s+$//;
 	}
