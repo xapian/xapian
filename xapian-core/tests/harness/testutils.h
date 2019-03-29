@@ -85,10 +85,10 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	try { \
 	    CODE; \
 	    FAIL_TEST("Expected " << expected_exception << " not thrown"); \
-	} catch (const TYPE& e) { \
+	} catch (const TYPE& xap_ex_obj_) { \
 	    if (EXACT) { \
-		if (strcmp(expected_exception, e.get_type()) != 0) { \
-		    FAIL_TEST("Caught subclass " << e.get_type() << \
+		if (strcmp(expected_exception, xap_ex_obj_.get_type()) != 0) { \
+		    FAIL_TEST("Caught subclass " << xap_ex_obj_.get_type() << \
 			      " of expected " << expected_exception); \
 		} \
 	    } \
