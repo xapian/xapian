@@ -58,6 +58,7 @@ static const qp_flag flag_tab[] = {
     { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
     { "cjk_words", Xapian::QueryParser::FLAG_CJK_WORDS },
     { "default", Xapian::QueryParser::FLAG_DEFAULT },
+    { "fuzzy", Xapian::QueryParser::FLAG_FUZZY },
     { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
     { "partial", Xapian::QueryParser::FLAG_PARTIAL },
     { "phrase", Xapian::QueryParser::FLAG_PHRASE },

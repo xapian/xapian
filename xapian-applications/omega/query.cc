@@ -289,6 +289,12 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 		    break;
 		}
 		break;
+	    case 'f':
+		if (strcmp(s, "fuzzy") == 0) {
+		    mask = Xapian::QueryParser::FLAG_FUZZY;
+		    break;
+		}
+		break;
 	    case 'l':
 		if (strcmp(s, "lovehate") == 0) {
 		    mask = Xapian::QueryParser::FLAG_LOVEHATE;

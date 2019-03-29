@@ -149,6 +149,10 @@ QueryParser::set_max_expansion(Xapian::termcount max_expansion,
 	internal->max_partial_expansion = max_expansion;
 	internal->max_partial_type = max_type;
     }
+    if (flags & FLAG_FUZZY) {
+	internal->max_fuzzy_expansion = max_expansion;
+	internal->max_fuzzy_type = max_type;
+    }
 }
 
 void

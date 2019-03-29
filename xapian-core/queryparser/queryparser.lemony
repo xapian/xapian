@@ -51,6 +51,9 @@ using namespace std;
 
 using namespace Xapian;
 
+static constexpr unsigned NO_EDIT_DISTANCE = unsigned(-1);
+static constexpr unsigned DEFAULT_EDIT_DISTANCE = 2;
+
 inline bool
 U_isupper(unsigned ch) {
     return (ch < 128 && C_isupper(static_cast<unsigned char>(ch)));
@@ -140,6 +143,7 @@ class Term {
     QueryParser::stem_strategy stem;
     termpos pos;
     Query query;
+    unsigned edit_distance;
 
     Term(const string &name_, termpos pos_)
 	: name(name_), stem(QueryParser::STEM_NONE), pos(pos_) { }
@@ -152,9 +156,11 @@ class Term {
     Term(State * state_, const string &name_, const FieldInfo * field_info_,
 	 const string &unstemmed_,
 	 QueryParser::stem_strategy stem_ = QueryParser::STEM_NONE,
-	 termpos pos_ = 0)
+	 termpos pos_ = 0,
+	 unsigned edit_distance_ = NO_EDIT_DISTANCE)
 	: state(state_), name(name_), field_info(field_info_),
-	  unstemmed(unstemmed_), stem(stem_), pos(pos_) { }
+	  unstemmed(unstemmed_), stem(stem_), pos(pos_),
+	  edit_distance(edit_distance_) { }
     // For RANGE tokens.
     Term(const Xapian::Query & q, const string & grouping)
 	: name(grouping), query(q) { }
@@ -170,6 +176,8 @@ class Term {
     string get_grouping() const {
 	return field_info->grouping;
     }
+
+    Query * as_fuzzy_query(State * state) const;
 
     Query * as_wildcarded_query(State * state) const;
 
@@ -294,6 +302,14 @@ class State {
 
     unsigned get_min_partial_prefix_len() const {
 	return qpi->min_partial_prefix_len;
+    }
+
+    Xapian::termcount get_max_fuzzy_expansion() const {
+	return qpi->max_fuzzy_expansion;
+    }
+
+    int get_max_fuzzy_type() const {
+	return qpi->max_fuzzy_type;
     }
 };
 
@@ -464,6 +480,29 @@ Term::get_query() const
     while (++piter != prefixes.end()) {
 	q |= Query(make_term(*piter), 1, pos);
     }
+    return q;
+}
+
+Query *
+Term::as_fuzzy_query(State* state_) const
+{
+    const list<string>& prefixes = field_info->prefixes;
+    Xapian::termcount max = state_->get_max_fuzzy_expansion();
+    int query_flags = state_->get_max_fuzzy_type();
+    vector<Query> subqs;
+    subqs.reserve(prefixes.size());
+    for (auto&& prefix : prefixes) {
+	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
+	subqs.emplace_back(Query::OP_EDIT_DISTANCE,
+			   prefix + name,
+			   max,
+			   query_flags,
+			   Query::OP_OR,
+			   edit_distance,
+			   prefix.size());
+    }
+    Query* q = new Query(Query::OP_SYNONYM, subqs.begin(), subqs.end());
+    delete this;
     return q;
 }
 
@@ -749,7 +788,8 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 				  bool cjk_enable, unsigned flags,
 				  bool & is_cjk_term, bool &was_acronym,
 				  size_t& first_wildcard,
-				  size_t& char_count)
+				  size_t& char_count,
+				  unsigned& edit_distance)
 {
     string term;
     char_count = 0;
@@ -872,6 +912,49 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 	    if (it != end && *it == '*') {
 		++it;
 		first_wildcard = char_count;
+	    }
+	}
+	if (it != end &&
+	    (flags & QueryParser::FLAG_FUZZY) &&
+	    // Not a wildcard.
+	    first_wildcard == string::npos &&
+	    *it == '~') {
+	    Utf8Iterator p = it;
+	    ++p;
+	    unsigned ch = *p;
+	    if (p == end || is_whitespace(ch) || ch == ')') {
+		it = p;
+		edit_distance = DEFAULT_EDIT_DISTANCE;
+	    } else if (U_isdigit(ch)) {
+		unsigned distance = ch - '0';
+		while (++p != end && U_isdigit(*p)) {
+		    distance = distance * 10 + (*p - '0');
+		}
+		if (p != end && *p == '.') {
+		    if (distance == 0) goto fractional;
+		    // Ignore the fractional part on e.g. foo~12.5
+		    while (++p != end && U_isdigit(*p)) { }
+		}
+		if (p == end || is_whitespace(ch) || ch == ')') {
+		    it = p;
+		    edit_distance = distance;
+		}
+	    } else if (ch == '.') {
+fractional:
+		double fraction = 0.0;
+		double digit = 0.1;
+		while (++p != end && U_isdigit(*p)) {
+		    fraction += digit * (*p - '0');
+		    digit *= 0.1;
+		}
+		if (p == end || is_whitespace(ch) || ch == ')') {
+		    it = p;
+		    unsigned codepoints = 0;
+		    for (Utf8Iterator u8(term); u8 != Utf8Iterator(); ++u8) {
+			++codepoints;
+		    }
+		    edit_distance = unsigned(codepoints * fraction);
+		}
 	    }
 	}
     }
@@ -1267,12 +1350,14 @@ phrased_term:
 	bool is_cjk_term = false;
 	size_t first_wildcard = string::npos;
 	size_t term_char_count;
+	unsigned edit_distance = NO_EDIT_DISTANCE;
 	string term = parse_term(it, end, cjk_enable, flags,
 				 is_cjk_term, was_acronym, first_wildcard,
-				 term_char_count);
+				 term_char_count, edit_distance);
 
 	// Boolean operators.
 	if (first_wildcard == string::npos &&
+	    edit_distance == NO_EDIT_DISTANCE &&
 	    (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
@@ -1358,7 +1443,8 @@ phrased_term:
 		if (!stemmer.internal.get()) {
 		    // No stemmer is set.
 		    stem_term = STEM_NONE;
-		} else if (first_wildcard != string::npos) {
+		} else if (first_wildcard != string::npos ||
+			   edit_distance != NO_EDIT_DISTANCE) {
 		    stem_term = STEM_NONE;
 		} else if (stem_term == STEM_SOME ||
 			   stem_term == STEM_SOME_FULL_POS) {
@@ -1378,9 +1464,11 @@ phrased_term:
 	    }
 
 	    Term * term_obj = new Term(&state, term, field_info,
-				       unstemmed_term, stem_term, term_pos++);
+				       unstemmed_term, stem_term, term_pos++,
+				       edit_distance);
 
-	    if (first_wildcard != string::npos) {
+	    if (first_wildcard != string::npos ||
+		edit_distance != NO_EDIT_DISTANCE) {
 		if (mode == IN_GROUP || mode == IN_GROUP2) {
 		    // Drop out of IN_GROUP and flag that the group
 		    // can be empty if all members are stopwords.
@@ -1388,7 +1476,10 @@ phrased_term:
 			Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
 		    mode = DEFAULT;
 		}
-		Parse(&parser, WILD_TERM, term_obj, &state);
+		Parse(&parser,
+		      first_wildcard != string::npos ? WILD_TERM : EDIT_TERM,
+		      term_obj,
+		      &state);
 		continue;
 	    }
 
@@ -1944,6 +2035,9 @@ Term::as_positional_cjk_term(Terms * terms) const
 // of all punctuation which does this).
 %destructor PHR_TERM { delete $$; }
 
+// EDIT_TERM is like a TERM, but with an edit distance.
+%destructor EDIT_TERM { delete $$; }
+
 // WILD_TERM is like a TERM, but with wildcards which needs to be expanded.
 %destructor WILD_TERM { delete $$; }
 
@@ -2244,6 +2338,9 @@ term(T) ::= compound_term(T).
 
 %type compound_term {Query *}
 %destructor compound_term { delete $$; }
+
+compound_term(T) ::= EDIT_TERM(U).
+	{ T = U->as_fuzzy_query(state); /*T-overwrites-U*/ }
 
 compound_term(T) ::= WILD_TERM(U).
 	{ T = U->as_wildcarded_query(state); /*T-overwrites-U*/ }

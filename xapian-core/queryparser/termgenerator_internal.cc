@@ -671,6 +671,7 @@ check_query(const Xapian::Query & query,
 	    list<vector<string>> & exact_phrases,
 	    unordered_map<string, double> & loose_terms,
 	    list<const Xapian::Internal::QueryWildcard*> & wildcards,
+	    list<const Xapian::Internal::QueryEditDistance*> & fuzzies,
 	    size_t & longest_phrase)
 {
     // FIXME: OP_NEAR, non-tight OP_PHRASE, OP_PHRASE with non-term subqueries
@@ -685,6 +686,11 @@ check_query(const Xapian::Query & query,
 	const QueryWildcard* qw =
 	    static_cast<const QueryWildcard*>(query.internal.get());
 	wildcards.push_back(qw);
+    } else if (op == query.OP_EDIT_DISTANCE) {
+	using Xapian::Internal::QueryEditDistance;
+	const QueryEditDistance* qed =
+	    static_cast<const QueryEditDistance*>(query.internal.get());
+	fuzzies.push_back(qed);
     } else if (op == query.OP_PHRASE) {
 	const Xapian::Internal::QueryPhrase & phrase =
 	    *static_cast<const Xapian::Internal::QueryPhrase *>(query.internal.get());
@@ -712,7 +718,7 @@ check_query(const Xapian::Query & query,
 non_term_subquery:
     for (size_t i = 0; i != n_subqs; ++i)
 	check_query(query.get_subquery(i), exact_phrases, loose_terms,
-		    wildcards, longest_phrase);
+		    wildcards, fuzzies, longest_phrase);
 }
 
 static double*
@@ -781,9 +787,10 @@ MSet::Internal::snippet(const string & text,
     list<vector<string>> exact_phrases;
     unordered_map<string, double> loose_terms;
     list<const Xapian::Internal::QueryWildcard*> wildcards;
+    list<const Xapian::Internal::QueryEditDistance*> fuzzies;
     size_t longest_phrase = 0;
     check_query(enquire->query, exact_phrases, loose_terms,
-		wildcards, longest_phrase);
+		wildcards, fuzzies, longest_phrase);
 
     vector<double> exact_phrases_relevance;
     exact_phrases_relevance.reserve(exact_phrases.size());
@@ -793,11 +800,19 @@ MSet::Internal::snippet(const string & text,
     }
 
     vector<double> wildcards_relevance;
-    wildcards_relevance.reserve(exact_phrases.size());
+    wildcards_relevance.reserve(wildcards.size());
     for (auto&& pattern : wildcards) {
 	// FIXME: What relevance to use?
 	(void)pattern;
 	wildcards_relevance.push_back(max_tw + min_tw);
+    }
+
+    vector<double> fuzzies_relevance;
+    fuzzies_relevance.reserve(fuzzies.size());
+    for (auto&& pattern : fuzzies) {
+	// FIXME: What relevance to use?
+	(void)pattern;
+	fuzzies_relevance.push_back(max_tw + min_tw);
     }
 
     // Background relevance is the same for a given MSet, so cache it
@@ -867,6 +882,23 @@ MSet::Internal::snippet(const string & text,
 		for (auto&& qw : wildcards) {
 		    if (qw->test(term)) {
 			relevance = &wildcards_relevance[i];
+			highlight = 1;
+			goto relevance_done;
+		    }
+		    ++i;
+		}
+
+		// Check fuzzies.
+		// FIXME: Sort fuzzies, cheapest to check first or something?
+		i = 0;
+		for (auto&& qed : fuzzies) {
+		    int result = qed->test(term);
+		    if (result) {
+			// FIXME: Reduce relevance the more edits there are?
+			// We can't just divide by result here as this
+			// relevance is used by any term matching this
+			// subquery.
+			relevance = &fuzzies_relevance[i];
 			highlight = 1;
 			goto relevance_done;
 		    }
