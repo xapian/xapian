@@ -380,16 +380,25 @@ QUOTELOOP:  while (1) {
 	    # Exclude lines ending ');', ')', or ',' to avoid reporting for wrapped function arguments.
 	    diagnostic('error', "line indented by ".length($1)." spaces", $fullline);
 	}
-	if (m!^\+.*\b([A-Za-z_][A-Za-z_0-9]*)\s+\(! &&
-	    # `delete (*i)->foo();` rather than `delete(*i)->foo()'` - the `(`
-	    # isn't around function parameters here.
-	    $1 !~ /^(bool|case|catch|delete|double|for|if|int|return|switch|throw|void|while)$/) {
-	    if (!$preproc) {
-		diagnostic('error', "Whitespace between '$1' and '('", $fullline);
-	    } else {
-		# FIXME: We skip preprocessor lines for now to avoid triggering
-		# on things like «#define FOUR (2+2)» but it would be good to
-		# catch «#define FOO(x) foo (x)»
+
+	#if (/^\+.*(?<!\btypedef )\b([A-Za-z_][A-Za-z_0-9]*)\s+\(/ &&
+	if (/^\+.*\b([A-Za-z_][A-Za-z_0-9]*)\s+\(((?:[A-Za-z][A-Za-z0-9_]*::)?\*|[A-Za-z][A-Za-z0-9_]*\)\()?/) {
+	    my $name = $1;
+	    my $post = $2;
+	    if (
+		# `delete (*i)->foo();` rather than `delete(*i)->foo()'` - the `(`
+		# isn't around function parameters here.
+		$name !~ /^(case|catch|delete|double|for|if|return|switch|throw|while)$/ &&
+		# Function pointer type `int (*)(void)` or parenthesised
+		# function name `int (foo)(`.
+		!($name =~ /^(?:bool|double|float|unsigned|void|[a-z][a-z0-9_]+_t|(?:(?:un)?signed\s+)?(?:char|int|long|short))$/ && length($post))) {
+		if (!$preproc) {
+		    diagnostic('error', "Whitespace between '$name' and '('", $fullline);
+		} else {
+		    # FIXME: We skip preprocessor lines for now to avoid triggering
+		    # on things like «#define FOUR (2+2)» but it would be good to
+		    # catch «#define FOO(x) foo (x)»
+		}
 	    }
 	}
 	if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
