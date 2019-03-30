@@ -822,7 +822,7 @@ Numeric Operators:
 
 $add{...}
 	add arguments together (if called with one argument, this will convert
-	it to a string and back, which ensures it is an integer).
+	it to an integer and back, which ensures it is an integer).
 
 $div{A,B}
 	returns int(A / B) (or the text "divide by 0" if B is zero)
