@@ -824,9 +824,12 @@ $weight
 Numeric Operators:
 ==================
 
+For Numerical Operators we allow trailing characters and also allow non-number arguments as not
+allowing them will break excusing user templates which rely on this behaviour.
+
 $add{...}
 	add arguments together (if called with one argument, this will convert
-	it to a string and back, which ensures it is an integer).
+	it to a int and back, which ensures it is an integer).
 
 $div{A,B}
 	returns int(A / B) (or the text "divide by 0" if B is zero)
@@ -851,6 +854,9 @@ $sub{A,B}
 
 Logical Operators:
 ==================
+
+For Logical Operators we allow trailing characters and also allow non-number arguments as not
+allowing them will break excusing user templates which rely on this behaviour.
 
 $and{...}
 	logical short-cutting "and" of its arguments - evaluates
