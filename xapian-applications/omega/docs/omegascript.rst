@@ -847,6 +847,12 @@ $weight
 Numeric Operators:
 ==================
 
+For Numeric Operators we allow trailing characters and also allow non-number arguments.
+Reason for this behaviour is that it makes things robust if some of the parameters come in as CGI parameters.
+Ex:- if you had a CGI param at the end of a URL that was supposed to be a number, and sent it in an email
+or a message, it's possible for the person receiving to end up with a URL with a dot or semicolon at the
+end (from punctuation in your message).
+
 $add{...}
 	add arguments together (if called with one argument, this will convert
 	it to a string and back, which ensures it is an integer).
@@ -874,6 +880,10 @@ $sub{A,B}
 
 Logical Operators:
 ==================
+
+For Logical Operators we allow empty arguments.
+Reason is that logical operators compare their arguments based on whether they are empty or not.
+OmegaScript treats an empty string as a "false" logical value and any non-empty string as "true".
 
 $and{...}
 	logical short-cutting "and" of its arguments - evaluates
