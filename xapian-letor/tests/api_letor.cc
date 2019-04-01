@@ -804,3 +804,42 @@ DEFINE_TESTCASE(err_scorer, !backend)
 
     return true;
 }
+
+//Test for TfDoclenFeature
+DEFINE_TESTCASE(tfdoclenfeature, generated)
+{
+    string db_path = get_database_path("apitest_tfdoclenfeature",
+				       db_index_one_document);
+    Xapian::Database db(db_path);
+    Xapian::Document doc = db.get_document(1);
+    std::map<std::string,Xapian::termcount> len;
+    Xapian::TermIterator dt = doc.termlist_begin();
+    
+    len["title"] = 4;
+    Xapian::termcount whole_len = db.get_doclength(1);
+    len["whole"] = whole_len;
+    TEST_EQUAL(whole_len,186);
+    len["body"] = whole_len - len["title"];
+
+    Xapian::TfDoclenFeature feature;
+    feature.set_doc_length(len);
+
+    std::map<std::string, Xapian::termcount> tf;
+    tf["ZStiger"] = 1;
+    tf["ZXDtiger"] = 6;
+    tf["Ztiger"] = 2;
+    feature.set_termfreq(tf);
+
+    vector<double> res = feature.get_values();
+    TEST_EQUAL(res.size(), 3);
+
+    //test for title
+    TEST_EQUAL(res[0], log10(1 + (1 / (1 + len["title"]))));
+
+    //test for body
+    TEST_EQUAL(res[1], log10(1 + (18 / (1 + len["body"]))));
+
+    //test for whole
+    TEST_EQUAL(res[2], log10(1 + (19 / (1 + len["whole"]))));
+    return true;
+}
