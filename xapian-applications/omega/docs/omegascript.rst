@@ -824,8 +824,11 @@ $weight
 Numeric Operators:
 ==================
 
-For Numerical Operators we allow trailing characters and also allow non-number arguments as not
-allowing them will break excusing user templates which rely on this behaviour.
+For Numeric Operators we allow trailing characters and also allow non-number arguments.
+Reason for this behaviour is that it makes things robust if some of the parameters come in as CGI parameters.
+Ex:- if you had a CGI param at the end of a URL that was supposed to be a number, and sent it in an email or a message,
+it's possible for the person receiving to end up with a URL with a dot or semicolon at the
+end (from punctuation in your message).
 
 $add{...}
 	add arguments together (if called with one argument, this will convert
@@ -855,8 +858,8 @@ $sub{A,B}
 Logical Operators:
 ==================
 
-For Logical Operators we allow trailing characters and also allow non-number arguments as not
-allowing them will break excusing user templates which rely on this behaviour.
+For Logical Operators we allow trailing characters and also allow non-number arguments.
+For reason why we do this, consult the Numeric Operators section.
 
 $and{...}
 	logical short-cutting "and" of its arguments - evaluates
