@@ -1234,8 +1234,8 @@ get_subdbs()
 }
 
 // mersenne twister for RNG
-random_device rd;
-mt19937 rng(rd());
+mt19937 rng;
+static bool seed_set = 0;
 
 static string
 eval(const string &fmt, const vector<string> &param)
@@ -2061,13 +2061,14 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_random: {
-		if (args.size() == 1) {
-		    uniform_int_distribution<int>
-			distr(0, string_to_int(args[0]));
-		    value = str(distr(rng));
-		} else {
-		    throw "$random requires exactly 1 argument";
+		if (!seed_set) {
+		    random_device rd;
+		    rng.seed(rd());
+		    seed_set = 1;
 		}
+		uniform_int_distribution<int>
+		    distr(0, string_to_int(args[0]));
+		value = str(distr(rng));
 		break;
 	    }
 	    case CMD_record: {
@@ -2197,6 +2198,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_srandom: {
 		int seed = string_to_int(args[0]);
 		rng.seed(seed);
+		seed_set = 1;
 		break;
 	    }
 	    case CMD_stoplist: {
