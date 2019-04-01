@@ -1234,7 +1234,7 @@ get_subdbs()
 }
 
 // mersenne twister for RNG
-mt19937 rng;
+static mt19937 rng;
 static bool seed_set = 0;
 
 static string
