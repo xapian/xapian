@@ -625,11 +625,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			substituted = true;
 			string tail(cmd, pcent + 2);
 			cmd.resize(pcent);
-			append_filename_argument(cmd, file);
-			// Remove the space append_filename_argument() adds before
-			// the argument - the command string either includes one,
-			// or won't expect one (e.g. --input=%f).
-			cmd.erase(pcent, 1);
+			// Suppress the space append_filename_argument()
+			// usually adds before the argument - the command
+			// string either includes one, or won't expect one
+			// (e.g. --input=%f).
+			append_filename_argument(cmd, file, false);
 			pcent = cmd.size();
 			cmd += tail;
 			break;
@@ -650,11 +650,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			substituted = true;
 			string tail(cmd, pcent + 2);
 			cmd.resize(pcent);
-			append_filename_argument(cmd, tmpout);
-			// Remove the space append_filename_argument() adds before
-			// the argument - the command string either includes one,
-			// or won't expect one (e.g. --input=%f).
-			cmd.erase(pcent, 1);
+			// Suppress the space append_filename_argument()
+			// usually adds before the argument - the command
+			// string either includes one, or won't expect one
+			// (e.g. --output=%t).
+			append_filename_argument(cmd, tmpout, false);
 			pcent = cmd.size();
 			cmd += tail;
 			break;
