@@ -1,7 +1,7 @@
 /** @file append_filename_arg.h
  *  @brief Append filename argument to a command string with suitable escaping
  */
-/* Copyright (C) 2003,2004,2007,2012 Olly Betts
+/* Copyright (C) 2003,2004,2007,2012,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,15 +26,17 @@
 
 /// Append filename argument arg to command cmd with suitable escaping.
 static bool
-append_filename_argument(std::string & cmd, const std::string & arg) {
+append_filename_argument(std::string& cmd,
+			 const std::string& arg,
+			 bool leading_space = true) {
 #ifdef __WIN32__
     cmd.reserve(cmd.size() + arg.size() + 5);
     // Prevent a leading "-" on the filename being interpreted as a command
     // line option.
-    if (arg[0] == '-')
-	cmd += " \".\\";
-    else
-	cmd += " \"";
+    const char* prefix = (arg[0] == '-') ? " \".\\" : " \"";
+    if (!leading_space)
+	++prefix;
+    cmd += prefix;
 
     for (std::string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
 	if (*i == '/') {
@@ -58,10 +60,10 @@ append_filename_argument(std::string & cmd, const std::string & arg) {
 
     // Prevent a leading "-" on the filename being interpreted as a command
     // line option.
-    if (arg[0] == '-')
-	cmd += " './";
-    else
-	cmd += " '";
+    const char* prefix = (arg[0] == '-') ? " './" : " '";
+    if (!leading_space)
+	++prefix;
+    cmd += prefix;
 
     for (std::string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
 	if (*i == '\'') {
