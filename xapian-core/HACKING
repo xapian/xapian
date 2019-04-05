@@ -3,14 +3,17 @@ Instructions for hacking on Xapian
 
 .. contents:: Table of contents
 
-We're in the process of putting together a coherent guide to people
-working on the Xapian code, and are pulling information from existing
-documents such as this one.
+.. tip::
 
-So you'll find most of the information which used to be here in a
-better form at: https://xapian-developer-guide.readthedocs.io/
+   Before reading the contents of this file, you should look at
+   `the Xapian developer guide`_. If you want, you can `grab
+   it from github`_ and build it locally.
 
-Some sections which haven't yet been relocated can still be found below.
+   The bulk of the previous contents of this file now live in the developer
+   guide, and it is likely that the rest will follow in due course.
+
+   .. _the Xapian developer guide: https://xapian-developer-guide.readthedocs.io/
+   .. _grab it from github: https://github.com/xapian/xapian-developer-guide
 
 
 Snapshots
