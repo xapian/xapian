@@ -26,19 +26,19 @@
 
 // function for logging calls
 
-int reset = 0;
+static int is_reset = 0;
 
-void logcall(const char *call)
+void logcall(const char *format, ...)
 {
-    FILE *file_ptr;
-    if (!reset) {
+    static FILE *file_ptr;
+    if (!is_reset) {
 	file_ptr = fopen("./strace.log", "w");
-	reset = 1;
-    } else {
-	file_ptr = fopen("./strace.log", "a");
+	is_reset = 1;
     }
-    fprintf(file_ptr, "%s", call);
-    fclose(file_ptr);
+    va_list args_ptr;
+    va_start(args_ptr, format);
+    vfprintf(file_ptr, format, args_ptr);
+    va_end(args_ptr);
 }
 
 // wrapper for open()
@@ -54,15 +54,13 @@ int open(const char *pathname, int flags, ...)
 	fd =
 	    ((real_open_t)dlsym(RTLD_NEXT, "open"))
 	    (pathname, flags, va_arg(args_ptr, mode_t));
-        va_end(args_ptr);
+	va_end(args_ptr);
     } else {
 	fd = ((real_open_t)dlsym(RTLD_NEXT, "open"))(pathname, flags);
     }
-    char call[MAX_CALL_LEN];
     char *abspath = realpath(pathname, NULL);
-    snprintf(call, MAX_CALL_LEN, "open(\"%s\",,) = %d\n", abspath, fd);
+    logcall("open(\"%s\",,) = %d\n", abspath, fd);
     free(abspath);
-    logcall(call);
     return fd;
 }
 
@@ -73,9 +71,7 @@ typedef int (*real_close_t)(int);
 int close(int fd)
 {
     int return_val = ((real_close_t)dlsym(RTLD_NEXT, "close"))(fd);
-    char call[MAX_CALL_LEN];
-    snprintf(call, MAX_CALL_LEN, "close(%d) = %d\n", fd, return_val);
-    logcall(call);
+    logcall("close(%d) = %d\n", fd, return_val);
     return return_val;
 }
 
@@ -86,9 +82,7 @@ typedef ssize_t (*real_fdatasync_t)(int);
 ssize_t fdatasync(int fd)
 {
     ssize_t return_val = ((real_fdatasync_t)dlsym(RTLD_NEXT, "fdatasync"))(fd);
-    char call[MAX_CALL_LEN];
-    snprintf(call, MAX_CALL_LEN, "fdatasync(%d) = %ld\n", fd, return_val);
-    logcall(call);
+    logcall("fdatasync(%d) = %ld\n", fd, return_val);
     return return_val;
 }
 
@@ -99,9 +93,7 @@ typedef ssize_t (*real_fsync_t)(int);
 ssize_t fsync(int fd)
 {
     ssize_t return_val = ((real_fsync_t)dlsym(RTLD_NEXT, "fsync"))(fd);
-    char call[MAX_CALL_LEN];
-    snprintf(call, MAX_CALL_LEN, "fsync(%d) = %ld\n", fd, return_val);
-    logcall(call);
+    logcall("fsync(%d) = %ld\n", fd, return_val);
     return return_val;
 }
 
@@ -113,16 +105,8 @@ ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 {
     ssize_t return_val =
 	((real_pread_t)dlsym(RTLD_NEXT, "pread"))(fd, buf, count, offset);
-    char call[MAX_CALL_LEN];
-    char *new_buf = (char *)buf;
-    for (size_t i = 0; i < count; ++i) {
-	if (new_buf[i] == '\n') {
-	    new_buf[i] = '\0';
-	}
-    }
-    snprintf(call, MAX_CALL_LEN, "pread(%d, \"%s\", %lu, %ld) = %ld\n",
-	     fd, new_buf, count, offset, return_val);
-    logcall(call);
+    logcall("pread(%d, \"\", %lu, %ld) = %ld\n",
+	    fd, count, offset, return_val);
     return return_val;
 }
 
@@ -134,16 +118,8 @@ ssize_t pread64(int fd, void *buf, size_t count, off_t offset)
 {
     ssize_t return_val =
 	((real_pread64_t)dlsym(RTLD_NEXT, "pread64"))(fd, buf, count, offset);
-    char call[MAX_CALL_LEN];
-    char *new_buf = (char *)buf;
-    for (size_t i = 0; i < count; ++i) {
-	if (new_buf[i] == '\n') {
-	    new_buf[i] = '\0';
-	}
-    }
-    snprintf(call, MAX_CALL_LEN, "pread64(%d, \"%s\", %lu, %ld) = %ld\n",
-	     fd, new_buf, count, offset, return_val);
-    logcall(call);
+    logcall("pread64(%d, \"\", %lu, %ld) = %ld\n",
+	    fd, count, offset, return_val);
     return return_val;
 }
 
@@ -155,16 +131,8 @@ ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 {
     ssize_t return_val =
 	((real_pwrite_t)dlsym(RTLD_NEXT, "pwrite"))(fd, buf, count, offset);
-    char call[MAX_CALL_LEN];
-    char *new_buf = (char *)buf;
-    for (size_t i = 0; i < count; ++i) {
-	if (new_buf[i] == '\n') {
-	    new_buf[i] = '\0';
-	}
-    }
-    snprintf(call, MAX_CALL_LEN, "pwrite(%d, \"%s\", %lu, %ld) = %ld\n",
-	     fd, new_buf, count, offset, return_val);
-    logcall(call);
+    logcall("pwrite(%d, \"\", %lu, %ld) = %ld\n",
+	    fd, count, offset, return_val);
     return return_val;
 }
 
@@ -176,15 +144,7 @@ ssize_t pwrite64(int fd, const void *buf, size_t count, off_t offset)
 {
     ssize_t return_val =
 	((real_pwrite64_t)dlsym(RTLD_NEXT, "pwrite64"))(fd, buf, count, offset);
-    char call[MAX_CALL_LEN];
-    char *new_buf = (char *)buf;
-    for (size_t i = 0; i < count; ++i) {
-	if (new_buf[i] == '\n') {
-	    new_buf[i] = '\0';
-	}
-    }
-    snprintf(call, MAX_CALL_LEN, "pwrite64(%d, \"%s\", %lu, %ld) = %ld\n",
-	     fd, new_buf, count, offset, return_val);
-    logcall(call);
+    logcall("pwrite64(%d, \"\", %lu, %ld) = %ld\n",
+	    fd, count, offset, return_val);
     return return_val;
 }
