@@ -22,8 +22,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#define MAX_CALL_LEN 5000
-
 // function for logging calls
 
 static int is_reset = 0;
