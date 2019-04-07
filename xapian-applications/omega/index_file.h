@@ -111,7 +111,7 @@ void
 index_mimetype(const std::string & file, const std::string & urlterm,
 	       const std::string & url,
 	       const std::string & ext,
-	       const std::string &mimetype, DirectoryIterator &d,
+	       std::string &mimetype, DirectoryIterator &d,
 	       std::string &path_term,
 	       std::string record);
 

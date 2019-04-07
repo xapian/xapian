@@ -160,21 +160,6 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
-    // If we didn't get the mime type from the extension, call libmagic to get
-    // it.
-    if (mimetype.empty()) {
-	mimetype = d.get_magic_mimetype();
-	if (mimetype.empty()) {
-	    skip(urlterm, file.substr(root.size()), "Unknown extension and unrecognised format",
-		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
-	    return;
-	}
-    }
-
-    if (verbose)
-	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
-	     << mimetype << " ... ";
-
     string path_term("P");
     path_term += url_start_path;
     path_term.append(file, root.size(), string::npos);

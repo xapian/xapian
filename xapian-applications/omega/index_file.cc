@@ -533,7 +533,7 @@ index_add_document(const string & urlterm, time_t last_altered,
 void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
-	       const string &mimetype, DirectoryIterator &d,
+	       string &mimetype, DirectoryIterator &d,
 	       string & path_term,
 	       string record)
 {
@@ -567,7 +567,21 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
     }
 
-    if (verbose) cout << flush;
+    // If we didn't get the mime type from the extension, call libmagic to get
+    // it.
+    if (mimetype.empty()) {
+	mimetype = d.get_magic_mimetype();
+	if (mimetype.empty()) {
+	    skip(urlterm, file.substr(root.size()), "Unknown extension and unrecognised format",
+		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
+	    return;
+	}
+    }
+
+    if (verbose)
+	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
+	     << mimetype << " ... " << flush;
+
     // Use `file` as the basis, as we don't want URL encoding in these terms,
     // but need to switch over the initial part so we get `/~olly/foo/bar` not
     // `/home/olly/public_html/foo/bar`.
