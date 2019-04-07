@@ -69,6 +69,7 @@
 #include "xmlparse.h"
 #include "xlsxparse.h"
 #include "xpsxmlparse.h"
+#include "hashterm.h"
 
 using namespace std;
 
@@ -533,7 +534,7 @@ void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
 	       const string &mimetype, DirectoryIterator &d,
-	       Xapian::Document & newdocument,
+	       string & path_term,
 	       string record)
 {
     string context(file, root.size(), string::npos);
@@ -567,6 +568,19 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     }
 
     if (verbose) cout << flush;
+    // Use `file` as the basis, as we don't want URL encoding in these terms,
+    // but need to switch over the initial part so we get `/~olly/foo/bar` not
+    // `/home/olly/public_html/foo/bar`.
+    Xapian::Document newdocument;
+    size_t j;
+    while ((j = path_term.rfind('/')) > 1 && j != string::npos) {
+	path_term.resize(j);
+	if (path_term.length() > MAX_SAFE_TERM_LENGTH) {
+	    newdocument.add_boolean_term(hash_long_term(path_term, MAX_SAFE_TERM_LENGTH));
+	} else {
+	    newdocument.add_boolean_term(path_term);
+	}
+    }
 
     string author, title, sample, keywords, topic, dump;
     string md5;

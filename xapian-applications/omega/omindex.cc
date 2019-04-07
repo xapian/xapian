@@ -175,26 +175,11 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
 	     << mimetype << " ... ";
 
-    Xapian::Document new_doc;
-
-    // Use `file` as the basis, as we don't want URL encoding in these terms,
-    // but need to switch over the initial part so we get `/~olly/foo/bar` not
-    // `/home/olly/public_html/foo/bar`.
     string path_term("P");
     path_term += url_start_path;
     path_term.append(file, root.size(), string::npos);
 
-    size_t i;
-    while ((i = path_term.rfind('/')) > 1 && i != string::npos) {
-	path_term.resize(i);
-	if (path_term.length() > MAX_SAFE_TERM_LENGTH) {
-	    new_doc.add_boolean_term(hash_long_term(path_term, MAX_SAFE_TERM_LENGTH));
-	} else {
-	    new_doc.add_boolean_term(path_term);
-	}
-    }
-
-    index_mimetype(file, urlterm, url, ext, mimetype, d, new_doc, string());
+    index_mimetype(file, urlterm, url, ext, mimetype, d, path_term, string());
 }
 
 static void
