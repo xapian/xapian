@@ -62,6 +62,29 @@ int open(const char *pathname, int flags, ...)
     return fd;
 }
 
+// wrapper for open64()
+
+typedef int (*real_open64_t)(const char *, int, ...);
+
+int open64(const char *pathname, int flags, ...)
+{
+    int fd;
+    if (flags & (O_CREAT | O_TMPFILE)) {
+	va_list args_ptr;
+	va_start(args_ptr, flags);
+	fd =
+	    ((real_open_t)dlsym(RTLD_NEXT, "open64"))
+	    (pathname, flags, va_arg(args_ptr, mode_t));
+	va_end(args_ptr);
+    } else {
+	fd = ((real_open_t)dlsym(RTLD_NEXT, "open64"))(pathname, flags);
+    }
+    char *abspath = realpath(pathname, NULL);
+    logcall("open(\"%s\",,) = %d\n", abspath, fd);
+    free(abspath);
+    return fd;
+}
+
 // wrapper for close()
 
 typedef int (*real_close_t)(int);
@@ -110,13 +133,13 @@ ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 
 // wrapper for pread64()
 
-typedef ssize_t (*real_pread64_t)(int, void *, size_t, off_t);
+typedef ssize_t (*real_pread64_t)(int, void *, size_t, off64_t);
 
-ssize_t pread64(int fd, void *buf, size_t count, off_t offset)
+ssize_t pread64(int fd, void *buf, size_t count, off64_t offset)
 {
     ssize_t return_val =
 	((real_pread64_t)dlsym(RTLD_NEXT, "pread64"))(fd, buf, count, offset);
-    logcall("pread64(%d, \"\", %lu, %ld) = %ld\n",
+    logcall("pread(%d, \"\", %lu, %ld) = %ld\n",
 	    fd, count, offset, return_val);
     return return_val;
 }
@@ -136,13 +159,13 @@ ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 
 // wrapper for pwrite64()
 
-typedef ssize_t (*real_pwrite64_t)(int, const void *, size_t, off_t);
+typedef ssize_t (*real_pwrite64_t)(int, const void *, size_t, off64_t);
 
-ssize_t pwrite64(int fd, const void *buf, size_t count, off_t offset)
+ssize_t pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 {
     ssize_t return_val =
 	((real_pwrite64_t)dlsym(RTLD_NEXT, "pwrite64"))(fd, buf, count, offset);
-    logcall("pwrite64(%d, \"\", %lu, %ld) = %ld\n",
+    logcall("pwrite(%d, \"\", %lu, %ld) = %ld\n",
 	    fd, count, offset, return_val);
     return return_val;
 }
