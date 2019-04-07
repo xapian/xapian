@@ -133,9 +133,9 @@ ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 
 // wrapper for pread64()
 
-typedef ssize_t (*real_pread64_t)(int, void *, size_t, off64_t);
+typedef ssize_t (*real_pread64_t)(int, void *, size_t, off_t);
 
-ssize_t pread64(int fd, void *buf, size_t count, off64_t offset)
+ssize_t pread64(int fd, void *buf, size_t count, off_t offset)
 {
     ssize_t return_val =
 	((real_pread64_t)dlsym(RTLD_NEXT, "pread64"))(fd, buf, count, offset);
@@ -159,9 +159,9 @@ ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 
 // wrapper for pwrite64()
 
-typedef ssize_t (*real_pwrite64_t)(int, const void *, size_t, off64_t);
+typedef ssize_t (*real_pwrite64_t)(int, const void *, size_t, off_t);
 
-ssize_t pwrite64(int fd, const void *buf, size_t count, off64_t offset)
+ssize_t pwrite64(int fd, const void *buf, size_t count, off_t offset)
 {
     ssize_t return_val =
 	((real_pwrite64_t)dlsym(RTLD_NEXT, "pwrite64"))(fd, buf, count, offset);
