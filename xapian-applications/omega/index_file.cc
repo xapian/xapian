@@ -572,7 +572,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     if (mimetype.empty()) {
 	mimetype = d.get_magic_mimetype();
 	if (mimetype.empty()) {
-	    skip(urlterm, file.substr(root.size()), "Unknown extension and unrecognised format",
+	    skip(urlterm, file.substr(root.size()),
+                 "Unknown extension and unrecognised format",
 		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
 	    return;
 	}
@@ -590,7 +591,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     while ((j = path_term.rfind('/')) > 1 && j != string::npos) {
 	path_term.resize(j);
 	if (path_term.length() > MAX_SAFE_TERM_LENGTH) {
-	    newdocument.add_boolean_term(hash_long_term(path_term, MAX_SAFE_TERM_LENGTH));
+            string term_hash = hash_long_term(path_term, MAX_SAFE_TERM_LENGTH);
+	    newdocument.add_boolean_term(term_hash);
 	} else {
 	    newdocument.add_boolean_term(path_term);
 	}
