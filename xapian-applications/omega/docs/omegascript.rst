@@ -447,6 +447,9 @@ $queryterms
 $range{START,END}
 	return list of values between ``START`` and ``END``.
 
+$random{HIGH}
+	return a random value in the range [0, ``HIGH``].
+
 $record[{ID}]
 	raw record contents of document ``ID``.
 
@@ -537,6 +540,7 @@ $set{OPT,VALUE}
 	* flag_cjk_ngram (new in 1.2.22 and 1.3.4)
 	* flag_cjk_words (new in 1.5.0)
 	* flag_default
+	* flag_fuzzy (new in 1.5.0)
 	* flag_lovehate
 	* flag_partial
 	* flag_phrase
@@ -642,10 +646,24 @@ $slice{LIST,POSITIONS}
 	 "$slice{LIST,$range{1,3}}" = "b	c	d"
 	 "$slice{LIST,$range{-10,10}}" = "a	b	c	d"
 
-$snippet{TEXT[,LENGTH]}
-        Generate a context-sensitive snippet from ``TEXT`` using
-        ``Xapian::MSet::snippet()``.  The snippet will be at most
-        ``LENGTH`` bytes long (default: 200).
+$snippet{TEXT[,LENGTH[,FLAGS[,BRA[,KET[,GAP]]]]]}
+        Generate a context-sensitive snippet from ``TEXT`` using the C++ API
+        ``Xapian::MSet::snippet()`` suitable for inserting into an HTML or XML
+        document.
+
+        The snippet will be at most ``LENGTH`` bytes long (default: 200 if not
+        specified or ``LENGTH`` is an empty string).  ``BRA`` and ``KET`` are
+        added around matching terms in the sample (defaults: ``<strong>`` and
+        ``</strong>``) and ``GAP`` is used to mark omitted parts of ``TEXT``
+        (default: ``...``).
+
+        ``FLAGS`` contains zero or more of the flags that are supported by the
+        C++ API separated by ``|`` - here they are specified as
+        case-insensitive strings, and the leading ``SNIPPET_`` is optional.
+
+        For example::
+
+        $snippet{$field{sample},,background_model|empty_without_match,<b>,</b>}
 
 $sort{LIST[,OPTIONS]}
         sort the entries in a list.  The sort order is an ascending string sort
@@ -681,6 +699,9 @@ $split{SPLIT,STRING}
 	For example::
 
 	 "$split{one two three}" = "one	two	three"
+
+$srandom{SEED}
+	``SEED`` specifies a seed for random number generation.
 
 $stoplist
 	returns a list of any terms in the query which were ignored as

@@ -121,10 +121,19 @@ Query::Query(op op_,
 	     op combiner)
 {
     LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | flags | combiner);
-    if (rare(op_ != OP_WILDCARD))
-	throw Xapian::InvalidArgumentError("op must be OP_WILDCARD");
     if (rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
-	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or OP_MAX or OP_OR");
+	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or "
+					   "OP_MAX or OP_OR");
+    if (op_ == OP_EDIT_DISTANCE) {
+	internal = new Xapian::Internal::QueryEditDistance(pattern,
+							   max_expansion,
+							   flags,
+							   combiner);
+	return;
+    }
+    if (rare(op_ != OP_WILDCARD))
+	throw Xapian::InvalidArgumentError("op must be OP_EDIT_DISTANCE or "
+					   "OP_WILDCARD");
 
     auto just_flags = flags & ~Query::WILDCARD_LIMIT_MASK_;
     if (pattern.empty()) {
@@ -161,6 +170,28 @@ Query::Query(op op_,
 						   max_expansion,
 						   flags,
 						   combiner);
+}
+
+Query::Query(op op_,
+	     const std::string& pattern,
+	     Xapian::termcount max_expansion,
+	     int flags,
+	     op combiner,
+	     unsigned edit_distance,
+	     size_t min_prefix_len)
+{
+    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | flags | combiner | edit_distance | min_prefix_len);
+    if (rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
+	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or "
+					   "OP_MAX or OP_OR");
+    if (rare(op_ != OP_EDIT_DISTANCE))
+	throw Xapian::InvalidArgumentError("op must be OP_EDIT_DISTANCE");
+    internal = new Xapian::Internal::QueryEditDistance(pattern,
+						       max_expansion,
+						       flags,
+						       combiner,
+						       edit_distance,
+						       min_prefix_len);
 }
 
 const TermIterator

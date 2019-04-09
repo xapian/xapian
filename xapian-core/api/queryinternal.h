@@ -1,7 +1,7 @@
 /** @file queryinternal.h
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@
 #ifndef XAPIAN_INCLUDED_QUERYINTERNAL_H
 #define XAPIAN_INCLUDED_QUERYINTERNAL_H
 
+#include "api/editdistance.h"
 #include "postlist.h"
 #include "queryvector.h"
 #include "stringutils.h"
@@ -434,8 +435,6 @@ class QueryWildcard : public Query::Internal {
 
     std::string prefix, suffix;
 
-    Xapian::Query::op get_op() const;
-
     bool test_wildcard_(const std::string& candidate, size_t o, size_t p,
 			size_t i) const;
 
@@ -492,6 +491,90 @@ class QueryWildcard : public Query::Internal {
 
     /// Return the fixed prefix from the wildcard pattern.
     std::string get_fixed_prefix() const { return prefix; }
+
+    std::string get_description() const;
+};
+
+class QueryEditDistance : public Query::Internal {
+    std::string pattern;
+
+    Xapian::termcount max_expansion;
+
+    int flags;
+
+    Query::op combiner;
+
+    EditDistanceCalculator edcalc;
+
+    unsigned edit_distance;
+
+    size_t fixed_prefix_len;
+
+  public:
+    QueryEditDistance(const std::string& pattern_,
+		      Xapian::termcount max_expansion_,
+		      int flags_,
+		      Query::op combiner_,
+		      unsigned edit_distance_ = 2,
+		      size_t fixed_prefix_len_ = 0)
+	: pattern(pattern_),
+	  max_expansion(max_expansion_),
+	  flags(flags_),
+	  combiner(combiner_),
+	  edcalc(pattern),
+	  edit_distance(edit_distance_),
+	  fixed_prefix_len(fixed_prefix_len_) { }
+
+    /** Perform edit distance test.
+     *
+     *  @return edit_distance + 1, or 0 for a non-match.
+     */
+    int test(const std::string& candidate) const;
+
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+
+    std::string get_pattern() const { return pattern; }
+
+    size_t get_fixed_prefix_len() const { return fixed_prefix_len; }
+
+    Xapian::termcount get_max_expansion() const { return max_expansion; }
+
+    int get_just_flags() const {
+	return flags &~ Xapian::Query::WILDCARD_LIMIT_MASK_;
+    }
+
+    int get_max_type() const {
+	return flags & Xapian::Query::WILDCARD_LIMIT_MASK_;
+    }
+
+    unsigned get_threshold() const {
+	return edit_distance;
+    }
+
+    PostList* postlist(QueryOptimiser * qopt, double factor) const;
+
+    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+
+    void serialise(std::string & result) const;
+
+    /** Change the combining operator.
+     *
+     *  If there's only one reference to this object we change in-place
+     *  and return a pointer to the existing object; otherwise we create and
+     *  return a new QueryEditDistance object.
+     */
+    QueryEditDistance* change_combiner(Xapian::Query::op new_op) {
+	if (_refs == 1) {
+	    combiner = new_op;
+	    return this;
+	}
+	return new QueryEditDistance(pattern,
+				     max_expansion,
+				     flags,
+				     new_op,
+				     edit_distance,
+				     fixed_prefix_len);
+    }
 
     std::string get_description() const;
 };

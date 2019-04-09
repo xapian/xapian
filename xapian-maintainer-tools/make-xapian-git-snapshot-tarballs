@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2011,2012,2013,2015,2018 Olly Betts
+# Copyright (C) 2011,2012,2013,2015,2018,2019 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -28,6 +28,8 @@ use Sys::Hostname;
 use POSIX;
 
 my $MAXLOADPERCPU = 1.5;
+
+my $verbose = exists $ENV{VERBOSE};
 
 sub run_command {
     my $cmd = shift;
@@ -183,7 +185,7 @@ foreach my $ref (@ARGV) {
 	}
 	close CMD or die $!;
 	if (!$changed) {
-	    $ENV{'VERBOSE'} and print "No changes\n";
+	    $verbose and print "No changes\n";
 	    next;
 	}
     }
@@ -368,6 +370,9 @@ foreach my $ref (@ARGV) {
 
     # Be more verbose about test failures.
     $ENV{VERBOSE} = 1;
+
+    # Skip timed tests which can be flaky under variable load.
+    $ENV{AUTOMATED_TESTING} = 1;
 
     # Need to set LD_LIBRARY_PATH so that e.g. omega run from omegatest finds
     # a suitable "libxapian.so".

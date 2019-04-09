@@ -105,9 +105,13 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
     Xapian::termcount max_partial_expansion;
 
-    int max_wildcard_type;
+    Xapian::termcount max_fuzzy_expansion;
 
-    int max_partial_type;
+    int max_wildcard_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
+
+    int max_partial_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+
+    int max_fuzzy_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
 
     unsigned min_wildcard_prefix_len = 0;
 
@@ -127,14 +131,13 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 			   bool cjk_enable, unsigned flags,
 			   bool &is_cjk_term, bool &was_acronym,
 			   size_t& first_wildcard,
-			   size_t& char_count);
+			   size_t& char_count,
+			   unsigned& edit_distance);
 
   public:
     Internal() : stem_action(STEM_SOME), stopper(NULL),
 	default_op(Query::OP_OR), errmsg(NULL),
-	max_wildcard_expansion(0), max_partial_expansion(100),
-	max_wildcard_type(Xapian::Query::WILDCARD_LIMIT_ERROR),
-	max_partial_type(Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) { }
+	max_wildcard_expansion(0), max_partial_expansion(100) { }
 
     Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
 };

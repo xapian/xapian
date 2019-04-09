@@ -655,6 +655,10 @@ testcase 'b4c216e4da73d1d01277ef46d0514821' text="simple query"
 testcase 'd41d8cd98f00b204e9800998ecf8427e' text=""
 testcase '3302c94d3500c3f695b7e09b7acd420d' text=" test "
 
+# Feature tests for $random{}
+printf '$or{$list{$map{$range{1,100},$set{num,$random{$cgi{x}}}$or{$lt{$opt{num},0},$gt{$opt{num},$cgi{x}}}},},OK}' > "$TEST_TEMPLATE"
+testcase 'OK' x=6
+
 # Regression test - original implementation truncated data at first zero byte.
 printf '$hash{$cgi{text}$chr{0},md5}' > "$TEST_TEMPLATE"
 testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
@@ -673,6 +677,20 @@ testcase 'x:y:z:y|x:y:z' text='x y z z y'
 # Regression test - $map with one argument wasn't rejected cleanly.
 printf '$map{foo}' > "$TEST_TEMPLATE"
 testcase 'Exception: too few arguments to $map'
+
+# Feature tests for $snippet{}.
+printf 'text : index field' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+text=A sentence is more than just a list of words - there is structure to it.
+END
+
+printf '$hitlist{$snippet{$field{text},20}}' > "$TEST_TEMPLATE"
+testcase '...just a <strong>list</strong> of <strong>words</strong>...' P='word listing'
+
+printf '$hitlist{$snippet{$field{text},30,,<b>,</b>,}}' > "$TEST_TEMPLATE"
+testcase '<b>words</b> - there is structure to' P='words'
+testcase 'a <b>list of words</b> - there is' P='"list of words"'
 
 # Feature tests for split command scriptindex.
 printf 'STATUS : field split=| field=SPLITSTATUS\nSTATUS : field=x' > "$TEST_INDEXSCRIPT"
