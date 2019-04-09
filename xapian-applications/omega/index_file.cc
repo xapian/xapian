@@ -832,11 +832,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		     d.get_size(), d.get_mtime());
 		return;
 	    }
-	    string cmd = "ps2pdf";
-	    append_filename_argument(cmd, file);
+	    string cmd = "ps2pdf -";
 	    append_filename_argument(cmd, tmpfile);
 	    try {
-		run_filter(cmd, false);
+		run_filter(d.get_fd(), cmd, false);
 		cmd = "pdftotext -enc UTF-8";
 		append_filename_argument(cmd, tmpfile);
 		cmd += " -";
