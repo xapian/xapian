@@ -678,6 +678,20 @@ testcase 'x:y:z:y|x:y:z' text='x y z z y'
 printf '$map{foo}' > "$TEST_TEMPLATE"
 testcase 'Exception: too few arguments to $map'
 
+# Feature tests for $snippet{}.
+printf 'text : index field' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+text=A sentence is more than just a list of words - there is structure to it.
+END
+
+printf '$hitlist{$snippet{$field{text},20}}' > "$TEST_TEMPLATE"
+testcase '...just a <strong>list</strong> of <strong>words</strong>...' P='word listing'
+
+printf '$hitlist{$snippet{$field{text},30,,<b>,</b>,}}' > "$TEST_TEMPLATE"
+testcase '<b>words</b> - there is structure to' P='words'
+testcase 'a <b>list of words</b> - there is' P='"list of words"'
+
 # Feature tests for split command scriptindex.
 printf 'STATUS : field split=| field=SPLITSTATUS\nSTATUS : field=x' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"

@@ -1167,7 +1167,7 @@ T(seterror,	   1, 1, N, 0), // set error_msg, setting it early stops query execu
 T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
-T(snippet,	   1, 2, N, M), // generate snippet from text
+T(snippet,	   1, 6, N, M), // generate snippet from text
 T(sort,		   1, 2, N, M), // alpha sort a list
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(srandom,	   1, 1, N, 0), // seed for random number
@@ -2164,15 +2164,63 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_snippet: {
 		size_t length = 200;
-		if (args.size() > 1) {
+		unsigned flags;
+		if (args.size() > 1 && !args[1].empty()) {
 		    length = string_to_int(args[1]);
+		}
+		if (args.size() > 2 && !args[2].empty()) {
+		    flags = 0;
+		    const string& s = args[2];
+		    size_t i = 0;
+		    while (true) {
+			size_t j = s.find('|', i);
+			string flag(s, i, j - i);
+			for (char& c : flag) {
+			    c = C_tolower(c);
+			}
+			if (startswith(flag, "snippet_")) {
+			    flag.erase(0, CONST_STRLEN("snippet_"));
+			}
+			if (flag == "background_model") {
+			    flags |= mset.SNIPPET_BACKGROUND_MODEL;
+			} else if (flag == "cjk_ngram") {
+			    flags |= mset.SNIPPET_CJK_NGRAM;
+			} else if (flag == "cjk_words") {
+			    flags |= mset.SNIPPET_CJK_WORDS;
+			} else if (flag == "empty_without_match") {
+			    flags |= mset.SNIPPET_EMPTY_WITHOUT_MATCH;
+			} else if (flag == "exhaustive") {
+			    flags |= mset.SNIPPET_EXHAUSTIVE;
+			} else {
+			    throw "Unknown $snippet flag '" + flag + "'";
+			}
+			if (j == string::npos) break;
+			i = j + 1;
+		    }
+		} else {
+		    flags = mset.SNIPPET_BACKGROUND_MODEL |
+			    mset.SNIPPET_EXHAUSTIVE;
+		}
+		string bra, ket, gap;
+		if (args.size() > 3) {
+		    bra = args[3];
+		} else {
+		    bra = "<strong>";
+		}
+		if (args.size() > 4) {
+		    ket = args[4];
+		} else {
+		    ket = "</strong>";
+		}
+		if (args.size() > 5) {
+		    gap = args[5];
+		} else {
+		    gap = "...";
 		}
 		if (!stemmer)
 		    stemmer = new Xapian::Stem(option["stemmer"]);
-		// FIXME: Allow start and end highlight and omit to be specified.
-		value = mset.snippet(args[0], length, *stemmer,
-				     mset.SNIPPET_BACKGROUND_MODEL|mset.SNIPPET_EXHAUSTIVE,
-				     "<strong>", "</strong>", "...");
+		value = mset.snippet(args[0], length, *stemmer, flags,
+				     bra, ket, gap);
 		break;
 	    }
 	    case CMD_sort:
