@@ -688,7 +688,7 @@ QUOTELOOP:  while (1) {
 	}
 
 	#if (/^[-+ ]([ \t]*)(?:(?:(?:catch|for|if|for|switch|while)\b.*\)|(?:case|class|do|else|struct|try|union)\b.*) \{|case\b.*:)$/) {
-	if (/^[-+ ]([ \t]*)(?:(?:catch|for|if|for|switch|while|case|class|default|do|else|struct|try|union)\b.* \{|(case\b.*|default):)$/) {
+	if (/^[+ ]([ \t]*)(?:(?:catch|for|if|for|switch|while|case|class|default|do|else|struct|try|union)\b.* \{|(case\b.*|default):)$/) {
 	    $indent = count_columns($1);
 	    $case_no_brace = $2;
 	    # FIXME: Might be OK in e.g. lambdas
