@@ -736,4 +736,19 @@ Files patched:\t$files
 Lines added:\t$add_lines
 Lines removed:\t$del_lines
 __END__
-exit(exists $count{'error'} ? 1 : 0);
+
+exit 0 unless exists $count{'error'};
+
+if (exists $ENV{TRAVIS}) {
+    print STDERR <<"__END__";
+
+You can run these checks locally before pushing with the xapian-check-patch
+which is in the source tree in the xapian-maintainer-tools directory.
+
+E.g. to check any changes in your working directory which aren't on master:
+
+git diff master.. | xapian-maintainer-tools/xapian-check-patch
+__END__
+}
+
+exit 1;
