@@ -1017,6 +1017,11 @@ END
 printf '$list{$map{$range{1,3},$list{$allterms{$_}, }},|}' > "$TEST_TEMPLATE"
 testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018'
 
+# Check nested $hitlist{} doesn't result in an infinite loop.
+# Regression test for bug fixed in 1.4.12.
+printf '<|$hitlist{$id(:$hitlist{$id:})|}>' > "$TEST_TEMPLATE"
+testcase '<|2(:2:3:)|3(:2:3:)|>' B=Y1970 B=Y2018
+
 # Feature tests for datevalue command scriptindex.
 printf '%s\n' 'DATE : field parsedate=%Y%m%d valuepacked=13' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
