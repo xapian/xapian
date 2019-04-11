@@ -50,6 +50,7 @@
 #include "atomparse.h"
 #include "diritor.h"
 #include "failed.h"
+#include "hashterm.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "mimemap.h"
@@ -69,7 +70,6 @@
 #include "xmlparse.h"
 #include "xlsxparse.h"
 #include "xpsxmlparse.h"
-#include "hashterm.h"
 
 using namespace std;
 
@@ -533,11 +533,14 @@ index_add_document(const string & urlterm, time_t last_altered,
 void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
-	       string &mimetype, DirectoryIterator &d,
-	       string & path_term,
+	       const string & mime_type,
+	       DirectoryIterator & d,
+	       const string & path_term,
 	       string record)
 {
     string context(file, root.size(), string::npos);
+    string mimetype = mime_type;
+    string pathterm = path_term;
 
     // FIXME: We could be cleverer here and check mtime too when use_ctime is
     // set - if the ctime has changed but the mtime is unchanged, we can just
@@ -573,7 +576,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	mimetype = d.get_magic_mimetype();
 	if (mimetype.empty()) {
 	    skip(urlterm, file.substr(root.size()),
-                 "Unknown extension and unrecognised format",
+		 "Unknown extension and unrecognised format",
 		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
 	    return;
 	}
@@ -588,13 +591,13 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     // `/home/olly/public_html/foo/bar`.
     Xapian::Document newdocument;
     size_t j;
-    while ((j = path_term.rfind('/')) > 1 && j != string::npos) {
-	path_term.resize(j);
-	if (path_term.length() > MAX_SAFE_TERM_LENGTH) {
-            string term_hash = hash_long_term(path_term, MAX_SAFE_TERM_LENGTH);
+    while ((j = pathterm.rfind('/')) > 1 && j != string::npos) {
+	pathterm.resize(j);
+	if (pathterm.length() > MAX_SAFE_TERM_LENGTH) {
+	    string term_hash = hash_long_term(pathterm, MAX_SAFE_TERM_LENGTH);
 	    newdocument.add_boolean_term(term_hash);
 	} else {
-	    newdocument.add_boolean_term(path_term);
+	    newdocument.add_boolean_term(pathterm);
 	}
     }
 

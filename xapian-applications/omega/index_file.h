@@ -111,8 +111,9 @@ void
 index_mimetype(const std::string & file, const std::string & urlterm,
 	       const std::string & url,
 	       const std::string & ext,
-	       std::string &mimetype, DirectoryIterator &d,
-	       std::string &path_term,
+	       const std::string & mime_type,
+	       DirectoryIterator & d,
+	       const std::string & path_term,
 	       std::string record);
 
 /// Delete any previously indexed documents we haven't seen.
