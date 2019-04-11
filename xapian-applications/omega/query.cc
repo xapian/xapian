@@ -1678,7 +1678,7 @@ eval(const string &fmt, const vector<string> &param)
 		// 0-based mset index
 		value = str(hit_no);
 		break;
-	    case CMD_hitlist:
+	    case CMD_hitlist: {
 #if 0
 		url_query_string = "?DB=";
 		url_query_string += dbname;
@@ -1720,10 +1720,12 @@ eval(const string &fmt, const vector<string> &param)
 		    url_query_string += i->second;
 		}
 #endif
+		auto save_hit_no = hit_no;
 		for (hit_no = topdoc; hit_no < last; ++hit_no)
 		    value += print_caption(args[0], param);
-		hit_no = 0;
+		hit_no = save_hit_no;
 		break;
+	    }
 	    case CMD_hitsperpage:
 		value = str(hits_per_page);
 		break;
