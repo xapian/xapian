@@ -119,6 +119,7 @@ noinst_HEADERS +=\
 	common/keyword.h\
 	common/msvc_dirent.h\
 	common/omassert.h\
+	common/overflow.h\
 	common/parseint.h\
 	common/realtime.h\
 	common/safedirent.h\
