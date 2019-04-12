@@ -176,8 +176,8 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 	 * case query term is present in the document.
 	 */
 	double weight_document = wdf_double / len_double;
-	weight_sum = (param_smoothing1 * weight_collection) +
-		     ((1 - param_smoothing1) * weight_document);
+	weight_sum = 1 + ((((1 - param_smoothing1) / param_smoothing1) * 
+                (weight_document / weight_collection)));
     } else if (select_smoothing == DIRICHLET_SMOOTHING) {
 	weight_sum = (wdf_double + (param_smoothing1 * weight_collection)) /
 		     (len_double + param_smoothing1);
