@@ -1168,7 +1168,7 @@ T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 6, N, M), // generate snippet from text
-T(sort,		   1, 2, N, M), // alpha sort a list
+T(sort,		   1, 2, N, 0), // alpha sort a list
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(srandom,	   1, 1, N, 0), // seed for random number
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
