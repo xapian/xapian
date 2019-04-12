@@ -2,10 +2,11 @@
  * @brief C file implementing IO logging
  */
 /* Compile the profiler with:
- * gcc -shared -fPIC -o profiler.so profiler.c -ldl
+ * gcc -shared -fPIC -o /path/to/profiler.so profiler.c -ldl
  *
- * To use it with a process, use:
- * LD_PRELOAD=/path/to/profiler.so /path/to/executable
+ * To use it with a process, change the path to profiler.so inside the
+ * xapian-io-profile script, then use:
+ * ./xapian-io-profile --log=log_file_name ./executable
  *
  * Running this library will produce an strace.log file,
  * which can be fed to strace-analyse to produce a log, by running:
@@ -15,6 +16,7 @@
 #define _GNU_SOURCE
 
 #include <dlfcn.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -29,14 +31,23 @@ static int is_reset = 0;
 void logcall(const char *format, ...)
 {
     static FILE *file_ptr;
+    int saved_errno = errno;
     if (!is_reset) {
-	file_ptr = fopen("./strace.log", "w");
+	int fd;
+	char *fd_str = getenv("XAPIAN_IO_PROFILE_LOG_FD");
+	if (fd_str) {
+	    fd = atoi(fd_str);
+	} else {
+	    fd = 2; // log to stderr
+	}
+	file_ptr = fdopen(fd, "w");
 	is_reset = 1;
     }
     va_list args_ptr;
     va_start(args_ptr, format);
     vfprintf(file_ptr, format, args_ptr);
     va_end(args_ptr);
+    errno = saved_errno;
 }
 
 // wrapper for open()
@@ -56,9 +67,17 @@ int open(const char *pathname, int flags, ...)
     } else {
 	fd = ((real_open_t)dlsym(RTLD_NEXT, "open"))(pathname, flags);
     }
+    // realpath can set errno
+    int saved_errno = errno;
     char *abspath = realpath(pathname, NULL);
-    logcall("open(\"%s\",,) = %d\n", abspath, fd);
-    free(abspath);
+    if (abspath) {
+	logcall("open(\"%s\",,) = %d\n", abspath, fd);
+	free(abspath);
+    } else {
+	// display pathname incase realpath fails
+	logcall("open(\"%s\",,) = %d\n", pathname, fd);
+    }
+    errno = saved_errno;
     return fd;
 }
 
@@ -79,9 +98,17 @@ int open64(const char *pathname, int flags, ...)
     } else {
 	fd = ((real_open_t)dlsym(RTLD_NEXT, "open64"))(pathname, flags);
     }
+    // realpath can set errno
+    int saved_errno = errno;
     char *abspath = realpath(pathname, NULL);
-    logcall("open(\"%s\",,) = %d\n", abspath, fd);
-    free(abspath);
+    if (abspath) {
+	logcall("open(\"%s\",,) = %d\n", abspath, fd);
+	free(abspath);
+    } else {
+	// display pathname incase realpath fails
+	logcall("open(\"%s\",,) = %d\n", pathname, fd);
+    }
+    errno = saved_errno;
     return fd;
 }
 
