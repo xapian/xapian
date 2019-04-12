@@ -826,19 +826,20 @@ static bool test_muloverflows1()
 
 template<typename U>
 inline static void parseunsigned_helper() {
-    U uchar;
+    U val;
     const U max_val = numeric_limits<U>::max();
-    TEST(parse_unsigned("0", uchar));
-    TEST_EQUAL(uchar, 0);
-    TEST(parse_unsigned("99", uchar));
-    TEST_EQUAL(uchar, 99);
-    TEST(parse_unsigned(str(max_val).c_str(), uchar));
-    TEST_EQUAL(uchar, max_val);
-    TEST(!parse_unsigned("", uchar));
-    TEST(!parse_unsigned("-1", uchar));
-    TEST(!parse_unsigned("abc", uchar));
-    TEST(!parse_unsigned("0a", uchar));
-    TEST(!parse_unsigned(str(max_val + 1ull).c_str(), uchar));
+    tout << "Testing type " STRINGIZE(U) << endl;
+    TEST(parse_unsigned("0", val));
+    TEST_EQUAL(val, 0);
+    TEST(parse_unsigned("99", val));
+    TEST_EQUAL(val, 99);
+    TEST(parse_unsigned(str(max_val).c_str(), val));
+    TEST_EQUAL(val, max_val);
+    TEST(!parse_unsigned("", val));
+    TEST(!parse_unsigned("-1", val));
+    TEST(!parse_unsigned("abc", val));
+    TEST(!parse_unsigned("0a", val));
+    TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
 }
 
 static bool test_parseunsigned1()
