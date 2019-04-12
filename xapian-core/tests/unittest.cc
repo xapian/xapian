@@ -815,7 +815,7 @@ template<typename U>
 inline static void parseunsigned_helper() {
     U val;
     const U max_val = numeric_limits<U>::max();
-    tout << "Testing type " STRINGIZE(U) << endl;
+    tout << "Testing with parseunsigned_helper" << endl;
     TEST(parse_unsigned("0", val));
     TEST_EQUAL(val, 0);
     TEST(parse_unsigned("99", val));
@@ -826,7 +826,9 @@ inline static void parseunsigned_helper() {
     TEST(!parse_unsigned("-1", val));
     TEST(!parse_unsigned("abc", val));
     TEST(!parse_unsigned("0a", val));
-    TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
+    // Only test if we can construct a value one larger easily.
+    if (max_val + 1ull != 0)
+	TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
 }
 
 static bool test_parseunsigned1()
@@ -835,7 +837,7 @@ static bool test_parseunsigned1()
     parseunsigned_helper<unsigned short>();
     parseunsigned_helper<unsigned>();
     parseunsigned_helper<unsigned long>();
-    // unsigned long long won't work, as we try to test a value one larger.
+    parseunsigned_helper<unsigned long long>();
 
     return true;
 }
