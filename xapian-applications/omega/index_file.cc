@@ -533,14 +533,12 @@ index_add_document(const string & urlterm, time_t last_altered,
 void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
-	       const string & mime_type,
+	       string mimetype,
 	       DirectoryIterator & d,
-	       const string & path_term,
+	       string pathterm,
 	       string record)
 {
     string context(file, root.size(), string::npos);
-    string mimetype = mime_type;
-    string pathterm = path_term;
 
     // FIXME: We could be cleverer here and check mtime too when use_ctime is
     // set - if the ctime has changed but the mtime is unchanged, we can just
