@@ -60,16 +60,21 @@ tostring(T value)
     if (value < 10 && value >= 0) return string(1, '0' + char(value));
 
     bool negative = (value < 0);
-    if (negative) value = -value;
 
-    char buf[(sizeof(T) * 5 + 1) / 2 + 1];
+    typedef typename std::make_unsigned<T>::type unsigned_type;
+    unsigned_type val(value);
+    if (negative) {
+	val = -val;
+    }
+
+    char buf[(sizeof(unsigned_type) * 5 + 1) / 2 + 1];
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);
-	char ch = static_cast<char>(value % 10);
-	value /= 10;
+	char ch = static_cast<char>(val % 10);
+	val /= 10;
 	*(--p) = ch + '0';
-    } while (value);
+    } while (val);
 
     if (negative) {
 	AssertRel(p,>,buf);
