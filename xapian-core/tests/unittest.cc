@@ -539,14 +539,14 @@ static bool test_tostring1()
     TEST_EQUAL(str(0x7f), "127");
     TEST_EQUAL(str(-0x80), "-128");
     TEST_EQUAL(str(0x7fff), "32767");
-    TEST_EQUAL(str(short(-32768)), "-32768");
+    TEST_EQUAL(str(short(-0x8000)), "-32768");
 
     TEST_EQUAL(str(0xffffffff), "4294967295");
     TEST_EQUAL(str(0x7fffffff), "2147483647");
     TEST_EQUAL(str(0x7fffffffu), "2147483647");
     TEST_EQUAL(str(-0x7fffffff), "-2147483647");
 
-    TEST_EQUAL(str(int(-2147483648)), "-2147483648");
+    TEST_EQUAL(str(int(-0x80000000)), "-2147483648");
 
     TEST_EQUAL(str(0x7fffffffffffffff), "9223372036854775807");
 
