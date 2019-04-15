@@ -238,8 +238,10 @@ $hit
 	MSet index of current doc (first document in MSet is 0, so if
 	you want to number the hits 1, 2, 3, ... use ``$add{$hit,1}``).
 
-$hitlist{FMT}
-	display hitlist using format ``FMT``.
+$hitlist{STUFF}
+        evaluate ``STUFF`` once for each match in the result list.  During
+        each evaluation ``$field``, ``$id``, ``$percentage``, ``$score``,
+        ``$terms``, ``$weight``, etc will report values for the current hit.
 
 $hitsperpage
 	hits per page (as set by ``HITSPERPAGE``, or the default)
