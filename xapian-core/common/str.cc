@@ -62,11 +62,9 @@ tostring(T value)
     bool negative = (value < 0);
 
     typedef typename std::make_unsigned<T>::type unsigned_type;
-    unsigned_type val;
+    unsigned_type val(value);
     if (negative) {
-	val = -value;
-    } else {
-	val = value;
+	val = -val;
     }
 
     char buf[(sizeof(unsigned_type) * 5 + 1) / 2 + 1];
