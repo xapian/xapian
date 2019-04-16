@@ -607,8 +607,7 @@ Xapian::Document::Internal::need_terms() const
 	    for ( ; p != t.positionlist_end(); ++p) {
 		term.append_position(*p);
 	    }
-	    terms.emplace_hint(terms.end(),
-			       make_pair(*t, std::move(term)));
+	    terms.insert(terms.end(), make_pair(*t, std::move(term)));
 	}
     }
     termlist_size = terms.size();
