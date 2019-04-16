@@ -50,6 +50,7 @@
 #include "atomparse.h"
 #include "diritor.h"
 #include "failed.h"
+#include "hashterm.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "mimemap.h"
@@ -547,8 +548,9 @@ index_add_document(const string & urlterm, time_t last_altered,
 void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
-	       const string &mimetype, DirectoryIterator &d,
-	       Xapian::Document & newdocument,
+	       string mimetype,
+	       DirectoryIterator & d,
+	       string pathterm,
 	       string record)
 {
     string context(file, root.size(), string::npos);
@@ -581,7 +583,36 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
     }
 
-    if (verbose) cout << flush;
+    // If we didn't get the mime type from the extension, call libmagic to get
+    // it.
+    if (mimetype.empty()) {
+	mimetype = d.get_magic_mimetype();
+	if (mimetype.empty()) {
+	    skip(urlterm, file.substr(root.size()),
+		 "Unknown extension and unrecognised format",
+		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
+	    return;
+	}
+    }
+
+    if (verbose)
+	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
+	     << mimetype << " ... " << flush;
+
+    // Use `file` as the basis, as we don't want URL encoding in these terms,
+    // but need to switch over the initial part so we get `/~olly/foo/bar` not
+    // `/home/olly/public_html/foo/bar`.
+    Xapian::Document newdocument;
+    size_t j;
+    while ((j = pathterm.rfind('/')) > 1 && j != string::npos) {
+	pathterm.resize(j);
+	if (pathterm.length() > MAX_SAFE_TERM_LENGTH) {
+	    string term_hash = hash_long_term(pathterm, MAX_SAFE_TERM_LENGTH);
+	    newdocument.add_boolean_term(term_hash);
+	} else {
+	    newdocument.add_boolean_term(pathterm);
+	}
+    }
 
     string author, title, sample, keywords, topic, dump;
     string md5;
