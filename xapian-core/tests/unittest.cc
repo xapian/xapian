@@ -539,12 +539,25 @@ static bool test_tostring1()
     TEST_EQUAL(str(0x7f), "127");
     TEST_EQUAL(str(-0x80), "-128");
     TEST_EQUAL(str(0x7fff), "32767");
-    TEST_EQUAL(str(short(-0x8000)), "-32768");
+
+    const short min_short = std::numeric_limits<short>::min();
+    std::ostringstream oss;
+    oss << min_short;
+    TEST_EQUAL(str(min_short), oss.str());
+    oss.str("");
+    oss.clear();
+
     TEST_EQUAL(str(0xffffffff), "4294967295");
     TEST_EQUAL(str(0x7fffffff), "2147483647");
     TEST_EQUAL(str(0x7fffffffu), "2147483647");
     TEST_EQUAL(str(-0x7fffffff), "-2147483647");
-    TEST_EQUAL(str(int(-0x80000000)), "-2147483648");
+
+    const int min_int = std::numeric_limits<int>::min();
+    oss << min_int;
+    TEST_EQUAL(str(min_int), oss.str());
+    oss.str("");
+    oss.clear();
+
     TEST_EQUAL(str(0x7fffffffffffffff), "9223372036854775807");
 
 #ifdef __WIN32__
