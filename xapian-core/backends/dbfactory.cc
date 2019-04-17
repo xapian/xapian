@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -119,8 +119,20 @@ check_if_single_file_db(const struct stat & sb, const string & path,
 
 namespace Xapian {
 
+template<typename A1,
+	 typename A2,
+	 typename A3,
+	 typename A4,
+	 typename A5,
+	 typename A6>
 static void
-open_stub(Database &db, const string &file)
+read_stub_file(const string& file,
+	       A1 action_auto,
+	       A2 action_glass,
+	       A3 action_honey,
+	       A4 action_remote_prog,
+	       A5 action_remote_tcp,
+	       A6 action_inmemory)
 {
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
@@ -149,14 +161,14 @@ open_stub(Database &db, const string &file)
 
 	if (type == "auto") {
 	    resolve_relative_path(line, file);
-	    db.add_database(Database(line));
+	    action_auto(line);
 	    continue;
 	}
 
 	if (type == "glass") {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	    resolve_relative_path(line, file);
-	    db.add_database(Database(new GlassDatabase(line)));
+	    action_glass(line);
 	    continue;
 #else
 	    throw FeatureUnavailableError("Glass backend disabled");
@@ -166,7 +178,7 @@ open_stub(Database &db, const string &file)
 	if (type == "honey") {
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 	    resolve_relative_path(line, file);
-	    db.add_database(Database(new HoneyDatabase(line)));
+	    action_honey(line);
 	    continue;
 #else
 	    throw FeatureUnavailableError("Honey backend disabled");
@@ -187,7 +199,7 @@ open_stub(Database &db, const string &file)
 		} else {
 		    line.erase(0, 1);
 		}
-		db.add_database(Remote::open(line, args));
+		action_remote_prog(line, args);
 		continue;
 	    }
 	    string::size_type colon = line.rfind(':');
@@ -204,7 +216,7 @@ open_stub(Database &db, const string &file)
 			line.erase(line.size() - 1, 1);
 			line.erase(0, 1);
 		    }
-		    db.add_database(Remote::open(line, port));
+		    action_remote_tcp(line, port);
 		    continue;
 		}
 	    }
@@ -215,7 +227,7 @@ open_stub(Database &db, const string &file)
 
 	if (type == "inmemory" && line.empty()) {
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	    db.add_database(Database(string(), DB_BACKEND_INMEMORY));
+	    action_inmemory();
 	    continue;
 #else
 	    throw FeatureUnavailableError("Inmemory backend disabled");
@@ -237,127 +249,67 @@ open_stub(Database &db, const string &file)
 	// information to identify the problem line.
 	throw DatabaseOpeningError(file + ':' + str(line_no) + ": Bad line");
     }
+}
+
+static void
+open_stub(Database& db, const string& file)
+{
+    read_stub_file(file,
+		   [&db](const string& path) {
+		       db.add_database(Database(path));
+		   },
+		   [&db](const string& path) {
+		       db.add_database(Database(new GlassDatabase(path)));
+		   },
+		   [&db](const string& path) {
+		       db.add_database(Database(new HoneyDatabase(path)));
+		   },
+		   [&db](const string& prog, const string& args) {
+		       db.add_database(Remote::open(prog, args));
+		   },
+		   [&db](const string& host, unsigned port) {
+		       db.add_database(Remote::open(host, port));
+		   },
+		   [&db]() {
+		       db.add_database(Database(string(), DB_BACKEND_INMEMORY));
+		   });
 
     // Allowing a stub database with no databases listed allows things like
     // a "search all databases" feature to be implemented by generating a
     // stub database file without having to special case there not being any
     // databases yet.
     //
-    // 1.0.x throws DatabaseOpeningError here, but with a "Bad line" message
-    // with the line number just past the end of the file, which is a bit odd.
+    // 1.0.x threw DatabaseOpeningError here, but with a "Bad line" message
+    // with the line number just past the end of the file, which was a bit odd.
 }
 
 static void
-open_stub(WritableDatabase &db, const string &file, int flags)
+open_stub(WritableDatabase& db, const string& file, int flags)
 {
-    // A stub database is a text file with one or more lines of this format:
-    // <dbtype> <serialised db object>
-    //
-    // Lines which start with a "#" character, and lines which have no spaces
-    // in them, are ignored.
-    //
-    // Any paths specified in stub database files which are relative will be
-    // considered to be relative to the directory containing the stub database.
-    ifstream stub(file.c_str());
-    if (!stub) {
-	string msg = "Couldn't open stub database file: ";
-	msg += file;
-	throw Xapian::DatabaseNotFoundError(msg, errno);
-    }
-    string line;
-    unsigned int line_no = 0;
-    while (true) {
-	if (!getline(stub, line)) break;
-
-	++line_no;
-	if (line.empty() || line[0] == '#')
-	    continue;
-	string::size_type space = line.find(' ');
-	if (space == string::npos) space = line.size();
-
-	string type(line, 0, space);
-	line.erase(0, space + 1);
-
-	if (type == "auto") {
-	    resolve_relative_path(line, file);
-	    db.add_database(WritableDatabase(line, flags));
-	    continue;
-	}
-
-	if (type == "glass") {
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-	    resolve_relative_path(line, file);
-	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_GLASS));
-	    continue;
-#else
-	    throw FeatureUnavailableError("Glass backend disabled");
-#endif
-	}
-
-	if (type == "remote" && !line.empty()) {
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    if (line[0] == ':') {
-		// prog
-		// FIXME: timeouts
-		// Is it a security risk?
-		space = line.find(' ');
-		string args;
-		if (space != string::npos) {
-		    args.assign(line, space + 1, string::npos);
-		    line.assign(line, 1, space - 1);
-		} else {
-		    line.erase(0, 1);
-		}
-		db.add_database(Remote::open_writable(line, args, 0, flags));
-		continue;
-	    }
-	    string::size_type colon = line.rfind(':');
-	    if (colon != string::npos) {
-		// tcp
-		// FIXME: timeouts
-		// Avoid misparsing an IPv6 address without a port number.  The
-		// port number is required, so just leave that case to the
-		// error handling further below.
-		if (!(line[0] == '[' && line.back() == ']')) {
-		    unsigned int port = atoi(line.c_str() + colon + 1);
-		    line.erase(colon);
-		    if (line[0] == '[' && line.back() == ']') {
-			line.erase(line.size() - 1, 1);
-			line.erase(0, 1);
-		    }
-		    db.add_database(Remote::open_writable(line, port, 0, 10000, flags));
-		    continue;
-		}
-	    }
-#else
-	    throw FeatureUnavailableError("Remote backend disabled");
-#endif
-	}
-
-	if (type == "inmemory" && line.empty()) {
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	    db.add_database(WritableDatabase(string(), DB_BACKEND_INMEMORY));
-	    continue;
-#else
-	    throw FeatureUnavailableError("Inmemory backend disabled");
-#endif
-	}
-
-	if (type == "chert") {
-	    throw FeatureUnavailableError("Chert backend no longer supported");
-	}
-
-	if (type == "flint") {
-	    throw FeatureUnavailableError("Flint backend no longer supported");
-	}
-
-	// Don't include the line itself - that might help an attacker
-	// by revealing part of a sensitive file's contents if they can
-	// arrange for it to be read as a stub database via infelicities in
-	// an application which uses Xapian.  The line number is enough
-	// information to identify the problem line.
-	throw DatabaseOpeningError(file + ':' + str(line_no) + ": Bad line");
-    }
+    read_stub_file(file,
+		   [&db, flags](const string& path) {
+		       db.add_database(WritableDatabase(path, flags));
+		   },
+		   [&db, &flags](const string& path) {
+		       flags |= DB_BACKEND_GLASS;
+		       db.add_database(WritableDatabase(path, flags));
+		   },
+		   [](const string&) {
+		       auto msg = "Honey databases don't support writing";
+		       throw Xapian::DatabaseOpeningError(msg);
+		   },
+		   [&db, flags](const string& prog, const string& args) {
+		       db.add_database(Remote::open_writable(prog, args,
+							     0, flags));
+		   },
+		   [&db, flags](const string& host, unsigned port) {
+		       db.add_database(Remote::open_writable(host, port,
+							     0, 10000, flags));
+		   },
+		   [&db]() {
+		       db.add_database(WritableDatabase(string(),
+							DB_BACKEND_INMEMORY));
+		   });
 
     if (db.internal->size() == 0) {
 	throw DatabaseOpeningError(file + ": No databases listed");
