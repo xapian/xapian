@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,9 +39,10 @@
 #include "chert/chert_version.h"
 #endif
 
+#include "backends.h"
+#include "databasehelpers.h"
 #include "filetests.h"
 #include "omassert.h"
-#include "posixy_wrapper.h"
 #include "stringutils.h"
 
 #include <ostream>
@@ -61,40 +62,6 @@ static const struct { char name[9]; } glass_tables[] = {
     { "synonym" }
 };
 #endif
-
-static bool
-check_if_single_file_db(const struct stat & sb, const string & path,
-			int * fd_ptr = NULL)
-{
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-    if (!S_ISREG(sb.st_mode)) return false;
-    // Look at the size as a clue - if it's 0 or not a multiple of 2048,
-    // then it's not a single-file glass database.  If it is, peek at the start
-    // of the file to determine which it is.
-    if (sb.st_size == 0 || sb.st_size % 2048 != 0) return false;
-    int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
-    if (fd != -1) {
-	char magic_buf[14];
-	// FIXME: Don't duplicate magic check here...
-	if (io_read(fd, magic_buf, 14) == 14 &&
-	    (!fd_ptr || lseek(fd, 0, SEEK_SET) == 0) &&
-	    memcmp(magic_buf, "\x0f\x0dXapian Glass", 14) == 0) {
-	    if (fd_ptr) {
-		*fd_ptr = fd;
-	    } else {
-		::close(fd);
-	    }
-	    return true;
-	}
-	::close(fd);
-    }
-#else
-    (void)sb;
-    (void)path;
-    (void)fd_ptr;
-#endif
-    return false;
-}
 
 // FIXME: We don't currently cross-check wdf between postlist and termlist.
 // It's hard to see how to efficiently.  We do cross-check doclens, but that
@@ -293,18 +260,15 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	    "Directory does not contain a Xapian database");
 }
 
-typedef enum { UNKNOWN, CHERT, GLASS } backend_type;
-
 /** Check a database table.
  *
  *  @param filename	The filename of the table (only used to get the directory and
  *  @param opts		Xapian::check() options
  *  @param out		std::ostream to write messages to (or NULL for no messages)
- *  @param backend	Backend type
+ *  @param backend	Backend type (a BACKEND_XXX constant)
  */
 static size_t
-check_db_table_(const string & filename, int opts, std::ostream *out,
-		backend_type backend)
+check_db_table(const string& filename, int opts, std::ostream* out, int backend)
 {
     size_t p = filename.find_last_of(DIR_SEPS);
     // If we found a directory separator, advance p to the next character.  If
@@ -328,15 +292,25 @@ check_db_table_(const string & filename, int opts, std::ostream *out,
     (void)out;
 #endif
 
-    if (backend == GLASS) {
+    switch (backend) {
+      case BACKEND_GLASS: {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
-	throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
+	auto msg = "Glass database support isn't enabled";
+	throw Xapian::FeatureUnavailableError(msg);
 #else
 	GlassVersion version_file(dir);
 	version_file.read();
 	return check_glass_table(tablename.c_str(), dir, version_file, opts,
 				 doclens, out);
 #endif
+      }
+
+      case BACKEND_OLD:
+	break;
+
+      default:
+	Assert(false);
+	break;
     }
 
     Assert(backend == CHERT);
@@ -361,65 +335,90 @@ check_db_table_(const string & filename, int opts, std::ostream *out,
 #endif
 }
 
-static size_t
-check_db_table(const string & filename, int opts, std::ostream *out)
-{
-    backend_type backend = UNKNOWN;
-    // Just check a single Btree, given the correct filename.  Look at the
-    // extension to determine the type.
-    if (endswith(filename, ".DB")) {
-	// It could also be flint or brass, but we check for those below.
-	backend = CHERT;
-    } else if (endswith(filename, ".glass")) {
-	backend = GLASS;
-    } else {
-	throw Xapian::DatabaseOpeningError(
-		"File is not a Xapian database or database table");
-    }
-
-    return check_db_table_(filename, opts, out, backend);
-}
-
 /** Check a single file DB from an fd.
  *
- *  Closes the fd (via GlassVersion doing so in its destructor).
+ *  Closes the fd.
  */
 static size_t
-check_db_fd(int fd, int opts, std::ostream *out)
+check_db_fd(int fd, int opts, std::ostream* out, int backend)
 {
-#ifndef XAPIAN_HAS_GLASS_BACKEND
-    (void)opts;
-    (void)out;
-    ::close(fd);
-    throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
-#else
-    // Check a single-file glass database.
-    GlassVersion version_file(fd);
-    version_file.read();
+    if (backend == BACKEND_UNKNOWN) {
+	// FIXME: Actually probe.
+	backend = BACKEND_GLASS;
+    }
 
     size_t errors = 0;
-    Xapian::docid doccount = version_file.get_doccount();
-    Xapian::docid db_last_docid = version_file.get_last_docid();
-    if (db_last_docid < doccount) {
-	if (out)
-	    *out << "last_docid = " << db_last_docid << " < doccount = "
-		 << doccount << endl;
-	++errors;
-    }
-    vector<Xapian::termcount> doclens;
-    reserve_doclens(doclens, db_last_docid, out);
+    switch (backend) {
+      case BACKEND_GLASS: {
+	// Check a single-file glass database.
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	// GlassVersion's destructor will close fd.
+	GlassVersion version_file(fd);
+	version_file.read();
 
-    // Check all the tables.
-    for (auto t : glass_tables) {
-	errors += check_glass_table(t.name, fd, version_file.get_offset(),
-				    version_file, opts, doclens,
-				    out);
+	Xapian::docid doccount = version_file.get_doccount();
+	Xapian::docid db_last_docid = version_file.get_last_docid();
+	if (db_last_docid < doccount) {
+	    if (out)
+		*out << "last_docid = " << db_last_docid << " < doccount = "
+		     << doccount << endl;
+	    ++errors;
+	}
+	vector<Xapian::termcount> doclens;
+	reserve_doclens(doclens, db_last_docid, out);
+
+	// Check all the tables.
+	for (auto t : glass_tables) {
+	    errors += check_glass_table(t.name, fd, version_file.get_offset(),
+					version_file, opts, doclens,
+					out);
+	}
+	break;
+#else
+	(void)opts;
+	(void)out;
+	::close(fd);
+	throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
+#endif
+      }
+      default:
+	Assert(false);
     }
     return errors;
-#endif
 }
 
 namespace Xapian {
+
+static size_t
+check_stub(const string& stub_path, int opts, std::ostream* out)
+{
+    size_t errors = 0;
+    read_stub_file(stub_path,
+		   [&errors, opts, out](const string& path) {
+		       errors += Database::check(path, opts, out);
+		   },
+		   [&errors, opts, out](const string& path) {
+		       // FIXME: Doesn't check the database type is chert.
+		       errors += Database::check(path, opts, out);
+		   },
+		   [&errors, opts, out](const string& path) {
+		       // FIXME: Doesn't check the database type is glass.
+		       errors += Database::check(path, opts, out);
+		   },
+		   [](const string&, const string&) {
+		       auto msg = "Remote database checking not implemented";
+		       throw Xapian::UnimplementedError(msg);
+		   },
+		   [](const string&, unsigned) {
+		       auto msg = "Remote database checking not implemented";
+		       throw Xapian::UnimplementedError(msg);
+		   },
+		   []() {
+		       auto msg = "InMemory database checking not implemented";
+		       throw Xapian::UnimplementedError(msg);
+		   });
+    return errors;
+}
 
 size_t
 Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
@@ -431,7 +430,7 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
     }
 
     if (path_ptr == NULL) {
-	return check_db_fd(fd, opts, out);
+	return check_db_fd(fd, opts, out, BACKEND_UNKNOWN);
     }
 
     const string & path = *path_ptr;
@@ -442,10 +441,22 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 	}
 
 	if (S_ISREG(sb.st_mode)) {
-	    if (check_if_single_file_db(sb, path, &fd)) {
-		return check_db_fd(fd, opts, out);
+	    int backend = test_if_single_file_db(sb, path, &fd);
+	    if (backend != BACKEND_UNKNOWN) {
+		return check_db_fd(fd, opts, out, backend);
 	    }
-	    return check_db_table(path, opts, out);
+	    // Could be a single table or a stub database file.  Look at the
+	    // extension to determine the type.
+	    if (endswith(path, ".DB")) {
+		// It could also be flint or brass, but we check for those below.
+		backend = BACKEND_CHERT;
+	    } else if (endswith(path, "." GLASS_TABLE_EXTENSION)) {
+		backend = BACKEND_GLASS;
+	    } else {
+		return check_stub(path, opts, out);
+	    }
+
+	    return check_db_table(path, opts, out, backend);
 	}
 
 	throw Xapian::DatabaseOpeningError("Not a regular file or directory");
@@ -460,18 +471,18 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 	filename.resize(filename.size() - 1);
     }
 
-    backend_type backend = UNKNOWN;
+    int backend = BACKEND_UNKNOWN;
     if (stat((filename + ".DB").c_str(), &sb) == 0) {
 	// It could also be flint or brass, but we check for those below.
-	backend = CHERT;
-    } else if (stat((filename + ".glass").c_str(), &sb) == 0) {
-	backend = GLASS;
+	backend = BACKEND_CHERT;
+    } else if (stat((filename + "." GLASS_TABLE_EXTENSION).c_str(), &sb) == 0) {
+	backend = BACKEND_GLASS;
     } else {
-	throw Xapian::DatabaseOpeningError(
-		"Couldn't find Xapian database or table to check", ENOENT);
+	auto msg = "Couldn't find Xapian database or table to check";
+	throw Xapian::DatabaseOpeningError(msg, ENOENT);
     }
 
-    return check_db_table_(path, opts, out, backend);
+    return check_db_table(path, opts, out, backend);
 }
 
 }

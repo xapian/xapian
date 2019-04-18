@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016,2017,2019 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -90,6 +90,8 @@ DEFINE_TESTCASE(stubdb1, path) {
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
     }
+
+    TEST_EQUAL(Xapian::Database::check(dbpath), 0);
 
     return true;
 }
@@ -340,10 +342,31 @@ DEFINE_TESTCASE(stubdb8, inmemory) {
     try {
 	Xapian::Database::check(dbpath);
 	FAIL_TEST("Managed to check inmemory stub");
-    } catch (const Xapian::DatabaseOpeningError & e) {
+    } catch (const Xapian::UnimplementedError& e) {
 	// Check the message is appropriate.
 	TEST_STRINGS_EQUAL(e.get_msg(),
-			   "File is not a Xapian database or database table");
+			   "InMemory database checking not implemented");
+    }
+    return true;
+}
+
+/// Test error running Database::check() on a remote stub database.
+DEFINE_TESTCASE(stubdb9, path) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb9";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "remote :" << BackendManager::get_xapian_progsrv_command()
+	<< ' ' << get_database_path("apitest_simpledata") << endl;
+    out.close();
+
+    try {
+	Xapian::Database::check(dbpath);
+	FAIL_TEST("Managed to check remote stub");
+    } catch (const Xapian::UnimplementedError& e) {
+	// Check the message is appropriate.
+	TEST_STRINGS_EQUAL(e.get_msg(),
+			   "Remote database checking not implemented");
     }
     return true;
 }

@@ -1,7 +1,7 @@
 /** @file glass_defs.h
  * @brief Definitions, types, etc for use inside glass.
  */
-/* Copyright (C) 2010,2014,2015 Olly Betts
+/* Copyright (C) 2010,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,12 @@
 
 /// Default B-tree block size.
 #define GLASS_DEFAULT_BLOCKSIZE 8192
+
+/// Minimum B-tree block size.
+#define GLASS_MIN_BLOCKSIZE 2048
+
+/// Maximum B-tree block size.
+#define GLASS_MAX_BLOCKSIZE 65536
 
 /** The largest docid value supported by glass.
  *
