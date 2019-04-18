@@ -105,6 +105,7 @@ read_stub_file(const std::string& file,
 	    action_glass(line);
 	    continue;
 #else
+	    (void)action_glass;
 	    throw Xapian::FeatureUnavailableError("Glass backend disabled");
 #endif
 	}
@@ -115,6 +116,7 @@ read_stub_file(const std::string& file,
 	    action_honey(line);
 	    continue;
 #else
+	    (void)action_honey;
 	    throw Xapian::FeatureUnavailableError("Honey backend disabled");
 #endif
 	}
@@ -155,6 +157,8 @@ read_stub_file(const std::string& file,
 		}
 	    }
 #else
+	    (void)action_remote_prog;
+	    (void)action_remote_tcp;
 	    throw Xapian::FeatureUnavailableError("Remote backend disabled");
 #endif
 	}
@@ -164,6 +168,7 @@ read_stub_file(const std::string& file,
 	    action_inmemory();
 	    continue;
 #else
+	    (void)action_inmemory;
 	    throw Xapian::FeatureUnavailableError("Inmemory backend disabled");
 #endif
 	}
