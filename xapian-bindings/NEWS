@@ -1,3 +1,60 @@
+up to: 7faa45a163efb38267c0dd9560bf18f5f4975ae3
+
+Xapian-bindings 1.4.12 (2019-04-18):
+
+Documentation:
+
+    Update bindings HACKING docs
+    Reported as out of date by Niwesh Gupta.
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+    Work around mono terminfo parsing bug
+    Older cli-sn fails with certain TERM setting (e.g. xterm-256color) due to:
+    https://github.com/mono/mono/issues/6752
+    Encountered on Kubuntu 18.10 and debugged by tstomar.  Seems to be fixed
+    in the mono version in Debian buster.
+
+Java:
+
+Lua:
+
+Perl:
+
+    Suppress warnings from older Perl and Ruby headers
+    The warnings are due to use of register and constructs which look
+    like C++11 user-defined literals.  They're fixed in newer versions
+    so they're just noise in our build.
+    We were working around these in the CI build, so drop that workaround
+    as we want to make the build warning-clean for users too.
+    Reported by daniel93 on #xapian.
+
+PHP:
+
+PHP7:
+
+Python:
+
+Python3:
+
+Ruby:
+
+    Suppress warnings from older Perl and Ruby headers
+    The warnings are due to use of register and constructs which look
+    like C++11 user-defined literals.  They're fixed in newer versions
+    so they're just noise in our build.
+    We were working around these in the CI build, so drop that workaround
+    as we want to make the build warning-clean for users too.
+    Reported by daniel93 on #xapian.
+
+Tcl:
+
 Xapian-bindings 1.4.11 (2019-03-02):
 
 CSharp:

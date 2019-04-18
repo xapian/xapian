@@ -1,3 +1,47 @@
+up to: ba3e96f1f939d2113d3eef45edef39d2b8460620
+
+Omega 1.4.12 (2019-04-18):
+
+general:
+
+documentation:
+
+    Improve docs for OmegaScript $hitlist{}
+
+    Fix RST formatting errors in omega docs
+
+indexers:
+
+* omindex:
+
+    Pipe input to ps2pdf
+    This accepts input on stdin, so we can use the new piped input machinery
+    with it.
+    Possibility pointed out by Gaurav Arora.
+
+* scriptindex:
+
+omega:
+
+    Stop $sort from ensuring the match has run
+    A cut-and-paste error from when $sort was added.
+
+    Handle nested $hitlist gracefully
+    Previously this would typically result in an infinite loop.  It's
+    a somewhat esoteric construct, but it's easy to make work no real
+    overhead so that seems simpler than trying to arrange to throw an
+    error here.
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.4.11 (2019-03-02):
 
 indexers:

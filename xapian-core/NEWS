@@ -1,3 +1,80 @@
+up to: cd8819c0730fbdb61c32171806234d5b37eeaed7
+
+Xapian-core 1.4.12 (2019-04-18):
+
+API:
+
+    Support stub databases in Xapian::Database::check()
+    Attempting to check databases for backends that don't support
+    checking will throw Xapian::UnimplementError.
+
+    Make Document updating a bit more efficient
+    Use std::move to avoid copying of OmDocumentTerm objects.  This
+    improvement is not relevant for git master as this code has been
+    replaced.
+    Use std::map::emplace_hint() with a hint of end() when bulking inserting
+    in sorted order so that the bulk insertion is O(n) instead of
+    O(n*log(n)).  The equivalent change was made to git master in
+    611754f0c848e3ed5a5dc77ed78cc56e0cbf869e.
+
+    Implement Xapian::iterator_valid() for Utf8Iterator
+
+testsuite:
+
+    Fix keepalive1 failures on some platforms
+    When a network timeout happens, some platforms give NetworkTimeoutError
+    and others NetworkError - since 1.4.10
+    changed to checking the exact exception type, keepalive has been failing
+    on the former set of platforms.
+    We now just check for NetworkError or a subclass here (since
+    NetworkTimeoutError is a subclass of NetworkError).
+
+matcher:
+
+
+glass backend:
+
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+    Don't pick up valgrind by default on macOS
+    Current versions of valgrind result in false positives on current versions
+    of macOS, so on this platform configure only enables use of valgrind if
+    it's specified explicitly.
+    Fixes #713, reported by Germán M. Bravo.
+
+documentation:
+
+    Fix doc comment typo
+    Should the Query::op (the type) not op_ (a parameter name).
+
+    Update list of xapian/iterator.h users
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Add missing '#include <cstring>'.  Patch from Tanmay Sachan.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.11 (2019-03-02):
 
 API:
