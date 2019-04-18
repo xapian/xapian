@@ -70,19 +70,39 @@ open_stub(Database& db, const string& file)
 		       db.add_database(Database(path));
 		   },
 		   [&db](const string& path) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 		       db.add_database(Database(new GlassDatabase(path)));
+#else
+		       (void)path;
+#endif
 		   },
 		   [&db](const string& path) {
+#ifdef XAPIAN_HAS_HONEY_BACKEND
 		       db.add_database(Database(new HoneyDatabase(path)));
+#else
+		       (void)path;
+#endif
 		   },
 		   [&db](const string& prog, const string& args) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 		       db.add_database(Remote::open(prog, args));
+#else
+		       (void)prog;
+		       (void)args;
+#endif
 		   },
 		   [&db](const string& host, unsigned port) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 		       db.add_database(Remote::open(host, port));
+#else
+		       (void)host;
+		       (void)port;
+#endif
 		   },
 		   [&db]() {
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 		       db.add_database(Database(string(), DB_BACKEND_INMEMORY));
+#endif
 		   });
 
     // Allowing a stub database with no databases listed allows things like
@@ -110,12 +130,22 @@ open_stub(WritableDatabase& db, const string& file, int flags)
 		       throw Xapian::DatabaseOpeningError(msg);
 		   },
 		   [&db, flags](const string& prog, const string& args) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 		       db.add_database(Remote::open_writable(prog, args,
 							     0, flags));
+#else
+		       (void)prog;
+		       (void)args;
+#endif
 		   },
 		   [&db, flags](const string& host, unsigned port) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 		       db.add_database(Remote::open_writable(host, port,
 							     0, 10000, flags));
+#else
+		       (void)host;
+		       (void)port;
+#endif
 		   },
 		   [&db]() {
 		       db.add_database(WritableDatabase(string(),
