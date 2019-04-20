@@ -50,19 +50,15 @@ module Xapian
   # Takes a block that returns some appropriate Ruby object to wrap the
   # underlying Iterator
   def _safelyIterate(dangerousStart, dangerousEnd) #:nodoc:
-    retval = Array.new
 
     item = dangerousStart
     lastTerm = dangerousEnd
 
-    return retval if dangerousStart.equals(dangerousEnd)
-
-    begin
-      retval.push(yield(item))
+    while not item.equals(lastTerm) do # must use primitive C++ comparator
+      yield(item)
       item.next()
-    end while not item.equals(lastTerm) # must use primitive C++ comparator
+    end
 
-    return retval
   end # _safelyIterate
   module_function :_safelyIterate
 
