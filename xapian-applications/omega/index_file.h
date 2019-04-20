@@ -126,6 +126,12 @@ void
 index_add_document(const std::string & urlterm, time_t last_altered,
 		   Xapian::docid did, const Xapian::Document & doc);
 
+/// Update a document without re-extracting text
+bool
+index_update_entry(const std::string & urlterm,
+		   DirectoryIterator & d,
+		   Xapian::docid & did);
+
 /// Index a file into the database.
 void
 index_mimetype(const std::string & file, const std::string & urlterm,

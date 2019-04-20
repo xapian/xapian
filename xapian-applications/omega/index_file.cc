@@ -545,6 +545,77 @@ index_add_document(const string & urlterm, time_t last_altered,
     }
 }
 
+bool
+index_update_entry(const string & urlterm,
+		   DirectoryIterator & d,
+		   Xapian::docid & did)
+{
+    if (!did) {
+	Xapian::PostingIterator p = db.postlist_begin(urlterm);
+	if (p != db.postlist_end(urlterm))
+	    did = *p;
+    }
+
+    if (did) {
+	time_t mtime = d.get_mtime();
+	time_t ctime = d.get_ctime();
+	Xapian::Document doc = db.get_document(did);
+	string value_ctime = doc.get_value(VALUE_CTIME);
+	time_t doc_ctime = binary_string_to_int(value_ctime);
+	string value_mtime = doc.get_value(VALUE_LASTMOD);
+	time_t doc_mtime = binary_string_to_int(value_mtime);
+
+	if (doc_mtime == mtime && doc_ctime <= ctime) {
+	    if (verbose)
+		cout << "Updating entry without re-extracting text" << endl;
+	    // Remove terms from the document
+	    Xapian::TermIterator term_iterator = doc.termlist_begin();
+	    while (term_iterator != doc.termlist_end()) {
+		const string& term = *term_iterator;
+		bool rem_term = startswith(term, "I") ||
+				startswith(term, "O");
+		// I: boolean filter term for "can see" permission
+		// O: Owner
+		if (rem_term) {
+		    doc.remove_term(term);
+		}
+		term_iterator++;
+	    }
+	    // Updating document terms
+	    bool inc_tag_added = false;
+	    if (d.is_other_readable()) {
+		inc_tag_added = true;
+		doc.add_boolean_term("I*");
+	    } else if (d.is_group_readable()) {
+		const char * group = d.get_group();
+		if (group) {
+		    doc.add_boolean_term(string("I#") + group);
+		}
+	    }
+
+	    const char * owner = d.get_owner();
+	    if (owner) {
+		doc.add_boolean_term(string("O") + owner);
+		if (!inc_tag_added && d.is_owner_readable())
+		    doc.add_boolean_term(string("I@") + owner);
+	    }
+
+	    // Update document mtime and ctime
+	    doc.add_value(VALUE_LASTMOD,
+			  int_to_binary_string(uint32_t(mtime)));
+	    doc.add_value(VALUE_CTIME,
+			  int_to_binary_string(uint32_t(ctime)));
+
+	    db.replace_document(did, doc);
+	    mark_as_seen(did);
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
 void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
@@ -555,9 +626,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 {
     string context(file, root.size(), string::npos);
 
-    // FIXME: We could be cleverer here and check mtime too when use_ctime is
-    // set - if the ctime has changed but the mtime is unchanged, we can just
-    // update the existing Document and avoid having to re-extract text, etc.
     time_t last_altered = use_ctime ? d.get_ctime() : d.get_mtime();
 
     Xapian::docid did = 0;
@@ -581,6 +649,13 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    // again on this attempt, we'll add a new one.
 	    failed.del(urlterm);
 	}
+    }
+
+    // if the ctime has changed but the mtime is unchanged, we can just
+    // update the existing Document and avoid having to re-extract text, etc.
+    if (use_ctime && d.get_ctime() != d.get_mtime()) {
+	if (index_update_entry(urlterm, d, did))
+	    return;
     }
 
     // If we didn't get the mime type from the extension, call libmagic to get
