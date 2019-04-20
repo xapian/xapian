@@ -145,8 +145,13 @@ class DirectoryIterator {
 		break;
 	    case DT_REG:
 		return REGULAR_FILE;
-	    case DT_DIR:
-		return DIRECTORY;
+	    case DT_DIR: {
+			char * dot_ptr = strrchr(entry->d_name, '.');
+			std::vector<std::string> dasfile {".key", ".numbers", ".pages", "\0"};
+			if(std::find(dasfile.begin(), dasfile.end(), dot_ptr) != array.end())
+				return REGULAR_FILE;
+			else return DIRECTORY;
+		}
 #ifdef HAVE_LSTAT
 	    case DT_LNK:
 		if (follow_symlinks) break;
