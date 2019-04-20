@@ -645,9 +645,9 @@ QUOTELOOP:  while (1) {
 	}
     }
     if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output)\.txt$!) {
-	if ($fullline =~ /^\+.*?\b(xapain|the the|initialsing|ipv5|outputing|intened|dont)\b/i ||
+	if ($fullline =~ /^\+.*?\b(xapain|the the|initialsing|ipv5|outputing|intened|dont|wull)\b/i ||
 	    # Cases which just need to be the prefix of a word
-	    $fullline =~ /^\+.*?\b((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit)[a-z]*\b)/i ||
+	    $fullline =~ /^\+.*?\b((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit|appropirate)[a-z]*\b)/i ||
 	    # Case-sensitive cases
 	    $fullline =~ /^\+.*?\b(and and)\b/) {
 	    diagnostic('error', "Typo '$1'", $fullline);
@@ -740,4 +740,19 @@ Files patched:\t$files
 Lines added:\t$add_lines
 Lines removed:\t$del_lines
 __END__
-exit(exists $count{'error'} ? 1 : 0);
+
+exit 0 unless exists $count{'error'};
+
+if (exists $ENV{TRAVIS}) {
+    print STDERR <<"__END__";
+
+You can run these checks locally before pushing with the xapian-check-patch
+which is in the source tree in the xapian-maintainer-tools directory.
+
+E.g. to check any changes in your working directory which aren't on master:
+
+git diff master.. | xapian-maintainer-tools/xapian-check-patch
+__END__
+}
+
+exit 1;

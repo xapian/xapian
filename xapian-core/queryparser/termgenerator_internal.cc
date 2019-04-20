@@ -131,7 +131,8 @@ check_suffix(unsigned ch)
     return 0;
 }
 
-template<typename ACTION> bool
+template<typename ACTION>
+static bool
 parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
 	  ACTION action)
 {

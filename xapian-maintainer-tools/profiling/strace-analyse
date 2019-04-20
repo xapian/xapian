@@ -27,12 +27,12 @@ use warnings;
 #
 # Run strace like so:
 #
-# strace -y -s0 -efdatasync,fsync,pread,pread64,pwrite,pwrite64 -o strace.log COMMAND ARGS...
+# strace -y -s0 -efdatasync,fsync,pread64,pwrite64 -o strace.log COMMAND ARGS...
 # ./strace-analyse strace.log
 #
 # Or for strace < 4.7:
 #
-# strace -s0 -eclose,dup,dup2,dup3,fdatasync,fsync,open,pread,pread64,pwrite,pwrite64 -o strace.log COMMAND ARGS...
+# strace -s0 -eclose,dup,dup2,dup3,fdatasync,fsync,open,pread64,pwrite64 -o strace.log COMMAND ARGS...
 # ./strace-analyse strace.log
 #
 # Passing -s0 is optional, but doing so reduces the log size by stopping strace

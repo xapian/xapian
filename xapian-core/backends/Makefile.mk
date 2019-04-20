@@ -3,6 +3,7 @@ noinst_HEADERS +=\
 	backends/backends.h\
 	backends/byte_length_strings.h\
 	backends/contiguousalldocspostlist.h\
+	backends/databasehelpers.h\
 	backends/databaseinternal.h\
 	backends/databasereplicator.h\
 	backends/documentinternal.h\
@@ -22,6 +23,7 @@ EXTRA_DIST +=\
 lib_src +=\
 	backends/alltermslist.cc\
 	backends/dbcheck.cc\
+	backends/databasehelpers.cc\
 	backends/databaseinternal.cc\
 	backends/databasereplicator.cc\
 	backends/dbfactory.cc\

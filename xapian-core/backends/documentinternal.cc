@@ -49,9 +49,10 @@ Document::Internal::ensure_terms_fetched() const
     unique_ptr<TermList> t(database->open_term_list(did));
     while (t->next(), !t->at_end()) {
 	++termlist_size;
-	auto&& r = terms->emplace(make_pair(t->get_termname(),
-					    TermInfo(t->get_wdf())));
-	TermInfo& term = r.first->second;
+	auto&& r = terms->emplace_hint(terms->end(),
+				       t->get_termname(),
+				       TermInfo(t->get_wdf()));
+	TermInfo& term = r->second;
 	unique_ptr<PositionList> p(t->positionlist_begin());
 	while (p->next()) {
 	    term.append_position(p->get_position());

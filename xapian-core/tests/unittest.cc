@@ -1,7 +1,7 @@
 /** @file unittest.cc
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <utility>
 
 #include "safeunistd.h"
@@ -78,6 +79,7 @@ using namespace std;
 #include "../common/errno_to_string.cc"
 #include "../common/fileutils.cc"
 #include "../common/overflow.h"
+#include "../common/parseint.h"
 #include "../common/serialise-double.cc"
 #include "../common/str.cc"
 #include "../backends/uuids.cc"
@@ -822,6 +824,37 @@ static bool test_muloverflows1()
     return true;
 }
 
+template<typename U>
+inline static void parseunsigned_helper() {
+    U val;
+    const U max_val = numeric_limits<U>::max();
+    tout << "Testing with parseunsigned_helper" << endl;
+    TEST(parse_unsigned("0", val));
+    TEST_EQUAL(val, 0);
+    TEST(parse_unsigned("99", val));
+    TEST_EQUAL(val, 99);
+    TEST(parse_unsigned(str(max_val).c_str(), val));
+    TEST_EQUAL(val, max_val);
+    TEST(!parse_unsigned("", val));
+    TEST(!parse_unsigned("-1", val));
+    TEST(!parse_unsigned("abc", val));
+    TEST(!parse_unsigned("0a", val));
+    // Only test if we can construct a value one larger easily.
+    if (max_val + 1ull != 0)
+	TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
+}
+
+static bool test_parseunsigned1()
+{
+    parseunsigned_helper<unsigned char>();
+    parseunsigned_helper<unsigned short>();
+    parseunsigned_helper<unsigned>();
+    parseunsigned_helper<unsigned long>();
+    parseunsigned_helper<unsigned long long>();
+
+    return true;
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -842,6 +875,7 @@ static const test_desc tests[] = {
     TESTCASE(movesupport1),
     TESTCASE(addoverflows1),
     TESTCASE(muloverflows1),
+    TESTCASE(parseunsigned1),
     END_OF_TESTCASES
 };
 

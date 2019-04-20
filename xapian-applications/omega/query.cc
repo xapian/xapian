@@ -1085,7 +1085,7 @@ T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
 T(cgiparams,	   0, 0, N, 0), // return list of cgi parameter names
 T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
 T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
-T(cond,		   2, N, 0, 0), // return position of substring, or empty string
+T(cond,		   2, N, 0, 0), // cascaded conditionals
 T(contains,	   2, 2, N, 0), // return position of substring, or empty string
 T(csv,		   1, 2, N, 0), // CSV string escaping
 T(date,		   1, 2, N, 0), // convert time_t to strftime format
@@ -1168,7 +1168,7 @@ T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 6, N, M), // generate snippet from text
-T(sort,		   1, 2, N, M), // alpha sort a list
+T(sort,		   1, 2, N, 0), // alpha sort a list
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(srandom,	   1, 1, N, 0), // seed for random number
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
@@ -1678,7 +1678,7 @@ eval(const string &fmt, const vector<string> &param)
 		// 0-based mset index
 		value = str(hit_no);
 		break;
-	    case CMD_hitlist:
+	    case CMD_hitlist: {
 #if 0
 		url_query_string = "?DB=";
 		url_query_string += dbname;
@@ -1720,10 +1720,12 @@ eval(const string &fmt, const vector<string> &param)
 		    url_query_string += i->second;
 		}
 #endif
+		auto save_hit_no = hit_no;
 		for (hit_no = topdoc; hit_no < last; ++hit_no)
 		    value += print_caption(args[0], param);
-		hit_no = 0;
+		hit_no = save_hit_no;
 		break;
+	    }
 	    case CMD_hitsperpage:
 		value = str(hits_per_page);
 		break;

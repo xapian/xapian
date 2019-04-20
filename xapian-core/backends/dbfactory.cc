@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
 #include "backends.h"
+#include "databasehelpers.h"
 #include "debuglog.h"
 #include "filetests.h"
 #include "fileutils.h"
@@ -59,305 +60,97 @@
 
 using namespace std;
 
-/** Return a BACKEND_* constant from backends.h.
- *
- *  BACKEND_UNKNOWN : stub file
- *  BACKEND_GLASS : glass single file
- *  BACKEND_HONEY : honey single file
- */
-static int
-check_if_single_file_db(const struct stat & sb, const string & path,
-			int * fd_ptr = NULL)
-{
-#if defined XAPIAN_HAS_GLASS_BACKEND || \
-    defined XAPIAN_HAS_HONEY_BACKEND
-    if (!S_ISREG(sb.st_mode)) return BACKEND_UNKNOWN;
-    // Look at the size as a clue - if it's less than both GLASS_MIN_BLOCKSIZE
-    // and HONEY_MIN_DB_SIZE then it's not a single-file glass or honey
-    // database.  For a larger file, we peek at the start of the file to
-    // determine what it is.
-    if (sb.st_size < min(GLASS_MIN_BLOCKSIZE, HONEY_MIN_DB_SIZE))
-	return false;
-    int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
-    if (fd != -1) {
-	char magic_buf[14];
-	// FIXME: Don't duplicate magic check here...
-	if (io_read(fd, magic_buf, 14) == 14 &&
-	    lseek(fd, 0, SEEK_SET) == 0 &&
-	    memcmp(magic_buf, "\x0f\x0dXapian ", 9) == 0) {
-	    if (!fd_ptr)
-		::close(fd);
-	    switch (magic_buf[9]) {
-		case 'G':
-		    if (memcmp(magic_buf + 10, "lass", 4) == 0) {
-			if (fd_ptr)
-			    *fd_ptr = fd;
-			return BACKEND_GLASS;
-		    }
-		    break;
-		case 'H':
-		    if (memcmp(magic_buf + 10, "oney", 4) == 0) {
-			if (fd_ptr)
-			    *fd_ptr = fd;
-			return BACKEND_HONEY;
-		    }
-		    break;
-	    }
-	    if (fd_ptr)
-		::close(fd);
-	    return BACKEND_UNKNOWN;
-	}
-	::close(fd);
-    }
-#else
-    (void)sb;
-    (void)path;
-    (void)fd_ptr;
-#endif
-    return BACKEND_UNKNOWN;
-}
-
 namespace Xapian {
 
 static void
-open_stub(Database &db, const string &file)
+open_stub(Database& db, const string& file)
 {
-    // A stub database is a text file with one or more lines of this format:
-    // <dbtype> <serialised db object>
-    //
-    // Lines which start with a "#" character are ignored.
-    //
-    // Any paths specified in stub database files which are relative will be
-    // considered to be relative to the directory containing the stub database.
-    ifstream stub(file.c_str());
-    if (!stub) {
-	string msg = "Couldn't open stub database file: ";
-	msg += file;
-	throw Xapian::DatabaseNotFoundError(msg, errno);
-    }
-    string line;
-    unsigned int line_no = 0;
-    while (getline(stub, line)) {
-	++line_no;
-	if (line.empty() || line[0] == '#')
-	    continue;
-	string::size_type space = line.find(' ');
-	if (space == string::npos) space = line.size();
-
-	string type(line, 0, space);
-	line.erase(0, space + 1);
-
-	if (type == "auto") {
-	    resolve_relative_path(line, file);
-	    db.add_database(Database(line));
-	    continue;
-	}
-
-	if (type == "glass") {
+    read_stub_file(file,
+		   [&db](const string& path) {
+		       db.add_database(Database(path));
+		   },
+		   [&db](const string& path) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	    resolve_relative_path(line, file);
-	    db.add_database(Database(new GlassDatabase(line)));
-	    continue;
+		       db.add_database(Database(new GlassDatabase(path)));
 #else
-	    throw FeatureUnavailableError("Glass backend disabled");
+		       (void)path;
 #endif
-	}
-
-	if (type == "honey") {
+		   },
+		   [&db](const string& path) {
 #ifdef XAPIAN_HAS_HONEY_BACKEND
-	    resolve_relative_path(line, file);
-	    db.add_database(Database(new HoneyDatabase(line)));
-	    continue;
+		       db.add_database(Database(new HoneyDatabase(path)));
 #else
-	    throw FeatureUnavailableError("Honey backend disabled");
+		       (void)path;
 #endif
-	}
-
-	if (type == "remote" && !line.empty()) {
+		   },
+		   [&db](const string& prog, const string& args) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    if (line[0] == ':') {
-		// prog
-		// FIXME: timeouts
-		// Is it a security risk?
-		space = line.find(' ');
-		string args;
-		if (space != string::npos) {
-		    args.assign(line, space + 1, string::npos);
-		    line.assign(line, 1, space - 1);
-		} else {
-		    line.erase(0, 1);
-		}
-		db.add_database(Remote::open(line, args));
-		continue;
-	    }
-	    string::size_type colon = line.rfind(':');
-	    if (colon != string::npos) {
-		// tcp
-		// FIXME: timeouts
-		// Avoid misparsing an IPv6 address without a port number.  The
-		// port number is required, so just leave that case to the
-		// error handling further below.
-		if (!(line[0] == '[' && line.back() == ']')) {
-		    unsigned int port = atoi(line.c_str() + colon + 1);
-		    line.erase(colon);
-		    if (line[0] == '[' && line.back() == ']') {
-			line.erase(line.size() - 1, 1);
-			line.erase(0, 1);
-		    }
-		    db.add_database(Remote::open(line, port));
-		    continue;
-		}
-	    }
+		       db.add_database(Remote::open(prog, args));
 #else
-	    throw FeatureUnavailableError("Remote backend disabled");
+		       (void)prog;
+		       (void)args;
 #endif
-	}
-
-	if (type == "inmemory" && line.empty()) {
+		   },
+		   [&db](const string& host, unsigned port) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+		       db.add_database(Remote::open(host, port));
+#else
+		       (void)host;
+		       (void)port;
+#endif
+		   },
+		   [&db]() {
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	    db.add_database(Database(string(), DB_BACKEND_INMEMORY));
-	    continue;
-#else
-	    throw FeatureUnavailableError("Inmemory backend disabled");
+		       db.add_database(Database(string(), DB_BACKEND_INMEMORY));
 #endif
-	}
-
-	if (type == "chert") {
-	    throw FeatureUnavailableError("Chert backend no longer supported");
-	}
-
-	if (type == "flint") {
-	    throw FeatureUnavailableError("Flint backend no longer supported");
-	}
-
-	// Don't include the line itself - that might help an attacker
-	// by revealing part of a sensitive file's contents if they can
-	// arrange for it to be read as a stub database via infelicities in
-	// an application which uses Xapian.  The line number is enough
-	// information to identify the problem line.
-	throw DatabaseOpeningError(file + ':' + str(line_no) + ": Bad line");
-    }
+		   });
 
     // Allowing a stub database with no databases listed allows things like
     // a "search all databases" feature to be implemented by generating a
     // stub database file without having to special case there not being any
     // databases yet.
     //
-    // 1.0.x throws DatabaseOpeningError here, but with a "Bad line" message
-    // with the line number just past the end of the file, which is a bit odd.
+    // 1.0.x threw DatabaseOpeningError here, but with a "Bad line" message
+    // with the line number just past the end of the file, which was a bit odd.
 }
 
 static void
-open_stub(WritableDatabase &db, const string &file, int flags)
+open_stub(WritableDatabase& db, const string& file, int flags)
 {
-    // A stub database is a text file with one or more lines of this format:
-    // <dbtype> <serialised db object>
-    //
-    // Lines which start with a "#" character, and lines which have no spaces
-    // in them, are ignored.
-    //
-    // Any paths specified in stub database files which are relative will be
-    // considered to be relative to the directory containing the stub database.
-    ifstream stub(file.c_str());
-    if (!stub) {
-	string msg = "Couldn't open stub database file: ";
-	msg += file;
-	throw Xapian::DatabaseNotFoundError(msg, errno);
-    }
-    string line;
-    unsigned int line_no = 0;
-    while (true) {
-	if (!getline(stub, line)) break;
-
-	++line_no;
-	if (line.empty() || line[0] == '#')
-	    continue;
-	string::size_type space = line.find(' ');
-	if (space == string::npos) space = line.size();
-
-	string type(line, 0, space);
-	line.erase(0, space + 1);
-
-	if (type == "auto") {
-	    resolve_relative_path(line, file);
-	    db.add_database(WritableDatabase(line, flags));
-	    continue;
-	}
-
-	if (type == "glass") {
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-	    resolve_relative_path(line, file);
-	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_GLASS));
-	    continue;
-#else
-	    throw FeatureUnavailableError("Glass backend disabled");
-#endif
-	}
-
-	if (type == "remote" && !line.empty()) {
+    read_stub_file(file,
+		   [&db, flags](const string& path) {
+		       db.add_database(WritableDatabase(path, flags));
+		   },
+		   [&db, &flags](const string& path) {
+		       flags |= DB_BACKEND_GLASS;
+		       db.add_database(WritableDatabase(path, flags));
+		   },
+		   [](const string&) {
+		       auto msg = "Honey databases don't support writing";
+		       throw Xapian::DatabaseOpeningError(msg);
+		   },
+		   [&db, flags](const string& prog, const string& args) {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    if (line[0] == ':') {
-		// prog
-		// FIXME: timeouts
-		// Is it a security risk?
-		space = line.find(' ');
-		string args;
-		if (space != string::npos) {
-		    args.assign(line, space + 1, string::npos);
-		    line.assign(line, 1, space - 1);
-		} else {
-		    line.erase(0, 1);
-		}
-		db.add_database(Remote::open_writable(line, args, 0, flags));
-		continue;
-	    }
-	    string::size_type colon = line.rfind(':');
-	    if (colon != string::npos) {
-		// tcp
-		// FIXME: timeouts
-		// Avoid misparsing an IPv6 address without a port number.  The
-		// port number is required, so just leave that case to the
-		// error handling further below.
-		if (!(line[0] == '[' && line.back() == ']')) {
-		    unsigned int port = atoi(line.c_str() + colon + 1);
-		    line.erase(colon);
-		    if (line[0] == '[' && line.back() == ']') {
-			line.erase(line.size() - 1, 1);
-			line.erase(0, 1);
-		    }
-		    db.add_database(Remote::open_writable(line, port, 0, 10000, flags));
-		    continue;
-		}
-	    }
+		       db.add_database(Remote::open_writable(prog, args,
+							     0, flags));
 #else
-	    throw FeatureUnavailableError("Remote backend disabled");
+		       (void)prog;
+		       (void)args;
 #endif
-	}
-
-	if (type == "inmemory" && line.empty()) {
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-	    db.add_database(WritableDatabase(string(), DB_BACKEND_INMEMORY));
-	    continue;
+		   },
+		   [&db, flags](const string& host, unsigned port) {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+		       db.add_database(Remote::open_writable(host, port,
+							     0, 10000, flags));
 #else
-	    throw FeatureUnavailableError("Inmemory backend disabled");
+		       (void)host;
+		       (void)port;
 #endif
-	}
-
-	if (type == "chert") {
-	    throw FeatureUnavailableError("Chert backend no longer supported");
-	}
-
-	if (type == "flint") {
-	    throw FeatureUnavailableError("Flint backend no longer supported");
-	}
-
-	// Don't include the line itself - that might help an attacker
-	// by revealing part of a sensitive file's contents if they can
-	// arrange for it to be read as a stub database via infelicities in
-	// an application which uses Xapian.  The line number is enough
-	// information to identify the problem line.
-	throw DatabaseOpeningError(file + ':' + str(line_no) + ": Bad line");
-    }
+		   },
+		   [&db]() {
+		       db.add_database(WritableDatabase(string(),
+							DB_BACKEND_INMEMORY));
+		   });
 
     if (db.internal->size() == 0) {
 	throw DatabaseOpeningError(file + ": No databases listed");
@@ -409,7 +202,7 @@ Database::Database(const string& path, int flags)
 
 	// Initialise to avoid bogus warning from GCC 4.9.2 with -Os.
 	int fd = -1;
-	switch (check_if_single_file_db(statbuf, path, &fd)) {
+	switch (test_if_single_file_db(statbuf, path, &fd)) {
 	    case BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 		// Single file glass format.

@@ -512,6 +512,11 @@ testcase 'Exception: Unknown $sort option: x' input="b|c|b|1" opt=urx
 testcase 'Exception: Invalid $sort option combination: n#' input="b|c" opt='n#'
 testcase 'Exception: Invalid $sort option combination: #rn' input="b|1" opt='#rn'
 
+# Regression test for $sort bug fixed in 1.4.12.
+# Check $sort doesn't ensure_match (or ensure_query).
+printf '$sort{test} $addfilter{Test}$querydescription' > "$TEST_TEMPLATE"
+testcase 'test Query(Test)'
+
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
@@ -1048,6 +1053,11 @@ d=1541478429
 END
 printf '$list{$map{$range{1,3},$list{$allterms{$_}, }},|}' > "$TEST_TEMPLATE"
 testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018'
+
+# Check nested $hitlist{} doesn't result in an infinite loop.
+# Regression test for bug fixed in 1.4.12.
+printf '<|$hitlist{$id(:$hitlist{$id:})|}>' > "$TEST_TEMPLATE"
+testcase '<|2(:2:3:)|3(:2:3:)|>' B=Y1970 B=Y2018
 
 # Feature tests for datevalue command scriptindex.
 printf '%s\n' 'DATE : field parsedate=%Y%m%d valuepacked=13' > "$TEST_INDEXSCRIPT"
