@@ -148,7 +148,7 @@ class DirectoryIterator {
 	    case DT_DIR: {
 			char * dot_ptr = strrchr(entry->d_name, '.');
 			std::vector<std::string> dasfile {".key", ".numbers", ".pages", "\0"};
-			if(std::find(dasfile.begin(), dasfile.end(), dot_ptr) != array.end())
+			if(std::find(dasfile.begin(), dasfile.end(), dot_ptr) != dasfile.end())
 				return REGULAR_FILE;
 			else return DIRECTORY;
 		}
