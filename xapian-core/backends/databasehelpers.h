@@ -23,6 +23,7 @@
 #ifndef XAPIAN_INCLUDED_DATABASEHELPERS_H
 #define XAPIAN_INCLUDED_DATABASEHELPERS_H
 
+#include <cstdlib>
 #include <fstream>
 #include <string>
 
@@ -145,7 +146,7 @@ read_stub_file(const std::string& file,
 		// port number is required, so just leave that case to the
 		// error handling further below.
 		if (!(line[0] == '[' && line.back() == ']')) {
-		    unsigned int port = atoi(line.c_str() + colon + 1);
+		    unsigned int port = std::atoi(line.c_str() + colon + 1);
 		    line.erase(colon);
 		    if (line[0] == '[' && line.back() == ']') {
 			line.erase(line.size() - 1, 1);

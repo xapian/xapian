@@ -32,6 +32,7 @@
 #include "omassert.h"
 #include "posixy_wrapper.h"
 
+#include <algorithm>
 #include <cstring>
 #include <string>
 #include <sys/types.h>
