@@ -193,10 +193,10 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 	    try {
 		switch (d.get_type()) {
 		    case DirectoryIterator::DIRECTORY: {
-			const char * dot_pt = strrchr(d.leafname(), '.');
-			if (dot_ptr)
-			if (binary_search(dasfile.begin(), dasfile.end(), dot_pt)) {
-			index_file(file, url, d, mime_map);
+			const char * pt = strrchr(d.leafname(), '.');
+			if (pt)
+			if (binary_search(dasfile.begin(), dasfile.end(), pt)) {
+                            index_file(file, url, d, mime_map);
 			break;
 			}
 			size_t new_limit = depth_limit;
