@@ -238,6 +238,10 @@ index_add_default_filters()
 		  Filter("numbers2text", SEEK_DEV_STDIN));
     index_command("application/vnd.apply.pages",
 		  Filter("pages2text", SEEK_DEV_STDIN));
+
+    index_command("application/epub+zip",
+      Filter("unzip -p %f '*/*.*htm*'", "text/html", "iso-8859-1",SEEK_DEV_STDIN));
+
 }
 
 void
