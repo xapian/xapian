@@ -55,6 +55,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "urlencode.h"
+#include "daflist.h"
 
 #include "gnu_getopt.h"
 
@@ -192,6 +193,11 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 	    try {
 		switch (d.get_type()) {
 		    case DirectoryIterator::DIRECTORY: {
+			char * dot_ptr = strrchr(d.leafname, '.');	
+			if (dot_ptr && binary_search (dasfile.begin(), dasfile.end(), dot_ptr)) {
+				index_file(file, url, d, mime_map);
+				break;
+			}
 			size_t new_limit = depth_limit;
 			if (new_limit) {
 			    if (--new_limit == 0) continue;
@@ -767,6 +773,8 @@ main(int argc, char **argv)
 	root += start_url;
 	url_encode_path(baseurl, start_url);
     }
+
+	std::sort (dasfile.begin(), dasfile.end());
 
     int exitcode = 1;
     try {
