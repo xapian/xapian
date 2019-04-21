@@ -193,10 +193,11 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 	    try {
 		switch (d.get_type()) {
 		    case DirectoryIterator::DIRECTORY: {
-			char * dot_ptr = strrchr(d.leafname(), '.');	
-			if (dot_ptr && binary_search (dasfile.begin(), dasfile.end(), dot_ptr)) {
-				index_file(file, url, d, mime_map);
-				break;
+			const char * dot_pt = strrchr(d.leafname(), '.');
+			if (dot_ptr)
+			if (binary_search(dasfile.begin(), dasfile.end(), dot_pt)) {
+			index_file(file, url, d, mime_map);
+			break;
 			}
 			size_t new_limit = depth_limit;
 			if (new_limit) {
@@ -774,7 +775,7 @@ main(int argc, char **argv)
 	url_encode_path(baseurl, start_url);
     }
 
-	std::sort (dasfile.begin(), dasfile.end());
+	sort(dasfile.begin(), dasfile.end());
 
     int exitcode = 1;
     try {
