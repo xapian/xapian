@@ -40,7 +40,7 @@ enum func{
     CALL_PWRITE64
 };
 
-void *cached_function_ptrs[9] = { NULL };
+static void *cached_function_ptrs[9] = { NULL };
 
 void logcall(const char *format, ...)
 {
