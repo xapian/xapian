@@ -8,7 +8,7 @@
  * xapian-io-profile script, then use:
  * ./xapian-io-profile --log=log_file_name ./executable
  *
- * Running this library will produce an log file,
+ * Running this library will produce a log file,
  * which can be fed to strace-analyse to produce a log, by running:
  * ./strace-analyse log_file_name
  */
@@ -37,10 +37,11 @@ enum func{
     CALL_PREAD,
     CALL_PREAD64,
     CALL_PWRITE,
-    CALL_PWRITE64
+    CALL_PWRITE64,
+    NUM_CALLS
 };
 
-static void *cached_function_ptrs[9] = { NULL };
+static void *cached_function_ptrs[NUM_CALLS] = { NULL };
 
 void logcall(const char *format, ...)
 {
