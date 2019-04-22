@@ -196,7 +196,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 			const char * pt = strrchr(d.leafname(), '.');
 			if (pt)
 			if (binary_search(dasfile.begin(), dasfile.end(), pt)) {
-            	index_file(file, url, d, mime_map);
+            			index_file(file, url, d, mime_map);
 				break;
 			}
 			size_t new_limit = depth_limit;
