@@ -1097,13 +1097,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    // FIXME: topic = atomparser.topic;
 	    author = atomparser.author;
 	}
-   else if ( mimetype=="application/zip"){
-
-
-
-
-
-   }
 
    else {
 	    // Don't know how to index this type.
