@@ -28,7 +28,7 @@
 
 static int is_reset = 0;
 
-enum func{
+enum syscalls {
     CALL_OPEN,
     CALL_OPEN64,
     CALL_CLOSE,
@@ -115,7 +115,8 @@ int open64(const char *pathname, int flags, ...)
 	     (pathname, flags, va_arg(args_ptr, mode_t));
 	va_end(args_ptr);
     } else {
-	fd = ((real_open64_t)cached_function_ptrs[CALL_OPEN64])(pathname, flags);
+	fd = ((real_open64_t)cached_function_ptrs[CALL_OPEN64])
+	     (pathname, flags);
     }
     // realpath can set errno
     int saved_errno = errno;
@@ -154,7 +155,8 @@ ssize_t fdatasync(int fd)
     if (!cached_function_ptrs[CALL_FDATASYNC]) {
 	cached_function_ptrs[CALL_FDATASYNC] = dlsym(RTLD_NEXT, "fdatasync");
     }
-    ssize_t return_val = ((real_fdatasync_t)cached_function_ptrs[CALL_FDATASYNC])(fd);
+    ssize_t return_val =
+	((real_fdatasync_t)cached_function_ptrs[CALL_FDATASYNC])(fd);
     logcall("fdatasync(%d) = %ld\n", fd, return_val);
     return return_val;
 }
@@ -168,7 +170,8 @@ ssize_t fsync(int fd)
     if (!cached_function_ptrs[CALL_FSYNC]) {
 	cached_function_ptrs[CALL_FSYNC] = dlsym(RTLD_NEXT, "fsync");
     }
-    ssize_t return_val = ((real_fsync_t)cached_function_ptrs[CALL_FSYNC])(fd);
+    ssize_t return_val = 
+	((real_fsync_t)cached_function_ptrs[CALL_FSYNC])(fd);
     logcall("fsync(%d) = %ld\n", fd, return_val);
     return return_val;
 }
@@ -183,7 +186,8 @@ ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 	cached_function_ptrs[CALL_PREAD] = dlsym(RTLD_NEXT, "pread");
     }
     ssize_t return_val =
-	((real_pread_t)cached_function_ptrs[CALL_PREAD])(fd, buf, count, offset);
+	((real_pread_t)cached_function_ptrs[CALL_PREAD])
+	(fd, buf, count, offset);
     logcall("pread(%d, \"\", %lu, %ld) = %ld\n",
 	    fd, count, offset, return_val);
     return return_val;
@@ -199,7 +203,8 @@ ssize_t pread64(int fd, void *buf, size_t count, off_t offset)
 	cached_function_ptrs[CALL_PREAD64] = dlsym(RTLD_NEXT, "pread64");
     }
     ssize_t return_val =
-	((real_pread64_t)cached_function_ptrs[CALL_PREAD64])(fd, buf, count, offset);
+	((real_pread64_t)cached_function_ptrs[CALL_PREAD64])
+	(fd, buf, count, offset);
     logcall("pread(%d, \"\", %lu, %ld) = %ld\n",
 	    fd, count, offset, return_val);
     return return_val;
@@ -215,7 +220,8 @@ ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 	cached_function_ptrs[CALL_PWRITE] = dlsym(RTLD_NEXT, "pwrite");
     }
     ssize_t return_val =
-	((real_pwrite_t)cached_function_ptrs[CALL_PWRITE])(fd, buf, count, offset);
+	((real_pwrite_t)cached_function_ptrs[CALL_PWRITE])
+	(fd, buf, count, offset);
     logcall("pwrite(%d, \"\", %lu, %ld) = %ld\n",
 	    fd, count, offset, return_val);
     return return_val;
@@ -231,7 +237,8 @@ ssize_t pwrite64(int fd, const void *buf, size_t count, off_t offset)
 	cached_function_ptrs[CALL_PWRITE64] = dlsym(RTLD_NEXT, "pwrite64");
     }
     ssize_t return_val =
-	((real_pwrite64_t)cached_function_ptrs[CALL_PWRITE64])(fd, buf, count, offset);
+	((real_pwrite64_t)cached_function_ptrs[CALL_PWRITE64])
+	(fd, buf, count, offset);
     logcall("pwrite(%d, \"\", %lu, %ld) = %ld\n",
 	    fd, count, offset, return_val);
     return return_val;
