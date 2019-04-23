@@ -170,7 +170,7 @@ ssize_t fsync(int fd)
     if (!cached_function_ptrs[CALL_FSYNC]) {
 	cached_function_ptrs[CALL_FSYNC] = dlsym(RTLD_NEXT, "fsync");
     }
-    ssize_t return_val = 
+    ssize_t return_val =
 	((real_fsync_t)cached_function_ptrs[CALL_FSYNC])(fd);
     logcall("fsync(%d) = %ld\n", fd, return_val);
     return return_val;
