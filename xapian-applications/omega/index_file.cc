@@ -238,10 +238,10 @@ index_add_default_filters()
 		  Filter("numbers2text", SEEK_DEV_STDIN));
     index_command("application/vnd.apply.pages",
 		  Filter("pages2text", SEEK_DEV_STDIN));
-
     index_command("application/epub+zip",
-      Filter("unzip -p %f '*/*.*htm*'", "text/html", "iso-8859-1",SEEK_DEV_STDIN));
-
+      Filter("unzip -p %f '**.*htm*'", "text/html", "iso-8859-1",SEEK_DEV_STDIN));
+    index_command("application/zip",
+      Filter("unzip -p %f '**.*htm*'", "text/html", "iso-8859-1",SEEK_DEV_STDIN));
 }
 
 void
@@ -1029,6 +1029,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 				d.get_size(), d.get_mtime());
 		return;
 	    }
+
+
+
 	} else if (mimetype == "text/csv") {
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
@@ -1093,7 +1096,16 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    keywords = atomparser.keywords;
 	    // FIXME: topic = atomparser.topic;
 	    author = atomparser.author;
-	} else {
+	}
+   else if ( mimetype=="application/zip"){
+
+
+
+
+
+   }
+
+   else {
 	    // Don't know how to index this type.
 	    skip_unknown_mimetype(urlterm, context, mimetype,
 				  d.get_size(), d.get_mtime());
