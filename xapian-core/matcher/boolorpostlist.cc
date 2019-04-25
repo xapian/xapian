@@ -133,7 +133,7 @@ BoolOrPostList::skip_to(Xapian::docid did_min, double)
 	    }
 	    plist[j].did = plist[j].pl->get_docid();
 	} else if (j != i) {
-	    plist[j].pl = plist[i].pl;
+	    plist[j] = plist[i];
 	}
 
 	did = min(did, plist[j].did);

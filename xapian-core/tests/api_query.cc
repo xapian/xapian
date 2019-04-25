@@ -1092,3 +1092,18 @@ DEFINE_TESTCASE(notandor1, backend) {
 
     return true;
 }
+
+// Regression test for bug fixed in git master before 1.5.0.
+DEFINE_TESTCASE(boolorbug1, backend) {
+    Xapian::Database db(get_database("etext"));
+    using Xapian::Query;
+    Query q = Query("the") &~ Query(Query::OP_WILDCARD, "pru");
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    Xapian::MSet mset = enq.get_mset(0, 10, db.get_doccount());
+    // Due to a bug in BoolOrPostList this returned 330 results.
+    TEST_EQUAL(mset.get_matches_estimated(), 331);
+
+    return true;
+}
