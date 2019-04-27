@@ -210,38 +210,42 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 /// Functions associated with handling Unicode characters.
 namespace Unicode {
 
-/** Each Unicode character is in exactly one of these categories. */
+/** Each Unicode character is in exactly one of these categories.
+ *
+ * The Unicode standard calls this the "General Category", and uses a
+ * "Major, minor" convention to derive a two letter code.
+ */
 typedef enum {
-    UNASSIGNED,
-    UPPERCASE_LETTER,
-    LOWERCASE_LETTER,
-    TITLECASE_LETTER,
-    MODIFIER_LETTER,
-    OTHER_LETTER,
-    NON_SPACING_MARK,
-    ENCLOSING_MARK,
-    COMBINING_SPACING_MARK,
-    DECIMAL_DIGIT_NUMBER,
-    LETTER_NUMBER,
-    OTHER_NUMBER,
-    SPACE_SEPARATOR,
-    LINE_SEPARATOR,
-    PARAGRAPH_SEPARATOR,
-    CONTROL,
-    FORMAT,
-    PRIVATE_USE,
-    SURROGATE,
-    CONNECTOR_PUNCTUATION,
-    DASH_PUNCTUATION,
-    OPEN_PUNCTUATION,
-    CLOSE_PUNCTUATION,
-    INITIAL_QUOTE_PUNCTUATION,
-    FINAL_QUOTE_PUNCTUATION,
-    OTHER_PUNCTUATION,
-    MATH_SYMBOL,
-    CURRENCY_SYMBOL,
-    MODIFIER_SYMBOL,
-    OTHER_SYMBOL
+    UNASSIGNED,                         /**< Other, not assigned (Cn) */
+    UPPERCASE_LETTER,                   /**< Letter, uppercase (Lu) */
+    LOWERCASE_LETTER,                   /**< Letter, lowercase (Ll) */
+    TITLECASE_LETTER,                   /**< Letter, titlecase (Lt) */
+    MODIFIER_LETTER,                    /**< Letter, modifier (Lm) */
+    OTHER_LETTER,                       /**< Letter, other (Lo) */
+    NON_SPACING_MARK,                   /**< Mark, nonspacing (Mn) */
+    ENCLOSING_MARK,                     /**< Mark, enclosing (Me) */
+    COMBINING_SPACING_MARK,             /**< Mark, spacing combining (Mc) */
+    DECIMAL_DIGIT_NUMBER,               /**< Number, decimal digit (Nd) */
+    LETTER_NUMBER,                      /**< Number, letter (Nl) */
+    OTHER_NUMBER,                       /**< Number, other (No) */
+    SPACE_SEPARATOR,                    /**< Separator, space (Zs) */
+    LINE_SEPARATOR,                     /**< Separator, line (Zl) */
+    PARAGRAPH_SEPARATOR,                /**< Separator, paragraph (Zp) */
+    CONTROL,                            /**< Other, control (Cc) */
+    FORMAT,                             /**< Other, format (Cf) */
+    PRIVATE_USE,                        /**< Other, private use (Co) */
+    SURROGATE,                          /**< Other, surrogate (Cs) */
+    CONNECTOR_PUNCTUATION,              /**< Punctuation, connector (Pc) */
+    DASH_PUNCTUATION,                   /**< Punctuation, dash (Pd) */
+    OPEN_PUNCTUATION,                   /**< Punctuation, open (Ps) */
+    CLOSE_PUNCTUATION,                  /**< Punctuation, close (Pe) */
+    INITIAL_QUOTE_PUNCTUATION,          /**< Punctuation, initial quote (Pi) */
+    FINAL_QUOTE_PUNCTUATION,            /**< Punctuation, final quote (Pf) */
+    OTHER_PUNCTUATION,                  /**< Punctuation, other (Po) */
+    MATH_SYMBOL,                        /**< Symbol, math (Sm) */
+    CURRENCY_SYMBOL,                    /**< Symbol, currency (Sc) */
+    MODIFIER_SYMBOL,                    /**< Symbol, modified (Sk) */
+    OTHER_SYMBOL                        /**< Symbol, other (So) */
 } category;
 
 namespace Internal {
