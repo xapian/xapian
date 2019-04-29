@@ -523,6 +523,23 @@ static bool test_sortableserialise1()
     return true;
 }
 
+template<typename S>
+inline static void tostring_helper() {
+    const S max_val = numeric_limits<S>::max();
+    const S min_val = numeric_limits<S>::min();
+    tout << "Testing with tostring_helper" << endl;
+    std::ostringstream oss;
+    oss << (long long)max_val;
+    TEST_EQUAL(str(max_val), oss.str());
+    oss.str("");
+    oss.clear();
+
+    oss << (long long)min_val;
+    TEST_EQUAL(str(min_val), oss.str());
+    oss.str("");
+    oss.clear();
+}
+
 static bool test_tostring1()
 {
     TEST_EQUAL(str(0), "0");
@@ -539,26 +556,16 @@ static bool test_tostring1()
     TEST_EQUAL(str(0x7f), "127");
     TEST_EQUAL(str(-0x80), "-128");
     TEST_EQUAL(str(0x7fff), "32767");
-
-    const short min_short = std::numeric_limits<short>::min();
-    std::ostringstream oss;
-    oss << min_short;
-    TEST_EQUAL(str(min_short), oss.str());
-    oss.str("");
-    oss.clear();
-
     TEST_EQUAL(str(0xffffffff), "4294967295");
     TEST_EQUAL(str(0x7fffffff), "2147483647");
     TEST_EQUAL(str(0x7fffffffu), "2147483647");
     TEST_EQUAL(str(-0x7fffffff), "-2147483647");
 
-    const int min_int = std::numeric_limits<int>::min();
-    oss << min_int;
-    TEST_EQUAL(str(min_int), oss.str());
-    oss.str("");
-    oss.clear();
-
-    TEST_EQUAL(str(0x7fffffffffffffff), "9223372036854775807");
+    tostring_helper<char>();
+    tostring_helper<short>();
+    tostring_helper<int>();
+    tostring_helper<long>();
+    tostring_helper<long long>();
 
 #ifdef __WIN32__
     /* Test the 64 bit integer conversion to string.
