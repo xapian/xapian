@@ -58,7 +58,7 @@ int open(const char *pathname, int flags, ...)
 {
     static real_open_t real_open = NULL;
     if (!real_open) {
-        real_open = (real_open_t)dlsym(RTLD_NEXT, "open");
+	real_open = (real_open_t)dlsym(RTLD_NEXT, "open");
     }
     int fd;
     if (flags & (O_CREAT | O_TMPFILE)) {
@@ -91,7 +91,7 @@ int open64(const char *pathname, int flags, ...)
 {
     static real_open64_t real_open64 = NULL;
     if (!real_open64) {
-        real_open64 = (real_open64_t)dlsym(RTLD_NEXT, "open64");
+	real_open64 = (real_open64_t)dlsym(RTLD_NEXT, "open64");
     }
     int fd;
     if (flags & (O_CREAT | O_TMPFILE)) {
@@ -124,7 +124,7 @@ int close(int fd)
 {
     static real_close_t real_close = NULL;
     if (!real_close) {
-        real_close = (real_close_t)dlsym(RTLD_NEXT, "close");
+	real_close = (real_close_t)dlsym(RTLD_NEXT, "close");
     }
     int return_val = real_close(fd);
     logcall("close(%d) = %d\n", fd, return_val);
@@ -139,7 +139,7 @@ ssize_t fdatasync(int fd)
 {
     static real_fdatasync_t real_fdatasync = NULL;
     if (!real_fdatasync) {
-        real_fdatasync = (real_fdatasync_t)dlsym(RTLD_NEXT, "fdatasync");
+	real_fdatasync = (real_fdatasync_t)dlsym(RTLD_NEXT, "fdatasync");
     }
     ssize_t return_val = real_fdatasync(fd);
     logcall("fdatasync(%d) = %ld\n", fd, return_val);
@@ -154,7 +154,7 @@ ssize_t fsync(int fd)
 {
     static real_fsync_t real_fsync = NULL;
     if (!real_fsync) {
-        real_fsync = (real_fsync_t)dlsym(RTLD_NEXT, "fsync");
+	real_fsync = (real_fsync_t)dlsym(RTLD_NEXT, "fsync");
     }
     ssize_t return_val = real_fsync(fd);
     logcall("fsync(%d) = %ld\n", fd, return_val);
@@ -169,7 +169,7 @@ ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 {
     static real_pread_t real_pread = NULL;
     if (!real_pread) {
-        real_pread = (real_pread_t)dlsym(RTLD_NEXT, "pread");
+	real_pread = (real_pread_t)dlsym(RTLD_NEXT, "pread");
     }
     ssize_t return_val = real_pread(fd, buf, count, offset);
     logcall("pread(%d, \"\", %lu, %ld) = %ld\n",
@@ -185,7 +185,7 @@ ssize_t pread64(int fd, void *buf, size_t count, off_t offset)
 {
     static real_pread64_t real_pread64 = NULL;
     if (!real_pread64) {
-        real_pread64 = (real_pread64_t)dlsym(RTLD_NEXT, "pread64");
+	real_pread64 = (real_pread64_t)dlsym(RTLD_NEXT, "pread64");
     }
     ssize_t return_val = real_pread64(fd, buf, count, offset);
     logcall("pread(%d, \"\", %lu, %ld) = %ld\n",
@@ -201,7 +201,7 @@ ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 {
     static real_pwrite_t real_pwrite = NULL;
     if (!real_pwrite) {
-        real_pwrite = (real_pwrite_t)dlsym(RTLD_NEXT, "pwrite");
+	real_pwrite = (real_pwrite_t)dlsym(RTLD_NEXT, "pwrite");
     }
     ssize_t return_val = real_pwrite(fd, buf, count, offset);
     logcall("pwrite(%d, \"\", %lu, %ld) = %ld\n",
@@ -217,7 +217,7 @@ ssize_t pwrite64(int fd, const void *buf, size_t count, off_t offset)
 {
     static real_pwrite64_t real_pwrite64 = NULL;
     if (!real_pwrite64) {
-        real_pwrite64 = (real_pwrite64_t)dlsym(RTLD_NEXT, "pwrite64");
+	real_pwrite64 = (real_pwrite64_t)dlsym(RTLD_NEXT, "pwrite64");
     }
     ssize_t return_val = real_pwrite64(fd, buf, count, offset);
     logcall("pwrite(%d, \"\", %lu, %ld) = %ld\n",
