@@ -8,9 +8,9 @@
  * xapian-io-profile script, then use:
  * ./xapian-io-profile --log=log_file_name ./executable
  *
- * Running this library will produce an strace.log file,
+ * Running this library will produce a log file,
  * which can be fed to strace-analyse to produce a log, by running:
- * ./strace-analyse strace.log
+ * ./strace-analyse log_file_name
  */
 
 #define _GNU_SOURCE
