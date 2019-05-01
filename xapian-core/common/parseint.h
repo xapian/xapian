@@ -1,7 +1,8 @@
 /** @file parseint.h
- * @brief Parse unsigned type from string and check for trailing characters.
+ * @brief Parse signed and unsigned type from string and check for trailing characters.
  */
-/* Copyright (C) 2018 Olly Betts
+/* Copyright (C) 2019 Olly Betts
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +36,23 @@ bool parse_unsigned(const char* p, T& res)
 	}
     } while (*++p);
     return true;
+}
+
+template<typename T>
+bool parse_signed(const char* p, T& res)
+{
+    typedef typename std::make_unsigned<T>::type unsigned_type;
+    unsigned_type temp = 0;
+    if (*p == '-' && parse_unsigned(++p, temp) &&
+	temp <= unsigned_type(std::numeric_limits<T>::min())) {
+	res = -temp;
+	return true;
+    } else if (parse_unsigned(p, temp) &&
+	temp <= std::numeric_limits<T>::max()) {
+	res = temp;
+	return true;
+    }
+    return false;
 }
 
 #endif
