@@ -842,6 +842,47 @@ static bool test_parseunsigned1()
     return true;
 }
 
+template<typename S>
+inline static void parsesigned_helper() {
+    S val;
+    const S max_val = numeric_limits<S>::max();
+    const S min_val = numeric_limits<S>::min();
+    tout << "Testing with parsesigned_helper" << endl;
+    TEST(parse_signed("0", val));
+    TEST_EQUAL(val, 0);
+    TEST(parse_signed("99", val));
+    TEST_EQUAL(val, 99);
+    TEST(parse_signed("-99", val));
+    TEST_EQUAL(val, -99);
+    TEST(parse_signed(str(max_val).c_str(), val));
+    TEST_EQUAL(val, max_val);
+    TEST(parse_signed(str(min_val).c_str(), val));
+    TEST_EQUAL(val, min_val);
+    TEST(!parse_signed("", val));
+    TEST(!parse_signed("abc", val));
+    TEST(!parse_signed("0a", val));
+    TEST(!parse_signed("-99a", val));
+    TEST(!parse_signed("-a99", val));
+    TEST(!parse_signed("--99", val));
+
+    unsigned long long one_too_large = max_val + 1ull;
+    TEST(!parse_signed(str(one_too_large).c_str(), val));
+
+    unsigned long long one_too_small_negated = -min_val + 1ull;
+    TEST(!parse_signed(("-" + str(one_too_small_negated)).c_str(), val));
+}
+
+static bool test_parsesigned1()
+{
+    parsesigned_helper<signed char>();
+    parsesigned_helper<short>();
+    parsesigned_helper<int>();
+    parsesigned_helper<long>();
+    parsesigned_helper<long long>();
+
+    return true;
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -862,6 +903,7 @@ static const test_desc tests[] = {
     TESTCASE(addoverflows1),
     TESTCASE(muloverflows1),
     TESTCASE(parseunsigned1),
+    TESTCASE(parsesigned1),
     END_OF_TESTCASES
 };
 
