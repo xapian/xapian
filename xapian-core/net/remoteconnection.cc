@@ -140,7 +140,6 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	}
 
 	if (received == 0) {
-	    do_close(false);
 	    return false;
 	}
 
@@ -167,7 +166,6 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	}
 
 	if (received == 0) {
-	    do_close(false);
 	    return false;
 	}
 
