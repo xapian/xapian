@@ -571,18 +571,20 @@ RemoteDatabase::send_message(message_type type, const string &message) const
 void
 RemoteDatabase::do_close()
 {
-    bool writable = !is_read_only();
-
     // The dtor hasn't really been called!  FIXME: This works, but means any
     // exceptions from end_transaction()/commit() are swallowed, which is
     // not entirely desirable.
     dtor_called();
 
-    // If we're writable, wait for a confirmation of the close, so we know that
-    // changes have been written and flushed, and the database write lock
-    // released.  For the non-writable case, there's no need to wait, so don't
-    // slow down searching by waiting here.
-    link.do_close(writable);
+    if (!is_read_only()) {
+	// If we're writable, send a shutdown message to the server and wait
+	// for it to close its end of the connection so we know that changes
+	// have been written and flushed, and the database write lock released.
+	// For the non-writable case, there's no need to wait - it would just
+	// slow down searching needlessly.
+	link.shutdown();
+    }
+    link.do_close();
 }
 
 void

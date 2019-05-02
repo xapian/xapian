@@ -44,7 +44,7 @@ class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
     int socket;
 
     /// Write-only connection to the server.
-    RemoteConnection remconn;
+    OwnedRemoteConnection remconn;
 
     /** Attempt to open a TCP/IP socket connection to a replication server.
      *
