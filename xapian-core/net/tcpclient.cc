@@ -88,7 +88,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 #endif
 	if (rc < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
-	    close_fd_or_socket(fd);
+	    CLOSESOCKET(fd);
 	    throw Xapian::NetworkError("Couldn't set " FLAG_NAME, saved_errno);
 #undef FLAG_NAME
 	}
@@ -103,7 +103,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 			   reinterpret_cast<char *>(&optval),
 			   sizeof(optval)) < 0) {
 		int saved_errno = socket_errno(); // note down in case close hits an error
-		close_fd_or_socket(fd);
+		CLOSESOCKET(fd);
 		throw Xapian::NetworkError("Couldn't set TCP_NODELAY", saved_errno);
 	    }
 	}
@@ -145,7 +145,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 
 	    if (retval <= 0) {
 		int saved_errno = errno;
-		close_fd_or_socket(fd);
+		CLOSESOCKET(fd);
 		if (retval < 0)
 		    throw Xapian::NetworkError("Couldn't connect (poll() or "
 					       "select() on socket failed)",
@@ -163,7 +163,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 
 	    if (retval < 0) {
 		int saved_errno = socket_errno(); // note down in case close hits an error
-		close_fd_or_socket(fd);
+		CLOSESOCKET(fd);
 		throw Xapian::NetworkError("Couldn't get socket options", saved_errno);
 	    }
 	    if (err == 0) {
