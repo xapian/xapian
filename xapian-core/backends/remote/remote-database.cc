@@ -602,11 +602,15 @@ RemoteDatabase::do_close()
     // Only call dtor_called() if we're writable.
     if (writable) dtor_called();
 
-    // If we're writable, wait for a confirmation of the close, so we know that
-    // changes have been written and flushed, and the database write lock
-    // released.  For the non-writable case, there's no need to wait, so don't
-    // slow down searching by waiting here.
-    link.do_close(writable);
+    if (!is_read_only()) {
+	// If we're writable, send a shutdown message to the server and wait
+	// for it to close its end of the connection so we know that changes
+	// have been written and flushed, and the database write lock released.
+	// For the non-writable case, there's no need to wait - it would just
+	// slow down searching needlessly.
+	link.shutdown();
+    }
+    link.do_close();
 }
 
 void

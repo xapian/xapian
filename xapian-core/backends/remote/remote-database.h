@@ -50,7 +50,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     RemoteDatabase(const RemoteDatabase &);
 
     /// The object which does the I/O.
-    mutable RemoteConnection link;
+    mutable OwnedRemoteConnection link;
 
     /// The remote document count, given at open.
     mutable Xapian::doccount doccount;
