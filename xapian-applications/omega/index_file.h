@@ -126,6 +126,10 @@ void
 index_add_document(const std::string & urlterm, time_t last_altered,
 		   Xapian::docid did, const Xapian::Document & doc);
 
+void
+index_ctime_terms(Xapian::Document & doc, DirectoryIterator & d,
+		  const time_t & mtime, const time_t & ctime);
+
 /// Update a document without re-extracting text
 bool
 index_update_entry(const std::string & urlterm,

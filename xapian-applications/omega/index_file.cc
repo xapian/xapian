@@ -545,6 +545,38 @@ index_add_document(const string & urlterm, time_t last_altered,
     }
 }
 
+void
+index_ctime_terms(Xapian::Document & doc, DirectoryIterator & d,
+		  const time_t & mtime, const time_t & ctime)
+{
+    bool inc_tag_added = false;
+    if (d.is_other_readable()) {
+	inc_tag_added = true;
+	doc.add_boolean_term("I*");
+    } else if (d.is_group_readable()) {
+	const char * group = d.get_group();
+	if (group) {
+	    doc.add_boolean_term(string("I#") + group);
+	}
+    }
+
+    const char * owner = d.get_owner();
+    if (owner) {
+	doc.add_boolean_term(string("O") + owner);
+	if (!inc_tag_added && d.is_owner_readable())
+	    doc.add_boolean_term(string("I@") + owner);
+    }
+
+    // Update document mtime and ctime
+    doc.add_value(VALUE_LASTMOD,
+		  int_to_binary_string(uint32_t(mtime)));
+    if (use_ctime) {
+	doc.add_value(VALUE_CTIME,
+		      int_to_binary_string(uint32_t(ctime)));
+    }
+
+}
+
 bool
 index_update_entry(const string & urlterm,
 		   DirectoryIterator & d,
@@ -554,62 +586,50 @@ index_update_entry(const string & urlterm,
 	Xapian::PostingIterator p = db.postlist_begin(urlterm);
 	if (p != db.postlist_end(urlterm))
 	    did = *p;
+	else
+	    return false;
     }
 
-    if (did) {
-	time_t mtime = d.get_mtime();
-	time_t ctime = d.get_ctime();
-	Xapian::Document doc = db.get_document(did);
-	string value_ctime = doc.get_value(VALUE_CTIME);
-	time_t doc_ctime = binary_string_to_int(value_ctime);
-	string value_mtime = doc.get_value(VALUE_LASTMOD);
-	time_t doc_mtime = binary_string_to_int(value_mtime);
+    time_t mtime = d.get_mtime();
+    time_t ctime = d.get_ctime();
+    Xapian::Document doc = db.get_document(did);
+    string value_ctime = doc.get_value(VALUE_CTIME);
+    time_t doc_ctime = binary_string_to_int(value_ctime);
+    string value_mtime = doc.get_value(VALUE_LASTMOD);
+    time_t doc_mtime = binary_string_to_int(value_mtime);
 
-	if (doc_mtime == mtime && doc_ctime <= ctime) {
-	    if (verbose)
-		cout << "Updating entry without re-extracting text" << endl;
-	    // Remove terms from the document
-	    Xapian::TermIterator term_iterator = doc.termlist_begin();
-	    while (term_iterator != doc.termlist_end()) {
-		const string& term = *term_iterator;
-		bool rem_term = startswith(term, "I") ||
-				startswith(term, "O");
-		// I: boolean filter term for "can see" permission
-		// O: Owner
-		if (rem_term) {
-		    doc.remove_term(term);
-		}
-		term_iterator++;
+    if (doc_mtime == mtime && doc_ctime <= ctime) {
+	if (verbose)
+	    cout << "Updating entry without re-extracting text" << endl;
+	// Remove terms from the document
+	Xapian::TermIterator term_iterator = doc.termlist_begin();
+	term_iterator.skip_to("I");// I: term for "can see" permission
+	while (term_iterator != doc.termlist_end()) {
+	    const string& term = *term_iterator;
+	    if (startswith(term, "I")) {
+		doc.remove_term(term);
+	    } else {
+		break;
 	    }
-	    // Updating document terms
-	    bool inc_tag_added = false;
-	    if (d.is_other_readable()) {
-		inc_tag_added = true;
-		doc.add_boolean_term("I*");
-	    } else if (d.is_group_readable()) {
-		const char * group = d.get_group();
-		if (group) {
-		    doc.add_boolean_term(string("I#") + group);
-		}
-	    }
-
-	    const char * owner = d.get_owner();
-	    if (owner) {
-		doc.add_boolean_term(string("O") + owner);
-		if (!inc_tag_added && d.is_owner_readable())
-		    doc.add_boolean_term(string("I@") + owner);
-	    }
-
-	    // Update document mtime and ctime
-	    doc.add_value(VALUE_LASTMOD,
-			  int_to_binary_string(uint32_t(mtime)));
-	    doc.add_value(VALUE_CTIME,
-			  int_to_binary_string(uint32_t(ctime)));
-
-	    db.replace_document(did, doc);
-	    mark_as_seen(did);
-	    return true;
+	    term_iterator++;
 	}
+
+	term_iterator.skip_to("O");// O: Owner
+	while (term_iterator != doc.termlist_end()) {
+	    const string& term = *term_iterator;
+	    if (startswith(term, "O")) {
+		doc.remove_term(term);
+	    } else {
+		break;
+	    }
+	    term_iterator++;
+	}
+	// Updating document terms
+	index_ctime_terms(doc, d, mtime, ctime);
+
+	db.replace_document(did, doc);
+	mark_as_seen(did);
+	return true;
     }
 
     return false;
@@ -1236,6 +1256,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	record += "\ntype=";
 	record += mimetype;
 	time_t mtime = d.get_mtime();
+	time_t ctime = d.get_ctime();
 	if (mtime != static_cast<time_t>(-1)) {
 	    record += "\nmodtime=";
 	    record += str(mtime);
@@ -1321,17 +1342,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
 
 	newdocument.add_boolean_term(urlterm); // Url
-
-	// Add mtime as a value to allow "sort by date".
-	newdocument.add_value(VALUE_LASTMOD,
-			      int_to_binary_string(uint32_t(mtime)));
-	if (use_ctime) {
-	    // Add ctime as a value to track modifications.
-	    time_t ctime = d.get_ctime();
-	    newdocument.add_value(VALUE_CTIME,
-				  int_to_binary_string(uint32_t(ctime)));
-	}
-
 	// Add MD5 as a value to allow duplicate documents to be collapsed
 	// together.
 	newdocument.add_value(VALUE_MD5, md5);
@@ -1340,22 +1350,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	newdocument.add_value(VALUE_SIZE,
 			      Xapian::sortable_serialise(size));
 
-	bool inc_tag_added = false;
-	if (d.is_other_readable()) {
-	    inc_tag_added = true;
-	    newdocument.add_boolean_term("I*");
-	} else if (d.is_group_readable()) {
-	    const char * group = d.get_group();
-	    if (group) {
-		newdocument.add_boolean_term(string("I#") + group);
-	    }
-	}
-	const char * owner = d.get_owner();
-	if (owner) {
-	    newdocument.add_boolean_term(string("O") + owner);
-	    if (!inc_tag_added && d.is_owner_readable())
-		newdocument.add_boolean_term(string("I@") + owner);
-	}
+	index_ctime_terms(newdocument, d, mtime, ctime);
 
 	string ext_term("E");
 	for (string::const_iterator i = ext.begin(); i != ext.end(); ++i) {
