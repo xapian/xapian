@@ -137,7 +137,7 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
   public:
     Internal() : stem_action(STEM_SOME), stopper(NULL),
 	default_op(Query::OP_OR), errmsg(NULL),
-	max_wildcard_expansion(0), max_partial_expansion(100) { }
+	max_wildcard_expansion(0), max_partial_expansion(100), max_fuzzy_expansion(0) { }
 
     Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
 };
