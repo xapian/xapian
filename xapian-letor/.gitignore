@@ -5,6 +5,9 @@ Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache
+api/.deps
+api/.dirstamp
+api/.libs
 bin/.deps
 bin/.dirstamp
 bin/.libs
@@ -28,7 +31,9 @@ configure
 depcomp
 docs/Makefile
 docs/Makefile.in
+feature/.deps
 feature/.dirstamp
+feature/.libs
 install-sh
 *.lo
 libtool
@@ -37,5 +42,10 @@ ltmain.sh
 m4
 makemanpage
 missing
+ranker/.deps
+ranker/.dirstamp
+ranker/.libs
+scorer/.deps
 scorer/.dirstamp
+scorer/.libs
 stamp-h1
