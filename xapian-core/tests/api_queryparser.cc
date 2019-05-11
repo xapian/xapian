@@ -1461,11 +1461,17 @@ test_qp_flag_fuzzy3_helper(const Xapian::Database& db,
 			   Xapian::termcount max_expansion,
 			   const string& query_string)
 {
-    tout << "testing fuzzy query '" << query_string << "' with limit "
-	 << max_expansion << endl;
     Xapian::QueryParser qp;
     qp.set_database(db);
-    qp.set_max_expansion(max_expansion);
+    if (max_expansion == Xapian::termcount(-1)) {
+	tout << "testing fuzzy query '" << query_string << "' with default "
+		"limit (which should be 0)" << endl;
+	max_expansion = 0;
+    } else {
+	tout << "testing fuzzy query '" << query_string << "' with limit "
+	     << max_expansion << endl;
+	qp.set_max_expansion(max_expansion);
+    }
     Xapian::Enquire e(db);
     e.set_query(qp.parse_query(query_string, qp.FLAG_FUZZY));
     e.get_mset(0, 10);
@@ -1495,6 +1501,11 @@ DEFINE_TESTCASE(qp_flag_fuzzy3, writable) {
     doc.add_term("mutton");
     doc.add_term("tusche");
     db.add_document(doc);
+
+    // Test that the default is no limit.
+    test_qp_flag_fuzzy3_helper(db, Xapian::termcount(-1), "zzz~");
+    test_qp_flag_fuzzy3_helper(db, Xapian::termcount(-1), "zzz~4");
+    test_qp_flag_fuzzy3_helper(db, Xapian::termcount(-1), "muscle~");
 
     // Test that a max of 0 doesn't set a limit.
     test_qp_flag_fuzzy3_helper(db, 0, "zzz~");
