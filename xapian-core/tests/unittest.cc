@@ -904,18 +904,16 @@ inline static void parsesigned_helper() {
     TEST(!parse_signed("-a99", val));
     TEST(!parse_signed("--99", val));
 
-    unsigned long long temp = max_val + 1ull;
-    TEST(!parse_signed(str(temp).c_str(), val));
+    unsigned long long one_too_large = max_val + 1ull;
+    TEST(!parse_signed(str(one_too_large).c_str(), val));
 
-    if (sizeof(S) < sizeof(long long)) {
-	long long temp1 = static_cast<long long>(min_val) - 1LL;
-	TEST(!parse_signed(str(temp1).c_str(), val));
-    }
+    unsigned long long one_too_small_negated = -min_val + 1ull;
+    TEST(!parse_signed(("-" + str(one_too_small_negated)).c_str(), val));
 }
 
 static bool test_parsesigned1()
 {
-    parsesigned_helper<char>();
+    parsesigned_helper<signed char>();
     parsesigned_helper<short>();
     parsesigned_helper<int>();
     parsesigned_helper<long>();
