@@ -602,7 +602,7 @@ RemoteDatabase::do_close()
     // Only call dtor_called() if we're writable.
     if (writable) dtor_called();
 
-    if (!is_read_only()) {
+    if (writable) {
 	// If we're writable, send a shutdown message to the server and wait
 	// for it to close its end of the connection so we know that changes
 	// have been written and flushed, and the database write lock released.
