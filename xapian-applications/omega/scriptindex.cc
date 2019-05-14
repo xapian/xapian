@@ -46,6 +46,7 @@
 #include "hashterm.h"
 #include "loadfile.h"
 #include "myhtmlparse.h"
+#include "setenv.h"
 #include "str.h"
 #include "stringutils.h"
 #include "timegm.h"
@@ -1163,6 +1164,8 @@ try {
     int database_mode = Xapian::DB_CREATE_OR_OPEN;
     verbose = false;
     Xapian::Stem stemmer("english");
+
+    setenv("TZ", "", 1);
 
     constexpr auto NO_ARG = no_argument;
     constexpr auto REQ_ARG = required_argument;

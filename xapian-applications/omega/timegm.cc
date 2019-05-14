@@ -27,7 +27,7 @@
 
 #ifndef HAVE_TIMEGM
 
-#include <stdlib.h> // For setenv() or putenv()
+#include "setenv.h"
 #include <time.h>
 
 using namespace std;
@@ -37,13 +37,7 @@ timegm(struct tm *tm)
 {
     static bool set_tz = false;
     if (!set_tz) {
-#if HAVE_DECL__PUTENV_S
-	_putenv_s("TZ", "");
-#elif defined HAVE_SETENV
 	setenv("TZ", "", 1);
-#else
-	putenv(const_cast<char*>("TZ="));
-#endif
 	tzset();
 	set_tz = true;
     }
