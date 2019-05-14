@@ -28,19 +28,24 @@
 #include <stdlib.h>
 
 #ifdef HAVE_SETENV
-// setenv() provided.
+// setenv() provided by the system.
 #elif defined HAVE__PUTENV_S
-inline int
-setenv(const char* name, const char* value, constexpr int overwrite)
-{
-    static_assert(overwrite, "overwrite non-zero");
-    (void)overwrite;
-#if !HAVE_DECL__PUTENV_S
-    // Mingw 3.20
-    errno_t _putenv_s(const char*, const char*);
-#endif
-    return _putenv_s(name, value) ? -1 : 0;
-}
+# if !HAVE_DECL__PUTENV_S
+// Mingw 3.20 doesn't declare this, but it's in the Microsoft C runtime DLL.
+#  define XAPIAN_DECLARE__PUTENV_S int _putenv_s(const char*, const char*);
+# else
+#  define XAPIAN_DECLARE__PUTENV_S
+# endif
+
+// Use a lambda function to give us a block scope to use static_assert in
+// while still being able to return a result.
+# define setenv(NAME, VALUE, OVERWRITE) ([]() { \
+    static_assert((OVERWRITE), "OVERWRITE must be non-zero constant"); \
+    (void)(OVERWRITE); \
+    XAPIAN_DECLARE__PUTENV_S \
+    return _putenv_s((NAME), (VALUE)) ? -1 : 0; \
+})()
+
 #endif
 
 #endif // XAPIAN_INCLUDED_SETENV_H
