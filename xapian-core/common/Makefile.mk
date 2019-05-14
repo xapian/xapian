@@ -41,6 +41,7 @@ noinst_HEADERS +=\
 	common/safewindows.h\
 	common/safewinsock2.h\
 	common/serialise-double.h\
+	common/setenv.h\
 	common/socket_utils.h\
 	common/str.h\
 	common/stringutils.h\
