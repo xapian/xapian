@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2018 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2018,2019 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -706,6 +706,8 @@ RemoteDatabase::cancel()
     mru_slot = Xapian::BAD_VALUENO;
 
     send_message(MSG_CANCEL, string());
+    string dummy;
+    get_message(dummy, REPLY_DONE);
 }
 
 Xapian::docid
@@ -744,6 +746,8 @@ RemoteDatabase::delete_document(const std::string & unique_term)
     mru_slot = Xapian::BAD_VALUENO;
 
     send_message(MSG_DELETEDOCUMENTTERM, unique_term);
+    string dummy;
+    get_message(dummy, REPLY_DONE);
 }
 
 void
@@ -757,6 +761,8 @@ RemoteDatabase::replace_document(Xapian::docid did,
     message += serialise_document(doc);
 
     send_message(MSG_REPLACEDOCUMENT, message);
+    string dummy;
+    get_message(dummy, REPLY_DONE);
 }
 
 Xapian::docid
@@ -803,6 +809,8 @@ RemoteDatabase::set_metadata(const string & key, const string & value)
     data += key;
     data += value;
     send_message(MSG_SETMETADATA, data);
+    string dummy;
+    get_message(dummy, REPLY_DONE);
 }
 
 void
@@ -812,6 +820,8 @@ RemoteDatabase::add_spelling(const string & word,
     string data = encode_length(freqinc);
     data += word;
     send_message(MSG_ADDSPELLING, data);
+    string dummy;
+    get_message(dummy, REPLY_DONE);
 }
 
 Xapian::termcount
