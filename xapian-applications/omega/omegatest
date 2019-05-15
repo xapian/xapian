@@ -1076,14 +1076,21 @@ END
 printf '$field{DATE,1}|$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
 testcase '19891204|628732800|1989-12-04' P=text
 
-# Feature tests for datevalue command scriptindex where format contains space.
-printf '%s\n' 'DATE : field parsedate="%Y%m%d %T" valuepacked=13' > "$TEST_INDEXSCRIPT"
+# Feature tests for parsedate action.
+printf '%s\n' \
+    'DATE: parsedate="%Y%m%d %T" valuepacked=13' \
+    'TIME_T: parsedate=%s valuepacked=13' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1 <<'END'
 DATE=20161202 12:04:22.000000
+
+TIME_T=1480680263
 END
-printf '$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
-testcase '1480680262|2016-12-02' P=text
+printf '$unpack{$value{13,$cgi{id}}}|$date{$unpack{$value{13,$cgi{id}}}}' > "$TEST_TEMPLATE"
+# Test format which contains a space.
+testcase '1480680262|2016-12-02' id=1
+# Regression test - we used to add on the local timezone offset.
+testcase '1480680263|2016-12-02' id=2
 
 # Feature tests for load action.
 printf '%s\n' 'file : load field' > "$TEST_INDEXSCRIPT"
