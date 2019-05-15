@@ -1,11 +1,9 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 39.0* of the protocol used by Xapian's
+This document describes *version 39.1* of the protocol used by Xapian's
 remote backend. The major protocol version increased to 39 in Xapian
-1.3.3.
-
-.. , and the minor protocol version to 1 in Xapian 1.2.4.
+1.3.3, and the minor protocol version to 1 in Xapian 1.4.12.
 
 Clients and servers must support matching major protocol versions and the
 client's minor protocol version must be the same or lower. This means that for
@@ -228,15 +226,27 @@ Delete document
 -  ``MSG_DELETEDOCUMENT I<document id>``
 -  ``REPLY_DONE``
 
+Delete document by term (39.0 compatibility)
+--------------------------------------------
+
+-  ``MSG_DELETEDOCUMENTTERM_ <term name>``
+
 Delete document by term
 -----------------------
 
 -  ``MSG_DELETEDOCUMENTTERM <term name>``
+-  ``REPLY_DONE``
+
+Replace document (39.0 compatibility)
+-------------------------------------
+
+-  ``MSG_REPLACEDOCUMENT_ I<document id> <serialised Xapian::Document object>``
 
 Replace document
 ----------------
 
 -  ``MSG_REPLACEDOCUMENT I<document id> <serialised Xapian::Document object>``
+-  ``REPLY_DONE``
 
 Replace document by term
 ------------------------
@@ -244,10 +254,16 @@ Replace document by term
 -  ``MSG_REPLACEDOCUMENTTERM L<term name> <serialised Xapian::Document object>``
 -  ``REPLY_ADDDOCUMENT I<document id>``
 
+Cancel (39.0 compatibility)
+---------------------------
+
+-  ``MSG_CANCEL_``
+
 Cancel
 ------
 
 -  ``MSG_CANCEL``
+-  ``REPLY_DONE``
 
 Commit
 ------
@@ -255,10 +271,16 @@ Commit
 -  ``MSG_COMMIT``
 -  ``REPLY_DONE``
 
+Set metadata (39.0 compatibility)
+---------------------------------
+
+-  ``MSG_SETMETADATA_ L<key> <value>``
+
 Set metadata
 ------------
 
 -  ``MSG_SETMETADATA L<key> <value>``
+-  ``REPLY_DONE``
 
 Get metadata
 ------------
@@ -274,10 +296,16 @@ Metadata keys
 -  ``...``
 -  ``REPLY_DONE``
 
+Add spelling (39.0 compatibility)
+---------------------------------
+
+-  ``MSG_ADDSPELLING_ I<freqinc> <word>``
+
 Add spelling
 ------------
 
 -  ``MSG_ADDSPELLING I<freqinc> <word>``
+-  ``REPLY_DONE``
 
 Remove spelling
 ---------------
