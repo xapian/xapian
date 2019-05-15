@@ -315,6 +315,8 @@ case $ac_cv_func_snprintf in
     ;;
 esac
 
+AC_CHECK_MEMBERS([struct tm.tm_gmtoff], [], [], [#include <time.h>])
+
 AC_ARG_WITH(iconv,
 [AS_HELP_STRING([--with-iconv], [force use of iconv (error if not found)])
 AS_HELP_STRING([--without-iconv], [don't use iconv])],

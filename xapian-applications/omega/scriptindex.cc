@@ -502,6 +502,23 @@ bad_escaping:
 			}
 			useless_weight_pos = action_pos;
 			break;
+		    case Action::PARSEDATE: {
+			if (val.find("%Z") != val.npos) {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Parsing timezone names with %Z is not supported" << endl;
+			    exit(1);
+			}
+#ifndef HAVE_STRUCT_TM_TM_GMTOFF
+			if (val.find("%z") != val.npos) {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Parsing timezone offsets with %z is not supported on "
+				    "this platform" << endl;
+			    exit(1);
+			}
+#endif
+			actions.emplace_back(code, action_pos, val);
+			break;
+		    }
 		    case Action::SPLIT: {
 			if (val.empty()) {
 			    report_location(DIAG_ERROR, filename, line_no);
@@ -1024,8 +1041,14 @@ badhex:
 			    "(\"" << ret << "\" left over) but "
 			    "indexing anyway" << endl;
 		}
-
-		value = str(timegm(&tm));
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+		auto gmtoff = tm.tm_gmtoff;
+#endif
+		auto secs_since_epoch = timegm(&tm);
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+		secs_since_epoch -= gmtoff;
+#endif
+		value = str(secs_since_epoch);
 		break;
 	    }
 	    default:
