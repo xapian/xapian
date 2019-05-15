@@ -1096,7 +1096,7 @@ if grep -q 'define HAVE_STRUCT_TM_TM_GMTOFF 1' config.h ; then
   # Feature tests for parsedate action.
   printf '%s\n' 'DATE: parsedate="%Y%m%d %T %z" field=time' > "$TEST_INDEXSCRIPT"
   rm -rf "$TEST_DB"
-  echo 'DATE=20161202 21:34:22 +09:30' | \
+  echo 'DATE=20161202 21:34:22 +0930' | \
       $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1
   printf '$field{time,$cgi{id}}' > "$TEST_TEMPLATE"
   # Test that timezone adjustment is applied.
