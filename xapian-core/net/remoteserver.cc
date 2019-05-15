@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -176,22 +176,27 @@ RemoteServer::run()
 		&RemoteServer::msg_reopen,
 		&RemoteServer::msg_update,
 		&RemoteServer::msg_adddocument,
-		&RemoteServer::msg_cancel,
-		&RemoteServer::msg_deletedocumentterm,
+		&RemoteServer::msg_cancel_,
+		&RemoteServer::msg_deletedocumentterm_,
 		&RemoteServer::msg_commit,
-		&RemoteServer::msg_replacedocument,
+		&RemoteServer::msg_replacedocument_,
 		&RemoteServer::msg_replacedocumentterm,
 		&RemoteServer::msg_deletedocument,
 		&RemoteServer::msg_writeaccess,
 		&RemoteServer::msg_getmetadata,
-		&RemoteServer::msg_setmetadata,
-		&RemoteServer::msg_addspelling,
+		&RemoteServer::msg_setmetadata_,
+		&RemoteServer::msg_addspelling_,
 		&RemoteServer::msg_removespelling,
 		0, // MSG_GETMSET - used during a conversation.
 		0, // MSG_SHUTDOWN - handled by get_message().
 		&RemoteServer::msg_openmetadatakeylist,
 		&RemoteServer::msg_freqs,
 		&RemoteServer::msg_uniqueterms,
+		&RemoteServer::msg_deletedocumentterm,
+		&RemoteServer::msg_replacedocument,
+		&RemoteServer::msg_cancel,
+		&RemoteServer::msg_setmetadata,
+		&RemoteServer::msg_addspelling,
 	    };
 
 	    string message;
@@ -630,7 +635,14 @@ RemoteServer::msg_commit(const string &)
 }
 
 void
-RemoteServer::msg_cancel(const string &)
+RemoteServer::msg_cancel(const string &message)
+{
+    msg_cancel_(message);
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_cancel_(const string &)
 {
     if (!wdb)
 	throw_read_only();
@@ -671,6 +683,13 @@ RemoteServer::msg_deletedocument(const string & message)
 void
 RemoteServer::msg_deletedocumentterm(const string & message)
 {
+    msg_deletedocumentterm_(message);
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_deletedocumentterm_(const string & message)
+{
     if (!wdb)
 	throw_read_only();
 
@@ -679,6 +698,13 @@ RemoteServer::msg_deletedocumentterm(const string & message)
 
 void
 RemoteServer::msg_replacedocument(const string & message)
+{
+    msg_replacedocument_(message);
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_replacedocument_(const string & message)
 {
     if (!wdb)
 	throw_read_only();
@@ -740,6 +766,13 @@ RemoteServer::msg_openmetadatakeylist(const string & message)
 void
 RemoteServer::msg_setmetadata(const string & message)
 {
+    msg_setmetadata_(message);
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_setmetadata_(const string & message)
+{
     if (!wdb)
 	throw_read_only();
     const char *p = message.data();
@@ -754,6 +787,13 @@ RemoteServer::msg_setmetadata(const string & message)
 
 void
 RemoteServer::msg_addspelling(const string & message)
+{
+    msg_addspelling_(message);
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_addspelling_(const string & message)
 {
     if (!wdb)
 	throw_read_only();

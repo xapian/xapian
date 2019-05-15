@@ -1,7 +1,7 @@
 /** @file remoteserver.h
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2014,2019 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -134,8 +134,8 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // commit
     void msg_commit(const std::string & message);
 
-    // cancel
-    void msg_cancel(const std::string &message);
+    // cancel (compat)
+    void msg_cancel_(const std::string &message);
 
     // add document
     void msg_adddocument(const std::string & message);
@@ -143,11 +143,11 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // delete document
     void msg_deletedocument(const std::string & message);
 
-    // delete document with unique term
-    void msg_deletedocumentterm(const std::string & message);
+    // delete document with unique term (compat)
+    void msg_deletedocumentterm_(const std::string & message);
 
-    // replace document
-    void msg_replacedocument(const std::string & message);
+    // replace document (compat)
+    void msg_replacedocument_(const std::string & message);
 
     // replace document with unique term
     void msg_replacedocumentterm(const std::string & message);
@@ -158,17 +158,32 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // read metadata key list
     void msg_openmetadatakeylist(const std::string & message);
 
-    // set metadata
-    void msg_setmetadata(const std::string & message);
+    // set metadata (compat)
+    void msg_setmetadata_(const std::string & message);
 
-    // add a spelling
-    void msg_addspelling(const std::string & message);
+    // add a spelling (compat)
+    void msg_addspelling_(const std::string & message);
 
     // remove a spelling
     void msg_removespelling(const std::string & message);
 
     // get number of unique terms
     void msg_uniqueterms(const std::string & message);
+
+    // delete document with unique term
+    void msg_deletedocumentterm(const std::string & message);
+
+    // replace document
+    void msg_replacedocument(const std::string & message);
+
+    // cancel
+    void msg_cancel(const std::string &message);
+
+    // set metadata
+    void msg_setmetadata(const std::string & message);
+
+    // add a spelling
+    void msg_addspelling(const std::string & message);
 
   public:
     /** Construct a RemoteServer.
