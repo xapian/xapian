@@ -32,7 +32,8 @@
 #elif defined HAVE__PUTENV_S
 # if !HAVE_DECL__PUTENV_S
 // Mingw 3.20 doesn't declare this, but it's in the Microsoft C runtime DLL.
-#  define XAPIAN_DECLARE__PUTENV_S int _putenv_s(const char*, const char*);
+#  define XAPIAN_DECLARE__PUTENV_S \
+    extern "C" int _putenv_s(const char*, const char*);
 # else
 #  define XAPIAN_DECLARE__PUTENV_S
 # endif
