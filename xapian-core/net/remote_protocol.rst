@@ -242,6 +242,7 @@ Replace document by term
 ------------------------
 
 -  ``MSG_REPLACEDOCUMENTTERM L<term name> <serialised Xapian::Document object>``
+-  ``REPLY_ADDDOCUMENT I<document id>``
 
 Cancel
 ------
