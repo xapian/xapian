@@ -1035,7 +1035,7 @@ testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018'
 printf '<|$hitlist{$id(:$hitlist{$id:})|}>' > "$TEST_TEMPLATE"
 testcase '<|2(:2:3:)|3(:2:3:)|>' B=Y1970 B=Y2018
 
-# Feature tests for datevalue command scriptindex.
+# Feature tests for parsedate action.
 printf '%s\n' 'DATE : field parsedate=%Y%m%d valuepacked=13' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
