@@ -1,8 +1,8 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 42.0* of the protocol used by Xapian's
-remote backend. The major protocol version increased to 42 in Xapian
+This document describes *version 43.0* of the protocol used by Xapian's
+remote backend. The major protocol version increased to 43 in Xapian
 1.5.0.
 
 .. , and the minor protocol version to 1 in Xapian 1.2.4.
@@ -234,11 +234,13 @@ Delete document by term
 -----------------------
 
 -  ``MSG_DELETEDOCUMENTTERM <term name>``
+-  ``REPLY_DONE``
 
 Replace document
 ----------------
 
 -  ``MSG_REPLACEDOCUMENT I<document id> <serialised Xapian::Document object>``
+-  ``REPLY_DONE``
 
 Replace document by term
 ------------------------
@@ -250,6 +252,7 @@ Cancel
 ------
 
 -  ``MSG_CANCEL``
+-  ``REPLY_DONE``
 
 Commit
 ------
@@ -261,6 +264,7 @@ Set metadata
 ------------
 
 -  ``MSG_SETMETADATA L<key> <value>``
+-  ``REPLY_DONE``
 
 Get metadata
 ------------
@@ -278,6 +282,7 @@ Add spelling
 ------------
 
 -  ``MSG_ADDSPELLING I<freqinc> <word>``
+-  ``REPLY_DONE``
 
 Remove spelling
 ---------------
