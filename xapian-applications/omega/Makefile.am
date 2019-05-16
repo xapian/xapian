@@ -163,6 +163,7 @@ noinst_HEADERS +=\
 	common/safeunistd.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
+	common/setenv.h\
 	common/str.h\
 	common/stringutils.h
 
