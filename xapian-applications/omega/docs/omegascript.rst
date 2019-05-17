@@ -826,8 +826,8 @@ Numeric Operators:
 
 For Numeric Operators we allow trailing characters and also allow non-number arguments.
 Reason for this behaviour is that it makes things robust if some of the parameters come in as CGI parameters.
-Ex:- if you had a CGI param at the end of a URL that was supposed to be a number, and sent it in an email or a message,
-it's possible for the person receiving to end up with a URL with a dot or semicolon at the
+Ex:- if you had a CGI param at the end of a URL that was supposed to be a number, and sent it in an email
+or a message, it's possible for the person receiving to end up with a URL with a dot or semicolon at the
 end (from punctuation in your message).
 
 $add{...}
@@ -858,8 +858,9 @@ $sub{A,B}
 Logical Operators:
 ==================
 
-For Logical Operators we allow trailing characters and also allow non-number arguments.
-For reason why we do this, consult the Numeric Operators section.
+For Logical Operators we allow trailing characters,non-number arguments and empty arguments.
+Reason is that logical operators compare their arguments based on whether they are empty or not.
+Ex: not returns true for empty string and false otherwise.
 
 $and{...}
 	logical short-cutting "and" of its arguments - evaluates

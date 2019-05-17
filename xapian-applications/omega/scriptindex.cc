@@ -495,20 +495,10 @@ bad_escaping:
 			// We don't push an Action for WEIGHT - instead we
 			// store it ready to use in the INDEX and INDEXNOPOS
 			// Actions.
-			unsigned int temp;
-			if (!val.empty() && val[0] == '-') {
-			    if (!parse_unsigned(val.c_str() + 1, temp)) {
-				report_location(DIAG_WARN, filename, line_no);
-				cerr << "Index action 'weight'"
-					"takes an integer argument" << endl;
-			    }
-			    weight = -temp;
-			} else if (!parse_unsigned(val.c_str(), temp)) {
+			if (!parse_signed(val.c_str(), weight)) {
 			    report_location(DIAG_WARN, filename, line_no);
 			    cerr << "Index action 'weight'"
 				    "takes an integer argument" << endl;
-			} else {
-			    weight = temp;
 			}
 			if (useless_weight_pos != string::npos) {
 			    report_useless_action(filename, line_no,
@@ -999,14 +989,13 @@ badhex:
 		const string & type = action.get_string_arg();
 		string yyyymmdd;
 		if (type == "unix") {
-		    unsigned int temp;
-		    if (!parse_unsigned(value.c_str(), temp)) {
+		    time_t t;
+		    if (!parse_signed(value.c_str(), t)) {
 			report_location(DIAG_ERROR, fname, line_no);
 			cerr << "Date value(in secs) for action DATE"
-				" must be >= 0" << endl;
+				" must be an integer" << endl;
 			exit(1);
 		    }
-		    time_t t = temp;
 		    struct tm *tm = localtime(&t);
 		    int y = tm->tm_year + 1900;
 		    int m = tm->tm_mon + 1;

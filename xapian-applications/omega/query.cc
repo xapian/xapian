@@ -1452,11 +1452,10 @@ eval(const string &fmt, const vector<string> &param)
 		value = args[0];
 		if (!value.empty()) {
 		    char buf[64] = "";
-		    unsigned int temp;
-		    if (!parse_unsigned(value.c_str(), temp)) {
-			throw "Date(in secs) for command date should be >= 0";
+		    time_t date;
+		    if (!parse_signed(value.c_str(), date)) {
+			throw "Date(in secs) for command date should be integer";
 		    }
-		    time_t date = temp;
 		    if (date != static_cast<time_t>(-1)) {
 			struct tm *then;
 			then = gmtime(&date);
@@ -1541,17 +1540,9 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_filesize: {
 		// FIXME: rounding?  i18n?
-		unsigned int temp;
 		int size;
-		if (!args[0].empty() && args[0][0] == '-') {
-		    if (!parse_unsigned(args[0].c_str() + 1, temp)) {
-			throw "Filesize must be an integer";
-		    }
-		    size = -temp;
-		} else if (!parse_unsigned(args[0].c_str(), temp)) {
+		if (!parse_signed(args[0].c_str(), size)) {
 		    throw "Filesize must be an integer";
-		} else {
-		    size = temp;
 		}
 		int intpart = size;
 		int fraction = -1;
@@ -2032,16 +2023,10 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_pack: {
-		unsigned int temp;
-		if (!args.empty() && args[0][0] == '-') {
-		    if (!parse_unsigned(args[0].c_str() + 1, temp)) {
-			throw "NUMBER parameter for pack command"
-			    " must be an integer";
-		    }
-		    temp *= -1;
-		} else if (!parse_unsigned(args[0].c_str(), temp)) {
+		int temp;
+		if (!parse_signed(args[0].c_str(), temp)) {
 		    throw "NUMBER parameter for pack command"
-			" must be an integer";
+			  " must be an integer";
 		}
 		value = int_to_binary_string(temp);
 		break;
@@ -2080,31 +2065,14 @@ eval(const string &fmt, const vector<string> &param)
 		value = queryterms;
 		break;
 	    case CMD_range: {
-		unsigned int temp;
 		int start, end;
-		if (!args[0].empty() && args[0][0] == '-') {
-		    if (!parse_unsigned(args[0].c_str() + 1, temp)) {
-			throw "Start value for range command "
-			      "must be an integer";
-		    }
-		    start = -temp;
-		} else if (!parse_unsigned(args[0].c_str(), temp)) {
+		if (!parse_signed(args[0].c_str(), start)) {
 		    throw "Start value for range command "
 			  "must be an integer";
-		} else {
-		    start = temp;
 		}
-		if (!args[1].empty() && args[1][0] == '-') {
-		    if (!parse_unsigned(args[1].c_str() + 1, temp)) {
-			throw "End value for range command"
-			      " must be an integer";
-		    }
-		    end = -temp;
-		} else if (!parse_unsigned(args[1].c_str(), temp)) {
+		if (!parse_signed(args[1].c_str(), temp)) {
 		    throw "End value for range command"
-			   " must be an integer";
-		} else {
-		    end = temp;
+			  " must be an integer";
 		}
 		while (start <= end) {
 		    value += str(start);
@@ -2279,18 +2247,9 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_substr: {
 		int start;
-		unsigned int temp;
-		if (args[1][0] == '-') {
-		    if (!parse_unsigned(args[1].c_str() + 1, temp)) {
-			throw "Start value for substr command"
-			      " must be an integer";
-		    }
-		    start = -temp;
-		} else if (!parse_unsigned(args[1].c_str(), temp)) {
+		if (!parse_signed(args[1].c_str(), start)) {
 		    throw "Start value for substr command"
-			   " must be an integer";
-		} else {
-		    start = temp;
+			  " must be an integer";
 		}
 		if (start < 0) {
 		    if (static_cast<size_t>(-start) >= args[0].size()) {
@@ -2304,17 +2263,9 @@ eval(const string &fmt, const vector<string> &param)
 		size_t len = string::npos;
 		if (args.size() > 2) {
 		    int int_len;
-		    if (!args[2].empty() && args[2][0] == '-') {
-			if (!parse_unsigned(args[2].c_str() + 1, temp)) {
-			    throw "Length value for substr command"
-				  " must be an integer";
-			}
-			int_len = -temp;
-		    } else if (!parse_unsigned(args[2].c_str(), temp)) {
+		    if (!parse_unsigned(args[2].c_str(), int_len)) {
 			throw "Length value for substr command"
 			      " must be an integer";
-		    } else {
-			int_len = temp;
 		    }
 		    if (int_len >= 0) {
 			len = size_t(int_len);
@@ -2403,22 +2354,13 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_topterms:
 		if (enquire) {
 		    int howmany = 16;
-		    unsigned int temp = 0;
 		    if (!args.empty()) {
-			if (!args[0].empty() && args[0][0] == '-') {
-			    if (!parse_unsigned(args[0].c_str() + 1, temp)) {
-				throw "Number of terms for command"
-				      " topterms must be an integer";
-			    }
-			    howmany = 0;
-			} else if (!parse_unsigned(args[0].c_str(), temp)) {
+			if (!parse_signed(args[0].c_str(), howmany)) {
 			    throw "Number of terms for command"
 				  " topterms must be an integer";
-			} else {
-			    howmany = temp;
 			}
 		    }
-
+		    if (howmany < 0) howmany = 0;
 		    // List of expand terms
 		    Xapian::ESet eset;
 		    OmegaExpandDecider decider(db, &termset);
