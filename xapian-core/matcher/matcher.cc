@@ -254,6 +254,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 	    locals.resize(i);
 	locals.emplace_back(new LocalSubMatch(subdb, query, query_length,
 					      wtscheme,
+					      i,
 					      db.has_positions()));
 	subdb->readahead_for_query(query);
     }

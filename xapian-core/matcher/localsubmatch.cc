@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -174,7 +174,8 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
     // LocalSubMatch::open_post_list() for each term in the query.
     PostList * pl;
     {
-	QueryOptimiser opt(*db, *this, matcher, full_db_has_positions);
+	QueryOptimiser opt(*db, *this, matcher, shard_index,
+			   full_db_has_positions);
 	pl = query.internal->postlist(&opt, 1.0);
 	*total_subqs_ptr = opt.get_total_subqs();
     }
