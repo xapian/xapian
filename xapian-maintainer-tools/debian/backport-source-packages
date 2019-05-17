@@ -170,6 +170,18 @@ build_it() {
 	    dch -a 'debian/control: Lower debhelper compat level to 10.'
 	fi
 	;;
+      trusty|xenial)
+	if [ "`cat debian/compat`" -gt 9 ] ; then
+	    echo 9 > debian/compat
+	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 9)/' debian/control
+	    dch -a 'debian/control: Lower debhelper compat level to 9.'
+	    # Compat 9 doesn't default to parallel building.
+	    if grep -q 'dh_auto_test --no-parallel' debian/rules ; then
+		sed -i 's/dh_auto_test --no-parallel/dh_auto_test/' debian/rules
+		dch -a 'debian/rules: Drop --no-parallel from dh_auto_test invocation (debhelper compat level 9 does not default to parallel building).'
+	    fi
+	fi
+	;;
   esac
 
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in

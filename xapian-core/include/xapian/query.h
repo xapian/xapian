@@ -136,6 +136,20 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	OP_WILDCARD = 15,
 
+	/** Edit distance expansion.
+	 *
+	 *  Expand to terms within a specified edit distance of a target.
+	 *
+	 *  This works in a fairly similar way to OP_WILDCARD - the difference
+	 *  is that instead of expanding to terms matching a wildcard pattern,
+	 *  it expands to terms within a specified number of edits (insertion,
+	 *  deletion or substitution of a character, or transposition of two
+	 *  adjacent characters) of a specified target.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	OP_EDIT_DISTANCE = 16,
+
 	OP_INVALID = 99,
 
 	LEAF_TERM = 100,
@@ -286,10 +300,11 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     Query(op op_, Xapian::valueno slot,
 	  const std::string & range_lower, const std::string & range_upper);
 
-    /** Query constructor for OP_WILDCARD queries.
+    /** Query constructor for OP_EDIT_DISTANCE and OP_WILDCARD queries.
      *
-     *  @param op_	Must be OP_WILDCARD
-     *  @param pattern	The wildcard pattern.  See @a flags which affects
+     *  @param op_	Must be OP_EDIT_DISTANCE or OP_WILDCARD
+     *  @param pattern	The wildcard pattern (for OP_WILDCARD) or target string
+     *			(for OP_EDIT_DISTANCE).  See @a flags which affects
      *		        how this pattern is interpreted.
      *	@param max_expansion	The maximum number of terms to expand to
      *				(default: 0, which means no limit)
@@ -307,7 +322,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			  than the limit.  This is arguably a bug, and may
      *			  change in future versions.
      *
-     *			* Zero or more of @a WILDCARD_PATTERN_MULTI and
+     *			* For OP_WILDCARD: Zero or more of
+     *			  @a WILDCARD_PATTERN_MULTI and
      *			  @a WILDCARD_PATTERN_SINGLE, which specify whether
      *			  '*' (matching zero or more characters) and '?'
      *			  (matching exactly one character) are supported.
@@ -319,14 +335,54 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *	@param combiner The @a Query::op to combine the terms with - one of
      *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
      *
-     *	A leading wildcard won't match terms starting with an ASCII capital
-     *	letter, as this is assumed to be part of a term prefix.
+     *	For OP_WILDCARD: A leading wildcard won't match terms starting with an
+     *	ASCII capital letter, as this is assumed to be part of a term prefix.
      */
     Query(op op_,
 	  const std::string & pattern,
 	  Xapian::termcount max_expansion = 0,
 	  int flags = WILDCARD_LIMIT_ERROR,
 	  op combiner = OP_SYNONYM);
+
+    /** Query constructor for OP_EDIT_DISTANCE queries.
+     *
+     *  This form supports some additional parameters.
+     *
+     *  @param op_	Must be OP_EDIT_DISTANCE.
+     *  @param pattern	The target string.
+     *	@param max_expansion	The maximum number of terms to expand to
+     *				(default: 0, which means no limit)
+     *	@param flags	Flags controlling aspects of the wildcarding:
+     *
+     *			* At most one of @a WILDCARD_LIMIT_ERROR (the default),
+     *			  @a WILDCARD_LIMIT_FIRST or
+     *			  @a WILDCARD_LIMIT_MOST_FREQUENT specifying how to
+     *			  enforce max_expansion.
+     *
+     *			  When searching multiple databases, the expansion
+     *			  limit is currently applied independently for each
+     *			  database, so the total number of terms may be higher
+     *			  than the limit.  This is arguably a bug, and may
+     *			  change in future versions.
+     *
+     *	@param combiner The @a Query::op to combine the terms with - one of
+     *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
+     *	@param edit_distance
+     *			The maximum number of edits allowed between a term
+     *			and @a target (an edit is insertion, deletion or
+     *			substitution of a character, or transposition of two
+     *			adjacent characters).  Default: 2
+     *	@param min_prefix_len
+     *			The length in bytes of any initial substring of target
+     *			that is required to match exactly.  Default: 0
+     */
+    Query(op op_,
+	  const std::string& pattern,
+	  Xapian::termcount max_expansion,
+	  int flags,
+	  op combiner,
+	  unsigned edit_distance,
+	  size_t min_prefix_len = 0);
 
     /** Construct a Query object from a begin/end iterator pair.
      *

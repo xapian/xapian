@@ -1,7 +1,7 @@
 /** @file externalpostlist.h
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008,2009,2011 Olly Betts
+/* Copyright 2008,2009,2011,2019 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -54,7 +54,8 @@ class ExternalPostList : public PostList {
     ExternalPostList(const Xapian::Database & db,
 		     Xapian::PostingSource *source_,
 		     double factor_,
-		     PostListTree * matcher);
+		     PostListTree * matcher,
+		     Xapian::doccount shard_index);
 
     ~ExternalPostList();
 

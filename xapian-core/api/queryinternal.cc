@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,9 @@
 #include "xapian/error.h"
 #include "xapian/postingsource.h"
 #include "xapian/query.h"
+#include "xapian/unicode.h"
 
+#include "api/editdistance.h"
 #include "heap.h"
 #include "leafpostlist.h"
 #include "matcher/andmaybepostlist.h"
@@ -231,6 +233,12 @@ class Context {
      *  Used with BoolOrContext and OrContext.
      */
     void expand_wildcard(const QueryWildcard* query, double factor);
+
+    /** Expand an edit distance query.
+     *
+     *  Used with BoolOrContext and OrContext.
+     */
+    void expand_edit_distance(const QueryEditDistance* query, double factor);
 };
 
 template<typename T>
@@ -279,6 +287,81 @@ done_skip_to:
 		msg += query->get_pattern();
 		if (query->get_just_flags() == 0)
 		    msg += '*';
+		msg += " expands to more than ";
+		msg += str(query->get_max_expansion());
+		msg += " terms";
+		throw Xapian::WildcardError(msg);
+	    }
+	}
+
+	add_postlist(qopt->open_lazy_post_list(term, 1, factor));
+    }
+
+    if (max_type == Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
+	// FIXME: open_lazy_post_list() results in the term getting registered
+	// for stats, so we still incur an avoidable cost from the full
+	// expansion size of the wildcard, which is most likely to be visible
+	// with the remote backend.  Perhaps we should split creating the lazy
+	// postlist from registering the term for stats.
+	auto set_size = query->get_max_expansion();
+	if (size() > set_size) {
+	    init_tf();
+	    auto begin = pls.begin();
+	    nth_element(begin, begin + set_size - 1, pls.end(),
+			ComparePostListTermFreqAscending());
+	    shrink(set_size);
+	}
+    }
+}
+
+template<typename T>
+inline void
+Context<T>::expand_edit_distance(const QueryEditDistance* query,
+				 double factor)
+{
+    string pfx(query->get_pattern(), 0, query->get_fixed_prefix_len());
+    unique_ptr<TermList> t(qopt->db.open_allterms(pfx));
+    bool skip_ucase = pfx.empty();
+    auto max_type = query->get_max_type();
+    Xapian::termcount expansions_left = query->get_max_expansion();
+    // If there's no expansion limit, set expansions_left to the maximum
+    // value Xapian::termcount can hold.
+    if (expansions_left == 0)
+	--expansions_left;
+    while (true) {
+	t->next();
+done_skip_to:
+	if (t->at_end())
+	    break;
+
+	const string& term = t->get_termname();
+	if (!startswith(term, pfx))
+	    break;
+	if (skip_ucase && term[0] >= 'A') {
+	    // Skip terms that start with A-Z, as we don't want the expansion
+	    // to include prefixed terms.
+	    //
+	    // This assumes things about the structure of terms which the
+	    // Query class otherwise doesn't need to care about, but it
+	    // seems hard to avoid here.
+	    skip_ucase = false;
+	    if (term[0] <= 'Z') {
+		static_assert('Z' + 1 == '[', "'Z' + 1 == '['");
+		t->skip_to("[");
+		goto done_skip_to;
+	    }
+	}
+
+	if (!query->test(term)) continue;
+
+	if (max_type < Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
+	    if (expansions_left-- == 0) {
+		if (max_type == Xapian::Query::WILDCARD_LIMIT_FIRST)
+		    break;
+		string msg("Edit distance ");
+		msg += query->get_pattern();
+		msg += '~';
+		msg += str(query->get_threshold());
 		msg += " expands to more than ";
 		msg += str(query->get_max_expansion());
 		msg += " terms";
@@ -734,6 +817,31 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    switch (ch & 0x1f) {
 		case 0x00: // OP_INVALID
 		    return new Xapian::Internal::QueryInvalid();
+		case 0x0a: { // Edit distance
+		    if (*p == end)
+			throw SerialisationError("not enough data");
+		    Xapian::termcount max_expansion;
+		    decode_length(p, end, max_expansion);
+		    if (end - *p < 2)
+			throw SerialisationError("not enough data");
+		    int flags = static_cast<unsigned char>(*(*p)++);
+		    op combiner = static_cast<op>(*(*p)++);
+		    unsigned edit_distance;
+		    decode_length(p, end, edit_distance);
+		    size_t fixed_prefix_len;
+		    decode_length(p, end, fixed_prefix_len);
+		    size_t len;
+		    decode_length_and_check(p, end, len);
+		    string pattern(*p, len);
+		    *p += len;
+		    using Xapian::Internal::QueryEditDistance;
+		    return new QueryEditDistance(pattern,
+						 max_expansion,
+						 flags,
+						 combiner,
+						 edit_distance,
+						 fixed_prefix_len);
+		}
 		case 0x0b: { // Wildcard
 		    if (*p == end)
 			throw SerialisationError("not enough data");
@@ -943,7 +1051,8 @@ QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
     // be called on the Database::Internal object.
     const Xapian::Database wrappeddb(
 	    const_cast<Xapian::Database::Internal*>(&(qopt->db)));
-    RETURN(new ExternalPostList(wrappeddb, source.get(), factor, qopt->matcher));
+    RETURN(new ExternalPostList(wrappeddb, source.get(), factor, qopt->matcher,
+				qopt->shard_index));
 }
 
 PostList*
@@ -1417,6 +1526,127 @@ QueryWildcard::get_description() const
 	    break;
     }
     description_append(desc, pattern);
+    return desc;
+}
+
+int
+QueryEditDistance::test(const string& candidate) const
+{
+    int threshold = get_threshold();
+    int edist = edcalc(candidate, threshold);
+    return edist <= threshold ? edist + 1 : 0;
+}
+
+PostList*
+QueryEditDistance::postlist(QueryOptimiser * qopt, double factor) const
+{
+    LOGCALL(QUERY, PostList*, "QueryEditDistance::postlist", qopt | factor);
+    Query::op op = combiner;
+    if (factor == 0.0 || op == Query::OP_SYNONYM) {
+	if (factor == 0.0) {
+	    // If we have a factor of 0, we don't care about the weights, so
+	    // we're just like a normal OR query.
+	    op = Query::OP_OR;
+	}
+
+	bool old_in_synonym = qopt->in_synonym;
+	if (!old_in_synonym) {
+	    qopt->in_synonym = (op == Query::OP_SYNONYM);
+	}
+
+	BoolOrContext ctx(qopt, 0);
+	ctx.expand_edit_distance(this, 0.0);
+
+	if (op == Query::OP_SYNONYM) {
+	    qopt->inc_total_subqs();
+	}
+
+	qopt->in_synonym = old_in_synonym;
+
+	if (ctx.empty())
+	    RETURN(NULL);
+
+	PostList * pl = ctx.postlist();
+	if (op != Query::OP_SYNONYM)
+	    RETURN(pl);
+
+	// We build an OP_OR tree for OP_SYNONYM and then wrap it in a
+	// SynonymPostList, which supplies the weights.
+	//
+	// We know the subqueries from an edit distance expansion are
+	// wdf-disjoint (i.e. each wdf from the document contributes at most
+	// itself to the wdf of the subquery).
+	RETURN(qopt->make_synonym_postlist(pl, factor, true));
+    }
+
+    OrContext ctx(qopt, 0);
+    ctx.expand_edit_distance(this, factor);
+
+    qopt->set_total_subqs(qopt->get_total_subqs() + ctx.size());
+
+    if (ctx.empty())
+	RETURN(NULL);
+
+    if (op == Query::OP_MAX)
+	RETURN(ctx.postlist_max());
+
+    RETURN(ctx.postlist());
+}
+
+termcount
+QueryEditDistance::get_length() const XAPIAN_NOEXCEPT
+{
+    // We currently assume wqf is 1 for calculating the synonym's weight
+    // since conceptually the synonym is one "virtual" term.  If we were
+    // to combine multiple occurrences of the same synonym expansion into
+    // a single instance with wqf set, we would want to track the wqf.
+    return 1;
+}
+
+void
+QueryEditDistance::serialise(string & result) const
+{
+    result += static_cast<char>(0x0a);
+    result += encode_length(max_expansion);
+    result += static_cast<unsigned char>(flags);
+    result += static_cast<unsigned char>(combiner);
+    result += encode_length(edit_distance);
+    result += encode_length(fixed_prefix_len);
+    result += encode_length(pattern.size());
+    result += pattern;
+}
+
+Query::op
+QueryEditDistance::get_type() const XAPIAN_NOEXCEPT
+{
+    return Query::OP_EDIT_DISTANCE;
+}
+
+string
+QueryEditDistance::get_description() const
+{
+    string desc = "EDIT_DISTANCE ";
+    switch (combiner) {
+	case Query::OP_SYNONYM:
+	    desc += "SYNONYM ";
+	    break;
+	case Query::OP_MAX:
+	    desc += "MAX ";
+	    break;
+	case Query::OP_OR:
+	    desc += "OR ";
+	    break;
+	default:
+	    desc += "BAD ";
+	    break;
+    }
+    description_append(desc, pattern);
+    desc += '~';
+    desc += str(edit_distance);
+    if (fixed_prefix_len) {
+	desc += " fixed_prefix_len=";
+	desc += str(fixed_prefix_len);
+    }
     return desc;
 }
 
@@ -2183,6 +2413,13 @@ QuerySynonym::done()
 	    // SYNONYM over WILDCARD X -> WILDCARD SYNONYM for any combiner X.
 	    return q->change_combiner(Query::OP_SYNONYM);
 	}
+	if (sub_type == Query::OP_EDIT_DISTANCE) {
+	    auto q =
+		static_cast<QueryEditDistance*>(subqueries[0].internal.get());
+	    // SYNONYM over EDIT_DISTANCE X -> EDIT_DISTANCE SYNONYM for any
+	    // combiner X.
+	    return q->change_combiner(Query::OP_SYNONYM);
+	}
     }
     return this;
 }
@@ -2265,12 +2502,6 @@ Xapian::Query::op
 QueryMax::get_op() const
 {
     return Xapian::Query::OP_MAX;
-}
-
-Xapian::Query::op
-QueryWildcard::get_op() const
-{
-    return Xapian::Query::OP_WILDCARD;
 }
 
 string

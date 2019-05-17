@@ -647,6 +647,18 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 */
 	FLAG_WILDCARD_GLOB = FLAG_WILDCARD_MULTI | FLAG_WILDCARD_SINGLE,
 
+	/** Support fuzzy matching.
+	 *
+	 *  E.g. "unserten~3" would expand to "uncertain" (and likely other
+	 *  terms).
+	 *
+	 *  foo~ uses edit distance of 2
+	 *  since~0.2 uses edit distance of length("since") * 0.2 = 5 * 0.2 = 1
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	FLAG_FUZZY = 32768,
+
 	/** The default flags.
 	 *
 	 *  Used if you don't explicitly pass any to @a parse_query().
@@ -753,15 +765,16 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     void set_database(const Database &db);
 
-    /** Specify the maximum expansion of a wildcard and/or partial term.
+    /** Specify the maximum expansion of a wildcard and/or partial and/or
+     *  fuzzy term.
      *
-     *  Note: you must also set FLAG_WILDCARD and/or FLAG_PARTIAL in the flags
-     *  parameter to @a parse_query() for this setting to have anything to
-     *  affect.
+     *  Note: you must also set FLAG_WILDCARD and/or FLAG_PARTIAL and/or
+     *  FLAG_FUZZY in the flags parameter to @a parse_query() for this setting
+     *  to have anything to affect.
      *
      *  If you don't call this method, the default settings are no limit on
-     *  wildcard expansion, and partial terms expanding to the most frequent
-     *  100 terms - i.e. as if you'd called:
+     *  wildcard and fuzzy expansion, and partial terms expanding to the most
+     *  frequent 100 terms - i.e. as if you'd called:
      *
      *  set_max_expansion(0);
      *  set_max_expansion(100, Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT, Xapian::QueryParser::FLAG_PARTIAL);
@@ -774,14 +787,16 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			@a Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT
      *			(default: Xapian::Query::WILDCARD_LIMIT_ERROR).
      *  @param flags	What to set the limit for (default:
-     *			FLAG_WILDCARD|FLAG_PARTIAL, setting the limit for both
-     *			wildcards and partial terms).
+     *			FLAG_WILDCARD|FLAG_PARTIAL|FLAG_FUZZY, setting the
+     *			limit for all types).
      *
      *  @since 1.3.3
      */
     void set_max_expansion(Xapian::termcount max_expansion,
 			   int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR,
-			   unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
+			   unsigned flags = FLAG_WILDCARD |
+					    FLAG_PARTIAL |
+					    FLAG_FUZZY);
 
     /** Specify minimum length for fixed initial portion in wildcard patterns.
      *

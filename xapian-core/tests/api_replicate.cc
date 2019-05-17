@@ -38,6 +38,7 @@
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
+#include "setenv.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -47,8 +48,6 @@
 #include <cerrno>
 #include <cstdlib>
 #include <string>
-
-#include <stdlib.h> // For setenv() or putenv() or _putenv_s()
 
 using namespace std;
 
@@ -237,28 +236,7 @@ check_equal_dbs(const string & masterpath, const string & replicapath)
     }
 }
 
-#if 0 // Dynamic version which we don't currently need.
-static void
-set_max_changesets(int count) {
-#if HAVE_DECL__PUTENV_S
-    _putenv_s("XAPIAN_MAX_CHANGESETS", str(count).c_str());
-#elif defined HAVE_SETENV
-    setenv("XAPIAN_MAX_CHANGESETS", str(count).c_str(), 1);
-#else
-    static char buf[64] = "XAPIAN_MAX_CHANGESETS=";
-    sprintf(buf + CONST_STRLEN("XAPIAN_MAX_CHANGESETS="), "%d", count);
-    putenv(buf);
-#endif
-}
-#endif
-
-#if HAVE_DECL__PUTENV_S
-# define set_max_changesets(N) _putenv_s("XAPIAN_MAX_CHANGESETS", #N)
-#elif defined HAVE_SETENV
-# define set_max_changesets(N) setenv("XAPIAN_MAX_CHANGESETS", #N, 1)
-#else
-# define set_max_changesets(N) putenv(const_cast<char*>("XAPIAN_MAX_CHANGESETS="#N))
-#endif
+#define set_max_changesets(N) setenv("XAPIAN_MAX_CHANGESETS", #N, 1)
 
 struct unset_max_changesets_helper_ {
     unset_max_changesets_helper_() { }

@@ -162,16 +162,17 @@ ZLIB_LIBS=$LIBS
 AC_SUBST([ZLIB_LIBS])
 LIBS=$SAVE_LIBS
 
-dnl Solaris < 10 only has putenv().
+dnl POSIX requires setenv().  The final Unix-like platform without it seems
+dnl to have been Solaris 9, which is now out of support.
 dnl
-dnl Microsoft have marked putenv() as deprecated, so we use _putenv_s() under
-dnl MSVC to avoid deprecation warnings.  We probe here since mingw doesn't
-dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
-dnl on __WIN32__ being defined.  We need to check for a declaration rather
-dnl than just seeing if the symbol exists, as the symbol will exist in the C
-dnl runtime DLL even if mingw doesn't declare it in its headers.
-AC_CHECK_FUNCS([setenv putenv])
-AC_CHECK_DECLS([_putenv_s(const char *,const char *)], [], [],
+dnl Microsoft don't provide setenv() and have marked putenv() as deprecated, so
+dnl we use _putenv_s() to avoid deprecation warnings with MSVC.  It's also a
+dnl more similar interface to setenv() so easier to implement a setenv() wrapper
+dnl around.  We probe for both the function and a declaration since mingw
+dnl doesn't currently (v3.20) declare it but it is present in the C runtime DLL
+dnl so we can provide our own declaration to access it.
+AC_CHECK_FUNCS([setenv _putenv_s])
+AC_CHECK_DECLS([_putenv_s(const char*, const char*)], [], [],
 [#include <stdlib.h>])
 
 dnl libmagic used to detect MIME types for files we don't detect by extension.
@@ -314,6 +315,8 @@ case $ac_cv_func_snprintf in
     ;;
 esac
 
+AC_CHECK_MEMBERS([struct tm.tm_gmtoff], [], [], [#include <time.h>])
+
 AC_ARG_WITH(iconv,
 [AS_HELP_STRING([--with-iconv], [force use of iconv (error if not found)])
 AS_HELP_STRING([--without-iconv], [don't use iconv])],
@@ -402,6 +405,14 @@ PCRE_CFLAGS=`$PCRE_CONFIG --cflags`
 PCRE_LIBS=`$PCRE_CONFIG --libs`
 AC_SUBST(PCRE_CFLAGS)
 AC_SUBST(PCRE_LIBS)
+
+AC_MSG_CHECKING([for /dev/stdin])
+if test -c /dev/stdin && (echo hello|$GREP hello /dev/stdin >&AS_MESSAGE_LOG_FD 2>&1); then
+  AC_MSG_RESULT([yes])
+  AC_DEFINE([HAVE_DEV_STDIN], [1], [Define to 1 if you have the '/dev/stdin' special special file])
+else
+  AC_MSG_RESULT([no])
+fi
 
 dnl ******************************
 dnl * Set special compiler flags *

@@ -1,7 +1,7 @@
 /** @file externalpostlist.cc
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008,2009,2010,2011 Olly Betts
+/* Copyright 2008,2009,2010,2011,2019 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,8 @@ using namespace std;
 ExternalPostList::ExternalPostList(const Xapian::Database & db,
 				   Xapian::PostingSource *source_,
 				   double factor_,
-				   PostListTree * matcher)
+				   PostListTree * matcher,
+				   Xapian::doccount shard_index)
     : source(source_), source_is_owned(false), current(0), factor(factor_)
 {
     Assert(source);
@@ -43,7 +44,7 @@ ExternalPostList::ExternalPostList(const Xapian::Database & db,
 	source_is_owned = true;
     }
     source->register_matcher_(static_cast<void*>(matcher));
-    source->init(db);
+    source->init(db, shard_index);
 }
 
 ExternalPostList::~ExternalPostList()

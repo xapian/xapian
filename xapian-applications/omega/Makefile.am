@@ -119,6 +119,8 @@ noinst_HEADERS +=\
 	common/keyword.h\
 	common/msvc_dirent.h\
 	common/omassert.h\
+	common/overflow.h\
+	common/parseint.h\
 	common/realtime.h\
 	common/safedirent.h\
 	common/safefcntl.h\
@@ -128,6 +130,7 @@ noinst_HEADERS +=\
 	common/safeunistd.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
+	common/setenv.h\
 	common/str.h\
 	common/stringutils.h
 
@@ -165,15 +168,15 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
-if NEED_STRPTIME
-omindex_SOURCES += portability/strptime.cc
-endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
  utf8truncate.cc\
  common/keyword.cc timegm.cc datetime.cc
+if NEED_STRPTIME
+scriptindex_SOURCES += portability/strptime.cc
+endif
 scriptindex_LDADD = $(XAPIAN_LIBS) libutf8convert.la
 
 omindex_list_SOURCES = common/getopt.cc omindex-list.cc

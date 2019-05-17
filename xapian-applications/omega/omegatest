@@ -21,6 +21,7 @@ set -e
 
 : ${OMEGA=./omega}
 : ${SCRIPTINDEX=./scriptindex}
+: ${FAKETIME=faketime}
 
 # Suppress HTTP Content-Type header.
 SERVER_PROTOCOL=INCLUDED
@@ -55,7 +56,17 @@ testcase() {
     # If there are no positional parameters, pass one as otherwise omega will
     # wait for parameters on stdin.
     [ "$#" != 0 ] || { set x dummy; shift; }
-    output=`$FAKETIME ${FAKE_NOW+"$FAKE_NOW"} "$OMEGA" "$@"`
+
+    if [ -n "$FAKE_NOW" ] ; then
+	if [ -n "${TZ+set}" ] ; then
+	    output=`TZ=$TZ $FAKETIME -f "$FAKE_NOW" "$OMEGA" "$@"`
+	else
+	    output=`$FAKETIME -f "$FAKE_NOW" "$OMEGA" "$@"`
+	fi
+    else
+	output=`"$OMEGA" "$@"`
+    fi
+
     if [ "$output" != "$expected" ] ; then
 	echo "$OMEGA $@:"
 	printf '%s\n' "  expected: «${expected}»"
@@ -70,7 +81,6 @@ qtestcase() {
     testcase "$expected" "$@"
 }
 
-FAKETIME=
 unset FAKE_NOW
 
 # Test a few simple things.
@@ -353,13 +363,10 @@ qtestcase '(VALUE_RANGE 0 2015 201501~ AND_NOT Len)' DATEVALUE=0 START=20150101 
 # If faketime is available and works, test cases where the output depends on
 # "now".
 rc=0
-out=`faketime -f '1980-12-08 00:00:00' date +%Y 2>&1` || rc=$?
+out=`[ -n "$FAKETIME" ] && $FAKETIME -f '1980-12-08 00:00:00' date +%Y 2>&1` || rc=$?
 if [ "$rc:$out" = "0:1980" ] ; then
-    TZ=UTC
-    export TZ
-    FAKETIME='faketime -f'
     FAKE_NOW='2015-11-28 06:07:08'
-    qtestcase 'VALUE_RANGE 0 20151127060709 20151128060708' DATEVALUE=0 SPAN=1
+    TZ=UTC qtestcase 'VALUE_RANGE 0 20151127060709 20151128060708' DATEVALUE=0 SPAN=1
 
     # Tests of term-based date range filtering:
     qtestcase '(Y2000 OR Y2001 OR Y2002 OR Y2003 OR Y2004 OR Y2005 OR Y2006 OR Y2007 OR Y2008 OR Y2009 OR Y2010 OR Y2011 OR Y2012 OR Y2013 OR Y2014 OR M201501 OR M201502 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)' START=20000101
@@ -371,11 +378,12 @@ if [ "$rc:$out" = "0:1980" ] ; then
     qtestcase 'Dlatest' START=20151201
     qtestcase '(D20150210 OR D20150211 OR D20150212 OR D20150213 OR D20150214 OR D20150215 OR D20150216 OR D20150217 OR D20150218 OR D20150219 OR D20150220 OR D20150221 OR D20150222 OR D20150223 OR D20150224 OR D20150225 OR D20150226 OR D20150227 OR D20150228 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)' START=20150210
     qtestcase '(D20000220 OR D20000221 OR D20000222 OR D20000223 OR D20000224 OR D20000225 OR D20000226 OR D20000227 OR D20000228 OR D20000229 OR M200003 OR M200004 OR M200005 OR M200006 OR M200007 OR M200008 OR M200009 OR M200010 OR M200011 OR M200012 OR Y2001 OR Y2002 OR Y2003 OR Y2004 OR Y2005 OR Y2006 OR Y2007 OR Y2008 OR Y2009 OR Y2010 OR Y2011 OR Y2012 OR Y2013 OR Y2014 OR M201501 OR M201502 OR M201503 OR M201504 OR M201505 OR M201506 OR M201507 OR M201508 OR M201509 OR M201510 OR D20151101 OR D20151102 OR D20151103 OR D20151104 OR D20151105 OR D20151106 OR D20151107 OR D20151108 OR D20151109 OR D20151110 OR D20151111 OR D20151112 OR D20151113 OR D20151114 OR D20151115 OR D20151116 OR D20151117 OR D20151118 OR D20151119 OR D20151120 OR D20151121 OR D20151122 OR D20151123 OR D20151124 OR D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)' START=20000220
-    FAKETIME=
     unset FAKE_NOW
 else
     if [ "$rc" = 127 ] ; then
 	echo "Skipping testcases which need 'faketime' tool installed"
+    elif [ -z "$FAKETIME" ] ; then
+	echo "Skipping testcases which need 'faketime' tool - \$FAKETIME is empty"
     else
 	echo "Skipping testcases which need 'faketime' tool - it's installed but doesn't work"
     fi
@@ -511,6 +519,11 @@ testcase '30|23|12|3|03|2|1|01|0|00' input='2|1|23|12|23|3|30|0|00|0|01|03' opt=
 testcase 'Exception: Unknown $sort option: x' input="b|c|b|1" opt=urx
 testcase 'Exception: Invalid $sort option combination: n#' input="b|c" opt='n#'
 testcase 'Exception: Invalid $sort option combination: #rn' input="b|1" opt='#rn'
+
+# Regression test for $sort bug fixed in 1.4.12.
+# Check $sort doesn't ensure_match (or ensure_query).
+printf '$sort{test} $addfilter{Test}$querydescription' > "$TEST_TEMPLATE"
+testcase 'test Query(Test)'
 
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
@@ -655,6 +668,10 @@ testcase 'b4c216e4da73d1d01277ef46d0514821' text="simple query"
 testcase 'd41d8cd98f00b204e9800998ecf8427e' text=""
 testcase '3302c94d3500c3f695b7e09b7acd420d' text=" test "
 
+# Feature tests for $random{}
+printf '$or{$list{$map{$range{1,100},$set{num,$random{$cgi{x}}}$or{$lt{$opt{num},0},$gt{$opt{num},$cgi{x}}}},},OK}' > "$TEST_TEMPLATE"
+testcase 'OK' x=6
+
 # Regression test - original implementation truncated data at first zero byte.
 printf '$hash{$cgi{text}$chr{0},md5}' > "$TEST_TEMPLATE"
 testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
@@ -673,6 +690,20 @@ testcase 'x:y:z:y|x:y:z' text='x y z z y'
 # Regression test - $map with one argument wasn't rejected cleanly.
 printf '$map{foo}' > "$TEST_TEMPLATE"
 testcase 'Exception: too few arguments to $map'
+
+# Feature tests for $snippet{}.
+printf 'text : index field' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+text=A sentence is more than just a list of words - there is structure to it.
+END
+
+printf '$hitlist{$snippet{$field{text},20}}' > "$TEST_TEMPLATE"
+testcase '...just a <strong>list</strong> of <strong>words</strong>...' P='word listing'
+
+printf '$hitlist{$snippet{$field{text},30,,<b>,</b>,}}' > "$TEST_TEMPLATE"
+testcase '<b>words</b> - there is structure to' P='words'
+testcase 'a <b>list of words</b> - there is' P='"list of words"'
 
 # Feature tests for split command scriptindex.
 printf 'STATUS : field split=| field=SPLITSTATUS\nSTATUS : field=x' > "$TEST_INDEXSCRIPT"
@@ -1031,7 +1062,12 @@ END
 printf '$list{$map{$range{1,3},$list{$allterms{$_}, }},|}' > "$TEST_TEMPLATE"
 testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018'
 
-# Feature tests for datevalue command scriptindex.
+# Check nested $hitlist{} doesn't result in an infinite loop.
+# Regression test for bug fixed in 1.4.12.
+printf '<|$hitlist{$id(:$hitlist{$id:})|}>' > "$TEST_TEMPLATE"
+testcase '<|2(:2:3:)|3(:2:3:)|>' B=Y1970 B=Y2018
+
+# Feature tests for parsedate action.
 printf '%s\n' 'DATE : field parsedate=%Y%m%d valuepacked=13' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
@@ -1040,14 +1076,34 @@ END
 printf '$field{DATE,1}|$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
 testcase '19891204|628732800|1989-12-04' P=text
 
-# Feature tests for datevalue command scriptindex where format contains space.
-printf '%s\n' 'DATE : field parsedate="%Y%m%d %T" valuepacked=13' > "$TEST_INDEXSCRIPT"
+# Feature tests for parsedate action.
+printf '%s\n' \
+    'DATE: parsedate="%Y%m%d %T" field=time' \
+    'TIME_T: parsedate=%s field=time' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1 <<'END'
 DATE=20161202 12:04:22.000000
+
+TIME_T=1480680263
 END
-printf '$unpack{$value{13,1}}|$date{$unpack{$value{13,1}}}' > "$TEST_TEMPLATE"
-testcase '1480680262|2016-12-02' P=text
+printf '$field{time,$cgi{id}}' > "$TEST_TEMPLATE"
+# Test format which contains a space.
+testcase '1480680262' id=1
+# Regression test - we used to add on the local timezone offset.
+testcase '1480680263' id=2
+
+if grep -q 'define HAVE_STRUCT_TM_TM_GMTOFF 1' config.h ; then
+  # Feature tests for parsedate action.
+  printf '%s\n' 'DATE: parsedate="%Y%m%d %T %z" field=time' > "$TEST_INDEXSCRIPT"
+  rm -rf "$TEST_DB"
+  echo 'DATE=20161202 21:34:22 +0930' | \
+      $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null 2>&1
+  printf '$field{time,$cgi{id}}' > "$TEST_TEMPLATE"
+  # Test that timezone adjustment is applied.
+  testcase '1480680262' id=1
+else
+  echo "Skipping testcases which need tm_gmtoff member in struct tm"
+fi
 
 # Feature tests for load action.
 printf '%s\n' 'file : load field' > "$TEST_INDEXSCRIPT"

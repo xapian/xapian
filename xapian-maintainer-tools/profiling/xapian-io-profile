@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+case $1 in
+    --log=*)
+    log_file=${1#*=}
+    shift
+    exec 99>"$log_file"
+    export XAPIAN_IO_PROFILE_LOG_FD=99
+    ;;
+esac
+
+# change the path to profiler.so here
+LD_PRELOAD=./profiler.so exec "$@"

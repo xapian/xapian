@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -342,6 +342,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  database passed in the most recent call.
      *
      *  @param db The database which the PostingSource should iterate through.
+     *  @param shard_index  The 0-based index indicating which shard in a
+     *			    multi-database db is.  This can be useful if you
+     *			    have an external source of postings corresponding
+     *			    to each shard.
      *
      *  Note: in the case of a multi-database search, a separate PostingSource
      *  will be used for each database (the separate PostingSources will be
@@ -350,8 +354,26 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  will therefore always refer to a single database.  All docids passed
      *  to, or returned from, the PostingSource refer to docids in that single
      *  database, rather than in the multi-database.
+     *
+     *  A default implementation is provided which calls the single-argument
+     *  to allow existing subclasses to continue to work.  You are likely to
+     *  need to override either this method or the single argument form.  In
+     *  new code, override this method in preference.
+     *
+     *  @since The two-argument form of init() was added in Xapian 1.5.0.
      */
-    virtual void init(const Database & db) = 0;
+    virtual void init(const Database& db, Xapian::doccount shard_index);
+
+    /** Compatibility version of init().
+     *
+     *  Prior to 1.5.0, init() only took one parameter.  The default
+     *  implementation of the newer two-argument form will call this form
+     *  to allow existing subclasses to continue to work.
+     *
+     *  A default implementation is provided which does nothing, so that
+     *  new subclasses can just override the two-argument form.
+     */
+    virtual void init(const Database& db);
 
     /** Return a string describing this object.
      *

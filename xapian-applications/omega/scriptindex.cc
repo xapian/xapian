@@ -47,6 +47,7 @@
 #include "loadfile.h"
 #include "myhtmlparse.h"
 #include "parseint.h"
+#include "setenv.h"
 #include "str.h"
 #include "stringutils.h"
 #include "timegm.h"
@@ -506,6 +507,23 @@ bad_escaping:
 			}
 			useless_weight_pos = action_pos;
 			break;
+		    case Action::PARSEDATE: {
+			if (val.find("%Z") != val.npos) {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Parsing timezone names with %Z is not supported" << endl;
+			    exit(1);
+			}
+#ifndef HAVE_STRUCT_TM_TM_GMTOFF
+			if (val.find("%z") != val.npos) {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Parsing timezone offsets with %z is not supported on "
+				    "this platform" << endl;
+			    exit(1);
+			}
+#endif
+			actions.emplace_back(code, action_pos, val);
+			break;
+		    }
 		    case Action::SPLIT: {
 			if (val.empty()) {
 			    report_location(DIAG_ERROR, filename, line_no);
@@ -1034,8 +1052,14 @@ badhex:
 			    "(\"" << ret << "\" left over) but "
 			    "indexing anyway" << endl;
 		}
-
-		value = str(timegm(&tm));
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+		auto gmtoff = tm.tm_gmtoff;
+#endif
+		auto secs_since_epoch = timegm(&tm);
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+		secs_since_epoch -= gmtoff;
+#endif
+		value = str(secs_since_epoch);
 		break;
 	    }
 	    default:
@@ -1174,6 +1198,10 @@ try {
     int database_mode = Xapian::DB_CREATE_OR_OPEN;
     verbose = false;
     Xapian::Stem stemmer("english");
+
+    // Without this, strptime() seems to treat formats without a timezone as
+    // being local time, including %s.
+    setenv("TZ", "UTC", 1);
 
     constexpr auto NO_ARG = no_argument;
     constexpr auto REQ_ARG = required_argument;

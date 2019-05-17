@@ -49,6 +49,7 @@
 #endif
 
 #include "freemem.h"
+#include "setenv.h"
 #include "stringutils.h"
 
 #ifdef _MSC_VER
@@ -314,9 +315,6 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 #endif
 
 	if (use_shell) {
-#if !defined HAVE_SETENV && !defined HAVE_PUTENV
-use_shell_after_all:
-#endif
 	    execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
 	    _exit(-1);
 	}
@@ -336,18 +334,11 @@ use_shell_after_all:
 		break;
 	    }
 
-#ifdef HAVE_SETENV
 	    size_t eq = j;
 	    unquote(s, j);
 	    s[eq] = '\0';
 	    setenv(&s[i], &s[eq + 1], 1);
 	    j = s.find_first_not_of(" \t\n", j);
-#elif defined HAVE_PUTENV
-	    unquote(s, j);
-	    putenv(&s[i]);
-#else
-	    goto use_shell_after_all;
-#endif
 	}
 
 	vector<const char *> argv;

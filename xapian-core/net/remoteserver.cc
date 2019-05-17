@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -730,6 +730,8 @@ RemoteServer::msg_cancel(const string &)
     // has the same effect with minimal additional overhead.
     wdb->begin_transaction(false);
     wdb->cancel_transaction();
+
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -766,6 +768,8 @@ RemoteServer::msg_deletedocumentterm(const string & message)
 	throw_read_only();
 
     wdb->delete_document(message);
+
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -780,6 +784,8 @@ RemoteServer::msg_replacedocument(const string & message)
     decode_length(&p, p_end, did);
 
     wdb->replace_document(did, unserialise_document(string(p, p_end)));
+
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -840,6 +846,8 @@ RemoteServer::msg_setmetadata(const string & message)
     p += keylen;
     string val(p, p_end - p);
     wdb->set_metadata(key, val);
+
+    send_message(REPLY_DONE, string());
 }
 
 void
@@ -852,6 +860,8 @@ RemoteServer::msg_addspelling(const string & message)
     Xapian::termcount freqinc;
     decode_length(&p, p_end, freqinc);
     wdb->add_spelling(string(p, p_end - p), freqinc);
+
+    send_message(REPLY_DONE, string());
 }
 
 void

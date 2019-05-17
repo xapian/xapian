@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# Copyright (c) 2007-2018 Olly Betts
+# Copyright (c) 2007-2019 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -215,6 +215,11 @@ while (<>) {
 	}
 
 	# Trim comments:
+	if (s! /\*.*?\*/ ! !g) {
+	    # C-style comment with spaces around, e.g.
+	    # { T = P->as_phrase_query(); /*T-overwrites-P*/ }
+	    s/\s+$//;
+	}
 	if (s!/(?:\*.*?\*/|/.*)!!g) {
 	    s/\s+$//;
 	}
@@ -380,16 +385,25 @@ QUOTELOOP:  while (1) {
 	    # Exclude lines ending ');', ')', or ',' to avoid reporting for wrapped function arguments.
 	    diagnostic('error', "line indented by ".length($1)." spaces", $fullline);
 	}
-	if (m!^\+.*\b([A-Za-z_][A-Za-z_0-9]*)\s+\(! &&
-	    # `delete (*i)->foo();` rather than `delete(*i)->foo()'` - the `(`
-	    # isn't around function parameters here.
-	    $1 !~ /^(bool|case|catch|delete|double|for|if|int|return|switch|throw|void|while)$/) {
-	    if (!$preproc) {
-		diagnostic('error', "Whitespace between '$1' and '('", $fullline);
-	    } else {
-		# FIXME: We skip preprocessor lines for now to avoid triggering
-		# on things like «#define FOUR (2+2)» but it would be good to
-		# catch «#define FOO(x) foo (x)»
+
+	#if (/^\+.*(?<!\btypedef )\b([A-Za-z_][A-Za-z_0-9]*)\s+\(/ &&
+	if (/^\+.*\b([A-Za-z_][A-Za-z_0-9]*)\s+\(((?:[A-Za-z][A-Za-z0-9_]*::)?\*|[A-Za-z][A-Za-z0-9_]*\)\()?/) {
+	    my $name = $1;
+	    my $post = $2;
+	    if (
+		# `delete (*i)->foo();` rather than `delete(*i)->foo()'` - the `(`
+		# isn't around function parameters here.
+		$name !~ /^(case|catch|delete|double|for|if|return|switch|throw|while)$/ &&
+		# Function pointer type `int (*)(void)` or parenthesised
+		# function name `int (foo)(`.
+		!($name =~ /^(?:bool|double|float|unsigned|void|[a-z][a-z0-9_]+_t|(?:(?:un)?signed\s+)?(?:char|int|long|short))$/ && length($post))) {
+		if (!$preproc) {
+		    diagnostic('error', "Whitespace between '$name' and '('", $fullline);
+		} else {
+		    # FIXME: We skip preprocessor lines for now to avoid triggering
+		    # on things like «#define FOUR (2+2)» but it would be good to
+		    # catch «#define FOO(x) foo (x)»
+		}
 	    }
 	}
 	if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
@@ -631,9 +645,9 @@ QUOTELOOP:  while (1) {
 	}
     }
     if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output)\.txt$!) {
-	if ($fullline =~ /^\+.*?\b(xapain|the the|initialsing|ipv5|outputing|intened|dont)\b/i ||
+	if ($fullline =~ /^\+.*?\b(xapain|the the|initialsing|ipv5|outputing|intened|dont|wull)\b/i ||
 	    # Cases which just need to be the prefix of a word
-	    $fullline =~ /^\+.*?\b((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent)[a-z]*\b)/i ||
+	    $fullline =~ /^\+.*?\b((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit|appropirate)[a-z]*\b)/i ||
 	    # Case-sensitive cases
 	    $fullline =~ /^\+.*?\b(and and)\b/) {
 	    diagnostic('error', "Typo '$1'", $fullline);
@@ -678,7 +692,7 @@ QUOTELOOP:  while (1) {
 	}
 
 	#if (/^[-+ ]([ \t]*)(?:(?:(?:catch|for|if|for|switch|while)\b.*\)|(?:case|class|do|else|struct|try|union)\b.*) \{|case\b.*:)$/) {
-	if (/^[-+ ]([ \t]*)(?:(?:catch|for|if|for|switch|while|case|class|default|do|else|struct|try|union)\b.* \{|(case\b.*|default):)$/) {
+	if (/^[+ ]([ \t]*)(?:(?:catch|for|if|for|switch|while|case|class|default|do|else|struct|try|union)\b.* \{|(case\b.*|default):)$/) {
 	    $indent = count_columns($1);
 	    $case_no_brace = $2;
 	    # FIXME: Might be OK in e.g. lambdas
@@ -726,4 +740,19 @@ Files patched:\t$files
 Lines added:\t$add_lines
 Lines removed:\t$del_lines
 __END__
-exit(exists $count{'error'} ? 1 : 0);
+
+exit 0 unless exists $count{'error'};
+
+if (exists $ENV{TRAVIS}) {
+    print STDERR <<"__END__";
+
+You can run these checks locally before pushing with the xapian-check-patch
+which is in the source tree in the xapian-maintainer-tools directory.
+
+E.g. to check any changes in your working directory which aren't on master:
+
+git diff master.. | xapian-maintainer-tools/xapian-check-patch
+__END__
+}
+
+exit 1;

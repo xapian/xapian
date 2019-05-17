@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -50,6 +50,7 @@
 #include "atomparse.h"
 #include "diritor.h"
 #include "failed.h"
+#include "hashterm.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "mimemap.h"
@@ -148,23 +149,37 @@ skip_unknown_mimetype(const string & urlterm, const string & context,
 void
 index_add_default_filters()
 {
-    index_command("application/msword", Filter("antiword -mUTF-8.txt", false));
+    // Command needs to be run using /bin/sh.
+    auto USE_SHELL = Filter::USE_SHELL;
+    // Currently none of these commands needs USE_SHELL.
+    (void)USE_SHELL;
+    // Input should be piped to stdin.
+    auto PIPE_IN = Filter::PIPE_IN;
+    // Filename can be /dev/stdin (which must be seekable).
+    auto SEEK_DEV_STDIN = Filter::SEEK_DEV_STDIN;
+    // Filename can be /dev/stdin (which can be a pipe).
+    auto PIPE_DEV_STDIN = Filter::PIPE_DEV_STDIN;
+    index_command("application/msword",
+		  Filter("antiword -mUTF-8.txt -", PIPE_IN));
     index_command("application/vnd.ms-excel",
-		  Filter("xls2csv -c' ' -q0 -dutf-8", false));
+		  Filter("xls2csv -c' ' -q0 -dutf-8", PIPE_DEV_STDIN));
     index_command("application/vnd.ms-powerpoint",
-		  Filter("catppt -dutf-8", false));
+		  Filter("catppt -dutf-8", PIPE_DEV_STDIN));
     // Looking at the source of wpd2html and wpd2text I think both output
     // UTF-8, but it's hard to be sure without sample Unicode .wpd files
     // as they don't seem to be at all well documented.
-    index_command("application/vnd.wordperfect", Filter("wpd2text", false));
+    index_command("application/vnd.wordperfect",
+		  Filter("wpd2text", SEEK_DEV_STDIN));
     // wps2text produces UTF-8 output from the sample files I've tested.
-    index_command("application/vnd.ms-works", Filter("wps2text", false));
+    index_command("application/vnd.ms-works",
+		  Filter("wps2text", SEEK_DEV_STDIN));
     // Output is UTF-8 according to "man djvutxt".  Generally this seems to
     // be true, though some examples from djvu.org generate isolated byte
     // 0x95 in a context which suggests it might be intended to be a bullet
     // (as it is in CP1250).
-    index_command("image/vnd.djvu", Filter("djvutxt", false));
-    index_command("text/markdown", Filter("markdown", "text/html", false));
+    index_command("image/vnd.djvu", Filter("djvutxt -", PIPE_IN));
+    index_command("text/markdown",
+		  Filter("markdown", "text/html", PIPE_IN));
     // The --text option unhelpfully converts all non-ASCII characters to "?"
     // so we use --html instead, which produces HTML entities.  The --nopict
     // option suppresses exporting picture files as pictNNNN.wmf in the current
@@ -172,56 +187,57 @@ index_add_default_filters()
     // but it was fixed in unrtf 0.20.4.
     index_command("text/rtf",
 		  Filter("unrtf --nopict --html 2>/dev/null", "text/html",
-			 false));
-    index_command("text/x-rst", Filter("rst2html", "text/html", false));
+			 PIPE_IN));
+    index_command("text/x-rst",
+		  Filter("rst2html", "text/html", PIPE_IN));
     index_command("application/x-mspublisher",
-		  Filter("pub2xhtml", "text/html", false));
+		  Filter("pub2xhtml", "text/html", SEEK_DEV_STDIN));
     index_command("application/vnd.ms-outlook",
-		  Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html",
-			 false));
+		  Filter(get_pkglibbindir() + "/outlookmsg2html",
+			 "text/html", SEEK_DEV_STDIN));
     index_command("application/vnd.ms-visio.drawing",
-		  Filter("vsd2xhtml", "image/svg+xml", false));
+		  Filter("vsd2xhtml", "image/svg+xml", SEEK_DEV_STDIN));
     index_command("application/vnd.ms-visio.stencil",
-		  Filter("vsd2xhtml", "image/svg+xml", false));
+		  Filter("vsd2xhtml", "image/svg+xml", SEEK_DEV_STDIN));
     index_command("application/vnd.ms-visio.template",
-		  Filter("vsd2xhtml", "image/svg+xml", false));
+		  Filter("vsd2xhtml", "image/svg+xml", SEEK_DEV_STDIN));
     index_command("application/vnd.visio",
-		  Filter("vsd2xhtml", "image/svg+xml", false));
+		  Filter("vsd2xhtml", "image/svg+xml", SEEK_DEV_STDIN));
     // pod2text's output character set doesn't seem to be documented, but from
     // inspecting the source it looks like it's probably iso-8859-1.  We need
     // to pass "--errors=stderr" or else minor POD formatting errors cause a
     // file not to be indexed.
     index_command("text/x-perl",
 		  Filter("pod2text --errors=stderr",
-			 "text/plain", "iso-8859-1", false));
+			 "text/plain", "iso-8859-1", PIPE_IN));
     // FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
     // appearing as single ligatures.  For European languages, it's actually
     // better to use -e2 (ISO-8859-1) and then convert, so let's do that for
     // now until we handle Unicode "compatibility decompositions".
     index_command("application/x-dvi",
-		  Filter("catdvi -e2 -s", "text/plain", "iso-8859-1", false));
+		  Filter("catdvi -e2 -s", "text/plain", "iso-8859-1", PIPE_IN));
     // Simplistic - ought to look in index.rdf files for filename and character
     // set.
     index_command("application/x-maff",
 		  Filter("unzip -p %f '*/*.*htm*'", "text/html", "iso-8859-1",
-			 false));
+			 SEEK_DEV_STDIN));
     index_command("application/x-mimearchive",
 		  Filter(get_pkglibbindir() + "/mhtml2html", "text/html",
-			 false));
+			 PIPE_DEV_STDIN));
     index_command("message/news",
 		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
-			 false));
+			 PIPE_DEV_STDIN));
     index_command("message/rfc822",
 		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
-			 false));
+			 PIPE_DEV_STDIN));
     index_command("text/vcard",
-		  Filter(get_pkglibbindir() + "/vcard2text", false));
+		  Filter(get_pkglibbindir() + "/vcard2text", PIPE_DEV_STDIN));
     index_command("application/vnd.apply.keynote",
-		  Filter("key2text", false));
+		  Filter("key2text", SEEK_DEV_STDIN));
     index_command("application/vnd.apply.numbers",
-		  Filter("numbers2text", false));
+		  Filter("numbers2text", SEEK_DEV_STDIN));
     index_command("application/vnd.apply.pages",
-		  Filter("pages2text", false));
+		  Filter("pages2text", SEEK_DEV_STDIN));
 }
 
 void
@@ -532,8 +548,9 @@ index_add_document(const string & urlterm, time_t last_altered,
 void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
-	       const string &mimetype, DirectoryIterator &d,
-	       Xapian::Document & newdocument,
+	       string mimetype,
+	       DirectoryIterator & d,
+	       string pathterm,
 	       string record)
 {
     string context(file, root.size(), string::npos);
@@ -566,7 +583,36 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
     }
 
-    if (verbose) cout << flush;
+    // If we didn't get the mime type from the extension, call libmagic to get
+    // it.
+    if (mimetype.empty()) {
+	mimetype = d.get_magic_mimetype();
+	if (mimetype.empty()) {
+	    skip(urlterm, file.substr(root.size()),
+		 "Unknown extension and unrecognised format",
+		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
+	    return;
+	}
+    }
+
+    if (verbose)
+	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
+	     << mimetype << " ... " << flush;
+
+    // Use `file` as the basis, as we don't want URL encoding in these terms,
+    // but need to switch over the initial part so we get `/~olly/foo/bar` not
+    // `/home/olly/public_html/foo/bar`.
+    Xapian::Document newdocument;
+    size_t j;
+    while ((j = pathterm.rfind('/')) > 1 && j != string::npos) {
+	pathterm.resize(j);
+	if (pathterm.length() > MAX_SAFE_TERM_LENGTH) {
+	    string term_hash = hash_long_term(pathterm, MAX_SAFE_TERM_LENGTH);
+	    newdocument.add_boolean_term(term_hash);
+	} else {
+	    newdocument.add_boolean_term(pathterm);
+	}
+    }
 
     string author, title, sample, keywords, topic, dump;
     string md5;
@@ -610,6 +656,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		return;
 	    }
 	    bool use_shell = filter.use_shell();
+	    bool input_on_stdin = filter.input_on_stdin();
 	    bool substituted = false;
 	    string tmpout;
 	    size_t pcent = 0;
@@ -623,13 +670,18 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			break;
 		    case 'f': { // %f -> escaped filename.
 			substituted = true;
+			if (filter.dev_stdin()) {
+			    cmd.replace(pcent, 2, "/dev/stdin",
+					CONST_STRLEN("/dev/stdin"));
+			    break;
+			}
 			string tail(cmd, pcent + 2);
 			cmd.resize(pcent);
-			append_filename_argument(cmd, file);
-			// Remove the space append_filename_argument() adds before
-			// the argument - the command string either includes one,
-			// or won't expect one (e.g. --input=%f).
-			cmd.erase(pcent, 1);
+			// Suppress the space append_filename_argument()
+			// usually adds before the argument - the command
+			// string either includes one, or won't expect one
+			// (e.g. --input=%f).
+			append_filename_argument(cmd, file, false);
 			pcent = cmd.size();
 			cmd += tail;
 			break;
@@ -650,11 +702,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			substituted = true;
 			string tail(cmd, pcent + 2);
 			cmd.resize(pcent);
-			append_filename_argument(cmd, tmpout);
-			// Remove the space append_filename_argument() adds before
-			// the argument - the command string either includes one,
-			// or won't expect one (e.g. --input=%f).
-			cmd.erase(pcent, 1);
+			// Suppress the space append_filename_argument()
+			// usually adds before the argument - the command
+			// string either includes one, or won't expect one
+			// (e.g. --output=%t).
+			append_filename_argument(cmd, tmpout, false);
 			pcent = cmd.size();
 			cmd += tail;
 			break;
@@ -665,14 +717,22 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			break;
 		}
 	    }
-	    if (!substituted && cmd != "true") {
+	    if (!input_on_stdin && !substituted && cmd != "true") {
 		// If no %f, append the filename to the command.
-		append_filename_argument(cmd, file);
+		if (filter.dev_stdin()) {
+		    cmd += " /dev/stdin";
+		} else {
+		    append_filename_argument(cmd, file);
+		}
 	    }
 	    try {
 		if (!tmpout.empty()) {
 		    // Output in temporary file.
-		    run_filter(cmd, use_shell);
+		    if (input_on_stdin) {
+			run_filter(d.get_fd(), cmd, use_shell);
+		    } else {
+			run_filter(cmd, use_shell);
+		    }
 		    if (!load_file(tmpout, dump, NOCACHE)) {
 			throw ReadError("Couldn't read output file");
 		    }
@@ -682,7 +742,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // filing system.
 		} else {
 		    // Output on stdout.
-		    run_filter(cmd, use_shell, &dump);
+		    if (input_on_stdin) {
+			run_filter(d.get_fd(), cmd, use_shell, &dump);
+		    } else {
+			run_filter(cmd, use_shell, &dump);
+		    }
 		}
 		const string & charset = filter.output_charset;
 		if (filter.output_type == "text/html") {
@@ -799,11 +863,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		     d.get_size(), d.get_mtime());
 		return;
 	    }
-	    string cmd = "ps2pdf";
-	    append_filename_argument(cmd, file);
+	    string cmd = "ps2pdf -";
 	    append_filename_argument(cmd, tmpfile);
 	    try {
-		run_filter(cmd, false);
+		run_filter(d.get_fd(), cmd, false);
 		cmd = "pdftotext -enc UTF-8";
 		append_filename_argument(cmd, tmpfile);
 		cmd += " -";

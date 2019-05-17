@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <random>
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
@@ -285,6 +286,12 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 	    case 'd':
 		if (strcmp(s, "default") == 0) {
 		    mask = Xapian::QueryParser::FLAG_DEFAULT;
+		    break;
+		}
+		break;
+	    case 'f':
+		if (strcmp(s, "fuzzy") == 0) {
+		    mask = Xapian::QueryParser::FLAG_FUZZY;
 		    break;
 		}
 		break;
@@ -1007,6 +1014,7 @@ CMD_query,
 CMD_querydescription,
 CMD_queryterms,
 CMD_range,
+CMD_random,
 CMD_record,
 CMD_relevant,
 CMD_relevants,
@@ -1019,6 +1027,7 @@ CMD_slice,
 CMD_snippet,
 CMD_sort,
 CMD_split,
+CMD_srandom,
 CMD_stoplist,
 CMD_sub,
 CMD_subdb,
@@ -1076,7 +1085,7 @@ T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
 T(cgiparams,	   0, 0, N, 0), // return list of cgi parameter names
 T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
 T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
-T(cond,		   2, N, 0, 0), // return position of substring, or empty string
+T(cond,		   2, N, 0, 0), // cascaded conditionals
 T(contains,	   2, 2, N, 0), // return position of substring, or empty string
 T(csv,		   1, 2, N, 0), // CSV string escaping
 T(date,		   1, 2, N, 0), // convert time_t to strftime format
@@ -1148,6 +1157,7 @@ T(query,	   0, 1, N, Q), // query
 T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
 T(queryterms,	   0, 0, N, Q), // list of query terms
 T(range,	   2, 2, N, 0), // return list of values between start and end
+T(random,	   1, 1, N, 0), // return a random number
 T(record,	   0, 1, N, 0), // record contents of document
 T(relevant,	   0, 1, N, Q), // is document relevant?
 T(relevants,	   0, 0, N, Q), // return list of relevant documents
@@ -1157,9 +1167,10 @@ T(seterror,	   1, 1, N, 0), // set error_msg, setting it early stops query execu
 T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
-T(snippet,	   1, 2, N, M), // generate snippet from text
-T(sort,		   1, 2, N, M), // alpha sort a list
+T(snippet,	   1, 6, N, M), // generate snippet from text
+T(sort,		   1, 2, N, 0), // alpha sort a list
 T(split,	   1, 2, N, 0), // split a string to give a list
+T(srandom,	   1, 1, N, 0), // seed for random number
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
 T(subdb,	   0, 1, N, 0), // name of subdb docid is in
@@ -1227,6 +1238,10 @@ get_subdbs()
     }
     return subdbs;
 }
+
+// mersenne twister for RNG
+static mt19937 rng;
+static bool seed_set = false;
 
 static string
 eval(const string &fmt, const vector<string> &param)
@@ -1680,7 +1695,7 @@ eval(const string &fmt, const vector<string> &param)
 		// 0-based mset index
 		value = str(hit_no);
 		break;
-	    case CMD_hitlist:
+	    case CMD_hitlist: {
 #if 0
 		url_query_string = "?DB=";
 		url_query_string += dbname;
@@ -1722,10 +1737,12 @@ eval(const string &fmt, const vector<string> &param)
 		    url_query_string += i->second;
 		}
 #endif
+		auto save_hit_no = hit_no;
 		for (hit_no = topdoc; hit_no < last; ++hit_no)
 		    value += print_caption(args[0], param);
-		hit_no = 0;
+		hit_no = save_hit_no;
 		break;
+	    }
 	    case CMD_hitsperpage:
 		value = str(hits_per_page);
 		break;
@@ -2081,6 +2098,17 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
+	    case CMD_random: {
+		if (!seed_set) {
+		    random_device rd;
+		    rng.seed(rd());
+		    seed_set = true;
+		}
+		uniform_int_distribution<int>
+		    distr(0, string_to_int(args[0]));
+		value = str(distr(rng));
+		break;
+	    }
 	    case CMD_record: {
 		Xapian::docid id = q0;
 		if (!args.empty() &&
@@ -2174,17 +2202,65 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_snippet: {
 		size_t length = 200;
-		if (args.size() > 1) {
+		unsigned flags;
+		if (args.size() > 1 && !args[1].empty()) {
 		    if (!parse_unsigned(args[1].c_str(), length)) {
 			throw "Snippet length must be >= 0";
 		    }
 		}
+		if (args.size() > 2 && !args[2].empty()) {
+		    flags = 0;
+		    const string& s = args[2];
+		    size_t i = 0;
+		    while (true) {
+			size_t j = s.find('|', i);
+			string flag(s, i, j - i);
+			for (char& c : flag) {
+			    c = C_tolower(c);
+			}
+			if (startswith(flag, "snippet_")) {
+			    flag.erase(0, CONST_STRLEN("snippet_"));
+			}
+			if (flag == "background_model") {
+			    flags |= mset.SNIPPET_BACKGROUND_MODEL;
+			} else if (flag == "cjk_ngram") {
+			    flags |= mset.SNIPPET_CJK_NGRAM;
+			} else if (flag == "cjk_words") {
+			    flags |= mset.SNIPPET_CJK_WORDS;
+			} else if (flag == "empty_without_match") {
+			    flags |= mset.SNIPPET_EMPTY_WITHOUT_MATCH;
+			} else if (flag == "exhaustive") {
+			    flags |= mset.SNIPPET_EXHAUSTIVE;
+			} else {
+			    throw "Unknown $snippet flag '" + flag + "'";
+			}
+			if (j == string::npos) break;
+			i = j + 1;
+		    }
+		} else {
+		    flags = mset.SNIPPET_BACKGROUND_MODEL |
+			    mset.SNIPPET_EXHAUSTIVE;
+		}
+		string bra, ket, gap;
+		if (args.size() > 3) {
+		    bra = args[3];
+		} else {
+		    bra = "<strong>";
+		}
+		if (args.size() > 4) {
+		    ket = args[4];
+		} else {
+		    ket = "</strong>";
+		}
+		if (args.size() > 5) {
+		    gap = args[5];
+		} else {
+		    gap = "...";
+		}
 		if (!stemmer)
 		    stemmer = new Xapian::Stem(option["stemmer"]);
-		// FIXME: Allow start and end highlight and omit to be specified.
-		value = mset.snippet(args[0], length, *stemmer,
-				     mset.SNIPPET_BACKGROUND_MODEL|mset.SNIPPET_EXHAUSTIVE,
-				     "<strong>", "</strong>", "...");
+		value = mset.snippet(args[0], length, *stemmer, flags,
+				     bra, ket, gap);
 		break;
 	    }
 	    case CMD_sort:
@@ -2211,6 +2287,12 @@ eval(const string &fmt, const vector<string> &param)
 		    value.replace(i, split.size(), 1, '\t');
 		    ++i;
 		}
+		break;
+	    }
+	    case CMD_srandom: {
+		int seed = string_to_int(args[0]);
+		rng.seed(seed);
+		seed_set = true;
 		break;
 	    }
 	    case CMD_stoplist: {

@@ -1377,6 +1377,151 @@ DEFINE_TESTCASE(qp_flag_partial1, writable) {
     return true;
 }
 
+/// Feature test for fuzzy matching.
+DEFINE_TESTCASE(qp_flag_fuzzy1, !backend) {
+    static const struct { const char* q; const char* expect; } testcases[] = {
+	{ "musket~", "EDIT_DISTANCE SYNONYM musket~2" },
+	{ "musket~3", "EDIT_DISTANCE SYNONYM musket~3" },
+	{ "musket~0.5", "EDIT_DISTANCE SYNONYM musket~3" },
+	// Check that fuzzy matching work with +terms.
+	{ "+mail~ basket", "(EDIT_DISTANCE SYNONYM mail~2 AND_MAYBE basket@2)" },
+	{ "foo~ main", "(EDIT_DISTANCE SYNONYM foo~2 OR main@2)" },
+	{ "main foo~", "(main@1 OR EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "main +foo~", "(EDIT_DISTANCE SYNONYM foo~2 AND_MAYBE main@1)" },
+	{ "foo~ +main", "(main@2 AND_MAYBE EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "+main foo~", "(main@1 AND_MAYBE EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "+foo~ +main", "(EDIT_DISTANCE SYNONYM foo~2 AND main@2)" },
+	{ "+main +foo~", "(main@1 AND EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "foo~ mai", "(EDIT_DISTANCE SYNONYM foo~2 OR mai@2)" },
+	{ "mai foo~", "(mai@1 OR EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "+foo~ mai", "(EDIT_DISTANCE SYNONYM foo~2 AND_MAYBE mai@2)" },
+	{ "mai +foo~", "(EDIT_DISTANCE SYNONYM foo~2 AND_MAYBE mai@1)" },
+	{ "foo~ +mai", "(mai@2 AND_MAYBE EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "+mai foo~", "(mai@1 AND_MAYBE EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "+foo~ +mai", "(EDIT_DISTANCE SYNONYM foo~2 AND mai@2)" },
+	{ "+mai +foo~", "(mai@1 AND EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "-foo~ main", "(main@2 AND_NOT EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "main -foo~", "(main@1 AND_NOT EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "main -foo~ -bar", "(main@1 AND_NOT (EDIT_DISTANCE SYNONYM foo~2 OR bar@3))" },
+	{ "main -bar -foo~", "(main@1 AND_NOT (bar@2 OR EDIT_DISTANCE SYNONYM foo~2))" },
+	// Switch default_op to OP_AND.
+	{ NULL, NULL },
+	{ "foo~ main", "(EDIT_DISTANCE SYNONYM foo~2 AND main@2)" },
+	{ "main foo~", "(main@1 AND EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "+foo~ main", "(EDIT_DISTANCE SYNONYM foo~2 AND main@2)" },
+	{ "main +foo~", "(main@1 AND EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "-foo~ main", "(main@2 AND_NOT EDIT_DISTANCE SYNONYM foo~2)" },
+	{ "main -foo~", "(main@1 AND_NOT EDIT_DISTANCE SYNONYM foo~2)" },
+	// Check empty fuzzy followed by negation.
+	{ "xyzzy~ -main", "(EDIT_DISTANCE SYNONYM xyzzy~2 AND_NOT main@2)" },
+	{ "abc muscl~ main", "(abc@1 AND EDIT_DISTANCE SYNONYM muscl~2 AND main@3)" },
+    };
+
+    Xapian::QueryParser qp;
+    unsigned flags = Xapian::QueryParser::FLAG_FUZZY |
+		     Xapian::QueryParser::FLAG_LOVEHATE;
+
+    for (auto&& t : testcases) {
+	if (t.q == NULL) {
+	    qp.set_default_op(Xapian::Query::OP_AND);
+	    continue;
+	}
+	tout << t.q << endl;
+	auto qobj = qp.parse_query(t.q, flags);
+	string expect = "Query(";
+	expect += t.expect;
+	expect += ")";
+	TEST_STRINGS_EQUAL(qobj.get_description(), expect);
+    }
+    return true;
+}
+
+/// Feature test of fuzzy matching with prefixes.
+DEFINE_TESTCASE(qp_flag_fuzzy2, !backend) {
+    static const struct { const char* q; const char* expect; } testcases[] = {
+	{ "author:huxly~", "EDIT_DISTANCE SYNONYM Ahuxly~2 fixed_prefix_len=1" },
+	{ "author:huxly~ test", "(EDIT_DISTANCE SYNONYM Ahuxly~2 fixed_prefix_len=1 OR test@2)" },
+    };
+
+    Xapian::QueryParser qp;
+    qp.add_prefix("author", "A");
+    for (auto&& t : testcases) {
+	tout << t.q << endl;
+	auto qobj = qp.parse_query(t.q, qp.FLAG_FUZZY);
+	string expect = "Query(";
+	expect += t.expect;
+	expect += ")";
+	TEST_STRINGS_EQUAL(qobj.get_description(), expect);
+    }
+    return true;
+}
+
+static void
+test_qp_flag_fuzzy3_helper(const Xapian::Database& db,
+			   Xapian::termcount max_expansion,
+			   const string& query_string)
+{
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+    if (max_expansion == Xapian::termcount(-1)) {
+	tout << "testing fuzzy query '" << query_string << "' with default "
+		"limit (which should be 0)" << endl;
+	max_expansion = 0;
+    } else {
+	tout << "testing fuzzy query '" << query_string << "' with limit "
+	     << max_expansion << endl;
+	qp.set_max_expansion(max_expansion);
+    }
+    Xapian::Enquire e(db);
+    e.set_query(qp.parse_query(query_string, qp.FLAG_FUZZY));
+    e.get_mset(0, 10);
+    if (max_expansion <= 1) return;
+
+    // Test that a limit one lower throws WildcardError.
+    qp.set_max_expansion(max_expansion - 1);
+    e.set_query(qp.parse_query(query_string, qp.FLAG_FUZZY));
+    TEST_EXCEPTION(Xapian::WildcardError, e.get_mset(0, 10));
+}
+
+/// Test fuzzy matching with a limit on expansion.
+DEFINE_TESTCASE(qp_flag_fuzzy3, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.add_term("abc");
+    doc.add_term("main");
+    doc.add_term("marcel");
+    doc.add_term("muscadet");
+    doc.add_term("muscae");
+    doc.add_term("muscat");
+    doc.add_term("muscid");
+    doc.add_term("muscle");
+    doc.add_term("muscly");
+    doc.add_term("musclebound");
+    doc.add_term("muscular");
+    doc.add_term("mutton");
+    doc.add_term("tusche");
+    db.add_document(doc);
+
+    // Test that the default is no limit.
+    test_qp_flag_fuzzy3_helper(db, Xapian::termcount(-1), "zzz~");
+    test_qp_flag_fuzzy3_helper(db, Xapian::termcount(-1), "zzz~4");
+    test_qp_flag_fuzzy3_helper(db, Xapian::termcount(-1), "muscle~");
+
+    // Test that a max of 0 doesn't set a limit.
+    test_qp_flag_fuzzy3_helper(db, 0, "zzz~");
+    test_qp_flag_fuzzy3_helper(db, 0, "zzz~4");
+    test_qp_flag_fuzzy3_helper(db, 0, "muscle~");
+
+    // These cases should expand to the limit given.
+    test_qp_flag_fuzzy3_helper(db, 1, "azz~");
+    test_qp_flag_fuzzy3_helper(db, 1, "bac~.4");
+    test_qp_flag_fuzzy3_helper(db, 6, "muscle~");
+    test_qp_flag_fuzzy3_helper(db, 6, "muscel~");
+    test_qp_flag_fuzzy3_helper(db, 9, "muscel~3");
+
+    return true;
+}
+
 // Tests for document counts for wildcard queries.
 // Regression test for bug fixed in 1.0.0.
 DEFINE_TESTCASE(wildquery1, backend) {

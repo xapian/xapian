@@ -161,41 +161,11 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
-    // If we didn't get the mime type from the extension, call libmagic to get
-    // it.
-    if (mimetype.empty()) {
-	mimetype = d.get_magic_mimetype();
-	if (mimetype.empty()) {
-	    skip(urlterm, file.substr(root.size()), "Unknown extension and unrecognised format",
-		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
-	    return;
-	}
-    }
-
-    if (verbose)
-	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
-	     << mimetype << " ... ";
-
-    Xapian::Document new_doc;
-
-    // Use `file` as the basis, as we don't want URL encoding in these terms,
-    // but need to switch over the initial part so we get `/~olly/foo/bar` not
-    // `/home/olly/public_html/foo/bar`.
     string path_term("P");
     path_term += url_start_path;
     path_term.append(file, root.size(), string::npos);
 
-    size_t i;
-    while ((i = path_term.rfind('/')) > 1 && i != string::npos) {
-	path_term.resize(i);
-	if (path_term.length() > MAX_SAFE_TERM_LENGTH) {
-	    new_doc.add_boolean_term(hash_long_term(path_term, MAX_SAFE_TERM_LENGTH));
-	} else {
-	    new_doc.add_boolean_term(path_term);
-	}
-    }
-
-    index_mimetype(file, urlterm, url, ext, mimetype, d, new_doc, string());
+    index_mimetype(file, urlterm, url, ext, mimetype, d, path_term, string());
 }
 
 static void
@@ -337,10 +307,23 @@ parse_filter_rule(const char* rule, map<string, string>& mime_map)
     }
 
     const char* cmd = s + 1;
+    unsigned flags = 0;
+    if (cmd[0] == '|') {
+	flags |= Filter::PIPE_IN;
+	++cmd;
+	// FIXME: Do we need a way to set PIPE_DEV_STDIN and SEEK_DEV_STDIN?
+	//
+	// PIPE_DEV_STDIN doesn't seem to offer much over |foo2txt /dev/stdin
+	// for user-specified filters (internally it provides a way to
+	// gracefully handle platforms without /dev/stdin).
+	//
+	// SEEK_DEV_STDIN isn't currently easily approximated though.
+    }
     // Analyse the command string to decide if it needs a shell.
-    bool use_shell = command_needs_shell(cmd);
+    if (command_needs_shell(cmd))
+	flags |= Filter::USE_SHELL;
     index_command(string(rule, c - rule),
-		  Filter(string(cmd), output_type, output_charset, use_shell));
+		  Filter(string(cmd), output_type, output_charset, flags));
 
     return true;
 }
@@ -454,7 +437,7 @@ main(int argc, char **argv)
 "                            in a temporary file) with format T (Content-Type\n"
 "                            or file extension; currently txt (default), html\n"
 "                            or svg) in character encoding C (default: UTF-8).\n"
-"                            E.g. -Fapplication/octet-stream:'strings -n8'\n"
+"                            E.g. -Fapplication/octet-stream:'|strings -n8'\n"
 "                            or -Ftext/x-foo,,utf-16:'foo2utf16 %f %t'\n"
 "      --read-filters=FILE   bulk-load --filter arguments from FILE, which\n"
 "                            should contain one such argument per line (e.g.\n"

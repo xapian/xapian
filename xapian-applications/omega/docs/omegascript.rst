@@ -217,7 +217,7 @@ $find{LIST,STRING}
         ``STRING`` (starting from 0) or the empty string if no entry matches.
 
 $fmt
-	name of current format (as set by CGI parameter``FMT``, or the default)
+	name of current format (as set by CGI parameter ``FMT``, or the default)
 
 $freq{term}
 	frequency of a term
@@ -244,8 +244,10 @@ $hit
 	MSet index of current doc (first document in MSet is 0, so if
 	you want to number the hits 1, 2, 3, ... use ``$add{$hit,1}``).
 
-$hitlist{FMT}
-	display hitlist using format ``FMT``.
+$hitlist{STUFF}
+        evaluate ``STUFF`` once for each match in the result list.  During
+        each evaluation ``$field``, ``$id``, ``$percentage``, ``$score``,
+        ``$terms``, ``$weight``, etc will report values for the current hit.
 
 $hitsperpage
 	hits per page (as set by ``HITSPERPAGE``, or the default)
@@ -447,6 +449,9 @@ $queryterms
 $range{START,END}
 	return list of values between ``START`` and ``END``.
 
+$random{HIGH}
+	return a random value in the range [0, ``HIGH``].
+
 $record[{ID}]
 	raw record contents of document ``ID``.
 
@@ -537,6 +542,7 @@ $set{OPT,VALUE}
 	* flag_cjk_ngram (new in 1.2.22 and 1.3.4)
 	* flag_cjk_words (new in 1.5.0)
 	* flag_default
+	* flag_fuzzy (new in 1.5.0)
 	* flag_lovehate
 	* flag_partial
 	* flag_phrase
@@ -612,13 +618,13 @@ $setmap{MAP,NAME1,VALUE1,...}
 	prefixes which are non-exclusive, i.e. multiple filters of that
 	type should be combined with ``OP_AND`` rather than ``OP_OR``.
 	For example, if you have have a boolean filter on "material" using
-	the ``XM``` prefix, and the items being searched are made of multiple
+	the ``XM`` prefix, and the items being searched are made of multiple
 	materials, you likely want multiple material filters to restrict to
 	items matching all the materials (the default it to restrict to any
 	of the materials).  To specify this use
 	``$setmap{nonexclusiveprefix,XM,true}`` (any non-empty value can
 	be used in place of ``true``) - this feature affect both filters
-	from ``B`` CGI parameters (e.g. ``B=XMglass&B=XMwood``` and those
+	from ``B`` CGI parameters (e.g. ``B=XMglass&B=XMwood`` and those
 	from parsing the query (e.g. ``material:glass material:wood`` if
 	``$setmap{boolprefix,material,XM}`` is also in effect).
 
@@ -642,10 +648,24 @@ $slice{LIST,POSITIONS}
 	 "$slice{LIST,$range{1,3}}" = "b	c	d"
 	 "$slice{LIST,$range{-10,10}}" = "a	b	c	d"
 
-$snippet{TEXT[,LENGTH]}
-        Generate a context-sensitive snippet from ``TEXT`` using
-        ``Xapian::MSet::snippet()``.  The snippet will be at most
-        ``LENGTH`` bytes long (default: 200).
+$snippet{TEXT[,LENGTH[,FLAGS[,BRA[,KET[,GAP]]]]]}
+        Generate a context-sensitive snippet from ``TEXT`` using the C++ API
+        ``Xapian::MSet::snippet()`` suitable for inserting into an HTML or XML
+        document.
+
+        The snippet will be at most ``LENGTH`` bytes long (default: 200 if not
+        specified or ``LENGTH`` is an empty string).  ``BRA`` and ``KET`` are
+        added around matching terms in the sample (defaults: ``<strong>`` and
+        ``</strong>``) and ``GAP`` is used to mark omitted parts of ``TEXT``
+        (default: ``...``).
+
+        ``FLAGS`` contains zero or more of the flags that are supported by the
+        C++ API separated by ``|`` - here they are specified as
+        case-insensitive strings, and the leading ``SNIPPET_`` is optional.
+
+        For example::
+
+        $snippet{$field{sample},,background_model|empty_without_match,<b>,</b>}
 
 $sort{LIST[,OPTIONS]}
         sort the entries in a list.  The sort order is an ascending string sort
@@ -681,6 +701,9 @@ $split{SPLIT,STRING}
 	For example::
 
 	 "$split{one two three}" = "one	two	three"
+
+$srandom{SEED}
+	``SEED`` specifies a seed for random number generation.
 
 $stoplist
 	returns a list of any terms in the query which were ignored as

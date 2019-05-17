@@ -98,12 +98,22 @@ lower
 	lowercase the text (useful for generating boolean terms)
 
 parsedate=FORMAT
-        parse the text as a date string using ``strptime()`` with the format
-        specified by ``FORMAT``, and set the text to the result as a Unix
-        ``time_t`` (seconds since 1970), which can then be fed into ``date``
-        or ``valuepacked``, for example::
+        parse the text as a date string using ``strptime()`` (or C++11's
+        ``std::get_time()`` on platforms without ``strptime()``) with the
+        format specified by ``FORMAT``, and set the text to the result as a
+        Unix ``time_t`` (seconds since the start of 1970 in UTC), which can
+        then be fed into ``date`` or ``valuepacked``, for example::
 
          last_update : parsedate="%Y%m%d %T" field=lastmod valuepacked=0
+
+        Format strings containing ``%Z`` are rejected with an error, as it
+        seems that ``strptime()`` implementations don't properly support this
+        (glibc's just accepts any sequence of non-whitespace and ignores it).
+
+        Format strings containing ``%z`` are only supported on platforms
+        where ``struct tm`` has a ``tm_gmtoff`` member, which is needed to
+        correctly apply the timezone offset.  On other platforms ``%z`` is
+        also rejected with an error.
 
         ``parsedate`` was added in Omega 1.4.6.
 

@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -351,10 +351,31 @@ class RemoteConnection {
 
     /** Shutdown the connection.
      *
-     *  @param wait	If true, wait for the remote end to close the
-     *			connection before returning.
+     *  Sends a shutdown message to the server and waits for it to close its
+     *  end of the connection.
      */
-    void do_close(bool wait);
+    void shutdown();
+
+    /** Close the connection. */
+    void do_close();
+};
+
+/** RemoteConnection which owns its own fd(s).
+ *
+ *  The object takes ownership of the fd(s) for the connection and will close
+ *  them when it is destroyed.
+ */
+class OwnedRemoteConnection : public RemoteConnection {
+  public:
+    /// Constructor.
+    OwnedRemoteConnection(int fdin_, int fdout_,
+			  const std::string& context_ = std::string())
+	: RemoteConnection(fdin_, fdout_, context_) { }
+
+    /// Destructor.
+    ~OwnedRemoteConnection() {
+	do_close();
+    }
 };
 
 #endif // XAPIAN_INCLUDED_REMOTECONNECTION_H

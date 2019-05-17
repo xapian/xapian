@@ -2003,3 +2003,28 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 
     return true;
 }
+
+/** Regression test for protocol design bug.
+ *
+ *  Previously some messages didn't send a reply but could result in an
+ *  exception being sent over the link.  That exception would then get
+ *  read as a response to the next message instead of its actual response
+ *  so we'd be out of step.
+ *
+ *  This also affected MSG_DELETEDOCUMENTTERM, MSG_CANCEL, MSG_SETMETADATA
+ *  and MSG_ADDSPELLING but it's harder to reliably trigger an exception
+ *  from any of those.
+ *
+ *  See #783.  Fixed in 1.4.12.
+ */
+DEFINE_TESTCASE(protocolbug1, remote && writable) {
+    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::Document doc;
+    doc.add_term(string(300, 'x'));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   db.replace_document(1, doc));
+    db.commit();
+
+    return true;
+}

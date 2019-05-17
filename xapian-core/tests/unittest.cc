@@ -1,7 +1,7 @@
 /** @file unittest.cc
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <utility>
 
 #include "safeunistd.h"
@@ -78,6 +79,7 @@ using namespace std;
 #include "../common/errno_to_string.cc"
 #include "../common/fileutils.cc"
 #include "../common/overflow.h"
+#include "../common/parseint.h"
 #include "../common/serialise-double.cc"
 #include "../common/str.cc"
 #include "../backends/uuids.cc"
@@ -523,6 +525,23 @@ static bool test_sortableserialise1()
     return true;
 }
 
+template<typename S>
+inline static void tostring_helper() {
+    const S max_val = numeric_limits<S>::max();
+    const S min_val = numeric_limits<S>::min();
+    tout << "Testing with tostring_helper" << endl;
+    std::ostringstream oss;
+    oss << (long long)max_val;
+    TEST_EQUAL(str(max_val), oss.str());
+    oss.str("");
+    oss.clear();
+
+    oss << (long long)min_val;
+    TEST_EQUAL(str(min_val), oss.str());
+    oss.str("");
+    oss.clear();
+}
+
 static bool test_tostring1()
 {
     TEST_EQUAL(str(0), "0");
@@ -536,10 +555,19 @@ static bool test_tostring1()
     TEST_EQUAL(str(-1), "-1");
     TEST_EQUAL(str(-9), "-9");
     TEST_EQUAL(str(-10), "-10");
+    TEST_EQUAL(str(0x7f), "127");
+    TEST_EQUAL(str(-0x80), "-128");
+    TEST_EQUAL(str(0x7fff), "32767");
     TEST_EQUAL(str(0xffffffff), "4294967295");
     TEST_EQUAL(str(0x7fffffff), "2147483647");
     TEST_EQUAL(str(0x7fffffffu), "2147483647");
     TEST_EQUAL(str(-0x7fffffff), "-2147483647");
+
+    tostring_helper<char>();
+    tostring_helper<short>();
+    tostring_helper<int>();
+    tostring_helper<long>();
+    tostring_helper<long long>();
 
 #ifdef __WIN32__
     /* Test the 64 bit integer conversion to string.
@@ -822,6 +850,78 @@ static bool test_muloverflows1()
     return true;
 }
 
+template<typename U>
+inline static void parseunsigned_helper() {
+    U val;
+    const U max_val = numeric_limits<U>::max();
+    tout << "Testing with parseunsigned_helper" << endl;
+    TEST(parse_unsigned("0", val));
+    TEST_EQUAL(val, 0);
+    TEST(parse_unsigned("99", val));
+    TEST_EQUAL(val, 99);
+    TEST(parse_unsigned(str(max_val).c_str(), val));
+    TEST_EQUAL(val, max_val);
+    TEST(!parse_unsigned("", val));
+    TEST(!parse_unsigned("-1", val));
+    TEST(!parse_unsigned("abc", val));
+    TEST(!parse_unsigned("0a", val));
+    // Only test if we can construct a value one larger easily.
+    if (max_val + 1ull != 0)
+	TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
+}
+
+static bool test_parseunsigned1()
+{
+    parseunsigned_helper<unsigned char>();
+    parseunsigned_helper<unsigned short>();
+    parseunsigned_helper<unsigned>();
+    parseunsigned_helper<unsigned long>();
+    parseunsigned_helper<unsigned long long>();
+
+    return true;
+}
+
+template<typename S>
+inline static void parsesigned_helper() {
+    S val;
+    const S max_val = numeric_limits<S>::max();
+    const S min_val = numeric_limits<S>::min();
+    tout << "Testing with parsesigned_helper" << endl;
+    TEST(parse_signed("0", val));
+    TEST_EQUAL(val, 0);
+    TEST(parse_signed("99", val));
+    TEST_EQUAL(val, 99);
+    TEST(parse_signed("-99", val));
+    TEST_EQUAL(val, -99);
+    TEST(parse_signed(str(max_val).c_str(), val));
+    TEST_EQUAL(val, max_val);
+    TEST(parse_signed(str(min_val).c_str(), val));
+    TEST_EQUAL(val, min_val);
+    TEST(!parse_signed("", val));
+    TEST(!parse_signed("abc", val));
+    TEST(!parse_signed("0a", val));
+    TEST(!parse_signed("-99a", val));
+    TEST(!parse_signed("-a99", val));
+    TEST(!parse_signed("--99", val));
+
+    unsigned long long one_too_large = max_val + 1ull;
+    TEST(!parse_signed(str(one_too_large).c_str(), val));
+
+    unsigned long long one_too_small_negated = 1ull - min_val;
+    TEST(!parse_signed(("-" + str(one_too_small_negated)).c_str(), val));
+}
+
+static bool test_parsesigned1()
+{
+    parsesigned_helper<signed char>();
+    parsesigned_helper<short>();
+    parsesigned_helper<int>();
+    parsesigned_helper<long>();
+    parsesigned_helper<long long>();
+
+    return true;
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -842,6 +942,8 @@ static const test_desc tests[] = {
     TESTCASE(movesupport1),
     TESTCASE(addoverflows1),
     TESTCASE(muloverflows1),
+    TESTCASE(parseunsigned1),
+    TESTCASE(parsesigned1),
     END_OF_TESTCASES
 };
 

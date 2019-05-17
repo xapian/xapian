@@ -21,15 +21,19 @@
 
 #include <config.h>
 
+#include "strptime.h"
+
 #include <ctime>
 #include <iomanip>
 #include <sstream>
 
 char*
-strptime(const char* date_string, const char* format, struct std::tm* tm)
+strptime_using_std_get_time(const char* date_string,
+			    const char* format,
+			    struct std::tm* tm)
 {
     std::istringstream s(date_string);
     s >> std::get_time(tm, format);
     if (s.fail()) return NULL;
-    return date_string + s.tellg();
+    return const_cast<char*>(date_string + s.tellg());
 }

@@ -766,3 +766,62 @@ DEFINE_TESTCASE(postingsourceclone1, !backend)
 
     return true;
 }
+
+class OnlyTheFirstPostingSource : public Xapian::PostingSource {
+    Xapian::doccount last_docid;
+
+    Xapian::docid did;
+
+  public:
+    OnlyTheFirstPostingSource() {}
+
+    PostingSource * clone() const { return new OnlyTheFirstPostingSource(); }
+
+    void init(const Xapian::Database& db, Xapian::doccount shard_index) {
+	did = 0;
+	if (shard_index == 0) {
+	    last_docid = db.get_lastdocid();
+	} else {
+	    last_docid = 0;
+	}
+    }
+
+    Xapian::doccount get_termfreq_min() const { return 0; }
+
+    Xapian::doccount get_termfreq_est() const { return last_docid / 2; }
+
+    Xapian::doccount get_termfreq_max() const { return last_docid; }
+
+    void next(double wt) {
+	(void)wt;
+	++did;
+	if (did > last_docid) did = 0;
+    }
+
+    void skip_to(Xapian::docid to_did, double wt) {
+	(void)wt;
+	did = to_did;
+	if (did > last_docid) did = 0;
+    }
+
+    bool at_end() const {
+	return did == 0;
+    }
+
+    Xapian::docid get_docid() const { return did; }
+
+    string get_description() const { return "OnlyTheFirstPostingSource"; }
+};
+
+DEFINE_TESTCASE(postingsourceshardindex1, multi) {
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    Xapian::Enquire enquire(db);
+    auto ps = new OnlyTheFirstPostingSource;
+    enquire.set_query(Xapian::Query(ps->release()));
+
+    Xapian::MSet mset = enquire.get_mset(0, 10);
+    mset_expect_order(mset, 1, 3, 5);
+
+    return true;
+}

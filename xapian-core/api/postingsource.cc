@@ -1,7 +1,7 @@
 /** @file postingsource.cc
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2015,2016,2017 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2015,2016,2017,2019 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -106,6 +106,17 @@ PostingSource::unserialise_with_registry(const std::string &s,
 					 const Registry &) const
 {
     return unserialise(s);
+}
+
+void
+PostingSource::init(const Database& db, Xapian::doccount)
+{
+    init(db);
+}
+
+void
+PostingSource::init(const Database&)
+{
 }
 
 string

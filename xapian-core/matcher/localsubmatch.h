@@ -1,7 +1,7 @@
 /** @file localsubmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -55,6 +55,9 @@ class LocalSubMatch {
     /// Weight object (used as a factory by calling create on it).
     const Xapian::Weight& wt_factory;
 
+    /// 0-based index for the subdatabase.
+    Xapian::doccount shard_index;
+
     /// Do any of the subdatabases have positional information?
     bool full_db_has_positions;
 
@@ -64,9 +67,11 @@ class LocalSubMatch {
 		  const Xapian::Query& query_,
 		  Xapian::termcount qlen_,
 		  const Xapian::Weight& wt_factory_,
+		  Xapian::doccount shard_index_,
 		  bool full_db_has_positions_)
 	: total_stats(NULL), query(query_), qlen(qlen_), db(db_),
 	  wt_factory(wt_factory_),
+	  shard_index(shard_index_),
 	  full_db_has_positions(full_db_has_positions_)
     {}
 

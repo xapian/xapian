@@ -139,7 +139,6 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	}
 
 	if (received == 0) {
-	    do_close(false);
 	    return false;
 	}
 
@@ -166,7 +165,6 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	}
 
 	if (received == 0) {
-	    do_close(false);
 	    return false;
 	}
 
@@ -688,51 +686,57 @@ RemoteConnection::receive_file(const string &file, double end_time)
 }
 
 void
-RemoteConnection::do_close(bool wait)
+RemoteConnection::shutdown()
 {
-    LOGCALL_VOID(REMOTE, "RemoteConnection::do_close", wait);
+    LOGCALL_VOID(REMOTE, "RemoteConnection::shutdown", NO_ARGS);
 
-    if (fdin >= 0) {
-	if (wait) {
-	    // We can be called from a destructor, so we can't throw an
-	    // exception.
-	    try {
-		send_message(MSG_SHUTDOWN, string(), 0.0);
+    if (fdin < 0) return;
+
+    // We can be called from a destructor, so we can't throw an exception.
+    try {
+	send_message(MSG_SHUTDOWN, string(), 0.0);
 #ifdef __WIN32__
-		HANDLE hin = fd_to_handle(fdin);
-		char dummy;
-		DWORD received;
-		BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
-		if (!ok && GetLastError() == ERROR_IO_PENDING) {
-		    // Wait for asynchronous read to complete.
-		    (void)WaitForSingleObject(overlapped.hEvent, INFINITE);
-		}
+	HANDLE hin = fd_to_handle(fdin);
+	char dummy;
+	DWORD received;
+	BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
+	if (!ok && GetLastError() == ERROR_IO_PENDING) {
+	    // Wait for asynchronous read to complete.
+	    (void)WaitForSingleObject(overlapped.hEvent, INFINITE);
+	}
 #else
-		// Wait for the connection to be closed - when this happens
-		// poll()/select() will report that a read won't block.
+	// Wait for the connection to be closed - when this happens
+	// poll()/select() will report that a read won't block.
 # ifdef HAVE_POLL
-		struct pollfd fds;
-		fds.fd = fdin;
-		fds.events = POLLIN;
-		int res;
-		do {
-		    res = poll(&fds, 1, -1);
-		} while (res < 0 && (errno == EINTR || errno == EAGAIN));
+	struct pollfd fds;
+	fds.fd = fdin;
+	fds.events = POLLIN;
+	int res;
+	do {
+	    res = poll(&fds, 1, -1);
+	} while (res < 0 && (errno == EINTR || errno == EAGAIN));
 # else
-		if (fdin < FD_SETSIZE) {
-		    fd_set fdset;
-		    FD_ZERO(&fdset);
-		    FD_SET(fdin, &fdset);
-		    int res;
-		    do {
-			res = select(fdin + 1, &fdset, 0, 0, NULL);
-		    } while (res < 0 && (errno == EINTR || errno == EAGAIN));
-		}
+	if (fdin < FD_SETSIZE) {
+	    fd_set fdset;
+	    FD_ZERO(&fdset);
+	    FD_SET(fdin, &fdset);
+	    int res;
+	    do {
+		res = select(fdin + 1, &fdset, 0, 0, NULL);
+	    } while (res < 0 && (errno == EINTR || errno == EAGAIN));
+	}
 # endif
 #endif
-	    } catch (...) {
-	    }
-	}
+    } catch (...) {
+    }
+}
+
+void
+RemoteConnection::do_close()
+{
+    LOGCALL_VOID(REMOTE, "RemoteConnection::do_close", NO_ARGS);
+
+    if (fdin >= 0) {
 	close_fd_or_socket(fdin);
 
 	// If the same fd is used in both directions, don't close it twice.

@@ -527,18 +527,17 @@ AC_CHECK_FUNCS([getrusage times sysconf])
 dnl Used by tests/harness/unixcmd.cc
 AC_CHECK_FUNCS([nftw])
 
-dnl Used by tests/api_replicate.cc.
+dnl POSIX requires setenv().  The final Unix-like platform without it seems
+dnl to have been Solaris 9, which is now out of support.
 dnl
-dnl Solaris < 10 only has putenv().
-dnl
-dnl Microsoft have marked putenv() as deprecated, so we use _putenv_s() under
-dnl MSVC to avoid deprecation warnings.  We probe here since mingw doesn't
-dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
-dnl on __WIN32__ being defined.  We need to check for a declaration rather
-dnl than just seeing if the symbol exists, as the symbol will exist in the C
-dnl runtime DLL even if mingw doesn't declare it in its headers.
-AC_CHECK_FUNCS([setenv])
-AC_CHECK_DECLS([_putenv_s(const char *,const char *)], [], [],
+dnl Microsoft don't provide setenv() and have marked putenv() as deprecated, so
+dnl we use _putenv_s() to avoid deprecation warnings with MSVC.  It's also a
+dnl more similar interface to setenv() so easier to implement a setenv() wrapper
+dnl around.  We probe for both the function and a declaration since mingw
+dnl doesn't currently (v3.20) declare it but it is present in the C runtime DLL
+dnl so we can provide our own declaration to access it.
+AC_CHECK_FUNCS([setenv _putenv_s])
+AC_CHECK_DECLS([_putenv_s(const char*, const char*)], [], [],
 [#include <stdlib.h>])
 
 dnl See if we have closefrom(), or some functions that are useful to implement

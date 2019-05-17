@@ -371,24 +371,36 @@ encoding that the output will be in; in earlier versions, plain text output had
 to be UTF-8).  Support for SVG output from external commands was added in
 1.4.8.
 
-As of 1.3.3, the command can include certain placeholders which are substituted
-by omindex:
+If you need to use a literal ``%`` in the command string, it needs to be
+written as ``%%`` (since 1.3.3).
 
-* Any ``%f`` in this command will be replaced with the filename of the file to
-  extract (suitably escaped to protect it from the shell, so don't put quotes
-  around ``%f``).
+This command can take input in the following ways:
 
-  If you don't include ``%f`` in the command, then the filename of the file to
-  be extracted will be appended to the command, separated by a space.
+* (Since 1.5.0): If the command string has a ``|`` prefix, then the input file
+  will be fed to the command on ``stdin``.  This is slightly more efficient as
+  it often avoids having to open the input file an extra time (omindex needs to
+  open the input file so it can calculate a checksum of the contents for
+  duplicate detection, and also may need to use libmagic to find the file's
+  MIME Content-Type).  In the future it will probably also allow extracting
+  text from documents attached to emails, in ZIP files, etc without having to
+  write them to a temporary file to run the filter on them.
 
-* Any ``%t`` in this command will be replaced with a filename in a temporary
-  directory (suitably escaped to protect it from the shell, so don't put
-  quotes around ``%t``).  The extension of this filename will reflect the
-  expected output format (either ``.html``, ``.svg`` or ``.txt``).  If you
-  don't use ``%t`` in the command, then omindex will expect output on
+* (Since 1.3.3): Any ``%f`` placeholder in the command string will be replaced
+  with the filename of the file to extract (suitably escaped to protect it from
+  the shell, so don't put quotes around ``%f``).
+
+* If neither are present (and always in versions before 1.3.3) the filename is
+  appended to the command (suitably escaped to protect it from the shell).
+
+Output from the command can be handled in the following ways:
+
+* (Since 1.3.3): Any ``%t`` in this command will be replaced with a filename in
+  a temporary directory (suitably escaped to protect it from the shell, so
+  don't put quotes around ``%t``).  The extension of this filename will reflect
+  the expected output format (either ``.html``, ``.svg`` or ``.txt``).
+
+* If you don't use ``%t`` in the command, then omindex will expect output on
   ``stdout`` (prior to 1.3.3, output had to be on ``stdout``).
-
-* ``%%`` can be used should you need a literal ``%`` in the command.
 
 For example, if you'd prefer to use Abiword to extract text from word documents
 (by default, omindex uses antiword), then you can pass the option
@@ -396,8 +408,10 @@ For example, if you'd prefer to use Abiword to extract text from word documents
 omindex.
 
 Another example - if you wanted to handle files of MIME type
-``application/octet-stream`` by running them through ``strings -n8``, you can
-pass the option ``--filter=application/octet-stream:'strings -n8'``.
+``application/octet-stream`` by piping them into ``strings -n8``, you can
+pass the option ``--filter=application/octet-stream:'|strings -n8'`` (since
+``strings`` reads from ``stdin`` if no filename is specified, at least in
+the GNU binutils implementation).
 
 A more complex example: to process ``.foo`` files with the (fictional)
 ``foo2utf16`` utility which produces UTF-16 text but doesn't support writing
