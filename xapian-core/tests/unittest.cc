@@ -868,7 +868,7 @@ inline static void parsesigned_helper() {
     unsigned long long one_too_large = max_val + 1ull;
     TEST(!parse_signed(str(one_too_large).c_str(), val));
 
-    unsigned long long one_too_small_negated = -min_val + 1ull;
+    unsigned long long one_too_small_negated = 1ull - min_val;
     TEST(!parse_signed(("-" + str(one_too_small_negated)).c_str(), val));
 }
 
