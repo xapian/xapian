@@ -94,7 +94,7 @@ CollTfCollLenFeature::get_values() const
     }
     values.push_back(value);
     value = 0;
-    coll_len_iterator = collection_length.find("body");
+    coll_len_iterator = collection_length.find("whole");
     if (coll_len_iterator != collection_length.end())
 	coll_len = (double)coll_len_iterator->second;
     else
