@@ -32,21 +32,21 @@ Anatomy
 
 When first constructed, a PostingSource is not tied to a particular database.
 Before Xapian can get any postings (or statistics) from the source, it needs to
-be supplied with a database.  This is performed by the init() method, which is
+be supplied with a database.  This is performed by the reset() method, which is
 passed the database to use and an index (0-based) indicating which shard it is.
 This method will always be called before asking for any information about the
 postings in the list.  If a posting source is used for multiple searches, the
-init() method will be called before each search; implementations must cope with
-init() being called multiple times, and should always use the database provided
-in the most recent call::
+reset() method will be called before each search; implementations must cope
+with reset() being called multiple times, and should always use the database
+provided in the most recent call::
 
-    virtual void init(const Xapian::Database& db,
-                      Xapian::docccount shard_index) = 0;
+    virtual void reset(const Xapian::Database& db,
+                       Xapian::docccount shard_index) = 0;
 
-Prior to Xapian 1.5.0, init() only took the ``db`` parameter.  There's
-currently compatibility support for user PostingSource subclasses which
-override the single parameter form, but you should only override the
-two parameter form in new code.
+Prior to Xapian 1.5.0, instead of reset() there was an init() method which only
+took the ``db`` parameter.  There's currently compatibility support for user
+PostingSource subclasses which override init(), but you should override reset()
+instead in new code.
 
 Three methods return statistics independent of the iteration position.
 These are upper and lower bounds for the number of documents which can
@@ -85,7 +85,7 @@ then you can set ``DBL_MAX``::
     void get_maxweight(double max_weight);
 
 This method specifies an upper bound on what ``get_weight()`` will return *from
-now on* (until the next call to ``init()``).  So if you know that the upper
+now on* (until the next call to ``reset()``).  So if you know that the upper
 bound has decreased, you should call ``set_maxweight()`` with the new reduced
 bound.
 
@@ -201,7 +201,7 @@ the semantics we need to implement here)::
 	    self.db = db
 	    self.wtsource = wtsource
 
-	def init(self, db):
+	def reset(self, db, shard_index):
 	    self.alldocs = db.postlist('')
 
 	def get_termfreq_min(self): return 0

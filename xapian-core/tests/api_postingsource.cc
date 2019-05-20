@@ -777,7 +777,7 @@ class OnlyTheFirstPostingSource : public Xapian::PostingSource {
 
     PostingSource * clone() const { return new OnlyTheFirstPostingSource(); }
 
-    void init(const Xapian::Database& db, Xapian::doccount shard_index) {
+    void reset(const Xapian::Database& db, Xapian::doccount shard_index) {
 	did = 0;
 	if (shard_index == 0) {
 	    last_docid = db.get_lastdocid();

@@ -80,7 +80,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
 
     /** A lower bound on the number of documents this object can return.
      *
-     *  Xapian will always call init() on a PostingSource before calling this
+     *  Xapian will always call reset() on a PostingSource before calling this
      *  for the first time.
      */
     virtual Xapian::doccount get_termfreq_min() const = 0;
@@ -91,14 +91,14 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *
      *  get_termfreq_min() <= get_termfreq_est() <= get_termfreq_max()
      *
-     *  Xapian will always call init() on a PostingSource before calling this
+     *  Xapian will always call reset() on a PostingSource before calling this
      *  for the first time.
      */
     virtual Xapian::doccount get_termfreq_est() const = 0;
 
     /** An upper bound on the number of documents this object can return.
      *
-     *  Xapian will always call init() on a PostingSource before calling this
+     *  Xapian will always call reset() on a PostingSource before calling this
      *  for the first time.
      */
     virtual Xapian::doccount get_termfreq_max() const = 0;
@@ -109,7 +109,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  optimisations, so if you can return a good bound, then matches
      *  will generally run faster.
      *
-     *  This method should be called after calling init(), and may be called
+     *  This method should be called after calling reset(), and may be called
      *  during iteration if the upper bound drops.  It is probably only useful
      *  to call from subclasses (it was actually a "protected" method prior to
      *  Xapian 1.3.4, but that makes it tricky to wrap for other languages).
@@ -117,8 +117,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  It is valid for the posting source to have returned a higher value from
      *  get_weight() earlier in the iteration, but the posting source must not
      *  return a higher value from get_weight() than the currently set upper
-     *  bound, and the upper bound must not be increased (until init() has been
-     *  called).
+     *  bound, and the upper bound must not be increased (until reset() has
+     *  been called).
      *
      *  If you don't call this method, the upper bound will default to 0, for
      *  convenience when implementing "weight-less" PostingSource subclasses.
@@ -136,7 +136,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  implementing "weight-less" PostingSource subclasses.
      *
      *  This method may assume that it will only be called when there is a
-     *  "current document".  In detail: Xapian will always call init() on a
+     *  "current document".  In detail: Xapian will always call reset() on a
      *  PostingSource before calling this for the first time.  It will also
      *  only call this if the PostingSource reports that it is pointing to a
      *  valid document (ie, it will not call it before calling at least one of
@@ -152,7 +152,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *
      *  Note: in the case of a multi-database search, the returned docid should
      *  be in the single subdatabase relevant to this posting source.  See the
-     *  @a init() method for details.
+     *  @a reset() method for details.
      */
     virtual Xapian::docid get_docid() const = 0;
 
@@ -162,7 +162,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  skip_to() or check() must be called before any methods which need the
      *  context of the current position.
      *
-     *  Xapian will always call init() on a PostingSource before calling this
+     *  Xapian will always call reset() on a PostingSource before calling this
      *  for the first time.
      *
      *  @param min_wt	The minimum weight contribution that is needed (this is
@@ -186,12 +186,12 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  The default implementation calls next() repeatedly, which works but
      *  skip_to() can often be implemented much more efficiently.
      *
-     *  Xapian will always call init() on a PostingSource before calling this
+     *  Xapian will always call reset() on a PostingSource before calling this
      *  for the first time.
      *
      *  Note: in the case of a multi-database search, the docid specified is
      *  the docid in the single subdatabase relevant to this posting source.
-     *  See the @a init() method for details.
+     *  See the @a reset() method for details.
      *
      *  @param did	The document id to advance to.
      *  @param min_wt	The minimum weight contribution that is needed (this is
@@ -223,12 +223,12 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *
      *  The default implementation calls skip_to() and always returns true.
      *
-     *  Xapian will always call init() on a PostingSource before calling this
+     *  Xapian will always call reset() on a PostingSource before calling this
      *  for the first time.
      *
      *  Note: in the case of a multi-database search, the docid specified is
      *  the docid in the single subdatabase relevant to this posting source.
-     *  See the @a init() method for details.
+     *  See the @a reset() method for details.
      *
      *  @param did	The document id to check.
      *  @param min_wt	The minimum weight contribution that is needed (this is
@@ -248,7 +248,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  The clone should inherit the configuration of the parent, but need not
      *  inherit the state.  ie, the clone does not need to be in the same
      *  iteration position as the original: the matcher will always call
-     *  init() on the clone before attempting to move the iterator, or read
+     *  reset() on the clone before attempting to move the iterator, or read
      *  the information about the current position of the iterator.
      *
      *  This may return NULL to indicate that cloning is not supported.  In
@@ -337,7 +337,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  This is called automatically by the matcher prior to each query being
      *  processed.
      *
-     *  If a PostingSource is used for multiple searches, @a init() will
+     *  If a PostingSource is used for multiple searches, @a reset() will
      *  therefore be called multiple times, and must handle this by using the
      *  database passed in the most recent call.
      *
@@ -355,23 +355,26 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  to, or returned from, the PostingSource refer to docids in that single
      *  database, rather than in the multi-database.
      *
-     *  A default implementation is provided which calls the single-argument
-     *  to allow existing subclasses to continue to work.  You are likely to
-     *  need to override either this method or the single argument form.  In
-     *  new code, override this method in preference.
+     *  A default implementation is provided which calls the older init()
+     *  method to allow existing subclasses to continue to work, but the
+     *  default implementation of init() throws Xapian::InvalidOperationError
+     *  so you must override either this method or init().  In new code,
+     *  override this method in preference.
      *
-     *  @since The two-argument form of init() was added in Xapian 1.5.0.
+     *  @since Added in Xapian 1.5.0.
      */
-    virtual void init(const Database& db, Xapian::doccount shard_index);
+    virtual void reset(const Database& db, Xapian::doccount shard_index);
 
-    /** Compatibility version of init().
+    /** Older method which did the same job as reset().
      *
-     *  Prior to 1.5.0, init() only took one parameter.  The default
-     *  implementation of the newer two-argument form will call this form
-     *  to allow existing subclasses to continue to work.
+     *  Prior to 1.5.0, instead of reset() there was a method called init()
+     *  taking one parameter.  The default implementation of reset() calls
+     *  init() to allow existing subclasses to continue to work.
      *
-     *  A default implementation is provided which does nothing, so that
-     *  new subclasses can just override the two-argument form.
+     *  A default implementation of init() is provided so that new subclasses
+     *  can just override reset() (the default implementation should not
+     *  actually get called, and will throw Xapian::InvalidOperationError if
+     *  it is).
      */
     virtual void init(const Database& db);
 
