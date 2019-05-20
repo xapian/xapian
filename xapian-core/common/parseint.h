@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_PARSEINT_H
 
 #include "overflow.h"
+#include <limits>
 
 template<typename T>
 bool parse_unsigned(const char* p, T& res)
