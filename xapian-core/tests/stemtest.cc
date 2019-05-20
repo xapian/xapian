@@ -30,6 +30,7 @@
 #include <iostream>
 
 #include <xapian.h>
+#include "parseint.h"
 #include "testsuite.h"
 
 using namespace std;
@@ -188,7 +189,11 @@ try {
     srcdir = test_driver::get_srcdir();
     int result = 0;
 
-    if (!seed_str.empty()) seed = atoi(seed_str.c_str());
+    if (!seed_str.empty()) {
+	if (!parse_signed(seed_str.c_str(), seed)) {
+	    throw "seed must be an integer";
+	}
+    }
     cout << "The random seed is " << seed << endl;
     cout << "Please report the seed when reporting a test failure." << endl;
 

@@ -26,6 +26,7 @@
 #include <xapian.h>
 
 #include "gnu_getopt.h"
+#include "parseint.h"
 #include "stringutils.h"
 #include "safeunistd.h"
 
@@ -106,19 +107,45 @@ main(int argc, char **argv)
 		host.assign(optarg);
 		break;
 	    case 'p':
-		port = atoi(optarg);
+		if (!parse_signed(optarg, port) ||
+		    (port < 1 || port > 65535)) {
+		    cerr << "Error: must specify a valid port number "
+			    "(between 1 and 65535). " << endl;
+		    exit(1);
+		}
 		break;
 	    case 'm':
 		masterdb.assign(optarg);
 		break;
-	    case 'i':
-		interval = atoi(optarg);
+	    case 'i': {
+		unsigned int i_val;
+		if (!parse_unsigned(optarg, i_val)) {
+		    cout << "Interval must be a non-negative integer" << endl;
+		    show_usage();
+		    exit(1);
+		}
+		interval = i_val;
 		break;
-	    case 'r':
-		reader_close_time = atoi(optarg);
+	    }
+	    case 'r': {
+		unsigned int reader_time;
+		if (!parse_unsigned(optarg, reader_time)) {
+		    cout << "reader close time must be a "
+			    "non-negative integer" << endl;
+		    show_usage();
+		    exit(1);
+		}
+		reader_close_time = reader_time;
 		break;
+	    }
 	    case 't':
-		timeout = atoi(optarg);
+		unsigned int socket_timeout;
+		if (!parse_unsigned(optarg, socket_timeout)) {
+		    cout << "timeout must be a non-negative integer" << endl;
+		    show_usage();
+		    exit(1);
+		}
+		timeout = socket_timeout;
 		break;
 	    case 'f':
 		force_copy = true;

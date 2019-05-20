@@ -53,6 +53,7 @@
 
 #include "gnu_getopt.h"
 
+#include "parseint.h"
 #include <setjmp.h>
 #include <signal.h>
 
@@ -880,8 +881,12 @@ test_driver::parse_command_line(int argc, char **argv)
 
     if (verbose == 0) {
 	const char *p = getenv("VERBOSE");
-	if (p != NULL) {
-	    verbose = atoi(p);
+	if (p && *p) {
+	    unsigned int temp;
+	    if (!parse_unsigned(p, temp)) {
+		throw "Verbose must be a non-negative integer";
+	    }
+	    verbose = temp;
 	}
     }
 

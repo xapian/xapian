@@ -28,6 +28,7 @@
 #include "fd.h"
 #include "io_utils.h"
 #include "pack.h"
+#include "parseint.h"
 #include "posixy_wrapper.h"
 #include "str.h"
 #include "stringutils.h"
@@ -63,8 +64,11 @@ GlassChanges::start(glass_revision_number_t old_rev,
 
     // Always check max_changesets for modification since last revision.
     const char *p = getenv("XAPIAN_MAX_CHANGESETS");
-    if (p) {
-	max_changesets = atoi(p);
+    if (p && *p) {
+	if (!parse_unsigned(p, max_changesets)) {
+	    throw Xapian::InvalidArgumentError("XAPIAN_MAX_CHANGESETS must be "
+					       "a non-negative integer");
+	}
     } else {
 	max_changesets = 0;
     }

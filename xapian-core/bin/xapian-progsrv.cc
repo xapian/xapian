@@ -23,6 +23,7 @@
 #include "net/remoteserver.h"
 
 #include "gnu_getopt.h"
+#include "parseint.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -71,7 +72,13 @@ int main(int argc, char **argv)
 		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 't':
-		timeout = atoi(optarg) * 1e-3;
+		unsigned int temp;
+		if (!parse_unsigned(optarg, temp)) {
+		    cout << "timeout must be a non-negative integer" << endl;
+		    show_usage();
+		    exit(1);
+		}
+		timeout = temp * 1e-3;
 		break;
 	    case 'w':
 		writable = true;

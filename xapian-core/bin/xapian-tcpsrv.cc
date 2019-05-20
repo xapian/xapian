@@ -32,6 +32,7 @@
 
 #include "xapian/constants.h"
 #include "xapian/error.h"
+#include "parseint.h"
 #include "net/remotetcpserver.h"
 #include "net/remoteserver.h"
 #include "stringutils.h"
@@ -111,23 +112,40 @@ int main(int argc, char **argv) {
 		host.assign(optarg);
 		break;
 	    case 'p':
-		port = atoi(optarg);
-		if (port <= 0 || port >= 65536) {
+		if (!parse_signed(optarg, port) ||
+		    (port < 1 || port > 65535)) {
 		    cerr << "Error: must specify a valid port number "
-			    "(between 1 and 65535). "
-			    "We actually got " << port << endl;
+			    "(between 1 and 65535). " << endl;
 		    exit(1);
 		}
 		break;
-	    case 'a':
-		active_timeout = atoi(optarg) * 1e-3;
+	    case 'a': {
+		unsigned int active;
+		if (!parse_unsigned(optarg, active)) {
+		    cerr << "Active timeout must be >= 0" << endl;
+		    exit(1);
+		}
+		active_timeout = active * 1e-3;
 		break;
-	    case 'i':
-		idle_timeout = atoi(optarg) * 1e-3;
+	    }
+	    case 'i': {
+		unsigned int idle;
+		if (!parse_unsigned(optarg, idle)) {
+		    cerr << "Idle timeout must be >= 0" << endl;
+		    exit(1);
+		}
+		idle_timeout = idle * 1e-3;
 		break;
-	    case 't':
-		active_timeout = idle_timeout = atoi(optarg) * 1e-3;
+	    }
+	    case 't': {
+		unsigned int timeout;
+		if (!parse_unsigned(optarg, timeout)) {
+		    cerr << "timeout must be >= 0" << endl;
+		    exit(1);
+		}
+		active_timeout = idle_timeout = timeout * 1e-3;
 		break;
+	    }
 	    case 'o':
 		one_shot = true;
 		break;
