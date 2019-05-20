@@ -54,6 +54,7 @@
 #include "filetests.h"
 #include "io_utils.h"
 #include "pack.h"
+#include "parseint.h"
 #include "net/remoteconnection.h"
 #include "api/replication.h"
 #include "replicationprotocol.h"
@@ -1049,8 +1050,11 @@ GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
     LOGCALL_CTOR(DB, "GlassWritableDatabase", dir | flags | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
-    if (p)
-	flush_threshold = atoi(p);
+    if (p) {
+	if (!parse_signed(p, flush_threshold)) {
+	    throw "XAPIAN_FLUSH_THRESHOLD must be an integer";
+	}
+    }
     if (flush_threshold == 0)
 	flush_threshold = 10000;
 }

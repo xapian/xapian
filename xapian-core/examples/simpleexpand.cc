@@ -26,7 +26,7 @@
 
 #include <iostream>
 #include <string>
-
+#include <parseint.h>
 #include <cstdlib> // For exit().
 #include <cstring>
 
@@ -71,7 +71,11 @@ try {
     Xapian::RSet rset;
     if (*argv) {
 	while (*++argv) {
-	    rset.add_document(atoi(*argv));
+	    unsigned int temp;
+	    if (!parse_unsigned(*argv, temp)) {
+		throw "Docids for Rset must be positive integers";
+	    }
+	    rset.add_document(temp);
 	}
     }
 
@@ -116,6 +120,9 @@ try {
     for (t = eset.begin(); t != eset.end(); ++t) {
 	cout << *t << ": weight = " << t.get_weight() << endl;
     }
+} catch (const char *s) {
+    cout << "Exception: " << s << endl;
+    exit(1);
 } catch (const Xapian::Error &e) {
     cout << e.get_description() << endl;
     exit(1);

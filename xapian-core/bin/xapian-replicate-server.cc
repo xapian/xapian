@@ -26,7 +26,7 @@
 #include <xapian.h>
 
 #include "gnu_getopt.h"
-
+#include "parseint.h"
 #include <cstdlib>
 #include <iostream>
 
@@ -73,7 +73,16 @@ main(int argc, char **argv)
 		host.assign(optarg);
 		break;
 	    case 'p':
-		port = atoi(optarg);
+	    	if (!parse_signed(optarg, port)) {
+		    cerr << "Error: must specify a valid port number "
+			    "(between 1 and 65535). " << endl;
+		    exit(1); 
+		} else if (port <= 0 || port >= 65536) {
+		    cerr << "Error: must specify a valid port number "
+			    "(between 1 and 65535). "
+			    "We actually got " << port << endl;
+		    exit(1);
+		}
 		break;
 	    case 'o':
 		one_shot = true;

@@ -57,6 +57,10 @@ if test unsupported = "$allow_undefined_flag" ; then
 fi
 AC_SUBST(NO_UNDEFINED)
 
+dnl We need to specify the argument types for builtin functions, or else
+dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
+AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
+    __builtin_mul_overflow(int, int, int*)], [], [], [ ])
 
 dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE

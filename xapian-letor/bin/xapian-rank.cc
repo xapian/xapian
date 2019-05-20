@@ -25,7 +25,7 @@
 
 #include <xapian.h>
 #include <xapian-letor.h>
-
+#include "parseint.h"
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -101,7 +101,11 @@ try {
 		have_database = true;
 		break;
 	    case 'm':
-		msize = atoi(optarg);
+		unsigned int temp;
+		if (!parse_unsigned(optarg, temp)) {
+		    throw "Mset size must be >= 0";
+		}
+		msize = temp;
 		break;
 	    case 's':
 		try {
@@ -217,6 +221,9 @@ try {
     delete ranker;
 
     cout << flush;
+} catch (const char *s) {
+    cout << s << endl;
+    exit(1);
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;
     exit(1);

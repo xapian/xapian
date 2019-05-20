@@ -28,7 +28,7 @@
 #include "gnu_getopt.h"
 #include "stringutils.h"
 #include "safeunistd.h"
-
+#include "parseint.h"
 #include <iostream>
 
 using namespace std;
@@ -106,19 +106,48 @@ main(int argc, char **argv)
 		host.assign(optarg);
 		break;
 	    case 'p':
-		port = atoi(optarg);
+		if (!parse_signed(optarg, port)) {
+		    cerr << "Error: must specify a valid port number "
+			    "(between 1 and 65535). " << endl;
+		    exit(1); 
+		} else if (port <= 0 || port >= 65536) {
+		    cerr << "Error: must specify a valid port number "
+			    "(between 1 and 65535). "
+			    "We actually got " << port << endl;
+		    exit(1);
+		}
 		break;
 	    case 'm':
 		masterdb.assign(optarg);
 		break;
-	    case 'i':
-		interval = atoi(optarg);
+	    case 'i': {
+		unsigned int temp;
+		if (!parse_unsigned(optarg, temp)) {
+		    cout << "Interval must be a positive integer" << endl;
+		    show_usage();
+		    exit(0);
+		}
+		interval = temp;
 		break;
-	    case 'r':
-		reader_close_time = atoi(optarg);
+	    }
+	    case 'r': {
+		unsigned int temp;
+		if (!parse_unsigned(optarg, temp)) {
+		    cout << "reader close time must be a positive integer" << endl;
+		    show_usage();
+		    exit(0);
+		}
+		reader_close_time = temp;
 		break;
+	    }
 	    case 't':
-		timeout = atoi(optarg);
+		unsigned int temp;
+		if (!parse_unsigned(optarg, temp)) {
+		    cout << "timeout must be a positive integer" << endl;
+		    show_usage();
+		    exit(0);
+		}
+		timeout = temp;
 		break;
 	    case 'f':
 		force_copy = true;
