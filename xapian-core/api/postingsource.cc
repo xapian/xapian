@@ -109,7 +109,7 @@ PostingSource::unserialise_with_registry(const std::string &s,
 }
 
 void
-PostingSource::init(const Database& db, Xapian::doccount)
+PostingSource::reset(const Database& db, Xapian::doccount)
 {
     init(db);
 }
@@ -117,6 +117,9 @@ PostingSource::init(const Database& db, Xapian::doccount)
 void
 PostingSource::init(const Database&)
 {
+    const char* msg = "Either PostingSource::reset() or PostingSource::init() "
+		      "must be overridden";
+    throw Xapian::InvalidOperationError(msg);
 }
 
 string

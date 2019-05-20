@@ -44,7 +44,7 @@ ExternalPostList::ExternalPostList(const Xapian::Database & db,
 	source_is_owned = true;
     }
     source->register_matcher_(static_cast<void*>(matcher));
-    source->init(db, shard_index);
+    source->reset(db, shard_index);
 }
 
 ExternalPostList::~ExternalPostList()
