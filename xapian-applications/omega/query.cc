@@ -1469,7 +1469,8 @@ eval(const string &fmt, const vector<string> &param)
 		    char buf[64] = "";
 		    time_t date;
 		    if (!parse_signed(value.c_str(), date)) {
-			throw "Date(in secs) for command date should be integer";
+			throw "Date(in secs) for command date should"
+			      "be integer";
 		    }
 		    if (date != static_cast<time_t>(-1)) {
 			struct tm *then;
@@ -2087,7 +2088,7 @@ eval(const string &fmt, const vector<string> &param)
 		    throw "Start value for range command "
 			  "must be an integer";
 		}
-		if (!parse_signed(args[1].c_str(), temp)) {
+		if (!parse_signed(args[1].c_str(), end)) {
 		    throw "End value for range command"
 			  " must be an integer";
 		}
@@ -2345,7 +2346,7 @@ eval(const string &fmt, const vector<string> &param)
 		size_t len = string::npos;
 		if (args.size() > 2) {
 		    int int_len;
-		    if (!parse_unsigned(args[2].c_str(), int_len)) {
+		    if (!parse_signed(args[2].c_str(), int_len)) {
 			throw "Length value for substr command"
 			      " must be an integer";
 		    }
