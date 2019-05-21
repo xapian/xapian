@@ -442,12 +442,12 @@ if test no != "$with_python3" ; then
       fi
     fi
     AC_MSG_CHECKING([for python3 sphinx module])
-    if $PYTHON3 -c 'import sphinx;print(repr(sphinx.main))' >&5 2>&5 ; then
+    if $PYTHON3 -c 'import sphinx' >&5 2>&5 ; then
       AC_MSG_RESULT([yes])
     else
       AC_MSG_RESULT([no])
       if test yes = "$with_python3" ; then
-	AC_MSG_ERROR([Couldn't import sphinx module and call sphinx.main() for Python3 - try package python3-sphinx])
+	AC_MSG_ERROR([Couldn't import sphinx module for Python3 - try package python3-sphinx])
       fi
       PYTHON3=
     fi
