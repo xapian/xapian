@@ -26,7 +26,7 @@
 #include <xapian.h>
 
 #include <algorithm>
-#include <iomanip>
+#include <ios>
 #include <iostream>
 #include <vector>
 
