@@ -2,7 +2,7 @@
 /* python/util.i: custom Python typemaps for xapian-bindings
  *
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016,2017 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016,2017,2019 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -160,7 +160,7 @@ static int
 XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 {
     if (PyUnicode_Check(obj)) {
-	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj), PyUnicode_GET_SIZE(obj), "ignore");
+	PyObject* strobj = PyUnicode_AsUTF8String(obj);
 	if (strobj == NULL) return SWIG_ERROR;
 	char *p;
 	Py_ssize_t len;
