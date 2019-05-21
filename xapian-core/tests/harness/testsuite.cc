@@ -39,7 +39,7 @@
 #endif
 
 #include <algorithm>
-#include <iomanip>
+#include <ios>
 #include <iostream>
 #include <set>
 
