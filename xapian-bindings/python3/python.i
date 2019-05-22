@@ -2,7 +2,7 @@
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013,2014,2015,2016,2018 Olly Betts
+ * Copyright (C) 2011,2012,2013,2014,2015,2016,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -272,9 +272,7 @@ class XapianSWIGQueryItor {
 
 	// Unicode object.
 	if (PyUnicode_Check(obj)) {
-	    PyObject *s = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj),
-					       PyUnicode_GET_SIZE(obj),
-					       "ignore");
+	    PyObject* s = PyUnicode_AsUTF8String(obj);
 	    if (!s) goto fail;
 	    Xapian::Query result = str_obj_to_query(s);
 	    Py_DECREF(s);
