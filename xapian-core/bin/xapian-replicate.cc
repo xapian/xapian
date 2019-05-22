@@ -109,7 +109,7 @@ main(int argc, char **argv)
 		if (!parse_signed(optarg, port)) {
 		    cerr << "Error: must specify a valid port number "
 			    "(between 1 and 65535). " << endl;
-		    exit(1); 
+		    exit(1);
 		} else if (port <= 0 || port >= 65536) {
 		    cerr << "Error: must specify a valid port number "
 			    "(between 1 and 65535). "
@@ -133,7 +133,8 @@ main(int argc, char **argv)
 	    case 'r': {
 		unsigned int temp;
 		if (!parse_unsigned(optarg, temp)) {
-		    cout << "reader close time must be a positive integer" << endl;
+		    cout << "reader close time must be a"
+			    " positive integer" << endl;
 		    show_usage();
 		    exit(0);
 		}
