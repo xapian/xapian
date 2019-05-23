@@ -28,9 +28,9 @@
 
 #include <xapian.h>
 
+#include "parseint.h"
 #include "timegm.h"
 #include "values.h"
-#include "parseint.h"
 
 using namespace std;
 
@@ -225,13 +225,11 @@ date_value_range(bool as_time_t,
     DateRangeLimit end(date_end, false);
 
     if (!date_span.empty()) {
-	time_t span;
-	unsigned int temp;
-	if (!parse_unsigned(date_span.c_str(), temp)) {
+	unsigned int days;
+	if (!parse_unsigned(date_span.c_str(), days)) {
 	    throw "Datespan value must be >= 0";
-	} else {
-	    span = temp * (24 * 60 * 60) - 1;
 	}
+	time_t span = days * (24 * 60 * 60) - 1;
 	if (end.is_set()) {
 	    // If START, END and SPAN are all set, we (somewhat arbitrarily)
 	    // ignore START.

@@ -1424,11 +1424,11 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_chr: {
-		unsigned int temp;
-		if (!parse_unsigned(args[0].c_str(), temp)) {
+		unsigned int codepoint;
+		if (!parse_unsigned(args[0].c_str(), codepoint)) {
 		    throw "Unicode codepoint for command chr should be >= 0";
 		}
-		Xapian::Unicode::append_utf8(value, temp);
+		Xapian::Unicode::append_utf8(value, codepoint);
 		break;
 	    }
 	    case CMD_collapsed: {
@@ -1469,8 +1469,8 @@ eval(const string &fmt, const vector<string> &param)
 		    char buf[64] = "";
 		    time_t date;
 		    if (!parse_signed(value.c_str(), date)) {
-			throw "Date(in secs) for command date should"
-			      "be integer";
+			throw "Date (in secs) for command date should "
+			      "be an integer";
 		    }
 		    if (date != static_cast<time_t>(-1)) {
 			struct tm *then;
@@ -2041,12 +2041,12 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_pack: {
-		int temp;
-		if (!parse_signed(args[0].c_str(), temp)) {
-		    throw "NUMBER parameter for pack command"
-			  " must be an integer";
+		int number;
+		if (!parse_signed(args[0].c_str(), number)) {
+		    throw "NUMBER parameter for pack command "
+			  "must be an integer";
 		}
-		value = int_to_binary_string(temp);
+		value = int_to_binary_string(number);
 		break;
 	    }
 	    case CMD_percentage:
@@ -2089,8 +2089,8 @@ eval(const string &fmt, const vector<string> &param)
 			  "must be an integer";
 		}
 		if (!parse_signed(args[1].c_str(), end)) {
-		    throw "End value for range command"
-			  " must be an integer";
+		    throw "End value for range command "
+			  "must be an integer";
 		}
 		while (start <= end) {
 		    value += str(start);
@@ -2331,8 +2331,8 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_substr: {
 		int start;
 		if (!parse_signed(args[1].c_str(), start)) {
-		    throw "Start value for substr command"
-			  " must be an integer";
+		    throw "Start value for substr command "
+			  "must be an integer";
 		}
 		if (start < 0) {
 		    if (static_cast<size_t>(-start) >= args[0].size()) {
@@ -2347,8 +2347,8 @@ eval(const string &fmt, const vector<string> &param)
 		if (args.size() > 2) {
 		    int int_len;
 		    if (!parse_signed(args[2].c_str(), int_len)) {
-			throw "Length value for substr command"
-			      " must be an integer";
+			throw "Length value for substr command "
+			      "must be an integer";
 		    }
 		    if (int_len >= 0) {
 			len = size_t(int_len);
@@ -2439,8 +2439,8 @@ eval(const string &fmt, const vector<string> &param)
 		    int howmany = 16;
 		    if (!args.empty()) {
 			if (!parse_signed(args[0].c_str(), howmany)) {
-			    throw "Number of terms for command"
-				  " topterms must be an integer";
+			    throw "Number of terms for command "
+				  "topterms must be an integer";
 			}
 		    }
 		    if (howmany < 0) howmany = 0;

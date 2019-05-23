@@ -496,10 +496,10 @@ bad_escaping:
 			// We don't push an Action for WEIGHT - instead we
 			// store it ready to use in the INDEX and INDEXNOPOS
 			// Actions.
-			if (!parse_signed(val.c_str(), weight)) {
+			if (!parse_unsigned(val.c_str(), weight)) {
 			    report_location(DIAG_WARN, filename, line_no);
-			    cerr << "Index action 'weight'"
-				    "takes an integer argument" << endl;
+			    cerr << "Index action 'weight' takes a "
+				    "non-negative integer argument" << endl;
 			}
 			if (useless_weight_pos != string::npos) {
 			    report_useless_action(filename, line_no,
@@ -1010,8 +1010,8 @@ badhex:
 		    time_t t;
 		    if (!parse_signed(value.c_str(), t)) {
 			report_location(DIAG_ERROR, fname, line_no);
-			cerr << "Date value(in secs) for action DATE"
-				" must be an integer" << endl;
+			cerr << "Date value (in secs) for action DATE "
+				"must be an integer" << endl;
 			exit(1);
 		    }
 		    struct tm *tm = localtime(&t);

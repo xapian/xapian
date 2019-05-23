@@ -855,7 +855,7 @@ end (from punctuation in your message).
 
 $add{...}
 	add arguments together (if called with one argument, this will convert
-	it to a int and back, which ensures it is an integer).
+	it to an integer and back, which ensures it is an integer).
 
 $div{A,B}
 	returns int(A / B) (or the text "divide by 0" if B is zero)
@@ -881,9 +881,9 @@ $sub{A,B}
 Logical Operators:
 ==================
 
-For Logical Operators we allow trailing characters,non-number arguments and empty arguments.
+For Logical Operators we allow empty arguments.
 Reason is that logical operators compare their arguments based on whether they are empty or not.
-Ex: not returns true for empty string and false otherwise.
+OmegaScript treats an empty string as a "false" logical value and any non-empty string as "true".
 
 $and{...}
 	logical short-cutting "and" of its arguments - evaluates
