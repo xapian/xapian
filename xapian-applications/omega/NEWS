@@ -1,44 +1,60 @@
-up to: ba3e96f1f939d2113d3eef45edef39d2b8460620
+up to: a55335cb49f9eb4d43029a7c9612c935c5679d12
 
-Omega 1.4.12 (2019-04-18):
+Omega 1.4.12 (2019-05-28):
 
 general:
 
 documentation:
 
-    Improve docs for OmegaScript $hitlist{}
+* Improve docs for OmegaScript $hitlist{}.
 
-    Fix RST formatting errors in omega docs
+* Fix RST formatting errors in omega docs.
 
 indexers:
 
 * omindex:
 
-    Pipe input to ps2pdf
-    This accepts input on stdin, so we can use the new piped input machinery
-    with it.
-    Possibility pointed out by Gaurav Arora.
+  + Pipe input to ps2pdf as this accepts input on stdin.  Possibility pointed
+    out by Gaurav Arora.
 
 * scriptindex:
 
+  + If parsedate action's format includes %z adjust for the timezone if
+    possible (this requires the non-POSIX tm_gmtoff member of struct tm)
+    and flag an error for other platforms.
+
+  + If parsedate action's format include %Z flag an error as that doesn't
+    seem to be usefully supported by strptime() anywhere.
+
+  + Fix parsedate action to treat formats without a timezone as being UTC
+    instead of localtime.
+
 omega:
 
-    Stop $sort from ensuring the match has run
-    A cut-and-paste error from when $sort was added.
+* Stop $sort from needlessly ensuring the match has run.
 
-    Handle nested $hitlist gracefully
-    Previously this would typically result in an infinite loop.  It's
-    a somewhat esoteric construct, but it's easy to make work no real
-    overhead so that seems simpler than trying to arrange to throw an
-    error here.
+* Handle corner case of nested $hitlist gracefully instead of potentially
+  entering an infinite loop.
 
 templates:
 
 testsuite:
 
+* omegatest: Avoid setting TZ globally during tests as that hides bugs where
+  behaviour depends on the local timezone when it shouldn't.
+
 build system:
 
 portability:
+
+* Fix problems with fallback strptime() implementation which was being included
+  in the wrong binary, and was lacking a require const_cast on the return value.
+
+* Rework setenv() compatibility handling.  Now that Solaris 9 is dead we can
+  assume setenv() is provided by Unix-like platforms (POSIX requires it).  For
+  other platforms, provide a compatibility implementation of setenv() which
+  so the compatibility code is encapsulated in one place rather than replicated
+  at every use.
 
 packaging:
 

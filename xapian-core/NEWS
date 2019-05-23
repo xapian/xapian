@@ -1,33 +1,26 @@
-up to: cd8819c0730fbdb61c32171806234d5b37eeaed7
+up to: a55335cb49f9eb4d43029a7c9612c935c5679d12
 
-Xapian-core 1.4.12 (2019-04-18):
+Xapian-core 1.4.12 (2019-05-28):
 
 API:
 
-    Support stub databases in Xapian::Database::check()
-    Attempting to check databases for backends that don't support
-    checking will throw Xapian::UnimplementError.
+* Xapian::Database::check(): You can now pass a stub database which will check
+  all the databases listed in it (or throw Xapian::UnimplementError for
+  backends which don't support checking).
 
-    Make Document updating a bit more efficient
-    Use std::move to avoid copying of OmDocumentTerm objects.  This
-    improvement is not relevant for git master as this code has been
-    replaced.
-    Use std::map::emplace_hint() with a hint of end() when bulking inserting
-    in sorted order so that the bulk insertion is O(n) instead of
-    O(n*log(n)).  The equivalent change was made to git master in
-    611754f0c848e3ed5a5dc77ed78cc56e0cbf869e.
+* Xapian::Document: When updating a document use a emplace_hint() to make the
+  bulk insertion O(n) instead of O(n·log(n)), and use std::move() to avoid
+  copying  OmDocumentTerm objects.
 
-    Implement Xapian::iterator_valid() for Utf8Iterator
+* Xapian::iterator_valid(): Implement for Utf8Iterator
 
 testsuite:
 
-    Fix keepalive1 failures on some platforms
-    When a network timeout happens, some platforms give NetworkTimeoutError
-    and others NetworkError - since 1.4.10
-    changed to checking the exact exception type, keepalive has been failing
-    on the former set of platforms.
-    We now just check for NetworkError or a subclass here (since
-    NetworkTimeoutError is a subclass of NetworkError).
+* Fix keepalive1 failures on some platforms.  On some platforms a timeout
+  gives NetworkTimeoutError and on others NetworkError - since 1.4.10 changed
+  to checking the exact exception type, keepalive1 has been failing on the
+  former set of platforms.  We now just check for NetworkError or a subclass
+  here (since NetworkTimeoutError is a subclass of NetworkError).
 
 matcher:
 
@@ -40,24 +33,51 @@ chert backend:
 
 remote backend:
 
+* Fix remote protocol design bug.  Previously some messages didn't send a reply
+  but could result in an exception being sent over the link.  That exception
+  would then get read as a response to the next message instead of its actual
+  response so we'd be out of step.  Fixes #783, reported by Germán M. Bravo.
+  This fix necessitated a minor version bump in the remote protocol (to 39.1).
+  If you are upgrading a live system which uses the remote backend, upgrade the
+  servers before the clients.
+
+* Fix socket leaks on errors during opening a database.  Fixes
+  https://github.com/xapian/xapian/pull/237 and #781, reported by Germán M.
+  Bravo.
+
+* Don't close remote DB socket on receiving EOF as the levels above won't
+  know it's been closed and may try to perform operations on it, which would be
+  problematic if that fd gets reused in the meantime.  Leaving it open means
+  any further operations will also get EOF.  Reported by Germán M. Bravo.
+
+* We add a wrapper around the libc socket() function which deals with the
+  corner case where SOCK_CLOEXEC is defined but socket() fails if it is
+  specified (which can happen with a newer libc and older kernel).
+  Unfortunately, this wrapper wasn't checking the returned value from socket()
+  correctly, so when SOCK_CLOEXEC was specified and non-zero it would create
+  the socket() with SOCK_CLOEXEC, then leak that one and create it again
+  without SOCK_CLOEXEC.  We now check the return value properly.
 
 inmemory backend:
 
 
 build system:
 
-    Don't pick up valgrind by default on macOS
-    Current versions of valgrind result in false positives on current versions
-    of macOS, so on this platform configure only enables use of valgrind if
-    it's specified explicitly.
-    Fixes #713, reported by Germán M. Bravo.
+* Current versions of valgrind result in false positives on current versions of
+  macOS, so on this platform configure now only enables use of valgrind if it's
+  specified explicitly.  Fixes #713, reported by Germán M. Bravo.
 
 documentation:
 
-    Fix doc comment typo
-    Should the Query::op (the type) not op_ (a parameter name).
+* Add Unicode consortium names and codes for categories from Chapter 4, Version
+  11 of the Unicode standard.  Patch from David Bremner.
 
-    Update list of xapian/iterator.h users
+* Fix API documentation typo - Query::op (the type) not op_ (a parameter name).
+
+* In the remote protocol documentation, MSG_REPLACEDOCUMENTTERM was documented
+  as not having a reply, but actually REPLY_ADDDOCUMENT is sent.
+
+* Update list of <xapian/iterator.h> users.
 
 tools:
 
@@ -68,6 +88,19 @@ examples:
 portability:
 
 * Add missing '#include <cstring>'.  Patch from Tanmay Sachan.
+
+* Fix str() helper function when converting the most negative value
+  of a signed integer type.
+
+* Avoid calling close() on fd we know must actually be a WIN32 SOCKET.
+
+* Include <ios> not <iomanip> for std::boolalpha.
+
+* Rework setenv() compatibility handling.  Now that Solaris 9 is dead we can
+  assume setenv() is provided by Unix-like platforms (POSIX requires it).  For
+  other platforms, provide a compatibility implementation of setenv() which
+  so the compatibility code is encapsulated in one place rather than replicated
+  at every use.
 
 packaging:
 

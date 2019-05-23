@@ -1,11 +1,10 @@
-up to: 7faa45a163efb38267c0dd9560bf18f5f4975ae3
+up to: a55335cb49f9eb4d43029a7c9612c935c5679d12
 
-Xapian-bindings 1.4.12 (2019-04-18):
+Xapian-bindings 1.4.12 (2019-05-28):
 
 Documentation:
 
-    Update bindings HACKING docs
-    Reported as out of date by Niwesh Gupta.
+* Update bindings HACKING document.  Reported as out of date by Niwesh Gupta.
 
 General:
 
@@ -15,11 +14,10 @@ Portability:
 
 CSharp:
 
-    Work around mono terminfo parsing bug
-    Older cli-sn fails with certain TERM setting (e.g. xterm-256color) due to:
-    https://github.com/mono/mono/issues/6752
-    Encountered on Kubuntu 18.10 and debugged by tstomar.  Seems to be fixed
-    in the mono version in Debian buster.
+* Work around mono terminfo parsing bug - older cli-sn fails with e.g.
+  TERM=xterm-256color due to: https://github.com/mono/mono/issues/6752
+  Encountered on Kubuntu 18.10 and debugged by Tejasvi Tomar.  Seems to be
+  fixed in the mono version in Debian buster.
 
 Java:
 
@@ -27,13 +25,11 @@ Lua:
 
 Perl:
 
-    Suppress warnings from older Perl and Ruby headers
-    The warnings are due to use of register and constructs which look
-    like C++11 user-defined literals.  They're fixed in newer versions
-    so they're just noise in our build.
-    We were working around these in the CI build, so drop that workaround
-    as we want to make the build warning-clean for users too.
-    Reported by daniel93 on #xapian.
+* Suppress warnings from older Perl headers due to use of constructs which look
+  like C++11 user-defined literals.  They're fixed in newer versions so they're
+  just noise in our build.  We were working around these in the CI build, so
+  drop that workaround as we want to make the build warning-clean for users
+  too.  Reported by daniel93 on #xapian.
 
 PHP:
 
@@ -43,15 +39,16 @@ Python:
 
 Python3:
 
+* Fix build for changes in Sphinx 2.0 (which drops support for sphinx.main()).
+  Fixes #778, reported by karolyi.  Also reported by Gaurav Arora.
+
 Ruby:
 
-    Suppress warnings from older Perl and Ruby headers
-    The warnings are due to use of register and constructs which look
-    like C++11 user-defined literals.  They're fixed in newer versions
-    so they're just noise in our build.
-    We were working around these in the CI build, so drop that workaround
-    as we want to make the build warning-clean for users too.
-    Reported by daniel93 on #xapian.
+* Suppress warnings from Ruby 2.3 headers due to use of register and
+  constructs which look like C++11 user-defined literals.  They're fixed in
+  newer versions so they're just noise in our build.  We were working around
+  these in the CI build, so drop that workaround as we want to make the build
+  warning-clean for users too.  Reported by daniel93 on #xapian.
 
 Tcl:
 
