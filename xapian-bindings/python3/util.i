@@ -208,7 +208,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 %typemap(freearg, noblock=1, match="in") const std::string & {
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
-%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string & {
+%typemap(typecheck, noblock=1, precedence=900) const std::string & {
     if (PyUnicode_Check($input)) {
 	$1 = 1;
     } else if (PyBytes_Check($input)) {
@@ -233,7 +233,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 %typemap(freearg, noblock=1, match="in") const std::string * {
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
-%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string * {
+%typemap(typecheck, noblock=1, precedence=900) const std::string * {
     if ($input == Py_None) {
 	$1 = 1;
     } else if (PyUnicode_Check($input)) {
