@@ -1713,14 +1713,14 @@ def test_repr():
     expect(repr(xapian.WritableDatabase()) is None, False)
 
 def test_lone_surrogate():
-    # Test that a lone surrogate in input data raises TypeError.
+    # Test that a lone surrogate in input data raises UnicodeEncodeError.
     # Regression test for bug fixed in 1.4.12 (previous versions quietly
     # skipped the lone surrogate when converting to UTF-8).
     noop_stemmer = xapian.Stem("none")
     try:
         term = noop_stemmer(u"a\udead0")
         raise TestFail("Lone surrogate accepted (output as %s)" % term)
-    except TypeError:
+    except UnicodeEncodeError:
         pass
 
 result = True

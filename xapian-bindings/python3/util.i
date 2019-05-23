@@ -161,7 +161,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 {
     if (PyUnicode_Check(obj)) {
 	PyObject* strobj = PyUnicode_AsUTF8String(obj);
-	if (strobj == NULL) return SWIG_ERROR;
+	if (strobj == NULL) return INT_MIN;
 	char *p;
 	Py_ssize_t len;
 	PyBytes_AsStringAndSize(strobj, &p, &len);
@@ -187,6 +187,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     std::string *ptr = (std::string *)0;
     res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res)) {
+	if (res == INT_MIN) SWIG_fail;
 	%argument_fail(res, "$type", $symname, $argnum);
     }
     if (!ptr) {
@@ -198,6 +199,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     std::string *ptr = (std::string *)0;
     int res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
+	if (res == INT_MIN) SWIG_fail;
 	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
     }
     $1 = *ptr;
@@ -222,6 +224,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     if ($input != Py_None) {
 	res = XapianSWIG_anystring_as_ptr($input, &ptr);
 	if (!SWIG_IsOK(res)) {
+	    if (res == INT_MIN) SWIG_fail;
 	    %argument_fail(res, "$type", $symname, $argnum);
 	}
     }
