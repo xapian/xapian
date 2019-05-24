@@ -26,9 +26,9 @@
 #include <xapian.h>
 
 #include "gnu_getopt.h"
+#include "parseint.h"
 #include "stringutils.h"
 #include "safeunistd.h"
-#include "parseint.h"
 #include <iostream>
 
 using namespace std;
@@ -106,14 +106,10 @@ main(int argc, char **argv)
 		host.assign(optarg);
 		break;
 	    case 'p':
-		if (!parse_signed(optarg, port)) {
+		if (!parse_signed(optarg, port) ||
+		   (port <= 0 || port >= 65536)) {
 		    cerr << "Error: must specify a valid port number "
 			    "(between 1 and 65535). " << endl;
-		    exit(1);
-		} else if (port <= 0 || port >= 65536) {
-		    cerr << "Error: must specify a valid port number "
-			    "(between 1 and 65535). "
-			    "We actually got " << port << endl;
 		    exit(1);
 		}
 		break;
@@ -121,34 +117,34 @@ main(int argc, char **argv)
 		masterdb.assign(optarg);
 		break;
 	    case 'i': {
-		unsigned int temp;
-		if (!parse_unsigned(optarg, temp)) {
+		unsigned int i_val;
+		if (!parse_unsigned(optarg, i_val)) {
 		    cout << "Interval must be a positive integer" << endl;
 		    show_usage();
 		    exit(0);
 		}
-		interval = temp;
+		interval = i_val;
 		break;
 	    }
 	    case 'r': {
-		unsigned int temp;
-		if (!parse_unsigned(optarg, temp)) {
+		unsigned int reader_time;
+		if (!parse_unsigned(optarg, reader_time)) {
 		    cout << "reader close time must be a"
 			    " positive integer" << endl;
 		    show_usage();
 		    exit(0);
 		}
-		reader_close_time = temp;
+		reader_close_time = reader_time;
 		break;
 	    }
 	    case 't':
-		unsigned int temp;
-		if (!parse_unsigned(optarg, temp)) {
+		unsigned int socket_timeout;
+		if (!parse_unsigned(optarg, socket_timeout)) {
 		    cout << "timeout must be a positive integer" << endl;
 		    show_usage();
 		    exit(0);
 		}
-		timeout = temp;
+		timeout = socket_timeout;
 		break;
 	    case 'f':
 		force_copy = true;

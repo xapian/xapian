@@ -25,8 +25,8 @@
 
 #include <xapian.h>
 #include <xapian-letor.h>
-#include "parseint.h"
 #include <iostream>
+#include "parseint.h"
 #include <sstream>
 #include <string>
 
@@ -101,11 +101,11 @@ try {
 		have_database = true;
 		break;
 	    case 'm':
-		unsigned int temp;
-		if (!parse_unsigned(optarg, temp)) {
+		unsigned int size;
+		if (!parse_unsigned(optarg, size)) {
 		    throw "Mset size must be >= 0";
 		}
-		msize = temp;
+		msize = size;
 		break;
 	    case 's':
 		try {

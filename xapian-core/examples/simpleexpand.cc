@@ -71,11 +71,11 @@ try {
     Xapian::RSet rset;
     if (*argv) {
 	while (*++argv) {
-	    unsigned int temp;
-	    if (!parse_unsigned(*argv, temp)) {
+	    unsigned int docid;
+	    if (!parse_unsigned(*argv, docid)) {
 		throw "Docids for Rset must be positive integers";
 	    }
-	    rset.add_document(temp);
+	    rset.add_document(docid);
 	}
     }
 

@@ -28,8 +28,8 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include "parseint.h"
 #include <xapian.h>
+#include "parseint.h"
 #include "testsuite.h"
 
 using namespace std;
