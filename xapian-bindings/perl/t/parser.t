@@ -13,7 +13,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 75 };
+BEGIN { plan tests => 79 };
 use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -184,6 +184,18 @@ eval {
 };
 ok($@);
 ok($@ =~ /already spam/);
+$qp->add_prefix("spamsubref", sub { die "subcalled"; });
+eval {
+    $qp->parse_query('spamsubref:ignored');
+};
+ok($@);
+ok($@ =~ /subcalled/);
+$qp->add_prefix("spamboolsubref", sub { die "boolsubcalled"; });
+eval {
+    $qp->parse_query('spamboolsubref:ignored');
+};
+ok($@);
+ok($@ =~ /boolsubcalled/);
 
 # Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
 # we tried to catch const char * not Xapian::Error, so std::terminate got

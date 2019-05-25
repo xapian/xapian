@@ -438,12 +438,45 @@ sub add_rangeprocessor {
 }
 %}
 
+%perlcode %{
+package Xapian::FieldProcessor::AutomaticCodeWrapper {
+    our @ISA = qw(Xapian::FieldProcessor);
+
+    sub new {
+        my $class = shift;
+        my $coderef = shift;
+
+        my $self = $class->SUPER::new(@_);
+
+        $self{_fpcoderef} = $coderef;
+        return $self;
+    }
+
+    sub __call__ {
+        my ($self, $s) = @_;
+
+        my $res = $self{_fpcoderef}->($s);
+        # $res will pass the boundary to C++-land, so we need to make sure
+        # it persists...
+        push @{$self{_calledresrefs}}, $res;
+        return $res;
+    }
+    1;
+};
+%}
+
 %feature("shadow") Xapian::QueryParser::add_prefix
 %{
 sub add_prefix {
     my ($self, undef, $fproc) = @_;
-    if (defined($fproc) && ref($fproc) ne '') {
-        push @{$self{_fproc}}, $fproc;
+    if (defined($fproc)) {
+        if (ref($fproc) eq 'CODE') {
+            $fproc = Xapian::FieldProcessor::AutomaticCodeWrapper->new($fproc);
+            $_[2] = $fproc;
+        }
+        if (ref($fproc) ne '') {
+            push @{$self{_fproc}}, $fproc;
+        }
     }
     Xapianc::QueryParser_add_prefix( @_ );
 }
@@ -453,8 +486,14 @@ sub add_prefix {
 %{
 sub add_boolean_prefix {
     my ($self, undef, $fproc) = @_;
-    if (defined($fproc) && ref($fproc) ne '') {
-        push @{$self{_fproc}}, $fproc;
+    if (defined($fproc)) {
+        if (ref($fproc) eq 'CODE') {
+            $fproc = Xapian::FieldProcessor::AutomaticCodeWrapper->new($fproc);
+            $_[2] = $fproc;
+        }
+        if (ref($fproc) ne '') {
+            push @{$self{_fproc}}, $fproc;
+        }
     }
     Xapianc::QueryParser_add_boolean_prefix( @_ );
 }

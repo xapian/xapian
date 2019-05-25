@@ -713,6 +713,24 @@ may be a different (nearby) value on other platforms.
 
 =back
 
+=head1 Extensions of the perl bindings over plain C++-Api
+
+=over 4
+
+=item L<Xapian::QueryParser::add_prefix> and L<Xapian::QueryParser::add_boolean_prefix>
+
+In addition to the standard overloaded variants generated from C++, these
+methods allow passing a perl coderef in the place of a manually created
+L<Xapian::FieldProcessor> instance. The sub will automatically be wrapped.
+
+    my $qp = new Xapian::QueryParser();
+    $qp->add_prefix("myprefix", sub {
+        my ($s) = @_;
+        # Do stuff, e.g. return a Xapian::Query instance...
+    });
+
+=back
+
 =head1 TODO
 
 =over 4
