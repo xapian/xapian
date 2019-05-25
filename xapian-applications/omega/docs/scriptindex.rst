@@ -175,10 +175,11 @@ valuepacked=VALUESLOT
         ``valuepacked`` was added in Omega 1.4.6.
 
 weight=FACTOR
-	set the weighting factor to FACTOR (an integer) for any ``index`` or
-        ``indexnopos`` actions in the remainder of this list of actions.  The
-        default is 1.  Use this to add extra weight to titles, keyword fields,
-        etc, so that words in them are regarded as more important by searches.
+        set the weighting factor to FACTOR (a non-negative integer) for any
+        ``index`` or ``indexnopos`` actions in the remainder of this list of
+        actions.  The default is 1.  Use this to add extra weight to titles,
+        keyword fields, etc, so that words in them are regarded as more
+        important by searches.
 
 Input files:
 ============
