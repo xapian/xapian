@@ -396,12 +396,67 @@ sub set_stopper {
 }
 %}
 
+%perlcode %{
+package Xapian::RangeProcessor::AutomaticCodeWrapper {
+	our @ISA = qw(Xapian::RangeProcessor);
+
+    sub new {
+        my $class = shift;
+        my $coderef = shift;
+
+        my $self = $class->SUPER::new(@_);
+
+        $self{_rpcoderef} = $coderef;
+        return $self;
+    }
+
+    sub check_range {
+		my ($self, $b, $e) = @_;
+
+        return $self{_rpcoderef}->($b, $e);
+    }
+
+	sub __call__ {
+		my ($self, $b, $e) = @_;
+
+        return $self{_rpcoderef}->($b, $e);
+	}
+	1;
+};
+%}
+
 %feature("shadow") Xapian::QueryParser::add_rangeprocessor
 %{
 sub add_rangeprocessor {
     my ($self, $rproc) = @_;
+    if (ref($rproc) eq 'CODE') {
+        $rproc = Xapian::RangeProcessor::AutomaticCodeWrapper->new($rproc);
+        $_[1] = $rproc;
+    }
     push @{$self{_rproc}}, $rproc;
     Xapianc::QueryParser_add_rangeprocessor( @_ );
+}
+%}
+
+%feature("shadow") Xapian::QueryParser::add_prefix
+%{
+sub add_prefix {
+    my ($self, undef, $fproc) = @_;
+    if (defined($fproc) && ref($fproc) ne '') {
+        push @{$self{_fproc}}, $fproc;
+    }
+    Xapianc::QueryParser_add_prefix( @_ );
+}
+%}
+
+%feature("shadow") Xapian::QueryParser::add_boolean_prefix
+%{
+sub add_boolean_prefix {
+    my ($self, undef, $fproc) = @_;
+    if (defined($fproc) && ref($fproc) ne '') {
+        push @{$self{_fproc}}, $fproc;
+    }
+    Xapianc::QueryParser_add_boolean_prefix( @_ );
 }
 %}
 

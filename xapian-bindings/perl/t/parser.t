@@ -174,8 +174,11 @@ my $tfp = Testfieldprocessor->new;
 $qp->add_prefix("spam", $tfp);
 $qp->add_boolean_prefix("boolspam", $tfp);
 $qp->add_boolean_prefix("boolspam5", $tfp, undef);
+$qp->add_prefix("spamimplicitref", Testfieldprocessor->new);
+$qp->add_boolean_prefix("boolspamimplicitref", Testfieldprocessor->new);
 $qp->parse_query('spam:ignored');
-#$qp->parse_query('spamimplicitref:ignored');
+$qp->parse_query('spamimplicitref:ignored');
+$qp->parse_query('boolspamimplicitref:ignored');
 eval {
 	$qp->parse_query('spam:spam');
 };
