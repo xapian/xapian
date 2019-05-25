@@ -1,4 +1,4 @@
-%module xapian
+%module(directors="1") xapian
 %{
 /* perl.i: SWIG interface file for the Perl bindings
  *
@@ -50,6 +50,9 @@ extern "C" {
 
 /* The XS Xapian never wrapped these, and they're now deprecated. */
 #define XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
+
+/* Use SWIG directors for Perl wrappers. */
+#define XAPIAN_SWIG_DIRECTORS
 
 %include ../xapian-head.i
 

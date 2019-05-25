@@ -13,7 +13,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 73 };
+BEGIN { plan tests => 75 };
 use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -154,6 +154,33 @@ foreach $pair (
     my $query = $qp->parse_query($str);
     is( $query->get_description(), "Query($res)" );
 }
+
+# Testing subclassability of abstract class FieldProcessor
+$qp = new Xapian::QueryParser();
+package Testfieldprocessor {
+	our @ISA = qw(Xapian::FieldProcessor);
+
+	sub __call__ {
+		my ($self, $s) = @_;
+
+		if ($s eq "spam") {
+			die "already spam";
+		}
+		return Xapian::Query->new("spam");
+	}
+	1;
+};
+my $tfp = Testfieldprocessor->new;
+$qp->add_prefix("spam", $tfp);
+$qp->add_boolean_prefix("boolspam", $tfp);
+$qp->add_boolean_prefix("boolspam5", $tfp, undef);
+$qp->parse_query('spam:ignored');
+#$qp->parse_query('spamimplicitref:ignored');
+eval {
+	$qp->parse_query('spam:spam');
+};
+ok($@);
+ok($@ =~ /already spam/);
 
 # Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
 # we tried to catch const char * not Xapian::Error, so std::terminate got
