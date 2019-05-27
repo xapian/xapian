@@ -489,6 +489,7 @@ bad_escaping:
 		switch (code) {
 		    case Action::DATE:
 			if (val != "unix" &&
+			    val != "unixutc" &&
 			    val != "yyyymmdd") {
 			    report_location(DIAG_ERROR, filename, line_no);
 			    cerr << "Invalid parameter '" << val << "' for "
@@ -1025,6 +1026,18 @@ badhex:
 			exit(1);
 		    }
 		    struct tm *tm = localtime(&t);
+		    int y = tm->tm_year + 1900;
+		    int m = tm->tm_mon + 1;
+		    yyyymmdd = date_to_string(y, m, tm->tm_mday);
+		} else if (type == "unixutc") {
+		    time_t t;
+		    if (!parse_signed(value.c_str(), t)) {
+			report_location(DIAG_ERROR, fname, line_no);
+			cerr << "Date value (in secs) for action DATE "
+				"must be an integer" << endl;
+			break;
+		    }
+		    struct tm *tm = gmtime(&t);
 		    int y = tm->tm_year + 1900;
 		    int m = tm->tm_mon + 1;
 		    yyyymmdd = date_to_string(y, m, tm->tm_mday);

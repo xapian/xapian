@@ -1048,7 +1048,7 @@ else
 fi
 
 # Feature tests for date action.
-printf 'd : date=unix\n' > "$TEST_INDEXSCRIPT"
+printf '%s\n' 'd : date=unix' 'g : date=unixutc' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
 # date=unix works in the current timezone, so set that explicitly so the
 # build doesn't fail if run in a timezone which is behind UTC.
@@ -1060,6 +1060,17 @@ d=0
 d=1541478429
 END
 printf '$list{$map{$range{1,3},$list{$allterms{$_}, }},|}' > "$TEST_TEMPLATE"
+testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018'
+
+# date=unixutc should always work in UTC regardless of the current timezone.
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+g=
+
+g=0
+
+g=1541478429
+END
 testcase '|D19700101 M197001 Y1970|D20181106 M201811 Y2018'
 
 # Check nested $hitlist{} doesn't result in an infinite loop.

@@ -52,6 +52,8 @@ date=FORMAT
 
           * ``unix``: the value is interpreted as a Unix local time_t (seconds
             since the start of 1970 in the local timezone).
+          * ``unixutc``: the value is interpreted as a Unix UTC time_t
+            (seconds since the start of 1970 in UTC).  (Since Omega 1.4.12)
           * ``yyyymmdd``: the value is interpreted as an 8 digit string, e.g.
             20021221 for 21st December 2002.
 
@@ -111,7 +113,7 @@ parsedate=FORMAT
         ``std::get_time()`` on platforms without ``strptime()``) with the
         format specified by ``FORMAT``, and set the text to the result as a
         Unix ``time_t`` (seconds since the start of 1970 in UTC), which can
-        then be fed into ``date`` or ``valuepacked``, for example::
+        then be fed into ``date=unixutc`` or ``valuepacked``, for example::
 
          last_update : parsedate="%Y%m%d %T" field=lastmod valuepacked=0
 
