@@ -487,6 +487,16 @@ bad_escaping:
 		    }
 		}
 		switch (code) {
+		    case Action::DATE:
+			if (val != "unix" &&
+			    val != "yyyymmdd") {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Invalid parameter '" << val << "' for "
+				    "action 'date'" << endl;
+			    exit(1);
+			}
+			actions.emplace_back(code, action_pos, val);
+			break;
 		    case Action::INDEX:
 		    case Action::INDEXNOPOS:
 			actions.emplace_back(code, action_pos, val, weight);
