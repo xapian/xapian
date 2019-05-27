@@ -25,7 +25,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
-#include <iostream>
+
 #include <xapian.h>
 #include <xapian-letor.h>
 
@@ -207,15 +207,16 @@ db_index_three_documents_no_common(Xapian::WritableDatabase& db, const string&)
 DEFINE_TESTCASE(createfeaturevector, generated)
 {
     Xapian::FeatureList fl;
-    Xapian::Database db = get_database("apitest_createfeaturevector",
+    Xapian::Database db = get_database("apitest_ranker1",
 				       db_index_two_documents);
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("lions"));
     Xapian::MSet mset;
+    auto fv = fl.create_feature_vectors(mset, Xapian::Query("lions"), db);
     mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
     TEST_EQUAL(mset.size(), 2);
-    auto fv = fl.create_feature_vectors(mset, Xapian::Query("lions"), db);
+    fv = fl.create_feature_vectors(mset, Xapian::Query("lions"), db);
     TEST_EQUAL(fv.size(), 2);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     TEST_EQUAL(fv[1].get_fcount(), 19);
@@ -225,14 +226,15 @@ DEFINE_TESTCASE(createfeaturevector, generated)
 DEFINE_TESTCASE(createfeaturevectoronevector, generated)
 {
     Xapian::FeatureList fl;
-    Xapian::Database db = get_database("apitest_createfeaturevector1",
+    Xapian::Database db = get_database("apitest_ranker2",
 				       db_index_one_document);
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("tigers"));
     Xapian::MSet mset;
+    auto fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
     mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
-    auto fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
+    fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
     TEST_EQUAL(fv.size(), 1);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     return true;
@@ -241,14 +243,15 @@ DEFINE_TESTCASE(createfeaturevectoronevector, generated)
 DEFINE_TESTCASE(createfeaturevectoronevector_wrongquery, generated)
 {
     Xapian::FeatureList fl;
-    Xapian::Database db = get_database("apitest_wrongquery",
+    Xapian::Database db = get_database("apitest_ranker3",
 				       db_index_one_document);
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("llamas"));
     Xapian::MSet mset;
+    auto fv = fl.create_feature_vectors(mset, Xapian::Query("llamas"), db);
     mset = enquire.get_mset(0, 10);
     TEST(mset.empty());
-    auto fv = fl.create_feature_vectors(mset, Xapian::Query("llamas"), db);
+    fv = fl.create_feature_vectors(mset, Xapian::Query("llamas"), db);
     TEST_EQUAL(fv.size(), 0);
     return true;
 }
@@ -256,14 +259,15 @@ DEFINE_TESTCASE(createfeaturevectoronevector_wrongquery, generated)
 DEFINE_TESTCASE(createfeaturevectorthree, generated)
 {
     Xapian::FeatureList fl;
-    Xapian::Database db = get_database("apitest_createfeaturevector3",
+    Xapian::Database db = get_database("apitest_ranker4",
 				       db_index_three_documents);
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("score"));
     Xapian::MSet mset;
+    auto fv = fl.create_feature_vectors(mset, Xapian::Query("score"), db);
     mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
-    auto fv = fl.create_feature_vectors(mset, Xapian::Query("score"), db);
+    fv = fl.create_feature_vectors(mset, Xapian::Query("score"), db);
     TEST_EQUAL(fv.size(), 2);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     TEST_EQUAL(fv[1].get_fcount(), 19);
@@ -340,7 +344,7 @@ DEFINE_TESTCASE(checkbigfeaturelist, generated)
 
 DEFINE_TESTCASE(preparetrainingfileonedb, generated)
 {
-    string db_path = get_database_path("apitest_preparetrainingfile1",
+    string db_path = get_database_path("apitest_listnet_ranker1",
 				       db_index_one_document);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "queryone.txt";
@@ -385,7 +389,7 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
 // Check stability for an empty qrel file
 DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
 {
-    string db_path = get_database_path("apitest_empty",
+    string db_path = get_database_path("ranker_empty",
 				       db_index_one_document);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "queryone.txt";
@@ -424,7 +428,7 @@ DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
 
 DEFINE_TESTCASE(preparetrainingfile_two_docs, generated)
 {
-    string db_path = get_database_path("apitest_preparetrainingfile2",
+    string db_path = get_database_path("apitest_listnet_ranker2",
 				       db_index_two_documents);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "query.txt";
@@ -463,7 +467,7 @@ DEFINE_TESTCASE(preparetrainingfile_two_docs, generated)
 
 DEFINE_TESTCASE(preparetrainingfilethree, generated)
 {
-    string db_path = get_database_path("apitest_preparetrainingfile3",
+    string db_path = get_database_path("apitest_listnet_ranker4",
 				       db_index_three_documents);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "querythree.txt";
@@ -925,15 +929,10 @@ DEFINE_TESTCASE(tfdoclenfeature, generated)
 {
     string db_path = get_database_path("apitest_tfdoclenfeature",
 				       db_index_one_document);
-    Xapian::TfDoclenFeature feature;
-
     Xapian::Database db(db_path);
-    feature.set_database(db);
-
     Xapian::Document doc = db.get_document(1);
-    feature.set_doc(doc);
-
     std::map<std::string,Xapian::termcount> len;
+    Xapian::TermIterator dt = doc.termlist_begin();
 
     len["title"] = 4;
     Xapian::termcount whole_len = db.get_doclength(1);
@@ -941,6 +940,7 @@ DEFINE_TESTCASE(tfdoclenfeature, generated)
     TEST_EQUAL(whole_len, 186);
     len["body"] = whole_len - len["title"];
 
+    Xapian::TfDoclenFeature feature;
     feature.set_doc_length(len);
 
     Xapian::QueryParser queryparser;
