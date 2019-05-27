@@ -20,6 +20,11 @@ AC_DEFUN([AC_LIB_PROG_LD], [])
 LT_PREREQ([2.2.6])
 LT_INIT
 
+dnl We need to specify the argument types for builtin functions, or else
+dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.
+AC_CHECK_DECLS([__builtin_add_overflow(int, int, int*),
+    __builtin_mul_overflow(int, int, int*)], [], [], [ ])
+
 dnl -no-undefined causes problems on Solaris with Sun CC in C++11 mode, so only
 dnl pass -no-undefined on platforms where it is required in order to link a
 dnl shared library at all (Windows is the main one).
