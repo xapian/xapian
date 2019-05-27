@@ -1020,10 +1020,10 @@ badhex:
 		if (type == "unix") {
 		    time_t t;
 		    if (!parse_signed(value.c_str(), t)) {
-			report_location(DIAG_ERROR, fname, line_no);
+			report_location(DIAG_WARN, fname, line_no);
 			cerr << "Date value (in secs) for action DATE "
-				"must be an integer" << endl;
-			exit(1);
+				"must be an integer - ignoring" << endl;
+			break;
 		    }
 		    struct tm *tm = localtime(&t);
 		    int y = tm->tm_year + 1900;
@@ -1032,9 +1032,9 @@ badhex:
 		} else if (type == "unixutc") {
 		    time_t t;
 		    if (!parse_signed(value.c_str(), t)) {
-			report_location(DIAG_ERROR, fname, line_no);
+			report_location(DIAG_WARN, fname, line_no);
 			cerr << "Date value (in secs) for action DATE "
-				"must be an integer" << endl;
+				"must be an integer - ignoring" << endl;
 			break;
 		    }
 		    struct tm *tm = gmtime(&t);
@@ -1042,7 +1042,12 @@ badhex:
 		    int m = tm->tm_mon + 1;
 		    yyyymmdd = date_to_string(y, m, tm->tm_mday);
 		} else if (type == "yyyymmdd") {
-		    if (value.length() != 8) break;
+		    if (value.length() != 8) {
+			report_location(DIAG_WARN, fname, line_no);
+			cerr << "date=yyyymmdd expects an 8 character value "
+				"- ignoring" << endl;
+			break;
+		    }
 		    yyyymmdd = value;
 		}
 

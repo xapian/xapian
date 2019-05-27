@@ -61,7 +61,8 @@ date=FORMAT
         (in earlier versions unknown formats uselessly resulted in the terms
         ``D``, ``M`` and ``Y`` literally being added to every document).
 
-        Invalid values result in no terms being added.
+        Invalid values result in no terms being added (and since Omega 1.4.12
+        a warning is emitted).
 
 field[=FIELDNAME]
 	add as a field to the Xapian record.  FIELDNAME defaults to the field
