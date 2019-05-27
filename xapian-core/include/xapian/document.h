@@ -228,6 +228,8 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if the term
 	 *  is not in the document
+	 *
+	 *  @since Added in Xapian 1.4.8.
 	 */
 	Xapian::termpos remove_postings(const std::string& term,
 					Xapian::termpos term_pos_first,
