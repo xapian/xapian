@@ -161,11 +161,10 @@ DEFINE_TESTCASE(createfeaturevector, generated)
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("lions"));
     Xapian::MSet mset;
-    auto fv = fl.create_feature_vectors(mset, Xapian::Query("lions"), db);
     mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
     TEST_EQUAL(mset.size(), 2);
-    fv = fl.create_feature_vectors(mset, Xapian::Query("lions"), db);
+    auto fv = fl.create_feature_vectors(mset, Xapian::Query("lions"), db);
     TEST_EQUAL(fv.size(), 2);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     TEST_EQUAL(fv[1].get_fcount(), 19);
@@ -180,10 +179,9 @@ DEFINE_TESTCASE(createfeaturevectoronevector, generated)
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("tigers"));
     Xapian::MSet mset;
-    auto fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
     mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
-    fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
+    auto fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
     TEST_EQUAL(fv.size(), 1);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     return true;
@@ -197,10 +195,9 @@ DEFINE_TESTCASE(createfeaturevectoronevector_wrongquery, generated)
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("llamas"));
     Xapian::MSet mset;
-    auto fv = fl.create_feature_vectors(mset, Xapian::Query("llamas"), db);
     mset = enquire.get_mset(0, 10);
     TEST(mset.empty());
-    fv = fl.create_feature_vectors(mset, Xapian::Query("llamas"), db);
+    auto fv = fl.create_feature_vectors(mset, Xapian::Query("llamas"), db);
     TEST_EQUAL(fv.size(), 0);
     return true;
 }
@@ -213,10 +210,9 @@ DEFINE_TESTCASE(createfeaturevectorthree, generated)
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("score"));
     Xapian::MSet mset;
-    auto fv = fl.create_feature_vectors(mset, Xapian::Query("score"), db);
     mset = enquire.get_mset(0, 10);
     TEST(!mset.empty());
-    fv = fl.create_feature_vectors(mset, Xapian::Query("score"), db);
+    auto fv = fl.create_feature_vectors(mset, Xapian::Query("score"), db);
     TEST_EQUAL(fv.size(), 2);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     TEST_EQUAL(fv[1].get_fcount(), 19);
