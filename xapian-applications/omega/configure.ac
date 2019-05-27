@@ -409,7 +409,7 @@ AC_SUBST(PCRE_LIBS)
 AC_MSG_CHECKING([for /dev/stdin])
 if test -c /dev/stdin && (echo hello|$GREP hello /dev/stdin >&AS_MESSAGE_LOG_FD 2>&1); then
   AC_MSG_RESULT([yes])
-  AC_DEFINE([HAVE_DEV_STDIN], [1], [Define to 1 if you have the '/dev/stdin' special special file])
+  AC_DEFINE([HAVE_DEV_STDIN], [1], [Define to 1 if you have the '/dev/stdin' special file])
 else
   AC_MSG_RESULT([no])
 fi
