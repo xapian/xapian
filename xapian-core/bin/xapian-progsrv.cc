@@ -24,6 +24,7 @@
 
 #include "gnu_getopt.h"
 #include "parseint.h"
+
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -73,9 +74,9 @@ int main(int argc, char **argv)
 	    case 't':
 		unsigned int temp;
 		if (!parse_unsigned(optarg, temp)) {
-		    cout << "timeout must be a positive integer" << endl;
+		    cout << "timeout must be a non-negative integer" << endl;
 		    show_usage();
-		    exit(0);
+		    exit(1);
 		}
 		timeout = temp * 1e-3;
 		break;

@@ -107,7 +107,7 @@ main(int argc, char **argv)
 		break;
 	    case 'p':
 		if (!parse_signed(optarg, port) ||
-		   (port <= 0 || port >= 65536)) {
+		   (port < 1 || port > 65535)) {
 		    cerr << "Error: must specify a valid port number "
 			    "(between 1 and 65535). " << endl;
 		    exit(1);
@@ -119,9 +119,9 @@ main(int argc, char **argv)
 	    case 'i': {
 		unsigned int i_val;
 		if (!parse_unsigned(optarg, i_val)) {
-		    cout << "Interval must be a positive integer" << endl;
+		    cout << "Interval must be a non-negative integer" << endl;
 		    show_usage();
-		    exit(0);
+		    exit(1);
 		}
 		interval = i_val;
 		break;
@@ -130,9 +130,9 @@ main(int argc, char **argv)
 		unsigned int reader_time;
 		if (!parse_unsigned(optarg, reader_time)) {
 		    cout << "reader close time must be a"
-			    " positive integer" << endl;
+			    " non-negative integer" << endl;
 		    show_usage();
-		    exit(0);
+		    exit(1);
 		}
 		reader_close_time = reader_time;
 		break;
@@ -140,9 +140,9 @@ main(int argc, char **argv)
 	    case 't':
 		unsigned int socket_timeout;
 		if (!parse_unsigned(optarg, socket_timeout)) {
-		    cout << "timeout must be a positive integer" << endl;
+		    cout << "timeout must be a non-negative integer" << endl;
 		    show_usage();
-		    exit(0);
+		    exit(1);
 		}
 		timeout = socket_timeout;
 		break;

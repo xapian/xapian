@@ -880,12 +880,9 @@ test_driver::parse_command_line(int argc, char **argv)
 
     if (verbose == 0) {
 	const char *p = getenv("VERBOSE");
-	if (p != NULL) {
-	    if (!parse_signed(p, verbose) || (verbose != 1 && verbose != 2)) {
-		throw "Verbose must be 1 or 2"
-		      "a value of 1 will display detailed information about"
-		      "failures, and a value of 2 will display further"
-		      "information about the progress of tests.";
+	if (p && *p) {
+	    if (!parse_unsigned(p, verbose)) {
+		throw "Verbose must be a non-negative integer";
 	    }
 	}
     }

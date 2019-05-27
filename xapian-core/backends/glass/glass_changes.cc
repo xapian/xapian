@@ -64,9 +64,9 @@ GlassChanges::start(glass_revision_number_t old_rev,
 
     // Always check max_changesets for modification since last revision.
     const char *p = getenv("XAPIAN_MAX_CHANGESETS");
-    if (p) {
-	if (!parse_signed(p, max_changesets)) {
-	    throw "XAPIAN_MAX_CHANGESETS must be a positive integer";
+    if (p && *p) {
+	if (!parse_unsigned(p, max_changesets)) {
+	    throw "XAPIAN_MAX_CHANGESETS must be a non-negative integer";
 	}
     } else {
 	max_changesets = 0;

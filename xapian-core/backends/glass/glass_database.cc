@@ -1050,9 +1050,9 @@ GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
     LOGCALL_CTOR(DB, "GlassWritableDatabase", dir | flags | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
-    if (p) {
-	if (!parse_signed(p, flush_threshold)) {
-	    throw "XAPIAN_FLUSH_THRESHOLD must be an integer";
+    if (p && *p) {
+	if (!parse_unsigned(p, flush_threshold)) {
+	    throw "XAPIAN_FLUSH_THRESHOLD must be a non-negative integer";
 	}
     }
     if (flush_threshold == 0)
