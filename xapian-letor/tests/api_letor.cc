@@ -929,8 +929,14 @@ DEFINE_TESTCASE(tfdoclenfeature, generated)
 {
     string db_path = get_database_path("apitest_tfdoclenfeature",
 				       db_index_one_document);
+    Xapian::TfDoclenFeature feature;
+
     Xapian::Database db(db_path);
+    feature.set_database(db);
+
     Xapian::Document doc = db.get_document(1);
+    feature.set_doc(doc);
+
     std::map<std::string,Xapian::termcount> len;
     Xapian::TermIterator dt = doc.termlist_begin();
 
@@ -980,6 +986,7 @@ DEFINE_TESTCASE(tfdoclenfeature, generated)
 
     return true;
 }
+
 
 // Test for TfFeature
 DEFINE_TESTCASE(tffeature, generated)
