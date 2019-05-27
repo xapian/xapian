@@ -46,11 +46,20 @@ boolean[=PREFIX]
 	applications.  Q is reserved for a unique ID term.
 
 date=FORMAT
-	generate terms for date range searching.  If FORMAT is "unix", then the
-	value is interpreted as a Unix time_t (seconds since 1970).  If
-	FORMAT is "yyyymmdd", then the value is interpreted as an 8 digit
-	string, e.g. 20021221 for 21st December 2002.  Unknown formats,
-	and invalid values are ignored at present.
+        generate ``D``-, ``M``- and ``Y``-prefixed terms for date range
+        searching (e.g. ``D20021221``, ``M200212`` and ``Y2002`` for the
+        21st December 2002).  The following values for *FORMAT* are supported:
+
+          * ``unix``: the value is interpreted as a Unix local time_t (seconds
+            since the start of 1970 in the local timezone).
+          * ``yyyymmdd``: the value is interpreted as an 8 digit string, e.g.
+            20021221 for 21st December 2002.
+
+        Unknown formats give an error at script parse time since Omega 1.4.12
+        (in earlier versions unknown formats uselessly resulted in the terms
+        ``D``, ``M`` and ``Y`` literally being added to every document).
+
+        Invalid values result in no terms being added.
 
 field[=FIELDNAME]
 	add as a field to the Xapian record.  FIELDNAME defaults to the field
