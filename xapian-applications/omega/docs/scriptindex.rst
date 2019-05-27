@@ -43,7 +43,8 @@ boolean[=PREFIX]
 	index the text as a single boolean term (with prefix PREFIX).  If
 	there's no text, no term is added.  Omega expects certain prefixes to
 	be used for certain purposes - those starting "X" are reserved for user
-	applications.  Q is reserved for a unique ID term.
+	applications.  ``Q`` is conventionally used as the prefix for a unique
+	ID term.
 
 date=FORMAT
         generate ``D``-, ``M``- and ``Y``-prefixed terms for date range
@@ -158,9 +159,9 @@ unique[=PREFIX]
 	with an ID which is already present will cause the old record to be
 	replaced (or deleted if the new record is otherwise empty).  You should
 	also index the field as a boolean field using the same prefix so that
-	the old record can be found.  In Omega, Q is reserved for use as the
-	prefix of a unique term.  You can use ``unique`` at most once in each
-        index script (this is only enforced since Omega 1.4.5, but older
+        the old record can be found.  In Omega, ``Q`` is conventionally used as
+        the prefix of a unique term.  You can use ``unique`` at most once in
+        each index script (this is only enforced since Omega 1.4.5, but older
         versions didn't handle multiple instances usefully).
 
 value=VALUESLOT
