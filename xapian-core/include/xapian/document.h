@@ -163,6 +163,8 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  term_pos_first > term_pos_last, this method does nothing.
      *
      *  @return The number of postings removed.
+     *
+     *  @since Added in Xapian 1.4.8.
      */
     Xapian::termpos remove_postings(const std::string& term,
 				    Xapian::termpos term_pos_first,
