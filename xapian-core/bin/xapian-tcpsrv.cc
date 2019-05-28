@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
 		break;
 	    case 'p':
 		if (!parse_signed(optarg, port) ||
-		   (port <= 0 || port >= 65536)) {
+		    (port < 1 || port > 65535)) {
 		    cerr << "Error: must specify a valid port number "
 			    "(between 1 and 65535). " << endl;
 		    exit(1);
