@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013,2014,2015,2016,2017,2018 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -936,6 +936,23 @@ DEFINE_TESTCASE(removepostings, !backend) {
 	TEST_EQUAL(*p, *expect);
 	++expect;
     }
+    TEST_EQUAL(*expect, 9999);
+    TEST_EQUAL(t.get_wdf(), 6);
+
+    // Check removing all positions removes the term too if the wdf reaches 0
+    // (since 1.5.0).
+    TEST_EQUAL(doc.remove_postings("foo", 5, 1000), 6);
+    t = doc.termlist_begin();
+    TEST(t == doc.termlist_end());
+
+    // Test the removing all positions doesn't remove the term if the wdf is
+    // still non-zero.
+    doc.add_posting("foo", 123, 2);
+    TEST_EQUAL(doc.remove_postings("foo", 1, 200), 1);
+    t = doc.termlist_begin();
+    TEST(t != doc.termlist_end());
+    TEST(t.positionlist_begin() == t.positionlist_end());
+    TEST_EQUAL(t.get_wdf(), 1);
 
     return true;
 }

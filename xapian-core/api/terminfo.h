@@ -1,7 +1,7 @@
 /** @file terminfo.h
  * @brief Metadata for a term in a document
  */
-/* Copyright 2017,2018 Olly Betts
+/* Copyright 2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,14 +102,23 @@ class TermInfo {
 	return false;
     }
 
-    /// Decrease within-document frequency.
-    void decrease_wdf(Xapian::termcount delta) {
+    /** Decrease within-document frequency.
+     *
+     *  @return true If the adjusted wdf is zero and there are no positions.
+     */
+    bool decrease_wdf(Xapian::termcount delta) {
 	// Saturating arithmetic - don't let the wdf go below zero.
 	if (wdf >= delta) {
 	    wdf -= delta;
 	} else {
 	    wdf = 0;
 	}
+	if (wdf == 0 && positions.empty()) {
+	    // Flag term as deleted if no wdf or positions.
+	    split = 1;
+	    return true;
+	}
+	return false;
     }
 
     bool remove() {

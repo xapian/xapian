@@ -1,7 +1,7 @@
 /** @file document.h
  * @brief Class representing a document
  */
-/* Copyright (C) 2010,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2010,2015,2016,2017,2018,2019 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -146,7 +146,21 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 		     Xapian::termpos term_pos,
 		     Xapian::termcount wdf_inc = 1);
 
-    /// Remove posting for a term.
+    /** Remove posting for a term.
+     *
+     *  The instance of the specified term at position term_pos will be
+     *  removed, and the @a wdf reduced by @a wdf_dec (the wdf will not
+     *  ever go below zero though - the resultant wdf is clamped to zero
+     *  if it would).
+     *
+     *  If the term doesn't occur at position term_pos then
+     *  Xapian::InvalidArgumentError is thrown.  If you want to remove a single
+     *  position which may not be present without triggering an exception you
+     *  can call <code>remove_postings(term, pos, pos)</code> instead.
+     *
+     *  Since 1.5.0, if the final position is removed and the wdf becomes zero
+     *  then the term will be removed from the document.
+     */
     void remove_posting(const std::string& term,
 			Xapian::termpos term_pos,
 			Xapian::termcount wdf_dec = 1);
@@ -156,11 +170,17 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  Any instances of the term at positions >= @a term_pos_first and
      *  <= @a term_pos_last will be removed, and the wdf reduced by
      *  @a wdf_dec for each instance removed (the wdf will not ever go
-     *  below zero though).
+     *  below zero though - the resultant wdf is clamped to zero if it would).
      *
-     *  It's OK if the term doesn't occur in the range of positions
-     *  specified (unlike @a remove_posting()).  And if
-     *  term_pos_first > term_pos_last, this method does nothing.
+     *  If the term doesn't occur in the range of positions specified (including
+     *  if term_pos_first > term_pos_last) then this method does nothing (unlike
+     *  @a remove_posting() which throws an exception if the specified position
+     *  is not present).
+     *
+     *  Since 1.5.0, if all remaining positions are removed and the wdf becomes
+     *  zero then the term will be removed from the document.  Note that this
+     *  only happens if some positions are removed though - calling this method
+     *  on a term which has no positions and zero wdf won't remove that term.
      *
      *  @return The number of postings removed.
      *

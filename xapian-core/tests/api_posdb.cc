@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2009,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009,2016,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -544,10 +544,22 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     Xapian::Document doc4 = db.get_document(did2);
     doc4.remove_posting("hadpos", 1);
     db.replace_document(did2, doc4);
-
+    // Removing the last position should remove the term if the wdf is 0
+    // (since 1.5.0).
+    TEST(!db.term_exists("hadpos"));
     {
 	Xapian::PositionIterator i = db.positionlist_begin(did2, "hadpos");
 	TEST_EQUAL(i, db.positionlist_end(did2, "hadpos"));
+    }
+
+    doc4.add_posting("extrawdf", 12, 2);
+    doc4.remove_posting("extrawdf", 12);
+    db.replace_document(did2, doc4);
+    // Removing the last position should leave the term if the wdf is non-zero.
+    TEST(db.term_exists("extrawdf"));
+    {
+	Xapian::PositionIterator i = db.positionlist_begin(did2, "extrawdf");
+	TEST_EQUAL(i, db.positionlist_end(did2, "extrawdf"));
     }
 
     db.delete_document(did);
