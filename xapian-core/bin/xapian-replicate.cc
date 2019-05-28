@@ -129,8 +129,8 @@ main(int argc, char **argv)
 	    case 'r': {
 		unsigned int reader_time;
 		if (!parse_unsigned(optarg, reader_time)) {
-		    cout << "reader close time must be a"
-			    " non-negative integer" << endl;
+		    cout << "reader close time must be a "
+			    "non-negative integer" << endl;
 		    show_usage();
 		    exit(1);
 		}
