@@ -36,7 +36,6 @@ RSTDOCS = \
 	stemming.rst \
 	synonyms.rst \
 	termgenerator.rst \
-	tests.rst \
 	valueranges.rst
 
 RSTHTML = $(RSTDOCS:.rst=.html)
