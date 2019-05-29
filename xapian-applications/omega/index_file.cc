@@ -545,9 +545,9 @@ index_add_document(const string & urlterm, time_t last_altered,
     }
 }
 
-void
+static void
 index_ctime_terms(Xapian::Document & doc, DirectoryIterator & d,
-		  const time_t & mtime, const time_t & ctime)
+		  time_t mtime, time_t ctime)
 {
     bool inc_tag_added = false;
     if (d.is_other_readable()) {
@@ -577,10 +577,12 @@ index_ctime_terms(Xapian::Document & doc, DirectoryIterator & d,
 
 }
 
-bool
+/// Update a document without re-extracting text
+static bool
 index_update_entry(const string & urlterm,
 		   DirectoryIterator & d,
-		   Xapian::docid & did)
+		   Xapian::docid & did,
+		   string & md5)
 {
     if (!did) {
 	Xapian::PostingIterator p = db.postlist_begin(urlterm);
@@ -593,12 +595,29 @@ index_update_entry(const string & urlterm,
     time_t mtime = d.get_mtime();
     time_t ctime = d.get_ctime();
     Xapian::Document doc = db.get_document(did);
-    string value_ctime = doc.get_value(VALUE_CTIME);
+    const string & value_ctime = doc.get_value(VALUE_CTIME);
     time_t doc_ctime = binary_string_to_int(value_ctime);
-    string value_mtime = doc.get_value(VALUE_LASTMOD);
+    const string & value_mtime = doc.get_value(VALUE_LASTMOD);
     time_t doc_mtime = binary_string_to_int(value_mtime);
 
     if (doc_mtime == mtime && doc_ctime <= ctime) {
+
+	// Check the size of the document
+	const string & value_size = doc.get_value(VALUE_SIZE);
+	off_t doc_size = Xapian::sortable_unserialise(value_size);
+	off_t size = d.get_size();
+	if (size != doc_size)
+	    return false;
+
+	// Check the MD5 of the document
+	const string & text = d.file_to_string();
+	const string & doc_md5 = doc.get_value(VALUE_MD5);
+	md5_string(text, md5);
+	if (doc_md5 != md5)
+	    return false;
+
+	// Here we are sure that the content of the file hasn't change
+
 	if (verbose)
 	    cout << "Updating entry without re-extracting text" << endl;
 	// Remove terms from the document
@@ -673,8 +692,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 
     // if the ctime has changed but the mtime is unchanged, we can just
     // update the existing Document and avoid having to re-extract text, etc.
+    string md5 = "";
     if (use_ctime && d.get_ctime() != d.get_mtime()) {
-	if (index_update_entry(urlterm, d, did))
+	if (index_update_entry(urlterm, d, did, md5))
 	    return;
     }
 
@@ -710,7 +730,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     }
 
     string author, title, sample, keywords, topic, dump;
-    string md5;
     time_t created = time_t(-1);
     int pages = -1;
 
@@ -910,12 +929,14 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    sample = p.sample;
 	    author = p.author;
 	    created = p.created;
-	    md5_string(text, md5);
+	    if (md5 == "")
+		md5_string(text, md5);
 	} else if (mimetype == "text/plain") {
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
 	    dump = d.file_to_string();
-	    md5_string(dump, md5);
+	    if (md5 == "")
+		md5_string(dump, md5);
 
 	    // Look for Byte-Order Mark (BOM).
 	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
@@ -1092,7 +1113,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    const string & text = d.file_to_string();
 	    xmlparser.parse_xml(text);
 	    dump = xmlparser.dump;
-	    md5_string(text, md5);
+	    if (md5 == "")
+		md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
 	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
@@ -1124,7 +1146,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    // Currently we assume that text files are UTF-8 unless they have a
 	    // byte-order mark.
 	    dump = d.file_to_string();
-	    md5_string(dump, md5);
+	    if (md5 == "")
+		md5_string(dump, md5);
 
 	    // Look for Byte-Order Mark (BOM).
 	    if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
@@ -1144,7 +1167,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	} else if (mimetype == "image/svg+xml") {
 	    SvgParser svgparser;
 	    const string & text = d.file_to_string();
-	    md5_string(text, md5);
+	    if (md5 == "")
+		md5_string(text, md5);
 	    svgparser.parse(text);
 	    dump = svgparser.dump;
 	    title = svgparser.title;
@@ -1177,7 +1201,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	} else if (mimetype == "application/atom+xml") {
 	    AtomParser atomparser;
 	    const string & text = d.file_to_string();
-	    md5_string(text, md5);
+	    if (md5 == "")
+		md5_string(text, md5);
 	    atomparser.parse(text);
 	    dump = atomparser.dump;
 	    title = atomparser.title;
