@@ -28,6 +28,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+
 #include <xapian.h>
 #include "parseint.h"
 #include "testsuite.h"

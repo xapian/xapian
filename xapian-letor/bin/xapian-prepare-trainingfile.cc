@@ -25,8 +25,9 @@
 
 #include <xapian.h>
 #include <xapian-letor.h>
-#include <iostream>
 #include "parseint.h"
+
+#include <iostream>
 #include <string>
 
 #include "gnu_getopt.h"

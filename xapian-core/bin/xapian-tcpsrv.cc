@@ -29,6 +29,7 @@
 #include <string>
 
 #include "gnu_getopt.h"
+
 #include "xapian/constants.h"
 #include "xapian/error.h"
 #include "parseint.h"
