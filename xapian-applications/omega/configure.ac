@@ -234,9 +234,9 @@ AM_CONDITIONAL(NEED_STRPTIME, [test yes != "$ac_cv_func_strptime"])
 
 AC_CHECK_FUNCS([posix_fadvise])
 
-dnl omindex uses fork(), socketpair(), and setrlimit() to impose resource
-dnl limits on filter programs.
-AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic setpgid sigaction])
+dnl omindex uses fork(), socketpair(), setrlimit() and alarm() to impose resource
+dnl limits on filter programs and workers.
+AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic setpgid sigaction alarm])
 
 dnl -lxnet is needed on Solaris and apparently on HP-UX too.
 AC_SEARCH_LIBS([socketpair], [xnet],
@@ -245,6 +245,23 @@ AC_SEARCH_LIBS([socketpair], [xnet],
 
 dnl fnmatch() is used to match ignore pattern.
 AC_CHECK_FUNCS([fnmatch])
+
+OMINDEX_MODULES=""
+
+dnl check if poppler is available.
+PKG_CHECK_MODULES([POPPLER], [poppler-cpp], [
+     save_LIBS=$LIBS
+     LIBS="$LIBS $POPPLER_LIBS"
+     AC_LINK_IFELSE([#include <poppler/cpp/poppler-version.h>
+                     int main(){
+                         poppler::version_string();
+                         return 0;
+                     }],
+                    [AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
+                     OMINDEX_MODULES="$OMINDEX_MODULES omindex_pdf"])
+     LIBS=$save_LIBS],[ ])
+
+AC_SUBST([OMINDEX_MODULES])
 
 dnl Check that snprintf actually works as it's meant to.
 dnl

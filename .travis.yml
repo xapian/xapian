@@ -4,7 +4,7 @@ notifications:
   irc: "chat.freenode.net#xapian-devel"
 env:
   global:
-    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libiconv libmagic pcre libsvm lua mono python2 python icu4c'
+    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libiconv libmagic pcre libsvm lua mono python2 python icu4c pkgconfig poppler'
 matrix:
   include:
     - compiler: gcc
@@ -30,6 +30,7 @@ matrix:
             - libsvm-dev
             - libicu-dev
             - pkg-config
+            - libpoppler-cpp-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
@@ -53,6 +54,7 @@ matrix:
             - libc++-dev
             - libicu-dev
             - pkg-config
+            - libpoppler-cpp-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
@@ -78,6 +80,7 @@ matrix:
             - python3-dev
             - tcl
             - libsvm-dev
+            - libpoppler-cpp-dev
     - os: linux
       addons:
         apt:

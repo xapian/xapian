@@ -242,9 +242,10 @@ sites '/products' and '/products/large', or similar.)
 
 omindex has built-in support for indexing HTML, PHP, text files, CSV
 (Comma-Separated Values) files, SVG, Atom feeds, and AbiWord documents.  It can
-also index a number of other formats using external programs.  Filter programs
-are run with CPU, time and memory limits to prevent a runaway filter from
-blocking indexing of other files.
+also index a number of other formats using external programs or libraries.  Filter programs and libraries
+are run with CPU, time and memory limits to prevent them from
+blocking indexing of other files or crashing omindex. If for one format both
+options are available, libraries would be preferred because they have a better runtime behaviour.
 
 The way omindex decides how to index a file is based around MIME content-types.
 First of all omindex will look up a file's extension in its extension to MIME
@@ -259,9 +260,10 @@ other filters too - see below):
 * text files (.txt, .text)
 * SVG (.svg)
 * CSV (Comma-Separated Values) files (.csv)
-* PDF (.pdf) if pdftotext is available (comes with poppler or xpdf)
+* PDF (.pdf) if pdftotext (comes with poppler or xpdf) or libpoppler
+  (in particular libpoppler-cpp-dev) are available
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
-  with poppler or xpdf) are available
+  with poppler or xpdf) or libpoppler (in particular libpoppler-cpp-dev) are available
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,

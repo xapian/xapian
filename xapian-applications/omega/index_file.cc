@@ -7,6 +7,7 @@
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
+ * Copyright 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,6 +68,7 @@
 #include "utf8convert.h"
 #include "utils.h"
 #include "values.h"
+#include "worker.h"
 #include "xmlparse.h"
 #include "xlsxparse.h"
 #include "xpsxmlparse.h"
@@ -101,6 +103,7 @@ static string site_term, host_term;
 static Failed failed;
 
 map<string, Filter> commands;
+map<string, Worker *> workers;
 
 static void
 mark_as_seen(Xapian::docid did)
@@ -144,6 +147,14 @@ skip_unknown_mimetype(const string & urlterm, const string & context,
 		      const string & mimetype, off_t size, time_t last_mod)
 {
     skip(urlterm, context, "unknown MIME type '" + mimetype + "'", size, last_mod);
+}
+
+void
+index_add_default_libraries()
+{
+#if defined HAVE_POPPLER
+    index_library("application/pdf", new Worker("omindex_pdf"));
+#endif
 }
 
 void
@@ -317,7 +328,8 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
 }
 
 static void
-parse_pdfinfo_field(const char * p, const char * end, string & out, const char * field, size_t len)
+parse_pdfinfo_field(const char* p, const char* end, string & out,
+		    const char* field, size_t len)
 {
     if (size_t(end - p) > len && memcmp(p, field, len) == 0) {
 	p += len;
@@ -619,6 +631,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     time_t created = time_t(-1);
     int pages = -1;
 
+    map<string, Worker *>::const_iterator wrk_it = workers.find(mimetype);
     map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
     if (cmd_it == commands.end()) {
 	size_t slash = mimetype.find('/');
@@ -635,7 +648,16 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
     }
     try {
-	if (cmd_it != commands.end()) {
+	if (wrk_it != workers.end()) {
+	    // Just use the worker process to extract the content
+	    Worker* wrk = wrk_it->second;
+	    if (!wrk ||
+		!wrk->extract(file, dump, title, keywords, author, pages)) {
+		string msg = "Couldn't extract text from " + file;
+		skip(urlterm, context, msg, d.get_size(), d.get_mtime());
+		return;
+	    }
+	} else if (cmd_it != commands.end()) {
 	    // Easy "run a command and read text or HTML from stdout or a
 	    // temporary file" cases.
 	    auto& filter = cmd_it->second;

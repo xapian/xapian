@@ -392,6 +392,7 @@ main(int argc, char **argv)
     map<string, string> mime_map;
 
     index_add_default_filters();
+    index_add_default_libraries();
 
     if (argc == 2 && strcmp(argv[1], "-v") == 0) {
 	// -v was the short option for --version in 1.2.3 and earlier, but

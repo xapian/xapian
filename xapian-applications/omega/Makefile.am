@@ -44,6 +44,8 @@ BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
 
 MAINTAINERCLEANFILES = my-html-tok.h mimemap.h mimemap.stamp namedents.h
 
+EXTRA_PROGRAMS = omindex_pdf
+
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
 	clickmodel/testdata/test2.log\
@@ -80,7 +82,7 @@ AM_CPPFLAGS = \
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
-pkglibbin_PROGRAMS = omega
+pkglibbin_PROGRAMS = omega $(OMINDEX_MODULES)
 dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
@@ -112,10 +114,11 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
  xlsxparse.h opendocparse.h msxmlparse.h sort.h timegm.h csvescape.h\
  portability/mkdtemp.h portability/strptime.h\
- clickmodel/simplifieddbn.h clickmodel/session.h
+ clickmodel/simplifieddbn.h clickmodel/session.h worker.h worker_comms.h handler.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
+	common/closefrom.h\
 	common/append_filename_arg.h\
 	common/gnu_getopt.h\
 	common/keyword.h\
@@ -166,11 +169,14 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
  opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc\
- datetime.cc
+ datetime.cc common/closefrom.cc worker.cc worker_comms.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
+
+omindex_pdf_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
+omindex_pdf_LDADD = $(POPPLER_LIBS) $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\

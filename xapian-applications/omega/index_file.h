@@ -5,6 +5,7 @@
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2019 Olly Betts
+ * Copyright 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +31,7 @@
 #include <string>
 #include <xapian.h>
 
+class Worker;
 class DirectoryIterator;
 
 enum skip_flags { SKIP_VERBOSE_ONLY = 0x01, SKIP_SHOW_FILENAME = 0x02 };
@@ -84,6 +86,13 @@ struct Filter {
 };
 
 extern std::map<std::string, Filter> commands;
+extern std::map<std::string, Worker *> workers;
+
+inline void
+index_library(const std::string& type, Worker* worker)
+{
+    workers[type] = worker;
+}
 
 inline void
 index_command(const std::string & type, const Filter & filter)
@@ -105,6 +114,10 @@ skip(const std::string & urlterm, const std::string & context,
 /// Call index_command() to set up the default command filters.
 void
 index_add_default_filters();
+
+/// Call to set up the default libraries.
+void
+index_add_default_libraries();
 
 /// Initialise.
 void
