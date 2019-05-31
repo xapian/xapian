@@ -29,6 +29,7 @@
 #include <map>
 #include <string>
 #include <xapian.h>
+#include "worker.h"
 
 class DirectoryIterator;
 
@@ -84,6 +85,13 @@ struct Filter {
 };
 
 extern std::map<std::string, Filter> commands;
+extern std::map<std::string, Worker *> workers;
+
+inline void
+index_library(const std::string & type, Worker * worker)
+{
+    workers[type] = worker;
+}
 
 inline void
 index_command(const std::string & type, const Filter & filter)
@@ -105,6 +113,10 @@ skip(const std::string & urlterm, const std::string & context,
 /// Call index_command() to set up the default command filters.
 void
 index_add_default_filters();
+
+/// Call to set up the default libraries.
+void
+index_add_default_libraries();
 
 /// Initialise.
 void

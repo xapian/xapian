@@ -101,6 +101,7 @@ static string site_term, host_term;
 static Failed failed;
 
 map<string, Filter> commands;
+map<string, Worker *> workers;
 
 static void
 mark_as_seen(Xapian::docid did)
@@ -144,6 +145,12 @@ skip_unknown_mimetype(const string & urlterm, const string & context,
 		      const string & mimetype, off_t size, time_t last_mod)
 {
     skip(urlterm, context, "unknown MIME type '" + mimetype + "'", size, last_mod);
+}
+
+void
+index_add_default_libraries()
+{
+	index_library("application/pdf", new Worker("omindex_pdf"));
 }
 
 void
@@ -368,19 +375,6 @@ parse_pdf_metainfo(const string& pdfinfo, string &author, string &title,
 		PARSE_PDFINFO_FIELD(start, eol, title, "Title");
 		break;
 	}
-    }
-}
-
-static void
-get_pdf_metainfo(int fd, string &author, string &title,
-		 string &keywords, string &topic, int& pages)
-{
-    try {
-	string pdfinfo;
-	run_filter(fd, "pdfinfo -enc UTF-8 -", false, &pdfinfo);
-	parse_pdf_metainfo(pdfinfo, author, title, keywords, topic, pages);
-    } catch (ReadError) {
-	// It's probably best to index the document even if pdfinfo fails.
     }
 }
 
@@ -619,6 +613,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     time_t created = time_t(-1);
     int pages = -1;
 
+    map<string, Worker *>::const_iterator wrk_it = workers.find(mimetype);
     map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
     if (cmd_it == commands.end()) {
 	size_t slash = mimetype.find('/');
@@ -635,7 +630,15 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
     }
     try {
-	if (cmd_it != commands.end()) {
+	if (wrk_it != workers.end()) {
+	    // Just use the worker process to extrac the content
+	    Worker * wrk = wrk_it->second;
+	    if (wrk && !wrk->extract(file, dump, title, keywords, author)) {
+		string msg = "Couldn't extract text from " + file;
+		skip(urlterm, context, msg, d.get_size(), d.get_mtime());
+		return;
+	    }
+	} else if (cmd_it != commands.end()) {
 	    // Easy "run a command and read text or HTML from stdout or a
 	    // temporary file" cases.
 	    auto& filter = cmd_it->second;
@@ -835,16 +838,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    } else {
 		// FIXME: What charset is the file?  Look at contents?
 	    }
-	} else if (mimetype == "application/pdf") {
-	    const char* cmd = "pdftotext -enc UTF-8 - -";
-	    try {
-		run_filter(d.get_fd(), cmd, false, &dump);
-	    } catch (ReadError) {
-		skip_cmd_failed(urlterm, context, cmd,
-				d.get_size(), d.get_mtime());
-		return;
-	    }
-	    get_pdf_metainfo(d.get_fd(), author, title, keywords, topic, pages);
 	} else if (mimetype == "application/postscript") {
 	    // There simply doesn't seem to be a Unicode capable PostScript to
 	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
