@@ -277,6 +277,12 @@ while (<>) {
 	if (m,^\+\s+LOGCALL(?:_[A-Z0-9]+)*\([^"]*"[^"]*(?<!operator)\(,) {
 	    diagnostic('error', "Don't include parentheses in debug logging method/class name", $fullline);
 	}
+	if (/^\+\s+LOGCALL(?:_[A-Z0-9]+)*\(.*,$/) {
+	    diagnostic('error', "Don't wrap long LOGCALL lines", $fullline);
+	}
+	if (/^\+\s+(LOGCALL(?:_STATIC)?)\([^,]*,\s*void,$/) {
+	    diagnostic('error', "Use $1_VOID for a method with a void return type", $fullline);
+	}
 	# Replace string literals containing escaped quotes:
 	if (/['"]/) {
 	    my $quote = substr($_, $-[0], 1);
