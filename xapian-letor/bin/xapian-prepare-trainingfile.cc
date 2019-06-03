@@ -78,8 +78,8 @@ try {
 	    case 'm':
 		if (!parse_unsigned(optarg, msize)) {
 		    cerr << "Mset size must be >= 0" << endl;
+		    exit(1);
 		}
-		exit(1);
 		break;
 	    case OPT_HELP:
 		cout << PROG_NAME " - " PROG_DESC "\n\n";
