@@ -20,17 +20,21 @@
  */
 
 #include <config.h>
+
 #include "worker.h"
 #include "worker_comms.h"
 
 #include "pkglibbindir.h"
 #include <csignal>
 #include <cstring>
+#include <cerrno>
 #include "safefcntl.h"
 #include "safeunistd.h"
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include "closefrom.h"
+#include "freemem.h"
+
 using namespace std;
 
 bool Worker::ignoring_sigpipe = false;

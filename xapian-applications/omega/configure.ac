@@ -236,7 +236,7 @@ AC_CHECK_FUNCS([posix_fadvise])
 
 dnl omindex uses fork(), socketpair(), and setrlimit() to impose resource
 dnl limits on filter programs.
-AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic setpgid sigaction])
+AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic setpgid sigaction alarm])
 
 dnl -lxnet is needed on Solaris and apparently on HP-UX too.
 AC_SEARCH_LIBS([socketpair], [xnet],

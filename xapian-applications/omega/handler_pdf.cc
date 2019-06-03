@@ -26,6 +26,7 @@
 #include <iostream>
 #include <poppler-document.h>
 #include <poppler-page.h>
+#include <poppler-version.h>
 
 using namespace std;
 using namespace poppler;
@@ -34,12 +35,13 @@ static string
 clear_text(const ustring & x)
 {
     byte_array buf = x.to_utf8();
-    string text, tmp(buf.data(), buf.size());
-    int sz = tmp.length();
+    string text(buf.data(), buf.size());
+    int i, j, sz = text.length();
 
-    for (int i = 0; i < sz; ++i)
-	if (!isspace(tmp[i]) || (i && !isspace(tmp[i - 1])))
-	    text.push_back(tmp[i]);
+    for (j = i = 0; i < sz; ++i)
+	if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
+	    text[j++] = text[i];
+    text.resize(j);
 
     return text;
 }
@@ -61,10 +63,18 @@ extract(const string & filename,
 	    return false;
 	}
 
-	author = clear_text(doc->get_author());
-	title = clear_text(doc->get_title());
-	keywords = clear_text(doc->get_keywords());
-
+#if (POPPLER_VERSION_MAJOR>0 || POPPLER_VERSION_MINOR>=46)
+	    author = clear_text(doc->get_author());
+	    title = clear_text(doc->get_title());
+	    keywords = clear_text(doc->get_keywords());
+	    cout << "author: <<" << author << ">>" << endl;
+	    cout << "title: <<" << author << ">>" << endl;
+	    cout << "keywords: <<" << author << ">>" << endl;
+#else
+	    author = "";
+	    title = "";
+	    keywords = "";
+#endif
 	// Extracting text from PDF file
 	for (int i = 0; i < doc->pages(); ++i) {
 	    page *p(doc->create_page(i));

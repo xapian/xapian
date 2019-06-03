@@ -31,12 +31,12 @@ using namespace std;
 const int FD = 3;
 const int time_limit = 300;
 
-#if defined SIGALRM
+#if defined HAVE_ALARM
 // IF I have SIGALRM (Best option)
 
 static void
 timeout_handler(int n) {
-    exit(n);
+    _Exit(n);
 }
 
 static void
@@ -65,7 +65,7 @@ pthread_t timer_thread = 0;
 static void
 timeout_handler(int delay) {
     sleep(delay);
-    exit(2);
+    _Exit(2);
 }
 
 static void
@@ -88,7 +88,7 @@ stop_timeout() {
 */
 #else
 // Otherwise I don't use timer? (worst case)
-static void set_timeout() { }
+static void set_timeout(int n) { }
 static void stop_timeout() { }
 //
 #endif
@@ -112,7 +112,7 @@ int main() {
 	set_timeout();
 	if (!extract(filename, dump, title, keywords, author)) {
 	    // FIXME: we could persist even if extraction fails...
-	    exit(1);
+	    _Exit(1);
 	}
 	// The function extract returns, I can cancel the timeout
 	stop_timeout();
