@@ -4,6 +4,7 @@
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2011 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,7 +86,7 @@ try {
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
-    int msize = 10;
+    Xapian::doccount msize = 10;
 
     bool have_database = false;
 
@@ -102,11 +103,10 @@ try {
 		have_database = true;
 		break;
 	    case 'm':
-		unsigned int size;
-		if (!parse_unsigned(optarg, size)) {
-		    throw "Mset size must be >= 0";
+		if (!parse_unsigned(optarg, msize)) {
+		    cerr << "Mset size must be >= 0" << endl;
 		}
-		msize = size;
+		exit(1);
 		break;
 	    case 's':
 		try {
@@ -222,9 +222,6 @@ try {
     delete ranker;
 
     cout << flush;
-} catch (const char *s) {
-    cout << s << endl;
-    exit(1);
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;
     exit(1);
