@@ -1052,7 +1052,8 @@ GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p && *p) {
 	if (!parse_unsigned(p, flush_threshold)) {
-	    throw "XAPIAN_FLUSH_THRESHOLD must be a non-negative integer";
+	    throw Xapian::InvalidArgumentError("XAPIAN_FLUSH_THRESHOLD must "
+					       "be a non-negative integer");
 	}
     }
     if (flush_threshold == 0)
