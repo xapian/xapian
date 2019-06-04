@@ -22,6 +22,7 @@
 #include <config.h>
 
 #include "backendmanager_multi.h"
+#include "backendmanager_remote.h"
 
 #include "errno_to_string.h"
 #include "filetests.h"
@@ -32,22 +33,41 @@
 #include <cstdio> // For rename().
 #include <cstring>
 
+#ifdef HAVE_VALGRIND
+# include <valgrind/memcheck.h>
+#endif
+
 using namespace std;
 
 BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
 					 BackendManager* sub_manager_)
     : BackendManager(datadir_),
       sub_manager(sub_manager_),
+      sub_manager_alt(NULL),
       cachedir(".multi" + sub_manager_->get_dbtype())
 {
     // Ensure the directory we store cached test databases in exists.
     (void)create_dir_if_needed(cachedir);
 }
 
+BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
+					 BackendManager* sub_manager_,
+					 BackendManager* sub_manager_alt_)
+    : BackendManager(datadir_),
+      sub_manager(sub_manager_),
+      sub_manager_alt(sub_manager_alt_),
+      cachedir(".multi" + sub_manager_->get_dbtype() + sub_manager_alt_->get_dbtype())
+{
+    (void)create_dir_if_needed(cachedir);
+}
+
 std::string
 BackendManagerMulti::get_dbtype() const
 {
-    return "multi_" + sub_manager->get_dbtype();
+    if (sub_manager_alt)
+	return "multi_" + sub_manager->get_dbtype() + "_" + sub_manager_alt->get_dbtype();
+    else
+	return "multi_" + sub_manager->get_dbtype();
 }
 
 #define NUMBER_OF_SUB_DBS 2
@@ -107,11 +127,45 @@ BackendManagerMulti::createdb_multi(const string& name,
     line += ' ';
     line += dbname;
     line += "___";
-    for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
-	dbbase += str(n);
-	dbs.add_database(Xapian::WritableDatabase(dbbase, flags));
+    if (!sub_manager_alt) {
+	for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
+	    dbbase += str(n);
+	    dbs.add_database(Xapian::WritableDatabase(dbbase, flags));
+	    dbbase.resize(dbbase_len);
+	    out << line << n << '\n';
+	}
+    } else {
+	const string& subalttype = sub_manager_alt->get_dbtype();
+	flags = Xapian::DB_CREATE_OR_OVERWRITE;
+	if (subalttype == "remoteprog_glass") {
+	    flags |= Xapian::DB_BACKEND_GLASS;
+	} else {
+	    string msg = "Unknown alt multidb subtype: ";
+	    msg += subalttype;
+	    throw msg;
+	}
+	dbbase += "0";
+	// create a writable db at dbbase, which will be accessed remotely
+	Xapian::WritableDatabase remote_test_db(dbbase, flags);
+	remote_test_db.close();
+	if (subalttype == "remoteprog_glass") {
+	    string args = BackendManagerRemote::get_writable_database_args_from_path(dbbase);
+#ifdef HAVE_VALGRIND
+	    if (RUNNING_ON_VALGRIND) {
+		args.insert(0, XAPIAN_PROGSRV" ");
+		dbs.add_database(Xapian::Remote::open_writable("./runsrv", args));
+		out << "remote :" << args << '\n';
+	    }
+#else
+	    dbs.add_database(Xapian::Remote::open_writable(XAPIAN_PROGSRV, args));
+	    out << "remote :" << XAPIAN_PROGSRV << " " << args << '\n';
+#endif
+	}
+
 	dbbase.resize(dbbase_len);
-	out << line << n << '\n';
+	dbbase += "1";
+	dbs.add_database(Xapian::WritableDatabase(dbbase, flags));
+	out << line << "1" << '\n';
     }
     out.close();
 

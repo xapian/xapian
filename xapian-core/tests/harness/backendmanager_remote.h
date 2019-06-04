@@ -43,6 +43,9 @@ class BackendManagerRemote : public BackendManager {
 	: BackendManager(std::string()),
 	  sub_manager(sub_manager_) {}
 
+    /// Get the args for opening a remote database from a given db path
+    static std::string get_writable_database_args_from_path(const std::string & path);
+
     /// Get the args for opening a remote database indexing a single file.
     std::string get_writable_database_args(const std::string & name,
 					   const std::string & file);
