@@ -24,6 +24,8 @@ MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
+.PHONY: coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
+
 # This relies on GNU make (for the pattern rule) but it's just a convenience
 # as you can run these check-* targets with any make using:
 #
@@ -36,6 +38,30 @@ EXTRA_PROGRAMS =
 # portability warning.
 check-@PERCENT@:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
+
+## --disable-shared as shared builds fail for me on x86-64 Debian etch.
+## If you're using ccache, you need ccache >= 3.0, released 2010-06-20 (older
+## versions don't handle --coverage properly).  You need ccache >= 3.2.2 to
+## actually cache compilations with --coverage - older 3.x just disables
+## caching for them.
+COVERAGE_CONFIGURE = \
+    $(srcdir)/configure CXXFLAGS='-O0 --coverage' --disable-shared VALGRIND=
+
+coverage-reconfigure: distclean
+	$(COVERAGE_CONFIGURE)
+
+coverage-reconfigure-maintainer-mode: distclean
+	$(COVERAGE_CONFIGURE) --enable-maintainer-mode
+
+coverage-check:
+	## GNU find specific.
+	find . -name '*.gcda' -delete
+	## Don't run under valgrind even if configure was run by hand.
+	$(MAKE) $(AM_MAKEFLAGS) check VALGRIND=
+	rm -f xapian-letor.lcov
+	lcov --capture -d . --quiet --rc 'lcov_branch_coverage=1' --no-external -o xapian-letor.lcov
+	rm -rf lcov
+	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-letor `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-letor.lcov
 
 EXTRA_DIST = ChangeLog include/xapian-letor/letor_error.h \
  include/xapian-letor/letor_errordispatch.h generate-exceptions exception_data.pm
