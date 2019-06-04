@@ -95,7 +95,7 @@ public:
 	PARSEDATE, SPELL, SPLIT, TRUNCATE, UNHTML, UNIQUE, VALUE,
 	VALUENUMERIC, VALUEPACKED, WEIGHT
     } type;
-    enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT };
+    enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT, SPLIT_PREFIXES };
 private:
     type action;
     int num_arg;
@@ -543,6 +543,8 @@ bad_escaping:
 				operation = Action::SPLIT_SORT;
 			    } else if (vals[1] == "none") {
 				operation = Action::SPLIT_NONE;
+			    } else if (vals[1] == "prefixes") {
+				operation = Action::SPLIT_PREFIXES;
 			    } else {
 				report_location(DIAG_ERROR, filename, line_no);
 				cerr << "Bad split operation '" << vals[1]
@@ -821,14 +823,15 @@ badhex:
 		    ++split_end;
 		}
 
+		int split_type = action.get_num_arg();
 		if (value.empty()) {
 		    // Nothing to do.
-		} else if (action.get_num_arg() != Action::SPLIT_SORT) {
+		} else if (split_type != Action::SPLIT_SORT) {
 		    // Generate split as we consume it.
 		    const string& delimiter = action.get_string_arg();
 
 		    unique_ptr<unordered_set<string>> seen;
-		    if (action.get_num_arg() == Action::SPLIT_DEDUP) {
+		    if (split_type == Action::SPLIT_DEDUP) {
 			seen.reset(new unordered_set<string>);
 		    }
 
@@ -838,7 +841,18 @@ badhex:
 			string::size_type i = 0;
 			while (true) {
 			    string::size_type j = value.find(ch, i);
-			    if (i != j) {
+			    if (split_type == Action::SPLIT_PREFIXES) {
+				if (j > 0) {
+				    string val(value, 0, j);
+				    run_actions(action_it, split_end,
+						database, indexer,
+						val,
+						this_field_is_content, doc,
+						fields,
+						field, fname, line_no,
+						docid);
+				}
+			    } else if (i != j) {
 				string val(value, i, j - i);
 				if (!seen.get() || seen->insert(val).second) {
 				    run_actions(action_it, split_end,
@@ -857,7 +871,18 @@ badhex:
 			string::size_type i = 0;
 			while (true) {
 			    string::size_type j = value.find(delimiter, i);
-			    if (i != j) {
+			    if (split_type == Action::SPLIT_PREFIXES) {
+				if (j > 0) {
+				    string val(value, 0, j);
+				    run_actions(action_it, split_end,
+						database, indexer,
+						val,
+						this_field_is_content, doc,
+						fields,
+						field, fname, line_no,
+						docid);
+				}
+			    } else if (i != j) {
 				string val(value, i, j - i);
 				if (!seen.get() || seen->insert(val).second) {
 				    run_actions(action_it, split_end,
