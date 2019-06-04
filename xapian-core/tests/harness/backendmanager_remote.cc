@@ -53,6 +53,17 @@ BackendManagerRemote::get_writable_database_args(const std::string & name,
 }
 
 std::string
+BackendManagerRemote::get_writable_database_args(const std::string& path,
+						 unsigned int timeout)
+{
+    std::string args = "-t";
+    args += str(timeout);
+    args += " --writable ";
+    args += path;
+    return args;
+}
+
+std::string
 BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & files,
 					       unsigned int timeout)
 {

@@ -25,6 +25,7 @@
 #include "backendmanager.h"
 
 #include <string>
+#include <vector>
 
 #include <xapian/database.h>
 
@@ -39,7 +40,8 @@ class BackendManagerMulti : public BackendManager {
     /// The path of the last writable database used.
     std::string last_wdb_path;
 
-    BackendManager* sub_manager;
+    // vector of sub_managers.
+    std::vector<BackendManager*> sub_managers;
 
     std::string cachedir;
 
@@ -52,7 +54,7 @@ class BackendManagerMulti : public BackendManager {
 
   public:
     BackendManagerMulti(const std::string& datadir_,
-			BackendManager* sub_manager_);
+			std::vector<BackendManager*> sub_manager_);
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
