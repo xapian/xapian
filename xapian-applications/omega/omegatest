@@ -741,6 +741,24 @@ END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
 testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,PENDING,PENDING,REVIEW' P=text
 
+# Feature tests for split prefixes command scriptindex.
+printf 'STATUS : field split=|,prefixes field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=REVIEW|PENDING|PENDING|REVIEW
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
+testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,REVIEW|PENDING,REVIEW|PENDING|PENDING,REVIEW|PENDING|PENDING|REVIEW' P=text
+
+# Feature tests for split prefixes command scriptindex.
+printf 'STATUS : field split=|,prefixes field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=REVIEW|PENDING|PENDING|REVIEW
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},$.}' > "$TEST_TEMPLATE"
+testcase 'REVIEW|PENDING|PENDING|REVIEW/REVIEW,REVIEW|PENDING,REVIEW|PENDING|PENDING,REVIEW|PENDING|PENDING|REVIEW' P=text
+
 # Feature tests for split command scriptindex without operation argument.
 printf 'STATUS : field split=| field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"
@@ -767,6 +785,15 @@ STATUS=::Foo::::Bar:Baz:::Hello::
 END
 printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}' > "$TEST_TEMPLATE"
 testcase '::Foo::::Bar:Baz:::Hello::/Foo|Bar:Baz|:Hello' P=text
+
+# Feature test for multi-character split delimiter for prefixes type.
+printf 'STATUS : field split=::,prefixes field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
+STATUS=::Foo::::Bar:Baz:::Hello::
+END
+printf '$field{STATUS,1}/$list{$field{SPLITSTATUS,1},|}' > "$TEST_TEMPLATE"
+testcase '::Foo::::Bar:Baz:::Hello::/::Foo|::Foo::|::Foo::::Bar:Baz|::Foo::::Bar:Baz:::Hello|::Foo::::Bar:Baz:::Hello::' P=text
 
 # Feature tests for split command with "," delimiter passed , with double quotes.
 printf 'STATUS : field split="," field=SPLITSTATUS\n' > "$TEST_INDEXSCRIPT"

@@ -140,8 +140,9 @@ split=DELIMITER[,OPERATION]
         entry perform all the actions which follow ``split`` in the current rule.
 
         ``OPERATION`` can be ``dedup`` (remove second and subsequent
-        occurrences from the list of any value), ``sort`` (sort), or ``none``
-        (default: none).
+        occurrences from the list of any value), ``prefixes`` (which instead of
+        just giving the text between delimiters, gives the text up to each
+        delimiter), ``sort`` (sort), or ``none`` (default: none).
 
         If you want to specify ``,`` for delimiter, you need to quote it, e.g.
         ``split=",",dedup``.
