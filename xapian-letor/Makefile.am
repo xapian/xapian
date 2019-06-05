@@ -24,6 +24,8 @@ MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
+.PHONY: coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
+
 # This relies on GNU make (for the pattern rule) but it's just a convenience
 # as you can run these check-* targets with any make using:
 #
