@@ -857,3 +857,64 @@ DEFINE_TESTCASE(tfdoclenfeature, generated)
 
     return true;
 }
+
+// Test for CollTfCollLenFeature
+DEFINE_TESTCASE(colltfcolllenfeature, generated)
+{
+    string db_path = get_database_path("apitest_ranker4",
+				       db_index_three_documents);
+    Xapian::CollTfCollLenFeature feature;
+
+    Xapian::Database db(db_path);
+    feature.set_database(db);
+
+    Xapian::Document doc = db.get_document(1);
+    feature.set_doc(doc);
+
+    std::map<std::string, Xapian::termcount> collection_length;
+
+    collection_length["title"] = 15;
+    Xapian::termcount whole_len = db.get_total_length();
+    collection_length["whole"] = whole_len;
+    TEST_EQUAL(whole_len, 482);
+    collection_length["body"] = whole_len - collection_length["title"];
+
+    feature.set_collection_length(collection_length);
+
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("en"));
+    queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
+    queryparser.add_prefix("title", "S");
+    queryparser.add_prefix("description", "XD");
+
+    string querystring = "title:score description:score score";
+    Xapian::Query query = queryparser.parse_query(querystring);
+    feature.set_query(query);
+
+    std::map<std::string, Xapian::termcount> colltf;
+    colltf["ZSscore"] = 7;
+    colltf["ZXDscore"] = 9;
+    colltf["Zscore"] = 16;
+    feature.set_collection_termfreq(colltf);
+
+    vector<double> res = feature.get_values();
+    TEST_EQUAL(res.size(), 3);
+
+    // test for title
+    TEST_EQUAL(res[0], log10(1 + 15.0 / (1 + colltf["ZSscore"])));
+
+    // test for body
+    double temp = log10(1 + 467.0 / (1.0 + colltf["ZXDscore"])) +
+		  log10(1 + 467.0 / (1.0 + colltf["Zscore"]));
+
+    TEST_EQUAL(res[1], temp);
+
+    // test for whole
+    temp = log10(1 + 482.0 / (1.0 + colltf["ZSscore"])) +
+	   log10(1 + 482.0 / (1.0 + colltf["ZXDscore"])) +
+	   log10(1 + 482.0 / (1.0 + colltf["Zscore"]));
+
+    TEST_EQUAL(res[2], temp);
+
+    return true;
+}
