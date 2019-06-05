@@ -32,7 +32,6 @@ const int FD = 3;
 const int time_limit = 300;
 
 #if defined HAVE_ALARM
-// IF I have SIGALRM (Best option)
 
 static void
 timeout_handler(int n) {
@@ -56,41 +55,11 @@ stop_timeout() {
     alarm(0);
 }
 
-// #elif defined PTHREAD?
-/* If I can use threads (second option)
-#include <thread>
-
-pthread_t timer_thread = 0;
-
-static void
-timeout_handler(int delay) {
-    sleep(delay);
-    _Exit(2);
-}
-
-static void
-set_timeout() {
-    // Throw a new thread with a timer
-    thread thr(timeout_handler, time_limit);
-    timer_thread=thr.native_handle();
-    thr.detach();
-}
-
-static void
-stop_timeout() {
-    if (timer_thread==0)return;
-    // As the thread is sleeping, pthread_cancel will kill it inmediately
-    pthread_cancel(timer_thread);
-    // Make sure that the thread is dead
-    pthread_join(timer_thread, NULL);
-    timer_thread = 0;
-}
-*/
 #else
-// Otherwise I don't use timer? (worst case)
-static void set_timeout(int n) { }
+
+static void set_timeout() { }
 static void stop_timeout() { }
-//
+
 #endif
 
 // FIXME: Restart filter every N files processed?
@@ -107,10 +76,10 @@ int main() {
     while (true) {
 	// Read filename.
 	if (!read_string(sockt, filename)) break;
-	string dump, title, keywords, author;
+	string dump, title, keywords, author, pages;
 	// Setting a timeout for avoid infinity loops
 	set_timeout();
-	if (!extract(filename, dump, title, keywords, author)) {
+	if (!extract(filename, dump, title, keywords, author, pages)) {
 	    // FIXME: we could persist even if extraction fails...
 	    _Exit(1);
 	}
@@ -120,7 +89,8 @@ int main() {
 	if (!write_string(sockt, dump) ||
 	    !write_string(sockt, title) ||
 	    !write_string(sockt, keywords) ||
-	    !write_string(sockt, author)) break;
+	    !write_string(sockt, author) ||
+	    !write_string(sockt, pages)) break;
     }
 
     return 0;

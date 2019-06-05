@@ -323,73 +323,21 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
     }
 }
 
-static void
-parse_pdfinfo_field(const char * p, const char * end, string & out, const char * field, size_t len)
-{
-    if (size_t(end - p) > len && memcmp(p, field, len) == 0) {
-	p += len;
-	while (p != end && *p == ' ')
-	    ++p;
-	if (p != end && (end[-1] != '\r' || --end != p))
-	    out.assign(p, end - p);
-    }
-}
 
-#define PARSE_PDFINFO_FIELD(P, END, OUT, FIELD) \
-    parse_pdfinfo_field((P), (END), (OUT), FIELD":", CONST_STRLEN(FIELD) + 1)
-
-static void
-parse_pdf_metainfo(const string& pdfinfo, string &author, string &title,
-		   string &keywords, string &topic, int& pages)
+static bool
+get_pdf_info(const string& file, string &dump, string &author, string &title,
+		string &keywords, int& pages)
 {
-    const char * p = pdfinfo.data();
-    const char * end = p + pdfinfo.size();
-    while (p != end) {
-	const char * start = p;
-	p = static_cast<const char *>(memchr(p, '\n', end - p));
-	const char * eol;
-	if (p) {
-	    eol = p;
-	    ++p;
-	} else {
-	    p = eol = end;
-	}
-	switch (*start) {
-	    case 'A':
-		PARSE_PDFINFO_FIELD(start, eol, author, "Author");
-		break;
-	    case 'K':
-		PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
-		break;
-	    case 'P': {
-		string s;
-		PARSE_PDFINFO_FIELD(start, eol, s, "Pages");
-		if (!s.empty())
-		    pages = atoi(s.c_str());
-		break;
-	    }
-	    case 'S':
-		PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
-		break;
-	    case 'T':
-		PARSE_PDFINFO_FIELD(start, eol, title, "Title");
-		break;
-	}
-    }
-}
+    bool ret = false;
+    map<string, Worker *>::const_iterator
+      wrk_it = workers.find("application/pdf");
 
-static void
-get_pdf_metainfo(const string& file, string &author, string &title,
-		 string &keywords, string &topic, int& pages)
-{
-    try {
-	string cmd = "pdfinfo -enc UTF-8";
-	append_filename_argument(cmd, file);
-	parse_pdf_metainfo(stdout_to_string(cmd, false),
-			   author, title, keywords, topic, pages);
-    } catch (ReadError) {
-	// It's probably best to index the document even if pdfinfo fails.
+    if (wrk_it != workers.end() && wrk_it->second) {
+	Worker * wrk = wrk_it->second;
+	ret = wrk->extract(file, dump, title, keywords, author, pages);
     }
+
+    return ret;
 }
 
 static void
@@ -633,7 +581,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	if (wrk_it != workers.end()) {
 	    // Just use the worker process to extrac the content
 	    Worker * wrk = wrk_it->second;
-	    if (wrk && !wrk->extract(file, dump, title, keywords, author)) {
+	    if (!wrk ||
+		!(wrk->extract(file, dump, title, keywords, author, pages))) {
 		string msg = "Couldn't extract text from " + file;
 		skip(urlterm, context, msg, d.get_size(), d.get_mtime());
 		return;
@@ -841,11 +790,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	} else if (mimetype == "application/postscript") {
 	    // There simply doesn't seem to be a Unicode capable PostScript to
 	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
-	    // only solution seems to be to convert via PDF using ps2pdf and
-	    // then pdftotext.  This gives plausible looking UTF-8 output for
-	    // some Chinese PostScript files I found using Google.  It also has
-	    // the benefit of allowing us to extract meta information from
-	    // PostScript files.
+	    // only solution seems to be to convert via PDF using ps2pdf. This
+	    // gives plausible looking UTF-8 output for some Chinese PostScript
+	    // files I found using Google.  It also has the benefit of allowing
+	    // us to extract meta information from PostScript files.
 	    string tmpfile = get_tmpfile("tmp.pdf");
 	    if (tmpfile.empty()) {
 		// FIXME: should this be fatal?  Or disable indexing postscript?
@@ -860,22 +808,17 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, tmpfile);
 	    try {
 		run_filter(d.get_fd(), cmd, false);
-		cmd = "pdftotext -enc UTF-8";
-		append_filename_argument(cmd, tmpfile);
-		cmd += " -";
-		run_filter(cmd, false, &dump);
+		if (!get_pdf_info(tmpfile, dump, author, title, keywords,
+			     pages)) {
+		    string msg = "Couldn't extract text from " + file;
+		    skip(urlterm, context, msg, d.get_size(), d.get_mtime());
+		    return;
+		}
 	    } catch (ReadError) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		unlink(tmpfile.c_str());
 		return;
-	    } catch (...) {
-		unlink(tmpfile.c_str());
-		throw;
-	    }
-	    try {
-		get_pdf_metainfo(tmpfile, author, title, keywords, topic,
-				 pages);
 	    } catch (...) {
 		unlink(tmpfile.c_str());
 		throw;

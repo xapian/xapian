@@ -29,6 +29,7 @@ extract(const std::string & filename,
 	std::string & dump,
 	std::string & title,
 	std::string & keywords,
-	std::string & author);
+	std::string & author,
+	std::string & pages);
 
 #endif // OMEGA_INCLUDED_PDF_HANDLER_H

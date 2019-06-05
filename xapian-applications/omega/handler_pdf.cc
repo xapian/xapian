@@ -20,13 +20,13 @@
  */
 
 #include <config.h>
+#include "handler_pdf.h"
 
 #include <xapian.h>
-#include "handler_pdf.h"
 #include <iostream>
-#include <poppler-document.h>
-#include <poppler-page.h>
-#include <poppler-version.h>
+
+#include <poppler/cpp/poppler-document.h>
+#include <poppler/cpp/poppler-page.h>
 
 using namespace std;
 using namespace poppler;
@@ -51,30 +51,24 @@ extract(const string & filename,
 	string & dump,
 	string & title,
 	string & keywords,
-	string & author)
+	string & author,
+	string & pages)
 {
 
     try {
 
-	document * doc = document::load_from_file(filename, "", "");
+	document * doc = document::load_from_file(filename);
 
 	if (!doc) {
 	    cerr << "Poppler Error: Failed to read pdf file" << endl;
 	    return false;
 	}
 
-#if (POPPLER_VERSION_MAJOR>0 || POPPLER_VERSION_MINOR>=46)
-	    author = clear_text(doc->get_author());
-	    title = clear_text(doc->get_title());
-	    keywords = clear_text(doc->get_keywords());
-	    cout << "author: <<" << author << ">>" << endl;
-	    cout << "title: <<" << author << ">>" << endl;
-	    cout << "keywords: <<" << author << ">>" << endl;
-#else
-	    author = "";
-	    title = "";
-	    keywords = "";
-#endif
+	// Extracting PDF metadata
+	author = clear_text(doc->info_key("Author"));
+	title = clear_text(doc->info_key("Title"));
+	keywords = clear_text(doc->info_key("Keywords"));
+	pages = to_string(doc->pages());
 	// Extracting text from PDF file
 	for (int i = 0; i < doc->pages(); ++i) {
 	    page *p(doc->create_page(i));

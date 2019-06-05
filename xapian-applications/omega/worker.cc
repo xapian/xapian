@@ -90,11 +90,11 @@ Worker::start_worker_process()
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
 	// Set a memory limit if it is possible
 	long mem = get_free_physical_memory();
-	if (mem>0){
+	if (mem>0) {
 	    struct rlimit ram_limit = {
-    		static_cast<rlim_t>(mem),
-    		RLIM_INFINITY
-    	    };
+		static_cast<rlim_t>(mem),
+		RLIM_INFINITY
+	    };
 #ifdef RLIMIT_AS
 	    // Limit size of the process's virtual memory
 	    // (address space) in bytes.
@@ -136,7 +136,8 @@ Worker::extract(const std::string & filename,
 		std::string & dump,
 		std::string & title,
 		std::string & keywords,
-		std::string & author)
+		std::string & author,
+		int & pages)
 {
     if (sockt) {
 	// Check if the worker process is still alive - if it is, waitpid()
@@ -151,13 +152,18 @@ Worker::extract(const std::string & filename,
 	start_worker_process();
     }
 
+    string strpage;
+
     // Sending a filename and wating for the answer
     if (write_string(sockt, filename) &&
 	read_string(sockt, dump) &&
 	read_string(sockt, title) &&
 	read_string(sockt, keywords) &&
-	read_string(sockt, author)) return true;
-
+	read_string(sockt, author) &&
+	read_string(sockt, strpage)) {
+	    pages = stoi(strpage);
+	    return true;
+	}
     fclose(sockt);
     sockt = NULL;
 

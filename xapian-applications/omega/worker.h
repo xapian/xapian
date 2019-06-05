@@ -42,5 +42,6 @@ class Worker {
 		 std::string & dump,
 		 std::string & title,
 		 std::string & keywords,
-		 std::string & author);
+		 std::string & author,
+		 int & pages);
 };
