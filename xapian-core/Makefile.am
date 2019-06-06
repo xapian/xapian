@@ -44,13 +44,12 @@ EXTRA_PROGRAMS =
 check-@PERCENT@:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
 
-## --disable-shared as shared builds fail for me on x86-64 Debian etch.
-## If you're using ccache, you need ccache >= 3.0, released 2010-06-20 (older
-## versions don't handle --coverage properly).  You need ccache >= 3.2.2 to
-## actually cache compilations with --coverage - older 3.x just disables
-## caching for them.
+## -O0 - optimisation can result in confusing coverage reports.
+## --coverage - inserts code to generate coverage data
+## VALGRIND= - generating coverage data is slow enough by itself.
 COVERAGE_CONFIGURE = \
-    $(srcdir)/configure CXXFLAGS='-O0 --coverage' --disable-shared VALGRIND=
+    $(srcdir)/configure CXXFLAGS='-O0 --coverage' VALGRIND= \
+	$(COVERAGE_CONFIGURE_ARGS)
 
 coverage-reconfigure: distclean
 	$(COVERAGE_CONFIGURE)
