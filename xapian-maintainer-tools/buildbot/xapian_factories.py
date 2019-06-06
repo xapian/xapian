@@ -191,7 +191,7 @@ def gen_git_updated_lcov_factory(repourl, configure_opts=[]):
     f = factory.BuildFactory()
     f.addStep(source.Git(repourl=repourl, mode="update"))
     f.addStep(Bootstrap())
-    f.addStep(shell.Configure(command = ["sh", "configure", "--enable-maintainer-mode", "--disable-shared", "--disable-documentation", "CXXFLAGS=-O0 --coverage", "VALGRIND=", "CCACHE_DISABLE=1"] + configure_opts, workdir="build/xapian-core"))
+    f.addStep(shell.Configure(command = ["sh", "configure", "--enable-maintainer-mode", "--disable-documentation", "CXXFLAGS=-O0 --coverage", "VALGRIND="] + configure_opts, workdir="build/xapian-core"))
     f.addStep(shell.Compile(workdir="build/xapian-core"))
     f.addStep(shell.ShellCommand(command = ["make", "coverage-check", "GENHTML_ARGS=--html-gzip"], workdir="build/xapian-core", haltOnFailure=True))
     f.addStep(shell.ShellCommand(command = ["chmod", "-R", "a+rX", "lcov"], workdir="build/xapian-core", haltOnFailure=True))
