@@ -78,7 +78,7 @@ def core_factory(repourl, usedocs=False, configure=None, audit=False,
 
     f.addStep(shell.Compile())
     if not nocheck:
-        f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+        f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     return f
 
 def gen_git_updated_factory(repourl, usedocs=False, clean=False):
@@ -134,7 +134,7 @@ def gen_git_debug_updated_factory(repourl, opts, nocheck=False):
     f.addStep(shell.Configure(command = ["sh", "configure", ] + opts))
     f.addStep(shell.Compile())
     if not nocheck:
-        f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+        f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     return f
 
 def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, bindings=True, configure_opts=[]):
@@ -149,17 +149,17 @@ def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, bindings=Tru
     f.addStep(shell.Configure(workdir='build/xapian-core', command=configure_cmd))
     f.addStep(shell.Compile(workdir='build/xapian-core'))
     if not nocheck:
-        f.addStep(shell.Test(workdir='build/xapian-core', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+        f.addStep(shell.Test(workdir='build/xapian-core', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     if omega:
         f.addStep(shell.Configure(workdir='build/xapian-omega', command = ["./configure", xapian_config_arg] + configure_opts))
         f.addStep(shell.Compile(workdir='build/xapian-omega'))
         if not nocheck:
-            f.addStep(shell.Test(workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+            f.addStep(shell.Test(workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     if bindings:
         f.addStep(shell.Configure(workdir='build/xapian-bindings', command = ["./configure", xapian_config_arg] + configure_opts))
         f.addStep(shell.Compile(workdir='build/xapian-bindings', command = ["make"]))
         if not nocheck:
-            f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+            f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     # If everything passed, there's not much point keeping the build - we'd
     # delete the old build tree and download new tarballs next time anyway.
     f.addStep(slave.RemoveDirectory('build'))
@@ -214,7 +214,7 @@ def gen_git_clean_dist_factory(repourl):
     f.addStep(Bootstrap())
     f.addStep(step.Configure, command = ["xapian-maintainer-tools/buildbot/scripts/configure_with_prefix.sh"])
     extraargs = (
-        "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="
+        "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"
     )
     f.addStep(step.Compile, command = ["make",] + extraargs)
     # Don't bother running check as a separate step - all the checks will be
