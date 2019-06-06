@@ -16,3 +16,7 @@ Then check tmp.dump looks plausible, reindex your email, and:
 notmuch restore < tmp.dump
 
 Probably wise to keep the old database around until you've checked this worked.
+
+The rescue code doesn't currently attempt to escape tag names, so won't work
+correctly if any contain spaces or '%'.  Patches to improve this (or anything
+else) welcome.
