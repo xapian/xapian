@@ -1,0 +1,18 @@
+This branch contains a quick hack which may help you rescue notmuch tags from a
+broken database.
+
+To build:
+
+./bootstrap xapian-core
+./configure
+make
+
+To use (assuming your mail is in ~/Mail):
+
+xapian-core/bin/xapian-check ~/Mail/.notmuch/xapian 2> tmp.dump
+
+Then check tmp.dump looks plausible, reindex your email, and:
+
+notmuch restore < tmp.dump
+
+Probably wise to keep the old database around until you've checked this worked.

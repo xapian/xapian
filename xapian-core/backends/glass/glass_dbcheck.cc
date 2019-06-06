@@ -39,6 +39,7 @@
 #include <xapian.h>
 
 #include "filetests.h"
+#include <iostream>
 #include <memory>
 #include <ostream>
 #include <vector>
@@ -784,6 +785,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    string current_tname;
 
 	    bool bad = false;
+	    bool had_tags = false;
 	    while (pos != end) {
 		Xapian::doccount current_wdf = 0;
 		bool got_wdf = false;
@@ -803,6 +805,15 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		string::size_type len = static_cast<unsigned char>(*pos++);
 		current_tname.append(pos, len);
 		pos += len;
+
+		if (current_tname[0] == 'K') {
+		    cerr << '+' << current_tname.substr(1) << ' ';
+		    had_tags = true;
+		} else if (current_tname[0] == 'Q') {
+		    if (had_tags)
+			cerr << "-- id:" << current_tname.substr(1) << endl;
+		    goto done_dump;
+		}
 
 		if (!got_wdf) {
 		    // Read wdf
@@ -825,6 +836,8 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		++actual_termlist_size;
 		actual_doclen += current_wdf;
 	    }
+	    if (had_tags)
+		cerr << "-- id:missing" << endl;
 	    if (bad) {
 		continue;
 	    }
@@ -843,6 +856,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    // + 1 so that did is a valid subscript.
 	    if (doclens.size() <= did) doclens.resize(did + 1);
 	    doclens[did] = actual_doclen;
+done_dump: ;
 	}
 
 	Xapian::doccount doccount = version_file.get_doccount();
