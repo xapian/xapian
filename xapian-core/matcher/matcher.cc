@@ -644,7 +644,7 @@ Matcher::get_mset(Xapian::doccount first,
 
     CollapserLite collapser(collapse_max);
     merged_mset.internal->first = first;
-    while (merged_mset.size() != maxitems) {
+    while (!msets.empty() && merged_mset.size() != maxitems) {
 	auto& front = msets.front();
 	auto& result = front.first.internal->items[front.second];
 	if (percent_threshold) {
@@ -665,8 +665,6 @@ Matcher::get_mset(Xapian::doccount first,
 	if (n == msets.front().first.size()) {
 	    Heap::pop(msets.begin(), msets.end(), heap_cmp);
 	    msets.resize(msets.size() - 1);
-	    if (msets.empty())
-		break;
 	} else {
 	    msets.front().second = n;
 	    Heap::replace(msets.begin(), msets.end(), heap_cmp);
