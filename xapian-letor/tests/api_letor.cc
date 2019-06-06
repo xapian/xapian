@@ -878,8 +878,7 @@ DEFINE_TESTCASE(colltfcolllenfeature, generated)
     std::map<std::string, Xapian::termcount> collection_length;
 
     collection_length["title"] = 15;
-    Xapian::termcount whole_len = db.get_doclength(1) + db.get_doclength(2) +
-				  db.get_doclength(3);
+    Xapian::termcount whole_len = db.get_total_length();
     collection_length["whole"] = whole_len;
     TEST_EQUAL(whole_len, 482);
     collection_length["body"] = whole_len - collection_length["title"];
