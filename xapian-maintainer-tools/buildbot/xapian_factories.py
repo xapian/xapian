@@ -61,7 +61,7 @@ def core_factory(repourl, usedocs=False, configure=None, audit=False,
     if audit:
         f.addStep(shell.ShellCommand(command = ["python", 'audit.py'], workdir='build/xapian-maintainer-tools'))
         f.addStep(shell.ShellCommand(command = ["chmod", '644', 'copyright.csv', 'fixmes.csv'], workdir='build/xapian-maintainer-tools'))
-        f.addStep(shell.ShellCommand(command = ["mv", 'copyright.csv', 'fixmes.csv', '/var/www/'], workdir='build/xapian-maintainer-tools'))
+        f.addStep(shell.ShellCommand(command = ["mv", 'copyright.csv', 'fixmes.csv', '/var/www/html/'], workdir='build/xapian-maintainer-tools'))
 
     f.addStep(Bootstrap())
     if configure:
@@ -195,7 +195,7 @@ def gen_git_updated_lcov_factory(repourl, configure_opts=[]):
     f.addStep(shell.Compile(workdir="build/xapian-core"))
     f.addStep(shell.ShellCommand(command = ["make", "coverage-check", "GENHTML_ARGS=--html-gzip"], workdir="build/xapian-core", haltOnFailure=True))
     f.addStep(shell.ShellCommand(command = ["chmod", "-R", "a+rX", "lcov"], workdir="build/xapian-core", haltOnFailure=True))
-    f.addStep(shell.ShellCommand(command = 'NOW=`date -u +%Y-%m-%d`; cp -a lcov/. /var/www/"$NOW" && ln -sfT "$NOW" /var/www/latest', workdir="build/xapian-core", haltOnFailure=True))
+    f.addStep(shell.ShellCommand(command = 'NOW=`date -u +%Y-%m-%d`; cp -a lcov/. /var/www/html/"$NOW" && ln -sfT "$NOW" /var/www/html/latest', workdir="build/xapian-core", haltOnFailure=True))
 
     return f
 
