@@ -137,6 +137,14 @@ def gen_git_debug_updated_factory(repourl, opts, nocheck=False):
         f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     return f
 
+# Factory that can be temporarily set for a builder to clean it up like so:
+#
+#   'factory': rm_rf_factory(),
+def gen_rm_rf_factory():
+    f = factory.BuildFactory()
+    f.addStep(slave.RemoveDirectory('build'))
+    return f
+
 def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, bindings=True, configure_opts=[]):
     """
     Make a factory for doing builds from tarballs.
