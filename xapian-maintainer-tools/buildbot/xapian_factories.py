@@ -49,7 +49,7 @@ def MakeWritable():
         command = ["chmod", "-R", "+w", "."],
     )
 
-def core_factory(repourl, usedocs=False, configure=None, audit=False,
+def core_factory(repourl, usedocs=True, configure=None, audit=False,
                  clean=False, nocheck = False, configure_opts=None):
     f = factory.BuildFactory()
     mode = "update"
@@ -81,7 +81,7 @@ def core_factory(repourl, usedocs=False, configure=None, audit=False,
         f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     return f
 
-def gen_git_updated_factory(repourl, usedocs=False, clean=False):
+def gen_git_updated_factory(repourl, usedocs=True, clean=False):
     """
     Make a factory for doing build from git master, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
@@ -101,7 +101,7 @@ def gen_git_updated_factory2(repourl, configure_opts=[]):
     first.  This build is intended to catch commonly made mistakes quickly.
     This factory also runs audit.py and publishes the result.
     """
-    return core_factory(repourl=repourl, usedocs=False, audit=True,
+    return core_factory(repourl=repourl, usedocs=True, audit=True,
                         configure_opts=configure_opts)
 
 def gen_git_updated_factory3(repourl):
@@ -111,7 +111,7 @@ def gen_git_updated_factory3(repourl):
     This build runs with --disable-documentation, so the documentation building
     tools aren't required.
     """
-    return core_factory(repourl=repourl, usedocs=False)
+    return core_factory(repourl=repourl, usedocs=True)
 
 def gen_git_gccsnapshot_updated_factory(repourl):
     """
@@ -130,7 +130,6 @@ def gen_git_debug_updated_factory(repourl, opts, nocheck=False):
     f = factory.BuildFactory()
     f.addStep(source.Git(repourl=repourl, mode="update"))
     f.addStep(Bootstrap())
-    opts.append("--disable-documentation")
     f.addStep(shell.Configure(command = ["sh", "configure", ] + opts))
     f.addStep(shell.Compile())
     if not nocheck:
@@ -182,7 +181,6 @@ def gen_git_updated_valgrind_factory(repourl, configure_opts=[]):
     f = factory.BuildFactory()
     f.addStep(source.Git(repourl=repourl, mode="update"))
     f.addStep(Bootstrap())
-    configure_opts.append("--disable-documentation")
     f.addStep(shell.Configure(command = ["sh", "configure", "CXXFLAGS=-O0 -g"] + configure_opts))
     f.addStep(shell.Compile())
 
