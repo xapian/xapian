@@ -498,14 +498,16 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::Enquire::docid_order order;
     order = static_cast<Xapian::Enquire::docid_order>(*p++ - '0');
 
-    Xapian::valueno sort_key;
-    decode_length(&p, p_end, sort_key);
-
     if (*p < '0' || *p > '3') {
 	throw Xapian::NetworkError("bad message (sort_by)");
     }
     Xapian::Enquire::Internal::sort_setting sort_by;
     sort_by = static_cast<Xapian::Enquire::Internal::sort_setting>(*p++ - '0');
+
+    Xapian::valueno sort_key = Xapian::BAD_VALUENO;
+    if (sort_by != Xapian::Enquire::Internal::REL) {
+	decode_length(&p, p_end, sort_key);
+    }
 
     if (*p < '0' || *p > '1') {
 	throw Xapian::NetworkError("bad message (sort_value_forward)");

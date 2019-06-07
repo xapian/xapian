@@ -611,8 +611,10 @@ RemoteDatabase::set_query(const Xapian::Query& query,
     message += encode_length(collapse_max);
     if (collapse_max) message += encode_length(collapse_key);
     message += char('0' + order);
-    message += encode_length(sort_key);
     message += char('0' + sort_by);
+    if (sort_by != Xapian::Enquire::Internal::REL) {
+	message += encode_length(sort_key);
+    }
     message += char('0' + sort_value_forward);
     message += serialise_double(time_limit);
     message += char(percent_threshold);

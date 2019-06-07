@@ -1,7 +1,7 @@
 /** @file remoteprotocol.h
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014,2015,2017,2018 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014,2015,2017,2018,2019 Olly Betts
  * Copyright (C) 2007,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -53,7 +53,7 @@
 // 40: pre-1.5.0 REPLY_REMOVESPELLING added.
 // 41: pre-1.5.0 Changed REPLY_ALLTERMS, REPLY_METADATAKEYLIST, REPLY_TERMLIST.
 // 42: pre-1.5.0 Use little-endian IEEE for doubles
-// 43: 1.5.0 REPLY_DONE sent for 5 more messages
+// 43: 1.5.0 REPLY_DONE sent for 5 more messages; MSG_QUERY adjusted
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 43
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
