@@ -81,12 +81,12 @@ def core_factory(repourl, usedocs=True, configure=None, audit=False,
         f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     return f
 
-def gen_git_updated_factory(repourl, usedocs=True, clean=False):
+def gen_git_updated_factory(repourl, usedocs=True, clean=False, configure_opts=None):
     """
     Make a factory for doing build from git master, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     """
-    return core_factory(repourl=repourl, usedocs=usedocs, clean=clean)
+    return core_factory(repourl=repourl, usedocs=usedocs, clean=clean, configure_opts=configure_opts)
 
 def gen_git_updated_factory_llvm(repourl):
     """
