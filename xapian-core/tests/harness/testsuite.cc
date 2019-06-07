@@ -40,6 +40,7 @@
 #endif
 
 #include <algorithm>
+#include <chrono>
 #include <ios>
 #include <iostream>
 #include <set>
@@ -697,7 +698,11 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	if (do_this_test) {
 	    out << "Running test: " << test->name << "...";
 	    out.flush();
+	    auto starttime = chrono::high_resolution_clock::now();
 	    test_driver::test_result test_res = runtest(test);
+	    auto endtime = chrono::high_resolution_clock::now();
+	    auto test_duration = chrono::duration_cast<chrono::milliseconds>
+				 (endtime - starttime);
 #ifndef NO_LIBXAPIAN
 	    if (backendmanager)
 		backendmanager->clean_up();
@@ -706,9 +711,20 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		case PASS:
 		    ++res.succeeded;
 		    if (verbose || !use_cr) {
-			out << col_green << " ok" << col_reset << endl;
+			if (test_duration.count() >= 10000) {
+			    out << col_green << " ok" << col_yellow <<
+				" SLOW TEST (" << test_duration.count() <<
+				" ms)" << col_reset << endl;
+			} else {
+			    out << col_green << " ok" << col_reset << endl;
+			}
 		    } else {
-			out << "\r                                                                               \r";
+			string fill = "\r";
+			for (int i = 0; i < 90; ++i) {
+			    fill += " ";
+			}
+			fill += "\r";
+			out << fill;
 		    }
 		    break;
 		case XFAIL:
