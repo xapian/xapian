@@ -41,9 +41,10 @@ class RemoteDocument : public Xapian::Document::Internal {
      *			may be modified by the call.
      */
     RemoteDocument(const Xapian::Database::Internal *db, Xapian::docid did_,
-		   const string & data_,
+		   string&& data_,
 		   map<Xapian::valueno, string>&& values_)
-	: Xapian::Document::Internal(db, did_, data_, std::move(values_)) {}
+	: Xapian::Document::Internal(db, did_, std::move(data_),
+				     std::move(values_)) {}
 
   protected:
     /** Implementation of virtual methods @{ */

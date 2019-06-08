@@ -141,9 +141,9 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Constructor used by RemoteDocument subclass.
     Internal(const Xapian::Database::Internal* database_,
 	     Xapian::docid did_,
-	     const std::string& data_,
+	     std::string&& data_,
 	     std::map<Xapian::valueno, std::string>&& values_)
-	: data(new std::string(data_)),
+	: data(new std::string(std::move(data_))),
 	  values(new std::map<Xapian::valueno, std::string>(std::move(values_))),
 	  database(database_),
 	  did(did_) {}

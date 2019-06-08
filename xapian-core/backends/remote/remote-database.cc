@@ -297,7 +297,8 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 	values.insert(make_pair(slot, string(p, p_end)));
     }
 
-    return new RemoteDocument(this, did, doc_data, std::move(values));
+    return new RemoteDocument(this, did, std::move(doc_data),
+			      std::move(values));
 }
 
 bool
