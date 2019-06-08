@@ -163,7 +163,6 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 	throw Xapian::NetworkError("Bad REPLY_TERMLIST0 message received",
 				   context);
     }
-    string reply;
     get_message(message, REPLY_TERMLIST);
     return new RemoteTermList(num_entries, doclen, doccount, this, did,
 			      std::move(message));
