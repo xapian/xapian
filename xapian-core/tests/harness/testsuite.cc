@@ -716,7 +716,6 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		    if (verbose || !use_cr) {
 			out << col_green << " ok" << col_reset << endl;
 
-			// arbitrary limit, not too short, not too long
 			if (test_duration.count() >= SLOW_TEST_THRESHOLD) {
 			    out << col_yellow << " SLOW TEST ("
 				<< test_duration.count()
