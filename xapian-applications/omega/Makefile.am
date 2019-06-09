@@ -73,7 +73,12 @@ EXTRA_DIST =\
 	xapian-omega.spec
 
 AM_CPPFLAGS = \
-	-I/usr/include/poppler/cpp \
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include \
+	-I/usr/include/glib-2.0	\
+	-I/usr/include/cairo \
+	-I/usr/local/opt/glib/lib/glib-2.0/include \
+	-I/usr/local/opt/glib/include/glib-2.0 \
+	-I/usr/local/include/cairo/ \
 	-I$(top_srcdir)/common \
 	-DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\" \
 	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
@@ -173,7 +178,7 @@ endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
 omindex_pdf_SOURCES = assistant.cc worker_comms.cc handler_pdf.cc
-omindex_pdf_LDADD = -lpoppler-cpp $(XAPIAN_LIBS)
+omindex_pdf_LDADD = -lpoppler-glib -lglib-2.0 -lgobject-2.0 -lcairo $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\

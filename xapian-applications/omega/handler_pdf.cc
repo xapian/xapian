@@ -22,26 +22,28 @@
 #include <config.h>
 #include "handler_pdf.h"
 
-#include <xapian.h>
+#include <glib.h>
+#include <glib-object.h>
 #include <iostream>
+#include <string.h>
+#include <xapian.h>
 
-#include <poppler/cpp/poppler-document.h>
-#include <poppler/cpp/poppler-page.h>
+#include <poppler/glib/poppler-document.h>
+#include <poppler/glib/poppler-page.h>
 
 using namespace std;
-using namespace poppler;
 
 static string
-clear_text(const ustring & x)
+clear_text(const gchar * x)
 {
-    byte_array buf = x.to_utf8();
-    string text(buf.data(), buf.size());
-    int i, j, sz = text.length();
+    if (!x) return string("");
+    int i, sz = strlen(x);
+    string text;
+    text.reserve(sz);
 
-    for (j = i = 0; i < sz; ++i)
-	if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
-	    text[j++] = text[i];
-    text.resize(j);
+    for (i = 0; i < sz; ++i)
+	if (!isspace(x[i]) || (i && !isspace(x[i - 1])))
+	    text.push_back(x[i]);
 
     return text;
 }
@@ -56,28 +58,55 @@ extract(const string & filename,
 {
 
     try {
-
-	document * doc = document::load_from_file(filename);
+	gchar * uri = g_filename_to_uri(filename.c_str(), NULL, NULL);
+	PopplerDocument * doc = poppler_document_new_from_file(uri, NULL, NULL);
+	gchar * cstr;
 
 	if (!doc) {
 	    cerr << "Poppler Error: Failed to read pdf file" << endl;
 	    return false;
 	}
+	g_free(uri);
 
 	// Extracting PDF metadata
-	author = clear_text(doc->info_key("Author"));
-	title = clear_text(doc->info_key("Title"));
-	keywords = clear_text(doc->info_key("Keywords"));
-	pages = to_string(doc->pages());
+	int npages = poppler_document_get_n_pages(doc);
+	if (0 < npages) {
+	    pages = to_string(npages);
+	}
+
+	cstr = poppler_document_get_author(doc);
+	if (cstr) {
+	    author = clear_text(cstr);
+	    g_free(cstr);
+	}
+
+	cstr = poppler_document_get_title(doc);
+	if (cstr) {
+	    title = clear_text(cstr);
+	    g_free(cstr);
+	}
+
+	cstr = poppler_document_get_keywords(doc);
+	if (cstr) {
+	    keywords = clear_text(cstr);
+	    g_free(cstr);
+	}
+
 	// Extracting text from PDF file
-	for (int i = 0; i < doc->pages(); ++i) {
-	    page *p(doc->create_page(i));
-	    if (!p) {
+	for (int i = 0; i < npages; ++i) {
+	    PopplerPage * pg = poppler_document_get_page(doc, i);
+	    if (!pg) {
 		cerr << "Poppler Error: Failed to create page" << endl;
 		return false;
 	    }
-	    dump += clear_text(p->text());
+	    cstr = poppler_page_get_text(pg);
+	    if (cstr) {
+		dump += clear_text(cstr);
+		g_free(cstr);
+	    }
+	    g_object_unref(pg);
 	}
+	g_object_unref(doc);
     } catch (...) {
 	cerr << "Poppler threw an exception" << endl;
 	return false;
