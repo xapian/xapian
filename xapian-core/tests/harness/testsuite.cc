@@ -114,6 +114,9 @@ string test_driver::col_red, test_driver::col_green;
 string test_driver::col_yellow, test_driver::col_reset;
 bool test_driver::use_cr = false;
 
+// time constant to mark tests as slow or not
+static const int SLOW_TEST_THRESHOLD = 10000;
+
 void
 test_driver::write_and_clear_tout()
 {
@@ -711,20 +714,17 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		case PASS:
 		    ++res.succeeded;
 		    if (verbose || !use_cr) {
-			if (test_duration.count() >= 10000) {
-			    out << col_green << " ok" << col_yellow <<
-				" SLOW TEST (" << test_duration.count() <<
-				" ms)" << col_reset << endl;
-			} else {
-			    out << col_green << " ok" << col_reset << endl;
+			out << col_green << " ok" << col_reset << endl;
+
+			// arbitrary limit, not too short, not too long
+			if (test_duration.count() >= SLOW_TEST_THRESHOLD) {
+			    out << col_yellow << " SLOW TEST ("
+				<< test_duration.count()
+				<< " ms)" << col_reset << endl;
 			}
 		    } else {
-			string fill = "\r";
-			for (int i = 0; i < 90; ++i) {
-			    fill += " ";
-			}
-			fill += "\r";
-			out << fill;
+			out << "\r                                        "
+			    << "	                               \r";
 		    }
 		    break;
 		case XFAIL:
