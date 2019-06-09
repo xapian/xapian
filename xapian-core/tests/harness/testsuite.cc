@@ -723,7 +723,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 			}
 		    } else {
 			out << "\r                                        "
-			    << "	                               \r";
+			    << "                                   \r";
 		    }
 		    break;
 		case XFAIL:
