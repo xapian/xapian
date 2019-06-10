@@ -128,7 +128,7 @@ BackendManager::get_database(const std::string &dbname,
 
     // checking if a remote backendmanager is being used
     bool is_remote_bm = false;
-    if (startswith(this->get_dbtype(), "remote")) {
+    if (startswith(get_dbtype(), "remote")) {
 	is_remote_bm = true;
     }
 
