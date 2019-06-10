@@ -1,6 +1,6 @@
-up to: a55335cb49f9eb4d43029a7c9612c935c5679d12
+up to: b07050ce4fd3a5e006683e7e2ed669985f956115
 
-Xapian-core 1.4.12 (2019-05-28):
+Xapian-core 1.4.12 (2019-06-10):
 
 API:
 
@@ -74,6 +74,8 @@ documentation:
 
 * Fix API documentation typo - Query::op (the type) not op_ (a parameter name).
 
+* Note which version Document::remove_postings() was added in.
+
 * In the remote protocol documentation, MSG_REPLACEDOCUMENTTERM was documented
   as not having a reply, but actually REPLY_ADDDOCUMENT is sent.
 
@@ -81,6 +83,10 @@ documentation:
 
 tools:
 
+* copydatabase: A change in 1.4.6 which added support for \ as directory
+  separator on platforms where that's the norm broke the code in copydatabase
+  which removes a trailing slash from input databases.  Bug reported and
+  culprit commit identified by Eric Wong.
 
 examples:
 
@@ -101,6 +107,9 @@ portability:
   other platforms, provide a compatibility implementation of setenv() which
   so the compatibility code is encapsulated in one place rather than replicated
   at every use.
+
+* Fix maintainer-mode builds on Solaris where /bin/tr is not POSIX compliant.
+  We now use the simple workaround suggested by the autoconf manual.
 
 packaging:
 

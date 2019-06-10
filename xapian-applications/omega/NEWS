@@ -1,6 +1,6 @@
-up to: a55335cb49f9eb4d43029a7c9612c935c5679d12
+up to: 546f6447b274c8db19df1fd609d8afa5eefc4a8a
 
-Omega 1.4.12 (2019-05-28):
+Omega 1.4.12 (2019-06-10):
 
 general:
 
@@ -9,6 +9,14 @@ documentation:
 * Improve docs for OmegaScript $hitlist{}.
 
 * Fix RST formatting errors in omega docs.
+
+* Clarify use of Q prefix for unique ID terms - it was described as "reserved",
+  but the use of "Q" is really just a convention (and in fact omindex uses "U"
+  not "Q").
+
+* Clarify scriptindex's weight action takes parameter >= 0.
+
+* Correct typo in OmegaScript $add parameter documentation.
 
 indexers:
 
@@ -28,6 +36,19 @@ indexers:
 
   + Fix parsedate action to treat formats without a timezone as being UTC
     instead of localtime.
+
+  + Add date=unixutc.  The existing date=unix works in localtime which is
+    unhelpful if you want to use it on the output of parsedate since that's in
+    UTC; date=unixutc is just like date=unix except it always works in UTC.
+
+  + We now check the date action's parameter at script parse time and unknown
+    values result in an error and nothing being indexed.  Previously an unknown
+    format uselessly resulted in the terms D, M and Y literally being added to
+    every document.
+
+  + The split action now supports a new "prefixes" split style.  This gives all
+    the prefixes from the split, so split=/,prefixes on a file path gives all
+    parent directories.
 
 omega:
 

@@ -1,6 +1,6 @@
-up to: a55335cb49f9eb4d43029a7c9612c935c5679d12
+up to: e6738fb1da61c79c3cd4fd5ba0c5fe4ccb912b5d
 
-Xapian-bindings 1.4.12 (2019-05-28):
+Xapian-bindings 1.4.12 (2019-06-10):
 
 Documentation:
 
@@ -41,6 +41,13 @@ Python3:
 
 * Fix build for changes in Sphinx 2.0 (which drops support for sphinx.main()).
   Fixes #778, reported by karolyi.  Also reported by Gaurav Arora.
+
+* We now throw UnicodeEncodeError for bad Unicode string input.  Previously
+  cases such as a lone surrogate would be handled by quietly skipping the bad
+  codepoints when converting to UTF-8 to pass to Xapian.
+
+* We no longer use the deprecated old-style Py_UNICODE API, which currently
+  gives deprecation warnings and is slated to be removed in Python 4.0.
 
 Ruby:
 
