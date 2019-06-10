@@ -59,6 +59,9 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
     Xapian::Database get_remote_database(const std::vector<std::string> & files,
 					 unsigned int timeout);
 
+    /// Get RemoteProg Xapian::Database instance of database at path
+    Xapian::Database get_database_by_path(const std::string& path);
+
     /// Create a Database object for the last opened WritableDatabase.
     Xapian::Database get_writable_database_as_database();
 

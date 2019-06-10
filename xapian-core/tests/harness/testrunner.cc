@@ -80,13 +80,21 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    BACKEND|POSITIONAL|WRITABLE|METADATA|
 	    SYNONYMS|VALUESTATS|GENERATED|COMPACT|PATH },
 	{ "remoteprog_glass", REMOTE|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+	    GENERATED
+	},
 	{ "remotetcp_glass", REMOTE|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
+	    GENERATED
+	},
 	{ "singlefile_glass", SINGLEFILE|
 	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH },
 	{ "honey", HONEY|
-	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH },
+	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	    |GENERATED
+#endif
+	},
 	{ NULL, 0 }
     };
 
@@ -124,7 +132,14 @@ TestRunner::run_tests(int argc, char ** argv)
 	string datadir = srcdir + "/testdata/";
 
 #ifdef XAPIAN_HAS_HONEY_BACKEND
+# ifdef XAPIAN_HAS_GLASS_BACKEND
+	{
+	    BackendManagerGlass glass_man(datadir);
+	    do_tests_for_backend(BackendManagerHoney(datadir, &glass_man));
+	}
+# else
 	do_tests_for_backend(BackendManagerHoney(datadir));
+# endif
 #endif
 
 	do_tests_for_backend(BackendManager(string()));

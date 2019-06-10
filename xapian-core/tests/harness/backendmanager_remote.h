@@ -51,11 +51,21 @@ class BackendManagerRemote : public BackendManager {
     std::string get_remote_database_args(const std::vector<std::string> & files,
 					 unsigned int timeout);
 
+    /// Get the args for opening a remote database with the specified timeout.
+    std::string get_remote_database_args(const std::string& name,
+					 unsigned int timeout);
+
     /// Get the args for opening the last opened WritableDatabase.
     std::string get_writable_database_as_database_args();
 
     /// Get the args for opening the last opened WritableDatabase again.
     std::string get_writable_database_again_args();
+
+    /// Get generated database path from sub_manager
+    std::string get_generated_database_path(const std::string& name);
+
+    /// Get generated database
+    Xapian::WritableDatabase get_generated_database(const std::string& name);
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTE_H

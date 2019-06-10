@@ -74,9 +74,47 @@ BackendManagerHoney::do_get_database_path(const vector<string> & files)
 }
 
 Xapian::WritableDatabase
+BackendManagerHoney::get_generated_database(const string& name)
+{
+    // Create generated database inside glass cache
+    // to prevent a valid glass db inside honey cache
+    // if testsuite was interrupted.
+    return generated_sub_manager->get_generated_database(name);
+}
+
+void
+BackendManagerHoney::finalise_generated_database(const string& name)
+{
+    // Convert a glass backend to honey.
+
+    // path to the temporary generated db
+    string generated_db_path =
+	generated_sub_manager->get_generated_database_path(name);
+
+    // path to honey tmpfile
+    string tmpfile = CACHE_DIRECTORY "/" + name;
+    tmpfile += ".tmp";
+
+    // path to final honey db
+    string path = CACHE_DIRECTORY "/" + name;
+
+    Xapian::WritableDatabase wdb(generated_db_path);
+    wdb.compact(tmpfile, Xapian::DB_BACKEND_HONEY);
+    wdb.close();
+
+    rename(tmpfile.c_str(), path.c_str());
+}
+
+Xapian::WritableDatabase
 BackendManagerHoney::get_writable_database(const string &, const string &)
 {
     throw Xapian::UnimplementedError("Honey databases don't support writing");
+}
+
+string
+BackendManagerHoney::get_generated_database_path(const string& name)
+{
+    return CACHE_DIRECTORY "/" + name;
 }
 
 string

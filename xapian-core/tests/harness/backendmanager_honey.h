@@ -39,20 +39,37 @@ class BackendManagerHoney : public BackendManager {
     /// The path of the last writable database used.
     std::string last_wdb_name;
 
+    /// BackendManager for generated testcases
+    BackendManager* generated_sub_manager;
+
   protected:
     /// Get the path of Honey Xapian::Database instance.
     std::string do_get_database_path(const std::vector<std::string> & files);
 
   public:
     BackendManagerHoney(const std::string& datadir_)
-	: BackendManager(datadir_) { }
+	: BackendManager(datadir_),
+	  generated_sub_manager(NULL) { }
+
+    BackendManagerHoney(const std::string& datadir_,
+			BackendManager* generated_sub_manager_)
+	: BackendManager(datadir_),
+	  generated_sub_manager(generated_sub_manager_) { }
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
 
+    /// Get generated database for honey
+    Xapian::WritableDatabase get_generated_database(const std::string& name);
+
+    /// Finalise generated database
+    void finalise_generated_database(const std::string& name);
+
     /// Create a Xapian::WritableDatabase object.
     Xapian::WritableDatabase get_writable_database(const std::string& name,
 						   const std::string& file);
+
+    std::string get_generated_database_path(const std::string& name);
 
     std::string get_compaction_output_path(const std::string& name);
 };
