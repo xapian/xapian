@@ -1326,13 +1326,21 @@ else
     dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
     AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
   */sunCC|*/CC)
-    dnl Sun's C++ compiler warns about functions failing to return a value even
-    dnl when the function ends with a "throw" statement.  That's just unhelpful
-    dnl noise, and adding a dummy "return" after "throw" seems a worse solution
-    dnl than simply disabling this warning - any genuinely missing return
-    dnl statements will get reported by compilers with superior warning
-    dnl machinery.
-    XAPIAN_TEST_CXXFLAGS([-erroff=voidretw], [AM_CXXFLAGS])
+    dnl Sun's C++ compiler.
+    dnl
+    dnl We use -errtags to report the tag for each warning emitted.
+    dnl
+    dnl We use -erroff to suppress some unhelpful warnings:
+    dnl
+    dnl oklambdaretmulti warns about a lambda with more than one return
+    dnl statement even if they all return the same type.
+    dnl
+    dnl voidretw warns about functions failing to return a value even when the
+    dnl function ends with a "throw" statement.  That's just unhelpful noise,
+    dnl and adding a dummy "return" after "throw" seems a worse solution than
+    dnl simply disabling this warning - any genuinely missing return statements
+    dnl will get reported by compilers with superior warning machinery.
+    XAPIAN_TEST_CXXFLAGS([-errtags -erroff=oklambdaretmulti,voidretw], [AM_CXXFLAGS])
     ;;
   esac
 fi
