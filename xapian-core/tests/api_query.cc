@@ -774,6 +774,10 @@ gen_subdbwithoutpos1_db(Xapian::WritableDatabase& db, const string&)
 }
 
 DEFINE_TESTCASE(subdbwithoutpos1, generated) {
+    XFAIL_FOR_BACKEND("remote",
+		      "Known but obscure remote bug which doesn't justify "
+		      "protocol version bump");
+
     Xapian::Database db(get_database("apitest_simpledata"));
 
     Xapian::Query q(Xapian::Query::OP_PHRASE,

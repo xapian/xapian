@@ -76,6 +76,20 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 }
 
 Xapian::Database
+BackendManagerRemoteProg::get_database_by_path(const string& path)
+{
+    string args = get_remote_database_args(path, 300000);
+
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	args.insert(0, XAPIAN_PROGSRV" ");
+	return Xapian::Remote::open("./runsrv", args);
+    }
+#endif
+    return Xapian::Remote::open(XAPIAN_PROGSRV, args);
+}
+
+Xapian::Database
 BackendManagerRemoteProg::get_writable_database_as_database()
 {
     string args = get_writable_database_as_database_args();

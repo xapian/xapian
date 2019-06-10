@@ -105,6 +105,9 @@ class BackendManager {
 					      const std::string &),
 				  const std::string &arg);
 
+    /// Get a database instance by path
+    virtual Xapian::Database get_database_by_path(const std::string& path);
+
     /// Get the path of a database instance, if such a thing exists.
     std::string get_database_path(const std::vector<std::string> &files);
 
@@ -123,8 +126,15 @@ class BackendManager {
     /// Get the path of a writable database instance, if such a thing exists.
     virtual std::string get_writable_database_path(const std::string & name);
 
+    /// Get a generated writable database instance
+    virtual Xapian::WritableDatabase
+    get_generated_database(const std::string& name);
+
     /// Get the path to use for generating a database, if supported.
     virtual std::string get_generated_database_path(const std::string & name);
+
+    /// Finalise the generated database
+    virtual void finalise_generated_database(const std::string& name);
 
     /// Get a remote database instance with the specified timeout.
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
