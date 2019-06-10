@@ -1509,7 +1509,7 @@ typedef long long off_t_redefinition_typedef;
  * how to avoid this, so just define the same magic macro which <cmath> does
  * before it includes <math.h>.
  */
-#ifdef __SUNPRO_CC
+#if defined __SUNPRO_CC && !defined __MATHERR_RENAME_EXCEPTION
 # define __MATHERR_RENAME_EXCEPTION
 #endif
 ])
