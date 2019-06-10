@@ -27,6 +27,18 @@
 #include <string>
 #include "str.h"
 
+Xapian::WritableDatabase
+BackendManagerRemote::get_writable_database_from_sub_manager
+				    (const std::string & name)
+{
+    return sub_manager->get_writable_database(name, std::string());
+}
+
+std::string
+BackendManagerRemote::get_generated_database_path(const std::string & name) {
+    return sub_manager->get_writable_database_path(name);
+}
+
 std::string
 BackendManagerRemote::get_writable_database_args(const std::string & name,
 						 const std::string & file)
@@ -49,6 +61,17 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
     args += str(timeout);
     args += ' ';
     args += sub_manager->get_database_path(files);
+    return args;
+}
+
+std::string
+BackendManagerRemote::get_remote_database_args(const std::string & name,
+					       unsigned int timeout)
+{
+    std::string args = "-t";
+    args += str(timeout);
+    args += ' ';
+    args += sub_manager->get_writable_database_path(name);
     return args;
 }
 

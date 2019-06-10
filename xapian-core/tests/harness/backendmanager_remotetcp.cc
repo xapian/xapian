@@ -368,6 +368,14 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 }
 
 Xapian::Database
+BackendManagerRemoteTcp::get_remote_database_by_name(const string & name,
+						     unsigned int timeout) {
+    string args = get_remote_database_args(name, timeout);
+    int port = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open(LOCALHOST, port);
+}
+
+Xapian::Database
 BackendManagerRemoteTcp::get_writable_database_as_database()
 {
     string args = get_writable_database_as_database_args();

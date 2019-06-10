@@ -42,6 +42,8 @@
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "unixcmds.h"
+#include "common/stringutils.h"
+
 
 using namespace std;
 
@@ -123,9 +125,22 @@ BackendManager::get_database(const std::string &dbname,
     string dbleaf = "db__";
     dbleaf += dbname;
     const string& path = get_generated_database_path(dbleaf);
+
+    // checking if a remote backendmanager is being used
+    bool is_remote_bm = false;
+    if (startswith(this->get_dbtype(), "remote")) {
+	is_remote_bm = true;
+    }
+
     if (path.empty()) {
 	// InMemory doesn't have a path but we want to support generated
 	// databases for it.
+	if (is_remote_bm) {
+	    Xapian::WritableDatabase wdb =
+		get_writable_database_from_sub_manager(dbleaf);
+	    gen(wdb, arg);
+	    return get_remote_database_by_name(dbleaf, 30000);
+	}
 	Xapian::WritableDatabase wdb = get_writable_database(path, path);
 	gen(wdb, arg);
 	return std::move(wdb);
@@ -133,6 +148,9 @@ BackendManager::get_database(const std::string &dbname,
 
     if (path_exists(path)) {
 	try {
+	    if (is_remote_bm) {
+		return get_remote_database_by_name(dbleaf, 30000);
+	    }
 	    return Xapian::Database(path);
 	} catch (const Xapian::DatabaseOpeningError &) {
 	}
@@ -153,6 +171,9 @@ BackendManager::get_database(const std::string &dbname,
     // For multi, the shards will use the temporary name, but that's not really
     // a problem.
 
+    if (is_remote_bm) {
+	return get_remote_database_by_name(dbleaf, 30000);
+    }
     return Xapian::Database(path);
 }
 
@@ -231,6 +252,26 @@ BackendManager::get_remote_database(const vector<string> &, unsigned int)
 {
     string msg = "BackendManager::get_remote_database() called for non-remote "
 		 "database (type is ";
+    msg += get_dbtype();
+    msg += ')';
+    throw Xapian::InvalidOperationError(msg);
+}
+
+Xapian::Database
+BackendManager::get_remote_database_by_name(const string &, unsigned int)
+{
+    string msg = "BackendManager::get_remote_database_by_name() "
+		 "called for non-remote database (type is ";
+    msg += get_dbtype();
+    msg += ')';
+    throw Xapian::InvalidOperationError(msg);
+}
+
+Xapian::WritableDatabase
+BackendManager::get_writable_database_from_sub_manager(const string &)
+{
+    string msg = "BackendManager::get_writable_database_from_sub_manager() "
+		 "called for non-remote database (type is ";
     msg += get_dbtype();
     msg += ')';
     throw Xapian::InvalidOperationError(msg);
