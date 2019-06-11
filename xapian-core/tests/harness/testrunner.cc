@@ -90,7 +90,7 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	{ "singlefile_glass", SINGLEFILE|
 	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH },
 	{ "honey", HONEY|
-	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH },
+	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH|GENERATED },
 	{ NULL, 0 }
     };
 

@@ -74,9 +74,30 @@ BackendManagerHoney::do_get_database_path(const vector<string> & files)
 }
 
 Xapian::WritableDatabase
+BackendManagerHoney::get_alt_writable_database(const string & name,
+					       const string & file)
+{
+    string db_path = CACHE_DIRECTORY "/" + name;
+
+    rm_rf(db_path);
+
+    auto flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS;
+    Xapian::WritableDatabase wdb(db_path, flags);
+    index_files_to_database(wdb, vector<string>(1, file));
+
+    return wdb;
+}
+
+Xapian::WritableDatabase
 BackendManagerHoney::get_writable_database(const string &, const string &)
 {
     throw Xapian::UnimplementedError("Honey databases don't support writing");
+}
+
+string
+BackendManagerHoney::get_generated_database_path(const string & name)
+{
+    return CACHE_DIRECTORY "/" + name;
 }
 
 string
