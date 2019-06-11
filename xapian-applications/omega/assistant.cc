@@ -34,8 +34,8 @@ const int time_limit = 300;
 #if defined HAVE_ALARM
 
 static void
-timeout_handler(int n) {
-    _Exit(n);
+timeout_handler(int sig) {
+    _Exit(sig);
 }
 
 static void

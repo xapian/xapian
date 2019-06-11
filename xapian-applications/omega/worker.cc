@@ -24,16 +24,16 @@
 #include "worker.h"
 #include "worker_comms.h"
 
-#include <cerrno>
+#include "pkglibbindir.h"
 #include <csignal>
 #include <cstring>
+#include <cerrno>
+#include "safefcntl.h"
+#include "safeunistd.h"
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include "closefrom.h"
 #include "freemem.h"
-#include "pkglibbindir.h"
-#include "safefcntl.h"
-#include "safeunistd.h"
 
 using namespace std;
 
@@ -163,7 +163,7 @@ Worker::extract(const std::string & filename,
 	read_string(sockt, strpage)) {
 	    pages = stoi(strpage);
 	    return true;
-	}
+    }
     fclose(sockt);
     sockt = NULL;
 
