@@ -42,8 +42,7 @@
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "unixcmds.h"
-#include "common/stringutils.h"
-
+#include "stringutils.h"
 
 using namespace std;
 
@@ -127,20 +126,11 @@ BackendManager::get_database(const std::string &dbname,
     const string& path = get_generated_database_path(dbleaf);
 
     // checking if a remote backendmanager is being used
-    bool is_remote_bm = false;
-    if (startswith(get_dbtype(), "remote")) {
-	is_remote_bm = true;
-    }
+    bool is_remote_bm = startswith(get_dbtype(), "remote");
 
     if (path.empty()) {
 	// InMemory doesn't have a path but we want to support generated
 	// databases for it.
-	if (is_remote_bm) {
-	    Xapian::WritableDatabase wdb =
-		get_writable_database_from_sub_manager(dbleaf);
-	    gen(wdb, arg);
-	    return get_remote_database_by_name(dbleaf, 30000);
-	}
 	Xapian::WritableDatabase wdb = get_writable_database(path, path);
 	gen(wdb, arg);
 	return std::move(wdb);
@@ -163,8 +153,12 @@ BackendManager::get_database(const std::string &dbname,
     tmp_path += '~';
 
     {
-	Xapian::WritableDatabase wdb = get_writable_database(tmp_dbleaf,
-							     string());
+	Xapian::WritableDatabase wdb;
+	if (is_remote_bm) {
+	    wdb = get_writable_database_from_sub_manager(tmp_dbleaf);
+	} else {
+	    wdb = get_writable_database(tmp_dbleaf, string());
+	}
 	gen(wdb, arg);
     }
     rename(tmp_path.c_str(), path.c_str());
