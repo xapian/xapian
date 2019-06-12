@@ -1077,7 +1077,7 @@ static struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure
 {"",{CMD_,	   N, N, 0, 0}},// commented out code
 T(add,		   0, N, N, 0), // add a list of numbers
-T(addfilter,	   1, 1, N, 0), // add filter term
+T(addfilter,	   1, 2, N, 0), // add filter term
 T(allterms,	   0, 1, N, 0), // list of all terms matching document
 T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
 T(cgi,		   1, 1, N, 0), // return cgi parameter value
@@ -1370,7 +1370,16 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_addfilter:
-		add_bterm(args[0]);
+		if (args.size() == 1 || args[1].empty() || args[1] == "B") {
+		    add_bterm(args[0]);
+		} else if (args[1] == "N") {
+		    add_nterm(args[0]);
+		} else {
+		    string msg = "Invalid $addfilter type '";
+		    msg += args[1];
+		    msg += "'";
+		    throw msg;
+		}
 		break;
 	    case CMD_allterms: {
 		// list of all terms indexing document

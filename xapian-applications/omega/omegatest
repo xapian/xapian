@@ -420,6 +420,12 @@ NEWLINE='
 printf '$set{stemmer,}$setmap{boolprefix,lang,L,host,H}$setmap{prefix,,XDEFAULT}$querydescription' > "$TEST_TEMPLATE"
 qtestcase '((XDEFAULTfoo@1 AND XDEFAULTbar@2) FILTER (Hexample.org AND Lzh))' P='host:example.org foo bar lang:zh'
 
+# Feature tests for $addfilter.
+printf '$addfilter{Hexample.org}$addfilter{Hexample.com,}$addfilter{XFOObar,B}$querydescription' > "$TEST_TEMPLATE"
+qtestcase '((Hexample.org OR Hexample.com) AND XFOObar)' P=
+printf '$addfilter{Hexample.org}$addfilter{Hexample.com,N}$addfilter{Hexample.net,N}$querydescription' > "$TEST_TEMPLATE"
+qtestcase '(Hexample.org AND_NOT (Hexample.com OR Hexample.net))' P=
+
 # Feature tests for $cond.
 printf '$cond{$cgi{one},1,$cgi{two},2,$cgi{three},3}' > "$TEST_TEMPLATE"
 testcase '1' one=true
