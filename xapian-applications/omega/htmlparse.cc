@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -439,6 +439,12 @@ HtmlParser::parse(const string &body)
 			    // (as Netscape does)
 			    parameters.insert(make_pair(name, value));
 			}
+		    } else if (!name.empty()) {
+			// Boolean attribute - e.g. <input type=checkbox checked>
+
+			// convert parameter name to lowercase
+			lowercase_string(name);
+			parameters.insert(make_pair(name, string()));
 		    }
 		}
 #if 0

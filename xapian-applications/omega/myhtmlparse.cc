@@ -83,6 +83,19 @@ MyHtmlParser::opening_tag(const string &tag)
 	return true;
     pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
     switch (html_tag(k)) {
+	case INPUT: {
+	    string type;
+	    if (!get_parameter("type", type))
+		break;
+	    if (type == "checkbox") {
+		if (get_parameter("checked", type)) {
+		    *target += "\xe2\x98\x91"; // U+2611 BALLOT BOX WITH CHECK
+		} else {
+		    *target += "\xe2\x98\x90"; // U+2610 BALLOT BOX
+		}
+	    }
+	    break;
+	}
 	case P:
 	    if (pending_space < PAGE) {
 		string style;
