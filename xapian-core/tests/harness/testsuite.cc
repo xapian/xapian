@@ -714,16 +714,18 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		case PASS:
 		    ++res.succeeded;
 		    if (verbose || !use_cr) {
-			out << col_green << " ok" << col_reset << endl;
+			out << col_green << " ok" << col_reset;
 
 			if (test_duration.count() >= SLOW_TEST_THRESHOLD) {
 			    out << col_yellow << " SLOW TEST ("
 				<< test_duration.count()
-				<< " ms)" << col_reset << endl;
+				<< " ms)" << col_reset;
 			}
+
+			out << endl;
 		    } else {
 			out << "\r                                        "
-			    << "                                   \r";
+			       "                                       \r";
 		    }
 		    break;
 		case XFAIL:
