@@ -56,6 +56,7 @@ EXTRA_DIST =\
 	gen-myhtmltags \
 	gen-namedents \
 	gen-omegascript-vim \
+	lsan.supp \
 	mimemap.h \
 	mimemap.stamp \
 	mimemap.tokens \

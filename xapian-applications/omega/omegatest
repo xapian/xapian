@@ -27,6 +27,10 @@ set -e
 SERVER_PROTOCOL=INCLUDED
 export SERVER_PROTOCOL
 
+# Suppress leak reports for cached PCRE objects.
+LSAN_OPTIONS=print_suppressions=0,suppressions=lsan.supp
+export LSAN_OPTIONS
+
 # Set up an empty database.
 TEST_DB=test-db
 rm -rf "$TEST_DB"
