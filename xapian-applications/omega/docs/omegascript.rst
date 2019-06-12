@@ -60,11 +60,18 @@ values.
 ${...}
 	commented-out code
 
-$addfilter{TERM}
+$addfilter{TERM[,TYPE]}
         add filter term ``TERM`` as if it had been passed as a ``B`` CGI
-        parameter.  You must use ``$addfilter`` before any command which
-        requires the query to have been parsed - see ``$setmap`` for a list
-        of these commands.
+        parameter (if ``TYPE`` is not-specified, empty or ``B``), or as a
+        negated filter as if passed as an ``N`` CGI parameter (if ``TYPE`` is
+        ``N``).  Invalid types result in an error.
+
+        Support for the second parameter was added in Omega 1.4.12 - in older
+        versions only ``$addfilter{TERM}`` was supported and added ``B``-style
+        filters.
+
+        You must use ``$addfilter`` before any command which requires the query
+        to have been parsed - see ``$setmap`` for a list of these commands.
 
 $allterms[{DOCID}]
         list of all terms indexing the document with docid `DOCID` - if used
