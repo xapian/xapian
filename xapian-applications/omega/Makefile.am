@@ -44,6 +44,8 @@ BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
 
 MAINTAINERCLEANFILES = my-html-tok.h mimemap.h mimemap.stamp namedents.h
 
+EXTRA_PROGRAMS = omindex_pdf
+
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
 	clickmodel/testdata/test2.log\
@@ -76,11 +78,13 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \
 	-DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\" \
 	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
-
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
+if OMINDEX_PDF
+pkglibbin_PROGRAMS += omindex_pdf
+endif
 
 dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
@@ -112,7 +116,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
  xlsxparse.h opendocparse.h msxmlparse.h sort.h timegm.h csvescape.h\
  portability/mkdtemp.h portability/strptime.h\
- clickmodel/simplifieddbn.h clickmodel/session.h worker.h worker_comms.h
+ clickmodel/simplifieddbn.h clickmodel/session.h worker.h worker_comms.h handler_pdf.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -173,12 +177,8 @@ omindex_SOURCES += portability/mkdtemp.cc
 endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
-if OMINDEX_PDF
-pkglibbin_PROGRAMS += omindex_pdf
-noinst_HEADERS += handler_pdf.h
 omindex_pdf_SOURCES = assistant.cc worker_comms.cc handler_pdf.cc
 omindex_pdf_LDADD = -lpoppler-cpp $(XAPIAN_LIBS)
-endif
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\

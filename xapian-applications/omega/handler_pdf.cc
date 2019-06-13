@@ -54,9 +54,7 @@ extract(const string & filename,
 	string & author,
 	string & pages)
 {
-
     try {
-
 	document * doc = document::load_from_file(filename);
 
 	if (!doc) {

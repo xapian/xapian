@@ -247,14 +247,15 @@ dnl fnmatch() is used to match ignore pattern.
 AC_CHECK_FUNCS([fnmatch])
 
 dnl check if poppler is available.
-am_save_LIBS="$LIBS"
+save_LIBS="$LIBS"
 AC_LIB_APPENDTOVAR([LIBS], [-lpoppler-cpp])
 AC_TRY_LINK([#include <poppler/cpp/poppler-version.h>],
             [poppler::version_string()],
-            [AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the labrary is available]), lib_poppler=true],
+            [AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
+             lib_poppler=true],
 	    [lib_poppler=false])
 AM_CONDITIONAL([OMINDEX_PDF], [test x$lib_poppler != xfalse])
-LIBS="$am_save_LIBS"
+LIBS="$save_LIBS"
 
 dnl Check that snprintf actually works as it's meant to.
 dnl

@@ -1,7 +1,5 @@
 *.o
 
-xapian-applications/omega/omindex_*
-
 /configure
 /Makefile
 /config.cache

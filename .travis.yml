@@ -91,7 +91,6 @@ matrix:
             - python-docutils
             - python-pygments
             - pngcrush
-            - libpoppler-cpp-dev
       language: node_js
       node_js:
         - node
