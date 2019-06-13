@@ -122,13 +122,14 @@ bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
-dist_check_SCRIPTS = omegatest
+dist_check_SCRIPTS = omegatest sourcetest
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	omegatest\
+	sourcetest\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
 

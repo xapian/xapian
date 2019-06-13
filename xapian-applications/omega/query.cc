@@ -1903,6 +1903,15 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(val);
 		break;
 	    }
+	    case CMD_mod: {
+		int denom = string_to_int(args[1]);
+		if (denom == 0) {
+		    value = "divide by 0";
+		} else {
+		    value = str(string_to_int(args[0]) % denom);
+		}
+		break;
+	    }
 	    case CMD_msize:
 		// Estimated number of matches.
 		value = str(mset.get_matches_estimated());
@@ -1921,15 +1930,6 @@ eval(const string &fmt, const vector<string> &param)
 		// Upper bound on number of matches.
 		value = str(mset.get_matches_upper_bound());
 		break;
-	    case CMD_mod: {
-		int denom = string_to_int(args[1]);
-		if (denom == 0) {
-		    value = "divide by 0";
-		} else {
-		    value = str(string_to_int(args[0]) % denom);
-		}
-		break;
-	    }
 	    case CMD_mul: {
 		vector<string>::const_iterator i = args.begin();
 		int total = string_to_int(*i++);
