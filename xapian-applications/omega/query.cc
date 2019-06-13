@@ -1073,7 +1073,7 @@ struct func_desc {
 #define Q 'Q'
 // NB when adding a new command which ensures M or Q, update the list in
 // docs/omegascript.rst
-static struct func_desc func_tab[] = {
+static const struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure
 {"",{CMD_,	   N, N, 0, 0}},// commented out code
 T(add,		   0, N, N, 0), // add a list of numbers
@@ -1248,8 +1248,7 @@ eval(const string &fmt, const vector<string> &param)
 {
     static map<string, const struct func_attrib *> func_map;
     if (func_map.empty()) {
-	struct func_desc *p;
-	for (p = func_tab; p->name != NULL; ++p) {
+	for (auto p = func_tab; p->name != NULL; ++p) {
 	    func_map[string(p->name)] = &(p->a);
 	}
     }
