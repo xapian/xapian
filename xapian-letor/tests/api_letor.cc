@@ -2,6 +2,7 @@
  * @brief test common features of API classes
  */
 /* Copyright (C) 2007,2009,2012,2014,2015,2016 Olly Betts
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -797,124 +798,6 @@ DEFINE_TESTCASE(err_scorer, !backend)
     double err_score = err.score(fvv);
 
     TEST(abs(err_score - 0.63) < 0.01);
-
-    return true;
-}
-
-// Test for TfDoclenFeature
-DEFINE_TESTCASE(tfdoclenfeature, generated)
-{
-    string db_path = get_database_path("apitest_tfdoclenfeature",
-				       db_index_one_document);
-    Xapian::Database db(db_path);
-    Xapian::Document doc = db.get_document(1);
-    std::map<std::string,Xapian::termcount> len;
-    Xapian::TermIterator dt = doc.termlist_begin();
-
-    len["title"] = 4;
-    Xapian::termcount whole_len = db.get_doclength(1);
-    len["whole"] = whole_len;
-    TEST_EQUAL(whole_len, 186);
-    len["body"] = whole_len - len["title"];
-
-    Xapian::TfDoclenFeature feature;
-    feature.set_doc_length(len);
-
-    Xapian::QueryParser queryparser;
-    queryparser.set_stemmer(Xapian::Stem("en"));
-    queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
-    queryparser.add_prefix("title", "S");
-    queryparser.add_prefix("description", "XD");
-
-    string querystring = "title:tigers description:tigers tigers";
-    Xapian::Query query = queryparser.parse_query(querystring);
-    feature.set_query(query);
-
-    std::map<std::string, Xapian::termcount> tf;
-    tf["ZStiger"] = 1;
-    tf["ZXDtiger"] = 6;
-    tf["Ztiger"] = 2;
-    feature.set_termfreq(tf);
-
-    vector<double> res = feature.get_values();
-    TEST_EQUAL(res.size(), 3);
-
-    // test for title
-    TEST_EQUAL(res[0], log10(1 + 1 / (1.0 + len["title"])));
-
-    // test for body
-    double temp = log10(1 + 6 / (1.0 + len["body"])) +
-		  log10(1 + 2 / (1.0 + len["body"]));
-
-    TEST_EQUAL(res[1], temp);
-
-    // test for whole
-    temp = log10(1 + 1 / (1.0 + len["whole"])) +
-	   log10(1 + 6 / (1.0 + len["whole"])) +
-	   log10(1 + 2 / (1.0 + len["whole"]));
-
-    TEST_EQUAL(res[2], temp);
-
-    return true;
-}
-
-// Test for CollTfCollLenFeature
-DEFINE_TESTCASE(colltfcolllenfeature, generated)
-{
-    string db_path = get_database_path("apitest_ranker4",
-				       db_index_three_documents);
-    Xapian::CollTfCollLenFeature feature;
-
-    Xapian::Database db(db_path);
-    feature.set_database(db);
-
-    Xapian::Document doc = db.get_document(1);
-    feature.set_doc(doc);
-
-    std::map<std::string, Xapian::termcount> collection_length;
-
-    collection_length["title"] = 15;
-    Xapian::termcount whole_len = db.get_total_length();
-    collection_length["whole"] = whole_len;
-    TEST_EQUAL(whole_len, 482);
-    collection_length["body"] = whole_len - collection_length["title"];
-
-    feature.set_collection_length(collection_length);
-
-    Xapian::QueryParser queryparser;
-    queryparser.set_stemmer(Xapian::Stem("en"));
-    queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
-    queryparser.add_prefix("title", "S");
-    queryparser.add_prefix("description", "XD");
-
-    string querystring = "title:score description:score score";
-    Xapian::Query query = queryparser.parse_query(querystring);
-    feature.set_query(query);
-
-    std::map<std::string, Xapian::termcount> colltf;
-    colltf["ZSscore"] = 7;
-    colltf["ZXDscore"] = 9;
-    colltf["Zscore"] = 16;
-    feature.set_collection_termfreq(colltf);
-
-    vector<double> res = feature.get_values();
-    TEST_EQUAL(res.size(), 3);
-
-    // test for title
-    TEST_EQUAL(res[0], log10(1 + 15.0 / (1 + colltf["ZSscore"])));
-
-    // test for body
-    double temp = log10(1 + 467.0 / (1.0 + colltf["ZXDscore"])) +
-		  log10(1 + 467.0 / (1.0 + colltf["Zscore"]));
-
-    TEST_EQUAL(res[1], temp);
-
-    // test for whole
-    temp = log10(1 + 482.0 / (1.0 + colltf["ZSscore"])) +
-	   log10(1 + 482.0 / (1.0 + colltf["ZXDscore"])) +
-	   log10(1 + 482.0 / (1.0 + colltf["Zscore"]));
-
-    TEST_EQUAL(res[2], temp);
 
     return true;
 }

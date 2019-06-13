@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +23,7 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
+#include "api/feature_internal.h"
 
 #include "debuglog.h"
 #include "stringutils.h"
@@ -54,12 +56,12 @@ TfFeature::get_values() const
     vector<double> values;
     double value = 0;
 
+    Xapian::Query feature_query = internal->get_query();
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (is_title_term((*qt))) {
-	    auto tf_iterator = termfreq.find(*qt);
-	    if (tf_iterator != termfreq.end())
-		value += log10(1 + tf_iterator->second);
+	    double tf = internal->get_termfreq(*qt);
+	    value += log10(1 + tf);
 	}
     }
     values.push_back(value);
@@ -68,9 +70,8 @@ TfFeature::get_values() const
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (!is_title_term((*qt))) {
-	    auto tf_iterator = termfreq.find(*qt);
-	    if (tf_iterator != termfreq.end())
-		value += log10(1 + tf_iterator->second);
+	    double tf = internal->get_termfreq(*qt);
+	    value += log10(1 + tf);
 	}
     }
     values.push_back(value);
@@ -78,9 +79,8 @@ TfFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	auto tf_iterator = termfreq.find(*qt);
-	if (tf_iterator != termfreq.end())
-	    value += log10(1 + tf_iterator->second);
+	double tf = internal->get_termfreq(*qt);
+	value += log10(1 + tf);
     }
     values.push_back(value);
 

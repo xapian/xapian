@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +25,7 @@
 
 #include "xapian-letor/featurelist.h"
 #include "featurelist_internal.h"
+#include "feature_internal.h"
 
 #include <cmath>
 #include <cstdio>
@@ -162,33 +164,28 @@ FeatureList::Internal::compute_collection_termfreq()
 }
 
 void
-FeatureList::Internal::populate_feature(Feature *feature_)
+FeatureList::Internal::populate_feature_internal(Feature::Internal*
+						 internal_feature)
 {
-    stat_flags stats_needed = stat_flags(feature_->get_stats());
     if (stats_needed & TERM_FREQUENCY) {
-	if (termfreq.empty())
-	    compute_termfreq();
-	feature_->set_termfreq(termfreq);
+	compute_termfreq();
+	internal_feature->set_termfreq(termfreq);
     }
     if (stats_needed & INVERSE_DOCUMENT_FREQUENCY) {
-	if (inverse_doc_freq.empty())
-	    compute_inverse_doc_freq();
-	feature_->set_inverse_doc_freq(inverse_doc_freq);
+	compute_inverse_doc_freq();
+	internal_feature->set_inverse_doc_freq(inverse_doc_freq);
     }
     if (stats_needed & DOCUMENT_LENGTH) {
-	if (doc_length.empty())
-	    compute_doc_length();
-	feature_->set_doc_length(doc_length);
+	compute_doc_length();
+	internal_feature->set_doc_length(doc_length);
     }
     if (stats_needed & COLLECTION_LENGTH) {
-	if (collection_length.empty())
-	    compute_collection_length();
-	feature_->set_collection_length(collection_length);
+	compute_collection_length();
+	internal_feature->set_collection_length(collection_length);
     }
     if (stats_needed & COLLECTION_TERM_FREQ) {
-	if (collection_termfreq.empty())
-	    compute_collection_termfreq();
-	feature_->set_collection_termfreq(collection_termfreq);
+	compute_collection_termfreq();
+	internal_feature->set_collection_termfreq(collection_termfreq);
     }
 }
 

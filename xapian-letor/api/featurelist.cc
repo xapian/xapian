@@ -2,6 +2,7 @@
  *  @brief Definition of FeatureList class
  */
 /* Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,7 @@
 #include "xapian-letor/feature.h"
 #include "xapian-letor/featurevector.h"
 #include "featurelist_internal.h"
+#include "feature_internal.h"
 
 #include "debuglog.h"
 
@@ -41,6 +43,10 @@ FeatureList::FeatureList() : internal(new FeatureList::Internal())
     internal->feature.push_back(new CollTfCollLenFeature());
     internal->feature.push_back(new TfIdfDoclenFeature());
     internal->feature.push_back(new TfDoclenCollTfCollLenFeature());
+    for (Feature* it : internal->feature) {
+	internal->stats_needed = Internal::stat_flags(internal->stats_needed |
+						      it->get_stats());
+    }
 }
 
 FeatureList::FeatureList(const std::vector<Feature*> & f)
@@ -48,6 +54,10 @@ FeatureList::FeatureList(const std::vector<Feature*> & f)
 {
     LOGCALL_CTOR(API, "FeatureList", f);
     internal->feature = f;
+    for (Feature* it : internal->feature) {
+	internal->stats_needed = Internal::stat_flags(internal->stats_needed |
+						      it->get_stats());
+    }
 }
 
 FeatureList::~FeatureList()
@@ -104,12 +114,13 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	Xapian::Document doc = i.get_document();
 	std::vector<double> fvals;
 	internal->set_data(letor_query, letor_db, doc);
+	Feature::Internal* internal_feature = new Feature::Internal(letor_db,
+								    letor_query,
+								    doc);
+	// Computes and populates the Feature::Internal with required stats.
+	internal->populate_feature_internal(internal_feature);
 	for (Feature* it : internal->feature) {
-	    it->set_database(letor_db);
-	    it->set_query(letor_query);
-	    it->set_doc(doc);
-	    // Computes and populates the Feature with required stats.
-	    internal->populate_feature(it);
+	    it->internal = internal_feature;
 	    const vector<double>& values = it->get_values();
 	    // Append feature values
 	    fvals.insert(fvals.end(), values.begin(), values.end());
