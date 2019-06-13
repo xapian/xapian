@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +25,7 @@
 #define XAPIAN_LETOR_INCLUDED_FEATURELIST_INTERNAL_H
 
 #include "xapian-letor/featurelist.h"
+#include "api/feature_internal.h"
 
 #include <map>
 
@@ -46,6 +48,9 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 	/// How many documents in the RSet the current term is in.
 	COLLECTION_TERM_FREQ = 16,
     } stat_flags;
+
+    /// A bitmask of the statistics this FeatureList needs.
+    stat_flags stats_needed;
 
     /// Xapian::Database using which features will be calculated.
     Database featurelist_db;
@@ -178,7 +183,7 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 			    const Xapian::Document & doc);
 
     /// Computes and populates the stats needed by a Feature.
-    void populate_feature(Feature *feature_);
+    void populate_featurelist(Feature::Internal *internal_feature);
 
     /// Clears all the stats.
     void clear_stats();

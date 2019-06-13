@@ -2,6 +2,7 @@
  *  @brief Definition of FeatureList class
  */
 /* Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,7 @@
 #include "xapian-letor/feature.h"
 #include "xapian-letor/featurevector.h"
 #include "featurelist_internal.h"
+#include "feature_internal.h"
 
 #include "debuglog.h"
 
@@ -104,12 +106,15 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	Xapian::Document doc = i.get_document();
 	std::vector<double> fvals;
 	internal->set_data(letor_query, letor_db, doc);
+	Feature::Internal *internal_feature = new Feature::Internal();
+	// set all the parameters for internal_feature
+	internal_feature->set_database(letor_db);
+	internal_feature->set_query(letor_query);
+	internal_feature->set_doc(doc);
+	internal->populate_featurelist(internal_feature);
 	for (Feature* it : internal->feature) {
-	    it->set_database(letor_db);
-	    it->set_query(letor_query);
-	    it->set_doc(doc);
+	    it->internal = internal_feature;
 	    // Computes and populates the Feature with required stats.
-	    internal->populate_feature(it);
 	    const vector<double>& values = it->get_values();
 	    // Append feature values
 	    fvals.insert(fvals.end(), values.begin(), values.end());

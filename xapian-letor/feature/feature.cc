@@ -2,6 +2,7 @@
  * @brief Description of Feature class
  */
 /* Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,76 +23,18 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
+#include "api/feature_internal.h"
 #include "debuglog.h"
 
 namespace Xapian {
 
-Feature::Feature() : stats_needed()
+Feature::Feature() : stats_needed(), internal(new Feature::Internal())
 {
     LOGCALL_CTOR(API, "Feature", NO_ARGS);
 }
 
 Feature::~Feature() {
     LOGCALL_DTOR(API, "Feature");
-}
-
-void
-Feature::set_database(const Xapian::Database & db)
-{
-    LOGCALL_VOID(API, "Feature::set_database", db);
-    feature_db = db;
-}
-
-void
-Feature::set_query(const Xapian::Query & query)
-{
-    LOGCALL_VOID(API, "Feature::set_query", query);
-    feature_query = query;
-}
-
-void
-Feature::set_doc(const Xapian::Document & doc)
-{
-    LOGCALL_VOID(API, "Feature::set_doc", doc);
-    feature_doc = doc;
-}
-
-void
-Feature::set_termfreq(const std::map<std::string, Xapian::termcount> & tf)
-{
-    LOGCALL_VOID(API, "Feature::set_termfreq", tf);
-    termfreq = tf;
-}
-
-void
-Feature::set_inverse_doc_freq(const std::map<std::string, double> & idf)
-{
-    LOGCALL_VOID(API, "Feature::set_inverse_doc_freq", idf);
-    inverse_doc_freq = idf;
-}
-
-void
-Feature::set_doc_length(const std::map<std::string,
-			Xapian::termcount> & doc_len)
-{
-    LOGCALL_VOID(API, "Feature::set_doc_length", doc_len);
-    doc_length = doc_len;
-}
-
-void
-Feature::set_collection_length(const std::map<std::string,
-			       Xapian::termcount> & collection_len)
-{
-    LOGCALL_VOID(API, "Feature::set_collection_length", collection_len);
-    collection_length = collection_len;
-}
-
-void
-Feature::set_collection_termfreq(const std::map<std::string,
-				 Xapian::termcount> &collection_tf)
-{
-    LOGCALL_VOID(API, "Feature::set_collection_termfreq", collection_tf);
-    collection_termfreq = collection_tf;
 }
 
 }

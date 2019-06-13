@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +23,7 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
+#include "api/feature_internal.h"
 
 #include "debuglog.h"
 #include "stringutils.h"
@@ -54,12 +56,13 @@ IdfFeature::get_values() const
     vector<double> values;
     double value = 0;
 
+    Xapian::Query feature_query = internal->get_query();
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (is_title_term((*qt))) {
-	    auto idf_iterator = inverse_doc_freq.find(*qt);
-	    if (idf_iterator != inverse_doc_freq.end())
-		value += log10(1 + idf_iterator->second);
+	    double idf = 0;
+	    if (internal->get_inverse_doc_freq(*qt, idf))
+		value += log10(1 + idf);
 	}
     }
     values.push_back(value);
@@ -68,9 +71,9 @@ IdfFeature::get_values() const
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (!is_title_term((*qt))) {
-	    auto idf_iterator = inverse_doc_freq.find(*qt);
-	    if (idf_iterator != inverse_doc_freq.end())
-		value += log10(1 + idf_iterator->second);
+	    double idf = 0;
+	    if (internal->get_inverse_doc_freq(*qt, idf))
+		value += log10(1 + idf);
 	}
     }
     values.push_back(value);
@@ -78,9 +81,9 @@ IdfFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	auto idf_iterator = inverse_doc_freq.find(*qt);
-	if (idf_iterator != inverse_doc_freq.end())
-	    value += log10(1 + idf_iterator->second);
+	double idf = 0;
+	if (internal->get_inverse_doc_freq(*qt, idf))
+	    value += log10(1 + idf);
     }
     values.push_back(value);
 

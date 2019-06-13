@@ -2,6 +2,7 @@
  * @brief test common features of API classes
  */
 /* Copyright (C) 2007,2009,2012,2014,2015,2016 Olly Betts
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +29,8 @@
 
 #include <xapian.h>
 #include <xapian-letor.h>
+
+#include <api/feature_internal.h>
 
 #include "apitest.h"
 #include "testutils.h"
@@ -818,7 +821,7 @@ DEFINE_TESTCASE(tfdoclenfeature, generated)
     len["body"] = whole_len - len["title"];
 
     Xapian::TfDoclenFeature feature;
-    feature.set_doc_length(len);
+    feature.internal->set_doc_length(len);
 
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("en"));
@@ -828,13 +831,13 @@ DEFINE_TESTCASE(tfdoclenfeature, generated)
 
     string querystring = "title:tigers description:tigers tigers";
     Xapian::Query query = queryparser.parse_query(querystring);
-    feature.set_query(query);
+    feature.internal->set_query(query);
 
     std::map<std::string, Xapian::termcount> tf;
     tf["ZStiger"] = 1;
     tf["ZXDtiger"] = 6;
     tf["Ztiger"] = 2;
-    feature.set_termfreq(tf);
+    feature.internal->set_termfreq(tf);
 
     vector<double> res = feature.get_values();
     TEST_EQUAL(res.size(), 3);
@@ -866,10 +869,10 @@ DEFINE_TESTCASE(colltfcolllenfeature, generated)
     Xapian::CollTfCollLenFeature feature;
 
     Xapian::Database db(db_path);
-    feature.set_database(db);
+    feature.internal->set_database(db);
 
     Xapian::Document doc = db.get_document(1);
-    feature.set_doc(doc);
+    feature.internal->set_doc(doc);
 
     std::map<std::string, Xapian::termcount> collection_length;
 
@@ -879,7 +882,7 @@ DEFINE_TESTCASE(colltfcolllenfeature, generated)
     TEST_EQUAL(whole_len, 482);
     collection_length["body"] = whole_len - collection_length["title"];
 
-    feature.set_collection_length(collection_length);
+    feature.internal->set_collection_length(collection_length);
 
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("en"));
@@ -889,13 +892,13 @@ DEFINE_TESTCASE(colltfcolllenfeature, generated)
 
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
-    feature.set_query(query);
+    feature.internal->set_query(query);
 
     std::map<std::string, Xapian::termcount> colltf;
     colltf["ZSscore"] = 7;
     colltf["ZXDscore"] = 9;
     colltf["Zscore"] = 16;
-    feature.set_collection_termfreq(colltf);
+    feature.internal->set_collection_termfreq(colltf);
 
     vector<double> res = feature.get_values();
     TEST_EQUAL(res.size(), 3);

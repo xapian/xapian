@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +23,7 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
+#include "api/feature_internal.h"
 
 #include "debuglog.h"
 #include "stringutils.h"
@@ -53,20 +55,19 @@ CollTfCollLenFeature::get_values() const
 
     vector<double> values;
     double value = 0;
-    double coll_len;
-    auto coll_len_iterator = collection_length.find("title");
-    if (coll_len_iterator != collection_length.end())
-	coll_len = (double)coll_len_iterator->second;
-    else
+    double coll_len = 0;
+    if (!internal->get_collection_length("title", coll_len)) {
 	coll_len = 0;
+    }
 
+    Xapian::Query feature_query = internal->get_query();
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (is_title_term((*qt))) {
-	    auto coll_tf_iterator = collection_termfreq.find(*qt);
-	    if (coll_tf_iterator != collection_termfreq.end()) {
+	    double tf = 0;
+	    if (internal->get_collection_termfreq(*qt, tf)) {
 		value += log10(1 + (coll_len /
-				    (double)(1 + coll_tf_iterator->second)));
+				    (double)(1 + tf)));
 	    } else {
 		value += log10(1 + coll_len);
 	    }
@@ -74,19 +75,17 @@ CollTfCollLenFeature::get_values() const
     }
     values.push_back(value);
     value = 0;
-    coll_len_iterator = collection_length.find("body");
-    if (coll_len_iterator != collection_length.end())
-	coll_len = (double)coll_len_iterator->second;
-    else
+    if (!internal->get_collection_length("body", coll_len)) {
 	coll_len = 0;
+    }
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (!is_title_term((*qt))) {
-	    auto coll_tf_iterator = collection_termfreq.find(*qt);
-	    if (coll_tf_iterator != collection_termfreq.end()) {
+	    double tf = 0;
+	    if (internal->get_collection_termfreq(*qt, tf)) {
 		value += log10(1 + (coll_len /
-				    (double)(1 + coll_tf_iterator->second)));
+				    (double)(1 + tf)));
 	    } else {
 		value += log10(1 + coll_len);
 	    }
@@ -94,18 +93,16 @@ CollTfCollLenFeature::get_values() const
     }
     values.push_back(value);
     value = 0;
-    coll_len_iterator = collection_length.find("whole");
-    if (coll_len_iterator != collection_length.end())
-	coll_len = (double)coll_len_iterator->second;
-    else
+    if (!internal->get_collection_length("whole", coll_len)) {
 	coll_len = 0;
+    }
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	auto coll_tf_iterator = collection_termfreq.find(*qt);
-	if (coll_tf_iterator != collection_termfreq.end()) {
+	double tf = 0;
+	if (internal->get_collection_termfreq(*qt, tf)) {
 	    value += log10(1 + (coll_len /
-				 (double)(1 + coll_tf_iterator->second)));
+				(double)(1 + tf)));
 	} else {
 	    value += log10(1 + coll_len);
 	}

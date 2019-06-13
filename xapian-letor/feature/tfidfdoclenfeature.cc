@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +23,7 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
+#include "api/feature_internal.h"
 
 #include "debuglog.h"
 #include "stringutils.h"
@@ -53,78 +55,55 @@ TfIdfDoclenFeature::get_values() const
 
     vector<double> values;
     double value = 0;
-    double doc_len;
-    auto doc_len_iterator = doc_length.find("title");
-    if (doc_len_iterator != doc_length.end())
-	doc_len = (double)doc_len_iterator->second;
-    else
+    double doc_len = 0;
+    if (!internal->get_doc_length("title", doc_len)) {
 	doc_len = 0;
+    }
 
+    Xapian::Query feature_query = internal->get_query();
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (is_title_term((*qt))) {
-	    double tf;
-	    double idf;
-	    auto tf_iterator = termfreq.find(*qt);
-	    auto idf_iterator = inverse_doc_freq.find(*qt);
-	    if (tf_iterator != termfreq.end())
-		tf = (double)tf_iterator->second;
-	    else
+	    double tf = 0;
+	    if (!internal->get_termfreq(*qt, tf))
 		tf = 0;
-	    if (idf_iterator != inverse_doc_freq.end())
-		idf = idf_iterator->second;
-	    else
+	    double idf = 0;
+	    if (!internal->get_inverse_doc_freq(*qt, idf))
 		idf = 0;
 	    value += log10(1 + ((tf * idf) / (1 + doc_len)));
 	}
     }
     values.push_back(value);
     value = 0;
-    doc_len_iterator = doc_length.find("body");
-    if (doc_len_iterator != doc_length.end())
-	doc_len = (double)doc_len_iterator->second;
-    else
+    if (!internal->get_doc_length("body", doc_len)) {
 	doc_len = 0;
+    }
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (!is_title_term((*qt))) {
-	    double tf;
-	    double idf;
-	    auto tf_iterator = termfreq.find(*qt);
-	    auto idf_iterator = inverse_doc_freq.find(*qt);
-	    if (tf_iterator != termfreq.end())
-		tf = (double)tf_iterator->second;
-	    else
+	    double tf = 0;
+	    if (!internal->get_termfreq(*qt, tf))
 		tf = 0;
-	    if (idf_iterator != inverse_doc_freq.end())
-		idf = idf_iterator->second;
-	    else
+	    double idf = 0;
+	    if (!internal->get_inverse_doc_freq(*qt, idf))
 		idf = 0;
 	    value += log10(1 + ((tf * idf) / (1 + doc_len)));
 	}
     }
     values.push_back(value);
     value = 0;
-    doc_len_iterator = doc_length.find("whole");
-    if (doc_len_iterator != doc_length.end())
-	doc_len = (double)doc_len_iterator->second;
-    else
+    if (!internal->get_doc_length("whole", doc_len)) {
 	doc_len = 0;
+    }
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	double tf;
-	double idf;
-	auto tf_iterator = termfreq.find(*qt);
-	auto idf_iterator = inverse_doc_freq.find(*qt);
-	if (tf_iterator != termfreq.end())
-	    tf = (double)tf_iterator->second;
-	else
+	double tf = 0;
+	if (!internal->get_termfreq(*qt, tf))
 	    tf = 0;
-	if (idf_iterator != inverse_doc_freq.end())
-	    idf = idf_iterator->second;
-	else
+	double idf = 0;
+	if (!internal->get_inverse_doc_freq(*qt, idf))
 	    idf = 0;
 	value += log10(1 + ((tf * idf) / (1 + doc_len)));
     }
