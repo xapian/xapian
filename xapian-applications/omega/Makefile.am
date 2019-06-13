@@ -86,7 +86,7 @@ bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
 
 check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test sdbntest urlenctest utf8converttest
-dist_check_SCRIPTS = omegatest
+dist_check_SCRIPTS = omegatest sourcetest
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
@@ -94,6 +94,7 @@ TESTS =	atomparsetest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	omegatest\
 	sdbntest$(EXEEXT)\
+	sourcetest\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
 

@@ -1013,8 +1013,8 @@ CMD_prettyurl,
 CMD_query,
 CMD_querydescription,
 CMD_queryterms,
-CMD_range,
 CMD_random,
+CMD_range,
 CMD_record,
 CMD_relevant,
 CMD_relevants,
@@ -1156,8 +1156,8 @@ T(prettyurl,	   1, 1, N, 0), // pretty version of URL
 T(query,	   0, 1, N, Q), // query
 T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
 T(queryterms,	   0, 0, N, Q), // list of query terms
-T(range,	   2, 2, N, 0), // return list of values between start and end
 T(random,	   1, 1, N, 0), // return a random number
+T(range,	   2, 2, N, 0), // return list of values between start and end
 T(record,	   0, 1, N, 0), // record contents of document
 T(relevant,	   0, 1, N, Q), // is document relevant?
 T(relevants,	   0, 0, N, Q), // return list of relevant documents
@@ -1965,6 +1965,15 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(val);
 		break;
 	    }
+	    case CMD_mod: {
+		int denom = string_to_int(args[1]);
+		if (denom == 0) {
+		    value = "divide by 0";
+		} else {
+		    value = str(string_to_int(args[0]) % denom);
+		}
+		break;
+	    }
 	    case CMD_msize:
 		// Estimated number of matches.
 		value = str(mset.get_matches_estimated());
@@ -1983,15 +1992,6 @@ eval(const string &fmt, const vector<string> &param)
 		// Upper bound on number of matches.
 		value = str(mset.get_matches_upper_bound());
 		break;
-	    case CMD_mod: {
-		int denom = string_to_int(args[1]);
-		if (denom == 0) {
-		    value = "divide by 0";
-		} else {
-		    value = str(string_to_int(args[0]) % denom);
-		}
-		break;
-	    }
 	    case CMD_mul: {
 		vector<string>::const_iterator i = args.begin();
 		int total = string_to_int(*i++);
@@ -2091,6 +2091,17 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_queryterms:
 		value = queryterms;
 		break;
+	    case CMD_random: {
+		if (!seed_set) {
+		    random_device rd;
+		    rng.seed(rd());
+		    seed_set = true;
+		}
+		uniform_int_distribution<int>
+		    distr(0, string_to_int(args[0]));
+		value = str(distr(rng));
+		break;
+	    }
 	    case CMD_range: {
 		int start, end;
 		if (!parse_signed(args[0].c_str(), start)) {
@@ -2106,17 +2117,6 @@ eval(const string &fmt, const vector<string> &param)
 		    if (start < end) value += '\t';
 		    start++;
 		}
-		break;
-	    }
-	    case CMD_random: {
-		if (!seed_set) {
-		    random_device rd;
-		    rng.seed(rd());
-		    seed_set = true;
-		}
-		uniform_int_distribution<int>
-		    distr(0, string_to_int(args[0]));
-		value = str(distr(rng));
 		break;
 	    }
 	    case CMD_record: {
