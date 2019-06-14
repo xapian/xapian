@@ -95,52 +95,70 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
     /** Specify the database to use for feature building.
      *
      */
-    void set_database(const Xapian::Database & db);
+    inline void set_database(const Xapian::Database & db) {
+	feature_db = db;
+    }
 
     /** Specify the query to use for feature building.
      *
      *
      *  @param query  Xapian::Query which has to be queried
      */
-    void set_query(const Xapian::Query & query);
+    inline void set_query(const Xapian::Query & query) {
+	feature_query = query;
+    }
 
     /** Specify the document to use for feature building.
      *
      */
-    void set_doc(const Xapian::Document & doc);
+    inline void set_doc(const Xapian::Document & doc) {
+	feature_doc = doc;
+    }
 
     /** Sets the termfrequency that is going to be used for
      *  Feature building.
      *
      */
-    void set_termfreq(const std::map<std::string, Xapian::termcount> &tf);
+    inline void set_termfreq(const std::map<std::string,
+			     Xapian::termcount> &tf) {
+	termfreq = tf;
+    }
 
     /** Sets the inverse_doc_freq that is going to be used for
      *  Feature building.
      *
      */
-    void set_inverse_doc_freq(const std::map<std::string, double> & idf);
+    inline void set_inverse_doc_freq(const std::map<std::string,
+				     double> & idf) {
+	inverse_doc_freq = idf;
+    }
 
     /** Sets the doc_length that is going to be used for Feature building.
      *
      *  This is used by Feature::Internal while populating Statistics.
      */
-    void set_doc_length(const std::map<std::string,
-			Xapian::termcount> & doc_len);
+    inline void set_doc_length(const std::map<std::string,
+			Xapian::termcount> & doc_len) {
+	doc_length = doc_len;
+    }
 
     /** Sets the collection_length that is going to be used for
      *  Feature building.
      *
      */
-    void set_collection_length(const std::map<std::string,
-			       Xapian::termcount> & collection_len);
+    inline void set_collection_length(const std::map<std::string,
+			       Xapian::termcount> & collection_len) {
+	collection_length = collection_len;
+    }
 
     /** Sets the collection_termfreq that is going to be used
      *  for Feature building.
      *
      */
-    void set_collection_termfreq(const std::map<std::string,
-				 Xapian::termcount> & collection_tf);
+    inline void set_collection_termfreq(const std::map<std::string,
+				 Xapian::termcount> & collection_tf) {
+	collection_termfreq = collection_tf;
+    }
 };
 
 }

@@ -166,9 +166,6 @@ FeatureList::Internal::compute_collection_termfreq()
 void
 FeatureList::Internal::populate_featurelist(Feature::Internal *internal_feature)
 {
-    for (Feature* it : feature) {
-	stats_needed = stat_flags(stats_needed | it->get_stats());
-    }
     if (stats_needed & TERM_FREQUENCY) {
 	compute_termfreq();
 	internal_feature->set_termfreq(termfreq);
