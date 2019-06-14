@@ -60,9 +60,8 @@ IdfFeature::get_values() const
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (is_title_term((*qt))) {
-	    double idf = 0;
-	    if (internal->get_inverse_doc_freq(*qt, idf))
-		value += log10(1 + idf);
+	    double idf = internal->get_inverse_doc_freq(*qt);
+	    value += log10(1 + idf);
 	}
     }
     values.push_back(value);
@@ -71,9 +70,8 @@ IdfFeature::get_values() const
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (!is_title_term((*qt))) {
-	    double idf = 0;
-	    if (internal->get_inverse_doc_freq(*qt, idf))
-		value += log10(1 + idf);
+	    double idf = internal->get_inverse_doc_freq(*qt);
+	    value += log10(1 + idf);
 	}
     }
     values.push_back(value);
@@ -81,9 +79,8 @@ IdfFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	double idf = 0;
-	if (internal->get_inverse_doc_freq(*qt, idf))
-	    value += log10(1 + idf);
+	double idf = internal->get_inverse_doc_freq(*qt);
+	value += log10(1 + idf);
     }
     values.push_back(value);
 

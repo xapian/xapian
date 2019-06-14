@@ -33,90 +33,59 @@
 using namespace std;
 using namespace Xapian;
 
-Database
-Feature::Internal::get_database() const
+Xapian::termcount
+Feature::Internal::get_termfreq(const std::string& term) const
 {
-    LOGCALL(API, Database, "Feature::Internal::get_database", NO_ARGS);
-    return feature_db;
-}
-
-Query
-Feature::Internal::get_query() const
-{
-    LOGCALL(API, Query, "Feature::Internal::get_query", NO_ARGS);
-    return feature_query;
-}
-
-Document
-Feature::Internal::get_doc() const
-{
-    LOGCALL(API, Document, "Feature::Internal::get_doc", NO_ARGS);
-    return feature_doc;
-}
-
-bool
-Feature::Internal::get_termfreq(const std::string & term,
-			double & termfreq_) const
-{
-    LOGCALL(API, bool, "Feature::Internal::get_termfreq", term | termfreq_);
+    LOGCALL(API, Xapian::termcount, "Feature::Internal::get_termfreq", term);
     auto termfreq_iterator = termfreq.find(term);
     if (termfreq_iterator != termfreq.end()) {
-	termfreq_ = (double)termfreq_iterator->second;
-	return true;
+	return termfreq_iterator->second;
     }
-    return false;
+    return 0;
 }
 
-bool
-Feature::Internal::get_inverse_doc_freq(const std::string & term,
-			double & inverse_doc_freq_) const
+double
+Feature::Internal::get_inverse_doc_freq(const std::string& term) const
 {
-    LOGCALL(API, bool, "Feature::Internal::get_inverse_doc_freq", term | inverse_doc_freq_);
+    LOGCALL(API, double, "Feature::Internal::get_inverse_doc_freq", term);
     auto inverse_doc_freq_iterator = inverse_doc_freq.find(term);
     if (inverse_doc_freq_iterator != inverse_doc_freq.end()) {
-	inverse_doc_freq_ = (double)inverse_doc_freq_iterator->second;
-	return true;
+	return inverse_doc_freq_iterator->second;
     }
-    return false;
+    return 0;
 }
 
-bool
-Feature::Internal::get_doc_length(const std::string & term,
-			double & doc_length_) const
+Xapian::termcount
+Feature::Internal::get_doc_length(const std::string& term) const
 {
-    LOGCALL(API, bool, "Feature::Internal::get_doc_length", term | doc_length_);
+    LOGCALL(API, Xapian::termcount, "Feature::Internal::get_doc_length", term);
     auto doc_length_iterator = doc_length.find(term);
     if (doc_length_iterator != doc_length.end()) {
-	doc_length_ = (double)doc_length_iterator->second;
-	return true;
+	return doc_length_iterator->second;
     }
-    return false;
+    return 0;
 }
 
-bool
-Feature::Internal::get_collection_length(const std::string & term,
-			double & collection_length_)
+Xapian::termcount
+Feature::Internal::get_collection_length(const std::string& term) const
 {
-    LOGCALL(API, bool, "Feature::Internal::get_collection_length", term | collection_length_);
+    LOGCALL(API, Xapian::termcount, "Feature::Internal::get_collection_length", term);
     auto collection_length_iterator = collection_length.find(term);
     if (collection_length_iterator != collection_length.end()) {
-	collection_length_ = (double)collection_length_iterator->second;
-	return true;
+	return collection_length_iterator->second;
     }
-    return false;
+    return 0;
 }
 
-bool
-Feature::Internal::get_collection_termfreq(const std::string & term,
-			double & collection_termfreq_) const
+Xapian::termcount
+Feature::Internal::get_collection_termfreq(const std::string& term) const
 {
-    LOGCALL(API, bool, "Feature::Internal::get_collection_termfreq", term | collection_termfreq);
+    LOGCALL(API, Xapian::termcount, "Feature::Internal::get_collection_termfreq", term);
     auto collection_termfreq_iterator = collection_termfreq.find(term);
     if (collection_termfreq_iterator != collection_termfreq.end()) {
-	collection_termfreq_ = (double)collection_termfreq_iterator->second;
-	return true;
+	return collection_termfreq_iterator->second;
     }
-    return false;
+    return 0;
 }
 
 void

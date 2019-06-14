@@ -63,33 +63,34 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// get database
-    Database get_database() const;
+    inline Database get_database() const {
+	return feature_db;
+    }
 
     /// get query
-    Query get_query() const;
+    inline Query get_query() const {
+	return feature_query;
+    }
 
     /// get document
-    Document get_doc() const;
+    inline Document get_document() const {
+	return feature_doc;
+    }
 
-    /// Returns true if the term is found and false otherwise.
-    bool get_termfreq(const std::string & term,
-		      double & termfreq_) const;
+    /// Get termfreq
+    Xapian::termcount get_termfreq(const std::string& term) const;
 
-    /// Returns true if the term is found and false otherwise.
-    bool get_inverse_doc_freq(const std::string & term,
-			      double & inverse_doc_freq_) const;
+    /// Get inverse_doc_freq
+    double get_inverse_doc_freq(const std::string& term) const;
 
-    /// Returns true if the term is found and false otherwise.
-    bool get_doc_length(const std::string & term,
-			double & doc_length_) const;
+    /// Get doc_length
+    Xapian::termcount get_doc_length(const std::string& term) const;
 
-    /// Returns true if the term is found and false otherwise.
-    bool get_collection_length(const std::string & term,
-			       double & collection_length_);
+    /// Get collection_length
+    Xapian::termcount get_collection_length(const std::string& term) const;
 
-    /// Returns true if the term is found and false otherwise.
-    bool get_collection_termfreq(const std::string & term,
-				 double & collection_termfreq_) const;
+    /// Get collection_termfreq
+    Xapian::termcount get_collection_termfreq(const std::string& term) const;
 
     /** Specify the database to use for feature building.
      *

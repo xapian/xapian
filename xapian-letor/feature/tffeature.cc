@@ -60,9 +60,8 @@ TfFeature::get_values() const
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (is_title_term((*qt))) {
-	    double tf = 0;
-	    if (internal->get_termfreq(*qt, tf))
-		value += log10(1 + tf);
+	    double tf = internal->get_termfreq(*qt);
+	    value += log10(1 + tf);
 	}
     }
     values.push_back(value);
@@ -71,9 +70,8 @@ TfFeature::get_values() const
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (!is_title_term((*qt))) {
-	    double tf = 0;
-	    if (internal->get_termfreq(*qt, tf))
-		value += log10(1 + tf);
+	    double tf = internal->get_termfreq(*qt);
+	    value += log10(1 + tf);
 	}
     }
     values.push_back(value);
@@ -81,9 +79,8 @@ TfFeature::get_values() const
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	double tf = 0;
-	if (internal->get_termfreq(*qt, tf))
-	    value += log10(1 + tf);
+	double tf = internal->get_termfreq(*qt);
+	value += log10(1 + tf);
     }
     values.push_back(value);
 

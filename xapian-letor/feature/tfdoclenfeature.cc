@@ -55,47 +55,34 @@ TfDoclenFeature::get_values() const
 
     vector<double> values;
     double value = 0;
-    double doc_len = 0;
-    if (!internal->get_doc_length("title", doc_len)) {
-	doc_len = 0;
-    }
+    double doc_len = internal->get_doc_length("title");
 
-	Xapian::Query feature_query = internal->get_query();
+    Xapian::Query feature_query = internal->get_query();
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (is_title_term((*qt))) {
-	    double tf;
-	    if (!internal->get_termfreq(*qt, tf))
-		tf = 0;
+	    double tf = internal->get_termfreq(*qt);
 	    value += log10(1 + (tf / (1 + doc_len)));
 	}
     }
     values.push_back(value);
     value = 0;
-    if (!internal->get_doc_length("body", doc_len)) {
-	doc_len = 0;
-    }
+    doc_len = internal->get_doc_length("body");
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (!is_title_term((*qt))) {
-	    double tf;
-	    if (!internal->get_termfreq(*qt, tf))
-		tf = 0;
+	    double tf = internal->get_termfreq(*qt);
 	    value += log10(1 + (tf / (1 + doc_len)));
 	}
     }
     values.push_back(value);
     value = 0;
-    if (!internal->get_doc_length("whole", doc_len)) {
-	doc_len = 0;
-    }
+    doc_len = internal->get_doc_length("whole");
 
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
-	double tf;
-	if (!internal->get_termfreq(*qt, tf))
-	    tf = 0;
+	double tf = internal->get_termfreq(*qt);
 	value += log10(1 + (tf / (1 + doc_len)));
     }
     values.push_back(value);
