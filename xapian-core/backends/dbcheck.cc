@@ -305,7 +305,7 @@ check_db_table(const string& filename, int opts, std::ostream* out, int backend)
 #endif
       }
 
-      case BACKEND_OLD:
+      case BACKEND_CHERT:
 	break;
 
       default:
@@ -313,7 +313,6 @@ check_db_table(const string& filename, int opts, std::ostream* out, int backend)
 	break;
     }
 
-    Assert(backend == BACKEND_CHERT);
     // Flint and brass also used the extension ".DB", so check that we
     // haven't been passed a single table in a flint or brass database.
     struct stat sb;
