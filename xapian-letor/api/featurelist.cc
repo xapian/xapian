@@ -44,7 +44,7 @@ FeatureList::FeatureList() : internal(new FeatureList::Internal())
     internal->feature.push_back(new TfIdfDoclenFeature());
     internal->feature.push_back(new TfDoclenCollTfCollLenFeature());
     for (Feature* it : internal->feature) {
-	internal->stats_needed = stat_flags(internal->stats_needed
+	internal->stats_needed = Internal::stat_flags(internal->stats_needed
 					    | it->get_stats());
     }
 }
@@ -55,7 +55,7 @@ FeatureList::FeatureList(const std::vector<Feature*> & f)
     LOGCALL_CTOR(API, "FeatureList", f);
     internal->feature = f;
     for (Feature* it : internal->feature) {
-	internal->stats_needed = stat_flags(internal->stats_needed
+	internal->stats_needed = Internal::stat_flags(internal->stats_needed
 					    | it->get_stats());
     }
 }
