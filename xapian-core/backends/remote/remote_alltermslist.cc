@@ -22,8 +22,8 @@
 
 #include "remote_alltermslist.h"
 
-#include "net/length.h"
 #include "omassert.h"
+#include "pack.h"
 
 using namespace std;
 
@@ -59,16 +59,11 @@ RemoteAllTermsList::next()
 	data.resize(0);
 	return NULL;
     }
-    decode_length(&p, p_end, current_termfreq);
-    if (usual(p != p_end)) {
-	// If the data ends prematurely, just skip this and let
-	// decode_length_and_check() report the issue.
-	current_term.resize(size_t(static_cast<unsigned char>(*p++)));
+    current_term.resize(size_t(static_cast<unsigned char>(*p++)));
+    if (!unpack_string_append(&p, p_end, current_term) ||
+	!unpack_uint(&p, p_end, &current_termfreq)) {
+	unpack_throw_serialisation_error(p);
     }
-    size_t len;
-    decode_length_and_check(&p, p_end, len);
-    current_term.append(p, len);
-    p += len;
     return NULL;
 }
 

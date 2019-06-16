@@ -79,11 +79,11 @@ using namespace std;
 #include "../common/errno_to_string.cc"
 #include "../common/fileutils.cc"
 #include "../common/overflow.h"
+#include "../common/pack.cc"
 #include "../common/parseint.h"
 #include "../common/serialise-double.cc"
 #include "../common/str.cc"
 #include "../backends/uuids.cc"
-#include "../net/length.cc"
 #include "../net/serialise-error.cc"
 #include "../api/error.cc"
 #include "../api/sortable-serialise.cc"
@@ -265,17 +265,17 @@ DEFINE_TESTCASE_(serialisedouble1) {
     return true;
 }
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-// Check serialisation of lengths.
-static bool test_serialiselength1()
+// Test pack_uint() and unpack_uint().
+static bool test_packuint1()
 {
     size_t n = 0;
     while (n < 0xff000000) {
-	string s = encode_length(n);
-	const char *p = s.data();
-	const char *p_end = p + s.size();
+	string s;
+	pack_uint(s, n);
+	const char* p = s.data();
+	const char* p_end = p + s.size();
 	size_t decoded_n;
-	decode_length(&p, p_end, decoded_n);
+	TEST(unpack_uint(&p, p_end, &decoded_n));
 	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
 	TEST_EQUAL(n, decoded_n);
 	TEST_EQUAL(p_end - p, 0);
@@ -289,100 +289,69 @@ static bool test_serialiselength1()
     return true;
 }
 
-// Regression test: vetting the remaining buffer length
-static bool test_serialiselength2()
+static void
+packstring1_helper(size_t len)
 {
-    // Special case tests for 0
+    string s;
+    pack_string(s, string(len, 'x'));
     {
-	string s = encode_length(0);
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == 0);
-	    TEST(p == p_end);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == 0);
-	    TEST_EQUAL(p_end - p, 1);
-	}
+	const char* p = s.data();
+	const char* p_end = p + s.size();
+	// unpack_string() should overwrite any existing value.
+	string r = "dummy";
+	TEST(unpack_string(&p, p_end, r));
+	TEST_EQUAL(r.size(), len);
+	TEST_EQUAL(r.find_first_not_of('x'), r.npos);
+	TEST(p == p_end);
     }
-    // Special case tests for 1
+    s += 'x';
     {
-	string s = encode_length(1);
-	TEST_EXCEPTION(Xapian_NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    (void)r;
-	);
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == 1);
-	    TEST_EQUAL(p_end - p, 1);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == 1);
-	    TEST_EQUAL(p_end - p, 2);
-	}
+	const char* p = s.data();
+	const char* p_end = p + s.size();
+	// unpack_string() should overwrite any existing value.
+	string r = "dummy";
+	TEST(unpack_string(&p, p_end, r));
+	TEST_EQUAL(r.size(), len);
+	TEST_EQUAL(r.find_first_not_of('x'), r.npos);
+	TEST_EQUAL(p_end - p, 1);
     }
+    // Test truncated encodings fail to unpack.
+    size_t trunc_len = s.size() - 2;
+    do {
+	const char* p = s.data();
+	const char* p_end = p + trunc_len;
+	string r;
+	TEST(!unpack_string(&p, p_end, r));
+	TEST(!p);
+	trunc_len >>= 1;
+    } while (trunc_len);
+}
+
+// Test pack_string() and unpack_string().
+static bool test_packstring1()
+{
+    packstring1_helper(0);
+    packstring1_helper(1);
     // Nothing magic here, just test a range of odd and even values.
     for (size_t n = 2; n < 1000; n = (n + 1) * 2 + (n >> 1)) {
-	string s = encode_length(n);
-	TEST_EXCEPTION(Xapian_NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    (void)r;
-	);
-	s.append(n - 1, 'x');
-	TEST_EXCEPTION(Xapian_NetworkError,
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    (void)r;
-	);
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == n);
-	    TEST_EQUAL(size_t(p_end - p), n);
-	}
-	s += 'x';
-	{
-	    const char *p = s.data();
-	    const char *p_end = p + s.size();
-	    size_t r;
-	    decode_length_and_check(&p, p_end, r);
-	    TEST(r == n);
-	    TEST_EQUAL(size_t(p_end - p), n + 1);
-	}
+	packstring1_helper(n);
     }
 
     return true;
 }
 
+// Test pack_string_empty()
+static bool test_packstring2()
+{
+    string s;
+    pack_string(s, string());
+    string s_empty;
+    pack_string_empty(s_empty);
+    TEST_EQUAL(s, s_empty);
+    return true;
+}
+
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of Xapian::Error.
 static bool test_serialiseerror1()
 {
@@ -927,9 +896,10 @@ static const test_desc tests[] = {
     TESTCASE(class_exceptions_work1),
     TESTCASE(resolverelativepath1),
     TESTCASE(serialisedouble1),
+    TESTCASE(packuint1),
+    TESTCASE(packstring1),
+    TESTCASE(packstring2),
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    TESTCASE(serialiselength1),
-    TESTCASE(serialiselength2),
     TESTCASE(serialiseerror1),
 #endif
     TESTCASE(log2),

@@ -23,7 +23,7 @@
 
 #include "xapian/types.h"
 
-#include "net/length.h"
+#include "pack.h"
 #include "termlist.h"
 
 /** This class stores a list of terms.
@@ -58,7 +58,7 @@ class VectorTermList : public TermList {
 	    ++num_terms;
 	    const std::string & s = *i;
 	    total_size += s.size() + 1;
-	    if (s.size() >= 255) {
+	    if (s.size() >= 128) {
 		// Not a common case, so just assume the worst case rather than
 		// trying to carefully calculate the exact size.
 		total_size += 5;
@@ -68,9 +68,7 @@ class VectorTermList : public TermList {
 
 	// Now encode all the terms into data.
 	for (I i = begin; i != end; ++i) {
-	    const std::string & s = *i;
-	    data += encode_length(s.size());
-	    data += s;
+	    pack_string(data, *i);
 	}
 
 	p = data.data();

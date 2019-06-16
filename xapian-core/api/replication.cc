@@ -42,7 +42,6 @@
 #include "replicationprotocol.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
-#include "net/length.h"
 #include "str.h"
 #include "unicode/description_append.h"
 
@@ -96,10 +95,10 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     } else {
 	const char * ptr = start_revision.data();
 	const char * end = ptr + start_revision.size();
-	size_t uuid_length;
-	decode_length_and_check(&ptr, end, uuid_length);
-	string request_uuid(ptr, uuid_length);
-	ptr += uuid_length;
+	string request_uuid;
+	if (!unpack_string(&ptr, end, request_uuid)) {
+	    unpack_throw_serialisation_error(ptr);
+	}
 	string db_uuid = db.internal->get_uuid();
 	if (request_uuid != db_uuid) {
 	    need_whole_db = true;
@@ -371,9 +370,8 @@ DatabaseReplica::Internal::get_revision_info() const
 						"subdatabase");
     }
 
-    string uuid = live_db.get_uuid();
-    string buf = encode_length(uuid.size());
-    buf += uuid;
+    string buf;
+    pack_string(buf, live_db.get_uuid());
     pack_uint(buf, live_db.get_revision());
     RETURN(buf);
 }
@@ -409,10 +407,10 @@ DatabaseReplica::Internal::apply_db_copy(double end_time)
 	check_message_type(type, REPL_REPLY_DB_HEADER);
 	const char * ptr = buf.data();
 	const char * end = ptr + buf.size();
-	size_t uuid_length;
-	decode_length_and_check(&ptr, end, uuid_length);
-	offline_uuid.assign(ptr, uuid_length);
-	offline_revision.assign(buf, ptr + uuid_length - buf.data(), buf.npos);
+	if (!unpack_string(&ptr, end, offline_uuid)) {
+	    unpack_throw_serialisation_error(ptr);
+	}
+	offline_revision.assign(ptr, end - ptr);
     }
 
     // Now, read the files for the database from the connection and create it.

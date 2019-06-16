@@ -23,9 +23,9 @@
 #include "msetinternal.h"
 #include "xapian/mset.h"
 
-#include "net/length.h"
 #include "net/serialise.h"
 #include "matcher/msetcmp.h"
+#include "pack.h"
 #include "roundestimate.h"
 #include "serialise-double.h"
 #include "str.h"
@@ -317,33 +317,32 @@ MSet::Internal::serialise() const
 {
     string result;
 
-    result += encode_length(first);
+    result += serialise_double(max_possible);
+    result += serialise_double(max_attained);
+
+    result += serialise_double(percent_scale_factor);
+
+    pack_uint(result, first);
     // Send back the raw matches_* values.  MSet::get_matches_estimated()
     // rounds the estimate lazily, but when we merge MSet objects we really
     // want to merge based on the raw estimates.
     //
     // It is also cleaner that a round-trip through serialisation gives you an
     // object which is as close to the original as possible.
-    result += encode_length(matches_lower_bound);
-    result += encode_length(matches_estimated);
-    result += encode_length(matches_upper_bound);
-    result += encode_length(uncollapsed_lower_bound);
-    result += encode_length(uncollapsed_estimated);
-    result += encode_length(uncollapsed_upper_bound);
-    result += serialise_double(max_possible);
-    result += serialise_double(max_attained);
+    pack_uint(result, matches_lower_bound);
+    pack_uint(result, matches_estimated);
+    pack_uint(result, matches_upper_bound);
+    pack_uint(result, uncollapsed_lower_bound);
+    pack_uint(result, uncollapsed_estimated);
+    pack_uint(result, uncollapsed_upper_bound);
 
-    result += serialise_double(percent_scale_factor);
-
-    result += encode_length(items.size());
+    pack_uint(result, items.size());
     for (auto&& item : items) {
 	result += serialise_double(item.get_weight());
-	result += encode_length(item.get_docid());
-	result += encode_length(item.get_sort_key().size());
-	result += item.get_sort_key();
-	result += encode_length(item.get_collapse_key().size());
-	result += item.get_collapse_key();
-	result += encode_length(item.get_collapse_count());
+	pack_uint(result, item.get_docid());
+	pack_string(result, item.get_sort_key());
+	pack_string(result, item.get_collapse_key());
+	pack_uint(result, item.get_collapse_count());
     }
 
     if (stats)
@@ -357,33 +356,33 @@ MSet::Internal::unserialise(const char * p, const char * p_end)
 {
     items.clear();
 
-    decode_length(&p, p_end, first);
-    decode_length(&p, p_end, matches_lower_bound);
-    decode_length(&p, p_end, matches_estimated);
-    decode_length(&p, p_end, matches_upper_bound);
-    decode_length(&p, p_end, uncollapsed_lower_bound);
-    decode_length(&p, p_end, uncollapsed_estimated);
-    decode_length(&p, p_end, uncollapsed_upper_bound);
     max_possible = unserialise_double(&p, p_end);
     max_attained = unserialise_double(&p, p_end);
 
     percent_scale_factor = unserialise_double(&p, p_end);
 
     size_t msize;
-    decode_length(&p, p_end, msize);
+    if (!unpack_uint(&p, p_end, &first) ||
+	!unpack_uint(&p, p_end, &matches_lower_bound) ||
+	!unpack_uint(&p, p_end, &matches_estimated) ||
+	!unpack_uint(&p, p_end, &matches_upper_bound) ||
+	!unpack_uint(&p, p_end, &uncollapsed_lower_bound) ||
+	!unpack_uint(&p, p_end, &uncollapsed_estimated) ||
+	!unpack_uint(&p, p_end, &uncollapsed_upper_bound) ||
+	!unpack_uint(&p, p_end, &msize)) {
+	unpack_throw_serialisation_error(p);
+    }
     while (msize-- > 0) {
 	double wt = unserialise_double(&p, p_end);
 	Xapian::docid did;
-	decode_length(&p, p_end, did);
-	size_t len;
-	decode_length_and_check(&p, p_end, len);
-	string sort_key(p, len);
-	p += len;
-	decode_length_and_check(&p, p_end, len);
-	string key(p, len);
-	p += len;
+	string sort_key, key;
 	Xapian::doccount collapse_cnt;
-	decode_length(&p, p_end, collapse_cnt);
+	if (!unpack_uint(&p, p_end, &did) ||
+	    !unpack_string(&p, p_end, sort_key) ||
+	    !unpack_string(&p, p_end, key) ||
+	    !unpack_uint(&p, p_end, &collapse_cnt)) {
+	    unpack_throw_serialisation_error(p);
+	}
 	items.emplace_back(wt, did, std::move(key), collapse_cnt,
 			   std::move(sort_key));
     }

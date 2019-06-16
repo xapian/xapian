@@ -33,7 +33,7 @@
 #include "xapian/queryparser.h" // For sortable_unserialise().
 
 #include "omassert.h"
-#include "net/length.h"
+#include "pack.h"
 #include "serialise-double.h"
 #include "str.h"
 
@@ -265,7 +265,9 @@ ValueWeightPostingSource::name() const
 string
 ValueWeightPostingSource::serialise() const
 {
-    return encode_length(get_slot());
+    string result;
+    pack_uint_last(result, get_slot());
+    return result;
 }
 
 ValueWeightPostingSource *
@@ -275,9 +277,8 @@ ValueWeightPostingSource::unserialise(const string &s) const
     const char * end = p + s.size();
 
     Xapian::valueno new_slot;
-    decode_length(&p, end, new_slot);
-    if (p != end) {
-	throw Xapian::NetworkError("Bad serialised ValueWeightPostingSource - junk at end");
+    if (!unpack_uint_last(&p, end, &new_slot)) {
+	unpack_throw_serialisation_error(p);
     }
 
     return new ValueWeightPostingSource(new_slot);
@@ -374,13 +375,13 @@ ValueMapPostingSource::name() const
 string
 ValueMapPostingSource::serialise() const
 {
-    string result = encode_length(get_slot());
+    string result;
+    pack_uint(result, get_slot());
     result += serialise_double(default_weight);
 
     map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {
-	result.append(encode_length(i->first.size()));
-	result.append(i->first);
+	pack_string(result, i->first);
 	result.append(serialise_double(i->second));
     }
 
@@ -394,14 +395,16 @@ ValueMapPostingSource::unserialise(const string &s) const
     const char * end = p + s.size();
 
     Xapian::valueno new_slot;
-    decode_length(&p, end, new_slot);
+    if (!unpack_uint(&p, end, &new_slot)) {
+	unpack_throw_serialisation_error(p);
+    }
     unique_ptr<ValueMapPostingSource> res(new ValueMapPostingSource(new_slot));
     res->set_default_weight(unserialise_double(&p, end));
     while (p != end) {
-	size_t keylen;
-	decode_length_and_check(&p, end, keylen);
-	string key(p, keylen);
-	p += keylen;
+	string key;
+	if (!unpack_string(&p, end, key)) {
+	    unpack_throw_serialisation_error(p);
+	}
 	res->add_mapping(key, unserialise_double(&p, end));
     }
     return res.release();

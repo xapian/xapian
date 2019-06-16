@@ -61,6 +61,7 @@ lib_src +=\
 	common/keyword.cc\
 	common/msvc_dirent.cc\
 	common/omassert.cc\
+	common/pack.cc\
 	common/posixy_wrapper.cc\
 	common/replicate_utils.cc\
 	common/safe.cc\

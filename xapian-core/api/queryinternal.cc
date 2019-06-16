@@ -46,7 +46,7 @@
 #include "matcher/queryoptimiser.h"
 #include "matcher/valuerangepostlist.h"
 #include "matcher/valuegepostlist.h"
-#include "net/length.h"
+#include "pack.h"
 #include "serialise-double.h"
 #include "stringutils.h"
 #include "termlist.h"
@@ -692,13 +692,18 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    //   cccc -> code (which OP_XXX)
 	    size_t n_subqs = ch & 0x07;
 	    if (n_subqs == 0) {
-		decode_length(p, end, n_subqs);
+		if (!unpack_uint(p, end, &n_subqs)) {
+		    unpack_throw_serialisation_error(*p);
+		}
 		n_subqs += 8;
 	    }
 	    unsigned char code = (ch >> 3) & 0x0f;
 	    Xapian::termcount parameter = 0;
-	    if (code >= 13)
-		decode_length(p, end, parameter);
+	    if (code >= 13) {
+		if (!unpack_uint(p, end, &parameter)) {
+		    unpack_throw_serialisation_error(*p);
+		}
+	    }
 	    Xapian::Internal::QueryBranch * result;
 	    switch (code) {
 		case 0: // OP_AND
@@ -759,7 +764,9 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    //     3: wqf -> encoded value follows; pos -> encoded value follows
 	    size_t len = ch & 0x0f;
 	    if (len == 0) {
-		decode_length(p, end, len);
+		if (!unpack_uint(p, end, &len)) {
+		    unpack_throw_serialisation_error(*p);
+		}
 		len += 16;
 	    }
 	    if (size_t(end - *p) < len)
@@ -770,12 +777,18 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    int code = ((ch >> 4) & 0x03);
 
 	    Xapian::termcount wqf = static_cast<Xapian::termcount>(code > 0);
-	    if (code == 3)
-		decode_length(p, end, wqf);
+	    if (code == 3) {
+		if (!unpack_uint(p, end, &wqf)) {
+		    unpack_throw_serialisation_error(*p);
+		}
+	    }
 
 	    Xapian::termpos pos = 0;
-	    if (code >= 2)
-		decode_length(p, end, pos);
+	    if (code >= 2) {
+		if (!unpack_uint(p, end, &pos)) {
+		    unpack_throw_serialisation_error(*p);
+		}
+	    }
 
 	    return new Xapian::Internal::QueryTerm(term, wqf, pos);
 	}
@@ -789,22 +802,25 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    //     1: OP_VALUE_GE
 	    Xapian::valueno slot = ch & 15;
 	    if (slot == 15) {
-		decode_length(p, end, slot);
+		if (!unpack_uint(p, end, &slot)) {
+		    unpack_throw_serialisation_error(*p);
+		}
 		slot += 15;
 	    }
-	    size_t len;
-	    decode_length_and_check(p, end, len);
-	    string begin(*p, len);
-	    *p += len;
+	    string begin;
+	    if (!unpack_string(p, end, begin)) {
+		unpack_throw_serialisation_error(*p);
+	    }
 	    if (ch & 0x10) {
 		// OP_VALUE_GE
 		return new Xapian::Internal::QueryValueGE(slot, begin);
 	    }
 
 	    // OP_VALUE_RANGE
-	    decode_length_and_check(p, end, len);
-	    string end_(*p, len);
-	    *p += len;
+	    string end_;
+	    if (!unpack_string(p, end, end_)) {
+		unpack_throw_serialisation_error(*p);
+	    }
 	    if (begin.empty()) // FIXME: is this right?
 		return new Xapian::Internal::QueryValueLE(slot, end_);
 	    return new Xapian::Internal::QueryValueRange(slot, begin, end_);
@@ -818,22 +834,20 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		case 0x00: // OP_INVALID
 		    return new Xapian::Internal::QueryInvalid();
 		case 0x0a: { // Edit distance
-		    if (*p == end)
-			throw SerialisationError("not enough data");
 		    Xapian::termcount max_expansion;
-		    decode_length(p, end, max_expansion);
-		    if (end - *p < 2)
+		    if (!unpack_uint(p, end, &max_expansion) || end - *p < 2) {
 			throw SerialisationError("not enough data");
+		    }
 		    int flags = static_cast<unsigned char>(*(*p)++);
 		    op combiner = static_cast<op>(*(*p)++);
 		    unsigned edit_distance;
-		    decode_length(p, end, edit_distance);
 		    size_t fixed_prefix_len;
-		    decode_length(p, end, fixed_prefix_len);
-		    size_t len;
-		    decode_length_and_check(p, end, len);
-		    string pattern(*p, len);
-		    *p += len;
+		    string pattern;
+		    if (!unpack_uint(p, end, &edit_distance) ||
+			!unpack_uint(p, end, &fixed_prefix_len) ||
+			!unpack_string(p, end, pattern)) {
+			throw SerialisationError("not enough data");
+		    }
 		    using Xapian::Internal::QueryEditDistance;
 		    return new QueryEditDistance(pattern,
 						 max_expansion,
@@ -843,28 +857,26 @@ Query::Internal::unserialise(const char ** p, const char * end,
 						 fixed_prefix_len);
 		}
 		case 0x0b: { // Wildcard
-		    if (*p == end)
-			throw SerialisationError("not enough data");
 		    Xapian::termcount max_expansion;
-		    decode_length(p, end, max_expansion);
-		    if (end - *p < 2)
+		    if (!unpack_uint(p, end, &max_expansion) || end - *p < 2) {
 			throw SerialisationError("not enough data");
+		    }
 		    int flags = static_cast<unsigned char>(*(*p)++);
 		    op combiner = static_cast<op>(*(*p)++);
-		    size_t len;
-		    decode_length_and_check(p, end, len);
-		    string pattern(*p, len);
-		    *p += len;
+		    string pattern;
+		    if (!unpack_string(p, end, pattern)) {
+			throw SerialisationError("not enough data");
+		    }
 		    return new Xapian::Internal::QueryWildcard(pattern,
 							       max_expansion,
 							       flags,
 							       combiner);
 		}
 		case 0x0c: { // PostingSource
-		    size_t len;
-		    decode_length_and_check(p, end, len);
-		    string name(*p, len);
-		    *p += len;
+		    string name;
+		    if (!unpack_string(p, end, name)) {
+			throw SerialisationError("not enough data");
+		    }
 
 		    const PostingSource * reg_source = reg.get_posting_source(name);
 		    if (!reg_source) {
@@ -874,11 +886,13 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			throw SerialisationError(m);
 		    }
 
-		    decode_length_and_check(p, end, len);
-		    PostingSource * source =
-			reg_source->unserialise_with_registry(string(*p, len),
+		    string serialised_source;
+		    if (!unpack_string(p, end, serialised_source)) {
+			throw SerialisationError("not enough data");
+		    }
+		    PostingSource* source =
+			reg_source->unserialise_with_registry(serialised_source,
 							      reg);
-		    *p += len;
 		    return new Xapian::Internal::QueryPostingSource(source->release());
 		}
 		case 0x0d: {
@@ -890,8 +904,10 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		case 0x0e: {
 		    Xapian::termcount wqf;
 		    Xapian::termpos pos;
-		    decode_length(p, end, wqf);
-		    decode_length(p, end, pos);
+		    if (!unpack_uint(p, end, &wqf) ||
+			!unpack_uint(p, end, &pos)) {
+			throw SerialisationError("not enough data");
+		    }
 		    return new Xapian::Internal::QueryTerm(string(), wqf, pos);
 		}
 		case 0x0f:
@@ -1117,12 +1133,10 @@ QueryValueRange::serialise(string & result) const
 	result += static_cast<char>(0x20 | slot);
     } else {
 	result += static_cast<char>(0x20 | 15);
-	result += encode_length(slot - 15);
+	pack_uint(result, slot - 15);
     }
-    result += encode_length(begin.size());
-    result += begin;
-    result += encode_length(end.size());
-    result += end;
+    pack_string(result, begin);
+    pack_string(result, end);
 }
 
 Query::op
@@ -1184,11 +1198,10 @@ QueryValueLE::serialise(string & result) const
 	result += static_cast<char>(0x20 | slot);
     } else {
 	result += static_cast<char>(0x20 | 15);
-	result += encode_length(slot - 15);
+	pack_uint(result, slot - 15);
     }
-    result += encode_length(0);
-    result += encode_length(limit.size());
-    result += limit;
+    pack_string_empty(result);
+    pack_string(result, limit);
 }
 
 Query::op
@@ -1246,10 +1259,9 @@ QueryValueGE::serialise(string & result) const
 	result += static_cast<char>(0x20 | 0x10 | slot);
     } else {
 	result += static_cast<char>(0x20 | 0x10 | 15);
-	result += encode_length(slot - 15);
+	pack_uint(result, slot - 15);
     }
-    result += encode_length(limit.size());
-    result += limit;
+    pack_string(result, limit);
 }
 
 Query::op
@@ -1494,11 +1506,10 @@ void
 QueryWildcard::serialise(string & result) const
 {
     result += static_cast<char>(0x0b);
-    result += encode_length(max_expansion);
+    pack_uint(result, max_expansion);
     result += static_cast<unsigned char>(flags);
     result += static_cast<unsigned char>(combiner);
-    result += encode_length(pattern.size());
-    result += pattern;
+    pack_string(result, pattern);
 }
 
 Query::op
@@ -1607,13 +1618,12 @@ void
 QueryEditDistance::serialise(string & result) const
 {
     result += static_cast<char>(0x0a);
-    result += encode_length(max_expansion);
+    pack_uint(result, max_expansion);
     result += static_cast<unsigned char>(flags);
     result += static_cast<unsigned char>(combiner);
-    result += encode_length(edit_distance);
-    result += encode_length(fixed_prefix_len);
-    result += encode_length(pattern.size());
-    result += pattern;
+    pack_uint(result, edit_distance);
+    pack_uint(result, fixed_prefix_len);
+    pack_string(result, pattern);
 }
 
 Query::op
@@ -1696,9 +1706,9 @@ QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
 	    ch |= subqueries.size();
 	result += ch;
 	if (subqueries.size() >= 8)
-	    result += encode_length(subqueries.size() - 8);
+	    pack_uint(result, subqueries.size() - 8);
 	if (ch >= MULTIWAY(13))
-	    result += encode_length(parameter);
+	    pack_uint(result, parameter);
     } else {
 	result += ch;
     }
@@ -1972,15 +1982,15 @@ void QueryTerm::serialise(string & result) const
 	} else {
 	    // Weird mutant versions of MatchAll
 	    result += '\x0e';
-	    result += encode_length(wqf);
-	    result += encode_length(pos);
+	    pack_uint(result, wqf);
+	    pack_uint(result, pos);
 	}
     } else if (wqf == 1) {
 	if (pos == 0) {
 	    // Single occurrence free-text term without position set.
 	    if (len >= 16) {
 		result += static_cast<char>(0x40 | 0x10);
-		result += encode_length(term.size() - 16);
+		pack_uint(result, term.size() - 16);
 	    } else {
 		result += static_cast<char>(0x40 | 0x10 | len);
 	    }
@@ -1989,31 +1999,31 @@ void QueryTerm::serialise(string & result) const
 	    // Single occurrence free-text term with position set.
 	    if (len >= 16) {
 		result += static_cast<char>(0x40 | 0x20);
-		result += encode_length(term.size() - 16);
+		pack_uint(result, term.size() - 16);
 	    } else {
 		result += static_cast<char>(0x40 | 0x20 | len);
 	    }
 	    result += term;
-	    result += encode_length(pos);
+	    pack_uint(result, pos);
 	}
     } else if (wqf > 1 || pos > 0) {
 	// General case.
 	if (len >= 16) {
 	    result += static_cast<char>(0x40 | 0x30);
-	    result += encode_length(term.size() - 16);
+	    pack_uint(result, term.size() - 16);
 	} else if (len) {
 	    result += static_cast<char>(0x40 | 0x30 | len);
 	}
 	result += term;
-	result += encode_length(wqf);
-	result += encode_length(pos);
+	pack_uint(result, wqf);
+	pack_uint(result, pos);
     } else {
 	// Typical boolean term.
 	AssertEq(wqf, 0);
 	AssertEq(pos, 0);
 	if (len >= 16) {
 	    result += static_cast<char>(0x40);
-	    result += encode_length(term.size() - 16);
+	    pack_uint(result, term.size() - 16);
 	} else {
 	    result += static_cast<char>(0x40 | len);
 	}
@@ -2024,14 +2034,8 @@ void QueryTerm::serialise(string & result) const
 void QueryPostingSource::serialise(string & result) const
 {
     result += static_cast<char>(0x0c);
-
-    const string & n = source->name();
-    result += encode_length(n.size());
-    result += n;
-
-    const string & s = source->serialise();
-    result += encode_length(s.size());
-    result += s;
+    pack_string(result, source->name());
+    pack_string(result, source->serialise());
 }
 
 void QueryScaleWeight::serialise(string & result) const

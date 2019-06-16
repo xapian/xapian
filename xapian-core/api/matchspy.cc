@@ -36,7 +36,7 @@
 #include "debuglog.h"
 #include "heap.h"
 #include "omassert.h"
-#include "net/length.h"
+#include "pack.h"
 #include "stringutils.h"
 #include "str.h"
 #include "termlist.h"
@@ -347,7 +347,7 @@ string
 ValueCountMatchSpy::serialise() const {
     Assert(internal.get());
     string result;
-    result += encode_length(internal->slot);
+    pack_uint_last(result, internal->slot);
     return result;
 }
 
@@ -358,9 +358,8 @@ ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
     const char * end = p + s.size();
 
     valueno new_slot;
-    decode_length(&p, end, new_slot);
-    if (p != end) {
-	throw NetworkError("Junk at end of serialised ValueCountMatchSpy");
+    if (!unpack_uint_last(&p, end, &new_slot)) {
+	unpack_throw_serialisation_error(p);
     }
 
     return new ValueCountMatchSpy(new_slot);
@@ -371,13 +370,10 @@ ValueCountMatchSpy::serialise_results() const {
     LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", NO_ARGS);
     Assert(internal.get());
     string result;
-    result += encode_length(internal->total);
-    result += encode_length(internal->values.size());
-    for (map<string, doccount>::const_iterator i = internal->values.begin();
-	 i != internal->values.end(); ++i) {
-	result += encode_length(i->first.size());
-	result += i->first;
-	result += encode_length(i->second);
+    pack_uint(result, internal->total);
+    for (auto&& item : internal->values) {
+	pack_string(result, item.first);
+	pack_uint(result, item.second);
     }
     RETURN(result);
 }
@@ -390,24 +386,19 @@ ValueCountMatchSpy::merge_results(const string & s) {
     const char * end = p + s.size();
 
     Xapian::doccount n;
-    decode_length(&p, end, n);
+    if (!unpack_uint(&p, end, &n)) {
+	unpack_throw_serialisation_error(p);
+    }
     internal->total += n;
 
-    map<string, doccount>::size_type items;
-    decode_length(&p, end, items);
-    while (items != 0) {
-	size_t vallen;
-	decode_length_and_check(&p, end, vallen);
-	string val(p, vallen);
-	p += vallen;
+    string val;
+    while (p != end) {
 	doccount freq;
-	decode_length(&p, end, freq);
+	if (!unpack_string(&p, end, val) ||
+	    !unpack_uint(&p, end, &freq)) {
+	    unpack_throw_serialisation_error(p);
+	}
 	internal->values[val] += freq;
-	--items;
-    }
-    if (p != end) {
-	throw NetworkError("Junk at end of serialised ValueCountMatchSpy "
-			   "results");
     }
 }
 

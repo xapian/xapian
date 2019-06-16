@@ -343,9 +343,11 @@ DEFINE_TESTCASE(matchspy7, !backend)
 {
     Xapian::ValueCountMatchSpy myspy(1);
     string s = myspy.serialise_results();
-    s += 'x';
+    // Append a string which overflows a 64-bit type when decoded with
+    // pack_uint().
+    s += "xxxxxxxxx";
     // This merge_results() call used to enter an infinite loop.
-    TEST_EXCEPTION(Xapian::NetworkError, myspy.merge_results(s));
+    TEST_EXCEPTION(Xapian::SerialisationError, myspy.merge_results(s));
 
     return true;
 }

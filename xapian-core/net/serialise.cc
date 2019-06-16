@@ -27,7 +27,7 @@
 
 #include "omassert.h"
 #include "api/rsetinternal.h"
-#include "length.h"
+#include "pack.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include "weight/weightinternal.h"
@@ -43,21 +43,20 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 {
     string result;
 
-    result += encode_length(stats.total_length);
-    result += encode_length(stats.collection_size);
-    result += encode_length(stats.rset_size);
-    result += encode_length(stats.total_term_count);
-    result += static_cast<char>(stats.have_max_part);
+    pack_uint(result, stats.total_length);
+    pack_uint(result, stats.collection_size);
+    pack_uint(result, stats.rset_size);
+    pack_uint(result, stats.total_term_count);
+    pack_bool(result, stats.have_max_part);
 
-    result += encode_length(stats.termfreqs.size());
+    pack_uint(result, stats.termfreqs.size());
     map<string, TermFreqs>::const_iterator i;
     for (i = stats.termfreqs.begin(); i != stats.termfreqs.end(); ++i) {
-	result += encode_length(i->first.size());
-	result += i->first;
-	result += encode_length(i->second.termfreq);
+	pack_string(result, i->first);
+	pack_uint(result, i->second.termfreq);
 	if (stats.rset_size != 0)
-	    result += encode_length(i->second.reltermfreq);
-	result += encode_length(i->second.collfreq);
+	    pack_uint(result, i->second.reltermfreq);
+	pack_uint(result, i->second.collfreq);
 	if (stats.have_max_part)
 	    result += serialise_double(i->second.max_part);
     }
@@ -71,30 +70,27 @@ unserialise_stats(const string &s, Xapian::Weight::Internal & stat)
     const char * p = s.data();
     const char * p_end = p + s.size();
 
-    decode_length(&p, p_end, stat.total_length);
-    decode_length(&p, p_end, stat.collection_size);
-    decode_length(&p, p_end, stat.rset_size);
-    decode_length(&p, p_end, stat.total_term_count);
-    // If p == p_end, the next decode_length() will report it.
-    stat.have_max_part = (p != p_end && *p++);
-
     size_t n;
-    decode_length(&p, p_end, n);
+    if (!unpack_uint(&p, p_end, &stat.total_length) ||
+	!unpack_uint(&p, p_end, &stat.collection_size) ||
+	!unpack_uint(&p, p_end, &stat.rset_size) ||
+	!unpack_uint(&p, p_end, &stat.total_term_count) ||
+	!unpack_bool(&p, p_end, &stat.have_max_part) ||
+	!unpack_uint(&p, p_end, &n)) {
+	unpack_throw_serialisation_error(p);
+    }
+
+    string term;
     while (n--) {
-	size_t len;
-	decode_length_and_check(&p, p_end, len);
-	string term(p, len);
-	p += len;
 	Xapian::doccount termfreq;
-	decode_length(&p, p_end, termfreq);
-	Xapian::doccount reltermfreq;
-	if (stat.rset_size == 0) {
-	    reltermfreq = 0;
-	} else {
-	    decode_length(&p, p_end, reltermfreq);
-	}
+	Xapian::doccount reltermfreq = 0;
 	Xapian::termcount collfreq;
-	decode_length(&p, p_end, collfreq);
+	if (!unpack_string(&p, p_end, term) ||
+	    !unpack_uint(&p, p_end, &termfreq) ||
+	    (stat.rset_size != 0 && !unpack_uint(&p, p_end, &reltermfreq)) ||
+	    !unpack_uint(&p, p_end, &collfreq)) {
+	    unpack_throw_serialisation_error(p);
+	}
 	double max_part = 0.0;
 	if (stat.have_max_part)
 	    max_part = unserialise_double(&p, p_end);
@@ -113,7 +109,7 @@ serialise_rset(const Xapian::RSet &rset)
     if (rset.internal.get()) {
 	Xapian::docid lastdid = 0;
 	for (Xapian::docid did : rset.internal->docs) {
-	    result += encode_length(did - lastdid - 1);
+	    pack_uint(result, did - lastdid - 1);
 	    lastdid = did;
 	}
     }
@@ -131,7 +127,9 @@ unserialise_rset(const string &s)
     Xapian::docid did = 0;
     while (p != p_end) {
 	Xapian::docid inc;
-	decode_length(&p, p_end, inc);
+	if (!unpack_uint(&p, p_end, &inc)) {
+	    unpack_throw_serialisation_error(p);
+	}
 	did += inc + 1;
 	rset.add_document(did);
     }
@@ -145,32 +143,28 @@ serialise_document(const Xapian::Document &doc)
     string result;
 
     size_t n = doc.values_count();
-    result += encode_length(n);
+    pack_uint(result, n);
     Xapian::ValueIterator value;
     for (value = doc.values_begin(); value != doc.values_end(); ++value) {
-	result += encode_length(value.get_valueno());
-	result += encode_length((*value).size());
-	result += *value;
+	pack_uint(result, value.get_valueno());
+	pack_string(result, *value);
 	--n;
     }
     Assert(n == 0);
 
     n = doc.termlist_count();
-    result += encode_length(n);
+    pack_uint(result, n);
     Xapian::TermIterator term;
     for (term = doc.termlist_begin(); term != doc.termlist_end(); ++term) {
-	result += encode_length((*term).size());
-	result += *term;
-	result += encode_length(term.get_wdf());
+	pack_string(result, *term);
+	pack_uint(result, term.get_wdf());
 
 	size_t x = term.positionlist_count();
-	result += encode_length(x);
+	pack_uint(result, x);
 	Xapian::PositionIterator pos;
 	Xapian::termpos oldpos = 0;
 	for (pos = term.positionlist_begin(); pos != term.positionlist_end(); ++pos) {
-	    Xapian::termpos diff = *pos - oldpos;
-	    string delta = encode_length(diff);
-	    result += delta;
+	    pack_uint(result, *pos - oldpos);
 	    oldpos = *pos;
 	    --x;
 	}
@@ -191,35 +185,43 @@ unserialise_document(const string &s)
     const char * p_end = p + s.size();
 
     size_t n_values;
-    decode_length(&p, p_end, n_values);
+    if (!unpack_uint(&p, p_end, &n_values)) {
+	unpack_throw_serialisation_error(p);
+    }
+    string value;
     while (n_values--) {
 	Xapian::valueno slot;
-	decode_length(&p, p_end, slot);
-	size_t len;
-	decode_length_and_check(&p, p_end, len);
-	doc.add_value(slot, string(p, len));
-	p += len;
+	if (!unpack_uint(&p, p_end, &slot) ||
+	    !unpack_string(&p, p_end, value)) {
+	    unpack_throw_serialisation_error(p);
+	}
+	doc.add_value(slot, value);
     }
 
     size_t n_terms;
-    decode_length(&p, p_end, n_terms);
+    if (!unpack_uint(&p, p_end, &n_terms)) {
+	unpack_throw_serialisation_error(p);
+    }
+    string term;
     while (n_terms--) {
-	size_t len;
-	decode_length_and_check(&p, p_end, len);
-	string term(p, len);
-	p += len;
-
-	// Set all the wdf using add_term, then pass wdf_inc 0 to add_posting.
 	Xapian::termcount wdf;
-	decode_length(&p, p_end, wdf);
+	if (!unpack_string(&p, p_end, term) ||
+	    !unpack_uint(&p, p_end, &wdf)) {
+	    unpack_throw_serialisation_error(p);
+	}
+	// Set all the wdf using add_term, then pass wdf_inc 0 to add_posting.
 	doc.add_term(term, wdf);
 
 	size_t n_pos;
-	decode_length(&p, p_end, n_pos);
+	if (!unpack_uint(&p, p_end, &n_pos)) {
+	    unpack_throw_serialisation_error(p);
+	}
 	Xapian::termpos pos = 0;
 	while (n_pos--) {
 	    Xapian::termpos inc;
-	    decode_length(&p, p_end, inc);
+	    if (!unpack_uint(&p, p_end, &inc)) {
+		unpack_throw_serialisation_error(p);
+	    }
 	    pos += inc;
 	    doc.add_posting(term, pos, 0);
 	}

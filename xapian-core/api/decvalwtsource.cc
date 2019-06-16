@@ -23,7 +23,7 @@
 
 #include "xapian/postingsource.h"
 #include "xapian/error.h"
-#include "net/length.h"
+#include "pack.h"
 #include "serialise-double.h"
 #include <cmath>
 
@@ -58,9 +58,9 @@ DecreasingValueWeightPostingSource::name() const {
 std::string
 DecreasingValueWeightPostingSource::serialise() const {
     std::string result;
-    result += encode_length(get_slot());
-    result += encode_length(range_start);
-    result += encode_length(range_end);
+    pack_uint(result, get_slot());
+    pack_uint(result, range_start);
+    pack_uint_last(result, range_end);
     return result;
 }
 
@@ -70,12 +70,11 @@ DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
     const char * end = pos + s.size();
     Xapian::valueno new_slot;
     Xapian::docid new_range_start, new_range_end;
-    decode_length(&pos, end, new_slot);
-    decode_length(&pos, end, new_range_start);
-    decode_length(&pos, end, new_range_end);
-    if (pos != end)
-	throw Xapian::NetworkError("Junk at end of serialised "
-				   "DecreasingValueWeightPostingSource");
+    if (!unpack_uint(&pos, end, &new_slot) ||
+	!unpack_uint(&pos, end, &new_range_start) ||
+	!unpack_uint_last(&pos, end, &new_range_end)) {
+	unpack_throw_serialisation_error(pos);
+    }
     return new DecreasingValueWeightPostingSource(new_slot, new_range_start,
 						  new_range_end);
 }

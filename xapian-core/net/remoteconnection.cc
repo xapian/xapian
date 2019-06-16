@@ -47,9 +47,9 @@
 #include "filetests.h"
 #include "omassert.h"
 #include "overflow.h"
+#include "pack.h"
 #include "posixy_wrapper.h"
 #include "realtime.h"
-#include "length.h"
 #include "socket_utils.h"
 
 using namespace std;
@@ -243,7 +243,7 @@ RemoteConnection::send_message(char type, const string &message,
 
     string header;
     header += type;
-    header += encode_length(message.size());
+    pack_uint(header, message.size());
 
 #ifdef __WIN32__
     HANDLE hout = fd_to_handle(fdout);
@@ -377,7 +377,8 @@ RemoteConnection::send_file(char type, int fd, double end_time)
     buf[0] = type;
     size_t c = 1;
     {
-	string enc_size = encode_length(size);
+	string enc_size;
+	pack_uint(enc_size, std::make_unsigned<off_t>::type(size));
 	c += enc_size.size();
 	// An encoded length should be just a few bytes.
 	AssertRel(c, <=, sizeof(buf));
@@ -534,30 +535,29 @@ RemoteConnection::get_message(string &result, double end_time)
 
     if (!read_at_least(2, end_time))
 	RETURN(-1);
+    // This code assume things about the pack_uint() encoding in order to
+    // handle partial reads.
     size_t len = static_cast<unsigned char>(buffer[1]);
-    if (!read_at_least(len + 2, end_time))
-	RETURN(-1);
-    if (len != 0xff) {
+    if (len < 128) {
+	if (!read_at_least(len + 2, end_time))
+	    RETURN(-1);
 	result.assign(buffer.data() + 2, len);
 	unsigned char type = buffer[0];
 	buffer.erase(0, len + 2);
 	RETURN(type);
     }
-    len = 0;
-    string::const_iterator i = buffer.begin() + 2;
-    unsigned char ch;
-    int shift = 0;
-    do {
-	if (i == buffer.end() || shift > 28) {
-	    // Something is very wrong...
-	    throw_network_error_insane_message_length();
-	}
-	ch = *i++;
-	len |= size_t(ch & 0x7f) << shift;
-	shift += 7;
-    } while ((ch & 0x80) == 0);
-    len += 255;
-    size_t header_len = (i - buffer.begin());
+
+    // We know the message payload is at least 128 bytes of data, and if we
+    // read that much we'll definitely have the whole of the length.
+    if (!read_at_least(128 + 2, end_time))
+	RETURN(-1);
+    const char* p = buffer.data();
+    const char* p_end = p + buffer.size();
+    ++p;
+    if (!unpack_uint(&p, p_end, &len)) {
+	RETURN(-1);
+    }
+    size_t header_len = (p - buffer.data());
     if (!read_at_least(header_len + len, end_time))
 	RETURN(-1);
     result.assign(buffer.data() + header_len, len);
@@ -576,47 +576,33 @@ RemoteConnection::get_message_chunked(double end_time)
 
     if (!read_at_least(2, end_time))
 	RETURN(-1);
+    // This code assume things about the pack_uint() encoding in order to
+    // handle partial reads.
     uint_least64_t len = static_cast<unsigned char>(buffer[1]);
-    if (len != 0xff) {
+    if (len < 128) {
 	chunked_data_left = off_t(len);
 	char type = buffer[0];
 	buffer.erase(0, 2);
 	RETURN(type);
     }
-    if (!read_at_least(len + 2, end_time))
+
+    // We know the message payload is at least 128 bytes of data, and if we
+    // read that much we'll definitely have the whole of the length.
+    if (!read_at_least(128 + 2, end_time))
 	RETURN(-1);
-    len = 0;
-    string::const_iterator i = buffer.begin() + 2;
-    unsigned char ch;
-    int shift = 0;
-    do {
-	// Allow at most 63 bits for message lengths - it's neatly a multiple
-	// of 7 bits and anything longer than this is almost certainly a
-	// corrupt value.
-	// The value also needs to be representable as an
-	// off_t (which is a signed type), so use that size if it is smaller.
-	const int SHIFT_LIMIT = 63;
-	if (rare(i == buffer.end() || shift >= SHIFT_LIMIT)) {
-	    // Something is very wrong...
-	    throw_network_error_insane_message_length();
-	}
-	ch = *i++;
-	uint_least64_t bits = ch & 0x7f;
-	len |= bits << shift;
-	shift += 7;
-    } while ((ch & 0x80) == 0);
-    len += 255;
-
-    chunked_data_left = off_t(len);
-    if (sizeof(off_t) * CHAR_BIT < 63) {
-	// Check that the value of len fits in an off_t without loss.
-	if (rare(uint_least64_t(chunked_data_left) != len)) {
-	    throw_network_error_insane_message_length();
-	}
+    const char* p = buffer.data();
+    const char* p_end = p + buffer.size();
+    ++p;
+    if (!unpack_uint(&p, p_end, &len)) {
+	RETURN(-1);
     }
-
+    chunked_data_left = off_t(len);
+    // Check that the value of len fits in an off_t without loss.
+    if (rare(uint_least64_t(chunked_data_left) != len)) {
+	throw_network_error_insane_message_length();
+    }
+    size_t header_len = (p - buffer.data());
     unsigned char type = buffer[0];
-    size_t header_len = (i - buffer.begin());
     buffer.erase(0, header_len);
     RETURN(type);
 }

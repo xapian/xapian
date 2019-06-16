@@ -38,9 +38,9 @@
 
 #include "api/msetinternal.h"
 #include "api/termlist.h"
-#include "length.h"
 #include "matcher/matcher.h"
 #include "omassert.h"
+#include "pack.h"
 #include "realtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
@@ -307,10 +307,10 @@ RemoteServer::msg_allterms(const string& message)
 	    prev.resize(255);
 	const string& term = *t;
 	size_t reuse = common_prefix_length(prev, term);
-	reply += encode_length(t.get_termfreq());
 	reply.append(1, char(reuse));
-	reply += encode_length(term.size() - reuse);
+	pack_uint(reply, term.size() - reuse);
 	reply.append(term, reuse, string::npos);
+	pack_uint(reply, t.get_termfreq());
 	prev = term;
     }
     send_message(REPLY_ALLTERMS, reply);
@@ -322,25 +322,30 @@ RemoteServer::msg_termlist(const string &message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did;
-    decode_length(&p, p_end, did);
+    if (!unpack_uint_last(&p, p_end, &did)) {
+	throw Xapian::NetworkError("Bad MSG_TERMLIST");
+    }
     Xapian::TermIterator t = db->termlist_begin(did);
     Xapian::termcount num_terms = 0;
     if (t.internal)
 	num_terms = t.internal->get_approx_size();
-    send_message(REPLY_TERMLIST0, encode_length(db->get_doclength(did)) +
-				  encode_length(num_terms));
     string reply;
+    pack_uint(reply, db->get_doclength(did));
+    pack_uint_last(reply, num_terms);
+    send_message(REPLY_TERMLISTHEADER, reply);
+
+    reply.resize(0);
     string prev;
     while (t != db->termlist_end(did)) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
 	const string& term = *t;
 	size_t reuse = common_prefix_length(prev, term);
-	reply += encode_length(t.get_wdf());
-	reply += encode_length(t.get_termfreq());
 	reply.append(1, char(reuse));
-	reply += encode_length(term.size() - reuse);
+	pack_uint(reply, term.size() - reuse);
 	reply.append(term, reuse, string::npos);
+	pack_uint(reply, t.get_wdf());
+	pack_uint(reply, t.get_termfreq());
 	prev = term;
 	++t;
     }
@@ -353,19 +358,21 @@ RemoteServer::msg_positionlist(const string &message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did;
-    decode_length(&p, p_end, did);
+    if (!unpack_uint(&p, p_end, &did)) {
+	throw Xapian::NetworkError("Bad MSG_POSITIONLIST");
+    }
     string term(p, p_end - p);
 
+    string reply;
     Xapian::termpos lastpos = static_cast<Xapian::termpos>(-1);
-    const Xapian::PositionIterator end = db->positionlist_end(did, term);
     for (Xapian::PositionIterator i = db->positionlist_begin(did, term);
-	 i != end; ++i) {
+	 i != db->positionlist_end(did, term);
+	 ++i) {
 	Xapian::termpos pos = *i;
-	send_message(REPLY_POSITIONLIST, encode_length(pos - lastpos - 1));
+	pack_uint(reply, pos - lastpos - 1);
 	lastpos = pos;
     }
-
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_POSITIONLIST, reply);
 }
 
 void
@@ -374,7 +381,9 @@ RemoteServer::msg_positionlistcount(const string &message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did;
-    decode_length(&p, p_end, did);
+    if (!unpack_uint(&p, p_end, &did)) {
+	throw Xapian::NetworkError("Bad MSG_POSITIONLISTCOUNT");
+    }
 
     // This is kind of clumsy, but what the public API requires.
     Xapian::termcount result = 0;
@@ -386,7 +395,9 @@ RemoteServer::msg_positionlistcount(const string &message)
 	    result = termit.positionlist_count();
 	}
     }
-    send_message(REPLY_POSITIONLISTCOUNT, encode_length(result));
+    string reply;
+    pack_uint_last(reply, result);
+    send_message(REPLY_POSITIONLISTCOUNT, reply);
 }
 
 void
@@ -395,23 +406,23 @@ RemoteServer::msg_postlist(const string &message)
     const string & term = message;
 
     Xapian::doccount termfreq = db->get_termfreq(term);
-    Xapian::termcount collfreq = db->get_collection_freq(term);
-    send_message(REPLY_POSTLISTSTART, encode_length(termfreq) + encode_length(collfreq));
+    string reply;
+    pack_uint_last(reply, termfreq);
+    send_message(REPLY_POSTLISTHEADER, reply);
 
+    reply.resize(0);
     Xapian::docid lastdocid = 0;
-    const Xapian::PostingIterator end = db->postlist_end(term);
     for (Xapian::PostingIterator i = db->postlist_begin(term);
-	 i != end; ++i) {
-
+	 i != db->postlist_end(term);
+	 ++i) {
 	Xapian::docid newdocid = *i;
-	string reply = encode_length(newdocid - lastdocid - 1);
-	reply += encode_length(i.get_wdf());
+	pack_uint(reply, newdocid - lastdocid - 1);
+	pack_uint(reply, i.get_wdf());
 
-	send_message(REPLY_POSTLISTITEM, reply);
 	lastdocid = newdocid;
     }
 
-    send_message(REPLY_DONE, string());
+    send_message(REPLY_POSTLIST, reply);
 }
 
 void
@@ -425,11 +436,10 @@ RemoteServer::msg_writeaccess(const string & msg)
     const char *p_end = p + msg.size();
     if (p != p_end) {
 	unsigned flag_bits;
-	decode_length(&p, p_end, flag_bits);
-	flags |= flag_bits &~ Xapian::DB_ACTION_MASK_;
-	if (p != p_end) {
-	    throw Xapian::NetworkError("Junk at end of MSG_WRITEACCESS");
+	if (!unpack_uint_last(&p, p_end, &flag_bits)) {
+	    throw Xapian::NetworkError("Bad flags in MSG_WRITEACCESS");
 	}
+	flags |= flag_bits &~ Xapian::DB_ACTION_MASK_;
     }
 
     wdb = new Xapian::WritableDatabase(context, flags);
@@ -457,15 +467,14 @@ RemoteServer::msg_update(const string &)
     };
     string message(protocol, 2);
     Xapian::doccount num_docs = db->get_doccount();
-    message += encode_length(num_docs);
-    message += encode_length(db->get_lastdocid() - num_docs);
+    pack_uint(message, num_docs);
+    pack_uint(message, db->get_lastdocid() - num_docs);
     Xapian::termcount doclen_lb = db->get_doclength_lower_bound();
-    message += encode_length(doclen_lb);
-    message += encode_length(db->get_doclength_upper_bound() - doclen_lb);
-    message += (db->has_positions() ? '1' : '0');
-    message += encode_length(db->get_total_length());
-    string uuid = db->get_uuid();
-    message += uuid;
+    pack_uint(message, doclen_lb);
+    pack_uint(message, db->get_doclength_upper_bound() - doclen_lb);
+    pack_bool(message, db->has_positions());
+    pack_uint(message, db->get_total_length());
+    message += db->get_uuid();
     send_message(REPLY_UPDATE, message);
 }
 
@@ -476,43 +485,51 @@ RemoteServer::msg_query(const string &message_in)
     const char *p_end = p + message_in.size();
 
     // Unserialise the Query.
-    size_t len;
-    decode_length_and_check(&p, p_end, len);
-    Xapian::Query query(Xapian::Query::unserialise(string(p, len), reg));
-    p += len;
+    string serialisation;
+    if (!unpack_string(&p, p_end, serialisation)) {
+	throw Xapian::NetworkError("Bad MSG_QUERY");
+    }
+
+    Xapian::Query query(Xapian::Query::unserialise(serialisation, reg));
 
     // Unserialise assorted Enquire settings.
     Xapian::termcount qlen;
-    decode_length(&p, p_end, qlen);
-
     Xapian::valueno collapse_max;
-    decode_length(&p, p_end, collapse_max);
+    if (!unpack_uint(&p, p_end, &qlen) ||
+	!unpack_uint(&p, p_end, &collapse_max)) {
+	throw Xapian::NetworkError("Bad MSG_QUERY");
+    }
 
     Xapian::valueno collapse_key = Xapian::BAD_VALUENO;
-    if (collapse_max)
-	decode_length(&p, p_end, collapse_key);
+    if (collapse_max) {
+	if (!unpack_uint(&p, p_end, &collapse_key)) {
+	    throw Xapian::NetworkError("Bad MSG_QUERY");
+	}
+    }
 
-    if (p_end - p < 4 || *p < '0' || *p > '2') {
+    if (p_end - p < 4 || static_cast<unsigned char>(*p) > 2) {
 	throw Xapian::NetworkError("bad message (docid_order)");
     }
     Xapian::Enquire::docid_order order;
-    order = static_cast<Xapian::Enquire::docid_order>(*p++ - '0');
+    order = static_cast<Xapian::Enquire::docid_order>(*p++);
 
-    if (*p < '0' || *p > '3') {
+    if (static_cast<unsigned char>(*p) > 3) {
 	throw Xapian::NetworkError("bad message (sort_by)");
     }
     Xapian::Enquire::Internal::sort_setting sort_by;
-    sort_by = static_cast<Xapian::Enquire::Internal::sort_setting>(*p++ - '0');
+    sort_by = static_cast<Xapian::Enquire::Internal::sort_setting>(*p++);
 
     Xapian::valueno sort_key = Xapian::BAD_VALUENO;
     if (sort_by != Xapian::Enquire::Internal::REL) {
-	decode_length(&p, p_end, sort_key);
+	if (!unpack_uint(&p, p_end, &sort_key)) {
+	    throw Xapian::NetworkError("Bad MSG_QUERY");
+	}
     }
 
-    if (*p < '0' || *p > '1') {
+    bool sort_value_forward;
+    if (!unpack_bool(&p, p_end, &sort_value_forward)) {
 	throw Xapian::NetworkError("bad message (sort_value_forward)");
     }
-    bool sort_value_forward(*p++ != '0');
 
     double time_limit = unserialise_double(&p, p_end);
 
@@ -527,9 +544,10 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     // Unserialise the Weight object.
-    decode_length_and_check(&p, p_end, len);
-    string wtname(p, len);
-    p += len;
+    string wtname;
+    if (!unpack_string(&p, p_end, wtname)) {
+	throw Xapian::NetworkError("Bad MSG_QUERY");
+    }
 
     const Xapian::Weight * wttype = reg.get_weighting_scheme(wtname);
     if (wttype == NULL) {
@@ -540,30 +558,35 @@ RemoteServer::msg_query(const string &message_in)
 					   wtname + " not registered");
     }
 
-    decode_length_and_check(&p, p_end, len);
-    unique_ptr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
-    p += len;
+    if (!unpack_string(&p, p_end, serialisation)) {
+	throw Xapian::NetworkError("Bad MSG_QUERY");
+    }
+    unique_ptr<Xapian::Weight> wt(wttype->unserialise(serialisation));
 
     // Unserialise the RSet object.
-    decode_length_and_check(&p, p_end, len);
-    Xapian::RSet rset = unserialise_rset(string(p, len));
-    p += len;
+    if (!unpack_string(&p, p_end, serialisation)) {
+	throw Xapian::NetworkError("Bad MSG_QUERY");
+    }
+    Xapian::RSet rset = unserialise_rset(serialisation);
 
     // Unserialise any MatchSpy objects.
     vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> matchspies;
     while (p != p_end) {
-	decode_length_and_check(&p, p_end, len);
-	string spytype(p, len);
+	string spytype;
+	if (!unpack_string(&p, p_end, spytype)) {
+	    throw Xapian::NetworkError("Bad MSG_QUERY");
+	}
 	const Xapian::MatchSpy * spyclass = reg.get_match_spy(spytype);
 	if (spyclass == NULL) {
 	    throw Xapian::InvalidArgumentError("Match spy " + spytype +
 					       " not registered");
 	}
-	p += len;
 
-	decode_length_and_check(&p, p_end, len);
-	matchspies.push_back(spyclass->unserialise(string(p, len), reg)->release());
-	p += len;
+	if (!unpack_string(&p, p_end, serialisation)) {
+	    throw Xapian::NetworkError("Bad MSG_QUERY");
+	}
+	matchspies.push_back(spyclass->unserialise(serialisation,
+						   reg)->release());
     }
 
     Xapian::Weight::Internal local_stats;
@@ -582,12 +605,13 @@ RemoteServer::msg_query(const string &message_in)
     p_end = p + message.size();
 
     Xapian::termcount first;
-    decode_length(&p, p_end, first);
     Xapian::termcount maxitems;
-    decode_length(&p, p_end, maxitems);
-
     Xapian::termcount check_at_least;
-    decode_length(&p, p_end, check_at_least);
+    if (!unpack_uint(&p, p_end, &first) ||
+	!unpack_uint(&p, p_end, &maxitems) ||
+	!unpack_uint(&p, p_end, &check_at_least)) {
+	throw Xapian::NetworkError("Bad MSG_GETMSET");
+    }
 
     message.erase(0, message.size() - (p_end - p));
     unique_ptr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
@@ -607,9 +631,7 @@ RemoteServer::msg_query(const string &message_in)
 
     message.resize(0);
     for (auto i : matchspies) {
-	string spy_results = i->serialise_results();
-	message += encode_length(spy_results.size());
-	message += spy_results;
+	pack_string(message, i->serialise_results());
     }
     message += mset.internal->serialise();
     send_message(REPLY_RESULTS, message);
@@ -621,7 +643,9 @@ RemoteServer::msg_document(const string &message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did;
-    decode_length(&p, p_end, did);
+    if (!unpack_uint_last(&p, p_end, &did)) {
+	throw Xapian::NetworkError("Bad MSG_DOCUMENT");
+    }
 
     Xapian::Document doc = db->get_document(did);
 
@@ -629,7 +653,8 @@ RemoteServer::msg_document(const string &message)
 
     Xapian::ValueIterator i;
     for (i = doc.values_begin(); i != doc.values_end(); ++i) {
-	string item = encode_length(i.get_valueno());
+	string item;
+	pack_uint(item, i.get_valueno());
 	item += *i;
 	send_message(REPLY_VALUE, item);
     }
@@ -653,20 +678,25 @@ RemoteServer::msg_termexists(const string &term)
 void
 RemoteServer::msg_collfreq(const string &term)
 {
-    send_message(REPLY_COLLFREQ, encode_length(db->get_collection_freq(term)));
+    string reply;
+    pack_uint_last(reply, db->get_collection_freq(term));
+    send_message(REPLY_COLLFREQ, reply);
 }
 
 void
 RemoteServer::msg_termfreq(const string &term)
 {
-    send_message(REPLY_TERMFREQ, encode_length(db->get_termfreq(term)));
+    string reply;
+    pack_uint_last(reply, db->get_termfreq(term));
+    send_message(REPLY_TERMFREQ, reply);
 }
 
 void
 RemoteServer::msg_freqs(const string &term)
 {
-    string msg = encode_length(db->get_termfreq(term));
-    msg += encode_length(db->get_collection_freq(term));
+    string msg;
+    pack_uint(msg, db->get_termfreq(term));
+    pack_uint_last(msg, db->get_collection_freq(term));
     send_message(REPLY_FREQS, msg);
 }
 
@@ -675,20 +705,16 @@ RemoteServer::msg_valuestats(const string & message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    while (p != p_end) {
-	Xapian::valueno slot;
-	decode_length(&p, p_end, slot);
-	string message_out;
-	message_out += encode_length(db->get_value_freq(slot));
-	string bound = db->get_value_lower_bound(slot);
-	message_out += encode_length(bound.size());
-	message_out += bound;
-	bound = db->get_value_upper_bound(slot);
-	message_out += encode_length(bound.size());
-	message_out += bound;
-
-	send_message(REPLY_VALUESTATS, message_out);
+    Xapian::valueno slot;
+    if (!unpack_uint_last(&p, p_end, &slot)) {
+	throw Xapian::NetworkError("Bad MSG_VALUESTATS");
     }
+    string message_out;
+    pack_uint(message_out, db->get_value_freq(slot));
+    pack_string(message_out, db->get_value_lower_bound(slot));
+    message_out += db->get_value_upper_bound(slot);
+
+    send_message(REPLY_VALUESTATS, message_out);
 }
 
 void
@@ -697,8 +723,12 @@ RemoteServer::msg_doclength(const string &message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did;
-    decode_length(&p, p_end, did);
-    send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
+    if (!unpack_uint_last(&p, p_end, &did)) {
+	throw Xapian::NetworkError("Bad MSG_DOCLENGTH");
+    }
+    string reply;
+    pack_uint_last(reply, db->get_doclength(did));
+    send_message(REPLY_DOCLENGTH, reply);
 }
 
 void
@@ -707,8 +737,12 @@ RemoteServer::msg_uniqueterms(const string &message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did;
-    decode_length(&p, p_end, did);
-    send_message(REPLY_UNIQUETERMS, encode_length(db->get_unique_terms(did)));
+    if (!unpack_uint_last(&p, p_end, &did)) {
+	throw Xapian::NetworkError("Bad MSG_UNIQUETERMS");
+    }
+    string reply;
+    pack_uint_last(reply, db->get_unique_terms(did));
+    send_message(REPLY_UNIQUETERMS, reply);
 }
 
 void
@@ -744,7 +778,9 @@ RemoteServer::msg_adddocument(const string & message)
 
     Xapian::docid did = wdb->add_document(unserialise_document(message));
 
-    send_message(REPLY_ADDDOCUMENT, encode_length(did));
+    string reply;
+    pack_uint_last(reply, did);
+    send_message(REPLY_ADDDOCUMENT, reply);
 }
 
 void
@@ -756,7 +792,9 @@ RemoteServer::msg_deletedocument(const string & message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did;
-    decode_length(&p, p_end, did);
+    if (!unpack_uint_last(&p, p_end, &did)) {
+	throw Xapian::NetworkError("Bad MSG_DELETEDOCUMENT");
+    }
 
     wdb->delete_document(did);
 
@@ -783,7 +821,9 @@ RemoteServer::msg_replacedocument(const string & message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::docid did;
-    decode_length(&p, p_end, did);
+    if (!unpack_uint(&p, p_end, &did)) {
+	throw Xapian::NetworkError("Bad MSG_REPLACEDOCUMENT");
+    }
 
     wdb->replace_document(did, unserialise_document(string(p, p_end)));
 
@@ -798,14 +838,15 @@ RemoteServer::msg_replacedocumentterm(const string & message)
 
     const char *p = message.data();
     const char *p_end = p + message.size();
-    size_t len;
-    decode_length_and_check(&p, p_end, len);
-    string unique_term(p, len);
-    p += len;
-
+    string unique_term;
+    if (!unpack_string(&p, p_end, unique_term)) {
+	throw Xapian::NetworkError("Bad MSG_REPLACEDOCUMENTTERM");
+    }
     Xapian::docid did = wdb->replace_document(unique_term, unserialise_document(string(p, p_end)));
 
-    send_message(REPLY_ADDDOCUMENT, encode_length(did));
+    string reply;
+    pack_uint_last(reply, did);
+    send_message(REPLY_ADDDOCUMENT, reply);
 }
 
 void
@@ -828,7 +869,7 @@ RemoteServer::msg_metadatakeylist(const string& message)
 	const string& term = *t;
 	size_t reuse = common_prefix_length(prev, term);
 	reply.append(1, char(reuse));
-	reply += encode_length(term.size() - reuse);
+	pack_uint(reply, term.size() - reuse);
 	reply.append(term, reuse, string::npos);
 	prev = term;
     }
@@ -842,10 +883,10 @@ RemoteServer::msg_setmetadata(const string & message)
 	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
-    size_t keylen;
-    decode_length_and_check(&p, p_end, keylen);
-    string key(p, keylen);
-    p += keylen;
+    string key;
+    if (!unpack_string(&p, p_end, key)) {
+	throw Xapian::NetworkError("Bad MSG_SETMETADATA");
+    }
     string val(p, p_end - p);
     wdb->set_metadata(key, val);
 
@@ -860,7 +901,9 @@ RemoteServer::msg_addspelling(const string & message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::termcount freqinc;
-    decode_length(&p, p_end, freqinc);
+    if (!unpack_uint(&p, p_end, &freqinc)) {
+	throw Xapian::NetworkError("Bad MSG_ADDSPELLING");
+    }
     wdb->add_spelling(string(p, p_end - p), freqinc);
 
     send_message(REPLY_DONE, string());
@@ -874,7 +917,10 @@ RemoteServer::msg_removespelling(const string & message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     Xapian::termcount freqdec;
-    decode_length(&p, p_end, freqdec);
-    auto result = wdb->remove_spelling(string(p, p_end - p), freqdec);
-    send_message(REPLY_REMOVESPELLING, encode_length(result));
+    if (!unpack_uint(&p, p_end, &freqdec)) {
+	throw Xapian::NetworkError("Bad MSG_REMOVESPELLING");
+    }
+    string reply;
+    pack_uint_last(reply, wdb->remove_spelling(string(p, p_end - p), freqdec));
+    send_message(REPLY_REMOVESPELLING, reply);
 }

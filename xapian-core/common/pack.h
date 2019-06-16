@@ -48,6 +48,13 @@ const unsigned int SORTABLE_UINT_MAX_BYTES = 1 << SORTABLE_UINT_LOG2_MAX_BYTES;
 const unsigned int SORTABLE_UINT_1ST_BYTE_MASK =
 	(0xffu >> SORTABLE_UINT_LOG2_MAX_BYTES);
 
+/** Throw appropriate SerialisationError.
+ *
+ *  @param p If NULL, out of data; otherwise type overflow.
+ */
+[[noreturn]]
+void unpack_throw_serialisation_error(const char* p);
+
 /** Append an encoded bool to a string.
  *
  *  @param s		The string to append to.
@@ -419,6 +426,19 @@ pack_string(std::string & s, const std::string & value)
     s += value;
 }
 
+/** Append an empty encoded std::string to a string.
+ *
+ *  This is equivalent to pack_string(s, std::string()) but is probably a bit
+ *  more efficient.
+ *
+ *  @param s		The string to append to.
+ */
+inline void
+pack_string_empty(std::string& s)
+{
+    s += '\0';
+}
+
 /** Append an encoded C-style string to a string.
  *
  *  @param s		The string to append to.
@@ -454,6 +474,31 @@ unpack_string(const char ** p, const char * end, std::string & result)
     }
 
     result.assign(ptr, len);
+    ptr += len;
+    return true;
+}
+
+/** Decode a std::string from a string and append.
+ *
+ *  @param p	    Pointer to pointer to the current position in the string.
+ *  @param end	    Pointer to the end of the string.
+ *  @param result   Where to store the result.
+ */
+inline bool
+unpack_string_append(const char** p, const char* end, std::string& result)
+{
+    size_t len;
+    if (rare(!unpack_uint(p, end, &len))) {
+	return false;
+    }
+
+    const char * & ptr = *p;
+    if (rare(len > size_t(end - ptr))) {
+	ptr = NULL;
+	return false;
+    }
+
+    result.append(ptr, len);
     ptr += len;
     return true;
 }

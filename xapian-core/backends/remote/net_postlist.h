@@ -2,7 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007,2009 Lemur Consulting Ltd
- * Copyright (C) 2007,2008,2009,2011 Olly Betts
+ * Copyright (C) 2007,2008,2009,2011,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,33 +39,24 @@ class NetworkPostList : public LeafPostList {
     Xapian::Internal::intrusive_ptr<const RemoteDatabase> db;
 
     string postings;
-    bool started;
-    const char * pos;
-    const char * pos_end;
+    bool started = false;
+    const char* pos = NULL;
+    const char* pos_end = NULL;
 
-    Xapian::docid lastdocid;
-    Xapian::termcount lastwdf;
+    Xapian::docid lastdocid = 0;
+    Xapian::termcount lastwdf = 0;
     Xapian::Internal::intrusive_ptr<PositionList> lastposlist;
 
     Xapian::doccount termfreq;
 
-    /// Append a posting to the end of the postlist.
-    void append_posting(const string & serialised) {
-	Assert(pos == NULL);
-	Assert(!started);
-	postings.append(serialised);
-    }
-
   public:
     /// Constructor.
     NetworkPostList(Xapian::Internal::intrusive_ptr<const RemoteDatabase> db_,
-		    const string & term_)
+		    const string& term_,
+		    Xapian::doccount termfreq_,
+		    string&& postings_)
 	: LeafPostList(term_),
-	  db(db_), started(false), pos(NULL), pos_end(NULL),
-	  lastdocid(0), lastwdf(0), termfreq(0)
-    {
-	termfreq = db->read_post_list(term, *this);
-    }
+	  db(db_), postings(std::move(postings_)), termfreq(termfreq_) { }
 
     /// Get number of documents indexed by this term.
     Xapian::doccount get_termfreq() const;
