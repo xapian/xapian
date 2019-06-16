@@ -27,9 +27,9 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "feature.h"
-#include "featurevector.h"
-#include "letor_error.h"
+#include <xapian-letor/feature.h>
+#include <xapian-letor/featurevector.h>
+#include <xapian-letor/letor_error.h>
 
 #include <map>
 #include <string>
