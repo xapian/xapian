@@ -148,7 +148,7 @@ class HoneyVersion {
     void unserialise_stats();
 
   public:
-    explicit HoneyVersion(const std::string & db_dir_ = std::string())
+    explicit HoneyVersion(const std::string & db_dir_)
 	: rev(0), fd(-1), offset(0), db_dir(db_dir_),
 	  doccount(0), total_doclen(0), last_docid(0),
 	  doclen_lbound(0), doclen_ubound(0),
