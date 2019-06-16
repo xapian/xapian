@@ -9,11 +9,16 @@ export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
 AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include
+if VPATH_BUILD
+# Needed for the generated files
+# include/xapian-letor/letor_{error,errordispatch}.h
+AM_CPPFLAGS += -I'$(top_builddir)/include'
+endif
+
+AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 # Order is relevant: when building, tests must be after ".".
 SUBDIRS = . docs tests
-
-AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 noinst_HEADERS =
 BUILT_SOURCES =
