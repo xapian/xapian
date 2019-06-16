@@ -157,12 +157,7 @@ class GlassVersion {
     void unserialise_stats();
 
   public:
-    explicit GlassVersion(const std::string & db_dir_ = std::string())
-	: rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
-	  doccount(0), total_doclen(0), last_docid(0),
-	  doclen_lbound(0), doclen_ubound(0),
-	  wdf_ubound(0), spelling_wordfreq_ubound(0),
-	  oldest_changeset(0) { }
+    explicit GlassVersion(const std::string & db_dir_ = std::string());
 
     explicit GlassVersion(int fd_);
 

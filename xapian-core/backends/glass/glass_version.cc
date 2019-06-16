@@ -70,6 +70,15 @@ static const char GLASS_VERSION_MAGIC[GLASS_VERSION_MAGIC_AND_VERSION_LEN] = {
     char((GLASS_FORMAT_VERSION >> 8) & 0xff), char(GLASS_FORMAT_VERSION & 0xff)
 };
 
+GlassVersion::GlassVersion(const std::string & db_dir_)
+    : rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
+      doccount(0), total_doclen(0), last_docid(0),
+      doclen_lbound(0), doclen_ubound(0),
+      wdf_ubound(0), spelling_wordfreq_ubound(0),
+      oldest_changeset(0)
+{
+}
+
 GlassVersion::GlassVersion(int fd_)
     : rev(0), fd(fd_), offset(0), db_dir(), changes(NULL),
       doccount(0), total_doclen(0), last_docid(0),
