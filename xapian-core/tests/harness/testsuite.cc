@@ -820,8 +820,8 @@ test_driver::report(const test_driver::result &r, const string &desc)
 		}
 	    }
 	    cout << "." << endl;
+	    slow_tests.clear();
 	}
-	slow_tests.clear();
     }
 }
 
