@@ -114,8 +114,11 @@ string test_driver::col_red, test_driver::col_green;
 string test_driver::col_yellow, test_driver::col_reset;
 bool test_driver::use_cr = false;
 
-// time constant to mark tests as slow or not
-static const int SLOW_TEST_THRESHOLD = 10000;
+// time constant in seconds to mark tests as slow or not
+static const float SLOW_TEST_THRESHOLD = 10.00;
+
+// vector to store the slow tests
+static vector<pair<string, float>> slow_tests;
 
 void
 test_driver::write_and_clear_tout()
@@ -704,7 +707,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    auto starttime = chrono::high_resolution_clock::now();
 	    test_driver::test_result test_res = runtest(test);
 	    auto endtime = chrono::high_resolution_clock::now();
-	    auto test_duration = chrono::duration_cast<chrono::milliseconds>
+	    auto test_duration = chrono::duration_cast<chrono::duration<float>>
 				 (endtime - starttime);
 #ifndef NO_LIBXAPIAN
 	    if (backendmanager)
@@ -713,16 +716,14 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    switch (test_res) {
 		case PASS:
 		    ++res.succeeded;
+
+		    if (test_duration.count() >= SLOW_TEST_THRESHOLD) {
+			slow_tests.push_back(make_pair(test->name,
+						       test_duration.count()));
+		    }
+
 		    if (verbose || !use_cr) {
-			out << col_green << " ok" << col_reset;
-
-			if (test_duration.count() >= SLOW_TEST_THRESHOLD) {
-			    out << col_yellow << " SLOW TEST ("
-				<< test_duration.count()
-				<< " ms)" << col_reset;
-			}
-
-			out << endl;
+			out << col_green << " ok" << col_reset << endl;
 		    } else {
 			out << "\r                                        "
 			       "                                       \r";
@@ -807,6 +808,20 @@ test_driver::report(const test_driver::result &r, const string &desc)
 	} else {
 	    cout << "." << endl;
 	}
+
+	if (!slow_tests.empty()) {
+	    cout << "Slow tests: ";
+	    for (auto test = slow_tests.begin();
+		 test != slow_tests.end(); ++test) {
+		cout << test->first << " (" << test->second
+		     << " s)";
+		if (test + 1 != slow_tests.end()) {
+		    cout << ", ";
+		}
+	    }
+	    cout << "." << endl;
+	}
+	slow_tests.clear();
     }
 }
 
