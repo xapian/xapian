@@ -616,6 +616,19 @@ else
   fi
 fi
 
+if [ "$1" = "--deps=libmagic" ] ; then
+  shift
+  lazy_build file 5.3.2 \
+    tar.gz 8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
+fi
+
+# Save the unadorned aclocal for bootstrapping SWIG.  In particular SWIG
+# uses a modified old version of AX_CXX_COMPILE_STDCXX_11 which isn't
+# compatible with the current version which might be in a system directory.
+SWIG_ACLOCAL=${ACLOCAL-aclocal}
+
+cd ..
+
 # Add -I for in-tree macro directory first, so we use that xapian.m4 in
 # preference to one in any directories added below.
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
@@ -640,19 +653,6 @@ if [ ! -r "$aclocal_ac_dir/pkg.m4" ] ; then
     export ACLOCAL
   fi
 fi
-
-if [ "$1" = "--deps=libmagic" ] ; then
-  shift
-  lazy_build file 5.3.2 \
-    tar.gz 8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
-fi
-
-# Save the unadorned aclocal for bootstrapping SWIG.  In particular SWIG
-# uses a modified old version of AX_CXX_COMPILE_STDCXX_11 which isn't
-# compatible with the current version which might be in a system directory.
-SWIG_ACLOCAL=${ACLOCAL-aclocal}
-
-cd ..
 
 case `${LIBTOOLIZE-libtoolize} --version` in
 "")
