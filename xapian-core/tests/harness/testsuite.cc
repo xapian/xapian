@@ -115,10 +115,10 @@ string test_driver::col_yellow, test_driver::col_reset;
 bool test_driver::use_cr = false;
 
 // time constant in seconds to mark tests as slow or not
-static const float SLOW_TEST_THRESHOLD = 10.00;
+static const double SLOW_TEST_THRESHOLD = 10.00;
 
 // vector to store the slow tests
-static vector<pair<string, float>> slow_tests;
+static vector<pair<string, double>> slow_tests;
 
 void
 test_driver::write_and_clear_tout()
@@ -707,7 +707,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    auto starttime = chrono::high_resolution_clock::now();
 	    test_driver::test_result test_res = runtest(test);
 	    auto endtime = chrono::high_resolution_clock::now();
-	    auto test_duration = chrono::duration_cast<chrono::duration<float>>
+	    auto test_duration = chrono::duration_cast<chrono::duration<double>>
 				 (endtime - starttime);
 #ifndef NO_LIBXAPIAN
 	    if (backendmanager)
@@ -718,8 +718,8 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		    ++res.succeeded;
 
 		    if (test_duration.count() >= SLOW_TEST_THRESHOLD) {
-			slow_tests.push_back(make_pair(test->name,
-						       test_duration.count()));
+			slow_tests.emplace_back(test->name,
+						test_duration.count());
 		    }
 
 		    if (verbose || !use_cr) {
