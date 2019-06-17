@@ -85,7 +85,6 @@ pkglibbin_PROGRAMS = omega
 if OMINDEX_PDF
 pkglibbin_PROGRAMS += omindex_pdf
 endif
-
 dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
@@ -116,7 +115,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
  xlsxparse.h opendocparse.h msxmlparse.h sort.h timegm.h csvescape.h\
  portability/mkdtemp.h portability/strptime.h\
- clickmodel/simplifieddbn.h clickmodel/session.h worker.h worker_comms.h handler_pdf.h
+ clickmodel/simplifieddbn.h clickmodel/session.h worker.h worker_comms.h handler.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -177,8 +176,8 @@ omindex_SOURCES += portability/mkdtemp.cc
 endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
-omindex_pdf_SOURCES = assistant.cc worker_comms.cc handler_pdf.cc
-omindex_pdf_LDADD = -lpoppler-cpp $(XAPIAN_LIBS)
+omindex_pdf_SOURCES = assistant.cc worker_comms.cc handler_poppler.cc
+omindex_pdf_LDADD = $(POPPLER_LIBS) $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\

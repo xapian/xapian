@@ -40,7 +40,7 @@ using namespace std;
 bool Worker::ignoring_sigpipe = false;
 
 void
-Worker::start_worker_process()
+Worker::start_worker_subprocess()
 {
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
@@ -149,7 +149,7 @@ Worker::extract(const std::string & filename,
 	}
     }
     if (!sockt) {
-	start_worker_process();
+	start_worker_subprocess();
     }
 
     string strpage;
@@ -161,7 +161,10 @@ Worker::extract(const std::string & filename,
 	read_string(sockt, keywords) &&
 	read_string(sockt, author) &&
 	read_string(sockt, strpage)) {
-	    pages = stoi(strpage);
+	    if (strpage.empty())
+		pages = 0;
+	    else
+		pages = stoi(strpage);
 	    return true;
     }
     fclose(sockt);

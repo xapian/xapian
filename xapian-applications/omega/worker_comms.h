@@ -22,6 +22,8 @@
 #include <cstdio>
 #include <string>
 
+/// Read a string from the file descriptor @a f and storage it in @a s
 bool read_string(std::FILE * f, std::string & s);
 
+/// Write the string @a s into the file descriptor @a f
 bool write_string(std::FILE * f, const std::string & s);

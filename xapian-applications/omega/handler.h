@@ -19,10 +19,26 @@
  * USA
  */
 
-#ifndef OMEGA_INCLUDED_HANDLER_PDF_H
-#define OMEGA_INCLUDED_HANDLER_PDF_H
+#ifndef OMEGA_INCLUDED_HANDLER_H
+#define OMEGA_INCLUDED_HANDLER_H
 
 #include <string>
+
+/** @internal Extract information from the @a filename and store it in the
+ *  corresponding variable.
+ *
+ *  @param filename   Path to the file.
+ *  @param dump       String where the dump will be saved.
+ *  @param title      String which will hold the title of the file.
+ *  @param keywords   String where the keywords will be stored.
+ *  @param author     String where the author will be stored.
+ *  @param pages      Here the number of pages will be stored.
+ *
+ * Note: This function should only be used by an assistant process.
+ *
+ * See Worker::extract() for more details.
+ *
+*/
 
 bool
 extract(const std::string & filename,
@@ -32,4 +48,4 @@ extract(const std::string & filename,
 	std::string & author,
 	std::string & pages);
 
-#endif // OMEGA_INCLUDED_PDF_HANDLER_H
+#endif // OMEGA_INCLUDED_HANDLER_H

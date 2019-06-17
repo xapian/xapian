@@ -20,7 +20,7 @@
  */
 
 #include <config.h>
-#include "handler_pdf.h"
+#include "handler.h"
 
 #include <xapian.h>
 #include <iostream>

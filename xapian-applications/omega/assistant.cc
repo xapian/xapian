@@ -23,7 +23,7 @@
 #include <csignal>
 
 #include "worker_comms.h"
-#include "handler_pdf.h"
+#include "handler.h"
 #include "safeunistd.h"
 
 using namespace std;
