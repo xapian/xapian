@@ -24,7 +24,7 @@ use exception_data qw(
 );
 use File::Path qw(make_path);
 
-make_path("include/xapian-letor") or die $!;
+make_path("include/xapian-letor");
 open HDR, ">include/xapian-letor/letor_error.h" or die $!;
 open DISPATCH, ">include/xapian-letor/letor_errordispatch.h" or die $!;
 
