@@ -1,5 +1,5 @@
-/** @file handler_pdf.h
- * @brief @brief Extract text and metadata using poopler.
+/** @file handler.h
+ * @brief @brief Extract text and metadata using an external library.
  */
 /* Copyright (C) 2011 Olly Betts
  *

@@ -1,4 +1,4 @@
-/** @file handler_pdf.cc
+/** @file handler_poppler.cc
  * @brief @brief Extract text and metadata using poopler.
  */
 /* Copyright (C) 2011 Olly Betts
