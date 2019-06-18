@@ -628,28 +628,33 @@ fi
 cd ..
 
 # Add -I for in-tree macro directory first, so we use that xapian.m4 in
-# preference to one in any directories added below.
+# preference to one in any directories which may be added below.
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
 export ACLOCAL
 
+aclocal_ac_dir=`${ACLOCAL-aclocal} --print-ac-dir`
+aclocal_system_needed=
+if [ ! -r "$aclocal_ac_dir/pkg.m4" ] ; then
+  if [ -r /usr/share/aclocal/pkg.m4 ] ; then
+    aclocal_system_needed=/usr/share/aclocal
+  fi
+fi
+
 # If the aclocal we're using is in a different prefix to the libtool we're
 # using, we probably need to tell aclocal where to look for our libtool's
-# macros.  Our directory may already by specified by other means, but it's
-# fairly harmless to specify an explicit -I for a directory which is searched
-# anyway - at worst it changes the search order.
-aclocal_ac_dir=`${ACLOCAL-aclocal} --print-ac-dir`
-if [ "$aclocal_ac_dir" != "$libtool_aclocal" ] ; then
+# macros.  We also need to do this if we add -I /usr/share/aclocal below
+# since otherwise the system libtool's macros may be used in preference.
+if [ "$aclocal_ac_dir" != "$libtool_aclocal" ] || [ -n "$aclocal_system_needed" ]; then
   ACLOCAL="${ACLOCAL-aclocal} -I $libtool_aclocal"
   export ACLOCAL
 fi
+
 # If we're using a non-system automake, check if pkg.m4 is in the directory
 # aclocal looks in by default.  If not and there's a system pkg.m4, tell
 # aclocal to also look in the system aclocal directory.
-if [ ! -r "$aclocal_ac_dir/pkg.m4" ] ; then
-  if [ -r /usr/share/aclocal/pkg.m4 ] ; then
-    ACLOCAL="${ACLOCAL-aclocal} -I /usr/share/aclocal"
-    export ACLOCAL
-  fi
+if [ -n "$aclocal_system_needed" ] ; then
+  ACLOCAL="${ACLOCAL-aclocal} -I $aclocal_system_needed"
+  export ACLOCAL
 fi
 
 case `${LIBTOOLIZE-libtoolize} --version` in
