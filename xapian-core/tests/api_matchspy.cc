@@ -337,3 +337,15 @@ DEFINE_TESTCASE(matchspy6, !backend)
 
     return true;
 }
+
+/// Regression test for bug fixed in 1.4.12.
+DEFINE_TESTCASE(matchspy7, !backend)
+{
+    Xapian::ValueCountMatchSpy myspy(1);
+    string s = myspy.serialise_results();
+    s += 'x';
+    // This merge_results() call used to enter an infinite loop.
+    TEST_EXCEPTION(Xapian::NetworkError, myspy.merge_results(s));
+
+    return true;
+}

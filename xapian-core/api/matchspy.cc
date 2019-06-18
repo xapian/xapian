@@ -385,17 +385,19 @@ ValueCountMatchSpy::merge_results(const string & s) {
 
     map<string, doccount>::size_type items;
     decode_length(&p, end, items);
-    while (p != end) {
-	while (items != 0) {
-	    size_t vallen;
-	    decode_length_and_check(&p, end, vallen);
-	    string val(p, vallen);
-	    p += vallen;
-	    doccount freq;
-	    decode_length(&p, end, freq);
-	    internal->values[val] += freq;
-	    --items;
-	}
+    while (items != 0) {
+	size_t vallen;
+	decode_length_and_check(&p, end, vallen);
+	string val(p, vallen);
+	p += vallen;
+	doccount freq;
+	decode_length(&p, end, freq);
+	internal->values[val] += freq;
+	--items;
+    }
+    if (p != end) {
+	throw NetworkError("Junk at end of serialised ValueCountMatchSpy "
+			   "results");
     }
 }
 
