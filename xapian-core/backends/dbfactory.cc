@@ -192,7 +192,11 @@ Database::Database(const string& path, int flags)
 
     struct stat statbuf;
     if (stat(path.c_str(), &statbuf) == -1) {
-	throw DatabaseOpeningError("Couldn't stat '" + path + "'", errno);
+	if (errno == ENOENT) {
+	    throw DatabaseNotFoundError("Couldn't stat '" + path + "'", errno);
+	} else {
+	    throw DatabaseOpeningError("Couldn't stat '" + path + "'", errno);
+	}
     }
 
     if (S_ISREG(statbuf.st_mode)) {
@@ -266,7 +270,7 @@ Database::Database(const string& path, int flags)
 	throw FeatureUnavailableError("Flint backend no longer supported");
     }
 
-    throw DatabaseOpeningError("Couldn't detect type of database");
+    throw DatabaseNotFoundError("Couldn't detect type of database");
 }
 
 /** Helper factory function.
