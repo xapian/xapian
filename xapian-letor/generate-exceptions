@@ -22,9 +22,9 @@ use strict;
 use exception_data qw(
     $copyright $generated_warning @baseclasses @classes %classcode
 );
-use File::Path qw(make_path);
+use File::Path qw(mkpath);
 
-make_path("include/xapian-letor");
+mkpath("include/xapian-letor");
 open HDR, ">include/xapian-letor/letor_error.h" or die $!;
 open DISPATCH, ">include/xapian-letor/letor_errordispatch.h" or die $!;
 
