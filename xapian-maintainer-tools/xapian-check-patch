@@ -669,17 +669,18 @@ QUOTELOOP:  while (1) {
 	if (defined $indent && $first_char eq '+' &&
 	    # blank
 	    !/^\+\s*$/ &&
-	    # special handling for access specifiers... FIXME: sort out properly
-	    !/^\+\s*(?:private|protected|public):/ &&
 	    # Preprocessor line
 	    !/^\+\s*#/ &&
 	    # Label for goto
 	    !/^\+[A-Za-z_][A-Za-z_0-9]*:/ &&
 	    # outdent
 	    !/^\+\s*}/) {
-	    if ($case_no_brace && /^\+(?:[ \t]*)(?:case\b.*|default):(?:\s*\{)?$/) {
+	    # Special handling for access specifiers, which should get a half indent.
+	    if (/^\+\s*(?:private|protected|public):/) {
+		$indent -= 2;
+	    } elsif ($case_no_brace && /^\+(?:[ \t]*)(?:case\b.*|default):(?:\s*\{)?$/) {
 		# case or default following a case or default without a '{', so
-		# shouldn't be indented - reduce $ident by 4 columns.
+		# shouldn't be indented - reduce $indent by 4 columns.
 		$indent -= 4;
 	    }
 	    my $this_indent = 0;
@@ -708,6 +709,14 @@ QUOTELOOP:  while (1) {
 	    #    print "$fnm:$lineno: Indented by $len columns - not a multiple of 4: $fullline";
 	    #}
 	    $indent += 4;
+	} elsif (/^[-+ ]([ \t]*)(?:(?:private|protected|public):)$/) {
+	    # Access specifiers get a half indent and are followed by another half indent.
+	    $indent = count_columns($1);
+	    $case_no_brace = undef;
+	    if (/^\+/ && $indent % 4 != 2) {
+		print "$fnm:$lineno: Indented by $indent columns, should be 2 plus a multiple of 4: $fullline";
+	    }
+	    $indent += 2;
 	} elsif (!/^.\s*$/) {
 	    # Only reset for a non-blank line (after comment removal).
 	    $indent = undef;
