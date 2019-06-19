@@ -95,6 +95,8 @@ my $indent;
 # True if the indent increased due to a "case" or "default" without a { - this
 # means that a following "case"/"default" should not be indented.
 my $case_no_brace;
+# Current file is a C/C++ header file.
+my $header;
 while (<>) {
     if (defined $next_top_level) {
 	$top_level = $next_top_level;
@@ -113,6 +115,7 @@ while (<>) {
 	$preproc = 0;
 	$preproc_continuation = 0;
 	$top_level = undef;
+	$header = 0;
 	# Don't know!
 	$want_tabs = -1;
 	$check_indent = 0;
@@ -136,8 +139,11 @@ while (<>) {
 	    if ($fnm !~ m!\binclude/xapian/intrusive_ptr\.h! &&
 		$fnm !~ m!\blanguages/compiler/! &&
 		$fnm !~ m!\bcommon/msvc_dirent\.h$!) {
-		$lang = 'h';
-		unless ($fnm =~ m!/omega/cdb!) {
+		$header = 1;
+		$lang = 'c++';
+		if ($fnm =~ m!/omega/cdb!) {
+		    $lang = 'c';
+		} else {
 		    $want_tabs = 1;
 		    $check_indent = 1;
 		}
@@ -185,7 +191,7 @@ while (<>) {
     }
 
     my $fullline = $_;
-    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
 	if ($lineno == 1 && m!^\+!) {
 	    if (m!^\+/\*\*\s+\@file\s+(\S+)!) {
 		my $at_file = $1;
@@ -246,7 +252,7 @@ while (<>) {
     # Replace multiple spaces before line continuation marker:
     s!  +\\$! \\!;
 
-    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
 	if (substr($_, 0, 1) eq '+') {
 	    my $expandedline = '';
 	    for my $i (1..length($fullline) - 1) {
@@ -358,7 +364,7 @@ QUOTELOOP:  while (1) {
     if (defined $lang && $lang ne 'changelog' && /^\+.*@\s+([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
 	diagnostic('error', "Broken Doxygen command: whitespace between '\@' and '$1'", $fullline);
     }
-    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
 	if ($last_line_blank) {
 	    if ($line_blank) {
 		# Allow multiple blank lines at the top level for now.
@@ -578,7 +584,7 @@ QUOTELOOP:  while (1) {
 	if (m,^\+\s+([-+/%^]|[&|]{2})\s,) {
 	    diagnostic('error', "Expression split before operator '$1', should be after", $fullline);
 	}
-	if ($lang eq 'h') {
+	if ($header) {
 	    if (m!^\+\s*#\s*(ifndef|define|endif\s*/[*/])\s+((?:[A-Z]+_INCLUDED)?_?\w+_[Hh]\b)!) {
 		my ($type, $guard) = ($1, $2);
 		my $expected_guard;
