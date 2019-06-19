@@ -38,9 +38,9 @@ using namespace std;
 #include "str.h"
 
 class Test_Exception {
-    public:
-	int value;
-	Test_Exception(int value_) : value(value_) {}
+  public:
+    int value;
+    Test_Exception(int value_) : value(value_) {}
 };
 
 // test that nested exceptions work correctly.
@@ -68,19 +68,21 @@ static bool test_exception1()
 // ###########################################
 
 class test_refcnt : public Xapian::Internal::intrusive_base {
-    private:
-	bool &deleted;
-    public:
-	test_refcnt(bool &deleted_) : deleted(deleted_) {
-	    tout << "constructor\n";
-	}
-	Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
-	    return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
-	}
-	~test_refcnt() {
-	    deleted = true;
-	    tout << "destructor\n";
-	}
+    bool &deleted;
+
+  public:
+    test_refcnt(bool &deleted_) : deleted(deleted_) {
+	tout << "constructor\n";
+    }
+
+    Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
+	return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
+    }
+
+    ~test_refcnt() {
+	deleted = true;
+	tout << "destructor\n";
+    }
 };
 
 static bool test_refcnt1()

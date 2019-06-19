@@ -27,48 +27,47 @@
 #include "glass_defs.h"
 
 class GlassDatabaseReplicator : public Xapian::DatabaseReplicator {
-    private:
-	/** Path of database.
-	 */
-	std::string db_dir;
+    /** Path of database.
+     */
+    std::string db_dir;
 
-	/** File descriptors for writing to each table.
-	 *
-	 *  The corresponding entry is -1 if that table is not yet opened.
-	 */
-	mutable int fds[Glass::MAX_];
+    /** File descriptors for writing to each table.
+     *
+     *  The corresponding entry is -1 if that table is not yet opened.
+     */
+    mutable int fds[Glass::MAX_];
 
-	/** Process a chunk which holds a version file.
-	 */
-	void process_changeset_chunk_version(std::string & buf,
-					     RemoteConnection & conn,
-					     double end_time) const;
+    /** Process a chunk which holds a version file.
+     */
+    void process_changeset_chunk_version(std::string & buf,
+					 RemoteConnection & conn,
+					 double end_time) const;
 
-	/** Process a chunk which holds a list of changed blocks in the
-	 *  database.
-	 */
-	void process_changeset_chunk_blocks(Glass::table_type table,
-					    unsigned v,
-					    std::string & buf,
-					    RemoteConnection & conn,
-					    double end_time) const;
+    /** Process a chunk which holds a list of changed blocks in the
+     *  database.
+     */
+    void process_changeset_chunk_blocks(Glass::table_type table,
+					unsigned v,
+					std::string & buf,
+					RemoteConnection & conn,
+					double end_time) const;
 
-	void commit() const;
+    void commit() const;
 
-    public:
-	explicit GlassDatabaseReplicator(const std::string & db_dir_);
+  public:
+    explicit GlassDatabaseReplicator(const std::string & db_dir_);
 
-	~GlassDatabaseReplicator();
+    ~GlassDatabaseReplicator();
 
-	/** Virtual methods of DatabaseReplicator. */
-	//@{
-	bool check_revision_at_least(const std::string & rev,
-				     const std::string & target) const;
-	std::string apply_changeset_from_conn(RemoteConnection & conn,
-					      double end_time,
-					      bool valid) const;
-	std::string get_uuid() const;
-	//@}
+    /** Virtual methods of DatabaseReplicator. */
+    //@{
+    bool check_revision_at_least(const std::string & rev,
+				 const std::string & target) const;
+    std::string apply_changeset_from_conn(RemoteConnection & conn,
+					  double end_time,
+					  bool valid) const;
+    std::string get_uuid() const;
+    //@}
 };
 
 #endif /* XAPIAN_INCLUDED_GLASS_DATABASEREPLICATOR_H */
