@@ -42,7 +42,6 @@
 #include <iostream> // FIXME
 #endif
 
-#include <cerrno>
 #include <cstdio> // For EOF
 #include <cstdlib> // std::abort()
 #include <type_traits>
