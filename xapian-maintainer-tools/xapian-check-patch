@@ -488,7 +488,7 @@ QUOTELOOP:  while (1) {
 		#                    Bar>;
 		# template<typename A,
 		#          typename B>
-	    } elsif ($op eq '&&' && substr($_, 0, $pre[1]) =~ /\b(?:auto|bool|double|float|int(?:\d+_t)?|long|string|uint\d+_t|unsigned|[A-Z][A-Za-z0-9_]*)$/) {
+	    } elsif ($op eq '&&' && substr($_, 0, $pre[1]) =~ /\b(?:auto|bool|char|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*)$/) {
 		# auto&& x;
 		# method(Class&& foo);
 	    } elsif (($op eq '<<' || $op eq '>>') &&
@@ -501,10 +501,12 @@ QUOTELOOP:  while (1) {
 	    } elsif ($op eq '>>' &&
 		/[A-Za-z0-9_]<.+</) {
 		# vector<vector<int>> v;
-	    } elsif ($op =~ /^[*&|]$/) {
+	    } elsif ($op =~ /^[*&|]$/ &&
+		     substr($_, 0, $pre[1]) !~ /(?:\b\d+)\s*$/) {
 		# FIXME: *: const char* x;
 		# FIXME: &: const char& x;
 		# FIXME: |: FOO|BAR
+		# (but we do catch "1234*x"
 	    } else {
 		diagnostic('error', "Missing space before '$op'", $fullline);
 	    }
@@ -525,10 +527,17 @@ QUOTELOOP:  while (1) {
 	    } elsif ($op eq '>>' &&
 		/[A-Za-z0-9_]<.+</) {
 		# vector<vector<int>>&
-	    } elsif ($op =~ /^[*&<>|]$/) {
-		# FIXME: *: const char *x;
-		# FIXME: *: const char &x;
+	    } elsif ($op =~ /^[*&]$/ &&
+		     substr($_, 0, $pre[1]) !~ /(?:\b\d+|\))\s*$/ &&
+		     !($lang eq 'c++' &&
+		       substr($_, 0, $pre[1]) !~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/)) {
+		# FIXME: &foo (address of)
+		# FIXME: *ptr (dereference)
+		# (but we do catch "...) &FLAG_FOO" and "1234 *x" and common pointer and reference types etc)
+	    } elsif ($op =~ /^[<>|]$/ &&
+		     substr($_, 0, $pre[1]) !~ /(?:\b\d+|\))\s*$/) {
 		# FIXME: < >: y = static_cast<char>(x);
+		# (but we do catch "...) <foo" and "1234 >bar" etc)
 		# FIXME: |: FOO|BAR
 	    } elsif (substr($_, $pre[1] - 8, 8) eq 'operator') {
 		# operator==() etc
@@ -541,6 +550,11 @@ QUOTELOOP:  while (1) {
 		# 1.2e-3, 7.e+3
 	    } else {
 		diagnostic('error', "Should have exactly one space after '$op'", $fullline);
+	    }
+	    if ($lang eq 'c++' &&
+		$op =~ /^[*&]$/ &&
+		substr($_, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/) {
+		diagnostic('error', "Preferred style is 'int$op x' (not 'int ${op}x' or 'int ${op} x')", $fullline);
 	    }
 	}
 	if (/^\+.*;;\s*$/) {
