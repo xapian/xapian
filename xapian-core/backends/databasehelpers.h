@@ -23,6 +23,7 @@
 #ifndef XAPIAN_INCLUDED_DATABASEHELPERS_H
 #define XAPIAN_INCLUDED_DATABASEHELPERS_H
 
+#include <cerrno>
 #include <cstdlib>
 #include <fstream>
 #include <string>
