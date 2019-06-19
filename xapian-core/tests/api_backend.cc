@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016,2018 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016,2018,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -1719,5 +1719,23 @@ DEFINE_TESTCASE(splitpostings1, writable) {
     }
     TEST_EQUAL(pos, 100);
 
+    return true;
+}
+
+/// Feature tests for Database::size().
+DEFINE_TESTCASE(multidb1, backend) {
+    Xapian::Database db;
+    TEST_EQUAL(db.size(), 0);
+    Xapian::Database db2 = get_database("apitest_simpledata");
+    TEST(db2.size() != 0);
+    db.add_database(db2);
+    TEST_EQUAL(db.size(), db2.size());
+    db.add_database(db2);
+    // Regression test for bug fixed in 1.4.12 - previously adding a multi
+    // database to an empty database incorrectly worked just like assigning
+    // the database object.  The list of shards is now copied instead.
+    TEST_EQUAL(db.size(), db2.size() * 2);
+    db.add_database(Xapian::Database());
+    TEST_EQUAL(db.size(), db2.size() * 2);
     return true;
 }
