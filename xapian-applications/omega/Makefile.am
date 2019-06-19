@@ -81,10 +81,7 @@ AM_CPPFLAGS = \
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
-pkglibbin_PROGRAMS = omega
-if OMINDEX_PDF
-pkglibbin_PROGRAMS += omindex_pdf
-endif
+pkglibbin_PROGRAMS = omega $(OMINDEX_MODULES)
 dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess

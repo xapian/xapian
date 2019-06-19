@@ -246,20 +246,22 @@ AC_SEARCH_LIBS([socketpair], [xnet],
 dnl fnmatch() is used to match ignore pattern.
 AC_CHECK_FUNCS([fnmatch])
 
+OMINDEX_MODULES=""
+
 dnl check if poppler is available.
 PKG_CHECK_MODULES([POPPLER], [poppler-cpp], [
-    save_LIBS=$LIBS
-    LIBS="$LIBS $POPPLER_LIBS"
-    AC_LINK_IFELSE([#include <poppler/cpp/poppler-version.h>
-                    int main(){
-                        poppler::version_string();
-                        return 0;
-                    }],
-                   [AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
-                    lib_poppler=true],[lib_poppler=false])
-    LIBS=$save_LIBS],
-    [lib_poppler=false])
-AM_CONDITIONAL([OMINDEX_PDF], [test x$lib_poppler != xfalse])
+     save_LIBS=$LIBS
+     LIBS="$LIBS $POPPLER_LIBS"
+     AC_LINK_IFELSE([#include <poppler/cpp/poppler-version.h>
+                     int main(){
+                         poppler::version_string();
+                         return 0;
+                     }],
+                    [AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
+                     OMINDEX_MODULES="$OMINDEX_MODULES omindex_pdf"])
+     LIBS=$save_LIBS],[echo 'Disabled worker process related to Poppler'])
+
+AC_SUBST([OMINDEX_MODULES])
 
 dnl Check that snprintf actually works as it's meant to.
 dnl
