@@ -214,7 +214,7 @@ DEFINE_TESTCASE(simplequery3, backend) {
     return true;
 }
 
-// multidb1 and multidb2 no longer exist.
+// multidb2 no longer exists.
 
 // test that a multidb with 2 dbs query returns correct docids
 DEFINE_TESTCASE(multidb3, backend && !multi) {

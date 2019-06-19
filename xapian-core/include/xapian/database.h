@@ -1,7 +1,7 @@
 /** @file database.h
  * @brief An indexed database of documents
  */
-/* Copyright 2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright 2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -94,8 +94,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Add shards from another Database.
      *
-     *  Any shards in @a other are added to the list of shards in this object.
-     *  The shards are reference counted and also remain in @a other.
+     *  Any shards in @a other are appended to the list of shards in this
+     *  object.  The shards are reference counted and also remain in @a other.
      *
      *  @param other	Another Database to add shards from
      *
@@ -105,6 +105,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     void add_database(const Database& other) {
 	add_database_(other, true);
     }
+
+    /** Return number of shards in this Database object. */
+    size_t size() const;
 
     /** Construct a Database containing no shards.
      *

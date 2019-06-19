@@ -1,7 +1,7 @@
 /** @file database.cc
  * @brief Database API class
  */
-/* Copyright 2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright 2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -101,6 +101,12 @@ Database::close()
     internal->close();
 }
 
+size_t
+Database::size() const
+{
+    return internal->size();
+}
+
 void
 Database::add_database_(const Database& o, bool read_only)
 {
@@ -119,7 +125,7 @@ Database::add_database_(const Database& o, bool read_only)
     }
 
     auto my_size = internal->size();
-    if (my_size == 0) {
+    if (my_size == 0 && o_size == 1) {
 	// Just copy.
 	internal = o.internal;
 	return;
@@ -159,9 +165,9 @@ Database::add_database_(const Database& o, bool read_only)
     // Make sure internal is a MultiDatabase with enough space reserved.
     auto new_size = my_size + o_size;
     MultiDatabase* multi_db;
-    if (my_size == 1) {
+    if (my_size <= 1) {
 	multi_db = new MultiDatabase(new_size, read_only);
-	multi_db->push_back(internal.get());
+	if (my_size) multi_db->push_back(internal.get());
 	internal = multi_db;
     } else {
 	// Must already be a MultiDatabase as everything else reports 1 for
