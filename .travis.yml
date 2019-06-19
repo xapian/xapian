@@ -1,7 +1,7 @@
 dist: xenial
 language: cpp
-notifications:
-  irc: "chat.freenode.net#xapian-devel"
+#notifications:
+#  irc: "chat.freenode.net#xapian-devel"
 env:
   global:
     - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libiconv libmagic pcre libsvm lua mono python2 python icu4c poppler'
@@ -31,7 +31,32 @@ matrix:
             - libicu-dev
             - pkg-config
             - libpoppler-cpp-dev
+            - libe-book-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - lua5.3
+            - liblua5.3-dev
+            - mono-devel
+            - python-dev
+            - python3-dev
+            - tcl
+            - libsvm-dev
+            - libicu-dev
+            - pkg-config
+      env: dummy="Compiling without workers"
     - compiler: clang
       os: linux
       # Clang is already installed, but we want to build using the
@@ -55,6 +80,7 @@ matrix:
             - libicu-dev
             - pkg-config
             - libpoppler-cpp-dev
+            - libe-book-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
