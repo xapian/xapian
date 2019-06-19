@@ -30,20 +30,22 @@ using std::string;
 using std::map;
 
 class HtmlParser {
-	map<string, string> parameters;
-    protected:
-	void decode_entities(string &s);
-	bool in_script;
-	string charset;
+    map<string, string> parameters;
 
-	bool get_parameter(const string & param, string & value) const;
-    public:
-	virtual void process_text(const string &/*text*/) { }
-	virtual bool opening_tag(const string &/*tag*/) { return true; }
-	virtual bool closing_tag(const string &/*tag*/) { return true; }
-	virtual void parse(const string &text);
-	HtmlParser() { }
-	virtual ~HtmlParser() { }
+  protected:
+    void decode_entities(string &s);
+    bool in_script;
+    string charset;
+
+    bool get_parameter(const string & param, string & value) const;
+
+  public:
+    virtual void process_text(const string &/*text*/) { }
+    virtual bool opening_tag(const string &/*tag*/) { return true; }
+    virtual bool closing_tag(const string &/*tag*/) { return true; }
+    virtual void parse(const string &text);
+    HtmlParser() { }
+    virtual ~HtmlParser() { }
 };
 
 #endif // OMEGA_INCLUDED_HTMLPARSE_H

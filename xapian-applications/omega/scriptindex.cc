@@ -90,7 +90,7 @@ const char * action_names[] = {
 #define DUMP_ACTION(A) cout << action_names[(A).get_action()] << "(" << (A).get_string_arg() << "," << (A).get_num_arg() << ")" << endl
 
 class Action {
-public:
+  public:
     typedef enum {
 	BAD, NEW,
 	BOOLEAN, DATE, FIELD, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD, LOWER,
@@ -98,13 +98,13 @@ public:
 	VALUENUMERIC, VALUEPACKED, WEIGHT
     } type;
     enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT, SPLIT_PREFIXES };
-private:
+  private:
     type action;
     int num_arg;
     string string_arg;
     // Offset into indexscript line.
     size_t pos;
-public:
+  public:
     Action(type action_, size_t pos_)
 	: action(action_), num_arg(0), pos(pos_) { }
     Action(type action_, size_t pos_, const string & arg)

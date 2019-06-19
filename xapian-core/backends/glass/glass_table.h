@@ -138,7 +138,7 @@ class RootInfo;
 
 class Key {
     const uint8_t *p;
-public:
+  public:
     explicit Key(const uint8_t * p_) : p(p_) { }
     const uint8_t * get_address() const { return p; }
     const uint8_t * data() const { return p + K1; }
@@ -157,7 +157,7 @@ public:
 // LeafItem_wr wants to be "LeafItem with non-const p and more methods" - we can't
 // achieve that nicely with inheritance, so we use a template base class.
 template<class T> class LeafItem_base {
-protected:
+  protected:
     T p;
     int get_key_len() const { return p[I2]; }
     static int getD(const uint8_t * q, int c) {
@@ -168,7 +168,7 @@ protected:
     }
     int getI() const { return unaligned_read2(p); }
     static int getX(const uint8_t * q, int c) { return unaligned_read2(q + c); }
-public:
+  public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
     explicit LeafItem_base(T p_) : p(p_) { }
@@ -206,7 +206,7 @@ public:
 };
 
 class LeafItem : public LeafItem_base<const uint8_t *> {
-public:
+  public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem(const uint8_t * p_, int c)
 	: LeafItem_base<const uint8_t *>(p_, c) { }
@@ -222,7 +222,7 @@ class LeafItem_wr : public LeafItem_base<uint8_t *> {
     }
     void setI(int x) { unaligned_write2(p, x); }
     static void setX(uint8_t * q, int c, int x) { unaligned_write2(q + c, x); }
-public:
+  public:
     /* LeafItem_wr from block address and offset to item pointer */
     LeafItem_wr(uint8_t * p_, int c) : LeafItem_base<uint8_t *>(p_, c) { }
     explicit LeafItem_wr(uint8_t * p_) : LeafItem_base<uint8_t *>(p_) { }
@@ -299,7 +299,7 @@ public:
 // BItem_wr wants to be "BItem with non-const p and more methods" - we can't
 // achieve that nicely with inheritance, so we use a template base class.
 template<class T> class BItem_base {
-protected:
+  protected:
     T p;
     int get_key_len() const { return p[BYTES_PER_BLOCK_NUMBER]; }
     static int getD(const uint8_t * q, int c) {
@@ -309,7 +309,7 @@ protected:
 	return unaligned_read2(q + c);
     }
     static int getX(const uint8_t * q, int c) { return unaligned_read2(q + c); }
-public:
+  public:
     /* BItem from block address and offset to item pointer */
     BItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
     explicit BItem_base(T p_) : p(p_) { }
@@ -331,7 +331,7 @@ public:
 };
 
 class BItem : public BItem_base<const uint8_t *> {
-public:
+  public:
     /* BItem from block address and offset to item pointer */
     BItem(const uint8_t * p_, int c) : BItem_base<const uint8_t *>(p_, c) { }
     explicit BItem(const uint8_t * p_) : BItem_base<const uint8_t *>(p_) { }
@@ -344,7 +344,7 @@ class BItem_wr : public BItem_base<uint8_t *> {
 	p[BYTES_PER_BLOCK_NUMBER] = x;
     }
     static void setX(uint8_t * q, int c, int x) { unaligned_write2(q + c, x); }
-public:
+  public:
     /* BItem_wr from block address and offset to item pointer */
     BItem_wr(uint8_t * p_, int c) : BItem_base<uint8_t *>(p_, c) { }
     explicit BItem_wr(uint8_t * p_) : BItem_base<uint8_t *>(p_) { }
@@ -429,484 +429,489 @@ class GlassChanges;
 class GlassTable {
     friend class GlassCursor; /* Should probably fix this. */
     friend class GlassFreeList;
-    private:
-	/// Copying not allowed
-	GlassTable(const GlassTable &);
-
-	/// Assignment not allowed
-	GlassTable & operator=(const GlassTable &);
-
-	void basic_open(const RootInfo * root_info,
-			glass_revision_number_t rev);
-
-	/** Perform the opening operation to read. */
-	void do_open_to_read(const RootInfo * root_info,
-			     glass_revision_number_t rev);
-
-	/** Perform the opening operation to write. */
-	void do_open_to_write(const RootInfo * root_info,
-			      glass_revision_number_t rev = 0);
-
-    public:
-	/** Create a new Btree object.
-	 *
-	 *  This does not create the table on disk - the create_and_open()
-	 *  method must be called to create the table on disk.
-	 *
-	 *  This also does not open the table - either the create_and_open()
-	 *  or open() methods must be called before use is made of the table.
-	 *
-	 *  @param tablename_   The name of the table (used in changesets).
-	 *  @param path_	Path at which the table is stored.
-	 *  @param readonly_	whether to open the table for read only access.
-	 *  @param lazy		If true, don't create the table until it's
-	 *			needed.
-	 */
-	GlassTable(const char * tablename_, const std::string & path_,
-		   bool readonly_, bool lazy = false);
-
-	GlassTable(const char * tablename_, int fd, off_t offset_,
-		   bool readonly_, bool lazy = false);
-
-	/** Close the Btree.
-	 *
-	 *  Any outstanding changes (ie, changes made without commit() having
-	 *  subsequently been called) will be lost.
-	 */
-	~GlassTable();
-
-	/** Close the Btree.  This closes and frees any of the btree
-	 *  structures which have been created and opened.
-	 *
-	 *  @param permanent If true, the Btree will not reopen on demand.
-	 */
-	void close(bool permanent = false);
-
-	bool readahead_key(const string &key) const;
-
-	/** Determine whether the btree exists on disk.
-	 */
-	bool exists() const;
-
-	/** Open the btree.
-	 *
-	 *  @param flags_	flags for opening
-	 *  @param root_info	root block info
-	 *
-	 *  @exception Xapian::DatabaseCorruptError will be thrown if the table
-	 *	is in a corrupt state.
-	 *  @exception Xapian::DatabaseOpeningError will be thrown if the table
-	 *	cannot be opened (but is not corrupt - eg, permission problems,
-	 *	not present, etc).
-	 */
-	void open(int flags_, const RootInfo & root_info,
-		  glass_revision_number_t rev);
-
-	/** Return true if this table is open.
-	 *
-	 *  NB If the table is lazy and doesn't yet exist, returns false.
-	 */
-	bool is_open() const { return handle >= 0; }
-
-	/** Return true if this table is writable. */
-	bool is_writable() const { return writable; }
-
-	/** Flush any outstanding changes to the DB file of the table.
-	 *
-	 *  This must be called before commit, to ensure that the DB file is
-	 *  ready to be switched to a new version by the commit.
-	 */
-	void flush_db();
-
-	/** Commit any outstanding changes to the table.
-	 *
-	 *  Commit changes made by calling add() and del() to the Btree.
-	 *
-	 *  If an error occurs during the operation, this will be signalled
-	 *  by an exception.  In case of error, changes made will not be
-	 *  committed to the Btree - they will be discarded.
-	 *
-	 *  @param new_revision  The new revision number to store.  This must
-	 *          be greater than the current revision number.  FIXME: If
-	 *          we support rewinding to a previous revision, maybe this
-	 *          needs to be greater than any previously used revision.
-	 *
-	 *  @param root_info  Information about the root is returned in this.
-	 */
-	void commit(glass_revision_number_t revision, RootInfo * root_info);
-
-	bool sync() {
-	    return (flags & Xapian::DB_NO_SYNC) ||
-		   handle < 0 ||
-		   io_sync(handle);
-	}
-
-	/** Cancel any outstanding changes.
-	 *
-	 *  This will discard any modifications which haven't been committed
-	 *  by calling commit().
-	 */
-	void cancel(const RootInfo & root_info, glass_revision_number_t rev);
-
-	/** Read an entry from the table, if and only if it is exactly that
-	 *  being asked for.
-	 *
-	 *  If the key is found in the table, then the tag is copied to @a
-	 *  tag.  If the key is not found tag is left unchanged.
-	 *
-	 *  The result is true iff the specified key is found in the Btree.
-	 *
-	 *  @param key  The key to look for in the table.
-	 *  @param tag  A tag object to fill with the value if found.
-	 *
-	 *  @return true if key is found in table,
-	 *          false if key is not found in table.
-	 */
-	bool get_exact_entry(const std::string & key, std::string & tag) const;
-
-	/** Check if a key exists in the Btree.
-	 *
-	 *  This is just like get_exact_entry() except it doesn't read the tag
-	 *  value so is more efficient if you only want to check that the key
-	 *  exists.
-	 *
-	 *  @param key  The key to look for in the table.
-	 *
-	 *  @return true if key is found in table,
-	 *          false if key is not found in table.
-	 */
-	bool key_exists(const std::string &key) const;
-
-	/** Read the tag value for the key pointed to by cursor C_.
-	 *
-	 *  @param keep_compressed  Don't uncompress the tag - e.g. useful
-	 *			    if it's just being opaquely copied.
-	 *
-	 *  @return	true if current_tag holds compressed data (always
-	 *		false if keep_compressed was false).
-	 */
-	bool read_tag(Glass::Cursor * C_, std::string *tag, bool keep_compressed) const;
-
-	/** Add a key/tag pair to the table, replacing any existing pair with
-	 *  the same key.
-	 *
-	 *  If an error occurs during the operation, an exception will be
-	 *  thrown.
-	 *
-	 *  If key is empty, then the null item is replaced.
-	 *
-	 *  e.g.    btree.add("TODAY", "Mon 9 Oct 2000");
-	 *
-	 *  @param key   The key to store in the table.
-	 *  @param tag   The tag to store in the table.
-	 *  @param already_compressed	true if tag is already compressed,
-	 *		for example because it is being opaquely copied
-	 *		(default: false).
-	 */
-	void add(const std::string &key, std::string tag, bool already_compressed = false);
-
-	/** Delete an entry from the table.
-	 *
-	 *  The entry will be removed from the table, if it exists.  If
-	 *  it does not exist, no action will be taken.  The item with
-	 *  an empty key can't be removed, and false is returned.
-	 *
-	 *  If an error occurs during the operation, this will be signalled
-	 *  by an exception.
-	 *
-	 *  e.g.    bool deleted = btree.del("TODAY")
-	 *
-	 *  @param key   The key to remove from the table.
-	 *
-	 *  @return true if an entry was removed; false if it did not exist.
-	 */
-	bool del(const std::string &key);
-
-	int get_flags() const { return flags; }
-
-	/** Create a new empty btree structure on disk and open it at the
-	 *  initial revision.
-	 *
-	 *  The table must be writable - it doesn't make sense to create
-	 *  a table that is read-only!
-	 *
-	 *  The block size must be less than 64K, where K = 1024. It is unwise
-	 *  to use a small block size (less than 1024 perhaps), so we enforce a
-	 *  minimum block size of 2K.
-	 *
-	 *  Example:
-	 *
-	 *    // File will be "X." + GLASS_TABLE_EXTENSION (i.e. "X.glass")
-	 *    Btree btree("X.");
-	 *    btree.create_and_open(0, root_info);
-	 *
-	 *  @param root_info     RootInfo object
-	 *
-	 *  @exception Xapian::DatabaseCreateError if the table can't be
-	 *	created.
-	 *  @exception Xapian::InvalidArgumentError if the requested blocksize
-	 *	is unsuitable.
-	 */
-	void create_and_open(int flags_, const RootInfo & root_info);
-
-	void set_full_compaction(bool parity);
-
-	/** Get the revision number at which this table
-	 *  is currently open.
-	 *
-	 *  It is possible that there are other, more recent or older
-	 *  revisions available.
-	 *
-	 *  @return the current revision number.
-	 */
-	glass_revision_number_t get_open_revision_number() const {
-	    return revision_number;
-	}
-
-	/** Return a count of the number of entries in the table.
-	 *
-	 *  The count does not include the ever-present item with null key.
-	 *
-	 *  Use @a empty() if you only want to know if the table is empty or
-	 *  not.
-	 *
-	 *  @return The number of entries in the table.
-	 */
-	glass_tablesize_t get_entry_count() const {
-	    return item_count;
-	}
-
-	/// Return true if there are no entries in the table.
-	bool empty() const {
-	    return (item_count == 0);
-	}
-
-	/** Get a cursor for reading from the table.
-	 *
-	 *  The cursor is owned by the caller - it is the caller's
-	 *  responsibility to ensure that it is deleted.
-	 */
-	GlassCursor * cursor_get() const;
-
-	/** Determine whether the object contains uncommitted modifications.
-	 *
-	 *  @return true if there have been modifications since the last
-	 *          the last call to commit().
-	 */
-	bool is_modified() const { return Btree_modified; }
-
-	/** Set the maximum item size given the block capacity.
-	 *
-	 *  At least this many items of maximum size must fit into a block.
-	 *  The default is BLOCK_CAPACITY (which is currently 4).
-	 */
-	void set_max_item_size(size_t block_capacity) {
-	    if (block_capacity > Glass::BLOCK_CAPACITY)
-		block_capacity = Glass::BLOCK_CAPACITY;
-	    using Glass::DIR_START;
-	    using Glass::D2;
-	    max_item_size =
-		(block_size - DIR_START - block_capacity * D2) / block_capacity;
-	    // Make sure we don't exceed the limit imposed by the format.
-	    if (max_item_size > Glass::MAX_ITEM_SIZE)
-		max_item_size = Glass::MAX_ITEM_SIZE;
-	}
-
-	/** Set the GlassChanges object to write changed blocks to.
-	 *
-	 *  The GlassChanges object is not owned by the table, so the table
-	 *  must not delete it.
-	 */
-	void set_changes(GlassChanges * changes) {
-	    changes_obj = changes;
-	}
-
-	/// Throw an exception indicating that the database is closed.
-	[[noreturn]]
-	static void throw_database_closed();
-
-	string get_path() const {
-	    return name + GLASS_TABLE_EXTENSION;
-	}
-
-    protected:
-
-	bool find(Glass::Cursor *) const;
-	int delete_kt();
-	void read_block(uint4 n, uint8_t *p) const;
-	void write_block(uint4 n, const uint8_t *p,
-			 bool appending = false) const;
-	[[noreturn]]
-	void set_overwritten() const;
-	void block_to_cursor(Glass::Cursor *C_, int j, uint4 n) const;
-	void alter();
-	void compact(uint8_t *p);
-	void enter_key_above_leaf(Glass::LeafItem previtem, Glass::LeafItem newitem);
-	void enter_key_above_branch(int j, Glass::BItem newitem);
-	int mid_point(uint8_t *p) const;
-	void add_item_to_leaf(uint8_t *p, Glass::LeafItem kt, int c);
-	void add_item_to_branch(uint8_t *p, Glass::BItem kt, int c);
-	void add_leaf_item(Glass::LeafItem kt);
-	void add_branch_item(Glass::BItem kt, int j);
-	void delete_leaf_item(bool repeatedly);
-	void delete_branch_item(int j);
-	int add_kt(bool found);
-	void read_root();
-	void split_root(uint4 split_n);
-	void form_key(const std::string & key) const;
-
-	/// The name of the table (used when writing changesets).
-	const char * tablename;
-
-	/** revision number of the opened B-tree. */
-	glass_revision_number_t revision_number;
-
-	/** keeps a count of the number of items in the B-tree. */
-	glass_tablesize_t item_count;
-
-	/** block size of the B tree in bytes */
-	unsigned int block_size;
-
-	/** Flags like DB_NO_SYNC and DB_DANGEROUS. */
-	int flags;
-
-	/** true if the root block is faked (not written to disk).
-	 * false otherwise.  This is true when the btree hasn't been
-	 * modified yet.
-	 */
-	bool faked_root_block;
-
-	/** true iff the data has been written in a single write in
-	 * sequential order.
-	 */
-	bool sequential;
-
-	/** File descriptor of the table.
-	 *
-	 *  If close() has been called, this will be -2.
-	 *
-	 *  If the table is lazily created and doesn't yet exist, this will be
-	 *  -1 (for a multi-file database) or -3-fd (for a single-file database).
-	 */
-	int handle;
-
-	/// number of levels, counting from 0
-	int level;
-
-	/// the root block of the B-tree
-	uint4 root;
-
-	/// buffer of size block_size for making up key-tag items
-	mutable Glass::LeafItem_wr kt;
-
-	/// buffer of size block_size for reforming blocks
-	uint8_t * buffer;
-
-	/// List of free blocks.
-	GlassFreeList free_list;
-
-	/** The path name of the B tree.
-	 *
-	 *  For a single-file database, this will be empty.
-	 */
-	std::string name;
-
-	/** count of the number of successive instances of purely
-	 * sequential addition, starting at SEQ_START_POINT (neg) and
-	 * going up to zero. */
-	int seq_count;
-
-	/** the last block to be changed by an addition */
-	uint4 changed_n;
-
-	/** directory offset corresponding to last block to be changed
-	 *  by an addition */
-	int changed_c;
-
-	/// maximum size of an item (key-tag pair)
-	size_t max_item_size;
-
-	/// Set to true the first time the B-tree is modified.
-	mutable bool Btree_modified;
-
-	/// set to true when full compaction is to be achieved
-	bool full_compaction;
-
-	/// Set to true when the database is opened to write.
-	bool writable;
-
-	/// Flag for tracking when cursors need to rebuild.
-	mutable bool cursor_created_since_last_modification;
-
-	/// Version count for tracking when cursors need to rebuild.
-	unsigned long cursor_version;
-
-	/** The GlassChanges object to write block changes to.
-	 *
-	 *  If NULL, no changes will be written.
-	 */
-	GlassChanges * changes_obj;
-
-	bool single_file() const {
-	    return name.empty();
-	}
-
-	/* B-tree navigation functions */
-	bool prev(Glass::Cursor *C_, int j) const {
-	    if (sequential && !single_file())
-		return prev_for_sequential(C_, j);
-	    return prev_default(C_, j);
-	}
-
-	bool next(Glass::Cursor *C_, int j) const {
-	    if (sequential) return next_for_sequential(C_, j);
-	    return next_default(C_, j);
-	}
-
-	/* Default implementations. */
-	bool prev_default(Glass::Cursor *C_, int j) const;
-	bool next_default(Glass::Cursor *C_, int j) const;
-
-	/* Implementations for sequential mode. */
-	bool prev_for_sequential(Glass::Cursor *C_, int dummy) const;
-	bool next_for_sequential(Glass::Cursor *C_, int dummy) const;
-
-	static int find_in_leaf(const uint8_t * p,
-				Glass::LeafItem item, int c, bool& exact);
-	static int find_in_branch(const uint8_t * p,
-				  Glass::LeafItem item, int c);
-	static int find_in_branch(const uint8_t * p, Glass::BItem item, int c);
-
-	/** block_given_by(p, c) finds the item at block address p, directory
-	 *  offset c, and returns its tag value as an integer.
-	 */
-	static uint4 block_given_by(const uint8_t * p, int c);
-
-	mutable Glass::Cursor C[Glass::BTREE_CURSOR_LEVELS];
-
-	/** Buffer used when splitting a block.
-	 *
-	 *  This buffer holds the split off part of the block.  It's only used
-	 *  when updating (in GlassTable::add_item().
-	 */
-	uint8_t * split_p;
-
-	/** Minimum size tag to try compressing (0 for no compression). */
-	uint4 compress_min;
-
-	mutable CompressionStream comp_stream;
-
-	/// If true, don't create the table until it's needed.
-	bool lazy;
-
-	/// Last block readahead_key() preread.
-	mutable uint4 last_readahead;
-
-	/// offset to start of table in file.
-	off_t offset;
-
-	/* Debugging methods */
-//	void report_block_full(int m, int n, const uint8_t * p);
+
+  private:
+    /// Copying not allowed
+    GlassTable(const GlassTable &);
+
+    /// Assignment not allowed
+    GlassTable & operator=(const GlassTable &);
+
+    void basic_open(const RootInfo * root_info,
+		    glass_revision_number_t rev);
+
+    /** Perform the opening operation to read. */
+    void do_open_to_read(const RootInfo * root_info,
+			 glass_revision_number_t rev);
+
+    /** Perform the opening operation to write. */
+    void do_open_to_write(const RootInfo * root_info,
+			  glass_revision_number_t rev = 0);
+
+  public:
+    /** Create a new Btree object.
+     *
+     *  This does not create the table on disk - the create_and_open()
+     *  method must be called to create the table on disk.
+     *
+     *  This also does not open the table - either the create_and_open()
+     *  or open() methods must be called before use is made of the table.
+     *
+     *  @param tablename_   The name of the table (used in changesets).
+     *  @param path_	Path at which the table is stored.
+     *  @param readonly_	whether to open the table for read only access.
+     *  @param lazy		If true, don't create the table until it's
+     *			needed.
+     */
+    GlassTable(const char * tablename_, const std::string & path_,
+	       bool readonly_, bool lazy = false);
+
+    GlassTable(const char * tablename_, int fd, off_t offset_,
+	       bool readonly_, bool lazy = false);
+
+    /** Close the Btree.
+     *
+     *  Any outstanding changes (ie, changes made without commit() having
+     *  subsequently been called) will be lost.
+     */
+    ~GlassTable();
+
+    /** Close the Btree.  This closes and frees any of the btree
+     *  structures which have been created and opened.
+     *
+     *  @param permanent If true, the Btree will not reopen on demand.
+     */
+    void close(bool permanent = false);
+
+    bool readahead_key(const string &key) const;
+
+    /** Determine whether the btree exists on disk.
+     */
+    bool exists() const;
+
+    /** Open the btree.
+     *
+     *  @param flags_	flags for opening
+     *  @param root_info	root block info
+     *
+     *  @exception Xapian::DatabaseCorruptError will be thrown if the table
+     *	is in a corrupt state.
+     *  @exception Xapian::DatabaseOpeningError will be thrown if the table
+     *	cannot be opened (but is not corrupt - eg, permission problems,
+     *	not present, etc).
+     */
+    void open(int flags_, const RootInfo & root_info,
+	      glass_revision_number_t rev);
+
+    /** Return true if this table is open.
+     *
+     *  NB If the table is lazy and doesn't yet exist, returns false.
+     */
+    bool is_open() const { return handle >= 0; }
+
+    /** Return true if this table is writable. */
+    bool is_writable() const { return writable; }
+
+    /** Flush any outstanding changes to the DB file of the table.
+     *
+     *  This must be called before commit, to ensure that the DB file is
+     *  ready to be switched to a new version by the commit.
+     */
+    void flush_db();
+
+    /** Commit any outstanding changes to the table.
+     *
+     *  Commit changes made by calling add() and del() to the Btree.
+     *
+     *  If an error occurs during the operation, this will be signalled
+     *  by an exception.  In case of error, changes made will not be
+     *  committed to the Btree - they will be discarded.
+     *
+     *  @param new_revision  The new revision number to store.  This must
+     *          be greater than the current revision number.  FIXME: If
+     *          we support rewinding to a previous revision, maybe this
+     *          needs to be greater than any previously used revision.
+     *
+     *  @param root_info  Information about the root is returned in this.
+     */
+    void commit(glass_revision_number_t revision, RootInfo * root_info);
+
+    bool sync() {
+	return (flags & Xapian::DB_NO_SYNC) ||
+	       handle < 0 ||
+	       io_sync(handle);
+    }
+
+    /** Cancel any outstanding changes.
+     *
+     *  This will discard any modifications which haven't been committed
+     *  by calling commit().
+     */
+    void cancel(const RootInfo & root_info, glass_revision_number_t rev);
+
+    /** Read an entry from the table, if and only if it is exactly that
+     *  being asked for.
+     *
+     *  If the key is found in the table, then the tag is copied to @a
+     *  tag.  If the key is not found tag is left unchanged.
+     *
+     *  The result is true iff the specified key is found in the Btree.
+     *
+     *  @param key  The key to look for in the table.
+     *  @param tag  A tag object to fill with the value if found.
+     *
+     *  @return true if key is found in table,
+     *          false if key is not found in table.
+     */
+    bool get_exact_entry(const std::string & key, std::string & tag) const;
+
+    /** Check if a key exists in the Btree.
+     *
+     *  This is just like get_exact_entry() except it doesn't read the tag
+     *  value so is more efficient if you only want to check that the key
+     *  exists.
+     *
+     *  @param key  The key to look for in the table.
+     *
+     *  @return true if key is found in table,
+     *          false if key is not found in table.
+     */
+    bool key_exists(const std::string &key) const;
+
+    /** Read the tag value for the key pointed to by cursor C_.
+     *
+     *  @param keep_compressed  Don't uncompress the tag - e.g. useful
+     *			    if it's just being opaquely copied.
+     *
+     *  @return	true if current_tag holds compressed data (always
+     *		false if keep_compressed was false).
+     */
+    bool read_tag(Glass::Cursor* C_,
+		  std::string* tag,
+		  bool keep_compressed) const;
+
+    /** Add a key/tag pair to the table, replacing any existing pair with
+     *  the same key.
+     *
+     *  If an error occurs during the operation, an exception will be
+     *  thrown.
+     *
+     *  If key is empty, then the null item is replaced.
+     *
+     *  e.g.    btree.add("TODAY", "Mon 9 Oct 2000");
+     *
+     *  @param key   The key to store in the table.
+     *  @param tag   The tag to store in the table.
+     *  @param already_compressed	true if tag is already compressed,
+     *		for example because it is being opaquely copied
+     *		(default: false).
+     */
+    void add(const std::string& key,
+	     std::string tag,
+	     bool already_compressed = false);
+
+    /** Delete an entry from the table.
+     *
+     *  The entry will be removed from the table, if it exists.  If
+     *  it does not exist, no action will be taken.  The item with
+     *  an empty key can't be removed, and false is returned.
+     *
+     *  If an error occurs during the operation, this will be signalled
+     *  by an exception.
+     *
+     *  e.g.    bool deleted = btree.del("TODAY")
+     *
+     *  @param key   The key to remove from the table.
+     *
+     *  @return true if an entry was removed; false if it did not exist.
+     */
+    bool del(const std::string &key);
+
+    int get_flags() const { return flags; }
+
+    /** Create a new empty btree structure on disk and open it at the
+     *  initial revision.
+     *
+     *  The table must be writable - it doesn't make sense to create
+     *  a table that is read-only!
+     *
+     *  The block size must be less than 64K, where K = 1024. It is unwise
+     *  to use a small block size (less than 1024 perhaps), so we enforce a
+     *  minimum block size of 2K.
+     *
+     *  Example:
+     *
+     *    // File will be "X." + GLASS_TABLE_EXTENSION (i.e. "X.glass")
+     *    Btree btree("X.");
+     *    btree.create_and_open(0, root_info);
+     *
+     *  @param root_info     RootInfo object
+     *
+     *  @exception Xapian::DatabaseCreateError if the table can't be
+     *	created.
+     *  @exception Xapian::InvalidArgumentError if the requested blocksize
+     *	is unsuitable.
+     */
+    void create_and_open(int flags_, const RootInfo & root_info);
+
+    void set_full_compaction(bool parity);
+
+    /** Get the revision number at which this table
+     *  is currently open.
+     *
+     *  It is possible that there are other, more recent or older
+     *  revisions available.
+     *
+     *  @return the current revision number.
+     */
+    glass_revision_number_t get_open_revision_number() const {
+	return revision_number;
+    }
+
+    /** Return a count of the number of entries in the table.
+     *
+     *  The count does not include the ever-present item with null key.
+     *
+     *  Use @a empty() if you only want to know if the table is empty or
+     *  not.
+     *
+     *  @return The number of entries in the table.
+     */
+    glass_tablesize_t get_entry_count() const {
+	return item_count;
+    }
+
+    /// Return true if there are no entries in the table.
+    bool empty() const {
+	return (item_count == 0);
+    }
+
+    /** Get a cursor for reading from the table.
+     *
+     *  The cursor is owned by the caller - it is the caller's
+     *  responsibility to ensure that it is deleted.
+     */
+    GlassCursor * cursor_get() const;
+
+    /** Determine whether the object contains uncommitted modifications.
+     *
+     *  @return true if there have been modifications since the last
+     *          the last call to commit().
+     */
+    bool is_modified() const { return Btree_modified; }
+
+    /** Set the maximum item size given the block capacity.
+     *
+     *  At least this many items of maximum size must fit into a block.
+     *  The default is BLOCK_CAPACITY (which is currently 4).
+     */
+    void set_max_item_size(size_t block_capacity) {
+	if (block_capacity > Glass::BLOCK_CAPACITY)
+	    block_capacity = Glass::BLOCK_CAPACITY;
+	using Glass::DIR_START;
+	using Glass::D2;
+	max_item_size =
+	    (block_size - DIR_START - block_capacity * D2) / block_capacity;
+	// Make sure we don't exceed the limit imposed by the format.
+	if (max_item_size > Glass::MAX_ITEM_SIZE)
+	    max_item_size = Glass::MAX_ITEM_SIZE;
+    }
+
+    /** Set the GlassChanges object to write changed blocks to.
+     *
+     *  The GlassChanges object is not owned by the table, so the table
+     *  must not delete it.
+     */
+    void set_changes(GlassChanges * changes) {
+	changes_obj = changes;
+    }
+
+    /// Throw an exception indicating that the database is closed.
+    [[noreturn]]
+    static void throw_database_closed();
+
+    string get_path() const {
+	return name + GLASS_TABLE_EXTENSION;
+    }
+
+  protected:
+    bool find(Glass::Cursor *) const;
+    int delete_kt();
+    void read_block(uint4 n, uint8_t *p) const;
+    void write_block(uint4 n, const uint8_t *p,
+		     bool appending = false) const;
+    [[noreturn]]
+    void set_overwritten() const;
+    void block_to_cursor(Glass::Cursor *C_, int j, uint4 n) const;
+    void alter();
+    void compact(uint8_t *p);
+    void enter_key_above_leaf(Glass::LeafItem previtem,
+			      Glass::LeafItem newitem);
+    void enter_key_above_branch(int j, Glass::BItem newitem);
+    int mid_point(uint8_t *p) const;
+    void add_item_to_leaf(uint8_t *p, Glass::LeafItem kt, int c);
+    void add_item_to_branch(uint8_t *p, Glass::BItem kt, int c);
+    void add_leaf_item(Glass::LeafItem kt);
+    void add_branch_item(Glass::BItem kt, int j);
+    void delete_leaf_item(bool repeatedly);
+    void delete_branch_item(int j);
+    int add_kt(bool found);
+    void read_root();
+    void split_root(uint4 split_n);
+    void form_key(const std::string & key) const;
+
+    /// The name of the table (used when writing changesets).
+    const char * tablename;
+
+    /** revision number of the opened B-tree. */
+    glass_revision_number_t revision_number;
+
+    /** keeps a count of the number of items in the B-tree. */
+    glass_tablesize_t item_count;
+
+    /** block size of the B tree in bytes */
+    unsigned int block_size;
+
+    /** Flags like DB_NO_SYNC and DB_DANGEROUS. */
+    int flags;
+
+    /** true if the root block is faked (not written to disk).
+     * false otherwise.  This is true when the btree hasn't been
+     * modified yet.
+     */
+    bool faked_root_block;
+
+    /** true iff the data has been written in a single write in
+     * sequential order.
+     */
+    bool sequential;
+
+    /** File descriptor of the table.
+     *
+     *  If close() has been called, this will be -2.
+     *
+     *  If the table is lazily created and doesn't yet exist, this will be
+     *  -1 (for a multi-file database) or -3-fd (for a single-file database).
+     */
+    int handle;
+
+    /// number of levels, counting from 0
+    int level;
+
+    /// the root block of the B-tree
+    uint4 root;
+
+    /// buffer of size block_size for making up key-tag items
+    mutable Glass::LeafItem_wr kt;
+
+    /// buffer of size block_size for reforming blocks
+    uint8_t * buffer;
+
+    /// List of free blocks.
+    GlassFreeList free_list;
+
+    /** The path name of the B tree.
+     *
+     *  For a single-file database, this will be empty.
+     */
+    std::string name;
+
+    /** count of the number of successive instances of purely
+     * sequential addition, starting at SEQ_START_POINT (neg) and
+     * going up to zero. */
+    int seq_count;
+
+    /** the last block to be changed by an addition */
+    uint4 changed_n;
+
+    /** directory offset corresponding to last block to be changed
+     *  by an addition */
+    int changed_c;
+
+    /// maximum size of an item (key-tag pair)
+    size_t max_item_size;
+
+    /// Set to true the first time the B-tree is modified.
+    mutable bool Btree_modified;
+
+    /// set to true when full compaction is to be achieved
+    bool full_compaction;
+
+    /// Set to true when the database is opened to write.
+    bool writable;
+
+    /// Flag for tracking when cursors need to rebuild.
+    mutable bool cursor_created_since_last_modification;
+
+    /// Version count for tracking when cursors need to rebuild.
+    unsigned long cursor_version;
+
+    /** The GlassChanges object to write block changes to.
+     *
+     *  If NULL, no changes will be written.
+     */
+    GlassChanges * changes_obj;
+
+    bool single_file() const {
+	return name.empty();
+    }
+
+    /* B-tree navigation functions */
+    bool prev(Glass::Cursor *C_, int j) const {
+	if (sequential && !single_file())
+	    return prev_for_sequential(C_, j);
+	return prev_default(C_, j);
+    }
+
+    bool next(Glass::Cursor *C_, int j) const {
+	if (sequential) return next_for_sequential(C_, j);
+	return next_default(C_, j);
+    }
+
+    /* Default implementations. */
+    bool prev_default(Glass::Cursor *C_, int j) const;
+    bool next_default(Glass::Cursor *C_, int j) const;
+
+    /* Implementations for sequential mode. */
+    bool prev_for_sequential(Glass::Cursor *C_, int dummy) const;
+    bool next_for_sequential(Glass::Cursor *C_, int dummy) const;
+
+    static int find_in_leaf(const uint8_t * p,
+			    Glass::LeafItem item, int c, bool& exact);
+    static int find_in_branch(const uint8_t * p,
+			      Glass::LeafItem item, int c);
+    static int find_in_branch(const uint8_t * p, Glass::BItem item, int c);
+
+    /** block_given_by(p, c) finds the item at block address p, directory
+     *  offset c, and returns its tag value as an integer.
+     */
+    static uint4 block_given_by(const uint8_t * p, int c);
+
+    mutable Glass::Cursor C[Glass::BTREE_CURSOR_LEVELS];
+
+    /** Buffer used when splitting a block.
+     *
+     *  This buffer holds the split off part of the block.  It's only used
+     *  when updating (in GlassTable::add_item().
+     */
+    uint8_t * split_p;
+
+    /** Minimum size tag to try compressing (0 for no compression). */
+    uint4 compress_min;
+
+    mutable CompressionStream comp_stream;
+
+    /// If true, don't create the table until it's needed.
+    bool lazy;
+
+    /// Last block readahead_key() preread.
+    mutable uint4 last_readahead;
+
+    /// offset to start of table in file.
+    off_t offset;
+
+    /* Debugging methods */
+//    void report_block_full(int m, int n, const uint8_t * p);
 };
 
 namespace Glass {

@@ -230,45 +230,45 @@ const unsigned int CHUNKSIZE = 2000;
  *  not really needed.
  */
 class Glass::PostlistChunkWriter {
-    public:
-	PostlistChunkWriter(const string &orig_key_,
-			    bool is_first_chunk_,
-			    const string &tname_,
-			    bool is_last_chunk_);
+  public:
+    PostlistChunkWriter(const string &orig_key_,
+			bool is_first_chunk_,
+			const string &tname_,
+			bool is_last_chunk_);
 
-	/// Append an entry to this chunk.
-	void append(GlassTable * table, Xapian::docid did,
-		    Xapian::termcount wdf);
+    /// Append an entry to this chunk.
+    void append(GlassTable * table, Xapian::docid did,
+		Xapian::termcount wdf);
 
-	/// Append a block of raw entries to this chunk.
-	void raw_append(Xapian::docid first_did_, Xapian::docid current_did_,
-			const string & s) {
-	    Assert(!started);
-	    first_did = first_did_;
-	    current_did = current_did_;
-	    if (!s.empty()) {
-		chunk.append(s);
-		started = true;
-	    }
+    /// Append a block of raw entries to this chunk.
+    void raw_append(Xapian::docid first_did_, Xapian::docid current_did_,
+		    const string & s) {
+	Assert(!started);
+	first_did = first_did_;
+	current_did = current_did_;
+	if (!s.empty()) {
+	    chunk.append(s);
+	    started = true;
 	}
+    }
 
-	/** Flush the chunk to the buffered table.  Note: this may write it
-	 *  with a different key to the original one, if for example the first
-	 *  entry has changed.
-	 */
-	void flush(GlassTable *table);
+    /** Flush the chunk to the buffered table.  Note: this may write it
+     *  with a different key to the original one, if for example the first
+     *  entry has changed.
+     */
+    void flush(GlassTable *table);
 
-    private:
-	string orig_key;
-	string tname;
-	bool is_first_chunk;
-	bool is_last_chunk;
-	bool started;
+  private:
+    string orig_key;
+    string tname;
+    bool is_first_chunk;
+    bool is_last_chunk;
+    bool started;
 
-	Xapian::docid first_did;
-	Xapian::docid current_did;
+    Xapian::docid first_did;
+    Xapian::docid current_did;
 
-	string chunk;
+    string chunk;
 };
 
 using Glass::PostlistChunkWriter;

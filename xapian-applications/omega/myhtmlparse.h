@@ -33,52 +33,52 @@
 #define WHITESPACE " \t\n\r"
 
 class MyHtmlParser : public HtmlParser {
-    public:
-	int pending_space;
-	bool in_script_tag;
-	bool in_style_tag;
-	bool indexing_allowed;
-	bool ignoring_metarobots;
-	bool charset_from_meta;
-	bool description_as_sample;
-	string title, sample, keywords, dump, author, topic;
-	time_t created;
-	string * target;
+  public:
+    int pending_space;
+    bool in_script_tag;
+    bool in_style_tag;
+    bool indexing_allowed;
+    bool ignoring_metarobots;
+    bool charset_from_meta;
+    bool description_as_sample;
+    string title, sample, keywords, dump, author, topic;
+    time_t created;
+    string * target;
 
-	void process_text(const string &text);
-	bool opening_tag(const string &tag);
-	bool closing_tag(const string &tag);
-	void parse_html(const string &text, const string &charset_,
-			bool charset_from_meta_);
-	void ignore_metarobots() { ignoring_metarobots = true; }
-	MyHtmlParser()
-	    : pending_space(0),
-	      in_script_tag(false),
-	      in_style_tag(false),
-	      indexing_allowed(true),
-	      ignoring_metarobots(false),
-	      charset_from_meta(false),
-	      description_as_sample(false),
-	      created(time_t(-1)),
-	      target(&dump) { }
+    void process_text(const string &text);
+    bool opening_tag(const string &tag);
+    bool closing_tag(const string &tag);
+    void parse_html(const string &text, const string &charset_,
+		    bool charset_from_meta_);
+    void ignore_metarobots() { ignoring_metarobots = true; }
+    MyHtmlParser()
+	: pending_space(0),
+	  in_script_tag(false),
+	  in_style_tag(false),
+	  indexing_allowed(true),
+	  ignoring_metarobots(false),
+	  charset_from_meta(false),
+	  description_as_sample(false),
+	  created(time_t(-1)),
+	  target(&dump) { }
 
-	void reset() {
-	    pending_space = 0;
-	    in_script_tag = false;
-	    in_style_tag = false;
-	    indexing_allowed = true;
-	    ignoring_metarobots = false;
-	    charset_from_meta = false;
-	    description_as_sample = false;
-	    title.resize(0);
-	    sample.resize(0);
-	    keywords.resize(0);
-	    dump.resize(0);
-	    author.resize(0);
-	    topic.resize(0);
-	    created = time_t(-1);
-	    target = &dump;
-	}
+    void reset() {
+	pending_space = 0;
+	in_script_tag = false;
+	in_style_tag = false;
+	indexing_allowed = true;
+	ignoring_metarobots = false;
+	charset_from_meta = false;
+	description_as_sample = false;
+	title.resize(0);
+	sample.resize(0);
+	keywords.resize(0);
+	dump.resize(0);
+	author.resize(0);
+	topic.resize(0);
+	created = time_t(-1);
+	target = &dump;
+    }
 };
 
 #endif // OMEGA_INCLUDED_MYHTMLPARSE_H

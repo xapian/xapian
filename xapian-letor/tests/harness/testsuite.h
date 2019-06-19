@@ -94,143 +94,143 @@ extern std::ostringstream tout;
 
 /// The test driver.  This class takes care of running the tests.
 class test_driver {
-	/// Write out anything in tout and clear it.
-	void write_and_clear_tout();
+    /// Write out anything in tout and clear it.
+    void write_and_clear_tout();
 
-    public:
-	/** A structure used to report the summary of tests passed
-	 *  and failed.
-	 */
-	struct result {
-	    /// The number of tests which succeeded.
-	    unsigned int succeeded;
+  public:
+    /** A structure used to report the summary of tests passed
+     *  and failed.
+     */
+    struct result {
+	/// The number of tests which succeeded.
+	unsigned int succeeded;
 
-	    /// The number of tests which failed.
-	    unsigned int failed;
+	/// The number of tests which failed.
+	unsigned int failed;
 
-	    /// The number of tests which were skipped
-	    unsigned int skipped;
+	/// The number of tests which were skipped
+	unsigned int skipped;
 
-	    result() : succeeded(0), failed(0), skipped(0) { }
+	result() : succeeded(0), failed(0), skipped(0) { }
 
-	    result & operator+=(const result & o) {
-		succeeded += o.succeeded;
-		failed += o.failed;
-		skipped += o.skipped;
-		return *this;
-	    }
+	result & operator+=(const result & o) {
+	    succeeded += o.succeeded;
+	    failed += o.failed;
+	    skipped += o.skipped;
+	    return *this;
+	}
 
-	    void reset() {
-		succeeded = 0;
-		failed = 0;
-		skipped = 0;
-	    }
-	};
+	void reset() {
+	    succeeded = 0;
+	    failed = 0;
+	    skipped = 0;
+	}
+    };
 
-	/** Add a test-specific command line option.
-	 *
-	 *  The recognised option will be described as:
-	 *
-	 *   -<s> <l>
-	 *
-	 *  And any value set will be put into arg.
-	 */
-	static void add_command_line_option(const std::string &l, char s,
-					    std::string * arg);
+    /** Add a test-specific command line option.
+     *
+     *  The recognised option will be described as:
+     *
+     *   -<s> <l>
+     *
+     *  And any value set will be put into arg.
+     */
+    static void add_command_line_option(const std::string &l, char s,
+					std::string * arg);
 
-	/** Parse the command line arguments.
-	 *
-	 *  @param  argc	The argument count passed into ::main()
-	 *  @param  argv	The argument list passed into ::main()
-	 */
-	static void parse_command_line(int argc, char **argv);
+    /** Parse the command line arguments.
+     *
+     *  @param  argc	The argument count passed into ::main()
+     *  @param  argv	The argument list passed into ::main()
+     */
+    static void parse_command_line(int argc, char **argv);
 
-	[[noreturn]]
-	static void usage();
+    [[noreturn]]
+    static void usage();
 
-	static int run(const test_desc *tests);
+    static int run(const test_desc *tests);
 
-	/** The constructor, which sets up the test driver.
-	 *
-	 *  @param tests The zero-terminated array of tests to run.
-	 */
-	test_driver(const test_desc *tests_);
+    /** The constructor, which sets up the test driver.
+     *
+     *  @param tests The zero-terminated array of tests to run.
+     */
+    test_driver(const test_desc *tests_);
 
-	/** Run all the tests supplied and return the results
-	 */
-	result run_tests();
+    /** Run all the tests supplied and return the results
+     */
+    result run_tests();
 
-	/** Run the tests in the list and return the results
-	 */
-	result run_tests(std::vector<std::string>::const_iterator b,
-			 std::vector<std::string>::const_iterator e);
+    /** Run the tests in the list and return the results
+     */
+    result run_tests(std::vector<std::string>::const_iterator b,
+		     std::vector<std::string>::const_iterator e);
 
-	/** Read srcdir from environment and if not present, make a valiant
-	 *  attempt to guess a value
-	 */
-	static std::string get_srcdir();
+    /** Read srcdir from environment and if not present, make a valiant
+     *  attempt to guess a value
+     */
+    static std::string get_srcdir();
 
-	// Running subtotal for current backend.
-	static result subtotal;
+    // Running subtotal for current backend.
+    static result subtotal;
 
-	// Running total for the whole test run.
-	static result total;
+    // Running total for the whole test run.
+    static result total;
 
-	/// Print summary of tests passed, failed, and skipped.
-	static void report(const test_driver::result &r, const std::string &desc);
+    /// Print summary of tests passed, failed, and skipped.
+    static void report(const test_driver::result &r, const std::string &desc);
 
-    private:
-	/** Prevent copying */
-	test_driver(const test_driver &);
-	test_driver & operator=(const test_driver &);
+  private:
+    /** Prevent copying */
+    test_driver(const test_driver &);
+    test_driver & operator=(const test_driver &);
 
-	typedef enum { PASS = 1, FAIL = 0, SKIP = -1 } test_result;
+    typedef enum { PASS = 1, FAIL = 0, SKIP = -1 } test_result;
 
-	static std::map<int, std::string *> short_opts;
+    static std::map<int, std::string *> short_opts;
 
-	static std::string opt_help;
+    static std::string opt_help;
 
-	static std::vector<std::string> test_names;
+    static std::vector<std::string> test_names;
 
-	/** Runs the test function and returns its result.  It will
-	 *  also trap exceptions and some memory leaks and force a
-	 *  failure in those cases.
-	 *
-	 *  @param test A description of the test to run.
-	 */
-	test_result runtest(const test_desc *test);
+    /** Runs the test function and returns its result.  It will
+     *  also trap exceptions and some memory leaks and force a
+     *  failure in those cases.
+     *
+     *  @param test A description of the test to run.
+     */
+    test_result runtest(const test_desc *test);
 
-	/** The implementation used by run_tests.
-	 *  it runs test(s) (with runtest()), prints out messages for
-	 *  the user, and tracks the successes and failures.
-	 *
-	 *  @param b, e  If b != e, a vector of the test(s) to run.
-	 *               If b == e, all tests will be run.
-	 */
-	result do_run_tests(std::vector<std::string>::const_iterator b,
-			    std::vector<std::string>::const_iterator e);
+    /** The implementation used by run_tests.
+     *  it runs test(s) (with runtest()), prints out messages for
+     *  the user, and tracks the successes and failures.
+     *
+     *  @param b, e  If b != e, a vector of the test(s) to run.
+     *               If b == e, all tests will be run.
+     */
+    result do_run_tests(std::vector<std::string>::const_iterator b,
+			std::vector<std::string>::const_iterator e);
 
-	// abort tests at the first failure
-	static bool abort_on_error;
+    // abort tests at the first failure
+    static bool abort_on_error;
 
-	// the default stream to output to
-	std::ostream out;
+    // the default stream to output to
+    std::ostream out;
 
-	// the list of tests to run.
-	const test_desc *tests;
+    // the list of tests to run.
+    const test_desc *tests;
 
-	// how many test runs we've done - no summary if just one run
-	static int runs;
+    // how many test runs we've done - no summary if just one run
+    static int runs;
 
-	// program name
-	static std::string argv0;
+    // program name
+    static std::string argv0;
 
-	// strings to use for colouring - empty if output isn't a tty
-	static std::string col_red, col_green, col_yellow, col_reset;
+    // strings to use for colouring - empty if output isn't a tty
+    static std::string col_red, col_green, col_yellow, col_reset;
 
-	// use \r to not advance a line when a test passes (this only
-	// really makes sense if the output is a tty)
-	static bool use_cr;
+    // use \r to not advance a line when a test passes (this only
+    // really makes sense if the output is a tty)
+    static bool use_cr;
 };
 
 /// Display the location at which a testcase occurred, with an explanation.
