@@ -3,7 +3,7 @@
 # you'd get from unpacking the results of "make dist"
 #
 copyright='
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -618,15 +618,6 @@ else
     exit 1
   fi
 fi
-# If the aclocal we're using is in a different prefix to the libtool we're
-# using, we probably need to tell aclocal where to look for our libtool's
-# macros.  Our directory may already by specified by other means, but it's
-# fairly harmless to specify an explicit -I for a directory which is searched
-# anyway - at worst it changes the search order.
-if [ "`${ACLOCAL-aclocal} --print-ac-dir`" != "$libtool_aclocal" ] ; then
-  ACLOCAL="${ACLOCAL-aclocal} -I $libtool_aclocal"
-  export ACLOCAL
-fi
 
 if [ "$1" = "--deps=libmagic" ] ; then
   shift
@@ -635,6 +626,36 @@ if [ "$1" = "--deps=libmagic" ] ; then
 fi
 
 cd ..
+
+# Add -I for in-tree macro directory first, so we use that xapian.m4 in
+# preference to one in any directories which may be added below.
+ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros -I `pwd`/xapian-letor/m4-macros"
+export ACLOCAL
+
+aclocal_ac_dir=`${ACLOCAL-aclocal} --print-ac-dir`
+aclocal_system_needed=
+if [ ! -r "$aclocal_ac_dir/pkg.m4" ] ; then
+  if [ -r /usr/share/aclocal/pkg.m4 ] ; then
+    aclocal_system_needed=/usr/share/aclocal
+  fi
+fi
+
+# If the aclocal we're using is in a different prefix to the libtool we're
+# using, we probably need to tell aclocal where to look for our libtool's
+# macros.  We also need to do this if we add -I /usr/share/aclocal below
+# since otherwise the system libtool's macros may be used in preference.
+if [ "$aclocal_ac_dir" != "$libtool_aclocal" ] || [ -n "$aclocal_system_needed" ]; then
+  ACLOCAL="${ACLOCAL-aclocal} -I $libtool_aclocal"
+  export ACLOCAL
+fi
+
+# If we're using a non-system automake, check if pkg.m4 is in the directory
+# aclocal looks in by default.  If not and there's a system pkg.m4, tell
+# aclocal to also look in the system aclocal directory.
+if [ -n "$aclocal_system_needed" ] ; then
+  ACLOCAL="${ACLOCAL-aclocal} -I $aclocal_system_needed"
+  export ACLOCAL
+fi
 
 case `${LIBTOOLIZE-libtoolize} --version` in
 "")
@@ -649,9 +670,6 @@ case `${LIBTOOLIZE-libtoolize} --version` in
   echo "If you have both installed, set LIBTOOLIZE to point to the correct version."
   exit 1 ;;
 esac
-
-ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros -I `pwd`/xapian-letor/m4-macros"
-export ACLOCAL
 
 intree_swig=no
 modules=
