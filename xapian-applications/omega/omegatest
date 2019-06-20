@@ -939,16 +939,24 @@ printf '$truncate{$cgi{input},$cgi{maxlen},$cgi{ind},$cgi{ind2}}$seterror{$opt{e
 testcase 'w...' input='wwwwww' maxlen=4 ind='...' ind2='...'
 testcase '' input='s' maxlen=0 ind='...' ind2='...'
 
-# Simple tests of $subdb and $subid.
+# Test $subdb and $subid.
 rm -rf "$TEST_DB"
 printf 'inmemory' > "$TEST_DB"
 printf 'inmemory' > "${TEST_DB}2"
+printf 'inmemory\ninmemory\n' > "${TEST_DB}3"
 printf '$subdb{$cgi{ID}}|$subid{$cgi{ID}}' > "$TEST_TEMPLATE"
 testcase "$TEST_DB|1" ID=1
 testcase "$TEST_DB|1" ID=1 DB="$TEST_DB/${TEST_DB}2"
 testcase "${TEST_DB}2|1" ID=2 DB="$TEST_DB/${TEST_DB}2"
 testcase "${TEST_DB}|2" ID=3 DB="$TEST_DB/${TEST_DB}2"
-rm -rf "${TEST_DB}2"
+testcase "${TEST_DB}3|1" ID=1 DB="${TEST_DB}3"
+testcase "${TEST_DB}3|999" ID=999 DB="${TEST_DB}3"
+testcase "$TEST_DB|1" ID=1 DB="$TEST_DB" DB="${TEST_DB}3"
+testcase "${TEST_DB}3|1" ID=2 DB="$TEST_DB" DB="${TEST_DB}3"
+testcase "${TEST_DB}3|2" ID=3 DB="$TEST_DB" DB="${TEST_DB}3"
+testcase "$TEST_DB|2" ID=4 DB="$TEST_DB" DB="${TEST_DB}3"
+testcase "${TEST_DB}3|3" ID=5 DB="$TEST_DB" DB="${TEST_DB}3"
+rm -rf "${TEST_DB}2" "${TEST_DB}3"
 
 # Feature tests for $field.
 printf 'in : field="zer\0byte" hextobin field="field28\x02\x08"' > "$TEST_INDEXSCRIPT"

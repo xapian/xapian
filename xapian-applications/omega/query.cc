@@ -100,6 +100,9 @@ static int my_snprintf(char *str, size_t size, const char *format, ...)
 #define my_snprintf SNPRINTF
 #endif
 
+/// Map shard to DB parameter value and stats to allow docid mapping.
+vector<SubDB> subdbs;
+
 static bool query_parsed = false;
 static bool done_query = false;
 static Xapian::docid last = 0;
@@ -1192,22 +1195,6 @@ write_all(int fd, const char * buf, size_t count)
     return 0;
 }
 
-static const vector<string>&
-get_subdbs()
-{
-    static vector<string> subdbs;
-    if (subdbs.empty()) {
-	size_t p = 0, q;
-	while (true) {
-	    q = dbname.find('/', p);
-	    subdbs.emplace_back(dbname, p, q - p);
-	    if (q == string::npos) break;
-	    p = q + 1;
-	}
-    }
-    return subdbs;
-}
-
 static string
 eval(const string &fmt, const vector<string> &param)
 {
@@ -2172,14 +2159,19 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_subdb: {
 		Xapian::docid id = q0;
 		if (args.size() > 0) id = string_to_int(args[0]);
-		auto subdbs = get_subdbs();
-		value = subdbs[(id - 1) % subdbs.size()];
+		value = subdbs[(id - 1) % subdbs.size()].get_name();
 		break;
 	    }
 	    case CMD_subid: {
 		Xapian::docid id = q0;
 		if (args.size() > 0) id = string_to_int(args[0]);
-		value = str(((id - 1) / get_subdbs().size()) + 1);
+		// This is the docid in the single shard.
+		Xapian::docid shard_did = (id - 1) / subdbs.size() + 1;
+		// We now need to map this back to the docid in the collection
+		// of shards specified by the DB parameter value which $subdb
+		// returns.
+		const SubDB& subdb = subdbs[(id - 1) % subdbs.size()];
+		value = str(subdb.map_docid(shard_did));
 		break;
 	    }
 	    case CMD_substr: {
