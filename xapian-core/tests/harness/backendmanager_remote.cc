@@ -29,14 +29,20 @@
 
 Xapian::WritableDatabase
 BackendManagerRemote::get_writable_database_from_sub_manager
-				    (const std::string & name)
+				    (const std::string& name)
 {
     return sub_manager->get_writable_database(name, std::string());
 }
 
 std::string
-BackendManagerRemote::get_generated_database_path(const std::string & name) {
+BackendManagerRemote::get_generated_database_path(const std::string& name) {
     return sub_manager->get_writable_database_path(name);
+}
+
+Xapian::WritableDatabase
+BackendManagerRemote::get_generated_database(const std::string& name)
+{
+    return get_writable_database_from_sub_manager(name);
 }
 
 std::string
@@ -65,7 +71,7 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
 }
 
 std::string
-BackendManagerRemote::get_remote_database_args(const std::string & name,
+BackendManagerRemote::get_remote_database_args(const std::string& name,
 					       unsigned int timeout)
 {
     std::string args = "-t";

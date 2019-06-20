@@ -89,6 +89,28 @@ BackendManagerHoney::get_alt_writable_database(const string & name,
 }
 
 Xapian::WritableDatabase
+BackendManagerHoney::get_generated_database(const string& name)
+{
+    return get_alt_writable_database(name, string());
+}
+
+void
+BackendManagerHoney::finalise_generated_database(const string& path)
+{
+    // converting a glass backend to honey
+    string tmpfile = path;
+    tmpfile += ".tmp";
+
+    Xapian::WritableDatabase wdb(path);
+    wdb.compact(tmpfile, Xapian::DB_BACKEND_HONEY);
+    wdb.close();
+
+    rm_rf(path);
+
+    rename(tmpfile.c_str(), path.c_str());
+}
+
+Xapian::WritableDatabase
 BackendManagerHoney::get_writable_database(const string &, const string &)
 {
     throw Xapian::UnimplementedError("Honey databases don't support writing");

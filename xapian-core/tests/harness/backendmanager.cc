@@ -127,8 +127,6 @@ BackendManager::get_database(const std::string &dbname,
 
     // checking if a remote backendmanager is being used
     bool is_remote_bm = startswith(get_dbtype(), "remote");
-    // checking if honey backendmanager is being used
-    bool is_honey_bm = startswith(get_dbtype(), "honey");
 
     if (path.empty()) {
 	// InMemory doesn't have a path but we want to support generated
@@ -155,14 +153,7 @@ BackendManager::get_database(const std::string &dbname,
     tmp_path += '~';
 
     {
-	Xapian::WritableDatabase wdb;
-	if (is_remote_bm) {
-	    wdb = get_writable_database_from_sub_manager(tmp_dbleaf);
-	} else if (is_honey_bm) {
-	    wdb = get_alt_writable_database(tmp_dbleaf, string());
-	} else {
-	    wdb = get_writable_database(tmp_dbleaf, string());
-	}
+	Xapian::WritableDatabase wdb = get_generated_database(tmp_dbleaf);
 	gen(wdb, arg);
     }
     rename(tmp_path.c_str(), path.c_str());
@@ -172,19 +163,8 @@ BackendManager::get_database(const std::string &dbname,
     if (is_remote_bm) {
 	return get_remote_database_by_name(dbleaf, 30000);
     }
-    if (is_honey_bm) {
-	// converting a glass backend to honey
-	string tmpfile = path;
-	tmpfile += ".tmp";
 
-	Xapian::WritableDatabase wdb(path);
-	wdb.compact(tmpfile, Xapian::DB_BACKEND_HONEY);
-	wdb.close();
-
-	rm_rf(path);
-
-	rename(tmpfile.c_str(), path.c_str());
-    }
+    finalise_generated_database(path);
     return Xapian::Database(path);
 }
 
@@ -211,33 +191,13 @@ BackendManager::get_database_path(const std::string &dbname,
     string tmp_path(path);
     tmp_path += '~';
 
-    // checking if honey backendmanager is being used
-    bool is_honey_bm = startswith(get_dbtype(), "honey");
-
     {
-	Xapian::WritableDatabase wdb;
-	if (is_honey_bm) {
-	    wdb = get_alt_writable_database(tmp_dbleaf, string());
-	} else {
-	    wdb = get_writable_database(tmp_dbleaf, string());
-	}
+	Xapian::WritableDatabase wdb = get_generated_database(tmp_dbleaf);
 	gen(wdb, arg);
     }
     rename(tmp_path.c_str(), path.c_str());
 
-    if (is_honey_bm) {
-	// converting a glass backend to honey
-	string tmpfile = path;
-	tmpfile += ".tmp";
-
-	Xapian::WritableDatabase wdb(path);
-	wdb.compact(tmpfile, Xapian::DB_BACKEND_HONEY);
-	wdb.close();
-
-	rm_rf(path);
-
-	rename(tmpfile.c_str(), path.c_str());
-    }
+    finalise_generated_database(path);
     return path;
 }
 
@@ -278,11 +238,23 @@ BackendManager::get_compaction_output_path(const std::string&)
     invalid_operation("Compaction not supported for this database type");
 }
 
+Xapian::WritableDatabase
+BackendManager::get_generated_database(const std::string& name)
+{
+    return get_writable_database(name, string());
+}
+
 string
 BackendManager::get_generated_database_path(const std::string &)
 {
     invalid_operation("Generated databases aren't supported for this database "
 		      "type");
+}
+
+void
+BackendManager::finalise_generated_database(const std::string&)
+{
+
 }
 
 Xapian::Database
