@@ -123,9 +123,8 @@ class BackendManager {
     /** Get alternate writable database for backends which
      * don't support writing directly.
      */
-    virtual Xapian::WritableDatabase get_alt_writable_database
-					(const std::string & name,
-					 const std::string & file);
+    virtual Xapian::WritableDatabase
+    get_alt_writable_database(const std::string& name, const std::string& file);
 
     /// Get the path of a writable database instance, if such a thing exists.
     virtual std::string get_writable_database_path(const std::string & name);
@@ -144,13 +143,12 @@ class BackendManager {
     virtual Xapian::Database get_remote_database(const std::vector<std::string> & files, unsigned int timeout);
 
     /// Get a remote database instance with the specified name and timeout.
-    virtual Xapian::Database get_remote_database_by_name
-						(const std::string & name,
-						 unsigned int timeout);
+    virtual Xapian::Database
+    get_remote_database_by_name(const std::string& name, unsigned int timeout);
 
     /// Get a writable database from a remote backendmanager's sub manager.
-    virtual Xapian::WritableDatabase get_writable_database_from_sub_manager
-						(const std::string & name);
+    virtual Xapian::WritableDatabase
+    get_writable_database_from_sub_manager(const std::string& name);
 
     /// Create a Database object for the last opened WritableDatabase.
     virtual Xapian::Database get_writable_database_as_database();

@@ -220,7 +220,7 @@ BackendManager::get_writable_database(const string &, const string &)
 }
 
 Xapian::WritableDatabase
-BackendManager::get_alt_writable_database(const string &, const string &)
+BackendManager::get_alt_writable_database(const string&, const string&)
 {
     invalid_operation("Alternate writable database isn't meaningful "
 		      "for this database type");
