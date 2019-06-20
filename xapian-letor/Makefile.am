@@ -67,8 +67,33 @@ coverage-check:
 	rm -rf lcov
 	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-letor `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-letor.lcov
 
+# We want to clean out build tree paths from the copy of xapianletor-config we
+# install, mostly in the interests of facilitating reproducible builds.
+bin_SCRIPTS = installable/xapianletor-config
+
+# Create the installable version in a subdirectory.  It's not made executable
+# until install time, which hopefully should avoid people trying to use it when
+# building against an uninstalled xapian-core.
+installable/xapianletor-config: xapianletor-config
+	$(MKDIR_P) installable
+	$(SED) '/##UNINSTONLYBEGIN/,/##UNINSTONLYEND/d' xapianletor-config > installable/xapianletor-config.tmp
+	mv installable/xapianletor-config.tmp installable/xapianletor-config
+
+CLEANFILES += installable/xapianletor-config
+
+noinst_SCRIPTS = xapianletor-config
+
+DISTCLEANFILES += xapianletor-config
+
 EXTRA_DIST = ChangeLog include/xapian-letor/letor_error.h \
  include/xapian-letor/letor_errordispatch.h generate-exceptions exception_data.pm
+
+cmakedir = $(libdir)/cmake/xapian-letor
+cmake_DATA = cmake/xapianletor-config.cmake cmake/xapianletor-config-version.cmake
+
+# Install the m4 file containing the XO_LIB_XAPIANLETOR autoconf macro.
+m4datadir = $(datadir)/aclocal
+dist_m4data_DATA = m4-macros/xapianletor.m4
 
 lib_LTLIBRARIES = libxapianletor.la
 libxapianletor_la_SOURCES = $(lib_src)
@@ -113,4 +138,4 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h
 
-DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"
+DISTCHECK_CONFIGURE_FLAGS = "XAPIANLETOR_CONFIG=$(XAPIANLETOR_CONFIG)"
