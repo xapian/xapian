@@ -530,7 +530,7 @@ QUOTELOOP:  while (1) {
 	    } elsif ($op =~ /^[*&]$/ &&
 		     substr($_, 0, $pre[1]) !~ /(?:\b\d+|\))\s*$/ &&
 		     !($lang eq 'c++' &&
-		       substr($_, 0, $pre[1]) !~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/)) {
+		       substr($_, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/)) {
 		# FIXME: &foo (address of)
 		# FIXME: *ptr (dereference)
 		# (but we do catch "...) &FLAG_FOO" and "1234 *x" and common pointer and reference types etc)
