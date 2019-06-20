@@ -74,8 +74,8 @@ BackendManagerHoney::do_get_database_path(const vector<string> & files)
 }
 
 Xapian::WritableDatabase
-BackendManagerHoney::get_alt_writable_database(const string & name,
-					       const string & file)
+BackendManagerHoney::get_alt_writable_database(const string& name,
+					       const string& file)
 {
     string db_path = CACHE_DIRECTORY "/" + name;
 
