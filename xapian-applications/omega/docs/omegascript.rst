@@ -717,23 +717,30 @@ $stoplist
 	stopwords.
 
 $subdb[{DOCID}]
-        return the name of the sub-database containing ``DOCID`` (or the
-        current document in the histlist if ``DOCID`` is omitted).
+        return the name from a ``DB`` parameter for the sub-database containing
+        ``DOCID``.
 
-        NB: The current implementation assumes that each omega database name
-        corresponds to a single Xapian database - if a database name refers to
-        a stub database file expanding to multiple Xapian databases then this
-        command will misbehave.
+        If ``DOCID`` is omitted it defaults to the current document in the
+        hitlist.
+
+        Prior to Xapian 1.4.12 the implementation assumed that each omega
+        database name corresponded to a single Xapian database and if a
+        database name referred to a stub database file expanding to multiple
+        Xapian databases then this command would misbehave.  In 1.4.12 and
+        later this case is taken into account.
 
 $subid[{DOCID}]
-        return the docid in the sub-database corresponding to ``DOCID`` in the
-        combined database (or the current document in the histlist if ``DOCID``
-        is omitted).
+        return the docid in ``$subdb{DOCID}`` corresponding to ``DOCID`` in the
+        combined database.
 
-        NB: The current implementation assumes that each omega database name
-        corresponds to a single Xapian database - if a database name refers to
-        a stub database file expanding to multiple Xapian databases then this
-        command will misbehave.
+        If ``DOCID`` is omitted it defaults to the current document in the
+        hitlist.
+
+        Prior to Xapian 1.4.12 the implementation assumed that each omega
+        database name corresponded to a single Xapian database and if a
+        database name referred to a stub database file expanding to multiple
+        Xapian databases then this command would misbehave.  In 1.4.12 and
+        later this case is taken into account.
 
 $substr{STRING,START[,LENGTH]}
         returns the substring of ``STRING`` which starts at byte position

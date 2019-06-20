@@ -25,8 +25,36 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 extern Xapian::Query::op default_op;
+
+/** Information for mapping a docid to a DB parameter value and docid in that
+ *  subset of databases.
+ *
+ *  A DB parameter value could point to a stub database file which can list
+ *  multiple shards, and in this case we have multiple SubDB objects with the
+ *  same name, and then index and out_of allow us to map docids.
+ */
+class SubDB {
+    std::string name;
+    size_t index;
+    size_t out_of;
+
+  public:
+    SubDB(const std::string& name_,
+	  size_t index_,
+	  size_t out_of_)
+	: name(name_), index(index_), out_of(out_of_) { }
+
+    const std::string& get_name() const { return name; }
+
+    Xapian::docid map_docid(Xapian::docid did) const {
+	return (did - 1) * out_of + index + 1;
+    }
+};
+
+extern std::vector<SubDB> subdbs;
 
 void add_bterm(const std::string & term);
 
