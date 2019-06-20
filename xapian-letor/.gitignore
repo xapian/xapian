@@ -35,6 +35,7 @@ feature/.deps
 feature/.dirstamp
 feature/.libs
 install-sh
+/installable
 *.lo
 libtool
 *.la
@@ -49,3 +50,4 @@ scorer/.deps
 scorer/.dirstamp
 scorer/.libs
 stamp-h1
+/xapianletor-config

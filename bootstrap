@@ -634,7 +634,7 @@ cd ..
 
 # Add -I for in-tree macro directory first, so we use that xapian.m4 in
 # preference to one in any directories which may be added below.
-ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
+ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros -I `pwd`/xapian-letor/m4-macros"
 export ACLOCAL
 
 aclocal_ac_dir=`${ACLOCAL-aclocal} --print-ac-dir`
@@ -842,6 +842,7 @@ cat <<'END_OF_CONFIGURE' >> configure.tmp
 dirs=
 revdirs=
 XAPIAN_CONFIG=$here/xapian-core/xapian-config
+XAPIANLETOR_CONFIG=$here/xapian-letor/xapianletor-config
 for d in $modules ; do
   if [ "$here" = "$srcdir" ] ; then
     configure=./configure
@@ -907,11 +908,14 @@ for d in $modules ; do
     xapian-core)
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" ${1+"$@"}
       ;;
+    xapian-letor)
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" --cache-file="$here/config.cache" ${1+"$@"}
+      ;;
     xapian-applications/omega)
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CPPFLAGS="-I$srcdir/INST/include $user_CPPFLAGS" LDFLAGS="-L$srcdir/INST/lib $user_LDFLAGS" ${1+"$@"}
       ;;
     *)
-      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" XAPIANLETOR_CONFIG="$XAPIANLETOR_CONFIG" ${1+"$@"}
       ;;
     esac
     cd "$here"

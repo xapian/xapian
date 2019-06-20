@@ -38,6 +38,9 @@ dnl Where xapian-letor.h, etc go.  In development release append "/xapian-1.3".
 incdir=$includedir
 AC_SUBST([incdir])
 
+dnl Libtool sets this (to yes|no|unknown) and we use it in xapianletor-config.
+AC_SUBST([link_all_deplibs_CXX])
+
 AM_INIT_AUTOMAKE([1.13 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR([ranker/ranker.cc])
@@ -118,6 +121,42 @@ XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 XO_REQUIRE([1.4.0])
+
+AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
+  [
+  AC_MSG_CHECKING([for $CXX -Wl,$1])
+  AC_CACHE_VAL([xo_cv_ldflag_$2],
+    [
+    save_LDFLAGS=$LDFLAGS
+    LDFLAGS="$LDFLAGS -Wl,$1"
+    flag=$1
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
+      [xo_cv_ldflag_$2=yes
+      $3],
+      [xo_cv_ldflag_$2=no
+      $4])
+    LDFLAGS=$save_LDFLAGS
+    ])
+  AC_MSG_RESULT([$xo_cv_ldflag_$2])
+  ])
+
+ldflags=
+if test yesyes = "$GXX$enable_shared" ; then
+  case $host_os in
+    *mingw* | *cygwin*)
+      XAPIAN_TEST_LINKER_FLAG([--enable-runtime-pseudo-reloc], [enable_runtime_pseudo_reloc],
+	[ldflags="-Wl,$flag"],
+	[
+	dnl Can't use AC_DISABLE_SHARED after AC_PROG_LIBTOOL, but
+	dnl this test needs to be after AC_PROG_LIBTOOL, so we can't
+	dnl just disable the shared build automatically...
+	AC_MSG_ERROR([ld version too old to support a shared build - configure with --disable-shared, or install binutils 2.13.90-20030111-1 or later])
+	])
+    ;;
+  esac
+fi
+dnl Only works for ldflags which can be specified anywhere on the link line.
+AC_SUBST([ldflags])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
@@ -413,6 +452,14 @@ CXXFLAGS=$save_CXXFLAGS
 dnl Enable large file support if possible.
 AC_SYS_LARGEFILE
 
+dnl With xlC on AIX, -D_LARGE_FILES changes the ABI of std::string, so it
+dnl also needs to be used when compiling user code.
+abi_affecting_cxxflags=
+if $GREP '^#define _LARGE_FILES 1$' confdefs.h > /dev/null 2>&1 ; then
+  abi_affecting_cxxflags=-D_LARGE_FILES
+fi
+AC_SUBST([abi_affecting_cxxflags])
+
 dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 : ${AUTOM4TE=autom4te}
 AC_SUBST([AUTOM4TE])
@@ -565,7 +612,10 @@ AC_CONFIG_FILES([
  Makefile
  tests/Makefile
  docs/Makefile
+ cmake/xapianletor-config.cmake
+ cmake/xapianletor-config-version.cmake
  ])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
+AC_CONFIG_FILES([xapianletor-config], [chmod +x xapianletor-config])
 AC_OUTPUT

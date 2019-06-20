@@ -31,7 +31,7 @@ AC_DEFUN([XO_LIB_XAPIAN],
   AC_ARG_VAR(XAPIAN_CONFIG, [Location of xapian-config (default:] ifelse([$3], [], xapian-config, [$3]) [on PATH)])
   dnl AC_PATH_PROG ignores an existing user setting of XAPIAN_CONFIG unless it
   dnl has a full path, so add special handling for such cases.
-  xapian_config_to_check_for="ifelse([$3], [], xapian-config, [$3])"
+  config_script_to_check_for="ifelse([$3], [], xapian-config, [$3])"
   case $XAPIAN_CONFIG in
   "") ;;
   */configure)
@@ -48,11 +48,11 @@ AC_DEFUN([XO_LIB_XAPIAN],
     # If there's no path on XAPIAN_CONFIG, use it as the name of the tool to
     # search PATH for, so that things like this work:
     #   ./configure XAPIAN_CONFIG=xapian-config-1.3
-    xapian_config_to_check_for=$XAPIAN_CONFIG
+    config_script_to_check_for=$XAPIAN_CONFIG
     XAPIAN_CONFIG=
     ;;
   esac
-  AC_PATH_PROG(XAPIAN_CONFIG, "$xapian_config_to_check_for")
+  AC_PATH_PROG(XAPIAN_CONFIG, "$config_script_to_check_for")
   if test -z "$XAPIAN_CONFIG"; then
     ifelse([$2], ,
       [ifelse([$1], , [
