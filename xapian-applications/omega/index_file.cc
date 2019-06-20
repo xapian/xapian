@@ -151,13 +151,7 @@ void
 index_add_default_libraries()
 {
 #if defined HAVE_POPPLER
-    Worker * omindex_pdf = new Worker("omindex_pdf");
-    index_library("application/pdf", omindex_pdf);
-#endif
-#if defined HAVE_LIBEBOOK
-    Worker * omindex_ebook = new Worker("omindex_ebook");
-    index_library("application/octet-stream", omindex_ebook);
-    index_library("application/fb2+xml", omindex_ebook);
+    index_library("application/pdf", new Worker("omindex_pdf"));
 #endif
 }
 
