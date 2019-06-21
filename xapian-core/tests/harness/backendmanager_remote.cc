@@ -27,13 +27,6 @@
 #include <string>
 #include "str.h"
 
-Xapian::WritableDatabase
-BackendManagerRemote::get_writable_database_from_sub_manager
-				    (const std::string& name)
-{
-    return sub_manager->get_writable_database(name, std::string());
-}
-
 std::string
 BackendManagerRemote::get_generated_database_path(const std::string& name) {
     return sub_manager->get_writable_database_path(name);
@@ -42,7 +35,7 @@ BackendManagerRemote::get_generated_database_path(const std::string& name) {
 Xapian::WritableDatabase
 BackendManagerRemote::get_generated_database(const std::string& name)
 {
-    return get_writable_database_from_sub_manager(name);
+    return sub_manager->get_writable_database(name, std::string());
 }
 
 std::string

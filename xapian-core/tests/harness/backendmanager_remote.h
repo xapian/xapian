@@ -43,10 +43,6 @@ class BackendManagerRemote : public BackendManager {
 	: BackendManager(std::string()),
 	  sub_manager(sub_manager_) {}
 
-    /// Get a writable database from the sub_manager
-    Xapian::WritableDatabase get_writable_database_from_sub_manager
-					(const std::string & name);
-
     /// Get the args for opening a remote database indexing a single file.
     std::string get_writable_database_args(const std::string & name,
 					   const std::string & file);

@@ -120,12 +120,6 @@ class BackendManager {
     /// Get a writable database instance.
     virtual Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
 
-    /** Get alternate writable database for backends which
-     * don't support writing directly.
-     */
-    virtual Xapian::WritableDatabase
-    get_alt_writable_database(const std::string& name, const std::string& file);
-
     /// Get the path of a writable database instance, if such a thing exists.
     virtual std::string get_writable_database_path(const std::string & name);
 

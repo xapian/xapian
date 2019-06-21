@@ -219,13 +219,6 @@ BackendManager::get_writable_database(const string &, const string &)
     invalid_operation("Attempted to open a disabled database");
 }
 
-Xapian::WritableDatabase
-BackendManager::get_alt_writable_database(const string&, const string&)
-{
-    invalid_operation("Alternate writable database isn't meaningful "
-		      "for this database type");
-}
-
 string
 BackendManager::get_writable_database_path(const std::string &)
 {
