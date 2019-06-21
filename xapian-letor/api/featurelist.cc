@@ -44,8 +44,8 @@ FeatureList::FeatureList() : internal(new FeatureList::Internal())
     internal->feature.push_back(new TfIdfDoclenFeature());
     internal->feature.push_back(new TfDoclenCollTfCollLenFeature());
     for (Feature* it : internal->feature) {
-	internal->stats_needed = Internal::stat_flags(internal->stats_needed
-					    | it->get_stats());
+	internal->stats_needed = Internal::stat_flags(internal->stats_needed |
+						      it->get_stats());
     }
 }
 
@@ -55,8 +55,8 @@ FeatureList::FeatureList(const std::vector<Feature*> & f)
     LOGCALL_CTOR(API, "FeatureList", f);
     internal->feature = f;
     for (Feature* it : internal->feature) {
-	internal->stats_needed = Internal::stat_flags(internal->stats_needed
-					    | it->get_stats());
+	internal->stats_needed = Internal::stat_flags(internal->stats_needed |
+						      it->get_stats());
     }
 }
 
@@ -114,11 +114,9 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	Xapian::Document doc = i.get_document();
 	std::vector<double> fvals;
 	internal->set_data(letor_query, letor_db, doc);
-	Feature::Internal *internal_feature = new Feature::Internal();
-	// set all the parameters for internal_feature
-	internal_feature->set_database(letor_db);
-	internal_feature->set_query(letor_query);
-	internal_feature->set_doc(doc);
+	Feature::Internal *internal_feature = new Feature::Internal(letor_db,
+								    letor_query,
+								    doc);
 	internal->populate_featurelist(internal_feature);
 	for (Feature* it : internal->feature) {
 	    it->internal = internal_feature;

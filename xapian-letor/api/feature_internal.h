@@ -62,18 +62,26 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
     std::map<std::string, Xapian::termcount> collection_termfreq;
 
   public:
+    /// Default constructor
+    Internal() {}
+
+    /// Constructor creating an object instantiated with db,query and doc
+    Internal(const Xapian::Database& db, const Xapian::Query& query,
+	     const Xapian::Document& doc)
+	 : feature_db(db), feature_query(query), feature_doc(doc) {}
+
     /// get database
-    inline Database get_database() const {
+    Database get_database() const {
 	return feature_db;
     }
 
     /// get query
-    inline Query get_query() const {
+    Query get_query() const {
 	return feature_query;
     }
 
     /// get document
-    inline Document get_document() const {
+    Document get_document() const {
 	return feature_doc;
     }
 
@@ -92,34 +100,11 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
     /// Get collection_termfreq
     Xapian::termcount get_collection_termfreq(const std::string& term) const;
 
-    /** Specify the database to use for feature building.
-     *
-     */
-    inline void set_database(const Xapian::Database & db) {
-	feature_db = db;
-    }
-
-    /** Specify the query to use for feature building.
-     *
-     *
-     *  @param query  Xapian::Query which has to be queried
-     */
-    inline void set_query(const Xapian::Query & query) {
-	feature_query = query;
-    }
-
-    /** Specify the document to use for feature building.
-     *
-     */
-    inline void set_doc(const Xapian::Document & doc) {
-	feature_doc = doc;
-    }
-
     /** Sets the termfrequency that is going to be used for
      *  Feature building.
      *
      */
-    inline void set_termfreq(const std::map<std::string,
+    void set_termfreq(const std::map<std::string,
 			     Xapian::termcount> &tf) {
 	termfreq = tf;
     }
@@ -128,7 +113,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *  Feature building.
      *
      */
-    inline void set_inverse_doc_freq(const std::map<std::string,
+    void set_inverse_doc_freq(const std::map<std::string,
 				     double> & idf) {
 	inverse_doc_freq = idf;
     }
@@ -137,7 +122,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *
      *  This is used by Feature::Internal while populating Statistics.
      */
-    inline void set_doc_length(const std::map<std::string,
+    void set_doc_length(const std::map<std::string,
 			Xapian::termcount> & doc_len) {
 	doc_length = doc_len;
     }
@@ -146,7 +131,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *  Feature building.
      *
      */
-    inline void set_collection_length(const std::map<std::string,
+    void set_collection_length(const std::map<std::string,
 			       Xapian::termcount> & collection_len) {
 	collection_length = collection_len;
     }
@@ -155,7 +140,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *  for Feature building.
      *
      */
-    inline void set_collection_termfreq(const std::map<std::string,
+    void set_collection_termfreq(const std::map<std::string,
 				 Xapian::termcount> & collection_tf) {
 	collection_termfreq = collection_tf;
     }
