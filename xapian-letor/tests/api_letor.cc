@@ -356,6 +356,27 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
     return true;
 }
 
+DEFINE_TESTCASE(parse_querystring, generated)
+{
+    // All those cases which are not valid.
+    string db_path = get_database_path("db_index_one_document",
+				       db_index_one_document);
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string qrel = data_directory + "qrelone.txt";
+    TEST_PARSE_EXCEPTION("parse_query_noopenquote.txt");
+    TEST_PARSE_EXCEPTION("parse_query_noclosingquote.txt");
+    TEST_PARSE_EXCEPTION("parse_query_empty_string.txt");
+    TEST_PARSE_EXCEPTION("nospace.txt");
+    TEST_PARSE_EXCEPTION("nosinglequotes.txt");
+    TEST_PARSE_EXCEPTION("blank_space_before_query.txt");
+
+    // All those cases which are valid.
+    Xapian::prepare_training_file(db_path, data_directory +
+				  "parse_query_valid.txt", qrel, 10,
+				  "training_output.txt");
+    return true;
+}
+
 // Check stability for an empty qrel file
 DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
 {
