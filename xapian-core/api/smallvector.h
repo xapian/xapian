@@ -1,7 +1,7 @@
 /** @file smallvector.h
  * @brief Custom vector implementations using small vector optimisation
  */
-/* Copyright (C) 2012,2013,2014,2017,2018 Olly Betts
+/* Copyright (C) 2012,2013,2014,2017,2018,2019 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -71,7 +71,7 @@ class Vec {
 	struct {
 	    T* b;
 	    T* e;
-	};
+	} p;
     } u;
 
     struct Vec_to_copy {
@@ -127,7 +127,7 @@ class Vec {
     }
 
     size_type size() const {
-	return is_external() ? u.e - u.b : c;
+	return is_external() ? u.p.e - u.p.b : c;
     }
 
     size_type capacity() const {
@@ -135,7 +135,7 @@ class Vec {
     }
 
     bool empty() const {
-	return is_external() ? u.b == u.e : c == 0;
+	return is_external() ? u.p.b == u.p.e : c == 0;
     }
 
     void reserve(size_type n) {
@@ -145,11 +145,11 @@ class Vec {
     }
 
     const_iterator cbegin() const {
-	return is_external() ? u.b : u.v;
+	return is_external() ? u.p.b : u.v;
     }
 
     const_iterator cend() const {
-	return is_external() ? u.e : u.v + c;
+	return is_external() ? u.p.e : u.v + c;
     }
 
     const_iterator begin() const {
@@ -164,17 +164,17 @@ class Vec {
 	// FIXME: This is a bit eager - non-const begin() is often invoked when
 	// no modification is needed, but doing it lazily is a bit tricky as
 	// the pointer will change when we COW.
-	if (COW && is_external() && u.b[-1] > 0) {
+	if (COW && is_external() && u.p.b[-1] > 0) {
 	    do_cow();
 	}
-	return is_external() ? u.b : u.v;
+	return is_external() ? u.p.b : u.v;
     }
 
     iterator end() {
-	if (COW && is_external() && u.b[-1] > 0) {
+	if (COW && is_external() && u.p.b[-1] > 0) {
 	    do_cow();
 	}
-	return is_external() ? u.e : u.v + c;
+	return is_external() ? u.p.e : u.v + c;
     }
 
     void push_back(T elt) {
@@ -183,9 +183,9 @@ class Vec {
 	    do_reserve(cap * 2);
 	}
 	if (c >= INTERNAL_CAPACITY) {
-	    if (COW && u.b[-1] > 0)
+	    if (COW && u.p.b[-1] > 0)
 		do_cow();
-	    *(u.e++) = elt;
+	    *(u.p.e++) = elt;
 	} else {
 	    u.v[c++] = elt;
 	}
@@ -193,7 +193,7 @@ class Vec {
 
     void pop_back() {
 	if (is_external()) {
-	    --u.e;
+	    --u.p.e;
 	} else {
 	    --c;
 	}
@@ -209,7 +209,7 @@ class Vec {
 	T* p = const_cast<T*>(it);
 	std::memmove(p, p + 1, (end() - it - 1) * sizeof(T));
 	if (is_external()) {
-	    --u.e;
+	    --u.p.e;
 	} else {
 	    --c;
 	}
@@ -221,7 +221,7 @@ class Vec {
 	std::memmove(const_cast<T*>(b), const_cast<T*>(e),
 		     (end() - e) * sizeof(T));
 	if (is_external()) {
-	    u.e -= n_erased;
+	    u.p.e -= n_erased;
 	} else {
 	    c -= n_erased;
 	}
@@ -241,7 +241,7 @@ class Vec {
     }
 
     T& operator[](size_type idx) {
-	if (COW && is_external() && u.b[-1] > 0) {
+	if (COW && is_external() && u.p.b[-1] > 0) {
 	    do_cow();
 	}
 	return const_cast<T&>(begin()[idx]);
@@ -257,10 +257,10 @@ class Vec {
 
   protected:
     void do_free() {
-	if (!COW || u.b[-1] == 0)
-	    delete [] (u.b - COW);
+	if (!COW || u.p.b[-1] == 0)
+	    delete [] (u.p.b - COW);
 	else
-	    --u.b[-1];
+	    --u.p.b[-1];
     }
 
     void do_reserve(size_type n) {
@@ -271,21 +271,21 @@ class Vec {
 	if (COW)
 	    *blk++ = 0;
 	if (is_external()) {
-	    u.e = std::copy(u.b, u.e, blk);
+	    u.p.e = std::copy(u.p.b, u.p.e, blk);
 	    do_free();
 	} else {
-	    u.e = std::copy(u.v, u.v + c, blk);
+	    u.p.e = std::copy(u.v, u.v + c, blk);
 	}
-	u.b = blk;
+	u.p.b = blk;
 	c = n;
     }
 
     void do_cow() {
 	T* blk = new T[c + 1];
 	*blk++ = 0;
-	u.e = std::copy(u.b, u.e, blk);
-	--u.b[-1];
-	u.b = blk;
+	u.p.e = std::copy(u.p.b, u.p.e, blk);
+	--u.p.b[-1];
+	u.p.b = blk;
     }
 
     void do_copy_from(const Vec& o) {
@@ -295,11 +295,11 @@ class Vec {
 	} else if (COW) {
 	    u = o.u;
 	    c = o.c;
-	    ++u.b[-1];
+	    ++u.p.b[-1];
 	} else {
 	    T* blk = new T[o.c];
-	    u.e = std::copy(o.u.b, o.u.e, blk);
-	    u.b = blk;
+	    u.p.e = std::copy(o.u.p.b, o.u.p.e, blk);
+	    u.p.b = blk;
 	    c = o.c;
 	}
     }
