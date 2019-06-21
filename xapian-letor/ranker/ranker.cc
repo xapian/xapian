@@ -196,12 +196,15 @@ static std::pair<string, string>
 parse_query_string(const string & query_line, int line_number)
 {
     vector<string> token;
-    size_t j = 0;
-    while (j < query_line.size()) {
-	size_t i = query_line.find_first_not_of(' ', j);
-	if (i == string::npos) break;
-	j = query_line.find_first_of(' ', i);
-	token.push_back(query_line.substr(i, j - i));
+    size_t i = 0;
+    size_t j = query_line.find_first_of(' ', i);
+    token.push_back(query_line.substr(i, j - i));
+    if (j != string::npos) {
+	i = query_line.find_first_of("'", j);
+	j = string::npos;
+	if (j > i) {
+	    token.push_back(query_line.substr(i, j - i));
+	}
     }
     // Query file is in the format: <qid> <query_string>
     // Therefore, <qid> goes into token[0] and <query_string> to token[1]
