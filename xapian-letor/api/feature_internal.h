@@ -105,7 +105,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *
      */
     void set_termfreq(const std::map<std::string,
-			     Xapian::termcount> &tf) {
+			     Xapian::termcount>& tf) {
 	termfreq = tf;
     }
 
@@ -114,7 +114,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *
      */
     void set_inverse_doc_freq(const std::map<std::string,
-				     double> & idf) {
+				     double>& idf) {
 	inverse_doc_freq = idf;
     }
 
@@ -123,7 +123,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *  This is used by Feature::Internal while populating Statistics.
      */
     void set_doc_length(const std::map<std::string,
-			Xapian::termcount> & doc_len) {
+			Xapian::termcount>& doc_len) {
 	doc_length = doc_len;
     }
 
@@ -132,7 +132,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *
      */
     void set_collection_length(const std::map<std::string,
-			       Xapian::termcount> & collection_len) {
+			       Xapian::termcount>& collection_len) {
 	collection_length = collection_len;
     }
 
@@ -141,7 +141,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *
      */
     void set_collection_termfreq(const std::map<std::string,
-				 Xapian::termcount> & collection_tf) {
+				 Xapian::termcount>& collection_tf) {
 	collection_termfreq = collection_tf;
     }
 };
