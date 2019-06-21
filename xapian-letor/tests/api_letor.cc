@@ -801,3 +801,23 @@ DEFINE_TESTCASE(err_scorer, !backend)
 
     return true;
 }
+
+DEFINE_TESTCASE(ndcg_score_test, generated)
+{
+    Xapian::ListNETRanker ranker;
+    string db_path = get_database_path("apitest_listnet_ranker",
+				       db_index_three_documents);
+    Xapian::Enquire enquire((Xapian::Database(db_path)));
+    enquire.set_query(Xapian::Query("score"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string query = data_directory + "querythree.txt";
+    string qrel = data_directory + "score_qrel.txt";
+    string training_data = data_directory + "training_data_ndcg.txt";
+    ranker.set_database_path(db_path);
+    ranker.set_query(Xapian::Query("score"));
+    ranker.train_model(training_data, "ListNet_Ranker");
+    ranker.rank(mymset, "ListNet_Ranker");
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_score_test.txt", 10);
+    return true;
+}

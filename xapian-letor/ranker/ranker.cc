@@ -466,7 +466,7 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	    }
 	    ++k;
 	}
-	double iter_score = scorer->score(rankedfvv);
+	double iter_score = scorer->score(rankedfvv_qrel);
 	out_file << "Ranking score for qid:" << qid << " = " << iter_score << endl;
 	total_score += iter_score;
     }
