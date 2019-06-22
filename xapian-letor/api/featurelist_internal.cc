@@ -164,7 +164,7 @@ FeatureList::Internal::compute_collection_termfreq()
 }
 
 void
-FeatureList::Internal::populate_featurelist(Feature::Internal* internal_feature)
+FeatureList::Internal::populate_feature_internal(Feature::Internal* internal_feature)
 {
     if (stats_needed & TERM_FREQUENCY) {
 	compute_termfreq();

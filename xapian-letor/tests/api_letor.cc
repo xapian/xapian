@@ -30,8 +30,6 @@
 #include <xapian.h>
 #include <xapian-letor.h>
 
-#include <api/feature_internal.h>
-
 #include "apitest.h"
 #include "testutils.h"
 

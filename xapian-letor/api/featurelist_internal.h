@@ -170,6 +170,9 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      */
     void set_doc(const Xapian::Document & doc);
 
+    /// Computes and populates the stats needed by a Feature.
+    void populate_feature_internal(Feature::Internal* internal_feature);
+
   public:
 
     /** Vector containing Feature pointer objects.
@@ -181,9 +184,6 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
     void set_data(const Xapian::Query & query,
 			    const Xapian::Database & db,
 			    const Xapian::Document & doc);
-
-    /// Computes and populates the stats needed by a Feature.
-    void populate_featurelist(Feature::Internal* internal_feature);
 
     /// Clears all the stats.
     void clear_stats();
