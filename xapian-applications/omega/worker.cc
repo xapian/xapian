@@ -155,17 +155,23 @@ Worker::extract(const std::string & filename,
     string strpage;
 
     // Sending a filename and wating for the answer
-    if (write_string(sockt, filename) &&
-	read_string(sockt, dump) &&
-	read_string(sockt, title) &&
-	read_string(sockt, keywords) &&
-	read_string(sockt, author) &&
-	read_string(sockt, strpage)) {
-	    if (strpage.empty())
+    // If there is an error, the assistant process notify it through dump.
+    if (write_string(sockt, filename) && read_string(sockt, dump)) {
+	// Checks if the assistant succeded
+	if (dump == ASSISTANT_ERROR)
+	    return false;
+	// Reading information from assistant
+	if (read_string(sockt, title) &&
+	    read_string(sockt, keywords) &&
+	    read_string(sockt, author) &&
+	    read_string(sockt, strpage)) {
+	    if (strpage.empty() ||
+		strpage.find_first_not_of("0123456789") != string::npos)
 		pages = 0;
 	    else
 		pages = stoi(strpage);
 	    return true;
+	}
     }
     fclose(sockt);
     sockt = NULL;

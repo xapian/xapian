@@ -4,7 +4,7 @@ notifications:
   irc: "chat.freenode.net#xapian-devel"
 env:
   global:
-    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libiconv libmagic pcre libsvm lua mono python2 python icu4c poppler'
+    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libiconv libmagic pcre libsvm lua mono python2 python icu4c pkgconfig poppler'
 matrix:
   include:
     - compiler: gcc

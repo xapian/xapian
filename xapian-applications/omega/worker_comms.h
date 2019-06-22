@@ -22,6 +22,8 @@
 #include <cstdio>
 #include <string>
 
+#define ASSISTANT_ERROR "XAPIAN - ASSISTANT EXTRACTION FALSE"
+
 /// Read a string from the file descriptor @a f and storage it in @a s
 bool read_string(std::FILE * f, std::string & s);
 
