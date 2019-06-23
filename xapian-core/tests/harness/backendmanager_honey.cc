@@ -120,7 +120,7 @@ BackendManagerHoney::get_writable_database(const string &, const string &)
 }
 
 string
-BackendManagerHoney::get_generated_database_path(const string & name)
+BackendManagerHoney::get_generated_database_path(const string& name)
 {
     // the generated database would go inside the glass cache
     return ".glass/" + name;

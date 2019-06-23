@@ -61,7 +61,7 @@ class BackendManagerHoney : public BackendManager {
     Xapian::WritableDatabase get_writable_database(const std::string& name,
 						   const std::string& file);
 
-    std::string get_generated_database_path(const std::string & name);
+    std::string get_generated_database_path(const std::string& name);
 
     std::string get_compaction_output_path(const std::string& name);
 };

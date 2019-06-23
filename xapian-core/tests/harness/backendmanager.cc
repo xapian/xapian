@@ -255,16 +255,6 @@ BackendManager::get_remote_database(const vector<string> &, unsigned int)
     throw Xapian::InvalidOperationError(msg);
 }
 
-Xapian::WritableDatabase
-BackendManager::get_writable_database_from_sub_manager(const string &)
-{
-    string msg = "BackendManager::get_writable_database_from_sub_manager() "
-		 "called for non-remote database (type is ";
-    msg += get_dbtype();
-    msg += ')';
-    throw Xapian::InvalidOperationError(msg);
-}
-
 Xapian::Database
 BackendManager::get_writable_database_as_database()
 {
