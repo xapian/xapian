@@ -65,7 +65,7 @@ while true ; do
 done
 
 if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
-  echo "Usage: $0 [-v <last uploaded version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
+  echo "Usage: $0 [-v <last backported version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
   echo
   echo "e.g.: $0 xapian-core 1.2.15-1 xenial"
   echo 'If no codenames are specified, the default is to backport for all of them.'
@@ -78,6 +78,8 @@ if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
   exit ${HELP_RC:-1}
 fi
 
+# Remove any backport suffix from any -v option.
+V_OPT=`printf '%s' "$V_OPT"|sed 's/~bpo.*//'`
 PKG=$1
 VERSION=$2
 shift
