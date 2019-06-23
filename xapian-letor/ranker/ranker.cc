@@ -195,30 +195,22 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
 static std::pair<string, string>
 parse_query_string(const string & query_line, int line_number)
 {
-    vector<string> token;
-    size_t i = 0;
-    size_t j = query_line.find_first_of(' ', i);
-    token.push_back(query_line.substr(i, j - i));
+    string::size_type i = 0;
+    string::size_type j = query_line.find_first_of(' ', i);
+    string qid = query_line.substr(i, j - i);
+    string querystr;
     if (j != string::npos) {
-	i = query_line.find_first_of("'", j);
-	j = string::npos;
-	if (j > i) {
-	    token.push_back(query_line.substr(i, j - i));
+	i = query_line.find_first_not_of("' ", j);
+	j = query_line.length() - 1;
+	// check if the last character is '
+	if (query_line[j] != '\'') {
+	    throw LetorParseError("Could not parse Query file at line:" + str(line_number));
 	}
-    }
-    // Query file is in the format: <qid> <query_string>
-    // Therefore, <qid> goes into token[0] and <query_string> to token[1]
-    // Exceptions for parse errors
-    if (token.size() != 2) {
+	querystr = query_line.substr(i, j - i);
+    } else {
 	throw LetorParseError("Could not parse Query file at line:" + str(line_number));
     }
-    string qid = token[0];
-    string querystr = token[1];
-    if (querystr.front() != '\'' || querystr.back() != '\'') {
-	throw LetorParseError("Could not parse query string at line:" + str(line_number));
-    }
-    querystr.erase(0, 1); // erase the first character (') from the front
-    querystr.erase(querystr.size() - 1); // erase the last character (')
+
     if (querystr.empty()) {
 	throw LetorParseError("Empty query string in query file at line:" + str(line_number));
     }
