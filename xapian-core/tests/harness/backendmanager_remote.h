@@ -52,7 +52,7 @@ class BackendManagerRemote : public BackendManager {
 					 unsigned int timeout);
 
     /// Get the args for opening a remote database with the specified timeout.
-    std::string get_remote_database_args(const std::string & name,
+    std::string get_remote_database_args(const std::string& name,
 					 unsigned int timeout);
 
     /// Get the args for opening the last opened WritableDatabase.
@@ -62,7 +62,7 @@ class BackendManagerRemote : public BackendManager {
     std::string get_writable_database_again_args();
 
     /// Get generated database path from sub_manager
-    std::string get_generated_database_path(const std::string & name);
+    std::string get_generated_database_path(const std::string& name);
 
     /// Get generated database
     Xapian::WritableDatabase

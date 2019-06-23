@@ -124,7 +124,6 @@ BackendManager::get_database(const std::string &dbname,
     string dbleaf = "db__";
     dbleaf += dbname;
     const string& path = get_generated_database_path(dbleaf);
-
     if (path.empty()) {
 	// InMemory doesn't have a path but we want to support generated
 	// databases for it.
