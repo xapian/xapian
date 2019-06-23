@@ -62,8 +62,7 @@ CollTfCollLenFeature::get_values() const
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (is_title_term((*qt))) {
 	    double tf = internal->get_collection_termfreq(*qt);
-	    value += log10(1 + (coll_len /
-				(double)(1 + tf)));
+	    value += log10(1 + (coll_len / (1 + tf)));
 	}
     }
     values.push_back(value);
@@ -74,8 +73,7 @@ CollTfCollLenFeature::get_values() const
 	 qt != feature_query.get_terms_end(); ++qt) {
 	if (!is_title_term((*qt))) {
 	    double tf = internal->get_collection_termfreq(*qt);
-	    value += log10(1 + (coll_len /
-				(double)(1 + tf)));
+	    value += log10(1 + (coll_len / (1 + tf)));
 	}
     }
     values.push_back(value);
@@ -85,8 +83,7 @@ CollTfCollLenFeature::get_values() const
     for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
 	 qt != feature_query.get_terms_end(); ++qt) {
 	double tf = internal->get_collection_termfreq(*qt);
-	value += log10(1 + (coll_len /
-			    (double)(1 + tf)));
+	value += log10(1 + (coll_len / (1 + tf)));
     }
     values.push_back(value);
 
