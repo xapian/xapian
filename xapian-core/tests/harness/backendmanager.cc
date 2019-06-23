@@ -125,9 +125,6 @@ BackendManager::get_database(const std::string &dbname,
     dbleaf += dbname;
     const string& path = get_generated_database_path(dbleaf);
 
-    // checking if a remote backendmanager is being used
-    bool is_remote_bm = startswith(get_dbtype(), "remote");
-
     if (path.empty()) {
 	// InMemory doesn't have a path but we want to support generated
 	// databases for it.
@@ -138,10 +135,7 @@ BackendManager::get_database(const std::string &dbname,
 
     if (path_exists(path)) {
 	try {
-	    if (is_remote_bm) {
-		return get_database_by_path(path);
-	    }
-	    return Xapian::Database(path);
+	    return get_database_by_path(path);
 	} catch (const Xapian::DatabaseOpeningError &) {
 	}
     }
@@ -160,12 +154,8 @@ BackendManager::get_database(const std::string &dbname,
     // For multi, the shards will use the temporary name, but that's not really
     // a problem.
 
-    if (is_remote_bm) {
-	return get_database_by_path(path);
-    }
-
     finalise_generated_database(dbleaf);
-    return Xapian::Database(path);
+    return get_database_by_path(path);
 }
 
 std::string
