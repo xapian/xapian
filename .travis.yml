@@ -124,13 +124,16 @@ matrix:
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"
-      # Override before_script to do nothing
+      # Override "before_script" to do nothing
       before_script:
-      # Override script to diff from against the branch point from:
-      # * for a PR, the branch the PR targets
-      # * otherwise, master
+      # Override "script" to run the style checking script
+      # "xapian-check-patch":
+      # * for a PR, CI is run on the PR branch merged with the target branch,
+      #   so just check the diff from the target branch to that merged branch.
+      # * Otherwise we check changes between the common ancestor of master and
+      #   the branch and the revision being checked.
       script:
-        - git diff `[ "$TRAVIS_PULL_REQUEST" = false ] && echo master || echo "$TRAVIS_BRANCH"`...|xapian-maintainer-tools/xapian-check-patch
+        - git diff `[ "$TRAVIS_PULL_REQUEST" = false ] && echo master... || echo "$TRAVIS_BRANCH.."`|xapian-maintainer-tools/xapian-check-patch
 
 
 before_script:
