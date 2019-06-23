@@ -139,7 +139,7 @@ BackendManager::get_database(const std::string &dbname,
     if (path_exists(path)) {
 	try {
 	    if (is_remote_bm) {
-		return get_remote_database_by_name(dbleaf, 30000);
+		return get_database_by_path(path);
 	    }
 	    return Xapian::Database(path);
 	} catch (const Xapian::DatabaseOpeningError &) {
@@ -161,7 +161,7 @@ BackendManager::get_database(const std::string &dbname,
     // a problem.
 
     if (is_remote_bm) {
-	return get_remote_database_by_name(dbleaf, 30000);
+	return get_database_by_path(path);
     }
 
     finalise_generated_database(dbleaf);
@@ -199,6 +199,12 @@ BackendManager::get_database_path(const std::string &dbname,
 
     finalise_generated_database(dbleaf);
     return path;
+}
+
+Xapian::Database
+BackendManager::get_database_by_path(const string& path)
+{
+    return Xapian::Database(path);
 }
 
 string
@@ -255,16 +261,6 @@ BackendManager::get_remote_database(const vector<string> &, unsigned int)
 {
     string msg = "BackendManager::get_remote_database() called for non-remote "
 		 "database (type is ";
-    msg += get_dbtype();
-    msg += ')';
-    throw Xapian::InvalidOperationError(msg);
-}
-
-Xapian::Database
-BackendManager::get_remote_database_by_name(const string &, unsigned int)
-{
-    string msg = "BackendManager::get_remote_database_by_name() "
-		 "called for non-remote database (type is ";
     msg += get_dbtype();
     msg += ')';
     throw Xapian::InvalidOperationError(msg);

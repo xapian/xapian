@@ -76,10 +76,9 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 }
 
 Xapian::Database
-BackendManagerRemoteProg::get_remote_database_by_name(const string& name,
-						      unsigned int timeout)
+BackendManagerRemoteProg::get_database_by_path(const string& path)
 {
-    string args = get_remote_database_args(name, timeout);
+    string args = get_remote_database_args(path, 300000);
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
