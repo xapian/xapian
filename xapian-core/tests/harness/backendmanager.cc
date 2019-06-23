@@ -164,7 +164,7 @@ BackendManager::get_database(const std::string &dbname,
 	return get_remote_database_by_name(dbleaf, 30000);
     }
 
-    finalise_generated_database(path);
+    finalise_generated_database(dbleaf);
     return Xapian::Database(path);
 }
 
@@ -197,7 +197,7 @@ BackendManager::get_database_path(const std::string &dbname,
     }
     rename(tmp_path.c_str(), path.c_str());
 
-    finalise_generated_database(path);
+    finalise_generated_database(dbleaf);
     return path;
 }
 

@@ -76,7 +76,10 @@ BackendManagerHoney::do_get_database_path(const vector<string> & files)
 Xapian::WritableDatabase
 BackendManagerHoney::get_generated_database(const string& name)
 {
-    string db_path = CACHE_DIRECTORY "/" + name;
+    // creating generated database inside glass cache
+    // to prevent a valid glass db inside honey cache
+    // if testsuite was interrupted
+    string db_path = ".glass/" + name;
 
     rm_rf(db_path);
 
@@ -87,17 +90,25 @@ BackendManagerHoney::get_generated_database(const string& name)
 }
 
 void
-BackendManagerHoney::finalise_generated_database(const string& path)
+BackendManagerHoney::finalise_generated_database(const string& name)
 {
     // converting a glass backend to honey
-    string tmpfile = path;
+
+    // path to the generated glass db
+    string glass_db_path = ".glass/" + name;
+
+    // path to honey tmpfile
+    string tmpfile = CACHE_DIRECTORY "/" + name;
     tmpfile += ".tmp";
 
-    Xapian::WritableDatabase wdb(path);
+    // path to final honey db
+    string path = CACHE_DIRECTORY "/" + name;
+
+    Xapian::WritableDatabase wdb(glass_db_path);
     wdb.compact(tmpfile, Xapian::DB_BACKEND_HONEY);
     wdb.close();
 
-    rm_rf(path);
+    rm_rf(glass_db_path);
 
     rename(tmpfile.c_str(), path.c_str());
 }
@@ -111,7 +122,8 @@ BackendManagerHoney::get_writable_database(const string &, const string &)
 string
 BackendManagerHoney::get_generated_database_path(const string & name)
 {
-    return CACHE_DIRECTORY "/" + name;
+    // the generated database would go inside the glass cache
+    return ".glass/" + name;
 }
 
 string

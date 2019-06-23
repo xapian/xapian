@@ -55,7 +55,7 @@ class BackendManagerHoney : public BackendManager {
     get_generated_database(const std::string& name);
 
     /// Finalise generated database
-    void finalise_generated_database(const std::string& path);
+    void finalise_generated_database(const std::string& name);
 
     /// Create a Xapian::WritableDatabase object.
     Xapian::WritableDatabase get_writable_database(const std::string& name,
