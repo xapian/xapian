@@ -192,6 +192,7 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
     }
 }
 
+// Query file is in the format: <qid> '<query_string>'
 static std::pair<string, string>
 parse_query_string(const string & query_line, int line_number)
 {
