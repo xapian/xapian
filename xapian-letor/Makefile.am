@@ -73,7 +73,7 @@ bin_SCRIPTS = installable/xapianletor-config
 
 # Create the installable version in a subdirectory.  It's not made executable
 # until install time, which hopefully should avoid people trying to use it when
-# building against an uninstalled xapian-core.
+# building against an uninstalled xapian-letor.
 installable/xapianletor-config: xapianletor-config
 	$(MKDIR_P) installable
 	$(SED) '/##UNINSTONLYBEGIN/,/##UNINSTONLYEND/d' xapianletor-config > installable/xapianletor-config.tmp
