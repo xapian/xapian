@@ -123,8 +123,7 @@ BackendManagerHoney::get_generated_database_path(const string& name)
     // the generated database would go inside the glass cache
     // if it does not exist yet
     string path = CACHE_DIRECTORY "/" + name;
-    string glass_path = "./glass" + name;
-    if (path_exists(path) || path_exists(glass_path)) {
+    if (path_exists(path)) {
         return path;
     }
     return ".glass/" + name;

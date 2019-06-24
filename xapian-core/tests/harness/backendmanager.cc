@@ -152,11 +152,11 @@ BackendManager::get_database(const std::string &dbname,
     // For multi, the shards will use the temporary name, but that's not really
     // a problem.
 
+    finalise_generated_database(dbleaf);
+
     // recalling get_generated_database_path since
     // now a generated db would exist
     path = get_generated_database_path(dbleaf);
-
-    finalise_generated_database(dbleaf);
     return get_database_by_path(path);
 }
 
@@ -189,12 +189,11 @@ BackendManager::get_database_path(const std::string &dbname,
     }
     rename(tmp_path.c_str(), path.c_str());
 
+    finalise_generated_database(dbleaf);
 
     // recalling get_generated_database_path since
     // now a generated db would exist
     path = get_generated_database_path(dbleaf);
-
-    finalise_generated_database(dbleaf);
     return path;
 }
 
