@@ -1550,6 +1550,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_filesize: {
+		if (args[0].empty()) break;
 		// FIXME: rounding?  i18n?
 		int size;
 		if (!parse_signed(args[0].c_str(), size)) {

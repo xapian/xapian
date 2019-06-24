@@ -535,6 +535,23 @@ testcase 'Exception: Invalid $sort option combination: #rn' input="b|1" opt='#rn
 printf '$sort{test} $addfilter{Test}$querydescription' > "$TEST_TEMPLATE"
 testcase 'test Query(Test)'
 
+# Feature tests for $filesize.
+printf '$filesize{$cgi{size}}' > "$TEST_TEMPLATE"
+testcase '' size=
+testcase '' size=-1
+testcase '0 bytes' size=0
+testcase '1 byte' size=1
+testcase '2 bytes' size=2
+testcase '1023 bytes' size=1023
+testcase '1.0K' size=1024
+testcase '1.1K' size=1127
+testcase '16.0K' size=16384
+testcase '1.0M' size=1048576
+testcase '1.8G' size=2000000000
+testcase 'Exception: Filesize must be an integer' size=foo
+testcase 'Exception: Filesize must be an integer' size=1a
+testcase 'Exception: Filesize must be an integer' size=1.1
+
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"

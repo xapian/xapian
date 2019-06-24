@@ -194,7 +194,8 @@ $field{NAME[,DOCID]}
 
 $filesize{SIZE}
 	pretty printed filesize (e.g. ``1 byte``, ``100 bytes``, ``2.1K``,
-        ``4.0M``, ``1.3G``).  If ``SIZE`` is negative, expands to nothing.
+        ``4.0M``, ``1.3G``).  If ``SIZE`` is empty or a negative integer,
+        expands to nothing.
 
 $filters
         serialised version of filter-like settings (currently ``B``, ``N``,
