@@ -1765,9 +1765,10 @@ DEFINE_TESTCASE(multidb1, backend) {
     db.add_database(db2);
     TEST_EQUAL(db.size(), db2.size());
     db.add_database(db2);
-    // Regression test for bug fixed in 1.4.12 - previously adding a multi
-    // database to an empty database incorrectly worked just like assigning
-    // the database object.  The list of shards is now copied instead.
+    // Regression test for bug introduced and fixed in git master before 1.5.0.
+    // Adding a multi database to an empty database incorrectly worked just
+    // like assigning the database object.  The list of shards is now copied
+    // instead.
     TEST_EQUAL(db.size(), db2.size() * 2);
     db.add_database(Xapian::Database());
     TEST_EQUAL(db.size(), db2.size() * 2);
