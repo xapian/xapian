@@ -108,8 +108,6 @@ BackendManagerHoney::finalise_generated_database(const string& name)
     wdb.compact(tmpfile, Xapian::DB_BACKEND_HONEY);
     wdb.close();
 
-    rm_rf(glass_db_path);
-
     rename(tmpfile.c_str(), path.c_str());
 }
 
@@ -123,6 +121,12 @@ string
 BackendManagerHoney::get_generated_database_path(const string& name)
 {
     // the generated database would go inside the glass cache
+    // if it does not exist yet
+    string path = CACHE_DIRECTORY "/" + name;
+    string glass_path = "./glass" + name;
+    if (path_exists(path) || path_exists(glass_path)) {
+        return path;
+    }
     return ".glass/" + name;
 }
 
