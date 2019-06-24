@@ -42,7 +42,6 @@
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "unixcmds.h"
-#include "stringutils.h"
 
 using namespace std;
 
