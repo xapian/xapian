@@ -639,6 +639,10 @@ aclocal_system_needed=
 if [ ! -r "$aclocal_ac_dir/pkg.m4" ] ; then
   if [ -r /usr/share/aclocal/pkg.m4 ] ; then
     aclocal_system_needed=/usr/share/aclocal
+  elif [ -r /usr/local/share/aclocal/pkg.m4 ] ; then
+    aclocal_system_needed=/usr/local/share/aclocal
+  elif [ -r /opt/local/share/aclocal/pkg.m4 ] ; then
+    aclocal_system_needed=/opt/local/share/aclocal
   fi
 fi
 
