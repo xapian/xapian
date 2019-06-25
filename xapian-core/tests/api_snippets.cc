@@ -276,7 +276,6 @@ DEFINE_TESTCASE(snippet_termcover2, backend) {
 
 /// Test snippet EMPTY_WITHOUT_MATCH flag
 DEFINE_TESTCASE(snippet_empty, backend) {
-
     Xapian::Stem stem("en");
 
     Xapian::Enquire enquire(get_database("apitest_simpledata"));

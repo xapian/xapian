@@ -106,7 +106,6 @@ SimplifiedDBN::build_sessions(const string &logfile)
 
     // Start reading file from the second line.
     while (getline(file, line)) {
-
 	istringstream ss(line);
 
 	vector<string> row_data;

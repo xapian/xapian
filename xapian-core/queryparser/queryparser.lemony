@@ -1355,7 +1355,6 @@ phrased_term:
 				 is_cjk_term, was_acronym, first_wildcard,
 				 term_char_count, edit_distance);
 
-	// Boolean operators.
 	if (first_wildcard == string::npos &&
 	    edit_distance == NO_EDIT_DISTANCE &&
 	    (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
@@ -1364,7 +1363,7 @@ phrased_term:
 	    !was_acronym &&
 	    !field_info &&
 	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
-
+	    // Boolean operators.
 	    string op = term;
 	    if (flags & FLAG_BOOLEAN_ANY_CASE) {
 		for (string::iterator i = op.begin(); i != op.end(); ++i) {
