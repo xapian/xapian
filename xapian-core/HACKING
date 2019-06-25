@@ -64,7 +64,7 @@ On Mac OS X, if you're using macports you'll want the following:
 
 If you're using homebrew you'll want the following::
 
-    brew install libmagic pcre
+    brew install libmagic pcre pkgconfig
 
 If you're doing much development work, you'll probably also want the following
 tools installed:
