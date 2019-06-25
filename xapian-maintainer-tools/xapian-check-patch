@@ -44,18 +44,31 @@ END
 }
 
 my ($fnm, $lineno);
+my ($last_fullline, $fullline);
 my $ext;
 my %count;
 
-sub diagnostic {
-    my ($type, $msg, $fullline) = @_;
-    print "$fnm:$lineno: $type: $msg";
-    if (defined $fullline) {
-	print ": $fullline";
+sub diagnostic_ {
+    my ($type, $msg, $n, $l) = @_;
+    print "$fnm:$n: $type: $msg";
+    if (defined $l) {
+	print ": $l";
     } else {
 	print "\n";
     }
     ++$count{$type};
+}
+
+# Report a diagnostic in the current line.
+sub diagnostic {
+    my ($type, $msg) = @_;
+    diagnostic_($type, $msg, $lineno, $fullline);
+}
+
+# Report a diagnostic in the previous line.
+sub diagnostic_last {
+    my ($type, $msg) = @_;
+    diagnostic_($type, $msg, $lineno - 1, $last_fullline);
 }
 
 sub count_columns {
@@ -183,6 +196,8 @@ while (<>) {
 	$last_line_block_end = undef;
 	$penultimate_line_block_start = undef;
 	$indent = undef;
+	$last_first_char = '';
+	$last_fullline = undef;
 	next;
     }
     if ($pre3 eq '---' || $pre3 eq '+++') {
@@ -194,7 +209,7 @@ while (<>) {
 	$next_top_level = (/^.\s/ ? 0 : 1);
     }
 
-    my $fullline = $_;
+    $fullline = $_;
     if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
 	if ($lineno == 1 && m!^\+!) {
 	    if (m!^\+/\*\*\s+\@file\s+(\S+)!) {
@@ -204,10 +219,10 @@ while (<>) {
 		    substr($fnm, -length $at_file) eq $at_file) {
 		    # @file matches
 		} else {
-		    diagnostic('error', "\@file doesn't match filename", $fullline);
+		    diagnostic('error', "\@file doesn't match filename");
 		}
 	    } else {
-		diagnostic('error', "\@file missing", $fullline);
+		diagnostic('error', "\@file missing");
 	    }
 	}
 
@@ -219,7 +234,7 @@ while (<>) {
 	    if ($ext eq 'lemony' && $1 eq '*' && $' =~ m!^\w*-overwrites-\w+\*/!) {
 		# Magic comment in lemon grammar - lemon requires no spaces.
 	    } else {
-		diagnostic('error', "Missing space between comment characters and comment text", $fullline);
+		diagnostic('error', "Missing space between comment characters and comment text");
 	    }
 	}
 
@@ -280,17 +295,17 @@ while (<>) {
 		! /^\+\s*\{.*\},?$/ &&
 		# Don't force wrapping of a long #error message.
 		!/^\+#\d*(error|warning)\b/) {
-		diagnostic('error', "Line extends beyond column 80 (to column ".length($expandedline).")", $fullline);
+		diagnostic('error', "Line extends beyond column 80 (to column ".length($expandedline).")");
 	    }
 	}
 	if (m,^\+\s+LOGCALL(?:_[A-Z0-9]+)*\([^"]*"[^"]*(?<!operator)\(,) {
-	    diagnostic('error', "Don't include parentheses in debug logging method/class name", $fullline);
+	    diagnostic('error', "Don't include parentheses in debug logging method/class name");
 	}
 	if (/^\+\s+LOGCALL(?:_[A-Z0-9]+)*\(.*,$/) {
-	    diagnostic('error', "Don't wrap long LOGCALL lines", $fullline);
+	    diagnostic('error', "Don't wrap long LOGCALL lines");
 	}
 	if (/^\+\s+(LOGCALL(?:_STATIC)?)\([^,]*,\s*void,$/) {
-	    diagnostic('error', "Use $1_VOID for a method with a void return type", $fullline);
+	    diagnostic('error', "Use $1_VOID for a method with a void return type");
 	}
 	# Replace string literals containing escaped quotes:
 	if (/['"]/) {
@@ -340,49 +355,45 @@ QUOTELOOP:  while (1) {
     }
 
     if ($check_trailing && $fullline =~ /^\+.*[ \t]$/) {
-	diagnostic('error', "added/changed line has trailing whitespace", $fullline);
+	diagnostic('error', "added/changed line has trailing whitespace");
     }
     if ($check_space_tab && /^\+.* \t/) {
-	diagnostic('error', "added/changed line has space before tab", $fullline);
+	diagnostic('error', "added/changed line has space before tab");
     }
     if ($want_tabs == 1 and /^\+\t* {8}/) {
-	diagnostic('error', "added/changed line uses spaces for indentation rather than tab", $fullline);
+	diagnostic('error', "added/changed line uses spaces for indentation rather than tab");
     }
     if (!$want_tabs and /^\+ *\t/) {
-	diagnostic('error', "added/changed line uses tab for indentation rather than spaces", $fullline);
+	diagnostic('error', "added/changed line uses tab for indentation rather than spaces");
     }
     if ((!defined $lang || $lang ne 'changelog') && $fullline =~ /^([-+]).*\bFIX(?:ME)\b/) {
 	# Break up the string in the regexp above and messages below to avoid
 	# this triggering on its own code!
 	if ($1 eq '-') {
 	    # Not an error, but interesting information.
-	    diagnostic('info', "FIX"."ME removed", $fullline);
+	    diagnostic('info', "FIX"."ME removed");
 	} else {
 	    # Not an error, but not good.
-	    diagnostic('warning', "FIX"."ME added", $fullline);
+	    diagnostic('warning', "FIX"."ME added");
 	}
     }
     if (defined $lang && $lang ne 'changelog' && /^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
-	diagnostic('error', "Doxygen command '\\$1' introduced by '\\' not '\@'", $fullline);
+	diagnostic('error', "Doxygen command '\\$1' introduced by '\\' not '\@'");
     }
     if (defined $lang && $lang ne 'changelog' && /^\+.*@\s+([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
-	diagnostic('error', "Broken Doxygen command: whitespace between '\@' and '$1'", $fullline);
+	diagnostic('error', "Broken Doxygen command: whitespace between '\@' and '$1'");
     }
     if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
 	if ($last_line_blank) {
 	    if ($line_blank) {
 		# Allow multiple blank lines at the top level for now.
-		diagnostic('error', "Extra blank line", $fullline) unless ($top_level // 1);
+		diagnostic('error', "Extra blank line") unless ($top_level // 1);
 	    } elsif (/^.\s+\}$/) {
 		# Closing } of a namespace often has a blank line before it,
 		# and that seems reasonable.
-		diagnostic('error', "Blank line at end of block", $fullline) unless ($top_level // 1);
-	    } elsif ($penultimate_line_block_start) {
-		if (/^.\}$/) {
-		    diagnostic('error', "Blank line at end of block", $fullline);
-		} elsif (/^.\s/) {
-		    diagnostic('error', "Blank line at start of block", $fullline);
-		}
+		diagnostic_last('error', "Blank line at end of block") unless ($top_level // 1);
+	    } elsif ($penultimate_line_block_start && /^.(\s|\}$)/) {
+		diagnostic_last('error', "Blank line at start of block");
 	    }
 	}
 
@@ -392,7 +403,7 @@ QUOTELOOP:  while (1) {
 	    #     #x
 	    if (!$preproc_continuation) {
 		if ($1 eq '+' && $2 ne '') {
-		    diagnostic('error', "Whitespace before '#' on preprocessor line", $fullline);
+		    diagnostic('error', "Whitespace before '#' on preprocessor line");
 		}
 	    }
 	    $preproc = 1;
@@ -404,7 +415,7 @@ QUOTELOOP:  while (1) {
 	}
 	if ($check_space_tab && /^\+( (?:|  |    |      ))[^ \t#].*(?:[^)];|[^);,])\n/) {
 	    # Exclude lines ending ');', ')', or ',' to avoid reporting for wrapped function arguments.
-	    diagnostic('error', "line indented by ".length($1)." spaces", $fullline);
+	    diagnostic('error', "line indented by ".length($1)." spaces");
 	}
 
 	#if (/^\+.*(?<!\btypedef )\b([A-Za-z_][A-Za-z_0-9]*)\s+\(/ &&
@@ -419,7 +430,7 @@ QUOTELOOP:  while (1) {
 		# function name `int (foo)(`.
 		!($name =~ /^(?:bool|double|float|unsigned|void|[a-z][a-z0-9_]+_t|(?:(?:un)?signed\s+)?(?:char|int|long|short))$/ && length($post))) {
 		if (!$preproc) {
-		    diagnostic('error', "Whitespace between '$name' and '('", $fullline);
+		    diagnostic('error', "Whitespace between '$name' and '('");
 		} else {
 		    # FIXME: We skip preprocessor lines for now to avoid triggering
 		    # on things like «#define FOUR (2+2)» but it would be good to
@@ -428,58 +439,58 @@ QUOTELOOP:  while (1) {
 	    }
 	}
 	if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
-	    diagnostic('error', "'$1' not followed by exactly one space", $fullline);
+	    diagnostic('error', "'$1' not followed by exactly one space");
 	}
 	if (m!^\+.*;[^\s\\]!) {
-	    diagnostic('error', "Missing space after ';'", $fullline);
+	    diagnostic('error', "Missing space after ';'");
 	}
 	if (m!^\+.*[^(;]\s;!) {
 	    # Stuff like this is OK: for ( ; ; ) {
 	    # though for that exact case I'd suggest: while (true) {
-	    diagnostic('error', "Whitespace before ';'", $fullline);
+	    diagnostic('error', "Whitespace before ';'");
 	}
 	if (m!^\+.*?<<"!) {
-	    diagnostic('error', "Missing space after '<<'", $fullline);
+	    diagnostic('error', "Missing space after '<<'");
 	}
 	if (m!^\+.*?"<<!) {
-	    diagnostic('error', "Missing space before '<<'", $fullline);
+	    diagnostic('error', "Missing space before '<<'");
 	}
 	if (m!^\+.*?\b(return)\b([^ ;]| \s)!) {
-	    diagnostic('error', "'$1' not followed by exactly one space", $fullline);
+	    diagnostic('error', "'$1' not followed by exactly one space");
 	}
 	if (m!^\+.*?\b(else)\b([^ \n]| \s)!) {
-	    diagnostic('error', "'$1' not followed by exactly one space", $fullline);
+	    diagnostic('error', "'$1' not followed by exactly one space");
 	}
 	if (m!^\+.*?\b(while)\b([^ ]| \s)!) {
-	    diagnostic('error', "'$1' not followed by exactly one space", $fullline);
+	    diagnostic('error', "'$1' not followed by exactly one space");
 	}
 	if (m!^\+.*?(?:}|}\s{2,}|}\t|^[^}]*)\b(catch)\b!) {
-	    diagnostic('error', "'$1' not preceded by exactly '} '", $fullline);
+	    diagnostic('error', "'$1' not preceded by exactly '} '");
 	}
 	if (m!^\+.*?(?:}|}\s{2,}|}\t)\b(else|while)\b!) {
-	    diagnostic('error', "'}' and '$1' not separated by exactly one space", $fullline);
+	    diagnostic('error', "'}' and '$1' not separated by exactly one space");
 	}
 	if (m,^\+.*?\belse\b\s*(?!if)[^\s{],) {
-	    diagnostic('error', "Code after 'else' on same line", $fullline);
+	    diagnostic('error', "Code after 'else' on same line");
 	}
 	if (m,^\+.*?\belse\s+if.*;\s*$,) {
-	    diagnostic('error', "Code after 'else if' on same line", $fullline);
+	    diagnostic('error', "Code after 'else if' on same line");
 	}
 	if (m!^\+.*\((?: [^;]|\t)!) {
 	    # Allow: for ( ; i != 10; ++i)
-	    diagnostic('error', "Whitespace after '('", $fullline);
+	    diagnostic('error', "Whitespace after '('");
 	}
 	if (m!^\+.*\H.*\h\)!) {
-	    diagnostic('error', "Whitespace before ')'", $fullline);
+	    diagnostic('error', "Whitespace before ')'");
 	}
 	if (m!^\+.*;\s*(\w+)([-+]{2})\)!) {
-	    diagnostic('error', "Prefer '$2$1' to '$1$2'", $fullline);
+	    diagnostic('error', "Prefer '$2$1' to '$1$2'");
 	}
 	if (m!^\+.*?>\s+>!) {
-	    diagnostic('error', "We assume C++11 so can write '>>' instead of '> >'", $fullline);
+	    diagnostic('error', "We assume C++11 so can write '>>' instead of '> >'");
 	}
 	if (m!^\+.*?\b(?:enable_if|list|map|multimap|multiset|priority_queue|set|template|unordered_map|unordered_set|vector)\s+<!) {
-	    diagnostic('error', "Whitespace between template name and '<'", $fullline);
+	    diagnostic('error', "Whitespace between template name and '<'");
 	}
 	if (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
 	    my @pre = @-;
@@ -518,7 +529,7 @@ QUOTELOOP:  while (1) {
 		# FIXME: |: FOO|BAR
 		# (but we do catch "1234*x"
 	    } else {
-		diagnostic('error', "Missing space before '$op'", $fullline);
+		diagnostic('error', "Missing space before '$op'");
 	    }
 	}
 	if (m@^\+\s*[^#\s].*?((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?:,])(?<!(?:-[->]|\+\+|::))(?:[\w\(\.\{!"']| \s)@) {
@@ -564,28 +575,28 @@ QUOTELOOP:  while (1) {
 		substr($_, 0, $pre[1]) =~ /[0-9]\.?e$/) {
 		# 1.2e-3, 7.e+3
 	    } else {
-		diagnostic('error', "Should have exactly one space after '$op'", $fullline);
+		diagnostic('error', "Should have exactly one space after '$op'");
 	    }
 	    if ($lang eq 'c++' &&
 		$op =~ /^[*&]$/ &&
 		substr($_, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/) {
-		diagnostic('error', "Preferred style is 'int$op x' (not 'int ${op}x' or 'int ${op} x')", $fullline);
+		diagnostic('error', "Preferred style is 'int$op x' (not 'int ${op}x' or 'int ${op} x')");
 	    }
 	}
 	if (/^\+.*;;\s*$/) {
-	    diagnostic('error', "Extra ';' at end of line", $fullline);
+	    diagnostic('error', "Extra ';' at end of line");
 	}
 	if (m@^\+[^#]*?[^#\h] +(,|->)@) {
-	    diagnostic('error', "Space before '$1'", $fullline);
+	    diagnostic('error', "Space before '$1'");
 	}
 	if (m,^\+[^#]*?[^#\h]  ,) {
-	    diagnostic('error', "Multiple spaces", $fullline);
+	    diagnostic('error', "Multiple spaces");
 	}
 	if (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
-	    diagnostic('error', "added/changed line has comment without whitespace before the text", $fullline);
+	    diagnostic('error', "added/changed line has comment without whitespace before the text");
 	}
 	if (m!^\+.*?\)\{!) {
-	    diagnostic('error', "No space between ')' and '{'", $fullline);
+	    diagnostic('error', "No space between ')' and '{'");
 	}
 	if ($fnm !~ m!/(?:md5|posixy_wrapper|perftest)\.cc$! &&
 	    m,^\+.*[^\w\.>]([a-z][a-z0-9]*[A-Z]\w*),) {
@@ -597,21 +608,21 @@ QUOTELOOP:  while (1) {
 	    } elsif ($symbol =~ /^h(?:File|Read|Write|Pipe|Client)$/ || $symbol eq 'fdwCtrlType' || $symbol eq 'pShutdownSocket') {
 		# Platform specific names, allow for now.
 	    } else {
-		diagnostic('error', "camelCase identifier '$1' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names", $fullline);
+		diagnostic('error', "camelCase identifier '$symbol' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names");
 	    }
 	}
 	if (/^\+.*\b(?:class|struct)\b.*:\s*$/) {
-	    diagnostic('error', "Inheritance list split after ':', should be before", $fullline);
+	    diagnostic('error', "Inheritance list split after ':', should be before");
 	}
 	# Try to distinguish ternary operator (?:) correctly split after ":" vs
 	# constructor initialiser list incorrectly split after ":".
 	my $last_in_ternary = $in_ternary;
 	$in_ternary = / \?(?: |$)/;
 	if (!$last_in_ternary && !$in_ternary && /^\+.*\)\s*:\s*$/) {
-	    diagnostic('error', "Constructor initialiser list split after ':', should be before", $fullline);
+	    diagnostic('error', "Constructor initialiser list split after ':', should be before");
 	}
 	if (m,^\+\s+([-+/%^]|[&|]{2})\s,) {
-	    diagnostic('error', "Expression split before operator '$1', should be after", $fullline);
+	    diagnostic('error', "Expression split before operator '$1', should be after");
 	}
 	if ($header) {
 	    if (m!^\+\s*#\s*(ifndef|define|endif\s*/[*/])\s+((?:[A-Z]+_INCLUDED)?_?\w+_[Hh]\b)!) {
@@ -637,7 +648,7 @@ QUOTELOOP:  while (1) {
 			    }
 			}
 			if (!defined $cut) {
-			    diagnostic('error', "include guard macro should match filename", $fullline);
+			    diagnostic('error', "include guard macro should match filename");
 			}
 			my $prefix = 'XAPIAN_INCLUDED_';
 			if ($fnm =~ m!.*omega/(?:.*/)?!) {
@@ -648,11 +659,11 @@ QUOTELOOP:  while (1) {
 			#} elsif ($fnm =~ s!.*xapian-letor/.*/!!) {
 			#$expected_guard = "XAPIAN_INCLUDED_" . $expected_guard;
 			if (defined $cut && $cut == -1) {
-			    diagnostic('error', "include guard macro should use prefix '$prefix'", $fullline);
+			    diagnostic('error', "include guard macro should use prefix '$prefix'");
 			} elsif (defined $cut && substr($guard, 0, length($guard) - $cut + 1) ne $prefix) {
-			    diagnostic('error', "include guard macro should use prefix '$prefix'", $fullline);
+			    diagnostic('error', "include guard macro should use prefix '$prefix'");
 			} elsif ($guard !~ /^\Q$prefix\E/) {
-			    diagnostic('error', "include guard macro should use prefix '$prefix'", $fullline);
+			    diagnostic('error', "include guard macro should use prefix '$prefix'");
 			}
 		    }
 		} else {
@@ -660,25 +671,25 @@ QUOTELOOP:  while (1) {
 			my $expected_guard = $header_guard_macro->[1];
 			$header_guard_macro->[0] = $type;
 			if ($guard ne $expected_guard) {
-			    diagnostic('error', "include guard macro should be $expected_guard", $fullline);
+			    diagnostic('error', "include guard macro should be $expected_guard");
 			}
 		    }
 		}
 	    }
 	} else {
 	    if (m!^\+\s*#\s*define\s+[A-Z]\+_INCLUDED_!) {
-		diagnostic('error', "include guard macro defined in non-header", $fullline);
+		diagnostic('error', "include guard macro defined in non-header");
 	    }
 	}
 
 	if (defined $last_line_block_end &&
 	    /^\+${last_line_block_end}(catch|else)\b/) {
 	    # FIXME: while in do { ... } while can't be as easily checked.
-	    diagnostic('error', "'$1' should be on same line as preceding '}'", $fullline);
+	    diagnostic('error', "'$1' should be on same line as preceding '}'");
 	}
     } elsif (defined $lang && $lang eq 'py') {
 	if (/^\+.*;\s*$/) {
-	    diagnostic('error', "';' at end of line of python code", $fullline);
+	    diagnostic('error', "';' at end of line of python code");
 	}
     }
     if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output)\.txt$!) {
@@ -687,7 +698,7 @@ QUOTELOOP:  while (1) {
 	    $fullline =~ /^\+.*?\b((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit|appropirate|labrar|returm)[a-z]*\b)/i ||
 	    # Case-sensitive cases
 	    $fullline =~ /^\+.*?\b(and and)\b/) {
-	    diagnostic('error', "Typo '$1'", $fullline);
+	    diagnostic('error', "Typo '$1'");
 	}
     }
 
@@ -764,9 +775,10 @@ QUOTELOOP:  while (1) {
 	# "\ No newline at end of file" - if preceded by a "+" line, this means
 	# that the patch leaves the file missing a newline at the end.
 	if ($last_first_char eq '+') {
-	    diagnostic('error', 'No newline at end of file');
+	    diagnostic_last('error', 'No newline at end of file');
 	}
     }
+    $last_fullline = $fullline;
     $last_first_char = $first_char;
     $last_line_blank = $line_blank;
     if (/^.([ \t]+)\}$/) {
