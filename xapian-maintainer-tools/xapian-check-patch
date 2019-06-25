@@ -205,10 +205,11 @@ while (<>) {
 	next;
     }
 
-    my $line_blank = /^.\s*$/;
-    if (!$line_blank) {
+    if (!/^.\s*$/) {
 	$next_top_level = (/^.\s/ ? 0 : 1);
     }
+
+    my $line_blank = /^[+ ]\s*$/;
 
     $fullline = $_;
     if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
