@@ -1158,14 +1158,13 @@ phrased_term:
 	bool is_cjk_term = false;
 	string term = parse_term(it, end, cjk_ngram, is_cjk_term, was_acronym);
 
-	// Boolean operators.
 	if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
 	    !field_info &&
 	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
-
+	    // Boolean operators.
 	    string op = term;
 	    if (flags & FLAG_BOOLEAN_ANY_CASE) {
 		for (string::iterator i = op.begin(); i != op.end(); ++i) {
