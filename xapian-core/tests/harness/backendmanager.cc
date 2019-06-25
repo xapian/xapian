@@ -248,9 +248,7 @@ BackendManager::get_generated_database_path(const std::string &)
 
 void
 BackendManager::finalise_generated_database(const std::string&)
-{
-
-}
+{ }
 
 Xapian::Database
 BackendManager::get_remote_database(const vector<string> &, unsigned int)
