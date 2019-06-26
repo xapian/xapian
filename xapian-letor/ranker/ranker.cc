@@ -198,21 +198,20 @@ parse_query_string(const string & query_line, int line_number)
 {
     string::size_type i = 0;
     string::size_type j = query_line.find_first_of(' ', i);
-    string qid = query_line.substr(i, j - i);
-    string querystr;
-    if (j != string::npos) {
-	i = query_line.find_first_not_of("' ", j);
-	j = query_line.length() - 1;
-	// check if the last character is '
-	if (query_line[j] != '\'') {
-	    throw LetorParseError("Could not parse Query file at line:" +
-				   str(line_number));
-	}
-	querystr = query_line.substr(i, j - i);
-    } else {
+    if (j == string::npos) {
 	throw LetorParseError("Could not parse Query file at line:" +
 			       str(line_number));
     }
+    string qid = query_line.substr(i, j - i);
+    string querystr;
+    i = query_line.find_first_of("'", j);
+    j = query_line.length() - 1;
+    // check if the last character is '
+    if (query_line[j] != '\'' || j == i) {
+	throw LetorParseError("Could not parse Query file at line:" +
+				str(line_number));
+    }
+    querystr = query_line.substr(i + 1, j - i - 1);
 
     if (querystr.empty()) {
 	throw LetorParseError("Empty query string in query file at line:" +
