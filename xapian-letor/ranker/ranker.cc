@@ -209,7 +209,7 @@ parse_query_string(const string & query_line, int line_number)
     // check if the last character is '
     if (query_line[j] != '\'' || j == i) {
 	throw LetorParseError("Could not parse Query file at line:" +
-				str(line_number));
+			       str(line_number));
     }
     querystr = query_line.substr(i + 1, j - i - 1);
 
