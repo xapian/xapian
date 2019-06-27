@@ -34,23 +34,6 @@ dnl 0:0:0 1.3.1 First release with xapian-letor split out from xapian-core
 LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
-LIBRARY_VERSION_SUFFIX=
-dnl Where xapian.h, etc go.
-case $PACKAGE_VERSION in
-  [*.*[13579].*])
-    dnl Development release series:
-    [dev_series=`echo "$PACKAGE_VERSION"|sed 's/\.[^.]*$//'`]
-
-    dnl Append version installed programs by default.  To specify no suffix,
-    dnl configure with: --program-suffix=
-    test x"$program_suffix" != xNONE || program_suffix=-$dev_series
-
-    LIBRARY_VERSION_SUFFIX=-$dev_series
-    ;;
-esac
-
-AC_SUBST([LIBRARY_VERSION_SUFFIX])
-
 dnl Where xapian-letor.h, etc go.  In development release append "/xapian-1.3".
 incdir=$includedir
 AC_SUBST([incdir])
