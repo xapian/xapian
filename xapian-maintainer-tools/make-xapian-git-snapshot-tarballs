@@ -63,7 +63,7 @@ open LOCK, '>', 'flockme' or die "Couldn't open 'flockme' for writing: $!\n";
 unless (flock LOCK, LOCK_EX|LOCK_NB) {
     # If we're building a tagged release, we want to wait rather than exit.
     unless (scalar @ARGV && $ARGV[0] =~ m!^tags/! && flock LOCK, LOCK_EX) {
-	# Work directory already in use.  Don't print anything unless STDOUT
+	# Work directory already in use.  Don't print anything unless STDERR
 	# is a tty - the cron job will send it as mail, which we don't really
 	# want.
 	print STDERR "'flockme' is already locked, can't build '$ARGV[0]' right now\n"
