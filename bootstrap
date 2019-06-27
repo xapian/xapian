@@ -632,6 +632,11 @@ if [ "$1" = "--deps=libmagic" ] ; then
     tar.gz 8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
 fi
 
+# Save the unadorned aclocal for bootstrapping SWIG.  In particular SWIG
+# uses a modified old version of AX_CXX_COMPILE_STDCXX_11 which isn't
+# compatible with the current version which might be in a system directory.
+SWIG_ACLOCAL=${ACLOCAL-aclocal}
+
 cd ..
 
 case `${LIBTOOLIZE-libtoolize} --version` in
@@ -712,7 +717,7 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ;
     # SWIG provides its own bootstrapping script.
     curdir=`pwd`
     cd "$d"
-    ./autogen.sh || autoreconf_rc=$?
+    ACLOCAL=$SWIG_ACLOCAL ./autogen.sh || autoreconf_rc=$?
     cd "$curdir"
     # Use the uninstalled wrapper for the in-tree copy of SWIG.
     intree_swig=yes
