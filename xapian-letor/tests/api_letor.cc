@@ -157,7 +157,7 @@ db_index_three_documents(Xapian::WritableDatabase& db, const string&)
 DEFINE_TESTCASE(createfeaturevector, generated)
 {
     Xapian::FeatureList fl;
-    Xapian::Database db = get_database("apitest_ranker1",
+    Xapian::Database db = get_database("db_index_two_documents",
 				       db_index_two_documents);
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("lions"));
@@ -206,7 +206,7 @@ DEFINE_TESTCASE(createfeaturevectoronevector_wrongquery, generated)
 DEFINE_TESTCASE(createfeaturevectorthree, generated)
 {
     Xapian::FeatureList fl;
-    Xapian::Database db = get_database("apitest_ranker4",
+    Xapian::Database db = get_database("db_index_three_documents",
 				       db_index_three_documents);
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("score"));
@@ -306,7 +306,7 @@ DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
 
 DEFINE_TESTCASE(preparetrainingfile_two_docs, generated)
 {
-    string db_path = get_database_path("apitest_listnet_ranker2",
+    string db_path = get_database_path("db_index_two_documents",
 				       db_index_two_documents);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "query.txt";
@@ -345,7 +345,7 @@ DEFINE_TESTCASE(preparetrainingfile_two_docs, generated)
 
 DEFINE_TESTCASE(preparetrainingfilethree, generated)
 {
-    string db_path = get_database_path("apitest_listnet_ranker4",
+    string db_path = get_database_path("db_index_three_documents",
 				       db_index_three_documents);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "querythree.txt";
@@ -387,7 +387,7 @@ DEFINE_TESTCASE(listnet_ranker, generated)
 {
     Xapian::ListNETRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
-    string db_path = get_database_path("apitest_listnet_ranker",
+    string db_path = get_database_path("db_index_two_documents",
 				       db_index_two_documents);
     Xapian::Enquire enquire((Xapian::Database(db_path)));
     enquire.set_query(Xapian::Query("lions"));
@@ -470,7 +470,7 @@ DEFINE_TESTCASE(listnet_ranker_three_correct, generated)
 {
     Xapian::ListNETRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
-    string db_path = get_database_path("apitest_listnet_ranker6",
+    string db_path = get_database_path("db_index_three_documents",
 				       db_index_three_documents);
     Xapian::Enquire enquire((Xapian::Database(db_path)));
     enquire.set_query(Xapian::Query("score"));
@@ -514,7 +514,7 @@ DEFINE_TESTCASE(svm_ranker, generated)
 {
     Xapian::SVMRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
-    string db_path = get_database_path("apitest_svm_ranker",
+    string db_path = get_database_path("db_index_two_documents",
 				       db_index_two_documents);
     Xapian::Enquire enquire((Xapian::Database(db_path)));
     enquire.set_query(Xapian::Query("lions"));
@@ -595,7 +595,7 @@ DEFINE_TESTCASE(svm_ranker_three_correct, generated)
 {
     Xapian::SVMRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
-    string db_path = get_database_path("apitest_svm_ranker2",
+    string db_path = get_database_path("db_index_three_documents",
 				       db_index_three_documents);
     Xapian::Enquire enquire((Xapian::Database(db_path)));
     enquire.set_query(Xapian::Query("score"));
@@ -638,7 +638,7 @@ DEFINE_TESTCASE(listmle_ranker, generated)
 {
     Xapian::ListMLERanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
-    string db_path = get_database_path("apitest_listmle_ranker",
+    string db_path = get_database_path("db_index_two_documents",
 				       db_index_two_documents);
     Xapian::Enquire enquire((Xapian::Database(db_path)));
     enquire.set_query(Xapian::Query("lions"));
@@ -720,7 +720,7 @@ DEFINE_TESTCASE(listmle_ranker_one_file, generated)
 DEFINE_TESTCASE(listmle_ranker_three_correct, generated)
 {
     Xapian::ListMLERanker ranker;
-    string db_path = get_database_path("apitest_listmle_ranker2",
+    string db_path = get_database_path("db_index_three_documents",
 				       db_index_three_documents);
     Xapian::Enquire enquire((Xapian::Database(db_path)));
     enquire.set_query(Xapian::Query("score"));
@@ -805,7 +805,7 @@ DEFINE_TESTCASE(err_scorer, !backend)
 DEFINE_TESTCASE(ndcg_score_test, generated)
 {
     Xapian::ListNETRanker ranker;
-    string db_path = get_database_path("apitest_listnet_ranker",
+    string db_path = get_database_path("db_index_three_documents",
 				       db_index_three_documents);
     Xapian::Enquire enquire((Xapian::Database(db_path)));
     enquire.set_query(Xapian::Query("score"));
