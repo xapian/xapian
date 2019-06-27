@@ -1002,7 +1002,7 @@ if test "$enable_backend_remote" = yes ; then
       ;;
   esac
 
-  TYPE_SOCKLEN_T
+  XAPIAN_TYPE_SOCKLEN_T
 fi
 
 if test "$win32_need_lws2_32" = 1 ; then

@@ -1,4 +1,4 @@
-dnl @synopsis TYPE_SOCKLEN_T
+dnl @synopsis XAPIAN_TYPE_SOCKLEN_T
 dnl
 dnl Check to see what type we should pass where some systems want socklen_t.
 dnl Note that some versions of HP-UX define socklen_t yet want int, so just
@@ -8,7 +8,7 @@ dnl Loosely based on:
 dnl http://mail.gnome.org/archives/xml/2001-August/msg00061.html
 dnl
 dnl Original author: Albert Chin
-AC_DEFUN([TYPE_SOCKLEN_T],
+AC_DEFUN([XAPIAN_TYPE_SOCKLEN_T],
 [
   AC_MSG_CHECKING([for type to use for 5th parameter to getsockopt])
   AC_CACHE_VAL([xo_cv_socklen_t_equiv],
