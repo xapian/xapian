@@ -122,7 +122,7 @@ BackendManager::get_database(const std::string &dbname,
 {
     string dbleaf = "db__";
     dbleaf += dbname;
-    string path = get_generated_database_path(dbleaf);
+    const string& path = get_generated_database_path(dbleaf);
     if (path.empty()) {
 	// InMemory doesn't have a path but we want to support generated
 	// databases for it.
@@ -148,15 +148,11 @@ BackendManager::get_database(const std::string &dbname,
 	Xapian::WritableDatabase wdb = get_generated_database(tmp_dbleaf);
 	gen(wdb, arg);
     }
+    finalise_generated_database(tmp_dbleaf);
     rename(tmp_path.c_str(), path.c_str());
     // For multi, the shards will use the temporary name, but that's not really
     // a problem.
 
-    finalise_generated_database(dbleaf);
-
-    // recalling get_generated_database_path since
-    // now a generated db would exist
-    path = get_generated_database_path(dbleaf);
     return get_database_by_path(path);
 }
 
@@ -168,7 +164,7 @@ BackendManager::get_database_path(const std::string &dbname,
 {
     string dbleaf = "db__";
     dbleaf += dbname;
-    string path = get_generated_database_path(dbleaf);
+    const string& path = get_generated_database_path(dbleaf);
     if (path_exists(path)) {
 	try {
 	    (void)Xapian::Database(path);
@@ -187,13 +183,9 @@ BackendManager::get_database_path(const std::string &dbname,
 	Xapian::WritableDatabase wdb = get_generated_database(tmp_dbleaf);
 	gen(wdb, arg);
     }
+    finalise_generated_database(tmp_dbleaf);
     rename(tmp_path.c_str(), path.c_str());
 
-    finalise_generated_database(dbleaf);
-
-    // recalling get_generated_database_path since
-    // now a generated db would exist
-    path = get_generated_database_path(dbleaf);
     return path;
 }
 

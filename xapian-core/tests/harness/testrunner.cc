@@ -90,7 +90,11 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	{ "singlefile_glass", SINGLEFILE|
 	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH },
 	{ "honey", HONEY|
-	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH|GENERATED },
+	    BACKEND|POSITIONAL|VALUESTATS|COMPACT|PATH
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	    |GENERATED
+#endif
+	},
 	{ NULL, 0 }
     };
 
@@ -128,7 +132,14 @@ TestRunner::run_tests(int argc, char ** argv)
 	string datadir = srcdir + "/testdata/";
 
 #ifdef XAPIAN_HAS_HONEY_BACKEND
+# ifdef XAPIAN_HAS_GLASS_BACKEND
+	{
+	    BackendManagerGlass glass_man(datadir);
+	    do_tests_for_backend(BackendManagerHoney(datadir, &glass_man));
+	}
+# else
 	do_tests_for_backend(BackendManagerHoney(datadir));
+# endif
 #endif
 
 	do_tests_for_backend(BackendManager(string()));
