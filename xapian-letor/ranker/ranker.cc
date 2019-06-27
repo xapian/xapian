@@ -203,7 +203,6 @@ parse_query_string(const string & query_line, int line_number)
 			       str(line_number));
     }
     string qid = query_line.substr(i, j - i);
-    string querystr;
     i = query_line.find_first_of("'", j);
     j = query_line.length() - 1;
     // check if the last character is '
@@ -211,7 +210,7 @@ parse_query_string(const string & query_line, int line_number)
 	throw LetorParseError("Could not parse Query file at line:" +
 			       str(line_number));
     }
-    querystr = query_line.substr(i + 1, j - i - 1);
+    string querystr = query_line.substr(i + 1, j - i - 1);
 
     if (querystr.empty()) {
 	throw LetorParseError("Empty query string in query file at line:" +
