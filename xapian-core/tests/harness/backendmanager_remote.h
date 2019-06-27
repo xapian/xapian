@@ -65,8 +65,7 @@ class BackendManagerRemote : public BackendManager {
     std::string get_generated_database_path(const std::string& name);
 
     /// Get generated database
-    Xapian::WritableDatabase
-    get_generated_database(const std::string& name);
+    Xapian::WritableDatabase get_generated_database(const std::string& name);
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTE_H
