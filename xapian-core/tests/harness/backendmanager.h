@@ -106,7 +106,7 @@ class BackendManager {
 				  const std::string &arg);
 
     /// Get a database instance by path
-    Xapian::Database get_database_by_path(const std::string& path);
+    virtual Xapian::Database get_database_by_path(const std::string& path);
 
     /// Get the path of a database instance, if such a thing exists.
     std::string get_database_path(const std::vector<std::string> &files);

@@ -368,9 +368,9 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 }
 
 Xapian::Database
-BackendManagerRemoteTcp::get_database_by_path(const string& name)
+BackendManagerRemoteTcp::get_database_by_path(const string& path)
 {
-    string args = get_remote_database_args(name, 300000);
+    string args = get_remote_database_args(path, 300000);
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open(LOCALHOST, port);
 }

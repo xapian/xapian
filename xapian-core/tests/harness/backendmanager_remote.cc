@@ -64,13 +64,13 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
 }
 
 std::string
-BackendManagerRemote::get_remote_database_args(const std::string& name,
+BackendManagerRemote::get_remote_database_args(const std::string& path,
 					       unsigned int timeout)
 {
     std::string args = "-t";
     args += str(timeout);
     args += ' ';
-    args += sub_manager->get_writable_database_path(name);
+    args += path;
     return args;
 }
 
