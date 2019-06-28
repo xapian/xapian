@@ -550,7 +550,6 @@ QUOTELOOP:  while (1) {
 		$op =~ /^[*&]$/ &&
 		substr($_, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/) {
 		diagnostic('error', "Preferred style is 'int$op x' (not 'int ${op}x' or 'int ${op} x')");
-		#} elsif (substr($_, $post[1]) !~ /^(?:[\w\(\.{!"']| \s)/) {
 	    } elsif (substr($_, $post[1]) !~ /^(?:\S| \s)/) {
 		# Check what follows the operator.
 	    } elsif (($op eq '-' || $op eq '+' || $op eq '!') &&
