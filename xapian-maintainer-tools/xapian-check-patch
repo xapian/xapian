@@ -576,6 +576,7 @@ QUOTELOOP:  while (1) {
 		# FIXME: &foo (address of)
 		# (but we do catch "...) &FLAG_FOO" and "1234 &x" and common reference types etc)
 	    } elsif ($op =~ /^[<>|]$/ &&
+		     substr($_, $post[1]) !~ /^\s*(?:\d+\b|\()/ &&
 		     substr($_, 0, $pre[1]) !~ /(?:\b\d+|\))\s*$/) {
 		# FIXME: < >: y = static_cast<char>(x);
 		# (but we do catch "...) <foo" and "1234 >bar" etc)
