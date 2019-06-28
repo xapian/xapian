@@ -1039,6 +1039,7 @@ gen_subdbwithoutpos1_db(Xapian::WritableDatabase& db, const string&)
 
 DEFINE_TESTCASE(subdbwithoutpos1, generated) {
     Xapian::Database db(get_database("apitest_simpledata"));
+    TEST(db.has_positions());
 
     Xapian::Query q(Xapian::Query::OP_PHRASE,
 		    Xapian::Query("this"),
@@ -1051,6 +1052,7 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
 
     Xapian::Database db2 =
 	get_database("subdbwithoutpos1", gen_subdbwithoutpos1_db);
+    TEST(!db2.has_positions());
 
     // If a database has no positional info, OP_PHRASE -> OP_AND.
     Xapian::Enquire enq2(db2);
@@ -1062,6 +1064,8 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
     // other sub-databases do, then we shouldn't convert OP_PHRASE to OP_AND
     // (but prior to 1.4.3 we did).
     db.add_database(db2);
+    TEST(db.has_positions());
+
     Xapian::Enquire enq3(db);
     enq3.set_query(q);
     Xapian::MSet mset3 = enq3.get_mset(0, 10);

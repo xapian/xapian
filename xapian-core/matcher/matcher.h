@@ -80,6 +80,8 @@ class Matcher {
 # endif
 #endif
 
+    bool full_db_has_positions;
+
     Matcher(const Matcher&) = delete;
 
     Matcher& operator=(const Matcher&) = delete;
@@ -109,6 +111,7 @@ class Matcher {
     /** Constructor.
      *
      *  @param db_		Database to search
+     *  @param full_db_has_positions_	Does the full database has positions?
      *  @param query		Query object
      *  @param query_length	Query length
      *  @param rset		Relevance set (NULL for none)
@@ -131,6 +134,7 @@ class Matcher {
      *  @param matchspies	MatchSpy objects to use
      */
     Matcher(const Xapian::Database& db_,
+	    bool full_db_has_positions_,
 	    const Xapian::Query& query,
 	    Xapian::termcount query_length,
 	    const Xapian::RSet* rset,
@@ -202,10 +206,6 @@ class Matcher {
 			  bool sort_val_reverse,
 			  double time_limit,
 			  const std::vector<opt_ptr_spy>& matchspies);
-
-    bool full_db_has_positions() const {
-	return db.has_positions();
-    }
 };
 
 #endif // XAPIAN_INCLUDED_MATCHER_H

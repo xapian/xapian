@@ -531,6 +531,11 @@ RemoteServer::msg_query(const string &message_in)
 	throw Xapian::NetworkError("bad message (sort_value_forward)");
     }
 
+    bool full_db_has_positions;
+    if (!unpack_bool(&p, p_end, &full_db_has_positions)) {
+	throw Xapian::NetworkError("bad message (full_db_has_positions)");
+    }
+
     double time_limit = unserialise_double(&p, p_end);
 
     int percent_threshold = *p++;
@@ -590,7 +595,8 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     Xapian::Weight::Internal local_stats;
-    Matcher matcher(*db, query, qlen, &rset, local_stats, *wt,
+    Matcher matcher(*db, full_db_has_positions,
+		    query, qlen, &rset, local_stats, *wt,
 		    false, false,
 		    collapse_key, collapse_max,
 		    percent_threshold, weight_threshold,

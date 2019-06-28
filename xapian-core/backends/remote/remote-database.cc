@@ -614,7 +614,8 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 			  int percent_threshold, double weight_threshold,
 			  const Xapian::Weight& wtscheme,
 			  const Xapian::RSet &omrset,
-			  const vector<opt_ptr_spy>& matchspies) const
+			  const vector<opt_ptr_spy>& matchspies,
+			  bool full_db_has_positions) const
 {
     string message;
     pack_string(message, query.serialise());
@@ -629,6 +630,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 	pack_uint(message, sort_key);
     }
     pack_bool(message, sort_value_forward);
+    pack_bool(message, full_db_has_positions);
     message += serialise_double(time_limit);
     message += char(percent_threshold);
     message += serialise_double(weight_threshold);

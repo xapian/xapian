@@ -290,6 +290,7 @@ Enquire::Internal::get_mset(doccount first,
 
     unique_ptr<Xapian::Weight::Internal> stats(new Xapian::Weight::Internal);
     ::Matcher match(db,
+		    db.has_positions(),
 		    query,
 		    query_length,
 		    rset,
