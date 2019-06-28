@@ -493,7 +493,7 @@ QUOTELOOP:  while (1) {
 	if (m!^\+.*?\b(?:enable_if|list|map|multimap|multiset|priority_queue|set|template|unordered_map|unordered_set|vector)\s+<!) {
 	    diagnostic('error', "Whitespace between template name and '<'");
 	}
-	if (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
+	if (m,^\+.*?[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
 	    my @pre = @-;
 	    my @post = @+;
 	    my $op = $1;
@@ -529,11 +529,15 @@ QUOTELOOP:  while (1) {
 		# FIXME: &: const char& x;
 		# FIXME: |: FOO|BAR
 		# (but we do catch "1234*x"
+	    } elsif ($preproc && /^.\s*#\s*(?:include|error|warning)\b/) {
+		# Don't warn about missing whitespace in:
+		# #include <a/b-c.h>
+		# #error nothing works!
 	    } else {
 		diagnostic('error', "Missing space before '$op'");
 	    }
 	}
-	if (m@^\+\s*[^#\s].*?((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?:,])(?<!(?:-[->]|\+\+|::))(?:[\w\(\.\{!"']| \s)@) {
+	if (m@^\+.*?((?:\&\&|\|\||<<|>>|[-+/*%=<>&|^])=?|[!~]=|[?:,])(?<!(?:-[->]|\+\+|::))(?:[\w\(\.\{!"']| \s)@) {
 	    my @pre = @-;
 	    my @post = @+;
 	    my $op = $1;
@@ -575,6 +579,13 @@ QUOTELOOP:  while (1) {
 	    } elsif (($op eq '-' || $op eq '+') &&
 		substr($_, 0, $pre[1]) =~ /[0-9]\.?e$/) {
 		# 1.2e-3, 7.e+3
+	    } elsif ($preproc && $op eq ',') {
+		# Currently there's a lot of: #define FOO(A,B) ...
+	    } elsif ($preproc && /^.\s*#\s*(?:include|error|warning|pragma)\b/) {
+		# Don't warn about missing whitespace in:
+		# #include <a/b-c.h>
+		# #warning so-so
+		# #pragma warning(disable:4146)
 	    } else {
 		diagnostic('error', "Should have exactly one space after '$op'");
 	    }
@@ -587,10 +598,11 @@ QUOTELOOP:  while (1) {
 	if (/^\+.*;;\s*$/) {
 	    diagnostic('error', "Extra ';' at end of line");
 	}
-	if (m@^\+[^#]*?[^#\h] +(,|->)@) {
+	if (/^\+\s*?\S.*? (,|->)/) {
 	    diagnostic('error', "Space before '$1'");
 	}
-	if (m,^\+[^#]*?[^#\h]  ,) {
+	if (/^\+[\s#]*?[^\s#]  /) {
+	    # Allow multiple spaces in "#  ifdef FOO".
 	    diagnostic('error', "Multiple spaces");
 	}
 	if (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
@@ -711,7 +723,7 @@ QUOTELOOP:  while (1) {
 	    # blank
 	    !/^\+\s*$/ &&
 	    # Preprocessor line
-	    !/^\+\s*#/ &&
+	    !$preproc &&
 	    # Label for goto
 	    !/^\+[A-Za-z_][A-Za-z_0-9]*:/ &&
 	    # outdent
