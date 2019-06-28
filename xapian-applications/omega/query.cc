@@ -1708,22 +1708,22 @@ eval(const string &fmt, const vector<string> &param)
 		    int ch;
 		    while ((ch = *q++) != '\0') {
 			switch (ch) {
-			 case '+':
+			  case '+':
 			    url_query_string += "%2b";
 			    break;
-			 case '"':
+			  case '"':
 			    url_query_string += "%22";
 			    break;
-			 case '%':
+			  case '%':
 			    url_query_string += "%25";
 			    break;
-			 case '&':
+			  case '&':
 			    url_query_string += "%26";
 			    break;
-			 case ' ':
+			  case ' ':
 			    ch = '+';
 			    /* fall through */
-			 default:
+			  default:
 			    url_query_string += ch;
 			}
 		    }
