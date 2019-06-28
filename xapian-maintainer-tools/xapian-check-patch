@@ -541,7 +541,11 @@ QUOTELOOP:  while (1) {
 	    my @pre = @-;
 	    my @post = @+;
 	    my $op = $1;
-	    if ($op eq '~' && substr($_, $post[1]) =~ /^[A-Za-z][A-Za-z0-9_]*\(/) {
+	    if ($lang eq 'c++' &&
+		$op =~ /^[*&]$/ &&
+		substr($_, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/) {
+		diagnostic('error', "Preferred style is 'int$op x' (not 'int ${op}x' or 'int ${op} x')");
+	    } elsif ($op eq '~' && substr($_, $post[1]) =~ /^[A-Za-z][A-Za-z0-9_]*\(/) {
 		# Destructor - e.g. ~Foo();
 	    } elsif (($op eq '-' || $op eq '+' || $op eq '!' || $op eq '~') &&
 		substr($_, 0, $pre[1]) =~ m@(?:[-+/*%~=<>&|,;?:] |[\[(]|\b(?:return|case) |^\+\s*)$@) {
@@ -588,11 +592,6 @@ QUOTELOOP:  while (1) {
 		# #pragma warning(disable:4146)
 	    } else {
 		diagnostic('error', "Should have exactly one space after '$op'");
-	    }
-	    if ($lang eq 'c++' &&
-		$op =~ /^[*&]$/ &&
-		substr($_, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/) {
-		diagnostic('error', "Preferred style is 'int$op x' (not 'int ${op}x' or 'int ${op} x')");
 	    }
 	}
 	if (/^\+.*;;\s*$/) {
