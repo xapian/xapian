@@ -173,7 +173,7 @@ omindex_SOURCES += portability/mkdtemp.cc
 endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
-omindex_pdf_SOURCES = assistant.cc worker_comms.cc handler_poppler.cc
+omindex_pdf_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
 omindex_pdf_LDADD = $(POPPLER_LIBS) $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\

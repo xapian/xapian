@@ -2,6 +2,7 @@
  * @brief Class representing worker process.
  */
 /* Copyright (C) 2011 Olly Betts
+ * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,20 +32,19 @@
  *  way, library bugs are isolated and they cannot damage omindex.
  *
  *  Each worker is associated to a particular assistant.
- *
-*/
+ */
 class Worker {
-    /// @private Workers ignore SIGPIPE.
+    /// Workers ignore SIGPIPE.
     static bool ignoring_sigpipe;
-    /// @private PID of the assistant process.
+    /// PID of the assistant process.
     pid_t child;
-    /** @private Socket for supporting communication between the worker
-     *	and its assistant.
-    */
+    /** Socket for supporting communication between the worker
+     *  and its assistant.
+     */
     std::FILE * sockt;
-    /// @private Name of the assistant program.
+    /// Name of the assistant program.
     std::string filter_module;
-    /// @private This method create the assistant subprocess.
+    /// This method create the assistant subprocess.
     void start_worker_subprocess();
 
   public:
@@ -53,8 +53,7 @@ class Worker {
      *  @param path	Path to the assistant process.
      *
      *  The assistant will not be started until it is necessary.
-     *
-    */
+     */
     Worker(const std::string & path)
 	: sockt(NULL), filter_module(path) { }
 
@@ -76,8 +75,7 @@ class Worker {
      *  Note: If it is not possible to get some information, the corresponding
      *  variable will hold an empty string. This situation is not considered
      *  as an error.
-     *
-    */
+     */
     bool extract(const std::string & filename,
 		 std::string & dump,
 		 std::string & title,

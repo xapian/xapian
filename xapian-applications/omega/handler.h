@@ -2,6 +2,7 @@
  * @brief @brief Extract text and metadata using an external library.
  */
 /* Copyright (C) 2011 Olly Betts
+ * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +25,7 @@
 
 #include <string>
 
-/** @internal Extract information from the @a filename and store it in the
+/** Extract information from the @a filename and store it in the
  *  corresponding variable.
  *
  *  @param filename   Path to the file.
@@ -37,9 +38,7 @@
  * Note: This function should only be used by an assistant process.
  *
  * See Worker::extract() for more details.
- *
-*/
-
+ */
 bool
 extract(const std::string & filename,
 	std::string & dump,

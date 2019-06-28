@@ -259,7 +259,7 @@ PKG_CHECK_MODULES([POPPLER], [poppler-cpp], [
                      }],
                     [AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
                      OMINDEX_MODULES="$OMINDEX_MODULES omindex_pdf"])
-     LIBS=$save_LIBS],[echo 'Disabled worker process related to Poppler'])
+     LIBS=$save_LIBS],[ ])
 
 AC_SUBST([OMINDEX_MODULES])
 

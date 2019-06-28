@@ -2,6 +2,7 @@
  * @brief Class representing worker process.
  */
 /* Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,7 +77,7 @@ Worker::start_worker_subprocess()
 	// we're reasonably protected from security bugs in the filter.
 
 	const char * mod;
-	if (filter_module.find('/') == string::npos && false) {
+	if (filter_module.find('/') == string::npos) {
 	    // Look for unqualified filters in pkglibbindir.
 	    string full_path = get_pkglibbindir();
 	    full_path += '/';
@@ -90,7 +91,7 @@ Worker::start_worker_subprocess()
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
 	// Set a memory limit if it is possible
 	long mem = get_free_physical_memory();
-	if (mem>0) {
+	if (mem > 0) {
 	    struct rlimit ram_limit = {
 		static_cast<rlim_t>(mem),
 		RLIM_INFINITY
@@ -155,23 +156,18 @@ Worker::extract(const std::string & filename,
     string strpage;
 
     // Sending a filename and wating for the answer
-    // If there is an error, the assistant process notify it through dump.
-    if (write_string(sockt, filename) && read_string(sockt, dump)) {
-	// Checks if the assistant succeded
-	if (dump == ASSISTANT_ERROR)
-	    return false;
-	// Reading information from assistant
-	if (read_string(sockt, title) &&
-	    read_string(sockt, keywords) &&
-	    read_string(sockt, author) &&
-	    read_string(sockt, strpage)) {
+    if (write_string(sockt, filename) &&
+	read_string(sockt, dump) &&
+	read_string(sockt, title) &&
+	read_string(sockt, keywords) &&
+	read_string(sockt, author) &&
+	read_string(sockt, strpage)) {
 	    if (strpage.empty() ||
 		strpage.find_first_not_of("0123456789") != string::npos)
 		pages = 0;
 	    else
 		pages = stoi(strpage);
 	    return true;
-	}
     }
     fclose(sockt);
     sockt = NULL;

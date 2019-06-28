@@ -7,6 +7,7 @@
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
+ * Copyright 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,6 +68,7 @@
 #include "utf8convert.h"
 #include "utils.h"
 #include "values.h"
+#include "worker.h"
 #include "xmlparse.h"
 #include "xlsxparse.h"
 #include "xpsxmlparse.h"
@@ -647,7 +649,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     }
     try {
 	if (wrk_it != workers.end()) {
-	    // Just use the worker process to extrac the content
+	    // Just use the worker process to extract the content
 	    Worker * wrk = wrk_it->second;
 	    if (!wrk ||
 		!wrk->extract(file, dump, title, keywords, author, pages)) {

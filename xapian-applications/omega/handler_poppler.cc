@@ -1,7 +1,7 @@
 /** @file handler_poppler.cc
  * @brief @brief Extract text and metadata using poopler.
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include "handler.h"
+#include "str.h"
 
 #include <xapian.h>
 #include <iostream>
@@ -67,7 +68,7 @@ extract(const string & filename,
 	author = clear_text(doc->info_key("Author"));
 	title = clear_text(doc->info_key("Title"));
 	keywords = clear_text(doc->info_key("Keywords"));
-	pages = to_string(npages);
+	pages = str(npages);
 	// Extracting text from PDF file
 	for (int i = 0; i < npages; ++i) {
 	    page *p(doc->create_page(i));

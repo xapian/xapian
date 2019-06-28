@@ -2,6 +2,7 @@
  * @brief Worker module for putting text extraction into a separate process.
  */
 /* Copyright (C) 2011 Olly Betts
+ * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,10 +70,6 @@ int main() {
     string filename;
     FILE * sockt = fdopen(FD, "r+");
 
-    // Just in case (if the pid of this new process is equal
-    // to an old assistant pid it is possible to have problems)
-    stop_timeout();
-
     while (true) {
 	// Read filename.
 	if (!read_string(sockt, filename)) break;
@@ -80,10 +77,8 @@ int main() {
 	// Setting a timeout for avoid infinity loops
 	set_timeout();
 	if (!extract(filename, dump, title, keywords, author, pages)) {
-	    stop_timeout();
-	    if (!write_string(sockt, ASSISTANT_ERROR))
-		break;
-	    continue;
+	    // FIXME: we could persist even if extraction fails...
+	    _Exit(1);
 	}
 	// The function extract returns, I can cancel the timeout
 	stop_timeout();
