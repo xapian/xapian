@@ -31,7 +31,7 @@
 
 typedef unsigned char symbol;
 
-#define HEAD (2*sizeof(int))
+#define HEAD (2 * sizeof(int))
 
 typedef int (*among_function)(Xapian::StemImplementation *);
 
