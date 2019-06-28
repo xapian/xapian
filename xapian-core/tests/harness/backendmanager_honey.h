@@ -60,8 +60,7 @@ class BackendManagerHoney : public BackendManager {
     std::string get_dbtype() const;
 
     /// Get generated database for honey
-    Xapian::WritableDatabase
-    get_generated_database(const std::string& name);
+    Xapian::WritableDatabase get_generated_database(const std::string& name);
 
     /// Finalise generated database
     void finalise_generated_database(const std::string& name);

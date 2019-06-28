@@ -76,16 +76,16 @@ BackendManagerHoney::do_get_database_path(const vector<string> & files)
 Xapian::WritableDatabase
 BackendManagerHoney::get_generated_database(const string& name)
 {
-    // creating generated database inside glass cache
+    // Create generated database inside glass cache
     // to prevent a valid glass db inside honey cache
-    // if testsuite was interrupted
+    // if testsuite was interrupted.
     return generated_sub_manager->get_generated_database(name);
 }
 
 void
 BackendManagerHoney::finalise_generated_database(const string& name)
 {
-    // converting a glass backend to honey
+    // Convert a glass backend to honey.
 
     // path to the temporary generated db
     string generated_db_path =
