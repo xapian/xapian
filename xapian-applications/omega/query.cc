@@ -1043,7 +1043,7 @@ struct func_desc {
     struct func_attrib a;
 };
 
-#define N -1
+#define N (-1)
 #define M 'M'
 #define Q 'Q'
 // NB when adding a new command which ensures M or Q, update the list in
