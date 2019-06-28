@@ -31,6 +31,8 @@
 #include <xapian-letor.h>
 
 #include "apitest.h"
+#include "filetests.h"
+#include "safeunistd.h"
 #include "testutils.h"
 
 using namespace std;
@@ -818,6 +820,9 @@ DEFINE_TESTCASE(ndcg_score_test, generated)
     ranker.set_query(Xapian::Query("score"));
     ranker.train_model(training_data, "ListNet_Ranker");
     ranker.rank(mymset, "ListNet_Ranker");
+    unlink("ndcg_score_test.txt");
     ranker.score(query, qrel, "ListNet_Ranker", "ndcg_score_test.txt", 10);
+    TEST(file_exists("ndcg_score_test.txt"));
+    unlink("ndcg_score_test.txt");
     return true;
 }
