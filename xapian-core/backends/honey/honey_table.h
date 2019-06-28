@@ -139,7 +139,7 @@ class BufferedFile {
     bool is_open() const { return common && common->fd >= 0; }
 
     bool was_forced_closed() const {
-	return !common || common->fd == FORCED_CLOSE;
+	return common && common->fd == FORCED_CLOSE;
     }
 
     bool open(const std::string& path, bool read_only_) {
