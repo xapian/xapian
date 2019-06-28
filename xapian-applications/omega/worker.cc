@@ -77,7 +77,7 @@ Worker::start_worker_subprocess()
 	// we're reasonably protected from security bugs in the filter.
 
 	const char * mod;
-	if (filter_module.find('/') == string::npos) {
+	if (filter_module.find('/') != string::npos) {
 	    // Look for unqualified filters in pkglibbindir.
 	    string full_path = get_pkglibbindir();
 	    full_path += '/';
