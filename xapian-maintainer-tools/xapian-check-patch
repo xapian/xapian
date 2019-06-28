@@ -435,7 +435,7 @@ QUOTELOOP:  while (1) {
 		    diagnostic('error', "Whitespace between '$name' and '('");
 		} else {
 		    # FIXME: We skip preprocessor lines for now to avoid triggering
-		    # on things like «#define FOUR (2+2)» but it would be good to
+		    # on things like «#define FOUR (4)» but it would be good to
 		    # catch «#define FOO(x) foo (x)»
 		}
 	    }
