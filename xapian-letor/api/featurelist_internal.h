@@ -171,9 +171,9 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
     std::vector<Feature *> feature;
 
     /// This method sets all the data members required for computing stats.
-    void set_data(const Xapian::Query & query,
-		  const Xapian::Database & db,
-		  const Xapian::Document & doc);
+    void set_data(const Xapian::Query& query,
+		  const Xapian::Database& db,
+		  const Xapian::Document& doc);
 };
 
 }
