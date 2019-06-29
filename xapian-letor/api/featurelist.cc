@@ -132,7 +132,6 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	// construct a FeatureVector object using did and fvals.
 	Xapian::FeatureVector fv(did, fvals);
 	fvec.push_back(fv);
-	internal->clear_stats();
     }
     normalise(fvec);
     return fvec;
