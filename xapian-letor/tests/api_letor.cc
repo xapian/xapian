@@ -222,6 +222,13 @@ DEFINE_TESTCASE(createfeaturevectorthree, generated)
     return true;
 }
 
+DEFINE_TESTCASE(emptyfeaturelist, !backend)
+{
+    vector<Xapian::Feature*> f;
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::FeatureList fl(f));
+    return true;
+}
+
 DEFINE_TESTCASE(preparetrainingfileonedb, generated)
 {
     string db_path = get_database_path("apitest_listnet_ranker1",

@@ -29,6 +29,7 @@
 #include "feature_internal.h"
 
 #include "debuglog.h"
+#include "omassert.h"
 
 using namespace std;
 
@@ -50,9 +51,12 @@ FeatureList::FeatureList() : internal(new FeatureList::Internal())
 }
 
 FeatureList::FeatureList(const std::vector<Feature*> & f)
-    : internal(new FeatureList::Internal())
 {
     LOGCALL_CTOR(API, "FeatureList", f);
+    if (f.empty()) {
+	throw InvalidArgumentError("FeatureList cannot be empty");
+    }
+    internal = new Internal();
     internal->feature = f;
     for (Feature* it : internal->feature) {
 	internal->stats_needed = Internal::stat_flags(internal->stats_needed |
@@ -109,14 +113,14 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
     if (mset.empty())
 	return vector<FeatureVector>();
     std::vector<FeatureVector> fvec;
+    Assert(!internal->feature.empty());
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	std::vector<double> fvals;
 	internal->set_data(letor_query, letor_db, doc);
-	Feature::Internal* internal_feature = new Feature::Internal(letor_db,
-								    letor_query,
-								    doc);
+	auto internal_feature = new Feature::Internal(letor_db,
+						      letor_query, doc);
 	// Computes and populates the Feature::Internal with required stats.
 	internal->populate_feature_internal(internal_feature);
 	for (Feature* it : internal->feature) {
