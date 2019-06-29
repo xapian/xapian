@@ -222,6 +222,43 @@ DEFINE_TESTCASE(createfeaturevectorthree, generated)
     return true;
 }
 
+DEFINE_TESTCASE(checkemptyfeaturelist, generated)
+{
+    vector<Xapian::Feature*> f;
+    // pass empty feature list.
+    Xapian::FeatureList fl(f);
+    Xapian::Database db = get_database("db_index_two_documents",
+				       db_index_two_documents);
+
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("tigers"));
+    Xapian::MSet mset;
+    mset = enquire.get_mset(0, 10);
+
+    TEST(!mset.empty());
+
+    vector<double> vt;
+    Xapian::MSetIterator i = mset.begin();
+    vt.push_back(i.get_weight());
+    ++i;
+    TEST_NOT_EQUAL(i, mset.end());
+    vt.push_back(i.get_weight());
+    ++i;
+    TEST_EQUAL(i, mset.end());
+    double max_val = max(vt[0], vt[1]);
+
+    auto fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
+    TEST_EQUAL(fv.size(), 2);
+    // only weight feature of the document will be captured.
+    TEST_EQUAL(fv[0].get_fcount(), 1);
+    TEST_EQUAL(fv[1].get_fcount(), 1);
+
+    // weight will be in normalized form.
+    TEST_EQUAL(fv[0].get_fvals()[0], vt[0] / max_val);
+    TEST_EQUAL(fv[1].get_fvals()[0], vt[1] / max_val);
+    return true;
+}
+
 DEFINE_TESTCASE(preparetrainingfileonedb, generated)
 {
     string db_path = get_database_path("apitest_listnet_ranker1",
