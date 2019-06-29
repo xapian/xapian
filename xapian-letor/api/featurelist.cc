@@ -115,9 +115,8 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	std::vector<double> fvals;
 	internal->set_data(letor_query, letor_db, doc);
 	if (!internal->feature.empty()) {
-	    Feature::Internal* internal_feature = new Feature::Internal(letor_db,
-								    letor_query,
-								    doc);
+	    Feature::Internal* internal_feature = new Feature::Internal(
+						  letor_db, letor_query, doc);
 	    // Computes and populates the Feature::Internal with required stats.
 	    internal->populate_feature_internal(internal_feature);
 	    for (Feature* it : internal->feature) {
