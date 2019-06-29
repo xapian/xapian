@@ -28,7 +28,7 @@ using namespace std;
 const int buffer_size = 4096;
 
 bool
-read_string(FILE * f, string & s)
+read_string(FILE* f, string& s)
 {
     // Extracting the length of the string
     int ch = getc(f);
@@ -64,7 +64,7 @@ read_string(FILE * f, string & s)
 }
 
 bool
-write_string(FILE * f, const string & s)
+write_string(FILE* f, const string& s)
 {
     // Saving the string size
     size_t len = s.size();
@@ -88,7 +88,7 @@ write_string(FILE * f, const string & s)
     }
 
     // Writing the string
-    const char * p = s.data();
+    const char* p = s.data();
 
     while (len) {
 	size_t n = fwrite(p, 1, len, f);

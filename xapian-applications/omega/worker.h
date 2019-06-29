@@ -41,7 +41,7 @@ class Worker {
     /** Socket for supporting communication between the worker
      *  and its assistant.
      */
-    std::FILE * sockt;
+    std::FILE* sockt;
     /// Name of the assistant program.
     std::string filter_module;
     /// This method create the assistant subprocess.
@@ -54,7 +54,7 @@ class Worker {
      *
      *  The assistant will not be started until it is necessary.
      */
-    Worker(const std::string & path)
+    Worker(const std::string& path)
 	: sockt(NULL), filter_module(path) { }
 
     /** Extract information from a file through the assistant process.
@@ -76,10 +76,10 @@ class Worker {
      *  variable will hold an empty string. This situation is not considered
      *  as an error.
      */
-    bool extract(const std::string & filename,
-		 std::string & dump,
-		 std::string & title,
-		 std::string & keywords,
-		 std::string & author,
-		 int & pages);
+    bool extract(const std::string& filename,
+		 std::string& dump,
+		 std::string& title,
+		 std::string& keywords,
+		 std::string& author,
+		 int& pages);
 };

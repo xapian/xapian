@@ -40,11 +40,11 @@
  * See Worker::extract() for more details.
  */
 bool
-extract(const std::string & filename,
-	std::string & dump,
-	std::string & title,
-	std::string & keywords,
-	std::string & author,
-	std::string & pages);
+extract(const std::string& filename,
+	std::string& dump,
+	std::string& title,
+	std::string& keywords,
+	std::string& author,
+	std::string& pages);
 
 #endif // OMEGA_INCLUDED_HANDLER_H

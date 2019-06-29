@@ -65,10 +65,10 @@ static void stop_timeout() { }
 
 // FIXME: Restart filter every N files processed?
 
-int main() {
-
+int main()
+{
     string filename;
-    FILE * sockt = fdopen(FD, "r+");
+    FILE* sockt = fdopen(FD, "r+");
 
     while (true) {
 	// Read filename.

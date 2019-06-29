@@ -89,7 +89,7 @@ extern std::map<std::string, Filter> commands;
 extern std::map<std::string, Worker *> workers;
 
 inline void
-index_library(const std::string & type, Worker * worker)
+index_library(const std::string& type, Worker* worker)
 {
     workers[type] = worker;
 }

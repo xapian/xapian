@@ -328,8 +328,8 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
 }
 
 static void
-parse_pdfinfo_field(const char * p, const char * end, string & out,
-		    const char * field, size_t len)
+parse_pdfinfo_field(const char* p, const char* end, string & out,
+		    const char* field, size_t len)
 {
     if (size_t(end - p) > len && memcmp(p, field, len) == 0) {
 	p += len;
@@ -650,7 +650,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     try {
 	if (wrk_it != workers.end()) {
 	    // Just use the worker process to extract the content
-	    Worker * wrk = wrk_it->second;
+	    Worker* wrk = wrk_it->second;
 	    if (!wrk ||
 		!wrk->extract(file, dump, title, keywords, author, pages)) {
 		string msg = "Couldn't extract text from " + file;

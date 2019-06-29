@@ -33,7 +33,7 @@ using namespace std;
 using namespace poppler;
 
 static string
-clear_text(const ustring & x)
+clear_text(const ustring& x)
 {
     byte_array buf = x.to_utf8();
     string text(buf.data(), buf.size());
@@ -48,12 +48,12 @@ clear_text(const ustring & x)
 }
 
 bool
-extract(const string & filename,
-	string & dump,
-	string & title,
-	string & keywords,
-	string & author,
-	string & pages)
+extract(const string& filename,
+	string& dump,
+	string& title,
+	string& keywords,
+	string& author,
+	string& pages)
 {
     try {
 	document * doc = document::load_from_file(filename);

@@ -76,7 +76,7 @@ Worker::start_worker_subprocess()
 	// process could be chroot()-ed to a sandbox directory, which means
 	// we're reasonably protected from security bugs in the filter.
 
-	const char * mod;
+	const char* mod;
 	if (filter_module.find('/') != string::npos) {
 	    // Look for unqualified filters in pkglibbindir.
 	    string full_path = get_pkglibbindir();
@@ -133,12 +133,12 @@ Worker::start_worker_subprocess()
 }
 
 bool
-Worker::extract(const std::string & filename,
-		std::string & dump,
-		std::string & title,
-		std::string & keywords,
-		std::string & author,
-		int & pages)
+Worker::extract(const std::string& filename,
+		std::string& dump,
+		std::string& title,
+		std::string& keywords,
+		std::string& author,
+		int& pages)
 {
     if (sockt) {
 	// Check if the worker process is still alive - if it is, waitpid()
