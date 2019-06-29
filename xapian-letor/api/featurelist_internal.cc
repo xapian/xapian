@@ -162,6 +162,7 @@ FeatureList::Internal::populate_feature_internal(Feature::Internal*
 	internal_feature->set_collection_length(compute_collection_length());
     }
     if (stats_needed & COLLECTION_TERM_FREQ) {
-	internal_feature->set_collection_termfreq(compute_collection_termfreq());
+	internal_feature->set_collection_termfreq(
+			  compute_collection_termfreq());
     }
 }

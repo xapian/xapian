@@ -133,30 +133,31 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      *
      *  @return A map from query terms to their collection term frequencies.
      */
-    std::map<std::string, Xapian::termcount> compute_collection_termfreq() const;
+    std::map<std::string, Xapian::termcount> compute_collection_termfreq()
+								const;
 
     /** Specify the database to use for feature building.
      *
      *  This will be used by the Internal class.
      */
-    void set_database(const Xapian::Database & db) {
-        featurelist_db = db;
+    void set_database(const Xapian::Database& db) {
+	featurelist_db = db;
     }
 
     /** Specify the query to use for feature building.
      *
      *  This will be used by the Internal class.
      */
-    void set_query(const Xapian::Query & query) {
-        featurelist_query = query;
+    void set_query(const Xapian::Query& query) {
+	featurelist_query = query;
     }
 
     /** Specify the document to use for feature building.
      *
      *  This will be used by the Internal class.
      */
-    void set_doc(const Xapian::Document & doc) {
-        featurelist_doc = doc;
+    void set_doc(const Xapian::Document& doc) {
+	featurelist_doc = doc;
     }
 
     /// Computes and populates the stats needed by a Feature.
@@ -171,11 +172,8 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 
     /// This method sets all the data members required for computing stats.
     void set_data(const Xapian::Query & query,
-			    const Xapian::Database & db,
-			    const Xapian::Document & doc);
-
-    /// Clears all the stats.
-    void clear_stats();
+		  const Xapian::Database & db,
+		  const Xapian::Document & doc);
 };
 
 }
