@@ -237,25 +237,9 @@ DEFINE_TESTCASE(checkemptyfeaturelist, generated)
 
     TEST(!mset.empty());
 
-    vector<double> vt;
-    Xapian::MSetIterator i = mset.begin();
-    vt.push_back(i.get_weight());
-    ++i;
-    TEST_NOT_EQUAL(i, mset.end());
-    vt.push_back(i.get_weight());
-    ++i;
-    TEST_EQUAL(i, mset.end());
-    double max_val = max(vt[0], vt[1]);
-
-    auto fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
-    TEST_EQUAL(fv.size(), 2);
-    // only weight feature of the document will be captured.
-    TEST_EQUAL(fv[0].get_fcount(), 1);
-    TEST_EQUAL(fv[1].get_fcount(), 1);
-
-    // weight will be in normalized form.
-    TEST_EQUAL(fv[0].get_fvals()[0], vt[0] / max_val);
-    TEST_EQUAL(fv[1].get_fvals()[0], vt[1] / max_val);
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   fl.create_feature_vectors(mset, Xapian::Query("tigers"),
+					     db));
     return true;
 }
 

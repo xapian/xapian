@@ -108,23 +108,26 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
     LOGCALL(API, std::vector<FeatureVector>, "FeatureList::create_feature_vectors", mset | letor_query | letor_db);
     if (mset.empty())
 	return vector<FeatureVector>();
+
+    if (!internal->feature.empty()) {
+	throw InvalidArgumentError("FeatureList cannot be empty");
+    }
+
     std::vector<FeatureVector> fvec;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	std::vector<double> fvals;
 	internal->set_data(letor_query, letor_db, doc);
-	if (!internal->feature.empty()) {
-	    Feature::Internal* internal_feature = new Feature::Internal(
-						  letor_db, letor_query, doc);
-	    // Computes and populates the Feature::Internal with required stats.
-	    internal->populate_feature_internal(internal_feature);
-	    for (Feature* it : internal->feature) {
-		it->internal = internal_feature;
-		const vector<double>& values = it->get_values();
-		// Append feature values
-		fvals.insert(fvals.end(), values.begin(), values.end());
-	    }
+	auto internal_feature = new Feature::Internal(letor_db,
+						      letor_query, doc);
+	// Computes and populates the Feature::Internal with required stats.
+	internal->populate_feature_internal(internal_feature);
+	for (Feature* it : internal->feature) {
+	    it->internal = internal_feature;
+	    const vector<double>& values = it->get_values();
+	    // Append feature values
+	    fvals.insert(fvals.end(), values.begin(), values.end());
 	}
 	double wt = i.get_weight();
 	// Weight is added as a feature by default.
