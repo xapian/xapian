@@ -90,4 +90,8 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	expected_exception = NULL;\
     } while (0)
 
+/// Check that CODE throws exactly Xapian LetorParseError TYPE.
+#define TEST_PARSE_EXCEPTION(CODE) TEST_EXCEPTION(Xapian::LetorParseError,\
+						  CODE)
+
 #endif // OM_HGUARD_TESTUTILS_H

@@ -1,1 +1,1 @@
-110001 'tigers score'
+110001 'tigers'

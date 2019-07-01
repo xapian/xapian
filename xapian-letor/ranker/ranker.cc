@@ -193,17 +193,18 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
 }
 
 // Query file is in the format: <qid> '<query_string>'
+// Although it will accept any number of arbitrary characters between
+// the first space and the first single quote.
 static std::pair<string, string>
 parse_query_string(const string & query_line, int line_number)
 {
-    string::size_type i = 0;
-    string::size_type j = query_line.find_first_of(' ', i);
+    string::size_type j = query_line.find_first_of(' ');
     if (j == string::npos) {
-	throw LetorParseError("Could not parse Query file at line:" +
-			       str(line_number));
+	throw LetorParseError("Missing space between fields in Query "
+			      "file at line:" + str(line_number));
     }
-    string qid = query_line.substr(i, j - i);
-    i = query_line.find_first_of("'", j);
+    string qid = query_line.substr(0, j);
+    string::size_type i = query_line.find_first_of("'", j);
     j = query_line.length() - 1;
     // check if the last character is '
     if (query_line[j] != '\'' || j == i) {

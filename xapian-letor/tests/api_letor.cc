@@ -263,32 +263,39 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
     return true;
 }
 
-DEFINE_TESTCASE(test_parse_querystring, generated)
+DEFINE_TESTCASE(parse_querystring, generated)
 {
     // All those cases which are not valid.
-    string db_path = get_database_path("apitest_listnet_ranker1",
+    string db_path = get_database_path("db_index_one_document",
 				       db_index_one_document);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
-    string query = data_directory + "parse_query_noopenquote.txt";
     string qrel = data_directory + "qrelone.txt";
-    string training_data = data_directory + "training_output.txt";
-    TEST_EXCEPTION(Xapian::LetorParseError,
-		   Xapian::prepare_training_file(db_path, query, qrel, 10,
-						 "training_output.txt"));
+    TEST_PARSE_EXCEPTION(Xapian::prepare_training_file(
+			 db_path, data_directory +
+			 "parse_query_noopenquote.txt", qrel, 10,
+			 "training_output.txt"));
 
-    query = data_directory + "parse_query_noclosingquote.txt";
-    TEST_EXCEPTION(Xapian::LetorParseError,
-		   Xapian::prepare_training_file(db_path, query, qrel, 10,
-						 "training_output.txt"));
+    TEST_PARSE_EXCEPTION(Xapian::prepare_training_file(
+			 db_path, data_directory +
+			 "parse_query_noclosingquote.txt", qrel, 10,
+			 "training_output.txt"));
 
-    query = data_directory + "parse_query_empty_string.txt";
-    TEST_EXCEPTION(Xapian::LetorParseError,
-		   Xapian::prepare_training_file(db_path, query, qrel, 10,
-						 "training_output.txt"));
+    TEST_PARSE_EXCEPTION(Xapian::prepare_training_file(
+			 db_path, data_directory +
+			 "parse_query_empty_string.txt",
+			 qrel, 10, "training_output.txt"));
+
+    TEST_PARSE_EXCEPTION(Xapian::prepare_training_file(
+			 db_path, data_directory + "nospace.txt", qrel, 10,
+			 "training_output.txt"));
+
+    TEST_PARSE_EXCEPTION(Xapian::prepare_training_file(
+			 db_path, data_directory + "nosinglequotes.txt", qrel,
+			 10, "training_output.txt"));
 
     // All those cases which are valid.
-    query = data_directory + "parse_query_valid.txt";
-    Xapian::prepare_training_file(db_path, query, qrel, 10,
+    Xapian::prepare_training_file(db_path, data_directory +
+				  "parse_query_valid.txt", qrel, 10,
 				  "training_output.txt");
     return true;
 }
