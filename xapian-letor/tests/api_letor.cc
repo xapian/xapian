@@ -222,7 +222,7 @@ DEFINE_TESTCASE(createfeaturevectorthree, generated)
     return true;
 }
 
-DEFINE_TESTCASE(checkemptyfeaturelist, generated)
+DEFINE_TESTCASE(emptyfeaturelist, !backend)
 {
     vector<Xapian::Feature*> f;
     TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::FeatureList fl(f));

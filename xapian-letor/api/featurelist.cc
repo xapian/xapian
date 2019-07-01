@@ -28,6 +28,7 @@
 #include "featurelist_internal.h"
 #include "feature_internal.h"
 
+#include "omassert.h"
 #include "debuglog.h"
 
 using namespace std;
@@ -112,6 +113,7 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
     if (mset.empty())
 	return vector<FeatureVector>();
     std::vector<FeatureVector> fvec;
+    Assert(!internal->feature.empty());
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
