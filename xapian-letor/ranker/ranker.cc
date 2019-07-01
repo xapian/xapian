@@ -30,6 +30,7 @@
 #include "xapian-letor/scorer.h"
 
 #include "debuglog.h"
+#include "omassert.h"
 #include "str.h"
 
 #include <cstdio>
@@ -198,6 +199,7 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
 static std::pair<string, string>
 parse_query_string(const string & query_line, int line_number)
 {
+	Assert(!query_line.empty());
     string::size_type j = query_line.find_first_of(' ');
     if (j == string::npos) {
 	throw LetorParseError("Missing space between fields in Query "
