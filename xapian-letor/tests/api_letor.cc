@@ -270,14 +270,11 @@ DEFINE_TESTCASE(parse_querystring, generated)
 				       db_index_one_document);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string qrel = data_directory + "qrelone.txt";
-    TEST_PARSE_EXCEPTION(db_path, qrel, data_directory,
-			 "parse_query_noopenquote.txt");
-    TEST_PARSE_EXCEPTION(db_path, qrel, data_directory,
-			 "parse_query_noclosingquote.txt");
-    TEST_PARSE_EXCEPTION(db_path, qrel, data_directory,
-			 "parse_query_empty_string.txt");
-    TEST_PARSE_EXCEPTION(db_path, qrel, data_directory, "nospace.txt");
-    TEST_PARSE_EXCEPTION(db_path, qrel, data_directory, "nosinglequotes.txt");
+    TEST_PARSE_EXCEPTION("parse_query_noopenquote.txt");
+    TEST_PARSE_EXCEPTION("parse_query_noclosingquote.txt");
+    TEST_PARSE_EXCEPTION("parse_query_empty_string.txt");
+    TEST_PARSE_EXCEPTION("nospace.txt");
+    TEST_PARSE_EXCEPTION("nosinglequotes.txt");
 
     // All those cases which are valid.
     Xapian::prepare_training_file(db_path, data_directory +
