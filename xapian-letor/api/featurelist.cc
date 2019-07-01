@@ -50,9 +50,12 @@ FeatureList::FeatureList() : internal(new FeatureList::Internal())
 }
 
 FeatureList::FeatureList(const std::vector<Feature*> & f)
-    : internal(new FeatureList::Internal())
 {
     LOGCALL_CTOR(API, "FeatureList", f);
+    if (f.empty()) {
+	throw InvalidArgumentError("FeatureList cannot be empty");
+    }
+    internal = new Internal();
     internal->feature = f;
     for (Feature* it : internal->feature) {
 	internal->stats_needed = Internal::stat_flags(internal->stats_needed |
@@ -108,11 +111,6 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
     LOGCALL(API, std::vector<FeatureVector>, "FeatureList::create_feature_vectors", mset | letor_query | letor_db);
     if (mset.empty())
 	return vector<FeatureVector>();
-
-    if (!internal->feature.empty()) {
-	throw InvalidArgumentError("FeatureList cannot be empty");
-    }
-
     std::vector<FeatureVector> fvec;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {

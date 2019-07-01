@@ -225,21 +225,7 @@ DEFINE_TESTCASE(createfeaturevectorthree, generated)
 DEFINE_TESTCASE(checkemptyfeaturelist, generated)
 {
     vector<Xapian::Feature*> f;
-    // pass empty feature list.
-    Xapian::FeatureList fl(f);
-    Xapian::Database db = get_database("db_index_two_documents",
-				       db_index_two_documents);
-
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("tigers"));
-    Xapian::MSet mset;
-    mset = enquire.get_mset(0, 10);
-
-    TEST(!mset.empty());
-
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   fl.create_feature_vectors(mset, Xapian::Query("tigers"),
-					     db));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::FeatureList fl(f));
     return true;
 }
 
