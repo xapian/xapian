@@ -1034,7 +1034,6 @@ testcase '1|one' id=1
 testcase '|Document 2 not found' id=2
 testcase '3|' id=3
 testcase '4|' id=4
-exit 0
 
 # Test $subdb and $subid.
 rm -rf "$TEST_DB"
