@@ -28,8 +28,8 @@
 #include "featurelist_internal.h"
 #include "feature_internal.h"
 
-#include "omassert.h"
 #include "debuglog.h"
+#include "omassert.h"
 
 using namespace std;
 
