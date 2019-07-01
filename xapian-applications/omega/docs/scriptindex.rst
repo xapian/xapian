@@ -16,15 +16,16 @@ for parameter values enclosed in double quotes: ``\\``, ``\"``, ``\0``, ``\t``,
 ``\n``, ``\r``, and ``\x`` followed by two hex digits.
 
 The actions are applied in the specified order to each field listed, and
-fields can be listed in several lines.
+a field can be listed in multiple lines.
 
 Here's an example::
 
  desc1 : unhtml index truncate=200 field=sample
  desc2 desc3 desc4 : unhtml index
  name : field=caption weight=3 index
- ref : field=ref boolean=Q unique=Q
- type : field=type boolean=XT
+ ref : boolean=Q unique=Q
+ type : boolean=XT
+ ref type : field
 
 Don't put spaces around the ``=`` separating an action and its argument -
 current versions allow spaces here (though this was never documented as
@@ -159,12 +160,22 @@ unique[=PREFIX]
 	a warning is issued but nothing else is done.  Only one record with
 	each value of the ID may be present in the index: adding a new record
 	with an ID which is already present will cause the old record to be
-	replaced (or deleted if the new record is otherwise empty).  You should
-	also index the field as a boolean field using the same prefix so that
-        the old record can be found.  In Omega, ``Q`` is conventionally used as
-        the prefix of a unique term.  You can use ``unique`` at most once in
-        each index script (this is only enforced since Omega 1.4.5, but older
-        versions didn't handle multiple instances usefully).
+        replaced or deleted.
+        
+        Deletion happens if the only input field present has the `unique`
+        action applied to it.  (Prior to 1.5.0, if there were multiple lists
+        of actions applied to an input field this triggered replacement instead
+        of deletion).  If you want to suppress this deletion feature, supplying
+        a dummy input field which doesn't match the index script will achieve
+        this.
+
+        You should also index the field as a boolean field using the same
+        prefix so that the old record can be found.  In Omega, ``Q`` is
+        conventionally used as the prefix of a unique term.
+
+        You can use ``unique`` at most once in each index script (this is only
+        enforced since Omega 1.4.5, but older versions didn't handle multiple
+        instances usefully).
 
 value=VALUESLOT
 	add as a Xapian document value in slot VALUESLOT.  Values can be used
