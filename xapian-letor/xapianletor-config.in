@@ -278,7 +278,7 @@ for arg in $actions ; do
 	    extract_dependency_libs "@libdir@/libxapianletor.la"
 	    [ -n "$dependency_libs" ] && D=" $dependency_libs"
 	fi
-	echo "$F$L -lxapian -lxapianletor$D"
+	echo "$F$L -lxapianletor$D"
 	;;
 
     --ltlibs)
@@ -313,7 +313,7 @@ for arg in $actions ; do
 	fi
 
 	set_L_to_library_path
-	echo "$F$L -lxapian -lxapianletor"
+	echo "$F$L -lxapianletor"
 	;;
     esac
 done
