@@ -61,7 +61,8 @@ BackendManagerSingleFile::do_get_database_path(const vector<string> & files)
 	// so we don't leave a partial DB in place upon failure.
 	string tmp_path = db_path + ".tmp";
 	sub_manager->get_database(files).compact(tmp_path,
-						 Xapian::DBCOMPACT_SINGLE_FILE);
+						 Xapian::DBCOMPACT_SINGLE_FILE |
+						 Xapian::DBCOMPACT_NO_RENUMBER);
 	if (rename(tmp_path.c_str(), db_path.c_str()) < 0) {
 	    throw Xapian::DatabaseError("rename failed", errno);
 	}

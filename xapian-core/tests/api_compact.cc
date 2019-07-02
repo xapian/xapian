@@ -103,8 +103,6 @@ check_sparse_uid_terms(const string & path)
 
 // With multi the docids in the shards change the behaviour.
 DEFINE_TESTCASE(compactnorenumber1, compact && generated && !multi) {
-    XFAIL_FOR_BACKEND("honey", "Honey->honey compaction is currently buggy");
-
     string a = get_database_path("compactnorenumber1a", make_sparse_db,
 				 "5-7 24 76 987 1023-1027 9999 !9999");
     string a_uuid;

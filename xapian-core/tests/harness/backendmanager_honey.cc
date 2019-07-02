@@ -63,7 +63,8 @@ BackendManagerHoney::do_get_database_path(const vector<string> & files)
     Xapian::WritableDatabase db(db_source, flags);
     FileIndexer(get_datadir(), files).index_to(db);
     db.commit();
-    db.compact(tmpfile, Xapian::DB_BACKEND_HONEY);
+    db.compact(tmpfile,
+	       Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
     db.close();
 
     rm_rf(db_source);
@@ -99,7 +100,8 @@ BackendManagerHoney::finalise_generated_database(const string& name)
     string path = CACHE_DIRECTORY "/" + name;
 
     Xapian::WritableDatabase wdb(generated_db_path);
-    wdb.compact(tmpfile, Xapian::DB_BACKEND_HONEY);
+    wdb.compact(tmpfile,
+		Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
     wdb.close();
 
     rename(tmpfile.c_str(), path.c_str());
