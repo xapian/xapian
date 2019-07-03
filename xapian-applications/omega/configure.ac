@@ -261,6 +261,17 @@ PKG_CHECK_MODULES([POPPLER], [poppler-cpp], [
                      OMINDEX_MODULES="$OMINDEX_MODULES omindex_pdf"])
      LIBS=$save_LIBS],[ ])
 
+dnl check if libe-book is available.
+PKG_CHECK_MODULES([LIBEBOOK], [libe-book-0.1,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [
+     save_LIBS=$LIBS
+     LIBS="$LIBS $LIBEBOOK_CFLAGS $LIBEBOOK_LIBS"
+     AC_CHECK_HEADERS([librevenge-0.0/librevenge-generators/librevenge-generators.h \
+                       librevenge-0.0/librevenge-stream/librevenge-stream.h \
+                       libe-book/libe-book.h],
+                       [AC_DEFINE(HAVE_LIBEBOOK, 1, [Define HAVE_LIBEBOOK if the library is available])
+                        OMINDEX_MODULES="$OMINDEX_MODULES omindex_ebook"])
+     LIBS=$save_LIBS],[ ])
+
 AC_SUBST([OMINDEX_MODULES])
 
 dnl Check that snprintf actually works as it's meant to.

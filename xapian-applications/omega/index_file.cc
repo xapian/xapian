@@ -153,8 +153,19 @@ void
 index_add_default_libraries()
 {
 #if defined HAVE_POPPLER
-    index_library("application/pdf", new Worker("omindex_pdf"));
+    Worker* omindex_pdf = new Worker("omindex_pdf");
+    index_library("application/pdf", omindex_pdf);
 #endif
+#if defined HAVE_LIBEBOOK
+    Worker* omindex_ebook = new Worker("omindex_ebook");
+    index_library("application/vnd.palm", omindex_ebook);
+    index_library("application/x-fictionbook+xml", omindex_ebook);
+    index_library("application/x-zip-compressed-fb2", omindex_ebook);
+    index_library("application/x-sony-bbeb", omindex_ebook);
+    index_library("application/x-tcr-ebook", omindex_ebook);
+    index_library("application/java-archive", omindex_ebook);
+#endif
+
 }
 
 void

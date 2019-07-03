@@ -167,7 +167,8 @@ Worker::extract(const std::string& filename,
 		pages = 0;
 	    else
 		pages = stoi(strpage);
-	    return true;
+	    return !dump.empty() || !title.empty() || !keywords.empty() ||
+		   !author.empty();
     }
     fclose(sockt);
     sockt = NULL;
