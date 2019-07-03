@@ -24,8 +24,7 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 #
 # XAPIANLETOR-CONFIG provides the default name for the xapianletor-config script
 # (which the user can override with "./configure XAPIANLETOR_CONFIG=/path/to/it").
-# If unset, the default is xapianletor-config.  Support for this third parameter
-# was added in Xapian 1.1.3.
+# If unset, the default is xapianletor-config.
 AC_DEFUN([XO_LIB_XAPIANLETOR],
 [
   AC_ARG_VAR(XAPIANLETOR_CONFIG, [Location of xapianletor-config (default:] ifelse([$3], [], xapianletor-config, [$3]) [on PATH)])
@@ -109,7 +108,7 @@ dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
   m4_define([XO_LIB_XAPIANLETOR_EXPANDED_], [])
 ])
 
-# XO_REQUIRE(VERSION[, ACTION-IF-LESS-THAN[, ACTION-IF-GREATHER-THAN-OR-EQUAL]])
+# XO_LETOR_REQUIRE(VERSION[, ACTION-IF-LESS-THAN[, ACTION-IF-GREATHER-THAN-OR-EQUAL]])
 # --------------------------------------------------------
 # Check if $XAPIANLETOR_VERSION is at least VERSION.  This macro should
 # be used after XO_LIB_XAPIANLETOR.
@@ -119,10 +118,10 @@ dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
 #
 # If ACTION-IF-GREATHER-THAN-OR-EQUAL is unset, the default is no
 # addtional action.
-AC_DEFUN([XO_REQUIRE],
+AC_DEFUN([XO_LETOR_REQUIRE],
 [
   m4_ifndef([XO_LIB_XAPIANLETOR_EXPANDED_],
-      [m4_fatal([XO_REQUIRE can only be used after XO_LIB_XAPIANLETOR])])
+      [m4_fatal([XO_LETOR_REQUIRE can only be used after XO_LIB_XAPIANLETOR])])
 dnl [Version component '$v' is not a number]
   AC_MSG_CHECKING([if $XAPIANLETOR_CONFIG version >= $1])
   old_IFS=$IFS
