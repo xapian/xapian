@@ -11,3 +11,4 @@ The following documents are available:
  * `CGI Parameters <cgiparams.html>`_
  * `OmegaScript <omegascript.html>`_
  * `Term Prefixes <termprefixes.html>`_
+ * `How to support a new file format <newformat.html>`_
