@@ -44,7 +44,7 @@ BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
 
 MAINTAINERCLEANFILES = my-html-tok.h mimemap.h mimemap.stamp namedents.h
 
-EXTRA_PROGRAMS = omindex_pdf
+EXTRA_PROGRAMS = omindex_pdf omindex_ebook
 
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
@@ -179,6 +179,10 @@ omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 omindex_pdf_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
 omindex_pdf_LDADD = $(POPPLER_LIBS)
 omindex_pdf_CXXFLAGS = $(POPPLER_CFLAGS)
+
+omindex_ebook_SOURCES = assistant.cc worker_comms.cc handler_libebook.cc
+omindex_ebook_LDADD = $(LIBEBOOK_LIBS)
+omindex_ebook_CXXFLAGS = $(LIBEBOOK_CFLAGS) $(XAPIAN_CXXFLAGS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\

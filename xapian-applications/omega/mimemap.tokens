@@ -193,6 +193,12 @@ rpm		application/x-redhat-package-manager
 # Atom feeds:
 atom		application/atom+xml
 
+# Ebooks:
+fb2		application/x-fictionbook+xml
+lrf		application/x-sony-bbeb
+tcr		application/x-tcr-ebook
+pdb		application/vnd.palm
+
 # Extensions to quietly ignore:
 a		ignore
 adm		ignore

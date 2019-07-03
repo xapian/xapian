@@ -310,6 +310,11 @@ other filters too - see below):
 * MIME email messages (.eml) and USENET articles if perl with MIME::Tools and
   HTML::Parser is available
 * vCard files (.vcf, .vcard) if perl with Text::vCard is available
+* FictionBook v.2 files (.fb2) if libe-book is available
+* QiOO (mobile format, for java-enabled cellphones) files (.jar) if libe-book is available
+* TCR (simple compressed text format) files (.tcr) if libe-book is available
+* eReader files (.pdb) if libe-book is available
+* Sony eBook files (.lrf) if libe-book is available
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For

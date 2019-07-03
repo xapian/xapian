@@ -28,6 +28,7 @@ matrix:
             - libicu-dev
             - pkg-config
             - libpoppler-cpp-dev
+            - libe-book-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
@@ -52,6 +53,7 @@ matrix:
             - libicu-dev
             - pkg-config
             - libpoppler-cpp-dev
+            - libe-book-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
