@@ -77,10 +77,8 @@ int main()
 	// Setting a timeout for avoid infinity loops
 	set_timeout();
 	if (!extract(filename, dump, title, keywords, author, pages)) {
-	    dump.clear();
-	    title.clear();
-	    keywords.clear();
-	    author.clear();
+	    // FIXME: we could persist even if extraction fails...
+	    _Exit(1);
 	}
 	// The function extract returns, I can cancel the timeout
 	stop_timeout();
