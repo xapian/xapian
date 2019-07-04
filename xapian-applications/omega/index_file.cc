@@ -243,11 +243,11 @@ index_add_default_filters()
 			 PIPE_DEV_STDIN));
     index_command("text/vcard",
 		  Filter(get_pkglibbindir() + "/vcard2text", PIPE_DEV_STDIN));
-    index_command("application/vnd.apply.keynote",
+    index_command("application/vnd.apple.keynote",
 		  Filter("key2text", SEEK_DEV_STDIN));
-    index_command("application/vnd.apply.numbers",
+    index_command("application/vnd.apple.numbers",
 		  Filter("numbers2text", SEEK_DEV_STDIN));
-    index_command("application/vnd.apply.pages",
+    index_command("application/vnd.apple.pages",
 		  Filter("pages2text", SEEK_DEV_STDIN));
 }
 
