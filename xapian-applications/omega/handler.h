@@ -1,5 +1,5 @@
 /** @file handler.h
- * @brief @brief Extract text and metadata using an external library.
+ * @brief Extract text and metadata using an external library.
  */
 /* Copyright (C) 2011 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi

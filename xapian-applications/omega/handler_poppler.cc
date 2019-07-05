@@ -1,5 +1,5 @@
 /** @file handler_poppler.cc
- * @brief @brief Extract text and metadata using poopler.
+ * @brief Extract text and metadata using poopler.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  *
