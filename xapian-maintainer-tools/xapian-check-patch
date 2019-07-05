@@ -85,6 +85,19 @@ sub count_columns {
     return $len;
 }
 
+sub check_comment_content {
+    local $_ = shift;
+    if (/\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
+	diagnostic('error', "Doxygen command '\\$1' introduced by '\\' not '\@'");
+    }
+    if (/\@\s+([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
+	diagnostic('error', "Broken Doxygen command: whitespace between '\@' and '$1'");
+    }
+    if (/(\@[a-z]+)\s+\1\b/) {
+	diagnostic('error', "Double Doxygen command: '$1 $1'");
+    }
+}
+
 my $add_lines = 0;
 my $del_lines = 0;
 my $files = 0;
@@ -211,6 +224,8 @@ while (<>) {
     my $line_blank = /^[+ ]\s*$/;
 
     $fullline = $_;
+    my $first_char = substr($fullline, 0, 1);
+
     if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
 	if ($lineno == 1 && m!^\+!) {
 	    if (m!^\+/\*\*\s+\@file\s+(\S+)!) {
@@ -240,32 +255,70 @@ while (<>) {
 	}
 
 	# Trim comments:
-	if (s! /\*.*?\*/ ! !g) {
-	    # C-style comment with spaces around, e.g.
-	    # { T = P->as_phrase_query(); /*T-overwrites-P*/ }
-	    s/\s+$//;
-	}
-	if (s!/(?:\*.*?\*/|/.*)!!g) {
-	    s/\s+$//;
-	}
-	if (s!/\*.*!!g) {
-	    s/\s+$//;
-	    $in_comment = 1;
-	}
-	# Trim content of comments ending on this line:
-	if (s!^(.).*\*/!$1*/!) {
-	    $in_comment = 0;
-	}
-	if ($in_comment) {
-	    $_ = '';
+	if (!$in_comment) {
+	    if ($ext eq 'lt' && /^.%%$/) {
+		# Avoid %% placeholders generating warnings.
+		$_ = $first_char;
+	    }
+	    if (s! /\*(.*?)\*/ ! !g) {
+		# C-style comment with spaces around, e.g.
+		# { T = P->as_phrase_query(); /*T-overwrites-P*/ }
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+	    }
+	    if (s!/\*(.*?)\*/!!g) {
+		# C-style comment without spaces on both sides, e.g.:
+		#    foo(); /* blah blah */
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+	    }
+	    if (s!//(.*)!!) {
+		# Single line comment, e.g.:
+		#    // blah blah
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+	    }
+	    if (s!/\*(.*)!!g) {
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+		$in_comment = 1;
+	    }
 	} else {
-	    # Drop comment content for "*" continuation lines (when /* isn't in hunk):
-	    s/^(.)(\s*\*).*/$1$2/;
-	}
-
-	if (!$in_comment && $ext eq 'lt' && /^.%%$/) {
-	    # Avoid %% placeholders generating warnings.
-	    $_ = '';
+	    if (s!^.\s*\*+(.*)\*/!$first_char!) {
+		# End of multiline comment with leading *, e.g.:
+		#    *  blah blah */
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+		$in_comment = 0;
+	    } elsif (s!^.(.*)\*/!$first_char!) {
+		# End of multiline comment without leading *, e.g.:
+		#     blah blah */
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		$in_comment = 0;
+	    } else {
+		if ($first_char eq '+') {
+		    if (m!^.\s*\*+(.*)!) {
+			# In multiline comment with leading *.
+			check_comment_content($1);
+		    } else {
+			# In multiline comment without leading *.
+			check_comment_content(substr($_, 1));
+		    }
+		}
+		$_ = $first_char;
+	    }
 	}
     } elsif (defined $lang && $lang eq 'py') {
 	# Trim comments:
@@ -278,7 +331,7 @@ while (<>) {
     s!  +\\$! \\!;
 
     if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
-	if (substr($_, 0, 1) eq '+') {
+	if ($first_char eq '+') {
 	    my $expandedline = '';
 	    for my $i (1..length($fullline) - 1) {
 		my $ch = substr($fullline, $i, 1);
@@ -382,12 +435,6 @@ QUOTELOOP:  while (1) {
 	    # Not an error, but not good.
 	    diagnostic('warning', "FIX"."ME added");
 	}
-    }
-    if (defined $lang && $lang ne 'changelog' && /^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
-	diagnostic('error', "Doxygen command '\\$1' introduced by '\\' not '\@'");
-    }
-    if (defined $lang && $lang ne 'changelog' && /^\+.*@\s+([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
-	diagnostic('error', "Broken Doxygen command: whitespace between '\@' and '$1'");
     }
     if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
 	if ($last_line_blank) {
@@ -719,8 +766,6 @@ QUOTELOOP:  while (1) {
 	    diagnostic('error', "Typo '$1'");
 	}
     }
-
-    my $first_char = substr($fullline, 0, 1);
 
     if ($check_indent) {
 	# Check indentation.
