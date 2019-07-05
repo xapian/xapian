@@ -79,9 +79,9 @@ double unserialise_double(const char ** p, const char * end)
 
 #else
 
-string serialise_double(double v){
-    /*
-     * First bit(msb) -> sign (1 means negative)
+string serialise_double(double v)
+{
+    /* First bit(msb) -> sign (1 means negative)
      * next 11 bits -> exponent
      * last 52 bits -> mantissa
      *
