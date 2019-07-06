@@ -310,7 +310,7 @@ other filters too - see below):
 * MIME email messages (.eml) and USENET articles if perl with MIME::Tools and
   HTML::Parser is available
 * vCard files (.vcf, .vcard) if perl with Text::vCard is available
-* FictionBook v.2 files (.fb2, .fb2.zip) if libe-book is available
+* FictionBook v.2 files (.fb2) if libe-book is available
 * QiOO (mobile format, for java-enabled cellphones) files (.jar) if libe-book is available
 * TCR (simple compressed text format) files (.tcr) if libe-book is available
 * eReader files (.pdb) if libe-book is available

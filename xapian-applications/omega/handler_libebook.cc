@@ -1,5 +1,5 @@
 /** @file handler_libebook.cc
- * @brief @brief Extract text and metadata using libe-book.
+ * @brief Extract text and metadata using libe-book.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  *
@@ -25,10 +25,10 @@
 #include <string.h>
 #include <unordered_map>
 #include <memory>
+#include <iostream>
 
 #include <librevenge-0.0/librevenge-generators/librevenge-generators.h>
 #include <librevenge-0.0/librevenge-stream/librevenge-stream.h>
-#include <iostream>
 #include <libe-book/libe-book.h>
 
 using libebook::EBOOKDocument;
