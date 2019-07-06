@@ -67,7 +67,7 @@ done
 if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
   echo "Usage: $0 [-v <last backported version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
   echo
-  echo "e.g.: $0 xapian-core 1.2.15-1 xenial"
+  echo "e.g.: $0 xapian-core 1.4.11-1 xenial"
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
   echo "Currently, the recognised values are:"
@@ -121,12 +121,6 @@ build_it() {
 
   overrides=
   case $PKG:$CODENAME:$VERSION in
-    xapian-core:*:1.2.*)
-      # So we can create the backport source packages on debian unstable.
-      overrides='libxapian_soversion=22 other_abi_suffix=v5' ;;
-    xapian-bindings:trusty:1.2.*)
-      # Make sure we add python-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy RUBY_VERSIONS="2.0" RUBY_PROVIDES="X-Dummy: No provides"' ;;
     xapian-bindings:jessie:*)
       # Make sure we add python-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy' ;;
@@ -134,12 +128,10 @@ build_it() {
       # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
     xapian-bindings:stretch:*|xapian-bindings:xenial:*)
-      # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
-      # to debian/control.
+      # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
     xapian-bindings:*:*)
-      # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
-      # to debian/control.
+      # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.5 RUBY_PROVIDES="X-Dummy: No provides"' ;;
   esac
 
