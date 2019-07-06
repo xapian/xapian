@@ -127,16 +127,20 @@ build_it() {
     xapian-bindings:trusty:1.2.*)
       # Make sure we add python-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy RUBY_VERSIONS="2.0" RUBY_PROVIDES="X-Dummy: No provides"' ;;
+    xapian-bindings:jessie:*)
+      # Make sure we add python-xapian to debian/control.
+      overrides='PYTHON_VERSIONS=dummy' ;;
     xapian-bindings:trusty:*)
       # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
-    xapian-bindings:xenial:*|xapian-bindings:bionic:*|xapian-bindings:cosmic:*)
+    xapian-bindings:stretch:*|xapian-bindings:xenial:*)
       # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
       # to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
     xapian-bindings:*:*)
-      # Make sure we add python-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy' ;;
+      # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
+      # to debian/control.
+      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.5 RUBY_PROVIDES="X-Dummy: No provides"' ;;
   esac
 
   # libxapian30 (i.e. 1.4.x) is built with C++ "v5" ABI in stretch and newer
