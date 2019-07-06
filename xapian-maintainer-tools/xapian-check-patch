@@ -284,7 +284,8 @@ while (<>) {
 		}
 		s/\s+$//;
 	    }
-	    if (s!/\*(.*)!!g) {
+	    # Take care to avoid interpreting "foo/*" as a comment start.
+	    if (s!^.(?:[^"]+?|"(?:[^\\"]*?|\\.)*?")*?/\*(.*)!!g) {
 		if ($first_char eq '+') {
 		    check_comment_content($1);
 		}
