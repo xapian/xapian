@@ -294,7 +294,7 @@ DEFINE_TESTCASE(bigfeaturelist, generated)
 
     // pass big feature list.
     Xapian::FeatureList fl(f);
-    Xapian::Database db = get_database("apitest_checkbigfeaturelist",
+    Xapian::Database db = get_database("db_index_two_documents",
 				       db_index_two_documents);
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("tigers"));
@@ -305,6 +305,8 @@ DEFINE_TESTCASE(bigfeaturelist, generated)
 
     auto fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
     TEST_EQUAL(fv.size(), 2);
+    // Each feature contributes three values and weight as the default one
+    // making total as 25.
     TEST_EQUAL(fv[0].get_fcount(), 25);
     TEST_EQUAL(fv[1].get_fcount(), 25);
     return true;
@@ -930,14 +932,14 @@ DEFINE_TESTCASE(createfeaturevector_tffeature, generated)
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
 
-    TEST(!mset.empty());
-
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("en"));
     queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
+    // As the feature values depend on "title","body" and "whole",
+    // we need to seperate it out instead of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
@@ -952,6 +954,7 @@ DEFINE_TESTCASE(createfeaturevector_tffeature, generated)
     TEST_EQUAL(fvals_doc2.size(), 4);
 
     vector<double> test_vals_doc1(4);
+    // These are the appropriate TfFeature values for the first document.
     test_vals_doc1[0] = 0.301029995663981;
     test_vals_doc1[1] = 1.653212513775344;
     test_vals_doc1[2] = 1.954242509439325;
@@ -960,6 +963,7 @@ DEFINE_TESTCASE(createfeaturevector_tffeature, generated)
     test_vals_doc1[3] = it.get_weight();
 
     vector<double> test_vals_doc2(4);
+    // These are the appropriate TfFeature values for the second document.
     test_vals_doc2[0] = 0;
     test_vals_doc2[1] = 1.732393759822969;
     test_vals_doc2[2] = 1.732393759822969;
@@ -1006,14 +1010,14 @@ DEFINE_TESTCASE(createfeaturevector_idffeature, generated)
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
 
-    TEST(!mset.empty());
-
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("en"));
     queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
+    // As the feature values depend on "title","body" and "whole",
+    // we need to seperate it out instead of just writing Query("score").
     string querystring = "title:tigers description:tigers tigers"
 			 " title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
@@ -1029,6 +1033,7 @@ DEFINE_TESTCASE(createfeaturevector_idffeature, generated)
     TEST_EQUAL(fvals_doc2.size(), 4);
 
     vector<double> test_vals_doc1(4);
+    // These are the appropriate IdfFeature values for the first document.
     test_vals_doc1[0] = 0.0;
     test_vals_doc1[1] = 0.0;
     test_vals_doc1[2] = 0.0;
@@ -1037,6 +1042,7 @@ DEFINE_TESTCASE(createfeaturevector_idffeature, generated)
     test_vals_doc1[3] = it.get_weight();
 
     vector<double> test_vals_doc2(4);
+    // These are the appropriate IdfFeature values for the second document.
     test_vals_doc2[0] = 0.0;
     test_vals_doc2[1] = 0.0;
     test_vals_doc2[2] = 0.0;
@@ -1080,14 +1086,14 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclenfeature, generated)
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
 
-    TEST(!mset.empty());
-
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("en"));
     queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
+    // As the feature values depend on "title","body" and "whole",
+    // we need to seperate it out instead of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
@@ -1102,6 +1108,8 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclenfeature, generated)
     TEST_EQUAL(fvals_doc2.size(), 4);
 
     vector<double> test_vals_doc1(4);
+    // These are the appropriate TfDoclenFeature values for the first
+    // document.
     test_vals_doc1[0] = 0.0511525224473813;
     test_vals_doc1[1] = 0.0323089286738408;
     test_vals_doc1[2] = 0.0335890631408052;
@@ -1110,6 +1118,8 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclenfeature, generated)
     test_vals_doc1[3] = it.get_weight();
 
     vector<double> test_vals_doc2(4);
+    // These are the appropriate TfDoclenFeature values for the second
+    // document.
     test_vals_doc2[0] = 0.0;
     test_vals_doc2[1] = 0.03237347800973529;
     test_vals_doc2[2] = 0.03200637092048766;
@@ -1156,14 +1166,14 @@ DEFINE_TESTCASE(createfeaturevector_colltfcolllenfeature, generated)
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
 
-    TEST(!mset.empty());
-
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("en"));
     queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
+    // As the feature values depend on "title","body" and "whole",
+    // we need to seperate it out instead of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
@@ -1178,6 +1188,8 @@ DEFINE_TESTCASE(createfeaturevector_colltfcolllenfeature, generated)
     TEST_EQUAL(fvals_doc2.size(), 4);
 
     vector<double> test_vals_doc1(4);
+    // These are the appropriate CollTfCollLenFeature values for the first
+    // document.
     test_vals_doc1[0] = 0.45863784902564930;
     test_vals_doc1[1] = 3.13291481930625260;
     test_vals_doc1[2] = 4.94672282004904673;
@@ -1233,14 +1245,14 @@ DEFINE_TESTCASE(createfeaturevector_tfidfdoclenfeature, generated)
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
 
-    TEST(!mset.empty());
-
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("en"));
     queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
+    // As the feature values depend on "title","body" and "whole",
+    // we need to seperate it out instead of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
@@ -1255,6 +1267,8 @@ DEFINE_TESTCASE(createfeaturevector_tfidfdoclenfeature, generated)
     TEST_EQUAL(fvals_doc2.size(), 4);
 
     vector<double> test_vals_doc1(4);
+    // These are the appropriate TfIdfDoclenFeature values for the first
+    // document.
     test_vals_doc1[0] = 0.0;
     test_vals_doc1[1] = 0.0;
     test_vals_doc1[2] = 0.0;
@@ -1263,6 +1277,8 @@ DEFINE_TESTCASE(createfeaturevector_tfidfdoclenfeature, generated)
     test_vals_doc1[3] = it.get_weight();
 
     vector<double> test_vals_doc2(4);
+    // These are the appropriate TfIdfDoclenFeature values for the second
+    // document.
     test_vals_doc2[0] = 0.0;
     test_vals_doc2[1] = 0.0;
     test_vals_doc2[2] = 0.0;
@@ -1307,14 +1323,14 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclencolllfcolllen, generated)
     Xapian::MSet mset;
     mset = enquire.get_mset(0, 10);
 
-    TEST(!mset.empty());
-
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("en"));
     queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
+    // As the feature values depend on "title","body" and "whole",
+    // we need to seperate it out instead of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
@@ -1329,6 +1345,8 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclencolllfcolllen, generated)
     TEST_EQUAL(fvals_doc2.size(), 4);
 
     vector<double> test_vals_doc1(4);
+    // These are the appropriate TfDoclenCollTfCollLenFeature values for
+    // the first document.
     test_vals_doc1[0] = 0.11394335230683678;
     test_vals_doc1[1] = 0.76130720333102619;
     test_vals_doc1[2] = 0.90738326700002048;
@@ -1337,6 +1355,8 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclencolllfcolllen, generated)
     test_vals_doc1[3] = it.get_weight();
 
     vector<double> test_vals_doc2(4);
+    // These are the appropriate TfDoclenCollTfCollLenFeature values for
+    // the second document.
     test_vals_doc2[0] = 0.0;
     test_vals_doc2[1] = 0.77758890362035493;
     test_vals_doc2[2] = 0.78786362447009839;
