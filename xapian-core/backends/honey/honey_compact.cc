@@ -847,8 +847,11 @@ merge_postlists(Xapian::Compactor* compactor,
 	Xapian::doccount tf;
 	Xapian::termcount cf;
 	bool have_wdfs;
+
+      private:
 	string data;
 
+      public:
 	HoneyPostListChunk(Xapian::docid first_,
 			   Xapian::docid last_,
 			   Xapian::termcount first_wdf_,
@@ -995,7 +998,7 @@ merge_postlists(Xapian::Compactor* compactor,
 						      last_did,
 						      i->first_wdf,
 						      tag);
-			    tag += i->data;
+			    i->append_postings_to(tag, have_wdfs);
 			} else {
 			    if (i->have_wdfs && i + 1 != tags.end()) {
 				splice_last = last_did;
@@ -1005,12 +1008,12 @@ merge_postlists(Xapian::Compactor* compactor,
 			    encode_delta_chunk_header_no_wdf(i->first,
 							     last_did,
 							     tag);
-			    tag += i->data;
+			    i->append_postings_to(tag, have_wdfs);
 			    if (splice_last) {
 				++i;
 				pack_uint(tag, i->first - splice_last);
 				splice_last = 0;
-				tag += i->data;
+				i->append_postings_to(tag, have_wdfs);
 			    }
 			}
 
