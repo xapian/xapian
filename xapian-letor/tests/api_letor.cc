@@ -938,8 +938,9 @@ DEFINE_TESTCASE(createfeaturevector_tffeature, generated)
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
-    // As the feature values depend on "title","body" and "whole",
-    // we need to seperate it out instead of just writing Query("score").
+    // As the feature values depend on different prefixed terms in the query
+    // like "title","body" and "whole", so we need to separate it out instead
+    // of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
@@ -1016,8 +1017,9 @@ DEFINE_TESTCASE(createfeaturevector_idffeature, generated)
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
-    // As the feature values depend on "title","body" and "whole",
-    // we need to seperate it out instead of just writing Query("score").
+    // As the feature values depend on different prefixed terms in the query
+    // like "title","body" and "whole", so we need to separate it out instead
+    // of just writing Query("score").
     string querystring = "title:tigers description:tigers tigers"
 			 " title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
@@ -1092,8 +1094,9 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclenfeature, generated)
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
-    // As the feature values depend on "title","body" and "whole",
-    // we need to seperate it out instead of just writing Query("score").
+    // As the feature values depend on different prefixed terms in the query
+    // like "title","body" and "whole", so we need to separate it out instead
+    // of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
@@ -1172,8 +1175,9 @@ DEFINE_TESTCASE(createfeaturevector_colltfcolllenfeature, generated)
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
-    // As the feature values depend on "title","body" and "whole",
-    // we need to seperate it out instead of just writing Query("score").
+    // As the feature values depend on different prefixed terms in the query
+    // like "title","body" and "whole", so we need to separate it out instead
+    // of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
@@ -1251,8 +1255,9 @@ DEFINE_TESTCASE(createfeaturevector_tfidfdoclenfeature, generated)
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
-    // As the feature values depend on "title","body" and "whole",
-    // we need to seperate it out instead of just writing Query("score").
+    // As the feature values depend on different prefixed terms in the query
+    // like "title","body" and "whole", so we need to separate it out instead
+    // of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
@@ -1329,8 +1334,9 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclencolllfcolllen, generated)
     queryparser.add_prefix("title", "S");
     queryparser.add_prefix("description", "XD");
 
-    // As the feature values depend on "title","body" and "whole",
-    // we need to seperate it out instead of just writing Query("score").
+    // As the feature values depend on different prefixed terms in the query
+    // like "title","body" and "whole", so we need to separate it out instead
+    // of just writing Query("score").
     string querystring = "title:score description:score score";
     Xapian::Query query = queryparser.parse_query(querystring);
 
