@@ -6,19 +6,19 @@ bin_PROGRAMS +=\
 
 bin_xapian_letor_update_SOURCES =\
 	bin/xapian-letor-update.cc
-bin_xapian_letor_update_LDADD = libcommon_str.la libgetopt.la $(XAPIAN_LIBS)
+bin_xapian_letor_update_LDADD = libcommon.la $(XAPIAN_LIBS)
 
 bin_xapian_prepare_trainingfile_SOURCES =\
 	bin/xapian-prepare-trainingfile.cc
-bin_xapian_prepare_trainingfile_LDADD = libgetopt.la libxapianletor.la $(XAPIAN_LIBS)
+bin_xapian_prepare_trainingfile_LDADD = libcommon.la libxapianletor.la $(XAPIAN_LIBS)
 
 bin_xapian_rank_SOURCES =\
 	bin/xapian-rank.cc
-bin_xapian_rank_LDADD = libgetopt.la libxapianletor.la $(XAPIAN_LIBS)
+bin_xapian_rank_LDADD = libcommon.la libxapianletor.la $(XAPIAN_LIBS)
 
 bin_xapian_train_SOURCES =\
 	bin/xapian-train.cc
-bin_xapian_train_LDADD = libgetopt.la libxapianletor.la $(XAPIAN_LIBS)
+bin_xapian_train_LDADD = libcommon.la libxapianletor.la $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\

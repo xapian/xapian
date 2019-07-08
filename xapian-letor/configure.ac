@@ -41,7 +41,7 @@ AC_SUBST([incdir])
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapianletor-config.
 AC_SUBST([link_all_deplibs_CXX])
 
-AM_INIT_AUTOMAKE([1.13 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.13 -Wportability tar-ustar no-dist-gzip dist-xz std-options])
 
 AC_CONFIG_SRCDIR([ranker/ranker.cc])
 
