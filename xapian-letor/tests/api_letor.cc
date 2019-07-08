@@ -511,9 +511,9 @@ DEFINE_TESTCASE(listnet_ranker_three_correct, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListNet_Ranker",
 				"scorer_output.txt", 10));
-    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_3.txt=",
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_3.txt",
 		 10);
-    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_3.txt", 10,
+    ranker.score(query, qrel, "ListNet_Ranker", "err_output_ListNet_3.txt", 10,
 		 "ERRScore");
     return true;
 }
