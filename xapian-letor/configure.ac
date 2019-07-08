@@ -41,7 +41,7 @@ AC_SUBST([incdir])
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapianletor-config.
 AC_SUBST([link_all_deplibs_CXX])
 
-AM_INIT_AUTOMAKE([1.13 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.13 -Wportability tar-ustar no-dist-gzip dist-xz std-options])
 
 AC_CONFIG_SRCDIR([ranker/ranker.cc])
 
@@ -121,6 +121,9 @@ XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 XO_REQUIRE([1.4.0])
+
+XAPIANLETOR_LDFLAGS=
+AC_SUBST([XAPIANLETOR_LDFLAGS])
 
 AC_DEFUN([XAPIAN_TEST_FLAGS_],
   [
@@ -419,6 +422,10 @@ else
     AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,20201" ;;
   esac
 fi
+
+XAPIAN_TEST_LDFLAGS([-Wl,-Bsymbolic-functions], [XAPIANLETOR_LDFLAGS])
+dnl Roughly equivalent Sun C++ option.
+XAPIAN_TEST_LDFLAGS([-xldscope=symbolic], [XAPIANLETOR_LDFLAGS])
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */

@@ -98,7 +98,7 @@ dist_m4data_DATA = m4-macros/xapianletor.m4
 lib_LTLIBRARIES = libxapianletor.la
 libxapianletor_la_SOURCES = $(lib_src)
 libxapianletor_la_LDFLAGS = \
-	$(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
+	$(XAPIANLETOR_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
 
 libxapianletor_la_LIBADD = $(XAPIAN_LIBS) libcommon_str.la
 
@@ -133,9 +133,25 @@ MAINTAINERCLEANFILES += $(BUILT_SOURCES)
 libxapianletor_la_LIBADD += $(LIBSVM_LIBS)
 
 noinst_HEADERS +=\
+	common/alignment_cast.h\
+	common/append_filename_arg.h\
+	common/debuglog.h\
+	common/errno_to_string.h\
+	common/filetests.h\
+	common/fileutils.h\
 	common/gnu_getopt.h\
+	common/log2.h\
+	common/omassert.h\
+	common/output.h\
+	common/overflow.h\
+	common/parseint.h\
+	common/safedirent.h\
+	common/safefcntl.h\
+	common/safesyssocket.h\
+	common/safesysstat.h\
 	common/safeunistd.h\
 	common/str.h\
-	common/stringutils.h
+	common/stringutils.h\
+	common/wordaccess.h
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"

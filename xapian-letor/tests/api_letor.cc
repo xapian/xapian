@@ -786,6 +786,7 @@ DEFINE_TESTCASE(svm_ranker_three_correct, generated)
     ranker.score(query, qrel, "SVM_Ranker", "ndcg_output_svm_3.txt", 10);
     TEST(file_exists("ndcg_output_svm_3.txt"));
     unlink("ndcg_output_svm_3.txt");
+    unlink("err_output_svm_3.txt");
     ranker.score(query, qrel, "SVM_Ranker", "err_output_svm_3.txt", 10,
 		 "ERRScore");
     TEST(file_exists("err_output_svm_3.txt"));
@@ -835,6 +836,7 @@ DEFINE_TESTCASE(listmle_ranker, generated)
 		 10);
     TEST(file_exists("ndcg_output_listmle_2.txt"));
     unlink("ndcg_output_listmle_2.txt");
+    unlink("err_output_listmle_2.txt");
     ranker.score(query, qrel, "ListMLE_Ranker", "err_output_listmle_2.txt", 10,
 		 "ERRScore");
     TEST(file_exists("err_output_listmle_2.txt"));
