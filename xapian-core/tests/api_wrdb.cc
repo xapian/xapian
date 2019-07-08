@@ -1933,7 +1933,7 @@ DEFINE_TESTCASE(lazytablebug1, chert || glass) {
  *  Chert also has the same duff code but this testcase doesn't actually
  *  tickle the bug there.
  */
-DEFINE_TESTCASE(cursordelbug1, chert || glass) {
+DEFINE_TESTCASE(cursordelbug1, writable && path) {
     static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
     static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
 
