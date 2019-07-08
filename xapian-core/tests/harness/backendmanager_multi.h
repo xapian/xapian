@@ -23,6 +23,7 @@
 #define XAPIAN_INCLUDED_BACKENDMANAGER_MULTI_H
 
 #include "backendmanager.h"
+#include "backendmanager_remote.h"
 
 #include <string>
 
@@ -41,7 +42,7 @@ class BackendManagerMulti : public BackendManager {
 
     BackendManager* sub_manager;
 
-    BackendManager* sub_manager_alt;
+    BackendManagerRemote* sub_manager_alt;
 
     std::string cachedir;
 
@@ -58,7 +59,7 @@ class BackendManagerMulti : public BackendManager {
 
     BackendManagerMulti(const std::string& datadir_,
 			BackendManager* sub_manager_,
-                        BackendManager* sub_manager_alt_);
+			BackendManagerRemote* sub_manager_alt_);
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
 

@@ -52,7 +52,7 @@ BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
 
 BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
 					 BackendManager* sub_manager_,
-					 BackendManager* sub_manager_alt_)
+					 BackendManagerRemote* sub_manager_alt_)
     : BackendManager(datadir_),
       sub_manager(sub_manager_),
       sub_manager_alt(sub_manager_alt_),
@@ -149,7 +149,7 @@ BackendManagerMulti::createdb_multi(const string& name,
 	Xapian::WritableDatabase remote_test_db(dbbase, flags);
 	remote_test_db.close();
 	if (subalttype == "remoteprog_glass") {
-	    string args = BackendManagerRemote::get_writable_database_args_from_path(dbbase);
+	    string args = sub_manager_alt->get_writable_database_args(dbbase, 300000);
 #ifdef HAVE_VALGRIND
 	    if (RUNNING_ON_VALGRIND) {
 		args.insert(0, XAPIAN_PROGSRV" ");
