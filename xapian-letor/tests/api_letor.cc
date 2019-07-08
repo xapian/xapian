@@ -275,6 +275,7 @@ DEFINE_TESTCASE(parse_querystring, generated)
     TEST_PARSE_EXCEPTION("parse_query_empty_string.txt");
     TEST_PARSE_EXCEPTION("nospace.txt");
     TEST_PARSE_EXCEPTION("nosinglequotes.txt");
+    TEST_PARSE_EXCEPTION("blank_space_before_query.txt");
 
     // All those cases which are valid.
     Xapian::prepare_training_file(db_path, data_directory +

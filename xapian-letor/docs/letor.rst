@@ -30,14 +30,15 @@ Learning the model
 As mentioned before, this process requires a training file in the above format. xapian-letor API empowers you to generate such training file. But for that you have to supply some information files like:
 
     1. Query file: This file has information of queries to be involved in
-    learning and its id. It should be formatted in such a way::
+    learning and its id. Here space is used as delimiter betweem query id and query string.
+    It should be formatted in such a way::
 
       2010001 'landslide malaysia'
       2010002 'search engine'
       2010003 'Monuments of India'
       2010004 'Indian food'
 
-    where 2010xxx being query-id followed by a comma separated query in
+    where 2010xxx being query-id followed by a space separated query in
     single-quotes.
 
     2. Qrel file: This is the file containing relevance judgements. It should
@@ -52,7 +53,7 @@ As mentioned before, this process requires a training file in the above format. 
     where first column is query-id, third column is Document-id and fourth
     column being relevance label which is 0 for irrelevance and 1 for
     relevance. Second column is many times referred as 'iter' but doesn't
-    really important for us.  All the fields are whitespace delimited. This is
+    really important for us.  All the fields are delimited by space. This is
     the standard format of almost all the relevance judgement files. If you
     have little different relevance judgement file then you can easily convert
     it in such file using basic 'awk' command.
