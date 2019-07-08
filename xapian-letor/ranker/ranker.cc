@@ -202,7 +202,7 @@ parse_query_string(const string & query_line, int line_number)
     Assert(!query_line.empty());
     string::size_type j = query_line.find_first_of(' ');
     if (j == 0) {
-	throw LetorParseError("White space at the start of the Query "
+	throw LetorParseError("Empty query id found in "
 			      "file at line:" + str(line_number));
     }
     if (j == string::npos) {

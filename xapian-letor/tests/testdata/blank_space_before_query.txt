@@ -1,1 +1,1 @@
- 123 'blank space before query'
+ 'query'
