@@ -27,7 +27,6 @@
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 #include "glass/glass_changes.h"
-#include "glass/glass_database.h"
 #include "glass/glass_dbcheck.h"
 #include "glass/glass_defs.h"
 #include "glass/glass_version.h"
