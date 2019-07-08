@@ -92,12 +92,7 @@ DEFINE_TESTCASE(stubdb1, path) {
 	enquire.get_mset(0, 10);
     }
 
-    try {
-	TEST_EQUAL(Xapian::Database::check(dbpath), 0);
-    } catch (const Xapian::UnimplementedError& e) {
-	TEST_STRINGS_EQUAL(e.get_msg(),
-			   "Honey database checking not implemented");
-    }
+    TEST_EQUAL(Xapian::Database::check(dbpath), 0);
 
     return true;
 }

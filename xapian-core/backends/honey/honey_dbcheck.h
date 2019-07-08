@@ -31,27 +31,27 @@
 
 class HoneyVersion;
 
-size_t check_honey_table(const char * tablename, const std::string &db_dir,
+size_t check_honey_table(const char* tablename, const std::string& db_dir,
 			 int fd, off_t offset_,
-			 const HoneyVersion & version_file, int opts,
-			 std::vector<Xapian::termcount> & doclens,
-			 std::ostream * out);
+			 const HoneyVersion& version_file, int opts,
+			 std::vector<Xapian::termcount>& doclens,
+			 std::ostream* out);
 
 inline size_t
-check_honey_table(const char * tablename, const std::string &db_dir,
-		  const HoneyVersion & version_file, int opts,
-		  std::vector<Xapian::termcount> & doclens,
-		  std::ostream * out)
+check_honey_table(const char* tablename, const std::string& db_dir,
+		  const HoneyVersion& version_file, int opts,
+		  std::vector<Xapian::termcount>& doclens,
+		  std::ostream* out)
 {
     return check_honey_table(tablename, db_dir, -1, 0, version_file, opts,
 			     doclens, out);
 }
 
 inline size_t
-check_honey_table(const char * tablename, int fd, off_t offset_,
-		  const HoneyVersion & version_file, int opts,
-		  std::vector<Xapian::termcount> & doclens,
-		  std::ostream * out)
+check_honey_table(const char* tablename, int fd, off_t offset_,
+		  const HoneyVersion& version_file, int opts,
+		  std::vector<Xapian::termcount>& doclens,
+		  std::ostream* out)
 {
     return check_honey_table(tablename, std::string(), fd, offset_,
 			     version_file, opts,
