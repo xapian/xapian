@@ -654,14 +654,12 @@ Matcher::get_mset(Xapian::doccount first,
 		break;
 	    }
 	}
-	if (collapser) {
-	    if (!collapser.add(result.get_collapse_key()))
-		continue;
-	}
-	if (first) {
-	    --first;
-	} else {
-	    merged_mset.internal->items.push_back(std::move(result));
+	if (!collapser || collapser.add(result.get_collapse_key())) {
+	    if (first) {
+		--first;
+	    } else {
+		merged_mset.internal->items.push_back(std::move(result));
+	    }
 	}
 	auto n = msets.front().second + 1;
 	if (n == msets.front().first.size()) {
