@@ -161,7 +161,7 @@ extract(const string& filename,
 	RVNGTextTextGenerator content(content_dump, false);
 
 	if (EBOOKDocument::RESULT_OK !=
-	    EBOOKDocument::parse(input.get(), &content, type)){
+	    EBOOKDocument::parse(input.get(), &content, type)) {
 	    return false;
 	}
 	clear_text(dump, content_dump.cstr());
