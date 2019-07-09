@@ -163,7 +163,7 @@ index_add_default_libraries()
     index_library("application/x-zip-compressed-fb2", omindex_ebook);
     index_library("application/x-sony-bbeb", omindex_ebook);
     index_library("application/x-tcr-ebook", omindex_ebook);
-    index_library("application/java-archive", omindex_ebook);
+    index_library("application/x-qioo-ebook", omindex_ebook);
 #endif
 
 }

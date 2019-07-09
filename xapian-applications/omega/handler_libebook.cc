@@ -18,35 +18,100 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-#include <config.h>
 #include "handler.h"
+#include "stringutils.h"
 
-#include <xapian.h>
-#include <string.h>
-#include <unordered_map>
 #include <memory>
 #include <iostream>
 
-#include <librevenge-0.0/librevenge-generators/librevenge-generators.h>
-#include <librevenge-0.0/librevenge-stream/librevenge-stream.h>
+#include <librevenge-generators/librevenge-generators.h>
+#include <librevenge-stream/librevenge-stream.h>
 #include <libe-book/libe-book.h>
+
+#define PARSE_FIELD(START, END, FIELD, OUT) \
+   parse_metadata_field((START), (END), (FIELD), (CONST_STRLEN(FIELD)), (OUT))
 
 using libebook::EBOOKDocument;
 using namespace std;
 using namespace librevenge;
 
-static
-char* str_copy(const char* text) {
-    int len = strlen(text);
-    char* line = new char[len];
-    strcpy(line, text);
-    return line;
+static void
+parse_metadata_field(const char* start,
+		     const char* end,
+		     const char* field,
+		     size_t len,
+		     string& out)
+{
+    if (size_t(end - start) > len && memcmp(start,field,len) == 0) {
+	start += len;
+	while (start != end && isspace(*start)) start++;
+	if (start != end && (end[-1] != '\r' || --end != start)) {
+	    if (!out.empty())
+		out.push_back(' ');
+		out.append(start, end - start);
+	}
+    }
 }
 
-static
-void clear_text(string& str,const char* text) {
-    int len = strlen(text);
-    for (int i = 0; i < len; ++i)
+static void
+parse_metadata(const char* data,
+	       string& author,
+	       string& title,
+	       string& keywords)
+{
+    const char* p = data;
+    const char* end = p + strlen(data);
+
+    while (p != end) {
+	const char* start = p;
+	p = static_cast<const char*>(memchr(p, '\n', end - start));
+	const char* eol;
+	if (p)
+	    eol = p++;
+	else
+	    p = eol = end;
+	if ((end - start) > 5 && memcmp(start,"meta:",5) == 0) {
+	    start += 5;
+	    switch (*start) {
+		case 'i': {
+		    if (author.empty())
+			PARSE_FIELD(start, eol, "initial-creator", author);
+		    break;
+		}
+		case 'k': {
+		    PARSE_FIELD(start, eol, "keyword", keywords);
+		    break;
+		}
+	    }
+	} else if ((end - start) > 3 && memcmp(start,"dc:",3) == 0) {
+	    start += 3;
+	    switch (*start) {
+		case 'c': {
+		    if (!author.empty())
+			author.clear();
+		    PARSE_FIELD(start, eol, "creator", author);
+		    break;
+		}
+		case 's': {
+		    PARSE_FIELD(start, eol, "subject", keywords);
+		    break;
+		}
+		case 't': {
+		    PARSE_FIELD(start, eol, "title", title);
+		    break;
+		}
+	    }
+	} else if ((end - start) > 8 && memcmp(start, "dcterms:", 8) == 0) {
+	    start += 8;
+	    PARSE_FIELD(start, eol, "available", keywords);
+	}
+    }
+}
+
+static void
+clear_text(string& str, const char* text)
+{
+    for (int i = 0; text[i]!='\0'; ++i)
 	if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
 	    str.push_back(text[i]);
 }
@@ -79,46 +144,20 @@ extract(const string& filename,
 	}
 
 	if ((EBOOKDocument::CONFIDENCE_EXCELLENT != confidence) &&
-	    (EBOOKDocument::CONFIDENCE_WEAK != confidence))
+	    (EBOOKDocument::CONFIDENCE_WEAK != confidence)) {
 	    return false;
+	}
 
 	RVNGTextTextGenerator metadata(metadata_dump, true);
 
 	if (EBOOKDocument::RESULT_OK !=
-	    EBOOKDocument::parse(input.get(), &metadata, type))
+	    EBOOKDocument::parse(input.get(), &metadata, type)) {
 	    return false;
-
-	unordered_map<string,char*> hash;
-	char* str = str_copy(metadata_dump.cstr());
-	char* pch = strtok(str, "\n");
-	while (pch != NULL) {
-	    char* sep = strpbrk(pch, " ");
-	    *sep = '\0';
-	    hash[pch] = sep + 1;
-	    pch = strtok(NULL, "\n");
 	}
-	delete[] str;
-	unordered_map<string,char*>::const_iterator it;
-
-	// Extract Author if it possible
-	if ((it = hash.find("dc:creator")) != hash.end())
-	    clear_text(author, it->second);
-	else if ((it = hash.find("meta:initial-creator")) != hash.end())
-	    clear_text(author, it->second);
-
-	// Extract Title if it possible
-	if ((it = hash.find("dc:title")) != hash.end())
-	    clear_text(title, it->second);
-
-	// Extract Keywords if it possible
-	if ((it = hash.find("dc:subject")) != hash.end())
-	    clear_text(keywords, it->second);
-	if ((it = hash.find("dcterms:available")) != hash.end())
-	    clear_text(keywords, it->second);
-	pages = "";
-	hash.clear();
-
-	// Extract Dump if it possible
+	// Extract metadata if possible
+	parse_metadata(metadata_dump.cstr(), author, title, keywords);
+	(void)pages;
+	// Extract Dump if possible
 	RVNGTextTextGenerator content(content_dump, false);
 
 	if (EBOOKDocument::RESULT_OK !=
