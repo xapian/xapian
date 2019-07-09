@@ -29,8 +29,6 @@ MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
-libcommon_la_SOURCES =
-
 .PHONY: coverage-reconfigure coverage-reconfigure-maintainer-mode coverage-check
 
 # This relies on GNU make (for the pattern rule) but it's just a convenience
@@ -102,7 +100,7 @@ libxapianletor_la_SOURCES = $(lib_src)
 libxapianletor_la_LDFLAGS = \
 	$(XAPIANLETOR_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
 
-libxapianletor_la_LIBADD = $(XAPIAN_LIBS) libcommon.la
+libxapianletor_la_LIBADD = $(XAPIAN_LIBS) libcommon_str.la
 
 lib_src =
 
@@ -117,15 +115,9 @@ include feature/Makefile.mk
 include ranker/Makefile.mk
 include scorer/Makefile.mk
 
-noinst_LTLIBRARIES += libcommon.la
-
-libcommon_la_SOURCES +=\
-	common/getopt.cc\
-	common/str.cc\
-	common/omassert.cc\
-	common/debuglog.cc\
-	common/errno_to_string.cc\
-	common/fileutils.cc
+noinst_LTLIBRARIES += libcommon_str.la libgetopt.la
+libcommon_str_la_SOURCES = common/str.cc
+libgetopt_la_SOURCES = common/getopt.cc
 
 xapianletorinclude_HEADERS += include/xapian-letor/letor_error.h
 
