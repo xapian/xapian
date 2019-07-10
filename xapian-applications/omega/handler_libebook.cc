@@ -128,6 +128,7 @@ extract(const string& filename,
 	shared_ptr<RVNGInputStream> input;
 	RVNGString content_dump, metadata_dump;
 	const char* file = filename.c_str();
+	bool f_txt = false, f_meta = false;
 
 	if (RVNGDirectoryStream::isDirectory(file))
 	    input.reset(new RVNGDirectoryStream(file));
@@ -145,29 +146,32 @@ extract(const string& filename,
 
 	if ((EBOOKDocument::CONFIDENCE_EXCELLENT != confidence) &&
 	    (EBOOKDocument::CONFIDENCE_WEAK != confidence)) {
+	    cerr << "Libe-book Error: The format is not supported" << endl;
 	    return false;
 	}
 
-	RVNGTextTextGenerator metadata(metadata_dump, true);
-
-	if (EBOOKDocument::RESULT_OK !=
-	    EBOOKDocument::parse(input.get(), &metadata, type)) {
-	    return false;
-	}
 	// Extract metadata if possible
-	parse_metadata(metadata_dump.cstr(), author, title, keywords);
+	RVNGTextTextGenerator metadata(metadata_dump, true);
+	if (EBOOKDocument::RESULT_OK ==
+	    EBOOKDocument::parse(input.get(), &metadata, type)) {
+	    parse_metadata(metadata_dump.cstr(), author, title, keywords);
+	    f_meta = true;
+	} else {
+	    cerr << "Libe-book Error: Fail to extract metadata" << endl;
+	}
 	(void)pages;
 	// Extract Dump if possible
 	RVNGTextTextGenerator content(content_dump, false);
-
-	if (EBOOKDocument::RESULT_OK !=
+	if (EBOOKDocument::RESULT_OK ==
 	    EBOOKDocument::parse(input.get(), &content, type)) {
-	    return false;
+	    clear_text(dump, content_dump.cstr());
+	    f_txt = true;
+	} else {
+	    cerr << "Libe-book Error: Fail to extract text" << endl;
 	}
-	clear_text(dump, content_dump.cstr());
+	return f_txt || f_meta;
     } catch (...) {
 	cerr << "Libe-book threw an exception" << endl;
 	return false;
     }
-    return true;
 }
