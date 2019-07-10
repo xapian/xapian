@@ -178,6 +178,7 @@ omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
 omindex_pdf_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
 omindex_pdf_LDADD = $(POPPLER_LIBS) $(XAPIAN_LIBS)
+omindex_pdf_CXXFLAGS = $(POPPLER_CFLAGS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\

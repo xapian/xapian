@@ -18,12 +18,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
-#include <config.h>
 #include "handler.h"
 #include "str.h"
 
-#include <xapian.h>
 #include <iostream>
 
 #include <poppler/cpp/poppler-document.h>
@@ -33,18 +30,21 @@ using namespace std;
 using namespace poppler;
 
 static string
-clear_text(const ustring& x)
+text_to_utf8(const ustring& x)
 {
     byte_array buf = x.to_utf8();
     string text(buf.data(), buf.size());
-    int i, j, sz = text.length();
+    return text;
+}
 
+static void
+clear_text(string& text)
+{
+    int i, j, sz = text.length();
     for (j = i = 0; i < sz; ++i)
 	if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
 	    text[j++] = text[i];
     text.resize(j);
-
-    return text;
 }
 
 bool
@@ -63,25 +63,25 @@ extract(const string& filename,
 	    return false;
 	}
 
-	int npages = doc->pages();
 	// Extracting PDF metadata
-	author = clear_text(doc->info_key("Author"));
-	title = clear_text(doc->info_key("Title"));
-	keywords = clear_text(doc->info_key("Keywords"));
+	author = text_to_utf8(doc->info_key("Author"));
+	title = text_to_utf8(doc->info_key("Title"));
+	keywords = text_to_utf8(doc->info_key("Keywords"));
+	int npages = doc->pages();
 	pages = str(npages);
 	// Extracting text from PDF file
 	for (int i = 0; i < npages; ++i) {
 	    page *p(doc->create_page(i));
 	    if (!p) {
-		cerr << "Poppler Error: Failed to create page" << endl;
-		return false;
+		cerr << "Poppler Error: Failed to create page " << i << endl;
+		continue;
 	    }
-	    dump += clear_text(p->text());
+	    dump += text_to_utf8(p->text());
 	}
+	clear_text(dump);
     } catch (...) {
 	cerr << "Poppler threw an exception" << endl;
 	return false;
     }
-
     return true;
 }
