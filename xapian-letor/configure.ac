@@ -122,6 +122,9 @@ XO_LIB_XAPIAN([], [],
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 XO_REQUIRE([1.4.0])
 
+XAPIANLETOR_LDFLAGS=
+AC_SUBST([XAPIANLETOR_LDFLAGS])
+
 AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   [
   AC_MSG_CHECKING([for $CXX -Wl,$1])
@@ -406,6 +409,9 @@ else
     AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,20201" ;;
   esac
 fi
+
+XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
+  [XAPIANLETOR_LDFLAGS="$XAPIANLETOR_LDFLAGS $flag"])
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */
