@@ -320,8 +320,10 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
     string query = data_directory + "queryone.txt";
     string qrel = data_directory + "qrelone.txt";
     string training_data = data_directory + "training_data_one_document.txt";
+    unlink("training_output_data_one_doc.txt");
     Xapian::prepare_training_file(db_path, query, qrel, 10,
 				  "training_output_data_one_doc.txt");
+    TEST(file_exists("training_output_data_one_doc.txt"));
     ifstream if1(training_data);
     ifstream if2("training_output_data_one_doc.txt");
     string line1;
@@ -353,6 +355,7 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
 	TEST(!(iss2 >> temp2));
     }
     TEST(!getline(if2, line2));
+    unlink("training_output_data_one_doc.txt");
     return true;
 }
 
@@ -386,8 +389,10 @@ DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
     string query = data_directory + "queryone.txt";
     string qrel = data_directory + "empty_file.txt";
     string training_data = data_directory + "empty_file.txt";
+    unlink("training_output_empty.txt");
     Xapian::prepare_training_file(db_path, query, qrel, 10,
 				  "training_output_empty.txt");
+    TEST(file_exists("training_output_empty.txt"));
     ifstream if1(training_data);
     ifstream if2("training_output_empty.txt");
     string line1;
@@ -414,6 +419,7 @@ DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
 	TEST(!(iss2 >> temp2));
     }
     TEST(!getline(if2, line2));
+    unlink("training_output_empty.txt");
     return true;
 }
 
@@ -425,8 +431,10 @@ DEFINE_TESTCASE(preparetrainingfile_two_docs, generated)
     string query = data_directory + "query.txt";
     string qrel = data_directory + "qrel.txt";
     string training_data = data_directory + "training_data.txt";
+    unlink("training_output1.txt");
     Xapian::prepare_training_file(db_path, query, qrel, 10,
 				  "training_output1.txt");
+    TEST(file_exists("training_output1.txt"));
     ifstream if1(training_data);
     ifstream if2("training_output1.txt");
     string line1;
@@ -453,6 +461,7 @@ DEFINE_TESTCASE(preparetrainingfile_two_docs, generated)
 	TEST(!(iss2 >> temp2));
     }
     TEST(!getline(if2, line2));
+    unlink("training_output1.txt");
     return true;
 }
 
@@ -464,8 +473,10 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated)
     string query = data_directory + "querythree.txt";
     string qrel = data_directory + "qrelthree_correct.txt";
     string training_data = data_directory + "training_data_three_correct.txt";
+    unlink("training_output_three_correct.txt");
     Xapian::prepare_training_file(db_path, query, qrel, 10,
 				  "training_output_three_correct.txt");
+    TEST(file_exists("training_output_three_correct.txt"));
     ifstream if1(training_data);
     ifstream if2("training_output_three_correct.txt");
     string line1;
@@ -492,6 +503,7 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated)
 	TEST(!(iss2 >> temp2));
     }
     TEST(!getline(if2, line2));
+    unlink("training_output_three_correct.txt");
     return true;
 }
 
@@ -532,10 +544,16 @@ DEFINE_TESTCASE(listnet_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListNet_Ranker",
 				"scorer_output.txt", 10));
+    unlink("ndcg_output_ListNet_2.txt");
     ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_2.txt",
 		 10);
+    TEST(file_exists("ndcg_output_ListNet_2.txt"));
+    unlink("ndcg_output_ListNet_2.txt");
+    unlink("err_output_ListNet_2.txt");
     ranker.score(query, qrel, "ListNet_Ranker", "err_output_ListNet_2.txt",
 		 10, "ERRScore");
+    TEST(file_exists("err_output_ListNet_2.txt"));
+    unlink("err_output_ListNet_2.txt");
     return true;
 }
 
@@ -572,10 +590,16 @@ DEFINE_TESTCASE(listnet_ranker_one_file, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListNet_Ranker",
 				"scorer_output.txt", 10));
+    unlink("ndcg_output_ListNet_1.txt");
     ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_1.txt",
 		 10);
+    TEST(file_exists("ndcg_output_ListNet_1.txt"));
+    unlink("ndcg_output_ListNet_1.txt");
+    unlink("err_output_ListNet_1.txt");
     ranker.score(query, qrel, "ListNet_Ranker", "err_output_ListNet_1.txt", 10,
 		 "ERRScore");
+    TEST(file_exists("err_output_ListNet_1.txt"));
+    unlink("err_output_ListNet_1.txt");
     return true;
 }
 
@@ -615,10 +639,16 @@ DEFINE_TESTCASE(listnet_ranker_three_correct, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListNet_Ranker",
 				"scorer_output.txt", 10));
-    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_3.txt=",
+    unlink("ndcg_output_ListNet_3.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_3.txt",
 		 10);
-    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_3.txt", 10,
+    TEST(file_exists("ndcg_output_ListNet_3.txt"));
+    unlink("ndcg_output_ListNet_3.txt");
+    unlink("err_output_ListNet_3.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "err_output_ListNet_3.txt", 10,
 		 "ERRScore");
+    TEST(file_exists("err_output_ListNet_3.txt"));
+    unlink("err_output_ListNet_3.txt");
     return true;
 }
 
@@ -659,9 +689,15 @@ DEFINE_TESTCASE(svm_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "SVM_Ranker",
 				"scorer_output.txt", 10));
+    unlink("ndcg_output_svm_2.txt");
     ranker.score(query, qrel, "SVM_Ranker", "ndcg_output_svm_2.txt", 10);
+    TEST(file_exists("ndcg_output_svm_2.txt"));
+    unlink("ndcg_output_svm_2.txt");
+    unlink("err_output_svm_2.txt");
     ranker.score(query, qrel, "SVM_Ranker", "err_output_svm_2.txt", 10,
 		 "ERRScore");
+    TEST(file_exists("err_output_svm_2.txt"));
+    unlink("err_output_svm_2.txt");
     return true;
 }
 
@@ -698,9 +734,15 @@ DEFINE_TESTCASE(svm_ranker_one_file, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "SVM_Ranker",
 				"scorer_output.txt", 10));
+    unlink("ndcg_output_svm_1.txt");
     ranker.score(query, qrel, "SVM_Ranker", "ndcg_output_svm_1.txt", 10);
+    TEST(file_exists("ndcg_output_svm_1.txt"));
+    unlink("ndcg_output_svm_1.txt");
+    unlink("err_output_svm_1.txt");
     ranker.score(query, qrel, "SVM_Ranker", "err_output_svm_1.txt", 10,
 		 "ERRScore");
+    TEST(file_exists("err_output_svm_1.txt"));
+    unlink("err_output_svm_1.txt");
     return true;
 }
 
@@ -740,9 +782,14 @@ DEFINE_TESTCASE(svm_ranker_three_correct, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "SVM_Ranker",
 				"scorer_output.txt", 10));
+    unlink("ndcg_output_svm_3.txt");
     ranker.score(query, qrel, "SVM_Ranker", "ndcg_output_svm_3.txt", 10);
+    TEST(file_exists("ndcg_output_svm_3.txt"));
+    unlink("ndcg_output_svm_3.txt");
     ranker.score(query, qrel, "SVM_Ranker", "err_output_svm_3.txt", 10,
 		 "ERRScore");
+    TEST(file_exists("err_output_svm_3.txt"));
+    unlink("err_output_svm_3.txt");
     return true;
 }
 
@@ -783,10 +830,15 @@ DEFINE_TESTCASE(listmle_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListMLE_Ranker",
 				"scorer_output.txt", 10));
+    unlink("ndcg_output_listmle_2.txt");
     ranker.score(query, qrel, "ListMLE_Ranker", "ndcg_output_listmle_2.txt",
 		 10);
+    TEST(file_exists("ndcg_output_listmle_2.txt"));
+    unlink("ndcg_output_listmle_2.txt");
     ranker.score(query, qrel, "ListMLE_Ranker", "err_output_listmle_2.txt", 10,
 		 "ERRScore");
+    TEST(file_exists("err_output_listmle_2.txt"));
+    unlink("err_output_listmle_2.txt");
     return true;
 }
 
@@ -823,10 +875,16 @@ DEFINE_TESTCASE(listmle_ranker_one_file, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListMLE_Ranker",
 				"scorer_output.txt", 10));
+    unlink("ndcg_output_listmle_1.txt");
     ranker.score(query, qrel, "ListMLE_Ranker", "ndcg_output_listmle_1.txt",
 		 10);
+    TEST(file_exists("ndcg_output_listmle_1.txt"));
+    unlink("ndcg_output_listmle_1.txt");
+    unlink("err_output_listmle_1.txt");
     ranker.score(query, qrel, "ListMLE_Ranker", "err_output_listmle_1.txt", 10,
 		 "ERRScore");
+    TEST(file_exists("err_output_listmle_1.txt"));
+    unlink("err_output_listmle_1.txt");
     return true;
 }
 
@@ -866,10 +924,16 @@ DEFINE_TESTCASE(listmle_ranker_three_correct, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListMLE_Ranker",
 				"scorer_output.txt", 10));
+    unlink("ndcg_output_listmle_3.txt");
     ranker.score(query, qrel, "ListMLE_Ranker", "ndcg_output_listmle_3.txt",
 		 10);
+    TEST(file_exists("ndcg_output_listmle_3.txt"));
+    unlink("err_output_listmle_3.txt");
+    unlink("ndcg_output_listmle_3.txt");
     ranker.score(query, qrel, "ListMLE_Ranker", "err_output_listmle_3.txt", 10,
 		 "ERRScore");
+    TEST(file_exists("err_output_listmle_3.txt"));
+    unlink("err_output_listmle_3.txt");
     return true;
 }
 
