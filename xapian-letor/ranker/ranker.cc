@@ -30,6 +30,7 @@
 #include "xapian-letor/scorer.h"
 
 #include "debuglog.h"
+#include "omassert.h"
 #include "str.h"
 
 #include <cstdio>
@@ -192,32 +193,35 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
     }
 }
 
+// Query file is in the format: <qid> '<query_string>'
+// Although it will accept any number of arbitrary characters between
+// the first space and the first single quote.
 static std::pair<string, string>
 parse_query_string(const string & query_line, int line_number)
 {
-    vector<string> token;
-    size_t j = 0;
-    while (j < query_line.size()) {
-	size_t i = query_line.find_first_not_of(' ', j);
-	if (i == string::npos) break;
-	j = query_line.find_first_of(' ', i);
-	token.push_back(query_line.substr(i, j - i));
+    Assert(!query_line.empty());
+    string::size_type j = query_line.find_first_of(' ');
+    if (j == 0) {
+	throw LetorParseError("Empty query id found in "
+			      "file at line:" + str(line_number));
     }
-    // Query file is in the format: <qid> <query_string>
-    // Therefore, <qid> goes into token[0] and <query_string> to token[1]
-    // Exceptions for parse errors
-    if (token.size() != 2) {
-	throw LetorParseError("Could not parse Query file at line:" + str(line_number));
+    if (j == string::npos) {
+	throw LetorParseError("Missing space between fields in Query "
+			      "file at line:" + str(line_number));
     }
-    string qid = token[0];
-    string querystr = token[1];
-    if (querystr.front() != '\'' || querystr.back() != '\'') {
-	throw LetorParseError("Could not parse query string at line:" + str(line_number));
+    string qid = query_line.substr(0, j);
+    string::size_type i = query_line.find_first_of("'", j);
+    j = query_line.length() - 1;
+    // check if the last character is '
+    if (query_line[j] != '\'' || j == i) {
+	throw LetorParseError("Could not parse Query file at line:" +
+			       str(line_number));
     }
-    querystr.erase(0, 1); // erase the first character (') from the front
-    querystr.erase(querystr.size() - 1); // erase the last character (')
+    string querystr = query_line.substr(i + 1, j - i - 1);
+
     if (querystr.empty()) {
-	throw LetorParseError("Empty query string in query file at line:" + str(line_number));
+	throw LetorParseError("Empty query string in query file at line:" +
+			       str(line_number));
     }
     return std::pair<string, string> (querystr, qid);
 }

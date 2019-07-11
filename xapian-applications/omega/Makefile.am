@@ -118,8 +118,9 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
-	common/closefrom.h\
+	common/alignment_cast.h\
 	common/append_filename_arg.h\
+	common/closefrom.h\
 	common/gnu_getopt.h\
 	common/keyword.h\
 	common/msvc_dirent.h\

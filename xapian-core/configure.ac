@@ -284,44 +284,43 @@ XAPIAN_LIBS=
 AC_SUBST([XAPIAN_LDFLAGS])
 AC_SUBST([XAPIAN_LIBS])
 
-AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
+AC_DEFUN([XAPIAN_TEST_FLAGS_],
   [
-  AC_MSG_CHECKING([for $CXX -Wl,$1])
-  AC_CACHE_VAL([xo_cv_ldflag_$2],
+  m4_define([cachevar],
+	    [xo_cv_]m4_tolower(m4_bpatsubst([$1][_$3], [[^A-Za-z0-9]], [_])))
+  AC_CACHE_CHECK([for $CXX with $3 in $1], cachevar,
     [
-    save_LDFLAGS=$LDFLAGS
-    LDFLAGS="$LDFLAGS -Wl,$1"
-    flag=$1
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
-      [xo_cv_ldflag_$2=yes
-      $3],
-      [xo_cv_ldflag_$2=no
-      $4])
-    LDFLAGS=$save_LDFLAGS
+    XTF_save_$1=${$1}
+    $1="${$1} $3"
+    $2([AC_LANG_PROGRAM([], [])],
+      [cachevar=yes
+       $1=$XTF_save_$1
+       $4="${$4} $3"
+       $5],
+      [cachevar=no
+       $1=$XTF_save_$1
+       $6])
     ])
-  AC_MSG_RESULT([$xo_cv_ldflag_$2])
   ])
 
-dnl Test if the compiler works with $1 added to CXXFLAGS; if it does, add $1 to
+dnl Test if compiling works with $1 added to CXXFLAGS; if it does, add $1 to
 dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
 AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
-  [
-  XTC_save_CXXFLAGS=$CXXFLAGS
-  CXXFLAGS="$CXXFLAGS $1"
-  AC_TRY_COMPILE([], [],
-		 [CXXFLAGS=$XTC_save_CXXFLAGS
-		  $2="${$2} $1"
-		  $3],
-		 [CXXFLAGS=$XTC_save_CXXFLAGS
-		  $4])
-  ])
+  [XAPIAN_TEST_FLAGS_([CXXFLAGS], [AC_COMPILE_IFELSE], [$1], [$2], [$3], [$4])])
+
+dnl Test if linking works with $1 added to LDFLAGS; if it does, add $1 to
+dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
+AC_DEFUN([XAPIAN_TEST_LDFLAGS],
+  [XAPIAN_TEST_FLAGS_([LDFLAGS], [AC_LINK_IFELSE], [$1], [$2], [$3], [$4])])
 
 ldflags=
 if test yesyes = "$GXX$enable_shared" ; then
   case $host_os in
     *mingw* | *cygwin*)
-      XAPIAN_TEST_LINKER_FLAG([--enable-runtime-pseudo-reloc], [enable_runtime_pseudo_reloc],
-	[ldflags="-Wl,$flag"],
+      XAPIAN_TEST_LDFLAGS(
+	[-Wl,--enable-runtime-pseudo-reloc],
+	[ldflags],
+	[],
 	[
 	dnl Can't use AC_DISABLE_SHARED after AC_PROG_LIBTOOL, but
 	dnl this test needs to be after AC_PROG_LIBTOOL, so we can't
@@ -419,7 +418,10 @@ AC_MSG_CHECKING([if RTTI is supported])
 save_CXXFLAGS=$CXXFLAGS
 dnl xlC issues a warning for typeid() being used without RTTI being enabled,
 dnl so for this test we pass the xlC option to make that warning into an error.
-XAPIAN_TEST_CXXFLAGS([-qhaltonmsg=1540-2412], [CXXFLAGS])
+CXXFLAGS="$CXXFLAGS -qhaltonmsg=1540-2412"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [])],
+      [],
+      [CXXFLAGS=$save_CXXFLAGS])
 AC_TRY_COMPILE([
 #include <exception>
 #include <typeinfo>],
@@ -1416,8 +1418,9 @@ else
   esac
 fi
 
-XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
-  [XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
+XAPIAN_TEST_LDFLAGS([-Wl,-Bsymbolic-functions], [XAPIAN_LDFLAGS])
+dnl Roughly equivalent Sun C++ option.
+XAPIAN_TEST_LDFLAGS([-xldscope=symbolic], [XAPIAN_LDFLAGS])
 
 FP_EXCESS_PRECISION=no
 AC_MSG_CHECKING([whether to use SSE instructions on x86])

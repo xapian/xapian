@@ -1,7 +1,7 @@
 /** @file honey_postlisttable.cc
  * @brief Subclass of HoneyTable which holds postlists.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,13 +99,8 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
 	    throw Xapian::DatabaseCorruptError("Bad first doclen chunk key");
 	}
 	cursor->read_tag();
-	Xapian::docid delta;
-	const char* p = cursor->current_tag.data();
-	const char* pend = p + cursor->current_tag.size();
-	if (!unpack_uint(&p, pend, &delta)) {
-	    throw Xapian::DatabaseCorruptError("Bad first doclen chunk delta");
-	}
-	first = last_in_first_chunk - delta;
+	unsigned width = cursor->current_tag[0] / 8;
+	first = last_in_first_chunk - (cursor->current_tag.size() - 2) / width;
     }
 
     // We know the last docid is at least first - 1 + doccount, so seek

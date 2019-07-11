@@ -598,8 +598,6 @@ DEFINE_TESTCASE(compactempty1, compact) {
 }
 
 DEFINE_TESTCASE(compactmultipass1, compact && generated) {
-    XFAIL_FOR_BACKEND("honey", "Honey->honey compaction is currently buggy");
-
     string outdbpath = get_compaction_output_path("compactmultipass1");
     rm_rf(outdbpath);
 

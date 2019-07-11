@@ -893,10 +893,11 @@ MSet::Internal::snippet(const string & text,
 		// FIXME: Sort fuzzies, cheapest to check first or something?
 		i = 0;
 		for (auto&& qed : fuzzies) {
-		    int result = qed->test(term);
-		    if (result) {
+		    // test() returns 0 for no match, or edit_distance + 1.
+		    int ed_result = qed->test(term);
+		    if (ed_result) {
 			// FIXME: Reduce relevance the more edits there are?
-			// We can't just divide by result here as this
+			// We can't just divide by ed_result here as this
 			// relevance is used by any term matching this
 			// subquery.
 			relevance = &fuzzies_relevance[i];
