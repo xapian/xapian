@@ -98,7 +98,7 @@ EXTRA_DIST +=\
 	testdata/training_data_one_document.txt \
 	testdata/training_data_three_correct.txt
 
-DISTCLEANFILES +=\
+CLEANFILES +=\
 	err_output_listmle_1.txt \
 	err_output_listmle_2.txt \
 	err_output_listmle_3.txt \

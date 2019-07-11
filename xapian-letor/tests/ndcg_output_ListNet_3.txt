@@ -1,2 +1,0 @@
-Ranking score for qid:1 = 0.582365
-Average ranking score = 0.582365
