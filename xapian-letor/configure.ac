@@ -423,8 +423,9 @@ else
   esac
 fi
 
-XAPIAN_TEST_FLAGS_([-Bsymbolic-functions], [symbolic_functions],
-  [XAPIANLETOR_LDFLAGS="$XAPIANLETOR_LDFLAGS $flag"])
+XAPIAN_TEST_LDFLAGS([-Wl,-Bsymbolic-functions], [XAPIANLETOR_LDFLAGS])
+dnl Roughly equivalent Sun C++ option.
+XAPIAN_TEST_LDFLAGS([-xldscope=symbolic], [XAPIANLETOR_LDFLAGS])
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */
