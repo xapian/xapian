@@ -35,23 +35,15 @@ ExternalPostList::ExternalPostList(const Xapian::Database & db,
 				   double factor_,
 				   bool* max_weight_cached_flag_ptr,
 				   Xapian::doccount shard_index)
-    : source(source_), source_is_owned(false), current(0), factor(factor_)
+    : source(source_), current(0), factor(factor_)
 {
     Assert(source);
     Xapian::PostingSource * newsource = source->clone();
     if (newsource != NULL) {
-	source = newsource;
-	source_is_owned = true;
+	source = newsource->release();
     }
     source->set_max_weight_cached_flag_ptr_(max_weight_cached_flag_ptr);
     source->reset(db, shard_index);
-}
-
-ExternalPostList::~ExternalPostList()
-{
-    if (source_is_owned) {
-	delete source;
-    }
 }
 
 Xapian::doccount
@@ -98,7 +90,7 @@ ExternalPostList::recalc_maxweight()
 {
     LOGCALL(MATCH, double, "ExternalPostList::recalc_maxweight", NO_ARGS);
     // source will be NULL here if we've reached the end.
-    if (source == NULL) RETURN(0.0);
+    if (source.get() == NULL) RETURN(0.0);
     if (factor == 0.0) RETURN(0.0);
     RETURN(factor * source->get_maxweight());
 }
@@ -115,7 +107,6 @@ ExternalPostList::update_after_advance() {
     Assert(source);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
-	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = source->get_docid();
@@ -154,7 +145,6 @@ ExternalPostList::check(Xapian::docid did, double w_min, bool &valid)
     valid = source->check(did, w_min);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
-	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = valid ? source->get_docid() : current;
@@ -166,7 +156,7 @@ bool
 ExternalPostList::at_end() const
 {
     LOGCALL(MATCH, bool, "ExternalPostList::at_end", NO_ARGS);
-    RETURN(source == NULL);
+    RETURN(source.get() == NULL);
 }
 
 Xapian::termcount
@@ -179,7 +169,7 @@ string
 ExternalPostList::get_description() const
 {
     string desc = "ExternalPostList(";
-    if (source) desc += source->get_description();
+    if (source.get()) desc += source->get_description();
     desc += ")";
     return desc;
 }

@@ -37,8 +37,7 @@ class ExternalPostList : public PostList {
     /// Disallow assignment.
     void operator=(const ExternalPostList &);
 
-    Xapian::PostingSource * source;
-    bool source_is_owned;
+    Xapian::Internal::opt_intrusive_ptr<Xapian::PostingSource> source;
 
     Xapian::docid current;
 
@@ -57,8 +56,6 @@ class ExternalPostList : public PostList {
 		     double factor_,
 		     bool* max_weight_cached_flag_ptr,
 		     Xapian::doccount shard_index);
-
-    ~ExternalPostList();
 
     Xapian::doccount get_termfreq_min() const;
 
