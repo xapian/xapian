@@ -1,7 +1,7 @@
 /** @file postlisttree.h
  * @brief Class for managing a tree of PostList objects
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,6 +72,12 @@ class PostListTree {
 	for (Xapian::doccount i = 0; i != n_shards; ++i)
 	    delete shard_pls[i];
     }
+
+    /** Return pointer to flag to set to false to invalidate cached max weight.
+     *
+     *  Used with ExternalPostList, which wraps a PostingSource object.
+     */
+    bool* get_max_weight_cached_flag_ptr() { return &use_cached_max_weight; }
 
     void set_postlists(PostList** pls, Xapian::doccount n_shards_) {
 	shard_pls = pls;

@@ -1067,7 +1067,8 @@ QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
     // be called on the Database::Internal object.
     const Xapian::Database wrappeddb(
 	    const_cast<Xapian::Database::Internal*>(&(qopt->db)));
-    RETURN(new ExternalPostList(wrappeddb, source.get(), factor, qopt->matcher,
+    RETURN(new ExternalPostList(wrappeddb, source.get(), factor,
+				qopt->matcher->get_max_weight_cached_flag_ptr(),
 				qopt->shard_index));
 }
 

@@ -49,12 +49,13 @@ class ExternalPostList : public PostList {
   public:
     /** Constructor.
      *
-     *  @param matcher	The matcher to notify when maximum weight changes.
+     *  @param max_weight_cached_flag_ptr   Pointer to flag to clear when max
+     *					    weight changes.
      */
     ExternalPostList(const Xapian::Database & db,
 		     Xapian::PostingSource *source_,
 		     double factor_,
-		     PostListTree * matcher,
+		     bool* max_weight_cached_flag_ptr,
 		     Xapian::doccount shard_index);
 
     ~ExternalPostList();

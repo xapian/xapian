@@ -52,28 +52,25 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
     PostingSource(const PostingSource &) = delete;
 
     /// The current upper bound on what get_weight() can return.
-    double max_weight_;
+    double max_weight_ = 0.0;
 
-    /** The object to inform of maxweight changes.
-     *
-     *  We store this as a (void*) to avoid needing to declare an internal
-     *  type in an external header.  It's actually (PostListTree *).
-     */
-    void * matcher_;
+    /// Flag to clear when maxweight changes.
+    bool* max_weight_cached_flag_ptr = nullptr;
 
   public:
     /// Allow subclasses to be instantiated.
-    XAPIAN_NOTHROW(PostingSource())
-	: max_weight_(0), matcher_(NULL) { }
+    XAPIAN_NOTHROW(PostingSource()) { }
 
-    /** @private @internal Set the object to inform of maxweight changes.
+    /** @private @internal Set pointer to flag to clear on maxweight changes.
      *
      *  This method is for internal use only - it would be private except that
      *  would force us to forward declare an internal class in an external API
      *  header just to make it a friend.
      */
     XAPIAN_VISIBILITY_INTERNAL
-    void register_matcher_(void * matcher) { matcher_ = matcher; }
+    void set_max_weight_cached_flag_ptr_(bool* flag_ptr) {
+	max_weight_cached_flag_ptr = flag_ptr;
+    }
 
     // Destructor.
     virtual ~PostingSource();
@@ -125,7 +122,12 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *
      *  @param max_weight	The upper bound to set.
      */
-    void set_maxweight(double max_weight);
+    void set_maxweight(double max_weight) {
+	max_weight_ = max_weight;
+	if (max_weight_cached_flag_ptr) {
+	    *max_weight_cached_flag_ptr = false;
+	}
+    }
 
     /// Return the currently set upper bound on what get_weight() can return.
     double XAPIAN_NOTHROW(get_maxweight() const) { return max_weight_; }

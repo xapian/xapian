@@ -46,16 +46,6 @@ namespace Xapian {
 
 PostingSource::~PostingSource() { }
 
-void
-PostingSource::set_maxweight(double max_weight)
-{
-    max_weight_ = max_weight;
-    if (usual(matcher_)) {
-	PostListTree* pltree = static_cast<PostListTree*>(matcher_);
-	pltree->force_recalc();
-    }
-}
-
 double
 PostingSource::get_weight() const
 {

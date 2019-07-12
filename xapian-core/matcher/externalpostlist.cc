@@ -33,7 +33,7 @@ using namespace std;
 ExternalPostList::ExternalPostList(const Xapian::Database & db,
 				   Xapian::PostingSource *source_,
 				   double factor_,
-				   PostListTree * matcher,
+				   bool* max_weight_cached_flag_ptr,
 				   Xapian::doccount shard_index)
     : source(source_), source_is_owned(false), current(0), factor(factor_)
 {
@@ -43,7 +43,7 @@ ExternalPostList::ExternalPostList(const Xapian::Database & db,
 	source = newsource;
 	source_is_owned = true;
     }
-    source->register_matcher_(static_cast<void*>(matcher));
+    source->set_max_weight_cached_flag_ptr_(max_weight_cached_flag_ptr);
     source->reset(db, shard_index);
 }
 
