@@ -352,34 +352,40 @@ Matcher::get_local_mset(Xapian::doccount first,
     postlists.reserve(locals.size());
     PostListTree pltree(vsdoc, db, wtscheme);
     Xapian::termcount total_subqs = 0;
-    bool all_null = true;
-    for (size_t i = 0; i != locals.size(); ++i) {
-	if (!locals[i].get()) {
-	    postlists.push_back(NULL);
-	    continue;
-	}
-	// Pick the highest total subqueries answer amongst the subdatabases,
-	// as the query to postlist conversion doesn't recurse into positional
-	// queries for shards that don't have positional data when at least one
-	// other shard does.
-	Xapian::termcount total_subqs_i = 0;
-	PostList* pl = locals[i]->get_postlist(&pltree, &total_subqs_i);
-	total_subqs = max(total_subqs, total_subqs_i);
-	if (pl != NULL) {
-	    all_null = false;
-	    if (mdecider) {
-		pl = new DeciderPostList(pl, mdecider, &vsdoc, &pltree);
+    try {
+	bool all_null = true;
+	for (size_t i = 0; i != locals.size(); ++i) {
+	    if (!locals[i].get()) {
+		postlists.push_back(NULL);
+		continue;
 	    }
+	    // Pick the highest total subqueries answer amongst the
+	    // subdatabases, as the query to postlist conversion doesn't
+	    // recurse into positional queries for shards that don't have
+	    // positional data when at least one other shard does.
+	    Xapian::termcount total_subqs_i = 0;
+	    PostList* pl = locals[i]->get_postlist(&pltree, &total_subqs_i);
+	    total_subqs = max(total_subqs, total_subqs_i);
+	    if (pl != NULL) {
+		all_null = false;
+		if (mdecider) {
+		    pl = new DeciderPostList(pl, mdecider, &vsdoc, &pltree);
+		}
+	    }
+	    postlists.push_back(pl);
 	}
-	postlists.push_back(pl);
-    }
-    Assert(!postlists.empty());
+	Assert(!postlists.empty());
 
-    if (all_null) {
-	vector<Result> dummy;
-	return Xapian::MSet(new Xapian::MSet::Internal(first, 0, 0, 0, 0, 0, 0,
-						       0.0, 0.0,
-						       std::move(dummy), 0));
+	if (all_null) {
+	    vector<Result> dummy;
+	    return Xapian::MSet(new Xapian::MSet::Internal(first, 0, 0, 0, 0,
+							   0, 0, 0.0, 0.0,
+							   std::move(dummy),
+							   0));
+	}
+    } catch (...) {
+	for (auto pl : postlists) delete pl;
+	throw;
     }
 
     Xapian::doccount n_shards = postlists.size();

@@ -772,10 +772,15 @@ class OnlyTheFirstPostingSource : public Xapian::PostingSource {
 
     Xapian::docid did;
 
-  public:
-    OnlyTheFirstPostingSource() {}
+    bool allow_clone;
 
-    PostingSource * clone() const { return new OnlyTheFirstPostingSource(); }
+  public:
+    explicit
+    OnlyTheFirstPostingSource(bool allow_clone_) : allow_clone(allow_clone_) {}
+
+    PostingSource* clone() const {
+	return allow_clone ? new OnlyTheFirstPostingSource(true) : nullptr;
+    }
 
     void reset(const Xapian::Database& db, Xapian::doccount shard_index) {
 	did = 0;
@@ -817,11 +822,25 @@ DEFINE_TESTCASE(postingsourceshardindex1, multi) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     Xapian::Enquire enquire(db);
-    auto ps = new OnlyTheFirstPostingSource;
-    enquire.set_query(Xapian::Query(ps->release()));
+    {
+	auto ps = new OnlyTheFirstPostingSource(true);
+	enquire.set_query(Xapian::Query(ps->release()));
 
-    Xapian::MSet mset = enquire.get_mset(0, 10);
-    mset_expect_order(mset, 1, 3, 5);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 1, 3, 5);
+    }
+
+    {
+	/* Regression test for bug fixed in 1.4.12 - we should get an exception
+	 * if we use a PostingSource that doesn't support clone() with a multi
+	 * DB.
+	 */
+	auto ps = new OnlyTheFirstPostingSource(false);
+	enquire.set_query(Xapian::Query(ps->release()));
+
+	TEST_EXCEPTION(Xapian::InvalidOperationError,
+		       auto m = enquire.get_mset(0, 10));
+    }
 
     return true;
 }
