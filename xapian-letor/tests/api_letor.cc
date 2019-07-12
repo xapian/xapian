@@ -1414,3 +1414,77 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclencolllfcolllen, generated)
 
     return true;
 }
+
+class CustomFeature : public Xapian::Feature {
+  public:
+    CustomFeature() {
+	need_stat(Xapian::Feature::TERM_FREQUENCY);
+	need_stat(Xapian::Feature::DOCUMENT_LENGTH);
+	need_stat(Xapian::Feature::COLLECTION_TERM_FREQ);
+	need_stat(Xapian::Feature::COLLECTION_LENGTH);
+	need_stat(Xapian::Feature::INVERSE_DOCUMENT_FREQUENCY);
+    }
+    std::vector<double> get_values() const {
+	return vector<double>();
+    }
+    std::string name() const {
+	return "CustomFeature";
+    }
+    void test_stats() {
+	// test for term frequency
+	TEST_EQUAL(get_termfreq("ZStiger"), 1);
+	TEST_EQUAL(get_termfreq("ZXDtiger"), 6);
+	TEST_EQUAL(get_termfreq("Ztiger"), 2);
+
+	// test for inverse document frequency
+	TEST_EQUAL_DOUBLE(get_inverse_doc_freq("ZStiger"), 0.176091259055681);
+	TEST_EQUAL_DOUBLE(get_inverse_doc_freq("ZXDtiger"), 0.176091259055681);
+	TEST_EQUAL_DOUBLE(get_inverse_doc_freq("Ztiger"), 0.176091259055681);
+
+	// test for document length
+	TEST_EQUAL(get_doc_length("title"), 4);
+	TEST_EQUAL(get_doc_length("body"), 182);
+	TEST_EQUAL(get_doc_length("whole"), 186);
+
+	// test for collection length
+	TEST_EQUAL(get_collection_length("title"), 13);
+	TEST_EQUAL(get_collection_length("body"), 509);
+	TEST_EQUAL(get_collection_length("whole"), 522);
+
+	// test for collection term frequency
+	TEST_EQUAL(get_collection_termfreq("ZStiger"), 1);
+	TEST_EQUAL(get_collection_termfreq("ZXDtiger"), 6);
+	TEST_EQUAL(get_collection_termfreq("Ztiger"), 2);
+    }
+};
+
+DEFINE_TESTCASE(populatefeature, generated) {
+    vector<Xapian::Feature*> f;
+    CustomFeature* custom_feature = new CustomFeature();
+    f.push_back(custom_feature);
+
+    Xapian::FeatureList fl(f);
+    Xapian::Database db = get_database("db_index_three_documents_no_common",
+				       db_index_three_documents_no_common);
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("tigers"));
+    Xapian::MSet mset;
+    mset = enquire.get_mset(0, 10);
+
+    TEST(!mset.empty());
+
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("en"));
+    queryparser.set_stemming_strategy(queryparser.STEM_ALL_Z);
+    queryparser.add_prefix("title", "S");
+    queryparser.add_prefix("description", "XD");
+
+    string querystring = "title:tigers description:tigers tigers";
+    Xapian::Query query = queryparser.parse_query(querystring);
+
+    auto fv = fl.create_feature_vectors(mset, query, db);
+    TEST_EQUAL(fv.size(), 1);
+
+    custom_feature->test_stats();
+    return true;
+}

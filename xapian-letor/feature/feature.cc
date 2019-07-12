@@ -37,4 +37,39 @@ Feature::~Feature() {
     LOGCALL_DTOR(API, "Feature");
 }
 
+Xapian::termcount
+Feature::get_termfreq(const std::string& term) const
+{
+    LOGCALL(API, Xapian::termcount, "Feature::get_termfreq", term);
+    return internal->get_termfreq(term);
+}
+
+double
+Feature::get_inverse_doc_freq(const std::string& term) const
+{
+    LOGCALL(API, double, "Feature::get_inverse_doc_freq", term);
+    return internal->get_inverse_doc_freq(term);
+}
+
+Xapian::termcount
+Feature::get_doc_length(const std::string& term) const
+{
+    LOGCALL(API, Xapian::termcount, "Feature::get_doc_length", term);
+    return internal->get_doc_length(term);
+}
+
+Xapian::termcount
+Feature::get_collection_length(const std::string& term) const
+{
+    LOGCALL(API, Xapian::termcount, "Feature::get_collection_length", term);
+    return internal->get_collection_length(term);
+}
+
+Xapian::termcount
+Feature::get_collection_termfreq(const std::string& term) const
+{
+    LOGCALL(API, Xapian::termcount, "Feature::get_collection_termfreq", term);
+    return internal->get_collection_termfreq(term);
+}
+
 }
