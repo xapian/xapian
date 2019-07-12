@@ -72,6 +72,21 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     /// A bitmask of the statistics this Feature needs.
     stat_flags stats_needed;
 
+    /// Get termfreq
+    Xapian::termcount get_termfreq(const std::string& term) const;
+
+    /// Get inverse_doc_freq
+    double get_inverse_doc_freq(const std::string& term) const;
+
+    /// Get doc_length
+    Xapian::termcount get_doc_length(const std::string& term) const;
+
+    /// Get collection_length
+    Xapian::termcount get_collection_length(const std::string& term) const;
+
+    /// Get collection_termfreq
+    Xapian::termcount get_collection_termfreq(const std::string& term) const;
+
   public:
     /// @internal Class representing the Feature internals.
     class Internal;
