@@ -336,14 +336,15 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
 	    is_remote[i] = true;
 	} else {
-	    smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+	    smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight,
+				       i);
 	    subdb->readahead_for_query(query);
 	}
 #else
 	// Avoid unused parameter warnings.
 	(void)have_sorter;
 	(void)have_mdecider;
-	smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+	smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight, i);
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	leaves.push_back(smatch);
     }
@@ -417,25 +418,30 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // number of matching documents which is higher than the number of
     // documents it returns (because it wasn't asked for more documents).
     Xapian::doccount definite_matches_not_seen = 0;
-    for (size_t i = 0; i != leaves.size(); ++i) {
-	// Pick the highest total subqueries answer amongst the subdatabases,
-	// as the query to postlist conversion doesn't recurse into positional
-	// queries for shards that don't have positional data when at least one
-	// other shard does.
-	Xapian::termcount total_subqs_i = 0;
-	PostList * pl = leaves[i]->get_postlist(this, &total_subqs_i);
-	total_subqs = max(total_subqs, total_subqs_i);
-	if (is_remote[i]) {
-	    if (pl->get_termfreq_min() > first + maxitems) {
-		LOGLINE(MATCH, "Found " <<
-			       pl->get_termfreq_min() - (first + maxitems)
-			       << " definite matches in remote submatch "
-			       "which aren't passed to local match");
-		definite_matches_not_seen += pl->get_termfreq_min();
-		definite_matches_not_seen -= first + maxitems;
+    try {
+	for (size_t i = 0; i != leaves.size(); ++i) {
+	    // Pick the highest total subqueries answer amongst the
+	    // subdatabases, as the query to postlist conversion doesn't
+	    // recurse into positional queries for shards that don't have
+	    // positional data when at least one other shard does.
+	    Xapian::termcount total_subqs_i = 0;
+	    PostList* pl = leaves[i]->get_postlist(this, &total_subqs_i);
+	    total_subqs = max(total_subqs, total_subqs_i);
+	    if (is_remote[i]) {
+		if (pl->get_termfreq_min() > first + maxitems) {
+		    LOGLINE(MATCH, "Found " <<
+				   pl->get_termfreq_min() - (first + maxitems)
+				   << " definite matches in remote submatch "
+				   "which aren't passed to local match");
+		    definite_matches_not_seen += pl->get_termfreq_min();
+		    definite_matches_not_seen -= first + maxitems;
+		}
 	    }
+	    postlists.push_back(pl);
 	}
-	postlists.push_back(pl);
+    } catch (...) {
+	for (auto pl : postlists) delete pl;
+	throw;
     }
     Assert(!postlists.empty());
 

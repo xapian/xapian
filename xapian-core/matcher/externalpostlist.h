@@ -53,7 +53,8 @@ class ExternalPostList : public PostList {
     ExternalPostList(const Xapian::Database & db,
 		     Xapian::PostingSource *source_,
 		     double factor_,
-		     MultiMatch * matcher);
+		     MultiMatch* matcher,
+		     Xapian::doccount shard_index);
 
     Xapian::doccount get_termfreq_min() const;
 

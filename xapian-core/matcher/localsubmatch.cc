@@ -200,7 +200,7 @@ LocalSubMatch::get_postlist(MultiMatch * matcher,
     // LocalSubMatch::open_post_list() for each term in the query.
     PostList * pl;
     {
-	QueryOptimiser opt(*db, *this, matcher);
+	QueryOptimiser opt(*db, *this, matcher, shard_index);
 	pl = query.internal->postlist(&opt, 1.0);
 	*total_subqs_ptr = opt.get_total_subqs();
     }

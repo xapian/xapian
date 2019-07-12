@@ -23,6 +23,7 @@
 
 #include "externalpostlist.h"
 
+#include <xapian/error.h>
 #include <xapian/postingsource.h>
 
 #include "debuglog.h"
@@ -30,16 +31,25 @@
 
 using namespace std;
 
-ExternalPostList::ExternalPostList(const Xapian::Database & db,
-				   Xapian::PostingSource *source_,
+ExternalPostList::ExternalPostList(const Xapian::Database& db,
+				   Xapian::PostingSource* source_,
 				   double factor_,
-				   MultiMatch * matcher)
-    : source(source_), current(0), factor(factor_)
+				   MultiMatch* matcher,
+				   Xapian::doccount shard_index)
+    : current(0), factor(factor_)
 {
-    Assert(source.get());
-    Xapian::PostingSource* newsource = source->clone();
+    Assert(source_);
+    Xapian::PostingSource* newsource = source_->clone();
     if (newsource != NULL) {
 	source = newsource->release();
+    } else if (shard_index == 0) {
+	// Allow use of a non-clone-able PostingSource with a non-sharded
+	// Database.
+	source = source_;
+    } else {
+	throw Xapian::InvalidOperationError("PostingSource subclass must "
+					    "implement clone() to support use "
+					    "with a sharded database");
     }
     source->register_matcher_(static_cast<void*>(matcher));
     source->init(db);
