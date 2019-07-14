@@ -36,8 +36,8 @@ ExternalPostList::ExternalPostList(const Xapian::Database & db,
 				   MultiMatch * matcher)
     : source(source_), current(0), factor(factor_)
 {
-    Assert(source);
-    Xapian::PostingSource * newsource = source->clone();
+    Assert(source.get());
+    Xapian::PostingSource* newsource = source->clone();
     if (newsource != NULL) {
 	source = newsource->release();
     }
@@ -48,21 +48,21 @@ ExternalPostList::ExternalPostList(const Xapian::Database & db,
 Xapian::doccount
 ExternalPostList::get_termfreq_min() const
 {
-    Assert(source);
+    Assert(source.get());
     return source->get_termfreq_min();
 }
 
 Xapian::doccount
 ExternalPostList::get_termfreq_est() const
 {
-    Assert(source);
+    Assert(source.get());
     return source->get_termfreq_est();
 }
 
 Xapian::doccount
 ExternalPostList::get_termfreq_max() const
 {
-    Assert(source);
+    Assert(source.get());
     return source->get_termfreq_max();
 }
 
@@ -88,7 +88,7 @@ double
 ExternalPostList::get_weight() const
 {
     LOGCALL(MATCH, double, "ExternalPostList::get_weight", NO_ARGS);
-    Assert(source);
+    Assert(source.get());
     if (factor == 0.0) RETURN(factor);
     RETURN(factor * source->get_weight());
 }
@@ -122,7 +122,7 @@ ExternalPostList::read_position_list()
 PostList *
 ExternalPostList::update_after_advance() {
     LOGCALL(MATCH, PostList *, "ExternalPostList::update_after_advance", NO_ARGS);
-    Assert(source);
+    Assert(source.get());
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
 	source = NULL;
@@ -136,7 +136,7 @@ PostList *
 ExternalPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::next", w_min);
-    Assert(source);
+    Assert(source.get());
     source->next(w_min);
     RETURN(update_after_advance());
 }
@@ -145,7 +145,7 @@ PostList *
 ExternalPostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::skip_to", did | w_min);
-    Assert(source);
+    Assert(source.get());
     if (did <= current) RETURN(NULL);
     source->skip_to(did, w_min);
     RETURN(update_after_advance());
@@ -155,7 +155,7 @@ PostList *
 ExternalPostList::check(Xapian::docid did, double w_min, bool &valid)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::check", did | w_min | valid);
-    Assert(source);
+    Assert(source.get());
     if (did <= current) {
 	valid = true;
 	RETURN(NULL);
