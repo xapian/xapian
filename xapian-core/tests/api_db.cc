@@ -1682,9 +1682,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
 }
 
 // Test network stats and local stats give the same results.
-DEFINE_TESTCASE(netstats1, remote) {
-    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
-
+DEFINE_TESTCASE(netstats1, multi && remote) {
     static const char * const words[] = { "paragraph", "word" };
     Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
     const size_t MSET_SIZE = 10;
@@ -1695,9 +1693,8 @@ DEFINE_TESTCASE(netstats1, remote) {
 
     Xapian::MSet mset_alllocal;
     {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
+
+	Xapian::Database db(get_database("apitest_simpledata", "apitest_simpledata2"));
 
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
@@ -1705,9 +1702,7 @@ DEFINE_TESTCASE(netstats1, remote) {
     }
 
     {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
+	Xapian::Database db(get_database("apitest_simpledata", "apitest_simpledata2"));
 
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
@@ -1721,9 +1716,7 @@ DEFINE_TESTCASE(netstats1, remote) {
     }
 
     {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
+	Xapian::Database db(get_database("apitest_simpledata", "apitest_simpledata2"));
 
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
@@ -1737,9 +1730,7 @@ DEFINE_TESTCASE(netstats1, remote) {
     }
 
     {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
+	Xapian::Database db(get_database("apitest_simpledata", "apitest_simpledata2"));
 
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
