@@ -544,16 +544,16 @@ DEFINE_TESTCASE(listnet_ranker, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListNet_Ranker",
 				"scorer_output.txt", 10));
-    unlink("ndcg_output_ListNet_2.txt");
-    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_2.txt",
+    unlink("ndcg_output_listnet_2.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_listnet_2.txt",
 		 10);
-    TEST(file_exists("ndcg_output_ListNet_2.txt"));
-    unlink("ndcg_output_ListNet_2.txt");
-    unlink("err_output_ListNet_2.txt");
-    ranker.score(query, qrel, "ListNet_Ranker", "err_output_ListNet_2.txt",
+    TEST(file_exists("ndcg_output_listnet_2.txt"));
+    unlink("ndcg_output_listnet_2.txt");
+    unlink("err_output_listnet_2.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "err_output_listnet_2.txt",
 		 10, "ERRScore");
-    TEST(file_exists("err_output_ListNet_2.txt"));
-    unlink("err_output_ListNet_2.txt");
+    TEST(file_exists("err_output_listnet_2.txt"));
+    unlink("err_output_listnet_2.txt");
     return true;
 }
 
@@ -590,16 +590,16 @@ DEFINE_TESTCASE(listnet_ranker_one_file, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListNet_Ranker",
 				"scorer_output.txt", 10));
-    unlink("ndcg_output_ListNet_1.txt");
-    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_1.txt",
+    unlink("ndcg_output_listnet_1.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_listnet_1.txt",
 		 10);
-    TEST(file_exists("ndcg_output_ListNet_1.txt"));
-    unlink("ndcg_output_ListNet_1.txt");
-    unlink("err_output_ListNet_1.txt");
-    ranker.score(query, qrel, "ListNet_Ranker", "err_output_ListNet_1.txt", 10,
+    TEST(file_exists("ndcg_output_listnet_1.txt"));
+    unlink("ndcg_output_listnet_1.txt");
+    unlink("err_output_listnet_1.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "err_output_listnet_1.txt", 10,
 		 "ERRScore");
-    TEST(file_exists("err_output_ListNet_1.txt"));
-    unlink("err_output_ListNet_1.txt");
+    TEST(file_exists("err_output_listnet_1.txt"));
+    unlink("err_output_listnet_1.txt");
     return true;
 }
 
@@ -639,16 +639,16 @@ DEFINE_TESTCASE(listnet_ranker_three_correct, generated)
     TEST_EXCEPTION(Xapian::FileNotFoundError,
 		   ranker.score(qrel, "", "ListNet_Ranker",
 				"scorer_output.txt", 10));
-    unlink("ndcg_output_ListNet_3.txt");
-    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_ListNet_3.txt",
+    unlink("ndcg_output_listnet_3.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_listnet_3.txt",
 		 10);
-    TEST(file_exists("ndcg_output_ListNet_3.txt"));
-    unlink("ndcg_output_ListNet_3.txt");
-    unlink("err_output_ListNet_3.txt");
-    ranker.score(query, qrel, "ListNet_Ranker", "err_output_ListNet_3.txt", 10,
+    TEST(file_exists("ndcg_output_listnet_3.txt"));
+    unlink("ndcg_output_listnet_3.txt");
+    unlink("err_output_listnet_3.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "err_output_listnet_3.txt", 10,
 		 "ERRScore");
-    TEST(file_exists("err_output_ListNet_3.txt"));
-    unlink("err_output_ListNet_3.txt");
+    TEST(file_exists("err_output_listnet_3.txt"));
+    unlink("err_output_listnet_3.txt");
     return true;
 }
 
