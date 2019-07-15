@@ -95,7 +95,7 @@ matrix:
         - docker
       before_script:
         # Bootstrap only xapian-core for emscripten build.
-        - ./bootstrap xapian-core
+        - travis_retry ./bootstrap xapian-core
         - ./configure CXXFLAGS=-O0 --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
         - make -j2
         - make -j2 distclean
@@ -126,8 +126,8 @@ matrix:
             - python
             - python2
       before_install:
-        - pip2 install sphinx docutils
-        - pip3 install sphinx
+        - travis_retry pip2 install sphinx docutils
+        - travis_retry pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
       env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
@@ -149,7 +149,7 @@ matrix:
 before_script:
   # Bootstrap everything (including letor, which isn't done
   # by default), then configure using our chosen compiler.
-  - ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+  - travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
   - make
