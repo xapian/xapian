@@ -13,7 +13,6 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 CLEANFILES =
-DISTCLEANFILES =
 
 TESTS_ENVIRONMENT = ./runtest
 
@@ -85,7 +84,14 @@ EXTRA_DIST +=\
 	testdata/apitest_allterms4.txt \
 	testdata/apitest_phrase.txt \
 	testdata/apitest_rset.txt \
+	testdata/blank_space_before_query.txt \
 	testdata/empty_file.txt \
+	testdata/nosinglequotes.txt \
+	testdata/nospace.txt \
+	testdata/parse_query_empty_string.txt \
+	testdata/parse_query_noclosingquote.txt \
+	testdata/parse_query_noopenquote.txt \
+	testdata/parse_query_valid.txt \
 	testdata/qrel.txt \
 	testdata/qrelone.txt \
 	testdata/qrelthree_correct.txt \
@@ -102,18 +108,18 @@ CLEANFILES +=\
 	err_output_listmle_1.txt \
 	err_output_listmle_2.txt \
 	err_output_listmle_3.txt \
-	err_output_ListNet_1.txt \
-	err_output_ListNet_2.txt \
-	err_output_ListNet_3.txt \
+	err_output_listnet_1.txt \
+	err_output_listnet_2.txt \
+	err_output_listnet_3.txt \
 	err_output_svm_1.txt \
 	err_output_svm_2.txt \
 	err_output_svm_3.txt \
 	ndcg_output_listmle_1.txt \
 	ndcg_output_listmle_2.txt \
 	ndcg_output_listmle_3.txt \
-	ndcg_output_ListNet_1.txt \
-	ndcg_output_ListNet_2.txt \
-	ndcg_output_ListNet_3.txt \
+	ndcg_output_listnet_1.txt \
+	ndcg_output_listnet_2.txt \
+	ndcg_output_listnet_3.txt \
 	ndcg_output_svm_1.txt \
 	ndcg_output_svm_2.txt \
 	ndcg_output_svm_3.txt \
@@ -121,6 +127,7 @@ CLEANFILES +=\
 	training_output_data_one_doc.txt \
 	training_output_empty.txt \
 	training_output_three_correct.txt \
+	training_output.txt \
 	training_output1.txt
 
 remove-cached-databases:
