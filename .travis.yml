@@ -93,8 +93,8 @@ matrix:
             - python
             - python2
       before_install:
-        - pip2 install sphinx docutils
-        - pip3 install sphinx
+        - travis_retry pip2 install sphinx docutils
+        - travis_retry pip3 install sphinx
       env: PYTHON2=/usr/local/bin/python2 confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
     - os: linux
       # (Ab)use env to label this build:
@@ -113,7 +113,7 @@ matrix:
 
 before_script:
   # Bootstrap everything, then configure using our chosen compiler.
-  - ./bootstrap
+  - travis_retry ./bootstrap
   - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
   - make
