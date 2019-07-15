@@ -2,9 +2,6 @@ dist: xenial
 language: cpp
 notifications:
   irc: "chat.freenode.net#xapian-devel"
-env:
-  global:
-    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libiconv libmagic pcre libsvm lua mono python2 python icu4c pkgconfig poppler'
 matrix:
   include:
     - compiler: gcc
@@ -109,16 +106,26 @@ matrix:
         - docker run -v $(pwd):/src trzeci/emscripten em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
         - cd emscripten && node xapianjstest.js
     - os: osx
+      addons:
+        homebrew:
+          update: true
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - icu4c
+            - libiconv
+            - libmagic
+            - libsvm
+            - lua
+            - mono
+            - pcre
+            - pkgconfig
+            - pngcrush
+            - poppler
+            - python
+            - python2
       before_install:
-        - brew update
-        # "brew install" unhelpfully errors out if any package listed is
-        # already installed and up-to-date, but travis change what's installed
-        # by default from time to time so it's brittle to just filter out those
-        # installed by default from the list we need.  Instead we ignore the
-        # exit status from "brew install", then check later that
-        # "brew list --versions" says all the packages requested are installed.
-        - brew install $HOMEBREW_PACKAGES || true
-        - brew list --versions $HOMEBREW_PACKAGES
         - pip2 install sphinx docutils
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
