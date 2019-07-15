@@ -2,9 +2,6 @@ dist: xenial
 language: cpp
 notifications:
   irc: "chat.freenode.net#xapian-devel"
-env:
-  global:
-    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libiconv libmagic pcre lua mono python2 python'
 matrix:
   include:
     - compiler: gcc
@@ -80,16 +77,22 @@ matrix:
             - tcl
             - libsvm-dev
     - os: osx
+      addons:
+        homebrew:
+          update: true
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - libiconv
+            - libmagic
+            - lua
+            - mono
+            - pcre
+            - pngcrush
+            - python
+            - python2
       before_install:
-        - brew update
-        # "brew install" unhelpfully errors out if any package listed is
-        # already installed and up-to-date, but travis change what's installed
-        # by default from time to time so it's brittle to just filter out those
-        # installed by default from the list we need.  Instead we ignore the
-        # exit status from "brew install", then check later that
-        # "brew list --versions" says all the packages requested are installed.
-        - brew install $HOMEBREW_PACKAGES || true
-        - brew list --versions $HOMEBREW_PACKAGES
         - pip2 install sphinx docutils
         - pip3 install sphinx
       env: PYTHON2=/usr/local/bin/python2 confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
