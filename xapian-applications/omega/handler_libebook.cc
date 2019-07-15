@@ -18,6 +18,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+#include <config.h>
 #include "handler.h"
 #include "stringutils.h"
 
@@ -42,7 +43,7 @@ parse_metadata_field(const char* start,
 		     size_t len,
 		     string& out)
 {
-    if (size_t(end - start) > len && memcmp(start,field,len) == 0) {
+    if (size_t(end - start) > len && memcmp(start, field, len) == 0) {
 	start += len;
 	while (start != end && isspace(*start)) start++;
 	if (start != end && (end[-1] != '\r' || --end != start)) {
@@ -55,12 +56,13 @@ parse_metadata_field(const char* start,
 
 static void
 parse_metadata(const char* data,
+	       size_t len,
 	       string& author,
 	       string& title,
 	       string& keywords)
 {
     const char* p = data;
-    const char* end = p + strlen(data);
+    const char* end = p + len;
 
     while (p != end) {
 	const char* start = p;
@@ -70,7 +72,7 @@ parse_metadata(const char* data,
 	    eol = p++;
 	else
 	    p = eol = end;
-	if ((end - start) > 5 && memcmp(start,"meta:",5) == 0) {
+	if ((end - start) > 5 && memcmp(start, "meta:", 5) == 0) {
 	    start += 5;
 	    switch (*start) {
 		case 'i': {
@@ -83,7 +85,7 @@ parse_metadata(const char* data,
 		    break;
 		}
 	    }
-	} else if ((end - start) > 3 && memcmp(start,"dc:",3) == 0) {
+	} else if ((end - start) > 3 && memcmp(start, "dc:", 3) == 0) {
 	    start += 3;
 	    switch (*start) {
 		case 'c': {
@@ -111,7 +113,7 @@ parse_metadata(const char* data,
 static void
 clear_text(string& str, const char* text)
 {
-    for (int i = 0; text[i]!='\0'; ++i)
+    for (int i = 0; text[i] != '\0'; ++i)
 	if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
 	    str.push_back(text[i]);
 }
@@ -154,7 +156,9 @@ extract(const string& filename,
 	RVNGTextTextGenerator metadata(metadata_dump, true);
 	if (EBOOKDocument::RESULT_OK ==
 	    EBOOKDocument::parse(input.get(), &metadata, type)) {
-	    parse_metadata(metadata_dump.cstr(), author, title, keywords);
+	    const char* metadata = metadata_dump.cstr();
+	    size_t len = metadata_dump.size();
+	    parse_metadata(metadata, len, author, title, keywords);
 	    f_meta = true;
 	} else {
 	    cerr << "Libe-book Error: Fail to extract metadata" << endl;
