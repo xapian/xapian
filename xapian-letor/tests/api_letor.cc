@@ -1414,16 +1414,15 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclencolllfcolllen, generated)
 
     return true;
 }
-namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT CustomFeature : public Feature {
+class CustomFeature : public Xapian::Feature {
   public:
     CustomFeature() {
-	need_stat(TERM_FREQUENCY);
-	need_stat(DOCUMENT_LENGTH);
-	need_stat(COLLECTION_TERM_FREQ);
-	need_stat(COLLECTION_LENGTH);
-	need_stat(INVERSE_DOCUMENT_FREQUENCY);
+	need_stat(Xapian::Feature::TERM_FREQUENCY);
+	need_stat(Xapian::Feature::DOCUMENT_LENGTH);
+	need_stat(Xapian::Feature::COLLECTION_TERM_FREQ);
+	need_stat(Xapian::Feature::COLLECTION_LENGTH);
+	need_stat(Xapian::Feature::INVERSE_DOCUMENT_FREQUENCY);
     }
     std::vector<double> get_values() const {
 	return vector<double>();
@@ -1434,8 +1433,8 @@ class XAPIAN_VISIBILITY_DEFAULT CustomFeature : public Feature {
     void test_stats() {
 	// test for term frequency
 	TEST_EQUAL(get_termfreq("ZStiger"), 1);
-	TEST_EQUAL(this->get_termfreq("ZXDtiger"), 6);
-	TEST_EQUAL(this->get_termfreq("Ztiger"), 2);
+	TEST_EQUAL(get_termfreq("ZXDtiger"), 6);
+	TEST_EQUAL(get_termfreq("Ztiger"), 2);
 
 	// test for inverse document frequency
 	TEST_EQUAL_DOUBLE(get_inverse_doc_freq("ZStiger"), 0.176091259055681);
@@ -1459,12 +1458,10 @@ class XAPIAN_VISIBILITY_DEFAULT CustomFeature : public Feature {
     }
 };
 
-}
-
 DEFINE_TESTCASE(populatefeature, generated) {
     vector<Xapian::Feature*> f;
-    Xapian::CustomFeature* f1 = new Xapian::CustomFeature();
-    f.push_back(f1);
+    CustomFeature* custom_feature = new CustomFeature();
+    f.push_back(custom_feature);
 
     Xapian::FeatureList fl(f);
     Xapian::Database db = get_database("db_index_three_documents_no_common",
@@ -1488,6 +1485,6 @@ DEFINE_TESTCASE(populatefeature, generated) {
     auto fv = fl.create_feature_vectors(mset, query, db);
     TEST_EQUAL(fv.size(), 1);
 
-    f1->test_stats();
+    custom_feature->test_stats();
     return true;
 }
