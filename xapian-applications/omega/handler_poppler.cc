@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-#include <config.h>
 
+#include <config.h>
 #include "handler.h"
 #include "str.h"
 
@@ -76,7 +76,7 @@ extract(const string& filename,
 	    page *p(doc->create_page(i));
 	    if (!p) {
 		cerr << "Poppler Error: Failed to create page " << i << endl;
-		continue;
+		return false;
 	    }
 	    dump += text_to_utf8(p->text());
 	}
@@ -85,5 +85,6 @@ extract(const string& filename,
 	cerr << "Poppler threw an exception" << endl;
 	return false;
     }
+
     return true;
 }
