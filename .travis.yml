@@ -75,7 +75,6 @@ matrix:
             - python-dev
             - python3-dev
             - tcl
-            - libsvm-dev
     - os: osx
       addons:
         homebrew:
