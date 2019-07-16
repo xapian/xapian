@@ -1,8 +1,17 @@
-up to: b07050ce4fd3a5e006683e7e2ed669985f956115
+up to: 7230f730e214381b8ab82949ca4e5cfd8eae3b67
 
-Xapian-core 1.4.12 (2019-06-10):
+Xapian-core 1.4.12 (2019-07-16):
 
 API:
+
+* Xapian::PostingSource: When a PostingSource without a clone() method is used
+  with a Database containing multiple shards, the documented behaviour has
+  always been that Xapian::InvalidOperationError is thrown.  However, since at
+  least 1.4.0, this exception hasn't been thrown, but instead a single
+  PostingSource object would get used for all the shards, typically leading to
+  incorrect results.  The actual behaviour now matches what was documented.
+
+* Xapian::Database: Add size() method which reports the number of shards.
 
 * Xapian::Database::check(): You can now pass a stub database which will check
   all the databases listed in it (or throw Xapian::UnimplementError for
@@ -10,7 +19,7 @@ API:
 
 * Xapian::Document: When updating a document use a emplace_hint() to make the
   bulk insertion O(n) instead of O(n·log(n)), and use std::move() to avoid
-  copying  OmDocumentTerm objects.
+  copying OmDocumentTerm objects.
 
 * Xapian::iterator_valid(): Implement for Utf8Iterator
 
@@ -22,8 +31,12 @@ testsuite:
   former set of platforms.  We now just check for NetworkError or a subclass
   here (since NetworkTimeoutError is a subclass of NetworkError).
 
+* Run cursordelbug1 testcase with multi databases too.
+
 matcher:
 
+* Ownership of PostingSource objects during the match now makes use of the
+  optional reference-counting mechanism rather than a separate flag.
 
 glass backend:
 
@@ -58,6 +71,10 @@ remote backend:
   the socket() with SOCK_CLOEXEC, then leak that one and create it again
   without SOCK_CLOEXEC.  We now check the return value properly.
 
+* Fix potential infinite loop in ValueCountMatchSpy::merge_results() if passed
+  serialised results with extra data appended (which shouldn't happen in normal
+  use).
+
 inmemory backend:
 
 
@@ -66,6 +83,15 @@ build system:
 * Current versions of valgrind result in false positives on current versions of
   macOS, so on this platform configure now only enables use of valgrind if it's
   specified explicitly.  Fixes #713, reported by Germán M. Bravo.
+
+* Refactor macros to probe for compiler flags so they automatically cache
+  their results and consistently report success/failure.
+
+* Rename our custom TYPE_SOCKLEN_T macro to XAPIAN_TYPE_SOCKLEN_T.  The
+  AX_TYPE_SOCKLEN_T macro defines an alias of TYPE_SOCKLEN_T for itself which
+  means it can get used instead in some situations, but it isn't compatible
+  with our macro.  We can't just switch to AX_TYPE_SOCKLEN_T as it doesn't
+  handle cases we need, so just rename our macro to avoid potential problems.
 
 documentation:
 
@@ -93,6 +119,9 @@ examples:
 
 portability:
 
+* Resolve crash on Windows when using clang-cl and MSVC.  Reported by Christian
+  Mollekopf in https://github.com/xapian/xapian/pull/256.
+
 * Add missing '#include <cstring>'.  Patch from Tanmay Sachan.
 
 * Fix str() helper function when converting the most negative value
@@ -110,6 +139,19 @@ portability:
 
 * Fix maintainer-mode builds on Solaris where /bin/tr is not POSIX compliant.
   We now use the simple workaround suggested by the autoconf manual.
+
+* Improve support for Sun C++ (see #631):
+
+  + Suppress unhelpful warning for lambda with multiple return statements.
+
+  + Enable reporting the tags corresponding to warnings, which we need
+    to know in order to suppress any new unhelpful warnings.
+
+  + Adjust our workaround for bug with this compiler's <cmath> header to avoid
+    a compiler warning.
+
+  + Use -xldscope=symbolic for Sun C++.  This flag is roughly equivalent to
+    -Bsymbolic-functions which we've probed for with GNU ld since Xapian 1.0.0.
 
 packaging:
 

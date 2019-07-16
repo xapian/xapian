@@ -1,6 +1,6 @@
-up to: 546f6447b274c8db19df1fd609d8afa5eefc4a8a
+up to: b4d3b9f79845f2b831d9fc41e48b7df4e940a328
 
-Omega 1.4.12 (2019-06-10):
+Omega 1.4.12 (2019-07-16):
 
 general:
 
@@ -22,6 +22,10 @@ indexers:
 
 * omindex:
 
+  + Fix typo in mimetypes used for Apple iWork documents ("apply" instead of
+    "apple") which meant that these documents weren't actually being indexed.
+    Patch from Bruno Baruffaldi.
+
   + Pipe input to ps2pdf as this accepts input on stdin.  Possibility pointed
     out by Gaurav Arora.
 
@@ -41,6 +45,10 @@ indexers:
     unhelpful if you want to use it on the output of parsedate since that's in
     UTC; date=unixutc is just like date=unix except it always works in UTC.
 
+  + The date action now emits a warning for invalid values.  The documentation
+    used to say "invalid values are ignored at present", but it's more helpful
+    to flag bad data than quietly ignore it.
+
   + We now check the date action's parameter at script parse time and unknown
     values result in an error and nothing being indexed.  Previously an unknown
     format uselessly resulted in the terms D, M and Y literally being added to
@@ -51,6 +59,15 @@ indexers:
     parent directories.
 
 omega:
+
+* Remove documented limitation of $subdb and $subid - the implementation
+  assumed that each omega database name corresponded to a single Xapian
+  database, and if a database name referred to a stub database file expanding
+  to multiple Xapian databases then they would misbehave.  Such cases are now
+  handled properly as well.
+
+* Extend $addfilter to support adding negated filters via a new optional second
+  argument which specifies the type of filter to add.
 
 * Stop $sort from needlessly ensuring the match has run.
 
@@ -64,18 +81,27 @@ testsuite:
 * omegatest: Avoid setting TZ globally during tests as that hides bugs where
   behaviour depends on the local timezone when it shouldn't.
 
+* omegatest: Support testing when built using LeakSanitizer by suppressing
+  leak reports for cached compiled pcre regular expressions.  These aren't
+  released when the program exits but aren't memory leaks.
+
 build system:
+
+* Remove outdated deprecation warning suppression which was there to support
+  building from git in the run up to 1.3.2 - a development version which is
+  nearly 5 years ago now.
 
 portability:
 
 * Fix problems with fallback strptime() implementation which was being included
-  in the wrong binary, and was lacking a require const_cast on the return value.
+  in the wrong binary, and was lacking a required const_cast on the return
+  value.
 
 * Rework setenv() compatibility handling.  Now that Solaris 9 is dead we can
   assume setenv() is provided by Unix-like platforms (POSIX requires it).  For
-  other platforms, provide a compatibility implementation of setenv() which
-  so the compatibility code is encapsulated in one place rather than replicated
-  at every use.
+  other platforms, provide a compatibility implementation of setenv() so the
+  compatibility code is encapsulated in one place rather than replicated at
+  every use.
 
 packaging:
 
