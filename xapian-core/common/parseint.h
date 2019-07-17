@@ -50,7 +50,7 @@ bool parse_signed(const char* p, T& res)
 	res = -temp;
 	return true;
     } else if (parse_unsigned(p, temp) &&
-	       temp <= std::numeric_limits<T>::max()) {
+	       temp <= unsigned_type(std::numeric_limits<T>::max())) {
 	res = temp;
 	return true;
     }
