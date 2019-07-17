@@ -54,29 +54,110 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  object.  It is safe to use concurrently from different threads,
      *  unlike @a MatchAll (this is because MatchNothing has a NULL
      *  internal object so there's no reference counting happening).
+     *
+     *  When combined with other Query objects using the various supported
+     *  operators, MatchNothing works like @c false in boolean logic, so
+     *  <code>MatchNothing & q</code> is @c MatchNothing, while
+     *  <code>MatchNothing | q</code> is @c q.
      */
     static const Xapian::Query MatchNothing;
 
     /** A query matching all documents.
      *
-     *  This is a static instance of Xapian::Query(std::string()).  If
-     *  you are constructing Query objects in different threads, avoid
-     *  using @a MatchAll as the reference counting of the static object
-     *  can get messed up by concurrent access).
+     *  This is a static instance of <code>Xapian::Query(std::string())</code>.
+     *  If you are constructing Query objects which use @a MatchAll in
+     *  different threads then the reference counting of the static object can
+     *  get messed up by concurrent access so you should instead use
+     *  <code>Xapian::Query(std::string())</code> directly.
      */
     static const Xapian::Query MatchAll;
 
     /** Query operators. */
     enum op {
+	/** Match only documents which all subqueries match.
+	 *
+	 *  When used in a weighted context, the weight is the sum of the
+	 *  weights for all the subqueries.
+	 */
 	OP_AND = 0,
+
+	/** Match documents which at least one subquery matches.
+	 *
+	 *  When used in a weighted context, the weight is the sum of the
+	 *  weights for matching subqueries (so additional matching subqueries
+	 *  will mean a higher weight).
+	 */
 	OP_OR = 1,
+
+	/** Match documents which the first subquery matches but no others do.
+	 *
+	 *  When used in a weighted context, the weight is just the weight of
+	 *  the first subquery.
+	 */
 	OP_AND_NOT = 2,
+
+	/** Match documents which an odd number of subqueries match.
+	 *
+	 *  When used in a weighted context, the weight is the sum of the
+	 *  weights for matching subqueries (so additional matching subqueries
+	 *  will mean a higher weight).
+	 */
 	OP_XOR = 3,
+
+	/** Match the first subquery taking extra weight from other subqueries.
+	 *
+	 *  When used in a weighted context, the weight is the sum of the
+	 *  weights for matching subqueries (so additional matching subqueries
+	 *  will mean a higher weight).
+	 *
+	 *  Because only the first subquery determines which documents are
+	 *  matched, in a non-weighted context only the first subquery matters.
+	 */
 	OP_AND_MAYBE = 4,
+
+	/** Match like OP_AND but only taking weight from the first subquery.
+	 *
+	 *  When used in a non-weighted context, OP_FILTER and OP_AND are
+	 *  equivalent.
+	 */
 	OP_FILTER = 5,
+
+	/** Match only documents where all subqueries match near each other.
+	 *
+	 *  The subqueries must match at term positions within the specified
+	 *  window size, in any order.
+	 *
+	 *  Currently subqueries must be terms or terms composed with OP_OR.
+	 *
+	 *  When used in a weighted context, the weight is the sum of the
+	 *  weights for all the subqueries.
+	 */
 	OP_NEAR = 6,
+
+	/** Match only documents where all subqueries match near and in order.
+	 *
+	 *  The subqueries must match at term positions within the specified
+	 *  window size, in the same term position order as subquery order.
+	 *
+	 *  Currently subqueries must be terms or terms composed with OP_OR.
+	 *
+	 *  When used in a weighted context, the weight is the sum of the
+	 *  weights for all the subqueries.
+	 */
 	OP_PHRASE = 7,
+
+	/** Match only documents where a value slot is within a given range.
+	 *
+	 *  This operator never contributes weight.
+	 */
 	OP_VALUE_RANGE = 8,
+
+	/** Scale the weight contributed by a subquery.
+	 *
+	 *  The weight is the weight of the subquery multiplied by the
+	 *  specified non-negative scale factor (so if the scale factor is
+	 *  zero then the subquery contributes no weight).
+	 */
 	OP_SCALE_WEIGHT = 9,
 
 	/** Pick the best N subqueries and combine with OP_OR.
@@ -118,9 +199,31 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 * OP_ELITE_SET behaves identically to OP_OR.
 	 */
 	OP_ELITE_SET = 10,
+
+	/** Match only documents where a value slot is >= a given value.
+	 *
+	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
+	 *
+	 *  This operator never contributes weight.
+	 */
 	OP_VALUE_GE = 11,
+
+	/** Match only documents where a value slot is <= a given value.
+	 *
+	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
+	 *
+	 *  This operator never contributes weight.
+	 */
 	OP_VALUE_LE = 12,
+
+	/** Match like OP_OR but weighting as if a single term.
+	 *
+	 *  The weight is calculated combining the statistics for the
+	 *  subqueries to approximate the weight of a single term occurring
+	 *  with those statistics.
+	 */
 	OP_SYNONYM = 13,
+
 	/** Pick the maximum weight of any subquery.
 	 *
 	 *  Matches the same documents as @a OP_OR, but the weight contributed
@@ -130,6 +233,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  Added in Xapian 1.3.2.
 	 */
 	OP_MAX = 14,
+
 	/** Wildcard expansion.
 	 *
 	 *  Added in Xapian 1.3.3.
@@ -150,11 +254,31 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	OP_EDIT_DISTANCE = 16,
 
+	/** Construct an invalid query.
+	 *
+	 *  This can be useful as a placeholder - for example @a RangeProcessor
+	 *  uses it as a return value to indicate that a range hasn't been
+	 *  recognised.
+	 */
 	OP_INVALID = 99,
 
+	/** Value returned by get_type() for a term. */
 	LEAF_TERM = 100,
+
+	/** Value returned by get_type() for a PostingSource. */
 	LEAF_POSTING_SOURCE,
+
+	/** Value returned by get_type() for MatchAll or equivalent.
+	 *
+	 *  This is returned for any <code>Xapian::Query(std::string())</code>
+	 *  object.
+	 */
 	LEAF_MATCH_ALL,
+
+	/** Value returned by get_type() for MatchNothing or equivalent.
+	 *
+	 *  This is returned for any <code>Xapian::Query()</code> object.
+	 */
 	LEAF_MATCH_NOTHING
     };
 
@@ -203,7 +327,15 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	WILDCARD_PATTERN_GLOB = WILDCARD_PATTERN_MULTI|WILDCARD_PATTERN_SINGLE
     };
 
-    /// Default constructor.
+    /** Construct a query matching no documents.
+     *
+     *  @a MatchNothing is a static instance of this.
+     *
+     *  When combined with other Query objects using the various supported
+     *  operators, <code>Query()</code> works like @c false in boolean logic,
+     *  so <code>Query() & q</code> is @c Query(), while
+     *  <code>Query() | q</code> is @c q.
+     */
     XAPIAN_NOTHROW(Query()) { }
 
     /// Destructor.
@@ -227,7 +359,15 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     /// Move assignment operator.
     Query & operator=(Query &&) = default;
 
-    /** Construct a Query object for a term. */
+    /** Construct a Query object for a term.
+     *
+     *  @param term The term.  An empty string constructs a query matching
+     *		    all documents (@a MatchAll is a static instance of this).
+     *  @param wqf  The within-query frequency. (default: 1)
+     *  @param pos  The query position.  Currently this is mainly used to
+     *		    determine the order of terms obtained via
+     *		    get_terms_begin(). (default: 0)
+     */
     Query(const std::string & term,
 	  Xapian::termcount wqf = 1,
 	  Xapian::termpos pos = 0);
@@ -389,6 +529,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *  Dereferencing the iterator should return a Xapian::Query, a non-NULL
      *  Xapian::Query*, a std::string or a type which converts to one of
      *  these (e.g. const char*).
+     *
+     *  If begin == end then there are no subqueries and the resulting Query
+     *  won't match anything.
      *
      *  @param op_	The operator to combine the queries with.
      *  @param begin	Begin iterator.
