@@ -402,9 +402,8 @@ esac
 # Commit hash to pass to handle_git_external for swig.
 swig_git_commit_hash=2c910e47ae788412b95e356c99cef5862808bf9a
 
-# Commit hashes to use for common in omega and letor respectively:
+# Commit hash to use for common in omega:
 omega_common_commit_hash=97211c7aec13c6de24fcbf3f5b4145a99d775f22
-letor_common_commit_hash=97211c7aec13c6de24fcbf3f5b4145a99d775f22
 
 if [ ! -r .git ] ; then
   echo "$0: '.git' not found - this script should be run from a git repo cloned"
@@ -412,7 +411,7 @@ if [ ! -r .git ] ; then
   exit 1
 fi
 
-for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
+for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
   if test -d "$emptydir" ; then
     :
   else
@@ -434,7 +433,6 @@ else
   cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
-xapian-letor/common
 END
   if [ -f .git/info/exclude ] &&
      cmp -s .git/info/exclude~ .git/info/exclude ; then
@@ -655,7 +653,7 @@ export ACLOCAL
 
 intree_swig=no
 modules=
-for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xapian-letor} ; do
+for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ; do
   d=$module
   if [ "$d" = swig ] ; then
     if [ -f "xapian-bindings/.nobootstrap" ] ; then
@@ -678,12 +676,10 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xa
     continue
   fi
   case $d in
-  xapian-applications/omega|xapian-letor)
+  xapian-applications/omega)
     # If someone's created a directory for common, leave it be.
     if [ -h "$d/common" ] || [ ! -d "$d/common" ] ; then
-      # Pick omega_common_commit_hash or letor_common_commit_hash:
-      var=`echo "$d"|sed 's!.*[-/]!!g'`_common_commit_hash
-      hash=`eval echo \\\$"$var"`
+      hash=$omega_common_commit_hash
       if [ -f .git/shallow ] ; then
 	if git reflog "$hash" -- 2> /dev/null ; then
 	  : # Already have the desired commit.
