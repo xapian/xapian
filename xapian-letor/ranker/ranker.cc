@@ -115,7 +115,7 @@ static int
 getlabel(const Document & doc, const std::string & qid)
 {
     int label = -1;
-    string id = std::to_string(doc.get_docid());
+    string id = str(doc.get_docid());
     map<string, map<string, int>>::const_iterator outerit;
     map<string, int>::const_iterator innerit;
 
