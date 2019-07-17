@@ -597,7 +597,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
 fi
 
 AC_ARG_ENABLE([64bit_docid],
-  [AS_HELP_STRING([--enable-64bit-docid], [enable 64bit docid [default=no]])],
+  [AS_HELP_STRING([--enable-64bit-docid], [enable 64bit docid])],
   [case ${enableval} in
     yes|no) ;;
   *) AC_MSG_ERROR([bad value ${enableval} for --enable-64bit-docid]) ;;
@@ -605,7 +605,7 @@ AC_ARG_ENABLE([64bit_docid],
   [enable_64bit_docid=no])
 
 AC_ARG_ENABLE([64bit_termcount],
-  [AS_HELP_STRING([--enable-64bit-termcount], [enable 64bit termcount [default=no]])],
+  [AS_HELP_STRING([--enable-64bit-termcount], [enable 64bit termcount])],
   [case ${enableval} in
     yes|no) ;;
   *) AC_MSG_ERROR([bad value ${enableval} for --enable-64bit-termcount]) ;;
@@ -613,7 +613,7 @@ AC_ARG_ENABLE([64bit_termcount],
   [enable_64bit_termcount=no])
 
 AC_ARG_ENABLE([64bit_termpos],
-  [AS_HELP_STRING([--enable-64bit-termpos], [enable 64bit termpos [default=no]])],
+  [AS_HELP_STRING([--enable-64bit-termpos], [enable 64bit termpos])],
   [case ${enableval} in
     yes|no) ;;
   *) AC_MSG_ERROR([bad value ${enableval} for --enable-64bit-termpos]) ;;
