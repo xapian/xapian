@@ -53,14 +53,10 @@ module Xapian
     retval = Array.new
 
     item = dangerousStart
-    lastTerm = dangerousEnd
-
-    return retval if dangerousStart.equals(dangerousEnd)
-
-    begin
+    while not item.equals(dangerousEnd) do # must use primitive C++ comparator
       retval.push(yield(item))
       item.next()
-    end while not item.equals(lastTerm) # must use primitive C++ comparator
+    end
 
     return retval
   end # _safelyIterate
