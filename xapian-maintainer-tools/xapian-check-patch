@@ -468,9 +468,21 @@ QUOTELOOP:  while (1) {
 	} else {
 	    $preproc = 0;
 	}
-	if ($check_space_tab && /^\+( (?:|  |    |      ))[^ \t#].*(?:[^)];|[^);,])\n/) {
-	    # Exclude lines ending ');', ')', or ',' to avoid reporting for wrapped function arguments.
-	    diagnostic('error', "line indented by ".length($1)." spaces");
+	if ($check_space_tab && /^\+( (?:|  |    |      ))[^ \t].*(?:[^)];|[^);,])\n/) {
+	    # We only check for 1, 3, 5 and 7 space indents to avoid false
+	    # positives for "public:", etc and for wrapped expressions.
+	    #
+	    # Exclude lines ending ');', ')', or ',' to avoid reporting for
+	    # wrapped function arguments.  This means we'll also miss some
+	    # cases we should complain about, but it's likely that at least
+	    # one line in a mis-indented block will trigger an error.
+
+	    # Exclude potential comment continuation lines which might have
+	    # been missed by the comment stripping code.  Require whitespace
+	    # after so we flag a mis-indented: *ptr = foo;
+	    if (!/^\+\s*\*\s/) {
+		diagnostic('error', "line indented by ".length($1)." spaces");
+	    }
 	}
 
 	#if (/^\+.*(?<!\btypedef )\b([A-Za-z_][A-Za-z_0-9]*)\s+\(/ &&
