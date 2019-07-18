@@ -130,6 +130,9 @@
 %rename("_dangerous_allterms_begin") allterms_begin;
 %rename("_dangerous_allterms_end") allterms_end;
 // in Xapian::Database
+%rename("_dangerous_metadata_keys_begin") metadata_keys_begin;
+%rename("_dangerous_metadata_keys_end") metadata_keys_end;
+// in Xapian::Database
 %rename("_dangerous_postlist_begin") postlist_begin;
 %rename("_dangerous_postlist_end") postlist_end;
 // in Xapian::Database
