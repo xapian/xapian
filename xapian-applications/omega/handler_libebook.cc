@@ -113,9 +113,11 @@ parse_metadata(const char* data,
 static void
 clear_text(string& str, const char* text)
 {
-    for (int i = 0; text[i] != '\0'; ++i)
-	if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
-	    str.push_back(text[i]);
+    if (text) {
+	for (int i = 0; text[i] != '\0'; ++i)
+	    if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
+		str.push_back(text[i]);
+    }
 }
 
 bool
@@ -130,7 +132,7 @@ extract(const string& filename,
 	shared_ptr<RVNGInputStream> input;
 	RVNGString content_dump, metadata_dump;
 	const char* file = filename.c_str();
-	bool f_txt = false, f_meta = false;
+	bool succeed = false;
 
 	if (RVNGDirectoryStream::isDirectory(file))
 	    input.reset(new RVNGDirectoryStream(file));
@@ -138,13 +140,7 @@ extract(const string& filename,
 	    input.reset(new RVNGFileStream(file));
 
 	EBOOKDocument::Type type = EBOOKDocument::TYPE_UNKNOWN;
-	EBOOKDocument::Confidence confidence =
-				EBOOKDocument::isSupported(input.get(), &type);
-
-	if (EBOOKDocument::CONFIDENCE_SUPPORTED_PART == confidence) {
-	    input.reset(RVNGDirectoryStream::createForParent(file));
-	    confidence = EBOOKDocument::isSupported(input.get(), &type);
-	}
+	auto confidence = EBOOKDocument::isSupported(input.get(), &type);
 
 	if ((EBOOKDocument::CONFIDENCE_EXCELLENT != confidence) &&
 	    (EBOOKDocument::CONFIDENCE_WEAK != confidence)) {
@@ -159,7 +155,7 @@ extract(const string& filename,
 	    const char* metadata = metadata_dump.cstr();
 	    size_t len = metadata_dump.size();
 	    parse_metadata(metadata, len, author, title, keywords);
-	    f_meta = true;
+	    succeed = true;
 	} else {
 	    cerr << "Libe-book Error: Fail to extract metadata" << endl;
 	}
@@ -169,11 +165,11 @@ extract(const string& filename,
 	if (EBOOKDocument::RESULT_OK ==
 	    EBOOKDocument::parse(input.get(), &content, type)) {
 	    clear_text(dump, content_dump.cstr());
-	    f_txt = true;
+	    succeed = true;
 	} else {
 	    cerr << "Libe-book Error: Fail to extract text" << endl;
 	}
-	return f_txt || f_meta;
+	return succeed;
     } catch (...) {
 	cerr << "Libe-book threw an exception" << endl;
 	return false;
