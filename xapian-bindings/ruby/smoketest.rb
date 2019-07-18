@@ -299,7 +299,7 @@ class XapianSmoketest < Test::Unit::TestCase
     }
   end
 
-  def test_016_latlongcoords_iterator
+  def test_017_latlongcoords_iterator
     coords = Xapian::LatLongCoords.new()
     coords.append(Xapian::LatLongCoord.new(0, 0))
     assert_equal(coords.size(), 1)
