@@ -249,6 +249,14 @@ module Xapian
       }
     end # allterms
 
+    # Returns an Array of all metadata keys for this database.
+    def metadata_keys(pref = '')
+      Xapian._safelyIterate(self._dangerous_metadata_keys_begin(pref),
+                            self._dangerous_metadata_keys_end(pref)) { |item|
+        item.term
+      }
+    end # metadata_keys
+
     # Returns an Array of Xapian::Postings for the given term.
     # term is a string.
     def postlist(term)

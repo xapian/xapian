@@ -6,7 +6,7 @@
 # Originally based on smoketest.php from the PHP4 bindings.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008,2009,2010,2011,2016 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2016,2019 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -207,6 +207,23 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(@db.get_metadata('Foo'), '')
     @db.set_metadata('Foo', 'Foo')
     assert_equal(@db.get_metadata('Foo'), 'Foo')
+
+    # The inmemory backend doesn't support metadata_keys so we need to create a
+    # "real" database for these tests.
+    Dir.mktmpdir("smokerb") {|tmpdir|
+        dbpath = "#{tmpdir}db"
+
+        db = Xapian::WritableDatabase.new(dbpath, Xapian::DB_CREATE_OR_OVERWRITE)
+        assert_equal(db.get_metadata('Foo'), '')
+        db.set_metadata('Foo', 'Foo')
+        assert_equal(db.get_metadata('Foo'), 'Foo')
+        assert_equal(db.metadata_keys(), ["Foo"])
+        assert_equal(db.metadata_keys('F'), ["Foo"])
+        assert_equal(db.metadata_keys('Foo'), ["Foo"])
+        assert_equal(db.metadata_keys('A'), [])
+        assert_equal(db.metadata_keys('Food'), [])
+        assert_equal(db.metadata_keys('f'), [])
+    }
   end
 
   def test_013_scaleweight
