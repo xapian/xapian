@@ -662,6 +662,10 @@ Matcher::get_mset(Xapian::doccount first,
 	}
 	if (!collapser || collapser.add(result.get_collapse_key())) {
 	    if (first) {
+		// Skip the first "first" results from the merge - we had to
+		// also fetch the first "first" results from each shard, as
+		// merging may push those down into the part of the merged MSet
+		// we care about.
 		--first;
 	    } else {
 		merged_mset.internal->items.push_back(std::move(result));
