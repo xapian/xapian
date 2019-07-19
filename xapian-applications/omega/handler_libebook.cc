@@ -129,7 +129,7 @@ extract(const string& filename,
 	string& pages)
 {
     try {
-	shared_ptr<RVNGInputStream> input;
+	unique_ptr<RVNGInputStream> input;
 	RVNGString content_dump, metadata_dump;
 	const char* file = filename.c_str();
 	bool succeed = false;
@@ -142,16 +142,16 @@ extract(const string& filename,
 	EBOOKDocument::Type type = EBOOKDocument::TYPE_UNKNOWN;
 	auto confidence = EBOOKDocument::isSupported(input.get(), &type);
 
-	if ((EBOOKDocument::CONFIDENCE_EXCELLENT != confidence) &&
-	    (EBOOKDocument::CONFIDENCE_WEAK != confidence)) {
+	if ((confidence != EBOOKDocument::CONFIDENCE_EXCELLENT) &&
+	    (confidence != EBOOKDocument::CONFIDENCE_WEAK)) {
 	    cerr << "Libe-book Error: The format is not supported" << endl;
 	    return false;
 	}
 
 	// Extract metadata if possible
 	RVNGTextTextGenerator metadata(metadata_dump, true);
-	if (EBOOKDocument::RESULT_OK ==
-	    EBOOKDocument::parse(input.get(), &metadata, type)) {
+	if (EBOOKDocument::parse(input.get(), &metadata, type) ==
+	    EBOOKDocument::RESULT_OK) {
 	    const char* metadata = metadata_dump.cstr();
 	    size_t len = metadata_dump.size();
 	    parse_metadata(metadata, len, author, title, keywords);
@@ -162,8 +162,8 @@ extract(const string& filename,
 	(void)pages;
 	// Extract Dump if possible
 	RVNGTextTextGenerator content(content_dump, false);
-	if (EBOOKDocument::RESULT_OK ==
-	    EBOOKDocument::parse(input.get(), &content, type)) {
+	if (EBOOKDocument::parse(input.get(), &content, type) ==
+	    EBOOKDocument::RESULT_OK) {
 	    clear_text(dump, content_dump.cstr());
 	    succeed = true;
 	} else {

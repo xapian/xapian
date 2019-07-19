@@ -165,7 +165,6 @@ index_add_default_libraries()
     index_library("application/x-tcr-ebook", omindex_ebook);
     index_library("application/x-qioo-ebook", omindex_ebook);
 #endif
-
 }
 
 void
