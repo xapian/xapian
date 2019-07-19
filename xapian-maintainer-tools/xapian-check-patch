@@ -182,6 +182,9 @@ while (<>) {
 	} elsif ($ext eq 'py' || $ext eq 'py.in') {
 	    $lang = 'py';
 	    $want_tabs = 0;
+	} elsif ($ext eq 'rb') {
+	    $lang = 'rb';
+	    $want_tabs = 0;
 	} elsif ($fnm =~ m!(?:^|/)ChangeLog\b!) {
 	    $lang = 'changelog';
 	    $want_tabs = 1;
@@ -322,6 +325,11 @@ while (<>) {
 	    }
 	}
     } elsif (defined $lang && $lang eq 'py') {
+	# Trim comments:
+	if (s!#.*!!g) {
+	    s/\s+$//;
+	}
+    } elsif (defined $lang && $lang eq 'rb') {
 	# Trim comments:
 	if (s!#.*!!g) {
 	    s/\s+$//;
@@ -768,6 +776,10 @@ QUOTELOOP:  while (1) {
     } elsif (defined $lang && $lang eq 'py') {
 	if (/^\+.*;\s*$/) {
 	    diagnostic('error', "';' at end of line of python code");
+	}
+    } elsif (defined $lang && $lang eq 'rb') {
+	if (/^\+.*;\s*$/) {
+	    diagnostic('error', "';' at end of line of ruby code");
 	}
     }
     if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output)\.txt$!) {
