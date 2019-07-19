@@ -62,67 +62,24 @@ The recommended way to do this is using the `String#encode
 Iterators
 #########
 
-One important difference from the C++ API is that \*Iterator
-classes should not be used from Ruby, as they fit awkwardly into
-standard Ruby iteration paradigms, and as many of them cause segfaults
-if used improperly. They have all been wrapped with appropriate
-methods that simply return the \*Iterator objects in an Array, so that
-you can use 'each' to iterate through them.
+The iterator classes in the Xapian C++ API are wrapped to allow them
+to be used in a more idiomatic way from Ruby.  Where the C++ API
+has a pair of methods to return a begin and end iterator, the Ruby
+API has a single method which (in Xapian 1.4.12 and later) supports block
+iteration, for example::
 
-::
+  mset.matches {|match|
+    # do something
+  }
+
+If no block is specified, an Array is returned instead (which was the only
+option prior to Xapian 1.4.12).  You can use ``each`` on this Array to achieve
+a similar result to passing a block, except the C++ iterator is read eagerly
+rather than lazily::
 
   mset.matches.each {|match|
     # do something
   }
-
-
-.. Iterator dereferencing
-.. ######################
-.. C++ iterators are often dereferenced to get information, eg
-.. ``(*it)``. With Python these are all mapped to named methods, as
-.. follows:
-
-.. .. table:: Iterator deferencing methods
-
-.. +------------------+----------------------+
-.. | Iterator         | Dereferencing method |
-.. +==================+======================+
-.. | PositionIterator |    ``get_termpos()`` |
-.. +------------------+----------------------+
-.. | PostingIterator  |  ``get_docid()``     |
-.. +------------------+----------------------+
-.. | TermIterator     |     ``get_term()``   |
-.. +------------------+----------------------+
-.. | ValueIterator    |     ``get_value()``  |
-.. +------------------+----------------------+
-.. | MSetIterator     |     ``get_docid()``  |
-.. +------------------+----------------------+
-.. | ESetIterator     |     ``get_term()``   |
-.. +------------------+----------------------+
-
-.. Other methods, such as ``MSetIterator.get_document()``, are
-.. available unchanged.
-
-.. MSet
-.. ####
-
-.. MSet objects have some additional methods to simplify access (these
-.. work using the C++ array dereferencing):
-
-.. ..table:: MSet additional methods
-
-.. +-----------------------------------+----------------------------------------+
-.. | Method name                       |            Explanation                 |
-.. +===================================+========================================+
-.. | ``get_hit(index)``                |   returns MSetIterator at index        |
-.. +-----------------------------------+----------------------------------------+
-.. | ``get_document_percentage(index)``| ``convert_to_percent(get_hit(index))`` |
-.. +-----------------------------------+----------------------------------------+
-.. | ``get_document(index)``           | ``get_hit(index).get_document()``      |
-.. +-----------------------------------+----------------------------------------+
-.. | ``get_docid(index)``              | ``get_hit(index).get_docid()``         |
-.. +-----------------------------------+----------------------------------------+
-
 
 Non-Class Functions
 ###################
