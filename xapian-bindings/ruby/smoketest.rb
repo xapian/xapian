@@ -142,6 +142,9 @@ class XapianSmoketest < Test::Unit::TestCase
     mset = @enq.mset(0, 10)
 
     assert_equal(mset.matches().size(), mset.size())
+    msize = 0
+    mset.matches { |x| msize += 1 }
+    assert_equal(msize, mset.size())
   end
 
 
@@ -157,6 +160,10 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_not_nil(eset)
 
     assert_equal(3, eset.terms.size())
+    assert_equal(3, eset.size())
+    esize = 0
+    eset.terms { |x| esize += 1 }
+    assert_equal(3, esize)
   end # test_eset_iter
 
   # Feature test for Database.allterms
@@ -165,26 +172,42 @@ class XapianSmoketest < Test::Unit::TestCase
     ou_terms = @db.allterms('ou')
     assert_equal(1, ou_terms.size())
     assert_equal('out', ou_terms[0].term)
+    count = 0
+    @db.allterms('ou') { |t|
+      count += 1
+      assert_equal(t.term, "out")
+    }
+    assert_equal(1, count)
   end
 
   # Feature test for Database.postlist
   def test_007_database_postlist
     assert_equal(1, @db.postlist("there").size())
+    count = 0
+    @db.postlist("there") { |x| count += 1 }
+    assert_equal(1, count)
   end
 
   # Feature test for Database.termlist
   def test_008_database_termlist
     assert_equal(5, @db.termlist(1).size())
+    count = 0
+    @db.termlist(1) { |t| count += 1 }
+    assert_equal(5, count)
   end
 
   # Feature test for Database.positionlist
   def test_009_database_positionlist
     assert_equal(2, @db.positionlist(1, "there").size())
+    count = 0
+    @db.positionlist(1, "there") { |x| count += 1 }
+    assert_equal(2, count)
   end
 
   # Feature test for Document.values
   def test_010_document_values
     assert_equal(0, @doc.values().size())
+    @doc.values() { |x| assert(false) }
   end
 
   def test_011_matchdecider
@@ -223,6 +246,12 @@ class XapianSmoketest < Test::Unit::TestCase
         assert_equal(db.metadata_keys('A'), [])
         assert_equal(db.metadata_keys('Food'), [])
         assert_equal(db.metadata_keys('f'), [])
+        count = 0
+        db.metadata_keys { |k|
+          count += 1
+          assert_equal(k, "Foo")
+        }
+        assert_equal(1, count)
     }
   end
 
@@ -323,6 +352,9 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(coords.size(), 1)
     assert_equal(coords.all.map{|i| "%s"%i.description}*",",
 		 "Xapian::LatLongCoord(0, 0)")
+    s = ''
+    coords.all {|i| s += i.description }
+    assert_equal(s, "Xapian::LatLongCoord(0, 0)")
   end
 
 end # class XapianSmoketest
