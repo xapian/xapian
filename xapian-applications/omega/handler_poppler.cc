@@ -23,8 +23,6 @@
 #include "handler.h"
 #include "str.h"
 
-#include <iostream>
-
 #include <poppler/cpp/poppler-document.h>
 #include <poppler/cpp/poppler-page.h>
 
@@ -55,13 +53,14 @@ extract(const string& filename,
 	string& title,
 	string& keywords,
 	string& author,
-	string& pages)
+	string& pages,
+	string& error)
 {
     try {
 	document * doc = document::load_from_file(filename);
 
 	if (!doc) {
-	    cerr << "Poppler Error: Failed to read pdf file" << endl;
+	    error = "Poppler Error: Failed to read pdf file";
 	    return false;
 	}
 
@@ -75,14 +74,14 @@ extract(const string& filename,
 	for (int i = 0; i < npages; ++i) {
 	    page *p(doc->create_page(i));
 	    if (!p) {
-		cerr << "Poppler Error: Failed to create page " << i << endl;
+		error = "Poppler Error: Failed to create page " + str(i);
 		return false;
 	    }
 	    dump += text_to_utf8(p->text());
 	}
 	clear_text(dump);
     } catch (...) {
-	cerr << "Poppler threw an exception" << endl;
+	error = "Poppler threw an exception";
 	return false;
     }
 

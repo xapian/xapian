@@ -34,6 +34,8 @@
  *  Each worker is associated to a particular assistant.
  */
 class Worker {
+    /// Showing error messages if true
+    bool verbose;
     /// Workers ignore SIGPIPE.
     static bool ignoring_sigpipe;
     /// PID of the assistant process.
@@ -54,8 +56,8 @@ class Worker {
      *
      *  The assistant will not be started until it is necessary.
      */
-    Worker(const std::string& path)
-	: sockt(NULL), filter_module(path) { }
+    Worker(const std::string& path, bool verb)
+	: verbose(verb), sockt(NULL), filter_module(path) { }
 
     /** Extract information from a file through the assistant process.
      *

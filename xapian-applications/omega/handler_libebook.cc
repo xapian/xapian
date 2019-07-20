@@ -23,7 +23,6 @@
 #include "stringutils.h"
 
 #include <memory>
-#include <iostream>
 
 #include <librevenge-generators/librevenge-generators.h>
 #include <librevenge-stream/librevenge-stream.h>
@@ -126,7 +125,8 @@ extract(const string& filename,
 	string& title,
 	string& keywords,
 	string& author,
-	string& pages)
+	string& pages,
+	string& error)
 {
     try {
 	unique_ptr<RVNGInputStream> input;
@@ -144,7 +144,7 @@ extract(const string& filename,
 
 	if ((confidence != EBOOKDocument::CONFIDENCE_EXCELLENT) &&
 	    (confidence != EBOOKDocument::CONFIDENCE_WEAK)) {
-	    cerr << "Libe-book Error: The format is not supported" << endl;
+	    error = "Libe-book Error: The format is not supported";
 	    return false;
 	}
 
@@ -157,7 +157,7 @@ extract(const string& filename,
 	    parse_metadata(metadata, len, author, title, keywords);
 	    succeed = true;
 	} else {
-	    cerr << "Libe-book Error: Fail to extract metadata" << endl;
+	    error = "Libe-book Error: Fail to extract metadata";
 	}
 	(void)pages;
 	// Extract Dump if possible
@@ -167,11 +167,13 @@ extract(const string& filename,
 	    clear_text(dump, content_dump.cstr());
 	    succeed = true;
 	} else {
-	    cerr << "Libe-book Error: Fail to extract text" << endl;
+	    if (!error.empty())
+		error.push_back('\n');
+	    error += "Libe-book Error: Fail to extract text";
 	}
 	return succeed;
     } catch (...) {
-	cerr << "Libe-book threw an exception" << endl;
+	error = "Libe-book threw an exception";
 	return false;
     }
 }

@@ -150,14 +150,14 @@ skip_unknown_mimetype(const string & urlterm, const string & context,
 }
 
 void
-index_add_default_libraries()
+index_add_default_libraries(bool vrbs)
 {
 #if defined HAVE_POPPLER
-    Worker* omindex_pdf = new Worker("omindex_pdf");
+    Worker* omindex_pdf = new Worker("omindex_pdf", vrbs);
     index_library("application/pdf", omindex_pdf);
 #endif
 #if defined HAVE_LIBEBOOK
-    Worker* omindex_ebook = new Worker("omindex_ebook");
+    Worker* omindex_ebook = new Worker("omindex_ebook", vrbs);
     index_library("application/vnd.palm", omindex_ebook);
     index_library("application/x-fictionbook+xml", omindex_ebook);
     index_library("application/x-zip-compressed-fb2", omindex_ebook);

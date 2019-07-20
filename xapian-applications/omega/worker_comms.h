@@ -22,6 +22,11 @@
 #include <cstdio>
 #include <string>
 
+enum assistant_msg {
+    MSG_OK,
+    MSG_NON_FATAL_ERROR,
+    MSG_FATAL_ERROR
+};
 /// Read a string from the file descriptor @a f and storage it in @a s
 bool read_string(std::FILE* f, std::string& s);
 

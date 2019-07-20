@@ -29,6 +29,7 @@
 #include <csignal>
 #include <cstring>
 #include <cerrno>
+#include <iostream>
 #include "safefcntl.h"
 #include "safeunistd.h"
 #include <sys/socket.h>
@@ -153,21 +154,36 @@ Worker::extract(const std::string& filename,
 	start_worker_subprocess();
     }
 
-    string strpage;
-
+    string strpage, strstate;
+    char state = MSG_FATAL_ERROR;
     // Sending a filename and wating for the answer
-    if (write_string(sockt, filename) &&
-	read_string(sockt, dump) &&
-	read_string(sockt, title) &&
-	read_string(sockt, keywords) &&
-	read_string(sockt, author) &&
-	read_string(sockt, strpage)) {
-	    if (strpage.empty() ||
-		strpage.find_first_not_of("0123456789") != string::npos)
-		pages = 0;
-	    else
-		pages = stoi(strpage);
-	    return true;
+    if (write_string(sockt, filename) && read_string(sockt, strstate)) {
+	if (!strstate.empty())
+	    state = strstate[0];
+	switch (state) {
+	    case MSG_OK:
+		if (!read_string(sockt, dump) ||
+		    !read_string(sockt, title) ||
+		    !read_string(sockt, keywords) ||
+		    !read_string(sockt, author) ||
+		    !read_string(sockt, strpage)) {
+		    break;
+		}
+		if (strpage.empty() ||
+		    strpage.find_first_not_of("0123456789") != string::npos) {
+		    pages = 0;
+		} else {
+		    pages = stoi(strpage);
+		}
+		return true;
+	    case MSG_NON_FATAL_ERROR:
+		if (strstate.length() > 1 && verbose) {
+		    cerr << (strstate.c_str() + 1) << endl;
+		}
+		return false;
+	    default:
+		break;
+	}
     }
     fclose(sockt);
     sockt = NULL;
