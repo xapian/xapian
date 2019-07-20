@@ -576,15 +576,23 @@ Matcher::get_mset(Xapian::doccount first,
 		submatch->start_match(stats);
 	}
 
+	Xapian::doccount local_first = first;
+	Xapian::doccount local_maxitems = maxitems;
+	double local_percent_threshold_factor = percent_threshold_factor;
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	double ptf_to_use = remotes.empty() ? percent_threshold_factor : 0;
-#else
-	double ptf_to_use = percent_threshold_factor;
+	if (!remotes.empty()) {
+	    // We need to fetch the first "first" results too, as merging may
+	    // push those down into the part of the merged MSet we care about.
+	    local_first = 0;
+	    local_maxitems = first + maxitems;
+	    local_percent_threshold_factor = 0.0;
+	}
 #endif
-	local_mset = get_local_mset(first, maxitems, check_at_least,
+	local_mset = get_local_mset(local_first, local_maxitems, check_at_least,
 				    wtscheme, mdecider,
 				    sorter, collapse_key, collapse_max,
-				    percent_threshold, ptf_to_use,
+				    percent_threshold,
+				    local_percent_threshold_factor,
 				    weight_threshold, order, sort_key, sort_by,
 				    sort_val_reverse, time_limit, matchspies);
     }
