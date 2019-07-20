@@ -28,12 +28,13 @@
 /** Extract information from the @a filename and store it in the
  *  corresponding variable.
  *
- *  @param filename   Path to the file.
- *  @param dump       String where the dump will be saved.
- *  @param title      String which will hold the title of the file.
- *  @param keywords   String where the keywords will be stored.
- *  @param author     String where the author will be stored.
- *  @param pages      Here the number of pages will be stored.
+ *  @param filename	Path to the file.
+ *  @param dump 	String where the dump will be saved.
+ *  @param title	String which will hold the title of the file.
+ *  @param keywords	String where the keywords will be stored.
+ *  @param author	String where the author will be stored.
+ *  @param pages	Here the number of pages will be stored.
+ *  @param error	String where error messages can be stored.
  *
  * Note: This function should only be used by an assistant process.
  *
@@ -45,6 +46,7 @@ extract(const std::string& filename,
 	std::string& title,
 	std::string& keywords,
 	std::string& author,
-	std::string& pages);
+	std::string& pages,
+	std::string& error);
 
 #endif // OMEGA_INCLUDED_HANDLER_H

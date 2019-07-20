@@ -73,21 +73,25 @@ int main()
     while (true) {
 	// Read filename.
 	if (!read_string(sockt, filename)) break;
-	string dump, title, keywords, author, pages;
+	string dump, title, keywords, author, pages, error;
 	// Setting a timeout for avoid infinity loops
 	set_timeout();
-	if (!extract(filename, dump, title, keywords, author, pages)) {
-	    // FIXME: we could persist even if extraction fails...
-	    _Exit(1);
-	}
-	// The function extract returns, I can cancel the timeout
+	bool succeed =
+	    extract(filename, dump, title, keywords, author, pages, error);
 	stop_timeout();
-
-	if (!write_string(sockt, dump) ||
-	    !write_string(sockt, title) ||
-	    !write_string(sockt, keywords) ||
-	    !write_string(sockt, author) ||
-	    !write_string(sockt, pages)) break;
+	if (!succeed) {
+	    if (!write_string(sockt, string(1, MSG_NON_FATAL_ERROR) + error))
+		break;
+	} else {
+	    if (!write_string(sockt, string(1, MSG_OK)) ||
+		!write_string(sockt, dump) ||
+		!write_string(sockt, title) ||
+		!write_string(sockt, keywords) ||
+		!write_string(sockt, author) ||
+		!write_string(sockt, pages)) {
+		break;
+	    }
+	}
     }
 
     return 0;

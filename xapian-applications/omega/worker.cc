@@ -25,7 +25,6 @@
 #include "worker.h"
 #include "worker_comms.h"
 
-#include "pkglibbindir.h"
 #include <csignal>
 #include <cstring>
 #include <cerrno>
@@ -33,8 +32,11 @@
 #include "safeunistd.h"
 #include <sys/socket.h>
 #include <sys/wait.h>
+
 #include "closefrom.h"
 #include "freemem.h"
+#include "parseint.h"
+#include "pkglibbindir.h"
 
 using namespace std;
 
@@ -153,22 +155,37 @@ Worker::extract(const std::string& filename,
 	start_worker_subprocess();
     }
 
-    string strpage;
-
+    string strpage, strstate;
+    char state = MSG_FATAL_ERROR;
     // Sending a filename and wating for the answer
-    if (write_string(sockt, filename) &&
-	read_string(sockt, dump) &&
-	read_string(sockt, title) &&
-	read_string(sockt, keywords) &&
-	read_string(sockt, author) &&
-	read_string(sockt, strpage)) {
-	    if (strpage.empty() ||
-		strpage.find_first_not_of("0123456789") != string::npos)
-		pages = 0;
-	    else
-		pages = stoi(strpage);
-	    return true;
+    if (write_string(sockt, filename) && read_string(sockt, strstate)) {
+	error.clear();
+	if (!strstate.empty())
+	    state = strstate[0];
+	switch (state) {
+	    case MSG_OK:
+		if (!read_string(sockt, dump) ||
+		    !read_string(sockt, title) ||
+		    !read_string(sockt, keywords) ||
+		    !read_string(sockt, author) ||
+		    !read_string(sockt, strpage)) {
+		    break;
+		}
+		if (!parse_signed(strpage.c_str(), pages) || pages < 0)
+		    pages = 0;
+		return true;
+	    case MSG_NON_FATAL_ERROR:
+		if (strstate.length() > 1) {
+		    error.assign(strstate, 1, string::npos);
+		} else {
+		    error = "Couldn't extract text from " + filename;
+		}
+		return false;
+	    default:
+		break;
+	}
     }
+    error = "The assistant process " + filter_module + " failed";
     fclose(sockt);
     sockt = NULL;
 

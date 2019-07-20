@@ -46,7 +46,8 @@ class Worker {
     std::string filter_module;
     /// This method create the assistant subprocess.
     void start_worker_subprocess();
-
+    /// In case of failure, an error message will be write in it
+    std::string error;
   public:
     /** Construct a Worker.
      *
@@ -82,4 +83,10 @@ class Worker {
 		 std::string& keywords,
 		 std::string& author,
 		 int& pages);
+    /** Returns an error message if the extraction fails, or an empty string
+     *  if everything is okay.
+     */
+    std::string get_error() const {
+	return error;
+    }
 };
