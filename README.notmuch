@@ -9,7 +9,7 @@ make
 
 To use (assuming your mail is in ~/Mail):
 
-xapian-core/bin/xapian-check ~/Mail/.notmuch/xapian 2> tmp.dump
+xapian-core/bin/xapian-check ~/Mail/.notmuch/xapian/termlist. 2> tmp.dump
 
 Then check tmp.dump looks plausible, reindex your email, and:
 
