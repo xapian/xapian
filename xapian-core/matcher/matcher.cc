@@ -693,7 +693,16 @@ Matcher::get_mset(Xapian::doccount first,
 	collapser.finalise(merged_mset.internal->items, percent_threshold);
 
 	auto mseti = merged_mset.internal;
-	mseti->matches_lower_bound = collapser.get_matches_lower_bound();
+	if (check_at_least > 0) {
+	    mseti->matches_lower_bound = collapser.get_matches_lower_bound();
+	} else {
+	    // Lower bound must be set to no more than collapse_max, since it's
+	    // possible that all matching documents have the same collapse_key
+	    // value and so are collapsed together.
+	    if (mseti->matches_lower_bound > collapse_max) {
+		mseti->matches_lower_bound = collapse_max;
+	    }
+	}
 
 	double unique_rate = 1.0;
 
