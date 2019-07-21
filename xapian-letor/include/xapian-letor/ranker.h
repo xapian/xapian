@@ -296,11 +296,11 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
   public:
     /* Construct ListNet instance
      * @param learn_rate       Learning rate
-     * @param num_interations  Number of iterations
+     * @param num_iterations   Number of iterations
      */
     explicit ListNETRanker(double learn_rate = 0.001,
-			    int num_interations = 15)
-	: learning_rate(learn_rate), iterations(num_interations) { }
+			   int num_iterations = 15)
+	: learning_rate(learn_rate), iterations(num_iterations) { }
 
     /// Destructor
     ~ListNETRanker();
@@ -399,11 +399,11 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
   public:
     /* Construct ListMLE instance
      * @param learn_rate       Learning rate (Default is 0.001)
-     * @param num_interations  Number of iterations (Default is 10)
+     * @param num_iterations   Number of iterations (Default is 10)
      */
     explicit ListMLERanker(double learn_rate = 0.001,
-			    int num_interations = 10)
-	: learning_rate(learn_rate), iterations(num_interations) { }
+			   int num_iterations = 10)
+	: learning_rate(learn_rate), iterations(num_iterations) { }
 
     /// Destructor
     ~ListMLERanker();
