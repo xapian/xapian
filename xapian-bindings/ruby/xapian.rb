@@ -183,6 +183,16 @@ module Xapian
                             },
                             &block)
     end # terms
+
+    def unique_terms(&block)
+      # termfreq is not supported by TermIterators from Queries
+      Xapian._safelyIterate(self._dangerous_unique_terms_begin(),
+                            self._dangerous_unique_terms_end(),
+                            lambda {
+                              |item| Xapian::Term.new(item.term, item.wdf)
+                            },
+                            &block)
+    end # unique_terms
   end # Xapian::Query
 
   # Refer to the
@@ -307,6 +317,30 @@ module Xapian
                             lambda { |item| Xapian::Value.new(item.value, slot, item.docid) },
                             &block)
     end # valuestream(slot)
+
+    # Returns an Array of Xapian::Term objects for the spelling dictionary.
+    def spellings(&block)
+      Xapian._safelyIterate(self._dangerous_spellings_begin(),
+                            self._dangerous_spellings_end(),
+                            lambda { |item| Xapian::Term.new(item.term, 0, item.termfreq) },
+                            &block)
+    end # spellings
+
+    # Returns an Array of synonyms of the given term.
+    def synonyms(term, &block)
+      Xapian._safelyIterate(self._dangerous_synonyms_begin(term),
+                            self._dangerous_synonyms_end(term),
+                            lambda { |item| item.term },
+                            &block)
+    end # synonyms
+
+    # Returns an Array of terms with synonyms.
+    def synonym_keys(&block)
+      Xapian._safelyIterate(self._dangerous_synonym_keys_begin(),
+                            self._dangerous_synonym_keys_end(),
+                            lambda { |item| item.term },
+                            &block)
+    end # synonym_keys
   end # Xapian::Database
 
   # Refer to the
@@ -346,6 +380,24 @@ module Xapian
                             &block)
     end # allterms
   end # Xapian::LatLongCoords
+
+  class Xapian::QueryParser
+    # Returns an Array of all words in the query ignored as stopwords.
+    def stoplist(&block)
+      Xapian._safelyIterate(self._dangerous_stoplist_begin(),
+                            self._dangerous_stoplist_end(),
+                            lambda { |item| item.term },
+                            &block)
+    end # stoplist
+
+    # Returns an Array of all words in the query which stem to a given term.
+    def unstem(term, &block)
+      Xapian._safelyIterate(self._dangerous_unstem_begin(term),
+                            self._dangerous_unstem_end(term),
+                            lambda { |item| item.term },
+                            &block)
+    end # unstem
+  end # Xapian::QueryParser
 
   # Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
   # xapian-bindings 1.4.10).
