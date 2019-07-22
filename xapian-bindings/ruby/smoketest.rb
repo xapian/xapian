@@ -112,6 +112,22 @@ class XapianSmoketest < Test::Unit::TestCase
                   Xapian::Term.new("string", 1),
                   Xapian::Term.new("test", 1),
                   Xapian::Term.new("tuple", 1)], xor_query.terms())
+    assert_equal(xor_query.terms(), xor_query.unique_terms())
+
+    non_unique_query = Xapian::Query.new(Xapian::Query::OP_PHRASE,
+                                         [Xapian::Query.new("the", 1, 1),
+                                          Xapian::Query.new("the", 1, 2)])
+    assert_equal([Xapian::Term.new("the", 1),
+                  Xapian::Term.new("the", 1)], non_unique_query.terms())
+    assert_equal([Xapian::Term.new("the", 1)], non_unique_query.unique_terms())
+
+    count = 0
+    non_unique_query.terms() { count += 1 }
+    assert_equal(2, count)
+
+    count = 0
+    non_unique_query.unique_terms() { count += 1 }
+    assert_equal(1, count)
 
     assert_equal(Xapian::Query::OP_ELITE_SET, 10)
 
@@ -354,6 +370,102 @@ class XapianSmoketest < Test::Unit::TestCase
     s = ''
     coords.all {|i| s += i.description }
     assert_equal(s, "Xapian::LatLongCoord(0, 0)")
+  end
+
+  def test_018_spellings
+    # The inmemory backend doesn't support spellings so we need to create a
+    # "real" database for these tests.
+    Dir.mktmpdir("smokerb") {|tmpdir|
+        dbpath = "#{tmpdir}/dbspell"
+
+        db = Xapian::WritableDatabase.new(dbpath, Xapian::DB_CREATE_OR_OVERWRITE)
+        a = []
+        db.spellings { |x| a.append(x) }
+        assert_equal(a, db.spellings)
+        assert_equal([], a)
+        db.add_spelling("there")
+        db.add_spelling("their")
+        db.add_spelling("they're")
+        db.add_spelling("there")
+        a = []
+        db.spellings { |x| a.append(x) }
+        assert_equal(a, db.spellings)
+        assert_equal([Xapian::Term.new("their", 0, 1),
+                      Xapian::Term.new("there", 0, 2),
+                      Xapian::Term.new("they're", 0, 1)], a)
+    }
+  end
+
+  def test_019_synonyms
+    # The inmemory backend doesn't support synonyms so we need to create a
+    # "real" database for these tests.
+    Dir.mktmpdir("smokerb") {|tmpdir|
+        dbpath = "#{tmpdir}/dbsynonym"
+
+        db = Xapian::WritableDatabase.new(dbpath, Xapian::DB_CREATE_OR_OVERWRITE)
+
+        k = []
+        db.synonym_keys { |x| k.append(x) }
+        assert_equal(k, db.synonym_keys)
+        assert_equal(k, [])
+
+        a = []
+        db.synonyms('food') { |x| a.append(x) }
+        assert_equal(a, db.synonyms('food'))
+        assert_equal(a, [])
+
+        db.add_synonym("food", "nosh")
+        db.add_synonym("food", "grub")
+        db.add_synonym("food", "kai")
+        db.add_synonym("drink", "tea")
+        db.add_synonym("drink", "coffee")
+
+        k = []
+        db.synonym_keys { |x| k.append(x) }
+        assert_equal(k, db.synonym_keys)
+        assert_equal(['drink', 'food'], k)
+
+        a = []
+        db.synonyms('drink') { |x| a.append(x) }
+        assert_equal(a, db.synonyms('drink'))
+        assert_equal(['coffee', 'tea'], a)
+
+        a = []
+        db.synonyms('food') { |x| a.append(x) }
+        assert_equal(a, db.synonyms('food'))
+        assert_equal(['grub', 'kai', 'nosh'], a)
+
+        a = []
+        db.synonyms('nothing') { |x| a.append(x) }
+        assert_equal(a, db.synonyms('nothing'))
+        assert_equal([], a)
+    }
+  end
+
+  def test_020_queryparser
+    stopper = Xapian::SimpleStopper.new()
+    stopper.add('a')
+    stopper.add('the')
+    qp = Xapian::QueryParser.new()
+    qp.stopper = stopper
+    qp.stemmer = Xapian::Stem.new('en')
+    q = qp.parse_query("The starting started with a start")
+    puts q.description
+
+    a = []
+    qp.stoplist() { |x| a.append(x) }
+    assert_equal(a, qp.stoplist())
+    assert_equal(['the', 'a'], a)
+
+    a = []
+    qp.unstem('Zthe') { |x| a.append(x) }
+    assert_equal(a, qp.unstem('Zthe'))
+    assert_equal([], a)
+
+    a = []
+    qp.unstem('Zstart') { |x| a.append(x) }
+    assert_equal(a, qp.unstem('Zstart'))
+    assert_equal(['starting', 'started', 'start'], a)
   end
 
 end # class XapianSmoketest

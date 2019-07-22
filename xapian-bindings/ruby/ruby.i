@@ -123,6 +123,9 @@
 // in Xapian::Query
 %rename("_dangerous_terms_begin") get_terms_begin;
 %rename("_dangerous_terms_end") get_terms_end;
+// in Xapian::Query
+%rename("_dangerous_unique_terms_begin") get_unique_terms_begin;
+%rename("_dangerous_unique_terms_end") get_unique_terms_end;
 // in Xapian::Enquire
 %rename("_dangerous_matching_terms_begin") get_matching_terms_begin;
 %rename("_dangerous_matching_terms_end") get_matching_terms_end;
@@ -139,6 +142,15 @@
 %rename("_dangerous_positionlist_begin") positionlist_begin;
 %rename("_dangerous_positionlist_end") positionlist_end;
 // in Xapian::Database
+%rename("_dangerous_spellings_begin") spellings_begin;
+%rename("_dangerous_spellings_end") spellings_end;
+// in Xapian::Database
+%rename("_dangerous_synonyms_begin") synonyms_begin;
+%rename("_dangerous_synonyms_end") synonyms_end;
+// in Xapian::Database
+%rename("_dangerous_synonym_keys_begin") synonym_keys_begin;
+%rename("_dangerous_synonym_keys_end") synonym_keys_end;
+// in Xapian::Database
 %rename("_dangerous_valuestream_begin") valuestream_begin;
 %rename("_dangerous_valuestream_end") valuestream_end;
 // in Xapian::Document and Xapian::ValueCountMatchSpy
@@ -147,6 +159,12 @@
 // in Xapian::ValueCountMatchSpy
 %rename("_dangerous_top_values_begin") top_values_begin;
 %rename("_dangerous_top_values_end") top_values_end;
+// in Xapian::QueryParser
+%rename("_dangerous_stoplist_begin") stoplist_begin;
+%rename("_dangerous_stoplist_end") stoplist_end;
+// in Xapian::QueryParser
+%rename("_dangerous_unstem_begin") unstem_begin;
+%rename("_dangerous_unstem_end") unstem_end;
 
 
 // MSetIterators are not dangerous, just inconvenient to use within a Ruby
