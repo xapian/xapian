@@ -32,12 +32,38 @@
 
 using namespace std;
 
-/// Regression test - in 1.0.10 and earlier "" was included in the list.
 DEFINE_TESTCASE(queryterms1, !backend) {
     Xapian::Query query = Xapian::Query::MatchAll;
+    /// Regression test - in 1.0.10 and earlier "" was included in the list.
     TEST(query.get_terms_begin() == query.get_terms_end());
+    TEST(query.get_unique_terms_begin() == query.get_unique_terms_end());
     query = Xapian::Query(query.OP_AND_NOT, query, Xapian::Query("fair"));
     TEST_EQUAL(*query.get_terms_begin(), "fair");
+    TEST_EQUAL(*query.get_unique_terms_begin(), "fair");
+
+    Xapian::QueryParser qp;
+    Xapian::Query q = qp.parse_query("\"the the the\"");
+    {
+	auto t = q.get_terms_begin();
+	size_t count = 0;
+	while (t != q.get_terms_end()) {
+	    TEST_EQUAL(*t, "the");
+	    ++count;
+	    ++t;
+	}
+	TEST_EQUAL(count, 3);
+    }
+    {
+	auto t = q.get_unique_terms_begin();
+	size_t count = 0;
+	while (t != q.get_unique_terms_end()) {
+	    TEST_EQUAL(*t, "the");
+	    ++count;
+	    ++t;
+	}
+	TEST_EQUAL(count, 1);
+    }
+
     return true;
 }
 

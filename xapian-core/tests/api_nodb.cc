@@ -76,6 +76,8 @@ DEFINE_TESTCASE(getqterms1, !backend) {
 DEFINE_TESTCASE(getqterms2, !backend) {
     Xapian::Query empty_query;
     TEST_EQUAL(empty_query.get_terms_begin(), empty_query.get_terms_end());
+    TEST_EQUAL(empty_query.get_unique_terms_begin(),
+	       empty_query.get_unique_terms_end());
     return true;
 }
 
