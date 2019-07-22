@@ -588,6 +588,11 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      */
     const TermIterator get_unique_terms_begin() const;
 
+    /// End iterator for unique terms in the query object.
+    const TermIterator XAPIAN_NOTHROW(get_unique_terms_end() const) {
+	return TermIterator();
+    }
+
     /** Return the length of this query object. */
     Xapian::termcount XAPIAN_NOTHROW(get_length() const) XAPIAN_PURE_FUNCTION;
 
