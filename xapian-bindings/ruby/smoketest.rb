@@ -234,7 +234,7 @@ class XapianSmoketest < Test::Unit::TestCase
     # The inmemory backend doesn't support metadata_keys so we need to create a
     # "real" database for these tests.
     Dir.mktmpdir("smokerb") {|tmpdir|
-        dbpath = "#{tmpdir}db"
+        dbpath = "#{tmpdir}/db"
 
         db = Xapian::WritableDatabase.new(dbpath, Xapian::DB_CREATE_OR_OVERWRITE)
         assert_equal(db.get_metadata('Foo'), '')
@@ -302,9 +302,9 @@ class XapianSmoketest < Test::Unit::TestCase
 
   def test_016_compactor
     Dir.mktmpdir("smokerb") {|tmpdir|
-        db1path = "#{tmpdir}db1"
-        db2path = "#{tmpdir}db2"
-        db3path = "#{tmpdir}db3"
+        db1path = "#{tmpdir}/db1"
+        db2path = "#{tmpdir}/db2"
+        db3path = "#{tmpdir}/db3"
 
         # Set up a couple of sample input databases
         db1 = Xapian::WritableDatabase.new(db1path, Xapian::DB_CREATE_OR_OVERWRITE)
