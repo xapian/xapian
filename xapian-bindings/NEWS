@@ -1,16 +1,8 @@
-up to: 4e08c65bbd8ed150248dd0dece60a41b6f02bb43
-
-Xapian-bindings 1.4.12 (2019-07-05):
+Xapian-bindings 1.4.12 (2019-07-23):
 
 Documentation:
 
 * Update bindings HACKING document.  Reported as out of date by Niwesh Gupta.
-
-General:
-
-Packaging:
-
-Portability:
 
 CSharp:
 
@@ -19,10 +11,6 @@ CSharp:
   Encountered on Kubuntu 18.10 and debugged by Tejasvi Tomar.  Seems to be
   fixed in the mono version in Debian buster.
 
-Java:
-
-Lua:
-
 Perl:
 
 * Suppress warnings from older Perl headers due to use of constructs which look
@@ -30,12 +18,6 @@ Perl:
   just noise in our build.  We were working around these in the CI build, so
   drop that workaround as we want to make the build warning-clean for users
   too.  Reported by daniel93 on #xapian.
-
-PHP:
-
-PHP7:
-
-Python:
 
 Python3:
 
@@ -51,13 +33,21 @@ Python3:
 
 Ruby:
 
+* Add support for block iteration.  All the iterator methods in the Ruby API
+  now accept an optional block.  If no block is given an array is returned so
+  existing code will still work.  Partly based on a patch in
+  https://github.com/xapian/xapian/pull/232 from Cong Ding.
+
+* Add missing wrappers for all the C++ methods returning iterators which
+  weren't wrapped for Ruby.  Fixes #777, reported by do.
+
 * Suppress warnings from Ruby 2.3 headers due to use of register and
   constructs which look like C++11 user-defined literals.  They're fixed in
   newer versions so they're just noise in our build.  We were working around
   these in the CI build, so drop that workaround as we want to make the build
   warning-clean for users too.  Reported by daniel93 on #xapian.
 
-Tcl:
+* smoketest.rb: Don't leave temporary databases behind in /tmp.
 
 Xapian-bindings 1.4.11 (2019-03-02):
 

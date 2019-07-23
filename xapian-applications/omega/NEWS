@@ -1,8 +1,4 @@
-up to: b4d3b9f79845f2b831d9fc41e48b7df4e940a328
-
-Omega 1.4.12 (2019-07-16):
-
-general:
+Omega 1.4.12 (2019-07-23):
 
 documentation:
 
@@ -74,8 +70,6 @@ omega:
 * Handle corner case of nested $hitlist gracefully instead of potentially
   entering an infinite loop.
 
-templates:
-
 testsuite:
 
 * omegatest: Avoid setting TZ globally during tests as that hides bugs where
@@ -102,8 +96,6 @@ portability:
   other platforms, provide a compatibility implementation of setenv() so the
   compatibility code is encapsulated in one place rather than replicated at
   every use.
-
-packaging:
 
 Omega 1.4.11 (2019-03-02):
 

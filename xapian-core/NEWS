@@ -1,6 +1,4 @@
-up to: 7230f730e214381b8ab82949ca4e5cfd8eae3b67
-
-Xapian-core 1.4.12 (2019-07-16):
+Xapian-core 1.4.12 (2019-07-23):
 
 API:
 
@@ -21,6 +19,8 @@ API:
   bulk insertion O(n) instead of O(n·log(n)), and use std::move() to avoid
   copying OmDocumentTerm objects.
 
+* Xapian::Query: Add missing get_unique_terms_end() method.
+
 * Xapian::iterator_valid(): Implement for Utf8Iterator
 
 testsuite:
@@ -37,12 +37,6 @@ matcher:
 
 * Ownership of PostingSource objects during the match now makes use of the
   optional reference-counting mechanism rather than a separate flag.
-
-glass backend:
-
-
-chert backend:
-
 
 remote backend:
 
@@ -75,9 +69,6 @@ remote backend:
   serialised results with extra data appended (which shouldn't happen in normal
   use).
 
-inmemory backend:
-
-
 build system:
 
 * Current versions of valgrind result in false positives on current versions of
@@ -95,8 +86,16 @@ build system:
 
 documentation:
 
+* Improve API documentation for Xapian::Query class.  Add missing doc
+  comments and improve some of the existing ones.  Problems highlighted by
+  Дилян Палаузов in #790.
+
 * Add Unicode consortium names and codes for categories from Chapter 4, Version
   11 of the Unicode standard.  Patch from David Bremner.
+
+* Improve configure --help output - drop "[default=no]" for --enable-*
+  options which default off.  Fixes #791, reported by and patch from Дилян
+  Палаузов.
 
 * Fix API documentation typo - Query::op (the type) not op_ (a parameter name).
 
@@ -113,9 +112,6 @@ tools:
   separator on platforms where that's the norm broke the code in copydatabase
   which removes a trailing slash from input databases.  Bug reported and
   culprit commit identified by Eric Wong.
-
-examples:
-
 
 portability:
 
@@ -152,12 +148,6 @@ portability:
 
   + Use -xldscope=symbolic for Sun C++.  This flag is roughly equivalent to
     -Bsymbolic-functions which we've probed for with GNU ld since Xapian 1.0.0.
-
-packaging:
-
-
-debug code:
-
 
 Xapian-core 1.4.11 (2019-03-02):
 
