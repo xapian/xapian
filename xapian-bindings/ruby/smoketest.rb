@@ -380,7 +380,7 @@ class XapianSmoketest < Test::Unit::TestCase
 
         db = Xapian::WritableDatabase.new(dbpath, Xapian::DB_CREATE_OR_OVERWRITE)
         a = []
-        db.spellings { |x| a.append(x) }
+        db.spellings { |x| a.push(x) }
         assert_equal(a, db.spellings)
         assert_equal([], a)
         db.add_spelling("there")
@@ -388,7 +388,7 @@ class XapianSmoketest < Test::Unit::TestCase
         db.add_spelling("they're")
         db.add_spelling("there")
         a = []
-        db.spellings { |x| a.append(x) }
+        db.spellings { |x| a.push(x) }
         assert_equal(a, db.spellings)
         assert_equal([Xapian::Term.new("their", 0, 1),
                       Xapian::Term.new("there", 0, 2),
@@ -405,12 +405,12 @@ class XapianSmoketest < Test::Unit::TestCase
         db = Xapian::WritableDatabase.new(dbpath, Xapian::DB_CREATE_OR_OVERWRITE)
 
         k = []
-        db.synonym_keys { |x| k.append(x) }
+        db.synonym_keys { |x| k.push(x) }
         assert_equal(k, db.synonym_keys)
         assert_equal(k, [])
 
         a = []
-        db.synonyms('food') { |x| a.append(x) }
+        db.synonyms('food') { |x| a.push(x) }
         assert_equal(a, db.synonyms('food'))
         assert_equal(a, [])
 
@@ -421,22 +421,22 @@ class XapianSmoketest < Test::Unit::TestCase
         db.add_synonym("drink", "coffee")
 
         k = []
-        db.synonym_keys { |x| k.append(x) }
+        db.synonym_keys { |x| k.push(x) }
         assert_equal(k, db.synonym_keys)
         assert_equal(['drink', 'food'], k)
 
         a = []
-        db.synonyms('drink') { |x| a.append(x) }
+        db.synonyms('drink') { |x| a.push(x) }
         assert_equal(a, db.synonyms('drink'))
         assert_equal(['coffee', 'tea'], a)
 
         a = []
-        db.synonyms('food') { |x| a.append(x) }
+        db.synonyms('food') { |x| a.push(x) }
         assert_equal(a, db.synonyms('food'))
         assert_equal(['grub', 'kai', 'nosh'], a)
 
         a = []
-        db.synonyms('nothing') { |x| a.append(x) }
+        db.synonyms('nothing') { |x| a.push(x) }
         assert_equal(a, db.synonyms('nothing'))
         assert_equal([], a)
     }
@@ -453,17 +453,17 @@ class XapianSmoketest < Test::Unit::TestCase
     puts q.description
 
     a = []
-    qp.stoplist() { |x| a.append(x) }
+    qp.stoplist() { |x| a.push(x) }
     assert_equal(a, qp.stoplist())
     assert_equal(['the', 'a'], a)
 
     a = []
-    qp.unstem('Zthe') { |x| a.append(x) }
+    qp.unstem('Zthe') { |x| a.push(x) }
     assert_equal(a, qp.unstem('Zthe'))
     assert_equal([], a)
 
     a = []
-    qp.unstem('Zstart') { |x| a.append(x) }
+    qp.unstem('Zstart') { |x| a.push(x) }
     assert_equal(a, qp.unstem('Zstart'))
     assert_equal(['starting', 'started', 'start'], a)
   end
