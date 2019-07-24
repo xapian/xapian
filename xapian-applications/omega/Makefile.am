@@ -156,6 +156,8 @@ noinst_HEADERS +=\
 	common/msvc_dirent.h\
 	common/noreturn.h\
 	common/omassert.h\
+	common/overflow.h\
+	common/parseint.h\
 	common/realtime.h\
 	common/safedirent.h\
 	common/safefcntl.h\
