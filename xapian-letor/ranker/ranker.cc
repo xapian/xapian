@@ -266,6 +266,7 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
     }
 
     int query_count = 0;
+    set<string> queries;
     while (!myfile1.eof()) { // reading all the queries line by line from the query file
 	getline(myfile1, str1);
 	if (str1.empty()) {
@@ -276,6 +277,9 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 	std::pair<string, string> parsed_query = parse_query_string(str1, query_count);
 	string querystr = parsed_query.first;
 	string qid = parsed_query.second;
+	if (!queries.insert(qid).second) {
+	    throw Xapian::LetorParseError("Query id should be unique");
+	}
 
 	Xapian::Query query_no_prefix = parser.parse_query(querystr,
 					parser.FLAG_DEFAULT|

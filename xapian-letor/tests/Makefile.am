@@ -102,7 +102,8 @@ EXTRA_DIST +=\
 	testdata/training_data.txt \
 	testdata/training_data_ndcg.txt \
 	testdata/training_data_one_document.txt \
-	testdata/training_data_three_correct.txt
+	testdata/training_data_three_correct.txt \
+	testdata/unique_query_id.txt
 
 CLEANFILES +=\
 	err_output_listmle_1.txt \
