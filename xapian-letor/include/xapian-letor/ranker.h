@@ -247,7 +247,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
 class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
     /// Ranker parameters
     std::vector<double> parameters;
-    /// Learning rate (Default is 0.0001)
+    /// Learning rate (Default is 0.001)
     double learning_rate;
     /// Number of iterations (Default is 15)
     int iterations;
