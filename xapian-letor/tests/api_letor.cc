@@ -359,6 +359,17 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
     return true;
 }
 
+// test whether query ids are unique in queryfile.
+DEFINE_TESTCASE(unique_queryid, generated)
+{
+    string db_path = get_database_path("db_index_one_document",
+				       db_index_one_document);
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string qrel = data_directory + "qrelone.txt";
+    TEST_PARSE_EXCEPTION("unique_query_id.txt");
+    return true;
+}
+
 DEFINE_TESTCASE(parse_querystring, generated)
 {
     // All those cases which are not valid.
