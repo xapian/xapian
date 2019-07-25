@@ -133,7 +133,7 @@ ListNETRanker::train(const std::vector<Xapian::FeatureVector> & training_data) {
     vector<double> new_parameters(feature_cnt, 0.0);
 
     // iterations
-    for (int iter_num = 1; iter_num < iterations; ++iter_num) {
+    for (int iter_num = 1; iter_num <= iterations; ++iter_num) {
 	// initialize Probability distributions of y and z
 	prob_distrib_vector prob = init_probability(training_data, new_parameters);
 	// compute gradient
