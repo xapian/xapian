@@ -123,6 +123,7 @@ CLEANFILES +=\
 	ndcg_output_svm_1.txt \
 	ndcg_output_svm_2.txt \
 	ndcg_output_svm_3.txt \
+	ndcg_score_output.txt \
 	ndcg_score_test.txt \
 	training_output_data_one_doc.txt \
 	training_output_empty.txt \

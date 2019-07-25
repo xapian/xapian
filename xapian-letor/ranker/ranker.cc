@@ -456,8 +456,8 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
+	rank(mset, model_key, flist);
 	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
-	std::vector<FeatureVector> rankedfvv = rank_fvv(fvv_mset);
 	std::vector<FeatureVector> rankedfvv_qrel;
 
 	int k = 0;
@@ -465,8 +465,8 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	    Xapian::Document doc = i.get_document();
 	    int label = getlabel(doc, qid);
 	    if (label != -1) { // only add FeatureVector which is found in the qrel file
-		rankedfvv[k].set_label(label);
-		rankedfvv_qrel.push_back(rankedfvv[k]);
+		fvv_mset[k].set_label(label);
+		rankedfvv_qrel.push_back(fvv_mset[k]);
 	    }
 	    ++k;
 	}
