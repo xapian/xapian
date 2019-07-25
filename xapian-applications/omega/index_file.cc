@@ -150,14 +150,14 @@ skip_unknown_mimetype(const string & urlterm, const string & context,
 }
 
 void
-index_add_default_libraries(bool vrbs)
+index_add_default_libraries()
 {
 #if defined HAVE_POPPLER
-    Worker* omindex_pdf = new Worker("omindex_pdf", vrbs);
+    Worker* omindex_pdf = new Worker("omindex_pdf");
     index_library("application/pdf", omindex_pdf);
 #endif
 #if defined HAVE_LIBEBOOK
-    Worker* omindex_ebook = new Worker("omindex_ebook", vrbs);
+    Worker* omindex_ebook = new Worker("omindex_ebook");
     index_library("application/vnd.palm", omindex_ebook);
     index_library("application/x-fictionbook+xml", omindex_ebook);
     index_library("application/x-zip-compressed-fb2", omindex_ebook);
@@ -663,7 +663,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    Worker* wrk = wrk_it->second;
 	    if (!wrk ||
 		!wrk->extract(file, dump, title, keywords, author, pages)) {
-		string msg = "Couldn't extract text from " + file;
+		string msg = wrk->get_error();
+		if (msg.empty())
+		    msg = "Couldn't extract text from " + file;
 		skip(urlterm, context, msg, d.get_size(), d.get_mtime());
 		return;
 	    }

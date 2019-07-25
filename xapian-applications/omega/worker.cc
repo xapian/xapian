@@ -25,15 +25,16 @@
 #include "worker.h"
 #include "worker_comms.h"
 
-#include "pkglibbindir.h"
 #include <csignal>
 #include <cstring>
 #include <cerrno>
-#include <iostream>
-#include "safefcntl.h"
-#include "safeunistd.h"
 #include <sys/socket.h>
 #include <sys/wait.h>
+
+#include "parseint.h"
+#include "pkglibbindir.h"
+#include "safefcntl.h"
+#include "safeunistd.h"
 #include "closefrom.h"
 #include "freemem.h"
 
@@ -158,6 +159,7 @@ Worker::extract(const std::string& filename,
     char state = MSG_FATAL_ERROR;
     // Sending a filename and wating for the answer
     if (write_string(sockt, filename) && read_string(sockt, strstate)) {
+	error.clear();
 	if (!strstate.empty())
 	    state = strstate[0];
 	switch (state) {
@@ -169,22 +171,19 @@ Worker::extract(const std::string& filename,
 		    !read_string(sockt, strpage)) {
 		    break;
 		}
-		if (strpage.empty() ||
-		    strpage.find_first_not_of("0123456789") != string::npos) {
+		if (!parse_signed(strpage.c_str(), pages) || pages < 0)
 		    pages = 0;
-		} else {
-		    pages = stoi(strpage);
-		}
 		return true;
 	    case MSG_NON_FATAL_ERROR:
-		if (strstate.length() > 1 && verbose) {
-		    cerr << (strstate.c_str() + 1) << endl;
+		if (strstate.length() > 1) {
+		    error = (strstate.c_str() + 1);
 		}
 		return false;
 	    default:
 		break;
 	}
     }
+    error = "The assistant process " + filter_module + " fails";
     fclose(sockt);
     sockt = NULL;
 
@@ -194,4 +193,10 @@ Worker::extract(const std::string& filename,
     waitpid(child, &status, 0);
 
     return false;
+}
+
+string
+Worker::get_error()
+{
+    return error;
 }

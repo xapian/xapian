@@ -117,7 +117,7 @@ index_add_default_filters();
 
 /// Call to set up the default libraries.
 void
-index_add_default_libraries(bool verbose);
+index_add_default_libraries();
 
 /// Initialise.
 void

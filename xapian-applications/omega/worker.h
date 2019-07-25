@@ -34,8 +34,6 @@
  *  Each worker is associated to a particular assistant.
  */
 class Worker {
-    /// Showing error messages if true
-    bool verbose;
     /// Workers ignore SIGPIPE.
     static bool ignoring_sigpipe;
     /// PID of the assistant process.
@@ -48,7 +46,8 @@ class Worker {
     std::string filter_module;
     /// This method create the assistant subprocess.
     void start_worker_subprocess();
-
+    /// In case of failure, an error message will be write in it
+    std::string error;
   public:
     /** Construct a Worker.
      *
@@ -56,8 +55,8 @@ class Worker {
      *
      *  The assistant will not be started until it is necessary.
      */
-    Worker(const std::string& path, bool verb)
-	: verbose(verb), sockt(NULL), filter_module(path) { }
+    Worker(const std::string& path)
+	: sockt(NULL), filter_module(path) { }
 
     /** Extract information from a file through the assistant process.
      *
@@ -84,4 +83,8 @@ class Worker {
 		 std::string& keywords,
 		 std::string& author,
 		 int& pages);
+    /** Returns and error message if the extraction fails, or and empty string
+     *  if everything is okay.
+     */
+    std::string get_error();
 };
