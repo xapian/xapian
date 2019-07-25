@@ -652,6 +652,44 @@ DEFINE_TESTCASE(listnet_ranker_three_correct, generated)
     return true;
 }
 
+DEFINE_TESTCASE(scorer, generated)
+{
+    Xapian::ListNETRanker ranker;
+    string db_path = get_database_path("db_index_three_documents",
+				       db_index_three_documents);
+    Xapian::Enquire enquire((Xapian::Database(db_path)));
+    enquire.set_query(Xapian::Query("score"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string query = data_directory + "querythree.txt";
+    string qrel = data_directory + "qrelthree_correct.txt";
+    string training_data = data_directory + "training_data_three_correct.txt";
+    ranker.set_database_path(db_path);
+    TEST_EQUAL(ranker.get_database_path(), db_path);
+    ranker.set_query(Xapian::Query("score"));
+    ranker.train_model(training_data);
+    Xapian::docid doc1 = *mymset[0];
+    Xapian::docid doc2 = *mymset[1];
+    ranker.rank(mymset);
+    TEST_EQUAL(doc1, *mymset[1]);
+    TEST_EQUAL(doc2, *mymset[0]);
+    unlink("ndcg_output_listnet_3.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_listnet_3.txt",
+		 10);
+    TEST(file_exists("ndcg_output_listnet_3.txt"));
+    ifstream ndcg_score_file;
+    ndcg_score_file.open("ndcg_output_listnet_3.txt", ios::in);
+    string line;
+    getline(ndcg_score_file, line);
+    size_t pos = 1 + line.find_first_of("=");
+    double ndcg_score = stod(line.substr(pos));
+    // It should have the perfect ndcg score(1.0)
+    TEST_EQUAL(ndcg_score, 1.0);
+
+    unlink("ndcg_output_listnet_3.txt");
+    return true;
+}
+
 /// SVM_ranker check
 DEFINE_TESTCASE(svm_ranker, generated)
 {
