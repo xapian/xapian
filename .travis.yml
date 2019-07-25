@@ -28,9 +28,12 @@ matrix:
             - tcl
             - gcc-4.7
             - g++-4.7
+      # Perform a build with GCC 4.7 which is the oldest GCC we aim to support
+      # for 1.4.x.
+      #
       # The PHP bindings fail to compile because they assume compiler builtins
       # which were available in the compiler used to build PHP are available
-      # when build code using the PHP C API, so just disable them.
+      # when building code using the PHP C API, so just disable them.
       env: USE_CC=gcc-4.7 USE_CXX=g++-4.7 CPPFLAGS=-D_GLIBCXX_DEBUG confargs='--without-php7'
     - compiler: clang
       os: linux
@@ -54,8 +57,6 @@ matrix:
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
-      # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
-      # aim to support.
       dist: trusty
       addons:
         apt:
