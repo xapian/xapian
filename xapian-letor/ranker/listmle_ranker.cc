@@ -139,7 +139,7 @@ ListMLERanker::train(const vector<FeatureVector>& training_data)
 	new_parameters.push_back(0.0);
     }
 
-    for (int iter_num = 1; iter_num < iterations; ++iter_num) {
+    for (int iter_num = 1; iter_num <= iterations; ++iter_num) {
 	batch_learning(training_data, new_parameters, learning_rate);
     }
 
