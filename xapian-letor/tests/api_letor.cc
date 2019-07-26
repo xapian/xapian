@@ -673,12 +673,12 @@ DEFINE_TESTCASE(scorer, generated)
     ranker.rank(mymset);
     TEST_EQUAL(doc1, *mymset[1]);
     TEST_EQUAL(doc2, *mymset[0]);
-    unlink("ndcg_output_listnet_3.txt");
-    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_output_listnet_3.txt",
+    unlink("ndcg_score_output.txt");
+    ranker.score(query, qrel, "ListNet_Ranker", "ndcg_score_output.txt",
 		 10);
-    TEST(file_exists("ndcg_output_listnet_3.txt"));
+    TEST(file_exists("ndcg_score_output.txt"));
     ifstream ndcg_score_file;
-    ndcg_score_file.open("ndcg_output_listnet_3.txt", ios::in);
+    ndcg_score_file.open("ndcg_score_output.txt", ios::in);
     string line;
     getline(ndcg_score_file, line);
     size_t pos = 1 + line.find_first_of("=");
@@ -686,7 +686,7 @@ DEFINE_TESTCASE(scorer, generated)
     // It should have the perfect ndcg score(1.0)
     TEST_EQUAL(ndcg_score, 1.0);
 
-    unlink("ndcg_output_listnet_3.txt");
+    unlink("ndcg_score_output.txt");
     return true;
 }
 
