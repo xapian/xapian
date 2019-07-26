@@ -93,7 +93,8 @@ cd ..
 RESULT=`mktemp -d "RESULT-$version-XXXXXXXXXX"`
 echo "Signing tarballs"
 find "$DIR" -name "xapian-*-$version.tar.*"|while read f ; do
-    gpg --detach-sign --armour "$f"
+    # Retry signing until successful.
+    while ! gpg --detach-sign --armour "$f" ; do sleep 60 ; done
     mv "$f" "$f.asc" "$RESULT"
 done
 
