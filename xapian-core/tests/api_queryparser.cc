@@ -151,6 +151,8 @@ static const test test_or_queries[] = {
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
+    // Regression test for bug fix in 1.4.13.
+    { "a OR -b", "Syntax: <expression> OR <expression>" },
     { "hard\xa0space", "(Zhard@1 OR Zspace@2)" },
     { " white\r\nspace\ttest ", "(Zwhite@1 OR Zspace@2 OR Ztest@3)" },
     { "one AND two three", "(Zone@1 AND (Ztwo@2 OR Zthree@3))" },

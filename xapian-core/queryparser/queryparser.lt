@@ -663,8 +663,8 @@ static void yy_reduce(
   ** pointers into the stack. */
   if( yyRuleInfo[yyruleno].nrhs==0 ){
 #if 1
-    yypParser->yystack.reserve(yypParser->yystack.size() + 1);
-    yymsp = &(yypParser->yystack.back());
+    yypParser->yystack.resize(yypParser->yystack.size() + 1);
+    yymsp = &(yypParser->yystack.back()) - 1;
 #else
 #ifdef YYTRACKMAXSTACKDEPTH
     if( (int)(yypParser->yytos - yypParser->yystack)>yypParser->yyhwm ){
@@ -715,8 +715,9 @@ static void yy_reduce(
   Assert( yyact!=YY_ERROR_ACTION );
 
   yymsp += yysize+1;
-  yypParser->yystack.resize(yypParser->yystack.size() + yysize+1);
-  //yymsp = &yypParser->yystack.back();
+  if (yysize) {
+    yypParser->yystack.resize(yypParser->yystack.size() + yysize+1);
+  }
   yymsp->stateno = static_cast<YYACTIONTYPE>(yyact);
   yymsp->major = static_cast<YYCODETYPE>(yygoto);
   yyTraceShift(yypParser, yyact, "... then shift");
