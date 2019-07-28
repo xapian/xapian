@@ -38,6 +38,7 @@
 
 #include <sys/types.h>
 #include "safeunistd.h"
+#include <cassert>
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -664,8 +665,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    if (!wrk ||
 		!wrk->extract(file, dump, title, keywords, author, pages)) {
 		string msg = wrk->get_error();
-		if (msg.empty())
-		    msg = "Couldn't extract text from " + file;
+		assert(!msg.empty());
 		skip(urlterm, context, msg, d.get_size(), d.get_mtime());
 		return;
 	    }

@@ -83,8 +83,10 @@ class Worker {
 		 std::string& keywords,
 		 std::string& author,
 		 int& pages);
-    /** Returns and error message if the extraction fails, or and empty string
+    /** Returns an error message if the extraction fails, or an empty string
      *  if everything is okay.
      */
-    std::string get_error();
+    inline std::string get_error() const{
+	return error;
+    }
 };

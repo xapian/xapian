@@ -28,15 +28,15 @@
 #include <csignal>
 #include <cstring>
 #include <cerrno>
+#include "safefcntl.h"
+#include "safeunistd.h"
 #include <sys/socket.h>
 #include <sys/wait.h>
 
-#include "parseint.h"
-#include "pkglibbindir.h"
-#include "safefcntl.h"
-#include "safeunistd.h"
 #include "closefrom.h"
 #include "freemem.h"
+#include "parseint.h"
+#include "pkglibbindir.h"
 
 using namespace std;
 
@@ -176,14 +176,16 @@ Worker::extract(const std::string& filename,
 		return true;
 	    case MSG_NON_FATAL_ERROR:
 		if (strstate.length() > 1) {
-		    error = (strstate.c_str() + 1);
+		    error.assign(strstate, 1, string::npos);
+		} else {
+		    error = "Couldn't extract text from " + filename;
 		}
 		return false;
 	    default:
 		break;
 	}
     }
-    error = "The assistant process " + filter_module + " fails";
+    error = "Fatal Error: The assistant process " + filter_module + " failed";
     fclose(sockt);
     sockt = NULL;
 
@@ -193,10 +195,4 @@ Worker::extract(const std::string& filename,
     waitpid(child, &status, 0);
 
     return false;
-}
-
-string
-Worker::get_error()
-{
-    return error;
 }
