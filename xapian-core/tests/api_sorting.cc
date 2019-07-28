@@ -394,9 +394,9 @@ DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("word"));
     Xapian::MSet mymset = enquire.get_mset(0, 10);
-    // old max_possible = 1.17367567757238, max_attained = 1.04648168717725
     static const Xapian::docid docids[] = {*mymset[0], *mymset[1]};
-    static const double weights[] = {1.18, 1.19};
+    double max_weight = mymset.get_max_attained();
+    double weights[] = {max_weight * 0.5, max_weight + 1.0};
     mymset.replace_weights(begin(weights), end(weights));
     mymset.sort_by_relevance();
     // The order of documents should have been reversed.
@@ -406,6 +406,7 @@ DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
 	TEST_EQUAL(*m, docids[k]);
 	TEST_EQUAL_DOUBLE(m.get_weight(), weights[k]);
     }
+    // Test that setting larger weights is reflected in these methods.
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), weights[1]);
     TEST_EQUAL_DOUBLE(mymset.get_max_possible(), weights[1]);
     return true;
