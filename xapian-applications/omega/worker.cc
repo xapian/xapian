@@ -185,7 +185,7 @@ Worker::extract(const std::string& filename,
 		break;
 	}
     }
-    error = "Fatal Error: The assistant process " + filter_module + " failed";
+    error = "The assistant process " + filter_module + " failed";
     fclose(sockt);
     sockt = NULL;
 

@@ -86,7 +86,7 @@ class Worker {
     /** Returns an error message if the extraction fails, or an empty string
      *  if everything is okay.
      */
-    inline std::string get_error() const{
+    std::string get_error() const {
 	return error;
     }
 };
