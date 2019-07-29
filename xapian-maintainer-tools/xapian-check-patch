@@ -685,6 +685,9 @@ QUOTELOOP:  while (1) {
 	if (m!^\+.*?\)\{!) {
 	    diagnostic('error', "No space between ')' and '{'");
 	}
+	if (m!^\+.*?\bconst\{!) {
+	    diagnostic('error', "No space between 'const' and '{'");
+	}
 	if ($fnm !~ m!/(?:md5|posixy_wrapper|perftest)\.cc$! &&
 	    m,^\+.*[^\w\.>]([a-z][a-z0-9]*[A-Z]\w*),) {
 	    my $symbol = $1;
