@@ -517,9 +517,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
      *
      *	@return	Xapian::ESet object containing a list of terms with weights.
      */
-    inline ESet get_eset(termcount maxitems,
-			 const RSet& rset,
-			 const ExpandDecider* edecider) const {
+    ESet get_eset(termcount maxitems,
+		  const RSet& rset,
+		  const ExpandDecider* edecider) const {
 	return get_eset(maxitems, rset, 0, edecider);
     }
 
