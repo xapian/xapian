@@ -131,6 +131,7 @@ BM25PlusWeight::get_maxpart() const
 {
     LOGCALL(WTCALC, double, "BM25PlusWeight::get_maxpart", NO_ARGS);
     double denom = param_k1;
+    Xapian::termcount wdf_max = get_wdf_upper_bound();
     if (param_k1 != 0.0) {
 	if (param_b != 0.0) {
 	    // "Upper-bound Approximations for Dynamic Pruning" Craig
@@ -142,11 +143,11 @@ BM25PlusWeight::get_maxpart() const
 	    // better bound can be found by simply evaluating at
 	    // doclen=doclen_min and wdf=wdf_max.
 	    Xapian::doclength normlen_lb =
-		 max(max(get_wdf_upper_bound(), get_doclength_lower_bound()) * len_factor, param_min_normlen);
+		 max(max(wdf_max, get_doclength_lower_bound()) * len_factor,
+		     param_min_normlen);
 	    denom *= (normlen_lb * param_b + (1 - param_b));
 	}
     }
-    double wdf_max = get_wdf_upper_bound();
     denom += wdf_max;
     AssertRel(denom,>,0);
     RETURN(termweight * ((param_k1 + 1) * wdf_max / denom + param_delta));
