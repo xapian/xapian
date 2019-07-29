@@ -266,14 +266,14 @@ namespace Internal {
     /** @private @internal Extract the category of a Unicode character from its
      *  info.
      */
-    category get_category(int info) {
+    inline category get_category(int info) {
 	return static_cast<category>(info & 0x1f);
     }
 
     /** @private @internal Extract the delta to use for case conversion of a
      *  character from its info.
      */
-    int get_delta(int info) {
+    inline int get_delta(int info) {
 	/* It's implementation defined if sign extension happens when right
 	 * shifting a signed int, although in practice sign extension is what
 	 * most compilers implement.
