@@ -640,7 +640,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
-	inline ESet get_eset(Xapian::termcount maxitems, const RSet & omrset,
+	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset,
 			     const Xapian::ExpandDecider * edecider) const {
 	    return get_eset(maxitems, omrset, 0, edecider);
 	}
