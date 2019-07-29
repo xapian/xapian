@@ -719,6 +719,9 @@ QUOTELOOP:  while (1) {
 	if (m,^\+\s+([-+/%^]|[&|]{2})\s,) {
 	    diagnostic('error', "Expression split before operator '$1', should be after");
 	}
+	if ($lang eq 'c++' && /^\+\s+inline\b/) {
+	    diagnostic('error', "Method defined inside a class is implicitly 'inline'");
+	}
 	if ($header) {
 	    if (m!^\+\s*#\s*(ifndef|define|endif\s*/[*/])\s+((?:[A-Z]+_INCLUDED)?_?\w+_[Hh]\b)!) {
 		my ($type, $guard) = ($1, $2);
