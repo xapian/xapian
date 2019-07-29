@@ -812,7 +812,7 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
   public:
     /** Construct an InL2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -884,7 +884,7 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
   public:
     /** Construct an IfB2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -957,7 +957,7 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
   public:
     /** Construct an IneB2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -1031,7 +1031,7 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
   public:
     /** Construct a BB2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. A
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -1176,7 +1176,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
   public:
     /** Construct a PL2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -1246,7 +1246,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
   public:
     /** Construct a PL2PlusWeight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
