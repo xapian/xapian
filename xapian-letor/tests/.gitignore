@@ -11,6 +11,7 @@
 /runtest
 /apitest.exe
 /.glass
+/.honey
 /.multiglass
 /.singlefileglass
 /.stub
@@ -27,5 +28,8 @@
 /listmle_ranker_training.txt
 /listnet_ranker_training.txt
 /ndcg_output.txt
+/ndcg_score_output.txt
 /svm_ranker_training.txt
 /training_output.txt
+/training_output1.txt
+/training_output_three_correct.txt
