@@ -302,18 +302,18 @@ class XapianSmoketest < Test::Unit::TestCase
     mset = enquire.mset(0, 10)
     assert_equal(mset.size(), 4)
     assert_equal(spy.values.map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
-		 "maybe:1,no:1,yes:2")
+                 "maybe:1,no:1,yes:2")
     assert_equal(spy.top_values(1).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
-		 "yes:2")
+                 "yes:2")
     assert_equal(spy.top_values(2).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
-		 "yes:2,maybe:1")
+                 "yes:2,maybe:1")
     assert_equal(spy.top_values(3).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
-		 "yes:2,maybe:1,no:1")
+                 "yes:2,maybe:1,no:1")
 
     # Test the valuestream iterator, while we've got some data
     assert_equal(@db.valuestream(1).size(), 0)
     assert_equal(@db.valuestream(0).map{|i| "%d:%s"%[i.docid, i.value]}*",",
-		 "2:yes,3:yes,4:maybe,5:no")
+                 "2:yes,3:yes,4:maybe,5:no")
   end
 
   def test_016_compactor
@@ -367,7 +367,7 @@ class XapianSmoketest < Test::Unit::TestCase
     coords.append(Xapian::LatLongCoord.new(0, 0))
     assert_equal(coords.size(), 1)
     assert_equal(coords.all.map{|i| "%s"%i.description}*",",
-		 "Xapian::LatLongCoord(0, 0)")
+                 "Xapian::LatLongCoord(0, 0)")
     s = ''
     coords.all {|i| s += i.description }
     assert_equal(s, "Xapian::LatLongCoord(0, 0)")
