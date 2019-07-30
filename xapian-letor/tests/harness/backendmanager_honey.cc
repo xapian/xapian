@@ -88,7 +88,7 @@ BackendManagerHoney::get_generated_database(const string& name)
 void
 BackendManagerHoney::finalise_generated_database(const string& name)
 {
-    // Convert a glass backend to honey.
+    create_dir_if_needed(CACHE_DIRECTORY);
 
     // path to the temporary generated db
     string generated_db_path =
@@ -101,6 +101,7 @@ BackendManagerHoney::finalise_generated_database(const string& name)
     // path to final honey db
     string path = CACHE_DIRECTORY "/" + name;
 
+    // Convert a glass backend to honey.
     Xapian::WritableDatabase wdb(generated_db_path);
     wdb.compact(tmpfile,
 		Xapian::DB_BACKEND_HONEY | Xapian::DBCOMPACT_NO_RENUMBER);
