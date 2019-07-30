@@ -125,6 +125,8 @@ my $indent;
 my $case_no_brace;
 # Current file is a C/C++ header file.
 my $header;
+# First line number for doxygen @file comment check.
+my $doxygen_first_line;
 while (<>) {
     if (defined $next_top_level) {
 	$top_level = $next_top_level;
@@ -147,59 +149,69 @@ while (<>) {
 	# Don't know!
 	$want_tabs = -1;
 	$check_indent = 0;
+	$check_space_tab = 1;
+	$check_trailing = 1;
+	$doxygen_first_line = 1;
 	if ($ext eq 'cc') {
-	    if ($fnm !~ m!\b(?:cdb|portability/)! &&
-		$fnm !~ m!\bcommon/getopt\.cc$! &&
-		$fnm !~ m!\bomega/md5\.cc$! &&
-		$fnm !~ m!\bcommon/msvc_dirent\.cc$!) {
+	    if ($fnm =~ m!\b(?:cdb|portability/mkdtemp)! ||
+		$fnm =~ m!\bcommon/getopt\.cc$! ||
+		$fnm =~ m!\bomega/md5\.cc$! ||
+		$fnm =~ m!\bcommon/msvc_dirent\.cc$!) {
+		$check_trailing = 0;
+	    } else {
 		$lang = 'c++';
 		$want_tabs = 1 unless ($fnm =~ m!\blanguages/steminternal\.cc$!);
 		$check_indent = 1;
 	    }
 	} elsif ($ext eq 'c') {
-	    if ($fnm !~ m!\blanguages/compiler/! &&
-		$fnm !~ m!/lemon\.c$!) {
+	    if ($fnm =~ m!\blanguages/compiler/! ||
+		$fnm =~ m!/lemon\.c$!) {
+		$check_trailing = 0;
+	    } else {
 		$lang = 'c';
 		$want_tabs = 1;
 		$check_indent = 1;
 	    }
 	} elsif ($ext eq 'h') {
-	    if ($fnm !~ m!\binclude/xapian/intrusive_ptr\.h! &&
-		$fnm !~ m!\blanguages/compiler/! &&
-		$fnm !~ m!\bcommon/msvc_dirent\.h$! &&
-		$fnm !~ m!\bcommon/heap\.h$!) {
+	    if ($fnm =~ m!\binclude/xapian/intrusive_ptr\.h! ||
+		$fnm =~ m!\blanguages/compiler/! ||
+		$fnm =~ m!\bcommon/msvc_dirent\.h$! ||
+		$fnm =~ m!\bcommon/heap\.h$! ||
+		$fnm =~ m!/omega/cdb! ||
+		$fnm =~ m!\bportability/mkdtemp!) {
+		$check_trailing = 0;
+	    } else {
 		$header = 1;
 		$lang = 'c++';
-		if ($fnm =~ m!/omega/cdb!) {
-		    $lang = 'c';
-		} else {
-		    $want_tabs = 1;
-		    $check_indent = 1;
-		}
+		$want_tabs = 1;
+		$check_indent = 1;
 	    }
-	} elsif ($ext eq 'lemony' || $ext eq 'lt') {
+	} elsif ($ext eq 'lemony') {
 	    $lang = 'c++';
 	    $want_tabs = 1;
+	} elsif ($ext eq 'lt') {
+	    $want_tabs = 0;
+	    $check_trailing = 0;
 	} elsif ($ext eq 'py' || $ext eq 'py.in') {
 	    $lang = 'py';
 	    $want_tabs = 0;
 	} elsif ($ext eq 'rb') {
 	    $lang = 'rb';
 	    $want_tabs = 0;
+	} elsif ($ext eq 'sbl') {
+	    $check_space_tab = 0;
+	    $check_trailing = 0;
+	} elsif ($ext eq 'patch') {
+	    $check_space_tab = 0;
+	} elsif ($ext eq 'txt') {
+	    # Imported text file with trailing whitespace.
+	    if ($fnm =~ m!/testdata/etext\.txt$!) {
+		$check_trailing = 0;
+	    }
 	} elsif ($fnm =~ m!(?:^|/)ChangeLog\b!) {
 	    $lang = 'changelog';
 	    $want_tabs = 1;
 	}
-	$check_trailing =
-	    $ext ne 'sbl' &&
-	    $fnm !~ m!\bcommon/msvc_dirent\.! &&
-	    $fnm !~ m!/lemon\.c$! &&
-	    $fnm !~ m!/queryparser\.lt$! &&
-	    $fnm !~ m!\bcdb! &&
-	    $fnm !~ m!/testdata/etext\.txt$!;
-	$check_space_tab =
-	    $ext ne 'patch' &&
-	    $ext ne 'sbl';
 	# print STDERR "$fnm: lang=" . ($lang // "UNKNOWN") . "\;
 	next;
     }
@@ -231,8 +243,11 @@ while (<>) {
     my $first_char = substr($fullline, 0, 1);
 
     if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
-	if ($lineno == 1 && m!^\+!) {
-	    if (m!^\+/\*\*\s+\@file\s+(\S+)!) {
+	if ($lineno == $doxygen_first_line && m!^\+!) {
+	    if ($doxygen_first_line == 1 && m,^\+%include\b\s*\{,) {
+		# If the first line is %include{... check the second.
+		$doxygen_first_line = 2;
+	    } elsif (m!^\+/\*\*\s+\@file\s+(\S+)!) {
 		my $at_file = $1;
 		if ($fnm eq $at_file ||
 		    (length $fnm > length($at_file) && substr($fnm, -length($at_file) - 1, 1) eq '/') &&
@@ -241,6 +256,8 @@ while (<>) {
 		} else {
 		    diagnostic('error', "\@file doesn't match filename");
 		}
+	    } elsif ($fnm =~ m!\bomega/md5\.h$!) {
+		# Imported file.
 	    } else {
 		diagnostic('error', "\@file missing");
 	    }
@@ -260,10 +277,6 @@ while (<>) {
 
 	# Trim comments:
 	if (!$in_comment) {
-	    if ($ext eq 'lt' && /^.%%$/) {
-		# Avoid %% placeholders generating warnings.
-		$_ = $first_char;
-	    }
 	    if (s! /\*(.*?)\*/ ! !g) {
 		# C-style comment with spaces around, e.g.
 		# { T = P->as_phrase_query(); /*T-overwrites-P*/ }
@@ -665,6 +678,9 @@ QUOTELOOP:  while (1) {
 		# #include <a/b-c.h>
 		# #warning so-so
 		# #pragma warning(disable:4146)
+	    } elsif ($op eq '%' && $ext eq 'lemony' && $pre[1] == 1) {
+		# %-directive in Lemon grammar, e.g.:
+		# %left OR.
 	    } else {
 		diagnostic('error', "Should have exactly one space after '$op'");
 	    }
