@@ -1,7 +1,7 @@
 /** @file utf8itor.cc
  * @brief iterate over a utf8 string.
  */
-/* Copyright (C) 2006,2007,2010,2013,2015 Olly Betts
+/* Copyright (C) 2006,2007,2010,2013,2015,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,9 @@
 
 using namespace std;
 
-static inline bool bad_cont(unsigned char ch) { return (ch & 0xc0) != 0x80; }
+static inline bool bad_cont(unsigned char ch) {
+    return static_cast<signed char>(ch) >= static_cast<signed char>(0xc0);
+}
 
 namespace Xapian {
 
