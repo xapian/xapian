@@ -161,7 +161,7 @@ unique[=PREFIX]
 	each value of the ID may be present in the index: adding a new record
 	with an ID which is already present will cause the old record to be
         replaced or deleted.
-        
+
         Deletion happens if the only input field present has the `unique`
         action applied to it.  (Prior to 1.5.0, if there were multiple lists
         of actions applied to an input field this triggered replacement instead
