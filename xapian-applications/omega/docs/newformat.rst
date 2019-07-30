@@ -39,9 +39,10 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
              std::string& title,
              std::string& keywords,
              std::string& author,
-             std::string& pages)
+             std::string& pages,
+             std::string& error)
 
-   You can get more information about this function at 'xapian-applications/omega/handler.h'.
+   Error messages should be written in error. You can get more information about this function at 'xapian-applications/omega/handler.h'.
 
 3. After the handler is implemented, the build system must be updated. In particular, it is necessary to modify 'configure.ac' and 'makefile.am'.
 
