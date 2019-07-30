@@ -1,7 +1,7 @@
 /** @file apitest.h
  * @brief test functionality of the Xapian API
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,20 +25,56 @@
 
 #include "testsuite.h"
 
+std::string get_dbtype();
+
 Xapian::Database get_database(const std::string &db);
 
 Xapian::Database get_database(const std::string &db1, const std::string &db2);
-
-std::string get_database_path(const std::string &db);
 
 Xapian::Database get_database(const std::string &db,
 			      void (*gen)(Xapian::WritableDatabase&,
 					  const std::string &),
 			      const std::string &arg = std::string());
 
+std::string get_database_path(const std::string &db);
+
 std::string get_database_path(const std::string &db,
 			      void (*gen)(Xapian::WritableDatabase&,
 					  const std::string &),
 			      const std::string &arg = std::string());
+
+Xapian::WritableDatabase get_writable_database(const std::string &db = std::string());
+
+Xapian::WritableDatabase get_named_writable_database(const std::string &name, const std::string &source = std::string());
+
+std::string get_named_writable_database_path(const std::string &name);
+
+std::string get_compaction_output_path(const std::string& name);
+
+Xapian::Database get_remote_database(const std::string &db, unsigned timeout);
+
+Xapian::Database get_writable_database_as_database();
+
+Xapian::WritableDatabase get_writable_database_again();
+
+// Skip the test for any backend not of the specified type.
+//
+// More precisely, this skips the test for any backend for which the
+// get_dbtype() function does not return a string starting with backend_prefix.
+// This allows backends like "multi_glass" to be covered by specifying "multi".
+void skip_test_unless_backend(const std::string & backend_prefix);
+
+// Skip the test for any backend of the specified type.
+//
+// More precisely, this skips the test for any backend for which the
+// get_dbtype() function returns a string starting with backend_prefix.  This
+// allows backends like "multi_glass" to be covered by specifying "multi".
+void skip_test_for_backend(const std::string & backend_prefix);
+
+#define SKIP_TEST_UNLESS_BACKEND(B) skip_test_unless_backend(B)
+#define SKIP_TEST_FOR_BACKEND(B) skip_test_for_backend(B)
+
+void XFAIL_FOR_BACKEND(const std::string& backend_prefix,
+		       const char* msg);
 
 #endif // XAPIAN_INCLUDED_APITEST_H

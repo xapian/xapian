@@ -23,20 +23,20 @@
 
 #include "backendmanager_remoteprog.h"
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+
 #include <xapian.h>
 
 #ifdef HAVE_VALGRIND
 # include <valgrind/memcheck.h>
 #endif
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-
 using namespace std;
 
 std::string
 BackendManagerRemoteProg::get_dbtype() const
 {
-    return "remoteprog_" + remote_type;
+    return "remoteprog_" + sub_manager->get_dbtype();
 }
 
 Xapian::Database
@@ -67,6 +67,20 @@ BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 					      unsigned int timeout)
 {
     string args = get_remote_database_args(files, timeout);
+
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	args.insert(0, XAPIAN_PROGSRV" ");
+	return Xapian::Remote::open("./runsrv", args);
+    }
+#endif
+    return Xapian::Remote::open(XAPIAN_PROGSRV, args);
+}
+
+Xapian::Database
+BackendManagerRemoteProg::get_database_by_path(const string& path)
+{
+    string args = get_remote_database_args(path, 300000);
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {

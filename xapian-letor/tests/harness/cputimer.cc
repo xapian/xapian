@@ -1,7 +1,7 @@
 /** @file cputimer.cc
  * @brief Measure CPU time.
  */
-/* Copyright (C) 2009,2015 Olly Betts
+/* Copyright (C) 2009,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 
 #include "cputimer.h"
 
+#include "errno_to_string.h"
 #include "testsuite.h"
 
 #ifdef HAVE_GETRUSAGE
@@ -48,6 +49,9 @@ using namespace std;
 double
 CPUTimer::get_current_cputime() const
 {
+#ifdef XAPIAN_DEBUG_LOG
+    SKIP_TEST("Skipping timed test because configured with --enable-log");
+#else
     static bool skip = (getenv("AUTOMATED_TESTING") != NULL);
     if (skip) {
 	SKIP_TEST("Skipping timed test because $AUTOMATED_TESTING is set");
@@ -57,7 +61,7 @@ CPUTimer::get_current_cputime() const
 #ifdef HAVE_GETRUSAGE
     struct rusage r;
     if (getrusage(RUSAGE_SELF, &r) == -1) {
-	FAIL_TEST("Couldn't measure CPU for self: " << strerror(errno));
+	FAIL_TEST("Couldn't measure CPU for self: " << errno_to_string(errno));
     }
 
     t = r.ru_utime.tv_sec + r.ru_stime.tv_sec;
@@ -65,7 +69,7 @@ CPUTimer::get_current_cputime() const
 #elif defined HAVE_TIMES
     struct tms b;
     if (times(&b) == clock_t(-1)) {
-	FAIL_TEST("Couldn't measure CPU: " << strerror(errno));
+	FAIL_TEST("Couldn't measure CPU: " << errno_to_string(errno));
     }
     t = (double)(b.tms_utime + b.tms_stime);
 # ifdef HAVE_SYSCONF
@@ -95,4 +99,5 @@ CPUTimer::get_current_cputime() const
 #endif
 
     return t;
+#endif
 }

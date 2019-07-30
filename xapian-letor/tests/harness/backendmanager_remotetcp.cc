@@ -23,6 +23,8 @@
 
 #include "backendmanager_remotetcp.h"
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+
 #include <xapian.h>
 
 #include <stdio.h> // For fdopen().
@@ -48,6 +50,7 @@
 # include <cstdlib> // For free().
 #endif
 
+#include "errno_to_string.h"
 #include "str.h"
 
 #include <string>
@@ -56,8 +59,6 @@
 #ifdef HAVE_VALGRIND
 # include <valgrind/memcheck.h>
 #endif
-
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
 
 using namespace std;
 
@@ -123,7 +124,7 @@ try_next_port:
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	string msg("Couldn't create socketpair: ");
-	msg += strerror(errno);
+	errno_to_string(errno, msg);
 	throw msg;
     }
 
@@ -155,7 +156,7 @@ try_next_port:
 	int fork_errno = errno;
 	close(fds[0]);
 	string msg("Couldn't fork: ");
-	msg += strerror(fork_errno);
+	errno_to_string(fork_errno, msg);
 	throw msg;
     }
 
@@ -167,7 +168,7 @@ try_next_port:
 	string msg("Failed to run command '");
 	msg += cmd;
 	msg += "': ";
-	msg += strerror(errno);
+	errno_to_string(errno, msg);
 	throw msg;
     }
 
@@ -180,7 +181,7 @@ try_next_port:
 	    int status;
 	    if (waitpid(child, &status, 0) == -1) {
 		string msg("waitpid failed: ");
-		msg += strerror(errno);
+		errno_to_string(errno, msg);
 		throw msg;
 	    }
 	    if (++port < 65536 && status != 0) {
@@ -339,7 +340,7 @@ BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
 std::string
 BackendManagerRemoteTcp::get_dbtype() const
 {
-    return "remotetcp_" + remote_type;
+    return "remotetcp_" + sub_manager->get_dbtype();
 }
 
 Xapian::Database
@@ -364,6 +365,14 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 					     unsigned int timeout)
 {
     string args = get_remote_database_args(files, timeout);
+    int port = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open(LOCALHOST, port);
+}
+
+Xapian::Database
+BackendManagerRemoteTcp::get_database_by_path(const string& path)
+{
+    string args = get_remote_database_args(path, 300000);
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open(LOCALHOST, port);
 }

@@ -312,7 +312,7 @@ DEFINE_TESTCASE(bigfeaturelist, generated)
     return true;
 }
 
-DEFINE_TESTCASE(preparetrainingfileonedb, generated)
+DEFINE_TESTCASE(preparetrainingfileonedb, generated && path && writable)
 {
     string db_path = get_database_path("apitest_listnet_ranker1",
 				       db_index_one_document);
@@ -359,8 +359,13 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated)
     return true;
 }
 
+#define TEST_PARSE_EXCEPTION(TESTFILE) TEST_EXCEPTION(Xapian::LetorParseError,\
+	Xapian::prepare_training_file(db_path,\
+				      data_directory + TESTFILE, qrel, 10,\
+				      "training_output.txt"))
+
 // test whether query ids are unique in queryfile.
-DEFINE_TESTCASE(unique_queryid, generated)
+DEFINE_TESTCASE(unique_queryid, generated && path)
 {
     string db_path = get_database_path("db_index_one_document",
 				       db_index_one_document);
@@ -370,7 +375,7 @@ DEFINE_TESTCASE(unique_queryid, generated)
     return true;
 }
 
-DEFINE_TESTCASE(parse_querystring, generated)
+DEFINE_TESTCASE(parse_querystring, generated && path)
 {
     // All those cases which are not valid.
     string db_path = get_database_path("db_index_one_document",
@@ -392,7 +397,7 @@ DEFINE_TESTCASE(parse_querystring, generated)
 }
 
 // Check stability for an empty qrel file
-DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
+DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated && path)
 {
     string db_path = get_database_path("ranker_empty",
 				       db_index_one_document);
@@ -434,8 +439,9 @@ DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated)
     return true;
 }
 
-DEFINE_TESTCASE(preparetrainingfile_two_docs, generated)
+DEFINE_TESTCASE(preparetrainingfile_two_docs, generated && path)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     string db_path = get_database_path("db_index_two_documents",
 				       db_index_two_documents);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
@@ -476,8 +482,9 @@ DEFINE_TESTCASE(preparetrainingfile_two_docs, generated)
     return true;
 }
 
-DEFINE_TESTCASE(preparetrainingfilethree, generated)
+DEFINE_TESTCASE(preparetrainingfilethree, generated && path)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     string db_path = get_database_path("db_index_three_documents",
 				       db_index_three_documents);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
@@ -519,7 +526,7 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated)
 }
 
 // ListNet_Ranker check
-DEFINE_TESTCASE(listnet_ranker, generated)
+DEFINE_TESTCASE(listnet_ranker, generated && path && writable)
 {
     Xapian::ListNETRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
@@ -568,7 +575,7 @@ DEFINE_TESTCASE(listnet_ranker, generated)
     return true;
 }
 
-DEFINE_TESTCASE(listnet_ranker_one_file, generated)
+DEFINE_TESTCASE(listnet_ranker_one_file, generated && path && writable)
 {
     Xapian::ListNETRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
@@ -614,7 +621,7 @@ DEFINE_TESTCASE(listnet_ranker_one_file, generated)
     return true;
 }
 
-DEFINE_TESTCASE(listnet_ranker_three_correct, generated)
+DEFINE_TESTCASE(listnet_ranker_three_correct, generated && path && writable)
 {
     Xapian::ListNETRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
@@ -663,8 +670,9 @@ DEFINE_TESTCASE(listnet_ranker_three_correct, generated)
     return true;
 }
 
-DEFINE_TESTCASE(scorer, generated)
+DEFINE_TESTCASE(scorer, generated && path && writable)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     Xapian::ListNETRanker ranker;
     string db_path = get_database_path("db_index_three_documents",
 				       db_index_three_documents);
@@ -702,7 +710,7 @@ DEFINE_TESTCASE(scorer, generated)
 }
 
 /// SVM_ranker check
-DEFINE_TESTCASE(svm_ranker, generated)
+DEFINE_TESTCASE(svm_ranker, generated && path && writable)
 {
     Xapian::SVMRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
@@ -750,7 +758,7 @@ DEFINE_TESTCASE(svm_ranker, generated)
     return true;
 }
 
-DEFINE_TESTCASE(svm_ranker_one_file, generated)
+DEFINE_TESTCASE(svm_ranker_one_file, generated && path && writable)
 {
     Xapian::SVMRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
@@ -795,7 +803,7 @@ DEFINE_TESTCASE(svm_ranker_one_file, generated)
     return true;
 }
 
-DEFINE_TESTCASE(svm_ranker_three_correct, generated)
+DEFINE_TESTCASE(svm_ranker_three_correct, generated && path && writable)
 {
     Xapian::SVMRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
@@ -844,7 +852,7 @@ DEFINE_TESTCASE(svm_ranker_three_correct, generated)
 }
 
 // ListMLE_Ranker check
-DEFINE_TESTCASE(listmle_ranker, generated)
+DEFINE_TESTCASE(listmle_ranker, generated && path && writable)
 {
     Xapian::ListMLERanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
@@ -893,7 +901,7 @@ DEFINE_TESTCASE(listmle_ranker, generated)
     return true;
 }
 
-DEFINE_TESTCASE(listmle_ranker_one_file, generated)
+DEFINE_TESTCASE(listmle_ranker_one_file, generated && path && writable)
 {
     Xapian::ListMLERanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
@@ -939,7 +947,7 @@ DEFINE_TESTCASE(listmle_ranker_one_file, generated)
     return true;
 }
 
-DEFINE_TESTCASE(listmle_ranker_three_correct, generated)
+DEFINE_TESTCASE(listmle_ranker_three_correct, generated && path && writable)
 {
     Xapian::ListMLERanker ranker;
     string db_path = get_database_path("db_index_three_documents",
@@ -1030,7 +1038,7 @@ DEFINE_TESTCASE(err_scorer, !backend)
     return true;
 }
 
-DEFINE_TESTCASE(ndcg_score_test, generated)
+DEFINE_TESTCASE(ndcg_score_test, generated && path && writable)
 {
     Xapian::ListNETRanker ranker;
     string db_path = get_database_path("db_index_three_documents",
@@ -1212,6 +1220,7 @@ DEFINE_TESTCASE(createfeaturevector_idffeature, generated)
 // Test createfeaturevector method for TfDoclenFeature
 DEFINE_TESTCASE(createfeaturevector_tfdoclenfeature, generated)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     vector<Xapian::Feature*> f;
     Xapian::TfDoclenFeature* f1 = new Xapian::TfDoclenFeature();
     f.push_back(f1);
@@ -1451,6 +1460,7 @@ DEFINE_TESTCASE(createfeaturevector_tfidfdoclenfeature, generated)
 // Test createfeaturevector method for TfDoclenCollTfCollLenFeature
 DEFINE_TESTCASE(createfeaturevector_tfdoclencolllfcolllen, generated)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     vector<Xapian::Feature*> f;
     Xapian::TfDoclenCollTfCollLenFeature* f1 =
 				new Xapian::TfDoclenCollTfCollLenFeature();
@@ -1574,6 +1584,7 @@ class CustomFeature : public Xapian::Feature {
 };
 
 DEFINE_TESTCASE(populatefeature, generated) {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     vector<Xapian::Feature*> f;
     CustomFeature* custom_feature = new CustomFeature();
     f.push_back(custom_feature);

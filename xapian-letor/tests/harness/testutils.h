@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_TESTUTILS_H
-#define OM_HGUARD_TESTUTILS_H
+#ifndef XAPIAN_INCLUDED_TESTUTILS_H
+#define XAPIAN_INCLUDED_TESTUTILS_H
 
 #include "testsuite.h"
 #include <xapian.h>
@@ -74,25 +74,32 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 	(M).size() << "' expected '" << (S) << "':\n" << \
 	"Full mset was:\n" << (M))
 
-/// Check that a piece of code throws an expected exception.
-#define TEST_EXCEPTION(a,b) do {\
-	expected_exception = STRINGIZE(a);\
-	if (strncmp(expected_exception, "Xapian::", 8) == 0)\
-	    expected_exception += 8;\
-	if (verbose)\
-	    tout << "Expecting exception " << expected_exception << endl;\
-	try { b; FAIL_TEST(TESTCASE_LOCN(Expected #a)); }\
-	catch (const a &e) {\
-	    if (verbose)\
-		tout << "Caught expected " << expected_exception\
-		     << " exception: " << e.get_description() << endl;\
-	}\
+/// Helper macro.
+#define TEST_EXCEPTION_(TYPE, CODE, EXACT) \
+    do { \
+	expected_exception = STRINGIZE(TYPE); \
+	if (strncmp(expected_exception, "Xapian::", \
+		    CONST_STRLEN("Xapian::")) == 0) { \
+	    expected_exception += CONST_STRLEN("Xapian::"); \
+	} \
+	try { \
+	    CODE; \
+	    FAIL_TEST("Expected " << expected_exception << " not thrown"); \
+	} catch (const TYPE& xap_ex_obj_) { \
+	    if (EXACT) { \
+		if (strcmp(expected_exception, xap_ex_obj_.get_type()) != 0) { \
+		    FAIL_TEST("Caught subclass " << xap_ex_obj_.get_type() << \
+			      " of expected " << expected_exception); \
+		} \
+	    } \
+	} \
 	expected_exception = NULL;\
     } while (0)
 
-#define TEST_PARSE_EXCEPTION(TESTFILE) TEST_EXCEPTION(Xapian::LetorParseError,\
-	Xapian::prepare_training_file(db_path,\
-				      data_directory + TESTFILE, qrel, 10,\
-				      "training_output.txt"))
+/// Check that CODE throws Xapian exception derived from TYPE.
+#define TEST_EXCEPTION_BASE_CLASS(TYPE, CODE) TEST_EXCEPTION_(TYPE, CODE, false)
 
-#endif // OM_HGUARD_TESTUTILS_H
+/// Check that CODE throws exactly Xapian exception TYPE.
+#define TEST_EXCEPTION(TYPE, CODE) TEST_EXCEPTION_(TYPE, CODE, true)
+
+#endif // XAPIAN_INCLUDED_TESTUTILS_H

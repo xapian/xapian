@@ -3,7 +3,7 @@
 SHELL = /bin/sh
 
 all check check-syntax:
-	cd .. && $(MAKE) $@
+	cd ../.. && $(MAKE) $@
 
 clean:
 	rm -f *.o *.obj *.lo

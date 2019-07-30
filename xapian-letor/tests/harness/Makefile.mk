@@ -4,6 +4,7 @@ EXTRA_DIST +=\
 noinst_HEADERS +=\
 	harness/backendmanager.h\
 	harness/backendmanager_glass.h\
+	harness/backendmanager_honey.h\
 	harness/backendmanager_inmemory.h\
 	harness/backendmanager_multi.h\
 	harness/backendmanager_remote.h\
@@ -44,6 +45,9 @@ utestharness_sources =\
 testharness_sources +=\
 	harness/backendmanager_glass.cc\
 	harness/backendmanager_singlefile.cc
+
+testharness_sources +=\
+	harness/backendmanager_honey.cc
 
 testharness_sources += harness/backendmanager_inmemory.cc
 
