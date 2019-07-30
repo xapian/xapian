@@ -247,11 +247,9 @@ index_add_default_filters()
 		  Filter(get_pkglibbindir() + "/mhtml2html", "text/html",
 			 PIPE_DEV_STDIN));
     index_command("message/news",
-		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
-			 PIPE_DEV_STDIN));
+		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html"));
     index_command("message/rfc822",
-		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
-			 PIPE_DEV_STDIN));
+		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html"));
     index_command("text/vcard",
 		  Filter(get_pkglibbindir() + "/vcard2text", PIPE_DEV_STDIN));
     index_command("application/vnd.apple.keynote",
