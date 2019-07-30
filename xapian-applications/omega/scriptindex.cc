@@ -43,6 +43,7 @@
 #include <ctime>
 
 #include "commonhelp.h"
+#include "datetime.h"
 #include "hashterm.h"
 #include "loadfile.h"
 #include "myhtmlparse.h"
@@ -52,7 +53,6 @@
 #include "stringutils.h"
 #include "timegm.h"
 #include "utf8truncate.h"
-#include "utils.h"
 #include "values.h"
 
 #ifndef HAVE_STRPTIME

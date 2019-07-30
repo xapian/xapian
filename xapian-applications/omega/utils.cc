@@ -2,7 +2,7 @@
  * @brief string conversion utility functions for omega
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2006,2010,2011 Olly Betts
+ * Copyright 2003,2004,2006,2010,2011,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,25 +60,6 @@ string
 double_to_string(double val)
 {
     CONVERT_TO_STRING("%f")
-}
-
-string
-date_to_string(int y, int m, int d)
-{
-    char buf[11];
-    if (y < 0) y = 0; else if (y > 9999) y = 9999;
-    if (m < 1) m = 1; else if (m > 12) m = 12;
-    if (d < 1) d = 1; else if (d > 31) d = 31;
-#ifdef SNPRINTF
-    int len = SNPRINTF(buf, sizeof(buf), "%04d%02d%02d", y, m, d);
-    if (len == -1 || len > int(sizeof(buf))) return string(buf, sizeof(buf));
-    return string(buf, len);
-#else
-    buf[sizeof(buf) - 1] = '\0';
-    sprintf(buf, "%04d%02d%02d", y, m, d);
-    if (buf[sizeof(buf) - 1]) abort(); /* Uh-oh, buffer overrun */
-    return string(buf);
-#endif
 }
 
 void

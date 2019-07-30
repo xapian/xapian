@@ -1,7 +1,7 @@
 /** @file datetime.h
- * @brief Parse date/time strings
+ * @brief Parse and format date/time strings
  */
-/* Copyright (c) 2015 Olly Betts
+/* Copyright (c) 2015,2019 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -29,5 +29,11 @@
 #include <string>
 
 time_t parse_datetime(const std::string & s);
+
+/** Format year, month and day into YYYYMMDD string.
+ *
+ *  @return 8-character string such as: 20190740
+ */
+std::string date_to_string(int year, int month, int day);
 
 #endif // OMEGA_INCLUDED_DATETIME_H

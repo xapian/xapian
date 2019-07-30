@@ -50,6 +50,7 @@
 
 #include "append_filename_arg.h"
 #include "atomparse.h"
+#include "datetime.h"
 #include "diritor.h"
 #include "failed.h"
 #include "hashterm.h"
@@ -67,7 +68,6 @@
 #include "svgparse.h"
 #include "tmpdir.h"
 #include "utf8convert.h"
-#include "utils.h"
 #include "values.h"
 #include "worker.h"
 #include "xmlparse.h"
