@@ -273,7 +273,7 @@ class XapianSmoketest < Test::Unit::TestCase
 
   def test_013_scaleweight
     query = Xapian::Query.new("foo")
-    query2 = Xapian::Query.new(Xapian::Query::OP_SCALE_WEIGHT, query, 5);
+    query2 = Xapian::Query.new(Xapian::Query::OP_SCALE_WEIGHT, query, 5)
     assert_equal(query2.description(), "Query(5 * foo)")
   end
 
