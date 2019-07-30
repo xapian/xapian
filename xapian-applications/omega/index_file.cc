@@ -166,6 +166,12 @@ index_add_default_libraries()
     index_library("application/x-tcr-ebook", omindex_ebook);
     index_library("application/x-qioo-ebook", omindex_ebook);
 #endif
+#if defined HAVE_LIBETONYEK
+    Worker* omindex_libetonyek = new Worker("omindex_libetonyek");
+    index_library("application/vnd.apple.keynote", omindex_libetonyek);
+    index_library("application/vnd.apple.pages", omindex_libetonyek);
+    index_library("application/vnd.apple.numbers", omindex_libetonyek);
+#endif
 }
 
 void
