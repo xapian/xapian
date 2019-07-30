@@ -266,6 +266,11 @@ PKG_CHECK_MODULES([LIBEBOOK], [libe-book-0.1,librevenge-0.0,librevenge-generator
      AC_DEFINE(HAVE_LIBEBOOK, 1, [Define HAVE_LIBEBOOK if the library is available])
      OMINDEX_MODULES="$OMINDEX_MODULES omindex_ebook"],[ ])
 
+dnl check if libetonyek is available.
+PKG_CHECK_MODULES([LIBETONYEK], [libetonyek-0.1,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [
+     AC_DEFINE(HAVE_LIBETONYEK, 1, [Define HAVE_LIBETONYEK if the library is available])
+     OMINDEX_MODULES="$OMINDEX_MODULES omindex_idocs"],[ ])
+
 AC_SUBST([OMINDEX_MODULES])
 
 dnl Check that snprintf actually works as it's meant to.

@@ -286,12 +286,12 @@ other filters too - see below):
 * MS Publisher documents (.pub) if pub2xhtml is available (comes with libmspub)
 * MS Visio documents (.vsd, .vss, .vst, .vsw, .vsdx, .vssx, .vstx, .vsdm,
   .vssm, .vstm) if vsd2xhtml is available (comes with libvisio)
-* Apple Keynote documents (.key, .kth, .apxl) if key2text is available (comes
-  with libetonyek)
-* Apple Numbers documents (.numbers) if numbers2text is available (comes with
-  libetonyek)
-* Apple Pages documents (.pages) if pages2text is available (comes with
-  libetonyek)
+* Apple Keynote documents (.key, .kth, .apxl) if libetonyek is available (it is
+  also possible to use key2text as an external filter)
+* Apple Numbers documents (.numbers) if libetonyek is available (it is
+  also possible to use numbers2text as an external filter)
+* Apple Pages documents (.pages) if libetonyek is available (it is
+  also possible to use pages2text as an external filter)
 * AbiWord documents (.abw)
 * Compressed AbiWord documents (.zabw)
 * Rich Text Format documents (.rtf) if unrtf is available
