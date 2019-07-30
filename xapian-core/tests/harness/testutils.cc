@@ -181,7 +181,7 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
     }
 
     Xapian::MSetIterator j = A.begin();
-    for (size_t i = 0; i < expect.size(); i++, j++) {
+    for (size_t i = 0; i < expect.size(); ++i, ++j) {
 	TEST_AND_EXPLAIN(*j == expect[i],
 			 "Mset didn't contain expected result:\n"
 			 << "Item " << i << " was " << *j
@@ -208,7 +208,7 @@ test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2)
 		     << mset1.size() << " != " << mset2.size());
     Xapian::MSetIterator i = mset1.begin();
     Xapian::MSetIterator j = mset2.begin();
-    for (; i != mset1.end(); i++, j++) {
+    for (; i != mset1.end(); ++i, ++j) {
 	TEST_AND_EXPLAIN(*i == *j,
 			 "Msets have different contents -\n" <<
 			 mset1 << "\n !=\n" << mset2);
