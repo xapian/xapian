@@ -32,7 +32,8 @@
 using namespace std;
 
 struct testcase {
-    const char * a, * b;
+    const char* a;
+    const char* b;
 };
 
 static const testcase testcases[] = {
@@ -88,7 +89,7 @@ static const testcase testcases[] = {
 
 // Test handling of invalid UTF-8 is as desired.
 DEFINE_TESTCASE(utf8iterator1, !backend) {
-    const testcase * p;
+    const testcase* p;
     for (p = testcases; p->a; ++p) {
 	tout.str(string());
 	tout << '"' << p->a << "\" and \"" << p->b << '"' << endl;
@@ -112,7 +113,7 @@ DEFINE_TESTCASE(utf8iterator1, !backend) {
 }
 
 struct testcase2 {
-    const char * a;
+    const char* a;
     unsigned long n;
 };
 
@@ -132,7 +133,7 @@ static const testcase2 testcases2[] = {
 
 // Test decoding of UTF-8.
 DEFINE_TESTCASE(utf8iterator2, !backend) {
-    const testcase2 * p;
+    const testcase2* p;
     for (p = testcases2; p->a; ++p) {
 	Xapian::Utf8Iterator a(p->a);
 
@@ -479,25 +480,25 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0
     };
 
-    for (const unsigned * p = wordchars; *p; ++p) {
+    for (const unsigned* p = wordchars; *p; ++p) {
 	TEST(Xapian::Unicode::is_wordchar(*p));
 	TEST(!Xapian::Unicode::is_currency(*p));
 	TEST(!Xapian::Unicode::is_whitespace(*p));
     }
 
-    for (const unsigned * p = currency; *p; ++p) {
+    for (const unsigned* p = currency; *p; ++p) {
 	TEST(!Xapian::Unicode::is_wordchar(*p));
 	TEST(Xapian::Unicode::is_currency(*p));
 	TEST(!Xapian::Unicode::is_whitespace(*p));
     }
 
-    for (const unsigned * p = whitespace; *p; ++p) {
+    for (const unsigned* p = whitespace; *p; ++p) {
 	TEST(!Xapian::Unicode::is_wordchar(*p));
 	TEST(!Xapian::Unicode::is_currency(*p));
 	TEST(Xapian::Unicode::is_whitespace(*p));
     }
 
-    for (const unsigned * p = other; *p; ++p) {
+    for (const unsigned* p = other; *p; ++p) {
 	TEST(!Xapian::Unicode::is_wordchar(*p));
 	TEST(!Xapian::Unicode::is_currency(*p));
 	TEST(!Xapian::Unicode::is_whitespace(*p));

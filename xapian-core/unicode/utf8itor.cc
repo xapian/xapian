@@ -36,7 +36,7 @@ namespace Unicode {
 
 // buf should be at least 4 bytes.
 unsigned
-nonascii_to_utf8(unsigned ch, char * buf)
+nonascii_to_utf8(unsigned ch, char* buf)
 {
     if (ch < 0x800) {
 	buf[0] = char(0xc0 | (ch >> 6));
@@ -64,7 +64,7 @@ nonascii_to_utf8(unsigned ch, char * buf)
 
 }
 
-Utf8Iterator::Utf8Iterator(const char *p_)
+Utf8Iterator::Utf8Iterator(const char* p_)
 {
     assign(p_, strlen(p_));
 }

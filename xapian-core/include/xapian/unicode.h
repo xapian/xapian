@@ -36,21 +36,23 @@ namespace Xapian {
  *  string.
  */
 class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
-    const unsigned char *p;
-    const unsigned char *end;
+    const unsigned char* p;
+    const unsigned char* end;
     mutable unsigned seqlen;
 
     bool XAPIAN_NOTHROW(calculate_sequence_length() const);
 
     unsigned get_char() const;
 
-    Utf8Iterator(const unsigned char *p_, const unsigned char *end_, unsigned seqlen_)
+    Utf8Iterator(const unsigned char* p_,
+		 const unsigned char* end_,
+		 unsigned seqlen_)
 	: p(p_), end(end_), seqlen(seqlen_) { }
 
   public:
-    /** Return the raw const char * pointer for the current position. */
-    const char * raw() const {
-	return reinterpret_cast<const char *>(p ? p : end);
+    /** Return the raw const char* pointer for the current position. */
+    const char* raw() const {
+	return reinterpret_cast<const char*>(p ? p : end);
     }
 
     /** Return the number of bytes left in the iterator's buffer. */
@@ -67,7 +69,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @param len The length of the string to read.
      */
-    void assign(const char *p_, size_t len) {
+    void assign(const char* p_, size_t len) {
 	if (len) {
 	    p = reinterpret_cast<const unsigned char*>(p_);
 	    end = p + len;
@@ -87,7 +89,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param s The string to read.  Must not be modified while the iteration
      *		 is in progress.
      */
-    void assign(const std::string &s) { assign(s.data(), s.size()); }
+    void assign(const std::string& s) { assign(s.data(), s.size()); }
 
     /** Create an iterator given a pointer to a null terminated string.
      *
@@ -97,7 +99,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @param p_ A pointer to the start of the null terminated string to read.
      */
-    explicit Utf8Iterator(const char *p_);
+    explicit Utf8Iterator(const char* p_);
 
     /** Create an iterator given a pointer and a length.
      *
@@ -109,7 +111,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @param len The length of the string to read.
      */
-    Utf8Iterator(const char *p_, size_t len) { assign(p_, len); }
+    Utf8Iterator(const char* p_, size_t len) { assign(p_, len); }
 
     /** Create an iterator given a string.
      *
@@ -120,7 +122,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param s The string to read.  Must not be modified while the iteration
      *		 is in progress.
      */
-    Utf8Iterator(const std::string &s) { assign(s.data(), s.size()); }
+    Utf8Iterator(const std::string& s) { assign(s.data(), s.size()); }
 
     /** Create an iterator which is at the end of its iteration.
      *
@@ -159,7 +161,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     Utf8Iterator operator++(int) {
 	// If we've not calculated seqlen yet, do so.
 	if (seqlen == 0) calculate_sequence_length();
-	const unsigned char *old_p = p;
+	const unsigned char* old_p = p;
 	unsigned old_seqlen = seqlen;
 	p += seqlen;
 	if (p == end) p = NULL;
@@ -171,7 +173,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @return A reference to this object.
      */
-    Utf8Iterator & operator++() {
+    Utf8Iterator& operator++() {
 	if (seqlen == 0) calculate_sequence_length();
 	p += seqlen;
 	if (p == end) p = NULL;
@@ -184,7 +186,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators point to the same position.
      */
-    bool XAPIAN_NOTHROW(operator==(const Utf8Iterator &other) const) {
+    bool XAPIAN_NOTHROW(operator==(const Utf8Iterator& other) const) {
 	return p == other.p;
     }
 
@@ -193,7 +195,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators do not point to the same position.
      */
-    bool XAPIAN_NOTHROW(operator!=(const Utf8Iterator &other) const) {
+    bool XAPIAN_NOTHROW(operator!=(const Utf8Iterator& other) const) {
 	return p != other.p;
     }
 
@@ -202,8 +204,8 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     typedef std::input_iterator_tag iterator_category;
     typedef unsigned value_type;
     typedef size_t difference_type;
-    typedef const unsigned * pointer;
-    typedef const unsigned & reference;
+    typedef const unsigned* pointer;
+    typedef const unsigned& reference;
     //@}
 };
 
@@ -305,7 +307,7 @@ namespace Internal {
  *  @return	The length of the resultant UTF-8 character in bytes.
  */
 XAPIAN_VISIBILITY_DEFAULT
-unsigned nonascii_to_utf8(unsigned ch, char * buf);
+unsigned nonascii_to_utf8(unsigned ch, char* buf);
 
 /** Convert a single Unicode character to UTF-8.
  *
@@ -315,7 +317,7 @@ unsigned nonascii_to_utf8(unsigned ch, char * buf);
  *
  *  @return	The length of the resultant UTF-8 character in bytes.
  */
-inline unsigned to_utf8(unsigned ch, char *buf) {
+inline unsigned to_utf8(unsigned ch, char* buf) {
     if (ch < 128) {
 	*buf = static_cast<unsigned char>(ch);
 	return 1;
@@ -326,7 +328,7 @@ inline unsigned to_utf8(unsigned ch, char *buf) {
 /** Append the UTF-8 representation of a single Unicode character to a
  *  std::string.
  */
-inline void append_utf8(std::string &s, unsigned ch) {
+inline void append_utf8(std::string& s, unsigned ch) {
     char buf[4];
     s.append(buf, to_utf8(ch, buf));
 }
@@ -387,7 +389,7 @@ inline unsigned toupper(unsigned ch) {
 
 /// Convert a UTF-8 std::string to lowercase.
 inline std::string
-tolower(const std::string &term)
+tolower(const std::string& term)
 {
     std::string result;
     result.reserve(term.size());
@@ -399,7 +401,7 @@ tolower(const std::string &term)
 
 /// Convert a UTF-8 std::string to uppercase.
 inline std::string
-toupper(const std::string &term)
+toupper(const std::string& term)
 {
     std::string result;
     result.reserve(term.size());
