@@ -63,10 +63,6 @@
 
 using namespace std;
 
-template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) const { delete p; }
-};
-
 using Xapian::Internal::AndContext;
 using Xapian::Internal::OrContext;
 using Xapian::Internal::XorContext;
