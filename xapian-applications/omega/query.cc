@@ -719,7 +719,7 @@ html_strip(const string &str)
 		skip = false;
 		continue;
 	    default:
-		if (! skip) res += ch;
+		if (!skip) res += ch;
 	}
     }
     return res;
