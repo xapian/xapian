@@ -115,7 +115,7 @@ GlassCursor::next()
     }
     if (tag_status == UNREAD || tag_status == UNREAD_ON_LAST_CHUNK) {
 	while (true) {
-	    if (! B->next(C, 0)) {
+	    if (!B->next(C, 0)) {
 		is_positioned = false;
 		break;
 	    }
@@ -174,7 +174,7 @@ GlassCursor::find_entry(const string &key)
 	    // It would be nice to be lazy about this too, but we need to
 	    // be on an actual entry in order to read the key.
 	    C[0].c = DIR_START;
-	    if (! B->prev(C, 0)) {
+	    if (!B->prev(C, 0)) {
 		tag_status = UNREAD;
 	    }
 	}
@@ -198,7 +198,7 @@ GlassCursor::find_entry_lt(const string &key)
     Assert(!is_after_end);
     Assert(is_positioned);
 
-    if (! B->prev(C, 0)) {
+    if (!B->prev(C, 0)) {
 	is_positioned = false;
 	return;
     }
@@ -260,7 +260,7 @@ GlassCursor::find_entry_ge(const string &key)
     if (found) {
 	current_key = key;
     } else {
-	if (! B->next(C, 0)) {
+	if (!B->next(C, 0)) {
 	    is_after_end = true;
 	    is_positioned = false;
 	    RETURN(false);
@@ -290,7 +290,7 @@ GlassCursor::read_tag(bool keep_compressed)
     if (tag_status == UNREAD_ON_LAST_CHUNK) {
 	// Back up to first chunk of this tag.
 	while (!LeafItem(C[0].get_p(), C[0].c).first_component()) {
-	    if (! B->prev(C, 0)) {
+	    if (!B->prev(C, 0)) {
 		is_positioned = false;
 		throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
 	    }
