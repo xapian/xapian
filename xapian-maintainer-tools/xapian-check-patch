@@ -779,8 +779,8 @@ QUOTELOOP:  while (1) {
 		# Platform specific names, allow for now.
 	    } elsif (substr($_, 0, $symbol_idx) =~ /\bicu::(\w+::)?$/) {
 		# ICU library namespace uses camelCase method names.
-	    } elsif (substr($_, 0, $symbol_idx) =~ /\b(?:EBOOK|RVNG)\w+::$/) {
-		# Libe-book/librevenge use camelCase method names.
+	    } elsif (substr($_, 0, $symbol_idx) =~ /\b(?:EBOOK|Etonyek|RVNG)\w+::$/) {
+		# Libe-book/libetonyek/librevenge use camelCase method names.
 	    } else {
 		diagnostic('error', "camelCase identifier '$symbol' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names");
 	    }
