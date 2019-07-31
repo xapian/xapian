@@ -40,14 +40,14 @@
 
 using namespace std;
 
-template<class CHR>
+template<class Char>
 struct edist_seq {
-    edist_seq(const CHR * ptr_, int len_) : ptr(ptr_), len(len_) { }
-    const CHR * ptr;
+    edist_seq(const Char* ptr_, int len_) : ptr(ptr_), len(len_) { }
+    const Char* ptr;
     int len;
 };
 
-template<class CHR>
+template<class Char>
 class edist_state {
     /// Don't allow assignment.
     edist_state& operator=(const edist_state&) = delete;
@@ -55,15 +55,15 @@ class edist_state {
     /// Don't allow copying.
     edist_state(const edist_state&) = delete;
 
-    edist_seq<CHR> seq1;
-    edist_seq<CHR> seq2;
+    edist_seq<Char> seq1;
+    edist_seq<Char> seq2;
 
     /* Array of f(k,p) values, where f(k,p) = the largest index i such that
      * d(i,j) = p and d(i,j) is on diagonal k.
      * ie: f(k,p) = largest i s.t. d(i,k+i) = p
      * Where: d(i,j) = edit distance between substrings of length i and j.
      */
-    int * fkp;
+    int* fkp;
     int fkp_cols;
 
     /* Maximum possible edit distance (this is referred to as ZERO_K in
@@ -75,7 +75,7 @@ class edist_state {
     }
 
   public:
-    edist_state(const CHR* ptr1, int len1, const CHR* ptr2, int len2,
+    edist_state(const Char* ptr1, int len1, const Char* ptr2, int len2,
 		int* fkp_)
 	: seq1(ptr1, len1), seq2(ptr2, len2), fkp(fkp_), maxdist(len2) {
 	Assert(len2 >= len1);
@@ -106,7 +106,8 @@ class edist_state {
     }
 
     bool is_transposed(int pos1, int pos2) const {
-	if (pos1 <= 0 || pos2 <= 0 || pos1 >= seq1.len || pos2 >= seq2.len) return false;
+	if (pos1 <= 0 || pos2 <= 0 || pos1 >= seq1.len || pos2 >= seq2.len)
+	    return false;
 	return (seq1.ptr[pos1 - 1] == seq2.ptr[pos2] &&
 		seq1.ptr[pos1] == seq2.ptr[pos2 - 1]);
     }
@@ -114,8 +115,8 @@ class edist_state {
     void edist_calc_f_kp(int k, int p);
 };
 
-template<class CHR>
-void edist_state<CHR>::edist_calc_f_kp(int k, int p)
+template<class Char>
+void edist_state<Char>::edist_calc_f_kp(int k, int p)
 {
     int maxlen = get_f_kp(k, p - 1) + 1; /* dist if do substitute */
     int maxlen2 = get_f_kp(k - 1, p - 1); /* dist if do insert */
@@ -153,9 +154,9 @@ void edist_state<CHR>::edist_calc_f_kp(int k, int p)
     set_f_kp(k, p, maxlen);
 }
 
-template<class CHR>
+template<class Char>
 static int
-seqcmp_editdist(const CHR* ptr1, int len1, const CHR* ptr2, int len2,
+seqcmp_editdist(const Char* ptr1, int len1, const Char* ptr2, int len2,
 		int* fkp_, int max_distance)
 {
     int lendiff = len2 - len1;
@@ -169,7 +170,7 @@ seqcmp_editdist(const CHR* ptr1, int len1, const CHR* ptr2, int len2,
     /* Special case for if one or both sequences are empty. */
     if (len1 == 0) return len2;
 
-    edist_state<CHR> state(ptr1, len1, ptr2, len2, fkp_);
+    edist_state<Char> state(ptr1, len1, ptr2, len2, fkp_);
 
     int p = lendiff; /* This is the minimum possible edit distance. */
     while (p <= max_distance) {
