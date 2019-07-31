@@ -15,6 +15,7 @@ matrix:
             - python-docutils
             - pngcrush
             - python-sphinx
+            - python3-sphinx
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
@@ -44,6 +45,7 @@ matrix:
             - python-docutils
             - pngcrush
             - python-sphinx
+            - python3-sphinx
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
@@ -69,6 +71,7 @@ matrix:
             - python-docutils
             - pngcrush
             - python-sphinx
+            - python3-sphinx
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev

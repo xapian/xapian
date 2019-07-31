@@ -94,6 +94,24 @@ XO_LIB_XAPIAN([], [],
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 XO_REQUIRE([1.4.0])
 
+AC_ARG_ENABLE([letor],
+  [AS_HELP_STRING([--enable-letor], [])],
+  [case ${enableval} in
+    yes) ;;
+    no)
+      AC_MSG_WARN([xapian-letor is unavailable, hence letor-bindings won't be built])
+      ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-letor]) ;;
+  esac],
+  [enable_letor=no])
+
+AM_CONDITIONAL([LETOR_FOUND], [test yes = "$enable_letor"])
+
+if test yes = "$enable_letor"; then
+    dnl Check for xapian-letor.
+    XO_LIB_XAPIANLETOR([], [], [xapianletor-config])
+fi
+
 NEED_JNILIB_EXT=no
 NEED_INTREE_DYLD=no
 INTREE_DYLD_PATH=
@@ -130,6 +148,10 @@ dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so add it to
 dnl CXXFLAGS for the duration of configure.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
+
+if test yes = "$enable_letor"; then
+    CXXFLAGS+="$XAPIANLETOR_CXXFLAGS"
+fi
 
 dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
 dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
@@ -201,7 +223,11 @@ if test x$USE_MAINTAINER_MODE = xyes; then
       fi ;;
   esac
   SWIG_FLAGS=`$XAPIAN_CONFIG --swigflags`
-  AC_SUBST(SWIG_FLAGS)
+  AC_SUBST([SWIG_FLAGS])
+  if test yes = "$enable_letor"; then
+    SWIG_LETOR_FLAGS=`$XAPIANLETOR_CONFIG --swigflags`
+    AC_SUBST([SWIG_LETOR_FLAGS])
+  fi
   XAPIAN_HEADER_DIRS=
   XAPIAN_HEADERS=
   for a in $SWIG_FLAGS ; do

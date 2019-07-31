@@ -41,3 +41,33 @@ simplematchdecider.py
    :language: python
    :emphasize-lines: 12,15-18
    :linenos:
+
+.. _xapian-prepare-trainingfile:
+
+xapian-prepare-trainingfile.py
+=====================
+
+.. literalinclude :: examples/xapian-prepare-trainingfile.py
+   :language: python
+   :emphasize-lines: 12,15-18
+   :linenos:
+
+.. _xapian-train:
+
+xapian-train.py
+=====================
+
+.. literalinclude :: examples/xapian-train.py
+   :language: python
+   :emphasize-lines: 12,15-18
+   :linenos:
+
+.. _xapian-rank:
+
+xapian-rank.py
+=====================
+
+.. literalinclude :: examples/xapian-rank.py
+   :language: python
+   :emphasize-lines: 12,15-18
+   :linenos:

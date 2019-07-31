@@ -42,20 +42,6 @@ namespace Xapian {
 /// Abstract base class for features in learning to rank
 class XAPIAN_VISIBILITY_DEFAULT Feature {
   protected:
-    /// Stats which FeatureList can use.
-    typedef enum {
-	/// Frequency of the Query Terms in the specified documents.
-	TERM_FREQUENCY = 1,
-	/// Inverse Document Frequency of Query terms in the database.
-	INVERSE_DOCUMENT_FREQUENCY = 2,
-	/// Length of the document as number of "terms".
-	DOCUMENT_LENGTH = 4,
-	/// Length of the collection in number of term
-	COLLECTION_LENGTH = 8,
-	/// Frequency of the Query Terms in the whole database.
-	COLLECTION_TERM_FREQ = 16,
-    } stat_flags;
-
     /** Tell Xapian that your subclass will want a particular statistic.
      *
      *  Some of the statistics can be costly to fetch or calculate, so
@@ -88,6 +74,20 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     Xapian::termcount get_collection_termfreq(const std::string& term) const;
 
   public:
+    /// Stats which FeatureList can use.
+    typedef enum {
+	/// Frequency of the Query Terms in the specified documents.
+	TERM_FREQUENCY = 1,
+	/// Inverse Document Frequency of Query terms in the database.
+	INVERSE_DOCUMENT_FREQUENCY = 2,
+	/// Length of the document as number of "terms".
+	DOCUMENT_LENGTH = 4,
+	/// Length of the collection in number of term
+	COLLECTION_LENGTH = 8,
+	/// Frequency of the Query Terms in the whole database.
+	COLLECTION_TERM_FREQ = 16,
+    } stat_flags;
+
     /// @internal Class representing the Feature internals.
     class Internal;
     /// @internal Reference counted internals.

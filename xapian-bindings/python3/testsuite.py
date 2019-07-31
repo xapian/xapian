@@ -24,6 +24,7 @@ import os.path as _path
 import sys as _sys
 import traceback as _traceback
 import xapian as _xapian
+import xapianletor as _xapianletor
 
 class TestFail(Exception):
     pass

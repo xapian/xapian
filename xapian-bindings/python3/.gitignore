@@ -6,9 +6,13 @@
 /.libs
 /*.pyc
 /_xapian.la
+/_xapianletor.la
 /xapian
+/xapianletor
 /modern
 /except.i
+/exceptletor.i
+/database_two_docs
 /doccomments.i
 /doctrees
 /docs/conf.py
@@ -27,3 +31,8 @@
 /xapian_wrap.d
 /xapian_wrap.h
 /xapian_wrap.stamp
+/xapianletor.py
+/xapianletor_wrap.cc
+/xapianletor_wrap.d
+/xapianletor_wrap.h
+/xapianletor_wrap.stamp
