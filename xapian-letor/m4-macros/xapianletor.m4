@@ -20,7 +20,7 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 # If ACTION-IF-FOUND and ACTION-IF-NOT-FOUND are both unset, then an
 # appropriate AC_MSG_ERROR is used as a default ACTION-IF-NOT-FOUND.
 # This allows XO_LIB_XAPIANLETOR to be used without any arguments in the
-# common case where Xapian is a requirement (rather than optional).
+# common case where Xapian-letor is a requirement (rather than optional).
 #
 # XAPIANLETOR-CONFIG provides the default name for the xapianletor-config script
 # (which the user can override with "./configure XAPIANLETOR_CONFIG=/path/to/it").
@@ -52,56 +52,64 @@ AC_DEFUN([XO_LIB_XAPIANLETOR],
     ;;
   esac
   AC_PATH_PROG(XAPIANLETOR_CONFIG, "$config_script_to_check_for")
-  AC_MSG_CHECKING([$XAPIANLETOR_CONFIG works])
-  dnl check for --ltlibs but not --libs as "xapianletor-config --libs" will
-  dnl fail if xapian isn't installed...
-
-  dnl run with exec to avoid leaking output on "real" bourne shells
-  if (exec >&5 2>&5 ; $XAPIANLETOR_CONFIG --ltlibs --cxxflags; exit $?) then
-    AC_MSG_RESULT(yes)
+  if test -z "$XAPIANLETOR_CONFIG"; then
+    ifelse([$2], ,
+      [ifelse([$1], , [
+	AC_MSG_ERROR([Can't find xapianletor-config.  If you have installed the Xapian-letor library, you need to add XAPIANLETOR_CONFIG=/path/to/xapianletor-config to your configure command.])],
+	:)],
+      [$2])
   else
-    case $? in
-    127)
-    AC_MSG_ERROR(['$XAPIANLETOR_CONFIG' not found, aborting])
-    ;;
-    126)
-    if test -d "$XAPIANLETOR_CONFIG" ; then
-      AC_MSG_ERROR(['$XAPIANLETOR_CONFIG' is a directory; it should be the filename of the xapianletor-config script])
-    fi
-    AC_MSG_ERROR(['$XAPIANLETOR_CONFIG' not executable, aborting])
-    ;;
-    esac
+    AC_MSG_CHECKING([$XAPIANLETOR_CONFIG works])
+    dnl check for --ltlibs but not --libs as "xapianletor-config --libs" will
+    dnl continue if xapian-letor isn't installed...
+
+    dnl run with exec to avoid leaking output on "real" bourne shells
+    if (exec >&5 2>&5 ; $XAPIANLETOR_CONFIG --ltlibs --cxxflags; exit $?) then
+      AC_MSG_RESULT(yes)
+    else
+      case $? in
+      127)
+	AC_MSG_ERROR(['$XAPIANLETOR_CONFIG' not found, aborting])
+	;;
+      126)
+	if test -d "$XAPIANLETOR_CONFIG" ; then
+	  AC_MSG_ERROR(['$XAPIANLETOR_CONFIG' is a directory; it should be the filename of the xapianletor-config script])
+	fi
+	AC_MSG_ERROR(['$XAPIANLETOR_CONFIG' not executable, aborting])
+	;;
+      esac
       AC_MSG_ERROR(['$XAPIANLETOR_CONFIG --ltlibs --cxxflags' doesn't work, aborting])
-  fi
+    fi
 
 dnl If LT_INIT, AC_PROG_LIBTOOL or the deprecated older version
 dnl AM_PROG_LIBTOOL has already been expanded, enable libtool support now.
 dnl Otherwise add hooks to the end of LT_INIT, AC_PROG_LIBTOOL and
 dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
-  XAPIANLETOR_VERSION=`$XAPIANLETOR_CONFIG --version|sed 's/.* //;s/_.*$//'`
-  XAPIANLETOR_CXXFLAGS=`$XAPIANLETOR_CONFIG --cxxflags`
-  AC_PROVIDE_IFELSE([LT_INIT],
-    [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`],
-    [AC_PROVIDE_IFELSE([AC_PROG_LIBTOOL],
+    XAPIANLETOR_VERSION=`$XAPIANLETOR_CONFIG --version|sed 's/.* //;s/_.*$//'`
+    XAPIANLETOR_CXXFLAGS=`$XAPIANLETOR_CONFIG --cxxflags`
+    AC_PROVIDE_IFELSE([LT_INIT],
       [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`],
-      [AC_PROVIDE_IFELSE([AM_PROG_LIBTOOL],
+      [AC_PROVIDE_IFELSE([AC_PROG_LIBTOOL],
 	[XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`],
-	dnl Pass magic option so xapianletor-config knows we called it (so it
-	dnl can choose a more appropriate error message if asked to link
-	dnl with an uninstalled libxapian).  Also pass ac_top_srcdir
-	dnl so the error message can correctly say "configure.ac" or
-	dnl "configure.in" according to which is in use.
-	[XAPIANLETOR_LIBS=`ac_top_srcdir="$ac_top_srcdir" $XAPIANLETOR_CONFIG --from-xo-lib-xapianletor --libs`
-	m4_ifdef([LT_INIT],
-	  [m4_define([LT_INIT], m4_defn([LT_INIT])
-	    [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])
-	m4_ifdef([AC_PROG_LIBTOOL],
-	  [m4_define([AC_PROG_LIBTOOL], m4_defn([AC_PROG_LIBTOOL])
-	    [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])
-	m4_ifdef([AM_PROG_LIBTOOL],
-	  [m4_define([AM_PROG_LIBTOOL], m4_defn([AM_PROG_LIBTOOL])
-	    [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])])])])
-  ifelse([$1], , :, [$1])
+	[AC_PROVIDE_IFELSE([AM_PROG_LIBTOOL],
+	  [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`],
+	  dnl Pass magic option so xapianletor-config knows we called it (so it
+	  dnl can choose a more appropriate error message if asked to link
+	  dnl with an uninstalled libxapianletor).  Also pass ac_top_srcdir
+	  dnl so the error message can correctly say "configure.ac" or
+	  dnl "configure.in" according to which is in use.
+	  [XAPIANLETOR_LIBS=`ac_top_srcdir="$ac_top_srcdir" $XAPIANLETOR_CONFIG --from-xo-lib-xapianletor --libs`
+	  m4_ifdef([LT_INIT],
+	    [m4_define([LT_INIT], m4_defn([LT_INIT])
+		   [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])
+	  m4_ifdef([AC_PROG_LIBTOOL],
+	    [m4_define([AC_PROG_LIBTOOL], m4_defn([AC_PROG_LIBTOOL])
+		 [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])
+	  m4_ifdef([AM_PROG_LIBTOOL],
+	    [m4_define([AM_PROG_LIBTOOL], m4_defn([AM_PROG_LIBTOOL])
+		 [XAPIANLETOR_LIBS=`$XAPIANLETOR_CONFIG --ltlibs`])])])])])
+    ifelse([$1], , :, [$1])
+  fi
   AC_SUBST(XAPIANLETOR_CXXFLAGS)
   AC_SUBST(XAPIANLETOR_LIBS)
   AC_SUBST(XAPIANLETOR_VERSION)
