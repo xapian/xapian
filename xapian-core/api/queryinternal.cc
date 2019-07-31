@@ -69,10 +69,6 @@ using namespace std;
 
 static constexpr unsigned MAX_UTF_8_CHARACTER_LENGTH = 4;
 
-template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) const { delete p; }
-};
-
 using Xapian::Internal::AndContext;
 using Xapian::Internal::OrContext;
 using Xapian::Internal::BoolOrContext;

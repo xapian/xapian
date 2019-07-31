@@ -88,8 +88,8 @@ docid_from_key(const std::string& key)
 }
 
 class DocLenChunkReader {
-    unsigned const char *p;
-    unsigned const char *end;
+    unsigned const char* p;
+    unsigned const char* end;
 
     Xapian::docid did;
 
