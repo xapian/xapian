@@ -751,11 +751,13 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			break;
 		}
 	    }
-	    if (!input_on_stdin && !substituted && cmd != "true") {
-		// If no %f, append the filename to the command.
-		if (filter.dev_stdin()) {
-		    cmd += " /dev/stdin";
+	    if (!substituted && cmd != "true") {
+		if (input_on_stdin) {
+		    if (filter.dev_stdin()) {
+			cmd += " /dev/stdin";
+		    }
 		} else {
+		    // If no %f, append the filename to the command.
 		    append_filename_argument(cmd, file);
 		}
 	    }
