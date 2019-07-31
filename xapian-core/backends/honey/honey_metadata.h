@@ -36,17 +36,17 @@ class HoneyCursor;
 
 class HoneyMetadataTermList : public AllTermsList {
     /// Copying is not allowed.
-    HoneyMetadataTermList(const HoneyMetadataTermList &);
+    HoneyMetadataTermList(const HoneyMetadataTermList&);
 
     /// Assignment is not allowed.
-    void operator=(const HoneyMetadataTermList &);
+    void operator=(const HoneyMetadataTermList&);
 
     /// Keep a reference to our database to stop it being deleted.
     Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;
 
     /** A cursor which runs through the postlist table reading metadata keys.
      */
-    HoneyCursor * cursor;
+    HoneyCursor* cursor;
 
     /** The prefix that all returned keys must have.
      */
@@ -54,7 +54,7 @@ class HoneyMetadataTermList : public AllTermsList {
 
   public:
     HoneyMetadataTermList(const Xapian::Database::Internal* database_,
-			  HoneyCursor * cursor_, const std::string &prefix_);
+			  HoneyCursor* cursor_, const std::string& prefix_);
 
     ~HoneyMetadataTermList();
 
@@ -80,10 +80,10 @@ class HoneyMetadataTermList : public AllTermsList {
     Xapian::termcount get_collection_freq() const;
 
     /// Advance to the next term in the list.
-    TermList * next();
+    TermList* next();
 
     /// Advance to the first key which is >= @a key.
-    TermList * skip_to(const std::string &key);
+    TermList* skip_to(const std::string& key);
 
     /// True if we're off the end of the list
     bool at_end() const;

@@ -29,16 +29,16 @@
 /// A document read from a HoneyDatabase.
 class HoneyDocument : public Xapian::Document::Internal {
     /// Don't allow assignment.
-    void operator=(const HoneyDocument &);
+    void operator=(const HoneyDocument&);
 
     /// Don't allow copying.
-    HoneyDocument(const HoneyDocument &);
+    HoneyDocument(const HoneyDocument&);
 
     /// Used for lazy access to document values.
-    const HoneyValueManager *value_manager;
+    const HoneyValueManager* value_manager;
 
     /// Used for lazy access to document data.
-    const HoneyDocDataTable *docdata_table;
+    const HoneyDocDataTable* docdata_table;
 
     /// HoneyDatabase::open_document() needs to call our private constructor.
     friend class HoneyDatabase;
@@ -46,15 +46,15 @@ class HoneyDocument : public Xapian::Document::Internal {
     /// Private constructor - only called by HoneyDatabase::open_document().
     HoneyDocument(const Xapian::Database::Internal* db,
 		  Xapian::docid did_,
-		  const HoneyValueManager *value_manager_,
-		  const HoneyDocDataTable *docdata_table_)
+		  const HoneyValueManager* value_manager_,
+		  const HoneyDocDataTable* docdata_table_)
 	: Xapian::Document::Internal(db, did_),
 	  value_manager(value_manager_), docdata_table(docdata_table_) { }
 
   protected:
     /** Implementation of virtual methods @{ */
     string fetch_value(Xapian::valueno slot) const;
-    void fetch_all_values(map<Xapian::valueno, string> & values_) const;
+    void fetch_all_values(map<Xapian::valueno, string>& values_) const;
     string fetch_data() const;
     /** @} */
 };

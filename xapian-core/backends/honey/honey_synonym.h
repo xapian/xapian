@@ -53,7 +53,7 @@ class HoneySynonymTable : public HoneyLazyTable {
      *  @param dbdir		The directory the honey database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    HoneySynonymTable(const std::string & dbdir, bool readonly)
+    HoneySynonymTable(const std::string& dbdir, bool readonly)
 	: HoneyLazyTable("synonym", dbdir + "/synonym.", readonly) { }
 
     HoneySynonymTable(int fd, off_t offset_, bool readonly)
@@ -72,25 +72,25 @@ class HoneySynonymTable : public HoneyLazyTable {
      *
      *  If the synonym has already been added, no action is taken.
      */
-    void add_synonym(const std::string & term, const std::string & synonym);
+    void add_synonym(const std::string& term, const std::string& synonym);
 
     /** Remove a synonym for @a term.
      *
      *  If the synonym doesn't exist, no action is taken.
      */
-    void remove_synonym(const std::string & term, const std::string & synonym);
+    void remove_synonym(const std::string& term, const std::string& synonym);
 
     /** Remove all synonyms for @a term.
      *
      *  If @a term has no synonyms, no action is taken.
      */
-    void clear_synonyms(const std::string & term);
+    void clear_synonyms(const std::string& term);
 
     /** Open synonym termlist for a term.
      *
      *  If @a term has no synonyms, NULL is returned.
      */
-    TermList * open_termlist(const std::string & term) const;
+    TermList* open_termlist(const std::string& term) const;
 
     /** Override methods of HoneyTable.
      *
@@ -108,7 +108,7 @@ class HoneySynonymTable : public HoneyLazyTable {
 	HoneyTable::flush_db();
     }
 
-    void cancel(const Honey::RootInfo & root_info,
+    void cancel(const Honey::RootInfo& root_info,
 		honey_revision_number_t rev) {
 	discard_changes();
 	HoneyTable::cancel(root_info, rev);
@@ -121,10 +121,10 @@ class HoneyCursor;
 
 class HoneySynonymTermList : public AllTermsList {
     /// Copying is not allowed.
-    HoneySynonymTermList(const HoneySynonymTermList &);
+    HoneySynonymTermList(const HoneySynonymTermList&);
 
     /// Assignment is not allowed.
-    void operator=(const HoneySynonymTermList &);
+    void operator=(const HoneySynonymTermList&);
 
     /// Keep a reference to our database to stop it being deleted.
     Xapian::Internal::intrusive_ptr<const HoneyDatabase> database;
@@ -132,7 +132,7 @@ class HoneySynonymTermList : public AllTermsList {
     /** A cursor which runs through the synonym table reading termnames from
      *  the keys.
      */
-    HoneyCursor * cursor;
+    HoneyCursor* cursor;
 
     /// The prefix to restrict the terms to.
     std::string prefix;
@@ -166,10 +166,10 @@ class HoneySynonymTermList : public AllTermsList {
     Xapian::termcount get_collection_freq() const;
 
     /// Advance to the next term in the list.
-    TermList * next();
+    TermList* next();
 
     /// Advance to the first term which is >= term.
-    TermList * skip_to(const std::string &term);
+    TermList* skip_to(const std::string& term);
 
     /// True if we're off the end of the list
     bool at_end() const;

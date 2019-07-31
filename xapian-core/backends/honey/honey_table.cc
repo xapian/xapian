@@ -163,7 +163,8 @@ HoneyTable::read_key(std::string& key,
     {
 	string desc;
 	description_append(desc, key);
-	cerr << "HoneyTable::read_key(" << desc << ", ...) for path=" << path << endl;
+	cerr << "HoneyTable::read_key(" << desc << ", ...) for path=" << path
+	     << endl;
     }
 #endif
     if (!read_only) {
@@ -205,7 +206,7 @@ HoneyTable::read_key(std::string& key,
     int r;
     {
 	// FIXME: rework to take advantage of buffering that's happening anyway?
-	char * p = buf;
+	char* p = buf;
 	for (int i = 0; i < 8; ++i) {
 	    int ch2 = store.read();
 	    if (ch2 == EOF) {
@@ -290,7 +291,8 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 		store.read(kkey, SSTINDEX_BINARY_CHOP_KEY_SIZE);
 		kkey_len = 4;
 		while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
-		int r = key.compare(0, SSTINDEX_BINARY_CHOP_KEY_SIZE, kkey, kkey_len);
+		int r = key.compare(0, SSTINDEX_BINARY_CHOP_KEY_SIZE,
+				    kkey, kkey_len);
 		if (r < 0) {
 		    j = k;
 		} else {
@@ -371,7 +373,7 @@ HoneyTable::get_exact_entry(const std::string& key, std::string* tag) const
 		int r;
 		{
 		    // FIXME: rework to take advantage of buffering that's happening anyway?
-		    char * p = buf;
+		    char* p = buf;
 		    for (int i = 0; i < 8; ++i) {
 			int ch2 = store.read();
 			if (ch2 == EOF) {

@@ -419,7 +419,8 @@ class SSTIndex {
 	{
 	    std::string esc;
 	    description_append(esc, last_index_key);
-	    std::cout << "Adding «" << esc << "» -> file offset " << ptr << std::endl;
+	    std::cout << "Adding «" << esc << "» -> file offset " << ptr
+		      << std::endl;
 	}
 #endif
 	data += last_index_key;

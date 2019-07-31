@@ -43,8 +43,8 @@ HoneyAllTermsList::read_termfreq_and_collfreq() const
     // Unpack the termfreq and collfreq from the tag.  Only do this if
     // one or other is actually read.
     cursor->read_tag();
-    const char *p = cursor->current_tag.data();
-    const char *pend = p + cursor->current_tag.size();
+    const char* p = cursor->current_tag.data();
+    const char* pend = p + cursor->current_tag.size();
     if (!decode_initial_chunk_header_freqs(&p, pend,
 					   termfreq, collfreq)) {
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header not "
@@ -93,10 +93,10 @@ HoneyAllTermsList::get_collection_freq() const
     RETURN(collfreq);
 }
 
-TermList *
+TermList*
 HoneyAllTermsList::next()
 {
-    LOGCALL(DB, TermList *, "HoneyAllTermsList::next", NO_ARGS);
+    LOGCALL(DB, TermList*, "HoneyAllTermsList::next", NO_ARGS);
     // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
     // the current term.
     termfreq = 0;
@@ -135,8 +135,8 @@ HoneyAllTermsList::next()
 	}
 
 first_time:
-	const char *p = cursor->current_key.data();
-	const char *pend = p + cursor->current_key.size();
+	const char* p = cursor->current_key.data();
+	const char* pend = p + cursor->current_key.size();
 	if (!unpack_string_preserving_sort(&p, pend, current_term)) {
 	    throw Xapian::DatabaseCorruptError("PostList table key has "
 					       "unexpected format");
@@ -158,10 +158,10 @@ first_time:
     RETURN(NULL);
 }
 
-TermList *
-HoneyAllTermsList::skip_to(const string &term)
+TermList*
+HoneyAllTermsList::skip_to(const string& term)
 {
-    LOGCALL(DB, TermList *, "HoneyAllTermsList::skip_to", term);
+    LOGCALL(DB, TermList*, "HoneyAllTermsList::skip_to", term);
     // Set termfreq to 0 to indicate we've not read termfreq and collfreq for
     // the current term.
     termfreq = 0;
@@ -195,8 +195,8 @@ HoneyAllTermsList::skip_to(const string &term)
 	    RETURN(NULL);
 	}
 
-	const char *p = cursor->current_key.data();
-	const char *pend = p + cursor->current_key.size();
+	const char* p = cursor->current_key.data();
+	const char* pend = p + cursor->current_key.size();
 	if (!unpack_string_preserving_sort(&p, pend, current_term) ||
 	    p != pend) {
 	    throw Xapian::DatabaseCorruptError("PostList table key has "

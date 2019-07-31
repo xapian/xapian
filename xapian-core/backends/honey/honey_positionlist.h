@@ -36,7 +36,7 @@ using namespace std;
 
 class HoneyPositionTable : public HoneyLazyTable {
   public:
-    static string make_key(Xapian::docid did, const string & term) {
+    static string make_key(Xapian::docid did, const string& term) {
 	string key;
 	pack_string_preserving_sort(key, term);
 	pack_uint_preserving_sort(key, did);
@@ -51,7 +51,7 @@ class HoneyPositionTable : public HoneyLazyTable {
      *  @param dbdir		The directory the honey database is stored in.
      *  @param readonly		true if we're opening read-only, else false.
      */
-    HoneyPositionTable(const string & dbdir, bool readonly)
+    HoneyPositionTable(const string& dbdir, bool readonly)
 	: HoneyLazyTable("position", dbdir + "/position.", readonly) { }
 
     HoneyPositionTable(int fd, off_t offset_, bool readonly_)
@@ -61,23 +61,23 @@ class HoneyPositionTable : public HoneyLazyTable {
      *
      *  @param s The string to append the position list data to.
      */
-    void pack(string & s, const Xapian::VecCOW<Xapian::termpos> & vec) const;
+    void pack(string& s, const Xapian::VecCOW<Xapian::termpos>& vec) const;
 
     /** Set the position list for term tname in document did.
      */
-    void set_positionlist(Xapian::docid did, const string & tname,
-			  const string & s) {
+    void set_positionlist(Xapian::docid did, const string& tname,
+			  const string& s) {
 	add(make_key(did, tname), s);
     }
 
     /// Delete the position list for term tname in document did.
-    void delete_positionlist(Xapian::docid did, const string & tname) {
+    void delete_positionlist(Xapian::docid did, const string& tname) {
 	del(make_key(did, tname));
     }
 
     /// Return the number of entries in specified position list.
     Xapian::termcount positionlist_count(Xapian::docid did,
-					 const string & term) const;
+					 const string& term) const;
 };
 
 /** Base-class for a position list in a honey database. */

@@ -94,7 +94,7 @@ HoneyCursor::next_from_index()
     {
 	// FIXME: rework to take advantage of buffering that's happening
 	// anyway?
-	char * p = buf;
+	char* p = buf;
 	for (int i = 0; i < 8; ++i) {
 	    int ch2 = store.read();
 	    if (ch2 == EOF) {
@@ -176,7 +176,8 @@ HoneyCursor::do_find(const string& key, bool greater_than)
     {
 	string esc;
 	description_append(esc, key);
-	cerr << "do_find(" << esc << ", " << greater_than << ") @" << store.get_pos() << endl;
+	cerr << "do_find(" << esc << ", " << greater_than << ") @"
+	     << store.get_pos() << endl;
     }
 #endif
 
@@ -216,9 +217,9 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		store.skip(first * 4); // FIXME: pointer width
 		off_t jump = store.read_uint4_be();
 		store.rewind(jump);
-		// The jump point will be an entirely new key (because it is the first
-		// key with that initial character), and we drop in as if this was the
-		// first key so set last_key to be empty.
+		// The jump point will be an entirely new key (because it is
+		// the first key with that initial character), and we drop in
+		// as if this was the first key so set last_key to be empty.
 		last_key = string();
 		break;
 	    }
@@ -237,8 +238,10 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		    store.set_pos(base + k * SSTINDEX_BINARY_CHOP_ENTRY_SIZE);
 		    store.read(kkey, SSTINDEX_BINARY_CHOP_KEY_SIZE);
 		    kkey_len = 4;
-		    while (kkey_len > 0 && kkey[kkey_len - 1] == '\0') --kkey_len;
-		    int r = key.compare(0, SSTINDEX_BINARY_CHOP_KEY_SIZE, kkey, kkey_len);
+		    while (kkey_len > 0 && kkey[kkey_len - 1] == '\0')
+			--kkey_len;
+		    int r = key.compare(0, SSTINDEX_BINARY_CHOP_KEY_SIZE,
+					kkey, kkey_len);
 		    if (r < 0) {
 			j = k;
 		    } else {
@@ -261,8 +264,8 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		break;
 	    }
 	    case 0x02: {
-		// FIXME: If "close" just seek forwards?  Or consider seeking from
-		// current index pos?
+		// FIXME: If "close" just seek forwards?  Or consider seeking
+		// from current index pos?
 		// off_t pos = store.get_pos();
 		string index_key, prev_index_key;
 		make_unsigned<off_t>::type ptr = 0;
@@ -327,7 +330,8 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		{
 		    string desc;
 		    description_append(desc, index_key);
-		    cerr << " index_key = " << desc << ", cmp0 = " << cmp0 << ", going to " << ptr << endl;
+		    cerr << " index_key = " << desc << ", cmp0 = " << cmp0
+			 << ", going to " << ptr << endl;
 		}
 #endif
 		store.set_pos(ptr);
@@ -350,7 +354,8 @@ HoneyCursor::do_find(const string& key, bool greater_than)
 		{
 		    string desc;
 		    description_append(desc, current_key);
-		    cerr << "cmp0 was " << cmp0 << ", Dropped to data layer on key: " << desc << endl;
+		    cerr << "cmp0 was " << cmp0
+			 << ", Dropped to data layer on key: " << desc << endl;
 		}
 #endif
 

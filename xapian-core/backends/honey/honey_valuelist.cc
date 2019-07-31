@@ -37,7 +37,7 @@ HoneyValueList::update_reader()
     if (!last_did) return false;
 
     cursor->read_tag();
-    const string & tag = cursor->current_tag;
+    const string& tag = cursor->current_tag;
     reader.assign(tag.data(), tag.size(), last_did);
     return true;
 }

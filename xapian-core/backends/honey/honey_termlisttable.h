@@ -50,7 +50,7 @@ class HoneyTermListTable : public HoneyTable {
      *  @param readonly	    true if we're opening read-only, else false.
      *  @param lazy_	    Don't create a termlist if there isn't one.
      */
-    HoneyTermListTable(const std::string & dbdir, bool readonly, bool lazy_)
+    HoneyTermListTable(const std::string& dbdir, bool readonly, bool lazy_)
 	: HoneyTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
 
     HoneyTermListTable(int fd, off_t offset_, bool readonly, bool lazy_)
@@ -64,7 +64,7 @@ class HoneyTermListTable : public HoneyTable {
      *  @param doc	The Xapian::Document object to read term data from.
      *  @param doclen	The document length.
      */
-    void set_termlist(Xapian::docid did, const Xapian::Document & doc,
+    void set_termlist(Xapian::docid did, const Xapian::Document& doc,
 		      Xapian::termcount doclen);
 
     /** Delete the termlist data for document @a did.

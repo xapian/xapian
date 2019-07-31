@@ -30,12 +30,12 @@ class HoneyDatabase;
 /// Honey class for value streams.
 class HoneyValueList : public Xapian::ValueIterator::Internal {
     /// Don't allow assignment.
-    void operator=(const HoneyValueList &);
+    void operator=(const HoneyValueList&);
 
     /// Don't allow copying.
-    HoneyValueList(const HoneyValueList &);
+    HoneyValueList(const HoneyValueList&);
 
-    HoneyCursor * cursor;
+    HoneyCursor* cursor;
 
     Honey::ValueChunkReader reader;
 

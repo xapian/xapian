@@ -86,10 +86,10 @@ HoneyMetadataTermList::get_collection_freq() const
 					"not meaningful");
 }
 
-TermList *
+TermList*
 HoneyMetadataTermList::next()
 {
-    LOGCALL(DB, TermList *, "HoneyMetadataTermList::next", NO_ARGS);
+    LOGCALL(DB, TermList*, "HoneyMetadataTermList::next", NO_ARGS);
     Assert(!at_end());
 
     if (cursor->after_end()) {
@@ -108,10 +108,10 @@ HoneyMetadataTermList::next()
     RETURN(NULL);
 }
 
-TermList *
-HoneyMetadataTermList::skip_to(const string &key)
+TermList*
+HoneyMetadataTermList::skip_to(const string& key)
 {
-    LOGCALL(DB, TermList *, "HoneyMetadataTermList::skip_to", key);
+    LOGCALL(DB, TermList*, "HoneyMetadataTermList::skip_to", key);
     Assert(!at_end());
 
     // k is the table key (key is the user metadata key).

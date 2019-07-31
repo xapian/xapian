@@ -48,20 +48,20 @@ class RootInfo {
   public:
     void init(uint4 compress_min_);
 
-    void serialise(std::string &s) const;
+    void serialise(std::string& s) const;
 
-    bool unserialise(const char ** p, const char * end);
+    bool unserialise(const char** p, const char* end);
 
     off_t get_offset() const { return offset; }
     off_t get_root() const { return root; }
     honey_tablesize_t get_num_entries() const { return num_entries; }
     uint4 get_compress_min() const { return compress_min; }
-    const std::string & get_free_list() const { return fl_serialised; }
+    const std::string& get_free_list() const { return fl_serialised; }
 
     void set_num_entries(honey_tablesize_t n) { num_entries = n; }
     void set_offset(off_t offset_) { offset = offset_; }
     void set_root(off_t root_) { root = root_; }
-    void set_free_list(const std::string & s) { fl_serialised = s; }
+    void set_free_list(const std::string& s) { fl_serialised = s; }
 };
 
 }
@@ -148,7 +148,7 @@ class HoneyVersion {
     void unserialise_stats();
 
   public:
-    explicit HoneyVersion(const std::string & db_dir_)
+    explicit HoneyVersion(const std::string& db_dir_)
 	: rev(0), fd(-1), offset(0), db_dir(db_dir_),
 	  doccount(0), total_doclen(0), last_docid(0),
 	  doclen_lbound(0), doclen_ubound(0),
@@ -173,7 +173,7 @@ class HoneyVersion {
 
     const std::string write(honey_revision_number_t new_rev, int flags);
 
-    bool sync(const std::string & tmpfile,
+    bool sync(const std::string& tmpfile,
 	      honey_revision_number_t new_rev, int flags);
 
     honey_revision_number_t get_revision() const { return rev; }
@@ -187,7 +187,7 @@ class HoneyVersion {
     }
 
     /// Return pointer to 16 byte UUID.
-    const char * get_uuid() const {
+    const char* get_uuid() const {
 	return uuid.data();
     }
 
@@ -275,7 +275,7 @@ class HoneyVersion {
      *
      *  Used by compaction.
      */
-    void merge_stats(const HoneyVersion & o);
+    void merge_stats(const HoneyVersion& o);
 
     void merge_stats(Xapian::doccount o_doccount,
 		     Xapian::termcount o_doclen_lbound,

@@ -142,8 +142,8 @@ HoneyVersion::read()
 
     char buf[256];
 
-    const char * p = buf;
-    const char * end = p + io_read(fd_in, buf, sizeof(buf), 33);
+    const char* p = buf;
+    const char* end = p + io_read(fd_in, buf, sizeof(buf), 33);
 
     if (memcmp(buf, HONEY_VERSION_MAGIC, HONEY_VERSION_MAGIC_LEN) != 0)
 	throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
@@ -223,8 +223,8 @@ HoneyVersion::serialise_stats()
 void
 HoneyVersion::unserialise_stats()
 {
-    const char * p = serialised_stats.data();
-    const char * end = p + serialised_stats.size();
+    const char* p = serialised_stats.data();
+    const char* end = p + serialised_stats.size();
     if (p == end) {
 	doccount = 0;
 	total_doclen = 0;
@@ -247,7 +247,7 @@ HoneyVersion::unserialise_stats()
 	!unpack_uint(&p, end, &oldest_changeset) ||
 	!unpack_uint(&p, end, &total_doclen) ||
 	!unpack_uint(&p, end, &spelling_wordfreq_ubound)) {
-	const char * m = p ?
+	const char* m = p ?
 	    "Bad serialised DB stats (overflowed)" :
 	    "Bad serialised DB stats (out of data)";
 	throw Xapian::DatabaseCorruptError(m);
@@ -281,7 +281,7 @@ HoneyVersion::unserialise_stats()
 	}
     } else if (!unpack_uint(&p, end, &uniq_terms_lbound) ||
 	       !unpack_uint(&p, end, &uniq_terms_ubound)) {
-	const char * m = p ?
+	const char* m = p ?
 	    "Bad serialised unique_terms bounds (overflowed)" :
 	    "Bad serialised unique_terms bounds (out of data)";
 	throw Xapian::DatabaseCorruptError(m);
@@ -289,7 +289,7 @@ HoneyVersion::unserialise_stats()
 }
 
 void
-HoneyVersion::merge_stats(const HoneyVersion & o)
+HoneyVersion::merge_stats(const HoneyVersion& o)
 {
     doccount += o.get_doccount();
     if (doccount < o.get_doccount()) {
@@ -404,7 +404,7 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
 }
 
 bool
-HoneyVersion::sync(const string & tmpfile,
+HoneyVersion::sync(const string& tmpfile,
 		   honey_revision_number_t new_rev, int flags)
 {
     Assert(new_rev > rev || rev == 0);
@@ -489,7 +489,7 @@ RootInfo::init(uint4 compress_min_)
 }
 
 void
-RootInfo::serialise(string &s) const
+RootInfo::serialise(string& s) const
 {
     AssertRel(offset, >=, 0);
     std::make_unsigned<off_t>::type uoffset = offset;
@@ -504,7 +504,7 @@ RootInfo::serialise(string &s) const
 }
 
 bool
-RootInfo::unserialise(const char ** p, const char * end)
+RootInfo::unserialise(const char** p, const char* end)
 {
     std::make_unsigned<off_t>::type uoffset, uroot;
     unsigned dummy_val;

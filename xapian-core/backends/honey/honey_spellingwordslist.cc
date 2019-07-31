@@ -72,7 +72,7 @@ HoneySpellingWordsList::get_termfreq() const
     cursor->read_tag();
 
     Xapian::termcount freq;
-    const char *p = cursor->current_tag.data();
+    const char* p = cursor->current_tag.data();
     if (!unpack_uint_last(&p, p + cursor->current_tag.size(), &freq)) {
 	throw Xapian::DatabaseCorruptError("Bad spelling word freq");
     }
@@ -87,10 +87,10 @@ HoneySpellingWordsList::get_collection_freq() const
 					"not meaningful");
 }
 
-TermList *
+TermList*
 HoneySpellingWordsList::next()
 {
-    LOGCALL(DB, TermList *, "HoneySpellingWordsList::next", NO_ARGS);
+    LOGCALL(DB, TermList*, "HoneySpellingWordsList::next", NO_ARGS);
     Assert(cursor);
 
     if (cursor->after_end()) {
@@ -108,10 +108,10 @@ HoneySpellingWordsList::next()
     RETURN(NULL);
 }
 
-TermList *
-HoneySpellingWordsList::skip_to(const string &term)
+TermList*
+HoneySpellingWordsList::skip_to(const string& term)
 {
-    LOGCALL(DB, TermList *, "HoneySpellingWordsList::skip_to", term);
+    LOGCALL(DB, TermList*, "HoneySpellingWordsList::skip_to", term);
     Assert(cursor);
 
     if (!cursor->find_entry_ge(Honey::make_spelling_wordlist_key(term))) {

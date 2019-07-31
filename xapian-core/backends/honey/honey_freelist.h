@@ -37,25 +37,25 @@ class HoneyFLCursor {
 
     HoneyFLCursor() : n(0), c(0) { }
 
-    bool operator==(const HoneyFLCursor & o) const {
+    bool operator==(const HoneyFLCursor& o) const {
 	return n == o.n && c == o.c;
     }
 
-    bool operator!=(const HoneyFLCursor & o) const {
+    bool operator!=(const HoneyFLCursor& o) const {
 	return !(*this == o);
     }
 
-    void swap(HoneyFLCursor &o) {
+    void swap(HoneyFLCursor& o) {
 	std::swap(n, o.n);
 	std::swap(c, o.c);
     }
 
-    void pack(std::string & buf) {
+    void pack(std::string& buf) {
 	pack_uint(buf, n);
 	pack_uint(buf, c / 4);
     }
 
-    bool unpack(const char ** p, const char * end) {
+    bool unpack(const char** p, const char* end) {
 	bool r = unpack_uint(p, end, &n) && unpack_uint(p, end, &c);
 	if (usual(r))
 	    c *= 4;
@@ -64,13 +64,13 @@ class HoneyFLCursor {
 };
 
 class HoneyFreeList {
-    HoneyFreeList(const HoneyFreeList &);
+    HoneyFreeList(const HoneyFreeList&);
 
-    void operator=(const HoneyFreeList &);
+    void operator=(const HoneyFreeList&);
 
-    void read_block(const HoneyTable * B, uint4 n, uint8_t * p);
+    void read_block(const HoneyTable* B, uint4 n, uint8_t* p);
 
-    void write_block(const HoneyTable * B, uint4 n, uint8_t * p, uint4 rev);
+    void write_block(const HoneyTable* B, uint4 n, uint8_t* p, uint4 rev);
 
   protected:
     uint4 revision;
@@ -83,10 +83,10 @@ class HoneyFreeList {
 
   private:
     /// Current freelist block.
-    uint8_t * p;
+    uint8_t* p;
 
     /// Current freelist block we're writing.
-    uint8_t * pw;
+    uint8_t* pw;
 
   public:
     HoneyFreeList() {
@@ -106,12 +106,12 @@ class HoneyFreeList {
 
     bool empty() const { return fl == fl_end; }
 
-    uint4 get_block(const HoneyTable * B, uint4 block_size,
-		    uint4 * blk_to_free = NULL);
+    uint4 get_block(const HoneyTable* B, uint4 block_size,
+		    uint4* blk_to_free = NULL);
 
-    uint4 walk(const HoneyTable *B, uint4 block_size, bool inclusive);
+    uint4 walk(const HoneyTable* B, uint4 block_size, bool inclusive);
 
-    void mark_block_unused(const HoneyTable * B, uint4 block_size, uint4 n);
+    void mark_block_unused(const HoneyTable* B, uint4 block_size, uint4 n);
 
     uint4 get_revision() const { return revision; }
     void set_revision(uint4 revision_) { revision = revision_; }
@@ -121,16 +121,16 @@ class HoneyFreeList {
     // Used when compacting to a single file.
     void set_first_unused_block(uint4 base) { first_unused_block = base; }
 
-    void commit(const HoneyTable * B, uint4 block_size);
+    void commit(const HoneyTable* B, uint4 block_size);
 
-    void pack(std::string & buf) {
+    void pack(std::string& buf) {
 	pack_uint(buf, revision);
 	pack_uint(buf, first_unused_block);
 	fl.pack(buf);
 	flw.pack(buf);
     }
 
-    bool unpack(const char ** pstart, const char * end) {
+    bool unpack(const char** pstart, const char* end) {
 	bool r = unpack_uint(pstart, end, &revision) &&
 		 unpack_uint(pstart, end, &first_unused_block) &&
 		 fl.unpack(pstart, end) &&
@@ -142,9 +142,9 @@ class HoneyFreeList {
 	return r;
     }
 
-    bool unpack(const std::string & s) {
-	const char * ptr = s.data();
-	const char * end = ptr + s.size();
+    bool unpack(const std::string& s) {
+	const char* ptr = s.data();
+	const char* end = ptr + s.size();
 	return unpack(&ptr, end) && ptr == end;
     }
 };
@@ -155,14 +155,14 @@ class HoneyFreeListChecker {
 
     uint4 bitmap_size;
 
-    elt_type * bitmap;
+    elt_type* bitmap;
 
     // Prevent copying
     HoneyFreeListChecker(const HoneyFreeListChecker&);
     HoneyFreeListChecker& operator=(const HoneyFreeListChecker&);
 
   public:
-    explicit HoneyFreeListChecker(const HoneyFreeList & fl);
+    explicit HoneyFreeListChecker(const HoneyFreeList& fl);
 
     ~HoneyFreeListChecker() {
 	delete [] bitmap;

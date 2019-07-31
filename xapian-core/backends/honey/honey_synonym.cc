@@ -52,7 +52,7 @@ HoneySynonymTable::merge_changes()
 
 	set<string>::const_iterator i;
 	for (i = last_synonyms.begin(); i != last_synonyms.end(); ++i) {
-	    const string & synonym = *i;
+	    const string& synonym = *i;
 	    tag += uint8_t(synonym.size() ^ MAGIC_XOR_VALUE);
 	    tag += synonym;
 	}
@@ -64,7 +64,7 @@ HoneySynonymTable::merge_changes()
 }
 
 void
-HoneySynonymTable::add_synonym(const string & term, const string & synonym)
+HoneySynonymTable::add_synonym(const string& term, const string& synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -72,8 +72,8 @@ HoneySynonymTable::add_synonym(const string & term, const string & synonym)
 
 	string tag;
 	if (get_exact_entry(term, tag)) {
-	    const char * p = tag.data();
-	    const char * end = p + tag.size();
+	    const char* p = tag.data();
+	    const char* end = p + tag.size();
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
@@ -90,7 +90,7 @@ HoneySynonymTable::add_synonym(const string & term, const string & synonym)
 }
 
 void
-HoneySynonymTable::remove_synonym(const string & term, const string & synonym)
+HoneySynonymTable::remove_synonym(const string& term, const string& synonym)
 {
     if (last_term != term) {
 	merge_changes();
@@ -98,8 +98,8 @@ HoneySynonymTable::remove_synonym(const string & term, const string & synonym)
 
 	string tag;
 	if (get_exact_entry(term, tag)) {
-	    const char * p = tag.data();
-	    const char * end = p + tag.size();
+	    const char* p = tag.data();
+	    const char* end = p + tag.size();
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
@@ -116,7 +116,7 @@ HoneySynonymTable::remove_synonym(const string & term, const string & synonym)
 }
 
 void
-HoneySynonymTable::clear_synonyms(const string & term)
+HoneySynonymTable::clear_synonyms(const string& term)
 {
     // We don't actually ever need to merge_changes() here, but it's quite
     // likely that someone might clear_synonyms() and then add_synonym() for
@@ -131,8 +131,8 @@ HoneySynonymTable::clear_synonyms(const string & term)
     }
 }
 
-TermList *
-HoneySynonymTable::open_termlist(const string & term) const
+TermList*
+HoneySynonymTable::open_termlist(const string& term) const
 {
     vector<string> synonyms;
 
@@ -148,8 +148,8 @@ HoneySynonymTable::open_termlist(const string & term) const
 	string tag;
 	if (!get_exact_entry(term, tag)) return NULL;
 
-	const char * p = tag.data();
-	const char * end = p + tag.size();
+	const char* p = tag.data();
+	const char* end = p + tag.size();
 	while (p != end) {
 	    size_t len;
 	    if (p == end ||
@@ -205,10 +205,10 @@ HoneySynonymTermList::get_collection_freq() const
 					"not meaningful");
 }
 
-TermList *
+TermList*
 HoneySynonymTermList::next()
 {
-    LOGCALL(DB, TermList *, "HoneySynonymTermList::next", NO_ARGS);
+    LOGCALL(DB, TermList*, "HoneySynonymTermList::next", NO_ARGS);
     Assert(!at_end());
 
     if (cursor->after_end()) {
@@ -227,10 +227,10 @@ HoneySynonymTermList::next()
     RETURN(NULL);
 }
 
-TermList *
-HoneySynonymTermList::skip_to(const string &term)
+TermList*
+HoneySynonymTermList::skip_to(const string& term)
 {
-    LOGCALL(DB, TermList *, "HoneySynonymTermList::skip_to", term);
+    LOGCALL(DB, TermList*, "HoneySynonymTermList::skip_to", term);
     Assert(!at_end());
 
     if (cursor->after_end() && prefix > term) {

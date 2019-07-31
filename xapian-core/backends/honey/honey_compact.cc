@@ -79,25 +79,25 @@ throw_database_corrupt(const char* item, const char* pos)
 namespace GlassCompact {
 
 static inline bool
-is_user_metadata_key(const string & key)
+is_user_metadata_key(const string& key)
 {
     return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
 }
 
 static inline bool
-is_valuestats_key(const string & key)
+is_valuestats_key(const string& key)
 {
     return key.size() > 1 && key[0] == '\0' && key[1] == '\xd0';
 }
 
 static inline bool
-is_valuechunk_key(const string & key)
+is_valuechunk_key(const string& key)
 {
     return key.size() > 1 && key[0] == '\0' && key[1] == '\xd8';
 }
 
 static inline bool
-is_doclenchunk_key(const string & key)
+is_doclenchunk_key(const string& key)
 {
     return key.size() > 1 && key[0] == '\0' && key[1] == '\xe0';
 }
@@ -164,7 +164,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
     Xapian::termcount wdf_max;
     bool have_wdfs;
 
-    PostlistCursor(const GlassTable *in, Xapian::docid offset_)
+    PostlistCursor(const GlassTable* in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0)
     {
 	rewind();
@@ -184,8 +184,8 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	}
 	if (GlassCompact::is_valuestats_key(key)) {
 	    // Adjust key.
-	    const char * p = key.data();
-	    const char * end = p + key.length();
+	    const char* p = key.data();
+	    const char* end = p + key.length();
 	    p += 2;
 	    Xapian::valueno slot;
 	    if (!unpack_uint_last(&p, end, &slot))
@@ -202,8 +202,8 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    return true;
 	}
 	if (GlassCompact::is_valuechunk_key(key)) {
-	    const char * p = key.data();
-	    const char * end = p + key.length();
+	    const char* p = key.data();
+	    const char* end = p + key.length();
 	    p += 2;
 	    Xapian::valueno slot;
 	    if (!unpack_uint(&p, end, &slot))
@@ -213,8 +213,8 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    // numeric values.  The first 128 values will be in order at least.
 	    //
 	    // Buffering up this data for all slots is potentially prohibitively
-	    // costly.  We probably need to use multiple cursors or seek a single
-	    // cursor around.
+	    // costly.  We probably need to use multiple cursors or seek a
+	    // single cursor around.
 	    AssertRel(slot, <=, 128);
 	    Xapian::docid first_did;
 	    if (!unpack_uint_preserving_sort(&p, end, &first_did))
@@ -238,8 +238,8 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	}
 
 	if (GlassCompact::is_doclenchunk_key(key)) {
-	    const char * d = key.data();
-	    const char * e = d + key.size();
+	    const char* d = key.data();
+	    const char* e = d + key.size();
 	    d += 2;
 
 	    if (d == e) {
@@ -347,8 +347,8 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	// Adjust key if this is *NOT* an initial chunk.
 	// key is: pack_string_preserving_sort(key, tname)
 	// plus optionally: pack_uint_preserving_sort(key, did)
-	const char * d = key.data();
-	const char * e = d + key.size();
+	const char* d = key.data();
+	const char* e = d + key.size();
 	string tname;
 	if (!unpack_string_preserving_sort(&d, e, tname))
 	    throw Xapian::DatabaseCorruptError("Bad postlist key");
@@ -395,7 +395,9 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 	    throw Xapian::DatabaseCorruptError("Decoding first wdf in glass "
 					       "posting chunk");
 	if ((first_wdf != 0) != have_wdfs) {
-	    // FIXME: Also need to adjust document length, total document length.
+	    // FIXME: Also need to adjust document length, total document
+	    // length.
+
 	    // Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
 	    // first_wdf = 1;
 	    // ++cf;
@@ -415,7 +417,9 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 		throw Xapian::DatabaseCorruptError("Decoding wdf in glass "
 						   "posting chunk");
 	    if ((wdf != 0) != have_wdfs) {
-		// FIXME: Also need to adjust document length, total document length.
+		// FIXME: Also need to adjust document length, total document
+		// length.
+
 		// Convert wdf=0 to 1 when the term has non-zero wdf elsewhere.
 		// wdf = 1;
 		// ++cf;
@@ -449,7 +453,7 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
     Xapian::termcount wdf_max;
     bool have_wdfs;
 
-    PostlistCursor(const HoneyTable *in, Xapian::docid offset_)
+    PostlistCursor(const HoneyTable* in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0)
     {
 	rewind();
@@ -468,8 +472,8 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    case Honey::KEY_VALUE_STATS:
 		return true;
 	    case Honey::KEY_VALUE_CHUNK: {
-		const char * p = key.data();
-		const char * end = p + key.length();
+		const char* p = key.data();
+		const char* end = p + key.length();
 		p += 2;
 		Xapian::valueno slot;
 		if (p[-1] != char(Honey::KEY_VALUE_CHUNK_HI)) {
@@ -503,8 +507,8 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	// Adjust key if this is *NOT* an initial chunk.
 	// key is: pack_string_preserving_sort(key, term)
 	// plus optionally: pack_uint_preserving_sort(key, did)
-	const char * d = key.data();
-	const char * e = d + key.size();
+	const char* d = key.data();
+	const char* e = d + key.size();
 	string term;
 	if (!unpack_string_preserving_sort(&d, e, term))
 	    throw Xapian::DatabaseCorruptError("Bad postlist key");
@@ -590,7 +594,7 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 template<>
 class PostlistCursor<HoneyTable&> : public PostlistCursor<const HoneyTable&> {
   public:
-    PostlistCursor(HoneyTable *in, Xapian::docid offset_)
+    PostlistCursor(HoneyTable* in, Xapian::docid offset_)
 	: PostlistCursor<const HoneyTable&>(in, offset_) {}
 };
 
@@ -608,14 +612,14 @@ class PostlistCursorGt {
 
 // U : vector<HoneyTable*>::const_iterator
 template<typename T, typename U> void
-merge_postlists(Xapian::Compactor * compactor,
-		T * out, vector<Xapian::docid>::const_iterator offset,
+merge_postlists(Xapian::Compactor* compactor,
+		T* out, vector<Xapian::docid>::const_iterator offset,
 		U b, U e)
 {
     typedef decltype(**b) table_type; // E.g. HoneyTable
     typedef PostlistCursor<table_type> cursor_type;
     typedef PostlistCursorGt<cursor_type> gt_type;
-    priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
+    priority_queue<cursor_type*, vector<cursor_type*>, gt_type> pq;
     for ( ; b != e; ++b, ++offset) {
 	auto in = *b;
 	auto cursor = new cursor_type(in, *offset);
@@ -632,7 +636,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	// Merge user metadata.
 	vector<string> tags;
 	while (!pq.empty()) {
-	    cursor_type * cur = pq.top();
+	    cursor_type* cur = pq.top();
 	    const string& key = cur->key;
 	    if (key_type(key) != Honey::KEY_USER_METADATA) break;
 
@@ -643,7 +647,7 @@ merge_postlists(Xapian::Compactor * compactor,
 			// FIXME: It would be better to merge all duplicates
 			// for a key in one call, but currently we don't in
 			// multipass mode.
-			const string & resolved_tag =
+			const string& resolved_tag =
 			    compactor->resolve_duplicate_metadata(last_key,
 								  tags.size(),
 								  &tags[0]);
@@ -669,7 +673,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	if (!tags.empty()) {
 	    if (tags.size() > 1 && compactor) {
 		Assert(!last_key.empty());
-		const string & resolved_tag =
+		const string& resolved_tag =
 		    compactor->resolve_duplicate_metadata(last_key,
 							  tags.size(),
 							  &tags[0]);
@@ -688,7 +692,7 @@ merge_postlists(Xapian::Compactor * compactor,
 	string lbound, ubound;
 
 	while (!pq.empty()) {
-	    cursor_type * cur = pq.top();
+	    cursor_type* cur = pq.top();
 	    const string& key = cur->key;
 	    if (key_type(key) != Honey::KEY_VALUE_STATS) break;
 	    if (key != last_key) {
@@ -702,10 +706,10 @@ merge_postlists(Xapian::Compactor * compactor,
 		last_key = key;
 	    }
 
-	    const string & tag = cur->tag;
+	    const string& tag = cur->tag;
 
-	    const char * pos = tag.data();
-	    const char * end = pos + tag.size();
+	    const char* pos = tag.data();
+	    const char* end = pos + tag.size();
 
 	    Xapian::doccount f;
 	    string l, u;
@@ -754,8 +758,8 @@ merge_postlists(Xapian::Compactor * compactor,
 
     // Merge valuestream chunks.
     while (!pq.empty()) {
-	cursor_type * cur = pq.top();
-	const string & key = cur->key;
+	cursor_type* cur = pq.top();
+	const string& key = cur->key;
 	if (key_type(key) != Honey::KEY_VALUE_CHUNK) break;
 	out->add(key, cur->tag);
 	pq.pop();
@@ -768,7 +772,7 @@ merge_postlists(Xapian::Compactor * compactor,
 
     // Merge doclen chunks.
     while (!pq.empty()) {
-	cursor_type * cur = pq.top();
+	cursor_type* cur = pq.top();
 	if (key_type(cur->key) != Honey::KEY_DOCLEN_CHUNK) break;
 	string tag = std::move(cur->tag);
 	auto chunk_lastdid = cur->chunk_lastdid;
@@ -898,7 +902,7 @@ merge_postlists(Xapian::Compactor * compactor,
     };
     vector<HoneyPostListChunk> tags;
     while (true) {
-	cursor_type * cur = NULL;
+	cursor_type* cur = NULL;
 	if (!pq.empty()) {
 	    cur = pq.top();
 	    pq.pop();
@@ -1048,7 +1052,7 @@ template<typename T> struct MergeCursor;
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 template<>
 struct MergeCursor<const GlassTable&> : public GlassCursor {
-    explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
+    explicit MergeCursor(const GlassTable* in) : GlassCursor(in) {
 	rewind();
     }
 };
@@ -1056,7 +1060,7 @@ struct MergeCursor<const GlassTable&> : public GlassCursor {
 
 template<>
 struct MergeCursor<const HoneyTable&> : public HoneyCursor {
-    explicit MergeCursor(const HoneyTable *in) : HoneyCursor(in) {
+    explicit MergeCursor(const HoneyTable* in) : HoneyCursor(in) {
 	rewind();
     }
 };
@@ -1080,7 +1084,7 @@ merge_spellings(HoneyTable* out,
 {
     typedef MergeCursor<const GlassTable&> cursor_type;
     typedef CursorGt<cursor_type> gt_type;
-    priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
+    priority_queue<cursor_type*, vector<cursor_type*>, gt_type> pq;
     for ( ; b != e; ++b) {
 	auto in = *b;
 	auto cursor = new cursor_type(in);
@@ -1093,7 +1097,7 @@ merge_spellings(HoneyTable* out,
     }
 
     while (!pq.empty()) {
-	cursor_type * cur = pq.top();
+	cursor_type* cur = pq.top();
 	pq.pop();
 
 	// Glass vs honey spelling key prefix map:
@@ -1202,13 +1206,13 @@ merge_spellings(HoneyTable* out,
 	if (static_cast<unsigned char>(key[0]) < Honey::KEY_PREFIX_WORD) {
 	    // We just want the union of words, so copy over the first instance
 	    // and skip any identical ones.
-	    priority_queue<PrefixCompressedStringItor *,
-			   vector<PrefixCompressedStringItor *>,
+	    priority_queue<PrefixCompressedStringItor*,
+			   vector<PrefixCompressedStringItor*>,
 			   PrefixCompressedStringItorGt> pqtag;
 	    // Stick all the cursor_type pointers in a vector because their
 	    // current_tag members must remain valid while we're merging their
 	    // tags, but we need to call next() on them all afterwards.
-	    vector<cursor_type *> vec;
+	    vector<cursor_type*> vec;
 	    vec.reserve(pq.size());
 
 	    while (true) {
@@ -1223,7 +1227,7 @@ merge_spellings(HoneyTable* out,
 	    PrefixCompressedStringWriter wr(tag, key);
 	    string lastword;
 	    while (!pqtag.empty()) {
-		PrefixCompressedStringItor * it = pqtag.top();
+		PrefixCompressedStringItor* it = pqtag.top();
 		pqtag.pop();
 		string word = **it;
 		if (word != lastword) {
@@ -1252,8 +1256,8 @@ merge_spellings(HoneyTable* out,
 	    while (true) {
 		cur->read_tag();
 		Xapian::termcount freq;
-		const char * p = cur->current_tag.data();
-		const char * end = p + cur->current_tag.size();
+		const char* p = cur->current_tag.data();
+		const char* end = p + cur->current_tag.size();
 		if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
 		    throw_database_corrupt("Bad spelling word freq", p);
 		}
@@ -1282,7 +1286,7 @@ merge_spellings(HoneyTable* out,
 {
     typedef MergeCursor<const HoneyTable&> cursor_type;
     typedef CursorGt<cursor_type> gt_type;
-    priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
+    priority_queue<cursor_type*, vector<cursor_type*>, gt_type> pq;
     for ( ; b != e; ++b) {
 	auto in = *b;
 	auto cursor = new cursor_type(in);
@@ -1295,7 +1299,7 @@ merge_spellings(HoneyTable* out,
     }
 
     while (!pq.empty()) {
-	cursor_type * cur = pq.top();
+	cursor_type* cur = pq.top();
 	pq.pop();
 
 	string key = cur->current_key;
@@ -1317,13 +1321,13 @@ merge_spellings(HoneyTable* out,
 	if (static_cast<unsigned char>(key[0]) < Honey::KEY_PREFIX_WORD) {
 	    // We just want the union of words, so copy over the first instance
 	    // and skip any identical ones.
-	    priority_queue<PrefixCompressedStringItor *,
-			   vector<PrefixCompressedStringItor *>,
+	    priority_queue<PrefixCompressedStringItor*,
+			   vector<PrefixCompressedStringItor*>,
 			   PrefixCompressedStringItorGt> pqtag;
 	    // Stick all the cursor_type pointers in a vector because their
 	    // current_tag members must remain valid while we're merging their
 	    // tags, but we need to call next() on them all afterwards.
-	    vector<cursor_type *> vec;
+	    vector<cursor_type*> vec;
 	    vec.reserve(pq.size());
 
 	    while (true) {
@@ -1339,7 +1343,7 @@ merge_spellings(HoneyTable* out,
 	    PrefixCompressedStringWriter wr(tag, key);
 	    string lastword;
 	    while (!pqtag.empty()) {
-		PrefixCompressedStringItor * it = pqtag.top();
+		PrefixCompressedStringItor* it = pqtag.top();
 		pqtag.pop();
 		string word = **it;
 		if (word != lastword) {
@@ -1368,8 +1372,8 @@ merge_spellings(HoneyTable* out,
 	    while (true) {
 		cur->read_tag();
 		Xapian::termcount freq;
-		const char * p = cur->current_tag.data();
-		const char * end = p + cur->current_tag.size();
+		const char* p = cur->current_tag.data();
+		const char* end = p + cur->current_tag.size();
 		if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
 		    throw_database_corrupt("Bad spelling word freq", p);
 		}
@@ -1397,7 +1401,7 @@ merge_synonyms(T* out, U b, U e)
     typedef decltype(**b) table_type; // E.g. HoneyTable
     typedef MergeCursor<table_type> cursor_type;
     typedef CursorGt<cursor_type> gt_type;
-    priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
+    priority_queue<cursor_type*, vector<cursor_type*>, gt_type> pq;
     for ( ; b != e; ++b) {
 	auto in = *b;
 	auto cursor = new cursor_type(in);
@@ -1410,7 +1414,7 @@ merge_synonyms(T* out, U b, U e)
     }
 
     while (!pq.empty()) {
-	cursor_type * cur = pq.top();
+	cursor_type* cur = pq.top();
 	pq.pop();
 
 	string key = cur->current_key;
@@ -1432,10 +1436,10 @@ merge_synonyms(T* out, U b, U e)
 
 	// We just want the union of words, so copy over the first instance
 	// and skip any identical ones.
-	priority_queue<ByteLengthPrefixedStringItor *,
-		       vector<ByteLengthPrefixedStringItor *>,
+	priority_queue<ByteLengthPrefixedStringItor*,
+		       vector<ByteLengthPrefixedStringItor*>,
 		       ByteLengthPrefixedStringItorGt> pqtag;
-	vector<cursor_type *> vec;
+	vector<cursor_type*> vec;
 
 	while (true) {
 	    cur->read_tag();
@@ -1448,7 +1452,7 @@ merge_synonyms(T* out, U b, U e)
 
 	string lastword;
 	while (!pqtag.empty()) {
-	    ByteLengthPrefixedStringItor * it = pqtag.top();
+	    ByteLengthPrefixedStringItor* it = pqtag.top();
 	    pqtag.pop();
 	    if (**it != lastword) {
 		lastword = **it;
@@ -1477,8 +1481,8 @@ merge_synonyms(T* out, U b, U e)
 }
 
 template<typename T, typename U> void
-multimerge_postlists(Xapian::Compactor * compactor,
-		     T* out, const char * tmpdir,
+multimerge_postlists(Xapian::Compactor* compactor,
+		     T* out, const char* tmpdir,
 		     const vector<U*>& in,
 		     vector<Xapian::docid> off)
 {
@@ -1487,7 +1491,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	return;
     }
     unsigned int c = 0;
-    vector<HoneyTable *> tmp;
+    vector<HoneyTable*> tmp;
     tmp.reserve(in.size() / 2);
     {
 	vector<Xapian::docid> newoff;
@@ -1501,7 +1505,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
 	    dest += buf;
 
-	    HoneyTable * tmptab = new HoneyTable("postlist", dest, false);
+	    HoneyTable* tmptab = new HoneyTable("postlist", dest, false);
 
 	    // Don't compress entries in temporary tables, even if the final
 	    // table would do so.  Any already compressed entries will get
@@ -1522,7 +1526,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
     }
 
     while (tmp.size() > 3) {
-	vector<HoneyTable *> tmpout;
+	vector<HoneyTable*> tmpout;
 	tmpout.reserve(tmp.size() / 2);
 	vector<Xapian::docid> newoff;
 	newoff.resize(tmp.size() / 2);
@@ -1535,7 +1539,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
 	    dest += buf;
 
-	    HoneyTable * tmptab = new HoneyTable("postlist", dest, false);
+	    HoneyTable* tmptab = new HoneyTable("postlist", dest, false);
 
 	    // Don't compress entries in temporary tables, even if the final
 	    // table would do so.  Any already compressed entries will get
@@ -1583,7 +1587,7 @@ class PositionCursor<const GlassTable&> : private GlassCursor {
     string key;
     Xapian::docid firstdid;
 
-    PositionCursor(const GlassTable *in, Xapian::docid offset_)
+    PositionCursor(const GlassTable* in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0) {
 	rewind();
     }
@@ -1591,8 +1595,8 @@ class PositionCursor<const GlassTable&> : private GlassCursor {
     bool next() {
 	if (!GlassCursor::next()) return false;
 	read_tag();
-	const char * d = current_key.data();
-	const char * e = d + current_key.size();
+	const char* d = current_key.data();
+	const char* e = d + current_key.size();
 	string term;
 	Xapian::docid did;
 	if (!unpack_string_preserving_sort(&d, e, term) ||
@@ -1607,7 +1611,7 @@ class PositionCursor<const GlassTable&> : private GlassCursor {
 	return true;
     }
 
-    const string & get_tag() const {
+    const string& get_tag() const {
 	return current_tag;
     }
 };
@@ -1621,7 +1625,7 @@ class PositionCursor<const HoneyTable&> : private HoneyCursor {
     string key;
     Xapian::docid firstdid;
 
-    PositionCursor(const HoneyTable *in, Xapian::docid offset_)
+    PositionCursor(const HoneyTable* in, Xapian::docid offset_)
 	: HoneyCursor(in), offset(offset_), firstdid(0) {
 	rewind();
     }
@@ -1629,8 +1633,8 @@ class PositionCursor<const HoneyTable&> : private HoneyCursor {
     bool next() {
 	if (!HoneyCursor::next()) return false;
 	read_tag();
-	const char * d = current_key.data();
-	const char * e = d + current_key.size();
+	const char* d = current_key.data();
+	const char* e = d + current_key.size();
 	string term;
 	Xapian::docid did;
 	if (!unpack_string_preserving_sort(&d, e, term) ||
@@ -1645,7 +1649,7 @@ class PositionCursor<const HoneyTable&> : private HoneyCursor {
 	return true;
     }
 
-    const string & get_tag() const {
+    const string& get_tag() const {
 	return current_tag;
     }
 };
@@ -1661,13 +1665,13 @@ class PositionCursorGt {
 };
 
 template<typename T, typename U> void
-merge_positions(T* out, const vector<U*> & inputs,
-		const vector<Xapian::docid> & offset)
+merge_positions(T* out, const vector<U*>& inputs,
+		const vector<Xapian::docid>& offset)
 {
     typedef decltype(*inputs[0]) table_type; // E.g. HoneyTable
     typedef PositionCursor<table_type> cursor_type;
     typedef PositionCursorGt<cursor_type> gt_type;
-    priority_queue<cursor_type *, vector<cursor_type *>, gt_type> pq;
+    priority_queue<cursor_type*, vector<cursor_type*>, gt_type> pq;
     for (size_t i = 0; i < inputs.size(); ++i) {
 	auto in = inputs[i];
 	auto cursor = new cursor_type(in, offset[i]);
@@ -1680,7 +1684,7 @@ merge_positions(T* out, const vector<U*> & inputs,
     }
 
     while (!pq.empty()) {
-	cursor_type * cur = pq.top();
+	cursor_type* cur = pq.top();
 	pq.pop();
 	out->add(cur->key, cur->get_tag());
 	if (cur->next()) {
@@ -1692,8 +1696,8 @@ merge_positions(T* out, const vector<U*> & inputs,
 }
 
 template<typename T, typename U> void
-merge_docid_keyed(T *out, const vector<U*> & inputs,
-		  const vector<Xapian::docid> & offset,
+merge_docid_keyed(T* out, const vector<U*>& inputs,
+		  const vector<Xapian::docid>& offset,
 		  int = 0)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
@@ -1708,8 +1712,8 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 	    // Adjust the key if this isn't the first database.
 	    if (off) {
 		Xapian::docid did;
-		const char * d = cur.current_key.data();
-		const char * e = d + cur.current_key.size();
+		const char* d = cur.current_key.data();
+		const char* e = d + cur.current_key.size();
 		if (!unpack_uint_preserving_sort(&d, e, &did)) {
 		    string msg = "Bad key in ";
 		    msg += inputs[i]->get_path();
@@ -1734,9 +1738,9 @@ merge_docid_keyed(T *out, const vector<U*> & inputs,
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 template<typename T> void
-merge_docid_keyed(T *out, const vector<const GlassTable*> & inputs,
-		  const vector<Xapian::docid> & offset,
-		  Xapian::termcount & ut_lb, Xapian::termcount & ut_ub,
+merge_docid_keyed(T* out, const vector<const GlassTable*>& inputs,
+		  const vector<Xapian::docid>& offset,
+		  Xapian::termcount& ut_lb, Xapian::termcount& ut_ub,
 		  int table_type = 0)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
@@ -1754,8 +1758,8 @@ next_without_next:
 	    // Adjust the key if this isn't the first database.
 	    if (off) {
 		Xapian::docid did;
-		const char * d = cur.current_key.data();
-		const char * e = d + cur.current_key.size();
+		const char* d = cur.current_key.data();
+		const char* e = d + cur.current_key.size();
 		if (!unpack_uint_preserving_sort(&d, e, &did)) {
 		    string msg = "Bad key in ";
 		    msg += inputs[i]->get_path();
@@ -1965,7 +1969,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 	{ "spelling",	Honey::SPELLING,	true },
 	{ "synonym",	Honey::SYNONYM,		true }
     };
-    const table_list * tables_end = tables +
+    const table_list* tables_end = tables +
 	(sizeof(tables) / sizeof(tables[0]));
 
     const int FLAGS = Xapian::DB_DANGEROUS;
@@ -1993,7 +1997,7 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
 		has_uncommitted_changes = db->has_uncommitted_changes();
 	    }
 	    if (has_uncommitted_changes) {
-		const char * m =
+		const char* m =
 		    "Can't compact from a WritableDatabase with uncommitted "
 		    "changes - either call commit() first, or create a new "
 		    "Database object from the filename on disk";
@@ -2088,10 +2092,10 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
     throw Xapian::FeatureUnavailableError("Glass backend disabled");
 #else
-    vector<HoneyTable *> tabs;
+    vector<HoneyTable*> tabs;
     tabs.reserve(tables_end - tables);
     off_t prev_size = 0;
-    for (const table_list * t = tables; t < tables_end; ++t) {
+    for (const table_list* t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
 	// need special handling.  The other tables have keys sorted in
@@ -2125,7 +2129,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	size_t inputs_present = 0;
 	for (auto src : sources) {
 	    auto db = static_cast<const GlassDatabase*>(src);
-	    const GlassTable * table;
+	    const GlassTable* table;
 	    switch (t->type) {
 		case Honey::POSTLIST:
 		    table = &(db->postlist_table);
@@ -2200,7 +2204,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    continue;
 	}
 
-	HoneyTable * out;
+	HoneyTable* out;
 	off_t table_start_offset = -1;
 	if (single_file) {
 	    if (t == tables) {
@@ -2219,7 +2223,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    out = new HoneyTable(t->name, dest, false, t->lazy);
 	}
 	tabs.push_back(out);
-	Honey::RootInfo * root_info = version_file_out->root_to_set(t->type);
+	Honey::RootInfo* root_info = version_file_out->root_to_set(t->type);
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
 	    root_info->set_offset(table_start_offset);
@@ -2252,7 +2256,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		break;
 	    default: {
 		// DocData, Termlist
-		auto & v_out = version_file_out;
+		auto& v_out = version_file_out;
 		auto ut_lb = v_out->get_unique_terms_lower_bound();
 		auto ut_ub = v_out->get_unique_terms_upper_bound();
 		merge_docid_keyed(out, inputs, offset, ut_lb, ut_ub, t->type);
@@ -2373,10 +2377,10 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
     }
 #endif
 } else {
-    vector<HoneyTable *> tabs;
+    vector<HoneyTable*> tabs;
     tabs.reserve(tables_end - tables);
     off_t prev_size = HONEY_MIN_DB_SIZE;
-    for (const table_list * t = tables; t < tables_end; ++t) {
+    for (const table_list* t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
 	// need special handling.  The other tables have keys sorted in
@@ -2410,7 +2414,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	size_t inputs_present = 0;
 	for (auto src : sources) {
 	    auto db = static_cast<const HoneyDatabase*>(src);
-	    const HoneyTable * table;
+	    const HoneyTable* table;
 	    switch (t->type) {
 		case Honey::POSTLIST:
 		    table = &(db->postlist_table);
@@ -2485,7 +2489,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    continue;
 	}
 
-	HoneyTable * out;
+	HoneyTable* out;
 	off_t table_start_offset = -1;
 	if (single_file) {
 	    if (t == tables) {
@@ -2504,7 +2508,7 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 	    out = new HoneyTable(t->name, dest, false, t->lazy);
 	}
 	tabs.push_back(out);
-	Honey::RootInfo * root_info = version_file_out->root_to_set(t->type);
+	Honey::RootInfo* root_info = version_file_out->root_to_set(t->type);
 	if (single_file) {
 	    root_info->set_free_list(fl_serialised);
 	    root_info->set_offset(table_start_offset);

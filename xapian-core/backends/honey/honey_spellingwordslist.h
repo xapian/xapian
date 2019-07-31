@@ -30,10 +30,10 @@ class HoneyDatabase;
 
 class HoneySpellingWordsList : public AllTermsList {
     /// Copying is not allowed.
-    HoneySpellingWordsList(const HoneySpellingWordsList &);
+    HoneySpellingWordsList(const HoneySpellingWordsList&);
 
     /// Assignment is not allowed.
-    void operator=(const HoneySpellingWordsList &);
+    void operator=(const HoneySpellingWordsList&);
 
     /// Keep a reference to our database to stop it being deleted.
     Xapian::Internal::intrusive_ptr<const HoneyDatabase> database;
@@ -41,7 +41,7 @@ class HoneySpellingWordsList : public AllTermsList {
     /** A cursor which runs through the spelling table reading termnames from
      *  the keys.
      */
-    HoneyCursor * cursor;
+    HoneyCursor* cursor;
 
     /** The term frequency of the term at the current position.
      *
@@ -92,10 +92,10 @@ class HoneySpellingWordsList : public AllTermsList {
     Xapian::termcount get_collection_freq() const;
 
     /// Advance to the next term in the list.
-    TermList * next();
+    TermList* next();
 
     /// Advance to the first term which is >= term.
-    TermList * skip_to(const std::string& term);
+    TermList* skip_to(const std::string& term);
 
     /// True if we're off the end of the list
     bool at_end() const;

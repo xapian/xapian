@@ -58,7 +58,7 @@ HoneySpellingTable::merge_changes()
 	    PrefixCompressedStringItor in(current, key);
 	    updated.reserve(current.size()); // FIXME plus some?
 	    while (!in.at_end() && d != changes.end()) {
-		const string & word = *in;
+		const string& word = *in;
 		Assert(d != changes.end());
 		int cmp = word.compare(*d);
 		if (cmp < 0) {
@@ -110,7 +110,7 @@ HoneySpellingTable::merge_changes()
 }
 
 void
-HoneySpellingTable::toggle_fragment(fragment frag, const string & word)
+HoneySpellingTable::toggle_fragment(fragment frag, const string& word)
 {
     auto i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
@@ -126,7 +126,7 @@ HoneySpellingTable::toggle_fragment(fragment frag, const string & word)
 }
 
 void
-HoneySpellingTable::add_word(const string & word, Xapian::termcount freqinc)
+HoneySpellingTable::add_word(const string& word, Xapian::termcount freqinc)
 {
     if (word.size() <= 1) return;
 
@@ -145,7 +145,7 @@ HoneySpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 	if (get_exact_entry(make_spelling_wordlist_key(word), data)) {
 	    // Word "word" already exists, so increment its count.
 	    Xapian::termcount freq;
-	    const char * p = data.data();
+	    const char* p = data.data();
 	    if (!unpack_uint_last(&p, p + data.size(), &freq) || freq == 0) {
 		throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 	    }
@@ -160,7 +160,7 @@ HoneySpellingTable::add_word(const string & word, Xapian::termcount freqinc)
 }
 
 Xapian::termcount
-HoneySpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
+HoneySpellingTable::remove_word(const string& word, Xapian::termcount freqdec)
 {
     if (word.size() <= 1) return freqdec;
 
@@ -187,7 +187,7 @@ HoneySpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	}
 
 	Xapian::termcount freq;
-	const char *p = data.data();
+	const char* p = data.data();
 	if (!unpack_uint_last(&p, p + data.size(), &freq)) {
 	    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 	}
@@ -208,7 +208,7 @@ HoneySpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 }
 
 void
-HoneySpellingTable::toggle_word(const string & word)
+HoneySpellingTable::toggle_word(const string& word)
 {
     fragment buf(0);
 
@@ -252,13 +252,13 @@ HoneySpellingTable::toggle_word(const string & word)
 }
 
 struct TermListGreaterApproxSize {
-    bool operator()(const TermList *a, const TermList *b) const {
+    bool operator()(const TermList* a, const TermList* b) const {
 	return a->get_approx_size() > b->get_approx_size();
     }
 };
 
-TermList *
-HoneySpellingTable::open_termlist(const string & word)
+TermList*
+HoneySpellingTable::open_termlist(const string& word)
 {
     // This should have been handled by Database::get_spelling_suggestion().
     AssertRel(word.size(),>,1);
@@ -354,7 +354,7 @@ HoneySpellingTable::open_termlist(const string & word)
 	while (pq.size() > 1) {
 	    // Build the tree such that left is always >= right so that
 	    // OrTermList can rely on this when trying to minimise work.
-	    TermList * termlist = pq.top();
+	    TermList* termlist = pq.top();
 	    pq.pop();
 
 	    termlist = new OrTermList(pq.top(), termlist);
@@ -375,7 +375,7 @@ HoneySpellingTable::open_termlist(const string & word)
 }
 
 Xapian::doccount
-HoneySpellingTable::get_word_frequency(const string & word) const
+HoneySpellingTable::get_word_frequency(const string& word) const
 {
     map<string, Xapian::termcount>::const_iterator i;
     i = wordfreq_changes.find(word);
@@ -388,7 +388,7 @@ HoneySpellingTable::get_word_frequency(const string & word) const
     if (get_exact_entry(make_spelling_wordlist_key(word), data)) {
 	// Word "word" already exists.
 	Xapian::termcount freq;
-	const char *p = data.data();
+	const char* p = data.data();
 	if (!unpack_uint_last(&p, p + data.size(), &freq)) {
 	    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
 	}
@@ -432,7 +432,7 @@ HoneySpellingTermList::get_collection_freq() const
     return 1;
 }
 
-TermList *
+TermList*
 HoneySpellingTermList::next()
 {
     if (p == data.size()) {
@@ -451,17 +451,18 @@ HoneySpellingTermList::next()
     size_t add;
     if (p == data.size() ||
 	(add = data[p] ^ MAGIC_XOR_VALUE) >= data.size() - p) {
-	throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
+	throw Xapian::DatabaseCorruptError("Bad spelling data (too little "
+					   "left)");
     }
     current_term.replace(keep, current_term.size() - tail - keep,
-			 reinterpret_cast<const char *>(&data[p + 1]), add);
+			 data.data() + p + 1, add);
     p += add + 1;
 
     return NULL;
 }
 
-TermList *
-HoneySpellingTermList::skip_to(const string & term)
+TermList*
+HoneySpellingTermList::skip_to(const string& term)
 {
     while (!data.empty() && current_term < term) {
 	(void)HoneySpellingTermList::next();

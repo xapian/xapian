@@ -119,22 +119,22 @@ class HoneyInverter {
     /// Buffered changes to positional data.
     std::map<std::string, std::map<Xapian::docid, std::string>> pos_changes;
 
-    void store_positions(const HoneyPositionTable & position_table,
+    void store_positions(const HoneyPositionTable& position_table,
 			 Xapian::docid did,
-			 const std::string & tname,
-			 const Xapian::VecCOW<Xapian::termpos> & posvec,
+			 const std::string& tname,
+			 const Xapian::VecCOW<Xapian::termpos>& posvec,
 			 bool modifying);
 
     void set_positionlist(Xapian::docid did,
-			  const std::string & term,
-			  const std::string & s);
+			  const std::string& term,
+			  const std::string& s);
 
   public:
     /// Buffered changes to document lengths.
     std::map<Xapian::docid, Xapian::termcount> doclen_changes;
 
   public:
-    void add_posting(Xapian::docid did, const std::string & term,
+    void add_posting(Xapian::docid did, const std::string& term,
 		     Xapian::doccount wdf) {
 	std::map<std::string, PostingChanges>::iterator i;
 	i = postlist_changes.find(term);
@@ -146,7 +146,7 @@ class HoneyInverter {
 	}
     }
 
-    void remove_posting(Xapian::docid did, const std::string & term,
+    void remove_posting(Xapian::docid did, const std::string& term,
 			Xapian::doccount wdf) {
 	std::map<std::string, PostingChanges>::iterator i;
 	i = postlist_changes.find(term);
@@ -158,7 +158,7 @@ class HoneyInverter {
 	}
     }
 
-    void update_posting(Xapian::docid did, const std::string & term,
+    void update_posting(Xapian::docid did, const std::string& term,
 			Xapian::termcount old_wdf,
 			Xapian::termcount new_wdf) {
 	std::map<std::string, PostingChanges>::iterator i;
@@ -171,20 +171,20 @@ class HoneyInverter {
 	}
     }
 
-    void set_positionlist(const HoneyPositionTable & position_table,
+    void set_positionlist(const HoneyPositionTable& position_table,
 			  Xapian::docid did,
-			  const std::string & tname,
-			  const Xapian::TermIterator & term,
+			  const std::string& tname,
+			  const Xapian::TermIterator& term,
 			  bool modifying = false);
 
     void delete_positionlist(Xapian::docid did,
-			     const std::string & term);
+			     const std::string& term);
 
     bool get_positionlist(Xapian::docid did,
-			  const std::string & term,
-			  std::string & s) const;
+			  const std::string& term,
+			  std::string& s) const;
 
-    bool has_positions(const HoneyPositionTable & position_table) const;
+    bool has_positions(const HoneyPositionTable& position_table) const;
 
     void clear() {
 	doclen_changes.clear();
@@ -206,7 +206,7 @@ class HoneyInverter {
 	doclen_changes[did] = DELETED_POSTING;
     }
 
-    bool get_doclength(Xapian::docid did, Xapian::termcount & doclen) const {
+    bool get_doclength(Xapian::docid did, Xapian::termcount& doclen) const {
 	std::map<Xapian::docid, Xapian::termcount>::const_iterator i;
 	i = doclen_changes.find(did);
 	if (i == doclen_changes.end())
@@ -218,26 +218,26 @@ class HoneyInverter {
     }
 
     /// Flush document length changes.
-    void flush_doclengths(HoneyPostListTable & table);
+    void flush_doclengths(HoneyPostListTable& table);
 
     /// Flush postlist changes for @a term.
-    void flush_post_list(HoneyPostListTable & table, const std::string & term);
+    void flush_post_list(HoneyPostListTable& table, const std::string& term);
 
     /// Flush postlist changes for all terms.
-    void flush_all_post_lists(HoneyPostListTable & table);
+    void flush_all_post_lists(HoneyPostListTable& table);
 
     /// Flush postlist changes for all terms which start with @a pfx.
-    void flush_post_lists(HoneyPostListTable & table, const std::string & pfx);
+    void flush_post_lists(HoneyPostListTable& table, const std::string& pfx);
 
     /// Flush all postlist table changes.
-    void flush(HoneyPostListTable & table);
+    void flush(HoneyPostListTable& table);
 
     /// Flush position changes.
-    void flush_pos_lists(HoneyPositionTable & table);
+    void flush_pos_lists(HoneyPositionTable& table);
 
-    bool get_deltas(const std::string & term,
-		    Xapian::termcount_diff & tf_delta,
-		    Xapian::termcount_diff & cf_delta) const {
+    bool get_deltas(const std::string& term,
+		    Xapian::termcount_diff& tf_delta,
+		    Xapian::termcount_diff& cf_delta) const {
 	std::map<std::string, PostingChanges>::const_iterator i;
 	i = postlist_changes.find(term);
 	if (i == postlist_changes.end()) {

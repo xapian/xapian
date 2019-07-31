@@ -283,7 +283,7 @@ HoneyPosPostList::get_description() const
 namespace Honey {
 
 void
-PostingChunkReader::assign(const char * p_, size_t len,
+PostingChunkReader::assign(const char* p_, size_t len,
 			   Xapian::docid chunk_last)
 {
     const char* pend = p_ + len;
@@ -298,7 +298,7 @@ PostingChunkReader::assign(const char * p_, size_t len,
 }
 
 void
-PostingChunkReader::assign(const char * p_, size_t len, Xapian::docid did_,
+PostingChunkReader::assign(const char* p_, size_t len, Xapian::docid did_,
 			   Xapian::docid last_did_in_chunk,
 			   Xapian::termcount wdf_)
 {

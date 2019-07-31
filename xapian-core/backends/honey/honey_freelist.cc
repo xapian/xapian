@@ -64,7 +64,7 @@ const unsigned C_BASE = 8;
 const uint4 UNUSED = static_cast<uint4>(-1);
 
 void
-HoneyFreeList::read_block(const HoneyTable * B, uint4 n, uint8_t * ptr)
+HoneyFreeList::read_block(const HoneyTable* B, uint4 n, uint8_t* ptr)
 {
 #ifdef SST_SEARCH
     (void)B; (void)n; (void)ptr;
@@ -76,7 +76,7 @@ HoneyFreeList::read_block(const HoneyTable * B, uint4 n, uint8_t * ptr)
 }
 
 void
-HoneyFreeList::write_block(const HoneyTable * B, uint4 n, uint8_t * ptr,
+HoneyFreeList::write_block(const HoneyTable* B, uint4 n, uint8_t* ptr,
 			   uint4 rev)
 {
 #ifdef SST_SEARCH
@@ -90,7 +90,7 @@ HoneyFreeList::write_block(const HoneyTable * B, uint4 n, uint8_t * ptr,
 }
 
 uint4
-HoneyFreeList::get_block(const HoneyTable *B, uint4 block_size,
+HoneyFreeList::get_block(const HoneyTable* B, uint4 block_size,
 			 uint4 * blk_to_free)
 {
     if (fl == fl_end) {
@@ -148,7 +148,7 @@ HoneyFreeList::get_block(const HoneyTable *B, uint4 block_size,
 }
 
 uint4
-HoneyFreeList::walk(const HoneyTable *B, uint4 block_size, bool inclusive)
+HoneyFreeList::walk(const HoneyTable* B, uint4 block_size, bool inclusive)
 {
     if (fl == fl_end) {
 	// It's expected that the caller checks !empty() first.
@@ -196,7 +196,7 @@ HoneyFreeList::walk(const HoneyTable *B, uint4 block_size, bool inclusive)
 }
 
 void
-HoneyFreeList::mark_block_unused(const HoneyTable * B,
+HoneyFreeList::mark_block_unused(const HoneyTable* B,
 				 uint4 block_size,
 				 uint4 blk)
 {
@@ -254,7 +254,7 @@ HoneyFreeList::mark_block_unused(const HoneyTable * B,
 }
 
 void
-HoneyFreeList::commit(const HoneyTable * B, uint4 block_size)
+HoneyFreeList::commit(const HoneyTable* B, uint4 block_size)
 {
     if (pw && flw.c != 0) {
 	memset(pw + flw.c, 255, FREELIST_END - flw.c - 4);
@@ -275,7 +275,7 @@ HoneyFreeList::commit(const HoneyTable * B, uint4 block_size)
     }
 }
 
-HoneyFreeListChecker::HoneyFreeListChecker(const HoneyFreeList & fl)
+HoneyFreeListChecker::HoneyFreeListChecker(const HoneyFreeList& fl)
 {
     const unsigned BITS_PER_ELT = sizeof(elt_type) * 8;
     const elt_type ALL_BITS = static_cast<elt_type>(-1);

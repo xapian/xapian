@@ -44,7 +44,7 @@ class HoneyDocDataTable : public HoneyLazyTable {
      *  @param dbdir	    The directory the honey database is stored in.
      *  @param readonly     true if we're opening read-only, else false.
      */
-    HoneyDocDataTable(const std::string & dbdir, bool readonly)
+    HoneyDocDataTable(const std::string& dbdir, bool readonly)
 	: HoneyLazyTable("docdata", dbdir + "/docdata.", readonly) { }
 
     HoneyDocDataTable(int fd, off_t offset_, bool readonly)
@@ -71,7 +71,7 @@ class HoneyDocDataTable : public HoneyLazyTable {
      *  @param did	The docid to set the document data for.
      *  @param data	The document data to set.
      */
-    void add_document_data(Xapian::docid did, const std::string & data) {
+    void add_document_data(Xapian::docid did, const std::string& data) {
 	// We don't store the document data if it is empty.
 	if (!data.empty())
 	    add(make_key(did), data);
@@ -84,7 +84,7 @@ class HoneyDocDataTable : public HoneyLazyTable {
      *  @param did	The docid to replace the document data for.
      *  @param data	The document data to set.
      */
-    void replace_document_data(Xapian::docid did, const std::string & data) {
+    void replace_document_data(Xapian::docid did, const std::string& data) {
 	if (data.empty()) {
 	    // We don't store the document data if it is empty.
 	    delete_document_data(did);

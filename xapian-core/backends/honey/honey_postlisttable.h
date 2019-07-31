@@ -44,7 +44,7 @@ class HoneyPostListTable : public HoneyTable {
      *  @param dbdir	    The directory the honey database is stored in.
      *  @param readonly	    true if we're opening read-only, else false.
      */
-    HoneyPostListTable(const std::string & dbdir, bool readonly)
+    HoneyPostListTable(const std::string& dbdir, bool readonly)
 	: HoneyTable("postlist", dbdir + "/postlist.", readonly) { }
 
     HoneyPostListTable(int fd, off_t offset_, bool readonly)

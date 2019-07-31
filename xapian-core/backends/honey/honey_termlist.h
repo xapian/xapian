@@ -41,10 +41,10 @@ namespace Xapian {
 /// A TermList in a honey database.
 class HoneyTermList : public TermList {
     /// Don't allow assignment.
-    void operator=(const HoneyTermList &);
+    void operator=(const HoneyTermList&);
 
     /// Don't allow copying.
-    HoneyTermList(const HoneyTermList &);
+    HoneyTermList(const HoneyTermList&);
 
     /// The database we're reading data from.
     Xapian::Internal::intrusive_ptr<const HoneyDatabase> db;
@@ -65,10 +65,10 @@ class HoneyTermList : public TermList {
      *
      *  If we've iterated to the end of the list, this gets set to NULL.
      */
-    const char *pos;
+    const char* pos;
 
     /// Pointer to the end of the encoded tag value.
-    const char *end;
+    const char* end;
 
     /// The termname at the current position.
     std::string current_term;
