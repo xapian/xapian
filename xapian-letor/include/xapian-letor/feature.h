@@ -41,38 +41,6 @@ namespace Xapian {
 
 /// Abstract base class for features in learning to rank
 class XAPIAN_VISIBILITY_DEFAULT Feature {
-  protected:
-    /** Tell Xapian that your subclass will want a particular statistic.
-     *
-     *  Some of the statistics can be costly to fetch or calculate, so
-     *  Xapian needs to know which are actually going to be used.  You
-     *  should call need_stat() from your constructor for each such
-     *  statistic.
-     *
-     * @param flag  The stat_flags value for a required statistic.
-     */
-    void need_stat(stat_flags flag) {
-	stats_needed = stat_flags(stats_needed | flag);
-    }
-
-    /// A bitmask of the statistics this Feature needs.
-    stat_flags stats_needed;
-
-    /// Get termfreq
-    Xapian::termcount get_termfreq(const std::string& term) const;
-
-    /// Get inverse_doc_freq
-    double get_inverse_doc_freq(const std::string& term) const;
-
-    /// Get doc_length
-    Xapian::termcount get_doc_length(const std::string& term) const;
-
-    /// Get collection_length
-    Xapian::termcount get_collection_length(const std::string& term) const;
-
-    /// Get collection_termfreq
-    Xapian::termcount get_collection_termfreq(const std::string& term) const;
-
   public:
     /// Stats which FeatureList can use.
     typedef enum {
@@ -110,7 +78,39 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     /// Return name of the feature
     virtual std::string name() const = 0;
 
+  protected:
+    /** Tell Xapian that your subclass will want a particular statistic.
+     *
+     *  Some of the statistics can be costly to fetch or calculate, so
+     *  Xapian needs to know which are actually going to be used.  You
+     *  should call need_stat() from your constructor for each such
+     *  statistic.
+     *
+     * @param flag  The stat_flags value for a required statistic.
+     */
+    void need_stat(stat_flags flag) {
+	stats_needed = stat_flags(stats_needed | flag);
+    }
+
+    /// Get termfreq
+    Xapian::termcount get_termfreq(const std::string& term) const;
+
+    /// Get inverse_doc_freq
+    double get_inverse_doc_freq(const std::string& term) const;
+
+    /// Get doc_length
+    Xapian::termcount get_doc_length(const std::string& term) const;
+
+    /// Get collection_length
+    Xapian::termcount get_collection_length(const std::string& term) const;
+
+    /// Get collection_termfreq
+    Xapian::termcount get_collection_termfreq(const std::string& term) const;
+
   private:
+    /// A bitmask of the statistics this Feature needs.
+    stat_flags stats_needed;
+
     /// Don't allow assignment.
     void operator=(const Feature &);
 
