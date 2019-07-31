@@ -58,10 +58,6 @@ Internal::ExpandTerm::get_description() const
     return desc;
 }
 
-template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) const { delete p; }
-};
-
 /** Build a tree of binary TermList objects like QueryOptimiser does for
  *  OrPostList objects.
  */
@@ -82,7 +78,8 @@ build_termlist_tree(const Xapian::Database &db, const RSet & rset)
 	Assert(!termlists.empty());
 	return make_termlist_merger(termlists);
     } catch (...) {
-	for_each(termlists.begin(), termlists.end(), delete_ptr<TermList>());
+	for_each(termlists.begin(), termlists.end(),
+		 [](TermList* p) { delete p; });
 	throw;
     }
 }
