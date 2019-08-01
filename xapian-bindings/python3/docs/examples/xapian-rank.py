@@ -23,9 +23,9 @@ import sys
 import xapian
 import xapianletor
 
-# We require at least three command line arguments.
-if len(sys.argv) < 4:
-    print("Usage: PATH_TO_DATABASE MSIZE QUERY",
+# We require three command line arguments.
+if len(sys.argv) != 4:
+    print("Usage: %s DATABASE MSIZE QUERY" % sys.argv[0],
           "NB: QUERY should be quoted to protect it from the shell.",
           sep='\n', file=sys.stderr)
     sys.exit(1)

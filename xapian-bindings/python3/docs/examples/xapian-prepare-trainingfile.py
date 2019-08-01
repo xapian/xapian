@@ -23,10 +23,10 @@ import sys
 import xapian
 import xapianletor
 
-# We require at least five command line arguments.
-if len(sys.argv) < 6:
-    print("Usage: PATH_TO_DATABASE PATH_TO_QUERY_FILE"
-          "PATH_TO_QREL_FILE PATH_TO_TRAINING_FILE MSIZE", sep='\n', file=sys.stderr)
+# We require five command line arguments.
+if len(sys.argv) != 6:
+    print("Usage: %s DATABASE QUERY_FILE "
+          "QREL_FILE TRAINING_FILE MSIZE" % sys.argv[0], file=sys.stderr)
     sys.exit(1)
 
 try:

@@ -15,7 +15,7 @@ them, you'll need to add this to your code::
   import xapian
 
 It also includes `xapianletor` bindings module - to use
-them, you'll need to configure xapian-bindings with --enable-letor=yes
+them, you'll need to configure xapian-bindings with ``--enable-letor``
 option and you'll need to add this to your code::
 
   import xapianletor
@@ -223,7 +223,7 @@ Test Suite
 ==========
 
 The Python bindings come with a test suite, consisting of two test files:
-`smoketest.py` and `pythontest.py`. It also includes test suite for letor-bindings
+`smoketest.py` and `pythontest.py`. It also includes a test suite for letor-bindings
 which consist of one test file: `pythonletortest.py`. But to test for letor you must
 configure with appropriate options mentioned above. These are run by the `make check`
 command, or may be run manually.  By default, they will display the names of any tests

@@ -150,7 +150,7 @@ save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 if test yes = "$enable_letor"; then
-    CXXFLAGS+="$XAPIANLETOR_CXXFLAGS"
+    CXXFLAGS="$CXXFLAGS $XAPIANLETOR_CXXFLAGS"
 fi
 
 dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.

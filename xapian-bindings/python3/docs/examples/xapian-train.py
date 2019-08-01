@@ -23,10 +23,9 @@ import sys
 import xapian
 import xapianletor
 
-# We require at least two command line arguments.
-if len(sys.argv) < 3:
-    print("Usage: PATH_TO_DATABASE PATH_TO_TRAINING_FILE",
-          sep='\n', file=sys.stderr)
+# We require two command line arguments.
+if len(sys.argv) != 3:
+    print("Usage: %s DATABASE TRAINING_FILE" % sys.argv[0], file=sys.stderr)
     sys.exit(1)
 
 try:
