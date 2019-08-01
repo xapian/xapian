@@ -651,7 +651,10 @@ QUOTELOOP:  while (1) {
 		     (($postch eq '>' || $postch eq ')') && $prech =~ /[ \t]/) ||
 		     # `vector<int>*` `string&` `const foo*` `struct tm*` `Xapian::docid&`
 		     # +static_assert(Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST,
-		     substr($l, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|DIR|DWORD|FD|FILE|HANDLE|WSAOVERLAPPED|[A-Z][A-Z_]*_T|[A-Z]|[A-Z][A-Z0-9_]*?[a-z][A-Za-z0-9_]*|size_type|(?:(?:const|struct)\s+?|Xapian::)[A-Z]*[a-z][A-Za-z0-9_]*)[*&]*)\s+$/
+		     (
+		      substr($l, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|DIR|DWORD|FD|FILE|HANDLE|WSAOVERLAPPED|[A-Z][A-Z_]*_T|[A-Z]|[A-Z][A-Z0-9_]*?[a-z][A-Za-z0-9_]*|size_type|(?:(?:const|struct)\s+?|Xapian::)[A-Z]*[a-z][A-Za-z0-9_]*)[*&]*)\s+$/ &&
+		      substr($l, $post[1]) !~ /^\s*\(/
+		     )
 		    )
 		   ) {
 		    diagnostic('error', "Preferred style is 'int$op x' (not 'int ${op}x' or 'int ${op} x')");
