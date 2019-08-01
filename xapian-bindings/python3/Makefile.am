@@ -39,7 +39,8 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	run-python-test \
 	sphinx-build \
 	testsuite.py \
-	test_xapian_star.py
+	test_xapian_star.py \
+	$(TESTS) $(BUILT_SOURCES) $(RST_DOCS)
 
 pkgpylibdir = @PYTHON3_LIB@/xapian
 
@@ -184,7 +185,11 @@ BUILT_SOURCES += xapianletor.py \
 EXTRA_DIST += pythonletor.i \
 	exceptletor.i \
 	generate-letor-python-exceptions \
-	test_xapian_letor_star.py
+	test_xapian_letor_star.py \
+	pythonletortest.py \
+	xapianletor.py \
+	xapianletor_wrap.cc \
+	xapianletor_wrap.h
 
 letorpkgpylibdir = @PYTHON3_LIB@/xapianletor
 
@@ -266,7 +271,6 @@ endif
 
 endif
 
-EXTRA_DIST += $(TESTS) $(BUILT_SOURCES) $(RST_DOCS)
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 # Clean the xapian and xapianletor directory which we created, if it's empty, and any
