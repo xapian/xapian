@@ -171,7 +171,7 @@ extract_pages(string& dump,
 	clear_text(dump, text_dump.cstr());
 	succeed = true;
     } else {
-	 error = "Libetonyek Error: Fail to extract text";
+	error = "Libetonyek Error: Fail to extract text";
     }
     // Extract metadata if possible
     RVNGTextTextGenerator data(data_dump, true);
