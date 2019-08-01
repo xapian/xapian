@@ -258,13 +258,13 @@ PKG_CHECK_MODULES([POPPLER], [poppler-cpp], [
                          return 0;
                      }],
                     [AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
-                     OMINDEX_MODULES="$OMINDEX_MODULES omindex_pdf"])
+                     OMINDEX_MODULES="$OMINDEX_MODULES omindex_poppler"])
      LIBS=$save_LIBS],[ ])
 
 dnl check if libe-book is available.
 PKG_CHECK_MODULES([LIBEBOOK], [libe-book-0.1,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [
      AC_DEFINE(HAVE_LIBEBOOK, 1, [Define HAVE_LIBEBOOK if the library is available])
-     OMINDEX_MODULES="$OMINDEX_MODULES omindex_ebook"],[ ])
+     OMINDEX_MODULES="$OMINDEX_MODULES omindex_libebook"],[ ])
 
 dnl check if libetonyek is available.
 PKG_CHECK_MODULES([LIBETONYEK], [libetonyek-0.1,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [

@@ -44,7 +44,7 @@ BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
 
 MAINTAINERCLEANFILES = my-html-tok.h mimemap.h mimemap.stamp namedents.h
 
-EXTRA_PROGRAMS = omindex_pdf omindex_ebook omindex_libetonyek
+EXTRA_PROGRAMS = omindex_poppler omindex_libebook omindex_libetonyek
 
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
@@ -177,13 +177,13 @@ omindex_SOURCES += portability/mkdtemp.cc
 endif
 omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
-omindex_pdf_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
-omindex_pdf_LDADD = $(POPPLER_LIBS)
-omindex_pdf_CXXFLAGS = $(POPPLER_CFLAGS)
+omindex_poppler_SOURCES = assistant.cc worker_comms.cc common/str.cc handler_poppler.cc
+omindex_poppler_LDADD = $(POPPLER_LIBS)
+omindex_poppler_CXXFLAGS = $(POPPLER_CFLAGS)
 
-omindex_ebook_SOURCES = assistant.cc worker_comms.cc handler_libebook.cc
-omindex_ebook_LDADD = $(LIBEBOOK_LIBS)
-omindex_ebook_CXXFLAGS = $(LIBEBOOK_CFLAGS) $(XAPIAN_CXXFLAGS)
+omindex_libebook_SOURCES = assistant.cc worker_comms.cc handler_libebook.cc
+omindex_libebook_LDADD = $(LIBEBOOK_LIBS)
+omindex_libebook_CXXFLAGS = $(LIBEBOOK_CFLAGS) $(XAPIAN_CXXFLAGS)
 
 omindex_libetonyek_SOURCES = assistant.cc worker_comms.cc handler_libetonyek.cc
 omindex_libetonyek_LDADD = $(LIBETONYEK_LIBS)
