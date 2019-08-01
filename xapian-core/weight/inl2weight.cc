@@ -149,6 +149,12 @@ InL2Weight::get_maxextra() const
     return 0;
 }
 
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "inl2");
+}
+
 InL2Weight *
 InL2Weight::create_from_parameters(const char * p) const
 {
@@ -156,9 +162,9 @@ InL2Weight::create_from_parameters(const char * p) const
 	return new Xapian::InL2Weight();
     double k = 1.0;
     if (!Xapian::Weight::Internal::double_param(&p, &k))
-	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "inl2");
+	parameter_error("Parameter is invalid");
     if (*p)
-	Xapian::Weight::Internal::parameter_error("Extra data after parameter", "inl2");
+	parameter_error("Extra data after parameter");
     return new Xapian::InL2Weight(k);
 }
 

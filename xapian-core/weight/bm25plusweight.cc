@@ -191,6 +191,12 @@ BM25PlusWeight::get_maxextra() const
 			    param_min_normlen)));
 }
 
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "bm25plus");
+}
+
 BM25PlusWeight *
 BM25PlusWeight::create_from_parameters(const char * p) const
 {
@@ -203,19 +209,19 @@ BM25PlusWeight::create_from_parameters(const char * p) const
     double min_normlen = 0.5;
     double delta = 1.0;
     if (!Xapian::Weight::Internal::double_param(&p, &k1))
-	Xapian::Weight::Internal::parameter_error("Parameter 1 (k1) is invalid", "bm25plus");
+	parameter_error("Parameter 1 (k1) is invalid");
     if (*p && !Xapian::Weight::Internal::double_param(&p, &k2))
-	Xapian::Weight::Internal::parameter_error("Parameter 2 (k2) is invalid", "bm25plus");
+	parameter_error("Parameter 2 (k2) is invalid");
     if (*p && !Xapian::Weight::Internal::double_param(&p, &k3))
-	Xapian::Weight::Internal::parameter_error("Parameter 3 (k3) is invalid", "bm25plus");
+	parameter_error("Parameter 3 (k3) is invalid");
     if (*p && !Xapian::Weight::Internal::double_param(&p, &b))
-	Xapian::Weight::Internal::parameter_error("Parameter 4 (b) is invalid", "bm25plus");
+	parameter_error("Parameter 4 (b) is invalid");
     if (*p && !Xapian::Weight::Internal::double_param(&p, &min_normlen))
-	Xapian::Weight::Internal::parameter_error("Parameter 5 (min_normlen) is invalid", "bm25plus");
+	parameter_error("Parameter 5 (min_normlen) is invalid");
     if (*p && !Xapian::Weight::Internal::double_param(&p, &delta))
-	Xapian::Weight::Internal::parameter_error("Parameter 6 (delta) is invalid", "bm25plus");
+	parameter_error("Parameter 6 (delta) is invalid");
     if (*p)
-	Xapian::Weight::Internal::parameter_error("Extra data after parameter 6", "bm25plus");
+	parameter_error("Extra data after parameter 6");
     return new Xapian::BM25PlusWeight(k1, k2, k3, b, min_normlen, delta);
 }
 

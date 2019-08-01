@@ -182,6 +182,12 @@ TradWeight::get_maxextra() const
     return 0;
 }
 
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "trad");
+}
+
 TradWeight *
 TradWeight::create_from_parameters(const char * p) const
 {
@@ -189,9 +195,9 @@ TradWeight::create_from_parameters(const char * p) const
 	return new Xapian::TradWeight();
     double k = 1.0;
     if (!Xapian::Weight::Internal::double_param(&p, &k))
-	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "trad");
+	parameter_error("Parameter is invalid");
     if (*p)
-	Xapian::Weight::Internal::parameter_error("Extra data after parameter", "trad");
+	parameter_error("Extra data after parameter");
     return new Xapian::TradWeight(k);
 }
 
