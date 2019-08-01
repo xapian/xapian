@@ -154,17 +154,17 @@ void
 index_add_default_libraries()
 {
 #if defined HAVE_POPPLER
-    Worker* omindex_pdf = new Worker("omindex_pdf");
-    index_library("application/pdf", omindex_pdf);
+    Worker* omindex_poppler = new Worker("omindex_poppler");
+    index_library("application/pdf", omindex_poppler);
 #endif
 #if defined HAVE_LIBEBOOK
-    Worker* omindex_ebook = new Worker("omindex_ebook");
-    index_library("application/vnd.palm", omindex_ebook);
-    index_library("application/x-fictionbook+xml", omindex_ebook);
-    index_library("application/x-zip-compressed-fb2", omindex_ebook);
-    index_library("application/x-sony-bbeb", omindex_ebook);
-    index_library("application/x-tcr-ebook", omindex_ebook);
-    index_library("application/x-qioo-ebook", omindex_ebook);
+    Worker* omindex_libebook = new Worker("omindex_libebook");
+    index_library("application/vnd.palm", omindex_libebook);
+    index_library("application/x-fictionbook+xml", omindex_libebook);
+    index_library("application/x-zip-compressed-fb2", omindex_libebook);
+    index_library("application/x-sony-bbeb", omindex_libebook);
+    index_library("application/x-tcr-ebook", omindex_libebook);
+    index_library("application/x-qioo-ebook", omindex_libebook);
 #endif
 #if defined HAVE_LIBETONYEK
     Worker* omindex_libetonyek = new Worker("omindex_libetonyek");
