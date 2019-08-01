@@ -219,7 +219,7 @@ while (<>) {
     if ($pre3 eq '@@ ') {
 	/^\@\@ -\d+,\d+ \+(\d+),\d+\b/ and $lineno = $1;
 	$next_top_level = ($lineno == 1) ? 1 : undef;
-	$in_comment = 0;
+	$in_comment = ($lineno == 1) ? 0 : undef;
 	$last_line_blank = 0;
 	$last_line_block_start = undef;
 	$last_line_block_end = undef;
@@ -243,6 +243,10 @@ while (<>) {
     my $first_char = substr($fullline, 0, 1);
 
     if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
+	if (!defined $in_comment) {
+	    # Decide if we're in a C-style comment for the first line of a hunk.
+	    $in_comment = /^.\s*\*+\s/;
+	}
 	if ($lineno == $doxygen_first_line && m!^\+!) {
 	    if ($doxygen_first_line == 1 && m,^\+%include\b\s*\{,) {
 		# If the first line is %include{... check the second.
@@ -349,6 +353,9 @@ while (<>) {
 	    s/\s+$//;
 	}
     }
+
+    # Default to not being in a comment for languages other than C/C++.
+    $in_comment //= 0;
 
     # Replace multiple spaces before line continuation marker:
     s!  +\\$! \\!;
