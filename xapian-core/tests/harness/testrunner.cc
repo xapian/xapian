@@ -21,7 +21,6 @@
  */
 
 #include <config.h>
-#include <iostream>
 
 #include "testrunner.h"
 
