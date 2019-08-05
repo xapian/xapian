@@ -118,10 +118,9 @@ BackendManagerMulti::createdb_multi(const string& name,
     dbbase += "___";
     size_t dbbase_len = dbbase.size();
 
-    int flags = Xapian::DB_CREATE_OR_OVERWRITE;
-
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
 	const string &subtype = sub_managers[n]->get_dbtype();
+	int flags = Xapian::DB_CREATE_OR_OVERWRITE;
 	if (subtype == "glass") {
 	    flags |= Xapian::DB_BACKEND_GLASS;
 	    dbbase += str(n);
