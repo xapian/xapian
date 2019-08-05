@@ -169,7 +169,7 @@ DEFINE_TESTCASE(dbstats1, backend) {
 	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
     }
 
-    if (get_dbtype() != "inmemory" && !startswith(get_dbtype(), "remote") && !startswith(get_dbtype(), "multi_glass_remote")) {
+    if (get_dbtype() != "inmemory" && !startswith(get_dbtype(), "remote")) {
 	TEST_EQUAL(db.get_wdf_upper_bound("the"), max_wdf);
     } else {
 	// For inmemory and remote backends, we usually give rather loose
@@ -213,7 +213,7 @@ DEFINE_TESTCASE(dbstats2, backend) {
 	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
     }
 
-    if (get_dbtype() != "inmemory" && !startswith(get_dbtype(), "remote") && !startswith(get_dbtype(), "multi_glass_remote")) {
+    if (get_dbtype() != "inmemory" && !startswith(get_dbtype(), "remote")) {
 	TEST_EQUAL(db.get_wdf_upper_bound("word"), max_wdf);
     } else {
 	// For inmemory and remote backends, we usually give rather loose
