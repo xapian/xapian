@@ -1695,7 +1695,7 @@ DEFINE_TESTCASE(netstats1, remote) {
 
     Xapian::MSet mset_alllocal;
     {
-        Xapian::Database db;
+	Xapian::Database db;
 	db.add_database(local_manager.get_database("apitest_simpledata"));
 	db.add_database(local_manager.get_database("apitest_simpledata2"));
 
@@ -1705,7 +1705,7 @@ DEFINE_TESTCASE(netstats1, remote) {
     }
 
     {
-        Xapian::Database db;
+	Xapian::Database db;
 	db.add_database(local_manager.get_database("apitest_simpledata"));
 	db.add_database(get_database("apitest_simpledata2"));
 
@@ -1721,7 +1721,7 @@ DEFINE_TESTCASE(netstats1, remote) {
     }
 
     {
-        Xapian::Database db;
+	Xapian::Database db;
 	db.add_database(get_database("apitest_simpledata"));
 	db.add_database(local_manager.get_database("apitest_simpledata2"));
 
@@ -1737,7 +1737,7 @@ DEFINE_TESTCASE(netstats1, remote) {
     }
 
     {
-        Xapian::Database db;
+	Xapian::Database db;
 	db.add_database(get_database("apitest_simpledata"));
 	db.add_database(get_database("apitest_simpledata2"));
 
