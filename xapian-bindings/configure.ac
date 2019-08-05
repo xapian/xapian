@@ -95,12 +95,9 @@ XO_LIB_XAPIAN([], [],
 XO_REQUIRE([1.4.0])
 
 AC_ARG_ENABLE([letor],
-  [AS_HELP_STRING([--enable-letor], [])],
+  [AS_HELP_STRING([--enable-letor], [enable make rules to build bindings related to xapian-letor])],
   [case ${enableval} in
-    yes) ;;
-    no)
-      AC_MSG_WARN([xapian-letor is unavailable, hence letor-bindings won't be built])
-      ;;
+    yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-letor]) ;;
   esac],
   [enable_letor=no])
@@ -108,8 +105,8 @@ AC_ARG_ENABLE([letor],
 AM_CONDITIONAL([LETOR_FOUND], [test yes = "$enable_letor"])
 
 if test yes = "$enable_letor"; then
-    dnl Check for xapian-letor.
-    XO_LIB_XAPIANLETOR([], [], [xapianletor-config])
+  dnl Check for xapian-letor.
+  XO_LIB_XAPIANLETOR([], [], [xapianletor-config])
 fi
 
 NEED_JNILIB_EXT=no
