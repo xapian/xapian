@@ -179,13 +179,16 @@ extract_pages(string& dump,
 	size_t len = data_dump.size();
 	parse_metadata(metadata, len, author, title, keywords);
 	succeed = true;
-	error.clear();
     } else {
 	if (!error.empty())
 	    error += " and metadata";
 	else
 	    error = "Libetonyek Error: Fail to extract metadata";
     }
+
+    if (succeed)
+	error.clear();
+
     return succeed;
 }
 
