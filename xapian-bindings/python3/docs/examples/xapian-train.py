@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 #
 # Simple example script demonstrating how to train and save the model.
-#
+# Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
+# Copyright (C) 2011 Parth Gupta
+# Copyright (C) 2016 Ayush Tomar
 # Copyright (C) 2019 Vaibhav Kansagara
 #
 # This program is free software; you can redistribute it and/or
