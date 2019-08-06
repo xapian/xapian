@@ -31,7 +31,6 @@
 #define PARSE_FIELD(START, END, FIELD, OUT) \
    parse_metadata_field((START), (END), (FIELD), (CONST_STRLEN(FIELD)), (OUT))
 
-using std::shared_ptr;
 using libetonyek::EtonyekDocument;
 using namespace librevenge;
 using namespace std;
@@ -180,6 +179,7 @@ extract_pages(string& dump,
 	size_t len = data_dump.size();
 	parse_metadata(metadata, len, author, title, keywords);
 	succeed = true;
+	error.clear();
     } else {
 	if (!error.empty())
 	    error += " and metadata";
