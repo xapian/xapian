@@ -125,8 +125,7 @@ BackendManagerMulti::createdb_multi(const string& name,
 	    flags |= Xapian::DB_BACKEND_GLASS;
 	    dbbase += str(n);
 	    dbs.add_database(Xapian::WritableDatabase(dbbase, flags));
-	    string line = subtype + " " + dbname + "___" + str(n);
-	    out << line << '\n';
+	    out << subtype << ' ' << dbname << "___" << n << '\n';
 	} else if (subtype == "remoteprog_glass") {
 	    flags |= Xapian::DB_BACKEND_GLASS;
 	    dbbase += str(n);

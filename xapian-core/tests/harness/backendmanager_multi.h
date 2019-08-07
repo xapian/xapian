@@ -23,9 +23,9 @@
 #define XAPIAN_INCLUDED_BACKENDMANAGER_MULTI_H
 
 #include "backendmanager.h"
-#include "backendmanager_remote.h"
 
 #include <string>
+#include <vector>
 
 #include <xapian/database.h>
 
