@@ -30,11 +30,11 @@
 using namespace std;
 
 struct testcase {
-    const char * html;
-    const char * dump;
-    const char * title;
-    const char * keywords;
-    const char * author;
+    const char* html;
+    const char* dump;
+    const char* title;
+    const char* keywords;
+    const char* author;
 };
 
 static const testcase tests[] = {
@@ -42,9 +42,11 @@ static const testcase tests[] = {
       "<feed xmlns=\"http://www.w3.org/2005/Atom\" xml:lang=\"en\">\n"
       "<title type=\"text\">Hydrogen</title>\n"
       "<subtitle type=\"html\">&lt;b&gt;Subtitle&lt;b&gt;</subtitle>\n"
-      "<author><name>Mr X</name><uri>http://example.org/x.atom</uri><email>x@example.org</email></author>\n"
+      "<author><name>Mr X</name><uri>http://example.org/x.atom</uri>"
+      "<email>x@example.org</email></author>\n"
       "<entry>\n"
-      "<title>&lt;Post&gt;</title><category term=\"a\" /><category term=\"b\" /></entry>\n"
+      "<title>&lt;Post&gt;</title>"
+      "<category term=\"a\" /><category term=\"b\" /></entry>\n"
       "<content type=\"text\">Lorem ipsum</content>\n"
       "</entry>\n"
       "</feed>\n",

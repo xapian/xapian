@@ -28,12 +28,12 @@
 using namespace std;
 
 void
-AtomParser::process_text(const string &text)
+AtomParser::process_text(const string& text)
 {
     if (is_ignored)
 	return;
 
-    string * target = NULL;
+    string* target = NULL;
 
     switch (state) {
 	case TEXT:
@@ -66,7 +66,7 @@ AtomParser::process_text(const string &text)
 }
 
 bool
-AtomParser::opening_tag(const string &tag)
+AtomParser::opening_tag(const string& tag)
 {
     if (state == OTHER) {
 	if (tag == "title")
@@ -96,7 +96,7 @@ AtomParser::opening_tag(const string &tag)
 }
 
 bool
-AtomParser::closing_tag(const string &tag)
+AtomParser::closing_tag(const string& tag)
 {
     if (tag == "entry")
 	in_entry = false;
