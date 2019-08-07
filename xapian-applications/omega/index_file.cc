@@ -172,6 +172,11 @@ index_add_default_libraries()
     index_library("application/vnd.apple.pages", omindex_libetonyek);
     index_library("application/vnd.apple.numbers", omindex_libetonyek);
 #endif
+#if defined HAVE_TESSERACT
+    Worker* omindex_tesseract = new Worker("omindex_tesseract");
+    index_library("image/jpeg", omindex_tesseract);
+    index_library("image/png", omindex_tesseract);
+#endif
 }
 
 void

@@ -271,6 +271,11 @@ PKG_CHECK_MODULES([LIBETONYEK], [libetonyek-0.1,librevenge-0.0,librevenge-genera
      AC_DEFINE(HAVE_LIBETONYEK, 1, [Define HAVE_LIBETONYEK if the library is available])
      OMINDEX_MODULES="$OMINDEX_MODULES omindex_libetonyek"],[ ])
 
+dnl check if libtesseract is available.
+PKG_CHECK_MODULES([TESSERACT], [tesseract, lept], [
+     AC_DEFINE(HAVE_TESSERACT, 1, [Define HAVE_TESSERACT if the library is available])
+     OMINDEX_MODULES="$OMINDEX_MODULES omindex_tesseract"],[ ])
+
 AC_SUBST([OMINDEX_MODULES])
 
 dnl Check that snprintf actually works as it's meant to.
