@@ -315,6 +315,8 @@ other filters too - see below):
 * TCR (simple compressed text format) files (.tcr) if libe-book is available
 * eReader files (.pdb) if libe-book is available
 * Sony eBook files (.lrf) if libe-book is available
+* Image files that contain text (.png, .jpg, .jpeg, .jfif, .jpe, .webp, .tif, .tiff,
+  .pbm, .gif, .ppm, .pgm) if libtesseract-dev is available.
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For

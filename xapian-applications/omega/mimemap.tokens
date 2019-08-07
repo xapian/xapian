@@ -199,6 +199,21 @@ lrf		application/x-sony-bbeb
 tcr		application/x-tcr-ebook
 pdb		application/vnd.palm
 
+# Image files:
+gif		image/gif
+jfif		image/jpeg
+jpe		image/jpeg
+jpeg		image/jpeg
+jpg		image/jpeg
+pbm		image/x-portable-bitmap
+pgm		image/x-portable-graymap
+png		image/png
+pnm		image/x-portable-anymap
+ppm		image/x-portable-pixmap
+tif		image/tiff
+tiff		image/tiff
+webp		image/webp
+
 # Extensions to quietly ignore:
 a		ignore
 adm		ignore

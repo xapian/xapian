@@ -30,6 +30,7 @@ matrix:
             - libpoppler-cpp-dev
             - libe-book-dev
             - libetonyek-dev
+            - libtesseract-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
@@ -56,6 +57,7 @@ matrix:
             - libpoppler-cpp-dev
             - libe-book-dev
             - libetonyek-dev
+            - libtesseract-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
@@ -82,6 +84,7 @@ matrix:
             - tcl
             - libsvm-dev
             - libpoppler-cpp-dev
+            - libtesseract-dev
     - os: linux
       addons:
         apt:
@@ -130,6 +133,7 @@ matrix:
             - poppler
             - python
             - python2
+            - tesseract
       before_install:
         - travis_retry pip2 install sphinx docutils
         - travis_retry pip3 install sphinx
