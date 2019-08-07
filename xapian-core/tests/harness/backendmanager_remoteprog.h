@@ -55,6 +55,10 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
     Xapian::WritableDatabase get_writable_database(const std::string & name,
 						   const std::string & file);
 
+    /// Create a RemoteProg Xapian::WritableDatabase object with specified args.
+    Xapian::WritableDatabase
+    get_remote_writable_database(std::string args);
+
     /// Create a RemoteProg Xapian::Database with the specified timeout.
     Xapian::Database get_remote_database(const std::vector<std::string> & files,
 					 unsigned int timeout);

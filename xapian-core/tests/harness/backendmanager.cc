@@ -213,6 +213,16 @@ BackendManager::get_writable_database(const string &, const string &)
     invalid_operation("Attempted to open a disabled database");
 }
 
+Xapian::WritableDatabase
+BackendManager::get_remote_writable_database(string)
+{
+    string msg = "BackendManager::get_remote_writable_database() "
+		 "called for non-remote database (type is ";
+    msg += get_dbtype();
+    msg += ')';
+    throw Xapian::InvalidOperationError(msg);
+}
+
 string
 BackendManager::get_writable_database_path(const std::string &)
 {

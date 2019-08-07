@@ -131,17 +131,14 @@ BackendManagerMulti::createdb_multi(const string& name,
 	    dbbase += str(n);
 	    Xapian::WritableDatabase remote_db(dbbase, flags);
 	    remote_db.close();
-	    string args = sub_managers[n]->get_writable_database_args(dbbase, 300000);
-#ifdef HAVE_VALGRIND
-	    if (RUNNING_ON_VALGRIND) {
-		args.insert(0, XAPIAN_PROGSRV" ");
-		dbs.add_database(Xapian::Remote::open_writable("./runsrv", args));
-		out << "remote :" << args << '\n';
-	    }
-#else
-	    dbs.add_database(Xapian::Remote::open_writable(XAPIAN_PROGSRV, args));
+	    string args = sub_managers[n]->get_writable_database_args(dbbase,
+								      300000);
+
+	    dbs.add_database(
+		sub_managers[n]->get_remote_writable_database(args));
+
 	    out << "remote :" << XAPIAN_PROGSRV << " " << args << '\n';
-#endif
+
 	} else {
 	    string msg = "Unknown multidb subtype: ";
 	    msg += subtype;
