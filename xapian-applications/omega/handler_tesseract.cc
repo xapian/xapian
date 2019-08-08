@@ -27,7 +27,7 @@
 using namespace std;
 using namespace tesseract;
 
-TessBaseAPI* ocr = NULL;
+static TessBaseAPI* ocr = NULL;
 
 static bool
 clear_text(string& dump, const char* text)
@@ -37,7 +37,7 @@ clear_text(string& dump, const char* text)
 	for (int i = 0; text[i] != '\0'; ++i) {
 	    if (!isspace(text[i]) || (i && !isspace(text[i - 1]))) {
 		dump.push_back(text[i]);
-		k |= isalnum(text[i]);
+		k |= !isspace(text[i]);
 	    }
 	}
 	delete [] text;
@@ -63,6 +63,12 @@ extract(const string& filename,
     }
     // Open Image
     Pix* image = pixRead(filename.c_str());
+
+    if (!image) {
+	error = "Tesseract Error: Error while openning the image";
+	return false;
+    }
+
     ocr->SetImage(image);
 
     // Get OCR result
@@ -72,7 +78,7 @@ extract(const string& filename,
     pixDestroy(&image);
 
     if (!has_text) {
-	error = "Tesseract Error: The image does not content text\n";
+	error = "Tesseract Error: The image does not content text";
 	return false;
     }
 
