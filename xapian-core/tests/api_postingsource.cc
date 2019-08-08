@@ -818,7 +818,7 @@ class OnlyTheFirstPostingSource : public Xapian::PostingSource {
     string get_description() const { return "OnlyTheFirstPostingSource"; }
 };
 
-DEFINE_TESTCASE(postingsourceshardindex1, multi) {
+DEFINE_TESTCASE(postingsourceshardindex1, multi && !remote) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     Xapian::Enquire enquire(db);
