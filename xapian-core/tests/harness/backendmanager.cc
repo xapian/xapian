@@ -266,8 +266,8 @@ string
 BackendManager::get_writable_database_args(const std::string&,
 					   unsigned int)
 {
-    string msg = "BackendManager::get_writable_database_args() called for non-remote "
-		 "database (type is ";
+    string msg = "BackendManager::get_writable_database_args() "
+		 "called for non-remote database (type is ";
     msg += get_dbtype();
     msg += ')';
     throw Xapian::InvalidOperationError(msg);

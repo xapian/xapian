@@ -22,7 +22,6 @@
 #include <config.h>
 
 #include "backendmanager_multi.h"
-#include "backendmanager_remote.h"
 
 #include "errno_to_string.h"
 #include "filetests.h"
@@ -32,10 +31,6 @@
 #include <cerrno>
 #include <cstdio> // For rename().
 #include <cstring>
-
-#ifdef HAVE_VALGRIND
-# include <valgrind/memcheck.h>
-#endif
 
 using namespace std;
 
@@ -119,7 +114,7 @@ BackendManagerMulti::createdb_multi(const string& name,
     size_t dbbase_len = dbbase.size();
 
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
-	const string &subtype = sub_managers[n]->get_dbtype();
+	const string& subtype = sub_managers[n]->get_dbtype();
 	int flags = Xapian::DB_CREATE_OR_OVERWRITE;
 	if (subtype == "glass") {
 	    flags |= Xapian::DB_BACKEND_GLASS;
