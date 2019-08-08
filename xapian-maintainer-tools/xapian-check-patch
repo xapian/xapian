@@ -779,14 +779,14 @@ QUOTELOOP:  while (1) {
 	    m,^\+.*[^\w\.>]([a-z][a-z0-9]*[A-Z]\w*),) {
 	    my $symbol = $1;
 	    my $symbol_idx = $-[1];
-	    if ($symbol eq 'gzFile' || $symbol eq 'uInt' || $symbol =~ /^(?:de|in)flate[A-Z]/) {
-		# Whitelist symbols from APIs we use.
-	    } elsif ($ext eq 'lemony' && $symbol =~ /^yy/) {
+	    if ($ext eq 'lemony' && $symbol =~ /^yy/) {
 		# Used in lemon parser grammar.
 	    } elsif ($symbol =~ /^[gs]et[A-Z]$/) {
 		# For now, allow setD(), etc.
 	    } elsif ($symbol =~ /^h(?:File|Read|Write|Pipe|Client)$/ || $symbol eq 'fdwCtrlType' || $symbol eq 'pShutdownSocket') {
 		# Platform specific names, allow for now.
+	    } elsif ($symbol eq 'gzFile' || $symbol eq 'uInt' || $symbol =~ /^(?:de|in)flate[A-Z]/) {
+		# zlib API uses camelCase names.
 	    } elsif ($symbol =~ /^pix[A-Z]/) {
 		# Tesseract's leptonica image library uses camelCase names.
 	    } elsif (substr($_, 0, $symbol_idx) =~ /\bicu::(\w+::)?$/) {
