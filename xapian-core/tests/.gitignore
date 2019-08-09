@@ -23,6 +23,8 @@
 /.glass
 /.honey
 /.multiglass
+/.multiglassremoteprog_glass
+/.multiremoteprog_glass
 /.singlefileglass
 /.stub
 /api_all.h
