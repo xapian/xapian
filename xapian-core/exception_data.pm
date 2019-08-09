@@ -1,7 +1,7 @@
 # exception_data.pm: details of the exception hierarchy used by Xapian.
 package exception_data;
 $copyright = <<'EOF';
-/* Copyright (C) 2003,2004,2006,2007,2008,2009,2011,2015 Olly Betts
+/* Copyright (C) 2003,2004,2006,2007,2008,2009,2011,2015,2019 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -187,9 +187,10 @@ sub for_each_nothrow {
 	for (split /\n/, $header_text) {
 	    if (/^\s*class\s+XAPIAN_VISIBILITY_DEFAULT\s+(\w+)/) {
 		$class = "$1::";
+		&$func("Xapian::$class~$1");
 		next;
 	    }
-	    if (/^[^#]*\bXAPIAN_NOTHROW\((.*)\)/) {
+	    if (/^[^#]*\bXAPIAN_NOTHROW\(([^~].*)\)/) {
 		&$func("Xapian::$class$1");
 	    }
 	}
