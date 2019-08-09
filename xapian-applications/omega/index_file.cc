@@ -174,14 +174,15 @@ index_add_default_libraries()
 #endif
 #if defined HAVE_TESSERACT
     Worker* omindex_tesseract = new Worker("omindex_tesseract");
+    index_library("image/gif", omindex_tesseract);
     index_library("image/jpeg", omindex_tesseract);
     index_library("image/png", omindex_tesseract);
     index_library("image/webp", omindex_tesseract);
     index_library("image/tiff", omindex_tesseract);
-    index_library("image/x-pbm", omindex_tesseract);
-    index_library("image/gif", omindex_tesseract);
+    index_library("image/x-portable-bitmap", omindex_tesseract);
+    index_library("image/x-portable-graymap", omindex_tesseract);
+    index_library("image/x-portable-anymap", omindex_tesseract);
     index_library("image/x-portable-pixmap", omindex_tesseract);
-    index_library("image/x-pgm", omindex_tesseract);
 #endif
 }
 

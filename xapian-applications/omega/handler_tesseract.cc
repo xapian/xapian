@@ -29,20 +29,16 @@ using namespace tesseract;
 
 static TessBaseAPI* ocr = NULL;
 
-static bool
+static void
 clear_text(string& dump, const char* text)
 {
-    bool k = false;
     if (text) {
 	for (int i = 0; text[i] != '\0'; ++i) {
-	    if (!isspace(text[i]) || (i && !isspace(text[i - 1]))) {
+	    if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
 		dump.push_back(text[i]);
-		k |= !isspace(text[i]);
-	    }
 	}
 	delete [] text;
     }
-    return k;
 }
 
 bool
@@ -65,22 +61,17 @@ extract(const string& filename,
     Pix* image = pixRead(filename.c_str());
 
     if (!image) {
-	error = "Tesseract Error: Error while openning the image";
+	error = "Tesseract Error: Error while opening the image";
 	return false;
     }
 
     ocr->SetImage(image);
 
     // Get OCR result
-    bool has_text = clear_text(dump, ocr->GetUTF8Text());
+    clear_text(dump, ocr->GetUTF8Text());
 
     // Destroy used object and release memory
     pixDestroy(&image);
-
-    if (!has_text) {
-	error = "Tesseract Error: The image does not content text";
-	return false;
-    }
 
     (void)title;
     (void)keywords;

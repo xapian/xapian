@@ -205,13 +205,14 @@ jfif		image/jpeg
 jpe		image/jpeg
 jpeg		image/jpeg
 jpg		image/jpeg
-pbm		image/x-pbm
-pgm		image/x-pgm
+pbm		image/x-portable-bitmap
+pgm		image/x-portable-graymap
 png		image/png
+pnm		image/x-portable-anymap
 ppm		image/x-portable-pixmap
 tif		image/tiff
 tiff		image/tiff
-webq		image/webp
+webp		image/webp
 
 # Extensions to quietly ignore:
 a		ignore
