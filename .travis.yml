@@ -155,7 +155,7 @@ before_script:
   # Bootstrap everything (including letor, which isn't done
   # by default), then configure using our chosen compiler.
   - travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-letor xapian-bindings
-  - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
+  - ./configure --enable-letor $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
   - make
   - $installcore
