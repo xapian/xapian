@@ -39,7 +39,7 @@ def setup_database_two():
     """Set database with 2 documents.
 
     """
-    dbpath = "database_two_docs"
+    dbpath = "db_two_docs"
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
     doc = xapian.Document()
     termgen = xapian.TermGenerator()
@@ -87,7 +87,7 @@ def setup_database_two():
     db.commit()
 
 def test_preparetrainingfile():
-    dbpath = b"database_two_docs"
+    dbpath = b"db_two_docs"
     data_directory = "./testdata/"
     query = data_directory + "query.txt"
     qrel = data_directory + "qrel.txt"
@@ -103,7 +103,7 @@ def test_ranker():
     ranker = xapianletor.ListNETRanker()
     expect_exception(xapianletor.FileNotFoundError, "No training file found. Check path.", ranker.train_model, "")
     setup_database_two()
-    dbpath = b"database_two_docs"
+    dbpath = b"db_two_docs"
     enquire = xapian.Enquire(xapian.Database(dbpath))
     enquire.set_query(xapian.Query("lions"))
     mset = enquire.get_mset(0, 10)

@@ -60,36 +60,4 @@ namespace Xapian {
 }
 %}
 
-using namespace std;
-
-%include exception.i
-%include stl.i
-
-// Disable errors about not including headers individually.
-#define XAPIAN_IN_XAPIAN_H
-
-// Define these away for SWIG's parser.
-#define XAPIAN_DEPRECATED(D) D
-#define XAPIAN_DEPRECATED_EX(D) D
-#define XAPIAN_DEPRECATED_CLASS
-#define XAPIAN_DEPRECATED_CLASS_EX
-#define XAPIAN_VISIBILITY_DEFAULT
-#define XAPIAN_VISIBILITY_INTERNAL
-#define XAPIAN_CONST_FUNCTION
-#define XAPIAN_PURE_FUNCTION
-#define XAPIAN_NOEXCEPT
-#define XAPIAN_NOTHROW(D) D
-
-// This works around buggy behaviour in SWIG's preprocessor, and only works
-// because we currently only use XAPIAN_NONNULL() with an empty argument:
-//
-// https://github.com/swig/swig/pull/1111
-//
-// The correct version is:
-// #define XAPIAN_NONNULL(L)
-#define XAPIAN_NONNULL()
-
-// Ignore these which SWIG seems to add pointless type entries for due them
-// being used in the SWIG typemap for std::pair.
-%ignore first_type;
-%ignore second_type;
+%include xapian-common.i

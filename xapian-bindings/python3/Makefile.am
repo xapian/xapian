@@ -57,7 +57,7 @@ pkgpylib_LTLIBRARIES = _xapian.la
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian.la
-if LETOR_FOUND
+if BUILD_LETOR_BINDINGS
 	rm -f $(DESTDIR)$(letorpkgpylibdir)/_xapianletor.la
 endif
 
@@ -65,7 +65,7 @@ endif
 # we need to remove the file ourselves.
 uninstall-local:
 	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON3_SO)
-if LETOR_FOUND
+if BUILD_LETOR_BINDINGS
 	rm -f $(DESTDIR)$(letorpkgpylibdir)/_xapianletor$(PYTHON3_SO)
 endif
 
@@ -176,7 +176,7 @@ $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON3_SO) docs/conf.py $(RST
 		-b html -d doctrees -c docs $(srcdir)/docs docs/html
 
 
-if LETOR_FOUND
+if BUILD_LETOR_BINDINGS
 TESTS += pythonletortest.py
 BUILT_SOURCES += xapianletor.py \
 	xapianletor_wrap.cc \
@@ -276,7 +276,7 @@ MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 # databases created by test cases.
 clean-local:
 	-rmdir xapian
-if LETOR_FOUND
+if BUILD_LETOR_BINDINGS
 	-rmdir xapianletor
 endif
 	rm -rf db_test_* dbs_replication

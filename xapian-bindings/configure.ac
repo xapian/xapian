@@ -97,12 +97,13 @@ XO_REQUIRE([1.4.0])
 AC_ARG_ENABLE([letor],
   [AS_HELP_STRING([--enable-letor], [enable make rules to build bindings related to xapian-letor])],
   [case ${enableval} in
-    yes|no) ;;
+    yes) ;;
+    no) AC_MSG_WARN([If you are running make dist make sure to run it with enable_letor=yes]);;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-letor]) ;;
   esac],
   [enable_letor=no])
 
-AM_CONDITIONAL([LETOR_FOUND], [test yes = "$enable_letor"])
+AM_CONDITIONAL([BUILD_LETOR_BINDINGS], [test yes = "$enable_letor"])
 
 if test yes = "$enable_letor"; then
   dnl Check for xapian-letor.
