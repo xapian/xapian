@@ -87,6 +87,7 @@ def setup_database_two():
     db.commit()
 
 def test_preparetrainingfile():
+    setup_database_two()
     dbpath = b"db_two_docs"
     data_directory = "./testdata/"
     query = data_directory + "query.txt"
@@ -98,6 +99,7 @@ def test_preparetrainingfile():
     import filecmp
     expect(filecmp.cmp(training_data, "training_output1.txt"), True)
     os.remove("training_output1.txt")
+    shutil.rmtree(dbpath)
 
 def test_ranker():
     ranker = xapianletor.ListNETRanker()
@@ -140,6 +142,7 @@ def test_ranker():
                  "err_output_ListNet_2.txt", 10, "ERRScore")
     expect(os.path.isfile("err_output_ListNet_2.txt"), True)
     os.remove("err_output_ListNet_2.txt")
+    shutil.rmtree(dbpath)
 
 def test_import_letor_star():
     """Test that "from xapianletor import *" works.
