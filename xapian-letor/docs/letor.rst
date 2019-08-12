@@ -68,7 +68,6 @@ As mentioned before, this process requires a training file in the above format. 
 Provided such information, API is capable of creating the training file which is in the mentioned format and can be easily used for learning a model. In xapian-letor we support the following learning algorithms:
 
     1. `ListNET <https://dl.acm.org/citation.cfm?id=1273513>`_
-    2. `Ranking-SVM <https://dl.acm.org/citation.cfm?id=775067>`_
 
 Ranking
 -------

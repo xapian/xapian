@@ -25,7 +25,6 @@ matrix:
             - python-dev
             - python3-dev
             - tcl
-            - libsvm-dev
             - libicu-dev
             - pkg-config
             - libpoppler-cpp-dev
@@ -56,7 +55,6 @@ matrix:
             - libpcre3-dev
             - libmagic-dev
             - tcl
-            - libsvm-dev
             - libc++-dev
             - libicu-dev
             - pkg-config
@@ -94,7 +92,6 @@ matrix:
             - python-dev
             - python3-dev
             - tcl
-            - libsvm-dev
             - libpoppler-cpp-dev
             - libtesseract-dev
             - libarchive-dev
@@ -146,7 +143,6 @@ matrix:
             - libextractor
             - libiconv
             - libmagic
-            - libsvm
             - lua
             - mono
             - pcre
@@ -169,6 +165,10 @@ matrix:
       env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
     - name: "Automated run of xapian-check-patch"
       os: linux
+      env: PYTHON2=/usr/local/bin/python2 PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
+    - os: linux
+      # (Ab)use env to label this build:
+      env: dummy="Automated run of xapian-check-patch"
       # Override "before_script" to do nothing
       before_script:
       # Override "script" to run the style checking script

@@ -330,6 +330,20 @@ LIBSVM_LIBS=$LIBS
 LIBS=$save_LIBS
 AC_SUBST([LIBSVM_LIBS])
 
+dnl Check that snprintf actually works as it's meant to.
+dnl
+dnl Linux 'man snprintf' warns:
+dnl  Linux libc4.[45] does not have a snprintf, but provides a libbsd that
+dnl  contains an snprintf equivalent to sprintf, i.e., one that ignores the
+dnl  size argument.  Thus, the use of snprintf with early libc4 leads to
+dnl  serious security problems.
+dnl
+dnl It also warns that glibc < 2.0.6 (and presumably other pre-C90
+dnl implementations) return -1 when truncating so check that we get the
+dnl ISO C90 semantics for the returned length when truncating.  If we
+dnl have a working snprintf but with non-ISO return semantics, handle
+dnl that case separately as it may still be useful in many cases.
+dnl
 dnl mingw has _snprintf so check for that too.
 AC_MSG_CHECKING([for  snprintf])
 AC_CACHE_VAL([xo_cv_func_snprintf],
