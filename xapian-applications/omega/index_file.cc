@@ -184,6 +184,11 @@ index_add_default_libraries()
     index_library("image/x-portable-anymap", omindex_tesseract);
     index_library("image/x-portable-pixmap", omindex_tesseract);
 #endif
+#if defined HAVE_GMIME
+    Worker* omindex_gmime = new Worker("omindex_gmime");
+    index_library("message/rfc822", omindex_gmime);
+    index_library("message/news", omindex_gmime);
+#endif
 }
 
 void

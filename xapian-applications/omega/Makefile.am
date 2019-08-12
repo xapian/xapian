@@ -44,7 +44,7 @@ BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
 
 MAINTAINERCLEANFILES = my-html-tok.h mimemap.h mimemap.stamp namedents.h
 
-EXTRA_PROGRAMS = omindex_poppler omindex_libebook omindex_libetonyek omindex_tesseract
+EXTRA_PROGRAMS = omindex_poppler omindex_libebook omindex_libetonyek omindex_tesseract omindex_gmime
 
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
@@ -192,6 +192,10 @@ omindex_libetonyek_CXXFLAGS = $(LIBETONYEK_CFLAGS) $(XAPIAN_CXXFLAGS)
 omindex_tesseract_SOURCES = assistant.cc worker_comms.cc handler_tesseract.cc
 omindex_tesseract_LDADD = $(TESSERACT_LIBS)
 omindex_tesseract_CXXFLAGS = $(TESSERACT_CFLAGS)
+
+omindex_gmime_SOURCES = assistant.cc worker_comms.cc myhtmlparse.cc datetime.cc htmlparse.cc common/keyword.cc handler_gmime.cc
+omindex_gmime_LDADD = $(GMIME_LIBS) libutf8convert.la
+omindex_gmime_CXXFLAGS = $(GMIME_CFLAGS) $(XAPIAN_CXXFLAGS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
