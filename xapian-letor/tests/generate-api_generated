@@ -33,8 +33,7 @@ my %no_get_description = (
     'FeatureList' => '',
     'Letor' => '',
     'ListNETRanker' => '',
-    'NDCGScore' => '',
-    'SVMRanker' => ''
+    'NDCGScore' => ''
 );
 
 print <<'END';

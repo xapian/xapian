@@ -228,15 +228,6 @@ dnl C++11 should have log2(), but keep this check for now to allow for
 dnl compilers with incomplete library support for C++11.
 AC_CHECK_DECLS([log2], [], [], [#include <cmath>])
 
-dnl libsvm is required.
-AC_CHECK_HEADER([libsvm/svm.h], [], AC_MSG_ERROR([libsvm required but libsvm/svm.h not found]), [ ])
-save_LIBS=$LIBS
-LIBS=
-AC_SEARCH_LIBS([svm_train], [svm], [], AC_MSG_ERROR([libsvm required]))
-LIBSVM_LIBS=$LIBS
-LIBS=$save_LIBS
-AC_SUBST([LIBSVM_LIBS])
-
 dnl Check that snprintf actually works as it's meant to.
 dnl
 dnl Linux 'man snprintf' warns:
