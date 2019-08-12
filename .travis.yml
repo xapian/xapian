@@ -31,6 +31,7 @@ matrix:
             - libe-book-dev
             - libetonyek-dev
             - libtesseract-dev
+            - libgmime-2.6-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
@@ -58,6 +59,7 @@ matrix:
             - libe-book-dev
             - libetonyek-dev
             - libtesseract-dev
+            - libgmime-2.6-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
@@ -118,6 +120,7 @@ matrix:
           update: true
           packages:
             - doxygen
+            - gmime
             - graphviz
             - help2man
             - icu4c

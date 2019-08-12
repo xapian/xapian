@@ -307,7 +307,7 @@ other filters too - see below):
 * Atom feeds (.atom)
 * MAFF (.maff) if unzip is available
 * MHTML (.mhtml, .mht) if perl with MIME::Tools is available
-* MIME email messages (.eml) and USENET articles if perl with MIME::Tools and
+* MIME email messages (.eml) and USENET articles if gmime 2.6 or perl with MIME::Tools and
   HTML::Parser is available
 * vCard files (.vcf, .vcard) if perl with Text::vCard is available
 * FictionBook v.2 files (.fb2) if libe-book is available
