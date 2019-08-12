@@ -109,18 +109,12 @@ CLEANFILES +=\
 	err_output_listnet_1.txt \
 	err_output_listnet_2.txt \
 	err_output_listnet_3.txt \
-	err_output_svm_1.txt \
-	err_output_svm_2.txt \
-	err_output_svm_3.txt \
 	ndcg_output_listmle_1.txt \
 	ndcg_output_listmle_2.txt \
 	ndcg_output_listmle_3.txt \
 	ndcg_output_listnet_1.txt \
 	ndcg_output_listnet_2.txt \
 	ndcg_output_listnet_3.txt \
-	ndcg_output_svm_1.txt \
-	ndcg_output_svm_2.txt \
-	ndcg_output_svm_3.txt \
 	ndcg_score_output.txt \
 	ndcg_score_test.txt \
 	training_output_data_one_doc.txt \

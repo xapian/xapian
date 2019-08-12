@@ -363,15 +363,6 @@ fi
 dnl GNU-specific replacement for sys_errlist and sys_nerr.
 AC_CHECK_FUNCS([strerrordesc_np])
 
-dnl libsvm is required.
-AC_CHECK_HEADER([libsvm/svm.h], [], AC_MSG_ERROR([libsvm required but libsvm/svm.h not found]), [ ])
-save_LIBS=$LIBS
-LIBS=
-AC_SEARCH_LIBS([svm_train], [svm], [], AC_MSG_ERROR([libsvm required]))
-LIBSVM_LIBS=$LIBS
-LIBS=$save_LIBS
-AC_SUBST([LIBSVM_LIBS])
-
 dnl mingw has _snprintf so check for that too.
 AC_MSG_CHECKING([for  snprintf])
 AC_CACHE_VAL([xo_cv_func_snprintf],
