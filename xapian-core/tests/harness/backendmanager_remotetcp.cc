@@ -228,6 +228,12 @@ try_next_port:
 
 #elif defined __WIN32__
 
+static HANDLE tcpsrv_handles[16];
+static unsigned tcpsrv_handles_index = 0;
+
+static constexpr auto TCPSRV_HANDLES_INDEX_MAX =
+	sizeof(tcpsrv_handles) / sizeof(tcpsrv_handles[0]);
+
 [[noreturn]]
 static void win32_throw_error_string(const char * str)
 {
@@ -324,6 +330,10 @@ try_next_port:
     }
     fclose(fh);
 
+    if (tcpsrv_handles_index < TCPSRV_HANDLES_INDEX_MAX) {
+	tcpsrv_handles[tcpsrv_handles_index++] = procinfo.hProcess;
+    }
+
     return port;
 }
 
@@ -411,5 +421,11 @@ BackendManagerRemoteTcp::clean_up()
 	    close(fd);
 	}
     }
+#elif defined __WIN32__
+    for (unsigned i = 0; i != tcpsrv_handles_index; ++i) {
+	WaitForSingleObject(tcpsrv_handles[i], INFINITE);
+	CloseHandle(tcpsrv_handles[i]);
+    }
+    tcpsrv_handles_index = 0;
 #endif
 }
