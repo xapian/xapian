@@ -1,7 +1,7 @@
 /** @file progclient.h
  *  @brief Implementation of RemoteDatabase using a spawned server.
  */
-/* Copyright (C) 2007,2010,2011,2014 Olly Betts
+/* Copyright (C) 2007,2010,2011,2014,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,14 +40,17 @@ class ProgClient : public RemoteDatabase {
 
 #ifndef __WIN32__
     /// Process id of the child process.
-    pid_t pid;
+    pid_t child;
+#else
+    /// HANDLE of the child process.
+    HANDLE child;
 #endif
 
     /** Start the child process.
      *
      *  @param progname	The program used to create the connection.
      *  @param args	Any arguments to the program.
-     *  @param pid	Reference to store the pid of the child process in.
+     *  @param child	Reference to store the child process pid/HANDLE in.
      *
      *  @return	filedescriptor for reading from/writing to the child process.
      *
@@ -57,9 +60,11 @@ class ProgClient : public RemoteDatabase {
      *  has been deliberately made "static".
      */
     static int run_program(const std::string &progname,
-			   const std::string &args
+			   const std::string &args,
 #ifndef __WIN32__
-			   , pid_t &pid
+			   pid_t& child
+#else
+			   HANDLE& child
 #endif
 			   );
 
