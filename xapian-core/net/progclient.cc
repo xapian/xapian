@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2010,2011,2014 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2010,2011,2014,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,11 +65,7 @@ split_words(const string &text, vector<string> &words, char ws = ' ')
 
 ProgClient::ProgClient(const string &progname, const string &args,
 		       double timeout_, bool writable, int flags)
-	: RemoteDatabase(run_program(progname, args
-#ifndef __WIN32__
-						   , pid
-#endif
-	),
+	: RemoteDatabase(run_program(progname, args, child),
 			 timeout_, get_progcontext(progname, args), writable,
 			 flags)
 {
@@ -84,14 +80,17 @@ ProgClient::get_progcontext(const string &progname, const string &args)
 }
 
 int
-ProgClient::run_program(const string &progname, const string &args
+ProgClient::run_program(const string &progname, const string &args,
 #ifndef __WIN32__
-			, pid_t &pid
+			pid_t& child
+#else
+			HANDLE& child
 #endif
 			)
 {
+    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | Literal("[&child]"));
+
 #if defined HAVE_SOCKETPAIR && defined HAVE_FORK
-    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args | Literal("[&pid]"));
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
      */
@@ -101,13 +100,13 @@ ProgClient::run_program(const string &progname, const string &args
 	throw Xapian::NetworkError(string("socketpair failed"), get_progcontext(progname, args), errno);
     }
 
-    pid = fork();
+    child = fork();
 
-    if (pid < 0) {
+    if (child < 0) {
 	throw Xapian::NetworkError(string("fork failed"), get_progcontext(progname, args), errno);
     }
 
-    if (pid != 0) {
+    if (child != 0) {
 	// parent
 	// close the child's end of the socket
 	::close(sv[1]);
@@ -177,8 +176,6 @@ ProgClient::run_program(const string &progname, const string &args
     return 0;
 #endif
 #elif defined __WIN32__
-    LOGCALL_STATIC(DB, int, "ProgClient::run_program", progname | args);
-
     static unsigned int pipecount = 0;
     char pipename[256];
     sprintf(pipename, "\\\\.\\pipe\\xapian-remote-%lx-%lx-%x",
@@ -240,6 +237,7 @@ ProgClient::run_program(const string &progname, const string &args
 
     CloseHandle(hClient);
     CloseHandle(procinfo.hThread);
+    child = procinfo.hProcess;
     RETURN(_open_osfhandle(intptr_t(hPipe), O_RDWR|O_BINARY));
 #endif
 }
@@ -249,6 +247,8 @@ ProgClient::~ProgClient()
     // Close the socket and reap the child.
     do_close();
 #ifndef __WIN32__
-    waitpid(pid, 0, 0);
+    waitpid(child, 0, 0);
+#else
+    WaitForSingleObject(child, INFINITE);
 #endif
 }
