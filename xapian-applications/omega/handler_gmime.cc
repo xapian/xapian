@@ -22,6 +22,7 @@
 #include "handler.h"
 
 #include "myhtmlparse.h"
+#include <string.h>
 
 #include <glib.h>
 #include <gmime/gmime.h>
