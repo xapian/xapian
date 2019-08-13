@@ -53,7 +53,6 @@
 // Database::Internal.
 #include "backends/database.h"
 
-#include <fstream>
 #include <string>
 
 using namespace std;
