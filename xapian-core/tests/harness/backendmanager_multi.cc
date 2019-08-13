@@ -28,6 +28,8 @@
 #include "index_utils.h"
 #include "str.h"
 
+#include "safeunistd.h"
+
 #include <cerrno>
 #include <cstdio> // For rename().
 #include <cstring>
@@ -76,7 +78,14 @@ BackendManagerMulti::createdb_multi(const string& name,
     string dbpath = dbdir + "/" + dbname;
 
     if (!name.empty()) {
-	remove(dbpath.c_str());
+	if (unlink(dbpath.c_str()) < 0 && errno != ENOENT) {
+	    string msg = "Couldn't unlink file '";
+	    msg += dbpath;
+	    msg += "' (";
+	    errno_to_string(errno, msg);
+	    msg += ')';
+	    throw msg;
+	}
     } else {
 	if (file_exists(dbpath)) return dbpath;
     }
