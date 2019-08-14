@@ -1,0 +1,26 @@
+MIME-Version: 1.0
+Date: Sat, 13 Jul 1901 15:24:56 -0300
+Message-ID: <CAND-c9Ohgic4LsEqS4Y+rDN_EtT4AX3eg89qow7Zm+9sOz8xGQ@mail.mail.com>
+Subject: Asunto
+From: Me <me@mail.com>
+To: You <you@mail.com>
+Content-Type: multipart/alternative; boundary="000000000000eb0ba0000d000000"
+
+--000000000000eb0ba0000d000000
+Content-Type: text/plain; charset="UTF-8"
+
+Prueba para descargar correos
+
+-- 
+Atte. Me
+
+--000000000000eb0ba0000d000000
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_default" style=3D"font-family:tahoma,s=
+ans-serif">Prueba para descargar correos<br clear=3D"all"></div><br>-- <br>=
+<div dir=3D"ltr" class=3D"gmail_signature" data-smartmail=3D"gmail_signatur=
+e"><div dir=3D"ltr">Atte. Me<br></div></div></div>
+
+--000000000000eb0ba0000d000000--

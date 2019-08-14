@@ -39,6 +39,7 @@
 /md5test
 /urlenctest
 /utf8converttest
+/omindexcheck
 /*test.log
 /*test.trs
 /libtransform.la
