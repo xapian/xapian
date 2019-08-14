@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2019 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -69,6 +69,22 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// Has positional information?
     mutable bool has_positional_info;
+
+    /** Are we currently expecting a reply?
+     *
+     *  Our caller might send a message but then an exception (from another
+     *  shard or locally) might cause it not to try to read the reply before
+     *  sending another message.  This flag allows us to detect that situation
+     *  and discard the unwanted reply rather than trying to read it as the
+     *  response to the new message.
+     *
+     *  Unhelpfully the remote protocol in 1.4.x can send REPLY_DOCLENGTH in
+     *  response to MSG_DOCLENGTH (when it's a final reply) or in response to
+     *  MSG_TERMLIST (when further replies are expected).  To allow use to
+     *  distinguish these cases, pending_reply is set to the MSG_* code, or
+     *  -1 if we're not currently expecting a reply.
+     */
+    mutable int pending_reply = -1;
 
     /// The UUID of the remote database.
     mutable string uuid;
