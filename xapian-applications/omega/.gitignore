@@ -37,6 +37,7 @@
 /htmlparsetest
 /jsonesctest
 /md5test
+/omindexcheck
 /urlenctest
 /utf8converttest
 /*test.log
