@@ -1095,9 +1095,6 @@ test_qp_flag_wildcard3_helper(const Xapian::Database &db,
 
 // Test right truncation with a limit on expansion.
 DEFINE_TESTCASE(qp_flag_wildcard3, writable) {
-    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("abc");
@@ -1490,9 +1487,6 @@ test_qp_flag_fuzzy3_helper(const Xapian::Database& db,
 
 /// Test fuzzy matching with a limit on expansion.
 DEFINE_TESTCASE(qp_flag_fuzzy3, writable) {
-    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("abc");
