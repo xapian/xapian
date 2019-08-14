@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017,2019 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -69,6 +69,16 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// Has positional information?
     mutable bool has_positional_info;
+
+    /** Are we currently expecting a reply?
+     *
+     *  Our caller might send a message but then an exception (from another
+     *  shard or locally) might cause it not to try to read the reply before
+     *  sending another message.  This flag allows us to detect that situation
+     *  and discard the unwanted reply rather than trying to read it as the
+     *  response to the new message.
+     */
+    mutable bool pending_reply = false;
 
     /// The UUID of the remote database.
     mutable std::string uuid;

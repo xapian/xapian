@@ -55,6 +55,16 @@
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
+/// Return true if further replies should be expected.
+static inline bool
+is_intermediate_reply(int reply_code)
+{
+    return reply_code == REPLY_DOCDATA ||
+	   reply_code == REPLY_VALUE ||
+	   reply_code == REPLY_TERMLISTHEADER ||
+	   reply_code == REPLY_POSTLISTHEADER;
+}
+
 [[noreturn]]
 static void
 throw_handshake_failed(const string & context)
@@ -548,6 +558,9 @@ RemoteDatabase::get_message(string &result,
 {
     double end_time = RealTime::end_time(timeout);
     int type = link.get_message(result, end_time);
+    if (pending_reply && !is_intermediate_reply(type)) {
+	pending_reply = false;
+    }
     if (type < 0)
 	throw_connection_closed_unexpectedly();
     if (rare(type) >= REPLY_MAX) {
@@ -579,7 +592,17 @@ void
 RemoteDatabase::send_message(message_type type, const string &message) const
 {
     double end_time = RealTime::end_time(timeout);
+    while (pending_reply) {
+	string dummy;
+	int reply_code = link.get_message(dummy, end_time);
+	if (reply_code < 0)
+	    throw_connection_closed_unexpectedly();
+	if (!is_intermediate_reply(reply_code)) {
+	    pending_reply = false;
+	}
+    }
     link.send_message(static_cast<unsigned char>(type), message, end_time);
+    pending_reply = true;
 }
 
 void
