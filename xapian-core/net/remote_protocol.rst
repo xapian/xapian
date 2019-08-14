@@ -211,7 +211,7 @@ Postlist
 --------
 
 -  ``MSG_POSTLIST <term name>``
--  ``REPLY_POSTLISTSTART L<termfreq>``
+-  ``REPLY_POSTLISTHEADER L<termfreq>``
 -  ``REPLY_POSTLIST [I<docid delta - 1> I<wdf>]...``
 
 Since document IDs in postlists must be strictly monotonically
