@@ -116,15 +116,15 @@ INTREE_DYLD_PATH=
 case $host_os in
 darwin*)
   NEED_JNILIB_EXT=yes
-  dnl If we're building against an uninstalled xapian-core, xapian-config
+  dnl If we're building against an uninstalled xapian-letor, xapianletor-config
   dnl --libs will give an error.
-  if $XAPIAN_CONFIG --libs >/dev/null 2>/dev/null ; then
+  if $XAPIANLETOR_CONFIG --libs >/dev/null 2>/dev/null ; then
     :
   else
     NEED_INTREE_DYLD=yes
-    dnl $XAPIAN_LIBS may have some options first, so grab the last argument,
+    dnl $XAPIANLETOR_LIBS may have some options first, so grab the last argument,
     dnl which should be the .la file.
-    set x $XAPIAN_LIBS
+    set x $XAPIANLETOR_LIBS
     as_fn_arith $# - 1
     shift $as_val
     INTREE_DYLD_PATH=$1
