@@ -895,6 +895,17 @@ DEFINE_TESTCASE(ndcg_score_test, generated && path && writable)
     unlink("ndcg_score_test.txt");
 }
 
+DEFINE_TESTCASE(different_no_features, generated && path && writable)
+{
+    Xapian::ListNETRanker ranker;
+    string data_directory = test_driver::get_srcdir() + "/testdata/";
+    string training_data = data_directory +
+			   "training_data_different_no_features.txt";
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   ranker.train_model(training_data, "ListNet_Ranker"));
+    return true;
+}
+
 // Test createfeaturevector method for TfFeature
 DEFINE_TESTCASE(createfeaturevector_tffeature, generated)
 {
