@@ -45,7 +45,8 @@ static void
 index_test(void)
 {
     tests.insert({"test.txt", {"", "",
-    "Joey doesn't share food Джои не делится едой 喬伊不分享食物 "}});
+    "Joey doesn't share food "
+    "Джои не делится едой 喬伊不分享食物 "}});
     tests.insert({"test-csv.csv", {"", "",
     "We were on a break ! 1 2 3 4 5 6 0.1 0.2 0.3 0.01 40.2 $9,00"}});
     tests.insert({"test-html.html", {"Hello World", "Jeroen Ooms",
@@ -106,7 +107,8 @@ index_test(void)
     "prueba para descargar correos--atte.me"}});
     tests.insert({"eml/test-correo2.eml",
     {"полностью переписана статья", "Me<me@mail.com>",
-    "Венгерский алгоритм решения задачи о назначениях--Atte.BrunoBaruffaldi"}});
+    "Венгерский алгоритм решения задачи"
+    "о назначениях--Atte.BrunoBaruffaldi"}});
 #endif
 #if defined HAVE_CATDOC
     tests.insert({"xls/test-xls.xls", {"", "",
@@ -223,6 +225,5 @@ main(int argc, char** argv)
 	    succeed &= compare_test(url, tests[url], dc);
 	}
     }
-    
-    return succeed? 0:1;
+    return succeed ? 0 : 1;
 }
