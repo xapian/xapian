@@ -72,7 +72,7 @@ InL2Weight::init(double factor)
     double N = get_collection_size();
 
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
-		    get_doclength_lower_bound());
+		       get_doclength_lower_bound());
 
     // wdfn * L = wdfn / (wdfn + 1) = 1 / (1 + 1 / wdfn).
     // To maximize the product, we need to minimize the denominator and so we use wdfn_upper in (1 / wdfn).
