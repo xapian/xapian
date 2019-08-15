@@ -156,7 +156,20 @@ BackendManagerMulti::createdb_multi(const string& name,
     FileIndexer(get_datadir(), files).index_to(dbs);
     dbs.close();
 
+retry:
     if (rename(tmpfile.c_str(), db_path.c_str()) < 0) {
+	if (errno == EACCES) {
+	    // At least when run under appveyor, sometimes this rename fails
+	    // with EACCES.  The destination file doesn't exist (and from
+	    // debugging it shouldn't), which suggests that tmpfile is still
+	    // open, but it shouldn't be, and a sleep+retry makes it work.
+	    // Perhaps some AV is kicking in and opening newly created files
+	    // to inspect them or something?
+	    //
+	    // FIXME: It would be good to get to the bottom of this!
+	    sleep(1);
+	    goto retry;
+	}
 	throw Xapian::DatabaseError("rename failed", errno);
     }
 
