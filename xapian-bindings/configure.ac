@@ -113,18 +113,19 @@ fi
 NEED_JNILIB_EXT=no
 NEED_INTREE_DYLD=no
 INTREE_DYLD_PATH=
+INTREE_DYLD_PATH_LETOR=
 case $host_os in
 darwin*)
   NEED_JNILIB_EXT=yes
-  dnl If we're building against an uninstalled xapian-letor, xapianletor-config
+  dnl If we're building against an uninstalled xapian-core, xapian-config
   dnl --libs will give an error.
-  if $XAPIANLETOR_CONFIG --libs >/dev/null 2>/dev/null ; then
+  if $XAPIAN_CONFIG --libs >/dev/null 2>/dev/null ; then
     :
   else
     NEED_INTREE_DYLD=yes
-    dnl $XAPIANLETOR_LIBS may have some options first, so grab the last argument,
+    dnl $XAPIAN_LIBS may have some options first, so grab the last argument,
     dnl which should be the .la file.
-    set x $XAPIANLETOR_LIBS
+    set x $XAPIAN_LIBS
     as_fn_arith $# - 1
     shift $as_val
     INTREE_DYLD_PATH=$1
@@ -135,6 +136,27 @@ darwin*)
     esac
     dnl Add .libs or equivalent.
     INTREE_DYLD_PATH=`echo "$INTREE_DYLD_PATH"|sed 's,\(.*/\).*,\1,'`$lt_cv_objdir
+  fi
+
+  dnl If we're building against an uninstalled xapian-letor, xapianletor-config
+  dnl --libs will give an error.
+  if $XAPIANLETOR_CONFIG --libs >/dev/null 2>/dev/null ; then
+    :
+  else
+    dnl $XAPIANLETOR_LIBS may have some options first, so grab the last argument,
+    dnl which should be the .la file.
+    set x $XAPIANLETOR_LIBS
+    as_fn_arith $# - 1
+    shift $as_val
+    INTREE_DYLD_PATH_LETOR=$1
+    dnl Make sure the path is absolute.
+    case $INTREE_DYLD_PATH_LETOR in
+      /*) ;;
+      *) INTREE_DYLD_PATH_LETOR=`pwd`/$INTREE_DYLD_PATH_LETOR ;;
+    esac
+    dnl Add .libs or equivalent.
+    INTREE_DYLD_PATH_LETOR=`echo "$INTREE_DYLD_PATH_LETOR"|sed 's,\(.*/\).*,\1,'`$lt_cv_objdir
+    INTREE_DYLD_PATH = "$INTREE_DYLD_PATH $INTREE_DYLD_PATH_LETOR"
     AC_SUBST([INTREE_DYLD_PATH])
   fi
   ;;
