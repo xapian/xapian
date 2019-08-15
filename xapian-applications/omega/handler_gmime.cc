@@ -109,18 +109,23 @@ parser_content(GMimeObject* me, string& dump)
 	string type = g_mime_content_type_get_media_type(ct);
 	string subtype = g_mime_content_type_get_media_subtype(ct);
 	string charset(g_mime_object_get_headers(me));
-	size_t start = charset.find("charset=");
+	size_t end, start;
+	start = charset.find("charset=");
 	if (start != string::npos) {
-	    start += 9;
-	    charset = charset.substr(start, charset.length() - start - 3);
+	    start += 8;
+	    if (charset[start] == '"')
+		start++;
+	    for (end = start; end < charset.length() &&
+		 !isspace(charset[end]) && charset[end] != '"'; ++end);
+	    charset = charset.substr(start, end - start);
 	    charset = g_mime_charset_canon_name(charset.c_str());
 	} else {
 	    charset.clear();
 	}
 	if (type == "text") {
-	    char* buffer = new char[SIZE];
+	    char buffer[SIZE];
 	    GMimeStream* sr = g_mime_data_wrapper_get_stream(content);
-	    size_t presz = 0, len = g_mime_stream_read(sr, buffer, SIZE);
+	    size_t len = g_mime_stream_read(sr, buffer, SIZE);
 	    auto encoding = g_mime_part_get_content_encoding(part);
 	    len = decode((unsigned char*)buffer, len, encoding);
 	    if (subtype == "plain") {
@@ -128,15 +133,15 @@ parser_content(GMimeObject* me, string& dump)
 		    GMimeFilter* ch = g_mime_filter_charset_new(charset.c_str(),
 								"UTF-8");
 		    if (GMIME_IS_FILTER(ch)) {
-			g_mime_filter_complete(ch, buffer, len, presz, &buffer,
-						&len, &presz);
+			size_t presize = 0;
+			g_mime_filter_complete(ch, buffer, len, presize,
+					      (char**)&buffer, &len, &presize);
 		    }
 		}
-		dump += string(buffer, buffer + len);
+		dump.append(buffer, len);
 	    } else if (subtype == "html") {
 		extract_html((const char*)buffer, charset, dump);
 	    }
-	    delete [] buffer;
 	    return true;
 	}
     }
@@ -152,16 +157,20 @@ extract(const string& filename,
 	string& pages,
 	string& error)
 {
-    g_mime_init(0);
+    static bool first_time = true;
+    if (first_time) {
+	g_mime_init(0);
+	first_time = false;
+    }
 
-    FILE* fd = fopen(filename.c_str(), "r");
+    FILE* fp = fopen(filename.c_str(), "r");
 
-    if (fd == NULL) {
+    if (fp == NULL) {
 	error = "Gmime Error: fail open " + filename;
 	return false;
     }
 
-    GMimeStream* stream = g_mime_stream_file_new(fd);
+    GMimeStream* stream = g_mime_stream_file_new(fp);
     GMimeParser* parser = g_mime_parser_new_with_stream(stream);
     GMimeMessage* message = g_mime_parser_construct_message(parser);
     GMimeObject* body = g_mime_message_get_body(message);
