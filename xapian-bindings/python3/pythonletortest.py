@@ -88,61 +88,65 @@ def setup_database_two():
 
 def test_preparetrainingfile():
     setup_database_two()
-    dbpath = b"db_two_docs"
-    data_directory = "./testdata/"
-    query = data_directory + "query.txt"
-    qrel = data_directory + "qrel.txt"
-    training_data = data_directory + "training_data.txt"
-    xapianletor.prepare_training_file(dbpath, query, qrel, 10,
+    try:
+        dbpath = b"db_two_docs"
+        data_directory = "./testdata/"
+        query = data_directory + "query.txt"
+        qrel = data_directory + "qrel.txt"
+        training_data = data_directory + "training_data.txt"
+        xapianletor.prepare_training_file(dbpath, query, qrel, 10,
                                       "training_output1.txt")
-    expect(os.path.isfile("training_output1.txt"), True)
-    import filecmp
-    expect(filecmp.cmp(training_data, "training_output1.txt"), True)
-    os.remove("training_output1.txt")
-    shutil.rmtree(dbpath)
+        expect(os.path.isfile("training_output1.txt"), True)
+        import filecmp
+        expect(filecmp.cmp(training_data, "training_output1.txt"), True)
+    finally:
+        os.remove("training_output1.txt")
+        shutil.rmtree(dbpath)
 
 def test_ranker():
-    ranker = xapianletor.ListNETRanker()
-    expect_exception(xapianletor.FileNotFoundError, "No training file found. Check path.", ranker.train_model, "")
     setup_database_two()
-    dbpath = b"db_two_docs"
-    enquire = xapian.Enquire(xapian.Database(dbpath))
-    enquire.set_query(xapian.Query("lions"))
-    mset = enquire.get_mset(0, 10)
-    expect(mset.size(), 2)
+    try:
+        ranker = xapianletor.ListNETRanker()
+        expect_exception(xapianletor.FileNotFoundError, "No training file found. Check path.", ranker.train_model, "")
+        dbpath = b"db_two_docs"
+        enquire = xapian.Enquire(xapian.Database(dbpath))
+        enquire.set_query(xapian.Query("lions"))
+        mset = enquire.get_mset(0, 10)
+        expect(mset.size(), 2)
 
-    data_directory = "./testdata/"
-    query = data_directory + "query.txt"
-    qrel = data_directory + "qrel.txt"
-    training_data = data_directory + "training_data.txt"
-    ranker.set_database_path(dbpath)
-    expect(ranker.get_database_path(), dbpath)
+        data_directory = "./testdata/"
+        query = data_directory + "query.txt"
+        qrel = data_directory + "qrel.txt"
+        training_data = data_directory + "training_data.txt"
+        ranker.set_database_path(dbpath)
+        expect(ranker.get_database_path(), dbpath)
 
-    ranker.set_query(xapian.Query("lions"))
-    ranker.train_model(training_data, "ListNet_Ranker")
-    doc1 = mset[0]
-    doc2 = mset[1]
-    ranker.rank(mset, "ListNet_Ranker")
-    expect(doc1.docid, mset[1].docid)
-    expect(doc2.docid, mset[0].docid)
-    expect_exception(xapianletor.LetorInternalError, None,
-                     ranker.score, query, qrel, "ListNet_Ranker",
-                     "scorer_output.txt", 10, "")
-    expect_exception(xapianletor.FileNotFoundError, None,
-                     ranker.score, "", qrel, "ListNet_Ranker",
-                     "scorer_output.txt", 10)
-    expect_exception(xapianletor.FileNotFoundError, None,
-                     ranker.score, qrel, "", "ListNet_Ranker",
-                     "scorer_output.txt", 10)
-    ranker.score(query, qrel, "ListNet_Ranker",
-                 "ndcg_output_ListNet_2.txt", 10)
-    expect(os.path.isfile("ndcg_output_ListNet_2.txt"), True)
-    os.remove("ndcg_output_ListNet_2.txt")
-    ranker.score(query, qrel, "ListNet_Ranker",
-                 "err_output_ListNet_2.txt", 10, "ERRScore")
-    expect(os.path.isfile("err_output_ListNet_2.txt"), True)
-    os.remove("err_output_ListNet_2.txt")
-    shutil.rmtree(dbpath)
+        ranker.set_query(xapian.Query("lions"))
+        ranker.train_model(training_data, "ListNet_Ranker")
+        doc1 = mset[0]
+        doc2 = mset[1]
+        ranker.rank(mset, "ListNet_Ranker")
+        expect(doc1.docid, mset[1].docid)
+        expect(doc2.docid, mset[0].docid)
+        expect_exception(xapianletor.LetorInternalError, None,
+                         ranker.score, query, qrel, "ListNet_Ranker",
+                         "scorer_output.txt", 10, "")
+        expect_exception(xapianletor.FileNotFoundError, None,
+                         ranker.score, "", qrel, "ListNet_Ranker",
+                         "scorer_output.txt", 10)
+        expect_exception(xapianletor.FileNotFoundError, None,
+                         ranker.score, qrel, "", "ListNet_Ranker",
+                         "scorer_output.txt", 10)
+        ranker.score(query, qrel, "ListNet_Ranker",
+                     "ndcg_output_ListNet_2.txt", 10)
+        expect(os.path.isfile("ndcg_output_ListNet_2.txt"), True)
+        os.remove("ndcg_output_ListNet_2.txt")
+        ranker.score(query, qrel, "ListNet_Ranker",
+                     "err_output_ListNet_2.txt", 10, "ERRScore")
+        expect(os.path.isfile("err_output_ListNet_2.txt"), True)
+    finally:
+        os.remove("err_output_ListNet_2.txt")
+        shutil.rmtree(dbpath)
 
 def test_import_letor_star():
     """Test that "from xapianletor import *" works.
