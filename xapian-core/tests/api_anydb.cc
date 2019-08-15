@@ -1486,7 +1486,7 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
     return true;
 }
 
-/// Test the termfrequency and termweight info returned for query terms
+/// Test the termfreq and termweight info returned for query terms
 DEFINE_TESTCASE(qterminfo1, backend) {
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
