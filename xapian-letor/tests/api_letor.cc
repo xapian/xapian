@@ -145,7 +145,7 @@ db_index_three_documents(Xapian::WritableDatabase& db, const string&)
     termgenerator.index_text("Document has nothing to do with score", 1, "S");
     termgenerator.index_text("This is just to check if score is given a higher "
 			     "score if it is in the subject or not. Nothing "
-			     "special, just juding scores by the look of it. "
+			     "special, just judging scores by the look of it. "
 			     "Some more scores but a bad qrel should be enough "
 			     "to make sure it is ranked down.", 1, "XD");
     termgenerator.index_text("Score might be something else too, but this para "
@@ -181,7 +181,7 @@ db_index_three_documents_no_common(Xapian::WritableDatabase& db, const string&)
     termgenerator.index_text("Document has nothing to do with score", 1, "S");
     termgenerator.index_text("This is just to check if score is given a higher "
 			     "score if it is in the subject or not. Nothing "
-			     "special, just juding scores by the look of it. "
+			     "special, just judging scores by the look of it. "
 			     "Some more scores but a bad qrel should be enough "
 			     "to make sure it is ranked down.", 1, "XD");
     termgenerator.index_text("Score might be something else too, but this para "
