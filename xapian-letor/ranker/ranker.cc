@@ -64,14 +64,14 @@ static const char * sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
-static vector<FeatureVector>
+static vector<vector<FeatureVector>>
 load_list_fvecs(const string & filename)
 {
     fstream train_file(filename, ios::in);
     if (!train_file.good())
 	throw Xapian::FileNotFoundError("No training file found. Check path.");
 
-    std::vector<FeatureVector> fvv;
+    std::map<string, vector<FeatureVector>> fvv;
     while (train_file.peek() != EOF) {
 	// A training file looks like this:
 	// <label> qid:<xxx> n:<fval> #docid:<xxx>
@@ -106,9 +106,13 @@ load_list_fvecs(const string & filename)
 	train_file.ignore();
 
 	fv.set_score(0);
-	fvv.push_back(fv);
+	fvv[qid].push_back(fv);
     }
-    return fvv;
+    std::vector<vector<FeatureVector>> vt;
+    for (auto it: fvv) {
+	vt.push_back(it.second);
+    }
+    return vt;
 }
 
 static int
@@ -394,7 +398,7 @@ void
 Ranker::train_model(const std::string & input_filename, const std::string & model_key)
 {
     LOGCALL_VOID(API, "Ranker::train_model", input_filename | model_key);
-    vector<FeatureVector> list_fvecs = load_list_fvecs(input_filename);
+    vector<vector<FeatureVector>> list_fvecs = load_list_fvecs(input_filename);
     train(list_fvecs);
     save_model_to_metadata(model_key);
 }
