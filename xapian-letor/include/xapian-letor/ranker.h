@@ -193,7 +193,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
   protected:
     /// Method to train the model. Overridden in ranker subclass.
     virtual void
-    train(const std::vector<Xapian::FeatureVector> & training_data) = 0;
+    train(const std::vector<std::vector<FeatureVector>>& training_data) = 0;
 
     /** Method to save model as db metadata. Overridden in ranker subclass.
      *
@@ -256,7 +256,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      *
      * @exception LetorInternalError will be thrown if training data is null.
      */
-    void train(const std::vector<Xapian::FeatureVector> & training_data);
+    void train(const std::vector<std::vector<FeatureVector>>& training_data);
 
     /** Method to save ListNET model as db metadata.
      *
@@ -290,8 +290,8 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      *  @exception	LetorInternalError will be thrown if model file
      *			is not compatible.
      */
-    std::vector<Xapian::FeatureVector>
-    rank_fvv(const std::vector<Xapian::FeatureVector> & fvv) const;
+    std::vector<FeatureVector>
+    rank_fvv(const std::vector<FeatureVector>& fvv) const;
 
   public:
     /* Construct ListNet instance
@@ -319,7 +319,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
      * @exception InvalidArgumentError will be thrown if training_data is
      *            empty.
      */
-    void train(const std::vector<Xapian::FeatureVector>& training_data);
+    void train(const std::vector<std::vector<FeatureVector>>& training_data);
 
     /** Save ListMLE model as db metadata.
      *
@@ -347,8 +347,8 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLERanker : public Ranker {
      *  @exception	InvalidArgumentError will be thrown if model file
      *			is not compatible.
      */
-    std::vector<Xapian::FeatureVector>
-    rank_fvv(const std::vector<Xapian::FeatureVector>& fvv) const;
+    std::vector<FeatureVector>
+    rank_fvv(const std::vector<FeatureVector>& fvv) const;
 
   public:
     /* Construct ListMLE instance
