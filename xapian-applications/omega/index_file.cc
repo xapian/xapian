@@ -597,7 +597,7 @@ index_update_entry(const string& urlterm,
     time_t lower_ctime = binary_string_to_int(value_lower_ctime);
     time_t upper_mtime = binary_string_to_int(value_upper_mtime);
 
-    if(upper_mtime < mtime || ctime < lower_ctime)
+    if (upper_mtime < mtime || ctime < lower_ctime)
 	return false;
 
     Xapian::Document doc = db.get_document(did);
