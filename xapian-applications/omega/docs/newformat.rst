@@ -23,7 +23,7 @@ Then, you have to decide if you will use a library or an external filter.
 Using a library:
 ================
 
-For safety reasons, it is not allowed to directly add libraries to omega source code. It is possible that some libraries contain bugs that affect the correct operation of the program. Because of that, omega isolates external libraries in subprocess using modules ``worker`` and ``assistant``. These modules will take care of the safety measures and use handlers to get access to the libraries.
+For safety reasons, it is not allowed to directly add libraries to omega source code. It is possible that some libraries contain bugs that affect the correct operation of the program. Because of that, omega isolates external libraries in subprocesses using modules ``worker`` and ``assistant``. These modules will take care of the safety measures and use handlers to get access to the libraries.
 
 1. To begin with, we need a library to extract information from the desired format. If many options are available, try to choose a library with an active community, that supports UTF-8 encoding and has a licence compatible with MIT/X license and GNU GPL version 2 and later. If UTF-8 output is not supported, you can convert the encoding using ``convert_to_utf8`` (replacing "ISO-8859-1" with the character set which is produced)
    ::
@@ -42,7 +42,9 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
              std::string& pages,
              std::string& error)
 
-   Error messages should be written in error. You can get more information about this function at 'xapian-applications/omega/handler.h'.
+  Error messages should be written in ``error`` (you wont be able to write in the standard input/output) and you should fill the rest of the arguments with the information extracted from the document (It is not necessary to fill in all the arguments).
+
+  You can get more information about this function at 'xapian-applications/omega/handler.h'.
 
 3. After the handler is implemented, the build system must be updated. In particular, it is necessary to modify 'configure.ac' and 'makefile.am'.
 
@@ -51,31 +53,31 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
    ::
 
      dnl check if libraryname is available.
-     PKG_CHECK_MODULES([LIBRARY], [libraryname], [
+     PKG_CHECK_MODULES([LIBRARY], [library_pkg-config], [
          AC_DEFINE(HAVE_LIBRARY, 1, [Define HAVE_LIBRARY if the library is available])
-         OMINDEX_MODULES="$OMINDEX_MODULES omindex_yournewformat"],[ ])
+         OMINDEX_MODULES="$OMINDEX_MODULES omindex_yourlibrary"],[ ])
 
-   In makefile.am,  we should add 'omindex_yourformat' to ``ExtraProg`` and define the variables ``omindex_yourformat_SOURCES``, and  ``omindex_yourformat_LDADD`` and ``omindex_yourformat_CPPFLAGS`` if they are necessary.
+   In makefile.am,  we should add 'omindex_yourlibrary' to ``ExtraProg`` and define the variables ``omindex_yourlibrary_SOURCES``, and  ``omindex_yourlibrary_LDADD`` and ``omindex_yourlibrary_CPPFLAGS`` if they are necessary. ``library_pkg-config`` must be replace by the name of the pkg-config file of the library (you can find it by looking for a .pc file inside the directory of your library).
 
-   If we want to add 'omindex_pdf' using poppler, we will get
+   If we want to add 'omindex_poppler', we will get
    ::
 
      dnl check if poppler is available.
      PKG_CHECK_MODULES([POPPLER], [poppler-cpp], [
          AC_DEFINE(HAVE_POPPLER, 1, [Define HAVE_POPPLER if the library is available])
-         OMINDEX_MODULES="$OMINDEX_MODULES omindex_pdf"],[ ])
+         OMINDEX_MODULES="$OMINDEX_MODULES omindex_poppler"],[ ])
 
    in 'configure.ac', and
    ::
 
-     EXTRA_PROGRAMS = omindex_pdf
+     EXTRA_PROGRAMS = omindex_poppler
 
    and
    ::
 
-     omindex_pdf_SOURCES = assistant.cc worker_comms.cc handler_poppler.cc
-     omindex_pdf_LDADD = $(POPPLER_LIBS)
-     omindex_pdf_CXXFLAGS = $(POPPLER_CFLAGS)
+     omindex_poppler_SOURCES = assistant.cc worker_comms.cc handler_poppler.cc
+     omindex_poppler_LDADD = $(POPPLER_LIBS)
+     omindex_poppler_CXXFLAGS = $(POPPLER_CFLAGS)
 
    in 'makefile.am'.
 
@@ -86,11 +88,11 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
 
      add_default_libreries() {
      #if defined HAVE_POPPLER
-         Worker* omindex_pdf = new Worker("omindex_pdf");
-         index_library("application/pdf", omindex_pdf);
+         Worker* omindex_poppler = new Worker("omindex_poppler");
+         index_library("application/pdf", omindex_poppler);
      #endif
 
-Finally, we can compile our program to be sure that everything is okay. If the modifications are correct, we will find a new executable omindex_yourformat in the working directory.
+Finally, we can compile our program to be sure that everything is okay. If the modifications are correct, we will find a new executable ``omindex_yourlibrary`` in the working directory.
 
 Using a filter:
 ===============
