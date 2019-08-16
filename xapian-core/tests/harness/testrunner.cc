@@ -88,11 +88,15 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    SYNONYMS|VALUESTATS|PATH },
 	{ "multi_glass", MULTI|
 	    BACKEND|POSITIONAL|WRITABLE|METADATA|
-	    SYNONYMS|VALUESTATS|COMPACT|GENERATED|PATH },
+	    SYNONYMS|VALUESTATS|GENERATED|COMPACT|PATH },
 	{ "remoteprog_chert", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
 	{ "remotetcp_chert", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	{ "multi_glass_remoteprog_glass", MULTI|
+	    BACKEND|REMOTE|WRITABLE },
+	{ "multi_remoteprog_glass", MULTI|
+	    BACKEND|REMOTE|WRITABLE },
 	{ "remoteprog_glass", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
 	    GENERATED
@@ -148,10 +152,26 @@ TestRunner::run_tests(int argc, char ** argv)
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
 	    BackendManagerGlass glass_man(datadir);
+
+	    // Vector for multi backendmanagers.
+	    vector<BackendManager*> multi_mans;
+	    multi_mans = {&glass_man, &glass_man};
+
 	    do_tests_for_backend(glass_man);
 	    do_tests_for_backend(BackendManagerSingleFile(datadir, &glass_man));
-	    do_tests_for_backend(BackendManagerMulti(datadir, &glass_man));
+	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
 # ifdef XAPIAN_HAS_REMOTE_BACKEND
+	    BackendManagerGlass sub_glass_man(datadir);
+	    BackendManagerRemoteProg remoteprog_glass_man(&sub_glass_man);
+
+	    multi_mans = {&glass_man, &remoteprog_glass_man};
+
+	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
+
+	    multi_mans = {&remoteprog_glass_man, &remoteprog_glass_man};
+
+	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
+
 	    do_tests_for_backend(BackendManagerRemoteProg(&glass_man));
 	    do_tests_for_backend(BackendManagerRemoteTcp(&glass_man));
 # endif
@@ -160,9 +180,14 @@ TestRunner::run_tests(int argc, char ** argv)
 
 	{
 	    BackendManagerChert chert_man(datadir);
+
+	    // Vector for multi backendmanagers.
+	    vector<BackendManager*> multi_mans;
+	    multi_mans = {&chert_man, &chert_man};
+
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	    do_tests_for_backend(chert_man);
-	    do_tests_for_backend(BackendManagerMulti(datadir, &chert_man));
+	    do_tests_for_backend(BackendManagerMulti(datadir, multi_mans));
 # ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    do_tests_for_backend(BackendManagerRemoteProg(&chert_man));
 	    do_tests_for_backend(BackendManagerRemoteTcp(&chert_man));

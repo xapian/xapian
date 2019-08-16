@@ -822,7 +822,7 @@ class OnlyTheFirstPostingSource : public Xapian::PostingSource {
 
 Xapian::doccount OnlyTheFirstPostingSource::shard_index;
 
-DEFINE_TESTCASE(postingsourceshardindex1, multi) {
+DEFINE_TESTCASE(postingsourceshardindex1, multi && !remote) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     OnlyTheFirstPostingSource::shard_index = 0;

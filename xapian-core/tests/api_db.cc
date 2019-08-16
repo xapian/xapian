@@ -1021,6 +1021,12 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 
 // test for keepalives
 DEFINE_TESTCASE(keepalive1, remote) {
+    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
@@ -1877,6 +1883,12 @@ DEFINE_TESTCASE(sortrel1, backend) {
 
 // Test network stats and local stats give the same results.
 DEFINE_TESTCASE(netstats1, remote) {
+    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
 
     static const char * const words[] = { "paragraph", "word" };

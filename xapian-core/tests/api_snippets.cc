@@ -213,6 +213,12 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
 
 /// Test snippet term diversity.
 DEFINE_TESTCASE(snippet_termcover1, backend) {
+    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     static const snippet_testcase testcases[] = {
 	// "Zexample" isn't in the database, so should get termweight 0.  Once
 	// max_tw is added on, "rubbish" should have just under twice the

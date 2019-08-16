@@ -1289,6 +1289,9 @@ DEFINE_TESTCASE(rsetmultidb3, backend && !multi) {
 
 /// Simple test of the elite set operator.
 DEFINE_TESTCASE(eliteset1, backend) {
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1310,6 +1313,9 @@ DEFINE_TESTCASE(eliteset1, backend) {
 /// Test that the elite set operator works if the set contains
 /// sub-expressions (regression test)
 DEFINE_TESTCASE(eliteset2, backend) {
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1385,6 +1391,12 @@ DEFINE_TESTCASE(eliteset3, backend) {
 
 /// Test that elite set doesn't pick terms with 0 frequency
 DEFINE_TESTCASE(eliteset4, backend) {
+    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     Xapian::Database mydb1(get_database("apitest_simpledata"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1487,6 +1499,11 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
 
 /// Test the termfreq and termweight info returned for query terms
 DEFINE_TESTCASE(qterminfo1, backend) {
+    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1542,6 +1559,9 @@ DEFINE_TESTCASE(qterminfo1, backend) {
 
 /// Regression test for bug #37.
 DEFINE_TESTCASE(qterminfo2, backend) {
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
 
@@ -1585,6 +1605,12 @@ DEFINE_TESTCASE(msetzeroitems1, backend) {
 
 // test that the matches_* of a simple query are as expected
 DEFINE_TESTCASE(matches1, backend) {
+    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query myquery;
     Xapian::MSet mymset;
