@@ -156,7 +156,7 @@ darwin*)
     esac
     dnl Add .libs or equivalent.
     INTREE_DYLD_PATH_LETOR=`echo "$INTREE_DYLD_PATH_LETOR"|sed 's,\(.*/\).*,\1,'`$lt_cv_objdir
-    INTREE_DYLD_PATH = "$INTREE_DYLD_PATH:$INTREE_DYLD_PATH_LETOR"
+    INTREE_DYLD_PATH="$INTREE_DYLD_PATH:$INTREE_DYLD_PATH_LETOR"
     AC_SUBST([INTREE_DYLD_PATH])
   fi
   ;;
