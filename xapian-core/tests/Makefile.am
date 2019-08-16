@@ -211,7 +211,8 @@ EXTRA_DIST +=\
 	testdata/snippet.txt
 
 remove-cached-databases:
-	rm -rf .glass .honey .multiglass .replicatmp .singlefileglass .stub
+	rm -rf .glass .honey .multiglass .multiglassremoteprog_glass \
+	       .multiremoteprog_glass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 
