@@ -138,14 +138,14 @@ def test_ranker():
                          ranker.score, qrel, "", "ListNet_Ranker",
                          "scorer_output.txt", 10)
         ranker.score(query, qrel, "ListNet_Ranker",
-                     "ndcg_output_ListNet_2.txt", 10)
-        expect(os.path.isfile("ndcg_output_ListNet_2.txt"), True)
-        os.remove("ndcg_output_ListNet_2.txt")
+                     "ndcg_output_listnet_2.txt", 10)
+        expect(os.path.isfile("ndcg_output_listNet_2.txt"), True)
+        os.remove("ndcg_output_listnet_2.txt")
         ranker.score(query, qrel, "ListNet_Ranker",
-                     "err_output_ListNet_2.txt", 10, "ERRScore")
-        expect(os.path.isfile("err_output_ListNet_2.txt"), True)
+                     "err_output_listnet_2.txt", 10, "ERRScore")
+        expect(os.path.isfile("err_output_listnet_2.txt"), True)
     finally:
-        os.remove("err_output_ListNet_2.txt")
+        os.remove("err_output_listnet_2.txt")
         shutil.rmtree(dbpath)
 
 def test_import_letor_star():

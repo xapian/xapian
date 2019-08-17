@@ -241,8 +241,8 @@ CLEANFILES += \
     xapianletor/__init__.py \
     xapianletor/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
     xapianletor/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@ \
-    err_output_ListNet_2.txt \
-    ndcg_output_ListNet_2.txt \
+    err_output_listnet_2.txt \
+    ndcg_output_listnet_2.txt \
     training_output1.txt
 
 if MAINTAINER_MODE

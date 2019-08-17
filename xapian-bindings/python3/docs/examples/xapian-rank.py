@@ -47,14 +47,10 @@ try:
     parser.set_stemmer(xapian.Stem("en"))
     parser.set_stemming_strategy(xapian.QueryParser.STEM_SOME)
 
-    query_no_prefix = parser.parse_query(query_string,
-                                         parser.FLAG_DEFAULT|
-                                         parser.FLAG_SPELLING_CORRECTION)
+    query_no_prefix = parser.parse_query(query_string)
     # query with title as default prefix
     query_default_prefix = parser.parse_query(query_string,
-                                              parser.FLAG_DEFAULT|
-                                              parser.FLAG_SPELLING_CORRECTION,
-                                              "S")
+                                              parser.FLAG_DEFAULT, "S")
     # Combine queries
     query = xapian.Query(xapian.Query.OP_OR, query_no_prefix, query_default_prefix)
 

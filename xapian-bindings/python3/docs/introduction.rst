@@ -36,8 +36,8 @@ There's also
 which shows how to define a MatchDecider in Python.
 
 Examples specific to letor are:
-`xapian-prepare-trainingfile.py <examples/xapian-prepare-trainingfile.py>`_.,
-`xapian-train.py <examples/xapian-train.py>`_.,
+`xapian-prepare-trainingfile.py <examples/xapian-prepare-trainingfile.py>`_,
+`xapian-train.py <examples/xapian-train.py>`_,
 `xapian-rank.py <examples/xapian-rank.py>`_.
 
 Strings
