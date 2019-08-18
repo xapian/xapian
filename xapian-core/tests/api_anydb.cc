@@ -24,7 +24,6 @@
  */
 
 #include <config.h>
-#include <iostream>
 
 #include "api_anydb.h"
 
