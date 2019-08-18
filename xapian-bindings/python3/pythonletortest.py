@@ -139,7 +139,7 @@ def test_ranker():
                          "scorer_output.txt", 10)
         ranker.score(query, qrel, "ListNet_Ranker",
                      "ndcg_output_listnet_2.txt", 10)
-        expect(os.path.isfile("ndcg_output_listNet_2.txt"), True)
+        expect(os.path.isfile("ndcg_output_listnet_2.txt"), True)
         os.remove("ndcg_output_listnet_2.txt")
         ranker.score(query, qrel, "ListNet_Ranker",
                      "err_output_listnet_2.txt", 10, "ERRScore")
