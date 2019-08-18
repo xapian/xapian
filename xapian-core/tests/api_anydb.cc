@@ -31,7 +31,6 @@
 
 #define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -575,37 +574,31 @@ DEFINE_TESTCASE(topercent1, backend) {
 
 // tests the percentage values returned
 DEFINE_TESTCASE(topercent2, backend) {
-    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
-    Xapian::Enquire localenq(local_manager.get_database("apitest_simpledata"));
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
 
     int pct;
 
     // First, test a search in which the top document scores 100%.
     enquire.set_query(query("this"));
-    localenq.set_query(query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 20);
-    Xapian::MSet localmset = localenq.get_mset(0, 20);
 
     Xapian::MSetIterator i = mymset.begin();
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
     TEST_EQUAL(pct, 100);
 
-    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
-    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
-    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
-    TEST_EQUAL(mymset.size(), localmset.size());
-    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 6);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST_EQUAL(mymset.get_matches_estimated(), 6);
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), 0.0553904060041786);
+    TEST_EQUAL(mymset.size(), 6);
+    mset_expect_order(mymset, 2, 1, 3, 5, 6, 4);
 
     // A search in which the top document doesn't have 100%
     Xapian::Query q = query(Xapian::Query::OP_OR,
 			    "this", "line", "paragraph", "rubbish");
     enquire.set_query(q);
-    localenq.set_query(q);
     mymset = enquire.get_mset(0, 20);
-    localmset = localenq.get_mset(0, 20);
 
     i = mymset.begin();
     TEST(i != mymset.end());
@@ -620,12 +613,12 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_REL(pct,>,40);
     TEST_REL(pct,<,50);
 
-    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
-    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
-    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
-    TEST_EQUAL(mymset.size(), localmset.size());
-    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 6);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST_EQUAL(mymset.get_matches_estimated(), 6);
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), 1.67412192414056);
+    TEST_EQUAL(mymset.size(), 6);
+    mset_expect_order(mymset, 3, 1, 4, 2, 5, 6);
 
     return true;
 }
