@@ -30,7 +30,6 @@
 #include <xapian.h>
 
 #include "apitest.h"
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 
