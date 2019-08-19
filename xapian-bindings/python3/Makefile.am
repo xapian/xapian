@@ -33,6 +33,7 @@ RST_DOCS = \
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
+	doccomments.i \
 	doxy2swig.py \
 	fixup-swig-py3-wrapper \
 	generate-python-exceptions \
