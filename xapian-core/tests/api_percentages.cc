@@ -196,7 +196,7 @@ DEFINE_TESTCASE(pctcutoff5, backend) {
 }
 
 // Regression test for bug fixed in 1.0.14.
-DEFINE_TESTCASE(topercent3, multi && remote) {
+DEFINE_TESTCASE(topercent3, backend) {
     Xapian::Database db = get_database("apitest_simpledata",
 				       "apitest_simpledata");
 
