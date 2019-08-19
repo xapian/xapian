@@ -61,7 +61,7 @@ AC_DEFUN([XO_LIB_XAPIANLETOR],
   else
     AC_MSG_CHECKING([$XAPIANLETOR_CONFIG works])
     dnl check for --ltlibs but not --libs as "xapianletor-config --libs" will
-    dnl continue if xapian-letor isn't installed...
+    dnl fail if xapian-letor isn't installed...
 
     dnl run with exec to avoid leaking output on "real" bourne shells
     if (exec >&5 2>&5 ; $XAPIANLETOR_CONFIG --ltlibs --cxxflags; exit $?) then
