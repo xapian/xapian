@@ -39,6 +39,8 @@ matrix:
       os: linux
       addons:
         apt:
+          sources:
+            - sourceline: 'ppa:ondrej/php'
           packages:
             - doxygen
             - graphviz
