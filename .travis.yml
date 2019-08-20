@@ -54,8 +54,8 @@ matrix:
             - lua5.3
             - liblua5.3-dev
             - mono-devel
-            - php5-cli
-            - php5-dev
+            - php5.6-cli
+            - php5.6-dev
             - python-dev
             - python3-dev
             - tcl
