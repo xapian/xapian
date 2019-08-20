@@ -34,7 +34,30 @@ matrix:
       # The PHP bindings fail to compile because they assume compiler builtins
       # which were available in the compiler used to build PHP are available
       # when building code using the PHP C API, so just disable them.
-      env: USE_CC=gcc-4.7 USE_CXX=g++-4.7 CPPFLAGS=-D_GLIBCXX_DEBUG confargs='--without-php7'
+      env: USE_CC=gcc-4.7 USE_CXX=g++-4.7 confargs='--without-php7'
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - lua5.3
+            - liblua5.3-dev
+            - mono-devel
+            - php5-cli
+            - php5-dev
+            - python-dev
+            - python3-dev
+            - tcl
+      env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
       # Clang is already installed, but we want to build using the
