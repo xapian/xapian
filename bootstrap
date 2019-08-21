@@ -915,7 +915,7 @@ for d in $modules ; do
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CPPFLAGS="-I$srcdir/INST/include $user_CPPFLAGS" LDFLAGS="-L$srcdir/INST/lib $user_LDFLAGS" ${1+"$@"}
       ;;
     *)
-      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" XAPIANLETOR_CONFIG="$XAPIANLETOR_CONFIG" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --enable-letor --disable-option-checking --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" XAPIANLETOR_CONFIG="$XAPIANLETOR_CONFIG" ${1+"$@"}
       ;;
     esac
     cd "$here"
