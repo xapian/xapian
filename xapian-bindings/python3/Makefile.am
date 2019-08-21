@@ -187,9 +187,7 @@ EXTRA_DIST += pythonletor.i \
 	generate-letor-python-exceptions \
 	test_xapian_letor_star.py \
 	pythonletortest.py \
-	xapianletor.py \
-	xapianletor_wrap.cc \
-	xapianletor_wrap.h
+	xapianletor.py
 
 letorpkgpylibdir = @PYTHON3_LIB@/xapianletor
 
