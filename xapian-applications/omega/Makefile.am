@@ -95,11 +95,11 @@ TESTS =	atomparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	omegatest\
+	omindextest\
 	sdbntest$(EXEEXT)\
 	sourcetest\
 	urlenctest$(EXEEXT)\
-	utf8converttest$(EXEEXT)\
-	omindextest
+	utf8converttest$(EXEEXT)
 
 omegadatadir = $(datadir)/omega
 dist_omegadata_DATA = htdig2omega.script mbox2omega.script
