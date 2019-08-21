@@ -22,6 +22,7 @@
 #include "handler.h"
 
 #include "myhtmlparse.h"
+#include "utf8convert.h"
 #include <string.h>
 
 #include <glib.h>
@@ -29,7 +30,7 @@
 
 using namespace std;
 
-const unsigned SIZE = 8192;
+const unsigned SIZE = 4096;
 
 static void
 extract_html(const string& text, string& charset, string& dump)
@@ -54,8 +55,8 @@ extract_html(const string& text, string& charset, string& dump)
 size_t decode(unsigned char* text, size_t len, GMimeContentEncoding encoding)
 {
     unsigned char buffer[SIZE];
-    int state;
-    guint32 save;
+    static int state = 0;
+    static guint32 save = 0;
     switch (encoding) {
 	case GMIME_CONTENT_ENCODING_BASE64: {
 	    len = g_mime_encoding_base64_decode_step(text, len, buffer,
@@ -108,39 +109,28 @@ parser_content(GMimeObject* me, string& dump)
 	GMimeDataWrapper* content = g_mime_part_get_content_object(part);
 	string type = g_mime_content_type_get_media_type(ct);
 	string subtype = g_mime_content_type_get_media_subtype(ct);
-	string charset(g_mime_object_get_headers(me));
-	size_t end, start;
-	start = charset.find("charset=");
-	if (start != string::npos) {
-	    start += 8;
-	    if (charset[start] == '"')
-		start++;
-	    for (end = start; end < charset.length() &&
-		 !isspace(charset[end]) && charset[end] != '"'; ++end);
-	    charset = charset.substr(start, end - start);
-	    charset = g_mime_charset_canon_name(charset.c_str());
-	} else {
-	    charset.clear();
-	}
+	string charset;
+	const char* p = g_mime_object_get_content_type_parameter(me, "charset");
+	if (p) charset = g_mime_charset_canon_name(p);
 	if (type == "text") {
+	    string text;
 	    char buffer[SIZE];
 	    GMimeStream* sr = g_mime_data_wrapper_get_stream(content);
-	    size_t len = g_mime_stream_read(sr, buffer, SIZE);
 	    auto encoding = g_mime_part_get_content_encoding(part);
-	    len = decode((unsigned char*)buffer, len, encoding);
-	    if (subtype == "plain") {
-		if (!charset.empty() && charset != "UTF-8") {
-		    GMimeFilter* ch = g_mime_filter_charset_new(charset.c_str(),
-								"UTF-8");
-		    if (GMIME_IS_FILTER(ch)) {
-			size_t presize = 0;
-			g_mime_filter_complete(ch, buffer, len, presize,
-					      (char**)&buffer, &len, &presize);
-		    }
+	    int len = 0;
+	    do {
+		len = g_mime_stream_read(sr, buffer, SIZE / 2);
+		if (len > 0) {
+		    len = decode((unsigned char*)buffer, len, encoding);
+		    if (len > 0)
+			text.append(buffer, len);
 		}
-		dump.append(buffer, len);
+	    } while (0 < len);
+	    if (subtype == "plain") {
+		convert_to_utf8(text, charset);
+		dump.append(text);
 	    } else if (subtype == "html") {
-		extract_html((const char*)buffer, charset, dump);
+		extract_html(text, charset, dump);
 	    }
 	    return true;
 	}
