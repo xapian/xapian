@@ -276,11 +276,6 @@ PKG_CHECK_MODULES([TESSERACT], [tesseract, lept], [
      AC_DEFINE(HAVE_TESSERACT, 1, [Define HAVE_TESSERACT if the library is available])
      OMINDEX_MODULES="$OMINDEX_MODULES omindex_tesseract"],[ ])
 
-AC_CHECK_PROG(CATDOC, catdoc, yes)
-if test x"${CATDOC}" == x"yes" ; then
-  AC_DEFINE(HAVE_CATDOC, 1, [Define HAVE_CATDOC if the program is available])
-fi
-
 AC_SUBST([OMINDEX_MODULES])
 
 dnl Check that snprintf actually works as it's meant to.

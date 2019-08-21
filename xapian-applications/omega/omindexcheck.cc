@@ -40,7 +40,8 @@ unordered_map<string, testcase> tests;
 static void
 index_test(void)
 {
-    tests.insert({"test.txt", {"Zjoey", "Zfood", "Zедой", "Z喬伊不分享食物"}});
+    tests.insert({"test.txt", {"Zjoey", "Zfood",
+		  "Zедой", "Z喬伊不分享食物"}});
 #if defined HAVE_POPPLER
     tests.insert({"pdf/hello.pdf", {"Shello", "Sworld", "Ajeroen", "Aooms",
 		  "Zhello", "Zworld", "Zsubsect"}});
@@ -54,9 +55,9 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 {
     sort(test.begin(), test.end());
     Xapian::TermIterator term_iterator = doc.termlist_begin();
-    for(auto& t: test){
+    for (auto& t: test) {
 	term_iterator.skip_to(t);
-	if(term_iterator == doc.termlist_end() || *term_iterator != t){
+	if (term_iterator == doc.termlist_end() || *term_iterator != t) {
 	    cerr << "Error in " << file << ": Term " << t <<
 		 " does not belong to this file" << endl;
 	    return false;
