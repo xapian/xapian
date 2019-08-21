@@ -116,6 +116,13 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
 	  my_errno(errno_) { }
 
   public:
+    /** Default copy constructor.
+     *
+     *  We explicitly specify this to avoid warnings from GCC 9 (from
+     *  -Wdeprecated-copy which is enabled by -Wextra).
+     */
+    Error(const Error&) = default;
+
     /// The type of this error (e.g. "DocNotFoundError".)
     const char * XAPIAN_NOTHROW(get_type() const) {
 	return type + 1;
