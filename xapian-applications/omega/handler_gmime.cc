@@ -52,27 +52,26 @@ extract_html(const string& text, string& charset, string& dump)
     }
 }
 
-size_t decode(unsigned char* text, size_t len, GMimeContentEncoding encoding)
+size_t decode(unsigned char* text, size_t len, GMimeContentEncoding encoding,
+	      int* state, guint32* save)
 {
     unsigned char buffer[SIZE];
-    static int state = 0;
-    static guint32 save = 0;
     switch (encoding) {
 	case GMIME_CONTENT_ENCODING_BASE64: {
 	    len = g_mime_encoding_base64_decode_step(text, len, buffer,
-						     &state, &save);
+						     state, save);
 	    memcpy(text, buffer, len);
 	    break;
 	}
 	case GMIME_CONTENT_ENCODING_UUENCODE: {
 	    len = g_mime_encoding_uudecode_step(text, len, buffer,
-						&state, &save);
+						state, save);
 	    memcpy(text, buffer, len);
 	    break;
 	}
 	case GMIME_CONTENT_ENCODING_QUOTEDPRINTABLE: {
 	    len = g_mime_encoding_quoted_decode_step(text, len, buffer,
-						     &state, &save);
+						     state, save);
 	    memcpy(text, buffer, len);
 	    break;
 	}
@@ -117,12 +116,14 @@ parser_content(GMimeObject* me, string& dump)
 	    char buffer[SIZE];
 	    GMimeStream* sr = g_mime_data_wrapper_get_stream(content);
 	    auto encoding = g_mime_part_get_content_encoding(part);
-	    int len = 0;
+	    int state = 0, len = 0;
+	    guint32 save = 0;
 	    do {
-		len = g_mime_stream_read(sr, buffer, SIZE / 2);
-		if (len > 0) {
-		    len = decode((unsigned char*)buffer, len, encoding);
-		    if (len > 0)
+		len = g_mime_stream_read(sr, buffer, SIZE);
+		if (0 < len) {
+		    auto u_buff = reinterpret_cast<unsigned char*>(buffer);
+		    len = decode(u_buff, len, encoding, &state, &save);
+		    if (0 < len)
 			text.append(buffer, len);
 		}
 	    } while (0 < len);
