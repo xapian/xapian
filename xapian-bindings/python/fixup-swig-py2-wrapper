@@ -32,7 +32,7 @@ my ($pos, $find, $replace);
 s/^/# encoding: utf-8\n/;
 
 # Reject Python 3 (there are separate bindings for Python 3).
-s/^if (_swig_python_version_info) < \(2, 7, 0\)(:\n    raise RuntimeError\('Python 2.7 )or later (required)/if $1\[0\] != 2 or $1\[1\] < 7$2$3/m or
+s/^if (_swig_python_version_info) < \(2, 7, 0\)(:\n    raise RuntimeError\(['"]Python 2.7 )or later (required)/if $1\[0\] != 2 or $1\[1\] < 7$2$3/m or
     die "Failed to fix up version check";
 
 s/^try:\n    import builtins as __builtin__.*?\n    import __builtin__\n//sm or
@@ -44,7 +44,7 @@ def _swig_repr(self):
     if hasattr(self.this, '__repr__'):
         strthis = "proxy of " + self.this.__repr__()
 __END__
-s/^def _swig_setattr_nondynamic\(self.*?\ndef _swig_repr\(self\):.*?(\n    return)/$replace$1/sm or
+s/^(?:def _swig_setattr_nondynamic\(self.*?\n)?def _swig_repr\(self\):.*?(\n    return)/$replace$1/sm or
     die "Failed to fix up _swig_repr";
 
 s/^def _swig_setattr_nondynamic.*?\nclass _SwigNonDynamicMeta\(type\):.*?\n\n//sm or
