@@ -52,6 +52,7 @@ for (@allclasses) {
 
 print FD <<'EOF';
 }
+%ignore Xapian::Error::Error(const Error&);
 %include "xapian/error.h"
 
 %{

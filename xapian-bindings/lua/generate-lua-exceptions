@@ -38,6 +38,7 @@ print FD <<"EOF";
  *
 $copyright */
 
+%ignore Xapian::Error::Error(const Error&);
 %include "xapian/error.h"
 
 %{
