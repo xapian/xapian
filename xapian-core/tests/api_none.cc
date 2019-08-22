@@ -1013,7 +1013,6 @@ DEFINE_TESTCASE(removepostings, !backend) {
     return true;
 }
 
-[[noreturn]]
 static void
 errorcopyctor_helper(Xapian::Error& error)
 {
