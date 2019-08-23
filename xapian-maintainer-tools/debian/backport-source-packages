@@ -27,7 +27,7 @@ set -e
 MIRROR=http://httpredir.debian.org/debian/
 
 DEBIAN_CODENAMES='buster stretch jessie'
-UBUNTU_CODENAMES='disco cosmic bionic xenial trusty'
+UBUNTU_CODENAMES='disco bionic xenial trusty'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
