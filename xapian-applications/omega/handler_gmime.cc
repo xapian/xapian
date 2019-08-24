@@ -24,7 +24,9 @@
 #include "myhtmlparse.h"
 #include "utf8convert.h"
 
+#include <glib.h>
 #include <gmime/gmime.h>
+#include <string.h>
 
 using namespace std;
 
