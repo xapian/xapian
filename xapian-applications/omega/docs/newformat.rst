@@ -18,10 +18,24 @@ When indexing a filename which has an extension in upper-case or mixed-case, omi
 
 In this example, ``text/xml`` is too broad so we can associate ``fb2`` to ``application/x-fictionbook+xml`` which is much more specific.
 
-Then, you have to decide if you will use a library or an external filter.
+Then, you have to decide if you are going to add the new format `Using a library`_ or `Using an external filter`_.
 
-Using a library:
-================
+Extracted data variables
+========================
+
+In order to add a new filter and index a document, you will need to fill some C++ variables in ``index_file.cc``:
+
+* **dump**: contain the "body" text of the document.
+* **title**: storage the title of the document.
+* **author**: save the author of the document.
+* **keywords**: additional text to index, but not to show the user.
+* **sample**: if set, this is used to generate the static document "snippet" which is stored; if not set, this is generated from dump.
+* **topic**: save the topic of the document.
+
+It is not necessary to fill all the variables, but try to fill as many as you can.
+
+Using a library
+===============
 
 For safety reasons, it is not allowed to directly add libraries to omega source code. It is possible that some libraries contain bugs that affect the correct operation of the program. Because of that, omega isolates external libraries in subprocesses using modules ``worker`` and ``assistant``. These modules will take care of the safety measures and use handlers to get access to the libraries.
 
@@ -87,8 +101,8 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
 
 Finally, we can compile our program to be sure that everything is okay. If the modifications are correct, we will find a new executable ``omindex_yourlibrary`` in the working directory.
 
-Using a filter:
-===============
+Using an external filter
+========================
 
 To add a new filter to omega we have to follow a series of steps:
 
@@ -105,10 +119,14 @@ To add a new filter to omega we have to follow a series of steps:
 
      --filter=text/x-foo,text/html,utf-16:'foo2utf16 --content %f %t'
 
-   In this case, we are going to handle ``text/x-foo`` files with ``foo2utf16`` that is going to produce html with UTF-16 encoding on a temporary file. Note that %f will be replaced with the filename and %t with a temporary output file (that is going to be created by omindex at runtime). This tells omindex to index files with content-type ``text/x-foo`` by running
+   In this case, we are going to handle ``text/x-foo`` files with ``foo2utf16`` that is going to produce html with UTF-16 encoding on a temporary file. Note that %f will be replaced with the filename and %t with a temporary output file (that is going to be created by omindex at runtime and the extension of it will reflect the expected output format). This tells omindex to index files with content-type ``text/x-foo`` by running
    ::
 
-     foo2utf16 --content path/to/file path/to/temporary/file
+     foo2utf16 --content path/to/file path/to/temporary/file.html
+
+   If you don't include ``%f``, then the filename of the file to be extracted will be appended to the command, separated by a space and if you don't use ``%t``, then omindex will expect output on stdout. Besides, ``%%`` can be used should you need a literal % in the command.
+
+   If you specify ``false`` as the command in ``--filter``, omindex will skip files with the specified MIME type. If you specify ``true`` as the command in ``--filter``, omindex won't try to extract text from the file, but will index it such that it can be searched for via metadata which comes from the filing system (filename, extension, mime content-type, last modified time, size).
 
    If we want to add the filter permanently, we can add a new entry in ``index_add_default_filters`` at 'index_file.cc'. Following with the example
    ::
@@ -122,7 +140,7 @@ To add a new filter to omega we have to follow a series of steps:
 
      } else if (mimetype == "text/x-foo") {
 
-   The filename of the file is in ``file``. The code you add should at least extract the "body" text of the document into the C++ variable ``dump``. Optionally, you can also set ``title`` (the document's title), ``keywords`` (additional text to index, but not to show the user), ``sample`` (if set, this is used to generate the static document "snippet" which is stored; if not set, this is generated from dump) and ``topic``
+   The filename of the file is in ``file``. The code you add should set the variables described in the `Extracted data variables`_ section above.
    ::
 
      string tmpfile = get_tmpfile("tmp.html");
@@ -131,10 +149,11 @@ To add a new filter to omega we have to follow a series of steps:
      string cmd = "foo2utf16 --content";
      append_filename_argument(cmd, file);
      append_filename_argument(cmd, tmpfile);
+     MyHtmlParser p;
      try {
        (void)stdout_to_string(cmd);
        dump = file_to_string(tmpfile);
-       convert_to_utf8(dump, "UTF-16");
+       p.parse_html(dump, "UTF-16", false);
        unlink(tmpfile.c_str());
      } catch (ReadError) {
        skip_cmd_failed(urlterm, context, cmd, d.get_size(), d.get_mtime());
@@ -144,18 +163,26 @@ To add a new filter to omega we have to follow a series of steps:
        unlink(tmpfile.c_str());
        throw;
      }
+     dump = p.dump;
+     title = p.title;
+     author = p.author;
+     keywords = p.keywords;
+     topic = p.topic;
+     sample = p.sample;
 
-   The ``shell_protect`` function escapes shell meta-characters in the filename. The ``stdout_to_string`` function runs a command and captures its output as a C++ std::string. If the command is not installed on PATH, omindex detects this automatically and disables support for the mimetype in the current run, so it will only try the first file of each such type.
+   The ``stdout_to_string`` function runs a command and captures its output as a C++ std::string. If the command is not installed on PATH, omindex detects this automatically and disables support for the mimetype in the current run, so it will only try the first file of each such type.
 
    If UTF-8 output is not supported, pick the best (or only!) supported encoding and then convert the output to UTF-8 - to do this, once you have dump, convert it like so (replacing "UTF-16" with the character set which is produced)
    ::
 
      convert_to_utf8(string, "UTF-16");
 
+   In this case, ``MyHtmlParser`` will convert the text of the file to UTF-8 if necessary.
+
 If you find a reliable external filter or library and think it might be useful to other people, please let us know about it.
 
-Submitting a patch:
-===================
+Submitting a patch
+==================
 
 Once you are happy with how your handler/filter works, please submit a patch so we can include it in future releases (creating a new trac ticket and attaching the patch is best). Before doing so, please also update docs/overview.rst by:
 
