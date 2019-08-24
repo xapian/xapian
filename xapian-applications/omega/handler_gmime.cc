@@ -23,9 +23,7 @@
 
 #include "myhtmlparse.h"
 #include "utf8convert.h"
-#include <string.h>
 
-#include <glib.h>
 #include <gmime/gmime.h>
 
 using namespace std;
@@ -47,8 +45,6 @@ extract_html(const string& text, string& charset, string& dump)
 	parser.ignore_metarobots();
 	parser.parse_html(text, newcharset, true);
 	dump += parser.dump;
-    } catch (...) {
-	return;
     }
 }
 
@@ -86,7 +82,7 @@ parser_content(GMimeObject* me, string& dump)
 {
     GMimeContentType* ct = g_mime_object_get_content_type(me);
     if (GMIME_IS_MULTIPART(me)) {
-	GMimeMultipart* mpart = (GMimeMultipart*)me;
+	GMimeMultipart* mpart = reinterpret_cast<GMimeMultipart*>(me);
 	string subtype = g_mime_content_type_get_media_subtype(ct);
 	int count = g_mime_multipart_get_count(mpart);
 	if (subtype == "alternative") {
@@ -104,7 +100,7 @@ parser_content(GMimeObject* me, string& dump)
 	    return ret;
 	}
     } else if (GMIME_IS_PART(me)) {
-	GMimePart* part = (GMimePart*)me;
+	GMimePart* part = reinterpret_cast<GMimePart*>(me);
 	GMimeDataWrapper* content = g_mime_part_get_content_object(part);
 	string type = g_mime_content_type_get_media_type(ct);
 	string subtype = g_mime_content_type_get_media_subtype(ct);
