@@ -41,6 +41,12 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 		   const Xapian::MSet &mset2, unsigned int first2,
 		   unsigned int count);
 
+// Test that the weights and docids in the mset and an array are the same.
+bool
+mset_range_is_same(const Xapian::MSet& mset, unsigned int first,
+		   const std::pair<Xapian::docid, double> to_compare[],
+		   unsigned int count);
+
 // Test that the weights in two mset ranges are the same, ignoring docids.
 bool
 mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,

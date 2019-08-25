@@ -38,7 +38,6 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -1687,16 +1686,54 @@ DEFINE_TESTCASE(sortrel1, backend) {
     return true;
 }
 
+static void
+make_netstats1_db(Xapian::WritableDatabase& db, const string&)
+{
+    static const struct { Xapian::docid did; const char* text; } content[] = {
+	{1, "This is a test document used with the API test. This paragraph "
+	    "must be at least three lines (including the blank line) to be "
+	    "counted as a \"paragraph\"."},
+	{2, "This is a second simple data test, used to test multiple "
+	    "(inmemory anyway) databases.  The text in this file is "
+	    "unimportant, although I suppose it ought to include the "
+	    "standard word \"word\" in a few places."},
+	{3, "This file will be indexed by paragraph, and the simple query will "
+	    "search for the word \"word\".  Well expect the mset to contain "
+	    "two documents, including this paragraph and the fourth, below.  "
+	    "Since this paragraph uses the word \"word\" so much, this "
+	    "should be the first one in the match set.  Ill just say the word "
+	    "a few more times (word!) to make sure of that.  If this doesnt "
+	    "word (typo, I meant work), then there may be fourletter words "
+	    "spoken."},
+	{4, "Ill leave this at two paragraphs.  This one hasnt got any useful "
+	    "information in it either."},
+	{5, "This paragraph only has a load of absolute rubbish, and nothing "
+	    "of any use whatsoever."},
+	{7, "This is the other paragraph with the word in the simple query "
+	    "in it.  For simplicity, all paragraphs are at least two lines, "
+	    "due to how the hacked up indexer works."},
+	{9, "This is another paragraph which wont be returned.  Well, not "
+	    "with the simple query, anyway."},
+	{11, "And yet another.  This one does mention banana splits, though, "
+	     "so cant be that bad."}
+    };
+
+    Xapian::TermGenerator indexer;
+    indexer.set_stemmer(Xapian::Stem("english"));
+    indexer.set_stemming_strategy(indexer.STEM_ALL);
+
+    for (auto& i : content) {
+	Xapian::Document doc;
+	indexer.set_document(doc);
+	indexer.index_text(i.text);
+	db.replace_document(i.did, doc);
+    }
+
+    db.commit();
+}
+
 // Test network stats and local stats give the same results.
-DEFINE_TESTCASE(netstats1, remote) {
-    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
-    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
-    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
-
+DEFINE_TESTCASE(netstats1, generated) {
     static const char * const words[] = { "paragraph", "word" };
     Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
     const size_t MSET_SIZE = 10;
@@ -1705,63 +1742,29 @@ DEFINE_TESTCASE(netstats1, remote) {
     rset.add_document(4);
     rset.add_document(9);
 
-    Xapian::MSet mset_alllocal;
     {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	mset_alllocal = enq.get_mset(0, MSET_SIZE, &rset);
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
+	Xapian::Database db = get_database("netstats1", make_netstats1_db);
 
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
-	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
-	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
-	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
-	TEST_EQUAL(mset.size(), mset_alllocal.size());
-	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
-    }
+	TEST_EQUAL(mset.get_matches_lower_bound(), 7);
+	TEST_EQUAL(mset.get_matches_upper_bound(), 7);
+	TEST_EQUAL(mset.get_matches_estimated(), 7);
+	TEST_EQUAL(mset.get_max_attained(), 1.445962071042388164);
+	TEST_EQUAL(mset.size(), 7);
 
-    {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
+	static const pair<Xapian::docid, double> to_compare[] = {
+	    {7, 1.445962071042388164},
+	    {3, 1.4140112748017070743},
+	    {1, 1.3747698831232337824},
+	    {5, 1.1654938419498412916},
+	    {9, 1.1654938419498412916},
+	    {4, 1.1543806706320836053},
+	    {2, 0.12268031290495594321}
+	};
 
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
-	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
-	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
-	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
-	TEST_EQUAL(mset.size(), mset_alllocal.size());
-	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
-	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
-	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
-	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
-	TEST_EQUAL(mset.size(), mset_alllocal.size());
-	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
+	TEST(mset_range_is_same(mset, 0, to_compare, mset.size()));
     }
 
     return true;
