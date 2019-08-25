@@ -240,6 +240,10 @@ initialise_queryparser(const Xapian::Database & db)
     Xapian::QueryParser parser;
     parser.add_prefix("title", "S");
     parser.add_prefix("subject", "S");
+    parser.add_prefix("description", "XD");
+    parser.add_prefix("", "");
+    parser.add_prefix("", "S");
+    parser.add_prefix("", "XD");
     parser.set_database(db);
     parser.set_default_op(Xapian::Query::OP_OR);
     parser.set_stemmer(stemmer);
@@ -286,16 +290,7 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 	    throw Xapian::LetorParseError("Query id should be unique");
 	}
 
-	Xapian::Query query_no_prefix = parser.parse_query(querystr,
-					parser.FLAG_DEFAULT|
-					parser.FLAG_SPELLING_CORRECTION);
-	// query with 'title' field as default prefix "S"
-	Xapian::Query query_default_prefix = parser.parse_query(querystr,
-					     parser.FLAG_DEFAULT|
-					     parser.FLAG_SPELLING_CORRECTION,
-					     "S");
-	// Combine queries
-	Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+	Xapian::Query query = parser.parse_query(querystr);
 
 	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);
@@ -468,16 +463,7 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	string querystr = parsed_query.first;
 	string qid = parsed_query.second;
 
-	Xapian::Query query_no_prefix = parser.parse_query(querystr,
-					parser.FLAG_DEFAULT|
-					parser.FLAG_SPELLING_CORRECTION);
-	// query with 'title' field as default prefix "S"
-	Xapian::Query query_default_prefix = parser.parse_query(querystr,
-					     parser.FLAG_DEFAULT|
-					     parser.FLAG_SPELLING_CORRECTION,
-					     "S");
-	// Combine queries
-	Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+	Xapian::Query query = parser.parse_query(querystr);
 
 	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);
