@@ -40,6 +40,7 @@
 #include <fstream>
 #include <iterator>
 #include <map>
+#include <random>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -392,6 +393,22 @@ Ranker::rank(Xapian::MSet & mset, const string & model_key, const Xapian::Featur
     std::vector<FeatureVector> rankedfvv = rank_fvv(fvv);
     mset.replace_weights(ScoreIterator(rankedfvv.begin()), ScoreIterator(rankedfvv.end()));
     mset.sort_by_relevance();
+}
+
+vector<double>
+Ranker::xavier_initialisation(int feature_cnt)
+{
+    // Construct a trivial random generator engine:
+    // 469382313 is a random number for which we are getting the best
+    // performance of letor against standard benchmark datasets.
+    default_random_engine generator(469382313);
+    normal_distribution<double> distribution(0.0, sqrt(2.0 /
+						       (1 + feature_cnt)));
+    vector<double> new_parameters;
+    for (int feature_num = 0; feature_num < feature_cnt; ++feature_num) {
+	new_parameters.push_back(distribution(generator));
+    }
+    return new_parameters;
 }
 
 void
