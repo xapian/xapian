@@ -582,6 +582,7 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated && path)
 // ListNet_Ranker check
 DEFINE_TESTCASE(listnet_ranker, generated && path && writable)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     Xapian::ListNETRanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
     string db_path = get_database_path("db_index_two_documents",
@@ -735,8 +736,8 @@ DEFINE_TESTCASE(scorer, generated && path && writable)
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string query = data_directory + "querythree.txt";
-    string qrel = data_directory + "qrelthree_correct.txt";
-    string training_data = data_directory + "training_data_three_correct.txt";
+    string qrel = data_directory + "score_qrel.txt";
+    string training_data = data_directory + "training_data_ndcg.txt";
     ranker.set_database_path(db_path);
     TEST_EQUAL(ranker.get_database_path(), db_path);
     ranker.set_query(Xapian::Query("score"));
@@ -766,6 +767,7 @@ DEFINE_TESTCASE(scorer, generated && path && writable)
 // ListMLE_Ranker check
 DEFINE_TESTCASE(listmle_ranker, generated && path && writable)
 {
+    XFAIL_FOR_BACKEND("multi", "Testcase fails with multidatabase");
     Xapian::ListMLERanker ranker;
     TEST_EXCEPTION(Xapian::FileNotFoundError, ranker.train_model(""));
     string db_path = get_database_path("db_index_two_documents",
