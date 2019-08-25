@@ -133,11 +133,8 @@ ListMLERanker::train(const vector<vector<FeatureVector>>& training_data)
 	throw InvalidArgumentError("Cannot train: no training data");
     int feature_cnt = training_data[0][0].get_fcount();
 
-    // Initialize the parameters for neural network
-    vector<double> new_parameters;
-    for (int feature_num = 0; feature_num < feature_cnt; ++feature_num) {
-	new_parameters.push_back(0.0);
-    }
+    // Initialize the parameters for neural network with Xavier initialization.
+    vector<double> new_parameters = xavier_initialisation(feature_cnt);
 
     for (auto& item1 : training_data) {
 	for (auto& item2 : item1) {
