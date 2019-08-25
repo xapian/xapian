@@ -47,6 +47,12 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
 			   const Xapian::MSet &mset2, unsigned int first2,
 			   unsigned int count);
 
+bool
+mset_range_is_same_weights(const Xapian::MSet& mset, unsigned int first,
+			   const std::vector<std::pair<Xapian::docid, double>>&
+			   to_compare,
+			   unsigned int count);
+
 bool operator==(const Xapian::MSet &first, const Xapian::MSet &second);
 
 inline bool operator!=(const Xapian::MSet &first, const Xapian::MSet &second)

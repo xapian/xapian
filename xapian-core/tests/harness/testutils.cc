@@ -109,6 +109,31 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
     return true;
 }
 
+bool
+mset_range_is_same_weights(const Xapian::MSet& mset, unsigned int first,
+			   const vector<pair<Xapian::docid, double>>&
+			   to_compare,
+			   unsigned int count)
+{
+    TEST_AND_EXPLAIN(mset.size() >= first + count -1,
+		     "mset is too small: expected at least " <<
+		     (first + count - 1) << " items, got " <<
+		     mset.size() << ".");
+
+    Xapian::MSetIterator i = mset[first];
+
+    for (unsigned int l = 0; l < count; ++l) {
+	// FIXME: don't use internal macro here...
+	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), to_compare[l].second)) {
+	    tout << "weights differ at item " << (l + 1) << " in range: "
+		    << i.get_weight() << " != " << to_compare[l].second << "\n";
+	    return false;
+	}
+	++i;
+    }
+    return true;
+}
+
 bool operator==(const Xapian::MSet &first, const Xapian::MSet &second)
 {
     if ((first.get_matches_lower_bound() != second.get_matches_lower_bound()) ||
