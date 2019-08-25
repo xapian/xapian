@@ -107,7 +107,8 @@ FeatureList::normalise(std::vector<FeatureVector> & fvec) const
 std::vector<FeatureVector>
 FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 				    const Xapian::Query & letor_query,
-				    const Xapian::Database & letor_db) const
+				    const Xapian::Database& letor_db,
+				    bool flag, double bias) const
 {
     LOGCALL(API, std::vector<FeatureVector>, "FeatureList::create_feature_vectors", mset | letor_query | letor_db);
     if (mset.empty())
@@ -129,6 +130,7 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset,
 	    // Append feature values
 	    fvals.insert(fvals.end(), values.begin(), values.end());
 	}
+	if (flag) fvals.push_back(bias);
 	double wt = i.get_weight();
 	// Weight is added as a feature by default.
 	fvals.push_back(wt);
