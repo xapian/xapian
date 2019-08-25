@@ -31,4 +31,5 @@
 /ndcg_score_output.txt
 /training_output.txt
 /training_output1.txt
+/training_output_data_bias.txt
 /training_output_three_correct.txt
