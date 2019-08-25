@@ -119,6 +119,13 @@ update_parameters(vector<double> &new_parameters, const vector<double> &gradient
     }
 }
 
+static void
+normalize(vector<double>& gradient, size_t size) {
+    for (auto item: gradient) {
+	item /= size;
+    }
+}
+
 void
 ListNETRanker::train(const vector<vector<Xapian::FeatureVector>>& training_data)
 {
@@ -149,6 +156,8 @@ ListNETRanker::train(const vector<vector<Xapian::FeatureVector>>& training_data)
 	    // compute gradient
 	    vector<double> gradient = calculate_gradient(item,
 							 prob);
+	    // normalize gradinet
+	    normalize(gradient, item.size());
 	    // update parameters: w = w - gradient * learningRate
 	    update_parameters(new_parameters, gradient, learning_rate);
 	}
