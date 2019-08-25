@@ -97,6 +97,7 @@ EXTRA_DIST +=\
 	testdata/querythree.txt \
 	testdata/score_qrel.txt \
 	testdata/training_data.txt \
+	testdata/training_data_bias.txt \
 	testdata/training_data_ndcg.txt \
 	testdata/training_data_one_document.txt \
 	testdata/training_data_three_correct.txt \
@@ -117,6 +118,7 @@ CLEANFILES +=\
 	ndcg_output_listnet_3.txt \
 	ndcg_score_output.txt \
 	ndcg_score_test.txt \
+	training_output_data_bias.txt \
 	training_output_data_one_doc.txt \
 	training_output_empty.txt \
 	training_output_three_correct.txt \

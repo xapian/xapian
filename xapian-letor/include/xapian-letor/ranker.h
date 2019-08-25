@@ -88,7 +88,8 @@ prepare_training_file(const std::string & db_path,
 		      const std::string & qrel_file,
 		      Xapian::doccount msetsize,
 		      const std::string & filename,
-		      const Xapian::FeatureList & flist = FeatureList());
+		      const Xapian::FeatureList& flist = FeatureList(),
+		      bool flag = false, double bias = 1.0);
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base {
     /// Path to Xapian::Database instance to be used.

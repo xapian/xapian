@@ -254,8 +254,11 @@ initialise_queryparser(const Xapian::Database & db)
 
 void
 Xapian::prepare_training_file(const string & db_path, const string & queryfile,
-		      const string & qrel_file, Xapian::doccount msetsize,
-		      const string & filename, const FeatureList & flist)
+			      const string& qrel_file,
+			      Xapian::doccount msetsize,
+			      const string& filename,
+			      const FeatureList& flist,
+			      bool flag, double bias)
 {
     // Set db
     Xapian::Database letor_db(db_path);
@@ -298,7 +301,9 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 
 	vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset,
 								      query,
-								      letor_db);
+								      letor_db,
+								      flag,
+								      bias);
 	vector<FeatureVector> fvv_qrel;
 	int k = 0;
 	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
