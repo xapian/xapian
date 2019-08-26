@@ -587,6 +587,9 @@ QUOTELOOP:  while (1) {
 	if (m!^\+.*?\b(?:enable_if|list|map|multimap|multiset|priority_queue|set|template|unordered_map|unordered_set|vector)\s+<!) {
 	    diagnostic('error', "Whitespace between template name and '<'");
 	}
+	if (/^\+.*?\bfor\s*\([^(]*([^:(]:[^:])/ && $1 ne ' : ') {
+	    diagnostic('error', "Missing spaces around ':' in 'for'");
+	}
 	if (m,^\+.*?[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
 	    my @pre = @-;
 	    my @post = @+;
