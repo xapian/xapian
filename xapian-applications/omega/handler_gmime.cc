@@ -166,11 +166,7 @@ extract(const string& filename,
     author = g_mime_message_get_sender(message);
     title = g_mime_message_get_subject(message);
 
-    try {
-	parser_content(body, dump);
-    } catch (ReadError) {
-	dump.clear();
-    }
+    parser_content(body, dump);
 
     (void)pages;
     return true;
