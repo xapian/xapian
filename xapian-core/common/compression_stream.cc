@@ -62,7 +62,7 @@ CompressionStream::compress(const char* buf, size_t* p_size) {
     deflate_zstream->next_in =
 	reinterpret_cast<Bytef*>(const_cast<char*>(buf));
     deflate_zstream->next_out = reinterpret_cast<Bytef*>(out);
-    deflate_zstream->avail_out = static_cast<uInt>((size - 1));
+    deflate_zstream->avail_out = static_cast<uInt>(size - 1);
     int zerr = deflate(deflate_zstream, Z_FINISH);
     if (zerr != Z_STREAM_END) {
 	// Deflate failed - presumably the data wasn't compressible.
