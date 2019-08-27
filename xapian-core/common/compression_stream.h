@@ -24,6 +24,8 @@
 
 #include "internaltypes.h"
 #include <string>
+// Tell zlib to include const in method signatures.
+#define ZLIB_CONST
 #include <zlib.h>
 
 class CompressionStream {

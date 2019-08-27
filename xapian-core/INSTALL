@@ -18,10 +18,10 @@ Xapian.  The zlib library is very widely used, so you'll probably have it
 installed already if you're using Linux, FreeBSD, or similar, but you may need
 to install a "zlib development" package to get the zlib library headers.
 
-We recommend using zlib 1.2.x as it apparently fixes a memory leak in
-deflateInit2 (which Xapian uses) and decompression is supposed to be about 20%
-faster than with 1.1.x, but it's pretty unlikely you'll have an older version
-installed these days.
+You'll need at least zlib 1.2.5.2 (released 2011-12-17 so it's unlikely you'll
+have an older version installed), but unless you're using a packaged version
+with backported patches for security fixes and serious bugs, you should
+probably use the latest upstream release.
 
 Xapian also requires a way to generate UUIDs.  On FreeBSD, NetBSD, and
 Microsoft Windows, Xapian makes use of built-in UUID APIs.  On Linux and
