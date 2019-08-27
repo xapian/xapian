@@ -115,7 +115,7 @@ mset_range_is_same_weights(const Xapian::MSet& mset, unsigned int first,
 			   to_compare,
 			   unsigned int count)
 {
-    TEST_AND_EXPLAIN(mset.size() >= first + count -1,
+    TEST_AND_EXPLAIN(mset.size() >= first + count - 1,
 		     "mset is too small: expected at least " <<
 		     (first + count - 1) << " items, got " <<
 		     mset.size() << ".");

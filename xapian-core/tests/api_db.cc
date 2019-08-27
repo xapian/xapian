@@ -1723,7 +1723,7 @@ make_netstats1_db(Xapian::WritableDatabase& db, const string&)
     indexer.set_stemmer(Xapian::Stem("english"));
     indexer.set_stemming_strategy(indexer.STEM_ALL);
 
-    for (auto& i: content) {
+    for (auto& i : content) {
 	Xapian::Document doc;
 	indexer.set_document(doc);
 	indexer.index_text(i.text);
