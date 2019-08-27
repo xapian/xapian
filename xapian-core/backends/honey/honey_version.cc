@@ -100,7 +100,7 @@ HoneyVersion::HoneyVersion(int fd_)
       uniq_terms_lbound(0), uniq_terms_ubound(0)
 {
     offset = lseek(fd, 0, SEEK_CUR);
-    if (rare(offset == off_t(-1))) {
+    if (rare(offset < 0)) {
 	string msg = "lseek failed on file descriptor ";
 	msg += str(fd);
 	throw Xapian::DatabaseOpeningError(msg, errno);
@@ -122,7 +122,7 @@ HoneyVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (single_file()) {
-	if (rare(lseek(fd, offset, SEEK_SET) == off_t(-1))) {
+	if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
 	    string msg = "Failed to rewind file descriptor ";
 	    msg += str(fd);
 	    throw Xapian::DatabaseOpeningError(msg, errno);
