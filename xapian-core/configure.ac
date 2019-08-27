@@ -1481,6 +1481,11 @@ AH_BOTTOM(
 # define NOMINMAX
 #endif
 
+/* Tell zlib to include const in method signatures.  Define this in config.h
+ * to ensure it always gets defined before zlib.h is included.
+ */
+#define ZLIB_CONST
+
 /* Make the POSIX-like functions support large files.  MSVC needs this;
  * current mingw32 does too; mingw64 supports _FILE_OFFSET_BITS, which
  * AC_SYS_LARGEFILE should discover and enable automatically.
