@@ -1689,7 +1689,7 @@ DEFINE_TESTCASE(sortrel1, backend) {
 static void
 make_netstats1_db(Xapian::WritableDatabase& db, const string&)
 {
-    struct { Xapian::docid did; const char* text; } content[] = {
+    static const struct { Xapian::docid did; const char* text; } content[] = {
 	{1, "This is a test document used with the API test. This paragraph "
 	    "must be at least three lines (including the blank line) to be "
 	    "counted as a \"paragraph\"."},
