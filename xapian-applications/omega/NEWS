@@ -1,3 +1,32 @@
+up to: 1ef6e45690a307c911b597ff1558444324edbcbd
+
+Omega 1.4.13 (2019-08-28):
+
+general:
+
+documentation:
+
+indexers:
+
+* Optimise converting us-ascii to UTF-8 to do nothing, like we already do when
+  converting UTF-8 to UTF-8.
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.4.12 (2019-07-23):
 
 documentation:

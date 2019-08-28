@@ -1,3 +1,58 @@
+up to: a6a2aad325cb68be3a7262f536349466eccc7b60
+
+Xapian-bindings 1.4.13 (2019-08-28):
+
+Documentation:
+
+General:
+
+* Omit SWIG exception handling for destructors.  Since C++11, destructors can't
+  throw by default and we don't override that default, so there's no point
+  adding exception handling code for them.
+
+* Ensure doccomments.i is distributed.  If you unpacked a distribution tarball,
+  configured it and then ran "make dist" python/doccomments.i and
+  python3/doccomments.i would be missing unless you configured the tree with
+  --enable-maintainer-mode.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+* Check for php-config5.6 and php-config5.5 in configure as these versioned
+  names are used in some packages (such as those from the ondrej/php PPA).
+
+PHP7:
+
+* Work around build failure on Illuminos.  Fixes
+  https://trac.xapian.org/ticket/793, reported by Amitai Schleier.
+
+Python:
+
+Python3:
+
+Ruby:
+
+* smoketest.rb: Use #push not #append on Array to restore compatibility with
+  Ruby < 2.5 (broken by changes in 1.4.12).
+
+* Expand tabs in Ruby code since using spaces for indentation seems to be
+  preferred Ruby style.
+
+* Remove trailing `;` from Ruby code.
+
+Tcl:
+
 Xapian-bindings 1.4.12 (2019-07-23):
 
 Documentation:

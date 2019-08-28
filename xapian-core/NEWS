@@ -1,3 +1,77 @@
+up to: cad984c582b0c79aebb61332bd0859c42ab1ca5a
+
+Xapian-core 1.4.13 (2019-08-28):
+
+API:
+
+* Fix write one past end of std::vector.  This undefined behaviour could happen
+  on certain QueryParser parse errors.  This write was always into reserved
+  space, so in practice we'd actually get away with it (it was noticed because
+  it triggers an error when running under ubsan and using libc++).  Reported by
+  Germán M. Bravo.
+
+* Optimise test for UTF-8 continuation character.  Performing a signed char
+  comparison shaves an instruction or two on most architectures.
+
+testsuite:
+
+* Check if removing existing multi stub failed.  Previously if removing an
+  existing stub failed, the test harness would create a temporary new stub and
+  then try to rename it over the over one, which will always fail on Microsoft
+  Windows.
+    
+* Wait for xapian-tcpsrv processes to finish before moving on to the next
+  testcase under __WIN32__ like we already do on POSIX platforms.
+
+matcher:
+
+
+glass backend:
+
+* Allow zlib compression to reduce size by one byte.  We were specifying an
+  output buffer size one byte smaller than the input, but it appears zlib won't
+  use the final byte in the buffer, so we actually need to pass the input size
+  as the output buffer size.
+
+* Only try to compress Btree item values > 18 bytes, which saves CPU time
+  without sacrificing any significant size savings.
+
+chert backend:
+
+
+remote backend:
+
+* Wait for xapian-progsrv child to exit when a remote Database or
+  WritableDatabase object is closed under __WIN32__ like we already do for
+  POSIX platforms.
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* Correct documentation of initial messages in replication protocol.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Fix warning from GCC 9 with -Wdeprecated-copy (which is enabled by -Wextra)
+  if a reference to an Error object is thrown.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.12 (2019-07-23):
 
 API:
