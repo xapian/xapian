@@ -23,6 +23,12 @@
 #include "../xapian-version.h"
 %}
 
+// This works around a build failure on Illuminos:
+// https://trac.xapian.org/ticket/793
+%begin %{
+#include <string>
+%}
+
 // Use SWIG directors for PHP wrappers.
 #define XAPIAN_SWIG_DIRECTORS
 
