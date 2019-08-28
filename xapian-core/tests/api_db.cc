@@ -38,7 +38,6 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -1690,33 +1689,33 @@ DEFINE_TESTCASE(sortrel1, backend) {
 static void
 make_netstats1_db(Xapian::WritableDatabase& db, const string&)
 {
-    struct { Xapian::docid did; const string text; } content[] = {
-	{1, "This is a test document used with the API test. "
-	    "This paragraph must be at least three lines (including the blank "
-	    "line) to be counted as a \"paragraph\"."},
+    struct { Xapian::docid did; const char* text; } content[] = {
+	{1, "This is a test document used with the API test. This paragraph "
+	    "must be at least three lines (including the blank line) to be "
+	    "counted as a \"paragraph\"."},
 	{2, "This is a second simple data test, used to test multiple "
-	    "(inmemory anyway) databases.  The text in this file is"
-	    " unimportant, although I suppose it ought to include "
-	    "the standard word \"word\" in a few places."},
-	{3, "This file will be indexed by paragraph, and the simple query "
-	    "will search for the word \"word\".  Well expect the mset to"
-	    " contain two documents, including this paragraph and the fourth"
-	    ", below.  Since this paragraph uses the word \"word\" so much,"
-	    " this should be the first one in the match set.  Ill just say "
-	    "the word a few more times (word!) to make sure of that.  "
-	    "If this doesnt word (typo, I meant work), then there "
-	    "may be fourletter words spoken."},
-	{4, "Ill leave this at two paragraphs.  This one hasnt got any"
-	    " useful information in it either."},
-	{5, "This paragraph only has a load of absolute rubbish, "
-	    "and nothing of any use whatsoever."},
-	{7, "This is the other paragraph with the word in the simple"
-	    " query in it.  For simplicity, all paragraphs are at least "
-	    "two lines, due to how the hacked up indexer works."},
-	{9, "This is another paragraph which wont be returned.  Well, "
-	    "not with the simple query, anyway."},
-	{11, "And yet another.  This one does mention banana splits, "
-	    "though, so cant be that bad."}
+	    "(inmemory anyway) databases.  The text in this file is "
+	    "unimportant, although I suppose it ought to include the "
+	    "standard word \"word\" in a few places."},
+	{3, "This file will be indexed by paragraph, and the simple query will "
+	    "search for the word \"word\".  Well expect the mset to contain "
+	    "two documents, including this paragraph and the fourth, below.  "
+	    "Since this paragraph uses the word \"word\" so much, this "
+	    "should be the first one in the match set.  Ill just say the word "
+	    "a few more times (word!) to make sure of that.  If this doesnt "
+	    "word (typo, I meant work), then there may be fourletter words "
+	    "spoken."},
+	{4, "Ill leave this at two paragraphs.  This one hasnt got any useful "
+	    "information in it either."},
+	{5, "This paragraph only has a load of absolute rubbish, and nothing "
+	    "of any use whatsoever."},
+	{7, "This is the other paragraph with the word in the simple query "
+	    "in it.  For simplicity, all paragraphs are at least two lines, "
+	    "due to how the hacked up indexer works."},
+	{9, "This is another paragraph which wont be returned.  Well, not "
+	    "with the simple query, anyway."},
+	{11, "And yet another.  This one does mention banana splits, though, "
+	     "so cant be that bad."}
     };
 
     Xapian::TermGenerator indexer;
@@ -1734,9 +1733,7 @@ make_netstats1_db(Xapian::WritableDatabase& db, const string&)
 }
 
 // Test network stats and local stats give the same results.
-DEFINE_TESTCASE(netstats1, remote) {
-    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
-
+DEFINE_TESTCASE(netstats1, generated) {
     static const char * const words[] = { "paragraph", "word" };
     Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
     const size_t MSET_SIZE = 10;
@@ -1757,16 +1754,17 @@ DEFINE_TESTCASE(netstats1, remote) {
 	TEST_EQUAL(mset.get_max_attained(), 1.445962071042388164);
 	TEST_EQUAL(mset.size(), 7);
 
-	vector<pair<Xapian::docid, double>> to_compare = {
-	    make_pair(7, 1.445962071042388164),
-	    make_pair(3, 1.4140112748017070743),
-	    make_pair(1, 1.3747698831232337824),
-	    make_pair(5, 1.1654938419498412916),
-	    make_pair(9, 1.1654938419498412916),
-	    make_pair(4, 1.1543806706320836053),
-	    make_pair(2, 0.12268031290495594321)
+	static const pair<Xapian::docid, double> to_compare[] = {
+	    {7, 1.445962071042388164},
+	    {3, 1.4140112748017070743},
+	    {1, 1.3747698831232337824},
+	    {5, 1.1654938419498412916},
+	    {9, 1.1654938419498412916},
+	    {4, 1.1543806706320836053},
+	    {2, 0.12268031290495594321}
 	};
-	TEST(mset_range_is_same_weights(mset, 0, to_compare, mset.size()));
+
+	TEST(mset_range_is_same(mset, 0, to_compare, mset.size()));
     }
 
     return true;
