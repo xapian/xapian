@@ -455,8 +455,14 @@ HoneyVersion::sync(const string& tmpfile,
     return true;
 }
 
-// Only try to compress tags longer than this many bytes.
-const size_t COMPRESS_MIN = 4;
+/* Only try to compress tags strictly longer than this many bytes.
+ *
+ * This can theoretically usefully be set as low as 4, but in practical terms
+ * zlib can't compress in very many cases for short inputs and even when it can
+ * the savings are small, so we default to a higher threshold to save CPU time
+ * for marginal size reductions.
+ */
+const size_t COMPRESS_MIN = 18;
 
 static const uint4 compress_min_tab[] = {
     0, // POSTLIST
@@ -522,6 +528,10 @@ RootInfo::unserialise(const char** p, const char* end)
     // continue to work.
     (void)dummy_val;
     (void)dummy_blocksize;
+    // Map old default to new default.
+    if (compress_min == 4) {
+	compress_min = COMPRESS_MIN;
+    }
     return true;
 }
 
