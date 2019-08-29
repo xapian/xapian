@@ -80,9 +80,9 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	    BACKEND|POSITIONAL|WRITABLE|METADATA|
 	    SYNONYMS|VALUESTATS|GENERATED|COMPACT|PATH },
 	{ "multi_glass_remoteprog_glass", MULTI|
-	    BACKEND|REMOTE|WRITABLE|GENERATED },
+	    BACKEND|REMOTE|WRITABLE },
 	{ "multi_remoteprog_glass", MULTI|
-	    BACKEND|REMOTE|WRITABLE|GENERATED },
+	    BACKEND|REMOTE|WRITABLE },
 	{ "remoteprog_glass", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
 	    GENERATED
