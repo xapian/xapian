@@ -25,16 +25,41 @@
 #include "utils.h"
 
 #include <cassert>
+#include <stdio.h> // for sprintf/snprintf
 #include <cstdlib>
 
 #include <string>
 
 using namespace std;
 
+// This ought to be enough for any of the conversions below.
+#define BUFSIZE 100
+
+#ifdef SNPRINTF
+#define CONVERT_TO_STRING(FMT) \
+    char buf[BUFSIZE];\
+    int len = SNPRINTF(buf, BUFSIZE, (FMT), val);\
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);\
+    return string(buf, len);
+#else
+#define CONVERT_TO_STRING(FMT) \
+    char buf[BUFSIZE];\
+    buf[BUFSIZE - 1] = '\0';\
+    sprintf(buf, (FMT), val);\
+    if (buf[BUFSIZE - 1]) abort(); /* Uh-oh, buffer overrun */ \
+    return string(buf);
+#endif
+
 int
 string_to_int(const string &s)
 {
     return atoi(s.c_str());
+}
+
+string
+double_to_string(double val)
+{
+    CONVERT_TO_STRING("%f")
 }
 
 void
