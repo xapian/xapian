@@ -94,9 +94,9 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	{ "remotetcp_chert", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
 	{ "multi_glass_remoteprog_glass", MULTI|
-	    BACKEND|REMOTE|WRITABLE },
+	    BACKEND|REMOTE|WRITABLE|GENERATED },
 	{ "multi_remoteprog_glass", MULTI|
-	    BACKEND|REMOTE|WRITABLE },
+	    BACKEND|REMOTE|WRITABLE|GENERATED },
 	{ "remoteprog_glass", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS|
 	    GENERATED
