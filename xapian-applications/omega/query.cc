@@ -2572,7 +2572,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = PACKAGE_STRING;
 		break;
 	    case CMD_weight:
-		value = double_to_string(weight);
+		value = str(weight);
 		break;
 	    default: {
 		args.insert(args.begin(), param[0]);

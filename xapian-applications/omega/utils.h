@@ -23,9 +23,6 @@
 
 #include <string>
 
-/** Converts a double to a string. */
-std::string double_to_string(double value);
-
 /** Converts a string to an int. */
 int string_to_int(const std::string & s);
 
