@@ -1024,6 +1024,10 @@ errorcopyctor_helper(Xapian::Error& error)
 /// Regression test for warning with GCC 9.
 DEFINE_TESTCASE(errorcopyctor, !backend) {
     Xapian::RangeError e("test");
-    TEST_EXCEPTION(Xapian::RangeError, errorcopyctor_helper(e));
-    return true;
+    try {
+	errorcopyctor_helper(e);
+    } catch (Xapian::Error&) {
+	return true;
+    }
+    return false;
 }
