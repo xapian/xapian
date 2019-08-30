@@ -120,6 +120,21 @@ class Action {
     size_t get_pos() const { return pos; }
 };
 
+// These allow searching for an Action with a particular Action::type using
+// std::find().
+
+static inline bool
+operator==(const Action& a, Action::type t) { return a.get_action() == t; }
+
+static inline bool
+operator==(Action::type t, const Action& a) { return a.get_action() == t; }
+
+static inline bool
+operator!=(const Action& a, Action::type t) { return !(a == t); }
+
+static inline bool
+operator!=(Action::type t, const Action& a) { return !(t == a); }
+
 enum diag_type { DIAG_ERROR, DIAG_WARN, DIAG_NOTE };
 
 static void
@@ -820,12 +835,8 @@ badhex:
 		indexer.set_flags(indexer.FLAG_SPELLING);
 		break;
 	    case Action::SPLIT: {
-		// Execute actions on the split up to the first NEW, if any.
-		vector<Action>::const_iterator split_end = action_it;
-		while (split_end != action_end &&
-		       split_end->get_action() != Action::NEW) {
-		    ++split_end;
-		}
+		// Find the end of the actions which split should execute.
+		auto split_end = find(action_it, action_end, Action::NEW);
 
 		int split_type = action.get_num_arg();
 		if (value.empty()) {
