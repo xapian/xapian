@@ -406,8 +406,23 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 #endif
 
     // Start matchers.
-    for (auto && leaf : leaves) {
-	leaf->start_match(0, first + maxitems, first + check_at_least, stats);
+    for (size_t i = 0; i != leaves.size(); ++i) {
+	auto& leaf = leaves[i];
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	if (is_remote[i]) {
+	    Xapian::doccount remote_maxitems = first + maxitems;
+	    if (collapse_max != 0) {
+		// If collapsing we need to fetch all check_at_least items in
+		// order to satisfy the requirement that if there are <=
+		// check_at_least results then then estimated number of matches
+		// is exact.
+		remote_maxitems = check_at_least;
+	    }
+	    leaf->start_match(0, remote_maxitems, check_at_least, stats);
+	    continue;
+	}
+#endif
+	leaf->start_match(0, first + maxitems, check_at_least, stats);
     }
 
     // Get postlists and term info

@@ -777,6 +777,9 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
     XFAIL_FOR_BACKEND("remote",
 		      "Known but obscure remote bug which doesn't justify "
 		      "protocol version bump");
+    XFAIL_FOR_BACKEND("multi_remote",
+		      "Known but obscure remote bug which doesn't justify "
+		      "protocol version bump");
 
     Xapian::Database db(get_database("apitest_simpledata"));
 

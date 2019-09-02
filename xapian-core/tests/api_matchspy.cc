@@ -179,6 +179,11 @@ DEFINE_TESTCASE(matchspy2, generated)
 
 DEFINE_TESTCASE(matchspy4, generated)
 {
+    XFAIL_FOR_BACKEND("multi_remote",
+		      "Matchspy counts hits on remote and locally");
+    XFAIL_FOR_BACKEND("multi_glass_remote",
+		      "Matchspy counts hits on remote and locally");
+
     Xapian::Database db = get_database("matchspy2", make_matchspy2_db);
 
     // We're going to run the match twice - once sorted by relevance, and once
