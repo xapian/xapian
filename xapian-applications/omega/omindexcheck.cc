@@ -55,7 +55,7 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 {
     sort(test.begin(), test.end());
     Xapian::TermIterator term_iterator = doc.termlist_begin();
-    for (auto& t: test) {
+    for (auto& t : test) {
 	term_iterator.skip_to(t);
 	if (term_iterator == doc.termlist_end() || *term_iterator != t) {
 	    cerr << "Error in " << file << ": Term " << t <<
