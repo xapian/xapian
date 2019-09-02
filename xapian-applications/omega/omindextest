@@ -18,17 +18,13 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-DIR=$(pwd)
-TEST_FILES="$DIR/testfiles/"
-TEST_DB="$DIR/testdatabase"
+set -e
 
-./omindex --db $TEST_DB --url $TEST_FILES $TEST_FILES
-./omindexcheck $TEST_FILES $TEST_DB > "omindextest.log"
-failed=$(echo "$?")
+srcdir=`echo "$0"|sed 's!/*[^/]*$!!'`
+TEST_FILES="$srcdir/testfiles/"
+TEST_DB="testdatabase"
 
-rm -r $TEST_DB
+trap 'rm -rf "$TEST_DB"' 0 1 2 13 15
 
-if [ $failed = 0 ] ; then
-    exit 0
-fi
-exit 1
+./omindex --db "$TEST_DB" --url="/$TEST_FILES" "$TEST_FILES"
+./omindexcheck "$TEST_FILES" "$TEST_DB"

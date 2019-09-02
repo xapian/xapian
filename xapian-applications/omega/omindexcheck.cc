@@ -1,5 +1,5 @@
 /** @file omindexcheck.cc
- * @brief Auxiliar program of omindextest
+ * @brief Auxiliary program of omindextest
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
  *
@@ -38,7 +38,7 @@ typedef vector<string> testcase;
 unordered_map<string, testcase> tests;
 
 static void
-index_test(void)
+index_test()
 {
     tests.insert({"test.txt", {"Zjoey", "Zfood",
 		  "Zедой", "Z喬伊不分享食物"}});

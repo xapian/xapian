@@ -37,9 +37,9 @@
 /htmlparsetest
 /jsonesctest
 /md5test
+/omindexcheck
 /urlenctest
 /utf8converttest
-/omindexcheck
 /*test.log
 /*test.trs
 /libtransform.la
