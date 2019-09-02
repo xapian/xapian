@@ -829,8 +829,9 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
 
     Xapian::MSet mset2 = enquire.get_mset(0, 1);
     TEST_EQUAL(mset2.size(), 1);
-    TEST_EQUAL(mset2.get_matches_lower_bound(), 1);
-    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mset2.get_matches_lower_bound(),>=,1);
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),>=,
+	     mset2.get_matches_lower_bound());
     TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset.size());
     TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,mset.size());
     TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset2.get_uncollapsed_matches_estimated());
