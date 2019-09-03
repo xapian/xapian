@@ -328,7 +328,7 @@ $log{LOGFILE[,ENTRY]}
         to open the log file then ``ENTRY`` won't be evaluated.
 
         If the logfile can't be opened or writing to it fails then ``$log``
-        returns an error message (since Xapian 1.5.0), otherwise it returns
+        returns an error message (since Omega 1.5.0), otherwise it returns
         nothing.  If you want to ignore logging errors, you can ignore the
         return value using ``$if`` with no action like so::
 
