@@ -42,12 +42,14 @@ printf '$querydescription' > "$TEST_TEMPLATE"
 
 TEST_INDEXSCRIPT=test-indexscript
 
+TEST_LOG=test-log
+
 OMEGA_CONFIG_FILE=test-omega.conf
 export OMEGA_CONFIG_FILE
 cat > "$OMEGA_CONFIG_FILE" <<__END__
 database_dir .
 template_dir .
-log_dir tmplog
+log_dir .
 default_template $TEST_TEMPLATE
 default_db $TEST_DB
 __END__
@@ -551,6 +553,33 @@ testcase '1.8G' size=2000000000
 testcase 'Exception: Filesize must be an integer' size=foo
 testcase 'Exception: Filesize must be an integer' size=1a
 testcase 'Exception: Filesize must be an integer' size=1.1
+
+# Feature tests for $log.
+rm -f "$TEST_LOG"
+# Chop off any error message at ": " so the test output doesn't depend on
+# strerror() output, which can vary with platform and locale.
+printf '$slice{$split{: ,$log{$cgi{LOG},$log{'"$TEST_LOG"'}}},0}' > "$TEST_TEMPLATE"
+testcase 'filename can'\''t contain ".."' LOG=evil/parent/..
+if [ -f "$TEST_LOG" ] ; then
+    rm -f "$TEST_LOG"
+    echo "log entry not lazily evaluated for bad log file name"
+    failed=`expr $failed + 1`
+fi
+testcase 'open failed' LOG=open/should/fail ENTRY='$log{'"$TEST_LOG"'}'
+if [ -f "$TEST_LOG" ] ; then
+    rm -f "$TEST_LOG"
+    echo "log entry not lazily evaluated for open failure"
+    failed=`expr $failed + 1`
+fi
+printf '$log{'"$TEST_LOG"',$lower{TEST}}' > "$TEST_TEMPLATE"
+testcase ''
+if [ `cat "$TEST_LOG"` = "test" ] ; then
+    : # OK
+else
+    echo "log entry not written correctly"
+    failed=`expr $failed + 1`
+fi
+rm -f "$TEST_LOG"
 
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"

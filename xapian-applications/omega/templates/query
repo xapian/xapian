@@ -68,7 +68,7 @@ $if{$map{$queryterms,$set{U,$unstem{$_}}$set{F_$opt{U},$add{$opt{F_$opt{U}},$fre
 <br><small>Search took $time seconds</small>
 <table>
 $if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
-$if{$opt{clicklog},$log{search.log,$opt{queryid}$.$csv{$query,1}$.$csv{$hitlist{$id$if{$ne{$hit,$sub{$last,1}},$.}},1}$.$topdoc}}
+$if{$opt{clicklog},$if{$log{search.log,$opt{queryid}$.$csv{$query,1}$.$csv{$hitlist{$id$if{$ne{$hit,$sub{$last,1}},$.}},1}$.$topdoc}}}
 $hitlist{<tr><td valign=top>
 $set{clickurl,$if{$opt{clicklog},$or{$env{SCRIPT_NAME},omega.cgi}?FMT=clicklog&DB=$url{$dbname}&QUERYID=$opt{queryid}&DOCID=$url{$id}&URL=$url{$field{url}},$field{url}}}
 <div title="$percentage%" style='float:left;width:60px;height:10px;border:1px solid black;margin-top:4px;'>
@@ -135,4 +135,4 @@ $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 <hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
-$log{query.log}
+$if{$log{query.log}}

@@ -1868,10 +1868,17 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_log: {
-		if (!vet_filename(args[0])) break;
+		if (!vet_filename(args[0])) {
+		    value = "filename can't contain \"..\"";
+		    break;
+		}
 		string logfile = log_dir + args[0];
 		int fd = open(logfile.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
-		if (fd == -1) break;
+		if (fd == -1) {
+		    value = "open failed: ";
+		    value += strerror(errno);
+		    break;
+		}
 		vector<string> noargs;
 		noargs.resize(1);
 		string line;
@@ -1882,7 +1889,10 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		line = eval(line, noargs);
 		line += '\n';
-		(void)write_all(fd, line.data(), line.length());
+		if (write_all(fd, line.data(), line.length()) < 0) {
+		    value = "write failed: ";
+		    value += strerror(errno);
+		}
 		close(fd);
 		break;
 	    }
