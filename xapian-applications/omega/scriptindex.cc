@@ -123,16 +123,16 @@ class Action {
 // These allow searching for an Action with a particular Action::type using
 // std::find().
 
-static inline bool
+inline bool
 operator==(const Action& a, Action::type t) { return a.get_action() == t; }
 
-static inline bool
+inline bool
 operator==(Action::type t, const Action& a) { return a.get_action() == t; }
 
-static inline bool
+inline bool
 operator!=(const Action& a, Action::type t) { return !(a == t); }
 
-static inline bool
+inline bool
 operator!=(Action::type t, const Action& a) { return !(t == a); }
 
 enum diag_type { DIAG_ERROR, DIAG_WARN, DIAG_NOTE };
