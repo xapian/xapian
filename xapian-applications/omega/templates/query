@@ -152,4 +152,4 @@ $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 <hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
-$log{query.log}
+$if{$log{query.log}}
