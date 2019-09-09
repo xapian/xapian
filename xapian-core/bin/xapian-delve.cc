@@ -106,12 +106,16 @@ show_db_stats(Database &db)
     cout << boolalpha;
     cout << "has positional information = " << db.has_positions() << endl;
     cout << "revision = ";
-    try {
-	cout << db.get_revision() << endl;
-    } catch (const Xapian::InvalidOperationError& e) {
-	cout << e.get_description() << endl;
-    } catch (const Xapian::UnimplementedError& e) {
-	cout << e.get_description() << endl;
+    if (db.size() > 1) {
+	cout << "N/A (sharded DB)\n";
+    } else {
+	try {
+	    cout << db.get_revision() << endl;
+	} catch (const Xapian::InvalidOperationError& e) {
+	    cout << e.get_description() << endl;
+	} catch (const Xapian::UnimplementedError& e) {
+	    cout << "N/A (" << e.get_msg() << ")\n";
+	}
     }
     cout << "currently open for writing = ";
     try {
