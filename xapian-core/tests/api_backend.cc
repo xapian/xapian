@@ -1548,6 +1548,15 @@ DEFINE_TESTCASE(getrevision1, glass) {
     return true;
 }
 
+/// Check get_revision() on an empty database reports 0.  (Since 1.5.0)
+DEFINE_TESTCASE(getrevision2, glass) {
+    Xapian::Database db;
+    TEST_EQUAL(db.get_revision(), 0);
+    Xapian::Database wdb;
+    TEST_EQUAL(wdb.get_revision(), 0);
+    return true;
+}
+
 /// Feature test for DOC_ASSUME_VALID.
 DEFINE_TESTCASE(getdocumentlazy1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
