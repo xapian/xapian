@@ -803,9 +803,12 @@ Database::get_revision() const
 {
     LOGCALL(API, Xapian::rev, "Database::get_revision", NO_ARGS);
     size_t n_dbs = internal.size();
-    if (rare(n_dbs != 1))
+    if (rare(n_dbs != 1)) {
+	if (n_dbs == 0)
+	    return 0;
 	throw Xapian::InvalidOperationError("Database::get_revision() requires "
 					    "exactly one subdatabase");
+    }
     const string& s = internal[0]->get_revision_info();
     const char* p = s.data();
     const char* end = p + s.size();
