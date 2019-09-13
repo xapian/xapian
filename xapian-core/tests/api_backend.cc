@@ -1663,24 +1663,6 @@ DEFINE_TESTCASE(nopositionbug1, generated) {
     return true;
 }
 
-/// Check estimate is rounded to suitable number of S.F. - new in 1.4.3.
-DEFINE_TESTCASE(estimaterounding1, backend) {
-    Xapian::Database db = get_database("etext");
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("the") | Xapian::Query("road"));
-    Xapian::MSet mset = enquire.get_mset(0, 10);
-    // MSet::get_description() includes bounds and raw estimate.
-    tout << mset.get_description() << endl;
-    // Bounds are 411-439, raw estimate is 419.
-    TEST_EQUAL(mset.get_matches_estimated() % 10, 0);
-    enquire.set_query(Xapian::Query("king") | Xapian::Query("prussia"));
-    mset = enquire.get_mset(0, 10);
-    tout << mset.get_description() << endl;
-    // Bounds are 111-138, raw estimate is 133.
-    TEST_EQUAL(mset.get_matches_estimated() % 10, 0);
-    return true;
-}
-
 /** Check that a TermIterator returns the correct termfreqs.
  *
  *  Prior to 1.5.0, the termfreq was approximated in the multidatabase case.

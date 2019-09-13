@@ -844,3 +844,81 @@ DEFINE_TESTCASE(postingsourceshardindex1, multi && !remote) {
 
     return true;
 }
+
+/// PostingSource subclass for injecting tf bounds and estimate.
+class EstimatePS : public Xapian::PostingSource {
+    Xapian::doccount lb, est, ub;
+
+  public:
+    EstimatePS(Xapian::doccount lb_,
+	       Xapian::doccount est_,
+	       Xapian::doccount ub_)
+	: lb(lb_), est(est_), ub(ub_)
+    { }
+
+    PostingSource * clone() const { return new EstimatePS(lb, est, ub); }
+
+    void init(const Xapian::Database &) { }
+
+    Xapian::doccount get_termfreq_min() const { return lb; }
+
+    Xapian::doccount get_termfreq_est() const { return est; }
+
+    Xapian::doccount get_termfreq_max() const { return ub; }
+
+    void next(double) {
+	FAIL_TEST("EstimatePS::next() shouldn't be called");
+    }
+
+    void skip_to(Xapian::docid, double) {
+	FAIL_TEST("EstimatePS::skip_to() shouldn't be called");
+    }
+
+    bool at_end() const {
+	return false;
+    }
+
+    Xapian::docid get_docid() const {
+	FAIL_TEST("EstimatePS::get_docid() shouldn't be called");
+    }
+
+    string get_description() const { return "EstimatePS"; }
+};
+
+/// Check estimate is rounded to suitable number of S.F. - new in 1.4.3.
+DEFINE_TESTCASE(estimaterounding1, backend && !multi && !remote) {
+    Xapian::Database db = get_database("etext");
+    Xapian::Enquire enquire(db);
+    static const struct { Xapian::doccount lb, est, ub, exp; } testcases[] = {
+	// Test rounding down.
+	{411, 424, 439, 420},
+	{1, 312, 439, 300},
+	// Test rounding up.
+	{411, 426, 439, 430},
+	{123, 351, 439, 400},
+	// Rounding based on estimate size if smaller than range size.
+	{1, 12, 439, 10},
+	// Round "5" away from the nearer bound.
+	{1, 15, 439, 20},
+	{1, 350, 439, 300},
+	// Check we round up if rounding down would be out of range.
+	{411, 416, 439, 420},
+	{411, 412, 439, 420},
+	// Check we round down if rounding up would be out of range.
+	{111, 133, 138, 130},
+	{111, 137, 138, 130},
+	// Check we don't round if either way would be out of range.
+	{411, 415, 419, 415},
+	// Leave small estimates alone.
+	{1, 6, 439, 6},
+    };
+    for (auto& t : testcases) {
+	EstimatePS ps(t.lb, t.est, t.ub);
+	enquire.set_query(Xapian::Query(&ps));
+	Xapian::MSet mset = enquire.get_mset(0, 0);
+	// MSet::get_description() includes bounds and raw estimate.
+	tout << mset.get_description() << endl;
+	TEST_EQUAL(mset.get_matches_estimated(), t.exp);
+    }
+    return true;
+}
