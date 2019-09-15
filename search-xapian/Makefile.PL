@@ -213,7 +213,7 @@ if ($xver !~ /^\Q$BASEVERSION\E(?:_(?:svn|git)[0-9]+)?$/) {
 	$msg = "Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
     }
 
-    if ($ENV{AUTOMATED_TESTING}) {
+    if ($ENV{AUTOMATED_TESTING} && defined $msg) {
 	# Don't let automated testers continue, as we don't want bogus failure
 	# reports due to builds with incompatible versions.
 	print $msg;
