@@ -555,6 +555,8 @@ class AndContext : public Context<PostList*> {
 
     unique_ptr<BoolOrContext> not_ctx;
 
+    unique_ptr<OrContext> maybe_ctx;
+
   public:
     AndContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -577,6 +579,13 @@ class AndContext : public Context<PostList*> {
 	    not_ctx.reset(new BoolOrContext(qopt, reserve));
 	}
 	return *not_ctx;
+    }
+
+    OrContext& get_maybe_ctx(size_t reserve) {
+	if (!maybe_ctx) {
+	    maybe_ctx.reset(new OrContext(qopt, reserve));
+	}
+	return *maybe_ctx;
     }
 
     PostList * postlist();
@@ -628,6 +637,8 @@ AndContext::postlist()
 
     unique_ptr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
 						 matcher, db_size));
+    // Empty pls so our destructor doesn't delete them all!
+    pls.clear();
 
     if (not_ctx) {
 	PostList* rhs = not_ctx->postlist();
@@ -646,8 +657,12 @@ AndContext::postlist()
 	pl.reset(filter.postlist(pl.release(), pls, matcher));
     }
 
-    // Empty pls so our destructor doesn't delete them all!
-    pls.clear();
+    if (maybe_ctx) {
+	PostList* rhs = maybe_ctx->postlist();
+	pl.reset(new AndMaybePostList(pl.release(), rhs, matcher, db_size));
+	maybe_ctx.reset();
+    }
+
     return pl.release();
 }
 
@@ -2307,6 +2322,19 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
     }
     RETURN(new AndMaybePostList(l.release(), r.release(),
 				qopt->matcher, qopt->db_size));
+}
+
+bool
+QueryAndMaybe::postlist_sub_and_like(AndContext& ctx,
+				     QueryOptimiser* qopt,
+				     double factor) const
+{
+    if (subqueries[0].internal.get()) {
+	if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor))
+	    return false;
+    }
+    do_or_like(ctx.get_maybe_ctx(subqueries.size() - 1), qopt, factor, 0, 1);
+    return true;
 }
 
 PostList*
