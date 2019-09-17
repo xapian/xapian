@@ -184,7 +184,9 @@ class QueryBranch : public Query::Internal {
 
     void serialise_(std::string & result, Xapian::termcount parameter = 0) const;
 
-    void do_bool_or_like(BoolOrContext& ctx, QueryOptimiser* qopt) const;
+    void do_bool_or_like(BoolOrContext& ctx,
+			 QueryOptimiser* qopt,
+			 size_t first = 0) const;
 
     void do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
 		    Xapian::termcount elite_set_size = 0, size_t first = 0) const;

@@ -1761,9 +1761,11 @@ QueryBranch::gather_terms(void * void_terms) const
 }
 
 void
-QueryBranch::do_bool_or_like(BoolOrContext& ctx, QueryOptimiser* qopt) const
+QueryBranch::do_bool_or_like(BoolOrContext& ctx,
+			     QueryOptimiser* qopt,
+			     size_t first) const
 {
-    LOGCALL_VOID(MATCH, "QueryBranch::do_bool_or_like", ctx | qopt);
+    LOGCALL_VOID(MATCH, "QueryBranch::do_bool_or_like", ctx | qopt | first);
 
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
@@ -1772,10 +1774,11 @@ QueryBranch::do_bool_or_like(BoolOrContext& ctx, QueryOptimiser* qopt) const
     // QuerySynonym::done() if the single subquery is a term or MatchAll.
     Assert(subqueries.size() >= 2 || get_op() == Query::OP_SYNONYM);
 
-    for (auto q : subqueries) {
+    QueryVector::const_iterator q;
+    for (q = subqueries.begin() + first; q != subqueries.end(); ++q) {
 	// MatchNothing subqueries should have been removed by done().
-	Assert(q.internal.get());
-	q.internal->postlist_sub_bool_or_like(ctx, qopt);
+	Assert((*q).internal.get());
+	(*q).internal->postlist_sub_bool_or_like(ctx, qopt);
     }
 }
 
@@ -2210,8 +2213,8 @@ QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
     if (!l.get()) {
 	RETURN(NULL);
     }
-    OrContext ctx(qopt, subqueries.size() - 1);
-    do_or_like(ctx, qopt, 0.0, 0, 1);
+    BoolOrContext ctx(qopt, subqueries.size() - 1);
+    do_bool_or_like(ctx, qopt, 1);
     unique_ptr<PostList> r(ctx.postlist());
     if (!r.get()) {
 	RETURN(l.release());
