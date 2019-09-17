@@ -348,6 +348,15 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /** Return the short name of the weighting scheme. E.g. "bm25". */
     virtual std::string short_name() const;
 
+    /// @private @internal Test if this is a BoolWeight object.
+    bool is_bool_weight_() const {
+	// Checking the name isn't ideal, but (get_maxpart() == 0.0) isn't
+	// required to work without init() having been called.  We can at
+	// least avoid the virtual method call in most non-BoolWeight cases
+	// as most other classes will need at least some stats.
+	return stats_needed == 0 && short_name() == "bool";
+    }
+
   protected:
     /** Don't allow copying.
      *
