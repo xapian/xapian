@@ -397,8 +397,6 @@ AndContext::postlist()
 
     AutoPtr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
 					      matcher, db_size));
-    // Empty pls so our destructor doesn't delete them all!
-    pls.clear();
 
     if (not_ctx) {
 	PostList* rhs = not_ctx->postlist();
@@ -416,6 +414,9 @@ AndContext::postlist()
 	const PosFilter & filter = *i;
 	pl.reset(filter.postlist(pl.release(), pls));
     }
+
+    // Empty pls so our destructor doesn't delete them all!
+    pls.clear();
 
     if (maybe_ctx) {
 	PostList* rhs = maybe_ctx->postlist();
