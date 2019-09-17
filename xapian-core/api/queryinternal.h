@@ -275,6 +275,10 @@ class QueryAndNot : public QueryBranch {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
+
     void add_subquery(const Xapian::Query & subquery);
 
     Query::Internal * done();

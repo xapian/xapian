@@ -553,6 +553,8 @@ class AndContext : public Context<PostList*> {
 
     list<PosFilter> pos_filters;
 
+    unique_ptr<BoolOrContext> not_ctx;
+
   public:
     AndContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -569,6 +571,13 @@ class AndContext : public Context<PostList*> {
     void add_pos_filter(Query::op op_,
 			size_t n_subqs,
 			Xapian::termcount window);
+
+    BoolOrContext& get_not_ctx(size_t reserve) {
+	if (!not_ctx) {
+	    not_ctx.reset(new BoolOrContext(qopt, reserve));
+	}
+	return *not_ctx;
+    }
 
     PostList * postlist();
 };
@@ -614,8 +623,17 @@ AndContext::postlist()
 	return NULL;
     }
 
+    auto matcher = qopt->matcher;
+    auto db_size = qopt->db_size;
+
     unique_ptr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
-						 qopt->matcher, qopt->db_size));
+						 matcher, db_size));
+
+    if (not_ctx) {
+	PostList* rhs = not_ctx->postlist();
+	pl.reset(new AndNotPostList(pl.release(), rhs, matcher, db_size));
+	not_ctx.reset();
+    }
 
     // Sort the positional filters to try to apply them in an efficient order.
     // FIXME: We need to figure out what that is!  Try applying lowest cf/tf
@@ -625,7 +643,7 @@ AndContext::postlist()
     list<PosFilter>::const_iterator i;
     for (i = pos_filters.begin(); i != pos_filters.end(); ++i) {
 	const PosFilter & filter = *i;
-	pl.reset(filter.postlist(pl.release(), pls, qopt->matcher));
+	pl.reset(filter.postlist(pl.release(), pls, matcher));
     }
 
     // Empty pls so our destructor doesn't delete them all!
@@ -2221,7 +2239,6 @@ PostList*
 QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryAndNot::postlist", qopt | factor);
-    // FIXME: Combine and-like side with and-like stuff above.
     unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
     if (!l.get()) {
 	RETURN(NULL);
@@ -2234,6 +2251,19 @@ QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
     }
     RETURN(new AndNotPostList(l.release(), r.release(),
 			      qopt->matcher, qopt->db_size));
+}
+
+bool
+QueryAndNot::postlist_sub_and_like(AndContext& ctx,
+				   QueryOptimiser* qopt,
+				   double factor) const
+{
+    if (subqueries[0].internal.get()) {
+	if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor))
+	    return false;
+    }
+    do_bool_or_like(ctx.get_not_ctx(subqueries.size() - 1), qopt, 1);
+    return true;
 }
 
 PostList*
