@@ -315,6 +315,15 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	return stats_needed & UNIQUE_TERMS;
     }
 
+    /// @private @internal Test if this is a BoolWeight object.
+    bool is_bool_weight_() const {
+	// Checking the name isn't ideal, but (get_maxpart() == 0.0) isn't
+	// required to work without init() having been called.  We can at
+	// least avoid the virtual method call in most non-BoolWeight cases
+	// as most other classes will need at least some stats.
+	return stats_needed == 0 && name() == "Xapian::BoolWeight";
+    }
+
   protected:
     /** Don't allow copying.
      *

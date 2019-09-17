@@ -201,7 +201,8 @@ LocalSubMatch::get_postlist(MultiMatch * matcher,
     PostList * pl;
     {
 	QueryOptimiser opt(*db, *this, matcher, shard_index);
-	pl = query.internal->postlist(&opt, 1.0);
+	double factor = wt_factory->is_bool_weight_() ? 0.0 : 1.0;
+	pl = query.internal->postlist(&opt, factor);
 	*total_subqs_ptr = opt.get_total_subqs();
     }
 
