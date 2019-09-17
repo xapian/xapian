@@ -323,6 +323,8 @@ class AndContext : public Context {
 
     AutoPtr<OrContext> not_ctx;
 
+    AutoPtr<OrContext> maybe_ctx;
+
   public:
     AndContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -336,6 +338,13 @@ class AndContext : public Context {
 	    not_ctx.reset(new OrContext(qopt, reserve));
 	}
 	return *not_ctx;
+    }
+
+    OrContext& get_maybe_ctx(size_t reserve) {
+	if (!maybe_ctx) {
+	    maybe_ctx.reset(new OrContext(qopt, reserve));
+	}
+	return *maybe_ctx;
     }
 
     PostList * postlist();
@@ -388,6 +397,8 @@ AndContext::postlist()
 
     AutoPtr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
 					      matcher, db_size));
+    // Empty pls so our destructor doesn't delete them all!
+    pls.clear();
 
     if (not_ctx) {
 	PostList* rhs = not_ctx->postlist();
@@ -406,8 +417,12 @@ AndContext::postlist()
 	pl.reset(filter.postlist(pl.release(), pls));
     }
 
-    // Empty pls so our destructor doesn't delete them all!
-    pls.clear();
+    if (maybe_ctx) {
+	PostList* rhs = maybe_ctx->postlist();
+	pl.reset(new AndMaybePostList(pl.release(), rhs, matcher, db_size));
+	maybe_ctx.reset();
+    }
+
     return pl.release();
 }
 
@@ -1716,6 +1731,15 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
     AutoPtr<PostList> r(ctx.postlist());
     RETURN(new AndMaybePostList(l.release(), r.release(),
 				qopt->matcher, qopt->db_size));
+}
+
+void
+QueryAndMaybe::postlist_sub_and_like(AndContext& ctx,
+				     QueryOptimiser* qopt,
+				     double factor) const
+{
+    subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor);
+    do_or_like(ctx.get_maybe_ctx(subqueries.size() - 1), qopt, factor, 0, 1);
 }
 
 PostingIterator::Internal *
