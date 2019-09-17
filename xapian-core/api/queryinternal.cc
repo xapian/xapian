@@ -1900,14 +1900,15 @@ PostList *
 QueryBranch::do_max(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(MATCH, PostList *, "QueryBranch::do_max", qopt | factor);
-    OrContext ctx(qopt, subqueries.size());
-    do_or_like(ctx, qopt, factor);
     if (factor == 0.0) {
-	// If we have a factor of 0, we don't care about the weights, so
-	// we're just like a normal OR query.
+	// Without the weights we're just like a normal OR query.
+	BoolOrContext ctx(qopt, subqueries.size());
+	do_bool_or_like(ctx, qopt);
 	RETURN(ctx.postlist());
     }
 
+    OrContext ctx(qopt, subqueries.size());
+    do_or_like(ctx, qopt, factor);
     // We currently assume wqf is 1 for calculating the OP_MAX's weight
     // since conceptually the OP_MAX is one "virtual" term.  If we were
     // to combine multiple occurrences of the same OP_MAX expansion into
@@ -2193,6 +2194,11 @@ PostList*
 QueryOr::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryOr::postlist", qopt | factor);
+    if (factor == 0.0) {
+	BoolOrContext ctx(qopt, subqueries.size());
+	do_bool_or_like(ctx, qopt);
+	RETURN(ctx.postlist());
+    }
     OrContext ctx(qopt, subqueries.size());
     do_or_like(ctx, qopt, factor);
     RETURN(ctx.postlist());
@@ -2202,6 +2208,13 @@ void
 QueryOr::postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor) const
 {
     do_or_like(ctx, qopt, factor);
+}
+
+void
+QueryOr::postlist_sub_bool_or_like(BoolOrContext& ctx,
+				   QueryOptimiser* qopt) const
+{
+    do_bool_or_like(ctx, qopt);
 }
 
 PostList*

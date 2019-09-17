@@ -261,6 +261,9 @@ class QueryOr : public QueryOrLike {
 
     void postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor) const;
 
+    void postlist_sub_bool_or_like(BoolOrContext& ctx,
+				   QueryOptimiser* qopt) const;
+
     std::string get_description() const;
 };
 
