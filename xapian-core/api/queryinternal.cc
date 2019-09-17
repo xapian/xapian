@@ -321,6 +321,8 @@ class AndContext : public Context {
 
     list<PosFilter> pos_filters;
 
+    AutoPtr<OrContext> not_ctx;
+
   public:
     AndContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -328,6 +330,13 @@ class AndContext : public Context {
     void add_pos_filter(Query::op op_,
 			size_t n_subqs,
 			Xapian::termcount window);
+
+    OrContext& get_not_ctx(size_t reserve) {
+	if (!not_ctx) {
+	    not_ctx.reset(new OrContext(qopt, reserve));
+	}
+	return *not_ctx;
+    }
 
     PostList * postlist();
 };
@@ -374,8 +383,17 @@ AndContext::postlist()
 	return new EmptyPostList;
     }
 
+    auto matcher = qopt->matcher;
+    auto db_size = qopt->db_size;
+
     AutoPtr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
-					      qopt->matcher, qopt->db_size));
+					      matcher, db_size));
+
+    if (not_ctx) {
+	PostList* rhs = not_ctx->postlist();
+	pl.reset(new AndNotPostList(pl.release(), rhs, matcher, db_size));
+	not_ctx.reset();
+    }
 
     // Sort the positional filters to try to apply them in an efficient order.
     // FIXME: We need to figure out what that is!  Try applying lowest cf/tf
@@ -1646,13 +1664,21 @@ PostingIterator::Internal *
 QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndNot::postlist", qopt | factor);
-    // FIXME: Combine and-like side with and-like stuff above.
     AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
     OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, 0.0, 0, 1);
     AutoPtr<PostList> r(ctx.postlist());
     RETURN(new AndNotPostList(l.release(), r.release(),
 			      qopt->matcher, qopt->db_size));
+}
+
+void
+QueryAndNot::postlist_sub_and_like(AndContext& ctx,
+				   QueryOptimiser* qopt,
+				   double factor) const
+{
+    subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor);
+    do_or_like(ctx.get_not_ctx(subqueries.size() - 1), qopt, 0.0, 0, 1);
 }
 
 PostingIterator::Internal *
