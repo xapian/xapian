@@ -91,7 +91,7 @@ static void unsupported_method() {
 }
 
 /// A termlist iterator over the contents of a ValueCountMatchSpy
-class ValueCountTermList : public TermList {
+class ValueCountTermList final : public TermList {
   private:
     map<string, Xapian::doccount>::const_iterator it;
     bool started;
@@ -187,7 +187,7 @@ class StringAndFreqCmpByFreq {
 };
 
 /// A termlist iterator over a vector of StringAndFrequency objects.
-class StringAndFreqTermList : public TermList {
+class StringAndFreqTermList final : public TermList {
   private:
     vector<StringAndFrequency>::const_iterator it;
     bool started;
