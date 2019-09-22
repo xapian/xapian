@@ -28,7 +28,7 @@
 #include <map>
 
 /// Iteration over values in a document.
-class DocumentValueList : public ValueList {
+class DocumentValueList final : public ValueList {
     /// Don't allow assignment.
     void operator=(const DocumentValueList &) = delete;
 

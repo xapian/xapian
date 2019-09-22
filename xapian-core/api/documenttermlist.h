@@ -28,7 +28,7 @@
 #include "omassert.h"
 
 /// Iteration over terms in a document.
-class DocumentTermList : public TermList {
+class DocumentTermList final : public TermList {
     /// Don't allow assignment.
     void operator=(const DocumentTermList&) = delete;
 
