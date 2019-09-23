@@ -360,7 +360,7 @@ get_pdf_metainfo(int fd, string &author, string &title,
 	string pdfinfo;
 	run_filter(fd, "pdfinfo -enc UTF-8 -", false, &pdfinfo);
 	parse_pdf_metainfo(pdfinfo, author, title, keywords, topic, pages);
-    } catch (ReadError) {
+    } catch (const ReadError&) {
 	// It's probably best to index the document even if pdfinfo fails.
     }
 }
@@ -374,7 +374,7 @@ get_pdf_metainfo(const string& file, string &author, string &title,
 	append_filename_argument(cmd, file);
 	parse_pdf_metainfo(stdout_to_string(cmd, false),
 			   author, title, keywords, topic, pages);
-    } catch (ReadError) {
+    } catch (const ReadError&) {
 	// It's probably best to index the document even if pdfinfo fails.
     }
 }
@@ -693,7 +693,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			p.ignore_metarobots();
 			p.description_as_sample = description_as_sample;
 			p.parse_html(dump, newcharset, true);
-		    } catch (ReadError) {
+		    } catch (const ReadError&) {
 			skip_cmd_failed(urlterm, context, cmd,
 					d.get_size(), d.get_mtime());
 			return;
@@ -716,7 +716,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		} else if (!charset.empty()) {
 		    convert_to_utf8(dump, charset);
 		}
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -772,7 +772,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    const char* cmd = "pdftotext -enc UTF-8 - -";
 	    try {
 		run_filter(d.get_fd(), cmd, false, &dump);
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -804,7 +804,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		append_filename_argument(cmd, tmpfile);
 		cmd += " -";
 		run_filter(cmd, false, &dump);
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		unlink(tmpfile.c_str());
@@ -834,7 +834,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		OpenDocParser parser;
 		parser.parse(stdout_to_string(cmd, true));
 		dump = parser.dump;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -851,7 +851,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
@@ -875,7 +875,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    XlsxParser parser;
 		    parser.parse(stdout_to_string(cmd, true));
 		    dump = parser.dump;
-		} catch (ReadError) {
+		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,
 				    d.get_size(), d.get_mtime());
 		    return;
@@ -903,7 +903,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // doesn't match anything in the zip file.
 		    xmlparser.parse_xml(stdout_to_string(cmd, false, 11));
 		    dump = xmlparser.dump;
-		} catch (ReadError) {
+		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,
 				    d.get_size(), d.get_mtime());
 		    return;
@@ -921,7 +921,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (mimetype == "application/x-abiword") {
@@ -953,7 +953,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		}
 		xpsparser.parse(dump);
 		dump = xpsparser.dump;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -1220,10 +1220,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	newdocument.add_boolean_term(ext_term);
 
 	index_add_document(urlterm, last_altered, did, newdocument);
-    } catch (ReadError) {
+    } catch (const ReadError&) {
 	skip(urlterm, context, string("can't read file: ") + strerror(errno),
 	     d.get_size(), d.get_mtime());
-    } catch (NoSuchFilter) {
+    } catch (const NoSuchFilter&) {
 	string filter_entry;
 	if (cmd_it != commands.end()) {
 	    filter_entry = cmd_it->first;
@@ -1235,7 +1235,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	m += "\" not installed";
 	skip(urlterm, context, m, d.get_size(), d.get_mtime());
 	commands[filter_entry] = Filter();
-    } catch (FileNotFound) {
+    } catch (const FileNotFound&) {
 	skip(urlterm, context, "File removed during indexing",
 	     d.get_size(), d.get_mtime(),
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
