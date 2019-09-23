@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2018 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -289,6 +289,14 @@ namespace Internal {
 	 * the else below), so check what the implementation defined behaviour
 	 * is with a constant conditional which should get optimised away.
 	 */
+#ifdef __GNUC__
+# if __GNUC__ >= 7
+// Silence any -Wduplicated-branches warnings for the code below - it seems GCC
+// simplifies the code somewhat before comparing.
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wduplicated-branches"
+# endif
+#endif
 	if ((-1 >> 1) == -1) {
 	    // Right shift sign-extends.
 	    return info >> 8;
@@ -297,6 +305,11 @@ namespace Internal {
 	    // negative values.
 	    return (info >= 0) ? (info >> 8) : (~(~info >> 8));
 	}
+#ifdef __GNUC__
+# if __GNUC__ >= 7
+#  pragma GCC diagnostic pop
+# endif
+#endif
     }
 }
 
