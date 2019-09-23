@@ -2087,9 +2087,14 @@ expr(A) ::= bool_arg(A) AND bool_arg(B). {
 }
 
 expr(A) ::= bool_arg(A) NOT bool_arg(B). {
-    // 'NOT foo' -> '<alldocuments> NOT foo'
     if (!A && (state->flags & QueryParser::FLAG_PURE_NOT)) {
-	A = new Query("", 1, 0);
+	// 'NOT foo' -> '(0 * <alldocuments>) NOT foo'
+	//
+	// We scale the <alldocuments> by 0 so it doesn't count towards the
+	// number of matching subqueries since that allows the query optimiser
+	// to eliminate it if other subqueries are combined in an AND-like
+	// way (e.g. 'bar AND (NOT foo)').
+	A = new Query(0.0, Query(string(), 1, 0));
     }
     VET_BOOL_ARGS(A, B, "NOT");
     *A &= ~*B;

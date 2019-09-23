@@ -287,7 +287,7 @@ def test_all():
     # Check QueryParser pure NOT option
     qp = xapian.QueryParser()
     expect_query(qp.parse_query(b"NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "(<alldocuments> AND_NOT test@1)")
+                 "(0 * <alldocuments> AND_NOT test@1)")
 
     # Check QueryParser partial option
     qp = xapian.QueryParser()
@@ -312,7 +312,7 @@ def test_all():
                  '(foo OR bar)')
 
     expect_query(qp.parse_query(b"NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "(<alldocuments> AND_NOT Zt\u00e9st@1)")
+                 "(0 * <alldocuments> AND_NOT Zt\u00e9st@1)")
 
     doc = xapian.Document()
     doc.set_data(b"Unicode with an acc\xe9nt")

@@ -557,6 +557,13 @@ class AndContext : public Context<PostList*> {
 
     unique_ptr<OrContext> maybe_ctx;
 
+    /** True if this AndContext has seen a no-op MatchAll.
+     *
+     *  If it has and it ends up empty then the resulting postlist should be
+     *  MatchAll not MatchNothing.
+     */
+    bool match_all = false;
+
   public:
     AndContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -569,6 +576,8 @@ class AndContext : public Context<PostList*> {
 	pls.emplace_back(pl);
 	return true;
     }
+
+    void set_match_all() { match_all = true; }
 
     void add_pos_filter(Query::op op_,
 			size_t n_subqs,
@@ -629,14 +638,22 @@ PostList *
 AndContext::postlist()
 {
     if (pls.empty()) {
+	if (match_all) {
+	    return qopt->open_post_list(string(), 0, 0.0);
+	}
 	return NULL;
     }
 
     auto matcher = qopt->matcher;
     auto db_size = qopt->db_size;
 
-    unique_ptr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
-						 matcher, db_size));
+    unique_ptr<PostList> pl;
+    if (pls.size() == 1) {
+	pl.reset(pls[0]);
+    } else {
+	pl.reset(new MultiAndPostList(pls.begin(), pls.end(),
+				      matcher, db_size));
+    }
 
     if (not_ctx) {
 	PostList* rhs = not_ctx->postlist();
@@ -1085,6 +1102,19 @@ QueryTerm::postlist(QueryOptimiser * qopt, double factor) const
     RETURN(qopt->open_post_list(term, wqf, factor));
 }
 
+bool
+QueryTerm::postlist_sub_and_like(AndContext& ctx,
+				 QueryOptimiser* qopt,
+				 double factor) const
+{
+    if (term.empty() && !qopt->need_positions && factor == 0.0) {
+	// No-op MatchAll.
+	ctx.set_match_all();
+	return true;
+    }
+    return ctx.add_postlist(postlist(qopt, factor));
+}
+
 PostList*
 QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
 {
@@ -1107,6 +1137,15 @@ QueryScaleWeight::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryScaleWeight::postlist", qopt | factor);
     RETURN(subquery.internal->postlist(qopt, factor * scale_factor));
+}
+
+bool
+QueryScaleWeight::postlist_sub_and_like(AndContext& ctx,
+					QueryOptimiser* qopt,
+					double factor) const
+{
+    return subquery.internal->postlist_sub_and_like(ctx, qopt,
+						    factor * scale_factor);
 }
 
 void

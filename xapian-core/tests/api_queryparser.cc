@@ -1676,8 +1676,8 @@ DEFINE_TESTCASE(qp_stopper1, !backend) {
 }
 
 static const test test_pure_not_queries[] = {
-    { "NOT windows", "(<alldocuments> AND_NOT Zwindow@1)" },
-    { "a AND (NOT b)", "(Za@1 AND (<alldocuments> AND_NOT Zb@2))" },
+    { "NOT windows", "(0 * <alldocuments> AND_NOT Zwindow@1)" },
+    { "a AND (NOT b)", "(Za@1 AND (0 * <alldocuments> AND_NOT Zb@2))" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },
     { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },

@@ -62,6 +62,10 @@ class QueryTerm : public Query::Internal {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
+
     termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION {
 	return wqf;
     }
@@ -97,6 +101,10 @@ class QueryScaleWeight : public Query::Internal {
     QueryScaleWeight(double factor, const Query & subquery_);
 
     PostList* postlist(QueryOptimiser *qopt, double factor) const;
+
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
 
     termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION {
 	return subquery.internal->get_length();
