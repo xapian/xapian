@@ -219,7 +219,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 		     d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
 	    }
 	}
-    } catch (FileNotFound) {
+    } catch (const FileNotFound&) {
 	if (verbose)
 	    cout << "Directory \"" << path.substr(root.size()) << "\" "
 		    "deleted during indexing" << endl;
