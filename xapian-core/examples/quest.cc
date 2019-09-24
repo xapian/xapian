@@ -438,6 +438,16 @@ try {
 
     Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
 
+    auto lower_bound = mset.get_matches_lower_bound();
+    auto estimate = mset.get_matches_estimated();
+    auto upper_bound = mset.get_matches_upper_bound();
+    if (lower_bound == upper_bound) {
+	cout << "Exactly " << estimate << " matches" << endl;
+    } else {
+	cout << "Between " << lower_bound << " and " << upper_bound
+	     << " matches, best estimate is " << estimate << endl;
+    }
+
     cout << "MSet:" << endl;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
