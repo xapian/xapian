@@ -80,9 +80,9 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 
 const char * action_names[] = {
     "bad", "new",
-    "boolean", "date", "field", "hash", "hextobin", "index", "indexnopos",
-    "load", "lower", "parsedate", "spell", "split", "truncate", "unhtml",
-    "unique", "value", "valuenumeric", "valuepacked", "weight"
+    "boolean", "date", "field", "gap", "hash", "hextobin", "index",
+    "indexnopos", "load", "lower", "parsedate", "spell", "split", "truncate",
+    "unhtml", "unique", "value", "valuenumeric", "valuepacked", "weight"
 };
 
 // For debugging:
@@ -92,8 +92,8 @@ class Action {
   public:
     typedef enum {
 	BAD, NEW,
-	BOOLEAN, DATE, FIELD, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD, LOWER,
-	PARSEDATE, SPELL, SPLIT, TRUNCATE, UNHTML, UNIQUE, VALUE,
+	BOOLEAN, DATE, FIELD, GAP, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD,
+	LOWER, PARSEDATE, SPELL, SPLIT, TRUNCATE, UNHTML, UNIQUE, VALUE,
 	VALUENUMERIC, VALUEPACKED, WEIGHT
     } type;
     enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT, SPLIT_PREFIXES };
@@ -251,6 +251,13 @@ parse_index_script(const string &filename)
 			if (action == "field") {
 			    code = Action::FIELD;
 			    max_args = 1;
+			}
+			break;
+		    case 'g':
+			if (action == "gap") {
+			    code = Action::GAP;
+			    max_args = 1;
+			    takes_integer_argument = true;
 			}
 			break;
 		    case 'h':
@@ -597,6 +604,19 @@ bad_escaping:
 			    boolmap[val] = Action::UNIQUE;
 			actions.emplace_back(code, action_pos, val);
 			break;
+		    case Action::GAP: {
+			actions.emplace_back(code, action_pos, val);
+			auto& obj = actions.back();
+			auto gap_size = obj.get_num_arg();
+			if (gap_size <= 0) {
+			    report_location(DIAG_ERROR, filename, line_no,
+					    obj.get_pos() + 3 + 1);
+			    cerr << "Index action 'gap' takes a strictly "
+				    "positive integer argument" << endl;
+			    exit(1);
+			}
+			break;
+		    }
 		    case Action::HASH: {
 			actions.emplace_back(code, action_pos, val);
 			auto& obj = actions.back();
@@ -633,6 +653,8 @@ bad_escaping:
 		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
 		    useless_weight_pos = string::npos;
 		    actions.emplace_back(code, action_pos, "", weight);
+		} else if (code == Action::GAP) {
+		    actions.emplace_back(code, action_pos, "", 100);
 		} else if (code == Action::HASH) {
 		    actions.emplace_back(code, action_pos, "",
 					 MAX_SAFE_TERM_LENGTH - 1);
@@ -769,6 +791,9 @@ run_actions(vector<Action>::const_iterator action_it,
 		doc.add_boolean_term(term);
 		break;
 	    }
+	    case Action::GAP:
+		indexer.increase_termpos(action.get_num_arg());
+		break;
 	    case Action::HASH: {
 		unsigned int max_length = action.get_num_arg();
 		if (value.length() > max_length)
