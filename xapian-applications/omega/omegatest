@@ -1351,6 +1351,17 @@ else
     failed=`expr $failed + 1`
 fi
 
+# Test 'gap' action inserts a termpos gap.
+printf 'text : index gap=5' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+printf 'text=%s\n' foo bar baz|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null
+echo '|$hitlist{$id|}' > "$TEST_TEMPLATE"
+testcase '|' 'P="foo bar"'
+testcase '|' 'P=foo NEAR/5 bar'
+testcase '|' 'P=foo NEAR/11 baz'
+testcase '|1|' 'P=foo NEAR/6 bar'
+testcase '|1|' 'P=foo NEAR/12 baz'
+
 # The 'hash' action should require its argument is >= 6, so test 5 is rejected.
 printf 'url : hash=5 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"

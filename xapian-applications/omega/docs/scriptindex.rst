@@ -72,6 +72,11 @@ field[=FIELDNAME]
 	a given field: all instances will be processed and stored in the
 	Xapian record.
 
+gap[=SIZE]
+        leave a gap of SIZE term positions.  SIZE defaults to 100.  This
+        provides a way to stop phrases, ``NEAR`` and ``ADJ`` from matching
+        across fields.
+
 hash[=LENGTH]
 	Xapian has a limit on the length of a term.  To handle arbitrarily
 	long URLs as terms, omindex implements a scheme where the end of
