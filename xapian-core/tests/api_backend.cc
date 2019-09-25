@@ -1767,3 +1767,15 @@ DEFINE_TESTCASE(multidb1, backend) {
     TEST_EQUAL(db.size(), db2.size() * 2);
     return true;
 }
+
+// Regression test for bug in unreleased versions before 1.5.0.
+DEFINE_TESTCASE(matchall3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::Query qw(Xapian::Query::OP_WILDCARD, "nosuch");
+    enq.set_query(0 * (Xapian::Query::MatchAll & qw));
+    TEST_EQUAL(enq.get_mset(0, 10).size(), 0);
+    enq.set_query(0 * (qw & Xapian::Query::MatchAll));
+    TEST_EQUAL(enq.get_mset(0, 10).size(), 0);
+    return true;
+}

@@ -571,6 +571,7 @@ class AndContext : public Context<PostList*> {
     bool add_postlist(PostList* pl) {
 	if (!pl) {
 	    shrink(0);
+	    match_all = false;
 	    return false;
 	}
 	pls.emplace_back(pl);
