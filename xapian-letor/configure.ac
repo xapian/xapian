@@ -364,12 +364,6 @@ if test yes = "$GXX"; then
       esac
 
       dnl FIXME:
-      dnl -Wconversion in older GCC versions is intended to help migration
-      dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
-      dnl to -Wtraditional-conversion and a new -Wconversion added which
-      dnl sounds useful but is a bit buggy currently.  So we should consider
-      dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
-      dnl
       dnl -Wold-style-cast is interesting, but triggers for macros from
       dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
