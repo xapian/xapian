@@ -1251,12 +1251,6 @@ if test yes = "$GXX"; then
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
 
       dnl FIXME:
-      dnl -Wconversion in older GCC versions is intended to help migration
-      dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
-      dnl to -Wtraditional-conversion and a new -Wconversion added which
-      dnl sounds useful but is a bit buggy currently.  So we should consider
-      dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
-      dnl
       dnl -Wold-style-cast is interesting, but triggers for macros from
       dnl system headers (e.g. FD_SET).  GCC 4.8 improved this by making
       dnl -ftrack-macro-expansion=2 the default, but we still see such
