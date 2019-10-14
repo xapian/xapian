@@ -1,31 +1,24 @@
-up to: 1ef6e45690a307c911b597ff1558444324edbcbd
-
-Omega 1.4.13 (2019-08-28):
-
-general:
+Omega 1.4.13 (2019-10-14):
 
 documentation:
+
+* Document that $log will start to return an error message in 1.5.0, and that
+  one can wrap it using a $if with no action now to be future-proof.
 
 indexers:
 
 * Optimise converting us-ascii to UTF-8 to do nothing, like we already do when
   converting UTF-8 to UTF-8.
 
-* omindex:
-
 * scriptindex:
 
-omega:
+  + Add new 'gap' action which provides a way to leave a gap in the term
+    positions between fields to prevent phrases and positional operators from
+    matching across fields.
 
 templates:
 
-testsuite:
-
-build system:
-
-portability:
-
-packaging:
+* Future-proof use of $log against changes in 1.5.0.
 
 Omega 1.4.12 (2019-07-23):
 

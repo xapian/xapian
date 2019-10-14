@@ -1,30 +1,63 @@
-up to: cad984c582b0c79aebb61332bd0859c42ab1ca5a
-
-Xapian-core 1.4.13 (2019-08-28):
+Xapian-core 1.4.13 (2019-10-14):
 
 API:
 
-* Fix write one past end of std::vector.  This undefined behaviour could happen
-  on certain QueryParser parse errors.  This write was always into reserved
-  space, so in practice we'd actually get away with it (it was noticed because
-  it triggers an error when running under ubsan and using libc++).  Reported by
+* Fix write one past end of std::vector on certain QueryParser parser errors.
+  This is undefined behaviour, but the write was always into reserved space, so
+  in practice we'd actually get away with it (it was noticed because it
+  triggers an error when running under ubsan and using libc++).  Reported by
   Germán M. Bravo.
+
+* MSet::get_matches_estimated(): Improve rounding of result - a bug meant we
+  would almost always round down.
 
 * Optimise test for UTF-8 continuation character.  Performing a signed char
   comparison shaves an instruction or two on most architectures.
 
+* Database::get_revision(): Return revision 0 for a Database with no shards
+  rather that throwing InvalidOperationError.
+
+* DPHWeight: Avoid dividing by 0 when searching a sharded database when one
+  shard is empty.  The result wasn't used in this case, but it's still
+  undefined behaviour.  Detected by UBSan.
+
 testsuite:
+
+* The "singlefile" test harness backend manager now creates databases by
+  compacting the corresponding underlying backend database (creating it first
+  if need be) rather than always creating a temporary database to compact.
+
+* Enable compaction testcases for multi and singlefile test harness backends.
+
+* Add generated database support for remoteprog and remotetcp test harness
+  backends.  Implemented by Tanmay Sachan.
+
+* Add test harness support for running testcases using a multi database
+  comprised of one local and one remote shard, or two remote shards.
+  Implemented by Tanmay Sachan.
 
 * Check if removing existing multi stub failed.  Previously if removing an
   existing stub failed, the test harness would create a temporary new stub and
-  then try to rename it over the over one, which will always fail on Microsoft
+  then try to rename it over the old one, which will always fail on Microsoft
   Windows.
-    
+
 * Wait for xapian-tcpsrv processes to finish before moving on to the next
   testcase under __WIN32__ like we already do on POSIX platforms.
 
 matcher:
 
+* Optimise OP_AND_NOT better.  We now combine its left argument with other
+  connected and-like subqueries, and gather up and hoist the negated subqueries
+  and apply them together above the combined and-like subqueries, just below
+  any positional filters.
+
+* Optimise OP_AND_MAYBE better.  We now combine its left argument with other
+  connected and-like subqueries, and gather up and hoist the optional
+  subqueries and apply them together above the combined and-like subqueries and
+  any hoisted positional filters.
+
+* Treat all BoolWeight queries as scaled by 0 - we can optimise better if we
+  know the query is unweighted.
 
 glass backend:
 
@@ -36,20 +69,19 @@ glass backend:
 * Only try to compress Btree item values > 18 bytes, which saves CPU time
   without sacrificing any significant size savings.
 
-chert backend:
-
-
 remote backend:
+
+* Fix match stats when searching with collapsing over multiple shards and at
+  least some shards are remote.  Bug discovered by Tanmay Sachan's test harness
+  improvements.
+
+* Ignore orphaned remote protocol replies which can happen when searching with
+  a remote shard if an exception is thrown by another shard.  Bug discovered
+  by Tanmay Sachan's test harness improvements.
 
 * Wait for xapian-progsrv child to exit when a remote Database or
   WritableDatabase object is closed under __WIN32__ like we already do for
   POSIX platforms.
-
-inmemory backend:
-
-
-build system:
-
 
 documentation:
 
@@ -57,20 +89,27 @@ documentation:
 
 tools:
 
+* quest: Report bounds and estimate of number of matches.
 
-examples:
-
+* xapian-delve: Improve output when database revision information is not
+  available.  We now specially handle the cases of a DB with multiple shards
+  and a backend which doesn't support get_revision().
 
 portability:
 
 * Fix warning from GCC 9 with -Wdeprecated-copy (which is enabled by -Wextra)
   if a reference to an Error object is thrown.
 
-packaging:
+* Suppress GCC warning in our API headers when compiling code using Xapian with
+  GCC and -Wduplicated-branches.
 
+* Mark some internal classes as final (following GCC -Wsuggest-final-types
+  suggestions to allow some method calls to be devirtualised).
 
-debug code:
-
+* Fix to build with --enable-maintainer-mode and Perl < 5.10, which doesn't
+  have the `//=` operator.  It's unlikely developers will have such an old
+  Perl, but the mingw environment on appveyor CI does.  The use of `//=` was
+  introduced by changes in 1.4.10.
 
 Xapian-core 1.4.12 (2019-07-23):
 

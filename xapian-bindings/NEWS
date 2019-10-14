@@ -1,8 +1,4 @@
-up to: a6a2aad325cb68be3a7262f536349466eccc7b60
-
-Xapian-bindings 1.4.13 (2019-08-28):
-
-Documentation:
+Xapian-bindings 1.4.13 (2019-10-14):
 
 General:
 
@@ -15,18 +11,6 @@ General:
   python3/doccomments.i would be missing unless you configured the tree with
   --enable-maintainer-mode.
 
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
-
-Perl:
-
 PHP:
 
 * Check for php-config5.6 and php-config5.5 in configure as these versioned
@@ -37,10 +21,6 @@ PHP7:
 * Work around build failure on Illuminos.  Fixes
   https://trac.xapian.org/ticket/793, reported by Amitai Schleier.
 
-Python:
-
-Python3:
-
 Ruby:
 
 * smoketest.rb: Use #push not #append on Array to restore compatibility with
@@ -50,8 +30,6 @@ Ruby:
   preferred Ruby style.
 
 * Remove trailing `;` from Ruby code.
-
-Tcl:
 
 Xapian-bindings 1.4.12 (2019-07-23):
 
