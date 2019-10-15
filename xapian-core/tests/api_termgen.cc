@@ -36,6 +36,7 @@
 
 using namespace std;
 
+namespace {
 struct test {
     // A string of options, separated by commas.
     // Valid options are:
@@ -82,6 +83,7 @@ struct test {
     // where POSITIONS is a comma separated list of numbers.
     const char *expect;
 };
+}
 
 static const test test_simple[] = {
     // A basic test with a hyphen
