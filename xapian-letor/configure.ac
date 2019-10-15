@@ -355,12 +355,7 @@ if test yes = "$GXX"; then
       4.[[45]].*) ;;
       *) dnl GCC >= 4.6
 	dnl -Wdouble-promotion was added in GCC 4.6.
-	dnl
-	dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
-	dnl warns for this case with -Wuninitialized (implied by -W).  We
-	dnl don't intend to use this idiom, so any instances are bugs we'd
-	dnl like to know about.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion" ;;
       esac
 
       dnl FIXME:
