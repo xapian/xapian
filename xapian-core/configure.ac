@@ -728,7 +728,6 @@ if test -n "${EATMYDATA-unset}" ; then
 fi
 
 dnl Checks for library functions.
-AC_FUNC_MEMCMP
 AC_FUNC_STRERROR_R
 
 AC_CACHE_CHECK([for sys_errlist and sys_nerr], ac_cv_sys_errlist_and_sys_nerr, [
