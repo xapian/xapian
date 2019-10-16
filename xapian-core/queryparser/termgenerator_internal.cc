@@ -344,7 +344,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    }
 	    stemmed_term += prefix;
 	    stemmed_term += stem;
-	    if (strategy != TermGenerator::STEM_SOME && with_positions) {
+	    if (strategy != TermGenerator::STEM_SOME && positional) {
 		if (strategy != TermGenerator::STEM_SOME_FULL_POS) ++cur_pos;
 		doc.add_posting(stemmed_term, cur_pos, wdf_inc);
 	    } else {
