@@ -106,8 +106,8 @@ fi
 export top_builddir
 LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
 
-# For GCC 3.4 and newer, force the GNU C++ STL to not pool memory, which gives
-# more accurate memory leak reports with valgrind.
+# Tell the GNU C++ library (libstdc++) not to pool memory, which gives more
+# accurate memory leak reports with valgrind.
 GLIBCXX_FORCE_NEW=1
 export GLIBCXX_FORCE_NEW
 
