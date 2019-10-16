@@ -149,7 +149,7 @@ class Key {
 	return p[0];
     }
     char operator[](size_t i) const {
-	AssertRel(i,<,(size_t)length());
+	AssertRel(i,<,size_t(length()));
 	return p[i + K1];
     }
 };
