@@ -59,8 +59,9 @@ const char * dummy[] = {
 #define V3(A,B,C) J3(A,B,C)
 #define J3(A,B,C) g++ A##.##B##.##C
 "#ifdef __GNUC__",
-"#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ == 0)",
-"#error Xapian no longer supports GCC < 3.1",
+// Clang always masquerades as GCC 4.2; Intel's compiler seems to vary.
+"#if !defined __clang__ && !defined __INTEL_COMPILER && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8))",
+"#error Xapian no longer supports GCC < 4.8",
 "#else",
 #ifndef __GXX_ABI_VERSION
 #error GCC does not have __GXX_ABI_VERSION defined
@@ -96,9 +97,7 @@ const char * dummy[] = {
 #endif
 "#endif",
 "",
-// _GLIBCXX_DEBUG is supported by GCC 3.4 and later so we only need to check
-// it for those versions.
-#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || __GNUC__ >= 4
+// _GLIBCXX_DEBUG is supported by GCC 3.4 and later.
 #ifdef _GLIBCXX_DEBUG
 "#ifndef _GLIBCXX_DEBUG",
 "#error This library was compiled with _GLIBCXX_DEBUG defined, but you",
@@ -111,7 +110,6 @@ const char * dummy[] = {
 "#error was not compiled with this flag.  The settings must match or your",
 "#error program will not work correctly.",
 "#endif",
-#endif
 #endif
 "#endif",
 "#endif",

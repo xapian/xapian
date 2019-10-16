@@ -24,8 +24,7 @@
 // symbol visibility support.
 
 #include "xapian/version.h"
-#if defined XAPIAN_ENABLE_VISIBILITY && defined __GNUC__ && (__GNUC__ >= 4)
-// GCC 3.4 has visibility support, but it's a bit buggy so we require 4.0.
+#if defined XAPIAN_ENABLE_VISIBILITY && defined __GNUC__
 # define XAPIAN_VISIBILITY_DEFAULT __attribute__((visibility("default")))
 # define XAPIAN_VISIBILITY_INTERNAL __attribute__((visibility("internal")))
 #else
