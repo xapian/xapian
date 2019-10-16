@@ -57,17 +57,17 @@ static constexpr unsigned DEFAULT_EDIT_DISTANCE = 2;
 
 inline bool
 U_isupper(unsigned ch) {
-    return (ch < 128 && C_isupper(static_cast<unsigned char>(ch)));
+    return ch < 128 && C_isupper(static_cast<unsigned char>(ch));
 }
 
 inline bool
 U_isdigit(unsigned ch) {
-    return (ch < 128 && C_isdigit(static_cast<unsigned char>(ch)));
+    return ch < 128 && C_isdigit(static_cast<unsigned char>(ch));
 }
 
 inline bool
 U_isalpha(unsigned ch) {
-    return (ch < 128 && C_isalpha(static_cast<unsigned char>(ch)));
+    return ch < 128 && C_isalpha(static_cast<unsigned char>(ch));
 }
 
 using Xapian::Unicode::is_whitespace;

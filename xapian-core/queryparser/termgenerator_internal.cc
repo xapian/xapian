@@ -50,7 +50,7 @@ namespace Xapian {
 static inline bool
 U_isupper(unsigned ch)
 {
-    return (ch < 128 && C_isupper(static_cast<unsigned char>(ch)));
+    return ch < 128 && C_isupper(static_cast<unsigned char>(ch));
 }
 
 static inline unsigned
