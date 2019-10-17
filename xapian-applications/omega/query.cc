@@ -1830,12 +1830,15 @@ eval(const string &fmt, const vector<string> &param)
 		if (fd == -1) break;
 
 		struct cdb cdb;
-		cdb_init(&cdb, fd);
+		if (cdb_init(&cdb, fd) < 0) {
+		    close(fd);
+		    break;
+		}
 
 		if (cdb_find(&cdb, args[1].data(), args[1].length()) > 0) {
 		    size_t datalen = cdb_datalen(&cdb);
 		    const void *dat = cdb_get(&cdb, datalen, cdb_datapos(&cdb));
-		    if (q) {
+		    if (dat) {
 			value.assign(static_cast<const char *>(dat), datalen);
 		    }
 		}
