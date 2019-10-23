@@ -101,6 +101,15 @@ When using HP's aCC, Xapian must be compiled with +std=c++11, which
 xapian-core's configure automatically detects and passes.  You don't have to
 pass this option when building code which uses Xapian, but you can.
 
+Sun C++ Compiler
+----------------
+
+With this compiler, shared library builds fail (tested most recently with
+version 12.6).  You can work around this problem by disabling shared libraries
+at configure time like so::
+
+  ./configure --disable-shared
+
 Multi-Arch
 ==========
 
