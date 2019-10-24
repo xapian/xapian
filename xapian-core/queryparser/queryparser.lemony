@@ -948,6 +948,12 @@ just_had_operator_needing_term:
 		    }
 		}
 		if (flags & QueryParser::FLAG_PHRASE) {
+		    if (ch == '"' && it != end && *it == '"') {
+			++it;
+			// Handle "" inside a quoted phrase as an escaped " for
+			// consistency with quoted boolean terms.
+			break;
+		    }
 		    Parse(&parser, QUOTE, NULL, &state);
 		    if (mode == DEFAULT) {
 			mode = IN_QUOTES;
