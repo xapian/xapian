@@ -199,6 +199,9 @@ static const test test_or_queries[] = {
     { "category:\"(unterminated)", "0 * XCAT(unterminated)" },
     // Feature tests for curly double quotes:
     { "“curly quotes”", "(curly@1 PHRASE 2 quotes@2)" },
+    // Test "" inside quoted phrase doesn't end the phrase (for consistency
+    // with "" being an escape " in a quoted boolean term.
+    { "subject:\"foo\"\"bar\"", "(XTfoo@1 PHRASE 2 XTbar@2)" },
     // Feature tests for implicitly closing brackets:
     { "(foo", "Zfoo@1" },
     { "(foo XOR bar", "(Zfoo@1 XOR Zbar@2)" },
