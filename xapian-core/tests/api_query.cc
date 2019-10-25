@@ -835,3 +835,21 @@ DEFINE_TESTCASE(notandor1, backend) {
 
     return true;
 }
+
+// Regression test for bug introduced in 1.4.13 and fixed in 1.4.14.
+DEFINE_TESTCASE(hoistnotbug1, backend) {
+    Xapian::Database db(get_database("etext"));
+    using Xapian::Query;
+    Query q(Query::OP_PHRASE, Query("the"), Query("king"));
+    q &= ~Query("worldtornado");
+    q &= Query("a");
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    // This reliably fails before the fix in an assertion build, and may crash
+    // in other builds.
+    Xapian::MSet mset = enq.get_mset(0, 10, db.get_doccount());
+    TEST_EQUAL(mset.get_matches_estimated(), 42);
+
+    return true;
+}
