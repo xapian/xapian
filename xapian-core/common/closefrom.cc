@@ -116,7 +116,7 @@ Xapian::Internal::closefrom(int fd)
 		d = alignment_cast<struct dirent*>(buf + pos);
 		const char * leaf = d->d_name;
 		int n;
-		if (!parse_unsigned(leaf, n)) {
+		if (!parse_signed(leaf, n)) {
 		    // Skip '.' and '..'.
 		    continue;
 		}
@@ -189,7 +189,7 @@ Xapian::Internal::closefrom(int fd)
 		p += *static_cast<u_int32_t*>(static_cast<void*>(p));
 
 		int n;
-		if (!parse_unsigned(leaf, n)) {
+		if (!parse_signed(leaf, n)) {
 		    // Skip '.' and '..'.
 		    continue;
 		}
