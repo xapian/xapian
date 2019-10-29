@@ -1490,6 +1490,7 @@ static const test test_value_range2_queries[] = {
     { "1999.03.12..", "VALUE_GE 1 19990312" },
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
+    { "1/2/3..2/3/4", "VALUE_RANGE 1 20030201 20040302" },
     { "(test:a..test:b hello)", "(hello@1 FILTER VALUE_RANGE 3 test:a test:b)" },
     { "12..42kg 5..6kg 1..12", "0 * (VALUE_RANGE 2 \\xa0 \\xae AND (VALUE_RANGE 5 \\xae \\xb5@ OR VALUE_RANGE 5 \\xa9 \\xaa))" },
     // Check that a VRP which fails to match doesn't remove a prefix or suffix.
