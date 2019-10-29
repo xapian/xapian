@@ -1,7 +1,7 @@
 /** @file xapian-pos.cc
  * @brief Debug positional data
  */
-/* Copyright 2018 Olly Betts
+/* Copyright 2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 
 #include "gnu_getopt.h"
 #include "heap.h"
+#include "parseint.h"
 #include "stringutils.h"
 
 using namespace std;
@@ -87,27 +88,6 @@ struct PosCmp {
     }
 };
 
-template<typename T>
-bool to_unsigned_int(const char* s, T& result)
-{
-    errno = 0;
-    char* e;
-    auto v = strtoull(s, &e, 0);
-    if (errno == 0) {
-	if (*e || e == s) {
-	    // Junk after or empty input.
-	    errno = EINVAL;
-	} else if (v > numeric_limits<T>::max()) {
-	    // Exceeds the type.
-	    errno = ERANGE;
-	} else {
-	    result = T(v);
-	    return true;
-	}
-    }
-    return false;
-}
-
 int
 main(int argc, char **argv)
 try {
@@ -127,24 +107,20 @@ try {
     while ((c = gnu_getopt_long(argc, argv, "d:e:s:", long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'd':
-		if (!to_unsigned_int(optarg, did) || did == 0) {
-		    if (errno == 0) errno = ERANGE;
-		    cerr << "Bad docid value '" << optarg << "': "
-			 << strerror(errno) << endl;
+		if (!parse_unsigned(optarg, did) || did == 0) {
+		    cerr << "Bad docid value '" << optarg << "'" << endl;
 		    exit(1);
 		}
 		break;
 	    case 's':
-		if (!to_unsigned_int(optarg, startpos)) {
-		    cerr << "Bad start position '" << optarg << "': "
-			 << strerror(errno) << endl;
+		if (!parse_unsigned(optarg, startpos)) {
+		    cerr << "Bad start position '" << optarg << "'" << endl;
 		    exit(1);
 		}
 		break;
 	    case 'e':
-		if (!to_unsigned_int(optarg, endpos)) {
-		    cerr << "Bad end position '" << optarg << "': "
-			 << strerror(errno) << endl;
+		if (!parse_unsigned(optarg, endpos)) {
+		    cerr << "Bad end position '" << optarg << "'" << endl;
 		    exit(1);
 		}
 		break;
