@@ -1,7 +1,7 @@
 /** @file worker.h
  * @brief Class representing worker process.
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2019 Olly Betts
  * Copyright (C) 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ class Worker {
     /** Socket for supporting communication between the worker
      *  and its assistant.
      */
-    std::FILE* sockt;
+    std::FILE* sockt = NULL;
     /// Name of the assistant program.
     std::string filter_module;
     /// This method create the assistant subprocess.
@@ -56,7 +56,7 @@ class Worker {
      *  The assistant will not be started until it is necessary.
      */
     Worker(const std::string& path)
-	: sockt(NULL), filter_module(path) { }
+	: filter_module(path) { }
 
     /** Extract information from a file through the assistant process.
      *

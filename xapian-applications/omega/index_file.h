@@ -57,7 +57,7 @@ struct Filter {
 	SEEK_DEV_STDIN = 8
     };
     unsigned flags = 0;
-    Filter() : cmd(), output_type() { }
+    Filter() { }
     explicit Filter(const std::string & cmd_, unsigned flags_ = 0)
 	: cmd(cmd_), output_type(), flags(flags_) { }
     Filter(const std::string & cmd_, const std::string & output_type_,

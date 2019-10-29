@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2017,2018 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,13 +100,13 @@ class Action {
     enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT, SPLIT_PREFIXES };
   private:
     type action;
-    int num_arg;
+    int num_arg = 0;
     string string_arg;
     // Offset into indexscript line.
     size_t pos;
   public:
     Action(type action_, size_t pos_)
-	: action(action_), num_arg(0), pos(pos_) { }
+	: action(action_), pos(pos_) { }
     Action(type action_, size_t pos_, const string & arg)
 	: action(action_), string_arg(arg), pos(pos_) {
 	num_arg = atoi(string_arg.c_str());
