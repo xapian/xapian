@@ -2,7 +2,7 @@
  * @brief Xapian::LMWeight class - the Unigram Language Modelling formula.
  */
 /* Copyright (C) 2012 Gaurav Arora
- * Copyright (C) 2016 Olly Betts
+ * Copyright (C) 2016,2019 Olly Betts
  * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,12 @@
 #include "debuglog.h"
 #include "omassert.h"
 #include "serialise-double.h"
+#include "stringutils.h"
 
 #include "xapian/error.h"
 
 #include <cerrno>
 #include <cmath>
-#include <cstdlib>
 
 using namespace std;
 
@@ -267,12 +267,12 @@ LMWeight::get_maxextra() const
 static bool
 type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
 {
-    char *end;
-    errno = 0;
-    int v = strtol(*p, &end, 10);
-    if (*p == end || errno || v < 1 || v > 5)
+    const char* q = *p;
+    char ch = *q++;
+    if (ch < '1' || ch > '5' || C_isdigit(*q)) {
 	return false;
-    *p = end;
+    }
+    *p = q;
     static const Xapian::Weight::type_smoothing smooth_tab[5] = {
 	Xapian::Weight::TWO_STAGE_SMOOTHING,
 	Xapian::Weight::DIRICHLET_SMOOTHING,
@@ -280,7 +280,7 @@ type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
 	Xapian::Weight::JELINEK_MERCER_SMOOTHING,
 	Xapian::Weight::DIRICHLET_PLUS_SMOOTHING
     };
-    *ptr_val = smooth_tab[v - 1];
+    *ptr_val = smooth_tab[ch - '1'];
     return true;
 }
 
