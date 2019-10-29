@@ -1,7 +1,7 @@
 /** @file valuerangeproc.cc
  * @brief Standard RangeProcessor subclass implementations
  */
-/* Copyright (C) 2007,2008,2009,2010,2012,2016,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2012,2016,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include <xapian/queryparser.h>
 
 #include <cerrno>
-#include <cstdlib> // For atoi().
+#include <cstdlib> // For strtod().
 
 #include <string>
 #include "stringutils.h"
@@ -40,22 +40,28 @@ decode_xxy(const string & s, int & x1, int &x2, int &y)
 	return true;
     }
     if (s.size() < 5 || s.size() > 10) return false;
-    size_t i = s.find_first_not_of("0123456789");
-    if (i < 1 || i > 2 || !(s[i] == '/' || s[i] == '-' || s[i] == '.'))
-	return false;
-    size_t j = s.find_first_not_of("0123456789", i + 1);
-    if (j - (i + 1) < 1 || j - (i + 1) > 2 ||
-	!(s[j] == '/' || s[j] == '-' || s[j] == '.'))
-	return false;
-    if (s.size() - j > 4 + 1) return false;
-    if (s.find_first_not_of("0123456789", j + 1) != string::npos)
-	return false;
-    x1 = atoi(s.c_str());
+    const char* p = s.c_str();
+    if (!C_isdigit(*p)) return false;
+    x1 = *p++ - '0';
+    if (C_isdigit(*p)) {
+	x1 = x1 * 10 + (*p++ - '0');
+    }
     if (x1 < 1 || x1 > 31) return false;
-    x2 = atoi(s.c_str() + i + 1);
+    char sep = *p++;
+    if (sep != '/' && sep != '-' && sep != '.') return false;
+    if (!C_isdigit(*p)) return false;
+    x2 = *p++ - '0';
+    if (C_isdigit(*p)) {
+	x2 = x2 * 10 + (*p++ - '0');
+    }
     if (x2 < 1 || x2 > 31) return false;
-    y = atoi(s.c_str() + j + 1);
-    return true;
+    if (*p++ != sep) return false;
+    if (s.size() - (p - s.c_str()) > 4) return false;
+    y = *p++ - '0';
+    while (C_isdigit(*p)) {
+	y = y * 10 + (*p++ - '0');
+    }
+    return size_t(p - s.c_str()) == s.size();
 }
 
 // We just use this to decide if an ambiguous aa/bb/cc date could be a
