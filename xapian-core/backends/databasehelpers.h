@@ -24,11 +24,11 @@
 #define XAPIAN_INCLUDED_DATABASEHELPERS_H
 
 #include <cerrno>
-#include <cstdlib>
 #include <fstream>
 #include <string>
 
 #include "fileutils.h"
+#include "parseint.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "str.h"
@@ -148,14 +148,18 @@ read_stub_file(const std::string& file,
 		// port number is required, so just leave that case to the
 		// error handling further below.
 		if (!(line[0] == '[' && line.back() == ']')) {
-		    unsigned int port = std::atoi(line.c_str() + colon + 1);
-		    line.erase(colon);
-		    if (line[0] == '[' && line.back() == ']') {
-			line.erase(line.size() - 1, 1);
-			line.erase(0, 1);
+		    unsigned int port;
+		    line.back() = '\0';
+		    if (parse_unsigned(line.c_str() + colon + 1, port)) {
+			line.erase(colon);
+			if (line[0] == '[' && line.back() == ']') {
+			    line.erase(line.size() - 1, 1);
+			    line.erase(0, 1);
+			}
+			action_remote_tcp(line, port);
+			continue;
 		    }
-		    action_remote_tcp(line, port);
-		    continue;
+		    line.back() = ']';
 		}
 	    }
 #else
