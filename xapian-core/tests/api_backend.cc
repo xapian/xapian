@@ -1779,3 +1779,14 @@ DEFINE_TESTCASE(matchall3, backend) {
     TEST_EQUAL(enq.get_mset(0, 10).size(), 0);
     return true;
 }
+
+DEFINE_TESTCASE(reconstruct1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    TEST_STRINGS_EQUAL(db.reconstruct_text(6),
+		       "and yet anoth this one doe mention banana split "
+		       "though so cant be that bad");
+    TEST_STRINGS_EQUAL(db.reconstruct_text(1, 14), "this is a test");
+    TEST_STRINGS_EQUAL(db.reconstruct_text(1, 10, "S"), "");
+    TEST_STRINGS_EQUAL(db.reconstruct_text(6, 0, "", 1, 3), "and yet anoth");
+    return true;
+}

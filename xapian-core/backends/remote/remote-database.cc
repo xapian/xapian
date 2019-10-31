@@ -887,6 +887,25 @@ RemoteDatabase::locked() const
 }
 
 string
+RemoteDatabase::reconstruct_text(Xapian::docid did,
+				 size_t length,
+				 const string& prefix,
+				 Xapian::termpos start_pos,
+				 Xapian::termpos end_pos) const
+{
+    string message;
+    pack_uint(message, did);
+    pack_uint(message, length);
+    pack_uint(message, start_pos);
+    pack_uint(message, end_pos);
+    message += prefix;
+    send_message(MSG_RECONSTRUCTTEXT, message);
+
+    get_message(message, REPLY_RECONSTRUCTTEXT);
+    return message;
+}
+
+string
 RemoteDatabase::get_description() const
 {
     string desc = "Remote(context=";

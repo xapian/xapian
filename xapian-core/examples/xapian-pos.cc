@@ -48,11 +48,12 @@ show_usage()
 {
     cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE\n\n"
 "Options:\n"
-"  -d, --doc=DOCID  Show positions for document DOCID\n"
-"  -s, --start=POS  Specifies the first position to show\n"
-"  -e, --end=POS    Specifies the last position to show\n"
-"  --help           display this help and exit\n"
-"  --version        output version information and exit" << endl;
+"  -d, --doc=DOCID             show positions for document DOCID\n"
+"  -s, --start=POS             specifies the first position to show\n"
+"  -e, --end=POS               specifies the last position to show\n"
+"  -r, --reconstruct[=PREFIX]  reconstruct text for prefix PREFIX\n"
+"  --help                      display this help and exit\n"
+"  --version                   output version information and exit" << endl;
 }
 
 class Pos {
@@ -95,6 +96,7 @@ try {
 	{"doc",		required_argument, 0, 'd'},
 	{"start",	required_argument, 0, 's'},
 	{"end",		required_argument, 0, 'e'},
+	{"reconstruct",	optional_argument, 0, 'r'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
 	{NULL,		0, 0, 0}
@@ -103,8 +105,10 @@ try {
     Xapian::docid did = 0;
     Xapian::termpos startpos = 0;
     Xapian::termpos endpos = numeric_limits<Xapian::termpos>::max();
+    bool reconstruct = false;
+    string reconstruct_prefix;
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "d:e:s:", long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, "d:e:s:r::", long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'd':
 		if (!parse_unsigned(optarg, did) || did == 0) {
@@ -122,6 +126,12 @@ try {
 		if (!parse_unsigned(optarg, endpos)) {
 		    cerr << "Bad end position '" << optarg << "'" << endl;
 		    exit(1);
+		}
+		break;
+	    case 'r':
+		reconstruct = true;
+		if (optarg) {
+		    reconstruct_prefix = optarg;
 		}
 		break;
 	    case OPT_HELP:
@@ -148,9 +158,16 @@ try {
 	exit(1);
     }
 
-    vector<Pos*> heap;
-
     Xapian::Database db(argv[optind]);
+
+    if (reconstruct) {
+	cout << db.reconstruct_text(did, 0, reconstruct_prefix,
+				    startpos, endpos)
+	     << endl;
+	exit(0);
+    }
+
+    vector<Pos*> heap;
 
     for (auto term_it = db.termlist_begin(did);
 	 term_it != db.termlist_end(did); ++term_it) {

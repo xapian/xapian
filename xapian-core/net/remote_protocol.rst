@@ -309,3 +309,9 @@ Remove spelling
 
 -  ``MSG_REMOVESPELLING I<freqdec> <word>``
 -  ``REPLY_REMOVESPELLING L<result>``
+
+Reconstruct text
+----------------
+
+-  ``MSG_RECONSTRUCTTEXT I<did> I<length> I<start_pos> I<end_pos> <prefix>``
+-  ``REPLY_RECONSTRUCTTEXT <text>``

@@ -252,6 +252,9 @@ RemoteServer::run()
 		case MSG_POSITIONLISTCOUNT:
 		    msg_positionlistcount(message);
 		    continue;
+		case MSG_RECONSTRUCTTEXT:
+		    msg_reconstructtext(message);
+		    continue;
 		default: {
 		    // MSG_GETMSET - used during a conversation.
 		    // MSG_SHUTDOWN - handled by get_message().
@@ -749,6 +752,25 @@ RemoteServer::msg_uniqueterms(const string &message)
     string reply;
     pack_uint_last(reply, db->get_unique_terms(did));
     send_message(REPLY_UNIQUETERMS, reply);
+}
+
+void
+RemoteServer::msg_reconstructtext(const string& message)
+{
+    const char* p = message.data();
+    const char* p_end = p + message.size();
+    Xapian::docid did;
+    size_t length;
+    Xapian::termpos start_pos, end_pos;
+    if (!unpack_uint(&p, p_end, &did) ||
+	!unpack_uint(&p, p_end, &length) ||
+	!unpack_uint(&p, p_end, &start_pos) ||
+	!unpack_uint(&p, p_end, &end_pos)) {
+	throw Xapian::NetworkError("Bad MSG_RECONSTRUCTTEXT");
+    }
+    send_message(REPLY_RECONSTRUCTTEXT,
+		 db->reconstruct_text(did, length, string(p, p_end),
+				      start_pos, end_pos));
 }
 
 void

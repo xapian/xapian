@@ -504,6 +504,16 @@ Database::get_revision() const
     return internal->get_revision();
 }
 
+string
+Database::reconstruct_text(Xapian::docid did,
+			   size_t length,
+			   const std::string& prefix,
+			   Xapian::termpos start_pos,
+			   Xapian::termpos end_pos) const
+{
+    return internal->reconstruct_text(did, length, prefix, start_pos, end_pos);
+}
+
 void
 WritableDatabase::commit()
 {

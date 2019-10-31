@@ -302,6 +302,12 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     bool locked() const;
 
+    std::string reconstruct_text(Xapian::docid did,
+				 size_t length,
+				 const std::string& prefix,
+				 Xapian::termpos start_pos,
+				 Xapian::termpos end_pos) const;
+
     std::string get_description() const;
 };
 

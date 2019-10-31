@@ -838,6 +838,29 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     {
 	compact_(NULL, fd, flags, block_size, &compactor);
     }
+
+    /** Reconstruct document text.
+     *
+     *  This uses term positional information to reconstruct the document text
+     *  which was indexed.  Reading the required positional information is
+     *  potentially quite I/O intensive.
+     *
+     *  The reconstructed text will be missing punctuation and most
+     *  capitalisation.
+     *
+     *  @param did	  The document id of the document to reconstruct
+     *  @param length	  Number of bytes of text to aim for - note that
+     *			  slightly more may be returned (default: 0 meaning
+     *			  unlimited)
+     *  @param prefix	  Term prefix to reconstruct (default: none)
+     *  @param start_pos  First position to reconstruct (default: 0)
+     *  @param end_pos    Last position to reconstruct (default: 0 meaning all)
+     */
+    std::string reconstruct_text(Xapian::docid did,
+				 size_t length = 0,
+				 const std::string& prefix = std::string(),
+				 Xapian::termpos start_pos = 0,
+				 Xapian::termpos end_pos = 0) const;
 };
 
 /** This class provides read/write access to a database.

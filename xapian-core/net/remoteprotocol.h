@@ -54,9 +54,10 @@
 // 41: pre-1.5.0 Changed REPLY_ALLTERMS, REPLY_METADATAKEYLIST, REPLY_TERMLIST.
 // 42: pre-1.5.0 Use little-endian IEEE for doubles
 // 43: pre-1.5.0 REPLY_DONE sent for 5 more messages; MSG_QUERY adjusted
-// 44: 1.5.0 pack_uint() now used; many other changes
+// 44: pre-1.5.0 pack_uint() now used; many other changes
+// 44.1: 1.5.0 MSG_RECONSTRUCTTEXT added
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 44
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
 
 /** Message types (client -> server).
  *
@@ -96,6 +97,7 @@ enum message_type {
     MSG_FREQS,			// Get termfreq and collfreq
     MSG_UNIQUETERMS,		// Get number of unique terms in doc
     MSG_POSITIONLISTCOUNT,	// Get PositionList length
+    MSG_RECONSTRUCTTEXT,	// Reconstruct document text
     MSG_MAX
 };
 
@@ -127,6 +129,7 @@ enum reply_type {
     REPLY_POSITIONLISTCOUNT,	// Get PositionList length
     REPLY_REMOVESPELLING,	// Remove a spelling
     REPLY_TERMLISTHEADER,	// Header for get termlist
+    REPLY_RECONSTRUCTTEXT,	// Reconstruct document text
     REPLY_MAX
 };
 

@@ -1,7 +1,7 @@
 /** @file databaseinternal.h
  * @brief Virtual base class for Database internals
  */
-/* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017 Olly Betts
+/* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017,2019 Olly Betts
  * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -474,6 +474,12 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  throw Xapian::UnimplementedError).
      */
     virtual bool locked() const;
+
+    virtual std::string reconstruct_text(Xapian::docid did,
+					 size_t length,
+					 const std::string& prefix,
+					 Xapian::termpos start_pos,
+					 Xapian::termpos end_pos) const;
 
     /// Return a string describing this object.
     virtual std::string get_description() const = 0;

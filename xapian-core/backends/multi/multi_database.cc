@@ -1,7 +1,7 @@
 /** @file multi_database.cc
  * @brief Sharded database backend
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -711,6 +711,22 @@ void
 MultiDatabase::set_metadata(const string& key, const string& value)
 {
     shards[0]->set_metadata(key, value);
+}
+
+string
+MultiDatabase::reconstruct_text(Xapian::docid did,
+				size_t length,
+				const string& prefix,
+				Xapian::termpos start_pos,
+				Xapian::termpos end_pos) const
+{
+    Assert(did != 0);
+
+    auto n_shards = shards.size();
+    auto shard = shards[shard_number(did, n_shards)];
+    auto shard_did = shard_docid(did, n_shards);
+    return shard->reconstruct_text(shard_did, length, prefix,
+				   start_pos, end_pos);
 }
 
 string
