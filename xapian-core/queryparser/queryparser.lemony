@@ -1446,8 +1446,7 @@ phrased_term:
 	    // when used with positional operators".
 	    stem_strategy stem_term = stem_action;
 	    if (stem_term != STEM_NONE) {
-		if (!stemmer.internal.get()) {
-		    // No stemmer is set.
+		if (stemmer.is_none()) {
 		    stem_term = STEM_NONE;
 		} else if (first_wildcard != string::npos ||
 			   edit_distance != NO_EDIT_DISTANCE) {

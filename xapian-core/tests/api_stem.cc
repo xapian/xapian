@@ -1,7 +1,7 @@
 /** @file api_stem.cc
  * @brief Test the stemming API
  */
-/* Copyright (C) 2010,2012 Olly Betts
+/* Copyright (C) 2010,2012,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,5 +111,14 @@ DEFINE_TESTCASE(stemlangs2, !backend) {
 	lang[0] = char(ch);
 	TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stem(lang));
     }
+
+    // Test fallback=false throws too.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stem("x", false));
+
+    // Test fallback=true gives "none" stemmer.
+    Xapian::Stem stem(lang, true);
+    TEST(stem.is_none());
+    TEST_EQUAL(stem.get_description(), "Xapian::Stem(none)");
+
     return true;
 }
