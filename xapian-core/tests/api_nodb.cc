@@ -238,7 +238,8 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
     TEST(!langs.empty());
 
     // Also test the language codes and none.
-    langs += " da nl en fi fr de hu it no pt ro ru es sv tr none";
+    langs += " ar hy eu ca da nl en fi fr de hu id ga it lt ne nb nn no pt ro"
+	     " ru es sv ta tr none";
 
     string::size_type i = 0;
     while (true) {
