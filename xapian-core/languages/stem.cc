@@ -37,22 +37,6 @@ using namespace std;
 
 namespace Xapian {
 
-Stem::Stem(const Stem & o) : internal(o.internal) { }
-
-Stem &
-Stem::operator=(const Stem & o)
-{
-    internal = o.internal;
-    return *this;
-}
-
-Stem::Stem(Stem &&) = default;
-
-Stem &
-Stem::operator=(Stem &&) = default;
-
-Stem::Stem() { }
-
 Stem::Stem(const std::string& language, bool fallback)
 {
     int l = keyword2(tab, language.data(), language.size());
@@ -153,10 +137,6 @@ Stem::Stem(const std::string& language, bool fallback)
 	return;
     throw Xapian::InvalidArgumentError("Language code " + language + " unknown");
 }
-
-Stem::Stem(StemImplementation * p) : internal(p) { }
-
-Stem::~Stem() { }
 
 string
 Stem::operator()(const std::string &word) const

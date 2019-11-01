@@ -65,22 +65,25 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
     Xapian::Internal::intrusive_ptr<StemImplementation> internal;
 
     /// Copy constructor.
-    Stem(const Stem & o);
+    Stem(const Stem& o) : internal(o.internal) { }
 
     /// Assignment.
-    Stem & operator=(const Stem & o);
+    Stem& operator=(const Stem& o) {
+	internal = o.internal;
+	return *this;
+    }
 
     /// Move constructor.
-    Stem(Stem && o);
+    Stem(Stem&&) = default;
 
     /// Move assignment operator.
-    Stem & operator=(Stem && o);
+    Stem& operator=(Stem&&) = default;
 
     /** Construct a Xapian::Stem object which doesn't change terms.
      *
      *  Equivalent to Stem("none").
      */
-    Stem();
+    Stem() { }
 
     /** Construct a Xapian::Stem object for a particular language.
      *
@@ -142,10 +145,10 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *			deleted by the Xapian::Stem wrapper when no longer
      *			required.
      */
-    explicit Stem(StemImplementation * p);
+    explicit Stem(StemImplementation* p) : internal(p) { }
 
     /// Destructor.
-    ~Stem();
+    ~Stem() { }
 
     /** Stem a word.
      *
