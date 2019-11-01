@@ -1,7 +1,7 @@
 /** @file stem.h
  * @brief stemming algorithms
  */
-/* Copyright (C) 2005,2007,2010,2011,2013,2014,2015,2018 Olly Betts
+/* Copyright (C) 2005,2007,2010,2011,2013,2014,2015,2018,2019 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -125,10 +125,13 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - tamil (ta) - Since Xapian 1.4.7
      *  - turkish (tr)
      *
+     *  @param fallback If true treat unknown @a language as "none" (default:
+     *			false)
+     *
      *  @exception	Xapian::InvalidArgumentError is thrown if
-     *			language isn't recognised.
+     *			@a language isn't recognised and @a fallback is false.
      */
-    explicit Stem(const std::string &language);
+    Stem(const std::string& language, bool fallback = false);
 
     /** Construct a Xapian::Stem object with a user-provided stemming algorithm.
      *
@@ -152,6 +155,9 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  @return		the stem
      */
     std::string operator()(const std::string &word) const;
+
+    /// Return true if this is a no-op stemmer.
+    bool is_none() const { return !internal.get(); }
 
     /// Return a string describing this object.
     std::string get_description() const;
