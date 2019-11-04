@@ -70,33 +70,33 @@ class RSet;
 class Weight::Internal {
 #ifdef XAPIAN_ASSERTIONS
     /** Number of sub-databases. */
-    size_t subdbs;
+    size_t subdbs = 0;
 
     /** True if we've finalised the stats.
      *
      *  Used for assertions.
      */
-    mutable bool finalised;
+    mutable bool finalised = false;
 #endif
 
   public:
     /** Total length of all documents in the collection. */
-    Xapian::totallength total_length;
+    Xapian::totallength total_length = 0;
 
     /** Number of documents in the collection. */
-    Xapian::doccount collection_size;
+    Xapian::doccount collection_size = 0;
 
     /** Number of relevant documents in the collection. */
-    Xapian::doccount rset_size;
+    Xapian::doccount rset_size = 0;
 
     /** Number of terms in the collection. */
-    Xapian::termcount total_term_count;
+    Xapian::termcount total_term_count = 0;
 
     /** Has max_part been set for any term?
      *
      *  If not, we can avoid having to serialise max_part.
      */
-    bool have_max_part;
+    bool have_max_part = false;
 
     /** Database to get the bounds on doclength and wdf from. */
     Xapian::Database db;
@@ -108,13 +108,7 @@ class Weight::Internal {
      *  collection. */
     std::map<std::string, TermFreqs> termfreqs;
 
-    Internal()
-	:
-#ifdef XAPIAN_ASSERTIONS
-	  subdbs(0), finalised(false),
-#endif
-	  total_length(0), collection_size(0), rset_size(0),
-	  total_term_count(0), have_max_part(false) { }
+    Internal() { }
 
     /** Add in the supplied statistics from a sub-database.
      *
