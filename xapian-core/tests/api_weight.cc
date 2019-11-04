@@ -1,7 +1,7 @@
 /** @file api_weight.cc
  * @brief tests of Xapian::Weight subclasses
  */
-/* Copyright (C) 2004,2012,2013,2016,2017,2018 Olly Betts
+/* Copyright (C) 2004,2012,2013,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
  *
@@ -1090,6 +1090,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
 	need_stat(UNIQUE_TERMS);
+	need_stat(TOTAL_LENGTH);
     }
 
     CheckStatsWeight(const Xapian::Database & db_,
@@ -1123,6 +1124,10 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_EQUAL(get_collection_size(), num_docs);
 	TEST_EQUAL(get_rset_size(), 0);
 	TEST_EQUAL(get_average_length(), db.get_avlength());
+	Xapian::totallength totlen = get_total_length();
+	TEST_EQUAL(totlen, db.get_total_length());
+	double total_term_occurences = get_average_length() * num_docs;
+	TEST_EQUAL(Xapian::totallength(total_term_occurences + 0.5), totlen);
 	if (term2.empty() || term2 == "=" || term2 == "_") {
 	    TEST_EQUAL(get_termfreq(), db.get_termfreq(term1));
 	    TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term1));
@@ -1167,8 +1172,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	    TEST_REL(get_collection_freq(), <=, cfsum);
 	    // Synonym can't occur more times than there are documents/terms.
 	    TEST_REL(get_termfreq(), <=, num_docs);
-	    double total_term_occurences = get_average_length() * num_docs;
-	    TEST_REL(get_collection_freq(), <=, total_term_occurences);
+	    TEST_REL(get_collection_freq(), <=, totlen);
 	}
 	TEST_EQUAL(get_reltermfreq(), 0);
 	TEST_EQUAL(get_wqf(), 1);

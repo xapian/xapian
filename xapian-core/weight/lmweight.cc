@@ -59,9 +59,9 @@ LMWeight::init(double factor_)
     AssertRel(collection_freq,>=,0);
     LOGVALUE(WTCALC, collection_freq);
 
-    // calculating approximate number of total terms in the collection to be
-    // accessed for smoothing of the document.
-    double total_collection_term = get_collection_size() * get_average_length();
+    // This is the total number of term occurrences in the collection, which we
+    // use for smoothing.
+    Xapian::totallength total_length = get_total_length();
 
     /* In case the within document frequency of term is zero smoothing will
      * be required and should be return instead of returning zero, as returning
@@ -69,16 +69,16 @@ LMWeight::init(double factor_)
      * of single term whole document is scored zero, hence apply collection
      * frequency smoothing.
      */
-    weight_collection = double(collection_freq) / total_collection_term;
-
-    // Total term should be greater than zero as there would be at least one
-    // document in collection.
-    AssertRel(total_collection_term,>,0);
-    LOGVALUE(WTCALC, total_collection_term);
+    if (rare(total_length == 0)) {
+	AssertEq(collection_freq, 0);
+	weight_collection = 0;
+    } else {
+	weight_collection = double(collection_freq) / total_length;
+    }
 
     // There can't be more relevant term in collection than total number of
     // term.
-    AssertRel(collection_freq,<=,total_collection_term);
+    AssertRel(weight_collection,<=,1.0);
 
     /* Setting default values of the param_log to handle negative value of log.
      * It is considered to be upperbound of document length.

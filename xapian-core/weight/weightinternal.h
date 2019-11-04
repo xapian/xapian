@@ -92,9 +92,6 @@ class Weight::Internal {
     /** Number of relevant documents in the collection. */
     Xapian::doccount rset_size = 0;
 
-    /** Number of terms in the collection. */
-    Xapian::termcount total_term_count = 0;
-
     /** Has max_part been set for any term?
      *
      *  If not, we can avoid having to serialise max_part.

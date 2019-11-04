@@ -127,7 +127,9 @@ MultiAndPostList::get_termfreq_est_using_stats(
 	// If the collection is empty, freqest should be 0 already, so leave
 	// it alone.
 	freqest = (freqest * freqs.termfreq) / stats.collection_size;
-	collfreqest = (collfreqest * freqs.collfreq) / stats.total_term_count;
+	if (usual(stats.total_length != 0)) {
+	    collfreqest = (collfreqest * freqs.collfreq) / stats.total_length;
+	}
 
 	// If the rset is empty, relfreqest should be 0 already, so leave
 	// it alone.
