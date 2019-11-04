@@ -1410,13 +1410,11 @@ XAPIAN_TEST_LDFLAGS([-Wl,-Bsymbolic-functions], [XAPIAN_LDFLAGS])
 dnl Roughly equivalent Sun C++ option.
 XAPIAN_TEST_LDFLAGS([-xldscope=symbolic], [XAPIAN_LDFLAGS])
 
-FP_EXCESS_PRECISION=no
 AC_MSG_CHECKING([whether to use SSE instructions on x86])
 case $host_cpu in
   i*86)
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
-      FP_EXCESS_PRECISION=yes
       if test yes = "$msvc"; then
 	dnl MSVC defaults to SSE2.
 	AM_CXXFLAGS="$AM_CXXFLAGS -arch:IA32"
@@ -1443,8 +1441,7 @@ case $host_cpu in
 	  [AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
 	  AM_CXXFLAGS="$AM_CXXFLAGS -xarch=$enable_sse"]
 	  ,
-	  [AC_MSG_RESULT([don't know how to for compiler $CXX])
-	  FP_EXCESS_PRECISION=yes]
+	  [AC_MSG_RESULT([don't know how to for compiler $CXX])]
 	)
       fi
     fi
@@ -1452,7 +1449,6 @@ case $host_cpu in
   *)
     AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
 esac
-AC_SUBST([FP_EXCESS_PRECISION])
 
 AH_BOTTOM(
 [/* Disable stupid MSVC warnings. */

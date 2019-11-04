@@ -141,8 +141,8 @@ BackendManagerMulti::createdb_multi(const string& name,
 	    dbs.add_database(
 		sub_managers[n]->get_remote_writable_database(args));
 
-	    out << "remote :" << XAPIAN_PROGSRV << " " << args << '\n';
-
+	    out << "remote :" << BackendManager::get_xapian_progsrv_command()
+		<< " " << args << '\n';
 	} else {
 	    string msg = "Unknown multidb subtype: ";
 	    msg += subtype;
