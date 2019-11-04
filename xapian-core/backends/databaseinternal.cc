@@ -463,7 +463,7 @@ reconstruct_open_poslists(TermList* termlist,
 	PositionList* poslist = termlist->positionlist_begin();
 	if ((start_pos ? poslist->skip_to(start_pos) : poslist->next()) &&
 	    (end_pos == LAST_POS || poslist->get_position() <= end_pos)) {
-	    heap.push_back(make_unique<Pos>(term.substr(prefix_size), poslist));
+	    heap.emplace_back(new Pos(term.substr(prefix_size), poslist));
 	} else {
 	    delete poslist;
 	}
