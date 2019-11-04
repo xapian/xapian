@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
+/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016,2019 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
@@ -63,7 +63,12 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	/// Sum of wdf over the whole collection for the current term.
 	COLLECTION_FREQ = 4096,
 	/// Number of unique terms in the current document.
-	UNIQUE_TERMS = 8192
+	UNIQUE_TERMS = 8192,
+	/** Sum of lengths of all documents in the collection.
+	 *
+	 *  This gives the total number of term occurrences.
+	 */
+	TOTAL_LENGTH = COLLECTION_SIZE | AVERAGE_LENGTH
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -380,6 +385,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     Xapian::termcount get_wdf_upper_bound() const {
 	return wdf_upper_bound_;
+    }
+
+    /// Total length of all documents in the collection.
+    Xapian::totallength get_total_length() const {
+	return Xapian::totallength(average_length_ * collection_size_ + 0.5);
     }
 };
 
@@ -1112,15 +1122,14 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
 
   public:
     DLHWeight() {
-	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(COLLECTION_SIZE);
 	need_stat(COLLECTION_FREQ);
 	need_stat(WDF);
 	need_stat(WQF);
 	need_stat(WDF_MAX);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
+	need_stat(TOTAL_LENGTH);
     }
 
     std::string name() const;
@@ -1337,15 +1346,14 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
   public:
     /** Construct a DPHWeight. */
     DPHWeight() {
-	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(COLLECTION_SIZE);
 	need_stat(COLLECTION_FREQ);
 	need_stat(WDF);
 	need_stat(WQF);
 	need_stat(WDF_MAX);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
+	need_stat(TOTAL_LENGTH);
     }
 
     std::string name() const;
@@ -1442,9 +1450,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	    else
 		param_smoothing2 = 0.05;
 	}
-	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(COLLECTION_SIZE);
 	need_stat(RSET_SIZE);
 	need_stat(TERMFREQ);
 	need_stat(RELTERMFREQ);
@@ -1452,6 +1458,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	need_stat(WDF);
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
+	need_stat(TOTAL_LENGTH);
 	if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING)
 	    need_stat(UNIQUE_TERMS);
 	if (select_smoothing == DIRICHLET_PLUS_SMOOTHING)

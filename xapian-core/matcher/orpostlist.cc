@@ -323,7 +323,11 @@ OrPostList::get_termfreq_est_using_stats(
     Assert(stats.collection_size);
 
     freqest = est(lfreqs.termfreq, rfreqs.termfreq, stats.collection_size);
-    collfreqest = est(lfreqs.collfreq, rfreqs.collfreq, stats.total_term_count);
+    if (stats.total_length == 0) {
+	collfreqest = 0;
+    } else {
+	collfreqest = est(lfreqs.collfreq, rfreqs.collfreq, stats.total_length);
+    }
     if (stats.rset_size == 0) {
 	relfreqest = 0;
     } else {

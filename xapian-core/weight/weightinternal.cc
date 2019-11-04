@@ -61,7 +61,6 @@ Weight::Internal::operator+=(const Weight::Internal & inc)
     total_length += inc.total_length;
     collection_size += inc.collection_size;
     rset_size += inc.rset_size;
-    total_term_count += inc.total_term_count;
 
     // Add termfreqs and reltermfreqs
     map<string, TermFreqs>::const_iterator i;
@@ -83,7 +82,6 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     collection_size += subdb.get_doccount();
     rset_size += rset.size();
 
-    total_term_count += subdb.get_doccount() * subdb.get_total_length();
     Xapian::TermIterator t;
     for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
 	const string & term = *t;
@@ -128,8 +126,6 @@ Weight::Internal::get_description() const
     desc += str(collection_size);
     desc += ", rset_size=";
     desc += str(rset_size);
-    desc += ", total_term_count=";
-    desc += str(total_term_count);
 #ifdef XAPIAN_ASSERTIONS
     desc += ", subdbs=";
     desc += str(subdbs);

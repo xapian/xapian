@@ -147,8 +147,10 @@ AndNotPostList::get_termfreq_est_using_stats(
     freqest = lfreqs.termfreq *
 	    (1.0 - (double(rfreqs.termfreq) / stats.collection_size));
 
-    collfreqest = lfreqs.collfreq *
-	    (1.0 - (double(rfreqs.collfreq) / stats.total_term_count));
+    collfreqest = lfreqs.collfreq;
+    if (stats.total_length != 0) {
+	collfreqest *= (1.0 - (double(rfreqs.collfreq) / stats.total_length));
+    }
 
     if (stats.rset_size == 0) {
 	relfreqest = 0;
