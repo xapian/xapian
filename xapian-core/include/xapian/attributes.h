@@ -21,7 +21,7 @@
 #define XAPIAN_INCLUDED_ATTRIBUTES_H
 
 #if __cplusplus >= 201103L || (defined _MSC_VER && _MSC_VER >= 1900)
-// C++11 has noexcept(true) for marking a function which shouldn't throw.
+// C++11 has noexcept for marking a function which shouldn't throw.
 //
 // You need a C++11 compiler to build Xapian, but we still support using a
 // non-C++11 compiler to build code which uses Xapian (one reason is that
@@ -29,12 +29,12 @@
 // compilers).  Once we require C++11 for using Xapian, XAPIAN_NOTHROW can go
 // away.
 //
-// We can't simply just add noexcept(true) via XAPIAN_NOTHROW as noexcept has
+// We can't simply just add noexcept via XAPIAN_NOTHROW as noexcept has
 // to be added to all declarations, whereas the GCC attribute can't be used on
 // a function definition.  So for now, XAPIAN_NOTHROW() goes around
 // declarations, and XAPIAN_NOEXCEPT needs to be explicitly added to
 // definitions.
-# define XAPIAN_NOEXCEPT noexcept(true)
+# define XAPIAN_NOEXCEPT noexcept
 #else
 # define XAPIAN_NOEXCEPT
 #endif
