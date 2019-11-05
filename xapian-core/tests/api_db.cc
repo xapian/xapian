@@ -184,6 +184,7 @@ DEFINE_TESTCASE(stubdb2, path) {
 	// to connect to it (which hopefully fails), so just test the message
 	// doesn't match the bad 1.4.0 result.
 	TEST(e.get_msg().find("host [") == string::npos);
+	TEST_EQUAL(e.get_context(), "remote:tcp(::1:65535)");
     }
 
     try {
@@ -201,6 +202,7 @@ DEFINE_TESTCASE(stubdb2, path) {
 	// to connect to it (which hopefully fails), so just test the message
 	// doesn't match the bad 1.4.0 result.
 	TEST(e.get_msg().find("host [") == string::npos);
+	TEST_EQUAL(e.get_context(), "remote:tcp(::1:65535)");
     }
 #endif
 

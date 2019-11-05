@@ -149,7 +149,6 @@ read_stub_file(const std::string& file,
 		// error handling further below.
 		if (!(line[0] == '[' && line.back() == ']')) {
 		    unsigned int port;
-		    line.back() = '\0';
 		    if (parse_unsigned(line.c_str() + colon + 1, port)) {
 			line.erase(colon);
 			if (line[0] == '[' && line.back() == ']') {
