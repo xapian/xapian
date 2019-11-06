@@ -221,7 +221,7 @@ index_add_default_filters()
     // Output is UTF-8 according to "man djvutxt".  Generally this seems to
     // be true, though some examples from djvu.org generate isolated byte
     // 0x95 in a context which suggests it might be intended to be a bullet
-    // (as it is in CP1250).
+    // (as it is in CP1252).
     index_command("image/vnd.djvu", Filter("djvutxt -", PIPE_IN));
     index_command("text/markdown",
 		  Filter("markdown", "text/html", PIPE_IN));
