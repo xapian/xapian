@@ -132,8 +132,12 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *
      *  @exception	Xapian::InvalidArgumentError is thrown if
      *			@a language isn't recognised and @a fallback is false.
+     *
+     *	@{
      */
-    Stem(const std::string& language, bool fallback = false);
+    explicit Stem(const std::string& language);
+    Stem(const std::string& language, bool fallback);
+    /** @} */
 
     /** Construct a Xapian::Stem object with a user-provided stemming algorithm.
      *
