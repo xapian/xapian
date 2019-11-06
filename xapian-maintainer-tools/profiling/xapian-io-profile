@@ -2,11 +2,11 @@
 set -e
 
 case $1 in
-    --log=*)
+  --log=*)
     log_file=${1#*=}
     shift
-    exec 99>"$log_file"
-    export XAPIAN_IO_PROFILE_LOG_FD=99
+    exec 9>"$log_file"
+    export XAPIAN_IO_PROFILE_LOG_FD=9
     ;;
 esac
 
