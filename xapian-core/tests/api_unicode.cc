@@ -319,6 +319,9 @@ DEFINE_TESTCASE(unicode1, !backend) {
     // U+1FA90 "RINGED PLANET"
     TEST_EQUAL(Unicode::get_category(0x1FA90), Unicode::OTHER_SYMBOL);
 
+    // Added in Unicode 12.1.0:
+    TEST_EQUAL(Unicode::get_category(0x32ff), Unicode::OTHER_SYMBOL);
+
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -554,6 +557,7 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	0x5be,
 	// OTHER_SYMBOL
 	0xd4f, // Added in Unicode 9.0.0
+	0x32ff, // Added in Unicode 12.1.0; UNASSIGNED before
 	0x1f093, // Added in Unicode 5.1.0
 	0x1f263, // Added in Unicode 10.0.0
 	0x1fa62, // Added in Unicode 11.0.0

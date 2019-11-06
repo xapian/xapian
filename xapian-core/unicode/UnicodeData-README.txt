@@ -1,5 +1,5 @@
-UnicodeData.txt is for Unicode 12.0.0, downloaded from:
-https://www.unicode.org/Public/12.0.0/ucd/UnicodeData.txt
+UnicodeData.txt is for Unicode 12.1.0, downloaded from:
+https://www.unicode.org/Public/12.1.0/ucd/UnicodeData.txt
 
 Copyright and licensing information from https://www.unicode.org/license.html
 follows:
