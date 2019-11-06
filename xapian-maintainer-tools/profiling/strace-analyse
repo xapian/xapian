@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Copyright (C) 2013,2014 Olly Betts
+# Copyright (C) 2013,2014,2019 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -78,6 +78,8 @@ while (<>) {
 	$path //= $fd[$fd];
         print "write $block to $path\n";
     } elsif (/^open\("(.*)".* = (\d+)$/) {
+	$fd[$2] = $1;
+    } elsif (/^openat\(AT_FDCWD, "(.*)".* = (\d+)$/) {
 	$fd[$2] = $1;
     } elsif (/^close\((\d+)\)/) {
         $fd[$1] = undef;
