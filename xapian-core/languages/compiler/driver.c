@@ -25,57 +25,62 @@ static int eq(const char * s1, const char * s2) {
     return strcmp(s1, s2) == 0;
 }
 
-static void print_arglist(void) {
-    fprintf(stderr, "Usage: snowball <file>... [options]\n\n"
-                    "options are: [-o[utput] file]\n"
-                    "             [-s[yntax]]\n"
+static void print_arglist(int exit_code) {
+    FILE * f = exit_code ? stderr : stdout;
+    fprintf(f, "Usage: snowball SOURCE_FILE... [OPTIONS]\n\n"
+               "Supported options:\n"
+               "  -o[utput] file\n"
+               "  -s[yntax]\n"
+               "  -comments\n"
 #ifndef DISABLE_JAVA
-                    "             [-j[ava]]\n"
+               "  -j[ava]\n"
 #endif
 #ifndef DISABLE_CSHARP
-                    "             [-cs[harp]]\n"
+               "  -cs[harp]\n"
 #endif
-                    "             [-c++]\n"
+               "  -c++\n"
 #ifndef DISABLE_PASCAL
-                    "             [-pascal]\n"
+               "  -pascal\n"
 #endif
 #ifndef DISABLE_PYTHON
-                    "             [-py[thon]]\n"
+               "  -py[thon]\n"
 #endif
 #ifndef DISABLE_JS
-                    "             [-js]\n"
+               "  -js\n"
 #endif
 #ifndef DISABLE_RUST
-                    "             [-rust]\n"
+               "  -rust\n"
 #endif
 #ifndef DISABLE_GO
-                    "             [-go]\n"
+               "  -go\n"
 #endif
-                    "             [-w[idechars]]\n"
-                    "             [-u[tf8]]\n"
-                    "             [-n[ame] class name]\n"
-                    "             [-ep[refix] string]\n"
-                    "             [-vp[refix] string]\n"
-                    "             [-i[nclude] directory]\n"
-                    "             [-r[untime] path to runtime headers]\n"
-                    "             [-p[arentclassname] fully qualified parent class name]\n"
+               "  -w[idechars]\n"
+               "  -u[tf8]\n"
+               "  -n[ame] class name\n"
+               "  -ep[refix] string\n"
+               "  -vp[refix] string\n"
+               "  -i[nclude] directory\n"
+               "  -r[untime] path to runtime headers\n"
+               "  -p[arentclassname] fully qualified parent class name\n"
 #if !defined(DISABLE_JAVA) || !defined(DISABLE_CSHARP)
-                    "             [-P[ackage] package name for stemmers]\n"
-                    "             [-S[tringclass] StringBuffer-compatible class]\n"
-                    "             [-a[mongclass] fully qualified name of the Among class]\n"
+               "  -P[ackage] package name for stemmers\n"
+               "  -S[tringclass] StringBuffer-compatible class\n"
+               "  -a[mongclass] fully qualified name of the Among class\n"
 #endif
 #ifndef DISABLE_GO
-                    "             [-gop[ackage] Go package name for stemmers]\n"
-                    "             [-gor[untime] Go snowball runtime package]\n"
+               "  -gop[ackage] Go package name for stemmers\n"
+               "  -gor[untime] Go snowball runtime package\n"
 #endif
+               "  --help        display this help and exit\n"
+               "  --version     output version information and exit\n"
            );
-    exit(1);
+    exit(exit_code);
 }
 
 static void check_lim(int i, int argc) {
     if (i >= argc) {
         fprintf(stderr, "argument list is one short\n");
-        print_arglist();
+        print_arglist(1);
     }
 }
 
@@ -103,6 +108,7 @@ static int read_options(struct options * o, int argc, char * argv[]) {
 
     o->output_file = 0;
     o->syntax_tree = false;
+    o->comments = false;
     o->externals_prefix = NULL;
     o->variables_prefix = 0;
     o->runtime_path = 0;
@@ -193,6 +199,10 @@ static int read_options(struct options * o, int argc, char * argv[]) {
                 o->syntax_tree = true;
                 continue;
             }
+            if (eq(s, "-comments")) {
+                o->comments = true;
+                continue;
+            }
             if (eq(s, "-ep") || eq(s, "-eprefix")) {
                 check_lim(i, argc);
                 o->externals_prefix = argv[i++];
@@ -262,13 +272,22 @@ static int read_options(struct options * o, int argc, char * argv[]) {
                 continue;
             }
 #endif
+            if (eq(s, "--help")) {
+                print_arglist(0);
+            }
+
+            if (eq(s, "--version")) {
+                printf("Snowball compiler version " SNOWBALL_VERSION "\n");
+                exit(0);
+            }
+
             fprintf(stderr, "'%s' misplaced\n", s);
-            print_arglist();
+            print_arglist(1);
         }
     }
     if (new_argc == 1) {
         fprintf(stderr, "no source files specified\n");
-        print_arglist();
+        print_arglist(1);
     }
     argv[new_argc] = NULL;
 
@@ -328,12 +347,12 @@ static int read_options(struct options * o, int argc, char * argv[]) {
     }
 
     if (o->make_lang != LANG_C && o->make_lang != LANG_CPLUSPLUS) {
-	if (o->runtime_path) {
-	    fprintf(stderr, "warning: -r/-runtime only meaningful for C and C++\n");
-	}
-	if (o->externals_prefix) {
-	    fprintf(stderr, "warning: -ep/-eprefix only meaningful for C and C++\n");
-	}
+        if (o->runtime_path) {
+            fprintf(stderr, "warning: -r/-runtime only meaningful for C and C++\n");
+        }
+        if (o->externals_prefix) {
+            fprintf(stderr, "warning: -ep/-eprefix only meaningful for C and C++\n");
+        }
     }
     if (!o->externals_prefix) o->externals_prefix = "";
 
@@ -371,7 +390,7 @@ static int read_options(struct options * o, int argc, char * argv[]) {
                     size_t i, j = 0;
                     int uc_next = true;
                     for (i = 0; i != len; ++i) {
-			unsigned char ch = leaf[i];
+                        unsigned char ch = leaf[i];
                         if (ch == '_' || ch == '-') {
                             uc_next = true;
                         } else {
@@ -448,8 +467,7 @@ extern int main(int argc, char * argv[]) {
                 const char * s = o->output_file;
                 if (!s) {
                     fprintf(stderr, "Please include the -o option\n");
-                    print_arglist();
-                    exit(1);
+                    print_arglist(1);
                 }
                 g = create_generator(a, o);
                 if (o->make_lang == LANG_C || o->make_lang == LANG_CPLUSPLUS) {
