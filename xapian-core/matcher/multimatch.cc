@@ -441,6 +441,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // number of matching documents which is higher than the number of
     // documents it returns (because it wasn't asked for more documents).
     Xapian::doccount definite_matches_not_seen = 0;
+    // Track these for calculating uncollapsed_upper_bound for the local.
+    size_t n_remotes = 0;
+    Xapian::doccount remote_uncollapsed_upper_bound = 0;
     try {
 	for (size_t i = 0; i != leaves.size(); ++i) {
 	    // Pick the highest total subqueries answer amongst the
@@ -451,7 +454,13 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    PostList* pl = leaves[i]->get_postlist(this, &total_subqs_i);
 	    total_subqs = max(total_subqs, total_subqs_i);
 	    if (is_remote[i]) {
-		if (pl->get_termfreq_min() > first + maxitems) {
+		++n_remotes;
+		RemoteSubMatch* rem_match =
+		    static_cast<RemoteSubMatch*>(leaves[i].get());
+		remote_uncollapsed_upper_bound +=
+		    rem_match->get_uncollapsed_upper_bound();
+		if (collapse_max == 0 &&
+		    pl->get_termfreq_min() > first + maxitems) {
 		    LOGLINE(MATCH, "Found " <<
 				   pl->get_termfreq_min() - (first + maxitems)
 				   << " definite matches in remote submatch "
@@ -941,6 +950,27 @@ new_greatest_weight:
     Xapian::doccount uncollapsed_lower_bound = matches_lower_bound;
     Xapian::doccount uncollapsed_upper_bound = matches_upper_bound;
     Xapian::doccount uncollapsed_estimated = matches_estimated;
+    if (collapser && n_remotes) {
+	// We need to adjust uncollapsed_upper_bound if there are multiple
+	// shards and some or all are remote.  The lower bound and estimate
+	// will be valid, though potentially could be better, but this
+	// doesn't seem worth addressing in 1.4.x - the code on master
+	// handles this correctly via merging MSet objects.
+	if (n_remotes == leaves.size()) {
+	    // All shards are remote so we just use the sum of
+	    // uncollapsed_upper_bound over the remotes.
+	    uncollapsed_upper_bound = remote_uncollapsed_upper_bound;
+	} else {
+	    // Sum and clamp to the number of documents.  This is crude but
+	    // at least gives a valid answer.
+	    Xapian::doccount num_docs = db.get_doccount();
+	    uncollapsed_upper_bound += remote_uncollapsed_upper_bound;
+	    if (uncollapsed_upper_bound < remote_uncollapsed_upper_bound ||
+		uncollapsed_upper_bound > num_docs) {
+		uncollapsed_upper_bound = num_docs;
+	    }
+	}
+    }
     if (items.size() < max_msize) {
 	// We have fewer items in the mset than we tried to get for it, so we
 	// must have all the matches in it.

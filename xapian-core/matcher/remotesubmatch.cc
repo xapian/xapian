@@ -68,6 +68,7 @@ RemoteSubMatch::get_postlist(MultiMatch * matcher,
     Xapian::MSet mset;
     db->get_mset(mset, matchspies);
     percent_factor = mset.internal->percent_factor;
+    uncollapsed_upper_bound = mset.internal->uncollapsed_upper_bound;
     // For remote databases we report percent_factor rather than counting the
     // number of subqueries.
     (void)total_subqs_ptr;
