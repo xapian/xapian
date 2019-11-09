@@ -640,8 +640,11 @@ aid
 aid
 aid
 aie
+aï
 aient
 aie
+aïeul
+aïeul
 aïeul
 aïeux
 aigl
@@ -652,11 +655,14 @@ aigr
 aigr
 aigreur
 aigr
+aigu
+aigu
 aiguill
 aiguill
 aiguillon
 aiguis
 aigus
+aïkido
 ail
 ail
 aill
@@ -665,6 +671,7 @@ ailleur
 aim
 aimabl
 aimabl
+aïmag
 aim
 aim
 aim
@@ -690,7 +697,9 @@ ain
 aîn
 aîn
 aîn
+aïnou
 ains
+aïol
 air
 air
 air
@@ -734,6 +743,8 @@ alas
 albâtr
 albermal
 album
+alcaloïd
+alcaloïd
 alcool
 ale
 alé
@@ -816,6 +827,8 @@ alphabet
 alphabet
 alsac
 also
+alta
+alta
 altam
 alter
 alter
@@ -854,6 +867,9 @@ amateur
 ambassad
 ambassadeur
 ambassadeur
+ambigu
+ambigu
+ambigu
 ambigu
 ambiti
 ambiti
@@ -923,6 +939,8 @@ ample
 amplif
 amplif
 amput
+amuï
+amu
 amus
 amus
 amus
@@ -935,6 +953,8 @@ amus
 amus
 amus
 amus
+amyloïd
+amyloïd
 an
 anachoret
 anachron
@@ -953,6 +973,8 @@ and
 andaman
 anderson
 andrew
+androïd
+androïd
 andryan
 anéant
 anéant
@@ -1040,6 +1062,7 @@ anse
 antagon
 antérieur
 antérieur
+anthropoïd
 anthropophag
 anti
 antib
@@ -1049,6 +1072,7 @@ antidat
 antidat
 antigéner
 antijacobin
+antijuda
 antimonarch
 antipath
 antipath
@@ -1104,6 +1128,7 @@ apostol
 apothicair
 apôtr
 apôtr
+apotropa
 apparaiss
 apparaiss
 appar
@@ -1269,6 +1294,8 @@ arab
 arab
 arab
 aracel
+arachnoïd
+arbërisht
 arbitrair
 arbitrair
 arbitr
@@ -1281,6 +1308,12 @@ arbre
 arbrisseau
 arc
 arceau
+archa
+archa
+archaïs
+archaïs
+archa
+archa
 arche
 archet
 archevêch
@@ -1563,6 +1596,7 @@ assur
 assur
 assur
 assurghur
+astéroïd
 astéroïd
 asthme
 asti
@@ -1853,6 +1887,8 @@ aventur
 aventur
 avenu
 aver
+averro
+averro
 avers
 avers
 avert
@@ -1925,6 +1961,10 @@ ayant
 ayez
 aymon
 ayon
+azerbaïdjan
+azerbaïdjanais
+azerbaïdjanais
+azo
 azur
 b
 bab
@@ -1950,6 +1990,9 @@ bagu
 bagu
 baguet
 bah
+baha
+bahreïn
+bahreïn
 bai
 baign
 baign
@@ -1982,6 +2025,7 @@ baiss
 bajoc
 bal
 baladin
+balalaïk
 balanc
 balanc
 balanc
@@ -2025,6 +2069,7 @@ band
 bandit
 bandouli
 banian
+banjo
 bank
 bann
 bann
@@ -2037,6 +2082,7 @@ banquet
 banqui
 banqui
 banqui
+bantoïd
 baptis
 bar
 baraqu
@@ -2207,6 +2253,7 @@ béniti
 benjamin
 benten
 bentivoglio
+benzo
 bérang
 berceau
 berc
@@ -2225,6 +2272,7 @@ besoin
 besoin
 bêt
 bétail
+bétaïn
 bêt
 bétel
 bêt
@@ -2273,6 +2321,8 @@ binet
 biograph
 birmingham
 bisaïeul
+biscaïen
+biscaïen
 biscaïen
 biscuit
 biscuit
@@ -2390,6 +2440,8 @@ bon
 bonnet
 bonnet
 bon
+bonsaï
+bonsaï
 bonshomm
 bonsoir
 bont
@@ -2801,9 +2853,15 @@ cag
 cagnol
 cahi
 cahut
+caïd
+caïdat
+caïdat
+caïd
 caill
 caill
 cailloux
+caïman
+caïman
 caiss
 caiss
 caissi
@@ -2849,6 +2907,7 @@ calomn
 calomni
 calotin
 calott
+camaïeu
 camarad
 camarad
 camarill
@@ -2880,9 +2939,13 @@ cangos
 can
 canich
 canif
+cannabinoïd
 cann
 cannel
 cann
+cano
+cano
+cano
 canon
 canon
 canonnad
@@ -2921,6 +2984,7 @@ capric
 caprici
 caprici
 caprici
+capsaïcin
 captiv
 captiv
 captur
@@ -2937,6 +3001,8 @@ caractéris
 caractéris
 caractérist
 caraf
+caraïb
+caraïb
 carbonaro
 carbur
 carc
@@ -2965,6 +3031,7 @@ carnot
 caro
 carolin
 caron
+caroténoïd
 caroubi
 carp
 carr
@@ -3097,11 +3164,13 @@ cel
 cel
 celli
 cellul
+celluloïd
 celui
 cendr
 cendr
 cendr
 cen
+cénozo
 censur
 cent
 centain
@@ -3496,6 +3565,7 @@ choqu
 choqu
 choqu
 choqu
+choroïd
 chorus
 chos
 chos
@@ -3643,6 +3713,7 @@ clor
 clos
 clos
 clos
+clothoïd
 clôtur
 clou
 clou
@@ -3659,6 +3730,7 @@ coach
 coach
 coadjuteur
 coblentz
+cocaïn
 cocard
 coch
 cocher
@@ -3681,8 +3753,19 @@ coiff
 coiff
 coiffur
 coin
+coïncid
+coïncid
+coïncid
+coïncid
+coïncid
+coïncid
 coïncident
+coïncident
+coïncident
+coïncid
+coïncid
 coin
+coït
 col
 col
 colab
@@ -3712,6 +3795,11 @@ colli
 colli
 collin
 collin
+colloïdal
+colloïdal
+colloïdal
+colloïd
+colloïd
 colloqu
 colmar
 colomb
@@ -4014,6 +4102,7 @@ concev
 concev
 concev
 concevoir
+conchoïdal
 concierg
 concili
 concili
@@ -4365,6 +4454,9 @@ contest
 cont
 contiennent
 contient
+contigu
+contigu
+contigu
 contin
 continent
 continental
@@ -4538,6 +4630,7 @@ coquin
 coquiner
 coquiner
 coquin
+coracoïd
 coran
 corbeau
 corbeau
@@ -4591,6 +4684,9 @@ cor
 corso
 corteg
 cortellat
+corticoïd
+corticoïd
+corticostéroïd
 corv
 cos
 cosaqu
@@ -4849,6 +4945,7 @@ criminel
 crin
 crini
 crini
+crinoïd
 crin
 cris
 cris
@@ -4971,12 +5068,16 @@ curios
 custom
 cuv
 cuvet
+cycloïd
 cygn
 cymbal
 cyniqu
 cyr
 d
 da
+dada
+dada
+dada
 dagu
 daign
 daign
@@ -4994,8 +5095,11 @@ daign
 daign
 daily
 daim
+daïr
+daïr
 dais
 dakot
+dalaï
 dall
 dallianc
 dalmat
@@ -5369,6 +5473,7 @@ délivr
 délivr
 del
 del
+deltoïd
 demain
 demand
 demand
@@ -5601,6 +5706,7 @@ désagr
 désagr
 desaix
 désalter
+désambiguïs
 désappoint
 désappoint
 désapprouv
@@ -5934,6 +6040,7 @@ diamant
 diam
 dian
 diar
+dichro
 dict
 dict
 dictateur
@@ -6007,6 +6114,10 @@ dîn
 dîn
 dîner
 dioces
+dioïqu
+dioïqu
+diploïd
+diploïd
 diplomat
 diplomat
 diplomat
@@ -6057,6 +6168,9 @@ disc
 discern
 discipl
 discipl
+discoïdal
+discoïdal
+discoïd
 discontinu
 discontinu
 disconven
@@ -6396,6 +6510,8 @@ dress
 driss
 drogu
 drogu
+droïd
+droïd
 droit
 droit
 droit
@@ -6474,6 +6590,7 @@ eau
 ébauch
 ébaud
 ében
+éblaït
 éblou
 éblou
 éblou
@@ -6784,9 +6901,9 @@ effus
 églis
 églis
 ego
-égoïsm
-égoïst
-égoïst
+égo
+égo
+égo
 égorgent
 égorg
 égorg
@@ -6850,9 +6967,14 @@ eléphant
 éleveur
 élis
 élit
+elkasaït
+elkasaït
 elko
 elle
 elle
+ellipsoïdal
+ellipsoïd
+ellipsoïd
 ellor
 élocu
 élog
@@ -7562,6 +7684,7 @@ envoi
 épic
 épici
 épiderm
+épidermoïd
 épi
 épient
 épi
@@ -7657,6 +7780,7 @@ erré
 errer
 erreur
 erreur
+érythropoïétin
 e
 escadron
 escalad
@@ -8139,6 +8263,8 @@ exigeon
 exig
 exig
 exigu
+exigu
+exigu
 exigus
 exil
 exil
@@ -8302,6 +8428,12 @@ faibless
 faibl
 faibl
 faict
+faïenc
+faïencer
+faïencer
+faïenc
+faïenci
+faïenci
 faill
 faill
 faill
@@ -8502,6 +8634,10 @@ fermi
 féroc
 féroc
 féroc
+féroïen
+féroïen
+féroïen
+féroïen
 feron
 feront
 ferr
@@ -8665,6 +8801,8 @@ flatteur
 flatteur
 flatteux
 flatteux
+flavonoïd
+flavonoïd
 flech
 flech
 flech
@@ -9075,6 +9213,7 @@ g
 gabar
 gabriel
 gâch
+gaël
 gag
 gag
 gageur
@@ -9096,6 +9235,7 @@ gagn
 gagn
 gagnon
 gai
+gaïac
 gai
 gai
 gai
@@ -9108,6 +9248,7 @@ gain
 gais
 gaît
 gal
+galaïco
 gal
 gal
 gal
@@ -9261,6 +9402,7 @@ gentl
 gentleman
 gentlemen
 géograph
+géoïd
 geôli
 geôli
 geôli
@@ -9278,6 +9420,7 @@ ghar
 ghât
 ghazepour
 gherard
+ghettoïs
 ghisler
 ghisolf
 ghit
@@ -9338,6 +9481,7 @@ glorieux
 glory
 glouton
 glu
+glucocorticoïd
 go
 gobelet
 godart
@@ -9422,6 +9566,7 @@ grand
 grand
 grand
 gran
+granitoïd
 grant
 granvel
 grapp
@@ -9628,8 +9773,12 @@ hach
 hagard
 hagard
 haï
+haïdouk
 hai
+haï
 hai
+haïku
+haïkus
 haillon
 hain
 hain
@@ -9639,10 +9788,16 @@ hair
 haïr
 haïr
 hais
+haï
+haïss
 haïss
 haïss
 haïssent
 hait
+haïtien
+haïtien
+haïtien
+haïtien
 hâl
 halag
 hâl
@@ -9662,6 +9817,8 @@ hang
 hangar
 hant
 hant
+haploïd
+haploïd
 happy
 harangu
 harangu
@@ -9706,6 +9863,7 @@ hauss
 haut
 hautain
 hautain
+hautbo
 haut
 haut
 haut
@@ -9713,6 +9871,10 @@ hauteur
 hauteur
 haut
 havr
+hawaïen
+hawaïen
+hawaïen
+hawaïen
 hay
 hai
 he
@@ -9720,14 +9882,26 @@ hé
 heaviest
 hébet
 hébet
+hébra
+hébra
+hébraïs
+hébraïs
 hein
 hel
 hel
 hélen
 hélic
+hélicoïdal
+hélicoïdal
+hélicoïdal
+hélicoïdal
 héloïs
 helvet
+hématopoïes
+hématopoïet
+hématopoïet
 hémispher
+hémorroïd
 hen
 hen
 hen
@@ -9763,11 +9937,15 @@ hermet
 hernan
 hérodiad
 hérodiad
+héroï
+héro
 héroïn
-héroïqu
-héroïqu
-héroïqu
-héroïsm
+héroïn
+héroïnoman
+héro
+héro
+héro
+héro
 héron
 héros
 her
@@ -9781,6 +9959,7 @@ hésit
 hésit
 hésit
 hésit
+hétaïr
 hêtr
 hêtr
 heur
@@ -9831,6 +10010,7 @@ holland
 homel
 homel
 homer
+hominoïd
 hommag
 hommag
 homm
@@ -9915,6 +10095,8 @@ hum
 human
 human
 human
+humanoïd
+humanoïd
 humbl
 humbl
 humbl
@@ -9955,12 +10137,17 @@ hvram
 hydrogen
 hydrograph
 hyer
+hyoïd
+hyoïdien
+hyperboloïd
+hyperthyroïd
 hypocris
 hypocris
 hypocrit
 hypocrit
 hypog
 hypothes
+hypothyroïd
 i
 iago
 ici
@@ -10527,6 +10714,8 @@ inopportun
 inopportun
 inouï
 inouï
+inouï
+inouï
 inqualifi
 inquiet
 inquiet
@@ -10549,6 +10738,8 @@ inscrit
 inscrit
 inscriv
 insect
+insectoïd
+insectoïd
 insens
 insens
 insens
@@ -10779,6 +10970,7 @@ introduis
 introduit
 introduit
 introduit
+introït
 intrus
 inusit
 inutil
@@ -10915,6 +11107,11 @@ jad
 jaggernaut
 jaill
 jaill
+jaïn
+jaïn
+jaïn
+jaïn
+jaïn
 jais
 jalous
 jalous
@@ -10923,6 +11120,10 @@ jalous
 jalous
 jalous
 jaloux
+jamaïcain
+jamaïcain
+jamaïcain
+jamaïcain
 jam
 jamb
 jamb
@@ -11077,6 +11278,10 @@ joyeux
 juan
 juch
 juch
+juda
+juda
+juda
+juda
 judiciair
 judici
 judith
@@ -11155,12 +11360,17 @@ kandallah
 kanher
 kans
 kant
+kara
+karaït
+karaït
+katoï
 kauffmann
 kearney
 kehl
 kent
 khajour
 khandeish
+khoïsan
 kholby
 kien
 kilometr
@@ -11169,8 +11379,13 @@ kioun
 kirimon
 kirkland
 kleb
+koï
 kong
 korasoff
+koweïtien
+koweïtien
+koweïtien
+kraï
 l
 la
 là
@@ -11194,6 +11409,12 @@ ladr
 lafayet
 lago
 laïc
+laïcat
+laïcis
+laïcis
+laïcis
+laïc
+laïqu
 laïc
 laid
 laid
@@ -11201,6 +11422,7 @@ laid
 laideur
 laideur
 lain
+laïqu
 laïqu
 laiss
 laiss
@@ -11228,6 +11450,7 @@ lait
 laiter
 laiton
 laitu
+laïus
 lak
 lambeau
 lambeau
@@ -11425,6 +11648,7 @@ libr
 libr
 libr
 lichtenberg
+lidocaïn
 li
 li
 li
@@ -11466,6 +11690,7 @@ lingot
 linguam
 lion
 lip
+lipo
 liqueur
 liqueur
 liquid
@@ -11659,6 +11884,8 @@ luxembourg
 luxuri
 luz
 lycéen
+lymphoïd
+lymphoïd
 lyon
 lyr
 m
@@ -11686,6 +11913,7 @@ mademoisel
 madon
 madr
 madri
+maërl
 maestro
 magalon
 magasin
@@ -11707,6 +11935,8 @@ magot
 mahomet
 mahout
 mai
+maïeur
+maïeut
 maigr
 maigr
 maigreur
@@ -11889,6 +12119,9 @@ manufacturi
 manuscr
 manuscrit
 manuscrit
+maoïsm
+maoïst
+maoïst
 maquignon
 mar
 marâtr
@@ -12017,6 +12250,7 @@ massif
 massif
 massillon
 massing
+mastoïdien
 mat
 mât
 match
@@ -12264,6 +12498,7 @@ me
 mésalli
 mésaventur
 mes
+mésozo
 mesquin
 mesquin
 mesquin
@@ -12284,7 +12519,10 @@ mesur
 met
 métal
 métall
+métalloïd
+métalloïd
 métaphys
+météoroïd
 météorolog
 méthod
 méthod
@@ -12435,6 +12673,7 @@ mitr
 mitr
 mm
 mme
+moaï
 mobil
 mobil
 mobil
@@ -12459,6 +12698,7 @@ modif
 modifi
 modifi
 modifi
+moël
 moelleux
 moeur
 moi
@@ -12505,8 +12745,13 @@ monférin
 monfleury
 mongh
 mongoli
+mongoloïd
 moniteur
 monnai
+monoïd
+monoïd
+mono
+mono
 monologu
 monoman
 monopol
@@ -12634,6 +12879,10 @@ mortifi
 mortifi
 mort
 morveux
+mosa
+mosa
+mosa
+mosa
 mosc
 moscou
 moskov
@@ -12753,6 +13002,7 @@ mutil
 mutil
 mutsh
 mutuel
+myéloïd
 mylord
 myster
 myster
@@ -12773,6 +13023,8 @@ nag
 nagent
 nag
 naguer
+naïad
+naïad
 naïf
 naïf
 nain
@@ -12870,6 +13122,7 @@ negr
 neig
 neig
 neig
+néonicotinoïd
 neptun
 nerf
 nerval
@@ -12907,6 +13160,7 @@ niaiser
 niais
 nic
 nich
+nicola
 nicol
 nid
 ni
@@ -12933,6 +13187,8 @@ noc
 noc
 nocturn
 nocturn
+noël
+noël
 noeud
 noeud
 noi
@@ -13256,7 +13512,9 @@ ogiv
 ogre
 oh
 ohio
+oïdium
 oie
+oïl
 oiseau
 oiseau
 oisif
@@ -13297,6 +13555,8 @@ opin
 opiniâtr
 opinion
 opin
+opioïd
+opioïd
 opium
 opportun
 opportun
@@ -13474,6 +13734,12 @@ ouest
 oui
 ouï
 ouï
+ouï
+ouïezd
+ouïghour
+ouïghour
+ouïghour
+ouïgour
 our
 ouragan
 ouragan
@@ -13522,6 +13788,8 @@ ouvr
 ouvr
 ouvr
 oval
+ovoïd
+ovoïd
 oxyd
 oysterpuf
 oyster
@@ -13545,6 +13813,9 @@ pai
 pai
 pai
 païen
+païen
+païen
+païen
 paient
 pai
 pai
@@ -13560,6 +13831,7 @@ pair
 pair
 pair
 pair
+paï
 paisibl
 paisibl
 paix
@@ -13572,6 +13844,8 @@ palazzeto
 pal
 pâl
 palefreni
+paléozo
+paléozo
 pâl
 palestin
 paletot
@@ -13601,6 +13875,7 @@ pamphlet
 pamphlet
 pan
 panach
+panathéna
 panc
 pani
 panneau
@@ -13634,6 +13909,7 @@ paquet
 paquet
 par
 par
+paraboloïd
 parad
 parad
 parad
@@ -13659,12 +13935,18 @@ paralys
 paralys
 paralys
 paralyt
+paranoï
+paranoïaqu
+paranoïaqu
+paranoïd
 par
 parapet
 paraph
 paraph
 paraphras
 paraplui
+parasitoïd
+parasitoïd
 paratonnerr
 paratonnerr
 paravent
@@ -14157,6 +14439,7 @@ perdus
 per
 pereir
 per
+perestroïk
 perfect
 perfection
 pergoles
@@ -14267,6 +14550,7 @@ pes
 pessim
 pest
 pest
+pétaloïd
 pétaudi
 pétill
 pet
@@ -14298,7 +14582,9 @@ peur
 peut
 peuvent
 peux
+phalloïd
 pharsal
+phénylpropanoïd
 pherson
 phil
 philipp
@@ -14311,6 +14597,8 @@ philosoph
 philosoph
 phosphorescent
 photograph
+photovolta
+photovolta
 phras
 phras
 physiognomon
@@ -14490,6 +14778,7 @@ planch
 planch
 planch
 planchet
+planétoïd
 planispher
 plan
 plant
@@ -14513,6 +14802,7 @@ plat
 plateau
 plat
 plat
+platinoïd
 platitud
 platitud
 platon
@@ -14554,6 +14844,7 @@ pli
 plinian
 plis
 pliss
+ploïd
 plomb
 plomb
 plong
@@ -14605,6 +14896,7 @@ poignard
 poign
 poign
 poign
+poïkilotherm
 poil
 poindr
 poing
@@ -14642,6 +14934,7 @@ politess
 politess
 polit
 polit
+polo
 polon
 polyeuct
 polygam
@@ -14680,6 +14973,7 @@ porcelain
 porco
 porc
 porphyr
+porphyroïd
 port
 port
 port
@@ -15375,8 +15669,9 @@ propriétair
 propriet
 propriet
 proprio
-prosaïqu
-prosaïqu
+prosa
+prosa
+prosa
 proscrivent
 pros
 prosélyt
@@ -15409,6 +15704,7 @@ protest
 protest
 protest
 protest
+protosinaït
 prouess
 prouv
 prouv
@@ -15462,6 +15758,8 @@ psaum
 psaum
 pseudonym
 psych
+ptoléma
+ptoléma
 pu
 publi
 public
@@ -15536,6 +15834,7 @@ putiphar
 putréfact
 pyramid
 pyren
+pyréthrinoïd
 qu
 qua
 quadrill
@@ -15663,6 +15962,7 @@ racont
 rad
 radieux
 radouc
+raëlien
 rafal
 rafal
 raffin
@@ -15674,6 +15974,7 @@ rag
 rag
 rag
 rageur
+raï
 raid
 raid
 raid
@@ -15685,6 +15986,9 @@ railroad
 rail
 railway
 railway
+raïon
+raïon
+raï
 raison
 raison
 raison
@@ -15763,6 +16067,7 @@ rapac
 rapatri
 râp
 râp
+raphaëlois
 rapid
 rapid
 rapid
@@ -16933,6 +17238,8 @@ retiendr
 retien
 retiennent
 retient
+rétinoïd
+rétino
 retinrent
 retint
 ret
@@ -17126,8 +17433,10 @@ revu
 revu
 rez
 rhin
+rhomboïdal
 rhôn
 rhubarb
+rhumatoïd
 rhum
 ri
 ri
@@ -17415,6 +17724,7 @@ sag
 sagess
 sagouti
 saïd
+saïg
 saign
 saign
 saign
@@ -17452,6 +17762,7 @@ sais
 sais
 saison
 sait
+saït
 sak
 salair
 salangan
@@ -17482,6 +17793,8 @@ salut
 salutair
 samed
 samed
+samouraï
+samouraï
 samuel
 san
 sancho
@@ -17515,6 +17828,7 @@ sarà
 saragoss
 sarasin
 sarcasm
+sarcoïdos
 sardon
 sarono
 sat
@@ -17614,6 +17928,7 @@ scandalis
 scandalis
 scandalis
 scandinav
+scaphoïd
 sceau
 sceau
 scélérat
@@ -17623,6 +17938,7 @@ scel
 scen
 scen
 schill
+schizoïd
 schuyl
 sci
 sci
@@ -17769,6 +18085,7 @@ sen
 sensat
 sensat
 sens
+senseï
 sens
 sensibil
 sensibl
@@ -17918,13 +18235,20 @@ shako
 shakos
 shakspear
 shangaï
+shanghaïen
 sheppard
 sheridan
 sherry
 shilling
 shilling
+shinto
+shinto
+shinto
 shipping
 shiv
+shiva
+shivaït
+shivaït
 show
 si
 siamo
@@ -17952,6 +18276,7 @@ sifflet
 sigh
 sigisb
 sigismond
+sigmoïd
 sign
 sign
 signal
@@ -18029,6 +18354,12 @@ sinistr
 sinistr
 sinon
 sinuos
+sinusoïdal
+sinusoïdal
+sinusoïdal
+sinusoïdal
+sinusoïd
+sinusoïd
 sioux
 sir
 sir
@@ -18098,6 +18429,7 @@ soleil
 solennel
 solennel
 solennel
+solénoïd
 solid
 solid
 solid
@@ -18154,6 +18486,7 @@ song
 song
 song
 song
+songhaï
 son
 son
 son
@@ -18392,7 +18725,12 @@ spectr
 spécul
 spécul
 speedy
+spermatozoïd
+spermatozoïd
+sphénoïd
 spher
+sphéroïdal
+sphéroïd
 sphéroïd
 spielberg
 spiral
@@ -18432,11 +18770,21 @@ stentor
 stephenson
 sterling
 stern
+stéroïd
+stéroïd
+stéroïdien
+stéroïdien
 steward
 stigmat
 stigmatis
 still
 stimul
+stoïcien
+stoïcien
+stoïcien
+stoïc
+stoïqu
+stoïqu
 stolen
 strabon
 stramonium
@@ -18468,6 +18816,7 @@ styl
 styl
 su
 suav
+subaigu
 subaltern
 subaltern
 sub
@@ -18772,6 +19121,8 @@ tableau
 tabl
 tablet
 tabli
+tabloïd
+tabloïd
 tabouret
 tâch
 tâch
@@ -18791,7 +19142,12 @@ tacit
 tacit
 taciturn
 tact
+taekwondo
 taffet
+taï
+taïf
+taïf
+taïg
 taïkoun
 taill
 taillander
@@ -18803,6 +19159,7 @@ taill
 taill
 tailleur
 taill
+taïno
 tair
 tais
 tais
@@ -18810,6 +19167,9 @@ tais
 tais
 tais
 tait
+taïwan
+taïwanais
+taïwanais
 tak
 talent
 talent
@@ -18841,6 +19201,9 @@ tant
 tant
 tantôt
 tanz
+taoïsm
+taoïst
+taoïst
 tapag
 tap
 tapis
@@ -18980,6 +19343,7 @@ termin
 termin
 termin
 tern
+terpénoïd
 terrain
 terrain
 terr
@@ -19004,9 +19368,17 @@ test
 test
 têt
 têt
+tétraploïd
+tétraploïd
 teuli
 text
 textuel
+thaï
+thaï
+thaïland
+thaïlandais
+thaïlandais
+thaï
 thal
 that
 the
@@ -19036,6 +19408,13 @@ though
 thousand
 thrilling
 thug
+thylakoïd
+thyroïd
+thyroïdien
+thyroïdien
+thyroïdien
+thyroïdien
+thyroïdit
 tiber
 tib
 tien
@@ -19121,6 +19500,7 @@ toison
 toit
 toit
 toitur
+tokyoït
 toled
 tol
 toler
@@ -19396,6 +19776,10 @@ transport
 transport
 transport
 transversal
+trapézoïdal
+trapézoïdal
+trapézoïdal
+trapézoïdal
 trapp
 trapp
 trapp
@@ -19494,6 +19878,9 @@ triomph
 triomph
 tripl
 tripl
+triploïd
+triploïd
+trisaïeul
 trist
 trist
 trist
@@ -19501,6 +19888,7 @@ tristess
 tristess
 triumvirat
 trivial
+troïk
 trois
 troisiem
 troisiem
@@ -19632,6 +20020,7 @@ two
 tympanis
 typ
 typ
+typhoïd
 typhon
 tyran
 tyrann
@@ -20097,6 +20486,7 @@ viper
 virago
 virent
 virgil
+viroïd
 virtu
 virtuos
 vis
@@ -20187,6 +20577,12 @@ voisin
 voit
 voitur
 voitur
+voïvodal
+voïvodat
+voïvod
+voïvod
+voïvod
+voïvod
 voix
 vol
 vol
@@ -20219,6 +20615,7 @@ volont
 volont
 volonti
 vol
+volta
 voltair
 voltig
 voltig
@@ -20389,7 +20786,12 @@ yeux
 yokoham
 york
 young
+zaïrois
+zaïrois
+zaïrois
 zambajon
+zaouï
+zaouï
 zeb
 zebr
 zébus

@@ -34,7 +34,6 @@ stringdef o'   '{U+00F3}'  // o-acute
 stringdef o`   '{U+00F2}'  // o-grave
 stringdef u'   '{U+00FA}'  // u-acute
 stringdef u"   '{U+00FC}'  // u-diaeresis
-stringdef -    '{U+002D}'   // - per aggeminades
 stringdef .    '{U+00B7}'   // - per l aggeminades
 
 define v 'aeiou{a'}{a`}{e'}{e`}{i'}{i"}{o'}{o`}{u'}{u"}'
@@ -65,7 +64,7 @@ define cleaning as repeat (
         '{i"}' (<- 'i')
         '{.}' (<- '.')
         ''     (next)
-    ) //or next
+    )
 )
 
 backwardmode (
@@ -76,11 +75,11 @@ backwardmode (
     define attached_pronoun as (
     [substring] among (
         '{'}s'  '{'}hi' '{'}ho' '{'}l' '{'}ls'
-        '{-}ls' '{-}la' '{-}les' '{-}li'
-        'vos' 'se'  'nos' '{-}nos' '{-}us' 'us'
-        '{'}n' '{'}ns' '{-}n' '{-}ns'
-        '{'}m' '{-}me' '{-}m'
-        '{-}te' '{'}t'
+        '-ls' '-la' '-les' '-li'
+        'vos' 'se'  'nos' '-nos' '-us' 'us'
+        '{'}n' '{'}ns' '-n' '-ns'
+        '{'}m' '-me' '-m'
+        '-te' '{'}t'
         'li' 'lo' 'los'
         'me'  'sela' 'selo' 'selas' 'selos' 'le'
         'la' 'las' 'les' 'ens' 'ho' 'hi'
@@ -199,9 +198,10 @@ define stem as (
     )
     do cleaning
 )
+
 /*
      First works 2010/07/19
-     First Gramatical Reviews: https://ca.wikipedia.org/wiki/Gram%C3%A0tica_catalana
-     Sufix list: http://wapedia.mobi/ca/Llista_de_sufixos
+     First Grammatical Reviews: https://ca.wikipedia.org/wiki/Gram%C3%A0tica_del_catal%C3%A0
+     Suffix list: https://ca.wikipedia.org/wiki/Llista_de_sufixos
      Irregular Verbs: https://ca.wikipedia.org/wiki/Flexi%C3%B3_verbal_del_catal%C3%A0
 */
