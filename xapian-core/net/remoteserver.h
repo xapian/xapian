@@ -239,9 +239,6 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      */
     void run();
 
-    /// Get the registry used for (un)serialisation.
-    const Xapian::Registry & get_registry() const { return reg; }
-
     /// Set the registry used for (un)serialisation.
     void set_registry(const Xapian::Registry & reg_) { reg = reg_; }
 };
