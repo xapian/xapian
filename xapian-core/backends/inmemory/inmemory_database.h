@@ -363,6 +363,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	if (path) *path = string();
 	return BACKEND_INMEMORY;
     }
+
+    bool locked() const { return true; }
 };
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */
