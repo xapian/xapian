@@ -1022,6 +1022,20 @@ GlassDatabase::locked() const
     return lock.test();
 }
 
+Database::Internal*
+GlassDatabase::update_lock(int flags)
+{
+    if (!postlist_table.is_open())
+	GlassTable::throw_database_closed();
+
+    if (flags == Xapian::DB_READONLY_) return this;
+    // Mask out backend type bits as these don't make sense here, and set the
+    // action to DB_OPEN since we don't want to create or overwrite here.
+    flags &= ~(DB_ACTION_MASK_ | DB_BACKEND_MASK_);
+    flags |= Xapian::DB_OPEN;
+    return new GlassWritableDatabase(db_dir, Xapian::DB_OPEN, flags);
+}
+
 string
 GlassDatabase::get_description() const
 {
@@ -1696,6 +1710,28 @@ GlassWritableDatabase::has_uncommitted_changes() const
 	   synonym_table.is_modified() ||
 	   spelling_table.is_modified() ||
 	   docdata_table.is_modified();
+}
+
+Database::Internal*
+GlassWritableDatabase::update_lock(int flags)
+{
+    if (!postlist_table.is_open())
+	GlassTable::throw_database_closed();
+
+    if (flags != Xapian::DB_READONLY_) {
+	// Allow changing flags on an open DB.
+	postlist_table.set_flags(flags);
+	position_table.set_flags(flags);
+	termlist_table.set_flags(flags);
+	synonym_table.set_flags(flags);
+	spelling_table.set_flags(flags);
+	docdata_table.set_flags(flags);
+	return this;
+    }
+
+    unique_ptr<Database::Internal> result(new GlassDatabase(db_dir));
+    close();
+    return result.release();
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN

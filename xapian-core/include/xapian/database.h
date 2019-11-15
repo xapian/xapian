@@ -33,6 +33,7 @@
 #include <vector>
 
 #include <xapian/attributes.h>
+#include <xapian/constants.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
@@ -45,6 +46,7 @@ namespace Xapian {
 
 class Compactor;
 class Document;
+class WritableDatabase;
 
 /** An indexed database of documents.
  *
@@ -576,6 +578,37 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  any of them are locked.
      */
     bool locked() const;
+
+    /** Lock a read-only database for writing.
+     *
+     *  If the database is actually already writable (i.e. a WritableDatabase
+     *  via a Database reference) then the same database is returned (with
+     *  its flags updated, so this provides an efficient way to modify flags
+     *  on an open WritableDatabase).
+     *
+     *  Unlike unlock(), the object this is called on remains open.
+     *
+     *  @param flags  The flags to use for the writable database.  Flags which
+     *		      specify how to open the database are ignored (e.g.
+     *		      DB_CREATE_OR_OVERWRITE doesn't result in the database
+     *		      being wiped), and flags which specify the backend are
+     *		      also ignored as they are only relevant when creating
+     *		      a new database.
+     *
+     *  @return  A WritableDatabase object open on the same database.
+     */
+    Xapian::WritableDatabase lock(int flags = 0);
+
+    /** Release a database write lock.
+     *
+     *  If called on a read-only database then the same database is returned.
+     *
+     *  If called on a writable database, the object this method was called
+     *  on is closed.
+     *
+     *  @return  A Database object open on the same database.
+     */
+    Xapian::Database unlock();
 
     /** Get the revision of the database.
      *

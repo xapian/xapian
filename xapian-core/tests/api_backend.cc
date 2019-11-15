@@ -429,6 +429,70 @@ DEFINE_TESTCASE(testlock3, inmemory) {
     return true;
 }
 
+/// Feature tests for Database::lock() and unlock().
+DEFINE_TESTCASE(testlock4, glass) {
+    Xapian::Database rdb;
+    TEST(!rdb.locked());
+
+    {
+	Xapian::WritableDatabase db = get_named_writable_database("testlock4");
+	TEST(db.locked());
+	Xapian::Database db_as_database = db;
+	TEST(db_as_database.locked());
+	TEST(!rdb.locked());
+
+	{
+	    rdb = get_writable_database_as_database();
+	    // Test lock() fails (already open to write as db).
+	    TEST_EXCEPTION(Xapian::DatabaseLockError,
+			   auto wdb = rdb.lock());
+	}
+
+	rdb = db.unlock();
+	try {
+	    TEST(!rdb.locked());
+	    // unlock() should have closed the underlying WritableDatabase so
+	    // locked() should either report that it isn't locked, or throw
+	    // Xapian::DatabaseClosedError.
+	    try {
+		TEST(!db.locked());
+	    } catch (const Xapian::DatabaseClosedError&) {
+	    }
+	    try {
+		TEST(!db_as_database.locked());
+	    } catch (const Xapian::DatabaseClosedError&) {
+	    }
+	} catch (const Xapian::FeatureUnavailableError&) {
+	    SKIP_TEST("Database::locked() not supported on this platform");
+	}
+
+	db.close();
+	TEST(!db.locked());
+	TEST(!db_as_database.locked());
+	TEST(!rdb.locked());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       db.lock());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       db.unlock());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       db_as_database.lock());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       db_as_database.unlock());
+
+	{
+	    auto wdb = rdb.lock();
+	    TEST(rdb.locked());
+	}
+
+	rdb.close();
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       rdb.lock());
+	TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		       rdb.unlock());
+    }
+    return true;
+}
+
 class CheckMatchDecider : public Xapian::MatchDecider {
     mutable bool called;
 

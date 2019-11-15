@@ -416,6 +416,13 @@ Database::Internal::locked() const
     return false;
 }
 
+Database::Internal*
+Database::Internal::update_lock(int flags)
+{
+    if (flags == Xapian::DB_READONLY_) return this;
+    throw Xapian::DatabaseLockError("Not possible to lock for writing");
+}
+
 namespace {
     class Pos {
 	Xapian::termpos pos;

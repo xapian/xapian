@@ -498,6 +498,16 @@ Database::locked() const
     return internal->locked();
 }
 
+Xapian::WritableDatabase
+Database::lock(int flags) {
+    return Xapian::WritableDatabase(internal->update_lock(flags));
+}
+
+Xapian::Database
+Database::unlock() {
+    return Xapian::Database(internal->update_lock(Xapian::DB_READONLY_));
+}
+
 Xapian::rev
 Database::get_revision() const
 {

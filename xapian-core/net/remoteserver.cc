@@ -434,7 +434,7 @@ RemoteServer::msg_writeaccess(const string & msg)
     if (!writable)
 	throw_read_only();
 
-    int flags = Xapian::DB_OPEN;
+    int flags = 0;
     const char *p = msg.c_str();
     const char *p_end = p + msg.size();
     if (p != p_end) {
@@ -442,10 +442,10 @@ RemoteServer::msg_writeaccess(const string & msg)
 	if (!unpack_uint_last(&p, p_end, &flag_bits)) {
 	    throw Xapian::NetworkError("Bad flags in MSG_WRITEACCESS");
 	}
-	flags |= flag_bits &~ Xapian::DB_ACTION_MASK_;
+	flags = flag_bits &~ Xapian::DB_ACTION_MASK_;
     }
 
-    wdb = new Xapian::WritableDatabase(context, flags);
+    wdb = new Xapian::WritableDatabase(db->lock(flags));
     delete db;
     db = wdb;
     msg_update(msg);
