@@ -40,6 +40,7 @@
 #include <fstream>
 #include <iterator>
 #include <map>
+#include <random>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -64,14 +65,14 @@ static const char * sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
-static vector<FeatureVector>
+static vector<vector<FeatureVector>>
 load_list_fvecs(const string & filename)
 {
     fstream train_file(filename, ios::in);
     if (!train_file.good())
 	throw Xapian::FileNotFoundError("No training file found. Check path.");
 
-    std::vector<FeatureVector> fvv;
+    std::map<string, vector<FeatureVector>> fvv;
     while (train_file.peek() != EOF) {
 	// A training file looks like this:
 	// <label> qid:<xxx> n:<fval> #docid:<xxx>
@@ -106,9 +107,13 @@ load_list_fvecs(const string & filename)
 	train_file.ignore();
 
 	fv.set_score(0);
-	fvv.push_back(fv);
+	fvv[qid].push_back(fv);
     }
-    return fvv;
+    std::vector<vector<FeatureVector>> vt;
+    for (auto it: fvv) {
+	vt.push_back(it.second);
+    }
+    return vt;
 }
 
 static int
@@ -235,6 +240,10 @@ initialise_queryparser(const Xapian::Database & db)
     Xapian::QueryParser parser;
     parser.add_prefix("title", "S");
     parser.add_prefix("subject", "S");
+    parser.add_prefix("description", "XD");
+    parser.add_prefix("", "");
+    parser.add_prefix("", "S");
+    parser.add_prefix("", "XD");
     parser.set_database(db);
     parser.set_default_op(Xapian::Query::OP_OR);
     parser.set_stemmer(stemmer);
@@ -245,8 +254,9 @@ initialise_queryparser(const Xapian::Database & db)
 
 void
 Xapian::prepare_training_file(const string & db_path, const string & queryfile,
-		      const string & qrel_file, Xapian::doccount msetsize,
-		      const string & filename, const FeatureList & flist)
+			      const string& qrel_file, Xapian::doccount
+			      msetsize, const string& filename, const
+			      FeatureList& flist, bool flag, double bias)
 {
     // Set db
     Xapian::Database letor_db(db_path);
@@ -281,22 +291,15 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 	    throw Xapian::LetorParseError("Query id should be unique");
 	}
 
-	Xapian::Query query_no_prefix = parser.parse_query(querystr,
-					parser.FLAG_DEFAULT|
-					parser.FLAG_SPELLING_CORRECTION);
-	// query with 'title' field as default prefix "S"
-	Xapian::Query query_default_prefix = parser.parse_query(querystr,
-					     parser.FLAG_DEFAULT|
-					     parser.FLAG_SPELLING_CORRECTION,
-					     "S");
-	// Combine queries
-	Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+	Xapian::Query query = parser.parse_query(querystr);
 
 	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
-	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
+	std::vector<FeatureVector> fvv_mset =
+					flist.create_feature_vectors(mset,
+					query, letor_db, flag, bias);
 	std::vector<FeatureVector> fvv_qrel;
 	int k = 0;
 	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
@@ -390,11 +393,27 @@ Ranker::rank(Xapian::MSet & mset, const string & model_key, const Xapian::Featur
     mset.sort_by_relevance();
 }
 
+vector<double>
+Ranker::xavier_initialisation(int feature_cnt)
+{
+    // Construct a trivial random generator engine:
+    // 469382313 is a random number for which we are getting the best
+    // performance of letor against standard benchmark datasets.
+    default_random_engine generator(469382313);
+    normal_distribution<double> distribution(0.0, sqrt(2.0 /
+						       (1 + feature_cnt)));
+    vector<double> new_parameters;
+    for (int feature_num = 0; feature_num < feature_cnt; ++feature_num) {
+	new_parameters.push_back(distribution(generator));
+    }
+    return new_parameters;
+}
+
 void
 Ranker::train_model(const std::string & input_filename, const std::string & model_key)
 {
     LOGCALL_VOID(API, "Ranker::train_model", input_filename | model_key);
-    vector<FeatureVector> list_fvecs = load_list_fvecs(input_filename);
+    vector<vector<FeatureVector>> list_fvecs = load_list_fvecs(input_filename);
     train(list_fvecs);
     save_model_to_metadata(model_key);
 }
@@ -445,16 +464,7 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	string querystr = parsed_query.first;
 	string qid = parsed_query.second;
 
-	Xapian::Query query_no_prefix = parser.parse_query(querystr,
-					parser.FLAG_DEFAULT|
-					parser.FLAG_SPELLING_CORRECTION);
-	// query with 'title' field as default prefix "S"
-	Xapian::Query query_default_prefix = parser.parse_query(querystr,
-					     parser.FLAG_DEFAULT|
-					     parser.FLAG_SPELLING_CORRECTION,
-					     "S");
-	// Combine queries
-	Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+	Xapian::Query query = parser.parse_query(querystr);
 
 	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);

@@ -24,7 +24,6 @@ matrix:
             - python-dev
             - python3-dev
             - tcl
-            - libsvm-dev
             - libicu-dev
             - pkg-config
             - libpoppler-cpp-dev
@@ -51,7 +50,6 @@ matrix:
             - libpcre3-dev
             - libmagic-dev
             - tcl
-            - libsvm-dev
             - libc++-dev
             - libicu-dev
             - pkg-config
@@ -84,7 +82,6 @@ matrix:
             - python-dev
             - python3-dev
             - tcl
-            - libsvm-dev
             - libpoppler-cpp-dev
             - libtesseract-dev
     - os: linux
@@ -127,7 +124,6 @@ matrix:
             - libetonyek
             - libiconv
             - libmagic
-            - libsvm
             - lua
             - mono
             - pcre
@@ -140,9 +136,7 @@ matrix:
       before_install:
         - travis_retry pip2 install sphinx docutils
         - travis_retry pip3 install sphinx
-        - mkdir -p /tmp/xapian-libsvm-fixed-include
-        - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
-      env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
+      env: PYTHON2=/usr/local/bin/python2 PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"

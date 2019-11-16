@@ -8,5 +8,4 @@ lib_src +=\
 	ranker/listmle_ranker.cc\
 	ranker/listnet_ranker.cc\
 	ranker/ranker.cc\
-	common/serialise-double.cc\
-	ranker/svmranker.cc
+	common/serialise-double.cc

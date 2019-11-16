@@ -119,27 +119,48 @@ update_parameters(vector<double> &new_parameters, const vector<double> &gradient
     }
 }
 
-void
-ListNETRanker::train(const std::vector<Xapian::FeatureVector> & training_data) {
-    LOGCALL_VOID(API, "ListNETRanker::train", training_data);
-    size_t fvv_len = training_data.size();
-    int feature_cnt = -1;
-    if (fvv_len != 0) {
-	feature_cnt = training_data[0].get_fcount();
-    } else {
-	throw LetorInternalError("Training data is empty. Check training file.");
+static void
+normalize(vector<double>& gradient, size_t size) {
+    for (auto item: gradient) {
+	item /= size;
     }
-    // initialize the parameters for neural network
-    vector<double> new_parameters(feature_cnt, 0.0);
+}
 
+void
+ListNETRanker::train(const vector<vector<Xapian::FeatureVector>>& training_data)
+{
+    LOGCALL_VOID(API, "ListNETRanker::train", training_data);
+    if (training_data.empty() || training_data[0].empty())
+	throw InvalidArgumentError("Cannot train: no training data");
+    int feature_cnt = training_data[0][0].get_fcount();
+
+    // Initialize the parameters for neural network with Xavier initialization.
+    vector<double> new_parameters = xavier_initialisation(feature_cnt);
+
+    for (auto& item1 : training_data) {
+	for (auto& item2 : item1) {
+	    if (item2.get_fcount() != feature_cnt) {
+		throw InvalidArgumentError("Cannot train: training data has "
+					   "uneven set of features. Make sure "
+					   "that you are using the same set "
+					   "of Features for all the queries");
+	    }
+	}
+    }
     // iterations
     for (int iter_num = 1; iter_num <= iterations; ++iter_num) {
-	// initialize Probability distributions of y and z
-	prob_distrib_vector prob = init_probability(training_data, new_parameters);
-	// compute gradient
-	vector<double> gradient = calculate_gradient(training_data, prob);
-	// update parameters: w = w - gradient * learningRate
-	update_parameters(new_parameters, gradient, learning_rate);
+	for (auto& item : training_data) {
+	    // initialize Probability distributions of y and z
+	    prob_distrib_vector prob = init_probability(item,
+							new_parameters);
+	    // compute gradient
+	    vector<double> gradient = calculate_gradient(item,
+							 prob);
+	    // normalize gradinet
+	    normalize(gradient, item.size());
+	    // update parameters: w = w - gradient * learningRate
+	    update_parameters(new_parameters, gradient, learning_rate);
+	}
     }
     swap(parameters, new_parameters);
 }

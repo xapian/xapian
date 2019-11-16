@@ -321,15 +321,6 @@ if test -n "${EATMYDATA-unset}" ; then
   AC_PATH_PROG([EATMYDATA], [eatmydata], [])
 fi
 
-dnl libsvm is required.
-AC_CHECK_HEADER([libsvm/svm.h], [], AC_MSG_ERROR([libsvm required but libsvm/svm.h not found]), [ ])
-save_LIBS=$LIBS
-LIBS=
-AC_SEARCH_LIBS([svm_train], [svm], [], AC_MSG_ERROR([libsvm required]))
-LIBSVM_LIBS=$LIBS
-LIBS=$save_LIBS
-AC_SUBST([LIBSVM_LIBS])
-
 dnl Check that snprintf actually works as it's meant to.
 dnl
 dnl Linux 'man snprintf' warns:
