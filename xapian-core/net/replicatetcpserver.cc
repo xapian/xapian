@@ -24,6 +24,7 @@
 
 #include <xapian/error.h>
 #include "api/replication.h"
+#include "remoteconnection.h"
 
 using namespace std;
 
