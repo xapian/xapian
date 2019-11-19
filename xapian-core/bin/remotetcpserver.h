@@ -21,11 +21,10 @@
 #ifndef XAPIAN_INCLUDED_REMOTETCPSERVER_H
 #define XAPIAN_INCLUDED_REMOTETCPSERVER_H
 
-#include "tcpserver.h"
+#include "net/tcpserver.h"
 
 #include <xapian/database.h>
 #include <xapian/registry.h>
-#include <xapian/visibility.h>
 
 #include <string>
 #include <vector>
@@ -34,7 +33,7 @@
  *
  *  This class implements the server used by xapian-tcpsrv.
  */
-class XAPIAN_VISIBILITY_DEFAULT RemoteTcpServer : public TcpServer {
+class RemoteTcpServer : public TcpServer {
     /// Don't allow assignment.
     void operator=(const RemoteTcpServer &);
 

@@ -1,3 +1,6 @@
+noinst_HEADERS +=\
+	bin/remotetcpserver.h
+
 EXTRA_DIST +=\
 	bin/Makefile
 
@@ -110,7 +113,7 @@ bin_xapian_replicate_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 bin_xapian_replicate_server_SOURCES = bin/xapian-replicate-server.cc
 bin_xapian_replicate_server_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc
+bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc bin/remotetcpserver.cc
 bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 if DOCUMENTATION_RULES
