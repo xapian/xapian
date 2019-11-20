@@ -356,9 +356,8 @@ Term::get_query_with_synonyms() const
     // Handle single-word synonyms with each prefix.
     const list<string> & prefixes = field_info->prefixes;
     if (prefixes.empty()) {
-	// FIXME: handle multiple here
-	Assert(!field_info->procs.empty());
-	return (**field_info->procs.begin())(name);
+	Assert(field_info->proc != nullptr);
+	return (*field_info->proc)(name);
     }
 
     Query q = get_query();
@@ -445,9 +444,8 @@ Term::get_query() const
 {
     const list<string> & prefixes = field_info->prefixes;
     if (prefixes.empty()) {
-	// FIXME: handle multiple here
-	Assert(!field_info->procs.empty());
-	return (**field_info->procs.begin())(name);
+	Assert(field_info->proc != nullptr);
+	return (*field_info->proc)(name);
     }
     list<string>::const_iterator piter = prefixes.begin();
     Query q(make_term(*piter), 1, pos);
@@ -624,7 +622,7 @@ QueryParser::Internal::add_prefix(const string &field, const string &prefix)
 	if (p->second.type != NON_BOOLEAN) {
 	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter");
 	}
-	if (!p->second.procs.empty())
+	if (p->second.proc.get())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	p->second.prefixes.push_back(prefix);
    }
@@ -644,7 +642,6 @@ QueryParser::Internal::add_prefix(const string &field, FieldProcessor *proc)
 	if (!p->second.prefixes.empty())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	throw Xapian::FeatureUnavailableError("Multiple FieldProcessor objects for the same prefix currently not supported");
-	// p->second.procs.push_back(proc);
    }
 }
 
@@ -667,7 +664,7 @@ QueryParser::Internal::add_boolean_prefix(const string &field,
 	if (p->second.type != type) {
 	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter"); // FIXME
 	}
-	if (!p->second.procs.empty())
+	if (p->second.proc.get())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	p->second.prefixes.push_back(prefix); // FIXME grouping
    }
@@ -695,7 +692,6 @@ QueryParser::Internal::add_boolean_prefix(const string &field,
 	if (!p->second.prefixes.empty())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	throw Xapian::FeatureUnavailableError("Multiple FieldProcessor objects for the same prefix currently not supported");
-	// p->second.procs.push_back(proc);
    }
 }
 
