@@ -750,6 +750,9 @@ DEFINE_TESTCASE(queryparser1, !backend) {
     queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     queryparser.add_prefix("author", "A");
     queryparser.add_prefix("writer", "A");
+    // Check that a redundant add_prefix() doesn't result in redundant terms in
+    // the Query object.
+    queryparser.add_prefix("author", "A");
     queryparser.add_prefix("title", "XT");
     queryparser.add_prefix("subject", "XT");
     queryparser.add_prefix("authortitle", "A");
@@ -757,6 +760,9 @@ DEFINE_TESTCASE(queryparser1, !backend) {
     queryparser.add_boolean_prefix("site", "H");
     queryparser.add_boolean_prefix("site2", "J");
     queryparser.add_boolean_prefix("multisite", "H");
+    queryparser.add_boolean_prefix("multisite", "J");
+    // Check that a redundant add_boolean_prefix() doesn't result in redundant
+    // terms in the Query object.
     queryparser.add_boolean_prefix("multisite", "J");
     queryparser.add_boolean_prefix("category", "XCAT", false);
     queryparser.add_boolean_prefix("dogegory", "XDOG", false);

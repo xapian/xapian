@@ -692,7 +692,15 @@ QueryParser::Internal::add_prefix(const string &field, const string &prefix)
 	}
 	if (p->second.proc.get())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
-	p->second.prefixes.push_back(prefix);
+	// Only add if it's not already there as duplicate entries just result
+	// in redundant query terms.  This is a linear scan so makes calling
+	// add_prefix() n times for the same field value with different prefix
+	// values O(n²), but you wouldn't realistically want to map one field
+	// to more than a handful of prefixes.
+	auto& prefixes = p->second.prefixes;
+	if (find(prefixes.begin(), prefixes.end(), prefix) == prefixes.end()) {
+	    prefixes.push_back(prefix);
+	}
    }
 }
 
@@ -734,7 +742,15 @@ QueryParser::Internal::add_boolean_prefix(const string &field,
 	}
 	if (p->second.proc.get())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
-	p->second.prefixes.push_back(prefix); // FIXME grouping
+	// Only add if it's not already there as duplicate entries just result
+	// in redundant query terms.  This is a linear scan so makes calling
+	// add_prefix() n times for the same field value with different prefix
+	// values O(n²), but you wouldn't realistically want to map one field
+	// to more than a handful of prefixes.
+	auto& prefixes = p->second.prefixes;
+	if (find(prefixes.begin(), prefixes.end(), prefix) == prefixes.end()) {
+	    prefixes.push_back(prefix); // FIXME grouping
+	}
    }
 }
 
