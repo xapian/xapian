@@ -46,7 +46,7 @@ struct FieldInfo {
     string grouping;
 
     /// Field prefix strings.
-    list<string> prefixes;
+    vector<string> prefixes;
 
     /// Field processors.  Currently only one is supported.
     list<Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor>> procs;

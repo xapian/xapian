@@ -381,7 +381,7 @@ Query
 Term::get_query_with_synonyms() const
 {
     // Handle single-word synonyms with each prefix.
-    const list<string> & prefixes = field_info->prefixes;
+    const auto& prefixes = field_info->prefixes;
     if (prefixes.empty()) {
 	// FIXME: handle multiple here
 	Assert(!field_info->procs.empty());
@@ -390,13 +390,12 @@ Term::get_query_with_synonyms() const
 
     Query q = get_query();
 
-    list<string>::const_iterator piter;
-    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+    for (auto&& prefix : prefixes) {
 	// First try the unstemmed term:
 	string term;
-	if (!piter->empty()) {
-	    term += *piter;
-	    if (prefix_needs_colon(*piter, name[0])) term += ':';
+	if (!prefix.empty()) {
+	    term += prefix;
+	    if (prefix_needs_colon(prefix, name[0])) term += ':';
 	}
 	term += name;
 
@@ -406,9 +405,9 @@ Term::get_query_with_synonyms() const
 	if (syn == end && stem != QueryParser::STEM_NONE) {
 	    // If that has no synonyms, try the stemmed form:
 	    term = 'Z';
-	    if (!piter->empty()) {
-		term += *piter;
-		if (prefix_needs_colon(*piter, name[0])) term += ':';
+	    if (!prefix.empty()) {
+		term += prefix;
+		if (prefix_needs_colon(prefix, name[0])) term += ':';
 	    }
 	    term += state->stem_term(name);
 	    syn = db.synonyms_begin(term);
@@ -470,13 +469,13 @@ add_to_query(Query *& q, Query::op op, const Query & term)
 Query
 Term::get_query() const
 {
-    const list<string> & prefixes = field_info->prefixes;
+    const auto& prefixes = field_info->prefixes;
     if (prefixes.empty()) {
 	// FIXME: handle multiple here
 	Assert(!field_info->procs.empty());
 	return (**field_info->procs.begin())(name);
     }
-    list<string>::const_iterator piter = prefixes.begin();
+    auto piter = prefixes.begin();
     Query q(make_term(*piter), 1, pos);
     while (++piter != prefixes.end()) {
 	q |= Query(make_term(*piter), 1, pos);
@@ -487,7 +486,7 @@ Term::get_query() const
 Query *
 Term::as_fuzzy_query(State* state_) const
 {
-    const list<string>& prefixes = field_info->prefixes;
+    const auto& prefixes = field_info->prefixes;
     Xapian::termcount max = state_->get_max_fuzzy_expansion();
     int query_flags = state_->get_max_fuzzy_type();
     vector<Query> subqs;
@@ -510,8 +509,7 @@ Term::as_fuzzy_query(State* state_) const
 Query *
 Term::as_wildcarded_query(State * state_) const
 {
-    const list<string> & prefixes = field_info->prefixes;
-    list<string>::const_iterator piter;
+    const auto& prefixes = field_info->prefixes;
     Xapian::termcount max = state_->get_max_wildcard_expansion();
     int query_flags = state_->get_max_wildcard_type();
     if (state_->flags & QueryParser::FLAG_WILDCARD_SINGLE)
@@ -520,8 +518,7 @@ Term::as_wildcarded_query(State * state_) const
 	query_flags |= Query::WILDCARD_PATTERN_MULTI;
     vector<Query> subqs;
     subqs.reserve(prefixes.size());
-    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	string root = *piter;
+    for (string root : prefixes) {
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
 	subqs.push_back(Query(Query::OP_WILDCARD, root, max, query_flags,
@@ -540,16 +537,14 @@ Term::as_partial_query(State * state_) const
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
 
-    const list<string> & prefixes = field_info->prefixes;
-    list<string>::const_iterator piter;
-    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	string root = *piter;
+    for (const string& prefix : field_info->prefixes) {
+	string root = prefix;
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
 	subqs_partial.push_back(Query(Query::OP_WILDCARD, root, max, max_type,
 				      Query::OP_OR));
 	// Add the term, as it would normally be handled, as an alternative.
-	subqs_full.push_back(Query(make_term(*piter), 1, pos));
+	subqs_full.push_back(Query(make_term(prefix), 1, pos));
     }
     Query * q = new Query(Query::OP_OR,
 			  Query(Query::OP_SYNONYM,
@@ -563,18 +558,17 @@ Term::as_partial_query(State * state_) const
 Query *
 Term::as_cjk_query() const
 {
-    const list<string> & prefixes = field_info->prefixes;
+    const auto& prefixes = field_info->prefixes;
     Query *q;
 
 #ifdef USE_ICU
     if (state->flags & QueryParser::FLAG_CJK_WORDS) {
 	vector<Query> prefix_cjk;
-	list<string>::const_iterator piter;
 
 	for (CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
 	    const string& token = *tk;
-	    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-		prefix_cjk.push_back(Query(*piter + token, 1, pos));
+	    for (const string& prefix : prefixes) {
+		prefix_cjk.push_back(Query(prefix + token, 1, pos));
 	    }
 	}
 
@@ -587,11 +581,8 @@ Term::as_cjk_query() const
 
     vector<Query> prefix_subqs;
     vector<Query> cjk_subqs;
-    list<string>::const_iterator piter;
 
-    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	const string& prefix = *piter;
-
+    for (const string& prefix : prefixes) {
 	for (CJKNgramIterator tk(name); tk != CJKNgramIterator(); ++tk) {
 	    cjk_subqs.push_back(Query(prefix + *tk, 1, pos));
 	}
@@ -1516,10 +1507,9 @@ phrased_term:
 	    // Check spelling, if we're a normal term, and any of the prefixes
 	    // are empty.
 	    if ((flags & FLAG_SPELLING_CORRECTION) && !was_acronym) {
-		const list<string> & pfxes = field_info->prefixes;
-		list<string>::const_iterator pfx_it;
-		for (pfx_it = pfxes.begin(); pfx_it != pfxes.end(); ++pfx_it) {
-		    if (!pfx_it->empty())
+		const auto& prefixes = field_info->prefixes;
+		for (const string& prefix : prefixes) {
+		    if (!prefix.empty())
 			continue;
 		    const string & suggest = db.get_spelling_suggestion(term);
 		    if (!suggest.empty()) {
@@ -1868,7 +1858,7 @@ class Terms {
     /** The list of prefixes of the terms added.
      *  This will be NULL if the terms have different prefixes.
      */
-    const list<string> * prefixes;
+    const vector<string>* prefixes;
 
     /// Convert to a query using the given operator and window size.
     Query * as_opwindow_query(Query::op op, Xapian::termcount w_delta) const {
@@ -1877,14 +1867,11 @@ class Terms {
 	Xapian::termcount w = w_delta + terms.size();
 	if (uniform_prefixes) {
 	    if (prefixes) {
-		list<string>::const_iterator piter;
-		for (piter = prefixes->begin(); piter != prefixes->end(); ++piter) {
+		for (auto&& prefix : *prefixes) {
 		    vector<Query> subqs;
 		    subqs.reserve(n_terms);
-		    vector<Term *>::const_iterator titer;
-		    for (titer = terms.begin(); titer != terms.end(); ++titer) {
-			Term * t = *titer;
-			subqs.push_back(Query(t->make_term(*piter), 1, t->pos));
+		    for (Term* t : terms) {
+			subqs.push_back(Query(t->make_term(prefix), 1, t->pos));
 		    }
 		    add_to_query(q, Query::OP_OR,
 				 Query(op, subqs.begin(), subqs.end(), w));
@@ -1893,9 +1880,8 @@ class Terms {
 	} else {
 	    vector<Query> subqs;
 	    subqs.reserve(n_terms);
-	    vector<Term *>::const_iterator titer;
-	    for (titer = terms.begin(); titer != terms.end(); ++titer) {
-		subqs.push_back((*titer)->get_query());
+	    for (Term* t : terms) {
+		subqs.push_back(t->get_query());
 	    }
 	    q = new Query(op, subqs.begin(), subqs.end(), w);
 	}
@@ -1920,7 +1906,7 @@ class Terms {
 
     /// Add an unstemmed Term object to this Terms object.
     void add_positional_term(Term * term) {
-	const list<string> & term_prefixes = term->field_info->prefixes;
+	const auto& term_prefixes = term->field_info->prefixes;
 	if (terms.empty()) {
 	    prefixes = &term_prefixes;
 	} else if (uniform_prefixes && prefixes != &term_prefixes) {
