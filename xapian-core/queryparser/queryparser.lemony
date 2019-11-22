@@ -356,7 +356,7 @@ Term::get_query_with_synonyms() const
     // Handle single-word synonyms with each prefix.
     const list<string> & prefixes = field_info->prefixes;
     if (prefixes.empty()) {
-	Assert(field_info->proc != nullptr);
+	Assert(field_info->proc.get());
 	return (*field_info->proc)(name);
     }
 
@@ -444,7 +444,7 @@ Term::get_query() const
 {
     const list<string> & prefixes = field_info->prefixes;
     if (prefixes.empty()) {
-	Assert(field_info->proc != nullptr);
+	Assert(field_info->proc.get());
 	return (*field_info->proc)(name);
     }
     list<string>::const_iterator piter = prefixes.begin();
