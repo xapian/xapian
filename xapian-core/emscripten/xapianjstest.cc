@@ -3,7 +3,6 @@
  */
 #include <emscripten.h>
 #include <xapian.h>
-#include <cstdlib>
 #include <iostream>
 
 using namespace std;
