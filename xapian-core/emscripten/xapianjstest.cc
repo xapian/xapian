@@ -9,7 +9,7 @@ using namespace std;
 
 int main() {
 
-    EM_ASM_({
+    EM_ASM({
 	    FS.mkdir("/work");
 	    FS.mount(NODEFS, {root: '.'},"/work");
 	    FS.chdir("/work");
