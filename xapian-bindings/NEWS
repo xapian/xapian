@@ -1,3 +1,19 @@
+Xapian-bindings 1.4.14 (2019-11-23):
+
+Python:
+
+* Remove broken replicationtest.py.  It's never worked reliably, and because
+  of that was disabled shortly after being added over a decade ago.
+  Unsurprisingly it's bit-rotted at least a bit since.  Nobody seems interested
+  in fixing it, so it's time to just get rid of it.  Closes #320.
+
+Python3:
+
+* Remove broken replicationtest.py.  It's never worked reliably, and because
+  of that was disabled shortly after being added over a decade ago.
+  Unsurprisingly it's bit-rotted at least a bit since.  Nobody seems interested
+  in fixing it, so it's time to just get rid of it.  Closes #320.
+
 Xapian-bindings 1.4.13 (2019-10-14):
 
 General:

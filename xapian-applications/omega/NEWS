@@ -1,3 +1,22 @@
+Omega 1.4.14 (2019-11-23):
+
+documentation:
+
+* Improve omindex --help docs for --duplicates.
+
+indexers:
+
+* Add built-in support for iso-8859-15 so we can handle it without iconv.
+  This charset is a variant of iso-8859-1 with 8 characters changed, most
+  notably including the euro currency symbol.  It's the most commonly seen
+  charset we didn't have built-in support for.
+
+omega:
+
+* Fix error handling in $lookup.  We now check for errors from cdb_init()
+  and cdb_get().  We've never checked for errors from cdb_init(), while
+  for cdb_get() this bug was introduced by a warning fix in 1.2.20.
+
 Omega 1.4.13 (2019-10-14):
 
 documentation:

@@ -1,3 +1,113 @@
+Xapian-core 1.4.14 (2019-11-23):
+
+API:
+
+* Xapian::QueryParser: Handle "" inside a quoted phrase better.  In a quoted
+  boolean term, "" is treated as an escaped ", so handle it in a compatible way
+  for quoted phrases.  Previously we'd drop out of the phrase and start a new
+  phrase.  Fixes #630, reported by Austin Clements.
+
+* Xapian::Stem: The constructor which takes a stemmer name now takes an
+  optional second bool parameter - if this is true, then an unknown stemmer
+  name falls back to using the "none" stemmer instead of throwing an exception.
+  This allows simply constructing a stemmer from an ISO language code without
+  having to worry about whether there's a stemmer for that language, and
+  without having to handle an exception if there isn't.
+
+* Xapian::Stem: Fix a bug with handling 4-byte UTF-8 sequences which
+  potentially affects most of the stemmers.  None of the stemmers work in
+  languages where 4-byte UTF-8 sequences are part of the alphabet, but this
+  bug could result in invalid UTF-8 sequences in terms generated from text
+  containing high Unicode codepoints such as emoji, which can cause issues (for
+  example, in some language bindings).  Fix synced from Snowball git post
+  2.0.0.  Reported by Ilari Nieminen in
+  https://github.com/snowballstem/snowball/issues/89.
+
+* Xapian::Stem: Add a new is_none() method which tests if this is a "none"
+  stemmer.
+
+* Xapian::Weight: The total length of all documents is now made available to
+  Xapian::Weight subclasses, and this is now used by DLHWeight, DPHWeight and
+  LMWeight.  To maintain ABI compatibility, internally this still fetches the
+  average length and the number of documents, multiplies them, then rounds the
+  result, but in the next release series this will be handled directly.
+
+* Xapian::Database::locked() on an inmemory database used to always return
+  false, but an inmemory Database is always actually a WritableDatabase
+  underneath, so now we always report true in this case because it's really
+  always report being locked for writing.
+
+testsuite:
+
+* Fix failing multi_glass_remoteprog_glass tests on x86.  When the tests are
+  run under valgrind, remote servers should be run using the runsrv wrapper
+  script, but this wasn't happening for remote servers in multi-databases - now
+  it is.  Also, previously runsrv only used valgrind for the remote for an x86
+  build that didn't use SSE, but it seems there are x87 instructions in libc
+  that are affected by valgrind not providing excess precision, so do this for
+  x86 builds which use SSE too.  Together these changes fix failures of
+  topercent2, xor2, tradweight1 under backend multi_glass_remoteprog_glass on
+  x86.
+
+* Fix C++ One-Definition Rule (ODR) violation in testsuite code.  Two different
+  source files linked into apitest were each defining a different `struct
+  test`.  Wrap each in an anonymous namespace to localise it to the file it is
+  defined and used in.  This was probably harmless in practice, unless trying
+  to build with Link-Time Optimisation or similar (which is how it was
+  detected).
+
+* Test all language codes in stemlangs1.  The testsuite hardcodes a list of
+  supported language codes which hadn't been updated since 2008.
+
+* Improve DateRangeProcessor test coverage.
+
+matcher:
+
+* Handle pruning under a positional check.  This used to be impossible, but
+  since 1.4.13 it can happen as we now hoist AND_NOT to just below where we
+  hoist the positional checks.  The code on master already handles pruning here
+  so this bug is specific to the RELEASE/1.4 branch.  Fixes #796, reported by
+  Oliver Runge.
+
+* When searching with collapsing over multiple shards, at least some of which
+  are remote, uncollapsed_upper_bound could be too low and
+  uncollapsed_lower_bound too high.  This was causing assertion failures in
+  testcases msize1 and msize2 under test harness backends
+  multi_glass_remoteprog_glass and multi_remoteprog_glass.
+
+* Internally we no longer calculate a bogus total_term_count as the sum of
+  total_length * doc_count for all shards.  Instead we just use the sum of
+  total_length, which gives the total number of term occurrences.  This change
+  should improve the estimated collection_freq values for synonyms.
+
+* Several places where we might divide zero by zero in a database where wdf was
+  always zero have been fixed.
+
+build system:
+
+* configure: Stop using AC_FUNC_MEMCMP.  The autoconf manual marks it as
+  "obsolescent", and it seems clear that nobody's relying on it as we're
+  missing the "'AC_LIBOBJ' replacement for 'memcmp'" which it would try to
+  use if needed.
+
+documentation:
+
+* HACKING: Replace release docs with pointer to the developer guide where they
+  are now maintained.
+
+portability:
+
+* Eliminate 2 uses of atoi().  These are potentially problematic in a
+  multithreaded application if setlocale() is called by another thread at the
+  same time.  See #665.
+
+* Don't check __GNUC__ in visibility.h as the configure probe before defining
+  XAPIAN_ENABLE_VISIBILITY checks that the visibility attributes work.  This
+  probably makes no difference in practice, as all compilers we're aware of
+  which support symbol visibility also define __GNUC__.
+
+* Document Sun C++ requires --disable-shared.  Closes #631.
+
 Xapian-core 1.4.13 (2019-10-14):
 
 API:
