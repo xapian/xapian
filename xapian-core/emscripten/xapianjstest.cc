@@ -8,7 +8,6 @@
 using namespace std;
 
 int main() {
-    Xapian::WritableDatabase db;
 
     EM_ASM_({
 	    FS.mkdir("/work");
@@ -16,7 +15,7 @@ int main() {
 	    FS.chdir("/work");
     });
 
-    db = Xapian::WritableDatabase("testdb", Xapian::DB_CREATE_OR_OPEN);
+    Xapian::WritableDatabase db("testdb", Xapian::DB_CREATE_OR_OPEN);
 
     Xapian::TermGenerator termgenerator;
     Xapian::Document doc;
