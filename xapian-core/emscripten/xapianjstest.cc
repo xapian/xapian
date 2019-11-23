@@ -8,12 +8,13 @@
 using namespace std;
 
 int main() {
-
+#ifdef NODEFS
     EM_ASM({
 	    FS.mkdir("/work");
 	    FS.mount(NODEFS, {root: '.'},"/work");
 	    FS.chdir("/work");
     });
+#endif
 
     Xapian::WritableDatabase db("testdb", Xapian::DB_CREATE_OR_OPEN);
 
