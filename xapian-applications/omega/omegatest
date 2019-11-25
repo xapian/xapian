@@ -554,6 +554,10 @@ testcase 'Exception: Filesize must be an integer' size=foo
 testcase 'Exception: Filesize must be an integer' size=1a
 testcase 'Exception: Filesize must be an integer' size=1.1
 
+# Feature tests for $keys.
+printf '$setmap{x,bee,1,eel,6,dog,4,ant,2,fox,5,cat,3}/$list{$keys{x},|}/$keys{nosuch}/' > "$TEST_TEMPLATE"
+testcase '/ant|bee|cat|dog|eel|fox//'
+
 # Feature tests for $log.
 rm -f "$TEST_LOG"
 # Chop off any error message at ": " so the test output doesn't depend on

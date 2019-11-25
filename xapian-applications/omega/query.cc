@@ -982,6 +982,7 @@ CMD_if,
 CMD_include,
 CMD_json,
 CMD_jsonarray,
+CMD_keys,
 CMD_last,
 CMD_lastpage,
 CMD_le,
@@ -1125,6 +1126,7 @@ T(if,		   2, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
 T(jsonarray,	   1, 1, N, 0), // Format list as a JSON array of strings
+T(keys,		   1, 1, N, 0), // list of keys from a map
 T(last,		   0, 0, N, M), // hit number one beyond end of current page
 T(lastpage,	   0, 0, N, M), // number of last hit page
 T(le,		   2, 2, N, 0), // test <=
@@ -1807,6 +1809,16 @@ eval(const string &fmt, const vector<string> &param)
 		    i = j + 1;
 		}
 		value += "\"]";
+		break;
+	    }
+	    case CMD_keys: {
+		string prefix = args[0] + ',';
+		auto i = option.lower_bound(prefix);
+		for (; i != option.end() && startswith(i->first, prefix); ++i) {
+		    const string& key = i->first;
+		    if (!value.empty()) value += '\t';
+		    value.append(key, prefix.size(), string::npos);
+		}
 		break;
 	    }
 	    case CMD_last:
