@@ -441,9 +441,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // number of matching documents which is higher than the number of
     // documents it returns (because it wasn't asked for more documents).
     Xapian::doccount definite_matches_not_seen = 0;
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     // Track these for calculating uncollapsed_upper_bound for the local.
     size_t n_remotes = 0;
     Xapian::doccount remote_uncollapsed_upper_bound = 0;
+#endif
     try {
 	for (size_t i = 0; i != leaves.size(); ++i) {
 	    // Pick the highest total subqueries answer amongst the
@@ -453,6 +455,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    Xapian::termcount total_subqs_i = 0;
 	    PostList* pl = leaves[i]->get_postlist(this, &total_subqs_i);
 	    total_subqs = max(total_subqs, total_subqs_i);
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    if (is_remote[i]) {
 		++n_remotes;
 		RemoteSubMatch* rem_match =
@@ -469,6 +472,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    definite_matches_not_seen -= first + maxitems;
 		}
 	    }
+#endif
 	    postlists.push_back(pl);
 	}
     } catch (...) {
@@ -950,6 +954,7 @@ new_greatest_weight:
     Xapian::doccount uncollapsed_lower_bound = matches_lower_bound;
     Xapian::doccount uncollapsed_upper_bound = matches_upper_bound;
     Xapian::doccount uncollapsed_estimated = matches_estimated;
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     if (collapser && n_remotes) {
 	// We need to adjust uncollapsed_upper_bound if there are multiple
 	// shards and some or all are remote.  The lower bound and estimate
@@ -971,6 +976,7 @@ new_greatest_weight:
 	    }
 	}
     }
+#endif
     if (items.size() < max_msize) {
 	// We have fewer items in the mset than we tried to get for it, so we
 	// must have all the matches in it.
