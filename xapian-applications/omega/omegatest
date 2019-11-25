@@ -535,6 +535,10 @@ testcase 'Exception: Invalid $sort option combination: #rn' input="b|1" opt='#rn
 printf '$sort{test} $addfilter{Test}$querydescription' > "$TEST_TEMPLATE"
 testcase 'test Query(Test)'
 
+# Feature tests for $keys.
+printf '$setmap{x,bee,1,eel,6,dog,4,ant,2,fox,5,cat,3}/$list{$keys{x},|}/$keys{nosuch}/' > "$TEST_TEMPLATE"
+testcase '/ant|bee|cat|dog|eel|fox//'
+
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
 rm -rf "$TEST_DB"

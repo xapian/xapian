@@ -288,6 +288,12 @@ $jsonarray{LIST}
 
         Added in Omega 1.3.1, but buggy until 1.3.4.
 
+$keys{MAP}
+        returns a list containing the keys of MAP (as set by ``$setmap``).
+        The keys are in sorted order (by raw byte comparison).
+
+        Added in Omega 1.4.15.
+
 $last
         MSet index one beyond the end of the current page (so ``$hit`` runs
         from ``0`` to ``$sub{$last,1}``).
