@@ -10,11 +10,11 @@ RSTDOCS = \
 	cgiparams.rst\
 	encodings.rst\
 	index.rst\
+	newformat.rst\
 	omegascript.rst\
 	overview.rst\
 	quickstart.rst\
 	scriptindex.rst\
-	newformat.rst\
 	termprefixes.rst
 
 RSTHTML = $(RSTDOCS:.rst=.html)
