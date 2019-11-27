@@ -30,7 +30,7 @@
 
 using namespace std;
 
-const unsigned SIZE = 4096;
+constexpr unsigned SIZE = 4096;
 
 static void
 extract_html(const string& text, string& charset, string& dump)
