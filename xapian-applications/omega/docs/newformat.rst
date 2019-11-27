@@ -44,7 +44,7 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
 
      convert_to_utf8(text, "ISO-8859-1");
 
-2. Once you have the library and the mimetype, it is time to modify the code. We have to create a new handler, which is the process used by omindex to access to the library. In order to do it, we have to create a file ‘handler_yourlibrary.cc’ that includes ‘handler.h’ and gives a definition to function ``extract`` (there are some examples at xapian-applications/omega such as 'handler_tesseract.cc'). For this, inside the function body you will use the library to get the necessary information and store it in the corresponding arguments
+2. Once you have the library and the mimetype, it is time to modify the code. We have to create a new handler, which is the process used by omindex to access to the library. In order to do it, we have to create a file ``handler_yourlibrary.cc`` that includes ``handler.h`` and gives a definition to function ``extract`` (there are some examples at xapian-applications/omega such as 'handler_tesseract.cc'). For this, inside the function body you will use the library to get the necessary information and store it in the corresponding arguments
    ::
 
      bool
@@ -135,7 +135,7 @@ To add a new filter to omega we have to follow a series of steps:
 
    There are more options that we can use for Filter (see 'index_file.h').
 
-3. In some cases, you will have to run several programs for each file or make some extra work so you will either need to put together a script which fits what omindex supports, or else modify the source code in ‘index_file.cc’ by adding a test for the new mime-type to the long if/else-if chain inside ``index_mimetype`` function. New formats should generally go at the end, unless they are very common
+3. In some cases, you will have to run several programs for each file or make some extra work so you will either need to put together a script which fits what omindex supports, or else modify the source code in ``index_file.cc`` by adding a test for the new mime-type to the long if/else-if chain inside ``index_mimetype`` function. New formats should generally go at the end, unless they are very common
    ::
 
      } else if (mimetype == "text/x-foo") {
