@@ -235,7 +235,7 @@ API:
 * Xapian::Database: Add size() method which reports the number of shards.
 
 * Xapian::Database::check(): You can now pass a stub database which will check
-  all the databases listed in it (or throw Xapian::UnimplementError for
+  all the databases listed in it (or throw Xapian::UnimplementedError for
   backends which don't support checking).
 
 * Xapian::Document: When updating a document use a emplace_hint() to make the
