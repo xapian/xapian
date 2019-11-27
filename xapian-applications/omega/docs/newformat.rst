@@ -8,7 +8,7 @@ First of all, we need a mime type for the new file format. Omega uses mime types
 
   file --mime-type example.fb2
 
-which responses::
+which responds::
 
   example.fb2: text/xml
 
