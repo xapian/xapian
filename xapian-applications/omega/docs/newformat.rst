@@ -62,7 +62,7 @@ To add a new filter to omega we have to follow a series of steps:
    If we want to add the filter permanently, we can add a new entry in ``index_add_default_filters`` at 'index_file.cc'. Following with the example
    ::
 
-     index_command(“text/x-foo”, Filter(“foo2utf16 --content %f %t”, "text/html", “utf-16”))
+     index_command("text/x-foo", Filter("foo2utf16 --content %f %t", "text/html", "utf-16"));
 
    There are more options that we can use for Filter (see 'index_file.h').
 
