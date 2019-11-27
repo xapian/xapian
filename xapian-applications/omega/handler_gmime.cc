@@ -50,8 +50,9 @@ extract_html(const string& text, string& charset, string& dump)
     }
 }
 
-size_t decode(unsigned char* text, size_t len, GMimeContentEncoding encoding,
-	      int* state, guint32* save)
+static size_t
+decode(unsigned char* text, size_t len, GMimeContentEncoding encoding,
+       int* state, guint32* save)
 {
     unsigned char buffer[SIZE];
     switch (encoding) {
@@ -79,7 +80,7 @@ size_t decode(unsigned char* text, size_t len, GMimeContentEncoding encoding,
     return len;
 }
 
-bool
+static bool
 parser_content(GMimeObject* me, string& dump)
 {
     GMimeContentType* ct = g_mime_object_get_content_type(me);
