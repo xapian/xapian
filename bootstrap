@@ -404,8 +404,8 @@ esac
 swig_git_commit_hash=1e36f51346d95f8b9848e682c2eb986e9cb9b4f4
 
 # Commit hashes to use for common in omega and letor respectively:
-omega_common_commit_hash=f5921b74bc4bf899d9a043ee3ecdbcbfd4bacb7b
-letor_common_commit_hash=f5921b74bc4bf899d9a043ee3ecdbcbfd4bacb7b
+omega_common_commit_hash=c65fd56b6ddd11894253b16bc1d0701ff6835672
+letor_common_commit_hash=c65fd56b6ddd11894253b16bc1d0701ff6835672
 
 if [ ! -r .git ] ; then
   echo "$0: '.git' not found - this script should be run from a git repo cloned"
