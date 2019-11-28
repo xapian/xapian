@@ -39,6 +39,8 @@
 
 using namespace std;
 
+using Xapian::Internal::opt_intrusive_ptr;
+
 class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
     friend class Xapian::Registry;
 
@@ -56,6 +58,9 @@ class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
 
     /// Registered lat-long metrics.
     std::map<std::string, Xapian::LatLongMetric *> lat_long_metrics;
+
+    /// Registered KeyMaker subclasses.
+    std::map<std::string, opt_intrusive_ptr<Xapian::KeyMaker>> key_makers;
 
     /// Add the standard subclasses provided in the API.
     void add_defaults();
@@ -77,6 +82,25 @@ class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
     ~Internal();
 };
 
+/// Register an optionally ref-counted object.
+template<class T>
+static inline void
+register_object(map<string, opt_intrusive_ptr<T>>& registry, T* obj_)
+{
+    opt_intrusive_ptr<T> obj(obj_);
+
+    string name = obj->name();
+    if (rare(name.empty())) {
+	throw Xapian::InvalidOperationError("Unable to register object - "
+					    "name() method returned empty "
+					    "string");
+    }
+
+    auto r = registry.insert(make_pair(name, static_cast<T*>(NULL)));
+    r.first->second = std::move(obj);
+}
+
+/// Register an object that requires cloning.
 template<class T>
 static inline void
 register_object(map<string, T*> & registry, const T & obj)
@@ -158,6 +182,19 @@ register_object(map<string, T*> & registry1, map<string, T*> & registry2,
     }
 }
 
+/// Look up an optionally ref-counted object.
+template<class T>
+static inline const T*
+lookup_object(map<string, opt_intrusive_ptr<T>> registry, const string& name)
+{
+    auto i = registry.find(name);
+    if (i == registry.end()) {
+	return NULL;
+    }
+    return i->second.get();
+}
+
+/// Look up an object that requires cloning.
 template<class T>
 static inline const T *
 lookup_object(map<string, T*> registry, const string & name)
@@ -258,6 +295,10 @@ Registry::Internal::add_defaults()
     Xapian::LatLongMetric * metric;
     metric = new Xapian::GreatCircleMetric();
     lat_long_metrics[metric->name()] = metric;
+
+    Xapian::KeyMaker* keymaker;
+    keymaker = new Xapian::MultiValueKeyMaker();
+    key_makers[keymaker->name()] = keymaker->release();
 }
 
 void
@@ -391,6 +432,20 @@ Registry::get_lat_long_metric(const string & name) const
 {
     LOGCALL(API, const Xapian::LatLongMetric *, "Xapian::Registry::get_lat_long_metric", name);
     RETURN(lookup_object(internal->lat_long_metrics, name));
+}
+
+void
+Registry::register_key_maker(Xapian::KeyMaker* keymaker)
+{
+    LOGCALL_VOID(API, "Xapian::Registry::register_key_maker", keymaker->name());
+    register_object(internal->key_makers, keymaker);
+}
+
+const Xapian::KeyMaker*
+Registry::get_key_maker(const std::string& name) const
+{
+    LOGCALL(API, const Xapian::KeyMaker*, "Xapian::Registry::get_key_maker", name);
+    RETURN(lookup_object(internal->key_makers, name));
 }
 
 }

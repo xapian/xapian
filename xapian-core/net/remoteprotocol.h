@@ -55,9 +55,10 @@
 // 42: pre-1.5.0 Use little-endian IEEE for doubles
 // 43: pre-1.5.0 REPLY_DONE sent for 5 more messages; MSG_QUERY adjusted
 // 44: pre-1.5.0 pack_uint() now used; many other changes
-// 44.1: 1.5.0 MSG_RECONSTRUCTTEXT added
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 44
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
+// 44.1: pre-1.5.0 MSG_RECONSTRUCTTEXT added
+// 45: 1.5.0 Remote support for sorters
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 45
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
  *

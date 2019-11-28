@@ -1,7 +1,7 @@
 /** @file remotesubmatch.h
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007,2009,2011,2014,2015,2018 Olly Betts
+/* Copyright (C) 2006,2007,2009,2011,2014,2015,2018,2019 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -67,11 +67,13 @@ class RemoteSubMatch {
      *  @param first          The first item in the result set to return.
      *  @param maxitems       The maximum number of items to return.
      *  @param check_at_least The minimum number of items to check.
+     *  @param sorter	      KeyMaker for sort keys (NULL for none).
      *  @param total_stats    The total statistics for the collection.
      */
     void start_match(Xapian::doccount first,
 		     Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
+		     const Xapian::KeyMaker* sorter,
 		     Xapian::Weight::Internal& total_stats);
 
     typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;

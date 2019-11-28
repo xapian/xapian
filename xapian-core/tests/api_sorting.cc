@@ -1,7 +1,7 @@
 /** @file api_sorting.cc
  * @brief tests of MSet sorting
  */
-/* Copyright (C) 2007,2008,2009,2012,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2012,2017,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@
 
 using namespace std;
 
-DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
+DEFINE_TESTCASE(sortfunctor1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -118,7 +118,7 @@ DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
 }
 
 /// Test reverse sort functor.
-DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
+DEFINE_TESTCASE(sortfunctor2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("foo");
@@ -192,7 +192,7 @@ DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
 }
 
 // Test sort functor with some empty values.
-DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
+DEFINE_TESTCASE(sortfunctor3, backend && valuestats) {
     Xapian::Database db(get_database("apitest_sortrel"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("woman"));
@@ -298,7 +298,7 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
 }
 
 /// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
-DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
+DEFINE_TESTCASE(sortfunctorempty1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -354,6 +354,7 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     NeverUseMeKeyMaker sorter;
     enquire.set_query(Xapian::Query("word"));
     enquire.set_sort_by_key(&sorter, true);
+    // NeverUseMeKeyMaker doesn't implemented serialise(), etc so should fail.
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	Xapian::MSet mset = enquire.get_mset(0, 10);
     );

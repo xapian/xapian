@@ -182,7 +182,6 @@ Matcher::Matcher(const Xapian::Database& db_,
 		 const Xapian::RSet* rset,
 		 Xapian::Weight::Internal& stats,
 		 const Xapian::Weight& wtscheme,
-		 bool have_sorter,
 		 bool have_mdecider,
 		 Xapian::valueno collapse_key,
 		 Xapian::doccount collapse_max,
@@ -217,10 +216,6 @@ Matcher::Matcher(const Xapian::Database& db_,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	if (subdb->get_backend_info(NULL) == BACKEND_REMOTE) {
 	    auto as_rem = static_cast<const RemoteDatabase*>(subdb);
-	    if (have_sorter) {
-		unimplemented("Xapian::KeyMaker not supported by the remote "
-			      "backend");
-	    }
 	    if (have_mdecider) {
 		unimplemented("Xapian::MatchDecider not supported by the "
 			      "remote backend");
@@ -239,7 +234,6 @@ Matcher::Matcher(const Xapian::Database& db_,
 	}
 #else
 	// Avoid unused parameter warnings.
-	(void)have_sorter;
 	(void)have_mdecider;
 	(void)collapse_key;
 	(void)collapse_max;
@@ -548,7 +542,8 @@ Matcher::get_mset(Xapian::doccount first,
     if (locals.empty() && remotes.size() == 1) {
 	// Short cut for a single remote database.
 	Assert(remotes[0].get());
-	remotes[0]->start_match(first, maxitems, check_at_least, stats);
+	remotes[0]->start_match(first, maxitems, check_at_least, sorter,
+				stats);
 	return remotes[0]->get_mset(matchspies);
     }
 #endif
@@ -573,7 +568,8 @@ Matcher::get_mset(Xapian::doccount first,
 	    AssertRel(check_at_least, >=, first + maxitems);
 	    remote_maxitems = check_at_least;
 	}
-	submatch->start_match(0, remote_maxitems, check_at_least, stats);
+	submatch->start_match(0, remote_maxitems, check_at_least, sorter,
+			      stats);
     }
 #endif
 

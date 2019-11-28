@@ -67,6 +67,13 @@ is_intermediate_reply(int reply_code)
 
 [[noreturn]]
 static void
+throw_invalid_operation(const char* message)
+{
+    throw Xapian::InvalidOperationError(message);
+}
+
+[[noreturn]]
+static void
 throw_handshake_failed(const string & context)
 {
     throw Xapian::NetworkError("Handshake failed - is this a Xapian server?",
@@ -688,12 +695,23 @@ void
 RemoteDatabase::send_global_stats(Xapian::doccount first,
 				  Xapian::doccount maxitems,
 				  Xapian::doccount check_at_least,
+				  const Xapian::KeyMaker* sorter,
 				  const Xapian::Weight::Internal &stats) const
 {
     string message;
     pack_uint(message, first);
     pack_uint(message, maxitems);
     pack_uint(message, check_at_least);
+    if (!sorter) {
+	pack_string_empty(message);
+    } else {
+	const string& name = sorter->name();
+	if (name.empty()) {
+	    throw_invalid_operation("sorter reported empty name");
+	}
+	pack_string(message, name);
+	pack_string(message, sorter->serialise());
+    }
     message += serialise_stats(stats);
     send_message(MSG_GETMSET, message);
 }

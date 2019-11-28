@@ -1,8 +1,8 @@
 Remote Backend Protocol
 =======================
 
-This document describes *version 44.0* of the protocol used by Xapian's
-remote backend. The major protocol version increased to 44 in Xapian
+This document describes *version 45.0* of the protocol used by Xapian's
+remote backend. The major protocol version increased to 45 in Xapian
 1.5.0.
 
 .. , and the minor protocol version to 1 in Xapian 1.2.4.
@@ -174,12 +174,15 @@ Query
 
 -  ``MSG_QUERY S<serialised Xapian::Query object> I<query length> I<collapse max> [I<collapse key number> (if collapse_max non-zero)] C<docid order> C<sort by> [I<sort key number> (if sort_by non-zero)] B<sort value forward> B<full db has positions> F<time limit> C<percent threshold> F<weight threshold> S<Xapian::Weight class name> S<serialised Xapian::Weight object> S<serialised Xapian::RSet object> [S<Xapian::MatchSpy class name> S<serialised Xapian::MatchSpy object>]...``
 -  ``REPLY_STATS <serialised Stats object>``
--  ``MSG_GETMSET I<first> I<max items> I<check at least> <serialised global Stats object>``
+-  ``MSG_GETMSET I<first> I<max items> I<check at least> S<sorter name> [L<serialised Xapian::Sorter object>] <serialised global Stats object>``
 -  ``REPLY_RESULTS [S<result of calling serialise_results() on Xapian::MatchSpy>]... <serialised Xapian::MSet object>``
 
 docid order is ``0``, ``1`` or ``2``.
 
 sort by is ``0``, ``1``, ``2`` or ``3``.
+
+If there's no sorter then ``<sorter name>`` is empty and
+``L<serialised Xapian::Sorter object>`` is omitted.
 
 Termlist
 --------

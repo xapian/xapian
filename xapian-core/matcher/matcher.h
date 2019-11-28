@@ -1,7 +1,7 @@
 /** @file matcher.h
  * @brief Matcher class
  */
-/* Copyright (C) 2017,2018 Olly Betts
+/* Copyright (C) 2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,7 +117,6 @@ class Matcher {
      *  @param rset		Relevance set (NULL for none)
      *  @param stats		Object to collate stats into
      *  @param wtscheme		Weight object to use as factory
-     *  @param have_sorter	KeyMaker in use for sort keys?
      *  @param have_mdecider	MatchDecider specified?
      *  @param collapse_key	value slot to collapse on (Xapian::BAD_VALUENO
      *				which means no collapsing)
@@ -140,7 +139,6 @@ class Matcher {
 	    const Xapian::RSet* rset,
 	    Xapian::Weight::Internal& stats,
 	    const Xapian::Weight& wtscheme,
-	    bool have_sorter,
 	    bool have_mdecider,
 	    Xapian::valueno collapse_key,
 	    Xapian::doccount collapse_max,

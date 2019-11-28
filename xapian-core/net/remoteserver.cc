@@ -600,7 +600,7 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::Weight::Internal local_stats;
     Matcher matcher(*db, full_db_has_positions,
 		    query, qlen, &rset, local_stats, *wt,
-		    false, false,
+		    false,
 		    collapse_key, collapse_max,
 		    percent_threshold, weight_threshold,
 		    order, sort_key, sort_by, sort_value_forward, time_limit,
@@ -616,10 +616,26 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::termcount first;
     Xapian::termcount maxitems;
     Xapian::termcount check_at_least;
+    string sorter_type;
     if (!unpack_uint(&p, p_end, &first) ||
 	!unpack_uint(&p, p_end, &maxitems) ||
-	!unpack_uint(&p, p_end, &check_at_least)) {
+	!unpack_uint(&p, p_end, &check_at_least) ||
+	!unpack_string(&p, p_end, sorter_type)) {
 	throw Xapian::NetworkError("Bad MSG_GETMSET");
+    }
+    unique_ptr<Xapian::KeyMaker> sorter;
+    if (!sorter_type.empty()) {
+	const Xapian::KeyMaker* sorterclass = reg.get_key_maker(sorter_type);
+	if (sorterclass == NULL) {
+	    throw Xapian::InvalidArgumentError("KeyMaker " + sorter_type +
+					       " not registered");
+	}
+
+	string serialised_sorter;
+	if (!unpack_string(&p, p_end, serialised_sorter)) {
+	    throw Xapian::NetworkError("Bad MSG_GETMSET");
+	}
+	sorter.reset(sorterclass->unserialise(serialised_sorter, reg));
     }
 
     message.erase(0, message.size() - (p_end - p));
@@ -628,7 +644,7 @@ RemoteServer::msg_query(const string &message_in)
     total_stats->set_bounds_from_db(*db);
 
     Xapian::MSet mset = matcher.get_mset(first, maxitems, check_at_least,
-					 *total_stats, *wt, 0, 0,
+					 *total_stats, *wt, 0, sorter.get(),
 					 collapse_key, collapse_max,
 					 percent_threshold, weight_threshold,
 					 order,
