@@ -1122,7 +1122,7 @@ T(html,		   1, 1, N, 0), // html escape string (<>&")
 T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
 T(httpheader,	   2, 2, N, 0), // arbitrary HTTP header
 T(id,		   0, 0, N, 0), // docid of current doc
-T(if,		   2, 3, 1, 0), // conditional
+T(if,		   1, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
 T(jsonarray,	   1, 1, N, 0), // Format list as a JSON array of strings
@@ -1779,7 +1779,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(q0);
 		break;
 	    case CMD_if:
-		if (!args[0].empty())
+		if (args.size() > 1 && !args[0].empty())
 		    value = eval(args[1], param);
 		else if (args.size() > 2)
 		    value = eval(args[2], param);
