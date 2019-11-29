@@ -430,6 +430,10 @@ qtestcase '((Hexample.org OR Hexample.com) AND XFOObar)' P=
 printf '$addfilter{Hexample.org}$addfilter{Hexample.com,N}$addfilter{Hexample.net,N}$querydescription' > "$TEST_TEMPLATE"
 qtestcase '(Hexample.org AND_NOT (Hexample.com OR Hexample.net))' P=
 
+# Feature tests for $if.
+printf '$if{$set{w,1}}$if{a,$set{x,1}}$if{b,$set{y,1},$set{y,2}}$if{,$set{x,0}}$if{,$set{z,2},$set{z,1}}$opt{w}$opt{x}$opt{y}$opt{z}' > "$TEST_TEMPLATE"
+testcase '1111'
+
 # Feature tests for $cond.
 printf '$cond{$cgi{one},1,$cgi{two},2,$cgi{three},3}' > "$TEST_TEMPLATE"
 testcase '1' one=true

@@ -924,9 +924,14 @@ $cond{COND1,THEN1[,COND2,THEN2]...[,ELSE]}
 
         Added in Omega 1.4.6.
 
-$if{COND,THEN[,ELSE]}
+$if{COND[,THEN[,ELSE]]}
         if ``COND`` is non-empty, evaluates and returns ``THEN``; otherwise
-        evaluates and returns ``ELSE`` (if present, otherwise returns nothing).
+        evaluates and returns ``ELSE``.  If ``THEN`` and/or ``ELSE`` are omitted
+        then returns nothing.  You can use ``$if{COND}`` to evaluate ``COND``
+        but discard the result of that evaluation, which can be useful if
+        ``COND`` has side-effects.
+
+        The ability to omit ``THEN`` was added in Omega 1.4.15.
 
 $include{FILE}
 	include another OmegaScript file
