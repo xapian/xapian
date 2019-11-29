@@ -2436,10 +2436,10 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*i).internal.get());
-	bool is_term = ((*i).internal->get_type() == Query::LEAF_TERM);
 	PostList* pl = (*i).internal->postlist(qopt, factor);
-	if (pl && !is_term)
+	if (pl && (*i).internal->get_type() != Query::LEAF_TERM) {
 	    pl = new OrPosPostList(pl);
+	}
 	result = ctx.add_postlist(pl);
 	if (!result) {
 	    if (factor == 0.0) break;
