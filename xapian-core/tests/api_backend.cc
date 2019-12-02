@@ -416,6 +416,15 @@ DEFINE_TESTCASE(testlock3, inmemory) {
     return true;
 }
 
+/// Test locked() on closed WritableDatabase.
+DEFINE_TESTCASE(testlock4, glass) {
+    Xapian::Database db = get_writable_database("apitest_simpledata");
+    TEST(db.locked());
+    db.close();
+    TEST(!db.locked());
+    return true;
+}
+
 class CheckMatchDecider : public Xapian::MatchDecider {
     mutable bool called;
 
