@@ -373,7 +373,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	return BACKEND_INMEMORY;
     }
 
-    bool locked() const { return true; }
+    bool locked() const { return !closed; }
 
     std::string get_description() const;
 };

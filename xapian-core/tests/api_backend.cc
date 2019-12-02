@@ -397,33 +397,35 @@ DEFINE_TESTCASE(testlock1, glass) {
     return true;
 }
 
-/** Test that locked() returns false for databases which don't support update.
+/** Test that locked() returns false for backends which don't support update.
  *
  *  Regression test for bug fixed in 1.4.6.
- *
- *  The remote backend doesn't support locked() currently.
- *
- *  An inmemory Database is always actually a WritableDatabase viewed as a
- *  Database, so it should always report being locked for writing - this is
- *  tested by testlock3 below.
  */
-DEFINE_TESTCASE(testlock2, backend && !remote && !inmemory) {
+DEFINE_TESTCASE(testlock2, backend && !writable) {
     Xapian::Database db = get_database("apitest_simpledata");
+    TEST(!db.locked());
+    db.close();
     TEST(!db.locked());
     return true;
 }
 
-/** Test that locked() returns true for inmemory Database objects.
+/** Test locked() on inmemory Database objects.
  *
  *  An inmemory Database is always actually a WritableDatabase viewed as a
- *  Database, so it should always report being locked for writing.
+ *  Database, so it should always report being locked for writing, unless
+ *  close() has been called.
  *
  *  Regression test for bug fixed in 1.4.14 - earlier versions always returned
  *  false for an inmemory Database here.
+ *
+ *  Regression test for bug fixed in 1.4.15 - false should be returned after
+ *  close() has been called.
  */
 DEFINE_TESTCASE(testlock3, inmemory) {
     Xapian::Database db = get_database("apitest_simpledata");
     TEST(db.locked());
+    db.close();
+    TEST(!db.locked());
     return true;
 }
 
