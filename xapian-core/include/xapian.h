@@ -112,7 +112,7 @@ namespace Xapian {
  * This may be different to the version compiled against (given by
  * XAPIAN_VERSION) if shared libraries are being used.
  */
-inline const char * version_string() {
+inline const char* version_string() {
     return Internal::get_constinfo_()->str;
 }
 
