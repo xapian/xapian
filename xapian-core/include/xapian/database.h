@@ -565,7 +565,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     /** Test if this database is currently locked for writing.
      *
      *  If the underlying object is actually a WritableDatabase, always returns
-     *  true.
+     *  true unless close() has been called.
      *
      *  Otherwise tests if there's a writer holding the lock (or if we can't
      *  test for a lock without taking it on the current platform, throw
@@ -915,26 +915,6 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	// would essentially act as a "black-hole" shard which discarded
 	// any changes made to it.
 	add_database_(other, false);
-    }
-
-    /** Test if this database is currently locked for writing.
-     *
-     *  If the underlying object is actually a WritableDatabase, always returns
-     *  true.
-     *
-     *  Otherwise tests if there's a writer holding the lock (or if we can't
-     *  test for a lock without taking it on the current platform, throw
-     *  Xapian::UnimplementedError).  If there's an error while trying to test
-     *  the lock, throws Xapian::DatabaseLockError.
-     *
-     *  For multi-databases, this tests each sub-database and returns true if
-     *  any of them are locked.
-     */
-    bool locked() const {
-	// If this method is called, the type is statically known to be
-	// WritableDatabase so we can just inline the known answer.  In most
-	// cases, a call into the library will be needed.
-	return true;
     }
 
     /** Create or open a Xapian database for both reading and writing.
