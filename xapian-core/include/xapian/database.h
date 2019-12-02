@@ -62,10 +62,12 @@ class Document;
  *  Most methods can throw:
  *
  *  @exception Xapian::DatabaseCorruptError if database corruption is detected
- *  @exception Xapian::DatabaseError in various situation (for example, calling
- *	       methods after @a close() has been called)
+ *  @exception Xapian::DatabaseError in various situation (for example, if
+ *	       there's an I/O error).
  *  @exception Xapian::DatabaseModifiedError if the revision being read has
  *	       been discarded
+ *  @exception Xapian::DatabaseClosedError may be thrown by some methods after
+ *	       after @a close() has been called
  *  @exception Xapian::NetworkError when remote databases are in use
  */
 class XAPIAN_VISIBILITY_DEFAULT Database {
@@ -208,11 +210,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  while if no transaction is active commit() will be implicitly called.
      *  Also the write lock is released.
      *
-     *  Closing a database cannot be undone - in particular, calling reopen()
-     *  after close() will not reopen it, but will instead throw a
-     *  Xapian::DatabaseError exception.
+     *  Calling close() on an object cannot be undone - in particular, a
+     *  subsequent call to reopen() on the same object will not reopen it, but
+     *  will instead throw a Xapian::DatabaseClosedError exception.
      *
-     *  Calling close() again on a database which has already been closed has
+     *  Calling close() again on an object which has already been closed has
      *  no effect (and doesn't raise an exception).
      *
      *  After close() has been called, calls to other methods of the database,
@@ -222,8 +224,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *   - behave exactly as they would have done if the database had not been
      *     closed (this can only happen if all the required data is cached)
      *
-     *   - raise a Xapian::DatabaseError exception indicating that the database
-     *     is closed.
+     *   - raise a Xapian::DatabaseClosedError exception.
      *
      *  The reason for this behaviour is that otherwise we'd have to check that
      *  the database is still open on every method call on every object
