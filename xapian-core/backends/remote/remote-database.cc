@@ -372,6 +372,8 @@ RemoteDatabase::update_stats(message_type msg_code, const string & body) const
 	    errmsg += "s ";
 	    errmsg += str(protocol_major);
 	    errmsg += ".0 to ";
+	} else {
+	    errmsg += ' ';
 	}
 	errmsg += str(protocol_major);
 	errmsg += '.';
