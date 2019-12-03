@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_DEREFWRAPPER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/derefwraper.h> directly; include <xapian.h> instead."
+# error Never use <xapian/derefwraper.h> directly; include <xapian.h> instead.
 #endif
 
 namespace Xapian {
