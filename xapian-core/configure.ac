@@ -911,7 +911,7 @@ case $enable_backend_glass$enable_backend_honey in
       ;;
     *)
       dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
-      dnl (FreeBSD/NetBSD).
+      dnl (FreeBSD/NetBSD/OpenBSD/AIX).
       AC_CHECK_HEADERS([uuid/uuid.h], [
 	dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
 	dnl -luuid.
@@ -923,7 +923,8 @@ case $enable_backend_glass$enable_backend_honey in
 	  XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
 	fi
       ], [
-	dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
+	dnl Try uuid.h as found on FreeBSD/NetBSD/OpenBSD/AIX, with associated
+	dnl code in libc.
 	AC_CHECK_HEADERS([uuid.h], [
 	  dnl Check for uuid_create with no extra libraries required.
 	  AC_CHECK_FUNC([uuid_create], [], [
