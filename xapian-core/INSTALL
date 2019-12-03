@@ -23,9 +23,9 @@ deflateInit2 (which Xapian uses) and decompression is supposed to be about 20%
 faster than with 1.1.x, but it's pretty unlikely you'll have an older version
 installed these days.
 
-Xapian also requires a way to generate UUIDs.  On FreeBSD, NetBSD, and
-Microsoft Windows, Xapian makes use of built-in UUID APIs.  On Linux and
-Android, Xapian 1.4.2 and higher can read UUIDs from a special file under
+Xapian also requires a way to generate UUIDs.  On FreeBSD, NetBSD, OpenBSD,
+AIX and Microsoft Windows, Xapian makes use of built-in UUID APIs.  On Linux
+and Android, Xapian 1.4.2 and higher can read UUIDs from a special file under
 /proc.  Otherwise you need to install libuuid which you can find in
 util-linux (https://github.com/karelzak/util-linux).  On Debian and
 Ubuntu, the package to install is uuid-dev, while on Fedora, it is
