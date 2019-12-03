@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_VALUESETMATCHDECIDER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/valuesetmatchdecider.h> directly; include <xapian.h> instead."
+# error Never use <xapian/valuesetmatchdecider.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/matchdecider.h>

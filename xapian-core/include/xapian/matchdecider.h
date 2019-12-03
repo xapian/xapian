@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_MATCHDECIDER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/matchdecider.h> directly; include <xapian.h> instead."
+# error Never use <xapian/matchdecider.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>

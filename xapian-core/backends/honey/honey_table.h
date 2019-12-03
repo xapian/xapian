@@ -350,7 +350,7 @@ class SSTIndex {
 #elif defined SSTINDEX_SKIPLIST
 	data.assign(1, '\x02');
 #else
-# error "SSTINDEX type not specified"
+# error SSTINDEX type not specified
 #endif
     }
 
@@ -445,7 +445,7 @@ class SSTIndex {
 
 	last_index_key = key;
 #else
-# error "SSTINDEX type not specified"
+# error SSTINDEX type not specified
 #endif
     }
 
@@ -513,7 +513,7 @@ skip_adding_upper_bound:
 #elif defined SSTINDEX_SKIPLIST
 	// Already built in data.
 #else
-# error "SSTINDEX type not specified"
+# error SSTINDEX type not specified
 #endif
 
 	store.write(data.data(), data.size());

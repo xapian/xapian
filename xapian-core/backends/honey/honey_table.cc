@@ -111,7 +111,7 @@ HoneyTable::add(const std::string& key,
 #elif defined SSTINDEX_SKIPLIST
     // Handled below.
 #else
-# error "SSTINDEX type not specified"
+# error SSTINDEX type not specified
 #endif
 
     store.write(static_cast<unsigned char>(reuse));

@@ -21,7 +21,7 @@
 #define XAPIAN_INCLUDED_DEPRECATED_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/deprecated.h> directly; include <xapian.h> instead."
+# error Never use <xapian/deprecated.h> directly; include <xapian.h> instead.
 #endif
 
 // How to make use of XAPIAN_DEPRECATED, etc is documented in HACKING - see
