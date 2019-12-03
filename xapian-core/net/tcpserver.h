@@ -49,7 +49,7 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
 
 #if defined __CYGWIN__ || defined __WIN32__
     /// Mutex to stop two TcpServers running on the same port.
-    HANDLE mutex;
+    HANDLE mutex = NULL;
 #endif
 
     /** The socket we're listening on. */
