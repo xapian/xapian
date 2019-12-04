@@ -1125,7 +1125,7 @@ T(id,		   0, 0, N, 0), // docid of current doc
 T(if,		   1, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
-T(jsonarray,	   1, 1, N, 0), // Format list as a JSON array of strings
+T(jsonarray,	   1, 2, 1, 0), // Format list as a JSON array
 T(keys,		   1, 1, N, 0), // list of keys from a map
 T(last,		   0, 0, N, M), // hit number one beyond end of current page
 T(lastpage,	   0, 0, N, M), // number of last hit page
@@ -1798,17 +1798,25 @@ eval(const string &fmt, const vector<string> &param)
 		    value = "[]";
 		    break;
 		}
-		value = "[\"";
+		vector<string> new_args(1);
+		value = "[";
 		while (true) {
 		    j = l.find('\t', i);
 		    string elt(l, i, j - i);
-		    json_escape(elt);
-		    value += elt;
+		    if (args.size() == 1) {
+			value += '"';
+			json_escape(elt);
+			value += elt;
+			value += '"';
+		    } else {
+			new_args[0] = std::move(elt);
+			value += eval(args[1], new_args);
+		    }
 		    if (j == string::npos) break;
-		    value += "\",\"";
+		    value += ',';
 		    i = j + 1;
 		}
-		value += "\"]";
+		value += ']';
 		break;
 	    }
 	    case CMD_keys: {
