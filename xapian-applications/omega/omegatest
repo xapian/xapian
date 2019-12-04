@@ -1109,6 +1109,32 @@ printf '%s, %s, %s, %s, %s' \
     '$jsonarray{$split{2 3 5 7},$mul{$_,$_}}' > "$TEST_TEMPLATE"
 testcase '[], [], ["B4","K9"], ["a","\"b\"","c:\\"], [4,9,25,49]'
 
+# Feature tests for $jsonobject
+printf '%s' '$jsonobject{foo}' > "$TEST_TEMPLATE"
+testcase '{}'
+printf '%s' '$setmap{foo,Han,Solo}$jsonobject{foo}' > "$TEST_TEMPLATE"
+testcase '{
+ "Han": "Solo"
+}'
+printf '%s' '$setmap{foo,key 1,value1,key"2,value\2,key3,value3}$jsonobject{foo}' > "$TEST_TEMPLATE"
+testcase '{
+ "key 1": "value1",
+ "key\"2": "value\\2",
+ "key3": "value3"
+}'
+printf '%s' '$setmap{foo,key 1,1,key"2,$split{1 2},key3,$split{2 3 5}}$jsonobject{foo,,$jsonarray{$_,$add{$_,1}}}' > "$TEST_TEMPLATE"
+testcase '{
+ "key 1": [2],
+ "key\"2": [2,3],
+ "key3": [3,4,6]
+}'
+printf '%s' '$setmap{foo,key 1,,key"2,1,key3,0}$jsonobject{foo,$upper{$_},$jsonarray{$_,$add{$_}}}' > "$TEST_TEMPLATE"
+testcase '{
+ "KEY 1": [],
+ "KEY\"2": [1],
+ "KEY3": [0]
+}'
+
 # Feature tests of scriptindex.
 
 # Regression test: non-zero exit status for unknown option.
