@@ -956,6 +956,7 @@ CMD_if,
 CMD_include,
 CMD_json,
 CMD_jsonarray,
+CMD_jsonobject,
 CMD_keys,
 CMD_last,
 CMD_lastpage,
@@ -1097,6 +1098,7 @@ T(if,		   1, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
 T(jsonarray,	   1, 2, 1, 0), // Format list as a JSON array
+T(jsonobject,	   1, 3, 1, 0), // Format map as JSON object
 T(keys,		   1, 1, N, 0), // list of keys from a map
 T(last,		   0, 0, N, M), // hit number one beyond end of current page
 T(lastpage,	   0, 0, N, M), // number of last hit page
@@ -1754,6 +1756,48 @@ eval(const string &fmt, const vector<string> &param)
 		    i = j + 1;
 		}
 		value += ']';
+		break;
+	    }
+	    case CMD_jsonobject: {
+		vector<string> new_args;
+		new_args.push_back(string());
+
+		class map_range {
+		    typedef map<string, string>::const_iterator iterator;
+		    iterator b, e;
+
+		  public:
+		    map_range(iterator b_, iterator e_) : b(b_), e(e_) {}
+
+		    iterator begin() const { return b; }
+		    iterator end() const { return e; }
+		};
+
+		string prefix = args[0] + ',';
+		auto b = option.lower_bound(prefix);
+		++prefix.back();
+		auto e = option.lower_bound(prefix);
+		value = to_json(map_range(b, e),
+				[&](const string& k) {
+				    string key(k, prefix.size());
+				    if (args.size() > 1 && !args[1].empty()) {
+					new_args[0] = std::move(key);
+					key = eval(args[1], new_args);
+				    }
+				    return key;
+				},
+				[&](const string& v) {
+				    if (args.size() > 2 && !args[2].empty()) {
+					new_args[0] = v;
+					return eval(args[2], new_args);
+				    }
+				    string r(1, '"');
+				    string elt = v;
+				    json_escape(elt);
+				    r += elt;
+				    r += '"';
+				    return r;
+				});
 		break;
 	    }
 	    case CMD_keys: {

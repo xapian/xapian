@@ -300,6 +300,30 @@ $jsonarray{LIST[,FORMAT]}
 
         Support for the second argument added in Omega 1.4.15.
 
+$jsonobject{MAP[,KEYFORMAT[,VALUEFORMAT]]}
+        encodes OmegaScript map ``MAP`` (as set by ``$setmap``) as a JSON object.
+
+        ``KEYFORMAT`` provides a way to modify key values.  It's evaluated for
+        each key with ``$_`` set to the OmegaScript map key.  If omitted or
+        empty then the keys are used as-is (so it effectively defaults to
+        ``$_``).  For example ``$jsonobject{foo,$lower{$_}}`` forces keys to
+        lower case.
+
+        You probably want to avoid creating duplicate keys (RFC 2119 says they
+        ``SHOULD be unique``).  Note that the resulting value should be an
+        OmegaScript string - don't pass it though ``$json{}`` or wrap it in
+        double quotes.
+
+        ``VALUEFORMAT`` provides a way to specify how to encode values.  It's
+        evaluated for each value with ``$_`` set to the OmegaScript map value
+        and the result should be JSON to use as the JSON object value.  If
+        omitted or empty the value is encoded as a JSON string (so effectively
+        the default is ``"$json{$_}"``).  Note that (unlike ``KEYFORMAT``) this
+        does need to include ``$json{}`` and double quotes, because the value
+        doesn't have to be a JSON string.
+
+        Added in Omega 1.4.15.
+
 $keys{MAP}
         returns a list containing the keys of MAP (as set by ``$setmap``).
         The keys are in sorted order (by raw byte comparison).

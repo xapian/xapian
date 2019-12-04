@@ -1,7 +1,7 @@
 /** @file jsonescape.h
- * @brief JSON escape a string
+ * @brief JSON escaping
  */
-/* Copyright (C) 2013 Olly Betts
+/* Copyright (C) 2013,2018,2019 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,5 +28,33 @@
 #include <string>
 
 void json_escape(std::string &s);
+
+/// Convert a C++ std::map to JSON.
+template<typename C, typename F1, typename F2>
+static inline std::string
+to_json(const C& container, F1 func1, F2 func2)
+{
+    std::string result = "{\n \"";
+    bool first = true;
+    for (auto entry : container) {
+	if (first) {
+	    first = false;
+	} else {
+	    result += ",\n \"";
+	}
+	std::string key = func1(entry.first);
+	json_escape(key);
+	result += key;
+	result += "\": ";
+	result += func2(entry.second);
+    }
+    if (first) {
+	// Special case for an empty object.
+	result = "{}\n";
+    } else {
+	result += "\n}\n";
+    }
+    return result;
+}
 
 #endif // OMEGA_INCLUDED_JSONESCAPE_H
