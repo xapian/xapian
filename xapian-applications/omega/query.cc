@@ -982,6 +982,7 @@ CMD_if,
 CMD_include,
 CMD_json,
 CMD_jsonarray,
+CMD_jsonbool,
 CMD_jsonobject,
 CMD_keys,
 CMD_last,
@@ -1127,6 +1128,7 @@ T(if,		   1, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
 T(jsonarray,	   1, 2, 1, 0), // Format list as a JSON array
+T(jsonbool,	   1, 1, 1, 0), // Format list as a JSON bool
 T(jsonobject,	   1, 3, 1, 0), // Format map as JSON object
 T(keys,		   1, 1, N, 0), // list of keys from a map
 T(last,		   0, 0, N, M), // hit number one beyond end of current page
@@ -1821,6 +1823,9 @@ eval(const string &fmt, const vector<string> &param)
 		value += ']';
 		break;
 	    }
+	    case CMD_jsonbool:
+		value = args[0].empty() ? "false" : "true";
+		break;
 	    case CMD_jsonobject: {
 		vector<string> new_args;
 		new_args.push_back(string());
