@@ -975,6 +975,15 @@ END
 printf '$json{$field{zer$chr{0}byte,1}}|$json{$field{field28$chr{2}$chr{8},1}}|$error' > "$TEST_TEMPLATE"
 testcase '4071004f3456|@q\u0000O4V|'
 
+# Feature tests for $jsonarray.
+printf '%s, %s, %s, %s, %s' \
+    '$jsonarray{}' \
+    '$jsonarray{,$upper{$_}}' \
+    '$jsonarray{$split{b4 k9},"$json{$upper{$_}}"}' \
+    '$jsonarray{$split{a "b" c:\}}' \
+    '$jsonarray{$split{2 3 5 7},$mul{$_,$_}}' > "$TEST_TEMPLATE"
+testcase '[], [], ["B4","K9"], ["a","\"b\"","c:\\"], [4,9,25,49]'
+
 # Feature tests of scriptindex.
 
 # Regression test: non-zero exit status for unknown option.
