@@ -300,6 +300,18 @@ $jsonarray{LIST[,FORMAT]}
 
         Support for the second argument added in Omega 1.4.15.
 
+$jsonbool{COND}
+        returns a JSON bool value (i.e. ``true`` or ``false``) for OmegaScript
+        value ``COND``.
+
+        This is exactly equivalent to ``$if{COND,true,false}`` and is provided
+        just to allow more readable JSON-producing templates.  This means that
+        ``COND`` being empty is false and all non-empty values are true (so
+        note that ``$jsonbool{0}`` gives ``true`` - if you want a numeric test,
+        you can use ``$jsonbool{$ne{VALUE,0}}``
+
+        Added in Omega 1.4.15.
+
 $jsonobject{MAP[,KEYFORMAT[,VALUEFORMAT]]}
         encodes OmegaScript map ``MAP`` (as set by ``$setmap``) as a JSON object.
 

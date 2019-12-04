@@ -984,6 +984,10 @@ printf '%s, %s, %s, %s, %s' \
     '$jsonarray{$split{2 3 5 7},$mul{$_,$_}}' > "$TEST_TEMPLATE"
 testcase '[], [], ["B4","K9"], ["a","\"b\"","c:\\"], [4,9,25,49]'
 
+# Feature tests for $jsonbool
+printf '%s' '$jsonbool{} $jsonbool{$eq{a,b}} $jsonbool{x} $jsonbool{0}' > "$TEST_TEMPLATE"
+testcase 'false false true true'
+
 # Feature tests for $jsonobject
 printf '%s' '$jsonobject{foo}' > "$TEST_TEMPLATE"
 testcase '{}'
