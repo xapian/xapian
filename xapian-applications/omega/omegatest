@@ -415,7 +415,7 @@ qtestcase '(VALUE_RANGE 0 201512 2015~ AND VALUE_LE 5 1974~)' START.0=20151201 E
 
 # Check .SLOT and old-style value date range filter on same slot.
 # (We don't promise anything for this case, but it shouldn't crash).
-qtestcase '(VALUE_RANGE 0 201512 2015~ AND VALUE_LE 0 1974~)' START.0=20151201 END.0=20151231 DATEVALUE=0 END=1974
+qtestcase 'VALUE_RANGE 0 201512 2015~' START.0=20151201 END.0=20151231 DATEVALUE=0 END=1974
 
 # Tests of term-based date range filtering:
 

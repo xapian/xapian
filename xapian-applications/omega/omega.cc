@@ -432,16 +432,20 @@ try {
     }
 
     string date_start, date_end, date_span;
-    val = cgi_params.find("START");
-    if (val != cgi_params.end()) date_start = val->second;
-    val = cgi_params.find("END");
-    if (val != cgi_params.end()) date_end = val->second;
-    val = cgi_params.find("SPAN");
-    if (val != cgi_params.end()) date_span = val->second;
     val = cgi_params.find("DATEVALUE");
     Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
     if (val != cgi_params.end()) date_value_slot = string_to_int(val->second);
-    add_date_filter(date_start, date_end, date_span, date_value_slot);
+    // Process DATEVALUE=n and associated values unless we saw START.n=...
+    // or END.n=... or SPAN.n=...
+    if (date_ranges.find(date_value_slot) == date_ranges.end()) {
+	val = cgi_params.find("START");
+	if (val != cgi_params.end()) date_start = val->second;
+	val = cgi_params.find("END");
+	if (val != cgi_params.end()) date_end = val->second;
+	val = cgi_params.find("SPAN");
+	if (val != cgi_params.end()) date_span = val->second;
+	add_date_filter(date_start, date_end, date_span, date_value_slot);
+    }
 
     // If more default_op values are supported, encode them as non-alnums
     // other than filter_sep, '!' or '$'.
