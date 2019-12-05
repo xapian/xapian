@@ -122,6 +122,10 @@ class QueryOptimiser {
     }
 
     void take_hint_ownership() { hint_owned = true; }
+
+    bool need_wdf_for_synonym() const {
+	return in_synonym && !localsubmatch.weight_needs_wdf();
+    }
 };
 
 }

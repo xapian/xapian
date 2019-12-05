@@ -2357,8 +2357,19 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
     }
     OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, factor, 0, 1);
+    Xapian::termcount save_total_subqs = qopt->get_total_subqs();
     unique_ptr<PostList> r(ctx.postlist());
     if (!r.get()) {
+	RETURN(l.release());
+    }
+    if (!qopt->need_wdf_for_synonym() && r->recalc_maxweight() == 0.0) {
+	// The RHS can't contribute any weight, so can be discarded (unless
+	// we're in a synonym, and using a weighting scheme which uses wdf,
+	// in which case it may contribute wdf so we need to keep it).
+	//
+	// Reset total_subqs in case we counted any in the RHS so that
+	// percentages don't get messed up.
+	qopt->set_total_subqs(save_total_subqs);
 	RETURN(l.release());
     }
     RETURN(new AndMaybePostList(l.release(), r.release(),
