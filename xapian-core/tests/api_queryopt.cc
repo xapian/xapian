@@ -99,7 +99,7 @@ DEFINE_TESTCASE(boolandmaybe1, backend && !remote) {
  *  terms when their weight factor is 0.
  */
 DEFINE_TESTCASE(boolandmaybe2, backend) {
-    Xapian::Query query(query.OP_AND_MAYBE,
+    Xapian::Query query(Xapian::Query::OP_AND_MAYBE,
 			Xapian::Query("last"), Xapian::Query("day"));
     Xapian::MSet mset1, mset2, mset3;
     Xapian::Database db(get_database("etext"));
