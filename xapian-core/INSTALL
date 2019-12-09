@@ -76,8 +76,8 @@ And for MSVC 2015 32-bit use::
 
   "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 
-MSVC 2015 64-bit isn't currently supported, but would use the above command but with ``x64``
-instead of ``x86``.
+MSVC 2015 64-bit isn't currently supported, but would use the above command but
+with ``x64`` instead of ``x86``.
 
 Then from a bash shell run configure like so::
 
@@ -87,8 +87,8 @@ You'll need to have the zlib library available.  You can also specify
 ``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to tell MSVC where to
 find the zlib headers and library.
 
-We support 64-bit compilation with MSVS 2017.  With MSVS 2015 a 64-bit build
-fails to work - we haven't investigated why.
+We support 64-bit compilation with MSVS 2017 and 2019.  With MSVS 2015 a 64-bit
+build fails to work - we haven't investigated why.
 
 HP's aCC
 --------
