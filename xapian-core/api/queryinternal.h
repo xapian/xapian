@@ -196,8 +196,16 @@ class QueryBranch : public Query::Internal {
 			 QueryOptimiser* qopt,
 			 size_t first = 0) const;
 
-    void do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
-		    Xapian::termcount elite_set_size = 0, size_t first = 0) const;
+    /** Process OR-like subqueries.
+     *
+     *  @param keep_zero_weight  By default zero-weight subqueries are kept,
+     *				 but in some situations (such as on the right
+     *				 side of OP_AND_MAYBE when not under
+     *				 OP_SYNONYM) they can be ignored.
+     */
+    void do_or_like(OrContext& ctx, QueryOptimiser* qopt, double factor,
+		    Xapian::termcount elite_set_size = 0, size_t first = 0,
+		    bool keep_zero_weight = true) const;
 
     PostList* do_synonym(QueryOptimiser * qopt, double factor) const;
 
@@ -267,7 +275,8 @@ class QueryOr : public QueryOrLike {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
-    void postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor) const;
+    void postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt,
+			      double factor, bool keep_zero_weight) const;
 
     void postlist_sub_bool_or_like(BoolOrContext& ctx,
 				   QueryOptimiser* qopt) const;
@@ -403,7 +412,8 @@ class QueryEliteSet : public QueryOrLike {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
-    void postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor) const;
+    void postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt,
+			      double factor, bool keep_zero_weight) const;
 
     std::string get_description() const;
 };

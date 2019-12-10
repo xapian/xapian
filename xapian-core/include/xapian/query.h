@@ -858,7 +858,8 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 
     virtual void postlist_sub_or_like(Xapian::Internal::OrContext& ctx,
 				      Xapian::Internal::QueryOptimiser* qopt,
-				      double factor) const;
+				      double factor,
+				      bool keep_zero_weight = true) const;
 
     virtual void postlist_sub_xor(Xapian::Internal::XorContext& ctx,
 				  Xapian::Internal::QueryOptimiser* qopt,

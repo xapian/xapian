@@ -981,10 +981,22 @@ Query::Internal::postlist_sub_and_like(AndContext& ctx,
 
 void
 Query::Internal::postlist_sub_or_like(OrContext& ctx,
-				      QueryOptimiser * qopt,
-				      double factor) const
+				      QueryOptimiser* qopt,
+				      double factor,
+				      bool keep_zero_weight) const
 {
-    ctx.add_postlist(postlist(qopt, factor));
+    Xapian::termcount save_total_subqs = qopt->get_total_subqs();
+    unique_ptr<PostList> pl(postlist(qopt, factor));
+    if (!keep_zero_weight && pl->recalc_maxweight() == 0.0) {
+	// This subquery can't contribute any weight, so can be discarded.
+	//
+	// Restore the value of total_subqs so that percentages don't get
+	// messed up if we increased total_subqs in the call to postlist()
+	// above.
+	qopt->set_total_subqs(save_total_subqs);
+	return;
+    }
+    ctx.add_postlist(pl.release());
 }
 
 void
@@ -1858,9 +1870,10 @@ QueryBranch::do_bool_or_like(BoolOrContext& ctx,
 
 void
 QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
-			Xapian::termcount elite_set_size, size_t first) const
+			Xapian::termcount elite_set_size, size_t first,
+			bool keep_zero_weight) const
 {
-    LOGCALL_VOID(MATCH, "QueryBranch::do_or_like", ctx | qopt | factor | elite_set_size);
+    LOGCALL_VOID(MATCH, "QueryBranch::do_or_like", ctx | qopt | factor | elite_set_size | first | keep_zero_weight);
 
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
@@ -1874,7 +1887,8 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
     for (q = subqueries.begin() + first; q != subqueries.end(); ++q) {
 	// MatchNothing subqueries should have been removed by done().
 	Assert((*q).internal.get());
-	(*q).internal->postlist_sub_or_like(ctx, qopt, factor);
+	(*q).internal->postlist_sub_or_like(ctx, qopt, factor,
+					    keep_zero_weight);
     }
 
     size_t out_of = ctx.size() - size_before;
@@ -2279,9 +2293,10 @@ QueryOr::postlist(QueryOptimiser * qopt, double factor) const
 }
 
 void
-QueryOr::postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor) const
+QueryOr::postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt,
+			      double factor, bool keep_zero_weight) const
 {
-    do_or_like(ctx, qopt, factor);
+    do_or_like(ctx, qopt, factor, 0, 0, keep_zero_weight);
 }
 
 void
@@ -2340,34 +2355,11 @@ PostList*
 QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryAndMaybe::postlist", qopt | factor);
-    // FIXME: Combine and-like side with and-like stuff above.
-    unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
-    if (!l.get()) {
+    AndContext ctx(qopt, 1);
+    if (!QueryAndMaybe::postlist_sub_and_like(ctx, qopt, factor)) {
 	RETURN(NULL);
     }
-    if (factor == 0.0) {
-	// An unweighted OP_AND_MAYBE can be replaced with its left branch.
-	RETURN(l.release());
-    }
-    OrContext ctx(qopt, subqueries.size() - 1);
-    do_or_like(ctx, qopt, factor, 0, 1);
-    Xapian::termcount save_total_subqs = qopt->get_total_subqs();
-    unique_ptr<PostList> r(ctx.postlist());
-    if (!r.get()) {
-	RETURN(l.release());
-    }
-    if (!qopt->need_wdf_for_synonym() && r->recalc_maxweight() == 0.0) {
-	// The RHS can't contribute any weight, so can be discarded (unless
-	// we're in a synonym, and using a weighting scheme which uses wdf,
-	// in which case it may contribute wdf so we need to keep it).
-	//
-	// Reset total_subqs in case we counted any in the RHS so that
-	// percentages don't get messed up.
-	qopt->set_total_subqs(save_total_subqs);
-	RETURN(l.release());
-    }
-    RETURN(new AndMaybePostList(l.release(), r.release(),
-				qopt->matcher, qopt->db_size));
+    RETURN(ctx.postlist());
 }
 
 bool
@@ -2380,7 +2372,13 @@ QueryAndMaybe::postlist_sub_and_like(AndContext& ctx,
     Assert(subqueries[0].internal.get());
     if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor))
 	return false;
-    do_or_like(ctx.get_maybe_ctx(subqueries.size() - 1), qopt, factor, 0, 1);
+    // We only need to consider the right branch or branches if we're weighted
+    // - an unweighted OP_AND_MAYBE can be replaced with its left branch.
+    if (factor != 0.0) {
+	// Only keep zero-weight subqueries if we need their wdf for synonyms.
+	OrContext& maybe_ctx = ctx.get_maybe_ctx(subqueries.size() - 1);
+	do_or_like(maybe_ctx, qopt, factor, 0, 1, qopt->need_wdf_for_synonym());
+    }
     return true;
 }
 
@@ -2494,9 +2492,10 @@ QueryEliteSet::postlist(QueryOptimiser * qopt, double factor) const
 }
 
 void
-QueryEliteSet::postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor) const
+QueryEliteSet::postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt,
+				    double factor, bool keep_zero_weight) const
 {
-    do_or_like(ctx, qopt, factor, set_size);
+    do_or_like(ctx, qopt, factor, set_size, 0, keep_zero_weight);
 }
 
 PostList*
