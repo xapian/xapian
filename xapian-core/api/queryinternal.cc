@@ -656,7 +656,7 @@ AndContext::postlist()
 				      matcher, db_size));
     }
 
-    if (not_ctx) {
+    if (not_ctx && !not_ctx->empty()) {
 	PostList* rhs = not_ctx->postlist();
 	pl.reset(new AndNotPostList(pl.release(), rhs, matcher, db_size));
 	not_ctx.reset();
@@ -676,7 +676,7 @@ AndContext::postlist()
     // Empty pls so our destructor doesn't delete them all!
     pls.clear();
 
-    if (maybe_ctx) {
+    if (maybe_ctx && !maybe_ctx->empty()) {
 	PostList* rhs = maybe_ctx->postlist();
 	pl.reset(new AndMaybePostList(pl.release(), rhs, matcher, db_size));
 	maybe_ctx.reset();
