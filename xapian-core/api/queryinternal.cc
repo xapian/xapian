@@ -2314,10 +2314,11 @@ QueryAndNot::postlist_sub_and_like(AndContext& ctx,
 				   QueryOptimiser* qopt,
 				   double factor) const
 {
-    if (subqueries[0].internal.get()) {
-	if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor))
-	    return false;
-    }
+    // This invariant should be established by QueryAndNot::done() with
+    // assistance from QueryAndNot::add_subquery().
+    Assert(subqueries[0].internal.get());
+    if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor))
+	return false;
     do_bool_or_like(ctx.get_not_ctx(subqueries.size() - 1), qopt, 1);
     return true;
 }
@@ -2381,10 +2382,11 @@ QueryAndMaybe::postlist_sub_and_like(AndContext& ctx,
 				     QueryOptimiser* qopt,
 				     double factor) const
 {
-    if (subqueries[0].internal.get()) {
-	if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor))
-	    return false;
-    }
+    // This invariant should be established by QueryAndMaybe::done() with
+    // assistance from QueryAndMaybe::add_subquery().
+    Assert(subqueries[0].internal.get());
+    if (!subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor))
+	return false;
     do_or_like(ctx.get_maybe_ctx(subqueries.size() - 1), qopt, factor, 0, 1);
     return true;
 }
