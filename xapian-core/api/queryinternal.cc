@@ -2295,18 +2295,11 @@ PostList*
 QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryAndNot::postlist", qopt | factor);
-    unique_ptr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
-    if (!l.get()) {
+    AndContext ctx(qopt, 1);
+    if (!QueryAndNot::postlist_sub_and_like(ctx, qopt, factor)) {
 	RETURN(NULL);
     }
-    BoolOrContext ctx(qopt, subqueries.size() - 1);
-    do_bool_or_like(ctx, qopt, 1);
-    unique_ptr<PostList> r(ctx.postlist());
-    if (!r.get()) {
-	RETURN(l.release());
-    }
-    RETURN(new AndNotPostList(l.release(), r.release(),
-			      qopt->matcher, qopt->db_size));
+    RETURN(ctx.postlist());
 }
 
 bool
