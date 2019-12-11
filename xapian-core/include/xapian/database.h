@@ -900,7 +900,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 /** This class provides read/write access to a database.
  *
  *  A WritableDatabase object contains zero or more shards, and operations are
- *  performed across these shards.  Documents added by add_database() are
+ *  performed across these shards.  Documents added by add_document() are
  *  stored to the shards in a round-robin fashion.
  *
  *  @since 1.5.0 This class is a reference counted handle like many other
