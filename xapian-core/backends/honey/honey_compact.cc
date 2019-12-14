@@ -531,7 +531,16 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    tag.erase(0, d - tag.data());
 
 	    have_wdfs = (cf != 0) && (cf != tf - 1 + first_wdf);
-	    if (have_wdfs && tf > 2) {
+	    if (tf <= 2) {
+		Assert(tag.empty());
+		if (tf == 2) {
+		    // For simplicity when merging put 2 entry posting lists
+		    // into the standard form.
+		    pack_uint(tag, chunk_lastdid - firstdid - 1);
+		    if (have_wdfs)
+			pack_uint(tag, cf - first_wdf);
+		}
+	    } else if (have_wdfs) {
 		Xapian::termcount remaining_cf_for_flat_wdf =
 		    (tf - 1) * wdf_max;
 		// Check this matches and that it isn't a false match due
