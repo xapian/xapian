@@ -840,8 +840,6 @@ merge_postlists(Xapian::Compactor* compactor,
 	out->add(Honey::make_doclenchunk_key(chunk_lastdid), tag);
     }
 
-    Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
-
     struct HoneyPostListChunk {
 	Xapian::docid first, last;
 	Xapian::termcount first_wdf;
@@ -869,7 +867,11 @@ merge_postlists(Xapian::Compactor* compactor,
 	      data(data_) {}
 
 	void append_postings_to(string& tag, bool want_wdfs) {
-	    if (want_wdfs && !have_wdfs) {
+	    if (data.empty()) return;
+	    if (have_wdfs == want_wdfs) {
+		// We can just copy the encoded data.
+		tag += data;
+	    } else if (want_wdfs) {
 		// Need to add wdfs which were implicit.
 		auto wdf = (cf - first_wdf) / (tf - 1);
 		const char* pos = data.data();
@@ -881,7 +883,7 @@ merge_postlists(Xapian::Compactor* compactor,
 		    pack_uint(tag, delta);
 		    pack_uint(tag, wdf);
 		}
-	    } else if (have_wdfs && !want_wdfs) {
+	    } else {
 		// Need to remove wdfs which are now implicit.
 		const char* pos = data.data();
 		const char* pos_end = pos + data.size();
@@ -895,12 +897,13 @@ merge_postlists(Xapian::Compactor* compactor,
 			throw_database_corrupt("Decoding wdf", pos);
 		    (void)wdf;
 		}
-	    } else {
-		tag += data;
 	    }
 	}
     };
     vector<HoneyPostListChunk> tags;
+
+    Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
+
     while (true) {
 	cursor_type* cur = NULL;
 	if (!pq.empty()) {
