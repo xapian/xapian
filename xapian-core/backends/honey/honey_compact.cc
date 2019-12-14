@@ -967,7 +967,7 @@ merge_postlists(Xapian::Compactor* compactor,
 		if (tf > 2) {
 		    tags[0].append_postings_to(first_tag, have_wdfs);
 		    if (!have_wdfs && splice_last) {
-			pack_uint(first_tag, tags[1].first - splice_last);
+			pack_uint(first_tag, tags[1].first - splice_last - 1);
 			tags[1].append_postings_to(first_tag, have_wdfs);
 		    }
 		}
@@ -1011,7 +1011,7 @@ merge_postlists(Xapian::Compactor* compactor,
 			    i->append_postings_to(tag, have_wdfs);
 			    if (splice_last) {
 				++i;
-				pack_uint(tag, i->first - splice_last);
+				pack_uint(tag, i->first - splice_last - 1);
 				splice_last = 0;
 				i->append_postings_to(tag, have_wdfs);
 			    }
