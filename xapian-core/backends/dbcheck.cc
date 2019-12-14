@@ -454,6 +454,8 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 		backend = BACKEND_OLD;
 	    } else if (endswith(path, "." GLASS_TABLE_EXTENSION)) {
 		backend = BACKEND_GLASS;
+	    } else if (endswith(path, "." HONEY_TABLE_EXTENSION)) {
+		backend = BACKEND_HONEY;
 	    } else {
 		return check_stub(path, opts, out);
 	    }
@@ -479,6 +481,8 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 	backend = BACKEND_OLD;
     } else if (stat((filename + "." GLASS_TABLE_EXTENSION).c_str(), &sb) == 0) {
 	backend = BACKEND_GLASS;
+    } else if (stat((filename + "." HONEY_TABLE_EXTENSION).c_str(), &sb) == 0) {
+	backend = BACKEND_HONEY;
     } else {
 	auto msg = "Couldn't find Xapian database or table to check";
 	throw Xapian::DatabaseOpeningError(msg, ENOENT);
