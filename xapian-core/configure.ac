@@ -1458,13 +1458,18 @@ AH_BOTTOM(
 // This hack is a problem is we ever want a method called "stat", or one called
 // fstat which takes 2 parameters, but we can probably live with these
 // limitations.
+//
+// We need to break the #undef lines to stop config.status from commenting
+// them out.
 
 # ifdef stat
-#  undef stat
+#  undef \
+	stat
 # endif
 
 # ifdef fstat
-#  undef fstat
+#  undef \
+	fstat
 # endif
 
 # ifdef _MSC_VER
@@ -1476,11 +1481,13 @@ AH_BOTTOM(
 # endif
 
 # ifdef lseek
-#  undef lseek
+#  undef \
+	lseek
 # endif
 
 # ifdef off_t
-#  undef off_t
+#  undef \
+	off_t
 # endif
 
 # define lseek(FD, OFF, WHENCE) _lseeki64(FD, OFF, WHENCE)
