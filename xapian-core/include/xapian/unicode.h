@@ -285,31 +285,19 @@ namespace Internal {
 	 * most compilers implement.
 	 *
 	 * Some compilers are smart enough to spot common idioms for sign
-	 * extension, but not all (e.g. GCC < 7 doesn't spot the one used in
-	 * the else below), so check what the implementation defined behaviour
-	 * is with a constant conditional which should get optimised away.
+	 * extension, but not all (e.g. GCC < 7 doesn't spot the one used
+	 * below), so check what the implementation-defined behaviour is with
+	 * a constant conditional which should get optimised away.
+	 *
+	 * We use the ternary operator here to avoid various compiler
+	 * warnings which writing this as an `if` results in.
 	 */
-#ifdef __GNUC__
-# if __GNUC__ >= 7
-// Silence any -Wduplicated-branches warnings for the code below - it seems GCC
-// simplifies the code somewhat before comparing.
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wduplicated-branches"
-# endif
-#endif
-	if ((-1 >> 1) == -1) {
-	    // Right shift sign-extends.
-	    return info >> 8;
-	} else {
-	    // Right shift shifts in zeros, not before and after the shift for
-	    // negative values.
-	    return (info >= 0) ? (info >> 8) : (~(~info >> 8));
-	}
-#ifdef __GNUC__
-# if __GNUC__ >= 7
-#  pragma GCC diagnostic pop
-# endif
-#endif
+	return ((-1 >> 1) == -1 ?
+		// Right shift sign-extends.
+		info >> 8 :
+		// Right shift shifts in zeros so bitwise-not before and after
+		// the shift for negative values.
+		(info >= 0) ? (info >> 8) : (~(~info >> 8)));
     }
 }
 
