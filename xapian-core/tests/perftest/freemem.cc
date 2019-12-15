@@ -24,7 +24,6 @@
 #include "freemem.h"
 
 #include <sys/types.h>
-#include <climits>
 #include "safeunistd.h"
 #ifdef HAVE_SYS_SYSCTL_H
 // Linux also has sys/sysctl.h but newer versions give a deprecation warning.
@@ -56,12 +55,12 @@
  * Linux, FreeBSD, IRIX, HP-UX, Microsoft Windows.
  */
 
-long
+long long
 get_free_physical_memory()
 {
 #ifndef __WIN32__
-    long pagesize = 1;
-    long pages = -1;
+    long long pagesize = 1;
+    long long pages = -1;
 #if defined(_SC_PAGESIZE) && defined(_SC_PHYS_PAGES)
     /* Linux:
      * _SC_AVPHYS_PAGES is "available memory", but that excludes memory being
@@ -104,11 +103,7 @@ get_free_physical_memory()
     }
 #endif
     if (pagesize > 0 && pages > 0) {
-	long mem = LONG_MAX;
-	if (pages < LONG_MAX / pagesize) {
-	    mem = pages * pagesize;
-	}
-	return mem;
+	return pages * pagesize;
     }
     return -1;
 #else
@@ -123,12 +118,12 @@ get_free_physical_memory()
  * Linux, Microsoft Windows.
  */
 
-long
+long long
 get_total_physical_memory()
 {
 #ifndef __WIN32__
-    long pagesize = 1;
-    long pages = -1;
+    long long pagesize = 1;
+    long long pages = -1;
 #if defined(_SC_PAGESIZE) && defined(_SC_AVPHYS_PAGES)
     /* Linux: */
     pagesize = sysconf(_SC_PAGESIZE);
@@ -165,11 +160,7 @@ get_total_physical_memory()
     }
 #endif
     if (pagesize > 0 && pages > 0) {
-	long mem = LONG_MAX;
-	if (pages < LONG_MAX / pagesize) {
-	    mem = pages * pagesize;
-	}
-	return mem;
+	return pages * pagesize;
     }
     return -1;
 #else
