@@ -11,6 +11,8 @@
 	       end of the directory is reached.
     2018-04-01 Fix handle to be intptr_t not long to avoid truncation
 	       with WIN64 (where long is still 32 bits).
+    2019-12-16 Make dir->name a one element array member and over-allocate
+	       the struct so there's enough room for its actual size.
 
     Copyright Kevlin Henney, 1997, 2003. All rights reserved.
 
@@ -43,7 +45,7 @@ struct DIR
     intptr_t            handle; /* -1 for failed rewind */
     struct _finddata_t  info;
     struct dirent       result; /* d_name null iff first time */
-    char                *name;  /* null-terminated char string */
+    char                name[1];/* null-terminated char string */
 };
 
 DIR *opendir(const char *name)
@@ -53,13 +55,18 @@ DIR *opendir(const char *name)
     if(name && name[0])
     {
         size_t base_length = strlen(name);
-        const char *all = /* search pattern must end with suitable wildcard */
-            strchr("/\\", name[base_length - 1]) ? "*" : "/*";
+        /* 2 allows for appending `/` and `*`.  We don't need to allow
+         * 1 for the nul here as there will always be at least one byte
+         * in struct DIR for name (plus padding). */
+        size_t alloc_size = sizeof(DIR) + base_length + 2;
 
-        if((dir = (DIR *) malloc(sizeof *dir)) != 0 &&
-           (dir->name = (char *) malloc(base_length + strlen(all) + 1)) != 0)
+        if((dir = (DIR *) malloc(alloc_size)) != 0)
         {
-            strcat(strcpy(dir->name, name), all);
+            memcpy(dir->name, name, base_length);
+            /* Search pattern must end with suitable wildcard */
+            if(name[base_length - 1] != '/' && name[base_length - 1] != '\\')
+                dir->name[base_length++] = '/';
+            memcpy(dir->name + base_length, "*", 2);
 
             if((dir->handle = _findfirst(dir->name, &dir->info)) != -1)
             {
@@ -67,7 +74,7 @@ DIR *opendir(const char *name)
             }
             else /* rollback */
             {
-                free(dir->name);
+                /* _findfirst() will have set errno suitably. */
                 free(dir);
                 dir = 0;
             }
@@ -98,7 +105,6 @@ int closedir(DIR *dir)
             result = _findclose(dir->handle);
         }
 
-        free(dir->name);
         free(dir);
     }
 
