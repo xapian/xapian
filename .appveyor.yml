@@ -99,6 +99,9 @@ install:
   - if "%TOOLCHAIN%"=="msvc" mkdir zlib
   - if "%TOOLCHAIN%"=="msvc" cd zlib
   - if "%TOOLCHAIN%"=="msvc" bash -c 'curl -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.11.tar.gz|tar --strip-components=1 -zxf -'
+  # Don't build zlib with -MD as it seems this flag needs to be used
+  # consistently across the build.
+  - if "%TOOLCHAIN%"=="msvc" sed -i 's/\(^CFLAGS  *= *-nologo \)-MD /\1/' win32/Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" nmake -nologo -f win32\Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" cd ..
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
