@@ -44,16 +44,6 @@ struct CompareSubValueListsByDocId {
     }
 };
 
-MultiValueList::MultiValueList(size_t n_shards_,
-			       SubValueList** valuelists_,
-			       Xapian::valueno slot_)
-    : count(n_shards_),
-      valuelists(valuelists_),
-      slot(slot_),
-      n_shards(n_shards_)
-{
-}
-
 MultiValueList::~MultiValueList()
 {
     while (count)
@@ -93,8 +83,8 @@ MultiValueList::next()
     if (current_docid == 0) {
 	// Make valuelists into a heap so that the one with the earliest
 	// sorting docid is at the top of the heap.
-	size_t j = 0;
-	for (size_t i = 0; i != count; ++i) {
+	Xapian::doccount j = 0;
+	for (Xapian::doccount i = 0; i != count; ++i) {
 	    valuelists[i]->next();
 	    if (valuelists[i]->at_end()) {
 		delete valuelists[i];
@@ -136,8 +126,8 @@ MultiValueList::skip_to(Xapian::docid did)
     // Assume the skip is likely to be a long distance, and rebuild the heap
     // from scratch.  FIXME: It would be useful to profile this against an
     // approach more like that next() uses if this ever gets heavy use.
-    size_t j = 0;
-    for (size_t i = 0; i != count; ++i) {
+    Xapian::doccount j = 0;
+    for (Xapian::doccount i = 0; i != count; ++i) {
 	valuelists[i]->skip_to(did, n_shards);
 	if (valuelists[i]->at_end()) {
 	    delete valuelists[i];

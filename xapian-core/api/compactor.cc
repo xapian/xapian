@@ -74,7 +74,7 @@ class CmpByFirstUsed {
     CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid>>& ur)
 	: used_ranges(ur) { }
 
-    bool operator()(size_t a, size_t b) const {
+    bool operator()(Xapian::doccount a, Xapian::doccount b) const {
 	return used_ranges[a].first < used_ranges[b].first;
     }
 };
@@ -248,9 +248,9 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	// We want to process the sources in ascending order of first
 	// docid.  So we create a vector "order" with ascending integers
 	// and then sort so the indirected order is right.
-	vector<size_t> order;
+	vector<Xapian::doccount> order;
 	order.reserve(n_shards);
-	for (size_t i = 0; i < n_shards; ++i)
+	for (Xapian::doccount i = 0; i < n_shards; ++i)
 	    order.push_back(i);
 
 	sort(order.begin(), order.end(), CmpByFirstUsed(used_ranges));
@@ -263,8 +263,8 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	used_ranges_.reserve(n_shards);
 
 	Xapian::docid last_start = 0, last_end = 0;
-	for (size_t j = 0; j != order.size(); ++j) {
-	    size_t n = order[j];
+	for (Xapian::doccount j = 0; j != order.size(); ++j) {
+	    Xapian::doccount n = order[j];
 
 	    internals_.push_back(internals[n]);
 	    used_ranges_.push_back(used_ranges[n]);

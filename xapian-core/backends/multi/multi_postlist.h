@@ -36,23 +36,32 @@ class MultiPostList : public PostList {
     MultiPostList(const MultiPostList &) = delete;
 
     /// Current subdatabase.
-    Xapian::doccount current;
+    Xapian::doccount current = 0;
 
     /// Number of PostList* entries in @a postlists.
-    size_t n_shards;
+    Xapian::doccount n_shards;
 
     /// Sub-postlists which we use as a heap.
     PostList** postlists;
 
     /// Number of entries in docids;
-    size_t docids_size;
+    Xapian::doccount docids_size = 0;
 
     /// Heap of docids from the current positions of the postlists.
-    Xapian::docid* docids;
+    Xapian::docid* docids = nullptr;
 
   public:
     /// Constructor.
-    MultiPostList(size_t n_shards_, PostList** postlists_);
+    MultiPostList(Xapian::doccount n_shards_, PostList** postlists_)
+	: n_shards(n_shards_), postlists(postlists_)
+    {
+	try {
+	    docids = new Xapian::docid[n_shards];
+	} catch (...) {
+	    delete [] postlists;
+	    throw;
+	}
+    }
 
     /// Destructor.
     ~MultiPostList();

@@ -95,7 +95,7 @@ MultiDatabase::open_term_list(Xapian::docid did) const
 TermList*
 MultiDatabase::open_term_list_direct(Xapian::docid did) const
 {
-    size_t n_shards = shards.size();
+    Xapian::doccount n_shards = shards.size();
     auto shard = shards[shard_number(did, n_shards)];
     Xapian::docid shard_did = shard_docid(did, n_shards);
     return shard->open_term_list(shard_did);
@@ -157,8 +157,8 @@ Xapian::docid
 MultiDatabase::get_lastdocid() const
 {
     Xapian::docid result = 0;
-    auto n_shards = shards.size();
-    for (size_t shard = 0; shard != n_shards; ++shard) {
+    Xapian::doccount n_shards = shards.size();
+    for (Xapian::doccount shard = 0; shard != n_shards; ++shard) {
 	Xapian::docid shard_lastdocid = shards[shard]->get_lastdocid();
 	if (shard_lastdocid == 0) {
 	    // This shard is empty, so doesn't influence lastdocid for the
@@ -305,7 +305,7 @@ ValueList*
 MultiDatabase::open_value_list(Xapian::valueno slot) const
 {
     SubValueList** valuelists = new SubValueList*[shards.size()];
-    size_t count = 0;
+    unsigned count = 0;
     try {
 	for (auto&& shard : shards) {
 	    ValueList* vl = shard->open_value_list(slot);

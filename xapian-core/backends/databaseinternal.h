@@ -122,7 +122,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      */
     virtual ~Internal() {}
 
-    typedef size_t size_type;
+    typedef Xapian::doccount size_type;
 
     virtual size_type size() const;
 

@@ -41,11 +41,11 @@ class RemoteSubMatch {
     const RemoteDatabase *db;
 
     /// Index of this subdatabase.
-    size_t shard;
+    Xapian::doccount shard;
 
   public:
     /// Constructor.
-    RemoteSubMatch(const RemoteDatabase *db_, size_t shard_)
+    RemoteSubMatch(const RemoteDatabase* db_, Xapian::doccount shard_)
 	: db(db_), shard(shard_) {}
 
     int get_read_fd() const {
@@ -87,7 +87,7 @@ class RemoteSubMatch {
     }
 
     /// Return the index of the corresponding Database shard.
-    size_t get_shard() const { return shard; }
+    Xapian::doccount get_shard() const { return shard; }
 };
 
 #endif /* XAPIAN_INCLUDED_REMOTESUBMATCH_H */

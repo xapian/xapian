@@ -206,7 +206,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 	subrsets.resize(n_shards);
     }
 
-    for (size_t i = 0; i != n_shards; ++i) {
+    for (Xapian::doccount i = 0; i != n_shards; ++i) {
 	const Xapian::Database::Internal *subdb = db.internal.get();
 	if (n_shards > 1) {
 	    auto multidb = static_cast<const MultiDatabase*>(subdb);
@@ -299,7 +299,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 
     if (!locals.empty()) {
 	// Prepare local matches.
-	for (size_t i = 0; i != n_shards; ++i) {
+	for (Xapian::doccount i = 0; i != n_shards; ++i) {
 	    auto submatch = locals[i].get();
 	    if (submatch) {
 		submatch->prepare_match(subrsets[i], stats);

@@ -35,7 +35,7 @@ class RSet::Internal : public Xapian::Internal::intrusive_base {
     // std::set rather than std::unordered_set.
     std::set<Xapian::docid> docs;
 
-    void shard(size_t n_shards, std::vector<Xapian::RSet>& rsets) {
+    void shard(Xapian::doccount n_shards, std::vector<Xapian::RSet>& rsets) {
 	if (n_shards == 1 || docs.empty()) {
 	    // Either there's a single database (in which case we just need
 	    // to return ourself as the sharded RSet), or there are no relevance
@@ -48,7 +48,7 @@ class RSet::Internal : public Xapian::Internal::intrusive_base {
 	// Using resize() here would result in all the entries having the same
 	// internals.
 	rsets.reserve(n_shards);
-	for (size_t i = 0; i < n_shards; ++i) {
+	for (Xapian::doccount i = 0; i < n_shards; ++i) {
 	    rsets.emplace_back(RSet());
 	}
 

@@ -590,7 +590,7 @@ static bool test_shard1()
     for (Xapian::docid did = 1; did != 10; ++did) {
 	for (size_t n = 1; n != 10; ++n) {
 	    Xapian::docid s_did = shard_docid(did, n);
-	    size_t shard = shard_number(did, n);
+	    Xapian::doccount shard = shard_number(did, n);
 	    TEST_EQUAL(s_did, (did - 1) / n + 1);
 	    TEST_EQUAL(shard, (did - 1) % n);
 	    if (n == 1)
