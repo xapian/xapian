@@ -79,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     ~ESet();
 
     /** Return number of items in this ESet object. */
-    Xapian::doccount size() const;
+    Xapian::termcount size() const;
 
     /** Return true if this ESet object is empty. */
     bool empty() const { return size() == 0; }
@@ -101,7 +101,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     ESetIterator end() const;
 
     /** Return iterator pointing to the i-th object in this ESet. */
-    ESetIterator operator[](Xapian::doccount i) const;
+    ESetIterator operator[](Xapian::termcount i) const;
 
     /** Return iterator pointing to the last object in this ESet. */
     ESetIterator back() const;
@@ -152,7 +152,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
      */
     // @{
     // The size is fixed once created.
-    Xapian::doccount max_size() const { return size(); }
+    Xapian::termcount max_size() const { return size(); }
     // @}
 };
 
@@ -160,7 +160,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
 class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     friend class ESet;
 
-    ESetIterator(const Xapian::ESet & eset_, Xapian::doccount off_from_end_)
+    ESetIterator(const Xapian::ESet & eset_, Xapian::termcount off_from_end_)
 	: eset(eset_), off_from_end(off_from_end_) { }
 
   public:
@@ -354,7 +354,7 @@ ESet::end() const {
 }
 
 inline ESetIterator
-ESet::operator[](Xapian::doccount i) const {
+ESet::operator[](Xapian::termcount i) const {
     return ESetIterator(*this, size() - i);
 }
 
