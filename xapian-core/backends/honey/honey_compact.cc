@@ -531,7 +531,16 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    tag.erase(0, d - tag.data());
 
 	    have_wdfs = (cf != 0) && (cf != tf - 1 + first_wdf);
-	    if (have_wdfs && tf > 2) {
+	    if (tf <= 2) {
+		Assert(tag.empty());
+		if (tf == 2) {
+		    // For simplicity when merging put 2 entry posting lists
+		    // into the standard form.
+		    pack_uint(tag, chunk_lastdid - firstdid - 1);
+		    if (have_wdfs)
+			pack_uint(tag, cf - first_wdf);
+		}
+	    } else if (have_wdfs) {
 		Xapian::termcount remaining_cf_for_flat_wdf =
 		    (tf - 1) * wdf_max;
 		// Check this matches and that it isn't a false match due
@@ -847,8 +856,11 @@ merge_postlists(Xapian::Compactor* compactor,
 	Xapian::doccount tf;
 	Xapian::termcount cf;
 	bool have_wdfs;
+
+      private:
 	string data;
 
+      public:
 	HoneyPostListChunk(Xapian::docid first_,
 			   Xapian::docid last_,
 			   Xapian::termcount first_wdf_,
@@ -964,7 +976,7 @@ merge_postlists(Xapian::Compactor* compactor,
 		if (tf > 2) {
 		    tags[0].append_postings_to(first_tag, have_wdfs);
 		    if (!have_wdfs && splice_last) {
-			pack_uint(first_tag, tags[1].first - splice_last);
+			pack_uint(first_tag, tags[1].first - splice_last - 1);
 			tags[1].append_postings_to(first_tag, have_wdfs);
 		    }
 		}
@@ -995,7 +1007,7 @@ merge_postlists(Xapian::Compactor* compactor,
 						      last_did,
 						      i->first_wdf,
 						      tag);
-			    tag += i->data;
+			    i->append_postings_to(tag, have_wdfs);
 			} else {
 			    if (i->have_wdfs && i + 1 != tags.end()) {
 				splice_last = last_did;
@@ -1005,12 +1017,12 @@ merge_postlists(Xapian::Compactor* compactor,
 			    encode_delta_chunk_header_no_wdf(i->first,
 							     last_did,
 							     tag);
-			    tag += i->data;
+			    i->append_postings_to(tag, have_wdfs);
 			    if (splice_last) {
 				++i;
-				pack_uint(tag, i->first - splice_last);
+				pack_uint(tag, i->first - splice_last - 1);
 				splice_last = 0;
-				tag += i->data;
+				i->append_postings_to(tag, have_wdfs);
 			    }
 			}
 

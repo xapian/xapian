@@ -240,8 +240,6 @@ DEFINE_TESTCASE(compactnorenumber1, compact && generated && !multi) {
 
 // Test use of compact to merge two databases.
 DEFINE_TESTCASE(compactmerge1, compact) {
-    XFAIL_FOR_BACKEND("honey", "Honey->honey compaction is currently buggy");
-
     string indbpath = get_database_path("apitest_simpledata");
     string outdbpath = get_compaction_output_path("compactmerge1out");
     rm_rf(outdbpath);
@@ -313,8 +311,6 @@ make_multichunk_db(Xapian::WritableDatabase &db, const string &)
 // Test use of compact on a database which has multiple chunks for a term.
 // This is a regression test for ticket #427
 DEFINE_TESTCASE(compactmultichunks1, compact && generated) {
-    XFAIL_FOR_BACKEND("honey", "Honey->honey compaction is currently buggy");
-
     string indbpath = get_database_path("compactmultichunks1in",
 					make_multichunk_db, "");
     string outdbpath = get_compaction_output_path("compactmultichunks1out");
