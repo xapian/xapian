@@ -1,3 +1,76 @@
+up to: a1fcdaf6efbf7a5eee85322c1155d26127c6076a
+
+Xapian-core 1.4.15 (2019-12-23):
+
+API:
+
+* Database::locked(): Return false instead of true for a closed inmemory DB.
+
+testsuite:
+
+* Test locked() on a closed WritableDatabase, which already returns false (as
+  expected) in 1.4.x (but was broken on master).
+
+matcher:
+
+
+glass backend:
+
+
+chert backend:
+
+
+remote backend:
+
+* Add missing space to mismatching protocol versions error message.
+
+inmemory backend:
+
+
+build system:
+
+* Fix to build when configured with --disable-backend-remote, broken by changes
+  in 1.4.14.  Fixes #797, reported by Дилян Палаузов.
+
+documentation:
+
+* AUTHORS: Apply missed update to the thankyou list for 1.4.14.
+
+* INSTALL: Note that MSVC 2019 works.
+
+* INSTALL: Note that Xapian can use the system uuid.h on AIX and OpenBSD.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Simplify probes for snprintf.  The broken snprintf in libbsd in Linux libc4
+  is from ~25 years ago so way too ancient to matter now, and all callers
+  already handle the pre-ISO semantics of returning -1 for an undersize buffer
+  so we don't need to run a test program to probe for this at configure time,
+  which is more cross-compile friendly.
+
+* Don't quote messages in #error - the quotes aren't required and appear in the
+  compiler output (at least with GCC and clang) making it less readable.
+
+* Use a different approach for getting a 64-bit capable stat() for mingw32.
+  This means we now use the same stat variant for mingw32 and MSVC, which
+  seems a better plan.
+
+* Work around unhelpful config.status behaviour.  It comments out any #undef
+  lines in config.h, even those added via AH_TOP and AH_BOTTOM.  Splitting
+  these lines means they don't match the regex hammer config.status uses.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.14 (2019-11-23):
 
 API:

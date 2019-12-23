@@ -1,3 +1,57 @@
+up to: af587bcc5bef79dc01fea2d3bab4aa2c6095e1c2
+
+Omega 1.4.15 (2019-12-23):
+
+general:
+
+documentation:
+
+* Update documentation about how to add a new format to omindex.  Patch from
+  Bruno Baruffaldi.
+
+indexers:
+
+* Check for a BOM on HTML files, which for HTML5 should determine the encoding.
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+* Allow $if{COND} without any actions which is useful as a way to evaluate
+  something but ignore the result if you just want the side effects.  Indeed
+  we were already recommending to use it if you want to ignore the return value
+  of $log.  Fixes bug introduced in 1.4.14, reported by tuftedocelot.
+
+* Add OmegaScript support for $jsonbool{COND} for encoding a boolean value for
+  use in JSON.  This is equivalent to $if{COND,true,false} but more readable.
+
+* Add OmegaScript support for $jsonobject{} which allows producing a JSON
+  object from an OmegaScript map.
+
+* Allow specifying a format to $jsonarray{} so it is no longer restricted to
+  producing an array of strings.
+
+* Add $keys{MAP} OmegaScript command which gives a sorted list of the keys from
+  an OmegaScript map.
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+* Simplify probes for snprintf.  The broken snprintf in libbsd in Linux libc4
+  is from ~25 years ago so way too ancient to matter now, and all callers
+  already handle the pre-ISO semantics of returning -1 for an undersize buffer
+  so we don't need to run a test program to probe for this at configure time,
+  which is more cross-compile friendly.
+
+packaging:
+
 Omega 1.4.14 (2019-11-23):
 
 documentation:
