@@ -83,6 +83,7 @@ matrix:
             - python3-dev
             - tcl
             - libsvm-dev
+            - libpoppler-cpp-dev
             - libtesseract-dev
     - os: linux
       addons:
