@@ -210,6 +210,26 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     XAPIAN_VISIBILITY_INTERNAL
     void msg_reconstructtext(const std::string& message);
 
+    // get synonyms for a term
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_getsynonymtermlist(const std::string& message);
+
+    // get terms with an entry in synonym table, starting with a prefix
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_getsynonymkeylist(const std::string& message);
+
+    // add a synonym
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_addsynonym(const std::string& message);
+
+    // remove a synonym
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_removesynonym(const std::string& message);
+
+    // clear synonyms for a term
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_clearsynonyms(const std::string& message);
+
   public:
     /** Construct a RemoteServer.
      *

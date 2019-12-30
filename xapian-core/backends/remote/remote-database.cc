@@ -88,7 +88,7 @@ throw_connection_closed_unexpectedly()
 }
 
 RemoteDatabase::RemoteDatabase(int fd, double timeout_,
-			       const string & context_, bool writable,
+			       const string& context_, bool writable,
 			       int flags)
     : Xapian::Database::Internal(writable ?
 				 TRANSACTION_NONE :
@@ -898,6 +898,52 @@ RemoteDatabase::remove_spelling(const string & word,
 	throw Xapian::NetworkError("Bad REPLY_REMOVESPELLING", context);
     }
     return result;
+}
+
+TermList*
+RemoteDatabase::open_synonym_termlist(const string& word) const
+{
+    string message;
+    send_message(MSG_SYNONYMTERMLIST, word);
+    get_message(message, REPLY_SYNONYMTERMLIST);
+    return new RemoteMetadataTermList(word, std::move(message));
+}
+
+TermList*
+RemoteDatabase::open_synonym_keylist(const string& prefix) const
+{
+    string message;
+    send_message(MSG_SYNONYMKEYLIST, prefix);
+    get_message(message, REPLY_SYNONYMKEYLIST);
+    return new RemoteMetadataTermList(prefix, std::move(message));
+}
+
+void
+RemoteDatabase::add_synonym(const string& word, const string& synonym) const
+{
+    string message;
+    pack_string(message, word);
+    message += synonym;
+    send_message(MSG_ADDSYNONYM, message);
+    get_message(message, REPLY_DONE);
+}
+
+void
+RemoteDatabase::remove_synonym(const string& word, const string& synonym) const
+{
+    string message;
+    pack_string(message, word);
+    message += synonym;
+    send_message(MSG_REMOVESYNONYM, message);
+    get_message(message, REPLY_DONE);
+}
+
+void
+RemoteDatabase::clear_synonyms(const string& word) const
+{
+    string message;
+    send_message(MSG_CLEARSYNONYMS, word);
+    get_message(message, REPLY_DONE);
 }
 
 bool

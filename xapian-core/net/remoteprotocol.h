@@ -99,6 +99,11 @@ enum message_type {
     MSG_UNIQUETERMS,		// Get number of unique terms in doc
     MSG_POSITIONLISTCOUNT,	// Get PositionList length
     MSG_RECONSTRUCTTEXT,	// Reconstruct document text
+    MSG_SYNONYMTERMLIST,	// Get synonyms for a term
+    MSG_SYNONYMKEYLIST,		// Get terms with an entry in synonym table
+    MSG_ADDSYNONYM,		// Add a synonym
+    MSG_REMOVESYNONYM,		// Remove a synonym
+    MSG_CLEARSYNONYMS,		// Clear synonyms for a term
     MSG_MAX
 };
 
@@ -131,6 +136,8 @@ enum reply_type {
     REPLY_REMOVESPELLING,	// Remove a spelling
     REPLY_TERMLISTHEADER,	// Header for get termlist
     REPLY_RECONSTRUCTTEXT,	// Reconstruct document text
+    REPLY_SYNONYMTERMLIST,	// Get synonyms for a term
+    REPLY_SYNONYMKEYLIST,	// Get terms with an entry in synonym table
     REPLY_MAX
 };
 

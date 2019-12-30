@@ -1,4 +1,6 @@
 /** @file remote-database.h
+    TermList * open_synonym_termlist(const string & term) const;
+    TermList * open_synonym_keylist(const string & prefix) const;
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
 /* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017,2019 Olly Betts
@@ -292,6 +294,17 @@ class RemoteDatabase : public Xapian::Database::Internal {
     void set_metadata(const std::string& key, const std::string& value);
 
     void add_spelling(const std::string& word, Xapian::termcount freqinc) const;
+
+    TermList* open_synonym_termlist(const std::string& term) const;
+
+    TermList* open_synonym_keylist(const std::string& prefix) const;
+
+    void add_synonym(const std::string& word, const std::string& synonym) const;
+
+    void remove_synonym(const std::string& word,
+			const std::string& synonym) const;
+
+    void clear_synonyms(const std::string& word) const;
 
     Xapian::termcount remove_spelling(const std::string& word,
 				      Xapian::termcount freqdec) const;
