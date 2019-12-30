@@ -293,6 +293,17 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void add_spelling(const std::string& word, Xapian::termcount freqinc) const;
 
+    TermList* open_synonym_termlist(const std::string& term) const;
+
+    TermList* open_synonym_keylist(const std::string& prefix) const;
+
+    void add_synonym(const std::string& word, const std::string& synonym) const;
+
+    void remove_synonym(const std::string& word,
+			const std::string& synonym) const;
+
+    void clear_synonyms(const std::string& word) const;
+
     Xapian::termcount remove_spelling(const std::string& word,
 				      Xapian::termcount freqdec) const;
 

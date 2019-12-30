@@ -30,10 +30,9 @@ using namespace std;
 Xapian::termcount
 RemoteMetadataTermList::get_approx_size() const
 {
-    // RemoteMetadataTermList is only used in a TermIterator wrapper and that
-    // never calls this method.
-    Assert(false);
-    return 0;
+    // Used while merging synonym termlists as
+    // make_termlist_merger requires approximate size.
+    return 1;
 }
 
 string
