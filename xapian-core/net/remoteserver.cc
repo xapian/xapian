@@ -988,9 +988,10 @@ RemoteServer::msg_removespelling(const string & message)
 void
 RemoteServer::msg_getsynonymtermlist(const string& message)
 {
-    Xapian::TermIterator t = wdb->synonyms_begin(message);
+
+    Xapian::TermIterator t = db->synonyms_begin(message);
     string reply, prev;
-    while (t != wdb->synonyms_end(message)) {
+    while (t != db->synonyms_end(message)) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
 	const string& term = *t;
@@ -1007,9 +1008,9 @@ RemoteServer::msg_getsynonymtermlist(const string& message)
 void
 RemoteServer::msg_getsynonymkeylist(const string& message)
 {
-    Xapian::TermIterator t = wdb->synonym_keys_begin(message);
+    Xapian::TermIterator t = db->synonym_keys_begin(message);
     string reply, prev;
-    while (t != wdb->synonym_keys_end(message)) {
+    while (t != db->synonym_keys_end(message)) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
 	const string& term = *t;
@@ -1020,6 +1021,7 @@ RemoteServer::msg_getsynonymkeylist(const string& message)
 	prev = term;
 	++t;
     }
+    send_message(REPLY_SYNONYMKEYLIST, reply);
 }
 
 void
@@ -1059,13 +1061,6 @@ RemoteServer::msg_clearsynonyms(const string& message)
 {
     if (!wdb)
 	throw_read_only();
-    const char* p = message.data();
-    const char* p_end = p + message.size();
-    // Get the term
-    string term;
-    if (!unpack_string(&p, p_end, term)) {
-	throw Xapian::NetworkError("Bad MSG_CLEARSYNONYMS");
-    }
-    wdb->clear_synonyms(term);
+    wdb->clear_synonyms(message);
     send_message(REPLY_DONE, string());
 }
