@@ -318,3 +318,33 @@ Reconstruct text
 
 -  ``MSG_RECONSTRUCTTEXT I<did> I<length> I<start_pos> I<end_pos> <prefix>``
 -  ``REPLY_RECONSTRUCTTEXT <text>``
+
+Synonym Term List
+-----------------
+
+-  ``MSG_SYNONYMTERMLIST <word>``
+-  ``REPLY_SYNONYMTERMLIST [C<chars of previous term to reuse> S<string to append>]...``
+
+Synonym Key List
+-----------------
+
+-  ``MSG_SYNONYMKEYLIST <word>``
+-  ``REPLY_SYNONYMKEYLIST [C<chars of previous term to reuse> S<string to append>]...``
+
+Add synonym
+-----------
+
+- ``MSG_ADDSYNONYM <word> <synonym>
+- ``REPLY_DONE``
+
+Remove synonym
+--------------
+
+- ``MSG_REMOVESYNONYM <word> <synonym>
+- ``REPLY_DONE``
+
+Clear synonyms
+--------------
+
+- ``MSG_CLEARSYNONYMS <word>``
+- ``REPLY_DONE``
