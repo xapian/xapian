@@ -69,7 +69,8 @@ VectorTermList::next()
 	current_term.resize(0);
 	p = NULL;
     } else {
-	if (!unpack_string(&p, end, current_term)) {
+	current_term.resize(size_t(static_cast<unsigned char>(*p++)));
+	if (!unpack_string_append(&p, end, current_term)) {
 	    unpack_throw_serialisation_error(p);
 	}
     }
@@ -78,10 +79,19 @@ VectorTermList::next()
 }
 
 TermList *
-VectorTermList::skip_to(const string &)
+VectorTermList::skip_to(const string& term)
 {
     // skip_to only makes sense for termlists which are in sorted order.
-    throw Xapian::InvalidOperationError("VectorTermList::skip_to() not meaningful");
+    if (!sorted)
+	throw Xapian::InvalidOperationError("VectorTermList::skip_to() not meaningful");
+
+    if (!p) {
+	VectorTermList::next();
+    }
+    while (!VectorTermList::at_end() && current_term < term) {
+	VectorTermList::next();
+    }
+    return NULL;
 }
 
 bool

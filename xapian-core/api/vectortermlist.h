@@ -25,6 +25,7 @@
 
 #include "pack.h"
 #include "termlist.h"
+#include "stringutils.h"
 
 /** This class stores a list of terms.
  *
@@ -45,12 +46,15 @@ class VectorTermList : public TermList {
     /// The number of terms in the list.
     Xapian::termcount num_terms;
 
+    // Indicate if current terms are sorted.
+    bool sorted;
+
     /// The current term.
     std::string current_term;
 
   public:
     template<typename I>
-    VectorTermList(I begin, I end) : num_terms(0)
+    VectorTermList(I begin, I end) : num_terms(0), sorted(false)
     {
 	// First calculate how much space we'll need so we can reserve it.
 	size_t total_size = 0;
@@ -66,12 +70,31 @@ class VectorTermList : public TermList {
 	}
 	data.reserve(total_size);
 
+	std::string prev;
 	// Now encode all the terms into data.
 	for (I i = begin; i != end; ++i) {
-	    pack_string(data, *i);
+	    if (rare(prev.size() > 255))
+		prev.resize(255);
+	    const std::string& term = *i;
+	    size_t reuse = common_prefix_length(prev, term);
+	    data.append(1, char(reuse));
+	    pack_uint(data, term.size() - reuse);
+	    data.append(term, reuse, std::string::npos);
+	    prev = term;
 	}
 
 	p = data.data();
+    }
+
+    VectorTermList(std::string data_)
+    {
+	data = data_;
+	p = data.data();
+	sorted = true;
+	const char* p_end = data.data() + data.size();
+	if (!unpack_uint(&p, p_end, &num_terms)) {
+	    throw Xapian::SerialisationError("while extracting num_terms");
+	}
     }
 
     Xapian::termcount get_approx_size() const;

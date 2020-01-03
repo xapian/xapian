@@ -988,9 +988,12 @@ RemoteServer::msg_removespelling(const string & message)
 void
 RemoteServer::msg_getsynonymtermlist(const string& message)
 {
-
-    Xapian::TermIterator t = db->synonyms_begin(message);
     string reply, prev;
+    Xapian::TermIterator t = db->synonyms_begin(message);
+    Xapian::termcount num_terms = 0;
+    if (t.internal)
+	num_terms = t.internal->get_approx_size();
+    pack_uint(reply, num_terms);
     while (t != db->synonyms_end(message)) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
@@ -1008,8 +1011,12 @@ RemoteServer::msg_getsynonymtermlist(const string& message)
 void
 RemoteServer::msg_getsynonymkeylist(const string& message)
 {
-    Xapian::TermIterator t = db->synonym_keys_begin(message);
     string reply, prev;
+    Xapian::TermIterator t = db->synonym_keys_begin(message);
+    Xapian::termcount num_terms = 0;
+    if (t.internal)
+	num_terms = t.internal->get_approx_size();
+    pack_uint(reply, num_terms);
     while (t != db->synonym_keys_end(message)) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
