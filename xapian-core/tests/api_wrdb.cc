@@ -1589,6 +1589,41 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
     return true;
 }
 
+// Test synonyms from subdbs are appropriately merged.
+DEFINE_TESTCASE(synonym_merge1, writable && synonyms) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::WritableDatabase db1 = get_named_writable_database("db1");
+
+    db.add_synonym("abc", "asd");
+    db.add_synonym("abc", "asd2");
+    db.add_synonym("abc", "asd4");
+    db.add_synonym("abc", "asd6");
+    db.commit();
+
+    db1.add_synonym("abc", "asd1");
+    db1.add_synonym("abc", "asd3");
+    db1.add_synonym("abc", "asd5");
+    db1.add_synonym("abc", "asd10");
+    db1.commit();
+
+    Xapian::Database db_multi;
+    db_multi.add_database(db);
+    db_multi.add_database(db1);
+
+    Xapian::TermIterator t;
+    string s, e;
+    s = "|";
+    t = db_multi.synonyms_begin("abc");
+    while (t != db_multi.synonyms_end("abc")) {
+	s += *t++;
+	s += '|';
+    }
+    e = "|asd|asd1|asd10|asd2|asd3|asd4|asd5|asd6|";
+    TEST_STRINGS_EQUAL(s, e);
+    return true;
+}
+
+
 // Test synonym iterators.
 DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
     Xapian::WritableDatabase db = get_writable_database();
