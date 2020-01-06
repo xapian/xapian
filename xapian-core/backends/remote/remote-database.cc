@@ -906,7 +906,7 @@ RemoteDatabase::open_synonym_termlist(const string& word) const
     string message;
     send_message(MSG_SYNONYMTERMLIST, word);
     get_message(message, REPLY_SYNONYMTERMLIST);
-    return new RemoteMetadataTermList(word, std::move(message));
+    return new RemoteMetadataTermList(string(), std::move(message));
 }
 
 TermList*
@@ -915,7 +915,7 @@ RemoteDatabase::open_synonym_keylist(const string& prefix) const
     string message;
     send_message(MSG_SYNONYMKEYLIST, prefix);
     get_message(message, REPLY_SYNONYMKEYLIST);
-    return new RemoteMetadataTermList(prefix, std::move(message));
+    return new RemoteMetadataTermList(string(), std::move(message));
 }
 
 void
