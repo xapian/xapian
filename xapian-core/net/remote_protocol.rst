@@ -334,13 +334,13 @@ Synonym Key List
 Add synonym
 -----------
 
-- ``MSG_ADDSYNONYM <word> <synonym>
+- ``MSG_ADDSYNONYM S<word> <synonym>
 - ``REPLY_DONE``
 
 Remove synonym
 --------------
 
-- ``MSG_REMOVESYNONYM <word> <synonym>
+- ``MSG_REMOVESYNONYM S<word> <synonym>
 - ``REPLY_DONE``
 
 Clear synonyms
