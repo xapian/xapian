@@ -37,7 +37,12 @@ namespace Xapian {
 template<typename T>
 class DerefWrapper_ {
     /// Don't allow assignment.
-    void operator=(const DerefWrapper_ &);
+#if __cplusplus >= 201103L
+    // Avoid warnings with newer clang.
+    void operator=(const DerefWrapper_&) = delete;
+#else
+    void operator=(const DerefWrapper_&);
+#endif
 
     /// The value.
     T res;
