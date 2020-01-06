@@ -1589,50 +1589,6 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(synonym_merge1, writable && synonyms) {
-    Xapian::WritableDatabase db = get_writable_database();
-    Xapian::WritableDatabase db1 = get_named_writable_database("db1");
-    Xapian::WritableDatabase db2 = get_named_writable_database("db3");
-    Xapian::WritableDatabase db3 = get_named_writable_database("db4");
-
-    db.add_synonym("abc", "asd");
-    db.add_synonym("abc", "asd1");
-
-    db1.add_synonym("abc", "asd2");
-    db1.add_synonym("abc", "asd3");
-
-    db2.add_synonym("abc", "asd4");
-    db2.add_synonym("abc", "asd5");
-    db2.add_synonym("abc", "asd6");
-
-    db3.add_synonym("abc", "asd7");
-    db3.add_synonym("abc", "asd8");
-    db3.add_synonym("abc", "asd9");
-    db3.add_synonym("abc", "asd10");
-
-    Xapian::Database db_multi;
-    db_multi.add_database(db);
-    db_multi.add_database(db1);
-    db_multi.add_database(db2);
-    db_multi.add_database(db3);
-
-    Xapian::TermIterator t;
-    string s, e;
-    // Try these tests twice - once before committing and once after.
-    for (int times = 1; times <= 2; ++times) {
-	s = "|";
-	t = db_multi.synonyms_begin("abc");
-	while (t != db_multi.synonyms_end("abc")) {
-	    s += *t++;
-	    s += '|';
-	}
-	e = "|asd|asd1|asd10|asd2|asd3|asd4|asd5|asd6|asd7|asd8|asd9|";
-	TEST_STRINGS_EQUAL(s, e);
-	db.commit();
-    }
-    return true;
-}
-
 // Test synonym iterators.
 DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
     Xapian::WritableDatabase db = get_writable_database();
