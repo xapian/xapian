@@ -984,7 +984,6 @@ RemoteServer::msg_removespelling(const string & message)
     send_message(REPLY_REMOVESPELLING, reply);
 }
 
-
 void
 RemoteServer::msg_getsynonymtermlist(const string& message)
 {

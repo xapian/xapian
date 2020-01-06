@@ -1,6 +1,4 @@
 /** @file remote-database.h
-    TermList * open_synonym_termlist(const string & term) const;
-    TermList * open_synonym_keylist(const string & prefix) const;
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
 /* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017,2019 Olly Betts
