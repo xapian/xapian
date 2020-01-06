@@ -29,7 +29,6 @@
 
 #include "api/smallvector.h"
 
-#include "xapian/cluster.h"
 #include "xapian/intrusive_ptr.h"
 #include "xapian/types.h"
 
@@ -279,11 +278,17 @@ operator<<(PrettyOStream<S> &ps, const Xapian::VecCOW<T>& v) {
 }
 
 namespace Xapian {
+    class Centroid;
+    class Cluster;
+    class ClusterSet;
     class ExpandDecider;
     class KeyMaker;
     class LatLongMetric;
     class MatchDecider;
+    class Point;
+    class PointType;
     class Registry;
+    class TermListGroup;
     class Weight;
     namespace Internal {
 	class AndContext;
