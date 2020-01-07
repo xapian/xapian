@@ -2745,11 +2745,6 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
 // Regression test: check that query parser doesn't scale very badly with the
 // size of the query.
 DEFINE_TESTCASE(qp_scale1, synonyms) {
-    const char* xfail_msg = "Querying synonyms for multiple query words is "
-	               "expected to incur a higher time in remote DB";
-    XFAIL_FOR_BACKEND("remote", xfail_msg);
-    XFAIL_FOR_BACKEND("multi_remoteprog_glass", xfail_msg);
-    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass", xfail_msg);
     Xapian::WritableDatabase db = get_writable_database();
 
     db.add_synonym("foo", "bar");
