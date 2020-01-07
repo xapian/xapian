@@ -107,7 +107,7 @@ class QueryOptimiser {
     PostList * make_synonym_postlist(PostList * pl,
 				     double factor,
 				     bool wdf_disjoint) {
-	return localsubmatch.make_synonym_postlist(matcher, pl, factor,
+	return localsubmatch.make_synonym_postlist(matcher, pl, this, factor,
 						   wdf_disjoint);
     }
 

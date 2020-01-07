@@ -3081,3 +3081,24 @@ DEFINE_TESTCASE(qp_stemsomefullpos, !backend) {
     TEST_EQUAL(qp.parse_query("terms ADJ testing").get_description(), "Query((Zterm@1 PHRASE 11 Ztest@2))");
     return true;
 }
+
+/** Regression test for segfault on synonym query with no matches.
+ *
+ *  This bug was introduced and fixed in git master before 1.5.0.
+ */
+DEFINE_TESTCASE(qp_synonymcrash1, generated && synonyms) {
+    Xapian::Database db = get_database("qp_synonymcrash1",
+				       [](Xapian::WritableDatabase &wdb,
+					  const string &) {
+					   wdb.add_synonym("baa", "bar");
+				       });
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+    auto q = qp.parse_query("~baa ~baa", qp.FLAG_SYNONYM);
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    Xapian::MSet results = enq.get_mset(0, 10);
+    TEST_EQUAL(results.size(), 0);
+
+    return true;
+}

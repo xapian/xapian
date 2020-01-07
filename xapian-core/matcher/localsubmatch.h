@@ -106,6 +106,7 @@ class LocalSubMatch {
      */
     PostList * make_synonym_postlist(PostListTree* pltree,
 				     PostList* or_pl,
+				     Xapian::Internal::QueryOptimiser* qopt,
 				     double factor,
 				     bool wdf_disjoint);
 

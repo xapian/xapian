@@ -199,12 +199,17 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
 PostList *
 LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
 				     PostList* or_pl,
+				     QueryOptimiser* qopt,
 				     double factor,
 				     bool wdf_disjoint)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", pltree | or_pl | factor | wdf_disjoint);
     if (rare(or_pl->get_termfreq_max() == 0)) {
 	// We know or_pl doesn't match anything.
+	//
+	// The hint may be a subpostlist of or_pl.  It seems hard to check
+	// efficiently so just clear the hint in this case.
+	qopt->set_hint_postlist(nullptr);
 	delete or_pl;
 	RETURN(NULL);
     }
