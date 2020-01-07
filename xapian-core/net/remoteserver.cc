@@ -987,7 +987,6 @@ RemoteServer::msg_removespelling(const string & message)
 void
 RemoteServer::msg_getsynonymtermlist(const string& message)
 {
-
     Xapian::TermIterator t = db->synonyms_begin(message);
     string reply;
     string prev = message;
