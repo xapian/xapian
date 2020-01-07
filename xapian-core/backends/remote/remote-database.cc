@@ -915,7 +915,7 @@ RemoteDatabase::open_synonym_keylist(const string& prefix) const
     string message;
     send_message(MSG_SYNONYMKEYLIST, prefix);
     get_message(message, REPLY_SYNONYMKEYLIST);
-    return new RemoteMetadataTermList(string(), std::move(message));
+    return new RemoteMetadataTermList(prefix, std::move(message));
 }
 
 void
