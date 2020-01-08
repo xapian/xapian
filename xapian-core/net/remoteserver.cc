@@ -989,7 +989,7 @@ RemoteServer::msg_getsynonymtermlist(const string& message)
 {
     Xapian::TermIterator t = db->synonyms_begin(message);
     string reply;
-    string prev = message;
+    string prev;
     while (t != db->synonyms_end(message)) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
@@ -1008,7 +1008,8 @@ void
 RemoteServer::msg_getsynonymkeylist(const string& message)
 {
     Xapian::TermIterator t = db->synonym_keys_begin(message);
-    string reply, prev;
+    string reply;
+    string prev = message;
     while (t != db->synonym_keys_end(message)) {
 	if (rare(prev.size() > 255))
 	    prev.resize(255);
