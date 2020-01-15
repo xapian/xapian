@@ -1,6 +1,7 @@
-/* freemem.cc: determine how much free physical memory there is.
- *
- * Copyright (C) 2007,2008,2009,2010 Olly Betts
+/** @file freemem.cc
+ * @brief determine how much free physical memory there is.
+ */
+/* Copyright (C) 2007,2008,2009,2010,2020 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,7 +27,10 @@
 #include <climits>
 #include "safeunistd.h"
 #ifdef HAVE_SYS_SYSCTL_H
-# include <sys/sysctl.h>
+// Linux also has sys/sysctl.h but newer versions give a deprecation warning.
+# ifndef __linux__
+#  include <sys/sysctl.h>
+# endif
 #endif
 #ifdef HAVE_VM_VM_PARAM_H
 # include <vm/vm_param.h>
