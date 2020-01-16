@@ -2668,7 +2668,7 @@ DEFINE_TESTCASE(qp_scale1, synonyms) {
 
     // A long multiword synonym.
     string syn;
-    for (int j = 60; j != 0; --j) {
+    for (int j = 50; j != 0; --j) {
 	syn += q1;
     }
     syn.resize(syn.size() - 1);
