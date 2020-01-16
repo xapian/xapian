@@ -1,7 +1,8 @@
-/* api_replicate.cc: tests of replication functionality
- *
- * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/** @file api_replicate.cc
+ * @brief tests of replication functionality
+ */
+/* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2009,2010,2011,2012,2013,2014,2015,2016,2017,2020 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -323,6 +324,8 @@ DEFINE_TESTCASE(replicate1, replicas) {
 	// We need this inner scope to we close the replica before we remove
 	// the temporary directory on Windows.
     }
+
+    TEST_EQUAL(Xapian::Database::check(masterpath), 0);
 
     rmtmpdir(tempdir);
 #endif
