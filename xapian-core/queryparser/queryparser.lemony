@@ -1739,62 +1739,59 @@ reprocess:
 	Database db = state->get_database();
 
 	string key;
-	vector<Term*>::const_iterator begin = terms.begin();
-	vector<Term*>::const_iterator i = begin;
-	while (i != terms.end()) {
-	    TermIterator synkey(db.synonym_keys_begin((*i)->name));
-	    TermIterator synend(db.synonym_keys_end((*i)->name));
-	    if (synkey == synend) {
-		// No multi-synonym matches.
-		if (stopper && (*stopper)((*i)->name)) {
-		    state->add_to_stoplist(*i);
+	vector<Term*>::size_type begin = 0;
+	vector<Term*>::size_type i = begin;
+	while (terms.size() - i > 0) {
+	    size_t longest_match = 0;
+	    vector<Term*>::size_type longest_match_end;
+	    if (terms.size() - i >= 2) {
+		// Greedily try to match as many consecutive words as possible.
+		key = terms[i]->name;
+		key += ' ';
+		key += terms[i + 1]->name;
+		longest_match_end = i + 2;
+		TermIterator synkey(db.synonym_keys_begin(key));
+		TermIterator synend(db.synonym_keys_end(key));
+		if (synkey != synend) {
+		    for (auto j = i + 2; j < terms.size(); ++j) {
+			key += ' ';
+			key += terms[j]->name;
+			synkey.skip_to(key);
+			if (synkey == synend)
+			    break;
+			const string& found = *synkey;
+			if (!startswith(found, key))
+			    break;
+			if (found.size() == key.size()) {
+			    longest_match = key.size();
+			    longest_match_end = j + 1;
+			}
+		    }
+		}
+	    }
+	    if (longest_match == 0) {
+		// No multi-synonym matches at position i.
+		if (stopper && (*stopper)(terms[i]->name)) {
+		    state->add_to_stoplist(terms[i]);
 		} else {
 		    if (default_op_is_positional)
-			(*i)->need_positions();
-		    subqs.push_back((*i)->get_query_with_auto_synonyms());
+			terms[i]->need_positions();
+		    subqs.push_back(terms[i]->get_query_with_auto_synonyms());
 		}
 		begin = ++i;
 		continue;
 	    }
-	    key.resize(0);
-	    while (i != terms.end()) {
-		if (!key.empty()) key += ' ';
-		key += (*i)->name;
-		++i;
-		synkey.skip_to(key);
-		if (synkey == synend || !startswith(*synkey, key)) break;
-	    }
-	    // Greedily try to match as many consecutive words as possible.
-	    TermIterator syn, end;
-	    while (true) {
-		syn = db.synonyms_begin(key);
-		end = db.synonyms_end(key);
-		if (syn != end) break;
-		if (--i == begin) break;
-		key.resize(key.size() - (*i)->name.size() - 1);
-	    }
-	    if (i == begin) {
-		// No multi-synonym matches.
-		if (stopper && (*stopper)((*i)->name)) {
-		    state->add_to_stoplist(*i);
-		} else {
-		    if (default_op_is_positional)
-			(*i)->need_positions();
-		    subqs.push_back((*i)->get_query_with_auto_synonyms());
-		}
-		begin = ++i;
-		continue;
-	    }
+	    i = longest_match_end;
+	    key.resize(longest_match);
 
 	    vector<Query> subqs2;
-	    vector<Term*>::const_iterator j;
-	    for (j = begin; j != i; ++j) {
-		if (stopper && (*stopper)((*j)->name)) {
-		    state->add_to_stoplist(*j);
+	    for (auto j = begin; j != i; ++j) {
+		if (stopper && (*stopper)(terms[j]->name)) {
+		    state->add_to_stoplist(terms[j]);
 		} else {
 		    if (default_op_is_positional)
-			(*i)->need_positions();
-		    subqs2.push_back((*j)->get_query());
+			terms[i]->need_positions();
+		    subqs2.push_back(terms[j]->get_query());
 		}
 	    }
 	    Query q_original_terms;
@@ -1809,9 +1806,10 @@ reprocess:
 	    subqs2.clear();
 
 	    // Use the position of the first term for the synonyms.
+	    TermIterator syn = db.synonyms_begin(key);
 	    Query q(Query::OP_SYNONYM,
-		    SynonymIterator(syn, (*begin)->pos, &q_original_terms),
-		    SynonymIterator(end));
+		    SynonymIterator(syn, terms[begin]->pos, &q_original_terms),
+		    SynonymIterator(db.synonyms_end(key)));
 	    subqs.push_back(q);
 
 	    begin = i;
