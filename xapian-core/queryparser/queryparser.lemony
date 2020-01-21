@@ -1743,7 +1743,9 @@ reprocess:
 	vector<Term*>::size_type i = begin;
 	while (terms.size() - i > 0) {
 	    size_t longest_match = 0;
-	    vector<Term*>::size_type longest_match_end;
+	    // This value is never used, but GCC 4.8 warns with
+	    // -Wmaybe-uninitialized (GCC 5.4 doesn't).
+	    vector<Term*>::size_type longest_match_end = 0;
 	    if (terms.size() - i >= 2) {
 		// Greedily try to match as many consecutive words as possible.
 		key = terms[i]->name;
