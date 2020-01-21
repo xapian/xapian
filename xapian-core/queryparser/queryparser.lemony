@@ -1527,10 +1527,11 @@ reprocess:
 		key = terms[i]->name;
 		key += ' ';
 		key += terms[i + 1]->name;
-		longest_match_end = i + 2;
 		TermIterator synkey(db.synonym_keys_begin(key));
 		TermIterator synend(db.synonym_keys_end(key));
 		if (synkey != synend) {
+		    longest_match = key.size();
+		    longest_match_end = i + 2;
 		    for (auto j = i + 2; j < terms.size(); ++j) {
 			key += ' ';
 			key += terms[j]->name;
