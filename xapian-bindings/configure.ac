@@ -94,9 +94,26 @@ XO_LIB_XAPIAN([], [],
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 XO_REQUIRE([1.4.0])
 
+AC_ARG_ENABLE([letor],
+  [AS_HELP_STRING([--enable-letor], [enable make rules to build bindings related to xapian-letor])],
+  [case ${enableval} in
+    yes) ;;
+    no) AC_MSG_WARN([If you are running make dist make sure to run it with enable_letor=yes]);;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-letor]) ;;
+  esac],
+  [enable_letor=no])
+
+AM_CONDITIONAL([BUILD_LETOR_BINDINGS], [test yes = "$enable_letor"])
+
+if test yes = "$enable_letor"; then
+  dnl Check for xapian-letor.
+  XO_LIB_XAPIANLETOR([], [], [xapianletor-config])
+fi
+
 NEED_JNILIB_EXT=no
 NEED_INTREE_DYLD=no
 INTREE_DYLD_PATH=
+INTREE_DYLD_PATH_LETOR=
 case $host_os in
 darwin*)
   NEED_JNILIB_EXT=yes
@@ -119,6 +136,27 @@ darwin*)
     esac
     dnl Add .libs or equivalent.
     INTREE_DYLD_PATH=`echo "$INTREE_DYLD_PATH"|sed 's,\(.*/\).*,\1,'`$lt_cv_objdir
+  fi
+
+  dnl If we're building against an uninstalled xapian-letor, xapianletor-config
+  dnl --libs will give an error.
+  if $XAPIANLETOR_CONFIG --libs >/dev/null 2>/dev/null ; then
+    :
+  else
+    dnl $XAPIANLETOR_LIBS may have some options first, so grab the last argument,
+    dnl which should be the .la file.
+    set x $XAPIANLETOR_LIBS
+    as_fn_arith $# - 1
+    shift $as_val
+    INTREE_DYLD_PATH_LETOR=$1
+    dnl Make sure the path is absolute.
+    case $INTREE_DYLD_PATH_LETOR in
+      /*) ;;
+      *) INTREE_DYLD_PATH_LETOR=`pwd`/$INTREE_DYLD_PATH_LETOR ;;
+    esac
+    dnl Add .libs or equivalent.
+    INTREE_DYLD_PATH_LETOR=`echo "$INTREE_DYLD_PATH_LETOR"|sed 's,\(.*/\).*,\1,'`$lt_cv_objdir
+    INTREE_DYLD_PATH="$INTREE_DYLD_PATH:$INTREE_DYLD_PATH_LETOR"
     AC_SUBST([INTREE_DYLD_PATH])
   fi
   ;;
@@ -130,6 +168,10 @@ dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so add it to
 dnl CXXFLAGS for the duration of configure.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
+
+if test yes = "$enable_letor"; then
+  CXXFLAGS="$CXXFLAGS $XAPIANLETOR_CXXFLAGS"
+fi
 
 dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
 dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
@@ -201,7 +243,11 @@ if test x$USE_MAINTAINER_MODE = xyes; then
       fi ;;
   esac
   SWIG_FLAGS=`$XAPIAN_CONFIG --swigflags`
-  AC_SUBST(SWIG_FLAGS)
+  AC_SUBST([SWIG_FLAGS])
+  if test yes = "$enable_letor"; then
+    SWIG_LETOR_FLAGS=`$XAPIANLETOR_CONFIG --swigflags`
+    AC_SUBST([SWIG_LETOR_FLAGS])
+  fi
   XAPIAN_HEADER_DIRS=
   XAPIAN_HEADERS=
   for a in $SWIG_FLAGS ; do

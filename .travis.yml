@@ -15,6 +15,7 @@ matrix:
             - python-docutils
             - pngcrush
             - python-sphinx
+            - python3-sphinx
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
@@ -47,6 +48,7 @@ matrix:
             - python-docutils
             - pngcrush
             - python-sphinx
+            - python3-sphinx
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
@@ -75,6 +77,7 @@ matrix:
             - python-docutils
             - pngcrush
             - python-sphinx
+            - python3-sphinx
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
@@ -142,7 +145,7 @@ matrix:
         - travis_retry pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
-      env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
+      env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install' installletor='make -C xapian-letor install'
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"
@@ -161,11 +164,12 @@ matrix:
 before_script:
   # Bootstrap everything (including letor, which isn't done
   # by default), then configure using our chosen compiler.
-  - travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+  - travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-letor xapian-bindings
   - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
   - make
   - $installcore
+  - $installletor
   - make check VERBOSE=1 AUTOMATED_TESTING=1
   # grep '^' passes through all input while giving a non-zero exit status if
   # that input is empty.

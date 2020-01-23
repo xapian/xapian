@@ -29,6 +29,7 @@ endif
 endif
 
 DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
+	XAPIANLETOR_CONFIG="$(XAPIANLETOR_CONFIG)" \
 	PYTHON2_LIB="`pwd`/../_inst/tmp_py2lib" \
 	PYTHON3_LIB="`pwd`/../_inst/tmp_py3lib" \
 	PHP7_EXTENSION_DIR="`pwd`/../_inst/tmp_php7ext" \

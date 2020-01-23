@@ -28,7 +28,7 @@
 
 namespace Xapian {
 
-Feature::Feature() : stats_needed(), internal(new Feature::Internal())
+Feature::Feature() : internal(new Feature::Internal()), stats_needed()
 {
     LOGCALL_CTOR(API, "Feature", NO_ARGS);
 }

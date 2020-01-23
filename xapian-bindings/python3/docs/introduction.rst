@@ -1,6 +1,7 @@
 .. Copyright (C) 2003 James Aylett
 .. Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2013 Olly Betts
 .. Copyright (C) 2007,2008,2010 Richard Boulton
+.. Copyright (C) 2019 Vaibhav Kansagara
 
 ===========================
 Python3 bindings for Xapian
@@ -12,6 +13,12 @@ Xapian's Python3 bindings are packaged in the `xapian` module - to use
 them, you'll need to add this to your code::
 
   import xapian
+
+It also includes `xapianletor` bindings module - to use
+them, you'll need to configure xapian-bindings with ``--enable-letor``
+option and you'll need to add this to your code::
+
+  import xapianletor
 
 They currently require at least Python 3.2.  We've not tested with
 Python 3.1 - test results and any patches needed are most welcome.
@@ -27,6 +34,11 @@ showing how to use the Python bindings:
 There's also
 `simplematchdecider.py <examples/simplematchdecider.py>`_
 which shows how to define a MatchDecider in Python.
+
+Examples specific to letor are:
+`xapian-prepare-trainingfile.py <examples/xapian-prepare-trainingfile.py>`_,
+`xapian-train.py <examples/xapian-train.py>`_,
+`xapian-rank.py <examples/xapian-rank.py>`_.
 
 Strings
 =======
@@ -73,7 +85,8 @@ class.
 
 This means that programs can trap all xapian exceptions using `except
 xapian.Error`, and can trap all exceptions which don't indicate that
-the program should terminate using `except Exception`.
+the program should terminate using `except Exception`. To trap
+xapianletor exceptions use `except xapianletor.Error`.
 
 Iterators
 =========
@@ -210,8 +223,10 @@ Test Suite
 ==========
 
 The Python bindings come with a test suite, consisting of two test files:
-`smoketest.py` and `pythontest.py`. These are run by the `make check` command,
-or may be run manually.  By default, they will display the names of any tests
+`smoketest.py` and `pythontest.py`. It also includes a test suite for letor-bindings
+which consist of one test file: `pythonletortest.py`. But to test for letor you must
+configure with appropriate options mentioned above. These are run by the `make check`
+command, or may be run manually.  By default, they will display the names of any tests
 which failed, and then display a count of tests which run and which failed.
 The verbosity may be increased by setting the `VERBOSE` environment variable,
 for example::

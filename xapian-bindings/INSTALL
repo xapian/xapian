@@ -178,7 +178,10 @@ Installing without root access
      make install
 
      Python 3 looks in ~/.local for packages automatically, so you don't need
-     to do anything special to use bindings installed there.
+     to do anything special to use bindings installed there. If you also want
+     bindings for letor module then run configure with --enable-letor option
+     and also if you running make dist, make sure to run it with --enable-letor
+     option.
 
   Ruby:
 
