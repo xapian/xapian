@@ -530,25 +530,21 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
 	    (void)lastdid;
 	    tag.erase(0, d - tag.data());
 
-	    have_wdfs = (cf != 0) && (cf != tf - 1 + first_wdf);
 	    if (tf <= 2) {
+		have_wdfs = false;
 		Assert(tag.empty());
-		if (tf == 2) {
-		    // For simplicity when merging put 2 entry posting lists
-		    // into the standard form.
-		    pack_uint(tag, chunk_lastdid - firstdid - 1);
-		    if (have_wdfs)
-			pack_uint(tag, cf - first_wdf);
-		}
-	    } else if (have_wdfs) {
-		Xapian::termcount remaining_cf_for_flat_wdf =
-		    (tf - 1) * wdf_max;
-		// Check this matches and that it isn't a false match due
-		// to overflow of the multiplication above.
-		if (cf - first_wdf == remaining_cf_for_flat_wdf &&
-		    usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
-		    // The wdf is flat so we don't need to store it.
-		    have_wdfs = false;
+	    } else {
+		have_wdfs = (cf != 0) && (cf - first_wdf != tf - 1);
+		if (have_wdfs) {
+		    Xapian::termcount remaining_cf_for_flat_wdf =
+			(tf - 1) * wdf_max;
+		    // Check this matches and that it isn't a false match due
+		    // to overflow of the multiplication above.
+		    if (cf - first_wdf == remaining_cf_for_flat_wdf &&
+			usual(remaining_cf_for_flat_wdf / wdf_max == tf - 1)) {
+			// The wdf is flat so we don't need to store it.
+			have_wdfs = false;
+		    }
 		}
 	    }
 	} else {
@@ -853,11 +849,11 @@ merge_postlists(Xapian::Compactor* compactor,
 	Xapian::docid first, last;
 	Xapian::termcount first_wdf;
 	Xapian::termcount wdf_max;
+
+      private:
 	Xapian::doccount tf;
 	Xapian::termcount cf;
 	bool have_wdfs;
-
-      private:
 	string data;
 
       public:
@@ -878,8 +874,44 @@ merge_postlists(Xapian::Compactor* compactor,
 	      have_wdfs(have_wdfs_),
 	      data(data_) {}
 
+	/** Estimate the size of data once spliced.
+	 *
+	 *  @param want_wdfs  With explicitly encoded wdfs?
+	 */
+	size_t data_size(bool want_wdfs) const {
+	    if (data.empty()) {
+		// Allow one byte for each docid delta, and another byte for
+		// each wdf (if explicitly stored).
+		return tf * (1u + size_t(want_wdfs));
+	    }
+
+	    if (have_wdfs == want_wdfs) {
+		// Allow 1 for the explicit wdf once spliced.
+		return data.size() + size_t(want_wdfs);
+	    }
+
+	    if (have_wdfs) {
+		// Assume stripping wdfs will halve the size.
+		return (data.size() + 1u) / 2u;
+	    }
+
+	    // Assume adding wdfs will double the size.
+	    return data.size() * 2u;
+	}
+
 	void append_postings_to(string& tag, bool want_wdfs) {
-	    if (data.empty()) return;
+	    if (data.empty()) {
+		if (tf == 1) {
+		    return;
+		}
+		AssertEq(tf, 2);
+		pack_uint(tag, last - first - 1);
+		if (want_wdfs) {
+		    pack_uint(tag, cf - first_wdf);
+		}
+		return;
+	    }
+
 	    if (have_wdfs == want_wdfs) {
 		// We can just copy the encoded data.
 		tag += data;
@@ -910,6 +942,15 @@ merge_postlists(Xapian::Compactor* compactor,
 		    (void)wdf;
 		}
 	    }
+	}
+
+	void append_postings_to(string& tag, bool want_wdfs,
+				Xapian::docid splice_did) {
+	    pack_uint(tag, first - splice_did - 1);
+	    if (want_wdfs) {
+		pack_uint(tag, first_wdf);
+	    }
+	    append_postings_to(tag, want_wdfs);
 	}
     };
     vector<HoneyPostListChunk> tags;
@@ -959,14 +1000,30 @@ merge_postlists(Xapian::Compactor* compactor,
 		    }
 		}
 
-		Xapian::docid splice_last = 0;
-		if (!have_wdfs && tags[0].have_wdfs && tf > 2 &&
-		    tags.size() > 1) {
-		    // Stripping wdfs will approximately halve the size so
-		    // double up the chunks.
-		    splice_last = chunk_lastdid;
-		    chunk_lastdid = tags[1].last;
+		// Decide whether to concatenate chunks, and if so how many.
+		// We need to know the final docid in the chunk in order to
+		// encode the header.  We merge [0,j) here.
+		size_t j = 1;
+		if (tags.size() > 1) {
+		    if (tf <= HONEY_POSTLIST_CHUNK_MAX / (2 * (64 / 7 + 1))) {
+			// The worst-case size if we merged all the chunks is
+			// small enough to just have one chunk.
+			//
+			// Each posting needs a docid delta and wdf value, both
+			// of which might be 64 bit and the encoding used needs
+			// a byte for every 7 bits up to the msb set bit.
+			j = tags.size();
+		    } else {
+			size_t est = tags[0].data_size(have_wdfs);
+			while (j < tags.size()) {
+			    est += tags[j].data_size(have_wdfs);
+			    if (est > HONEY_POSTLIST_CHUNK_MAX) break;
+			    ++j;
+			}
+		    }
 		}
+
+		chunk_lastdid = tags[j - 1].last;
 
 		string first_tag;
 		encode_initial_chunk_header(tf, cf, tags[0].first, last_did,
@@ -974,17 +1031,17 @@ merge_postlists(Xapian::Compactor* compactor,
 					    first_wdf, wdf_max, first_tag);
 
 		if (tf > 2) {
+		    // If tf <= 2 there's no explicit posting data.
 		    tags[0].append_postings_to(first_tag, have_wdfs);
-		    if (!have_wdfs && splice_last) {
-			pack_uint(first_tag, tags[1].first - splice_last - 1);
-			tags[1].append_postings_to(first_tag, have_wdfs);
+		    for (size_t chunk = 1; chunk != j; ++chunk) {
+			tags[chunk].append_postings_to(first_tag, have_wdfs,
+						       tags[chunk - 1].last);
 		    }
 		}
 		out->add(last_key, first_tag);
 
-		// If tf == 2, the data could be split over two tags when
-		// merging, but we only output an initial tag in this case.
-		if (tf > 2 && tags.size() > 1) {
+		if (j != tags.size()) {
+		    // Output continuation chunk(s).
 		    string term;
 		    const char* p = last_key.data();
 		    const char* end = p + last_key.size();
@@ -994,36 +1051,32 @@ merge_postlists(Xapian::Compactor* compactor,
 							   "chunk key");
 		    }
 
-		    auto i = tags.begin();
-		    if (splice_last) {
-			splice_last = 0;
-			++i;
-		    }
-		    while (++i != tags.end()) {
-			last_did = i->last;
+		    while (j < tags.size()) {
+			// Here we merge tags [i,j) to a continuation chunk.
+			size_t i = j;
+			size_t est = tags[j].data_size(have_wdfs);
+			while (++j < tags.size()) {
+			    est += tags[j].data_size(have_wdfs);
+			    if (est > HONEY_POSTLIST_CHUNK_MAX) break;
+			}
+
+			last_did = tags[j - 1].last;
 			string tag;
 			if (have_wdfs) {
-			    encode_delta_chunk_header(i->first,
+			    encode_delta_chunk_header(tags[i].first,
 						      last_did,
-						      i->first_wdf,
+						      tags[i].first_wdf,
 						      tag);
-			    i->append_postings_to(tag, have_wdfs);
 			} else {
-			    if (i->have_wdfs && i + 1 != tags.end()) {
-				splice_last = last_did;
-				last_did = (i + 1)->last;
-			    }
-
-			    encode_delta_chunk_header_no_wdf(i->first,
+			    encode_delta_chunk_header_no_wdf(tags[i].first,
 							     last_did,
 							     tag);
-			    i->append_postings_to(tag, have_wdfs);
-			    if (splice_last) {
-				++i;
-				pack_uint(tag, i->first - splice_last - 1);
-				splice_last = 0;
-				i->append_postings_to(tag, have_wdfs);
-			    }
+			}
+
+			tags[i].append_postings_to(tag, have_wdfs);
+			while (++i != j) {
+			    tags[i].append_postings_to(tag, have_wdfs,
+						       tags[i - 1].last);
 			}
 
 			out->add(pack_honey_postlist_key(term, last_did), tag);
