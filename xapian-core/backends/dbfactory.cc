@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017,2019,2020 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -280,17 +280,30 @@ static Database::Internal*
 database_factory(int fd, int flags)
 {
     if (rare(fd < 0))
-	throw InvalidArgumentError("fd < 0");
+	throw InvalidArgumentError("fd < 0", EBADF);
 
-#ifdef XAPIAN_HAS_GLASS_BACKEND
+#if defined XAPIAN_HAS_GLASS_BACKEND || defined XAPIAN_HAS_HONEY_BACKEND
     int type = flags & DB_BACKEND_MASK_;
+    if (type == 0) {
+	switch (test_if_single_file_db(fd)) {
+	  case BACKEND_GLASS:
+	    type = DB_BACKEND_GLASS;
+	    break;
+	  case BACKEND_HONEY:
+	    type = DB_BACKEND_HONEY;
+	    break;
+	}
+    }
     switch (type) {
-	case 0:
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	case DB_BACKEND_GLASS:
 	    return new GlassDatabase(fd);
+#endif
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+	case DB_BACKEND_HONEY:
+	    return new HoneyDatabase(fd);
+#endif
     }
-#else
-    (void)flags;
 #endif
 
     (void)::close(fd);

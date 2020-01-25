@@ -652,8 +652,6 @@ DEFINE_TESTCASE(compacttofd1, compact) {
 
 // Test compacting to an fd at at offset.
 DEFINE_TESTCASE(compacttofd2, compact) {
-    XFAIL_FOR_BACKEND("honey", "Honey->honey compaction is currently buggy");
-
     Xapian::Database indb(get_database("apitest_simpledata"));
     string outdbpath = get_compaction_output_path("compacttofd2out");
     rm_rf(outdbpath);

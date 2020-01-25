@@ -2226,8 +2226,8 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		// Start first table HONEY_VERSION_MAX_SIZE bytes in to allow
 		// space for version file.  It's tricky to exactly know the
 		// size of the version file beforehand.
-		table_start_offset = HONEY_VERSION_MAX_SIZE;
-		if (lseek(fd, table_start_offset, SEEK_SET) < 0)
+		table_start_offset = lseek(fd, HONEY_VERSION_MAX_SIZE, SEEK_CUR);
+		if (table_start_offset < 0)
 		    throw Xapian::DatabaseError("lseek() failed", errno);
 	    } else {
 		table_start_offset = lseek(fd, 0, SEEK_CUR);
@@ -2511,8 +2511,8 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
 		// Start first table HONEY_VERSION_MAX_SIZE bytes in to allow
 		// space for version file.  It's tricky to exactly know the
 		// size of the version file beforehand.
-		table_start_offset = HONEY_VERSION_MAX_SIZE;
-		if (lseek(fd, table_start_offset, SEEK_SET) < 0)
+		table_start_offset = lseek(fd, HONEY_VERSION_MAX_SIZE, SEEK_CUR);
+		if (table_start_offset < 0)
 		    throw Xapian::DatabaseError("lseek() failed", errno);
 	    } else {
 		table_start_offset = lseek(fd, 0, SEEK_CUR);

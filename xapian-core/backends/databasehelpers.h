@@ -1,7 +1,7 @@
 /** @file databasehelpers.h
  * @brief Helper functions for database handling
  */
-/* Copyright 2002-2019 Olly Betts
+/* Copyright 2002-2020 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,21 @@
 #include "safeunistd.h"
 #include "str.h"
 #include "xapian/error.h"
+
+/** Probe if a file descriptor is a single-file database.
+ *
+ *  This function looks for a single-file database at the current file offset
+ *  of @a fd, restoring the file offset afterwards.
+ *
+ *  @param fd      The file descriptor to check
+ *
+ *  @return  A BACKEND_* constant from backends.h:
+ *           * BACKEND_UNKNOWN : unknown (could be a stub file)
+ *           * BACKEND_GLASS : glass single file
+ *           * BACKEND_HONEY : honey single file
+ */
+int
+test_if_single_file_db(int fd);
 
 /** Probe if a path is a single-file database.
  *
