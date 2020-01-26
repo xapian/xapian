@@ -1472,6 +1472,7 @@ DEFINE_TESTCASE(databasenotfounderror1, glass || honey) {
     }
 
     mkdir(db_dir.c_str(), 0755);
+    db_dir += '/';
 
     TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database(db_dir + "nosuchdirectory", db_type_flag));
