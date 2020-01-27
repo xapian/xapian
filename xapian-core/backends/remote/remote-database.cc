@@ -617,12 +617,13 @@ RemoteDatabase::send_message(message_type type, const string &message) const
 void
 RemoteDatabase::do_close()
 {
-    // The dtor hasn't really been called!  FIXME: This works, but means any
-    // exceptions from end_transaction()/commit() are swallowed, which is
-    // not entirely desirable.
-    dtor_called();
-
     if (!is_read_only()) {
+	if (transaction_active()) {
+	    end_transaction(false);
+	} else {
+	    commit();
+	}
+
 	// If we're writable, send a shutdown message to the server and wait
 	// for it to close its end of the connection so we know that changes
 	// have been written and flushed, and the database write lock released.
