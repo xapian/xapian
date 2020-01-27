@@ -244,8 +244,11 @@ ProgClient::run_program(const string &progname, const string &args,
 
 ProgClient::~ProgClient()
 {
-    // Close the socket and reap the child.
-    do_close();
+    try {
+	// Close the socket and reap the child.
+	do_close();
+    } catch (...) {
+    }
 #ifndef __WIN32__
     waitpid(child, 0, 0);
 #else
