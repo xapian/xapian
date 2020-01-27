@@ -36,7 +36,7 @@
 #include "net/serialise-error.h"
 #include "pack.h"
 #include "remote_alltermslist.h"
-#include "remote_metadatatermlist.h"
+#include "remote_keylist.h"
 #include "remote_termlist.h"
 #include "serialise-double.h"
 #include "str.h"
@@ -157,7 +157,7 @@ RemoteDatabase::open_metadata_keylist(const std::string& prefix) const
     send_message(MSG_METADATAKEYLIST, prefix);
     string message;
     get_message(message, REPLY_METADATAKEYLIST);
-    return new RemoteMetadataTermList(prefix, std::move(message));
+    return new RemoteKeyList(prefix, std::move(message));
 }
 
 TermList *
@@ -906,7 +906,7 @@ RemoteDatabase::open_synonym_termlist(const string& word) const
     string message;
     send_message(MSG_SYNONYMTERMLIST, word);
     get_message(message, REPLY_SYNONYMTERMLIST);
-    return new RemoteMetadataTermList(string(), std::move(message));
+    return new RemoteKeyList(string(), std::move(message));
 }
 
 TermList*
@@ -915,7 +915,7 @@ RemoteDatabase::open_synonym_keylist(const string& prefix) const
     string message;
     send_message(MSG_SYNONYMKEYLIST, prefix);
     get_message(message, REPLY_SYNONYMKEYLIST);
-    return new RemoteMetadataTermList(string(), std::move(message));
+    return new RemoteKeyList(string(), std::move(message));
 }
 
 void
