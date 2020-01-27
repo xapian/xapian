@@ -30,8 +30,8 @@ using namespace std;
 Xapian::termcount
 RemoteMetadataTermList::get_approx_size() const
 {
-    // Used while merging synonym termlists as
-    // make_termlist_merger requires approximate size.
+    // Very approximate!  This is only used to build a balanced or tree, so
+    // at least we'll get an even tree by returning a constant answer.
     return 1;
 }
 
