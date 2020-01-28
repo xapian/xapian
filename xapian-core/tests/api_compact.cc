@@ -463,8 +463,6 @@ make_missing_tables(Xapian::WritableDatabase &db, const string &)
 }
 
 DEFINE_TESTCASE(compactmissingtables1, compact && generated) {
-    XFAIL_FOR_BACKEND("honey", "Honey->honey compaction is currently buggy");
-
     string a = get_database_path("compactmissingtables1a",
 				 make_all_tables);
     string b = get_database_path("compactmissingtables1b",
@@ -507,8 +505,6 @@ make_all_tables2(Xapian::WritableDatabase &db, const string &)
 
 /// Adds coverage for merging synonym table.
 DEFINE_TESTCASE(compactmergesynonym1, compact && generated) {
-    XFAIL_FOR_BACKEND("honey", "Honey->honey compaction is currently buggy");
-
     string a = get_database_path("compactmergesynonym1a",
 				 make_all_tables);
     string b = get_database_path("compactmergesynonym1b",
