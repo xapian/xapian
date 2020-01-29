@@ -899,6 +899,7 @@ merge_postlists(Xapian::Compactor* compactor,
 	    return data.size() * 2u;
 	}
 
+	/// Append postings to tag, which should only contain the chunk header.
 	void append_postings_to(string& tag, bool want_wdfs) {
 	    if (data.empty()) {
 		if (tf == 1) {
@@ -944,6 +945,7 @@ merge_postlists(Xapian::Compactor* compactor,
 	    }
 	}
 
+	/// Append postings to tag, which should already contain postings.
 	void append_postings_to(string& tag, bool want_wdfs,
 				Xapian::docid splice_did) {
 	    pack_uint(tag, first - splice_did - 1);
