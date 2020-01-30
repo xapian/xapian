@@ -3021,11 +3021,10 @@ DEFINE_TESTCASE(qp_default_op2, !backend) {
 	Xapian::Query::OP_VALUE_GE,
 	Xapian::Query::OP_VALUE_LE
     };
-    const Xapian::Query::op * p;
-    for (p = ops; p - ops != sizeof(ops) / sizeof(*ops); ++p) {
-	tout << *p << endl;
+    for (Xapian::Query::op op : ops) {
+	tout << op << endl;
 	TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		       qp.set_default_op(*p));
+		       qp.set_default_op(op));
 	TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
     }
     return true;

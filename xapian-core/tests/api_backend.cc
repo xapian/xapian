@@ -1064,11 +1064,10 @@ DEFINE_TESTCASE(emptydb1, backend) {
 	Xapian::Query::OP_PHRASE,
 	Xapian::Query::OP_ELITE_SET
     };
-    const Xapian::Query::op * p;
-    for (p = ops; p - ops != sizeof(ops) / sizeof(*ops); ++p) {
-	tout << *p << endl;
+    for (Xapian::Query::op op : ops) {
+	tout << op << endl;
 	Xapian::Enquire enquire(db);
-	Xapian::Query query(*p, Xapian::Query("a"), Xapian::Query("b"));
+	Xapian::Query query(op, Xapian::Query("a"), Xapian::Query("b"));
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	TEST_EQUAL(mset.get_matches_estimated(), 0);
