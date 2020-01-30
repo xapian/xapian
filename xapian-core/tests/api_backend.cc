@@ -994,7 +994,9 @@ DEFINE_TESTCASE(emptydb1, backend) {
 	Xapian::Query::OP_FILTER,
 	Xapian::Query::OP_NEAR,
 	Xapian::Query::OP_PHRASE,
-	Xapian::Query::OP_ELITE_SET
+	Xapian::Query::OP_ELITE_SET,
+	Xapian::Query::OP_SYNONYM,
+	Xapian::Query::OP_MAX
     };
     for (Xapian::Query::op op : ops) {
 	tout << op << endl;
