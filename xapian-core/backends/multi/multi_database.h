@@ -36,6 +36,7 @@ struct ReplicationInfo;
 /// Sharded database backend.
 class MultiDatabase : public Xapian::Database::Internal {
     friend class Matcher;
+    friend class PostListTree;
     friend class ValueStreamDocument;
     friend class Xapian::Database;
 
