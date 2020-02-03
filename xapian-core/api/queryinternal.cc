@@ -985,6 +985,7 @@ Query::Internal::postlist_sub_or_like(OrContext& ctx,
 	// messed up if we increased total_subqs in the call to postlist()
 	// above.
 	qopt->set_total_subqs(save_total_subqs);
+	qopt->destroy_postlist(pl.release());
 	return;
     }
     ctx.add_postlist(pl.release());
@@ -2444,7 +2445,7 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
 		// MatchNothing subqueries should have been removed by done().
 		// FIXME: Can we handle this more gracefully?
 		Assert((*i).internal.get());
-		delete (*i).internal->postlist(qopt, factor);
+		qopt->destroy_postlist((*i).internal->postlist(qopt, factor));
 		++i;
 	    }
 	    break;
