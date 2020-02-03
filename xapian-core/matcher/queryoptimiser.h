@@ -121,7 +121,13 @@ class QueryOptimiser {
 	hint = new_hint;
     }
 
-    void take_hint_ownership() { hint_owned = true; }
+    void destroy_postlist(PostList* pl) {
+	if (pl == static_cast<PostList*>(hint)) {
+	    hint_owned = true;
+	} else {
+	    delete pl;
+	}
+    }
 
     bool need_wdf_for_synonym() const {
 	return in_synonym && !localsubmatch.weight_needs_wdf();
