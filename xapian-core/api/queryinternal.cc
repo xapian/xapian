@@ -1738,13 +1738,15 @@ PostingIterator::Internal *
 QueryFilter::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryFilter::postlist", qopt | factor);
-    // FIXME: Combine and-like stuff, like QueryOptimiser.
-    AssertEq(subqueries.size(), 2);
-    PostList * pls[2];
-    AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
-    pls[1] = subqueries[1].internal->postlist(qopt, 0.0);
-    pls[0] = l.release();
-    RETURN(new MultiAndPostList(pls, pls + 2, qopt->matcher, qopt->db_size));
+    AndContext ctx(qopt, subqueries.size());
+    for (const auto& subq : subqueries) {
+	// MatchNothing subqueries should have been removed by done().
+	Assert(subq.internal.get());
+	subq.internal->postlist_sub_and_like(ctx, qopt, factor);
+	// Second and subsequent subqueries are unweighted.
+	factor = 0.0;
+    }
+    RETURN(ctx.postlist());
 }
 
 void
