@@ -117,7 +117,13 @@ class QueryOptimiser {
 	hint = new_hint;
     }
 
-    void take_hint_ownership() { hint_owned = true; }
+    void destroy_postlist(PostList* pl) {
+	if (pl == static_cast<PostList*>(hint)) {
+	    hint_owned = true;
+	} else {
+	    delete pl;
+	}
+    }
 };
 
 #endif // XAPIAN_INCLUDED_QUERYOPTIMISER_H

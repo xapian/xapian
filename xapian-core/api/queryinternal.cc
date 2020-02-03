@@ -158,17 +158,8 @@ Context::shrink(size_t new_size)
     if (new_size >= pls.size())
 	return;
 
-    const PostList * hint_pl = qopt->get_hint_postlist();
     for (auto&& i = pls.begin() + new_size; i != pls.end(); ++i) {
-	const PostList * pl = *i;
-	if (rare(pl == hint_pl)) {
-	    // We were about to delete qopt's hint - instead tell qopt to take
-	    // ownership.
-	    qopt->take_hint_ownership();
-	    hint_pl = NULL;
-	} else {
-	    delete pl;
-	}
+	qopt->destroy_postlist(*i);
     }
     pls.resize(new_size);
 }
