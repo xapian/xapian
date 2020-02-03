@@ -1079,6 +1079,43 @@ DEFINE_TESTCASE(emptydb1, backend) {
     return true;
 }
 
+/** Test operators which should allow more than two arguments.
+ *
+ *  Regression test for bug with OP_FILTER fixed in 1.4.15, and also for bugs
+ *  with deleting the PostList which is currently set as the QueryOptimiser's
+ *  hint fixed in 1.4.15.
+ */
+DEFINE_TESTCASE(multiargop1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    static const struct { unsigned hits; Xapian::Query::op op; } tests[] = {
+	{ 0, Xapian::Query::OP_AND },
+	{ 6, Xapian::Query::OP_OR },
+	{ 0, Xapian::Query::OP_AND_NOT },
+	{ 5, Xapian::Query::OP_XOR },
+	{ 2, Xapian::Query::OP_AND_MAYBE },
+	{ 0, Xapian::Query::OP_FILTER },
+	{ 0, Xapian::Query::OP_NEAR },
+	{ 0, Xapian::Query::OP_PHRASE },
+	{ 6, Xapian::Query::OP_ELITE_SET },
+	{ 6, Xapian::Query::OP_SYNONYM },
+	{ 6, Xapian::Query::OP_MAX }
+    };
+    static const char* terms[] = {"two", "all", "paragraph", "banana"};
+    Xapian::Enquire enquire(db);
+    for (auto& test : tests) {
+	Xapian::Query::op op = test.op;
+	Xapian::doccount hits = test.hits;
+	tout << op << " should give " << hits << " hits\n";
+	Xapian::Query query(op, terms, terms + 4);
+	enquire.set_query(query);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	TEST_EQUAL(mset.get_matches_estimated(), hits);
+	TEST_EQUAL(mset.get_matches_upper_bound(), hits);
+	TEST_EQUAL(mset.get_matches_lower_bound(), hits);
+    }
+    return true;
+}
+
 /// Test error opening non-existent stub databases.
 // Regression test for bug fixed in 1.3.1 and 1.2.11.
 DEFINE_TESTCASE(stubdb7, !backend) {
