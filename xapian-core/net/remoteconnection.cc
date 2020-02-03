@@ -114,7 +114,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 {
     LOGCALL(REMOTE, bool, "RemoteConnection::read_at_least", min_len | end_time);
 
-    if (buffer.length() >= min_len) return true;
+    if (buffer.length() >= min_len) RETURN(true);
 
 #ifdef __WIN32__
     HANDLE hin = fd_to_handle(fdin);
@@ -140,7 +140,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	}
 
 	if (received == 0) {
-	    return false;
+	    RETURN(false);
 	}
 
 	buffer.append(buf, received);
@@ -161,12 +161,12 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 
 	if (received > 0) {
 	    buffer.append(buf, received);
-	    if (buffer.length() >= min_len) return true;
+	    if (buffer.length() >= min_len) RETURN(true);
 	    continue;
 	}
 
 	if (received == 0) {
-	    return false;
+	    RETURN(false);
 	}
 
 	LOGLINE(REMOTE, "read gave errno = " << errno);
@@ -231,7 +231,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	}
     }
 #endif
-    return true;
+    RETURN(true);
 }
 
 bool
