@@ -83,6 +83,7 @@ matrix:
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
+      name: "GCC 4.8"
       dist: trusty
       addons:
         apt:
