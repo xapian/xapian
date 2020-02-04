@@ -144,9 +144,8 @@ matrix:
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
       # With BSD make -B stops -j from causing rules to run in a single subshell.
       env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install' make_extra_opts=-B
-    - os: linux
-      # (Ab)use env to label this build:
-      env: dummy="Automated run of xapian-check-patch"
+    - name: "Automated run of xapian-check-patch"
+      os: linux
       # Override "before_script" to do nothing
       before_script:
       # Override "script" to run the style checking script
