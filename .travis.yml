@@ -1,5 +1,6 @@
 dist: xenial
 language: cpp
+cache: ccache
 notifications:
   irc: "chat.freenode.net#xapian-devel"
 matrix:
@@ -119,6 +120,7 @@ matrix:
         homebrew:
           update: true
           packages:
+            - ccache
             - doxygen
             - gmime
             - graphviz
@@ -147,7 +149,9 @@ matrix:
         # The default macOS make behaves oddly when the -j option is used
         # (probably rules get run in a single subshell) so use GNU make
         # instead.
-        - export PATH=/usr/local/opt/make/libexec/gnubin:$PATH
+        #
+        # Enable use of ccache to speed up builds.
+        - export PATH=/usr/local/opt/make/libexec/gnubin:/usr/local/opt/ccache/libexec:$PATH
       env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
     - name: "Automated run of xapian-check-patch"
       os: linux
