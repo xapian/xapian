@@ -64,6 +64,7 @@ matrix:
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
+      name: "GCC 4.8"
       # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
       # aim to support.
       dist: trusty
@@ -89,6 +90,7 @@ matrix:
             - libpoppler-cpp-dev
             - libtesseract-dev
     - os: linux
+      name: "Emscripten"
       addons:
         apt:
           packages:
