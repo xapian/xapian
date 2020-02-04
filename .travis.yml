@@ -1,5 +1,6 @@
 dist: xenial
 language: cpp
+cache: ccache
 notifications:
   irc: "chat.freenode.net#xapian-devel"
 matrix:
@@ -106,6 +107,7 @@ matrix:
         homebrew:
           update: true
           packages:
+            - ccache
             - doxygen
             - graphviz
             - help2man
@@ -120,6 +122,9 @@ matrix:
       before_install:
         - travis_retry pip2 install sphinx docutils
         - travis_retry pip3 install sphinx
+      install:
+        # Enable use of ccache to speed up builds.
+        - export PATH=/usr/local/opt/make/libexec/gnubin:/usr/local/opt/ccache/libexec:$PATH
       env: PYTHON2=/usr/local/bin/python2 confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
     - name: "Automated run of xapian-check-patch"
       os: linux
