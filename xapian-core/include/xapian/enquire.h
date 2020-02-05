@@ -433,12 +433,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
     }
 
     /// End iterator corresponding to @a get_matching_terms_begin().
-    TermIterator XAPIAN_NOTHROW(get_matching_terms_end(docid) const) {
+    TermIterator get_matching_terms_end(docid) const noexcept {
 	return TermIterator();
     }
 
     /// End iterator corresponding to @a get_matching_terms_begin().
-    TermIterator XAPIAN_NOTHROW(get_matching_terms_end(const MSetIterator&) const) {
+    TermIterator get_matching_terms_end(const MSetIterator&) const noexcept {
 	return TermIterator();
     }
 

@@ -40,7 +40,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     const unsigned char* end;
     mutable unsigned seqlen;
 
-    bool XAPIAN_NOTHROW(calculate_sequence_length() const);
+    bool calculate_sequence_length() const noexcept;
 
     unsigned get_char() const;
 
@@ -129,7 +129,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  This can be compared to another iterator to check if the other iterator
      *  has reached its end.
      */
-    XAPIAN_NOTHROW(Utf8Iterator())
+    Utf8Iterator() noexcept
 	: p(NULL), end(0), seqlen(0) { }
 
     /** Get the current Unicode character value pointed to by the iterator.
@@ -140,7 +140,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
-    unsigned XAPIAN_NOTHROW(operator*() const) XAPIAN_PURE_FUNCTION;
+    unsigned operator*() const noexcept XAPIAN_PURE_FUNCTION;
 
     /** @private @internal Get the current Unicode character
      *  value pointed to by the iterator.
@@ -152,7 +152,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
-    unsigned XAPIAN_NOTHROW(strict_deref() const) XAPIAN_PURE_FUNCTION;
+    unsigned strict_deref() const noexcept XAPIAN_PURE_FUNCTION;
 
     /** Move forward to the next Unicode character.
      *
@@ -186,7 +186,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators point to the same position.
      */
-    bool XAPIAN_NOTHROW(operator==(const Utf8Iterator& other) const) {
+    bool operator==(const Utf8Iterator& other) const noexcept {
 	return p == other.p;
     }
 
@@ -195,7 +195,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators do not point to the same position.
      */
-    bool XAPIAN_NOTHROW(operator!=(const Utf8Iterator& other) const) {
+    bool operator!=(const Utf8Iterator& other) const noexcept {
 	return p != other.p;
     }
 
@@ -258,7 +258,7 @@ namespace Internal {
      *  treated as UNASSIGNED with no case variants.
      */
     XAPIAN_VISIBILITY_DEFAULT
-    int XAPIAN_NOTHROW(get_character_info(unsigned ch)) XAPIAN_CONST_FUNCTION;
+    int get_character_info(unsigned ch) noexcept XAPIAN_CONST_FUNCTION;
 
     /** @private @internal Bit-masks for case conversion.
      *

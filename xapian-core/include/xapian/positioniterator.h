@@ -77,7 +77,7 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
      *  Creates an uninitialised iterator, which can't be used before being
      *  assigned to, but is sometimes syntactically convenient.
      */
-    XAPIAN_NOTHROW(PositionIterator())
+    PositionIterator() noexcept
 	: internal(0) { }
 
     /// Destructor.
@@ -133,24 +133,18 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
     // @}
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const PositionIterator &a, const PositionIterator &b));
-
 /// Equality test for PositionIterator objects.
 inline bool
-operator==(const PositionIterator &a, const PositionIterator &b) XAPIAN_NOEXCEPT
+operator==(const PositionIterator& a, const PositionIterator& b) noexcept
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
     return a.internal == b.internal;
 }
 
-bool
-XAPIAN_NOTHROW(operator!=(const PositionIterator &a, const PositionIterator &b));
-
 /// Inequality test for PositionIterator objects.
 inline bool
-operator!=(const PositionIterator &a, const PositionIterator &b) XAPIAN_NOEXCEPT
+operator!=(const PositionIterator& a, const PositionIterator& b) noexcept
 {
     return !(a == b);
 }

@@ -59,7 +59,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
 
   public:
     /// Allow subclasses to be instantiated.
-    XAPIAN_NOTHROW(PostingSource()) { }
+    PostingSource() noexcept { }
 
     /** @private @internal Set pointer to flag to clear on maxweight changes.
      *
@@ -130,7 +130,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
     }
 
     /// Return the currently set upper bound on what get_weight() can return.
-    double XAPIAN_NOTHROW(get_maxweight() const) { return max_weight_; }
+    double get_maxweight() const noexcept { return max_weight_; }
 
     /** Return the weight contribution for the current document.
      *
@@ -445,7 +445,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *
      *  @param slot_ The value slot to read values from.
      */
-    explicit XAPIAN_NOTHROW(ValuePostingSource(Xapian::valueno slot_))
+    explicit ValuePostingSource(Xapian::valueno slot_) noexcept
 	: slot(slot_) {}
 
     Xapian::doccount get_termfreq_min() const;

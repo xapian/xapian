@@ -250,7 +250,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     PostingIterator postlist_begin(const std::string& term) const;
 
     /** End iterator corresponding to postlist_begin(). */
-    PostingIterator XAPIAN_NOTHROW(postlist_end(const std::string&) const) {
+    PostingIterator postlist_end(const std::string&) const noexcept {
 	return PostingIterator();
     }
 
@@ -263,7 +263,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     TermIterator termlist_begin(Xapian::docid did) const;
 
     /** End iterator corresponding to termlist_begin(). */
-    TermIterator XAPIAN_NOTHROW(termlist_end(Xapian::docid) const) {
+    TermIterator termlist_end(Xapian::docid) const noexcept {
 	return TermIterator();
     }
 
@@ -283,7 +283,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     PositionIterator positionlist_begin(Xapian::docid did, const std::string& term) const;
 
     /** End iterator corresponding to positionlist_begin(). */
-    PositionIterator XAPIAN_NOTHROW(positionlist_end(Xapian::docid, const std::string&) const) {
+    PositionIterator positionlist_end(Xapian::docid,
+				      const std::string&) const noexcept {
 	return PositionIterator();
     }
 
@@ -295,7 +296,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     TermIterator allterms_begin(const std::string& prefix = std::string()) const;
 
     /** End iterator corresponding to allterms_begin(prefix). */
-    TermIterator XAPIAN_NOTHROW(allterms_end(const std::string& = std::string()) const) {
+    TermIterator allterms_end(const std::string& = std::string()) const noexcept
+    {
 	return TermIterator();
     }
 
@@ -402,7 +404,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     ValueIterator valuestream_begin(Xapian::valueno slot) const;
 
     /// Return end iterator corresponding to valuestream_begin().
-    ValueIterator XAPIAN_NOTHROW(valuestream_end(Xapian::valueno) const) {
+    ValueIterator valuestream_end(Xapian::valueno) const noexcept {
 	return ValueIterator();
     }
 
@@ -474,7 +476,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     Xapian::TermIterator spellings_begin() const;
 
     /// End iterator corresponding to spellings_begin().
-    Xapian::TermIterator XAPIAN_NOTHROW(spellings_end() const) {
+    Xapian::TermIterator spellings_end() const noexcept {
 	return Xapian::TermIterator();
     }
 
@@ -485,7 +487,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     Xapian::TermIterator synonyms_begin(const std::string& term) const;
 
     /// End iterator corresponding to synonyms_begin(term).
-    Xapian::TermIterator XAPIAN_NOTHROW(synonyms_end(const std::string&) const) {
+    Xapian::TermIterator synonyms_end(const std::string&) const noexcept {
 	return Xapian::TermIterator();
     }
 
@@ -496,7 +498,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     Xapian::TermIterator synonym_keys_begin(const std::string& prefix = std::string()) const;
 
     /// End iterator corresponding to synonym_keys_begin(prefix).
-    Xapian::TermIterator XAPIAN_NOTHROW(synonym_keys_end(const std::string& = std::string()) const) {
+    Xapian::TermIterator
+    synonym_keys_end(const std::string& = std::string()) const noexcept {
 	return Xapian::TermIterator();
     }
 
@@ -544,7 +547,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     Xapian::TermIterator metadata_keys_begin(const std::string&prefix = std::string()) const;
 
     /// End iterator corresponding to metadata_keys_begin().
-    Xapian::TermIterator XAPIAN_NOTHROW(metadata_keys_end(const std::string& = std::string()) const) {
+    Xapian::TermIterator
+    metadata_keys_end(const std::string& = std::string()) const noexcept {
 	return Xapian::TermIterator();
     }
 

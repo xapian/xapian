@@ -601,62 +601,44 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
     std::string get_description() const;
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const MSetIterator &a, const MSetIterator &b));
-
 /// Equality test for MSetIterator objects.
 inline bool
-operator==(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator==(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return a.off_from_end == b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator!=(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator!=(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator!=(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return !(a == b);
 }
 
-bool
-XAPIAN_NOTHROW(operator<(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator<(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator<(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return a.off_from_end > b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator>(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator>(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return b < a;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>=(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator>=(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator>=(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return !(a < b);
 }
 
-inline bool
-XAPIAN_NOTHROW(operator<=(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator<=(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator<=(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return !(b < a);
 }

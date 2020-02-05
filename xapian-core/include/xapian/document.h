@@ -204,7 +204,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     TermIterator termlist_begin() const;
 
     /// End iterator corresponding to @a termlist_begin().
-    TermIterator XAPIAN_NOTHROW(termlist_end() const) {
+    TermIterator termlist_end() const noexcept {
 	return TermIterator();
     }
 
@@ -244,7 +244,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     ValueIterator values_begin() const;
 
     /// End iterator corresponding to @a values_begin().
-    ValueIterator XAPIAN_NOTHROW(values_end() const) {
+    ValueIterator values_end() const noexcept {
 	return ValueIterator();
     }
 

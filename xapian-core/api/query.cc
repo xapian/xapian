@@ -247,7 +247,7 @@ Query::get_unique_terms_begin() const
 }
 
 Xapian::termcount
-Query::get_length() const XAPIAN_NOEXCEPT
+Query::get_length() const noexcept
 {
     return (internal.get() ? internal->get_length() : 0);
 }
@@ -272,7 +272,7 @@ Query::unserialise(const string & s, const Registry & reg)
 }
 
 Xapian::Query::op
-Query::get_type() const XAPIAN_NOEXCEPT
+Query::get_type() const noexcept
 {
     if (!internal.get())
 	return Xapian::Query::LEAF_MATCH_NOTHING;
@@ -280,7 +280,7 @@ Query::get_type() const XAPIAN_NOEXCEPT
 }
 
 size_t
-Query::get_num_subqueries() const XAPIAN_NOEXCEPT
+Query::get_num_subqueries() const noexcept
 {
     return internal.get() ? internal->get_num_subqueries() : 0;
 }

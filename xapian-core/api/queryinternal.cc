@@ -681,7 +681,7 @@ AndContext::postlist()
 Query::Internal::~Internal() { }
 
 size_t
-Query::Internal::get_num_subqueries() const XAPIAN_NOEXCEPT
+Query::Internal::get_num_subqueries() const noexcept
 {
     return 0;
 }
@@ -710,7 +710,7 @@ Query::Internal::gather_terms(void *) const
 }
 
 Xapian::termcount
-Query::Internal::get_length() const XAPIAN_NOEXCEPT
+Query::Internal::get_length() const noexcept
 {
     return 0;
 }
@@ -1009,7 +1009,7 @@ Query::Internal::postlist_sub_xor(XorContext& ctx,
 namespace Internal {
 
 Query::op
-QueryTerm::get_type() const XAPIAN_NOEXCEPT
+QueryTerm::get_type() const noexcept
 {
     return term.empty() ? Query::LEAF_MATCH_ALL : Query::LEAF_TERM;
 }
@@ -1049,7 +1049,7 @@ QueryPostingSource::QueryPostingSource(PostingSource * source_)
 }
 
 Query::op
-QueryPostingSource::get_type() const XAPIAN_NOEXCEPT
+QueryPostingSource::get_type() const noexcept
 {
     return Query::LEAF_POSTING_SOURCE;
 }
@@ -1071,13 +1071,13 @@ QueryScaleWeight::QueryScaleWeight(double factor, const Query & subquery_)
 }
 
 Query::op
-QueryScaleWeight::get_type() const XAPIAN_NOEXCEPT
+QueryScaleWeight::get_type() const noexcept
 {
     return Query::OP_SCALE_WEIGHT;
 }
 
 size_t
-QueryScaleWeight::get_num_subqueries() const XAPIAN_NOEXCEPT
+QueryScaleWeight::get_num_subqueries() const noexcept
 {
     return 1;
 }
@@ -1215,7 +1215,7 @@ QueryValueRange::serialise(string & result) const
 }
 
 Query::op
-QueryValueRange::get_type() const XAPIAN_NOEXCEPT
+QueryValueRange::get_type() const noexcept
 {
     return Query::OP_VALUE_RANGE;
 }
@@ -1280,7 +1280,7 @@ QueryValueLE::serialise(string & result) const
 }
 
 Query::op
-QueryValueLE::get_type() const XAPIAN_NOEXCEPT
+QueryValueLE::get_type() const noexcept
 {
     return Query::OP_VALUE_LE;
 }
@@ -1340,7 +1340,7 @@ QueryValueGE::serialise(string & result) const
 }
 
 Query::op
-QueryValueGE::get_type() const XAPIAN_NOEXCEPT
+QueryValueGE::get_type() const noexcept
 {
     return Query::OP_VALUE_GE;
 }
@@ -1568,7 +1568,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 }
 
 termcount
-QueryWildcard::get_length() const XAPIAN_NOEXCEPT
+QueryWildcard::get_length() const noexcept
 {
     // We currently assume wqf is 1 for calculating the synonym's weight
     // since conceptually the synonym is one "virtual" term.  If we were
@@ -1588,7 +1588,7 @@ QueryWildcard::serialise(string & result) const
 }
 
 Query::op
-QueryWildcard::get_type() const XAPIAN_NOEXCEPT
+QueryWildcard::get_type() const noexcept
 {
     return Query::OP_WILDCARD;
 }
@@ -1680,7 +1680,7 @@ QueryEditDistance::postlist(QueryOptimiser * qopt, double factor) const
 }
 
 termcount
-QueryEditDistance::get_length() const XAPIAN_NOEXCEPT
+QueryEditDistance::get_length() const noexcept
 {
     // We currently assume wqf is 1 for calculating the synonym's weight
     // since conceptually the synonym is one "virtual" term.  If we were
@@ -1702,7 +1702,7 @@ QueryEditDistance::serialise(string & result) const
 }
 
 Query::op
-QueryEditDistance::get_type() const XAPIAN_NOEXCEPT
+QueryEditDistance::get_type() const noexcept
 {
     return Query::OP_EDIT_DISTANCE;
 }
@@ -1736,14 +1736,14 @@ QueryEditDistance::get_description() const
 }
 
 Xapian::termcount
-QueryBranch::get_length() const XAPIAN_NOEXCEPT
+QueryBranch::get_length() const noexcept
 {
     // Sum results from all subqueries.
     Xapian::termcount result = 0;
     QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	// MatchNothing subqueries should have been removed by done(), but we
-	// can't use Assert in a XAPIAN_NOEXCEPT function.  But we'll get a
+	// can't use Assert in a noexcept function.  But we'll get a
 	// segfault anyway.
 	result += (*i).internal->get_length();
     }
@@ -1997,13 +1997,13 @@ QueryBranch::do_max(QueryOptimiser * qopt, double factor) const
 }
 
 Xapian::Query::op
-QueryBranch::get_type() const XAPIAN_NOEXCEPT
+QueryBranch::get_type() const noexcept
 {
     return get_op();
 }
 
 size_t
-QueryBranch::get_num_subqueries() const XAPIAN_NOEXCEPT
+QueryBranch::get_num_subqueries() const noexcept
 {
     return subqueries.size();
 }
@@ -2691,7 +2691,7 @@ QueryMax::get_description() const
 }
 
 Xapian::Query::op
-QueryInvalid::get_type() const XAPIAN_NOEXCEPT
+QueryInvalid::get_type() const noexcept
 {
     return Xapian::Query::OP_INVALID;
 }

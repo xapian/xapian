@@ -44,7 +44,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
 
   public:
     /// Default constructor, needed by subclass constructors.
-    XAPIAN_NOTHROW(MatchDecider()) {}
+    MatchDecider() noexcept {}
 
     /** Virtual destructor, because we have virtual methods. */
     virtual ~MatchDecider() { }

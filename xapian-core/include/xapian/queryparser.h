@@ -1002,7 +1002,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     TermIterator stoplist_begin() const;
 
     /// End iterator over terms omitted from the query as stopwords.
-    TermIterator XAPIAN_NOTHROW(stoplist_end() const) {
+    TermIterator stoplist_end() const noexcept {
 	return TermIterator();
     }
 
@@ -1010,7 +1010,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     TermIterator unstem_begin(const std::string &term) const;
 
     /// End iterator over unstemmed forms of the given stemmed query term.
-    TermIterator XAPIAN_NOTHROW(unstem_end(const std::string &) const) {
+    TermIterator unstem_end(const std::string&) const noexcept {
 	return TermIterator();
     }
 
@@ -1033,7 +1033,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
 /// @private @internal Helper for sortable_serialise().
 XAPIAN_VISIBILITY_DEFAULT
-size_t XAPIAN_NOTHROW(sortable_serialise_(double value, char * buf));
+size_t sortable_serialise_(double value, char* buf) noexcept;
 
 /** Convert a floating point number to a string, preserving sort order.
  *
@@ -1081,7 +1081,7 @@ inline std::string sortable_serialise(double value) {
  *  @param serialised	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double XAPIAN_NOTHROW(sortable_unserialise(const std::string & serialised));
+double sortable_unserialise(const std::string& serialised) noexcept;
 
 }
 

@@ -70,7 +70,7 @@ Utf8Iterator::Utf8Iterator(const char* p_)
 }
 
 bool
-Utf8Iterator::calculate_sequence_length() const XAPIAN_NOEXCEPT
+Utf8Iterator::calculate_sequence_length() const noexcept
 {
     // Handle invalid UTF-8, overlong sequences, and truncated sequences as
     // if the text was actually in ISO-8859-1 since we need to do something
@@ -112,7 +112,7 @@ Utf8Iterator::calculate_sequence_length() const XAPIAN_NOEXCEPT
     return true;
 }
 
-unsigned Utf8Iterator::operator*() const XAPIAN_NOEXCEPT {
+unsigned Utf8Iterator::operator*() const noexcept {
     if (p == NULL) return unsigned(-1);
     if (seqlen == 0) calculate_sequence_length();
     unsigned char ch = *p;
@@ -125,7 +125,7 @@ unsigned Utf8Iterator::operator*() const XAPIAN_NOEXCEPT {
 }
 
 unsigned
-Utf8Iterator::strict_deref() const XAPIAN_NOEXCEPT
+Utf8Iterator::strict_deref() const noexcept
 {
     if (p == NULL) return unsigned(-1);
     if (seqlen == 0) {
