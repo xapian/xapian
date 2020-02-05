@@ -1,6 +1,6 @@
-up to: af587bcc5bef79dc01fea2d3bab4aa2c6095e1c2
+up to: e0771df2285e2a17df4bab814ec192f5f7f10e1c
 
-Omega 1.4.15 (2019-12-23):
+Omega 1.4.15 (2020-02-05):
 
 general:
 
@@ -49,6 +49,11 @@ portability:
   already handle the pre-ISO semantics of returning -1 for an undersize buffer
   so we don't need to run a test program to probe for this at configure time,
   which is more cross-compile friendly.
+
+* Avoid deprecation warning on recent Linux.  We were including sys/sysctl.h if
+  it existed, which it does on Linux but we don't actually use it there.
+  Including it now warns that it is deprecated, so skip including it under
+  Linux.  Reported on IRC by kumaran.
 
 packaging:
 

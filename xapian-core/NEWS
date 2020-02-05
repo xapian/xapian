@@ -1,18 +1,47 @@
-up to: a1fcdaf6efbf7a5eee85322c1155d26127c6076a
+up to: 4b09de5f7d35caae158af0bf5316398940928503
 
-Xapian-core 1.4.15 (2019-12-23):
+Xapian-core 1.4.15 (2020-02-05):
 
 API:
 
+* Fix Database::check() on replication changesets.  This reverts a change
+  incorrectly made in 1.3.7.
+
 * Database::locked(): Return false instead of true for a closed inmemory DB.
+
+* QueryParser::parse_query(): Optimise parsing of multi-word synonyms.
 
 testsuite:
 
-* Test locked() on a closed WritableDatabase, which already returns false (as
-  expected) in 1.4.x (but was broken on master).
+* Use 50-word synonym for qp_scale1 "large" case.  50 divides exactly into the
+  number of repetitions we do for the "small" case, which 60 (as used before)
+  doesn't.  This makes the two cases a little more comparable and should help
+  make this testcase less flaky (see #764).
+
+* Improved test coverage:
+
+  + Test locked() on a closed WritableDatabase, which already returns false (as
+    expected) in 1.4.x (but was broken on master).
+
+  + Check multi databases in testsuite - this has been supported by
+    Database::check() since 1.4.12.
+
+  + Also test OP_SYNONYM and OP_MAX in emptydb1.
+
+  + Backport testcases boolorbug1, emptynot1, emptymaybe1 and
+    phraseweightcheckbug1 from git master - these are regression tests for
+    fixed bugs which only affected git master, but it's useful to confirm that
+    these bugs don't currently affect 1.4, and ensure they don't get introduced.
+
+* perftest: Store memory sizes as long long since on Microsoft Windows long is
+  only 32 bits, which is less than common memory sizes.
 
 matcher:
 
+* Hoist positional check above OP_FILTER.
+
+* Handle OP_FILTER with more than two subqueries correctly.  Previously we'd
+  only check the first two subqueries in some situations.
 
 glass backend:
 
@@ -21,6 +50,10 @@ chert backend:
 
 
 remote backend:
+
+* Don't swallow exceptions from Database::close() on a remote database.  If
+  we aren't in a transaction and so try to commit() and that fails then
+  previously the caller would have no indication of the failure.
 
 * Add missing space to mismatching protocol versions error message.
 
@@ -65,11 +98,26 @@ portability:
   lines in config.h, even those added via AH_TOP and AH_BOTTOM.  Splitting
   these lines means they don't match the regex hammer config.status uses.
 
+* Avoid -Wdeprecated-copy warnings from clang 10.
+
+* Avoid deprecation warning on recent Linux.  We were including sys/sysctl.h if
+  it existed, which it does on Linux but we don't actually use it there.
+  Including it now warns that it is deprecated, so skip including it under
+  Linux.  Reported on IRC by kumaran.
+
+* Suppress GCC -Wduplicated-branches warning from our API headers in a
+  different way which avoids needing a compiler-specific #pragma.
+
+* Workaround closefrom1 failure on macOS.  It seems under macOS our fd tracking
+  can end up using fd 10 so start from 13 when testing closefrom() so we don't
+  close the fd the fd tracking is using internally.
+
 packaging:
 
 
 debug code:
 
+* Log RemoteConnection::read_at_least() return value.
 
 Xapian-core 1.4.14 (2019-11-23):
 
