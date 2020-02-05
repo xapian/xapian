@@ -564,8 +564,9 @@ static bool test_strbool1()
 static bool test_closefrom1()
 {
 #ifndef __WIN32__
-    // Simple test.
-    closefrom(8);
+    // Simple test.  Start from 13 as on macOS the FDTracker seems to get fd
+    // 10 and we don't want to collide with that.
+    closefrom(13);
 
     // Simple test when there are definitely no fds to close.
     closefrom(42);
