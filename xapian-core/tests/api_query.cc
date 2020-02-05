@@ -836,6 +836,21 @@ DEFINE_TESTCASE(notandor1, backend) {
     return true;
 }
 
+// Regression test for bug fixed in git master before 1.5.0.
+DEFINE_TESTCASE(boolorbug1, backend) {
+    Xapian::Database db(get_database("etext"));
+    using Xapian::Query;
+    Query q = Query("the") &~ Query(Query::OP_WILDCARD, "pru");
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    Xapian::MSet mset = enq.get_mset(0, 10, db.get_doccount());
+    // Due to a bug in BoolOrPostList this returned 330 results.
+    TEST_EQUAL(mset.get_matches_estimated(), 331);
+
+    return true;
+}
+
 // Regression test for bug introduced in 1.4.13 and fixed in 1.4.14.
 DEFINE_TESTCASE(hoistnotbug1, backend) {
     Xapian::Database db(get_database("etext"));
@@ -851,5 +866,53 @@ DEFINE_TESTCASE(hoistnotbug1, backend) {
     Xapian::MSet mset = enq.get_mset(0, 10, db.get_doccount());
     TEST_EQUAL(mset.get_matches_estimated(), 42);
 
+    return true;
+}
+
+// Regression test for segfault optimising query on git master before 1.5.0.
+DEFINE_TESTCASE(emptynot1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enq(db);
+    enq.set_weighting_scheme(Xapian::BoolWeight());
+    Xapian::Query query = Xapian::Query("document") & Xapian::Query("api");
+    // This range won't match anything, so collapses to MatchNothing as we
+    // optimise the query.
+    query = Xapian::Query(query.OP_AND_NOT,
+			  query,
+			  Xapian::Query(Xapian::Query::OP_VALUE_GE, 1234, "x"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    return true;
+}
+
+// Similar case to emptynot1 but for OP_AND_MAYBE.  This case wasn't failing,
+// so this isn't a regression test, but we do want to ensure it works.
+DEFINE_TESTCASE(emptymaybe1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enq(db);
+    enq.set_weighting_scheme(Xapian::BoolWeight());
+    Xapian::Query query = Xapian::Query("document") & Xapian::Query("api");
+    // This range won't match anything, so collapses to MatchNothing as we
+    // optimise the query.
+    query = Xapian::Query(query.OP_AND_MAYBE,
+			  query,
+			  Xapian::Query(Xapian::Query::OP_VALUE_GE, 1234, "x"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    return true;
+}
+
+DEFINE_TESTCASE(phraseweightcheckbug1, backend) {
+    Xapian::Database db(get_database("phraseweightcheckbug1"));
+    Xapian::Enquire enq(db);
+    static const char* const words[] = {"hello", "world"};
+    Xapian::Query query{Xapian::Query::OP_PHRASE, begin(words), end(words), 2};
+    query = Xapian::Query(query.OP_OR, query, Xapian::Query("most"));
+    tout << query.get_description() << '\n';
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 3);
+    TEST_EQUAL(mset.size(), 3);
     return true;
 }
