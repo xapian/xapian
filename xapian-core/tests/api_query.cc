@@ -542,8 +542,11 @@ DEFINE_TESTCASE(wildcard2, backend) {
     return true;
 }
 
-/// Regression test for bug fixed in 1.4.12 - if any terms start with A-Z then
-//  the next term that doesn't isn't considered.
+/** Regression test for bug in initial implementation.
+ *
+ *  If any terms started with A-Z then the next term that didn't wasn't
+ *  considered.
+ */
 DEFINE_TESTCASE(wildcard3, generated) {
     Xapian::Database db = get_database("wildcard3",
 				       [](Xapian::WritableDatabase& wdb,
