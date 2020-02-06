@@ -8,7 +8,7 @@ const char * dummy[] = {
 "/** @file version.h",
 " * @brief Define preprocessor symbols for the library version",
 " */",
-"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts",
+"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018,2020 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
 "// modify it under the terms of the GNU General Public License as",
@@ -54,10 +54,20 @@ const char * dummy[] = {
 //
 // So for lines we want in the output, we quote parts of the line which we
 // don't want substituting, and use @@ where we really want " in the output.
-#define V2(A,B) J2(A,B)
-#define J2(A,B) g++ A##.##B
-#define V3(A,B,C) J3(A,B,C)
-#define J3(A,B,C) g++ A##.##B##.##C
+#if defined __clang__
+# define BUILD_COMPILER "clang++ " __clang_version__
+#elif defined __INTEL_COMPILER
+# define BUILD_COMPILER "icc " J(__INTEL_COMPILER)
+# define J(A) #A
+#elif defined __GNUC_PATCHLEVEL__
+# define BUILD_COMPILER "g++ " V(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+# define V(A,B,C) J(A,B,C)
+# define J(A,B,C) #A"."#B"."#C
+#else
+# define BUILD_COMPILER "g++ " V(__GNUC__, __GNUC_MINOR__)
+# define V(A,B) J(A,B)
+# define J(A,B) #A"."#B
+#endif
 "#ifdef __GNUC__",
 // Clang always masquerades as GCC 4.2; Intel's compiler seems to vary.
 "#if !defined __clang__ && !defined __INTEL_COMPILER && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8))",
@@ -77,21 +87,13 @@ const char * dummy[] = {
 "#warning The C++ ABI version of compiler you are using does not exactly match",
 "#warning that of the compiler used to build the library.  If linking fails",
 "#warning due to missing symbols, this is probably the reason why.",
-#ifdef __GNUC_PATCHLEVEL__
-"#warning The Xapian library was built with ", V3(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__),
-#else
-"#warning The Xapian library was built with ", V2(__GNUC__, __GNUC_MINOR__),
-#endif
+"#warning The Xapian library was built with ", BUILD_COMPILER
 "#else",
 #endif
 "#error The C++ ABI version of compiler you are using does not match",
 "#error that of the compiler used to build the library.  The versions",
 "#error must match or your program will not work correctly.",
-#ifdef __GNUC_PATCHLEVEL__
-"#error The Xapian library was built with ", V3(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__),
-#else
-"#error The Xapian library was built with ", V2(__GNUC__, __GNUC_MINOR__),
-#endif
+"#error The Xapian library was built with ", BUILD_COMPILER
 #if __GXX_ABI_VERSION >= 1002
 "#endif",
 #endif
