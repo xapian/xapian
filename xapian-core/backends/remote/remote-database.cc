@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2019 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2019,2020 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -768,22 +768,30 @@ RemoteDatabase::get_mset(Xapian::MSet &mset,
 void
 RemoteDatabase::commit()
 {
+    if (!uncommitted_changes) return;
+
     send_message(MSG_COMMIT, string());
 
     // We need to wait for a response to ensure documents have been committed.
     string message;
     get_message(message, REPLY_DONE);
+
+    uncommitted_changes = false;
 }
 
 void
 RemoteDatabase::cancel()
 {
+    if (!uncommitted_changes) return;
+
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
 
     send_message(MSG_CANCEL, string());
     string dummy;
     get_message(dummy, REPLY_DONE);
+
+    uncommitted_changes = false;
 }
 
 Xapian::docid
@@ -791,6 +799,7 @@ RemoteDatabase::add_document(const Xapian::Document & doc)
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     send_message(MSG_ADDDOCUMENT, serialise_document(doc));
 
@@ -809,6 +818,7 @@ RemoteDatabase::delete_document(Xapian::docid did)
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     send_message(MSG_DELETEDOCUMENT, encode_length(did));
     string dummy;
@@ -820,6 +830,7 @@ RemoteDatabase::delete_document(const std::string & unique_term)
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     send_message(MSG_DELETEDOCUMENTTERM, unique_term);
     string dummy;
@@ -832,6 +843,7 @@ RemoteDatabase::replace_document(Xapian::docid did,
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     string message = encode_length(did);
     message += serialise_document(doc);
@@ -847,6 +859,7 @@ RemoteDatabase::replace_document(const std::string & unique_term,
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     string message = encode_length(unique_term.size());
     message += unique_term;
@@ -881,6 +894,8 @@ RemoteDatabase::get_metadata(const string & key) const
 void
 RemoteDatabase::set_metadata(const string & key, const string & value)
 {
+    uncommitted_changes = true;
+
     string data = encode_length(key.size());
     data += key;
     data += value;
@@ -893,6 +908,8 @@ void
 RemoteDatabase::add_spelling(const string & word,
 			     Xapian::termcount freqinc) const
 {
+    uncommitted_changes = true;
+
     string data = encode_length(freqinc);
     data += word;
     send_message(MSG_ADDSPELLING, data);
@@ -904,6 +921,8 @@ void
 RemoteDatabase::remove_spelling(const string & word,
 				Xapian::termcount freqdec) const
 {
+    uncommitted_changes = true;
+
     string data = encode_length(freqdec);
     data += word;
     send_message(MSG_REMOVESPELLING, data);

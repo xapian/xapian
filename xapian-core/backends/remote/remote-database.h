@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2019 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2019,2020 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -102,6 +102,14 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *  Set to BAD_VALUENO if no value statistics have yet been looked up.
      */
     mutable Xapian::valueno mru_slot;
+
+    /** True if there are (or may be) uncommitted changes.
+     *
+     *  Used to optimise away commit()/cancel() calls.  These can be explicit,
+     *  but also can happen implicitly when the WritableDatabase destructor is
+     *  called.
+     */
+    mutable bool uncommitted_changes = false;
 
     bool update_stats(message_type msg_code = MSG_UPDATE,
 		      const std::string & body = std::string()) const;
