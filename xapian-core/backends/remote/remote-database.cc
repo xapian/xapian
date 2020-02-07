@@ -618,10 +618,18 @@ void
 RemoteDatabase::do_close()
 {
     if (!is_read_only()) {
-	if (transaction_active()) {
-	    end_transaction(false);
-	} else {
-	    commit();
+	try {
+	    if (transaction_active()) {
+		end_transaction(false);
+	    } else {
+		commit();
+	    }
+	} catch (...) {
+	    try {
+		link.do_close();
+	    } catch (...) {
+	    }
+	    throw;
 	}
 
 	// If we're writable, send a shutdown message to the server and wait
