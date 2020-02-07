@@ -636,10 +636,18 @@ RemoteDatabase::do_close()
     bool writable = (transaction_state != TRANSACTION_UNIMPLEMENTED);
 
     if (writable) {
-	if (transaction_active()) {
-	    cancel_transaction();
-	} else {
-	    commit();
+	try {
+	    if (transaction_active()) {
+		cancel_transaction();
+	    } else {
+		commit();
+	    }
+	} catch (...) {
+	    try {
+		link.do_close();
+	    } catch (...) {
+	    }
+	    throw;
 	}
 
 	// If we're writable, send a shutdown message to the server and wait
