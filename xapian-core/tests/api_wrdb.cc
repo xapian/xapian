@@ -1798,6 +1798,15 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	}
     }
 
+    // Try adding a document.  Regression test for a bug fixed in 1.4.15 - in
+    // earlier versions the pending changes which caused the
+    // InvalidArgumentError were left around and a subsequent commit() on the
+    // same WritableDatabase would also fail with InvalidArgumentError.
+    Xapian::Document doc;
+    doc.add_term("ok");
+    db.add_document(doc);
+    db.commit();
+
     return true;
 }
 
