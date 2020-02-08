@@ -361,7 +361,7 @@ class GlassWritableDatabase : public GlassDatabase {
     void check_flush_threshold();
 
     /// Flush any unflushed postlist changes, but don't commit them.
-    void flush_postlist_changes() const;
+    void flush_postlist_changes();
 
     /// Close all the tables permanently.
     void close();

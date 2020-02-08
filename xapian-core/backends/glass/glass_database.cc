@@ -1058,13 +1058,21 @@ GlassWritableDatabase::check_flush_threshold()
 }
 
 void
-GlassWritableDatabase::flush_postlist_changes() const
+GlassWritableDatabase::flush_postlist_changes()
 {
-    version_file.set_oldest_changeset(changes.get_oldest_changeset());
-    inverter.flush(postlist_table);
-    inverter.flush_pos_lists(position_table);
+    try {
+	version_file.set_oldest_changeset(changes.get_oldest_changeset());
+	inverter.flush(postlist_table);
+	inverter.flush_pos_lists(position_table);
 
-    change_count = 0;
+	change_count = 0;
+    } catch (...) {
+	try {
+	    GlassWritableDatabase::cancel();
+	} catch (...) {
+	}
+	throw;
+    }
 }
 
 void
