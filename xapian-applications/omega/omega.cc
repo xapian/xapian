@@ -364,6 +364,18 @@ try {
 	}
     }
 
+    // Set auto boost terms
+    g = cgi_params.equal_range("AUTOBOOST");
+    if (g.first != g.second) {
+	vector<string> auto_boost;
+	for (auto i = g.first; i != g.second; ++i) {
+	    const string& v = i->second;
+	    if (!v.empty()) {
+		add_boost_term(v);
+	    }
+	}
+    }
+
     // date range filters
     struct date_range {
 	string start, end, span;
