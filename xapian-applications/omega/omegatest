@@ -1479,7 +1479,6 @@ testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=nine
 testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=six
 testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=Tten
 
-exit 0
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
