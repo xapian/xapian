@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2013,2014,2015 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014,2015,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -113,6 +113,8 @@ class Weight::Internal {
      *  object, unserialise it, and add it to our total.
      */
     Internal & operator+=(const Internal & inc);
+
+    void merge(const Weight::Internal& o);
 
     void set_query(const Xapian::Query &query_) {
 	AssertEq(subdbs, 0);

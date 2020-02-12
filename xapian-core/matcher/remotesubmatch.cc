@@ -61,14 +61,16 @@ RemoteSubMatch::start_match(Xapian::doccount first,
 
 PostList *
 RemoteSubMatch::get_postlist(MultiMatch * matcher,
-			     Xapian::termcount * total_subqs_ptr)
+			     Xapian::termcount* total_subqs_ptr,
+			     Xapian::Weight::Internal& total_stats)
 {
-    LOGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist", matcher | total_subqs_ptr);
+    LOGCALL(MATCH, PostList*, "RemoteSubMatch::get_postlist", matcher | total_subqs_ptr | total_stats);
     (void)matcher;
     Xapian::MSet mset;
     db->get_mset(mset, matchspies);
     percent_factor = mset.internal->percent_factor;
     uncollapsed_upper_bound = mset.internal->uncollapsed_upper_bound;
+    total_stats.merge(*(mset.internal->stats));
     // For remote databases we report percent_factor rather than counting the
     // number of subqueries.
     (void)total_subqs_ptr;

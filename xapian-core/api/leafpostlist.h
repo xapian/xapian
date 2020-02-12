@@ -1,7 +1,7 @@
 /** @file leafpostlist.h
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011,2013,2015,2016 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2015,2016,2020 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -82,6 +82,8 @@ class LeafPostList : public PostList {
 	std::swap(weight, const_weight_);
 	delete const_weight_;
 	need_doclength = weight->get_sumpart_needs_doclength_();
+	// We get such terms from the database so they should exist.
+	Assert(get_termfreq() > 0);
 	stats->termfreqs[term].max_part += weight->get_maxpart();
 	return stats->termfreqs[term].max_part;
     }

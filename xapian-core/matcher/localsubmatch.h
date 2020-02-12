@@ -91,7 +91,8 @@ class LocalSubMatch : public SubMatch {
 
     /// Get PostList.
     PostList * get_postlist(MultiMatch *matcher,
-			    Xapian::termcount * total_subqs_ptr);
+			    Xapian::termcount* total_subqs_ptr,
+			    Xapian::Weight::Internal& total_stats);
 
     /** Convert a postlist into a synonym postlist.
      */

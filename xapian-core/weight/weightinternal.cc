@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012,2013,2014,2015,2017,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -114,6 +114,16 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	    if (term == tl->get_termname())
 		++i->second.reltermfreq;
 	}
+    }
+}
+
+void
+Weight::Internal::merge(const Weight::Internal& o)
+{
+    if (!o.have_max_part) return;
+    for (auto i : o.termfreqs) {
+	double& max_part = termfreqs[i.first].max_part;
+	max_part = max(max_part, i.second.max_part);
     }
 }
 

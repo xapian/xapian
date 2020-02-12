@@ -453,7 +453,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // recurse into positional queries for shards that don't have
 	    // positional data when at least one other shard does.
 	    Xapian::termcount total_subqs_i = 0;
-	    PostList* pl = leaves[i]->get_postlist(this, &total_subqs_i);
+	    PostList* pl = leaves[i]->get_postlist(this, &total_subqs_i, stats);
 	    total_subqs = max(total_subqs, total_subqs_i);
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    if (is_remote[i]) {
