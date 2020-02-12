@@ -1496,11 +1496,6 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
 
 /// Test the termfreq and termweight info returned for query terms
 DEFINE_TESTCASE(qterminfo1, backend) {
-    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
-    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1558,9 +1553,6 @@ DEFINE_TESTCASE(qterminfo1, backend) {
 
 /// Regression test for bug #37.
 DEFINE_TESTCASE(qterminfo2, backend) {
-    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
 

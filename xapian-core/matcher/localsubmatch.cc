@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019,2020 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -302,7 +302,8 @@ LocalSubMatch::open_post_list(const string& term,
 	Xapian::Weight * wt = wt_factory.clone();
 	if (!lazy_weight) {
 	    wt->init_(*total_stats, qlen, term, wqf, factor);
-	    total_stats->set_max_part(term, wt->get_maxpart());
+	    if (pl->get_termfreq() > 0)
+		total_stats->set_max_part(term, wt->get_maxpart());
 	} else {
 	    // Delay initialising the actual weight object, so that we can
 	    // gather stats for the terms lazily expanded from a wildcard

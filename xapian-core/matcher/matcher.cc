@@ -1,7 +1,7 @@
 /** @file matcher.cc
  * @brief Matcher class
  */
-/* Copyright (C) 2006,2008,2009,2010,2011,2017,2018,2019 Olly Betts
+/* Copyright (C) 2006,2008,2009,2010,2011,2017,2018,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -621,18 +621,17 @@ Matcher::get_mset(Xapian::doccount first,
     // than we need.
     vector<pair<Xapian::MSet, Xapian::doccount>> msets;
     Xapian::MSet merged_mset;
-    if (!locals.empty()) {
-	if (!local_mset.empty())
-	    msets.push_back({local_mset, 0});
-	merged_mset.internal->merge_stats(local_mset.internal.get(),
-					  collapse_max != 0);
-    }
-
     for_all_remotes(
 	[&](RemoteSubMatch* submatch) {
 	    Xapian::MSet remote_mset = submatch->get_mset(matchspies);
 	    merged_mset.internal->merge_stats(remote_mset.internal.get(),
 					      collapse_max != 0);
+	    auto& merged_stats = merged_mset.internal->stats;
+	    if (!merged_stats.get()) {
+		merged_stats = std::move(remote_mset.internal->stats);
+	    } else {
+		merged_stats->merge(*(remote_mset.internal->stats));
+	    }
 	    if (remote_mset.empty()) {
 		return;
 	    }
@@ -640,6 +639,14 @@ Matcher::get_mset(Xapian::doccount first,
 						 db.internal->size());
 	    msets.push_back({remote_mset, 0});
 	});
+
+    if (!locals.empty()) {
+	if (!local_mset.empty())
+	    msets.push_back({local_mset, 0});
+	merged_mset.internal->merge_stats(local_mset.internal.get(),
+					  collapse_max != 0);
+	merged_mset.internal->stats->merge(stats);
+    }
 
     if (merged_mset.internal->max_possible == 0.0) {
 	// All the weights are zero.
