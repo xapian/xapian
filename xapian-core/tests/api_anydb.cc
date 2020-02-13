@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2016,2017,2020 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -1591,11 +1591,8 @@ DEFINE_TESTCASE(msetzeroitems1, backend) {
 
 // test that the matches_* of a simple query are as expected
 DEFINE_TESTCASE(matches1, backend) {
-    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
-    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
+    bool multi = startswith(get_dbtype(), "multi");
+    bool remote = get_dbtype().find("remote") != string::npos;
 
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query myquery;
@@ -1644,10 +1641,12 @@ DEFINE_TESTCASE(matches1, backend) {
     myquery = query(Xapian::Query::OP_AND, "simple", "word");
     enquire.set_query(myquery);
     mymset = enquire.get_mset(0, 0);
-    // For a single database, this is true, but not for "multi" (since there
-    // one sub-database has 3 documents and simple and word both have termfreq
-    // of 2, so the matcher can tell at least one document must match!)
-    // TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    if (!multi) {
+	// This isn't true for sharded DBs since there one sub-database has 3
+	// documents and simple and word both have termfreq of 2, so the
+	// matcher can tell at least one document must match!)
+	TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    }
     TEST_REL(mymset.get_matches_lower_bound(),<=,mymset.get_matches_estimated());
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
@@ -1683,11 +1682,19 @@ DEFINE_TESTCASE(matches1, backend) {
 
     mymset = enquire.get_mset(0, 1);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
-    TEST_EQUAL(mymset.get_matches_estimated(), 2);
-    TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
     TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
-    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
-    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
+    if (multi && remote) {
+	// The matcher can tell there's only one match in this case.
+	TEST_EQUAL(mymset.get_matches_estimated(), 1);
+	TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
+	TEST_EQUAL(mymset.get_matches_upper_bound(), 1);
+	TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 1);
+    } else {
+	TEST_EQUAL(mymset.get_matches_estimated(), 2);
+	TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+	TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+	TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
+    }
 
     mymset = enquire.get_mset(0, 2);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
