@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.h
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2009,2017,2018,2019 Olly Betts
+/* Copyright (C) 2007,2009,2017,2018,2019,2020 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -58,6 +58,9 @@ class BackendManagerMulti : public BackendManager {
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
+
+    Xapian::Database get_remote_database(const std::vector<std::string>& files,
+					 unsigned int timeout);
 
     /// Create a Multi Xapian::WritableDatabase object indexing a single file.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
