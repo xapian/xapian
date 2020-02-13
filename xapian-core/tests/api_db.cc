@@ -882,12 +882,6 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 
 // test for keepalives
 DEFINE_TESTCASE(keepalive1, remote) {
-    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
-    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
-		      "Multi remote databases are currently buggy");
-
     Xapian::Database db(get_remote_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
