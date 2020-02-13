@@ -46,7 +46,7 @@ BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
 	sub_managers[0]->get_dbtype() == sub_managers[1]->get_dbtype()) {
 	cachedir += sub_managers[0]->get_dbtype();
     } else {
-	for (auto sub_manager: sub_managers) {
+	for (auto sub_manager : sub_managers) {
 	    cachedir += sub_manager->get_dbtype();
 	}
     }
@@ -62,7 +62,7 @@ BackendManagerMulti::get_dbtype() const
 	sub_managers[0]->get_dbtype() == sub_managers[1]->get_dbtype()) {
 	dbtype += "_" + sub_managers[0]->get_dbtype();
     } else {
-	for (auto sub_manager: sub_managers) {
+	for (auto sub_manager : sub_managers) {
 	    dbtype += "_" + sub_manager->get_dbtype();
 	}
     }
