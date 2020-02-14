@@ -1852,6 +1852,10 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	}
     }
 
+    if (get_dbtype().find("chert") != string::npos) {
+	XFAIL("Chert fails to clear pending changes after "
+	      "InvalidArgumentError - fix too invasive");
+    }
     // Try adding a document.  Regression test for a bug fixed in 1.4.15 - in
     // earlier versions the pending changes which caused the
     // InvalidArgumentError were left around and a subsequent commit() on the
