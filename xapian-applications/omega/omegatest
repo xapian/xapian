@@ -1468,16 +1468,18 @@ boost=six
 pfx_boost=ten
 
 END
-printf '$set{weighting,coord}|$hitlist{$id|}' > "$TEST_TEMPLATE"
-testcase '|1|2|' P="one"
-testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=nine
-testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=six
-testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=Tten
-printf '|$hitlist{$id|}' > "$TEST_TEMPLATE"
-testcase '|1|2|' P="one"
-testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=nine
-testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=six
-testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=Tten
+
+# Test CGI param AUTOBOOST boost boolean terms.
+# Currently this tests don't work for following weighting schemes
+# dicecoeff dph ineb2 lm inl2 pl2plus pl2 tradweight
+for i in coord tfidf bm25 bm25plus
+do
+    printf '$set{weighting,%s}|$hitlist{$id|}' "$i"> "$TEST_TEMPLATE"
+    testcase '|1|2|' P="one"
+    testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=nine
+    testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=six
+    testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=Tten
+done
 
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"

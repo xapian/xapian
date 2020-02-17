@@ -184,21 +184,22 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 {
     switch (c) {
 	case 'b':
-	    if (wdf == 0) return 0;
+	    if (wdf == 0) return 1.0;
 	    return 1.0;
 	case 's':
+	    if (wdf == 0) return 1.0;
 	    return (wdf * wdf);
 	case 'l':
-	    if (wdf == 0) return 0;
+	    if (wdf == 0) return 1.0;
 	    return (1 + log(double(wdf)));
 	case 'P': {
-	    if (wdf == 0) return 0;
+	    if (wdf == 0) return 1.0;
 	    double normlen = doclen / get_average_length();
 	    double norm_factor = 1 / (1 - param_slope + (param_slope * normlen));
 	    return ((1 + log(1 + log(double(wdf)))) * norm_factor + param_delta);
 	}
 	case 'L': {
-	    if (wdf == 0) return 0;
+	    if (wdf == 0) return 1.0;
 	    double uniqterm_double = uniqterms;
 	    double doclen_double = doclen;
 	    double wdf_avg = 1;
@@ -212,6 +213,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	}
 	default:
 	    AssertEq(c, 'n');
+	    if (wdf == 0) return 1.0;
 	    return wdf;
     }
 }
