@@ -184,6 +184,9 @@ static const test test_simple[] = {
     // would split this differently as '申込み ！月額 円'
     { "", "申込み！月額円", "み[2] 円[4] 月額[3] 申込[1]" },
 
+    // Thai word segmentation
+    { "", "โดยตั้งใจ", "ตั้งใจ[2] โดย[1]"},
+
     // Test set_stemming_strategy():
     { "stem=en,none,!cjkwords",
 	  "Unstemmed words!", "unstemmed[1] words[2]" },
