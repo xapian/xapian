@@ -231,6 +231,13 @@ DOCIDORDER
 	DONT_CARE (the Xapian database backend will use whichever order is most
 	efficient).  Any characters after the first are ignored.
 
+AUTOBOOST
+        specify one or more terms to be considered in weight contribution for
+        document without affecting selection.
+        This is experimental feature and implemented using `AND_MAYBE` Query.
+        `AUTOBOOST` for boolean terms supported with bm25, tf-idf, coord
+        weighting schemes.
+
 Display parameters and navigation
 ---------------------------------
 
