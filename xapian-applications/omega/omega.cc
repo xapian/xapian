@@ -370,9 +370,36 @@ try {
 	vector<string> auto_boost;
 	for (auto i = g.first; i != g.second; ++i) {
 	    const string& v = i->second;
-	    if (!v.empty()) {
+	    if (!v.empty() && C_isalnum(v[0])) {
 		add_boost_term(v);
+		auto_boost.push_back(v);
 	    }
+	}
+	sort(auto_boost.begin(), auto_boost.end());
+	vector<string>::const_iterator j;
+	for (j = auto_boost.begin(); j != auto_boost.end(); ++j) {
+	    const string& boost_term = *j;
+	    string::size_type e = boost_term.find(filter_sep);
+	    if (usual(e == string::npos)) {
+		filters += boost_term;
+	    } else {
+		// If a filter contains filter_sep then double it to escape.
+		// Each filter must start with an alnum (checked above) and
+		// the value after the last filter is the default op, which
+		// is encoded as a non-alnum so filter_sep followed by
+		// something other than filter_sep must be separating filters.
+		string::size_type b = 0;
+		while (e != string::npos) {
+		    filters.append(boost_term, b, e + 1 - b);
+		    b = e;
+		    e = boost_term.find(filter_sep, b + 1);
+		}
+		filters.append(boost_term, b, string::npos);
+	    }
+	    filters += filter_sep;
+	    // old_filters predates 'AUTOBOOST' terms, so if there are
+	    // 'AUTOBOOST' terms this is definitely a different query.
+	    old_filters.clear();
 	}
     }
 
