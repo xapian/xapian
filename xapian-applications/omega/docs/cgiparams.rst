@@ -233,9 +233,8 @@ DOCIDORDER
 
 AUTOBOOST
         specify one or more terms to be considered in weight contribution for
-        document without affecting selection.
-        This is experimental feature and implemented using `AND_MAYBE` Query.
-        `AUTOBOOST` for boolean terms supported with bm25, tf-idf, coord
+        document without affecting selection using Query operation `OP_AND_MAYBE`.
+        `AUTOBOOST` for boolean terms is only supported with bm25, tf-idf, coord
         weighting schemes.
 
 Display parameters and navigation
