@@ -184,7 +184,6 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 {
     switch (c) {
 	case 'b':
-	    if (wdf == 0) return 1.0;
 	    return 1.0;
 	case 's':
 	    if (wdf == 0) return 1.0;
