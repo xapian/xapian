@@ -92,10 +92,10 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 ## this is the first time we're signing, the key in the file is used and
 ## then stored in the key container.  From then on, the key in the container
 ## is used.
-	$(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll \
-	    -keyfile:XapianSharp.snk -keycontainer:"Xapian Signing Key" \
-	    `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
-	    AssemblyInfo.cs
+	TERM= $(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll \
+	          -keyfile:XapianSharp.snk -keycontainer:"Xapian Signing Key" \
+	          `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
+	          AssemblyInfo.cs
 
 SWIG_GENERATED = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
 
@@ -127,7 +127,7 @@ install-data-local: $(ASSEMBLY).dll
 	$(GACUTIL) /i $(ASSEMBLY).dll /f $(GACUTIL_FLAGS)
 
 SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
-	$(CSC) -unsafe -target:exe -out:SmokeTest.exe `test -f SmokeTest.cs||echo '$(srcdir)/'`SmokeTest.cs -r:$(ASSEMBLY).dll
+	TERM= $(CSC) -unsafe -target:exe -out:SmokeTest.exe `test -f SmokeTest.cs||echo '$(srcdir)/'`SmokeTest.cs -r:$(ASSEMBLY).dll
 
 all-am: $(ASSEMBLY).dll
 
