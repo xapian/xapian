@@ -1,13 +1,20 @@
-up to: 4b09de5f7d35caae158af0bf5316398940928503
-
-Xapian-core 1.4.15 (2020-02-05):
+Xapian-core 1.4.15 (2020-02-24):
 
 API:
 
-* Fix Database::check() on replication changesets.  This reverts a change
-  incorrectly made in 1.3.7.
+* Database::check(): Fix checking of replication changesets.  This reverts a
+  change incorrectly made in 1.3.7.
 
 * Database::locked(): Return false instead of true for a closed inmemory DB.
+
+* Database::commit(): If commit() failed with an exception while trying to add
+  pending changes (e.g. InvalidArgumentError due to a long term containing zero
+  bytes) then a subsequent commit() on the same object would throw the same
+  exception.  Now we clear the pending changes in this situation (like we
+  already did for failure at other stages in the commit).  This bug remains
+  unfixed for the chert backend as it's harder to fix there and the effort to
+  fix it and extra risk of breakage don't seem justified for a backend we
+  recommend people migrate away from.
 
 * QueryParser::parse_query(): Optimise parsing of multi-word synonyms.
 
@@ -17,6 +24,14 @@ testsuite:
   number of repetitions we do for the "small" case, which 60 (as used before)
   doesn't.  This makes the two cases a little more comparable and should help
   make this testcase less flaky (see #764).
+
+* Adjust testcase matches1 to work with remote shards where the matcher can
+  return slightly better bounds on the number of matches in some cases.
+  Resolves 2 XFAILs.
+
+* The testharness get_remote_database() method is now supported for sharded
+  databases.  This is needed for keepalive1 to run successfully under multi
+  test backends.  Resolves 2 XFAILs of keepalive1.
 
 * Improved test coverage:
 
@@ -43,27 +58,39 @@ matcher:
 * Handle OP_FILTER with more than two subqueries correctly.  Previously we'd
   only check the first two subqueries in some situations.
 
-glass backend:
-
-
-chert backend:
-
-
 remote backend:
+
+* For a remote WritableDatabase, the client now keeps track of whether there
+  are pending changes, and if there aren't then we now do nothing for commit()
+  or cancel() calls.  In particular this saves a message exchange when the
+  WritableDatabase destructor is called when changes have already been
+  committed with an explicit call to commit() (which is what we recommend
+  doing, since with an explicit call to commit() you get to see any exception
+  which gets thrown).
+
+* When closing a remote prog WritableDatabase, previously an exception could
+  leave the remote connection open with the remote server running, and we'd
+  then wait for the specified timeout before closing the connection.  Now we
+  close the connection before letting the exception propagate.
 
 * Don't swallow exceptions from Database::close() on a remote database.  If
   we aren't in a transaction and so try to commit() and that fails then
   previously the caller would have no indication of the failure.
 
+* Fix handling the reported term weight when remote shards are searched.
+  Fixes 5 XFAILs in the testsuite.
+
 * Add missing space to mismatching protocol versions error message.
-
-inmemory backend:
-
 
 build system:
 
 * Fix to build when configured with --disable-backend-remote, broken by changes
   in 1.4.14.  Fixes #797, reported by Дилян Палаузов.
+
+* The clang and icc compilers both define __GNUC__, which led our ABI mismatch
+  message to report them as "g++" with a bogus version (the version of GCC that
+  these compilers advertise themselves as, which for clang is always 4.2.0) -
+  now we report clang++ or icc along with the actual version of that compiler.
 
 documentation:
 
@@ -72,12 +99,6 @@ documentation:
 * INSTALL: Note that MSVC 2019 works.
 
 * INSTALL: Note that Xapian can use the system uuid.h on AIX and OpenBSD.
-
-tools:
-
-
-examples:
-
 
 portability:
 
@@ -110,10 +131,7 @@ portability:
 
 * Workaround closefrom1 failure on macOS.  It seems under macOS our fd tracking
   can end up using fd 10 so start from 13 when testing closefrom() so we don't
-  close the fd the fd tracking is using internally.
-
-packaging:
-
+  close the fd which our fd tracking is using internally.
 
 debug code:
 

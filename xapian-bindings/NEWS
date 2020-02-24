@@ -1,36 +1,12 @@
-up to: c36ec14c477bf5e03b25b839476acfea29de8836
-
-Xapian-bindings 1.4.15 (2020-02-05):
-
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
+Xapian-bindings 1.4.15 (2020-02-24):
 
 Perl:
 
 * Improve comment about App::Prove.
 
-PHP:
-
-PHP7:
-
-Python:
-
-Python3:
-
 Ruby:
 
-Tcl:
+* Support Ruby 2.7.
 
 Xapian-bindings 1.4.14 (2019-11-23):
 
