@@ -121,6 +121,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  When used in a non-weighted context, OP_FILTER and OP_AND are
 	 *  equivalent.
+	 *
+	 *  In older 1.4.x, the third and subsequent subqueries were ignored
+	 *  in some situations.  This was fixed in 1.4.15.
 	 */
 	OP_FILTER = 5,
 
