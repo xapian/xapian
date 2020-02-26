@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018,2019 Olly Betts
+/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -483,6 +483,33 @@ snippet_check_leading_nonwordchar(unsigned ch) {
     return false;
 }
 
+// Check if a non-word character is should be included at the end of the
+// snippet.  We want to include certain trailing non-word characters, but not
+// others.
+static inline bool
+snippet_check_trailing_nonwordchar(unsigned ch) {
+    if (Unicode::is_currency(ch) ||
+	Unicode::get_category(ch) == Unicode::CLOSE_PUNCTUATION ||
+	Unicode::get_category(ch) == Unicode::FINAL_QUOTE_PUNCTUATION) {
+	return true;
+    }
+    switch (ch) {
+	case '"':
+	case '%':
+	case '\'':
+	case '+':
+	case '-':
+	case '/':
+	case '>':
+	case '@':
+	case '\\':
+	case '`':
+	case '~':
+	    return true;
+    }
+    return false;
+}
+
 static inline void
 append_escaping_xml(const char* p, const char* end, string& output)
 {
@@ -522,27 +549,44 @@ SnipPipe::drain(const string & input,
 	// See if this is the end of a sentence.
 	// FIXME: This is quite simplistic - look at the Unicode rules:
 	// https://unicode.org/reports/tr29/#Sentence_Boundaries
-	bool punc = false;
+	bool sentence_end = false;
 	Utf8Iterator i(input.data() + best_end, tail_len);
 	while (i != Utf8Iterator()) {
 	    unsigned ch = *i;
-	    if (punc && Unicode::is_whitespace(ch)) break;
+	    if (sentence_end && Unicode::is_whitespace(ch)) break;
 
 	    // Allow "...", "!!", "!?!", etc...
-	    punc = (ch == '.' || ch == '?' || ch == '!');
+	    sentence_end = (ch == '.' || ch == '?' || ch == '!');
 
 	    if (Unicode::is_wordchar(ch)) break;
 	    ++i;
 	}
 
-	if (punc) {
+	if (sentence_end) {
 	    // Include end of sentence punctuation.
 	    append_escaping_xml(input.data() + best_end, i.raw(), output);
-	} else {
-	    // Append "..." or equivalent if this doesn't seem to be the start
-	    // of a sentence.
-	    output += omit;
+	    return false;
 	}
+
+	// Include trailing punctuation which includes meaning or context.
+	i.assign(input.data() + best_end, tail_len);
+	int trailing_punc = 0;
+	while (i != Utf8Iterator() && snippet_check_trailing_nonwordchar(*i)) {
+	    // But limit how much trailing punctuation we include.
+	    if (++trailing_punc > 4) {
+		trailing_punc = 0;
+		break;
+	    }
+	    ++i;
+	}
+	if (trailing_punc) {
+	    append_escaping_xml(input.data() + best_end, i.raw(), output);
+	    if (i == Utf8Iterator()) return false;
+	}
+
+	// Append "..." or equivalent as this doesn't seem to be the start
+	// of a sentence.
+	output += omit;
 
 	return false;
     }

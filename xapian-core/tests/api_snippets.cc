@@ -2,7 +2,7 @@
  * @brief tests snippets
  */
 /* Copyright 2012 Mihai Bivol
- * Copyright 2015,2016,2017,2019 Olly Betts
+ * Copyright 2015,2016,2017,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -314,7 +314,7 @@ DEFINE_TESTCASE(snippet_empty, backend) {
 /// Check snippets include certain preceding punctuation.
 DEFINE_TESTCASE(snippet_start_nonspace, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(Xapian::Query("foo"));
+    enquire.set_query(Xapian::Query("foo") | Xapian::Query("10"));
 
     Xapian::MSet mset = enquire.get_mset(0, 0);
 
@@ -425,6 +425,51 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
     input = "bar,foo!";
     TEST_STRINGS_EQUAL(mset.snippet(input, 5, stem),
 		       "...<b>foo</b>!");
+
+    // Check trailing characters are included when useful.
+    input = "/opt/foo/bin/";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "/opt/<b>foo</b>/bin/");
+
+    input = "\"foo bar\"";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "\"<b>foo</b> bar\"");
+
+    input = "\\\\server\\share\\foo\\";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "\\\\server\\share\\<b>foo</b>\\");
+
+    input = "«foo»";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "«<b>foo</b>»");
+
+    input = "#include <foo>";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "#include &lt;<b>foo</b>&gt;");
+
+    input = "(foo)";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "(<b>foo</b>)");
+
+    input = "{foo}";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "{<b>foo</b>}");
+
+    input = "[foo]";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "[<b>foo</b>]");
+
+    input = "`foo`";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "`<b>foo</b>`");
+
+    input = "@foo@";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "@<b>foo</b>@");
+
+    input = "foo for 10¢";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "<b>foo</b> for <b>10</b>¢");
 
     return true;
 }
