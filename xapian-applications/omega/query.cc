@@ -131,7 +131,7 @@ static Xapian::QueryParser qp;
 static Xapian::NumberRangeProcessor * size_rp = NULL;
 static Xapian::Stem *stemmer = NULL;
 
-static string eval_file(const string &fmtfile);
+static string eval_file(const string& fmtfile, bool* p_not_found = nullptr);
 
 static set<string> termset;
 
@@ -1128,7 +1128,7 @@ T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
 T(httpheader,	   2, 2, N, 0), // arbitrary HTTP header
 T(id,		   0, 0, N, 0), // docid of current doc
 T(if,		   1, 3, 1, 0), // conditional
-T(include,	   1, 1, 1, 0), // include another file
+T(include,	   1, 2, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
 T(jsonarray,	   1, 2, 1, 0), // Format list as a JSON array
 T(jsonbool,	   1, 1, 1, 0), // Format list as a JSON bool
@@ -1791,9 +1791,18 @@ eval(const string &fmt, const vector<string> &param)
 		else if (args.size() > 2)
 		    value = eval(args[2], param);
 		break;
-	    case CMD_include:
-		value = eval_file(args[0]);
+	    case CMD_include: {
+		if (args.size() == 1) {
+		    value = eval_file(args[0]);
+		} else {
+		    bool fallback = false;
+		    value = eval_file(args[0], &fallback);
+		    if (fallback) {
+			value = eval(args[1], param);
+		    }
+		}
 		break;
+	    }
 	    case CMD_json:
 		value = args[0];
 		json_escape(value);
@@ -2680,25 +2689,34 @@ eval(const string &fmt, const vector<string> &param)
 }
 
 static string
-eval_file(const string &fmtfile)
+eval_file(const string& fmtfile, bool* p_not_found)
 {
-    string err;
+    // Use -1 to indicate vet_filename() failed.
+    int eno = -1;
     if (vet_filename(fmtfile)) {
 	string file = template_dir + fmtfile;
 	string fmt;
+	errno = 0;
 	if (load_file(file, fmt)) {
 	    vector<string> noargs;
 	    noargs.resize(1);
 	    return eval(fmt, noargs);
 	}
-	err = strerror(errno);
-    } else {
-	err = "name contains '..'";
+	eno = errno;
+    }
+
+    if (p_not_found) {
+	*p_not_found = true;
+	return string();
     }
 
     // FIXME: report why!
     string msg = string("Couldn't read format template '") + fmtfile + '\'';
-    if (!err.empty()) msg += " (" + err + ')';
+    if (eno) {
+	msg += " (";
+	msg += (eno < 0 ? "name contains '..'" : strerror(eno));
+	msg += ')';
+    }
     throw msg;
 }
 

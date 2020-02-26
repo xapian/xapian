@@ -1032,8 +1032,11 @@ $if{COND[,THEN[,ELSE]]}
 
         The ability to omit ``THEN`` was added in Omega 1.4.15.
 
-$include{FILE}
-	include another OmegaScript file
+$include{FILE[,FALLBACK]}
+        include another OmegaScript file ``FILE``.  If opening ``FILE`` fails, then
+        ``FALLBACK`` is evaluated and returned.
+
+        Support for the ``FALLBACK`` argument was added in Omega 1.4.18.
 
 $switch{EXPR,CASE1,VALUE1,[CASE2,VALUE2]...[,DEFAULT]}
         first evaluates ``EXPR``, and then evaluates ``CASE1``, ``CASE2``, ...
