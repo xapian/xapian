@@ -1345,6 +1345,15 @@ printf '$hitlist{$list{$terms{T},|}/$field{tag1}|$field{tag2}|$field{tag3}}' > "
 testcase 'Tone/one|two|three' B=Tone
 testcase 'Tthree|Ttwo/one|two|three' B=Ttwo B=Tthree
 
+# Test fallback action when trying to $include a non-existent file.
+printf '$include{non_existent.template,foo$set{data,bar}}-$opt{data}' > "$TEST_TEMPLATE"
+testcase 'foo-bar' B=Tone
+
+# Test exception is thrown when non-existent template file is passed in
+# $include and there's no fallback action.
+printf '$include{non_existent.template}-$opt{data}' > "$TEST_TEMPLATE"
+testcase "Exception: Couldn't read format template 'non_existent.template' (No such file or directory)" B=Tone
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
