@@ -1451,6 +1451,17 @@ printf '$hitlist{$list{$terms{T},|}/$field{tag1}|$field{tag2}|$field{tag3}}' > "
 testcase 'Tone/one|two|three' B=Tone
 testcase 'Tthree|Ttwo/one|two|three' B=Ttwo B=Tthree
 
+
+# Test failover script is run when the failover script is provided
+# and non-existent template file is passed in $include
+printf '$include{non_existant.template,$set{data,replacement_for_template}}$opt{data}' > "$TEST_TEMPLATE"
+testcase 'replacement_for_template' B=Tone
+
+# Test exception is thrown when non-existent template file is passed in
+# $include and optional failover script is not provided
+printf '$include{non_existant.template}$opt{data}' > "$TEST_TEMPLATE"
+testcase "Exception: Couldn't read format template 'non_existant.template' (No such file or directory)" B=Tone
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then

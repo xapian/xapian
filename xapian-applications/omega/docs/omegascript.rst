@@ -1018,8 +1018,9 @@ $if{COND[,THEN[,ELSE]]}
 
         The ability to omit ``THEN`` was added in Omega 1.4.15.
 
-$include{FILE}
-	include another OmegaScript file
+$include{FILE,[FAILOVER_SCRIPT]}
+        include another OmegaScript file ``FILE``, runs optional
+        OmegaScript ``FAILOVER_SCRIPT`` on failure.
 
 $switch{EXPR,CASE1,VALUE1,[CASE2,VALUE2]...[,DEFAULT]}
         first evaluates ``EXPR``, and then evaluates ``CASE1``, ``CASE2``, ...
