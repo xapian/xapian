@@ -26,7 +26,7 @@
 # error config.h must be included first in each C++ source file
 #endif
 
-#include "api/leafpostlist.h"
+#include "backends/leafpostlist.h"
 #include "honey_defs.h"
 #include "pack.h"
 #include "wordaccess.h"

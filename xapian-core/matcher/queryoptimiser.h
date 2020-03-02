@@ -23,8 +23,9 @@
 #define XAPIAN_INCLUDED_QUERYOPTIMISER_H
 
 #include "backends/databaseinternal.h"
+#include "backends/leafpostlist.h"
+#include "backends/postlist.h"
 #include "localsubmatch.h"
-#include "api/postlist.h"
 
 class LeafPostList;
 class PostListTree;

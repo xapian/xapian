@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_HONEY_POSTLIST_H
 #define XAPIAN_INCLUDED_HONEY_POSTLIST_H
 
-#include "api/leafpostlist.h"
+#include "backends/leafpostlist.h"
 #include "honey_positionlist.h"
 #include "pack.h"
 

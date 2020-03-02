@@ -23,10 +23,10 @@
 
 #include "databaseinternal.h"
 
-#include "api/leafpostlist.h"
 #include "api/termlist.h"
 #include "heap.h"
 #include "omassert.h"
+#include "postlist.h"
 #include "slowvaluelist.h"
 #include "stringutils.h"
 #include "xapian/error.h"

@@ -22,8 +22,8 @@
 
 #include <xapian/database.h>
 
-#include "api/leafpostlist.h"
 #include "backends/multi.h"
+#include "backends/postlist.h"
 #include "heap.h"
 #include "omassert.h"
 

@@ -9,8 +9,10 @@ noinst_HEADERS +=\
 	backends/documentinternal.h\
 	backends/empty_database.h\
 	backends/flint_lock.h\
+	backends/leafpostlist.h\
 	backends/multi.h\
 	backends/positionlist.h\
+	backends/postlist.h\
 	backends/prefix_compressed_strings.h\
 	backends/slowvaluelist.h\
 	backends/uuids.h\
@@ -29,6 +31,8 @@ lib_src +=\
 	backends/dbfactory.cc\
 	backends/documentinternal.cc\
 	backends/empty_database.cc\
+	backends/leafpostlist.cc\
+	backends/postlist.cc\
 	backends/slowvaluelist.cc\
 	backends/uuids.cc\
 	backends/valuelist.cc

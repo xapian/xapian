@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 #include "backends/positionlist.h"
 
 /// Class for merging PostList objects from subdatabases.

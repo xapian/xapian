@@ -29,8 +29,8 @@
 #include "xapian/unicode.h"
 
 #include "api/editdistance.h"
+#include "backends/postlist.h"
 #include "heap.h"
-#include "leafpostlist.h"
 #include "matcher/andmaybepostlist.h"
 #include "matcher/andnotpostlist.h"
 #include "matcher/boolorpostlist.h"
