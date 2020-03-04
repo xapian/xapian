@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016,2017 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016,2017,2019 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -73,12 +73,6 @@
 
 /* We replace the get_hit() method with one which returns an MSetitem. */
 %rename(_get_hit_internal) Xapian::MSet::get_hit;
-
-/* Force xapian.BAD_VALUENO to be handled as a constant rather than a
- * read-only variable (ticket#297).
- */
-%ignore Xapian::BAD_VALUENO;
-%constant Xapian::valueno BAD_VALUENO = Xapian::BAD_VALUENO;
 
 %{
 namespace Xapian {
@@ -168,8 +162,8 @@ static int
 XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 {
     if (PyUnicode_Check(obj)) {
-	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj), PyUnicode_GET_SIZE(obj), "ignore");
-	if (strobj == NULL) return SWIG_ERROR;
+	PyObject* strobj = PyUnicode_AsUTF8String(obj);
+	if (strobj == NULL) return INT_MIN;
 	char *p;
 	Py_ssize_t len;
 	PyBytes_AsStringAndSize(strobj, &p, &len);
@@ -195,6 +189,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     std::string *ptr = (std::string *)0;
     res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res)) {
+	if (res == INT_MIN) SWIG_fail;
 	%argument_fail(res, "$type", $symname, $argnum);
     }
     if (!ptr) {
@@ -206,6 +201,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     std::string *ptr = (std::string *)0;
     int res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
+	if (res == INT_MIN) SWIG_fail;
 	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
     }
     $1 = *ptr;
@@ -214,7 +210,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 %typemap(freearg, noblock=1, match="in") const std::string & {
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
-%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string & {
+%typemap(typecheck, noblock=1, precedence=900) const std::string & {
     if (PyUnicode_Check($input)) {
 	$1 = 1;
     } else if (PyBytes_Check($input)) {
@@ -228,17 +224,18 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 %typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string *(int res = SWIG_OLDOBJ) {
     std::string *ptr = (std::string *)0;
     if ($input != Py_None) {
-        res = XapianSWIG_anystring_as_ptr($input, &ptr);
-        if (!SWIG_IsOK(res)) {
-            %argument_fail(res, "$type", $symname, $argnum);
-        }
+	res = XapianSWIG_anystring_as_ptr($input, &ptr);
+	if (!SWIG_IsOK(res)) {
+	    if (res == INT_MIN) SWIG_fail;
+	    %argument_fail(res, "$type", $symname, $argnum);
+	}
     }
     $1 = ptr;
 }
 %typemap(freearg, noblock=1, match="in") const std::string * {
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
-%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string * {
+%typemap(typecheck, noblock=1, precedence=900) const std::string * {
     if ($input == Py_None) {
 	$1 = 1;
     } else if (PyUnicode_Check($input)) {

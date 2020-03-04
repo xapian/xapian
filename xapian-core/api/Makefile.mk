@@ -10,6 +10,7 @@ noinst_HEADERS +=\
 	api/queryinternal.h\
 	api/queryvector.h\
 	api/replication.h\
+	api/roundestimate.h\
 	api/smallvector.h\
 	api/termlist.h\
 	api/vectortermlist.h

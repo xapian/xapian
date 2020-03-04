@@ -1,7 +1,7 @@
 /** @file safesyssocket.h
  * @brief #include <sys/socket.h> with portability workarounds.
  */
-/* Copyright (C) 2012,2013,2014,2018 Olly Betts
+/* Copyright (C) 2012,2013,2014,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,7 +78,7 @@ inline int socket_(int domain, int type, int protocol) {
     if (type & SOCK_CLOEXEC) {
 	int save_errno = errno;
 	int r = socket(domain, type, protocol);
-	if (r != 0 && errno == EINVAL) {
+	if (r < 0 && errno == EINVAL) {
 	    errno = save_errno;
 	    r = socket(domain, type &~ SOCK_CLOEXEC, protocol);
 	}

@@ -27,11 +27,13 @@
 
 #include "omassert.h"
 
+#include <algorithm>
 #include <cstring>
 #include <string>
 
 #include "backends/uuids.h"
 #include "internaltypes.h"
+#include "min_non_zero.h"
 #include "xapian/types.h"
 
 namespace Glass {
@@ -153,7 +155,7 @@ class GlassVersion {
     void unserialise_stats();
 
   public:
-    explicit GlassVersion(const std::string & db_dir_ = std::string())
+    explicit GlassVersion(const std::string & db_dir_)
 	: rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
 	  doccount(0), total_doclen(0), last_docid(0),
 	  doclen_lbound(0), doclen_ubound(0),
@@ -238,10 +240,8 @@ class GlassVersion {
 
     void add_document(Xapian::termcount doclen) {
 	++doccount;
-	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))
-	    doclen_lbound = doclen;
-	if (doclen > doclen_ubound)
-	    doclen_ubound = doclen;
+	doclen_lbound = min_non_zero(doclen_lbound, doclen);
+	doclen_ubound = std::max(doclen_ubound, doclen);
 	total_doclen += doclen;
     }
 

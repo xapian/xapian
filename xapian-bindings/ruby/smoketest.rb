@@ -6,7 +6,7 @@
 # Originally based on smoketest.php from the PHP4 bindings.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008,2009,2010,2011,2016 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2016,2019 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -52,6 +52,12 @@ class XapianSmoketest < Test::Unit::TestCase
     @db.add_document(@doc)
 
     @enq = Xapian::Enquire.new(@db)
+
+    # Check Xapian::BAD_VALUENO is wrapped suitably.
+    @enq.collapse_key = Xapian::BAD_VALUENO
+
+    # Test that the non-constant wrapping prior to 1.4.10 still works.
+    @enq.collapse_key = Xapian::BAD_VALUENO()
   end # setup
 
   def test_version
@@ -106,6 +112,22 @@ class XapianSmoketest < Test::Unit::TestCase
                   Xapian::Term.new("string", 1),
                   Xapian::Term.new("test", 1),
                   Xapian::Term.new("tuple", 1)], xor_query.terms())
+    assert_equal(xor_query.terms(), xor_query.unique_terms())
+
+    non_unique_query = Xapian::Query.new(Xapian::Query::OP_PHRASE,
+                                         [Xapian::Query.new("the", 1, 1),
+                                          Xapian::Query.new("the", 1, 2)])
+    assert_equal([Xapian::Term.new("the", 1),
+                  Xapian::Term.new("the", 1)], non_unique_query.terms())
+    assert_equal([Xapian::Term.new("the", 1)], non_unique_query.unique_terms())
+
+    count = 0
+    non_unique_query.terms() { count += 1 }
+    assert_equal(2, count)
+
+    count = 0
+    non_unique_query.unique_terms() { count += 1 }
+    assert_equal(1, count)
 
     assert_equal(Xapian::Query::OP_ELITE_SET, 10)
 
@@ -136,6 +158,9 @@ class XapianSmoketest < Test::Unit::TestCase
     mset = @enq.mset(0, 10)
 
     assert_equal(mset.matches().size(), mset.size())
+    msize = 0
+    mset.matches { |x| msize += 1 }
+    assert_equal(msize, mset.size())
   end
 
 
@@ -151,6 +176,10 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_not_nil(eset)
 
     assert_equal(3, eset.terms.size())
+    assert_equal(3, eset.size())
+    esize = 0
+    eset.terms { |x| esize += 1 }
+    assert_equal(3, esize)
   end # test_eset_iter
 
   # Feature test for Database.allterms
@@ -159,26 +188,42 @@ class XapianSmoketest < Test::Unit::TestCase
     ou_terms = @db.allterms('ou')
     assert_equal(1, ou_terms.size())
     assert_equal('out', ou_terms[0].term)
+    count = 0
+    @db.allterms('ou') { |t|
+      count += 1
+      assert_equal(t.term, "out")
+    }
+    assert_equal(1, count)
   end
 
   # Feature test for Database.postlist
   def test_007_database_postlist
     assert_equal(1, @db.postlist("there").size())
+    count = 0
+    @db.postlist("there") { |x| count += 1 }
+    assert_equal(1, count)
   end
 
   # Feature test for Database.termlist
   def test_008_database_termlist
     assert_equal(5, @db.termlist(1).size())
+    count = 0
+    @db.termlist(1) { |t| count += 1 }
+    assert_equal(5, count)
   end
 
   # Feature test for Database.positionlist
   def test_009_database_positionlist
     assert_equal(2, @db.positionlist(1, "there").size())
+    count = 0
+    @db.positionlist(1, "there") { |x| count += 1 }
+    assert_equal(2, count)
   end
 
   # Feature test for Document.values
   def test_010_document_values
     assert_equal(0, @doc.values().size())
+    @doc.values() { |x| assert(false) }
   end
 
   def test_011_matchdecider
@@ -201,11 +246,34 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(@db.get_metadata('Foo'), '')
     @db.set_metadata('Foo', 'Foo')
     assert_equal(@db.get_metadata('Foo'), 'Foo')
+
+    # The inmemory backend doesn't support metadata_keys so we need to create a
+    # "real" database for these tests.
+    Dir.mktmpdir("smokerb") {|tmpdir|
+        dbpath = "#{tmpdir}/db"
+
+        db = Xapian::WritableDatabase.new(dbpath, Xapian::DB_CREATE_OR_OVERWRITE)
+        assert_equal(db.get_metadata('Foo'), '')
+        db.set_metadata('Foo', 'Foo')
+        assert_equal(db.get_metadata('Foo'), 'Foo')
+        assert_equal(db.metadata_keys(), ["Foo"])
+        assert_equal(db.metadata_keys('F'), ["Foo"])
+        assert_equal(db.metadata_keys('Foo'), ["Foo"])
+        assert_equal(db.metadata_keys('A'), [])
+        assert_equal(db.metadata_keys('Food'), [])
+        assert_equal(db.metadata_keys('f'), [])
+        count = 0
+        db.metadata_keys { |k|
+          count += 1
+          assert_equal(k, "Foo")
+        }
+        assert_equal(1, count)
+    }
   end
 
   def test_013_scaleweight
     query = Xapian::Query.new("foo")
-    query2 = Xapian::Query.new(Xapian::Query::OP_SCALE_WEIGHT, query, 5);
+    query2 = Xapian::Query.new(Xapian::Query::OP_SCALE_WEIGHT, query, 5)
     assert_equal(query2.description(), "Query(5 * foo)")
   end
 
@@ -234,25 +302,25 @@ class XapianSmoketest < Test::Unit::TestCase
     mset = enquire.mset(0, 10)
     assert_equal(mset.size(), 4)
     assert_equal(spy.values.map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
-		 "maybe:1,no:1,yes:2")
+                 "maybe:1,no:1,yes:2")
     assert_equal(spy.top_values(1).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
-		 "yes:2")
+                 "yes:2")
     assert_equal(spy.top_values(2).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
-		 "yes:2,maybe:1")
+                 "yes:2,maybe:1")
     assert_equal(spy.top_values(3).map{|i| "%s:%d"%[i.term, i.termfreq]} * ",",
-		 "yes:2,maybe:1,no:1")
+                 "yes:2,maybe:1,no:1")
 
     # Test the valuestream iterator, while we've got some data
     assert_equal(@db.valuestream(1).size(), 0)
     assert_equal(@db.valuestream(0).map{|i| "%d:%s"%[i.docid, i.value]}*",",
-		 "2:yes,3:yes,4:maybe,5:no")
+                 "2:yes,3:yes,4:maybe,5:no")
   end
 
   def test_016_compactor
     Dir.mktmpdir("smokerb") {|tmpdir|
-        db1path = "#{tmpdir}db1"
-        db2path = "#{tmpdir}db2"
-        db3path = "#{tmpdir}db3"
+        db1path = "#{tmpdir}/db1"
+        db2path = "#{tmpdir}/db2"
+        db3path = "#{tmpdir}/db3"
 
         # Set up a couple of sample input databases
         db1 = Xapian::WritableDatabase.new(db1path, Xapian::DB_CREATE_OR_OVERWRITE)
@@ -294,12 +362,111 @@ class XapianSmoketest < Test::Unit::TestCase
     }
   end
 
-  def test_016_latlongcoords_iterator
+  def test_017_latlongcoords_iterator
     coords = Xapian::LatLongCoords.new()
     coords.append(Xapian::LatLongCoord.new(0, 0))
     assert_equal(coords.size(), 1)
     assert_equal(coords.all.map{|i| "%s"%i.description}*",",
-		 "Xapian::LatLongCoord(0, 0)")
+                 "Xapian::LatLongCoord(0, 0)")
+    s = ''
+    coords.all {|i| s += i.description }
+    assert_equal(s, "Xapian::LatLongCoord(0, 0)")
+  end
+
+  def test_018_spellings
+    # The inmemory backend doesn't support spellings so we need to create a
+    # "real" database for these tests.
+    Dir.mktmpdir("smokerb") {|tmpdir|
+        dbpath = "#{tmpdir}/dbspell"
+
+        db = Xapian::WritableDatabase.new(dbpath, Xapian::DB_CREATE_OR_OVERWRITE)
+        a = []
+        db.spellings { |x| a.push(x) }
+        assert_equal(a, db.spellings)
+        assert_equal([], a)
+        db.add_spelling("there")
+        db.add_spelling("their")
+        db.add_spelling("they're")
+        db.add_spelling("there")
+        a = []
+        db.spellings { |x| a.push(x) }
+        assert_equal(a, db.spellings)
+        assert_equal([Xapian::Term.new("their", 0, 1),
+                      Xapian::Term.new("there", 0, 2),
+                      Xapian::Term.new("they're", 0, 1)], a)
+    }
+  end
+
+  def test_019_synonyms
+    # The inmemory backend doesn't support synonyms so we need to create a
+    # "real" database for these tests.
+    Dir.mktmpdir("smokerb") {|tmpdir|
+        dbpath = "#{tmpdir}/dbsynonym"
+
+        db = Xapian::WritableDatabase.new(dbpath, Xapian::DB_CREATE_OR_OVERWRITE)
+
+        k = []
+        db.synonym_keys { |x| k.push(x) }
+        assert_equal(k, db.synonym_keys)
+        assert_equal(k, [])
+
+        a = []
+        db.synonyms('food') { |x| a.push(x) }
+        assert_equal(a, db.synonyms('food'))
+        assert_equal(a, [])
+
+        db.add_synonym("food", "nosh")
+        db.add_synonym("food", "grub")
+        db.add_synonym("food", "kai")
+        db.add_synonym("drink", "tea")
+        db.add_synonym("drink", "coffee")
+
+        k = []
+        db.synonym_keys { |x| k.push(x) }
+        assert_equal(k, db.synonym_keys)
+        assert_equal(['drink', 'food'], k)
+
+        a = []
+        db.synonyms('drink') { |x| a.push(x) }
+        assert_equal(a, db.synonyms('drink'))
+        assert_equal(['coffee', 'tea'], a)
+
+        a = []
+        db.synonyms('food') { |x| a.push(x) }
+        assert_equal(a, db.synonyms('food'))
+        assert_equal(['grub', 'kai', 'nosh'], a)
+
+        a = []
+        db.synonyms('nothing') { |x| a.push(x) }
+        assert_equal(a, db.synonyms('nothing'))
+        assert_equal([], a)
+    }
+  end
+
+  def test_020_queryparser
+    stopper = Xapian::SimpleStopper.new()
+    stopper.add('a')
+    stopper.add('the')
+    qp = Xapian::QueryParser.new()
+    qp.stopper = stopper
+    qp.stemmer = Xapian::Stem.new('en')
+    q = qp.parse_query("The starting started with a start")
+    puts q.description
+
+    a = []
+    qp.stoplist() { |x| a.push(x) }
+    assert_equal(a, qp.stoplist())
+    assert_equal(['the', 'a'], a)
+
+    a = []
+    qp.unstem('Zthe') { |x| a.push(x) }
+    assert_equal(a, qp.unstem('Zthe'))
+    assert_equal([], a)
+
+    a = []
+    qp.unstem('Zstart') { |x| a.push(x) }
+    assert_equal(a, qp.unstem('Zstart'))
+    assert_equal(['starting', 'started', 'start'], a)
   end
 
 end # class XapianSmoketest

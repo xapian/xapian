@@ -48,6 +48,7 @@
 # include <cstdlib> // For free().
 #endif
 
+#include "errno_to_string.h"
 #include "noreturn.h"
 #include "str.h"
 
@@ -122,7 +123,7 @@ try_next_port:
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	string msg("Couldn't create socketpair: ");
-	msg += strerror(errno);
+	errno_to_string(errno, msg);
 	throw msg;
     }
 
@@ -154,7 +155,7 @@ try_next_port:
 	int fork_errno = errno;
 	close(fds[0]);
 	string msg("Couldn't fork: ");
-	msg += strerror(fork_errno);
+	errno_to_string(fork_errno, msg);
 	throw msg;
     }
 
@@ -166,7 +167,7 @@ try_next_port:
 	string msg("Failed to run command '");
 	msg += cmd;
 	msg += "': ";
-	msg += strerror(errno);
+	errno_to_string(errno, msg);
 	throw msg;
     }
 
@@ -179,7 +180,7 @@ try_next_port:
 	    int status;
 	    if (waitpid(child, &status, 0) == -1) {
 		string msg("waitpid failed: ");
-		msg += strerror(errno);
+		errno_to_string(errno, msg);
 		throw msg;
 	    }
 	    if (++port < 65536 && status != 0) {
@@ -227,6 +228,12 @@ try_next_port:
 }
 
 #elif defined __WIN32__
+
+static HANDLE tcpsrv_handles[16];
+static unsigned tcpsrv_handles_index = 0;
+
+static constexpr auto TCPSRV_HANDLES_INDEX_MAX =
+	sizeof(tcpsrv_handles) / sizeof(tcpsrv_handles[0]);
 
 XAPIAN_NORETURN(static void win32_throw_error_string(const char * str));
 static void win32_throw_error_string(const char * str)
@@ -324,6 +331,10 @@ try_next_port:
     }
     fclose(fh);
 
+    if (tcpsrv_handles_index < TCPSRV_HANDLES_INDEX_MAX) {
+	tcpsrv_handles[tcpsrv_handles_index++] = procinfo.hProcess;
+    }
+
     return port;
 }
 
@@ -338,7 +349,7 @@ BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
 std::string
 BackendManagerRemoteTcp::get_dbtype() const
 {
-    return "remotetcp_" + remote_type;
+    return "remotetcp_" + sub_manager->get_dbtype();
 }
 
 Xapian::Database
@@ -363,6 +374,14 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 					     unsigned int timeout)
 {
     string args = get_remote_database_args(files, timeout);
+    int port = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open(LOCALHOST, port);
+}
+
+Xapian::Database
+BackendManagerRemoteTcp::get_database_by_path(const string& path)
+{
+    string args = get_remote_database_args(path, 300000);
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open(LOCALHOST, port);
 }
@@ -403,5 +422,11 @@ BackendManagerRemoteTcp::clean_up()
 	    close(fd);
 	}
     }
+#elif defined __WIN32__
+    for (unsigned i = 0; i != tcpsrv_handles_index; ++i) {
+	WaitForSingleObject(tcpsrv_handles[i], INFINITE);
+	CloseHandle(tcpsrv_handles[i]);
+    }
+    tcpsrv_handles_index = 0;
 #endif
 }

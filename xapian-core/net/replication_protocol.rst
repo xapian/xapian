@@ -1,5 +1,5 @@
 .. Copyright (C) 2008 Lemur Consulting Ltd
-.. Copyright (C) 2010,2014 Olly Betts
+.. Copyright (C) 2010,2014,2019 Olly Betts
 
 ====================================
 Xapian Database Replication Protocol
@@ -26,10 +26,11 @@ means packed according to the same methods for packing these into databases.
 Client messages
 ---------------
 
-The client sends a single message type to the server: this is a message of type
-'R', and includes the name of a database to be replicated and a revision string
-for that database.  This message is sent whenever the client wants to receive
-updates for a database.
+The client sends two message types to the server: a message of type 'R' which
+specifies the revision string for that database (or an empty string to force
+a copy) followed by a message of type 'D' which specifies the name of the
+database to be replicated.  These messages are sent whenever the client wants
+to receive updates for a database.
 
 Server messages
 ---------------

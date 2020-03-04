@@ -20,7 +20,7 @@ Getting Started
 ---------------
 
 There's a new
-`Getting Started with Xapian <http://getting-started-with-xapian.readthedocs.org/>`_
+`Getting Started with Xapian <https://getting-started-with-xapian.readthedocs.io/>`_
 guide, which is the recommended place to start.
 
 Documentation

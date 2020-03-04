@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2013,2014,2015,2016,2019 Olly Betts
 # Copyright (C) 2010,2011 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -1324,7 +1324,7 @@ def test_value_mods():
     check_vals(db, vals)
 
     db.close()
-    expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
+    expect_exception(xapian.DatabaseClosedError, "Database has been closed", check_vals, db, vals)
     shutil.rmtree(dbpath)
 
 def test_serialise_document():
@@ -1697,12 +1697,14 @@ def test_repr():
     expect(repr(xapian.InvalidOperationError('foo')) is None, False)
     expect(repr(xapian.UnimplementedError('foo')) is None, False)
     expect(repr(xapian.DatabaseError('foo')) is None, False)
+    expect(repr(xapian.DatabaseClosedError('foo')) is None, False)
     expect(repr(xapian.DatabaseCorruptError('foo')) is None, False)
     expect(repr(xapian.DatabaseCreateError('foo')) is None, False)
     expect(repr(xapian.DatabaseLockError('foo')) is None, False)
     expect(repr(xapian.DatabaseModifiedError('foo')) is None, False)
     expect(repr(xapian.DatabaseOpeningError('foo')) is None, False)
     expect(repr(xapian.DatabaseVersionError('foo')) is None, False)
+    expect(repr(xapian.DatabaseNotFoundError('foo')) is None, False)
     expect(repr(xapian.DocNotFoundError('foo')) is None, False)
     expect(repr(xapian.FeatureUnavailableError('foo')) is None, False)
     expect(repr(xapian.InternalError('foo')) is None, False)
@@ -1756,6 +1758,17 @@ def test_repr():
     expect(repr(xapian.GreatCircleMetric()) is None, False)
     expect(repr(xapian.Database()) is None, False)
     expect(repr(xapian.WritableDatabase()) is None, False)
+
+def test_lone_surrogate():
+    # Test that a lone surrogate in input data raises UnicodeEncodeError.
+    # Regression test for bug fixed in 1.4.12 (previous versions quietly
+    # skipped the lone surrogate when converting to UTF-8).
+    noop_stemmer = xapian.Stem("none")
+    try:
+        term = noop_stemmer(u"a\udead0")
+        raise TestFail("Lone surrogate accepted (output as %s)" % term)
+    except UnicodeEncodeError:
+        pass
 
 result = True
 

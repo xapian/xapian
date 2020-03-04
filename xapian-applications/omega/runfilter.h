@@ -1,6 +1,7 @@
-/* runfilter.h: run an external filter and capture its output in a std::string.
- *
- * Copyright (C) 2007,2013,2015 Olly Betts
+/** @file runfilter.h
+ * @brief run an external filter and capture its output in a std::string.
+ */
+/* Copyright (C) 2007,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,16 +39,20 @@ struct NoSuchFilter { };
 /** Analyse if a command needs the shell.
  *
  *  The return value of this function can be passed as the second argument of
- *  stdout_to_string().
+ *  run_filter()/stdout_to_string().
  */
 bool command_needs_shell(const char * p);
 
 /// Initialise the runfilter module.
 void runfilter_init();
 
-/** Run command @a cmd, capture its stdout, and return it as a std::string.
+/** Run command @a cmd, optionally capturing its stdout.
  *
- *  @param use_shell  If false, try to avoid using a shell to run the command.
+ *  @param fd_in	FD for piped input, or -1 for input from file.
+ *  @param cmd		The command to run.
+ *  @param use_shell	If false, try to avoid using a shell to run the command.
+ *  @param out		Pointer to std::string to put stdout in or NULL to
+ *			discard stdout.  (default: NULL)
  *  @param alt_status	Exit status to treat as success in addition to 0
  *			(default: Only treat exit status 0 as success).
  *
@@ -71,7 +76,31 @@ void runfilter_init();
  *  same code path (which may or may not involve some analog of the Unix
  *  shell).
  */
-std::string stdout_to_string(const std::string &cmd, bool use_shell,
-			     int alt_status = 0);
+void run_filter(int fd_in,
+		const std::string& cmd,
+		bool use_shell,
+		std::string* out = nullptr,
+		int alt_status = 0);
+
+static inline void
+run_filter(const std::string& cmd,
+	   bool use_shell,
+	   std::string* out = nullptr,
+	   int alt_status = 0)
+{
+    run_filter(-1, cmd, use_shell, out, alt_status);
+}
+
+/** Run command @a cmd, capture its stdout, and return it as a std::string.
+ *
+ *  This is a simple wrapper around run_filter().
+ */
+static inline std::string
+stdout_to_string(const std::string& cmd, bool use_shell, int alt_status = 0)
+{
+    std::string out;
+    run_filter(cmd, use_shell, &out, alt_status);
+    return out;
+}
 
 #endif // OMEGA_INCLUDED_RUNFILTER_H

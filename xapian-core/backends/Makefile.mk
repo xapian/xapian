@@ -4,6 +4,7 @@ noinst_HEADERS +=\
 	backends/byte_length_strings.h\
 	backends/contiguousalldocspostlist.h\
 	backends/database.h\
+	backends/databasehelpers.h\
 	backends/databasereplicator.h\
 	backends/document.h\
 	backends/flint_lock.h\
@@ -22,6 +23,7 @@ lib_src +=\
 	backends/alltermslist.cc\
 	backends/dbcheck.cc\
 	backends/database.cc\
+	backends/databasehelpers.cc\
 	backends/databasereplicator.cc\
 	backends/dbfactory.cc\
 	backends/slowvaluelist.cc\

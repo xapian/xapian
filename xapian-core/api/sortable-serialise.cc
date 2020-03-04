@@ -128,7 +128,7 @@ Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
 	buf[len++] = next;
 	// And the lower 6 bits of the exponent go into the upper 6 bits
 	// of the second byte:
-	next = static_cast<unsigned char>(exponent) << 2;
+	next = static_cast<unsigned char>(exponent << 2);
 	if (negative ^ exponent_negative) next ^= 0xfc;
     }
 

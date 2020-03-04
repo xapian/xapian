@@ -45,12 +45,18 @@
 #include "hashterm.h"
 #include "loadfile.h"
 #include "myhtmlparse.h"
+#include "parseint.h"
+#include "setenv.h"
 #include "str.h"
 #include "stringutils.h"
 #include "timegm.h"
 #include "utf8truncate.h"
 #include "utils.h"
 #include "values.h"
+
+#ifndef HAVE_STRPTIME
+#include "portability/strptime.h"
+#endif
 
 #include "gnu_getopt.h"
 
@@ -74,30 +80,30 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 
 const char * action_names[] = {
     "bad", "new",
-    "boolean", "date", "field", "hash", "hextobin", "index", "indexnopos",
-    "load", "lower", "parsedate", "spell", "split", "truncate", "unhtml",
-    "unique", "value", "valuenumeric", "valuepacked", "weight"
+    "boolean", "date", "field", "gap", "hash", "hextobin", "index",
+    "indexnopos", "load", "lower", "parsedate", "spell", "split", "truncate",
+    "unhtml", "unique", "value", "valuenumeric", "valuepacked", "weight"
 };
 
 // For debugging:
 #define DUMP_ACTION(A) cout << action_names[(A).get_action()] << "(" << (A).get_string_arg() << "," << (A).get_num_arg() << ")" << endl
 
 class Action {
-public:
+  public:
     typedef enum {
 	BAD, NEW,
-	BOOLEAN, DATE, FIELD, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD, LOWER,
-	PARSEDATE, SPELL, SPLIT, TRUNCATE, UNHTML, UNIQUE, VALUE,
+	BOOLEAN, DATE, FIELD, GAP, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD,
+	LOWER, PARSEDATE, SPELL, SPLIT, TRUNCATE, UNHTML, UNIQUE, VALUE,
 	VALUENUMERIC, VALUEPACKED, WEIGHT
     } type;
-    enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT };
-private:
+    enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT, SPLIT_PREFIXES };
+  private:
     type action;
     int num_arg;
     string string_arg;
     // Offset into indexscript line.
     size_t pos;
-public:
+  public:
     Action(type action_, size_t pos_)
 	: action(action_), num_arg(0), pos(pos_) { }
     Action(type action_, size_t pos_, const string & arg)
@@ -112,6 +118,21 @@ public:
     const string & get_string_arg() const { return string_arg; }
     size_t get_pos() const { return pos; }
 };
+
+// These allow searching for an Action with a particular Action::type using
+// std::find().
+
+inline bool
+operator==(const Action& a, Action::type t) { return a.get_action() == t; }
+
+inline bool
+operator==(Action::type t, const Action& a) { return a.get_action() == t; }
+
+inline bool
+operator!=(const Action& a, Action::type t) { return !(a == t); }
+
+inline bool
+operator!=(Action::type t, const Action& a) { return !(t == a); }
 
 enum diag_type { DIAG_ERROR, DIAG_WARN, DIAG_NOTE };
 
@@ -230,6 +251,13 @@ parse_index_script(const string &filename)
 			if (action == "field") {
 			    code = Action::FIELD;
 			    max_args = 1;
+			}
+			break;
+		    case 'g':
+			if (action == "gap") {
+			    code = Action::GAP;
+			    max_args = 1;
+			    takes_integer_argument = true;
 			}
 			break;
 		    case 'h':
@@ -480,6 +508,17 @@ bad_escaping:
 		    }
 		}
 		switch (code) {
+		    case Action::DATE:
+			if (val != "unix" &&
+			    val != "unixutc" &&
+			    val != "yyyymmdd") {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Invalid parameter '" << val << "' for "
+				    "action 'date'" << endl;
+			    exit(1);
+			}
+			actions.emplace_back(code, action_pos, val);
+			break;
 		    case Action::INDEX:
 		    case Action::INDEXNOPOS:
 			actions.emplace_back(code, action_pos, val, weight);
@@ -496,6 +535,23 @@ bad_escaping:
 			}
 			useless_weight_pos = action_pos;
 			break;
+		    case Action::PARSEDATE: {
+			if (val.find("%Z") != val.npos) {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Parsing timezone names with %Z is not supported" << endl;
+			    exit(1);
+			}
+#ifndef HAVE_STRUCT_TM_TM_GMTOFF
+			if (val.find("%z") != val.npos) {
+			    report_location(DIAG_ERROR, filename, line_no);
+			    cerr << "Parsing timezone offsets with %z is not supported on "
+				    "this platform" << endl;
+			    exit(1);
+			}
+#endif
+			actions.emplace_back(code, action_pos, val);
+			break;
+		    }
 		    case Action::SPLIT: {
 			if (val.empty()) {
 			    report_location(DIAG_ERROR, filename, line_no);
@@ -510,6 +566,8 @@ bad_escaping:
 				operation = Action::SPLIT_SORT;
 			    } else if (vals[1] == "none") {
 				operation = Action::SPLIT_NONE;
+			    } else if (vals[1] == "prefixes") {
+				operation = Action::SPLIT_PREFIXES;
 			    } else {
 				report_location(DIAG_ERROR, filename, line_no);
 				cerr << "Bad split operation '" << vals[1]
@@ -546,6 +604,19 @@ bad_escaping:
 			    boolmap[val] = Action::UNIQUE;
 			actions.emplace_back(code, action_pos, val);
 			break;
+		    case Action::GAP: {
+			actions.emplace_back(code, action_pos, val);
+			auto& obj = actions.back();
+			auto gap_size = obj.get_num_arg();
+			if (gap_size <= 0) {
+			    report_location(DIAG_ERROR, filename, line_no,
+					    obj.get_pos() + 3 + 1);
+			    cerr << "Index action 'gap' takes a strictly "
+				    "positive integer argument" << endl;
+			    exit(1);
+			}
+			break;
+		    }
 		    case Action::HASH: {
 			actions.emplace_back(code, action_pos, val);
 			auto& obj = actions.back();
@@ -582,6 +653,8 @@ bad_escaping:
 		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
 		    useless_weight_pos = string::npos;
 		    actions.emplace_back(code, action_pos, "", weight);
+		} else if (code == Action::GAP) {
+		    actions.emplace_back(code, action_pos, "", 100);
 		} else if (code == Action::HASH) {
 		    actions.emplace_back(code, action_pos, "",
 					 MAX_SAFE_TERM_LENGTH - 1);
@@ -718,6 +791,9 @@ run_actions(vector<Action>::const_iterator action_it,
 		doc.add_boolean_term(term);
 		break;
 	    }
+	    case Action::GAP:
+		indexer.increase_termpos(action.get_num_arg());
+		break;
 	    case Action::HASH: {
 		unsigned int max_length = action.get_num_arg();
 		if (value.length() > max_length)
@@ -781,21 +857,18 @@ badhex:
 		indexer.set_flags(indexer.FLAG_SPELLING);
 		break;
 	    case Action::SPLIT: {
-		// Execute actions on the split up to the first NEW, if any.
-		vector<Action>::const_iterator split_end = action_it;
-		while (split_end != action_end &&
-		       split_end->get_action() != Action::NEW) {
-		    ++split_end;
-		}
+		// Find the end of the actions which split should execute.
+		auto split_end = find(action_it, action_end, Action::NEW);
 
+		int split_type = action.get_num_arg();
 		if (value.empty()) {
 		    // Nothing to do.
-		} else if (action.get_num_arg() != Action::SPLIT_SORT) {
+		} else if (split_type != Action::SPLIT_SORT) {
 		    // Generate split as we consume it.
 		    const string& delimiter = action.get_string_arg();
 
 		    unique_ptr<unordered_set<string>> seen;
-		    if (action.get_num_arg() == Action::SPLIT_DEDUP) {
+		    if (split_type == Action::SPLIT_DEDUP) {
 			seen.reset(new unordered_set<string>);
 		    }
 
@@ -805,7 +878,18 @@ badhex:
 			string::size_type i = 0;
 			while (true) {
 			    string::size_type j = value.find(ch, i);
-			    if (i != j) {
+			    if (split_type == Action::SPLIT_PREFIXES) {
+				if (j > 0) {
+				    string val(value, 0, j);
+				    run_actions(action_it, split_end,
+						database, indexer,
+						val,
+						this_field_is_content, doc,
+						fields,
+						field, fname, line_no,
+						docid);
+				}
+			    } else if (i != j) {
 				string val(value, i, j - i);
 				if (!seen.get() || seen->insert(val).second) {
 				    run_actions(action_it, split_end,
@@ -824,7 +908,18 @@ badhex:
 			string::size_type i = 0;
 			while (true) {
 			    string::size_type j = value.find(delimiter, i);
-			    if (i != j) {
+			    if (split_type == Action::SPLIT_PREFIXES) {
+				if (j > 0) {
+				    string val(value, 0, j);
+				    run_actions(action_it, split_end,
+						database, indexer,
+						val,
+						this_field_is_content, doc,
+						fields,
+						field, fname, line_no,
+						docid);
+				}
+			    } else if (i != j) {
 				string val(value, i, j - i);
 				if (!seen.get() || seen->insert(val).second) {
 				    run_actions(action_it, split_end,
@@ -979,13 +1074,36 @@ badhex:
 		const string & type = action.get_string_arg();
 		string yyyymmdd;
 		if (type == "unix") {
-		    time_t t = atoi(value.c_str());
+		    time_t t;
+		    if (!parse_signed(value.c_str(), t)) {
+			report_location(DIAG_WARN, fname, line_no);
+			cerr << "Date value (in secs) for action DATE "
+				"must be an integer - ignoring" << endl;
+			break;
+		    }
 		    struct tm *tm = localtime(&t);
 		    int y = tm->tm_year + 1900;
 		    int m = tm->tm_mon + 1;
 		    yyyymmdd = date_to_string(y, m, tm->tm_mday);
+		} else if (type == "unixutc") {
+		    time_t t;
+		    if (!parse_signed(value.c_str(), t)) {
+			report_location(DIAG_WARN, fname, line_no);
+			cerr << "Date value (in secs) for action DATE "
+				"must be an integer - ignoring" << endl;
+			break;
+		    }
+		    struct tm *tm = gmtime(&t);
+		    int y = tm->tm_year + 1900;
+		    int m = tm->tm_mon + 1;
+		    yyyymmdd = date_to_string(y, m, tm->tm_mday);
 		} else if (type == "yyyymmdd") {
-		    if (value.length() != 8) break;
+		    if (value.length() != 8) {
+			report_location(DIAG_WARN, fname, line_no);
+			cerr << "date=yyyymmdd expects an 8 character value "
+				"- ignoring" << endl;
+			break;
+		    }
 		    yyyymmdd = value;
 		}
 
@@ -1018,8 +1136,14 @@ badhex:
 			    "(\"" << ret << "\" left over) but "
 			    "indexing anyway" << endl;
 		}
-
-		value = str(timegm(&tm));
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+		auto gmtoff = tm.tm_gmtoff;
+#endif
+		auto secs_since_epoch = timegm(&tm);
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+		secs_since_epoch -= gmtoff;
+#endif
+		value = str(secs_since_epoch);
 		break;
 	    }
 	    default:
@@ -1157,6 +1281,10 @@ try {
     int database_mode = Xapian::DB_CREATE_OR_OPEN;
     verbose = false;
     Xapian::Stem stemmer("english");
+
+    // Without this, strptime() seems to treat formats without a timezone as
+    // being local time, including %s.
+    setenv("TZ", "UTC", 1);
 
     constexpr auto NO_ARG = no_argument;
     constexpr auto REQ_ARG = required_argument;

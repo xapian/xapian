@@ -22,6 +22,10 @@
 #ifndef XAPIAN_INCLUDED_FLINT_LOCK_H
 #define XAPIAN_INCLUDED_FLINT_LOCK_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include <string>
 
 #if defined __CYGWIN__ || defined __WIN32__

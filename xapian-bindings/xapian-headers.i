@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2019 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -153,6 +153,8 @@
  */
 /* %include <xapian/version.h> */
 
+CONSTANT(Xapian::valueno, Xapian, BAD_VALUENO);
+
 /* Types are needed by most of the other headers. */
 %include <xapian/types.h>
 
@@ -212,6 +214,7 @@ STANDARD_IGNORES(Xapian, Query)
 %ignore *::operator&(const Xapian::Query &, const Xapian::InvertedQuery_ &);
 %ignore *::operator~;
 %ignore *::operator&=;
+%ignore ::operator&=;
 %ignore *::operator|=;
 %ignore *::operator^=;
 %ignore *::operator*=;
@@ -242,7 +245,7 @@ STANDARD_IGNORES(Xapian, Query)
 #endif
 #ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 %ignore Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-              Xapian::termcount parameter = 0);
+	      Xapian::termcount parameter = 0);
 #endif
 %include <xapian/query.h>
 

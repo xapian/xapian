@@ -478,8 +478,8 @@ static unsigned int yy_find_shift_action(
       if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
              && (iFallback = yyFallback[iLookAhead])!=0 ){
         LOGLINE(QUERYPARSER,
-		"FALLBACK " << ParseTokenName(iLookAhead) << " => " <<
-		ParseTokenName(iFallback));
+                "FALLBACK " << ParseTokenName(iLookAhead) << " => " <<
+                ParseTokenName(iFallback));
         Assert( yyFallback[iFallback]==0 ); /* Fallback loop must terminate */
         iLookAhead = iFallback;
         continue;
@@ -497,9 +497,9 @@ static unsigned int yy_find_shift_action(
 #endif
           yy_lookahead[j]==YYWILDCARD && iLookAhead>0
         ){
-	  LOGLINE(QUERYPARSER,
-		  "WILDCARD " << ParseTokenName(iLookAhead) << " => " <<
-		  ParseTokenName(YYWILDCARD));
+          LOGLINE(QUERYPARSER,
+                  "WILDCARD " << ParseTokenName(iLookAhead) << " => " <<
+                  ParseTokenName(YYWILDCARD));
           return yy_action[j];
         }
       }
@@ -572,12 +572,12 @@ static void yyStackOverflow(yyParser *yypParser){
 static void yyTraceShift(yyParser *yypParser, int yyNewState, const char *zTag){
   if( yyNewState<YYNSTATE ){
     LOGLINE(QUERYPARSER, zTag << " '" <<
-			 yyTokenName[yypParser->yystack.back().major] <<
-			 "', go to state " << yyNewState);
+                         yyTokenName[yypParser->yystack.back().major] <<
+                         "', go to state " << yyNewState);
   }else{
     LOGLINE(QUERYPARSER, zTag << " '" <<
-			 yyTokenName[yypParser->yystack.back().major] <<
-			 "', pending reduce " << yyNewState - YY_MIN_REDUCE);
+                         yyTokenName[yypParser->yystack.back().major] <<
+                         "', pending reduce " << yyNewState - YY_MIN_REDUCE);
   }
 }
 #else
@@ -647,11 +647,11 @@ static void yy_reduce(
     yysize = yyRuleInfo[yyruleno].nrhs;
     if( yysize ){
       LOGLINE(QUERYPARSER, "Reduce " << yyruleno << " [" <<
-			   ParseRuleName(yyruleno) << "], go to state " <<
-			   yymsp[yysize].stateno);
+                           ParseRuleName(yyruleno) << "], go to state " <<
+                           yymsp[yysize].stateno);
     } else {
       LOGLINE(QUERYPARSER, "Reduce " << yyruleno << " [" <<
-			   ParseRuleName(yyruleno) << "].");
+                           ParseRuleName(yyruleno) << "].");
     }
   }
 #endif /* XAPIAN_DEBUG_LOG */
@@ -663,8 +663,8 @@ static void yy_reduce(
   ** pointers into the stack. */
   if( yyRuleInfo[yyruleno].nrhs==0 ){
 #if 1
-    yypParser->yystack.reserve(yypParser->yystack.size() + 1);
-    yymsp = &(yypParser->yystack.back());
+    yypParser->yystack.resize(yypParser->yystack.size() + 1);
+    yymsp = &(yypParser->yystack.back()) - 1;
 #else
 #ifdef YYTRACKMAXSTACKDEPTH
     if( (int)(yypParser->yytos - yypParser->yystack)>yypParser->yyhwm ){
@@ -715,8 +715,9 @@ static void yy_reduce(
   Assert( yyact!=YY_ERROR_ACTION );
 
   yymsp += yysize+1;
-  yypParser->yystack.resize(yypParser->yystack.size() + yysize+1);
-  //yymsp = &yypParser->yystack.back();
+  if (yysize) {
+    yypParser->yystack.resize(yypParser->yystack.size() + yysize+1);
+  }
   yymsp->stateno = static_cast<YYACTIONTYPE>(yyact);
   yymsp->major = static_cast<YYCODETYPE>(yygoto);
   yyTraceShift(yypParser, yyact, "... then shift");
@@ -824,12 +825,12 @@ void Parse(
     int stateno = yypParser->yystack.back().stateno;
     if( stateno < YY_MIN_REDUCE ){
       LOGLINE(QUERYPARSER, "Input '" << ParseTokenName(yymajor) <<
-			   "'," << (yyminor ? yyminor->name : "<<null>>") <<
-			   "in state " << stateno);
+                           "'," << (yyminor ? yyminor->name : "<<null>>") <<
+                           "in state " << stateno);
     }else{
       LOGLINE(QUERYPARSER, "Input '" << ParseTokenName(yymajor) <<
-			   "'," << (yyminor ? yyminor->name : "<<null>>") <<
-			   "with pending reduce " << stateno-YY_MIN_REDUCE);
+                           "'," << (yyminor ? yyminor->name : "<<null>>") <<
+                           "with pending reduce " << stateno-YY_MIN_REDUCE);
     }
   }
 #endif
@@ -880,7 +881,7 @@ void Parse(
       }
       yymx = yypParser->yystack.back().major;
       if( yymx==YYERRORSYMBOL || yyerrorhit ){
-	LOGLINE(QUERYPARSER, "Discard input token " << ParseTokenName(yymajor));
+        LOGLINE(QUERYPARSER, "Discard input token " << ParseTokenName(yymajor));
         yy_destructor(yypParser, static_cast<YYCODETYPE>(yymajor), &yyminorunion);
         yymajor = YYNOCODE;
       }else{

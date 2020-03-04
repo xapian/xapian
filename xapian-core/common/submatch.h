@@ -76,7 +76,8 @@ class SubMatch : public Xapian::Internal::intrusive_base {
 
     /// Get PostList.
     virtual PostList * get_postlist(MultiMatch *matcher,
-				    Xapian::termcount * total_subqs_ptr) = 0;
+				    Xapian::termcount* total_subqs_ptr,
+				    Xapian::Weight::Internal& total_stats) = 0;
 };
 
 #endif /* XAPIAN_INCLUDED_SUBMATCH_H */

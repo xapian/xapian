@@ -8,10 +8,9 @@ abs_builddir = @abs_builddir@
 TESTS = smoketest.php
 LOG_COMPILER = \
     $(LIBTOOL) -dlopen xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PHP7)
-# Use -n to disable use of the system php.ini (which might prevent php from
-# using dl() which would make our test fail).
-AM_LOG_FLAGS = -n -d safe_mode=off -d enable_dl=on \
-	-d extension_dir='$(abs_builddir)/.libs' \
+# Use -n to disable use of the system php.ini to avoid custom configuration
+# settings there which might interfere with our tests.
+AM_LOG_FLAGS = -n -d extension_dir='$(abs_builddir)/.libs' -d extension=xapian \
 	-d include_path='php7$(PHP7_PATH_SEPARATOR)$(srcdir)/php7'
 
 installcheck-local:
@@ -83,6 +82,13 @@ $(stamp): except.i add-php-ref-handling add-php-type-hints
 	$(PERL) '$(srcdir)/'add-php-ref-handling php7/xapian.php | \
 	    $(PERL) '$(srcdir)/'add-php-type-hints > php7/xapian.tmp
 	mv php7/xapian.tmp php7/xapian.php
+	$(PERL) -pe 's/(^#define SWIG_Error(Msg|Code)\(\) )\(xapian_globals\./$$1ZEND_MODULE_GLOBALS_ACCESSOR(xapian, /;' \
+	    -e 's/(SWIG_InitializeModule\()0/$$1(void*)&module_number/;' \
+	    -e 's/(^#define SWIG_SetModule\(clientdata, pointer\) SWIG_Php_SetModule\(pointer)\)/$$1, *(int*)clientdata)/;' \
+	    -e 's/(^static void SWIG_Php_SetModule\(swig_module_info \*pointer)\)/$$1, int module_number)/;' \
+	    -e 's/REGISTER_MAIN_LONG_CONSTANT/REGISTER_LONG_CONSTANT/' \
+	    php7/xapian_wrap.cc > php7/xapian_wrap.tmp
+	mv php7/xapian_wrap.tmp php7/xapian_wrap.cc
 	$(multitarget_end)
 
 -include php7/xapian_wrap.d

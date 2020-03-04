@@ -25,7 +25,7 @@
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/geospatial.h> directly; include <xapian.h> instead."
+# error Never use <xapian/geospatial.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -394,7 +394,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
  *  formula is subject to inaccuracy due to numerical errors for coordinates on
  *  the opposite side of the sphere.
  *
- *  See http://en.wikipedia.org/wiki/Haversine_formula
+ *  See https://en.wikipedia.org/wiki/Haversine_formula
  */
 class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
     /** The radius of the sphere in metres.

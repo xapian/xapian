@@ -359,6 +359,7 @@ GlassValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
     while (it != doc.values_end()) {
 	Xapian::valueno slot = it.get_valueno();
 	string value = *it;
+	Assert(!value.empty());
 
 	// Update the statistics.
 	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
@@ -494,8 +495,9 @@ GlassValueManager::get_all_values(map<Xapian::valueno, string> & values,
 {
     Assert(values.empty());
     if (!termlist_table->is_open()) {
-	// Either the database has been closed, or else there's no termlist table.
-	// Check if the postlist table is open to determine which is the case.
+	// Either the database has been closed, or else there's no termlist
+	// table.  Check if the postlist table is open to determine which is
+	// the case.
 	if (!postlist_table->is_open())
 	    GlassTable::throw_database_closed();
 	throw Xapian::FeatureUnavailableError("Database has no termlist");
@@ -549,6 +551,13 @@ GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 	if (!unpack_string(&pos, end, stats.lower_bound)) {
 	    if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
 	    throw Xapian::RangeError("Lower bound in value table is too large");
+	}
+	if (stats.lower_bound.empty() && stats.freq != 0) {
+	    Assert(false);
+	    // This shouldn't happen, but let's code defensively and set the
+	    // smallest valid lower bound (a single zero byte) if it somehow
+	    // does (it's been reported by a notmuch user).
+	    stats.lower_bound.assign(1, '\0');
 	}
 	size_t len = end - pos;
 	if (len == 0) {

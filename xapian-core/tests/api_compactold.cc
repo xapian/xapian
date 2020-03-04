@@ -1,7 +1,7 @@
 /** @file api_compactold.cc
  * @brief Tests of old compaction API
  */
-/* Copyright (C) 2009,2010,2011,2012,2013,2015 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2013,2015,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -95,7 +95,8 @@ check_sparse_uid_terms(const string & path)
     }
 }
 
-DEFINE_TESTCASE(compactoldnorenumber1, compact && generated) {
+// With multi the docids in the shards change the behaviour.
+DEFINE_TESTCASE(compactoldnorenumber1, compact && generated && !multi) {
     string a = get_database_path("compactnorenumber1a", make_sparse_db,
 				 "5-7 24 76 987 1023-1027 9999 !9999");
     string a_uuid;
@@ -110,7 +111,7 @@ DEFINE_TESTCASE(compactoldnorenumber1, compact && generated) {
     string d = get_database_path("compactnorenumber1d", make_sparse_db,
 				 "3000 999999 !999999");
 
-    string out = get_named_writable_database_path("compactnorenumber1out");
+    string out = get_compaction_output_path("compactnorenumber1out");
 
     rm_rf(out);
     {
@@ -243,7 +244,7 @@ DEFINE_TESTCASE(compactoldnorenumber1, compact && generated) {
 // Test use of compact to merge two databases.
 DEFINE_TESTCASE(compactoldmerge1, compact) {
     string indbpath = get_database_path("apitest_simpledata");
-    string outdbpath = get_named_writable_database_path("compactmerge1out");
+    string outdbpath = get_compaction_output_path("compactmerge1out");
     rm_rf(outdbpath);
 
     Xapian::Compactor compact;
@@ -281,7 +282,7 @@ make_multichunk_db(Xapian::WritableDatabase &db, const string &)
 DEFINE_TESTCASE(compactoldmultichunks1, compact && generated) {
     string indbpath = get_database_path("compactmultichunks1in",
 					make_multichunk_db, "");
-    string outdbpath = get_named_writable_database_path("compactmultichunks1out");
+    string outdbpath = get_compaction_output_path("compactmultichunks1out");
     rm_rf(outdbpath);
 
     Xapian::Compactor compact;
@@ -310,7 +311,7 @@ DEFINE_TESTCASE(compactoldstub1, compact) {
     stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
     stub.close();
 
-    string outdbpath = get_named_writable_database_path("compactstub1out");
+    string outdbpath = get_compaction_output_path("compactstub1out");
     rm_rf(outdbpath);
 
     Xapian::Compactor compact;
@@ -337,7 +338,7 @@ DEFINE_TESTCASE(compactoldstub2, compact) {
     stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
     stub.close();
 
-    string outdbpath = get_named_writable_database_path("compactstub2out");
+    string outdbpath = get_compaction_output_path("compactstub2out");
     rm_rf(outdbpath);
 
     Xapian::Compactor compact;
@@ -443,7 +444,7 @@ DEFINE_TESTCASE(compactoldmissingtables1, compact && generated) {
     string b = get_database_path("compactmissingtables1b",
 				 make_missing_tables);
 
-    string out = get_named_writable_database_path("compactmissingtables1out");
+    string out = get_compaction_output_path("compactmissingtables1out");
     rm_rf(out);
 
     Xapian::Compactor compact;
@@ -484,7 +485,7 @@ DEFINE_TESTCASE(compactoldmergesynonym1, compact && generated) {
     string b = get_database_path("compactmergesynonym1b",
 				 make_all_tables2);
 
-    string out = get_named_writable_database_path("compactmergesynonym1out");
+    string out = get_compaction_output_path("compactmergesynonym1out");
     rm_rf(out);
 
     Xapian::Compactor compact;
@@ -526,7 +527,7 @@ DEFINE_TESTCASE(compactoldmergesynonym1, compact && generated) {
 
 DEFINE_TESTCASE(compactoldempty1, compact) {
     string empty_dbpath = get_database_path(string());
-    string outdbpath = get_named_writable_database_path("compactempty1out");
+    string outdbpath = get_compaction_output_path("compactempty1out");
     rm_rf(outdbpath);
 
     {
@@ -557,8 +558,8 @@ DEFINE_TESTCASE(compactoldempty1, compact) {
     return true;
 }
 
-DEFINE_TESTCASE(compactoldmultipass1, compact) {
-    string outdbpath = get_named_writable_database_path("compactmultipass1");
+DEFINE_TESTCASE(compactoldmultipass1, compact && generated) {
+    string outdbpath = get_compaction_output_path("compactmultipass1");
     rm_rf(outdbpath);
 
     string a = get_database_path("compactnorenumber1a", make_sparse_db,

@@ -72,8 +72,16 @@ message you're interested by setting environment variables.  You can:
  * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
    output to be appended to, or to the special value ``-`` to indicate that you
    would like debugging output to be sent to stderr.  Unless XAPIAN_DEBUG_LOG
-   is set, no debug logging will be performed.  Occurrences of %p in
+   is set, no debug logging will be performed.  Occurrences of ``%p`` in
    XAPIAN_DEBUG_LOG will be replaced with the current process-id.
+
+   If you're debugging a crash and want to avoid losing the most recent log
+   messages then include ``%!`` in XAPIAN_DEBUG_LOG (which is replaced with
+   the empty string).  This will cause the log file to be opened with
+   ``O_DSYNC`` or ``O_SYNC`` or similar if running on a platform that supports
+   a suitable mechanism.  In 1.4.10 and earlier this was on by default (and
+   ``%!`` has no special meaning) but it can incur a significant performance
+   overhead and in most cases isn't necessary.
 
  * set XAPIAN_DEBUG_FLAGS to a string of capital letters indicating the types
    of debugging message you would like to display (the default is to log calls
@@ -111,18 +119,25 @@ coverage.
 If you have a new enough version of valgrind installed, it's automatically
 detected by configure and used when running the testsuite.  The testsuite runs
 more slowly under valgrind, so if you wish to disable this auto-detection you
-can run configure with:
+can run configure with::
 
 ./configure VALGRIND=
 
 Or you can disable use of valgrind during a particular run of "make check"
-like so:
+like so::
 
 make check VALGRIND=
 
-Or disable it while running a test directly (under sh or bash):
+Or disable it while running a test directly (under sh or bash)::
 
 VALGRIND= ./runtest ./apitest
+
+Current versions of valgrind result in false positives on current versions
+of macOS, so on this platform configure only enables use of valgrind if
+it's specified explicitly, for example if valgrind is on your ``PATH``
+you can just use::
+
+./configure VALGRIND=valgrind
 
 Running test programs
 =====================
@@ -529,7 +544,7 @@ Please tell us if you find that newer versions of any of these tools work or
 fail to work.
 
 There is a good GNU autotools tutorial at
-<http://www.lrde.epita.fr/~adl/autotools.html>.
+<https://www.lrde.epita.fr/~adl/autotools.html>.
 
 Building from git on Windows with MSVC
 --------------------------------------
@@ -557,7 +572,7 @@ Note: Vagrant support is experimental. Please report bugs in the
 normal fashion, to https://trac.xapian.org/newticket, or ask for help
 on the #xapian IRC channel on Freenode.
 
-If you have Vagrant (http://www.vagrantup.com/, tested on version
+If you have Vagrant (https://www.vagrantup.com/, tested on version
 1.5.2) and VirtualBox (https://www.virtualbox.org/, tested on version
 4.3.10) installed, `vagrant up` will make a virtual machine suitable
 for developing Xapian:
@@ -636,10 +651,6 @@ Use of C++ Features
     added in GCC 3.0.
 
   * Standard header ``<streambuf>`` (GCC < 3.0 only has ``<streambuf.h>``).
-
-  * Working auto_ptr in header ``<memory>`` (some old version of some compiler
-    had a buggy implementation - the details are lost to history, but it may
-    have been GCC 2.95, or perhaps EGCS).
 
 * RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
   library most likely indicates a design flaw, and you should avoid use
@@ -1286,10 +1297,12 @@ to follow the style of the existing code.  In particular:
 
 * Prefer "container.empty()" to "container.size() == 0" (and
   "!container.empty()" to "container.size() != 0" or "container.size() > 0").
-  Finding the size of a container may not be a constant time operation for
-  all containers (e.g. std::list may not be, and indeed isn't for GCC - see
-  https://gcc.gnu.org/onlinedocs/libstdc++/manual/containers.html#sequences.list.size).
-  Also the "empty()" form makes the intent of the test more explicit.
+  Some containers (e.g. std::forward_list) support "empty()" but not "size()".
+  Pre-C++11 finding the size of a container wasn't necessarily a constant time
+  operation for some containers (e.g. std::list with GCC) - that's no longer
+  the case for any STL containers since C++11, but it could still be true for
+  non-STL containers.  Also the "empty()" form is a little more concise and
+  makes the intent of the test more explicit.
 
 * Prefer not to use "else" when the control flow is diverted elsewhere at the
   end of the "if" block (e.g. by "return", "continue", "break", "throw").  This
@@ -1375,7 +1388,7 @@ to follow the style of the existing code.  In particular:
   derived type is thrown.  Even if derived types aren't a worry, it also causes
   the copy constructor to be called needlessly.
 
-  See also: http://www.parashift.com/c++-faq-lite/exceptions.html#faq-17.7
+  See also: https://isocpp.org/wiki/faq/exceptions#what-to-catch
 
   A const reference is preferable to a non-const reference as it stops the
   object being inadvertently modified.  In the rare cases when you want to
@@ -1552,7 +1565,7 @@ cases of iterator use.
 
 The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list
-- excerpt from http://article.gmane.org/gmane.comp.gcc.devel/50201 ::
+- excerpt from https://article.gmane.org/gmane.comp.gcc.devel/50201 ::
 
 	class some_iterator {
 	public:
@@ -1609,118 +1622,7 @@ works well with 'flymake'. Usage from a shell::
 How to make a release
 =====================
 
-This is a (hopefully complete) list of the jobs which need doing:
-
-* Email Fabrice Colin and Tim Brody so they can check RPM packaging.
-
-* Check if `config/config.guess` and `config/config.sub` need updating to
-  more recent versions from http://git.savannah.gnu.org/gitweb/?p=config.git
-
-* Check the revision currently specified in the bootstrap for the common
-  subdirectory.  Unless there's a good reason, we should release
-  xapian-core and omega with synchronised versions of the shared files.
-
-* Make sure that any new/changed/removed API methods in xapian-core have been
-  wrapped/updated/removed in xapian-bindings.
-
-* Update the lists of deprecated/removed API methods in docs/deprecation.rst
-
-* Update the NEWS files using information from the git logs
-
-* Update the version in configure.ac for each module (xapian-core, omega, and
-  xapian-bindings), and the library version info in xapian-core's configure.ac
-
-* Make sure the submitters of fixed bugs are mentioned in the "thanks" list in
-  xapian-core/AUTHORS.  Check the list for the appropriate milestone::
-
-   https://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.4.4
-
-* Check for any unfixed bugs on the milestone for the new release, and if they
-  aren't blockers, retarget them:
-
-   https://trac.xapian.org/roadmap
-
-* Tag the source trees for the new revision - use the git-tag-release script,
-  running it with the new version number, for example:
-
-  xapian-maintainer-tools/git-tag-release 1.4.4
-
-  This script also generates tarballs for the new release and copies them
-  across to the website.
-
-* Update the wiki:
-
-  Fill in https://trac.xapian.org/wiki/ReleaseOverview/1.4.8
-
-  Also update the roadmap at https://trac.xapian.org/wiki/RoadMap with
-  estimated date for next release.
-
-* Update the website: `generate` in the `www.xapian.org` git repo contains the
-  latest version and the date it was released.
-
-* Run /home/olly/tmp/xapian-website-update/update_website.sh
-
-* Announce the new version on xapian-discuss
-
-* Have a nice cup of tea!
-
-How to make Debian packages for a new release
-=============================================
-
-Debian control files are stored in separate git repositories:
-
-* https://anonscm.debian.org/cgit/collab-maint/xapian-bindings.git
-* https://anonscm.debian.org/cgit/collab-maint/xapian-core.git
-* https://anonscm.debian.org/cgit/collab-maint/xapian-omega.git
-
-To package a new upstream release, these should be updated as follows:
-
-* If there are any patch files in "debian/patches", check if these have been
-  incorporated into the new release, and if so remove them and update
-  "debian/patches/series".
-
-* Update the debian/changelog file, being sure to keep it in the
-  standard Debian format (the easiest way is to use the dch utility
-  like so: "dch -v 1.2.19-1".  The new version number should be the
-  version number of the release followed by "-1" (i.e., a debian
-  patch number of 1).  The changelog message should indicate that
-  there is a new upstream release, and should mention any significant
-  changes in the new release.
-
-* Tag using: ``git tag -s -m 1.2.19-1 1.2.19-1``
-
-* FIXME: Document how to make source packages, or update
-  ``make-source-packages``.
-
-* FIXME: Document how to build binary packages, or update ``build-packages``.
-
-* Test the packages.
-
-* Run ``debsign build/*_amd64.changes`` to GPG sign the packages.
-
-* Run ``dput build/*_amd64.changes`` to upload them to Debian.
-
-* For the Ubuntu backports::
-
-   ./backport-source-packages xapian-core 1.2.19-1 ubuntu
-   ./backport-source-packages xapian-omega 1.2.19-1 ubuntu
-   ./backport-source-packages xapian-bindings 1.2.19-1 ubuntu
-
-  And once libsearch-xapian-perl is uploaded to Debian unstable::
-
-   ./backport-source-packages libsearch-xapian-perl 1.2.19.0-1 ubuntu
-
-  Then sign::
-
-   debsign build/*99*_source.changes
-
-  Upload::
-
-   dput xapian-backports build/xapian-core*99*_source.changes
-
-  Wait for that to have a chance to build, and then::
-
-   dput xapian-backports build/xapian-[bo]*99*_source.changes
-   dput xapian-backports build/libsearch-xapian-perl*_source.changes
+See https://github.com/xapian/xapian-developer-guide/blob/master/releases/index.rst
+where the documentation for this now lives.
 
 .. vim: syntax=rst

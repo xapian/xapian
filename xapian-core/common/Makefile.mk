@@ -16,6 +16,7 @@ noinst_HEADERS +=\
 	common/io_utils.h\
 	common/keyword.h\
 	common/log2.h\
+	common/min_non_zero.h\
 	common/msvc_dirent.h\
 	common/msvcignoreinvalidparam.h\
 	common/noreturn.h\
@@ -24,6 +25,7 @@ noinst_HEADERS +=\
 	common/output-internal.h\
 	common/overflow.h\
 	common/pack.h\
+	common/parseint.h\
 	common/posixy_wrapper.h\
 	common/pretty.h\
 	common/realtime.h\
@@ -40,6 +42,7 @@ noinst_HEADERS +=\
 	common/safewindows.h\
 	common/safewinsock2.h\
 	common/serialise-double.h\
+	common/setenv.h\
 	common/socket_utils.h\
 	common/str.h\
 	common/stringutils.h\

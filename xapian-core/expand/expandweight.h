@@ -128,7 +128,7 @@ class ExpandWeight {
     /// The collection frequency of the term.
     Xapian::termcount collection_freq;
 
-    /// The total length of the databse.
+    /// The total length of the database.
     Xapian::totallength collection_len;
 
     /** Should we calculate the exact term frequency when generating an ESet?
@@ -191,7 +191,7 @@ class ExpandWeight {
     /// An ExpandStats object to accumulate statistics.
     ExpandStats stats;
 
-    /// Return the average length of the databse.
+    /// Return the average length of the database.
     double get_avlen() const { return avlen; }
 
     /// Return the number of documents in the RSet.

@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_DEREFWRAPPER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/derefwraper.h> directly; include <xapian.h> instead."
+# error Never use <xapian/derefwraper.h> directly; include <xapian.h> instead.
 #endif
 
 namespace Xapian {
@@ -37,7 +37,12 @@ namespace Xapian {
 template<typename T>
 class DerefWrapper_ {
     /// Don't allow assignment.
-    void operator=(const DerefWrapper_ &);
+#if __cplusplus >= 201103L
+    // Avoid warnings with newer clang.
+    void operator=(const DerefWrapper_&) = delete;
+#else
+    void operator=(const DerefWrapper_&);
+#endif
 
     /// The value.
     T res;

@@ -21,6 +21,8 @@
 
 #include <config.h>
 
+#include <cerrno>
+
 #ifdef __CYGWIN__
 # include "posixy_wrapper.h"
 
@@ -57,7 +59,6 @@ posixy_unlink(const char * filename)
 
 #include <io.h>
 
-#include <cerrno>
 #include "safefcntl.h"
 #include "safewindows.h"
 

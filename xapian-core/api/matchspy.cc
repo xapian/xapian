@@ -91,7 +91,7 @@ static void unsupported_method() {
 }
 
 /// A termlist iterator over the contents of a ValueCountMatchSpy
-class ValueCountTermList : public TermList {
+class ValueCountTermList final : public TermList {
   private:
     map<string, Xapian::doccount>::const_iterator it;
     bool started;
@@ -187,7 +187,7 @@ class StringAndFreqCmpByFreq {
 };
 
 /// A termlist iterator over a vector of StringAndFrequency objects.
-class StringAndFreqTermList : public TermList {
+class StringAndFreqTermList final : public TermList {
   private:
     vector<StringAndFrequency>::const_iterator it;
     bool started;
@@ -385,17 +385,19 @@ ValueCountMatchSpy::merge_results(const string & s) {
 
     map<string, doccount>::size_type items;
     decode_length(&p, end, items);
-    while (p != end) {
-	while (items != 0) {
-	    size_t vallen;
-	    decode_length_and_check(&p, end, vallen);
-	    string val(p, vallen);
-	    p += vallen;
-	    doccount freq;
-	    decode_length(&p, end, freq);
-	    internal->values[val] += freq;
-	    --items;
-	}
+    while (items != 0) {
+	size_t vallen;
+	decode_length_and_check(&p, end, vallen);
+	string val(p, vallen);
+	p += vallen;
+	doccount freq;
+	decode_length(&p, end, freq);
+	internal->values[val] += freq;
+	--items;
+    }
+    if (p != end) {
+	throw NetworkError("Junk at end of serialised ValueCountMatchSpy "
+			   "results");
     }
 }
 

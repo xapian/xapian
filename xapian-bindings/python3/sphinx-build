@@ -1,0 +1,20 @@
+# Wrapper to run Sphinx.  We avoid using sphinx-build because we need to use
+# the Python3 version and it's hard to ensure we find the appropriate one.
+
+# We can't easily put this code inline in the Makefile because you can't write
+# try/except on a single-line in Python.
+
+import sys
+try:
+    # Newer way, required as of Sphinx 2.0.
+    from sphinx.cmd.build import build_main
+    sys.exit(build_main(sys.argv[1:]))
+except ImportError:
+    # Sphinx < 1.7.0 didn't have sphinx.cmd.build.
+    #
+    # Prior to Sphinx 1.7.0, sphinx.main always skipped the first argument
+    # passed.  In 1.7.0 it stopped doing this, but this fallback handling
+    # should only be used for older versions so we no longer need to worry
+    # about this.
+    from sphinx import main
+    sys.exit(main(sys.argv))

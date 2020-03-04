@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2016,2017,2020 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -31,7 +31,6 @@
 
 #define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -213,7 +212,7 @@ DEFINE_TESTCASE(simplequery3, backend) {
     return true;
 }
 
-// multidb1 and multidb2 no longer exist.
+// multidb2 no longer exists.
 
 // test that a multidb with 2 dbs query returns correct docids
 DEFINE_TESTCASE(multidb3, backend && !multi) {
@@ -575,38 +574,31 @@ DEFINE_TESTCASE(topercent1, backend) {
 
 // tests the percentage values returned
 DEFINE_TESTCASE(topercent2, backend) {
-    BackendManagerLocal local_manager;
-    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
-    Xapian::Enquire localenq(local_manager.get_database("apitest_simpledata"));
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
 
     int pct;
 
     // First, test a search in which the top document scores 100%.
     enquire.set_query(query("this"));
-    localenq.set_query(query("this"));
     Xapian::MSet mymset = enquire.get_mset(0, 20);
-    Xapian::MSet localmset = localenq.get_mset(0, 20);
 
     Xapian::MSetIterator i = mymset.begin();
     TEST(i != mymset.end());
     pct = mymset.convert_to_percent(i);
     TEST_EQUAL(pct, 100);
 
-    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
-    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
-    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
-    TEST_EQUAL(mymset.size(), localmset.size());
-    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 6);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST_EQUAL(mymset.get_matches_estimated(), 6);
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), 0.0553904060041786);
+    TEST_EQUAL(mymset.size(), 6);
+    mset_expect_order(mymset, 2, 1, 3, 5, 6, 4);
 
     // A search in which the top document doesn't have 100%
     Xapian::Query q = query(Xapian::Query::OP_OR,
 			    "this", "line", "paragraph", "rubbish");
     enquire.set_query(q);
-    localenq.set_query(q);
     mymset = enquire.get_mset(0, 20);
-    localmset = localenq.get_mset(0, 20);
 
     i = mymset.begin();
     TEST(i != mymset.end());
@@ -621,28 +613,28 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_REL(pct,>,40);
     TEST_REL(pct,<,50);
 
-    TEST_EQUAL(mymset.get_matches_lower_bound(), localmset.get_matches_lower_bound());
-    TEST_EQUAL(mymset.get_matches_upper_bound(), localmset.get_matches_upper_bound());
-    TEST_EQUAL(mymset.get_matches_estimated(), localmset.get_matches_estimated());
-    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), localmset.get_max_attained());
-    TEST_EQUAL(mymset.size(), localmset.size());
-    TEST(mset_range_is_same(mymset, 0, localmset, 0, mymset.size()));
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 6);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
+    TEST_EQUAL(mymset.get_matches_estimated(), 6);
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), 1.67412192414056);
+    TEST_EQUAL(mymset.size(), 6);
+    mset_expect_order(mymset, 3, 1, 4, 2, 5, 6);
 
     return true;
 }
 
 class EvenParityExpandFunctor : public Xapian::ExpandDecider {
-    public:
-	bool operator()(const string & tname) const {
-	    unsigned long sum = 0;
-	    for (unsigned ch : tname) {
-		sum += ch;
-	    }
-//	    if (verbose) {
-//		tout << tname << "==> " << sum << "\n";
-//	    }
-	    return (sum % 2) == 0;
+  public:
+    bool operator()(const string & tname) const {
+	unsigned long sum = 0;
+	for (unsigned ch : tname) {
+	    sum += ch;
 	}
+//	if (verbose) {
+//	    tout << tname << "==> " << sum << "\n";
+//	}
+	return (sum % 2) == 0;
+    }
 };
 
 // tests the expand decision functor
@@ -834,8 +826,9 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
 
     Xapian::MSet mset2 = enquire.get_mset(0, 1);
     TEST_EQUAL(mset2.size(), 1);
-    TEST_EQUAL(mset2.get_matches_lower_bound(), 1);
-    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),>=,1);
+    TEST_REL(mset2.get_matches_lower_bound(),>=,1);
+    TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),>=,
+	     mset2.get_matches_lower_bound());
     TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset.size());
     TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,mset.size());
     TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset2.get_uncollapsed_matches_estimated());
@@ -1290,6 +1283,9 @@ DEFINE_TESTCASE(rsetmultidb3, backend && !multi) {
 
 /// Simple test of the elite set operator.
 DEFINE_TESTCASE(eliteset1, backend) {
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1311,6 +1307,9 @@ DEFINE_TESTCASE(eliteset1, backend) {
 /// Test that the elite set operator works if the set contains
 /// sub-expressions (regression test)
 DEFINE_TESTCASE(eliteset2, backend) {
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1386,6 +1385,12 @@ DEFINE_TESTCASE(eliteset3, backend) {
 
 /// Test that elite set doesn't pick terms with 0 frequency
 DEFINE_TESTCASE(eliteset4, backend) {
+    XFAIL_FOR_BACKEND("multi_glass_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
+    XFAIL_FOR_BACKEND("multi_remoteprog_glass",
+		      "Multi remote databases are currently buggy");
+
     Xapian::Database mydb1(get_database("apitest_simpledata"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1486,7 +1491,7 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
     return true;
 }
 
-/// Test the termfrequency and termweight info returned for query terms
+/// Test the termfreq and termweight info returned for query terms
 DEFINE_TESTCASE(qterminfo1, backend) {
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
     Xapian::Enquire enquire1(mydb1);
@@ -1586,6 +1591,9 @@ DEFINE_TESTCASE(msetzeroitems1, backend) {
 
 // test that the matches_* of a simple query are as expected
 DEFINE_TESTCASE(matches1, backend) {
+    bool multi = startswith(get_dbtype(), "multi");
+    bool remote = get_dbtype().find("remote") != string::npos;
+
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query myquery;
     Xapian::MSet mymset;
@@ -1633,10 +1641,12 @@ DEFINE_TESTCASE(matches1, backend) {
     myquery = query(Xapian::Query::OP_AND, "simple", "word");
     enquire.set_query(myquery);
     mymset = enquire.get_mset(0, 0);
-    // For a single database, this is true, but not for "multi" (since there
-    // one sub-database has 3 documents and simple and word both have termfreq
-    // of 2, so the matcher can tell at least one document must match!)
-    // TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    if (!multi) {
+	// This isn't true for sharded DBs since there one sub-database has 3
+	// documents and simple and word both have termfreq of 2, so the
+	// matcher can tell at least one document must match!)
+	TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    }
     TEST_REL(mymset.get_matches_lower_bound(),<=,mymset.get_matches_estimated());
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
@@ -1672,11 +1682,19 @@ DEFINE_TESTCASE(matches1, backend) {
 
     mymset = enquire.get_mset(0, 1);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
-    TEST_EQUAL(mymset.get_matches_estimated(), 2);
-    TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
     TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
-    TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
-    TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
+    if (multi && remote) {
+	// The matcher can tell there's only one match in this case.
+	TEST_EQUAL(mymset.get_matches_estimated(), 1);
+	TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
+	TEST_EQUAL(mymset.get_matches_upper_bound(), 1);
+	TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 1);
+    } else {
+	TEST_EQUAL(mymset.get_matches_estimated(), 2);
+	TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 2);
+	TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+	TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 2);
+    }
 
     mymset = enquire.get_mset(0, 2);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);

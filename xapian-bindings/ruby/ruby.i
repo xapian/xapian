@@ -6,7 +6,7 @@
  * Based on the php4 and python util.i files.
  *
  * Copyright (C) 2006 Networked Knowledge Systems, Inc.
- * Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,29 @@
  * USA
  */
 
+%}
+
+%begin %{
+// The Ruby 2.3 headers contain things which cause warnings with more recent
+// C++ compilers.  There's nothing we can really do about them, so just
+// suppress them.
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wdeprecated-register"
+# pragma clang diagnostic ignored "-Wreserved-user-defined-literal"
+#elif defined __GNUC__
+// Warning added in GCC 4.8 and we don't support anything older.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wliteral-suffix"
+#endif
+
+#include <ruby.h>
+
+#ifdef __clang__
+# pragma clang diagnostic pop
+#elif defined __GNUC__
+# pragma GCC diagnostic pop
+#endif
 %}
 
 // Use SWIG directors for Ruby wrappers.
@@ -100,6 +123,9 @@
 // in Xapian::Query
 %rename("_dangerous_terms_begin") get_terms_begin;
 %rename("_dangerous_terms_end") get_terms_end;
+// in Xapian::Query
+%rename("_dangerous_unique_terms_begin") get_unique_terms_begin;
+%rename("_dangerous_unique_terms_end") get_unique_terms_end;
 // in Xapian::Enquire
 %rename("_dangerous_matching_terms_begin") get_matching_terms_begin;
 %rename("_dangerous_matching_terms_end") get_matching_terms_end;
@@ -107,11 +133,23 @@
 %rename("_dangerous_allterms_begin") allterms_begin;
 %rename("_dangerous_allterms_end") allterms_end;
 // in Xapian::Database
+%rename("_dangerous_metadata_keys_begin") metadata_keys_begin;
+%rename("_dangerous_metadata_keys_end") metadata_keys_end;
+// in Xapian::Database
 %rename("_dangerous_postlist_begin") postlist_begin;
 %rename("_dangerous_postlist_end") postlist_end;
 // in Xapian::Database
 %rename("_dangerous_positionlist_begin") positionlist_begin;
 %rename("_dangerous_positionlist_end") positionlist_end;
+// in Xapian::Database
+%rename("_dangerous_spellings_begin") spellings_begin;
+%rename("_dangerous_spellings_end") spellings_end;
+// in Xapian::Database
+%rename("_dangerous_synonyms_begin") synonyms_begin;
+%rename("_dangerous_synonyms_end") synonyms_end;
+// in Xapian::Database
+%rename("_dangerous_synonym_keys_begin") synonym_keys_begin;
+%rename("_dangerous_synonym_keys_end") synonym_keys_end;
 // in Xapian::Database
 %rename("_dangerous_valuestream_begin") valuestream_begin;
 %rename("_dangerous_valuestream_end") valuestream_end;
@@ -121,6 +159,12 @@
 // in Xapian::ValueCountMatchSpy
 %rename("_dangerous_top_values_begin") top_values_begin;
 %rename("_dangerous_top_values_end") top_values_end;
+// in Xapian::QueryParser
+%rename("_dangerous_stoplist_begin") stoplist_begin;
+%rename("_dangerous_stoplist_end") stoplist_end;
+// in Xapian::QueryParser
+%rename("_dangerous_unstem_begin") unstem_begin;
+%rename("_dangerous_unstem_end") unstem_end;
 
 
 // MSetIterators are not dangerous, just inconvenient to use within a Ruby
@@ -228,7 +272,7 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        return i - o.i;
+	return i - o.i;
     }
 };
 

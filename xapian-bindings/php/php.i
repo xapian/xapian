@@ -2,7 +2,7 @@
 %{
 /* php.i: SWIG interface file for the PHP bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2016 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2016,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,15 +72,6 @@
 /* The SWIG overloading doesn't handle this correctly by default. */
 %typemap(typecheck, precedence=SWIG_TYPECHECK_BOOL) bool {
     $1 = (Z_TYPE_PP($input) == IS_BOOL || Z_TYPE_PP($input) == IS_LONG);
-}
-
-/* SWIG's default typemap accepts "Null" when an object is passed by
-   reference, and the C++ wrapper code then dereferences a NULL pointer
-   which causes a SEGV. */
-%typemap(in) SWIGTYPE & {
-    if (SWIG_ConvertPtr(*$input, (void**)&$1, $1_descriptor, 0) < 0 || $1 == NULL) {
-	SWIG_PHP_Error(E_ERROR, "Type error in argument $argnum of $symname. Expected $1_descriptor");
-    }
 }
 
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
@@ -238,3 +229,13 @@ PHP_ITERATOR(Xapian, ValueIterator, std::string, )
 %include except.i
 
 %include ../xapian-headers.i
+
+// Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
+// xapian-bindings 1.4.10).
+%inline %{
+namespace Xapian {
+static Xapian::valueno BAD_VALUENO_get() { return Xapian::BAD_VALUENO; }
+}
+%}
+// Can't throw an exception.
+%exception Xapian::BAD_VALUENO_get "$action"

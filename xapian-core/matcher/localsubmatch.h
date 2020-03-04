@@ -62,15 +62,20 @@ class LocalSubMatch : public SubMatch {
     /// Weight object (used as a factory by calling create on it).
     const Xapian::Weight * wt_factory;
 
+    /// 0-based index for the subdatabase.
+    Xapian::doccount shard_index;
+
   public:
     /// Constructor.
     LocalSubMatch(const Xapian::Database::Internal *db_,
 		  const Xapian::Query & query_,
 		  Xapian::termcount qlen_,
 		  const Xapian::RSet & rset_,
-		  const Xapian::Weight *wt_factory_)
+		  const Xapian::Weight* wt_factory_,
+		  Xapian::doccount shard_index_)
 	: stats(NULL), query(query_), qlen(qlen_), db(db_), rset(rset_),
-	  wt_factory(wt_factory_)
+	  wt_factory(wt_factory_),
+	  shard_index(shard_index_)
     {
 	LOGCALL_CTOR(MATCH, "LocalSubMatch", db_ | query_ | qlen_ | rset_ | wt_factory_);
     }
@@ -86,7 +91,8 @@ class LocalSubMatch : public SubMatch {
 
     /// Get PostList.
     PostList * get_postlist(MultiMatch *matcher,
-			    Xapian::termcount * total_subqs_ptr);
+			    Xapian::termcount* total_subqs_ptr,
+			    Xapian::Weight::Internal& total_stats);
 
     /** Convert a postlist into a synonym postlist.
      */

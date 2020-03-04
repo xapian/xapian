@@ -2,7 +2,7 @@
  * @brief tests of MatchSpy usage
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2012,2015 Olly Betts
+ * Copyright 2009,2011,2012,2015,2019 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -150,6 +150,11 @@ DEFINE_TESTCASE(matchspy2, generated)
     Xapian::Enquire enq(db);
 
     enq.set_query(Xapian::Query("all"));
+    if (startswith(get_dbtype(), "multi")) {
+	// Without this, we short-cut on the second shard because we don't get
+	// the documents in ascending weight order.
+	enq.set_weighting_scheme(Xapian::CoordWeight());
+    }
 
     enq.add_matchspy(&spy0);
     enq.add_matchspy(&spy1);
@@ -174,6 +179,11 @@ DEFINE_TESTCASE(matchspy2, generated)
 
 DEFINE_TESTCASE(matchspy4, generated)
 {
+    XFAIL_FOR_BACKEND("multi_remote",
+		      "Matchspy counts hits on remote and locally");
+    XFAIL_FOR_BACKEND("multi_glass_remote",
+		      "Matchspy counts hits on remote and locally");
+
     Xapian::Database db = get_database("matchspy2", make_matchspy2_db);
 
     // We're going to run the match twice - once sorted by relevance, and once
@@ -190,6 +200,11 @@ DEFINE_TESTCASE(matchspy4, generated)
     Xapian::Enquire enqb(db);
 
     enqa.set_query(Xapian::Query("all"));
+    if (startswith(get_dbtype(), "multi")) {
+	// Without this, we short-cut on the second shard because we don't get
+	// the documents in ascending weight order.
+	enqa.set_weighting_scheme(Xapian::CoordWeight());
+    }
     enqb.set_query(Xapian::Query("all"));
 
     enqa.add_matchspy(&spya0);
@@ -324,6 +339,18 @@ DEFINE_TESTCASE(matchspy6, !backend)
     TEST_EXCEPTION(Xapian::UnimplementedError,
 		   spy.merge_results(std::string()));
     TEST_EQUAL(spy.get_description(), "Xapian::MatchSpy()");
+
+    return true;
+}
+
+/// Regression test for bug fixed in 1.4.12.
+DEFINE_TESTCASE(matchspy7, !backend)
+{
+    Xapian::ValueCountMatchSpy myspy(1);
+    string s = myspy.serialise_results();
+    s += 'x';
+    // This merge_results() call used to enter an infinite loop.
+    TEST_EXCEPTION(Xapian::NetworkError, myspy.merge_results(s));
 
     return true;
 }

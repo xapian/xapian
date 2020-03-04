@@ -46,15 +46,15 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 		   const Xapian::MSet &mset2, unsigned int first2,
 		   unsigned int count)
 {
-    TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
+    TEST_AND_EXPLAIN(mset1.size() >= first1 + count,
 		     "mset1 is too small: expected at least " <<
-		     (first1 + count - 1) << " items, got " <<
-		     mset1.size() << ".");
+		     (first1 + count) << " items, got " <<
+		     mset1.size());
 
-    TEST_AND_EXPLAIN(mset2.size() >= first2 + count - 1,
+    TEST_AND_EXPLAIN(mset2.size() >= first2 + count,
 		     "mset2 is too small: expected at least " <<
-		     (first2 + count - 1) << " items, got " <<
-		     mset2.size() << ".");
+		     (first2 + count) << " items, got " <<
+		     mset2.size());
 
     Xapian::MSetIterator i = mset1[first1];
     Xapian::MSetIterator j = mset2[first2];
@@ -73,6 +73,35 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 	}
 	++i;
 	++j;
+    }
+    return true;
+}
+
+bool
+mset_range_is_same(const Xapian::MSet& mset, unsigned int first,
+		   const pair<Xapian::docid, double> to_compare[],
+		   unsigned int count)
+{
+    TEST_AND_EXPLAIN(mset.size() >= first + count - 1,
+		     "mset is too small: expected at least " <<
+		     (first + count - 1) << " items, got " <<
+		     mset.size() << ".");
+
+    Xapian::MSetIterator i = mset[first];
+
+    for (unsigned int l = 0; l < count; ++l) {
+	if (*i != to_compare[l].first) {
+	    tout << "docids differ at item " << (l + 1) << " in range: "
+		    << *i << " != " << to_compare[l].first << "\n";
+	    return false;
+	}
+	// FIXME: don't use internal macro here...
+	if (!TEST_EQUAL_DOUBLE_(i.get_weight(), to_compare[l].second)) {
+	    tout << "weights differ at item " << (l + 1) << " in range: "
+		    << i.get_weight() << " != " << to_compare[l].second << "\n";
+	    return false;
+	}
+	++i;
     }
     return true;
 }
@@ -181,7 +210,7 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
     }
 
     Xapian::MSetIterator j = A.begin();
-    for (size_t i = 0; i < expect.size(); i++, j++) {
+    for (size_t i = 0; i < expect.size(); ++i, ++j) {
 	TEST_AND_EXPLAIN(*j == expect[i],
 			 "Mset didn't contain expected result:\n"
 			 << "Item " << i << " was " << *j
@@ -208,7 +237,7 @@ test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2)
 		     << mset1.size() << " != " << mset2.size());
     Xapian::MSetIterator i = mset1.begin();
     Xapian::MSetIterator j = mset2.begin();
-    for (; i != mset1.end(); i++, j++) {
+    for (; i != mset1.end(); ++i, ++j) {
 	TEST_AND_EXPLAIN(*i == *j,
 			 "Msets have different contents -\n" <<
 			 mset1 << "\n !=\n" << mset2);

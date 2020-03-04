@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ if ($v != $v2) {
 $db = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 $db2 = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 
-# Check PHP5 handling of Xapian::DocNotFoundError
+# Check handling of Xapian::DocNotFoundError
 try {
     $doc2 = $db->get_document(2);
     print "Retrieved non-existent document\n";
@@ -80,7 +80,7 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
 	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
@@ -92,8 +92,8 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
 }
@@ -104,7 +104,7 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
 	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
@@ -117,8 +117,8 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
 }
@@ -200,6 +200,13 @@ if ($query3->get_description() != "Query((a OR b))") {
     exit(1);
 }
 $enq = new XapianEnquire($db);
+
+// Check Xapian::BAD_VALUENO is wrapped suitably.
+$enq->set_collapse_key(Xapian::BAD_VALUENO);
+
+// Test that the non-constant wrapping prior to 1.4.10 still works.
+$enq->set_collapse_key(Xapian::BAD_VALUENO_get());
+
 $enq->set_query(new XapianQuery(XapianQuery::OP_OR, "there", "is"));
 $mset = $enq->get_mset(0, 10);
 if ($mset->size() != 1) {

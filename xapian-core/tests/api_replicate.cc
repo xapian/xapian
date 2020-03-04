@@ -1,7 +1,8 @@
-/* api_replicate.cc: tests of replication functionality
- *
- * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/** @file api_replicate.cc
+ * @brief tests of replication functionality
+ */
+/* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2009,2010,2011,2012,2013,2014,2015,2016,2017,2020 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -30,12 +31,14 @@
 
 #include "apitest.h"
 #include "dbcheck.h"
+#include "errno_to_string.h"
 #include "fd.h"
 #include "filetests.h"
 #include "safedirent.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
+#include "setenv.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -45,8 +48,6 @@
 #include <cerrno>
 #include <cstdlib>
 #include <string>
-
-#include <stdlib.h> // For setenv() or putenv() or _putenv_s()
 
 using namespace std;
 
@@ -235,28 +236,7 @@ check_equal_dbs(const string & masterpath, const string & replicapath)
     }
 }
 
-#if 0 // Dynamic version which we don't currently need.
-static void
-set_max_changesets(int count) {
-#if HAVE_DECL__PUTENV_S
-    _putenv_s("XAPIAN_MAX_CHANGESETS", str(count).c_str());
-#elif defined HAVE_SETENV
-    setenv("XAPIAN_MAX_CHANGESETS", str(count).c_str(), 1);
-#else
-    static char buf[64] = "XAPIAN_MAX_CHANGESETS=";
-    sprintf(buf + CONST_STRLEN("XAPIAN_MAX_CHANGESETS="), "%d", count);
-    putenv(buf);
-#endif
-}
-#endif
-
-#if HAVE_DECL__PUTENV_S
-# define set_max_changesets(N) _putenv_s("XAPIAN_MAX_CHANGESETS", #N)
-#elif defined HAVE_SETENV
-# define set_max_changesets(N) setenv("XAPIAN_MAX_CHANGESETS", #N, 1)
-#else
-# define set_max_changesets(N) putenv(const_cast<char*>("XAPIAN_MAX_CHANGESETS="#N))
-#endif
+#define set_max_changesets(N) setenv("XAPIAN_MAX_CHANGESETS", #N, 1)
 
 struct unset_max_changesets_helper_ {
     unset_max_changesets_helper_() { }
@@ -344,6 +324,8 @@ DEFINE_TESTCASE(replicate1, replicas) {
 	// We need this inner scope to we close the replica before we remove
 	// the temporary directory on Windows.
     }
+
+    TEST_EQUAL(Xapian::Database::check(masterpath), 0);
 
     rmtmpdir(tempdir);
 #endif
@@ -615,7 +597,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
 	check_equal_dbs(masterpath, replicapath);
 	TEST(!file_exists(masterpath + "/changes1"));
 
-	// Turn off replication, make sure we dont write anything
+	// Turn off replication, make sure we don't write anything.
 	if (get_dbtype() == "chert") {
 	    set_max_changesets(0);
 	}
@@ -896,7 +878,7 @@ DEFINE_TESTCASE(replicate7, replicas) {
 	    if (!entry) {
 		if (errno == 0)
 		    break;
-		FAIL_TEST("readdir failed: " << strerror(errno));
+		FAIL_TEST("readdir failed: " << errno_to_string(errno));
 	    }
 
 	    // Skip '.' and '..'.

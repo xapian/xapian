@@ -1,7 +1,7 @@
 /** @file errno_to_string.h
  * @brief Convert errno value to std::string, thread-safe if possible
  */
-/* Copyright (C) 2014 Olly Betts
+/* Copyright (C) 2014,2019 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,5 +28,11 @@
 #include <string>
 
 void errno_to_string(int e, std::string & s);
+
+inline std::string errno_to_string(int e) {
+    std::string result;
+    errno_to_string(e, result);
+    return result;
+}
 
 #endif

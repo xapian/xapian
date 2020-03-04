@@ -1,7 +1,7 @@
 /** @file weight.cc
  * @brief Xapian::Weight base class
  */
-/* Copyright (C) 2007,2008,2009,2014,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2014,2017,2019 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or

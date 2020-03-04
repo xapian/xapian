@@ -27,7 +27,7 @@
 #define XAPIAN_INCLUDED_ENQUIRE_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/enquire.h> directly; include <xapian.h> instead."
+# error Never use <xapian/enquire.h> directly; include <xapian.h> instead.
 #endif
 
 #include "xapian/deprecated.h"
@@ -640,7 +640,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
-	inline ESet get_eset(Xapian::termcount maxitems, const RSet & omrset,
+	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset,
 			     const Xapian::ExpandDecider * edecider) const {
 	    return get_eset(maxitems, omrset, 0, edecider);
 	}

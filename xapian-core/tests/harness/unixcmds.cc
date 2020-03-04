@@ -23,6 +23,7 @@
 #include "unixcmds.h"
 
 #include <string>
+#include <cerrno>
 #include <cstdlib>
 #include <sys/types.h>
 #include "safeunistd.h"

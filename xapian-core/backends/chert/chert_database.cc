@@ -520,7 +520,7 @@ ChertDatabase::get_database_write_lock(int flags, bool creating)
 	    string msg("No chert database found at path '");
 	    msg += db_dir;
 	    msg += '\'';
-	    throw Xapian::DatabaseOpeningError(msg);
+	    throw Xapian::DatabaseNotFoundError(msg);
 	}
 	lock.throw_databaselockerror(why, db_dir, explanation);
     }

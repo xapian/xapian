@@ -481,7 +481,7 @@ Xapian::Document::Internal::add_posting(const string & tname, Xapian::termpos tp
 	++termlist_size;
 	OmDocumentTerm newterm(wdfinc);
 	newterm.append_position(tpos);
-	terms.insert(make_pair(tname, newterm));
+	terms.insert(make_pair(tname, std::move(newterm)));
     } else {
 	if (i->second.add_position(wdfinc, tpos))
 	    ++termlist_size;
@@ -498,7 +498,7 @@ Xapian::Document::Internal::add_term(const string & tname, Xapian::termcount wdf
     if (i == terms.end()) {
 	++termlist_size;
 	OmDocumentTerm newterm(wdfinc);
-	terms.insert(make_pair(tname, newterm));
+	terms.insert(make_pair(tname, std::move(newterm)));
     } else {
 	if (i->second.increase_wdf(wdfinc))
 	    ++termlist_size;
@@ -607,7 +607,7 @@ Xapian::Document::Internal::need_terms() const
 	    for ( ; p != t.positionlist_end(); ++p) {
 		term.append_position(*p);
 	    }
-	    terms.insert(make_pair(*t, term));
+	    terms.insert(terms.end(), make_pair(*t, std::move(term)));
 	}
     }
     termlist_size = terms.size();

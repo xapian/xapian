@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/queryparser.h> directly; include <xapian.h> instead."
+# error Never use <xapian/queryparser.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -205,7 +205,10 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *			by the user (empty string for no upper limit).
      *
      *  @return		An OP_VALUE_RANGE Query object (or if end.empty(), an
-     *			OP_VALUE_GE Query object).
+     *			OP_VALUE_GE Query object).  Or if the range isn't one
+     *			which this object can handle then
+     *			Xapian::Query(Xapian::Query::OP_INVALID) will be
+     *			returned.
      */
     virtual Xapian::Query
 	operator()(const std::string &begin, const std::string &end);
@@ -867,9 +870,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *
 	 *  The corresponding option needs to have been used at index time.
 	 *
-	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  Flag added in Xapian 1.3.4 and 1.2.22.  This mode can be
 	 *  enabled in 1.2.8 and later by setting environment variable
-	 *  XAPIAN_CJK_NGRAM.
+	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+	 *  in 1.4.11).
 	 */
 	FLAG_CJK_NGRAM = 2048,
 

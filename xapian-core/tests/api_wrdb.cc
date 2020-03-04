@@ -531,8 +531,21 @@ DEFINE_TESTCASE(databaseassign1, writable) {
     Xapian::Database d2(actually_wdb);
     d2 = wdb;
     d2 = actually_wdb;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
     wdb = wdb; // check assign to itself works
     db = db; // check assign to itself works
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
     return true;
 }
 
@@ -1839,6 +1852,19 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	}
     }
 
+    if (get_dbtype().find("chert") != string::npos) {
+	XFAIL("Chert fails to clear pending changes after "
+	      "InvalidArgumentError - fix too invasive");
+    }
+    // Try adding a document.  Regression test for a bug fixed in 1.4.15 - in
+    // earlier versions the pending changes which caused the
+    // InvalidArgumentError were left around and a subsequent commit() on the
+    // same WritableDatabase would also fail with InvalidArgumentError.
+    Xapian::Document doc;
+    doc.add_term("ok");
+    db.add_document(doc);
+    db.commit();
+
     return true;
 }
 
@@ -1920,7 +1946,7 @@ DEFINE_TESTCASE(lazytablebug1, chert || glass) {
  *  Chert also has the same duff code but this testcase doesn't actually
  *  tickle the bug there.
  */
-DEFINE_TESTCASE(cursordelbug1, chert || glass) {
+DEFINE_TESTCASE(cursordelbug1, writable && path) {
     static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
     static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
 
@@ -2081,6 +2107,31 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     check_vals(db, vals);
     db.commit();
     check_vals(db, vals);
+
+    return true;
+}
+
+/** Regression test for protocol design bug.
+ *
+ *  Previously some messages didn't send a reply but could result in an
+ *  exception being sent over the link.  That exception would then get
+ *  read as a response to the next message instead of its actual response
+ *  so we'd be out of step.
+ *
+ *  This also affected MSG_DELETEDOCUMENTTERM, MSG_CANCEL, MSG_SETMETADATA
+ *  and MSG_ADDSPELLING but it's harder to reliably trigger an exception
+ *  from any of those.
+ *
+ *  See #783.  Fixed in 1.4.12.
+ */
+DEFINE_TESTCASE(protocolbug1, remote && writable) {
+    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::Document doc;
+    doc.add_term(string(300, 'x'));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   db.replace_document(1, doc));
+    db.commit();
 
     return true;
 }

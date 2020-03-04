@@ -42,8 +42,6 @@ autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
 FETCH_URL_TOOL=
 
 check_checksum() {
-  # This function is expected to be used in 'if' so we can't rely on set -e
-  # being in effect here.
   checksum_=$1
   tarball_=$2
 
@@ -101,12 +99,12 @@ check_at_least() {
   return 0
 }
 
-lazy_build() {
+need_to_build() {
   # This function is expected to be used in 'if' so we can't rely on set -e
   # being in effect here.
   package=$1
-  binary=$2
-  version=$3
+  version=$2
+  binary=$3
 
   case $download_tools in
     always) ;;
@@ -135,10 +133,15 @@ lazy_build() {
       fi
       ;;
   esac
+  return 0
+}
 
+lazy_build() {
+  package=$1
+  version=$2
   basename=$package-$version
-  ext=$4
-  checksum=$5
+  ext=$3
+  checksum=$4
 
   if [ "$ext" = "tar.xz" ] ; then
     if [ -z "$xz_ok" ] ; then
@@ -150,8 +153,8 @@ lazy_build() {
     fi
     if [ "$xz_ok" = 0 ] ; then
       shift 2
-      ext=$4
-      checksum=$5
+      ext=$3
+      checksum=$4
     fi
   fi
   if [ "$ext" = "tar.bz2" ] ; then
@@ -166,8 +169,8 @@ lazy_build() {
     fi
     if [ "$bz2_ok" = 0 ] ; then
       shift 2
-      ext=$4
-      checksum=$5
+      ext=$3
+      checksum=$4
     fi
   fi
   tarball=$basename.$ext
@@ -399,9 +402,8 @@ esac
 # Commit hash to pass to handle_git_external for swig.
 swig_git_commit_hash=2c910e47ae788412b95e356c99cef5862808bf9a
 
-# Commit hashes to use for common in omega and letor respectively:
-omega_common_commit_hash=01cdfac8e774813645d8fec2b2613fb605e315ec
-letor_common_commit_hash=01cdfac8e774813645d8fec2b2613fb605e315ec
+# Commit hash to use for common in omega:
+omega_common_commit_hash=93d22819704846273079d38d12fbd5e344228407
 
 if [ ! -r .git ] ; then
   echo "$0: '.git' not found - this script should be run from a git repo cloned"
@@ -409,7 +411,7 @@ if [ ! -r .git ] ; then
   exit 1
 fi
 
-for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
+for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
   if test -d "$emptydir" ; then
     :
   else
@@ -431,7 +433,6 @@ else
   cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
-xapian-letor/common
 END
   if [ -f .git/info/exclude ] &&
      cmp -s .git/info/exclude~ .git/info/exclude ; then
@@ -576,10 +577,11 @@ instdir=`pwd`/INST
 cd BUILD
 
 # The hex strings are SHA256 checksums for the preceding extension.
-if lazy_build autoconf autoconf 2.69 \
+args='autoconf 2.69'
+if need_to_build $args autoconf ; then
+  lazy_build $args \
     tar.xz 64ebcec9f8ac5b2487125a86a7760d2591ac9e1d3dbd59489633f9de62a57684 \
-    tar.gz 954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969 \
-    ; then
+    tar.gz 954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
   AUTOCONF=$instdir/bin/autoconf
   export AUTOCONF
   AUTORECONF=$instdir/bin/autoreconf
@@ -589,24 +591,30 @@ if lazy_build autoconf autoconf 2.69 \
   AUTOM4TE=$instdir/bin/autom4te
   export AUTOM4TE
 fi
-if lazy_build automake automake 1.15.1 \
+args='automake 1.15.1'
+if need_to_build $args automake ; then
+  lazy_build $args \
     tar.xz af6ba39142220687c500f79b4aa2f181d9b24e4f8d8ec497cea4ba26c64bedaf \
-    tar.gz 988e32527abe052307d21c8ca000aa238b914df363a617e38f4fb89f5abf6260 \
-    ; then
+    tar.gz 988e32527abe052307d21c8ca000aa238b914df363a617e38f4fb89f5abf6260
   ACLOCAL=$instdir/bin/aclocal
   export ACLOCAL
   AUTOMAKE=$instdir/bin/automake
   export AUTOMAKE
 fi
-if lazy_build libtool libtool 2.4.6 \
+args='libtool 2.4.6'
+if need_to_build $args libtool ; then
+  lazy_build $args \
     tar.xz 7c87a8c2c8c0fc9cd5019e402bed4292462d00a718a7cd5f11218153bf28b26f \
-    tar.gz e3bd4d5d3d025a36c21dd6af7ea818a2afcd4dfc1ea5a17b39d7854bcd0c06e3 \
-    ; then
+    tar.gz e3bd4d5d3d025a36c21dd6af7ea818a2afcd4dfc1ea5a17b39d7854bcd0c06e3
   LIBTOOLIZE=$instdir/bin/libtoolize
   export LIBTOOLIZE
   libtool_aclocal=$instdir/share/aclocal
 else
-  libtool_aclocal=`which libtool|sed 's!/bin/[^/]*$!/share/aclocal!'`
+  libtool_aclocal=`which libtoolize|sed 's!/bin/[^/]*$!/share/aclocal!'`
+  if [ -z "$libtool_aclocal" ] ; then
+    echo "libtoolize not found"
+    exit 1
+  fi
 fi
 # If the aclocal we're using is in a different prefix to the libtool we're
 # using, we probably need to tell aclocal where to look for our libtool's
@@ -619,10 +627,15 @@ if [ "`${ACLOCAL-aclocal} --print-ac-dir`" != "$libtool_aclocal" ] ; then
 fi
 
 if [ "$1" = "--deps=libmagic" ] ; then
-    shift
-    lazy_build file '' 5.32 \
-      tar.gz 8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
+  shift
+  lazy_build file 5.3.2 \
+    tar.gz 8639dc4d1b21e232285cd483604afc4a6ee810710e00e579dbe9591681722b50
 fi
+
+# Save the unadorned aclocal for bootstrapping SWIG.  In particular SWIG
+# uses a modified old version of AX_CXX_COMPILE_STDCXX_11 which isn't
+# compatible with the current version which might be in a system directory.
+SWIG_ACLOCAL=${ACLOCAL-aclocal}
 
 cd ..
 
@@ -645,7 +658,7 @@ export ACLOCAL
 
 intree_swig=no
 modules=
-for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xapian-letor} ; do
+for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ; do
   d=$module
   if [ "$d" = swig ] ; then
     if [ -f "xapian-bindings/.nobootstrap" ] ; then
@@ -668,12 +681,17 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xa
     continue
   fi
   case $d in
-  xapian-applications/omega|xapian-letor)
+  xapian-applications/omega)
     # If someone's created a directory for common, leave it be.
     if [ -h "$d/common" ] || [ ! -d "$d/common" ] ; then
-      # Pick omega_common_commit_hash or letor_common_commit_hash:
-      var=`echo "$d"|sed 's!.*[-/]!!g'`_common_commit_hash
-      hash=`eval echo \\\$"$var"`
+      hash=$omega_common_commit_hash
+      if [ -f .git/shallow ] ; then
+	if git reflog "$hash" -- 2> /dev/null ; then
+	  : # Already have the desired commit.
+	else
+	  git fetch --unshallow
+	fi
+      fi
       handle_git_external "$d/.common.git" "$hash" "$xapian_common_clone_url"
       ln -sf .common.git/xapian-core/common "$d/common"
     fi
@@ -699,7 +717,7 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xa
     # SWIG provides its own bootstrapping script.
     curdir=`pwd`
     cd "$d"
-    ./autogen.sh || autoreconf_rc=$?
+    ACLOCAL=$SWIG_ACLOCAL ./autogen.sh || autoreconf_rc=$?
     cd "$curdir"
     # Use the uninstalled wrapper for the in-tree copy of SWIG.
     intree_swig=yes

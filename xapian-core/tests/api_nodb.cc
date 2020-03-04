@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015,2016,2017,2019 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  * Copyright (C) 2016 Vivek Pal
  *
@@ -76,6 +76,8 @@ DEFINE_TESTCASE(getqterms1, !backend) {
 DEFINE_TESTCASE(getqterms2, !backend) {
     Xapian::Query empty_query;
     TEST_EQUAL(empty_query.get_terms_begin(), empty_query.get_terms_end());
+    TEST_EQUAL(empty_query.get_unique_terms_begin(),
+	       empty_query.get_unique_terms_end());
     return true;
 }
 
@@ -235,8 +237,9 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
     tout << "available languages '" << langs << "'" << endl;
     TEST(!langs.empty());
 
-    // Also test the language codes and none.
-    langs += " da nl en fi fr de hu it no pt ro ru es sv tr none";
+    // Also test the language codes.
+    langs += " ar hy eu ca da nl en fi fr de hu id ga it lt ne nb nn no pt ro"
+	     " ru es sv ta tr";
 
     string::size_type i = 0;
     while (true) {
@@ -250,6 +253,7 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	string language(langs, i, spc - i);
 	tout << "checking language code '" << language << "' works" << endl;
 	Xapian::Stem stemmer(language);
+	TEST(!stemmer.is_none());
 	if (language.size() > 2) {
 	    string expected("Xapian::Stem(");
 	    expected += language;
@@ -261,9 +265,19 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	i = spc + 1;
     }
 
-    // Stem("") should give an object which doesn't change any input.
-    Xapian::Stem stem_nothing = Xapian::Stem("");
-    TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+    {
+	// Stem("none") should give a no-op stemmer.
+	Xapian::Stem stem_nothing = Xapian::Stem("none");
+	TEST(stem_nothing.is_none());
+	TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+    }
+
+    {
+	// Stem("") should be equivalent.
+	Xapian::Stem stem_nothing = Xapian::Stem("");
+	TEST(stem_nothing.is_none());
+	TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+    }
 
     return true;
 }

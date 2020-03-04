@@ -260,6 +260,10 @@ class QueryAndNot : public QueryBranch {
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
+    void postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
+
     void add_subquery(const Xapian::Query & subquery);
 
     Query::Internal * done();
@@ -287,6 +291,10 @@ class QueryAndMaybe : public QueryBranch {
     explicit QueryAndMaybe(size_t n_subqueries) : QueryBranch(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
+
+    void postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
 
     void add_subquery(const Xapian::Query & subquery);
 

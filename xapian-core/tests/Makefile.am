@@ -222,10 +222,13 @@ EXTRA_DIST +=\
 	testdata/apitest_sortrel.txt \
 	testdata/apitest_declen.txt \
 	testdata/etext.txt \
+	testdata/phraseweightcheckbug1.txt \
 	testdata/snippet.txt
 
 remove-cached-databases:
-	rm -rf .chert .glass .multichert .multiglass .replicatmp .singlefileglass .stub
+	rm -rf .chert .glass .multichert .multiglass \
+	       .multiglassremoteprog_glass .multiremoteprog_glass \
+	       .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 

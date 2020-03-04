@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_UNICODE_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/unicode.h> directly; include <xapian.h> instead."
+# error Never use <xapian/unicode.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -36,21 +36,23 @@ namespace Xapian {
  *  string.
  */
 class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
-    const unsigned char *p;
-    const unsigned char *end;
+    const unsigned char* p;
+    const unsigned char* end;
     mutable unsigned seqlen;
 
     bool XAPIAN_NOTHROW(calculate_sequence_length() const);
 
     unsigned get_char() const;
 
-    Utf8Iterator(const unsigned char *p_, const unsigned char *end_, unsigned seqlen_)
+    Utf8Iterator(const unsigned char* p_,
+		 const unsigned char* end_,
+		 unsigned seqlen_)
 	: p(p_), end(end_), seqlen(seqlen_) { }
 
   public:
-    /** Return the raw const char * pointer for the current position. */
-    const char * raw() const {
-	return reinterpret_cast<const char *>(p ? p : end);
+    /** Return the raw const char* pointer for the current position. */
+    const char* raw() const {
+	return reinterpret_cast<const char*>(p ? p : end);
     }
 
     /** Return the number of bytes left in the iterator's buffer. */
@@ -67,7 +69,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @param len The length of the string to read.
      */
-    void assign(const char *p_, size_t len) {
+    void assign(const char* p_, size_t len) {
 	if (len) {
 	    p = reinterpret_cast<const unsigned char*>(p_);
 	    end = p + len;
@@ -87,7 +89,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param s The string to read.  Must not be modified while the iteration
      *		 is in progress.
      */
-    void assign(const std::string &s) { assign(s.data(), s.size()); }
+    void assign(const std::string& s) { assign(s.data(), s.size()); }
 
     /** Create an iterator given a pointer to a null terminated string.
      *
@@ -97,7 +99,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @param p_ A pointer to the start of the null terminated string to read.
      */
-    explicit Utf8Iterator(const char *p_);
+    explicit Utf8Iterator(const char* p_);
 
     /** Create an iterator given a pointer and a length.
      *
@@ -109,7 +111,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @param len The length of the string to read.
      */
-    Utf8Iterator(const char *p_, size_t len) { assign(p_, len); }
+    Utf8Iterator(const char* p_, size_t len) { assign(p_, len); }
 
     /** Create an iterator given a string.
      *
@@ -120,7 +122,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param s The string to read.  Must not be modified while the iteration
      *		 is in progress.
      */
-    Utf8Iterator(const std::string &s) { assign(s.data(), s.size()); }
+    Utf8Iterator(const std::string& s) { assign(s.data(), s.size()); }
 
     /** Create an iterator which is at the end of its iteration.
      *
@@ -159,7 +161,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     Utf8Iterator operator++(int) {
 	// If we've not calculated seqlen yet, do so.
 	if (seqlen == 0) calculate_sequence_length();
-	const unsigned char *old_p = p;
+	const unsigned char* old_p = p;
 	unsigned old_seqlen = seqlen;
 	p += seqlen;
 	if (p == end) p = NULL;
@@ -171,7 +173,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @return A reference to this object.
      */
-    Utf8Iterator & operator++() {
+    Utf8Iterator& operator++() {
 	if (seqlen == 0) calculate_sequence_length();
 	p += seqlen;
 	if (p == end) p = NULL;
@@ -184,7 +186,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators point to the same position.
      */
-    bool XAPIAN_NOTHROW(operator==(const Utf8Iterator &other) const) {
+    bool XAPIAN_NOTHROW(operator==(const Utf8Iterator& other) const) {
 	return p == other.p;
     }
 
@@ -193,7 +195,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators do not point to the same position.
      */
-    bool XAPIAN_NOTHROW(operator!=(const Utf8Iterator &other) const) {
+    bool XAPIAN_NOTHROW(operator!=(const Utf8Iterator& other) const) {
 	return p != other.p;
     }
 
@@ -202,46 +204,50 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     typedef std::input_iterator_tag iterator_category;
     typedef unsigned value_type;
     typedef size_t difference_type;
-    typedef const unsigned * pointer;
-    typedef const unsigned & reference;
+    typedef const unsigned* pointer;
+    typedef const unsigned& reference;
     //@}
 };
 
 /// Functions associated with handling Unicode characters.
 namespace Unicode {
 
-/** Each Unicode character is in exactly one of these categories. */
+/** Each Unicode character is in exactly one of these categories.
+ *
+ * The Unicode standard calls this the "General Category", and uses a
+ * "Major, minor" convention to derive a two letter code.
+ */
 typedef enum {
-    UNASSIGNED,
-    UPPERCASE_LETTER,
-    LOWERCASE_LETTER,
-    TITLECASE_LETTER,
-    MODIFIER_LETTER,
-    OTHER_LETTER,
-    NON_SPACING_MARK,
-    ENCLOSING_MARK,
-    COMBINING_SPACING_MARK,
-    DECIMAL_DIGIT_NUMBER,
-    LETTER_NUMBER,
-    OTHER_NUMBER,
-    SPACE_SEPARATOR,
-    LINE_SEPARATOR,
-    PARAGRAPH_SEPARATOR,
-    CONTROL,
-    FORMAT,
-    PRIVATE_USE,
-    SURROGATE,
-    CONNECTOR_PUNCTUATION,
-    DASH_PUNCTUATION,
-    OPEN_PUNCTUATION,
-    CLOSE_PUNCTUATION,
-    INITIAL_QUOTE_PUNCTUATION,
-    FINAL_QUOTE_PUNCTUATION,
-    OTHER_PUNCTUATION,
-    MATH_SYMBOL,
-    CURRENCY_SYMBOL,
-    MODIFIER_SYMBOL,
-    OTHER_SYMBOL
+    UNASSIGNED,                         /**< Other, not assigned (Cn) */
+    UPPERCASE_LETTER,                   /**< Letter, uppercase (Lu) */
+    LOWERCASE_LETTER,                   /**< Letter, lowercase (Ll) */
+    TITLECASE_LETTER,                   /**< Letter, titlecase (Lt) */
+    MODIFIER_LETTER,                    /**< Letter, modifier (Lm) */
+    OTHER_LETTER,                       /**< Letter, other (Lo) */
+    NON_SPACING_MARK,                   /**< Mark, nonspacing (Mn) */
+    ENCLOSING_MARK,                     /**< Mark, enclosing (Me) */
+    COMBINING_SPACING_MARK,             /**< Mark, spacing combining (Mc) */
+    DECIMAL_DIGIT_NUMBER,               /**< Number, decimal digit (Nd) */
+    LETTER_NUMBER,                      /**< Number, letter (Nl) */
+    OTHER_NUMBER,                       /**< Number, other (No) */
+    SPACE_SEPARATOR,                    /**< Separator, space (Zs) */
+    LINE_SEPARATOR,                     /**< Separator, line (Zl) */
+    PARAGRAPH_SEPARATOR,                /**< Separator, paragraph (Zp) */
+    CONTROL,                            /**< Other, control (Cc) */
+    FORMAT,                             /**< Other, format (Cf) */
+    PRIVATE_USE,                        /**< Other, private use (Co) */
+    SURROGATE,                          /**< Other, surrogate (Cs) */
+    CONNECTOR_PUNCTUATION,              /**< Punctuation, connector (Pc) */
+    DASH_PUNCTUATION,                   /**< Punctuation, dash (Pd) */
+    OPEN_PUNCTUATION,                   /**< Punctuation, open (Ps) */
+    CLOSE_PUNCTUATION,                  /**< Punctuation, close (Pe) */
+    INITIAL_QUOTE_PUNCTUATION,          /**< Punctuation, initial quote (Pi) */
+    FINAL_QUOTE_PUNCTUATION,            /**< Punctuation, final quote (Pf) */
+    OTHER_PUNCTUATION,                  /**< Punctuation, other (Po) */
+    MATH_SYMBOL,                        /**< Symbol, math (Sm) */
+    CURRENCY_SYMBOL,                    /**< Symbol, currency (Sc) */
+    MODIFIER_SYMBOL,                    /**< Symbol, modified (Sk) */
+    OTHER_SYMBOL                        /**< Symbol, other (So) */
 } category;
 
 namespace Internal {
@@ -262,7 +268,9 @@ namespace Internal {
     /** @private @internal Extract the category of a Unicode character from its
      *  info.
      */
-    inline category get_category(int info) { return static_cast<category>(info & 0x1f); }
+    inline category get_category(int info) {
+	return static_cast<category>(info & 0x1f);
+    }
 
     /** @private @internal Extract the delta to use for case conversion of a
      *  character from its info.
@@ -273,18 +281,19 @@ namespace Internal {
 	 * most compilers implement.
 	 *
 	 * Some compilers are smart enough to spot common idioms for sign
-	 * extension, but not all (e.g. GCC < 7 doesn't spot the one used in
-	 * the else below), so check what the implementation defined behaviour
-	 * is with a constant conditional which should get optimised away.
+	 * extension, but not all (e.g. GCC < 7 doesn't spot the one used
+	 * below), so check what the implementation-defined behaviour is with
+	 * a constant conditional which should get optimised away.
+	 *
+	 * We use the ternary operator here to avoid various compiler
+	 * warnings which writing this as an `if` results in.
 	 */
-	if ((-1 >> 1) == -1) {
-	    // Right shift sign-extends.
-	    return info >> 8;
-	} else {
-	    // Right shift shifts in zeros, not before and after the shift for
-	    // negative values.
-	    return (info >= 0) ? (info >> 8) : (~(~info >> 8));
-	}
+	return ((-1 >> 1) == -1 ?
+		// Right shift sign-extends.
+		info >> 8 :
+		// Right shift shifts in zeros so bitwise-not before and after
+		// the shift for negative values.
+		(info >= 0) ? (info >> 8) : (~(~info >> 8)));
     }
 }
 
@@ -299,7 +308,7 @@ namespace Internal {
  *  @return	The length of the resultant UTF-8 character in bytes.
  */
 XAPIAN_VISIBILITY_DEFAULT
-unsigned nonascii_to_utf8(unsigned ch, char * buf);
+unsigned nonascii_to_utf8(unsigned ch, char* buf);
 
 /** Convert a single Unicode character to UTF-8.
  *
@@ -309,7 +318,7 @@ unsigned nonascii_to_utf8(unsigned ch, char * buf);
  *
  *  @return	The length of the resultant UTF-8 character in bytes.
  */
-inline unsigned to_utf8(unsigned ch, char *buf) {
+inline unsigned to_utf8(unsigned ch, char* buf) {
     if (ch < 128) {
 	*buf = static_cast<unsigned char>(ch);
 	return 1;
@@ -320,7 +329,7 @@ inline unsigned to_utf8(unsigned ch, char *buf) {
 /** Append the UTF-8 representation of a single Unicode character to a
  *  std::string.
  */
-inline void append_utf8(std::string &s, unsigned ch) {
+inline void append_utf8(std::string& s, unsigned ch) {
     char buf[4];
     s.append(buf, to_utf8(ch, buf));
 }
@@ -381,7 +390,7 @@ inline unsigned toupper(unsigned ch) {
 
 /// Convert a UTF-8 std::string to lowercase.
 inline std::string
-tolower(const std::string &term)
+tolower(const std::string& term)
 {
     std::string result;
     result.reserve(term.size());
@@ -393,7 +402,7 @@ tolower(const std::string &term)
 
 /// Convert a UTF-8 std::string to uppercase.
 inline std::string
-toupper(const std::string &term)
+toupper(const std::string& term)
 {
     std::string result;
     result.reserve(term.size());

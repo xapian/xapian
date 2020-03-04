@@ -46,7 +46,9 @@ serialise_stats(const Xapian::Weight::Internal &stats)
     result += encode_length(stats.total_length);
     result += encode_length(stats.collection_size);
     result += encode_length(stats.rset_size);
-    result += encode_length(stats.total_term_count);
+    // This is redundant, but sent to keep the protocol compatible with older
+    // 1.4.x releases.
+    result += encode_length(stats.total_length);
     result += static_cast<char>(stats.have_max_part);
 
     result += encode_length(stats.termfreqs.size());
@@ -71,10 +73,13 @@ unserialise_stats(const string &s, Xapian::Weight::Internal & stat)
     const char * p = s.data();
     const char * p_end = p + s.size();
 
+    Xapian::totallength dummy;
     decode_length(&p, p_end, stat.total_length);
     decode_length(&p, p_end, stat.collection_size);
     decode_length(&p, p_end, stat.rset_size);
-    decode_length(&p, p_end, stat.total_term_count);
+    // Ignored - only present to keep the protocol compatible with older
+    // 1.4.x releases.
+    decode_length(&p, p_end, dummy);
     // If p == p_end, the next decode_length() will report it.
     stat.have_max_part = (p != p_end && *p++);
 

@@ -43,20 +43,38 @@ boolean[=PREFIX]
 	index the text as a single boolean term (with prefix PREFIX).  If
 	there's no text, no term is added.  Omega expects certain prefixes to
 	be used for certain purposes - those starting "X" are reserved for user
-	applications.  Q is reserved for a unique ID term.
+	applications.  ``Q`` is conventionally used as the prefix for a unique
+	ID term.
 
 date=FORMAT
-	generate terms for date range searching.  If FORMAT is "unix", then the
-	value is interpreted as a Unix time_t (seconds since 1970).  If
-	FORMAT is "yyyymmdd", then the value is interpreted as an 8 digit
-	string, e.g. 20021221 for 21st December 2002.  Unknown formats,
-	and invalid values are ignored at present.
+        generate ``D``-, ``M``- and ``Y``-prefixed terms for date range
+        searching (e.g. ``D20021221``, ``M200212`` and ``Y2002`` for the
+        21st December 2002).  The following values for *FORMAT* are supported:
+
+          * ``unix``: the value is interpreted as a Unix local time_t (seconds
+            since the start of 1970 in the local timezone).
+          * ``unixutc``: the value is interpreted as a Unix UTC time_t
+            (seconds since the start of 1970 in UTC).  (Since Omega 1.4.12)
+          * ``yyyymmdd``: the value is interpreted as an 8 digit string, e.g.
+            20021221 for 21st December 2002.
+
+        Unknown formats give an error at script parse time since Omega 1.4.12
+        (in earlier versions unknown formats uselessly resulted in the terms
+        ``D``, ``M`` and ``Y`` literally being added to every document).
+
+        Invalid values result in no terms being added (and since Omega 1.4.12
+        a warning is emitted).
 
 field[=FIELDNAME]
 	add as a field to the Xapian record.  FIELDNAME defaults to the field
 	name in the dumpfile.  It is valid to have more than one instance of
 	a given field: all instances will be processed and stored in the
 	Xapian record.
+
+gap[=SIZE]
+        leave a gap of SIZE term positions.  SIZE defaults to 100.  This
+        provides a way to stop phrases, ``NEAR`` and ``ADJ`` from matching
+        across fields.
 
 hash[=LENGTH]
 	Xapian has a limit on the length of a term.  To handle arbitrarily
@@ -98,12 +116,22 @@ lower
 	lowercase the text (useful for generating boolean terms)
 
 parsedate=FORMAT
-        parse the text as a date string using ``strptime()`` with the format
-        specified by ``FORMAT``, and set the text to the result as a Unix
-        ``time_t`` (seconds since 1970), which can then be fed into ``date``
-        or ``valuepacked``, for example::
+        parse the text as a date string using ``strptime()`` (or C++11's
+        ``std::get_time()`` on platforms without ``strptime()``) with the
+        format specified by ``FORMAT``, and set the text to the result as a
+        Unix ``time_t`` (seconds since the start of 1970 in UTC), which can
+        then be fed into ``date=unixutc`` or ``valuepacked``, for example::
 
          last_update : parsedate="%Y%m%d %T" field=lastmod valuepacked=0
+
+        Format strings containing ``%Z`` are rejected with an error, as it
+        seems that ``strptime()`` implementations don't properly support this
+        (glibc's just accepts any sequence of non-whitespace and ignores it).
+
+        Format strings containing ``%z`` are only supported on platforms
+        where ``struct tm`` has a ``tm_gmtoff`` member, which is needed to
+        correctly apply the timezone offset.  On other platforms ``%z`` is
+        also rejected with an error.
 
         ``parsedate`` was added in Omega 1.4.6.
 
@@ -117,8 +145,9 @@ split=DELIMITER[,OPERATION]
         entry perform all the actions which follow ``split`` in the current rule.
 
         ``OPERATION`` can be ``dedup`` (remove second and subsequent
-        occurrences from the list of any value), ``sort`` (sort), or ``none``
-        (default: none).
+        occurrences from the list of any value), ``prefixes`` (which instead of
+        just giving the text between delimiters, gives the text up to each
+        delimiter), ``sort`` (sort), or ``none`` (default: none).
 
         If you want to specify ``,`` for delimiter, you need to quote it, e.g.
         ``split=",",dedup``.
@@ -137,9 +166,9 @@ unique[=PREFIX]
 	with an ID which is already present will cause the old record to be
 	replaced (or deleted if the new record is otherwise empty).  You should
 	also index the field as a boolean field using the same prefix so that
-	the old record can be found.  In Omega, Q is reserved for use as the
-	prefix of a unique term.  You can use ``unique`` at most once in each
-        index script (this is only enforced since Omega 1.4.5, but older
+        the old record can be found.  In Omega, ``Q`` is conventionally used as
+        the prefix of a unique term.  You can use ``unique`` at most once in
+        each index script (this is only enforced since Omega 1.4.5, but older
         versions didn't handle multiple instances usefully).
 
 value=VALUESLOT
@@ -165,10 +194,11 @@ valuepacked=VALUESLOT
         ``valuepacked`` was added in Omega 1.4.6.
 
 weight=FACTOR
-	set the weighting factor to FACTOR (an integer) for any ``index`` or
-        ``indexnopos`` actions in the remainder of this list of actions.  The
-        default is 1.  Use this to add extra weight to titles, keyword fields,
-        etc, so that words in them are regarded as more important by searches.
+        set the weighting factor to FACTOR (a non-negative integer) for any
+        ``index`` or ``indexnopos`` actions in the remainder of this list of
+        actions.  The default is 1.  Use this to add extra weight to titles,
+        keyword fields, etc, so that words in them are regarded as more
+        important by searches.
 
 Input files:
 ============

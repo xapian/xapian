@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016,2017,2019 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -37,7 +37,6 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -70,8 +69,7 @@ DEFINE_TESTCASE(termstats, backend) {
 }
 
 // Check that stub databases work.
-DEFINE_TESTCASE(stubdb1, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb1, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb1";
     ofstream out(dbpath);
@@ -92,12 +90,13 @@ DEFINE_TESTCASE(stubdb1, backend && !inmemory && !remote) {
 	enquire.get_mset(0, 10);
     }
 
+    TEST_EQUAL(Xapian::Database::check(dbpath), 0);
+
     return true;
 }
 
 // Check that stub databases work remotely.
-DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb2, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb2";
     ofstream out(dbpath);
@@ -226,8 +225,7 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 }
 
 // Regression test - bad entries were ignored after a good entry prior to 1.0.8.
-DEFINE_TESTCASE(stubdb3, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb3, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb3";
     ofstream out(dbpath);
@@ -246,8 +244,7 @@ DEFINE_TESTCASE(stubdb3, backend && !inmemory && !remote) {
 }
 
 // Test a stub database with just a bad entry.
-DEFINE_TESTCASE(stubdb4, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb4, !backend) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb4";
     ofstream out(dbpath);
@@ -266,8 +263,7 @@ DEFINE_TESTCASE(stubdb4, backend && !inmemory && !remote) {
 
 // Test a stub database with a bad entry with no spaces (prior to 1.1.0 this
 // was deliberately allowed, though not documented.
-DEFINE_TESTCASE(stubdb5, backend && !inmemory && !remote) {
-    // Only works for backends which have a path.
+DEFINE_TESTCASE(stubdb5, path) {
     mkdir(".stub", 0755);
     const char * dbpath = ".stub/stubdb5";
     ofstream out(dbpath);
@@ -345,10 +341,31 @@ DEFINE_TESTCASE(stubdb8, inmemory) {
     try {
 	Xapian::Database::check(dbpath);
 	FAIL_TEST("Managed to check inmemory stub");
-    } catch (const Xapian::DatabaseOpeningError & e) {
+    } catch (const Xapian::UnimplementedError& e) {
 	// Check the message is appropriate.
 	TEST_STRINGS_EQUAL(e.get_msg(),
-			   "File is not a Xapian database or database table");
+			   "InMemory database checking not implemented");
+    }
+    return true;
+}
+
+/// Test error running Database::check() on a remote stub database.
+DEFINE_TESTCASE(stubdb9, path) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb9";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "remote :" << BackendManager::get_xapian_progsrv_command()
+	<< ' ' << get_database_path("apitest_simpledata") << endl;
+    out.close();
+
+    try {
+	Xapian::Database::check(dbpath);
+	FAIL_TEST("Managed to check remote stub");
+    } catch (const Xapian::UnimplementedError& e) {
+	// Check the message is appropriate.
+	TEST_STRINGS_EQUAL(e.get_msg(),
+			   "Remote database checking not implemented");
     }
     return true;
 }
@@ -1017,8 +1034,11 @@ DEFINE_TESTCASE(keepalive1, remote) {
     /* Test that things break without keepalives */
     sleep(10);
     enquire.set_query(Xapian::Query("word"));
-    TEST_EXCEPTION(Xapian::NetworkError,
-		   enquire.get_mset(0, 10));
+    /* Currently this can throw NetworkError or NetworkTimeoutError (which is
+     * a subclass of NetworkError).
+     */
+    TEST_EXCEPTION_BASE_CLASS(Xapian::NetworkError,
+			      enquire.get_mset(0, 10));
 
     return true;
 }
@@ -1587,27 +1607,27 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-DEFINE_TESTCASE(chertdatabaseopeningerror1, chert) {
+DEFINE_TESTCASE(chertdatabasenotfounderror1, chert) {
 #ifdef XAPIAN_HAS_CHERT_BACKEND
     mkdir(".chert", 0755);
 
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database(".chert/nosuchdirectory",
 		Xapian::DB_BACKEND_CHERT));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::WritableDatabase(".chert/nosuchdirectory",
 		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
 
     mkdir(".chert/emptydirectory", 0700);
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database(".chert/emptydirectory",
 		Xapian::DB_BACKEND_CHERT));
 
     touch(".chert/somefile");
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database(".chert/somefile",
 		Xapian::DB_BACKEND_CHERT));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::WritableDatabase(".chert/somefile",
 		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
@@ -1619,6 +1639,43 @@ DEFINE_TESTCASE(chertdatabaseopeningerror1, chert) {
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
 	    Xapian::WritableDatabase(".chert/somefile",
 		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
+#endif
+
+    return true;
+}
+
+DEFINE_TESTCASE(glassdatabasenotfounderror1, glass) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    mkdir(".glass", 0755);
+
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database(".glass/nosuchdirectory",
+		Xapian::DB_BACKEND_GLASS));
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::WritableDatabase(".glass/nosuchdirectory",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
+
+    mkdir(".glass/emptydirectory", 0700);
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database(".glass/emptydirectory",
+		Xapian::DB_BACKEND_GLASS));
+
+    touch(".glass/somefile");
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::Database(".glass/somefile",
+		Xapian::DB_BACKEND_GLASS));
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS));
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS));
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS));
 #endif
 
     return true;
@@ -1817,11 +1874,54 @@ DEFINE_TESTCASE(sortrel1, backend) {
     return true;
 }
 
-// Test network stats and local stats give the same results.
-DEFINE_TESTCASE(netstats1, remote) {
-    BackendManagerLocal local_manager;
-    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
+static void
+make_netstats1_db(Xapian::WritableDatabase& db, const string&)
+{
+    static const struct { Xapian::docid did; const char* text; } content[] = {
+	{1, "This is a test document used with the API test. This paragraph "
+	    "must be at least three lines (including the blank line) to be "
+	    "counted as a \"paragraph\"."},
+	{2, "This is a second simple data test, used to test multiple "
+	    "(inmemory anyway) databases.  The text in this file is "
+	    "unimportant, although I suppose it ought to include the "
+	    "standard word \"word\" in a few places."},
+	{3, "This file will be indexed by paragraph, and the simple query will "
+	    "search for the word \"word\".  Well expect the mset to contain "
+	    "two documents, including this paragraph and the fourth, below.  "
+	    "Since this paragraph uses the word \"word\" so much, this "
+	    "should be the first one in the match set.  Ill just say the word "
+	    "a few more times (word!) to make sure of that.  If this doesnt "
+	    "word (typo, I meant work), then there may be fourletter words "
+	    "spoken."},
+	{4, "Ill leave this at two paragraphs.  This one hasnt got any useful "
+	    "information in it either."},
+	{5, "This paragraph only has a load of absolute rubbish, and nothing "
+	    "of any use whatsoever."},
+	{7, "This is the other paragraph with the word in the simple query "
+	    "in it.  For simplicity, all paragraphs are at least two lines, "
+	    "due to how the hacked up indexer works."},
+	{9, "This is another paragraph which wont be returned.  Well, not "
+	    "with the simple query, anyway."},
+	{11, "And yet another.  This one does mention banana splits, though, "
+	     "so cant be that bad."}
+    };
 
+    Xapian::TermGenerator indexer;
+    indexer.set_stemmer(Xapian::Stem("english"));
+    indexer.set_stemming_strategy(indexer.STEM_ALL);
+
+    for (auto& i : content) {
+	Xapian::Document doc;
+	indexer.set_document(doc);
+	indexer.index_text(i.text);
+	db.replace_document(i.did, doc);
+    }
+
+    db.commit();
+}
+
+// Test network stats and local stats give the same results.
+DEFINE_TESTCASE(netstats1, generated) {
     static const char * const words[] = { "paragraph", "word" };
     Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
     const size_t MSET_SIZE = 10;
@@ -1830,63 +1930,29 @@ DEFINE_TESTCASE(netstats1, remote) {
     rset.add_document(4);
     rset.add_document(9);
 
-    Xapian::MSet mset_alllocal;
     {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	mset_alllocal = enq.get_mset(0, MSET_SIZE, &rset);
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
+	Xapian::Database db = get_database("netstats1", make_netstats1_db);
 
 	Xapian::Enquire enq(db);
 	enq.set_query(query);
 	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
-	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
-	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
-	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
-	TEST_EQUAL(mset.size(), mset_alllocal.size());
-	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
-    }
+	TEST_EQUAL(mset.get_matches_lower_bound(), 7);
+	TEST_EQUAL(mset.get_matches_upper_bound(), 7);
+	TEST_EQUAL(mset.get_matches_estimated(), 7);
+	TEST_EQUAL(mset.get_max_attained(), 1.445962071042388164);
+	TEST_EQUAL(mset.size(), 7);
 
-    {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
+	static const pair<Xapian::docid, double> to_compare[] = {
+	    {7, 1.445962071042388164},
+	    {3, 1.4140112748017070743},
+	    {1, 1.3747698831232337824},
+	    {5, 1.1654938419498412916},
+	    {9, 1.1654938419498412916},
+	    {4, 1.1543806706320836053},
+	    {2, 0.12268031290495594321}
+	};
 
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
-	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
-	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
-	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
-	TEST_EQUAL(mset.size(), mset_alllocal.size());
-	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset.get_matches_lower_bound(), mset_alllocal.get_matches_lower_bound());
-	TEST_EQUAL(mset.get_matches_upper_bound(), mset_alllocal.get_matches_upper_bound());
-	TEST_EQUAL(mset.get_matches_estimated(), mset_alllocal.get_matches_estimated());
-	TEST_EQUAL(mset.get_max_attained(), mset_alllocal.get_max_attained());
-	TEST_EQUAL(mset.size(), mset_alllocal.size());
-	TEST(mset_range_is_same(mset, 0, mset_alllocal, 0, mset.size()));
+	TEST(mset_range_is_same(mset, 0, to_compare, mset.size()));
     }
 
     return true;

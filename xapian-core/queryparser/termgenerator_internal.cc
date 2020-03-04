@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ namespace Xapian {
 static inline bool
 U_isupper(unsigned ch)
 {
-    return (ch < 128 && C_isupper(static_cast<unsigned char>(ch)));
+    return ch < 128 && C_isupper(static_cast<unsigned char>(ch));
 }
 
 static inline unsigned
@@ -177,12 +177,16 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 	    if (cjk_ngram &&
 		CJK::codepoint_is_cjk(*itor) &&
 		Unicode::is_wordchar(*itor)) {
-		const string & cjk = CJK::get_cjk(itor);
-		for (CJKTokenIterator tk(cjk); tk != CJKTokenIterator(); ++tk) {
-		    const string & cjk_token = *tk;
-		    if (!action(cjk_token, with_positions && tk.get_length() == 1, itor))
+		CJKTokenIterator tk(itor);
+		while (tk != CJKTokenIterator()) {
+		    const string& cjk_token = *tk;
+		    if (!action(cjk_token, with_positions && tk.unigram(),
+				tk.get_utf8iterator()))
 			return;
+		    ++tk;
 		}
+		// Update itor to end of CJK text span.
+		itor = tk.get_utf8iterator();
 		while (true) {
 		    if (itor == Utf8Iterator()) return;
 		    ch = check_wordchar(*itor);
@@ -277,8 +281,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    if ((this->flags & FLAG_SPELLING) && prefix.empty())
 		db.add_spelling(term);
 
-	    if (strategy == TermGenerator::STEM_NONE ||
-		!stemmer.internal.get()) return true;
+	    if (strategy == TermGenerator::STEM_NONE || stemmer.is_none())
+		return true;
 
 	    if (strategy == TermGenerator::STEM_SOME ||
 		strategy == TermGenerator::STEM_SOME_FULL_POS) {
@@ -517,7 +521,7 @@ SnipPipe::drain(const string & input,
 
 	// See if this is the end of a sentence.
 	// FIXME: This is quite simplistic - look at the Unicode rules:
-	// http://unicode.org/reports/tr29/#Sentence_Boundaries
+	// https://unicode.org/reports/tr29/#Sentence_Boundaries
 	bool punc = false;
 	Utf8Iterator i(input.data() + best_end, tail_len);
 	while (i != Utf8Iterator()) {
@@ -707,7 +711,10 @@ MSet::Internal::snippet(const string & text,
 	return text;
     }
 
-    bool cjk_ngram = CJK::is_cjk_enabled();
+    bool cjk_ngram = (flags & MSet::SNIPPET_CJK_NGRAM);
+    if (!cjk_ngram) {
+	cjk_ngram = CJK::is_cjk_enabled();
+    }
 
     size_t term_start = 0;
     double min_tw = 0, max_tw = 0;

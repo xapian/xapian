@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
+# Copyright (C) 2006-2020 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,8 +26,8 @@ set -e
 
 MIRROR=http://httpredir.debian.org/debian/
 
-DEBIAN_CODENAMES='stretch jessie'
-UBUNTU_CODENAMES='cosmic bionic xenial trusty'
+DEBIAN_CODENAMES='buster stretch jessie'
+UBUNTU_CODENAMES='eoan bionic xenial trusty'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
@@ -65,9 +65,9 @@ while true ; do
 done
 
 if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
-  echo "Usage: $0 [-v <last uploaded version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
+  echo "Usage: $0 [-v <last backported version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
   echo
-  echo "e.g.: $0 xapian-core 1.2.15-1 xenial"
+  echo "e.g.: $0 xapian-core 1.4.11-1 xenial"
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
   echo "Currently, the recognised values are:"
@@ -78,6 +78,8 @@ if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
   exit ${HELP_RC:-1}
 fi
 
+# Remove any backport suffix from any -v option.
+V_OPT=`printf '%s' "$V_OPT"|sed 's/~bpo.*//'`
 PKG=$1
 VERSION=$2
 shift
@@ -91,7 +93,7 @@ VERSION=`echo "$VERSION"|sed 's/-[^-]*$//'`
 CODENAMES="$DEBIAN_CODENAMES $UBUNTU_CODENAMES"
 
 # Options to pass to dpkg-buildpackage when building source packages
-BUILDPACKAGE_SRC_OPTS="-us -uc -d -S $V_OPT"
+BUILDPACKAGE_SRC_OPTS="-us -uc -d -S $V_OPT --changes-option=-DBinary=dummy"
 
 # Add entry to changelog if we're backporting.
 adjust_changelog() {
@@ -119,22 +121,18 @@ build_it() {
 
   overrides=
   case $PKG:$CODENAME:$VERSION in
-    xapian-core:*:1.2.*)
-      # So we can create the backport source packages on debian unstable.
-      overrides='libxapian_soversion=22 other_abi_suffix=v5' ;;
-    xapian-bindings:trusty:1.2.*)
+    xapian-bindings:jessie:*)
       # Make sure we add python-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy RUBY_VERSIONS="2.0" RUBY_PROVIDES="X-Dummy: No provides"' ;;
+      overrides='PYTHON_VERSIONS=dummy' ;;
     xapian-bindings:trusty:*)
       # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
-    xapian-bindings:xenial:*|xapian-bindings:bionic:*|xapian-bindings:cosmic:*)
-      # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
-      # to debian/control.
+    xapian-bindings:stretch:*|xapian-bindings:xenial:*)
+      # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
     xapian-bindings:*:*)
-      # Make sure we add python-xapian to debian/control.
-      overrides='PYTHON_VERSIONS=dummy' ;;
+      # Make sure we add python-xapian and python3-xapian to debian/control.
+      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.5 RUBY_PROVIDES="X-Dummy: No provides"' ;;
   esac
 
   # libxapian30 (i.e. 1.4.x) is built with C++ "v5" ABI in stretch and newer
@@ -168,6 +166,18 @@ build_it() {
 	    echo 10 > debian/compat
 	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 10)/' debian/control
 	    dch -a 'debian/control: Lower debhelper compat level to 10.'
+	fi
+	;;
+      trusty|xenial)
+	if [ "`cat debian/compat`" -gt 9 ] ; then
+	    echo 9 > debian/compat
+	    sed -i 's/debhelper (>= [^)]*)/debhelper (>= 9)/' debian/control
+	    dch -a 'debian/control: Lower debhelper compat level to 9.'
+	    # Compat 9 doesn't default to parallel building.
+	    if grep -q 'dh_auto_test --no-parallel' debian/rules ; then
+		sed -i 's/dh_auto_test --no-parallel/dh_auto_test/' debian/rules
+		dch -a 'debian/rules: Drop --no-parallel from dh_auto_test invocation (debhelper compat level 9 does not default to parallel building).'
+	    fi
 	fi
 	;;
   esac
@@ -248,6 +258,8 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # backports.org-compatible package versions - e.g. we append "~bpo8+1" for
 # Debian 8 (jessie) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
+buster)
+  BACKPORT_SUFFIX="~bpo10+$BUILD_INT" ;;
 stretch)
   BACKPORT_SUFFIX="~bpo9+$BUILD_INT" ;;
 jessie)

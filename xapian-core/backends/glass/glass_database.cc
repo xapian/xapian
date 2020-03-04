@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2019 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -425,7 +425,7 @@ GlassDatabase::get_database_write_lock(int flags, bool creating)
 	    string msg("No glass database found at path '");
 	    msg += db_dir;
 	    msg += '\'';
-	    throw Xapian::DatabaseOpeningError(msg);
+	    throw Xapian::DatabaseNotFoundError(msg);
 	}
 	lock.throw_databaselockerror(why, db_dir, explanation);
     }
@@ -865,6 +865,21 @@ GlassDatabase::open_document(Xapian::docid did, bool lazy) const
     RETURN(new GlassDocument(ptrtothis, did, &value_manager, &docdata_table));
 }
 
+void
+GlassDatabase::read_position_list(GlassPositionList* pos_list,
+				  Xapian::docid did,
+				  const string& term) const
+{
+    Assert(did != 0);
+    pos_list->read_data(&position_table, did, term);
+}
+
+Xapian::termcount
+GlassDatabase::positionlist_count(Xapian::docid did, const string& term) const
+{
+    return position_table.positionlist_count(did, term);
+}
+
 PositionList *
 GlassDatabase::open_position_list(Xapian::docid did, const string & term) const
 {
@@ -1043,13 +1058,21 @@ GlassWritableDatabase::check_flush_threshold()
 }
 
 void
-GlassWritableDatabase::flush_postlist_changes() const
+GlassWritableDatabase::flush_postlist_changes()
 {
-    version_file.set_oldest_changeset(changes.get_oldest_changeset());
-    inverter.flush(postlist_table);
-    inverter.flush_pos_lists(position_table);
+    try {
+	version_file.set_oldest_changeset(changes.get_oldest_changeset());
+	inverter.flush(postlist_table);
+	inverter.flush_pos_lists(position_table);
 
-    change_count = 0;
+	change_count = 0;
+    } catch (...) {
+	try {
+	    GlassWritableDatabase::cancel();
+	} catch (...) {
+	}
+	throw;
+    }
 }
 
 void
@@ -1478,7 +1501,6 @@ GlassWritableDatabase::open_post_list(const string& tname) const
     // Flush any buffered changes for this term's postlist so we can just
     // iterate from the flushed state.
     inverter.flush_post_list(postlist_table, tname);
-    inverter.flush_pos_lists(position_table);
     RETURN(new GlassPostList(ptrtothis, tname, true));
 }
 
@@ -1493,13 +1515,32 @@ GlassWritableDatabase::open_value_list(Xapian::valueno slot) const
     RETURN(GlassDatabase::open_value_list(slot));
 }
 
-TermList *
-GlassWritableDatabase::open_term_list(Xapian::docid did) const
+void
+GlassWritableDatabase::read_position_list(GlassPositionList* pos_list,
+					  Xapian::docid did,
+					  const string& term) const
 {
-    LOGCALL(DB, TermList *, "GlassWritableDatabase::open_term_list", did);
     Assert(did != 0);
-    inverter.flush_pos_lists(position_table);
-    RETURN(GlassDatabase::open_term_list(did));
+    string data;
+    if (inverter.get_positionlist(did, term, data)) {
+	pos_list->read_data(data);
+	return;
+    }
+    GlassDatabase::read_position_list(pos_list, did, term);
+}
+
+Xapian::termcount
+GlassWritableDatabase::positionlist_count(Xapian::docid did,
+					  const string& term) const
+{
+    Assert(did != 0);
+    string data;
+    if (inverter.get_positionlist(did, term, data)) {
+	if (data.empty())
+	    return 0;
+	return position_table.positionlist_count(data);
+    }
+    return GlassDatabase::positionlist_count(did, term);
 }
 
 PositionList *
@@ -1530,10 +1571,10 @@ GlassWritableDatabase::open_allterms(const string & prefix) const
 	// we need to flush changes for terms with the specified prefix (but
 	// don't commit - there may be a transaction in progress).
 	inverter.flush_post_lists(postlist_table, prefix);
-	inverter.flush_pos_lists(position_table);
 	if (prefix.empty()) {
-	    // We've flushed all the posting list changes, but the document
-	    // length and stats haven't been written, so set change_count to 1.
+	    // We've flushed all the posting list changes, but the positions,
+	    // document lengths and stats haven't been written, so set
+	    // change_count to 1.
 	    // FIXME: Can we handle this better?
 	    change_count = 1;
 	}

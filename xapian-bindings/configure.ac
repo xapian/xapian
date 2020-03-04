@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-m4_define([project_version], [1.4.9])
+m4_define([project_version], [1.4.15])
 AC_INIT([xapian-bindings], project_version, [https://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
@@ -448,12 +448,12 @@ if test no != "$with_python3" ; then
       fi
     fi
     AC_MSG_CHECKING([for python3 sphinx module])
-    if $PYTHON3 -c 'import sphinx;print(repr(sphinx.main))' >&5 2>&5 ; then
+    if $PYTHON3 -c 'import sphinx' >&5 2>&5 ; then
       AC_MSG_RESULT([yes])
     else
       AC_MSG_RESULT([no])
       if test yes = "$with_python3" ; then
-	AC_MSG_ERROR([Couldn't import sphinx module and call sphinx.main() for Python3 - try package python3-sphinx])
+	AC_MSG_ERROR([Couldn't import sphinx module for Python3 - try package python3-sphinx])
       fi
       PYTHON3=
     fi
@@ -528,7 +528,7 @@ if test no != "$with_php" ; then
     AC_PATH_PROGS(PHP_CONFIG, ["$PHP_CONFIG"], [])
   fi
   if test -z "$PHP_CONFIG" ; then
-    AC_PATH_PROGS(PHP_CONFIG, [php-config5 php-config], [])
+    AC_PATH_PROGS(PHP_CONFIG, [php-config5 php-config5.6 php-config5.5 php-config], [])
   fi
   AC_ARG_VAR(PHP_CONFIG, [php-config utility for PHP5])
   AC_ARG_VAR(PHP, [PHP5 interpreter (optional - only needed to run PHP5 testsuite with)])
@@ -637,7 +637,7 @@ if test no != "$with_php7" ; then
     AC_PATH_PROGS(PHP_CONFIG7, ["$PHP_CONFIG7"], [])
   fi
   if test -z "$PHP_CONFIG7" ; then
-    AC_PATH_PROGS(PHP_CONFIG7, [php-config7.1 php-config7.0 php-config], [])
+    AC_PATH_PROGS(PHP_CONFIG7, [php-config7.3 php-config7.2 php-config7.1 php-config7.0 php-config], [])
   fi
   AC_ARG_VAR(PHP_CONFIG7, [php-config utility for PHP7])
   AC_ARG_VAR(PHP7, [PHP7 interpreter (optional - only needed to run PHP7 testsuite with)])
@@ -1390,7 +1390,7 @@ if test yes = "$GXX" ; then
   dnl Python itself is compiled with -fno-strict-aliasing, and it appears
   dnl it's safest to follow this lead when compiling the SWIG generated
   dnl interface code.  E.g.:
-  dnl   http://article.gmane.org/gmane.comp.gcc.devel/74692
+  dnl   https://article.gmane.org/gmane.comp.gcc.devel/74692
   dnl The code SWIG generates for other languages seems to have similar
   dnl issues too, so just turn this on for all of them.
   dnl

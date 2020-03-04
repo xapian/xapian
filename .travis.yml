@@ -1,13 +1,8 @@
-dist: trusty
-sudo: false
+dist: xenial
 language: cpp
+cache: ccache
 notifications:
   irc: "chat.freenode.net#xapian-devel"
-env:
-  global:
-    # Tell bootstrap where to clone ./common from
-    - XAPIAN_COMMON_CLONE_URL=https://github.com/xapian/xapian.git
-    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libmagic pcre lua mono python2 python'
 matrix:
   include:
     - compiler: gcc
@@ -26,15 +21,46 @@ matrix:
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
-            - lua5.2
-            - liblua5.2-dev
+            - lua5.3
+            - liblua5.3-dev
             - mono-devel
             - python-dev
             - python3-dev
             - tcl
             - gcc-4.7
             - g++-4.7
-      env: USE_CC=gcc-4.7 USE_CXX=g++-4.7
+      # Perform a build with GCC 4.7 which is the oldest GCC we aim to support
+      # for 1.4.x.
+      #
+      # The PHP bindings fail to compile because they assume compiler builtins
+      # which were available in the compiler used to build PHP are available
+      # when building code using the PHP C API, so just disable them.
+      env: USE_CC=gcc-4.7 USE_CXX=g++-4.7 confargs='--without-php7'
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ondrej/php'
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - lua5.3
+            - liblua5.3-dev
+            - mono-devel
+            - php5.6-cli
+            - php5.6-dev
+            - python-dev
+            - python3-dev
+            - tcl
+      env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
       # Clang is already installed, but we want to build using the
@@ -54,43 +80,77 @@ matrix:
             - libmagic-dev
             - tcl
             - libc++-dev
-      # We also have to disable an error, because (older?)
-      # perl header files don't play nicely with clang.
-      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS=-Wno-error=reserved-user-defined-literal
+      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
+    - compiler: gcc
+      os: linux
+      name: "GCC 4.8"
+      dist: trusty
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - lua5.2
+            - liblua5.2-dev
+            - mono-devel
+            - python-dev
+            - python3-dev
+            - tcl
     - os: osx
+      addons:
+        homebrew:
+          update: true
+          packages:
+            - ccache
+            - doxygen
+            - graphviz
+            - help2man
+            - libiconv
+            - libmagic
+            - lua
+            - mono
+            - pcre
+            - pngcrush
+            - python
+            - python2
       before_install:
-        - brew update
-        # "brew install" unhelpfully errors out if any package listed is
-        # already installed and up-to-date, but travis change what's installed
-        # by default from time to time so it's brittle to just filter out those
-        # installed by default from the list we need.  Instead we ignore the
-        # exit status from "brew install", then check later that
-        # "brew list --versions" says all the packages requested are installed.
-        - brew install $HOMEBREW_PACKAGES || true
-        - brew list --versions $HOMEBREW_PACKAGES
-        - pip2 install sphinx docutils
-        - pip3 install sphinx
-      env: PYTHON2=/usr/local/bin/python2 CXXFLAGS=-Wno-error=reserved-user-defined-literal confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
-    - os: linux
-      # (Ab)use env to label this build:
-      env: dummy="Automated run of xapian-check-patch"
-      # Override before_script to do nothing
+        - travis_retry pip2 install sphinx docutils
+        - travis_retry pip3 install sphinx
+      install:
+        # Enable use of ccache to speed up builds.
+        - export PATH=/usr/local/opt/ccache/libexec:$PATH
+      # The default macOS make behaves oddly when the -j option is used
+      # (probably rules get run in a single subshell) so use GNU make instead.
+      env: PYTHON2=/usr/local/bin/python2 confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
+    - name: "Automated run of xapian-check-patch"
+      os: linux
+      # Override "before_script" to do nothing
       before_script:
-      # Override script to diff from against the branch point from:
-      # * for a PR, the branch the PR targets
-      # * otherwise, master
+      # Override "script" to run the style checking script
+      # "xapian-check-patch":
+      # * for a PR, CI is run on the PR branch merged with the target branch,
+      #   so just check the diff from the target branch to that merged branch.
+      # * Otherwise we check changes between the common ancestor of master and
+      #   the branch and the revision being checked.
       script:
-        - git diff `[ "$TRAVIS_PULL_REQUEST" = false ] && echo master || echo "$TRAVIS_BRANCH"`...|xapian-maintainer-tools/xapian-check-patch
+        - git diff `[ "$TRAVIS_PULL_REQUEST" = false ] && echo master... || echo "$TRAVIS_BRANCH.."`|xapian-maintainer-tools/xapian-check-patch
 
 
 before_script:
   # Bootstrap everything, then configure using our chosen compiler.
-  - ./bootstrap
+  - travis_retry ./bootstrap
   - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
-  - make
+  - make -j2
   - $installcore
-  - make check VERBOSE=1 AUTOMATED_TESTING=1
+  - make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
   # grep '^' passes through all input while giving a non-zero exit status if
   # that input is empty.
   - git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true

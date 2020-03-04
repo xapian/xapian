@@ -87,14 +87,17 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/XapianPINVOKE.cs
 
 XapianSharp.snk:
-	$(SN) -k $@
+## Older cli-sn fails with certain TERM setting (e.g. xterm-256color) due to:
+## https://github.com/mono/mono/issues/6752
+## Seen on Kubuntu 18.10.
+	TERM= $(SN) -k $@
 
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 ## We specify both -keyfile and -keycontainer - hopefully this means that if
 ## this is the first time we're signing, the key in the file is used and
 ## then stored in the key container.  From then on, the key in the container
 ## is used.
-	$(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll \
+	TERM= $(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll \
 	    -keyfile:XapianSharp.snk -keycontainer:"Xapian Signing Key" \
 	    `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
 	    AssemblyInfo.cs
@@ -118,7 +121,7 @@ install-data-hook:
 uninstall-local:
 	eval `grep '^dlname=' $(lib_LTLIBRARIES)` ; \
 	  rm -f $(DESTDIR)$(libdir)/"$$dlname"
-	$(GACUTIL) /u $(ASSEMBLY) /f $(GACUTIL_FLAGS)
+	TERM= $(GACUTIL) /u $(ASSEMBLY) /f $(GACUTIL_FLAGS)
 
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 _XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
@@ -126,10 +129,10 @@ _XapianSharp_la_SOURCES = xapian_wrap.cc
 _XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
 install-data-local: $(ASSEMBLY).dll
-	$(GACUTIL) /i $(ASSEMBLY).dll /f $(GACUTIL_FLAGS)
+	TERM= $(GACUTIL) /i $(ASSEMBLY).dll /f $(GACUTIL_FLAGS)
 
 SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
-	$(CSC) -unsafe -target:exe -out:SmokeTest.exe `test -f SmokeTest.cs||echo '$(srcdir)/'`SmokeTest.cs -r:$(ASSEMBLY).dll
+	TERM= $(CSC) -unsafe -target:exe -out:SmokeTest.exe `test -f SmokeTest.cs||echo '$(srcdir)/'`SmokeTest.cs -r:$(ASSEMBLY).dll
 
 all-am: $(ASSEMBLY).dll
 

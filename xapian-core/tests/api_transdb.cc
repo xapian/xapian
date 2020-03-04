@@ -128,7 +128,7 @@ DEFINE_TESTCASE(canceltransaction2, transactions) {
 }
 
 /// Regression test for glass bug fixed in 1.4.6 and 1.5.0.
-DEFINE_TESTCASE(canceltransaction3, transactions && !remote) {
+DEFINE_TESTCASE(canceltransaction3, transactions && path) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("canceltransaction3");
 	db.begin_transaction();

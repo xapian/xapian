@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#define SNOWBALL_VERSION "2.0.0"
+
 typedef unsigned char byte;
 typedef unsigned short symbol;
 
@@ -12,7 +14,6 @@ typedef unsigned short symbol;
 #define NEW(type, p) struct type * p = (struct type *) MALLOC(sizeof(struct type))
 #define NEWVEC(type, p, n) struct type * p = (struct type *) MALLOC(sizeof(struct type) * (n))
 
-#define STARTSIZE   10
 #define SIZE(p)     ((int *)(p))[-1]
 #define CAPACITY(p) ((int *)(p))[-2]
 
@@ -161,6 +162,7 @@ struct name {
     byte used_in_among;         /* Function used in among? */
     byte value_used;            /* (For variables) is its value ever used? */
     byte initialised;           /* (For variables) is it ever initialised? */
+    byte used_in_definition;    /* (grouping) used in grouping definition? */
     struct node * used;         /* First use, or NULL if not used */
     struct name * local_to;     /* Local to one routine/external */
     int declaration_line_number;/* Line number of declaration */
@@ -204,7 +206,6 @@ struct among {
 struct grouping {
 
     struct grouping * next;
-    int number;               /* groupings are numbered 0, 1, 2 ... */
     symbol * b;               /* the characters of this group */
     int largest_ch;           /* character with max code */
     int smallest_ch;          /* character with min code */
@@ -325,6 +326,11 @@ struct generator {
                             about shadowed variables */
 };
 
+/* Special values for failure_label in struct generator. */
+enum special_labels {
+    x_return = -1
+};
+
 struct options {
 
     /* for the command line: */
@@ -334,6 +340,7 @@ struct options {
     FILE * output_src;
     FILE * output_h;
     byte syntax_tree;
+    byte comments;
     enc encoding;
     enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS, LANG_CSHARP, LANG_PASCAL, LANG_PYTHON, LANG_JAVASCRIPT, LANG_RUST, LANG_GO } make_lang;
     const char * externals_prefix;
@@ -361,6 +368,10 @@ extern void write_b(struct generator * g, symbol * b);
 extern void write_str(struct generator * g, struct str * str);
 
 extern void write_comment_content(struct generator * g, struct node * p);
+extern void write_generated_comment_content(struct generator * g);
+extern void write_start_comment(struct generator * g,
+                                const char * comment_start,
+                                const char * comment_end);
 
 extern int K_needed(struct generator * g, struct node * p);
 extern int repeat_restore(struct generator * g, struct node * p);

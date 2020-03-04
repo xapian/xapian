@@ -31,6 +31,12 @@ ok( $db = Xapian::Database->new( 'testdb' ), "test db opened ok" );
 my $enq;
 ok( $enq = $db->enquire(), "db enquirable" );
 
+# Check Xapian::BAD_VALUENO is wrapped suitably.
+$enq->set_collapse_key(Xapian::BAD_VALUENO);
+
+# Test that the non-constant wrapping prior to 1.4.10 still works.
+$enq->set_collapse_key($Xapian::BAD_VALUENO);
+
 my @subqueries;
 my $query;
 ok( $subqueries[0] = Xapian::Query->new( 'test' ), "one-term queries ok" );

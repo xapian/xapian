@@ -60,11 +60,18 @@ values.
 ${...}
 	commented-out code
 
-$addfilter{TERM}
+$addfilter{TERM[,TYPE]}
         add filter term ``TERM`` as if it had been passed as a ``B`` CGI
-        parameter.  You must use ``$addfilter`` before any command which
-        requires the query to have been parsed - see ``$setmap`` for a list
-        of these commands.
+        parameter (if ``TYPE`` is not-specified, empty or ``B``), or as a
+        negated filter as if passed as an ``N`` CGI parameter (if ``TYPE`` is
+        ``N``).  Invalid types result in an error.
+
+        Support for the second parameter was added in Omega 1.4.12 - in older
+        versions only ``$addfilter{TERM}`` was supported and added ``B``-style
+        filters.
+
+        You must use ``$addfilter`` before any command which requires the query
+        to have been parsed - see ``$setmap`` for a list of these commands.
 
 $allterms[{DOCID}]
         list of all terms indexing the document with docid `DOCID` - if used
@@ -217,7 +224,7 @@ $find{LIST,STRING}
         ``STRING`` (starting from 0) or the empty string if no entry matches.
 
 $fmt
-	name of current format (as set by CGI parameter``FMT``, or the default)
+	name of current format (as set by CGI parameter ``FMT``, or the default)
 
 $freq{term}
 	frequency of a term
@@ -238,8 +245,10 @@ $hit
 	MSet index of current doc (first document in MSet is 0, so if
 	you want to number the hits 1, 2, 3, ... use ``$add{$hit,1}``).
 
-$hitlist{FMT}
-	display hitlist using format ``FMT``.
+$hitlist{STUFF}
+        evaluate ``STUFF`` once for each match in the result list.  During
+        each evaluation ``$field``, ``$id``, ``$percentage``, ``$score``,
+        ``$terms``, ``$weight``, etc will report values for the current hit.
 
 $hitsperpage
 	hits per page (as set by ``HITSPERPAGE``, or the default)
@@ -273,11 +282,65 @@ $json{STRING}
 
         Added in Omega 1.3.1.
 
-$jsonarray{LIST}
-        encodes LIST (a string of tab-separated values) as a JSON array, e.g.
+$jsonarray{LIST[,FORMAT]}
+        encodes LIST (a string of tab-separated values) as a JSON array.  By
+        default the elements of the array are encoded as JSON strings, but
+        if ``FORMAT`` is specified it's evaluated for each element in turn
+        with ``$_`` set to the element value and the result used instead.
+
+        The default ``FORMAT`` is equivalent to ``"$json{$_}"``.
+
+        Examples:
+
         ``$jsonarray{$split{a "b" c:\}}`` gives ``["a","\"b\"","c:\\"]``
 
+        ``$jsonarray{$split{2 3 5 7},$mul{$_,$_}}`` gives ``[4,9,25,49]``
+
         Added in Omega 1.3.1, but buggy until 1.3.4.
+
+        Support for the second argument added in Omega 1.4.15.
+
+$jsonbool{COND}
+        returns a JSON bool value (i.e. ``true`` or ``false``) for OmegaScript
+        value ``COND``.
+
+        This is exactly equivalent to ``$if{COND,true,false}`` and is provided
+        just to allow more readable JSON-producing templates.  This means that
+        ``COND`` being empty is false and all non-empty values are true (so
+        note that ``$jsonbool{0}`` gives ``true`` - if you want a numeric test,
+        you can use ``$jsonbool{$ne{VALUE,0}}``
+
+        Added in Omega 1.4.15.
+
+$jsonobject{MAP[,KEYFORMAT[,VALUEFORMAT]]}
+        encodes OmegaScript map ``MAP`` (as set by ``$setmap``) as a JSON object.
+
+        ``KEYFORMAT`` provides a way to modify key values.  It's evaluated for
+        each key with ``$_`` set to the OmegaScript map key.  If omitted or
+        empty then the keys are used as-is (so it effectively defaults to
+        ``$_``).  For example ``$jsonobject{foo,$lower{$_}}`` forces keys to
+        lower case.
+
+        You probably want to avoid creating duplicate keys (RFC 2119 says they
+        ``SHOULD be unique``).  Note that the resulting value should be an
+        OmegaScript string - don't pass it though ``$json{}`` or wrap it in
+        double quotes.
+
+        ``VALUEFORMAT`` provides a way to specify how to encode values.  It's
+        evaluated for each value with ``$_`` set to the OmegaScript map value
+        and the result should be JSON to use as the JSON object value.  If
+        omitted or empty the value is encoded as a JSON string (so effectively
+        the default is ``"$json{$_}"``).  Note that (unlike ``KEYFORMAT``) this
+        does need to include ``$json{}`` and double quotes, because the value
+        doesn't have to be a JSON string.
+
+        Added in Omega 1.4.15.
+
+$keys{MAP}
+        returns a list containing the keys of MAP (as set by ``$setmap``).
+        The keys are in sorted order (by raw byte comparison).
+
+        Added in Omega 1.4.15.
 
 $last
         MSet index one beyond the end of the current page (so ``$hit`` runs
@@ -302,12 +365,23 @@ $list{LIST,...}
 	last two forms aren't redundant as it may at first appear).
 
 $log{LOGFILE[,ENTRY]}
-        write to the log file ``LOGFILE`` in directory ``log_dir`` (set in
-        ``omega.conf``).  ``ENTRY`` is the OmegaScript for the log entry, and a
-        linefeed is appended.  If ``LOGFILE`` cannot be opened for writing,
-        nothing is done (and ``ENTRY`` isn't evaluated).  ``ENTRY`` defaults to
-        a format similar to the Common Log Format used by webservers.
+        append to the log file ``LOGFILE``.  ``LOGFILE`` will be resolved as a
+        relative path starting from directory ``log_dir`` (as specified in
+        ``omega.conf``).  ``LOGFILE`` may not contain the substring ``..``.
+        
+        ``ENTRY`` is the OmegaScript for the log entry, which is evaluated and
+        a linefeed appended.  ``ENTRY`` defaults to a format similar to the
+        Common Log Format used by webservers.  If an error occurs when trying
+        to open the log file then ``ENTRY`` won't be evaluated.
 
+        Currently ``$log`` doesn't return anything, but in future versions
+        (starting with Omega 1.5.0) it will return an error message if the
+        logfile can't be opened or writing to it fails.  If you want to
+        continue to ignore errors, you can future-proof your templates by
+        wrapping ``$log`` using ``$if`` with no action like so::
+
+         $if{$log{example.log}}
+ 
 $lookup{CDBFILE,KEY}
         Return the tag corresponding to key ``KEY`` in the CDB file
         ``CDBFILE``.  If the file doesn't exist, or ``KEY`` isn't a key in it,
@@ -606,13 +680,13 @@ $setmap{MAP,NAME1,VALUE1,...}
 	prefixes which are non-exclusive, i.e. multiple filters of that
 	type should be combined with ``OP_AND`` rather than ``OP_OR``.
 	For example, if you have have a boolean filter on "material" using
-	the ``XM``` prefix, and the items being searched are made of multiple
+	the ``XM`` prefix, and the items being searched are made of multiple
 	materials, you likely want multiple material filters to restrict to
 	items matching all the materials (the default it to restrict to any
 	of the materials).  To specify this use
 	``$setmap{nonexclusiveprefix,XM,true}`` (any non-empty value can
 	be used in place of ``true``) - this feature affect both filters
-	from ``B`` CGI parameters (e.g. ``B=XMglass&B=XMwood``` and those
+	from ``B`` CGI parameters (e.g. ``B=XMglass&B=XMwood`` and those
 	from parsing the query (e.g. ``material:glass material:wood`` if
 	``$setmap{boolprefix,material,XM}`` is also in effect).
 
@@ -681,23 +755,30 @@ $stoplist
 	stopwords.
 
 $subdb[{DOCID}]
-        return the name of the sub-database containing ``DOCID`` (or the
-        current document in the histlist if ``DOCID`` is omitted).
+        return the name from a ``DB`` parameter for the sub-database containing
+        ``DOCID``.
 
-        NB: The current implementation assumes that each omega database name
-        corresponds to a single Xapian database - if a database name refers to
-        a stub database file expanding to multiple Xapian databases then this
-        command will misbehave.
+        If ``DOCID`` is omitted it defaults to the current document in the
+        hitlist.
+
+        Prior to Xapian 1.4.12 the implementation assumed that each omega
+        database name corresponded to a single Xapian database and if a
+        database name referred to a stub database file expanding to multiple
+        Xapian databases then this command would misbehave.  In 1.4.12 and
+        later this case is taken into account.
 
 $subid[{DOCID}]
-        return the docid in the sub-database corresponding to ``DOCID`` in the
-        combined database (or the current document in the histlist if ``DOCID``
-        is omitted).
+        return the docid in ``$subdb{DOCID}`` corresponding to ``DOCID`` in the
+        combined database.
 
-        NB: The current implementation assumes that each omega database name
-        corresponds to a single Xapian database - if a database name refers to
-        a stub database file expanding to multiple Xapian databases then this
-        command will misbehave.
+        If ``DOCID`` is omitted it defaults to the current document in the
+        hitlist.
+
+        Prior to Xapian 1.4.12 the implementation assumed that each omega
+        database name corresponded to a single Xapian database and if a
+        database name referred to a stub database file expanding to multiple
+        Xapian databases then this command would misbehave.  In 1.4.12 and
+        later this case is taken into account.
 
 $substr{STRING,START[,LENGTH]}
         returns the substring of ``STRING`` which starts at byte position
@@ -820,7 +901,7 @@ Numeric Operators:
 
 $add{...}
 	add arguments together (if called with one argument, this will convert
-	it to a string and back, which ensures it is an integer).
+	it to an integer and back, which ensures it is an integer).
 
 $div{A,B}
 	returns int(A / B) (or the text "divide by 0" if B is zero)
@@ -891,9 +972,14 @@ $cond{COND1,THEN1[,COND2,THEN2]...[,ELSE]}
 
         Added in Omega 1.4.6.
 
-$if{COND,THEN[,ELSE]}
+$if{COND[,THEN[,ELSE]]}
         if ``COND`` is non-empty, evaluates and returns ``THEN``; otherwise
-        evaluates and returns ``ELSE`` (if present, otherwise returns nothing).
+        evaluates and returns ``ELSE``.  If ``THEN`` and/or ``ELSE`` are omitted
+        then returns nothing.  You can use ``$if{COND}`` to evaluate ``COND``
+        but discard the result of that evaluation, which can be useful if
+        ``COND`` has side-effects.
+
+        The ability to omit ``THEN`` was added in Omega 1.4.15.
 
 $include{FILE}
 	include another OmegaScript file

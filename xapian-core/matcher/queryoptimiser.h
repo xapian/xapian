@@ -56,6 +56,8 @@ class QueryOptimiser {
 
     bool full_db_has_positions;
 
+    Xapian::doccount shard_index;
+
     const Xapian::Database::Internal & db;
 
     Xapian::doccount db_size;
@@ -64,11 +66,13 @@ class QueryOptimiser {
 
     QueryOptimiser(const Xapian::Database::Internal & db_,
 		   LocalSubMatch & localsubmatch_,
-		   MultiMatch * matcher_)
+		   MultiMatch* matcher_,
+		   Xapian::doccount shard_index_)
 	: localsubmatch(localsubmatch_), total_subqs(0),
 	  hint(0), hint_owned(false),
 	  need_positions(false), in_synonym(false),
 	  full_db_has_positions(matcher_->full_db_has_positions()),
+	  shard_index(shard_index_),
 	  db(db_), db_size(db.get_doccount()),
 	  matcher(matcher_) { }
 
@@ -113,7 +117,13 @@ class QueryOptimiser {
 	hint = new_hint;
     }
 
-    void take_hint_ownership() { hint_owned = true; }
+    void destroy_postlist(PostList* pl) {
+	if (pl == static_cast<PostList*>(hint)) {
+	    hint_owned = true;
+	} else {
+	    delete pl;
+	}
+    }
 };
 
 #endif // XAPIAN_INCLUDED_QUERYOPTIMISER_H

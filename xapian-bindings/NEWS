@@ -1,3 +1,227 @@
+Xapian-bindings 1.4.15 (2020-02-24):
+
+Perl:
+
+* Improve comment about App::Prove.
+
+Ruby:
+
+* Support Ruby 2.7.
+
+Xapian-bindings 1.4.14 (2019-11-23):
+
+Python:
+
+* Remove broken replicationtest.py.  It's never worked reliably, and because
+  of that was disabled shortly after being added over a decade ago.
+  Unsurprisingly it's bit-rotted at least a bit since.  Nobody seems interested
+  in fixing it, so it's time to just get rid of it.  Closes #320.
+
+Python3:
+
+* Remove broken replicationtest.py.  It's never worked reliably, and because
+  of that was disabled shortly after being added over a decade ago.
+  Unsurprisingly it's bit-rotted at least a bit since.  Nobody seems interested
+  in fixing it, so it's time to just get rid of it.  Closes #320.
+
+Xapian-bindings 1.4.13 (2019-10-14):
+
+General:
+
+* Omit SWIG exception handling for destructors.  Since C++11, destructors can't
+  throw by default and we don't override that default, so there's no point
+  adding exception handling code for them.
+
+* Ensure doccomments.i is distributed.  If you unpacked a distribution tarball,
+  configured it and then ran "make dist" python/doccomments.i and
+  python3/doccomments.i would be missing unless you configured the tree with
+  --enable-maintainer-mode.
+
+PHP:
+
+* Check for php-config5.6 and php-config5.5 in configure as these versioned
+  names are used in some packages (such as those from the ondrej/php PPA).
+
+PHP7:
+
+* Work around build failure on Illuminos.  Fixes
+  https://trac.xapian.org/ticket/793, reported by Amitai Schleier.
+
+Ruby:
+
+* smoketest.rb: Use #push not #append on Array to restore compatibility with
+  Ruby < 2.5 (broken by changes in 1.4.12).
+
+* Expand tabs in Ruby code since using spaces for indentation seems to be
+  preferred Ruby style.
+
+* Remove trailing `;` from Ruby code.
+
+Xapian-bindings 1.4.12 (2019-07-23):
+
+Documentation:
+
+* Update bindings HACKING document.  Reported as out of date by Niwesh Gupta.
+
+CSharp:
+
+* Work around mono terminfo parsing bug - older cli-sn fails with e.g.
+  TERM=xterm-256color due to: https://github.com/mono/mono/issues/6752
+  Encountered on Kubuntu 18.10 and debugged by Tejasvi Tomar.  Seems to be
+  fixed in the mono version in Debian buster.
+
+Perl:
+
+* Suppress warnings from older Perl headers due to use of constructs which look
+  like C++11 user-defined literals.  They're fixed in newer versions so they're
+  just noise in our build.  We were working around these in the CI build, so
+  drop that workaround as we want to make the build warning-clean for users
+  too.  Reported by daniel93 on #xapian.
+
+Python3:
+
+* Fix build for changes in Sphinx 2.0 (which drops support for sphinx.main()).
+  Fixes #778, reported by karolyi.  Also reported by Gaurav Arora.
+
+* We now throw UnicodeEncodeError for bad Unicode string input.  Previously
+  cases such as a lone surrogate would be handled by quietly skipping the bad
+  codepoints when converting to UTF-8 to pass to Xapian.
+
+* We no longer use the deprecated old-style Py_UNICODE API, which currently
+  gives deprecation warnings and is slated to be removed in Python 4.0.
+
+Ruby:
+
+* Add support for block iteration.  All the iterator methods in the Ruby API
+  now accept an optional block.  If no block is given an array is returned so
+  existing code will still work.  Partly based on a patch in
+  https://github.com/xapian/xapian/pull/232 from Cong Ding.
+
+* Add missing wrappers for all the C++ methods returning iterators which
+  weren't wrapped for Ruby.  Fixes #777, reported by do.
+
+* Suppress warnings from Ruby 2.3 headers due to use of register and
+  constructs which look like C++11 user-defined literals.  They're fixed in
+  newer versions so they're just noise in our build.  We were working around
+  these in the CI build, so drop that workaround as we want to make the build
+  warning-clean for users too.  Reported by daniel93 on #xapian.
+
+* smoketest.rb: Don't leave temporary databases behind in /tmp.
+
+Xapian-bindings 1.4.11 (2019-03-02):
+
+CSharp:
+
+* Make MatchAll and MatchNothing readonly.
+
+Java:
+
+* Simplify load-time setup of Query.OP_OR, etc which are provided for
+  compatibility with the original hand-written JNI bindings.
+
+PHP:
+
+* We now load the module for "make check" using -d extension=xapian which
+  avoids needing to turn off safe_mode and turn on enable_dl, and matches how
+  the module is usually loaded in production use.
+
+PHP7:
+
+* Fix access to already released memory during PHP module shutdown, which often
+  didn't cause visible problems, but could result in segmentation faults, bus
+  errors, etc.
+
+* Fix generated code to compile when using a ZTS-enabled build of PHP.
+
+* We now load the module for "make check" using -d extension=xapian which
+  avoids needing to turn off safe_mode and turn on enable_dl, and matches how
+  the module is usually loaded in production use.
+
+Xapian-bindings 1.4.10 (2019-02-12):
+
+Documentation:
+
+* Use https for URLs where supported.
+
+General:
+
+* Wrap new DatabaseClosedError and DatabaseNotFoundError exceptions.
+  See #772 and #773.  Patches from Vaibhav Kansagara.
+
+* Update expected query descriptions in tests for the xapian-core
+  change to produce flatter Query trees.
+
+* Workaround Perl 5.28 -i quirk when postprocessing SWIG-generated code.
+  The commands in question are only run when maintainer-mode is enabled.
+
+CSharp:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped without using a getter.
+  This shouldn't affect existing user code.
+
+Java:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as Java constant
+  Xapian.BAD_VALUENO.  The previous Java wrapping as function
+  Xapian.getBAD_VALUENO() is still supported for compatibility with
+  existing code.
+
+* Remove redundant std::string initialisation.
+
+Lua:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as a constant rather than
+  an immutable attribute.  This shouldn't affect existing user code.
+
+Perl:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as Perl constant
+  Xapian::BAD_VALUENO.  The previous Perl wrapping as variable
+  $Xapian::BAD_VALUENO is still supported for compatibility with existing
+  code.
+
+* Note in the POD documentation that the Error base classes which are abstract
+  in C++ don't have a new method in Perl.
+
+PHP:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as PHP constant
+  Xapian::BAD_VALUENO.  The previous PHP wrapping as function
+  Xapian::BAD_VALUENO_get() is still supported for compatibility with existing
+  code.
+
+* Remove code to work around a SWIG bug which was fixed in 2006.
+
+PHP7:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as PHP constant
+  Xapian::BAD_VALUENO.  The previous PHP wrapping as function
+  Xapian::BAD_VALUENO_get() is still supported for compatibility with existing
+  code.
+
+* configure: Check for php-config7.3 and php-config7.2 as well as
+  php-config7.1, php-config7.0 and php-config.
+
+* Correct references to PHP5 in PHP7 script comments.
+
+* Remove some C code which is no longer needed with PHP7.
+
+Ruby:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as Ruby constant
+  Xapian::BAD_VALUENO.  The previous Ruby wrapping as function
+  Xapian::BAD_VALUENO() is still supported for compatibility with existing
+  code.
+
+* We now recommend using String#encode instead of the Iconv class, since the
+  latter is no longer included with Ruby.
+
+Tcl:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as a constant rather than
+  variable which can't be written to.  This shouldn't affect existing user
+  code.
+
 Xapian-bindings 1.4.9 (2018-11-02):
 
 PHP7:
@@ -19,11 +243,11 @@ Perl:
 Python:
 
 * Fix RST formatting warning during build.
-    
+
 Python3:
 
 * Fix RST formatting warning during build.
-    
+
 Xapian-bindings 1.4.7 (2018-07-19):
 
 Ruby:
@@ -1252,7 +1476,7 @@ Ruby:
 Tcl:
 
 * Link against -ltclstubX.Y for Tcl 8.5 and later (reported by Sergei Golovan
-  in http://bugs.debian.org/724830).
+  in https://bugs.debian.org/724830).
 
 * Use a better check for TCL_INC for Tcl 8.5 and later.
 
@@ -1661,7 +1885,7 @@ Python:
 
 * python/pythontest2.py: With Python 2.7, gc.collect() doesn't always collect
   all the garbage, so repeat until no further objects are freed.
-  (http://bugs.debian.org/625679 and https://bugs.gentoo.org/349484).
+  (https://bugs.debian.org/625679 and https://bugs.gentoo.org/349484).
 
 Ruby:
 

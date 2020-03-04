@@ -1,7 +1,8 @@
-/* api_snippets.cc: tests snippets
- *
- * Copyright 2012 Mihai Bivol
- * Copyright 2015,2016,2017 Olly Betts
+/** @file api_snippets.cc
+ * @brief tests snippets
+ */
+/* Copyright 2012 Mihai Bivol
+ * Copyright 2015,2016,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +30,6 @@
 #include <xapian.h>
 
 #include "apitest.h"
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -275,7 +275,6 @@ DEFINE_TESTCASE(snippet_termcover2, backend) {
 
 /// Test snippet EMPTY_WITHOUT_MATCH flag
 DEFINE_TESTCASE(snippet_empty, backend) {
-
     Xapian::Stem stem("en");
 
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
@@ -426,6 +425,70 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
     input = "bar,foo!";
     TEST_STRINGS_EQUAL(mset.snippet(input, 5, stem),
 		       "...<b>foo</b>!");
+
+    return true;
+}
+
+/// Test snippets with small and zero length.
+DEFINE_TESTCASE(snippet_small_zerolength, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				    Xapian::Query("rubbish"),
+				    Xapian::Query("mention")));
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    static const snippet_testcase testcases[] = {
+	// Test with small length
+	{ "mention junk rubbish", 3, "" },
+	{ "Project R.U.B.B.I.S.H. greenlit", 5, "" },
+	{ "What load rubbish", 3, "" },
+	{ "Mention rubbish", 4, "" },
+
+	// Test with zero length.
+	{ "Rubbish and junk", 0, "" },
+	{ "Project R.U.B.B.I.S.H. greenlit", 0, "" },
+	{ "What a load of rubbish", 0, "" },
+	{ "rubbish mention rubbish mention", 0, "" },
+    };
+
+    for (auto i : testcases) {
+	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len), i.expect);
+    }
+
+    return true;
+}
+
+/// Test CJK ngrams.
+DEFINE_TESTCASE(snippet_cjkngrams, generated) {
+    Xapian::Database db = get_database("snippet_cjkngrams",
+	[](Xapian::WritableDatabase& wdb,
+	   const string&)
+	{
+	    Xapian::Document doc;
+	    Xapian::TermGenerator tg;
+	    tg.set_flags(Xapian::TermGenerator::FLAG_CJK_NGRAM);
+	    tg.set_document(doc);
+	    tg.index_text("明末時已經有香港地方的概念");
+	    wdb.add_document(doc);
+	});
+    Xapian::Enquire enquire(db);
+    Xapian::QueryParser qp;
+    auto q = qp.parse_query("已經完成", qp.FLAG_DEFAULT | qp.FLAG_CJK_NGRAM);
+    enquire.set_query(q);
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    Xapian::Stem stem;
+    const char *input = "明末時已經有香港地方的概念";
+    size_t len = strlen(input);
+
+    unsigned flags = Xapian::MSet::SNIPPET_CJK_NGRAM;
+    string s;
+    s = mset.snippet(input, len, stem, flags, "<b>", "</b>", "...");
+    TEST_STRINGS_EQUAL(s, "明末時<b>已</b><b>經</b>有香港地方的概念");
+
+    s = mset.snippet(input, len / 2, stem, flags, "<b>", "</b>", "...");
+    TEST_STRINGS_EQUAL(s, "...<b>已</b><b>經</b>有香港地...");
 
     return true;
 }

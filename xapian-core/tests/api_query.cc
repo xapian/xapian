@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009,2012,2013,2015,2016,2017 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013,2015,2016,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,12 +32,38 @@
 
 using namespace std;
 
-/// Regression test - in 1.0.10 and earlier "" was included in the list.
 DEFINE_TESTCASE(queryterms1, !backend) {
     Xapian::Query query = Xapian::Query::MatchAll;
+    /// Regression test - in 1.0.10 and earlier "" was included in the list.
     TEST(query.get_terms_begin() == query.get_terms_end());
+    TEST(query.get_unique_terms_begin() == query.get_unique_terms_end());
     query = Xapian::Query(query.OP_AND_NOT, query, Xapian::Query("fair"));
     TEST_EQUAL(*query.get_terms_begin(), "fair");
+    TEST_EQUAL(*query.get_unique_terms_begin(), "fair");
+
+    Xapian::QueryParser qp;
+    Xapian::Query q = qp.parse_query("\"the the the\"");
+    {
+	auto t = q.get_terms_begin();
+	size_t count = 0;
+	while (t != q.get_terms_end()) {
+	    TEST_EQUAL(*t, "the");
+	    ++count;
+	    ++t;
+	}
+	TEST_EQUAL(count, 3);
+    }
+    {
+	auto t = q.get_unique_terms_begin();
+	size_t count = 0;
+	while (t != q.get_unique_terms_end()) {
+	    TEST_EQUAL(*t, "the");
+	    ++count;
+	    ++t;
+	}
+	TEST_EQUAL(count, 1);
+    }
+
     return true;
 }
 
@@ -66,7 +92,135 @@ DEFINE_TESTCASE(overload1, !backend) {
     Xapian::Query q;
     q = Xapian::Query("foo") & Xapian::Query("bar");
     TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar))");
+
+    // Test &= appends a same-type subquery (since Xapian 1.4.10).
+    q &= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar AND baz))");
+    // But not if the RHS is the same query:
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
+    q &= q;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo AND bar) AND (foo AND bar)))");
+    {
+	// Also not if the query has a refcount > 1.
+	q = Xapian::Query("foo") & Xapian::Query("bar");
+	Xapian::Query qcopy = q;
+	qcopy &= Xapian::Query("baz");
+	TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo AND bar) AND baz))");
+	// And q shouldn't change.
+	TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND bar))");
+    }
+    // Check that MatchNothing still results in MatchNothing:
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+    q &= Xapian::Query::MatchNothing;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query()");
+    // Check we don't combine for other operators:
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+    q &= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo OR bar) AND baz))");
+
+    // Test |= appends a same-type subquery (since Xapian 1.4.10).
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+    q |= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar OR baz))");
+    // But not if the RHS is the same query:
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
+    q |= q;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo OR bar) OR (foo OR bar)))");
+    {
+	// Also not if the query has a refcount > 1.
+	q = Xapian::Query("foo") | Xapian::Query("bar");
+	Xapian::Query qcopy = q;
+	qcopy |= Xapian::Query("baz");
+	TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo OR bar) OR baz))");
+	// And q shouldn't change.
+	TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar))");
+    }
+    // Check that MatchNothing still results in no change:
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+    q |= Xapian::Query::MatchNothing;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo OR bar))");
+    // Check we don't combine for other operators:
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+    q |= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo AND bar) OR baz))");
+
+    // Test ^= appends a same-type subquery (since Xapian 1.4.10).
+    q = Xapian::Query("foo") ^ Xapian::Query("bar");
+    q ^= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar XOR baz))");
+    // But a query ^= itself gives an empty query.
+    q = Xapian::Query("foo") ^ Xapian::Query("bar");
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
+    q ^= q;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
+    TEST_STRINGS_EQUAL(q.get_description(), "Query()");
+    {
+	// Even if the reference count > 1.
+	q = Xapian::Query("foo") ^ Xapian::Query("bar");
+	Xapian::Query qcopy = q;
+	q ^= qcopy;
+	TEST_STRINGS_EQUAL(q.get_description(), "Query()");
+    }
+    {
+	// Also not if the query has a refcount > 1.
+	q = Xapian::Query("foo") ^ Xapian::Query("bar");
+	Xapian::Query qcopy = q;
+	qcopy ^= Xapian::Query("baz");
+	TEST_STRINGS_EQUAL(qcopy.get_description(), "Query(((foo XOR bar) XOR baz))");
+	// And q shouldn't change.
+	TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar))");
+    }
+    // Check that MatchNothing still results in no change:
+    q = Xapian::Query("foo") ^ Xapian::Query("bar");
+    q ^= Xapian::Query::MatchNothing;
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo XOR bar))");
+    // Check we don't combine for other operators:
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+    q ^= Xapian::Query("baz");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query(((foo AND bar) XOR baz))");
+
     q = Xapian::Query("foo") &~ Xapian::Query("bar");
+    TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND_NOT bar))");
+    // In 1.4.9 and earlier this gave (foo AND (<alldocuments> AND_NOT bar)).
+    q = Xapian::Query("foo");
+    q &= ~Xapian::Query("bar");
     TEST_STRINGS_EQUAL(q.get_description(), "Query((foo AND_NOT bar))");
     q = ~Xapian::Query("bar");
     TEST_STRINGS_EQUAL(q.get_description(), "Query((<alldocuments> AND_NOT bar))");
@@ -299,8 +453,7 @@ wildcard_testcase wildcard1_testcases[] = {
     { "th",	6, 'E', WILDCARD_EXCEPTION },
     { "thou",	1, 'E', { "though", 0, 0, 0 } },
     { "s",	2, 'F', { "say", "search", 0, 0 } },
-    { "s",	2, 'M', { "simpl", "so", 0, 0 } },
-    { 0,	0, 0, { 0, 0, 0, 0 } }
+    { "s",	2, 'M', { "simpl", "so", 0, 0 } }
 };
 
 DEFINE_TESTCASE(wildcard1, backend) {
@@ -314,16 +467,15 @@ DEFINE_TESTCASE(wildcard1, backend) {
     Xapian::Enquire enq(db);
     const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
 
-    const wildcard_testcase * p = wildcard1_testcases;
-    while (p->pattern) {
-	tout << p->pattern << endl;
-	const char * const * tend = p->terms + 4;
+    for (auto&& test : wildcard1_testcases) {
+	tout << test.pattern << endl;
+	auto tend = test.terms + 4;
 	while (tend[-1] == NULL) --tend;
-	bool expect_exception = (tend - p->terms == 4 && tend[-1][0] == '\0');
+	bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
 	Xapian::Query q;
-	if (p->max_type) {
+	if (test.max_type) {
 	    int max_type;
-	    switch (p->max_type) {
+	    switch (test.max_type) {
 		case 'E':
 		    max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
 		    break;
@@ -336,15 +488,15 @@ DEFINE_TESTCASE(wildcard1, backend) {
 		default:
 		    return false;
 	    }
-	    q = Xapian::Query(o, p->pattern, p->max_expansion, max_type);
+	    q = Xapian::Query(o, test.pattern, test.max_expansion, max_type);
 	} else {
-	    q = Xapian::Query(o, p->pattern, p->max_expansion);
+	    q = Xapian::Query(o, test.pattern, test.max_expansion);
 	}
 	enq.set_query(q);
 	try {
 	    Xapian::MSet mset = enq.get_mset(0, 10);
 	    TEST(!expect_exception);
-	    q = Xapian::Query(q.OP_SYNONYM, p->terms, tend);
+	    q = Xapian::Query(q.OP_SYNONYM, test.terms, tend);
 	    enq.set_query(q);
 	    Xapian::MSet mset2 = enq.get_mset(0, 10);
 	    TEST_EQUAL(mset.size(), mset2.size());
@@ -352,7 +504,6 @@ DEFINE_TESTCASE(wildcard1, backend) {
 	} catch (const Xapian::WildcardError &) {
 	    TEST(expect_exception);
 	}
-	++p;
     }
 
     return true;
@@ -408,8 +559,7 @@ positional_testcase loosephrase1_testcases[] = {
     { 5, { "if", "word", "doesnt", 0 }, 0 },
     { 5, { "at", "line", "three", 0 }, 0 },
     { 5, { "paragraph", "other", "the", 0 }, 0 },
-    { 5, { "other", "the", "with", 0 }, 0 },
-    { 0, { 0, 0, 0, 0 }, 0 }
+    { 5, { "other", "the", "with", 0 }, 0 }
 };
 
 /// Regression test for bug fixed in 1.3.3 and 1.2.21.
@@ -417,20 +567,19 @@ DEFINE_TESTCASE(loosephrase1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
 
-    const positional_testcase * p = loosephrase1_testcases;
-    while (p->window) {
-	const char * const * tend = p->terms + 4;
+    for (auto&& test : loosephrase1_testcases) {
+	auto tend = test.terms + 4;
 	while (tend[-1] == NULL) --tend;
-	Xapian::Query q(Xapian::Query::OP_PHRASE, p->terms, tend, p->window);
+	auto OP_PHRASE = Xapian::Query::OP_PHRASE;
+	Xapian::Query q(OP_PHRASE, test.terms, tend, test.window);
 	enq.set_query(q);
 	Xapian::MSet mset = enq.get_mset(0, 10);
-	if (p->result == 0) {
+	if (test.result == 0) {
 	    TEST(mset.empty());
 	} else {
 	    TEST_EQUAL(mset.size(), 1);
-	    TEST_EQUAL(*mset[0], p->result);
+	    TEST_EQUAL(*mset[0], test.result);
 	}
-	++p;
     }
 
     return true;
@@ -445,8 +594,7 @@ positional_testcase loosenear1_testcases[] = {
     { 3, { "banana", "banana", 0, 0 }, 0 },
     { 2, { "word", "word", 0, 0 }, 2 },
     { 4, { "work", "meant", "work", 0 }, 0 },
-    { 4, { "this", "one", "yet", "one" }, 0 },
-    { 0, { 0, 0, 0, 0 }, 0 }
+    { 4, { "this", "one", "yet", "one" }, 0 }
 };
 
 /// Regression tests for bugs fixed in 1.3.3 and 1.2.21.
@@ -454,20 +602,18 @@ DEFINE_TESTCASE(loosenear1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
 
-    const positional_testcase * p = loosenear1_testcases;
-    while (p->window) {
-	const char * const * tend = p->terms + 4;
+    for (auto&& test : loosenear1_testcases) {
+	auto tend = test.terms + 4;
 	while (tend[-1] == NULL) --tend;
-	Xapian::Query q(Xapian::Query::OP_NEAR, p->terms, tend, p->window);
+	Xapian::Query q(Xapian::Query::OP_NEAR, test.terms, tend, test.window);
 	enq.set_query(q);
 	Xapian::MSet mset = enq.get_mset(0, 10);
-	if (p->result == 0) {
+	if (test.result == 0) {
 	    TEST(mset.empty());
 	} else {
 	    TEST_EQUAL(mset.size(), 1);
-	    TEST_EQUAL(*mset[0], p->result);
+	    TEST_EQUAL(*mset[0], test.result);
 	}
-	++p;
     }
 
     return true;
@@ -628,6 +774,13 @@ gen_subdbwithoutpos1_db(Xapian::WritableDatabase& db, const string&)
 }
 
 DEFINE_TESTCASE(subdbwithoutpos1, generated) {
+    XFAIL_FOR_BACKEND("remote",
+		      "Known but obscure remote bug which doesn't justify "
+		      "protocol version bump");
+    XFAIL_FOR_BACKEND("multi_remote",
+		      "Known but obscure remote bug which doesn't justify "
+		      "protocol version bump");
+
     Xapian::Database db(get_database("apitest_simpledata"));
 
     Xapian::Query q(Xapian::Query::OP_PHRASE,
@@ -671,14 +824,95 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
 // Regression test for bug fixed in 1.4.4 and 1.2.25.
 DEFINE_TESTCASE(notandor1, backend) {
     Xapian::Database db(get_database("etext"));
-    Xapian::Query q =
-	Xapian::Query("the") &~ (Xapian::Query("friedrich") &
-		(Xapian::Query("day") | Xapian::Query("night")));
+    using Xapian::Query;
+    Query q = Query("the") &~ (Query("friedrich") &
+			       (Query("day") | Query("night")));
     Xapian::Enquire enq(db);
     enq.set_query(q);
 
     Xapian::MSet mset = enq.get_mset(0, 10, db.get_doccount());
     TEST_EQUAL(mset.get_matches_estimated(), 344);
 
+    return true;
+}
+
+// Regression test for bug fixed in git master before 1.5.0.
+DEFINE_TESTCASE(boolorbug1, backend) {
+    Xapian::Database db(get_database("etext"));
+    using Xapian::Query;
+    Query q = Query("the") &~ Query(Query::OP_WILDCARD, "pru");
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    Xapian::MSet mset = enq.get_mset(0, 10, db.get_doccount());
+    // Due to a bug in BoolOrPostList this returned 330 results.
+    TEST_EQUAL(mset.get_matches_estimated(), 331);
+
+    return true;
+}
+
+// Regression test for bug introduced in 1.4.13 and fixed in 1.4.14.
+DEFINE_TESTCASE(hoistnotbug1, backend) {
+    Xapian::Database db(get_database("etext"));
+    using Xapian::Query;
+    Query q(Query::OP_PHRASE, Query("the"), Query("king"));
+    q &= ~Query("worldtornado");
+    q &= Query("a");
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    // This reliably fails before the fix in an assertion build, and may crash
+    // in other builds.
+    Xapian::MSet mset = enq.get_mset(0, 10, db.get_doccount());
+    TEST_EQUAL(mset.get_matches_estimated(), 42);
+
+    return true;
+}
+
+// Regression test for segfault optimising query on git master before 1.5.0.
+DEFINE_TESTCASE(emptynot1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enq(db);
+    enq.set_weighting_scheme(Xapian::BoolWeight());
+    Xapian::Query query = Xapian::Query("document") & Xapian::Query("api");
+    // This range won't match anything, so collapses to MatchNothing as we
+    // optimise the query.
+    query = Xapian::Query(query.OP_AND_NOT,
+			  query,
+			  Xapian::Query(Xapian::Query::OP_VALUE_GE, 1234, "x"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    return true;
+}
+
+// Similar case to emptynot1 but for OP_AND_MAYBE.  This case wasn't failing,
+// so this isn't a regression test, but we do want to ensure it works.
+DEFINE_TESTCASE(emptymaybe1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enq(db);
+    enq.set_weighting_scheme(Xapian::BoolWeight());
+    Xapian::Query query = Xapian::Query("document") & Xapian::Query("api");
+    // This range won't match anything, so collapses to MatchNothing as we
+    // optimise the query.
+    query = Xapian::Query(query.OP_AND_MAYBE,
+			  query,
+			  Xapian::Query(Xapian::Query::OP_VALUE_GE, 1234, "x"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    return true;
+}
+
+DEFINE_TESTCASE(phraseweightcheckbug1, backend) {
+    Xapian::Database db(get_database("phraseweightcheckbug1"));
+    Xapian::Enquire enq(db);
+    static const char* const words[] = {"hello", "world"};
+    Xapian::Query query{Xapian::Query::OP_PHRASE, begin(words), end(words), 2};
+    query = Xapian::Query(query.OP_OR, query, Xapian::Query("most"));
+    tout << query.get_description() << '\n';
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 3);
+    TEST_EQUAL(mset.size(), 3);
     return true;
 }

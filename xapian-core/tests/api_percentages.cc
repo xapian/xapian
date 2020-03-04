@@ -26,7 +26,6 @@
 #include <xapian.h>
 
 #include "apitest.h"
-#include "backendmanager_local.h"
 #include "str.h"
 #include "testutils.h"
 
@@ -197,13 +196,8 @@ DEFINE_TESTCASE(pctcutoff5, backend) {
 }
 
 // Regression test for bug fixed in 1.0.14.
-DEFINE_TESTCASE(topercent3, remote) {
-    BackendManagerLocal local_manager;
-    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
-    Xapian::Database db;
-    db.add_database(get_database("apitest_simpledata"));
-    db.add_database(local_manager.get_database("apitest_simpledata"));
-
+DEFINE_TESTCASE(topercent3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_sort_by_value(1, false);
 

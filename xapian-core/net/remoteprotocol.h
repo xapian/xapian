@@ -49,8 +49,9 @@
 // 37: 1.3.1 Prefix-compress termlists.
 // 38: 1.3.2 Stats serialisation now includes collection freq, and more...
 // 39: 1.3.3 New query operator OP_WILDCARD; sort keys in serialised MSet.
+// 39.1: 1.4.12 REPLY_DONE sent for 5 more messages
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 39
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
 
 /** Message types (client -> server).
  *
@@ -73,22 +74,27 @@ enum message_type {
     MSG_REOPEN,			// Reopen
     MSG_UPDATE,			// Get Updated DocCount and AvLength
     MSG_ADDDOCUMENT,		// Add Document
-    MSG_CANCEL,			// Cancel
-    MSG_DELETEDOCUMENTTERM,	// Delete Document by term
+    MSG_CANCEL_,		// Cancel (compat)
+    MSG_DELETEDOCUMENTTERM_,	// Delete Document by term (compat)
     MSG_COMMIT,			// Commit
-    MSG_REPLACEDOCUMENT,	// Replace Document
+    MSG_REPLACEDOCUMENT_,	// Replace Document (compat)
     MSG_REPLACEDOCUMENTTERM,	// Replace Document by term
     MSG_DELETEDOCUMENT,		// Delete Document
     MSG_WRITEACCESS,		// Upgrade to WritableDatabase
     MSG_GETMETADATA,		// Get metadata
-    MSG_SETMETADATA,		// Set metadata
-    MSG_ADDSPELLING,		// Add a spelling
+    MSG_SETMETADATA_,		// Set metadata (compat)
+    MSG_ADDSPELLING_,		// Add a spelling (compat)
     MSG_REMOVESPELLING,		// Remove a spelling
     MSG_GETMSET,		// Get MSet
     MSG_SHUTDOWN,		// Shutdown
     MSG_METADATAKEYLIST,	// Iterator for metadata keys
     MSG_FREQS,			// Get termfreq and collfreq
     MSG_UNIQUETERMS,		// Get number of unique terms in doc
+    MSG_DELETEDOCUMENTTERM,	// Delete Document by term
+    MSG_REPLACEDOCUMENT,	// Replace Document
+    MSG_CANCEL,			// Cancel
+    MSG_SETMETADATA,		// Set metadata
+    MSG_ADDSPELLING,		// Add a spelling
     MSG_MAX
 };
 

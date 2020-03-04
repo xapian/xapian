@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -99,6 +99,9 @@ static int my_snprintf(char *str, size_t size, const char *format, ...)
 #else
 #define my_snprintf SNPRINTF
 #endif
+
+/// Map shard to DB parameter value and stats to allow docid mapping.
+vector<SubDB> subdbs;
 
 static bool query_parsed = false;
 static bool done_query = false;
@@ -691,7 +694,7 @@ html_strip(const string &str)
 		skip = false;
 		continue;
 	    default:
-		if (! skip) res += ch;
+		if (!skip) res += ch;
 	}
     }
     return res;
@@ -953,6 +956,9 @@ CMD_if,
 CMD_include,
 CMD_json,
 CMD_jsonarray,
+CMD_jsonbool,
+CMD_jsonobject,
+CMD_keys,
 CMD_last,
 CMD_lastpage,
 CMD_le,
@@ -1040,16 +1046,16 @@ struct func_desc {
     struct func_attrib a;
 };
 
-#define N -1
+#define N (-1)
 #define M 'M'
 #define Q 'Q'
 // NB when adding a new command which ensures M or Q, update the list in
 // docs/omegascript.rst
-static struct func_desc func_tab[] = {
+static const struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure
 {"",{CMD_,	   N, N, 0, 0}},// commented out code
 T(add,		   0, N, N, 0), // add a list of numbers
-T(addfilter,	   1, 1, N, 0), // add filter term
+T(addfilter,	   1, 2, N, 0), // add filter term
 T(allterms,	   0, 1, N, 0), // list of all terms matching document
 T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
 T(cgi,		   1, 1, N, 0), // return cgi parameter value
@@ -1057,7 +1063,7 @@ T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
 T(cgiparams,	   0, 0, N, 0), // return list of cgi parameter names
 T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
 T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
-T(cond,		   2, N, 0, 0), // return position of substring, or empty string
+T(cond,		   2, N, 0, 0), // cascaded conditionals
 T(contains,	   2, 2, N, 0), // return position of substring, or empty string
 T(csv,		   1, 2, N, 0), // CSV string escaping
 T(date,		   1, 2, N, 0), // convert time_t to strftime format
@@ -1089,10 +1095,13 @@ T(html,		   1, 1, N, 0), // html escape string (<>&")
 T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
 T(httpheader,	   2, 2, N, 0), // arbitrary HTTP header
 T(id,		   0, 0, N, 0), // docid of current doc
-T(if,		   2, 3, 1, 0), // conditional
+T(if,		   1, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
-T(jsonarray,	   1, 1, N, 0), // Format list as a JSON array of strings
+T(jsonarray,	   1, 2, 1, 0), // Format list as a JSON array
+T(jsonbool,	   1, 1, 1, 0), // Format list as a JSON bool
+T(jsonobject,	   1, 3, 1, 0), // Format map as JSON object
+T(keys,		   1, 1, N, 0), // list of keys from a map
 T(last,		   0, 0, N, M), // hit number one beyond end of current page
 T(lastpage,	   0, 0, N, M), // number of last hit page
 T(le,		   2, 2, N, 0), // test <=
@@ -1138,7 +1147,7 @@ T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 2, N, M), // generate snippet from text
-T(sort,		   1, 2, N, M), // alpha sort a list
+T(sort,		   1, 2, N, 0), // alpha sort a list
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
@@ -1192,29 +1201,12 @@ write_all(int fd, const char * buf, size_t count)
     return 0;
 }
 
-static const vector<string>&
-get_subdbs()
-{
-    static vector<string> subdbs;
-    if (subdbs.empty()) {
-	size_t p = 0, q;
-	while (true) {
-	    q = dbname.find('/', p);
-	    subdbs.emplace_back(dbname, p, q - p);
-	    if (q == string::npos) break;
-	    p = q + 1;
-	}
-    }
-    return subdbs;
-}
-
 static string
 eval(const string &fmt, const vector<string> &param)
 {
     static map<string, const struct func_attrib *> func_map;
     if (func_map.empty()) {
-	struct func_desc *p;
-	for (p = func_tab; p->name != NULL; ++p) {
+	for (auto p = func_tab; p->name != NULL; ++p) {
 	    func_map[string(p->name)] = &(p->a);
 	}
     }
@@ -1335,7 +1327,16 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_addfilter:
-		add_bterm(args[0]);
+		if (args.size() == 1 || args[1].empty() || args[1] == "B") {
+		    add_bterm(args[0]);
+		} else if (args[1] == "N") {
+		    add_nterm(args[0]);
+		} else {
+		    string msg = "Invalid $addfilter type '";
+		    msg += args[1];
+		    msg += "'";
+		    throw msg;
+		}
 		break;
 	    case CMD_allterms: {
 		// list of all terms indexing document
@@ -1468,8 +1469,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (denom == 0) {
 		    value = "divide by 0";
 		} else {
-		    value = str(string_to_int(args[0]) /
-				string_to_int(args[1]));
+		    value = str(string_to_int(args[0]) / denom);
 		}
 		break;
 	    }
@@ -1635,7 +1635,7 @@ eval(const string &fmt, const vector<string> &param)
 		// 0-based mset index
 		value = str(hit_no);
 		break;
-	    case CMD_hitlist:
+	    case CMD_hitlist: {
 #if 0
 		url_query_string = "?DB=";
 		url_query_string += dbname;
@@ -1651,22 +1651,22 @@ eval(const string &fmt, const vector<string> &param)
 		    int ch;
 		    while ((ch = *q++) != '\0') {
 			switch (ch) {
-			 case '+':
+			  case '+':
 			    url_query_string += "%2b";
 			    break;
-			 case '"':
+			  case '"':
 			    url_query_string += "%22";
 			    break;
-			 case '%':
+			  case '%':
 			    url_query_string += "%25";
 			    break;
-			 case '&':
+			  case '&':
 			    url_query_string += "%26";
 			    break;
-			 case ' ':
+			  case ' ':
 			    ch = '+';
 			    /* fall through */
-			 default:
+			  default:
 			    url_query_string += ch;
 			}
 		    }
@@ -1677,10 +1677,12 @@ eval(const string &fmt, const vector<string> &param)
 		    url_query_string += i->second;
 		}
 #endif
+		auto save_hit_no = hit_no;
 		for (hit_no = topdoc; hit_no < last; ++hit_no)
 		    value += print_caption(args[0], param);
-		hit_no = 0;
+		hit_no = save_hit_no;
 		break;
+	    }
 	    case CMD_hitsperpage:
 		value = str(hits_per_page);
 		break;
@@ -1718,7 +1720,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(q0);
 		break;
 	    case CMD_if:
-		if (!args[0].empty())
+		if (args.size() > 1 && !args[0].empty())
 		    value = eval(args[1], param);
 		else if (args.size() > 2)
 		    value = eval(args[2], param);
@@ -1737,17 +1739,80 @@ eval(const string &fmt, const vector<string> &param)
 		    value = "[]";
 		    break;
 		}
-		value = "[\"";
+		vector<string> new_args(1);
+		value = "[";
 		while (true) {
 		    j = l.find('\t', i);
 		    string elt(l, i, j - i);
-		    json_escape(elt);
-		    value += elt;
+		    if (args.size() == 1) {
+			value += '"';
+			json_escape(elt);
+			value += elt;
+			value += '"';
+		    } else {
+			new_args[0] = std::move(elt);
+			value += eval(args[1], new_args);
+		    }
 		    if (j == string::npos) break;
-		    value += "\",\"";
+		    value += ',';
 		    i = j + 1;
 		}
-		value += "\"]";
+		value += ']';
+		break;
+	    }
+	    case CMD_jsonbool:
+		value = args[0].empty() ? "false" : "true";
+		break;
+	    case CMD_jsonobject: {
+		vector<string> new_args;
+		new_args.push_back(string());
+
+		class map_range {
+		    typedef map<string, string>::const_iterator iterator;
+		    iterator b, e;
+
+		  public:
+		    map_range(iterator b_, iterator e_) : b(b_), e(e_) {}
+
+		    iterator begin() const { return b; }
+		    iterator end() const { return e; }
+		};
+
+		string prefix = args[0] + ',';
+		auto b = option.lower_bound(prefix);
+		++prefix.back();
+		auto e = option.lower_bound(prefix);
+		value = to_json(map_range(b, e),
+				[&](const string& k) {
+				    string key(k, prefix.size());
+				    if (args.size() > 1 && !args[1].empty()) {
+					new_args[0] = std::move(key);
+					key = eval(args[1], new_args);
+				    }
+				    return key;
+				},
+				[&](const string& v) {
+				    if (args.size() > 2 && !args[2].empty()) {
+					new_args[0] = v;
+					return eval(args[2], new_args);
+				    }
+				    string r(1, '"');
+				    string elt = v;
+				    json_escape(elt);
+				    r += elt;
+				    r += '"';
+				    return r;
+				});
+		break;
+	    }
+	    case CMD_keys: {
+		string prefix = args[0] + ',';
+		auto i = option.lower_bound(prefix);
+		for (; i != option.end() && startswith(i->first, prefix); ++i) {
+		    const string& key = i->first;
+		    if (!value.empty()) value += '\t';
+		    value.append(key, prefix.size(), string::npos);
+		}
 		break;
 	    }
 	    case CMD_last:
@@ -1834,12 +1899,15 @@ eval(const string &fmt, const vector<string> &param)
 		if (fd == -1) break;
 
 		struct cdb cdb;
-		cdb_init(&cdb, fd);
+		if (cdb_init(&cdb, fd) < 0) {
+		    close(fd);
+		    break;
+		}
 
 		if (cdb_find(&cdb, args[1].data(), args[1].length()) > 0) {
 		    size_t datalen = cdb_datalen(&cdb);
 		    const void *dat = cdb_get(&cdb, datalen, cdb_datapos(&cdb));
-		    if (q) {
+		    if (dat) {
 			value.assign(static_cast<const char *>(dat), datalen);
 		    }
 		}
@@ -1893,6 +1961,15 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(val);
 		break;
 	    }
+	    case CMD_mod: {
+		int denom = string_to_int(args[1]);
+		if (denom == 0) {
+		    value = "divide by 0";
+		} else {
+		    value = str(string_to_int(args[0]) % denom);
+		}
+		break;
+	    }
 	    case CMD_msize:
 		// Estimated number of matches.
 		value = str(mset.get_matches_estimated());
@@ -1911,16 +1988,6 @@ eval(const string &fmt, const vector<string> &param)
 		// Upper bound on number of matches.
 		value = str(mset.get_matches_upper_bound());
 		break;
-	    case CMD_mod: {
-		int denom = string_to_int(args[1]);
-		if (denom == 0) {
-		    value = "divide by 0";
-		} else {
-		    value = str(string_to_int(args[0]) %
-				string_to_int(args[1]));
-		}
-		break;
-	    }
 	    case CMD_mul: {
 		vector<string>::const_iterator i = args.begin();
 		int total = string_to_int(*i++);
@@ -2164,14 +2231,19 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_subdb: {
 		Xapian::docid id = q0;
 		if (args.size() > 0) id = string_to_int(args[0]);
-		auto subdbs = get_subdbs();
-		value = subdbs[(id - 1) % subdbs.size()];
+		value = subdbs[(id - 1) % subdbs.size()].get_name();
 		break;
 	    }
 	    case CMD_subid: {
 		Xapian::docid id = q0;
 		if (args.size() > 0) id = string_to_int(args[0]);
-		value = str(((id - 1) / get_subdbs().size()) + 1);
+		// This is the docid in the single shard.
+		Xapian::docid shard_did = (id - 1) / subdbs.size() + 1;
+		// We now need to map this back to the docid in the collection
+		// of shards specified by the DB parameter value which $subdb
+		// returns.
+		const SubDB& subdb = subdbs[(id - 1) % subdbs.size()];
+		value = str(subdb.map_docid(shard_did));
 		break;
 	    }
 	    case CMD_substr: {

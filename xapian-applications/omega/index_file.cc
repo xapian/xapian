@@ -161,7 +161,7 @@ index_add_default_filters()
     // Output is UTF-8 according to "man djvutxt".  Generally this seems to
     // be true, though some examples from djvu.org generate isolated byte
     // 0x95 in a context which suggests it might be intended to be a bullet
-    // (as it is in CP1250).
+    // (as it is in CP1252).
     index_command("image/vnd.djvu", Filter("djvutxt", false));
     index_command("text/markdown", Filter("markdown", "text/html", false));
     // The --text option unhelpfully converts all non-ASCII characters to "?"
@@ -215,11 +215,11 @@ index_add_default_filters()
 			 false));
     index_command("text/vcard",
 		  Filter(get_pkglibbindir() + "/vcard2text", false));
-    index_command("application/vnd.apply.keynote",
+    index_command("application/vnd.apple.keynote",
 		  Filter("key2text", false));
-    index_command("application/vnd.apply.numbers",
+    index_command("application/vnd.apple.numbers",
 		  Filter("numbers2text", false));
-    index_command("application/vnd.apply.pages",
+    index_command("application/vnd.apple.pages",
 		  Filter("pages2text", false));
 }
 
@@ -313,49 +313,68 @@ parse_pdfinfo_field(const char * p, const char * end, string & out, const char *
     parse_pdfinfo_field((P), (END), (OUT), FIELD":", CONST_STRLEN(FIELD) + 1)
 
 static void
-get_pdf_metainfo(const string & file, string &author, string &title,
+parse_pdf_metainfo(const string& pdfinfo, string &author, string &title,
+		   string &keywords, string &topic, int& pages)
+{
+    const char * p = pdfinfo.data();
+    const char * end = p + pdfinfo.size();
+    while (p != end) {
+	const char * start = p;
+	p = static_cast<const char *>(memchr(p, '\n', end - p));
+	const char * eol;
+	if (p) {
+	    eol = p;
+	    ++p;
+	} else {
+	    p = eol = end;
+	}
+	switch (*start) {
+	    case 'A':
+		PARSE_PDFINFO_FIELD(start, eol, author, "Author");
+		break;
+	    case 'K':
+		PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
+		break;
+	    case 'P': {
+		string s;
+		PARSE_PDFINFO_FIELD(start, eol, s, "Pages");
+		if (!s.empty())
+		    pages = atoi(s.c_str());
+		break;
+	    }
+	    case 'S':
+		PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
+		break;
+	    case 'T':
+		PARSE_PDFINFO_FIELD(start, eol, title, "Title");
+		break;
+	}
+    }
+}
+
+static void
+get_pdf_metainfo(int fd, string &author, string &title,
+		 string &keywords, string &topic, int& pages)
+{
+    try {
+	string pdfinfo;
+	run_filter(fd, "pdfinfo -enc UTF-8 -", false, &pdfinfo);
+	parse_pdf_metainfo(pdfinfo, author, title, keywords, topic, pages);
+    } catch (const ReadError&) {
+	// It's probably best to index the document even if pdfinfo fails.
+    }
+}
+
+static void
+get_pdf_metainfo(const string& file, string &author, string &title,
 		 string &keywords, string &topic, int& pages)
 {
     try {
 	string cmd = "pdfinfo -enc UTF-8";
 	append_filename_argument(cmd, file);
-	string pdfinfo = stdout_to_string(cmd, false);
-
-	const char * p = pdfinfo.data();
-	const char * end = p + pdfinfo.size();
-	while (p != end) {
-	    const char * start = p;
-	    p = static_cast<const char *>(memchr(p, '\n', end - p));
-	    const char * eol;
-	    if (p) {
-		eol = p;
-		++p;
-	    } else {
-		p = eol = end;
-	    }
-	    switch (*start) {
-		case 'A':
-		    PARSE_PDFINFO_FIELD(start, eol, author, "Author");
-		    break;
-		case 'K':
-		    PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
-		    break;
-		case 'P': {
-		    string s;
-		    PARSE_PDFINFO_FIELD(start, eol, s, "Pages");
-		    if (!s.empty())
-			pages = atoi(s.c_str());
-		    break;
-		}
-		case 'S':
-		    PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
-		    break;
-		case 'T':
-		    PARSE_PDFINFO_FIELD(start, eol, title, "Title");
-		    break;
-	    }
-	}
-    } catch (ReadError) {
+	parse_pdf_metainfo(stdout_to_string(cmd, false),
+			   author, title, keywords, topic, pages);
+    } catch (const ReadError&) {
 	// It's probably best to index the document even if pdfinfo fails.
     }
 }
@@ -570,7 +589,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	if (cmd_it != commands.end()) {
 	    // Easy "run a command and read text or HTML from stdout or a
 	    // temporary file" cases.
-	    string cmd = cmd_it->second.cmd;
+	    auto& filter = cmd_it->second;
+	    string cmd = filter.cmd;
 	    if (cmd.empty()) {
 		skip(urlterm, context, "required filter not installed",
 		     d.get_size(), d.get_mtime(), SKIP_VERBOSE_ONLY);
@@ -586,7 +606,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		     SKIP_VERBOSE_ONLY);
 		return;
 	    }
-	    bool use_shell = cmd_it->second.use_shell();
+	    bool use_shell = filter.use_shell();
 	    bool substituted = false;
 	    string tmpout;
 	    size_t pcent = 0;
@@ -602,11 +622,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			substituted = true;
 			string tail(cmd, pcent + 2);
 			cmd.resize(pcent);
-			append_filename_argument(cmd, file);
-			// Remove the space append_filename_argument() adds before
-			// the argument - the command string either includes one,
-			// or won't expect one (e.g. --input=%f).
-			cmd.erase(pcent, 1);
+			// Suppress the space append_filename_argument()
+			// usually adds before the argument - the command
+			// string either includes one, or won't expect one
+			// (e.g. --input=%f).
+			append_filename_argument(cmd, file, false);
 			pcent = cmd.size();
 			cmd += tail;
 			break;
@@ -616,9 +636,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			    // Use a temporary file with a suitable extension
 			    // in case the command cares, and for more helpful
 			    // error messages from the command.
-			    if (cmd_it->second.output_type == "text/html") {
+			    if (filter.output_type == "text/html") {
 				tmpout = get_tmpfile("tmp.html");
-			    } else if (cmd_it->second.output_type == "image/svg+xml") {
+			    } else if (filter.output_type == "image/svg+xml") {
 				tmpout = get_tmpfile("tmp.svg");
 			    } else {
 				tmpout = get_tmpfile("tmp.txt");
@@ -627,11 +647,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			substituted = true;
 			string tail(cmd, pcent + 2);
 			cmd.resize(pcent);
-			append_filename_argument(cmd, tmpout);
-			// Remove the space append_filename_argument() adds before
-			// the argument - the command string either includes one,
-			// or won't expect one (e.g. --input=%f).
-			cmd.erase(pcent, 1);
+			// Suppress the space append_filename_argument()
+			// usually adds before the argument - the command
+			// string either includes one, or won't expect one
+			// (e.g. --output=%t).
+			append_filename_argument(cmd, tmpout, false);
 			pcent = cmd.size();
 			cmd += tail;
 			break;
@@ -649,7 +669,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    try {
 		if (!tmpout.empty()) {
 		    // Output in temporary file.
-		    (void)stdout_to_string(cmd, use_shell);
+		    run_filter(cmd, use_shell);
 		    if (!load_file(tmpout, dump, NOCACHE)) {
 			throw ReadError("Couldn't read output file");
 		    }
@@ -659,10 +679,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // filing system.
 		} else {
 		    // Output on stdout.
-		    dump = stdout_to_string(cmd, use_shell);
+		    run_filter(cmd, use_shell, &dump);
 		}
-		const string & charset = cmd_it->second.output_charset;
-		if (cmd_it->second.output_type == "text/html") {
+		const string & charset = filter.output_charset;
+		if (filter.output_type == "text/html") {
 		    MyHtmlParser p;
 		    p.ignore_metarobots();
 		    p.description_as_sample = description_as_sample;
@@ -673,7 +693,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			p.ignore_metarobots();
 			p.description_as_sample = description_as_sample;
 			p.parse_html(dump, newcharset, true);
-		    } catch (ReadError) {
+		    } catch (const ReadError&) {
 			skip_cmd_failed(urlterm, context, cmd,
 					d.get_size(), d.get_mtime());
 			return;
@@ -685,7 +705,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    sample = p.sample;
 		    author = p.author;
 		    created = p.created;
-		} else if (cmd_it->second.output_type == "image/svg+xml") {
+		} else if (filter.output_type == "image/svg+xml") {
 		    SvgParser svgparser;
 		    svgparser.parse(dump);
 		    dump = svgparser.dump;
@@ -696,7 +716,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		} else if (!charset.empty()) {
 		    convert_to_utf8(dump, charset);
 		}
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -749,17 +769,15 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 	} else if (mimetype == "application/pdf") {
-	    string cmd = "pdftotext -enc UTF-8";
-	    append_filename_argument(cmd, file);
-	    cmd += " -";
+	    const char* cmd = "pdftotext -enc UTF-8 - -";
 	    try {
-		dump = stdout_to_string(cmd, false);
-	    } catch (ReadError) {
+		run_filter(d.get_fd(), cmd, false, &dump);
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
 	    }
-	    get_pdf_metainfo(file, author, title, keywords, topic, pages);
+	    get_pdf_metainfo(d.get_fd(), author, title, keywords, topic, pages);
 	} else if (mimetype == "application/postscript") {
 	    // There simply doesn't seem to be a Unicode capable PostScript to
 	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
@@ -778,16 +796,15 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		     d.get_size(), d.get_mtime());
 		return;
 	    }
-	    string cmd = "ps2pdf";
-	    append_filename_argument(cmd, file);
+	    string cmd = "ps2pdf -";
 	    append_filename_argument(cmd, tmpfile);
 	    try {
-		(void)stdout_to_string(cmd, false);
+		run_filter(d.get_fd(), cmd, false);
 		cmd = "pdftotext -enc UTF-8";
 		append_filename_argument(cmd, tmpfile);
 		cmd += " -";
-		dump = stdout_to_string(cmd, false);
-	    } catch (ReadError) {
+		run_filter(cmd, false, &dump);
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		unlink(tmpfile.c_str());
@@ -797,7 +814,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		throw;
 	    }
 	    try {
-		get_pdf_metainfo(tmpfile, author, title, keywords, topic, pages);
+		get_pdf_metainfo(tmpfile, author, title, keywords, topic,
+				 pages);
 	    } catch (...) {
 		unlink(tmpfile.c_str());
 		throw;
@@ -816,7 +834,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		OpenDocParser parser;
 		parser.parse(stdout_to_string(cmd, true));
 		dump = parser.dump;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -833,7 +851,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
@@ -857,7 +875,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    XlsxParser parser;
 		    parser.parse(stdout_to_string(cmd, true));
 		    dump = parser.dump;
-		} catch (ReadError) {
+		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,
 				    d.get_size(), d.get_mtime());
 		    return;
@@ -885,7 +903,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // doesn't match anything in the zip file.
 		    xmlparser.parse_xml(stdout_to_string(cmd, false, 11));
 		    dump = xmlparser.dump;
-		} catch (ReadError) {
+		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,
 				    d.get_size(), d.get_mtime());
 		    return;
@@ -903,7 +921,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (mimetype == "application/x-abiword") {
@@ -924,7 +942,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    cmd += " 'Documents/1/Pages/*.fpage'";
 	    try {
 		XpsXmlParser xpsparser;
-		dump = stdout_to_string(cmd, false);
+		run_filter(cmd, false, &dump);
 		// Look for Byte-Order Mark (BOM).
 		if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
 		    // UTF-16 in big-endian/little-endian order - we just
@@ -935,7 +953,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		}
 		xpsparser.parse(dump);
 		dump = xpsparser.dump;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -973,10 +991,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    author = svgparser.author;
 	} else if (mimetype == "application/vnd.debian.binary-package" ||
 		   mimetype == "application/x-debian-package") {
-	    string cmd("dpkg-deb -f");
-	    append_filename_argument(cmd, file);
-	    cmd += " Description";
-	    const string & desc = stdout_to_string(cmd, false);
+	    const char* cmd = "dpkg-deb -f - Description";
+	    string desc;
+	    run_filter(d.get_fd(), cmd, false, &desc);
 	    // First line is short description, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
@@ -987,7 +1004,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		   mimetype == "application/x-rpm") {
 	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p");
 	    append_filename_argument(cmd, file);
-	    const string & desc = stdout_to_string(cmd, false);
+	    string desc;
+	    run_filter(cmd, false, &desc);
 	    // First line is summary, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
@@ -1202,10 +1220,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	newdocument.add_boolean_term(ext_term);
 
 	index_add_document(urlterm, last_altered, did, newdocument);
-    } catch (ReadError) {
+    } catch (const ReadError&) {
 	skip(urlterm, context, string("can't read file: ") + strerror(errno),
 	     d.get_size(), d.get_mtime());
-    } catch (NoSuchFilter) {
+    } catch (const NoSuchFilter&) {
 	string filter_entry;
 	if (cmd_it != commands.end()) {
 	    filter_entry = cmd_it->first;
@@ -1217,7 +1235,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	m += "\" not installed";
 	skip(urlterm, context, m, d.get_size(), d.get_mtime());
 	commands[filter_entry] = Filter();
-    } catch (FileNotFound) {
+    } catch (const FileNotFound&) {
 	skip(urlterm, context, "File removed during indexing",
 	     d.get_size(), d.get_mtime(),
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);

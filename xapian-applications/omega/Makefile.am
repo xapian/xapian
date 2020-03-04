@@ -50,10 +50,12 @@ EXTRA_DIST =\
 	common/Tokeniseise.pm \
 	extra/omegascript.vim \
 	extra/omegascript.vim.in \
+	config.rpath \
 	gen-mimemap \
 	gen-myhtmltags \
 	gen-namedents \
 	gen-omegascript-vim \
+	lsan.supp \
 	mimemap.h \
 	mimemap.stamp \
 	mimemap.tokens \
@@ -120,13 +122,14 @@ bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
-dist_check_SCRIPTS = omegatest
+dist_check_SCRIPTS = omegatest sourcetest
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	omegatest\
+	sourcetest\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
 
@@ -143,7 +146,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
  xlsxparse.h opendocparse.h msxmlparse.h sort.h timegm.h csvescape.h\
- portability/mkdtemp.h
+ portability/mkdtemp.h portability/strptime.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
@@ -153,6 +156,8 @@ noinst_HEADERS +=\
 	common/msvc_dirent.h\
 	common/noreturn.h\
 	common/omassert.h\
+	common/overflow.h\
+	common/parseint.h\
 	common/realtime.h\
 	common/safedirent.h\
 	common/safefcntl.h\
@@ -162,20 +167,26 @@ noinst_HEADERS +=\
 	common/safeunistd.h\
 	common/safewindows.h\
 	common/safewinsock2.h\
+	common/setenv.h\
 	common/str.h\
 	common/stringutils.h
 
-AM_LDFLAGS = $(NO_UNDEFINED) $(ICONV_LDFLAGS) $(MAGIC_LDFLAGS)
+AM_LDFLAGS = $(NO_UNDEFINED) $(MAGIC_LDFLAGS)
 
 # We want to compile transform.cc with PCRE_CFLAGS, but if this adds a -I for
 # a directory with a different version of iconv, then we get problems (this
-# has been reported on Mac OS X).  So we only add PCRE_CFLAGS when compiling
-# transform.cc, using the convenience library technique suggested by the
-# automake manual.
-noinst_LTLIBRARIES = libtransform.la
+# has been reported on macOS).  We solve this using a technique suggested by
+# the automake manual: compile each of transform.cc and utf8convert.cc into
+# its own convenience library so each only gets its own CPPFLAGS.
+noinst_LTLIBRARIES = libtransform.la libutf8convert.la
+
 libtransform_la_SOURCES = transform.cc
 libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
 libtransform_la_LIBADD = $(PCRE_LIBS)
+
+libutf8convert_la_SOURCES = utf8convert.cc
+libutf8convert_la_CPPFLAGS = $(AM_CPPFLAGS) $(INCICONV)
+libutf8convert_la_LIBADD = $(XAPIAN_LIBS) $(LTLIBICONV)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
@@ -186,7 +197,7 @@ omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
- md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
+ md5wrap.cc xmlparse.cc metaxmlparse.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
  opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc\
@@ -194,30 +205,33 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
-omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS)
+omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS) libutf8convert.la
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
- utf8convert.cc utf8truncate.cc\
+ utf8truncate.cc\
  common/keyword.cc timegm.cc datetime.cc
-scriptindex_LDADD = $(XAPIAN_LIBS)
+if NEED_STRPTIME
+scriptindex_SOURCES += portability/strptime.cc
+endif
+scriptindex_LDADD = $(XAPIAN_LIBS) libutf8convert.la
 
 omindex_list_SOURCES = common/getopt.cc omindex-list.cc
 omindex_list_LDADD = $(XAPIAN_LIBS)
 
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
- myhtmlparse.cc utf8convert.cc common/keyword.cc datetime.cc timegm.cc
-atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+ myhtmlparse.cc common/keyword.cc datetime.cc timegm.cc
+atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
- utf8convert.cc common/keyword.cc datetime.cc timegm.cc
-htmlparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+ common/keyword.cc datetime.cc timegm.cc
+htmlparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
 md5test_LDADD = $(NO_INSTALL)
 
-utf8converttest_SOURCES = utf8converttest.cc utf8convert.cc
-utf8converttest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+utf8converttest_SOURCES = utf8converttest.cc
+utf8converttest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS) libutf8convert.la
 
 urlenctest_SOURCES = urlenctest.cc urlencode.cc
 urlenctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)

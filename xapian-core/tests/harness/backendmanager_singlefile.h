@@ -1,7 +1,7 @@
 /** @file backendmanager_singlefile.h
  * @brief BackendManager subclass for singlefile databases.
  */
-/* Copyright (C) 2007,2009,2015 Olly Betts
+/* Copyright (C) 2007,2009,2015,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,29 +30,31 @@
 
 /// BackendManager subclass for singlefile databases.
 class BackendManagerSingleFile : public BackendManager {
-    /// The type to use for the sub-databases.
-    std::string subtype;
-
     /// Don't allow assignment.
     void operator=(const BackendManagerSingleFile &);
 
     /// Don't allow copying.
     BackendManagerSingleFile(const BackendManagerSingleFile &);
 
-    std::string createdb_singlefile(const std::vector<std::string> & files);
+    BackendManager* sub_manager;
+
+    std::string cachedir;
 
   protected:
     /// Get the path of the Xapian::Database instance.
     std::string do_get_database_path(const std::vector<std::string> & files);
 
   public:
-    BackendManagerSingleFile(const std::string & subtype_);
+    BackendManagerSingleFile(const std::string& datadir_,
+			     BackendManager* sub_manager_);
 
     /// Return a string representing the current database type.
     std::string get_dbtype() const;
 
     /// Create a Xapian::WritableDatabase object.
     Xapian::WritableDatabase get_writable_database(const std::string & name, const std::string & file);
+
+    std::string get_compaction_output_path(const std::string& name);
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_SINGLEFILE_H

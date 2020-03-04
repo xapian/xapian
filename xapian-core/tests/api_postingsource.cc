@@ -1,6 +1,6 @@
 /* api_postingsource.cc: tests of posting sources
  *
- * Copyright 2008,2009,2011,2015,2016 Olly Betts
+ * Copyright 2008,2009,2011,2015,2016,2019 Olly Betts
  * Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -636,8 +636,7 @@ make_matchtimelimit1_db(Xapian::WritableDatabase &db, const string &)
 }
 
 // FIXME: This doesn't run for remote databases (we'd need to register
-// SlowDecreasingValueWeightPostingSource on the remote) or for multi
-// databases (they don't support "generated" currently).
+// SlowDecreasingValueWeightPostingSource on the remote).
 DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
 {
 #ifndef HAVE_TIMER_CREATE
@@ -764,5 +763,168 @@ DEFINE_TESTCASE(postingsourceclone1, !backend)
 	TEST_EQUAL(clones, 0);
     }
 
+    return true;
+}
+
+class OnlyTheFirstPostingSource : public Xapian::PostingSource {
+    Xapian::doccount last_docid;
+
+    Xapian::docid did;
+
+    bool allow_clone;
+
+  public:
+    static Xapian::doccount shard_index;
+
+    explicit
+    OnlyTheFirstPostingSource(bool allow_clone_) : allow_clone(allow_clone_) {}
+
+    PostingSource* clone() const {
+	return allow_clone ? new OnlyTheFirstPostingSource(true) : nullptr;
+    }
+
+    void init(const Xapian::Database& db) {
+	did = 0;
+	if (shard_index == 0) {
+	    last_docid = db.get_lastdocid();
+	} else {
+	    last_docid = 0;
+	}
+	++shard_index;
+    }
+
+    Xapian::doccount get_termfreq_min() const { return 0; }
+
+    Xapian::doccount get_termfreq_est() const { return last_docid / 2; }
+
+    Xapian::doccount get_termfreq_max() const { return last_docid; }
+
+    void next(double wt) {
+	(void)wt;
+	++did;
+	if (did > last_docid) did = 0;
+    }
+
+    void skip_to(Xapian::docid to_did, double wt) {
+	(void)wt;
+	did = to_did;
+	if (did > last_docid) did = 0;
+    }
+
+    bool at_end() const {
+	return did == 0;
+    }
+
+    Xapian::docid get_docid() const { return did; }
+
+    string get_description() const { return "OnlyTheFirstPostingSource"; }
+};
+
+Xapian::doccount OnlyTheFirstPostingSource::shard_index;
+
+DEFINE_TESTCASE(postingsourceshardindex1, multi && !remote) {
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    OnlyTheFirstPostingSource::shard_index = 0;
+
+    Xapian::Enquire enquire(db);
+    {
+	auto ps = new OnlyTheFirstPostingSource(true);
+	enquire.set_query(Xapian::Query(ps->release()));
+
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 1, 3, 5);
+    }
+
+    {
+	/* Regression test for bug fixed in 1.4.12 - we should get an exception
+	 * if we use a PostingSource that doesn't support clone() with a multi
+	 * DB.
+	 */
+	auto ps = new OnlyTheFirstPostingSource(false);
+	enquire.set_query(Xapian::Query(ps->release()));
+
+	TEST_EXCEPTION(Xapian::InvalidOperationError,
+		       auto m = enquire.get_mset(0, 10));
+    }
+
+    return true;
+}
+
+/// PostingSource subclass for injecting tf bounds and estimate.
+class EstimatePS : public Xapian::PostingSource {
+    Xapian::doccount lb, est, ub;
+
+  public:
+    EstimatePS(Xapian::doccount lb_,
+	       Xapian::doccount est_,
+	       Xapian::doccount ub_)
+	: lb(lb_), est(est_), ub(ub_)
+    { }
+
+    PostingSource * clone() const { return new EstimatePS(lb, est, ub); }
+
+    void init(const Xapian::Database &) { }
+
+    Xapian::doccount get_termfreq_min() const { return lb; }
+
+    Xapian::doccount get_termfreq_est() const { return est; }
+
+    Xapian::doccount get_termfreq_max() const { return ub; }
+
+    void next(double) {
+	FAIL_TEST("EstimatePS::next() shouldn't be called");
+    }
+
+    void skip_to(Xapian::docid, double) {
+	FAIL_TEST("EstimatePS::skip_to() shouldn't be called");
+    }
+
+    bool at_end() const {
+	return false;
+    }
+
+    Xapian::docid get_docid() const {
+	FAIL_TEST("EstimatePS::get_docid() shouldn't be called");
+    }
+
+    string get_description() const { return "EstimatePS"; }
+};
+
+/// Check estimate is rounded to suitable number of S.F. - new in 1.4.3.
+DEFINE_TESTCASE(estimaterounding1, backend && !multi && !remote) {
+    Xapian::Database db = get_database("etext");
+    Xapian::Enquire enquire(db);
+    static const struct { Xapian::doccount lb, est, ub, exp; } testcases[] = {
+	// Test rounding down.
+	{411, 424, 439, 420},
+	{1, 312, 439, 300},
+	// Test rounding up.
+	{411, 426, 439, 430},
+	{123, 351, 439, 400},
+	// Rounding based on estimate size if smaller than range size.
+	{1, 12, 439, 10},
+	// Round "5" away from the nearer bound.
+	{1, 15, 439, 20},
+	{1, 350, 439, 300},
+	// Check we round up if rounding down would be out of range.
+	{411, 416, 439, 420},
+	{411, 412, 439, 420},
+	// Check we round down if rounding up would be out of range.
+	{111, 133, 138, 130},
+	{111, 137, 138, 130},
+	// Check we don't round if either way would be out of range.
+	{411, 415, 419, 415},
+	// Leave small estimates alone.
+	{1, 6, 439, 6},
+    };
+    for (auto& t : testcases) {
+	EstimatePS ps(t.lb, t.est, t.ub);
+	enquire.set_query(Xapian::Query(&ps));
+	Xapian::MSet mset = enquire.get_mset(0, 0);
+	// MSet::get_description() includes bounds and raw estimate.
+	tout << mset.get_description() << endl;
+	TEST_EQUAL(mset.get_matches_estimated(), t.exp);
+    }
     return true;
 }

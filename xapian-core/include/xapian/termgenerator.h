@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_TERMGENERATOR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/termgenerator.h> directly; include <xapian.h> instead."
+# error Never use <xapian/termgenerator.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/intrusive_ptr.h>
@@ -110,9 +110,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 	 *
 	 *  The corresponding option needs to be passed to QueryParser.
 	 *
-	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  Flag added in Xapian 1.3.4 and 1.2.22.  This mode can be
 	 *  enabled in 1.2.8 and later by setting environment variable
-	 *  XAPIAN_CJK_NGRAM.
+	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+	 *  in 1.4.11).
 	 */
 	FLAG_CJK_NGRAM = 2048 // Value matches QueryParser flag.
     };
@@ -215,7 +216,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     void index_text(const std::string & text,
 		    Xapian::termcount wdf_inc = 1,
 		    const std::string & prefix = std::string()) {
-	return index_text(Utf8Iterator(text), wdf_inc, prefix);
+	index_text(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Index some text without positional information.
@@ -245,7 +246,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     void index_text_without_positions(const std::string & text,
 				      Xapian::termcount wdf_inc = 1,
 				      const std::string & prefix = std::string()) {
-	return index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
+	index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Increase the term position used by index_text.

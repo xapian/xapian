@@ -1,0 +1,14 @@
+voc.txt was generated from a dump of the Euskera (Basque) Wikipedia by the
+script wikipedia-most-common-words like so:
+
+WikiExtractor.py euwiki-latest-pages-articles.xml.bz2
+cat text/*/* | ./wikipedia-most-common-words 50 latin1 > voc.txt
+
+The dump used was dated 02-Aug-2019
+
+output.txt was generated from voc.txt by running it through the stemmer
+using the command:
+
+stemwords -l basque -i ../snowball-data/basque/voc.txt -c UTF_8 -o ../snowball-data/basque/output.txt
+
+Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

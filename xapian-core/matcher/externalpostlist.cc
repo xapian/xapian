@@ -23,6 +23,7 @@
 
 #include "externalpostlist.h"
 
+#include <xapian/error.h>
 #include <xapian/postingsource.h>
 
 #include "debuglog.h"
@@ -30,47 +31,48 @@
 
 using namespace std;
 
-ExternalPostList::ExternalPostList(const Xapian::Database & db,
-				   Xapian::PostingSource *source_,
+ExternalPostList::ExternalPostList(const Xapian::Database& db,
+				   Xapian::PostingSource* source_,
 				   double factor_,
-				   MultiMatch * matcher)
-    : source(source_), source_is_owned(false), current(0), factor(factor_)
+				   MultiMatch* matcher,
+				   Xapian::doccount shard_index)
+    : current(0), factor(factor_)
 {
-    Assert(source);
-    Xapian::PostingSource * newsource = source->clone();
+    Assert(source_);
+    Xapian::PostingSource* newsource = source_->clone();
     if (newsource != NULL) {
-	source = newsource;
-	source_is_owned = true;
+	source = newsource->release();
+    } else if (shard_index == 0) {
+	// Allow use of a non-clone-able PostingSource with a non-sharded
+	// Database.
+	source = source_;
+    } else {
+	throw Xapian::InvalidOperationError("PostingSource subclass must "
+					    "implement clone() to support use "
+					    "with a sharded database");
     }
     source->register_matcher_(static_cast<void*>(matcher));
     source->init(db);
 }
 
-ExternalPostList::~ExternalPostList()
-{
-    if (source_is_owned) {
-	delete source;
-    }
-}
-
 Xapian::doccount
 ExternalPostList::get_termfreq_min() const
 {
-    Assert(source);
+    Assert(source.get());
     return source->get_termfreq_min();
 }
 
 Xapian::doccount
 ExternalPostList::get_termfreq_est() const
 {
-    Assert(source);
+    Assert(source.get());
     return source->get_termfreq_est();
 }
 
 Xapian::doccount
 ExternalPostList::get_termfreq_max() const
 {
-    Assert(source);
+    Assert(source.get());
     return source->get_termfreq_max();
 }
 
@@ -79,7 +81,7 @@ ExternalPostList::get_maxweight() const
 {
     LOGCALL(MATCH, double, "ExternalPostList::get_maxweight", NO_ARGS);
     // source will be NULL here if we've reached the end.
-    if (source == NULL) RETURN(0.0);
+    if (source.get() == NULL) RETURN(0.0);
     if (factor == 0.0) RETURN(0.0);
     RETURN(factor * source->get_maxweight());
 }
@@ -96,7 +98,7 @@ double
 ExternalPostList::get_weight() const
 {
     LOGCALL(MATCH, double, "ExternalPostList::get_weight", NO_ARGS);
-    Assert(source);
+    Assert(source.get());
     if (factor == 0.0) RETURN(factor);
     RETURN(factor * source->get_weight());
 }
@@ -130,10 +132,9 @@ ExternalPostList::read_position_list()
 PostList *
 ExternalPostList::update_after_advance() {
     LOGCALL(MATCH, PostList *, "ExternalPostList::update_after_advance", NO_ARGS);
-    Assert(source);
+    Assert(source.get());
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
-	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = source->get_docid();
@@ -145,7 +146,7 @@ PostList *
 ExternalPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::next", w_min);
-    Assert(source);
+    Assert(source.get());
     source->next(w_min);
     RETURN(update_after_advance());
 }
@@ -154,7 +155,7 @@ PostList *
 ExternalPostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::skip_to", did | w_min);
-    Assert(source);
+    Assert(source.get());
     if (did <= current) RETURN(NULL);
     source->skip_to(did, w_min);
     RETURN(update_after_advance());
@@ -164,7 +165,7 @@ PostList *
 ExternalPostList::check(Xapian::docid did, double w_min, bool &valid)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::check", did | w_min | valid);
-    Assert(source);
+    Assert(source.get());
     if (did <= current) {
 	valid = true;
 	RETURN(NULL);
@@ -172,7 +173,6 @@ ExternalPostList::check(Xapian::docid did, double w_min, bool &valid)
     valid = source->check(did, w_min);
     if (source->at_end()) {
 	LOGLINE(MATCH, "ExternalPostList now at end");
-	if (source_is_owned) delete source;
 	source = NULL;
     } else {
 	current = valid ? source->get_docid() : current;
@@ -184,7 +184,7 @@ bool
 ExternalPostList::at_end() const
 {
     LOGCALL(MATCH, bool, "ExternalPostList::at_end", NO_ARGS);
-    RETURN(source == NULL);
+    RETURN(source.get() == NULL);
 }
 
 Xapian::termcount
@@ -197,7 +197,7 @@ string
 ExternalPostList::get_description() const
 {
     string desc = "ExternalPostList(";
-    if (source) desc += source->get_description();
+    if (source.get()) desc += source->get_description();
     desc += ")";
     return desc;
 }

@@ -1,7 +1,7 @@
 /** @file copydatabase.cc
  * @brief Perform a document-by-document copy of one or more Xapian databases.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,10 +86,10 @@ try {
 	string src = argv[i];
 	if (!src.empty()) {
 	    // Remove any trailing directory separator.
-	    char& ch = src.back();
+	    char ch = src.back();
 	    for (char dir_sep : DIR_SEPS_LIST) {
 		if (ch == dir_sep) {
-		    ch = '\0';
+		    src.resize(src.size() - 1);
 		    break;
 		}
 	    }

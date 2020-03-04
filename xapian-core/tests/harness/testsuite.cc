@@ -39,7 +39,7 @@
 #endif
 
 #include <algorithm>
-#include <iomanip>
+#include <ios>
 #include <iostream>
 #include <set>
 
@@ -66,6 +66,7 @@
 #ifndef NO_LIBXAPIAN
 # include <xapian/error.h>
 #endif
+#include "errno_to_string.h"
 #include "filetests.h"
 #include "noreturn.h"
 #include "stringutils.h"
@@ -526,7 +527,7 @@ test_driver::runtest(const test_desc *test)
 		}
 		if (errclass == "NetworkError" &&
 		    err.get_error_string() != NULL &&
-		    strcmp(err.get_error_string(), strerror(ECHILD)) == 0) {
+		    err.get_error_string() == errno_to_string(ECHILD)) {
 		    // ECHILD suggests we've run out of processes, and that's
 		    // much more likely to be a system issue than a Xapian bug.
 		    //
@@ -886,7 +887,7 @@ test_driver::parse_command_line(int argc, char **argv)
 
     while (argv[optind]) {
 	test_names.push_back(string(argv[optind]));
-	optind++;
+	++optind;
     }
 }
 

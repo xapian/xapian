@@ -25,8 +25,13 @@
 #include <xapian/error.h>
 
 #include "safefcntl.h"
-#include "safesysselect.h"
 #include "safeunistd.h"
+
+#ifdef HAVE_POLL_H
+# include <poll.h>
+#else
+# include "safesysselect.h"
+#endif
 
 #include <algorithm>
 #include <cerrno>
@@ -42,6 +47,7 @@
 #include "filetests.h"
 #include "noreturn.h"
 #include "omassert.h"
+#include "overflow.h"
 #include "posixy_wrapper.h"
 #include "realtime.h"
 #include "length.h"
@@ -55,7 +61,7 @@ XAPIAN_NORETURN(static void throw_database_closed());
 static void
 throw_database_closed()
 {
-    throw Xapian::DatabaseError("Database has been closed");
+    throw Xapian::DatabaseClosedError("Database has been closed");
 }
 
 XAPIAN_NORETURN(static void throw_network_error_insane_message_length());
@@ -65,14 +71,19 @@ throw_network_error_insane_message_length()
     throw Xapian::NetworkError("Insane message length specified!");
 }
 
+XAPIAN_NORETURN(static void throw_timeout(const char*, const string&));
+static void
+throw_timeout(const char* msg, const string& context)
+{
+    throw Xapian::NetworkTimeoutError(msg, context);
+}
+
 #ifdef __WIN32__
 static inline void
 update_overlapped_offset(WSAOVERLAPPED & overlapped, DWORD n)
 {
-    // Signed overflow is undefined so check DWORD is unsigned.
-    static_assert(std::is_unsigned<DWORD>::value, "Type DWORD should be unsigned");
-    overlapped.Offset += n;
-    if (overlapped.Offset < n) ++overlapped.OffsetHigh;
+    if (add_overflows(overlapped.Offset, n, overlapped.Offset))
+	++overlapped.OffsetHigh;
 }
 #endif
 
@@ -103,7 +114,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 {
     LOGCALL(REMOTE, bool, "RemoteConnection::read_at_least", min_len | end_time);
 
-    if (buffer.length() >= min_len) return true;
+    if (buffer.length() >= min_len) RETURN(true);
 
 #ifdef __WIN32__
     HANDLE hin = fd_to_handle(fdin);
@@ -120,7 +131,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
 		LOGLINE(REMOTE, "read: timeout has expired");
-		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
+		throw_timeout("Timeout expired while trying to read", context);
 	    }
 	    // Get the final result of the read.
 	    if (!GetOverlappedResult(hin, &overlapped, &received, FALSE))
@@ -129,8 +140,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	}
 
 	if (received == 0) {
-	    do_close(false);
-	    return false;
+	    RETURN(false);
 	}
 
 	buffer.append(buf, received);
@@ -151,13 +161,12 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 
 	if (received > 0) {
 	    buffer.append(buf, received);
-	    if (buffer.length() >= min_len) return true;
+	    if (buffer.length() >= min_len) RETURN(true);
 	    continue;
 	}
 
 	if (received == 0) {
-	    do_close(false);
-	    return false;
+	    RETURN(false);
 	}
 
 	LOGLINE(REMOTE, "read gave errno = " << errno);
@@ -169,38 +178,60 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	Assert(end_time != 0.0);
 	while (true) {
 	    // Calculate how far in the future end_time is.
-	    double time_diff = end_time - RealTime::now();
+	    double now = RealTime::now();
+	    double time_diff = end_time - now;
 	    // Check if the timeout has expired.
 	    if (time_diff < 0) {
 		LOGLINE(REMOTE, "read: timeout has expired");
-		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
+		throw_timeout("Timeout expired while trying to read", context);
 	    }
 
-	    // Use select to wait until there is data or the timeout is reached.
-	    fd_set rfdset, efdset;
-	    FD_ZERO(&rfdset);
-	    FD_SET(fdin, &rfdset);
-	    FD_ZERO(&efdset);
-	    FD_SET(fdin, &efdset);
+	    // Wait until there is data, an error, or the timeout is reached.
+# ifdef HAVE_POLL
+	    struct pollfd fds;
+	    fds.fd = fdin;
+	    fds.events = POLLIN;
+	    int poll_result = poll(&fds, 1, int(time_diff * 1000));
+	    if (poll_result > 0) break;
+
+	    if (poll_result == 0)
+		throw_timeout("Timeout expired while trying to read", context);
+
+	    // EINTR means poll was interrupted by a signal.  EAGAIN means that
+	    // allocation of internal data structures failed.
+	    if (errno != EINTR && errno != EAGAIN)
+		throw Xapian::NetworkError("poll failed during read",
+					   context, errno);
+# else
+	    if (fdin >= FD_SETSIZE) {
+		// We can't block with a timeout, so just sleep and retry.
+		RealTime::sleep(now + min(0.001, time_diff / 4));
+		break;
+	    }
+	    fd_set fdset;
+	    FD_ZERO(&fdset);
+	    FD_SET(fdin, &fdset);
 
 	    struct timeval tv;
 	    RealTime::to_timeval(time_diff, &tv);
-	    int select_result = select(fdin + 1, &rfdset, 0, &efdset, &tv);
+	    int select_result = select(fdin + 1, &fdset, 0, 0, &tv);
 	    if (select_result > 0) break;
 
 	    if (select_result == 0)
-		throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
+		throw_timeout("Timeout expired while trying to read", context);
 
 	    // EINTR means select was interrupted by a signal.  The Linux
 	    // select(2) man page says: "Portable programs may wish to check
 	    // for EAGAIN and loop, just as with EINTR" and that seems to be
 	    // necessary for cygwin at least.
 	    if (errno != EINTR && errno != EAGAIN)
-		throw Xapian::NetworkError("select failed during read", context, errno);
+		throw Xapian::NetworkError("select failed during read",
+					   context, errno);
+# endif
 	}
     }
 #endif
-    return true;
+    RETURN(true);
 }
 
 bool
@@ -212,20 +243,28 @@ RemoteConnection::ready_to_read() const
 
     if (!buffer.empty()) RETURN(true);
 
-    // Use select to see if there's data available to be read.
-    fd_set rfdset, efdset;
-    FD_ZERO(&rfdset);
-    FD_SET(fdin, &rfdset);
-    FD_ZERO(&efdset);
-    FD_SET(fdin, &efdset);
+    // See if there's data available to be read.
+#ifdef HAVE_POLL
+    struct pollfd fds;
+    fds.fd = fdin;
+    fds.events = POLLIN;
+    RETURN(poll(&fds, 1, 0) > 0);
+#else
+# ifndef __WIN32__
+    if (fdin >= FD_SETSIZE) {
+	// Not ideal, but OK for how this method is currently used.
+	RETURN(true);
+    }
+# endif
+    fd_set fdset;
+    FD_ZERO(&fdset);
+    FD_SET(fdin, &fdset);
 
-    // Set a 0.1 second timeout to avoid a busy loop.
-    // FIXME: this would be much better done by exposing the fd so that the
-    // matcher can call select on all the fds involved...
     struct timeval tv;
     tv.tv_sec = 0;
-    tv.tv_usec = 100000;
-    RETURN(select(fdin + 1, &rfdset, 0, &efdset, &tv) > 0);
+    tv.tv_usec = 0;
+    RETURN(select(fdin + 1, &fdset, 0, 0, &tv) > 0);
+#endif
 }
 
 void
@@ -257,7 +296,7 @@ RemoteConnection::send_message(char type, const string &message,
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
 		LOGLINE(REMOTE, "write: timeout has expired");
-		throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+		throw_timeout("Timeout expired while trying to write", context);
 	    }
 	    // Get the final result.
 	    if (!GetOverlappedResult(hout, &overlapped, &n, FALSE))
@@ -285,7 +324,6 @@ RemoteConnection::send_message(char type, const string &message,
 
     const string * str = &header;
 
-    fd_set wfdset, efdset;
     size_t count = 0;
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
@@ -308,34 +346,51 @@ RemoteConnection::send_message(char type, const string &message,
 	if (errno != EAGAIN)
 	    throw Xapian::NetworkError("write failed", context, errno);
 
-	// Use select to wait until there is space or the timeout is reached.
-	FD_ZERO(&wfdset);
-	FD_SET(fdout, &wfdset);
-	FD_ZERO(&efdset);
-	FD_SET(fdout, &efdset);
-
-	double time_diff = end_time - RealTime::now();
+	double now = RealTime::now();
+	double time_diff = end_time - now;
 	if (time_diff < 0) {
 	    LOGLINE(REMOTE, "write: timeout has expired");
-	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+	    throw_timeout("Timeout expired while trying to write", context);
 	}
+
+	// Wait until there is space or the timeout is reached.
+# ifdef HAVE_POLL
+	struct pollfd fds;
+	fds.fd = fdout;
+	fds.events = POLLOUT;
+	int result = poll(&fds, 1, int(time_diff * 1000));
+#  define POLLSELECT "poll"
+# else
+	if (fdout >= FD_SETSIZE) {
+	    // We can't block with a timeout, so just sleep and retry.
+	    RealTime::sleep(now + min(0.001, time_diff / 4));
+	    continue;
+	}
+
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(fdout, &fdset);
 
 	struct timeval tv;
 	RealTime::to_timeval(time_diff, &tv);
-	int select_result = select(fdout + 1, 0, &wfdset, &efdset, &tv);
+	int result = select(fdout + 1, 0, &fdset, 0, &tv);
+#  define POLLSELECT "select"
+# endif
 
-	if (select_result < 0) {
-	    if (errno == EINTR) {
-		// EINTR means select was interrupted by a signal.
-		// We could just retry the select, but it's easier to just
+	if (result < 0) {
+	    if (errno == EINTR || errno == EAGAIN) {
+		// EINTR/EAGAIN means select was interrupted by a signal.
+		// We could just retry the poll/select, but it's easier to just
 		// retry the write.
 		continue;
 	    }
-	    throw Xapian::NetworkError("select failed during write", context, errno);
+	    throw Xapian::NetworkError(POLLSELECT " failed during write",
+				       context, errno);
+# undef POLLSELECT
 	}
 
-	if (select_result == 0)
-	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+	if (result == 0)
+	    throw_timeout("Timeout expired while trying to write", context);
     }
 #endif
 }
@@ -378,7 +433,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
 		LOGLINE(REMOTE, "write: timeout has expired");
-		throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+		throw_timeout("Timeout expired while trying to write", context);
 	    }
 	    // Get the final result.
 	    if (!GetOverlappedResult(hout, &overlapped, &n, FALSE))
@@ -412,7 +467,6 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 				   context, errno);
     }
 
-    fd_set wfdset, efdset;
     size_t count = 0;
     while (true) {
 	// We've set write to non-blocking, so just try writing as there
@@ -443,34 +497,51 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	if (errno != EAGAIN)
 	    throw Xapian::NetworkError("write failed", context, errno);
 
-	// Use select to wait until there is space or the timeout is reached.
-	FD_ZERO(&wfdset);
-	FD_SET(fdout, &wfdset);
-	FD_ZERO(&efdset);
-	FD_SET(fdout, &efdset);
-
-	double time_diff = end_time - RealTime::now();
+	double now = RealTime::now();
+	double time_diff = end_time - now;
 	if (time_diff < 0) {
 	    LOGLINE(REMOTE, "write: timeout has expired");
-	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+	    throw_timeout("Timeout expired while trying to write", context);
 	}
+
+	// Wait until there is space or the timeout is reached.
+# ifdef HAVE_POLL
+	struct pollfd fds;
+	fds.fd = fdout;
+	fds.events = POLLOUT;
+	int result = poll(&fds, 1, int(time_diff * 1000));
+#  define POLLSELECT "poll"
+# else
+	if (fdout >= FD_SETSIZE) {
+	    // We can't block with a timeout, so just sleep and retry.
+	    RealTime::sleep(now + min(0.001, time_diff / 4));
+	    continue;
+	}
+
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(fdout, &fdset);
 
 	struct timeval tv;
 	RealTime::to_timeval(time_diff, &tv);
-	int select_result = select(fdout + 1, 0, &wfdset, &efdset, &tv);
+	int result = select(fdout + 1, 0, &fdset, 0, &tv);
+#  define POLLSELECT "select"
+# endif
 
-	if (select_result < 0) {
-	    if (errno == EINTR) {
-		// EINTR means select was interrupted by a signal.
-		// We could just retry the select, but it's easier to just
+	if (result < 0) {
+	    if (errno == EINTR || errno == EAGAIN) {
+		// EINTR/EAGAIN means select was interrupted by a signal.
+		// We could just retry the poll/select, but it's easier to just
 		// retry the write.
 		continue;
 	    }
-	    throw Xapian::NetworkError("select failed during write", context, errno);
+	    throw Xapian::NetworkError(POLLSELECT " failed during write",
+				       context, errno);
+# undef POLLSELECT
 	}
 
-	if (select_result == 0)
-	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+	if (result == 0)
+	    throw_timeout("Timeout expired while trying to write", context);
     }
 #endif
 }
@@ -649,41 +720,57 @@ RemoteConnection::receive_file(const string &file, double end_time)
 }
 
 void
-RemoteConnection::do_close(bool wait)
+RemoteConnection::shutdown()
 {
-    LOGCALL_VOID(REMOTE, "RemoteConnection::do_close", wait);
+    LOGCALL_VOID(REMOTE, "RemoteConnection::shutdown", NO_ARGS);
+
+    if (fdin < 0) return;
+
+    // We can be called from a destructor, so we can't throw an exception.
+    try {
+	send_message(MSG_SHUTDOWN, string(), 0.0);
+#ifdef __WIN32__
+	HANDLE hin = fd_to_handle(fdin);
+	char dummy;
+	DWORD received;
+	BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
+	if (!ok && GetLastError() == ERROR_IO_PENDING) {
+	    // Wait for asynchronous read to complete.
+	    (void)WaitForSingleObject(overlapped.hEvent, INFINITE);
+	}
+#else
+	// Wait for the connection to be closed - when this happens
+	// poll()/select() will report that a read won't block.
+# ifdef HAVE_POLL
+	struct pollfd fds;
+	fds.fd = fdin;
+	fds.events = POLLIN;
+	int res;
+	do {
+	    res = poll(&fds, 1, -1);
+	} while (res < 0 && (errno == EINTR || errno == EAGAIN));
+# else
+	if (fdin < FD_SETSIZE) {
+	    fd_set fdset;
+	    FD_ZERO(&fdset);
+	    FD_SET(fdin, &fdset);
+	    int res;
+	    do {
+		res = select(fdin + 1, &fdset, 0, 0, NULL);
+	    } while (res < 0 && (errno == EINTR || errno == EAGAIN));
+	}
+# endif
+#endif
+    } catch (...) {
+    }
+}
+
+void
+RemoteConnection::do_close()
+{
+    LOGCALL_VOID(REMOTE, "RemoteConnection::do_close", NO_ARGS);
 
     if (fdin >= 0) {
-	if (wait) {
-	    // We can be called from a destructor, so we can't throw an
-	    // exception.
-	    try {
-		send_message(MSG_SHUTDOWN, string(), 0.0);
-#ifdef __WIN32__
-		HANDLE hin = fd_to_handle(fdin);
-		char dummy;
-		DWORD received;
-		BOOL ok = ReadFile(hin, &dummy, 1, &received, &overlapped);
-		if (!ok && GetLastError() == ERROR_IO_PENDING) {
-		    // Wait for asynchronous read to complete.
-		    (void)WaitForSingleObject(overlapped.hEvent, INFINITE);
-		}
-#else
-		// Wait for the connection to be closed - when this happens
-		// select() will report that a read won't block.
-		fd_set rfdset, efdset;
-		FD_ZERO(&rfdset);
-		FD_SET(fdin, &rfdset);
-		FD_ZERO(&efdset);
-		FD_SET(fdin, &efdset);
-		int res;
-		do {
-		    res = select(fdin + 1, &rfdset, 0, &efdset, NULL);
-		} while (res < 0 && errno == EINTR);
-#endif
-	    } catch (...) {
-	    }
-	}
 	close_fd_or_socket(fdin);
 
 	// If the same fd is used in both directions, don't close it twice.
@@ -710,7 +797,7 @@ RemoteConnection::calc_read_wait_msecs(double end_time)
 
     // DWORD is unsigned, so we mustn't try and return a negative value.
     if (time_diff < 0.0) {
-	throw Xapian::NetworkTimeoutError("Timeout expired before starting read", context);
+	throw_timeout("Timeout expired before starting read", context);
     }
     return static_cast<DWORD>(time_diff * 1000.0);
 }

@@ -38,10 +38,10 @@ The simplest way to compile this package is:
      `-dev` or `-devel` suffix.  Additional per-language dependencies are:
 
        * python:
-         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+         - Sphinx Documentation Generator: https://www.sphinx-doc.org/
 	   The package you want might be python-sphinx.
        * python3:
-         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+         - Sphinx Documentation Generator: https://www.sphinx-doc.org/
 	   The package you want might be python3-sphinx.
 
   1. 'cd' to the directory containing the package's source code and type
@@ -224,7 +224,7 @@ for details on some of the pertinent environment variables.
 by setting variables in the command line or in the environment.  Here
 is an example:
 
-     ./configure LIBS=-lposix
+     ./configure CXX=g++-4.9 CFLAGS=-O2 LIBS=-lposix
 
    If your system requires special flags, do let us know.  Where possible
 we'd prefer configure to determine such flags by itself, but if we can't
@@ -234,7 +234,7 @@ systems like yours.
 Compiling For Multiple Architectures
 ====================================
 
-When using GCC on platforms which support multiple architecture, the simplest
+When using GCC on platforms which support multiple architectures, the simplest
 way to select a non-default architecture is to pass a CXX setting to configure
 which includes the appropriate -m option - e.g. to build for x86 on x86-64
 you would configure with:

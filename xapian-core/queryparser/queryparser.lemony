@@ -1,7 +1,8 @@
 %include {
-/* queryparser.lemony: build a Xapian::Query object from a user query string.
- *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018 Olly Betts
+/** @file queryparser.lemony
+ * @brief build a Xapian::Query object from a user query string
+ */
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -53,17 +54,17 @@ using namespace Xapian;
 
 inline bool
 U_isupper(unsigned ch) {
-    return (ch < 128 && C_isupper(static_cast<unsigned char>(ch)));
+    return ch < 128 && C_isupper(static_cast<unsigned char>(ch));
 }
 
 inline bool
 U_isdigit(unsigned ch) {
-    return (ch < 128 && C_isdigit(static_cast<unsigned char>(ch)));
+    return ch < 128 && C_isdigit(static_cast<unsigned char>(ch));
 }
 
 inline bool
 U_isalpha(unsigned ch) {
-    return (ch < 128 && C_isalpha(static_cast<unsigned char>(ch)));
+    return ch < 128 && C_isalpha(static_cast<unsigned char>(ch));
 }
 
 using Xapian::Unicode::is_whitespace;
@@ -353,22 +354,20 @@ Query
 Term::get_query_with_synonyms() const
 {
     // Handle single-word synonyms with each prefix.
-    const list<string> & prefixes = field_info->prefixes;
+    const auto& prefixes = field_info->prefixes;
     if (prefixes.empty()) {
-	// FIXME: handle multiple here
-	Assert(!field_info->procs.empty());
-	return (**field_info->procs.begin())(name);
+	Assert(field_info->proc.get());
+	return (*field_info->proc)(name);
     }
 
     Query q = get_query();
 
-    list<string>::const_iterator piter;
-    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+    for (auto&& prefix : prefixes) {
 	// First try the unstemmed term:
 	string term;
-	if (!piter->empty()) {
-	    term += *piter;
-	    if (prefix_needs_colon(*piter, name[0])) term += ':';
+	if (!prefix.empty()) {
+	    term += prefix;
+	    if (prefix_needs_colon(prefix, name[0])) term += ':';
 	}
 	term += name;
 
@@ -378,9 +377,9 @@ Term::get_query_with_synonyms() const
 	if (syn == end && stem != QueryParser::STEM_NONE) {
 	    // If that has no synonyms, try the stemmed form:
 	    term = 'Z';
-	    if (!piter->empty()) {
-		term += *piter;
-		if (prefix_needs_colon(*piter, name[0])) term += ':';
+	    if (!prefix.empty()) {
+		term += prefix;
+		if (prefix_needs_colon(prefix, name[0])) term += ':';
 	    }
 	    term += state->stem_term(name);
 	    syn = db.synonyms_begin(term);
@@ -410,7 +409,13 @@ add_to_query(Query *& q, Query::op op, Query * term)
 {
     Assert(term);
     if (q) {
-	*q = Query(op, *q, *term);
+	if (op == Query::OP_OR) {
+	    *q |= *term;
+	} else if (op == Query::OP_AND) {
+	    *q &= *term;
+	} else {
+	    *q = Query(op, *q, *term);
+	}
 	delete term;
     } else {
 	q = term;
@@ -421,7 +426,13 @@ static void
 add_to_query(Query *& q, Query::op op, const Query & term)
 {
     if (q) {
-	*q = Query(op, *q, term);
+	if (op == Query::OP_OR) {
+	    *q |= term;
+	} else if (op == Query::OP_AND) {
+	    *q &= term;
+	} else {
+	    *q = Query(op, *q, term);
+	}
     } else {
 	q = new Query(term);
     }
@@ -430,16 +441,15 @@ add_to_query(Query *& q, Query::op op, const Query & term)
 Query
 Term::get_query() const
 {
-    const list<string> & prefixes = field_info->prefixes;
+    const auto& prefixes = field_info->prefixes;
     if (prefixes.empty()) {
-	// FIXME: handle multiple here
-	Assert(!field_info->procs.empty());
-	return (**field_info->procs.begin())(name);
+	Assert(field_info->proc.get());
+	return (*field_info->proc)(name);
     }
-    list<string>::const_iterator piter = prefixes.begin();
+    auto piter = prefixes.begin();
     Query q(make_term(*piter), 1, pos);
     while (++piter != prefixes.end()) {
-	q = Query(Query::OP_OR, q, Query(make_term(*piter), 1, pos));
+	q |= Query(make_term(*piter), 1, pos);
     }
     return q;
 }
@@ -447,14 +457,12 @@ Term::get_query() const
 Query *
 Term::as_wildcarded_query(State * state_) const
 {
-    const list<string> & prefixes = field_info->prefixes;
-    list<string>::const_iterator piter;
+    const auto& prefixes = field_info->prefixes;
     Xapian::termcount max = state_->get_max_wildcard_expansion();
     int max_type = state_->get_max_wildcard_type();
     vector<Query> subqs;
     subqs.reserve(prefixes.size());
-    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	string root = *piter;
+    for (string root : prefixes) {
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
 	subqs.push_back(Query(Query::OP_WILDCARD, root, max, max_type,
@@ -473,16 +481,14 @@ Term::as_partial_query(State * state_) const
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
 
-    const list<string> & prefixes = field_info->prefixes;
-    list<string>::const_iterator piter;
-    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	string root = *piter;
+    for (const string& prefix : field_info->prefixes) {
+	string root = prefix;
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
 	subqs_partial.push_back(Query(Query::OP_WILDCARD, root, max, max_type,
 				      Query::OP_OR));
 	// Add the term, as it would normally be handled, as an alternative.
-	subqs_full.push_back(Query(make_term(*piter), 1, pos));
+	subqs_full.push_back(Query(make_term(prefix), 1, pos));
     }
     Query * q = new Query(Query::OP_OR,
 			  Query(Query::OP_SYNONYM,
@@ -498,10 +504,8 @@ Term::as_cjk_query() const
 {
     vector<Query> prefix_subqs;
     vector<Query> cjk_subqs;
-    const list<string> & prefixes = field_info->prefixes;
-    list<string>::const_iterator piter;
-    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	const string& prefix = *piter;
+    const auto& prefixes = field_info->prefixes;
+    for (const string& prefix : prefixes) {
 	for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
 	    cjk_subqs.push_back(Query(prefix + *tk, 1, pos));
 	}
@@ -611,7 +615,7 @@ QueryParser::Internal::add_prefix(const string &field, const string &prefix)
 	if (p->second.type != NON_BOOLEAN) {
 	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter");
 	}
-	if (!p->second.procs.empty())
+	if (p->second.proc.get())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	p->second.prefixes.push_back(prefix);
    }
@@ -631,7 +635,6 @@ QueryParser::Internal::add_prefix(const string &field, FieldProcessor *proc)
 	if (!p->second.prefixes.empty())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	throw Xapian::FeatureUnavailableError("Multiple FieldProcessor objects for the same prefix currently not supported");
-	// p->second.procs.push_back(proc);
    }
 }
 
@@ -654,7 +657,7 @@ QueryParser::Internal::add_boolean_prefix(const string &field,
 	if (p->second.type != type) {
 	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter"); // FIXME
 	}
-	if (!p->second.procs.empty())
+	if (p->second.proc.get())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	p->second.prefixes.push_back(prefix); // FIXME grouping
    }
@@ -682,7 +685,6 @@ QueryParser::Internal::add_boolean_prefix(const string &field,
 	if (!p->second.prefixes.empty())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
 	throw Xapian::FeatureUnavailableError("Multiple FieldProcessor objects for the same prefix currently not supported");
-	// p->second.procs.push_back(proc);
    }
 }
 
@@ -715,7 +717,9 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     was_acronym = !term.empty();
 
     if (cjk_ngram && term.empty() && CJK::codepoint_is_cjk(*it)) {
-	term = CJK::get_cjk(it);
+	const char* cjk = it.raw();
+	CJK::get_cjk(it);
+	term.assign(cjk, it.raw() - cjk);
 	is_cjk_term = true;
     }
 
@@ -933,6 +937,12 @@ just_had_operator_needing_term:
 		    }
 		}
 		if (flags & QueryParser::FLAG_PHRASE) {
+		    if (ch == '"' && it != end && *it == '"') {
+			++it;
+			// Handle "" inside a quoted phrase as an escaped " for
+			// consistency with quoted boolean terms.
+			break;
+		    }
 		    Parse(&parser, QUOTE, NULL, &state);
 		    if (mode == DEFAULT) {
 			mode = IN_QUOTES;
@@ -1144,14 +1154,13 @@ phrased_term:
 	bool is_cjk_term = false;
 	string term = parse_term(it, end, cjk_ngram, is_cjk_term, was_acronym);
 
-	// Boolean operators.
 	if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
 	    !field_info &&
 	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
-
+	    // Boolean operators.
 	    string op = term;
 	    if (flags & FLAG_BOOLEAN_ANY_CASE) {
 		for (string::iterator i = op.begin(); i != op.end(); ++i) {
@@ -1227,8 +1236,7 @@ phrased_term:
 	    // when used with positional operators".
 	    stem_strategy stem_term = stem_action;
 	    if (stem_term != STEM_NONE) {
-		if (!stemmer.internal.get()) {
-		    // No stemmer is set.
+		if (stemmer.is_none()) {
 		    stem_term = STEM_NONE;
 		} else if (stem_term == STEM_SOME ||
 			   stem_term == STEM_SOME_FULL_POS) {
@@ -1289,10 +1297,9 @@ phrased_term:
 	    // Check spelling, if we're a normal term, and any of the prefixes
 	    // are empty.
 	    if ((flags & FLAG_SPELLING_CORRECTION) && !was_acronym) {
-		const list<string> & pfxes = field_info->prefixes;
-		list<string>::const_iterator pfx_it;
-		for (pfx_it = pfxes.begin(); pfx_it != pfxes.end(); ++pfx_it) {
-		    if (!pfx_it->empty())
+		const auto& prefixes = field_info->prefixes;
+		for (const string& prefix : prefixes) {
+		    if (!prefix.empty())
 			continue;
 		    const string & suggest = db.get_spelling_suggestion(term);
 		    if (!suggest.empty()) {
@@ -1427,8 +1434,11 @@ struct ProbQuery {
 	    // We OR multiple filters with the same prefix if they're
 	    // exclusive, otherwise we AND them.
 	    bool exclusive = !grouping.empty();
-	    Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
-	    q = Query(op, q, qnew);
+	    if (exclusive) {
+		q |= qnew;
+	    } else {
+		q &= qnew;
+	    }
 	}
     }
 
@@ -1438,7 +1448,7 @@ struct ProbQuery {
 
     void append_filter_range(const string& grouping, const Query & range) {
 	Query & q = filter[grouping];
-	q = Query(Query::OP_OR, q, range);
+	q |= range;
     }
 
     Query merge_filters() const {
@@ -1446,7 +1456,7 @@ struct ProbQuery {
 	Assert(i != filter.end());
 	Query q = i->second;
 	while (++i != filter.end()) {
-	    q = Query(Query::OP_AND, q, i->second);
+	    q &= i->second;
 	}
 	return q;
     }
@@ -1507,62 +1517,62 @@ reprocess:
 	Database db = state->get_database();
 
 	string key;
-	vector<Term*>::const_iterator begin = terms.begin();
-	vector<Term*>::const_iterator i = begin;
-	while (i != terms.end()) {
-	    TermIterator synkey(db.synonym_keys_begin((*i)->name));
-	    TermIterator synend(db.synonym_keys_end((*i)->name));
-	    if (synkey == synend) {
-		// No multi-synonym matches.
-		if (stopper && (*stopper)((*i)->name)) {
-		    state->add_to_stoplist(*i);
+	vector<Term*>::size_type begin = 0;
+	vector<Term*>::size_type i = begin;
+	while (terms.size() - i > 0) {
+	    size_t longest_match = 0;
+	    // This value is never used, but GCC 4.8 warns with
+	    // -Wmaybe-uninitialized (GCC 5.4 doesn't).
+	    vector<Term*>::size_type longest_match_end = 0;
+	    if (terms.size() - i >= 2) {
+		// Greedily try to match as many consecutive words as possible.
+		key = terms[i]->name;
+		key += ' ';
+		key += terms[i + 1]->name;
+		TermIterator synkey(db.synonym_keys_begin(key));
+		TermIterator synend(db.synonym_keys_end(key));
+		if (synkey != synend) {
+		    longest_match = key.size();
+		    longest_match_end = i + 2;
+		    for (auto j = i + 2; j < terms.size(); ++j) {
+			key += ' ';
+			key += terms[j]->name;
+			synkey.skip_to(key);
+			if (synkey == synend)
+			    break;
+			const string& found = *synkey;
+			if (!startswith(found, key))
+			    break;
+			if (found.size() == key.size()) {
+			    longest_match = key.size();
+			    longest_match_end = j + 1;
+			}
+		    }
+		}
+	    }
+	    if (longest_match == 0) {
+		// No multi-synonym matches at position i.
+		if (stopper && (*stopper)(terms[i]->name)) {
+		    state->add_to_stoplist(terms[i]);
 		} else {
 		    if (default_op_is_positional)
-			(*i)->need_positions();
-		    subqs.push_back((*i)->get_query_with_auto_synonyms());
+			terms[i]->need_positions();
+		    subqs.push_back(terms[i]->get_query_with_auto_synonyms());
 		}
 		begin = ++i;
 		continue;
 	    }
-	    key.resize(0);
-	    while (i != terms.end()) {
-		if (!key.empty()) key += ' ';
-		key += (*i)->name;
-		++i;
-		synkey.skip_to(key);
-		if (synkey == synend || !startswith(*synkey, key)) break;
-	    }
-	    // Greedily try to match as many consecutive words as possible.
-	    TermIterator syn, end;
-	    while (true) {
-		syn = db.synonyms_begin(key);
-		end = db.synonyms_end(key);
-		if (syn != end) break;
-		if (--i == begin) break;
-		key.resize(key.size() - (*i)->name.size() - 1);
-	    }
-	    if (i == begin) {
-		// No multi-synonym matches.
-		if (stopper && (*stopper)((*i)->name)) {
-		    state->add_to_stoplist(*i);
-		} else {
-		    if (default_op_is_positional)
-			(*i)->need_positions();
-		    subqs.push_back((*i)->get_query_with_auto_synonyms());
-		}
-		begin = ++i;
-		continue;
-	    }
+	    i = longest_match_end;
+	    key.resize(longest_match);
 
 	    vector<Query> subqs2;
-	    vector<Term*>::const_iterator j;
-	    for (j = begin; j != i; ++j) {
-		if (stopper && (*stopper)((*j)->name)) {
-		    state->add_to_stoplist(*j);
+	    for (auto j = begin; j != i; ++j) {
+		if (stopper && (*stopper)(terms[j]->name)) {
+		    state->add_to_stoplist(terms[j]);
 		} else {
 		    if (default_op_is_positional)
-			(*i)->need_positions();
-		    subqs2.push_back((*j)->get_query());
+			terms[i]->need_positions();
+		    subqs2.push_back(terms[j]->get_query());
 		}
 	    }
 	    Query q_original_terms;
@@ -1577,9 +1587,10 @@ reprocess:
 	    subqs2.clear();
 
 	    // Use the position of the first term for the synonyms.
+	    TermIterator syn = db.synonyms_begin(key);
 	    Query q(Query::OP_SYNONYM,
-		    SynonymIterator(syn, (*begin)->pos, &q_original_terms),
-		    SynonymIterator(end));
+		    SynonymIterator(syn, terms[begin]->pos, &q_original_terms),
+		    SynonymIterator(db.synonyms_end(key)));
 	    subqs.push_back(q);
 
 	    begin = i;
@@ -1638,7 +1649,7 @@ class Terms {
     /** The list of prefixes of the terms added.
      *  This will be NULL if the terms have different prefixes.
      */
-    const list<string> * prefixes;
+    const vector<string>* prefixes;
 
     /// Convert to a query using the given operator and window size.
     Query * as_opwindow_query(Query::op op, Xapian::termcount w_delta) const {
@@ -1647,14 +1658,11 @@ class Terms {
 	Xapian::termcount w = w_delta + terms.size();
 	if (uniform_prefixes) {
 	    if (prefixes) {
-		list<string>::const_iterator piter;
-		for (piter = prefixes->begin(); piter != prefixes->end(); ++piter) {
+		for (auto&& prefix : *prefixes) {
 		    vector<Query> subqs;
 		    subqs.reserve(n_terms);
-		    vector<Term *>::const_iterator titer;
-		    for (titer = terms.begin(); titer != terms.end(); ++titer) {
-			Term * t = *titer;
-			subqs.push_back(Query(t->make_term(*piter), 1, t->pos));
+		    for (Term* t : terms) {
+			subqs.push_back(Query(t->make_term(prefix), 1, t->pos));
 		    }
 		    add_to_query(q, Query::OP_OR,
 				 Query(op, subqs.begin(), subqs.end(), w));
@@ -1663,9 +1671,8 @@ class Terms {
 	} else {
 	    vector<Query> subqs;
 	    subqs.reserve(n_terms);
-	    vector<Term *>::const_iterator titer;
-	    for (titer = terms.begin(); titer != terms.end(); ++titer) {
-		subqs.push_back((*titer)->get_query());
+	    for (Term* t : terms) {
+		subqs.push_back(t->get_query());
 	    }
 	    q = new Query(op, subqs.begin(), subqs.end(), w);
 	}
@@ -1690,7 +1697,7 @@ class Terms {
 
     /// Add an unstemmed Term object to this Terms object.
     void add_positional_term(Term * term) {
-	const list<string> & term_prefixes = term->field_info->prefixes;
+	const auto& term_prefixes = term->field_info->prefixes;
 	if (terms.empty()) {
 	    prefixes = &term_prefixes;
 	} else if (uniform_prefixes && prefixes != &term_prefixes) {
@@ -1750,23 +1757,20 @@ Term::as_positional_cjk_term(Terms * terms) const
     delete this;
 }
 
-// Helper macro for converting a boolean operation into a Xapian::Query.
-#define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
+// Helper macro to check for missing arguments to a boolean operator.
+#define VET_BOOL_ARGS(A, B, OP_TXT) \
     do {\
 	if (!A || !B) {\
 	    state->error = "Syntax: <expression> " OP_TXT " <expression>";\
 	    yy_parse_failed(yypParser);\
 	    return;\
 	}\
-	E = new Query(OP, *A, *B);\
-	delete A;\
-	delete B;\
     } while (0)
 
 }
 
 %token_type {Term *}
-%token_destructor {delete $$;}
+%token_destructor { delete $$; }
 
 %extra_argument {State * state}
 
@@ -1790,31 +1794,31 @@ Term::as_positional_cjk_term(Terms * terms) const
 // Destructors for terminal symbols:
 
 // TERM is a query term, including prefix (if any).
-%destructor TERM {delete $$;}
+%destructor TERM { delete $$; }
 
 // GROUP_TERM is a query term which follows a TERM or another GROUP_TERM and
 // is only separated by whitespace characters.
-%destructor GROUP_TERM {delete $$;}
+%destructor GROUP_TERM { delete $$; }
 
 // PHR_TERM is a query term which follows a TERM or another PHR_TERM and is
 // separated only by one or more phrase generator characters (hyphen and
 // apostrophe are common examples - see is_phrase_generator() for the list
 // of all punctuation which does this).
-%destructor PHR_TERM {delete $$;}
+%destructor PHR_TERM { delete $$; }
 
 // WILD_TERM is like a TERM, but has a trailing wildcard which needs to be
 // expanded.
-%destructor WILD_TERM {delete $$;}
+%destructor WILD_TERM { delete $$; }
 
 // PARTIAL_TERM is like a TERM, but it's at the end of the query string and
 // we're doing "search as you type".  It expands to something like WILD_TERM
 // OR stemmed_form.
-%destructor PARTIAL_TERM {delete $$;}
+%destructor PARTIAL_TERM { delete $$; }
 
 // BOOLEAN_FILTER is a query term with a prefix registered using
 // add_boolean_prefix().  It's added to the query using an OP_FILTER operator,
 // (or OP_AND_NOT if it's negated) e.g. site:xapian.org or -site:xapian.org
-%destructor BOOLEAN_FILTER {delete $$;}
+%destructor BOOLEAN_FILTER { delete $$; }
 
 // Grammar rules:
 
@@ -1841,37 +1845,54 @@ query ::= . {
 // expr - A query expression.
 
 %type expr {Query *}
-%destructor expr {delete $$;}
+%destructor expr { delete $$; }
 
 expr(E) ::= prob_expr(E).
 
-expr(E) ::= bool_arg(A) AND bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND, B, "AND"); }
+expr(A) ::= bool_arg(A) AND bool_arg(B). {
+    VET_BOOL_ARGS(A, B, "AND");
+    *A &= *B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) NOT bool_arg(B). {
+expr(A) ::= bool_arg(A) NOT bool_arg(B). {
     // 'NOT foo' -> '<alldocuments> NOT foo'
     if (!A && (state->flags & QueryParser::FLAG_PURE_NOT)) {
 	A = new Query("", 1, 0);
     }
-    BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT");
+    VET_BOOL_ARGS(A, B, "NOT");
+    *A &= ~*B;
+    delete B;
 }
 
-expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+expr(A) ::= bool_arg(A) AND NOT bool_arg(B). [NOT] {
+    VET_BOOL_ARGS(A, B, "AND NOT");
+    *A &= ~*B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) AND HATE_AFTER_AND bool_arg(B). [AND]
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND"); }
+expr(A) ::= bool_arg(A) AND HATE_AFTER_AND bool_arg(B). [AND] {
+    VET_BOOL_ARGS(A, B, "AND");
+    *A &= ~*B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) OR bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }
+expr(A) ::= bool_arg(A) OR bool_arg(B). {
+    VET_BOOL_ARGS(A, B, "OR");
+    *A |= *B;
+    delete B;
+}
 
-expr(E) ::= bool_arg(A) XOR bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_XOR, B, "XOR"); }
+expr(A) ::= bool_arg(A) XOR bool_arg(B). {
+    VET_BOOL_ARGS(A, B, "XOR");
+    *A ^= *B;
+    delete B;
+}
 
 // bool_arg - an argument to a boolean operator such as AND or OR.
 
 %type bool_arg {Query *}
-%destructor bool_arg {delete $$;}
+%destructor bool_arg { delete $$; }
 
 bool_arg(A) ::= expr(A).
 
@@ -1885,7 +1906,7 @@ bool_arg(A) ::= . [ERROR] {
 // prob_expr - a single compound term, or a prob.
 
 %type prob_expr {Query *}
-%destructor prob_expr {delete $$;}
+%destructor prob_expr { delete $$; }
 
 prob_expr(E) ::= prob(P). {
     E = P->query;
@@ -1933,7 +1954,7 @@ prob_expr(E) ::= term(E).
 // Note: stop_term can also be several other things other than a simple term!
 
 %type prob {ProbQuery *}
-%destructor prob {delete $$;}
+%destructor prob { delete $$; }
 
 prob(P) ::= RANGE(R). {
     string grouping = R->name;
@@ -2032,14 +2053,14 @@ prob(P) ::= stop_prob(P) LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     // We OR filters with the same prefix...
     Query & q = P->filter[T->get_grouping()];
-    q = Query(Query::OP_OR, q, T->get_query());
+    q |= T->get_query();
     delete T;
 }
 
 // stop_prob - A prob or a stop_term.
 
 %type stop_prob {ProbQuery *}
-%destructor stop_prob {delete $$;}
+%destructor stop_prob { delete $$; }
 
 stop_prob(P) ::= prob(P).
 
@@ -2054,7 +2075,7 @@ stop_prob(P) ::= stop_term(T). {
 // stopword list, so stop_term isn't used there (instead term is).
 
 %type stop_term {Query *}
-%destructor stop_term {delete $$;}
+%destructor stop_term { delete $$; }
 
 stop_term(T) ::= TERM(U). {
     if (state->is_stopword(U)) {
@@ -2071,7 +2092,7 @@ stop_term(T) ::= compound_term(T).
 // term - A term or a compound_term.
 
 %type term {Query *}
-%destructor term {delete $$;}
+%destructor term { delete $$; }
 
 term(T) ::= TERM(U). {
     T = new Query(U->get_query_with_auto_synonyms());
@@ -2085,7 +2106,7 @@ term(T) ::= compound_term(T).
 // or without prefix).
 
 %type compound_term {Query *}
-%destructor compound_term {delete $$;}
+%destructor compound_term { delete $$; }
 
 compound_term(T) ::= WILD_TERM(U).
 	{ T = U->as_wildcarded_query(state); /*T-overwrites-U*/ }
@@ -2124,7 +2145,7 @@ compound_term(T) ::= CJKTERM(U). {
 
 %type phrase {Terms *}
 
-%destructor phrase {delete $$;}
+%destructor phrase { delete $$; }
 
 phrase(P) ::= TERM(T). {
     P = Terms::create();
@@ -2149,7 +2170,7 @@ phrase(P) ::= phrase(P) CJKTERM(T). {
 // at least 2 terms in order to be able to have punctuation between the terms!
 
 %type phrased_term {Terms *}
-%destructor phrased_term {delete $$;}
+%destructor phrased_term { delete $$; }
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
     P = Terms::create();
@@ -2165,7 +2186,7 @@ phrased_term(P) ::= phrased_term(P) PHR_TERM(T). {
 // multi-term synonyms.
 
 %type group {TermGroup *}
-%destructor group {delete $$;}
+%destructor group { delete $$; }
 
 group(P) ::= TERM(T) GROUP_TERM(U). {
     P = TermGroup::create(T, U); /*P-overwrites-T*/
@@ -2183,7 +2204,7 @@ group(P) ::= group(P) EMPTY_GROUP_OK. {
 // terms in order for there to be any NEAR operators!
 
 %type near_expr {Terms *}
-%destructor near_expr {delete $$;}
+%destructor near_expr { delete $$; }
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
     P = Terms::create();
@@ -2207,7 +2228,7 @@ near_expr(P) ::= near_expr(P) NEAR(N) TERM(T). {
 // terms in order for there to be any ADJ operators!
 
 %type adj_expr {Terms *}
-%destructor adj_expr {delete $$;}
+%destructor adj_expr { delete $$; }
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
     P = Terms::create();
@@ -2227,5 +2248,4 @@ adj_expr(P) ::= adj_expr(P) ADJ(N) TERM(T). {
     }
 }
 
-// Select yacc syntax highlighting in vim editor: vim: syntax=yacc
-// (lemon syntax colouring isn't supplied by default; yacc does an OK job).
+// Select lemon syntax highlighting in vim editor: vim: syntax=lemon

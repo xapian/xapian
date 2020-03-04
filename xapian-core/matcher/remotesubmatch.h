@@ -47,6 +47,9 @@ class RemoteSubMatch : public SubMatch {
      */
     bool decreasing_relevance;
 
+    /// uncollapsed_upper_bound from the remote MSet.
+    Xapian::doccount uncollapsed_upper_bound;
+
     /// The factor to use to convert weights to percentages.
     double percent_factor;
 
@@ -70,7 +73,13 @@ class RemoteSubMatch : public SubMatch {
 
     /// Get PostList.
     PostList * get_postlist(MultiMatch * matcher,
-			    Xapian::termcount * total_subqs_ptr);
+			    Xapian::termcount* total_subqs_ptr,
+			    Xapian::Weight::Internal& total_stats);
+
+    /// Get uncollapsed_upper_bound from the remote MSet.
+    Xapian::doccount get_uncollapsed_upper_bound() const {
+	return uncollapsed_upper_bound;
+    }
 
     /// Get percentage factor - only valid after get_postlist().
     double get_percent_factor() const { return percent_factor; }

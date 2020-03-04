@@ -94,11 +94,17 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 	    -DDISABLE_CSHARP -DDISABLE_GO -DDISABLE_JAVA -DDISABLE_JS -DDISABLE_PASCAL -DDISABLE_PYTHON -DDISABLE_RUST \
 	    `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
 
+# /bin/tr on Solaris doesn't follow POSIX and requires [ and ] around ranges.
+# With a POSIX-compliant tr, these are harmless as they mean replace [ with [
+# and ] with ].
 .sbl.cc:
-	languages/snowball $< -o `echo $@|$(SED) 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
+	languages/snowball $< -o `echo $@|$(SED) 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr '[a-z]' '[A-Z]'``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
+# /bin/tr on Solaris doesn't follow POSIX and requires [ and ] around ranges.
+# With a POSIX-compliant tr, these are harmless as they mean replace [ with [
+# and ] with ].
 .sbl.h:
-	languages/snowball $< -o `echo $@|$(SED) 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
+	languages/snowball $< -o `echo $@|$(SED) 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr '[a-z]' '[A-Z]'``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
 languages/allsnowballheaders.h: languages/sbl-dispatch.h
 languages/sbl-dispatch.h languages/allsnowballheaders.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm

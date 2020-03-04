@@ -175,10 +175,10 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 	failure("directory end pointer invalid", n);
 
     if (opts & Xapian::DBCHECK_SHORT_TREE)
-	report_block(3*(level - j), n, p);
+	report_block(3 * (level - j), n, p);
 
     if (opts & Xapian::DBCHECK_FULL_TREE)
-	report_block_full(3*(level - j), n, p);
+	report_block_full(3 * (level - j), n, p);
 
     if (j == 0) {
 	for (c = DIR_START; c < dir_end; c += D2) {

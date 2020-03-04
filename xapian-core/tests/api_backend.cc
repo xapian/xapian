@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016,2018 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016,2018,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
+#include "errno_to_string.h"
 #include "filetests.h"
 #include "str.h"
 #include "testrunner.h"
@@ -46,6 +47,7 @@
 # include "safesyswait.h"
 #endif
 
+#include <cerrno>
 #include <fstream>
 #include <iterator>
 
@@ -168,7 +170,8 @@ DEFINE_TESTCASE(dbstats1, backend) {
 	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
     }
 
-    if (get_dbtype() != "inmemory" && !startswith(get_dbtype(), "remote")) {
+    if (get_dbtype() != "inmemory" &&
+	get_dbtype().find("remote") == string::npos) {
 	TEST_EQUAL(db.get_wdf_upper_bound("the"), max_wdf);
     } else {
 	// For inmemory and remote backends, we usually give rather loose
@@ -205,7 +208,8 @@ DEFINE_TESTCASE(dbstats2, backend) {
 	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
     }
 
-    if (get_dbtype() != "inmemory" && !startswith(get_dbtype(), "remote")) {
+    if (get_dbtype() != "inmemory" &&
+	get_dbtype().find("remote") == string::npos) {
 	TEST_EQUAL(db.get_wdf_upper_bound("word"), max_wdf);
     } else {
 	// For inmemory and remote backends, we usually give rather loose
@@ -364,26 +368,59 @@ DEFINE_TESTCASE(testlock1, chert || glass) {
 	TEST(db.locked());
 	TEST(rdb.locked());
 	// After close(), locked() should either work as if close() hadn't been
-	// called or throw Xapian::DatabaseError.
+	// called or throw Xapian::DatabaseClosedError.
 	try {
 	    TEST(db_as_database.locked());
-	} catch (const Xapian::DatabaseError&) {
+	} catch (const Xapian::DatabaseClosedError&) {
 	}
 	db.close();
 	TEST(!rdb.locked());
 	try {
 	    TEST(!db_as_database.locked());
-	} catch (const Xapian::DatabaseError&) {
+	} catch (const Xapian::DatabaseClosedError&) {
 	}
     }
     TEST(!rdb.locked());
     return true;
 }
 
-/// Test that locked() returns false for backends which don't support update.
-/// Regression test for bug fixed in 1.4.6.
-DEFINE_TESTCASE(testlock2, backend && !writable && !multi) {
+/** Test that locked() returns false for backends which don't support update.
+ *
+ *  Regression test for bug fixed in 1.4.6.
+ */
+DEFINE_TESTCASE(testlock2, backend && !writable) {
     Xapian::Database db = get_database("apitest_simpledata");
+    TEST(!db.locked());
+    db.close();
+    TEST(!db.locked());
+    return true;
+}
+
+/** Test locked() on inmemory Database objects.
+ *
+ *  An inmemory Database is always actually a WritableDatabase viewed as a
+ *  Database, so it should always report being locked for writing, unless
+ *  close() has been called.
+ *
+ *  Regression test for bug fixed in 1.4.14 - earlier versions always returned
+ *  false for an inmemory Database here.
+ *
+ *  Regression test for bug fixed in 1.4.15 - false should be returned after
+ *  close() has been called.
+ */
+DEFINE_TESTCASE(testlock3, inmemory) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    TEST(db.locked());
+    db.close();
+    TEST(!db.locked());
+    return true;
+}
+
+/// Test locked() on closed WritableDatabase.
+DEFINE_TESTCASE(testlock4, glass) {
+    Xapian::Database db = get_writable_database("apitest_simpledata");
+    TEST(db.locked());
+    db.close();
     TEST(!db.locked());
     return true;
 }
@@ -957,13 +994,14 @@ DEFINE_TESTCASE(emptydb1, backend) {
 	Xapian::Query::OP_FILTER,
 	Xapian::Query::OP_NEAR,
 	Xapian::Query::OP_PHRASE,
-	Xapian::Query::OP_ELITE_SET
+	Xapian::Query::OP_ELITE_SET,
+	Xapian::Query::OP_SYNONYM,
+	Xapian::Query::OP_MAX
     };
-    const Xapian::Query::op * p;
-    for (p = ops; p - ops != sizeof(ops) / sizeof(*ops); ++p) {
-	tout << *p << endl;
+    for (Xapian::Query::op op : ops) {
+	tout << op << endl;
 	Xapian::Enquire enquire(db);
-	Xapian::Query query(*p, Xapian::Query("a"), Xapian::Query("b"));
+	Xapian::Query query(op, Xapian::Query("a"), Xapian::Query("b"));
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	TEST_EQUAL(mset.get_matches_estimated(), 0);
@@ -973,12 +1011,49 @@ DEFINE_TESTCASE(emptydb1, backend) {
     return true;
 }
 
+/** Test operators which should allow more than two arguments.
+ *
+ *  Regression test for bug with OP_FILTER fixed in 1.4.15, and also for bugs
+ *  with deleting the PostList which is currently set as the QueryOptimiser's
+ *  hint fixed in 1.4.15.
+ */
+DEFINE_TESTCASE(multiargop1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    static const struct { unsigned hits; Xapian::Query::op op; } tests[] = {
+	{ 0, Xapian::Query::OP_AND },
+	{ 6, Xapian::Query::OP_OR },
+	{ 0, Xapian::Query::OP_AND_NOT },
+	{ 5, Xapian::Query::OP_XOR },
+	{ 2, Xapian::Query::OP_AND_MAYBE },
+	{ 0, Xapian::Query::OP_FILTER },
+	{ 0, Xapian::Query::OP_NEAR },
+	{ 0, Xapian::Query::OP_PHRASE },
+	{ 6, Xapian::Query::OP_ELITE_SET },
+	{ 6, Xapian::Query::OP_SYNONYM },
+	{ 6, Xapian::Query::OP_MAX }
+    };
+    static const char* terms[] = {"two", "all", "paragraph", "banana"};
+    Xapian::Enquire enquire(db);
+    for (auto& test : tests) {
+	Xapian::Query::op op = test.op;
+	Xapian::doccount hits = test.hits;
+	tout << op << " should give " << hits << " hits\n";
+	Xapian::Query query(op, terms, terms + 4);
+	enquire.set_query(query);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	TEST_EQUAL(mset.get_matches_estimated(), hits);
+	TEST_EQUAL(mset.get_matches_upper_bound(), hits);
+	TEST_EQUAL(mset.get_matches_lower_bound(), hits);
+    }
+    return true;
+}
+
 /// Test error opening non-existent stub databases.
 // Regression test for bug fixed in 1.3.1 and 1.2.11.
 DEFINE_TESTCASE(stubdb7, !backend) {
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::Database("nosuchdirectory", Xapian::DB_BACKEND_STUB));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseNotFoundError,
 	    Xapian::WritableDatabase("nosuchdirectory",
 		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB));
     return true;
@@ -1197,7 +1272,7 @@ DEFINE_TESTCASE(phrasebug1, generated && positional) {
 }
 
 /// Feature test for Xapian::DB_RETRY_LOCK
-DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
+DEFINE_TESTCASE(retrylock1, writable && path) {
     // FIXME: Can't see an easy way to test this for remote databases - the
     // harness doesn't seem to provide a suitable way to reopen a remote.
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
@@ -1205,6 +1280,8 @@ DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
     if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	FAIL_TEST("socketpair() failed");
     }
+    if (fds[1] >= FD_SETSIZE)
+	SKIP_TEST("socketpair() gave fd >= FD_SETSIZE");
     if (fcntl(fds[1], F_SETFL, O_NONBLOCK) < 0)
 	FAIL_TEST("fcntl() failed to set O_NONBLOCK");
     pid_t child = fork();
@@ -1244,7 +1321,7 @@ DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
 	    result[0] = 'y';
 	} else {
 	    // Error.
-	    tout << "errno=" << errno << ": " << strerror(errno) << endl;
+	    tout << "errno=" << errno << ": " << errno_to_string(errno) << endl;
 	    result[0] = 'e';
 	}
 	r = 1;
@@ -1275,12 +1352,10 @@ retry:
 	struct timeval tv;
 	tv.tv_sec = 3;
 	tv.tv_usec = 0;
-	fd_set fr, fe;
-	FD_ZERO(&fr);
-	FD_SET(fds[1], &fr);
-	FD_ZERO(&fe);
-	FD_SET(fds[1], &fe);
-	int sr = select(fds[1] + 1, &fr, NULL, &fe, &tv);
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(fds[1], &fdset);
+	int sr = select(fds[1] + 1, &fdset, NULL, NULL, &tv);
 	if (sr == 0) {
 	    // Timed out.
 	    result[0] = 'T';
@@ -1288,14 +1363,16 @@ retry:
 	} else if (sr == -1) {
 	    if (errno == EINTR || errno == EAGAIN)
 		goto retry;
-	    tout << "select() failed with errno=" << errno << ": " << strerror(errno) << endl;
+	    tout << "select() failed with errno=" << errno << ": "
+		 << errno_to_string(errno) << endl;
 	    result[0] = 'S';
 	    r = 1;
 	} else {
 	    r = read(fds[1], result, sizeof(result));
 	    if (r == -1) {
 		// Error.
-		tout << "read failed with errno=" << errno << ": " << strerror(errno) << endl;
+		tout << "read() failed with errno=" << errno << ": "
+		     << errno_to_string(errno) << endl;
 		result[0] = 'R';
 		r = 1;
 	    } else if (r == 0) {
@@ -1531,6 +1608,15 @@ DEFINE_TESTCASE(getrevision1, chert || glass) {
     return true;
 }
 
+/// Check get_revision() on an empty database reports 0.  (Since 1.5.0)
+DEFINE_TESTCASE(getrevision2, glass) {
+    Xapian::Database db;
+    TEST_EQUAL(db.get_revision(), 0);
+    Xapian::Database wdb;
+    TEST_EQUAL(wdb.get_revision(), 0);
+    return true;
+}
+
 /// Feature test for DOC_ASSUME_VALID.
 DEFINE_TESTCASE(getdocumentlazy1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
@@ -1637,24 +1723,6 @@ DEFINE_TESTCASE(nopositionbug1, generated) {
     return true;
 }
 
-/// Check estimate is rounded to suitable number of S.F. - new in 1.4.3.
-DEFINE_TESTCASE(estimaterounding1, backend) {
-    Xapian::Database db = get_database("etext");
-    Xapian::Enquire enquire(db);
-    enquire.set_query(Xapian::Query("the") | Xapian::Query("road"));
-    Xapian::MSet mset = enquire.get_mset(0, 10);
-    // MSet::get_description() includes bounds and raw estimate.
-    tout << mset.get_description() << endl;
-    // Bounds are 411-439, raw estimate is 419.
-    TEST_EQUAL(mset.get_matches_estimated() % 10, 0);
-    enquire.set_query(Xapian::Query("king") | Xapian::Query("prussia"));
-    mset = enquire.get_mset(0, 10);
-    tout << mset.get_description() << endl;
-    // Bounds are 111-138, raw estimate is 133.
-    TEST_EQUAL(mset.get_matches_estimated() % 10, 0);
-    return true;
-}
-
 /** Regression test for bug with get_mset(0, 0, N) (N > 0).
  *
  *  Fixed in 1.5.0 and 1.4.6.
@@ -1715,5 +1783,24 @@ DEFINE_TESTCASE(splitpostings1, writable) {
     }
     TEST_EQUAL(pos, 100);
 
+    return true;
+}
+
+/// Feature tests for Database::size().
+DEFINE_TESTCASE(multidb1, backend) {
+    Xapian::Database db;
+    TEST_EQUAL(db.size(), 0);
+    Xapian::Database db2 = get_database("apitest_simpledata");
+    TEST(db2.size() != 0);
+    db.add_database(db2);
+    TEST_EQUAL(db.size(), db2.size());
+    db.add_database(db2);
+    // Regression test for bug introduced and fixed in git master before 1.5.0.
+    // Adding a multi database to an empty database incorrectly worked just
+    // like assigning the database object.  The list of shards is now copied
+    // instead.
+    TEST_EQUAL(db.size(), db2.size() * 2);
+    db.add_database(Xapian::Database());
+    TEST_EQUAL(db.size(), db2.size() * 2);
     return true;
 }

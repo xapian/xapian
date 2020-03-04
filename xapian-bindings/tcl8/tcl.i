@@ -2,7 +2,7 @@
 %{
 /* tcl.i: SWIG interface file for the Tcl bindings
  *
- * Copyright (c) 2006,2007,2011,2012,2015 Olly Betts
+ * Copyright (c) 2006,2007,2011,2012,2015,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,19 +22,6 @@
 %}
 
 %include ../xapian-head.i
-
-%{
-namespace Xapian {
-    Query *get_tcl8_query(Tcl_Interp *interp, Tcl_Obj *obj) {
-	Query * retval = 0;
-	if (SWIG_ConvertPtr(obj, (void **)&retval,
-			    SWIGTYPE_p_Xapian__Query, 0) != TCL_OK) {
-	    retval = 0;
-	}
-	return retval;
-    }
-}
-%}
 
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 
@@ -73,10 +60,12 @@ class XapianSWIGQueryItor {
     }
 
     Xapian::Query operator*() const {
-	Tcl_Obj * item = *items;
-	Xapian::Query * subq = Xapian::get_tcl8_query(interp, item);
-	if (subq)
+	Tcl_Obj* item = *items;
+	Xapian::Query* subq = 0;
+	if (SWIG_ConvertPtr(item, (void **)&subq,
+			    SWIGTYPE_p_Xapian__Query, 0) == TCL_OK) {
 	    return *subq;
+	}
 
 	int len;
 	const char *p = Tcl_GetStringFromObj(item, &len);
@@ -92,8 +81,8 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        // Note: n counts *DOWN*, so reverse subtract.
-        return o.n - n;
+	// Note: n counts *DOWN*, so reverse subtract.
+	return o.n - n;
     }
 };
 

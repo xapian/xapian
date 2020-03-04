@@ -1331,7 +1331,7 @@ def test_value_mods():
     check_vals(db, vals)
 
     db.close()
-    expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
+    expect_exception(xapian.DatabaseClosedError, "Database has been closed", check_vals, db, vals)
     shutil.rmtree(dbpath)
 
 def test_serialise_document():
@@ -1719,12 +1719,14 @@ def test_repr():
     expect(repr(xapian.InvalidOperationError('foo')) is None, False)
     expect(repr(xapian.UnimplementedError('foo')) is None, False)
     expect(repr(xapian.DatabaseError('foo')) is None, False)
+    expect(repr(xapian.DatabaseClosedError('foo')) is None, False)
     expect(repr(xapian.DatabaseCorruptError('foo')) is None, False)
     expect(repr(xapian.DatabaseCreateError('foo')) is None, False)
     expect(repr(xapian.DatabaseLockError('foo')) is None, False)
     expect(repr(xapian.DatabaseModifiedError('foo')) is None, False)
     expect(repr(xapian.DatabaseOpeningError('foo')) is None, False)
     expect(repr(xapian.DatabaseVersionError('foo')) is None, False)
+    expect(repr(xapian.DatabaseNotFoundError('foo')) is None, False)
     expect(repr(xapian.DocNotFoundError('foo')) is None, False)
     expect(repr(xapian.FeatureUnavailableError('foo')) is None, False)
     expect(repr(xapian.InternalError('foo')) is None, False)

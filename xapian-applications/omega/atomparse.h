@@ -31,9 +31,9 @@ class AtomParser : public HtmlParser {
 
   public:
     AtomParser() : state(OTHER), in_entry(false), is_ignored(false) { }
-    void process_text(const string &text);
-    bool opening_tag(const string &tag);
-    bool closing_tag(const string &tag);
+    void process_text(const string& text);
+    bool opening_tag(const string& tag);
+    bool closing_tag(const string& tag);
     string title, keywords, dump, author;
 };
 

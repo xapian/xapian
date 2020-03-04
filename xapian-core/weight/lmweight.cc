@@ -137,8 +137,7 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
      * of single term whole document is scored zero, hence apply collection
      * frequency smoothing.
      */
-    double wt_coll =
-	get_collection_freq() / (get_collection_size() * get_average_length());
+    double wt_coll = get_collection_freq() / double(get_total_length());
 
     // Calculating weights considering different smoothing option available to user.
     if (select_smoothing == JELINEK_MERCER_SMOOTHING) {
@@ -193,8 +192,7 @@ LMWeight::get_maxpart() const
      * due to absence of single term whole document is scored zero, hence
      * apply collection frequency smoothing.
      */
-    double wt_coll =
-	get_collection_freq() / (get_collection_size() * get_average_length());
+    double wt_coll = get_collection_freq() / double(get_total_length());
 
     // Calculating upper bound considering different smoothing option available to user.
     if (select_smoothing == JELINEK_MERCER_SMOOTHING) {

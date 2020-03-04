@@ -4,7 +4,7 @@
 # Original version by Paul Legato (plegato@nks.net), 4/20/06.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008,2011 Olly Betts
+# Copyright (C) 2008,2011,2019 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -44,25 +44,28 @@ module Xapian
 
   # iterate over two dangerous iterators (i.e. those that can cause segfaults
   # if used improperly.)
-  # Return the results as an Array.
+  # If block_given? then the results are fed to it one by one, otherwise the
+  # results are returned as an Array.
   # Users should never need to use this method.
   #
-  # Takes a block that returns some appropriate Ruby object to wrap the
-  # underlying Iterator
-  def _safelyIterate(dangerousStart, dangerousEnd) #:nodoc:
-    retval = Array.new
-
+  # wrapper is a lambda that returns some appropriate Ruby object to wrap the
+  # results from the underlying Iterator
+  def _safelyIterate(dangerousStart, dangerousEnd, wrapper) #:nodoc:
     item = dangerousStart
-    lastTerm = dangerousEnd
-
-    return retval if dangerousStart.equals(dangerousEnd)
-
-    begin
-      retval.push(yield(item))
-      item.next()
-    end while not item.equals(lastTerm) # must use primitive C++ comparator
-
-    return retval
+    if block_given?
+      while not item.equals(dangerousEnd) do
+        yield wrapper.call(item)
+        item.next()
+      end
+    else
+      retval = Array.new
+      while not item.equals(dangerousEnd) do
+        retval.push(wrapper.call(item))
+        item.next()
+      end
+      puts retval.size()
+      return retval
+    end
   end # _safelyIterate
   module_function :_safelyIterate
 
@@ -143,16 +146,24 @@ module Xapian
   #--
   # Extend Xapian::Document with a nice wrapper for its nasty input_iterators
   class Xapian::Document
-    def terms
-      Xapian._safelyIterate(self._dangerous_termlist_begin(), self._dangerous_termlist_end()) { |item|
-        Xapian::Term.new(item.term, item.wdf)
-      }
+    def terms(&block)
+      Xapian._safelyIterate(self._dangerous_termlist_begin(),
+                            self._dangerous_termlist_end(),
+                            lambda {
+                              |item| Xapian::Term.new(item.term, item.wdf)
+                            },
+                            &block)
     end # terms
 
-    def values
-      Xapian._safelyIterate(self._dangerous_values_begin(), self._dangerous_values_end()) { |item|
-        Xapian::Value.new(item.value, item.valueno, 0)
-      }
+    def values(&block)
+      Xapian._safelyIterate(self._dangerous_values_begin(),
+                            self._dangerous_values_end(),
+                            lambda {
+                              |item| Xapian::Value.new(item.value,
+                                                       item.valueno,
+                                                       0)
+                            },
+                            &block)
     end # values
 
   end # class Xapian::Document
@@ -163,12 +174,25 @@ module Xapian
   #--
   # Extend Xapian::Query with a nice wrapper for its dangerous iterators
   class Xapian::Query
-    def terms
-      Xapian._safelyIterate(self._dangerous_terms_begin(), self._dangerous_terms_end()) { |item|
-        Xapian::Term.new(item.term, item.wdf)
-        # termfreq is not supported by TermIterators from Queries
-      }
+    def terms(&block)
+      # termfreq is not supported by TermIterators from Queries
+      Xapian._safelyIterate(self._dangerous_terms_begin(),
+                            self._dangerous_terms_end(),
+                            lambda {
+                              |item| Xapian::Term.new(item.term, item.wdf)
+                            },
+                            &block)
     end # terms
+
+    def unique_terms(&block)
+      # termfreq is not supported by TermIterators from Queries
+      Xapian._safelyIterate(self._dangerous_unique_terms_begin(),
+                            self._dangerous_unique_terms_end(),
+                            lambda {
+                              |item| Xapian::Term.new(item.term, item.wdf)
+                            },
+                            &block)
+    end # unique_terms
   end # Xapian::Query
 
   # Refer to the
@@ -179,11 +203,11 @@ module Xapian
   class Xapian::Enquire
     # Get matching terms for some document.
     # document can be either a Xapian::DocID or a Xapian::MSetIterator
-    def matching_terms(document)
+    def matching_terms(document, &block)
       Xapian._safelyIterate(self._dangerous_matching_terms_begin(document),
-                            self._dangerous_matching_terms_end(document)) { |item|
-        Xapian::Term.new(item.term, item.wdf)
-      }
+                            self._dangerous_matching_terms_end(document),
+                            lambda { |item| Xapian::Term.new(item.term, item.wdf) },
+                            &block)
     end # matching_terms
   end # Xapian::Enquire
 
@@ -194,12 +218,11 @@ module Xapian
   # MSetIterators are not dangerous, just inconvenient to use within a Ruby
   # programming idiom. So we wrap them.
   class Xapian::MSet
-    def matches
+    def matches(&block)
       Xapian._safelyIterate(self._begin(),
-                            self._end()) { |item|
-        Xapian::Match.new(item.docid, item.document, item.rank, item.weight, item.collapse_count, item.percent)
-      }
-
+                            self._end(),
+                            lambda { |item| Xapian::Match.new(item.docid, item.document, item.rank, item.weight, item.collapse_count, item.percent) },
+                            &block)
     end # matches
   end # Xapian::MSet
 
@@ -210,14 +233,13 @@ module Xapian
   # ESetIterators are not dangerous, just inconvenient to use within a Ruby
   # programming idiom. So we wrap them.
   class Xapian::ESet
-    def terms
+    def terms(&block)
+      # note: in the ExpandTerm wrapper, we implicitly rename
+      # ESetIterator#term() (defined in xapian-headers.i) to ExpandTerm#term()
       Xapian._safelyIterate(self._begin(),
-                            self._end()) { |item|
-	# note: in the ExpandTerm wrapper, we implicitly rename
-	# ESetIterator#term() (defined in xapian-headers.i) to ExpandTerm#term()
-        Xapian::ExpandTerm.new(item.term, item.weight)
-      }
-
+                            self._end(),
+                            lambda { |item| Xapian::ExpandTerm.new(item.term, item.weight) },
+                            &block)
     end # terms
   end # Xapian::ESet
 
@@ -246,47 +268,79 @@ module Xapian
   # Wrap some dangerous iterators.
   class Xapian::Database
     # Returns an Array of all Xapian::Terms for this database.
-    def allterms(pref = '')
+    def allterms(pref = '', &block)
       Xapian._safelyIterate(self._dangerous_allterms_begin(pref),
-                            self._dangerous_allterms_end(pref)) { |item|
-        Xapian::Term.new(item.term, 0, item.termfreq)
-      }
+                            self._dangerous_allterms_end(pref),
+                            lambda { |item| Xapian::Term.new(item.term, 0, item.termfreq) },
+                            &block)
     end # allterms
+
+    # Returns an Array of all metadata keys for this database.
+    def metadata_keys(pref = '', &block)
+      Xapian._safelyIterate(self._dangerous_metadata_keys_begin(pref),
+                            self._dangerous_metadata_keys_end(pref),
+                            lambda { |item| item.term },
+                            &block)
+    end # metadata_keys
 
     # Returns an Array of Xapian::Postings for the given term.
     # term is a string.
-    def postlist(term)
+    def postlist(term, &block)
       Xapian._safelyIterate(self._dangerous_postlist_begin(term),
-                            self._dangerous_postlist_end(term)) { |item|
-        Xapian::Posting.new(item.docid, item.doclength, item.wdf)
-      }
+                            self._dangerous_postlist_end(term),
+                            lambda { |item| Xapian::Posting.new(item.docid, item.doclength, item.wdf) },
+                            &block)
     end # postlist(term)
 
     # Returns an Array of Terms for the given docid.
-    def termlist(docid)
+    def termlist(docid, &block)
       Xapian._safelyIterate(self._dangerous_termlist_begin(docid),
-                            self._dangerous_termlist_end(docid)) { |item|
-        Xapian::Term.new(item.term, item.wdf, item.termfreq)
-      }
+                            self._dangerous_termlist_end(docid),
+                            lambda { |item| Xapian::Term.new(item.term, item.wdf, item.termfreq) },
+                            &block)
     end # termlist(docid)
 
-    # Returns an Array of Xapian::Termpos objects for the given term (a String)
+    # Returns an Array of term positions for the given term (a String)
     # in the given docid.
-    def positionlist(docid, term)
+    def positionlist(docid, term, &block)
       Xapian._safelyIterate(self._dangerous_positionlist_begin(docid, term),
-                            self._dangerous_positionlist_end(docid, term)) { |item|
-        item.termpos
-      }
+                            self._dangerous_positionlist_end(docid, term),
+                            lambda { |item| item.termpos },
+                            &block)
     end # positionlist
 
     # Returns an Array of Xapian::Value objects for the given slot in the
     # database.
-    def valuestream(slot)
+    def valuestream(slot, &block)
       Xapian._safelyIterate(self._dangerous_valuestream_begin(slot),
-                            self._dangerous_valuestream_end(slot)) { |item|
-        Xapian::Value.new(item.value, slot, item.docid)
-      }
+                            self._dangerous_valuestream_end(slot),
+                            lambda { |item| Xapian::Value.new(item.value, slot, item.docid) },
+                            &block)
     end # valuestream(slot)
+
+    # Returns an Array of Xapian::Term objects for the spelling dictionary.
+    def spellings(&block)
+      Xapian._safelyIterate(self._dangerous_spellings_begin(),
+                            self._dangerous_spellings_end(),
+                            lambda { |item| Xapian::Term.new(item.term, 0, item.termfreq) },
+                            &block)
+    end # spellings
+
+    # Returns an Array of synonyms of the given term.
+    def synonyms(term, &block)
+      Xapian._safelyIterate(self._dangerous_synonyms_begin(term),
+                            self._dangerous_synonyms_end(term),
+                            lambda { |item| item.term },
+                            &block)
+    end # synonyms
+
+    # Returns an Array of terms with synonyms.
+    def synonym_keys(&block)
+      Xapian._safelyIterate(self._dangerous_synonym_keys_begin(),
+                            self._dangerous_synonym_keys_end(),
+                            lambda { |item| item.term },
+                            &block)
+    end # synonym_keys
   end # Xapian::Database
 
   # Refer to the
@@ -296,19 +350,19 @@ module Xapian
   # Wrap some dangerous iterators.
   class Xapian::ValueCountMatchSpy
     # Returns an Array of all the values seen, in alphabetical order
-    def values()
+    def values(&block)
       Xapian._safelyIterate(self._dangerous_values_begin(),
-                            self._dangerous_values_end()) { |item|
-        Xapian::Term.new(item.term, 0, item.termfreq)
-      }
+                            self._dangerous_values_end(),
+                            lambda { |item| Xapian::Term.new(item.term, 0, item.termfreq) },
+                            &block)
     end # values
 
     # Returns an Array of the top values seen, by frequency
-    def top_values(maxvalues)
+    def top_values(maxvalues, &block)
       Xapian._safelyIterate(self._dangerous_top_values_begin(maxvalues),
-                            self._dangerous_top_values_end(maxvalues)) { |item|
-        Xapian::Term.new(item.term, 0, item.termfreq)
-      }
+                            self._dangerous_top_values_end(maxvalues),
+                            lambda { |item| Xapian::Term.new(item.term, 0, item.termfreq) },
+                            &block)
     end # top_values
   end # Xapian::Database
 
@@ -319,12 +373,36 @@ module Xapian
   # Wrap some dangerous iterators.
   class Xapian::LatLongCoords
     # Returns an Array of all the values seen, in alphabetical order
-    def all()
+    def all(&block)
       Xapian._safelyIterate(self._begin(),
-                            self._end()) { |item|
-        item.get_coord()
-      }
+                            self._end(),
+                            lambda { |item| item.get_coord() },
+                            &block)
     end # allterms
   end # Xapian::LatLongCoords
+
+  class Xapian::QueryParser
+    # Returns an Array of all words in the query ignored as stopwords.
+    def stoplist(&block)
+      Xapian._safelyIterate(self._dangerous_stoplist_begin(),
+                            self._dangerous_stoplist_end(),
+                            lambda { |item| item.term },
+                            &block)
+    end # stoplist
+
+    # Returns an Array of all words in the query which stem to a given term.
+    def unstem(term, &block)
+      Xapian._safelyIterate(self._dangerous_unstem_begin(term),
+                            self._dangerous_unstem_end(term),
+                            lambda { |item| item.term },
+                            &block)
+    end # unstem
+  end # Xapian::QueryParser
+
+  # Compatibility wrapping for Xapian::BAD_VALUENO (wrapped as a constant since
+  # xapian-bindings 1.4.10).
+  def Xapian::BAD_VALUENO()
+    return Xapian::BAD_VALUENO
+  end
 
 end # Xapian module

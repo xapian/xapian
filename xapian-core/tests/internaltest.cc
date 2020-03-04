@@ -25,7 +25,6 @@
 
 #include <xapian.h>
 
-#include <cerrno>
 #include <iostream>
 #include <string>
 
@@ -39,9 +38,9 @@ using namespace std;
 #include "str.h"
 
 class Test_Exception {
-    public:
-	int value;
-	Test_Exception(int value_) : value(value_) {}
+  public:
+    int value;
+    Test_Exception(int value_) : value(value_) {}
 };
 
 // test that nested exceptions work correctly.
@@ -69,19 +68,21 @@ static bool test_exception1()
 // ###########################################
 
 class test_refcnt : public Xapian::Internal::intrusive_base {
-    private:
-	bool &deleted;
-    public:
-	test_refcnt(bool &deleted_) : deleted(deleted_) {
-	    tout << "constructor\n";
-	}
-	Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
-	    return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
-	}
-	~test_refcnt() {
-	    deleted = true;
-	    tout << "destructor\n";
-	}
+    bool &deleted;
+
+  public:
+    test_refcnt(bool &deleted_) : deleted(deleted_) {
+	tout << "constructor\n";
+    }
+
+    Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
+	return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
+    }
+
+    ~test_refcnt() {
+	deleted = true;
+	tout << "destructor\n";
+    }
 };
 
 static bool test_refcnt1()
@@ -125,7 +126,20 @@ static bool test_refcnt2()
 
     Xapian::Internal::intrusive_ptr<test_refcnt> rcp(p);
 
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
     rcp = rcp;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
 
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
 
@@ -518,7 +532,7 @@ static bool test_chartype1()
     }
 
     // Non-ASCII characters aren't anything for these functions.
-    for (int ch = 128; ch != 256; ++ch) {
+    for (unsigned char ch = 128; ch != 0; ++ch) {
 	TEST(!C_isupper(ch));
 	TEST(!C_islower(ch));
 	TEST(!C_isalpha(ch));
@@ -536,7 +550,7 @@ static bool test_chartype1()
     }
 
     // Check signed char values work the same way.
-    for (int ch = -128; ch != 0; ++ch) {
+    for (signed char ch = -128; ch != 0; ++ch) {
 	TEST(!C_isupper(ch));
 	TEST(!C_islower(ch));
 	TEST(!C_isalpha(ch));

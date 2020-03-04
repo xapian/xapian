@@ -2248,7 +2248,7 @@ ChertTable::next_default(Cursor * C_, int j) const
 void
 ChertTable::throw_database_closed()
 {
-    throw Xapian::DatabaseError("Database has been closed");
+    throw Xapian::DatabaseClosedError("Database has been closed");
 }
 
 /** Compares this key with key2.

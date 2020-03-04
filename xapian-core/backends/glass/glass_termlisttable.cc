@@ -59,7 +59,7 @@ GlassTermListTable::set_termlist(Xapian::docid did,
 	pack_uint(tag, termlist_size);
 	string prev_term = *t;
 
-	tag += prev_term.size();
+	tag += char(prev_term.size());
 	tag += prev_term;
 	pack_uint(tag, t.get_wdf());
 	--termlist_size;

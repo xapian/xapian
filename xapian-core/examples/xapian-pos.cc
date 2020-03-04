@@ -27,6 +27,7 @@
 #include <iostream>
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
 #include <limits>
 
@@ -175,8 +176,6 @@ try {
 
     Xapian::Database db(argv[optind]);
 
-    std::vector<string> buf;
-    buf.reserve(db.get_doclength(did));
     for (auto term_it = db.termlist_begin(did);
 	 term_it != db.termlist_end(did); ++term_it) {
 	const string& term = *term_it;

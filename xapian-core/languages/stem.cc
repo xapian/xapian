@@ -1,7 +1,7 @@
 /** @file stem.cc
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008,2010,2011,2012,2015,2018 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011,2012,2015,2018,2019 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -53,105 +53,84 @@ Stem::operator=(Stem &&) = default;
 
 Stem::Stem() { }
 
-Stem::Stem(const std::string &language) {
+static StemImplementation*
+stem_internal_factory(const std::string& language, bool fallback)
+{
     int l = keyword2(tab, language.data(), language.size());
     if (l >= 0) {
 	switch (static_cast<sbl_code>(l)) {
 	    case ARABIC:
-		internal = new InternalStemArabic;
-		return;
+		return new InternalStemArabic;
 	    case ARMENIAN:
-		internal = new InternalStemArmenian;
-		return;
+		return new InternalStemArmenian;
 	    case BASQUE:
-		internal = new InternalStemBasque;
-		return;
+		return new InternalStemBasque;
 	    case CATALAN:
-		internal = new InternalStemCatalan;
-		return;
+		return new InternalStemCatalan;
 	    case DANISH:
-		internal = new InternalStemDanish;
-		return;
+		return new InternalStemDanish;
 	    case DUTCH:
-		internal = new InternalStemDutch;
-		return;
+		return new InternalStemDutch;
 	    case EARLYENGLISH:
-		internal = new InternalStemEarlyenglish;
-		return;
+		return new InternalStemEarlyenglish;
 	    case ENGLISH:
-		internal = new InternalStemEnglish;
-		return;
+		return new InternalStemEnglish;
 	    case FINNISH:
-		internal = new InternalStemFinnish;
-		return;
+		return new InternalStemFinnish;
 	    case FRENCH:
-		internal = new InternalStemFrench;
-		return;
+		return new InternalStemFrench;
 	    case GERMAN:
-		internal = new InternalStemGerman;
-		return;
+		return new InternalStemGerman;
 	    case GERMAN2:
-		internal = new InternalStemGerman2;
-		return;
+		return new InternalStemGerman2;
 	    case HUNGARIAN:
-		internal = new InternalStemHungarian;
-		return;
+		return new InternalStemHungarian;
 	    case INDONESIAN:
-		internal = new InternalStemIndonesian;
-		return;
+		return new InternalStemIndonesian;
 	    case IRISH:
-		internal = new InternalStemIrish;
-		return;
+		return new InternalStemIrish;
 	    case ITALIAN:
-		internal = new InternalStemItalian;
-		return;
+		return new InternalStemItalian;
 	    case KRAAIJ_POHLMANN:
-		internal = new InternalStemKraaij_pohlmann;
-		return;
+		return new InternalStemKraaij_pohlmann;
 	    case LITHUANIAN:
-		internal = new InternalStemLithuanian;
-		return;
+		return new InternalStemLithuanian;
 	    case LOVINS:
-		internal = new InternalStemLovins;
-		return;
+		return new InternalStemLovins;
 	    case NEPALI:
-		internal = new InternalStemNepali;
-		return;
+		return new InternalStemNepali;
 	    case NORWEGIAN:
-		internal = new InternalStemNorwegian;
-		return;
+		return new InternalStemNorwegian;
 	    case NONE:
-		return;
+		return NULL;
 	    case PORTUGUESE:
-		internal = new InternalStemPortuguese;
-		return;
+		return new InternalStemPortuguese;
 	    case PORTER:
-		internal = new InternalStemPorter;
-		return;
+		return new InternalStemPorter;
 	    case RUSSIAN:
-		internal = new InternalStemRussian;
-		return;
+		return new InternalStemRussian;
 	    case ROMANIAN:
-		internal = new InternalStemRomanian;
-		return;
+		return new InternalStemRomanian;
 	    case SPANISH:
-		internal = new InternalStemSpanish;
-		return;
+		return new InternalStemSpanish;
 	    case SWEDISH:
-		internal = new InternalStemSwedish;
-		return;
+		return new InternalStemSwedish;
 	    case TAMIL:
-		internal = new InternalStemTamil;
-		return;
+		return new InternalStemTamil;
 	    case TURKISH:
-		internal = new InternalStemTurkish;
-		return;
+		return new InternalStemTurkish;
 	}
     }
-    if (language.empty())
-	return;
+    if (fallback || language.empty())
+	return NULL;
     throw Xapian::InvalidArgumentError("Language code " + language + " unknown");
 }
+
+Stem::Stem(const std::string& language)
+    : internal(stem_internal_factory(language, false)) { }
+
+Stem::Stem(const std::string& language, bool fallback)
+    : internal(stem_internal_factory(language, fallback)) { }
 
 Stem::Stem(StemImplementation * p) : internal(p) { }
 

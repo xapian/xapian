@@ -23,20 +23,15 @@ RST_DOCS = \
 	docs/introduction.rst \
 	docs/xapian.rst
 
-# FIXME: replicationtest.py attempts to test performing replication whilst
-# modifications are in progress.  However, it sometimes fails due to a race
-# condition in it.  It also contains hard-coded paths to the replication
-# server and client, which assume the file layout in a repo checkout.
-# Therefore, we don't run it by default currently.
-# replicationtest.py
-
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
+	doccomments.i \
 	doxy2swig.py \
 	fixup-swig-py3-wrapper \
 	generate-python-exceptions \
 	run-python-test \
+	sphinx-build \
 	testsuite.py \
 	test_xapian_star.py \
 	$(TESTS) $(BUILT_SOURCES) $(RST_DOCS)
@@ -126,7 +121,7 @@ endif
 
 # Update the Python 3 versions from the Python 2 ones.
 2to3:
-	for a in pythontest replicationtest smoketest testsuite ; do cp ../python/$${a}.py $${a}.py ; 2to3 -w --no-diffs $${a}.py ; done
+	for a in pythontest smoketest testsuite ; do cp ../python/$${a}.py $${a}.py ; 2to3 -w --no-diffs $${a}.py ; done
 
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
 # "\" when extracting the output directory from the value passed to the -o
@@ -168,16 +163,6 @@ install-data-local:
 all-local: $(sphinxdocs)
 
 $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON3_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
-## We need to run Sphinx for the right version of Python here, so we can't
-## just run sphinx-build as that might be for a different version.
-##
-## sphinx >= 1.7.0 no longer skips the first argument passed to
-## sphinx.main(). Therefore we have to skip it ourselves (by
-## taking a slice of sys.argv), and then have a skippable first
-## argument for sphinx < 1.7.0. -bhtml duplicates the subsequent
-## -b html, and so apparently is safe.
-##
-## Change was merged here: https://github.com/sphinx-doc/sphinx/pull/3668
 	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON3) \
-		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv[1:]))' \
-		-bhtml -b html -d doctrees -c docs $(srcdir)/docs docs/html
+		$(srcdir)/sphinx-build \
+		-b html -d doctrees -c docs $(srcdir)/docs docs/html

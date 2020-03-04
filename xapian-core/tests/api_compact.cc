@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of Database::compact()
  */
-/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,7 @@
 #include "testsuite.h"
 #include "testutils.h"
 
+#include <cerrno>
 #include <cstdlib>
 #include <fstream>
 
@@ -100,7 +101,8 @@ check_sparse_uid_terms(const string & path)
     }
 }
 
-DEFINE_TESTCASE(compactnorenumber1, compact && generated) {
+// With multi the docids in the shards change the behaviour.
+DEFINE_TESTCASE(compactnorenumber1, compact && generated && !multi) {
     string a = get_database_path("compactnorenumber1a", make_sparse_db,
 				 "5-7 24 76 987 1023-1027 9999 !9999");
     string a_uuid;
@@ -115,7 +117,7 @@ DEFINE_TESTCASE(compactnorenumber1, compact && generated) {
     string d = get_database_path("compactnorenumber1d", make_sparse_db,
 				 "3000 999999 !999999");
 
-    string out = get_named_writable_database_path("compactnorenumber1out");
+    string out = get_compaction_output_path("compactnorenumber1out");
 
     rm_rf(out);
     {
@@ -239,14 +241,20 @@ DEFINE_TESTCASE(compactnorenumber1, compact && generated) {
 // Test use of compact to merge two databases.
 DEFINE_TESTCASE(compactmerge1, compact) {
     string indbpath = get_database_path("apitest_simpledata");
-    string outdbpath = get_named_writable_database_path("compactmerge1out");
+    string outdbpath = get_compaction_output_path("compactmerge1out");
     rm_rf(outdbpath);
 
+    const string& dbtype = get_dbtype();
+    bool singlefile = startswith(dbtype, "singlefile_");
     {
 	Xapian::Database db;
 	db.add_database(Xapian::Database(indbpath));
 	db.add_database(Xapian::Database(indbpath));
-	db.compact(outdbpath);
+	if (singlefile) {
+	    db.compact(outdbpath, Xapian::DBCOMPACT_SINGLE_FILE);
+	} else {
+	    db.compact(outdbpath);
+	}
     }
 
     Xapian::Database indb(get_database("apitest_simpledata"));
@@ -255,10 +263,16 @@ DEFINE_TESTCASE(compactmerge1, compact) {
     TEST_EQUAL(indb.get_doccount() * 2, outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
 
-    if (file_exists(outdbpath)) {
-	// Single file case.
+    if (singlefile) {
+	// Check we actually got a single file out.
+	TEST(file_exists(outdbpath));
+	TEST_EQUAL(Xapian::Database::check(outdbpath, 0, &tout), 0);
+    } else if (startswith(dbtype, "multi_")) {
+	// Can't check tables for a sharded DB.
 	TEST_EQUAL(Xapian::Database::check(outdbpath, 0, &tout), 0);
     } else {
+	// Check we got a directory out, not a file.
+	TEST(dir_exists(outdbpath));
 	static const char* const suffixes[] = {
 	    "", "/postlist", "/termlist.", nullptr
 	};
@@ -270,7 +284,7 @@ DEFINE_TESTCASE(compactmerge1, compact) {
 		if (get_dbtype() == "chert") {
 		    suffix = "/record.DB";
 		} else {
-		    suffix = "/docdata." + get_dbtype();
+		    suffix = "/docdata." + dbtype;
 		}
 	    }
 	    tout.str(string());
@@ -304,7 +318,7 @@ make_multichunk_db(Xapian::WritableDatabase &db, const string &)
 DEFINE_TESTCASE(compactmultichunks1, compact && generated) {
     string indbpath = get_database_path("compactmultichunks1in",
 					make_multichunk_db, "");
-    string outdbpath = get_named_writable_database_path("compactmultichunks1out");
+    string outdbpath = get_compaction_output_path("compactmultichunks1out");
     rm_rf(outdbpath);
 
     {
@@ -333,7 +347,7 @@ DEFINE_TESTCASE(compactstub1, compact) {
     stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
     stub.close();
 
-    string outdbpath = get_named_writable_database_path("compactstub1out");
+    string outdbpath = get_compaction_output_path("compactstub1out");
     rm_rf(outdbpath);
 
     {
@@ -360,7 +374,7 @@ DEFINE_TESTCASE(compactstub2, compact) {
     stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
     stub.close();
 
-    string outdbpath = get_named_writable_database_path("compactstub2out");
+    string outdbpath = get_compaction_output_path("compactstub2out");
     rm_rf(outdbpath);
 
     {
@@ -458,7 +472,7 @@ DEFINE_TESTCASE(compactmissingtables1, compact && generated) {
     string b = get_database_path("compactmissingtables1b",
 				 make_missing_tables);
 
-    string out = get_named_writable_database_path("compactmissingtables1out");
+    string out = get_compaction_output_path("compactmissingtables1out");
     rm_rf(out);
 
     {
@@ -500,7 +514,7 @@ DEFINE_TESTCASE(compactmergesynonym1, compact && generated) {
     string b = get_database_path("compactmergesynonym1b",
 				 make_all_tables2);
 
-    string out = get_named_writable_database_path("compactmergesynonym1out");
+    string out = get_compaction_output_path("compactmergesynonym1out");
     rm_rf(out);
 
     {
@@ -543,7 +557,7 @@ DEFINE_TESTCASE(compactmergesynonym1, compact && generated) {
 
 DEFINE_TESTCASE(compactempty1, compact) {
     string empty_dbpath = get_database_path(string());
-    string outdbpath = get_named_writable_database_path("compactempty1out");
+    string outdbpath = get_compaction_output_path("compactempty1out");
     rm_rf(outdbpath);
 
     {
@@ -573,7 +587,7 @@ DEFINE_TESTCASE(compactempty1, compact) {
 }
 
 DEFINE_TESTCASE(compactmultipass1, compact && generated) {
-    string outdbpath = get_named_writable_database_path("compactmultipass1");
+    string outdbpath = get_compaction_output_path("compactmultipass1");
     rm_rf(outdbpath);
 
     string a = get_database_path("compactnorenumber1a", make_sparse_db,
@@ -604,7 +618,7 @@ DEFINE_TESTCASE(compactmultipass1, compact && generated) {
 // Chert doesn't support single file databases.
 DEFINE_TESTCASE(compacttofd1, compact && !chert) {
     Xapian::Database indb(get_database("apitest_simpledata"));
-    string outdbpath = get_named_writable_database_path("compacttofd1out");
+    string outdbpath = get_compaction_output_path("compacttofd1out");
     rm_rf(outdbpath);
 
     int fd = open(outdbpath.c_str(), O_CREAT|O_RDWR|O_BINARY, 0666);
@@ -633,7 +647,7 @@ DEFINE_TESTCASE(compacttofd1, compact && !chert) {
 // Chert doesn't support single file databases.
 DEFINE_TESTCASE(compacttofd2, compact && !chert) {
     Xapian::Database indb(get_database("apitest_simpledata"));
-    string outdbpath = get_named_writable_database_path("compacttofd2out");
+    string outdbpath = get_compaction_output_path("compacttofd2out");
     rm_rf(outdbpath);
 
     int fd = open(outdbpath.c_str(), O_CREAT|O_RDWR|O_BINARY, 0666);
@@ -679,7 +693,7 @@ DEFINE_TESTCASE(compacttofd2, compact && !chert) {
 // with uncommitted changes, you get an inconsistent output.
 //
 // Chert doesn't support single file databases.
-DEFINE_TESTCASE(compactsingle1, compact && !chert) {
+DEFINE_TESTCASE(compactsingle1, compact && writable && !chert) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("foo");
@@ -695,7 +709,7 @@ DEFINE_TESTCASE(compactsingle1, compact && !chert) {
     // Also test a completely empty document.
     db.add_document(Xapian::Document());
 
-    string output = get_named_writable_database_path("compactsingle1-out");
+    string output = get_compaction_output_path("compactsingle1-out");
     // In 1.3.4, we would hang if the output file already existed, so check
     // that works.
     touch(output);
@@ -719,7 +733,7 @@ DEFINE_TESTCASE(compactsingle1, compact && !chert) {
 
 // Regression test for bug fixed in 1.4.6.  Same as above, except not with
 // a single file database!
-DEFINE_TESTCASE(compact1, compact) {
+DEFINE_TESTCASE(compact1, compact && writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("foo");
@@ -735,7 +749,7 @@ DEFINE_TESTCASE(compact1, compact) {
     // Also test a completely empty document.
     db.add_document(Xapian::Document());
 
-    string output = get_named_writable_database_path("compact1-out");
+    string output = get_compaction_output_path("compact1-out");
     rm_rf(output);
 
     TEST_EXCEPTION(Xapian::InvalidOperationError,

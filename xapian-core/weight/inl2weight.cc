@@ -67,18 +67,18 @@ InL2Weight::init(double factor)
 	return;
     }
 
-    double termfrequency = get_termfreq();
+    double termfreq = get_termfreq();
     double N = get_collection_size();
 
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
-		    get_doclength_lower_bound());
+		       get_doclength_lower_bound());
 
     // wdfn * L = wdfn / (wdfn + 1) = 1 / (1 + 1 / wdfn).
     // To maximize the product, we need to minimize the denominator and so we use wdfn_upper in (1 / wdfn).
     double maximum_wdfn_product_L = wdfn_upper / (wdfn_upper + 1.0);
 
     // This term is constant for all documents.
-    double idf_max = log2((N + 1) / (termfrequency + 0.5));
+    double idf_max = log2((N + 1) / (termfreq + 0.5));
 
     /* Calculate constant values to be used in get_sumpart() upfront. */
     wqf_product_idf = get_wqf() * idf_max * factor;

@@ -72,11 +72,7 @@ using namespace std;
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(const std::string & host, int port, bool tcp_nodelay,
 		     bool verbose_)
-    :
-#if defined __CYGWIN__ || defined __WIN32__
-      mutex(NULL),
-#endif
-      listen_socket(get_listening_socket(host, port, tcp_nodelay
+    : listen_socket(get_listening_socket(host, port, tcp_nodelay
 #if defined __CYGWIN__ || defined __WIN32__
 					 , mutex
 #endif
@@ -203,7 +199,6 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	    // xapian-tcpsrv failed to bind to the requested port.
 	    exit(77); // FIXME: calling exit() here isn't ideal...
 	}
-	CLOSESOCKET(socketfd);
 	throw Xapian::NetworkError("bind failed", bind_errno);
     }
 
@@ -457,10 +452,10 @@ TcpServer::run()
 	    thread_param *param = new thread_param(this, connected_socket);
 	    HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread, param, 0, NULL);
 	    if (hthread == 0) {
-	       // errno holds the error code from _beginthreadex, and
-	       // closesocket() doesn't set errno.
-	       closesocket(connected_socket);
-	       throw Xapian::NetworkError("_beginthreadex failed", errno);
+		// errno holds the error code from _beginthreadex, and
+		// closesocket() doesn't set errno.
+		closesocket(connected_socket);
+		throw Xapian::NetworkError("_beginthreadex failed", errno);
 	    }
 
 	    // FIXME: keep track of open thread handles so we can gracefully

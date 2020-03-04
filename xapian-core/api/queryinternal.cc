@@ -45,6 +45,7 @@
 #include "matcher/valuegepostlist.h"
 #include "net/length.h"
 #include "serialise-double.h"
+#include "stringutils.h"
 #include "termlist.h"
 
 #include "autoptr.h"
@@ -57,13 +58,10 @@
 #include <functional>
 #include <list>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
-
-template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) const { delete p; }
-};
 
 using Xapian::Internal::AndContext;
 using Xapian::Internal::OrContext;
@@ -97,7 +95,7 @@ struct CmpMaxOrTerms {
 	//
 	// Note that m68k only has excess precision in earlier models - 68040
 	// and later are OK:
-	// http://gcc.gnu.org/ml/gcc-patches/2008-11/msg00105.html
+	// https://gcc.gnu.org/ml/gcc-patches/2008-11/msg00105.html
 	//
 	// To avoid this, we store each result in a volatile double prior to
 	// comparing them.  This means that the result of this test should
@@ -160,17 +158,8 @@ Context::shrink(size_t new_size)
     if (new_size >= pls.size())
 	return;
 
-    const PostList * hint_pl = qopt->get_hint_postlist();
     for (auto&& i = pls.begin() + new_size; i != pls.end(); ++i) {
-	const PostList * pl = *i;
-	if (rare(pl == hint_pl)) {
-	    // We were about to delete qopt's hint - instead tell qopt to take
-	    // ownership.
-	    qopt->take_hint_ownership();
-	    hint_pl = NULL;
-	} else {
-	    delete pl;
-	}
+	qopt->destroy_postlist(*i);
     }
     pls.resize(new_size);
 }
@@ -323,6 +312,10 @@ class AndContext : public Context {
 
     list<PosFilter> pos_filters;
 
+    AutoPtr<OrContext> not_ctx;
+
+    AutoPtr<OrContext> maybe_ctx;
+
   public:
     AndContext(QueryOptimiser* qopt_, size_t reserve)
 	: Context(qopt_, reserve) { }
@@ -330,6 +323,20 @@ class AndContext : public Context {
     void add_pos_filter(Query::op op_,
 			size_t n_subqs,
 			Xapian::termcount window);
+
+    OrContext& get_not_ctx(size_t reserve) {
+	if (!not_ctx) {
+	    not_ctx.reset(new OrContext(qopt, reserve));
+	}
+	return *not_ctx;
+    }
+
+    OrContext& get_maybe_ctx(size_t reserve) {
+	if (!maybe_ctx) {
+	    maybe_ctx.reset(new OrContext(qopt, reserve));
+	}
+	return *maybe_ctx;
+    }
 
     PostList * postlist();
 };
@@ -376,8 +383,17 @@ AndContext::postlist()
 	return new EmptyPostList;
     }
 
+    auto matcher = qopt->matcher;
+    auto db_size = qopt->db_size;
+
     AutoPtr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
-					      qopt->matcher, qopt->db_size));
+					      matcher, db_size));
+
+    if (not_ctx) {
+	PostList* rhs = not_ctx->postlist();
+	pl.reset(new AndNotPostList(pl.release(), rhs, matcher, db_size));
+	not_ctx.reset();
+    }
 
     // Sort the positional filters to try to apply them in an efficient order.
     // FIXME: We need to figure out what that is!  Try applying lowest cf/tf
@@ -392,6 +408,13 @@ AndContext::postlist()
 
     // Empty pls so our destructor doesn't delete them all!
     pls.clear();
+
+    if (maybe_ctx) {
+	PostList* rhs = maybe_ctx->postlist();
+	pl.reset(new AndMaybePostList(pl.release(), rhs, matcher, db_size));
+	maybe_ctx.reset();
+    }
+
     return pl.release();
 }
 
@@ -765,7 +788,9 @@ QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
     // be called on the Database::Internal object.
     const Xapian::Database wrappeddb(
 	    const_cast<Xapian::Database::Internal*>(&(qopt->db)));
-    RETURN(new ExternalPostList(wrappeddb, source.get(), factor, qopt->matcher));
+    RETURN(new ExternalPostList(wrappeddb, source.get(), factor,
+				qopt->matcher,
+				qopt->shard_index));
 }
 
 PostingIterator::Internal *
@@ -864,20 +889,25 @@ QueryValueLE::postlist(QueryOptimiser *qopt, double factor) const
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
     const string & lb = db.get_value_lower_bound(slot);
-    // If lb.empty(), the backend doesn't provide value bounds.
-    if (!lb.empty()) {
-	if (limit < lb) {
-	    RETURN(new EmptyPostList);
-	}
-	if (limit >= db.get_value_upper_bound(slot)) {
-	    // The range check isn't needed, but we do still need to consider
-	    // which documents have a value set in this slot.  If this value is
-	    // set for all documents, we can replace it with the MatchAll
-	    // postlist, which is especially efficient if there are no gaps in
-	    // the docids.
-	    if (db.get_value_freq(slot) == db.get_doccount()) {
-		RETURN(db.open_post_list(string()));
-	    }
+    if (lb.empty()) {
+	// This should only happen if there are no values in this slot (which
+	// could be because the backend just doesn't support values at all).
+	// If there were values in the slot, the backend should have a
+	// non-empty lower bound, even if it isn't a tight one.
+	AssertEq(db.get_value_freq(slot), 0);
+	RETURN(new EmptyPostList);
+    }
+    if (limit < lb) {
+	RETURN(new EmptyPostList);
+    }
+    if (limit >= db.get_value_upper_bound(slot)) {
+	// The range check isn't needed, but we do still need to consider
+	// which documents have a value set in this slot.  If this value is
+	// set for all documents, we can replace it with the MatchAll
+	// postlist, which is especially efficient if there are no gaps in
+	// the docids.
+	if (db.get_value_freq(slot) == db.get_doccount()) {
+	    RETURN(db.open_post_list(string()));
 	}
     }
     RETURN(new ValueRangePostList(&db, slot, string(), limit));
@@ -923,20 +953,25 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 	qopt->inc_total_subqs();
     const Xapian::Database::Internal & db = qopt->db;
     const string & lb = db.get_value_lower_bound(slot);
-    // If lb.empty(), the backend doesn't provide value bounds.
-    if (!lb.empty()) {
-	if (limit > db.get_value_upper_bound(slot)) {
-	    RETURN(new EmptyPostList);
-	}
-	if (limit < lb) {
-	    // The range check isn't needed, but we do still need to consider
-	    // which documents have a value set in this slot.  If this value is
-	    // set for all documents, we can replace it with the MatchAll
-	    // postlist, which is especially efficient if there are no gaps in
-	    // the docids.
-	    if (db.get_value_freq(slot) == db.get_doccount()) {
-		RETURN(db.open_post_list(string()));
-	    }
+    if (lb.empty()) {
+	// This should only happen if there are no values in this slot (which
+	// could be because the backend just doesn't support values at all).
+	// If there were values in the slot, the backend should have a
+	// non-empty lower bound, even if it isn't a tight one.
+	AssertEq(db.get_value_freq(slot), 0);
+	RETURN(new EmptyPostList);
+    }
+    if (limit > db.get_value_upper_bound(slot)) {
+	RETURN(new EmptyPostList);
+    }
+    if (limit < lb) {
+	// The range check isn't needed, but we do still need to consider
+	// which documents have a value set in this slot.  If this value is
+	// set for all documents, we can replace it with the MatchAll
+	// postlist, which is especially efficient if there are no gaps in
+	// the docids.
+	if (db.get_value_freq(slot) == db.get_doccount()) {
+	    RETURN(db.open_post_list(string()));
 	}
     }
     RETURN(new ValueGePostList(&db, slot, limit));
@@ -1221,9 +1256,7 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
     // QuerySynonym::done() if the single subquery is a term or MatchAll.
     Assert(subqueries.size() >= 2 || get_op() == Query::OP_SYNONYM);
 
-    vector<PostList *> postlists;
-    postlists.reserve(subqueries.size() - first);
-
+    size_t size_before = ctx.size();
     QueryVector::const_iterator q;
     for (q = subqueries.begin() + first; q != subqueries.end(); ++q) {
 	// MatchNothing subqueries should have been removed by done().
@@ -1231,9 +1264,18 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
 	(*q).internal->postlist_sub_or_like(ctx, qopt, factor);
     }
 
-    if (elite_set_size && elite_set_size < subqueries.size()) {
-	ctx.select_elite_set(elite_set_size, subqueries.size());
-	// FIXME: not right!
+    size_t out_of = ctx.size() - size_before;
+    if (elite_set_size && elite_set_size < out_of) {
+	ctx.select_elite_set(elite_set_size, out_of);
+	// FIXME: This isn't quite right as we flatten ORs under the ELITE_SET
+	// and then pick from amongst all the subqueries.  Consider:
+	//
+	// Query subqs[] = {q1 | q2, q3 | q4};
+	// Query q(OP_ELITE_SET, begin(subqs), end(subqs), 1);
+	//
+	// Here q should be either q1 | q2 or q3 | q4, but actually it'll be
+	// just one of q1 or q2 or q3 or q4 (assuming those aren't themselves
+	// OP_OR or OP_OR-like queries).
     }
 }
 
@@ -1255,6 +1297,54 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
     PostList * pl = ctx.postlist();
     qopt->in_synonym = old_in_synonym;
 
+    bool wdf_disjoint = false;
+    Assert(!subqueries.empty());
+    auto type = (*subqueries.begin()).get_type();
+    if (type == Query::OP_WILDCARD) {
+	// Detect common easy case where all subqueries are OP_WILDCARD whose
+	// constant prefixes form a prefix-free set.
+	wdf_disjoint = true;
+	vector<string> prefixes;
+	for (auto&& q : subqueries) {
+	    if (q.get_type() != Query::OP_WILDCARD) {
+		wdf_disjoint = false;
+		break;
+	    }
+	    auto qw = static_cast<const QueryWildcard*>(q.internal.get());
+	    prefixes.push_back(qw->get_pattern());
+	}
+
+	if (wdf_disjoint) {
+	    sort(prefixes.begin(), prefixes.end());
+	    const string* prev = nullptr;
+	    for (const auto& i : prefixes) {
+		if (prev) {
+		    if (startswith(i, *prev)) {
+			wdf_disjoint = false;
+			break;
+		    }
+		}
+		prev = &i;
+	    }
+	}
+    } else if (type == Query::LEAF_TERM) {
+	// Detect common easy case where all subqueries are terms, none of
+	// which are the same.
+	wdf_disjoint = true;
+	unordered_set<string> terms;
+	for (auto&& q : subqueries) {
+	    if (q.get_type() != Query::LEAF_TERM) {
+		wdf_disjoint = false;
+		break;
+	    }
+	    auto qt = static_cast<const QueryTerm*>(q.internal.get());
+	    if (!terms.insert(qt->get_term()).second) {
+		wdf_disjoint = false;
+		break;
+	    }
+	}
+    }
+
     // We currently assume wqf is 1 for calculating the synonym's weight
     // since conceptually the synonym is one "virtual" term.  If we were
     // to combine multiple occurrences of the same synonym expansion into
@@ -1262,9 +1352,7 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
-    //
-    // FIXME: Detect if the subquery is wdf-disjoint?
-    RETURN(qopt->make_synonym_postlist(pl, factor, false));
+    RETURN(qopt->make_synonym_postlist(pl, factor, wdf_disjoint));
 }
 
 PostList *
@@ -1583,13 +1671,21 @@ PostingIterator::Internal *
 QueryAndNot::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryAndNot::postlist", qopt | factor);
-    // FIXME: Combine and-like side with and-like stuff above.
     AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
     OrContext ctx(qopt, subqueries.size() - 1);
     do_or_like(ctx, qopt, 0.0, 0, 1);
     AutoPtr<PostList> r(ctx.postlist());
     RETURN(new AndNotPostList(l.release(), r.release(),
 			      qopt->matcher, qopt->db_size));
+}
+
+void
+QueryAndNot::postlist_sub_and_like(AndContext& ctx,
+				   QueryOptimiser* qopt,
+				   double factor) const
+{
+    subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor);
+    do_or_like(ctx.get_not_ctx(subqueries.size() - 1), qopt, 0.0, 0, 1);
 }
 
 PostingIterator::Internal *
@@ -1629,17 +1725,28 @@ QueryAndMaybe::postlist(QueryOptimiser * qopt, double factor) const
 				qopt->matcher, qopt->db_size));
 }
 
+void
+QueryAndMaybe::postlist_sub_and_like(AndContext& ctx,
+				     QueryOptimiser* qopt,
+				     double factor) const
+{
+    subqueries[0].internal->postlist_sub_and_like(ctx, qopt, factor);
+    do_or_like(ctx.get_maybe_ctx(subqueries.size() - 1), qopt, factor, 0, 1);
+}
+
 PostingIterator::Internal *
 QueryFilter::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryFilter::postlist", qopt | factor);
-    // FIXME: Combine and-like stuff, like QueryOptimiser.
-    AssertEq(subqueries.size(), 2);
-    PostList * pls[2];
-    AutoPtr<PostList> l(subqueries[0].internal->postlist(qopt, factor));
-    pls[1] = subqueries[1].internal->postlist(qopt, 0.0);
-    pls[0] = l.release();
-    RETURN(new MultiAndPostList(pls, pls + 2, qopt->matcher, qopt->db_size));
+    AndContext ctx(qopt, subqueries.size());
+    for (const auto& subq : subqueries) {
+	// MatchNothing subqueries should have been removed by done().
+	Assert(subq.internal.get());
+	subq.internal->postlist_sub_and_like(ctx, qopt, factor);
+	// Second and subsequent subqueries are unweighted.
+	factor = 0.0;
+    }
+    RETURN(ctx.postlist());
 }
 
 void

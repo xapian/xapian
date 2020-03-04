@@ -46,12 +46,13 @@ namespace Xapian {
 EOF
 
 for (@allclasses) {
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class) = @{$_};
     print FD "%exceptionclass $class;\n";
 }
 
 print FD <<'EOF';
 }
+%ignore Xapian::Error::Error(const Error&);
 %include "xapian/error.h"
 
 %{
@@ -62,7 +63,7 @@ void handle_exception() {
 EOF
 
 for (reverse @allclasses) {
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class) = @{$_};
     print FD <<"EOF";
     } catch (const Xapian::$class &e) {
 	void * p = (void *) new Xapian::$class(e);

@@ -1012,3 +1012,22 @@ DEFINE_TESTCASE(removepostings, !backend) {
 
     return true;
 }
+
+static void
+errorcopyctor_helper(Xapian::Error& error)
+{
+    // GCC 9 was giving a warning on the next line with -Wdeprecated-copy
+    // (which is enabled by -Wextra).
+    throw error;
+}
+
+/// Regression test for warning with GCC 9.
+DEFINE_TESTCASE(errorcopyctor, !backend) {
+    Xapian::RangeError e("test");
+    try {
+	errorcopyctor_helper(e);
+    } catch (Xapian::Error&) {
+	return true;
+    }
+    return false;
+}

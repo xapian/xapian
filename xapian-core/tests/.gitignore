@@ -22,8 +22,10 @@
 /unittest.exe
 /.glass
 /.chert
-/.multiglass
 /.multichert
+/.multiglass
+/.multiglassremoteprog_glass
+/.multiremoteprog_glass
 /.singlefileglass
 /.stub
 /api_all.h

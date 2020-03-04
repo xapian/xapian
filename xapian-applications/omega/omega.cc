@@ -23,11 +23,7 @@
 
 #include <config.h>
 
-// If we're building against git after the expand API changed but before the
-// version gets bumped to 1.3.2, we'll get a deprecation warning from
-// get_eset() unless we suppress such warnings here.
-#define XAPIAN_DEPRECATED(D) D
-
+#include <cerrno>
 #include <cstdio>
 #include <ctime>
 
@@ -94,6 +90,23 @@ map_dbname_to_dir(const string &database_name)
     return database_dir + database_name;
 }
 
+static void
+add_database(const string& this_dbname)
+{
+    if (!dbname.empty()) dbname += '/';
+    dbname += this_dbname;
+
+    Xapian::Database this_db(map_dbname_to_dir(this_dbname));
+    db.add_database(this_db);
+
+    size_t this_db_size = this_db.size();
+    size_t db_size = db.size();
+    size_t i = 0;
+    while (subdbs.size() != db_size) {
+	subdbs.emplace_back(this_dbname, i++, this_db_size);
+    }
+}
+
 // Get database(s) to search.
 template<typename IT>
 void
@@ -110,10 +123,7 @@ parse_db_params(const pair<IT, IT>& dbs)
 	    q = v.find('/', p);
 	    string s(v, p, q - p);
 	    if (!s.empty() && seen.find(s) == seen.end()) {
-		// Translate DB parameter to path of database directory
-		if (!dbname.empty()) dbname += '/';
-		dbname += s;
-		db.add_database(Xapian::Database(map_dbname_to_dir(s)));
+		add_database(s);
 		seen.insert(s);
 	    }
 	    if (q == string::npos) break;
@@ -163,8 +173,7 @@ try {
     try {
 	parse_db_params(cgi_params.equal_range("DB"));
 	if (dbname.empty()) {
-	    dbname = default_db;
-	    db.add_database(Xapian::Database(map_dbname_to_dir(dbname)));
+	    add_database(default_db);
 	}
 	enquire = new Xapian::Enquire(db);
     } catch (const Xapian::Error &) {

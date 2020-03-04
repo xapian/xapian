@@ -1,7 +1,7 @@
 /** @file debuglog.cc
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2011,2012,2014,2015 Olly Betts
+/* Copyright (C) 2008,2011,2012,2014,2015,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,13 +40,6 @@ using namespace std;
 
 DebugLogger xapian_debuglogger_;
 
-// We use O_SYNC to attempt to ensure that debug output is written to disk so
-// that none is lost if we crash.  Some platforms (e.g. mingw) don't support
-// O_SYNC, so on these we just don't use it.
-#ifndef O_SYNC
-# define O_SYNC 0
-#endif
-
 DebugLogger::~DebugLogger()
 {
     LOGLINE(ALWAYS, PACKAGE_STRING": debug log ended");
@@ -57,6 +50,7 @@ DebugLogger::initialise_categories_mask()
 {
     fd = -2;
     const char * f = getenv("XAPIAN_DEBUG_LOG");
+    int flags = 0;
     if (f && *f) {
 	if (f[0] == '-' && f[1] == '\0') {
 	    // Filename "-" means "log to stderr".
@@ -64,27 +58,42 @@ DebugLogger::initialise_categories_mask()
 	} else {
 	    string fnm, pid;
 	    while (*f) {
-		if (*f == '%' && f[1] == 'p') {
-		    // Replace %p in the filename with the process id.
-		    if (pid.empty()) pid = str(getpid());
-		    fnm += pid;
-		    f += 2;
-		} else {
-		    fnm += *f++;
+		if (*f == '%') {
+		    if (f[1] == 'p') {
+			// Replace %p in the filename with the process id.
+			if (pid.empty()) pid = str(getpid());
+			fnm += pid;
+			f += 2;
+			continue;
+		    } else if (f[1] == '!') {
+			// %! in the filename means we should attempt to ensure
+			// that debug output is written to disk so that none is
+			// lost if we crash.
+			//
+			// We use O_DSYNC in preference if available - updating
+			// the log file's mtime isn't important.
+#if O_DSYNC - 0 != 0
+			flags = O_DSYNC;
+#elif O_SYNC - 0 != 0
+			flags = O_SYNC;
+#endif
+			f += 2;
+			continue;
+		    }
 		}
+		fnm += *f++;
 	    }
 
-	    fd = open(fnm.c_str(), O_CREAT|O_WRONLY|O_SYNC|O_APPEND|O_CLOEXEC, 0644);
+	    flags |= O_CREAT|O_WRONLY|O_APPEND|O_CLOEXEC;
+	    fd = open(fnm.c_str(), flags, 0644);
 	    if (fd == -1) {
 		// If we failed to open the log file, report to stderr, but
 		// don't spew all the log output to stderr too or else the
 		// user will probably miss the message about the debug log
 		// failing to open!
 		fd = 2;
-		string e;
-		errno_to_string(errno, e);
 		LOGLINE(ALWAYS, PACKAGE_STRING": Failed to open debug log '"
-			<< fnm << "' (" << e << ')');
+			<< fnm << "' (" << errno_to_string(errno) << ')');
 		fd = -2;
 	    }
 	}
@@ -136,10 +145,8 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
 	    // logging.
 	    (void)close(fd);
 	    fd = 2;
-	    string e;
-	    errno_to_string(errno, e);
 	    LOGLINE(ALWAYS, PACKAGE_STRING": Failed to write log output ("
-		    << e << ')');
+		    << errno_to_string(errno) << ')');
 	    fd = -2;
 	    break;
 	}
