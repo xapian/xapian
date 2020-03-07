@@ -46,6 +46,8 @@
 #include "matcher/queryoptimiser.h"
 #include "matcher/valuerangepostlist.h"
 #include "matcher/valuegepostlist.h"
+#include "matcher/valuegtpostlist.h"
+#include "matcher/valueltpostlist.h"
 #include "pack.h"
 #include "serialise-double.h"
 #include "stringutils.h"
@@ -864,7 +866,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		return new Xapian::Internal::QueryValueLE(slot, end_);
 	    return new Xapian::Internal::QueryValueRange(slot, begin, end_);
 	}
-	case 0: {
+	case 0: { 
 	    // Other operators
 	    //
 	    //   000ttttt where:
@@ -1296,6 +1298,69 @@ QueryValueLE::get_description() const
 }
 
 PostList*
+QueryValueLT::postlist(QueryOptimiser *qopt, double factor) const
+{
+    LOGCALL(QUERY, PostList*, "QueryValueLT::postlist", qopt | factor);
+    if (factor != 0.0)
+	qopt->inc_total_subqs();
+    const Xapian::Database::Internal & db = qopt->db;
+    const string & lb = db.get_value_lower_bound(slot);
+    if (lb.empty()) {
+	// This should only happen if there are no values in this slot (which
+	// could be because the backend just doesn't support values at all).
+	// If there were values in the slot, the backend should have a
+	// non-empty lower bound, even if it isn't a tight one.
+	AssertEq(db.get_value_freq(slot), 0);
+	RETURN(NULL);
+    }
+    if (limit <= lb) {
+	RETURN(NULL);
+    }
+    if (limit > db.get_value_upper_bound(slot)) {
+	// The range check isn't needed, but we do still need to consider
+	// which documents have a value set in this slot.  If this value is
+	// set for all documents, we can replace it with the MatchAll
+	// postlist, which is especially efficient if there are no gaps in
+	// the docids.
+	if (db.get_value_freq(slot) == db.get_doccount()) {
+	    RETURN(db.open_post_list(string()));
+	}
+    }
+    RETURN(new ValueLtPostList(&db, slot, limit));
+}
+
+void
+QueryValueLT::serialise(string & result) const  // This is the same as QueryValueLE::serialise, not sure if it should be the same 
+{
+    // Encode as a range with an empty start (which only takes a single byte to
+    // encode).
+    if (slot < 15) {
+	result += static_cast<char>(0x20 | slot);
+    } else {
+	result += static_cast<char>(0x20 | 15);
+	pack_uint(result, slot - 15);
+    }
+    pack_string_empty(result);
+    pack_string(result, limit);
+}
+
+Query::op
+QueryValueLT::get_type() const noexcept
+{
+    return Query::OP_VALUE_LT;
+}
+
+string
+QueryValueLT::get_description() const
+{
+    string desc = "VALUE_LT ";
+    desc += str(slot);
+    desc += ' ';
+    description_append(desc, limit);
+    return desc;
+}
+
+PostList*
 QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryValueGE::postlist", qopt | factor);
@@ -1314,7 +1379,7 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
     if (limit > db.get_value_upper_bound(slot)) {
 	RETURN(NULL);
     }
-    if (limit < lb) {
+    if (limit <= lb) {    // should't this be <= ?? 
 	// The range check isn't needed, but we do still need to consider
 	// which documents have a value set in this slot.  If this value is
 	// set for all documents, we can replace it with the MatchAll
@@ -1354,6 +1419,69 @@ QueryValueGE::get_description() const
     description_append(desc, limit);
     return desc;
 }
+
+
+PostList*
+QueryValueGT::postlist(QueryOptimiser *qopt, double factor) const
+{
+    LOGCALL(QUERY, PostList*, "QueryValueGT::postlist", qopt | factor);
+    if (factor != 0.0)
+	qopt->inc_total_subqs();
+    const Xapian::Database::Internal & db = qopt->db;
+    const string & lb = db.get_value_lower_bound(slot);
+    if (lb.empty()) {
+	// This should only happen if there are no values in this slot (which
+	// could be because the backend just doesn't support values at all).
+	// If there were values in the slot, the backend should have a
+	// non-empty lower bound, even if it isn't a tight one.
+	AssertEq(db.get_value_freq(slot), 0);
+	RETURN(NULL);
+    }
+    if (limit >= db.get_value_upper_bound(slot)) {
+	RETURN(NULL);
+    }
+    if (limit < lb) {
+	// The range check isn't needed, but we do still need to consider
+	// which documents have a value set in this slot.  If this value is
+	// set for all documents, we can replace it with the MatchAll
+	// postlist, which is especially efficient if there are no gaps in
+	// the docids.
+	if (db.get_value_freq(slot) == db.get_doccount()) {
+	    RETURN(db.open_post_list(string()));
+	}
+    }
+  
+    RETURN(new ValueGtPostList(&db, slot, limit));
+}
+
+void
+QueryValueGT::serialise(string & result) const
+{
+    if (slot < 15) {
+	result += static_cast<char>(0x20 | 0x10 | slot);
+    } else {
+	result += static_cast<char>(0x20 | 0x10 | 15);
+	pack_uint(result, slot - 15);
+    }
+    pack_string(result, limit);
+}
+
+Query::op
+QueryValueGT::get_type() const noexcept
+{
+    return Query::OP_VALUE_GT;
+}
+
+string
+QueryValueGT::get_description() const
+{
+    string desc = "VALUE_GT ";
+    desc += str(slot);
+    desc += ' ';
+    description_append(desc, limit);
+    return desc;
+}
+
 
 QueryWildcard::QueryWildcard(const std::string &pattern_,
 			     Xapian::termcount max_expansion_,

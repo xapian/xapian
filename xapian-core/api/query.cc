@@ -73,9 +73,9 @@ Query::Query(op op_, const Xapian::Query & subquery, double factor)
 	case OP_VALUE_RANGE:
 	case OP_VALUE_GE:
 	case OP_VALUE_LE:
-	//case OP_VALUE_GT:
-	//case OP_VALUE_LT:
-	//case OP_VALUE_EQ:
+	case OP_VALUE_GT:
+	case OP_VALUE_LT:
+	case OP_VALUE_EQ:
 	
 	    // These operators always return weight 0, so OP_SCALE_WEIGHT has
 	    // no effect on them.
@@ -96,10 +96,14 @@ Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 	    internal = new Xapian::Internal::QueryTerm();
 	else
 	    internal = new Xapian::Internal::QueryValueGE(slot, limit);
-    } else if (usual(op_ == OP_VALUE_LE)) {
+    }else if (usual(op_ == OP_VALUE_GT)){
+	internal = new Xapian::Internal::QueryValueGT(slot,limit);
+	}else if (usual(op_ == OP_VALUE_LE)) {
 	internal = new Xapian::Internal::QueryValueLE(slot, limit);
+	} else if (usual(op_ == OP_VALUE_LT)) {
+	internal = new Xapian::Internal::QueryValueLT(slot, limit);
     } else {
-	throw Xapian::InvalidArgumentError("op must be OP_VALUE_LE or OP_VALUE_GE");
+	throw Xapian::InvalidArgumentError("op must be OP_VALUE_LE or OP_VALUE_LT or OP_VALUE_GE or OP_VALUE_GT");
     }
 }
 

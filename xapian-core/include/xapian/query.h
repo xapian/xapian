@@ -217,7 +217,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  This operator never contributes weight.
 	 */
-	OP_VALUE_GT = 121,
+	OP_VALUE_GT = 17,
 
 	/** Match only documents where a value slot is <= a given value.
 	 *
@@ -233,7 +233,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  This operator never contributes weight.
 	 */
-	OP_VALUE_LT = 141,
+	OP_VALUE_LT = 18,
 
     /** Match only documents where a value slot is = a given value.
 	 *
@@ -241,7 +241,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  This operator never contributes weight.
 	 */
-	OP_VALUE_EQ = 151,
+	OP_VALUE_EQ = 19,
 
 	/** Match like OP_OR but weighting as if a single term.
 	 *
@@ -451,7 +451,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** Construct a Query object for a single-ended value range.
      *
-     *  @param op_		Must be OP_VALUE_LE or OP_VALUE_GE currently.
+     *  @param op_		Must be OP_VALUE_LE or OP_VALUE_GE or OP_VALUE_GT or OP_VALUE_LT.
      *  @param slot		The value slot to work over.
      *  @param range_limit	The limit of the range.
      */
