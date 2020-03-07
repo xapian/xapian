@@ -73,9 +73,9 @@ Query::Query(op op_, const Xapian::Query & subquery, double factor)
 	case OP_VALUE_RANGE:
 	case OP_VALUE_GE:
 	case OP_VALUE_LE:
-	case OP_VALUE_GT:
-	case OP_VALUE_LT:
-	case OP_VALUE_EQ:
+	//case OP_VALUE_GT:
+	//case OP_VALUE_LT:
+	//case OP_VALUE_EQ:
 	
 	    // These operators always return weight 0, so OP_SCALE_WEIGHT has
 	    // no effect on them.

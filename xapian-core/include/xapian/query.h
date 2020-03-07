@@ -217,7 +217,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  This operator never contributes weight.
 	 */
-	OP_VALUE_GT = 12,
+	OP_VALUE_GT = 121,
 
 	/** Match only documents where a value slot is <= a given value.
 	 *
@@ -225,7 +225,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  This operator never contributes weight.
 	 */
-	OP_VALUE_LE = 13,
+	OP_VALUE_LE = 12,
 
     /** Match only documents where a value slot is < a given value.
 	 *
@@ -233,7 +233,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  This operator never contributes weight.
 	 */
-	OP_VALUE_LT = 14,
+	OP_VALUE_LT = 141,
 
     /** Match only documents where a value slot is = a given value.
 	 *
@@ -241,7 +241,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  This operator never contributes weight.
 	 */
-	OP_VALUE_EQ = 15,
+	OP_VALUE_EQ = 151,
 
 	/** Match like OP_OR but weighting as if a single term.
 	 *
@@ -249,7 +249,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  subqueries to approximate the weight of a single term occurring
 	 *  with those statistics.
 	 */
-	OP_SYNONYM = 16,
+	OP_SYNONYM = 13,
 
 	/** Pick the maximum weight of any subquery.
 	 *
@@ -259,13 +259,13 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  Added in Xapian 1.3.2.
 	 */
-	OP_MAX = 17,
+	OP_MAX = 14,
 
 	/** Wildcard expansion.
 	 *
 	 *  Added in Xapian 1.3.3.
 	 */
-	OP_WILDCARD = 18,
+	OP_WILDCARD = 15,
 
 	/** Edit distance expansion.
 	 *
@@ -279,7 +279,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *
 	 *  @since Added in Xapian 1.5.0.
 	 */
-	OP_EDIT_DISTANCE = 19,
+	OP_EDIT_DISTANCE = 16,
 
 	/** Construct an invalid query.
 	 *
