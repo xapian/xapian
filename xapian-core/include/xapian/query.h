@@ -268,22 +268,6 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Value returned by get_type() for a term. */
 	LEAF_TERM = 100,
 
-	/** Value returned by get_type() for a PostingSource. */
-	LEAF_POSTING_SOURCE,
-
-	/** Value returned by get_type() for MatchAll or equivalent.
-	 *
-	 *  This is returned for any <code>Xapian::Query(std::string())</code>
-	 *  object.
-	 */
-	LEAF_MATCH_ALL,
-
-	/** Value returned by get_type() for MatchNothing or equivalent.
-	 *
-	 *  This is returned for any <code>Xapian::Query()</code> object.
-	 */
-	LEAF_MATCH_NOTHING
-
     /** Match only documents where a value slot is > a given value.
 	 *
 	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
@@ -299,6 +283,22 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  This operator never contributes weight.
 	 */
 	OP_VALUE_LT = 18,
+
+	/** Value returned by get_type() for a PostingSource. */
+	LEAF_POSTING_SOURCE,
+
+	/** Value returned by get_type() for MatchAll or equivalent.
+	 *
+	 *  This is returned for any <code>Xapian::Query(std::string())</code>
+	 *  object.
+	 */
+	LEAF_MATCH_ALL,
+
+	/** Value returned by get_type() for MatchNothing or equivalent.
+	 *
+	 *  This is returned for any <code>Xapian::Query()</code> object.
+	 */
+	LEAF_MATCH_NOTHING
     };
 
     enum {
