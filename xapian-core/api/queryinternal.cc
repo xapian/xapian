@@ -866,7 +866,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		return new Xapian::Internal::QueryValueLE(slot, end_);
 	    return new Xapian::Internal::QueryValueRange(slot, begin, end_);
 	}
-	case 0: { 
+	case 0: {
 	    // Other operators
 	    //
 	    //   000ttttt where:
@@ -1298,13 +1298,13 @@ QueryValueLE::get_description() const
 }
 
 PostList*
-QueryValueLT::postlist(QueryOptimiser *qopt, double factor) const
+QueryValueLT::postlist(QueryOptimiser* qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryValueLT::postlist", qopt | factor);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
-    const Xapian::Database::Internal & db = qopt->db;
-    const string & lb = db.get_value_lower_bound(slot);
+    const Xapian::Database::Internal& db = qopt->db;
+    const string& lb = db.get_value_lower_bound(slot);
     if (lb.empty()) {
 	// This should only happen if there are no values in this slot (which
 	// could be because the backend just doesn't support values at all).
@@ -1328,9 +1328,9 @@ QueryValueLT::postlist(QueryOptimiser *qopt, double factor) const
     }
     RETURN(new ValueLtPostList(&db, slot, limit));
 }
-
+// This is the same as QueryValueLE::serialise, not sure if it should be the same
 void
-QueryValueLT::serialise(string & result) const  // This is the same as QueryValueLE::serialise, not sure if it should be the same 
+QueryValueLT::serialise(string& result) const
 {
     // Encode as a range with an empty start (which only takes a single byte to
     // encode).
@@ -1379,7 +1379,8 @@ QueryValueGE::postlist(QueryOptimiser *qopt, double factor) const
     if (limit > db.get_value_upper_bound(slot)) {
 	RETURN(NULL);
     }
-    if (limit <= lb) {    // should't this be <= ?? 
+    if (limit < lb) {
+	// should't this be <= ?? 
 	// The range check isn't needed, but we do still need to consider
 	// which documents have a value set in this slot.  If this value is
 	// set for all documents, we can replace it with the MatchAll
@@ -1422,13 +1423,13 @@ QueryValueGE::get_description() const
 
 
 PostList*
-QueryValueGT::postlist(QueryOptimiser *qopt, double factor) const
+QueryValueGT::postlist(QueryOptimiser* qopt, double factor) const
 {
     LOGCALL(QUERY, PostList*, "QueryValueGT::postlist", qopt | factor);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
-    const Xapian::Database::Internal & db = qopt->db;
-    const string & lb = db.get_value_lower_bound(slot);
+    const Xapian::Database::Internal& db = qopt->db;
+    const string& lb = db.get_value_lower_bound(slot);
     if (lb.empty()) {
 	// This should only happen if there are no values in this slot (which
 	// could be because the backend just doesn't support values at all).
@@ -1455,7 +1456,7 @@ QueryValueGT::postlist(QueryOptimiser *qopt, double factor) const
 }
 
 void
-QueryValueGT::serialise(string & result) const
+QueryValueGT::serialise(string& result) const
 {
     if (slot < 15) {
 	result += static_cast<char>(0x20 | 0x10 | slot);
