@@ -436,7 +436,7 @@ DEFINE_TESTCASE(valuerangematchesub1, backend) {
 DEFINE_TESTCASE(valuegt1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
-    static const char * const vals[] = {
+    static const char* const vals[] = {
 	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
     };
     for (auto start : vals) {
@@ -469,7 +469,7 @@ DEFINE_TESTCASE(valuegt1, backend) {
 DEFINE_TESTCASE(valuelt1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
-    static const char * const vals[] = {
+    static const char* const vals[] = {
 	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
     };
     for (auto start : vals) {

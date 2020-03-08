@@ -30,14 +30,14 @@
 
 using namespace std;
 
-PostList *
+PostList*
 ValueGtPostList::next(double)
 {
     Assert(db);
     if (!valuelist) valuelist = db->open_value_list(slot);
     valuelist->next();
     while (!valuelist->at_end()) {
-	const string & v = valuelist->get_value();
+	const string& v = valuelist->get_value();
 	if (v > begin) return NULL;
 	valuelist->next();
     }
@@ -45,14 +45,14 @@ ValueGtPostList::next(double)
     return NULL;
 }
 
-PostList *
+PostList*
 ValueGtPostList::skip_to(Xapian::docid did, double)
 {
     Assert(db);
     if (!valuelist) valuelist = db->open_value_list(slot);
     valuelist->skip_to(did);
     while (!valuelist->at_end()) {
-	const string & v = valuelist->get_value();
+	const string& v = valuelist->get_value();
 	if (v > begin) return NULL;
 	valuelist->next();
     }
@@ -60,7 +60,7 @@ ValueGtPostList::skip_to(Xapian::docid did, double)
     return NULL;
 }
 
-PostList *
+PostList*
 ValueGtPostList::check(Xapian::docid did, double, bool &valid)
 {
     Assert(db);
@@ -70,7 +70,7 @@ ValueGtPostList::check(Xapian::docid did, double, bool &valid)
     if (!valid) {
 	return NULL;
     }
-    const string & v = valuelist->get_value();
+    const string& v = valuelist->get_value();
     valid = (v > begin);
     return NULL;
 }

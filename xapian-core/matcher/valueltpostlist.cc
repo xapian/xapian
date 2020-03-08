@@ -1,4 +1,4 @@
-/** @file ValueLtPostList.cc
+/** @file valueltpostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
 /* Copyright 2007,2008,2011,2013 Olly Betts
@@ -30,14 +30,14 @@
 
 using namespace std;
 
-PostList *
+PostList*
 ValueLtPostList::next(double)
 {
     Assert(db);
     if (!valuelist) valuelist = db->open_value_list(slot);
     valuelist->next();
     while (!valuelist->at_end()) {
-	const string & v = valuelist->get_value();
+	const string& v = valuelist->get_value();
 	if (v < begin) return NULL;
 	valuelist->next();
     }
@@ -45,14 +45,14 @@ ValueLtPostList::next(double)
     return NULL;
 }
 
-PostList *
+PostList*
 ValueLtPostList::skip_to(Xapian::docid did, double)
 {
     Assert(db);
     if (!valuelist) valuelist = db->open_value_list(slot);
     valuelist->skip_to(did);
     while (!valuelist->at_end()) {
-	const string & v = valuelist->get_value();
+	const string& v = valuelist->get_value();
 	if (v < begin) return NULL;
 	valuelist->next();
     }
@@ -60,8 +60,8 @@ ValueLtPostList::skip_to(Xapian::docid did, double)
     return NULL;
 }
 
-PostList *
-ValueLtPostList::check(Xapian::docid did, double, bool &valid)
+PostList*
+ValueLtPostList::check(Xapian::docid did, double, bool& valid)
 {
     Assert(db);
     AssertRelParanoid(did, <=, db->get_lastdocid());
@@ -70,7 +70,7 @@ ValueLtPostList::check(Xapian::docid did, double, bool &valid)
     if (!valid) {
 	return NULL;
     }
-    const string & v = valuelist->get_value();
+    const string& v = valuelist->get_value();
     valid = (v < begin);
     return NULL;
 }

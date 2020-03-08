@@ -1,4 +1,4 @@
-/** @file valuegtpostlist.h
+/** @file valueltpostlist.h
  * @brief Return document ids matching a < test on a specified doc value.
  */
 /* Copyright 2007,2011 Olly Betts
@@ -26,22 +26,22 @@
 
 class ValueLtPostList: public ValueRangePostList {
     /// Disallow copying.
-    ValueLtPostList(const ValueLtPostList &);
+    ValueLtPostList(const ValueLtPostList&);
 
     /// Disallow assignment.
-    void operator=(const ValueLtPostList &);
+    void operator=(const ValueLtPostList&);
 
   public:
-    ValueLtPostList(const Xapian::Database::Internal *db_,
+    ValueLtPostList(const Xapian::Database::Internal* db_,
 		    Xapian::valueno slot_,
-		    const std::string &begin_)
+		    const std::string& begin_)
 	: ValueRangePostList(db_, slot_, begin_, std::string()) {}
 
-    PostList * next(double w_min);
+    PostList* next(double w_min);
 
-    PostList * skip_to(Xapian::docid, double w_min);
+    PostList* skip_to(Xapian::docid, double w_min);
 
-    PostList * check(Xapian::docid did, double w_min, bool &valid);
+    PostList* check(Xapian::docid did, double w_min, bool& valid);
 
     std::string get_description() const;
 };
