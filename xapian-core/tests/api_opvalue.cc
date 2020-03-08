@@ -288,7 +288,6 @@ DEFINE_TESTCASE(valuerange7, generated) {
     return true;
 }
 
-
 // Feature test for Query::OP_VALUE_GE.
 DEFINE_TESTCASE(valuege1, backend) {
     Xapian::Database db(get_database("apitest_phrase"));
@@ -321,10 +320,6 @@ DEFINE_TESTCASE(valuege1, backend) {
     }
     return true;
 }
-
-
-
-
 
 // Regression test for Query::OP_VALUE_GE - used to segfault if check() got
 // called.

@@ -1313,7 +1313,7 @@ QueryValueLT::postlist(QueryOptimiser *qopt, double factor) const
 	AssertEq(db.get_value_freq(slot), 0);
 	RETURN(NULL);
     }
-    if (limit <= lb) {
+    if (limit < lb) {
 	RETURN(NULL);
     }
     if (limit > db.get_value_upper_bound(slot)) {

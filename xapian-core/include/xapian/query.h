@@ -211,14 +211,6 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	OP_VALUE_GE = 11,
 
-    /** Match only documents where a value slot is > a given value.
-	 *
-	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
-	 *
-	 *  This operator never contributes weight.
-	 */
-	OP_VALUE_GT = 17,
-
 	/** Match only documents where a value slot is <= a given value.
 	 *
 	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
@@ -226,22 +218,6 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  This operator never contributes weight.
 	 */
 	OP_VALUE_LE = 12,
-
-    /** Match only documents where a value slot is < a given value.
-	 *
-	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
-	 *
-	 *  This operator never contributes weight.
-	 */
-	OP_VALUE_LT = 18,
-
-    /** Match only documents where a value slot is = a given value.
-	 *
-	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
-	 *
-	 *  This operator never contributes weight.
-	 */
-	OP_VALUE_EQ = 19,
 
 	/** Match like OP_OR but weighting as if a single term.
 	 *
@@ -307,6 +283,22 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  This is returned for any <code>Xapian::Query()</code> object.
 	 */
 	LEAF_MATCH_NOTHING
+
+    /** Match only documents where a value slot is > a given value.
+	 *
+	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
+	 *
+	 *  This operator never contributes weight.
+	 */
+	OP_VALUE_GT = 17,
+
+    /** Match only documents where a value slot is < a given value.
+	 *
+	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
+	 *
+	 *  This operator never contributes weight.
+	 */
+	OP_VALUE_LT = 18,
     };
 
     enum {
