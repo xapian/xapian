@@ -102,7 +102,7 @@ Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 	internal = new Xapian::Internal::QueryValueLT(slot, limit);
     } else {
 	throw Xapian::InvalidArgumentError("op must be OP_VALUE_LE, "
-					   "OP_VALUE_LT, OP_VALUE_GE, " 
+					   "OP_VALUE_LT, OP_VALUE_GE, "
 					   "or OP_VALUE_GT");
     }
 }

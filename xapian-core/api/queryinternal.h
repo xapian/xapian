@@ -170,12 +170,12 @@ class QueryValueLT : public QueryValueBase {
     std::string limit;
 
   public:
-    QueryValueLT(Xapian::valueno slot_, const std::string &limit_)
+    QueryValueLT(Xapian::valueno slot_, const std::string& limit_)
 	: QueryValueBase(slot_), limit(limit_) { }
 
-    PostList* postlist(QueryOptimiser *qopt, double factor) const;
+    PostList* postlist(QueryOptimiser* qopt, double factor) const;
 
-    void serialise(std::string & result) const;
+    void serialise(std::string& result) const;
 
     Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
@@ -202,12 +202,12 @@ class QueryValueGT : public QueryValueBase {
     std::string limit;
 
   public:
-    QueryValueGT(Xapian::valueno slot_, const std::string &limit_)
+    QueryValueGT(Xapian::valueno slot_, const std::string& limit_)
 	: QueryValueBase(slot_), limit(limit_) { }
 
-    PostList* postlist(QueryOptimiser *qopt, double factor) const;
+    PostList* postlist(QueryOptimiser* qopt, double factor) const;
 
-    void serialise(std::string & result) const;
+    void serialise(std::string& result) const;
 
     Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
