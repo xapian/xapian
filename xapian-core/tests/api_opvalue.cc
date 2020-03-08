@@ -450,7 +450,7 @@ DEFINE_TESTCASE(valuegt1, backend) {
 	    matched.insert(*i);
 	    string value = db.get_document(*i).get_value(1);
 	    tout << "'" << start << "' < '" << value << "'" << endl;
-	    TEST_REL(value,<,start);
+	    TEST_REL(value,>,start);
 	}
 	// Check that documents not in the MSet don't match the value range
 	// filter.
