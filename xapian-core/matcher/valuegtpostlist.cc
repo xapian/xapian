@@ -61,7 +61,7 @@ ValueGtPostList::skip_to(Xapian::docid did, double)
 }
 
 PostList*
-ValueGtPostList::check(Xapian::docid did, double, bool &valid)
+ValueGtPostList::check(Xapian::docid did, double, bool& valid)
 {
     Assert(db);
     AssertRelParanoid(did, <=, db->get_lastdocid());
