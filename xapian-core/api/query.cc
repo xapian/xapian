@@ -93,15 +93,16 @@ Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 	if (limit.empty())
 	    internal = new Xapian::Internal::QueryTerm();
 	else
-	    internal = new Xapian::Internal::QueryValueGE(slot,limit);
+	    internal = new Xapian::Internal::QueryValueGE(slot, limit);
     } else if (usual(op_ == OP_VALUE_GT)) {
-	internal = new Xapian::Internal::QueryValueGT(slot,limit);
+	internal = new Xapian::Internal::QueryValueGT(slot, limit);
     } else if (usual(op_ == OP_VALUE_LE)) {
-	internal = new Xapian::Internal::QueryValueLE(slot,limit);
+	internal = new Xapian::Internal::QueryValueLE(slot, limit);
     } else if (usual(op_ == OP_VALUE_LT)) {
-        internal = new Xapian::Internal::QueryValueLT(slot,limit);
+	internal = new Xapian::Internal::QueryValueLT(slot, limit);
     } else {
-	throw Xapian::InvalidArgumentError("op must be OP_VALUE_LE, OP_VALUE_LT,OP_VALUE_GE, or OP_VALUE_GT");
+	throw Xapian::InvalidArgumentError("op must be OP_VALUE_LE, "
+					   "OP_VALUE_LT,OP_VALUE_GE, or OP_VALUE_GT");
     }
 }
 
