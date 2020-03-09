@@ -785,7 +785,8 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    break;
 		default:
 		    // 8 to 12 are currently unused.
-		    throw SerialisationError("Unknown multi-way branch Query operator");
+		    throw SerialisationError(
+			    "Unknown multi-way branch Query operator");
 	    }
 	    do {
 		result->add_subquery(Xapian::Query(unserialise(p, end, reg)));
@@ -888,17 +889,19 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			{
 
 			case 2: {
-				// 00010xxx for OP_VALUE_LT
-				return new Xapian::Internal::QueryValueGT(slot, begin);
+			    // 00010xxx for OP_VALUE_LT
+			    return new Xapian::Internal::QueryValueGT(slot,
+								      begin);
 			}
 			case 3:
 			{
-				// 00011xxx for OP_VALUE_GT
-				string end_;
-				if (!unpack_string(p, end, end_)) {
-					unpack_throw_serialisation_error(*p);
-	   			}
-				return new Xapian::Internal::QueryValueLT(slot, end_);
+			    // 00011xxx for OP_VALUE_GT
+			    string end_;
+			    if (!unpack_string(p, end, end_)) {
+				unpack_throw_serialisation_error(*p);
+			    }
+			    return new Xapian::Internal::QueryValueLT(slot,
+			    					      end_);
 			}
 			}
 			break;
@@ -915,10 +918,11 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				case 0x0a: { // Edit distance
 				Xapian::termcount max_expansion;
 				if (!unpack_uint(p, end, &max_expansion) ||
-								 end - *p < 2) {
+							 end - *p < 2) {
 				throw SerialisationError("not enough data");
 				}
-				int flags = static_cast<unsigned char>(*(*p)++);
+				int flags =
+					static_cast<unsigned char>(*(*p)++);
 				op combiner = static_cast<op>(*(*p)++);
 				unsigned edit_distance;
 				size_t fixed_prefix_len;
@@ -929,40 +933,47 @@ Query::Internal::unserialise(const char ** p, const char * end,
 						 &fixed_prefix_len) ||
 					!unpack_string(p, end,
 							pattern)) {
-					throw SerialisationError("not enough data");
+					throw SerialisationError(
+							"not enough data");
 				}
 				using Xapian::Internal::QueryEditDistance;
 				return new QueryEditDistance(pattern,
-								max_expansion,
-								flags,
-								combiner,
-								edit_distance,
-								fixed_prefix_len);
+							     max_expansion,
+							     flags,
+							     combiner,
+							     edit_distance,
+							     fixed_prefix_len);
 				}
 				case 0x0b: { // Wildcard
 				Xapian::termcount max_expansion;
-				if (!unpack_uint(p, end, &max_expansion) ||
-								 end - *p < 2) {
-					throw SerialisationError("not enough data");
+				if (!unpack_uint(p, end,
+						 &max_expansion) ||
+						 end - *p < 2) {
+					throw SerialisationError(
+							"not enough data");
 				}
-				int flags = static_cast<unsigned char>(*(*p)++);
+				int flags =
+					static_cast<unsigned char>(*(*p)++);
 				op combiner = static_cast<op>(*(*p)++);
 				string pattern;
 				if (!unpack_string(p, end, pattern)) {
 				throw SerialisationError("not enough data");
 				}
-				return new Xapian::Internal::QueryWildcard(pattern,
-									max_expansion,
-									flags,
-									combiner);
-				}
+				return new Xapian::Internal::QueryWildcard(
+						pattern,
+						max_expansion,
+						flags,
+						combiner);
+
 				case 0x0c: { // PostingSource
 				string name;
 				if (!unpack_string(p, end, name)) {
-					throw SerialisationError("not enough data");
+				    throw SerialisationError(
+					    	"not enough data");
 				}
 
-				const PostingSource * reg_source = reg.get_posting_source(name);
+				const PostingSource * reg_source =
+						reg.get_posting_source(name);
 				if (!reg_source) {
 					string m = "PostingSource ";
 					m += name;
@@ -972,12 +983,15 @@ Query::Internal::unserialise(const char ** p, const char * end,
 
 				string serialised_source;
 				if (!unpack_string(p, end, serialised_source)) {
-					throw SerialisationError("not enough data");
+					throw SerialisationError(
+							"not enough data");
 				}
 				PostingSource* source =
-					reg_source->unserialise_with_registry(serialised_source,
-									reg);
-				return new Xapian::Internal::QueryPostingSource(source->release());
+				    reg_source->unserialise_with_registry(
+							serialised_source,
+							reg);
+				return new Xapian::Internal::QueryPostingSource(
+							 source->release());
 				}
 				case 0x0d: {
 				using Xapian::Internal::QueryScaleWeight;
@@ -990,9 +1004,11 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				Xapian::termpos pos;
 				if (!unpack_uint(p, end, &wqf) ||
 				    !unpack_uint(p, end, &pos)) {
-					throw SerialisationError("not enough data");
+					throw SerialisationError(
+							"not enough data");
 				}
-				return new Xapian::Internal::QueryTerm(string(), wqf, pos);
+				return new Xapian::Internal::QueryTerm(
+							string(), wqf, pos);
 				}
 				case 0x0f:
 				return new Xapian::Internal::QueryTerm();
