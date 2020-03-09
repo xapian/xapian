@@ -888,7 +888,6 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			}
 			switch (ch >> 3)
 			{
-
 			case 2: {
 			    // 00010xxx for OP_VALUE_LT
 			    return new Xapian::Internal::QueryValueGT(slot,
@@ -902,7 +901,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				unpack_throw_serialisation_error(*p);
 			    }
 			    return new Xapian::Internal::QueryValueLT(slot,
-			    					      end_);
+			    					end_);
 			}
 			}
 			break;
@@ -969,11 +968,10 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				case 0x0c: { // PostingSource
 				string name;
 				if (!unpack_string(p, end, name)) {
-				    throw SerialisationError(
-					    	"not enough data");
+				throw SerialisationError("not enough data");
 				}
 
-				const PostingSource * reg_source =
+				const PostingSource* reg_source =
 						reg.get_posting_source(name);
 				if (!reg_source) {
 					string m = "PostingSource ";
@@ -992,9 +990,8 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				    reg_source->unserialise_with_registry(
 							serialised_source,
 							reg);
-				return new Xapian::Internal::
-							QueryPostingSource(
-							 source->release());
+				return new Xapian::Internal::QueryPostingSource
+							( source->release());
 				}
 				case 0x0d: {
 				using Xapian::Internal::QueryScaleWeight;
