@@ -990,7 +990,8 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				Xapian::termpos pos;
 				if (!unpack_uint(p, end, &wqf) ||
 					!unpack_uint(p, end, &pos)) {
-					throw SerialisationError("not enough data");
+					throw SerialisationError(
+											"not enough data");
 				}
 				return new Xapian::Internal::QueryTerm(string(), wqf, pos);
 				}
