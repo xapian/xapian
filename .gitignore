@@ -1,10 +1,7 @@
 *.o
-*.valgrind
-*.vscode
+
 /configure
 /Makefile
 /config.cache
 /BUILD
 /INST
-vscode
-
