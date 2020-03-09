@@ -901,7 +901,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				unpack_throw_serialisation_error(*p);
 			    }
 			    return new Xapian::Internal::QueryValueLT(slot,
-			    					end_);
+			    				end_);
 			}
 			}
 			break;
@@ -991,7 +991,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 							serialised_source,
 							reg);
 				return new Xapian::Internal::QueryPostingSource
-							( source->release());
+							(source->release());
 				}
 				case 0x0d: {
 				using Xapian::Internal::QueryScaleWeight;
