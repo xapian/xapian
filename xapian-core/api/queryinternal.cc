@@ -901,7 +901,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				unpack_throw_serialisation_error(*p);
 			    }
 			    return new Xapian::Internal::QueryValueLT(slot,
-			    					end_);
+			    				end_);
 			}
 			}
 			break;
