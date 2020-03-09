@@ -893,7 +893,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			}
 			case 3:
 			{
-				//00011xxx for OP_VALUE_GT
+				// 00011xxx for OP_VALUE_GT
 				string end_;
 				if (!unpack_string(p, end, end_)) {
 					unpack_throw_serialisation_error(*p);
@@ -983,15 +983,14 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				using Xapian::Internal::QueryScaleWeight;
 				double scale_factor = unserialise_double(p, end);
 				return new QueryScaleWeight(scale_factor,
-								Query(unserialise(p, end, reg)));
+				    Query(unserialise(p, end, reg)));
 				}
 				case 0x0e: {
 				Xapian::termcount wqf;
 				Xapian::termpos pos;
 				if (!unpack_uint(p, end, &wqf) ||
-					!unpack_uint(p, end, &pos)) {
-					throw SerialisationError(
-											"not enough data");
+				    !unpack_uint(p, end, &pos)) {
+					throw SerialisationError("not enough data");
 				}
 				return new Xapian::Internal::QueryTerm(string(), wqf, pos);
 				}
