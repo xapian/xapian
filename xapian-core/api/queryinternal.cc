@@ -867,11 +867,12 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    return new Xapian::Internal::QueryValueRange(slot, begin, end_);
 	}
 	case 0: {
-		switch (ch & 0x10)
+		switch (ch >> 4 )
 		{
-		case 1: { //0001oxxx where:
-				  // o is the operation: LT or GT
-				  // xxx is the slot number
+		case 1: {
+		    //0001oxxx where:
+			// o is the operation: LT or GT
+			// xxx is the slot number
 			Xapian::valueno slot = ch & 7;
 			if (slot == 7) {
 			if (!unpack_uint(p, end, &slot)) {
@@ -883,16 +884,22 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			if (!unpack_string(p, end, begin)) {
 			unpack_throw_serialisation_error(*p);
 			}
-			switch (ch & 0x08)
+			switch (ch >> 3)
 			{
 
-			case 0: // 00010xxx for OP_VALUE_LT
-			{
+			case 2: {
+				// 00010xxx for OP_VALUE_LT
 				return new Xapian::Internal::QueryValueGT(slot, begin);
-			}case 1: //00011xxx
-				return new Xapian::Internal::QueryValueLT(slot, begin);
-			default:
-				break;
+			}
+			case 3:
+			{
+				//00011xxx for OP_VALUE_GT
+				string end_;
+				if (!unpack_string(p, end, end_)) {
+					unpack_throw_serialisation_error(*p);
+	   			}
+				return new Xapian::Internal::QueryValueLT(slot, end_);
+			}
 			}
 			break;
 		}
