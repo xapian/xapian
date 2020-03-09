@@ -803,7 +803,8 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    //     0: wqf = 0; pos = 0
 	    //     1: wqf = 1; pos = 0
 	    //     2: wqf = 1; pos -> encoded value follows
-	    //     3: wqf -> encoded value follows; pos -> encoded value follows
+	    //     3: wqf -> encoded value follows;
+	    //	   pos -> encoded value follows
 	    size_t len = ch & 0x0f;
 	    if (len == 0) {
 		if (!unpack_uint(p, end, &len)) {
@@ -982,7 +983,8 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				}
 
 				string serialised_source;
-				if (!unpack_string(p, end, serialised_source)) {
+				if (!unpack_string(p, end,
+						   serialised_source)) {
 					throw SerialisationError(
 							"not enough data");
 				}
@@ -990,12 +992,14 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				    reg_source->unserialise_with_registry(
 							serialised_source,
 							reg);
-				return new Xapian::Internal::QueryPostingSource(
+				return new Xapian::Internal::
+							QueryPostingSource(
 							 source->release());
 				}
 				case 0x0d: {
 				using Xapian::Internal::QueryScaleWeight;
-				double scale_factor = unserialise_double(p, end);
+				double scale_factor = unserialise_double(p,
+									 end);
 				return new QueryScaleWeight(scale_factor,
 				    Query(unserialise(p, end, reg)));
 				}
