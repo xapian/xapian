@@ -963,7 +963,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 						max_expansion,
 						flags,
 						combiner);
-
+				}
 				case 0x0c: { // PostingSource
 				string name;
 				if (!unpack_string(p, end, name)) {
