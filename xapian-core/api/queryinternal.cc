@@ -867,10 +867,10 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    return new Xapian::Internal::QueryValueRange(slot, begin, end_);
 	}
 	case 0: {
-		switch (ch >> 4 )
+		switch (ch >> 4)
 		{
 		case 1: {
-		    //0001oxxx where:
+		    // 0001oxxx where:
 			// o is the operation: LT or GT
 			// xxx is the slot number
 			Xapian::valueno slot = ch & 7;
@@ -914,17 +914,21 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				return new Xapian::Internal::QueryInvalid();
 				case 0x0a: { // Edit distance
 				Xapian::termcount max_expansion;
-				if (!unpack_uint(p, end, &max_expansion) || end - *p < 2) {
-					throw SerialisationError("not enough data");
+				if (!unpack_uint(p, end, &max_expansion) ||
+								 end - *p < 2) {
+				throw SerialisationError("not enough data");
 				}
 				int flags = static_cast<unsigned char>(*(*p)++);
 				op combiner = static_cast<op>(*(*p)++);
 				unsigned edit_distance;
 				size_t fixed_prefix_len;
 				string pattern;
-				if (!unpack_uint(p, end, &edit_distance) ||
-					!unpack_uint(p, end, &fixed_prefix_len) ||
-					!unpack_string(p, end, pattern)) {
+				if (!unpack_uint(p, end,
+						 &edit_distance) ||
+					!unpack_uint(p, end,
+						 &fixed_prefix_len) ||
+					!unpack_string(p, end,
+							pattern)) {
 					throw SerialisationError("not enough data");
 				}
 				using Xapian::Internal::QueryEditDistance;
@@ -937,14 +941,15 @@ Query::Internal::unserialise(const char ** p, const char * end,
 				}
 				case 0x0b: { // Wildcard
 				Xapian::termcount max_expansion;
-				if (!unpack_uint(p, end, &max_expansion) || end - *p < 2) {
+				if (!unpack_uint(p, end, &max_expansion) ||
+								 end - *p < 2) {
 					throw SerialisationError("not enough data");
 				}
 				int flags = static_cast<unsigned char>(*(*p)++);
 				op combiner = static_cast<op>(*(*p)++);
 				string pattern;
 				if (!unpack_string(p, end, pattern)) {
-					throw SerialisationError("not enough data");
+				throw SerialisationError("not enough data");
 				}
 				return new Xapian::Internal::QueryWildcard(pattern,
 									max_expansion,
@@ -1503,7 +1508,7 @@ QueryValueGT::serialise(string& result) const
     if (slot < 7) {
 	result += static_cast<char>(0x10 | slot);
     } else {
-	result += static_cast<char>(0x10 |  7);
+	result += static_cast<char>(0x10 | 7);
 	pack_uint(result, slot - 7);
     }
     pack_string(result, limit);
