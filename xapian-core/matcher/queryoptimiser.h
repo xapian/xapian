@@ -126,6 +126,14 @@ class QueryOptimiser {
 	if (pl == static_cast<PostList*>(hint)) {
 	    hint_owned = true;
 	} else {
+	    if (!hint_owned) {
+		// The hint could be a subpostlist of pl, but we can't easily
+		// tell so we have to do the safe thing and reset it.
+		//
+		// This isn't ideal, but it's much better than use-after-free
+		// bugs.
+		hint = nullptr;
+	    }
 	    delete pl;
 	}
     }

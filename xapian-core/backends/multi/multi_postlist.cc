@@ -1,7 +1,7 @@
 /** @file multi_postlist.cc
  * @brief Class for merging PostList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2017,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2018,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,7 +107,7 @@ MultiPostList::recalc_maxweight()
 PositionList*
 MultiPostList::open_position_list() const
 {
-    return postlists[current]->open_position_list();
+    return postlists[shard_number(docids[0], n_shards)]->open_position_list();
 }
 
 PostList*
