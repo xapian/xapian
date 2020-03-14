@@ -77,8 +77,8 @@ GlassSpellingWordsList::get_termfreq() const
 Xapian::termcount
 GlassSpellingWordsList::get_collection_freq() const
 {
-    throw Xapian::InvalidOperationError("
-	GlassSpellingWordsList::get_collection_freq() not meaningful");
+    throw Xapian::InvalidOperationError(
+	"GlassSpellingWordsList::get_collection_freq() not meaningful");
 }
 
 TermList *
