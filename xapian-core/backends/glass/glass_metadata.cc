@@ -74,7 +74,8 @@ GlassMetadataTermList::get_termname() const
 Xapian::doccount
 GlassMetadataTermList::get_termfreq() const
 {
-	throw Xapian::InvalidOperationError("GlassMetadataTermList::get_termfreq() not meaningful");
+	throw Xapian::InvalidOperationError("
+	    GlassMetadataTermList::get_termfreq() not meaningful");
 }
 
 Xapian::termcount
@@ -87,7 +88,7 @@ GlassMetadataTermList::get_collection_freq() const
 TermList *
 GlassMetadataTermList::next()
 {
-	LOGCALL(DB, TermList *, "GlassMetadataTermList::next", NO_ARGS);
+	LOGCALL(DB, TermList*, "GlassMetadataTermList::next", NO_ARGS);
 	Assert(!at_end());
 
 	cursor->next();
@@ -100,7 +101,7 @@ GlassMetadataTermList::next()
 }
 
 TermList *
-GlassMetadataTermList::skip_to(const string &key)
+GlassMetadataTermList::skip_to(const string& key)
 {
 	LOGCALL(DB, TermList *, "GlassMetadataTermList::skip_to", key);
 	Assert(!at_end());
