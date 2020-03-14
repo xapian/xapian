@@ -197,14 +197,6 @@ HoneySynonymTermList::get_termfreq() const
 					"not meaningful");
 }
 
-Xapian::termcount
-HoneySynonymTermList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("HoneySynonymTermList::"
-					"get_collection_freq() "
-					"not meaningful");
-}
-
 TermList*
 HoneySynonymTermList::next()
 {
