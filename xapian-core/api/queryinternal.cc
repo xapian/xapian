@@ -891,6 +891,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			// 00010xxx for OP_VALUE_LT
 			return new Xapian::Internal::QueryValueGT(slot, begin);
 		}
+		/////////////////////////////////////////////////////////////////////////
 		case 3:
 		{
 
