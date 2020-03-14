@@ -187,12 +187,6 @@ GlassSynonymTermList::get_termfreq() const
     throw Xapian::InvalidOperationError("GlassSynonymTermList::get_termfreq() not meaningful");
 }
 
-Xapian::termcount
-GlassSynonymTermList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("GlassSynonymTermList::get_collection_freq() not meaningful");
-}
-
 TermList *
 GlassSynonymTermList::next()
 {

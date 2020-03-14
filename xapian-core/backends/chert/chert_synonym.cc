@@ -187,12 +187,6 @@ ChertSynonymTermList::get_termfreq() const
     throw Xapian::InvalidOperationError("ChertSynonymTermList::get_termfreq() not meaningful");
 }
 
-Xapian::termcount
-ChertSynonymTermList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("ChertSynonymTermList::get_collection_freq() not meaningful");
-}
-
 TermList *
 ChertSynonymTermList::next()
 {

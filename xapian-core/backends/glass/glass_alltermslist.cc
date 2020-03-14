@@ -28,18 +28,17 @@
 #include "stringutils.h"
 
 void
-GlassAllTermsList::read_termfreq_and_collfreq() const
+GlassAllTermsList::read_termfreq() const
 {
-    LOGCALL_VOID(DB, "GlassAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
+    LOGCALL_VOID(DB, "GlassAllTermsList::read_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 
-    // Unpack the termfreq and collfreq from the tag.  Only do this if
-    // one or other is actually read.
+    // Unpack the termfreq from the tag.
     cursor->read_tag();
     const char *p = cursor->current_tag.data();
     const char *pend = p + cursor->current_tag.size();
-    GlassPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
+    GlassPostList::read_number_of_entries(&p, pend, &termfreq, NULL);
 }
 
 GlassAllTermsList::~GlassAllTermsList()
@@ -63,18 +62,8 @@ GlassAllTermsList::get_termfreq() const
     LOGCALL(DB, Xapian::doccount, "GlassAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
+    if (termfreq == 0) read_termfreq();
     RETURN(termfreq);
-}
-
-Xapian::termcount
-GlassAllTermsList::get_collection_freq() const
-{
-    LOGCALL(DB, Xapian::termcount, "GlassAllTermsList::get_collection_freq", NO_ARGS);
-    Assert(!current_term.empty());
-    Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
-    RETURN(collfreq);
 }
 
 TermList *
@@ -82,8 +71,8 @@ GlassAllTermsList::next()
 {
     LOGCALL(DB, TermList *, "GlassAllTermsList::next", NO_ARGS);
     Assert(!at_end());
-    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
-    // the current term.
+    // Set termfreq to 0 to indicate no termfreq has been read for the current
+    // term.
     termfreq = 0;
 
     if (rare(!cursor)) {
@@ -138,8 +127,8 @@ GlassAllTermsList::skip_to(const string &term)
 {
     LOGCALL(DB, TermList *, "GlassAllTermsList::skip_to", term);
     Assert(!at_end());
-    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
-    // the current term.
+    // Set termfreq to 0 to indicate no termfreq has been read for the current
+    // term.
     termfreq = 0;
 
     if (rare(!cursor)) {

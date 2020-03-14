@@ -165,9 +165,6 @@ class GlassSynonymTermList : public AllTermsList {
     /// Return the term frequency for the term at the current position.
     Xapian::doccount get_termfreq() const;
 
-    /// Return the collection frequency for the term at the current position.
-    Xapian::termcount get_collection_freq() const;
-
     /// Advance to the next term in the list.
     TermList * next();
 

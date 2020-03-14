@@ -28,18 +28,20 @@
 #include "stringutils.h"
 
 void
-ChertAllTermsList::read_termfreq_and_collfreq() const
+ChertAllTermsList::read_termfreq() const
 {
-    LOGCALL_VOID(DB, "ChertAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
+    LOGCALL_VOID(DB, "ChertAllTermsList::read_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 
-    // Unpack the termfreq and collfreq from the tag.  Only do this if
-    // one or other is actually read.
+    // Unpack the termfreq from the tag.
+    Xapian::termcount collfreq;
     cursor->read_tag();
     const char *p = cursor->current_tag.data();
     const char *pend = p + cursor->current_tag.size();
     ChertPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
+    // Not used.
+    (void)collfreq;
 }
 
 ChertAllTermsList::~ChertAllTermsList()
@@ -63,18 +65,8 @@ ChertAllTermsList::get_termfreq() const
     LOGCALL(DB, Xapian::doccount, "ChertAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
+    if (termfreq == 0) read_termfreq();
     RETURN(termfreq);
-}
-
-Xapian::termcount
-ChertAllTermsList::get_collection_freq() const
-{
-    LOGCALL(DB, Xapian::termcount, "ChertAllTermsList::get_collection_freq", NO_ARGS);
-    Assert(!current_term.empty());
-    Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
-    RETURN(collfreq);
 }
 
 TermList *
@@ -138,8 +130,8 @@ ChertAllTermsList::skip_to(const string &term)
 {
     LOGCALL(DB, TermList *, "ChertAllTermsList::skip_to", term);
     Assert(!at_end());
-    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
-    // the current term.
+    // Set termfreq to 0 to indicate no termfreq has been read for the current
+    // term.
     termfreq = 0;
 
     if (rare(!cursor)) {

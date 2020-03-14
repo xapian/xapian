@@ -419,12 +419,6 @@ ChertSpellingTermList::get_termfreq() const
     return 1;
 }
 
-Xapian::termcount
-ChertSpellingTermList::get_collection_freq() const
-{
-    return 1;
-}
-
 TermList *
 ChertSpellingTermList::next()
 {

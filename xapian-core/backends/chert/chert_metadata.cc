@@ -64,12 +64,6 @@ ChertMetadataTermList::get_termfreq() const
     throw Xapian::InvalidOperationError("ChertMetadataTermList::get_termfreq() not meaningful");
 }
 
-Xapian::termcount
-ChertMetadataTermList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("ChertMetadataTermList::get_collection_freq() not meaningful");
-}
-
 TermList *
 ChertMetadataTermList::next()
 {
