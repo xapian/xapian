@@ -1,4 +1,3 @@
-
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
@@ -877,14 +876,14 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		// xxx is the slot number
 		Xapian::valueno slot = ch & 7;
 		if (slot == 7) {
-		if (!unpack_uint(p, end, &slot)) {
+		    if (!unpack_uint(p, end, &slot)) {
 			unpack_throw_serialisation_error(*p);
 		}
 		slot += 7;
 		}
 		string begin;
 		if (!unpack_string(p, end, begin)) {
-		unpack_throw_serialisation_error(*p);
+		    unpack_throw_serialisation_error(*p);
 		}
 		switch (ch >> 3)
 		{
@@ -967,16 +966,16 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    case 0x0c: { // PostingSource
 			string name;
 			if (!unpack_string(p, end, name)) {
-			throw SerialisationError("not enough data");
+			    throw SerialisationError("not enough data");
 			}
 
 			const PostingSource* reg_source =
 					reg.get_posting_source(name);
 			if (!reg_source) {
-				string m = "PostingSource ";
-				m += name;
-				m += " not registered";
-				throw SerialisationError(m);
+			    string m = "PostingSource ";
+			    m += name;
+			    m += " not registered";
+			    throw SerialisationError(m);
 			}
 
 			string serialised_source;
@@ -1015,13 +1014,11 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    default: // Others currently unused.
 			break;
 			}
-
 	    }
 	    }
 	    break;
 	}
     }
-
 
     string msg = "Unknown Query serialisation: ";
     msg += str(ch);
