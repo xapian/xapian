@@ -103,7 +103,7 @@ GlassMetadataTermList::next()
 TermList *
 GlassMetadataTermList::skip_to(const string& key)
 {
-	LOGCALL(DB, TermList *, "GlassMetadataTermList::skip_to", key);
+	LOGCALL(DB, TermList*, "GlassMetadataTermList::skip_to", key);
 	Assert(!at_end());
 
 	if (!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
