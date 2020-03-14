@@ -59,7 +59,8 @@ InMemoryAllTermsList::get_collection_freq() const
     if (database->is_closed()) InMemoryDatabase::throw_database_closed();
     Assert(!at_end());
     Assert(!it->first.empty());
-    throw Xapian::UnimplementedError("Collection frequency not implemented in InMemory backend");
+    throw Xapian::UnimplementedError("
+        Collection frequency not implemented in InMemory backend");
 }
 
 TermList *

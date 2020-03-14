@@ -164,8 +164,6 @@ GlassSynonymTable::open_termlist(const string & term)
     return new VectorTermList(synonyms.begin(), synonyms.end());
 }
 
-///////////////////////////////////////////////////////////////////////////
-
 GlassSynonymTermList::~GlassSynonymTermList()
 {
     LOGCALL_DTOR(DB, "GlassSynonymTermList");
@@ -193,13 +191,15 @@ GlassSynonymTermList::get_termname() const
 Xapian::doccount
 GlassSynonymTermList::get_termfreq() const
 {
-    throw Xapian::InvalidOperationError("GlassSynonymTermList::get_termfreq() not meaningful");
+    throw Xapian::InvalidOperationError("
+        GlassSynonymTermList::get_termfreq() not meaningful");
 }
 
 Xapian::termcount
 GlassSynonymTermList::get_collection_freq() const
 {
-    throw Xapian::InvalidOperationError("GlassSynonymTermList::get_collection_freq() not meaningful");
+    throw Xapian::InvalidOperationError("
+        GlassSynonymTermList::get_collection_freq() not meaningful");
 }
 
 TermList *
