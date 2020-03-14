@@ -2002,6 +2002,7 @@ QueryBranch::get_type() const noexcept
     return get_op();
 }
 
+
 size_t
 QueryBranch::get_num_subqueries() const noexcept
 {
