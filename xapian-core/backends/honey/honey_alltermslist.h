@@ -63,17 +63,13 @@ class HoneyAllTermsList : public AllTermsList {
 
     /** The term frequency of the term at the current position.
      *
-     *  If this value is zero, then we haven't read the term frequency or
-     *  collection frequency for the current term yet.  We need to call
-     *  read_termfreq_and_collfreq() to read these.
+     *  If this value is zero, then we haven't read the term frequency for the
+     *  current term yet.  We need to call read_termfreq() to read this.
      */
     mutable Xapian::doccount termfreq = 0;
 
-    /// The collection frequency of the term at the current position.
-    mutable Xapian::termcount collfreq;
-
-    /// Read and cache the term frequency and collection frequency.
-    void read_termfreq_and_collfreq() const;
+    /// Read and cache the term frequency.
+    void read_termfreq() const;
 
   public:
     HoneyAllTermsList(const HoneyDatabase* database_,
@@ -98,13 +94,6 @@ class HoneyAllTermsList : public AllTermsList {
      *  method can be called.
      */
     Xapian::doccount get_termfreq() const;
-
-    /** Returns the collection frequency of the current term.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    Xapian::termcount get_collection_freq() const;
 
     /// Advance to the next term in the list.
     TermList* next();

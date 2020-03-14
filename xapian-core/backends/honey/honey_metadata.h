@@ -73,12 +73,6 @@ class HoneyMetadataTermList : public AllTermsList {
      */
     Xapian::doccount get_termfreq() const;
 
-    /** Return the collection frequency for the term at the current position.
-     *
-     *  Not meaningful for a HoneyMetadataTermList.
-     */
-    Xapian::termcount get_collection_freq() const;
-
     /// Advance to the next term in the list.
     TermList* next();
 

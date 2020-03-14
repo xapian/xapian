@@ -62,9 +62,6 @@ class InMemoryAllTermsList : public AllTermsList
     // Get num of docs indexed by term
     Xapian::doccount get_termfreq() const;
 
-    // Get num of docs indexed by term
-    Xapian::termcount get_collection_freq() const;
-
     TermList * skip_to(const string &tname);
 
     /** next() causes the AllTermsList to move to the next term in the list.

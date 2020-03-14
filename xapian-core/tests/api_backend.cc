@@ -1916,3 +1916,41 @@ DEFINE_TESTCASE(reconstruct1, backend) {
     TEST_STRINGS_EQUAL(db.reconstruct_text(6, 0, "", 1, 3), "and yet anoth");
     return true;
 }
+
+/** Regression test for bug fixed in git master before 1.5.0.
+ *
+ *  A PositionIterator from a PostingIterator in a multidatabase always used
+ *  the first shard, which could cause a segfault if the term wasn't present
+ *  in that shard.
+ */
+DEFINE_TESTCASE(positfrompostit1, positional) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    {
+	// Wrong results - this was giving (4) instead of (5, 18).
+	auto postit = db.postlist_begin("paragraph");
+	TEST_NOT_EQUAL(postit, db.postlist_end("paragraph"));
+	postit.skip_to(4);
+	TEST_NOT_EQUAL(postit, db.postlist_end("paragraph"));
+	auto p = postit.positionlist_begin();
+	TEST_NOT_EQUAL(p, postit.positionlist_end());
+	TEST_EQUAL(*p, 5);
+	++p;
+	TEST_NOT_EQUAL(p, postit.positionlist_end());
+	TEST_EQUAL(*p, 18);
+	++p;
+	TEST_EQUAL(p, postit.positionlist_end());
+    }
+    {
+	// This was giving a segmentation fault.
+	auto postit = db.postlist_begin("split");
+	TEST_NOT_EQUAL(postit, db.postlist_end("split"));
+	postit.skip_to(6);
+	TEST_NOT_EQUAL(postit, db.postlist_end("split"));
+	auto p = postit.positionlist_begin();
+	TEST_NOT_EQUAL(p, postit.positionlist_end());
+	TEST_EQUAL(*p, 9);
+	++p;
+	TEST_EQUAL(p, postit.positionlist_end());
+    }
+    return true;
+}

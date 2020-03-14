@@ -1206,3 +1206,17 @@ DEFINE_TESTCASE(phraseweightcheckbug1, backend) {
     TEST_EQUAL(mset.size(), 3);
     return true;
 }
+
+DEFINE_TESTCASE(orphanedhint1, backend) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enq(db);
+    auto OP_WILDCARD = Xapian::Query::OP_WILDCARD;
+    Xapian::Query query = Xapian::Query(OP_WILDCARD, "doc") &
+			  Xapian::Query(OP_WILDCARD, "xyzzy");
+    query |= Xapian::Query("test");
+    tout << query.get_description() << '\n';
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 3);
+    TEST_EQUAL(mset.size(), 1);
+    return true;
+}

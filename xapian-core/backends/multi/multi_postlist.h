@@ -1,7 +1,7 @@
 /** @file multi_postlist.h
  * @brief Class for merging PostList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2015,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2015,2017,2020 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,9 +34,6 @@ class MultiPostList : public PostList {
 
     /// Don't allow copying.
     MultiPostList(const MultiPostList &) = delete;
-
-    /// Current subdatabase.
-    Xapian::doccount current = 0;
 
     /// Number of PostList* entries in @a postlists.
     Xapian::doccount n_shards;
