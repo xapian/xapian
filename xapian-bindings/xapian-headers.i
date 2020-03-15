@@ -219,7 +219,7 @@ STANDARD_IGNORES(Xapian, Query)
 %ignore *::operator^=;
 %ignore *::operator*=;
 %ignore *::operator/=;
-#if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGLUA || defined SWIGPHP
+#if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGLUA || defined SWIGPHP || SWIGGO
 %ignore *::operator&;
 %ignore *::operator|;
 %ignore *::operator^;
@@ -233,7 +233,7 @@ STANDARD_IGNORES(Xapian, Query)
 
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::Query::Internal;
 #if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGPERL || \
-    defined SWIGPYTHON || defined SWIGRUBY
+    defined SWIGPYTHON || defined SWIGRUBY || SWIGGO
 // C#, Java, Perl, Python and Ruby wrap these "by hand" to give a nicer API
 // than SWIG gives by default.
 %ignore Xapian::Query::MatchAll;
@@ -477,3 +477,5 @@ class Remote {
 %include <xapian/dbfactory.h>
 
 #endif
+
+
