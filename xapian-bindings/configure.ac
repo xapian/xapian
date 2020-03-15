@@ -274,8 +274,12 @@ AC_ARG_WITH(lua,
   AC_HELP_STRING([--with-lua], [enable Lua bindings]),
   [],
   [with_lua=])
+AC_ARG_WITH(lua,
+  AC_HELP_STRING([--with-go], [enable Go bindings]),
+  [],
+  [with_go=])
 
-case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua$with_go in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
@@ -287,11 +291,30 @@ case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_jav
   test -z "$with_ruby" && with_ruby=no
   test -z "$with_perl" && with_perl=no
   test -z "$with_lua" && with_lua=no
+  test -z "$with_go" && with_go=no
   ;;
 esac
 
 BINDINGS=
-
+if test no != "$with_go" ; then
+  AC_PATH_PROG([GO],["go"],[])
+  AC_MSG_CHECKING(go)
+  if test -n "$GO" ; then
+    AC_MSG_RESULT(yes)
+    AC_MSG_CHECKING(goroot)
+    GOROOT=`go env GOROOT`
+    AC_SUBST(GOROOT)
+    if test -n "${GOROOT}" ; then
+      AC_MSG_RESULT([${GOROOT} yes])
+    fi
+    if test -z "${GOROOT}" ; then
+      AC_MSG_ERROR([goroot not set correctly])
+    fi
+  fi
+  if test -z "$GO" ; then
+    AC_MSG_ERROR("go not installed or go path has not been set")
+  fi
+fi
 if test no != "$with_python" ; then
   dnl For backward compatibility:
   : ${PYTHON2="$PYTHON"}
@@ -1341,6 +1364,7 @@ AC_CONFIG_FILES([Makefile
  ruby/Makefile
  perl/Makefile perl/util.i
  lua/Makefile
+ go/Makefile
  xapian-bindings.spec
  ])
 AC_OUTPUT
