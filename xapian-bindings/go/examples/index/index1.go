@@ -8,7 +8,7 @@ import ("fmt"
 )
 
 func main(){
-	csvfile,err := os.Open("../data/100-objects-v2.csv") //a csv reader to get the valuse from csv file
+	csvfile,err := os.Open("../data/100-objects-v2.csv") //a csv reader to get the values from csv file
 	if err != nil {
 		os.Exit(1)
 	}
@@ -17,19 +17,21 @@ func main(){
 	fields,_ := reader.Read()
 	fmt.Println("Fields are ")
 	fmt.Println(fields)
-	fmt.Println()
-	termgenerator := xapian.NewTermGenerator();//set up the termgenerator
-	termgenerator.Set_stemmer(xapian.NewStem("en"))//set up the stem object..with lang
-	fmt.Println(termgenerator)
+	//set up the termgenerator
+	termgenerator := xapian.NewTermGenerator();
+	//set up the stem object..with language 
+	termgenerator.Set_stemmer(xapian.NewStem("en"))
 	for{
 		fields,err := reader.Read()
 		if err == io.EOF {
 			break
 		}
+		//considering id ,tilte and description only
 		fmt.Println("id=",fields[0],"title=",fields[2],"desc=",fields[8])
 		id_no := fields[0]
 		title := fields[2]
-		var x uint = 1
+		// when we use := go compiler identifies the type , if we use = we need to specfy the type as below
+		var x uint = 1 
 		description := fields[8]
 		doc := xapian.NewDocument()
 		termgenerator.Set_document(doc)
@@ -49,6 +51,7 @@ func main(){
 		xapian.DeleteDocument(doc)
 	}
 	fmt.Println(db.Get_doccount())
-	db.Close()
+	//close the database in order the save the Documents
+	db.Close() 
 }
 
