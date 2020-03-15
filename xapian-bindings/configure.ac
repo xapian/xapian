@@ -243,7 +243,7 @@ AC_ARG_WITH(lua,
   AS_HELP_STRING([--with-lua], [enable Lua bindings]),
   [],
   [with_lua=])
-AC_ARG_WITH(lua,
+AC_ARG_WITH(go,
   AC_HELP_STRING([--with-go], [enable Go bindings]),
   [],
   [with_go=])
