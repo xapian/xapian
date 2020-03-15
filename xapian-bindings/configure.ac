@@ -243,8 +243,13 @@ AC_ARG_WITH(lua,
   AS_HELP_STRING([--with-lua], [enable Lua bindings]),
   [],
   [with_lua=])
+AC_ARG_WITH(lua,
+  AC_HELP_STRING([--with-go], [enable Go bindings]),
+  [],
+  [with_go=])
 
-case $with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+
+case $with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua$with_go in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python3" && with_python3=no
@@ -255,6 +260,7 @@ case $with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$
   test -z "$with_ruby" && with_ruby=no
   test -z "$with_perl" && with_perl=no
   test -z "$with_lua" && with_lua=no
+  test -z "$with_go" && with_go=no
   ;;
 esac
 
@@ -1212,6 +1218,7 @@ AC_CONFIG_FILES([Makefile
  ruby/Makefile
  perl/Makefile
  lua/Makefile
+ go/Makefile
  xapian-bindings.spec
  ])
 AC_OUTPUT
