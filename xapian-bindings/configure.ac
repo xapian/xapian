@@ -274,7 +274,7 @@ AC_ARG_WITH(lua,
   AC_HELP_STRING([--with-lua], [enable Lua bindings]),
   [],
   [with_lua=])
-AC_ARG_WITH(lua,
+AC_ARG_WITH(go,
   AC_HELP_STRING([--with-go], [enable Go bindings]),
   [],
   [with_go=])
@@ -311,6 +311,7 @@ if test no != "$with_go" ; then
       AC_MSG_ERROR([goroot not set correctly])
     fi
   fi
+  BINDINGS="$BINDINGS go"
   if test -z "$GO" ; then
     AC_MSG_ERROR("go not installed or go path has not been set")
   fi
