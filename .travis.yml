@@ -68,6 +68,8 @@ matrix:
       # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
       # aim to support.
       dist: trusty
+      language: go
+        - 1.13.8
       addons:
         apt:
           packages:
