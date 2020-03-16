@@ -41,7 +41,7 @@ check :
 	cd ${GOSRCDIR}/test && ${GO} test
 	${GO} env -w CGO_CFLAGS="-g -O2 "
 	${GO} env -w CGO_CPPFLAGS=""
-	${GO} env -w CGO_CXXFLAGS="-g O2"
+	${GO} env -w CGO_CXXFLAGS="-g -O2"
 	${GO} env -w CGO_FFLAGS="-g -O2 "
 	${GO} env -w CGO_LDFLAGS="-g -O2 "
 
