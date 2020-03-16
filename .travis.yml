@@ -69,6 +69,7 @@ matrix:
       # aim to support.
       dist: trusty
       language: go
+      go :
         - 1.13.8
       addons:
         apt:
