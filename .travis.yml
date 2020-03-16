@@ -22,6 +22,7 @@ matrix:
             - lua5.3
             - liblua5.3-dev
             - mono-devel
+            - golang-go
             - python-dev
             - python3-dev
             - tcl
@@ -49,6 +50,7 @@ matrix:
             - pngcrush
             - python-sphinx
             - uuid-dev
+            - golang-go
             - libpcre3-dev
             - libmagic-dev
             - tcl
@@ -68,9 +70,6 @@ matrix:
       # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
       # aim to support.
       dist: trusty
-      language: go
-      go :
-        - 1.13.8
       addons:
         apt:
           packages:
@@ -84,6 +83,7 @@ matrix:
             - libpcre3-dev
             - libmagic-dev
             - lua5.2
+            - golang-go
             - liblua5.2-dev
             - mono-devel
             - python-dev
