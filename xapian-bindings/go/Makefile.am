@@ -1,4 +1,13 @@
 GOSRCDIR = ${GOROOT}/src/xapian
+
+TESTS = ./test
+AM_TESTS_ENVIRONMENT = \ 
+	abs_builddir='$(abs_builddir)' ;\
+	srcdir='$(srcdir)'
+	export abs_builddir ;\
+	export srcdir ;
+LOG_COMPILER = ${GO} test ./test
+
 install-data-hook: build
 build : modify
 	cd ${GOROOT}/src/xapian
@@ -12,5 +21,5 @@ run :
 	sed '17 i \#cgo pkg-config : xapian-core-1.5' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
 check :
-	cd ${GOSRCDIR}/test && ${GO} test
+	${GO} test ./test
 .PHONY: build modify run check
