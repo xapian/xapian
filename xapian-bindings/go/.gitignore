@@ -3,3 +3,6 @@
 /go_wrap.h
 /go_wrap.cxx
 /xapian.go
+/test-suite.log
+/test.log
+/test.trs
