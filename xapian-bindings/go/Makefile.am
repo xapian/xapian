@@ -1,5 +1,5 @@
 GOSRCDIR = ${GOROOT}/src/xapian
-all: build
+install-data-hook: build
 build : modify
 	cd ${GOROOT}/src/xapian
 	${GO} install -i -x -a
