@@ -3,6 +3,7 @@ install-data-hook: build
 build : modify
 	cd ${GOROOT}/src/xapian
 	${GO} install -i -x -a
+	ldconfig
 modify : run 
 	mkdir -p ${GOSRCDIR}
 	cp -r * ${GOSRCDIR}
