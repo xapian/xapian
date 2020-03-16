@@ -100,6 +100,10 @@ matrix:
             - python-docutils
             - python-pygments
             - pngcrush
+      language: go
+      go:
+        - 1.13.8
+        - master          
       language: node_js
       node_js:
         - node
