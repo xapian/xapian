@@ -135,6 +135,7 @@ matrix:
             - graphviz
             - help2man
             - icu4c
+            - go
             - libetonyek
             - libiconv
             - libmagic
