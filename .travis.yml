@@ -12,6 +12,7 @@ matrix:
       # the GCC version, there can be issues.)
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
 script:
+  - which clang
   - sudo -e make -j2
   - $installcore
   - make -e -j2 check VERBOSE=1 AUTOMATED_TESTING=1
