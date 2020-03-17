@@ -44,10 +44,11 @@ before_script:
   - /usr/local/go/bin/go env 
   #- gimme stable
   #- gimme list
-  - gimme -f
+  - gimme -f GIMMI_GO_VERSION=1.11.1 /usr/local/bin/gimme
   - go env 
   - $PATH
   - go env -w
+  
   #- travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   #- ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
