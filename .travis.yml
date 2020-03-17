@@ -43,7 +43,9 @@ before_script:
   #- rm -r /home/travis/.gimme
   - export PATH=$PATH:/usr/local/go/bin
   - /usr/local/go/bin/go env 
-  - export GIMME_GO_VERSION=1.14
+  - echo "export GIMME_GO_VERSION=1.14" >> ~/.bashrc
+  - source ~/.bashrc
+  - go env
   - gimme stable
   - gimme list
   - gimme -f 1.14
