@@ -40,11 +40,12 @@ before_script:
   # by default), then configure using our chosen compiler.
   - wget https://dl.google.com/go/go1.14.linux-amd64.tar.gz
   - sudo tar -C /usr/local -xzf go1.14.linux-amd64.tar.gz
+  - rm -r /home/travis/.gimme
   - export PATH=$PATH:/usr/local/go/bin
   - /usr/local/go/bin/go env 
   #- gimme stable
   #- gimme list
-  - gimme -f GIMMI_GO_VERSION=1.11.1
+  #- gimme -f GIMMI_GO_VERSION=1.11.1
   - go env 
   - $PATH
   - go env -w
