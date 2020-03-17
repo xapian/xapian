@@ -45,6 +45,7 @@ before_script:
   - /usr/local/go/bin/go env 
   - echo "export GIMME_GO_VERSION=1.14" >> ~/.bashrc
   - source ~/.bashrc
+  - eval "$(gimme 1.14)"
   - go env
   - gimme stable
   - gimme list
