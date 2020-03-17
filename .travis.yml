@@ -38,14 +38,15 @@ matrix:
 before_script:
   # Bootstrap everything (including letor, which isn't done
   # by default), then configure using our chosen compiler.
-#   - wget https://dl.google.com/go/go1.14.linux-amd64.tar.gz
-#   - tar -C /usr/local -xzf go1.14.linux-amd64.tar.gz
-#   - export PATH=$PATH:/usr/local/go/bin
-  - sudo add-apt-repository ppa:longsleep/golang-backports
-  - sudo apt update
-  - sudo apt install golang-go
+  - wget https://dl.google.com/go/go1.14.linux-amd64.tar.gz
+  - sudo tar -C /usr/local -xzf go1.14.linux-amd64.tar.gz
+  - sudo export PATH=$PATH:/usr/local/go/bin
+  - sudo add-apt-repository ppa:longsleep/golang-backports -y
   - go env 
   - go env -w
+  - sudo apt update -y
+  - sudo apt install golang-go -y
+
   #- travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   #- ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
