@@ -1,19 +1,4 @@
 GOSRCDIR = ${GOROOT}/src/xapian
-
-all:
-	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 go.i
-	mkdir -p ${GOSRCDIR}
-	cp -r * ${GOSRCDIR}
-	cd ${GOSRCDIR}
-	${GO} env -w CGO_CFLAGS="-g -O2 ${XAPIAN_CXXFLAGS}"
-	${GO} env -w CGO_CPPFLAGS="-g -O2 ${CPPFLAGS} ${XAPIAN_CXXFLAGS}"
-	${GO} env -w CGO_CXXFLAGS="-g -O2 -std=gnu++11 ${XAPIAN_CXXFLAGS}"
-	${GO} env -w CGO_LDFLAGS="-g -O2 -std=gnu++11 -L${abs_top_srcdir}/../xapian-core/.libs/ -lxapian-1.5 ${XAPIAN_CXXFLAGS}"
-	${GO} install -i -x -a
-	cp ${abs_top_srcdir}/../xapian-core/.libs/libxapian-1.5.so.0.0.0 /usr/lib/ > /dev/null 2>&1 || true
-	ldconfig > /dev/null 2>&1 || true
-	cp ${abs_top_srcdir}/../xapian-core/.libs/libxapian-1.5.0.dylib /usr/local/lib > /dev/null 2>&1 || true
-	update_dyld_shared_cache > /dev/null 2>&1 || true
 TESTS = ./test
 AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
@@ -40,10 +25,5 @@ run :
 
 check :
 	cd ${GOSRCDIR}/test && ${GO} test
-	${GO} env -w CGO_CFLAGS="-g -O2 "
-	${GO} env -w CGO_CPPFLAGS=""
-	${GO} env -w CGO_CXXFLAGS="-g -O2"
-	${GO} env -w CGO_FFLAGS="-g -O2 "
-	${GO} env -w CGO_LDFLAGS="-g -O2 "
 
 .PHONY: build modify run check
