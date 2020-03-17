@@ -41,10 +41,9 @@ before_script:
 #   - wget https://dl.google.com/go/go1.14.linux-amd64.tar.gz
 #   - tar -C /usr/local -xzf go1.14.linux-amd64.tar.gz
 #   - export PATH=$PATH:/usr/local/go/bin
-  - sudo su
-  - add-apt-repository ppa:longsleep/golang-backports
-  - apt update
-  - apt install golang-go
+  - sudo add-apt-repository ppa:longsleep/golang-backports
+  - sudo apt update
+  - sudo apt install golang-go
   - go env 
   - go env -w
   #- travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
