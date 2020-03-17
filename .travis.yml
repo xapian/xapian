@@ -22,7 +22,6 @@ matrix:
             - lua5.3
             - liblua5.3-dev
             - mono-devel
-            - golang-go
             - python-dev
             - python3-dev
             - tcl
@@ -50,7 +49,6 @@ matrix:
             - pngcrush
             - python-sphinx
             - uuid-dev
-            - golang-go
             - libpcre3-dev
             - libmagic-dev
             - tcl
@@ -83,7 +81,6 @@ matrix:
             - libpcre3-dev
             - libmagic-dev
             - lua5.2
-            - golang-go
             - liblua5.2-dev
             - mono-devel
             - python-dev
@@ -102,11 +99,7 @@ matrix:
             - help2man
             - python-docutils
             - python-pygments
-            - pngcrush
-      language: go
-      go:
-        - 1.13.8
-        - master          
+            - pngcrush          
       language: node_js
       node_js:
         - node
@@ -135,7 +128,6 @@ matrix:
             - graphviz
             - help2man
             - icu4c
-            - go
             - libetonyek
             - libiconv
             - libmagic
@@ -177,6 +169,8 @@ matrix:
 before_script:
   # Bootstrap everything (including letor, which isn't done
   # by default), then configure using our chosen compiler.
+  - eval "$(gimme 1.14)"
+  - eval env
   - travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
