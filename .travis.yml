@@ -45,7 +45,7 @@ before_script:
   - /usr/local/go/bin/go env 
   - gimme stable
   - gimme list
-  - gimme -f go1.11.1.linux.amd64
+  - gimme -v
   - go env 
   - $PATH
   - go env -w
