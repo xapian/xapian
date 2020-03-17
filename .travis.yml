@@ -42,7 +42,8 @@ before_script:
   - sudo tar -C /usr/local -xzf go1.14.linux-amd64.tar.gz
   - export PATH=$PATH:/usr/local/go/bin
   - /usr/local/go/bin/go env 
-  - /usr/local/go/bin/go env -w
+  - gimme stable
+  - gimme list
   #- travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   #- ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
