@@ -44,7 +44,7 @@ before_script:
   - /usr/local/go/bin/go env 
   #- gimme stable
   #- gimme list
-  - gimme -f GIMMI_GO_VERSION=1.11.1 /usr/local/bin/gimme
+  - gimme -f GIMMI_GO_VERSION=1.11.1
   - go env 
   - $PATH
   - go env -w
