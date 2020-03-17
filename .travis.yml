@@ -41,9 +41,9 @@ before_script:
   - travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
-  - sudo make -j2
+  - sudo -E make -j2
   - $installcore
-  - make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
+  - make -E -j2 check VERBOSE=1 AUTOMATED_TESTING=1
   # grep '^' passes through all input while giving a non-zero exit status if
   # that input is empty.
   - git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true
