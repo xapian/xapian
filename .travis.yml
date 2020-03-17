@@ -50,7 +50,6 @@ matrix:
             - pngcrush
             - python-sphinx
             - uuid-dev
-            - golang-go
             - libpcre3-dev
             - libmagic-dev
             - tcl
