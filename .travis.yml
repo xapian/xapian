@@ -39,6 +39,7 @@ before_script:
   # Bootstrap everything (including letor, which isn't done
   # by default), then configure using our chosen compiler.
   - eval "$(gimme 1.14)"
+  - go env
   - go env -w
   
   #- travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
