@@ -45,6 +45,7 @@ before_script:
   #- gimme stable
   #- gimme list
   - go env 
+  - $PATH
   - go env -w
   #- travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   #- ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
