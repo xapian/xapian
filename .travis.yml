@@ -55,6 +55,9 @@ before_script:
   #- travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   #- ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
+  - go env
+  - go env -w GOROOT="/usr/local/go"
+  - go env
   #- make -j2
   #- $installcore
   #- make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
