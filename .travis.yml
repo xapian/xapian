@@ -10,36 +10,7 @@ matrix:
       # Clang is already installed, but we want to build using the
       # llvm c++ library, not the GCC one. (Otherwise, depending on
       # the GCC version, there can be issues.)
-      addons:
-        apt:
-          packages:
-            - doxygen
-            - graphviz
-            - help2man
-            - python-docutils
-            - pngcrush
-            - python-sphinx
-            - uuid-dev
-            - libpcre3-dev
-            - libmagic-dev
-            - tcl
-            - libsvm-dev
-            - libc++-dev
-            - libicu-dev
-            - pkg-config
-            - libpoppler-cpp-dev
-            - libe-book-dev
-            - libetonyek-dev
-            - libtesseract-dev
-            - libgmime-2.6-dev
-      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'        
-before_script:
-  # Bootstrap everything (including letor, which isn't done
-  # by default), then configure using our chosen compiler.
-  - eval "$(gimme 1.14)"
-  - eval env
-  - travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
-  - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
+      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
 script:
   - sudo -e make -j2
   - $installcore
