@@ -49,6 +49,8 @@ before_script:
   - sudo apt update -y
   - sudo apt install golang-go -y
   - go env
+  - sudo snap install go --classic
+  - go env
 
   #- travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   #- ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
