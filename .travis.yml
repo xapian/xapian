@@ -99,7 +99,7 @@ matrix:
             - help2man
             - python-docutils
             - python-pygments
-            - pngcrush          
+            - pngcrush
       language: node_js
       node_js:
         - node
