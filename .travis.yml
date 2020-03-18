@@ -61,7 +61,7 @@ matrix:
             - libetonyek-dev
             - libtesseract-dev
             - libgmime-2.6-dev
-      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
+      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' USE_LIB='-lc++'
     - compiler: gcc
       os: linux
       name: "GCC 4.8"
