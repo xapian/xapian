@@ -63,7 +63,8 @@ matrix:
             - libgmime-2.6-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
       before_script:
-        - sudo env "PATH=$PATH" clang
+        - sudo env "PATH=$PATH"
+        - sudo clang
     - compiler: gcc
       os: linux
       name: "GCC 4.8"
