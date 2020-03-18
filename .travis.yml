@@ -62,9 +62,6 @@ matrix:
             - libtesseract-dev
             - libgmime-2.6-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
-      before_script:
-        - which clang
-        - sudo -i clang
 #     - compiler: gcc
 #       os: linux
 #       name: "GCC 4.8"
