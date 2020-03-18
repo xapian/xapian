@@ -22,8 +22,8 @@ run :
 	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 go.i
 	sed '17 i \#cgo pkg-config : xapian-core-1.5' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
-	{GO} env -w CXX="g++ -std=gnu++11"
-	{GO} env -w CGO_CPPFLAGS="${CPPFLAGS}"
+	${GO} env -w CXX="g++ -std=gnu++11"
+	${GO} env -w CGO_CPPFLAGS="${CPPFLAGS}"
 check :
 	cd ${GOSRCDIR}/test && ${GO} test
 
