@@ -27,6 +27,7 @@ all :
 	mv xapian2.go xapian.go
 	${GO} env -w CXX="${CXX}"
 	${GO} env -w CGO_CPPFLAGS="${CPPFLAGS}"
+	${GO} env -w CGO_LDFLAGS="-lc++"
 check :
 	cd ${GOSRCDIR}/test && ${GO} test
 
