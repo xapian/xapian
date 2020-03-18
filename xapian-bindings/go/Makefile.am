@@ -23,8 +23,7 @@ all :
 	awk 'NR==17{print "#cgo pkg-config : xapian-core-1.5"}1' xapian.go > xapian2.go
 	PKG_CONFIG_PATH=${abs_top_srcdir}/../xapian-core/pkg-config
 	mv xapian2.go xapian.go
-	${GO} env -w CXX="g++ -std=gnu++11"
-	${GO} env -w CGO_CXXFLAGS="-std=gnu++11"
+	${GO} env -w CXX="${CXX}"
 	${GO} env -w CGO_CPPFLAGS="${CPPFLAGS}"
 check :
 	cd ${GOSRCDIR}/test && ${GO} test
