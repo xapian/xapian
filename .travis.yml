@@ -63,9 +63,8 @@ matrix:
             - libgmime-2.6-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
       before_script:
-        - sudo env "PATH=$PATH"
         - which clang
-        - sudo clang
+        - sudo -i clang
 #     - compiler: gcc
 #       os: linux
 #       name: "GCC 4.8"
@@ -181,7 +180,7 @@ before_script:
   - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
   - make -j2
-  - sudo make install
+  - sudo -i make install
   - make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
   # grep '^' passes through all input while giving a non-zero exit status if
   # that input is empty.
