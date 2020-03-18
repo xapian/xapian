@@ -20,7 +20,7 @@ modify :
 
 all :
 	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 go.i
-	awk 'NR==17{print "#cgo pkg-config : xapian-core-1.5}1' xapian.go > xapian2.go
+	awk 'NR==17{print "#cgo pkg-config : xapian-core-1.5"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
 	${GO} env -w CXX="g++ -std=gnu++11"
 	${GO} env -w CGO_CXXFLAGS="-std=gnu++11"
