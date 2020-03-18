@@ -144,7 +144,9 @@ matrix:
             - python
             - python2
             - tesseract
+            - gsed
       before_install:
+        - alias sed=gsed
         - travis_retry pip2 install sphinx docutils
         - travis_retry pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
