@@ -5,35 +5,35 @@ notifications:
   irc: "chat.freenode.net#xapian-devel"
 matrix:
   include:
-     - compiler: gcc
-       os: linux
-       addons:
-         apt:
-           packages:
-             - doxygen
-             - graphviz
-             - help2man
-             - python-docutils
-             - pngcrush
-             - python-sphinx
-             - uuid-dev
-             - libpcre3-dev
-             - libmagic-dev
-             - lua5.3
-             - liblua5.3-dev
-             - mono-devel
-             - python-dev
-             - python3-dev
-             - tcl
-             - libsvm-dev
-             - libicu-dev
-             - pkg-config
-             - libpoppler-cpp-dev
-             - libe-book-dev
-             - libetonyek-dev
-             - libtesseract-dev
-             - libgmime-2.6-dev
-       env: CPPFLAGS=-D_GLIBCXX_DEBUG
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - lua5.3
+            - liblua5.3-dev
+            - mono-devel
+            - python-dev
+            - python3-dev
+            - tcl
+            - libsvm-dev
+            - libicu-dev
+            - pkg-config
+            - libpoppler-cpp-dev
+            - libe-book-dev
+            - libetonyek-dev
+            - libtesseract-dev
+            - libgmime-2.6-dev
+      env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
       # Clang is already installed, but we want to build using the
@@ -62,61 +62,61 @@ matrix:
             - libtesseract-dev
             - libgmime-2.6-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
-     - compiler: gcc
-       os: linux
-       name: "GCC 4.8"
-       # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
-       # aim to support.
-       dist: trusty
-       addons:
-         apt:
-           packages:
-             - doxygen
-             - graphviz
-             - help2man
-             - python-docutils
-             - pngcrush
-             - python-sphinx
-             - uuid-dev
-             - libpcre3-dev
-             - libmagic-dev
-             - lua5.2
-             - liblua5.2-dev
-             - mono-devel
-             - python-dev
-             - python3-dev
-             - tcl
-             - libsvm-dev
-             - libpoppler-cpp-dev
-             - libtesseract-dev
-     - os: linux
-       name: "Emscripten"
-       addons:
-         apt:
-           packages:
-             - doxygen
-             - graphviz
-             - help2man
-             - python-docutils
-             - python-pygments
-             - pngcrush
-       language: node_js
-       node_js:
-         - node
-       services:
-         - docker
-       before_script:
-         # Bootstrap only xapian-core for emscripten build.
-         - travis_retry ./bootstrap xapian-core
-         - ./configure CXXFLAGS=-O0 --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
-         - make -j2
-         - make -j2 distclean
-         - cd xapian-core
-         - docker run -v $(pwd):/src trzeci/emscripten emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti' --disable-backend-honey --disable-backend-inmemory --disable-shared --disable-backend-remote
-       script:
-         - docker run -v $(pwd):/src trzeci/emscripten emmake make
-         - docker run -v $(pwd):/src trzeci/emscripten em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
-         - cd emscripten && node xapianjstest.js
+    - compiler: gcc
+      os: linux
+      name: "GCC 4.8"
+      # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
+      # aim to support.
+      dist: trusty
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - lua5.2
+            - liblua5.2-dev
+            - mono-devel
+            - python-dev
+            - python3-dev
+            - tcl
+            - libsvm-dev
+            - libpoppler-cpp-dev
+            - libtesseract-dev
+    - os: linux
+      name: "Emscripten"
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - python-pygments
+            - pngcrush
+      language: node_js
+      node_js:
+        - node
+      services:
+        - docker
+      before_script:
+        # Bootstrap only xapian-core for emscripten build.
+        - travis_retry ./bootstrap xapian-core
+        - ./configure CXXFLAGS=-O0 --disable-backend-honey --disable-backend-inmemory --disable-backend-remote
+        - make -j2
+        - make -j2 distclean
+        - cd xapian-core
+        - docker run -v $(pwd):/src trzeci/emscripten emconfigure ./configure CPPFLAGS='-DFLINTLOCK_USE_FLOCK' CXXFLAGS='-Oz -s USE_ZLIB=1 -fno-rtti' --disable-backend-honey --disable-backend-inmemory --disable-shared --disable-backend-remote
+      script:
+        - docker run -v $(pwd):/src trzeci/emscripten emmake make
+        - docker run -v $(pwd):/src trzeci/emscripten em++ -Oz -s USE_ZLIB=1 -std=c++11 -s WASM=1 -Iinclude emscripten/xapianjstest.cc .libs/libxapian-1.5.a -o emscripten/xapianjstest.js
+        - cd emscripten && node xapianjstest.js
     - os: osx
       addons:
         homebrew:
@@ -152,18 +152,18 @@ matrix:
       # The default macOS make behaves oddly when the -j option is used
       # (probably rules get run in a single subshell) so use GNU make instead.
       env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
-     - name: "Automated run of xapian-check-patch"
-       os: linux
-       # Override "before_script" to do nothing
-       before_script:
-       # Override "script" to run the style checking script
-       # "xapian-check-patch":
-       # * for a PR, CI is run on the PR branch merged with the target branch,
-       #   so just check the diff from the target branch to that merged branch.
-       # * Otherwise we check changes between the common ancestor of master and
-       #   the branch and the revision being checked.
-       script:
-         - git diff `[ "$TRAVIS_PULL_REQUEST" = false ] && echo master... || echo "$TRAVIS_BRANCH.."`|xapian-maintainer-tools/xapian-check-patch
+    - name: "Automated run of xapian-check-patch"
+      os: linux
+      # Override "before_script" to do nothing
+      before_script:
+      # Override "script" to run the style checking script
+      # "xapian-check-patch":
+      # * for a PR, CI is run on the PR branch merged with the target branch,
+      #   so just check the diff from the target branch to that merged branch.
+      # * Otherwise we check changes between the common ancestor of master and
+      #   the branch and the revision being checked.
+      script:
+        - git diff `[ "$TRAVIS_PULL_REQUEST" = false ] && echo master... || echo "$TRAVIS_BRANCH.."`|xapian-maintainer-tools/xapian-check-patch
 
 
 before_script:
