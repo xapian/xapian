@@ -307,10 +307,9 @@ if test no != "$with_go" ; then
     if test -n "${GOROOT}" ; then
       AC_MSG_RESULT([${GOROOT} yes])
     fi
-    if test "${CXX}"="clang++ -stdlib=libc++" ; then
-      USE_CLANG_GO_LIB="-lc++"
+    if test "${CXX}"!="clang++ -stdlib=libc++" ; then
       AC_MSG_RESULT([$USE_CLANG_GO_LIB])
-      AC_SUBST(USE_CLANG_GO_LIB)
+      AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
     fi
     if test -z "${GOROOT}" ; then
       AC_MSG_ERROR([goroot not set correctly])
