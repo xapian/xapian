@@ -311,6 +311,10 @@ if test no != "$with_go" ; then
       AC_MSG_ERROR([goroot not set correctly])
     fi
   fi
+  USE_CLANG_LIB_GO="-lc++"
+  if test "${CXX}" = "clang++ -stdlib=libc++" ; then
+    AC_SUBST(USE_CLANG_LIB_GO)
+  fi
   BINDINGS="$BINDINGS go"
   if test -z "$GO" ; then
     AC_MSG_ERROR("go not installed or go path has not been set")

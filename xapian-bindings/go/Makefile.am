@@ -25,7 +25,7 @@ build :
 	mv xapian2.go xapian.go
 	awk 'NR==19{print "#cgo CXXFLAGS: -std=gnu++11"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
-	awk 'NR==17{print "#cgo LDFLAGS: ${USE_LIB}"}1' xapian.go > xapian2.go
+	awk 'NR==17{print "#cgo LDFLAGS: ${USE_CLANG_LIB_GO}"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
 	awk 'NR==17{print "#cgo CPPFLAGS: ${CPPFLAGS}"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
