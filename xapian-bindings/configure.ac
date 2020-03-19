@@ -304,16 +304,17 @@ if test no != "$with_go" ; then
     AC_MSG_CHECKING(goroot)
     GOROOT=`go env GOROOT`
     AC_SUBST(GOROOT)
+    USE_CLANG_GO_LIB="-lc++"
     if test -n "${GOROOT}" ; then
       AC_MSG_RESULT([${GOROOT} yes])
+    fi
+    if test "${CXX}"="clang++ -stdlib=libc++" ; then
+      AC_MSG_RESULT([$USE_CLANG_GO_LIB])
+      AC_SUBST(USE_CLANG_GO_LIB)
     fi
     if test -z "${GOROOT}" ; then
       AC_MSG_ERROR([goroot not set correctly])
     fi
-  fi
-  USE_CLANG_LIB_GO="-lc++"
-  if test "${CXX}" = "clang++ -stdlib=libc++" ; then
-    AC_SUBST(USE_CLANG_LIB_GO)
   fi
   BINDINGS="$BINDINGS go"
   if test -z "$GO" ; then
