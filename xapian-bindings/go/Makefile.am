@@ -30,7 +30,7 @@ build :
 	mv xapian2.go xapian.go
 	awk 'NR==17{print "#cgo CPPFLAGS: ${CPPFLAGS}"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
-	awk 'NR==17{print "#cgo LDFLAGS: -L${abs_top_srcdir}/../xapian-core/.libs -Wl,-rpath,${abs_top_srcdir}/../xapian-core/.libs -lxapian-1.5"}1' xapian.go > xapian2.go
+	awk 'NR==17{print "#cgo LDFLAGS: -L${abs_top_srcdir}/../xapian-core/.libs -Wl,-rpath=${abs_top_srcdir}/../xapian-core/.libs -lxapian-1.5"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
 	${GO} env -w CXX="${CXX}"
 #env PKG_CONFIG_PATH=${abs_top_srcdir}/../xapian-core/pkg-config
