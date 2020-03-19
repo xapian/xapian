@@ -303,9 +303,15 @@ if test no != "$with_go" ; then
     AC_MSG_RESULT(yes)
     AC_MSG_CHECKING(goroot)
     GOROOT=`go env GOROOT`
+    GOPATH=`go env GOPATH`
     AC_SUBST(GOROOT)
+    AC_SUBST(GOPATH)
     if test -n "${GOROOT}" ; then
       AC_MSG_RESULT([${GOROOT} yes])
+      AC_MSG_CHECKING(gopath)
+      if test -n "${GOPATH}" ; then
+        AC_MSG_RESULT([${GOPATH} yes])
+      fi
     fi
     if test -z "${GOROOT}" ; then
       AC_MSG_ERROR([goroot not set correctly])
