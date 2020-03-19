@@ -1,4 +1,4 @@
-GOSRCDIR = ${GOROOT}/src/xapian
+GOSRCDIR = ${GOPATH}/src/xapian
 TESTS = ./test
 AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
@@ -8,14 +8,18 @@ AM_TESTS_ENVIRONMENT = \
 LOG_COMPILER = ${GO} test ./test
 
 install-data-hook:
-	cd ${GOROOT}/src/xapian
+	cd ${GOSRCDIR}
 	${GO} install -i -x -a
 
 all : modify
-	cd ${GOROOT}/src/xapian
+	cd ${GOSRCDIR}
 	${GO} build -i -x -a
 
 modify : build
+	mkdir -p ${GOPATH}
+	mkdir -p ${GOPATH}/bin
+	mkdir -p ${GOPATH}/src
+	mkdir -p ${GOPATH}/pkg
 	mkdir -p ${GOSRCDIR}
 	cp -r * ${GOSRCDIR}
 
@@ -34,5 +38,6 @@ build :
 	${GO} env -w CXX="${CXX}"
 check :
 	cd ${GOSRCDIR}/test && ${GO} test
-
+clean :
+	rm -r xapian.go
 .PHONY: build modify run check
