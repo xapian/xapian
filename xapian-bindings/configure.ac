@@ -265,6 +265,31 @@ case $with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$
 esac
 
 BINDINGS=
+if test no != "$with_go" ; then
+  AC_PATH_PROG([GO],["go"],[])
+  AC_MSG_CHECKING(go)
+  if test -n "$GO" ; then
+    AC_MSG_RESULT(yes)
+    AC_MSG_CHECKING(goroot)
+    GOROOT=`go env GOROOT`
+    AC_SUBST(GOROOT)
+    if test -n "${GOROOT}" ; then
+      AC_MSG_RESULT([${GOROOT} yes])
+    fi
+    if test -z "${GOROOT}" ; then
+      AC_MSG_ERROR([goroot not set correctly])
+    fi
+  fi
+  USE_CLANG_LIB_GO="-lc++"
+  if test "${CXX}" = "clang++ -stdlib=libc++" ; then
+    AC_SUBST(USE_CLANG_LIB_GO)
+  fi
+  BINDINGS="$BINDINGS go"
+  if test -z "$GO" ; then
+    AC_MSG_ERROR("go not installed or go path has not been set")
+  fi
+fi
+
 
 if test no != "$with_python3" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
