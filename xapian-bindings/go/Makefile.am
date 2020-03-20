@@ -8,8 +8,7 @@ AM_TESTS_ENVIRONMENT = \
 LOG_COMPILER = ${GO} test ./test
 
 install-data-hook:
-	cd ${GOSRCDIR}
-	${GO} install -i -x -a
+	cd ${GOSRCDIR} && ${GO} install -i -x -a
 
 all : modify
 	cd ${GOSRCDIR}

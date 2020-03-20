@@ -477,5 +477,3 @@ class Remote {
 %include <xapian/dbfactory.h>
 
 #endif
-
-

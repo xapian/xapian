@@ -176,7 +176,6 @@ before_script:
 script:
   - make -j2
   - $installcore
-  #  - sudo env "PATH=$PATH" make install
   - make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
   # grep '^' passes through all input while giving a non-zero exit status if
   # that input is empty.
