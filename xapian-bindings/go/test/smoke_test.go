@@ -21,4 +21,3 @@ func TestDocument(t *testing.T){
 		t.Error("Build Failed")
 	}
 }
-
