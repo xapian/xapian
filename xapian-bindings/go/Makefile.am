@@ -26,7 +26,7 @@ build :
 	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 go.i
 	awk 'NR==18{print "#cgo CXXFLAGS: ${XAPIAN_CXXFLAGS}"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
-	awk 'NR==19{print "#cgo CXXFLAGS: -std=gnu++11"}1' xapian.go > xapian2.go
+	awk 'NR==19{print "#cgo CXXFLAGS: ${CXX_FLAGS}"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
 	awk 'NR==17{print "#cgo LDFLAGS: ${USE_CLANG_GO_LIB}"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
