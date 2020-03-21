@@ -26,8 +26,7 @@ build :
 	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 go.i
 	${AWK} 'NR==18{print "#cgo CXXFLAGS: ${XAPIAN_CXXFLAGS}" RS\
 	       	"#cgo CXXFLAGS: ${CXXFLAGS}" RS\
-	       	"#cgo LDFLAGS: ${LDFLAGS}" RS\
-	       	"#cgo CPPFLAGS: ${CPPFLAGS}" RS\
+	       	"#cgo LDFLAGS: ${USE_CLANG_GO_LIB}" RS\
 	       	"#cgo CPPFLAGS: ${CPPFLAGS}" RS\
 	       	"#cgo LDFLAGS: -L${abs_top_srcdir}/../xapian-core/.libs -Wl,-rpath,${abs_top_srcdir}/../xapian-core/.libs -lxapian-1.5"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
