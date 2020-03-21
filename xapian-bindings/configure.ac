@@ -1261,6 +1261,11 @@ if test no != "$with_go" ; then
     if test -z "${GOROOT}" ; then
       AC_MSG_ERROR([goroot not set correctly])
     fi
+    if test "${CXX}" = "clang++ -stdlib=libc++" ; then
+       AC_MSG_RESULT([$USE_CLANG_GO_LIB])
+       AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
+       AC_MSG_RESULT([$USE_CLANG_GO_LIB])
+     fi
   fi
   BINDINGS="$BINDINGS go"
   if test -z "$GO" ; then
