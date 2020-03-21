@@ -2,12 +2,10 @@ FROM ubuntu:18.04
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
-RUN apt-get update -y
 RUN apt-get install sudo
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get install git -y
 RUN git clone https://github.com/srinivasyadav18/xapian.git
-RUN apt-get install swig -y
 RUN apt-get install wget curl -y
 RUN apt-get install build-essential m4 perl python zlib1g-dev uuid-dev \
 wget bison tcl libpcre3-dev libmagic-dev valgrind ccache eatmydata \
