@@ -9,7 +9,8 @@ import ("fmt"
 
 func main(){
 	//a csv reader to get the values from csv file
-	csvfile,err := os.Open("../data/100-objects-v2.csv")
+	//provide path for the data (csv file)
+	csvfile,err := os.Open("")
 	if err != nil {
 		os.Exit(1)
 	}

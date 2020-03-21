@@ -296,26 +296,6 @@ case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_jav
 esac
 
 BINDINGS=
-if test no != "$with_go" ; then
-  AC_PATH_PROG([GO],["go"],[])
-  AC_MSG_CHECKING(go)
-  if test -n "$GO" ; then
-    AC_MSG_RESULT(yes)
-    AC_MSG_CHECKING(goroot)
-    GOROOT=`go env GOROOT`
-    AC_SUBST(GOROOT)
-    if test -n "${GOROOT}" ; then
-      AC_MSG_RESULT([${GOROOT} yes])
-    fi
-    if test -z "${GOROOT}" ; then
-      AC_MSG_ERROR([goroot not set correctly])
-    fi
-  fi
-  BINDINGS="$BINDINGS go"
-  if test -z "$GO" ; then
-    AC_MSG_ERROR("go not installed or go path has not been set")
-  fi
-fi
 if test no != "$with_python" ; then
   dnl For backward compatibility:
   : ${PYTHON2="$PYTHON"}
@@ -1259,7 +1239,35 @@ if test no != "$with_lua" ; then
     fi
   fi
 fi
-
+if test no != "$with_go" ; then
+  AC_PATH_PROG([GO],["go"],[])
+  if test -n "$GO" ; then
+    AC_MSG_CHECKING(goroot)
+    GOROOT=`go env GOROOT`
+    GOPATH=`go env GOPATH`
+    AC_SUBST(GOROOT)
+    AC_SUBST(GOPATH)
+    if test -n "${GOROOT}" ; then
+      AC_MSG_RESULT([${GOROOT} yes])
+      AC_MSG_CHECKING(gopath)
+      if test -n "${GOPATH}" ; then
+        AC_MSG_RESULT([${GOPATH} yes])
+      fi
+    fi
+    if test "${CXX}" = "clang++ -stdlib=libc++" ; then
+      AC_MSG_RESULT([$USE_CLANG_GO_LIB])
+      AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
+      AC_MSG_RESULT([$USE_CLANG_GO_LIB])
+    fi
+    if test -z "${GOROOT}" ; then
+      AC_MSG_ERROR([goroot not set correctly])
+    fi
+  fi
+  BINDINGS="$BINDINGS go"
+  if test -z "$GO" ; then
+    AC_MSG_ERROR("go not installed or go path has not been set")
+  fi
+fi
 AC_SUBST(BINDINGS)
 
 case $BINDINGS in
