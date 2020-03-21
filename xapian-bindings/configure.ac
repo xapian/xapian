@@ -1148,18 +1148,22 @@ fi
 if test no != "$with_go" ; then
   AC_PATH_PROG([GO],["go"],[])
   if test -n "$GO" ; then
-    AC_MSG_CHECKING(goroot)
+    AC_MSG_CHECKING(for goroot)
     GOROOT=`go env GOROOT`
     GOPATH=`go env GOPATH`
     AC_SUBST(GOROOT)
     AC_SUBST(GOPATH)
     if test -n "${GOROOT}" ; then
-      AC_MSG_RESULT([${GOROOT} yes])
-      AC_MSG_CHECKING(gopath)
+      AC_MSG_RESULT([${GOROOT}])
+      AC_MSG_CHECKING(for gopath)
       if test -n "${GOPATH}" ; then
-        AC_MSG_RESULT([${GOPATH} yes])
+        AC_MSG_RESULT([${GOPATH}])
+      else 
+        AC_MSG_RESULT(no)	  
       fi
-    fi
+    else
+      AC_MSG_RESULT(no)
+    fi 
     if test "${CXX}" = "clang++ -stdlib=libc++" ; then
       AC_MSG_RESULT([$USE_CLANG_GO_LIB])
       AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
