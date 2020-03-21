@@ -1255,9 +1255,7 @@ if test no != "$with_go" ; then
       else 
         AC_MSG_RESULT(no)	  
       fi
-    else
-      AC_MSG_RESULT(no)
-    fi 
+    fi
     if test -z "${GOROOT}" ; then
       AC_MSG_ERROR([goroot not set correctly])
     fi
