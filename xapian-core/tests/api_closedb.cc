@@ -471,3 +471,12 @@ DEFINE_TESTCASE(closedb10, writable && metadata) {
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.metadata_keys_begin());
 }
+
+/// Test handling of remote server dying.
+DEFINE_TESTCASE(killremote1, remotetcp) {
+    Xapian::WritableDatabase db(get_writable_database());
+    kill_remote(db);
+    TEST_EXCEPTION(Xapian::NetworkError, db.add_document(Xapian::Document()));
+    TEST_EXCEPTION(Xapian::NetworkError, db.get_doccount());
+    TEST_EXCEPTION(Xapian::NetworkError, db.commit());
+}
