@@ -268,7 +268,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Value returned by get_type() for a term. */
 	LEAF_TERM = 100,
 
-    /** Match only documents where a value slot is > a given value.
+	/** Match only documents where a value slot is > a given value.
 	 *
 	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
 	 *
@@ -276,7 +276,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	OP_VALUE_GT = 17,
 
-    /** Match only documents where a value slot is < a given value.
+	/** Match only documents where a value slot is < a given value.
 	 *
 	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
 	 *
