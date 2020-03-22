@@ -81,7 +81,7 @@ struct pid_fd {
 static pid_fd pid_to_fd[16];
 
 struct port_pididx {
-    int port;
+	int port;
 	unsigned pididx;
 };
 
@@ -216,12 +216,12 @@ try_next_port:
 
     // Find a slot to track the pid->fd mapping in.  If we can't find a slot
     // it just means we'll leak the fd, so don't worry about that too much.
-    unsigned pididx = 0;
+	unsigned pididx = 0;
 	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
 	if (pid_to_fd[i].pid == 0) {
 	    pid_to_fd[i].fd = tracked_fd;
 	    pid_to_fd[i].pid = child;
-	    pididx = i;
+		pididx = i;
 		break;
 	}
     }
@@ -374,9 +374,9 @@ BackendManagerRemoteTcp::get_writable_database(const string & name,
 					       const string & file)
 {
     string args = get_writable_database_args(name, file);
-    auto pp = launch_xapian_tcpsrv(args);
+	auto pp = launch_xapian_tcpsrv(args);
 	auto db = Xapian::Remote::open_writable(LOCALHOST, pp.port);
-    uuid_to_pididx[db.get_uuid()] = pp.pididx;
+	uuid_to_pididx[db.get_uuid()] = pp.pididx;
 	return db;
 }
 

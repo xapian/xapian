@@ -492,9 +492,9 @@ DEFINE_TESTCASE(closedb11, remote) {
 	kill_server(db.get_uuid());
 	TEST_EXCEPTION(Xapian::NetworkError,
 		db.add_document(Xapian::Document()));
-    TEST_EXCEPTION(Xapian::NetworkError,
+	TEST_EXCEPTION(Xapian::NetworkError,
 		db.get_doccount());
-    TEST_EXCEPTION(Xapian::NetworkError,
+	TEST_EXCEPTION(Xapian::NetworkError,
 		db.commit());
 	return true;
 }
