@@ -444,7 +444,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     /** Construct a Query object for a single-ended value range.
      *
      *  @param op_		Must be OP_VALUE_LE, OP_VALUE_GE,
-     *                  OP_VALUE_GT, or OP_VALUE_LT.
+     *                                  OP_VALUE_GT, or OP_VALUE_LT.
      *  @param slot		The value slot to work over.
      *  @param range_limit	The limit of the range.
      */
