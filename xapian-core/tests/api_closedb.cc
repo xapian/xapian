@@ -484,6 +484,14 @@ DEFINE_TESTCASE(closedb10, writable && metadata) {
 		   db.get_metadata("bar"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.metadata_keys_begin());
+	return true;
+}
 
-    return true;
+DEFINE_TESTCASE(closedb11, remote) {
+	Xapian::WritableDatabase db(get_writable_database());
+	kill_server(db.get_uuid());
+	TEST_EXCEPTION(Xapian::NetworkError, db.add_document(Xapian::Document()));
+    TEST_EXCEPTION(Xapian::NetworkError, db.get_doccount());
+    TEST_EXCEPTION(Xapian::NetworkError, db.commit());
+	return true;
 }

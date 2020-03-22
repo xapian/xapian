@@ -103,7 +103,12 @@ on_SIGCHLD(int /*sig*/)
 
 }
 
-static int
+struct port_pididx {
+	int port;
+	unsigned pididx;
+};
+
+static port_pididx
 launch_xapian_tcpsrv(const string & args)
 {
     int port = DEFAULT_PORT;
@@ -211,11 +216,13 @@ try_next_port:
 
     // Find a slot to track the pid->fd mapping in.  If we can't find a slot
     // it just means we'll leak the fd, so don't worry about that too much.
-    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+    unsigned pididx = 0;
+	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
 	if (pid_to_fd[i].pid == 0) {
 	    pid_to_fd[i].fd = tracked_fd;
 	    pid_to_fd[i].pid = child;
-	    break;
+	    pididx = i;
+		break;
 	}
     }
 
@@ -223,7 +230,7 @@ try_next_port:
     // finally exits.
     signal(SIGCHLD, on_SIGCHLD);
 
-    return port;
+    return {port, pididx};
 }
 
 #elif defined __WIN32__
@@ -341,6 +348,9 @@ try_next_port:
 # error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
 
+// map exact database object to it's pid_fd position in pid_to_fd
+static std::map<std::string, unsigned> uuid_to_pididx;
+
 BackendManagerRemoteTcp::~BackendManagerRemoteTcp() {
     BackendManagerRemoteTcp::clean_up();
 }
@@ -364,8 +374,10 @@ BackendManagerRemoteTcp::get_writable_database(const string & name,
 					       const string & file)
 {
     string args = get_writable_database_args(name, file);
-    int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open_writable(LOCALHOST, port);
+    auto pp = launch_xapian_tcpsrv(args);
+	auto db = Xapian::Remote::open_writable(LOCALHOST, pp.port); 
+    uuid_to_pididx[db.get_uuid()] = pp.pididx;
+	return db;
 }
 
 Xapian::Database
@@ -373,32 +385,54 @@ BackendManagerRemoteTcp::get_remote_database(const vector<string> & files,
 					     unsigned int timeout)
 {
     string args = get_remote_database_args(files, timeout);
-    int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open(LOCALHOST, port);
+    auto pp = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open(LOCALHOST, pp.port);
 }
 
 Xapian::Database
 BackendManagerRemoteTcp::get_database_by_path(const string& path)
 {
     string args = get_remote_database_args(path, 300000);
-    int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open(LOCALHOST, port);
+    auto pp = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open(LOCALHOST, pp.port);
 }
 
 Xapian::Database
 BackendManagerRemoteTcp::get_writable_database_as_database()
 {
     string args = get_writable_database_as_database_args();
-    int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open(LOCALHOST, port);
+    auto pp = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open(LOCALHOST, pp.port);
 }
 
 Xapian::WritableDatabase
 BackendManagerRemoteTcp::get_writable_database_again()
 {
     string args = get_writable_database_again_args();
-    int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open_writable(LOCALHOST, port);
+    auto pp = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open_writable(LOCALHOST, pp.port);
+}
+
+bool 
+BackendManagerRemoteTcp::kill_server(const std::string& uuid)
+{
+#ifdef HAVE_FORK
+	if (uuid_to_pididx.find(uuid) != uuid_to_pididx.end()) {
+	    auto pididx = uuid_to_pididx[uuid];
+		pid_t pid = pid_to_fd[pididx].pid;
+	    int fd = pid_to_fd[pididx].fd;
+	    if (kill(pid, SIGKILL) == -1) {
+			string msg("Couldn't kill the remote server");
+			msg += strerror(errno);
+			throw msg;
+	    }
+	    pid_to_fd[pididx].fd = 0;
+	    pid_to_fd[pididx].pid = 0;
+	    close(fd);
+		return true;
+	}
+#endif
+	return false;
 }
 
 void

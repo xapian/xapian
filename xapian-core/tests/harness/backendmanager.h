@@ -167,6 +167,8 @@ class BackendManager {
      */
     virtual void clean_up();
 
+    bool kill_server(const std::string& uuid);
+
     /// Get the command line required to run xapian-progsrv.
     static const char * get_xapian_progsrv_command();
 };

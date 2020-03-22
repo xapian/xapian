@@ -67,6 +67,8 @@ class BackendManagerRemoteTcp : public BackendManagerRemote {
     /// Create a WritableDatabase object for the last opened WritableDatabase.
     Xapian::WritableDatabase get_writable_database_again();
 
+    bool kill_server(const std::string& uuid);
+
     /// Called after each test, to perform any necessary cleanup.
     void clean_up();
 };
