@@ -1258,7 +1258,7 @@ if test no != "$with_go" ; then
       fi
     fi
     USE_CLANG_LIB = `echo ${CXX} | grep stdlib`
-    if -n "$USE_CLANG_LIB" ; then
+    if test -n "$USE_CLANG_LIB" ; then
       AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
     fi
     if test -z "${GOROOT}" ; then
