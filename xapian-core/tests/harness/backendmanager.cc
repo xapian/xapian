@@ -302,10 +302,11 @@ BackendManager::clean_up()
 {
 }
 
-bool 
+bool
 BackendManager::kill_server(const std::string& uuid)
 {
-    throw Xapian::InvalidOperationError("kill_server called for " + uuid + ", but available only for remote servers");
+    throw Xapian::InvalidOperationError("kill_server called for " +
+    uuid + ", but available only for remote servers");
     return false;
 }
 

@@ -80,6 +80,11 @@ struct pid_fd {
 
 static pid_fd pid_to_fd[16];
 
+struct port_pididx {
+    int port;
+	unsigned pididx;
+};
+
 extern "C" {
 
 static void
@@ -102,11 +107,6 @@ on_SIGCHLD(int /*sig*/)
 }
 
 }
-
-struct port_pididx {
-	int port;
-	unsigned pididx;
-};
 
 static port_pididx
 launch_xapian_tcpsrv(const string & args)
@@ -375,7 +375,7 @@ BackendManagerRemoteTcp::get_writable_database(const string & name,
 {
     string args = get_writable_database_args(name, file);
     auto pp = launch_xapian_tcpsrv(args);
-	auto db = Xapian::Remote::open_writable(LOCALHOST, pp.port); 
+	auto db = Xapian::Remote::open_writable(LOCALHOST, pp.port);
     uuid_to_pididx[db.get_uuid()] = pp.pididx;
 	return db;
 }
@@ -413,24 +413,29 @@ BackendManagerRemoteTcp::get_writable_database_again()
     return Xapian::Remote::open_writable(LOCALHOST, pp.port);
 }
 
-bool 
+bool
 BackendManagerRemoteTcp::kill_server(const std::string& uuid)
 {
 #ifdef HAVE_FORK
 	if (uuid_to_pididx.find(uuid) != uuid_to_pididx.end()) {
 	    auto pididx = uuid_to_pididx[uuid];
 		pid_t pid = pid_to_fd[pididx].pid;
-	    int fd = pid_to_fd[pididx].fd;
-	    if (kill(pid, SIGKILL) == -1) {
-			string msg("Couldn't kill the remote server");
+		int fd = pid_to_fd[pididx].fd;
+		if (kill(pid, SIGKILL) == -1) {
+		    string msg("Couldn't kill the remote server");
 			msg += strerror(errno);
 			throw msg;
-	    }
-	    pid_to_fd[pididx].fd = 0;
-	    pid_to_fd[pididx].pid = 0;
-	    close(fd);
+		}
+		pid_to_fd[pididx].fd = 0;
+		pid_to_fd[pididx].pid = 0;
+		close(fd);
 		return true;
 	}
+	pid_to_fd[pididx].fd = 0;
+	pid_to_fd[pididx].pid = 0;
+	close(fd);
+	return true;
+}
 #endif
 	return false;
 }
