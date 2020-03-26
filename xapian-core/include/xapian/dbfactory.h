@@ -119,6 +119,8 @@ Database open(const std::string &program, const std::string &args, unsigned time
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(const std::string &program, const std::string &args, unsigned timeout = 0, int flags = 0);
 
+XAPIAN_VISIBILITY_DEFAULT
+bool kill_server(const std::string& uuid);
 }
 #endif
 

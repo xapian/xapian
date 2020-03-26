@@ -77,6 +77,8 @@ class BackendManagerMulti : public BackendManager {
 
     /// Get the path of the last opened WritableDatabase.
     std::string get_writable_database_path_again();
+
+    bool kill_server(const std::string& uuid);
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_MULTI_H

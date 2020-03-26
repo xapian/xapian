@@ -152,6 +152,12 @@ XFAIL_FOR_BACKEND(const std::string& backend_prefix,
     }
 }
 
+bool
+kill_server(const std::string& uuid)
+{
+    return backendmanager->kill_server(uuid);
+}
+
 class ApiTestRunner : public TestRunner
 {
   public:

@@ -257,6 +257,16 @@ ProgClient::~ProgClient()
 #endif
 }
 
+#ifndef __WIN32__
+    pid_t
+#else
+    HANDLE
+#endif
+ProgClient::get_child() const
+{
+    return child;
+}
+
 #ifdef DISABLE_GPL_LIBXAPIAN
 # error GPL source we cannot relicense included in libxapian
 #endif

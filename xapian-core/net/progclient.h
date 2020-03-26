@@ -97,6 +97,13 @@ class ProgClient : public RemoteDatabase {
 
     /** Destructor. */
     ~ProgClient();
+
+#ifndef __WIN32__
+    pid_t
+#else
+    HANDLE
+#endif
+get_child() const;
 };
 
 #endif // XAPIAN_INCLUDED_PROGCLIENT_H
