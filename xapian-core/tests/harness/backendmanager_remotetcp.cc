@@ -81,8 +81,8 @@ struct pid_fd {
 static pid_fd pid_to_fd[16];
 
 struct port_pididx {
-	int port;
-	unsigned pididx;
+    int port;
+    unsigned pididx;
 };
 
 extern "C" {
@@ -219,8 +219,8 @@ try_next_port:
 	unsigned pididx = 0;
 	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
 	if (pid_to_fd[i].pid == 0) {
-	    pid_to_fd[i].fd = tracked_fd;
-	    pid_to_fd[i].pid = child;
+		pid_to_fd[i].fd = tracked_fd;
+		pid_to_fd[i].pid = child;
 		pididx = i;
 		break;
 	}
@@ -431,11 +431,6 @@ BackendManagerRemoteTcp::kill_server(const std::string& uuid)
 		close(fd);
 		return true;
 	}
-	pid_to_fd[pididx].fd = 0;
-	pid_to_fd[pididx].pid = 0;
-	close(fd);
-	return true;
-}
 #endif
 	return false;
 }
