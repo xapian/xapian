@@ -128,3 +128,9 @@ BackendManagerRemoteProg::get_writable_database_again()
 #endif
     return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
 }
+
+bool
+BackendManagerRemoteProg::kill_server(const std::string& uuid)
+{
+    return Xapian::Remote::kill_server(uuid);
+}

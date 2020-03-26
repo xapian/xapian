@@ -71,6 +71,8 @@ class BackendManagerRemoteProg : public BackendManagerRemote {
 
     /// Create a WritableDatabase object for the last opened WritableDatabase.
     Xapian::WritableDatabase get_writable_database_again();
+
+    bool kill_server(const std::string& uuid);
 };
 
 #endif // XAPIAN_INCLUDED_BACKENDMANAGER_REMOTEPROG_H
