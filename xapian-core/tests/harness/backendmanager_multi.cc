@@ -248,3 +248,18 @@ BackendManagerMulti::get_writable_database_path_again()
 {
     return last_wdb_path;
 }
+
+bool
+BackendManagerMulti::kill_server(const std::string& uuid) {
+    bool result = false;
+    for (auto sub_manager : sub_managers) {
+	string prefix = "remote";
+	string dbtype = sub_manager->get_dbtype();
+	if (std::mismatch(prefix.begin(), prefix.end(), dbtype.begin(),
+	    dbtype.end()).first == prefix.end()) {
+	    auto sub_db_uuid = uuid.substr(uuid.find(":") + 1);
+	    result |= sub_manager->kill_server(sub_db_uuid);
+	}
+    }
+    return result;
+}
