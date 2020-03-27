@@ -44,7 +44,7 @@ class Test_Exception {
 };
 
 // test that nested exceptions work correctly.
-static bool test_exception1()
+static void test_exception1()
 {
     try {
 	try {
@@ -58,9 +58,7 @@ static bool test_exception1()
 	}
     } catch (const Test_Exception & e) {
 	TEST_EQUAL(e.value, 1);
-	return true;
     }
-    return false;
 }
 
 // ###########################################
@@ -85,7 +83,7 @@ class test_refcnt : public Xapian::Internal::intrusive_base {
     }
 };
 
-static bool test_refcnt1()
+static void test_refcnt1()
 {
     bool deleted = false;
 
@@ -111,14 +109,12 @@ static bool test_refcnt1()
     }
 
     TEST_AND_EXPLAIN(deleted, "Object not properly deleted");
-
-    return true;
 }
 
 // This is a regression test - our home-made equivalent of intrusive_ptr
 // (which was called RefCntPtr) used to delete the object pointed to if you
 // assigned it to itself and the reference count was 1.
-static bool test_refcnt2()
+static void test_refcnt2()
 {
     bool deleted = false;
 
@@ -142,8 +138,6 @@ static bool test_refcnt2()
 #endif
 
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
-
-    return true;
 }
 
 // Class for testing AutoPtr<>.
@@ -160,7 +154,7 @@ class test_autoptr {
 };
 
 // Test autoptr self-assignment.
-static bool test_autoptr1()
+static void test_autoptr1()
 {
     bool deleted = false;
 
@@ -208,15 +202,11 @@ static bool test_autoptr1()
     ptr.reset();
     TEST_EQUAL(ptr.get(), static_cast<test_autoptr*>(0));
     TEST(deleted);
-
-    return true;
 }
 
 // test string comparisons
-static bool test_stringcomp1()
+static void test_stringcomp1()
 {
-    bool success = true;
-
     string s1;
     string s2;
 
@@ -224,15 +214,13 @@ static bool test_stringcomp1()
     s2 = "foo";
 
     if ((s1 != s2) || (s1 > s2)) {
-	success = false;
-	tout << "String comparisons BADLY wrong" << endl;
+	FAIL_TEST("String comparisons BADLY wrong");
     }
 
     s1 += '\0';
 
     if ((s1 == s2) || (s1 < s2)) {
-	success = false;
-	tout << "String comparisons don't cope with extra nulls" << endl;
+	FAIL_TEST("String comparisons don't cope with extra nulls");
     }
 
     s2 += '\0';
@@ -241,16 +229,12 @@ static bool test_stringcomp1()
     s2 += 'z';
 
     if ((s1.length() != 5) || (s2.length() != 5)) {
-	success = false;
-	tout << "Lengths with added nulls wrong" << endl;
+	FAIL_TEST("Lengths with added nulls wrong");
     }
 
     if ((s1 == s2) || !(s1 < s2)) {
-	success = false;
-	tout << "Characters after a null ignored in comparisons" << endl;
+	FAIL_TEST("Characters after a null ignored in comparisons");
     }
-
-    return success;
 }
 
 // By default Sun's C++ compiler doesn't call the destructor on a
@@ -268,17 +252,15 @@ struct TempDtorTest {
 
 int TempDtorTest::count = 0;
 
-static bool test_temporarydtor1()
+static void test_temporarydtor1()
 {
     TEST_EQUAL(TempDtorTest::count, 0);
     TempDtorTest::factory();
     TEST_EQUAL(TempDtorTest::count, 0);
-
-    return true;
 }
 
 /// Test pack_uint_preserving_sort()
-static bool test_pack_uint_preserving_sort1()
+static void test_pack_uint_preserving_sort1()
 {
     string prev_packed;
     for (unsigned int i = 0; i != 1000; ++i) {
@@ -332,12 +314,10 @@ static bool test_pack_uint_preserving_sort1()
 	TEST_EQUAL(result, i);
     }
     TEST(ptr == end);
-
-    return true;
 }
 
 /// Test C_pack_uint_preserving_sort()
-static bool test_pack_uint_preserving_sort2()
+static void test_pack_uint_preserving_sort2()
 {
     string prev_packed;
     for (unsigned int i = 0; i != 1000; ++i) {
@@ -391,12 +371,10 @@ static bool test_pack_uint_preserving_sort2()
 	TEST_EQUAL(result, i);
     }
     TEST(ptr == end);
-
-    return true;
 }
 
 /// Test C_isupper() etc.
-static bool test_chartype1()
+static void test_chartype1()
 {
     char tested[128];
     memset(tested, 0, sizeof(tested));
@@ -566,8 +544,6 @@ static bool test_chartype1()
 	TEST(C_isnotxdigit(ch));
 	TEST(C_isnotspace(ch));
     }
-
-    return true;
 }
 
 // ##################################################################

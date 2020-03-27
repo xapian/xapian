@@ -97,8 +97,6 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     TEST_EQUAL(docterms_to_string(db, 1),
 	       "Term(pos, wdf=1), "
 	       "Term(pos2, wdf=1)");
-
-    return true;
 }
 
 static Xapian::Document
@@ -259,6 +257,4 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     TEST_EQUAL(db.get_doccount(), 0);
     TEST_EQUAL(db.get_avlength(), 0);
     TEST_EQUAL(db.get_lastdocid(), 1);
-
-    return true;
 }

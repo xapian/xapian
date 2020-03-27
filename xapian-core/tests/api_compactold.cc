@@ -237,8 +237,6 @@ DEFINE_TESTCASE(compactoldnorenumber1, compact && generated && !multi) {
 	compact.add_source(d);
 	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
-
-    return true;
 }
 
 // Test use of compact to merge two databases.
@@ -258,8 +256,6 @@ DEFINE_TESTCASE(compactoldmerge1, compact) {
 
     TEST_EQUAL(indb.get_doccount() * 2, outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 static void
@@ -295,8 +291,6 @@ DEFINE_TESTCASE(compactoldmultichunks1, compact && generated) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting from a stub database directory.
@@ -324,8 +318,6 @@ DEFINE_TESTCASE(compactoldstub1, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting from a stub database file.
@@ -351,8 +343,6 @@ DEFINE_TESTCASE(compactoldstub2, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting a stub database file to itself.
@@ -380,8 +370,6 @@ DEFINE_TESTCASE(compactoldstub3, compact) {
 
     TEST_EQUAL(in_docs, outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting a stub database directory to itself.
@@ -411,8 +399,6 @@ DEFINE_TESTCASE(compactoldstub4, compact) {
 
     TEST_EQUAL(in_docs, outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 static void
@@ -460,8 +446,6 @@ DEFINE_TESTCASE(compactoldmissingtables1, compact && generated) {
 	// FIXME: arrange for input b to not have a termlist table.
 //	TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
     }
-
-    return true;
 }
 
 static void
@@ -521,8 +505,6 @@ DEFINE_TESTCASE(compactoldmergesynonym1, compact && generated) {
 	++i;
 	TEST_EQUAL(i, db.synonym_keys_end());
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(compactoldempty1, compact) {
@@ -554,8 +536,6 @@ DEFINE_TESTCASE(compactoldempty1, compact) {
 	TEST_EQUAL(outdb.get_doccount(), 0);
 	dbcheck(outdb, 0, 0);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(compactoldmultipass1, compact && generated) {
@@ -582,6 +562,4 @@ DEFINE_TESTCASE(compactoldmultipass1, compact && generated) {
 
     Xapian::Database outdb(outdbpath);
     dbcheck(outdb, 29, 1041);
-
-    return true;
 }

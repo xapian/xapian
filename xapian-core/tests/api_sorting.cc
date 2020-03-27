@@ -113,8 +113,6 @@ DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
 	    TEST_EQUAL(m.get_sort_key(), exp);
 	}
     }
-
-    return true;
 }
 
 /// Test reverse sort functor.
@@ -187,8 +185,6 @@ DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
-
-    return true;
 }
 
 // Test sort functor with some empty values.
@@ -248,8 +244,6 @@ DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
     }
-
-    return true;
 }
 
 class NeverUseMeKeyMaker : public Xapian::KeyMaker {
@@ -293,8 +287,6 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
 	FAIL_TEST("NeverUseMeKeyMaker::operator() didn't throw TestFail");
     } catch (const TestFail &) {
     }
-
-    return true;
 }
 
 /// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
@@ -310,8 +302,6 @@ DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
@@ -345,8 +335,6 @@ DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
     sorter.add_value(0, true, "hi");
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi"
 				   "\0\0\x97\x96\xff\xff", 27));
-
-    return true;
 }
 
 DEFINE_TESTCASE(sortfunctorremote1, remote) {
@@ -357,5 +345,4 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	Xapian::MSet mset = enquire.get_mset(0, 10);
     );
-    return true;
 }

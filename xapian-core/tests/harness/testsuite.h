@@ -73,16 +73,13 @@ class TestSkip { };
  */
 #define SKIP_TEST(MSG) THROW_TEST_(TestSkip, MSG)
 
-/// Type for a test function.
-typedef bool (*test_func)();
-
 /// Structure holding a description of a test.
 struct test_desc {
     /// The name of the test.
     const char *name;
 
     /// The function to run to perform the test.
-    test_func run;
+    void (*run)();
 };
 
 /// The global verbose flag.
@@ -309,7 +306,7 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be equal:" \
 	" were " << (a) << " and " << (b))
 
-#define DEFINE_TESTCASE(S,COND) bool test_##S()
+#define DEFINE_TESTCASE(S,COND) void test_##S()
 
 // Newer test macros:
 #include "testmacros.h"

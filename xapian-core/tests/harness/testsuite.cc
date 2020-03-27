@@ -333,17 +333,7 @@ test_driver::runtest(const test_desc *test)
 		    lseek(vg_log_fd, 0, SEEK_END);
 		}
 #endif
-		if (!test->run()) {
-		    out << ' ';
-		    if (expected_failure) {
-			out << col_yellow << "XFAIL (" << expected_failure << ")";
-		    } else {
-			out << col_red << "FAILED";
-		    }
-		    out << col_reset;
-		    write_and_clear_tout();
-		    return expected_failure ? XFAIL : FAIL;
-		}
+		test->run();
 		if (verbose > 1)
 		    write_and_clear_tout();
 #ifndef NO_LIBXAPIAN

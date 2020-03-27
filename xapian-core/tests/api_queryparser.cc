@@ -773,7 +773,6 @@ DEFINE_TESTCASE(queryparser1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_and_queries[] = {
@@ -844,7 +843,6 @@ DEFINE_TESTCASE(qp_default_op1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 // Feature test for specify the default prefix (new in Xapian 1.0.0).
@@ -863,7 +861,6 @@ DEFINE_TESTCASE(qp_default_prefix1, !backend) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((ZXTstuff@1 OR ZAme@2))");
     qobj = qp.parse_query("英国 title:文森hello", qp.FLAG_CJK_NGRAM, "A");
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((A英@1 AND A英国@1 AND A国@1) OR (XT文@2 AND XT文森@2 AND XT森@2) OR ZAhello@3))");
-    return true;
 }
 
 // Feature test for setting the default prefix with add_prefix()
@@ -904,7 +901,6 @@ DEFINE_TESTCASE(qp_default_prefix2, !backend) {
 
     qobj = qp.parse_query("me-us title:\"not-me\"", Xapian::QueryParser::FLAG_PHRASE);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((Ame@1 PHRASE 2 Aus@2) OR (Bme@1 PHRASE 2 Bus@2) OR (XTnot@3 PHRASE 2 XTme@4)))");
-    return true;
 }
 
 // Test query with odd characters in.
@@ -914,7 +910,6 @@ DEFINE_TESTCASE(qp_odd_chars1, !backend) {
     Xapian::Query qobj = qp.parse_query(query);
     tout << "Query:  " << query << '\n';
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((weird@1 OR stuff@2))"); // FIXME: should these be stemmed?
-    return true;
 }
 
 // Test right truncation.
@@ -1013,7 +1008,6 @@ DEFINE_TESTCASE(qp_flag_wildcard1, writable) {
     // Regression test for bug#484 fixed in 1.2.1 and 1.0.21.
     qobj = qp.parse_query("abc muscl* main", flags);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((abc@1 AND WILDCARD SYNONYM muscl AND main@3))");
-    return true;
 }
 
 // Test right truncation with prefixes.
@@ -1032,7 +1026,6 @@ DEFINE_TESTCASE(qp_flag_wildcard2, writable) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(WILDCARD SYNONYM Ah)");
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((WILDCARD SYNONYM Ah OR test@2))");
-    return true;
 }
 
 static void
@@ -1087,8 +1080,6 @@ DEFINE_TESTCASE(qp_flag_wildcard3, writable) {
 	test_qp_flag_wildcard3_helper(db, 4, "mu*"));
     TEST_EXCEPTION(Xapian::WildcardError,
 	test_qp_flag_wildcard3_helper(db, 5, "m*"));
-
-    return true;
 }
 
 // Test partial queries.
@@ -1226,8 +1217,6 @@ DEFINE_TESTCASE(qp_flag_partial1, writable) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpart SYNONYM WILDCARD OR XTWOpart) OR (XONEpart@1 SYNONYM XTWOpart@1)))");
     qobj = qp.parse_query("double:partial", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpartial SYNONYM WILDCARD OR XTWOpartial) OR (XONEpartial@1 SYNONYM XTWOpartial@1)))");
-
-    return true;
 }
 
 // Tests for document counts for wildcard queries.
@@ -1262,8 +1251,6 @@ DEFINE_TESTCASE(wildquery1, backend) {
     mymset = enquire.get_mset(0, 10);
     // Check that 0 documents were returned.
     TEST_MSET_SIZE(mymset, 0);
-
-    return true;
 }
 
 DEFINE_TESTCASE(qp_flag_bool_any_case1, !backend) {
@@ -1279,7 +1266,6 @@ DEFINE_TESTCASE(qp_flag_bool_any_case1, !backend) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((to@1 AND fro@2))");
     qobj = qp.parse_query("to And fro", QueryParser::FLAG_BOOLEAN);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query((to@1 OR and@2 OR fro@3))");
-    return true;
 }
 
 static const test test_stop_queries[] = {
@@ -1327,7 +1313,6 @@ DEFINE_TESTCASE(qp_stopper1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_pure_not_queries[] = {
@@ -1366,7 +1351,6 @@ DEFINE_TESTCASE(qp_flag_pure_not1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 // Debatable if this is a regression test or a feature test, as it's not
@@ -1382,7 +1366,6 @@ DEFINE_TESTCASE(qp_unstem_boolean_prefix, !backend) {
     TEST_EQUAL(*u, "test:foo");
     ++u;
     TEST(u == qp.unstem_end("XTESTfoo"));
-    return true;
 }
 
 static const test test_value_range1_queries[] = {
@@ -1436,7 +1419,6 @@ DEFINE_TESTCASE(qp_value_range1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 // Simple test of RangeProcessor class.
@@ -1465,7 +1447,6 @@ DEFINE_TESTCASE(qp_range1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_value_range2_queries[] = {
@@ -1536,7 +1517,6 @@ DEFINE_TESTCASE(qp_value_range2, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 // Test chaining of RangeProcessor classes.
@@ -1575,7 +1555,6 @@ DEFINE_TESTCASE(qp_range2, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 // Test NumberValueRangeProcessors with actual data.
@@ -1618,7 +1597,6 @@ DEFINE_TESTCASE(qp_value_range3, writable) {
 	    }
 	}
     }
-    return true;
 }
 
 // Test NumberRangeProcessors with actual data.
@@ -1661,7 +1639,6 @@ DEFINE_TESTCASE(qp_range3, writable) {
 	    }
 	}
     }
-    return true;
 }
 
 static const test test_value_range4_queries[] = {
@@ -1703,7 +1680,6 @@ DEFINE_TESTCASE(qp_value_range4, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 /** Test a boolean filter which happens to contain "..".
@@ -1738,7 +1714,6 @@ DEFINE_TESTCASE(qp_range4, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_value_daterange1_queries[] = {
@@ -1776,7 +1751,6 @@ DEFINE_TESTCASE(qp_value_daterange1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 // Test DateRangeProcessor
@@ -1804,7 +1778,6 @@ DEFINE_TESTCASE(qp_daterange1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_value_daterange2_queries[] = {
@@ -1856,7 +1829,6 @@ DEFINE_TESTCASE(qp_value_daterange2, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 // Feature test DateRangeProcessor with prefixes (added in 1.1.2).
@@ -1894,7 +1866,6 @@ DEFINE_TESTCASE(qp_daterange2, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_value_stringrange1_queries[] = {
@@ -1930,7 +1901,6 @@ DEFINE_TESTCASE(qp_value_stringrange1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 // Feature test RangeProcessor with prefixes.
@@ -1960,7 +1930,6 @@ DEFINE_TESTCASE(qp_stringrange1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_value_customrange1_queries[] = {
@@ -2006,7 +1975,6 @@ DEFINE_TESTCASE(qp_value_customrange1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 struct AuthorRangeProcessor : public Xapian::RangeProcessor {
@@ -2045,7 +2013,6 @@ DEFINE_TESTCASE(qp_customrange1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 class TitleFieldProcessor : public Xapian::FieldProcessor {
@@ -2103,7 +2070,6 @@ DEFINE_TESTCASE(qp_fieldproc1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 class DateRangeFieldProcessor : public Xapian::FieldProcessor {
@@ -2159,7 +2125,6 @@ DEFINE_TESTCASE(qp_fieldproc2, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 // Test using FieldProcessor and RangeProcessor together.
@@ -2189,7 +2154,6 @@ DEFINE_TESTCASE(qp_fieldproc3, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 DEFINE_TESTCASE(qp_stoplist1, !backend) {
@@ -2219,8 +2183,6 @@ DEFINE_TESTCASE(qp_stoplist1, !backend) {
     TEST_EQUAL(*i, "an");
     ++i;
     TEST(i == qp.stoplist_end());
-
-    return true;
 }
 
 static const test test_mispelled_queries[] = {
@@ -2268,8 +2230,6 @@ DEFINE_TESTCASE(qp_spell1, spelling) {
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
-
-    return true;
 }
 
 // Test spelling correction in the QueryParser with multiple databases.
@@ -2303,8 +2263,6 @@ DEFINE_TESTCASE(qp_spell2, spelling)
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
-
-    return true;
 }
 
 static const test test_mispelled_wildcard_queries[] = {
@@ -2347,8 +2305,6 @@ DEFINE_TESTCASE(qp_spellwild1, spelling) {
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
-
-    return true;
 }
 
 static const test test_mispelled_partial_queries[] = {
@@ -2382,8 +2338,6 @@ DEFINE_TESTCASE(qp_spellpartial1, spelling) {
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
-
-    return true;
 }
 
 static const test test_synonym_queries[] = {
@@ -2432,8 +2386,6 @@ DEFINE_TESTCASE(qp_synonym1, spelling) {
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
-
-    return true;
 }
 
 static const test test_multi_synonym_queries[] = {
@@ -2472,8 +2424,6 @@ DEFINE_TESTCASE(qp_synonym2, synonyms) {
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
-
-    return true;
 }
 
 static const test test_synonym_op_queries[] = {
@@ -2526,8 +2476,6 @@ DEFINE_TESTCASE(qp_synonym3, synonyms) {
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
-
-    return true;
 }
 
 static const test test_stem_all_queries[] = {
@@ -2563,7 +2511,6 @@ DEFINE_TESTCASE(qp_stem_all1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_stem_all_z_queries[] = {
@@ -2599,7 +2546,6 @@ DEFINE_TESTCASE(qp_stem_all_z1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static double
@@ -2692,8 +2638,6 @@ DEFINE_TESTCASE(qp_scale1, synonyms) {
     db.commit();
 
     qp_scale1_helper(db, q1, repetitions, synflags);
-
-    return true;
 }
 
 static const test test_near_queries[] = {
@@ -2765,7 +2709,6 @@ DEFINE_TESTCASE(qp_near1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_phrase_queries[] = {
@@ -2841,7 +2784,6 @@ DEFINE_TESTCASE(qp_phrase1, !backend) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-    return true;
 }
 
 static const test test_stopword_group_or_queries[] = {
@@ -2916,8 +2858,6 @@ DEFINE_TESTCASE(qp_stopword_group1, writable) {
 	qp.set_default_op(Xapian::Query::OP_AND);
 	p = test_stopword_group_and_queries;
     }
-
-    return true;
 }
 
 /// Check that QueryParser::set_default_op() rejects inappropriate ops.
@@ -2939,7 +2879,6 @@ DEFINE_TESTCASE(qp_default_op2, !backend) {
 		       qp.set_default_op(op));
 	TEST_EQUAL(qp.get_default_op(), Xapian::Query::OP_OR);
     }
-    return true;
 }
 
 struct qp_default_op3_test {
@@ -2972,7 +2911,6 @@ DEFINE_TESTCASE(qp_default_op3, !backend) {
 	TEST_EQUAL(qp.get_default_op(), p->op);
 	TEST_EQUAL(qp.parse_query("A B C").get_description(), p->expect);
     }
-    return true;
 }
 
 /// Test that the default strategy is now STEM_SOME (as of 1.3.1).
@@ -2980,7 +2918,6 @@ DEFINE_TESTCASE(qp_defaultstrategysome1, !backend) {
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("en"));
     TEST_EQUAL(qp.parse_query("testing").get_description(), "Query(Ztest@1)");
-    return true;
 }
 
 /// Test STEM_SOME_FULL_POS.
@@ -2990,5 +2927,4 @@ DEFINE_TESTCASE(qp_stemsomefullpos, !backend) {
     qp.set_stemming_strategy(qp.STEM_SOME_FULL_POS);
     TEST_EQUAL(qp.parse_query("terms NEAR testing").get_description(), "Query((Zterm@1 NEAR 11 Ztest@2))");
     TEST_EQUAL(qp.parse_query("terms ADJ testing").get_description(), "Query((Zterm@1 PHRASE 11 Ztest@2))");
-    return true;
 }

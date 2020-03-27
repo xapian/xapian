@@ -92,8 +92,6 @@ DEFINE_TESTCASE(adddoc1, writable) {
     Xapian::MSet mset = enq.get_mset(0, 10);
 
     mset_expect_order(mset, 3, 1, 2);
-
-    return true;
 }
 
 // test that removing a posting and removing a term works
@@ -268,8 +266,6 @@ DEFINE_TESTCASE(adddoc2, writable && !multi) {
     iter2++;
     TEST(iter1 == doc1.termlist_end());
     TEST(iter2 == doc2.termlist_end());
-
-    return true;
 }
 
 // test that adding lots of documents works, and doesn't leak memory
@@ -286,7 +282,6 @@ DEFINE_TESTCASE(adddoc3, writable) {
 	}
 	db.add_document(doc);
     }
-    return true;
 }
 
 // We originally wanted to test that a termlist starting with a 48 character
@@ -317,8 +312,6 @@ DEFINE_TESTCASE(adddoc4, writable) {
     // And test a document with no terms.
     Xapian::Document doc = db.get_document(241);
     TEST(doc.termlist_begin() == doc.termlist_end());
-
-    return true;
 }
 
 // Test adding a document, and checking that it got added correctly.
@@ -433,7 +426,7 @@ DEFINE_TESTCASE(adddoc5, writable && !multi) {
 		// Actually use termfreq to stop compiler optimising away the
 		// call to get_termfreq().
 		TEST_EXCEPTION(Xapian::InvalidOperationError,
-			       if (i.get_termfreq()) return false);
+			       if (i.get_termfreq()) FAIL_TEST("?"));
 		TEST_NOT_EQUAL(0, j.get_termfreq());
 		if (*i == "foobar") {
 		    // termfreq of foobar is 2
@@ -454,8 +447,6 @@ DEFINE_TESTCASE(adddoc5, writable && !multi) {
 	    TEST_EQUAL(j, document_out.termlist_end());
 	}
     }
-
-    return true;
 }
 
 // Test adding a document, and checking that it got added correctly.
@@ -500,8 +491,6 @@ DEFINE_TESTCASE(adddoc6, writable) {
 	TEST_EQUAL(database.get_termfreq("baz"), 0);
 	TEST_EQUAL(database.get_collection_freq("baz"), 0);
     }
-
-    return true;
 }
 
 // tests that database destructors commit if it isn't done explicitly
@@ -515,8 +504,6 @@ DEFINE_TESTCASE(implicitendsession1, writable) {
     doc.add_posting("nsa", 2);
     doc.add_posting("fbi", 3);
     db.add_document(doc);
-
-    return true;
 }
 
 // tests that assignment of Xapian::Database and Xapian::WritableDatabase works
@@ -546,7 +533,6 @@ DEFINE_TESTCASE(databaseassign1, writable) {
 #  pragma clang diagnostic pop
 # endif
 #endif
-    return true;
 }
 
 // tests that deletion and updating of documents works as expected
@@ -592,8 +578,6 @@ DEFINE_TESTCASE(deldoc1, writable) {
     TEST_EQUAL(*tit, "fwing");
     tit++;
     TEST_EQUAL(tit, doc2.termlist_end());
-
-    return true;
 }
 
 // tests that deletion and updating of documents works as expected
@@ -674,8 +658,6 @@ DEFINE_TESTCASE(deldoc2, writable) {
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(3));
 
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
-
-    return true;
 }
 
 // another test of deletion of documents, a cut-down version of deldoc2
@@ -726,8 +708,6 @@ DEFINE_TESTCASE(deldoc3, writable) {
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
 
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
-
-    return true;
 }
 
 // tests that deletion and updating of (lots of) documents works as expected
@@ -814,8 +794,6 @@ DEFINE_TESTCASE(deldoc4, writable) {
     TEST_EQUAL(db.get_collection_freq("three"), 0);
 
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
-
-    return true;
 }
 
 // Test deleting a document which was added in the same batch.
@@ -861,8 +839,6 @@ DEFINE_TESTCASE(deldoc5, writable) {
     TEST_EQUAL(*p, 3);
     ++p;
     TEST_EQUAL(p, db.postlist_end("foo"));
-
-    return true;
 }
 
 // Regression test for bug in quartz and flint, fixed in 1.0.2.
@@ -892,8 +868,6 @@ DEFINE_TESTCASE(deldoc6, writable) {
     db.commit();
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
-
-    return true;
 }
 
 DEFINE_TESTCASE(replacedoc1, writable) {
@@ -937,7 +911,6 @@ DEFINE_TESTCASE(replacedoc1, writable) {
     TEST_EQUAL(*r_iter, 2);
     ++t_iter;
     TEST_EQUAL(t_iter, doc3.termlist_end());
-    return true;
 }
 
 // Test of new feature: WritableDatabase::replace_document accepts a docid
@@ -995,8 +968,6 @@ DEFINE_TESTCASE(replacedoc2, writable) {
     TEST_EQUAL(db.get_doccount(), 2);
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.replace_document(0, doc2));
-
-    return true;
 }
 
 // Test replacing a document which was added in the same batch.
@@ -1069,8 +1040,6 @@ DEFINE_TESTCASE(replacedoc3, writable) {
     TEST_EQUAL(p.get_unique_terms(), 4);
     ++p;
     TEST_EQUAL(p, db.postlist_end("world"));
-
-    return true;
 }
 
 // Test replacing a document which was deleted in the same batch.
@@ -1129,8 +1098,6 @@ DEFINE_TESTCASE(replacedoc4, writable) {
     TEST_EQUAL(*p, 3);
     ++p;
     TEST_EQUAL(p, db.postlist_end("world"));
-
-    return true;
 }
 
 // Test replacing a document with itself without modifying postings.
@@ -1186,8 +1153,6 @@ DEFINE_TESTCASE(replacedoc5, writable) {
 	TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
 	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
     }
-
-    return true;
 }
 
 // Test replacing a document while adding values, without changing anything
@@ -1226,8 +1191,6 @@ DEFINE_TESTCASE(replacedoc6, writable) {
     doc = db.get_document(1);
     TEST_EQUAL(doc.get_value(1), "banana1");
     TEST_EQUAL(doc.get_value(2), "banana2");
-
-    return true;
 }
 
 // Test of new feature: WritableDatabase::replace_document and delete_document
@@ -1282,8 +1245,6 @@ DEFINE_TESTCASE(uniqueterm1, writable) {
     db.delete_document("U2");
 
     TEST_EQUAL(db.get_doccount(), 16);
-
-    return true;
 }
 
 // tests all document postlists
@@ -1325,8 +1286,6 @@ DEFINE_TESTCASE(allpostlist2, writable) {
 	}
     }
     TEST_EQUAL(j, 512);
-
-    return true;
 }
 
 static void test_emptyterm2_helper(Xapian::WritableDatabase & db)
@@ -1370,8 +1329,6 @@ DEFINE_TESTCASE(emptyterm2, writable) {
 	TEST_EQUAL(db.get_doccount(), 0);
 	test_emptyterm2_helper(db);
     }
-
-    return true;
 }
 
 // Check that PHRASE/NEAR becomes AND if there's no positional info in the
@@ -1409,8 +1366,6 @@ DEFINE_TESTCASE(phraseorneartoand1, writable) {
     enquire.set_query(Xapian::Query(Xapian::Query::OP_NEAR, q2, q2 + 2));
     mymset = enquire.get_mset(0, 10);
     TEST_EQUAL(0, mymset.size());
-
-    return true;
 }
 
 // Check that a large number of position list entries for a particular term
@@ -1509,8 +1464,6 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
 
     ++t;
     TEST(t == tend);
-
-    return true;
 }
 
 // Regression test for bug#110: Inconsistent sort order between pages with
@@ -1562,8 +1515,6 @@ DEFINE_TESTCASE(consistency2, writable) {
     for (i = 0; i < 8; ++i) {
 	TEST_EQUAL(*mset1[i + 2], *mset2c[i]);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(crashrecovery1, chert) {
@@ -1652,8 +1603,6 @@ DEFINE_TESTCASE(crashrecovery1, chert) {
     db.commit();
     TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_doccount(), 4);
-
-    return true;
 }
 
 // Check that DatabaseError is thrown if the docid counter would wrap.
@@ -1674,8 +1623,6 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
     db.replace_document(max_id, doc);
 
     TEST_EXCEPTION(Xapian::DatabaseError, db.add_document(doc));
-
-    return true;
 }
 
 // Test synonym iterators.
@@ -1788,8 +1735,6 @@ DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
 	s += '|';
     }
     TEST_STRINGS_EQUAL(s, "|hello|");
-
-    return true;
 }
 
 // Test that adding a document with a really long term gives an error on
@@ -1864,8 +1809,6 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     doc.add_term("ok");
     db.add_document(doc);
     db.commit();
-
-    return true;
 }
 
 /// Test playing with a postlist
@@ -1910,8 +1853,6 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST_EQUAL(p.get_unique_terms(), 2);
     ++p;
     TEST(p == db_w.postlist_end("foo"));
-
-    return true;
 }
 
 DEFINE_TESTCASE(lazytablebug1, chert || glass) {
@@ -1937,8 +1878,6 @@ DEFINE_TESTCASE(lazytablebug1, chert || glass) {
     for (Xapian::TermIterator t = db.synonym_keys_begin(); t != db.synonym_keys_end(); ++t) {
 	tout << *t << endl;
     }
-
-    return true;
 }
 
 /** Regression test for bug #287 for flint.
@@ -1973,7 +1912,7 @@ DEFINE_TESTCASE(cursordelbug1, writable && path) {
     db.commit();
 
     const string & db_path = get_named_writable_database_path("cursordelbug1");
-    return Xapian::Database::check(db_path) == 0;
+    TEST_EQUAL(Xapian::Database::check(db_path), 0);
 }
 
 /** Helper function for modifyvalues1.
@@ -2107,8 +2046,6 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     check_vals(db, vals);
     db.commit();
     check_vals(db, vals);
-
-    return true;
 }
 
 /** Regression test for protocol design bug.
@@ -2132,6 +2069,4 @@ DEFINE_TESTCASE(protocolbug1, remote && writable) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   db.replace_document(1, doc));
     db.commit();
-
-    return true;
 }

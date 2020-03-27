@@ -51,8 +51,6 @@ DEFINE_TESTCASE(valuestream1, backend && !multi) {
 	    ++it;
 	}
     }
-
-    return true;
 }
 
 /// Test skip_to() on a valuestream iterator.
@@ -88,8 +86,6 @@ DEFINE_TESTCASE(valuestream2, backend) {
 	    interval = interval * 3 - 1;
 	}
     }
-
-    return true;
 }
 
 /// Test check() on a valuestream iterator.
@@ -150,8 +146,6 @@ DEFINE_TESTCASE(valuestream3, backend) {
 	    interval = interval * 3 - 1;
 	}
     }
-
-    return true;
 }
 
 /** Check that valueweightsource handles last_docid of 0xffffffff.
@@ -182,8 +176,6 @@ DEFINE_TESTCASE(valueweightsource5, writable && valuestats) {
     TEST_EQUAL(src.get_docid(), 0xffffffff);
     src.next(0.0);
     TEST(src.at_end());
-
-    return true;
 }
 
 // Check that ValueMapPostingSource works correctly.
@@ -238,8 +230,6 @@ DEFINE_TESTCASE(valuemapsource1, backend) {
 
     TEST(mset.size() == 5);
     mset_expect_order(mset, 5, 4, 6, 7, 8);
-
-    return true;
 }
 
 // Regression test for valuepostingsource subclasses: used to segfault if skip_to()
@@ -270,8 +260,6 @@ DEFINE_TESTCASE(valuemapsource2, backend && !multi) {
 	src.check(1, 0.0);
 	TEST(src.at_end() == true);
     }
-
-    return true;
 }
 
 // Regression test for fixedweightpostingsource: used to segfault if skip_to()
@@ -298,8 +286,6 @@ DEFINE_TESTCASE(fixedweightsource2, !backend) {
     // No need to test behaviour of check() - check is only allowed to be
     // called with document IDs which exist, so can never be called for a
     // FixedWeightPostingSource with an empty database.
-
-    return true;
 }
 
 // Test DecreasingValueWeightPostingSource.
@@ -408,8 +394,6 @@ DEFINE_TESTCASE(decvalwtsource1, writable) {
 	src.next(1.5);
 	TEST(src.at_end());
     }
-
-    return true;
 }
 
 // Test DecreasingValueWeightPostingSource with out-of-order sections at
@@ -541,8 +525,6 @@ DEFINE_TESTCASE(decvalwtsource2, writable) {
 	src.next(1.5);
 	TEST(src.at_end());
     }
-
-    return true;
 }
 
 // Test DecreasingValueWeightPostingSource with an actual query.
@@ -580,8 +562,6 @@ DEFINE_TESTCASE(decvalwtsource3, writable) {
     TEST(mset_range_is_same(mset1, 0, mset2, 0, 1));
     TEST(mset_range_is_same(mset2, 0, mset3, 0, 2));
     TEST(mset_range_is_same(mset3, 0, mset4, 0, 3));
-
-    return true;
 }
 
 // Test DecreasingValueWeightPostingSource with an actual query on a fixed
@@ -607,8 +587,6 @@ DEFINE_TESTCASE(decvalwtsource4, backend && !multi) {
     TEST(mset_range_is_same(mset1, 0, mset2, 0, 1));
     TEST(mset_range_is_same(mset2, 0, mset3, 0, 2));
     TEST(mset_range_is_same(mset3, 0, mset4, 0, 3));
-
-    return true;
 }
 
 // Regression test - used to get segfaults if
@@ -647,6 +625,4 @@ DEFINE_TESTCASE(decvalwtsource5, writable) {
 	Xapian::MSet mset1(enq.get_mset(0, 3));
 	TEST_EQUAL(mset1.size(), 0);
     }
-
-    return true;
 }

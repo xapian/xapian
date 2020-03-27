@@ -134,8 +134,6 @@ DEFINE_TESTCASE(zerodocid1, backend) {
 
     TEST_AND_EXPLAIN(*(mymset.begin()) != 0,
 		     "A query on a database returned a zero docid");
-
-    return true;
 }
 
 // tests that an empty query returns no matches
@@ -162,8 +160,6 @@ DEFINE_TESTCASE(emptyquery1, backend) {
     TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 0);
     TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 0);
-
-    return true;
 }
 
 // tests the document count for a simple query
@@ -172,7 +168,6 @@ DEFINE_TESTCASE(simplequery1, backend) {
     enquire.set_query(Xapian::Query("word"));
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 2);
-    return true;
 }
 
 // tests for the right documents and weights returned with simple query
@@ -196,8 +191,6 @@ DEFINE_TESTCASE(simplequery2, backend) {
     TEST_EQUAL_DOUBLE(i.get_weight(), 1.04648168717725);
     i++;
     TEST_EQUAL_DOUBLE(i.get_weight(), 0.640987686595914);
-
-    return true;
 }
 
 // tests for the right document count for another simple query
@@ -208,8 +201,6 @@ DEFINE_TESTCASE(simplequery3, backend) {
 
     // Check that 6 documents were returned.
     TEST_MSET_SIZE(mymset, 6);
-
-    return true;
 }
 
 // multidb2 no longer exists.
@@ -228,8 +219,6 @@ DEFINE_TESTCASE(multidb3, backend && !multi) {
     // retrieve the top ten results
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2, 3, 7);
-
-    return true;
 }
 
 // test that a multidb with 3 dbs query returns correct docids
@@ -247,8 +236,6 @@ DEFINE_TESTCASE(multidb4, backend && !multi) {
     // retrieve the top ten results
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2, 3, 4, 10);
-
-    return true;
 }
 
 // tests MultiPostList::skip_to().
@@ -265,8 +252,6 @@ DEFINE_TESTCASE(multidb5, backend && !multi) {
     // retrieve the top ten results
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
-
-    return true;
 }
 
 // tests that when specifying maxitems to get_mset, no more than
@@ -279,8 +264,6 @@ DEFINE_TESTCASE(msetmaxitems1, backend) {
 
     mymset = enquire.get_mset(0, 5);
     TEST_MSET_SIZE(mymset, 5);
-
-    return true;
 }
 
 // tests the returned weights are as expected (regression test for remote
@@ -311,8 +294,6 @@ DEFINE_TESTCASE(expandweights1, backend) {
     TEST_EQUAL_DOUBLE(eset[0].get_weight(), 5.88109547674955);
     TEST_EQUAL_DOUBLE(eset[1].get_weight(), 5.88109547674955);
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 5.44473599216144);
-
-    return true;
 }
 
 // Just like test_expandweights1 but without USE_EXACT_TERMFREQ.
@@ -343,8 +324,6 @@ DEFINE_TESTCASE(expandweights2, backend) {
 	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
 	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(expandweights3, backend) {
@@ -376,8 +355,6 @@ DEFINE_TESTCASE(expandweights3, backend) {
 	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
     }
     TEST_REL(eset.back().get_weight(),>=,0);
-
-    return true;
 }
 
 // tests that negative weights are returned
@@ -398,8 +375,6 @@ DEFINE_TESTCASE(expandweights4, backend) {
     TEST_REL(eset.get_ebound(), >=, eset.size());
     TEST_REL(eset[36].get_weight(), <, 0);
     TEST_REL(eset[36].get_weight(), >=, -100);
-
-    return true;
 }
 
 // test for Bo1EWeight
@@ -422,8 +397,6 @@ DEFINE_TESTCASE(expandweights5, backend) {
     TEST_EQUAL_DOUBLE(eset[0].get_weight(), 7.21765284821702);
     TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.661623193760022);
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 5.58090119783738);
-
-    return true;
 }
 
 // test that "trad" can be set as an expansion scheme.
@@ -446,8 +419,6 @@ DEFINE_TESTCASE(expandweights6, backend) {
     TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
     TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
-
-    return true;
 }
 
 // test that invalid scheme names are not accepted
@@ -456,8 +427,6 @@ DEFINE_TESTCASE(expandweights7, backend) {
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   enquire.set_expansion_scheme("no_such_scheme"));
-
-    return true;
 }
 
 // test that "expand_k" can be passed as a parameter to get_eset
@@ -488,8 +457,6 @@ DEFINE_TESTCASE(expandweights8, backend) {
 	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
     }
     TEST_REL(eset.back().get_weight(),>=,0);
-
-    return true;
 }
 
 // tests that when specifying maxitems to get_eset, no more than
@@ -510,8 +477,6 @@ DEFINE_TESTCASE(expandmaxitems1, backend) {
     Xapian::ESet myeset = enquire.get_eset(1, myrset);
     TEST_EQUAL(myeset.size(), 1);
     TEST_REL(myeset.get_ebound(), >=, myeset.size());
-
-    return true;
 }
 
 // tests that a pure boolean query has all weights set to 0
@@ -532,7 +497,6 @@ DEFINE_TESTCASE(boolquery1, backend) {
     for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
 	TEST_EQUAL(i.get_weight(), 0);
     }
-    return true;
 }
 
 // tests that get_mset() specifying "this" works as expected
@@ -547,7 +511,6 @@ DEFINE_TESTCASE(msetfirst1, backend) {
     // firstitem in api/omenquire.cc.
     TEST_EQUAL(mymset1[5].get_document().get_data(),
 	       mymset2[2].get_document().get_data());
-    return true;
 }
 
 // tests the converting-to-percent functions
@@ -569,7 +532,6 @@ DEFINE_TESTCASE(topercent1, backend) {
 	TEST_AND_EXPLAIN(pct <= last_pct, "percentage increased down mset");
 	last_pct = pct;
     }
-    return true;
 }
 
 // tests the percentage values returned
@@ -619,8 +581,6 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), 1.67412192414056);
     TEST_EQUAL(mymset.size(), 6);
     mset_expect_order(mymset, 3, 1, 4, 2, 5, 6);
-
-    return true;
 }
 
 class EvenParityExpandFunctor : public Xapian::ExpandDecider {
@@ -695,7 +655,6 @@ DEFINE_TESTCASE(expandfunctor1, backend) {
     TEST_EQUAL(orig, myeset_orig.end());
     TEST_AND_EXPLAIN(filt == myeset.end(),
 		     "Extra items in the filtered eset.");
-    return true;
 }
 
 DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
@@ -745,8 +704,6 @@ DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
     TEST_EQUAL(orig, myeset_orig.end());
     TEST_AND_EXPLAIN(filt == myeset.end(),
 		     "Extra items in the filtered eset.");
-
-    return true;
 }
 
 // tests the percent cutoff option
@@ -798,8 +755,6 @@ DEFINE_TESTCASE(pctcutoff1, backend) {
 		     (mymset2.convert_to_percent(mymset2[num_items]) == my_pct &&
 		      mymset2.convert_to_percent(mymset2.back()) == my_pct),
 		     "Match with % cutoff returned too many items");
-
-    return true;
 }
 
 // Tests the percent cutoff option combined with collapsing
@@ -833,8 +788,6 @@ DEFINE_TESTCASE(pctcutoff2, backend) {
     TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,mset.size());
     TEST_REL(mset2.get_uncollapsed_matches_lower_bound(),<=,mset2.get_uncollapsed_matches_estimated());
     TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,mset2.get_uncollapsed_matches_estimated());
-
-    return true;
 }
 
 // Test that the percent cutoff option returns all the answers it should.
@@ -862,8 +815,6 @@ DEFINE_TESTCASE(pctcutoff3, backend) {
 	    percent = new_percent;
 	}
     }
-
-    return true;
 }
 
 // tests the cutoff option
@@ -915,8 +866,6 @@ DEFINE_TESTCASE(cutoff1, backend) {
 		     (mymset2[num_items].get_weight() == my_wt &&
 		      mymset2.back().get_weight() == my_wt),
 		     "Match with cutoff returned too many items");
-
-    return true;
 }
 
 // tests the allow query terms expand option
@@ -945,7 +894,6 @@ DEFINE_TESTCASE(allowqterms1, backend) {
 	if (*j == term) break;
     }
     TEST(j != myeset2.end());
-    return true;
 }
 
 // tests that the MSet max_attained works
@@ -960,8 +908,6 @@ DEFINE_TESTCASE(maxattain1, backend) {
 	if (i.get_weight() > mymax) mymax = i.get_weight();
     }
     TEST_EQUAL(mymax, mymset.get_max_attained());
-
-    return true;
 }
 
 // tests a reversed boolean query
@@ -1007,8 +953,6 @@ DEFINE_TESTCASE(reversebool1, backend) {
 	    TEST_EQUAL(*i, *j);
 	}
     }
-
-    return true;
 }
 
 // tests a reversed boolean query, where the full mset isn't returned
@@ -1055,8 +999,6 @@ DEFINE_TESTCASE(reversebool2, backend) {
 	    TEST_EQUAL(*i, *j);
 	}
     }
-
-    return true;
 }
 
 // tests that get_matching_terms() returns the terms in the right order
@@ -1086,8 +1028,6 @@ DEFINE_TESTCASE(getmterms1, backend) {
     list<string> list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
     TEST(list == answers_list);
-
-    return true;
 }
 
 // tests that get_matching_terms() returns the terms only once
@@ -1116,8 +1056,6 @@ DEFINE_TESTCASE(getmterms2, backend) {
     list<string> list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
     TEST(list == answers_list);
-
-    return true;
 }
 
 // test that running a query twice returns the same results
@@ -1130,8 +1068,6 @@ DEFINE_TESTCASE(repeatquery1, backend) {
     Xapian::MSet mymset1 = enquire.get_mset(0, 10);
     Xapian::MSet mymset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mymset1, mymset2);
-
-    return true;
 }
 
 // test that prefetching documents works (at least, gives same results)
@@ -1162,8 +1098,6 @@ DEFINE_TESTCASE(fetchdocs1, backend) {
     }
     TEST_EQUAL(it1, mymset1.end());
     TEST_EQUAL(it1, mymset2.end());
-
-    return true;
 }
 
 // test that searching for a term not in the database fails nicely
@@ -1174,8 +1108,6 @@ DEFINE_TESTCASE(absentterm1, backend) {
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
-
-    return true;
 }
 
 // as absentterm1, but setting query from a vector of terms
@@ -1189,8 +1121,6 @@ DEFINE_TESTCASE(absentterm2, backend) {
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
-
-    return true;
 }
 
 // test that rsets do sensible things
@@ -1211,8 +1141,6 @@ DEFINE_TESTCASE(rset1, backend) {
     // have higher weights with the RSet.
     TEST_MSET_SIZE(mymset1, 3);
     TEST_MSET_SIZE(mymset2, 3);
-
-    return true;
 }
 
 // test that rsets do more sensible things
@@ -1231,8 +1159,6 @@ DEFINE_TESTCASE(rset2, backend) {
 
     mset_expect_order(mymset1, 1, 2);
     mset_expect_order(mymset2, 2, 1);
-
-    return true;
 }
 
 // test that rsets behave correctly with multiDBs
@@ -1268,8 +1194,6 @@ DEFINE_TESTCASE(rsetmultidb1, backend && !multi) {
     TEST(mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2));
     TEST_NOT_EQUAL(mymset1a, mymset1b);
     TEST_NOT_EQUAL(mymset2a, mymset2b);
-
-    return true;
 }
 
 // regression tests - used to cause assertion in stats.h to fail
@@ -1278,7 +1202,6 @@ DEFINE_TESTCASE(rsetmultidb3, backend && !multi) {
     Xapian::Enquire enquire(get_database("apitest_simpledata2"));
     enquire.set_query(query(Xapian::Query::OP_OR, "cuddly", "people"));
     Xapian::MSet mset = enquire.get_mset(0, 10); // used to fail assertion
-    return true;
 }
 
 /// Simple test of the elite set operator.
@@ -1301,7 +1224,6 @@ DEFINE_TESTCASE(eliteset1, backend) {
     Xapian::MSet mymset2 = enquire.get_mset(0, 10);
 
     TEST_EQUAL(mymset1, mymset2);
-    return true;
 }
 
 /// Test that the elite set operator works if the set contains
@@ -1331,8 +1253,6 @@ DEFINE_TESTCASE(eliteset2, backend) {
     // query lengths differ so mset weights not the same (with some weighting
     // parameters)
     // test_mset_order_equal(mymset1, mymset2);
-
-    return true;
 }
 
 /// Test that elite set doesn't affect query results if we have fewer
@@ -1379,8 +1299,6 @@ DEFINE_TESTCASE(eliteset3, backend) {
     TEST_EQUAL(mymset1.get_termweight(term3),
 	       mymset2.get_termweight(term3));
 //    TEST_EQUAL(mymset1, mymset2);
-
-    return true;
 }
 
 /// Test that elite set doesn't pick terms with 0 frequency
@@ -1409,8 +1327,6 @@ DEFINE_TESTCASE(eliteset4, backend) {
 
     TEST_NOT_EQUAL(mymset2.size(), 0);
     TEST_EQUAL(mymset1, mymset2);
-
-    return true;
 }
 
 /// Regression test for problem with excess precision.
@@ -1443,8 +1359,6 @@ DEFINE_TESTCASE(eliteset5, backend) {
 	// following call used to result in a segfault (at least when n=1).
 	enquire1.get_mset(0, 10);
     }
-
-    return true;
 }
 
 /// Test that the termfreq returned by termlists is correct.
@@ -1487,8 +1401,6 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
     TEST_NOT_EQUAL(wt1, 0);
     TEST_NOT_EQUAL(wt2, 0);
     TEST_EQUAL(wt1, wt2);
-
-    return true;
 }
 
 /// Test the termfreq and termweight info returned for query terms
@@ -1542,8 +1454,6 @@ DEFINE_TESTCASE(qterminfo1, backend) {
     TEST_EQUAL(mymset1a.get_termfreq("sponge"), 0);
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   mymset1a.get_termweight("sponge"));
-
-    return true;
 }
 
 /// Regression test for bug #37.
@@ -1571,8 +1481,6 @@ DEFINE_TESTCASE(qterminfo2, backend) {
     Xapian::MSet mset = enquire.get_mset(0, 10);
 
     TEST_NOT_EQUAL(mset.get_termweight("paragraph"), 0);
-
-    return true;
 }
 
 // tests that when specifying that no items are to be returned, those
@@ -1585,8 +1493,6 @@ DEFINE_TESTCASE(msetzeroitems1, backend) {
     Xapian::MSet mymset2 = enquire.get_mset(0, 1);
 
     TEST_EQUAL(mymset1.get_max_possible(), mymset2.get_max_possible());
-
-    return true;
 }
 
 // test that the matches_* of a simple query are as expected
@@ -1711,8 +1617,6 @@ DEFINE_TESTCASE(matches1, backend) {
     TEST_EQUAL(mymset.get_uncollapsed_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_uncollapsed_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_uncollapsed_matches_upper_bound(), 1);
-
-    return true;
 }
 
 // tests that wqf affects the document weights
@@ -1727,7 +1631,6 @@ DEFINE_TESTCASE(wqf1, backend) {
     Xapian::MSet mset2 = enquire.get_mset(0, 2);
     // Check the weights
     TEST(mset1.begin().get_weight() > mset2.begin().get_weight());
-    return true;
 }
 
 // tests that query length affects the document weights
@@ -1742,7 +1645,6 @@ DEFINE_TESTCASE(qlen1, backend) {
     // Check the weights
     // TEST(mset1.begin().get_weight() < mset2.begin().get_weight());
     TEST(mset1.begin().get_weight() == mset2.begin().get_weight());
-    return true;
 }
 
 // tests that opening a non-existent termlist throws the correct exception
@@ -1757,7 +1659,6 @@ DEFINE_TESTCASE(termlist1, backend) {
     Xapian::TermIterator temp = db.termlist_begin(1);
     TEST_EXCEPTION(Xapian::DocNotFoundError,
 		   Xapian::TermIterator t = db.termlist_begin(999999999));
-    return true;
 }
 
 // tests that a Xapian::TermIterator works as an STL iterator
@@ -1785,7 +1686,6 @@ DEFINE_TESTCASE(termlist2, backend) {
 	t++;
     }
     TEST_EQUAL(t, tend);
-    return true;
 }
 
 static Xapian::TermIterator
@@ -1807,7 +1707,6 @@ DEFINE_TESTCASE(termlist3, backend) {
 	t++;
 	u++;
     }
-    return true;
 }
 
 // tests skip_to
@@ -1816,7 +1715,6 @@ DEFINE_TESTCASE(termlist4, backend) {
     Xapian::TermIterator i = db.termlist_begin(1);
     i.skip_to("");
     i.skip_to("\xff");
-    return true;
 }
 
 // tests punctuation is OK in terms (particularly in remote queries)
@@ -1835,8 +1733,6 @@ DEFINE_TESTCASE(puncterms1, backend) {
     Xapian::Query q3("com,ma");
     enquire.set_query(q3);
     Xapian::MSet m3 = enquire.get_mset(0, 10);
-
-    return true;
 }
 
 // test that searching for a term with a space or backslash in it works
@@ -1881,8 +1777,6 @@ DEFINE_TESTCASE(spaceterms1, backend) {
     count = 0;
     for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
     TEST_EQUAL(count, 1);
-
-    return true;
 }
 
 // test that XOR queries work
@@ -1908,8 +1802,6 @@ DEFINE_TESTCASE(xor1, backend) {
     //	5	*			*
     //	6	*			*
     mset_expect_order(mymset, 1, 2, 5, 6);
-
-    return true;
 }
 
 /// Test that weighted XOR queries work (bug fixed in 1.2.1 and 1.0.21).
@@ -1934,8 +1826,6 @@ DEFINE_TESTCASE(xor2, backend) {
     //	5	15	1			*
     //	6	15	1			*
     mset_expect_order(mymset, 2, 1, 5, 6);
-
-    return true;
 }
 
 // test Xapian::Database::get_document()
@@ -1953,7 +1843,6 @@ DEFINE_TESTCASE(getdoc1, backend) {
     doc.set_data("modified!");
     TEST_EQUAL(doc.get_data(), "modified!");
     TEST_EQUAL(doc.get_data(), doc2.get_data());
-    return true;
 }
 
 // test whether operators with no elements work as a null query
@@ -1971,8 +1860,6 @@ DEFINE_TESTCASE(emptyop1, backend) {
     // matching any documents, so we now do the same here too.
     TEST_EQUAL(enquire.get_matching_terms_begin(1),
 	       enquire.get_matching_terms_end(1));
-
-    return true;
 }
 
 // Regression test for check_at_least SEGV when there are no matches.
@@ -1981,8 +1868,6 @@ DEFINE_TESTCASE(checkatleast1, backend) {
     enquire.set_query(Xapian::Query("thom"));
     Xapian::MSet mymset = enquire.get_mset(0, 10, 11);
     TEST_EQUAL(0, mymset.size());
-
-    return true;
 }
 
 // Regression test - if check_at_least was set we returned (check_at_least - 1)
@@ -2002,8 +1887,6 @@ DEFINE_TESTCASE(checkatleast2, backend) {
     TEST_REL(mymset.get_matches_lower_bound(),>=,4);
     TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,4);
     TEST_REL(mymset.get_uncollapsed_matches_lower_bound(),>=,4);
-
-    return true;
 }
 
 // Feature tests - check_at_least with various sorting options.
@@ -2065,8 +1948,6 @@ DEFINE_TESTCASE(checkatleast3, backend) {
 	    TEST_REL(mset.get_uncollapsed_matches_lower_bound(),>=,50);
 	}
     }
-
-    return true;
 }
 
 // tests all document postlists
@@ -2093,8 +1974,6 @@ DEFINE_TESTCASE(allpostlist1, backend) {
 	}
     }
     TEST_EQUAL(j, 513);
-
-    return true;
 }
 
 static void test_emptyterm1_helper(Xapian::Database & db)
@@ -2119,8 +1998,6 @@ DEFINE_TESTCASE(emptyterm1, backend) {
     db = get_database("");
     TEST_EQUAL(db.get_doccount(), 0);
     test_emptyterm1_helper(db);
-
-    return true;
 }
 
 // Test for alldocs postlist with a sparse database.
@@ -2139,8 +2016,6 @@ DEFINE_TESTCASE(alldocspl1, writable) {
     TEST_EQUAL(i.get_wdf(), 1);
     ++i;
     TEST(i == db.postlist_end(""));
-
-    return true;
 }
 
 // Test reading and writing a modified alldocspostlist.
@@ -2228,8 +2103,6 @@ DEFINE_TESTCASE(alldocspl2, writable) {
     TEST_EQUAL(i.get_wdf(), 1);
     ++i;
     TEST(i == end);
-
-    return true;
 }
 
 // Feature test for Query::OP_SCALE_WEIGHT.
@@ -2298,7 +2171,6 @@ DEFINE_TESTCASE(scaleweight1, backend) {
 	    }
 	}
     }
-    return true;
 }
 
 // Test Query::OP_SCALE_WEIGHT being used to multiply some of the weights of a
@@ -2352,7 +2224,6 @@ DEFINE_TESTCASE(scaleweight2, backend) {
     }
 
     TEST_EQUAL(ids1, ids5);
-    return true;
 }
 
 // Regression test for bug fixed in 1.0.5 - this test would failed under
@@ -2363,8 +2234,6 @@ DEFINE_TESTCASE(bm25weight1, backend) {
     enquire.set_query(Xapian::Query("word"));
 
     Xapian::MSet mset = enquire.get_mset(0, 25);
-
-    return true;
 }
 
 // Feature test for TradWeight.
@@ -2385,8 +2254,6 @@ DEFINE_TESTCASE(tradweight1, backend) {
     // Check that TradWeight(0) means wdf and doc length really don't affect
     // the weights as stated in the documentation.
     TEST_EQUAL(mset[0].get_weight(), mset[5].get_weight());
-
-    return true;
 }
 
 // Test TradWeight when weighting documents using an RSet.
@@ -2411,8 +2278,6 @@ DEFINE_TESTCASE(tradweight4, backend) {
     // "people" being 1 because "people" indexes a document in the RSet whereas
     // "cuddly" (wdf=2) does not.
     mset_expect_order(mymset2, 2, 1);
-
-    return true;
 }
 
 // Feature test for Database::get_uuid().
@@ -2440,6 +2305,4 @@ DEFINE_TESTCASE(uuid1, backend && !multi) {
     db2.add_database(Xapian::Database(string(), Xapian::DB_BACKEND_INMEMORY));
     TEST(db2.get_uuid().empty());
 #endif
-
-    return true;
 }

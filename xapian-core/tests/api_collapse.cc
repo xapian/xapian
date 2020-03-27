@@ -78,6 +78,4 @@ DEFINE_TESTCASE(collapsekey5, backend) {
 	    }
 	}
     }
-
-    return true;
 }

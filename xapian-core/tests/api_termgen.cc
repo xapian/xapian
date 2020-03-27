@@ -838,7 +838,6 @@ DEFINE_TESTCASE(termgen1, !backend) {
 	    tout << "Prefix: " << prefix << " Text: " << p->text << '\n';
 	TEST_STRINGS_EQUAL(output, expect);
     }
-    return true;
 }
 
 /// Test spelling data generation.
@@ -862,8 +861,6 @@ DEFINE_TESTCASE(tg_spell1, spelling) {
     TEST_STRINGS_EQUAL(db.get_spelling_suggestion("mamm"), "mum");
     // Prefixed terms should be ignored for spelling currently.
     TEST_STRINGS_EQUAL(db.get_spelling_suggestion("zzebra"), "");
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.0.5 - previously this segfaulted.
@@ -875,8 +872,6 @@ DEFINE_TESTCASE(tg_spell2, !backend) {
     termgen.set_flags(Xapian::TermGenerator::FLAG_SPELLING);
 
     TEST_EXCEPTION(Xapian::InvalidOperationError, termgen.index_text("foo"));
-
-    return true;
 }
 
 DEFINE_TESTCASE(tg_max_word_length1, !backend) {
@@ -891,6 +886,4 @@ DEFINE_TESTCASE(tg_max_word_length1, !backend) {
 
     TEST_STRINGS_EQUAL(format_doc_termlist(doc),
 		       "Zcup:1 Zmug:1 cups[1] mugs[2]");
-
-    return true;
 }

@@ -145,6 +145,4 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-
-    return true;
 }

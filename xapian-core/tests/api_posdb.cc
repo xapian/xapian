@@ -171,8 +171,6 @@ DEFINE_TESTCASE(near1, positional) {
     // retrieve the top twenty results
     mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
-
-    return true;
 }
 
 /// Test NEAR over operators
@@ -224,8 +222,6 @@ DEFINE_TESTCASE(near2, positional) {
     mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
 #endif
-
-    return true;
 }
 
 /// Simple test of PHRASE
@@ -412,8 +408,6 @@ DEFINE_TESTCASE(phrase1, positional) {
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 17);
-
-    return true;
 }
 
 /// Test PHRASE over operators
@@ -465,8 +459,6 @@ DEFINE_TESTCASE(phrase2, positional) {
     mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 #endif
-
-    return true;
 }
 
 /// Test getting position lists from databases
@@ -503,8 +495,6 @@ DEFINE_TESTCASE(poslist1, positional) {
     TEST_EQUAL(*pli, 34);
     pli++;
     TEST(pli == mydb.positionlist_end(2, term));
-
-    return true;
 }
 
 DEFINE_TESTCASE(poslist2, positional && writable) {
@@ -553,8 +543,6 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     // Check what happens when the document doesn't exist (but once did).
     TEST_EQUAL(db.positionlist_begin(did, "nosuchterm"),
 	       db.positionlist_end(did, "nosuchterm"));
-
-    return true;
 }
 
 /// Test playing with a positionlist, testing skip_to in particular.
@@ -605,8 +593,6 @@ DEFINE_TESTCASE(poslist3, positional && writable) {
 
     pl.skip_to(13);
     TEST(pl == pl_end);
-
-    return true;
 }
 
 // Regression test - in 0.9.4 (and many previous versions) you couldn't get a
@@ -629,6 +615,4 @@ DEFINE_TESTCASE(positfromtermit1, positional) {
     } catch (const Xapian::UnimplementedError &) {
 	SKIP_TEST("TermList::positionlist_count() not yet implemented for this backend");
     }
-
-    return true;
 }

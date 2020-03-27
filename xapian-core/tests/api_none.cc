@@ -42,7 +42,6 @@ DEFINE_TESTCASE(version1, !backend) {
     version += '.';
     version += str(Xapian::revision());
     TEST_EQUAL(Xapian::version_string(), version);
-    return true;
 }
 
 // Regression test: various methods on Database() used to segfault or cause
@@ -60,7 +59,6 @@ DEFINE_TESTCASE(nosubdatabases1, !backend) {
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_doclength(1));
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_unique_terms(1));
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_document(1));
-    return true;
 }
 
 /// Feature test for Document::add_boolean_term(), new in 1.0.18/1.1.4.
@@ -76,7 +74,6 @@ DEFINE_TESTCASE(document1, !backend) {
     doc.remove_term("Hxapian.org");
     TEST_EQUAL(doc.termlist_count(), 0);
     TEST(doc.termlist_begin() == doc.termlist_end());
-    return true;
 }
 
 /// Regression test - the docid wasn't initialised prior to 1.0.22/1.2.4.
@@ -85,7 +82,6 @@ DEFINE_TESTCASE(document2, !backend) {
     // The return value is uninitialised, so running under valgrind this
     // will fail reliably prior to the fix.
     TEST_EQUAL(doc.get_docid(), 0);
-    return true;
 }
 
 /// Feature tests for Document::clear_terms().
@@ -115,8 +111,6 @@ DEFINE_TESTCASE(documentclearterms1, !backend) {
 	TEST_EQUAL(doc.termlist_count(), 0);
 	TEST(doc.termlist_begin() == doc.termlist_end());
     }
-
-    return true;
 }
 
 /// Feature tests for Document::clear_values().
@@ -143,8 +137,6 @@ DEFINE_TESTCASE(documentclearvalues1, !backend) {
 	TEST_EQUAL(doc.values_count(), 0);
 	TEST(doc.termlist_begin() == doc.termlist_end());
     }
-
-    return true;
 }
 
 /// Feature tests for errors for empty terms.
@@ -168,7 +160,6 @@ DEFINE_TESTCASE(documentemptyterm1, !backend) {
 	    doc.remove_postings(string(), 2, 3));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 	    doc.remove_postings(string(), 2, 3, 4));
-    return true;
 }
 
 DEFINE_TESTCASE(emptyquery4, !backend) {
@@ -186,7 +177,6 @@ DEFINE_TESTCASE(emptyquery4, !backend) {
     TEST(Xapian::Query(q.OP_ELITE_SET, &q, &q).empty());
     TEST(Xapian::Query(q.OP_SYNONYM, &q, &q).empty());
     TEST(Xapian::Query(q.OP_MAX, &q, &q).empty());
-    return true;
 }
 
 DEFINE_TESTCASE(singlesubquery1, !backend) {
@@ -207,7 +197,6 @@ DEFINE_TESTCASE(singlesubquery1, !backend) {
     singlesubquery1_(OP_ELITE_SET);
     singlesubquery1_(OP_SYNONYM);
     singlesubquery1_(OP_MAX);
-    return true;
 }
 
 DEFINE_TESTCASE(singlesubquery2, !backend) {
@@ -227,7 +216,6 @@ DEFINE_TESTCASE(singlesubquery2, !backend) {
     singlesubquery2_(OP_ELITE_SET);
     singlesubquery2_(OP_SYNONYM);
     singlesubquery2_(OP_MAX);
-    return true;
 }
 
 DEFINE_TESTCASE(singlesubquery3, !backend) {
@@ -246,7 +234,6 @@ DEFINE_TESTCASE(singlesubquery3, !backend) {
     singlesubquery3_(OP_ELITE_SET);
     singlesubquery3_(OP_SYNONYM);
     singlesubquery3_(OP_MAX);
-    return true;
 }
 
 /// Check we no longer combine wqf for same term at the same position.
@@ -257,7 +244,6 @@ DEFINE_TESTCASE(combinewqfnomore1, !backend) {
     // Prior to 1.3.0, we would have given beer@2, but we decided that wasn't
     // really useful or helpful.
     TEST_EQUAL(q.get_description(), "Query((beer@1 OR beer@1))");
-    return true;
 }
 
 class DestroyedFlag {
@@ -354,8 +340,6 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
 	// the pointer it has to rp.  If it does, that should get caught
 	// when tests are run under valgrind.
     }
-
-    return true;
 }
 
 class TestFieldProcessor : public Xapian::FieldProcessor {
@@ -420,8 +404,6 @@ DEFINE_TESTCASE(subclassablerefcount2, !backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 class TestMatchSpy : public Xapian::MatchSpy {
@@ -486,8 +468,6 @@ DEFINE_TESTCASE(subclassablerefcount3, backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 class TestStopper : public Xapian::Stopper {
@@ -567,8 +547,6 @@ DEFINE_TESTCASE(subclassablerefcount4, !backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 /// Check reference counting of Stopper with TermGenerator.
@@ -639,8 +617,6 @@ DEFINE_TESTCASE(subclassablerefcount5, !backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 class TestKeyMaker : public Xapian::KeyMaker {
@@ -722,8 +698,6 @@ DEFINE_TESTCASE(subclassablerefcount6, backend) {
 	TEST(!gone_auto);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 class TestExpandDecider : public Xapian::ExpandDecider {
@@ -812,8 +786,6 @@ DEFINE_TESTCASE(subclassablerefcount7, backend) {
 	TEST(gone);
     }
     TEST(gone_auto);
-
-    return true;
 }
 
 class TestValueRangeProcessor : public Xapian::ValueRangeProcessor {
@@ -896,8 +868,6 @@ DEFINE_TESTCASE(subclassablerefcount8, !backend) {
 	// the pointer it has to vrp.  If it does, that should get caught
 	// when tests are run under valgrind.
     }
-
-    return true;
 }
 
 /// Check encoding of non-UTF8 document data.
@@ -913,7 +883,6 @@ DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
     doc.set_data("back\\slash");
     TEST_EQUAL(doc.get_description(),
 	      "Document(data='back\\x5cslash')");
-    return true;
 }
 
 /** Test removal of terms from a document while iterating over them.
@@ -942,7 +911,6 @@ DEFINE_TESTCASE(deletewhileiterating1, !backend) {
 	TEST_EQUAL(doc.termlist_count(), 0);
 	TEST(doc.termlist_begin() == doc.termlist_end());
     }
-    return true;
 }
 
 /// Feature test for Document::remove_postings().
@@ -1009,8 +977,6 @@ DEFINE_TESTCASE(removepostings, !backend) {
 	TEST_EQUAL(*p, *expect);
 	++expect;
     }
-
-    return true;
 }
 
 static void
@@ -1026,8 +992,9 @@ DEFINE_TESTCASE(errorcopyctor, !backend) {
     Xapian::RangeError e("test");
     try {
 	errorcopyctor_helper(e);
+	FAIL_TEST("Expected exception to be thrown");
     } catch (Xapian::Error&) {
-	return true;
+	return;
     }
-    return false;
+    FAIL_TEST("Expected RangeError wasn't caught");
 }

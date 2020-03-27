@@ -64,8 +64,6 @@ DEFINE_TESTCASE(termstats, backend) {
     TEST_EQUAL(db.get_termfreq("banana"), 1);
     TEST(db.term_exists("paragraph"));
     TEST_EQUAL(db.get_termfreq("paragraph"), 5);
-
-    return true;
 }
 
 // Check that stub databases work.
@@ -91,8 +89,6 @@ DEFINE_TESTCASE(stubdb1, path) {
     }
 
     TEST_EQUAL(Xapian::Database::check(dbpath), 0);
-
-    return true;
 }
 
 // Check that stub databases work remotely.
@@ -220,8 +216,6 @@ DEFINE_TESTCASE(stubdb2, path) {
     TEST_EXCEPTION(EXPECTED_EXCEPTION,
 	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB);
     );
-
-    return true;
 }
 
 // Regression test - bad entries were ignored after a good entry prior to 1.0.8.
@@ -239,8 +233,6 @@ DEFINE_TESTCASE(stubdb3, path) {
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
-
-    return true;
 }
 
 // Test a stub database with just a bad entry.
@@ -257,8 +249,6 @@ DEFINE_TESTCASE(stubdb4, !backend) {
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
-
-    return true;
 }
 
 // Test a stub database with a bad entry with no spaces (prior to 1.1.0 this
@@ -277,8 +267,6 @@ DEFINE_TESTCASE(stubdb5, path) {
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
-
-    return true;
 }
 
 // Test a stub database with an inmemory database (new feature in 1.1.0).
@@ -323,8 +311,6 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
 	db.add_document(Xapian::Document());
 	TEST_EQUAL(db.get_doccount(), 1);
     }
-
-    return true;
 }
 
 /// Test error running Database::check() on a stub database.
@@ -346,7 +332,6 @@ DEFINE_TESTCASE(stubdb8, inmemory) {
 	TEST_STRINGS_EQUAL(e.get_msg(),
 			   "InMemory database checking not implemented");
     }
-    return true;
 }
 
 /// Test error running Database::check() on a remote stub database.
@@ -367,7 +352,6 @@ DEFINE_TESTCASE(stubdb9, path) {
 	TEST_STRINGS_EQUAL(e.get_msg(),
 			   "Remote database checking not implemented");
     }
-    return true;
 }
 
 #if 0 // the "force error" mechanism is no longer in place...
@@ -506,8 +490,6 @@ DEFINE_TESTCASE(multierrhandler1, backend) {
 	TEST_EQUAL(myhandler.count, errcount);
 	errcount += 1;
     }
-
-    return true;
 }
 #endif
 
@@ -648,8 +630,6 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     TEST_REL(mymset.get_uncollapsed_matches_upper_bound(),<=,6);
     TEST_REL(mymset.get_uncollapsed_matches_estimated(),>,0);
     TEST_REL(mymset.get_uncollapsed_matches_estimated(),<=,6);
-
-    return true;
 }
 
 // Test Xapian::MatchDecider functor used as a match spy.
@@ -681,8 +661,6 @@ DEFINE_TESTCASE(matchdecider2, backend && !remote) {
 	    TEST(!myfunctor(db.get_document(did)));
 	}
     }
-
-    return true;
 }
 
 // Regression test for lower bound using functor, sorting and collapsing.
@@ -724,8 +702,6 @@ DEFINE_TESTCASE(matchdecider3, backend && !remote) {
     TEST_REL(mset1.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
     TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),>=,db.get_doccount() - 1);
     TEST_REL(mset2.get_uncollapsed_matches_upper_bound(),<=,db.get_doccount());
-
-    return true;
 }
 
 // tests that mset iterators on msets compare correctly.
@@ -769,8 +745,6 @@ DEFINE_TESTCASE(msetiterator1, backend) {
     TEST_EQUAL(n, m);
     TEST_NOT_EQUAL(n, mymset.begin());
     TEST_EQUAL(n, mymset.end());
-
-    return true;
 }
 
 // tests that mset iterators on empty msets compare equal.
@@ -789,8 +763,6 @@ DEFINE_TESTCASE(msetiterator2, backend) {
     TEST_EQUAL(j, l);
     TEST_EQUAL(j, j);
     TEST_EQUAL(k, k);
-
-    return true;
 }
 
 // tests that begin().get_document() works when first != 0
@@ -804,8 +776,6 @@ DEFINE_TESTCASE(msetiterator3, backend) {
     TEST(!mymset.empty());
     Xapian::Document doc(mymset.begin().get_document());
     TEST(!doc.get_data().empty());
-
-    return true;
 }
 
 // tests that eset iterators on empty esets compare equal.
@@ -853,8 +823,6 @@ DEFINE_TESTCASE(esetiterator1, backend) {
     TEST_EQUAL(n, m);
     TEST_NOT_EQUAL(n, myeset.begin());
     TEST_EQUAL(n, myeset.end());
-
-    return true;
 }
 
 // tests that eset iterators on empty esets compare equal.
@@ -881,8 +849,6 @@ DEFINE_TESTCASE(esetiterator2, backend) {
     TEST_EQUAL(j, l);
     TEST_EQUAL(j, j);
     TEST_EQUAL(k, k);
-
-    return true;
 }
 
 // tests the collapse-on-key
@@ -908,8 +874,6 @@ DEFINE_TESTCASE(collapsekey1, backend) {
 	    values[value] = *i;
 	}
     }
-
-    return true;
 }
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
@@ -934,8 +898,6 @@ DEFINE_TESTCASE(collapsekey2, backend) {
 	TEST_REL(mset.get_matches_lower_bound(),<,mset1.get_matches_lower_bound());
 	TEST_EQUAL(mset.get_matches_upper_bound(), mset1.get_matches_upper_bound());
     }
-
-    return true;
 }
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
@@ -985,8 +947,6 @@ DEFINE_TESTCASE(collapsekey3, backend) {
 	    values[value] = *i;
 	}
     }
-
-    return true;
 }
 
 // tests that collapse-on-key modifies the predicted bounds for the number of
@@ -1014,8 +974,6 @@ DEFINE_TESTCASE(collapsekey4, backend) {
 	    values[value] = *i;
 	}
     }
-
-    return true;
 }
 
 // test for keepalives
@@ -1039,8 +997,6 @@ DEFINE_TESTCASE(keepalive1, remote) {
      */
     TEST_EXCEPTION_BASE_CLASS(Xapian::NetworkError,
 			      enquire.get_mset(0, 10));
-
-    return true;
 }
 
 // test that iterating through all terms in a database works.
@@ -1087,8 +1043,6 @@ DEFINE_TESTCASE(allterms1, backend) {
 
     ati++;
     TEST(ati == db.allterms_end());
-
-    return true;
 }
 
 // test that iterating through all terms in two databases works.
@@ -1129,8 +1083,6 @@ DEFINE_TESTCASE(allterms2, backend) {
 
     ati++;
     TEST(ati == db.allterms_end());
-
-    return true;
 }
 
 // test that skip_to sets at_end (regression test)
@@ -1141,8 +1093,6 @@ DEFINE_TESTCASE(allterms3, backend) {
 
     ati.skip_to(string("zzzzzz"));
     TEST(ati == db.allterms_end());
-
-    return true;
 }
 
 // test that next ignores extra entries due to long posting lists being
@@ -1158,8 +1108,6 @@ DEFINE_TESTCASE(allterms4, backend) {
     TEST(i.get_termfreq() == 682);
     ++i;
     TEST(i == db.allterms_end());
-
-    return true;
 }
 
 // test that skip_to with an exact match sets the current term (regression test
@@ -1171,8 +1119,6 @@ DEFINE_TESTCASE(allterms5, backend) {
     ati.skip_to("three");
     TEST(ati != db.allterms_end());
     TEST_EQUAL(*ati, "three");
-
-    return true;
 }
 
 // test allterms iterators with prefixes
@@ -1217,8 +1163,6 @@ DEFINE_TESTCASE(allterms6, backend) {
 
     ati = db.allterms_begin("absent");
     TEST(ati == db.allterms_end("absent"));
-
-    return true;
 }
 
 // test that searching for a term with a special characters in it works
@@ -1254,8 +1198,6 @@ DEFINE_TESTCASE(specialterms1, backend) {
     count = 0;
     for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
     TEST_EQUAL(count, 1);
-
-    return true;
 }
 
 // test that terms with a special characters in appear correctly when iterating
@@ -1283,8 +1225,6 @@ DEFINE_TESTCASE(specialterms2, backend) {
     t.skip_to(string("big\0zero", 8));
     TEST_NOT_EQUAL(t, db.allterms_end());
     TEST_EQUAL(*t, string("big\0zero", 8));
-
-    return true;
 }
 
 // test that rsets behave correctly with multiDBs
@@ -1320,8 +1260,6 @@ DEFINE_TESTCASE(rsetmultidb2, backend && !multi) {
     TEST(mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2));
     TEST_NOT_EQUAL(mymset1a, mymset1b);
     TEST_NOT_EQUAL(mymset2a, mymset2b);
-
-    return true;
 }
 
 // tests an expand across multiple databases
@@ -1377,8 +1315,6 @@ DEFINE_TESTCASE(multiexpand1, backend && !multi) {
 	++j;
     }
     TEST(!eset1_eq_eset2);
-
-    return true;
 }
 
 // tests that opening a non-existent postlist returns an empty list
@@ -1395,8 +1331,6 @@ DEFINE_TESTCASE(postlist1, backend) {
 
     // A regression test (no, really!)
     TEST_NOT_EQUAL(db.postlist_begin("a"), db.postlist_end("a"));
-
-    return true;
 }
 
 // tests that a Xapian::PostingIterator works as an STL iterator
@@ -1434,8 +1368,6 @@ DEFINE_TESTCASE(postlist2, backend) {
 
     TEST_STRINGS_EQUAL(p.get_description(), "PostingIterator()");
     TEST_STRINGS_EQUAL(pend.get_description(), "PostingIterator()");
-
-    return true;
 }
 
 // tests that a Xapian::PostingIterator still works when the DB is deleted
@@ -1455,7 +1387,6 @@ DEFINE_TESTCASE(postlist3, backend) {
 	p++;
 	u++;
     }
-    return true;
 }
 
 // tests skip_to
@@ -1465,7 +1396,6 @@ DEFINE_TESTCASE(postlist4, backend) {
     i.skip_to(1);
     i.skip_to(999999999);
     TEST(i == db.postlist_end("this"));
-    return true;
 }
 
 // tests long postlists
@@ -1480,7 +1410,6 @@ DEFINE_TESTCASE(postlist5, backend) {
 	j++;
     }
     TEST_EQUAL(j, 513);
-    return true;
 }
 
 // tests document length in postlists
@@ -1499,7 +1428,6 @@ DEFINE_TESTCASE(postlist6, backend) {
 	TEST_REL(i.get_wdf() + i.get_unique_terms() - 1,<=,i.get_doclength());
 	++i;
     }
-    return true;
 }
 
 // tests collection frequency
@@ -1523,8 +1451,6 @@ DEFINE_TESTCASE(collfreq1, backend) {
     TEST_EQUAL(db2.get_collection_freq("first"), 1);
     TEST_EQUAL(db2.get_collection_freq("last"), 0);
     TEST_EQUAL(db2.get_collection_freq("word"), 11);
-
-    return true;
 }
 
 // Regression test for split msets being incorrect when sorting
@@ -1566,8 +1492,6 @@ DEFINE_TESTCASE(sortvalue1, backend) {
 	}
 	enquire.set_docid_order(Xapian::Enquire::DESCENDING);
     }
-
-    return true;
 }
 
 // consistency check match - vary mset size and check results agree.
@@ -1603,7 +1527,6 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 	// consistency1 is a long test - may timeout with the remote backend...
 	SKIP_TEST("Test taking too long");
     }
-    return true;
 }
 
 // tests that specifying a nonexistent input file throws an exception.
@@ -1641,7 +1564,6 @@ DEFINE_TESTCASE(chertdatabasenotfounderror1, chert) {
 		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
 #endif
 
-    return true;
 }
 
 DEFINE_TESTCASE(glassdatabasenotfounderror1, glass) {
@@ -1677,8 +1599,6 @@ DEFINE_TESTCASE(glassdatabasenotfounderror1, glass) {
 	    Xapian::WritableDatabase(".glass/somefile",
 		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS));
 #endif
-
-    return true;
 }
 
 /// Test opening of a chert database
@@ -1738,8 +1658,6 @@ DEFINE_TESTCASE(chertdatabaseopen1, chert) {
 	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 #endif
-
-    return true;
 }
 
 // feature test for Enquire:
@@ -1870,8 +1788,6 @@ DEFINE_TESTCASE(sortrel1, backend) {
     for (i = 0; i < sizeof(order9) / sizeof(Xapian::docid); ++i) {
 	TEST_EQUAL(*mset[i], order9[i]);
     }
-
-    return true;
 }
 
 static void
@@ -1954,8 +1870,6 @@ DEFINE_TESTCASE(netstats1, generated) {
 
 	TEST(mset_range_is_same(mset, 0, to_compare, mset.size()));
     }
-
-    return true;
 }
 
 // Coordinate matching - scores 1 for each matching term
@@ -2006,8 +1920,6 @@ DEFINE_TESTCASE(userweight1, backend && !remote) {
 	}
 	TEST_EQUAL(i.get_weight(), matching_terms);
     }
-
-    return true;
 }
 
 // tests MatchAll queries
@@ -2034,8 +1946,6 @@ DEFINE_TESTCASE(matchall1, backend) {
     TEST_EQUAL(mset[mset.size() - 1].get_weight(), 0);
     TEST_EQUAL(*mset[0], 1);
     TEST_EQUAL(*mset[mset.size() - 1], mset.size());
-
-    return true;
 }
 
 // Test using a ValueSetMatchDecider
@@ -2055,6 +1965,4 @@ DEFINE_TESTCASE(valuesetmatchdecider2, backend && !remote) {
     mset_expect_order(mymset, 6, 12);
     mymset = enq.get_mset(0, 20, 0, NULL, &vsmd2);
     mset_expect_order(mymset, 8, 4, 5, 7, 10, 11, 13, 9, 14);
-
-    return true;
 }
