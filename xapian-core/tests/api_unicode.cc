@@ -109,7 +109,6 @@ DEFINE_TESTCASE(utf8iterator1, !backend) {
 	TEST(a == Xapian::Utf8Iterator());
 	TEST(b == Xapian::Utf8Iterator());
     }
-    return true;
 }
 
 struct testcase2 {
@@ -141,7 +140,6 @@ DEFINE_TESTCASE(utf8iterator2, !backend) {
 	TEST_EQUAL(*a, p->n);
 	TEST(++a == Xapian::Utf8Iterator());
     }
-    return true;
 }
 
 // Test Unicode categorisation.
@@ -325,7 +323,6 @@ DEFINE_TESTCASE(unicode1, !backend) {
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
-    return true;
 }
 
 DEFINE_TESTCASE(caseconvert1, !backend) {
@@ -365,8 +362,6 @@ DEFINE_TESTCASE(caseconvert1, !backend) {
     TEST_EQUAL(Unicode::toupper(0x110000), 0x110000);
     TEST_EQUAL(Unicode::tolower(0xFFFFFFFF), 0xFFFFFFFF);
     TEST_EQUAL(Unicode::toupper(0xFFFFFFFF), 0xFFFFFFFF);
-
-    return true;
 }
 
 /// Test Unicode 5.1 and later support.
@@ -459,8 +454,6 @@ DEFINE_TESTCASE(caseconvert2, !backend) {
     TEST_EQUAL(Unicode::toupper(0xA7C5), 0xA7C5);
     TEST_EQUAL(Unicode::tolower(0x0282), 0x0282);
     TEST_EQUAL(Unicode::toupper(0x0282), 0xA7C5);
-
-    return true;
 }
 
 DEFINE_TESTCASE(utf8convert1, !backend) {
@@ -484,8 +477,6 @@ DEFINE_TESTCASE(utf8convert1, !backend) {
 			  ""
 			  "z"
 			  );
-
-    return true;
 }
 
 DEFINE_TESTCASE(unicodepredicates1, !backend) {
@@ -594,6 +585,4 @@ DEFINE_TESTCASE(unicodepredicates1, !backend) {
 	TEST(!Xapian::Unicode::is_currency(*p));
 	TEST(!Xapian::Unicode::is_whitespace(*p));
     }
-
-    return true;
 }

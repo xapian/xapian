@@ -42,7 +42,6 @@ DEFINE_TESTCASE(diversify1, generated)
     Xapian::DocumentSet dset = d.get_dmset(matches);
 
     TEST(dset.size() != 0);
-    return true;
 }
 
 /** LCD cluster Test
@@ -63,5 +62,4 @@ DEFINE_TESTCASE(lcdclusterer1, generated)
 	Xapian::DocumentSet d = cset[i].get_documents();
 	TEST(d.size() != 0);
     }
-    return true;
 }

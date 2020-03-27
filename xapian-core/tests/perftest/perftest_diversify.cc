@@ -62,5 +62,4 @@ DEFINE_TESTCASE(perfdiversify1, writable && !remote && !inmemory)
     logger.diversifying_end();
 
     logger.testcase_end();
-    return true;
 }
