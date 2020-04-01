@@ -1144,7 +1144,7 @@ T(score,	   0, 0, N, 0), // score (0-10) of current hit
 T(set,		   2, 2, N, 0), // set option value
 T(seterror,	   1, 1, N, 0), // set error_msg, setting it early stops query execution
 T(setmap,	   1, N, N, 0), // set map of option values
-T(setrelevant,	   0, 1, N, Q), // set rset
+T(setrelevant,	   1, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 2, N, M), // generate snippet from text
 T(sort,		   1, 2, N, 0), // alpha sort a list
