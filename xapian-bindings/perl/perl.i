@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016,2019 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,9 +53,7 @@ extern "C" {
 
 %include ../xapian-head.i
 
-/* Rename function next() to increment() since the keyword "next" is already
- * used in Perl. */
-%rename(increment) *::next();
+/* "next" is a keyword in Perl. */
 %rename(increment_weight) *::next(double min_wt);
 
 /* Wrapping constant values. */
