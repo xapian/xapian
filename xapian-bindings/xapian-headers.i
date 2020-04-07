@@ -80,9 +80,13 @@
 /* In Perl, use inc() and dec() instead of next() and prev(). */
 #define NEXT_METHOD inc
 #define PREV_METHOD dec
+#define OPERATOR_EQ(NS, CLASS) bool equal(const NS::CLASS & o) const { return *self == o; }
+#define OPERATOR_NE(NS, CLASS) bool nequal(const NS::CLASS & o) const { return *self != o; }
 #else
 #define NEXT_METHOD next
 #define PREV_METHOD prev
+#define OPERATOR_EQ(NS, CLASS) bool equals(const NS::CLASS & o) const { return *self == o; }
+#define OPERATOR_NE(NS, CLASS)
 #endif
 
 /* For other languages, SWIG already renames operator() suitably. */
@@ -101,7 +105,8 @@
     %ignore NS::CLASS::operator++;
     %ignore NS::CLASS::operator*;
     %extend NS::CLASS {
-	bool equals(const NS::CLASS & o) const { return *self == o; }
+	OPERATOR_EQ(NS, CLASS)
+	OPERATOR_NE(NS, CLASS)
 	RET_TYPE DEREF_METHOD() const { return **self; }
 	INC_OR_DEC(NEXT_METHOD, ++, NS, CLASS, RET_TYPE)
     }
