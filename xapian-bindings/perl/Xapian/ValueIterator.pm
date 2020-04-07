@@ -41,7 +41,7 @@ Returns a string describing this object.
 =item equal <valueiterator>
 
 Checks if a valueiterator is the same as this valueiterator. Also overloaded as
-the C<eq> and C<!=> operators.
+the C<eq> and C<==> operators.
 
 =item nequal <valueiterator>
 
