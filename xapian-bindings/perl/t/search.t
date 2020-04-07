@@ -11,7 +11,7 @@ use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
-BEGIN { plan tests => 127 };
+BEGIN { plan tests => 130 };
 use Xapian qw(:ops);
 
 # FIXME: these tests pass in the XS version.
@@ -210,5 +210,9 @@ ok( ++$alltermit == $db->allterms_end('t') );
 # Check that non-string scalars get coerced.
 my $numberquery = Xapian::Query->new( OP_OR, (12, "34", .5) );
 is( $numberquery->get_description(), "Query((12 OR 34 OR 0.5))" );
+
+ok( defined(Xapian::ENQ_ASCENDING) );
+ok( defined(Xapian::ENQ_DESCENDING) );
+ok( defined(Xapian::ENQ_DONT_CARE) );
 
 1;

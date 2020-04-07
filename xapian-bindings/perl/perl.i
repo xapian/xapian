@@ -74,6 +74,9 @@ extern "C" {
 %constant int OP_WILDCARD = Xapian::Query::OP_WILDCARD;
 %constant int OP_VALUE_LE = Xapian::Query::OP_VALUE_LE;
 %constant int OP_INVALID = Xapian::Query::OP_INVALID;
+%constant int ENQ_ASCENDING = Xapian::Enquire::ASCENDING;
+%constant int ENQ_DESCENDING = Xapian::Enquire::DESCENDING;
+%constant int ENQ_DONT_CARE = Xapian::Enquire::DONT_CARE;
 %constant int FLAG_BOOLEAN = Xapian::QueryParser::FLAG_BOOLEAN;
 %constant int FLAG_PHRASE = Xapian::QueryParser::FLAG_PHRASE;
 %constant int FLAG_LOVEHATE = Xapian::QueryParser::FLAG_LOVEHATE;
