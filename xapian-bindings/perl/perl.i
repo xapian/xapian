@@ -177,14 +177,6 @@ Xapian::ESetIterator FETCH(int index) {
 std::string get_termname() {
     return self->operator*();
 }
-
-bool equal(Xapian::ESetIterator * that) {
-    return ((*self) == (*that));
-}
-
-bool nequal(Xapian::ESetIterator * that) {
-    return ((*self) != (*that));
-}
 }
 
 /* Xapian::MSet */
@@ -194,38 +186,9 @@ Xapian::MSetIterator FETCH(int index) {
 }
 }
 
-/* Xapian::MSetIterator */
-%extend Xapian::MSetIterator {
-bool equal(Xapian::MSetIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::MSetIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
 /* Xapian::PositionIterator */
-%extend Xapian::PositionIterator {
-bool equal1(Xapian::PositionIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal1(Xapian::PositionIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
-/* Xapian::PostingIterator */
-%extend Xapian::PostingIterator {
-bool equal(Xapian::PostingIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::PostingIterator * that) {
-     return ((*self) != (*that));
-}
-}
+%rename(equal1) Xapian::PositionIterator::equal;
+%rename(nequal1) Xapian::PositionIterator::nequal;
 
 /* Xapian::Query */
 %feature("shadow") Xapian::Query::Query
@@ -431,27 +394,6 @@ std::string stem_word(std::string word) {
 
 /* Xapian::TermIterator */
 %rename(get_termname) Xapian::TermIterator::get_term;
-
-%extend Xapian::TermIterator {
-bool equal(Xapian::TermIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::TermIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
-/* Xapian::ValueIterator */
-%extend Xapian::ValueIterator {
-bool equal(Xapian::ValueIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::ValueIterator * that) {
-     return ((*self) != (*that));
-}
-}
 
 /* Xapian::WritableDatabase */
 %rename(replace_document_by_term) \
