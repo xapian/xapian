@@ -111,7 +111,7 @@ Returns a string describing this object.
 =item equal <termiterator>
 
 Checks if a termiterator is the same as this termiterator. Also overloaded as
-the C<eq> and C<!=> operators.
+the C<eq> and C<==> operators.
 
 =item nequal <termiterator>
 
