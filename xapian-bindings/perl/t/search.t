@@ -11,7 +11,7 @@ use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
-BEGIN { plan tests => 130 };
+BEGIN { plan tests => 125 };
 use Xapian qw(:ops);
 
 # FIXME: these tests pass in the XS version.
@@ -188,22 +188,17 @@ ok( $tradweight = Xapian::TradWeight->new() );
 
 my $alltermit = $db->allterms_begin();
 ok( $alltermit != $db->allterms_end() );
-ok( $disable_fixme || "$alltermit" eq 'one' );
 ok( $alltermit->get_termname() eq 'one' );
 ok( ++$alltermit != $db->allterms_end() );
-ok( $disable_fixme || "$alltermit" eq 'test' );
 ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end() );
-ok( $disable_fixme || "$alltermit" eq 'two' );
 ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end() );
 
 $alltermit = $db->allterms_begin('t');
 ok( $alltermit != $db->allterms_end('t') );
-ok( $disable_fixme || "$alltermit" eq 'test' );
 ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end('t') );
-ok( $disable_fixme || "$alltermit" eq 'two' );
 ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end('t') );
 

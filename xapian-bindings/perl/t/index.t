@@ -11,11 +11,8 @@ use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
-BEGIN { plan tests => 117 };
+BEGIN { plan tests => 116 };
 use Xapian qw(:standard);
-
-# FIXME: these tests pass in the XS version.
-my $disable_fixme = 1;
 
 #########################
 
@@ -94,7 +91,7 @@ foreach my $backend ("inmemory", "auto") {
 
   my $termit = $database->termlist_begin(1);
   ok( $termit != $database->termlist_end(1) );
-  ok( $disable_fixme || "$termit" eq 'one' );
+  ok( $termit->get_termname() eq 'one' );
   $termit++;
   ok( $termit ne $database->termlist_end(1) );
   is( $termit->get_termname(), 'test' );
@@ -104,22 +101,22 @@ foreach my $backend ("inmemory", "auto") {
 
   my $alltermit = $database->allterms_begin();
   ok( $alltermit != $database->allterms_end() );
-  ok( $disable_fixme || "$alltermit" eq 'one' );
+  ok( $alltermit->get_termname() eq 'one' );
   ok( $alltermit->get_termname() eq 'one' );
   ok( ++$alltermit != $database->allterms_end() );
-  ok( $disable_fixme || "$alltermit" eq 'test' );
+  ok( $alltermit->get_termname() eq 'test' );
   ok( $alltermit->get_termname() eq 'test' );
   ok( ++$alltermit != $database->allterms_end() );
-  ok( $disable_fixme || "$alltermit" eq 'two' );
+  ok( $alltermit->get_termname() eq 'two' );
   ok( $alltermit->get_termname() eq 'two' );
   ok( ++$alltermit == $database->allterms_end() );
 
   $alltermit = $database->allterms_begin('t');
   ok( $alltermit != $database->allterms_end('t') );
-  ok( $disable_fixme || "$alltermit" eq 'test' );
+  ok( $alltermit->get_termname() eq 'test' );
   ok( $alltermit->get_termname() eq 'test' );
   ok( ++$alltermit != $database->allterms_end('t') );
-  ok( $disable_fixme || "$alltermit" eq 'two' );
+  ok( $alltermit->get_termname() eq 'two' );
   ok( $alltermit->get_termname() eq 'two' );
   ok( ++$alltermit == $database->allterms_end('t') );
 
@@ -140,6 +137,5 @@ ok($@);
 ok(ref($@), "Xapian::InvalidArgumentError");
 ok($@->isa('Xapian::Error'));
 ok($@->get_msg, "Language code gibberish unknown");
-ok( $disable_fixme || "$@" =~ /^Exception: Language code gibberish unknown(?: at \S+ line \d+\.)?$/ );
 
 1;
