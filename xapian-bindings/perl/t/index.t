@@ -80,7 +80,7 @@ foreach my $backend ("inmemory", "auto") {
 
   my $posit = $database->positionlist_begin(1, $term);
   ok( $posit ne $database->positionlist_end(1, $term) );
-  ok( $posit == 0 );
+  ok( $posit->get_termpos() == 0 );
   $posit++;
   ok( $posit eq $database->positionlist_end(1, $term) );
 
