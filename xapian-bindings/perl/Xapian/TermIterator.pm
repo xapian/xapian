@@ -2,14 +2,18 @@ package Xapian::TermIterator;
 
 =head1 NAME
 
-Xapian::TermIterator - Iterate over sets of terms.
+Xapian::TermIterator - Iterate over a list of terms.
 
 =head1 DESCRIPTION
 
 This object represents a stream of terms. It overloads C<++> for
 advancing the iterator, or you can explicitly call the C<inc> method.
-This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
-(stringification).
+This class also overloads C<eq>, C<ne>, C<==>, and C<!=>.
+
+=head2 Compatibility with Search::Xapian
+
+Search::Xapian overloads <""> (stringification) on this class to call
+the C<get_termname> method.  Call C<get_termname> directly instead.
 
 =head1 METHODS
 
