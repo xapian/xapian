@@ -257,18 +257,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	OP_EDIT_DISTANCE = 16,
 
-	/** Construct an invalid query.
-	 *
-	 *  This can be useful as a placeholder - for example @a RangeProcessor
-	 *  uses it as a return value to indicate that a range hasn't been
-	 *  recognised.
-	 */
-	OP_INVALID = 99,
-
-	/** Value returned by get_type() for a term. */
-	LEAF_TERM = 100,
-
-	/** Match only documents where a value slot is > a given value.
+    /** Match only documents where a value slot is > a given value.
 	 *
 	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
 	 *
@@ -283,6 +272,17 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  This operator never contributes weight.
 	 */
 	OP_VALUE_LT = 18,
+
+	/** Construct an invalid query.
+	 *
+	 *  This can be useful as a placeholder - for example @a RangeProcessor
+	 *  uses it as a return value to indicate that a range hasn't been
+	 *  recognised.
+	 */
+	OP_INVALID = 99,
+
+	/** Value returned by get_type() for a term. */
+	LEAF_TERM = 100,
 
 	/** Value returned by get_type() for a PostingSource. */
 	LEAF_POSTING_SOURCE,
