@@ -785,7 +785,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    break;
 		default:
 		    // 8 to 12 are currently unused.
-			    throw SerialisationError("Unknown multi-way branch Query operator");
+		    throw SerialisationError("Unknown multi-way branch Query operator");
 	    }
 	    do {
 		result->add_subquery(Xapian::Query(unserialise(p, end, reg)));
