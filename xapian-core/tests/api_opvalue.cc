@@ -424,29 +424,28 @@ DEFINE_TESTCASE(valuegt1, backend) {
 	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
     };
     for (auto start : vals) {
-    	Xapian::Query query(Xapian::Query::OP_VALUE_GT, 1, start);
-    	enq.set_query(query);
-    	Xapian::MSet mset = enq.get_mset(0, 20);
-    	// Check that documents in the MSet match the value range filter.
-    	set<Xapian::docid> matched;
-    	Xapian::MSetIterator i;
-    	for (i = mset.begin(); i != mset.end(); ++i) {
-    	    matched.insert(*i);
-    	    string value = db.get_document(*i).get_value(1);
-    	    tout << "'" << start << "' < '" << value << "'" << endl;
-    	    TEST_REL(value,>,start);
-    	}
-    	// Check that documents not in the MSet don't match the value range
-    	// filter.
-    	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
-    	    if (matched.find(j) == matched.end()) {
-    		string value = db.get_document(j).get_value(1);
-    		tout << value << " <= '" << start << "'" << endl;
-    		TEST_REL(value,<=,start);
-    	    }
-    	}
+    Xapian::Query query(Xapian::Query::OP_VALUE_GT, 1, start);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, 20);
+	// Check that documents in the MSet match the value range filter.
+	set<Xapian::docid> matched;
+	Xapian::MSetIterator i;
+	for (i = mset.begin(); i != mset.end(); ++i) {
+	    matched.insert(*i);
+	    string value = db.get_document(*i).get_value(1);
+	    tout << "'" << start << "' < '" << value << "'" << endl;
+	    TEST_REL(value,>,start);
+	}
+	// Check that documents not in the MSet don't match the value range
+	// filter.
+	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
+	    if (matched.find(j) == matched.end()) {
+		string value = db.get_document(j).get_value(1);
+		tout << value << " <= '" << start << "'" << endl;
+		TEST_REL(value,<=,start);
+	    }
+	}
     }
-
 }
 
 // Feature test for Query::OP_VALUE_LT.
@@ -457,27 +456,26 @@ DEFINE_TESTCASE(valuelt1, backend) {
 	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z"
     };
     for (auto start : vals) {
-        Xapian::Query query(Xapian::Query::OP_VALUE_LT, 1, start);
-        enq.set_query(query);
-        Xapian::MSet mset = enq.get_mset(0, 20);
-        // Check that documents in the MSet match the value range filter.
-        set<Xapian::docid> matched;
-        Xapian::MSetIterator i;
-        for (i = mset.begin(); i != mset.end(); ++i) {
-            matched.insert(*i);
-            string value = db.get_document(*i).get_value(1);
-            tout << "'" << start << "' > '" << value << "'" << endl;
-            TEST_REL(value,<,start);
-        }
-        // Check that documents not in the MSet don't match the value range
-        // filter.
-        for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
-            if (matched.find(j) == matched.end()) {
-            string value = db.get_document(j).get_value(1);
-            tout << value << " >= '" << start << "'" << endl;
-            TEST_REL(value,>=,start);
-            }
-        }
+	Xapian::Query query(Xapian::Query::OP_VALUE_LT, 1, start);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, 20);
+	// Check that documents in the MSet match the value range filter.
+	set<Xapian::docid> matched;
+	Xapian::MSetIterator i;
+	for (i = mset.begin(); i != mset.end(); ++i) {
+	    matched.insert(*i);
+	    string value = db.get_document(*i).get_value(1);
+	    tout << "'" << start << "' > '" << value << "'" << endl;
+	    TEST_REL(value,<,start);
+	}
+	// Check that documents not in the MSet don't match the value range
+	// filter.
+	for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
+	    if (matched.find(j) == matched.end()) {
+	    string value = db.get_document(j).get_value(1);
+	    tout << value << " >= '" << start << "'" << endl;
+	    TEST_REL(value,>=,start);
+	    }
+	}
     }
-
 }
