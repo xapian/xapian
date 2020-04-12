@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016,2019 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,9 +53,7 @@ extern "C" {
 
 %include ../xapian-head.i
 
-/* Rename function next() to increment() since the keyword "next" is already
- * used in Perl. */
-%rename(increment) *::next();
+/* "next" is a keyword in Perl. */
 %rename(increment_weight) *::next(double min_wt);
 
 /* Wrapping constant values. */
@@ -76,6 +74,9 @@ extern "C" {
 %constant int OP_WILDCARD = Xapian::Query::OP_WILDCARD;
 %constant int OP_VALUE_LE = Xapian::Query::OP_VALUE_LE;
 %constant int OP_INVALID = Xapian::Query::OP_INVALID;
+%constant int ENQ_ASCENDING = Xapian::Enquire::ASCENDING;
+%constant int ENQ_DESCENDING = Xapian::Enquire::DESCENDING;
+%constant int ENQ_DONT_CARE = Xapian::Enquire::DONT_CARE;
 %constant int FLAG_BOOLEAN = Xapian::QueryParser::FLAG_BOOLEAN;
 %constant int FLAG_PHRASE = Xapian::QueryParser::FLAG_PHRASE;
 %constant int FLAG_LOVEHATE = Xapian::QueryParser::FLAG_LOVEHATE;
@@ -179,14 +180,6 @@ Xapian::ESetIterator FETCH(int index) {
 std::string get_termname() {
     return self->operator*();
 }
-
-bool equal(Xapian::ESetIterator * that) {
-    return ((*self) == (*that));
-}
-
-bool nequal(Xapian::ESetIterator * that) {
-    return ((*self) != (*that));
-}
 }
 
 /* Xapian::MSet */
@@ -196,38 +189,9 @@ Xapian::MSetIterator FETCH(int index) {
 }
 }
 
-/* Xapian::MSetIterator */
-%extend Xapian::MSetIterator {
-bool equal(Xapian::MSetIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::MSetIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
 /* Xapian::PositionIterator */
-%extend Xapian::PositionIterator {
-bool equal1(Xapian::PositionIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal1(Xapian::PositionIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
-/* Xapian::PostingIterator */
-%extend Xapian::PostingIterator {
-bool equal(Xapian::PostingIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::PostingIterator * that) {
-     return ((*self) != (*that));
-}
-}
+%rename(equal1) Xapian::PositionIterator::equal;
+%rename(nequal1) Xapian::PositionIterator::nequal;
 
 /* Xapian::Query */
 %feature("shadow") Xapian::Query::Query
@@ -433,27 +397,6 @@ std::string stem_word(std::string word) {
 
 /* Xapian::TermIterator */
 %rename(get_termname) Xapian::TermIterator::get_term;
-
-%extend Xapian::TermIterator {
-bool equal(Xapian::TermIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::TermIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
-/* Xapian::ValueIterator */
-%extend Xapian::ValueIterator {
-bool equal(Xapian::ValueIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::ValueIterator * that) {
-     return ((*self) != (*that));
-}
-}
 
 /* Xapian::WritableDatabase */
 %rename(replace_document_by_term) \

@@ -4,7 +4,7 @@
  * Based on the perl XS wrapper files.
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016,2018,2019 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2018,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,8 +149,8 @@ sub items {
   return @array;
 }
 
-use overload '++' => sub { $_[0]->increment() },
-	     '--' => sub { $_[0]->prev() },
+use overload '++' => sub { $_[0]->inc() },
+	     '--' => sub { $_[0]->dec() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -178,8 +178,8 @@ sub FETCHSIZE {
 }
 
 package Xapian::ESetIterator;
-use overload '++' => sub { $_[0]->increment() },
-	     '--' => sub { $_[0]->prev() },
+use overload '++' => sub { $_[0]->inc() },
+	     '--' => sub { $_[0]->dec() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -215,8 +215,8 @@ sub FETCHSIZE {
 }
 
 package Xapian::MSetIterator;
-use overload '++' => sub { $_[0]->increment() },
-	     '--' => sub { $_[0]->prev() },
+use overload '++' => sub { $_[0]->inc() },
+	     '--' => sub { $_[0]->dec() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -235,14 +235,12 @@ package Xapian::MSet::Tied;
 our @ISA = qw(Xapian::MSet);
 
 package Xapian::PositionIterator;
-use overload '++' => sub { $_[0]->increment() },
+use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-	     '""' => sub { $_[0]->get_description() },
-	     '0+' => sub { $_[0]->get_termpos() },
 	     'fallback' => 1;
 
 sub clone() {
@@ -272,7 +270,7 @@ sub nequal() {
 }
 
 package Xapian::PostingIterator;
-use overload '++' => sub { $_[0]->increment() },
+use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -296,7 +294,7 @@ sub set_stopper {
 }
 
 package Xapian::TermIterator;
-use overload '++' => sub { $_[0]->increment() },
+use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -313,7 +311,7 @@ sub clone() {
 }
 
 package Xapian::ValueIterator;
-use overload '++' => sub { $_[0]->increment() },
+use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },

@@ -108,8 +108,6 @@ DEFINE_TESTCASE(valuestats1, writable && valuestats) {
     TEST_EQUAL(db_w.get_value_freq(0), 0);
     TEST_EQUAL(db_w.get_value_lower_bound(0), "");
     TEST_EQUAL(db_w.get_value_upper_bound(0), "");
-
-    return true;
 }
 
 /// Test that value statistics stuff obeys transactions.
@@ -222,8 +220,6 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
     TEST_EQUAL(db.get_value_freq(1), 1);
     TEST_EQUAL(db.get_value_lower_bound(1), "newval");
     TEST_EQUAL(db.get_value_upper_bound(1), "newval");
-
-    return true;
 }
 
 /// Test reading value statistics from prebuilt databases.
@@ -263,8 +259,6 @@ DEFINE_TESTCASE(valuestats3, valuestats) {
     TEST_EQUAL(db.get_value_freq(11), 6);
     TEST_EQUAL(db.get_value_lower_bound(11), "\xb9P");
     TEST_EQUAL(db.get_value_upper_bound(11), "\xc7\x04");
-
-    return true;
 }
 
 DEFINE_TESTCASE(valuestats4, transactions && valuestats) {
@@ -299,8 +293,6 @@ DEFINE_TESTCASE(valuestats4, transactions && valuestats) {
 	TEST_EQUAL(db.get_value_lower_bound(1), "test");
 	TEST_EQUAL(db.get_value_upper_bound(1), "test");
     }
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.1.1 which led to incorrect valuestats.
@@ -324,6 +316,4 @@ DEFINE_TESTCASE(valuestats5, !backend) {
 	++v;
     }
     TEST_EQUAL(c, 3); // 0, 2, 5
-
-    return true;
 }

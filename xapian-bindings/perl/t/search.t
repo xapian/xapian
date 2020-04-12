@@ -11,7 +11,7 @@ use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
-BEGIN { plan tests => 122 };
+BEGIN { plan tests => 125 };
 use Xapian qw(:ops);
 
 # FIXME: these tests pass in the XS version.
@@ -98,6 +98,10 @@ ok( $doc->get_data(), "data retrievable" );
 
 ok( $match--, "match set iterator can decrement" );
 is( $match, $matches->begin(), "match set iterator decrements correctly" );
+$match->inc;
+isnt( $match, $matches->begin(), "match set iterator increments correctly" );
+$match->dec;
+is( $match, $matches->begin(), "match set iterator decrements correctly" );
 
 for (1 .. $matches->size()) { $match++; }
 is( $match, $matches->end(), "match set returns correct endpoint");
@@ -147,6 +151,11 @@ is( $eit->get_termname(), 'one', "expanded terms set contains correct terms");
 is( ++$eit, $eset->end(), "eset iterator reaches ESet::end() ok" );
 --$eit;
 is( $eit->get_termname(), 'one', "eset iterator decrement works ok" );
+$eit->inc;
+is( $eit, $eset->end(), "ESetIterator::inc() ok" );
+$eit->dec;
+isnt( $eit, $eset->end(), "ESetIterator::dec() moved off end()" );
+is( $eit->get_termname(), 'one', "ESetIterator::dec() ok" );
 ok( $disable_fixme or $eset = $enq->get_eset( 10, $rset, sub { $_[0] ne "one" } ), "expanded terms set with decider" );
 is( $disable_fixme ?0: $eset->size(), 0, "expanded terms decider filtered" );
 
@@ -179,27 +188,26 @@ ok( $tradweight = Xapian::TradWeight->new() );
 
 my $alltermit = $db->allterms_begin();
 ok( $alltermit != $db->allterms_end() );
-ok( $disable_fixme || "$alltermit" eq 'one' );
 ok( $alltermit->get_termname() eq 'one' );
 ok( ++$alltermit != $db->allterms_end() );
-ok( $disable_fixme || "$alltermit" eq 'test' );
 ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end() );
-ok( $disable_fixme || "$alltermit" eq 'two' );
 ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end() );
 
 $alltermit = $db->allterms_begin('t');
 ok( $alltermit != $db->allterms_end('t') );
-ok( $disable_fixme || "$alltermit" eq 'test' );
 ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end('t') );
-ok( $disable_fixme || "$alltermit" eq 'two' );
 ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end('t') );
 
 # Check that non-string scalars get coerced.
 my $numberquery = Xapian::Query->new( OP_OR, (12, "34", .5) );
 is( $numberquery->get_description(), "Query((12 OR 34 OR 0.5))" );
+
+ok( defined(Xapian::ENQ_ASCENDING) );
+ok( defined(Xapian::ENQ_DESCENDING) );
+ok( defined(Xapian::ENQ_DONT_CARE) );
 
 1;

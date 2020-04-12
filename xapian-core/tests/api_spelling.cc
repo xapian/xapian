@@ -53,8 +53,6 @@ DEFINE_TESTCASE(spell0, spelling || remote) {
     db.remove_spelling("hello");
     db.commit();
     db.remove_spelling("hello");
-
-    return true;
 }
 
 // Test basic spelling correction features.
@@ -152,8 +150,6 @@ DEFINE_TESTCASE(spell1, spelling) {
     db.remove_spelling("hello");
     db.commit();
     db.remove_spelling("hello");
-
-    return true;
 }
 
 // Test spelling correction for Unicode.
@@ -177,8 +173,6 @@ DEFINE_TESTCASE(spell2, spelling) {
     TEST_EQUAL(dbr.get_spelling_suggestion("hh\xc3\xb6l"), "h\xc3\xb6hle");
     TEST_EQUAL(dbr.get_spelling_suggestion("as\xc3\xb6\xc3\xb7i"), "ascii");
     TEST_EQUAL(dbr.get_spelling_suggestion("asc\xc3\xb6i\xc3\xb7i"), "ascii");
-
-    return true;
 }
 
 // Test spelling correction with multi databases
@@ -233,8 +227,6 @@ DEFINE_TESTCASE(spell3, spelling) {
     TEST_EQUAL(i.get_termfreq(), 1);
     ++i;
     TEST(i == db.spellings_end());
-
-    return true;
 }
 
 // Regression test - check that appending works correctly.
@@ -248,8 +240,6 @@ DEFINE_TESTCASE(spell4, spelling) {
     db.commit();
 
     TEST_EQUAL(db.get_spelling_suggestion("jeck", 2), "pecks");
-
-    return true;
 }
 
 // Regression test - used to segfault with some input values.
@@ -262,8 +252,6 @@ DEFINE_TESTCASE(spell5, spelling) {
 
     string s = db.get_spelling_suggestion("\xe4\xb8\x8d", 3);
     TEST_EQUAL(s, target);
-
-    return true;
 }
 
 // Test basic spelling correction features.
@@ -278,8 +266,6 @@ DEFINE_TESTCASE(spell6, spelling) {
     Xapian::Database dbr(get_writable_database_as_database());
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "sell");
     TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "sell");
-
-    return true;
 }
 
 // Test suggestions when there's an exact match.
@@ -297,8 +283,6 @@ DEFINE_TESTCASE(spell7, spelling) {
     TEST_EQUAL(db.get_spelling_suggestion("words"), "word");
     TEST_EQUAL(db.get_spelling_suggestion("sword"), "word");
     TEST_EQUAL(db.get_spelling_suggestion("wrod"), "word");
-
-    return true;
 }
 
 /// Regression test - repeated trigrams cancelled in 1.2.5 and earlier.
@@ -310,6 +294,4 @@ DEFINE_TESTCASE(spell8, spelling) {
     db.add_spelling("stinking", 1);
     db.commit();
     TEST_EQUAL(db.get_spelling_suggestion("scimkin", 3), "skinking");
-
-    return true;
 }

@@ -91,8 +91,6 @@ DEFINE_TESTCASE(boolandmaybe1, backend && !remote) {
     enquire.set_weighting_scheme(Xapian::BoolWeight());
     enquire.set_query(query);
     enquire.get_mset(0, 10);
-
-    return true;
 }
 
 /** Test that ANDMAYBE branches return same documents and lists of matching
@@ -147,6 +145,4 @@ DEFINE_TESTCASE(boolandmaybe2, backend) {
 	TEST(ti2 == enquire2.get_matching_terms_end(did));
 	TEST(ti3 == enquire3.get_matching_terms_end(did));
     }
-
-    return true;
 }

@@ -73,8 +73,6 @@ DEFINE_TESTCASE(snippet1, backend) {
     for (auto i : testcases) {
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len), i.expect);
     }
-
-    return true;
 }
 
 /// Test snippets with stemming.
@@ -98,8 +96,6 @@ DEFINE_TESTCASE(snippetstem1, backend) {
     for (auto i : testcases) {
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem), i.expect);
     }
-
-    return true;
 }
 
 /// Test snippets with phrases.
@@ -126,8 +122,6 @@ DEFINE_TESTCASE(snippetphrase1, backend) {
     for (auto i : testcases) {
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem), i.expect);
     }
-
-    return true;
 }
 
 /// Index file to a DB with TermGenerator.
@@ -207,8 +201,6 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     // fewer Unicode characters in this sample than the previous one.
     TEST_STRINGS_EQUAL(mset.snippet(mset[4].get_document().get_data(), 64, stem),
 		       "...<b>much</b> o’brien do we have?  <b>Miles</b> O’Brien, that’s how <b>much</b>.");
-
-    return true;
 }
 
 /// Test snippet term diversity.
@@ -238,8 +230,6 @@ DEFINE_TESTCASE(snippet_termcover1, backend) {
 	Xapian::MSet mset = enquire.get_mset(0, 0);
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem, flags), i.expect);
     }
-
-    return true;
 }
 
 /// Test snippet term diversity cases with BoolWeight.
@@ -269,8 +259,6 @@ DEFINE_TESTCASE(snippet_termcover2, backend) {
 	Xapian::MSet mset = enquire.get_mset(0, 0);
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem, flags), i.expect);
     }
-
-    return true;
 }
 
 /// Test snippet EMPTY_WITHOUT_MATCH flag
@@ -307,8 +295,6 @@ DEFINE_TESTCASE(snippet_empty, backend) {
     flags |= Xapian::MSet::SNIPPET_EMPTY_WITHOUT_MATCH;
     TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags),
 		       "A <b>rubbish</b> <b>example</b> text");
-
-    return true;
 }
 
 /// Check snippets include certain preceding punctuation.
@@ -470,8 +456,6 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
     input = "foo for 10¢";
     TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
 		       "<b>foo</b> for <b>10</b>¢");
-
-    return true;
 }
 
 /// Test snippets with small and zero length.
@@ -499,8 +483,6 @@ DEFINE_TESTCASE(snippet_small_zerolength, backend) {
     for (auto i : testcases) {
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len), i.expect);
     }
-
-    return true;
 }
 
 /// Test CJK ngrams.
@@ -534,8 +516,6 @@ DEFINE_TESTCASE(snippet_cjkngrams, generated) {
 
     s = mset.snippet(input, len / 2, stem, flags, "<b>", "</b>", "...");
     TEST_STRINGS_EQUAL(s, "...<b>已</b><b>經</b>有香港地...");
-
-    return true;
 }
 
 /// Test CJK word segmentation.
@@ -570,6 +550,4 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
     DO_TEST(mset.snippet(input2, len / 2, stem, cjk_flags, "[", "]", "~"),
 	    "~時[已經]有香港~");
 #undef DO_TEST
-
-    return true;
 }
