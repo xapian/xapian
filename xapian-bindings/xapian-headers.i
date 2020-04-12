@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2017,2019,2020 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -78,6 +78,19 @@
 #define INC_OR_DEC(METHOD, OP, NS, CLASS, RET_TYPE) void METHOD() { OP(*self); }
 #endif
 
+#ifdef SWIGPERL
+/* In Perl, use inc() and dec() instead of next() and prev(). */
+#define NEXT_METHOD inc
+#define PREV_METHOD dec
+#define OPERATOR_EQ(NS, CLASS) bool equal(const NS::CLASS & o) const { return *self == o; }
+#define OPERATOR_NE(NS, CLASS) bool nequal(const NS::CLASS & o) const { return *self != o; }
+#else
+#define NEXT_METHOD next
+#define PREV_METHOD prev
+#define OPERATOR_EQ(NS, CLASS) bool equals(const NS::CLASS & o) const { return *self == o; }
+#define OPERATOR_NE(NS, CLASS)
+#endif
+
 /* For other languages, SWIG already renames operator() suitably. */
 #if defined SWIGJAVA || defined SWIGPHP || defined SWIGTCL
 %rename(apply) *::operator();
@@ -94,9 +107,10 @@
     %ignore NS::CLASS::operator++;
     %ignore NS::CLASS::operator*;
     %extend NS::CLASS {
-	bool equals(const NS::CLASS & o) const { return *self == o; }
+	OPERATOR_EQ(NS, CLASS)
+	OPERATOR_NE(NS, CLASS)
 	RET_TYPE DEREF_METHOD() const { return **self; }
-	INC_OR_DEC(next, ++, NS, CLASS, RET_TYPE)
+	INC_OR_DEC(NEXT_METHOD, ++, NS, CLASS, RET_TYPE)
     }
 %enddef
 
@@ -108,7 +122,7 @@
     %ignore NS::CLASS::operator+;
     %ignore NS::CLASS::operator-;
     %extend NS::CLASS {
-	INC_OR_DEC(prev, --, NS, CLASS, RET_TYPE)
+	INC_OR_DEC(PREV_METHOD, --, NS, CLASS, RET_TYPE)
     }
 %enddef
 

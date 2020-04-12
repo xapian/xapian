@@ -244,7 +244,6 @@ DEFINE_TESTCASE(closedb1, backend) {
     for (int fd : fds) {
 	close(fd);
     }
-    return true;
 }
 
 // Test closing a writable database, and that it drops the lock.
@@ -258,8 +257,6 @@ DEFINE_TESTCASE(closedb2, writable && path) {
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
 	       dbw1.postlist_begin("paragraph"));
     TEST_EQUAL(dbw2.postlist_begin("paragraph"), dbw2.postlist_end("paragraph"));
-
-    return true;
 }
 
 /// Check API methods which might either work or throw an exception.
@@ -300,7 +297,6 @@ DEFINE_TESTCASE(closedb3, backend) {
 	db.keep_alive();
     } catch (const Xapian::DatabaseClosedError &) {
     }
-    return true;
 }
 
 /// Regression test for bug fixed in 1.1.4 - close() should implicitly commit().
@@ -311,7 +307,6 @@ DEFINE_TESTCASE(closedb4, writable && !inmemory) {
     wdb.close();
     Xapian::Database db(get_writable_database_as_database());
     TEST_EQUAL(db.get_doccount(), 1);
-    return true;
 }
 
 /// Test the effects of close() on transactions
@@ -385,8 +380,6 @@ DEFINE_TESTCASE(closedb5, transactions) {
 	    }
 	}
     }
-
-    return true;
 }
 
 /// Database::keep_alive() should fail after close() for a remote database.
@@ -396,10 +389,9 @@ DEFINE_TESTCASE(closedb6, remote) {
 
     try {
 	db.keep_alive();
-	return false;
+	FAIL_TEST("Expected DatabaseClosedError wasn't thrown");
     } catch (const Xapian::DatabaseClosedError &) {
     }
-    return true;
 }
 
 // Test WritableDatabase methods.
@@ -425,8 +417,6 @@ DEFINE_TESTCASE(closedb7, writable) {
 		   db.replace_document(2, Xapian::Document()));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.replace_document("Qi", Xapian::Document()));
-
-    return true;
 }
 
 // Test spelling related methods.
@@ -444,8 +434,6 @@ DEFINE_TESTCASE(closedb8, writable && spelling) {
 		   db.get_spelling_suggestion("newmonia"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.spellings_begin());
-
-    return true;
 }
 
 // Test synonym related methods.
@@ -465,8 +453,6 @@ DEFINE_TESTCASE(closedb9, writable && synonyms) {
 		   db.synonyms_begin("color"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.synonym_keys_begin());
-
-    return true;
 }
 
 // Test metadata related methods.
@@ -484,6 +470,4 @@ DEFINE_TESTCASE(closedb10, writable && metadata) {
 		   db.get_metadata("bar"));
     TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.metadata_keys_begin());
-
-    return true;
 }

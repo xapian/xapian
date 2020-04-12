@@ -743,6 +743,12 @@ testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
 printf '$hash{$cgi{text},invalidhash}' > "$TEST_TEMPLATE"
 testcase 'Exception: Unknown hash function: invalidhash' text="test"
 
+# Regression test: $setrelevant crashed with no argument list prior to 1.4.16.
+printf '$setrelevant$or{$error,No error}' > "$TEST_TEMPLATE"
+testcase 'Exception: too few arguments to $setrelevant' P=text
+printf '$setrelevant{}$or{$error,No error}' > "$TEST_TEMPLATE"
+testcase 'No error' P=text
+
 # Feature tests for $uniq and $unique{}.
 printf '$list{$uniq{$split{$cgi{text}}},:}|$list{$unique{$split{$cgi{text}}},:}' > "$TEST_TEMPLATE"
 testcase '|' text=''

@@ -2,9 +2,6 @@ use strict;
 # Before 'make install' is performed this script should be runnable with
 # 'make test'. After 'make install' it should work as 'perl test.pl'
 
-# FIXME: these tests pass in the XS version.
-my $disable_fixme = 1;
-
 #########################
 
 # Make warnings fatal
@@ -13,7 +10,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 73 };
+BEGIN { plan tests => 72 };
 use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -166,7 +163,6 @@ ok($@);
 is(ref($@), "Xapian::QueryParserError", "correct class for exception");
 ok($@->isa('Xapian::Error'));
 is($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
-ok( $disable_fixme || $@ =~ /^Exception: Syntax: <expression> AND <expression>(?: at \S+ line \d+\.)?$/ );
 
 # Check FLAG_DEFAULT is wrapped (new in 1.0.11.0).
 ok( $qp->parse_query('hello world', FLAG_DEFAULT|FLAG_BOOLEAN_ANY_CASE) );

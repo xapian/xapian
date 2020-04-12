@@ -46,7 +46,7 @@ static string srcdir;
 static int seed;
 
 // run stemmers on random text
-static bool
+static void
 test_stemrandom()
 {
     static const char wordchars[] =
@@ -78,11 +78,10 @@ test_stemrandom()
 	FAIL_TEST("Stemmed data is significantly smaller than input: "
 		  << stemmed_size << " vs. " << JUNKSIZE);
     }
-    return true;
 }
 
 // run stemmers on random junk
-static bool
+static void
 test_stemjunk()
 {
     tout << "Stemming random junk... (seed " << seed << ")" << endl;
@@ -111,10 +110,9 @@ test_stemjunk()
 	FAIL_TEST("Stemmed data is significantly smaller than input ("
 		  << stemmed_size << " vs. " << JUNKSIZE);
     }
-    return true;
 }
 
-static bool
+static void
 test_stemdict()
 {
     string dir = srcdir + "/../../xapian-data/stemming/";
@@ -160,8 +158,6 @@ test_stemdict()
 	     << endl;
 	++pass;
     }
-
-    return true;
 }
 
 // ##################################################################

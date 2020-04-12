@@ -55,8 +55,6 @@ DEFINE_TESTCASE(badtransaction1, transactions) {
 
     db.begin_transaction();
     db.cancel_transaction();
-
-    return true;
 }
 
 /// Test committing a simple transaction.
@@ -75,8 +73,6 @@ DEFINE_TESTCASE(committransaction1, transactions) {
     db.commit_transaction();
     TEST_EQUAL(db.get_doccount(), docs + 1);
     TEST_EQUAL(db.get_termfreq("befuddlement"), 1);
-
-    return true;
 }
 
 /// Test cancelling a simple transaction.
@@ -95,8 +91,6 @@ DEFINE_TESTCASE(canceltransaction1, transactions) {
     db.cancel_transaction();
     TEST_EQUAL(db.get_doccount(), docs);
     TEST_EQUAL(db.get_termfreq("befuddlement"), 0);
-
-    return true;
 }
 
 /// Test that begin_transaction() commits any changes pending before the
@@ -123,8 +117,6 @@ DEFINE_TESTCASE(canceltransaction2, transactions) {
     TEST(db.term_exists("pending_update"));
     Xapian::Document doc_out = db.get_document(docid);
     TEST_EQUAL(doc_out.get_data(), "pending");
-
-    return true;
 }
 
 /// Regression test for glass bug fixed in 1.4.6 and 1.5.0.
@@ -144,6 +136,4 @@ DEFINE_TESTCASE(canceltransaction3, transactions && path) {
 	Xapian::Database::check(get_named_writable_database_path("canceltransaction3"),
 				Xapian::DBCHECK_SHOW_STATS, &tout);
     TEST_EQUAL(check_errors, 0);
-
-    return true;
 }
