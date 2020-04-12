@@ -943,7 +943,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			    op combiner = static_cast<op>(*(*p)++);
 			    string pattern;
 			    if (!unpack_string(p, end, pattern)) {
-			    throw SerialisationError("not enough data");
+				throw SerialisationError("not enough data");
 			    }
 			    return new Xapian::Internal::QueryWildcard(
 					    pattern,
