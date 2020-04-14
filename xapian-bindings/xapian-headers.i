@@ -233,13 +233,11 @@ STANDARD_IGNORES(Xapian, Query)
 %ignore *::operator^=;
 %ignore *::operator*=;
 %ignore *::operator/=;
-#if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGLUA || defined SWIGPHP
 %ignore *::operator&;
 %ignore *::operator|;
 %ignore *::operator^;
 %ignore *::operator*;
 %ignore *::operator/;
-#endif
 %ignore Xapian::Query::LEAF_TERM;
 %ignore Xapian::Query::LEAF_POSTING_SOURCE;
 %ignore Xapian::Query::LEAF_MATCH_ALL;
