@@ -471,6 +471,53 @@ If you encounter problems, or have any comments, suggestions, patches, etc
 please email the Xapian-discuss mailing list (details of which can be found at
 L<https://xapian.org/lists>).
 
+=head2 COMPATIBILITY
+
+This module is mostly compatible with Search::Xapian.  The following are known
+differences, with details of how to write code which works with both.
+
+Search::Xapian overloads stringification - e.g. C<"$query"> is equivalent to
+C<$query->get_description()>, which C<"$termiterator"> is equivalent to
+C<$termiterator->get_term()>.  This module doesn't support overloaded
+stringification, so you should instead explicitly call the method you
+want.  The technical reason for this change is that stringification is hard to
+support in SWIG-generated bindings, but this context-sensitive stringification
+where the operation performed depends on the object type seems unhelpful in
+hindsight anyway.
+
+Search::Xapian overloads conversion to an integer for some classes - e.g.
+C<0+$positioniterator> is equivalent to C<$positioniterator->get_termpos>
+while C<0+$postingiterator> is equivalent to C<$postingiterator->get_docid>.
+This module doesn't provide these overloads so you should instead explicitly
+call the method you want.  As above, we think this context-sensitive behaviour
+wasn't helpful in hindsight.
+
+This module is fussier about whether a passed scalar value is a string or
+an integer than Search::Xapian, so e.g. C<Xapian::Query->new(7)> will fail
+but the equivalent worked with Search::Xapian.  If C<$term> might not be a
+string use C<Xapian::Query->new("$term")> to ensure it is converted to a
+string.  The new behaviour isn't very Perlish, but is likely to be hard to
+address universally as it comes from SWIG.  Let us know if you find particular
+places where it's annoying and we can look at addressing those.
+
+=head3 Importing Either Module
+
+If you want your code to use either this module or Search::Xapian depending
+what's installed, then instead of C<use Xapian (':all');> you can use:
+
+  BEGIN {
+    eval {
+      require Xapian;
+      Xapian->import(':all');
+    };
+    if ($@) {
+      require Search::Xapian;
+      Search::Xapian->import(':all');
+    }
+  }
+
+If you just C<use Xapian;> then the C<import()> calls aren't needed.
+
 =head2 EXPORT
 
 None by default.
