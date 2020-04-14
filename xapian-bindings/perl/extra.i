@@ -252,24 +252,6 @@ sub clone() {
   return $copy;
 }
 
-sub equal() {
-  my ($self, $other) = @_;
-  if( UNIVERSAL::isa($other, 'Xapian::PositionIterator') ) {
-    Xapianc::PositionIterator_equal1($self, $other);
-  } else {
-    ($self+0) == ($other+0);
-  }
-}
-
-sub nequal() {
-  my ($self, $other) = @_;
-  if( UNIVERSAL::isa($other, 'Xapian::PositionIterator') ) {
-    Xapianc::PositionIterator_nequal1($self, $other);
-  } else {
-    ($self+0) != ($other+0);
-  }
-}
-
 package Xapian::PostingIterator;
 use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },

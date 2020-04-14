@@ -189,10 +189,6 @@ Xapian::MSetIterator FETCH(int index) {
 }
 }
 
-/* Xapian::PositionIterator */
-%rename(equal1) Xapian::PositionIterator::equal;
-%rename(nequal1) Xapian::PositionIterator::nequal;
-
 /* Xapian::Query */
 %feature("shadow") Xapian::Query::Query
 %{
