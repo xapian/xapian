@@ -1455,7 +1455,7 @@ AC_CONFIG_FILES([Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
  csharp/Makefile csharp/AssemblyInfo.cs
  ruby/Makefile
- perl/Makefile perl/util.i
+ perl/Makefile
  lua/Makefile
  xapian-bindings.spec
  ])
