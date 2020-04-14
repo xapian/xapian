@@ -434,11 +434,15 @@ Xapian - Perl frontend to the Xapian C++ search library.
 
   use Xapian;
 
+  my $parser = Xapian::QueryParser->new();
+  my $query = $parser->parse_query( '[QUERY STRING]' );
+
   my $db = Xapian::Database->new( '[DATABASE DIR]' );
-  my $enq = $db->enquire( '[QUERY TERM]' );
+  my $enq = $db->enquire();
 
-  printf "Running query '%s'\n", $enq->get_query()->get_description();
+  printf "Running query '%s'\n", $query->get_description();
 
+  $enq->set_query( $query );
   my @matches = $enq->matches(0, 10);
 
   print scalar(@matches) . " results found\n";
@@ -450,9 +454,15 @@ Xapian - Perl frontend to the Xapian C++ search library.
 
 =head1 DESCRIPTION
 
-This module wraps most methods of most Xapian classes. The missing classes
-and methods should be added in the future. It also provides a simplified,
-more 'perlish' interface to some common operations, as demonstrated above.
+This module is a pretty-much complete wrapping of the Xapian C++ API.  The
+main omissions are features which aren't useful to wrap for Perl, such as
+Xapian::UTF8Iterator.
+
+This module is generated using SWIG.  It is intended as a replacement for
+the older Search::Xapian module which is easier to keep up to date and
+which more completely wraps the C++ API.  It is largely compatible with
+Search::Xapian, but see the COMPATIBILITY section below if you have code using
+Search::Xapian which you want to get working with this new module.
 
 There are some gaps in the POD documentation for wrapped classes, but you
 can read the Xapian C++ API documentation at
@@ -460,10 +470,10 @@ L<https://xapian.org/docs/apidoc/html/annotated.html> for details of
 these.  Alternatively, take a look at the code in the examples and tests.
 
 If you want to use Xapian and the threads module together, make
-sure you're using Xapian >= 1.0.4.0 and Perl >= 5.8.7.  As of 1.0.4.0,
-Xapian uses CLONE_SKIP to make sure that the perl wrapper objects
-aren't copied to new threads - without this the underlying C++ objects can get
-destroyed more than once.
+sure you're using Perl >= 5.8.7 as then Xapian uses CLONE_SKIP to make sure
+that the perl wrapper objects aren't copied to new threads - without this the
+underlying C++ objects can get destroyed more than once which leads to
+undefined behaviour.
 
 If you encounter problems, or have any comments, suggestions, patches, etc
 please email the Xapian-discuss mailing list (details of which can be found at
@@ -527,7 +537,7 @@ Like OP_AND, but only weight using the left query.
 =item OP_NEAR
 
 Match if the words are near each other. The window should be specified, as
-a parameter to C<Xapian::Query::Query>, but it defaults to the
+a parameter to C<Xapian::Query->new()>, but it defaults to the
 number of terms in the list.
 
 =item OP_PHRASE
@@ -657,19 +667,19 @@ Standard is db + ops + qpflags + qpstem
 =item major_version
 
 Returns the major version of the Xapian C++ library being used.  E.g. for
-Xapian 1.0.9 this would return 1.
+Xapian 1.4.15 this would return 1.
 
 =item minor_version
 
 Returns the minor version of the Xapian C++ library being used.  E.g. for
-Xapian 1.0.9 this would return 0.
+Xapian 1.4.15 this would return 4.
 
 =item revision
 
 Returns the revision of the Xapian C++ library being used.  E.g. for
-Xapian 1.0.9 this would return 9.  In a stable release series, Xapian libraries
-with the same minor and major versions are usually ABI compatible, so this
-often won't match the third component of $Xapian::VERSION (which is the
+Xapian 1.4.15 this would return 15.  In a stable release series, Xapian
+libraries with the same minor and major versions are usually ABI compatible, so
+this often won't match the third component of C<$Xapian::VERSION> (which is the
 version of the Xapian wrappers).
 
 =back
@@ -709,12 +719,12 @@ Handling of NaN isn't (currently) guaranteed to be sensible.
 Convert a string encoded using sortable_serialise back to a floating
 point number.
 
-This expects the input to be a string produced by sortable_serialise().
+This expects the input to be a string produced by C<sortable_serialise()>.
 If the input is not such a string, the value returned is undefined (but
 no error will be thrown).
 
 The result of the conversion will be exactly the value which was
-supplied to sortable_serialise() when making the string on platforms
+supplied to C<sortable_serialise()> when making the string on platforms
 which represent doubles with the precisions specified by IEEE_754, but
 may be a different (nearby) value on other platforms.
 
@@ -775,6 +785,7 @@ L<Xapian::Enquire>,
 L<Xapian::MultiValueSorter>,
 L<Xapian::PositionIterator>,
 L<Xapian::PostingIterator>,
+L<Xapian::Query>,
 L<Xapian::QueryParser>,
 L<Xapian::Stem>,
 L<Xapian::TermGenerator>,
