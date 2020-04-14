@@ -419,6 +419,6 @@ sub new {
 }
 %}
 
-%include util.i
 %include except.i
 %include ../xapian-headers.i
+%include extra.i

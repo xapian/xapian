@@ -1,5 +1,5 @@
 %{
-/* perl/util.i.in: custom Perl code for xapian-bindings
+/* perl/extra.i: custom Perl code for xapian-bindings
  *
  * Based on the perl XS wrapper files.
  *
@@ -24,11 +24,12 @@
 %}
 
 /* Perl code */
-%perlcode %{
+%perlcode {
 package Xapian;
 
-our $VERSION = "@PERL_XAPIAN_VERSION@";
-
+our $VERSION = PERL_XAPIAN_VERSION;
+};
+%perlcode %{
 # We need to use the RTLD_GLOBAL flag to dlopen() so that other C++
 # modules that link against libxapian.so get the *same* value for all the
 # weak symbols (eg, the exception classes)
