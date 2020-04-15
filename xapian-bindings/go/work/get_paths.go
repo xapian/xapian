@@ -58,7 +58,7 @@ func main(){
 	xapian_libs := fs.Text();
 	fs.Scan();
 	abs_top_builddir := fs.Text();
-	abs_top_builddir = "#cgo LDFLAGS: " + abs_top_builddir + "/../xapian-core/"
+	abs_top_builddir = abs_top_builddir + "/../xapian-core/"
 
 	// fmt.Println(la_path)
 	// fmt.Println(xapian_libs)
@@ -119,12 +119,16 @@ func main(){
 	var sl []string
 	sl = append(sl,lt_obj_dir+dlname,deps)
 	final := strings.Join(sl," ")
+	abs_top_builddir += ".libs"
+	//#cgo LDFLAGS: -L${abs_top_srcdir}/../xapian-core/.libs -Wl,-rpath,${abs_top_srcdir}/../xapian-core/.libs -lxapian-1.5"
+	// fmt.Println(abs_top_builddir+final)
+	//-L/xapian/xapian-bindings/../xapian-core/.libs -Wl,-rpath,/xapian/xapian-bindings/../xapian-core/.libs -lxapian-1.5 -lstdc++ -lrt -lz -luuid
+	final2 := "#cgo LDFLAGS: " +"-L"+abs_top_builddir+" -Wl,-rpath,"+abs_top_builddir+" -lxapian-1.5 "+ deps;
 
-	fmt.Println(abs_top_builddir+final)
-	InsertStringToFile("../xapian.go",abs_top_builddir+final+"\n",18)
+	InsertStringToFile("../xapian.go",final2+"\n",18)
 	// fmt.Println(sl)
 	// final := lt_obj_dir + dlname + deps
 	// final = strings.TrimSpace(final)
-	// fmt.Println(final)
+	 fmt.Println(final)
 
 }
