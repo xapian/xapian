@@ -24,11 +24,13 @@ modify : build
 
 build :
 	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 go.i
+	echo `${XAPIAN_CONFIG} --ltlibs` > work/goconf
+	echo ${XAPIAN_LIBS} >> work/goconf
+	echo $(abs_top_builddir) >> work/goconf
+	cd work && ${GO} run get_paths.go
 	${AWK} 'NR==18{print "#cgo CXXFLAGS: ${XAPIAN_CXXFLAGS}" RS\
 	       	"#cgo CXXFLAGS: ${CXXFLAGS}" RS\
-	       	"#cgo LDFLAGS: ${USE_CLANG_GO_LIB}" RS\
-	       	"#cgo CPPFLAGS: ${CPPFLAGS}" RS\
-	       	"#cgo LDFLAGS: -L${abs_top_srcdir}/../xapian-core/.libs -Wl,-rpath,${abs_top_srcdir}/../xapian-core/.libs -lxapian-1.5"}1' xapian.go > xapian2.go
+	       	"#cgo CPPFLAGS: ${CPPFLAGS}"}1' xapian.go > xapian2.go
 	mv xapian2.go xapian.go
 	${GO} env -w CXX="${CXX}"
 check :

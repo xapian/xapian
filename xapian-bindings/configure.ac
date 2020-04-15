@@ -1145,8 +1145,8 @@ if test no != "$with_go" ; then
   AC_PATH_PROG([GO],["go"],[])
   if test -n "$GO" ; then
     AC_MSG_CHECKING(for goroot)
-    GOROOT=`"${GO} env GOROOT`
-    GOPATH=`"${GO} env GOPATH`
+    GOROOT=`"${GO}" env GOROOT`
+    GOPATH=`"${GO}" env GOPATH`
     AC_SUBST(GOROOT)
     AC_SUBST(GOPATH)
     if test -n "${GOROOT}" ; then
@@ -1159,10 +1159,6 @@ if test no != "$with_go" ; then
       fi
     else
       AC_MSG_RESULT(no)
-    fi
-    USE_CLANG_LIB = `echo ${CXX} | grep stdlib`
-    if test -n "$USE_CLANG_LIB" ; then
-      AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
     fi
     if test -z "${GOROOT}" ; then
       AC_MSG_ERROR([goroot not set correctly])
