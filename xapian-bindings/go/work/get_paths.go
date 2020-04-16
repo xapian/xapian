@@ -121,10 +121,10 @@ func main() {
 	if len(args) == 3{
 		lc = args[2]
 	}
-	lib_dir := xapian_core + lt_obj_dir + lc
+	lib_dir := xapian_core + lt_obj_dir
 	fmt.Println(lib_name, lib_deps)
 	library := strings.TrimSpace(lib_name + lib_deps)
-	final2 := "#cgo LDFLAGS: " + "-L" + lib_dir + " -Wl,-rpath," + lib_dir + " " + library
+	final2 := "#cgo LDFLAGS: " + "-L" + lib_dir + " -Wl,-rpath," + lib_dir + " " + library +" " + lc
 	fmt.Println(final2)
 	InsertStringToFile("../xapian.go", final2+"\n", 18)
 
