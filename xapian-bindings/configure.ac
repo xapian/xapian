@@ -1261,6 +1261,7 @@ if test no != "$with_go" ; then
       AC_MSG_ERROR([goroot not set correctly])
     fi
   fi
+  USE_CLANG_GO_LIB= 
   USE_CLANG_LIB = `echo ${CXX} | grep stdlib`
   if test -n "$USE_CLANG_LIB" ; then
     AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
