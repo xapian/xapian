@@ -1,12 +1,14 @@
 package main
 
-import ("fmt"
-		"os"
-		"bufio"
-		"io"
-		"io/ioutil"
-		"strings"
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"strings"
 )
+
 func InsertStringToFile(path, str string, index int) error {
 	lines, err := File2lines(path)
 	if err != nil {
@@ -44,91 +46,88 @@ func File2lines(filePath string) ([]string, error) {
 	defer f.Close()
 	return LinesFromReader(f)
 }
-func main(){
-	goconf, err := os.Open("goconf")
-	if (err != nil){
-		fmt.Printf("error opening goconf ",err)
-		os.Exit(2);
+
+func main() {
+	args := os.Args
+	fmt.Println(args)
+	if len(args) < 1{
+		fmt.Println("getting CGO Flags failed ")
+		os.Exit(2)
 	}
-	
-	fs :=  bufio.NewScanner(goconf)
-	fs.Scan();
-	la_path := fs.Text();
-	fs.Scan();
-	xapian_libs := fs.Text();
-	fs.Scan();
-	abs_top_builddir := fs.Text();
-	abs_top_builddir = abs_top_builddir + "/../xapian-core/"
+	xapian_core := args[1]
+	xapian_core = xapian_core + "/../xapian-core/"
+	pkgconfig_path := xapian_core + "pkgconfig/"
+	fmt.Println(pkgconfig_path)
 
-	// fmt.Println(la_path)
-	// fmt.Println(xapian_libs)
-	goconf.Close();
+	files, err := ioutil.ReadDir(pkgconfig_path)
 
-	la , err := os.Open(la_path)
-	if (err != nil){
-		fmt.Println("error open lib tool archive ");
-		os.Exit(2);
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(2)
 	}
 
-	var dlname string
-	var deps string
-
-	{
-		strs := strings.Split(xapian_libs," ")
-		if len(strs) > 1{
-			deps+=strings.Join(strs[1:]," ")
-			fmt.Println(deps)
+	for _, f := range files {
+		if strings.HasSuffix(f.Name(), ".pc") {
+			pkgconfig_path += f.Name()
+			break
 		}
 	}
 
-	la_reader := bufio.NewScanner(la)
-	for la_reader.Scan(){
-		line := la_reader.Text()
-		if len(line) >0 && line[0] != '#' {
-			strs := strings.Split(line,"'")
-			if strs[0] == "dlname=" {
-				// fmt.Println(strs[1])
-				dlname = strs[1]
-			}
-			if (strs[0] == "dependency_libs="){
-				deps += strings.Join(strs[1:]," ")
-			}
-		}
-	}
-	la.Close()
+	fmt.Println(pkgconfig_path)
 
-	config,err := os.Open("../../config.h")
-	if err != nil{
+	config, err := os.Open("../../config.h")
+	if err != nil {
 		fmt.Println("error opening config.h ")
 		os.Exit(2)
 	}
 	var lt_obj_dir string
 	cf_reader := bufio.NewScanner(config)
-	for cf_reader.Scan(){
+	for cf_reader.Scan() {
 		line := cf_reader.Text()
-		if strings.HasPrefix(line,"#define LT_OBJDIR"){
-			strs := strings.Split(line,"\"")
+		if strings.HasPrefix(line, "#define LT_OBJDIR") {
+			strs := strings.Split(line, "\"")
 			lt_obj_dir = strs[1]
-			break;
+			break
 		}
 	}
 
-	fmt.Println("dlname = ",dlname)
-	fmt.Println("dl deps = ",deps)
-	fmt.Println("libs folder = ",lt_obj_dir)
-	var sl []string
-	sl = append(sl,lt_obj_dir+dlname,deps)
-	final := strings.Join(sl," ")
-	abs_top_builddir += ".libs"
-	//#cgo LDFLAGS: -L${abs_top_srcdir}/../xapian-core/.libs -Wl,-rpath,${abs_top_srcdir}/../xapian-core/.libs -lxapian-1.5"
-	// fmt.Println(abs_top_builddir+final)
-	//-L/xapian/xapian-bindings/../xapian-core/.libs -Wl,-rpath,/xapian/xapian-bindings/../xapian-core/.libs -lxapian-1.5 -lstdc++ -lrt -lz -luuid
-	final2 := "#cgo LDFLAGS: " +"-L"+abs_top_builddir+" -Wl,-rpath,"+abs_top_builddir+" -lxapian-1.5 "+ deps;
+	fmt.Println(lt_obj_dir)
 
-	InsertStringToFile("../xapian.go",final2+"\n",18)
-	// fmt.Println(sl)
-	// final := lt_obj_dir + dlname + deps
-	// final = strings.TrimSpace(final)
-	 fmt.Println(final)
+	pkgconfig_file, err := os.Open(pkgconfig_path)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(2)
+	}
+	var lib_name string
+	var lib_deps string
+	pk_reader := bufio.NewScanner(pkgconfig_file)
+	for pk_reader.Scan() {
+		line := pk_reader.Text()
+		line = strings.TrimSpace(line)
+		strs := strings.Split(line, " ")
+		if len(strs) > 0 && strs[0] == "Libs:" {
+			for _, v := range strs {
+				if strings.Contains(v, "lxapian") {
+					lib_name = v
+					break
+				}
+			}
+		}
+		if len(strs) >= 1 && strs[0] == "Libs.private:" {
+			lib_deps = strings.Join(strs[1:], " ")
+		}
+	}
+	var lc string
+	if len(args) == 3{
+		lc = args[2]
+	}
+	lib_dir := xapian_core + lt_obj_dir + lc
+	fmt.Println(lib_name, lib_deps)
+	library := strings.TrimSpace(lib_name + lib_deps)
+	final2 := "#cgo LDFLAGS: " + "-L" + lib_dir + " -Wl,-rpath," + lib_dir + " " + library
+	fmt.Println(final2)
+	InsertStringToFile("../xapian.go", final2+"\n", 18)
 
 }
+
+
