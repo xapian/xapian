@@ -36,8 +36,9 @@ Most methods are named the same as in the C++ API - the exceptions are:
 ``end`` is a keyword in Lua, so such methods are renamed to
 ``_end`` - e.g. in Lua you'd use ``mset:_end()`` to get an
 end iterator for an MSet object called mset.
+
 The C++ method ``get_description()`` is mapped to the
-``str`` function in Lua, so ``str(x)`` will return a string
+``tostring`` function in Lua, so ``tostring(x)`` will return a string
 describing object x.
 
 Exceptions
