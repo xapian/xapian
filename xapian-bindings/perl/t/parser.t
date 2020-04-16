@@ -10,7 +10,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 72 };
+BEGIN { plan tests => 76 };
 use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -50,6 +50,11 @@ ok( $query = $qp->parse_query( 'one OR (two AND three)' ) );
 is( $query->get_description(), 'Query((one@1 OR (two@2 AND three@3)))' );
 
 ok( my $enq = $database->enquire( $query ) );
+
+{
+  is( $qp->set_stopper(sub { $_[0] eq 'bad' }), undef );
+  is( $qp->parse_query("bad news")->get_description(), 'Query(news@2)' );
+}
 
 {
   my @stopwords = qw(a the in on and);
@@ -136,7 +141,16 @@ foreach $pair (
 }
 
 $qp = new Xapian::QueryParser();
+$qp->add_rangeprocessor( sub { Xapian::Query->new("spam") } );
+foreach $pair (
+    [ '123..345', '0 * spam' ],
+    ) {
+    my ($str, $res) = @{$pair};
+    my $query = $qp->parse_query($str);
+    is( $query->get_description(), "Query($res)" );
+}
 
+$qp = new Xapian::QueryParser();
 {
   my $rpdate = new Xapian::DateRangeProcessor(1, Xapian::RP_DATE_PREFER_MDY, 1960);
   $qp->add_rangeprocessor( $rpdate );
@@ -151,6 +165,10 @@ foreach $pair (
     my $query = $qp->parse_query($str);
     is( $query->get_description(), "Query($res)" );
 }
+
+$qp = new Xapian::QueryParser();
+$qp->add_prefix("foo", sub {return new Xapian::Query('foo')});
+is( $qp->parse_query("foo:test")->get_description(), 'Query(foo)' );
 
 # Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
 # we tried to catch const char * not Xapian::Error, so std::terminate got

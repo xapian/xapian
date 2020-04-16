@@ -11,11 +11,8 @@ use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
-BEGIN { plan tests => 125 };
+BEGIN { plan tests => 128 };
 use Xapian qw(:ops);
-
-# FIXME: these tests pass in the XS version.
-my $disable_fixme = 1;
 
 #########################
 
@@ -123,12 +120,18 @@ is( $matches3->size, $matches->size, "rset and check_at_least don't change mset 
 
 my $d;
 # This was generating a warning converting "0" to an RSet object:
-ok( $disable_fixme or
-    $matches3 = $enq->get_mset(0, 10,
+ok( $matches3 = $enq->get_mset(0, 10,
 			sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
 	"get_mset with matchdecider" );
-ok( $disable_fixme || defined $d, "matchdecider was called" );
-ok( $disable_fixme || $d == 1, "matchdecider got an argument" );
+ok( defined $d, "matchdecider was called" );
+ok( $d == 1, "matchdecider got an argument" );
+
+$d = undef;
+ok( $matches3 = $enq->get_mset(0, 10, 0, undef,
+			sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
+	"get_mset with matchdecider and full args list" );
+ok( defined $d, "matchdecider was called" );
+ok( $d == 1, "matchdecider got an argument" );
 
 sub mdecider {
     $d = scalar @_;
@@ -136,11 +139,10 @@ sub mdecider {
 }
 
 $d = undef;
-ok( $disable_fixme or
-    $matches3 = $enq->get_mset(0, 10, \&mdecider),
+ok( $matches3 = $enq->get_mset(0, 10, \&mdecider),
 	"get_mset with named matchdecider function" );
-ok( $disable_fixme || defined $d, "matchdecider was called" );
-ok( $disable_fixme || $d == 1, "matchdecider got an argument" );
+ok( defined $d, "matchdecider was called" );
+ok( $d == 1, "matchdecider got an argument" );
 
 my $eset;
 ok( $eset = $enq->get_eset( 10, $rset ), "can get expanded terms set" );
@@ -156,8 +158,8 @@ is( $eit, $eset->end(), "ESetIterator::inc() ok" );
 $eit->dec;
 isnt( $eit, $eset->end(), "ESetIterator::dec() moved off end()" );
 is( $eit->get_termname(), 'one', "ESetIterator::dec() ok" );
-ok( $disable_fixme or $eset = $enq->get_eset( 10, $rset, sub { $_[0] ne "one" } ), "expanded terms set with decider" );
-is( $disable_fixme ?0: $eset->size(), 0, "expanded terms decider filtered" );
+ok( $eset = $enq->get_eset( 10, $rset, sub { $_[0] ne "one" } ), "expanded terms set with decider" );
+is( $eset->size(), 0, "expanded terms decider filtered" );
 
 # try an empty mset - this was giving begin != end
 my ($noquery, $nomatches);

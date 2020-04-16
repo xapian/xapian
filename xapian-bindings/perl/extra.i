@@ -482,6 +482,14 @@ string.  The new behaviour isn't very Perlish, but is likely to be hard to
 address universally as it comes from SWIG.  Let us know if you find particular
 places where it's annoying and we can look at addressing those.
 
+Both this module and Search::Xapian support passing a Perl sub (which can be
+anonymous) for the functor classes C<MatchDecider> and C<ExpandDecider>.  In
+some cases Search::Xapian accepts a string naming a Perl sub, but this module
+never accepts this.  Instead of passing C<"::mymatchdecider">, pass
+C<\&mymatchdecider> which will work with either module.  If you really want to
+dynamically specify the function name, you can pass C<sub {eval
+"&$dynamicmatchdecider"}>.
+
 =head3 Importing Either Module
 
 If you want your code to use either this module or Search::Xapian depending
