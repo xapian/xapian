@@ -1165,10 +1165,11 @@ if test no != "$with_go" ; then
     fi
   fi
   USE_CLANG_LIB=`echo ${CXX} | grep stdlib`
+  AC_MSG_RESULT([${USE_CLANG_LIB}])
   if test -n "${USE_CLANG_LIB}" ; then
-      AC_RESULT([${USE_CLANG_LIB}])
+      AC_MSG_RESULT([${USE_CLANG_LIB}])
       AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
-      AC_RESULT([${USE_CLANG_GO_LIB}])
+      AC_MSG_RESULT([${USE_CLANG_GO_LIB}])
   fi
   BINDINGS="$BINDINGS go"
   if test -z "$GO" ; then
