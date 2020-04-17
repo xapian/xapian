@@ -28,7 +28,6 @@ use Xapian qw(:standard);
 
 # TODO: check these classes too:
 # MSet/Tied.pm
-# PerlStopper.pm
 # Stopper.pm
 # Weight.pm
 

@@ -123,7 +123,6 @@ nobase_dist_perllib_DATA = \
 	Xapian/MultiValueSorter.pm \
 	Xapian/NetworkError.pm \
 	Xapian/NetworkTimeoutError.pm \
-	Xapian/PerlStopper.pm \
 	Xapian/PositionIterator.pm \
 	Xapian/PostingIterator.pm \
 	Xapian/QueryParserError.pm \

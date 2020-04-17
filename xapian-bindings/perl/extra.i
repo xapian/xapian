@@ -498,6 +498,11 @@ C<\&mymatchdecider> which will work with either module.  If you really want to
 dynamically specify the function name, you can pass C<sub {eval
 "&$dynamicmatchdecider"}>.
 
+Search::Xapian provides a PerlStopper class which is supposed to be
+subclassable in Perl to implement your own stopper, but this mechanism doesn't
+actually seem to work.  This module instead supports user-implemented stoppers
+by accepting a Perl sub in place of a Stopper object.
+
 =head3 Importing Either Module
 
 If you want your code to use either this module or Search::Xapian depending
