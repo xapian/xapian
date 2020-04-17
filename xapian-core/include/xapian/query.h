@@ -257,7 +257,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	OP_EDIT_DISTANCE = 16,
 
-    /** Match only documents where a value slot is > a given value.
+	/** Match only documents where a value slot is > a given value.
 	 *
 	 *  Similar to @a OP_VALUE_RANGE, but open-ended.
 	 *
