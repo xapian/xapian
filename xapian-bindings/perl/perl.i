@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016,2019 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,9 +53,7 @@ extern "C" {
 
 %include ../xapian-head.i
 
-/* Rename function next() to increment() since the keyword "next" is already
- * used in Perl. */
-%rename(increment) *::next();
+/* "next" is a keyword in Perl. */
 %rename(increment_weight) *::next(double min_wt);
 
 /* Wrapping constant values. */
@@ -76,6 +74,9 @@ extern "C" {
 %constant int OP_WILDCARD = Xapian::Query::OP_WILDCARD;
 %constant int OP_VALUE_LE = Xapian::Query::OP_VALUE_LE;
 %constant int OP_INVALID = Xapian::Query::OP_INVALID;
+%constant int ENQ_ASCENDING = Xapian::Enquire::ASCENDING;
+%constant int ENQ_DESCENDING = Xapian::Enquire::DESCENDING;
+%constant int ENQ_DONT_CARE = Xapian::Enquire::DONT_CARE;
 %constant int FLAG_BOOLEAN = Xapian::QueryParser::FLAG_BOOLEAN;
 %constant int FLAG_PHRASE = Xapian::QueryParser::FLAG_PHRASE;
 %constant int FLAG_LOVEHATE = Xapian::QueryParser::FLAG_LOVEHATE;
@@ -167,6 +168,16 @@ sub set_sort_by_relevance_then_key {
 }
 %}
 
+/* Xapian::Enquire */
+%extend Xapian::Enquire {
+// For compatibility with Search::Xapian.
+Xapian::MSet get_mset(Xapian::doccount first,
+		      Xapian::doccount maxitems,
+		      const Xapian::MatchDecider* mdecider) {
+    return $self->get_mset(first, maxitems, 0, NULL, mdecider);
+}
+}
+
 /* Xapian::ESet */
 %extend Xapian::ESet {
 Xapian::ESetIterator FETCH(int index) {
@@ -179,53 +190,12 @@ Xapian::ESetIterator FETCH(int index) {
 std::string get_termname() {
     return self->operator*();
 }
-
-bool equal(Xapian::ESetIterator * that) {
-    return ((*self) == (*that));
-}
-
-bool nequal(Xapian::ESetIterator * that) {
-    return ((*self) != (*that));
-}
 }
 
 /* Xapian::MSet */
 %extend Xapian::MSet {
 Xapian::MSetIterator FETCH(int index) {
     return ((*self)[index]);
-}
-}
-
-/* Xapian::MSetIterator */
-%extend Xapian::MSetIterator {
-bool equal(Xapian::MSetIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::MSetIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
-/* Xapian::PositionIterator */
-%extend Xapian::PositionIterator {
-bool equal1(Xapian::PositionIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal1(Xapian::PositionIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
-/* Xapian::PostingIterator */
-%extend Xapian::PostingIterator {
-bool equal(Xapian::PostingIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::PostingIterator * that) {
-     return ((*self) != (*that));
 }
 }
 
@@ -434,27 +404,6 @@ std::string stem_word(std::string word) {
 /* Xapian::TermIterator */
 %rename(get_termname) Xapian::TermIterator::get_term;
 
-%extend Xapian::TermIterator {
-bool equal(Xapian::TermIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::TermIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
-/* Xapian::ValueIterator */
-%extend Xapian::ValueIterator {
-bool equal(Xapian::ValueIterator * that) {
-     return ((*self) == (*that));
-}
-
-bool nequal(Xapian::ValueIterator * that) {
-     return ((*self) != (*that));
-}
-}
-
 /* Xapian::WritableDatabase */
 %rename(replace_document_by_term) \
 	Xapian::WritableDatabase::replace_document(const std::string &,
@@ -476,6 +425,396 @@ sub new {
 }
 %}
 
-%include util.i
+%define SUB_CLASS(NS, CLASS)
+%{
+class perl##CLASS : public NS::CLASS {
+    SV* callback;
+
+  public:
+    perl##CLASS(SV* func) {
+	callback = newSVsv(func);
+    }
+
+    ~perl##CLASS() {
+	SvREFCNT_dec(callback);
+    }
+
+    bool operator()(const std::string &term) const {
+	dSP;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+
+	SV* arg = sv_newmortal();
+	sv_setpvn(arg, term.data(), term.size());
+	XPUSHs(arg);
+	PUTBACK;
+
+	int count = call_sv(callback, G_SCALAR);
+
+	SPAGAIN;
+	if (count != 1)
+	    croak("callback function should return 1 value, got %d", count);
+
+	bool result = POPi;
+
+	PUTBACK;
+
+	FREETMPS;
+	LEAVE;
+
+	return result;
+    }
+};
+%}
+
+%enddef
+
+SUB_CLASS(Xapian, ExpandDecider)
+SUB_CLASS(Xapian, Stopper)
+
+%{
+class perlMatchDecider : public Xapian::MatchDecider {
+    SV* callback;
+
+  public:
+    perlMatchDecider(SV* func) {
+	callback = newSVsv(func);
+    }
+
+    ~perlMatchDecider() {
+	SvREFCNT_dec(callback);
+    }
+
+    bool operator()(const Xapian::Document &doc) const {
+	dSP;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+
+	XPUSHs(SWIG_NewPointerObj(const_cast<Xapian::Document*>(&doc),
+				  SWIGTYPE_p_Xapian__Document, 0));
+	PUTBACK;
+
+	int count = call_sv(callback, G_SCALAR);
+
+	SPAGAIN;
+	if (count != 1)
+	    croak("callback function should return 1 value, got %d", count);
+
+	bool result = POPi;
+
+	PUTBACK;
+
+	FREETMPS;
+	LEAVE;
+
+	return result;
+    }
+};
+%}
+
+%{
+class perlStemImplementation : public Xapian::StemImplementation {
+    SV* callback;
+
+  public:
+    perlStemImplementation(SV* func) {
+	callback = newSVsv(func);
+    }
+
+    ~perlStemImplementation() {
+	SvREFCNT_dec(callback);
+    }
+
+    std::string operator()(const std::string& word) {
+	dSP;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+
+	SV* arg = sv_newmortal();
+	sv_setpvn(arg, word.data(), word.size());
+	XPUSHs(arg);
+	PUTBACK;
+
+	int count = call_sv(callback, G_SCALAR);
+
+	SPAGAIN;
+	if (count != 1)
+	    croak("callback function should return 1 value, got %d", count);
+
+	SV* sv = POPs;
+	STRLEN len;
+	const char* ptr = SvPV(sv, len);
+	std::string result(ptr, len);
+
+	PUTBACK;
+
+	FREETMPS;
+	LEAVE;
+
+	return result;
+    }
+
+    std::string get_description() const {
+	return "perlStemImplementation()";
+    }
+};
+%}
+
+%{
+class perlKeyMaker : public Xapian::KeyMaker {
+    SV* callback;
+
+  public:
+    perlKeyMaker(SV* func) {
+	callback = newSVsv(func);
+    }
+
+    ~perlKeyMaker() {
+	SvREFCNT_dec(callback);
+    }
+
+    std::string operator()(const Xapian::Document &doc) const {
+	dSP;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+
+	XPUSHs(SWIG_NewPointerObj(const_cast<Xapian::Document*>(&doc),
+				  SWIGTYPE_p_Xapian__Document, 0));
+	PUTBACK;
+
+	int count = call_sv(callback, G_SCALAR);
+
+	SPAGAIN;
+	if (count != 1)
+	    croak("callback function should return 1 value, got %d", count);
+
+	SV* sv = POPs;
+	STRLEN len;
+	const char* ptr = SvPV(sv, len);
+	std::string result(ptr, len);
+
+	PUTBACK;
+
+	FREETMPS;
+	LEAVE;
+
+	return result;
+    }
+};
+%}
+
+%{
+class perlRangeProcessor : public Xapian::RangeProcessor {
+    SV* callback;
+
+  public:
+    perlRangeProcessor(SV* func) {
+	callback = newSVsv(func);
+    }
+
+    ~perlRangeProcessor() {
+	SvREFCNT_dec(callback);
+    }
+
+    Xapian::Query operator()(const std::string& begin, const std::string& end) {
+	dSP;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+	EXTEND(SP, 2);
+	SV* arg = sv_newmortal();
+	sv_setpvn(arg, begin.data(), begin.size());
+	PUSHs(arg);
+	arg = sv_newmortal();
+	sv_setpvn(arg, end.data(), end.size());
+	PUSHs(arg);
+	PUTBACK;
+
+	int count = call_sv(callback, G_SCALAR);
+
+	SPAGAIN;
+	if (count != 1)
+	    croak("callback function should return 1 value, got %d", count);
+
+	// Allow the function to return a string or Query object.
+	SV* sv = POPs;
+	if (!SvOK(sv))
+	    croak("function must return a string or Query object");
+
+	Xapian::Query result;
+	Xapian::Query* q;
+	if (SWIG_ConvertPtr(sv, (void**)&q,
+			    SWIGTYPE_p_Xapian__Query, 0) == SWIG_OK) {
+	    result = *q;
+	} else {
+	    STRLEN len;
+	    const char* ptr = SvPV(sv, len);
+	    result = Xapian::Query(string(ptr, len));
+	}
+
+	PUTBACK;
+
+	FREETMPS;
+	LEAVE;
+
+	return result;
+    }
+};
+%}
+
+%{
+class perlFieldProcessor : public Xapian::FieldProcessor {
+    SV* callback;
+
+  public:
+    perlFieldProcessor(SV* func) {
+	callback = newSVsv(func);
+    }
+
+    ~perlFieldProcessor() {
+	SvREFCNT_dec(callback);
+    }
+
+    Xapian::Query operator()(const std::string &str) {
+	dSP;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+
+	SV* arg = sv_newmortal();
+	sv_setpvn(arg, str.data(), str.size());
+	XPUSHs(arg);
+	PUTBACK;
+
+	int count = call_sv(callback, G_SCALAR);
+
+	SPAGAIN;
+	if (count != 1)
+	    croak("callback function should return 1 value, got %d", count);
+
+	// Allow the function to return a string or Query object.
+	SV* sv = POPs;
+	if (!SvOK(sv))
+	    croak("function must return a string or Query object");
+
+	Xapian::Query result;
+	Xapian::Query* q;
+	if (SWIG_ConvertPtr(sv, (void**)&q,
+			    SWIGTYPE_p_Xapian__Query, 0) == SWIG_OK) {
+	    result = *q;
+	} else {
+	    STRLEN len;
+	    const char* ptr = SvPV(sv, len);
+	    result = Xapian::Query(string(ptr, len));
+	}
+
+	PUTBACK;
+
+	FREETMPS;
+	LEAVE;
+
+	return result;
+    }
+};
+%}
+
+%{
+class perlMatchSpy : public Xapian::MatchSpy {
+    SV* callback;
+
+  public:
+    perlMatchSpy(SV* func) {
+	callback = newSVsv(func);
+    }
+
+    ~perlMatchSpy() {
+	SvREFCNT_dec(callback);
+    }
+
+    void operator()(const Xapian::Document &doc, double wt) {
+	dSP;
+
+	ENTER;
+	SAVETMPS;
+
+	PUSHMARK(SP);
+	EXTEND(SP, 2);
+	PUSHs(SWIG_NewPointerObj(const_cast<Xapian::Document*>(&doc),
+				 SWIGTYPE_p_Xapian__Document, 0));
+	mPUSHn(wt);
+	PUTBACK;
+
+	(void)call_sv(callback, G_VOID);
+
+	SPAGAIN;
+	PUTBACK;
+
+	FREETMPS;
+	LEAVE;
+    }
+};
+%}
+
+%define SUB_CLASS_TYPEMAPS(NS, CLASS)
+
+%typemap(typecheck, precedence=100) NS::CLASS * {
+    SV* sv = $input;
+    //if (sv_isobject(sv) && sv_derived_from(sv, "Xapian::" #CLASS)) {
+    void* ptr;
+    if (SWIG_ConvertPtr(sv, &ptr, $descriptor(NS::CLASS *), 0) == SWIG_OK) {
+	(void)ptr;
+	$1 = 1;
+    } else {
+	/* The docs in perlapi for call_sv say:
+	 *
+	 *    [T]he SV may be any of a CV, a GV, a reference to a CV, a
+	 *    reference to a GV or "SvPV(sv)" will be used as the name of the
+	 *    sub to call.
+	 *
+	 * To make overloading work helpfully, we don't allow passing the name
+	 * of a sub.  Search::Xapian did in some cases, but it seems unlikely
+	 * anyone relied on this.
+	 */
+	svtype t = SvTYPE(sv);
+	if (t == SVt_RV) {
+	    t = SvTYPE(SvRV(sv));
+	}
+	$1 = (t == SVt_PVCV || t == SVt_PVGV);
+    }
+}
+%typemap(in) NS::CLASS * {
+    SV* sv = $input;
+    if (SWIG_ConvertPtr(sv, (void**)&$1,
+			$descriptor(NS::CLASS *), 0) != SWIG_OK) {
+	$1 = new perl##CLASS(sv);
+    }
+}
+
+%enddef
+SUB_CLASS_TYPEMAPS(Xapian, MatchDecider)
+SUB_CLASS_TYPEMAPS(Xapian, ExpandDecider)
+SUB_CLASS_TYPEMAPS(Xapian, Stopper)
+SUB_CLASS_TYPEMAPS(Xapian, StemImplementation)
+SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
+SUB_CLASS_TYPEMAPS(Xapian, RangeProcessor)
+SUB_CLASS_TYPEMAPS(Xapian, FieldProcessor)
+
 %include except.i
 %include ../xapian-headers.i
+%include extra.i

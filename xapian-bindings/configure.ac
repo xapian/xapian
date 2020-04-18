@@ -1107,12 +1107,10 @@ if test no != "$with_perl" ; then
     AC_SUBST(PERL_SO)
 
     if test -z "$PERL_XAPIAN_VERSION" ; then
-      dnl snapshot versions look like 1.2.3_git123 or 1.2.3_svn14971
+      dnl snapshot versions look like 1.2.3_git123
       case $PACKAGE_VERSION in
       *_git*)
 	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_git/./'` ;;
-      *_svn*)
-	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_svn/./'` ;;
       *)
 	PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0 ;;
       esac
@@ -1376,7 +1374,7 @@ AC_CONFIG_FILES([Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
  csharp/Makefile csharp/AssemblyInfo.cs
  ruby/Makefile
- perl/Makefile perl/util.i
+ perl/Makefile
  lua/Makefile
  go/Makefile
  xapian-bindings.spec

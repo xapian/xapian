@@ -329,7 +329,6 @@ DEFINE_TESTCASE(replicate1, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 // Test replication from a replicated copy.
@@ -433,7 +432,6 @@ DEFINE_TESTCASE(replicate2, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -527,7 +525,6 @@ DEFINE_TESTCASE(replicate3, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 // Tests for max_changesets
@@ -626,7 +623,6 @@ DEFINE_TESTCASE(replicate4, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 // Tests for max_changesets
@@ -758,7 +754,6 @@ DEFINE_TESTCASE(replicate5, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 /// Test --full-copy option.
@@ -825,7 +820,6 @@ DEFINE_TESTCASE(replicate6, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 /// Test healing a corrupt replica (new in 1.3.5).
@@ -908,5 +902,4 @@ DEFINE_TESTCASE(replicate7, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }

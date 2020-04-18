@@ -1,10 +1,10 @@
 %{
-/* perl/util.i.in: custom Perl code for xapian-bindings
+/* perl/extra.i: custom Perl code for xapian-bindings
  *
  * Based on the perl XS wrapper files.
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015,2016,2018,2019 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016,2018,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,11 +24,12 @@
 %}
 
 /* Perl code */
-%perlcode %{
+%perlcode {
 package Xapian;
 
-our $VERSION = "@PERL_XAPIAN_VERSION@";
-
+our $VERSION = PERL_XAPIAN_VERSION;
+};
+%perlcode %{
 # We need to use the RTLD_GLOBAL flag to dlopen() so that other C++
 # modules that link against libxapian.so get the *same* value for all the
 # weak symbols (eg, the exception classes)
@@ -149,8 +150,8 @@ sub items {
   return @array;
 }
 
-use overload '++' => sub { $_[0]->increment() },
-	     '--' => sub { $_[0]->prev() },
+use overload '++' => sub { $_[0]->inc() },
+	     '--' => sub { $_[0]->dec() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -178,8 +179,8 @@ sub FETCHSIZE {
 }
 
 package Xapian::ESetIterator;
-use overload '++' => sub { $_[0]->increment() },
-	     '--' => sub { $_[0]->prev() },
+use overload '++' => sub { $_[0]->inc() },
+	     '--' => sub { $_[0]->dec() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -215,8 +216,8 @@ sub FETCHSIZE {
 }
 
 package Xapian::MSetIterator;
-use overload '++' => sub { $_[0]->increment() },
-	     '--' => sub { $_[0]->prev() },
+use overload '++' => sub { $_[0]->inc() },
+	     '--' => sub { $_[0]->dec() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -235,14 +236,12 @@ package Xapian::MSet::Tied;
 our @ISA = qw(Xapian::MSet);
 
 package Xapian::PositionIterator;
-use overload '++' => sub { $_[0]->increment() },
+use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-	     '""' => sub { $_[0]->get_description() },
-	     '0+' => sub { $_[0]->get_termpos() },
 	     'fallback' => 1;
 
 sub clone() {
@@ -253,26 +252,8 @@ sub clone() {
   return $copy;
 }
 
-sub equal() {
-  my ($self, $other) = @_;
-  if( UNIVERSAL::isa($other, 'Xapian::PositionIterator') ) {
-    Xapianc::PositionIterator_equal1($self, $other);
-  } else {
-    ($self+0) == ($other+0);
-  }
-}
-
-sub nequal() {
-  my ($self, $other) = @_;
-  if( UNIVERSAL::isa($other, 'Xapian::PositionIterator') ) {
-    Xapianc::PositionIterator_nequal1($self, $other);
-  } else {
-    ($self+0) != ($other+0);
-  }
-}
-
 package Xapian::PostingIterator;
-use overload '++' => sub { $_[0]->increment() },
+use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -296,7 +277,7 @@ sub set_stopper {
 }
 
 package Xapian::TermIterator;
-use overload '++' => sub { $_[0]->increment() },
+use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -313,7 +294,7 @@ sub clone() {
 }
 
 package Xapian::ValueIterator;
-use overload '++' => sub { $_[0]->increment() },
+use overload '++' => sub { $_[0]->inc() },
 	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
@@ -427,11 +408,15 @@ Xapian - Perl frontend to the Xapian C++ search library.
 
   use Xapian;
 
+  my $parser = Xapian::QueryParser->new();
+  my $query = $parser->parse_query( '[QUERY STRING]' );
+
   my $db = Xapian::Database->new( '[DATABASE DIR]' );
-  my $enq = $db->enquire( '[QUERY TERM]' );
+  my $enq = $db->enquire();
 
-  printf "Running query '%s'\n", $enq->get_query()->get_description();
+  printf "Running query '%s'\n", $query->get_description();
 
+  $enq->set_query( $query );
   my @matches = $enq->matches(0, 10);
 
   print scalar(@matches) . " results found\n";
@@ -443,9 +428,15 @@ Xapian - Perl frontend to the Xapian C++ search library.
 
 =head1 DESCRIPTION
 
-This module wraps most methods of most Xapian classes. The missing classes
-and methods should be added in the future. It also provides a simplified,
-more 'perlish' interface to some common operations, as demonstrated above.
+This module is a pretty-much complete wrapping of the Xapian C++ API.  The
+main omissions are features which aren't useful to wrap for Perl, such as
+Xapian::UTF8Iterator.
+
+This module is generated using SWIG.  It is intended as a replacement for
+the older Search::Xapian module which is easier to keep up to date and
+which more completely wraps the C++ API.  It is largely compatible with
+Search::Xapian, but see the COMPATIBILITY section below if you have code using
+Search::Xapian which you want to get working with this new module.
 
 There are some gaps in the POD documentation for wrapped classes, but you
 can read the Xapian C++ API documentation at
@@ -453,14 +444,74 @@ L<https://xapian.org/docs/apidoc/html/annotated.html> for details of
 these.  Alternatively, take a look at the code in the examples and tests.
 
 If you want to use Xapian and the threads module together, make
-sure you're using Xapian >= 1.0.4.0 and Perl >= 5.8.7.  As of 1.0.4.0,
-Xapian uses CLONE_SKIP to make sure that the perl wrapper objects
-aren't copied to new threads - without this the underlying C++ objects can get
-destroyed more than once.
+sure you're using Perl >= 5.8.7 as then Xapian uses CLONE_SKIP to make sure
+that the perl wrapper objects aren't copied to new threads - without this the
+underlying C++ objects can get destroyed more than once which leads to
+undefined behaviour.
 
 If you encounter problems, or have any comments, suggestions, patches, etc
 please email the Xapian-discuss mailing list (details of which can be found at
 L<https://xapian.org/lists>).
+
+=head2 COMPATIBILITY
+
+This module is mostly compatible with Search::Xapian.  The following are known
+differences, with details of how to write code which works with both.
+
+Search::Xapian overloads stringification - e.g. C<"$query"> is equivalent to
+C<$query->get_description()>, which C<"$termiterator"> is equivalent to
+C<$termiterator->get_term()>.  This module doesn't support overloaded
+stringification, so you should instead explicitly call the method you
+want.  The technical reason for this change is that stringification is hard to
+support in SWIG-generated bindings, but this context-sensitive stringification
+where the operation performed depends on the object type seems unhelpful in
+hindsight anyway.
+
+Search::Xapian overloads conversion to an integer for some classes - e.g.
+C<0+$positioniterator> is equivalent to C<$positioniterator->get_termpos>
+while C<0+$postingiterator> is equivalent to C<$postingiterator->get_docid>.
+This module doesn't provide these overloads so you should instead explicitly
+call the method you want.  As above, we think this context-sensitive behaviour
+wasn't helpful in hindsight.
+
+This module is fussier about whether a passed scalar value is a string or
+an integer than Search::Xapian, so e.g. C<Xapian::Query->new(7)> will fail
+but the equivalent worked with Search::Xapian.  If C<$term> might not be a
+string use C<Xapian::Query->new("$term")> to ensure it is converted to a
+string.  The new behaviour isn't very Perlish, but is likely to be hard to
+address universally as it comes from SWIG.  Let us know if you find particular
+places where it's annoying and we can look at addressing those.
+
+Both this module and Search::Xapian support passing a Perl sub (which can be
+anonymous) for the functor classes C<MatchDecider> and C<ExpandDecider>.  In
+some cases Search::Xapian accepts a string naming a Perl sub, but this module
+never accepts this.  Instead of passing C<"::mymatchdecider">, pass
+C<\&mymatchdecider> which will work with either module.  If you really want to
+dynamically specify the function name, you can pass C<sub {eval
+"&$dynamicmatchdecider"}>.
+
+Search::Xapian provides a PerlStopper class which is supposed to be
+subclassable in Perl to implement your own stopper, but this mechanism doesn't
+actually seem to work.  This module instead supports user-implemented stoppers
+by accepting a Perl sub in place of a Stopper object.
+
+=head3 Importing Either Module
+
+If you want your code to use either this module or Search::Xapian depending
+what's installed, then instead of C<use Xapian (':all');> you can use:
+
+  BEGIN {
+    eval {
+      require Xapian;
+      Xapian->import(':all');
+    };
+    if ($@) {
+      require Search::Xapian;
+      Search::Xapian->import(':all');
+    }
+  }
+
+If you just C<use Xapian;> then the C<import()> calls aren't needed.
 
 =head2 EXPORT
 
@@ -520,7 +571,7 @@ Like OP_AND, but only weight using the left query.
 =item OP_NEAR
 
 Match if the words are near each other. The window should be specified, as
-a parameter to C<Xapian::Query::Query>, but it defaults to the
+a parameter to C<Xapian::Query->new()>, but it defaults to the
 number of terms in the list.
 
 =item OP_PHRASE
@@ -650,19 +701,19 @@ Standard is db + ops + qpflags + qpstem
 =item major_version
 
 Returns the major version of the Xapian C++ library being used.  E.g. for
-Xapian 1.0.9 this would return 1.
+Xapian 1.4.15 this would return 1.
 
 =item minor_version
 
 Returns the minor version of the Xapian C++ library being used.  E.g. for
-Xapian 1.0.9 this would return 0.
+Xapian 1.4.15 this would return 4.
 
 =item revision
 
 Returns the revision of the Xapian C++ library being used.  E.g. for
-Xapian 1.0.9 this would return 9.  In a stable release series, Xapian libraries
-with the same minor and major versions are usually ABI compatible, so this
-often won't match the third component of $Xapian::VERSION (which is the
+Xapian 1.4.15 this would return 15.  In a stable release series, Xapian
+libraries with the same minor and major versions are usually ABI compatible, so
+this often won't match the third component of C<$Xapian::VERSION> (which is the
 version of the Xapian wrappers).
 
 =back
@@ -702,12 +753,12 @@ Handling of NaN isn't (currently) guaranteed to be sensible.
 Convert a string encoded using sortable_serialise back to a floating
 point number.
 
-This expects the input to be a string produced by sortable_serialise().
+This expects the input to be a string produced by C<sortable_serialise()>.
 If the input is not such a string, the value returned is undefined (but
 no error will be thrown).
 
 The result of the conversion will be exactly the value which was
-supplied to sortable_serialise() when making the string on platforms
+supplied to C<sortable_serialise()> when making the string on platforms
 which represent doubles with the precisions specified by IEEE_754, but
 may be a different (nearby) value on other platforms.
 
@@ -768,6 +819,7 @@ L<Xapian::Enquire>,
 L<Xapian::MultiValueSorter>,
 L<Xapian::PositionIterator>,
 L<Xapian::PostingIterator>,
+L<Xapian::Query>,
 L<Xapian::QueryParser>,
 L<Xapian::Stem>,
 L<Xapian::TermGenerator>,

@@ -25,7 +25,7 @@ function write_date(time_t) {
 var d=new Date();d.setTime(time_t*1000);
 var D=d.getFullYear()+"-"+f2(d.getMonth()+1)+"-"+f2(d.getDate());
 var T=f2(d.getHours())+":"+f2(d.getMinutes())+":"+f2(d.getSeconds());
-document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
+document.write("<time datetime=\"$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}Z\" title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></time>");
 }
 // -->
 </script>
@@ -78,8 +78,8 @@ $set{clickurl,$if{$opt{clicklog},$or{$env{SCRIPT_NAME},omega.cgi}?FMT=clicklog&D
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
-<span title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
-Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
+<time datetime="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}Z" title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
+Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></time>
 </noscript><br>
 }
 $if{$field{language},Language: <b>$html{$field{language}}</b><br>}

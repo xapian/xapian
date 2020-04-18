@@ -144,5 +144,4 @@ DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
     logger.indexing_end();
 
     logger.testcase_end();
-    return true;
 }
