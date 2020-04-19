@@ -1251,8 +1251,8 @@ if test no != "$with_go" ; then
       AC_MSG_CHECKING(for gopath)
       if test -n "${GOPATH}" ; then
         AC_MSG_RESULT([${GOPATH}])
-      else 
-        AC_MSG_RESULT(no)	  
+	else
+	AC_MSG_RESULT(no)
       fi
     fi
     if test -z "${GOROOT}" ; then
