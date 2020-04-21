@@ -126,6 +126,26 @@ foreach (@{ $EXPORT_TAGS{'qpstem'} }) {
 # xapian-bindings 1.4.10).
 our $BAD_VALUENO = BAD_VALUENO;
 
+sub search_xapian_compat {
+    *Search::Xapian:: = \%Xapian::;
+    *Search::Xapian::VERSION = \$VERSION;
+    *Search::Xapian::OP_NAMES = \@OP_NAMES;
+    *Search::Xapian::DB_NAMES = \@DB_NAMES;
+    *Search::Xapian::FLAG_NAMES = \@FLAG_NAMES;
+    *Search::Xapian::STEM_NAMES = \@STEM_NAMES;
+    *Search::Xapian::BAD_VALUENO = \&BAD_VALUENO;
+    *Search::Xapian::DB_OPEN = \&DB_OPEN;
+    *Search::Xapian::DB_CREATE = \&DB_CREATE;
+    *Search::Xapian::DB_CREATE_OR_OPEN = \&DB_CREATE_OR_OPEN;
+    *Search::Xapian::DB_CREATE_OR_OVERWRITE = \&DB_CREATE_OR_OVERWRITE;
+    *Search::Xapian::version_string = \&version_string;
+    *Search::Xapian::major_version = \&major_version;
+    *Search::Xapian::minor_version = \&minor_version;
+    *Search::Xapian::revision = \&revision;
+    *Search::Xapian::sortable_serialise = \&sortable_serialise;
+    *Search::Xapian::sortable_unserialise = \&sortable_unserialise;
+}
+
 package Xapian::Database;
 sub enquire {
   my $self = shift;
@@ -506,12 +526,13 @@ by accepting a Perl sub in place of a Stopper object.
 =head3 Importing Either Module
 
 If you want your code to use either this module or Search::Xapian depending
-what's installed, then instead of C<use Xapian (':all');> you can use:
+what's installed, then instead of C<use Search::Xapian (':all');> you can use:
 
   BEGIN {
     eval {
       require Xapian;
       Xapian->import(':all');
+      Xapian::search_xapian_compat();
     };
     if ($@) {
       require Search::Xapian;
@@ -519,7 +540,11 @@ what's installed, then instead of C<use Xapian (':all');> you can use:
     }
   }
 
-If you just C<use Xapian;> then the C<import()> calls aren't needed.
+If you just C<use Search::Xapian;> then the C<import()> calls aren't needed.
+
+The C<Xapian::search_xapian_compat()> call sets up aliases in the
+C<Search::Xapian> namespace so you can write code which refers to
+C<Search::Xapian> but can actually use this module instead.
 
 =head2 EXPORT
 
