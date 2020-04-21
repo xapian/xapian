@@ -775,7 +775,6 @@ class perlMatchSpy : public Xapian::MatchSpy {
 
 %typemap(typecheck, precedence=100) NS::CLASS * {
     SV* sv = $input;
-    //if (sv_isobject(sv) && sv_derived_from(sv, "Xapian::" #CLASS)) {
     void* ptr;
     if (SWIG_ConvertPtr(sv, &ptr, $descriptor(NS::CLASS *), 0) == SWIG_OK) {
 	(void)ptr;
