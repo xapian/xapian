@@ -290,19 +290,19 @@ class XapianSWIGQueryItor {
 	    croak("Unexpected NULL returned by av_fetch()");
 	SV *sv = *svp;
 
-	if ( sv_isa(sv, "Xapian::Query")) {
-	    Xapian::Query *q;
-	    SWIG_ConvertPtr(sv, (void **)&q, SWIGTYPE_p_Xapian__Query, 0);
+	if (!SvOK(sv)) {
+	    croak("USAGE: Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)");
+	}
+
+	Xapian::Query *q;
+	if (SWIG_ConvertPtr(sv, (void**)&q,
+			    SWIGTYPE_p_Xapian__Query, 0) == SWIG_OK) {
 	    return *q;
 	}
 
-	if ( SvOK(sv) ) {
-	    STRLEN len;
-	    const char * ptr = SvPV(sv, len);
-	    return Xapian::Query(string(ptr, len));
-	}
-
-	croak( "USAGE: Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
+	STRLEN len;
+	const char * ptr = SvPV(sv, len);
+	return Xapian::Query(string(ptr, len));
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
