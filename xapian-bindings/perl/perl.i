@@ -803,6 +803,7 @@ SUB_CLASS_TYPEMAPS(Xapian, StemImplementation)
 SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
 SUB_CLASS_TYPEMAPS(Xapian, RangeProcessor)
 SUB_CLASS_TYPEMAPS(Xapian, FieldProcessor)
+SUB_CLASS_TYPEMAPS(Xapian, MatchSpy)
 
 %include except.i
 %include ../xapian-headers.i
