@@ -1,4 +1,3 @@
-GOSRCDIR = ${GOPATH}/src/xapian
 TESTS = ./test
 AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
@@ -8,30 +7,20 @@ AM_TESTS_ENVIRONMENT = \
 LOG_COMPILER = ${GO} test ./test
 
 install-data-hook:
-	cd ${GOSRCDIR} && ${GO} install -i -x -a
+	cd setup && ${GO} run setup.go "install-bindings"
 
-all : modify
-	cd ${GOSRCDIR}
-	${GO} build -i -x -a
-
-modify : build
-	${MKDIR_P} ${GOPATH}
-	${MKDIR_P} ${GOPATH}/bin
-	${MKDIR_P} ${GOPATH}/src
-	${MKDIR_P} ${GOPATH}/pkg
-	${MKDIR_P} ${GOSRCDIR}
-	cp -r * ${GOSRCDIR}
+all : build
+	cd setup && ${GO} run setup.go "xapian_bindings=$(abs_top_builddir)" "xapian_cxxflags=${CXXFLAGS}" \
+	"xapian_cppflags=${CPPFLAGS}" "lcflags=${USE_CLANG_GO_LIB}"
 
 build :
 	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 go.i
-	cd work && ${GO} run get_paths.go $(abs_top_builddir) ${USE_CLANG_GO_LIB}
-	${AWK} 'NR==18{print "#cgo CXXFLAGS: ${XAPIAN_CXXFLAGS}" RS\
-		"#cgo CXXFLAGS: ${CXXFLAGS}" RS\
-		"#cgo CPPFLAGS: ${CPPFLAGS}"}1' xapian.go > xapian2.go
-	mv xapian2.go xapian.go
 	${GO} env -w CXX="${CXX}"
+
 check :
-	cd ${GOSRCDIR}/test && ${GO} test
+	${GO} test ./test
+
 clean :
 	rm -r xapian.go
-.PHONY: build modify run check
+	rm -r go_*
+.PHONY: build run check
