@@ -68,20 +68,20 @@ func main() {
 	}
 
 	var xapian_bindings,xapian_cxxflags,xapian_cppflags,lc string
-	temp := strings.Split(args[1],"=")
+	temp := strings.Split(args[1],"-->")
 	if len(temp) > 1 {
 		xapian_bindings = strings.Join(temp[1:]," ")
 	}
-	temp = strings.Split(args[2],"=")
+	temp = strings.Split(args[2],"-->")
 	if len(temp) > 1 {
 		xapian_cxxflags = strings.Join(temp[1:]," ")
 		xapian_cxxflags = strings.ReplaceAll(xapian_cxxflags,"-fstack-protector","")
 	}
-	temp = strings.Split(args[3],"=")
+	temp = strings.Split(args[3],"-->")
 	if len(temp) > 1 {
 		xapian_cppflags = strings.Join(temp[1:]," ")
 	}
-	temp = strings.Split(args[4],"=")
+	temp = strings.Split(args[4],"-->")
 	if len(temp) > 1 {
 		lc = strings.Join(temp[1:]," ")
 	}

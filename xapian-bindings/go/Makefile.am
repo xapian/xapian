@@ -1,3 +1,5 @@
+.NOTPARALLEL:
+
 TESTS = ./test
 AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
@@ -10,8 +12,8 @@ install-data-hook:
 	cd setup && ${GO} run setup.go "install-bindings"
 
 all : build
-	cd setup && ${GO} run setup.go "xapian_bindings=$(abs_top_builddir)" "xapian_cxxflags=${CXXFLAGS}" \
-	"xapian_cppflags=${CPPFLAGS}" "lcflags=${USE_CLANG_GO_LIB}"
+	cd setup && ${GO} run setup.go "xapian_bindings-->$(abs_top_builddir)" "xapian_cxxflags-->${CXXFLAGS}" \
+	"xapian_cppflags-->${CPPFLAGS}" "lcflags-->${USE_CLANG_GO_LIB}"
 
 build :
 	${SWIG} ${SWIG_FLAGS} -c++ -go -cgo -intgosize 64 go.i
