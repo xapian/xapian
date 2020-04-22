@@ -121,20 +121,10 @@ sub get_mset {
 %feature("shadow") Xapian::Enquire::set_query
 %{
 sub set_query {
-  my $self = shift;
-  my $query = shift;
-  if( ref( $query ) ne 'Xapian::Query' ) {
-    $query = Xapian::Query->new( $query, @_ );
-    Xapianc::Enquire_set_query( $self, $query );
-    return;
+  if (ref($_[1]) ne 'Xapian::Query') {
+    push @_, Xapian::Query->new(splice @_, 1);
   }
-  my $nargs = scalar(@_);
-  if( $nargs > 1) {
-    use Carp;
-    Carp::carp( "USAGE: \$enquire->set_query(\$query) or \$enquire->set_query(\$query, \$length)" );
-    exit;
-  }
-  Xapianc::Enquire_set_query( $self, $query, @_ );
+  Xapianc::Enquire_set_query(@_);
 }
 %}
 
