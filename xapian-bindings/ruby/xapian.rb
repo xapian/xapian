@@ -63,7 +63,6 @@ module Xapian
         retval.push(wrapper.call(item))
         item.next()
       end
-      puts retval.size()
       return retval
     end
   end # _safelyIterate
