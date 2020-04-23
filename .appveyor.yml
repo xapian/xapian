@@ -7,8 +7,6 @@ environment:
   matrix:
   - TOOLCHAIN: mingw64
     platform: x64
-matrix:
-  allow_failures:
 install:
   - ps: >-
       $env:CONFIGOPTS="--disable-documentation"
