@@ -157,14 +157,9 @@ func main() {
 	}
 	fmt.Println("lib_name : ", lib_name)
 	fmt.Println("lib_deps : ", lib_deps)
-	// var lc string
-	// if len(args) == 3{
-	// 	lc = args[2]
-	// }
+
 	lib_dir := filepath.Join(xapian_core, lt_obj_dir)
 	fmt.Println("lib_dir - ", lib_dir)
-
-	// return
 
 	library := strings.TrimSpace(lib_name + lib_deps)
 

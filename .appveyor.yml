@@ -94,7 +94,7 @@ install:
   # cygwin1.dll is first on PATH.
   - if "%TOOLCHAIN%-%Platform%"=="cygwin-x64" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P zlib-devel -P git -P patch
   - if "%TOOLCHAIN%-%Platform%"=="cygwin-x86" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P cygwin32-zlib -P cygwin32-gcc-core -P cygwin32-gcc-g++ -P git -P patch
-  - bash -c 'time ./bootstrap --fetch-url-command="curl -L" xapian-core'
+  - bash -c 'time ./bootstrap --fetch-url-command="curl -L" xapian-core xapian-bindings'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - if "%TOOLCHAIN%"=="msvc" mkdir zlib
   - if "%TOOLCHAIN%"=="msvc" cd zlib
@@ -116,7 +116,7 @@ install:
         $env:LDFLAGS="-Lc:/projects/xapian/zlib"
       }
 build_script:
-  - bash -c 'time ./configure $CONFIGOPTS'
+  - bash -c 'time ./configure $CONFIGOPTS --with-go'
   - bash -c 'time make -j2' < nul
 test_script:
   - bash -c 'time make check VERBOSE=1' < nul
