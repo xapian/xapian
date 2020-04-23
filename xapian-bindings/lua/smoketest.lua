@@ -360,6 +360,16 @@ function run_tests()
   end
   expect(terms, {"to"})
 
+  -- Test passing function for stopper.
+  queryparser = xapian.QueryParser()
+  queryparser:set_stopper(function (s) return string.len(s) < 3 end)
+  query = queryparser:parse_query('who to be')
+  terms = {}
+  for term in queryparser:stoplist() do
+    table.insert(terms, term:get_term())
+  end
+  expect(terms, {"to", "be"})
+
   -- Test preservation of stopper set on term generator.
   function make_tg()
     termgen = xapian.TermGenerator()
