@@ -124,7 +124,7 @@ install:
         $env:LDFLAGS="-Lc:/projects/xapian/zlib"
       }
 build_script:
-  - bash -c 'time ./configure --disable-backend-honey --with-go'
+  - bash -c 'time ./configure $CONFIGOPTS --disable-backend-honey --with-go'
   - bash -c 'time make -j2' < nul
 test_script:
   - bash -c 'time make check VERBOSE=1' < nul
