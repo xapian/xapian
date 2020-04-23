@@ -15,7 +15,7 @@ install:
   - ps: >-
       $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32"
   - curl https://oligarchy.co.uk/xapian/patches/unicode-data121a.cc > xapian-core\unicode\unicode-data.cc
-  - bash -c 'pacman -Sy --noconfirm --needed base-devel doxygen mingw-w64-x86_64-toolchain mingw-w64-x86_64-doxygen mingw-w64-x86_64-python-pip mingw-w64-x86_64-graphviz zlib-devel'
+  - bash -c 'pacman -Sy --noconfirm --needed libuuid-devel base-devel doxygen mingw-w64-x86_64-toolchain mingw-w64-x86_64-doxygen mingw-w64-x86_64-python-pip mingw-w64-x86_64-graphviz zlib-devel'
   - bash -c 'time ./bootstrap --fetch-url-command="curl -L" xapian-core xapian-bindings'
 build_script:
   - bash -c 'time ./configure $CONFIGOPTS --disable-backend-honey --with-go'
