@@ -1,11 +1,5 @@
 skip_tags: true
-# A full clone takes 30 seconds, depth 20 takes 5 seconds.
-#
-# Using "shallow_clone: true" downloads the commit as a ZIP file so you might
-# think that would be quicker still, but actually it seems to take ~15 seconds,
-# and then bootstrap fails due to there not being a ".git" directory.
 clone_depth: 20
-# Specify clone_folder so we can hard-code the Unix path equivalent below.
 clone_folder: c:\projects\xapian
 environment:
   global:
@@ -61,11 +55,6 @@ environment:
     VCVARS_BAT: "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
 matrix:
   allow_failures:
-  # mingw build currently sometimes fails due to trying to delete open files.
-  # It's unclear what the problem is, so until we manage to debug this allow
-  # this build to fail without flagging CI as having failed.
-  - TOOLCHAIN: mingw
-    platform: x86
 install:
   - ps: >-
       $env:CONFIGOPTS="--disable-documentation"
@@ -135,7 +124,7 @@ install:
         $env:LDFLAGS="-Lc:/projects/xapian/zlib"
       }
 build_script:
-  - bash -c 'time ./configure $CONFIGOPTS'
+  - bash -c 'time ./configure --disable-backend-honey --with-go'
   - bash -c 'time make -j2' < nul
 test_script:
   - bash -c 'time make check VERBOSE=1' < nul
