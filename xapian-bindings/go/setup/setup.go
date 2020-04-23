@@ -85,8 +85,9 @@ func main() {
 	if len(temp) > 1 {
 		lc = strings.Join(temp[1:]," ")
 	}
-
-	xapian_bindings = filepath.Join(xapian_bindings)
+	
+	xapian_bindings = filepath.Join("../../")
+	xapian_bindings, _ = filepath.Abs(xapian_bindings)
 	fmt.Println("xapian_bindings - ",xapian_bindings)
 	xapian_core := filepath.Join(xapian_bindings ,"/../xapian-core/")
 	fmt.Println("xapian-core - ",xapian_core)
