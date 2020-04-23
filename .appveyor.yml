@@ -12,6 +12,7 @@ install:
       $env:CONFIGOPTS="--disable-documentation"
   - ps: >-
       $env:PATH="C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;C:\msys64\usr\bin;$env:PATH"
+  - ps: >-
       $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32"
   - curl https://oligarchy.co.uk/xapian/patches/unicode-data121a.cc > xapian-core\unicode\unicode-data.cc
   - bash -c 'pacman -Sy --noconfirm --needed base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-doxygen mingw-w64-x86_64-python-pip mingw-w64-x86_64-graphviz zlib-devel'
