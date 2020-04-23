@@ -156,23 +156,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
     }
 
     std::string get_description() const {
-	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
-	if (!lua_isfunction(L, -1)) {
-	    luaL_typerror(L, -1, "function");
-	}
-
-	if (lua_pcall(L, 0, 1, 0) != 0) {
-	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
-	}
-	if (!lua_isstring(L, -1)) {
-	    luaL_error(L, "function must return a string");
-	}
-
-	size_t len;
-	const char * p = lua_tolstring(L, -1, &len);
-	std::string result(p, len);
-	lua_pop(L, 1);
-	return result;
+	return "luaStemImplementation()";
     }
 };
 %}
