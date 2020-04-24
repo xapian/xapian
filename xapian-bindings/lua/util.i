@@ -433,6 +433,7 @@ SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
 SUB_CLASS_TYPEMAPS(Xapian, RangeProcessor)
 SUB_CLASS_TYPEMAPS(Xapian, ValueRangeProcessor)
 SUB_CLASS_TYPEMAPS(Xapian, FieldProcessor)
+SUB_CLASS_TYPEMAPS(Xapian, MatchSpy)
 
 %luacode {
 function xapian.Iterator(begin, _end)
