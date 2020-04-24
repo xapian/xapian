@@ -468,6 +468,16 @@ function run_tests()
   end
   expect(items, {{xapian.sortable_serialise(2), 2}, {xapian.sortable_serialise(1.5), 1}})
 
+  -- Test passing function as a matchspy.
+  spy_values = {}
+  enq:add_matchspy(
+    function (d)
+      table.insert(spy_values, xapian.sortable_unserialise(d:get_value(0)))
+    end)
+  enq:set_query(xapian.Query.MatchAll)
+  matches = enq:get_mset(1, 2)
+  expect(spy_values, {-1/0, -1/0, 2})
+
   -- Test exceptions
   ok,res = pcall(db.get_document, db, 0)
   expect(ok, false)
