@@ -123,7 +123,8 @@ class LocalSubMatch {
 			      bool need_positions,
 			      bool in_synonym,
 			      Xapian::Internal::QueryOptimiser* qopt,
-			      bool lazy_weight);
+			      bool lazy_weight,
+			      const Xapian::Weight * weight);
 
     bool weight_needs_wdf() const {
 	return wt_factory.get_sumpart_needs_wdf_();

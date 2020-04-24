@@ -694,6 +694,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	if (op_ != Query::OP_INVALID) done();
     }
 
+    void set_weight(const Xapian::Weight * weight) noexcept;
+
   private:
     void init(Query::op op_, size_t n_subqueries, Xapian::termcount window = 0);
 
@@ -869,6 +871,8 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 				  double factor) const;
 
     virtual termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
+
+    virtual void set_weight(const Xapian::Weight * weight_) noexcept;
 
     virtual void serialise(std::string & result) const = 0;
 

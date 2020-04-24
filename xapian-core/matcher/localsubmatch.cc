@@ -241,7 +241,8 @@ LocalSubMatch::open_post_list(const string& term,
 			      bool need_positions,
 			      bool in_synonym,
 			      QueryOptimiser * qopt,
-			      bool lazy_weight)
+			      bool lazy_weight,
+			      const Xapian::Weight * weight)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
 
@@ -310,7 +311,7 @@ LocalSubMatch::open_post_list(const string& term,
 	    // (needed for the remote database case).
 	    wt = new LazyWeight(pl, wt, total_stats, qlen, wqf, factor);
 	}
-	pl->set_termweight(wt);
+	pl->set_termweight(weight? weight : wt);
     }
     RETURN(pl);
 }

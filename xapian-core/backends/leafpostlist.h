@@ -70,6 +70,10 @@ class LeafPostList : public PostList {
 	weight = weight_;
     }
 
+    bool no_weight() {
+	return !weight;
+    }
+
     double resolve_lazy_termweight(Xapian::Weight * weight_,
 				   Xapian::Weight::Internal * stats,
 				   Xapian::termcount qlen,

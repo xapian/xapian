@@ -281,7 +281,7 @@ done_skip_to:
 	    }
 	}
 
-	add_postlist(qopt->open_lazy_post_list(term, 1, factor));
+	add_postlist(qopt->open_lazy_post_list(term, 1, factor, nullptr));
     }
 
     if (max_type == Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
@@ -356,7 +356,7 @@ done_skip_to:
 	    }
 	}
 
-	add_postlist(qopt->open_lazy_post_list(term, 1, factor));
+	add_postlist(qopt->open_lazy_post_list(term, 1, factor, nullptr));
     }
 
     if (max_type == Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
@@ -631,7 +631,7 @@ AndContext::postlist()
 {
     if (pls.empty()) {
 	if (match_all) {
-	    return qopt->open_post_list(string(), 0, 0.0);
+	    return qopt->open_post_list(string(), 0, 0.0, nullptr);
 	}
 	return NULL;
     }
@@ -707,6 +707,11 @@ Query::Internal::get_pos() const
 void
 Query::Internal::gather_terms(void *) const
 {
+}
+
+void 
+Query::Internal::set_weight(const Xapian::Weight *) noexcept {
+
 }
 
 Xapian::termcount
@@ -1104,7 +1109,8 @@ QueryTerm::postlist(QueryOptimiser * qopt, double factor) const
     LOGCALL(QUERY, PostList*, "QueryTerm::postlist", qopt | factor);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
-    RETURN(qopt->open_post_list(term, wqf, factor));
+    auto pl = qopt->open_post_list(term, wqf, factor, wt);
+    RETURN(pl);
 }
 
 bool
