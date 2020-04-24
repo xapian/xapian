@@ -20,12 +20,14 @@
 
 #ifndef XAPIAN_INCLUDED_QUERYINTERNAL_H
 #define XAPIAN_INCLUDED_QUERYINTERNAL_H
-
+#include <memory>
 #include "api/editdistance.h"
 #include "queryvector.h"
 #include "stringutils.h"
 #include "xapian/intrusive_ptr.h"
 #include "xapian/query.h"
+#include "xapian/enquire.h"
+#include "xapian/weight.h"
 
 /// Default set_size for OP_ELITE_SET:
 const Xapian::termcount DEFAULT_ELITE_SET_SIZE = 10;
@@ -43,7 +45,7 @@ class QueryTerm : public Query::Internal {
 
     Xapian::termpos pos;
 
-    const Xapian::Weight* wt;
+    mutable std::unique_ptr<Xapian::Weight> weight;
 
   public:
     // Construct a "MatchAll" QueryTerm.
@@ -74,8 +76,8 @@ class QueryTerm : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    void set_weight(const Xapian::Weight* wt_) noexcept {
-	wt = wt_;
+    void set_weight(const Xapian::Weight& wt_) noexcept {
+	weight.reset(wt_.clone());
     }
 
     std::string get_description() const;
@@ -234,7 +236,7 @@ class QueryBranch : public Query::Internal {
     size_t get_num_subqueries() const noexcept XAPIAN_PURE_FUNCTION;
     const Query get_subquery(size_t n) const;
 
-    void set_weight(const Xapian::Weight * weight_) noexcept {
+    void set_weight(const Xapian::Weight& weight_) noexcept {
 	for (auto i = subqueries.begin(); i != subqueries.end(); ++i) {
 	    (*i).set_weight(weight_);
 	}

@@ -368,7 +368,7 @@ Query::init(op op_, size_t n_subqueries, Xapian::termcount parameter)
 }
 
 void
-Query::set_weight(const Xapian::Weight * weight) noexcept {
+Query::set_weight(const Xapian::Weight& weight) noexcept {
     internal->set_weight(weight);
 }
 

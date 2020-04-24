@@ -630,6 +630,7 @@ run_query()
     if (!boost_terms.empty()) {
 	Xapian::Query boost(Xapian::Query::OP_OR,
 			    boost_terms.begin(), boost_terms.end());
+	boost.set_weight(*Xapian::Weight::create("coord"));
 	if (query.empty() && !date_filter_set) {
 	    std::swap(query, boost);
 	} else {

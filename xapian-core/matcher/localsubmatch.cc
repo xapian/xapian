@@ -311,7 +311,7 @@ LocalSubMatch::open_post_list(const string& term,
 	    // (needed for the remote database case).
 	    wt = new LazyWeight(pl, wt, total_stats, qlen, wqf, factor);
 	}
-	pl->set_termweight(weight? weight : wt);
+	pl->set_termweight((weight != nullptr) ? weight->clone() : wt);
     }
     RETURN(pl);
 }

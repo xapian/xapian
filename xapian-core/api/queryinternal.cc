@@ -710,7 +710,7 @@ Query::Internal::gather_terms(void *) const
 }
 
 void 
-Query::Internal::set_weight(const Xapian::Weight *) noexcept {
+Query::Internal::set_weight(const Xapian::Weight&) noexcept {
 
 }
 
@@ -1109,7 +1109,7 @@ QueryTerm::postlist(QueryOptimiser * qopt, double factor) const
     LOGCALL(QUERY, PostList*, "QueryTerm::postlist", qopt | factor);
     if (factor != 0.0)
 	qopt->inc_total_subqs();
-    auto pl = qopt->open_post_list(term, wqf, factor, wt);
+    auto pl = qopt->open_post_list(term, wqf, factor, nullptr);
     RETURN(pl);
 }
 
