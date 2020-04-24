@@ -1,7 +1,7 @@
 /* lua/util.i: custom lua typemaps for xapian-bindings
  *
  * Copyright (C) 2011 Xiaona Han
- * Copyright (C) 2011,2012,2017,2019 Olly Betts
+ * Copyright (C) 2011,2012,2017,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,13 @@
 %rename("_end") end;
 
 %rename("__tostring") get_description;
+
+// On platforms where (sizeof(long) == 4), SWIG by default wraps
+// Xapian::BAD_VALUENO as a negative constant in Lua, which is then rejected by
+// a check which disallows passing negative values for unsigned C++ types.
+// This %apply wraps it as a double constant, and also eliminates the negative
+// value check.
+%apply double { Xapian::valueno };
 
 %{
 #if LUA_VERSION_NUM-0 >= 502
