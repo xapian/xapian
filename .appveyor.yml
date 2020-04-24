@@ -58,6 +58,7 @@ matrix:
 install:
   - ps: >-
       $env:CONFIGOPTS="--disable-documentation"
+  - ps: >-
       $env:BINDINGS=""
   - ps: >-
       if ($env:TOOLCHAIN -eq "mingw") {
