@@ -63,6 +63,7 @@ function run_tests()
   enq = xapian.Enquire(db)
 
   -- Check Xapian::BAD_VALUENO is wrapped suitably.
+  expect(xapian.BAD_VALUENO > 0, true)
   enq:set_collapse_key(xapian.BAD_VALUENO)
 
   it = db:positionlist_begin(1, "is")
