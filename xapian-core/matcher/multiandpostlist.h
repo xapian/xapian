@@ -22,8 +22,8 @@
 #ifndef XAPIAN_INCLUDED_MULTIANDPOSTLIST_H
 #define XAPIAN_INCLUDED_MULTIANDPOSTLIST_H
 
+#include "backends/postlist.h"
 #include "omassert.h"
-#include "api/postlist.h"
 #include "postlisttree.h"
 
 #include <algorithm>

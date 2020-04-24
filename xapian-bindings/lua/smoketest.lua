@@ -4,7 +4,7 @@
 -- basic functionality successfully.
 --
 -- Copyright (C) 2011 Xiaona Han
--- Copyright (C) 2011,2012,2014,2016,2017,2019 Olly Betts
+-- Copyright (C) 2011,2012,2014,2016,2017,2019,2020 Olly Betts
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -83,6 +83,13 @@ function run_tests()
   expect(stem("going"), "go", 'stem noop "go" fails')
   expect(stem("wanted"), "want", 'stem(english) "wanted" -> "want" fails')
   expect(stem("reference"), "refer", 'stem(english) "reference" -> "refer" fails')
+
+  -- Test stemmer implemented in Lua
+  luastem = xapian.Stem(function (w) return string.sub(w, 1, 3) end)
+  expect(tostring(luastem), "Xapian::Stem(luaStemImplementation())")
+  expect(luastem("is"), "is")
+  expect(luastem("the"), "the")
+  expect(luastem("stem"), "ste")
 
   -- Test document
   expect(doc:termlist_count(), 5)
@@ -352,6 +359,16 @@ function run_tests()
     table.insert(terms, term:get_term())
   end
   expect(terms, {"to"})
+
+  -- Test passing function for stopper.
+  queryparser = xapian.QueryParser()
+  queryparser:set_stopper(function (s) return string.len(s) < 3 end)
+  query = queryparser:parse_query('who to be')
+  terms = {}
+  for term in queryparser:stoplist() do
+    table.insert(terms, term:get_term())
+  end
+  expect(terms, {"to", "be"})
 
   -- Test preservation of stopper set on term generator.
   function make_tg()

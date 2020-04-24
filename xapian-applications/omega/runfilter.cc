@@ -268,9 +268,6 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 	// Put the child process into its own process group, so that we can
 	// easily kill it and any children it in turn forks if we need to.
 	setpgid(0, 0);
-	pid_to_kill_on_signal = -child;
-#else
-	pid_to_kill_on_signal = child;
 #endif
 
 	// Close the parent's side of the socket pair.
@@ -379,6 +376,11 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     }
 
     // We're the parent process.
+#ifdef HAVE_SETPGID
+    pid_to_kill_on_signal = -child;
+#else
+    pid_to_kill_on_signal = child;
+#endif
 
     // Close the child's side of the socket pair.
     close(fds[1]);

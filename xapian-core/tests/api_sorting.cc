@@ -113,8 +113,6 @@ DEFINE_TESTCASE(sortfunctor1, backend) {
 	    TEST_EQUAL(m.get_sort_key(), exp);
 	}
     }
-
-    return true;
 }
 
 /// Test reverse sort functor.
@@ -187,8 +185,6 @@ DEFINE_TESTCASE(sortfunctor2, writable) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
-
-    return true;
 }
 
 // Test sort functor with some empty values.
@@ -248,8 +244,6 @@ DEFINE_TESTCASE(sortfunctor3, backend && valuestats) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
     }
-
-    return true;
 }
 
 class NeverUseMeKeyMaker : public Xapian::KeyMaker {
@@ -293,8 +287,6 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
 	FAIL_TEST("NeverUseMeKeyMaker::operator() didn't throw TestFail");
     } catch (const TestFail &) {
     }
-
-    return true;
 }
 
 /// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
@@ -310,8 +302,6 @@ DEFINE_TESTCASE(sortfunctorempty1, backend) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
@@ -345,8 +335,6 @@ DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
     sorter.add_value(0, true, "hi");
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi"
 				   "\0\0\x97\x96\xff\xff", 27));
-
-    return true;
 }
 
 DEFINE_TESTCASE(sortfunctorremote1, remote) {
@@ -358,7 +346,6 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	Xapian::MSet mset = enquire.get_mset(0, 10);
     );
-    return true;
 }
 
 DEFINE_TESTCASE(replace_weights1, backend) {
@@ -376,7 +363,6 @@ DEFINE_TESTCASE(replace_weights1, backend) {
     TEST_EQUAL_DOUBLE(i.get_weight(), new_weight);
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), new_weight);
     TEST_EQUAL_DOUBLE(mymset.get_max_possible(), old_max_possible);
-    return true;
 }
 
 DEFINE_TESTCASE(replace_weights2, backend) {
@@ -387,7 +373,6 @@ DEFINE_TESTCASE(replace_weights2, backend) {
     static const double weights[] = {1.0, 2.0};
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   mymset.replace_weights(begin(weights), end(weights)));
-    return true;
 }
 
 DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
@@ -410,5 +395,4 @@ DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
     // Test that setting larger weights is reflected in these methods.
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), weights[1]);
     TEST_EQUAL_DOUBLE(mymset.get_max_possible(), weights[1]);
-    return true;
 }

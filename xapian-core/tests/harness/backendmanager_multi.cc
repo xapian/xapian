@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017,2018,2019 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2017,2018,2019,2020 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@ BackendManagerMulti::BackendManagerMulti(const std::string& datadir_,
 	sub_managers[0]->get_dbtype() == sub_managers[1]->get_dbtype()) {
 	cachedir += sub_managers[0]->get_dbtype();
     } else {
-	for (auto sub_manager: sub_managers) {
+	for (auto sub_manager : sub_managers) {
 	    cachedir += sub_manager->get_dbtype();
 	}
     }
@@ -62,7 +62,7 @@ BackendManagerMulti::get_dbtype() const
 	sub_managers[0]->get_dbtype() == sub_managers[1]->get_dbtype()) {
 	dbtype += "_" + sub_managers[0]->get_dbtype();
     } else {
-	for (auto sub_manager: sub_managers) {
+	for (auto sub_manager : sub_managers) {
 	    dbtype += "_" + sub_manager->get_dbtype();
 	}
     }
@@ -195,6 +195,34 @@ string
 BackendManagerMulti::get_writable_database_path(const std::string& name)
 {
     return cachedir + "/" + name;
+}
+
+Xapian::Database
+BackendManagerMulti::get_remote_database(const std::vector<std::string>& files,
+					 unsigned int timeout)
+{
+    Xapian::Database db;
+    size_t remotes = 0;
+    for (auto sub_manager : sub_managers) {
+	if (sub_manager->get_dbtype().find("remote") == string::npos) {
+	    db.add_database(sub_manager->get_database(files));
+	    continue;
+	}
+
+	++remotes;
+	db.add_database(sub_manager->get_remote_database(files, timeout));
+    }
+
+    if (remotes == 0) {
+	// It's useful to support mixed local/remote multi databases with a
+	// custom timeout so we can test timeout and keepalive handling for
+	// this case, but this method shouldn't be called on an all-local
+	// multi database.
+	const char* m = "BackendManager::get_remote_database() called for "
+			"multi with no remote shards";
+	throw Xapian::InvalidOperationError(m);
+    }
+    return db;
 }
 
 string

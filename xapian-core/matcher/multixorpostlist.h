@@ -22,10 +22,10 @@
 #ifndef XAPIAN_INCLUDED_MULTIXORPOSTLIST_H
 #define XAPIAN_INCLUDED_MULTIXORPOSTLIST_H
 
-#include "api/postlist.h"
-#include <algorithm>
-
+#include "backends/postlist.h"
 #include "postlisttree.h"
+
+#include <algorithm>
 
 /// N-way XOR postlist.
 class MultiXorPostList : public PostList {

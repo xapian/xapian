@@ -25,11 +25,11 @@
 #ifndef XAPIAN_INCLUDED_INMEMORY_DATABASE_H
 #define XAPIAN_INCLUDED_INMEMORY_DATABASE_H
 
-#include "api/leafpostlist.h"
 #include "api/smallvector.h"
 #include "api/termlist.h"
 #include "backends/backends.h"
 #include "backends/databaseinternal.h"
+#include "backends/leafpostlist.h"
 #include "backends/valuestats.h"
 #include <map>
 #include <vector>

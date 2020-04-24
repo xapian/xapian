@@ -53,6 +53,8 @@ CJK::codepoint_is_cjk(unsigned p)
     // Array containing the last value in each range of codepoints which
     // are either all CJK or all non-CJK.
     static const unsigned splits[] = {
+	// 0E00..0E7F; Thai, Lanna Tai, Pali
+	0x0E00 - 1, 0x0E7F,
 	// 1100..11FF; Hangul Jamo
 	0x1100 - 1, 0x11FF,
 	// 2E80..2EFF; CJK Radicals Supplement
