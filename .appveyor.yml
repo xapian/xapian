@@ -58,16 +58,19 @@ matrix:
 install:
   - ps: >-
       $env:CONFIGOPTS="--disable-documentation"
+      $env:BINDINGS=""
   - ps: >-
       if ($env:TOOLCHAIN -eq "mingw") {
         $env:PATH="C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;$env:PATH"
       } elseif ($env:TOOLCHAIN -eq "mingw64") {
         if ($env:Platform -eq "x86") {
           $env:PATH="C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;C:\msys64\usr\bin;$env:PATH"
-          $env:CONFIGOPTS+=" --host=i686-pc-mingw32"
+          $env:CONFIGOPTS+=" --host=i686-pc-mingw32 --with-go"
+	  $env:BINDINGS+=" xapian-bindings "
         } else {
           $env:PATH="C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;C:\msys64\usr\bin;$env:PATH"
-          $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32"
+          $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32 --with-go"
+	  $env:BINDINGS+=" xapian-bindings "
         }
       } elseif ($env:TOOLCHAIN -eq "cygwin") {
         # Use 64-bit cygwin install for 32 bit build too to avoid DLL mapping issues.
@@ -94,7 +97,7 @@ install:
   # cygwin1.dll is first on PATH.
   - if "%TOOLCHAIN%-%Platform%"=="cygwin-x64" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P zlib-devel -P git -P patch
   - if "%TOOLCHAIN%-%Platform%"=="cygwin-x86" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P cygwin32-zlib -P cygwin32-gcc-core -P cygwin32-gcc-g++ -P git -P patch
-  - bash -c 'time ./bootstrap --fetch-url-command="curl -L" xapian-core xapian-bindings'
+  - bash -c 'time ./bootstrap --fetch-url-command="curl -L" xapian-core $BINDINGS'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - if "%TOOLCHAIN%"=="msvc" mkdir zlib
   - if "%TOOLCHAIN%"=="msvc" cd zlib
@@ -116,7 +119,7 @@ install:
         $env:LDFLAGS="-Lc:/projects/xapian/zlib"
       }
 build_script:
-  - bash -c 'time ./configure $CONFIGOPTS --with-go'
+  - bash -c 'time ./configure $CONFIGOPTS'
   - bash -c 'time make -j2' < nul
 test_script:
   - bash -c 'time make check VERBOSE=1' < nul
