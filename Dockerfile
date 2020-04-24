@@ -2,7 +2,6 @@ FROM ubuntu:18.04
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
-RUN apt-get install sudo
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get install git -y
 RUN git clone https://github.com/srinivasyadav18/xapian.git
@@ -15,7 +14,7 @@ php-dev php-cli python-dev python3-dev ruby-dev tcl-dev texinfo -y
 
 RUN wget https://dl.google.com/go/go1.14.linux-amd64.tar.gz ;
 RUN tar -C /usr/local -xzf go1.14.linux-amd64.tar.gz
-RUN echo "export PATH=$PATH:/usr/local/go/bin " >> ~/.bashrc
+ENV PATH="/usr/local/go/bin:${PATH}"
 
 #run these commands once you are in
 #source ~/.bashrc
