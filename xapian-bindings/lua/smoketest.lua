@@ -344,7 +344,7 @@ function run_tests()
 
   mset:get_hit(0)
 
-  ---Test preservation of stopper set on query parser.
+  -- Test preservation of stopper set on query parser.
   function make_qp()
     queryparser = xapian.QueryParser()
     stopper = xapian.SimpleStopper()
