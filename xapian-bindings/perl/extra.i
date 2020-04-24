@@ -503,7 +503,7 @@ call the method you want.  As above, we think this context-sensitive behaviour
 wasn't helpful in hindsight.
 
 This module is fussier about whether a passed scalar value is a string or
-an integer than Search::Xapian, so e.g. C<Xapian::Query->new(7)> will fail
+an integer than Search::Xapian, so e.g. C<Xapian::Query->new(2001)> will fail
 but the equivalent worked with Search::Xapian.  If C<$term> might not be a
 string use C<Xapian::Query->new("$term")> to ensure it is converted to a
 string.  The new behaviour isn't very Perlish, but is likely to be hard to
