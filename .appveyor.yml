@@ -92,7 +92,7 @@ install:
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
-  - if "%TOOLCHAIN%"=="mingw64" bash -c 'pacman -Sy --noconfirm doxygen mingw-w64-x86_64-doxygen doxygen swig zlib-devel'
+  - if "%TOOLCHAIN%"=="mingw64" bash -c 'pacman -Sy --noconfirm --needed base-devel libuuid-devel mingw-w64-x86_64-graphviz doxygen mingw-w64-x86_64-doxygen doxygen swig zlib-devel'
   # Install cygwin git and patch packages since those installed in the image
   # want the 32-bit cygwin1.dll which means they fail to work if the 64-bit
   # cygwin1.dll is first on PATH.
