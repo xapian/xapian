@@ -188,7 +188,7 @@ func main() {
 	copyFileContents(xapian_go, filepath.Join(go_xapian_build_dir, "xapian.go"))
 	copyFileContents(filepath.Join(go_bindings, "go_wrap.h"), filepath.Join(go_xapian_build_dir, "go_wrap.h"))
 	copyFileContents(filepath.Join(go_bindings, "go_wrap.cxx"), filepath.Join(go_xapian_build_dir, "go_wrap.cxx"))
-	cmd := exec.Command("go", "build", "-x","-a", go_xapian_build_dir)
+	cmd := exec.Command("go", "build", "-x", go_xapian_build_dir)
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
 	cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
