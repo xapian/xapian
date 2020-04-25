@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -10,7 +11,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"bytes"
 )
 
 func main() {
@@ -172,6 +172,8 @@ func main() {
 	LDFLAGS = strings.TrimSpace(LDFLAGS)
 	go_bindings := filepath.Join(xapian_bindings, "go")
 	xapian_go := filepath.Join(xapian_bindings, "go", "xapian.go")
+	xapian_build_go := filepath.Join(go_xapian_build_dir, "xapian.go")
+
 	ICFLAGS = strings.ReplaceAll(ICFLAGS, "\\", "/")
 	LDFLAGS = strings.ReplaceAll(LDFLAGS, "\\", "/")
 
@@ -180,14 +182,15 @@ func main() {
 	fmt.Println(CXXFLAGS)
 	fmt.Println(CPPFLAGS)
 
-	InsertStringToFile(xapian_go, LDFLAGS+"\n", 18)
-	InsertStringToFile(xapian_go, ICFLAGS+"\n", 19)
-	InsertStringToFile(xapian_go, CXXFLAGS+"\n", 20)
-	InsertStringToFile(xapian_go, CPPFLAGS+"\n", 21)
-
 	copyFileContents(xapian_go, filepath.Join(go_xapian_build_dir, "xapian.go"))
 	copyFileContents(filepath.Join(go_bindings, "go_wrap.h"), filepath.Join(go_xapian_build_dir, "go_wrap.h"))
 	copyFileContents(filepath.Join(go_bindings, "go_wrap.cxx"), filepath.Join(go_xapian_build_dir, "go_wrap.cxx"))
+
+	InsertStringToFile(xapian_build_go, LDFLAGS+"\n", 18)
+	InsertStringToFile(xapian_build_go, ICFLAGS+"\n", 19)
+	InsertStringToFile(xapian_build_go, CXXFLAGS+"\n", 20)
+	InsertStringToFile(xapian_build_go, CPPFLAGS+"\n", 21)
+
 	cmd := exec.Command("go", "build", "-x", go_xapian_build_dir)
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
