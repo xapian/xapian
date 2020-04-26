@@ -121,20 +121,10 @@ sub get_mset {
 %feature("shadow") Xapian::Enquire::set_query
 %{
 sub set_query {
-  my $self = shift;
-  my $query = shift;
-  if( ref( $query ) ne 'Xapian::Query' ) {
-    $query = Xapian::Query->new( $query, @_ );
-    Xapianc::Enquire_set_query( $self, $query );
-    return;
+  if (ref($_[1]) ne 'Xapian::Query') {
+    push @_, Xapian::Query->new(splice @_, 1);
   }
-  my $nargs = scalar(@_);
-  if( $nargs > 1) {
-    use Carp;
-    Carp::carp( "USAGE: \$enquire->set_query(\$query) or \$enquire->set_query(\$query, \$length)" );
-    exit;
-  }
-  Xapianc::Enquire_set_query( $self, $query, @_ );
+  Xapianc::Enquire_set_query(@_);
 }
 %}
 
@@ -290,19 +280,19 @@ class XapianSWIGQueryItor {
 	    croak("Unexpected NULL returned by av_fetch()");
 	SV *sv = *svp;
 
-	if ( sv_isa(sv, "Xapian::Query")) {
-	    Xapian::Query *q;
-	    SWIG_ConvertPtr(sv, (void **)&q, SWIGTYPE_p_Xapian__Query, 0);
+	if (!SvOK(sv)) {
+	    croak("USAGE: Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)");
+	}
+
+	Xapian::Query *q;
+	if (SWIG_ConvertPtr(sv, (void**)&q,
+			    SWIGTYPE_p_Xapian__Query, 0) == SWIG_OK) {
 	    return *q;
 	}
 
-	if ( SvOK(sv) ) {
-	    STRLEN len;
-	    const char * ptr = SvPV(sv, len);
-	    return Xapian::Query(string(ptr, len));
-	}
-
-	croak( "USAGE: Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
+	STRLEN len;
+	const char * ptr = SvPV(sv, len);
+	return Xapian::Query(string(ptr, len));
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
@@ -775,7 +765,6 @@ class perlMatchSpy : public Xapian::MatchSpy {
 
 %typemap(typecheck, precedence=100) NS::CLASS * {
     SV* sv = $input;
-    //if (sv_isobject(sv) && sv_derived_from(sv, "Xapian::" #CLASS)) {
     void* ptr;
     if (SWIG_ConvertPtr(sv, &ptr, $descriptor(NS::CLASS *), 0) == SWIG_OK) {
 	(void)ptr;
@@ -814,6 +803,7 @@ SUB_CLASS_TYPEMAPS(Xapian, StemImplementation)
 SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
 SUB_CLASS_TYPEMAPS(Xapian, RangeProcessor)
 SUB_CLASS_TYPEMAPS(Xapian, FieldProcessor)
+SUB_CLASS_TYPEMAPS(Xapian, MatchSpy)
 
 %include except.i
 %include ../xapian-headers.i

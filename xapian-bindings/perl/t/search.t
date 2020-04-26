@@ -11,7 +11,7 @@ use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
-BEGIN { plan tests => 128 };
+BEGIN { plan tests => 129 };
 use Xapian qw(:ops);
 
 #########################
@@ -178,6 +178,15 @@ $match = $matches->back();
 ok( $match eq $matches->back() );
 
 ok( $match->get_collapse_count() == 0 );
+
+# Test passing a sub as a matchspy.
+my @spy_values = ();
+$enq->add_matchspy(
+	sub { my $doc = shift; push @spy_values, $doc->get_value(0)}
+    );
+$enq->set_query(Xapian::Query::MatchAll);
+$matches = $enq->get_mset(1, 2);
+is( join("|", @spy_values), "one|two" );
 
 my $bm25;
 ok( $bm25 = Xapian::BM25Weight->new() );
