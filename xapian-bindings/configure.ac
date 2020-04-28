@@ -62,7 +62,7 @@ AX_CXX_COMPILE_STDCXX_11
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
-			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
+        [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 XO_REQUIRE([1.4.0])
 
 NEED_JNILIB_EXT=no
@@ -166,10 +166,10 @@ if test x$USE_MAINTAINER_MODE = xyes; then
     [[0123].*|""])
       msg="SWIG >= 4.0.0 required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
-	dnl If SWIG was explicitly set, make this a warning only.
-	AC_MSG_WARN([$msg])
+  dnl If SWIG was explicitly set, make this a warning only.
+  AC_MSG_WARN([$msg])
       else
-	AC_MSG_ERROR([$msg])
+  AC_MSG_ERROR([$msg])
       fi ;;
   esac
   SWIG_FLAGS=`$XAPIAN_CONFIG --swigflags`
@@ -183,9 +183,9 @@ if test x$USE_MAINTAINER_MODE = xyes; then
       dnl Quote each entry in XAPIAN_HEADER_DIRS with "".
       XAPIAN_HEADER_DIRS=$XAPIAN_HEADER_DIRS' "'$d'"'
       for f in "$d/"*.h "$d/xapian/*.h" ; do
-	if test -f "$f" ; then
-	  XAPIAN_HEADERS="$XAPIAN_HEADERS $f"
-	fi
+  if test -f "$f" ; then
+    XAPIAN_HEADERS="$XAPIAN_HEADERS $f"
+  fi
       done
       ;;
     esac
@@ -329,7 +329,7 @@ if test no != "$with_python3" ; then
     else
       AC_MSG_RESULT([no])
       if test yes = "$with_python3" ; then
-	AC_MSG_ERROR([Couldn't import sphinx module for Python3 - try package python3-sphinx])
+  AC_MSG_ERROR([Couldn't import sphinx module for Python3 - try package python3-sphinx])
       fi
       PYTHON3=
     fi
@@ -387,10 +387,10 @@ if test no != "$with_python3" ; then
 
 	BINDINGS="$BINDINGS python3"
       else
-	AC_MSG_RESULT([no (install python3-dev or python3-devel package or similar)])
-	if test yes = "$with_python3" ; then
-	  AC_MSG_ERROR([Python.h not found])
-	fi
+  AC_MSG_RESULT([no (install python3-dev or python3-devel package or similar)])
+  if test yes = "$with_python3" ; then
+    AC_MSG_ERROR([Python.h not found])
+  fi
       fi
     fi
   fi
@@ -445,7 +445,7 @@ if test no != "$with_php7" ; then
     if test no != "$with_php7" ; then
       AC_MSG_CHECKING([for PHP7 extension directory])
       if test -z "$PHP7_EXTENSION_DIR" ; then
-	PHP7_EXTENSION_DIR=`$PHP_CONFIG7 --extension-dir`
+  PHP7_EXTENSION_DIR=`$PHP_CONFIG7 --extension-dir`
       fi
       AC_MSG_RESULT([$PHP7_EXTENSION_DIR])
       AC_ARG_VAR(PHP7_EXTENSION_DIR, [Directory to install PHP7 extensions in])
@@ -458,48 +458,48 @@ if test no != "$with_php7" ; then
 
     if test no != "$with_php7" ; then
       if test x"$PHP7" = x ; then
-	AC_MSG_CHECKING([for PHP7 interpreter])
-	dnl PHP7's php-config supports --php-binary, so just use that.
-	PHP7=`$PHP_CONFIG7 --php-binary 2>/dev/null`
-	if test x"$PHP7" != x ; then
-	  if $PHP7 -r 'exit(0);' 2> /dev/null ; then
-	    if $PHP7 -r 'exit(PHP_MAJOR_VERSION==7?0:1);' 2> /dev/null ; then
-	      AC_MSG_RESULT([$PHP7])
-	    else
-	      AC_MSG_RESULT([no ($PHP7 isn't PHP7)])
-	      PHP7=
-	    fi
-	  else
-	    AC_MSG_RESULT([no ($PHP7 does not work)])
-	    PHP7=
-	  fi
-	else
-	  AC_MSG_RESULT([not found])
-	fi
+  AC_MSG_CHECKING([for PHP7 interpreter])
+  dnl PHP7's php-config supports --php-binary, so just use that.
+  PHP7=`$PHP_CONFIG7 --php-binary 2>/dev/null`
+  if test x"$PHP7" != x ; then
+    if $PHP7 -r 'exit(0);' 2> /dev/null ; then
+      if $PHP7 -r 'exit(PHP_MAJOR_VERSION==7?0:1);' 2> /dev/null ; then
+        AC_MSG_RESULT([$PHP7])
       else
-	AC_PATH_PROGS(PHP7, ["$PHP7"], [])
+        AC_MSG_RESULT([no ($PHP7 isn't PHP7)])
+        PHP7=
+      fi
+    else
+      AC_MSG_RESULT([no ($PHP7 does not work)])
+      PHP7=
+    fi
+  else
+    AC_MSG_RESULT([not found])
+  fi
+      else
+  AC_PATH_PROGS(PHP7, ["$PHP7"], [])
       fi
       if test x"$PHP7" = x ; then
-	AC_MSG_WARN([No PHP7 interpreter found - PHP7 bindings tests will be skipped])
-	dnl The skiptest script just returns exit code 77.
-	PHP7='$(top_srcdir)/skiptest'
+  AC_MSG_WARN([No PHP7 interpreter found - PHP7 bindings tests will be skipped])
+  dnl The skiptest script just returns exit code 77.
+  PHP7='$(top_srcdir)/skiptest'
       else
-	AC_MSG_CHECKING([for PHP7 path separator])
-	PHP7_PATH_SEPARATOR=`$PHP7 -r 'echo PATH_SEPARATOR;'`
-	AC_SUBST([PHP7_PATH_SEPARATOR])
-	AC_MSG_RESULT([$PHP7_PATH_SEPARATOR])
+  AC_MSG_CHECKING([for PHP7 path separator])
+  PHP7_PATH_SEPARATOR=`$PHP7 -r 'echo PATH_SEPARATOR;'`
+  AC_SUBST([PHP7_PATH_SEPARATOR])
+  AC_MSG_RESULT([$PHP7_PATH_SEPARATOR])
       fi
 
       case $host_os in
       mingw* | pw32*)
-	dnl This is a bit of an informed guess, pending more information from
-	dnl someone who actually has mingw and wants to build the PHP bindings
-	dnl there.  FIXME.
-	PHP7_LIBS="-L`$PHP_CONFIG7 --prefix` -lphp${PHP7_MAJOR_VERSION}ts" ;;
+  dnl This is a bit of an informed guess, pending more information from
+  dnl someone who actually has mingw and wants to build the PHP bindings
+  dnl there.  FIXME.
+  PHP7_LIBS="-L`$PHP_CONFIG7 --prefix` -lphp${PHP7_MAJOR_VERSION}ts" ;;
       cygwin*)
-	PHP7_LIBS="-lphp${PHP7_MAJOR_VERSION}lib" ;;
+  PHP7_LIBS="-lphp${PHP7_MAJOR_VERSION}lib" ;;
       *)
-	PHP7_LIBS= ;;
+  PHP7_LIBS= ;;
       esac
       AC_SUBST(PHP7_LIBS)
       BINDINGS="$BINDINGS php7"
@@ -530,14 +530,14 @@ if test no != "$with_tcl" ; then
 
       AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
       if test -z "$TCL_LIB" ; then
-	[TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`]
+  [TCL_LIB=`echo 'foreach d $tcl_pkgPath {if {![regexp {/share(/|$)} $d]} {break}};puts $d'|$TCLSH`]
       fi
       AC_SUBST(TCL_LIB)
 
       AC_ARG_VAR([TCL_INC], [Directory to include for Tcl headers])
       if test -z "$TCL_INC" ; then
-	dnl ::tcl::pkgconfig was added in Tcl 8.5.
-	[TCL_INC=`echo 'puts [::tcl::pkgconfig get includedir,runtime]'|$TCLSH 2> /dev/null`]
+  dnl ::tcl::pkgconfig was added in Tcl 8.5.
+  [TCL_INC=`echo 'puts [::tcl::pkgconfig get includedir,runtime]'|$TCLSH 2> /dev/null`]
       fi
 
       dnl Check that the headers are there (the tcl8.N-dev package
@@ -545,52 +545,52 @@ if test no != "$with_tcl" ; then
       TCL_CPPFLAGS=
       AC_MSG_CHECKING([for tcl.h from Tcl $tcl_version])
       if test x"$TCL_INC" != x && test -f "$TCL_INC/tcl.h" ; then
-	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' "$TCL_INC/tcl.h"|sed 's/"//g'`
-	if test x"$tcl_hdr_version" = x"$tcl_version" ; then
-	  AC_MSG_RESULT([$TCL_INC/tcl.h])
-	  BINDINGS="$BINDINGS tcl8"
-	  if test x"$TCL_INC" != x"/usr/include" ; then
-	    TCL_CPPFLAGS="-I$TCL_INC"
-	  fi
-	else
-	  AC_MSG_RESULT([not found])
-	  if test yes = "$with_tcl" ; then
-	    AC_MSG_ERROR([Found tcl.h from version $tcl_hdr_version, not $tcl_version - specify TCL_INC on configure command line])
-	  fi
-	  TCLSH=
-	fi
+  tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' "$TCL_INC/tcl.h"|sed 's/"//g'`
+  if test x"$tcl_hdr_version" = x"$tcl_version" ; then
+    AC_MSG_RESULT([$TCL_INC/tcl.h])
+    BINDINGS="$BINDINGS tcl8"
+    if test x"$TCL_INC" != x"/usr/include" ; then
+      TCL_CPPFLAGS="-I$TCL_INC"
+    fi
+  else
+    AC_MSG_RESULT([not found])
+    if test yes = "$with_tcl" ; then
+      AC_MSG_ERROR([Found tcl.h from version $tcl_hdr_version, not $tcl_version - specify TCL_INC on configure command line])
+    fi
+    TCLSH=
+  fi
       else
-	AC_MSG_RESULT([not found])
-	if test yes = "$with_tcl" ; then
-	  AC_MSG_ERROR([Can't find tcl.h])
-	fi
-	TCLSH=
+  AC_MSG_RESULT([not found])
+  if test yes = "$with_tcl" ; then
+    AC_MSG_ERROR([Can't find tcl.h])
+  fi
+  TCLSH=
       fi
 
       if test -n "$TCLSH" ; then
-	dnl Cygwin needs to link with -ltcl8.5 or similar.
-	TCL_LIBS=
-	case $host_os in
-	cygwin*)
-	  AC_CHECK_LIB([tcl$tcl_version], [Tcl_Init],
-		       [TCL_LIBS="-ltcl$tcl_version"],
-		       [AC_MSG_ERROR([libtcl$tcl_version not found])])
-	  ;;
-	*)
-	  dnl ::tcl::pkgconfig was added in Tcl 8.5, but prior to 8.6 it isn't
-	  dnl necessary to link against -ltclstub anyway.
-	  [tcl_libdir_runtime=`echo 'puts [::tcl::pkgconfig get libdir,runtime]'|$TCLSH 2> /dev/null`]
-	  if test -n "$tcl_libdir_runtime" ; then
-	    for x in "/tcl$tcl_version" "" ; do
-	      TCLCONFIG_SH=$tcl_libdir_runtime$x/tclConfig.sh
-	      if test -r "$TCLCONFIG_SH" ; then
-		eval "`sed 's/^TCL_STUB_LIB_SPEC=/TCL_LIBS=/p;d' $TCLCONFIG_SH`"
-		break
-	      fi
-	    done
-	  fi
-	  TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
-	esac
+  dnl Cygwin needs to link with -ltcl8.5 or similar.
+  TCL_LIBS=
+  case $host_os in
+  cygwin*)
+    AC_CHECK_LIB([tcl$tcl_version], [Tcl_Init],
+           [TCL_LIBS="-ltcl$tcl_version"],
+           [AC_MSG_ERROR([libtcl$tcl_version not found])])
+    ;;
+  *)
+    dnl ::tcl::pkgconfig was added in Tcl 8.5, but prior to 8.6 it isn't
+    dnl necessary to link against -ltclstub anyway.
+    [tcl_libdir_runtime=`echo 'puts [::tcl::pkgconfig get libdir,runtime]'|$TCLSH 2> /dev/null`]
+    if test -n "$tcl_libdir_runtime" ; then
+      for x in "/tcl$tcl_version" "" ; do
+        TCLCONFIG_SH=$tcl_libdir_runtime$x/tclConfig.sh
+        if test -r "$TCLCONFIG_SH" ; then
+    eval "`sed 's/^TCL_STUB_LIB_SPEC=/TCL_LIBS=/p;d' $TCLCONFIG_SH`"
+    break
+        fi
+      done
+    fi
+    TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
+  esac
       fi
 
       AC_SUBST(TCL_CPPFLAGS)
@@ -598,7 +598,7 @@ if test no != "$with_tcl" ; then
     else
       AC_MSG_RESULT([< $tcl_min (too old)])
       if test yes = "$with_tcl" ; then
-	AC_MSG_ERROR([$TCLSH too old (Tcl $tcl_min or newer required)])
+  AC_MSG_ERROR([$TCLSH too old (Tcl $tcl_min or newer required)])
       fi
     fi
   else
@@ -625,35 +625,35 @@ if test no != "$with_csharp" ; then
       dnl that's no longer relevant).
       AC_PATH_PROGS(CSC, [mcs], [])
       if test -n "$CSC" ; then
-	dnl There are other tools called mcs (such as /usr/bin/mcs on Tru64),
-	dnl so we check that the mcs we found understands --version which is
-	dnl sufficient to distinguish mono's mcs from the Tru64 one.
-	AC_MSG_CHECKING([whether $CSC is from GNU Mono])
-	if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
-	  AC_MSG_RESULT(yes)
-	else
-	  AC_MSG_RESULT(no)
-	  CSC=
-	  csc_note="$csc_note (found different mcs program)"
-	fi
+  dnl There are other tools called mcs (such as /usr/bin/mcs on Tru64),
+  dnl so we check that the mcs we found understands --version which is
+  dnl sufficient to distinguish mono's mcs from the Tru64 one.
+  AC_MSG_CHECKING([whether $CSC is from GNU Mono])
+  if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+    CSC=
+    csc_note="$csc_note (found different mcs program)"
+  fi
       fi
     fi
     if test -z "$CSC" ; then
       dnl csc is the Microsoft CSharp compiler.
       AC_PATH_PROGS(CSC, [csc], [])
       if test -n "$CSC" ; then
-	dnl Chicken (the Scheme-to-C compiler) includes a tool called csc so we
-	dnl check if the output from "csc -version" includes the word chicken
-	dnl which is sufficient to distinguish Chicken's csc from Microsoft's
-	dnl csc.exe.
-	AC_MSG_CHECKING([whether $CSC is for CSharp])
-	if $CSC -version 2>/dev/null|grep chicken > /dev/null ; then
-	  AC_MSG_RESULT(no)
-	  CSC=
-	  csc_note="$csc_note (found Chicken csc program)"
-	else
-	  AC_MSG_RESULT(yes)
-	fi
+  dnl Chicken (the Scheme-to-C compiler) includes a tool called csc so we
+  dnl check if the output from "csc -version" includes the word chicken
+  dnl which is sufficient to distinguish Chicken's csc from Microsoft's
+  dnl csc.exe.
+  AC_MSG_CHECKING([whether $CSC is for CSharp])
+  if $CSC -version 2>/dev/null|grep chicken > /dev/null ; then
+    AC_MSG_RESULT(no)
+    CSC=
+    csc_note="$csc_note (found Chicken csc program)"
+  else
+    AC_MSG_RESULT(yes)
+  fi
       fi
     fi
   fi
@@ -678,59 +678,59 @@ if test no != "$with_csharp" ; then
       AC_MSG_CHECKING([whether the CSharp compiler works])
       [echo 'class conftest { public static void Main() { System.Console.WriteLine("OK"); } }' > conftest.cs]
       if (exec >&5 2>&5;$CSC /out:conftest.exe conftest.cs;exit $?) ; then
-	AC_MSG_RESULT(yes)
-	AC_MSG_CHECKING([whether CSharp programs can just be run])
-	if test OK = "`./conftest.exe 2> /dev/null`" ; then
-	  AC_MSG_RESULT(yes)
-	  RUN_CSHARP=
-	else
-	  AC_MSG_RESULT(no)
-	  AC_PATH_PROGS(CLI, ["${CLI-cli}"], [])
-	  if test -z "$CLI" ; then
-	    AC_PATH_PROGS(CLI, [mono ilrun], [])
-	  fi
-	  AC_ARG_VAR(CLI, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
-	  if test -n "$CLI" ; then
-	    AC_MSG_CHECKING([whether $CLI can run CSharp programs])
-	    if test OK = "`$CLI ./conftest.exe 2> /dev/null`" ; then
-	      AC_MSG_RESULT(yes)
-	      RUN_CSHARP=$CLI
-	    else
-	      AC_MSG_RESULT([no - CSharp tests will be skipped])
-	      RUN_CSHARP='\$(top_srcdir)/skiptest'
-	    fi
-	  else
-	    AC_MSG_RESULT([not found - CSharp tests will be skipped])
-	    RUN_CSHARP='\$(top_srcdir)/skiptest'
-	  fi
-	fi
-	AC_SUBST(RUN_CSHARP)
-
-	AC_MSG_CHECKING([for extra flags for $GACUTIL])
-	GACUTIL_FLAGS='/package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)'
-	dnl Microsoft's gacutil accepts fewer options than Mono's
-	$GACUTIL /\?|grep '\<Mono\>' >/dev/null || GACUTIL_FLAGS=
-	AC_SUBST([GACUTIL_FLAGS])
-	if test -z "$GACUTIL_FLAGS" ; then
-	  AC_MSG_RESULT([no])
-	else
-	  AC_MSG_RESULT([$GACUTIL_FLAGS])
-	fi
-
-	BINDINGS="$BINDINGS csharp"
+  AC_MSG_RESULT(yes)
+  AC_MSG_CHECKING([whether CSharp programs can just be run])
+  if test OK = "`./conftest.exe 2> /dev/null`" ; then
+    AC_MSG_RESULT(yes)
+    RUN_CSHARP=
+  else
+    AC_MSG_RESULT(no)
+    AC_PATH_PROGS(CLI, ["${CLI-cli}"], [])
+    if test -z "$CLI" ; then
+      AC_PATH_PROGS(CLI, [mono ilrun], [])
+    fi
+    AC_ARG_VAR(CLI, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
+    if test -n "$CLI" ; then
+      AC_MSG_CHECKING([whether $CLI can run CSharp programs])
+      if test OK = "`$CLI ./conftest.exe 2> /dev/null`" ; then
+        AC_MSG_RESULT(yes)
+        RUN_CSHARP=$CLI
       else
-	AC_MSG_RESULT(no)
-	if test yes = "$with_csharp" ; then
-	  AC_MSG_ERROR([CSharp compiler $CSC doesn't work])
-	fi
+        AC_MSG_RESULT([no - CSharp tests will be skipped])
+        RUN_CSHARP='\$(top_srcdir)/skiptest'
+      fi
+    else
+      AC_MSG_RESULT([not found - CSharp tests will be skipped])
+      RUN_CSHARP='\$(top_srcdir)/skiptest'
+    fi
+  fi
+  AC_SUBST(RUN_CSHARP)
+
+  AC_MSG_CHECKING([for extra flags for $GACUTIL])
+  GACUTIL_FLAGS='/package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)'
+  dnl Microsoft's gacutil accepts fewer options than Mono's
+  $GACUTIL /\?|grep '\<Mono\>' >/dev/null || GACUTIL_FLAGS=
+  AC_SUBST([GACUTIL_FLAGS])
+  if test -z "$GACUTIL_FLAGS" ; then
+    AC_MSG_RESULT([no])
+  else
+    AC_MSG_RESULT([$GACUTIL_FLAGS])
+  fi
+
+  BINDINGS="$BINDINGS csharp"
+      else
+  AC_MSG_RESULT(no)
+  if test yes = "$with_csharp" ; then
+    AC_MSG_ERROR([CSharp compiler $CSC doesn't work])
+  fi
       fi
     else
       if test yes = "$with_csharp" ; then
-	if test -z "$GACUTIL" ; then
-	  AC_MSG_ERROR([Mono gacutil not found])
-	elif test -z "$SN" ; then
-	  AC_MSG_ERROR([Mono sn not found])
-	fi
+  if test -z "$GACUTIL" ; then
+    AC_MSG_ERROR([Mono gacutil not found])
+  elif test -z "$SN" ; then
+    AC_MSG_ERROR([Mono sn not found])
+  fi
       fi
     fi
   else
@@ -743,11 +743,11 @@ fi
 JAVA_CPPFLAGS=
 if test no != "$with_java" ; then
   AC_PATH_PROGS(JAVA, ["${JAVA-java}"], [],
-	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+  [${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
   AC_PATH_PROGS(JAVAC, ["${JAVAC-javac}"], [],
-	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+  [${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
   AC_PATH_PROGS(JAR, ["${JAR-jar}"], [],
-	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+  [${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
   AC_ARG_VAR(JAVA, [Java interpreter command])
   AC_ARG_VAR(JAVAC, [Java compiler command])
   AC_ARG_VAR(JAR, [java jar utility])
@@ -771,63 +771,63 @@ if test no != "$with_java" ; then
       real_javac=$JAVAC
       dnl Avoid endlessly traversing if there's a symlink loop.
       for count in 1 2 3 4 5 6 7 8 9 ; do
-	r=`readlink "$real_javac"`
-	test -n "$r" || break
-	real_javac=$r
+  r=`readlink "$real_javac"`
+  test -n "$r" || break
+  real_javac=$r
       done
       dnl Translate ".../bin/javac" to ".../include".
       [rel_jnidir=`echo "$real_javac"|sed 's!/[^/]*/[^/]*$!/include!'`]
       for jnidir in \
-	  $JNI_INCLUDE_DIR \
-	  ${JAVA_HOME+"$JAVA_HOME/include"} \
-	  ${JDK_HOME+"$JDK_HOME/include"} \
-	  "$rel_jnidir" \
-	  /System/Library/Frameworks/JavaVM.framework/Headers ; do
-	CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
-	AC_MSG_CHECKING([for jni.h in $jnidir])
-	if test -f "$jnidir/jni.h" ; then
-	  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
-	  if test yes = $java_ok ; then
-	    AC_MSG_RESULT([yes])
-	    JAVA_CPPFLAGS=-I$jnidir
-	    break
-	  fi
+    $JNI_INCLUDE_DIR \
+    ${JAVA_HOME+"$JAVA_HOME/include"} \
+    ${JDK_HOME+"$JDK_HOME/include"} \
+    "$rel_jnidir" \
+    /System/Library/Frameworks/JavaVM.framework/Headers ; do
+  CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
+  AC_MSG_CHECKING([for jni.h in $jnidir])
+  if test -f "$jnidir/jni.h" ; then
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
+    if test yes = $java_ok ; then
+      AC_MSG_RESULT([yes])
+      JAVA_CPPFLAGS=-I$jnidir
+      break
+    fi
 
-	  dnl For OpenJDK (and maybe others) we have to specify an extra -I
-	  dnl option for an OS-specific subdirectory containing a "jni_md.h"
-	  dnl header which is included by "jni.h".  Sadly we seem to need to
-	  dnl hardcode a mapping for these platform names - the list below
-	  dnl was determined by inspecting the source code of OpenJDK 8.
-	  jni_host_os=
-	  case $host_os in
-	    linux*)
-	      jni_host_os=linux ;;
-	    solaris*)
-	      jni_host_os=solaris ;;
-	    mingw* | pw32* | cygwin*)
-	      jni_host_os=win32 ;;
-	    darwin*)
-	      jni_host_os=darwin ;;
-	    *bsd*)
-	      jni_host_os=bsd ;;
-	    aix*)
-	      jni_host_os=aix ;;
-	  esac
-	  if test -n "$jni_host_os" ; then
-	    CPPFLAGS="$CPPFLAGS -I$jnidir/$jni_host_os"
-	    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
-	    if test yes = $java_ok ; then
-	      AC_MSG_RESULT([yes, requires additional -I$jnidir/$jni_host_os])
-	      JAVA_CPPFLAGS="-I$jnidir -I$jnidir/$jni_host_os"
-	      break
-	    fi
-	  fi
-	  AC_MSG_RESULT([found, but not usable])
+    dnl For OpenJDK (and maybe others) we have to specify an extra -I
+    dnl option for an OS-specific subdirectory containing a "jni_md.h"
+    dnl header which is included by "jni.h".  Sadly we seem to need to
+    dnl hardcode a mapping for these platform names - the list below
+    dnl was determined by inspecting the source code of OpenJDK 8.
+    jni_host_os=
+    case $host_os in
+      linux*)
+        jni_host_os=linux ;;
+      solaris*)
+        jni_host_os=solaris ;;
+      mingw* | pw32* | cygwin*)
+        jni_host_os=win32 ;;
+      darwin*)
+        jni_host_os=darwin ;;
+      *bsd*)
+        jni_host_os=bsd ;;
+      aix*)
+        jni_host_os=aix ;;
+    esac
+    if test -n "$jni_host_os" ; then
+      CPPFLAGS="$CPPFLAGS -I$jnidir/$jni_host_os"
+      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
+      if test yes = $java_ok ; then
+        AC_MSG_RESULT([yes, requires additional -I$jnidir/$jni_host_os])
+        JAVA_CPPFLAGS="-I$jnidir -I$jnidir/$jni_host_os"
+        break
+      fi
+    fi
+    AC_MSG_RESULT([found, but not usable])
 
-	  CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
-	else
-	  AC_MSG_RESULT([no])
-	fi
+    CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
+  else
+    AC_MSG_RESULT([no])
+  fi
       done
       CPPFLAGS=$SAVE_CPPFLAGS
       test noyes = $java_ok$with_java && AC_MSG_ERROR([jni.h not found])
@@ -837,47 +837,47 @@ if test no != "$with_java" ; then
       AC_MSG_CHECKING([for Java path separator])
       [echo 'public class conftest { public static void main(String[] args) { System.out.println(System.getProperty("path.separator")); } }' > conftest.java]
       if (exec >&5 2>&5;$JAVAC conftest.java;exit $?) ; then
-	JAVA_PATHSEP=`$JAVA conftest 2>&5`
-	AC_SUBST(JAVA_PATHSEP)
-	if test -n "$JAVA_PATHSEP" ; then
-	  AC_MSG_RESULT($JAVA_PATHSEP)
-	  BINDINGS="$BINDINGS java"
+  JAVA_PATHSEP=`$JAVA conftest 2>&5`
+  AC_SUBST(JAVA_PATHSEP)
+  if test -n "$JAVA_PATHSEP" ; then
+    AC_MSG_RESULT($JAVA_PATHSEP)
+    BINDINGS="$BINDINGS java"
 
-	  dnl If -Xcheck:jni is supported then run tests with it.
-	  dnl
-	  dnl ... except that with OpenJDK 8 and 9 -Xcheck:jni seems to report
-	  dnl false positives and so can't usefully be turned on in this
-	  dnl situation.  Recheck this with future versions.
-dnl	  AC_MSG_CHECKING([for $JAVA -Xcheck:jni option])
-dnl	  JAVA_PATHSEP2=`$JAVA conftest 2>&5`
-	  JAVA_CHECK_JNI_OPTION=
-dnl	  if test "$JAVA_PATHSEP" = "$JAVA_PATHSEP2" ; then
-dnl	    JAVA_CHECK_JNI_OPTION=-Xcheck:jni
-dnl	    AC_MSG_RESULT([yes])
-dnl	  else
-dnl	    AC_MSG_RESULT([no])
-dnl	  fi
-	  AC_SUBST([JAVA_CHECK_JNI_OPTION])
-	else
-	  AC_MSG_RESULT([failed to run test program])
-	  java_ok=no
-	fi
+    dnl If -Xcheck:jni is supported then run tests with it.
+    dnl
+    dnl ... except that with OpenJDK 8 and 9 -Xcheck:jni seems to report
+    dnl false positives and so can't usefully be turned on in this
+    dnl situation.  Recheck this with future versions.
+dnl   AC_MSG_CHECKING([for $JAVA -Xcheck:jni option])
+dnl   JAVA_PATHSEP2=`$JAVA conftest 2>&5`
+    JAVA_CHECK_JNI_OPTION=
+dnl   if test "$JAVA_PATHSEP" = "$JAVA_PATHSEP2" ; then
+dnl     JAVA_CHECK_JNI_OPTION=-Xcheck:jni
+dnl     AC_MSG_RESULT([yes])
+dnl   else
+dnl     AC_MSG_RESULT([no])
+dnl   fi
+    AC_SUBST([JAVA_CHECK_JNI_OPTION])
+  else
+    AC_MSG_RESULT([failed to run test program])
+    java_ok=no
+  fi
       else
-	AC_MSG_RESULT([failed to compile test program])
-	java_ok=no
+  AC_MSG_RESULT([failed to compile test program])
+  java_ok=no
       fi
       if test no = "$java_ok" ; then
-	test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run a simple Java test program])
+  test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run a simple Java test program])
       fi
     fi
   else
     if test yes = "$with_java" ; then
       if test -z "$JAVA" ; then
-	AC_MSG_ERROR([java not found])
+  AC_MSG_ERROR([java not found])
       elif test -z "$JAVAC" ; then
-	AC_MSG_ERROR([javac not found])
+  AC_MSG_ERROR([javac not found])
       elif test -z "$JAR" ; then
-	AC_MSG_ERROR([jar not found])
+  AC_MSG_ERROR([jar not found])
       fi
     fi
   fi
@@ -901,14 +901,14 @@ if test no != "$with_ruby" ; then
     "")
       AC_MSG_RESULT([\$RUBY -e 'print RUBY_VERSION' didn't work])
       if test yes = "$with_ruby" ; then
-	AC_MSG_ERROR([Working Ruby interpreter not found])
+  AC_MSG_ERROR([Working Ruby interpreter not found])
       fi
       RUBY=
       ;;
     [[01].*|2.0.*])
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_ruby" ; then
-	AC_MSG_ERROR([Only Ruby 2.1 or newer is supported ($RUBY is $version)])
+  AC_MSG_ERROR([Only Ruby 2.1 or newer is supported ($RUBY is $version)])
       fi
       RUBY=
       ;;
@@ -917,8 +917,8 @@ if test no != "$with_ruby" ; then
       AC_MSG_RESULT([$version])
       AC_ARG_VAR(RUBY_INC, [Directory where ruby.h can be found])
       if test -z "$RUBY_INC" ; then
-	dnl Ruby 1.9 added rubyhdrdir.
-	[RUBY_INC=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["rubyhdrdir"]'`]
+  dnl Ruby 1.9 added rubyhdrdir.
+  [RUBY_INC=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["rubyhdrdir"]'`]
       fi
       AC_SUBST(RUBY_INC)
       dnl Check that ruby.h is there, which is a good way to check that
@@ -971,10 +971,10 @@ if test no != "$with_ruby" ; then
 	fi
 	AC_ARG_VAR([RDOC], [Ruby documentation generator])
       else
-	AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])
-	if test yes = "$with_ruby" ; then
-	  AC_MSG_ERROR([ruby.h not found])
-	fi
+  AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])
+  if test yes = "$with_ruby" ; then
+    AC_MSG_ERROR([ruby.h not found])
+  fi
       fi
       RUBY_DLEXT=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG[["DLEXT"]]'`
       AC_SUBST(RUBY_DLEXT)
@@ -1013,9 +1013,9 @@ if test no != "$with_perl" ; then
       dnl snapshot versions look like 1.2.3_git123
       case $PACKAGE_VERSION in
       *_git*)
-	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_git/./'` ;;
+  PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_git/./'` ;;
       *)
-	PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0 ;;
+  PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0 ;;
       esac
     fi
     AC_SUBST(PERL_XAPIAN_VERSION)
@@ -1061,55 +1061,55 @@ if test no != "$with_lua" ; then
       AC_ARG_VAR([LUA_SO], [Extension for compiled Lua modules (e.g. LUA_SO=.so)])
       AC_MSG_CHECKING([for directory to install compiled Lua modules into])
       if test -z "$LUA_LIB" -o -z "$LUA_SO" ; then
-	lua_cpath=`$LUA -e 'require("package") print(package.cpath)'`
-	dnl Look for the first absolute path in lua_cpath which has leaf
-	dnl "?.<ext>" and put the directory part into lua_lib and <ext> into
-	dnl lua_so.  If LUA_SO was specified by the user, only consider
-	dnl entries where <ext> matches LUA_SO.
-	lua_lib=
-	lua_so=
-	case $LUA_SO in
-	  "")
-	   [lua_so_pat='[a-zA-Z][a-zA-Z]*'] ;;
-	  .*)
-	    dnl If LUA_SO has a leading '.', remove it.
-	    lua_so_pat=`AS_ECHO("$LUA_SO")|sed 's/^\.//'` ;;
-	  *)
-	    dnl If LUA_SO was specified without a leading '.', add one to the
-	    dnl value substituted into Makefile.in.
-	    lua_so_pat=$LUA_SO
-	    LUA_SO=.$LUA_SO
-	    ;;
-	esac
-	while test x"$lua_cpath" != x ; do
-	  [lua_lib=`expr X"$lua_cpath" : X'\([^;]*\)'`]
-	  lua_so=.`expr X"$lua_lib" : X'/.*/?\.\('"$lua_so_pat"'\)$'`
-	  case $lua_so in
-	    .|.lua)
-	      dnl If someone has foolishly put ?.lua in cpath, ignore them.
-	      lua_lib=
-	      ;;
-	    *)
-	      lua_lib=`expr X"$lua_lib" : X'\(/.*\)/?\.'"$lua_so_pat"'$'`
-	      break ;;
-	  esac
-	  [lua_cpath=`expr X"$lua_cpath" : X'[^;]*;*\(.*\)'`]
-	done
-	test -n "$LUA_LIB" || LUA_LIB=$lua_lib
-	test -n "$LUA_SO" || LUA_SO=$lua_so
+  lua_cpath=`$LUA -e 'require("package") print(package.cpath)'`
+  dnl Look for the first absolute path in lua_cpath which has leaf
+  dnl "?.<ext>" and put the directory part into lua_lib and <ext> into
+  dnl lua_so.  If LUA_SO was specified by the user, only consider
+  dnl entries where <ext> matches LUA_SO.
+  lua_lib=
+  lua_so=
+  case $LUA_SO in
+    "")
+     [lua_so_pat='[a-zA-Z][a-zA-Z]*'] ;;
+    .*)
+      dnl If LUA_SO has a leading '.', remove it.
+      lua_so_pat=`AS_ECHO("$LUA_SO")|sed 's/^\.//'` ;;
+    *)
+      dnl If LUA_SO was specified without a leading '.', add one to the
+      dnl value substituted into Makefile.in.
+      lua_so_pat=$LUA_SO
+      LUA_SO=.$LUA_SO
+      ;;
+  esac
+  while test x"$lua_cpath" != x ; do
+    [lua_lib=`expr X"$lua_cpath" : X'\([^;]*\)'`]
+    lua_so=.`expr X"$lua_lib" : X'/.*/?\.\('"$lua_so_pat"'\)$'`
+    case $lua_so in
+      .|.lua)
+        dnl If someone has foolishly put ?.lua in cpath, ignore them.
+        lua_lib=
+        ;;
+      *)
+        lua_lib=`expr X"$lua_lib" : X'\(/.*\)/?\.'"$lua_so_pat"'$'`
+        break ;;
+    esac
+    [lua_cpath=`expr X"$lua_cpath" : X'[^;]*;*\(.*\)'`]
+  done
+  test -n "$LUA_LIB" || LUA_LIB=$lua_lib
+  test -n "$LUA_SO" || LUA_SO=$lua_so
       fi
       if test -z "$LUA_LIB"; then
-	AC_MSG_RESULT([not found])
+  AC_MSG_RESULT([not found])
       else
-	AC_MSG_RESULT([$LUA_LIB])
+  AC_MSG_RESULT([$LUA_LIB])
       fi
       AC_SUBST([LUA_LIB])
 
       AC_MSG_CHECKING([for extension to use for compiled Lua modules])
       if test -z "$LUA_SO"; then
-	AC_MSG_RESULT([not found])
+  AC_MSG_RESULT([not found])
       else
-	AC_MSG_RESULT([$LUA_SO])
+  AC_MSG_RESULT([$LUA_SO])
       fi
       AC_SUBST([LUA_SO])
 
@@ -1149,6 +1149,17 @@ if test no != "$with_go" ; then
     GOPATH=`"${GO}" env GOPATH`
     AC_SUBST(GOROOT)
     AC_SUBST(GOPATH)
+    GO_CORE="without-core"
+    if $XAPIAN_CONFIG --libs >/dev/null 2>/dev/null ; then
+      :
+    else
+      GO_CORE="with-core"
+      GO_CXX=`$XAPIAN_CONFIG --cxxflags`
+      GO_LIB=`$XAPIAN_CONFIG --libs`
+      AC_SUBST([GO_CXX])
+      AC_SUBST([GO_LIB])
+    fi
+    AC_SUBST([GO_CORE])
     if test -n "${GOROOT}" ; then
       AC_MSG_RESULT([${GOROOT}])
       AC_MSG_CHECKING(for gopath)
@@ -1188,7 +1199,7 @@ case $BINDINGS in
   if test -z "$THREAD_LOCAL" ; then
     for t in thread_local __thread '__declspec(thread)' ; do
       AC_COMPILE_IFELSE([AC_LANG_SOURCE([[static $t void * p;]])],
-			[THREAD_LOCAL=$t; break])
+      [THREAD_LOCAL=$t; break])
     done
   fi
   if test -z "$THREAD_LOCAL" ; then

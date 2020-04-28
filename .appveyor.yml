@@ -75,7 +75,7 @@ install:
         } else {
           $env:PATH="C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;C:\msys64\usr\bin;$env:PATH"
           $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32 --with-go"
-          $env:BINDINGS+=" xapian-bindings "
+          $env:BINDINGS+=" xapian-bindings swig"
         }
       } elseif ($env:TOOLCHAIN -eq "cygwin") {
         # Use 64-bit cygwin install for 32 bit build too to avoid DLL mapping issues.
