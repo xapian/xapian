@@ -97,7 +97,7 @@ build fails to work - we haven't investigated why.
 MSYS2 64-bit Mingw-64
 ---------------------
 
-Open msys2 Terminal and run the following commands - 
+Open msys2 Terminal and run the following commands -
 
 	pacman -Syu --noconfirm
 
