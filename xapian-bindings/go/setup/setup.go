@@ -1,3 +1,7 @@
+/*
+This is cross-platform setup file for building and installing xapian-bindings.
+All the required flags are passed to this program as command line arguments.
+*/
 package main
 
 import (
@@ -37,6 +41,7 @@ func main() {
 
 	var IC_FLAGS, LD_FLAGS string
 
+	//Build accordingly if core is preinstalled or not.
 	if core_flag == "without-core" {
 		if build_flag == "build" {
 			IC_FLAGS, LD_FLAGS = buildWithOutCore()
@@ -67,6 +72,46 @@ func main() {
 	if build_flag == "install" {
 		install(go_xapian_build_dir)
 	}
+}
+
+//Function to create directory to build Xapian bindings for go.
+func CreateDirsForXapian() string {
+	fmt.Print()
+	gopath_bytes, err := exec.Command("go", "env", "GOPATH").Output()
+	if err != nil {
+		fmt.Println(err)
+		return "err"
+	}
+	gopath := string(gopath_bytes[:len(gopath_bytes)-1])
+	fmt.Println("GOPATH -  ", gopath)
+
+	if _, err := os.Stat(gopath); os.IsNotExist(err) {
+		fmt.Println("Creating dir - ", gopath)
+		os.Mkdir(gopath, 0777)
+	}
+
+	if _, err := os.Stat(filepath.Join(gopath, "src")); os.IsNotExist(err) {
+		fmt.Println("Creating dir - ", filepath.Join(gopath, "src"))
+		os.Mkdir(filepath.Join(gopath, "src"), 0777)
+	}
+
+	if _, err := os.Stat(filepath.Join(gopath, "bin")); os.IsNotExist(err) {
+		fmt.Println("Creating dir - ", filepath.Join(gopath, "bin"))
+		os.Mkdir(filepath.Join(gopath, "bin"), 0777)
+	}
+
+	if _, err := os.Stat(filepath.Join(gopath, "pkg")); os.IsNotExist(err) {
+		fmt.Println("Creating dir - ", filepath.Join(gopath, "pkg"))
+		os.Mkdir(filepath.Join(gopath, "pkg"), 0777)
+	}
+
+	go_xapian_build_dir := filepath.Join(gopath, "src/xapian")
+	if _, err := os.Stat(go_xapian_build_dir); os.IsNotExist(err) {
+		fmt.Println("Creating dir - ", go_xapian_build_dir)
+		os.Mkdir(go_xapian_build_dir, 0777)
+	}
+
+	return go_xapian_build_dir
 }
 
 func install(go_xapian_build_dir string) {
@@ -127,17 +172,7 @@ func installWithOutCore() (string, string) {
 	IC_FLAGS = "#cgo CXXFLAGS: " + IC_FLAGS
 	return IC_FLAGS, LD_FLAGS
 }
-func copyAndInsert(go_bindings, go_xapian_build_dir, LD_FLAGS, IC_FLAGS, cxxflags, cppflags string) {
 
-	copyFileContents(filepath.Join(go_bindings, "xapian.go"), filepath.Join(go_xapian_build_dir, "xapian.go"))
-	copyFileContents(filepath.Join(go_bindings, "go_wrap.h"), filepath.Join(go_xapian_build_dir, "go_wrap.h"))
-	copyFileContents(filepath.Join(go_bindings, "go_wrap.cxx"), filepath.Join(go_xapian_build_dir, "go_wrap.cxx"))
-	xapian_build_go := filepath.Join(go_xapian_build_dir, "xapian.go")
-	InsertStringToFile(xapian_build_go, LD_FLAGS+"\n", 18)
-	InsertStringToFile(xapian_build_go, IC_FLAGS+"\n", 19)
-	InsertStringToFile(xapian_build_go, cxxflags+"\n", 20)
-	InsertStringToFile(xapian_build_go, cppflags+"\n", 21)
-}
 func buildWithOutCore() (string, string) {
 	xapian_bindings := filepath.Join("../../")
 	xapian_bindings, _ = filepath.Abs(xapian_bindings)
@@ -227,6 +262,18 @@ func buildWithOutCore() (string, string) {
 	return ICFLAGS, LDFLAGS
 }
 
+func copyAndInsert(go_bindings, go_xapian_build_dir, LD_FLAGS, IC_FLAGS, cxxflags, cppflags string) {
+
+	copyFileContents(filepath.Join(go_bindings, "xapian.go"), filepath.Join(go_xapian_build_dir, "xapian.go"))
+	copyFileContents(filepath.Join(go_bindings, "go_wrap.h"), filepath.Join(go_xapian_build_dir, "go_wrap.h"))
+	copyFileContents(filepath.Join(go_bindings, "go_wrap.cxx"), filepath.Join(go_xapian_build_dir, "go_wrap.cxx"))
+	xapian_build_go := filepath.Join(go_xapian_build_dir, "xapian.go")
+	InsertStringToFile(xapian_build_go, LD_FLAGS+"\n", 18)
+	InsertStringToFile(xapian_build_go, IC_FLAGS+"\n", 19)
+	InsertStringToFile(xapian_build_go, cxxflags+"\n", 20)
+	InsertStringToFile(xapian_build_go, cppflags+"\n", 21)
+}
+
 func getFlags(arg string) string {
 	result := ""
 	temp := strings.Split(arg, "-->")
@@ -234,45 +281,6 @@ func getFlags(arg string) string {
 		result = strings.Join(temp[1:], " ")
 	}
 	return result
-}
-
-func CreateDirsForXapian() string {
-	fmt.Print()
-	gopath_bytes, err := exec.Command("go", "env", "GOPATH").Output()
-	if err != nil {
-		fmt.Println(err)
-		return "err"
-	}
-	gopath := string(gopath_bytes[:len(gopath_bytes)-1])
-	fmt.Println("GOPATH -  ", gopath)
-
-	if _, err := os.Stat(gopath); os.IsNotExist(err) {
-		fmt.Println("Creating dir - ", gopath)
-		os.Mkdir(gopath, 0777)
-	}
-
-	if _, err := os.Stat(filepath.Join(gopath, "src")); os.IsNotExist(err) {
-		fmt.Println("Creating dir - ", filepath.Join(gopath, "src"))
-		os.Mkdir(filepath.Join(gopath, "src"), 0777)
-	}
-
-	if _, err := os.Stat(filepath.Join(gopath, "bin")); os.IsNotExist(err) {
-		fmt.Println("Creating dir - ", filepath.Join(gopath, "bin"))
-		os.Mkdir(filepath.Join(gopath, "bin"), 0777)
-	}
-
-	if _, err := os.Stat(filepath.Join(gopath, "pkg")); os.IsNotExist(err) {
-		fmt.Println("Creating dir - ", filepath.Join(gopath, "pkg"))
-		os.Mkdir(filepath.Join(gopath, "pkg"), 0777)
-	}
-
-	go_xapian_build_dir := filepath.Join(gopath, "src/xapian")
-	if _, err := os.Stat(go_xapian_build_dir); os.IsNotExist(err) {
-		fmt.Println("Creating dir - ", go_xapian_build_dir)
-		os.Mkdir(go_xapian_build_dir, 0777)
-	}
-
-	return go_xapian_build_dir
 }
 
 func InsertStringToFile(path, str string, index int) error {
