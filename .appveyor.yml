@@ -72,10 +72,11 @@ install:
       } elseif ($env:TOOLCHAIN -eq "mingw64") {
         if ($env:Platform -eq "x86") {
           $env:PATH="C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;C:\msys64\usr\bin;$env:PATH"
+          $env:CONFIGOPTS+=" --host=i686-pc-mingw32 --with-go"
         } else {
           $env:PATH="C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;C:\msys64\usr\bin;$env:PATH"
           $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32 --with-go"
-          $env:BINDINGS+=" xapian-bindings swig"
+          $env:BINDINGS+=" xapian-bindings"
         }
       } elseif ($env:TOOLCHAIN -eq "cygwin") {
         # Use 64-bit cygwin install for 32 bit build too to avoid DLL mapping issues.
@@ -135,4 +136,4 @@ build_script:
   - bash -c 'time ./configure $CONFIGOPTS'
   - bash -c 'time make -j2' < nul
 test_script:
-  - bash -c 'time make check VERBOSE=1' < nul
+  - bash -c 'time make check VERBOSE=1' < null
