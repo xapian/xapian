@@ -60,7 +60,7 @@ void add_bterm(const std::string & term);
 
 void add_nterm(const std::string & term);
 
-void add_boost_term(const std::string& term);
+void add_boost_term(const std::string& term, int boost);
 
 void add_date_filter(const string& date_start,
 		     const string& date_end,

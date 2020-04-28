@@ -365,13 +365,15 @@ try {
     }
 
     // Set auto boost terms
-    g = cgi_params.equal_range("AUTOBOOST");
-    if (g.first != g.second) {
+    auto begin1 = cgi_params.lower_bound("BOOST.");
+    auto end1 = cgi_params.lower_bound("BOOST/");
+    if (begin1 != end1) {
 	vector<string> auto_boost;
-	for (auto i = g.first; i != g.second; ++i) {
+	for (auto i = begin1; i != end1; ++i) {
 	    const string& v = i->second;
-	    if (!v.empty() && C_isalnum(v[0])) {
-		add_boost_term(v);
+	    if (!v.empty()) {
+		string bool_term(i->first, 6, string::npos);
+		add_boost_term(bool_term, string_to_int(v));
 		auto_boost.push_back(v);
 	    }
 	}

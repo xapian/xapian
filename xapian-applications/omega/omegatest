@@ -1482,9 +1482,11 @@ for i in coord tfidf bm25 bm25plus
 do
     printf '$set{weighting,%s}|$hitlist{$id|}' "$i"> "$TEST_TEMPLATE"
     testcase '|1|2|' P="one"
-    testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=nine
-    testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=six
-    testcase '|2|1|' P="one" AUTOBOOST=four AUTOBOOST=five AUTOBOOST=Tten
+    testcase '|2|1|' P="one" BOOST.four=1 BOOST.five=1 BOOST.nine=1
+    testcase '|2|1|' P="one" BOOST.four=1 BOOST.five=1 BOOST.six=1
+    testcase '|2|1|' P="one" BOOST.four=1 BOOST.five=1 BOOST.Tten=1
+    testcase '|1|2|' P="one" BOOST.two=100 BOOST.five=4 BOOST.Tten=8
+    testcase '|2|1|' P="one" BOOST.two=100 BOOST.five=40 BOOST.Tten=190
 done
 
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"

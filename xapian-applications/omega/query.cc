@@ -492,11 +492,11 @@ parse_queries(const string& oldp)
 
 static multimap<string, string> filter_map;
 static set<string> neg_filters;
-static set<string> boost_terms;
+static unordered_map<string, int> boost_terms;
 
-void add_boost_term(const string& term) {
+void add_boost_term(const string& term, int boost) {
     if (!term.empty()) {
-	boost_terms.insert(term);
+	boost_terms.insert({term, boost});
     }
 }
 
@@ -628,8 +628,12 @@ run_query()
     }
 
     if (!boost_terms.empty()) {
-	Xapian::Query boost(Xapian::Query::OP_OR,
-			    boost_terms.begin(), boost_terms.end());
+	Xapian::Query boost;
+	for (auto bterm = boost_terms.begin(); bterm != boost_terms.end(); ++bterm) {
+	    boost |= Xapian::Query(bterm->second, Xapian::Query(bterm->first));
+	}
+	//Xapian::Query boost(Xapian::Query::OP_OR,
+	//		    boost_terms.begin(), boost_terms.end());
 	boost.set_weight(*Xapian::Weight::create("coord"));
 	if (query.empty() && !date_filter_set) {
 	    std::swap(query, boost);
