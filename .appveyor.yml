@@ -122,4 +122,4 @@ build_script:
   - bash -c 'time ./configure $CONFIGOPTS'
   - bash -c 'time make -j2' < nul
 test_script:
-  - bash -c 'time make check VERBOSE=1' < null
+  - bash -c 'time make check VERBOSE=1' < nul
