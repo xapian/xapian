@@ -69,7 +69,7 @@ install:
         } else {
           $env:PATH="C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;C:\msys64\usr\bin;$env:PATH"
           $env:CONFIGOPTS+=" --host=x86_64-w64-mingw32 --with-go"
-          $env:BINDINGS+=" xapian-bindings "
+          $env:BINDINGS+=" xapian-bindings swig"
         }
       } elseif ($env:TOOLCHAIN -eq "cygwin") {
         # Use 64-bit cygwin install for 32 bit build too to avoid DLL mapping issues.
@@ -90,7 +90,7 @@ install:
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
-  - if "%TOOLCHAIN%"=="mingw64" bash -c 'pacman -Sy --noconfirm --needed base-devel libuuid-devel mingw-w64-x86_64-graphviz doxygen mingw-w64-x86_64-doxygen doxygen swig zlib-devel'
+  - if "%TOOLCHAIN%"=="mingw64" bash -c 'pacman -Sy --noconfirm base-devel libuuid-devel mingw-w64-x86_64-graphviz mingw-w64-x86_64-doxygen zlib-devel'
   # Install cygwin git and patch packages since those installed in the image
   # want the 32-bit cygwin1.dll which means they fail to work if the 64-bit
   # cygwin1.dll is first on PATH.
