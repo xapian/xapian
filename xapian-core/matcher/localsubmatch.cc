@@ -300,7 +300,7 @@ LocalSubMatch::open_post_list(const string& term,
     }
 
     if (weighted) {
-	Xapian::Weight * wt = wt_factory.clone();
+	Xapian::Weight* wt = weight != 0 ? weight->clone() : wt_factory.clone();
 	if (!lazy_weight) {
 	    wt->init_(*total_stats, qlen, term, wqf, factor);
 	    if (pl->get_termfreq() > 0)
@@ -311,7 +311,7 @@ LocalSubMatch::open_post_list(const string& term,
 	    // (needed for the remote database case).
 	    wt = new LazyWeight(pl, wt, total_stats, qlen, wqf, factor);
 	}
-	pl->set_termweight((weight != nullptr) ? weight->clone() : wt);
+	pl->set_termweight(wt);
     }
     RETURN(pl);
 }
