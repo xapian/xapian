@@ -94,11 +94,8 @@ find the zlib headers and library.
 We support 64-bit compilation with MSVS 2017 and 2019.  With MSVS 2015 a 64-bit
 build fails to work - we haven't investigated why.
 
-MSYS2 64-bit Mingw-64 
+MSYS2 64-bit Mingw-64
 ---------------------
-
-Install MSYS2-64 bit from here - 
-https://www.msys2.org/
 
 Open msys2 Terminal and run the following commands - 
 
