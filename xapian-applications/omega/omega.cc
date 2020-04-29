@@ -178,6 +178,7 @@ try {
 	enquire = new Xapian::Enquire(db);
     } catch (const Xapian::Error &) {
 	enquire = NULL;
+	db = Xapian::Database();
     }
 
     hits_per_page = 0;
