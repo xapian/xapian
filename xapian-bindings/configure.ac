@@ -274,8 +274,12 @@ AC_ARG_WITH(lua,
   AC_HELP_STRING([--with-lua], [enable Lua bindings]),
   [],
   [with_lua=])
+AC_ARG_WITH(go,
+  AC_HELP_STRING([--with-go], [enable Go bindings]),
+  [],
+  [with_go=])
 
-case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua$with_go in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
@@ -287,11 +291,11 @@ case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_jav
   test -z "$with_ruby" && with_ruby=no
   test -z "$with_perl" && with_perl=no
   test -z "$with_lua" && with_lua=no
+  test -z "$with_go" && with_go=no
   ;;
 esac
 
 BINDINGS=
-
 if test no != "$with_python" ; then
   dnl For backward compatibility:
   : ${PYTHON2="$PYTHON"}
@@ -1234,6 +1238,39 @@ if test no != "$with_lua" ; then
   fi
 fi
 
+if test no != "$with_go" ; then
+  AC_PATH_PROG([GO],["go"],[])
+  if test -n "$GO" ; then
+    AC_MSG_CHECKING(for goroot)
+    GOROOT=`"${GO}" env GOROOT`
+    GOPATH=`"${GO}" env GOPATH`
+    AC_SUBST(GOROOT)
+    AC_SUBST(GOPATH)
+    if test -n "${GOROOT}" ; then
+      AC_MSG_RESULT([${GOROOT}])
+      AC_MSG_CHECKING(for gopath)
+      if test -n "${GOPATH}" ; then
+        AC_MSG_RESULT([${GOPATH}])
+	else
+	AC_MSG_RESULT(no)
+      fi
+    fi
+    if test -z "${GOROOT}" ; then
+      AC_MSG_ERROR([goroot not set correctly])
+    fi
+  fi
+  USE_CLANG_LIB=`echo ${CXX} | grep stdlib`
+  AC_MSG_RESULT([${USE_CLANG_LIB}])
+  if test -n "${USE_CLANG_LIB}" ; then
+      AC_MSG_RESULT([${USE_CLANG_LIB}])
+      AC_SUBST(USE_CLANG_GO_LIB,'-lc++')
+      AC_MSG_RESULT([${USE_CLANG_GO_LIB}])
+  fi
+  BINDINGS="$BINDINGS go"
+  if test -z "$GO" ; then
+    AC_MSG_ERROR("go not installed or go path has not been set")
+  fi
+fi
 AC_SUBST(BINDINGS)
 
 case $BINDINGS in
@@ -1339,6 +1376,7 @@ AC_CONFIG_FILES([Makefile
  ruby/Makefile
  perl/Makefile
  lua/Makefile
+ go/Makefile
  xapian-bindings.spec
  ])
 AC_OUTPUT
