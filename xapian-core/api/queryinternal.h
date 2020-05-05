@@ -226,7 +226,6 @@ class QueryBranch : public Query::Internal {
     const std::string get_description_helper(const char * op,
 					     Xapian::termcount window = 0) const;
 
-
   public:
     termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
 
