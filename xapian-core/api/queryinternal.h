@@ -26,7 +26,6 @@
 #include "stringutils.h"
 #include "xapian/intrusive_ptr.h"
 #include "xapian/query.h"
-#include "xapian/enquire.h"
 #include "xapian/weight.h"
 
 /// Default set_size for OP_ELITE_SET:
