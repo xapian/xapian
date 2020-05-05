@@ -365,25 +365,41 @@ try {
     }
 
     // Set auto boost terms
-    auto begin1 = cgi_params.lower_bound("BOOST.");
-    auto end1 = cgi_params.lower_bound("BOOST/");
-    if (begin1 != end1) {
-	vector<string> auto_boost;
-	for (auto i = begin1; i != end1; ++i) {
-	    const string& v = i->second;
-	    if (!v.empty()) {
-		string bool_term(i->first, 6, string::npos);
-		add_boost_term(bool_term, string_to_int(v));
-		auto_boost.push_back(v);
+    auto bst = cgi_params.equal_range("BOOST");
+    if (bst.first != bst.second) {
+	map<string, double> filter_boost;
+	for (auto i = bst.first; i != bst.second; ++i) {
+	    size_t comma = i->second.find_first_of(',');
+	    if (comma != string::npos) {
+		const string v(i->second, 0, comma);
+		const string bool_term(i->second, comma + 1, string::npos);
+		if (!bool_term.empty()) {
+		    double scaling;
+		    try {
+			scaling = std::stod(v);
+		    } catch (...) {
+			string m = "Can't parse boost weight for " +
+				   bool_term;
+			throw m;
+		    }
+		    add_boost_term(bool_term, scaling);
+		    filter_boost.insert({bool_term, scaling});
+		} else {
+		    string m = "BOOST applied to empty term.";
+		    throw m;
+		}
+	    } else {
+		string m = "BOOST value must contain `,` to separate \
+			    weight and boolean term.";
+		throw m;
 	    }
 	}
-	sort(auto_boost.begin(), auto_boost.end());
-	vector<string>::const_iterator j;
-	for (j = auto_boost.begin(); j != auto_boost.end(); ++j) {
-	    const string& boost_term = *j;
+	for (auto j = filter_boost.begin(); j != filter_boost.end(); ++j) {
+	    const string& boost_term = j->first;
+	    double boost_weight = j->second;
 	    string::size_type e = boost_term.find(filter_sep);
 	    if (usual(e == string::npos)) {
-		filters += boost_term;
+		filters += boost_term + "," + double_to_string(boost_weight);
 	    } else {
 		// If a filter contains filter_sep then double it to escape.
 		// Each filter must start with an alnum (checked above) and
@@ -397,6 +413,7 @@ try {
 		    e = boost_term.find(filter_sep, b + 1);
 		}
 		filters.append(boost_term, b, string::npos);
+		filters += "," + double_to_string(boost_weight);
 	    }
 	    filters += filter_sep;
 	    // old_filters predates 'AUTOBOOST' terms, so if there are

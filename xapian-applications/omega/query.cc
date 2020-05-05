@@ -492,9 +492,9 @@ parse_queries(const string& oldp)
 
 static multimap<string, string> filter_map;
 static set<string> neg_filters;
-static unordered_map<string, int> boost_terms;
+static unordered_map<string, double> boost_terms;
 
-void add_boost_term(const string& term, int boost) {
+void add_boost_term(const string& term, double boost) {
     if (!term.empty()) {
 	boost_terms.insert({term, boost});
     }
