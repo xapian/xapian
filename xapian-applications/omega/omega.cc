@@ -364,7 +364,7 @@ try {
 	}
     }
 
-    // Set auto boost terms
+    // Set boost terms
     auto bst = cgi_params.equal_range("BOOST");
     if (bst.first != bst.second) {
 	map<string, double> filter_boost;

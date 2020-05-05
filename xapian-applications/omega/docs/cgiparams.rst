@@ -231,11 +231,13 @@ DOCIDORDER
 	DONT_CARE (the Xapian database backend will use whichever order is most
 	efficient).  Any characters after the first are ignored.
 
-AUTOBOOST
-        specify one or more terms to be considered in weight contribution for
-        document without affecting selection using Query operation `OP_AND_MAYBE`.
-        `AUTOBOOST` for boolean terms is only supported with bm25, tf-idf, coord
-        weighting schemes.
+BOOST
+        specify terms to be considered in weight contribution (using coord) for
+        a document without affecting selection using Query operation `OP_AND_MAYBE`.
+
+        User provided boost is used to scale term weight using `OP_SCALE_WEIGHT`
+        e.g `BOOST=2,Tten` will add scaled weight contribution of term `Tten`
+        provided by coord weighting scheme.
 
 Display parameters and navigation
 ---------------------------------
