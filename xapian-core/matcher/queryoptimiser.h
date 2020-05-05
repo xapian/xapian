@@ -94,7 +94,7 @@ class QueryOptimiser {
     PostList * open_post_list(const std::string& term,
 			      Xapian::termcount wqf,
 			      double factor,
-			      const Xapian::Weight * weight) {
+			      const Xapian::Weight* weight) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
 					    in_synonym, this, false, weight);
     }
@@ -102,7 +102,7 @@ class QueryOptimiser {
     PostList * open_lazy_post_list(const std::string& term,
 				   Xapian::termcount wqf,
 				   double factor,
-				   const Xapian::Weight * weight) {
+				   const Xapian::Weight* weight) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
 					    in_synonym, this, true, weight);
     }

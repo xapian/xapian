@@ -630,7 +630,8 @@ run_query()
     if (!boost_terms.empty()) {
 	Xapian::Query boost;
 	const Xapian::Weight* wt = Xapian::Weight::create("coord");
-	for (auto bterm = boost_terms.begin(); bterm != boost_terms.end(); ++bterm) {
+	for (auto bterm = boost_terms.begin(); bterm != boost_terms.end();
+	     ++bterm) {
 	    auto termquery = Xapian::Query(bterm->first, wt);
 	    boost |= Xapian::Query(bterm->second, termquery);
 	}

@@ -242,7 +242,7 @@ LocalSubMatch::open_post_list(const string& term,
 			      bool in_synonym,
 			      QueryOptimiser * qopt,
 			      bool lazy_weight,
-			      const Xapian::Weight * weight)
+			      const Xapian::Weight* weight)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
 
