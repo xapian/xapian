@@ -709,11 +709,6 @@ Query::Internal::gather_terms(void *) const
 {
 }
 
-void 
-Query::Internal::set_weight(const Xapian::Weight&) noexcept {
-
-}
-
 Xapian::termcount
 Query::Internal::get_length() const noexcept
 {

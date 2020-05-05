@@ -56,6 +56,14 @@ class QueryTerm : public Query::Internal {
 	      Xapian::termpos pos_)
 	: term(term_), wqf(wqf_), pos(pos_) { }
 
+    QueryTerm(const std::string& term_,
+	      const Xapian::Weight* wt,
+	      Xapian::termcount wqf_,
+	      Xapian::termpos pos_)
+	: term(term_), wqf(wqf_), pos(pos_) {
+	    weight.reset(wt->clone());
+	}
+
     Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
     const std::string & get_term() const { return term; }
@@ -75,10 +83,6 @@ class QueryTerm : public Query::Internal {
     }
 
     void serialise(std::string & result) const;
-
-    void set_weight(const Xapian::Weight& wt_) noexcept {
-	weight.reset(wt_.clone());
-    }
 
     std::string get_description() const;
 
@@ -235,12 +239,6 @@ class QueryBranch : public Query::Internal {
     Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
     size_t get_num_subqueries() const noexcept XAPIAN_PURE_FUNCTION;
     const Query get_subquery(size_t n) const;
-
-    void set_weight(const Xapian::Weight& weight_) noexcept {
-	for (auto i = subqueries.begin(); i != subqueries.end(); ++i) {
-	    (*i).set_weight(weight_);
-	}
-    }
 
     virtual Query::Internal * done() = 0;
 };

@@ -46,6 +46,13 @@ Query::Query(const string & term, Xapian::termcount wqf, Xapian::termpos pos)
     LOGCALL_CTOR(API, "Query", term | wqf | pos);
 }
 
+Query::Query(const string& term, const Xapian::Weight* wt,
+	     Xapian::termcount wdf, Xapian::termpos pos)
+    : internal(new Xapian::Internal::QueryTerm(term, wt, wdf, pos))
+{
+    LOGCALL_CTOR(API, "Query", term | wt | wdf | pos);
+}
+
 Query::Query(Xapian::PostingSource * source)
     : internal(new Xapian::Internal::QueryPostingSource(source))
 {
@@ -365,11 +372,6 @@ Query::init(op op_, size_t n_subqueries, Xapian::termcount parameter)
 	    }
 	    throw InvalidArgumentError("op not valid with a list of subqueries");
     }
-}
-
-void
-Query::set_weight(const Xapian::Weight& weight) noexcept {
-    internal->set_weight(weight);
 }
 
 void
