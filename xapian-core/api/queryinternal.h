@@ -45,7 +45,7 @@ class QueryTerm : public Query::Internal {
 
     Xapian::termpos pos;
 
-    mutable std::unique_ptr<Xapian::Weight> weight;
+    std::unique_ptr<Xapian::Weight> weight;
 
   public:
     // Construct a "MatchAll" QueryTerm.
