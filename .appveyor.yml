@@ -13,15 +13,20 @@ environment:
   matrix:
   - TOOLCHAIN: mingw
     platform: x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: mingw64
     platform: x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: mingw64
     platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 # Fails trying to run apitest.exe etc for unknown reasons.
 #  - TOOLCHAIN: cygwin
+#    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 #    platform: x86
   - TOOLCHAIN: cygwin
     platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: msvc
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
