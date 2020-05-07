@@ -1372,8 +1372,7 @@ QueryValueLT::postlist(QueryOptimiser* qopt, double factor) const
     }
     RETURN(new ValueLtPostList(&db, slot, limit));
 }
-// This is the same as QueryValueLE::serialise,
-// not sure if it should be the same
+
 void
 QueryValueLT::serialise(string& result) const
 {
