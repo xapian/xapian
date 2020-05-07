@@ -102,6 +102,9 @@ install:
   # Don't build zlib with -MD as it seems this flag needs to be used
   # consistently across the build.
   - if "%TOOLCHAIN%"=="msvc" sed -i 's/\(^CFLAGS  *= *-nologo \)-MD /\1/' win32/Makefile.msc
+  # Don't build zlib with a fixed base address on x64 as that gives linker
+  # warning LNK4281.
+  - if "%TOOLCHAIN%-%Platform%"=="msvc-x64" sed -i 's/-base:0x[0-9A-Fa-f]* //' win32/Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" nmake -nologo -f win32\Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" cd ..
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
