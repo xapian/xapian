@@ -640,6 +640,7 @@ run_query()
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_AND_MAYBE, query, boost);
 	}
+	delete wt;
     }
 
     if (!enquire || !error_msg.empty()) return;
