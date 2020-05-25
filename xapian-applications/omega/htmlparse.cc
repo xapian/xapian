@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018,2019 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -455,11 +455,15 @@ HtmlParser::parse(const string &body)
 			    p = find(start, body.end(), quote);
 			}
 
-			if (p == body.end()) {
+			if (p != body.end()) {
+			    // quoted
+			    value.assign(body, start - body.begin(), p - start);
+			    ++p;
+			} else {
 			    // unquoted or no closing quote
 			    p = find_if(start, body.end(), p_whitespacegt);
+			    value.assign(body, start - body.begin(), p - start);
 			}
-			value.assign(body, start - body.begin(), p - start);
 			start = find_if(p, body.end(), C_isnotspace);
 
 			if (!name.empty()) {
