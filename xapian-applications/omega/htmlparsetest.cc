@@ -1,6 +1,7 @@
-/* htmlparsetest.cc: test the MyHtmlParser class
- *
- * Copyright (C) 2006,2008,2011,2012,2013,2015,2016,2018 Olly Betts
+/** @file htmlparsetest.cc
+ * @brief test the MyHtmlParser class
+ */
+/* Copyright (C) 2006,2008,2011,2012,2013,2015,2016,2018,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,6 +88,16 @@ static const testcase tests[] = {
     { "<html><body>&lt;Unknown &ent;-ity&gt;</body></html>", "<Unknown &ent;-ity>", "", "", "" },
     { "<html><body>&#68;oes &#97; &lt; &auml; &#x3f</body></html>", "Does a < ä ?", "", "", "" },
     { "&#65;&#x40;&gt", "A@>", "", "", "" },
+    // Test empty tags.
+    //
+    // First two cases are a regression test - in Omega < 1.4.16 the title
+    // wasn't closed and any body content was put into the title instead.
+    { "<head><title xml:lang=\"en-US\"/></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title xml:lang='en-US'/></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title xml:lang=\"en-US\" /></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title xml:lang='en-US\" /></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title/></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title /></head><body><p>Body</p></body>", "Body", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
