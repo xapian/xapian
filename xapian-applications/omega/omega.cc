@@ -416,8 +416,8 @@ try {
 		filters += "," + double_to_string(boost_weight);
 	    }
 	    filters += filter_sep;
-	    // old_filters predates 'AUTOBOOST' terms, so if there are
-	    // 'AUTOBOOST' terms this is definitely a different query.
+	    // old_filters predates 'BOOST' terms, so if there are
+	    // 'BOOST' terms this is definitely a different query.
 	    old_filters.clear();
 	}
     }
