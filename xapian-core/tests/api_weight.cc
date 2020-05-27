@@ -843,10 +843,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     enquire.set_query(query);
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
     mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), 2);
+    TEST_EQUAL(mset.size(), 1);
     // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
     mset_expect_order(mset, 2, 4);
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 * log(6.0 / 2));
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 4.0 * log(6.0 / 2));
 
     // Check that wqf is taken into account.
     enquire.set_query(Xapian::Query("word", 2));
