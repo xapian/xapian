@@ -119,8 +119,8 @@ static Xapian::Query query;
 Xapian::Query::op default_op = Xapian::Query::OP_AND; // default matching mode
 
 // Maintain an explicit date_filter_set flag - date_filter.empty() will also
-// be true if a date filter is specified which simplies to Query::MatchNothing
-// at construction time.
+// be true if a date filter is specified which simplifies to
+// Query::MatchNothing at construction time.
 static bool date_filter_set = false;
 static Xapian::Query date_filter;
 
