@@ -2568,7 +2568,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_truncate: {
 		unsigned int length;
 		if (!parse_unsigned(args[1].c_str(), length)) {
-		    throw "Length for truncate command must be >= 0 ";
+		    throw "Length for truncate command must be >= 0";
 		}
 		value = generate_sample(args[0],
 					length,
