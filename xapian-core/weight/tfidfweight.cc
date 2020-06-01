@@ -41,7 +41,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
 {
     if (normalizations.length() != 3 ||
 	!strchr("nbslPL", normalizations[0]) ||
-	!strchr("ntpfsP", normalizations[1]) ||
+	!strchr("ntpfsPEG", normalizations[1]) ||
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (normalizations[1] != 'n') {
@@ -64,7 +64,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 {
     if (normalizations.length() != 3 ||
 	!strchr("nbslPL", normalizations[0]) ||
-	!strchr("ntpfsP", normalizations[1]) ||
+	!strchr("ntpfsPEG", normalizations[1]) ||
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (param_slope <= 0)
@@ -88,6 +88,9 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(UNIQUE_TERMS);
+    }
+    if (normalizations[1] == 'E' || normalizations[1] == 'G') {
+        need_stat(COLLECTION_FREQ);
     }
 }
 
@@ -223,6 +226,10 @@ TfIdfWeight::get_idfn(char c) const
     if (c != 'n') termfreq = get_termfreq();
     double N = 1.0;
     if (c != 'n' && c != 'f') N = get_collection_size();
+    Xapian::termcount collfreq = 1;
+    if (c == 'E' || c == 'G') collfreq = get_collection_freq();
+    Xapian::termcout wdf = 1;
+    if (c == 'E') wdf = get_wdf();
     switch (c) {
 	case 'n':
 	    return 1.0;
@@ -236,6 +243,8 @@ TfIdfWeight::get_idfn(char c) const
 	    return pow(log(N / termfreq), 2.0);
 	case 'P':
 	    return log((N + 1) / termfreq);
+        case 'G':
+            return (collfreq / termfreq);
 	default:
 	    AssertEq(c, 't');
 	    return (log(N / termfreq));
