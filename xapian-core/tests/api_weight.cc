@@ -948,11 +948,11 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     
     // Check for "ann" .
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("ann"));
-    mset = enquire.get_mset(0,10);
+    mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.2+0.8*log(1.0+8));
-    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.2+0.8*log(1.0+1));
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.2 + 0.8 * log(1.0 + 8));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.2 + 0.8 * log(1.0 + 1));
 
     return true;
 }
