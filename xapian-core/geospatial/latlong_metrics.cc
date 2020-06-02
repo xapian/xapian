@@ -40,8 +40,8 @@ LatLongMetric::~LatLongMetric()
 }
 
 double
-LatLongMetric::operator()(const LatLongCoords & a,
-			  const LatLongCoords &b) const
+LatLongMetric::operator()(const LatLongCoords& a,
+			  const LatLongCoords& b) const
 {
     if (a.empty() || b.empty()) {
 	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
@@ -69,8 +69,8 @@ LatLongMetric::operator()(const LatLongCoords & a,
 }
 
 double
-LatLongMetric::operator()(const LatLongCoords & a,
-			  const char * b_ptr, size_t b_len) const
+LatLongMetric::operator()(const LatLongCoords& a,
+			  const char* b_ptr, size_t b_len) const
 {
     if (a.empty() || b_len == 0) {
 	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
@@ -107,8 +107,8 @@ GreatCircleMetric::GreatCircleMetric(double radius_)
 {}
 
 double
-GreatCircleMetric::pointwise_distance(const LatLongCoord & a,
-				      const LatLongCoord & b) const
+GreatCircleMetric::pointwise_distance(const LatLongCoord& a,
+				      const LatLongCoord& b) const
 {
     double lata = a.latitude * (M_PI / 180.0);
     double latb = b.latitude * (M_PI / 180.0);
@@ -146,7 +146,7 @@ GreatCircleMetric::serialise() const
 }
 
 LatLongMetric *
-GreatCircleMetric::unserialise(const string & s) const
+GreatCircleMetric::unserialise(const string& s) const
 {
     const char * p = s.data();
     const char * end = p + s.size();
