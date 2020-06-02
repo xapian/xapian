@@ -215,7 +215,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	}
         case 'a': {
 	    if (wdf == 0) return 0;
-            return (0.2+0.8*log(1.0+wdf);
+            return (0.2+0.8*log(1.0+wdf));
 	}
 	default:
 	    AssertEq(c, 'n');
@@ -232,8 +232,6 @@ TfIdfWeight::get_idfn(char c) const
     if (c != 'n' && c != 'f') N = get_collection_size();
     Xapian::termcount collfreq = 1;
     if (c == 'E' || c == 'G') collfreq = get_collection_freq();
-    Xapian::termcount wdf = 1;
-    if (c == 'E') wdf = get_wdf();
     switch (c) {
 	case 'n':
 	    return 1.0;
