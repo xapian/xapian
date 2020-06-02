@@ -215,7 +215,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	}
         case 'a': {
 	    if (wdf == 0) return 0;
-            return (0.2+0.8*log(1.0+wdf));
+            return (0.2 + 0.8 * log(1.0 + wdf));
 	}
 	default:
 	    AssertEq(c, 'n');
