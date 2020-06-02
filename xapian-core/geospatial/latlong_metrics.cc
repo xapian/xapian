@@ -44,7 +44,7 @@ LatLongMetric::operator()(const LatLongCoords & a,
 			  const LatLongCoords &b) const
 {
     if (a.empty() || b.empty()) {
-	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()().");
+	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
     }
     double min_dist = 0.0;
     bool have_min = false;
@@ -73,7 +73,7 @@ LatLongMetric::operator()(const LatLongCoords & a,
 			  const char * b_ptr, size_t b_len) const
 {
     if (a.empty() || b_len == 0) {
-	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()().");
+	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
     }
     double min_dist = 0.0;
     bool have_min = false;

@@ -39,9 +39,9 @@ PL2PlusWeight::PL2PlusWeight(double c, double delta)
 	: param_c(c), param_delta(delta)
 {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter c is invalid");
     if (param_delta <= 0)
-	throw Xapian::InvalidArgumentError("Parameter delta is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter delta is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);

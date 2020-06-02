@@ -43,11 +43,12 @@ static void report_read_error(const char * position)
     if (position == 0) {
 	// data ran out
 	LOGLINE(DB, "GlassPostList data ran out");
-	throw Xapian::DatabaseCorruptError("Data ran out unexpectedly when reading posting list.");
+	throw Xapian::DatabaseCorruptError("Data ran out unexpectedly when "
+					   "reading posting list");
     }
     // overflow
     LOGLINE(DB, "GlassPostList value too large");
-    throw Xapian::RangeError("Value in posting list too large.");
+    throw Xapian::RangeError("Value in posting list too large");
 }
 
 static inline bool
