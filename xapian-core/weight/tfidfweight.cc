@@ -68,9 +68,9 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (param_slope <= 0)
-	throw Xapian::InvalidArgumentError("Parameter slope is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter slope is invalid");
     if (param_delta <= 0)
-	throw Xapian::InvalidArgumentError("Parameter delta is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter delta is invalid");
     if (normalizations[1] != 'n') {
 	need_stat(TERMFREQ);
 	need_stat(COLLECTION_SIZE);
