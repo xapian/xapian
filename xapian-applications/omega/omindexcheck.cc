@@ -2,6 +2,7 @@
  * @brief Auxiliary program of omindextest
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
+ * Copyright (C) 2020 Parth Kapadia
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -113,7 +114,8 @@ index_test()
 		  {"Zhello", "Zworld", "Zsampl", "2"}});
     tests.insert({"odf/libarchive_spreadsheet_template.ots",
 		  {"Zfood", "Zpasta", "Zpercentag", "40"}});
-    tests.insert({"odf/libarchive_draw.odg", {"Zparth", "Zkapadia"}});
+    tests.insert({"odf/libarchive_draw.odg",
+		  {"Zparth", "Zkapadia"}});
 
     // Apache OpenOffice
     tests.insert({"sof/libarchive_openoffice_calc.sxc",
@@ -130,6 +132,14 @@ index_test()
 		  {"Zhead", "Zhello", "Zopenoffic", "Zimpress"}});
     tests.insert({"sof/libarchive_openoffice_presentation_template.sti",
 		  {"ZSproject", "ZSresearch", "Zhead", "Ztext"}});
+
+    // OOXML formats
+    tests.insert({"ooxml/book.xlsx",
+		  {"Zmodi", "Zgood", "Zemploye"}});
+    tests.insert({"ooxml/doc.docx",
+		  {"Zедой", "Z喬伊不分享食物", "ZSbakeri"}});
+    tests.insert({"ooxml/nature.pptx",
+		  {"ZSnatur", "Zbeauti", "Zsampl"}});
 #endif
 }
 
