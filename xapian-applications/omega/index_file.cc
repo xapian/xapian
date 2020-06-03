@@ -189,6 +189,10 @@ index_add_default_libraries()
     index_library("message/rfc822", omindex_gmime);
     index_library("message/news", omindex_gmime);
 #endif
+#if defined HAVE_LIBARCHIVE
+    Worker* omindex_libarchive = new Worker("omindex_libarchive");
+    index_library("application/vnd.oasis.opendocument.", omindex_libarchive);
+#endif
 }
 
 void
