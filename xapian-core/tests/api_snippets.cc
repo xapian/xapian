@@ -517,3 +517,10 @@ DEFINE_TESTCASE(snippet_cjkngrams, generated) {
     s = mset.snippet(input, len / 2, stem, flags, "<b>", "</b>", "...");
     TEST_STRINGS_EQUAL(s, "...<b>已</b><b>經</b>有香港地...");
 }
+
+DEFINE_TESTCASE(snippet_empty_mset, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query());
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+    TEST_STRINGS_EQUAL(mset.snippet("foo", 3), "foo");
+}
