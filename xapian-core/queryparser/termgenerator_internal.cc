@@ -827,6 +827,10 @@ MSet::Internal::snippet(const string & text,
 	max_tw *= 1.015625;
     }
 
+    Xapian::Query query;
+    if (enquire.get()) {
+	query = enquire->query;
+    }
     SnipPipe snip(length);
 
     list<vector<string>> exact_phrases;
@@ -834,7 +838,7 @@ MSet::Internal::snippet(const string & text,
     list<const Xapian::Internal::QueryWildcard*> wildcards;
     list<const Xapian::Internal::QueryEditDistance*> fuzzies;
     size_t longest_phrase = 0;
-    check_query(enquire->query, exact_phrases, loose_terms,
+    check_query(query, exact_phrases, loose_terms,
 		wildcards, fuzzies, longest_phrase);
 
     vector<double> exact_phrases_relevance;
