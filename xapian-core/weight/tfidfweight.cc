@@ -214,13 +214,13 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	    return num / den;
 	}
         case 'a': {
-	    if (wdf == 0) return 0;
+            if (wdf == 0) return 0;
             return (0.2 + 0.8 * log(1.0 + wdf));
 	}
         case 'S': {
             if (wdf == 0) return 0;
             return (sqrt(wdf - 0.5) + 1);
-        }
+	}
 	default:
 	    AssertEq(c, 'n');
 	    return wdf;
@@ -249,10 +249,10 @@ TfIdfWeight::get_idfn(char c) const
 	    return pow(log(N / termfreq), 2.0);
 	case 'P':
 	    return log((N + 1) / termfreq);
-        case 'G':
-            return (double(collfreq) / termfreq);
-        case 'l':
-            return log(double(collfreq) / termfreq +1);
+	case 'G':
+	    return (double(collfreq) / termfreq);
+	case 'l':
+	    return log(double(collfreq) / termfreq +1);
 	default:
 	    AssertEq(c, 't');
 	    return (log(N / termfreq));
