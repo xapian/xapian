@@ -21,8 +21,8 @@
 #ifndef XAPIAN_INCLUDED_POSTLISTTREE_H
 #define XAPIAN_INCLUDED_POSTLISTTREE_H
 
-#include "api/postlist.h"
 #include "backends/multi.h"
+#include "backends/postlist.h"
 #include "valuestreamdocument.h"
 
 class PostListTree {

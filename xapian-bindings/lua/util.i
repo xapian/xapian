@@ -1,7 +1,7 @@
 /* lua/util.i: custom lua typemaps for xapian-bindings
  *
  * Copyright (C) 2011 Xiaona Han
- * Copyright (C) 2011,2012,2017,2019 Olly Betts
+ * Copyright (C) 2011,2012,2017,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,13 @@
 %rename("_end") end;
 
 %rename("__tostring") get_description;
+
+// On platforms where (sizeof(long) == 4), SWIG by default wraps
+// Xapian::BAD_VALUENO as a negative constant in Lua, which is then rejected by
+// a check which disallows passing negative values for unsigned C++ types.
+// This %apply wraps it as a double constant, and also eliminates the negative
+// value check.
+%apply double { Xapian::valueno };
 
 %{
 #if LUA_VERSION_NUM-0 >= 502
@@ -156,23 +163,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
     }
 
     std::string get_description() const {
-	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
-	if (!lua_isfunction(L, -1)) {
-	    luaL_typerror(L, -1, "function");
-	}
-
-	if (lua_pcall(L, 0, 1, 0) != 0) {
-	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
-	}
-	if (!lua_isstring(L, -1)) {
-	    luaL_error(L, "function must return a string");
-	}
-
-	size_t len;
-	const char * p = lua_tolstring(L, -1, &len);
-	std::string result(p, len);
-	lua_pop(L, 1);
-	return result;
+	return "luaStemImplementation()";
     }
 };
 %}
@@ -385,6 +376,7 @@ SUB_CLASS_TYPEMAPS(Xapian, StemImplementation)
 SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
 SUB_CLASS_TYPEMAPS(Xapian, RangeProcessor)
 SUB_CLASS_TYPEMAPS(Xapian, FieldProcessor)
+SUB_CLASS_TYPEMAPS(Xapian, MatchSpy)
 
 %luacode {
 function xapian.Iterator(begin, _end)

@@ -55,7 +55,6 @@ bigoaddvalue1_helper(unsigned num_values)
 DEFINE_TESTCASE(bigoaddvalue1, writable) {
     // O(n*n) is bad, but O(n*log(n)) is acceptable.
     test_scalability(bigoaddvalue1_helper, 5000, O_N_LOG_N);
-    return true;
 }
 
 static double
@@ -74,5 +73,4 @@ querypairwise1_helper(unsigned num_subqs)
 // Check that composing queries pairwise is O(n).
 DEFINE_TESTCASE(querypairwise1, !backend) {
     test_scalability(querypairwise1_helper, 50, O_N);
-    return true;
 }

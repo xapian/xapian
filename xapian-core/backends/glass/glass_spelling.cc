@@ -428,12 +428,6 @@ GlassSpellingTermList::get_termfreq() const
     return 1;
 }
 
-Xapian::termcount
-GlassSpellingTermList::get_collection_freq() const
-{
-    return 1;
-}
-
 TermList *
 GlassSpellingTermList::next()
 {

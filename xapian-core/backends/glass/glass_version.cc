@@ -296,9 +296,9 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 	    tmpfile += "/v.tmp";
 
 #ifdef __EMSCRIPTEN__
-	// Emscripten fails to create a file if O_TRUNC is specified and the
-	// filename is the previous name of a renamed file (which it will be
-	// the second time we write out the version file for a DB):
+	// Emscripten < 1.39.10 fails to create a file if O_TRUNC is specified
+	// and the filename is the previous name of a renamed file (which it
+	// will be the second time we write out the version file for a DB):
 	//
 	// https://github.com/emscripten-core/emscripten/issues/8187
 	//

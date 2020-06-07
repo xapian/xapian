@@ -211,8 +211,6 @@ class HoneySpellingTermList : public TermList {
 
     Xapian::doccount get_termfreq() const;
 
-    Xapian::termcount get_collection_freq() const;
-
     TermList* next();
 
     TermList* skip_to(const std::string& term);

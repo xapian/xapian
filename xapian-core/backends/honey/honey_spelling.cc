@@ -426,12 +426,6 @@ HoneySpellingTermList::get_termfreq() const
     return 1;
 }
 
-Xapian::termcount
-HoneySpellingTermList::get_collection_freq() const
-{
-    return 1;
-}
-
 TermList*
 HoneySpellingTermList::next()
 {

@@ -50,8 +50,6 @@ DEFINE_TESTCASE(stem1, !backend) {
     TEST_EQUAL(st("a"), "a");
     TEST_EQUAL(st("foo"), "foo");
     TEST_EQUAL(st("food"), "foo");
-
-    return true;
 }
 
 /// New feature in 1.0.21/1.2.1 - "nb" and "nn" select the Norwegian stemmer.
@@ -67,7 +65,6 @@ DEFINE_TESTCASE(stem2, !backend) {
 		   Xapian::Stem("en").get_description());
     TEST_NOT_EQUAL(st_norwegian.get_description(),
 		   Xapian::Stem("none").get_description());
-    return true;
 }
 
 /// Test add a stemmer test
@@ -77,7 +74,6 @@ DEFINE_TESTCASE(stem3, !backend) {
     TEST_EQUAL(earlyenglish("loving"), "love");
     TEST_EQUAL(earlyenglish("loveth"), "love");
     TEST_EQUAL(earlyenglish("givest"), "give");
-    return true;
 }
 
 /// Test handling of a stemmer returning an empty string.
@@ -100,8 +96,6 @@ DEFINE_TESTCASE(stemempty1, !backend) {
     TEST(++i != doc.termlist_end());
     TEST_EQUAL(*i, "wat");
     TEST(++i == doc.termlist_end());
-
-    return true;
 }
 
 /// Test invalid language names with various characters in.
@@ -119,6 +113,4 @@ DEFINE_TESTCASE(stemlangs2, !backend) {
     Xapian::Stem stem(lang, true);
     TEST(stem.is_none());
     TEST_EQUAL(stem.get_description(), "Xapian::Stem(none)");
-
-    return true;
 }

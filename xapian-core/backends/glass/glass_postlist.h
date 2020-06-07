@@ -27,10 +27,10 @@
 
 #include <xapian/database.h>
 
+#include "backends/leafpostlist.h"
 #include "glass_defs.h"
 #include "glass_inverter.h"
 #include "glass_positionlist.h"
-#include "api/leafpostlist.h"
 #include "omassert.h"
 
 #include <memory>

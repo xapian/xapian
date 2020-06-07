@@ -332,9 +332,9 @@ AC_SUBST([LIBSVM_LIBS])
 
 dnl mingw has _snprintf so check for that too.
 AC_MSG_CHECKING([for  snprintf])
-AC_CACHE_VAL([ac_cv_func_snprintf],
+AC_CACHE_VAL([xo_cv_func_snprintf],
   [
-  ac_cv_func_snprintf=no
+  xo_cv_func_snprintf=no
   for func in snprintf _snprintf ; do
     AC_COMPILE_IFELSE([
       AC_LANG_PROGRAM(
@@ -348,14 +348,14 @@ using namespace std;
 	  return res;
 	]]
       )],
-      [ac_cv_func_snprintf=$func;break],
+      [xo_cv_func_snprintf=$func;break],
       []
     )
   done
   ])
-AC_MSG_RESULT([$ac_cv_func_snprintf])
-if test "$ac_cv_func_snprintf" != no ; then
-  AC_DEFINE_UNQUOTED([SNPRINTF], [$ac_cv_func_snprintf],
+AC_MSG_RESULT([$xo_cv_func_snprintf])
+if test "$xo_cv_func_snprintf" != no ; then
+  AC_DEFINE_UNQUOTED([SNPRINTF], [$xo_cv_func_snprintf],
      [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
 fi
 

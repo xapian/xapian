@@ -22,16 +22,23 @@
 #ifndef XAPIAN_INCLUDED_LOCALSUBMATCH_H
 #define XAPIAN_INCLUDED_LOCALSUBMATCH_H
 
-#include "backends/databaseinternal.h"
-#include "api/leafpostlist.h"
 #include "api/queryinternal.h"
+#include "backends/databaseinternal.h"
+#include "weight/weightinternal.h"
 #include "xapian/enquire.h"
 #include "xapian/weight.h"
 
 #include <map>
 
-class LeafPostList;
 class PostListTree;
+
+namespace Xapian {
+namespace Internal {
+class PostList;
+}
+}
+
+using Xapian::Internal::PostList;
 
 class LocalSubMatch {
     /// Don't allow assignment.

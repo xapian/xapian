@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_ORPOSTLIST_H
 #define XAPIAN_INCLUDED_ORPOSTLIST_H
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 
 class PostListTree;
 

@@ -22,7 +22,6 @@
 #define XAPIAN_INCLUDED_QUERYINTERNAL_H
 
 #include "api/editdistance.h"
-#include "postlist.h"
 #include "queryvector.h"
 #include "stringutils.h"
 #include "xapian/intrusive_ptr.h"
@@ -34,6 +33,7 @@ const Xapian::termcount DEFAULT_ELITE_SET_SIZE = 10;
 namespace Xapian {
 namespace Internal {
 
+class PostList;
 class QueryOptimiser;
 
 class QueryTerm : public Query::Internal {

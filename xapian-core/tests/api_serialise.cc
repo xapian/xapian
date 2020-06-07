@@ -104,8 +104,6 @@ DEFINE_TESTCASE(serialise_document1, !backend) {
     TEST_EQUAL(k, doc2.values_end());
 
     TEST_EQUAL(doc2.get_data(), "baz");
-
-    return true;
 }
 
 // Test for serialising a document obtained from a database.
@@ -173,8 +171,6 @@ DEFINE_TESTCASE(serialise_document2, writable) {
     TEST_EQUAL(k, doc2.values_end());
 
     TEST_EQUAL(doc2.get_data(), "baz");
-
-    return true;
 }
 
 // Test for serialising a query
@@ -213,8 +209,6 @@ DEFINE_TESTCASE(serialise_query1, !backend) {
     q = Xapian::Query(q.OP_SCALE_WEIGHT, q, 3.14);
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
-
-    return true;
 }
 
 // Test for serialising a query which contains a PostingSource.
@@ -237,8 +231,6 @@ DEFINE_TESTCASE(serialise_query2, !backend) {
     q2 = Xapian::Query::unserialise(q.serialise());
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
-
-    return true;
 }
 
 // Test for unserialising a query using the default registry.
@@ -262,8 +254,6 @@ DEFINE_TESTCASE(serialise_query3, !backend) {
     q2 = Xapian::Query::unserialise(q.serialise(), reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
     TEST_EQUAL(q.get_description(), "Query(PostingSource(Xapian::FixedWeightPostingSource(wt=5.5)))");
-
-    return true;
 }
 
 class MyPostingSource2 : public Xapian::ValuePostingSource {
@@ -312,8 +302,6 @@ DEFINE_TESTCASE(serialise_query4, !backend) {
     reg.register_posting_source(s1);
     Xapian::Query q2 = Xapian::Query::unserialise(serialised, reg);
     TEST_EQUAL(q.get_description(), q2.get_description());
-
-    return true;
 }
 
 /// Test for memory leaks when registering posting sources or weights twice.
@@ -329,8 +317,6 @@ DEFINE_TESTCASE(double_register_leak, !backend) {
     reg.register_weighting_scheme(w1);
     reg.register_weighting_scheme(w1);
     reg.register_weighting_scheme(w1);
-
-    return true;
 }
 
 class ExceptionalPostingSource : public Xapian::PostingSource {
@@ -378,7 +364,7 @@ DEFINE_TESTCASE(registry1, !backend) {
 	try {
 	    ExceptionalPostingSource eps_clone(ExceptionalPostingSource::CLONE);
 	    reg.register_posting_source(eps_clone);
-	    return false;
+	    FAIL_TEST("Expected bad_alloc exception to be thrown");
 	} catch (const bad_alloc &) {
 	}
 
@@ -389,8 +375,6 @@ DEFINE_TESTCASE(registry1, !backend) {
 	    TEST_EQUAL(p->name(), "ExceptionalPostingSource");
 	}
     }
-
-    return true;
 }
 
 class ExceptionalWeight : public Xapian::Weight {
@@ -437,7 +421,7 @@ DEFINE_TESTCASE(registry2, !backend) {
 	try {
 	    ExceptionalWeight ewt_clone(ExceptionalWeight::CLONE);
 	    reg.register_weighting_scheme(ewt_clone);
-	    return false;
+	    FAIL_TEST("Expected bad_alloc exception to be thrown");
 	} catch (const bad_alloc &) {
 	}
 
@@ -448,8 +432,6 @@ DEFINE_TESTCASE(registry2, !backend) {
 	    TEST_EQUAL(p->name(), "ExceptionalWeight");
 	}
     }
-
-    return true;
 }
 
 class ExceptionalMatchSpy : public Xapian::MatchSpy {
@@ -485,7 +467,7 @@ DEFINE_TESTCASE(registry3, !backend) {
 	try {
 	    ExceptionalMatchSpy ems_clone(ExceptionalMatchSpy::CLONE);
 	    reg.register_match_spy(ems_clone);
-	    return false;
+	    FAIL_TEST("Expected bad_alloc exception to be thrown");
 	} catch (const bad_alloc &) {
 	}
 
@@ -496,6 +478,4 @@ DEFINE_TESTCASE(registry3, !backend) {
 	    TEST_EQUAL(p->name(), "ExceptionalMatchSpy");
 	}
     }
-
-    return true;
 }

@@ -398,16 +398,16 @@ using namespace std;])
 dnl GCC provides __builtin_exp10() (but notably clang doesn't currently).
 dnl On mingw, __builtin_exp10() causes GCC to generate a call to exp10() which
 dnl then fails to link, so perform a link check here to catch that.
-AC_CACHE_CHECK([for __builtin_exp10], ac_cv_link___builtin_exp10, [
+AC_CACHE_CHECK([for __builtin_exp10], xo_cv_link___builtin_exp10, [
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <cstdio>
 #include <ctime>
 using namespace std;]],
     [[printf("%f", __builtin_exp10(double(time(NULL)*1e-8)));]])],
-    [ac_cv_link___builtin_exp10=yes],
-    [ac_cv_link___builtin_exp10=no])
+    [xo_cv_link___builtin_exp10=yes],
+    [xo_cv_link___builtin_exp10=no])
 ])
-if test $ac_cv_link___builtin_exp10 = yes ; then
+if test $xo_cv_link___builtin_exp10 = yes ; then
   AC_DEFINE([HAVE___BUILTIN_EXP10], [1], [Define to 1 if you have the '__builtin_exp10' function.])
 fi
 
@@ -734,7 +734,7 @@ fi
 dnl Checks for library functions.
 AC_FUNC_STRERROR_R
 
-AC_CACHE_CHECK([for sys_errlist and sys_nerr], ac_cv_sys_errlist_and_sys_nerr, [
+AC_CACHE_CHECK([for sys_errlist and sys_nerr], xo_cv_sys_errlist_and_sys_nerr, [
   AC_LINK_IFELSE([AC_LANG_PROGRAM(
 dnl On Linux, sys_errlist and sys_nerr need <stdio.h>, though the man page
 dnl says <errno.h>.  The man page seems to match other platforms such as
@@ -742,31 +742,31 @@ dnl NetBSD, so include both headers to ensure we get them.
 [[#include <errno.h>
 #include <stdio.h>]],
 [[  printf("%s", sys_errlist[sys_nerr - 1]);]])],
-  [ ac_cv_sys_errlist_and_sys_nerr=yes ],
-  [ ac_cv_sys_errlist_and_sys_nerr=no ])
+  [ xo_cv_sys_errlist_and_sys_nerr=yes ],
+  [ xo_cv_sys_errlist_and_sys_nerr=no ])
 ])
-if test "x$ac_cv_sys_errlist_and_sys_nerr" = "xyes" ; then
+if test "x$xo_cv_sys_errlist_and_sys_nerr" = "xyes" ; then
   AC_DEFINE([HAVE_SYS_ERRLIST_AND_SYS_NERR], [1],[Define if you have 'sys_errlist' and 'sys_nerr'])
 fi
 
-AC_CACHE_CHECK([for _sys_errlist and _sys_nerr], ac_cv__sys_errlist_and__sys_nerr, [
+AC_CACHE_CHECK([for _sys_errlist and _sys_nerr], xo_cv__sys_errlist_and__sys_nerr, [
   AC_LINK_IFELSE([AC_LANG_PROGRAM(
 [[#include <errno.h>
 #include <stdio.h>]],
 [[  printf("%s", _sys_errlist[_sys_nerr - 1]);]])],
-  [ ac_cv__sys_errlist_and__sys_nerr=yes ],
-  [ ac_cv__sys_errlist_and__sys_nerr=no
+  [ xo_cv__sys_errlist_and__sys_nerr=yes ],
+  [ xo_cv__sys_errlist_and__sys_nerr=no
   ])
 ])
-if test "x$ac_cv__sys_errlist_and__sys_nerr" = "xyes" ; then
+if test "x$xo_cv__sys_errlist_and__sys_nerr" = "xyes" ; then
   AC_DEFINE([HAVE__SYS_ERRLIST_AND__SYS_NERR], [1],[Define if you have '_sys_errlist' and '_sys_nerr'])
 fi
 
 dnl mingw has _snprintf so check for that too.
 AC_MSG_CHECKING([for  snprintf])
-AC_CACHE_VAL([ac_cv_func_snprintf],
+AC_CACHE_VAL([xo_cv_func_snprintf],
   [
-  ac_cv_func_snprintf=no
+  xo_cv_func_snprintf=no
   for func in snprintf _snprintf ; do
     AC_COMPILE_IFELSE([
       AC_LANG_PROGRAM(
@@ -780,14 +780,14 @@ using namespace std;
 	  return res;
 	]]
       )],
-      [ac_cv_func_snprintf=$func;break],
+      [xo_cv_func_snprintf=$func;break],
       []
     )
   done
   ])
-AC_MSG_RESULT([$ac_cv_func_snprintf])
-if test "$ac_cv_func_snprintf" != no ; then
-  AC_DEFINE_UNQUOTED([SNPRINTF], [$ac_cv_func_snprintf],
+AC_MSG_RESULT([$xo_cv_func_snprintf])
+if test "$xo_cv_func_snprintf" != no ; then
+  AC_DEFINE_UNQUOTED([SNPRINTF], [$xo_cv_func_snprintf],
      [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
 fi
 

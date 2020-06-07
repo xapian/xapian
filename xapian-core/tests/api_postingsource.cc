@@ -110,8 +110,6 @@ DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
 
     mset = enq.get_mset(0, 10);
     mset_expect_order(mset, 5, 7, 11, 13, 9);
-
-    return true;
 }
 
 // Test that trying to use PostingSource with the remote backend throws
@@ -134,8 +132,6 @@ DEFINE_TESTCASE(externalsource2, remote) {
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
 		   Xapian::MSet mset = enq.get_mset(0, 10));
-
-    return true;
 }
 
 class MyOddWeightingPostingSource : public Xapian::PostingSource {
@@ -239,8 +235,6 @@ DEFINE_TESTCASE(externalsource3, backend && !remote && !multi) {
     mset_expect_order(mset, 1, 3, 5, 7, 9, 11, 13, 15, 17);
 
     TEST_EQUAL(mset.get_max_possible(), 2000);
-
-    return true;
 }
 
 class MyDontAskWeightPostingSource : public Xapian::PostingSource {
@@ -326,8 +320,6 @@ DEFINE_TESTCASE(externalsource4, backend && !remote) {
 
     // mset = enq.get_mset(0, 5);
     // mset_expect_order(mset, 1, 2, 3, 4, 5);
-
-    return true;
 }
 
 // Check that valueweightsource works correctly.
@@ -359,8 +351,6 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
     enq.set_query(q);
     mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 8, 14, 9, 13, 7);
-
-    return true;
 }
 
 // Check that valueweightsource gives the correct bounds for those databases
@@ -373,8 +363,6 @@ DEFINE_TESTCASE(valueweightsource2, valuestats) {
     TEST_EQUAL(src.get_termfreq_est(), 17);
     TEST_EQUAL(src.get_termfreq_max(), 17);
     TEST_EQUAL(src.get_maxweight(), 135);
-
-    return true;
 }
 
 // Check that valueweightsource skip_to() can stay in the same position.
@@ -390,8 +378,6 @@ DEFINE_TESTCASE(valueweightsource3, valuestats && !multi) {
     src.skip_to(8, 0.0);
     TEST(!src.at_end());
     TEST_EQUAL(src.get_docid(), 8);
-
-    return true;
 }
 
 // Check that fixedweightsource works correctly.
@@ -457,8 +443,6 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
 	src.skip_to(7, wt * 2);
 	TEST(src.at_end());
     }
-
-    return true;
 }
 
 // A posting source which changes the maximum weight.
@@ -544,8 +528,6 @@ DEFINE_TESTCASE(changemaxweightsource1, backend && !remote && !multi) {
 	    TEST_EQUAL_DOUBLE(i.get_weight(), 7.5 - *i);
 	}
     }
-
-    return true;
 }
 
 // Test using a valueweightpostingsource which has no entries.
@@ -602,8 +584,6 @@ DEFINE_TESTCASE(emptyvalwtsource1, backend && !remote && !multi) {
 	TEST_REL(mset.size(), >, 0.0);
 	TEST_EQUAL(mset.size(), size1);
     }
-
-    return true;
 }
 
 class SlowDecreasingValueWeightPostingSource
@@ -657,8 +637,6 @@ DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
     Xapian::MSet mset = enquire.get_mset(0, 1, 1000);
     TEST_EQUAL(mset.size(), 1);
     TEST_EQUAL(count, 2);
-
-    return true;
 }
 
 class CheckBoundsPostingSource
@@ -702,8 +680,6 @@ DEFINE_TESTCASE(postingsourcebounds1, backend && !remote)
 
     TEST_EQUAL(doclen_lb, db.get_doclength_lower_bound());
     TEST_EQUAL(doclen_ub, db.get_doclength_upper_bound());
-
-    return true;
 }
 
 // PostingSource which really just counts the clone() calls.
@@ -763,8 +739,6 @@ DEFINE_TESTCASE(postingsourceclone1, !backend)
 	Xapian::Query q(ps->release());
 	TEST_EQUAL(clones, 0);
     }
-
-    return true;
 }
 
 class OnlyTheFirstPostingSource : public Xapian::PostingSource {
@@ -841,8 +815,6 @@ DEFINE_TESTCASE(postingsourceshardindex1, multi && !remote) {
 	TEST_EXCEPTION(Xapian::InvalidOperationError,
 		       auto m = enquire.get_mset(0, 10));
     }
-
-    return true;
 }
 
 /// PostingSource subclass for injecting tf bounds and estimate.
@@ -920,5 +892,4 @@ DEFINE_TESTCASE(estimaterounding1, backend && !multi && !remote) {
 	tout << mset.get_description() << endl;
 	TEST_EQUAL(mset.get_matches_estimated(), t.exp);
     }
-    return true;
 }

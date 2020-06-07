@@ -25,7 +25,6 @@
 #include "api/postingiteratorinternal.h"
 #include "debuglog.h"
 #include "omassert.h"
-#include "postlist.h"
 
 using namespace std;
 

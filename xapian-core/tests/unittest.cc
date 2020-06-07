@@ -109,9 +109,7 @@ DEFINE_TESTCASE_(simple_exceptions_work1) {
 	throw 42;
     } catch (int val) {
 	TEST_EQUAL(val, 42);
-	return true;
     }
-    return false;
 }
 
 class TestException { };
@@ -120,9 +118,7 @@ DEFINE_TESTCASE_(class_exceptions_work1) {
     try {
 	throw TestException();
     } catch (const TestException &) {
-	return true;
     }
-    return false;
 }
 
 static inline string
@@ -203,7 +199,6 @@ DEFINE_TESTCASE_(resolverelativepath1) {
     TEST_EQUAL(r_r_p("r/elativ/e", "\\\\?\\UNC\\S\\V\\"), "\\\\?\\UNC\\S\\V\\r\\elativ\\e");
     TEST_EQUAL(r_r_p("r/elativ/e", "\\\\?\\UNC\\S\\V\\TMP\\README.TXT"), "\\\\?\\UNC\\S\\V\\TMP\\r\\elativ\\e");
 #endif
-    return true;
 }
 
 static void
@@ -261,12 +256,10 @@ DEFINE_TESTCASE_(serialisedouble1) {
 	check_double_serialisation(1.0 / val);
 	check_double_serialisation(-1.0 / val);
     }
-
-    return true;
 }
 
 // Test pack_uint() and unpack_uint().
-static bool test_packuint1()
+static void test_packuint1()
 {
     size_t n = 0;
     while (n < 0xff000000) {
@@ -285,8 +278,6 @@ static bool test_packuint1()
 	    n += 53643;
 	}
     }
-
-    return true;
 }
 
 static void
@@ -328,7 +319,7 @@ packstring1_helper(size_t len)
 }
 
 // Test pack_string() and unpack_string().
-static bool test_packstring1()
+static void test_packstring1()
 {
     packstring1_helper(0);
     packstring1_helper(1);
@@ -336,24 +327,21 @@ static bool test_packstring1()
     for (size_t n = 2; n < 1000; n = (n + 1) * 2 + (n >> 1)) {
 	packstring1_helper(n);
     }
-
-    return true;
 }
 
 // Test pack_string_empty()
-static bool test_packstring2()
+static void test_packstring2()
 {
     string s;
     pack_string(s, string());
     string s_empty;
     pack_string_empty(s_empty);
     TEST_EQUAL(s, s_empty);
-    return true;
 }
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of Xapian::Error.
-static bool test_serialiseerror1()
+static void test_serialiseerror1()
 {
     string enoent_msg = errno_to_string(ENOENT);
     Xapian::DatabaseOpeningError e("Failed to open database", ENOENT);
@@ -385,19 +373,16 @@ static bool test_serialiseerror1()
     // pointer, resulting in double calls to free().
     Xapian::DatabaseOpeningError ecopy(e);
     TEST_STRINGS_EQUAL(ecopy.get_error_string(), enoent_msg);
-
-    return true;
 }
 #endif
 
 // Test log2() (which might be our replacement version).
-static bool test_log2()
+static void test_log2()
 {
     TEST_EQUAL(log2(1.0), 0.0);
     TEST_EQUAL(log2(2.0), 1.0);
     TEST_EQUAL(log2(1024.0), 10.0);
     TEST_EQUAL(log2(0.5), -1.0);
-    return true;
 }
 
 static const double test_sortableserialise_numbers[] = {
@@ -455,7 +440,7 @@ static const double test_sortableserialise_numbers[] = {
 // Test serialisation and unserialisation of various numbers.
 // This is actually a public API, but we want extra assertions in the code
 // while we test it.
-static bool test_sortableserialise1()
+static void test_sortableserialise1()
 {
     double prevnum = 0;
     string prevstr;
@@ -491,7 +476,6 @@ static bool test_sortableserialise1()
 	prevstr = str;
 	started = true;
     }
-    return true;
 }
 
 template<typename S>
@@ -511,7 +495,7 @@ inline static void tostring_helper() {
     oss.clear();
 }
 
-static bool test_tostring1()
+static void test_tostring1()
 {
     TEST_EQUAL(str(0), "0");
     TEST_EQUAL(str(0u), "0");
@@ -549,19 +533,16 @@ static bool test_tostring1()
 // anywhere in the library.
 //    TEST_EQUAL(str(0x200000000ull), "8589934592");
 #endif
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.1.1.
-static bool test_strbool1()
+static void test_strbool1()
 {
     TEST_EQUAL(str(true), "1");
     TEST_EQUAL(str(false), "0");
-    return true;
 }
 
-static bool test_closefrom1()
+static void test_closefrom1()
 {
 #ifndef __WIN32__
     // Simple test.  Start from 13 as on macOS the FDTracker seems to get fd
@@ -583,10 +564,9 @@ static bool test_closefrom1()
     TEST(close(15) == -1 && errno == EBADF);
     TEST(close(18) == -1 && errno == EBADF);
 #endif
-    return true;
 }
 
-static bool test_shard1()
+static void test_shard1()
 {
     for (Xapian::docid did = 1; did != 10; ++did) {
 	for (size_t n = 1; n != 10; ++n) {
@@ -606,10 +586,9 @@ static bool test_shard1()
 	    TEST_EQUAL(did, unshard(s_did, shard, n));
 	}
     }
-    return true;
 }
 
-static bool test_uuid1()
+static void test_uuid1()
 {
     Uuid uuid, uuid2;
 
@@ -679,8 +658,6 @@ static bool test_uuid1()
     TEST(!uuid2.is_null());
     uuid2.parse(str);
     TEST(memcmp(uuid.data(), uuid2.data(), uuid.BINARY_SIZE) == 0);
-
-    return true;
 }
 
 // Classes used by movesupport1 test
@@ -716,7 +693,7 @@ class B : public Xapian::Internal::opt_intrusive_base {
     }
 };
 
-static bool test_movesupport1()
+static void test_movesupport1()
 {
     {
 	// Test move semantics support for intrusive_ptr class
@@ -770,10 +747,9 @@ static bool test_movesupport1()
     }
     // Test that object b1 has been deleted.
     TEST_EQUAL(alive, false);
-    return true;
 }
 
-static bool test_addoverflows1()
+static void test_addoverflows1()
 {
     unsigned long res;
     TEST(!add_overflows(0UL, 0UL, res));
@@ -787,11 +763,9 @@ static bool test_addoverflows1()
 
     TEST(add_overflows(ULONG_MAX, ULONG_MAX, res));
     TEST_EQUAL(res, ULONG_MAX - 1UL);
-
-    return true;
 }
 
-static bool test_muloverflows1()
+static void test_muloverflows1()
 {
     unsigned long res;
     TEST(!mul_overflows(0UL, 0UL, res));
@@ -816,8 +790,6 @@ static bool test_muloverflows1()
     TEST_EQUAL(res, 0);
 
     TEST(mul_overflows(ULONG_MAX, ULONG_MAX, res));
-
-    return true;
 }
 
 template<typename U>
@@ -840,15 +812,13 @@ inline static void parseunsigned_helper() {
 	TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
 }
 
-static bool test_parseunsigned1()
+static void test_parseunsigned1()
 {
     parseunsigned_helper<unsigned char>();
     parseunsigned_helper<unsigned short>();
     parseunsigned_helper<unsigned>();
     parseunsigned_helper<unsigned long>();
     parseunsigned_helper<unsigned long long>();
-
-    return true;
 }
 
 template<typename S>
@@ -881,15 +851,13 @@ inline static void parsesigned_helper() {
     TEST(!parse_signed(("-" + str(one_too_small_negated)).c_str(), val));
 }
 
-static bool test_parsesigned1()
+static void test_parsesigned1()
 {
     parsesigned_helper<signed char>();
     parsesigned_helper<short>();
     parsesigned_helper<int>();
     parsesigned_helper<long>();
     parsesigned_helper<long long>();
-
-    return true;
 }
 
 static const test_desc tests[] = {

@@ -39,8 +39,8 @@
 
 #include "backends/backends.h"
 #include "backends/databaseinternal.h"
+#include "backends/postlist.h"
 #include "debuglog.h"
-#include "leafpostlist.h"
 #include "omassert.h"
 #include "filetests.h"
 #include "fileutils.h"
