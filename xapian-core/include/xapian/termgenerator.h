@@ -150,8 +150,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /** Set the stemming strategy.
      *
-     *  This method controls how the stemming algorithm is applied.  It was
-     *  new in Xapian 1.3.1.
+     *  This method controls how the stemming algorithm is applied.
      *
      *  @param strategy	The strategy to use - possible values are:
      *   - STEM_NONE:	Don't perform any stemming - only unstemmed terms
@@ -165,13 +164,14 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *			1.4.8.
      *   - STEM_ALL:	Generate only stemmed terms (but without a "Z" prefix).
      *   - STEM_ALL_Z:	Generate only stemmed terms (with a "Z" prefix).
+     *
+     *  @since Added in Xapian 1.3.1.
      */
     void set_stemming_strategy(stem_strategy strategy);
 
     /** Set the stopper strategy.
      *
-     *  The method controls how the stopper is used.  It was added in Xapian
-     *  1.4.1.
+     *  The method controls how the stopper is used.
      *
      *  You need to also call @a set_stopper() for this to have any effect.
      *
@@ -185,6 +185,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *			  so this allows searches for phrases containing
      *			  stopwords to be supported.  (This is the default
      *			  mode).
+     *
+     *  @since Added in Xapian 1.4.1.
      */
     void set_stopper_strategy(stop_strategy strategy);
 
@@ -198,10 +200,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  help prevent the index being bloated by useless junk terms from trying
      *  to indexing things like binary data, uuencoded data, ASCII art, etc.
      *
-     *  This method was new in Xapian 1.3.1.
-     *
      *  @param max_word_length	The maximum length word to index, in bytes in
      *				UTF-8 representation.  Default is 64.
+     *
+     *  @since Added in Xapian 1.3.1.
      */
     void set_max_word_length(unsigned max_word_length);
 

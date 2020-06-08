@@ -132,9 +132,10 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  It is exactly the same as add_term(term, 0) and is provided as a
      *  way to make a common operation more explicit.
      *
-     *  This method was added in Xapian 1.0.18.
-     *
      *  @param term		The term to add.
+     *
+     *  @since This method was added in Xapian 1.0.18.
+     *
      */
     void add_boolean_term(const std::string& term) { add_term(term, 0); }
 

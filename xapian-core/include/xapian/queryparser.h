@@ -664,7 +664,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  Used if you don't explicitly pass any to @a parse_query().
 	 *  The default flags are FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE.
 	 *
-	 *  Added in Xapian 1.0.11.
+	 *  @since Added in Xapian 1.0.11.
 	 */
 	FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
     } feature_flag;
@@ -819,7 +819,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *				the limit for both wildcards and partial
      *				terms).
      *
-     *  Added in Xapian 1.5.0.
+     *  @since Added in Xapian 1.5.0.
      */
     void set_min_wildcard_prefix(unsigned min_prefix_len,
 				 unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
