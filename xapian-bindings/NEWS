@@ -1,3 +1,82 @@
+Xapian-bindings 1.4.16 (2020-06-08):
+
+General:
+
+* Remove code to support SVN snapshots since we stopped using SVN more than 5
+  years ago.
+
+* Ignore overloads for logical ops, *, /.  These were already ignored for
+  several languages, and aren't actually usefully wrapped for any of the other
+  languages.
+
+CSharp:
+
+* Work around mono terminfo parsing bug in more cases.  With this, "make",
+  "make check", "make install" and "make uninstall" all work on Ubuntu 18.10.
+  Patch from Dipanshu Garg, fixes https://github.com/xapian/xapian/pull/287 and
+  #801.
+
+Lua:
+
+* Allow passing a Lua function as a MatchSpy.  This was supposed to be
+  supported already, but the typemaps weren't set up.
+
+* On platforms where sizeof(long) is 4, SWIG was wrapping Xapian::BAD_VALUENO
+  as a negative constant in Lua, which was then rejected by a check which
+  disallows passing negative values for unsigned C++ types.  We now direct SWIG
+  to handle Xapian::valueno as double (which is what numbers in Lua usually
+  actually are) which gives us an unsigned constant, and also eliminates the
+  negative value check.
+
+* Correct documentation - get_description() is wrapped as tostring() in Lua,
+  not str() as we previously claimed.
+
+* Add test coverage for passing Lua function for a Stopper.
+
+Perl:
+
+* Resolve the remaining issues and remove the "experimental" marker:
+
+  + Add search_xapian_compat() function which sets up aliases in the
+    Search::Xapian namespace to aid writing code which uses either
+    Search::Xapian or this module.
+
+  + Allow passing Perl sub for simpler Xapian functor classes.  This fills in a
+    missing feature compared to Search::Xapian.  See #523.
+
+  + Remove useless PerlStopper class which was an incomplete copy of the
+    apparently non-functional Search::Xapian::PerlStopper.  We now support
+    passing a Perl sub for a Stopper object.
+
+  + Adjust some method names to match Search::Xapian.  Iterators now support
+    inc() (and dec() where the C++ class supports operator--) like
+    Search::Xapian, rather than increment() and prev().  Reported by Eric Wong
+    in #523.
+
+  + Drop undocumented and unexpected extra equals() method.
+
+  + Provide compatibility with ENQ_ASCENDING, etc constants.  SWIG wraps these
+    as $Xapian::Enquire::ASCENDING, which better matches the C++ API, but
+    Search::Xapian wraps this as Search::Xapian::ENQ_ASCENDING, etc so provide
+    those too for compatibility.  Reported by Eric Wong in #523.
+
+  + Drop stringification and int conversion overloads.  These seem more
+    confusing than helpful, and overloading stringification works badly
+    with SWIG-generated bindings.
+
+  + Document remaining known differences from Search::Xapian.
+
+* Update recently tested versions in README.
+
+* Improve documentation.
+
+* Fix t/02pod.t to look for files in right directory.
+
+Ruby:
+
+* Don't print iterator sizes to stdout.  This was some debugging accidentally
+  left in as part of a change in 1.4.12.  Patch from Dan Callaghan.
+
 Xapian-bindings 1.4.15 (2020-02-24):
 
 Perl:

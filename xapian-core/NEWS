@@ -1,3 +1,60 @@
+Xapian-core 1.4.16 (2020-06-08):
+
+API:
+
+* MSet::snippet(): The snippet now includes trailing punctuation which carries
+  meaning or gives useful context.  See
+  https://github.com/xapian/xapian/pull/180, reported by Robert Stepanek.
+
+* MSet::snippet(): Fix segfault generating snippet from default-constructed
+  MSet.  This probably isn't something you'd typically do, but it shouldn't
+  crash.  Found during extended testing of #803 (which only affected git
+  master) which was reported by Robert Stepanek.
+
+* Remove trailing full stop from exception messages.  We conventionally don't
+  include one, but a few cases didn't follow that convention.
+
+testsuite:
+
+* Replace direct use of ftime() which gives deprecation warnings with recent
+  mingw.  Reported by srinivasyadav22.
+
+matcher:
+
+* Fix segfault in rare cases in the query optimiser.  We keep a pointer to the
+  most recent posting list to use as a hint for opening the next posting list,
+  but the existing mechanism to take ownership of this hint had a flaw.  We now
+  invalidate the hint in situations where it might be indirectly deleted which
+  is safe, but somewhat conservative.
+
+* Improve the optimisation of an always-matching OP_VALUE_GE to also take
+  effect when the value slot's lower bound is equal to the limit of the
+  OP_VALUE_GE.  Patch from boda sadalla.
+
+glass backend:
+
+* Report the correct errno value if commit() fails.  We were potentially
+  reporting ENOENT from an unlink() call cleaning up a temporary file prior to
+  throwing the exception instead.
+
+documentation:
+
+* Fix missing menus in API documentation.  Newer doxygen generates .js files
+  which we also need to distribute and install.  Reported by sec^nd on #xapian.
+
+* Note OP_FILTER ignored subquery bug fixed in 1.4.15 as present in 1.4.14 and
+  older.
+
+portability:
+
+* Use our own autoconf cache variable namespace (xo_cv_ prefix instead of
+  ac_cv_) to avoid colliding with standard autoconf macro use if config.site or
+  a shared config.cache is used.  The former case caused a build failure for
+  the OpenBSD port with 1.4.15, reported by Lucas R.
+
+* Use clock_gettime() and nanosleep() under modern mingw as these allow higher
+  precision than what we previously used.
+
 Xapian-core 1.4.15 (2020-02-24):
 
 API:

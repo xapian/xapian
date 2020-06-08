@@ -1,3 +1,31 @@
+Omega 1.4.16 (2020-06-08):
+
+indexers:
+
+* Fix handling of XML empty tag syntax when there's a quoted parameter right
+  before the closing `/>`.  This caused `<title xml:lang="en-US"/>` to treat
+  the body text as the document title.  Spotted by Gaurav Arora.
+
+* omindex: Fix killing of filter child process if the parent process receives a
+  signal.  Spotted by Gaurav Arora.
+
+omega:
+
+* Reject $setrelevant without an argument list.  This has never been documented
+  as allowed, and previously crashed with a segfault.  Fixes #802, reported by
+  Gaurav Arora.
+
+* If there's an error opening the databases we now close any we managed to open
+  successfully before the error so that things like $dbsize can't end up
+  reporting values for a subset of the specified databases.
+
+portability:
+
+* Use our own autoconf cache variable namespace (xo_cv_ prefix instead of
+  ac_cv_) to avoid colliding with standard autoconf macro use if config.site or
+  a shared config.cache is used.  The former case caused a build failure for
+  the OpenBSD port with 1.4.15, reported by Lucas R.
+
 Omega 1.4.15 (2020-02-24):
 
 documentation:
