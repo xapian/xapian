@@ -129,6 +129,14 @@ From: Olly Betts <olly@survex.com>
 To: xapian-discuss@lists.xapian.org
 Subject: Xapian $version released
 Reply-To: xapian-discuss@lists.xapian.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="=-=-=-=-=-=-=--"
+Content-Disposition: inline
+
+--=-=-=-=-=-=-=--
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
 Xapian $version can now be downloaded from:
 
@@ -162,5 +170,13 @@ $checksums
 
 Cheers,
     Olly
+
+--=-=-=-=-=-=-=--
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+-----END PGP SIGNATURE-----
+
+--=-=-=-=-=-=-=--
 END
-mutt -H tmp.msg
+mutt -E -H tmp.msg
