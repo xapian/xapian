@@ -524,3 +524,8 @@ DEFINE_TESTCASE(snippet_empty_mset, backend) {
     Xapian::MSet mset = enquire.get_mset(0, 0);
     TEST_STRINGS_EQUAL(mset.snippet("foo", 3), "foo");
 }
+
+DEFINE_TESTCASE(snippet_empty_mset2, !backend) {
+    Xapian::MSet mset;
+    TEST_STRINGS_EQUAL(mset.snippet("foo", 3), "foo");
+}
