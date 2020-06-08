@@ -90,7 +90,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 	need_stat(UNIQUE_TERMS);
     }
     if (!strchr("ntpfsP", normalizations[1])) {
-        need_stat(COLLECTION_FREQ);
+	need_stat(COLLECTION_FREQ);
     }
 }
 
@@ -213,13 +213,13 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	    double den = 1 + log(wdf_avg);
 	    return num / den;
 	}
-        case 'a': {
-            if (wdf == 0) return 0;
-            return (0.2 + 0.8 * log(1.0 + wdf));
+	case 'a': {
+	    if (wdf == 0) return 0;
+	    return (0.2 + 0.8 * log(1.0 + wdf));
 	}
-        case 'S': {
-            if (wdf == 0) return 0;
-            return (sqrt(wdf - 0.5) + 1);
+	case 'S': {
+	    if (wdf == 0) return 0;
+	    return (sqrt(wdf - 0.5) + 1);
 	}
 	default:
 	    AssertEq(c, 'n');
@@ -252,7 +252,7 @@ TfIdfWeight::get_idfn(char c) const
 	case 'G':
 	    return (double(collfreq) / termfreq);
 	case 'l':
-	    return log(double(collfreq) / termfreq +1);
+	    return log(double(collfreq) / termfreq + 1);
 	default:
 	    AssertEq(c, 't');
 	    return (log(N / termfreq));
