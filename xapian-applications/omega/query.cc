@@ -2769,12 +2769,6 @@ void
 parse_omegascript()
 {
     try {
-	const char * p = getenv("SERVER_PROTOCOL");
-	if (p && strcmp(p, "INCLUDED") == 0) {
-	    // We're being included in another page, so suppress headers.
-	    suppress_http_headers = true;
-	}
-
 	string output = eval_file(fmtname);
 	if (!set_content_type && !suppress_http_headers) {
 	    cout << "Content-Type: text/html" << endl;
