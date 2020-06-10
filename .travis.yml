@@ -33,6 +33,7 @@ matrix:
             - libetonyek-dev
             - libtesseract-dev
             - libgmime-2.6-dev
+            - libarchive-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
@@ -61,6 +62,7 @@ matrix:
             - libetonyek-dev
             - libtesseract-dev
             - libgmime-2.6-dev
+            - libarchive-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
@@ -89,6 +91,7 @@ matrix:
             - libsvm-dev
             - libpoppler-cpp-dev
             - libtesseract-dev
+            - libarchive-dev
     - os: linux
       name: "Emscripten"
       addons:
@@ -141,6 +144,7 @@ matrix:
             - python
             - python2
             - tesseract
+            - libarchive
       before_install:
         - travis_retry pip2 install sphinx docutils
         - travis_retry pip3 install sphinx
