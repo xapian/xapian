@@ -191,7 +191,17 @@ index_add_default_libraries()
 #endif
 #if defined HAVE_LIBARCHIVE
     Worker* omindex_libarchive = new Worker("omindex_libarchive");
-    index_library("application/vnd.oasis.opendocument.", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.text", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.spreadsheet", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.presentation", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.graphics", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.chart", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.formula", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.image", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.text-master", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.base", omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.database", omindex_libarchive);
+    index_library("application/vnd.sun.xml.base", omindex_libarchive);
 #endif
 }
 
