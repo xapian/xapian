@@ -42,14 +42,14 @@ extract(const string& filename,
 	string& error)
 {
     try {
-	struct archive* a;
+	struct archive* archive_obj;
 	struct archive_entry* entry;
 	int status_code;
-	const char* file = &filename[0];
-	a = archive_read_new();
-	archive_read_support_filter_all(a);
-	archive_read_support_format_all(a);
-	status_code = archive_read_open_filename(a, file, 10240);
+	const char* file = filename.c_str();
+	archive_obj = archive_read_new();
+	archive_read_support_filter_all(archive_obj);
+	archive_read_support_format_all(archive_obj);
+	status_code = archive_read_open_filename(archive_obj, file, 10240);
 
 	if (status_code != ARCHIVE_OK) {
 	    error = "Libarchive failed to open the file " + filename;
@@ -58,14 +58,14 @@ extract(const string& filename,
 
 	size_t total;
 	ssize_t size;
-	string s = "";
+	string s;
 
 	// extracting data from content.xml and styles.xml
-	while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+	while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
 	    if (strcmp(archive_entry_pathname(entry), "content.xml") == 0) {
 		total = archive_entry_size(entry);
 		char buf1[total];
-		size = archive_read_data(a, buf1, total);
+		size = archive_read_data(archive_obj, buf1, total);
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from "
@@ -78,7 +78,7 @@ extract(const string& filename,
 			archive_entry_pathname(entry), "styles.xml") == 0) {
 		total = archive_entry_size(entry);
 		char buf2[total];
-		size = archive_read_data(a, buf2, total);
+		size = archive_read_data(archive_obj, buf2, total);
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from "
@@ -94,7 +94,7 @@ extract(const string& filename,
 			archive_entry_pathname(entry), "meta.xml") == 0) {
 		total = archive_entry_size(entry);
 		char buf3[total];
-		size = archive_read_data(a, buf3, total);
+		size = archive_read_data(archive_obj, buf3, total);
 
 		if (size <= 0) {
 		    // error handling
@@ -108,7 +108,7 @@ extract(const string& filename,
 		author = metaxmlparser.author;
 		}
 	}
-	status_code = archive_read_free(a);
+	status_code = archive_read_free(archive_obj);
 	if (status_code != ARCHIVE_OK) {
 	    return false;
 	}
