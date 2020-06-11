@@ -204,15 +204,47 @@ index_add_default_libraries()
     omindex_libarchive);
     index_library("application/vnd.oasis.opendocument.formula",
     omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.database",
+    omindex_libarchive);
     index_library("application/vnd.oasis.opendocument.image",
     omindex_libarchive);
     index_library("application/vnd.oasis.opendocument.text-master",
     omindex_libarchive);
-    index_library("application/vnd.oasis.opendocument.base",
+    index_library("application/vnd.oasis.opendocument.text-template",
     omindex_libarchive);
-    index_library("application/vnd.oasis.opendocument.database",
+    index_library("application/vnd.oasis.opendocument.spreadsheet-template",
     omindex_libarchive);
-    index_library("application/vnd.sun.xml.base",
+    index_library("application/vnd.oasis.opendocument.presentation-template",
+    omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.graphics-template",
+    omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.chart-template",
+    omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.formula-template",
+    omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.image-template",
+    omindex_libarchive);
+    index_library("application/vnd.oasis.opendocument.text-web",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.calc",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.calc.template",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.draw",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.draw.template",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.impress",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.impress.template",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.math",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.writer",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.writer.global",
+    omindex_libarchive);
+    index_library("application/vnd.sun.xml.writer.template",
     omindex_libarchive);
 #endif
 }
