@@ -312,7 +312,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *
      *  And @a flags contains flags controlling behaviour.
      *
-     *  Added in 1.3.5.
+     *  @since Added in 1.3.5.
      */
     std::string snippet(const std::string & text,
 			size_t length = 500,

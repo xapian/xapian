@@ -536,6 +536,10 @@ testcase 'Exception: Unknown $sort option: x' input="b|c|b|1" opt=urx
 testcase 'Exception: Invalid $sort option combination: n#' input="b|c" opt='n#'
 testcase 'Exception: Invalid $sort option combination: #rn' input="b|1" opt='#rn'
 
+# Regression test to test suppression of Content-Type header for early
+# exception.
+testcase 'Exception: HITSPERPAGE parameter must be &gt;= 0' HITSPERPAGE=-1
+
 # Regression test for $sort bug fixed in 1.4.12.
 # Check $sort doesn't ensure_match (or ensure_query).
 printf '$sort{test} $addfilter{Test}$querydescription' > "$TEST_TEMPLATE"

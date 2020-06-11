@@ -136,6 +136,16 @@ parse_db_params(const pair<IT, IT>& dbs)
 
 int main(int argc, char *argv[])
 try {
+    {
+	// Check for SERVER_PROTOCOL=INCLUDED, which is set when we're being
+	// included in a page via a server-side include directive.  In this
+	// case we suppress sending a Content-Type: header.
+	const char* p = getenv("SERVER_PROTOCOL");
+	if (p && strcmp(p, "INCLUDED") == 0) {
+	    suppress_http_headers = true;
+	}
+    }
+
     read_config_file();
 
     option["flag_default"] = "true";
