@@ -769,6 +769,10 @@ QUOTELOOP:  while (1) {
 	    # Allow multiple spaces in "#  ifdef FOO".
 	    diagnostic('error', "Multiple spaces");
 	}
+	if (/^\+\s*#\s*include([<"])/) {
+	    # #include<foo.h> or #include"foo.h"
+	    diagnostic('error', "Missing space between #include and '$1'");
+	}
 	if (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
 	    diagnostic('error', "added/changed line has comment without whitespace before the text");
 	}
