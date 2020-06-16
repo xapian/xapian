@@ -157,7 +157,7 @@ Worker::extract(const std::string& filename,
 
     string strpage, strstate;
     char state = MSG_FATAL_ERROR;
-    // Sending a filename and wating for the answer
+    // Send a filename and wait for the reply.
     if (write_string(sockt, filename) && read_string(sockt, strstate)) {
 	error.clear();
 	if (!strstate.empty())
