@@ -77,9 +77,6 @@ try {
 	++spellword;
     }
 
-    // FIXME: git master now has get_total_length()
-    double total_len = db.get_avlength() * db.get_doccount();
-
     // The collection frequency of a term is the total number of number of
     // occurrences of that term in all documents in the collection, so it
     // will tend to be proportional to the number of documents in the
@@ -92,7 +89,7 @@ try {
     // The factor used was chosen by experimentation.  There doesn't seem
     // to be a clear cut-off so it was chosen so we err on the side of
     // including more words.
-    Xapian::termcount cf_threshold = Xapian::termcount(1e-6 * total_len);
+    auto cf_threshold = Xapian::termcount(1e-6 * db.get_total_length());
     size_t c_added = 0, c_skipped = 0;
     for (auto t = db.allterms_begin(); t != db.allterms_end(); ++t) {
 	const string& term = *t;
