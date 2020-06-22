@@ -25,8 +25,8 @@
 #include "opendocparse.h"
 #include "str.h"
 
-#include<archive.h>
-#include<archive_entry.h>
+#include <archive.h>
+#include <archive_entry.h>
 
 #include <cstring>
 
@@ -42,77 +42,81 @@ extract(const string& filename,
 	string& error)
 {
     try {
-	struct archive* archive_obj;
-	struct archive_entry* entry;
-	int status_code;
 	const char* file = filename.c_str();
-	archive_obj = archive_read_new();
+	struct archive* archive_obj = archive_read_new();
 	archive_read_support_filter_all(archive_obj);
 	archive_read_support_format_all(archive_obj);
-	status_code = archive_read_open_filename(archive_obj, file, 10240);
+	int status_code = archive_read_open_filename(archive_obj,
+		                                     file, 10240);
 
 	if (status_code != ARCHIVE_OK) {
 	    error = "Libarchive failed to open the file " + filename;
-		return false;
+	    return false;
 	}
 
 	size_t total;
 	ssize_t size;
 	string s;
+	struct archive_entry* entry;
 
 	// extracting data from content.xml and styles.xml
 	while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
-	    if (strcmp(archive_entry_pathname(entry), "content.xml") == 0) {
+	    string pathname =  archive_entry_pathname(entry);
+	    if (pathname == "content.xml") {
 		total = archive_entry_size(entry);
-		char buf1[total];
-		size = archive_read_data(archive_obj, buf1, total);
+		//char buf[total];
+		auto i = s.size();
+		s.resize(i + total);
+		size = archive_read_data(archive_obj,  &s[i], total);
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from "
-		    "content.xml";
+		            "content.xml";
 		    return false;
 		}
 
-		s += str(buf1);
-		} else if (strcmp(
-			archive_entry_pathname(entry), "styles.xml") == 0) {
+		s.resize(i + size);
+	    } else if (pathname == "styles.xml") {
 		total = archive_entry_size(entry);
-		char buf2[total];
-		size = archive_read_data(archive_obj, buf2, total);
+		auto i = s.size();
+		s.resize(i + total);
+		size = archive_read_data(archive_obj, &s[i], total);
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from "
-		    "styles.xml";
+		            "styles.xml";
 		    return false;
 		}
 
-		s += str(buf2);
-		OpenDocParser parser;
-		parser.parse(s);
-		dump = parser.dump;
-		} else if (strcmp(
-			archive_entry_pathname(entry), "meta.xml") == 0) {
+		s.resize(i + size);
+	    } else if (pathname == "meta.xml") {
 		total = archive_entry_size(entry);
-		char buf3[total];
-		size = archive_read_data(archive_obj, buf3, total);
+		string s_meta;
+		auto i = s_meta.size();
+		s_meta.resize(i + total);
+		size = archive_read_data(archive_obj, &s_meta[i], total);
 
 		if (size <= 0) {
-		    // error handling
+		    // indexing file even if this fails
 		}
 
-		s = str(buf3);
+		s_meta.resize(i + size);
 		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse(s);
+		metaxmlparser.parse(s_meta);
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
 		author = metaxmlparser.author;
-		}
+	    }
 	}
 	status_code = archive_read_free(archive_obj);
 	if (status_code != ARCHIVE_OK) {
+	    error += archive_error_string(archive_obj);
 	    return false;
 	}
 
+	OpenDocParser parser;
+	parser.parse(s);
+	dump = parser.dump;
 	} catch (...) {
 	    error = "Libarchive threw an exception";
 	    return false;
