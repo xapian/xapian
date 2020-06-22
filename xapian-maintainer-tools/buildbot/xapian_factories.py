@@ -49,7 +49,7 @@ def MakeWritable():
         command = ["chmod", "-R", "+w", "."],
     )
 
-def core_factory(repourl, usedocs=False, configure=None, audit=False,
+def core_factory(repourl, usedocs=True, configure=None, audit=False,
                  clean=False, nocheck = False, configure_opts=None):
     f = factory.BuildFactory()
     mode = "update"
@@ -61,7 +61,7 @@ def core_factory(repourl, usedocs=False, configure=None, audit=False,
     if audit:
         f.addStep(shell.ShellCommand(command = ["python", 'audit.py'], workdir='build/xapian-maintainer-tools'))
         f.addStep(shell.ShellCommand(command = ["chmod", '644', 'copyright.csv', 'fixmes.csv'], workdir='build/xapian-maintainer-tools'))
-        f.addStep(shell.ShellCommand(command = ["mv", 'copyright.csv', 'fixmes.csv', '/var/www/'], workdir='build/xapian-maintainer-tools'))
+        f.addStep(shell.ShellCommand(command = ["mv", 'copyright.csv', 'fixmes.csv', '/var/www/html/'], workdir='build/xapian-maintainer-tools'))
 
     f.addStep(Bootstrap())
     if configure:
@@ -78,15 +78,15 @@ def core_factory(repourl, usedocs=False, configure=None, audit=False,
 
     f.addStep(shell.Compile())
     if not nocheck:
-        f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+        f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     return f
 
-def gen_git_updated_factory(repourl, usedocs=False, clean=False):
+def gen_git_updated_factory(repourl, usedocs=True, clean=False, configure_opts=None):
     """
     Make a factory for doing build from git master, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     """
-    return core_factory(repourl=repourl, usedocs=usedocs, clean=clean)
+    return core_factory(repourl=repourl, usedocs=usedocs, clean=clean, configure_opts=configure_opts)
 
 def gen_git_updated_factory_llvm(repourl):
     """
@@ -101,7 +101,7 @@ def gen_git_updated_factory2(repourl, configure_opts=[]):
     first.  This build is intended to catch commonly made mistakes quickly.
     This factory also runs audit.py and publishes the result.
     """
-    return core_factory(repourl=repourl, usedocs=False, audit=True,
+    return core_factory(repourl=repourl, usedocs=True, audit=True,
                         configure_opts=configure_opts)
 
 def gen_git_updated_factory3(repourl):
@@ -111,7 +111,7 @@ def gen_git_updated_factory3(repourl):
     This build runs with --disable-documentation, so the documentation building
     tools aren't required.
     """
-    return core_factory(repourl=repourl, usedocs=False)
+    return core_factory(repourl=repourl, usedocs=True)
 
 def gen_git_gccsnapshot_updated_factory(repourl):
     """
@@ -130,11 +130,18 @@ def gen_git_debug_updated_factory(repourl, opts, nocheck=False):
     f = factory.BuildFactory()
     f.addStep(source.Git(repourl=repourl, mode="update"))
     f.addStep(Bootstrap())
-    opts.append("--disable-documentation")
     f.addStep(shell.Configure(command = ["sh", "configure", ] + opts))
     f.addStep(shell.Compile())
     if not nocheck:
-        f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+        f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
+    return f
+
+# Factory that can be temporarily set for a builder to clean it up like so:
+#
+#   'factory': rm_rf_factory(),
+def gen_rm_rf_factory():
+    f = factory.BuildFactory()
+    f.addStep(slave.RemoveDirectory('build'))
     return f
 
 def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, bindings=True, configure_opts=[]):
@@ -149,17 +156,17 @@ def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, bindings=Tru
     f.addStep(shell.Configure(workdir='build/xapian-core', command=configure_cmd))
     f.addStep(shell.Compile(workdir='build/xapian-core'))
     if not nocheck:
-        f.addStep(shell.Test(workdir='build/xapian-core', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+        f.addStep(shell.Test(workdir='build/xapian-core', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     if omega:
         f.addStep(shell.Configure(workdir='build/xapian-omega', command = ["./configure", xapian_config_arg] + configure_opts))
         f.addStep(shell.Compile(workdir='build/xapian-omega'))
         if not nocheck:
-            f.addStep(shell.Test(workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+            f.addStep(shell.Test(workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     if bindings:
         f.addStep(shell.Configure(workdir='build/xapian-bindings', command = ["./configure", xapian_config_arg] + configure_opts))
         f.addStep(shell.Compile(workdir='build/xapian-bindings', command = ["make"]))
         if not nocheck:
-            f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+            f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"]))
     # If everything passed, there's not much point keeping the build - we'd
     # delete the old build tree and download new tarballs next time anyway.
     f.addStep(slave.RemoveDirectory('build'))
@@ -174,7 +181,6 @@ def gen_git_updated_valgrind_factory(repourl, configure_opts=[]):
     f = factory.BuildFactory()
     f.addStep(source.Git(repourl=repourl, mode="update"))
     f.addStep(Bootstrap())
-    configure_opts.append("--disable-documentation")
     f.addStep(shell.Configure(command = ["sh", "configure", "CXXFLAGS=-O0 -g"] + configure_opts))
     f.addStep(shell.Compile())
 
@@ -191,11 +197,11 @@ def gen_git_updated_lcov_factory(repourl, configure_opts=[]):
     f = factory.BuildFactory()
     f.addStep(source.Git(repourl=repourl, mode="update"))
     f.addStep(Bootstrap())
-    f.addStep(shell.Configure(command = ["sh", "configure", "--enable-maintainer-mode", "--disable-shared", "--disable-documentation", "CXXFLAGS=-O0 --coverage", "VALGRIND=", "CCACHE_DISABLE=1"] + configure_opts, workdir="build/xapian-core"))
+    f.addStep(shell.Configure(command = ["sh", "configure", "--enable-maintainer-mode", "--disable-documentation", "CXXFLAGS=-O0 --coverage", "VALGRIND="] + configure_opts, workdir="build/xapian-core"))
     f.addStep(shell.Compile(workdir="build/xapian-core"))
     f.addStep(shell.ShellCommand(command = ["make", "coverage-check", "GENHTML_ARGS=--html-gzip"], workdir="build/xapian-core", haltOnFailure=True))
     f.addStep(shell.ShellCommand(command = ["chmod", "-R", "a+rX", "lcov"], workdir="build/xapian-core", haltOnFailure=True))
-    f.addStep(shell.ShellCommand(command = 'NOW=`date -u +%Y-%m-%d`; cp -a lcov/. /var/www/"$NOW" && ln -sfT "$NOW" /var/www/latest', workdir="build/xapian-core", haltOnFailure=True))
+    f.addStep(shell.ShellCommand(command = 'NOW=`date -u +%Y-%m-%d`; cp -a lcov/. /var/www/html/"$NOW" && ln -sfT "$NOW" /var/www/html/latest', workdir="build/xapian-core", haltOnFailure=True))
 
     return f
 
@@ -214,7 +220,7 @@ def gen_git_clean_dist_factory(repourl):
     f.addStep(Bootstrap())
     f.addStep(step.Configure, command = ["xapian-maintainer-tools/buildbot/scripts/configure_with_prefix.sh"])
     extraargs = (
-        "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="
+        "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=", "AUTOMATED_TESTING=1"
     )
     f.addStep(step.Compile, command = ["make",] + extraargs)
     # Don't bother running check as a separate step - all the checks will be

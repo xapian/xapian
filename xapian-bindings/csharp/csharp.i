@@ -2,7 +2,7 @@
 %{
 /* csharp.i: SWIG interface file for the C# bindings
  *
- * Copyright (c) 2005,2006,2008,2009,2011,2012 Olly Betts
+ * Copyright (c) 2005,2006,2008,2009,2011,2012,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,9 +19,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
-// In C#, we don't get SWIG_exception in the generated C++ wrapper sources.
-#define XapianException(TYPE, MSG) SWIG_CSharpException(TYPE, (MSG).c_str())
 %}
 
 // Use SWIG directors for C# wrappers.
@@ -63,8 +60,6 @@
 %rename("GetMSet") get_mset;
 %rename("GetESet") get_eset;
 
-%ignore ValueRangeProcessor::operator();
-
 %inline {
 namespace Xapian {
 
@@ -91,22 +86,23 @@ namespace Xapian {
 %ignore minor_version;
 %ignore revision;
 
-%typemap(cscode) class MSetIterator %{
-    public static MSetIterator operator++(MSetIterator it) {
+%define WRAP_RANDOM_ITERATOR(ITOR)
+%typemap(cscode) ITOR %{
+    public static ITOR operator++(ITOR it) {
 	return it.Next();
     }
-    public static MSetIterator operator--(MSetIterator it) {
+    public static ITOR operator--(ITOR it) {
 	return it.Prev();
     }
     public override bool Equals(object o) {
-	return o is MSetIterator && Equals((MSetIterator)o);
+	return o is ITOR && Equals((ITOR)o);
     }
-    public static bool operator==(MSetIterator a, MSetIterator b) {
+    public static bool operator==(ITOR a, ITOR b) {
 	if ((object)a == (object)b) return true;
 	if ((object)a == null || (object)b == null) return false;
 	return a.Equals(b);
     }
-    public static bool operator!=(MSetIterator a, MSetIterator b) {
+    public static bool operator!=(ITOR a, ITOR b) {
 	if ((object)a == (object)b) return false;
 	if ((object)a == null || (object)b == null) return true;
 	return !a.Equals(b);
@@ -115,45 +111,22 @@ namespace Xapian {
     // using iterators as keys in a hash table would be rather strange.
     public override int GetHashCode() { return 0; }
 %}
+%enddef
 
-%typemap(cscode) ESetIterator %{
-    public static ESetIterator operator++(ESetIterator it) {
-	return it.Next();
-    }
-    public static ESetIterator operator--(ESetIterator it) {
-	return it.Prev();
-    }
-    public override bool Equals(object o) {
-	return o is ESetIterator && Equals((ESetIterator)o);
-    }
-    public static bool operator==(ESetIterator a, ESetIterator b) {
-	if ((object)a == (object)b) return true;
-	if ((object)a == null || (object)b == null) return false;
-	return a.Equals(b);
-    }
-    public static bool operator!=(ESetIterator a, ESetIterator b) {
-	if ((object)a == (object)b) return false;
-	if ((object)a == null || (object)b == null) return true;
-	return !a.Equals(b);
-    }
-    // Implementing GetHashCode() to always return 0 is rather lame, but
-    // using iterators as keys in a hash table would be rather strange.
-    public override int GetHashCode() { return 0; }
-%}
-
-%typemap(cscode) TermIterator %{
-    public static TermIterator operator++(TermIterator it) {
+%define WRAP_INPUT_ITERATOR(ITOR)
+%typemap(cscode) ITOR %{
+    public static ITOR operator++(ITOR it) {
 	return it.Next();
     }
     public override bool Equals(object o) {
-	return o is TermIterator && Equals((TermIterator)o);
+	return o is ITOR && Equals((ITOR)o);
     }
-    public static bool operator==(TermIterator a, TermIterator b) {
+    public static bool operator==(ITOR a, ITOR b) {
 	if ((object)a == (object)b) return true;
 	if ((object)a == null || (object)b == null) return false;
 	return a.Equals(b);
     }
-    public static bool operator!=(TermIterator a, TermIterator b) {
+    public static bool operator!=(ITOR a, ITOR b) {
 	if ((object)a == (object)b) return false;
 	if ((object)a == null || (object)b == null) return true;
 	return !a.Equals(b);
@@ -162,80 +135,40 @@ namespace Xapian {
     // using iterators as keys in a hash table would be rather strange.
     public override int GetHashCode() { return 0; }
 %}
+%enddef
 
-%typemap(cscode) ValueIterator %{
-    public static ValueIterator operator++(ValueIterator it) {
-	return it.Next();
-    }
-    public override bool Equals(object o) {
-	return o is ValueIterator && Equals((ValueIterator)o);
-    }
-    public static bool operator==(ValueIterator a, ValueIterator b) {
-	if ((object)a == (object)b) return true;
-	if ((object)a == null || (object)b == null) return false;
-	return a.Equals(b);
-    }
-    public static bool operator!=(ValueIterator a, ValueIterator b) {
-	if ((object)a == (object)b) return false;
-	if ((object)a == null || (object)b == null) return true;
-	return !a.Equals(b);
-    }
-    // Implementing GetHashCode() to always return 0 is rather lame, but
-    // using iterators as keys in a hash table would be rather strange.
-    public override int GetHashCode() { return 0; }
-%}
-
-%typemap(cscode) PostingIterator %{
-    public static PostingIterator operator++(PostingIterator it) {
-	return it.Next();
-    }
-    public override bool Equals(object o) {
-	return o is PostingIterator && Equals((PostingIterator)o);
-    }
-    public static bool operator==(PostingIterator a, PostingIterator b) {
-	if ((object)a == (object)b) return true;
-	if ((object)a == null || (object)b == null) return false;
-	return a.Equals(b);
-    }
-    public static bool operator!=(PostingIterator a, PostingIterator b) {
-	if ((object)a == (object)b) return false;
-	if ((object)a == null || (object)b == null) return true;
-	return !a.Equals(b);
-    }
-    // Implementing GetHashCode() to always return 0 is rather lame, but
-    // using iterators as keys in a hash table would be rather strange.
-    public override int GetHashCode() { return 0; }
-%}
-
-%typemap(cscode) PositionIterator %{
-    public static PositionIterator operator++(PositionIterator it) {
-	return it.Next();
-    }
-    public override bool Equals(object o) {
-	return o is PositionIterator && Equals((PositionIterator)o);
-    }
-    public static bool operator==(PositionIterator a, PositionIterator b) {
-	if ((object)a == (object)b) return true;
-	if ((object)a == null || (object)b == null) return false;
-	return a.Equals(b);
-    }
-    public static bool operator!=(PositionIterator a, PositionIterator b) {
-	if ((object)a == (object)b) return false;
-	if ((object)a == null || (object)b == null) return true;
-	return !a.Equals(b);
-    }
-    // Implementing GetHashCode() to always return 0 is rather lame, but
-    // using iterators as keys in a hash table would be rather strange.
-    public override int GetHashCode() { return 0; }
-%}
+WRAP_RANDOM_ITERATOR(MSetIterator)
+WRAP_RANDOM_ITERATOR(ESetIterator)
+WRAP_INPUT_ITERATOR(TermIterator)
+WRAP_INPUT_ITERATOR(ValueIterator)
+WRAP_INPUT_ITERATOR(PostingIterator)
+WRAP_INPUT_ITERATOR(PositionIterator)
 
 %typemap(cscode) class Query %{
-  public static Query MatchAll = new Query("");
-  public static Query MatchNothing = new Query();
+  public static readonly Query MatchAll = new Query("");
+  public static readonly Query MatchNothing = new Query();
 %}
 
 }
 
+%define WARN_CSHARP_COVARIANT_RET 842 %enddef
+
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BB2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BM25PlusWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BM25Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::BoolWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::CoordWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::DLHWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::DPHWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::IfB2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::IneB2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::InL2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::LMWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::PL2PlusWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::PL2Weight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::TfIdfWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::TradWeight::create_from_parameters;
+%warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::Weight::create_from_parameters;
+
 %include ../generic/except.i
 %include ../xapian-headers.i
-%include ../fake_dbfactory.i

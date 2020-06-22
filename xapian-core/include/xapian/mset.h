@@ -1,7 +1,7 @@
 /** @file  mset.h
  *  @brief Class representing a list of search results
  */
-/* Copyright (C) 2015,2016 Olly Betts
+/* Copyright (C) 2015,2016,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_MSET_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/mset.h> directly; include <xapian.h> instead."
+# error Never use <xapian/mset.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -31,6 +31,7 @@
 
 #include <xapian/attributes.h>
 #include <xapian/document.h>
+#include <xapian/error.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/stem.h>
 #include <xapian/types.h>
@@ -47,11 +48,25 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     // Helper function for fetch() methods.
     void fetch_(Xapian::doccount first, Xapian::doccount last) const;
 
+    /** Update the weight corresponding to the document indexed at
+     *  position i with wt.
+     *
+     *  The MSet's max_possible and max_attained are also updated.
+     *
+     *  This method must be called to update the weight of every document in
+     *  the MSet for i = 0 to mset.size() - 1 in ascending order to avoid
+     *  miscalculation of max_attained and max_possible.
+     *
+     *  @param i	MSet index to update
+     *  @param wt	new weight to assign to the document at index @a i
+     */
+    void set_item_weight(Xapian::doccount i, double wt);
+
   public:
     /// Class representing the MSet internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
+    Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
 
     /** Copying is allowed.
      *
@@ -65,14 +80,66 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      */
     MSet & operator=(const MSet & o);
 
+    /// Move constructor.
+    MSet(MSet && o);
+
+    /// Move assignment operator.
+    MSet & operator=(MSet && o);
+
     /** Default constructor.
      *
      *  Creates an empty MSet, mostly useful as a placeholder.
      */
     MSet();
 
+    /** @private @internal Wrap an existing Internal. */
+    XAPIAN_VISIBILITY_INTERNAL
+    explicit MSet(Internal* internal_);
+
     /// Destructor.
     ~MSet();
+
+    /** Assigns new weights and updates MSet.
+     *
+     *  Dereferencing the Iterator should return a double.
+     *
+     *  The weights returned by the iterator are assigned to elements of
+     *  the MSet in rank order.
+     *
+     *  @param begin	Begin iterator.
+     *  @param end	End iterator.
+     *
+     *  @exception Xapian::InvalidArgument is thrown if the total number of
+     *		   elements in the input doesn't match the total number of
+     *		   documents in MSet.
+     */
+    template<typename Iterator>
+    void replace_weights(Iterator first, Iterator last)
+    {
+	auto distance = last - first;
+	// Take care to compare signed and unsigned types both safely and
+	// without triggering compiler warnings.
+	if (distance < 0 ||
+	    (sizeof(distance) <= sizeof(Xapian::doccount) ?
+		Xapian::doccount(distance) != size() :
+		distance != static_cast<decltype(distance)>(size()))) {
+	    throw Xapian::InvalidArgumentError("Number of weights assigned "
+					       "doesn't match the number of "
+					       "items");
+	}
+	Xapian::doccount i = 0;
+	while (first != last) {
+	    set_item_weight(i, *first);
+	    ++i;
+	    ++first;
+	}
+    }
+
+    /** Sorts the list of documents in MSet according to their weights.
+     *
+     *  Use after calling MSet::replace_weights.
+     */
+    void sort_by_relevance();
 
     /** Convert a weight to a percentage.
      *
@@ -103,6 +170,12 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     /** Get the termfreq of a term.
      *
      *  @return The number of documents @a term occurs in.
+     *
+     *  Since 1.5.0, this method returns 0 if called on an MSet which is
+     *  not associated with a database (which is consistent with
+     *  Database::get_termfreq() returning 0 when called on a Database
+     *  with no sub-databases); in earlier versions,
+     *  Xapian::InvalidOperationError was thrown in this case.
      */
     Xapian::doccount get_termfreq(const std::string & term) const;
 
@@ -110,6 +183,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *
      *  @return	The maximum weight that @a term could have contributed to a
      *		document.
+     *
+     *  Since 1.5.0, this method returns 0.0 if called on an MSet which is
+     *  not associated with a database, or with a term which wasn't present
+     *  in the query (since in both cases the term contributes no weight to any
+     *  matching documents); in earlier versions, Xapian::InvalidOperationError
+     *  was thrown for the first case, and Xapian::InvalidArgumentError for the
+     *  second.
      */
     double get_termweight(const std::string & term) const;
 
@@ -171,28 +251,68 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  was found in text. If not enabled, snippet() returns a (sub)string
 	 *  of text without any highlighted terms.
 	 */
-	SNIPPET_EMPTY_WITHOUT_MATCH = 4
+	SNIPPET_EMPTY_WITHOUT_MATCH = 4,
+
+	/** Enable generation of n-grams from CJK text.
+	 *
+	 *  This option highlights CJK searches made using the QueryParser
+	 *  FLAG_CJK_NGRAM flag.  Non-CJK characters are split into words as
+	 *  normal.
+	 *
+	 *  The TermGenerator FLAG_CJK_NGRAM flag needs to have been used at
+	 *  index time.
+	 *
+	 *  This mode can also be enabled by setting environment variable
+	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+	 *  in 1.4.11).
+	 *
+	 *  @since Added in Xapian 1.4.11.
+	 */
+	SNIPPET_CJK_NGRAM = 2048,
+
+	/** Enable generation of words from CJK text.
+	 *
+	 *  This option highlights CJK searches made using the QueryParser
+	 *  FLAG_CJK_WORDS flag.  Spans of CJK characters are split into CJK
+	 *  words using text boundary heuristics.  Non-CJK characters are
+	 *  split into words as normal.
+	 *
+	 *  The TermGenerator FLAG_CJK_WORDS flag needs to have been used at
+	 *  index time.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	SNIPPET_CJK_WORDS = 4096
     };
 
     /** Generate a snippet.
      *
-     *  This method selects a continuous run of words of less than about @a
-     *  length bytes from @a text, based mainly on where the query matches
-     *  (currently terms, exact phrases and wildcards are taken into account),
-     *  but also on the non-query terms in the text.
+     *  This method selects a continuous run of words from @a text, based
+     *  mainly on where the query matches (currently terms, exact phrases and
+     *  wildcards are taken into account).  If flag SNIPPET_BACKGROUND_MODEL is
+     *  used (which it is by default) then the selection algorithm also
+     *  considers the non-query terms in the text with the aim of showing
+     *  a context which provides more useful information.
      *
-     *  The returned text can be escaped (by default, it is escaped to make it
-     *  suitable for use in HTML), and matches with the query will be
+     *  The size of the text selected can be controlled by the @a length
+     *  parameter, which specifies a number of bytes of text to aim to select.
+     *  However slightly more text may be selected.  Also the size of any
+     *  escaping, highlighting or omission markers is not considered.
+     *
+     *  The returned text is escaped to make it suitable for use in HTML
+     *  (though beware that in upstream releases 1.4.5 and earlier this
+     *  escaping was sometimes incomplete), and matches with the query will be
      *  highlighted using @a hi_start and @a hi_end.
      *
      *  If the snippet seems to start or end mid-sentence, then @a omit is
      *  prepended or append (respectively) to indicate this.
      *
-     *  The stemmer used to build the query should be specified in @a stemmer.
+     *  The same stemming algorithm which was used to build the query should be
+     *  specified in @a stemmer.
      *
      *  And @a flags contains flags controlling behaviour.
      *
-     *  Added in 1.3.5.
+     *  @since Added in 1.3.5.
      */
     std::string snippet(const std::string & text,
 			size_t length = 500,
@@ -204,7 +324,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Prefetch hint a range of items.
      *
-     *  For a remote database, this may start a pipelined fetched of the
+     *  For a remote database, this may start a pipelined fetch of the
      *  requested documents from the remote server.
      *
      *  For a disk-based database, this may send prefetch hints to the
@@ -216,7 +336,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Prefetch hint a single MSet item.
      *
-     *  For a remote database, this may start a pipelined fetched of the
+     *  For a remote database, this may start a pipelined fetch of the
      *  requested documents from the remote server.
      *
      *  For a disk-based database, this may send prefetch hints to the
@@ -228,7 +348,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Prefetch hint the whole MSet.
      *
-     *  For a remote database, this may start a pipelined fetched of the
+     *  For a remote database, this may start a pipelined fetch of the
      *  requested documents from the remote server.
      *
      *  For a disk-based database, this may send prefetch hints to the
@@ -454,6 +574,14 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
      */
     Xapian::doccount get_collapse_count() const;
 
+    /** Return the sort key for the current position.
+     *
+     *  If sorting didn't use a key then an empty string will be returned.
+     *
+     *  @since Added in Xapian 1.4.6.
+     */
+    std::string get_sort_key() const;
+
     /** Convert the weight of the current iterator position to a percentage.
      *
      *  The matching document with the highest weight will get 100% if it
@@ -473,62 +601,44 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
     std::string get_description() const;
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const MSetIterator &a, const MSetIterator &b));
-
 /// Equality test for MSetIterator objects.
 inline bool
-operator==(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator==(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return a.off_from_end == b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator!=(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator!=(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator!=(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return !(a == b);
 }
 
-bool
-XAPIAN_NOTHROW(operator<(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator<(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator<(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return a.off_from_end > b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator>(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator>(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return b < a;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>=(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator>=(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator>=(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return !(a < b);
 }
 
-inline bool
-XAPIAN_NOTHROW(operator<=(const MSetIterator &a, const MSetIterator &b));
-
 /// Inequality test for MSetIterator objects.
 inline bool
-operator<=(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
+operator<=(const MSetIterator& a, const MSetIterator& b) noexcept
 {
     return !(b < a);
 }

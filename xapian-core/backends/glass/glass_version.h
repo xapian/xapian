@@ -1,7 +1,7 @@
 /** @file glass_version.h
  * @brief GlassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,11 +27,13 @@
 
 #include "omassert.h"
 
+#include <algorithm>
 #include <cstring>
 #include <string>
 
-#include "common/safeuuid.h"
+#include "backends/uuids.h"
 #include "internaltypes.h"
+#include "min_non_zero.h"
 #include "xapian/types.h"
 
 namespace Glass {
@@ -60,7 +62,8 @@ class RootInfo {
     bool get_root_is_fake() const { return root_is_fake; }
     bool get_sequential() const { return sequential; }
     unsigned get_blocksize() const {
-	AssertRel(blocksize,>=,2048);
+	AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
+	AssertRel(blocksize,<=,GLASS_MAX_BLOCKSIZE);
 	return blocksize;
     }
     uint4 get_compress_min() const { return compress_min; }
@@ -72,7 +75,8 @@ class RootInfo {
     void set_sequential(bool f) { sequential = f; }
     void set_root(glass_block_t root_) { root = root_; }
     void set_blocksize(unsigned b) {
-	AssertRel(b,>=,2048);
+	AssertRel(b,>=,GLASS_MIN_BLOCKSIZE);
+	AssertRel(b,<=,GLASS_MAX_BLOCKSIZE);
 	blocksize = b;
     }
     void set_free_list(const std::string & s) { fl_serialised = s; }
@@ -95,11 +99,8 @@ class GlassVersion {
     RootInfo root[Glass::MAX_];
     RootInfo old_root[Glass::MAX_];
 
-    /** The UUID of this database.
-     *
-     *  This is mutable for older uuid libraries which take non-const uuid_t.
-     */
-    mutable uuid_t uuid;
+    /// The UUID of this database.
+    Uuid uuid;
 
     /** File descriptor.
      *
@@ -126,7 +127,7 @@ class GlassVersion {
     Xapian::doccount doccount;
 
     /// The total of the lengths of all documents in the database.
-    totlen_t total_doclen;
+    Xapian::totallength total_doclen;
 
     /// Greatest document id ever used in this database.
     Xapian::docid last_docid;
@@ -156,7 +157,7 @@ class GlassVersion {
     void unserialise_stats();
 
   public:
-    explicit GlassVersion(const std::string & db_dir_ = std::string())
+    explicit GlassVersion(const std::string & db_dir_)
 	: rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
 	  doccount(0), total_doclen(0), last_docid(0),
 	  doclen_lbound(0), doclen_ubound(0),
@@ -197,35 +198,17 @@ class GlassVersion {
 
     /// Return pointer to 16 byte UUID.
     const char * get_uuid() const {
-	// uuid is unsigned char[].
-	return reinterpret_cast<const char *>(uuid);
+	return uuid.data();
     }
 
     /// Return UUID in the standard 36 character string format.
     std::string get_uuid_string() const {
-	char buf[37];
-	uuid_unparse_lower(uuid, buf);
-	return std::string(buf, 36);
+	return uuid.to_string();
     }
-
-#if 0 // Unused currently.
-    /// Set the UUID from 16 byte binary value @a data.
-    void set_uuid(const void * data) {
-	std::memcpy(uuid, data, 16);
-    }
-
-    /** Set the UUID from the standard 36 character string format.
-     *
-     *  @return true if @a s was successfully parsed; false otherwise.
-     */
-    bool set_uuid_string(const std::string & s) {
-	return uuid_parse(s.c_str(), uuid);
-    }
-#endif
 
     Xapian::doccount get_doccount() const { return doccount; }
 
-    totlen_t get_total_doclen() const { return total_doclen; }
+    Xapian::totallength get_total_doclen() const { return total_doclen; }
 
     Xapian::docid get_last_docid() const { return last_docid; }
 
@@ -247,6 +230,13 @@ class GlassVersion {
 	return oldest_changeset;
     }
 
+    Xapian::termcount get_unique_terms_lower_bound() const {
+	if (total_doclen == 0) return 0;
+	Assert(doclen_lbound != 0);
+	Assert(wdf_ubound != 0);
+	return (doclen_lbound - 1) / wdf_ubound + 1;
+    }
+
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
     void set_oldest_changeset(glass_revision_number_t changeset) const {
@@ -259,10 +249,8 @@ class GlassVersion {
 
     void add_document(Xapian::termcount doclen) {
 	++doccount;
-	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))
-	    doclen_lbound = doclen;
-	if (doclen > doclen_ubound)
-	    doclen_ubound = doclen;
+	doclen_lbound = min_non_zero(doclen_lbound, doclen);
+	doclen_ubound = std::max(doclen_ubound, doclen);
 	total_doclen += doclen;
     }
 

@@ -31,10 +31,10 @@ class FD {
     int fd;
 
     /// Prevent copying.
-    FD(const FD &);
+    FD(const FD&) = delete;
 
     /// Prevent assignment between FD objects.
-    void operator=(const FD &);
+    FD& operator=(const FD&) = delete;
 
   public:
     FD() : fd(-1) { }
@@ -43,7 +43,7 @@ class FD {
 
     ~FD() { if (fd != -1) ::close(fd); }
 
-    FD & operator=(int fd_) {
+    FD& operator=(int fd_) {
 	if (fd != -1) ::close(fd);
 	fd = fd_;
 	return *this;
@@ -60,8 +60,8 @@ class FD {
     }
 };
 
-inline int close(FD & fd) {
-   return fd.close();
+inline int close(FD& fd) {
+    return fd.close();
 }
 
 #endif

@@ -8,8 +8,15 @@ Xapian::PositionIterator - Iterate over sets of positions.
 
 This iterator represents a stream of positions for a term. It overloads
 C<++> for advancing the iterator, or you can explicitly call the C<inc> method.
-This class also overloads C<eq>, C<ne>, C<==>, C<!=>, C<"">
-(stringification) and C<0+> (conversion to an integer).
+This class also overloads C<eq>, C<ne>, C<==>, and C<!=>.
+
+=head2 Compatibility with Search::Xapian
+
+Search::Xapian overloads <""> (stringification) on this class to call
+the C<get_description> method.  Call C<get_description> explicitly instead.
+
+Search::Xapian overloads <0+> (convert to an integer) on this class to call
+the C<get_termpos> method.  Call C<get_termpos> explicitly instead.
 
 =head1 METHODS
 
@@ -23,31 +30,30 @@ Constructor. Defaults to an uninitialized iterator.
 
 =item inc
 
-Advance the iterator by one. (Called implictly by C<++> overloading).
+Advance the iterator by one. (Called implicitly by C<++> overloading).
 
 =item skip_to <termpos>
 
-Skip the iterator to term position termpos, or the first term position after
+Advance the iterator to term position termpos, or the first term position after
 termpos if termpos isn't in the list of term positions being iterated.
 
-=item equal <term>
+=item equal <positioniterator>
 
-Checks if a term is the same as this term. Also overloaded to the C<eq>
-and C<==> operators.
+Compare for equality with another Xapian::PositionIterator object. Also
+overloaded to the C<eq> and C<==> operators.
 
-=item nequal <term>
+=item nequal <positioniterator>
 
-Checks if a term is different from this term. Also overloaded to the C<ne>
-and C<!=> operators.
+Compare for inequality with another Xapian::PositionIterator object. Also
+overloaded to the C<ne> and C<!=> operators.
 
 =item get_termpos
 
-Return the term position the iterator is currently on. Also implemented as
-conversion to an integer.
+Return the term position the iterator is currently on.
 
 =item get_description
 
-Return a description of this object.  Also implemented as stringification.
+Return a description of this object.
 
 =back
 

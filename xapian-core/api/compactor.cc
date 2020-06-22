@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,12 +24,11 @@
 
 #include <xapian/compactor.h>
 
-#include "safeerrno.h"
-
 #include <algorithm>
 #include <fstream>
 #include <vector>
 
+#include <cerrno>
 #include <cstring>
 #include <ctime>
 #include "safesysstat.h"
@@ -39,10 +38,9 @@
 #include "safefcntl.h"
 
 #include "backends/backends.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
+#include "backends/postlist.h"
 #include "debuglog.h"
-#include "leafpostlist.h"
-#include "noreturn.h"
 #include "omassert.h"
 #include "filetests.h"
 #include "fileutils.h"
@@ -55,6 +53,13 @@
 #include "backends/glass/glass_version.h"
 #endif
 
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+#include "backends/honey/honey_database.h"
+#include "backends/honey/honey_version.h"
+#endif
+
+#include "backends/multi/multi_database.h"
+
 #include <xapian/constants.h>
 #include <xapian/database.h>
 #include <xapian/error.h>
@@ -62,71 +67,21 @@
 using namespace std;
 
 class CmpByFirstUsed {
-    const vector<pair<Xapian::docid, Xapian::docid> > & used_ranges;
+    const vector<pair<Xapian::docid, Xapian::docid>>& used_ranges;
 
   public:
     explicit
-    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid> > & ur)
+    CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid>>& ur)
 	: used_ranges(ur) { }
 
-    bool operator()(size_t a, size_t b) const {
+    bool operator()(Xapian::doccount a, Xapian::doccount b) const {
 	return used_ranges[a].first < used_ranges[b].first;
     }
 };
 
 namespace Xapian {
 
-class Compactor::Internal : public Xapian::Internal::intrusive_base {
-    friend class Compactor;
-
-    string destdir_compat;
-    size_t block_size;
-    unsigned flags;
-
-    vector<string> srcdirs_compat;
-
-  public:
-    Internal() : block_size(8192), flags(FULL) { }
-};
-
-Compactor::Compactor() : internal(new Compactor::Internal()) { }
-
 Compactor::~Compactor() { }
-
-void
-Compactor::set_block_size(size_t block_size)
-{
-    internal->block_size = block_size;
-}
-
-void
-Compactor::set_flags_(unsigned flags, unsigned mask)
-{
-    internal->flags = (internal->flags & mask) | flags;
-}
-
-void
-Compactor::set_destdir(const string & destdir)
-{
-    internal->destdir_compat = destdir;
-}
-
-void
-Compactor::add_source(const string & srcdir)
-{
-    internal->srcdirs_compat.push_back(srcdir);
-}
-
-void
-Compactor::compact()
-{
-    Xapian::Database src;
-    for (auto srcdir : internal->srcdirs_compat) {
-	src.add_database(Xapian::Database(srcdir));
-    }
-    src.compact(internal->destdir_compat, internal->flags,
-		internal->block_size, *this);
-}
 
 void
 Compactor::set_status(const string & table, const string & status)
@@ -146,17 +101,13 @@ Compactor::resolve_duplicate_metadata(const string & key,
 
 }
 
-XAPIAN_NORETURN(
-    static void
-    backend_mismatch(const Xapian::Database & db, int backend1,
-		     const string &dbpath2, int backend2)
-);
+[[noreturn]]
 static void
-backend_mismatch(const Xapian::Database & db, int backend1,
+backend_mismatch(const Xapian::Database::Internal* db, int backend1,
 		 const string &dbpath2, int backend2)
 {
     string dbpath1;
-    db.internal[0]->get_backend_info(&dbpath1);
+    db->get_backend_info(&dbpath1);
     string msg = "All databases must be the same type ('";
     msg += dbpath1;
     msg += "' is ";
@@ -199,47 +150,62 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	flags |= DBCOMPACT_SINGLE_FILE;
     }
 
-    int backend = BACKEND_UNKNOWN;
-    for (const auto& it : internal) {
-	string srcdir;
-	int type = it->get_backend_info(&srcdir);
-	// Check destdir isn't the same as any source directory, unless it
-	// is a stub database.
-	if (!compact_to_stub && srcdir == destdir)
-	    throw Xapian::InvalidArgumentError("destination may not be the same as any source database, unless it is a stub database");
-	switch (type) {
-	    case BACKEND_GLASS:
-		if (backend != type && backend != BACKEND_UNKNOWN) {
-		    backend_mismatch(*this, backend, srcdir, type);
-		}
-		backend = type;
-		break;
-	    default:
-		throw Xapian::DatabaseError("Only glass databases can be compacted");
-	}
-    }
-
+    auto n_shards = internal->size();
     Xapian::docid tot_off = 0;
     Xapian::docid last_docid = 0;
 
     vector<Xapian::docid> offset;
-    vector<pair<Xapian::docid, Xapian::docid> > used_ranges;
-    vector<Xapian::Database::Internal *> internals;
-    offset.reserve(internal.size());
-    used_ranges.reserve(internal.size());
-    internals.reserve(internal.size());
+    vector<pair<Xapian::docid, Xapian::docid>> used_ranges;
+    vector<const Xapian::Database::Internal*> internals;
+    offset.reserve(n_shards);
+    used_ranges.reserve(n_shards);
+    internals.reserve(n_shards);
 
-    for (const auto& i : internal) {
-	Xapian::Database::Internal * db = i.get();
-	internals.push_back(db);
+    if (n_shards > 1) {
+	auto multi_db = static_cast<MultiDatabase*>(internal.get());
+	for (auto&& db : multi_db->shards) {
+	    internals.push_back(db);
+	}
+    } else {
+	internals.push_back(internal.get());
+    }
+
+    int backend = BACKEND_UNKNOWN;
+    for (auto&& shard : internals) {
+	string srcdir;
+	int type = shard->get_backend_info(&srcdir);
+	// Check destdir isn't the same as any source directory, unless it
+	// is a stub database or we're compacting to an fd.
+	if (!compact_to_stub && !destdir.empty() && srcdir == destdir) {
+	    throw InvalidArgumentError("destination may not be the same as "
+				       "any source database, unless it is a "
+				       "stub database");
+	}
+	switch (type) {
+	    case BACKEND_GLASS:
+		if (backend != type && backend != BACKEND_UNKNOWN) {
+		    backend_mismatch(internals[0], backend, srcdir, type);
+		}
+		backend = type;
+		break;
+	    case BACKEND_HONEY:
+		if (backend != type && backend != BACKEND_UNKNOWN) {
+		    backend_mismatch(internals[0], backend, srcdir, type);
+		}
+		backend = type;
+		break;
+	    default:
+		throw DatabaseError("Only glass and honey databases can be "
+				    "compacted");
+	}
 
 	Xapian::docid first = 0, last = 0;
 
 	// "Empty" databases might have spelling or synonym data so can't
 	// just be completely ignored.
-	Xapian::doccount num_docs = db->get_doccount();
+	Xapian::doccount num_docs = shard->get_doccount();
 	if (num_docs != 0) {
-	    db->get_used_docid_range(first, last);
+	    shard->get_used_docid_range(first, last);
 
 	    if (renumber && first) {
 		// Prune any unused docids off the start of this source
@@ -251,9 +217,9 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	    }
 
 #ifdef XAPIAN_ASSERTIONS
-	    LeafPostList * pl = db->open_post_list(string());
+	    PostList* pl = shard->open_post_list(string());
 	    pl->next();
-	    // This test should never fail, since db->get_doccount() is
+	    // This test should never fail, since shard->get_doccount() is
 	    // non-zero!
 	    Assert(!pl->at_end());
 	    AssertEq(pl->get_docid(), first);
@@ -270,36 +236,35 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	offset.push_back(tot_off);
 	if (renumber)
 	    tot_off += last;
-	else if (last_docid < db->get_lastdocid())
-	    last_docid = db->get_lastdocid();
+	else if (last_docid < shard->get_lastdocid())
+	    last_docid = shard->get_lastdocid();
 	used_ranges.push_back(make_pair(first, last));
     }
 
     if (renumber)
 	last_docid = tot_off;
 
-    if (!renumber && internal.size() > 1) {
+    if (!renumber && n_shards > 1) {
 	// We want to process the sources in ascending order of first
 	// docid.  So we create a vector "order" with ascending integers
-	// and then sort so the indirected order is right.  Then we reorder
-	// the vectors into that order and check the ranges are disjoint.
-	vector<size_t> order;
-	order.reserve(internal.size());
-	for (size_t i = 0; i < internal.size(); ++i)
+	// and then sort so the indirected order is right.
+	vector<Xapian::doccount> order;
+	order.reserve(n_shards);
+	for (Xapian::doccount i = 0; i < n_shards; ++i)
 	    order.push_back(i);
 
 	sort(order.begin(), order.end(), CmpByFirstUsed(used_ranges));
 
-	// Reorder the vectors to be in ascending of first docid, and
-	// set all the offsets to 0.
-	vector<Xapian::Database::Internal *> internals_;
-	internals_.reserve(internal.size());
-	vector<pair<Xapian::docid, Xapian::docid> > used_ranges_;
-	used_ranges_.reserve(internal.size());
+	// Now use order to reorder internals to be in ascending order by first
+	// docid, and while we're at it check the ranges are disjoint.
+	vector<const Xapian::Database::Internal*> internals_;
+	internals_.reserve(n_shards);
+	vector<pair<Xapian::docid, Xapian::docid>> used_ranges_;
+	used_ranges_.reserve(n_shards);
 
 	Xapian::docid last_start = 0, last_end = 0;
-	for (size_t j = 0; j != order.size(); ++j) {
-	    size_t n = order[j];
+	for (Xapian::doccount j = 0; j != order.size(); ++j) {
+	    Xapian::doccount n = order[j];
 
 	    internals_.push_back(internals[n]);
 	    used_ranges_.push_back(used_ranges[n]);
@@ -363,21 +328,16 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	    // Check why mkdir failed.  It's ok if the directory already
 	    // exists, but we also get EEXIST if there's an existing file with
 	    // that name.
-	    if (errno == EEXIST) {
-		if (dir_exists(destdir))
-		    errno = 0;
-		else
-		    errno = EEXIST; // dir_exists() might have changed it
-	    }
-	    if (errno) {
+	    int mkdir_errno = errno;
+	    if (mkdir_errno != EEXIST || !dir_exists(destdir)) {
 		string msg = destdir;
 		msg += ": cannot create directory";
-		throw Xapian::DatabaseError(msg, errno);
+		throw Xapian::DatabaseError(msg, mkdir_errno);
 	    }
 	}
     }
 
-#if defined XAPIAN_HAS_GLASS_BACKEND
+#if defined XAPIAN_HAS_GLASS_BACKEND || defined XAPIAN_HAS_HONEY_BACKEND
     Xapian::Compactor::compaction_level compaction =
 	static_cast<Xapian::Compactor::compaction_level>(flags & (Xapian::Compactor::STANDARD|Xapian::Compactor::FULL|Xapian::Compactor::FULLER));
 #else
@@ -385,22 +345,90 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
     (void)block_size;
 #endif
 
+    auto output_backend = flags & Xapian::DB_BACKEND_MASK_;
     if (backend == BACKEND_GLASS) {
+	switch (output_backend) {
+	    case 0:
+	    case Xapian::DB_BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	if (output_ptr) {
-	    GlassDatabase::compact(compactor, destdir.c_str(), 0,
-				   internals, offset,
-				   block_size, compaction, flags, last_docid);
-	} else {
-	    GlassDatabase::compact(compactor, NULL, fd,
-				   internals, offset,
-				   block_size, compaction, flags, last_docid);
-	}
+		if (output_ptr) {
+		    GlassDatabase::compact(compactor, destdir.c_str(), 0,
+					   internals, offset,
+					   block_size, compaction, flags,
+					   last_docid);
+		} else {
+		    GlassDatabase::compact(compactor, NULL, fd,
+					   internals, offset,
+					   block_size, compaction, flags,
+					   last_docid);
+		}
+		break;
 #else
-	(void)fd;
-	(void)last_docid;
-	throw Xapian::FeatureUnavailableError("Glass backend disabled at build time");
+		(void)fd;
+		(void)last_docid;
+		throw Xapian::FeatureUnavailableError("Glass backend disabled "
+						      "at build time");
 #endif
+	    case Xapian::DB_BACKEND_HONEY:
+		// Honey isn't block based.
+		(void)block_size;
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+		if (output_ptr) {
+		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
+					   Xapian::DB_BACKEND_GLASS,
+					   internals, offset,
+					   compaction, flags,
+					   last_docid);
+		} else {
+		    HoneyDatabase::compact(compactor, NULL, fd,
+					   Xapian::DB_BACKEND_GLASS,
+					   internals, offset,
+					   compaction, flags,
+					   last_docid);
+		}
+		break;
+#else
+		(void)fd;
+		(void)last_docid;
+		throw Xapian::FeatureUnavailableError("Honey backend disabled "
+						      "at build time");
+#endif
+	    default:
+		throw Xapian::UnimplementedError("Glass can only be "
+						 "compacted to itself or "
+						 "honey");
+	}
+    } else if (backend == BACKEND_HONEY) {
+	switch (output_backend) {
+	    case 0:
+	    case Xapian::DB_BACKEND_HONEY:
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+		// Honey isn't block based.
+		(void)block_size;
+		if (output_ptr) {
+		    HoneyDatabase::compact(compactor, destdir.c_str(), 0,
+					   Xapian::DB_BACKEND_HONEY,
+					   internals, offset,
+					   compaction, flags,
+					   last_docid);
+		} else {
+		    HoneyDatabase::compact(compactor, NULL, fd,
+					   Xapian::DB_BACKEND_HONEY,
+					   internals, offset,
+					   compaction, flags,
+					   last_docid);
+		}
+		break;
+#else
+		(void)fd;
+		(void)last_docid;
+		throw Xapian::FeatureUnavailableError("Honey backend disabled "
+						      "at build time");
+#endif
+	    default:
+		throw Xapian::UnimplementedError("Honey can only be "
+						 "compacted to itself");
+	}
     }
 
     if (compact_to_stub) {
@@ -408,11 +436,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	new_stub_file += "/new_stub.tmp";
 	{
 	    ofstream new_stub(new_stub_file.c_str());
-#ifndef __WIN32__
-	    size_t slash = destdir.find_last_of('/');
-#else
-	    size_t slash = destdir.find_last_of("/\\");
-#endif
+	    size_t slash = destdir.find_last_of(DIR_SEPS);
 	    new_stub << "auto " << destdir.substr(slash + 1) << '\n';
 	}
 	if (!io_tmp_rename(new_stub_file, stub_file)) {

@@ -1,7 +1,7 @@
 /** @file glass_metadata.h
  * @brief Access to metadata for a glass database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2017 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -58,6 +58,8 @@ class GlassMetadataTermList : public AllTermsList {
 
     ~GlassMetadataTermList();
 
+    Xapian::termcount get_approx_size() const;
+
     /** Returns the current termname.
      *
      *  Either next() or skip_to() must have been called before this
@@ -70,12 +72,6 @@ class GlassMetadataTermList : public AllTermsList {
      *  Not meaningful for a GlassMetadataTermList.
      */
     Xapian::doccount get_termfreq() const;
-
-    /** Return the collection frequency for the term at the current position.
-     *
-     *  Not meaningful for a GlassMetadataTermList.
-     */
-    Xapian::termcount get_collection_freq() const;
 
     /// Advance to the next term in the list.
     TermList * next();

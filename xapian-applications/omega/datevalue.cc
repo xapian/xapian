@@ -28,6 +28,7 @@
 
 #include <xapian.h>
 
+#include "parseint.h"
 #include "timegm.h"
 #include "values.h"
 
@@ -205,7 +206,8 @@ DateRangeLimit::format(bool start) const
     } else {
 	while (len && buf[len - 1] == '9') --len;
 	if (len < 14) {
-	    // Append a character that will sort after any valid extra precision.
+	    // Append a character that will sort after any valid extra
+	    // precision.
 	    buf[len++] = '~';
 	}
     }
@@ -223,7 +225,11 @@ date_value_range(bool as_time_t,
     DateRangeLimit end(date_end, false);
 
     if (!date_span.empty()) {
-	time_t span = atoi(date_span.c_str()) * (24 * 60 * 60) - 1;
+	unsigned int days;
+	if (!parse_unsigned(date_span.c_str(), days)) {
+	    throw "Datespan value must be >= 0";
+	}
+	time_t span = days * (24 * 60 * 60) - 1;
 	if (end.is_set()) {
 	    // If START, END and SPAN are all set, we (somewhat arbitrarily)
 	    // ignore START.

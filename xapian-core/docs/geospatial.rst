@@ -191,7 +191,7 @@ of interest are considered.
 
 It is entirely possible that a more efficient implementation could be performed
 using "R trees" or "KD trees" (or one of the many other tree structures used
-for geospatial indexing - see http://en.wikipedia.org/wiki/Spatial_index for a
+for geospatial indexing - see https://en.wikipedia.org/wiki/Spatial_index for a
 list of some of these).  However, using the QTM approach will require minimal
 effort and make use of the existing, and well tested, Xapian database.
 Additionally, by simply generating special terms to restrict the search, the

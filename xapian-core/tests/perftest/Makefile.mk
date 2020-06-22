@@ -18,6 +18,7 @@ perftest/get_machine_info: perftest/get_machine_info.in
 noinst_HEADERS += perftest/perftest.h
 
 collated_perftest_sources = \
+ perftest/perftest_diversify.cc \
  perftest/perftest_matchdecider.cc \
  perftest/perftest_randomidx.cc
 
@@ -31,7 +32,7 @@ perftest_perftest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 if MAINTAINER_MODE
 BUILT_SOURCES += perftest/perftest_all.h perftest/perftest_collated.h \
- $(collated_perftest_sources:.cc=.h)
+ $(collated_perftest_sources:.cc=.h) perftest/perftest_collated.stamp
 
 perftest/perftest_all.h perftest/perftest_collated.h $(collated_perftest_sources:.cc=.h): perftest/perftest_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the

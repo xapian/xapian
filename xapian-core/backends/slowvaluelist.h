@@ -23,7 +23,7 @@
 
 #include "valuelist.h"
 
-#include "database.h"
+#include "databaseinternal.h"
 
 /** Slow implementation for backends which don't streamed values.
  *

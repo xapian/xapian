@@ -1,7 +1,7 @@
 /** @file glass_spelling.cc
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,12 +44,11 @@ using namespace std;
 void
 GlassSpellingTable::merge_changes()
 {
-    map<fragment, set<string> >::const_iterator i;
-    for (i = termlist_deltas.begin(); i != termlist_deltas.end(); ++i) {
-	string key = i->first;
-	const set<string> & changes = i->second;
+    for (auto i : termlist_deltas) {
+	const string& key = i.first;
+	const set<string>& changes = i.second;
 
-	set<string>::const_iterator d = changes.begin();
+	auto d = changes.begin();
 	if (d == changes.end()) continue;
 
 	string updated;
@@ -113,13 +112,13 @@ GlassSpellingTable::merge_changes()
 void
 GlassSpellingTable::toggle_fragment(fragment frag, const string & word)
 {
-    map<fragment, set<string> >::iterator i = termlist_deltas.find(frag);
+    auto i = termlist_deltas.find(frag);
     if (i == termlist_deltas.end()) {
 	i = termlist_deltas.insert(make_pair(frag, set<string>())).first;
     }
     // The commonest case is that we're adding lots of words, so try insert
     // first and if that reports that the word already exists, remove it.
-    pair<set<string>::iterator, bool> res = i->second.insert(word);
+    auto res = i->second.insert(word);
     if (!res.second) {
 	// word is already in the set, so remove it.
 	i->second.erase(res.first);
@@ -161,22 +160,23 @@ GlassSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
     toggle_word(word);
 }
 
-void
+Xapian::termcount
 GlassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 {
-    if (word.size() <= 1) return;
+    if (word.size() <= 1) return freqdec;
 
     map<string, Xapian::termcount>::iterator i = wordfreq_changes.find(word);
     if (i != wordfreq_changes.end()) {
 	if (i->second == 0) {
 	    // Word has already been deleted.
-	    return;
+	    return freqdec;
 	}
 	// Word "word" exists and has been modified.
 	if (freqdec < i->second) {
 	    i->second -= freqdec;
-	    return;
+	    return 0;
 	}
+	freqdec -= i->second;
 
 	// Mark word as deleted.
 	i->second = 0;
@@ -185,7 +185,7 @@ GlassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	string data;
 	if (!get_exact_entry(key, data)) {
 	    // This word doesn't exist.
-	    return;
+	    return freqdec;
 	}
 
 	Xapian::termcount freq;
@@ -195,14 +195,18 @@ GlassSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
 	}
 	if (freqdec < freq) {
 	    wordfreq_changes[word] = freq - freqdec;
-	    return;
+	    return 0;
 	}
+	freqdec -= freq;
+
 	// Mark word as deleted.
 	wordfreq_changes[word] = 0;
     }
 
     // Remove trigrams for word.
     toggle_word(word);
+
+    return freqdec;
 }
 
 void
@@ -424,12 +428,6 @@ GlassSpellingTermList::get_termfreq() const
     return 1;
 }
 
-Xapian::termcount
-GlassSpellingTermList::get_collection_freq() const
-{
-    return 1;
-}
-
 TermList *
 GlassSpellingTermList::next()
 {
@@ -441,11 +439,11 @@ GlassSpellingTermList::next()
     if (!current_term.empty()) {
 	if (p == data.size())
 	    throw Xapian::DatabaseCorruptError("Bad spelling termlist");
-	current_term.resize(byte(data[p++]) ^ MAGIC_XOR_VALUE);
+	current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
     }
     size_t add;
     if (p == data.size() ||
-	(add = byte(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
+	(add = uint8_t(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
 	throw Xapian::DatabaseCorruptError("Bad spelling termlist");
     current_term.append(data.data() + p + 1, add);
     p += add + 1;
@@ -473,7 +471,7 @@ GlassSpellingTermList::positionlist_count() const
     throw Xapian::UnimplementedError("GlassSpellingTermList::positionlist_count() not implemented");
 }
 
-Xapian::PositionIterator
+PositionList*
 GlassSpellingTermList::positionlist_begin() const
 {
     throw Xapian::UnimplementedError("GlassSpellingTermList::positionlist_begin() not implemented");

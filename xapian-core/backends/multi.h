@@ -33,7 +33,7 @@
  *  @return docid in the shard
  */
 inline Xapian::docid
-shard_docid(Xapian::docid did, size_t n_shards) {
+shard_docid(Xapian::docid did, Xapian::doccount n_shards) {
     Assert(did != 0);
     Assert(n_shards != 0);
     return (did - 1) / n_shards + 1;
@@ -46,11 +46,11 @@ shard_docid(Xapian::docid did, size_t n_shards) {
  *
  *  @return shard number between 0 and (n_shards - 1) inclusive
  */
-inline size_t
-shard_number(Xapian::docid did, size_t n_shards) {
+inline Xapian::doccount
+shard_number(Xapian::docid did, Xapian::doccount n_shards) {
     Assert(did != 0);
     Assert(n_shards != 0);
-    return (did - 1) % n_shards;
+    return Xapian::doccount((did - 1) % n_shards);
 }
 
 /** Convert shard number and shard docid to docid in multi-db.
@@ -62,7 +62,9 @@ shard_number(Xapian::docid did, size_t n_shards) {
  *  @return docid in the multi-db.
  */
 inline Xapian::docid
-unshard(Xapian::docid shard_did, size_t shard, size_t n_shards) {
+unshard(Xapian::docid shard_did,
+	Xapian::doccount shard,
+	Xapian::doccount n_shards) {
     Assert(shard_did != 0);
     AssertRel(shard,<,n_shards);
     return (shard_did - 1) * n_shards + shard + 1;

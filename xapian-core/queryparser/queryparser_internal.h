@@ -1,7 +1,7 @@
 /** @file queryparser_internal.h
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -46,10 +46,10 @@ struct FieldInfo {
     string grouping;
 
     /// Field prefix strings.
-    list<string> prefixes;
+    vector<string> prefixes;
 
-    /// Field processors.  Currently only one is supported.
-    list<Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> > procs;
+    /// Field processor.  Currently only one is supported.
+    Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> proc;
 
     FieldInfo(filter_type type_, const string& prefix,
 	      const string& grouping_ = string())
@@ -58,11 +58,10 @@ struct FieldInfo {
 	prefixes.push_back(prefix);
     }
 
-    FieldInfo(filter_type type_, Xapian::FieldProcessor* proc,
+    FieldInfo(filter_type type_, Xapian::FieldProcessor* proc_,
 	      const string& grouping_ = string())
-	: type(type_), grouping(grouping_)
+	: type(type_), grouping(grouping_), proc(proc_)
     {
-	procs.push_back(proc);
     }
 };
 
@@ -101,13 +100,21 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
     string corrected_query;
 
-    Xapian::termcount max_wildcard_expansion;
+    Xapian::termcount max_wildcard_expansion = 0;
 
-    Xapian::termcount max_partial_expansion;
+    Xapian::termcount max_partial_expansion = 100;
 
-    int max_wildcard_type;
+    Xapian::termcount max_fuzzy_expansion = 0;
 
-    int max_partial_type;
+    int max_wildcard_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
+
+    int max_partial_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+
+    int max_fuzzy_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
+
+    unsigned min_wildcard_prefix_len = 0;
+
+    unsigned min_partial_prefix_len = 2;
 
     void add_prefix(const string &field, const string &prefix);
 
@@ -120,15 +127,15 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 			    const string* grouping);
 
     std::string parse_term(Utf8Iterator &it, const Utf8Iterator &end,
-			   bool cjk_ngram, bool &is_cjk_term,
-			   bool &was_acronym);
+			   bool cjk_enable, unsigned flags,
+			   bool &is_cjk_term, bool &was_acronym,
+			   size_t& first_wildcard,
+			   size_t& char_count,
+			   unsigned& edit_distance);
 
   public:
     Internal() : stem_action(STEM_SOME), stopper(NULL),
-	default_op(Query::OP_OR), errmsg(NULL),
-	max_wildcard_expansion(0), max_partial_expansion(100),
-	max_wildcard_type(Xapian::Query::WILDCARD_LIMIT_ERROR),
-	max_partial_type(Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) { }
+	default_op(Query::OP_OR), errmsg(NULL) { }
 
     Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
 };

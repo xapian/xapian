@@ -36,7 +36,6 @@ RSTDOCS = \
 	stemming.rst \
 	synonyms.rst \
 	termgenerator.rst \
-	tests.rst \
 	valueranges.rst
 
 RSTHTML = $(RSTDOCS:.rst=.html)
@@ -50,18 +49,12 @@ EXTRA_DIST = doxygen_api.conf.in doxygen_source.conf.in \
 # Other files which should be distributed
 dist-hook: doxygen_api_docs
 	$(MKDIR_P) '$(distdir)/apidoc/html'
-	test "`echo $(srcdir)/apidoc/html/*.png`" = "$(srcdir)/apidoc/html/*.png" || \
-	  cp -p $(srcdir)/apidoc/html/*.png $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.png`" = "apidoc/html/*.png" || \
-	  cp -p apidoc/html/*.png $(distdir)/apidoc/html
-	test "`echo $(srcdir)/apidoc/html/*.css`" = "$(srcdir)/apidoc/html/*.css" || \
-	  cp -p $(srcdir)/apidoc/html/*.css $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.css`" = "apidoc/html/*.css" || \
-	  cp -p apidoc/html/*.css $(distdir)/apidoc/html
-	test "`echo $(srcdir)/apidoc/html/*.html`" = "$(srcdir)/apidoc/html/*.html" || \
-	  cp -p $(srcdir)/apidoc/html/*.html $(distdir)/apidoc/html
-	test "`echo apidoc/html/*.html`" = "apidoc/html/*.html" || \
-	  cp -p apidoc/html/*.html $(distdir)/apidoc/html
+	for e in png css html js ; do \
+	  test "`echo $(srcdir)/apidoc/html/*.$$e`" = "$(srcdir)/apidoc/html/*.$$e" || \
+	    cp -p $(srcdir)/apidoc/html/*.$$e $(distdir)/apidoc/html ;\
+	  test "`echo apidoc/html/*.$$e`" = "apidoc/html/*.$$e" || \
+	    cp -p apidoc/html/*.$$e $(distdir)/apidoc/html ;\
+	done
 
 # Disable these rules if configured with --enable-maintainer-mode and
 # --disable-documentation so that "make install" works in this case.
@@ -73,6 +66,7 @@ install-data-local: doxygen_api_docs
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.png $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.css $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.html $(DESTDIR)$(docdir)/apidoc/html
+	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/*.js $(DESTDIR)$(docdir)/apidoc/html
 endif
 
 ###############################

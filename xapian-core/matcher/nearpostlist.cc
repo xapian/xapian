@@ -1,7 +1,7 @@
 /** @file nearpostlist.cc
  * @brief Return docs containing terms within a specified window.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017,2018 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@
 
 #include "debuglog.h"
 #include "backends/positionlist.h"
+#include "heap.h"
 #include "omassert.h"
 #include "str.h"
 
@@ -36,8 +37,11 @@ using namespace std;
 NearPostList::NearPostList(PostList *source_,
 			   Xapian::termpos window_,
 			   const vector<PostList*>::const_iterator &terms_begin,
-			   const vector<PostList*>::const_iterator &terms_end)
-    : SelectPostList(source_), window(window_), terms(terms_begin, terms_end)
+			   const vector<PostList*>::const_iterator &terms_end,
+			   PostListTree* pltree_)
+    : SelectPostList(source_, pltree_),
+      window(window_),
+      terms(terms_begin, terms_end)
 {
     size_t n = terms.size();
     Assert(n > 1);
@@ -75,7 +79,8 @@ NearPostList::test_doc()
     sort(terms.begin(), terms.end(), TermCmp());
 
     poslists[0] = terms[0]->read_position_list();
-    poslists[0]->next();
+    if (!poslists[0]->next())
+	RETURN(false);
 
     Xapian::termpos last = poslists[0]->get_position();
     PositionList ** end = poslists + 1;
@@ -88,15 +93,16 @@ NearPostList::test_doc()
 		PositionList * posl =
 		    terms[end - poslists]->read_position_list();
 		if (last < window) {
-		    posl->next();
+		    if (!posl->next())
+			RETURN(false);
 		} else {
-		    posl->skip_to(last - window + 1);
+		    if (!posl->skip_to(last - window + 1))
+			RETURN(false);
 		}
-		if (posl->at_end()) RETURN(false);
 		Xapian::termpos pos = posl->get_position();
 		if (pos > last) last = pos;
 		*end++ = posl;
-		push_heap<PositionList **, Cmp>(poslists, end, Cmp());
+		Heap::push(poslists, end, Cmp());
 		continue;
 	    }
 
@@ -108,39 +114,37 @@ NearPostList::test_doc()
 	    // we return to the outer loop, otherwise we reinsert it into the
 	    // heap at its new position and continue to look for duplicates
 	    // we need to adjust.
-	    PositionList ** i = end;
-	    pop_heap<PositionList **, Cmp>(poslists, i, Cmp());
-	    Xapian::termpos pos = (*--i)->get_position();
+	    Xapian::termpos pos = poslists[0]->get_position();
+	    Heap::pop(poslists, end, Cmp());
+	    PositionList ** i = end - 1;
 	    while (true) {
-		pop_heap<PositionList **, Cmp>(poslists, i, Cmp());
-		if ((*--i)->get_position() == pos) {
-		    (*i)->next();
-		    if ((*i)->at_end())
+		if (poslists[0]->get_position() == pos) {
+		    if (!poslists[0]->next())
 			RETURN(false);
-		    Xapian::termpos newpos = (*i)->get_position();
+		    Xapian::termpos newpos = poslists[0]->get_position();
 		    if (newpos - end[-1]->get_position() >= window) {
 			// No longer fits in the window.
 			last = newpos;
 			break;
 		    }
-		    push_heap<PositionList **, Cmp>(poslists, ++i, Cmp());
+		    Heap::replace(poslists, i, Cmp());
 		    continue;
 		}
-		pos = (*i)->get_position();
-		if (i == poslists) {
+		pos = poslists[0]->get_position();
+		Heap::pop(poslists, i, Cmp());
+		if (--i == poslists) {
 		    Assert(pos - end[-1]->get_position() < window);
 		    RETURN(true);
 		}
 	    }
 
-	    make_heap<PositionList **, Cmp>(poslists, end, Cmp());
+	    Heap::make(poslists, end, Cmp());
 	    continue;
 	}
-	pop_heap<PositionList **, Cmp>(poslists, end, Cmp());
-	end[-1]->skip_to(last - window + 1);
-	if (end[-1]->at_end()) break;
-	last = max(last, end[-1]->get_position());
-	push_heap<PositionList **, Cmp>(poslists, end, Cmp());
+	if (!poslists[0]->skip_to(last - window + 1))
+	    break;
+	last = max(last, poslists[0]->get_position());
+	Heap::replace(poslists, end, Cmp());
     }
 
     RETURN(false);
@@ -202,7 +206,7 @@ NearPostList::get_termfreq_est() const
     // It's hard to estimate how many times the postlist will match as it
     // depends a lot on the terms and window, but usually it will occur
     // significantly less often than the individual terms.
-    return source->get_termfreq_est() / 2;
+    return pl->get_termfreq_est() / 2;
 }
 
 TermFreqs
@@ -212,7 +216,7 @@ NearPostList::get_termfreq_est_using_stats(
     LOGCALL(MATCH, TermFreqs, "NearPostList::get_termfreq_est_using_stats", stats);
     // No idea how to estimate this - do the same as get_termfreq_est() for
     // now.
-    TermFreqs result(source->get_termfreq_est_using_stats(stats));
+    TermFreqs result(pl->get_termfreq_est_using_stats(stats));
     result.termfreq /= 2;
     result.reltermfreq /= 2;
     RETURN(result);
@@ -224,7 +228,7 @@ NearPostList::get_description() const
     string m = "(Near ";
     m += str(window);
     m += ' ';
-    m += source->get_description();
+    m += pl->get_description();
     m += ")";
     return m;
 }

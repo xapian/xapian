@@ -21,61 +21,19 @@
 #ifndef XAPIAN_INCLUDED_ORPOSPOSTLIST_H
 #define XAPIAN_INCLUDED_ORPOSPOSTLIST_H
 
-#include "api/postlist.h"
 #include "orpositionlist.h"
+#include "wrapperpostlist.h"
 
 /** Wrapper postlist providing positions for an OR. */
-class OrPosPostList : public PostList {
-    /// Don't allow assignment.
-    void operator=(const OrPosPostList &);
-
-    /// Don't allow copying.
-    OrPosPostList(const OrPosPostList &);
-
-    PostList* pl;
-
+class OrPosPostList : public WrapperPostList {
     OrPositionList position_list;
 
   public:
-    OrPosPostList(PostList* pl_)
-	: pl(pl_) { }
-
-    ~OrPosPostList();
-
-    Xapian::doccount get_termfreq_min() const;
-
-    Xapian::doccount get_termfreq_max() const;
-
-    Xapian::doccount get_termfreq_est() const;
-
-    TermFreqs get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const;
-
-    double get_maxweight() const;
-
-    Xapian::docid get_docid() const;
-
-    Xapian::termcount get_doclength() const;
-
-    Xapian::termcount get_unique_terms() const;
-
-    double get_weight() const;
-
-    bool at_end() const;
-
-    double recalc_maxweight();
+    OrPosPostList(PostList* pl_) : WrapperPostList(pl_) { }
 
     PositionList * read_position_list();
 
-    Internal *next(double w_min);
-
-    Internal *skip_to(Xapian::docid, double w_min);
-
     std::string get_description() const;
-
-    Xapian::termcount get_wdf() const;
-
-    Xapian::termcount count_matching_subqs() const;
 };
 
 #endif // XAPIAN_INCLUDED_ORPOSPOSTLIST_H

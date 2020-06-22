@@ -1,5 +1,5 @@
 <?php
-/* Simple example PHP5 script demonstrating query expansion.
+/* Simple example PHP7 script demonstrating query expansion.
  *
  * Copyright (C) 2007,2014,2015 Olly Betts
  *

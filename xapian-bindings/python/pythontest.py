@@ -104,20 +104,6 @@ def test_mset_iter():
     expect(items[2].collapse_count, 0)
     expect(items[2].document.get_data(), 'was it warm? three')
 
-    # Test coverage for mset.items
-    mset_items = mset.items
-    expect(len(mset), len(mset_items), "Expected number of items to be length of mset")
-
-    context("testing mset_items[2]")
-    expect(mset_items[2][xapian.MSET_DID], 4)
-    expect(mset_items[2][xapian.MSET_WT] > 0.0, True)
-    expect(mset_items[2][xapian.MSET_RANK], 2)
-    expect(mset_items[2][xapian.MSET_PERCENT], 86)
-    # MSET_DOCUMENT is documented but not implemented!  FIXME: resolve this -
-    # if it has never worked, we may just want to remove the documentation for
-    # it.
-    #expect(mset_items[2][xapian.MSET_DOCUMENT].get_data(), 'was it warm? three')
-
     # Check iterators for sub-msets against the whole mset.
     for start in range(0, 6):
         for maxitems in range(0, 6):
@@ -517,8 +503,8 @@ def test_newdocument_iter():
         terms.append(termitem.term)
         wdfs.append(termitem.wdf)
         expect_exception(xapian.InvalidOperationError,
-                         "Can't get term frequency from a document termlist "
-                         "which is not associated with a database.",
+                         "get_termfreq() not valid for a TermIterator from a "
+                         "Document which is not associated with a database",
                          getattr, termitem, 'termfreq')
         positers.append([pos for pos in termitem.positer])
 
@@ -850,49 +836,6 @@ def test_spell():
     db.close()
     dbr.close()
     shutil.rmtree(dbpath)
-
-def test_queryparser_custom_vrp():
-    """Test QueryParser with a custom (in python) ValueRangeProcessor.
-
-    """
-    class MyVRP(xapian.ValueRangeProcessor):
-        def __init__(self):
-            xapian.ValueRangeProcessor.__init__(self)
-
-        def __call__(self, begin, end):
-            return (7, "A"+begin, "B"+end)
-
-    queryparser = xapian.QueryParser()
-    myvrp = MyVRP()
-
-    queryparser.add_valuerangeprocessor(myvrp)
-    query = queryparser.parse_query('5..8')
-
-    expect(str(query),
-           'Query(VALUE_RANGE 7 A5 B8)')
-
-def test_queryparser_custom_vrp_deallocation():
-    """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
-
-    """
-    class MyVRP(xapian.ValueRangeProcessor):
-        def __init__(self):
-            xapian.ValueRangeProcessor.__init__(self)
-
-        def __call__(self, begin, end):
-            return (7, "A"+begin, "B"+end)
-
-    def make_parser():
-        queryparser = xapian.QueryParser()
-        myvrp = MyVRP()
-        queryparser.add_valuerangeprocessor(myvrp)
-        return queryparser
-
-    queryparser = make_parser()
-    query = queryparser.parse_query('5..8')
-
-    expect(str(query),
-           'Query(VALUE_RANGE 7 A5 B8)')
 
 def test_queryparser_custom_rp():
     """Test QueryParser with a custom (in python) RangeProcessor.
@@ -1331,7 +1274,7 @@ def test_value_mods():
     check_vals(db, vals)
 
     db.close()
-    expect_exception(xapian.DatabaseError, "Database has been closed", check_vals, db, vals)
+    expect_exception(xapian.DatabaseClosedError, "Database has been closed", check_vals, db, vals)
     shutil.rmtree(dbpath)
 
 def test_serialise_document():
@@ -1556,13 +1499,12 @@ def test_compactor():
         db2.add_document(doc2)
         db2.commit()
 
+        db_to_compact = xapian.Database()
+        db_to_compact.add_database(xapian.Database(db1path))
+        db_to_compact.add_database(xapian.Database(db2path))
         # Compact with the default compactor
         # Metadata conflicts are resolved by picking the first value
-        c = xapian.Compactor()
-        c.add_source(db1path)
-        c.add_source(db2path)
-        c.set_destdir(db3path)
-        c.compact()
+        db_to_compact.compact(db3path)
 
         db3 = xapian.Database(db3path)
         expect([(item.term, item.termfreq) for item in db3.allterms()],
@@ -1589,10 +1531,10 @@ def test_compactor():
                 return ','.join(vals)
 
         c = MyCompactor()
-        c.add_source(db1path)
-        c.add_source(db2path)
-        c.set_destdir(db3path)
-        c.compact()
+        db_to_compact = xapian.Database()
+        db_to_compact.add_database(xapian.Database(db1path))
+        db_to_compact.add_database(xapian.Database(db2path))
+        db_to_compact.compact(db3path, 0, 0, c)
         log = '\n'.join(c.log)
         # Check we got some messages in the log
         expect('Starting postlist' in log, True)
@@ -1613,21 +1555,6 @@ def test_compactor():
             db3.close()
 
         shutil.rmtree(tmpdir)
-
-def test_leak_mset_items():
-    """Test that items property of MSet doesn't leak
-
-    """
-    db = xapian.WritableDatabase('', xapian.DB_BACKEND_INMEMORY)
-    doc = xapian.Document()
-    doc.add_term('drip')
-    db.add_document(doc)
-    enq = xapian.Enquire(db)
-    enq.set_query(xapian.Query('drip'))
-    mset = enq.get_mset(0, 10)
-
-    # Prior to 1.2.4 this next line leaked an object.
-    mset.items
 
 def test_custom_matchspy():
     class MSpy(xapian.MatchSpy):
@@ -1719,12 +1646,14 @@ def test_repr():
     expect(repr(xapian.InvalidOperationError('foo')) is None, False)
     expect(repr(xapian.UnimplementedError('foo')) is None, False)
     expect(repr(xapian.DatabaseError('foo')) is None, False)
+    expect(repr(xapian.DatabaseClosedError('foo')) is None, False)
     expect(repr(xapian.DatabaseCorruptError('foo')) is None, False)
     expect(repr(xapian.DatabaseCreateError('foo')) is None, False)
     expect(repr(xapian.DatabaseLockError('foo')) is None, False)
     expect(repr(xapian.DatabaseModifiedError('foo')) is None, False)
     expect(repr(xapian.DatabaseOpeningError('foo')) is None, False)
     expect(repr(xapian.DatabaseVersionError('foo')) is None, False)
+    expect(repr(xapian.DatabaseNotFoundError('foo')) is None, False)
     expect(repr(xapian.DocNotFoundError('foo')) is None, False)
     expect(repr(xapian.FeatureUnavailableError('foo')) is None, False)
     expect(repr(xapian.InternalError('foo')) is None, False)
@@ -1747,9 +1676,6 @@ def test_repr():
     expect(repr(xapian.RangeProcessor()) is None, False)
     expect(repr(xapian.DateRangeProcessor(1)) is None, False)
     expect(repr(xapian.NumberRangeProcessor(1)) is None, False)
-    expect(repr(xapian.StringValueRangeProcessor(1)) is None, False)
-    expect(repr(xapian.DateValueRangeProcessor(1)) is None, False)
-    expect(repr(xapian.NumberValueRangeProcessor(1)) is None, False)
     expect(repr(xapian.QueryParser()) is None, False)
     expect(repr(xapian.BoolWeight()) is None, False)
     expect(repr(xapian.TfIdfWeight()) is None, False)

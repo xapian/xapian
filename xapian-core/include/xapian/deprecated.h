@@ -21,7 +21,7 @@
 #define XAPIAN_INCLUDED_DEPRECATED_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/deprecated.h> directly; include <xapian.h> instead."
+# error Never use <xapian/deprecated.h> directly; include <xapian.h> instead.
 #endif
 
 // How to make use of XAPIAN_DEPRECATED, etc is documented in HACKING - see
@@ -44,8 +44,8 @@
 // it.
 #ifndef XAPIAN_DEPRECATED
 # ifdef __GNUC__
-// __attribute__((__deprecated__)) is supported by GCC 3.1 and later, which
-// is now our minimum requirement, so there's no need to check the GCC version
+// __attribute__((__deprecated__)) is supported by GCC 3.1 and later, and
+// we require a newer version, so there's no need to check the GCC version
 // in use.
 #  define XAPIAN_DEPRECATED(D) D __attribute__((__deprecated__))
 #  define XAPIAN_DEPRECATED_CLASS __attribute__((__deprecated__))

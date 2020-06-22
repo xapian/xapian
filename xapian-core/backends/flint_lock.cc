@@ -24,7 +24,7 @@
 #include "flint_lock.h"
 
 #ifndef __WIN32__
-#include "safeerrno.h"
+#include <cerrno>
 
 #include "safefcntl.h"
 #include <unistd.h>
@@ -63,19 +63,30 @@ using namespace std;
 # endif
 #endif
 
+[[noreturn]]
+static void
+throw_cannot_test_lock()
+{
+    throw Xapian::FeatureUnavailableError("Can't test lock without trying to "
+					  "take it");
+}
+
 bool
 FlintLock::test() const
 {
+    // A database which doesn't support update can't be locked for update.
+    if (filename.empty()) return false;
+
 #if defined __CYGWIN__ || defined __WIN32__
     if (hFile != INVALID_HANDLE_VALUE) return true;
     // Doesn't seem to be possible to check if the lock is held without briefly
     // taking the lock.
-    throw Xapian::UnimplementedError("Can't test lock without trying to take it");
+    throw_cannot_test_lock();
 #elif defined FLINTLOCK_USE_FLOCK
     if (fd != -1) return true;
     // Doesn't seem to be possible to check if the lock is held without briefly
     // taking the lock.
-    throw Xapian::UnimplementedError("Can't test lock without trying to take it");
+    throw_cannot_test_lock();
 #else
     if (fd != -1) return true;
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
@@ -96,9 +107,12 @@ FlintLock::test() const
 	    // Translate known errno values into a reason code.
 	    int e = errno;
 	    close(lockfd);
-	    // F_GETLK isn't implemented by GNU Hurd, and always fails with
-	    // ENOSYS: https://bugs.debian.org/190367
-	    reason why = (e == ENOLCK || e == ENOSYS ? UNSUPPORTED : UNKNOWN);
+	    if (e == ENOSYS) {
+		// F_GETLK isn't implemented by GNU Hurd, and always fails with
+		// ENOSYS: https://bugs.debian.org/190367
+		throw_cannot_test_lock();
+	    }
+	    reason why = (e == ENOLCK ? UNSUPPORTED : UNKNOWN);
 	    throw_databaselockerror(why, filename, "Testing lock");
 	}
     }
@@ -151,9 +165,14 @@ retry:
     // least on platforms where flock() isn't just a compatibility wrapper
     // around fcntl()).  We can't simply switch to this without breaking
     // locking compatibility with previous releases, though it might be useful
-    // for porting to platforms without fcntl() locking.  Also, flock()
-    // apparently doesn't work over NFS - perhaps that's OK, but we should at
-    // least check the failure mode.
+    // for porting to platforms without fcntl() locking.
+    //
+    // Also, flock() is problematic over NFS at least on Linux - it's been
+    // supported since Linux 2.6.12 but it's actually emulated by taking out an
+    // fcntl() byte-range lock on the entire file, which means that a process
+    // on the NFS server can get a (genuine) flock() lock on the same file a
+    // process on an NFS client has locked by flock() emulated as an fcntl()
+    // lock.
     Assert(fd == -1);
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (lockfd < 0) {
@@ -385,7 +404,9 @@ no_ofd_support:
 	execl("/bin/cat", "/bin/cat", static_cast<void*>(NULL));
 	// Emulate cat ourselves (we try to avoid this to reduce VM overhead).
 	char ch;
-	while (read(0, &ch, 1) != 0) { /* Do nothing */ }
+	while (read(0, &ch, 1) != 0) {
+	    /* Do nothing */
+	}
 	_exit(0);
     }
 

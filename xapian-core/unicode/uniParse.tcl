@@ -198,7 +198,7 @@ proc uni::main {} {
 #include <xapian/unicode.h>
 
 /*
- * A 16-bit Unicode character is split into two parts in order to index
+ * A Unicode character is split into two parts in order to index
  * into the following tables.  The lower OFFSET_BITS comprise an offset
  * into a page of characters.  The upper bits comprise the page number.
  */
@@ -274,12 +274,9 @@ static const unsigned char groupMap\[\] = {"
  *
  * Bits 0-4	Character category: see the constants listed below.
  *
- * Bits 5-7	Case delta type: 000 = identity
- *				 010 = add delta for lower
- *				 011 = add delta for lower, add 1 for title
- *				 100 = subtract delta for title/upper
- *				 101 = sub delta for upper, sub 1 for title
- *				 110 = sub delta for upper, add delta for lower
+ * Bit 5	Reserved (was used for case delta to title).
+ * Bit 6	Case delta to lower: 0 = none; 1 = add delta.
+ * Bit 7	Case delta to upper: 0 = none; 1 = sub delta.
  *
  * Bits 8-31	Case delta: delta for case conversions.  This should be the
  *			    highest field so we can easily sign extend.
@@ -293,36 +290,20 @@ static const int groups\[\] = {"
 	foreach {type toupper tolower totitle} [lindex $groups $i] {}
 
 	# Compute the case conversion type and delta
+	# The original Tcl version supports converting to title case, but we
+	# don't need that in Xapian, and since Unicode 11.0 we can keep the
+	# checking code simpler by dropping the unused support.
 
-	if {$totitle} {
-	    if {$totitle == $toupper} {
-		# subtract delta for title or upper
-		set case 4
-		set delta $toupper
-		if {$tolower} {
-		    error "New case conversion type needed: $toupper $tolower $totitle"
-		}
-	    } elseif {$toupper} {
-		# subtract delta for upper, subtract 1 for title
-		set case 5
-		set delta $toupper
-		if {($totitle != 1) || $tolower} {
-		    error "New case conversion type needed: $toupper $tolower $totitle"
-		}
-	    } else {
-		# add delta for lower, add 1 for title
-		set case 3
-		set delta $tolower
-		if {$totitle != -1} {
-		    error "New case conversion type needed: $toupper $tolower $totitle"
-		}
-	    }
-	} elseif {$toupper} {
-	    # subtract delta for upper, add delta for lower
-	    set case 6
+	if {$toupper} {
 	    set delta $toupper
-	    if {$tolower != $toupper} {
-		error "New case conversion type needed: $toupper $tolower $totitle"
+	    if {$tolower == $toupper} {
+		# subtract delta for upper, add delta for lower
+		set case 6
+	    } elseif {!$tolower} {
+		# subtract delta for upper
+		set case 4
+	    } else {
+		error "New case conversion type needed: $toupper $tolower"
 	    }
 	} elseif {$tolower} {
 	    # add delta for lower
@@ -418,13 +399,15 @@ enum {
  *  Unicode character tables.
  */
 int
-Xapian::Unicode::Internal::get_character_info(unsigned ch) XAPIAN_NOEXCEPT
+Xapian::Unicode::Internal::get_character_info(unsigned ch) noexcept
 {
     if (rare(ch >= 0x110000)) {
 	// Categorise non-Unicode values as UNASSIGNED with no case variants.
 	return Xapian::Unicode::UNASSIGNED;
     }
-    return (groups\[groupMap\[(pageMap\[int(ch) >> OFFSET_BITS\] << OFFSET_BITS) | ((ch) & ((1 << OFFSET_BITS)-1))\]\]);
+    auto group = (pageMap\[int(ch) >> OFFSET_BITS\] << OFFSET_BITS) |
+		 ((ch) & ((1 << OFFSET_BITS) - 1));
+    return groups\[groupMap\[group\]\];
 }
 "
 

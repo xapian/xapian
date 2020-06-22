@@ -1,0 +1,14 @@
+voc.txt is a mixture of data licensed as BSD 3-clause (as described in
+../COPYING) and CC BY-SA.
+
+voc.txt was derived in part from a dump of the French Wikipedia by the
+script wikipedia-most-common-words like so:
+
+WikiExtractor.py frwiki-latest-pages-articles.xml.bz2
+cat text/*/* | ./wikipedia-most-common-words 50 latin1
+
+The dump used was dated June 1st 2018.
+
+output.txt was generated from voc.txt by running it through the stemmer.
+
+Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

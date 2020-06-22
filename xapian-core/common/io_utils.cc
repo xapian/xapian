@@ -1,7 +1,7 @@
 /** @file io_utils.cc
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2004,2006,2007,2008,2009,2011,2012,2014,2015,2016 Olly Betts
+/* Copyright (C) 2004,2006,2007,2008,2009,2011,2012,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,15 +24,14 @@
 #include "io_utils.h"
 #include "posixy_wrapper.h"
 
-#include "safeerrno.h"
 #include "safeunistd.h"
 
+#include <cerrno>
 #include <cstring>
 #include <string>
 
 #include <xapian/error.h>
 
-#include "noreturn.h"
 #include "omassert.h"
 #include "str.h"
 
@@ -66,7 +65,8 @@ const int MIN_WRITE_FD = 3;
 int
 io_open_block_wr(const char * fname, bool anew)
 {
-    int flags = O_RDWR | O_BINARY | O_CLOEXEC;
+    // Use auto because on AIX O_CLOEXEC may be a 64-bit integer constant.
+    auto flags = O_RDWR | O_BINARY | O_CLOEXEC;
     if (anew) flags |= O_CREAT | O_TRUNC;
     int fd = ::open(fname, flags, 0666);
     if (fd >= MIN_WRITE_FD || fd < 0) return fd;
@@ -154,10 +154,91 @@ io_write(int fd, const char * p, size_t n)
     }
 }
 
-XAPIAN_NORETURN(
-	static void throw_block_error(const char * s, off_t b, int e = 0));
+size_t
+io_pread(int fd, char * p, size_t n, off_t o, size_t min)
+{
+    size_t total = 0;
+#ifdef HAVE_PREAD
+    while (true) {
+	ssize_t c = pread(fd, p, n, o);
+	// We should get a full read most of the time, so streamline that case.
+	if (usual(c == ssize_t(n)))
+	    return total + n;
+	// -1 is error, 0 is EOF
+	if (c <= 0) {
+	    if (c == 0) {
+		if (min == 0)
+		    return total;
+		throw Xapian::DatabaseError("EOF reading database");
+	    }
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the read.
+	    if (errno == EINTR) continue;
+	    throw Xapian::DatabaseError("Error reading database", errno);
+	}
+	total += c;
+	if (total >= min)
+	    return total;
+	p += c;
+	n -= c;
+	o += c;
+    }
+#else
+    if (rare(lseek(fd, o, SEEK_SET) < 0))
+	throw Xapian::DatabaseError("Error seeking database", errno);
+    while (true) {
+	ssize_t c = read(fd, p, n);
+	// We should get a full read most of the time, so streamline that case.
+	if (usual(c == ssize_t(n)))
+	    return total + n;
+	if (c <= 0) {
+	    if (c == 0) {
+		if (min == 0)
+		    return total;
+		throw Xapian::DatabaseError("EOF reading database");
+	    }
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the read.
+	    if (errno == EINTR) continue;
+	    throw Xapian::DatabaseError("Error reading database", errno);
+	}
+	total += c;
+	if (total >= min)
+	    return total;
+	p += c;
+	n -= c;
+    }
+#endif
+}
+
+void
+io_pwrite(int fd, const char * p, size_t n, off_t o)
+{
+#ifdef HAVE_PWRITE
+    while (n) {
+	ssize_t c = pwrite(fd, p, n, o);
+	// We should get a full write most of the time, so streamline that
+	// case.
+	if (usual(c == ssize_t(n)))
+	    return;
+	if (c < 0) {
+	    if (errno == EINTR) continue;
+	    throw Xapian::DatabaseError("Error writing to file", errno);
+	}
+	p += c;
+	n -= c;
+	o += c;
+    }
+#else
+    if (rare(lseek(fd, o, SEEK_SET) < 0))
+	throw Xapian::DatabaseError("Error seeking database", errno);
+    io_write(fd, p, n);
+#endif
+}
+
+[[noreturn]]
 static void
-throw_block_error(const char * s, off_t b, int e)
+throw_block_error(const char * s, off_t b, int e = 0)
 {
     std::string m = s;
     m += str(b);
@@ -190,11 +271,11 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 	    return;
 	// -1 is error, 0 is EOF
 	if (c <= 0) {
+	    if (c == 0)
+		throw_block_error("EOF reading block ", b);
 	    // We get EINTR if the syscall was interrupted by a signal.
 	    // In this case we should retry the read.
 	    if (errno == EINTR) continue;
-	    if (c == 0)
-		throw_block_error("EOF reading block ", b);
 	    throw_block_error("Error reading block ", b, errno);
 	}
 	p += c;
@@ -202,7 +283,7 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 	o += c;
     }
 #else
-    if (rare(lseek(fd, o, SEEK_SET) == off_t(-1)))
+    if (rare(lseek(fd, o, SEEK_SET) < 0))
 	throw_block_error("Error seeking to block ", b, errno);
     while (true) {
 	ssize_t c = read(fd, p, n);
@@ -210,11 +291,11 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 	if (usual(c == ssize_t(n)))
 	    return;
 	if (c <= 0) {
+	    if (c == 0)
+		throw_block_error("EOF reading block ", b);
 	    // We get EINTR if the syscall was interrupted by a signal.
 	    // In this case we should retry the read.
 	    if (errno == EINTR) continue;
-	    if (c == 0)
-		throw_block_error("EOF reading block ", b);
 	    throw_block_error("Error reading block ", b, errno);
 	}
 	p += c;
@@ -247,7 +328,7 @@ io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 	o += c;
     }
 #else
-    if (rare(lseek(fd, o, SEEK_SET) == off_t(-1)))
+    if (rare(lseek(fd, o, SEEK_SET) < 0))
 	throw_block_error("Error seeking to block ", b, errno);
     while (true) {
 	ssize_t c = write(fd, p, n);
@@ -273,10 +354,10 @@ io_tmp_rename(const std::string & tmp_file, const std::string & real_file)
     // We retry on EXDEV a few times as some older Linux kernels are buggy and
     // fail with EXDEV when the two files are on the same device (as they
     // always ought to be when this function is used).  Don't retry forever in
-    // case someone calls this with files one different devices.
+    // case someone calls this with files on different devices.
     //
     // We're not sure exactly which kernels are buggy in this way, but there's
-    // discussion here: http://www.spinics.net/lists/linux-nfs/msg17306.html
+    // discussion here: https://www.spinics.net/lists/linux-nfs/msg17306.html
     //
     // Reported at: https://trac.xapian.org/ticket/698
     int retries = 5;

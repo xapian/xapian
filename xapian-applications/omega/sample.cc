@@ -1,6 +1,7 @@
-/* sample.cc: generate a sample from a utf-8 string.
- *
- * Copyright (C) 2007,2013 Olly Betts
+/** @file sample.cc
+ * @brief generate a sample from a utf-8 string.
+ */
+/* Copyright (C) 2007,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,8 +51,14 @@ generate_sample(const string & input, size_t maxlen,
 	if (output.size() >= maxlen) {
 	    // Need to truncate output.
 	    if (last_word_end <= maxlen / 2) {
-		// Monster word!  We'll have to just split it.
-		output.replace(maxlen - ind.size(), string::npos, ind);
+		// Fixed when maxlen < ind.size leading to a negative
+		// reference
+		if (maxlen < ind.size()) {
+		    output.resize(0);
+		} else {
+		    // Monster word!  We'll have to just split it.
+		    output.replace(maxlen - ind.size(), string::npos, ind);
+		}
 	    } else {
 		output.replace(last_word_end, string::npos, ind2);
 	    }

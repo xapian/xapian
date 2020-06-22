@@ -22,19 +22,18 @@ if ($@) {
 }
 
 # Number of test cases to run - increase this if you add more testcases.
-plan tests => 65;
+plan tests => 68;
 
 use Xapian qw(:standard);
 
 # TODO: check these classes too:
 # MSet/Tied.pm
-# PerlStopper.pm
 # Stopper.pm
 # Weight.pm
 
 my ($wdb, $db, $doc, $bm25wt, $boolwt, $tradwt, $enq, $qp, $q, $stem);
 my ($eset, $mset, $rset, $esetit, $msetit, $postit, $posit, $termit, $valueit);
-my ($sstop, $tg);
+my ($sstop, $tg, $rp);
 
 sub thread_proc {
     # Check that calling a method fails, and that it isn't a Xapian object.
@@ -89,6 +88,8 @@ sub thread_proc {
     return 0 unless ref($sstop) !~ 'Xapian';
     # Check that it isn't a Xapian object.
     return 0 unless ref($tg) !~ 'Xapian';
+    # Check that it isn't a Xapian object.
+    return 0 unless ref($rp) !~ 'Xapian';
 }
 
 ok( $wdb = Xapian::WritableDatabase->new(), 'create WritableDatabase' );
@@ -154,6 +155,9 @@ is( ref($sstop), 'Xapian::SimpleStopper', 'check SimpleStopper' );
 ok( $tg = Xapian::TermGenerator->new(), 'create TermGenerator' );
 is( ref($tg), 'Xapian::TermGenerator', 'check TermGenerator' );
 
+ok( $rp = Xapian::RangeProcessor->new(0), 'create RangeProcessor' );
+is( ref($rp), 'Xapian::RangeProcessor', 'check RangeProcessor' );
+
 my $thread1 = threads->create(sub { thread_proc(); });
 my $thread2 = threads->create(sub { thread_proc(); });
 ok( $thread1->join, 'check thread1' );
@@ -180,3 +184,4 @@ is( ref($termit), 'Xapian::TermIterator', 'check TermIterator' );
 is( $valueit->get_valueno(), 0, 'check ValueIterator' );
 is( ref($sstop), 'Xapian::SimpleStopper', 'check SimpleStopper' );
 is( ref($tg), 'Xapian::TermGenerator', 'check TermGenerator' );
+is( ref($rp), 'Xapian::RangeProcessor', 'check RangeProcessor' );

@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+# Experimental.
+#
+# This script attempts to reformat to match Xapian coding conventions
+# but it's currently a work-in-progress.
+#
+# The results should be manually checked before committing.
+
+files=`git ls-files '*.cc' '*.h'|grep -v 'tests/\(harness/\|apitest\)'`
+${CLANG_FORMAT:-clang-format-5.0} -i $files
+# Fix-up LOGCALL uses to be on a single line regardless of length.
+perl -pi -e 'if (/^\s+LOGCALL/) { while (!/;$/) { chomp; print; $_ = <>; s/^\s*/ / }}' $files
+# Fix-up "try" wrapped around a whole function.
+# Fix-up goto labels.
+# Fix-up for with empty first statement.
+perl -pi -e 's/^(\s*)(.*\)) (try \{)/$1$2\n$1$3/;s/^[ \t]+((?!default|p(?:rivate|rotected|ublic))[A-Za-z]\w*:)(?!:)/$1/;s/(^[ \t]+for \();/$1 ;/' $files
+# Add back newline before end of namespace block.
+perl -pi -e '$e = /^\}/; if ($l && $e) { print "\n"; $l=0 } else { $l=$e }' $files
+perl -pi -e '$e = /^\}/; if ($l && $e) { print "\n"; $l=0 } else { $l=$e }' $files

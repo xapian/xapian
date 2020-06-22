@@ -48,14 +48,6 @@ GlassAllDocsPostList::get_termfreq() const
 }
 
 Xapian::termcount
-GlassAllDocsPostList::get_doclength() const
-{
-    LOGCALL(DB, Xapian::termcount, "GlassAllDocsPostList::get_doclength", NO_ARGS);
-
-    RETURN(GlassPostList::get_wdf());
-}
-
-Xapian::termcount
 GlassAllDocsPostList::get_wdf() const
 {
     LOGCALL(DB, Xapian::termcount, "GlassAllDocsPostList::get_wdf", NO_ARGS);

@@ -1,7 +1,7 @@
 /** @file xapian/types.h
  *  @brief typedefs for Xapian
  */
-/* Copyright (C) 2007,2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2007,2010,2011,2013,2014,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,10 +22,9 @@
 #define XAPIAN_INCLUDED_TYPES_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/types.h> directly; include <xapian.h> instead."
+# error Never use <xapian/types.h> directly; include <xapian.h> instead.
 #endif
 
-#include <xapian/deprecated.h>
 #include <xapian/version.h>
 
 namespace Xapian {
@@ -58,13 +57,6 @@ typedef unsigned XAPIAN_DOCID_BASE_TYPE docid;
  */
 typedef double doclength;
 
-/** The percentage score for a document in an MSet.
- *
- *  @deprecated This type is deprecated as of Xapian 1.3.0 - use the standard
- *  type int instead, which should work with older Xapian too.
- */
-XAPIAN_DEPRECATED(typedef int percent);
-
 /** A counts of terms.
  *
  *  This is used to hold values such as the Within Document Frequency (wdf).
@@ -80,24 +72,14 @@ typedef XAPIAN_TERMCOUNT_BASE_TYPE termcount_diff;
 
 /** A term position within a document or query.
  */
-typedef unsigned termpos;
+typedef unsigned XAPIAN_TERMPOS_BASE_TYPE termpos;
 
 /** A signed difference between two term positions.
  *
  *  This is used by the Xapian classes which are STL containers of positions
  *  for "difference_type".
  */
-typedef int termpos_diff; /* FIXME: can overflow. */
-
-/** A timeout value in milliseconds.
- *
- *  There are 1000 milliseconds in a second, so for example, to set a
- *  timeout of 5 seconds use 5000.
- *
- *  @deprecated This type is deprecated as of Xapian 1.3.0 - use unsigned
- *  instead, which should work with older Xapian too.
- */
-XAPIAN_DEPRECATED(typedef unsigned timeout);
+typedef XAPIAN_TERMPOS_BASE_TYPE termpos_diff; /* FIXME: can overflow. */
 
 /** The number for a value slot in a document.
  *
@@ -114,13 +96,6 @@ typedef unsigned valueno;
  */
 typedef int valueno_diff; /* FIXME: can overflow. */
 
-/** The weight of a document or term.
- *
- *  @deprecated This type is deprecated as of Xapian 1.3.0 - use the standard
- *  C++ type double instead, which should work with older Xapian too.
- */
-XAPIAN_DEPRECATED(typedef double weight);
-
 /** Reserved value to indicate "no valueno". */
 const valueno BAD_VALUENO = 0xffffffff;
 
@@ -131,6 +106,12 @@ const valueno BAD_VALUENO = 0xffffffff;
  *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 typedef XAPIAN_REVISION_TYPE rev;
+
+/** The total length of all documents in a database.
+ *
+ *  @since Added in Xapian 1.4.5.
+ */
+typedef XAPIAN_TOTALLENGTH_TYPE totallength;
 
 }
 

@@ -2,7 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2008,2009,2011,2012,2013,2015 Olly Betts
+ * Copyright (C) 2007,2008,2009,2011,2012,2013,2015,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #include <config.h>
 
 #include "net_postlist.h"
-#include "net/length.h"
+#include "pack.h"
 #include "unicode/description_append.h"
 
 using namespace std;
@@ -38,18 +38,6 @@ Xapian::docid
 NetworkPostList::get_docid() const
 {
     return lastdocid;
-}
-
-Xapian::termcount
-NetworkPostList::get_doclength() const
-{
-    return db->get_doclength(lastdocid);
-}
-
-Xapian::termcount
-NetworkPostList::get_unique_terms() const
-{
-    return db->get_unique_terms(lastdocid);
 }
 
 Xapian::termcount
@@ -85,10 +73,11 @@ NetworkPostList::next(double)
 	pos = NULL;
     } else {
 	Xapian::docid inc;
-	decode_length(&pos, pos_end, inc);
+	if (!unpack_uint(&pos, pos_end, &inc) ||
+	    !unpack_uint(&pos, pos_end, &lastwdf)) {
+	    unpack_throw_serialisation_error(pos);
+	}
 	lastdocid += inc + 1;
-
-	decode_length(&pos, pos_end, lastwdf);
     }
 
     return NULL;

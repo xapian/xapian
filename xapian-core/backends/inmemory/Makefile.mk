@@ -1,7 +1,7 @@
 EXTRA_DIST +=\
 	backends/inmemory/Makefile
 
-# InMemoryPositionList is also used by MapTermList and the remote backend.
+# InMemoryPositionList is also used by DocumentTermList and the remote backend.
 noinst_HEADERS +=\
 	backends/inmemory/inmemory_positionlist.h
 
@@ -17,7 +17,7 @@ lib_src +=\
 	backends/inmemory/inmemory_document.cc\
 	backends/inmemory/inmemory_positionlist.cc
 else
-# Xapian::Document uses MapTermList which uses InMemoryPositionList so we
+# Xapian::Document uses DocumentTermList which uses InMemoryPositionList so we
 # always need "inmemory_positionlist.cc".
 lib_src +=\
 	backends/inmemory/inmemory_positionlist.cc

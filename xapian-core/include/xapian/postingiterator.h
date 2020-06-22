@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_POSTINGITERATOR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/postingiterator.h> directly; include <xapian.h> instead."
+# error Never use <xapian/postingiterator.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -45,7 +45,8 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     /// @private @internal Reference counted internals.
     Internal * internal;
 
-    /// @private @internal Construct given internals.
+    /// @private @internal Wrap an existing Internal.
+    XAPIAN_VISIBILITY_INTERNAL
     explicit PostingIterator(Internal *internal_);
 
     /// Copy constructor.
@@ -54,12 +55,28 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     /// Assignment.
     PostingIterator & operator=(const PostingIterator & o);
 
+    /// Move constructor.
+    PostingIterator(PostingIterator && o)
+	: internal(o.internal) {
+	o.internal = nullptr;
+    }
+
+    /// Move assignment operator.
+    PostingIterator & operator=(PostingIterator && o) {
+	if (this != &o) {
+	    if (internal) decref();
+	    internal = o.internal;
+	    o.internal = nullptr;
+	}
+	return *this;
+    }
+
     /** Default constructor.
      *
      *  Creates an uninitialised iterator, which can't be used before being
      *  assigned to, but is sometimes syntactically convenient.
      */
-    XAPIAN_NOTHROW(PostingIterator())
+    PostingIterator() noexcept
 	: internal(0) { }
 
     /// Destructor.
@@ -88,7 +105,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     PositionIterator positionlist_begin() const;
 
     /// Return an end PositionIterator for the current document.
-    PositionIterator XAPIAN_NOTHROW(positionlist_end() const) {
+    PositionIterator positionlist_end() const noexcept {
 	return PositionIterator();
     }
 
@@ -139,27 +156,22 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
   private:
     void decref();
 
+    XAPIAN_VISIBILITY_INTERNAL
     void post_advance(Internal * res);
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const PostingIterator &a, const PostingIterator &b));
-
 /// Equality test for PostingIterator objects.
 inline bool
-operator==(const PostingIterator &a, const PostingIterator &b) XAPIAN_NOEXCEPT
+operator==(const PostingIterator& a, const PostingIterator& b) noexcept
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
     return a.internal == b.internal;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator!=(const PostingIterator &a, const PostingIterator &b));
-
 /// Inequality test for PostingIterator objects.
 inline bool
-operator!=(const PostingIterator &a, const PostingIterator &b) XAPIAN_NOEXCEPT
+operator!=(const PostingIterator& a, const PostingIterator& b) noexcept
 {
     return !(a == b);
 }

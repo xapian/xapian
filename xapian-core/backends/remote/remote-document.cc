@@ -26,26 +26,26 @@
 #include "omassert.h"
 
 string
-RemoteDocument::do_get_value(Xapian::valueno) const
+RemoteDocument::fetch_value(Xapian::valueno) const
 {
-    LOGCALL(DB, string, "RemoteDocument::do_get_value", Literal("[slot]"));
+    LOGCALL(DB, string, "RemoteDocument::fetch_value", Literal("[slot]"));
     // Our ctor sets the values, so we should never get here.
     Assert(false);
     RETURN(string());
 }
 
 void
-RemoteDocument::do_get_all_values(map<Xapian::valueno, string> &) const
+RemoteDocument::fetch_all_values(map<Xapian::valueno, string> &) const
 {
-    LOGCALL_VOID(DB, "RemoteDocument::do_get_all_values", Literal("[&values_]"));
+    LOGCALL_VOID(DB, "RemoteDocument::fetch_all_values", Literal("[&values_]"));
     // Our ctor sets the values, so we should never get here.
     Assert(false);
 }
 
 string
-RemoteDocument::do_get_data() const
+RemoteDocument::fetch_data() const
 {
-    LOGCALL(DB, string, "RemoteDocument::do_get_data", NO_ARGS);
+    LOGCALL(DB, string, "RemoteDocument::fetch_data", NO_ARGS);
     // Our ctor sets the data, so we should never get here.
     Assert(false);
     RETURN(string());

@@ -15,8 +15,8 @@
  * will fill a supplied 16-byte array with the digest.
  */
 
-#ifndef MD5_H
-#define MD5_H
+#ifndef OMEGA_INCLUDED_MD5_H
+#define OMEGA_INCLUDED_MD5_H
 
 /* Minor tweaks for use from Omega:
  *
@@ -25,6 +25,7 @@
  * + MD5Transform is an internal helper so prototype moved to md5.cc.
  * + Removed MD5_CTX.
  * + Changed MD5Context.in to uint32_t instead of unsigned char.
+ * + Added "OMEGA_INCLUDED_" prefix to header guard macro.
  */
 
 // To get uint32_t:
@@ -42,4 +43,4 @@ void MD5Update(struct MD5Context *context, unsigned char const *buf,
 	       unsigned len);
 void MD5Final(unsigned char digest[16], struct MD5Context *context);
 
-#endif /* !MD5_H */
+#endif /* OMEGA_INCLUDED_MD5_H */

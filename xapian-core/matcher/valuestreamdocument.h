@@ -1,7 +1,7 @@
 /** @file valuestreamdocument.h
  * @brief A document which gets its values from a ValueStreamManager.
  */
-/* Copyright (C) 2009,2011,2014 Olly Betts
+/* Copyright (C) 2009,2011,2014,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,9 @@
 #ifndef XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
 #define XAPIAN_INCLUDED_VALUESTREAMDOCUMENT_H
 
-#include "backends/document.h"
+#include "backends/documentinternal.h"
+#include "backends/multi.h"
+#include "backends/multi/multi_database.h"
 #include "backends/valuelist.h"
 #include "omassert.h"
 #include "xapian/database.h"
@@ -41,37 +43,56 @@ class ValueStreamDocument : public Xapian::Document::Internal {
 
     Xapian::Database db;
 
-    size_t current;
+    Xapian::doccount current = 0;
 
-    mutable Xapian::Document::Internal * doc;
+    Xapian::doccount n_shards;
+
+    mutable Xapian::Document::Internal * doc = NULL;
+
+    /** Private constructor.
+     *
+     *  This is an implementation detail - the public constructor forwards to
+     *  this constructor so we can use n_shards_ to init our parent class.
+     */
+    ValueStreamDocument(const Xapian::Database& db_, Xapian::doccount n_shards_)
+	: Internal(n_shards_ == 1 ?
+		   db_.internal.get() :
+		   static_cast<MultiDatabase*>(db_.internal.get())->shards[0],
+		   0),
+	  db(db_),
+	  n_shards(n_shards_) {}
 
   public:
-    explicit ValueStreamDocument(const Xapian::Database & db_)
-	: Internal(db_.internal[0], 0), db(db_), current(0), doc(NULL) { }
+    explicit ValueStreamDocument(const Xapian::Database& db_)
+	: ValueStreamDocument(db_, db_.internal->size()) {}
 
-    void new_subdb(int n);
+    void new_shard(Xapian::doccount n);
 
     ~ValueStreamDocument();
 
+    void set_shard_document(Xapian::docid shard_did) {
+	if (did != shard_did) {
+	    did = shard_did;
+	    delete doc;
+	    doc = NULL;
+	}
+    }
+
     void set_document(Xapian::docid did_) {
-	// did needs to be the document id in the sub-database.
-	size_t multiplier = db.internal.size();
-	did = (did_ - 1) / multiplier + 1;
-	AssertEq(current, (did_ - 1) % multiplier);
-	delete doc;
-	doc = NULL;
+	AssertEq(current, shard_number(did_, n_shards));
+	set_shard_document(shard_docid(did_, n_shards));
     }
 
     // Optimise away the virtual call when the matcher wants to know a value.
     std::string get_value(Xapian::valueno slot) const {
-	return ValueStreamDocument::do_get_value(slot);
+	return ValueStreamDocument::fetch_value(slot);
     }
 
-  private:
+  protected:
     /** Implementation of virtual methods @{ */
-    std::string do_get_value(Xapian::valueno slot) const;
-    void do_get_all_values(std::map<Xapian::valueno, std::string> & values_) const;
-    std::string do_get_data() const;
+    std::string fetch_value(Xapian::valueno slot) const;
+    void fetch_all_values(std::map<Xapian::valueno, std::string> & values_) const;
+    std::string fetch_data() const;
     /** @} */
 };
 

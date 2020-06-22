@@ -36,7 +36,8 @@ FeatureVector::FeatureVector() : internal(new FeatureVector::Internal)
     LOGCALL_CTOR(API, "FeatureVector", NO_ARGS);
 }
 
-FeatureVector::FeatureVector(const Xapian::docid & did, const std::vector<double> & fvals)
+FeatureVector::FeatureVector(const Xapian::docid & did,
+			     const std::vector<double> & fvals)
 			     : internal(new FeatureVector::Internal)
 {
     LOGCALL_CTOR(API, "FeatureVector", did | fvals);

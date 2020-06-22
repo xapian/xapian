@@ -1,6 +1,7 @@
-/* internaltest.cc: test of the Xapian internals
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file internaltest.cc
+ * @brief test of the Xapian internals
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
@@ -25,29 +26,25 @@
 
 #include <xapian.h>
 
-#include "safeerrno.h"
-
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-#include "autoptr.h"
 #include "testsuite.h"
 #include "testutils.h"
 
-#include "omassert.h"
 #include "pack.h"
 #include "str.h"
 
 class Test_Exception {
-    public:
-	int value;
-	Test_Exception(int value_) : value(value_) {}
+  public:
+    int value;
+    Test_Exception(int value_) : value(value_) {}
 };
 
 // test that nested exceptions work correctly.
-static bool test_exception1()
+static void test_exception1()
 {
     try {
 	try {
@@ -61,9 +58,7 @@ static bool test_exception1()
 	}
     } catch (const Test_Exception & e) {
 	TEST_EQUAL(e.value, 1);
-	return true;
     }
-    return false;
 }
 
 // ###########################################
@@ -71,22 +66,24 @@ static bool test_exception1()
 // ###########################################
 
 class test_refcnt : public Xapian::Internal::intrusive_base {
-    private:
-	bool &deleted;
-    public:
-	test_refcnt(bool &deleted_) : deleted(deleted_) {
-	    tout << "constructor\n";
-	}
-	Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
-	    return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
-	}
-	~test_refcnt() {
-	    deleted = true;
-	    tout << "destructor\n";
-	}
+    bool &deleted;
+
+  public:
+    test_refcnt(bool &deleted_) : deleted(deleted_) {
+	tout << "constructor\n";
+    }
+
+    Xapian::Internal::intrusive_ptr<const test_refcnt> test() {
+	return Xapian::Internal::intrusive_ptr<const test_refcnt>(this);
+    }
+
+    ~test_refcnt() {
+	deleted = true;
+	tout << "destructor\n";
+    }
 };
 
-static bool test_refcnt1()
+static void test_refcnt1()
 {
     bool deleted = false;
 
@@ -112,14 +109,12 @@ static bool test_refcnt1()
     }
 
     TEST_AND_EXPLAIN(deleted, "Object not properly deleted");
-
-    return true;
 }
 
 // This is a regression test - our home-made equivalent of intrusive_ptr
 // (which was called RefCntPtr) used to delete the object pointed to if you
 // assigned it to itself and the reference count was 1.
-static bool test_refcnt2()
+static void test_refcnt2()
 {
     bool deleted = false;
 
@@ -127,84 +122,27 @@ static bool test_refcnt2()
 
     Xapian::Internal::intrusive_ptr<test_refcnt> rcp(p);
 
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+    // Suppress warning from newer clang about self-assignment so we can
+    // test that self-assignment works!
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wself-assign-overloaded"
+# endif
+#endif
     rcp = rcp;
+#ifdef __has_warning
+# if __has_warning("-Wself-assign-overloaded")
+#  pragma clang diagnostic pop
+# endif
+#endif
 
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
-
-    return true;
-}
-
-// Class for testing AutoPtr<>.
-class test_autoptr {
-    bool &deleted;
-  public:
-    test_autoptr(bool &deleted_) : deleted(deleted_) {
-	tout << "test_autoptr constructor\n";
-    }
-    ~test_autoptr() {
-	deleted = true;
-	tout << "test_autoptr destructor\n";
-    }
-};
-
-// Test autoptr self-assignment.
-static bool test_autoptr1()
-{
-    bool deleted = false;
-
-    test_autoptr * raw_ptr = new test_autoptr(deleted);
-    {
-	AutoPtr<test_autoptr> ptr(raw_ptr);
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-	TEST(!deleted);
-
-	ptr.reset(ptr.release());
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-	TEST(!deleted);
-
-	ptr.swap(ptr);
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-	TEST(!deleted);
-
-	swap(ptr, ptr);
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-	TEST(!deleted);
-    }
-
-    TEST(deleted);
-
-    deleted = false;
-    raw_ptr = new test_autoptr(deleted);
-
-    bool deleted2 = false;
-    test_autoptr * raw_ptr2 = new test_autoptr(deleted2);
-    AutoPtr<test_autoptr> ptr(raw_ptr2);
-
-    TEST_EQUAL(ptr.get(), raw_ptr2);
-    TEST(!deleted);
-    TEST(!deleted2);
-
-    ptr.reset(raw_ptr);
-    TEST_EQUAL(ptr.get(), raw_ptr);
-    TEST(!deleted);
-    TEST(deleted2);
-
-    ptr.reset();
-    TEST_EQUAL(ptr.get(), static_cast<test_autoptr*>(0));
-    TEST(deleted);
-
-    return true;
 }
 
 // test string comparisons
-static bool test_stringcomp1()
+static void test_stringcomp1()
 {
-    bool success = true;
-
     string s1;
     string s2;
 
@@ -212,15 +150,13 @@ static bool test_stringcomp1()
     s2 = "foo";
 
     if ((s1 != s2) || (s1 > s2)) {
-	success = false;
-	tout << "String comparisons BADLY wrong" << endl;
+	FAIL_TEST("String comparisons BADLY wrong");
     }
 
     s1 += '\0';
 
     if ((s1 == s2) || (s1 < s2)) {
-	success = false;
-	tout << "String comparisons don't cope with extra nulls" << endl;
+	FAIL_TEST("String comparisons don't cope with extra nulls");
     }
 
     s2 += '\0';
@@ -229,16 +165,12 @@ static bool test_stringcomp1()
     s2 += 'z';
 
     if ((s1.length() != 5) || (s2.length() != 5)) {
-	success = false;
-	tout << "Lengths with added nulls wrong" << endl;
+	FAIL_TEST("Lengths with added nulls wrong");
     }
 
     if ((s1 == s2) || !(s1 < s2)) {
-	success = false;
-	tout << "Characters after a null ignored in comparisons" << endl;
+	FAIL_TEST("Characters after a null ignored in comparisons");
     }
-
-    return success;
 }
 
 // By default Sun's C++ compiler doesn't call the destructor on a
@@ -256,69 +188,15 @@ struct TempDtorTest {
 
 int TempDtorTest::count = 0;
 
-static bool test_temporarydtor1()
+static void test_temporarydtor1()
 {
     TEST_EQUAL(TempDtorTest::count, 0);
     TempDtorTest::factory();
     TEST_EQUAL(TempDtorTest::count, 0);
-
-    return true;
-}
-
-static bool test_static_assert1()
-{
-    // These tests aren't so useful now we're using C++11 static_assert(),
-    // but it's not a bad idea to sanity check it.
-    static_assert(true, "true");
-    static_assert(1, "1");
-    static_assert(-1, "-1");
-    static_assert(42, "42");
-    static_assert(sizeof(char) == 1, "sizeof(char) == 1");
-
-    // FIXME: We should test cases which should fail, but these are hard to
-    // check with our current test framework.
-
-    STATIC_ASSERT_UNSIGNED_TYPE(bool);
-    STATIC_ASSERT_UNSIGNED_TYPE(unsigned char);
-    STATIC_ASSERT_UNSIGNED_TYPE(unsigned short);
-    STATIC_ASSERT_UNSIGNED_TYPE(unsigned int);
-    STATIC_ASSERT_UNSIGNED_TYPE(unsigned long);
-
-    // FIXME: We should test cases which should fail, but these are hard to
-    // check with our current test framework.
-
-    STATIC_ASSERT_TYPE_DOMINATES(unsigned long, unsigned long);
-    STATIC_ASSERT_TYPE_DOMINATES(unsigned int, unsigned int);
-    STATIC_ASSERT_TYPE_DOMINATES(unsigned short, unsigned short);
-    STATIC_ASSERT_TYPE_DOMINATES(unsigned char, unsigned char);
-
-    STATIC_ASSERT_TYPE_DOMINATES(long, long);
-    STATIC_ASSERT_TYPE_DOMINATES(int, int);
-    STATIC_ASSERT_TYPE_DOMINATES(short, short);
-    STATIC_ASSERT_TYPE_DOMINATES(signed char, signed char);
-
-    STATIC_ASSERT_TYPE_DOMINATES(char, char);
-
-    STATIC_ASSERT_TYPE_DOMINATES(unsigned long, unsigned int);
-    STATIC_ASSERT_TYPE_DOMINATES(unsigned int, unsigned short);
-    STATIC_ASSERT_TYPE_DOMINATES(unsigned short, unsigned char);
-
-    STATIC_ASSERT_TYPE_DOMINATES(long, int);
-    STATIC_ASSERT_TYPE_DOMINATES(int, short);
-    STATIC_ASSERT_TYPE_DOMINATES(short, signed char);
-
-    STATIC_ASSERT_TYPE_DOMINATES(long, unsigned char);
-    STATIC_ASSERT_TYPE_DOMINATES(int, unsigned char);
-    STATIC_ASSERT_TYPE_DOMINATES(short, unsigned char);
-
-    // FIXME: We should test cases which should fail, but these are hard to
-    // check with our current test framework.
-
-    return true;
 }
 
 /// Test pack_uint_preserving_sort()
-static bool test_pack_uint_preserving_sort1()
+static void test_pack_uint_preserving_sort1()
 {
     string prev_packed;
     for (unsigned int i = 0; i != 1000; ++i) {
@@ -372,12 +250,10 @@ static bool test_pack_uint_preserving_sort1()
 	TEST_EQUAL(result, i);
     }
     TEST(ptr == end);
-
-    return true;
 }
 
 /// Test C_isupper() etc.
-static bool test_chartype1()
+static void test_chartype1()
 {
     char tested[128];
     memset(tested, 0, sizeof(tested));
@@ -513,7 +389,7 @@ static bool test_chartype1()
     }
 
     // Non-ASCII characters aren't anything for these functions.
-    for (int ch = 128; ch != 256; ++ch) {
+    for (unsigned char ch = 128; ch != 0; ++ch) {
 	TEST(!C_isupper(ch));
 	TEST(!C_islower(ch));
 	TEST(!C_isalpha(ch));
@@ -531,7 +407,7 @@ static bool test_chartype1()
     }
 
     // Check signed char values work the same way.
-    for (int ch = -128; ch != 0; ++ch) {
+    for (signed char ch = -128; ch != 0; ++ch) {
 	TEST(!C_isupper(ch));
 	TEST(!C_islower(ch));
 	TEST(!C_isalpha(ch));
@@ -547,8 +423,6 @@ static bool test_chartype1()
 	TEST(C_isnotxdigit(ch));
 	TEST(C_isnotspace(ch));
     }
-
-    return true;
 }
 
 // ##################################################################
@@ -560,10 +434,8 @@ static const test_desc tests[] = {
     TESTCASE(exception1),
     TESTCASE(refcnt1),
     TESTCASE(refcnt2),
-    TESTCASE(autoptr1),
     TESTCASE(stringcomp1),
     TESTCASE(temporarydtor1),
-    TESTCASE(static_assert1),
     TESTCASE(pack_uint_preserving_sort1),
     TESTCASE(chartype1),
     {0, 0}

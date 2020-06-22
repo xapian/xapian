@@ -1,6 +1,7 @@
-/* loadfile.h: load a file into a std::string.
- *
- * Copyright (C) 2006,2010,2012 Olly Betts
+/** @file loadfile.h
+ * @brief load a file into a std::string.
+ */
+/* Copyright (C) 2006,2010,2012,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,24 +25,30 @@
 
 enum { NOCACHE = 0x1, NOATIME = 0x2 };
 
-int load_file_fd(const std::string &file_name, size_t max_to_read, int flags,
-		 std::string &output, bool &truncated);
+bool load_file_from_fd(int fd, std::string& output);
 
-inline int
-load_file_fd(const std::string &file_name, std::string &output, int flags = 0)
+static inline bool
+load_file_from_fd(int fd, size_t size_hint, std::string& output)
 {
-    bool dummy;
-    return load_file_fd(file_name, 0, flags, output, dummy);
+    output.resize(0);
+    output.reserve(size_hint);
+    return load_file_from_fd(fd, output);
 }
 
-bool load_file(const std::string &file_name, size_t max_to_read, int flags,
-	       std::string &output, bool &truncated);
+bool load_file(const std::string& file_name, size_t max_to_read, int flags,
+	       std::string& output, bool* truncated);
 
 inline bool
-load_file(const std::string &file_name, std::string &output, int flags = 0)
+load_file(const std::string& file_name, size_t max_to_read, int flags,
+	  std::string& output, bool& truncated)
 {
-    bool dummy;
-    return load_file(file_name, 0, flags, output, dummy);
+    return load_file(file_name, max_to_read, flags, output, &truncated);
+}
+
+inline bool
+load_file(const std::string& file_name, std::string& output, int flags = 0)
+{
+    return load_file(file_name, 0, flags, output, nullptr);
 }
 
 #endif // OMEGA_INCLUDED_LOADFILE_H

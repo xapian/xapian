@@ -1,4 +1,4 @@
-/* @file urldecode.h
+/** @file urldecode.h
  * @brief URL decoding as described by RFC3986.
  */
 /* Copyright (C) 2011,2012,2015 Olly Betts
@@ -102,12 +102,12 @@ process_ch:
 }
 
 class CStringItor {
-    const char * p;
+    const char* p = NULL;
 
     void operator++(int);
 
   public:
-    CStringItor() : p(NULL) { }
+    CStringItor() { }
 
     explicit CStringItor(const char * p_) : p(p_) {
 	if (!*p) p = NULL;
@@ -139,12 +139,12 @@ operator!=(const CStringItor& a, const CStringItor& b)
 class StdinItor {
     size_t count;
 
-    mutable int current;
+    mutable int current = EOF;
 
     void operator++(int);
 
   public:
-    StdinItor() : current(EOF) { }
+    StdinItor() { }
 
     explicit StdinItor(size_t count_) : count(count_), current(256) { }
 

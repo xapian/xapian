@@ -22,42 +22,14 @@
 #define XAPIAN_INCLUDED_SERIALISE_H
 
 #include <string>
-#include "noreturn.h"
 #include "xapian/weight.h"
 
 // Forward class declarations:
 
 namespace Xapian {
     class Document;
-    class Error;
-    class MSet;
     class RSet;
 }
-
-/** Serialise a Xapian::Error object to a string.
- *
- *  @param e	The Xapian::Error object to serialise.
- *
- *  @return	Serialisation of @a e.
- */
-std::string serialise_error(const Xapian::Error &e);
-
-/** Unserialise a Xapian::Error object and throw it.
- *
- *  Note: does not return!
- *
- *  @param error_string		The string to unserialise.
- *  @param prefix		Optional prefix to prepend to the unserialised
- *				Error's @a msg field.
- *  @param new_context		Optional context to replace the context in
- *				the error.  If this is specified, any existing
- *				context will be noted in the Error's @a msg
- *				field.
- */
-XAPIAN_NORETURN(
-void unserialise_error(const std::string &error_string,
-		       const std::string &prefix,
-		       const std::string &new_context));
 
 /** Serialise a stats object.
  *
@@ -74,23 +46,6 @@ std::string serialise_stats(const Xapian::Weight::Internal &stats);
  *  @param stats	The stats object to unserialise to.
  */
 void unserialise_stats(const std::string &s, Xapian::Weight::Internal &stats);
-
-/** Serialise a Xapian::MSet object.
- *
- *  @param mset		The object to serialise.
- *
- *  @return		The serialisation of the Xapian::MSet object.
- */
-std::string serialise_mset(const Xapian::MSet &mset);
-
-/** Unserialise a serialised Xapian::MSet object.
- *
- *  @param p	 Pointer to the start of the string to unserialise.
- *  @param p_end Pointer to the end of the string to unserialise.
- *
- *  @return	The unserialised Xapian::MSet object.
- */
-Xapian::MSet unserialise_mset(const char * p, const char * p_end);
 
 /** Serialise a Xapian::RSet object.
  *

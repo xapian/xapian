@@ -1,7 +1,7 @@
 /** @file multi_alltermslist.h
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2011 Olly Betts
+/* Copyright (C) 2007,2008,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,11 @@
 
 #include "backends/alltermslist.h"
 
-#include "backends/database.h"
-
 #include <string>
-#include <vector>
+
+namespace Xapian {
+class Database;
+}
 
 /// Class for merging AllTermsList objects from subdatabases.
 class MultiAllTermsList : public AllTermsList {
@@ -36,19 +37,30 @@ class MultiAllTermsList : public AllTermsList {
     /// Don't allow copying.
     MultiAllTermsList(const MultiAllTermsList &);
 
-    /// Current termname (or empty if we haven't started yet).
+    /** Current termname.
+     *
+     *  If current_term.empty(), then either we haven't started yet (and
+     *  count != 0) or we've reached the end (and count == 0).
+     */
     std::string current_term;
 
-    /// Vector of sub-termlists which we use as a heap.
-    std::vector<TermList *> termlists;
+    /// Current termfreq (or 0 if not yet calculated).
+    mutable Xapian::doccount current_termfreq;
+
+    /// Number of TermList* entries in @a termlists.
+    mutable size_t count;
+
+    /// Sub-termlists which we use as a heap.
+    TermList** termlists;
 
   public:
     /// Constructor.
-    MultiAllTermsList(const std::vector<Xapian::Internal::intrusive_ptr<Xapian::Database::Internal> > & dbs,
-		      const std::string & prefix);
+    MultiAllTermsList(size_t count_, TermList** termlists_);
 
     /// Destructor.
     ~MultiAllTermsList();
+
+    Xapian::termcount get_approx_size() const;
 
     /// Return the termname at the current position.
     std::string get_termname() const;

@@ -25,6 +25,8 @@
 #include "selectpostlist.h"
 #include <vector>
 
+class PostListTree;
+
 /** Postlist which matches an exact phrase using positional information.
  *
  *  ExactPhrasePostList only returns a posting for documents contains
@@ -51,7 +53,8 @@ class ExactPhrasePostList : public SelectPostList {
   public:
     ExactPhrasePostList(PostList *source_,
 			const std::vector<PostList*>::const_iterator &terms_begin,
-			const std::vector<PostList*>::const_iterator &terms_end);
+			const std::vector<PostList*>::const_iterator &terms_end,
+			PostListTree* pltree_);
 
     ~ExactPhrasePostList();
 

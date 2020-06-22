@@ -1,7 +1,7 @@
 /** @file glass_version.cc
  * @brief GlassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2017 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,15 +25,16 @@
 
 #include "debuglog.h"
 #include "fd.h"
+#include "glass_defs.h"
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
 #include "posixy_wrapper.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
 
+#include <cerrno>
 #include <cstring> // For memcmp().
 #include <string>
-#include "safeerrno.h"
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safefcntl.h"
@@ -41,7 +42,7 @@
 #include "str.h"
 #include "stringutils.h"
 
-#include "common/safeuuid.h"
+#include "backends/uuids.h"
 
 #include "xapian/constants.h"
 #include "xapian/error.h"
@@ -77,7 +78,7 @@ GlassVersion::GlassVersion(int fd_)
       oldest_changeset(0)
 {
     offset = lseek(fd, 0, SEEK_CUR);
-    if (rare(offset == off_t(-1))) {
+    if (rare(offset < 0)) {
 	string msg = "lseek failed on file descriptor ";
 	msg += str(fd);
 	throw Xapian::DatabaseOpeningError(msg, errno);
@@ -99,7 +100,7 @@ GlassVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (single_file()) {
-	if (rare(lseek(fd, offset, SEEK_SET) == off_t(-1))) {
+	if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
 	    string msg = "Failed to rewind file descriptor ";
 	    msg += str(fd);
 	    throw Xapian::DatabaseOpeningError(msg, errno);
@@ -112,6 +113,9 @@ GlassVersion::read()
 	if (rare(fd_in < 0)) {
 	    string msg = filename;
 	    msg += ": Failed to open glass revision file for reading";
+	    if (errno == ENOENT || errno == ENOTDIR) {
+		throw Xapian::DatabaseNotFoundError(msg, errno);
+	    }
 	    throw Xapian::DatabaseOpeningError(msg, errno);
 	}
 	close_fd = fd_in;
@@ -147,8 +151,8 @@ GlassVersion::read()
     }
 
     p += GLASS_VERSION_MAGIC_AND_VERSION_LEN;
-    memcpy(uuid, p, 16);
-    p += 16;
+    uuid.assign(p);
+    p += uuid.BINARY_SIZE;
 
     if (!unpack_uint(&p, end, &rev))
 	throw Xapian::DatabaseCorruptError("Rev file failed to decode revision");
@@ -234,7 +238,7 @@ GlassVersion::merge_stats(const GlassVersion & o)
 {
     doccount += o.get_doccount();
     if (doccount < o.get_doccount()) {
-	throw "doccount wrapped!";
+	throw Xapian::DatabaseError("doccount overflowed!");
     }
 
     Xapian::termcount o_doclen_lbound = o.get_doclength_lower_bound();
@@ -247,7 +251,7 @@ GlassVersion::merge_stats(const GlassVersion & o)
     wdf_ubound = max(wdf_ubound, o.get_wdf_upper_bound());
     total_doclen += o.get_total_doclen();
     if (total_doclen < o.get_total_doclen()) {
-	throw "totlen wrapped!";
+	throw Xapian::DatabaseError("Total document length overflowed!");
     }
 
     // The upper bounds might be on the same word, so we must sum them.
@@ -270,7 +274,7 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
     LOGCALL(DB, const string, "GlassVersion::write", new_rev|flags);
 
     string s(GLASS_VERSION_MAGIC, GLASS_VERSION_MAGIC_AND_VERSION_LEN);
-    s.append(reinterpret_cast<const char *>(uuid), 16);
+    s.append(uuid.data(), uuid.BINARY_SIZE);
 
     pack_uint(s, new_rev);
 
@@ -291,7 +295,26 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 	else
 	    tmpfile += "/v.tmp";
 
-	fd = posixy_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
+#ifdef __EMSCRIPTEN__
+	// Emscripten < 1.39.10 fails to create a file if O_TRUNC is specified
+	// and the filename is the previous name of a renamed file (which it
+	// will be the second time we write out the version file for a DB):
+	//
+	// https://github.com/emscripten-core/emscripten/issues/8187
+	//
+	// We avoid triggering this bug by not using O_TRUNC and instead
+	// truncating once the file is opened.
+	fd = posixy_open(tmpfile.c_str(),
+			 O_CREAT|O_WRONLY|O_BINARY,
+			 0666);
+	if (fd >= 0)
+	    ftruncate(fd, 0);
+#else
+	fd = posixy_open(tmpfile.c_str(),
+			 O_CREAT|O_TRUNC|O_WRONLY|O_BINARY,
+			 0666);
+#endif
+
 	if (rare(fd < 0))
 	    throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
 					       errno);
@@ -372,8 +395,14 @@ GlassVersion::sync(const string & tmpfile,
     return true;
 }
 
-// Only try to compress tags longer than this many bytes.
-const size_t COMPRESS_MIN = 4;
+/* Only try to compress tags strictly longer than this many bytes.
+ *
+ * This can theoretically usefully be set as low as 4, but in practical terms
+ * zlib can't compress in very many cases for short inputs and even when it can
+ * the savings are small, so we default to a higher threshold to save CPU time
+ * for marginal size reductions.
+ */
+const size_t COMPRESS_MIN = 18;
 
 static const uint4 compress_min_tab[] = {
     0, // POSTLIST
@@ -387,8 +416,8 @@ static const uint4 compress_min_tab[] = {
 void
 GlassVersion::create(unsigned blocksize)
 {
-    AssertRel(blocksize,>=,2048);
-    uuid_generate(uuid);
+    AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
+    uuid.generate();
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
 	root[table_no].init(blocksize, compress_min_tab[table_no]);
     }
@@ -399,7 +428,7 @@ namespace Glass {
 void
 RootInfo::init(unsigned blocksize_, uint4 compress_min_)
 {
-    AssertRel(blocksize_,>=,2048);
+    AssertRel(blocksize_,>=,GLASS_MIN_BLOCKSIZE);
     root = 0;
     level = 0;
     num_entries = 0;
@@ -438,7 +467,11 @@ RootInfo::unserialise(const char ** p, const char * end)
     sequential = val & 0x02;
     root_is_fake = val & 0x01;
     blocksize <<= 11;
-    AssertRel(blocksize,>=,2048);
+    AssertRel(blocksize,>=,GLASS_MIN_BLOCKSIZE);
+    // Map old default to new default.
+    if (compress_min == 4) {
+	compress_min = COMPRESS_MIN;
+    }
     return true;
 }
 

@@ -1,7 +1,7 @@
 /** @file resolver.h
  * @brief Resolve hostnames and ip addresses
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ class Resolver {
 	explicit const_iterator(struct addrinfo* p_) : p(p_) { }
 
 	struct addrinfo& operator*() const {
-	   return *p;
+	    return *p;
 	}
 
 	void operator++() {
@@ -100,7 +100,7 @@ class Resolver {
 
 	struct addrinfo hints;
 	std::memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = AF_INET;
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = flags;
 	hints.ai_protocol = 0;

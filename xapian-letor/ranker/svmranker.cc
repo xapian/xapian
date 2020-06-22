@@ -45,6 +45,21 @@ Proceedings of the eighth ACM SIGKDD international conference on Knowledge disco
 using namespace std;
 using namespace Xapian;
 
+static void
+empty_function(const char*) {}
+
+static void
+clear_svm_problem(svm_problem *problem)
+{
+    delete [] problem->y;
+    problem->y = NULL;
+    for (int i = 0; i < problem->l; ++i) {
+	delete [] problem->x[i];
+    }
+    delete [] problem->x;
+    problem->x = NULL;
+}
+
 SVMRanker::SVMRanker()
 {
     LOGCALL_CTOR(API, "SVMRanker", NO_ARGS);
@@ -66,25 +81,26 @@ get_non_zero_num(const Xapian::FeatureVector & fv_non_zero)
 }
 
 void
-SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
+SVMRanker::train(const std::vector<Xapian::FeatureVector> & training_data)
 {
-    LOGCALL_VOID(API, "SVMRanker::train_model", training_data);
+    LOGCALL_VOID(API, "SVMRanker::train", training_data);
+    svm_set_print_string_function(&empty_function);
     struct svm_parameter param;
-    param.svm_type = 4;         //nu-SVR
-    param.kernel_type = 0;      //linear Kernel
-    param.degree = 3;           //parameter for poly Kernel, default 3
-    param.gamma = 0;            //parameter for poly/rbf/sigmoid Kernel, default 1/num_features
-    param.coef0 = 0;            //parameter for poly/sigmoid Kernel, default 0
-    param.nu = 0.5;             //parameter for nu-SVC/one-class SVM/nu-SVR, default 0.5
-    param.cache_size = 100;     //default 40mb
-    param.C = 1;                //penalty parameter, default 1
-    param.eps = 1e-3;           //stopping criteria, default 1e-3
-    param.p = 0.1;              //parameter for e -SVR, default 0.1
-    param.shrinking = 1;        //use the shrinking heuristics
-    param.probability = 0;      //probability estimates
-    param.nr_weight = 0;        //parameter for C-SVCl
-    param.weight_label = NULL;  //parameter flor C-SVC
-    param.weight = NULL;        //parameter for c-SVC
+    param.svm_type = NU_SVR;
+    param.kernel_type = LINEAR;
+    param.degree = 3;           // parameter for poly Kernel, default 3
+    param.gamma = 0;            // parameter for poly/rbf/sigmoid Kernel, default 1/num_features
+    param.coef0 = 0;            // parameter for poly/sigmoid Kernel, default 0
+    param.nu = 0.5;             // parameter for nu-SVC/one-class SVM/nu-SVR, default 0.5
+    param.cache_size = 100;     // default 40MB
+    param.C = 1;                // penalty parameter, default 1
+    param.eps = 1e-3;           // stopping criteria, default 1e-3
+    param.p = 0.1;              // parameter for e -SVR, default 0.1
+    param.shrinking = 1;        // use the shrinking heuristics
+    param.probability = 0;      // probability estimates
+    param.nr_weight = 0;        // parameter for C-SVCl
+    param.weight_label = NULL;  // parameter for C-SVC
+    param.weight = NULL;        // parameter for c-SVC
 
     int fvv_len = training_data.size();
     if (fvv_len == 0) {
@@ -143,6 +159,9 @@ SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
 	close(fd);
 	std::remove(templ);
     }
+    svm_free_and_destroy_model(&trainmodel);
+    clear_svm_problem(&prob);
+    svm_destroy_param(&param);
     if (this->model_data.empty()) {
 	throw LetorInternalError("SVM model empty. Training failed.");
     }
@@ -224,7 +243,8 @@ SVMRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const
 	test[non_zero_flag].index = -1;
 	test[non_zero_flag].value = -1;
 	testfvv[i].set_score(svm_predict(model, test));
+	delete [] test;
     }
-    std::sort(testfvv.begin(), testfvv.end(), &Ranker::scorecomparer);
+    svm_free_and_destroy_model(&model);
     return testfvv;
 }

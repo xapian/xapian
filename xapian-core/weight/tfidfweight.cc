@@ -3,7 +3,7 @@
  */
 /* Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
- * Copyright (C) 2016 Olly Betts
+ * Copyright (C) 2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,9 +68,9 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (param_slope <= 0)
-	throw Xapian::InvalidArgumentError("Parameter slope is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter slope is invalid");
     if (param_delta <= 0)
-	throw Xapian::InvalidArgumentError("Parameter delta is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter delta is invalid");
     if (normalizations[1] != 'n') {
 	need_stat(TERMFREQ);
 	need_stat(COLLECTION_SIZE);
@@ -100,6 +100,12 @@ TfIdfWeight::clone() const
 void
 TfIdfWeight::init(double factor_)
 {
+    if (factor_ == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     wqf_factor = get_wqf() * factor_;
     idfn = get_idfn(normalizations[1]);
 }
@@ -108,6 +114,12 @@ string
 TfIdfWeight::name() const
 {
     return "Xapian::TfIdfWeight";
+}
+
+string
+TfIdfWeight::short_name() const
+{
+    return "tfidf";
 }
 
 string
@@ -236,6 +248,14 @@ TfIdfWeight::get_wtn(double wt, char c) const
     (void)c;
     AssertEq(c, 'n');
     return wt;
+}
+
+TfIdfWeight *
+TfIdfWeight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::TfIdfWeight();
+    return new Xapian::TfIdfWeight(p);
 }
 
 }

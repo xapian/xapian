@@ -38,10 +38,10 @@ The simplest way to compile this package is:
      `-dev` or `-devel` suffix.  Additional per-language dependencies are:
 
        * python:
-         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+         - Sphinx Documentation Generator: https://www.sphinx-doc.org/
 	   The package you want might be python-sphinx.
        * python3:
-         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+         - Sphinx Documentation Generator: https://www.sphinx-doc.org/
 	   The package you want might be python3-sphinx.
 
   1. 'cd' to the directory containing the package's source code and type
@@ -61,7 +61,6 @@ The simplest way to compile this package is:
        --with-java	    enable Java bindings
        --with-lua	    enable Lua bindings
        --with-perl	    enable Perl bindings
-       --with-php	    enable PHP 5 bindings
        --with-php7	    enable PHP 7 bindings
        --with-python	    enable Python 2 bindings
        --with-python3	    enable Python 3 bindings
@@ -124,7 +123,7 @@ Installing without root access
      Note that you also need to pass a "--prefix" option to configure so that
      the documentation and examples can be installed.
 
-  PHP (5 and 7):
+  PHP 7:
 
      With current releases of PHP, there doesn't seem to be a good way to
      install the PHP bindings without root access such that they can be used
@@ -133,7 +132,7 @@ Installing without root access
      If you're only interested in running code from the command line (via PHP's
      CLI SAPI) then the following will work:
 
-     ./configure --with-php --prefix=$HOME/install PHP_EXTENSION_DIR=$HOME/my_php_extensions
+     ./configure --with-php7 --prefix=$HOME/install PHP_EXTENSION_DIR=$HOME/my_php_extensions
      make
      make install
 
@@ -159,19 +158,17 @@ Installing without root access
      make install
 
      Python 2.6 and later will look in ~/.local for packages automatically
-     so the above is all that is required.
+     so the above is all that is required by default.  If you set PYTHON_LIB to
+     a different directory, you'll need to tell Python to look for modules in
+     that directory.  Here are two possible ways to do that:
 
-     For older Python versions, or if you set PYTHON_LIB to a different
-     directory, you'll need to tell Python to look for modules in that
-     directory.  Here are two possible ways to do that:
-
-     setenv PYTHONPATH=$HOME/.local python myscript.py
+     setenv PYTHONPATH=$HOME/mypymods python myscript.py
 
      Or you can add this to the start of your Python scripts:
 
      import os
      import sys
-     sys.path.insert(0, os.environ['HOME'] + "/.local")
+     sys.path.insert(0, os.environ['HOME'] + "/mypymods")
      import xapian
 
   Python 3:
@@ -224,7 +221,7 @@ for details on some of the pertinent environment variables.
 by setting variables in the command line or in the environment.  Here
 is an example:
 
-     ./configure LIBS=-lposix
+     ./configure CXX=g++-4.9 CFLAGS=-O2 LIBS=-lposix
 
    If your system requires special flags, do let us know.  Where possible
 we'd prefer configure to determine such flags by itself, but if we can't
@@ -234,7 +231,7 @@ systems like yours.
 Compiling For Multiple Architectures
 ====================================
 
-When using GCC on platforms which support multiple architecture, the simplest
+When using GCC on platforms which support multiple architectures, the simplest
 way to select a non-default architecture is to pass a CXX setting to configure
 which includes the appropriate -m option - e.g. to build for x86 on x86-64
 you would configure with:

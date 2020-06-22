@@ -1,7 +1,7 @@
 /** @file expandweight.cc
  * @brief Calculate term weights for the ESet.
  */
-/* Copyright (C) 2007,2008,2011 Olly Betts
+/* Copyright (C) 2007,2008,2011,2017 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  * Copyright (C) 2013 Aarsh Shah
  *
@@ -44,11 +44,8 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
 
     collection_freq = db.get_collection_freq(term);
 
-    double termfreq = stats.termfreq;
-    double rtermfreq = stats.rtermfreq;
-
     LOGVALUE(EXPAND, rsize);
-    LOGVALUE(EXPAND, rtermfreq);
+    LOGVALUE(EXPAND, stats.rtermfreq);
 
     LOGVALUE(EXPAND, dbsize);
     LOGVALUE(EXPAND, stats.dbsize);
@@ -57,7 +54,7 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
 	// all the sub-databases (because at least one relevant document from
 	// each sub-database contained this term), so termfreq should already
 	// be exact.
-	AssertEqParanoid(termfreq, db.get_termfreq(term));
+	AssertEqParanoid(stats.termfreq, db.get_termfreq(term));
     } else {
 	AssertRel(stats.dbsize,<,dbsize);
 	// We're expanding from more than one database and the stats we've got
@@ -65,40 +62,33 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
 	// those sub-databases.
 	if (use_exact_termfreq) {
 	    LOGLINE(EXPAND, "Had to request exact termfreq");
-	    termfreq = db.get_termfreq(term);
+	    stats.termfreq = db.get_termfreq(term);
 	} else {
 	    // Approximate the termfreq by scaling it up from the databases we
 	    // do have information from.
-	    termfreq *= double(dbsize) / double(stats.dbsize);
+	    double tf = double(stats.termfreq) * dbsize / stats.dbsize;
 	    LOGLINE(EXPAND, "termfreq is approx " << stats.termfreq << " * " <<
 			    dbsize << " / " << stats.dbsize << " = " <<
-			    termfreq);
-	    LOGVALUE(EXPAND, db.get_termfreq(term));
-	    if (termfreq < rtermfreq) {
-		// termfreq must be at least rtermfreq, since there are at
-		// least rtermfreq documents indexed by this term.
-		LOGLINE(EXPAND, "termfreq must be at least rtermfreq");
-		termfreq = rtermfreq;
-	    } else {
-		// termfreq can't be more than (dbsize - rsize + rtermfreq)
-		// since the number of relevant documents not indexed by this
-		// term can't be more than the number of documents not indexed
-		// by this term, so:
-		//
-		//     rsize - rtermfreq <= dbsize - termfreq
-		// <=> termfreq <= dbsize - (rsize - rtermfreq)
-		double termfreq_upper_bound = dbsize - (rsize - rtermfreq);
-		if (termfreq > termfreq_upper_bound) {
-		    LOGLINE(EXPAND, "termfreq can't be more than "
-				    "dbsize - (rsize + rtermfreq)");
-		    termfreq = termfreq_upper_bound;
-		}
+			    tf);
+
+	    stats.termfreq = static_cast<Xapian::doccount>(tf + 0.5);
+
+	    // termfreq can't be more than (dbsize - rsize + rtermfreq)
+	    // since the number of relevant documents not indexed by this
+	    // term can't be more than the number of documents not indexed
+	    // by this term, so:
+	    //
+	    //     rsize - rtermfreq <= dbsize - termfreq
+	    // <=> termfreq <= dbsize - (rsize - rtermfreq)
+	    auto termfreq_upper_bound = dbsize - (rsize - stats.rtermfreq);
+	    if (stats.termfreq > termfreq_upper_bound) {
+		LOGLINE(EXPAND, "termfreq can't be more than "
+				"dbsize - (rsize + rtermfreq)");
+		stats.termfreq = termfreq_upper_bound;
 	    }
 	}
     }
-    LOGVALUE(EXPAND, termfreq);
-    stats.termfreq = termfreq;
-    stats.rtermfreq = rtermfreq;
+    LOGVALUE(EXPAND, stats.termfreq);
 }
 
 }

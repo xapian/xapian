@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2018 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -29,14 +29,14 @@
 #include <xapian/registry.h>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
-#include "autoptr.h"
 #include "debuglog.h"
-#include "noreturn.h"
+#include "heap.h"
 #include "omassert.h"
-#include "net/length.h"
+#include "pack.h"
 #include "stringutils.h"
 #include "str.h"
 #include "termlist.h"
@@ -85,13 +85,13 @@ MatchSpy::get_description() const {
     return "Xapian::MatchSpy()";
 }
 
-XAPIAN_NORETURN(static void unsupported_method());
+[[noreturn]]
 static void unsupported_method() {
     throw Xapian::InvalidOperationError("Method not supported for this type of termlist");
 }
 
 /// A termlist iterator over the contents of a ValueCountMatchSpy
-class ValueCountTermList : public TermList {
+class ValueCountTermList final : public TermList {
   private:
     map<string, Xapian::doccount>::const_iterator it;
     bool started;
@@ -142,9 +142,9 @@ class ValueCountTermList : public TermList {
 
     Xapian::termcount get_approx_size() const { unsupported_method(); return 0; }
     Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
-    Xapian::PositionIterator positionlist_begin() const {
+    PositionList* positionlist_begin() const {
 	unsupported_method();
-	return Xapian::PositionIterator();
+	return NULL;
     }
     Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };
@@ -187,7 +187,7 @@ class StringAndFreqCmpByFreq {
 };
 
 /// A termlist iterator over a vector of StringAndFrequency objects.
-class StringAndFreqTermList : public TermList {
+class StringAndFreqTermList final : public TermList {
   private:
     vector<StringAndFrequency>::const_iterator it;
     bool started;
@@ -239,9 +239,9 @@ class StringAndFreqTermList : public TermList {
 
     Xapian::termcount get_approx_size() const { unsupported_method(); return 0; }
     Xapian::termcount get_wdf() const { unsupported_method(); return 0; }
-    Xapian::PositionIterator positionlist_begin() const {
+    PositionList* positionlist_begin() const {
 	unsupported_method();
-	return Xapian::PositionIterator();
+	return NULL;
     }
     Xapian::termcount positionlist_count() const { unsupported_method(); return 0; }
 };
@@ -259,39 +259,46 @@ class StringAndFreqTermList : public TermList {
  *  @param items The map from string to frequency, from which the most
  *               frequent items will be selected.
  *
- *  @param maxitems The maximum number of items to return.
+ *  @param maxitems The maximum number of items to return (non-zero).
  */
 static void
 get_most_frequent_items(vector<StringAndFrequency> & result,
 			const map<string, doccount> & items,
 			size_t maxitems)
 {
+    Assert(maxitems != 0);
     result.clear();
     result.reserve(maxitems);
     StringAndFreqCmpByFreq cmpfn;
-    bool is_heap(false);
+    bool is_heap = false;
 
     for (map<string, doccount>::const_iterator i = items.begin();
 	 i != items.end(); ++i) {
-	Assert(result.size() <= maxitems);
-	result.push_back(StringAndFrequency(i->first, i->second));
-	if (result.size() > maxitems) {
-	    // Make the list back into a heap.
-	    if (is_heap) {
-		// Only the new element isn't in the right place.
-		push_heap(result.begin(), result.end(), cmpfn);
-	    } else {
-		// Need to build heap from scratch.
-		make_heap(result.begin(), result.end(), cmpfn);
-		is_heap = true;
-	    }
-	    pop_heap(result.begin(), result.end(), cmpfn);
-	    result.pop_back();
+	if (result.size() < maxitems) {
+	    result.emplace_back(i->first, i->second);
+	    continue;
 	}
+
+	// We have the desired number of items, so it's one-in one-out from
+	// now on.
+	Assert(result.size() == maxitems);
+	if (!is_heap) {
+	    Heap::make(result.begin(), result.end(), cmpfn);
+	    is_heap = true;
+	}
+
+	StringAndFrequency new_item(i->first, i->second);
+	if (!cmpfn(new_item, result[0])) {
+	    // The candidate is worse than the worst of the current top N.
+	    continue;
+	}
+
+	result[0] = std::move(new_item);
+	Heap::replace(result.begin(), result.end(), cmpfn);
     }
 
     if (is_heap) {
-	sort_heap(result.begin(), result.end(), cmpfn);
+	Heap::sort(result.begin(), result.end(), cmpfn);
     } else {
 	sort(result.begin(), result.end(), cmpfn);
     }
@@ -316,9 +323,12 @@ TermIterator
 ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 {
     Assert(internal.get());
-    AutoPtr<StringAndFreqTermList> termlist(new StringAndFreqTermList);
-    get_most_frequent_items(termlist->values, internal->values, maxvalues);
-    termlist->init();
+    unique_ptr<StringAndFreqTermList> termlist(nullptr);
+    if (usual(maxvalues > 0)) {
+	termlist.reset(new StringAndFreqTermList);
+	get_most_frequent_items(termlist->values, internal->values, maxvalues);
+	termlist->init();
+    }
     return Xapian::TermIterator(termlist.release());
 }
 
@@ -337,7 +347,7 @@ string
 ValueCountMatchSpy::serialise() const {
     Assert(internal.get());
     string result;
-    result += encode_length(internal->slot);
+    pack_uint_last(result, internal->slot);
     return result;
 }
 
@@ -348,9 +358,8 @@ ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
     const char * end = p + s.size();
 
     valueno new_slot;
-    decode_length(&p, end, new_slot);
-    if (p != end) {
-	throw NetworkError("Junk at end of serialised ValueCountMatchSpy");
+    if (!unpack_uint_last(&p, end, &new_slot)) {
+	unpack_throw_serialisation_error(p);
     }
 
     return new ValueCountMatchSpy(new_slot);
@@ -361,13 +370,10 @@ ValueCountMatchSpy::serialise_results() const {
     LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", NO_ARGS);
     Assert(internal.get());
     string result;
-    result += encode_length(internal->total);
-    result += encode_length(internal->values.size());
-    for (map<string, doccount>::const_iterator i = internal->values.begin();
-	 i != internal->values.end(); ++i) {
-	result += encode_length(i->first.size());
-	result += i->first;
-	result += encode_length(i->second);
+    pack_uint(result, internal->total);
+    for (auto&& item : internal->values) {
+	pack_string(result, item.first);
+	pack_uint(result, item.second);
     }
     RETURN(result);
 }
@@ -380,22 +386,19 @@ ValueCountMatchSpy::merge_results(const string & s) {
     const char * end = p + s.size();
 
     Xapian::doccount n;
-    decode_length(&p, end, n);
+    if (!unpack_uint(&p, end, &n)) {
+	unpack_throw_serialisation_error(p);
+    }
     internal->total += n;
 
-    map<string, doccount>::size_type items;
-    decode_length(&p, end, items);
+    string val;
     while (p != end) {
-	while (items != 0) {
-	    size_t vallen;
-	    decode_length_and_check(&p, end, vallen);
-	    string val(p, vallen);
-	    p += vallen;
-	    doccount freq;
-	    decode_length(&p, end, freq);
-	    internal->values[val] += freq;
-	    --items;
+	doccount freq;
+	if (!unpack_string(&p, end, val) ||
+	    !unpack_uint(&p, end, &freq)) {
+	    unpack_throw_serialisation_error(p);
 	}
+	internal->values[val] += freq;
     }
 }
 

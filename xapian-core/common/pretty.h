@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012,2014,2016 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014,2016,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include "api/smallvector.h"
+
 #include "xapian/intrusive_ptr.h"
 #include "xapian/types.h"
 
@@ -36,7 +38,7 @@ struct PrettyOStream {
     S & os;
 
     PrettyOStream(S & os_) : os(os_) { }
-    template <typename T> PrettyOStream & operator|(const T & t){
+    template<typename T> PrettyOStream & operator|(const T & t) {
 	os << ", ";
 	return *this << t;
     }
@@ -259,14 +261,38 @@ operator<<(PrettyOStream<S> &ps, const std::vector<T> & v) {
     return ps;
 }
 
+template<class S, typename T>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const Xapian::Vec<T>& v) {
+    ps.os << "Vec(" << v.size() << ')';
+    // FIXME: could show first up to N elements.
+    return ps;
+}
+
+template<class S, typename T>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const Xapian::VecCOW<T>& v) {
+    ps.os << "VecCOW(" << v.size() << ')';
+    // FIXME: could show first up to N elements.
+    return ps;
+}
+
 namespace Xapian {
+    class Centroid;
+    class Cluster;
+    class ClusterSet;
     class ExpandDecider;
+    class KeyMaker;
     class LatLongMetric;
     class MatchDecider;
+    class Point;
+    class PointType;
     class Registry;
+    class TermListGroup;
     class Weight;
     namespace Internal {
 	class AndContext;
+	class BoolOrContext;
 	class ExpandStats;
 	class ExpandWeight;
 	class OrContext;
@@ -282,6 +308,8 @@ class GlassDatabase;
 class GlassFreeListChecker;
 class GlassTable;
 
+class HoneyTable;
+
 #define XAPIAN_PRETTY_AS_CLASSNAME(C)\
 template<class S>\
 inline PrettyOStream<S> &\
@@ -290,20 +318,29 @@ operator<<(PrettyOStream<S> &ps, const C &) {\
     return ps;\
 }
 
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Centroid)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Cluster)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ClusterSet)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::KeyMaker)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::LatLongMetric)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Point)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::PointType)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::TermListGroup)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
-XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext);
-XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats);
-XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight);
-XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext);
-XAPIAN_PRETTY_AS_CLASSNAME(Glass::RootInfo);
-XAPIAN_PRETTY_AS_CLASSNAME(GlassCursor);
-XAPIAN_PRETTY_AS_CLASSNAME(GlassFreeListChecker);
-XAPIAN_PRETTY_AS_CLASSNAME(GlassDatabase);
-XAPIAN_PRETTY_AS_CLASSNAME(GlassTable);
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::BoolOrContext)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext)
+XAPIAN_PRETTY_AS_CLASSNAME(Glass::RootInfo)
+XAPIAN_PRETTY_AS_CLASSNAME(GlassCursor)
+XAPIAN_PRETTY_AS_CLASSNAME(GlassFreeListChecker)
+XAPIAN_PRETTY_AS_CLASSNAME(GlassDatabase)
+XAPIAN_PRETTY_AS_CLASSNAME(GlassTable)
+XAPIAN_PRETTY_AS_CLASSNAME(HoneyTable)
 
 template<class S>
 inline PrettyOStream<S> &
@@ -321,7 +358,7 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
     return ps;
 }
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 
 template<class S>
 inline PrettyOStream<S> &

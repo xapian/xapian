@@ -1,7 +1,7 @@
 /** @file  socket_utils.cc
  *  @brief Socket handling utilities.
  */
-/* Copyright (C) 2006,2007,2008,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2015,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,60 +28,14 @@
 
 using namespace std;
 
-#ifdef __WIN32__
-# include "safeerrno.h"
+#include "stringutils.h"
 
+#ifndef __WIN32__
+# include <arpa/inet.h>
+#else
 # include <io.h>
-// __STDC_SECURE_LIB__ doesn't appear to be publicly documented, but appears
-// to be a good idea.  We cribbed this test from the python sources - see, for
-// example, http://svn.python.org/view?rev=47223&view=rev
-# if defined _MSC_VER && _MSC_VER >= 1400 && defined __STDC_SECURE_LIB__
-#  include <cstdlib> // For _set_invalid_parameter_handler(), etc.
-#  include <crtdbg.h> // For _CrtSetReportMode, etc.
-
-/** A dummy invalid parameter handler which ignores the error. */
-static void dummy_handler(const wchar_t*,
-			  const wchar_t*,
-			  const wchar_t*,
-			  unsigned int,
-			  uintptr_t)
-{
-}
-
-// Recent versions of MSVC call an "_invalid_parameter_handler" if a
-// CRT function receives an invalid parameter.  However, there are cases
-// where this is totally reasonable.  To avoid the application dying,
-// you just need to instantiate the MSVCIgnoreInvalidParameter class in
-// the scope where you want MSVC to ignore invalid parameters.
-class MSVCIgnoreInvalidParameter {
-    _invalid_parameter_handler old_handler;
-    int old_report_mode;
-
-  public:
-    MSVCIgnoreInvalidParameter() {
-	// Install a dummy handler to avoid the program dying.
-	old_handler = _set_invalid_parameter_handler(dummy_handler);
-	// Make sure that no dialog boxes appear.
-	old_report_mode = _CrtSetReportMode(_CRT_ASSERT, 0);
-    }
-
-    ~MSVCIgnoreInvalidParameter() {
-	// Restore the previous settings.
-	_set_invalid_parameter_handler(old_handler);
-	_CrtSetReportMode(_CRT_ASSERT, old_report_mode);
-    }
-};
-# else
-// Mingw seems to be free of this insanity, so for this and older MSVC versions
-// define a dummy class to allow MSVCIgnoreInvalidParameter to be used
-// unconditionally.
-struct MSVCIgnoreInvalidParameter {
-    // Provide an explicit constructor so this isn't a POD struct - this seems
-    // to prevent GCC warning about an unused variable whenever we instantiate
-    // this class.
-    MSVCIgnoreInvalidParameter() { }
-};
-# endif
+# include "msvcignoreinvalidparam.h"
+# include <cerrno>
 
 /// Convert an fd (which might be a socket) to a WIN32 HANDLE.
 extern HANDLE fd_to_handle(int fd) {
@@ -147,4 +101,53 @@ set_socket_timeouts(int fd, double timeout)
 			 reinterpret_cast<char*>(&flag), sizeof(flag));
     }
 #endif
+}
+
+int
+pretty_ip6(const void* p, char* buf)
+{
+    const sockaddr* sa = reinterpret_cast<const sockaddr*>(p);
+    auto af = sa->sa_family;
+    int port;
+    if (af == AF_INET6) {
+	port = (reinterpret_cast<const sockaddr_in6*>(p))->sin6_port;
+    } else if (af == AF_INET) {
+	port = (reinterpret_cast<const sockaddr_in*>(p))->sin_port;
+    } else {
+	return -1;
+    }
+
+    // WSAAddressToString() has a non-const first parameter.
+    //
+    // The mingw headers at least are also missing const from the corresponding
+    // (second) parameter of inet_ntop(), so just cast away the const in case
+    // this is more widespread.
+    auto src = reinterpret_cast<struct sockaddr*>(const_cast<void*>(p));
+#ifndef __WIN32__
+    const char* r = inet_ntop(af, src, buf, PRETTY_IP6_LEN);
+    if (!r)
+	return -1;
+#else
+    // inet_ntop() isn't always available, at least with mingw.
+    // WSAAddressToString() supports both IPv4 and IPv6, so just use that.
+    DWORD in_size = (af == AF_INET6 ?
+		     sizeof(struct sockaddr_in6) :
+		     sizeof(struct sockaddr_in));
+    DWORD size = PRETTY_IP6_LEN;
+    if (WSAAddressToString(src, in_size, NULL, buf, &size) != 0) {
+	return -1;
+    }
+    const char* r = buf;
+#endif
+
+    if (startswith(r, "::ffff:") || startswith(r, "::FFFF:")) {
+	if (strchr(r + 7, '.')) {
+	    r += 7;
+	}
+    }
+
+    if (r != buf)
+	memmove(buf, r, strlen(r) + 1);
+
+    return port;
 }

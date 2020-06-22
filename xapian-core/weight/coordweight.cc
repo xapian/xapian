@@ -1,4 +1,4 @@
-/** @file coordinateweight.cc
+/** @file coordweight.cc
  * @brief Xapian::CoordWeight class - coordinate matching
  */
 /* Copyright (C) 2004,2009,2011,2016 Olly Betts
@@ -47,6 +47,12 @@ CoordWeight::name() const
 }
 
 string
+CoordWeight::short_name() const
+{
+    return "coord";
+}
+
+string
 CoordWeight::serialise() const
 {
     // No parameters to serialise.
@@ -84,6 +90,14 @@ double
 CoordWeight::get_maxextra() const
 {
     return 0;
+}
+
+CoordWeight *
+CoordWeight::create_from_parameters(const char * p) const
+{
+    if (*p != '\0')
+	throw InvalidArgumentError("No parameters are required for CoordWeight");
+    return new Xapian::CoordWeight();
 }
 
 }

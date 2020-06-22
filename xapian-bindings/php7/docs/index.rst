@@ -79,7 +79,7 @@ Unicode Support
 
 The Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
-to index strings in a different encoding, use the PHP `iconv function <http://php.net/iconv>`_ to convert them to UTF-8 before passing them to Xapian, and when reading values back from Xapian.
+to index strings in a different encoding, use the PHP `iconv function <https://secure.php.net/iconv>`_ to convert them to UTF-8 before passing them to Xapian, and when reading values back from Xapian.
 
 Iterators
 #########
@@ -160,9 +160,6 @@ work using the C++ array dereferencing):
 Database Factory Functions
 ##########################
 
-
-- ``Xapian::Auto::open_stub(file)`` is wrapped as ``Xapian::auto_open_stub(file)`` (now deprecated)
-- ``Xapian::InMemory::open()`` is wrapped as ``Xapian::inmemory_open()`` (now deprecated)
 - ``Xapian::Remote::open(...)`` is wrapped as ``Xapian::remote_open(...)`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
 - ``Xapian::Remote::open_writable(...)`` is wrapped as ``Xapian::remote_open_writable(...)`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
 

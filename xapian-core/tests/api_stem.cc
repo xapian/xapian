@@ -1,7 +1,7 @@
 /** @file api_stem.cc
  * @brief Test the stemming API
  */
-/* Copyright (C) 2010,2012 Olly Betts
+/* Copyright (C) 2010,2012,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,8 +50,6 @@ DEFINE_TESTCASE(stem1, !backend) {
     TEST_EQUAL(st("a"), "a");
     TEST_EQUAL(st("foo"), "foo");
     TEST_EQUAL(st("food"), "foo");
-
-    return true;
 }
 
 /// New feature in 1.0.21/1.2.1 - "nb" and "nn" select the Norwegian stemmer.
@@ -67,7 +65,6 @@ DEFINE_TESTCASE(stem2, !backend) {
 		   Xapian::Stem("en").get_description());
     TEST_NOT_EQUAL(st_norwegian.get_description(),
 		   Xapian::Stem("none").get_description());
-    return true;
 }
 
 /// Test add a stemmer test
@@ -77,7 +74,6 @@ DEFINE_TESTCASE(stem3, !backend) {
     TEST_EQUAL(earlyenglish("loving"), "love");
     TEST_EQUAL(earlyenglish("loveth"), "love");
     TEST_EQUAL(earlyenglish("givest"), "give");
-    return true;
 }
 
 /// Test handling of a stemmer returning an empty string.
@@ -100,16 +96,21 @@ DEFINE_TESTCASE(stemempty1, !backend) {
     TEST(++i != doc.termlist_end());
     TEST_EQUAL(*i, "wat");
     TEST(++i == doc.termlist_end());
-
-    return true;
 }
 
 /// Test invalid language names with various characters in.
 DEFINE_TESTCASE(stemlangs2, !backend) {
     string lang("xdummy");
     for (unsigned ch = 0; ch <= 255; ++ch) {
-	lang[0] = ch;
+	lang[0] = char(ch);
 	TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stem(lang));
     }
-    return true;
+
+    // Test fallback=false throws too.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stem("x", false));
+
+    // Test fallback=true gives "none" stemmer.
+    Xapian::Stem stem(lang, true);
+    TEST(stem.is_none());
+    TEST_EQUAL(stem.get_description(), "Xapian::Stem(none)");
 }

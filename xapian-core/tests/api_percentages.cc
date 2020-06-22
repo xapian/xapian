@@ -26,7 +26,6 @@
 #include <xapian.h>
 
 #include "apitest.h"
-#include "backendmanager_local.h"
 #include "str.h"
 #include "testutils.h"
 
@@ -65,15 +64,14 @@ DEFINE_TESTCASE(consistency3, backend) {
 	    }
 	}
     }
-    return true;
 }
 
 class MyPostingSource : public Xapian::PostingSource {
-    vector<pair<Xapian::docid, double> > weights;
-    vector<pair<Xapian::docid, double> >::const_iterator i;
+    vector<pair<Xapian::docid, double>> weights;
+    vector<pair<Xapian::docid, double>>::const_iterator i;
     bool started;
 
-    MyPostingSource(const vector<pair<Xapian::docid, double> > &weights_,
+    MyPostingSource(const vector<pair<Xapian::docid, double>>& weights_,
 		    double max_wt)
 	: weights(weights_), started(false)
     {
@@ -120,7 +118,6 @@ class MyPostingSource : public Xapian::PostingSource {
 	return "MyPostingSource";
     }
 };
-
 
 /// Test for rounding errors in percentage weight calculations and cutoffs.
 DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
@@ -170,8 +167,6 @@ DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
 	    percent = new_percent;
 	}
     }
-
-    return true;
 }
 
 /// Check we throw for a percentage cutoff while sorting primarily by value.
@@ -193,22 +188,15 @@ DEFINE_TESTCASE(pctcutoff5, backend) {
 
     enquire.set_sort_by_value_then_relevance(0, true);
     TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
-
-    return true;
 }
 
 // Regression test for bug fixed in 1.0.14.
-DEFINE_TESTCASE(topercent3, remote) {
-    BackendManagerLocal local_manager;
-    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
-    Xapian::Database db;
-    db.add_database(get_database("apitest_simpledata"));
-    db.add_database(local_manager.get_database("apitest_simpledata"));
-
+DEFINE_TESTCASE(topercent3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_sort_by_value(1, false);
 
-    const char * terms[] = { "paragraph", "banana" };
+    static const char * const terms[] = { "paragraph", "banana" };
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, terms, terms + 2));
 
     Xapian::MSet mset = enquire.get_mset(0, 20);
@@ -218,8 +206,6 @@ DEFINE_TESTCASE(topercent3, remote) {
 	// We should never achieve 100%.
 	TEST_REL(i.get_percent(),<,100);
     }
-
-    return true;
 }
 
 // Regression test for bug introduced temporarily by the "percent without
@@ -239,8 +225,6 @@ DEFINE_TESTCASE(topercent4, backend) {
     // We should get 50% not 33%.
     TEST(!mset.empty());
     TEST_EQUAL(mset[0].get_percent(), 50);
-
-    return true;
 }
 
 /// Test that a search with a non-existent term doesn't get 100%.
@@ -255,8 +239,7 @@ DEFINE_TESTCASE(topercent5, backend) {
     // It would be odd if the non-existent term was worth more, but in 1.0.x
     // the top hit got 4% in this testcase.  In 1.2.x it gets 50%, which is
     // better, but >50% would be more natural.
-    TEST(mset[0].get_percent() >= 50);
-    return true;
+    TEST_REL(mset[0].get_percent(), >=, 50);
 }
 
 /// Test that OP_FILTER doesn't affect percentages.
@@ -275,7 +258,6 @@ DEFINE_TESTCASE(topercent6, backend) {
     Xapian::MSet mset2 = enquire.get_mset(0, 10);
     TEST(!mset2.empty());
     TEST_EQUAL(mset[0].get_percent(), mset2[0].get_percent());
-    return true;
 }
 
 static void
@@ -307,12 +289,13 @@ DEFINE_TESTCASE(topercent7, generated) {
     Xapian::MSet m = enq.get_mset(0, 10);
     TEST(!m.empty());
     TEST_REL(m[0].get_percent(),>,60);
-    return true;
 }
 
 class ZWeight : public Xapian::Weight {
   public:
-    ZWeight() { }
+    ZWeight() {
+	need_stat(DOC_LENGTH);
+    }
 
     void init(double) { }
 
@@ -346,7 +329,7 @@ DEFINE_TESTCASE(checkzeromaxpartopt1, backend && !remote) {
     Xapian::Enquire enquire(db);
     // "this" indexes all documents, so will get replaced with MatchAll
     // internally.
-    const char * terms[] = { "this", "spoken", "blank" };
+    static const char * const terms[] = { "this", "spoken", "blank" };
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, terms, terms + 3));
     ZWeight wt;
     enquire.set_weighting_scheme(wt);
@@ -355,5 +338,4 @@ DEFINE_TESTCASE(checkzeromaxpartopt1, backend && !remote) {
     TEST(mset[0].get_percent() != 100);
     // Make sure the percentage score isn't 0 or 1 though.
     TEST_REL(mset[0].get_percent(), >, 1);
-    return true;
 }

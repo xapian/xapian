@@ -2,7 +2,7 @@
  * @brief Xapian::DPHWeight class - The DPH weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013, 2014 Aarsh Shah
- * Copyright (C) 2016 Olly Betts
+ * Copyright (C) 2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,22 +41,27 @@ DPHWeight::clone() const
 void
 DPHWeight::init(double factor)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     double F = get_collection_freq();
-    double N = get_collection_size();
     double wdf_lower = 1.0;
     double wdf_upper = get_wdf_upper_bound();
 
     double len_upper = get_doclength_upper_bound();
-
-    double min_wdf_to_len = wdf_lower / len_upper;
 
     if (wdf_upper == 0) {
 	upper_bound = 0.0;
 	return;
     }
 
+    double min_wdf_to_len = wdf_lower / len_upper;
+
     /* Calculate constant value to be used in get_sumpart(). */
-    log_constant = get_average_length() * N / F;
+    log_constant = get_total_length() / F;
     wqf_product_factor = get_wqf() * factor;
 
     // Calculate the upper bound on the weight.
@@ -111,6 +116,12 @@ DPHWeight::name() const
 }
 
 string
+DPHWeight::short_name() const
+{
+    return "dph";
+}
+
+string
 DPHWeight::serialise() const
 {
     return string();
@@ -158,6 +169,14 @@ double
 DPHWeight::get_maxextra() const
 {
     return 0;
+}
+
+DPHWeight *
+DPHWeight::create_from_parameters(const char * p) const
+{
+    if (*p != '\0')
+	throw InvalidArgumentError("No parameters are required for DPHWeight");
+    return new Xapian::DPHWeight();
 }
 
 }

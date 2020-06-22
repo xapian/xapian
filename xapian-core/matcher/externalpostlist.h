@@ -1,7 +1,7 @@
 /** @file externalpostlist.h
  * @brief Return document ids from an external source.
  */
-/* Copyright 2008,2009,2011 Olly Betts
+/* Copyright 2008,2009,2011,2019 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,13 +22,13 @@
 #ifndef XAPIAN_INCLUDED_EXTERNALPOSTLIST_H
 #define XAPIAN_INCLUDED_EXTERNALPOSTLIST_H
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 
 namespace Xapian {
     class PostingSource;
 }
 
-class MultiMatch;
+class PostListTree;
 
 class ExternalPostList : public PostList {
     /// Disallow copying.
@@ -37,8 +37,7 @@ class ExternalPostList : public PostList {
     /// Disallow assignment.
     void operator=(const ExternalPostList &);
 
-    Xapian::PostingSource * source;
-    bool source_is_owned;
+    Xapian::Internal::opt_intrusive_ptr<Xapian::PostingSource> source;
 
     Xapian::docid current;
 
@@ -49,14 +48,14 @@ class ExternalPostList : public PostList {
   public:
     /** Constructor.
      *
-     *  @param matcher	The matcher to notify when maximum weight changes.
+     *  @param max_weight_cached_flag_ptr   Pointer to flag to clear when max
+     *					    weight changes.
      */
     ExternalPostList(const Xapian::Database & db,
 		     Xapian::PostingSource *source_,
 		     double factor_,
-		     MultiMatch * matcher);
-
-    ~ExternalPostList();
+		     bool* max_weight_cached_flag_ptr,
+		     Xapian::doccount shard_index);
 
     Xapian::doccount get_termfreq_min() const;
 
@@ -64,21 +63,14 @@ class ExternalPostList : public PostList {
 
     Xapian::doccount get_termfreq_max() const;
 
-    double get_maxweight() const;
-
     Xapian::docid get_docid() const;
 
-    double get_weight() const;
-
-    Xapian::termcount get_doclength() const;
-
-    Xapian::termcount get_unique_terms() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
 
     double recalc_maxweight();
 
     PositionList * read_position_list();
-
-    PositionList * open_position_list() const;
 
     PostList * next(double w_min);
 

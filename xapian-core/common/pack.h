@@ -1,7 +1,7 @@
 /** @file pack.h
  * @brief Pack types into strings and unpack them again.
  */
-/* Copyright (C) 2009,2015,2016 Olly Betts
+/* Copyright (C) 2009,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,13 @@
 #ifndef XAPIAN_INCLUDED_PACK_H
 #define XAPIAN_INCLUDED_PACK_H
 
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
+
 #include <cstring>
 #include <string>
+#include <type_traits>
 
 #include "omassert.h"
 
@@ -42,6 +47,13 @@ const unsigned int SORTABLE_UINT_MAX_BYTES = 1 << SORTABLE_UINT_LOG2_MAX_BYTES;
 /// Calculated value used below.
 const unsigned int SORTABLE_UINT_1ST_BYTE_MASK =
 	(0xffu >> SORTABLE_UINT_LOG2_MAX_BYTES);
+
+/** Throw appropriate SerialisationError.
+ *
+ *  @param p If NULL, out of data; otherwise type overflow.
+ */
+[[noreturn]]
+void unpack_throw_serialisation_error(const char* p);
 
 /** Append an encoded bool to a string.
  *
@@ -87,8 +99,7 @@ template<class U>
 inline void
 pack_uint_last(std::string & s, U value)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 
     while (value) {
 	s += char(value & 0xff);
@@ -106,8 +117,7 @@ template<class U>
 inline bool
 unpack_uint_last(const char ** p, const char * end, U * result)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
     Assert(result);
 
     const char * ptr = *p;
@@ -130,18 +140,35 @@ unpack_uint_last(const char ** p, const char * end, U * result)
 #if HAVE_DECL___BUILTIN_CLZ && \
     HAVE_DECL___BUILTIN_CLZL && \
     HAVE_DECL___BUILTIN_CLZLL
-inline int do_clz(unsigned value) { return __builtin_clz(value); }
+template<typename T>
+inline int
+do_clz(T value) {
+    extern int no_clz_builtin_for_this_type(T);
+    return no_clz_builtin_for_this_type(value);
+}
 
-inline int do_clz(unsigned long value) { return __builtin_clzl(value); }
+template<>
+inline int
+do_clz(unsigned value) {
+    return __builtin_clz(value);
+}
 
-inline int do_clz(unsigned long long value) { return __builtin_clzll(value); }
+template<>
+inline int
+do_clz(unsigned long value) {
+    return __builtin_clzl(value);
+}
+
+template<>
+inline int
+do_clz(unsigned long long value) {
+    return __builtin_clzll(value);
+}
 
 # define HAVE_DO_CLZ
 #endif
 
 /** Append an encoded unsigned integer to a string, preserving the sort order.
- *
- *  [Glass and newer variant]
  *
  *  The appended string data will sort in the same order as the unsigned
  *  integer being encoded.
@@ -157,8 +184,7 @@ template<class U>
 inline void
 pack_uint_preserving_sort(std::string & s, U value)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     // The clz() functions are undefined for 0, so handle the smallest band
@@ -194,8 +220,6 @@ pack_uint_preserving_sort(std::string & s, U value)
 
 /** Decode an "sort preserved" unsigned integer from a string.
  *
- *  [Glass and newer variant]
- *
  *  The unsigned integer must have been encoded with
  *  pack_uint_preserving_sort().
  *
@@ -207,8 +231,7 @@ template<class U>
 inline bool
 unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
     static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     Assert(result);
@@ -272,8 +295,7 @@ template<class U>
 inline void
 pack_uint(std::string & s, U value)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 
     while (value >= 128) {
 	s += static_cast<char>(static_cast<unsigned char>(value) | 0x80);
@@ -304,8 +326,7 @@ template<class U>
 inline bool
 unpack_uint(const char ** p, const char * end, U * result)
 {
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
 
     const char * ptr = *p;
     Assert(ptr);
@@ -361,6 +382,38 @@ unpack_uint(const char ** p, const char * end, U * result)
     return true;
 }
 
+/** Decode an unsigned integer from a string, going backwards.
+ *
+ *  @param p	    Pointer to pointer just after the position in the string.
+ *  @param start    Pointer to the start of the string.
+ *  @param result   Where to store the result (or NULL to just skip it).
+ */
+template<class U>
+inline bool
+unpack_uint_backwards(const char ** p, const char * start, U * result)
+{
+    static_assert(std::is_unsigned<U>::value, "Unsigned type required");
+
+    const char * ptr = *p;
+    Assert(ptr);
+
+    // Check it's not empty and that the final byte is valid.
+    if (rare(ptr == start || static_cast<unsigned char>(ptr[-1]) >= 128)) {
+	// Out of data.
+	*p = NULL;
+	return false;
+    }
+
+    do {
+	if (rare(--ptr == start))
+	    break;
+    } while (static_cast<unsigned char>(ptr[-1]) >= 128);
+
+    const char* end = *p;
+    *p = ptr;
+    return unpack_uint(&ptr, end, result);
+}
+
 /** Append an encoded std::string to a string.
  *
  *  @param s		The string to append to.
@@ -371,6 +424,19 @@ pack_string(std::string & s, const std::string & value)
 {
     pack_uint(s, value.size());
     s += value;
+}
+
+/** Append an empty encoded std::string to a string.
+ *
+ *  This is equivalent to pack_string(s, std::string()) but is probably a bit
+ *  more efficient.
+ *
+ *  @param s		The string to append to.
+ */
+inline void
+pack_string_empty(std::string& s)
+{
+    s += '\0';
 }
 
 /** Append an encoded C-style string to a string.
@@ -408,6 +474,31 @@ unpack_string(const char ** p, const char * end, std::string & result)
     }
 
     result.assign(ptr, len);
+    ptr += len;
+    return true;
+}
+
+/** Decode a std::string from a string and append.
+ *
+ *  @param p	    Pointer to pointer to the current position in the string.
+ *  @param end	    Pointer to the end of the string.
+ *  @param result   Where to store the result.
+ */
+inline bool
+unpack_string_append(const char** p, const char* end, std::string& result)
+{
+    size_t len;
+    if (rare(!unpack_uint(p, end, &len))) {
+	return false;
+    }
+
+    const char * & ptr = *p;
+    if (rare(len > size_t(end - ptr))) {
+	ptr = NULL;
+	return false;
+    }
+
+    result.append(ptr, len);
     ptr += len;
     return true;
 }
@@ -496,6 +587,25 @@ pack_glass_postlist_key(const std::string &term, Xapian::docid did)
 	return key;
     }
 
+    std::string key;
+    pack_string_preserving_sort(key, term);
+    pack_uint_preserving_sort(key, did);
+    return key;
+}
+
+inline std::string
+pack_honey_postlist_key(const std::string& term)
+{
+    Assert(!term.empty());
+    std::string key;
+    pack_string_preserving_sort(key, term, true);
+    return key;
+}
+
+inline std::string
+pack_honey_postlist_key(const std::string& term, Xapian::docid did)
+{
+    Assert(!term.empty());
     std::string key;
     pack_string_preserving_sort(key, term);
     pack_uint_preserving_sort(key, did);

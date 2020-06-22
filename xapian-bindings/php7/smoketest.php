@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ if ($v != $v2) {
 $db = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 $db2 = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 
-# Check PHP5 handling of Xapian::DocNotFoundError
+# Check handling of Xapian::DocNotFoundError
 try {
     $doc2 = $db->get_document(2);
     print "Retrieved non-existent document\n";
@@ -74,38 +74,14 @@ try {
     }
 }
 
-# Check that open_stub() is wrapped as expected.
-try {
-    $db = Xapian::auto_open_stub("nosuchdir/nosuchdb");
-    print "Opened non-existent stub database\n";
-    exit(1);
-} catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
-	exit(1);
-    }
-}
-
 # Check that DB_BACKEND_STUB works as expected.
 try {
     $db = new XapianDatabase("nosuchdir/nosuchdb", Xapian::DB_BACKEND_STUB);
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
-	exit(1);
-    }
-}
-
-# Check that open_stub() writable form is wrapped as expected.
-try {
-    $db = Xapian::auto_open_stub("nosuchdir/nosuchdb", Xapian::DB_OPEN);
-    print "Opened non-existent stub database\n";
-    exit(1);
-} catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
 }
@@ -117,24 +93,10 @@ try {
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {
-    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
-	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+    if ($e->getMessage() !== "DatabaseNotFoundError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseNotFoundError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
-}
-
-# Regression test for bug#193, fixed in 1.0.3.
-$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
-$a = '$10';
-$b = '20';
-$vrp->apply($a, $b);
-if (Xapian::sortable_unserialise($a) != 10) {
-    print Xapian::sortable_unserialise($a)." != 10\n";
-    exit(1);
-}
-if (Xapian::sortable_unserialise($b) != 20) {
-    print Xapian::sortable_unserialise($b)." != 20\n";
-    exit(1);
 }
 
 $stem = new XapianStem("english");
@@ -200,6 +162,13 @@ if ($query3->get_description() != "Query((a OR b))") {
     exit(1);
 }
 $enq = new XapianEnquire($db);
+
+// Check Xapian::BAD_VALUENO is wrapped suitably.
+$enq->set_collapse_key(Xapian::BAD_VALUENO);
+
+// Test that the non-constant wrapping prior to 1.4.10 still works.
+$enq->set_collapse_key(Xapian::BAD_VALUENO_get());
+
 $enq->set_query(new XapianQuery(XapianQuery::OP_OR, "there", "is"));
 $mset = $enq->get_mset(0, 10);
 if ($mset->size() != 1) {
@@ -250,7 +219,7 @@ class testexpanddecider extends XapianExpandDecider {
 $enquire = new XapianEnquire($db);
 $rset = new XapianRSet();
 $rset->add_document(1);
-$eset = $enquire->get_eset(10, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, new testexpanddecider());
+$eset = $enquire->get_eset(10, $rset, XapianEnquire::USE_EXACT_TERMFREQ, new testexpanddecider());
 foreach ($eset->begin() as $t) {
     if ($t[0] === 'a') {
 	print "XapianExpandDecider was not used\n";
@@ -268,7 +237,7 @@ if ($min_wt >= 1.9) {
     print "ESet min weight too high for testcase\n";
     exit(1);
 }
-$eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, NULL, 1.9);
+$eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ, NULL, 1.9);
 $min_wt = 0;
 foreach ($eset->begin() as $i => $dummy) {
     $min_wt = $i->get_weight();
@@ -293,16 +262,16 @@ $oquery = $oqparser->parse_query("I like tea");
 # Regression test for bug#192 - fixed in 1.0.3.
 $enq->set_cutoff(100);
 
-# Check DateValueRangeProcessor works.
-function add_vrp_date(&$qp) {
-    $vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
-    $qp->add_valuerangeprocessor($vrpdate);
+# Check DateRangeProcessor works.
+function add_rp_date(&$qp) {
+    $rpdate = new XapianDateRangeProcessor(1, Xapian::RP_DATE_PREFER_MDY, 1960);
+    $qp->add_rangeprocessor($rpdate);
 }
 $qp = new XapianQueryParser();
-add_vrp_date($qp);
+add_rp_date($qp);
 $query = $qp->parse_query('12/03/99..12/04/01');
 if ($query->get_description() !== 'Query(VALUE_RANGE 1 19991203 20011204)') {
-    print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
+    print "XapianDateRangeProcessor didn't work - result was ".$query->get_description()."\n";
     exit(1);
 }
 

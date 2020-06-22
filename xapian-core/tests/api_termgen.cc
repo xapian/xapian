@@ -1,7 +1,7 @@
 /** @file api_termgen.cc
  * @brief Tests of Xapian::TermGenerator
  */
-/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016,2018 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -36,6 +36,7 @@
 
 using namespace std;
 
+namespace {
 struct test {
     // A string of options, separated by commas.
     // Valid options are:
@@ -52,6 +53,8 @@ struct test {
     //    (this persists for subsequent tests until it's turned off).
     //  - some: Set stemming strategy to STEM_SOME.
     //    (this persists for subsequent tests until it's turned off).
+    //  - some_full_pos: Set stemming strategy to STEM_SOME_FULL_POS.
+    //    (this persists for subsequent tests until it's turned off).
     //  - stop=en: Add a small set of English stop words. Currently, 'a',
     //    'an' and 'the' are added to the stopword list.
     //    (this persists for subsequent tests until it's turned off).
@@ -63,8 +66,10 @@ struct test {
     //    (this persists for subsequent tests until it's turned off).
     //  - prefix=FOO: Use the specified prefix.
     //    (this persists for subsequent tests until it's turned off).
-    //  - cjk: Enable FLAG_CJK_NGRAM.
-    //  - !cjk: Disable FLAG_CJK_NGRAM.
+    //  - cjkngram: Enable FLAG_CJK_NGRAM.
+    //  - !cjkngram: Disable FLAG_CJK_NGRAM.
+    //  - cjkwords: Enable FLAG_CJK_WORDS.
+    //  - !cjkwords: Disable FLAG_CJK_WORDS.
     const char *options;
 
     // The text to be processed.
@@ -78,6 +83,7 @@ struct test {
     // where POSITIONS is a comma separated list of numbers.
     const char *expect;
 };
+}
 
 static const test test_simple[] = {
     // A basic test with a hyphen
@@ -131,8 +137,8 @@ static const test test_simple[] = {
 
     { "", "fish+chips", "Zchip:1 Zfish:1 chips[2] fish[1]" },
 
-    // Basic CJK tests:
-    { "stem=,cjk", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
+    // Basic CJK ngram tests:
+    { "stem=,cjkngram", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
     { "", "극지라", "극[1] 극지:1 라[3] 지[2] 지라:1" },
     { "", "ウルス アップ", "ア[4] アッ:1 ウ[1] ウル:1 ス[3] ッ[5] ップ:1 プ[6] ル[2] ルス:1" },
 
@@ -153,8 +159,36 @@ static const test test_simple[] = {
     // be handled as non-word text and not appear in any term
     { "", "申込み！月額円", "み[3] 円[6] 月[4] 月額:1 申[1] 申込:1 込[2] 込み:1 額[5] 額円:1" },
 
+    // Basic CJK words tests:
+    { "stem=,!cjkngram,cjkwords", "久有归天", "久[1] 归天[3] 有[2]" },
+    { "", "극지라", "극지라[1]" },
+    { "", "ウルス アップ", "アップ[2] ウルス[1]" },
+
+    // Non-CJK in CJK word mode:
+    { "", "hello World Test", "hello[1] test[3] world[2]" },
+
+    // CJK with prefix:
+    { "prefix=XA", "发送从", "XA从[2] XA发送[1]" },
+    { "prefix=XA", "点卡思考", "XA卡[2] XA思考[3] XA点[1]" },
+
+    // CJK mixed with non-CJK:
+    { "prefix=", "インtestタ", "test[2] イン[1] タ[3]" },
+    { "", "配this is合a个 test!", "a[5] is[3] test[7] this[2] 个[6] 合[4] 配[1]" },
+
+    // CJK with CJK punctuation
+    // the text contains U+FF01 FULLWIDTH EXCLAMATION MARK which
+    // is both a CJK character and a non-word character; it should
+    // be handled as non-word text and not appear in any term
+    //
+    // Note: the kuromoji Japanese word splitter (http://www.atilika.org/)
+    // would split this differently as '申込み ！月額 円'
+    { "", "申込み！月額円", "み[2] 円[4] 月額[3] 申込[1]" },
+
+    // Thai word segmentation
+    { "", "โดยตั้งใจ", "ตั้งใจ[2] โดย[1]" },
+
     // Test set_stemming_strategy():
-    { "stem=en,none,!cjk",
+    { "stem=en,none,!cjkwords",
 	  "Unstemmed words!", "unstemmed[1] words[2]" },
 
     { "all",
@@ -169,6 +203,15 @@ static const test test_simple[] = {
 
     { "stop_all",
       "The stop words.", "stop[1] words[2]" },
+
+    { "stem=en,some_full_pos,stop_none",
+      "The stemmed words.", "Zstem[2] Zthe[1] Zword[3] stemmed[2] the[1] words[3]" },
+
+    { "stem=en,some_full_pos,stop_all",
+      "The stemmed words.", "Zstem[1] Zword[2] stemmed[1] words[2]" },
+
+    { "stem=en,some_full_pos,stop_stemmed",
+      "The stemmed words.", "Zstem[2] Zword[3] stemmed[2] the[1] words[3]" },
 
     { "stem=en,some,stop_stemmed",
       "The stemmed words.", "Zstem:1 Zword:1 stemmed[2] the[1] words[3]" },
@@ -189,6 +232,10 @@ static const test test_simple[] = {
     { "stem=en,some",
 	  "11:59", "11[1] 59[2]" },
     { "", "11:59am", "11[1] 59am[2]" },
+
+    // Regression test for CJK ngram bug with stemming enabled.  Was only
+    // present in git master before 1.5.0.
+    { "all,stem=en,cjkngram", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
 
     { NULL, NULL, NULL }
 };
@@ -723,6 +770,7 @@ DEFINE_TESTCASE(termgen1, !backend) {
     termgen.set_document(doc);
     string prefix;
 
+    unsigned flags = 0;
     for (const test *p = test_simple; p->text; ++p) {
 	int weight = 1;
 	bool new_doc = true;
@@ -760,6 +808,9 @@ DEFINE_TESTCASE(termgen1, !backend) {
 	    } else if (strncmp(o, "none", 4) == 0) {
 		o += 4;
 		termgen.set_stemming_strategy(termgen.STEM_NONE);
+	    } else if (strncmp(o, "some_full_pos", 13) == 0) {
+		o += 13;
+		termgen.set_stemming_strategy(termgen.STEM_SOME_FULL_POS);
 	    } else if (strncmp(o, "some", 4) == 0) {
 		o += 4;
 		termgen.set_stemming_strategy(termgen.STEM_SOME);
@@ -784,12 +835,24 @@ DEFINE_TESTCASE(termgen1, !backend) {
 		    prefix += *o;
 		    ++o;
 		}
-	    } else if (strncmp(o, "cjk", 3) == 0) {
-		o += 3;
-		termgen.set_flags(termgen.FLAG_CJK_NGRAM, ~termgen.FLAG_CJK_NGRAM);
-	    } else if (strncmp(o, "!cjk", 4) == 0) {
-		o += 4;
+	    } else if (strncmp(o, "cjkngram", 8) == 0) {
+		o += 8;
+		flags |= termgen.FLAG_CJK_NGRAM;
+		termgen.set_flags(termgen.FLAG_CJK_NGRAM,
+				  ~termgen.FLAG_CJK_NGRAM);
+	    } else if (strncmp(o, "!cjkngram", 9) == 0) {
+		o += 9;
+		flags &= ~termgen.FLAG_CJK_NGRAM;
 		termgen.set_flags(0, ~termgen.FLAG_CJK_NGRAM);
+	    } else if (strncmp(o, "cjkwords", 8) == 0) {
+		o += 8;
+		flags |= termgen.FLAG_CJK_WORDS;
+		termgen.set_flags(termgen.FLAG_CJK_WORDS,
+				  ~termgen.FLAG_CJK_WORDS);
+	    } else if (strncmp(o, "!cjkwords", 9) == 0) {
+		o += 9;
+		flags &= ~termgen.FLAG_CJK_WORDS;
+		termgen.set_flags(0, ~termgen.FLAG_CJK_WORDS);
 	    } else {
 		FAIL_TEST("Invalid options string: " << p->options);
 	    }
@@ -816,13 +879,18 @@ DEFINE_TESTCASE(termgen1, !backend) {
 	} catch (...) {
 	    output = "Unknown exception!";
 	}
+#ifndef USE_ICU
+	if (flags & termgen.FLAG_CJK_WORDS) {
+	    expect = "FeatureUnavailableError: FLAG_CJK_WORDS requires "
+		     "building Xapian to use ICU";
+	}
+#endif
 	if (prefix.empty())
 	    tout << "Text: " << p->text << '\n';
 	else
 	    tout << "Prefix: " << prefix << " Text: " << p->text << '\n';
 	TEST_STRINGS_EQUAL(output, expect);
     }
-    return true;
 }
 
 /// Test spelling data generation.
@@ -846,8 +914,6 @@ DEFINE_TESTCASE(tg_spell1, spelling) {
     TEST_STRINGS_EQUAL(db.get_spelling_suggestion("mamm"), "mum");
     // Prefixed terms should be ignored for spelling currently.
     TEST_STRINGS_EQUAL(db.get_spelling_suggestion("zzebra"), "");
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.0.5 - previously this segfaulted.
@@ -859,8 +925,6 @@ DEFINE_TESTCASE(tg_spell2, !backend) {
     termgen.set_flags(Xapian::TermGenerator::FLAG_SPELLING);
 
     TEST_EXCEPTION(Xapian::InvalidOperationError, termgen.index_text("foo"));
-
-    return true;
 }
 
 DEFINE_TESTCASE(tg_max_word_length1, !backend) {
@@ -875,6 +939,4 @@ DEFINE_TESTCASE(tg_max_word_length1, !backend) {
 
     TEST_STRINGS_EQUAL(format_doc_termlist(doc),
 		       "Zcup:1 Zmug:1 cups[1] mugs[2]");
-
-    return true;
 }

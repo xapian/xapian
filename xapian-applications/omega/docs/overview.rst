@@ -25,14 +25,19 @@ syntax, see queryparser.html in the xapian-core documentation
 Term construction
 =================
 
-Documents within an omega database are stored with two types of terms:
-those used for probabilistic searching (the CGI parameter 'P'), and
-those used for boolean filtering (the CGI parameters 'B' and 'N' - the
-latter is a negated variant of 'B' and was added in Omega 1.3.5).
+Documents within an omega database are indexed by two types of terms: those
+used for a weighted search from a parsed query string (the CGI parameter
+``P``), and those used for boolean filtering (the CGI parameters ``B`` and
+``N`` - the latter is a negated variant of 'B' and was added in Omega 1.3.5).
 
-Boolean terms start with an initial capital letter denoting the 'group' of the
-term (e.g. 'M' for MIME type), while probabilistic terms are all lower-case,
-and are also stemmed before adding to the database.
+Boolean terms always start with a prefix which is an initial capital letter (or
+multiple capital letters if the first character is `X`) which denotes the
+category of the term (e.g. `M` for MIME type).
+
+Parsed query terms may have a prefix, but don't always.  Those from the body of
+the document in unstemmed form don't; stemmed terms have a `Z` prefix; terms
+from other fields have a prefix to indicate the field, such as `S` for the
+document title; stemmed terms from a field have both prefixes, e.g. `ZS`.
 
 The "english" stemmer is used by default - you can configure this for omindex
 and scriptindex with ``--stemmer=LANGUAGE`` (use ``--stemmer=none`` to disable
@@ -42,12 +47,12 @@ to the top of your OmegaScript template.
 
 The two term types are used as follows when building the query:
 
-The 'P' parameter is parsed using `Xapian::QueryParser` to give a
+The ``P`` parameter is parsed using `Xapian::QueryParser` to give a
 `Xapian::Query` object denoted as `P-terms` below.
 
-There are two ways that 'B' and 'N' parameters are handled, depending if the
-term-prefix has been configured as "non-exclusive" or not.  The default is
-"exclusive" (and in versions before 1.3.4, this was how all 'B' parameters
+There are two ways that ``B`` and ``N`` parameters are handled, depending if
+the term-prefix has been configured as "non-exclusive" or not.  The default is
+"exclusive" (and in versions before 1.3.4, this was how all ``B`` parameters
 were handled).
 
 Exclusive Boolean Prefix
@@ -116,13 +121,13 @@ using "AND_NOT"::
 The intent here is to allow filtering on arbitrary (and, typically,
 orthogonal) characteristics of the document. For instance, by adding
 boolean terms "Ttext/html", "Ttext/plain" and "J/press" you would be
-filtering the probabilistic search for only documents that are both in
+filtering the parsed query to only retrieve documents that are both in
 the "/press" site *and* which are either of MIME type text/html or
 text/plain. (See below for more information about sites.)
 
 If B-terms or N-terms is absent, that part of the query is simply omitted.
 
-If there is no probabilistic query, the boolean filter is promoted to
+If there is no parsed query, the boolean filter is promoted to
 be the query, and the weighting scheme is set to boolean.  This has
 the effect of applying the boolean filter to the whole database.  If
 there are only N-terms, then ``Query::MatchAll`` is used for the left
@@ -132,7 +137,7 @@ In order to add more boolean prefixes, you will need to alter the
 ``index_file()`` function in omindex.cc. Currently omindex adds several
 useful ones, detailed below.
 
-Probabilistic terms are constructed from the title, body and keywords
+Parsed query terms are constructed from the title, body and keywords
 of a document. (Not all document types support all three areas of
 text.) Title terms are stored with position data starting at 0, body
 terms starting 100 beyond title terms, and keyword terms starting 100
@@ -237,9 +242,10 @@ sites '/products' and '/products/large', or similar.)
 
 omindex has built-in support for indexing HTML, PHP, text files, CSV
 (Comma-Separated Values) files, SVG, Atom feeds, and AbiWord documents.  It can
-also index a number of other formats using external programs.  Filter programs
-are run with CPU, time and memory limits to prevent a runaway filter from
-blocking indexing of other files.
+also index a number of other formats using external programs or libraries.  Filter programs and libraries
+are run with CPU, time and memory limits to prevent them from
+blocking indexing of other files or crashing omindex. If for one format both
+options are available, libraries would be preferred because they have a better runtime behaviour.
 
 The way omindex decides how to index a file is based around MIME content-types.
 First of all omindex will look up a file's extension in its extension to MIME
@@ -254,9 +260,10 @@ other filters too - see below):
 * text files (.txt, .text)
 * SVG (.svg)
 * CSV (Comma-Separated Values) files (.csv)
-* PDF (.pdf) if pdftotext is available (comes with poppler or xpdf)
+* PDF (.pdf) if pdftotext (comes with poppler or xpdf) or libpoppler
+  (in particular libpoppler-cpp-dev) are available
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
-  with poppler or xpdf) are available
+  with poppler or xpdf) or libpoppler (in particular libpoppler-cpp-dev) are available
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,
@@ -277,6 +284,14 @@ other filters too - see below):
 * MS Outlook message (.msg) if perl with Email::Outlook::Message and
   HTML::Parser modules is available
 * MS Publisher documents (.pub) if pub2xhtml is available (comes with libmspub)
+* MS Visio documents (.vsd, .vss, .vst, .vsw, .vsdx, .vssx, .vstx, .vsdm,
+  .vssm, .vstm) if vsd2xhtml is available (comes with libvisio)
+* Apple Keynote documents (.key, .kth, .apxl) if libetonyek is available (it is
+  also possible to use key2text as an external filter)
+* Apple Numbers documents (.numbers) if libetonyek is available (it is
+  also possible to use numbers2text as an external filter)
+* Apple Pages documents (.pages) if libetonyek is available (it is
+  also possible to use pages2text as an external filter)
 * AbiWord documents (.abw)
 * Compressed AbiWord documents (.zabw)
 * Rich Text Format documents (.rtf) if unrtf is available
@@ -292,9 +307,16 @@ other filters too - see below):
 * Atom feeds (.atom)
 * MAFF (.maff) if unzip is available
 * MHTML (.mhtml, .mht) if perl with MIME::Tools is available
-* MIME email messages (.eml) and USENET articles if perl with MIME::Tools and
+* MIME email messages (.eml) and USENET articles if gmime 2.6 or perl with MIME::Tools and
   HTML::Parser is available
 * vCard files (.vcf, .vcard) if perl with Text::vCard is available
+* FictionBook v.2 files (.fb2) if libe-book is available
+* QiOO (mobile format, for java-enabled cellphones) files (.jar) if libe-book is available
+* TCR (simple compressed text format) files (.tcr) if libe-book is available
+* eReader files (.pdb) if libe-book is available
+* Sony eBook files (.lrf) if libe-book is available
+* Image files that contain text (.png, .jpg, .jpeg, .jfif, .jpe, .webp, .tif, .tiff,
+  .pbm, .gif, .ppm, .pgm) if libtesseract-dev is available.
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For
@@ -306,7 +328,8 @@ $ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mim
 The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.').  The ``type`` can be any
 string, but to be useful there either needs to be a filter set for that type
-- either using ``--filter`` or by ``type`` being understood by default:
+- either using ``--filter`` or ``--read-filters``, or by ``type`` being
+understood by default:
 
 .. include:: inc/mimetypes.rst
 
@@ -350,29 +373,43 @@ you can set different handling for differently cased variants if you need
 to.
 
 You can add support for additional MIME content types (or override existing
-ones) using the ``--filter`` option to specify a command to run.  At present,
-this command needs to produce output in either HTML or plain text format
-(as of 1.3.3, you can specify the character encoding that the output will be
-in; in earlier versions, plain text output had to be UTF-8).
+ones) using the ``--filter`` and/or ``--read-filters`` options to specify a
+command to run.  At present, this command needs to produce output in either
+HTML, SVG, or plain text format (as of 1.3.3, you can specify the character
+encoding that the output will be in; in earlier versions, plain text output had
+to be UTF-8).  Support for SVG output from external commands was added in
+1.4.8.
 
-As of 1.3.3, the command can include certain placeholders which are substituted
-by omindex:
+If you need to use a literal ``%`` in the command string, it needs to be
+written as ``%%`` (since 1.3.3).
 
-* Any ``%f`` in this command will be replaced with the filename of the file to
-  extract (suitably escaped to protect it from the shell, so don't put quotes
-  around ``%f``).
+This command can take input in the following ways:
 
-  If you don't include ``%f`` in the command, then the filename of the file to
-  be extracted will be appended to the command, separated by a space.
+* (Since 1.5.0): If the command string has a ``|`` prefix, then the input file
+  will be fed to the command on ``stdin``.  This is slightly more efficient as
+  it often avoids having to open the input file an extra time (omindex needs to
+  open the input file so it can calculate a checksum of the contents for
+  duplicate detection, and also may need to use libmagic to find the file's
+  MIME Content-Type).  In the future it will probably also allow extracting
+  text from documents attached to emails, in ZIP files, etc without having to
+  write them to a temporary file to run the filter on them.
 
-* Any ``%t`` in this command will be replaced with a filename in a temporary
-  directory (suitably escaped to protect it from the shell, so don't put
-  quotes around ``%t``).  The extension of this filename will reflect the
-  expected output format (either ``.html`` or ``.txt``).  If you don't use
-  ``%t`` in the command, then omindex will expect output on ``stdout`` (prior
-  to 1.3.3, output had to be on ``stdout``).
+* (Since 1.3.3): Any ``%f`` placeholder in the command string will be replaced
+  with the filename of the file to extract (suitably escaped to protect it from
+  the shell, so don't put quotes around ``%f``).
 
-* ``%%`` can be used should you need a literal ``%`` in the command.
+* If neither are present (and always in versions before 1.3.3) the filename is
+  appended to the command (suitably escaped to protect it from the shell).
+
+Output from the command can be handled in the following ways:
+
+* (Since 1.3.3): Any ``%t`` in this command will be replaced with a filename in
+  a temporary directory (suitably escaped to protect it from the shell, so
+  don't put quotes around ``%t``).  The extension of this filename will reflect
+  the expected output format (either ``.html``, ``.svg`` or ``.txt``).
+
+* If you don't use ``%t`` in the command, then omindex will expect output on
+  ``stdout`` (prior to 1.3.3, output had to be on ``stdout``).
 
 For example, if you'd prefer to use Abiword to extract text from word documents
 (by default, omindex uses antiword), then you can pass the option
@@ -380,8 +417,10 @@ For example, if you'd prefer to use Abiword to extract text from word documents
 omindex.
 
 Another example - if you wanted to handle files of MIME type
-``application/octet-stream`` by running them through ``strings -n8``, you can
-pass the option ``--filter=application/octet-stream:'strings -n8'``.
+``application/octet-stream`` by piping them into ``strings -n8``, you can
+pass the option ``--filter=application/octet-stream:'|strings -n8'`` (since
+``strings`` reads from ``stdin`` if no filename is specified, at least in
+the GNU binutils implementation).
 
 A more complex example: to process ``.foo`` files with the (fictional)
 ``foo2utf16`` utility which produces UTF-16 text but doesn't support writing
@@ -543,6 +582,10 @@ P
 U
     full URL of indexed document - if the resulting term would be > 240 bytes,
     a hashing scheme is used to avoid overflowing Xapian's term length limit.
+
+If the ``--date-terms`` option is used, then the following additional boolean
+terms are added to documents (prior to 1.5.0 these were always added with no
+way to disable this):
 
 D
     date (numeric format: YYYYMMDD)

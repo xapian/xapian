@@ -26,6 +26,7 @@
 #include <xapian.h>
 
 #include "gnu_getopt.h"
+#include "parseint.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -52,7 +53,7 @@ int
 main(int argc, char **argv)
 {
     const char * opts = "I:p:o";
-    const struct option long_opts[] = {
+    static const struct option long_opts[] = {
 	{"interface",	required_argument,	0, 'I'},
 	{"port",	required_argument,	0, 'p'},
 	{"one-shot",	no_argument,		0, 'o'},
@@ -73,7 +74,12 @@ main(int argc, char **argv)
 		host.assign(optarg);
 		break;
 	    case 'p':
-		port = atoi(optarg);
+		if (!parse_signed(optarg, port) ||
+		    (port < 1 || port > 65535)) {
+		    cerr << "Error: must specify a valid port number "
+			    "(between 1 and 65535). " << endl;
+		    exit(1);
+		}
 		break;
 	    case 'o':
 		one_shot = true;

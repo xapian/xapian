@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2015,2016,2017 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,7 +89,7 @@ Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 
     if (op_ == OP_VALUE_GE) {
 	if (limit.empty())
-	    internal = MatchAll.internal;
+	    internal = new Xapian::Internal::QueryTerm();
 	else
 	    internal = new Xapian::Internal::QueryValueGE(slot, limit);
     } else if (usual(op_ == OP_VALUE_LE)) {
@@ -117,18 +117,81 @@ Query::Query(op op_, Xapian::valueno slot,
 Query::Query(op op_,
 	     const std::string & pattern,
 	     Xapian::termcount max_expansion,
-	     int max_type,
+	     int flags,
 	     op combiner)
 {
-    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | max_type | combiner);
-    if (rare(op_ != OP_WILDCARD))
-	throw Xapian::InvalidArgumentError("op must be OP_WILDCARD");
+    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | flags | combiner);
     if (rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
-	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or OP_MAX or OP_OR");
+	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or "
+					   "OP_MAX or OP_OR");
+    if (op_ == OP_EDIT_DISTANCE) {
+	internal = new Xapian::Internal::QueryEditDistance(pattern,
+							   max_expansion,
+							   flags,
+							   combiner);
+	return;
+    }
+    if (rare(op_ != OP_WILDCARD))
+	throw Xapian::InvalidArgumentError("op must be OP_EDIT_DISTANCE or "
+					   "OP_WILDCARD");
+
+    auto just_flags = flags & ~Query::WILDCARD_LIMIT_MASK_;
+    if (pattern.empty()) {
+	if (just_flags == 0) {
+	    // Empty pattern with implicit trailing '*' -> MatchAll.
+	    internal = new Xapian::Internal::QueryTerm();
+	} else {
+	    // Empty pattern with extended wildcards -> MatchNothing.
+	}
+	return;
+    }
+
+    // Check if pattern consists of one or more '*' and at most one '?' (in any
+    // order) - if so treat it as just MatchAll.
+    bool match_all = false;
+    bool question_marks = false;
+    for (auto&& ch : pattern) {
+	if (ch == '*' && (flags & Query::WILDCARD_PATTERN_MULTI)) {
+	    match_all = true;
+	} else if (ch == '?' && !question_marks &&
+		   (flags & Query::WILDCARD_PATTERN_SINGLE)) {
+	    question_marks = true;
+	} else {
+	    match_all = false;
+	    break;
+	}
+    }
+    if (match_all) {
+	internal = new Xapian::Internal::QueryTerm();
+	return;
+    }
+
     internal = new Xapian::Internal::QueryWildcard(pattern,
 						   max_expansion,
-						   max_type,
+						   flags,
 						   combiner);
+}
+
+Query::Query(op op_,
+	     const std::string& pattern,
+	     Xapian::termcount max_expansion,
+	     int flags,
+	     op combiner,
+	     unsigned edit_distance,
+	     size_t min_prefix_len)
+{
+    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | flags | combiner | edit_distance | min_prefix_len);
+    if (rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
+	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or "
+					   "OP_MAX or OP_OR");
+    if (rare(op_ != OP_EDIT_DISTANCE))
+	throw Xapian::InvalidArgumentError("op must be OP_EDIT_DISTANCE");
+    internal = new Xapian::Internal::QueryEditDistance(pattern,
+						       max_expansion,
+						       flags,
+						       combiner,
+						       edit_distance,
+						       min_prefix_len);
 }
 
 const TermIterator
@@ -137,7 +200,7 @@ Query::get_terms_begin() const
     if (!internal.get())
 	return TermIterator();
 
-    vector<pair<Xapian::termpos, string> > terms;
+    vector<pair<Xapian::termpos, string>> terms;
     internal->gather_terms(static_cast<void*>(&terms));
     sort(terms.begin(), terms.end());
 
@@ -162,7 +225,7 @@ Query::get_unique_terms_begin() const
     if (!internal.get())
 	return TermIterator();
 
-    vector<pair<Xapian::termpos, string> > terms;
+    vector<pair<Xapian::termpos, string>> terms;
     internal->gather_terms(static_cast<void*>(&terms));
     sort(terms.begin(), terms.end(), [](
 		const pair<Xapian::termpos, string>& a,
@@ -184,7 +247,7 @@ Query::get_unique_terms_begin() const
 }
 
 Xapian::termcount
-Query::get_length() const XAPIAN_NOEXCEPT
+Query::get_length() const noexcept
 {
     return (internal.get() ? internal->get_length() : 0);
 }
@@ -209,7 +272,7 @@ Query::unserialise(const string & s, const Registry & reg)
 }
 
 Xapian::Query::op
-Query::get_type() const XAPIAN_NOEXCEPT
+Query::get_type() const noexcept
 {
     if (!internal.get())
 	return Xapian::Query::LEAF_MATCH_NOTHING;
@@ -217,7 +280,7 @@ Query::get_type() const XAPIAN_NOEXCEPT
 }
 
 size_t
-Query::get_num_subqueries() const XAPIAN_NOEXCEPT
+Query::get_num_subqueries() const noexcept
 {
     return internal.get() ? internal->get_num_subqueries() : 0;
 }

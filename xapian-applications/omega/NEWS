@@ -1,3 +1,412 @@
+Omega 1.4.10 (2019-02-12):
+
+documentation:
+
+* Use https for URLs where supported.
+
+indexers:
+
+* omindex:
+
+  + Index .apxl and .kth files as Apple Keynote.  The .apxl extension is used
+    for the XML files inside .key bundles/directories which hold the text
+    content of the presentation, and by handling them we can index .key
+    directories more usefully.  It seems they are also sometimes found by
+    themselves.  Keynote themes have a .kth extension, and key2text can also
+    handle these.
+
+  + Pipe input to pdftotext, pdfinto and dpkg.  These tools all support piping
+    an input file on stdin, which can be a little more efficient when we
+    already have the file open (e.g.  to determine its type using libmagic, or
+    to calculate its checksum).
+
+  + An empty string for the start directory is now flagged as an error.
+    Previously `/` was used instead, which is unlikely to be what is wanted
+    (and `/` can be explicitly specified if that really is what is wanted).
+
+  + Fix emulation of stderr redirection when the indexer's stderr has been
+    closed.  We try to avoid using the shell when running external filters, and
+    emulate 2>/dev/null in commands, but if the indexer's stderr was closed
+    this emulation was buggy and would make give the filter a closed stderr
+    instead of one redirected to /dev/null.
+
+  + When emulating redirection to /dev/null, we now open /dev/null once and
+    dup that fd each time which is a little more efficient and simplifies the
+    code.
+
+* scriptindex:
+
+  + date=unix is now a no-op for empty input - previously it would unhelpfully
+    add boolean date terms for 1970-01-01.
+
+  + Warn for empty filename in LOAD action.  Previously this gave a slightly
+    confusing error: "Couldn't load file '': No such file or directory"
+
+  + Unknown command-line options now cause scriptindex to give a non-zero exit
+    status.
+
+testsuite:
+
+* omegatest: Add testcase for SPAN.n on different slots.
+
+* omegatest: Update expected QueryParser output for the xapian-core change to
+  produce flatter Query trees.
+
+build system:
+
+* Use AM_ICONV to detect iconv() which should handle non-system install of GNU
+  libiconv properly.  Fixes #775, reported by Ryan Schmidt.
+
+portability:
+
+* Provide fall-back strptime() implementation for platforms which don't provide
+  it, using the C++11 std::get_time() function.  We use strptime() directly
+  where it's available as some older C++11 compilers seem to lack
+  std::get_time() (GCC 4.8 for example).  This is used by the parsedate action,
+  which was added in 1.4.6.
+
+Omega 1.4.9 (2018-11-02):
+
+indexers:
+
+* omindex:
+
+  + Try harder to avoid opening a file being indexed more than once by
+    reusing the file descriptor in more cases.
+
+  + Hint to the OS not to cache output from external filters which require
+    using a temporary file.
+
+* scriptindex:
+
+  + If the LOAD action successfully opens a file but hits a read error the
+    error message now reports the file name correctly.  Previously it would
+    report the partial file contents read so far instead of the file name.
+
+portability:
+
+* We no longer call posix_fadvise() with POSIX_FADV_NOREUSE under Linux,
+  since it's still not implemented there.  We also now only call
+  posix_fadvise() with POSIX_FADV_DONTNEED right before we close the file
+  descriptor under Linux.
+
+Omega 1.4.8 (2018-10-25):
+
+documentation:
+
+* Assorted minor documentation improvements.
+
+indexers:
+
+* omindex:
+
+  + Improve date handling in .eml files.  We now handle a "Date:" header
+    without the day of the week, which is allowed by RFC822 and RFC2822
+    (though seems rare in practice).  If the date can't be parsed, we now
+    just omit the date information rather than failing to process the file.
+
+  + Add support for indexing Apple iWork documents (Keynote (.key), Numbers
+    (.numbers) and Pages (.pages)) using libetonyek.  Currently only the file
+    variants are handled since omindex doesn't currently support indexing a
+    directory as a document.
+
+  + Index Visio files using vsd2xhtml.
+
+  + Extend --filter to support filters which produce SVG as output.
+
+  + Handle SVG embedded in XML with svg: namespace prefix.
+
+  + Add --read-filters option to read a list of filters from a file, each line
+    of which is a rule as passed to --filter.  Based on a patch from Gaurav
+    Arora.
+
+  + Add new --mime-type-match option which allows specifying a MIME
+    Content-Type for a given shell filename pattern pattern (with the special
+    Content-Type values "ignore" and "skip" supported, as for --mime-type).
+
+  + Adjust --mime-type to allow ':' in the extension.  A valid MIME
+    Content-Type can't contain a colon, so if the argument to --mime-type
+    contains more than one colon it makes more sense to split at the *last*
+    colon (we used to split at the first), as an extension could conceivably
+    contain a colon.  Mostly this change is for consistency with the new
+    --mime-type-match option, where the leafname pattern could reasonably
+    contain a colon.
+
+  + Remove failed entries for ignored files.  If a file is mapped to
+    pseudo-mimetype "ignore" then remove any existing failure record for it so
+    that ignored files so we don't potentially end up with a lot of cruft
+    failure records for files we are no longer trying to index.
+
+  + If a file fails to index due to failing to allocate enough memory we now
+    try to flag it as failed to index so it will be skipped by default on
+    future runs.  This should help to avoid indexing getting stuck on
+    problematic files.
+
+  + Add a "pages" field with the number of pages in the document where we
+    know how to determine this (currently only for PDF files for which pdfinfo
+    reports this information).
+
+  + Handle initially empty database exactly the same was as when --overwrite
+    is specified.  This probably has no user-visible consequences, but it's
+    cleaner for the handling to be exactly the same.
+
+* scriptindex:
+
+  + Improve scriptindex diagnostic messages.  All diagnostics are now labelled
+    as "error", "warning" or "note" as appropriate, and we now consistently
+    report "FILE:LINE:" (and also "COLUMN:" in most cases) to make it clearer
+    where the problem lies.
+
+  + Add new "split" action which splits the text on a specified delimiter and
+    executes the following actions for each piece.  Based on a patch by Gaurav
+    Arora.
+
+  + Missing whitespace after the closing " on an action argument is now
+    flagged as an error.  Previously scriptindex would attempt to parse
+    the following characters as the next action.
+
+  + Support C-like escapes for quoted parameter values.  Notably this means it
+    is now possible to include `"` in quoted parameter values.
+
+omega:
+
+  + Value-based date range filters can now be specified via CGI parameters
+    START.N, END.N and/or SPAN.N where N is a value slot number, allowing
+    multiple concurrent filters on different slots to be specified.
+
+  + Support YYYY and YYYYMM limits in term-based date ranges.  Previously
+    value-based date ranges supported these as limits, but term-based date
+    ranges gave an error.
+
+  + Add stem_strategy option and deprecate existing stem_all option in favour
+    of this new more versatile option.
+
+  + Support "natural" $sort option via new flag "#" which sorts embedded
+    natural numbers in numerical order.
+
+  + Support numeric $sort option via new flag "n", similar to GNU sort -n.
+
+  + Rewrite field parsing to be more efficient, and store fields in an
+    unordered_map for faster lookup.
+
+testsuite:
+
+* htmlparsetest: Test whitespace collapsing.
+
+portability:
+
+* omegatest: Avoid "set -".  The autoconf manual notes that POSIX no longer
+  requires this, and that with traditional shells it resets -v and -x which
+  makes debugging harder.
+
+* omegatest: Fix shell printf quoting issues which were a latent bug on macOS.
+
+* Drop special handling for Compaq C++.  We never actually achieved a working
+  build using it, and I can find no evidence that this compiler still exists,
+  let alone that it was updated for C++11 which we now require.
+
+Omega 1.4.7 (2018-07-19):
+
+omega:
+
+* New OmegaScript $unique command.  The existing $uniq only removes adjacent
+  entries (like the Unix uniq command) so to fully remove duplicates you need a
+  sorted input.  Sometimes it is desirable to remove duplicates from an
+  unsorted list without changing the order of the entries which are left, so
+  add $unique to do that.  If the list is sorted already, then $uniq is more
+  efficient.
+
+* Fix $map to cleanly reject a single argument.
+
+templates:
+
+* templates/query: Merge multiple entries in the term frequency information,
+  which came from searching several prefixes by default.  Reported by Alistair
+  Buxton on #xapian-discuss.
+
+* When multiple words with the same stem are in the query string we now fully
+  eliminate duplicates when showing term frequency information.
+
+Omega 1.4.6 (2018-07-02):
+
+general:
+
+* Fix generate_sample() (used by OmegaScript $truncate and omindex) to return
+  an empty sample instead of throwing an exception when the requested sample
+  size is less than the size of the truncation indicator string.  Patch from
+  Addy.  Fixes https://trac.xapian.org/ticket/754 reported by Gaurav Arora.
+
+documentation:
+
+* Use terminology "value slot number" instead of "value number".
+
+* Stop talking about "probabilistic terms" and "probabilistic queries" - we've
+  supported other families of weighting schemes since 1.3.2.
+
+indexers:
+
+* Check for the HTML5 doctype or legacy doctype declaration and use default
+  charset UTF-8 if either is present.  Previously we always used ISO-8859-1,
+  which is correct for older HTML versions, but not for HTML5.
+
+* omindex:
+
+  + When running commands without going through the shell, emulate shell exit
+    codes 127 (for command not found) and 126 (for other cases where we fail to
+    run the command).  This means the "missing filter" handling should now work
+    properly for such commands.  Noted by Gaurav Arora.
+
+  + Index POD files despite minor formatting errors.  We now pass
+    --errors=stderr to pod2text so that minor formatting errors don't prevent
+    us from indexing a file.  (It may seem that --errors=none is a better
+    option, but for podlators < 4.11 that results in an ERRATA section in the
+    generated text version which we then end up indexing; 4.11 fixed that but
+    we can't assume that's in use).  Reported by Gaurav Arora.
+
+* scriptindex:
+
+  + Avoid some unnecessary copying of Action objects by making use of C++11
+    features.
+
+  + Consistently send errors to stderr - some were sent to stdout.
+    Patch from Gaurav Arora.
+
+  + Add new "hextobin" action.  Based on a patch from Gaurav Arora.
+
+  + Warn about non-integer arg to hash.
+
+  + Fix hash action without an argument, which was failing with an assertion.
+    Based on a patch by Gaurav Arora: https://github.com/xapian/xapian/pull/189
+
+  + Reject 'hash' with argument < 6.  The hashing truncates and then adds a
+    6 character hash of the removed part, so can't produce a result shorter
+    than 6 characters.  Patch from Gaurav Arora.
+
+  + Look for alphanumerics when parsing index actions.  None of the current
+    index actions contain digits, but we give more helpful error messages this
+    way.
+
+  + Deprecate allowing spaces around = in scripts.  This was never documented
+    as supported, and leads to a missing argument quietly swallowing the next
+    action rather than using an empty value or giving an error.  Reported by
+    Gaurav Arora in https://github.com/xapian/xapian/pull/182
+
+  + In boolean and unique actions, add a colon between prefix and term when
+    the term starts with a colon.  This means the mapping is reversible, and
+    matches what omega actually does in this case when it tries to reverse the
+    mapping.  Thanks to Andy Chilton for pointing out this corner case.
+
+  + Add parsedate and valuepacked actions.  Together these assist adding date
+    values for sorting and date range filtering.  Based on a patch from Gaurav
+    Arora.
+
+  + Use DB_RETRY_LOCK to wait if the database is already in use rather than
+    sleeping for a second and retrying.  On most platforms this means we make a
+    blocking request for the lock, and even on platforms where that's not
+    supported, we now sleep and retry inside libxapian, and without having to
+    throw and catch an exception each time.
+
+omega:
+
+* $freq: Speed up some cases by avoiding throwing and catching an exception
+  when we know the MSet has no term frequency information.
+
+* $sort: New OmegaScript command which does a string sort on an OmegaScript
+  list, with u (unique) and r (reverse) options.
+
+* $cond: New OmegaScript conditional multi-way conditional.  Inspired by LISP's
+  COND, this provides a neater way to write a cascade of $if checks.
+
+* $switch: New OmegaScript multi-way conditional which provides an even neater
+  way to write a cascade of $if{$eq{X,VALUE1},$if{$eq{X,VALUE2},...}}.
+
+* $subdb and $subid: New commands which report the subdatabase name and the
+  docid in that subdatabase.
+
++ $termprefix and $unprefix: New OmegaScript commands which expose the existing
+  code inside omega for splitting up a term.
+
+* Use str() to convert time_t to string, which is simpler code and faster than
+  using snprintf().
+
+testsuite:
+
+* omegatest: Fix message when faketime is not installed - we were misreporting
+  this case as "faketime not working".
+
+* omegatest: Add feature tests of $map.
+
+* Add testcases for XML charset.  We already handle both default and specified
+  charsets for XML, but we didn't have any testcases for it.
+
+build system:
+
+* configure: Fix potentially confusing messages suggesting snprintf was added
+  in C90 - it was actually standardised in C99.
+
+* Improve handling of multitarget rule stamp files.  Clean them on "make
+  maintainer-clean" and ship them so that --enable-maintainer-mode when
+  building from a tarball doesn't needlessly rerun the multitarget rules.
+
+portability:
+
+* Check for EAGAIN as well as EINTR from select().  The Linux select(2) man
+  page says: "Portable programs may wish to check for EAGAIN and loop, just as
+  with EINTR" and that seems to be necessary for Cygwin at least.
+
+packaging:
+
+* Use https for tarball URLs in .spec files.  This provides protection against
+  MITM attacks on people building packages using these spec files, and is also
+  slightly more efficient as the http: URLs redirect to the https: versions
+  anyway.
+
+Omega 1.4.5 (2017-10-16):
+
+documentation:
+
+* Direct users towards $set{flag_spelling_correction,true} rather than the
+  deprecated $set{spelling,true} (which is slated for removal in 1.5.0).
+
+* Fix typo in docs.
+
+indexers:
+
+* omindex:
+
+  + Check file size before calling libmagic to get the mime type, since
+    reading the file size is a much cheaper check and we can skip the
+    libmagic test if the file is empty or larger than the specified
+    maximum size.  Patch from caiyulun.
+
+* scriptindex:
+
+  + Reject index scripts with multiple "unique" actions.  We don't handle this
+    case sensibly, and it doesn't seem like it really has a use, so better to
+    give an error for people who do this inadvertently.
+
+omega:
+
+* New $seterror command to set the error message.  Implemented by Gaurav Arora.
+
+* Make $highlight more efficient.  Patch from Vivek Pal.
+
+templates:
+
+* query: Use $prettyurl for the URL shown at the end of each match (previously
+  we only used it on the URL shown as a fallback when the document has no
+  title).  Split off from changes by Vivek Pal in
+  https://github.com/xapian/xapian/pull/161
+
+testsuite:
+
+* omegatest: Tell faketime to freeze the clock - previously the clock ran on
+  from the specified fake time, and on a slow and/or heavily loaded machine a
+  test taking more than a second might fail due to this.
+
+* Start adding feature tests for scriptindex (so far, checking that specifying
+  multiple 'unique' actions results in an error).
+
 Omega 1.4.4 (2017-04-19):
 
 indexers:
@@ -63,7 +472,7 @@ indexers:
 
   + Recognise application/x-rpm as alternative type since libmagic reports this
     rather than application/x-redhat-package-manager.
-    
+
   + Use official MIME type application/vnd.debian.binary-package for debian
     packages.  We used to map .deb and .udeb to application/x-debian-package,
     but in 2014 (after we added that support for .deb) an official type was
@@ -116,8 +525,6 @@ portability:
 
 Omega 1.4.1 (2016-10-21):
 
-general:
-
 documentation:
 
 * Document bug in how $filters encodes DOCIDORDER=A.
@@ -130,11 +537,9 @@ documentation:
 
 indexers:
 
-* omindex:
-
-* Also index leafname with _ and & replaced by spaces.  Literal spaces are
-  often avoided in filenames, and "hello_world.txt" ought to be searchable for
-  via "hello" and "world".  Partly addresses #618, reported by Julien
+* omindex: Also index leafname with _ and & replaced by spaces.  Literal spaces
+  are often avoided in filenames, and "hello_world.txt" ought to be searchable
+  for via "hello" and "world".  Partly addresses #618, reported by Julien
   Pfefferkorn.
 
 omega:
@@ -184,8 +589,6 @@ portability:
   Reported on xapian-discuss by John Bankert.
 
 Omega 1.4.0 (2016-06-24):
-
-general:
 
 documentation:
 
@@ -453,8 +856,6 @@ packaging:
 Omega 1.3.2 (2014-11-24):
 
 This release includes all changes from 1.2.16-1.2.19 which are relevant.
-
-general:
 
 documentation:
 

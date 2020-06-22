@@ -1,7 +1,7 @@
 /** @file glass_compact.cc
  * @brief Compact a glass database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,13 +26,12 @@
 #include "xapian/error.h"
 #include "xapian/types.h"
 
-#include "autoptr.h"
 #include <algorithm>
+#include <memory>
 #include <queue>
 
+#include <cerrno>
 #include <cstdio>
-
-#include "safeerrno.h"
 
 #include "backends/flint_lock.h"
 #include "glass_database.h"
@@ -86,10 +85,10 @@ class PostlistCursor : private GlassCursor {
     Xapian::docid firstdid;
     Xapian::termcount tf, cf;
 
-    PostlistCursor(GlassTable *in, Xapian::docid offset_)
+    PostlistCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0)
     {
-	find_entry(string());
+	rewind();
 	next();
     }
 
@@ -189,12 +188,12 @@ encode_valuestats(Xapian::doccount freq,
 static void
 merge_postlists(Xapian::Compactor * compactor,
 		GlassTable * out, vector<Xapian::docid>::const_iterator offset,
-		vector<GlassTable*>::const_iterator b,
-		vector<GlassTable*>::const_iterator e)
+		vector<const GlassTable*>::const_iterator b,
+		vector<const GlassTable*>::const_iterator e)
 {
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
-	GlassTable *in = *b;
+	const GlassTable *in = *b;
 	if (in->empty()) {
 	    // Skip empty tables.
 	    continue;
@@ -223,7 +222,8 @@ merge_postlists(Xapian::Compactor * compactor,
 			    compactor->resolve_duplicate_metadata(last_key,
 								  tags.size(),
 								  &tags[0]);
-			out->add(last_key, resolved_tag);
+			if (!resolved_tag.empty())
+			    out->add(last_key, resolved_tag);
 		    } else {
 			Assert(!last_key.empty());
 			out->add(last_key, tags[0]);
@@ -248,7 +248,8 @@ merge_postlists(Xapian::Compactor * compactor,
 		    compactor->resolve_duplicate_metadata(last_key,
 							  tags.size(),
 							  &tags[0]);
-		out->add(last_key, resolved_tag);
+		if (!resolved_tag.empty())
+		    out->add(last_key, resolved_tag);
 	    } else {
 		Assert(!last_key.empty());
 		out->add(last_key, tags[0]);
@@ -336,7 +337,7 @@ merge_postlists(Xapian::Compactor * compactor,
     }
 
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
-    vector<pair<Xapian::docid, string> > tags;
+    vector<pair<Xapian::docid, string>> tags;
     while (true) {
 	PostlistCursor * cur = NULL;
 	if (!pq.empty()) {
@@ -363,8 +364,7 @@ merge_postlists(Xapian::Compactor * compactor,
 			throw Xapian::DatabaseCorruptError("Bad postlist chunk key");
 		}
 
-		vector<pair<Xapian::docid, string> >::const_iterator i;
-		i = tags.begin();
+		auto i = tags.begin();
 		while (++i != tags.end()) {
 		    tag = i->second;
 		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
@@ -388,8 +388,8 @@ merge_postlists(Xapian::Compactor * compactor,
 }
 
 struct MergeCursor : public GlassCursor {
-    explicit MergeCursor(GlassTable *in) : GlassCursor(in) {
-	find_entry(string());
+    explicit MergeCursor(const GlassTable *in) : GlassCursor(in) {
+	rewind();
 	next();
     }
 };
@@ -405,12 +405,12 @@ struct CursorGt {
 
 static void
 merge_spellings(GlassTable * out,
-		vector<GlassTable*>::const_iterator b,
-		vector<GlassTable*>::const_iterator e)
+		vector<const GlassTable*>::const_iterator b,
+		vector<const GlassTable*>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	GlassTable *in = *b;
+	const GlassTable *in = *b;
 	if (!in->empty()) {
 	    pq.push(new MergeCursor(in));
 	}
@@ -514,12 +514,12 @@ merge_spellings(GlassTable * out,
 
 static void
 merge_synonyms(GlassTable * out,
-	       vector<GlassTable*>::const_iterator b,
-	       vector<GlassTable*>::const_iterator e)
+	       vector<const GlassTable*>::const_iterator b,
+	       vector<const GlassTable*>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
-	GlassTable *in = *b;
+	const GlassTable *in = *b;
 	if (!in->empty()) {
 	    pq.push(new MergeCursor(in));
 	}
@@ -568,7 +568,7 @@ merge_synonyms(GlassTable * out,
 	    pqtag.pop();
 	    if (**it != lastword) {
 		lastword = **it;
-		tag += byte(lastword.size() ^ MAGIC_XOR_VALUE);
+		tag += uint8_t(lastword.size() ^ MAGIC_XOR_VALUE);
 		tag += lastword;
 	    }
 	    ++*it;
@@ -596,12 +596,12 @@ merge_synonyms(GlassTable * out,
 static void
 multimerge_postlists(Xapian::Compactor * compactor,
 		     GlassTable * out, const char * tmpdir,
-		     vector<GlassTable *> tmp,
+		     vector<const GlassTable *> tmp,
 		     vector<Xapian::docid> off)
 {
     unsigned int c = 0;
     while (tmp.size() > 3) {
-	vector<GlassTable *> tmpout;
+	vector<const GlassTable *> tmpout;
 	tmpout.reserve(tmp.size() / 2);
 	vector<Xapian::docid> newoff;
 	newoff.resize(tmp.size() / 2);
@@ -660,9 +660,9 @@ class PositionCursor : private GlassCursor {
     string key;
     Xapian::docid firstdid;
 
-    PositionCursor(GlassTable *in, Xapian::docid offset_)
+    PositionCursor(const GlassTable *in, Xapian::docid offset_)
 	: GlassCursor(in), offset(offset_), firstdid(0) {
-	find_entry(string());
+	rewind();
 	next();
     }
 
@@ -700,12 +700,12 @@ class PositionCursorGt {
 };
 
 static void
-merge_positions(GlassTable *out, const vector<GlassTable*> & inputs,
+merge_positions(GlassTable *out, const vector<const GlassTable*> & inputs,
 		const vector<Xapian::docid> & offset)
 {
     priority_queue<PositionCursor *, vector<PositionCursor *>, PositionCursorGt> pq;
     for (size_t i = 0; i < inputs.size(); ++i) {
-	GlassTable *in = inputs[i];
+	const GlassTable *in = inputs[i];
 	if (in->empty()) {
 	    // Skip empty tables.
 	    continue;
@@ -727,17 +727,17 @@ merge_positions(GlassTable *out, const vector<GlassTable*> & inputs,
 }
 
 static void
-merge_docid_keyed(GlassTable *out, const vector<GlassTable*> & inputs,
+merge_docid_keyed(GlassTable *out, const vector<const GlassTable*> & inputs,
 		  const vector<Xapian::docid> & offset)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
-	GlassTable * in = inputs[i];
+	const GlassTable * in = inputs[i];
 	if (in->empty()) continue;
 
 	GlassCursor cur(in);
-	cur.find_entry(string());
+	cur.rewind();
 
 	string key;
 	while (cur.next()) {
@@ -755,7 +755,8 @@ merge_docid_keyed(GlassTable *out, const vector<GlassTable*> & inputs,
 		key.resize(0);
 		pack_uint_preserving_sort(key, did);
 		if (d != e) {
-		    // Copy over the termname for the position table.
+		    // Copy over anything extra in the key (e.g. the zero byte
+		    // at the end of "used value slots" in the termlist table).
 		    key.append(d, e - d);
 		}
 	    } else {
@@ -775,7 +776,7 @@ void
 GlassDatabase::compact(Xapian::Compactor * compactor,
 		       const char * destdir,
 		       int fd,
-		       const vector<Xapian::Database::Internal*> & sources,
+		       const vector<const Xapian::Database::Internal*>& sources,
 		       const vector<Xapian::docid> & offset,
 		       size_t block_size,
 		       Xapian::Compactor::compaction_level compaction,
@@ -784,7 +785,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 {
     struct table_list {
 	// The "base name" of the table.
-	const char * name;
+	char name[9];
 	// The type.
 	Glass::table_type type;
 	// Create tables after position lazily.
@@ -813,20 +814,19 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	multipass = false;
     }
 
-    if (single_file) {
-	for (size_t i = 0; i != sources.size(); ++i) {
-	    GlassDatabase * db = static_cast<GlassDatabase*>(sources[i]);
-	    if (db->has_uncommitted_changes()) {
-		const char * m =
-		    "Can't compact from a WritableDatabase with uncommitted "
-		    "changes - either call commit() first, or create a new "
-		    "Database object from the filename on disk";
-		throw Xapian::InvalidOperationError(m);
-	    }
+    for (size_t i = 0; i != sources.size(); ++i) {
+	auto db = static_cast<const GlassDatabase*>(sources[i]);
+	if (db->has_uncommitted_changes()) {
+	    const char * m =
+		"Can't compact from a WritableDatabase with uncommitted "
+		"changes - either call commit() first, or create a new "
+		"Database object from the filename on disk";
+	    throw Xapian::InvalidOperationError(m);
 	}
     }
 
-    if (block_size < 2048 || block_size > 65536 ||
+    if (block_size < GLASS_MIN_BLOCKSIZE ||
+	block_size > GLASS_MAX_BLOCKSIZE ||
 	(block_size & (block_size - 1)) != 0) {
 	block_size = GLASS_DEFAULT_BLOCKSIZE;
     }
@@ -840,10 +840,10 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	}
     }
 
-    AutoPtr<GlassVersion> version_file_out;
+    unique_ptr<GlassVersion> version_file_out;
     if (single_file) {
 	if (destdir) {
-	    fd = open(destdir, O_RDWR|O_CREAT|O_BINARY|O_CLOEXEC, 0666);
+	    fd = open(destdir, O_RDWR|O_CREAT|O_TRUNC|O_BINARY|O_CLOEXEC, 0666);
 	    if (fd < 0) {
 		throw Xapian::DatabaseCreateError("open() failed", errno);
 	    }
@@ -856,7 +856,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
     version_file_out->create(block_size);
     for (size_t i = 0; i != sources.size(); ++i) {
-	GlassDatabase * db = static_cast<GlassDatabase*>(sources[i]);
+	auto db = static_cast<const GlassDatabase*>(sources[i]);
 	version_file_out->merge_stats(db->version_file);
     }
 
@@ -899,12 +899,12 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
 	off_t in_size = 0;
 
-	vector<GlassTable*> inputs;
+	vector<const GlassTable*> inputs;
 	inputs.reserve(sources.size());
 	size_t inputs_present = 0;
 	for (auto src : sources) {
-	    GlassDatabase * db = static_cast<GlassDatabase*>(src);
-	    GlassTable * table;
+	    auto db = static_cast<const GlassDatabase*>(src);
+	    const GlassTable * table;
 	    switch (t->type) {
 		case Glass::POSTLIST:
 		    table = &(db->postlist_table);
@@ -1098,7 +1098,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     }
 
     if (single_file) {
-	if (lseek(fd, version_file_out->get_offset(), SEEK_SET) == -1) {
+	if (lseek(fd, version_file_out->get_offset(), SEEK_SET) < 0) {
 	    throw Xapian::DatabaseError("lseek() failed", errno);
 	}
     }

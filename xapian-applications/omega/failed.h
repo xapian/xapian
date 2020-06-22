@@ -71,8 +71,8 @@ class Failed {
 
     void clear() {
 	for (auto i = db.metadata_keys_begin("U");
-		  i != db.metadata_keys_end("U");
-		  ++i) {
+	     i != db.metadata_keys_end("U");
+	     ++i) {
 	    db.set_metadata(*i, std::string());
 	}
     }

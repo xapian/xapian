@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012,2013,2014,2015,2017,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,11 +26,11 @@
 #include "xapian/enquire.h"
 
 #include "omassert.h"
-#include "api/omenquireinternal.h"
+#include "api/rsetinternal.h"
 #include "str.h"
 #include "api/termlist.h"
 
-#include "autoptr.h"
+#include <memory>
 #include <set>
 
 using namespace std;
@@ -61,7 +61,6 @@ Weight::Internal::operator+=(const Weight::Internal & inc)
     total_length += inc.total_length;
     collection_size += inc.collection_size;
     rset_size += inc.rset_size;
-    total_term_count += inc.total_term_count;
 
     // Add termfreqs and reltermfreqs
     map<string, TermFreqs>::const_iterator i;
@@ -83,9 +82,8 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     collection_size += subdb.get_doccount();
     rset_size += rset.size();
 
-    total_term_count += subdb.get_doccount() * subdb.get_total_length();
     Xapian::TermIterator t;
-    for (t = query.get_terms_begin(); t != Xapian::TermIterator(); ++t) {
+    for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
 	const string & term = *t;
 
 	Xapian::doccount sub_tf;
@@ -96,15 +94,15 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	tf.collfreq += sub_cf;
     }
 
-    const set<Xapian::docid> & items(rset.internal->get_items());
-    set<Xapian::docid>::const_iterator d;
-    for (d = items.begin(); d != items.end(); ++d) {
-	Xapian::docid did = *d;
+    if (!rset.internal.get())
+	return;
+
+    for (Xapian::docid did : rset.internal->docs) {
 	Assert(did);
 	// The query is likely to contain far fewer terms than the documents,
 	// and we can skip the document's termlist, so look for each query term
 	// in the document.
-	AutoPtr<TermList> tl(subdb.open_term_list(did));
+	unique_ptr<TermList> tl(subdb.open_term_list(did));
 	map<string, TermFreqs>::iterator i;
 	for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
 	    const string & term = i->first;
@@ -119,6 +117,16 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     }
 }
 
+void
+Weight::Internal::merge(const Weight::Internal& o)
+{
+    if (!o.have_max_part) return;
+    for (auto i : o.termfreqs) {
+	double& max_part = termfreqs[i.first].max_part;
+	max_part = max(max_part, i.second.max_part);
+    }
+}
+
 string
 Weight::Internal::get_description() const
 {
@@ -128,8 +136,6 @@ Weight::Internal::get_description() const
     desc += str(collection_size);
     desc += ", rset_size=";
     desc += str(rset_size);
-    desc += ", total_term_count=";
-    desc += str(total_term_count);
 #ifdef XAPIAN_ASSERTIONS
     desc += ", subdbs=";
     desc += str(subdbs);

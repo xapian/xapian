@@ -4,7 +4,7 @@
 # Wrapper script for running test programs (using libtool, valgrind and
 # eatmydata if required).
 #
-# Copyright (C) 2003,2004,2007,2008,2009,2010,2013 Olly Betts
+# Copyright (C) 2003,2004,2007,2008,2009,2010,2013,2017,2018 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,12 +21,16 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-if test 0 = "$#"; then
-   echo "syntax: $0 <test program> [<arguments>]"
-   echo "syntax: $0 gdb <test program> [<arguments>]"
-   echo "syntax: $0 <tool> <test program> [<arguments>]"
-   exit 1
-fi
+# Check for first argument starting with a '-' or no arguments and give usage
+# message.
+case $1:$# in
+  -*|*:0)
+    echo "syntax: $0 <test program> [<arguments>]"
+    echo "syntax: $0 gdb <test program> [<arguments>]"
+    echo "syntax: $0 <tool> <test program> [<arguments>]"
+    exit 1
+    ;;
+esac
 
 # Set srcdir if it isn't already.
 : ${srcdir="@srcdir@"}
@@ -82,9 +86,8 @@ if test -z "$VALGRIND" ; then
 
     # If we're using glibc, tell it to fill newly allocated memory (unless
     # allocated by calloc) with this byte value and overwrite memory released
-    # by free with this value xor 0xff.
-    # http://udrepper.livejournal.com/11429.html
-    # Just some value, y'know?
+    # by free with this value xor 0xff.  See the mallopt(3) man page for
+    # details.
     MALLOC_PERTURB_=42
     export MALLOC_PERTURB_
 
@@ -103,8 +106,8 @@ fi
 export top_builddir
 LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
 
-# For GCC 3.4 and newer, force the GNU C++ STL to not pool memory, which gives
-# more accurate memory leak reports with valgrind.
+# Tell the GNU C++ library (libstdc++) not to pool memory, which gives more
+# accurate memory leak reports with valgrind.
 GLIBCXX_FORCE_NEW=1
 export GLIBCXX_FORCE_NEW
 
@@ -112,7 +115,7 @@ export GLIBCXX_FORCE_NEW
 XAPIAN_TESTSUITE_VALGRIND=1
 export XAPIAN_TESTSUITE_VALGRIND
 
-vg_opts='--log-file=.valgrind.log.%p --leak-resolution=high'
+vg_opts='--log-file=.valgrind.log.%p --child-silent-after-fork=yes --leak-resolution=high --error-limit=no'
 vg_opts="$vg_opts --suppressions=$srcdir/valgrind.supp"
 if test -n "$EATMYDATA" ; then
     echo "Running test '$@' under eatmydata and valgrind"

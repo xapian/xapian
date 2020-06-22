@@ -30,7 +30,7 @@
 #include "debuglog.h"
 #include "filetests.h"
 
-#ifdef XAPIAN_HAS_GLASS_BACKEND
+#if defined XAPIAN_HAS_GLASS_BACKEND && defined XAPIAN_HAS_REMOTE_BACKEND
 # include "glass/glass_databasereplicator.h"
 #endif
 
@@ -45,13 +45,19 @@ DatabaseReplicator::~DatabaseReplicator()
 DatabaseReplicator *
 DatabaseReplicator::open(const string & path)
 {
-    LOGCALL(DB, DatabaseReplicator *, "DatabaseReplicator::open", path);
+    LOGCALL_STATIC(DB, DatabaseReplicator *, "DatabaseReplicator::open", path);
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (file_exists(path + "/iamglass")) {
+# ifdef XAPIAN_HAS_REMOTE_BACKEND
 	return new GlassDatabaseReplicator(path);
+# else
+	throw FeatureUnavailableError("Replication disabled");
+# endif
     }
 #endif
+
+    // FIXME: Replication of honey databases.
 
     if (file_exists(path + "/iamchert")) {
 	throw FeatureUnavailableError("Chert backend no longer supported");

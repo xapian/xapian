@@ -1,7 +1,8 @@
 noinst_HEADERS +=\
 	expand/esetinternal.h\
 	expand/expandweight.h\
-	expand/ortermlist.h
+	expand/ortermlist.h\
+	expand/termlistmerger.h
 
 EXTRA_DIST +=\
 	expand/Makefile

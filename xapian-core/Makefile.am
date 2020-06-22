@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = 1.5 subdir-objects
-ACLOCAL_AMFLAGS = -I m4
+AUTOMAKE_OPTIONS = subdir-objects
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
@@ -15,6 +14,8 @@ if VPATH_BUILD
 # include/xapian/error.h and include/xapian/errordispatch.h
 AM_CPPFLAGS += -I'$(top_builddir)/include'
 endif
+AM_CPPFLAGS += $(ICU_CPPFLAGS)
+AM_CXXFLAGS += $(ICU_CFLAGS)
 
 # Order is relevant: when building, tests must be after ".".
 SUBDIRS = . docs tests
@@ -43,15 +44,12 @@ EXTRA_PROGRAMS =
 check-@PERCENT@:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
 
-## --disable-shared as shared builds fail for me on x86-64 Debian etch.
-## CCACHE_DISABLE as ccache 2.4 doesn't handle the .gcno files.  This looks
-## like it was fixed in ccache 3.0, but only by not caching, so disabling
-## explicitly here is harmless.  If ccache starts to support --coverage
-## (3.3.3 doesn't) then we could reasonably just require ccache >= 3.0 is
-## used, as 3.0 was released on 2010-06-20.
+## -O0 - optimisation can result in confusing coverage reports.
+## --coverage - inserts code to generate coverage data
+## VALGRIND= - generating coverage data is slow enough by itself.
 COVERAGE_CONFIGURE = \
-    $(srcdir)/configure CXXFLAGS='-O0 --coverage' \
-    --enable-quiet --disable-shared CCACHE_DISABLE=1 VALGRIND=
+    $(srcdir)/configure CXXFLAGS='-O0 --coverage' VALGRIND= \
+	$(COVERAGE_CONFIGURE_ARGS)
 
 coverage-reconfigure: distclean
 	$(COVERAGE_CONFIGURE)
@@ -71,16 +69,19 @@ coverage-check:
 
 # We want to clean out build tree paths from the copy of xapian-config we
 # install, mostly in the interests of facilitating reproducible builds.
+bin_SCRIPTS = installable/xapian-config
+
+# Create the installable version in a subdirectory.  It's not made executable
+# until install time, which hopefully should avoid people trying to use it when
+# building against an uninstalled xapian-core.
+installable/xapian-config: xapian-config
+	$(MKDIR_P) installable
+	$(SED) '/##UNINSTONLYBEGIN/,/##UNINSTONLYEND/d' xapian-config > installable/xapian-config.tmp
+	mv installable/xapian-config.tmp installable/xapian-config
+
+CLEANFILES += installable/xapian-config
+
 noinst_SCRIPTS = xapian-config
-
-install-exec-local: xapian-config
-	$(MKDIR_P) "$(DESTDIR)$(bindir)"
-	$(SED) '/##UNINSTONLYBEGIN/,/##UNINSTONLYEND/d' xapian-config > tmp.xc
-	$(INSTALL_SCRIPT) tmp.xc "$(DESTDIR)$(bindir)$$dir/`echo xapian-config|$(SED) -e '$(transform)'`"
-	rm -f tmp.xc
-
-uninstall-local:
-	rm -f "$(DESTDIR)$(bindir)$$dir/xapian-config"
 
 DISTCLEANFILES += xapian-config
 
@@ -107,7 +108,7 @@ DISTCLEANFILES += pkgconfig/xapian-core-1.5.pc
 libxapian_la = libxapian-1.5.la
 lib_LTLIBRARIES = libxapian-1.5.la
 libxapian_1_5_la_SOURCES = $(lib_src)
-libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS)
+libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS) $(ICU_LIBS)
 libxapian_1_5_la_LDFLAGS = \
     $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO) $(lib_ldflags)
 
@@ -121,7 +122,9 @@ endif
 include api/Makefile.mk
 include bin/Makefile.mk
 include backends/Makefile.mk
+include cluster/Makefile.mk
 include common/Makefile.mk
+include diversify/Makefile.mk
 include examples/Makefile.mk
 include expand/Makefile.mk
 include geospatial/Makefile.mk

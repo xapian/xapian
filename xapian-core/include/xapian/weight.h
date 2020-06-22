@@ -1,10 +1,10 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
+/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016,2017,2019 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
- * Copyright (C) 2016 Vivek Pal
+ * Copyright (C) 2016,2017 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 
 #include <string>
 
+#include <xapian/registry.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -63,15 +64,28 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	/// Sum of wdf over the whole collection for the current term.
 	COLLECTION_FREQ = 4096,
 	/// Number of unique terms in the current document.
-	UNIQUE_TERMS = 8192
+	UNIQUE_TERMS = 8192,
+	/** Sum of lengths of all documents in the collection.
+	 *
+	 *  This gives the total number of term occurrences.
+	 */
+	TOTAL_LENGTH = 16384
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
      *
      *  Some of the statistics can be costly to fetch or calculate, so
      *  Xapian needs to know which are actually going to be used.  You
-     *  should call need_stat() from your constructor for each such
-     *  statistic.
+     *  should call need_stat() from your constructor for each statistic
+     *  needed by the weighting scheme you are implementing (possibly
+     *  conditional on the values of parameters of the weighting scheme).
+     *
+     *  Prior to 1.5.0, it was assumed that if get_maxextra() returned
+     *  a non-zero value then get_sumextra() needed the document length even if
+     *  need(DOC_LENGTH) wasn't called - the logic was that get_sumextra() could
+     *  only return a constant value if it didn't use the document length.
+     *  However, this is no longer valid since it can also use the number of
+     *  unique terms in the document, so now you need to specify explicitly.
      *
      * @param flag  The stat_flags value for a required statistic.
      */
@@ -129,6 +143,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// An upper bound on the wdf of this term.
     Xapian::termcount wdf_upper_bound_;
+
+    /// Total length of all documents in the collection.
+    Xapian::totallength total_length_;
 
   public:
 
@@ -260,6 +277,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param wqf_	  The within-query-frequency of @a term.
      *  @param factor	  Any scaling factor (e.g. from OP_SCALE_WEIGHT).
      */
+    XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       const std::string & term, Xapian::termcount wqf_,
 	       double factor);
@@ -274,6 +292,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param reltermfreq The reltermfreq to use.
      *  @param collection_freq The collection frequency to use.
      */
+    XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_,
 	       double factor, Xapian::doccount termfreq,
 	       Xapian::doccount reltermfreq, Xapian::termcount collection_freq);
@@ -284,6 +303,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  @param stats	  Source of statistics.
      *  @param query_len_ Query length.
      */
+    XAPIAN_VISIBILITY_INTERNAL
     void init_(const Internal & stats, Xapian::termcount query_len_);
 
     /** @private @internal Return true if the document length is needed.
@@ -315,12 +335,43 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	return stats_needed & UNIQUE_TERMS;
     }
 
+    /** Return the appropriate weighting scheme object.
+     *
+     *  @param scheme	the string containing a weighting scheme name and may
+     *			also contain the parameters required by that weighting
+     *			scheme. E.g. "bm25 1.0 0.8"
+     *  @param reg	Xapian::Registry object to allow users to add their own
+     *			custom weighting schemes (default: standard registry).
+     */
+    static const Weight * create(const std::string & scheme,
+				 const Registry & reg = Registry());
+
+    /** Return the parameterised weighting scheme object.
+     *
+     * @param params	the pointer to the string containing parameter values
+     *			for a weighting scheme
+     */
+    virtual Weight * create_from_parameters(const char * params) const;
+
+    /** Return the short name of the weighting scheme. E.g. "bm25". */
+    virtual std::string short_name() const;
+
+    /// @private @internal Test if this is a BoolWeight object.
+    bool is_bool_weight_() const {
+	// Checking the name isn't ideal, but (get_maxpart() == 0.0) isn't
+	// required to work without init() having been called.  We can at
+	// least avoid the virtual method call in most non-BoolWeight cases
+	// as most other classes will need at least some stats.
+	return stats_needed == 0 && short_name() == "bool";
+    }
+
   protected:
     /** Don't allow copying.
      *
      *  This would ideally be private, but that causes a compilation error
      *  with GCC 4.1 (which appears to be a bug).
      */
+    XAPIAN_VISIBILITY_INTERNAL
     Weight(const Weight &);
 
     /// The number of documents in the collection.
@@ -372,6 +423,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     Xapian::termcount get_wdf_upper_bound() const {
 	return wdf_upper_bound_;
     }
+
+    /// Total length of all documents in the collection.
+    Xapian::totallength get_total_length() const {
+	return total_length_;
+    }
 };
 
 /** Class implementing a "boolean" weighting scheme.
@@ -388,6 +444,7 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     BoolWeight() { }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BoolWeight * unserialise(const std::string & serialised) const;
@@ -400,6 +457,8 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    BoolWeight * create_from_parameters(const char * params) const;
 };
 
 /// Xapian::Weight subclass implementing the tf-idf weighting scheme.
@@ -531,6 +590,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     std::string name() const;
 
+    std::string short_name() const;
+
     std::string serialise() const;
     TfIdfWeight * unserialise(const std::string & serialised) const;
 
@@ -542,6 +603,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    TfIdfWeight * create_from_parameters(const char * params) const;
 };
 
 
@@ -614,7 +677,10 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 	    need_stat(AVERAGE_LENGTH);
 	}
 	if (param_k1 != 0 && param_b != 0) need_stat(DOC_LENGTH);
-	if (param_k2 != 0) need_stat(QUERY_LENGTH);
+	if (param_k2 != 0) {
+	    need_stat(DOC_LENGTH);
+	    need_stat(QUERY_LENGTH);
+	}
 	if (param_k3 != 0) need_stat(WQF);
     }
 
@@ -635,6 +701,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BM25Weight * unserialise(const std::string & serialised) const;
@@ -647,6 +714,8 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    BM25Weight * create_from_parameters(const char * params) const;
 };
 
 /// Xapian::Weight subclass implementing the BM25+ probabilistic formula.
@@ -730,7 +799,10 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
 	    need_stat(AVERAGE_LENGTH);
 	}
 	if (param_k1 != 0 && param_b != 0) need_stat(DOC_LENGTH);
-	if (param_k2 != 0) need_stat(QUERY_LENGTH);
+	if (param_k2 != 0) {
+	    need_stat(DOC_LENGTH);
+	    need_stat(QUERY_LENGTH);
+	}
 	if (param_k3 != 0) need_stat(WQF);
     }
 
@@ -751,6 +823,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BM25PlusWeight * unserialise(const std::string & serialised) const;
@@ -763,6 +836,8 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    BM25PlusWeight * create_from_parameters(const char * params) const;
 };
 
 /** Xapian::Weight subclass implementing the traditional probabilistic formula.
@@ -812,6 +887,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     TradWeight * unserialise(const std::string & serialised) const;
@@ -824,6 +900,8 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    TradWeight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the InL2 weighting scheme.
@@ -862,7 +940,7 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
   public:
     /** Construct an InL2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -885,6 +963,7 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     InL2Weight * unserialise(const std::string & serialised) const;
@@ -897,6 +976,8 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    InL2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the IfB2 weighting scheme.
@@ -934,7 +1015,7 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
   public:
     /** Construct an IfB2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -958,6 +1039,7 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     IfB2Weight * unserialise(const std::string & serialised) const;
@@ -970,6 +1052,8 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    IfB2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the IneB2 weighting scheme.
@@ -1007,7 +1091,7 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
   public:
     /** Construct an IneB2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -1029,6 +1113,7 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     IneB2Weight * unserialise(const std::string & serialised) const;
@@ -1041,6 +1126,8 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    IneB2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the BB2 weighting scheme.
@@ -1081,7 +1168,7 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
   public:
     /** Construct a BB2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. A
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -1105,6 +1192,7 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BB2Weight * unserialise(const std::string & serialised) const;
@@ -1117,6 +1205,8 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    BB2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the DLH weighting scheme, which is a representative
@@ -1150,18 +1240,18 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
 
   public:
     DLHWeight() {
-	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(COLLECTION_SIZE);
 	need_stat(COLLECTION_FREQ);
 	need_stat(WDF);
 	need_stat(WQF);
 	need_stat(WDF_MAX);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
+	need_stat(TOTAL_LENGTH);
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     DLHWeight * unserialise(const std::string & serialised) const;
@@ -1174,6 +1264,8 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    DLHWeight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the PL2 weighting scheme.
@@ -1217,7 +1309,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
   public:
     /** Construct a PL2Weight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -1240,6 +1332,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     PL2Weight * unserialise(const std::string & serialised) const;
@@ -1252,6 +1345,8 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    PL2Weight * create_from_parameters(const char * params) const;
 };
 
 /// Xapian::Weight subclass implementing the PL2+ probabilistic formula.
@@ -1287,7 +1382,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
   public:
     /** Construct a PL2PlusWeight.
      *
-     *  @param c  A non-negative and non zero parameter controlling the extent
+     *  @param c  A strictly positive parameter controlling the extent
      *		  of the normalization of the wdf to the document length. The
      *		  default value of 1 is suitable for longer queries but it may
      *		  need to be changed for shorter queries. For more information,
@@ -1318,6 +1413,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     PL2PlusWeight * unserialise(const std::string & serialised) const;
@@ -1330,6 +1426,8 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    PL2PlusWeight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the DPH weighting scheme.
@@ -1366,18 +1464,18 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
   public:
     /** Construct a DPHWeight. */
     DPHWeight() {
-	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(COLLECTION_SIZE);
 	need_stat(COLLECTION_FREQ);
 	need_stat(WDF);
 	need_stat(WQF);
 	need_stat(WDF_MAX);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
+	need_stat(TOTAL_LENGTH);
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     DPHWeight * unserialise(const std::string & serialised) const;
@@ -1390,6 +1488,8 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
+
+    DPHWeight * create_from_parameters(const char * params) const;
 };
 
 
@@ -1466,9 +1566,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	    else
 		param_smoothing2 = 0.05;
 	}
-	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(COLLECTION_SIZE);
 	need_stat(RSET_SIZE);
 	need_stat(TERMFREQ);
 	need_stat(RELTERMFREQ);
@@ -1476,6 +1574,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	need_stat(WDF);
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
+	need_stat(TOTAL_LENGTH);
 	if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING)
 	    need_stat(UNIQUE_TERMS);
 	if (select_smoothing == DIRICHLET_PLUS_SMOOTHING)
@@ -1483,6 +1582,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     LMWeight * unserialise(const std::string & serialised) const;
@@ -1494,6 +1594,8 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 
     double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const;
     double get_maxextra() const;
+
+    LMWeight * create_from_parameters(const char * params) const;
 };
 
 /** Xapian::Weight subclass implementing Coordinate Matching.
@@ -1514,6 +1616,7 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
     CoordWeight() { }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     CoordWeight * unserialise(const std::string & serialised) const;
@@ -1525,8 +1628,53 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
 
     double get_sumextra(Xapian::termcount, Xapian::termcount) const;
     double get_maxextra() const;
+
+    CoordWeight * create_from_parameters(const char * params) const;
 };
 
+/** Xapian::Weight subclass implementing Dice Coefficient.
+ *
+ *  Dice Coefficient measures the degree of similarity between
+ *  pair of sets (ex. between two documents or a document and a query).
+ *
+ *  Jaccard coefficient and Cosine coefficient are other similarity
+ *  coefficients.
+ */
+class XAPIAN_VISIBILITY_DEFAULT DiceCoeffWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
+    /// Upper bound on the weight
+    double upper_bound;
+
+    void init(double factor_);
+
+  public:
+    DiceCoeffWeight * clone() const;
+
+    /** Construct a DiceCoeffWeight. */
+    DiceCoeffWeight() {
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(QUERY_LENGTH);
+	need_stat(UNIQUE_TERMS);
+    }
+
+    std::string name() const;
+    std::string short_name() const;
+
+    std::string serialise() const;
+    DiceCoeffWeight * unserialise(const std::string & serialised) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount, Xapian::termcount) const;
+    double get_maxextra() const;
+
+    DiceCoeffWeight * create_from_parameters(const char * params) const;
+};
 }
 
 #endif // XAPIAN_INCLUDED_WEIGHT_H

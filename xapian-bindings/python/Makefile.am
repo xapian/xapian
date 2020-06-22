@@ -23,23 +23,16 @@ RST_DOCS = \
 	docs/introduction.rst \
 	docs/xapian.rst
 
-# FIXME: replicationtest.py attempts to test performing replication whilst
-# modifications are in progress.  However, it sometimes fails due to a race
-# condition in it.  It also contains hard-coded paths to the replication
-# server and client, which assume the file layout in a repo checkout.
-# Therefore, we don't run it by default currently.
-# replicationtest.py
-
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
+	doccomments.i \
 	doxy2swig.py \
 	fixup-swig-py2-wrapper \
 	generate-python-exceptions \
 	run-python-test \
 	testsuite.py \
 	test_xapian_star.py \
-	replicationtest.py \
 	$(TESTS) $(BUILT_SOURCES) $(RST_DOCS)
 
 pkgpylibdir = @PYTHON2_LIB@/xapian
@@ -136,7 +129,7 @@ xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: $(stamp)
 $(stamp): except.i doccomments.i fixup-swig-py2-wrapper
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -python -threads -shadow -modern -O \
+	    -python -threads -shadow -O \
 	    -o xapian_wrap.cc '$(srcdir)/'python.i
 	$(PERL) -i $(srcdir)/fixup-swig-py2-wrapper xapian.py
 	$(multitarget_end)
@@ -165,6 +158,14 @@ all-local: $(sphinxdocs)
 $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON2_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
 ## We need to run Sphinx for the right version of Python here, so we can't
 ## just run sphinx-build as that might be for a different version.
+##
+## sphinx >= 1.7.0 no longer skips the first argument passed to
+## sphinx.main(). Therefore we have to skip it ourselves (by
+## taking a slice of sys.argv), and then have a skippable first
+## argument for sphinx < 1.7.0. -bhtml duplicates the subsequent
+## -b html, and so apparently is safe.
+##
+## Change was merged here: https://github.com/sphinx-doc/sphinx/pull/3668
 	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON2) \
-		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv))' \
-		-b html -d doctrees -c docs $(srcdir)/docs docs/html
+		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv[1:]))' \
+		-bhtml -b html -d doctrees -c docs $(srcdir)/docs docs/html

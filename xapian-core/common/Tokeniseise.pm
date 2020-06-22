@@ -41,7 +41,7 @@ EOF
 	FH => $fh,
 	HEADER => $header,
 	M => {},
-	WIDTH => ($width // 1),
+	WIDTH => ($width || 1),
 	ENUM_VALUES => {}
     };
     bless($self, $class);

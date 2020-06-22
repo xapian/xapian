@@ -27,9 +27,9 @@
 #include "debuglog.h"
 
 string
-InMemoryDocument::do_get_value(Xapian::valueno slot) const
+InMemoryDocument::fetch_value(Xapian::valueno slot) const
 {
-    LOGCALL(DB, string, "InMemoryDocument::do_get_value", slot);
+    LOGCALL(DB, string, "InMemoryDocument::fetch_value", slot);
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (rare(did > db->valuelists.size()))
@@ -43,9 +43,9 @@ InMemoryDocument::do_get_value(Xapian::valueno slot) const
 }
 
 void
-InMemoryDocument::do_get_all_values(map<Xapian::valueno, string> &values_) const
+InMemoryDocument::fetch_all_values(map<Xapian::valueno, string> &values_) const
 {
-    LOGCALL_VOID(DB, "InMemoryDocument::do_get_all_values", values_);
+    LOGCALL_VOID(DB, "InMemoryDocument::fetch_all_values", values_);
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (db->closed) InMemoryDatabase::throw_database_closed();
@@ -57,9 +57,9 @@ InMemoryDocument::do_get_all_values(map<Xapian::valueno, string> &values_) const
 }
 
 string
-InMemoryDocument::do_get_data() const
+InMemoryDocument::fetch_data() const
 {
-    LOGCALL(DB, string, "InMemoryDocument::do_get_data", NO_ARGS);
+    LOGCALL(DB, string, "InMemoryDocument::fetch_data", NO_ARGS);
     const InMemoryDatabase * db;
     db = static_cast<const InMemoryDatabase*>(database.get());
     if (db->closed) InMemoryDatabase::throw_database_closed();

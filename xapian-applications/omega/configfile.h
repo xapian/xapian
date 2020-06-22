@@ -1,6 +1,7 @@
-/* configfile.h: Read a config file for omega.
- *
- * Copyright 2001 Lemur Consulting Ltd.
+/** @file configfile.h
+ * @brief Read a config file for omega.
+ */
+/* Copyright 2001 Lemur Consulting Ltd.
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2005,2015 Olly Betts
  *

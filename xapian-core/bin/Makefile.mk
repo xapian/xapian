@@ -1,3 +1,6 @@
+noinst_HEADERS +=\
+	bin/remotetcpserver.h
+
 EXTRA_DIST +=\
 	bin/Makefile
 
@@ -9,33 +12,38 @@ noinst_PROGRAMS =
 if BUILD_BACKEND_TOOLS
 bin_PROGRAMS +=\
 	bin/xapian-check\
-	bin/xapian-compact\
-	bin/xapian-replicate\
-	bin/xapian-replicate-server
+	bin/xapian-compact
 
 if BUILD_BACKEND_GLASS
 noinst_PROGRAMS +=\
 	bin/xapian-inspect
 endif
 
+if BUILD_BACKEND_HONEY
+noinst_PROGRAMS +=\
+	bin/xapian-inspect-honey
+endif
+
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-check.1\
 	bin/xapian-compact.1\
-	bin/xapian-delve.1\
-	bin/xapian-replicate.1\
-	bin/xapian-replicate-server.1
+	bin/xapian-delve.1
 endif
 endif
 
 if BUILD_BACKEND_REMOTE
 bin_PROGRAMS +=\
 	bin/xapian-progsrv\
+	bin/xapian-replicate\
+	bin/xapian-replicate-server\
 	bin/xapian-tcpsrv
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-progsrv.1\
+	bin/xapian-replicate.1\
+	bin/xapian-replicate-server.1\
 	bin/xapian-tcpsrv.1
 endif
 endif
@@ -54,12 +62,35 @@ bin_xapian_inspect_CPPFLAGS =\
 	-DXAPIAN_REALLY_NO_DEBUG_LOG\
 	-I$(top_srcdir)/backends/glass
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
+	api/constinfo.cc\
 	api/error.cc\
 	backends/glass/glass_changes.cc\
 	backends/glass/glass_cursor.cc\
 	backends/glass/glass_freelist.cc\
 	backends/glass/glass_table.cc\
 	backends/glass/glass_version.cc\
+	backends/uuids.cc\
+	common/compression_stream.cc\
+	common/errno_to_string.cc\
+	common/io_utils.cc\
+	common/posixy_wrapper.cc\
+	common/str.cc\
+	unicode/description_append.cc\
+	unicode/unicode-data.cc\
+	unicode/utf8itor.cc
+
+bin_xapian_inspect_honey_CPPFLAGS =\
+	$(AM_CPPFLAGS)\
+	-DXAPIAN_REALLY_NO_DEBUG_LOG\
+	-I$(top_srcdir)/backends/honey
+bin_xapian_inspect_honey_SOURCES = bin/xapian-inspect-honey.cc\
+	api/constinfo.cc\
+	api/error.cc\
+	backends/honey/honey_cursor.cc\
+	backends/honey/honey_freelist.cc\
+	backends/honey/honey_table.cc\
+	backends/honey/honey_version.cc\
+	backends/uuids.cc\
 	common/compression_stream.cc\
 	common/errno_to_string.cc\
 	common/io_utils.cc\
@@ -71,16 +102,7 @@ bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 
 # XAPIAN_LIBS gives us zlib and any library needed for UUIDs.
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
-if USE_PROC_FOR_UUID
-bin_xapian_inspect_SOURCES +=\
-	api/constinfo.cc\
-	common/proc_uuid.cc
-endif
-if USE_WIN32_UUID_API
-bin_xapian_inspect_SOURCES +=\
-	common/win32_uuid.cc
-bin_xapian_inspect_LDADD += -lrpcrt4
-endif
+bin_xapian_inspect_honey_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
 
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
 bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
@@ -91,7 +113,7 @@ bin_xapian_replicate_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 bin_xapian_replicate_server_SOURCES = bin/xapian-replicate-server.cc
 bin_xapian_replicate_server_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc
+bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc bin/remotetcpserver.cc
 bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 if DOCUMENTATION_RULES

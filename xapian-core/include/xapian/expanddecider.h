@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_EXPANDDECIDER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/expanddecider.h> directly; include <xapian.h> instead."
+# error Never use <xapian/expanddecider.h> directly; include <xapian.h> instead.
 #endif
 
 #include <set>
@@ -37,10 +37,10 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
     : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
-    void operator=(const ExpandDecider &);
+    void operator=(const ExpandDecider &) = delete;
 
     /// Don't allow copying.
-    ExpandDecider(const ExpandDecider &);
+    ExpandDecider(const ExpandDecider &) = delete;
 
   public:
     /// Default constructor.
@@ -57,7 +57,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated ErrorHandler
+     *  You can hand ownership of a dynamically allocated ExpandDecider
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -69,7 +69,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
 
     /** Start reference counting this object.
      *
-     *  You can hand ownership of a dynamically allocated ErrorHandler
+     *  You can hand ownership of a dynamically allocated ExpandDecider
      *  object to Xapian by calling release() and then passing the object to a
      *  Xapian method.  Xapian will arrange to delete the object once it is no
      *  longer required.
@@ -128,7 +128,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider 
      *				TermIterator or char **).
      *  @param reject_end	End iterator for the list of terms to reject.
      */
-    template <class Iterator>
+    template<class Iterator>
     ExpandDeciderFilterTerms(Iterator reject_begin, Iterator reject_end)
 	: rejects(reject_begin, reject_end) { }
 

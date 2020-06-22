@@ -23,10 +23,13 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include "weightinternal.h"
 
 #include "serialise-double.h"
 
 #include "xapian/error.h"
+
+#include <algorithm>
 
 using namespace std;
 
@@ -35,7 +38,7 @@ namespace Xapian {
 PL2Weight::PL2Weight(double c) : param_c(c)
 {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter c is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
@@ -56,6 +59,12 @@ PL2Weight::clone() const
 void
 PL2Weight::init(double factor_)
 {
+    if (factor_ == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     factor = factor_;
 
     if (get_wdf_upper_bound() == 0) {
@@ -124,6 +133,12 @@ PL2Weight::name() const
 }
 
 string
+PL2Weight::short_name() const
+{
+    return "pl2";
+}
+
+string
 PL2Weight::serialise() const
 {
     return serialise_double(param_c);
@@ -170,6 +185,25 @@ double
 PL2Weight::get_maxextra() const
 {
     return 0;
+}
+
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "pl2");
+}
+
+PL2Weight *
+PL2Weight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::PL2Weight();
+    double k = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	parameter_error("Parameter is invalid");
+    if (*p)
+	parameter_error("Extra data after parameter");
+    return new Xapian::PL2Weight(k);
 }
 
 }

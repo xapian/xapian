@@ -1,6 +1,7 @@
-/* quest.cc - Command line search tool using Xapian::QueryParser.
- *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2016 Olly Betts
+/** @file quest.cc
+ * @brief Command line search tool using Xapian::QueryParser.
+ */
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2016,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +37,7 @@ using namespace std;
 #define PROG_DESC "Xapian command line search tool"
 
 // Stopwords:
-static const char * sw[] = {
+static const char * const sw[] = {
     "a", "about", "an", "and", "are", "as", "at",
     "be", "by",
     "en",
@@ -49,29 +50,34 @@ static const char * sw[] = {
 };
 
 struct qp_flag { const char * s; unsigned f; };
-static qp_flag flag_tab[] = {
+static const qp_flag flag_tab[] = {
     { "auto_multiword_synonyms", Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS },
     { "auto_synonyms", Xapian::QueryParser::FLAG_AUTO_SYNONYMS },
     { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
     { "boolean_any_case", Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE },
     { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
+    { "cjk_words", Xapian::QueryParser::FLAG_CJK_WORDS },
     { "default", Xapian::QueryParser::FLAG_DEFAULT },
+    { "fuzzy", Xapian::QueryParser::FLAG_FUZZY },
     { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
     { "partial", Xapian::QueryParser::FLAG_PARTIAL },
     { "phrase", Xapian::QueryParser::FLAG_PHRASE },
     { "pure_not", Xapian::QueryParser::FLAG_PURE_NOT },
     { "spelling_correction", Xapian::QueryParser::FLAG_SPELLING_CORRECTION },
     { "synonym", Xapian::QueryParser::FLAG_SYNONYM },
-    { "wildcard", Xapian::QueryParser::FLAG_WILDCARD }
+    { "wildcard", Xapian::QueryParser::FLAG_WILDCARD },
+    { "wildcard_glob", Xapian::QueryParser::FLAG_WILDCARD_GLOB },
+    { "wildcard_multi", Xapian::QueryParser::FLAG_WILDCARD_MULTI },
+    { "wildcard_single", Xapian::QueryParser::FLAG_WILDCARD_SINGLE }
 };
 const int n_flag_tab = sizeof(flag_tab) / sizeof(flag_tab[0]);
 
-inline bool operator<(const qp_flag & f1, const qp_flag & f2) {
+static inline bool operator<(const qp_flag& f1, const qp_flag& f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
 struct qp_op { const char * s; unsigned f; };
-static qp_op op_tab[] = {
+static const qp_op op_tab[] = {
     { "and", Xapian::Query::OP_AND },
     { "elite_set", Xapian::Query::OP_ELITE_SET },
     { "max", Xapian::Query::OP_MAX },
@@ -82,7 +88,7 @@ static qp_op op_tab[] = {
 };
 const int n_op_tab = sizeof(op_tab) / sizeof(op_tab[0]);
 
-inline bool operator<(const qp_op & f1, const qp_op & f2) {
+static inline bool operator<(const qp_op& f1, const qp_op& f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
@@ -91,6 +97,7 @@ enum {
     WEIGHT_BM25,
     WEIGHT_BM25PLUS,
     WEIGHT_BOOL,
+    WEIGHT_COORD,
     WEIGHT_DLH,
     WEIGHT_DPH,
     WEIGHT_IFB2,
@@ -104,11 +111,12 @@ enum {
 };
 
 struct wt { const char * s; int f; };
-static wt wt_tab[] = {
+static const wt wt_tab[] = {
     { "bb2",	WEIGHT_BB2 },
     { "bm25",	WEIGHT_BM25 },
     { "bm25+",	WEIGHT_BM25PLUS },
     { "bool",	WEIGHT_BOOL },
+    { "coord",	WEIGHT_COORD },
     { "dlh",	WEIGHT_DLH },
     { "dph",	WEIGHT_DPH },
     { "ifb2",	WEIGHT_IFB2 },
@@ -122,7 +130,7 @@ static wt wt_tab[] = {
 };
 const int n_wt_tab = sizeof(wt_tab) / sizeof(wt_tab[0]);
 
-inline bool operator<(const wt & f1, const wt & f2) {
+static inline bool operator<(const wt& f1, const wt& f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
@@ -275,7 +283,7 @@ try {
 		check_at_least = static_cast<Xapian::doccount>(v);
 		if (*p || v != check_at_least) {
 		    cerr << PROG_NAME": Bad value '" << optarg
-			 << "' passed for check_at_least " << endl;
+			 << "' passed for check_at_least" << endl;
 		    exit(1);
 		}
 		break;
@@ -387,6 +395,9 @@ try {
 	case WEIGHT_BOOL:
 	    enquire.set_weighting_scheme(Xapian::BoolWeight());
 	    break;
+	case WEIGHT_COORD:
+	    enquire.set_weighting_scheme(Xapian::CoordWeight());
+	    break;
 	case WEIGHT_BM25:
 	    enquire.set_weighting_scheme(Xapian::BM25Weight());
 	    break;
@@ -426,6 +437,16 @@ try {
     }
 
     Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
+
+    auto lower_bound = mset.get_matches_lower_bound();
+    auto estimate = mset.get_matches_estimated();
+    auto upper_bound = mset.get_matches_upper_bound();
+    if (lower_bound == upper_bound) {
+	cout << "Exactly " << estimate << " matches" << endl;
+    } else {
+	cout << "Between " << lower_bound << " and " << upper_bound
+	     << " matches, best estimate is " << estimate << endl;
+    }
 
     cout << "MSet:" << endl;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {

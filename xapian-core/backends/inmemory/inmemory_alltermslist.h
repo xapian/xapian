@@ -2,7 +2,7 @@
  * @brief Iterate all terms in an inmemory db
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2008,2009,2011 Olly Betts
+ * Copyright 2003,2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_INMEMORY_ALLTERMSLIST_H
-#define OM_HGUARD_INMEMORY_ALLTERMSLIST_H
+#ifndef XAPIAN_INCLUDED_INMEMORY_ALLTERMSLIST_H
+#define XAPIAN_INCLUDED_INMEMORY_ALLTERMSLIST_H
 
 #include "backends/alltermslist.h"
 #include "inmemory_database.h"
@@ -29,48 +29,51 @@
 /** class for alltermslists over several databases */
 class InMemoryAllTermsList : public AllTermsList
 {
-    private:
-	/// Copying is not allowed.
-	InMemoryAllTermsList(const InMemoryAllTermsList &);
+  private:
+    /// Copying is not allowed.
+    InMemoryAllTermsList(const InMemoryAllTermsList &);
 
-	/// Assignment is not allowed.
-	void operator=(const InMemoryAllTermsList &);
+    /// Assignment is not allowed.
+    void operator=(const InMemoryAllTermsList &);
 
-	const std::map<string, InMemoryTerm> *tmap;
+    const std::map<string, InMemoryTerm> *tmap;
 
-	std::map<string, InMemoryTerm>::const_iterator it;
+    std::map<string, InMemoryTerm>::const_iterator it;
 
-	Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database;
+    Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database;
 
-	string prefix;
+    string prefix;
 
-    public:
-	/// Constructor.
-	InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
-			     Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database_,
-			     const string & prefix_)
-	    : tmap(tmap_), it(tmap->begin()), database(database_),
-	      prefix(prefix_)
-	{
-	}
+  public:
+    /// Constructor.
+    InMemoryAllTermsList(const std::map<string, InMemoryTerm>* tmap_,
+			 Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database_,
+			 const string& prefix_)
+	: tmap(tmap_), it(tmap->begin()), database(database_),
+	  prefix(prefix_)
+    {
+    }
 
-	// Gets current termname
-	string get_termname() const;
+    Xapian::termcount get_approx_size() const;
 
-	// Get num of docs indexed by term
-	Xapian::doccount get_termfreq() const;
+    // Gets current termname
+    string get_termname() const;
 
-	// Get num of docs indexed by term
-	Xapian::termcount get_collection_freq() const;
+    // Get num of docs indexed by term
+    Xapian::doccount get_termfreq() const;
 
-	TermList * skip_to(const string &tname);
+    TermList * skip_to(const string &tname);
 
-	/** next() causes the AllTermsList to move to the next term in the list.
-	 */
-	TermList * next();
+    /** next() causes the AllTermsList to move to the next term in the list.
+     */
+    TermList * next();
 
-	// True if we're off the end of the list
-	bool at_end() const;
+    // True if we're off the end of the list
+    bool at_end() const;
 };
 
-#endif /* OM_HGUARD_INMEMORY_ALLTERMSLIST_H */
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif
+
+#endif /* XAPIAN_INCLUDED_INMEMORY_ALLTERMSLIST_H */

@@ -83,6 +83,9 @@ pptx		application/vnd.openxmlformats-officedocument.presentationml.presentation
 ppsx		application/vnd.openxmlformats-officedocument.presentationml.slideshow
 # PowerPoint 2007 template
 potx		application/vnd.openxmlformats-officedocument.presentationml.template
+vsdx		application/vnd.ms-visio.drawing
+vssx		application/vnd.ms-visio.stencil
+vstx		application/vnd.ms-visio.template
 xps		application/vnd.ms-xpsdocument
 
 # Macro-enabled variants - these appear to be the same formats as the
@@ -102,6 +105,10 @@ pptm		application/vnd.openxmlformats-officedocument.presentationml.presentation
 ppsm		application/vnd.openxmlformats-officedocument.presentationml.slideshow
 # MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
 potm		application/vnd.openxmlformats-officedocument.presentationml.template
+# MS say: application/vnd.ms-visio.drawing.macroEnabled etc
+vsdm		application/vnd.ms-visio.drawing
+vssm		application/vnd.ms-visio.stencil
+vstm		application/vnd.ms-visio.template
 
 # Some other word processor formats:
 # Word template
@@ -118,6 +125,19 @@ rtf		text/rtf
 # Leave .doc files to libmagic, as they may actually be RTF (AbiWord
 # actually saves RTF when asked to save as .doc, and Microsoft Word
 # quietly loads RTF files with a .doc extension), or plain-text.
+
+# Apple iWork:
+key		application/vnd.apple.keynote
+kth		application/vnd.apple.keynote
+apxl		application/vnd.apple.keynote
+pages		application/vnd.apple.pages
+numbers		application/vnd.apple.numbers
+
+# Visio:
+vsd		application/vnd.visio
+vss		application/vnd.visio
+vst		application/vnd.visio
+vsw		application/vnd.visio
 
 # Other MS formats:
 xls		application/vnd.ms-excel
@@ -172,6 +192,27 @@ rpm		application/x-redhat-package-manager
 
 # Atom feeds:
 atom		application/atom+xml
+
+# Ebooks:
+fb2		application/x-fictionbook+xml
+lrf		application/x-sony-bbeb
+tcr		application/x-tcr-ebook
+pdb		application/vnd.palm
+
+# Image files:
+gif		image/gif
+jfif		image/jpeg
+jpe		image/jpeg
+jpeg		image/jpeg
+jpg		image/jpeg
+pbm		image/x-portable-bitmap
+pgm		image/x-portable-graymap
+png		image/png
+pnm		image/x-portable-anymap
+ppm		image/x-portable-pixmap
+tif		image/tiff
+tiff		image/tiff
+webp		image/webp
 
 # Extensions to quietly ignore:
 a		ignore

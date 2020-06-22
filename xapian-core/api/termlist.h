@@ -21,15 +21,17 @@
 #ifndef XAPIAN_INCLUDED_TERMLIST_H
 #define XAPIAN_INCLUDED_TERMLIST_H
 
+#include "api/smallvector.h"
+
+#include "backends/positionlist.h"
+
 #include <string>
-#include <vector>
 
 #include "xapian/intrusive_ptr.h"
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 
 namespace Xapian {
-    class PositionIterator;
     namespace Internal {
 	class ExpandStats;
     }
@@ -38,10 +40,10 @@ namespace Xapian {
 /// Abstract base class for termlists.
 class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Don't allow assignment.
-    void operator=(const Internal &);
+    void operator=(const Internal &) = delete;
 
     /// Don't allow copying.
-    Internal(const Internal &);
+    Internal(const Internal &) = delete;
 
   protected:
     /// Only constructable as a base class for derived classes.
@@ -94,18 +96,18 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Return the length of the position list for the current position.
     virtual Xapian::termcount positionlist_count() const = 0;
 
-    /** Get pointer to vector<termpos> if that's the internal representation.
+    /** Get pointer to VecCOW<termpos> if that's the internal representation.
      *
      *  This avoids unnecessary copying of positions in the common cases - the
      *  case it doesn't help with is adding a document back with unmodified
      *  positions *AND* a different docid, which is an unusual thing to do.
      *
-     *  @return Pointer to vector<termpos> or NULL.
+     *  @return Pointer to VecCOW<termpos> or NULL.
      */
-    virtual const std::vector<Xapian::termpos> * get_vector_termpos() const;
+    virtual const Xapian::VecCOW<Xapian::termpos> * get_vec_termpos() const;
 
-    /// Return a PositionIterator for the current position.
-    virtual Xapian::PositionIterator positionlist_begin() const = 0;
+    /// Return PositionList for the current position.
+    virtual PositionList* positionlist_begin() const = 0;
 };
 
 // In the external API headers, this class is Xapian::TermIterator::Internal,

@@ -1,7 +1,7 @@
 // Alias: ca
-// From: http://snowballstem.org/algorithms/catalan/stemmer.html
+// From: https://snowballstem.org/algorithms/catalan/stemmer.html
 // Author: Israel Olalla
-// Licence: 3-clause BSD, as per http://snowballstem.org/license.html
+// Licence: 3-clause BSD, as per https://snowballstem.org/license.html
 
 routines (
            cleaning mark_regions
@@ -20,22 +20,21 @@ groupings ( v )
 
 stringescapes {}
 
-/* special characters (in ISO Latin I) */
+/* special characters */
 
-stringdef a'   hex 'E1'  // a-acute
-stringdef a`   hex 'E0'  // a-grave
-stringdef c,   hex 'E7'  // c-cedilla
-stringdef e'   hex 'E9'  // e-acute
-stringdef e`   hex 'E8'  // e-grave
-stringdef i'   hex 'ED'  // i-acute
-stringdef i`   hex 'EC'  // i-grave
-stringdef i"   hex 'EF'  // i-diaeresis
-stringdef o'   hex 'F3'  // o-acute
-stringdef o`   hex 'F2'  // o-grave
-stringdef u'   hex 'FA'  // u-acute
-stringdef u"   hex 'FC'  // u-diaeresis
-stringdef -    hex '2D'   // - per aggeminades
-stringdef .    hex 'B7'   // - per l aggeminades
+stringdef a'   '{U+00E1}'  // a-acute
+stringdef a`   '{U+00E0}'  // a-grave
+stringdef c,   '{U+00E7}'  // c-cedilla
+stringdef e'   '{U+00E9}'  // e-acute
+stringdef e`   '{U+00E8}'  // e-grave
+stringdef i'   '{U+00ED}'  // i-acute
+stringdef i`   '{U+00EC}'  // i-grave
+stringdef i"   '{U+00EF}'  // i-diaeresis
+stringdef o'   '{U+00F3}'  // o-acute
+stringdef o`   '{U+00F2}'  // o-grave
+stringdef u'   '{U+00FA}'  // u-acute
+stringdef u"   '{U+00FC}'  // u-diaeresis
+stringdef .    '{U+00B7}'   // - per l aggeminades
 
 define v 'aeiou{a'}{a`}{e'}{e`}{i'}{i"}{o'}{o`}{u'}{u"}'
 
@@ -65,7 +64,7 @@ define cleaning as repeat (
         '{i"}' (<- 'i')
         '{.}' (<- '.')
         ''     (next)
-    ) //or next
+    )
 )
 
 backwardmode (
@@ -76,11 +75,11 @@ backwardmode (
     define attached_pronoun as (
     [substring] among (
         '{'}s'  '{'}hi' '{'}ho' '{'}l' '{'}ls'
-        '{-}ls' '{-}la' '{-}les' '{-}li'
-        'vos' 'se'  'nos' '{-}nos' '{-}us' 'us'
-        '{'}n' '{'}ns' '{-}n' '{-}ns'
-        '{'}m' '{-}me' '{-}m'
-        '{-}te' '{'}t'
+        '-ls' '-la' '-les' '-li'
+        'vos' 'se'  'nos' '-nos' '-us' 'us'
+        '{'}n' '{'}ns' '-n' '-ns'
+        '{'}m' '-me' '-m'
+        '-te' '{'}t'
         'li' 'lo' 'los'
         'me'  'sela' 'selo' 'selas' 'selos' 'le'
         'la' 'las' 'les' 'ens' 'ho' 'hi'
@@ -199,9 +198,10 @@ define stem as (
     )
     do cleaning
 )
+
 /*
      First works 2010/07/19
-     First Gramatical Reviews: http://ca.wikipedia.org/wiki/Gram%C3%A0tica_catalana
-     Sufix list: http://wapedia.mobi/ca/Llista_de_sufixos
-     Irregular Verbs: http://ca.wikipedia.org/wiki/Flexi%C3%B3_verbal_del_catal%C3%A0
+     First Grammatical Reviews: https://ca.wikipedia.org/wiki/Gram%C3%A0tica_del_catal%C3%A0
+     Suffix list: https://ca.wikipedia.org/wiki/Llista_de_sufixos
+     Irregular Verbs: https://ca.wikipedia.org/wiki/Flexi%C3%B3_verbal_del_catal%C3%A0
 */

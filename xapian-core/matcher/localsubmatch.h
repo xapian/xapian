@@ -1,7 +1,7 @@
 /** @file localsubmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,27 +22,33 @@
 #ifndef XAPIAN_INCLUDED_LOCALSUBMATCH_H
 #define XAPIAN_INCLUDED_LOCALSUBMATCH_H
 
-#include "backends/database.h"
-#include "debuglog.h"
-#include "api/leafpostlist.h"
 #include "api/queryinternal.h"
-#include "submatch.h"
+#include "backends/databaseinternal.h"
+#include "weight/weightinternal.h"
 #include "xapian/enquire.h"
 #include "xapian/weight.h"
 
 #include <map>
 
-class LeafPostList;
+class PostListTree;
 
-class LocalSubMatch : public SubMatch {
+namespace Xapian {
+namespace Internal {
+class PostList;
+}
+}
+
+using Xapian::Internal::PostList;
+
+class LocalSubMatch {
     /// Don't allow assignment.
-    void operator=(const LocalSubMatch &);
+    LocalSubMatch& operator=(const LocalSubMatch &) = delete;
 
     /// Don't allow copying.
-    LocalSubMatch(const LocalSubMatch &);
+    LocalSubMatch(const LocalSubMatch &) = delete;
 
     /// The statistics for the collection.
-    Xapian::Weight::Internal * stats;
+    Xapian::Weight::Internal* total_stats;
 
     /// The original query before any rearrangement.
     Xapian::Query query;
@@ -51,55 +57,77 @@ class LocalSubMatch : public SubMatch {
     Xapian::termcount qlen;
 
     /// The (sub-)Database we're searching.
-    const Xapian::Database::Internal *db;
-
-    /** The RSet (used to calculate R and r).
-     *
-     *  R and r are used in probabilistic weighting formulae.
-     */
-    Xapian::RSet rset;
+    const Xapian::Database::Internal* db;
 
     /// Weight object (used as a factory by calling create on it).
-    const Xapian::Weight * wt_factory;
+    const Xapian::Weight& wt_factory;
+
+    /// 0-based index for the subdatabase.
+    Xapian::doccount shard_index;
+
+    /// Do any of the subdatabases have positional information?
+    bool full_db_has_positions;
 
   public:
     /// Constructor.
-    LocalSubMatch(const Xapian::Database::Internal *db_,
-		  const Xapian::Query & query_,
+    LocalSubMatch(const Xapian::Database::Internal* db_,
+		  const Xapian::Query& query_,
 		  Xapian::termcount qlen_,
-		  const Xapian::RSet & rset_,
-		  const Xapian::Weight *wt_factory_)
-	: stats(NULL), query(query_), qlen(qlen_), db(db_), rset(rset_),
-	  wt_factory(wt_factory_)
+		  const Xapian::Weight& wt_factory_,
+		  Xapian::doccount shard_index_,
+		  bool full_db_has_positions_)
+	: total_stats(NULL), query(query_), qlen(qlen_), db(db_),
+	  wt_factory(wt_factory_),
+	  shard_index(shard_index_),
+	  full_db_has_positions(full_db_has_positions_)
+    {}
+
+    /** Fetch and collate statistics.
+     *
+     *  Before we can calculate term weights we need to fetch statistics from
+     *  each database involved and collate them.
+     *
+     *  @param rset	The RSet for this shard.
+     *  @param stats	Weight::Internal object to add the statistics to.
+     */
+    void prepare_match(const Xapian::RSet& rset,
+		       Xapian::Weight::Internal& stats)
     {
-	LOGCALL_CTOR(MATCH, "LocalSubMatch", db_ | query_ | qlen_ | rset_ | wt_factory_);
+	stats.accumulate_stats(*db, rset);
     }
 
-    /// Fetch and collate statistics.
-    bool prepare_match(bool nowait, Xapian::Weight::Internal & total_stats);
-
-    /// Start the match.
-    void start_match(Xapian::doccount first,
-		     Xapian::doccount maxitems,
-		     Xapian::doccount check_at_least,
-		     Xapian::Weight::Internal & total_stats);
+    /** Set the collated statistics.
+     *
+     *  These will be used when generating the PostList tree.
+     */
+    void start_match(Xapian::Weight::Internal& total_stats_)
+    {
+	total_stats = &total_stats_;
+    }
 
     /// Get PostList.
-    PostList * get_postlist(MultiMatch *matcher,
-			    Xapian::termcount * total_subqs_ptr);
+    PostList * get_postlist(PostListTree* matcher,
+			    Xapian::termcount* total_subqs_ptr);
 
     /** Convert a postlist into a synonym postlist.
      */
-    PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
-				     double factor);
+    PostList * make_synonym_postlist(PostListTree* pltree,
+				     PostList* or_pl,
+				     Xapian::Internal::QueryOptimiser* qopt,
+				     double factor,
+				     bool wdf_disjoint);
 
-    LeafPostList * open_post_list(const std::string& term,
-				  Xapian::termcount wqf,
-				  double factor,
-				  bool need_positions,
-				  bool in_synonym,
-				  QueryOptimiser * qopt,
-				  bool lazy_weight);
+    PostList * open_post_list(const std::string& term,
+			      Xapian::termcount wqf,
+			      double factor,
+			      bool need_positions,
+			      bool in_synonym,
+			      Xapian::Internal::QueryOptimiser* qopt,
+			      bool lazy_weight);
+
+    bool weight_needs_wdf() const {
+	return wt_factory.get_sumpart_needs_wdf_();
+    }
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

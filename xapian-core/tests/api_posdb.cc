@@ -1,8 +1,9 @@
-/* api_posdb.cc: tests which need a backend with positional information
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file api_posdb.cc
+ * @brief tests which need a backend with positional information
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2009,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009,2016,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -171,8 +172,6 @@ DEFINE_TESTCASE(near1, positional) {
     // retrieve the top twenty results
     mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
-
-    return true;
 }
 
 /// Test NEAR over operators
@@ -224,8 +223,6 @@ DEFINE_TESTCASE(near2, positional) {
     mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
 #endif
-
-    return true;
 }
 
 /// Simple test of PHRASE
@@ -412,8 +409,6 @@ DEFINE_TESTCASE(phrase1, positional) {
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 17);
-
-    return true;
 }
 
 /// Test PHRASE over operators
@@ -465,8 +460,6 @@ DEFINE_TESTCASE(phrase2, positional) {
     mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 #endif
-
-    return true;
 }
 
 /// Test getting position lists from databases
@@ -479,32 +472,30 @@ DEFINE_TESTCASE(poslist1, positional) {
     Xapian::PositionIterator pli = mydb.positionlist_begin(2, term);
 
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 1);
+    TEST_EQUAL(*pli, 1);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 2);
+    TEST_EQUAL(*pli, 2);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 3);
+    TEST_EQUAL(*pli, 3);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 5);
+    TEST_EQUAL(*pli, 5);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 8);
+    TEST_EQUAL(*pli, 8);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 13);
+    TEST_EQUAL(*pli, 13);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 21);
+    TEST_EQUAL(*pli, 21);
     pli++;
     TEST(pli != mydb.positionlist_end(2, term));
-    TEST(*pli == 34);
+    TEST_EQUAL(*pli, 34);
     pli++;
     TEST(pli == mydb.positionlist_end(2, term));
-
-    return true;
 }
 
 DEFINE_TESTCASE(poslist2, positional && writable) {
@@ -543,18 +534,28 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
     Xapian::Document doc4 = db.get_document(did2);
     doc4.remove_posting("hadpos", 1);
     db.replace_document(did2, doc4);
-
+    // Removing the last position should remove the term if the wdf is 0
+    // (since 1.5.0).
+    TEST(!db.term_exists("hadpos"));
     {
 	Xapian::PositionIterator i = db.positionlist_begin(did2, "hadpos");
 	TEST_EQUAL(i, db.positionlist_end(did2, "hadpos"));
+    }
+
+    doc4.add_posting("extrawdf", 12, 2);
+    doc4.remove_posting("extrawdf", 12);
+    db.replace_document(did2, doc4);
+    // Removing the last position should leave the term if the wdf is non-zero.
+    TEST(db.term_exists("extrawdf"));
+    {
+	Xapian::PositionIterator i = db.positionlist_begin(did2, "extrawdf");
+	TEST_EQUAL(i, db.positionlist_end(did2, "extrawdf"));
     }
 
     db.delete_document(did);
     // Check what happens when the document doesn't exist (but once did).
     TEST_EQUAL(db.positionlist_begin(did, "nosuchterm"),
 	       db.positionlist_end(did, "nosuchterm"));
-
-    return true;
 }
 
 /// Test playing with a positionlist, testing skip_to in particular.
@@ -605,8 +606,6 @@ DEFINE_TESTCASE(poslist3, positional && writable) {
 
     pl.skip_to(13);
     TEST(pl == pl_end);
-
-    return true;
 }
 
 // Regression test - in 0.9.4 (and many previous versions) you couldn't get a
@@ -621,14 +620,8 @@ DEFINE_TESTCASE(positfromtermit1, positional) {
     Xapian::PositionIterator p = t.positionlist_begin();
     TEST_NOT_EQUAL(p, t.positionlist_end());
 
-    try {
-	TEST_EQUAL(t.positionlist_count(), 1);
-	t.skip_to("on");
-	TEST_NOT_EQUAL(t, db.termlist_end(7));
-	TEST_EQUAL(t.positionlist_count(), 2);
-    } catch (const Xapian::UnimplementedError &) {
-	SKIP_TEST("TermList::positionlist_count() not yet implemented for this backend");
-    }
-
-    return true;
+    TEST_EQUAL(t.positionlist_count(), 1);
+    t.skip_to("on");
+    TEST_NOT_EQUAL(t, db.termlist_end(7));
+    TEST_EQUAL(t.positionlist_count(), 2);
 }

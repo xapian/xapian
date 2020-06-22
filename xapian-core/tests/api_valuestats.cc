@@ -1,7 +1,8 @@
-/* api_valuestats.cc: tests of the value statistics functions.
- *
- * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009,2011 Olly Betts
+/** @file api_valuestats.cc
+ * @brief tests of the value statistics functions.
+ */
+/* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,13 +73,19 @@ DEFINE_TESTCASE(valuestats1, writable && valuestats) {
     TEST_EQUAL(db_w.get_value_lower_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_upper_bound(1), "cheese");
 
-    // Deleting a document affects the count, but not the bounds.
+    // Deleting a document affects the count, but probably not the bounds.
+    // It may with a multi-database, if the document which was deleted
+    // was the only one in that shard.
     db_w.delete_document(1);
     TEST_EQUAL(db_w.get_value_freq(1), 1);
     TEST_EQUAL(db_w.get_value_lower_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_upper_bound(1), "cheese");
     TEST_EQUAL(db_w.get_value_freq(0), 1);
-    TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
+    if (!startswith(get_dbtype(), "multi")) {
+	TEST_EQUAL(db_w.get_value_lower_bound(0), "hello");
+    } else {
+	TEST_EQUAL(db_w.get_value_lower_bound(0), "world");
+    }
     TEST_EQUAL(db_w.get_value_upper_bound(0), "world");
 
     // Deleting all the documents returns the bounds to their original value.
@@ -101,8 +108,6 @@ DEFINE_TESTCASE(valuestats1, writable && valuestats) {
     TEST_EQUAL(db_w.get_value_freq(0), 0);
     TEST_EQUAL(db_w.get_value_lower_bound(0), "");
     TEST_EQUAL(db_w.get_value_upper_bound(0), "");
-
-    return true;
 }
 
 /// Test that value statistics stuff obeys transactions.
@@ -215,8 +220,6 @@ DEFINE_TESTCASE(valuestats2, transactions && valuestats) {
     TEST_EQUAL(db.get_value_freq(1), 1);
     TEST_EQUAL(db.get_value_lower_bound(1), "newval");
     TEST_EQUAL(db.get_value_upper_bound(1), "newval");
-
-    return true;
 }
 
 /// Test reading value statistics from prebuilt databases.
@@ -256,8 +259,6 @@ DEFINE_TESTCASE(valuestats3, valuestats) {
     TEST_EQUAL(db.get_value_freq(11), 6);
     TEST_EQUAL(db.get_value_lower_bound(11), "\xb9P");
     TEST_EQUAL(db.get_value_upper_bound(11), "\xc7\x04");
-
-    return true;
 }
 
 DEFINE_TESTCASE(valuestats4, transactions && valuestats) {
@@ -292,8 +293,6 @@ DEFINE_TESTCASE(valuestats4, transactions && valuestats) {
 	TEST_EQUAL(db.get_value_lower_bound(1), "test");
 	TEST_EQUAL(db.get_value_upper_bound(1), "test");
     }
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.1.1 which led to incorrect valuestats.
@@ -317,6 +316,4 @@ DEFINE_TESTCASE(valuestats5, !backend) {
 	++v;
     }
     TEST_EQUAL(c, 3); // 0, 2, 5
-
-    return true;
 }

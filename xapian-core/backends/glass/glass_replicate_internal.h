@@ -29,7 +29,7 @@
 // The current version of changeset files.
 // 1  - initial implementation
 // 2  - compressed changesets
-// 3  - store (block_size / 2048)
+// 3  - store (block_size / GLASS_MIN_BLOCKSIZE)
 // 4  - reworked for switch from base files to version file
 #define CHANGES_VERSION 4u
 

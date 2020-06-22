@@ -23,9 +23,9 @@
 #ifndef XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 #define XAPIAN_INCLUDED_VALUERANGEPOSTLIST_H
 
-#include "backends/database.h"
-#include "api/postlist.h"
+#include "backends/postlist.h"
 #include "backends/valuelist.h"
+#include "xapian/database.h"
 
 class ValueRangePostList : public PostList {
   protected:
@@ -63,21 +63,14 @@ class ValueRangePostList : public PostList {
     TermFreqs get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const;
 
-    double get_maxweight() const;
-
     Xapian::docid get_docid() const;
 
-    double get_weight() const;
-
-    Xapian::termcount get_doclength() const;
-
-    Xapian::termcount get_unique_terms() const;
+    double get_weight(Xapian::termcount doclen,
+		      Xapian::termcount unique_terms) const;
 
     double recalc_maxweight();
 
     PositionList * read_position_list();
-
-    PositionList * open_position_list() const;
 
     PostList * next(double w_min);
 

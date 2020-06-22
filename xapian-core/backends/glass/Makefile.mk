@@ -39,7 +39,6 @@ lib_src +=\
 	backends/glass/glass_compact.cc\
 	backends/glass/glass_cursor.cc\
 	backends/glass/glass_database.cc\
-	backends/glass/glass_databasereplicator.cc\
 	backends/glass/glass_dbcheck.cc\
 	backends/glass/glass_document.cc\
 	backends/glass/glass_freelist.cc\
@@ -56,5 +55,10 @@ lib_src +=\
 	backends/glass/glass_valuelist.cc\
 	backends/glass/glass_values.cc\
 	backends/glass/glass_version.cc
+
+if BUILD_BACKEND_REMOTE
+lib_src += \
+	backends/glass/glass_databasereplicator.cc
+endif
 
 endif

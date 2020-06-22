@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+# App::Prove is a Perl core module so it's unlikely to be missing, but if it
+# isn't found we exit with status 77 which causes the testharness to treat the
+# tests as skipped.
+eval { require App::Prove };
+$@ and exit 77;
+
+my $app = App::Prove->new;
+unshift @ARGV, "-I$ENV{srcdir}" if exists $ENV{srcdir};
+unshift @ARGV, '-I.';
+$app->process_args(@ARGV);
+exit($app->run ? 0 : 1);

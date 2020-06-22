@@ -4,9 +4,10 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
+ * Copyright 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,19 +38,22 @@
 
 #include <sys/types.h>
 #include "safeunistd.h"
+#include <cassert>
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include "safefcntl.h"
-#include "safeerrno.h"
 #include <ctime>
 
 #include <xapian.h>
 
 #include "append_filename_arg.h"
 #include "atomparse.h"
+#include "datetime.h"
 #include "diritor.h"
 #include "failed.h"
+#include "hashterm.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "mimemap.h"
@@ -64,8 +68,8 @@
 #include "svgparse.h"
 #include "tmpdir.h"
 #include "utf8convert.h"
-#include "utils.h"
 #include "values.h"
+#include "worker.h"
 #include "xmlparse.h"
 #include "xlsxparse.h"
 #include "xpsxmlparse.h"
@@ -85,6 +89,7 @@ static bool use_ctime;
 static dup_action_type dup_action;
 static bool ignore_exclusions;
 static bool description_as_sample;
+static bool date_terms;
 
 static time_t last_altered_max;
 static size_t sample_size;
@@ -99,6 +104,7 @@ static string site_term, host_term;
 static Failed failed;
 
 map<string, Filter> commands;
+map<string, Worker *> workers;
 
 static void
 mark_as_seen(Xapian::docid did)
@@ -145,25 +151,80 @@ skip_unknown_mimetype(const string & urlterm, const string & context,
 }
 
 void
+index_add_default_libraries()
+{
+#if defined HAVE_POPPLER
+    Worker* omindex_poppler = new Worker("omindex_poppler");
+    index_library("application/pdf", omindex_poppler);
+#endif
+#if defined HAVE_LIBEBOOK
+    Worker* omindex_libebook = new Worker("omindex_libebook");
+    index_library("application/vnd.palm", omindex_libebook);
+    index_library("application/x-fictionbook+xml", omindex_libebook);
+    index_library("application/x-zip-compressed-fb2", omindex_libebook);
+    index_library("application/x-sony-bbeb", omindex_libebook);
+    index_library("application/x-tcr-ebook", omindex_libebook);
+    index_library("application/x-qioo-ebook", omindex_libebook);
+#endif
+#if defined HAVE_LIBETONYEK
+    Worker* omindex_libetonyek = new Worker("omindex_libetonyek");
+    index_library("application/vnd.apple.keynote", omindex_libetonyek);
+    index_library("application/vnd.apple.pages", omindex_libetonyek);
+    index_library("application/vnd.apple.numbers", omindex_libetonyek);
+#endif
+#if defined HAVE_TESSERACT
+    Worker* omindex_tesseract = new Worker("omindex_tesseract");
+    index_library("image/gif", omindex_tesseract);
+    index_library("image/jpeg", omindex_tesseract);
+    index_library("image/png", omindex_tesseract);
+    index_library("image/webp", omindex_tesseract);
+    index_library("image/tiff", omindex_tesseract);
+    index_library("image/x-portable-bitmap", omindex_tesseract);
+    index_library("image/x-portable-graymap", omindex_tesseract);
+    index_library("image/x-portable-anymap", omindex_tesseract);
+    index_library("image/x-portable-pixmap", omindex_tesseract);
+#endif
+#if defined HAVE_GMIME
+    Worker* omindex_gmime = new Worker("omindex_gmime");
+    index_library("message/rfc822", omindex_gmime);
+    index_library("message/news", omindex_gmime);
+#endif
+}
+
+void
 index_add_default_filters()
 {
-    index_command("application/msword", Filter("antiword -mUTF-8.txt", false));
+    // Command needs to be run using /bin/sh.
+    auto USE_SHELL = Filter::USE_SHELL;
+    // Currently none of these commands needs USE_SHELL.
+    (void)USE_SHELL;
+    // Input should be piped to stdin.
+    auto PIPE_IN = Filter::PIPE_IN;
+    // Filename can be /dev/stdin (which must be seekable).
+    auto SEEK_DEV_STDIN = Filter::SEEK_DEV_STDIN;
+    // Filename can be /dev/stdin (which can be a pipe).
+    auto PIPE_DEV_STDIN = Filter::PIPE_DEV_STDIN;
+    index_command("application/msword",
+		  Filter("antiword -mUTF-8.txt -", PIPE_IN));
     index_command("application/vnd.ms-excel",
-		  Filter("xls2csv -c' ' -q0 -dutf-8", false));
+		  Filter("xls2csv -c' ' -q0 -dutf-8", PIPE_DEV_STDIN));
     index_command("application/vnd.ms-powerpoint",
-		  Filter("catppt -dutf-8", false));
+		  Filter("catppt -dutf-8", PIPE_DEV_STDIN));
     // Looking at the source of wpd2html and wpd2text I think both output
     // UTF-8, but it's hard to be sure without sample Unicode .wpd files
     // as they don't seem to be at all well documented.
-    index_command("application/vnd.wordperfect", Filter("wpd2text", false));
+    index_command("application/vnd.wordperfect",
+		  Filter("wpd2text", SEEK_DEV_STDIN));
     // wps2text produces UTF-8 output from the sample files I've tested.
-    index_command("application/vnd.ms-works", Filter("wps2text", false));
+    index_command("application/vnd.ms-works",
+		  Filter("wps2text", SEEK_DEV_STDIN));
     // Output is UTF-8 according to "man djvutxt".  Generally this seems to
     // be true, though some examples from djvu.org generate isolated byte
     // 0x95 in a context which suggests it might be intended to be a bullet
-    // (as it is in CP1250).
-    index_command("image/vnd.djvu", Filter("djvutxt", false));
-    index_command("text/markdown", Filter("markdown", "text/html", false));
+    // (as it is in CP1252).
+    index_command("image/vnd.djvu", Filter("djvutxt -", PIPE_IN));
+    index_command("text/markdown",
+		  Filter("markdown", "text/html", PIPE_IN));
     // The --text option unhelpfully converts all non-ASCII characters to "?"
     // so we use --html instead, which produces HTML entities.  The --nopict
     // option suppresses exporting picture files as pictNNNN.wmf in the current
@@ -171,39 +232,57 @@ index_add_default_filters()
     // but it was fixed in unrtf 0.20.4.
     index_command("text/rtf",
 		  Filter("unrtf --nopict --html 2>/dev/null", "text/html",
-			 false));
-    index_command("text/x-rst", Filter("rst2html", "text/html", false));
+			 PIPE_IN));
+    index_command("text/x-rst",
+		  Filter("rst2html", "text/html", PIPE_IN));
     index_command("application/x-mspublisher",
-		  Filter("pub2xhtml", "text/html", false));
+		  Filter("pub2xhtml", "text/html", SEEK_DEV_STDIN));
     index_command("application/vnd.ms-outlook",
-		  Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html",
-			 false));
+		  Filter(get_pkglibbindir() + "/outlookmsg2html",
+			 "text/html", SEEK_DEV_STDIN));
+    index_command("application/vnd.ms-visio.drawing",
+		  Filter("vsd2xhtml", "image/svg+xml", SEEK_DEV_STDIN));
+    index_command("application/vnd.ms-visio.stencil",
+		  Filter("vsd2xhtml", "image/svg+xml", SEEK_DEV_STDIN));
+    index_command("application/vnd.ms-visio.template",
+		  Filter("vsd2xhtml", "image/svg+xml", SEEK_DEV_STDIN));
+    index_command("application/vnd.visio",
+		  Filter("vsd2xhtml", "image/svg+xml", SEEK_DEV_STDIN));
     // pod2text's output character set doesn't seem to be documented, but from
-    // inspecting the source it looks like it's probably iso-8859-1.
+    // inspecting the source it looks like it's probably iso-8859-1.  We need
+    // to pass "--errors=stderr" or else minor POD formatting errors cause a
+    // file not to be indexed.
     index_command("text/x-perl",
-		  Filter("pod2text", "text/plain", "iso-8859-1", false));
+		  Filter("pod2text --errors=stderr",
+			 "text/plain", "iso-8859-1", PIPE_IN));
     // FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
     // appearing as single ligatures.  For European languages, it's actually
     // better to use -e2 (ISO-8859-1) and then convert, so let's do that for
     // now until we handle Unicode "compatibility decompositions".
     index_command("application/x-dvi",
-		  Filter("catdvi -e2 -s", "text/plain", "iso-8859-1", false));
+		  Filter("catdvi -e2 -s", "text/plain", "iso-8859-1", PIPE_IN));
     // Simplistic - ought to look in index.rdf files for filename and character
     // set.
     index_command("application/x-maff",
 		  Filter("unzip -p %f '*/*.*htm*'", "text/html", "iso-8859-1",
-			 false));
+			 SEEK_DEV_STDIN));
     index_command("application/x-mimearchive",
 		  Filter(get_pkglibbindir() + "/mhtml2html", "text/html",
-			 false));
+			 PIPE_DEV_STDIN));
     index_command("message/news",
 		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
-			 false));
+			 PIPE_DEV_STDIN));
     index_command("message/rfc822",
 		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
-			 false));
+			 PIPE_DEV_STDIN));
     index_command("text/vcard",
-		  Filter(get_pkglibbindir() + "/vcard2text", false));
+		  Filter(get_pkglibbindir() + "/vcard2text", PIPE_DEV_STDIN));
+    index_command("application/vnd.apple.keynote",
+		  Filter("key2text", SEEK_DEV_STDIN));
+    index_command("application/vnd.apple.numbers",
+		  Filter("numbers2text", SEEK_DEV_STDIN));
+    index_command("application/vnd.apple.pages",
+		  Filter("pages2text", SEEK_DEV_STDIN));
 }
 
 void
@@ -214,7 +293,8 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
 	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
-	   bool spelling, bool ignore_exclusions_, bool description_as_sample_)
+	   bool spelling, bool ignore_exclusions_, bool description_as_sample_,
+	   bool date_terms_)
 {
     root = root_;
     site_term = site_term_;
@@ -228,23 +308,28 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
     use_ctime = use_ctime_;
     ignore_exclusions = ignore_exclusions_;
     description_as_sample = description_as_sample_;
+    date_terms = date_terms_;
 
     if (!overwrite) {
 	db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
 	old_docs_not_seen = db.get_doccount();
-	old_lastdocid = db.get_lastdocid();
-	if (delete_removed_documents) {
-	    // + 1 so that old_lastdocid is a valid subscript.
-	    updated.resize(old_lastdocid + 1);
-	}
-	try {
-	    Xapian::valueno slot = use_ctime ? VALUE_CTIME : VALUE_LASTMOD;
-	    string ubound = db.get_value_upper_bound(slot);
-	    if (!ubound.empty())
-		last_altered_max = binary_string_to_int(ubound);
-	} catch (const Xapian::UnimplementedError &) {
-	    numeric_limits<time_t> n;
-	    last_altered_max = n.max();
+	// Handle an initially empty database exactly the same way as when
+	// overwrite is true.
+	if (old_docs_not_seen != 0) {
+	    old_lastdocid = db.get_lastdocid();
+	    if (delete_removed_documents) {
+		// + 1 so that old_lastdocid is a valid subscript.
+		updated.resize(old_lastdocid + 1);
+	    }
+	    try {
+		Xapian::valueno slot = use_ctime ? VALUE_CTIME : VALUE_LASTMOD;
+		string ubound = db.get_value_upper_bound(slot);
+		if (!ubound.empty())
+		    last_altered_max = binary_string_to_int(ubound);
+	    } catch (const Xapian::UnimplementedError &) {
+		numeric_limits<time_t> n;
+		last_altered_max = n.max();
+	    }
 	}
     } else {
 	db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
@@ -277,7 +362,8 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
 }
 
 static void
-parse_pdfinfo_field(const char * p, const char * end, string & out, const char * field, size_t len)
+parse_pdfinfo_field(const char* p, const char* end, string & out,
+		    const char* field, size_t len)
 {
     if (size_t(end - p) > len && memcmp(p, field, len) == 0) {
 	p += len;
@@ -292,42 +378,68 @@ parse_pdfinfo_field(const char * p, const char * end, string & out, const char *
     parse_pdfinfo_field((P), (END), (OUT), FIELD":", CONST_STRLEN(FIELD) + 1)
 
 static void
-get_pdf_metainfo(const string & file, string &author, string &title,
-		 string &keywords, string &topic)
+parse_pdf_metainfo(const string& pdfinfo, string &author, string &title,
+		   string &keywords, string &topic, int& pages)
+{
+    const char * p = pdfinfo.data();
+    const char * end = p + pdfinfo.size();
+    while (p != end) {
+	const char * start = p;
+	p = static_cast<const char *>(memchr(p, '\n', end - p));
+	const char * eol;
+	if (p) {
+	    eol = p;
+	    ++p;
+	} else {
+	    p = eol = end;
+	}
+	switch (*start) {
+	    case 'A':
+		PARSE_PDFINFO_FIELD(start, eol, author, "Author");
+		break;
+	    case 'K':
+		PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
+		break;
+	    case 'P': {
+		string s;
+		PARSE_PDFINFO_FIELD(start, eol, s, "Pages");
+		if (!s.empty())
+		    pages = atoi(s.c_str());
+		break;
+	    }
+	    case 'S':
+		PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
+		break;
+	    case 'T':
+		PARSE_PDFINFO_FIELD(start, eol, title, "Title");
+		break;
+	}
+    }
+}
+
+static void
+get_pdf_metainfo(int fd, string &author, string &title,
+		 string &keywords, string &topic, int& pages)
+{
+    try {
+	string pdfinfo;
+	run_filter(fd, "pdfinfo -enc UTF-8 -", false, &pdfinfo);
+	parse_pdf_metainfo(pdfinfo, author, title, keywords, topic, pages);
+    } catch (const ReadError&) {
+	// It's probably best to index the document even if pdfinfo fails.
+    }
+}
+
+static void
+get_pdf_metainfo(const string& file, string &author, string &title,
+		 string &keywords, string &topic, int& pages)
 {
     try {
 	string cmd = "pdfinfo -enc UTF-8";
 	append_filename_argument(cmd, file);
-	string pdfinfo = stdout_to_string(cmd, false);
-
-	const char * p = pdfinfo.data();
-	const char * end = p + pdfinfo.size();
-	while (p != end) {
-	    const char * start = p;
-	    p = static_cast<const char *>(memchr(p, '\n', end - p));
-	    const char * eol;
-	    if (p) {
-		eol = p;
-		++p;
-	    } else {
-		p = eol = end;
-	    }
-	    switch (*start) {
-		case 'A':
-		    PARSE_PDFINFO_FIELD(start, eol, author, "Author");
-		    break;
-		case 'K':
-		    PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
-		    break;
-		case 'S':
-		    PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
-		    break;
-		case 'T':
-		    PARSE_PDFINFO_FIELD(start, eol, title, "Title");
-		    break;
-	    }
-	}
-    } catch (ReadError) {
+	parse_pdf_metainfo(stdout_to_string(cmd, false),
+			   author, title, keywords, topic, pages);
+    } catch (const ReadError&) {
 	// It's probably best to index the document even if pdfinfo fails.
     }
 }
@@ -442,6 +554,12 @@ index_check_existing(const string & urlterm, time_t last_altered,
 }
 
 void
+index_remove_failed_entry(const string& urlterm)
+{
+    failed.del(urlterm);
+}
+
+void
 index_add_document(const string & urlterm, time_t last_altered,
 		   Xapian::docid did, const Xapian::Document & doc)
 {
@@ -476,8 +594,9 @@ index_add_document(const string & urlterm, time_t last_altered,
 void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
-	       const string &mimetype, DirectoryIterator &d,
-	       Xapian::Document & newdocument,
+	       string mimetype,
+	       DirectoryIterator & d,
+	       string pathterm,
 	       string record)
 {
     string context(file, root.size(), string::npos);
@@ -510,12 +629,43 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
     }
 
-    if (verbose) cout << flush;
+    // If we didn't get the mime type from the extension, call libmagic to get
+    // it.
+    if (mimetype.empty()) {
+	mimetype = d.get_magic_mimetype();
+	if (mimetype.empty()) {
+	    skip(urlterm, file.substr(root.size()),
+		 "Unknown extension and unrecognised format",
+		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
+	    return;
+	}
+    }
+
+    if (verbose)
+	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
+	     << mimetype << " ... " << flush;
+
+    // Use `file` as the basis, as we don't want URL encoding in these terms,
+    // but need to switch over the initial part so we get `/~olly/foo/bar` not
+    // `/home/olly/public_html/foo/bar`.
+    Xapian::Document newdocument;
+    size_t j;
+    while ((j = pathterm.rfind('/')) > 1 && j != string::npos) {
+	pathterm.resize(j);
+	if (pathterm.length() > MAX_SAFE_TERM_LENGTH) {
+	    string term_hash = hash_long_term(pathterm, MAX_SAFE_TERM_LENGTH);
+	    newdocument.add_boolean_term(term_hash);
+	} else {
+	    newdocument.add_boolean_term(pathterm);
+	}
+    }
 
     string author, title, sample, keywords, topic, dump;
     string md5;
     time_t created = time_t(-1);
+    int pages = -1;
 
+    map<string, Worker *>::const_iterator wrk_it = workers.find(mimetype);
     map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
     if (cmd_it == commands.end()) {
 	size_t slash = mimetype.find('/');
@@ -532,10 +682,21 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
     }
     try {
-	if (cmd_it != commands.end()) {
+	if (wrk_it != workers.end()) {
+	    // Just use the worker process to extract the content
+	    Worker* wrk = wrk_it->second;
+	    if (!wrk ||
+		!wrk->extract(file, dump, title, keywords, author, pages)) {
+		string msg = wrk->get_error();
+		assert(!msg.empty());
+		skip(urlterm, context, msg, d.get_size(), d.get_mtime());
+		return;
+	    }
+	} else if (cmd_it != commands.end()) {
 	    // Easy "run a command and read text or HTML from stdout or a
 	    // temporary file" cases.
-	    string cmd = cmd_it->second.cmd;
+	    auto& filter = cmd_it->second;
+	    string cmd = filter.cmd;
 	    if (cmd.empty()) {
 		skip(urlterm, context, "required filter not installed",
 		     d.get_size(), d.get_mtime(), SKIP_VERBOSE_ONLY);
@@ -551,7 +712,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		     SKIP_VERBOSE_ONLY);
 		return;
 	    }
-	    bool use_shell = cmd_it->second.use_shell();
+	    bool use_shell = filter.use_shell();
+	    bool input_on_stdin = filter.input_on_stdin();
 	    bool substituted = false;
 	    string tmpout;
 	    size_t pcent = 0;
@@ -565,13 +727,18 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			break;
 		    case 'f': { // %f -> escaped filename.
 			substituted = true;
+			if (filter.dev_stdin()) {
+			    cmd.replace(pcent, 2, "/dev/stdin",
+					CONST_STRLEN("/dev/stdin"));
+			    break;
+			}
 			string tail(cmd, pcent + 2);
 			cmd.resize(pcent);
-			append_filename_argument(cmd, file);
-			// Remove the space append_filename_argument() adds before
-			// the argument - the command string either includes one,
-			// or won't expect one (e.g. --input=%f).
-			cmd.erase(pcent, 1);
+			// Suppress the space append_filename_argument()
+			// usually adds before the argument - the command
+			// string either includes one, or won't expect one
+			// (e.g. --input=%f).
+			append_filename_argument(cmd, file, false);
 			pcent = cmd.size();
 			cmd += tail;
 			break;
@@ -581,8 +748,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			    // Use a temporary file with a suitable extension
 			    // in case the command cares, and for more helpful
 			    // error messages from the command.
-			    if (cmd_it->second.output_type == "text/html") {
+			    if (filter.output_type == "text/html") {
 				tmpout = get_tmpfile("tmp.html");
+			    } else if (filter.output_type == "image/svg+xml") {
+				tmpout = get_tmpfile("tmp.svg");
 			    } else {
 				tmpout = get_tmpfile("tmp.txt");
 			    }
@@ -590,11 +759,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			substituted = true;
 			string tail(cmd, pcent + 2);
 			cmd.resize(pcent);
-			append_filename_argument(cmd, tmpout);
-			// Remove the space append_filename_argument() adds before
-			// the argument - the command string either includes one,
-			// or won't expect one (e.g. --input=%f).
-			cmd.erase(pcent, 1);
+			// Suppress the space append_filename_argument()
+			// usually adds before the argument - the command
+			// string either includes one, or won't expect one
+			// (e.g. --output=%t).
+			append_filename_argument(cmd, tmpout, false);
 			pcent = cmd.size();
 			cmd += tail;
 			break;
@@ -606,14 +775,24 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		}
 	    }
 	    if (!substituted && cmd != "true") {
-		// If no %f, append the filename to the command.
-		append_filename_argument(cmd, file);
+		if (input_on_stdin) {
+		    if (filter.dev_stdin()) {
+			cmd += " /dev/stdin";
+		    }
+		} else {
+		    // If no %f, append the filename to the command.
+		    append_filename_argument(cmd, file);
+		}
 	    }
 	    try {
 		if (!tmpout.empty()) {
 		    // Output in temporary file.
-		    (void)stdout_to_string(cmd, use_shell);
-		    if (!load_file(tmpout, dump)) {
+		    if (input_on_stdin) {
+			run_filter(d.get_fd(), cmd, use_shell);
+		    } else {
+			run_filter(cmd, use_shell);
+		    }
+		    if (!load_file(tmpout, dump, NOCACHE)) {
 			throw ReadError("Couldn't read output file");
 		    }
 		    unlink(tmpout.c_str());
@@ -622,10 +801,14 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // filing system.
 		} else {
 		    // Output on stdout.
-		    dump = stdout_to_string(cmd, use_shell);
+		    if (input_on_stdin) {
+			run_filter(d.get_fd(), cmd, use_shell, &dump);
+		    } else {
+			run_filter(cmd, use_shell, &dump);
+		    }
 		}
-		const string & charset = cmd_it->second.output_charset;
-		if (cmd_it->second.output_type == "text/html") {
+		const string & charset = filter.output_charset;
+		if (filter.output_type == "text/html") {
 		    MyHtmlParser p;
 		    p.ignore_metarobots();
 		    p.description_as_sample = description_as_sample;
@@ -636,7 +819,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			p.ignore_metarobots();
 			p.description_as_sample = description_as_sample;
 			p.parse_html(dump, newcharset, true);
-		    } catch (ReadError) {
+		    } catch (const ReadError&) {
 			skip_cmd_failed(urlterm, context, cmd,
 					d.get_size(), d.get_mtime());
 			return;
@@ -648,10 +831,18 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    sample = p.sample;
 		    author = p.author;
 		    created = p.created;
+		} else if (filter.output_type == "image/svg+xml") {
+		    SvgParser svgparser;
+		    svgparser.parse(dump);
+		    dump = svgparser.dump;
+		    title = svgparser.title;
+		    keywords = svgparser.keywords;
+		    // FIXME: topic = svgparser.topic;
+		    author = svgparser.author;
 		} else if (!charset.empty()) {
 		    convert_to_utf8(dump, charset);
 		}
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -704,17 +895,15 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 	} else if (mimetype == "application/pdf") {
-	    string cmd = "pdftotext -enc UTF-8";
-	    append_filename_argument(cmd, file);
-	    cmd += " -";
+	    const char* cmd = "pdftotext -enc UTF-8 - -";
 	    try {
-		dump = stdout_to_string(cmd, false);
-	    } catch (ReadError) {
+		run_filter(d.get_fd(), cmd, false, &dump);
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
 	    }
-	    get_pdf_metainfo(file, author, title, keywords, topic);
+	    get_pdf_metainfo(d.get_fd(), author, title, keywords, topic, pages);
 	} else if (mimetype == "application/postscript") {
 	    // There simply doesn't seem to be a Unicode capable PostScript to
 	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
@@ -733,16 +922,15 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		     d.get_size(), d.get_mtime());
 		return;
 	    }
-	    string cmd = "ps2pdf";
-	    append_filename_argument(cmd, file);
+	    string cmd = "ps2pdf -";
 	    append_filename_argument(cmd, tmpfile);
 	    try {
-		(void)stdout_to_string(cmd, false);
+		run_filter(d.get_fd(), cmd, false);
 		cmd = "pdftotext -enc UTF-8";
 		append_filename_argument(cmd, tmpfile);
 		cmd += " -";
-		dump = stdout_to_string(cmd, false);
-	    } catch (ReadError) {
+		run_filter(cmd, false, &dump);
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		unlink(tmpfile.c_str());
@@ -752,7 +940,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		throw;
 	    }
 	    try {
-		get_pdf_metainfo(tmpfile, author, title, keywords, topic);
+		get_pdf_metainfo(tmpfile, author, title, keywords, topic,
+				 pages);
 	    } catch (...) {
 		unlink(tmpfile.c_str());
 		throw;
@@ -771,7 +960,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		OpenDocParser parser;
 		parser.parse(stdout_to_string(cmd, true));
 		dump = parser.dump;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -788,7 +977,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
@@ -812,7 +1001,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    XlsxParser parser;
 		    parser.parse(stdout_to_string(cmd, true));
 		    dump = parser.dump;
-		} catch (ReadError) {
+		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,
 				    d.get_size(), d.get_mtime());
 		    return;
@@ -840,7 +1029,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // doesn't match anything in the zip file.
 		    xmlparser.parse_xml(stdout_to_string(cmd, false, 11));
 		    dump = xmlparser.dump;
-		} catch (ReadError) {
+		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,
 				    d.get_size(), d.get_mtime());
 		    return;
@@ -858,7 +1047,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (mimetype == "application/x-abiword") {
@@ -879,7 +1068,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    cmd += " 'Documents/1/Pages/*.fpage'";
 	    try {
 		XpsXmlParser xpsparser;
-		dump = stdout_to_string(cmd, false);
+		run_filter(cmd, false, &dump);
 		// Look for Byte-Order Mark (BOM).
 		if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
 		    // UTF-16 in big-endian/little-endian order - we just
@@ -890,7 +1079,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		}
 		xpsparser.parse(dump);
 		dump = xpsparser.dump;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -928,10 +1117,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    author = svgparser.author;
 	} else if (mimetype == "application/vnd.debian.binary-package" ||
 		   mimetype == "application/x-debian-package") {
-	    string cmd("dpkg-deb -f");
-	    append_filename_argument(cmd, file);
-	    cmd += " Description";
-	    const string & desc = stdout_to_string(cmd, false);
+	    const char* cmd = "dpkg-deb -f - Description";
+	    string desc;
+	    run_filter(d.get_fd(), cmd, false, &desc);
 	    // First line is short description, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
@@ -942,7 +1130,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		   mimetype == "application/x-rpm") {
 	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p");
 	    append_filename_argument(cmd, file);
-	    const string & desc = stdout_to_string(cmd, false);
+	    string desc;
+	    run_filter(cmd, false, &desc);
 	    // First line is summary, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
@@ -967,7 +1156,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
 
 	// Compute the MD5 of the file if we haven't already.
-	if (md5.empty() && md5_file(file, md5, d.try_noatime()) == 0) {
+	if (md5.empty() && !d.md5(md5)) {
 	    if (errno == ENOENT || errno == ENOTDIR) {
 		skip(urlterm, context, "File removed during indexing",
 		     d.get_size(), d.get_mtime(),
@@ -1039,6 +1228,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    record += "\ncreated=";
 	    record += str(created);
 	}
+	if (pages >= 0) {
+	    record += "\npages=";
+	    record += str(pages);
+	}
 	off_t size = d.get_size();
 	record += "\nsize=";
 	record += str(size);
@@ -1096,15 +1289,20 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	if (!host_term.empty())
 	    newdocument.add_boolean_term(host_term);
 
-	struct tm *tm = localtime(&mtime);
-	string date_term = "D" + date_to_string(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-	newdocument.add_boolean_term(date_term); // Date (YYYYMMDD)
-	date_term.resize(7);
-	date_term[0] = 'M';
-	newdocument.add_boolean_term(date_term); // Month (YYYYMM)
-	date_term.resize(5);
-	date_term[0] = 'Y';
-	newdocument.add_boolean_term(date_term); // Year (YYYY)
+	if (date_terms) {
+	    struct tm *tm = localtime(&mtime);
+	    string date_term = "D";
+	    date_term += date_to_string(tm->tm_year + 1900,
+					tm->tm_mon + 1,
+					tm->tm_mday);
+	    newdocument.add_boolean_term(date_term); // Date (YYYYMMDD)
+	    date_term.resize(7);
+	    date_term[0] = 'M';
+	    newdocument.add_boolean_term(date_term); // Month (YYYYMM)
+	    date_term.resize(5);
+	    date_term[0] = 'Y';
+	    newdocument.add_boolean_term(date_term); // Year (YYYY)
+	}
 
 	newdocument.add_boolean_term(urlterm); // Url
 
@@ -1153,10 +1351,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	newdocument.add_boolean_term(ext_term);
 
 	index_add_document(urlterm, last_altered, did, newdocument);
-    } catch (ReadError) {
+    } catch (const ReadError&) {
 	skip(urlterm, context, string("can't read file: ") + strerror(errno),
 	     d.get_size(), d.get_mtime());
-    } catch (NoSuchFilter) {
+    } catch (const NoSuchFilter&) {
 	string filter_entry;
 	if (cmd_it != commands.end()) {
 	    filter_entry = cmd_it->first;
@@ -1168,12 +1366,20 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	m += "\" not installed";
 	skip(urlterm, context, m, d.get_size(), d.get_mtime());
 	commands[filter_entry] = Filter();
-    } catch (FileNotFound) {
+    } catch (const FileNotFound&) {
 	skip(urlterm, context, "File removed during indexing",
 	     d.get_size(), d.get_mtime(),
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
     } catch (const std::string & error) {
 	skip(urlterm, context, error, d.get_size(), d.get_mtime());
+    } catch (const std::bad_alloc&) {
+	// Attempt to flag the file as failed and commit changes, though that
+	// might fail too if we're low on memory rather than being asked to
+	// allocate a ludicrous amount.
+	skip(urlterm, context, "Out of memory trying to extract text from file",
+	     d.get_size(), d.get_mtime(),
+	     SKIP_SHOW_FILENAME);
+	throw CommitAndExit("Caught std::bad_alloc", "");
     }
 }
 

@@ -19,17 +19,16 @@
  * USA
  */
 
-#ifndef SCORER_H
-#define SCORER_H
-
+#ifndef XAPIAN_INCLUDED_SCORER_H
+#define XAPIAN_INCLUDED_SCORER_H
 
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "featurevector.h"
-#include "letor_error.h"
+#include <xapian-letor/featurevector.h>
+#include <xapian-letor/letor_error.h>
 
 #include <string>
 
@@ -52,22 +51,37 @@ class XAPIAN_VISIBILITY_DEFAULT Scorer : public Xapian::Internal::intrusive_base
 
     /// Don't allow copying.
     Scorer(const Scorer & o);
-
 };
 
 /// NDCGScore class
 class XAPIAN_VISIBILITY_DEFAULT NDCGScore: public Scorer {
   public:
-    ///Default constructor
+    /// Default constructor
     NDCGScore();
 
     /// Destructor
     ~NDCGScore();
 
     double score(const std::vector<FeatureVector> & fvv) const;
+};
 
+/** Expected Reciprocal Rank(ERR) Scorer.
+ *  ERR Scorer is adapted from the paper:
+ *  http://olivier.chapelle.cc/pub/err.pdf
+ *  Chapelle, Metzler, Zhang, Grinspan (2009)
+ *  Expected Reciprocal Rank for Graded Relevance
+ */
+class XAPIAN_VISIBILITY_DEFAULT ERRScore : public Scorer {
+  public:
+    /// Default constructor
+    ERRScore();
+
+    /// Destructor
+    ~ERRScore();
+
+    double score(const std::vector<FeatureVector> & fvv) const;
 };
 
 }
 
-#endif /* SCORER_H */
+#endif /* XAPIAN_INCLUDED_SCORER_H */

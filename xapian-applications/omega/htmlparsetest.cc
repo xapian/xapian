@@ -1,6 +1,7 @@
-/* htmlparsetest.cc: test the MyHtmlParser class
- *
- * Copyright (C) 2006,2008,2011,2012,2013,2015,2016 Olly Betts
+/** @file htmlparsetest.cc
+ * @brief test the MyHtmlParser class
+ */
+/* Copyright (C) 2006,2008,2011,2012,2013,2015,2016,2018,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +22,7 @@
 #include <config.h>
 
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <string>
 
@@ -35,6 +37,10 @@ struct testcase {
     const char * keywords;
     const char * sample;
 };
+
+// Wide character test data is signalled by a single leading nul and terminated
+// by a double nul.
+#define WIDE(X) "\0" X "\0"
 
 static const testcase tests[] = {
     { "<body>test<!--htdig_noindex-->icle<!--/htdig_noindex-->s</body>",
@@ -52,6 +58,22 @@ static const testcase tests[] = {
     { "<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><meta charset='utf-8'><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><title>\xc2\xae</title><meta charset=\"utf-8\"></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    // The UTF-8 "BOM" should also set the charset to utf-8.
+    { "\xef\xbb\xbf<html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<title>X</title>", "", "X", "", "" },
+    { WIDE("\xfe\xff<\0t\0i\0t\0l\0e\0>\0\x20\x26<\0/\0t\0i\0t\0l\0e\0>\0"), "", "\xe2\x98\xa0", "", "" },
+    { WIDE("\xff\xfe\0<\0t\0i\0t\0l\0e\0>\x26\x20\0<\0/\0t\0i\0t\0l\0e\0>"), "", "\xe2\x98\xa0", "", "" },
+    { "<html><body><p>This is \nthe text</p><p>This is \nthe tex</p></body></html>", "This is the text\rThis is the tex", "", "", "" },
+    // Check we default to UTF-8 for HTML5.
+    { "<!DOCTYPE html><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!Doctype\tHTML  ><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!Doctype  HTML\t><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!DOCTYPE system 'about:legacy-compat'><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!doctype SyStem \"about:legacy-compat\" ><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    // Check we default to UTF-8 for XML.
+    { "<?xml version=\"1.0\"?><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    // Check we handle specify a charset for XML.
+    { "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><html><head><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc3\x82\xc2\xa3", "\xc3\x82\xc2\xae", "", "" },
     { "<!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
     { "Foo<![CDATA[ & bar <literal>\"]]> ok", "Foo & bar <literal>\" ok", "", "", "" },
     { "Foo<![CDATA", "Foo", "", "", "" },
@@ -60,12 +82,24 @@ static const testcase tests[] = {
     { "a<html>b<head>c<title>bad</title>d</head>e<body>f</body>g<body>h</body>i</html>j<body>k", "abcdefghijk", "bad", "", "" },
     { "check<object id='foo'>for<applet foo=\"bar\" />spaces<br> in <p>\tout</p>put\r\n", "check for spaces\rin\rout\rput", "", "", "" },
     { "tab:<table><tr><th>col 1</th><th>col 2</th></tr><tr><td>test</td><td><img src='foo.jpg'> <img src='bar.jpg'></td></tr><tr><td colspan=2>hello world</td></tr></table>done", "tab:\rcol 1\tcol 2\rtest\rhello world\rdone", "", "", "" },
+    // Test HTML checkboxes are converted to Unicode symbols.
+    { "<input type=checkbox><input checked=checked type=checkbox><input type=checkbox checked>", "\xe2\x98\x90\xe2\x98\x91\xe2\x98\x91", "", "", "" },
     // Test entities.
     { "<html><body>1 &lt; 2, 3 &gt; 2</body></html>", "1 < 2, 3 > 2", "", "", "" },
     { "<html><body>&amp;amp;</body></html>", "&amp;", "", "", "" },
     { "<html><body>&lt;Unknown &ent;-ity&gt;</body></html>", "<Unknown &ent;-ity>", "", "", "" },
     { "<html><body>&#68;oes &#97; &lt; &auml; &#x3f</body></html>", "Does a < ä ?", "", "", "" },
     { "&#65;&#x40;&gt", "A@>", "", "", "" },
+    // Test empty tags.
+    //
+    // First two cases are a regression test - in Omega < 1.4.16 the title
+    // wasn't closed and any body content was put into the title instead.
+    { "<head><title xml:lang=\"en-US\"/></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title xml:lang='en-US'/></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title xml:lang=\"en-US\" /></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title xml:lang='en-US\" /></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title/></head><body><p>Body</p></body>", "Body", "", "", "" },
+    { "<head><title /></head><body><p>Body</p></body>", "Body", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
@@ -74,11 +108,22 @@ main()
 {
     for (size_t i = 0; tests[i].html; ++i) {
 	MyHtmlParser p;
+	const char* html_begin = tests[i].html;
+	size_t html_len = strlen(html_begin);
+	if (html_len == 0) {
+	    // Wide character test data is signalled by a single leading nul
+	    // and terminated by a double nul.
+	    ++html_begin;
+	    while (html_begin[html_len] || html_begin[html_len + 1]) {
+		html_len += 2;
+	    }
+	}
+	string html(html_begin, html_len);
 	try {
-	    p.parse_html(tests[i].html, "iso-8859-1", false);
+	    p.parse_html(html, "iso-8859-1", false);
 	} catch (const string &newcharset) {
 	    p.reset();
-	    p.parse_html(tests[i].html, newcharset, true);
+	    p.parse_html(html, newcharset, true);
 	}
 	if (!p.indexing_allowed) {
 	    cout << "indexing disallowed by meta tag - skipping\n";

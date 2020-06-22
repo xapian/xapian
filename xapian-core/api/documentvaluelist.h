@@ -1,7 +1,7 @@
 /** @file documentvaluelist.h
  * @brief Iteration over values in a document.
  */
-/* Copyright (C) 2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,15 +23,17 @@
 
 #include "backends/valuelist.h"
 
-#include "backends/document.h"
+#include "backends/documentinternal.h"
+
+#include <map>
 
 /// Iteration over values in a document.
-class DocumentValueList : public ValueList {
+class DocumentValueList final : public ValueList {
     /// Don't allow assignment.
-    void operator=(const DocumentValueList &);
+    void operator=(const DocumentValueList &) = delete;
 
     /// Don't allow copying.
-    DocumentValueList(const DocumentValueList &);
+    DocumentValueList(const DocumentValueList &) = delete;
 
     /// Document internals we're iterating over.
     Xapian::Internal::intrusive_ptr<const Xapian::Document::Internal> doc;
@@ -40,11 +42,11 @@ class DocumentValueList : public ValueList {
      *
      *  If we haven't started yet, this will be set to: doc->values.end()
      */
-    Xapian::Document::Internal::document_values::const_iterator it;
+    std::map<Xapian::valueno, std::string>::const_iterator it;
 
   public:
-    explicit DocumentValueList(const Xapian::Internal::intrusive_ptr<Xapian::Document::Internal> & doc_)
-	: doc(doc_), it(doc->values.end()) { }
+    explicit DocumentValueList(const Xapian::Document::Internal* doc_)
+	: doc(doc_), it(doc->values->end()) { }
 
     Xapian::docid get_docid() const;
 

@@ -1,7 +1,7 @@
 /** @file maxpostlist.cc
  * @brief N-way OR postlist with wt=max(wt_i)
  */
-/* Copyright (C) 2007,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012,2013,2014,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@
 #include "maxpostlist.h"
 
 #include "debuglog.h"
-#include "multimatch.h"
 #include "omassert.h"
 
 using namespace std;
@@ -44,7 +43,7 @@ MaxPostList::get_termfreq_min() const
 {
     Xapian::doccount res = plist[0]->get_termfreq_min();
     for (size_t i = 1; i < n_kids; ++i) {
-	res = std::max(res, plist[i]->get_termfreq_min());
+	res = max(res, plist[i]->get_termfreq_min());
     }
     return res;
 }
@@ -93,30 +92,34 @@ MaxPostList::get_termfreq_est_using_stats(
     Assert(stats.collection_size);
     double scale = 1.0 / stats.collection_size;
     double P_est = freqs.termfreq * scale;
-    double Pr_est = freqs.reltermfreq * scale;
-    double Pc_est = freqs.collfreq * scale;
+    double rtf_scale = 0.0;
+    if (stats.rset_size != 0) {
+	rtf_scale = 1.0 / stats.rset_size;
+    }
+    double Pr_est = freqs.reltermfreq * rtf_scale;
+    // If total_length is 0, cf must always be 0 so cf_scale is irrelevant.
+    double cf_scale = 0.0;
+    if (usual(stats.total_length != 0)) {
+	cf_scale = 1.0 / stats.total_length;
+    }
+    double Pc_est = freqs.collfreq * cf_scale;
 
     for (size_t i = 1; i < n_kids; ++i) {
+	freqs = plist[i]->get_termfreq_est_using_stats(stats);
 	double P_i = freqs.termfreq * scale;
 	P_est += P_i - P_est * P_i;
-	double Pc_i = freqs.collfreq * scale;
+	double Pc_i = freqs.collfreq * cf_scale;
 	Pc_est += Pc_i - Pc_est * Pc_i;
 	// If the rset is empty, Pr_est should be 0 already, so leave
 	// it alone.
 	if (stats.rset_size != 0) {
-	    double Pr_i = freqs.reltermfreq / stats.rset_size;
+	    double Pr_i = freqs.reltermfreq * rtf_scale;
 	    Pr_est += Pr_i - Pr_est * Pr_i;
 	}
     }
     return TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
 		     Xapian::doccount(Pr_est * stats.rset_size + 0.5),
-		     Xapian::termcount(Pc_est * stats.total_term_count));
-}
-
-double
-MaxPostList::get_maxweight() const
-{
-    return max_cached;
+		     Xapian::termcount(Pc_est * stats.total_length + 0.5));
 }
 
 Xapian::docid
@@ -125,54 +128,15 @@ MaxPostList::get_docid() const
     return did;
 }
 
-Xapian::termcount
-MaxPostList::get_doclength() const
-{
-    Assert(did);
-    Xapian::termcount doclength = 0;
-    bool doclength_set = false;
-    for (size_t i = 0; i < n_kids; ++i) {
-	if (plist[i]->get_docid() == did) {
-	    if (doclength_set) {
-		AssertEq(doclength, plist[i]->get_doclength());
-	    } else {
-		doclength = plist[i]->get_doclength();
-		doclength_set = true;
-	    }
-	}
-    }
-    Assert(doclength_set);
-    return doclength;
-}
-
-Xapian::termcount
-MaxPostList::get_unique_terms() const
-{
-    Assert(did);
-    Xapian::termcount unique_terms = 0;
-    bool unique_terms_set = false;
-    for (size_t i = 0; i < n_kids; ++i) {
-	if (plist[i]->get_docid() == did) {
-	    if (unique_terms_set) {
-		AssertEq(unique_terms, plist[i]->get_unique_terms());
-	    } else {
-		unique_terms = plist[i]->get_unique_terms();
-		unique_terms_set = true;
-	    }
-	}
-    }
-    Assert(unique_terms_set);
-    return unique_terms;
-}
-
 double
-MaxPostList::get_weight() const
+MaxPostList::get_weight(Xapian::termcount doclen,
+			Xapian::termcount unique_terms) const
 {
     Assert(did);
     double res = 0.0;
     for (size_t i = 0; i < n_kids; ++i) {
 	if (plist[i]->get_docid() == did)
-	    res = std::max(res, plist[i]->get_weight());
+	    res = max(res, plist[i]->get_weight(doclen, unique_terms));
     }
     return res;
 }
@@ -186,11 +150,11 @@ MaxPostList::at_end() const
 double
 MaxPostList::recalc_maxweight()
 {
-    max_cached = plist[0]->recalc_maxweight();
+    double result = plist[0]->recalc_maxweight();
     for (size_t i = 1; i < n_kids; ++i) {
-	max_cached = std::max(max_cached, plist[i]->recalc_maxweight());
+	result = max(result, plist[i]->recalc_maxweight());
     }
-    return max_cached;
+    return result;
 }
 
 PostList *
@@ -220,7 +184,7 @@ MaxPostList::next(double w_min)
 	    }
 
 	    if (res)
-		matcher->recalc_maxweight();
+		matcher->force_recalc();
 
 	    cur_did = plist[i]->get_docid();
 	}
@@ -260,7 +224,7 @@ MaxPostList::skip_to(Xapian::docid did_min, double w_min)
 	    }
 
 	    if (res)
-		matcher->recalc_maxweight();
+		matcher->force_recalc();
 
 	    cur_did = plist[i]->get_docid();
 	}

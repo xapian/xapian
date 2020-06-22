@@ -11,6 +11,7 @@
 /runtest
 /apitest.exe
 /.glass
+/.honey
 /.multiglass
 /.singlefileglass
 /.stub
@@ -19,6 +20,16 @@
 /api_collated.stamp
 /api_generated.cc
 /api_generated.h
+/api_letor.h
 /perflog.xml
 /submitperftest
 /zlib-vg.so
+/err_output.txt
+/listmle_ranker_training.txt
+/listnet_ranker_training.txt
+/ndcg_output.txt
+/ndcg_score_output.txt
+/svm_ranker_training.txt
+/training_output.txt
+/training_output1.txt
+/training_output_three_correct.txt

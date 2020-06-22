@@ -2,7 +2,7 @@
 /** @file xapian-head.i
  * @brief Header for SWIG interface file for Xapian.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,24 +32,10 @@
 
 using namespace std;
 
-// If a backend has been disabled in xapian-core (manually or automatically) we
-// include a stub definition here so the bindings can still be built.
+// If the remote backend has been disabled in xapian-core (manually or
+// automatically) we include a stub definition here so the bindings can still
+// be built.
 namespace Xapian {
-%}
-#ifndef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
-%{
-
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    namespace InMemory {
-	static WritableDatabase open() {
-	    throw FeatureUnavailableError("InMemory backend not supported");
-	}
-    }
-#endif
-
-%}
-#endif
-%{
 
 #ifndef XAPIAN_HAS_REMOTE_BACKEND
     namespace Remote {
@@ -88,10 +74,18 @@ using namespace std;
 #define XAPIAN_DEPRECATED_CLASS
 #define XAPIAN_DEPRECATED_CLASS_EX
 #define XAPIAN_VISIBILITY_DEFAULT
+#define XAPIAN_VISIBILITY_INTERNAL
 #define XAPIAN_CONST_FUNCTION
 #define XAPIAN_PURE_FUNCTION
-#define XAPIAN_NOEXCEPT
-#define XAPIAN_NOTHROW(D) D
+
+// This works around buggy behaviour in SWIG's preprocessor, and only works
+// because we currently only use XAPIAN_NONNULL() with an empty argument:
+//
+// https://github.com/swig/swig/pull/1111
+//
+// The correct version is:
+// #define XAPIAN_NONNULL(L)
+#define XAPIAN_NONNULL()
 
 // Ignore these which SWIG seems to add pointless type entries for due them
 // being used in the SWIG typemap for std::pair.

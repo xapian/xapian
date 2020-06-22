@@ -1,7 +1,7 @@
 /** @file glass_spelling.h
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ struct fragment {
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
 
-    operator std::string () const {
+    operator std::string() const {
 	return std::string(data, data[0] == 'M' ? 4 : 3);
     }
 
@@ -74,7 +74,7 @@ class GlassSpellingTable : public GlassLazyTable {
      *  we don't need to store an additional add/remove flag for every
      *  word.
      */
-    std::map<Glass::fragment, std::set<std::string> > termlist_deltas;
+    std::map<Glass::fragment, std::set<std::string>> termlist_deltas;
 
     /** Used to track an upper bound on wordfreq. */
     Xapian::termcount wordfreq_upper_bound = 0;
@@ -101,7 +101,8 @@ class GlassSpellingTable : public GlassLazyTable {
     void merge_changes();
 
     void add_word(const std::string & word, Xapian::termcount freqinc);
-    void remove_word(const std::string & word, Xapian::termcount freqdec);
+    Xapian::termcount remove_word(const std::string & word,
+				  Xapian::termcount freqdec);
 
     TermList * open_termlist(const std::string & word);
 
@@ -170,8 +171,6 @@ class GlassSpellingTermList : public TermList {
 
     Xapian::doccount get_termfreq() const;
 
-    Xapian::termcount get_collection_freq() const;
-
     TermList * next();
 
     TermList * skip_to(const std::string & term);
@@ -180,7 +179,7 @@ class GlassSpellingTermList : public TermList {
 
     Xapian::termcount positionlist_count() const;
 
-    Xapian::PositionIterator positionlist_begin() const;
+    PositionList* positionlist_begin() const;
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_SPELLING_H

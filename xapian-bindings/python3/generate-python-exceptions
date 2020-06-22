@@ -24,11 +24,6 @@ use exception_data;
 
 my @allclasses = (@baseclasses, @classes);
 
-my @directorclasses = qw(
-    MatchDecider ExpandDecider Stopper ValueRangeProcessor KeyMaker
-    StemImplementation Compactor MatchSpy FieldProcessor
-);
-
 my @posting_source_virtual_methods = qw(
     get_termfreq_min
     get_termfreq_est
@@ -90,12 +85,13 @@ namespace Xapian {
 EOF
 
 for (@allclasses) {
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class) = @{$_};
     print FD "%exceptionclass $class;\n";
 }
 
 print FD <<'EOF';
 }
+%ignore Xapian::Error::Error(const Error&);
 %include "xapian/error.h"
 
 %{
@@ -110,7 +106,7 @@ SWIGEXPORT void SetPythonException() {
 EOF
 
 for (reverse @allclasses) {
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class) = @{$_};
     print FD <<"EOF";
     } catch (const Xapian::$class &e) {
 	SWIG_Python_Raise(SWIG_NewPointerObj((new Xapian::$class(e)),
@@ -146,82 +142,6 @@ exception_data::for_each_nothrow(sub { print FD "%exception $_[0];\n" });
 print FD <<'EOF';
 
 %exception {
-    try {
-	$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-
-/* The following exception directives are for the methods defined by
- * director classes, which don't drop the GIL in the first place. */
-EOF
-for my $class (@directorclasses) {
-    print FD <<"EOF";
-%exception Xapian::${class}::operator() {
-    try {
-	\$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-EOF
-}
-
-for my $method (@posting_source_virtual_methods) {
-    print FD <<"EOF";
-%exception Xapian::PostingSource::${method} {
-    try {
-	\$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-EOF
-}
-
-for my $method (@matchspy_virtual_methods) {
-    print FD <<"EOF";
-%exception Xapian::MatchSpy::${method} {
-    try {
-	\$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-EOF
-}
-
-print FD <<'EOF';
-%exception Xapian::Stopper::get_description {
-    try {
-	$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-%exception Xapian::StemImplementation::get_description {
-    try {
-	$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-%exception Xapian::Compactor::set_status {
-    try {
-	$action
-    } catch (...) {
-	Xapian::SetPythonException();
-	SWIG_fail;
-    }
-}
-%exception Xapian::Compactor::resolve_duplicate_metadata {
     try {
 	$action
     } catch (...) {

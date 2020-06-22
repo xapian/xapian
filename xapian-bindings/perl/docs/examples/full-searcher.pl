@@ -100,9 +100,8 @@ eval {
 
     # Second argument of 1 means "prefer mm/dd/yyyy".
     # Third argument means that two digit years < 20 are 20xx; >= 29 are 19xx.
-    my $vrpdate = new Xapian::DateValueRangeProcessor($SLOT_DATE, 1,
-							      1920);
-    $qp->add_valuerangeprocessor($vrpdate);
+    my $rpdate = new Xapian::DateRangeProcessor($SLOT_DATE, 1, 1920);
+    $qp->add_rangeprocessor($rpdate);
 
     # Parse the query string and return a Xapian::Query object.
     my $query = $qp->parse_query(

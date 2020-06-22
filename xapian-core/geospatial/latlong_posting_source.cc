@@ -1,5 +1,5 @@
 /** @file latlong_posting_source.cc
- * @brief LatLongPostingSource implementation.
+ * @brief LatLongDistancePostingSource implementation.
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
@@ -28,7 +28,7 @@
 #include "xapian/error.h"
 #include "xapian/registry.h"
 
-#include "net/length.h"
+#include "pack.h"
 #include "serialise-double.h"
 #include "str.h"
 
@@ -194,20 +194,14 @@ LatLongDistancePostingSource::name() const
 string
 LatLongDistancePostingSource::serialise() const
 {
-    string serialised_centre = centre.serialise();
-    string metric_name = metric->name();
-    string serialised_metric = metric->serialise();
-
-    string result = encode_length(get_slot());
-    result += encode_length(serialised_centre.size());
-    result += serialised_centre;
-    result += encode_length(metric_name.size());
-    result += metric_name;
-    result += encode_length(serialised_metric.size());
-    result += serialised_metric;
+    string result;
     result += serialise_double(max_range);
     result += serialise_double(k1);
     result += serialise_double(k2);
+    pack_uint(result, get_slot());
+    pack_string(result, centre.serialise());
+    pack_string(result, metric->name());
+    result += metric->serialise();
     return result;
 }
 
@@ -218,24 +212,20 @@ LatLongDistancePostingSource::unserialise_with_registry(const string &s,
     const char * p = s.data();
     const char * end = p + s.size();
 
-    valueno new_slot;
-    decode_length(&p, end, new_slot);
-    size_t len;
-    decode_length_and_check(&p, end, len);
-    string new_serialised_centre(p, len);
-    p += len;
-    decode_length_and_check(&p, end, len);
-    string new_metric_name(p, len);
-    p += len;
-    decode_length_and_check(&p, end, len);
-    string new_serialised_metric(p, len);
-    p += len;
     double new_max_range = unserialise_double(&p, end);
     double new_k1 = unserialise_double(&p, end);
     double new_k2 = unserialise_double(&p, end);
-    if (p != end) {
-	throw NetworkError("Bad serialised LatLongDistancePostingSource - junk at end");
+
+    valueno new_slot;
+    string new_serialised_centre;
+    string new_metric_name;
+    if (!unpack_uint(&p, end, &new_slot) ||
+	!unpack_string(&p, end, new_serialised_centre) ||
+	!unpack_string(&p, end, new_metric_name)) {
+	throw SerialisationError("Bad serialised LatLongDistancePostingSource");
     }
+
+    string new_serialised_metric(p, end - p);
 
     LatLongCoords new_centre;
     new_centre.unserialise(new_serialised_centre);

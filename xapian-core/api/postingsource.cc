@@ -1,7 +1,7 @@
 /** @file postingsource.cc
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2015,2016,2017 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2015,2016,2017,2019 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -22,42 +22,29 @@
 
 #include <config.h>
 
-// We need to be able to set deprecated members of ValuePostingSource.
-#define XAPIAN_DEPRECATED(X) X
 #include "xapian/postingsource.h"
 
-#include "autoptr.h"
-
-#include "backends/database.h"
-#include "backends/document.h"
-#include "matcher/multimatch.h"
+#include "backends/databaseinternal.h"
+#include "backends/documentinternal.h"
+#include "matcher/postlisttree.h"
 
 #include "xapian/document.h"
 #include "xapian/error.h"
 #include "xapian/queryparser.h" // For sortable_unserialise().
 
 #include "omassert.h"
-#include "net/length.h"
+#include "pack.h"
 #include "serialise-double.h"
 #include "str.h"
 
 #include <cfloat>
+#include <memory>
 
 using namespace std;
 
 namespace Xapian {
 
 PostingSource::~PostingSource() { }
-
-void
-PostingSource::set_maxweight(double max_weight)
-{
-    if (usual(matcher_)) {
-	MultiMatch * multimatch = static_cast<MultiMatch*>(matcher_);
-	multimatch->recalc_maxweight();
-    }
-    max_weight_ = max_weight;
-}
 
 double
 PostingSource::get_weight() const
@@ -111,57 +98,58 @@ PostingSource::unserialise_with_registry(const std::string &s,
     return unserialise(s);
 }
 
+void
+PostingSource::reset(const Database& db, Xapian::doccount)
+{
+    init(db);
+}
+
+void
+PostingSource::init(const Database&)
+{
+    const char* msg = "Either PostingSource::reset() or PostingSource::init() "
+		      "must be overridden";
+    throw Xapian::InvalidOperationError(msg);
+}
+
 string
 PostingSource::get_description() const
 {
     return "Xapian::PostingSource subclass";
 }
 
-
-ValuePostingSource::ValuePostingSource(Xapian::valueno slot_)
-	: real_slot(slot_),
-	  db(real_db),
-	  slot(real_slot),
-	  value_it(real_value_it),
-	  started(real_started),
-	  termfreq_min(real_termfreq_min),
-	  termfreq_est(real_termfreq_est),
-	  termfreq_max(real_termfreq_max)
-{
-}
-
 Xapian::doccount
 ValuePostingSource::get_termfreq_min() const
 {
-    return real_termfreq_min;
+    return termfreq_min;
 }
 
 Xapian::doccount
 ValuePostingSource::get_termfreq_est() const
 {
-    return real_termfreq_est;
+    return termfreq_est;
 }
 
 Xapian::doccount
 ValuePostingSource::get_termfreq_max() const
 {
-    return real_termfreq_max;
+    return termfreq_max;
 }
 
 void
 ValuePostingSource::next(double min_wt)
 {
-    if (!real_started) {
-	real_started = true;
-	real_value_it = real_db.valuestream_begin(real_slot);
+    if (!started) {
+	started = true;
+	value_it = db.valuestream_begin(slot);
     } else {
-	++real_value_it;
+	++value_it;
     }
 
-    if (real_value_it == real_db.valuestream_end(real_slot)) return;
+    if (value_it == db.valuestream_end(slot)) return;
 
     if (min_wt > get_maxweight()) {
-	real_value_it = real_db.valuestream_end(real_slot);
+	value_it = db.valuestream_end(slot);
 	return;
     }
 }
@@ -169,63 +157,63 @@ ValuePostingSource::next(double min_wt)
 void
 ValuePostingSource::skip_to(Xapian::docid min_docid, double min_wt)
 {
-    if (!real_started) {
-	real_started = true;
-	real_value_it = real_db.valuestream_begin(real_slot);
+    if (!started) {
+	started = true;
+	value_it = db.valuestream_begin(slot);
 
-	if (real_value_it == real_db.valuestream_end(real_slot)) return;
+	if (value_it == db.valuestream_end(slot)) return;
     }
 
     if (min_wt > get_maxweight()) {
-	real_value_it = real_db.valuestream_end(real_slot);
+	value_it = db.valuestream_end(slot);
 	return;
     }
-    real_value_it.skip_to(min_docid);
+    value_it.skip_to(min_docid);
 }
 
 bool
 ValuePostingSource::check(Xapian::docid min_docid, double min_wt)
 {
-    if (!real_started) {
-	real_started = true;
-	real_value_it = real_db.valuestream_begin(real_slot);
+    if (!started) {
+	started = true;
+	value_it = db.valuestream_begin(slot);
 
-	if (real_value_it == real_db.valuestream_end(real_slot)) return true;
+	if (value_it == db.valuestream_end(slot)) return true;
     }
 
     if (min_wt > get_maxweight()) {
-	real_value_it = real_db.valuestream_end(real_slot);
+	value_it = db.valuestream_end(slot);
 	return true;
     }
-    return real_value_it.check(min_docid);
+    return value_it.check(min_docid);
 }
 
 bool
 ValuePostingSource::at_end() const
 {
-    return real_started && real_value_it == real_db.valuestream_end(real_slot);
+    return started && value_it == db.valuestream_end(slot);
 }
 
 Xapian::docid
 ValuePostingSource::get_docid() const
 {
-    return real_value_it.get_docid();
+    return value_it.get_docid();
 }
 
 void
 ValuePostingSource::init(const Database & db_)
 {
-    real_db = db_;
-    real_started = false;
+    db = db_;
+    started = false;
     set_maxweight(DBL_MAX);
     try {
-	real_termfreq_max = real_db.get_value_freq(real_slot);
-	real_termfreq_est = real_termfreq_max;
-	real_termfreq_min = real_termfreq_max;
+	termfreq_max = db.get_value_freq(slot);
+	termfreq_est = termfreq_max;
+	termfreq_min = termfreq_max;
     } catch (const Xapian::UnimplementedError &) {
-	real_termfreq_max = real_db.get_doccount();
-	real_termfreq_est = real_termfreq_max / 2;
-	real_termfreq_min = 0;
+	termfreq_max = db.get_doccount();
+	termfreq_est = termfreq_max / 2;
+	termfreq_min = 0;
     }
 }
 
@@ -267,7 +255,9 @@ ValueWeightPostingSource::name() const
 string
 ValueWeightPostingSource::serialise() const
 {
-    return encode_length(get_slot());
+    string result;
+    pack_uint_last(result, get_slot());
+    return result;
 }
 
 ValueWeightPostingSource *
@@ -277,9 +267,8 @@ ValueWeightPostingSource::unserialise(const string &s) const
     const char * end = p + s.size();
 
     Xapian::valueno new_slot;
-    decode_length(&p, end, new_slot);
-    if (p != end) {
-	throw Xapian::NetworkError("Bad serialised ValueWeightPostingSource - junk at end");
+    if (!unpack_uint_last(&p, end, &new_slot)) {
+	unpack_throw_serialisation_error(p);
     }
 
     return new ValueWeightPostingSource(new_slot);
@@ -357,7 +346,8 @@ ValueMapPostingSource::get_weight() const
 ValueMapPostingSource *
 ValueMapPostingSource::clone() const
 {
-    AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(get_slot()));
+    unique_ptr<ValueMapPostingSource> res(
+	    new ValueMapPostingSource(get_slot()));
     map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {
 	res->add_mapping(i->first, i->second);
@@ -375,13 +365,13 @@ ValueMapPostingSource::name() const
 string
 ValueMapPostingSource::serialise() const
 {
-    string result = encode_length(get_slot());
+    string result;
+    pack_uint(result, get_slot());
     result += serialise_double(default_weight);
 
     map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {
-	result.append(encode_length(i->first.size()));
-	result.append(i->first);
+	pack_string(result, i->first);
 	result.append(serialise_double(i->second));
     }
 
@@ -395,14 +385,16 @@ ValueMapPostingSource::unserialise(const string &s) const
     const char * end = p + s.size();
 
     Xapian::valueno new_slot;
-    decode_length(&p, end, new_slot);
-    AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(new_slot));
+    if (!unpack_uint(&p, end, &new_slot)) {
+	unpack_throw_serialisation_error(p);
+    }
+    unique_ptr<ValueMapPostingSource> res(new ValueMapPostingSource(new_slot));
     res->set_default_weight(unserialise_double(&p, end));
     while (p != end) {
-	size_t keylen;
-	decode_length_and_check(&p, end, keylen);
-	string key(p, keylen);
-	p += keylen;
+	string key;
+	if (!unpack_string(&p, end, key)) {
+	    unpack_throw_serialisation_error(p);
+	}
 	res->add_mapping(key, unserialise_double(&p, end));
     }
     return res.release();

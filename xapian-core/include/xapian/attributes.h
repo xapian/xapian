@@ -1,7 +1,7 @@
 /** @file attributes.h
  * @brief Compiler attribute macros
  */
-// Copyright (C) 2012,2013,2014,2015 Olly Betts
+// Copyright (C) 2012,2013,2014,2015,2017 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,35 +20,30 @@
 #ifndef XAPIAN_INCLUDED_ATTRIBUTES_H
 #define XAPIAN_INCLUDED_ATTRIBUTES_H
 
-#if __cplusplus >= 201103L
-// C++11 has noexcept(true) for marking a function which shouldn't throw.
-//
-// You need a C++11 compiler to build Xapian, but we still support using a
-// non-C++11 compiler to build code which uses Xapian (one reason is that
-// currently you need an option to enable C++11 support for most
-// compilers).  Once we require C++11 for using Xapian, XAPIAN_NOTHROW can go
-// away.
-//
-// We can't simply just add noexcept(true) via XAPIAN_NOTHROW as noexcept has
-// to be added to all declarations, whereas the GCC attribute can't be used on
-// a function definition.  So for now, XAPIAN_NOTHROW() goes around
-// declarations, and XAPIAN_NOEXCEPT needs to be explicitly added to
-// definitions.
-# define XAPIAN_NOEXCEPT noexcept(true)
-#else
-# define XAPIAN_NOEXCEPT
-#endif
-
 #ifdef __GNUC__
+
 // __attribute__((__const__)) is available at least as far back as GCC 2.95.
 # define XAPIAN_CONST_FUNCTION __attribute__((__const__))
 // __attribute__((__pure__)) is available from GCC 2.96 onwards.
 # define XAPIAN_PURE_FUNCTION __attribute__((__pure__))
-// __attribute__((__nothrow__)) is available from GCC 3.3 onwards.
-# if __GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
-#  define XAPIAN_NOTHROW(D) D XAPIAN_NOEXCEPT __attribute__((__nothrow__))
+
+// We don't enable XAPIAN_NONNULL when building the library because that
+// results in warnings when we check the parameter really isn't NULL, and we
+// ought to still do that as (a) not all compilers support such annotations,
+// and (b) even those that do don't actually prevent you from passing NULL.
+# ifndef XAPIAN_LIB_BUILD
+// __attribute__((__nonnull__(a,b,c))) is available from GCC 3.3 onwards, but
+// seems to be buggy in GCC 4.8 so only enable it for versions after that.
+// It's also supported by clang, which we have to check for separately as
+// current versions pretend to be GCC 4.2.
+#  if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8) || \
+      defined __clang__
+#   define XAPIAN_NONNULL(LIST) __attribute__((__nonnull__ LIST))
+#  endif
 # endif
+
 #else
+
 /** A function which does not examine any values except its arguments and has
  *  no effects except its return value.
  *
@@ -63,14 +58,30 @@
  */
 # define XAPIAN_PURE_FUNCTION
 
-# ifdef _MSC_VER
-#  define XAPIAN_NOTHROW(D) __declspec(nothrow) D XAPIAN_NOEXCEPT
-# endif
 #endif
 
-#ifndef XAPIAN_NOTHROW
-/** A function or method which will never throw an exception. */
-# define XAPIAN_NOTHROW(D) D XAPIAN_NOEXCEPT
+#ifndef XAPIAN_NONNULL
+/** Annotate function parameters which should be non-NULL pointers.
+ *
+ *  If LIST isn't specified, all pointer parameters will be marked in this
+ *  way (which is often sufficient):
+ *
+ *  int foo(const char* p) XAPIAN_NONNULL();
+ *  int bar(char* p, const char* q) XAPIAN_NONNULL();
+ *
+ *  If there are other pointer parameters which can be NULL, then you need
+ *  to specify a parenthesised list of the parameters to mark:
+ *
+ *  int foo(const char* p, int* maybenull) XAPIAN_NONNULL((1));
+ *  int bar(char* p, void* maybenull, const char* q) XAPIAN_NONNULL((1,3));
+ *
+ *  NB In a non-class function, the first parameter is numbered 1, but in
+ *  a non-static class method (which isn't a constructor) then the `this`
+ *  pointer is implicitly counted as parameter 1, though this doesn't
+ *  appear to be documented.  For confirmation see:
+ *  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79961
+ */
+# define XAPIAN_NONNULL(LIST)
 #endif
 
 #endif // XAPIAN_INCLUDED_ATTRIBUTES_H

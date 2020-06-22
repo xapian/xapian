@@ -1,6 +1,7 @@
-/* glass_alltermslist.cc: A termlist containing all terms in a glass database.
- *
- * Copyright (C) 2005,2007,2008,2009,2010 Olly Betts
+/** @file glass_alltermslist.cc
+ * @brief A termlist containing all terms in a glass database.
+ */
+/* Copyright (C) 2005,2007,2008,2009,2010,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,24 +29,32 @@
 #include "stringutils.h"
 
 void
-GlassAllTermsList::read_termfreq_and_collfreq() const
+GlassAllTermsList::read_termfreq() const
 {
-    LOGCALL_VOID(DB, "GlassAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
+    LOGCALL_VOID(DB, "GlassAllTermsList::read_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
 
-    // Unpack the termfreq and collfreq from the tag.  Only do this if
-    // one or other is actually read.
+    // Unpack the termfreq from the tag.
     cursor->read_tag();
     const char *p = cursor->current_tag.data();
     const char *pend = p + cursor->current_tag.size();
-    GlassPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
+    GlassPostList::read_number_of_entries(&p, pend, &termfreq, NULL);
 }
 
 GlassAllTermsList::~GlassAllTermsList()
 {
     LOGCALL_DTOR(DB, "GlassAllTermsList");
     delete cursor;
+}
+
+Xapian::termcount
+GlassAllTermsList::get_approx_size() const
+{
+    // This is an over-estimate and not entirely proportional between shards,
+    // but we only use this value to build a balanced or-tree, and it'll at
+    // least tend to distinguish large databases from small ones.
+    return database->postlist_table.get_entry_count();
 }
 
 string
@@ -63,18 +72,8 @@ GlassAllTermsList::get_termfreq() const
     LOGCALL(DB, Xapian::doccount, "GlassAllTermsList::get_termfreq", NO_ARGS);
     Assert(!current_term.empty());
     Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
+    if (termfreq == 0) read_termfreq();
     RETURN(termfreq);
-}
-
-Xapian::termcount
-GlassAllTermsList::get_collection_freq() const
-{
-    LOGCALL(DB, Xapian::termcount, "GlassAllTermsList::get_collection_freq", NO_ARGS);
-    Assert(!current_term.empty());
-    Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
-    RETURN(collfreq);
 }
 
 TermList *
@@ -82,8 +81,8 @@ GlassAllTermsList::next()
 {
     LOGCALL(DB, TermList *, "GlassAllTermsList::next", NO_ARGS);
     Assert(!at_end());
-    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
-    // the current term.
+    // Set termfreq to 0 to indicate no termfreq has been read for the current
+    // term.
     termfreq = 0;
 
     if (rare(!cursor)) {
@@ -138,8 +137,8 @@ GlassAllTermsList::skip_to(const string &term)
 {
     LOGCALL(DB, TermList *, "GlassAllTermsList::skip_to", term);
     Assert(!at_end());
-    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
-    // the current term.
+    // Set termfreq to 0 to indicate no termfreq has been read for the current
+    // term.
     termfreq = 0;
 
     if (rare(!cursor)) {

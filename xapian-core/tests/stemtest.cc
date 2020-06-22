@@ -1,6 +1,7 @@
-/* stemtest.cc
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file stemtest.cc
+ * @brief Test stemming algorithms
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2007,2008,2009,2012,2015 Olly Betts
  *
@@ -29,6 +30,7 @@
 #include <iostream>
 
 #include <xapian.h>
+#include "parseint.h"
 #include "testsuite.h"
 
 using namespace std;
@@ -44,7 +46,7 @@ static string srcdir;
 static int seed;
 
 // run stemmers on random text
-static bool
+static void
 test_stemrandom()
 {
     static const char wordchars[] =
@@ -76,11 +78,10 @@ test_stemrandom()
 	FAIL_TEST("Stemmed data is significantly smaller than input: "
 		  << stemmed_size << " vs. " << JUNKSIZE);
     }
-    return true;
 }
 
 // run stemmers on random junk
-static bool
+static void
 test_stemjunk()
 {
     tout << "Stemming random junk... (seed " << seed << ")" << endl;
@@ -89,7 +90,7 @@ test_stemjunk()
     string word;
     int stemmed_size = 0;
     for (int c = JUNKSIZE; c; --c) {
-	char ch = rand() >> 8;
+	char ch = char(rand() >> 8);
 	if (ch) {
 	    word += ch;
 	    continue;
@@ -109,10 +110,9 @@ test_stemjunk()
 	FAIL_TEST("Stemmed data is significantly smaller than input ("
 		  << stemmed_size << " vs. " << JUNKSIZE);
     }
-    return true;
 }
 
-static bool
+static void
 test_stemdict()
 {
     string dir = srcdir + "/../../xapian-data/stemming/";
@@ -158,8 +158,6 @@ test_stemdict()
 	     << endl;
 	++pass;
     }
-
-    return true;
 }
 
 // ##################################################################
@@ -187,7 +185,11 @@ try {
     srcdir = test_driver::get_srcdir();
     int result = 0;
 
-    if (!seed_str.empty()) seed = atoi(seed_str.c_str());
+    if (!seed_str.empty()) {
+	if (!parse_signed(seed_str.c_str(), seed)) {
+	    throw "seed must be an integer";
+	}
+    }
     cout << "The random seed is " << seed << endl;
     cout << "Please report the seed when reporting a test failure." << endl;
 

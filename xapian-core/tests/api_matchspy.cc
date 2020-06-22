@@ -2,7 +2,7 @@
  * @brief tests of MatchSpy usage
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2012,2015 Olly Betts
+ * Copyright 2009,2011,2012,2015,2019 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -94,8 +94,6 @@ DEFINE_TESTCASE(matchspy1, backend && !remote) {
     for (; j != myspy.seen.end(); ++j, ++j2) {
 	TEST_EQUAL(*j, *j2);
     }
-
-    return true;
 }
 
 static string values_to_repr(const Xapian::ValueCountMatchSpy & spy) {
@@ -150,6 +148,11 @@ DEFINE_TESTCASE(matchspy2, generated)
     Xapian::Enquire enq(db);
 
     enq.set_query(Xapian::Query("all"));
+    if (startswith(get_dbtype(), "multi")) {
+	// Without this, we short-cut on the second shard because we don't get
+	// the documents in ascending weight order.
+	enq.set_weighting_scheme(Xapian::CoordWeight());
+    }
 
     enq.add_matchspy(&spy0);
     enq.add_matchspy(&spy1);
@@ -160,7 +163,7 @@ DEFINE_TESTCASE(matchspy2, generated)
     TEST_EQUAL(spy1.get_total(), 25);
     TEST_EQUAL(spy3.get_total(), 25);
 
-    static const char * results[] = {
+    static const char * const results[] = {
 	"|1:1|2:9|3:3|4:7|5:1|6:3|8:1|",
 	"|0:2|1:3|2:3|3:3|4:3|5:3|6:2|7:2|8:2|9:2|",
 	"|1:9|2:16|",
@@ -168,8 +171,6 @@ DEFINE_TESTCASE(matchspy2, generated)
     TEST_STRINGS_EQUAL(values_to_repr(spy0), results[0]);
     TEST_STRINGS_EQUAL(values_to_repr(spy1), results[1]);
     TEST_STRINGS_EQUAL(values_to_repr(spy3), results[2]);
-
-    return true;
 }
 
 DEFINE_TESTCASE(matchspy4, generated)
@@ -190,6 +191,11 @@ DEFINE_TESTCASE(matchspy4, generated)
     Xapian::Enquire enqb(db);
 
     enqa.set_query(Xapian::Query("all"));
+    if (startswith(get_dbtype(), "multi")) {
+	// Without this, we short-cut on the second shard because we don't get
+	// the documents in ascending weight order.
+	enqa.set_weighting_scheme(Xapian::CoordWeight());
+    }
     enqb.set_query(Xapian::Query("all"));
 
     enqa.add_matchspy(&spya0);
@@ -210,7 +216,7 @@ DEFINE_TESTCASE(matchspy4, generated)
     TEST_EQUAL(spyb1.get_total(), 25);
     TEST_EQUAL(spyb3.get_total(), 25);
 
-    static const char * results[] = {
+    static const char * const results[] = {
 	"|2:9|4:7|3:3|6:3|1:1|5:1|8:1|",
 	"|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
 	"|",
@@ -261,8 +267,6 @@ DEFINE_TESTCASE(matchspy4, generated)
 	    }
 	}
     }
-
-    return true;
 }
 
 // Test builtin match spies
@@ -301,8 +305,6 @@ DEFINE_TESTCASE(matchspy5, backend)
     TEST_EQUAL(i.get_termfreq(), 1);
     ++i;
     TEST(i == myspy2.values_end());
-
-    return true;
 }
 
 class MySpy : public Xapian::MatchSpy {
@@ -324,6 +326,16 @@ DEFINE_TESTCASE(matchspy6, !backend)
     TEST_EXCEPTION(Xapian::UnimplementedError,
 		   spy.merge_results(std::string()));
     TEST_EQUAL(spy.get_description(), "Xapian::MatchSpy()");
+}
 
-    return true;
+/// Regression test for bug fixed in 1.4.12.
+DEFINE_TESTCASE(matchspy7, !backend)
+{
+    Xapian::ValueCountMatchSpy myspy(1);
+    string s = myspy.serialise_results();
+    // Append a string which overflows a 64-bit type when decoded with
+    // pack_uint().
+    s += "xxxxxxxxx";
+    // This merge_results() call used to enter an infinite loop.
+    TEST_EXCEPTION(Xapian::SerialisationError, myspy.merge_results(s));
 }

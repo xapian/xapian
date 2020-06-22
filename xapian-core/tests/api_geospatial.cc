@@ -56,7 +56,7 @@ builddb_coords1(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Test behaviour of the LatLongDistancePostingSource
-DEFINE_TESTCASE(latlongpostingsource1, backend && writable && !remote && !inmemory) {
+DEFINE_TESTCASE(latlongpostingsource1, generated && !remote && !inmemory) {
     Xapian::Database db = get_database("coords1", builddb_coords1, "");
     Xapian::LatLongCoord coord1(10, 10);
     Xapian::LatLongCoord coord2(20, 10);
@@ -263,8 +263,6 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable && !remote && !inmemo
 	ps.next(0.0);
 	TEST_EQUAL(ps.at_end(), true);
     }
-
-    return true;
 }
 
 // Test various methods of LatLongCoord and LatLongCoords
@@ -313,11 +311,13 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     i1 = g1.begin();
     TEST(i1 != g1.end());
     TEST_EQUAL((*i1).serialise(), c1.serialise());
-    TEST_EQUAL((*(i1++)).serialise(), c1.serialise());
+    TEST_EQUAL((*i1).serialise(), c1.serialise());
+    ++i1;
     TEST(i1 != g1.end());
     TEST_EQUAL((*i1).serialise(), c2.serialise());
     i1 = g1.begin();
-    TEST_EQUAL((*(++i1)).serialise(), c2.serialise());
+    ++i1;
+    TEST_EQUAL((*i1).serialise(), c2.serialise());
     TEST(i1 != g1.end());
     ++i1;
     TEST(i1 == g1.end());
@@ -333,8 +333,6 @@ DEFINE_TESTCASE(latlongcoords1, !backend) {
     TEST_EQUAL(g2.size(), 0);
     TEST_EQUAL(g2.get_description(), "Xapian::LatLongCoords()");
     TEST(g2.begin() == g2.end());
-
-    return true;
 }
 
 // Test various methods of LatLongMetric
@@ -364,8 +362,6 @@ DEFINE_TESTCASE(latlongmetric1, !backend) {
     TEST_EQUAL_DOUBLE(d2, d3);
 
     delete m3;
-
-    return true;
 }
 
 // Test LatLongMetric on lists of coords.
@@ -389,8 +385,6 @@ DEFINE_TESTCASE(latlongmetric2, !backend) {
     TEST_EQUAL(d1, dl1);
     double d1_str = m1(cl1, c2_str);
     TEST_EQUAL(d1, d1_str);
-
-    return true;
 }
 
 // Test a LatLongDistanceKeyMaker directly.
@@ -426,6 +420,4 @@ DEFINE_TESTCASE(latlongkeymaker1, !backend) {
     std::string k4b = keymaker2(doc4);
     TEST_EQUAL(k3, k3b);
     TEST_REL(k3b, >, k4b);
-
-    return true;
 }

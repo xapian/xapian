@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017,2019 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -103,22 +103,14 @@ def test_all():
     expect_query(xapian.Query(xapian.Query.OP_VALUE_RANGE, 0, b'1', b'4'),
                  "VALUE_RANGE 0 1 4")
 
-    # Check database factory functions are wrapped as expected (or not wrapped
-    # in the first cases):
+    # Check database factory functions are wrapped as expected:
 
-    expect_exception(AttributeError,
-            lambda msg: msg.find("has no attribute 'open_stub'") != -1,
-            lambda : xapian.open_stub(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError,
-            lambda msg: msg.find("has no attribute 'open_stub'") != -1,
-            lambda : xapian.open_stub(b"nosuchdir/nosuchdb", xapian.DB_OPEN))
-
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_STUB))
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_OPEN|xapian.DB_BACKEND_STUB))
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.DatabaseNotFoundError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_GLASS))
     expect_exception(xapian.DatabaseCreateError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_GLASS))
@@ -150,6 +142,10 @@ def test_all():
     expect(term_count, 4, "Unexpected number of terms in query2")
 
     enq = xapian.Enquire(db)
+
+    # Check Xapian::BAD_VALUENO is wrapped suitably.
+    enq.set_collapse_key(xapian.BAD_VALUENO)
+
     enq.set_query(xapian.Query(xapian.Query.OP_OR, b"there", b"is"))
     mset = enq.get_mset(0, 10)
     expect(mset.size(), 1, "Unexpected mset.size()")
@@ -272,7 +268,7 @@ def test_all():
     enquire = xapian.Enquire(db)
     rset = xapian.RSet()
     rset.add_document(1)
-    eset = enquire.get_eset(10, rset, xapian.Enquire.USE_EXACT_TERMFREQ, 1.0, testexpanddecider())
+    eset = enquire.get_eset(10, rset, xapian.Enquire.USE_EXACT_TERMFREQ, testexpanddecider())
     eset_terms = [item.term for item in eset]
     expect(len(eset_terms), eset.size(), "Unexpected number of terms returned by expand")
     if [t for t in eset_terms if t.startswith(b'a')]:
@@ -281,7 +277,7 @@ def test_all():
     # Check min_wt argument to get_eset() works (new in 1.2.5).
     eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ)
     expect([i.weight for i in eset][-1] < 1.9, True, "test get_eset() without min_wt")
-    eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ, 1.0, None, 1.9)
+    eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ, None, 1.9)
     expect([i.weight for i in eset][-1] >= 1.9, True, "test get_eset() min_wt")
 
     # Check QueryParser parsing error.
@@ -291,7 +287,7 @@ def test_all():
     # Check QueryParser pure NOT option
     qp = xapian.QueryParser()
     expect_query(qp.parse_query(b"NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "(<alldocuments> AND_NOT test@1)")
+                 "(0 * <alldocuments> AND_NOT test@1)")
 
     # Check QueryParser partial option
     qp = xapian.QueryParser()
@@ -299,11 +295,11 @@ def test_all():
     qp.set_default_op(xapian.Query.OP_AND)
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem(b'en'))
-    expect_query(qp.parse_query(b"foo o", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR o) OR Zo@2))")
+    expect_query(qp.parse_query(b"foo ox", qp.FLAG_PARTIAL),
+                 "(Zfoo@1 AND (WILDCARD SYNONYM ox OR Zox@2))")
 
     expect_query(qp.parse_query(b"foo outside", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR outside) OR Zoutsid@2))")
+                 "(Zfoo@1 AND (WILDCARD SYNONYM outside OR Zoutsid@2))")
 
     # Test supplying unicode strings
     expect_query(xapian.Query(xapian.Query.OP_OR, (b'foo', b'bar')),
@@ -316,7 +312,7 @@ def test_all():
                  '(foo OR bar)')
 
     expect_query(qp.parse_query(b"NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "(<alldocuments> AND_NOT Zt\u00e9st@1)")
+                 "(0 * <alldocuments> AND_NOT Zt\u00e9st@1)")
 
     doc = xapian.Document()
     doc.set_data(b"Unicode with an acc\xe9nt")
@@ -364,23 +360,13 @@ def test_all():
     expect([(item.term, item.wdf, [pos for pos in item.positer]) for item in doc.termlist()], [(b'bar', 1, [2]), (b'baz', 1, [3]), (b'foo', 2, [1, 4])])
 
 
-    # Check DateValueRangeProcessor works
-    context("checking that DateValueRangeProcessor works")
+    # Check DateRangeProcessor works
+    context("checking that DateRangeProcessor works")
     qp = xapian.QueryParser()
-    vrpdate = xapian.DateValueRangeProcessor(1, 1, 1960)
-    qp.add_valuerangeprocessor(vrpdate)
+    rpdate = xapian.DateRangeProcessor(1, xapian.RP_DATE_PREFER_MDY, 1960)
+    qp.add_rangeprocessor(rpdate)
     query = qp.parse_query(b'12/03/99..12/04/01')
     expect(str(query), 'Query(VALUE_RANGE 1 19991203 20011204)')
-
-    # Regression test for bug#193, fixed in 1.0.3.
-    context("running regression test for bug#193")
-    vrp = xapian.NumberValueRangeProcessor(0, b'$', True)
-    a = '$10'
-    b = '20'
-    slot, a, b = vrp(a, b.encode('utf-8'))
-    expect(slot, 0)
-    expect(xapian.sortable_unserialise(a), 10)
-    expect(xapian.sortable_unserialise(b), 20)
 
     # Feature test for xapian.FieldProcessor
     context("running feature test for xapian.FieldProcessor")
@@ -462,6 +448,26 @@ def test_userstem():
     parser.set_stemmer(xapian.Stem(MyStemmer()))
     parser.set_stemming_strategy(xapian.QueryParser.STEM_ALL)
     expect_query(parser.parse_query(b'color television'), '(clr@1 OR tlvsn@2)')
+
+def test_internal_enums_not_wrapped():
+    leaf_constants = [c for c in dir(xapian.Query) if c.startswith('LEAF_')]
+    expect(leaf_constants, [])
+
+def test_internals_not_wrapped():
+    internals = []
+    for c in dir(xapian):
+        # Skip Python stuff like __file__ and __version__.
+        if c.startswith('__'): continue
+        if c.endswith('_'): internals.append(c)
+        # Skip non-classes
+        if not c[0].isupper(): continue
+        cls = eval('xapian.' + c)
+        if type(cls) != type(object): continue
+        for m in dir(cls):
+            if m.startswith('__'): continue
+            if m.endswith('_'): internals.append(c + '.' + m)
+
+    expect(internals, [])
 
 def test_zz9_check_leaks():
     import gc

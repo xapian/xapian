@@ -1,7 +1,7 @@
 /** @file remotesubmatch.h
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007,2009,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2011,2014,2015,2018,2019 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 #ifndef XAPIAN_INCLUDED_REMOTESUBMATCH_H
 #define XAPIAN_INCLUDED_REMOTESUBMATCH_H
 
-#include "submatch.h"
 #include "backends/remote/remote-database.h"
 #include "xapian/weight.h"
 
@@ -31,52 +30,64 @@ namespace Xapian {
 }
 
 /// Class for performing matching on a remote database.
-class RemoteSubMatch : public SubMatch {
+class RemoteSubMatch {
     /// Don't allow assignment.
-    void operator=(const RemoteSubMatch &);
+    RemoteSubMatch& operator=(const RemoteSubMatch &) = delete;
 
     /// Don't allow copying.
-    RemoteSubMatch(const RemoteSubMatch &);
+    RemoteSubMatch(const RemoteSubMatch &) = delete;
 
     /// The remote database.
-    RemoteDatabase *db;
+    const RemoteDatabase *db;
 
-    /** Is the sort order such the relevance decreases down the MSet?
-     *
-     *  This is true for sort_by_relevance and sort_by_relevance_then_value.
-     */
-    bool decreasing_relevance;
-
-    /// The factor to use to convert weights to percentages.
-    double percent_factor;
-
-    /// The matchspies to use.
-    const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies;
+    /// Index of this subdatabase.
+    Xapian::doccount shard;
 
   public:
     /// Constructor.
-    RemoteSubMatch(RemoteDatabase *db_,
-		   bool decreasing_relevance_,
-		   const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
+    RemoteSubMatch(const RemoteDatabase* db_, Xapian::doccount shard_)
+	: db(db_), shard(shard_) {}
 
-    /// Fetch and collate statistics.
-    bool prepare_match(bool nowait, Xapian::Weight::Internal & total_stats);
+    int get_read_fd() const {
+	return db->get_read_fd();
+    }
 
-    /// Start the match.
+    /** Fetch and collate statistics.
+     *
+     *  Before we can calculate term weights we need to fetch statistics from
+     *  each database involved and collate them.
+     *
+     *  @param total_stats A stats object to which the statistics should be
+     *			added.
+     */
+    void prepare_match(Xapian::Weight::Internal& total_stats);
+
+    /** Start the match.
+     *
+     *  @param first          The first item in the result set to return.
+     *  @param maxitems       The maximum number of items to return.
+     *  @param check_at_least The minimum number of items to check.
+     *  @param sorter	      KeyMaker for sort keys (NULL for none).
+     *  @param total_stats    The total statistics for the collection.
+     */
     void start_match(Xapian::doccount first,
 		     Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     Xapian::Weight::Internal & total_stats);
+		     const Xapian::KeyMaker* sorter,
+		     Xapian::Weight::Internal& total_stats);
 
-    /// Get PostList.
-    PostList * get_postlist(MultiMatch * matcher,
-			    Xapian::termcount * total_subqs_ptr);
+    typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
 
-    /// Get percentage factor - only valid after get_postlist().
-    double get_percent_factor() const { return percent_factor; }
+    /** Get MSet.
+     *
+     *  @param matchspies   The matchspies to use.
+     */
+    Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) {
+	return db->get_mset(matchspies);
+    }
 
-    /// Short-cut for single remote match.
-    void get_mset(Xapian::MSet & mset) { db->get_mset(mset, matchspies); }
+    /// Return the index of the corresponding Database shard.
+    Xapian::doccount get_shard() const { return shard; }
 };
 
 #endif /* XAPIAN_INCLUDED_REMOTESUBMATCH_H */

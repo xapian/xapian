@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef XAPIAN_HGUARD_INDEX_UTILS_H
-#define XAPIAN_HGUARD_INDEX_UTILS_H
+#ifndef XAPIAN_INCLUDED_INDEX_UTILS_H
+#define XAPIAN_INCLUDED_INDEX_UTILS_H
 
 #include <fstream>
 #include <string>
@@ -45,4 +45,4 @@ class FileIndexer {
     void index_to(Xapian::WritableDatabase & db);
 };
 
-#endif /* XAPIAN_HGUARD_INDEX_UTILS_H */
+#endif /* XAPIAN_INCLUDED_INDEX_UTILS_H */

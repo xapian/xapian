@@ -2,7 +2,8 @@
  * @brief a generic test suite engine
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005,2006,2007,2008,2009,2013,2015,2016 Olly Betts
+ * Copyright 2002,2003,2005,2006,2007,2008,2009,2013,2015,2016,2018 Olly Betts
+ * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,10 +21,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_TESTSUITE_H
-#define OM_HGUARD_TESTSUITE_H
-
-#include "noreturn.h"
+#ifndef XAPIAN_INCLUDED_TESTSUITE_H
+#define XAPIAN_INCLUDED_TESTSUITE_H
 
 #ifndef XAPIAN_UNITTEST
 # include "output.h"
@@ -51,20 +50,26 @@ class TestFail { };
  */
 class TestSkip { };
 
-/** Macro used to build a TestFail object and throw it.
- */
-// Don't bracket a, because it may have <<'s in it
-#define FAIL_TEST(a) do { if (verbose) { tout << a << '\n'; } \
-			  throw TestFail(); } while (0)
+/// Helper macro.
+#define THROW_TEST_(EXCEPTION, MSG) \
+    do { \
+	if (verbose) { \
+	    tout << __FILE__ ":" STRINGIZE(__LINE__) ": " << MSG << std::endl; \
+	} \
+	throw EXCEPTION(); \
+    } while (0)
 
-/** Macro used to build a TestSkip object and throw it.
+/** Fail the current testcase with message MSG.
+ *
+ *  MSG is written to an std::ostream and so can contain <<.
  */
-// Don't bracket a, because it may have <<'s in it
-#define SKIP_TEST(a) do { if (verbose) { tout << a << '\n'; } \
-			  throw TestSkip(); } while (0)
+#define FAIL_TEST(MSG) THROW_TEST_(TestFail, MSG)
 
-/// Type for a test function.
-typedef bool (*test_func)();
+/** Skip the current testcase with message MSG.
+ *
+ *  MSG is written to an std::ostream and so can contain <<.
+ */
+#define SKIP_TEST(MSG) THROW_TEST_(TestSkip, MSG)
 
 /// Structure holding a description of a test.
 struct test_desc {
@@ -72,7 +77,7 @@ struct test_desc {
     const char *name;
 
     /// The function to run to perform the test.
-    test_func run;
+    void (*run)();
 };
 
 /// The global verbose flag.
@@ -83,6 +88,9 @@ struct test_desc {
 //  to avoid needless generation of diagnostic output in cases when it's
 //  expensive.
 extern int verbose;
+
+/** Set to a string explanation for testcases expected to fail. */
+extern const char* expected_failure;
 
 /// The exception type we were expecting in TEST_EXCEPTION.
 //  Used to detect if such an exception was mishandled by the
@@ -96,146 +104,160 @@ extern std::ostringstream tout;
 
 /// The test driver.  This class takes care of running the tests.
 class test_driver {
-	/// Write out anything in tout and clear it.
-	void write_and_clear_tout();
+    /// Write out anything in tout and clear it.
+    void write_and_clear_tout();
 
-    public:
-	/** A structure used to report the summary of tests passed
-	 *  and failed.
-	 */
-	struct result {
-	    /// The number of tests which succeeded.
-	    unsigned int succeeded;
+  public:
+    /** A structure used to report the summary of tests passed
+     *  and failed.
+     */
+    struct result {
+	/// The number of tests which succeeded.
+	unsigned int succeeded = 0;
 
-	    /// The number of tests which failed.
-	    unsigned int failed;
+	/// The number of tests which failed.
+	unsigned int failed = 0;
 
-	    /// The number of tests which were skipped
-	    unsigned int skipped;
+	/// The number of tests which were skipped.
+	unsigned int skipped = 0;
 
-	    result() : succeeded(0), failed(0), skipped(0) { }
-
-	    result & operator+=(const result & o) {
-		succeeded += o.succeeded;
-		failed += o.failed;
-		skipped += o.skipped;
-		return *this;
-	    }
-
-	    void reset() {
-		succeeded = 0;
-		failed = 0;
-		skipped = 0;
-	    }
-	};
-
-	/** Add a test-specific command line option.
+	/** Number of tests with result XFAIL.
 	 *
-	 *  The recognised option will be described as:
+	 *  I.e. tests which were expected to fail and did.
+	 */
+	unsigned int xfailed = 0;
+
+	/** Number of tests with result XFAIL.
 	 *
-	 *   -<s> <l>
-	 *
-	 *  And any value set will be put into arg.
+	 *  I.e. tests which were expected to fail but passed.
 	 */
-	static void add_command_line_option(const std::string &l, char s,
-					    std::string * arg);
+	unsigned int xpassed = 0;
 
-	/** Parse the command line arguments.
-	 *
-	 *  @param  argc	The argument count passed into ::main()
-	 *  @param  argv	The argument list passed into ::main()
-	 */
-	static void parse_command_line(int argc, char **argv);
+	result & operator+=(const result & o) {
+	    succeeded += o.succeeded;
+	    failed += o.failed;
+	    skipped += o.skipped;
+	    xfailed += o.xfailed;
+	    xpassed += o.xpassed;
+	    return *this;
+	}
 
-	XAPIAN_NORETURN(static void usage());
+	void reset() {
+	    succeeded = 0;
+	    failed = 0;
+	    skipped = 0;
+	    xfailed = 0;
+	    xpassed = 0;
+	}
+    };
 
-	static int run(const test_desc *tests);
+    /** Add a test-specific command line option.
+     *
+     *  The recognised option will be described as:
+     *
+     *   -<s> <l>
+     *
+     *  And any value set will be put into arg.
+     */
+    static void add_command_line_option(const std::string &l, char s,
+					std::string * arg);
 
-	/** The constructor, which sets up the test driver.
-	 *
-	 *  @param tests The zero-terminated array of tests to run.
-	 */
-	test_driver(const test_desc *tests_);
+    /** Parse the command line arguments.
+     *
+     *  @param  argc	The argument count passed into ::main()
+     *  @param  argv	The argument list passed into ::main()
+     */
+    static void parse_command_line(int argc, char **argv);
 
-	/** Run all the tests supplied and return the results
-	 */
-	result run_tests();
+    [[noreturn]]
+    static void usage();
 
-	/** Run the tests in the list and return the results
-	 */
-	result run_tests(std::vector<std::string>::const_iterator b,
-			 std::vector<std::string>::const_iterator e);
+    static int run(const test_desc *tests);
 
-	/** Read srcdir from environment and if not present, make a valiant
-	 *  attempt to guess a value
-	 */
-	static std::string get_srcdir();
+    /** The constructor, which sets up the test driver.
+     *
+     *  @param tests The zero-terminated array of tests to run.
+     */
+    test_driver(const test_desc *tests_);
 
-	// Running subtotal for current backend.
-	static result subtotal;
+    /** Run all the tests supplied and return the results
+     */
+    result run_tests();
 
-	// Running total for the whole test run.
-	static result total;
+    /** Run the tests in the list and return the results
+     */
+    result run_tests(std::vector<std::string>::const_iterator b,
+		     std::vector<std::string>::const_iterator e);
 
-	/// Print summary of tests passed, failed, and skipped.
-	static void report(const test_driver::result &r, const std::string &desc);
+    /** Read srcdir from environment and if not present, make a valiant
+     *  attempt to guess a value
+     */
+    static std::string get_srcdir();
 
-    private:
-	/** Prevent copying */
-	test_driver(const test_driver &);
-	test_driver & operator=(const test_driver &);
+    // Running subtotal for current backend.
+    static result subtotal;
 
-	typedef enum { PASS = 1, FAIL = 0, SKIP = -1 } test_result;
+    // Running total for the whole test run.
+    static result total;
 
-	static std::map<int, std::string *> short_opts;
+    /// Print summary of tests passed, failed, and skipped.
+    static void report(const test_driver::result &r, const std::string &desc);
 
-	static std::string opt_help;
+  private:
+    /** Prevent copying */
+    test_driver(const test_driver &);
+    test_driver & operator=(const test_driver &);
 
-	static std::vector<std::string> test_names;
+    enum test_result {
+	XPASS = 3, XFAIL = 2, PASS = 1, FAIL = 0, SKIP = -1
+    };
 
-	/** Runs the test function and returns its result.  It will
-	 *  also trap exceptions and some memory leaks and force a
-	 *  failure in those cases.
-	 *
-	 *  @param test A description of the test to run.
-	 */
-	test_result runtest(const test_desc *test);
+    static std::map<int, std::string *> short_opts;
 
-	/** The implementation used by run_tests.
-	 *  it runs test(s) (with runtest()), prints out messages for
-	 *  the user, and tracks the successes and failures.
-	 *
-	 *  @param b, e  If b != e, a vector of the test(s) to run.
-	 *               If b == e, all tests will be run.
-	 */
-	result do_run_tests(std::vector<std::string>::const_iterator b,
-			    std::vector<std::string>::const_iterator e);
+    static std::string opt_help;
 
-	// abort tests at the first failure
-	static bool abort_on_error;
+    static std::vector<std::string> test_names;
 
-	// the default stream to output to
-	std::ostream out;
+    /** Runs the test function and returns its result.  It will
+     *  also trap exceptions and some memory leaks and force a
+     *  failure in those cases.
+     *
+     *  @param test A description of the test to run.
+     */
+    test_result runtest(const test_desc *test);
 
-	// the list of tests to run.
-	const test_desc *tests;
+    /** The implementation used by run_tests.
+     *  it runs test(s) (with runtest()), prints out messages for
+     *  the user, and tracks the successes and failures.
+     *
+     *  @param b, e  If b != e, a vector of the test(s) to run.
+     *               If b == e, all tests will be run.
+     */
+    result do_run_tests(std::vector<std::string>::const_iterator b,
+			std::vector<std::string>::const_iterator e);
 
-	// how many test runs we've done - no summary if just one run
-	static int runs;
+    // abort tests at the first failure
+    static bool abort_on_error;
 
-	// program name
-	static std::string argv0;
+    // the default stream to output to
+    std::ostream out;
 
-	// strings to use for colouring - empty if output isn't a tty
-	static std::string col_red, col_green, col_yellow, col_reset;
+    // the list of tests to run.
+    const test_desc *tests;
 
-	// use \r to not advance a line when a test passes (this only
-	// really makes sense if the output is a tty)
-	static bool use_cr;
+    // how many test runs we've done - no summary if just one run
+    static int runs;
+
+    // program name
+    static std::string argv0;
+
+    // strings to use for colouring - empty if output isn't a tty
+    static std::string col_red, col_green, col_yellow, col_reset;
+
+    // use \r to not advance a line when a test passes (this only
+    // really makes sense if the output is a tty)
+    static bool use_cr;
 };
-
-/// Display the location at which a testcase occurred, with an explanation.
-#define TESTCASE_LOCN(a) __FILE__ ":" STRINGIZE(__LINE__) ": " STRINGIZE(a)
 
 /** Test a condition, and display the test with an extra explanation if
  *  the condition fails.
@@ -244,7 +266,8 @@ class test_driver {
 #define TEST_AND_EXPLAIN(a, b) do {\
 	bool test_and_explain_fail_ = !(a);\
 	UNITTEST_CHECK_EXCEPTION\
-	if (test_and_explain_fail_) FAIL_TEST(TESTCASE_LOCN(a) << std::endl << b << std::endl);\
+	if (test_and_explain_fail_)\
+	    FAIL_TEST(STRINGIZE(a) << std::endl << b << std::endl);\
     } while (0)
 
 /// Test a condition, without an additional explanation for failure.
@@ -282,9 +305,31 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be equal:" \
 	" were " << (a) << " and " << (b))
 
-#define DEFINE_TESTCASE(S,COND) bool test_##S()
+#define DEFINE_TESTCASE(S,COND) void test_##S()
 
 // Newer test macros:
 #include "testmacros.h"
 
-#endif // OM_HGUARD_TESTSUITE_H
+/** Mark a testcase as expected to fail.
+ *
+ *  @param msg	An static string explaining why the testcase is expected to
+ *		fail.  Must not be NULL.
+ *
+ *  This is intended to be used temporarily to mark tests for known bugs before
+ *  the bugs are fixed.  If the test fails, the result will be shown as "XFAIL"
+ *  and this won't cause the test run to fail.  However, if a test marked in
+ *  this way actually passed, the result will be shown as "XPASS" and the test
+ *  run *will* fail.  (So XFAIL is explicitly not suitable for marking "flaky"
+ *  testcases - please fix flaky testcases rather than trying to find a way to
+ *  mark them as flaky!)
+ *
+ *  This macro should be used inside the testcase code.  It can be used inside
+ *  a conditional if the testcase is only expected to fail in certain situations
+ *  (for example, only for some backends) - it only has an effect if it is
+ *  actually executed.
+ */
+inline void XFAIL(const char* msg) {
+    expected_failure = msg;
+}
+
+#endif // XAPIAN_INCLUDED_TESTSUITE_H

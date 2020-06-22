@@ -3,15 +3,19 @@ noinst_HEADERS +=\
 	backends/backends.h\
 	backends/byte_length_strings.h\
 	backends/contiguousalldocspostlist.h\
-	backends/database.h\
+	backends/databasehelpers.h\
+	backends/databaseinternal.h\
 	backends/databasereplicator.h\
-	backends/document.h\
+	backends/documentinternal.h\
+	backends/empty_database.h\
 	backends/flint_lock.h\
+	backends/leafpostlist.h\
 	backends/multi.h\
-	backends/multivaluelist.h\
 	backends/positionlist.h\
+	backends/postlist.h\
 	backends/prefix_compressed_strings.h\
 	backends/slowvaluelist.h\
+	backends/uuids.h\
 	backends/valuelist.h\
 	backends/valuestats.h
 
@@ -21,10 +25,16 @@ EXTRA_DIST +=\
 lib_src +=\
 	backends/alltermslist.cc\
 	backends/dbcheck.cc\
-	backends/database.cc\
+	backends/databasehelpers.cc\
+	backends/databaseinternal.cc\
 	backends/databasereplicator.cc\
 	backends/dbfactory.cc\
+	backends/documentinternal.cc\
+	backends/empty_database.cc\
+	backends/leafpostlist.cc\
+	backends/postlist.cc\
 	backends/slowvaluelist.cc\
+	backends/uuids.cc\
 	backends/valuelist.cc
 
 if BUILD_BACKEND_REMOTE
@@ -34,8 +44,14 @@ endif
 
 if BUILD_BACKEND_GLASS
 lib_src +=\
-        backends/contiguousalldocspostlist.cc\
+	backends/contiguousalldocspostlist.cc\
 	backends/flint_lock.cc
+else
+if BUILD_BACKEND_HONEY
+lib_src +=\
+	backends/contiguousalldocspostlist.cc\
+	backends/flint_lock.cc
+endif
 endif
 
 # To add a new database backend:
@@ -51,6 +67,7 @@ endif
 # 7) Write the backend code!
 
 include backends/glass/Makefile.mk
+include backends/honey/Makefile.mk
 include backends/inmemory/Makefile.mk
 include backends/multi/Makefile.mk
 include backends/remote/Makefile.mk

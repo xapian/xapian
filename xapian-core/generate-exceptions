@@ -1,6 +1,6 @@
 # generate-exceptions: generate C++ files for Xapian's exception hierarchy.
 #
-# Copyright (C) 2003,2004,2006,2007,2008,2009,2011,2012,2013,2014,2015 Olly Betts
+# Copyright (C) 2003,2004,2006,2007,2008,2009,2011,2012,2013,2014,2015,2017,2019 Olly Betts
 # Copyright (C) 2007 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -21,7 +21,9 @@ use strict;
 use exception_data qw(
     $copyright $generated_warning @baseclasses @classes %classcode
 );
+use File::Path qw(mkpath);
 
+mkpath("include/xapian");
 open HDR, ">include/xapian/error.h" or die $!;
 open DISPATCH, ">include/xapian/errordispatch.h" or die $!;
 
@@ -43,7 +45,7 @@ print HDR <<'EOF';
 #define XAPIAN_INCLUDED_ERROR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/error.h> directly; include <xapian.h> instead."
+# error Never use <xapian/error.h> directly; include <xapian.h> instead.
 #endif
 
 #include <string>
@@ -52,26 +54,20 @@ print HDR <<'EOF';
 
 namespace Xapian {
 
-class ErrorHandler;
-
 /** All exceptions thrown by Xapian are subclasses of Xapian::Error.
  *
  *  This class can not be instantiated directly - instead a subclass should
  *  be used.
  */
 class XAPIAN_VISIBILITY_DEFAULT Error {
-    // ErrorHandler needs to be able to access Error::already_handled.
-    friend class ErrorHandler;
-
     /// Message giving details of the error, intended for human consumption.
     std::string msg;
 
     /** Optional context information.
      *
-     *  This context is intended for use by Xapian::ErrorHandler (for example
-     *  so it can know which remote server is unreliable and report the problem
-     *  and remove that server from those being searched).  But it's typically
-     *  a plain-text string, and so also fit for human consumption.
+     *  This context is intended for machine use (for example to know which
+     *  remote server an error came from), but it is typically a
+     *  plain-text string, and so also fit for human consumption.
      */
     std::string context;
 
@@ -101,9 +97,6 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      */
     int my_errno;
 
-    /// True if this error has already been passed to an ErrorHandler.
-    bool already_handled;
-
     /// Don't allow assignment of the base class.
     void operator=(const Error &o);
 
@@ -120,27 +113,33 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
     Error(const std::string &msg_, const std::string &context_,
 	  const char * type_, int errno_)
 	: msg(msg_), context(context_), error_string(), type(type_),
-	  my_errno(errno_), already_handled(false) { }
+	  my_errno(errno_) { }
 
   public:
+    /** Default copy constructor.
+     *
+     *  We explicitly specify this to avoid warnings from GCC 9 (from
+     *  -Wdeprecated-copy which is enabled by -Wextra).
+     */
+    Error(const Error&) = default;
+
     /// The type of this error (e.g. "DocNotFoundError".)
-    const char * XAPIAN_NOTHROW(get_type() const) {
+    const char* get_type() const noexcept {
 	return type + 1;
     }
 
     /// Message giving details of the error, intended for human consumption.
-    const std::string & XAPIAN_NOTHROW(get_msg() const) {
+    const std::string& get_msg() const noexcept {
 	return msg;
     }
 
     /** Optional context information.
      *
-     *  This context is intended for use by Xapian::ErrorHandler (for example
-     *  so it can know which remote server is unreliable and report the problem
-     *  and remove that server from those being searched).  But it's typically
-     *  a plain-text string, and so also fit for human consumption.
+     *  This context is intended for machine use (for example to know which
+     *  remote server an error came from), but it is typically a
+     *  plain-text string, and so also fit for human consumption.
      */
-    const std::string & XAPIAN_NOTHROW(get_context() const) {
+    const std::string& get_context() const noexcept {
 	return context;
     }
 
@@ -168,12 +167,27 @@ print DISPATCH <<'EOF';
 #ifndef DOXYGEN
 EOF
 
+# Format description for embedding in C /* ... */ comment.
+sub c_format_description {
+    my $d = shift;
+    if (defined $d && $d ne '') {
+	$d =~ s!^! *  !mg;
+	$d =~ s! +$!!mg;
+	$d = " *\n" . $d;
+    } else {
+	$d = '';
+    }
+    return $d;
+}
+
 for (@baseclasses) {
     chomp;
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class, $parent, $synopsis, $description) = @{$_};
+    $description = c_format_description($description);
     print HDR <<EOF;
 
-$comment
+/** $synopsis
+$description */
 class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
   protected:
     /** \@private \@internal
@@ -193,14 +207,16 @@ EOF
 
 for (@classes) {
     chomp;
-    my ($class, $parent, $comment) = split /\t/, $_, 3;
+    my ($class, $parent, $synopsis, $description) = @{$_};
+    $description = c_format_description($description);
     my $code = sprintf('\%03o', $classcode{$class});
 
     print DISPATCH "case '$code': throw Xapian::$class(msg, context, error_string);\n";
 
     print HDR <<EOF;
 
-$comment
+/** $synopsis
+$description */
 class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
   public:
     /** \@private \@internal

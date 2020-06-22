@@ -30,17 +30,19 @@ TESTS = \
 	t/valuerange.t \
 	t/writabledatabase.t
 AM_TESTS_ENVIRONMENT = \
+	srcdir='$(srcdir)' ;\
 	CPPFLAGS="$(CPPFLAGS)" ;\
 	CXX="$(CXX)" ;\
 	CXXFLAGS="$(CXXFLAGS)" ;\
 	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" ;\
+	export srcdir ;\
 	export CPPFLAGS ;\
 	export CXX ;\
 	export CXXFLAGS ;\
 	export XAPIAN_CONFIG ;
 LOG_COMPILER = \
-    $(LIBTOOL) -dlopen Xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PROVE)
-AM_LOG_FLAGS = -I. -I'$(srcdir)'
+    $(LIBTOOL) -dlopen Xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PERL) \
+	$(srcdir)/run-perl-test
 
 installcheck-local:
 	$(MAKE) AM_LOG_FLAGS=
@@ -58,8 +60,9 @@ auto/Xapian/Xapian$(PERL_SO): Xapian.la
 	. ./libtoolconfig.tmp; cp "$$objdir/Xapian$(PERL_SO)" auto/Xapian
 	rm -f libtoolconfig.tmp
 
-EXTRA_DIST = perl.i except.i $(TESTS) \
+EXTRA_DIST = perl.i except.i extra.i $(TESTS) \
 	generate-perl-exceptions \
+	run-perl-test \
 	Xapian.pm xapian_wrap.cc \
 	t/symbol-test/SymbolTest.pm \
 	t/symbol-test/typemap \
@@ -120,7 +123,6 @@ nobase_dist_perllib_DATA = \
 	Xapian/MultiValueSorter.pm \
 	Xapian/NetworkError.pm \
 	Xapian/NetworkTimeoutError.pm \
-	Xapian/PerlStopper.pm \
 	Xapian/PositionIterator.pm \
 	Xapian/PostingIterator.pm \
 	Xapian/QueryParserError.pm \
@@ -162,6 +164,7 @@ $(stamp): except.i
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -perl -module Xapian -proxy -const \
+	    -DPERL_XAPIAN_VERSION='"$(PERL_XAPIAN_VERSION)"' \
 	    -o xapian_wrap.cc '$(srcdir)/'perl.i
 	$(multitarget_end)
 

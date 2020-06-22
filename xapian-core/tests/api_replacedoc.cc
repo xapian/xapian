@@ -1,6 +1,7 @@
-/* api_replacedoc.cc: tests of document replacing.
- *
- * Copyright 2009 Richard Boulton
+/** @file api_replacedoc.cc
+ * @brief tests of document replacing.
+ */
+/* Copyright 2009 Richard Boulton
  * Copyright 2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -97,8 +98,6 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     TEST_EQUAL(docterms_to_string(db, 1),
 	       "Term(pos, wdf=1), "
 	       "Term(pos2, wdf=1)");
-
-    return true;
 }
 
 static Xapian::Document
@@ -192,7 +191,7 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     // Modify a document taken from the database.
     Xapian::Document doc4(db.get_document(1));
     Xapian::Document doc3a(db.get_document(1)); // need this one later
-    doc3a.termlist_count(); // Pull the document termlist into memory.
+    doc3a.add_boolean_term("takeaway"); // Pull the document termlist into memory.
     doc4.add_term("takeaway", 1);
     db.replace_document(1, doc4);
     dbcheck(db, 1, 1);
@@ -259,6 +258,4 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     TEST_EQUAL(db.get_doccount(), 0);
     TEST_EQUAL(db.get_avlength(), 0);
     TEST_EQUAL(db.get_lastdocid(), 1);
-
-    return true;
 }

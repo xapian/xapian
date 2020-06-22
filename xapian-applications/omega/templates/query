@@ -2,25 +2,6 @@ $httpheader{Content-Type,text/html; charset=utf-8}<!DOCTYPE html><html lang="en"
 $set{flag_spelling,$ne{$cgi{SPELL},0}}
 $set{thousand,$.}$set{decimal,.}
 $setmap{prefix,,$split{ S B F},title,S,author,A,topic,B}
-${
-$def{PREV,
-$if{$ne{$topdoc,0},<input type=image name="&lt;" alt="&lt;"
-src="/icons/omega/prev.png" height=30 width=30>,
-<img alt="" src="/icons/omega/prevoff.png" height=30 width=30>}
-}
-
-$def{NEXT,
-$if{$ne{$last,$msize},<input type=image name="&gt;" alt="&gt;"
-src="/icons/omega/next.png" height=30 width=30>,
-<img alt="" src="/icons/omega/nextoff.png" height=30 width=30>}
-}
-
-$def{P,<input type=image name="$1" value="$1" src="/icons/omega/page-$2.png" $opt{a} alt="$1">}
-$def{PAGE,$if{$gt{$1,9},$if{$gt{$1,99},$P{$1,$div{$1,100}}}$P{$1,$mod{$div{$1,10},10}}}$P{$1,$mod{$1,10}}}
-
-$def{S,<img src="/icons/omega/page-$2s.png" $opt{a} alt=$1>}
-$def{SPAGE,$if{$gt{$1,9},$if{$gt{$1,99},$S{$1,$div{$1,100}}}$S{$1,$mod{$div{$1,10},10}}}$S{$1,$mod{$1,10}}}
-}
 
 $def{PREV,$if{$ne{$topdoc,0},<input type=submit name="&lt;" value="Previous">}}
 
@@ -44,7 +25,7 @@ function write_date(time_t) {
 var d=new Date();d.setTime(time_t*1000);
 var D=d.getFullYear()+"-"+f2(d.getMonth()+1)+"-"+f2(d.getDate());
 var T=f2(d.getHours())+":"+f2(d.getMinutes())+":"+f2(d.getSeconds());
-document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
+document.write("<time datetime=\"$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}Z\" title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></time>");
 }
 // -->
 </script>
@@ -83,11 +64,13 @@ $if{$not{$msizeexact},
 }
 <hr>
 </center>
-$list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
+$if{$map{$queryterms,$set{U,$unstem{$_}}$set{F_$opt{U},$add{$opt{F_$opt{U}},$freq{$_}}}},$list{$unique{$map{$queryterms,$set{U,$unstem{$_}}$list{$html{$unique{$opt{U}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$opt{F_$opt{U}}}}},Term frequencies: ,$. ,}}
 <br><small>Search took $time seconds</small>
 <table>
+$if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
+$if{$opt{clicklog},$if{$log{search.log,$opt{queryid}$.$csv{$query,1}$.$csv{$hitlist{$id$if{$ne{$hit,$sub{$last,1}},$.}},1}$.$topdoc}}}
 $hitlist{<tr><td valign=top>
-${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
+$set{clickurl,$if{$opt{clicklog},$or{$env{SCRIPT_NAME},omega.cgi}?FMT=clicklog&DB=$url{$dbname}&QUERYID=$opt{queryid}&DOCID=$url{$id}&URL=$url{$field{url}},$field{url}}}
 <div title="$percentage%" style='float:left;width:60px;height:10px;border:1px solid black;margin-top:4px;'>
 <div style='width:$div{$mul{$percentage,6},10}px; height:10px; background-color: red;'>
 </div></div>
@@ -95,8 +78,8 @@ ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" heig
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
-<span title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
-Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
+<time datetime="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}Z" title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
+Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></time>
 </noscript><br>
 }
 $if{$field{language},Language: <b>$html{$field{language}}</b><br>}
@@ -106,9 +89,9 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 </div>
 </div>
 </td>
-<td><b><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
+<td><b><a href="$html{$opt{clickurl}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
 <small>$snippet{$field{sample}}</small><br>
-<a href="$html{$field{url}}">$html{$field{url}}</a><br>
+<a href="$html{$opt{clickurl}}">$html{$prettyurl{$field{url}}}</a><br>
 <small>
 matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
@@ -152,4 +135,4 @@ $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 <hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
-$log{query.log}
+$if{$log{query.log}}

@@ -28,8 +28,8 @@
 #include "xapian/error.h"
 #include "xapian/types.h"
 
-#include "autoptr.h"
 #include <map>
+#include <memory>
 #include <string>
 
 class GlassCursor;
@@ -91,9 +91,9 @@ class GlassValueManager {
 
     std::map<Xapian::docid, std::string> slots;
 
-    std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
+    std::map<Xapian::valueno, std::map<Xapian::docid, std::string>> changes;
 
-    mutable AutoPtr<GlassCursor> cursor;
+    mutable std::unique_ptr<GlassCursor> cursor;
 
     void add_value(Xapian::docid did, Xapian::valueno slot,
 		   const std::string & val);

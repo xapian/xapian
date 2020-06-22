@@ -25,7 +25,7 @@
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/geospatial.h> directly; include <xapian.h> instead."
+# error Never use <xapian/geospatial.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -44,27 +44,27 @@ namespace Xapian {
 class Registry;
 
 double
-XAPIAN_NOTHROW(miles_to_metres(double miles)) XAPIAN_CONST_FUNCTION;
+miles_to_metres(double miles) noexcept XAPIAN_CONST_FUNCTION;
 
 /** Convert from miles to metres.
  *
  *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 inline double
-miles_to_metres(double miles) XAPIAN_NOEXCEPT
+miles_to_metres(double miles) noexcept
 {
     return 1609.344 * miles;
 }
 
 double
-XAPIAN_NOTHROW(metres_to_miles(double metres)) XAPIAN_CONST_FUNCTION;
+metres_to_miles(double metres) noexcept XAPIAN_CONST_FUNCTION;
 
 /** Convert from metres to miles.
  *
  *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 inline double
-metres_to_miles(double metres) XAPIAN_NOEXCEPT
+metres_to_miles(double metres) noexcept
 {
     return metres * (1.0 / 1609.344);
 }
@@ -99,7 +99,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 
     /** Construct an uninitialised coordinate.
      */
-    XAPIAN_NOTHROW(LatLongCoord()) {}
+    LatLongCoord() noexcept {}
 
     /** Construct a coordinate.
      *
@@ -147,8 +147,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
      *  This is mostly provided so that things like std::map<LatLongCoord> work
      *  - the ordering isn't particularly meaningful.
      */
-    bool XAPIAN_NOTHROW(operator<(const LatLongCoord & other) const)
-    {
+    bool operator<(const LatLongCoord& other) const noexcept {
 	if (latitude < other.latitude) return true;
 	if (latitude > other.latitude) return false;
 	return (longitude < other.longitude);
@@ -394,7 +393,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
  *  formula is subject to inaccuracy due to numerical errors for coordinates on
  *  the opposite side of the sphere.
  *
- *  See http://en.wikipedia.org/wiki/Haversine_formula
+ *  See https://en.wikipedia.org/wiki/Haversine_formula
  */
 class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
     /** The radius of the sphere in metres.

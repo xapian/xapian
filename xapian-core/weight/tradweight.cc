@@ -1,7 +1,7 @@
 /** @file tradweight.cc
  * @brief Xapian::TradWeight class - the "traditional" probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011,2012,2014,2015 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include "weightinternal.h"
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -44,6 +45,12 @@ TradWeight::clone() const
 void
 TradWeight::init(double factor)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     Xapian::doccount tf = get_termfreq();
 
     double tw = 0;
@@ -124,6 +131,12 @@ TradWeight::name() const
 }
 
 string
+TradWeight::short_name() const
+{
+    return "trad";
+}
+
+string
 TradWeight::serialise() const
 {
     return serialise_double(param_k);
@@ -167,6 +180,25 @@ double
 TradWeight::get_maxextra() const
 {
     return 0;
+}
+
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "trad");
+}
+
+TradWeight *
+TradWeight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::TradWeight();
+    double k = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	parameter_error("Parameter is invalid");
+    if (*p)
+	parameter_error("Extra data after parameter");
+    return new Xapian::TradWeight(k);
 }
 
 }

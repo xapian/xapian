@@ -35,18 +35,17 @@
 #include "fd.h"
 #include "internaltypes.h"
 #include "io_utils.h"
-#include "noreturn.h"
 #include "pack.h"
 #include "posixy_wrapper.h"
 #include "net/remoteconnection.h"
 #include "replicationprotocol.h"
-#include "safeerrno.h"
 #include "str.h"
 #include "stringutils.h"
 
 #include <algorithm>
+#include <cerrno>
 
-XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
+[[noreturn]]
 static void
 throw_connection_closed_unexpectedly()
 {
@@ -179,7 +178,7 @@ GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table,
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
 
-    unsigned int changeset_blocksize = 2048 << v;
+    unsigned int changeset_blocksize = GLASS_MIN_BLOCKSIZE << v;
     if (changeset_blocksize > 65536 ||
 	(changeset_blocksize & (changeset_blocksize - 1))) {
 	throw NetworkError("Invalid blocksize in changeset");
@@ -303,7 +302,8 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	// 11111111 - last chunk
 	// 11111110 - version file
 	// 00BBBTTT - table block:
-	//   Block size = (2048<<BBB) BBB=0..5; Table TTT=0..(Glass::MAX_-1)
+	//   Block size = (GLASS_MIN_BLOCKSIZE<<BBB) BBB=0..5
+	//   Table TTT=0..(Glass::MAX_-1)
 	unsigned char chunk_type = *ptr++;
 	if (chunk_type == 0xff)
 	    break;

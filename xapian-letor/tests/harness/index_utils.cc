@@ -1,6 +1,7 @@
-/* index_utils.cc - utility functions for indexing testcase data
- *
- * Copyright (C) 2005,2007,2013 Olly Betts
+/** @file index_utils.cc
+ * @brief utility functions for indexing testcase data
+ */
+/* Copyright (C) 2005,2007,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +22,13 @@
 
 #include "index_utils.h"
 
+#include "errno_to_string.h"
 #include "stringutils.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstring>
 #include <fstream>
-
-#include "safeerrno.h"
 
 using namespace std;
 
@@ -95,7 +96,7 @@ FileIndexer::index_to(Xapian::WritableDatabase & db)
 	// Value 13 contains the first 3 letters of the paragraph
 	doc.add_value(13, para.substr(0, 3));
 
-	Xapian::termcount pos = 0;
+	Xapian::termpos pos = 0;
 	string::const_iterator word_end = para.begin();
 	// Need a const_iterator version of para.end() for find_if.
 	const string::const_iterator para_end = para.end();
@@ -171,7 +172,14 @@ FileIndexer::next_file()
     string filename;
     if (!datadir.empty()) {
 	filename = datadir;
-	if (!endswith(datadir, '/')) filename += '/';
+	bool need_slash = true;
+	for (char dir_sep : DIR_SEPS_LIST) {
+	    if (filename.back() == dir_sep) {
+		need_slash = false;
+		break;
+	    }
+	}
+	if (need_slash) filename += '/';
     }
     filename += *file++;
     filename += ".txt";
@@ -182,7 +190,7 @@ FileIndexer::next_file()
 	string msg = "Can't read file '";
 	msg += filename;
 	msg += "' for indexing (";
-	msg += strerror(errno);
+	errno_to_string(errno, msg);
 	msg += ')';
 	throw msg;
     }

@@ -3,7 +3,7 @@
 # @file rfc822tohtml
 # @brief Extract HTML from an RFC-822 email
 #
-# Copyright (C) 2010,2015 Olly Betts
+# Copyright (C) 2010,2015,2018,2019 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -55,11 +55,17 @@ print "\">\n";
 
 my $date = do_header($head, 'Date');
 chomp $date;
-$date = Time::Piece->strptime($date, '%a, %d %b %Y %T %z');
 eval {
+    eval {
+	$date = Time::Piece->strptime($date, '%a, %d %b %Y %T %z');
+    };
+    # The "%a, " part is optional in RFC822 and RFC2822.
+    $date = Time::Piece->strptime($date, '%d %b %Y %T %z') if $@;
     my $iso8601_date = $date->datetime;
     print "<meta name=\"created\" content=\"$iso8601_date\">\n";
 };
+
+warn $@ if $@;
 
 print "</head>\n";
 

@@ -4,7 +4,8 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2019 Olly Betts
+ * Copyright 2019 Bruno Baruffaldi
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +31,7 @@
 #include <string>
 #include <xapian.h>
 
+class Worker;
 class DirectoryIterator;
 
 enum skip_flags { SKIP_VERBOSE_ONLY = 0x01, SKIP_SHOW_FILENAME = 0x02 };
@@ -48,22 +50,49 @@ struct Filter {
     std::string cmd;
     std::string output_type;
     std::string output_charset;
-    bool no_shell;
-    Filter() : cmd(), output_type(), no_shell(false) { }
-    explicit Filter(const std::string & cmd_, bool use_shell_ = true)
-	: cmd(cmd_), output_type(), no_shell(!use_shell_) { }
+    enum {
+	USE_SHELL = 1,
+	PIPE_IN = 2,
+	PIPE_DEV_STDIN = 4,
+	SEEK_DEV_STDIN = 8
+    };
+    unsigned flags = 0;
+    Filter() { }
+    explicit Filter(const std::string & cmd_, unsigned flags_ = 0)
+	: cmd(cmd_), output_type(), flags(flags_) { }
     Filter(const std::string & cmd_, const std::string & output_type_,
-	   bool use_shell_ = true)
-	: cmd(cmd_), output_type(output_type_), no_shell(!use_shell_) { }
+	   unsigned flags_ = 0)
+	: cmd(cmd_), output_type(output_type_), flags(flags_) { }
     Filter(const std::string & cmd_, const std::string & output_type_,
 	   const std::string & output_charset_,
-	   bool use_shell_ = true)
+	   unsigned flags_ = 0)
 	: cmd(cmd_), output_type(output_type_),
-	  output_charset(output_charset_), no_shell(!use_shell_) { }
-    bool use_shell() const { return !no_shell; }
+	  output_charset(output_charset_), flags(flags_) { }
+    bool use_shell() const { return flags & USE_SHELL; }
+    bool input_on_stdin() const {
+#ifdef HAVE_DEV_STDIN
+	return flags & (PIPE_IN | PIPE_DEV_STDIN | SEEK_DEV_STDIN);
+#else
+	return flags & PIPE_IN;
+#endif
+    }
+    bool dev_stdin() const {
+#ifdef HAVE_DEV_STDIN
+	return flags & (PIPE_DEV_STDIN | SEEK_DEV_STDIN);
+#else
+	return false;
+#endif
+    }
 };
 
 extern std::map<std::string, Filter> commands;
+extern std::map<std::string, Worker *> workers;
+
+inline void
+index_library(const std::string& type, Worker* worker)
+{
+    workers[type] = worker;
+}
 
 inline void
 index_command(const std::string & type, const Filter & filter)
@@ -86,16 +115,25 @@ skip(const std::string & urlterm, const std::string & context,
 void
 index_add_default_filters();
 
+/// Call to set up the default libraries.
+void
+index_add_default_libraries();
+
 /// Initialise.
 void
 index_init(const std::string & dbpath, const Xapian::Stem & stemmer,
-	   const std::string & root_, const std::string & site_term_,
-	   const std::string & host_term_,
+	   const std::string & root_,
+	   const std::string & site_term_, const std::string & host_term_,
 	   empty_body_type empty_body_, dup_action_type dup_action_,
-	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
+	   size_t sample_size_, size_t title_size_,
+	   size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
-	   bool spelling, bool ignore_exclusions_, bool description_as_sample);
+	   bool spelling, bool ignore_exclusions_, bool description_as_sample,
+	   bool date_terms);
+
+void
+index_remove_failed_entry(const std::string & urlterm);
 
 void
 index_add_document(const std::string & urlterm, time_t last_altered,
@@ -106,8 +144,9 @@ void
 index_mimetype(const std::string & file, const std::string & urlterm,
 	       const std::string & url,
 	       const std::string & ext,
-	       const std::string &mimetype, DirectoryIterator &d,
-	       Xapian::Document &doc,
+	       std::string mimetype,
+	       DirectoryIterator & d,
+	       std::string pathterm,
 	       std::string record);
 
 /// Delete any previously indexed documents we haven't seen.

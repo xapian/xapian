@@ -2,7 +2,7 @@
  * @brief Xapian::PL2PlusWeight class - the PL2+ weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013 Aarsh Shah
- * Copyright (C) 2013,2014,2016 Olly Betts
+ * Copyright (C) 2013,2014,2016,2017 Olly Betts
  * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -24,10 +24,13 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include "weightinternal.h"
 
 #include "serialise-double.h"
 
 #include "xapian/error.h"
+
+#include <algorithm>
 
 using namespace std;
 
@@ -37,9 +40,9 @@ PL2PlusWeight::PL2PlusWeight(double c, double delta)
 	: param_c(c), param_delta(delta)
 {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter c is invalid");
     if (param_delta <= 0)
-	throw Xapian::InvalidArgumentError("Parameter delta is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter delta is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
@@ -60,6 +63,12 @@ PL2PlusWeight::clone() const
 void
 PL2PlusWeight::init(double factor_)
 {
+    if (factor_ == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     factor = factor_;
 
     if (get_wdf_upper_bound() == 0) {
@@ -131,6 +140,12 @@ PL2PlusWeight::name() const
 }
 
 string
+PL2PlusWeight::short_name() const
+{
+    return "pl2plus";
+}
+
+string
 PL2PlusWeight::serialise() const
 {
     string result = serialise_double(param_c);
@@ -184,6 +199,28 @@ double
 PL2PlusWeight::get_maxextra() const
 {
     return 0;
+}
+
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "pl2plus");
+}
+
+PL2PlusWeight *
+PL2PlusWeight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::PL2PlusWeight();
+    double k = 1.0;
+    double delta = 0.8;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	parameter_error("Parameter is invalid");
+    if (!Xapian::Weight::Internal::double_param(&p, &delta))
+	parameter_error("Parameter is invalid");
+    if (*p)
+	parameter_error("Extra data after parameter");
+    return new Xapian::PL2PlusWeight(k, delta);
 }
 
 }

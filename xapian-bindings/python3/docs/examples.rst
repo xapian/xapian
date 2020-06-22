@@ -4,7 +4,7 @@ Examples
 .. _simplesearch:
 
 simplesearch.py
-==============
+===============
 
 .. literalinclude :: examples/simplesearch.py
    :language: python

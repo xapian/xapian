@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013,2014,2015,2016,2017,2019,2020 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,9 @@
 /* Ignore these functions: */
 %ignore Xapian::iterator_rewind;
 %ignore Xapian::iterator_valid;
-%ignore Xapian::sortable_serialise_;
+
+/* Ignore anything ending in an underscore, which is for internal use only: */
+%rename("$ignore", regexmatch$name="_$") "";
 
 /* A class which can usefully be subclassed in the target language. */
 %define SUBCLASSABLE(NS, CLASS)
@@ -52,6 +54,7 @@
     %ignore NS::CLASS::CLASS(Internal*);
     %ignore NS::CLASS::CLASS(Internal&);
     %ignore NS::CLASS::operator=;
+    %ignore NS::CLASS::CLASS(CLASS &&);
 %enddef
 #else
 %define STANDARD_IGNORES(NS, CLASS)
@@ -60,6 +63,7 @@
     %ignore NS::CLASS::CLASS(Internal&);
     %ignore NS::CLASS::operator=;
     %ignore NS::CLASS::CLASS(const CLASS &);
+    %ignore NS::CLASS::CLASS(CLASS &&);
 %enddef
 #endif
 
@@ -72,6 +76,19 @@
 #else
 /* Otherwise, next and prev return void. */
 #define INC_OR_DEC(METHOD, OP, NS, CLASS, RET_TYPE) void METHOD() { OP(*self); }
+#endif
+
+#ifdef SWIGPERL
+/* In Perl, use inc() and dec() instead of next() and prev(). */
+#define NEXT_METHOD inc
+#define PREV_METHOD dec
+#define OPERATOR_EQ(NS, CLASS) bool equal(const NS::CLASS & o) const { return *self == o; }
+#define OPERATOR_NE(NS, CLASS) bool nequal(const NS::CLASS & o) const { return *self != o; }
+#else
+#define NEXT_METHOD next
+#define PREV_METHOD prev
+#define OPERATOR_EQ(NS, CLASS) bool equals(const NS::CLASS & o) const { return *self == o; }
+#define OPERATOR_NE(NS, CLASS)
 #endif
 
 /* For other languages, SWIG already renames operator() suitably. */
@@ -90,9 +107,10 @@
     %ignore NS::CLASS::operator++;
     %ignore NS::CLASS::operator*;
     %extend NS::CLASS {
-	bool equals(const NS::CLASS & o) const { return *self == o; }
+	OPERATOR_EQ(NS, CLASS)
+	OPERATOR_NE(NS, CLASS)
 	RET_TYPE DEREF_METHOD() const { return **self; }
-	INC_OR_DEC(next, ++, NS, CLASS, RET_TYPE)
+	INC_OR_DEC(NEXT_METHOD, ++, NS, CLASS, RET_TYPE)
     }
 %enddef
 
@@ -104,7 +122,7 @@
     %ignore NS::CLASS::operator+;
     %ignore NS::CLASS::operator-;
     %extend NS::CLASS {
-	INC_OR_DEC(prev, --, NS, CLASS, RET_TYPE)
+	INC_OR_DEC(PREV_METHOD, --, NS, CLASS, RET_TYPE)
     }
 %enddef
 
@@ -151,6 +169,8 @@
  */
 /* %include <xapian/version.h> */
 
+CONSTANT(Xapian::valueno, Xapian, BAD_VALUENO);
+
 /* Types are needed by most of the other headers. */
 %include <xapian/types.h>
 
@@ -164,6 +184,7 @@ CONSTANT(int, Xapian, DB_DANGEROUS);
 CONSTANT(int, Xapian, DB_NO_TERMLIST);
 CONSTANT(int, Xapian, DB_BACKEND_CHERT);
 CONSTANT(int, Xapian, DB_BACKEND_GLASS);
+CONSTANT(int, Xapian, DB_BACKEND_HONEY);
 CONSTANT(int, Xapian, DB_BACKEND_INMEMORY);
 CONSTANT(int, Xapian, DB_BACKEND_STUB);
 CONSTANT(int, Xapian, DB_RETRY_LOCK);
@@ -181,9 +202,6 @@ CONSTANT(int, Xapian, DOC_ASSUME_VALID);
 /* The Error subclasses are handled separately for languages where we wrap
  * them. */
 /* %include <xapian/error.h> */
-
-/* ErrorHandler isn't currently wrapped. */
-/* %include <xapian/errorhandler.h> */
 
 INPUT_ITERATOR_METHODS(Xapian, PositionIterator, Xapian::termpos, get_termpos)
 %include <xapian/positioniterator.h>
@@ -206,22 +224,20 @@ STANDARD_IGNORES(Xapian, Registry)
 
 STANDARD_IGNORES(Xapian, Query)
 %ignore Xapian::Query::Internal;
-%ignore Xapian::InvertedQuery_;
 %ignore operator Query;
 %ignore *::operator&(const Xapian::Query &, const Xapian::InvertedQuery_ &);
 %ignore *::operator~;
 %ignore *::operator&=;
+%ignore ::operator&=;
 %ignore *::operator|=;
 %ignore *::operator^=;
 %ignore *::operator*=;
 %ignore *::operator/=;
-#if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGLUA || defined SWIGPHP
 %ignore *::operator&;
 %ignore *::operator|;
 %ignore *::operator^;
 %ignore *::operator*;
 %ignore *::operator/;
-#endif
 %ignore Xapian::Query::LEAF_TERM;
 %ignore Xapian::Query::LEAF_POSTING_SOURCE;
 %ignore Xapian::Query::LEAF_MATCH_ALL;
@@ -237,7 +253,7 @@ STANDARD_IGNORES(Xapian, Query)
 #endif
 #ifndef XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 %ignore Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-              Xapian::termcount parameter = 0);
+	      Xapian::termcount parameter = 0);
 #endif
 %include <xapian/query.h>
 
@@ -283,7 +299,7 @@ STANDARD_IGNORES(Xapian, MSet)
 	return (*self)[i];
     }
 
-    Xapian::percent get_document_percentage(Xapian::doccount i) const {
+    int get_document_percentage(Xapian::doccount i) const {
 	return self->convert_to_percent((*self)[i]);
     }
 }
@@ -301,9 +317,13 @@ RANDOM_ACCESS_ITERATOR_METHODS(Xapian, ESetIterator, std::string, get_term)
 
 STANDARD_IGNORES(Xapian, RSet)
 
-STANDARD_IGNORES(Xapian, Enquire)
+%include <xapian/rset.h>
 
 SUBCLASSABLE(Xapian, MatchDecider)
+
+%include <xapian/matchdecider.h>
+
+STANDARD_IGNORES(Xapian, Enquire)
 
 #ifdef XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
 /* Instantiating the template we're going to use avoids SWIG wrapping uses
@@ -322,10 +342,6 @@ SUBCLASSABLE(Xapian, MatchDecider)
     }
 }
 #endif
-
-/* We don't wrap ErrorHandler, so ignore the optional ErrorHandler parameter.
- */
-%ignore Enquire(const Database &, ErrorHandler *);
 
 %include <xapian/enquire.h>
 
@@ -361,10 +377,8 @@ SUBCLASSABLE(Xapian, FieldProcessor)
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::Stopper;
 SUBCLASSABLE(Xapian, RangeProcessor)
 SUBCLASSABLE(Xapian, Stopper)
-SUBCLASSABLE(Xapian, ValueRangeProcessor)
 // Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::RangeProcessor;
-%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::ValueRangeProcessor;
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::FieldProcessor;
 STANDARD_IGNORES(Xapian, QueryParser)
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);
@@ -386,11 +400,6 @@ STANDARD_IGNORES(Xapian, Weight)
  */
 %ignore Xapian::Weight::Weight(const Weight &);
 %ignore Xapian::Weight::clone;
-%ignore Xapian::Weight::clone_;
-%ignore Xapian::Weight::init_;
-%ignore Xapian::Weight::get_sumpart_needs_doclength_;
-%ignore Xapian::Weight::get_sumpart_needs_uniqueterms_;
-%ignore Xapian::Weight::get_sumpart_needs_wdf_;
 %ignore Xapian::Weight::serialise;
 %ignore Xapian::Weight::unserialise;
 %include <xapian/weight.h>
@@ -407,7 +416,6 @@ SUBCLASSABLE(Xapian, PostingSource)
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::PostingSource;
 SUBCLASSABLE(Xapian, ValuePostingSource)
 SUBCLASSABLE(Xapian, ValueWeightPostingSource)
-%ignore Xapian::PostingSource::register_matcher_;
 %ignore Xapian::PostingSource::unserialise_with_registry;
 %include <xapian/postingsource.h>
 
@@ -425,7 +433,6 @@ INPUT_ITERATOR_METHODS(Xapian, LatLongCoordsIterator, LatLongCoord, get_coord)
 STANDARD_IGNORES(Xapian, Database)
 STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
-%ignore Xapian::Database::get_document_lazily_;
 %ignore Xapian::Database::check(const std::string &, int, std::ostream *);
 %ignore Xapian::Database::check(int fd, int, std::ostream *);
 %include <xapian/database.h>
@@ -437,24 +444,44 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 
 #if defined SWIGCSHARP || defined SWIGJAVA
 
-/* xapian/dbfactory.h is currently wrapped via fake class declarations in
- * fake_dbfactory.i for C# and Java. */
+/* C# and Java don't allow functions outside a class so we can't use SWIG's
+ * %nspace feature here.  Instead we pretend to SWIG that the C++
+ * Xapian::Remote namespace is actually a Xapian::Remote class with public
+ * static functions.  The code SWIG generates will work fine, and we get
+ * xapian.Remote.open() in Java and Xapian.Remote.open() in C#.
+ */
+
+namespace Xapian {
+
+class Remote {
+    // Private constructor and destructor so SWIG doesn't try to call them.
+    Remote();
+    ~Remote();
+  public:
+    static Database open(const std::string &host,
+			 unsigned int port,
+			 unsigned timeout = 10000,
+			 unsigned connect_timeout = 10000);
+
+    static WritableDatabase open_writable(const std::string &host,
+					  unsigned int port,
+					  unsigned timeout = 0,
+					  unsigned connect_timeout = 10000,
+					  int flags = 0);
+
+    static Database open(const std::string &program,
+			 const std::string &args,
+			 unsigned timeout = 10000);
+
+    static WritableDatabase open_writable(const std::string &program,
+					  const std::string &args,
+					  unsigned timeout = 0,
+					  int flags = 0);
+};
+
+}
 
 #else
-
-#ifdef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
-%ignore Xapian::InMemory::open;
-%ignore Xapian::Auto::open_stub;
-#else
-
-%rename("inmemory_open") Xapian::InMemory::open;
-
-#ifndef SWIGPHP
-/* PHP renames this to auto_open_stub() in php/php.i. */
-%rename("open_stub") Xapian::Auto::open_stub;
-#endif
-
-#endif
 
 %rename("remote_open") Xapian::Remote::open;
 %rename("remote_open_writable") Xapian::Remote::open_writable;

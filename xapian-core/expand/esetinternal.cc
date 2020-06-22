@@ -1,7 +1,7 @@
 /** @file esetinternal.cc
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010,2011,2013,2016 Olly Betts
+/* Copyright (C) 2008,2010,2011,2013,2016,2017,2018 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,17 +25,20 @@
 
 #include "xapian/enquire.h"
 #include "xapian/expanddecider.h"
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
+#include "backends/multi.h"
 #include "debuglog.h"
-#include "api/omenquireinternal.h"
+#include "api/rsetinternal.h"
 #include "expandweight.h"
+#include "heap.h"
 #include "omassert.h"
 #include "ortermlist.h"
 #include "str.h"
 #include "api/termlist.h"
+#include "termlistmerger.h"
 #include "unicode/description_append.h"
 
-#include "autoptr.h"
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -55,16 +58,6 @@ Internal::ExpandTerm::get_description() const
     return desc;
 }
 
-template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) const { delete p; }
-};
-
-struct CompareTermListSizeAscending {
-    bool operator()(const TermList *a, const TermList *b) const {
-	return a->get_approx_size() > b->get_approx_size();
-    }
-};
-
 /** Build a tree of binary TermList objects like QueryOptimiser does for
  *  OrPostList objects.
  */
@@ -73,64 +66,20 @@ build_termlist_tree(const Xapian::Database &db, const RSet & rset)
 {
     Assert(!rset.empty());
 
-    const set<Xapian::docid> & docids = rset.internal->get_items();
+    const set<Xapian::docid> & docids = rset.internal->docs;
 
     vector<TermList*> termlists;
     termlists.reserve(docids.size());
 
     try {
-	const size_t multiplier = db.internal.size();
-	set<Xapian::docid>::const_iterator i;
-	for (i = docids.begin(); i != docids.end(); ++i) {
-	    Xapian::docid realdid = (*i - 1) / multiplier + 1;
-	    Xapian::doccount dbnumber = (*i - 1) % multiplier;
-
-	    // Push NULL first to avoid leaking the new TermList if push_back()
-	    // throws.
-	    termlists.push_back(0);
-	    termlists.back() = db.internal[dbnumber]->open_term_list(realdid);
+	for (Xapian::docid did : docids) {
+	    termlists.push_back(db.internal->open_term_list_direct(did));
 	}
-
 	Assert(!termlists.empty());
-	if (termlists.size() == 1) return termlists[0];
-
-	// Make termlists into a heap so that the longest termlist is at the
-	// top of the heap.
-	make_heap(termlists.begin(), termlists.end(),
-		  CompareTermListSizeAscending());
-
-	// Now build a tree of binary TermList objects.  The algorithm used to
-	// build the tree is like that used to build an optimal Huffman coding
-	// tree.  If we called next() repeatedly, this arrangement would
-	// minimise the number of method calls.  Generally we don't actually do
-	// that, but this arrangement is still likely to be a good one, and it
-	// does minimise the work in the worst case.
-	while (true) {
-	    AssertRel(termlists.size(), >=, 2);
-	    // We build the tree such that at each branch:
-	    //
-	    //   l.get_approx_size() >= r.get_approx_size()
-	    //
-	    // We do this so that the OrTermList class can be optimised
-	    // assuming that this is the case.
-	    TermList * r = termlists.front();
-	    pop_heap(termlists.begin(), termlists.end(),
-		     CompareTermListSizeAscending());
-	    termlists.pop_back();
-	    TermList * l = termlists.front();
-
-	    TermList * pl = new OrTermList(l, r);
-
-	    if (termlists.size() == 1) return pl;
-
-	    pop_heap(termlists.begin(), termlists.end(),
-		     CompareTermListSizeAscending());
-	    termlists.back() = pl;
-	    push_heap(termlists.begin(), termlists.end(),
-		      CompareTermListSizeAscending());
-	}
+	return make_termlist_merger(termlists);
     } catch (...) {
-	for_each(termlists.begin(), termlists.end(), delete_ptr<TermList>());
+	for_each(termlists.begin(), termlists.end(),
+		 [](TermList* p) { delete p; });
 	throw;
     }
 }
@@ -152,7 +101,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
     Assert(ebound == 0);
     Assert(items.empty());
 
-    AutoPtr<TermList> tree(build_termlist_tree(db, rset));
+    unique_ptr<TermList> tree(build_termlist_tree(db, rset));
     Assert(tree.get());
 
     bool is_heap = false;
@@ -180,29 +129,35 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 	double wt = eweight.get_weight();
 
 	// If the weights are equal, we prefer the lexically smaller term and
-	// so we use "<=" not "<" here.
+	// since we process terms in ascending order we use "<=" not "<" here.
 	if (wt <= min_wt) continue;
 
-	items.push_back(Xapian::Internal::ExpandTerm(wt, term));
-
-	// The candidate ESet is overflowing, so remove the worst element in it
-	// using a min-heap.
-	if (items.size() > max_esize) {
-	    if (rare(!is_heap)) {
-		is_heap = true;
-		make_heap(items.begin(), items.end());
-	    } else {
-		push_heap(items.begin(), items.end());
-	    }
-	    pop_heap(items.begin(), items.end());
-	    items.pop_back();
-	    min_wt = items.front().wt;
+	if (items.size() < max_esize) {
+	    items.emplace_back(wt, term);
+	    continue;
 	}
+
+	// We have the desired number of items, so it's one-in one-out from
+	// now on.
+	Assert(items.size() == max_esize);
+	if (rare(!is_heap)) {
+	    Heap::make(items.begin(), items.end(),
+		       std::less<Xapian::Internal::ExpandTerm>());
+	    min_wt = items.front().wt;
+	    is_heap = true;
+	    if (wt <= min_wt) continue;
+	}
+
+	items.front() = Xapian::Internal::ExpandTerm(wt, term);
+	Heap::replace(items.begin(), items.end(),
+		      std::less<Xapian::Internal::ExpandTerm>());
+	min_wt = items.front().wt;
     }
 
     // Now sort the contents of the new ESet.
     if (is_heap) {
-	sort_heap(items.begin(), items.end());
+	Heap::sort(items.begin(), items.end(),
+		   std::less<Xapian::Internal::ExpandTerm>());
     } else {
 	sort(items.begin(), items.end());
     }
@@ -224,30 +179,29 @@ ESet::Internal::get_description() const
     return desc;
 }
 
-ESet::ESet() { }
+ESet::ESet() : internal(new ESet::Internal) {}
 
-ESet::ESet(const ESet & o) : internal(o.internal) { }
+ESet::ESet(const ESet &) = default;
 
 ESet&
-ESet::operator=(const ESet & o)
-{
-    internal = o.internal;
-    return *this;
-}
+ESet::operator=(const ESet &) = default;
+
+ESet::ESet(ESet &&) = default;
+
+ESet&
+ESet::operator=(ESet &&) = default;
 
 ESet::~ESet() { }
 
 Xapian::doccount
 ESet::size() const
 {
-    if (!internal.get()) return 0;
     return internal->items.size();
 }
 
 Xapian::termcount
 ESet::get_ebound() const
 {
-    if (!internal.get()) return 0;
     return internal->ebound;
 }
 
@@ -255,8 +209,6 @@ std::string
 ESet::get_description() const
 {
     string desc = "ESet(";
-    if (internal.get())
-	desc += internal->get_description();
     desc += ')';
     return desc;
 }
@@ -265,21 +217,28 @@ ESet::get_description() const
 std::string
 ESetIterator::operator*() const
 {
-    return (eset.internal->items.end() - off_from_end)->term;
+    Assert(off_from_end != 0);
+    AssertRel(off_from_end, <=, eset.internal->items.size());
+    return (eset.internal->items.end() - off_from_end)->get_term();
 }
 
 double
 ESetIterator::get_weight() const
 {
-    return (eset.internal->items.end() - off_from_end)->wt;
+    Assert(off_from_end != 0);
+    AssertRel(off_from_end, <=, eset.internal->items.size());
+    return (eset.internal->items.end() - off_from_end)->get_weight();
 }
 
 std::string
 ESetIterator::get_description() const
 {
     string desc = "ESetIterator(";
-    if (eset.internal.get())
+    if (off_from_end == 0) {
+	desc += "end";
+    } else {
 	desc += str(eset.internal->items.size() - off_from_end);
+    }
     desc += ')';
     return desc;
 }

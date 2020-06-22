@@ -34,7 +34,7 @@ using namespace std;
 std::string
 BackendManagerRemoteProg::get_dbtype() const
 {
-    return "remoteprog_" + remote_type;
+    return "remoteprog_" + sub_manager->get_dbtype();
 }
 
 Xapian::Database
@@ -60,11 +60,37 @@ BackendManagerRemoteProg::get_writable_database(const string & name,
     return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
 }
 
+Xapian::WritableDatabase
+BackendManagerRemoteProg::get_remote_writable_database(string args)
+{
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	args.insert(0, XAPIAN_PROGSRV" ");
+	return Xapian::Remote::open_writable("./runsrv", args);
+    }
+#endif
+    return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
+}
+
 Xapian::Database
 BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 					      unsigned int timeout)
 {
     string args = get_remote_database_args(files, timeout);
+
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	args.insert(0, XAPIAN_PROGSRV" ");
+	return Xapian::Remote::open("./runsrv", args);
+    }
+#endif
+    return Xapian::Remote::open(XAPIAN_PROGSRV, args);
+}
+
+Xapian::Database
+BackendManagerRemoteProg::get_database_by_path(const string& path)
+{
+    string args = get_remote_database_args(path, 300000);
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {

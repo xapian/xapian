@@ -41,7 +41,8 @@ ValueIterator::decref()
 ValueIterator::ValueIterator(Internal *internal_) : internal(internal_)
 {
     LOGCALL_CTOR(API, "ValueIterator", internal_);
-    Assert(internal);
+    if (!internal)
+	return;
     ++internal->_refs;
     try {
 	internal->next();

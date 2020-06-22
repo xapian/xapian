@@ -1,6 +1,7 @@
-/* date.h: date range parsing routines for omega
- *
- * Copyright 2003,2007 Olly Betts
+/** @file date.h
+ * @brief date range parsing routines for omega
+ */
+/* Copyright 2003,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +24,8 @@
 #include <xapian.h>
 #include <string>
 
-Xapian::Query date_range_filter(const std::string & date_start,
-			  const std::string & date_end,
-			  const std::string & date_span);
+Xapian::Query date_range_filter(const std::string& date_start,
+				const std::string& date_end,
+				const std::string& date_span);
 
 #endif // OMEGA_INCLUDED_DATE_H

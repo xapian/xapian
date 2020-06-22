@@ -35,22 +35,16 @@ using namespace std;
  */
 #define QUAD_EARTH_RADIUS_METRES 6372797.6
 
-/** Set M_PI if it's not already set.
- */
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 LatLongMetric::~LatLongMetric()
 {
 }
 
 double
-LatLongMetric::operator()(const LatLongCoords & a,
-			  const LatLongCoords &b) const
+LatLongMetric::operator()(const LatLongCoords& a,
+			  const LatLongCoords& b) const
 {
     if (a.empty() || b.empty()) {
-	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()().");
+	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
     }
     double min_dist = 0.0;
     bool have_min = false;
@@ -75,11 +69,11 @@ LatLongMetric::operator()(const LatLongCoords & a,
 }
 
 double
-LatLongMetric::operator()(const LatLongCoords & a,
-			  const char * b_ptr, size_t b_len) const
+LatLongMetric::operator()(const LatLongCoords& a,
+			  const char* b_ptr, size_t b_len) const
 {
     if (a.empty() || b_len == 0) {
-	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()().");
+	throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");
     }
     double min_dist = 0.0;
     bool have_min = false;
@@ -113,8 +107,8 @@ GreatCircleMetric::GreatCircleMetric(double radius_)
 {}
 
 double
-GreatCircleMetric::pointwise_distance(const LatLongCoord & a,
-				      const LatLongCoord & b) const
+GreatCircleMetric::pointwise_distance(const LatLongCoord& a,
+				      const LatLongCoord& b) const
 {
     double lata = a.latitude * (M_PI / 180.0);
     double latb = b.latitude * (M_PI / 180.0);
@@ -152,7 +146,7 @@ GreatCircleMetric::serialise() const
 }
 
 LatLongMetric *
-GreatCircleMetric::unserialise(const string & s) const
+GreatCircleMetric::unserialise(const string& s) const
 {
     const char * p = s.data();
     const char * end = p + s.size();

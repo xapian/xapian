@@ -14,15 +14,17 @@ strings ( ch )
 
 integers ( p1 x )
 
-groupings ( v s_ending )
+groupings ( c v s_ending )
 
 stringescapes {}
 
-/* special characters (in ISO Latin I) */
+/* special characters */
 
-stringdef ae   hex 'E6'
-stringdef ao   hex 'E5'
-stringdef o/   hex 'F8'
+stringdef ae   '{U+00E6}'
+stringdef ao   '{U+00E5}'
+stringdef o/   '{U+00F8}'
+
+define c 'bcdfghjklmnpqrstvwxz'
 
 define v 'aeiouy{ae}{ao}{o/}'
 
@@ -75,7 +77,7 @@ backwardmode (
         )
     )
     define undouble as (
-        setlimit tomark p1 for ([non-v] ->ch)
+        setlimit tomark p1 for ([c] ->ch)
         ch
         delete
     )

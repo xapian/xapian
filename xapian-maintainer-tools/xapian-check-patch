@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# Copyright (c) 2007-2017 Olly Betts
+# Copyright (c) 2007-2019 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -44,111 +44,357 @@ END
 }
 
 my ($fnm, $lineno);
+my ($last_fullline, $fullline);
+my $ext;
+my %count;
+
+sub diagnostic_ {
+    my ($type, $msg, $n, $l) = @_;
+    print "$fnm:$n: $type: $msg";
+    if (defined $l) {
+	print ": $l";
+    } else {
+	print "\n";
+    }
+    ++$count{$type};
+}
+
+# Report a diagnostic in the current line.
+sub diagnostic {
+    my ($type, $msg) = @_;
+    diagnostic_($type, $msg, $lineno, $fullline);
+}
+
+# Report a diagnostic in the previous line.
+sub diagnostic_last {
+    my ($type, $msg) = @_;
+    diagnostic_($type, $msg, $lineno - 1, $last_fullline);
+}
+
+sub count_columns {
+    my $s = shift;
+    my $len = 0;
+    for my $i (0 .. length($s) - 1) {
+	if (substr($s, $i, 1) eq "\t") {
+	    # Advance to next multiple of 8 column.
+	    $len = $len + (8 - $len % 8);
+	} else {
+	    ++$len;
+	}
+    }
+    return $len;
+}
+
+sub check_comment_content {
+    local $_ = shift;
+    if (/\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
+	diagnostic('error', "Doxygen command '\\$1' introduced by '\\' not '\@'");
+    }
+    if (/\@\s+([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
+	diagnostic('error', "Broken Doxygen command: whitespace between '\@' and '$1'");
+    }
+    if (/(\@[a-z]+)\s+\1\b/) {
+	diagnostic('error', "Double Doxygen command: '$1 $1'");
+    }
+}
+
 my $add_lines = 0;
 my $del_lines = 0;
 my $files = 0;
 # SVN property changes don't have an "Index: [...]" line.
 my $want_tabs = -1;
+my $check_indent = 0;
 my $check_trailing = 0;
 my $check_space_tab = 0;
 my $in_comment = 0;
 my $lang;
-my %count;
+my $header_guard_macro;
+my $last_first_char = '';
+my $in_ternary;
+my $preproc;
+my $preproc_continuation;
+my ($top_level, $next_top_level); # undef for unknown, 0 for no, 1 for yes.
+my $last_line_blank = 0;
+my $last_line_block_start;
+my $last_line_block_end;
+my $penultimate_line_block_start;
+# Indent in columns expected for this line (undef if we don't know).
+my $indent;
+# True if the indent increased due to a "case" or "default" without a { - this
+# means that a following "case"/"default" should not be indented.
+my $case_no_brace;
+# Current file is a C/C++ header file.
+my $header;
+# First line number for doxygen @file comment check.
+my $doxygen_first_line;
 while (<>) {
-    my $type = 'error';
+    if (defined $next_top_level) {
+	$top_level = $next_top_level;
+	$next_top_level = undef;
+    }
+
     if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
 	++$files;
 	$fnm = $1;
+	(($ext) = ($fnm =~ /\.([\w.]+)$/)) or $ext = '';
 	$lineno = 1;
 	$lang = undef;
 	$in_comment = 0;
+	$header_guard_macro = undef;
+	$in_ternary = 0;
+	$preproc = 0;
+	$preproc_continuation = 0;
+	$top_level = undef;
+	$header = 0;
 	# Don't know!
 	$want_tabs = -1;
-	if ($fnm =~ /\.cc$/) {
-	    if ($fnm !~ m!\b(?:cdb|portability/)! &&
-		$fnm !~ m!\bcommon/getopt\.cc$! &&
-		$fnm !~ m!\bcommon/msvc_dirent\.cc$!) {
+	$check_indent = 0;
+	$check_space_tab = 1;
+	$check_trailing = 1;
+	$doxygen_first_line = 1;
+	if ($ext eq 'cc') {
+	    if ($fnm =~ m!\b(?:cdb|portability/mkdtemp)! ||
+		$fnm =~ m!\bcommon/getopt\.cc$! ||
+		$fnm =~ m!\bomega/md5\.cc$! ||
+		$fnm =~ m!\bcommon/msvc_dirent\.cc$!) {
+		$check_trailing = 0;
+	    } else {
 		$lang = 'c++';
 		$want_tabs = 1 unless ($fnm =~ m!\blanguages/steminternal\.cc$!);
+		$check_indent = 1;
 	    }
-	} elsif ($fnm =~ /\.c$/) {
-	    if ($fnm !~ m!\blanguages/compiler/! &&
-		$fnm !~ m!/lemon\.c$! &&
-		$fnm !~ m!/xapdep\.c$!) {
+	} elsif ($ext eq 'c') {
+	    if ($fnm =~ m!\blanguages/compiler/! ||
+		$fnm =~ m!/lemon\.c$!) {
+		$check_trailing = 0;
+	    } else {
 		$lang = 'c';
 		$want_tabs = 1;
+		$check_indent = 1;
 	    }
-	} elsif ($fnm =~ /\.h$/) {
-	    if ($fnm !~ m!\binclude/xapian/intrusive_ptr\.h! &&
-		$fnm !~ m!\blanguages/compiler/! &&
-		$fnm !~ m!\bcommon/msvc_dirent\.h$!) {
-		$lang = 'h';
-		$want_tabs = 1 unless ($fnm =~ m!/omega/cdb!);
+	} elsif ($ext eq 'h') {
+	    if ($fnm =~ m!\binclude/xapian/intrusive_ptr\.h! ||
+		$fnm =~ m!\blanguages/compiler/! ||
+		$fnm =~ m!\bcommon/msvc_dirent\.h$! ||
+		$fnm =~ m!\bcommon/heap\.h$! ||
+		$fnm =~ m!/omega/cdb! ||
+		$fnm =~ m!\bportability/mkdtemp!) {
+		$check_trailing = 0;
+	    } else {
+		$header = 1;
+		$lang = 'c++';
+		$want_tabs = 1;
+		$check_indent = 1;
 	    }
-	} elsif ($fnm =~ /\.py(?:\.in)?$/) {
+	} elsif ($ext eq 'lemony') {
+	    $lang = 'c++';
+	    $want_tabs = 1;
+	} elsif ($ext eq 'lt') {
+	    $want_tabs = 0;
+	    $check_trailing = 0;
+	} elsif ($ext eq 'py' || $ext eq 'py.in') {
 	    $lang = 'py';
 	    $want_tabs = 0;
+	} elsif ($ext eq 'rb') {
+	    $lang = 'rb';
+	    $want_tabs = 0;
+	} elsif ($ext eq 'sbl') {
+	    $check_space_tab = 0;
+	    $check_trailing = 0;
+	} elsif ($ext eq 'patch') {
+	    $check_space_tab = 0;
+	} elsif ($ext eq 'txt') {
+	    # Imported text file with trailing whitespace.
+	    if ($fnm =~ m!/testdata/etext\.txt$!) {
+		$check_trailing = 0;
+	    }
 	} elsif ($fnm =~ m!(?:^|/)ChangeLog\b!) {
 	    $lang = 'changelog';
 	    $want_tabs = 1;
 	}
-	$check_trailing =
-	    $fnm !~ /\.sbl$/ &&
-	    $fnm !~ m!\bcommon/msvc_dirent\.! &&
-	    $fnm !~ m!/lemon\.c$! &&
-	    $fnm !~ m!/queryparser\.lt$! &&
-	    $fnm !~ m!\bcdb! &&
-	    $fnm !~ m!/testdata/etext\.txt$!;
-	$check_space_tab =
-	    $fnm !~ /\.sbl$/;
 	# print STDERR "$fnm: lang=" . ($lang // "UNKNOWN") . "\;
 	next;
     }
     my $pre3 = substr($_, 0, 3);
     if ($pre3 eq '@@ ') {
 	/^\@\@ -\d+,\d+ \+(\d+),\d+\b/ and $lineno = $1;
-	$in_comment = 0;
+	$next_top_level = ($lineno == 1) ? 1 : undef;
+	$in_comment = ($lineno == 1) ? 0 : undef;
+	$last_line_blank = 0;
+	$last_line_block_start = undef;
+	$last_line_block_end = undef;
+	$penultimate_line_block_start = undef;
+	$indent = undef;
+	$last_first_char = '';
+	$last_fullline = undef;
 	next;
     }
     if ($pre3 eq '---' || $pre3 eq '+++') {
 	next;
     }
-    my $msg;
-    my $fullline = $_;
-    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+
+    if (!/^.\s*$/) {
+	$next_top_level = (/^.\s/ ? 0 : 1);
+    }
+
+    my $line_blank = /^[+ ]\s*$/;
+
+    $fullline = $_;
+    my $first_char = substr($fullline, 0, 1);
+
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
+	if (!defined $in_comment) {
+	    # Decide if we're in a C-style comment for the first line of a hunk.
+	    $in_comment = /^.\s*\*+\s/;
+	}
+	if ($lineno == $doxygen_first_line && m!^\+!) {
+	    if ($doxygen_first_line == 1 && m,^\+%include\b\s*\{,) {
+		# If the first line is %include{... check the second.
+		$doxygen_first_line = 2;
+	    } elsif (m!^\+/\*\*\s+\@file\s+(\S+)!) {
+		my $at_file = $1;
+		if ($fnm eq $at_file ||
+		    (length $fnm > length($at_file) && substr($fnm, -length($at_file) - 1, 1) eq '/') &&
+		    substr($fnm, -length $at_file) eq $at_file) {
+		    # @file matches
+		} else {
+		    diagnostic('error', "\@file doesn't match filename");
+		}
+	    } elsif ($fnm =~ m!\bomega/md5\.h$!) {
+		# Imported file.
+	    } else {
+		diagnostic('error', "\@file missing");
+	    }
+	}
+
 	# Uncomment commented out parameter names: foo(int /*bar*/) -> foo(int bar)
 	s!/\*([A-Za-z_][A-Za-z_0-9]*)\*/([,)])!$1$2!g;
+
+	# Check for comments without a space before the comment text.
+	if (m!^\+.*\s/([*/]{1,2})[A-Za-z0-9]!) {
+	    if ($ext eq 'lemony' && $1 eq '*' && $' =~ m!^\w*-overwrites-\w+\*/!) {
+		# Magic comment in lemon grammar - lemon requires no spaces.
+	    } else {
+		diagnostic('error', "Missing space between comment characters and comment text");
+	    }
+	}
+
 	# Trim comments:
-	if (s!/(?:\*.*?\*/|/.*)!!g) {
-	    s/\s+$//;
-	}
-	if (s!/\*.*!!g) {
-	    s/\s+$//;
-	    $in_comment = 1;
-	}
-	# Trim content of comments ending on this line:
-	if (s!^(.).*\*/!$1*/!) {
-	    $in_comment = 0;
-	}
-	if ($in_comment) {
-	    $_ = '';
+	if (!$in_comment) {
+	    if (s! /\*(.*?)\*/ ! !g) {
+		# C-style comment with spaces around, e.g.
+		# { T = P->as_phrase_query(); /*T-overwrites-P*/ }
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+	    }
+	    if (s!/\*(.*?)\*/!!g) {
+		# C-style comment without spaces on both sides, e.g.:
+		#    foo(); /* blah blah */
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+	    }
+	    if (s!//(.*)!!) {
+		# Single line comment, e.g.:
+		#    // blah blah
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+	    }
+	    # Take care to avoid interpreting "foo/*" as a comment start.
+	    if (s!^.(?:[^"]+?|"(?:[^\\"]*?|\\.)*?")*?/\*(.*)!!g) {
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+		$in_comment = 1;
+	    }
 	} else {
-	    # Drop comment content for "*" continuation lines (when /* isn't in hunk):
-	    s/^(.)(\s*\*).*/$1$2/;
+	    if (s!^.\s*\*+(.*)\*/!$first_char!) {
+		# End of multiline comment with leading *, e.g.:
+		#    *  blah blah */
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		s/\s+$//;
+		$in_comment = 0;
+	    } elsif (s!^.(.*)\*/!$first_char!) {
+		# End of multiline comment without leading *, e.g.:
+		#     blah blah */
+		if ($first_char eq '+') {
+		    check_comment_content($1);
+		}
+		$in_comment = 0;
+	    } else {
+		if ($first_char eq '+') {
+		    if (m!^.\s*\*+(.*)!) {
+			# In multiline comment with leading *.
+			check_comment_content($1);
+		    } else {
+			# In multiline comment without leading *.
+			check_comment_content(substr($_, 1));
+		    }
+		}
+		$_ = $first_char;
+	    }
 	}
     } elsif (defined $lang && $lang eq 'py') {
 	# Trim comments:
 	if (s!#.*!!g) {
 	    s/\s+$//;
 	}
+    } elsif (defined $lang && $lang eq 'rb') {
+	# Trim comments:
+	if (s!#.*!!g) {
+	    s/\s+$//;
+	}
     }
+
+    # Default to not being in a comment for languages other than C/C++.
+    $in_comment //= 0;
 
     # Replace multiple spaces before line continuation marker:
     s!  +\\$! \\!;
 
-    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c') && !(/^[-+]\s*\#/)) {
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
+	if ($first_char eq '+') {
+	    my $expandedline = '';
+	    for my $i (1..length($fullline) - 1) {
+		my $ch = substr($fullline, $i, 1);
+		if ($ch eq "\t") {
+		    $expandedline .= ('.' x (8 - length($expandedline) % 8));
+		} else {
+		    $expandedline .= $ch;
+		}
+	    }
+	    chomp($expandedline);
+	    if (length($expandedline) > 80 &&
+		# Logging annotations aren't really for human eyes.
+		!/^\+[ \t]*LOGCALL/ &&
+		# Allow length up to 84 if " in first column for formatting
+		# text blocks (the extra 4 being "\n").
+		(length($expandedline) > 84 || !/^\+"/) &&
+		# Allow longer copyright lines.
+		$fullline !~ m,^\+[ /]\* Copyright , &&
+		# Allow long initialisers (e.g. for testcases).
+		! /^\+\s*\{.*\},?$/ &&
+		# Don't force wrapping of a long #error message.
+		!/^\+#\d*(error|warning)\b/) {
+		diagnostic('error', "Line extends beyond column 80 (to column ".length($expandedline).")");
+	    }
+	}
 	if (m,^\+\s+LOGCALL(?:_[A-Z0-9]+)*\([^"]*"[^"]*(?<!operator)\(,) {
-	    $msg = "Don't include parentheses in debug logging method/class name:";
+	    diagnostic('error', "Don't include parentheses in debug logging method/class name");
+	}
+	if (/^\+\s+LOGCALL(?:_[A-Z0-9]+)*\(.*,$/) {
+	    diagnostic('error', "Don't wrap long LOGCALL lines");
+	}
+	if (/^\+\s+(LOGCALL(?:_STATIC)?)\([^,]*,\s*void,$/) {
+	    diagnostic('error', "Use $1_VOID for a method with a void return type");
 	}
 	# Replace string literals containing escaped quotes:
 	if (/['"]/) {
@@ -197,149 +443,525 @@ QUOTELOOP:  while (1) {
 	}
     }
 
-    if ($check_trailing && /^\+.*[ \t]$/) {
-	$msg = "added/changed line has trailing whitespace:";
-    } elsif ($check_space_tab && /^\+.* \t/) {
-	$msg = "added/changed line has space before tab:";
-    } elsif ($want_tabs == 1 and /^\+\t* {8}/) {
-	$msg = "added/changed line uses spaces for indentation rather than tab:";
-    } elsif (!$want_tabs and /^\+ *\t/) {
-	$msg = "added/changed line uses tab for indentation rather than spaces:";
-    } elsif ((!defined $lang || $lang ne 'changelog') && /^([-+]).*\bFIX(?:ME)\b/) {
+    if ($check_trailing && $fullline =~ /^\+.*[ \t]$/) {
+	diagnostic('error', "added/changed line has trailing whitespace");
+    }
+    if ($check_space_tab && /^\+.* \t/) {
+	diagnostic('error', "added/changed line has space before tab");
+    }
+    if ($want_tabs == 1 and /^\+\t* {8}/) {
+	diagnostic('error', "added/changed line uses spaces for indentation rather than tab");
+    }
+    if (!$want_tabs and /^\+ *\t/) {
+	diagnostic('error', "added/changed line uses tab for indentation rather than spaces");
+    }
+    if ((!defined $lang || $lang ne 'changelog') && $fullline =~ /^([-+]).*\bFIX(?:ME)\b/) {
 	# Break up the string in the regexp above and messages below to avoid
 	# this triggering on its own code!
 	if ($1 eq '-') {
 	    # Not an error, but interesting information.
-	    $type = 'info';
-	    $msg = "FIX"."ME removed:";
+	    diagnostic('info', "FIX"."ME removed");
 	} else {
 	    # Not an error, but not good.
-	    $type = 'warning';
-	    $msg = "FIX"."ME added:";
+	    diagnostic('warning', "FIX"."ME added");
 	}
-    } elsif (defined $lang && $lang ne 'changelog' && /^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
-	$msg = "Doxygen command '\\$1' introduced by '\\' not '\@':";
-    } else {
-	if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
-	    if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
-		$msg = "'$1' not followed by exactly one space:";
-	    } elsif (m!^\+.*[^(;]\s;!) {
-		# Stuff like this is OK: for ( ; ; ) {
-		# though for that exact case I'd suggest: while (true) {
-		$msg = "Whitespace before ';':";
-	    } elsif (m!^\+.*?\b(return)\b([^ ;]| \s)!) {
-		$msg = "'$1' not followed by exactly one space:";
-	    } elsif (m!^\+.*?\b(else)\b([^ \n]| \s)!) {
-		$msg = "'$1' not followed by exactly one space:";
-	    } elsif (m!^\+.*?\b(while)\b([^ ]| \s)!) {
-		$msg = "'$1' not followed by exactly one space:";
-	    } elsif (m!^\+.*?(?:}|}\s{2,}|}\t|^[^}]*)\b(catch)\b!) {
-		$msg = "'$1' not preceded by exactly '} ':";
-	    } elsif (m!^\+.*?(?:}|}\s{2,}|}\t)\b(else|while)\b!) {
-		$msg = "'}' and '$1' not separated by exactly one space:";
-	    } elsif (m!^\+.*\((?: [^;]|\t)!) {
-		# Allow: for ( ; i != 10; ++i)
-		$msg = "Whitespace after '(':";
-	    } elsif (m!^\+.*\H.*\h\)!) {
-		$msg = "Whitespace before ')':";
-	    } elsif (m!^\+.*; (\w+)([-+]{2})\)!) {
-		$msg = "Prefer '$2$1' to '$1$2':";
-	    } elsif (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
-		my @pre = @-;
-		my @post = @+;
-		my $op = $1;
-		$msg = "Missing space before '$op':";
-		if (substr($_, $pre[1] - 8, 8) eq 'operator') {
-		    # operator*() etc
-		    $msg = undef;
-		} elsif ($op eq '>' && substr($_, 0, $pre[1]) =~ /[A-Za-z0-9_]</) {
-		    # y = static_cast<char>(x);
-		    $msg = undef;
-		} elsif ($op eq '>') {
-		    $msg = undef;
-		} elsif ($op eq '<' && substr($_, $pre[1] - 1, 1) =~ /^[A-Za-z0-9_]$/ && substr($_, $post[1]) =~ />/) {
-		    # y = static_cast<char>(x);
-		    $msg = undef;
-		} elsif ($op eq '<' &&
-			 substr($_, 0, $pre[1]) =~ /(?:list|map|multimap|multiset|priority_queue|set|unordered_map|unordered_set|vector)$/) {
-		    # y = priority_queue<Foo*,
-		    #                    Bar>;
-		    $msg = undef;
-		} elsif ($op eq '&&' && substr($_, $pre[1] - 4, 4) eq 'auto') {
-		    # auto&& x
-		    $msg = undef;
-		} elsif (($op eq '<<' || $op eq '>>') &&
-		    substr($_, 0, $pre[1]) =~ /\b(?:0x[0-9a-fA-F]+|[0-9]+)$/ &&
-		    substr($_, $post[1]) =~ /^(?:0x[0-9a-fA-F]+|[0-9]+)\b/) {
-		    # 0x00b1<<26
-		    $msg = undef;
-		} elsif (($op eq '-' || $op eq '+') &&
-		    substr($_, 0, $pre[1]) =~ /[0-9]\.?e$/) {
-		    # 1.2e-3, 7.e+3
-		    $msg = undef;
-		} elsif ($op eq '>>' &&
-		    /[A-Za-z0-9_]<.+</) {
-		    # vector<vector<int>> v;
-		    $msg = undef;
-		} elsif ($op =~ /^[*&|]$/) {
-		    # FIXME: *: const char* x;
-		    # FIXME: &: const char& x;
-		    # FIXME: |: FOO|BAR
-		    $msg = undef;
+    }
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'c')) {
+	if ($last_line_blank) {
+	    if ($line_blank) {
+		# Allow multiple blank lines at the top level for now.
+		diagnostic('error', "Extra blank line") unless ($top_level // 1);
+	    } elsif (/^.\s+\}$/) {
+		# Closing } of a namespace often has a blank line before it,
+		# and that seems reasonable.
+		diagnostic_last('error', "Blank line at end of block") unless ($top_level // 1);
+	    } elsif ($penultimate_line_block_start && /^.(\s|\}$)/) {
+		diagnostic_last('error', "Blank line at start of block");
+	    }
+	}
+
+	if (/^([-+ ])(\s*)\#/) {
+	    # Avoid misfiring for something like:
+	    # #define FOO(x) \
+	    #     #x
+	    if (!$preproc_continuation) {
+		if ($1 eq '+' && $2 ne '') {
+		    diagnostic('error', "Whitespace before '#' on preprocessor line");
 		}
-	    } elsif (m@^\+\s*[^#\s].*((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?:,])(?<!(?:-[->]|\+\+|::))(?:[\w\(]| \s)@) {
+	    }
+	    $preproc = 1;
+	    $preproc_continuation = /\\$/;
+	} elsif ($preproc_continuation) {
+	    $preproc_continuation = /\\$/;
+	} else {
+	    $preproc = 0;
+	}
+	if ($check_space_tab && /^\+( (?:|  |    |      ))[^ \t].*(?:[^)];|[^);,])\n/) {
+	    # We only check for 1, 3, 5 and 7 space indents to avoid false
+	    # positives for "public:", etc and for wrapped expressions.
+	    #
+	    # Exclude lines ending ');', ')', or ',' to avoid reporting for
+	    # wrapped function arguments.  This means we'll also miss some
+	    # cases we should complain about, but it's likely that at least
+	    # one line in a mis-indented block will trigger an error.
+
+	    # Exclude potential comment continuation lines which might have
+	    # been missed by the comment stripping code.  Require whitespace
+	    # after so we flag a mis-indented: *ptr = foo;
+	    if (!/^\+\s*\*\s/) {
+		diagnostic('error', "line indented by ".length($1)." spaces");
+	    }
+	}
+
+	#if (/^\+.*(?<!\btypedef )\b([A-Za-z_][A-Za-z_0-9]*)\s+\(/ &&
+	if (/^\+.*\b([A-Za-z_][A-Za-z_0-9]*)\s+\(((?:[A-Za-z][A-Za-z0-9_]*::)?\*|[A-Za-z][A-Za-z0-9_]*\)\()?/) {
+	    my $name = $1;
+	    my $post = $2;
+	    if (
+		# `delete (*i)->foo();` rather than `delete(*i)->foo()'` - the `(`
+		# isn't around function parameters here.
+		$name !~ /^(case|catch|delete|double|for|if|return|switch|throw|while)$/ &&
+		# Function pointer type `int (*)(void)` or parenthesised
+		# function name `int (foo)(`.
+		!($name =~ /^(?:bool|double|float|unsigned|void|[a-z][a-z0-9_]+_t|(?:(?:un)?signed\s+)?(?:char|int|long|short))$/ && length($post))) {
+		if (!$preproc) {
+		    diagnostic('error', "Whitespace between '$name' and '('");
+		} else {
+		    # FIXME: We skip preprocessor lines for now to avoid triggering
+		    # on things like «#define FOUR (4)» but it would be good to
+		    # catch «#define FOO(x) foo (x)»
+		}
+	    }
+	}
+	if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
+	    diagnostic('error', "'$1' not followed by exactly one space");
+	}
+	if (m!^\+.*;[^\s\\]!) {
+	    diagnostic('error', "Missing space after ';'");
+	}
+	if (m!^\+.*[^(;]\s;!) {
+	    # Stuff like this is OK: for ( ; ; ) {
+	    # though for that exact case I'd suggest: while (true) {
+	    diagnostic('error', "Whitespace before ';'");
+	}
+	if (m!^\+.*?<<"!) {
+	    diagnostic('error', "Missing space after '<<'");
+	}
+	if (m!^\+.*?"<<!) {
+	    diagnostic('error', "Missing space before '<<'");
+	}
+	if (m!^\+.*?\b(return)\b([^ ;]| \s)!) {
+	    diagnostic('error', "'$1' not followed by exactly one space");
+	}
+	if (m!^\+.*?\b(else)\b([^ \n]| \s)!) {
+	    diagnostic('error', "'$1' not followed by exactly one space");
+	}
+	if (m!^\+.*?\b(while)\b([^ ]| \s)!) {
+	    diagnostic('error', "'$1' not followed by exactly one space");
+	}
+	if (m!^\+.*?(?:}|}\s{2,}|}\t|^[^}]*)\b(catch)\b!) {
+	    diagnostic('error', "'$1' not preceded by exactly '} '");
+	}
+	if (m!^\+.*?(?:}|}\s{2,}|}\t)\b(else|while)\b!) {
+	    diagnostic('error', "'}' and '$1' not separated by exactly one space");
+	}
+	if (m,^\+.*?\belse\b\s*(?!if)[^\s{],) {
+	    diagnostic('error', "Code after 'else' on same line");
+	}
+	if (m,^\+.*?\belse\s+if.*;\s*$,) {
+	    diagnostic('error', "Code after 'else if' on same line");
+	}
+	if (m!^\+.*\((?: [^;]|\t)!) {
+	    # Allow: for ( ; i != 10; ++i)
+	    diagnostic('error', "Whitespace after '('");
+	}
+	if (m!^\+.*\H.*\h\)!) {
+	    diagnostic('error', "Whitespace before ')'");
+	}
+	if (m!^\+.*;\s*(\w+)([-+]{2})\)!) {
+	    diagnostic('error', "Prefer '$2$1' to '$1$2'");
+	}
+	if (m!^\+.*?>\s+>!) {
+	    diagnostic('error', "We assume C++11 so can write '>>' instead of '> >'");
+	}
+	if (m!^\+.*?\b(?:enable_if|list|map|multimap|multiset|priority_queue|set|template|unordered_map|unordered_set|vector)\s+<!) {
+	    diagnostic('error', "Whitespace between template name and '<'");
+	}
+	if (/^\+.*?\bfor\s*\([^(]*([^:(]:[^:])/ && $1 ne ' : ') {
+	    diagnostic('error', "Missing spaces around ':' in 'for'");
+	}
+	if (m,^\+.*?[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
+	    my @pre = @-;
+	    my @post = @+;
+	    my $op = $1;
+	    if (substr($_, $pre[1] - 8, 8) eq 'operator') {
+		# operator*() etc
+	    } elsif ($op eq '>' && substr($_, 0, $pre[1]) =~ /[A-Za-z0-9_]</) {
+		# y = static_cast<char>(x);
+	    } elsif ($op eq '>') {
+	    } elsif ($op eq '<' && substr($_, $pre[1] - 1, 1) =~ /^[A-Za-z0-9_]$/ && substr($_, $post[1]) =~ />/) {
+		# y = static_cast<char>(x);
+	    } elsif ($op eq '<' &&
+		     substr($_, 0, $pre[1]) =~ /\b(?:enable_if|list|map|multimap|multiset|priority_queue|set|template|unordered_map|unordered_set|vector)$/) {
+		# y = priority_queue<Foo*,
+		#                    Bar>;
+		# template<typename A,
+		#          typename B>
+	    } elsif ($op eq '&&' && substr($_, 0, $pre[1]) =~ /\b(?:auto|bool|char|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*)$/) {
+		# auto&& x;
+		# method(Class&& foo);
+	    } elsif (($op eq '<<' || $op eq '>>') &&
+		substr($_, 0, $pre[1]) =~ /\b(?:0x[0-9a-fA-F]+|[0-9]+)$/ &&
+		substr($_, $post[1]) =~ /^(?:0x[0-9a-fA-F]+|[0-9]+)\b/) {
+		# 0x00b1<<26
+	    } elsif (($op eq '-' || $op eq '+') &&
+		substr($_, 0, $pre[1]) =~ /[0-9]\.?e$/) {
+		# 1.2e-3, 7.e+3
+	    } elsif ($op eq '>>' &&
+		/[A-Za-z0-9_]<.+</) {
+		# vector<vector<int>> v;
+	    } elsif ($op =~ /^[*&|]$/ &&
+		     substr($_, 0, $pre[1]) !~ /(?:\b\d+)\s*$/) {
+		# FIXME: *: const char* x;
+		# FIXME: &: const char& x;
+		# FIXME: |: FOO|BAR
+		# (but we do catch "1234*x"
+	    } elsif ($preproc && /^.\s*#\s*(?:include|error|warning)\b/) {
+		# Don't warn about missing whitespace in:
+		# #include <a/b-c.h>
+		# #error nothing works!
+	    } else {
+		diagnostic('error', "Missing space before '$op'");
+	    }
+	}
+	if ($first_char eq '+' && length($_)) {
+	    # Replace leading `+` to avoid parsing as an operator or part of an
+	    # operator.
+	    my $l = ' ' . substr($_, 1);
+	    # Treat some operator combinations as a single pseudo-operator:
+	    # x &=~ y;
+	    # a = b &~ c;
+	    while ($l =~ m@((?:\|\||<<|>>|[=!/*%<>|^~])=?|-[-=>]?|&[&=]?~?|\+[\+=]?|::?|[?,])@g) {
 		my @pre = @-;
 		my @post = @+;
 		my $op = $1;
-		$msg = "Should have exactly one space after '$op':";
-		if ($op eq '~' && substr($_, $post[1]) =~ /^[A-Za-z][A-Za-z0-9_]*\(/) {
-		    # Destructor - e.g. ~Foo();
-		    $msg = undef;
+		my $prech = substr($l, $pre[1] - 1, 1);
+		my $postch = substr($l, $post[1], 1) // '';
+		if ($lang eq 'c++' &&
+		    ($op eq '*' || $op eq '&') &&
+		    (
+		     # `vector<some_type *> x;` `int f(some_type *);`
+		     (($postch eq '>' || $postch eq ')') && $prech =~ /[ \t]/) ||
+		     # `vector<int>*` `string&` `const foo*` `struct tm*` `Xapian::docid&`
+		     # +static_assert(Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST,
+		     (
+		      substr($l, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|DIR|DWORD|FD|FILE|HANDLE|WSAOVERLAPPED|[A-Z][A-Z_]*_T|[A-Z]|[A-Z][A-Z0-9_]*?[a-z][A-Za-z0-9_]*|size_type|(?:(?:const|struct)\s+?|Xapian::)[A-Z]*[a-z][A-Za-z0-9_]*)[*&]*)\s+$/ &&
+		      substr($l, $post[1]) !~ /^\s*\(/
+		     )
+		    )
+		   ) {
+		    diagnostic('error', "Preferred style is 'int$op x' (not 'int ${op}x' or 'int ${op} x')");
+		} elsif ($op eq '::') {
+		    if ($lang eq 'c++' && $postch =~ /\s/) {
+			diagnostic('error', "Whitespace not expected after '::'");
+		    }
+		} elsif ($op eq '->' && $prech !~ /\s/) {
+		    # a->b
+		    # but not:
+		    # auto f() -> bool
+		    if ($postch =~ /[ \t]/) {
+			diagnostic('error', "Whitespace not expected after '->'");
+		    }
+		} elsif (($op eq '++' || $op eq '--') && $prech !~ /[A-Za-z0-9_)]/) {
+		    # ++a
+		    if ($postch =~ /[ \t]/) {
+			diagnostic('error', "Whitespace not expected after '$op'");
+		    }
+		} elsif ($op eq '!') {
+		    # !a
+		    if ($postch =~ /[ \t]/) {
+			diagnostic('error', "Whitespace not expected after '!'");
+		    }
+		} elsif (substr($l, $post[1]) !~ /^(?:\S| \s)/) {
+		    # Check what follows the operator.
+		} elsif (($op eq '++' || $op eq '--') && $postch =~ /[\]),;]/) {
+		    # buf[len++] = 'a';
+		    # f(x++);
+		    # f(1, x++);
+		    # a = b++;
 		} elsif (($op eq '-' || $op eq '+' || $op eq '!' || $op eq '~') &&
-		    substr($_, 0, $pre[1]) =~ m@(?:[-+/*%~=<>&|,;?:] |[\[(]|\b(?:return|case) |^\+\s*)$@) {
+		    substr($l, 0, $pre[1]) =~ m@(?:^\s*|[-+/*%~=<>&|,;?:] |[\[(]|\b(?:return|case) |^\+\s*)$@) {
 		    # Unary -, +, !, ~: e.g. foo = +1; bar = x * (-y); baz = a * -b;
-		    $msg = undef;
 		} elsif ($op eq ',' && (
 		    /\b(?:AssertRel(?:Paranoid)?|TEST_REL)\(/ ||
 		    /{[^()]*}/)) {
 		    # AssertRel(a,<,b);
-		    $msg = undef;
 		} elsif ($op eq '>>' &&
 		    /[A-Za-z0-9_]<.+</) {
 		    # vector<vector<int>>&
-		    $msg = undef;
-		} elsif ($op =~ /^[*&<>|]$/) {
-		    # FIXME: *: const char *x;
-		    # FIXME: *: const char &x;
-		    # FIXME: < >: y = static_cast<char>(x);
+		} elsif ($op eq '*' &&
+			 substr($l, 0, $pre[1]) !~ /(?:\b\d+)\s*$/ &&
+			 !($lang eq 'c++' &&
+			   substr($l, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/)) {
+		    # FIXME: *ptr (dereference)
+		    # (but we do catch "1234 *x" and common pointer types etc)
+		} elsif ($op eq '&' &&
+			 substr($l, 0, $pre[1]) !~ /(?:\b\d+|[^*]\))\s*$/ &&
+			 !($lang eq 'c++' &&
+			   substr($l, 0, $pre[1]) =~ /(?:>|\b(?:auto|bool|char|const|double|float|int(?:\d+_t)?|long|short|string|uint\d+_t|unsigned|void|[A-Z][A-Za-z0-9_]*|(?:struct\s*?|Xapian::)[a-z][a-z0-9_]*)[*&]*)\s+$/)) {
+		    # FIXME: &foo (address of)
+		    # (but we do catch "...) &FLAG_FOO" and "1234 &x" and common reference types etc)
+		} elsif ($op eq '&&' && $postch =~ /[,)]/) {
+		    # int f(int&&, bool&&);
+		} elsif ($op =~ /^[<|]$/ &&
+			 substr($l, $post[1]) !~ /^\s*(?:\d+\b|\()/ &&
+			 substr($l, 0, $pre[1]) !~ /(?:\b\d+|\))\s*$/) {
+		    # FIXME: <: std::vector<std::string>
+		    # (but we do catch "...) <foo" and "1234 >bar" etc)
 		    # FIXME: |: FOO|BAR
-		    $msg = undef;
+		} elsif (substr($l, $pre[1] - 8, 8) eq 'operator' && $postch eq '(') {
+		    # operator==() etc
+		} elsif (($op eq '<<' || $op eq '>>') &&
+		    substr($l, 0, $pre[1]) =~ /\b(?:0x[0-9a-fA-F]+|[0-9]+)$/ &&
+		    substr($l, $post[1]) =~ /^(?:0x[0-9a-fA-F]+|[0-9]+)\b/) {
+		    # 0x00b1<<26
+		} elsif (($op eq '-' || $op eq '+') &&
+		    substr($l, 0, $pre[1]) =~ /[0-9]\.?e$/) {
+		    # 1.2e-3, 7.e+3
+		} elsif ($preproc && $op eq ',') {
+		    # Currently there's a lot of: #define FOO(A,B) ...
+		} elsif ($preproc && /^.\s*#\s*(?:include|error|warning|pragma)\b/) {
+		    # Don't warn about missing whitespace in:
+		    # #include <a/b-c.h>
+		    # #warning so-so
+		    # #pragma warning(disable:4146)
+		} elsif ($op eq '>' && ($postch =~ /[,)(;*&\\]/ || substr($l, $post[1], 2) eq '::')) {
+		    # int f(vector<int>, vector<int>);
+		    # static_cast<char>(7)
+		    # return tmpl<true>;
+		    # vector<int>* x;
+		    # vector<int>& y;
+		    # template<class S>\
+		    # vector<int>::size_type
+		} elsif ($op eq '=' && $postch =~ /[,\]]/) {
+		    # Lambdas, e.g. [=]() {...} or [=, &a]() {...}
+		} elsif ($op eq '%' && $ext eq 'lemony' && $pre[1] == 1) {
+		    # %-directive in Lemon grammar, e.g.:
+		    # %left OR.
+		} elsif ($op =~ /^([<>]|[<>=!]=)$/ && substr($l, 0, $pre[1]) =~ /\b(?:AssertRel(?:Paranoid)?|TEST_REL)\(/) {
+		    # AssertRel(a,>=,b);
+		    # TEST_REL(a,>=,b);
+		} elsif ($op eq '~' && $postch =~ /[A-Za-z0-9_]/ && substr($l, 0, $pre[1]) =~ /(?:\s|::)$/) {
+		    # ~Foo()
+		    # Foo::~Foo()
+		} else {
+		    diagnostic('error', "Should have exactly one space after '$op'");
 		}
-	    } elsif (/;;\s*$/) {
-		$msg = "Extra ';' at end of line:";
-	    } elsif (m@^\+[^#]*?[^#\h] +(,|->)@) {
-		$msg = "Space before '$1':";
-	    } elsif (m,^\+[^#]*?[^#\h]  ,) {
-		$msg = "Multiple spaces:";
-	    } elsif (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
-		$msg = "added/changed line has comment without whitespace before the text:";
-	    }
-	} elsif (defined $lang && $lang eq 'py') {
-	    if (/;\s*$/) {
-		$msg = "';' at end of line of python code:";
 	    }
 	}
-    }
-    if (defined $msg) {
-	print "$fnm:$lineno: $type: $msg";
-	if ($msg =~ /:$/) {
-	    print " $fullline";
+	if (/^\+.*;;\s*$/) {
+	    diagnostic('error', "Extra ';' at end of line");
+	}
+	if (/^\+\s*?\S.*? (,|->)/) {
+	    diagnostic('error', "Space before '$1'");
+	}
+	if (/^\+[\s#]*?[^\s#]  /) {
+	    # Allow multiple spaces in "#  ifdef FOO".
+	    diagnostic('error', "Multiple spaces");
+	}
+	if (/^\+\s*#\s*include([<"])/) {
+	    # #include<foo.h> or #include"foo.h"
+	    diagnostic('error', "Missing space between #include and '$1'");
+	}
+	if (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
+	    diagnostic('error', "added/changed line has comment without whitespace before the text");
+	}
+	if (m!^\+.*?\)\{!) {
+	    diagnostic('error', "No space between ')' and '{'");
+	}
+	if (m!^\+.*?\bconst\{!) {
+	    diagnostic('error', "No space between 'const' and '{'");
+	}
+	if ($fnm !~ m!/(?:md5|posixy_wrapper|perftest)\.cc$! &&
+	    m,^\+.*[^\w\.>]([a-z][a-z0-9]*[A-Z]\w*),) {
+	    my $symbol = $1;
+	    my $symbol_idx = $-[1];
+	    if ($ext eq 'lemony' && $symbol =~ /^yy/) {
+		# Used in lemon parser grammar.
+	    } elsif ($symbol =~ /^[gs]et[A-Z]$/) {
+		# For now, allow setD(), etc.
+	    } elsif ($symbol =~ /^h(?:File|Read|Write|Pipe|Client)$/ || $symbol eq 'fdwCtrlType' || $symbol eq 'pShutdownSocket') {
+		# Platform specific names, allow for now.
+	    } elsif ($symbol eq 'gzFile' || $symbol eq 'uInt' || $symbol =~ /^(?:de|in)flate[A-Z]/) {
+		# zlib API uses camelCase names.
+	    } elsif ($symbol =~ /^pix[A-Z]/) {
+		# Tesseract's leptonica image library uses camelCase names.
+	    } elsif (substr($_, 0, $symbol_idx) =~ /\bicu::(\w+::)?$/) {
+		# ICU library namespace uses camelCase method names.
+	    } elsif (substr($_, 0, $symbol_idx) =~ /\b(?:EBOOK|Etonyek|RVNG)\w+::$/) {
+		# Libe-book/libetonyek/librevenge use camelCase method names.
+	    } else {
+		diagnostic('error', "camelCase identifier '$symbol' - Xapian coding convention is to use lower case and underscores for variables and functions, and CamelCase for class names");
+	    }
+	}
+	if (/^\+.*\b(?:class|struct)\b.*:\s*$/) {
+	    diagnostic('error', "Inheritance list split after ':', should be before");
+	}
+	# Try to distinguish ternary operator (?:) correctly split after ":" vs
+	# constructor initialiser list incorrectly split after ":".
+	my $last_in_ternary = $in_ternary;
+	$in_ternary = / \?(?: |$)/;
+	if (!$last_in_ternary && !$in_ternary && /^\+.*\)\s*:\s*$/) {
+	    diagnostic('error', "Constructor initialiser list split after ':', should be before");
+	}
+	if (m,^\+\s+([-+/%^]|[&|]{2})\s,) {
+	    diagnostic('error', "Expression split before operator '$1', should be after");
+	}
+	if ($lang eq 'c++' && /^\+\s+inline\b/) {
+	    diagnostic('error', "Method defined inside a class is implicitly 'inline'");
+	}
+	if ($header) {
+	    if (m!^\+\s*#\s*(ifndef|define|endif\s*/[*/])\s+((?:[A-Z]+_INCLUDED)?_?\w+_[Hh]\b)!) {
+		my ($type, $guard) = ($1, $2);
+		my $expected_guard;
+		if (!defined $header_guard_macro) {
+		    if ($type eq 'ifndef') {
+			$header_guard_macro = [$type, $guard];
+			my $expected_guard = uc $fnm;
+			$expected_guard =~ s![-.]!_!g;
+			my $cut;
+			if (length($expected_guard) > length($guard) &&
+			    substr($expected_guard, -length($guard) - 1, 1) eq '/' &&
+			    substr($expected_guard, -length($guard)) eq $guard) {
+			    $cut = -1;
+			} else {
+			    for my $i (1 .. length($guard)) {
+				my $ch_e = substr($expected_guard, -$i, 1);
+				my $ch_g = substr($guard, -$i, 1);
+				next if ($ch_e eq $ch_g);
+				last if ($ch_e ne '/' || $ch_g ne '_');
+				$cut = $i;
+			    }
+			}
+			if (!defined $cut) {
+			    diagnostic('error', "include guard macro should match filename");
+			}
+			my $prefix = 'XAPIAN_INCLUDED_';
+			if ($fnm =~ m!.*omega/(?:.*/)?!) {
+			    $prefix = 'OMEGA_INCLUDED_';
+			}
+			#} elsif ($fnm =~ s!.*xapian-core/.*/!!) {
+			# $expected_guard = "XAPIAN_INCLUDED_" . $expected_guard;
+			#} elsif ($fnm =~ s!.*xapian-letor/.*/!!) {
+			#$expected_guard = "XAPIAN_INCLUDED_" . $expected_guard;
+			if (defined $cut && $cut == -1) {
+			    diagnostic('error', "include guard macro should use prefix '$prefix'");
+			} elsif (defined $cut && substr($guard, 0, length($guard) - $cut + 1) ne $prefix) {
+			    diagnostic('error', "include guard macro should use prefix '$prefix'");
+			} elsif ($guard !~ /^\Q$prefix\E/) {
+			    diagnostic('error', "include guard macro should use prefix '$prefix'");
+			}
+		    }
+		} else {
+		    if (!($type eq 'define' && $header_guard_macro->[0] ne 'ifndef')) {
+			my $expected_guard = $header_guard_macro->[1];
+			$header_guard_macro->[0] = $type;
+			if ($guard ne $expected_guard) {
+			    diagnostic('error', "include guard macro should be $expected_guard");
+			}
+		    }
+		}
+	    }
 	} else {
-	    print "\n";
+	    if (m!^\+\s*#\s*define\s+[A-Z]\+_INCLUDED_!) {
+		diagnostic('error', "include guard macro defined in non-header");
+	    }
 	}
-	++$count{$type};
+
+	if (defined $last_line_block_end &&
+	    /^\+${last_line_block_end}(catch|else)\b/) {
+	    # FIXME: while in do { ... } while can't be as easily checked.
+	    diagnostic('error', "'$1' should be on same line as preceding '}'");
+	}
+    } elsif (defined $lang && $lang eq 'py') {
+	if (/^\+.*;\s*$/) {
+	    diagnostic('error', "';' at end of line of python code");
+	}
+    } elsif (defined $lang && $lang eq 'rb') {
+	if (/^\+.*;\s*$/) {
+	    diagnostic('error', "';' at end of line of ruby code");
+	}
     }
-    my $first_char = substr($fullline, 0, 1);
+    if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output2?)\.txt$!) {
+	if ($fullline =~ /^\+.*?(?:\b|_)(xapain|the the|initialsing|ipv5|outputing|intened|wull|extrac|if it possible|betweem|differen|auxiliar|wat(?:|ed|ing|s))(?:\b|_)/i ||
+	    # Cases which just need to be the prefix of a word
+	    $fullline =~ /^\+.*?(?:\b|_)((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit|openning|openned|appropirate|labrar|returm|interati|termfrequenc|continous|juding|gradinet|clearling|clearled|retreiv|filedescriptor)[a-z]*(?:\b|_))/i ||
+	    # Case-sensitive cases
+	    $fullline =~ /^\+.*?\b(and and|dont|Dont)\b/) {
+	    diagnostic('error', "Typo '$1'");
+	}
+    }
+
+    if ($check_indent) {
+	# Check indentation.
+	if (defined $indent && $first_char eq '+' &&
+	    # blank
+	    !/^\+\s*$/ &&
+	    # Preprocessor line
+	    !$preproc &&
+	    # Label for goto
+	    !/^\+[A-Za-z_][A-Za-z_0-9]*:/ &&
+	    # outdent
+	    !/^\+\s*}/) {
+	    # Special handling for access specifiers, which should get a half indent.
+	    if (/^\+\s*(?:private|protected|public):/) {
+		$indent -= 2;
+	    } elsif ($case_no_brace && /^\+(?:[ \t]*)(?:case\b.*|default):(?:\s*\{)?$/) {
+		# case or default following a case or default without a '{', so
+		# shouldn't be indented - reduce $indent by 4 columns.
+		$indent -= 4;
+	    }
+	    my $this_indent = 0;
+	    if ($fullline =~ /^.([ \t]+)/) {
+		$this_indent = count_columns($1);
+	    }
+	    my $extra = $this_indent - $indent;
+	    if ($extra) {
+		my $which = 'over';
+		if ($extra < 0) {
+		    $extra = -$extra;
+		    $which = 'under';
+		}
+		my $s = '';
+		$s = 's' if $extra > 1;
+		print "$fnm:$lineno: Line ${which}indented by $extra column$s: $fullline";
+	    }
+	}
+
+	#if (/^[-+ ]([ \t]*)(?:(?:(?:catch|for|if|for|switch|while)\b.*\)|(?:case|class|do|else|struct|try|union)\b.*) \{|case\b.*:)$/) {
+	if (/^[+ ]([ \t]*)(?:(?:catch|for|if|for|switch|while|case|class|default|do|else|struct|try|union)\b.* \{|(case\b.*|default):)$/) {
+	    $indent = count_columns($1);
+	    $case_no_brace = $2;
+	    # FIXME: Might be OK in e.g. lambdas
+	    #if (/^\+/ && $indent % 4 != 0) {
+	    #    print "$fnm:$lineno: Indented by $len columns - not a multiple of 4: $fullline";
+	    #}
+	    $indent += 4;
+	} elsif (/^[-+ ]([ \t]*)(?:(?:private|protected|public):)$/) {
+	    # Access specifiers get a half indent and are followed by another half indent.
+	    $indent = count_columns($1);
+	    $case_no_brace = undef;
+	    if (/^\+/ && $indent % 4 != 2) {
+		print "$fnm:$lineno: Indented by $indent columns, should be 2 plus a multiple of 4: $fullline";
+	    }
+	    $indent += 2;
+	} elsif (!/^.\s*$/) {
+	    # Only reset for a non-blank line (after comment removal).
+	    $indent = undef;
+	    $case_no_brace = undef;
+	}
+    }
+
     if ($first_char eq ' ') {
 	++$lineno;
     } elsif ($first_char eq '+') {
@@ -347,6 +969,26 @@ QUOTELOOP:  while (1) {
 	++$add_lines;
     } elsif ($first_char eq '-') {
 	++$del_lines;
+    } elsif ($first_char eq '\\') {
+	# "\ No newline at end of file" - if preceded by a "+" line, this means
+	# that the patch leaves the file missing a newline at the end.
+	if ($last_first_char eq '+') {
+	    diagnostic_last('error', 'No newline at end of file');
+	}
+    }
+    $last_fullline = $fullline;
+    $last_first_char = $first_char;
+    $last_line_blank = $line_blank;
+    if (/^.([ \t]+)\}$/) {
+	$last_line_block_end = $1;
+    } else  {
+	$last_line_block_end = undef;
+    }
+    $penultimate_line_block_start = $last_line_block_start;
+    if (/^.(.*\{)\s*$/) {
+	$last_line_block_start = $1;
+    } else {
+	$last_line_block_start = undef;
     }
 }
 if (scalar keys %count) {
@@ -360,4 +1002,19 @@ Files patched:\t$files
 Lines added:\t$add_lines
 Lines removed:\t$del_lines
 __END__
-exit(exists $count{'error'} ? 1 : 0);
+
+exit 0 unless exists $count{'error'};
+
+if (exists $ENV{TRAVIS}) {
+    print STDERR <<"__END__";
+
+You can run these checks locally before pushing with the xapian-check-patch
+which is in the source tree in the xapian-maintainer-tools directory.
+
+E.g. to check any changes in your working directory which aren't on master:
+
+git diff master.. | xapian-maintainer-tools/xapian-check-patch
+__END__
+}
+
+exit 1;

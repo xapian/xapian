@@ -46,7 +46,7 @@ struct constinfo {
  *  number of pieces of information), which reduces the library load time.
  */
 XAPIAN_VISIBILITY_DEFAULT
-const struct constinfo * XAPIAN_NOTHROW(get_constinfo_()) XAPIAN_CONST_FUNCTION;
+const struct constinfo* get_constinfo_() noexcept XAPIAN_CONST_FUNCTION;
 
 }
 }

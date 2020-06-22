@@ -1,6 +1,7 @@
-/* utils.h: string conversion utility functions for omega
- *
- * Copyright (C) 2006,2011 Olly Betts
+/** @file utils.h
+ * @brief string conversion utility functions for omega
+ */
+/* Copyright (C) 2006,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +22,6 @@
 #define OMEGA_INCLUDED_UTILS_H
 
 #include <string>
-
-/** Converts year, month, day into an 8 character string like: "20061031". */
-std::string date_to_string(int year, int month, int day);
 
 /** Converts a double to a string. */
 std::string double_to_string(double value);

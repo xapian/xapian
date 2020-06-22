@@ -1,7 +1,8 @@
-/* inmemory_alltermslist.cc
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2007,2008,2009 Olly Betts
+/** @file inmemory_alltermslist.cc
+ * @brief Iterate all terms in an inmemory db
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003,2004,2007,2008,2009,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +25,15 @@
 
 #include "stringutils.h"
 
+Xapian::termcount
+InMemoryAllTermsList::get_approx_size() const
+{
+    // This may be an over-estimate due to deleted entries, and we may be
+    // restricted to a prefix, but we only use this value to build a balanced
+    // or-tree, and it'll do a decent job for that.
+    return tmap->size();
+}
+
 string
 InMemoryAllTermsList::get_termname() const
 {
@@ -41,15 +51,6 @@ InMemoryAllTermsList::get_termfreq() const
     Assert(!it->first.empty());
     /* FIXME: this isn't quite right. */
     return it->second.docs.size();
-}
-
-Xapian::termcount
-InMemoryAllTermsList::get_collection_freq() const
-{
-    if (database->is_closed()) InMemoryDatabase::throw_database_closed();
-    Assert(!at_end());
-    Assert(!it->first.empty());
-    throw Xapian::UnimplementedError("Collection frequency not implemented in InMemory backend");
 }
 
 TermList *
@@ -100,3 +101,7 @@ InMemoryAllTermsList::at_end() const
     Assert(it == tmap->end() || !it->first.empty());
     return (it == tmap->end());
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

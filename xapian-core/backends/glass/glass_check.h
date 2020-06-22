@@ -22,11 +22,10 @@
  * USA
  */
 
-#ifndef OM_HGUARD_GLASS_CHECK_H
-#define OM_HGUARD_GLASS_CHECK_H
+#ifndef XAPIAN_INCLUDED_GLASS_CHECK_H
+#define XAPIAN_INCLUDED_GLASS_CHECK_H
 
 #include "glass_table.h"
-#include "noreturn.h"
 
 #include <iosfwd>
 #include <string>
@@ -34,34 +33,39 @@
 class GlassVersion;
 
 class GlassTableCheck : public GlassTable {
-    public:
-	static GlassTableCheck * check(
-		const char * tablename, const std::string & path, int fd,
-		off_t offset_,
-		const GlassVersion & version_file,
-		int opts, std::ostream *out);
-    private:
-	GlassTableCheck(const char * tablename_, const std::string &path_,
-			bool readonly_, std::ostream *out_)
-	    : GlassTable(tablename_, path_, readonly_), out(out_) { }
+  public:
+    static GlassTableCheck * check(
+	    const char * tablename, const std::string & path, int fd,
+	    off_t offset_,
+	    const GlassVersion & version_file,
+	    int opts, std::ostream *out);
 
-	GlassTableCheck(const char * tablename_, int fd, off_t offset_,
-			bool readonly_, std::ostream *out_)
-	    : GlassTable(tablename_, fd, offset_, readonly_), out(out_) { }
+  private:
+    GlassTableCheck(const char * tablename_, const std::string &path_,
+		    bool readonly_, std::ostream *out_)
+	: GlassTable(tablename_, path_, readonly_), out(out_) { }
 
-	void block_check(Glass::Cursor * C_, int j, int opts,
-			 GlassFreeListChecker &flcheck);
-	int block_usage(const byte * p) const;
-	void report_block(int m, int n, const byte * p) const;
-	void report_block_full(int m, int n, const byte * p) const;
-	void report_cursor(int N, const Glass::Cursor *C_) const;
+    GlassTableCheck(const char * tablename_, int fd, off_t offset_,
+		    bool readonly_, std::ostream *out_)
+	: GlassTable(tablename_, fd, offset_, readonly_), out(out_) { }
 
-	void print_key(const byte * p, int c, int j) const;
-	void print_tag(const byte * p, int c, int j) const;
-	void print_spaces(int n) const;
-	void print_bytes(int n, const byte * p) const;
+    void block_check(Glass::Cursor * C_, int j, int opts,
+		     GlassFreeListChecker &flcheck);
+    int block_usage(const uint8_t * p) const;
+    void report_block(int m, int n, const uint8_t * p) const;
+    void report_block_full(int m, int n, const uint8_t * p) const;
+    void report_cursor(int N, const Glass::Cursor *C_) const;
 
-	std::ostream *out;
+    void print_key(const uint8_t * p, int c, int j) const;
+    void print_tag(const uint8_t * p, int c, int j) const;
+    void print_spaces(int n) const;
+    void print_bytes(int n, const uint8_t * p) const;
+
+    std::ostream *out;
 };
 
-#endif /* OM_HGUARD_GLASS_CHECK_H */
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif
+
+#endif /* XAPIAN_INCLUDED_GLASS_CHECK_H */

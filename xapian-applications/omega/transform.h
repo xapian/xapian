@@ -28,6 +28,6 @@ void omegascript_transform(std::string & value,
 			   const std::vector<std::string> & args);
 
 void omegascript_match(std::string &value,
-			   const std::vector<std::string> & args);
+		       const std::vector<std::string> & args);
 
 #endif // OMEGA_INCLUDED_TRANSFORM_H

@@ -1,9 +1,10 @@
-/* omega.cc: Main module for omega (example CGI frontend for Xapian)
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file omega.cc
+ * @brief Main module for omega (example CGI frontend for Xapian)
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015,2016,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,11 +24,7 @@
 
 #include <config.h>
 
-// If we're building against git after the expand API changed but before the
-// version gets bumped to 1.3.2, we'll get a deprecation warning from
-// get_eset() unless we suppress such warnings here.
-#define XAPIAN_DEPRECATED(D) D
-
+#include <cerrno>
 #include <cstdio>
 #include <ctime>
 
@@ -46,6 +43,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "expand.h"
+#include "parseint.h"
 
 using namespace std;
 
@@ -63,9 +61,6 @@ Xapian::Database db;
 Xapian::RSet rset;
 
 map<string, string> option;
-
-string date_start, date_end, date_span;
-Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
 
 bool set_content_type = false;
 
@@ -97,12 +92,61 @@ map_dbname_to_dir(const string &database_name)
     return database_dir + database_name;
 }
 
+static void
+add_database(const string& this_dbname)
+{
+    if (!dbname.empty()) dbname += '/';
+    dbname += this_dbname;
+
+    Xapian::Database this_db(map_dbname_to_dir(this_dbname));
+    db.add_database(this_db);
+
+    size_t this_db_size = this_db.size();
+    size_t db_size = db.size();
+    size_t i = 0;
+    while (subdbs.size() != db_size) {
+	subdbs.emplace_back(this_dbname, i++, this_db_size);
+    }
+}
+
+// Get database(s) to search.
+template<typename IT>
+void
+parse_db_params(const pair<IT, IT>& dbs)
+{
+    dbname.resize(0);
+    // Only add a repeated db once.
+    set<string> seen;
+    for (auto i = dbs.first; i != dbs.second; ++i) {
+	const string& v = i->second;
+	if (v.empty()) continue;
+	size_t p = 0, q;
+	while (true) {
+	    q = v.find('/', p);
+	    string s(v, p, q - p);
+	    if (!s.empty() && seen.find(s) == seen.end()) {
+		add_database(s);
+		seen.insert(s);
+	    }
+	    if (q == string::npos) break;
+	    p = q + 1;
+	}
+    }
+}
+
 int main(int argc, char *argv[])
 try {
-    read_config_file();
+    {
+	// Check for SERVER_PROTOCOL=INCLUDED, which is set when we're being
+	// included in a page via a server-side include directive.  In this
+	// case we suppress sending a Content-Type: header.
+	const char* p = getenv("SERVER_PROTOCOL");
+	if (p && strcmp(p, "INCLUDED") == 0) {
+	    suppress_http_headers = true;
+	}
+    }
 
-    MCI val;
-    pair<MCI, MCI> g;
+    read_config_file();
 
     option["flag_default"] = "true";
 
@@ -114,7 +158,7 @@ try {
     option["stemmer"] = DEFAULT_STEM_LANGUAGE;
 
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
-    //setvbuf(stdout, NULL, _IOLBF, 0);
+    // setvbuf(stdout, NULL, _IOLBF, 0);
 
     const char * method = getenv("REQUEST_METHOD");
     if (method == NULL) {
@@ -139,41 +183,23 @@ try {
     }
 
     try {
-	// get database(s) to search
-	dbname.resize(0);
-	set<string> seen; // only add a repeated db once
-	g = cgi_params.equal_range("DB");
-	for (MCI i = g.first; i != g.second; ++i) {
-	    const string & v = i->second;
-	    if (!v.empty()) {
-		size_t p = 0, q;
-		while (true) {
-		    q = v.find('/', p);
-		    string s(v, p, q - p);
-		    if (!s.empty() && seen.find(s) == seen.end()) {
-			// Translate DB parameter to path of database directory
-			if (!dbname.empty()) dbname += '/';
-			dbname += s;
-			db.add_database(Xapian::Database(map_dbname_to_dir(s)));
-			seen.insert(s);
-		    }
-		    if (q == string::npos) break;
-		    p = q + 1;
-		}
-	    }
-	}
+	parse_db_params(cgi_params.equal_range("DB"));
 	if (dbname.empty()) {
-	    dbname = default_db;
-	    db.add_database(Xapian::Database(map_dbname_to_dir(dbname)));
+	    add_database(default_db);
 	}
 	enquire = new Xapian::Enquire(db);
     } catch (const Xapian::Error &) {
 	enquire = NULL;
+	db = Xapian::Database();
     }
 
     hits_per_page = 0;
-    val = cgi_params.find("HITSPERPAGE");
-    if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
+    auto val = cgi_params.find("HITSPERPAGE");
+    if (val != cgi_params.end()) {
+	if (!parse_unsigned(val->second.c_str(), hits_per_page)) {
+	    throw "HITSPERPAGE parameter must be >= 0";
+	}
+    }
     if (hits_per_page == 0) {
 	hits_per_page = 10;
     } else if (hits_per_page > 1000) {
@@ -218,14 +244,14 @@ try {
 		if (!morelike_query.empty()) morelike_query += ' ';
 		morelike_query += pretty_term(term);
 	    }
-	    set_probabilistic_query(string(), morelike_query);
+	    add_query_string(string(), morelike_query);
 	}
     } else {
 	// add expand/topterms terms if appropriate
 	string expand_terms;
 	if (cgi_params.find("ADD") != cgi_params.end()) {
-	    g = cgi_params.equal_range("X");
-	    for (MCI i = g.first; i != g.second; ++i) {
+	    auto g = cgi_params.equal_range("X");
+	    for (auto i = g.first; i != g.second; ++i) {
 		const string & v = i->second;
 		if (!v.empty()) {
 		    if (!expand_terms.empty())
@@ -236,8 +262,8 @@ try {
 	}
 
 	// collect the unprefixed prob fields
-	g = cgi_params.equal_range("P");
-	for (MCI i = g.first; i != g.second; ++i) {
+	auto g = cgi_params.equal_range("P");
+	for (auto i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    if (!v.empty()) {
 		// If there are expand terms, append them to the first
@@ -246,34 +272,34 @@ try {
 		    string q = v;
 		    q += ' ';
 		    q += expand_terms;
-		    set_probabilistic_query(string(), q);
+		    add_query_string(string(), q);
 		    expand_terms = string();
 		} else {
-		    set_probabilistic_query(string(), v);
+		    add_query_string(string(), v);
 		}
 	    }
 	}
 
 	if (!expand_terms.empty()) {
-	    set_probabilistic_query(string(), expand_terms);
+	    add_query_string(string(), expand_terms);
 	}
     }
 
-    g.first = cgi_params.lower_bound("P.");
-    g.second = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
-    for (MCI i = g.first; i != g.second; ++i) {
+    auto begin = cgi_params.lower_bound("P.");
+    auto end = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    string pfx(i->first, 2, string::npos);
-	    set_probabilistic_query(pfx, v);
+	    add_query_string(pfx, v);
 	}
     }
 
     // set any boolean filters
-    g = cgi_params.equal_range("B");
+    auto g = cgi_params.equal_range("B");
     if (g.first != g.second) {
 	vector<string> filter_v;
-	for (MCI i = g.first; i != g.second; ++i) {
+	for (auto i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    // we'll definitely get empty B fields from "-ALL-" options
 	    if (!v.empty() && C_isalnum(v[0])) {
@@ -312,7 +338,7 @@ try {
     g = cgi_params.equal_range("N");
     if (g.first != g.second) {
 	vector<string> filter_v;
-	for (MCI i = g.first; i != g.second; ++i) {
+	for (auto i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    // we'll definitely get empty N fields from "-ALL-" options
 	    if (!v.empty() && C_isalnum(v[0])) {
@@ -350,17 +376,89 @@ try {
     }
 
     // date range filters
-    val = cgi_params.find("START");
-    if (val != cgi_params.end()) date_start = val->second;
-    val = cgi_params.find("END");
-    if (val != cgi_params.end()) date_end = val->second;
-    val = cgi_params.find("SPAN");
-    if (val != cgi_params.end()) date_span = val->second;
+    struct date_range {
+	string start, end, span;
+    };
+    map<Xapian::valueno, date_range> date_ranges;
+    begin = cgi_params.lower_bound("START.");
+    end = cgi_params.lower_bound("START/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    Xapian::valueno slot;
+	    if (!parse_unsigned(i->first.c_str() +
+				CONST_STRLEN("START."), slot)) {
+		throw "START slot value must be >= 0";
+	    }
+	    date_ranges[slot].start = v;
+	}
+    }
+    begin = cgi_params.lower_bound("END.");
+    end = cgi_params.lower_bound("END/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    Xapian::valueno slot;
+	    if (!parse_unsigned(i->first.c_str() +
+				CONST_STRLEN("END."), slot)) {
+		throw "END slot value must be >= 0";
+	    }
+	    date_ranges[slot].end = v;
+	}
+    }
+    begin = cgi_params.lower_bound("SPAN.");
+    end = cgi_params.lower_bound("SPAN/"); // '/' is '.' + 1.
+    for (auto i = begin; i != end; ++i) {
+	const string & v = i->second;
+	if (!v.empty()) {
+	    Xapian::valueno slot;
+	    if (!parse_unsigned(i->first.c_str() +
+				CONST_STRLEN("SPAN."), slot)) {
+		throw "SPAN slot value must be >= 0";
+	    }
+	    date_ranges[slot].span = v;
+	}
+    }
+    if (!date_ranges.empty()) {
+	// old_filters predates START.N, END.N and SPAN.N so use of any of
+	// these means this is definitely a different query.
+	old_filters.clear();
+    }
+    for (auto i : date_ranges) {
+	auto slot = i.first;
+	auto r = i.second;
+	add_date_filter(r.start, r.end, r.span, slot);
+	filters += '$';
+	filters += str(slot);
+	filters += '$';
+	filters += r.start;
+	filters += '$';
+	filters += r.end;
+	filters += '$';
+	filters += r.span;
+    }
+
+    string date_start, date_end, date_span;
     val = cgi_params.find("DATEVALUE");
-    if (val != cgi_params.end()) date_value_slot = string_to_int(val->second);
+    Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
+    if (val != cgi_params.end() &&
+	!parse_unsigned(val->second.c_str(), date_value_slot)) {
+	throw "DATEVALUE slot must be >= 0";
+    }
+    // Process DATEVALUE=n and associated values unless we saw START.n=...
+    // or END.n=... or SPAN.n=...
+    if (date_ranges.find(date_value_slot) == date_ranges.end()) {
+	val = cgi_params.find("START");
+	if (val != cgi_params.end()) date_start = val->second;
+	val = cgi_params.find("END");
+	if (val != cgi_params.end()) date_end = val->second;
+	val = cgi_params.find("SPAN");
+	if (val != cgi_params.end()) date_span = val->second;
+	add_date_filter(date_start, date_end, date_span, date_value_slot);
+    }
 
     // If more default_op values are supported, encode them as non-alnums
-    // other than filter_sep or '!'.
+    // other than filter_sep, '!' or '$'.
     filters += (default_op == Xapian::Query::OP_AND ? '.' : '-');
     filters += date_start;
     filters += filter_sep;
@@ -390,9 +488,20 @@ try {
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
-	threshold = atoi(val->second.c_str());
-	if (threshold < 0) threshold = 0;
-	if (threshold > 100) threshold = 100;
+	unsigned int temp;
+	if (val->second[0] == '-') {
+	    if (!parse_unsigned(val->second.c_str() + 1, temp)) {
+		throw "THRESHOLD parameter must be an integer";
+	    }
+	    threshold = 0;
+	} else if (!parse_unsigned(val->second.c_str(), temp)) {
+	    throw "THRESHOLD parameter must be an integer";
+	}
+	if (temp > 100) {
+	    threshold = 100;
+	} else {
+	    threshold = temp;
+	}
     }
 
     // collapsing
@@ -400,7 +509,9 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (!v.empty()) {
-	    collapse_key = atoi(v.c_str());
+	    if (!parse_unsigned(val->second.c_str(), collapse_key)) {
+		throw "COLLAPSE parameter must be >= 0";
+	    }
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
@@ -495,13 +606,22 @@ try {
 	} while (*p);
 
 	val = cgi_params.find("SORTREVERSE");
-	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
-	    reverse_sort = !reverse_sort;
+	if (val != cgi_params.end()) {
+	    unsigned int temp;
+	    if (!parse_unsigned(val->second.c_str(), temp)) {
+		throw "SORTREVERSE parameter must be >= 0";
+	    }
+	    if (temp != 0) {
+		reverse_sort = !reverse_sort;
+	    }
 	}
-
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
-	    sort_after = (atoi(val->second.c_str()) != 0);
+	    unsigned int temp;
+	    if (!parse_unsigned(val->second.c_str(), temp)) {
+		throw "SORTAFTER parameter must be >= 0";
+	    }
+	    sort_after = bool(temp);
 	}
 
 	// Add the sorting related options to filters too.
@@ -536,7 +656,9 @@ try {
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
     if (val != cgi_params.end()) {
-	min_hits = atol(val->second.c_str());
+	if (!parse_unsigned(val->second.c_str(), min_hits)) {
+	    throw "MINHITS parameter must be >= 0";
+	}
     }
 
     parse_omegascript();

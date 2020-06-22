@@ -2,7 +2,7 @@
  * @brief Check consistency of a glass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@
 #include <xapian.h>
 
 #include "filetests.h"
-#include "autoptr.h"
+#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -88,16 +88,16 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
     }
 
     // Check the btree structure.
-    AutoPtr<GlassTable> table(
+    unique_ptr<GlassTable> table(
 	    GlassTableCheck::check(tablename, db_dir, fd, offset_,
 				   version_file, opts, out));
 
     // Now check the glass structures inside the btree.
-    AutoPtr<GlassCursor> cursor(table->cursor_get());
+    unique_ptr<GlassCursor> cursor(table->cursor_get());
 
     size_t errors = 0;
 
-    cursor->find_entry(string());
+    cursor->rewind();
     cursor->next(); // Skip the empty entry.
 
     if (strcmp(tablename, "postlist") == 0) {
@@ -606,8 +606,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    ++errors;
 	}
 
-	// Now check the contents of the docdata table.  Any data is valid as
-	// the tag so we don't check the tags.
+	// Now check the contents of the docdata table.
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
 
@@ -632,6 +631,18 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 			     << db_last_docid << endl;
 		    ++errors;
 		}
+	    }
+
+	    // Fetch and decompress the document data to catch problems with
+	    // the splitting into multiple items, corruption of the compressed
+	    // data, etc.
+	    cursor->read_tag();
+	    if (cursor->current_tag.empty()) {
+		// We shouldn't store empty document data.
+		if (out)
+		    *out << "Empty document data explicitly stored for "
+			    "document id " << did << endl;
+		++errors;
 	    }
 	}
     } else if (strcmp(tablename, "termlist") == 0) {
@@ -736,6 +747,20 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		}
 		++errors;
 		continue;
+	    }
+
+	    // Check doclen with doclen lower and upper bounds
+	    if (doclen > version_file.get_doclength_upper_bound()) {
+		if (out)
+		    *out << "doclen " << doclen << " > upper bound "
+			 << version_file.get_doclength_upper_bound() << endl;
+		++errors;
+	    } else if (doclen < version_file.get_doclength_lower_bound() &&
+		       doclen != 0) {
+		if (out)
+		    *out << "doclen " << doclen << " < lower bound "
+			 << version_file.get_doclength_lower_bound() << endl;
+		++errors;
 	    }
 
 	    // Read termlist_size
@@ -905,7 +930,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		// Special case for single entry position list.
 	    } else {
 		// Skip the header we just read.
-		BitReader rd(data, pos - data.data());
+		BitReader rd(pos, end);
 		Xapian::termpos pos_first = rd.decode(pos_last);
 		Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
 		rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
@@ -948,3 +973,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 
     return errors;
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

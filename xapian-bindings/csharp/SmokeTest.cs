@@ -1,6 +1,6 @@
 // Simple test that we can load the xapian module and run a simple test
 //
-// Copyright (C) 2004,2005,2006,2007,2008,2011,2016 Olly Betts
+// Copyright (C) 2004,2005,2006,2007,2008,2011,2016,2019 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -146,6 +146,10 @@ class SmokeTest {
 
 	    Xapian.Query query = new Xapian.Query(stem.Apply("out"));
 	    Xapian.Enquire enquire = new Xapian.Enquire(db);
+
+	    // Check Xapian::BAD_VALUENO is wrapped suitably.
+	    enquire.SetCollapseKey(Xapian.Xapian.BAD_VALUENO);
+
 	    enquire.SetQuery(query);
 	    Xapian.MSet mset = enquire.GetMSet(0, 10, null, new TestMatchDecider());
 	    if (mset.Size() != 1) {

@@ -1,8 +1,9 @@
-/* tcpserver.cc: class for TCP/IP-based server.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file tcpserver.cc
+ * @brief class for TCP/IP-based server.
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,14 +27,13 @@
 
 #include <xapian/error.h>
 
-#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safenetdb.h"
 #include "safesyssocket.h"
 
-#include "noreturn.h"
 #include "remoteconnection.h"
 #include "resolver.h"
+#include "socket_utils.h"
 #include "str.h"
 
 #ifdef __WIN32__
@@ -50,8 +50,8 @@
 
 #include <iostream>
 
+#include <cerrno>
 #include <cstring>
-#include <cstdio> // For sprintf() on __WIN32__ or cygwin.
 #include <cstdlib>
 #include <sys/types.h>
 
@@ -73,11 +73,7 @@ using namespace std;
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(const std::string & host, int port, bool tcp_nodelay,
 		     bool verbose_)
-    :
-#if defined __CYGWIN__ || defined __WIN32__
-      mutex(NULL),
-#endif
-      listen_socket(get_listening_socket(host, port, tcp_nodelay
+    : listen_socket(get_listening_socket(host, port, tcp_nodelay
 #if defined __CYGWIN__ || defined __WIN32__
 					 , mutex
 #endif
@@ -130,9 +126,8 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	// the same port, so we guard against that by using a named win32 mutex
 	// object (and we create it in the 'Global namespace' so that this
 	// still works in a Terminal Services environment).
-	char name[64];
-	sprintf(name, "Global\\xapian-tcpserver-listening-%d", port);
-	if ((mutex = CreateMutex(NULL, TRUE, name)) == NULL) {
+	string name = "Global\\xapian-tcpserver-listening-" + str(port);
+	if ((mutex = CreateMutex(NULL, TRUE, name.c_str())) == NULL) {
 	    // We failed to create the mutex, probably the error is
 	    // ERROR_ACCESS_DENIED, which simply means that TcpServer is
 	    // already running on this port but as a different user.
@@ -205,7 +200,6 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	    // xapian-tcpsrv failed to bind to the requested port.
 	    exit(77); // FIXME: calling exit() here isn't ideal...
 	}
-	CLOSESOCKET(socketfd);
 	throw Xapian::NetworkError("bind failed", bind_errno);
     }
 
@@ -220,7 +214,7 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 int
 TcpServer::accept_connection()
 {
-    struct sockaddr_in remote_address;
+    struct sockaddr_storage remote_address;
     SOCKLEN_T remote_address_size = sizeof(remote_address);
     // accept connections
     int con_socket = accept(listen_socket,
@@ -239,33 +233,14 @@ TcpServer::accept_connection()
 	throw Xapian::NetworkError("accept failed", socket_errno());
     }
 
-    if (remote_address_size != sizeof(remote_address)) {
-	throw Xapian::NetworkError("accept: unexpected remote address size");
-    }
-
     if (verbose) {
-	char buf[INET_ADDRSTRLEN];
-#ifndef __WIN32__
-	// Under __WIN32__, inet_ntop()'s second parameter isn't const for some
-	// reason.  We don't currently use inet_ntop() there, but allow for a
-	// non-const second parameter in case it's more widespread.
-	void * src = &remote_address.sin_addr;
-	const char * r = inet_ntop(AF_INET, src, buf, sizeof(buf));
-	if (!r)
-	    throw Xapian::NetworkError("inet_ntop failed", errno);
-#else
-	// inet_ntop() isn't always available, at least with mingw.
-	// WSAAddressToString() supports both IPv4 and IPv6, so just use that.
-	DWORD size = sizeof(buf);
-	if (WSAAddressToString(reinterpret_cast<sockaddr*>(&remote_address),
-			       sizeof(remote_address), NULL, buf, &size) != 0) {
-	    throw Xapian::NetworkError("WSAAddressToString failed",
-				       WSAGetLastError());
+	char host[PRETTY_IP6_LEN];
+	int port = pretty_ip6(&remote_address, host);
+	if (port >= 0) {
+	    cout << "Connection from " << host << " port " << port << endl;
+	} else {
+	    cout << "Connection from unknown host" << endl;
 	}
-	const char * r = buf;
-#endif
-	int port = remote_address.sin_port;
-	cout << "Connection from " << r << ", port " << port << endl;
     }
 
     return con_socket;
@@ -281,38 +256,10 @@ TcpServer::~TcpServer()
 
 #ifdef HAVE_FORK
 // A fork() based implementation.
-void
-TcpServer::run_once()
-{
-    int connected_socket = accept_connection();
-    pid_t pid = fork();
-    if (pid == 0) {
-	// Child process.
-	close(listen_socket);
-
-	handle_one_connection(connected_socket);
-	close(connected_socket);
-
-	if (verbose) cout << "Connection closed." << endl;
-	exit(0);
-    }
-
-    // Parent process.
-
-    if (pid < 0) {
-	// fork() failed
-	int saved_errno = socket_errno(); // note down in case close hits an error
-	close(connected_socket);
-	throw Xapian::NetworkError("fork failed", saved_errno);
-    }
-
-    close(connected_socket);
-}
 
 extern "C" {
 
-XAPIAN_NORETURN(static void on_SIGTERM(int /*sig*/));
-
+[[noreturn]]
 static void
 on_SIGTERM(int /*sig*/)
 {
@@ -352,7 +299,31 @@ TcpServer::run()
 
     while (true) {
 	try {
-	    run_once();
+	    int connected_socket = accept_connection();
+	    pid_t pid = fork();
+	    if (pid == 0) {
+		// Child process.
+		close(listen_socket);
+
+		handle_one_connection(connected_socket);
+		close(connected_socket);
+
+		if (verbose) cout << "Connection closed." << endl;
+		exit(0);
+	    }
+
+	    // Parent process.
+
+	    if (pid < 0) {
+		// fork() failed.
+
+		// Note down errno from fork() in case close() hits an error.
+		int saved_errno = socket_errno();
+		close(connected_socket);
+		throw Xapian::NetworkError("fork failed", saved_errno);
+	    }
+
+	    close(connected_socket);
 	} catch (const Xapian::Error &e) {
 	    // FIXME: better error handling.
 	    cerr << "Caught " << e.get_description() << endl;
@@ -405,9 +376,9 @@ CtrlHandler(DWORD fdwCtrlType)
     // However, it appears closesocket() does.  This is much easier than trying
     // to setup a non-blocking accept().
     if (!pShutdownSocket || closesocket(*pShutdownSocket) == SOCKET_ERROR) {
-       // We failed to close the socket, so just let the OS handle the
-       // event in the default way.
-       return FALSE;
+	// We failed to close the socket, so just let the OS handle the
+	// event in the default way.
+	return FALSE;
     }
 
     pShutdownSocket = NULL;
@@ -462,10 +433,10 @@ TcpServer::run()
 	    thread_param *param = new thread_param(this, connected_socket);
 	    HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread, param, 0, NULL);
 	    if (hthread == 0) {
-	       // errno holds the error code from _beginthreadex, and
-	       // closesocket() doesn't set errno.
-	       closesocket(connected_socket);
-	       throw Xapian::NetworkError("_beginthreadex failed", errno);
+		// errno holds the error code from _beginthreadex, and
+		// closesocket() doesn't set errno.
+		closesocket(connected_socket);
+		throw Xapian::NetworkError("_beginthreadex failed", errno);
 	    }
 
 	    // FIXME: keep track of open thread handles so we can gracefully
@@ -483,15 +454,19 @@ TcpServer::run()
     }
 }
 
+#else
+# error Neither HAVE_FORK nor __WIN32__ are defined.
+#endif
+
 void
 TcpServer::run_once()
 {
-    // Run a single request on the current thread.
+    // Run a single request in the current process/thread.
     int fd = accept_connection();
     handle_one_connection(fd);
-    closesocket(fd);
+    CLOSESOCKET(fd);
 }
 
-#else
-# error Neither HAVE_FORK nor __WIN32__ are defined.
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
 #endif

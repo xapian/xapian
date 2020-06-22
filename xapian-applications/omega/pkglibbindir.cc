@@ -1,4 +1,4 @@
-/* @file pkglibbindir.cc
+/** @file pkglibbindir.cc
  * @brief Get the directory which helper programs live in.
  */
 /* Copyright (C) 2010,2011 Olly Betts

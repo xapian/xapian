@@ -1,6 +1,7 @@
-/* hashterm.cc: generate a URL term, truncating and hashing very long URLs.
- *
- * Copyright (C) 2003 Lemur Consulting Ltd.
+/** @file hashterm.cc
+ * @brief generate a URL term, truncating and hashing very long URLs.
+ */
+/* Copyright (C) 2003 Lemur Consulting Ltd.
  * Copyright (C) 2003,2004,2006,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +22,8 @@
 
 #include <config.h>
 #include "hashterm.h"
+
+#include <cassert>
 
 using namespace std;
 
@@ -60,6 +63,7 @@ hash_string(const string &s)
 string
 hash_long_term(const string &term, unsigned int max_length)
 {
+    assert(max_length >= HASH_LEN);
     if (term.length() <= max_length) return term;
     string result(term);
     max_length -= HASH_LEN;

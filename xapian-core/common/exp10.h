@@ -26,8 +26,8 @@
 #endif
 
 #include <cmath>
-#ifndef HAVE_EXP10
-# ifdef HAVE___EXP10
+#if !HAVE_DECL_EXP10
+# if HAVE_DECL___EXP10
 inline double exp10(double x) { return __exp10(x); }
 # elif defined HAVE___BUILTIN_EXP10
 inline double exp10(double x) { return __builtin_exp10(x); }

@@ -20,8 +20,8 @@
  * USA
  */
 
-#ifndef FEATURE_VECTOR_INTERNAL_H
-#define FEATURE_VECTOR_INTERNAL_H
+#ifndef XAPIAN_INCLUDED_FEATUREVECTOR_INTERNAL_H
+#define XAPIAN_INCLUDED_FEATUREVECTOR_INTERNAL_H
 
 #include "xapian-letor/featurevector.h"
 
@@ -38,9 +38,8 @@ class FeatureVector::Internal : public Xapian::Internal::intrusive_base
     double score_;
     std::vector<double> fvals_;
     Xapian::docid did_;
-
 };
 
 }
 
-#endif // FEATURE_VECTOR_INTERNAL_H
+#endif // XAPIAN_INCLUDED_FEATUREVECTOR_INTERNAL_H

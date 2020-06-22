@@ -1,7 +1,7 @@
-/* queryparser.cc: The non-lemon-generated parts of the QueryParser
- * class.
- *
- * Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts
+/** @file queryparser.cc
+ * @brief The non-lemon-generated parts of the QueryParser class.
+ */
+/* Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -58,18 +58,17 @@ SimpleStopper::get_description() const
 
 RangeProcessor::~RangeProcessor() { }
 
-ValueRangeProcessor::~ValueRangeProcessor() { }
-
 FieldProcessor::~FieldProcessor() { }
 
-QueryParser::QueryParser(const QueryParser & o) : internal(o.internal) { }
+QueryParser::QueryParser(const QueryParser &) = default;
 
 QueryParser &
-QueryParser::operator=(const QueryParser & o)
-{
-    internal = o.internal;
-    return *this;
-}
+QueryParser::operator=(const QueryParser &) = default;
+
+QueryParser::QueryParser(QueryParser &&) = default;
+
+QueryParser &
+QueryParser::operator=(QueryParser &&) = default;
 
 QueryParser::QueryParser() : internal(new QueryParser::Internal) { }
 
@@ -149,6 +148,22 @@ QueryParser::set_max_expansion(Xapian::termcount max_expansion,
     if (flags & FLAG_PARTIAL) {
 	internal->max_partial_expansion = max_expansion;
 	internal->max_partial_type = max_type;
+    }
+    if (flags & FLAG_FUZZY) {
+	internal->max_fuzzy_expansion = max_expansion;
+	internal->max_fuzzy_type = max_type;
+    }
+}
+
+void
+QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len,
+				     unsigned flags)
+{
+    if (flags & FLAG_WILDCARD) {
+	internal->min_wildcard_prefix_len = min_prefix_len;
+    }
+    if (flags & FLAG_PARTIAL) {
+	internal->min_partial_prefix_len = min_prefix_len;
     }
 }
 

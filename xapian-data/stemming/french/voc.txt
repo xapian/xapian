@@ -640,9 +640,12 @@ aidés
 aidez
 aidiez
 aie
+aïe
 aient
 aies
 aïeul
+aïeule
+aïeuls
 aïeux
 aigle
 aigre
@@ -652,11 +655,14 @@ aigrement
 aigres
 aigreur
 aigrirait
+aiguë
+aiguës
 aiguille
 aiguilles
 aiguillon
 aiguiser
 aigus
+aïkido
 aile
 ailes
 aille
@@ -665,6 +671,7 @@ ailleurs
 aima
 aimable
 aimables
+aïmag
 aimaient
 aimais
 aimait
@@ -690,7 +697,9 @@ aine
 aîné
 aînée
 aînés
+aïnou
 ainsi
+aïoli
 air
 aire
 airs
@@ -734,6 +743,8 @@ alas
 albâtre
 albermale
 album
+alcaloïde
+alcaloïdes
 alcooliques
 ale
 aléa
@@ -816,6 +827,8 @@ alphabet
 alphabets
 alsace
 also
+altaïque
+altaïques
 altamira
 altéra
 altérait
@@ -855,6 +868,9 @@ ambassade
 ambassadeur
 ambassadeurs
 ambiguë
+ambiguës
+ambiguïté
+ambiguïtés
 ambitieuse
 ambitieux
 ambition
@@ -923,6 +939,8 @@ ample
 amplification
 amplifications
 amputés
+amuï
+amuïssement
 amusa
 amusaient
 amusait
@@ -935,6 +953,8 @@ amusé
 amusement
 amuser
 amusera
+amyloïde
+amyloïdes
 an
 anachorète
 anachronisme
@@ -953,6 +973,8 @@ and
 andaman
 anderson
 andrew
+androïde
+androïdes
 andryane
 anéanti
 anéantie
@@ -1040,6 +1062,7 @@ anse
 antagoniste
 antérieure
 antérieurs
+anthropoïdes
 anthropophages
 anti
 antibes
@@ -1049,6 +1072,7 @@ antidata
 antidatée
 antigénéreuses
 antijacobine
+antijudaïsme
 antimonarchique
 antipathie
 antipathique
@@ -1104,6 +1128,7 @@ apostoliques
 apothicaire
 apôtre
 apôtres
+apotropaïque
 apparaissaient
 apparaissait
 apparait
@@ -1269,6 +1294,8 @@ arabe
 arabes
 arabique
 araceli
+arachnoïde
+arbërisht
 arbitraire
 arbitraires
 arbitre
@@ -1281,6 +1308,12 @@ arbres
 arbrisseaux
 arc
 arceaux
+archaïque
+archaïques
+archaïsant
+archaïsante
+archaïsme
+archaïsmes
 arche
 archet
 archevêché
@@ -1563,6 +1596,7 @@ assurerait
 assurerez
 assureront
 assurghur
+astéroïde
 astéroïdes
 asthme
 asti
@@ -1853,6 +1887,8 @@ aventureuse
 aventureux
 avenues
 avéré
+averroïsme
+averroïstes
 averse
 aversion
 averti
@@ -1925,6 +1961,10 @@ ayant
 ayez
 aymon
 ayons
+azerbaïdjanais
+azerbaïdjanaise
+azerbaïdjanaises
+azoïque
 azur
 b
 bab
@@ -1950,6 +1990,9 @@ bague
 bagues
 baguette
 bah
+bahaïsme
+bahreïni
+bahreïnie
 baie
 baigné
 baignée
@@ -1982,6 +2025,7 @@ baissés
 bajocs
 bal
 baladins
+balalaïka
 balançait
 balance
 balancée
@@ -2025,6 +2069,7 @@ bandes
 bandits
 bandoulière
 banians
+banjoïste
 bank
 banni
 bannie
@@ -2037,6 +2082,7 @@ banquettes
 banquier
 banquière
 banquiers
+bantoïde
 baptisé
 bar
 baraque
@@ -2207,6 +2253,7 @@ bénitier
 benjamin
 benten
 bentivoglio
+benzoïque
 béranger
 berceau
 bercer
@@ -2225,6 +2272,7 @@ besoin
 besoins
 bêta
 bétail
+bétaïne
 bête
 bétel
 bêtement
@@ -2273,6 +2321,8 @@ binet
 biographie
 birmingham
 bisaïeul
+biscaïen
+biscaïenne
 biscaïens
 biscuit
 biscuits
@@ -2390,6 +2440,8 @@ bonnes
 bonnet
 bonnets
 bons
+bonsaï
+bonsaïs
 bonshommes
 bonsoir
 bonté
@@ -2801,9 +2853,15 @@ cages
 cagnola
 cahier
 cahutes
+caïd
+caïdat
+caïdats
+caïds
 caillé
 cailles
 cailloux
+caïman
+caïmans
 caisse
 caisses
 caissier
@@ -2849,6 +2907,7 @@ calomnies
 calomnieuses
 calotin
 calotte
+camaïeu
 camarade
 camarades
 camarilla
@@ -2880,9 +2939,13 @@ cangos
 cani
 caniches
 canif
+cannabinoïdes
 canne
 cannelle
 cannes
+canoé
+canoë
+canoës
 canon
 canonique
 canonnade
@@ -2921,6 +2984,7 @@ caprices
 capricieuse
 capricieusement
 capricieuses
+capsaïcine
 captivait
 captivité
 capture
@@ -2937,6 +3001,8 @@ caractérisait
 caractérise
 caractéristique
 carafe
+caraïbe
+caraïbes
 carbonaro
 carburé
 carcasse
@@ -2965,6 +3031,7 @@ carnot
 caro
 caroline
 caron
+caroténoïdes
 caroubiers
 carpe
 carré
@@ -3097,11 +3164,13 @@ celle
 celles
 cellier
 cellule
+celluloïd
 celui
 cendré
 cendres
 cendrés
 cenis
+cénozoïque
 censure
 cent
 centaine
@@ -3496,6 +3565,7 @@ choquera
 choqueraient
 choquèrent
 choqués
+choroïde
 chorus
 chose
 choses
@@ -3643,6 +3713,7 @@ clore
 clos
 close
 closes
+clothoïde
 clôture
 clou
 cloua
@@ -3659,6 +3730,7 @@ coach
 coaches
 coadjuteur
 coblentz
+cocaïne
 cocarde
 cocher
 cochère
@@ -3681,8 +3753,19 @@ coiffée
 coiffés
 coiffure
 coin
+coïncida
+coïncidaient
+coïncidait
+coïncidant
+coïncide
+coïncidé
 coïncidence
+coïncidences
+coïncident
+coïncider
+coïnciderait
 coins
+coït
 col
 cola
 colaba
@@ -3712,6 +3795,11 @@ collier
 colliers
 colline
 collines
+colloïdal
+colloïdale
+colloïdales
+colloïde
+colloïdes
 colloque
 colmar
 colombes
@@ -4014,6 +4102,7 @@ concevaient
 concevait
 concevez
 concevoir
+conchoïdale
 concierge
 concilié
 concilier
@@ -4365,6 +4454,9 @@ contester
 conti
 contiennent
 contient
+contiguë
+contiguës
+contiguïté
 contine
 continent
 continental
@@ -4538,6 +4630,7 @@ coquine
 coquinerie
 coquineries
 coquins
+coracoïde
 coran
 corbeau
 corbeaux
@@ -4591,6 +4684,9 @@ cors
 corso
 cortège
 cortellate
+corticoïde
+corticoïdes
+corticostéroïdes
 corvée
 cosa
 cosaques
@@ -4849,6 +4945,7 @@ criminels
 crin
 crinière
 crinières
+crinoïdes
 crins
 cris
 crise
@@ -4971,12 +5068,16 @@ curiosité
 custom
 cuves
 cuvette
+cycloïde
 cygne
 cymbales
 cynique
 cyr
 d
 da
+dadaïsme
+dadaïste
+dadaïstes
 dague
 daigna
 daignaient
@@ -4994,8 +5095,11 @@ daignerez
 daignez
 daily
 daim
+daïra
+daïras
 dais
 dakota
+dalaï
 dalles
 dalliance
 dalmate
@@ -5369,6 +5473,7 @@ délivrer
 délivrera
 dell
 della
+deltoïde
 demain
 demanda
 demandai
@@ -5601,6 +5706,7 @@ désagrément
 désagréments
 desaix
 désaltéré
+désambiguïsation
 désappointé
 désappointement
 désapprouver
@@ -5934,6 +6040,7 @@ diamanté
 diamants
 diane
 diar
+dichroïsme
 dicta
 dictait
 dictateur
@@ -6007,6 +6114,10 @@ dînerait
 dînèrent
 dîners
 diocèse
+dioïque
+dioïques
+diploïde
+diploïdes
 diplomate
 diplomates
 diplomatie
@@ -6057,6 +6168,9 @@ disc
 discerna
 disciple
 disciples
+discoïdale
+discoïdales
+discoïde
 discontinuaient
 discontinuer
 disconvenir
@@ -6396,6 +6510,8 @@ dressés
 drisses
 drogue
 drogues
+droïde
+droïdes
 droit
 droite
 droites
@@ -6474,6 +6590,7 @@ eaux
 ébaucha
 ébaudissait
 ébène
+éblaïte
 ébloui
 éblouissant
 éblouissante
@@ -6850,9 +6967,14 @@ eléphanta
 éleveurs
 élisa
 élite
+elkasaïte
+elkasaïtes
 elko
 elle
 elles
+ellipsoïdale
+ellipsoïde
+ellipsoïdes
 ellora
 élocution
 éloge
@@ -7562,6 +7684,7 @@ envoyez
 épicée
 épiciers
 épiderme
+épidermoïde
 épie
 épient
 épier
@@ -7657,6 +7780,7 @@ erré
 errer
 erreur
 erreurs
+érythropoïétine
 es
 escadron
 escaladé
@@ -8139,6 +8263,8 @@ exigeons
 exiger
 exigez
 exiguë
+exiguës
+exiguïté
 exigus
 exil
 exila
@@ -8302,6 +8428,12 @@ faiblesses
 faiblir
 faiblirent
 faict
+faïence
+faïencerie
+faïenceries
+faïences
+faïencier
+faïenciers
 failli
 faillir
 faillirent
@@ -8502,6 +8634,10 @@ fermiers
 féroce
 féroces
 férocité
+féroïen
+féroïenne
+féroïennes
+féroïens
 ferons
 feront
 ferrante
@@ -8665,6 +8801,8 @@ flatteur
 flatteurs
 flatteuse
 flatteuses
+flavonoïde
+flavonoïdes
 flèche
 flèches
 fléchir
@@ -9075,6 +9213,7 @@ g
 gabarit
 gabrielle
 gâchis
+gaëlique
 gage
 gages
 gageure
@@ -9096,6 +9235,7 @@ gagnés
 gagnez
 gagnons
 gai
+gaïac
 gaie
 gaiement
 gaies
@@ -9108,6 +9248,7 @@ gains
 gais
 gaîté
 gala
+galaïco
 galamment
 galant
 galante
@@ -9261,6 +9402,7 @@ gentle
 gentleman
 gentlemen
 géographie
+géoïde
 geôlier
 geôlière
 geôliers
@@ -9278,6 +9420,7 @@ ghari
 ghâtes
 ghazepour
 gherardi
+ghettoïsation
 ghisleri
 ghisolfi
 ghita
@@ -9338,6 +9481,7 @@ glorieux
 glory
 gloutons
 glu
+glucocorticoïdes
 goa
 gobelet
 godart
@@ -9422,6 +9566,7 @@ grandis
 grandit
 grands
 granit
+granitoïdes
 grant
 granvelle
 grappe
@@ -9628,8 +9773,12 @@ haches
 hagard
 hagards
 haï
+haïdouks
 haie
+haïe
 haies
+haïku
+haïkus
 haillons
 haine
 haines
@@ -9639,10 +9788,16 @@ hair
 haïr
 haïraient
 hais
+haïs
 haïssaient
 haïssait
+haïssant
 haïssent
 hait
+haïtien
+haïtienne
+haïtiennes
+haïtiens
 hâla
 halage
 hâle
@@ -9662,6 +9817,8 @@ hang
 hangar
 hantée
 hantées
+haploïde
+haploïdes
 happy
 harangua
 haranguer
@@ -9706,6 +9863,7 @@ haussement
 haut
 hautain
 hautaine
+hautboïste
 haute
 hautement
 hautes
@@ -9713,6 +9871,10 @@ hauteur
 hauteurs
 hauts
 havre
+hawaïen
+hawaïenne
+hawaïennes
+hawaïens
 hay
 hayez
 he
@@ -9720,14 +9882,26 @@ hé
 heaviest
 hébété
 hébétés
+hébraïque
+hébraïques
+hébraïsant
+hébraïsants
 hein
 héla
 hélas
 hélène
 hélice
+hélicoïdal
+hélicoïdale
+hélicoïdales
+hélicoïdaux
 héloïse
 helvétie
+hématopoïèse
+hématopoïétique
+hématopoïétiques
 hémisphère
+hémorroïdes
 henné
 hennissant
 hennissement
@@ -9763,7 +9937,11 @@ hermétiquement
 hernani
 hérodiade
 hérodiades
+héroï
+héroïcité
 héroïne
+héroïnes
+héroïnomane
 héroïque
 héroïquement
 héroïques
@@ -9781,6 +9959,7 @@ hésiter
 hésiterais
 hésiteront
 hésitiez
+hétaïre
 hêtre
 hêtres
 heure
@@ -9831,6 +10010,7 @@ hollande
 homélie
 homélies
 homère
+hominoïdes
 hommage
 hommages
 homme
@@ -9915,6 +10095,8 @@ humait
 humaniste
 humanité
 humanités
+humanoïde
+humanoïdes
 humble
 humblement
 humbles
@@ -9955,12 +10137,17 @@ hvram
 hydrogène
 hydrographique
 hyères
+hyoïde
+hyoïdien
+hyperboloïde
+hyperthyroïdie
 hypocrisie
 hypocrisies
 hypocrite
 hypocrites
 hypogées
 hypothèse
+hypothyroïdie
 i
 iago
 ici
@@ -10526,6 +10713,8 @@ inopinément
 inopportunes
 inopportuns
 inouï
+inouïe
+inouïes
 inouïs
 inqualifiable
 inquiet
@@ -10549,6 +10738,8 @@ inscrit
 inscrits
 inscrivit
 insectes
+insectoïde
+insectoïdes
 insensé
 insensée
 insensés
@@ -10779,6 +10970,7 @@ introduisit
 introduit
 introduite
 introduits
+introït
 intrus
 inusitée
 inutile
@@ -10915,6 +11107,11 @@ jadis
 jaggernaut
 jailli
 jaillissaient
+jaïn
+jaïna
+jaïne
+jaïnisme
+jaïns
 jais
 jalousait
 jalouse
@@ -10923,6 +11120,10 @@ jalouses
 jalousie
 jalousies
 jaloux
+jamaïcain
+jamaïcaine
+jamaïcaines
+jamaïcains
 jamais
 jambe
 jambes
@@ -11077,6 +11278,10 @@ joyeux
 juan
 jucha
 juché
+judaïque
+judaïques
+judaïsme
+judaïté
 judiciaires
 judicieux
 judith
@@ -11155,12 +11360,17 @@ kandallah
 kanhérie
 kansas
 kant
+karaïsme
+karaïte
+karaïtes
+katoï
 kauffmann
 kearney
 kehl
 kent
 khajours
 khandeish
+khoïsan
 kholby
 kien
 kilomètres
@@ -11169,8 +11379,13 @@ kiouni
 kirimon
 kirkland
 kléber
+koï
 kong
 korasoff
+koweïtien
+koweïtienne
+koweïtiens
+kraï
 l
 la
 là
@@ -11194,6 +11409,12 @@ ladri
 lafayette
 lago
 laïc
+laïcat
+laïcisation
+laïcisée
+laïciser
+laïcisme
+laïcité
 laïcs
 laid
 laide
@@ -11202,6 +11423,7 @@ laideur
 laideurs
 laine
 laïque
+laïques
 laissa
 laissaient
 laissais
@@ -11228,6 +11450,7 @@ lait
 laiterie
 laiton
 laitue
+laïus
 lake
 lambeau
 lambeaux
@@ -11425,6 +11648,7 @@ libre
 librement
 libres
 lichtenberg
+lidocaïne
 lie
 lié
 liée
@@ -11466,6 +11690,7 @@ lingot
 linguam
 lion
 lip
+lipoïque
 liqueur
 liqueurs
 liquide
@@ -11659,6 +11884,8 @@ luxembourg
 luxuriantes
 luz
 lycéens
+lymphoïde
+lymphoïdes
 lyon
 lyre
 m
@@ -11686,6 +11913,7 @@ mademoiselle
 madone
 madras
 madriers
+maërl
 maestro
 magalon
 magasin
@@ -11707,6 +11935,8 @@ magot
 mahomet
 mahout
 mai
+maïeur
+maïeutique
 maigre
 maigres
 maigreur
@@ -11889,6 +12119,9 @@ manufacturiers
 manuscrit
 manuscrites
 manuscrits
+maoïsme
+maoïste
+maoïstes
 maquignon
 marais
 marâtre
@@ -12017,6 +12250,7 @@ massif
 massifs
 massillon
 massinger
+mastoïdien
 mat
 mât
 matches
@@ -12264,6 +12498,7 @@ mes
 mésalliance
 mésaventure
 mesi
+mésozoïque
 mesquin
 mesquine
 mesquins
@@ -12284,7 +12519,10 @@ mesurés
 met
 métal
 métalliques
+métalloïde
+métalloïdes
 métaphysiques
+météoroïde
 météorologiste
 méthodes
 méthodique
@@ -12435,6 +12673,7 @@ mitre
 mitres
 mm
 mme
+moaï
 mobile
 mobiles
 mobilité
@@ -12459,6 +12698,7 @@ modification
 modifiée
 modifier
 modifierait
+moëlle
 moelleux
 moeurs
 moi
@@ -12505,8 +12745,13 @@ monférine
 monfleury
 monghir
 mongolia
+mongoloïde
 moniteur
 monnaie
+monoïde
+monoïdes
+monoïque
+monoïques
 monologue
 monomanes
 monopole
@@ -12634,6 +12879,10 @@ mortifié
 mortifier
 morts
 morveux
+mosaïque
+mosaïques
+mosaïste
+mosaïstes
 mosca
 moscou
 moskova
@@ -12753,6 +13002,7 @@ mutilation
 mutilé
 mutsh
 mutuel
+myéloïde
 mylord
 mystère
 mystères
@@ -12773,6 +13023,8 @@ nage
 nagent
 nager
 naguère
+naïade
+naïades
 naïf
 naïfs
 nains
@@ -12870,6 +13122,7 @@ nègres
 neige
 neigeait
 neiges
+néonicotinoïdes
 neptune
 nerfs
 nerval
@@ -12907,6 +13160,7 @@ niaiseries
 niaises
 nice
 niche
+nicolaïsme
 nicolas
 nids
 nie
@@ -12933,6 +13187,8 @@ noce
 noces
 nocturne
 nocturnes
+noël
+noëls
 noeud
 noeuds
 noie
@@ -13256,7 +13512,9 @@ ogive
 ogre
 oh
 ohio
+oïdium
 oies
+oïl
 oiseau
 oiseaux
 oisifs
@@ -13297,6 +13555,8 @@ opiner
 opiniâtrement
 opinion
 opinions
+opioïde
+opioïdes
 opium
 opportun
 opportune
@@ -13474,6 +13734,12 @@ ouest
 oui
 ouï
 ouïe
+ouïes
+ouïezd
+ouïghour
+ouïghoure
+ouïghours
+ouïgour
 our
 ouragan
 ouragans
@@ -13522,6 +13788,8 @@ ouvrirent
 ouvrit
 ouvrît
 ovale
+ovoïde
+ovoïdes
 oxydé
 oysterpuf
 oysters
@@ -13545,6 +13813,9 @@ paie
 paiement
 paiements
 païen
+païenne
+païennes
+païens
 paient
 paierai
 paierait
@@ -13560,6 +13831,7 @@ paire
 paires
 pairie
 pairs
+païs
 paisible
 paisiblement
 paix
@@ -13572,6 +13844,8 @@ palazzeto
 pale
 pâle
 palefrenier
+paléozoïque
+paléozoïques
 pâles
 palestine
 paletot
@@ -13601,6 +13875,7 @@ pamphlet
 pamphlets
 pan
 panache
+panathénaïque
 pança
 panier
 panneaux
@@ -13634,6 +13909,7 @@ paquetées
 paquets
 par
 para
+paraboloïde
 parade
 parader
 paradis
@@ -13659,12 +13935,18 @@ paralyse
 paralysé
 paralyser
 paralytique
+paranoïa
+paranoïaque
+paranoïaques
+paranoïde
 parant
 parapet
 paraphait
 paraphe
 paraphrasa
 parapluie
+parasitoïde
+parasitoïdes
 paratonnerre
 paratonnerres
 paravent
@@ -14157,6 +14439,7 @@ perdus
 père
 pereire
 pères
+perestroïka
 perfection
 perfectionner
 pergolèse
@@ -14267,6 +14550,7 @@ pesez
 pessimisme
 peste
 pester
+pétaloïdes
 pétaudière
 pétillante
 petit
@@ -14298,7 +14582,9 @@ peurs
 peut
 peuvent
 peux
+phalloïde
 pharsale
+phénylpropanoïdes
 pherson
 phileas
 philippe
@@ -14311,6 +14597,8 @@ philosophiquement
 philosophiques
 phosphorescentes
 photographie
+photovoltaïque
+photovoltaïques
 phrase
 phrases
 physiognomoniques
@@ -14490,6 +14778,7 @@ planche
 plancher
 planches
 planchette
+planétoïde
 planisphère
 plans
 plant
@@ -14513,6 +14802,7 @@ plate
 plateau
 platement
 plates
+platinoïdes
 platitude
 platitudes
 platonique
@@ -14554,6 +14844,7 @@ plier
 pliniana
 plis
 plissa
+ploïdie
 plomb
 plombées
 plonge
@@ -14605,6 +14896,7 @@ poignards
 poigne
 poignée
 poignées
+poïkilothermes
 poils
 poindre
 poing
@@ -14642,6 +14934,7 @@ politesse
 politesses
 politique
 politiques
+poloïste
 polonais
 polyeucte
 polygames
@@ -14680,6 +14973,7 @@ porcelaine
 porco
 porcs
 porphyre
+porphyroïde
 port
 porta
 portaient
@@ -15375,6 +15669,7 @@ propriétaires
 propriété
 propriétés
 proprio
+prosaïque
 prosaïquement
 prosaïques
 proscrivent
@@ -15409,6 +15704,7 @@ protestations
 proteste
 protesté
 protester
+protosinaïtique
 prouesse
 prouva
 prouvaient
@@ -15462,6 +15758,8 @@ psaume
 psaumes
 pseudonyme
 psyché
+ptolémaïque
+ptolémaïques
 pu
 publia
 public
@@ -15536,6 +15834,7 @@ putiphar
 putréfaction
 pyramide
 pyrénées
+pyréthrinoïdes
 qu
 qua
 quadrille
@@ -15663,6 +15962,7 @@ racontez
 rade
 radieux
 radouci
+raëlien
 rafale
 rafales
 raffinée
@@ -15674,6 +15974,7 @@ rage
 rageant
 rages
 rageurs
+raï
 raide
 raidi
 raidie
@@ -15685,6 +15986,9 @@ railroad
 rails
 railway
 railways
+raïon
+raïons
+raïs
 raison
 raisonna
 raisonnable
@@ -15763,6 +16067,7 @@ rapacité
 rapatrier
 râpé
 râpés
+raphaëlois
 rapide
 rapidement
 rapides
@@ -16933,6 +17238,8 @@ retiendrai
 retienne
 retiennent
 retient
+rétinoïdes
+rétinoïque
 retinrent
 retint
 retira
@@ -17126,8 +17433,10 @@ revue
 revues
 rez
 rhin
+rhomboïdale
 rhône
 rhubarbe
+rhumatoïde
 rhume
 ri
 riaient
@@ -17415,6 +17724,7 @@ sages
 sagesse
 sagoutiers
 saïd
+saïga
 saigna
 saignait
 saigné
@@ -17452,6 +17762,7 @@ saisit
 saisîtes
 saison
 sait
+saïte
 saki
 salaire
 salanganes
@@ -17482,6 +17793,8 @@ salut
 salutaire
 samedi
 samedis
+samouraï
+samouraïs
 samuel
 san
 sancho
@@ -17515,6 +17828,7 @@ sarà
 saragosse
 sarasine
 sarcasmes
+sarcoïdose
 sardonique
 sarono
 sat
@@ -17614,6 +17928,7 @@ scandalisée
 scandalisera
 scandalisés
 scandinavie
+scaphoïde
 sceau
 sceaux
 scélérat
@@ -17623,6 +17938,7 @@ scellé
 scène
 scènes
 schiller
+schizoïde
 schuyler
 sciant
 scie
@@ -17769,6 +18085,7 @@ sens
 sensation
 sensations
 sensée
+senseï
 sensés
 sensibilité
 sensible
@@ -17918,13 +18235,20 @@ shako
 shakos
 shakspeare
 shangaï
+shanghaïen
 sheppard
 sheridan
 sherry
 shilling
 shillings
+shintoïsme
+shintoïste
+shintoïstes
 shipping
 shiva
+shivaïsme
+shivaïte
+shivaïtes
 shows
 si
 siamo
@@ -17952,6 +18276,7 @@ sifflets
 sighs
 sigisbée
 sigismond
+sigmoïde
 signa
 signait
 signal
@@ -18029,6 +18354,12 @@ sinistre
 sinistres
 sinon
 sinuosités
+sinusoïdal
+sinusoïdale
+sinusoïdales
+sinusoïdaux
+sinusoïde
+sinusoïdes
 sioux
 sir
 sire
@@ -18098,6 +18429,7 @@ soleil
 solennel
 solennelle
 solennels
+solénoïde
 solide
 solidement
 solides
@@ -18154,6 +18486,7 @@ songerait
 songèrent
 songes
 songez
+songhaï
 sonna
 sonnaient
 sonnait
@@ -18392,8 +18725,13 @@ spectre
 spéculation
 spéculations
 speedy
+spermatozoïde
+spermatozoïdes
+sphénoïde
 sphère
+sphéroïdale
 sphéroïde
+sphéroïdes
 spielberg
 spirale
 spirales
@@ -18432,11 +18770,21 @@ stentor
 stephenson
 sterling
 sterne
+stéroïde
+stéroïdes
+stéroïdien
+stéroïdiens
 steward
 stigmates
 stigmatiser
 still
 stimuler
+stoïcien
+stoïcienne
+stoïciens
+stoïcisme
+stoïque
+stoïquement
 stolen
 strabon
 stramonium
@@ -18468,6 +18816,7 @@ stylé
 stylés
 su
 suave
+subaiguë
 subalterne
 subalternes
 subi
@@ -18772,6 +19121,8 @@ tableaux
 tables
 tablette
 tablier
+tabloïd
+tabloïds
 tabouret
 tâchait
 tâchant
@@ -18791,7 +19142,12 @@ tacites
 taciti
 taciturnes
 tact
+taekwondoïste
 taffetas
+taï
+taïfa
+taïfas
+taïga
 taïkoun
 tailla
 taillanderie
@@ -18803,6 +19159,7 @@ tailler
 taillés
 tailleur
 taillis
+taïno
 taire
 tais
 taisaient
@@ -18810,6 +19167,9 @@ taisait
 taisant
 taisez
 tait
+taïwanais
+taïwanaise
+taïwanaises
 takes
 talent
 talents
@@ -18841,6 +19201,9 @@ tante
 tantes
 tantôt
 tanzi
+taoïsme
+taoïste
+taoïstes
 tapage
 tapé
 tapis
@@ -18980,6 +19343,7 @@ terminer
 terminera
 terminèrent
 ternir
+terpénoïdes
 terrain
 terrains
 terrasse
@@ -19004,9 +19368,17 @@ testa
 testament
 tête
 têtes
+tétraploïde
+tétraploïdes
 teulier
 texte
 textuellement
+thaï
+thaïe
+thaïlandais
+thaïlandaise
+thaïlandaises
+thaïs
 thaler
 that
 the
@@ -19036,6 +19408,13 @@ though
 thousands
 thrilling
 thugs
+thylakoïdes
+thyroïde
+thyroïdien
+thyroïdienne
+thyroïdiennes
+thyroïdiens
+thyroïdite
 tibère
 tibi
 tien
@@ -19121,6 +19500,7 @@ toison
 toit
 toits
 toiture
+tokyoïte
 tolède
 tolèrent
 tolérer
@@ -19396,6 +19776,10 @@ transportée
 transporter
 transports
 transversale
+trapézoïdal
+trapézoïdale
+trapézoïdales
+trapézoïdaux
 trapp
 trappe
 trappes
@@ -19494,6 +19878,9 @@ triompheront
 triomphes
 triple
 triplé
+triploïde
+triploïdes
+trisaïeul
 triste
 tristement
 tristes
@@ -19501,6 +19888,7 @@ tristesse
 tristesses
 triumvirat
 triviale
+troïka
 trois
 troisième
 troisièmes
@@ -19632,6 +20020,7 @@ two
 tympaniser
 type
 types
+typhoïde
 typhon
 tyran
 tyrannie
@@ -20097,6 +20486,7 @@ vipère
 virago
 virent
 virgile
+viroïdes
 virtue
 virtuose
 vis
@@ -20187,6 +20577,12 @@ voisins
 voit
 voiture
 voitures
+voïvodale
+voïvodat
+voïvode
+voïvodes
+voïvodie
+voïvodies
 voix
 vol
 volaient
@@ -20219,6 +20615,7 @@ volonté
 volontés
 volontiers
 vols
+voltaïque
 voltaire
 voltige
 voltigeant
@@ -20389,7 +20786,12 @@ yeux
 yokohama
 york
 young
+zaïrois
+zaïroise
+zaïroises
 zambajon
+zaouïa
+zaouïas
 zeb
 zébrés
 zébus

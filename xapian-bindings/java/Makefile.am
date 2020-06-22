@@ -28,10 +28,9 @@ SmokeTest: SmokeTest.class
 
 # To get debug symbols, use: make JAVACFLAGS=-g
 .java.class:
-	$(JAVAC) $(JAVACFLAGS) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
+	$(JAVAC) $(JAVACFLAGS) -classpath .$(JAVA_PATHSEP)$(srcdir) -d . $<
 
 XAPIAN_SWIG_JAVA_SRCS=\
-	org/xapian/Auto.java\
 	org/xapian/BB2Weight.java\
 	org/xapian/BM25PlusWeight.java\
 	org/xapian/BM25Weight.java\
@@ -40,8 +39,8 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/CoordWeight.java\
 	org/xapian/Database.java\
 	org/xapian/DateRangeProcessor.java\
-	org/xapian/DateValueRangeProcessor.java\
 	org/xapian/DecreasingValueWeightPostingSource.java\
+	org/xapian/DiceCoeffWeight.java\
 	org/xapian/DLHWeight.java\
 	org/xapian/DPHWeight.java\
 	org/xapian/Document.java\
@@ -57,7 +56,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/IfB2Weight.java\
 	org/xapian/IneB2Weight.java\
 	org/xapian/InL2Weight.java\
-	org/xapian/InMemory.java\
 	org/xapian/KeyMaker.java\
 	org/xapian/LMWeight.java \
 	org/xapian/LatLongCoord.java\
@@ -72,7 +70,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/MSetIterator.java\
 	org/xapian/MultiValueKeyMaker.java\
 	org/xapian/NumberRangeProcessor.java\
-	org/xapian/NumberValueRangeProcessor.java\
 	org/xapian/PL2PlusWeight.java\
 	org/xapian/PL2Weight.java\
 	org/xapian/PositionIterator.java\
@@ -88,17 +85,16 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Stem.java\
 	org/xapian/StemImplementation.java\
 	org/xapian/Stopper.java\
-	org/xapian/StringValueRangeProcessor.java\
 	org/xapian/SWIGTYPE_p_std__string.java\
 	org/xapian/TermGenerator.java\
 	org/xapian/TermIterator.java\
 	org/xapian/TfIdfWeight.java\
 	org/xapian/TradWeight.java\
+	org/xapian/UnitRangeProcessor.java\
 	org/xapian/ValueCountMatchSpy.java\
 	org/xapian/ValueIterator.java\
 	org/xapian/ValueMapPostingSource.java\
 	org/xapian/ValuePostingSource.java\
-	org/xapian/ValueRangeProcessor.java\
 	org/xapian/ValueSetMatchDecider.java\
 	org/xapian/ValueWeightPostingSource.java\
 	org/xapian/Version.java\

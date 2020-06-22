@@ -1,6 +1,7 @@
-/* utf8itor.cc: iterate over a utf8 string.
- *
- * Copyright (C) 2006,2007,2010,2013,2015 Olly Betts
+/** @file utf8itor.cc
+ * @brief iterate over a utf8 string.
+ */
+/* Copyright (C) 2006,2007,2010,2013,2015,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +26,9 @@
 
 using namespace std;
 
-inline bool bad_cont(unsigned char ch) { return (ch & 0xc0) != 0x80; }
+static inline bool bad_cont(unsigned char ch) {
+    return static_cast<signed char>(ch) >= static_cast<signed char>(0xc0);
+}
 
 namespace Xapian {
 
@@ -33,24 +36,24 @@ namespace Unicode {
 
 // buf should be at least 4 bytes.
 unsigned
-nonascii_to_utf8(unsigned ch, char * buf)
+nonascii_to_utf8(unsigned ch, char* buf)
 {
     if (ch < 0x800) {
-	buf[0] = 0xc0 | (ch >> 6);
-	buf[1] = 0x80 | (ch & 0x3f);
+	buf[0] = char(0xc0 | (ch >> 6));
+	buf[1] = char(0x80 | (ch & 0x3f));
 	return 2;
     }
     if (ch < 0x10000) {
-	buf[0] = 0xe0 | (ch >> 12);
-	buf[1] = 0x80 | ((ch >> 6) & 0x3f);
-	buf[2] = 0x80 | (ch & 0x3f);
+	buf[0] = char(0xe0 | (ch >> 12));
+	buf[1] = char(0x80 | ((ch >> 6) & 0x3f));
+	buf[2] = char(0x80 | (ch & 0x3f));
 	return 3;
     }
     if (ch < 0x200000) {
-	buf[0] = 0xf0 | (ch >> 18);
-	buf[1] = 0x80 | ((ch >> 12) & 0x3f);
-	buf[2] = 0x80 | ((ch >> 6) & 0x3f);
-	buf[3] = 0x80 | (ch & 0x3f);
+	buf[0] = char(0xf0 | (ch >> 18));
+	buf[1] = char(0x80 | ((ch >> 12) & 0x3f));
+	buf[2] = char(0x80 | ((ch >> 6) & 0x3f));
+	buf[3] = char(0x80 | (ch & 0x3f));
 	return 4;
     }
     // Unicode doesn't specify any characters above 0x10ffff.
@@ -61,13 +64,13 @@ nonascii_to_utf8(unsigned ch, char * buf)
 
 }
 
-Utf8Iterator::Utf8Iterator(const char *p_)
+Utf8Iterator::Utf8Iterator(const char* p_)
 {
     assign(p_, strlen(p_));
 }
 
 bool
-Utf8Iterator::calculate_sequence_length() const XAPIAN_NOEXCEPT
+Utf8Iterator::calculate_sequence_length() const noexcept
 {
     // Handle invalid UTF-8, overlong sequences, and truncated sequences as
     // if the text was actually in ISO-8859-1 since we need to do something
@@ -109,7 +112,7 @@ Utf8Iterator::calculate_sequence_length() const XAPIAN_NOEXCEPT
     return true;
 }
 
-unsigned Utf8Iterator::operator*() const XAPIAN_NOEXCEPT {
+unsigned Utf8Iterator::operator*() const noexcept {
     if (p == NULL) return unsigned(-1);
     if (seqlen == 0) calculate_sequence_length();
     unsigned char ch = *p;
@@ -122,7 +125,7 @@ unsigned Utf8Iterator::operator*() const XAPIAN_NOEXCEPT {
 }
 
 unsigned
-Utf8Iterator::strict_deref() const XAPIAN_NOEXCEPT
+Utf8Iterator::strict_deref() const noexcept
 {
     if (p == NULL) return unsigned(-1);
     if (seqlen == 0) {

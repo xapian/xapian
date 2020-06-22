@@ -30,6 +30,14 @@
 #include "wordaccess.h"
 #include <cstring>
 
+#if !HAVE_DECL___BUILTIN_POPCOUNT
+// Only include <intrin.h> if we have to as it can result in warnings about
+// duplicate declarations of builtin functions under mingw.
+# if HAVE_DECL___POPCNT || HAVE_DECL___POPCNT64
+#  include <intrin.h>
+# endif
+#endif
+
 using namespace std;
 using namespace Glass;
 
@@ -56,7 +64,7 @@ const unsigned C_BASE = 8;
 const uint4 UNUSED = static_cast<uint4>(-1);
 
 void
-GlassFreeList::read_block(const GlassTable * B, uint4 n, byte * ptr)
+GlassFreeList::read_block(const GlassTable * B, uint4 n, uint8_t * ptr)
 {
     B->read_block(n, ptr);
     if (rare(GET_LEVEL(ptr) != LEVEL_FREELIST))
@@ -64,7 +72,8 @@ GlassFreeList::read_block(const GlassTable * B, uint4 n, byte * ptr)
 }
 
 void
-GlassFreeList::write_block(const GlassTable * B, uint4 n, byte * ptr, uint4 rev)
+GlassFreeList::write_block(const GlassTable * B, uint4 n, uint8_t * ptr,
+			   uint4 rev)
 {
     SET_REVISION(ptr, rev);
     aligned_write4(ptr + 4, 0);
@@ -85,7 +94,7 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
 	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 	}
 	// Actually read the current freelist block.
-	p = new byte[block_size];
+	p = new uint8_t[block_size];
 	read_block(B, fl.n, p);
     }
 
@@ -139,7 +148,7 @@ GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
 	if (fl.n == UNUSED) {
 	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 	}
-	p = new byte[block_size];
+	p = new uint8_t[block_size];
 	read_block(B, fl.n, p);
 	if (inclusive) {
 	    Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
@@ -185,7 +194,7 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
     uint4 blk_to_free = BLK_UNUSED;
 
     if (!pw) {
-	pw = new byte[block_size];
+	pw = new uint8_t[block_size];
 	if (flw.c != 0) {
 	    read_block(B, flw.n, pw);
 	    flw_appending = true;
@@ -304,7 +313,7 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 #if HAVE_DECL___BUILTIN_POPCOUNT
 	} else if (sizeof(elt_type) == sizeof(unsigned)) {
 	    c += __builtin_popcount(elt);
-#elif defined _MSC_VER
+#elif HAVE_DECL___POPCNT
 	} else if (sizeof(elt_type) == sizeof(unsigned)) {
 	    c += __popcnt(elt);
 #endif
@@ -315,9 +324,8 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 #if HAVE_DECL___BUILTIN_POPCOUNTLL
 	} else if (sizeof(elt_type) == sizeof(unsigned long long)) {
 	    c += __builtin_popcountll(elt);
-#endif
-#ifdef _MSC_VER
-	} else if (sizeof(elt_type) == sizeof(__int64)) {
+#elif HAVE_DECL___POPCNT64
+	} else if (sizeof(elt_type) == sizeof(unsigned long long)) {
 	    c += __popcnt64(elt);
 #endif
 	} else {

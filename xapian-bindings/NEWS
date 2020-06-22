@@ -1,3 +1,261 @@
+Xapian-bindings 1.4.10 (2019-02-12):
+
+Documentation:
+
+* Use https for URLs where supported.
+
+General:
+
+* Wrap new DatabaseClosedError and DatabaseNotFoundError exceptions.
+  See #772 and #773.  Patches from Vaibhav Kansagara.
+
+* Update expected query descriptions in tests for the xapian-core
+  change to produce flatter Query trees.
+
+* Workaround Perl 5.28 -i quirk when postprocessing SWIG-generated code.
+  The commands in question are only run when maintainer-mode is enabled.
+
+CSharp:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped without using a getter.
+  This shouldn't affect existing user code.
+
+Java:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as Java constant
+  Xapian.BAD_VALUENO.  The previous Java wrapping as function
+  Xapian.getBAD_VALUENO() is still supported for compatibility with
+  existing code.
+
+* Remove redundant std::string initialisation.
+
+Lua:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as a constant rather than
+  an immutable attribute.  This shouldn't affect existing user code.
+
+Perl:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as Perl constant
+  Xapian::BAD_VALUENO.  The previous Perl wrapping as variable
+  $Xapian::BAD_VALUENO is still supported for compatibility with existing
+  code.
+
+* Note in the POD documentation that the Error base classes which are abstract
+  in C++ don't have a new method in Perl.
+
+PHP:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as PHP constant
+  Xapian::BAD_VALUENO.  The previous PHP wrapping as function
+  Xapian::BAD_VALUENO_get() is still supported for compatibility with existing
+  code.
+
+* Remove code to work around a SWIG bug which was fixed in 2006.
+
+PHP7:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as PHP constant
+  Xapian::BAD_VALUENO.  The previous PHP wrapping as function
+  Xapian::BAD_VALUENO_get() is still supported for compatibility with existing
+  code.
+
+* configure: Check for php-config7.3 and php-config7.2 as well as
+  php-config7.1, php-config7.0 and php-config.
+
+* Correct references to PHP5 in PHP7 script comments.
+
+* Remove some C code which is no longer needed with PHP7.
+
+Ruby:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as Ruby constant
+  Xapian::BAD_VALUENO.  The previous Ruby wrapping as function
+  Xapian::BAD_VALUENO() is still supported for compatibility with existing
+  code.
+
+* We now recommend using String#encode instead of the Iconv class, since the
+  latter is no longer included with Ruby.
+
+Tcl:
+
+* C++ constant Xapian::BAD_VALUENO is now wrapped as a constant rather than
+  variable which can't be written to.  This shouldn't affect existing user
+  code.
+
+Xapian-bindings 1.4.9 (2018-11-02):
+
+PHP7:
+
+* Fix to build with upcoming PHP 7.3 release, which changes array_init()
+  to not return a value instead of always returning the constant SUCCESS.
+  We were checking this return value but no longer do.
+
+Xapian-bindings 1.4.8 (2018-10-25):
+
+Perl:
+
+* Wrap new STEM_SOME_FULL_POS constant.
+
+* Add STEM_ALL_Z to qpstem export tag and POD docs.
+
+* Fix Perl bindings documentation typos.
+
+Python:
+
+* Fix RST formatting warning during build.
+
+Python3:
+
+* Fix RST formatting warning during build.
+
+Xapian-bindings 1.4.7 (2018-07-19):
+
+Ruby:
+
+* Fix -Wconversion-null warnings with newer GCC.
+
+Xapian-bindings 1.4.6 (2018-07-02):
+
+Documentation:
+
+* Stop using "probabilistic" to mean "weighted" - we've supported other
+  families of weighting schemes since 1.3.2.
+
+Packaging:
+
+* Use https for tarball URLs in .spec files.  This provides protection against
+  MITM attacks on people building packages using these spec files, and is also
+  slightly more efficient as the http: URLs redirect to the https: versions
+  anyway.
+
+CSharp:
+
+* Use SWIG_exception() to handle exceptions.  It seems this didn't used to work
+  with older SWIG, but it does with current versions, and using it means that
+  we skip any return value translation logic when an exception has been thrown.
+
+Java:
+
+* Use SWIG_exception() to handle exceptions.  It seems this didn't used to work
+  with older SWIG, but it does with current versions, and using it means that
+  we skip any return value translation logic when an exception has been thrown.
+
+* Fix leaks in binary std::string typemaps.  These are used for document values
+  and serialised data.
+
+* Improve VPATH build.  Previously we looked for class files and java sources
+  in srcdir first, then in builddir.  That's backwards from how autotools
+  VPATH builds search for targets and prerequisites so reverse this order to
+  make handling of Java files more consistent.
+
+Perl:
+
+* Invoke prove via the App::Prove module.  This avoids potentially using
+  prove from a different Perl installation to perl (previously the user
+  needed to manually specify the corresponding PROVE= if they specify PERL= to
+  configure).  In particular this is useful on macOS when using Perl from
+  homebrew.
+
+* Improve Perl Enquire::set_docid_order documentation by syncing improvements
+  from the C++ API docs.
+
+Python:
+
+* Support sphinx >= 1.7 while still working with < 1.7.  Patch from
+  James Aylett.
+
+* Suppress clang -Wdeprecated-register warnings about uses register in C code
+  in Python.h.  We can't do anything about these other than suppress them.
+
+Python3:
+
+* Support sphinx >= 1.7 while still working with < 1.7.  Patch from
+  James Aylett.
+
+* Suppress clang -Wdeprecated-register warnings about uses register in C code
+  in Python.h.  We can't do anything about these other than suppress them
+  (and they appear to have been removed in Python 3.4 and later).
+
+* Remove unused MSet::__cmp__ extend method.  This was used in Python 2, but
+  Python 3 does things differently.  There doesn't seem a good reason to
+  provide comparison operations for MSet objects, and we don't for other
+  classes, so let's just drop this feature - it seems nobody has noticed it has
+  gone.
+
+* Simplify generated wrapper post-processing.
+
+Xapian-bindings 1.4.5 (2017-10-16):
+
+Documentation:
+
+* HACKING: Add details of Debian PHP7 packages to install for development.
+
+General:
+
+* Use a pattern match to ignore methods meant for internal use only rather
+  than having to list them all - they're consistently named to end with an
+  underscore.
+
+* Stop using deprecated Xapian::percent typedef in bindings-specific code.
+  Deprecation warnings are suppressed when building the bindings (because the
+  bindings usually still need to wrap deprecated C++ features) so this probably
+  has no user-visible consequences.
+
+Java:
+
+* Fix JNI code to be compatible with Java 6 and earlier, where the final
+  parameter of SetByteArrayRegion() was not const.  This also seems to affect
+  GCJ (though GCJ was removed in GCC 7).  The incompatibility was introduced in
+  1.4.4.
+
+Lua:
+
+* Support subclassing of RangeProcessor in Lua.
+
+Perl:
+
+* Add CLONE_SKIP to RangeProcessor and subclases to avoid double deletion
+  if the Perl threads module is in use.
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Use RangeProcessor instead of ValueRangeProcessor in perl examples, as
+  ValueRangeProcessor is now deprecated.
+
+PHP:
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Add type hints to QueryParser::add_rangeprocessor().
+
+PHP7:
+
+* Keep references for set RangeProcessor objects, like how we do for
+  ValueRangeProcessor and various other functor objects.
+
+* Add type hints to QueryParser::add_rangeprocessor().
+
+* Fix PHP7 "make check" to use right path separator.  It was using the PHP5
+  one, which in general is going to be the same but we won't have probed for
+  that unless we're also building the PHP5 bindings, which means "make check"
+  failed for PHP7 unless you also had the PHP5 bindings enabled.
+
+Python3:
+
+* Fix "make check" under Python 3.2, which was broken in 1.4.4 because Python
+  3.2 doesn't support the u'foo' syntax.
+
+* Copy over Python2 check which aims to catch any internal functions, methods,
+  constants, etc which have accidentally been wrapped.
+
+Ruby:
+
+* Fix dependency generation for Ruby SWIG command (only relevant at all if
+  you configure with --enable-maintainer-mode).
+
 Xapian-bindings 1.4.4 (2017-04-19):
 
 General:
@@ -407,8 +665,6 @@ Ruby:
 Xapian-bindings 1.3.4 (2016-01-01):
 
 This release includes all changes from 1.2.22 which are relevant.
-
-Documentation:
 
 General:
 
@@ -1081,7 +1337,7 @@ Ruby:
 Tcl:
 
 * Link against -ltclstubX.Y for Tcl 8.5 and later (reported by Sergei Golovan
-  in http://bugs.debian.org/724830).
+  in https://bugs.debian.org/724830).
 
 * Use a better check for TCL_INC for Tcl 8.5 and later.
 
@@ -1490,7 +1746,7 @@ Python:
 
 * python/pythontest2.py: With Python 2.7, gc.collect() doesn't always collect
   all the garbage, so repeat until no further objects are freed.
-  (http://bugs.debian.org/625679 and https://bugs.gentoo.org/349484).
+  (https://bugs.debian.org/625679 and https://bugs.gentoo.org/349484).
 
 Ruby:
 

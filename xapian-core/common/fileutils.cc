@@ -25,9 +25,9 @@
 
 #include "xapian/error.h"
 #include "safedirent.h"
-#include "safeerrno.h"
 #include "safeunistd.h"
 
+#include <cerrno>
 #include <cstring>
 #include <string>
 #include <sys/types.h>
@@ -79,6 +79,7 @@ removedir(const string &dirname)
 	throw Xapian::DatabaseError("Cannot remove directory '" + dirname + "'", errno);
     }
 }
+
 #ifdef __WIN32__
 /// Return true iff a path starts with a drive letter.
 static bool
@@ -94,7 +95,7 @@ uncw_path(const string & path)
     return (path.size() >= 4 && memcmp(path.data(), "\\\\?\\", 4) == 0);
 }
 
-inline bool slash(char ch)
+static inline bool slash(char ch)
 {
     return ch == '/' || ch == '\\';
 }

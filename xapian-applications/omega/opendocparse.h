@@ -1,7 +1,7 @@
 /** @file opendocparse.h
  * @brief Extract text from XML from an OPENDOC spreadsheet.
  */
-/* Copyright (C) 2012 Olly Betts
+/* Copyright (C) 2012,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,14 +26,14 @@
 #include <vector>
 
 class OpenDocParser : public HtmlParser {
-    bool indexing;
-    bool pending_space;
+    bool indexing = false;
+    bool pending_space = false;
     std::string master_page_name;
 
   public:
     std::string dump;
 
-    OpenDocParser() : HtmlParser(), indexing(false), pending_space(false) { }
+    OpenDocParser() { }
     bool opening_tag(const std::string &tag);
     bool closing_tag(const std::string &tag);
     void process_text(const std::string &text);

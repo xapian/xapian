@@ -1,0 +1,33 @@
+diff -ru a/lib/ar-lib b/lib/ar-lib
+--- a/lib/ar-lib	2017-06-17 08:46:16.000000000 +1200
++++ b/lib/ar-lib	2017-10-22 17:42:36.164717668 +1300
+@@ -53,7 +53,7 @@
+ 	  MINGW*)
+ 	    file_conv=mingw
+ 	    ;;
+-	  CYGWIN*)
++	  CYGWIN* | MSYS*)
+ 	    file_conv=cygwin
+ 	    ;;
+ 	  *)
+diff -ru a/lib/compile b/lib/compile
+--- a/lib/compile	2017-06-17 08:46:16.000000000 +1200
++++ b/lib/compile	2017-10-22 17:42:48.360735117 +1300
+@@ -53,7 +53,7 @@
+ 	  MINGW*)
+ 	    file_conv=mingw
+ 	    ;;
+-	  CYGWIN*)
++	  CYGWIN* | MSYS*)
+ 	    file_conv=cygwin
+ 	    ;;
+ 	  *)
+@@ -143,7 +143,7 @@
+ 	  # configure might choose to run compile as 'compile cc -o foo foo.c'.
+ 	  eat=1
+ 	  case $2 in
+-	    *.o | *.[oO][bB][jJ])
++	    *.o | *.lo | *.[oO][bB][jJ])
+ 	      func_file_conv "$2"
+ 	      set x "$@" -Fo"$file"
+ 	      shift

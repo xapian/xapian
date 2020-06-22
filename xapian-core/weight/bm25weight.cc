@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include "weightinternal.h"
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -135,6 +136,12 @@ BM25Weight::name() const
 }
 
 string
+BM25Weight::short_name() const
+{
+    return "bm25";
+}
+
+string
 BM25Weight::serialise() const
 {
     string result = serialise_double(param_k1);
@@ -178,6 +185,7 @@ BM25Weight::get_maxpart() const
 {
     LOGCALL(WTCALC, double, "BM25Weight::get_maxpart", NO_ARGS);
     double denom = param_k1;
+    Xapian::termcount wdf_max = get_wdf_upper_bound();
     if (param_k1 != 0.0) {
 	if (param_b != 0.0) {
 	    // "Upper-bound Approximations for Dynamic Pruning" Craig
@@ -189,11 +197,11 @@ BM25Weight::get_maxpart() const
 	    // better bound can be found by simply evaluating at
 	    // doclen=doclen_min and wdf=wdf_max.
 	    Xapian::doclength normlen_lb =
-		 max(max(get_wdf_upper_bound(), get_doclength_lower_bound()) * len_factor, param_min_normlen);
+		 max(max(wdf_max, get_doclength_lower_bound()) * len_factor,
+		     param_min_normlen);
 	    denom *= (normlen_lb * param_b + (1 - param_b));
 	}
     }
-    double wdf_max = get_wdf_upper_bound();
     denom += wdf_max;
     AssertRel(denom,>,0);
     RETURN(termweight * (wdf_max / denom));
@@ -225,6 +233,37 @@ BM25Weight::get_maxextra() const
     double num = (2.0 * param_k2 * get_query_length());
     RETURN(num / (1.0 + max(get_doclength_lower_bound() * len_factor,
 			    param_min_normlen)));
+}
+
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "bm25");
+}
+
+BM25Weight *
+BM25Weight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::BM25Weight();
+    double k1 = 1;
+    double k2 = 0;
+    double k3 = 1;
+    double b = 0.5;
+    double min_normlen = 0.5;
+    if (!Xapian::Weight::Internal::double_param(&p, &k1))
+	parameter_error("Parameter 1 (k1) is invalid");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &k2))
+	parameter_error("Parameter 2 (k2) is invalid");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &k3))
+	parameter_error("Parameter 3 (k3) is invalid");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &b))
+	parameter_error("Parameter 4 (b) is invalid");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &min_normlen))
+	parameter_error("Parameter 5 (min_normlen) is invalid");
+    if (*p)
+	parameter_error("Extra data after parameter 5");
+    return new Xapian::BM25Weight(k1, k2, k3, b, min_normlen);
 }
 
 }

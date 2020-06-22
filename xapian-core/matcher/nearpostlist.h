@@ -1,7 +1,7 @@
 /** @file nearpostlist.h
  * @brief Return docs containing terms within a specified window.
  *
- * Copyright (C) 2006,2015 Olly Betts
+ * Copyright (C) 2006,2015,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,8 @@
 
 #include "selectpostlist.h"
 #include <vector>
+
+class PostListTree;
 
 /** Postlist which matches terms occurring within a specified window.
  *
@@ -49,7 +51,8 @@ class NearPostList : public SelectPostList {
     NearPostList(PostList *source_,
 		 Xapian::termpos window_,
 		 const std::vector<PostList*>::const_iterator &terms_begin,
-		 const std::vector<PostList*>::const_iterator &terms_end);
+		 const std::vector<PostList*>::const_iterator &terms_end,
+		 PostListTree* pltree_);
 
     ~NearPostList();
 

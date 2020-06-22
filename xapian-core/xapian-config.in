@@ -155,7 +155,7 @@ extract_dlname() {
 extract_dependency_libs() {
     deps=
     # Multiple whitespace (space or tab).
-    mws='[ 	][ 	]*'
+    mws='[	 ][	 ]*'
     la='\(/[^ ]*\)\(/lib\)\([^ ]*\).la'
     pat='\(.* \)'"$la"'\( .*\)'
     extract_dependency_libs_ "$1"

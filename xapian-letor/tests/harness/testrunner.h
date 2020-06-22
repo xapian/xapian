@@ -2,7 +2,7 @@
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009,2014,2015 Olly Betts
+ * Copyright 2008,2009,2014,2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,13 +52,43 @@ class TestRunner {
      */
     bool use_backend(const std::string & backend_name);
 
+    /** Set the property flags to those for the named backend.
+     */
+    void set_properties_for_backend(const std::string & backend_name);
+
+    void do_tests_for_backend_(BackendManager* manager);
+
     /** Run the tests with the specified backend.
      */
-    void do_tests_for_backend(BackendManager * manager);
+    void do_tests_for_backend(BackendManager&& manager) {
+	do_tests_for_backend_(&manager);
+    }
+
+    void do_tests_for_backend(BackendManager& manager) {
+	do_tests_for_backend_(&manager);
+    }
 
   protected:
     enum {
 	BACKEND		= 0x00000001,
+	REMOTE		= 0x00000002,
+	TRANSACTIONS	= 0x00000004,
+	POSITIONAL	= 0x00000008,
+	WRITABLE	= 0x00000010,
+	SPELLING	= 0x00000020,
+	METADATA	= 0x00000040,
+	SYNONYMS	= 0x00000080,
+	REPLICAS	= 0x00000100,
+	VALUESTATS	= 0x00000200,
+	GENERATED	= 0x00000400,
+	MULTI		= 0x00000800,
+	SINGLEFILE	= 0x00001000,
+	INMEMORY	= 0x00002000,
+	GLASS		= 0x00004000,
+	COMPACT		= 0x00008000,
+	HONEY		= 0x00010000,
+	/// Requires get_database_path() or similar.
+	PATH		= 0x00020000,
     };
 
   public:

@@ -1,7 +1,7 @@
 /** @file glass_synonym.cc
  * @brief Synonym data for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include "xapian/error.h"
 
 #include "glass_cursor.h"
+#include "glass_database.h"
 #include "debuglog.h"
 #include "stringutils.h"
 #include "api/vectortermlist.h"
@@ -52,7 +53,7 @@ GlassSynonymTable::merge_changes()
 	set<string>::const_iterator i;
 	for (i = last_synonyms.begin(); i != last_synonyms.end(); ++i) {
 	    const string & synonym = *i;
-	    tag += byte(synonym.size() ^ MAGIC_XOR_VALUE);
+	    tag += uint8_t(synonym.size() ^ MAGIC_XOR_VALUE);
 	    tag += synonym;
 	}
 
@@ -76,7 +77,7 @@ GlassSynonymTable::add_synonym(const string & term, const string & synonym)
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
-		    (len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
 		last_synonyms.insert(string(p, len));
@@ -102,7 +103,7 @@ GlassSynonymTable::remove_synonym(const string & term, const string & synonym)
 	    while (p != end) {
 		size_t len;
 		if (p == end ||
-		    (len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		    (len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		    throw Xapian::DatabaseCorruptError("Bad synonym data");
 		++p;
 		last_synonyms.insert(string(p, len));
@@ -152,7 +153,7 @@ GlassSynonymTable::open_termlist(const string & term)
 	while (p != end) {
 	    size_t len;
 	    if (p == end ||
-		(len = byte(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
+		(len = uint8_t(*p) ^ MAGIC_XOR_VALUE) >= size_t(end - p))
 		throw Xapian::DatabaseCorruptError("Bad synonym data");
 	    ++p;
 	    synonyms.push_back(string(p, len));
@@ -171,6 +172,14 @@ GlassSynonymTermList::~GlassSynonymTermList()
     delete cursor;
 }
 
+Xapian::termcount
+GlassSynonymTermList::get_approx_size() const
+{
+    // This is an over-estimate, but we only use this value to build a balanced
+    // or-tree, and it'll do a decent enough job for that.
+    return database->synonym_table.get_entry_count();
+}
+
 string
 GlassSynonymTermList::get_termname() const
 {
@@ -185,12 +194,6 @@ Xapian::doccount
 GlassSynonymTermList::get_termfreq() const
 {
     throw Xapian::InvalidOperationError("GlassSynonymTermList::get_termfreq() not meaningful");
-}
-
-Xapian::termcount
-GlassSynonymTermList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("GlassSynonymTermList::get_collection_freq() not meaningful");
 }
 
 TermList *

@@ -9,6 +9,7 @@ inc_HEADERS =\
 
 xapianinclude_HEADERS =\
 	include/xapian/attributes.h\
+	include/xapian/cluster.h\
 	include/xapian/compactor.h\
 	include/xapian/constants.h\
 	include/xapian/constinfo.h\
@@ -16,14 +17,15 @@ xapianinclude_HEADERS =\
 	include/xapian/dbfactory.h\
 	include/xapian/deprecated.h\
 	include/xapian/derefwrapper.h\
+	include/xapian/diversify.h\
 	include/xapian/document.h\
 	include/xapian/enquire.h\
-	include/xapian/errorhandler.h\
 	include/xapian/eset.h\
 	include/xapian/expanddecider.h\
 	include/xapian/intrusive_ptr.h\
 	include/xapian/iterator.h\
 	include/xapian/keymaker.h\
+	include/xapian/matchdecider.h\
 	include/xapian/matchspy.h\
 	include/xapian/mset.h\
 	include/xapian/positioniterator.h\
@@ -32,6 +34,7 @@ xapianinclude_HEADERS =\
 	include/xapian/query.h\
 	include/xapian/queryparser.h\
 	include/xapian/registry.h\
+	include/xapian/rset.h\
 	include/xapian/stem.h\
 	include/xapian/termgenerator.h\
 	include/xapian/termiterator.h\

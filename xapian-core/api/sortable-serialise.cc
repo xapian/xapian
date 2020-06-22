@@ -48,7 +48,7 @@ using namespace std;
 #endif
 
 size_t
-Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
+Xapian::sortable_serialise_(double value, char* buf) noexcept
 {
     double mantissa;
     int exponent;
@@ -128,7 +128,7 @@ Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
 	buf[len++] = next;
 	// And the lower 6 bits of the exponent go into the upper 6 bits
 	// of the second byte:
-	next = static_cast<unsigned char>(exponent) << 2;
+	next = static_cast<unsigned char>(exponent << 2);
 	if (negative ^ exponent_negative) next ^= 0xfc;
     }
 
@@ -182,7 +182,7 @@ numfromstr(const std::string & str, std::string::size_type pos)
 }
 
 double
-Xapian::sortable_unserialise(const std::string & value) XAPIAN_NOEXCEPT
+Xapian::sortable_unserialise(const std::string& value) noexcept
 {
     // Zero.
     if (value.size() == 1 && value[0] == '\x80') return 0.0;

@@ -1,7 +1,7 @@
 /** @file api_sorting.cc
  * @brief tests of MSet sorting
  */
-/* Copyright (C) 2007,2008,2009,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2012,2017,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,17 +30,26 @@
 
 using namespace std;
 
-DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
+DEFINE_TESTCASE(sortfunctor1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
     {
-	const int keys[] = { 3, 1 };
+	static const int keys[] = { 3, 1 };
 	Xapian::MultiValueKeyMaker sorter(keys, keys + 2);
 
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+
+	for (auto m = mset.begin(); m != mset.end(); ++m) {
+	    const string& data = m.get_document().get_data();
+	    string exp;
+	    exp += data[3];
+	    exp += string(2, '\0');
+	    exp += data[1];
+	    TEST_EQUAL(m.get_sort_key(), exp);
+	}
     }
 
     {
@@ -51,6 +60,16 @@ DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
+
+	for (auto m = mset.begin(); m != mset.end(); ++m) {
+	    const string& data = m.get_document().get_data();
+	    string exp;
+	    exp += data[3];
+	    exp += string(2, '\0');
+	    exp += char(0xff - data[1]);
+	    exp += string(2, '\xff');
+	    TEST_EQUAL(m.get_sort_key(), exp);
+	}
     }
 
     {
@@ -62,6 +81,17 @@ DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 7, 6, 2, 8, 9, 4, 5, 1, 3);
+
+	for (auto m = mset.begin(); m != mset.end(); ++m) {
+	    const string& data = m.get_document().get_data();
+	    string exp;
+	    exp += string(2, '\0');
+	    exp += data[3];
+	    exp += string(2, '\0');
+	    exp += char(0xff - data[1]);
+	    exp += string(2, '\xff');
+	    TEST_EQUAL(m.get_sort_key(), exp);
+	}
     }
 
     {
@@ -72,13 +102,21 @@ DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
 	enquire.set_sort_by_key(&sorter, true);
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 8, 9, 4, 5, 1, 3, 7, 6, 2);
-    }
 
-    return true;
+	for (auto m = mset.begin(); m != mset.end(); ++m) {
+	    const string& data = m.get_document().get_data();
+	    string exp;
+	    if (data.size() > 10) exp += data[10];
+	    exp += string(2, '\0');
+	    exp += char(0xff - data[1]);
+	    exp += string(2, '\xff');
+	    TEST_EQUAL(m.get_sort_key(), exp);
+	}
+    }
 }
 
 /// Test reverse sort functor.
-DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
+DEFINE_TESTCASE(sortfunctor2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("foo");
@@ -147,12 +185,10 @@ DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
-
-    return true;
 }
 
 // Test sort functor with some empty values.
-DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
+DEFINE_TESTCASE(sortfunctor3, backend && valuestats) {
     Xapian::Database db(get_database("apitest_sortrel"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("woman"));
@@ -208,8 +244,6 @@ DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
     }
-
-    return true;
 }
 
 class NeverUseMeKeyMaker : public Xapian::KeyMaker {
@@ -253,12 +287,10 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
 	FAIL_TEST("NeverUseMeKeyMaker::operator() didn't throw TestFail");
     } catch (const TestFail &) {
     }
-
-    return true;
 }
 
 /// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
-DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
+DEFINE_TESTCASE(sortfunctorempty1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -270,12 +302,10 @@ DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
-    const int keys[] = { 0, 1, 2, 3 };
+    static const int keys[] = { 0, 1, 2, 3 };
     Xapian::MultiValueKeyMaker sorter(keys, keys + 4);
 
     Xapian::Document doc;
@@ -305,8 +335,6 @@ DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
     sorter.add_value(0, true, "hi");
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi"
 				   "\0\0\x97\x96\xff\xff", 27));
-
-    return true;
 }
 
 DEFINE_TESTCASE(sortfunctorremote1, remote) {
@@ -314,8 +342,57 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     NeverUseMeKeyMaker sorter;
     enquire.set_query(Xapian::Query("word"));
     enquire.set_sort_by_key(&sorter, true);
+    // NeverUseMeKeyMaker doesn't implemented serialise(), etc so should fail.
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	Xapian::MSet mset = enquire.get_mset(0, 10);
     );
-    return true;
+}
+
+DEFINE_TESTCASE(replace_weights1, backend) {
+    Xapian::Database mydb(get_database("apitest_onedoc"));
+    Xapian::Enquire enquire(mydb);
+    enquire.set_query(Xapian::Query("word"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    // old_max_possible, max_attained = 0.269763689697702
+    double old_max_possible = mymset.get_max_possible();
+    const double new_weight = 0.125;
+    static const double weights[] = {new_weight};
+    mymset.replace_weights(begin(weights), end(weights));
+    Xapian::MSetIterator i = mymset.begin();
+    TEST(i != mymset.end());
+    TEST_EQUAL_DOUBLE(i.get_weight(), new_weight);
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), new_weight);
+    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), old_max_possible);
+}
+
+DEFINE_TESTCASE(replace_weights2, backend) {
+    Xapian::Database mydb(get_database("apitest_onedoc"));
+    Xapian::Enquire enquire(mydb);
+    enquire.set_query(Xapian::Query("word"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    static const double weights[] = {1.0, 2.0};
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   mymset.replace_weights(begin(weights), end(weights)));
+}
+
+DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("word"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    static const Xapian::docid docids[] = {*mymset[0], *mymset[1]};
+    double max_weight = mymset.get_max_attained();
+    double weights[] = {max_weight * 0.5, max_weight + 1.0};
+    mymset.replace_weights(begin(weights), end(weights));
+    mymset.sort_by_relevance();
+    // The order of documents should have been reversed.
+    int k = 1;
+    for (Xapian::MSetIterator m = mymset.begin(); m != mymset.end();
+	 ++m, --k) {
+	TEST_EQUAL(*m, docids[k]);
+	TEST_EQUAL_DOUBLE(m.get_weight(), weights[k]);
+    }
+    // Test that setting larger weights is reflected in these methods.
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), weights[1]);
+    TEST_EQUAL_DOUBLE(mymset.get_max_possible(), weights[1]);
 }

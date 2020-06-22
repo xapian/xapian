@@ -1,0 +1,3 @@
+1234 'valid string'
+1235 ' '
+1236 ''tis a shame'

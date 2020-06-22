@@ -1,7 +1,7 @@
 /** @file termgenerator.h
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2013,2014,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_TERMGENERATOR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/termgenerator.h> directly; include <xapian.h> instead."
+# error Never use <xapian/termgenerator.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/intrusive_ptr.h>
@@ -50,13 +50,19 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// @private @internal Class representing the TermGenerator internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
+    Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
 
     /// Copy constructor.
     TermGenerator(const TermGenerator & o);
 
     /// Assignment.
     TermGenerator & operator=(const TermGenerator & o);
+
+    /// Move constructor.
+    TermGenerator(TermGenerator && o);
+
+    /// Move assignment operator.
+    TermGenerator & operator=(TermGenerator && o);
 
     /// Default constructor.
     TermGenerator();
@@ -102,15 +108,28 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 	 *
 	 *  The corresponding option needs to be passed to QueryParser.
 	 *
-	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  Flag added in Xapian 1.3.4 and 1.2.22.  This mode can be
 	 *  enabled in 1.2.8 and later by setting environment variable
-	 *  XAPIAN_CJK_NGRAM.
+	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+	 *  in 1.4.11).
 	 */
-	FLAG_CJK_NGRAM = 2048 // Value matches QueryParser flag.
+	FLAG_CJK_NGRAM = 2048, // Value matches QueryParser flag.
+
+	/** Enable generation of words from CJK text.
+	 *
+	 *  With this enabled, spans of CJK characters are split into CJK
+	 *  words using text boundary heuristics. Non-CJK characters are
+	 *  split into words as normal.
+	 *
+	 *  The corresponding option needs to be passed to QueryParser.
+	 */
+	FLAG_CJK_WORDS = 4096 // Value matches QueryParser flag
     };
 
     /// Stemming strategies, for use with set_stemming_strategy().
-    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
+    typedef enum {
+	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
+    } stem_strategy;
 
     /// Stopper strategies, for use with set_stopper_strategy().
     typedef enum { STOP_NONE, STOP_ALL, STOP_STEMMED } stop_strategy;
@@ -131,26 +150,43 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /** Set the stemming strategy.
      *
-     *  This method controls how the stemming algorithm is applied.  It was
-     *  new in Xapian 1.3.1.
+     *  This method controls how the stemming algorithm is applied.
      *
      *  @param strategy	The strategy to use - possible values are:
      *   - STEM_NONE:	Don't perform any stemming - only unstemmed terms
      *			are generated.
      *   - STEM_SOME:	Generate both stemmed (with a "Z" prefix) and unstemmed
-     *			terms.  This is the default strategy.
+     *			terms.  No positional information is stored for
+     *			unstemmed terms.  This is the default strategy.
+     *   - STEM_SOME_FULL_POS:
+     *			Like STEM_SOME but positional information is stored
+     *			for both stemmed and unstemmed terms.  Added in Xapian
+     *			1.4.8.
      *   - STEM_ALL:	Generate only stemmed terms (but without a "Z" prefix).
      *   - STEM_ALL_Z:	Generate only stemmed terms (with a "Z" prefix).
+     *
+     *  @since Added in Xapian 1.3.1.
      */
     void set_stemming_strategy(stem_strategy strategy);
 
     /** Set the stopper strategy.
      *
+     *  The method controls how the stopper is used.
+     *
+     *  You need to also call @a set_stopper() for this to have any effect.
+     *
      *  @param strategy The strategy to use - possible values are:
-     *   - STOP_NONE:     Disable stopper for both the stemmed and unstemmed form
-     *          of the word (Don't use the stopper).
-     *   - STOP_ALL:      Enable stopper for both forms of the word.
-     *   - STOP_STEMMED:  Enable stopper for the stemmed form of the word.
+     *   - STOP_NONE:     Don't use the stopper.
+     *   - STOP_ALL:      If a word is identified as a stop word, skip it
+     *			  completely.
+     *   - STOP_STEMMED:  If a word is identified as a stop word, index its
+     *			  unstemmed form but skip the stem.  Unstemmed forms
+     *			  are indexed with positional information by default,
+     *			  so this allows searches for phrases containing
+     *			  stopwords to be supported.  (This is the default
+     *			  mode).
+     *
+     *  @since Added in Xapian 1.4.1.
      */
     void set_stopper_strategy(stop_strategy strategy);
 
@@ -164,10 +200,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  help prevent the index being bloated by useless junk terms from trying
      *  to indexing things like binary data, uuencoded data, ASCII art, etc.
      *
-     *  This method was new in Xapian 1.3.1.
-     *
      *  @param max_word_length	The maximum length word to index, in bytes in
      *				UTF-8 representation.  Default is 64.
+     *
+     *  @since Added in Xapian 1.3.1.
      */
     void set_max_word_length(unsigned max_word_length);
 
@@ -190,7 +226,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     void index_text(const std::string & text,
 		    Xapian::termcount wdf_inc = 1,
 		    const std::string & prefix = std::string()) {
-	return index_text(Utf8Iterator(text), wdf_inc, prefix);
+	index_text(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Index some text without positional information.
@@ -220,7 +256,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     void index_text_without_positions(const std::string & text,
 				      Xapian::termcount wdf_inc = 1,
 				      const std::string & prefix = std::string()) {
-	return index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
+	index_text_without_positions(Utf8Iterator(text), wdf_inc, prefix);
     }
 
     /** Increase the term position used by index_text.
@@ -231,16 +267,16 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *
      *  @param delta	Amount to increase the term position by (default: 100).
      */
-    void increase_termpos(Xapian::termcount delta = 100);
+    void increase_termpos(Xapian::termpos delta = 100);
 
     /// Get the current term position.
-    Xapian::termcount get_termpos() const;
+    Xapian::termpos get_termpos() const;
 
     /** Set the current term position.
      *
      *  @param termpos	The new term position to set.
      */
-    void set_termpos(Xapian::termcount termpos);
+    void set_termpos(Xapian::termpos termpos);
 
     /// Return a string describing this object.
     std::string get_description() const;

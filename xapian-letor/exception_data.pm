@@ -1,7 +1,7 @@
 # exception_data.pm: details of the exception hierarchy used by Xapian.
 package exception_data;
 $copyright = <<'EOF';
-/* Copyright (C) 2003,2004,2006,2007,2008,2009,2011,2015 Olly Betts
+/* Copyright (C) 2003,2004,2006,2007,2008,2009,2011,2015,2019,2020 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  * Copyright (C) 2016 Ayush Tomar
  *
@@ -36,70 +36,83 @@ $generated_warning =
 %classcode = ();
 
 sub errorbaseclass {
-    push @baseclasses, join("\t", @_);
+    push @baseclasses, \@_;
     push @{$subclasses{$_[1]}}, $_[0];
 }
 
 sub errorclass {
     my $typecode = shift;
     my ($class, $parent) = @_;
-    push @classes, join("\t", @_);
+    push @classes, \@_;
     push @{$subclasses{$parent}}, $class;
     $classcode{$class} = $typecode;
 }
 
-errorbaseclass('LogicError', 'Error', <<'DOC');
-/** The base class for exceptions indicating errors in the program logic.
- *
- *  A subclass of LogicError will be thrown if Xapian detects a violation
- *  of a class invariant or a logical precondition or postcondition, etc.
- */
+errorbaseclass('LogicError', 'Error',
+	       'The base class for exceptions indicating errors in the program logic.',
+	       <<'DOC');
+A subclass of LogicError will be thrown if Xapian detects a violation
+of a class invariant or a logical precondition or postcondition, etc.
 DOC
 
 # RuntimeError and subclasses:
 
-errorbaseclass('RuntimeError', 'Error', <<'DOC');
-/** The base class for exceptions indicating errors only detectable at runtime.
- *
- *  A subclass of RuntimeError will be thrown if Xapian detects an error
- *  which is exception derived from RuntimeError is thrown when an
- *  error is caused by problems with the data or environment rather
- *  than a programming mistake.
- */
+errorbaseclass('RuntimeError', 'Error',
+	       'The base class for exceptions indicating errors only detectable at runtime.',
+	       <<'DOC');
+A subclass of RuntimeError will be thrown if Xapian detects an error
+which is exception derived from RuntimeError is thrown when an
+error is caused by problems with the data or environment rather
+than a programming mistake.
 DOC
 
-errorclass(0, 'FileNotFoundError', 'RuntimeError', <<'DOC');
-/** FileNotFoundError indicates that the file was not found at the path supplied. */
+errorclass(0, 'FileNotFoundError', 'RuntimeError',
+	   'FileNotFoundError indicates that the file was not found at the path supplied.',
+	   '');
+
+errorclass(1, 'LetorParseError', 'RuntimeError',
+	   'LetorParseError indicates file parsing error.',
+	   <<'DOC');
+You should check that the file being parsed follows the standard set by
+xapian-letor.
 DOC
 
-errorclass(1, 'LetorParseError', 'RuntimeError', <<'DOC');
-/** LetorParseError indicates file parsing error. You should check that the file
- *  being parsed follows the standard set by xapian-letor.
- */
-DOC
-
-errorclass(2, 'LetorInternalError', 'RuntimeError', <<'DOC');
-/** LetorInternalError indicates a runtime problem of some sort. */
-DOC
+errorclass(2, 'LetorInternalError', 'RuntimeError',
+	   'LetorInternalError indicates a runtime problem of some sort.',
+	   '');
 
 sub for_each_nothrow {
     my $func = shift @_;
-    my $class = '';
     foreach my $header ('include/xapian-letor.h', <include/xapian-letor/*.h>) {
 	local $/ = undef;
 	open H, '<', $header or die $!;
 	my $header_text = <H>;
-	# Strip comments, which might contain text describing XAPIAN_NOTHROW().
+	# Strip comments.
 	$header_text =~ s!/(?:/[^\n]*|\*.*?\*/)! !gs;
-	for (split /\n/, $header_text) {
-	    if (/^\s*class\s+XAPIAN_VISIBILITY_DEFAULT\s+(\w+)/) {
+	# Ignore the parts SWIG is told to ignore.
+	$header_text =~ s/^\s*#\s*if(?:ndef|\s+!\s*defined)\s+SWIG\b.*?^\s*#\s*endif\b.*?$//gsm;
+	my $class = '';
+	for (split /[;}{]\n/, $header_text) {
+	    s/\n\s*/ /g;
+	    if (/^\s*(?:class|struct)\s+XAPIAN_VISIBILITY_DEFAULT\s+(\w+)/) {
 		$class = "$1::";
+		&$func("Xapian::$class~$1");
 		next;
 	    }
-	    if (/^[^#]*\bXAPIAN_NOTHROW\((.*)\)/) {
-		&$func("Xapian::$class$1");
+	    s/ : .*//;
+	    /\b((?:operator *\S+|[A-Za-z][A-Za-z0-9_]+)\(.*\))((?: \w+)*)/ or next;
+	    my $method = $1;
+	    my $attributes = $2;
+	    if ($attributes !~ /\bnoexcept\b/) {
+		next;
 	    }
+	    if ($attributes =~ /\bconst\b/) {
+		$method .= ' const';
+	    }
+	    &$func("Xapian::$class$method");
 	}
 	close H;
     }
 }
+
+1;

@@ -69,7 +69,7 @@ class OrTermList : public TermList {
 
     Xapian::termcount positionlist_count() const;
 
-    Xapian::PositionIterator positionlist_begin() const;
+    PositionList* positionlist_begin() const;
 };
 
 /** A termlist which ORs two termlists together, adding term frequencies.
@@ -79,12 +79,12 @@ class OrTermList : public TermList {
  *  frequencies are equal.  This is appropriate for spelling termlists.
  */
 class FreqAdderOrTermList : public OrTermList {
-    public:
-	FreqAdderOrTermList(TermList * left_, TermList * right_)
-		: OrTermList(left_, right_)
-	{ }
+  public:
+    FreqAdderOrTermList(TermList * left_, TermList * right_)
+	    : OrTermList(left_, right_)
+    { }
 
-	Xapian::doccount get_termfreq() const;
+    Xapian::doccount get_termfreq() const;
 };
 
 #endif // XAPIAN_INCLUDED_ORTERMLIST_H

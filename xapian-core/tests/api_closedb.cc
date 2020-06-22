@@ -25,20 +25,26 @@
 
 #include <xapian.h>
 
+#include "safeunistd.h"
+
 #include "apitest.h"
 #include "testutils.h"
 
 using namespace std;
 
 #define COUNT_CLOSEDEXC(CODE) \
-    try { CODE; } catch (const Xapian::DatabaseError &) { ++closedexc_count; }
+    try { \
+	CODE; \
+    } catch (const Xapian::DatabaseClosedError &) { \
+	++closedexc_count; \
+    }
 
 #define IF_NOT_CLOSEDEXC(CODE) \
     do { \
 	hadexc = false; \
 	try { \
 	    CODE; \
-	} catch (const Xapian::DatabaseError &) { \
+	} catch (const Xapian::DatabaseClosedError &) { \
 	    ++closedexc_count; \
 	    hadexc = true; \
 	} \
@@ -50,16 +56,30 @@ struct closedb1_iterators {
     Xapian::Document doc1;
     Xapian::PostingIterator pl1;
     Xapian::PostingIterator pl2;
-    Xapian::PostingIterator plend;
+    Xapian::PostingIterator pl1end;
+    Xapian::PostingIterator pl2end;
+    Xapian::TermIterator tl1;
+    Xapian::TermIterator tlend;
+    Xapian::TermIterator atl1;
+    Xapian::TermIterator atlend;
+    Xapian::PositionIterator pil1;
+    Xapian::PositionIterator pilend;
 
     void setup(Xapian::Database db_) {
 	db = db_;
 
 	// Set up the iterators for the test.
 	pl1 = db.postlist_begin("paragraph");
-	pl2 = db.postlist_begin("paragraph");
+	pl2 = db.postlist_begin("this");
 	++pl2;
-	plend = db.postlist_end("paragraph");
+	pl1end = db.postlist_end("paragraph");
+	pl2end = db.postlist_end("this");
+	tl1 = db.termlist_begin(1);
+	tlend = db.termlist_end(1);
+	atl1 = db.allterms_begin("t");
+	atlend = db.allterms_end("t");
+	pil1 = db.positionlist_begin(1, "paragraph");
+	pilend = db.positionlist_end(1, "paragraph");
     }
 
     int perform() {
@@ -94,7 +114,11 @@ struct closedb1_iterators {
 	// Reopen raises the "database closed" error.
 	COUNT_CLOSEDEXC(db.reopen());
 
-	TEST_NOT_EQUAL(pl1, plend);
+	TEST_NOT_EQUAL(pl1, pl1end);
+	TEST_NOT_EQUAL(pl2, pl2end);
+	TEST_NOT_EQUAL(tl1, tlend);
+	TEST_NOT_EQUAL(atl1, atlend);
+	TEST_NOT_EQUAL(pil1, pilend);
 
 	COUNT_CLOSEDEXC(db.postlist_begin("paragraph"));
 
@@ -102,18 +126,76 @@ struct closedb1_iterators {
 	COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_doclength(), 28));
 	COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_unique_terms(), 21));
 
+	COUNT_CLOSEDEXC(TEST_EQUAL(*pl2, 2));
+	COUNT_CLOSEDEXC(TEST_EQUAL(pl2.get_doclength(), 81));
+	COUNT_CLOSEDEXC(TEST_EQUAL(pl2.get_unique_terms(), 56));
+
+	COUNT_CLOSEDEXC(TEST_EQUAL(*tl1, "a"));
+	COUNT_CLOSEDEXC(TEST_EQUAL(tl1.get_wdf(), 2));
+	COUNT_CLOSEDEXC(TEST_EQUAL(tl1.get_termfreq(), 3));
+
+	COUNT_CLOSEDEXC(TEST_EQUAL(*atl1, "test"));
+	COUNT_CLOSEDEXC(TEST_EQUAL(atl1.get_termfreq(), 1));
+
+	COUNT_CLOSEDEXC(TEST_EQUAL(*pil1, 12));
+
 	// Advancing the iterator may or may not raise an error, but if it
 	// doesn't it must return the correct answers.
 	bool advanced = false;
 	try {
 	    ++pl1;
 	    advanced = true;
-	} catch (const Xapian::DatabaseError &) {}
+	} catch (const Xapian::DatabaseClosedError &) {}
 
 	if (advanced) {
 	    COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 2));
 	    COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_doclength(), 81));
 	    COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_unique_terms(), 56));
+	}
+
+	advanced = false;
+	try {
+	    ++pl2;
+	    advanced = true;
+	} catch (const Xapian::DatabaseClosedError &) {}
+
+	if (advanced) {
+	    COUNT_CLOSEDEXC(TEST_EQUAL(*pl2, 3));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(pl2.get_doclength(), 15));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(pl2.get_unique_terms(), 14));
+	}
+
+	advanced = false;
+	try {
+	    ++tl1;
+	    advanced = true;
+	} catch (const Xapian::DatabaseClosedError &) {}
+
+	if (advanced) {
+	    COUNT_CLOSEDEXC(TEST_EQUAL(*tl1, "api"));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(tl1.get_wdf(), 1));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(tl1.get_termfreq(), 1));
+	}
+
+	advanced = false;
+	try {
+	    ++atl1;
+	    advanced = true;
+	} catch (const Xapian::DatabaseClosedError &) {}
+
+	if (advanced) {
+	    COUNT_CLOSEDEXC(TEST_EQUAL(*atl1, "that"));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(atl1.get_termfreq(), 2));
+	}
+
+	advanced = false;
+	try {
+	    ++pil1;
+	    advanced = true;
+	} catch (const Xapian::DatabaseClosedError &) {}
+
+	if (advanced) {
+	    COUNT_CLOSEDEXC(TEST_EQUAL(*pil1, 28));
 	}
 
 	return closedexc_count;
@@ -136,8 +218,16 @@ DEFINE_TESTCASE(closedb1, backend) {
     // Close the database.
     db.close();
 
-    // Reopening a closed database should always raise DatabaseError.
-    TEST_EXCEPTION(Xapian::DatabaseError, db.reopen());
+    // Dup stdout to the fds which the database was using, to try to catch
+    // issues with lingering references to closed fds (regression test for
+    // early development versions of honey).
+    vector<int> fds;
+    for (int i = 0; i != 6; ++i) {
+	fds.push_back(dup(1));
+    }
+
+    // Reopening a closed database should always raise DatabaseClosedError.
+    TEST_EXCEPTION(Xapian::DatabaseClosedError, db.reopen());
 
     // Run the test again, checking that we get some "closed" exceptions.
     closedexc_count = iters.perform();
@@ -151,21 +241,22 @@ DEFINE_TESTCASE(closedb1, backend) {
     // Calling close repeatedly is okay.
     db.close();
 
-    return true;
+    for (int fd : fds) {
+	close(fd);
+    }
 }
 
 // Test closing a writable database, and that it drops the lock.
-DEFINE_TESTCASE(closedb2, writable && !inmemory && !remote) {
+DEFINE_TESTCASE(closedb2, writable && path) {
     Xapian::WritableDatabase dbw1(get_named_writable_database("apitest_closedb2"));
     TEST_EXCEPTION(Xapian::DatabaseLockError,
 		   Xapian::WritableDatabase db(get_named_writable_database_path("apitest_closedb2"),
 					       Xapian::DB_OPEN));
     dbw1.close();
     Xapian::WritableDatabase dbw2 = get_named_writable_database("apitest_closedb2");
-    TEST_EXCEPTION(Xapian::DatabaseError, dbw1.postlist_begin("paragraph"));
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
+	       dbw1.postlist_begin("paragraph"));
     TEST_EQUAL(dbw2.postlist_begin("paragraph"), dbw2.postlist_end("paragraph"));
-
-    return true;
 }
 
 /// Check API methods which might either work or throw an exception.
@@ -175,38 +266,37 @@ DEFINE_TESTCASE(closedb3, backend) {
     db.close();
     try {
 	TEST_EQUAL(db.get_uuid(), uuid);
-    } catch (const Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
 	TEST(db.has_positions());
-    } catch (const Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
 	TEST_EQUAL(db.get_doccount(), 566);
-    } catch (const Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
 	TEST_EQUAL(db.get_lastdocid(), 566);
-    } catch (const Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
 	TEST_REL(db.get_doclength_lower_bound(), <, db.get_avlength());
-    } catch (const Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
 	TEST_REL(db.get_doclength_upper_bound(), >, db.get_avlength());
-    } catch (const Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
 	TEST(db.get_wdf_upper_bound("king"));
-    } catch (const Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseClosedError &) {
     }
     try {
 	// For non-remote databases, keep_alive() is a no-op anyway.
 	db.keep_alive();
-    } catch (const Xapian::DatabaseError &) {
+    } catch (const Xapian::DatabaseClosedError &) {
     }
-    return true;
 }
 
 /// Regression test for bug fixed in 1.1.4 - close() should implicitly commit().
@@ -217,14 +307,12 @@ DEFINE_TESTCASE(closedb4, writable && !inmemory) {
     wdb.close();
     Xapian::Database db(get_writable_database_as_database());
     TEST_EQUAL(db.get_doccount(), 1);
-    return true;
 }
 
-/// If a transaction is active, close() shouldn't implicitly commit().
-DEFINE_TESTCASE(closedb5, transactions && !remote) {
-    // FIXME: Fails with the remote backend, but I suspect it may be a test
-    // harness issue.
+/// Test the effects of close() on transactions
+DEFINE_TESTCASE(closedb5, transactions) {
     {
+	// If a transaction is active, close() shouldn't implicitly commit().
 	Xapian::WritableDatabase wdb = get_writable_database();
 	wdb.begin_transaction();
 	wdb.add_document(Xapian::Document());
@@ -244,7 +332,54 @@ DEFINE_TESTCASE(closedb5, transactions && !remote) {
 	Xapian::Database db = get_writable_database_as_database();
 	TEST_EQUAL(db.get_doccount(), 0);
     }
-    return true;
+
+    {
+	// commit_transaction() throws InvalidOperationError when
+	// not in a transaction.
+	Xapian::WritableDatabase wdb = get_writable_database();
+	wdb.close();
+	TEST_EXCEPTION(Xapian::InvalidOperationError,
+		       wdb.commit_transaction());
+
+	// begin_transaction() is no-op or throws DatabaseClosedError. We may be
+	// able to call db.begin_transaction(), but we can't make any changes
+	// inside that transaction. If begin_transaction() succeeds, then
+	// commit_transaction() either end the transaction or throw
+	// DatabaseClosedError.
+	bool advanced = false;
+	try {
+	    wdb.begin_transaction();
+	    advanced = true;
+	} catch (const Xapian::DatabaseClosedError &) {
+	}
+	if (advanced) {
+	    try {
+		wdb.commit_transaction();
+	    } catch (const Xapian::DatabaseClosedError &) {
+	    }
+	}
+    }
+
+    {
+	// Same test but for cancel_transaction().
+	Xapian::WritableDatabase wdb = get_writable_database();
+	wdb.close();
+	TEST_EXCEPTION(Xapian::InvalidOperationError,
+		       wdb.cancel_transaction());
+
+	bool advanced = false;
+	try {
+	    wdb.begin_transaction();
+	    advanced = true;
+	} catch (const Xapian::DatabaseClosedError &) {
+	}
+	if (advanced) {
+	    try {
+		wdb.cancel_transaction();
+	    } catch (const Xapian::DatabaseClosedError &) {
+	    }
+	}
+    }
 }
 
 /// Database::keep_alive() should fail after close() for a remote database.
@@ -254,10 +389,9 @@ DEFINE_TESTCASE(closedb6, remote) {
 
     try {
 	db.keep_alive();
-	return false;
-    } catch (const Xapian::DatabaseError &) {
+	FAIL_TEST("Expected DatabaseClosedError wasn't thrown");
+    } catch (const Xapian::DatabaseClosedError &) {
     }
-    return true;
 }
 
 // Test WritableDatabase methods.
@@ -266,22 +400,23 @@ DEFINE_TESTCASE(closedb7, writable) {
     db.add_document(Xapian::Document());
     db.close();
 
-    // Since we can't make any changes which need to be committed, db.commit()
-    // is a no-op, and so doesn't have to fail.  Similarly we may be able to
-    // call db.begin_transaction(), but we can't make any changes inside that
-    // transaction.
-    TEST_EXCEPTION(Xapian::DatabaseError,
-		   db.add_document(Xapian::Document()));
-    TEST_EXCEPTION(Xapian::DatabaseError,
-		   db.delete_document(1));
-    TEST_EXCEPTION(Xapian::DatabaseError,
-		   db.replace_document(1, Xapian::Document()));
-    TEST_EXCEPTION(Xapian::DatabaseError,
-		   db.replace_document(2, Xapian::Document()));
-    TEST_EXCEPTION(Xapian::DatabaseError,
-		   db.replace_document("Qi", Xapian::Document()));
+    // Since we can't make any changes which need to be committed,
+    // db.commit() is a no-op, and so doesn't have to fail.
+    try {
+	db.commit();
+    } catch (const Xapian::DatabaseClosedError &) {
+    }
 
-    return true;
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		   db.add_document(Xapian::Document()));
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		   db.delete_document(1));
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		   db.replace_document(1, Xapian::Document()));
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		   db.replace_document(2, Xapian::Document()));
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		   db.replace_document("Qi", Xapian::Document()));
 }
 
 // Test spelling related methods.
@@ -291,16 +426,14 @@ DEFINE_TESTCASE(closedb8, writable && spelling) {
     db.add_spelling("pneumonia");
     db.close();
 
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.add_spelling("penmanship"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.remove_spelling("pneumatic"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.get_spelling_suggestion("newmonia"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.spellings_begin());
-
-    return true;
 }
 
 // Test synonym related methods.
@@ -310,18 +443,16 @@ DEFINE_TESTCASE(closedb9, writable && synonyms) {
     db.add_synonym("honor", "honour");
     db.close();
 
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.add_synonym("behavior", "behaviour"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.remove_synonym("honor", "honour"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.clear_synonyms("honor"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.synonyms_begin("color"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.synonym_keys_begin());
-
-    return true;
 }
 
 // Test metadata related methods.
@@ -331,14 +462,12 @@ DEFINE_TESTCASE(closedb10, writable && metadata) {
     db.set_metadata("bar", "BAR");
     db.close();
 
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.set_metadata("test", "TEST"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.get_metadata("foo"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
-		   db.get_metadata("foo"));
-    TEST_EXCEPTION(Xapian::DatabaseError,
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
+		   db.get_metadata("bar"));
+    TEST_EXCEPTION(Xapian::DatabaseClosedError,
 		   db.metadata_keys_begin());
-
-    return true;
 }

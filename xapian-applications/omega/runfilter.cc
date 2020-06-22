@@ -1,7 +1,7 @@
 /** @file runfilter.cc
  * @brief Run an external filter and capture its output in a std::string.
- *
- * Copyright (C) 2003,2006,2007,2009,2010,2011,2013,2015 Olly Betts
+ */
+/* Copyright (C) 2003,2006,2007,2009,2010,2011,2013,2015,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@
 #include <vector>
 
 #include <sys/types.h>
-#include "safeerrno.h"
 #include "safefcntl.h"
+#include <cerrno>
 #include <cstdio>
 #include <cstring>
 #ifdef HAVE_SYS_TIME_H
@@ -49,6 +49,7 @@
 #endif
 
 #include "freemem.h"
+#include "setenv.h"
 #include "stringutils.h"
 
 #ifdef _MSC_VER
@@ -57,6 +58,8 @@
 #endif
 
 using namespace std;
+
+static int devnull = -1;
 
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
 bool
@@ -154,8 +157,8 @@ handle_signal(int signum)
 
 }
 
-void
-runfilter_init()
+static inline void
+runfilter_init_signal_handlers_()
 {
     struct sigaction sa;
     sa.sa_handler = handle_signal;
@@ -203,8 +206,8 @@ handle_signal(int signum)
 
 }
 
-void
-runfilter_init()
+static inline void
+runfilter_init_signal_handlers_()
 {
     old_hup_handler = signal(SIGHUP, handle_signal);
     old_int_handler = signal(SIGINT, handle_signal);
@@ -221,16 +224,34 @@ command_needs_shell(const char *)
     return true;
 }
 
-void
-runfilter_init()
+static inline void
+runfilter_init_signal_handlers_()
 {
 }
 #endif
 
-string
-stdout_to_string(const string &cmd, bool use_shell, int alt_status)
+void
+runfilter_init()
 {
-    string out;
+    runfilter_init_signal_handlers_();
+    devnull = open("/dev/null", O_WRONLY);
+    if (devnull < 0) {
+	cerr << "Failed to open /dev/null: " << strerror(errno) << endl;
+	exit(1);
+    }
+    // Ensure that devnull isn't fd 0, 1 or 2 (stdin, stdout or stderr) and
+    // that we have open fds for stdin, stdout and stderr.  This simplifies the
+    // code after fork() because it doesn't need to worry about such corner
+    // cases.
+    while (devnull <= 2) {
+	devnull = dup(devnull);
+    }
+}
+
+void
+run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
+	   int alt_status)
+{
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
     // We want to be able to get the exit status of the child process.
     signal(SIGCHLD, SIG_DFL);
@@ -247,13 +268,16 @@ stdout_to_string(const string &cmd, bool use_shell, int alt_status)
 	// Put the child process into its own process group, so that we can
 	// easily kill it and any children it in turn forks if we need to.
 	setpgid(0, 0);
-	pid_to_kill_on_signal = -child;
-#else
-	pid_to_kill_on_signal = child;
 #endif
 
 	// Close the parent's side of the socket pair.
 	close(fds[0]);
+
+	if (fd_in != -1) {
+	    // Connect piped input to stdin.
+	    dup2(fd_in, 0);
+	    close(fd_in);
+	}
 
 	// Connect stdout to our side of the socket pair.
 	dup2(fds[1], 1);
@@ -288,9 +312,6 @@ stdout_to_string(const string &cmd, bool use_shell, int alt_status)
 #endif
 
 	if (use_shell) {
-#if !defined HAVE_SETENV && !defined HAVE_PUTENV
-use_shell_after_all:
-#endif
 	    execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
 	    _exit(-1);
 	}
@@ -310,18 +331,11 @@ use_shell_after_all:
 		break;
 	    }
 
-#ifdef HAVE_SETENV
 	    size_t eq = j;
 	    unquote(s, j);
 	    s[eq] = '\0';
 	    setenv(&s[i], &s[eq + 1], 1);
 	    j = s.find_first_not_of(" \t\n", j);
-#elif defined HAVE_PUTENV
-	    unquote(s, j);
-	    putenv(&s[i]);
-#else
-	    goto use_shell_after_all;
-#endif
 	}
 
 	vector<const char *> argv;
@@ -333,15 +347,11 @@ use_shell_after_all:
 	    if (!quoted) {
 		// Handle simple cases of redirection.
 		if (strcmp(word, ">/dev/null") == 0) {
-		    int fd = open(word + 1, O_WRONLY);
-		    if (fd != -1 && fd != 1) dup2(fd, 1);
-		    close(fd);
+		    dup2(devnull, 1);
 		    continue;
 		}
 		if (strcmp(word, "2>/dev/null") == 0) {
-		    int fd = open(word + 2, O_WRONLY);
-		    if (fd != -1 && fd != 2) dup2(fd, 2);
-		    close(fd);
+		    dup2(devnull, 2);
 		    continue;
 		}
 		if (strcmp(word, "2>&1") == 0) {
@@ -359,10 +369,18 @@ use_shell_after_all:
 	argv.push_back(NULL);
 
 	execvp(argv[0], const_cast<char **>(&argv[0]));
-	_exit(-1);
+	// Emulate shell behaviour and exit with status 127 if the command
+	// isn't found, and status 126 for other problems.  In particular, we
+	// rely on 127 below to throw NoSuchFilter.
+	_exit(errno == ENOENT ? 127 : 126);
     }
 
     // We're the parent process.
+#ifdef HAVE_SETPGID
+    pid_to_kill_on_signal = -child;
+#else
+    pid_to_kill_on_signal = child;
+#endif
 
     // Close the child's side of the socket pair.
     close(fds[1]);
@@ -387,7 +405,7 @@ use_shell_after_all:
 	int r = select(fd + 1, &readfds, NULL, NULL, &tv);
 	if (r <= 0) {
 	    if (r < 0) {
-		if (errno == EINTR) {
+		if (errno == EINTR || errno == EAGAIN) {
 		    // select() interrupted by a signal, so retry.
 		    continue;
 		}
@@ -425,7 +443,7 @@ use_shell_after_all:
 	    pid_to_kill_on_signal = 0;
 	    throw ReadError(status);
 	}
-	out.append(buf, res);
+	if (out) out->append(buf, res);
     }
 
     close(fd);
@@ -449,7 +467,7 @@ use_shell_after_all:
 	    (void)pclose(fh);
 	    throw ReadError("fread failed");
 	}
-	out.append(buf, len);
+	if (out) out->append(buf, len);
     }
     int status = pclose(fh);
 #endif
@@ -457,7 +475,7 @@ use_shell_after_all:
     if (WIFEXITED(status)) {
 	int exit_status = WEXITSTATUS(status);
 	if (exit_status == 0 || exit_status == alt_status)
-	    return out;
+	    return;
 	if (exit_status == 127)
 	    throw NoSuchFilter();
     }

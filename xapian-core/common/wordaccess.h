@@ -1,7 +1,7 @@
 /** @file wordaccess.h
  * @brief functions for reading and writing different width words
  */
-/* Copyright (C) 2016 Olly Betts
+/* Copyright (C) 2016,2018,2019 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -22,28 +22,39 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef XAPIAN_INCLUDED_UNALIGNED_H
-#define XAPIAN_INCLUDED_UNALIGNED_H
+#ifndef XAPIAN_INCLUDED_WORDACCESS_H
+#define XAPIAN_INCLUDED_WORDACCESS_H
+
+#ifndef PACKAGE
+# error config.h must be included first in each C++ source file
+#endif
 
 #include <cstdint>
 #include <type_traits>
+#include <cstring>
 
 #include "alignment_cast.h"
 #include "omassert.h"
 
-#ifndef WORDS_BIGENDIAN
+#if HAVE_DECL__BYTESWAP_USHORT || HAVE_DECL__BYTESWAP_ULONG
+# include <stdlib.h>
+#endif
 
-inline int do_bswap(uint16_t value) {
+inline uint16_t do_bswap(uint16_t value) {
 # if HAVE_DECL___BUILTIN_BSWAP16
     return __builtin_bswap16(value);
+# elif HAVE_DECL__BYTESWAP_USHORT
+    return _byteswap_ushort(value);
 # else
     return (value << 8) | (value >> 8);
 # endif
 }
 
-inline int do_bswap(uint32_t value) {
+inline uint32_t do_bswap(uint32_t value) {
 # if HAVE_DECL___BUILTIN_BSWAP32
     return __builtin_bswap32(value);
+# elif HAVE_DECL__BYTESWAP_ULONG
+    return _byteswap_ulong(value);
 # else
     return (value << 24) |
 	   ((value & 0xff00) << 8) |
@@ -52,7 +63,22 @@ inline int do_bswap(uint32_t value) {
 # endif
 }
 
-#endif
+inline uint64_t do_bswap(uint64_t value) {
+# if HAVE_DECL___BUILTIN_BSWAP64
+    return __builtin_bswap64(value);
+# elif HAVE_DECL__BYTESWAP_UINT64
+    return _byteswap_uint64(value);
+# else
+    return (value << 56) |
+	   ((value & 0xff00) << 40) |
+	   ((value & 0xff0000) << 24) |
+	   ((value & 0xff000000) << 8) |
+	   ((value >> 8) & 0xff000000) |
+	   ((value >> 24) & 0xff0000) |
+	   ((value >> 40) & 0xff00) |
+	   (value >> 56);
+# endif
+}
 
 template<typename UINT>
 inline UINT
@@ -163,4 +189,4 @@ unaligned_write2(unsigned char *ptr, T value)
     do_unaligned_write<T, uint16_t>(ptr, value);
 }
 
-#endif // XAPIAN_INCLUDED_UNALIGNED_H
+#endif // XAPIAN_INCLUDED_WORDACCESS_H

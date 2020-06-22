@@ -41,8 +41,8 @@ Deprecation markers
 At any particular point, some parts of the C++ API will be marked as
 "deprecated".  Deprecated features are annotated in the API headers with macros
 such as ``XAPIAN_DEPRECATED()``, which will cause compilers with appropriate
-support (such as GCC 3.1 or later, and MSVC 7.0 or later) to emit compile-time
-warnings if these features are used.
+support (such as GCC, clang and MSVC) to emit compile-time warnings if these
+features are used.
 
 If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
@@ -52,7 +52,9 @@ of this file, will describe possible alternatives to the deprecated feature.
 If you want to disable deprecation warnings temporarily, you can do so
 by passing ``"-DXAPIAN_DEPRECATED(X)=X"`` to the compiler (the quotes are
 needed to protect the brackets from the shell).  If your build system uses
-make, you might do this like so::
+make, you might do this like so:
+
+.. code-block:: sh
 
     make 'CPPFLAGS="-DXAPIAN_DEPRECATED(X)=X"'
 
@@ -168,9 +170,9 @@ We recommend taking the following steps to avoid depending on deprecated
 features when writing your applications:
 
  - If at all possible, test compile your project using a compiler which
-   supports warnings about deprecated features (such as GCC 3.1 or later), and
-   check for such warnings.  Use the -Werror flag to GCC to ensure that you
-   don't miss any of them.
+   supports warnings about deprecated features (such as GCC), and check for
+   such warnings.  Pass the -Werror flag to GCC to ensure that you don't miss
+   any of them.
 
  - Check the NEWS file for each new release for details of any new features
    which are deprecated in the release.
@@ -211,54 +213,9 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.3.1      1.5.0  ``Xapian::ErrorHandler``            We feel the current ErrorHandler API doesn't work at the right level (it
-                                                      only works in Enquire, whereas you should be able to handle errors at
-                                                      the Database level too) and we can't find any evidence that people are
-                                                      actually using it.  So we've made the API a no-op and marked it as
-                                                      deprecated.  The hope is to replace it with something better thought
-                                                      out, probably during the 1.4.x release series.  There's some further
-                                                      thoughts at https://trac.xapian.org/ticket/3#comment:8
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.2      1.5.0  ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2)
-                                                      instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.2      1.5.0  ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_CHERT`` flag (new in
-                                                      1.3.2) instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.3      1.5.0  |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.4      1.5.0  ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The
-                  ``set_block_size()``,               ``Xapian::Compact`` is now just a subclassable functor class to allow
-                  ``set_renumber()``,                 access to progress messages and control over merging of user metadata.
-                  ``set_multipass()``,
-                  ``set_compaction_level()``,
-                  ``set_destdir()``, ``add_source()`
-                  and ``compact()``.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.5      1.5.0  ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and
-                  variables                           1.2.23.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.5      1.5.0  ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in
-                                                      1.3.5) instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  |flush|                             Use ``Xapian::WritableDatabase::commit()`` instead (available since
-                                                      1.1.0).
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
-                                                      ``Xapian::Query`` from ``operator()()``.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  Subclassing |DateVRP|               Subclass ``Xapian::DateRangeProcessor`` instead, and return a
-                                                      ``Xapian::Query`` from ``operator()()``.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  Subclassing |NumberVRP|             Subclass ``Xapian::NumberRangeProcessor`` instead, and return a
-                                                      ``Xapian::Query`` from ``operator()()``.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  Subclassing |StringVRP|             Subclass ``Xapian::RangeProcessor`` instead (which includes equivalent
-                                                      support for prefix/suffix checking), and return a ``Xapian::Query`` from
-                                                      ``operator()()``.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.3.6      1.5.0  |add_valuerangeprocessor|           Use ``Xapian::QueryParser::add_rangeprocessor()`` instead, with a
-                                                      ``Xapian::RangeProcessor`` object instead of a |VRP| object.
+1.4.11     1.7.0  Environment variable                Specify via the flags ``Xapian::QueryParser::FLAG_CJK_NGRAM``,
+                  ``XAPIAN_CJK_NGRAM``                ``Xapian::TermGenerator::FLAG_CJK_NGRAM`` and
+                                                      ``Xapian::MSet::SNIPPET_CJK_NGRAM`` instead.
 ========== ====== =================================== ========================================================================
 
 Bindings
@@ -269,9 +226,6 @@ Bindings
 ========== ====== ======== ============================ ======================================================================
 Deprecated Remove Language Feature name                 Upgrade suggestion and comments
 ========== ====== ======== ============================ ======================================================================
-1.2.5      1.5.0  Python   MSet.items                   Iterate the MSet object itself instead.
----------- ------ -------- ---------------------------- ----------------------------------------------------------------------
-1.2.5      1.5.0  Python   ESet.items                   Iterate the ESet object itself instead.
 ========== ====== ======== ============================ ======================================================================
 
 Omega
@@ -282,10 +236,6 @@ Omega
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.2.4      1.5.0  omindex command line long option    Renamed to ``--no-delete``, which works in 1.2.4 and later.
-                  ``--preserve-nonduplicates``.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
-1.2.5      1.5.0  $set{spelling,true}                 Use $set{flag_spelling_suggestion,true} instead.
 ========== ====== =================================== ========================================================================
 
 .. Features currently marked as experimental
@@ -482,17 +432,11 @@ Removed Feature name                        Upgrade suggestion and comments
 1.3.0   ``matchspy`` parameter to           Use the newer ``MatchSpy`` class and ``Enquire::add_matchspy()`` method instead.
         ``Enquire::get_mset()``
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.0   ``Xapian::timeout`` typedef         Use ``unsigned`` instead, which should also work with older Xapian releases.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.0   ``Xapian::percent`` typedef         Use ``int`` instead, which should also work with older Xapian releases.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.0   ``Xapian::weight`` typedef          Use ``double`` instead, which should also work with older Xapian releases.
-------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``Xapian::Query::unserialise()``    To be compatible with older and newer Xapian, you can catch both exceptions.
-	throws
-	``Xapian::SerialisationError`` not
-	``Xapian::InvalidArgumentError``
-	for errors in serialised data
+        throws
+        ``Xapian::SerialisationError`` not
+        ``Xapian::InvalidArgumentError``
+        for errors in serialised data
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.2   The Brass backend                   Use the Glass backend instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
@@ -511,6 +455,60 @@ Removed Feature name                        Upgrade suggestion and comments
 1.3.5   ``Xapian::DBCHECK_SHOW_BITMAP``     Use ``Xapian::DBCHECK_SHOW_FREELIST`` (added in 1.3.2) instead.
                                             ``Xapian::DBCHECK_SHOW_BITMAP`` was added in 1.3.0, so has never been in a stable
                                             release.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   The Chert backend                   Use the Glass backend instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_GLASS`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in
+                                            1.3.5) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |flush|                             Use ``Xapian::WritableDatabase::commit()`` instead (available since 1.1.0).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.  The exact equivalent of
+                                            ``set_max_wildcard_expansion(n)`` is
+                                            ``set_max_expansion(n, Xapian::Query::WILDCARD_LIMIT_ERROR,
+                                            Xapian::QueryParser::FLAG_WILDCARD)``
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The
+        ``set_block_size()``,               ``Xapian::Compactor`` class is now just a subclassable functor class to
+        ``set_renumber()``,                 allow access to progress messages and control over merging of user
+        ``set_multipass()``,                metadata.
+        ``set_compaction_level()``,
+        ``set_destdir()``, ``add_source()`
+        and ``compact()``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::ValuePostingSource``      Use the respective getter and setter methods instead, added in 1.3.5 and 1.2.23.
+        public member variables
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::timeout`` typedef         Use ``unsigned`` instead, which should also work with older Xapian releases.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::percent`` typedef         Use ``int`` instead, which should also work with older Xapian releases.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::weight`` typedef          Use ``double`` instead, which should also work with older Xapian releases.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::Enquire::get_eset()``     Use ``Xapian::Enquire::set_expansion_scheme()`` to specify the algorithm which
+        overloaded form taking ``k``        ``get_eset()`` should use, along with any parameters (added in 1.3.2).
+        parameter.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   ``Xapian::ErrorHandler``            This API was a no-op in 1.4.x, so you can just remove any lingering uses.  Longer
+                                            term we hope to replace it with a better thought out version.  You can find more
+                                            information at https://trac.xapian.org/ticket/3#comment:8
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
+                                            ``Xapian::Query`` from ``operator()()`` (added in 1.3.6).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |DateVRP|                           Use ``Xapian::DateRangeProcessor`` instead (added in 1.3.6).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |NumberVRP|                         Use ``Xapian::NumberRangeProcessor`` instead (added in 1.3.6).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |StringVRP|                         Use ``Xapian::RangeProcessor`` instead, which includes equivalent support for
+                                            prefix/suffix checking (added in 1.3.6).
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   |add_valuerangeprocessor|           Use ``Xapian::QueryParser::add_rangeprocessor()`` instead, with a
+                                            ``Xapian::RangeProcessor`` object instead of a |VRP| object (added in 1.3.6).
 ======= =================================== ==================================================================================
 
 
@@ -615,6 +613,10 @@ Removed Language Feature name                 Upgrade suggestion and comments
 1.3.0   Python   Non-pythonic iterators       Use the pythonic iterators instead.
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.3.0   Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of function)
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.5.0   Python   MSet.items                   Iterate the MSet object itself instead.
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.5.0   Python   ESet.items                   Iterate the ESet object itself instead.
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
@@ -643,4 +645,9 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.0   ``OLDP`` CGI parameter              Use ``xP`` CGI parameter instead (direct replacement), which has been supported
                                             since at least 0.5.0.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   omindex command line long option    Renamed to ``--no-delete``, which works in 1.2.4 and later.
+        ``--preserve-nonduplicates``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.5.0   $set{spelling,true}                 Use $set{flag_spelling_suggestion,true} instead, which was added in 1.2.5.
 ======= =================================== ==================================================================================

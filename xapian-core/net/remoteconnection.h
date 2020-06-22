@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@
 #ifndef XAPIAN_INCLUDED_REMOTECONNECTION_H
 #define XAPIAN_INCLUDED_REMOTECONNECTION_H
 
+#include <cerrno>
 #include <string>
 
 #include "remoteprotocol.h"
-#include "safeerrno.h"
 #include "safenetdb.h" // For EAI_* constants.
 #include "safeunistd.h"
 
@@ -49,7 +49,7 @@
 struct WinsockInitializer {
     WinsockInitializer() {
 	WSADATA wsadata;
-	int wsaerror = WSAStartup(MAKEWORD(2,2), &wsadata);
+	int wsaerror = WSAStartup(MAKEWORD(2, 2), &wsadata);
 	// FIXME - should we check the returned information in wsadata to check
 	// that we have a version of winsock which is recent enough for us?
 
@@ -104,8 +104,7 @@ inline int socket_errno() {
 // else the socket remains in the CLOSE_WAIT state.
 # define CLOSESOCKET(S) closesocket(S)
 #else
-// Use a macro so we don't need to pull safeerrno.h in here.
-# define socket_errno() errno
+inline int socket_errno() { return errno; }
 
 # define CLOSESOCKET(S) close(S)
 #endif
@@ -240,11 +239,8 @@ class RemoteConnection {
     ~RemoteConnection();
 #endif
 
-    /** See if there is data available to read.
-     *
-     *  @return		true if there is data waiting to be read.
-     */
-    bool ready_to_read() const;
+    /** Return the underlying fd this remote connection reads from. */
+    int get_read_fd() const { return fdin; }
 
     /** Check what the next message type is.
      *
@@ -316,7 +312,7 @@ class RemoteConnection {
      *				< at_least bytes, but finished the message.
      */
     int get_message_chunk(std::string &result, size_t at_least,
-			   double end_time);
+			  double end_time);
 
     /** Save the contents of a message as a file.
      *
@@ -355,10 +351,31 @@ class RemoteConnection {
 
     /** Shutdown the connection.
      *
-     *  @param wait	If true, wait for the remote end to close the
-     *			connection before returning.
+     *  Sends a shutdown message to the server and waits for it to close its
+     *  end of the connection.
      */
-    void do_close(bool wait);
+    void shutdown();
+
+    /** Close the connection. */
+    void do_close();
+};
+
+/** RemoteConnection which owns its own fd(s).
+ *
+ *  The object takes ownership of the fd(s) for the connection and will close
+ *  them when it is destroyed.
+ */
+class OwnedRemoteConnection : public RemoteConnection {
+  public:
+    /// Constructor.
+    OwnedRemoteConnection(int fdin_, int fdout_,
+			  const std::string& context_ = std::string())
+	: RemoteConnection(fdin_, fdout_, context_) { }
+
+    /// Destructor.
+    ~OwnedRemoteConnection() {
+	do_close();
+    }
 };
 
 #endif // XAPIAN_INCLUDED_REMOTECONNECTION_H

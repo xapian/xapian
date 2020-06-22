@@ -9,6 +9,8 @@
     Fixes since importing into Xapian:
     2008-03-04 Fixed readdir() not to set errno to ENOENT when the
 	       end of the directory is reached.
+    2018-04-01 Fix handle to be intptr_t not long to avoid truncation
+	       with WIN64 (where long is still 32 bits).
 
     Copyright Kevlin Henney, 1997, 2003. All rights reserved.
 
@@ -38,7 +40,7 @@ extern "C"
 
 struct DIR
 {
-    long                handle; /* -1 for failed rewind */
+    intptr_t            handle; /* -1 for failed rewind */
     struct _finddata_t  info;
     struct dirent       result; /* d_name null iff first time */
     char                *name;  /* null-terminated char string */
@@ -59,7 +61,7 @@ DIR *opendir(const char *name)
         {
             strcat(strcpy(dir->name, name), all);
 
-            if((dir->handle = (long) _findfirst(dir->name, &dir->info)) != -1)
+            if((dir->handle = _findfirst(dir->name, &dir->info)) != -1)
             {
                 dir->result.d_name = 0;
             }
@@ -144,7 +146,7 @@ void rewinddir(DIR *dir)
     if(dir && dir->handle != -1)
     {
         _findclose(dir->handle);
-        dir->handle = (long) _findfirst(dir->name, &dir->info);
+        dir->handle = _findfirst(dir->name, &dir->info);
         dir->result.d_name = 0;
     }
     else

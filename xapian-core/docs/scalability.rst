@@ -92,7 +92,7 @@ The current limits are:
    So what is the limit for a modern OS? Taking Linux 2.6 as an example,
    ext4 allows files up to 16TB and filesystems up to 1EB, while btrfs
    allows files and filesystems up to 16EB (`figures from
-   Wikipedia <http://en.wikipedia.org/wiki/Comparison_of_file_systems>`_).
+   Wikipedia <https://en.wikipedia.org/wiki/Comparison_of_file_systems>`_).
 -  The B-trees use a 32-bit unsigned block count. The default blocksize
    is 8K which limits you to 32TB tables. You can increase the blocksize
    if this is a problem, but it's best to do it before you create the

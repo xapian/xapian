@@ -9,12 +9,12 @@ AC_INIT([xapian-bindings], project_version, [https://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
-AM_INIT_AUTOMAKE([1.12.2 parallel-tests -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE([1.13 parallel-tests -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
 AC_CONFIG_SRCDIR([xapian-headers.i])
 
 AC_CONFIG_HEADERS([config.h])
 
-AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIRS([m4])
 
 dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
 dnl successfully link the SWIG generated modules.  The link always fails on
@@ -187,14 +187,12 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   fi
   dnl Check for new enough SWIG.
   dnl
-  dnl 3.0.6 fixes compiling the Perl bindings under C++11 ("seed" macro issue).
-  dnl 3.0.8 fixes conversion of integers large than an int in Python 3.
-  dnl 3.0.9 fixes generation of unnecessary _swigconstant helpers for Python.
   dnl 3.0.12 fixes segfault on unload with PHP 7.1
+  dnl 4.0.0 includes fixes for many languages
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-    [[012].*|3.0.?|3.0.1[01]|""])
-      msg="SWIG >= 3.0.12 required (you have ${v:-an unknown version})"
+    [[0123].*|""])
+      msg="SWIG >= 4.0.0 required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])
@@ -242,11 +240,6 @@ AC_ARG_WITH(python3,
   [],
   [with_python3=])
 
-AC_ARG_WITH(php,
-  AC_HELP_STRING([--with-php], [enable PHP 5 bindings]),
-  [],
-  [with_php=])
-
 AC_ARG_WITH(php7,
   AC_HELP_STRING([--with-php7], [enable PHP 7 bindings]),
   [],
@@ -282,12 +275,11 @@ AC_ARG_WITH(lua,
   [],
   [with_lua=])
 
-case $with_python$with_python3$with_php$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+case $with_python$with_python3$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
   test -z "$with_python3" && with_python3=no
-  test -z "$with_php" && with_php=no
   test -z "$with_php7" && with_php7=no
   test -z "$with_tcl" && with_tcl=no
   test -z "$with_csharp" && with_csharp=no
@@ -315,12 +307,12 @@ if test no != "$with_python" ; then
   fi
   AC_ARG_VAR(PYTHON2, [Python 2 interpreter])
   if test -n "$PYTHON2" ; then
-    dnl Require Python 2.6 or newer.  Older versions are essentially
-    dnl unsupported upstream.
+    dnl Require Python 2.7 or newer.  Older versions are essentially
+    dnl unsupported upstream, and SWIG 4.0.0 dropped support for them too.
     AC_MSG_CHECKING([$PYTHON2 version])
     version=`$PYTHON2 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [2.[6-9]*|2.[1-5][0-9]*])
+    [2.[7-9]*|2.[1-5][0-9]*])
       AC_MSG_RESULT([$version])
       ;;
     [[3-9].*])
@@ -442,12 +434,12 @@ if test no != "$with_python3" ; then
       fi
     fi
     AC_MSG_CHECKING([for python3 sphinx module])
-    if $PYTHON3 -c 'import sphinx;print(repr(sphinx.main))' >&5 2>&5 ; then
+    if $PYTHON3 -c 'import sphinx' >&5 2>&5 ; then
       AC_MSG_RESULT([yes])
     else
       AC_MSG_RESULT([no])
       if test yes = "$with_python3" ; then
-	AC_MSG_ERROR([Couldn't import sphinx module and call sphinx.main() for Python3 - try package python3-sphinx])
+	AC_MSG_ERROR([Couldn't import sphinx module for Python3 - try package python3-sphinx])
       fi
       PYTHON3=
     fi
@@ -516,122 +508,13 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
-if test no != "$with_php" ; then
-  dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  if test -n "$PHP_CONFIG" ; then
-    AC_PATH_PROGS(PHP_CONFIG, ["$PHP_CONFIG"], [])
-  fi
-  if test -z "$PHP_CONFIG" ; then
-    AC_PATH_PROGS(PHP_CONFIG, [php-config5 php-config], [])
-  fi
-  AC_ARG_VAR(PHP_CONFIG, [php-config utility for PHP5])
-  AC_ARG_VAR(PHP, [PHP5 interpreter (optional - only needed to run PHP5 testsuite with)])
-  if test -n "$PHP_CONFIG" ; then
-    AC_MSG_CHECKING([$PHP_CONFIG version])
-    version=`$PHP_CONFIG --version 2>/dev/null`
-    case $version in
-    [[01234].*|5.[01234].*|[6789].*])
-      AC_MSG_RESULT([$version (not supported, PHP5 bindings need PHP 5.x where x >= 5)])
-      if test yes = "$with_php" ; then
-	AC_MSG_ERROR([$PHP_CONFIG reports version $version - PHP5 bindings need PHP 5.x where x >= 5])
-      fi
-      with_php=no
-      ;;
-    *)
-      AC_MSG_RESULT([$version])
-      PHP_MAJOR_VERSION=`echo "$version"|cut -d. -f1`
-      ;;
-    esac
-    AC_SUBST(PHP_MAJOR_VERSION)
-
-    if test no != "$with_php" ; then
-      AC_MSG_CHECKING([for PHP5 extension directory])
-      if test -z "$PHP_EXTENSION_DIR" ; then
-	PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
-      fi
-      AC_MSG_RESULT([$PHP_EXTENSION_DIR])
-      AC_ARG_VAR(PHP_EXTENSION_DIR, [Directory to install PHP5 extensions in])
-    fi
-
-    if test no != "$with_php" ; then
-      PHP_INC=`$PHP_CONFIG --includes`
-      AC_SUBST(PHP_INC)
-      save_CPPFLAGS=$CPPFLAGS
-      CPPFLAGS="$CPPFLAGS $PHP_INC"
-      dnl One of SGI's SuSE boxes has php-config but no headers.
-      AC_CHECK_HEADER(zend.h, [], [
-	if test yes = "$with_php" ; then
-	  AC_MSG_ERROR(['$PHP_CONFIG --includes' reports '$PHP_INC' but zend.h can't be included from there])
-	fi
-	with_php=no], [ ])
-      CPPFLAGS=$save_CPPFLAGS
-    fi
-
-    if test no != "$with_php" ; then
-      if test x"$PHP" = x ; then
-	AC_MSG_CHECKING([for PHP5 interpreter])
-	dnl PHP5's php-config supports --php-binary, so just use that.
-	PHP=`$PHP_CONFIG --php-binary 2>/dev/null`
-	if test x"$PHP" != x ; then
-	  if $PHP -r 'exit(0);' 2> /dev/null ; then
-	    if $PHP -r 'exit(PHP_MAJOR_VERSION==5?0:1);' 2> /dev/null ; then
-	      AC_MSG_RESULT([$PHP])
-	    else
-	      dnl We get /usr/bin/php on Debian, which might be PHP7:
-	      dnl https://bugs.debian.org/819139
-	      if ${PHP}5 -r 'exit(PHP_MAJOR_VERSION==5?0:1);' 2> /dev/null ; then
-		PHP=${PHP}5
-		AC_MSG_RESULT([$PHP])
-	      else
-		AC_MSG_RESULT([no ($PHP isn't PHP5)])
-		PHP=
-	      fi
-	    fi
-	  else
-	    AC_MSG_RESULT([no ($PHP does not work)])
-	    PHP=
-	  fi
-	else
-	  AC_MSG_RESULT([not found])
-	fi
-      else
-	AC_PATH_PROGS(PHP, ["$PHP"], [])
-      fi
-      if test x"$PHP" = x ; then
-	AC_MSG_WARN([No PHP5 interpreter found - PHP5 bindings tests will be skipped])
-	dnl The skiptest script just returns exit code 77.
-	PHP='$(top_srcdir)/skiptest'
-      else
-	AC_MSG_CHECKING([for PHP5 path separator])
-	PHP_PATH_SEPARATOR=`$PHP -r 'echo PATH_SEPARATOR;'`
-	AC_SUBST([PHP_PATH_SEPARATOR])
-	AC_MSG_RESULT([$PHP_PATH_SEPARATOR])
-      fi
-
-      case $host_os in
-      mingw* | pw32*)
-	dnl This is a bit of an informed guess, pending more information from
-	dnl someone who actually has mingw and wants to build the PHP bindings
-	dnl there.  FIXME.
-	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${PHP_MAJOR_VERSION}ts" ;;
-      cygwin*)
-	PHP_LIBS="-lphp${PHP_MAJOR_VERSION}lib" ;;
-      *)
-	PHP_LIBS= ;;
-      esac
-      AC_SUBST(PHP_LIBS)
-      BINDINGS="$BINDINGS php"
-    fi
-  fi
-fi
-
 if test no != "$with_php7" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
   if test -n "$PHP_CONFIG7" ; then
     AC_PATH_PROGS(PHP_CONFIG7, ["$PHP_CONFIG7"], [])
   fi
   if test -z "$PHP_CONFIG7" ; then
-    AC_PATH_PROGS(PHP_CONFIG7, [php-config7.1 php-config7.0 php-config], [])
+    AC_PATH_PROGS(PHP_CONFIG7, [php-config7.3 php-config7.2 php-config7.1 php-config7.0 php-config], [])
   fi
   AC_ARG_VAR(PHP_CONFIG7, [php-config utility for PHP7])
   AC_ARG_VAR(PHP7, [PHP7 interpreter (optional - only needed to run PHP7 testsuite with)])
@@ -1196,14 +1079,6 @@ if test no != "$with_perl" ; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   AC_ARG_VAR(PERL, [perl interpreter])
   if test -n "$PERL" ; then
-    AC_PATH_PROGS(PROVE, ["${PROVE-prove}"], [])
-    AC_ARG_VAR(PROVE, [Perl Test::Harness test runner])
-    if test x"$PROVE" = x ; then
-      AC_MSG_WARN([Perl 'prove' tool not found - Perl bindings tests will be skipped])
-      dnl The skiptest script just returns exit code 77.
-      PROVE='$(top_srcdir)/skiptest'
-    fi
-
     if test -z "$PERL_INC" ; then
       PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE"'`
     fi
@@ -1228,12 +1103,10 @@ if test no != "$with_perl" ; then
     AC_SUBST(PERL_SO)
 
     if test -z "$PERL_XAPIAN_VERSION" ; then
-      dnl snapshot versions look like 1.2.3_git123 or 1.2.3_svn14971
+      dnl snapshot versions look like 1.2.3_git123
       case $PACKAGE_VERSION in
       *_git*)
 	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_git/./'` ;;
-      *_svn*)
-	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_svn/./'` ;;
       *)
 	PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0 ;;
       esac
@@ -1392,7 +1265,7 @@ if test yes = "$GXX" ; then
   dnl Python itself is compiled with -fno-strict-aliasing, and it appears
   dnl it's safest to follow this lead when compiling the SWIG generated
   dnl interface code.  E.g.:
-  dnl   http://article.gmane.org/gmane.comp.gcc.devel/74692
+  dnl   https://article.gmane.org/gmane.comp.gcc.devel/74692
   dnl The code SWIG generates for other languages seems to have similar
   dnl issues too, so just turn this on for all of them.
   dnl
@@ -1459,13 +1332,12 @@ AC_CONFIG_FILES([Makefile
  xapian-version.h
  python/Makefile python/docs/conf.py python/version.i
  python3/Makefile python3/docs/conf.py python3/version.i
- php/Makefile
  php7/Makefile
  java/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
  csharp/Makefile csharp/AssemblyInfo.cs
  ruby/Makefile
- perl/Makefile perl/util.i
+ perl/Makefile
  lua/Makefile
  xapian-bindings.spec
  ])

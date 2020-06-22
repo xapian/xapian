@@ -1,7 +1,7 @@
 /** @file slowvaluelist.cc
  * @brief Slow implementation for backends which don't streamed values.
  */
-/* Copyright (C) 2008,2011,2013,2014 Olly Betts
+/* Copyright (C) 2008,2011,2013,2014,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,13 +22,13 @@
 
 #include "slowvaluelist.h"
 
-#include "document.h"
+#include "documentinternal.h"
 #include "str.h"
 #include "unicode/description_append.h"
 
 #include "xapian/error.h"
 
-#include "autoptr.h"
+#include <memory>
 
 using namespace std;
 
@@ -69,7 +69,7 @@ SlowValueList::next()
 	    void * d = db->open_document(current_did, true);
 	    if (!d)
 		continue;
-	    AutoPtr<Xapian::Document::Internal>
+	    unique_ptr<Xapian::Document::Internal>
 		doc(static_cast<Xapian::Document::Internal*>(d));
 	    string value = doc->get_value(slot);
 	    if (!value.empty()) {
@@ -88,13 +88,6 @@ void
 SlowValueList::skip_to(Xapian::docid did)
 {
     if (did <= current_did) return;
-
-    if (did > last_docid) {
-	// Indicate that we're at_end().
-	last_docid = 0;
-	return;
-    }
-
     current_did = did - 1;
     next();
 }
@@ -102,7 +95,9 @@ SlowValueList::skip_to(Xapian::docid did)
 bool
 SlowValueList::check(Xapian::docid did)
 {
-    if (did <= current_did) return true;
+    if (did <= current_did) {
+	return !current_value.empty();
+    }
 
     if (did > last_docid) {
 	// Indicate that we're at_end().
@@ -114,13 +109,14 @@ SlowValueList::check(Xapian::docid did)
     try {
 	void * d = db->open_document(current_did, true);
 	if (d) {
-	    AutoPtr<Xapian::Document::Internal>
+	    unique_ptr<Xapian::Document::Internal>
 		doc(static_cast<Xapian::Document::Internal*>(d));
 	    current_value = doc->get_value(slot);
 	    if (!current_value.empty()) return true;
 	}
     } catch (const Xapian::DocNotFoundError &) {
     }
+    current_value = string();
     return false;
 }
 

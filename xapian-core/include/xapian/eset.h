@@ -1,7 +1,7 @@
 /** @file  eset.h
  *  @brief Class representing a list of query expansion terms
  */
-/* Copyright (C) 2015,2016 Olly Betts
+/* Copyright (C) 2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_ESET_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/eset.h> directly; include <xapian.h> instead."
+# error Never use <xapian/eset.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -47,7 +47,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     /// Class representing the ESet internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
+    Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
 
     /** Copying is allowed.
      *
@@ -60,6 +60,12 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
      *  The internals are reference counted, so assignment is cheap.
      */
     ESet & operator=(const ESet & o);
+
+    /// Move constructor.
+    ESet(ESet && o);
+
+    /// Move assignment operator.
+    ESet & operator=(ESet && o);
 
     /** Default constructor.
      *
@@ -261,62 +267,44 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     std::string get_description() const;
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const ESetIterator &a, const ESetIterator &b));
-
 /// Equality test for ESetIterator objects.
 inline bool
-operator==(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator==(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return a.off_from_end == b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator!=(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator!=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator!=(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return !(a == b);
 }
 
-bool
-XAPIAN_NOTHROW(operator<(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator<(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator<(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return a.off_from_end > b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator>(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator>(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return b < a;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>=(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator>=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator>=(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return !(a < b);
 }
 
-inline bool
-XAPIAN_NOTHROW(operator<=(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator<=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator<=(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return !(b < a);
 }

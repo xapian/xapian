@@ -48,7 +48,7 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 try {
-    const struct option long_opts[] = {
+    static const struct option long_opts[] = {
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
 	{NULL,		0, 0, 0}

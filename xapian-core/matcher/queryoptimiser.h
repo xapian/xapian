@@ -1,7 +1,7 @@
 /** @file queryoptimiser.h
  * @brief Details passed around while building PostList tree from Query tree
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014,2015,2016,2018 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -22,15 +22,16 @@
 #ifndef XAPIAN_INCLUDED_QUERYOPTIMISER_H
 #define XAPIAN_INCLUDED_QUERYOPTIMISER_H
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
+#include "backends/leafpostlist.h"
+#include "backends/postlist.h"
 #include "localsubmatch.h"
-#include "api/postlist.h"
 
 class LeafPostList;
-class MultiMatch;
+class PostListTree;
+
 namespace Xapian {
-class Weight;
-}
+namespace Internal {
 
 class QueryOptimiser {
     /// Prevent assignment.
@@ -41,7 +42,7 @@ class QueryOptimiser {
 
     LocalSubMatch & localsubmatch;
 
-    /** How many leaf subqueries there are.
+    /** How many weighted leaf subqueries there are.
      *
      *  Used for scaling percentages when the highest weighted document doesn't
      *  "match all terms".
@@ -59,19 +60,24 @@ class QueryOptimiser {
 
     bool full_db_has_positions;
 
+    Xapian::doccount shard_index;
+
     const Xapian::Database::Internal & db;
 
     Xapian::doccount db_size;
 
-    MultiMatch * matcher;
+    PostListTree * matcher;
 
     QueryOptimiser(const Xapian::Database::Internal & db_,
 		   LocalSubMatch & localsubmatch_,
-		   MultiMatch * matcher_)
+		   PostListTree * matcher_,
+		   Xapian::doccount shard_index_,
+		   bool full_db_has_positions_)
 	: localsubmatch(localsubmatch_), total_subqs(0),
 	  hint(0), hint_owned(false),
 	  need_positions(false), in_synonym(false),
-	  full_db_has_positions(matcher_->full_db_has_positions()),
+	  full_db_has_positions(full_db_has_positions_),
+	  shard_index(shard_index_),
 	  db(db_), db_size(db.get_doccount()),
 	  matcher(matcher_) { }
 
@@ -85,22 +91,25 @@ class QueryOptimiser {
 
     void set_total_subqs(Xapian::termcount n) { total_subqs = n; }
 
-    LeafPostList * open_post_list(const std::string& term,
-				  Xapian::termcount wqf,
-				  double factor) {
+    PostList * open_post_list(const std::string& term,
+			      Xapian::termcount wqf,
+			      double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
 					    in_synonym, this, false);
     }
 
-    LeafPostList * open_lazy_post_list(const std::string& term,
-				       Xapian::termcount wqf,
-				       double factor) {
-	return localsubmatch.open_post_list(term, wqf, factor, false,
+    PostList * open_lazy_post_list(const std::string& term,
+				   Xapian::termcount wqf,
+				   double factor) {
+	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
 					    in_synonym, this, true);
     }
 
-    PostList * make_synonym_postlist(PostList * pl, double factor) {
-	return localsubmatch.make_synonym_postlist(pl, matcher, factor);
+    PostList * make_synonym_postlist(PostList * pl,
+				     double factor,
+				     bool wdf_disjoint) {
+	return localsubmatch.make_synonym_postlist(matcher, pl, this, factor,
+						   wdf_disjoint);
     }
 
     const LeafPostList * get_hint_postlist() const { return hint; }
@@ -113,7 +122,30 @@ class QueryOptimiser {
 	hint = new_hint;
     }
 
-    void take_hint_ownership() { hint_owned = true; }
+    void destroy_postlist(PostList* pl) {
+	if (pl == static_cast<PostList*>(hint)) {
+	    hint_owned = true;
+	} else {
+	    if (!hint_owned) {
+		// The hint could be a subpostlist of pl, but we can't easily
+		// tell so we have to do the safe thing and reset it.
+		//
+		// This isn't ideal, but it's much better than use-after-free
+		// bugs.
+		hint = nullptr;
+	    }
+	    delete pl;
+	}
+    }
+
+    bool need_wdf_for_synonym() const {
+	return in_synonym && !localsubmatch.weight_needs_wdf();
+    }
 };
+
+}
+}
+
+using Xapian::Internal::QueryOptimiser;
 
 #endif // XAPIAN_INCLUDED_QUERYOPTIMISER_H

@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_ORPOSITIONLIST_H
 
 #include "backends/positionlist.h"
-#include "api/postlist.h"
+#include "backends/postlist.h"
 
 #include "xapian/error.h"
 #include <algorithm>
@@ -57,15 +57,15 @@ class OrPositionList : public PositionList {
 	pls.push_back(poslist);
     }
 
-    Xapian::termcount get_size() const;
+    Xapian::termcount get_approx_size() const;
+
+    Xapian::termpos back() const;
 
     Xapian::termpos get_position() const;
 
-    void next();
+    bool next();
 
-    void skip_to(Xapian::termpos termpos);
-
-    bool at_end() const;
+    bool skip_to(Xapian::termpos termpos);
 };
 
 #endif // XAPIAN_INCLUDED_ORPOSITIONLIST_H

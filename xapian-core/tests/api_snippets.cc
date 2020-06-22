@@ -1,7 +1,8 @@
-/* api_snippets.cc: tests snippets
- *
- * Copyright 2012 Mihai Bivol
- * Copyright 2015,2016,2017 Olly Betts
+/** @file api_snippets.cc
+ * @brief tests snippets
+ */
+/* Copyright 2012 Mihai Bivol
+ * Copyright 2015,2016,2017,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,11 +30,8 @@
 #include <xapian.h>
 
 #include "apitest.h"
-#include "backendmanager_local.h"
 #include "testsuite.h"
 #include "testutils.h"
-
-#include <iostream>
 
 using namespace std;
 
@@ -75,8 +73,6 @@ DEFINE_TESTCASE(snippet1, backend) {
     for (auto i : testcases) {
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len), i.expect);
     }
-
-    return true;
 }
 
 /// Test snippets with stemming.
@@ -100,8 +96,6 @@ DEFINE_TESTCASE(snippetstem1, backend) {
     for (auto i : testcases) {
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem), i.expect);
     }
-
-    return true;
 }
 
 /// Test snippets with phrases.
@@ -128,8 +122,6 @@ DEFINE_TESTCASE(snippetphrase1, backend) {
     for (auto i : testcases) {
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem), i.expect);
     }
-
-    return true;
 }
 
 /// Index file to a DB with TermGenerator.
@@ -172,7 +164,7 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     enquire.set_weighting_scheme(Xapian::BoolWeight());
     Xapian::Stem stem("en");
 
-    static const char * words[] = { "do", "we", "have" };
+    static const char * const words[] = { "do", "we", "have" };
     Xapian::Query q(Xapian::Query::OP_PHRASE, words, words + 3);
     enquire.set_query(q);
     Xapian::MSet mset = enquire.get_mset(0, 6);
@@ -188,7 +180,7 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     mset = enquire.get_mset(0, 6);
     TEST_EQUAL(mset.size(), 3);
     TEST_STRINGS_EQUAL(mset.snippet(mset[0].get_document().get_data(), 25, stem),
-		       "<b>Welcome</b> to <b>Mike's</b>...");
+		       "\"<b>Welcome</b> to <b>Mike's</b>...");
     TEST_STRINGS_EQUAL(mset.snippet(mset[1].get_document().get_data(), 5, stem),
 		       "<b>Mike</b>...");
     TEST_STRINGS_EQUAL(mset.snippet(mset[2].get_document().get_data(), 10, stem),
@@ -209,8 +201,6 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     // fewer Unicode characters in this sample than the previous one.
     TEST_STRINGS_EQUAL(mset.snippet(mset[4].get_document().get_data(), 64, stem),
 		       "...<b>much</b> o’brien do we have?  <b>Miles</b> O’Brien, that’s how <b>much</b>.");
-
-    return true;
 }
 
 /// Test snippet term diversity.
@@ -240,8 +230,6 @@ DEFINE_TESTCASE(snippet_termcover1, backend) {
 	Xapian::MSet mset = enquire.get_mset(0, 0);
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem, flags), i.expect);
     }
-
-    return true;
 }
 
 /// Test snippet term diversity cases with BoolWeight.
@@ -271,13 +259,10 @@ DEFINE_TESTCASE(snippet_termcover2, backend) {
 	Xapian::MSet mset = enquire.get_mset(0, 0);
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem, flags), i.expect);
     }
-
-    return true;
 }
 
 /// Test snippet EMPTY_WITHOUT_MATCH flag
 DEFINE_TESTCASE(snippet_empty, backend) {
-
     Xapian::Stem stem("en");
 
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
@@ -310,6 +295,271 @@ DEFINE_TESTCASE(snippet_empty, backend) {
     flags |= Xapian::MSet::SNIPPET_EMPTY_WITHOUT_MATCH;
     TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags),
 		       "A <b>rubbish</b> <b>example</b> text");
+}
 
-    return true;
+/// Check snippets include certain preceding punctuation.
+DEFINE_TESTCASE(snippet_start_nonspace, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("foo") | Xapian::Query("10"));
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    Xapian::Stem stem;
+
+    const char *input = "[xapian-devel] Re: foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "[xapian-devel] Re: <b>foo</b>");
+
+    input = "bar [xapian-devel] Re: foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 24, stem),
+		       "...[xapian-devel] Re: <b>foo</b>");
+
+    input = "there is a $1000 prize for foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 20, stem),
+		       "...$1000 prize for <b>foo</b>");
+
+    input = "-1 is less than foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "-1 is less than <b>foo</b>");
+
+    input = "+1 is less than foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "+1 is less than <b>foo</b>");
+
+    input = "/bin/sh is a foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "/bin/sh is a <b>foo</b>");
+
+    input = "'tis pity foo is a bar";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "'tis pity <b>foo</b> is a bar");
+
+    input = "\"foo bar\" he whispered";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 11, stem),
+		       "\"<b>foo</b> bar\" he...");
+
+    input = "\\\\server\\share\\foo is a UNC path";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "\\\\server\\share\\<b>foo</b> is a UNC path");
+
+    input = "«foo» is a placeholder";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 9, stem),
+		       "«<b>foo</b>» is...");
+
+    input = "#include <foo.h> to use libfoo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 12, stem),
+		       "...&lt;<b>foo</b>.h&gt; to...");
+
+    input = "¡foo!";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "¡<b>foo</b>!");
+
+    input = "¿foo?";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "¿<b>foo</b>?");
+
+    input = "(foo) test";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "(<b>foo</b>) test");
+
+    input = "{foo} test";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "{<b>foo</b>} test");
+
+    input = "`foo` test";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "`<b>foo</b>` test");
+
+    input = "@foo@ is replaced";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "@<b>foo</b>@ is replaced");
+
+    input = "%foo is a perl hash";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "%<b>foo</b> is a perl hash");
+
+    input = "&foo takes the address of foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "&amp;<b>foo</b> takes the address of <b>foo</b>");
+
+    input = "§3.1.4 foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "§3.1.4 <b>foo</b>");
+
+    input = "#foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "#<b>foo</b>");
+
+    input = "~foo~ test";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "~<b>foo</b>~ test");
+
+    input = "( foo )";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "<b>foo</b>...");
+
+    input = "(=foo=)";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "<b>foo</b>...");
+
+    // Check that excessive non-word characters aren't included.
+    input = "((((((foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "<b>foo</b>");
+
+    // Check we don't include characters that aren't useful.
+    input = "bar,foo!";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 5, stem),
+		       "...<b>foo</b>!");
+
+    // Check trailing characters are included when useful.
+    input = "/opt/foo/bin/";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "/opt/<b>foo</b>/bin/");
+
+    input = "\"foo bar\"";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "\"<b>foo</b> bar\"");
+
+    input = "\\\\server\\share\\foo\\";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "\\\\server\\share\\<b>foo</b>\\");
+
+    input = "«foo»";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "«<b>foo</b>»");
+
+    input = "#include <foo>";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "#include &lt;<b>foo</b>&gt;");
+
+    input = "(foo)";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "(<b>foo</b>)");
+
+    input = "{foo}";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "{<b>foo</b>}");
+
+    input = "[foo]";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "[<b>foo</b>]");
+
+    input = "`foo`";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "`<b>foo</b>`");
+
+    input = "@foo@";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "@<b>foo</b>@");
+
+    input = "foo for 10¢";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
+		       "<b>foo</b> for <b>10</b>¢");
+}
+
+/// Test snippets with small and zero length.
+DEFINE_TESTCASE(snippet_small_zerolength, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				    Xapian::Query("rubbish"),
+				    Xapian::Query("mention")));
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    static const snippet_testcase testcases[] = {
+	// Test with small length
+	{ "mention junk rubbish", 3, "" },
+	{ "Project R.U.B.B.I.S.H. greenlit", 5, "" },
+	{ "What load rubbish", 3, "" },
+	{ "Mention rubbish", 4, "" },
+
+	// Test with zero length.
+	{ "Rubbish and junk", 0, "" },
+	{ "Project R.U.B.B.I.S.H. greenlit", 0, "" },
+	{ "What a load of rubbish", 0, "" },
+	{ "rubbish mention rubbish mention", 0, "" },
+    };
+
+    for (auto i : testcases) {
+	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len), i.expect);
+    }
+}
+
+/// Test CJK ngrams.
+DEFINE_TESTCASE(snippet_cjkngrams, generated) {
+    Xapian::Database db = get_database("snippet_cjkngrams",
+	[](Xapian::WritableDatabase& wdb,
+	   const string&)
+	{
+	    Xapian::Document doc;
+	    Xapian::TermGenerator tg;
+	    tg.set_flags(Xapian::TermGenerator::FLAG_CJK_NGRAM);
+	    tg.set_document(doc);
+	    tg.index_text("明末時已經有香港地方的概念");
+	    wdb.add_document(doc);
+	});
+    Xapian::Enquire enquire(db);
+    Xapian::QueryParser qp;
+    auto q = qp.parse_query("已經完成", qp.FLAG_DEFAULT | qp.FLAG_CJK_NGRAM);
+    enquire.set_query(q);
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    Xapian::Stem stem;
+    const char *input = "明末時已經有香港地方的概念";
+    size_t len = strlen(input);
+
+    unsigned flags = Xapian::MSet::SNIPPET_CJK_NGRAM;
+    string s;
+    s = mset.snippet(input, len, stem, flags, "<b>", "</b>", "...");
+    TEST_STRINGS_EQUAL(s, "明末時<b>已</b><b>經</b>有香港地方的概念");
+
+    s = mset.snippet(input, len / 2, stem, flags, "<b>", "</b>", "...");
+    TEST_STRINGS_EQUAL(s, "...<b>已</b><b>經</b>有香港地...");
+}
+
+/// Test CJK word segmentation.
+DEFINE_TESTCASE(snippet_cjkwords, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("已經"));
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    Xapian::Stem stem;
+    const char *input = "明末時已經有香港地方的概念";
+    const char *input2 = "明末時已經有香港地方的概念. Hello!";
+    size_t len = strlen(input);
+
+    unsigned cjk_flags = Xapian::MSet::SNIPPET_CJK_WORDS;
+
+#ifdef USE_ICU
+# define DO_TEST(CODE, RESULT) TEST_STRINGS_EQUAL(CODE, RESULT)
+#else
+# define DO_TEST(CODE, RESULT) \
+    try { \
+	CODE; \
+	FAIL_TEST("No exception thrown, expected FeatureUnavailableError"); \
+    } catch (const Xapian::FeatureUnavailableError& e) { \
+	TEST_STRINGS_EQUAL( \
+	    e.get_msg(), \
+	    "SNIPPET_CJK_WORDS requires building Xapian to use ICU"); \
+    }
+#endif
+    DO_TEST(mset.snippet(input, len, stem, cjk_flags, "<b>", "</b>", "..."),
+	    "明末時<b>已經</b>有香港地方的概念");
+    DO_TEST(mset.snippet(input2, len / 2, stem, cjk_flags, "[", "]", "~"),
+	    "~時[已經]有香港~");
+#undef DO_TEST
+}
+
+DEFINE_TESTCASE(snippet_empty_mset, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query());
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+    TEST_STRINGS_EQUAL(mset.snippet("foo", 3), "foo");
+}
+
+DEFINE_TESTCASE(snippet_empty_mset2, !backend) {
+    Xapian::MSet mset;
+    TEST_STRINGS_EQUAL(mset.snippet("foo", 3), "foo");
 }

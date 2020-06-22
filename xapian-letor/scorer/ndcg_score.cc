@@ -26,6 +26,7 @@
 
 #include "debuglog.h"
 #include "common/log2.h"
+#include "omassert.h"
 
 #include <algorithm>
 #include <cmath>
@@ -49,7 +50,7 @@ get_dcg(const std::vector<double> &labels)
     LOGCALL_STATIC(API, double, "get_dcg", labels);
     double dcg = 0;
     for (int i = 0; i < int(labels.size()); ++i) {
-	dcg += (pow(2, labels[i]) - 1) / log2(i + 2);
+	dcg += (exp2(labels[i]) - 1) / log2(i + 2);
     }
     return dcg;
 }
@@ -61,13 +62,15 @@ NDCGScore::score(const std::vector<FeatureVector> & fvv) const {
     for (auto&& v : fvv) {
 	labels.push_back(v.get_label());
     }
-    //DCG score of original ranking
-    double DCG = get_dcg(labels);
-    //DCG score of ideal ranking
-    sort(labels.begin(), labels.begin() + labels.size(), std::greater<double>());
-    double iDCG = get_dcg(labels);
-
-    if (iDCG == 0) // Don't divide by 0
-	return 0;
-    return DCG / iDCG;
+    // DCG score of original ranking
+    double dcg = get_dcg(labels);
+    if (rare(dcg == 0.0)) {
+	// Avoid dividing by 0.
+	return dcg;
+    }
+    // DCG score of ideal ranking
+    sort(labels.begin(), labels.end(), std::greater<double>());
+    double idcg = get_dcg(labels);
+    AssertRel(idcg, >=, dcg);
+    return dcg / idcg;
 }

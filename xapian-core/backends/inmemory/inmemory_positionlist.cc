@@ -1,7 +1,7 @@
-/* inmemory_positionlist.cc
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2009 Olly Betts
+/** @file inmemory_positionlist.cc
+ * @brief PositionList from an InMemory DB or a Document object
+ */
+/* Copyright 2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,65 +15,54 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <config.h>
 
 #include "inmemory_positionlist.h"
 
-#include "debuglog.h"
 #include "omassert.h"
 
-InMemoryPositionList::InMemoryPositionList(const OmDocumentTerm::term_positions & positions_)
-    : positions(positions_), mypos(positions.begin()),
-      iterating_in_progress(false)
-{
-}
+#include <algorithm>
 
-void
-InMemoryPositionList::set_data(const OmDocumentTerm::term_positions & positions_)
-{
-    positions = positions_;
-    mypos = positions.begin();
-    iterating_in_progress = false;
-}
+using namespace std;
 
 Xapian::termcount
-InMemoryPositionList::get_size() const
+InMemoryPositionList::get_approx_size() const
 {
     return positions.size();
 }
 
 Xapian::termpos
+InMemoryPositionList::back() const
+{
+    return positions.back();
+}
+
+Xapian::termpos
 InMemoryPositionList::get_position() const
 {
-    Assert(iterating_in_progress);
-    Assert(!at_end());
-    return *mypos;
-}
-
-void
-InMemoryPositionList::next()
-{
-    if (iterating_in_progress) {
-	Assert(!at_end());
-	++mypos;
-    } else {
-	iterating_in_progress = true;
-    }
-}
-
-void
-InMemoryPositionList::skip_to(Xapian::termpos termpos)
-{
-    if (!iterating_in_progress) iterating_in_progress = true;
-    while (!at_end() && *mypos < termpos) ++mypos;
+    AssertRel(index, <, positions.size());
+    return positions[index];
 }
 
 bool
-InMemoryPositionList::at_end() const
+InMemoryPositionList::next()
 {
-    return (mypos == positions.end());
+    ++index;
+    AssertRel(index, <=, positions.size());
+    return index != positions.size();
+}
+
+bool
+InMemoryPositionList::skip_to(Xapian::termpos termpos)
+{
+    if (index == size_t(-1))
+	index = 0;
+    auto begin = positions.begin();
+    auto end = positions.end();
+    auto it = lower_bound(begin + index, end, termpos);
+    index = it - begin;
+    return it != end;
 }

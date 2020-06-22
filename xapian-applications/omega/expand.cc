@@ -25,15 +25,12 @@
 
 #include "stringutils.h"
 
+#include <cerrno>
 #include <cstdlib>
-#include "safeerrno.h"
-#include "common/noreturn.h"
 
 using namespace std;
 
-XAPIAN_NORETURN(static void
-parameter_error(const char * param, const string & scheme));
-
+[[noreturn]]
 static void
 parameter_error(const char * msg, const string & scheme)
 {

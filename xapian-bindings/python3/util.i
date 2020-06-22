@@ -1,10 +1,8 @@
 %{
 /* python/util.i: custom Python typemaps for xapian-bindings
  *
- * Copyright (C) 1999,2000,2001 BrightStation PLC
- * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016,2017 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016,2017,2019 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -73,12 +71,6 @@
 
 /* We replace the get_hit() method with one which returns an MSetitem. */
 %rename(_get_hit_internal) Xapian::MSet::get_hit;
-
-/* Force xapian.BAD_VALUENO to be handled as a constant rather than a
- * read-only variable (ticket#297).
- */
-%ignore Xapian::BAD_VALUENO;
-%constant Xapian::valueno BAD_VALUENO = Xapian::BAD_VALUENO;
 
 %{
 namespace Xapian {
@@ -159,28 +151,6 @@ namespace Xapian {
 	}
     }
     %rename(_ESetIterator) ESetIterator;
-
-    %extend MSet {
-	// for comparison
-	int __cmp__(const MSet &other) {
-	    if (self->get_max_possible() != other.get_max_possible()) {
-		return (self->get_max_possible() < other.get_max_possible())? -1 : 1;
-	    }
-	    if (self->size() != other.size()) {
-		return (self->size() < other.size())? -1 : 1;
-	    }
-
-	    for (size_t i=0; i<self->size(); ++i) {
-		if (*(*self)[i] != *other[i]) {
-		    return (*(*self)[i] < *other[i])? -1 : 1;
-		}
-		if ((*self)[i].get_weight() != other[i].get_weight()) {
-		    return ((*self)[i].get_weight() < other[i].get_weight())? -1 : 1;
-		}
-	    }
-	    return 0;
-	}
-    }
 }
 
 %fragment("XapianSWIG_anystring_as_ptr", "header", fragment="SWIG_AsPtr_std_string") {
@@ -190,8 +160,8 @@ static int
 XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 {
     if (PyUnicode_Check(obj)) {
-	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj), PyUnicode_GET_SIZE(obj), "ignore");
-	if (strobj == NULL) return SWIG_ERROR;
+	PyObject* strobj = PyUnicode_AsUTF8String(obj);
+	if (strobj == NULL) return INT_MIN;
 	char *p;
 	Py_ssize_t len;
 	PyBytes_AsStringAndSize(strobj, &p, &len);
@@ -217,6 +187,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     std::string *ptr = (std::string *)0;
     res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res)) {
+	if (res == INT_MIN) SWIG_fail;
 	%argument_fail(res, "$type", $symname, $argnum);
     }
     if (!ptr) {
@@ -228,6 +199,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     std::string *ptr = (std::string *)0;
     int res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
+	if (res == INT_MIN) SWIG_fail;
 	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
     }
     $1 = *ptr;
@@ -236,7 +208,7 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 %typemap(freearg, noblock=1, match="in") const std::string & {
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
-%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string & {
+%typemap(typecheck, noblock=1, precedence=900) const std::string & {
     if (PyUnicode_Check($input)) {
 	$1 = 1;
     } else if (PyBytes_Check($input)) {
@@ -250,17 +222,18 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 %typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string *(int res = SWIG_OLDOBJ) {
     std::string *ptr = (std::string *)0;
     if ($input != Py_None) {
-        res = XapianSWIG_anystring_as_ptr($input, &ptr);
-        if (!SWIG_IsOK(res)) {
-            %argument_fail(res, "$type", $symname, $argnum);
-        }
+	res = XapianSWIG_anystring_as_ptr($input, &ptr);
+	if (!SWIG_IsOK(res)) {
+	    if (res == INT_MIN) SWIG_fail;
+	    %argument_fail(res, "$type", $symname, $argnum);
+	}
     }
     $1 = ptr;
 }
 %typemap(freearg, noblock=1, match="in") const std::string * {
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
-%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string * {
+%typemap(typecheck, noblock=1, precedence=900) const std::string * {
     if ($input == Py_None) {
 	$1 = 1;
     } else if (PyUnicode_Check($input)) {
@@ -291,100 +264,6 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     }
     $result = *swig_optr;
     if (SWIG_IsNewObj(swig_ores)) %delete(swig_optr);
-}
-
-/** This pair of typemaps implements conversion of the return value of
- *  ValueRangeProcessor subclasses implemented in Python from a tuple of
- *  (valueno, begin, end) to a return value of valueno, and assigning the new
- *  values of begin and end to the parameters.
- */
-%typemap(directorin,noblock=1) std::string & {
-    $input = SWIG_From_std_string(static_cast< std::string >($1_name));
-}
-%typemap(directorout,noblock=1) Xapian::valueno {
-    if (!PyTuple_Check($input)) {
-        %dirout_fail(SWIG_TypeError, "($type, std::string, std::string)");
-    }
-    if (PyTuple_Size($input) != 3) {
-        %dirout_fail(SWIG_IndexError, "($type, std::string, std::string)");
-    }
-
-    // Set the return value from the first item of the tuple.
-    unsigned int swig_val;
-    int swig_res = SWIG_AsVal_unsigned_SS_int(PyTuple_GET_ITEM((PyObject *)$input, 0), &swig_val);
-    if (!SWIG_IsOK(swig_res)) {
-        %dirout_fail(swig_res, "($type, std::string, std::string)");
-    }
-    c_result = static_cast< Xapian::valueno >(swig_val);
-
-    // Set "begin" from the second item of the tuple.
-    std::string *ptr = (std::string *)0;
-    swig_res = SWIG_AsPtr_std_string(PyTuple_GET_ITEM((PyObject *)$input, 1), &ptr);
-    if (!SWIG_IsOK(swig_res) || !ptr) {
-        delete ptr;
-        ptr = (std::string *)0;
-	%dirout_fail((ptr ? swig_res : SWIG_TypeError), "($type, std::string, std::string)");
-    }
-    begin = *ptr;
-    delete ptr;
-    ptr = (std::string *)0;
-
-    // Set "end" from the third item of the tuple.
-    swig_res = SWIG_AsPtr_std_string(PyTuple_GET_ITEM((PyObject *)$input, 2), &ptr);
-    if (!SWIG_IsOK(swig_res) || !ptr) {
-        delete ptr;
-        ptr = (std::string *)0;
-	%dirout_fail((ptr ? swig_res : SWIG_TypeError), "($type, std::string, std::string)");
-    }
-    end = *ptr;
-    delete ptr;
-    ptr = (std::string *)0;
-}
-
-/* These typemaps handle ValueRangeProcessors, which take non-const references
- * to std::string and modify the strings.
- */
-%typemap(in) std::string &begin (std::string temp),
-             std::string &end (std::string temp) {
-    std::string *ptr = (std::string *)0;
-    int res = XapianSWIG_anystring_as_ptr($input, &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
-    }
-    temp = *ptr;
-    $1 = &temp;
-    if (SWIG_IsNewObj(res)) delete ptr;
-}
-%typemap(argout) (std::string &begin, std::string &end) {
-    PyObject * str;
-    PyObject * newresult;
-
-    // Put the existing result into the first item of a new 3-tuple.
-    newresult = PyTuple_New(3);
-    if (newresult == 0) {
-        Py_DECREF($result);
-        $result = NULL;
-        SWIG_fail;
-    }
-    PyTuple_SET_ITEM(newresult, 0, $result);
-    $result = newresult;
-
-    str = PyBytes_FromStringAndSize($1->data(), $1->size());
-    if (str == 0) {
-        Py_DECREF($result);
-        $result = NULL;
-        SWIG_fail;
-    }
-    PyTuple_SET_ITEM($result, 1, str);
-
-    str = PyBytes_FromStringAndSize($2->data(), $2->size());
-    if (str == 0) {
-        Py_DECREF($result);
-        $result = NULL;
-        SWIG_fail;
-    }
-
-    PyTuple_SET_ITEM($result, 2, str);
 }
 
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {

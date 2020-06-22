@@ -2,7 +2,7 @@
  * @brief Xapian::LMWeight class - the Unigram Language Modelling formula.
  */
 /* Copyright (C) 2012 Gaurav Arora
- * Copyright (C) 2016 Olly Betts
+ * Copyright (C) 2016,2019 Olly Betts
  * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -23,13 +23,16 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include "weightinternal.h"
 
 #include "debuglog.h"
 #include "omassert.h"
 #include "serialise-double.h"
+#include "stringutils.h"
 
 #include "xapian/error.h"
 
+#include <cerrno>
 #include <cmath>
 
 using namespace std;
@@ -56,9 +59,9 @@ LMWeight::init(double factor_)
     AssertRel(collection_freq,>=,0);
     LOGVALUE(WTCALC, collection_freq);
 
-    // calculating approximate number of total terms in the collection to be
-    // accessed for smoothing of the document.
-    double total_collection_term = get_collection_size() * get_average_length();
+    // This is the total number of term occurrences in the collection, which we
+    // use for smoothing.
+    Xapian::totallength total_length = get_total_length();
 
     /* In case the within document frequency of term is zero smoothing will
      * be required and should be return instead of returning zero, as returning
@@ -66,16 +69,16 @@ LMWeight::init(double factor_)
      * of single term whole document is scored zero, hence apply collection
      * frequency smoothing.
      */
-    weight_collection = double(collection_freq) / total_collection_term;
-
-    // Total term should be greater than zero as there would be at least one
-    // document in collection.
-    AssertRel(total_collection_term,>,0);
-    LOGVALUE(WTCALC, total_collection_term);
+    if (rare(total_length == 0)) {
+	AssertEq(collection_freq, 0);
+	weight_collection = 0;
+    } else {
+	weight_collection = double(collection_freq) / total_length;
+    }
 
     // There can't be more relevant term in collection than total number of
     // term.
-    AssertRel(collection_freq,<=,total_collection_term);
+    AssertRel(weight_collection,<=,1.0);
 
     /* Setting default values of the param_log to handle negative value of log.
      * It is considered to be upperbound of document length.
@@ -124,6 +127,12 @@ string
 LMWeight::name() const
 {
     return "Xapian::LMWeight";
+}
+
+string
+LMWeight::short_name() const
+{
+    return "lm";
 }
 
 string
@@ -228,7 +237,6 @@ LMWeight::get_maxpart() const
     return (product > 1.0) ? factor * log(product) : 1.0;
 }
 
-
 /* The extra weight component in the Dir+ formula is :-
  *
  * |Q| * log (param_smoothing1 / (|D| + param_smoothing1))
@@ -254,6 +262,54 @@ LMWeight::get_maxextra() const
 	return get_query_length() * log(extra_weight);
     }
     return 0;
+}
+
+static bool
+type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
+{
+    const char* q = *p;
+    char ch = *q++;
+    if (ch < '1' || ch > '5' || C_isdigit(*q)) {
+	return false;
+    }
+    *p = q;
+    static const Xapian::Weight::type_smoothing smooth_tab[5] = {
+	Xapian::Weight::TWO_STAGE_SMOOTHING,
+	Xapian::Weight::DIRICHLET_SMOOTHING,
+	Xapian::Weight::ABSOLUTE_DISCOUNT_SMOOTHING,
+	Xapian::Weight::JELINEK_MERCER_SMOOTHING,
+	Xapian::Weight::DIRICHLET_PLUS_SMOOTHING
+    };
+    *ptr_val = smooth_tab[ch - '1'];
+    return true;
+}
+
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "lm");
+}
+
+LMWeight *
+LMWeight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::LMWeight();
+    double param_log_ = 0;
+    Xapian::Weight::type_smoothing type = Xapian::Weight::TWO_STAGE_SMOOTHING;
+    double smoothing1 = 0.7;
+    double smoothing2 = 2000;
+    if (!Xapian::Weight::Internal::double_param(&p, &param_log_))
+	parameter_error("Parameter 1 (log) is invalid");
+    if (*p && !type_smoothing_param(&p, &type))
+	parameter_error("Parameter 2 (smoothing_type) is invalid");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &smoothing1))
+	parameter_error("Parameter 3 (smoothing1) is invalid");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &smoothing2))
+	parameter_error("Parameter 4 (smoothing2) is invalid");
+    if (*p)
+	parameter_error("Extra data after parameter 4");
+    return new Xapian::LMWeight(param_log_, type, smoothing1, smoothing2);
 }
 
 }

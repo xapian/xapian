@@ -1,6 +1,7 @@
-/* omega.h: Main header for omega
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file omega.h
+ * @brief Main header for omega
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Lemur Consulting Ltd
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2006,2007,2008,2015,2016 Olly Betts
@@ -62,9 +63,6 @@ extern Xapian::valueno collapse_key;
 extern bool collapse;
 
 extern map<string, string> option;
-
-extern string date_start, date_end, date_span;
-extern Xapian::valueno date_value_slot;
 
 extern const string default_dbname;
 

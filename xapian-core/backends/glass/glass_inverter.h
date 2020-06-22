@@ -23,6 +23,8 @@
 
 #include "xapian/types.h"
 
+#include "api/smallvector.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -115,12 +117,12 @@ class Inverter {
     std::map<std::string, PostingChanges> postlist_changes;
 
     /// Buffered changes to positional data.
-    std::map<std::string, std::map<Xapian::docid, std::string> > pos_changes;
+    std::map<std::string, std::map<Xapian::docid, std::string>> pos_changes;
 
     void store_positions(const GlassPositionListTable & position_table,
 			 Xapian::docid did,
 			 const std::string & tname,
-			 const std::vector<Xapian::termpos> & posvec,
+			 const Xapian::VecCOW<Xapian::termpos> & posvec,
 			 bool modifying);
 
     void set_positionlist(Xapian::docid did,

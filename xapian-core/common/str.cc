@@ -1,7 +1,7 @@
 /** @file str.cc
  * @brief Convert types to std::string
  */
-/* Copyright (C) 2009,2012,2015 Olly Betts
+/* Copyright (C) 2009,2012,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,15 +27,16 @@
 #include <cstdio> // For snprintf() or sprintf().
 #include <cstdlib> // For abort().
 #include <string>
+#include <type_traits>
 
 using namespace std;
 
 // Much faster than snprintf() - also less generated code!
 template<class T>
-inline string
+static inline string
 tostring_unsigned(T value)
 {
-    STATIC_ASSERT_UNSIGNED_TYPE(T);
+    static_assert(std::is_unsigned<T>::value, "Unsigned type required");
     // Special case single digit positive numbers.
     // FIXME: is this actually worthwhile?
     if (value < 10) return string(1, '0' + char(value));
@@ -51,7 +52,7 @@ tostring_unsigned(T value)
 }
 
 template<class T>
-inline string
+static inline string
 tostring(T value)
 {
     // Special case single digit positive numbers.
@@ -59,16 +60,21 @@ tostring(T value)
     if (value < 10 && value >= 0) return string(1, '0' + char(value));
 
     bool negative = (value < 0);
-    if (negative) value = -value;
 
-    char buf[(sizeof(T) * 5 + 1) / 2 + 1];
+    typedef typename std::make_unsigned<T>::type unsigned_type;
+    unsigned_type val(value);
+    if (negative) {
+	val = -val;
+    }
+
+    char buf[(sizeof(unsigned_type) * 5 + 1) / 2 + 1];
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);
-	char ch = static_cast<char>(value % 10);
-	value /= 10;
+	char ch = static_cast<char>(val % 10);
+	val /= 10;
 	*(--p) = ch + '0';
-    } while (value);
+    } while (val);
 
     if (negative) {
 	AssertRel(p,>,buf);
@@ -117,14 +123,14 @@ str(unsigned long long value)
 }
 
 template<class T>
-inline string
+static inline string
 format(const char * fmt, T value)
 {
     char buf[128];
 #ifdef SNPRINTF
     // If -1 is returned (as pre-ISO snprintf does if the buffer is too small,
     // it will be cast to > sizeof(buf) and handled appropriately.
-    size_t size = SNPRINTF_ISO(buf, sizeof(buf), fmt, value);
+    size_t size = SNPRINTF(buf, sizeof(buf), fmt, value);
     AssertRel(size,<=,sizeof(buf));
     if (size > sizeof(buf)) size = sizeof(buf);
 #else

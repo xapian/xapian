@@ -1,7 +1,7 @@
 /** @file tmpdir.cc
  * @brief create a temporary directory securely
- *
- * Copyright (C) 2007,2011,2016 Olly Betts
+ */
+/* Copyright (C) 2007,2011,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

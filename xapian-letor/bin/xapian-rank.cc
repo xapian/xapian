@@ -4,6 +4,7 @@
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2011 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +26,7 @@
 
 #include <xapian.h>
 #include <xapian-letor.h>
+#include "parseint.h"
 
 #include <iostream>
 #include <sstream>
@@ -72,26 +74,26 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:f:m:s:p:b:h:v";
     static const struct option long_opts[] = {
-	{ "db",     required_argument, 0, 'd' },
-	{ "msize",  required_argument, 0, 'm' },
-	{ "stemmer",    required_argument, 0, 's' },
-	{ "prefix", required_argument, 0, 'p' },
-	{ "boolean-prefix", required_argument, 0, 'b' },
-	{ "help",   no_argument, 0, OPT_HELP },
-	{ "version",    no_argument, 0, OPT_VERSION },
-	{ NULL,     0, 0, 0}
+	{ "db",			required_argument, 0, 'd' },
+	{ "msize",		required_argument, 0, 'm' },
+	{ "stemmer",		required_argument, 0, 's' },
+	{ "prefix",		required_argument, 0, 'p' },
+	{ "boolean-prefix",	required_argument, 0, 'b' },
+	{ "help",		no_argument, 0, OPT_HELP },
+	{ "version",		no_argument, 0, OPT_VERSION },
+	{ NULL,			0, 0, 0}
     };
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
-    int msize = 10;
+    Xapian::doccount msize = 10;
 
     bool have_database = false;
 
     string db_path;
     Xapian::QueryParser parser;
-    parser.add_prefix("title","S");
-    parser.add_prefix("subject","S");
+    parser.add_prefix("title", "S");
+    parser.add_prefix("subject", "S");
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -101,7 +103,10 @@ try {
 		have_database = true;
 		break;
 	    case 'm':
-		msize = atoi(optarg);
+		if (!parse_unsigned(optarg, msize)) {
+		    cerr << "Mset size must be >= 0" << endl;
+		    exit(1);
+		}
 		break;
 	    case 's':
 		try {
@@ -192,12 +197,10 @@ try {
     }
 
     cout << "Docids before re-ranking by LTR model:" << endl;
-    int rank = 0;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-
 	Xapian::Document doc = i.get_document();
-	Xapian::docid did = doc.get_docid();
-	cout << "Rank " << ++rank << ": " << did << endl;
+	string data = doc.get_data();
+	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
     }
 
     // Initialise Ranker object with ListNETRanker instance, db path and query.
@@ -206,14 +209,16 @@ try {
     ranker->set_database_path(db_path);
     ranker->set_query(query);
 
-    // Get vector of re-ranked docids
-    std::vector<Xapian::docid> ranked_docids = ranker->rank(mset, model_metadata_key);
+    // Re-rank the existing mset using the letor model.
+    ranker->rank(mset, model_metadata_key);
 
-    cout << "Docids after re-ranking by LTR model:" << endl;
-    rank = 0;
-    for (auto&& did : ranked_docids)
-	cout << "Rank " << ++rank << ": " << did << endl;
+    cout << "Docids after re-ranking by LTR model:\n" << endl;
 
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	Xapian::Document doc = i.get_document();
+	string data = doc.get_data();
+	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
+    }
     delete ranker;
 
     cout << flush;

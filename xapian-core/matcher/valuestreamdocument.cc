@@ -1,7 +1,7 @@
 /** @file valuestreamdocument.cc
  * @brief A document which gets its values from a ValueStreamManager.
  */
-/* Copyright (C) 2009,2011,2014 Olly Betts
+/* Copyright (C) 2009,2011,2014,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #include <config.h>
 
 #include "valuestreamdocument.h"
+
+#include "backends/multi/multi_database.h"
 #include "omassert.h"
 
 using namespace std;
@@ -42,24 +44,22 @@ ValueStreamDocument::~ValueStreamDocument()
 }
 
 void
-ValueStreamDocument::new_subdb(int n)
+ValueStreamDocument::new_shard(Xapian::doccount n)
 {
     AssertRel(n,>,0);
-    AssertRel(size_t(n),<,db.internal.size());
+    AssertRel(n,<,n_shards);
     current = unsigned(n);
-    database = db.internal[n];
+    // This method should only be called for a MultiDatabase.
+    auto multidb = static_cast<MultiDatabase*>(db.internal.get());
+    database = multidb->shards[n];
+    // Ensure set_document()'s "same docid" check doesn't misfire.
+    did = 0;
     clear_valuelists(valuelists);
 }
 
 string
-ValueStreamDocument::do_get_value(Xapian::valueno slot) const
+ValueStreamDocument::fetch_value(Xapian::valueno slot) const
 {
-#ifdef XAPIAN_ASSERTIONS_PARANOID
-    if (!doc) {
-	doc = database->open_document(did, true);
-    }
-#endif
-
     pair<map<Xapian::valueno, ValueList *>::iterator, bool> ret;
     ret = valuelists.insert(make_pair(slot, static_cast<ValueList*>(NULL)));
     ValueList * vl;
@@ -70,7 +70,6 @@ ValueStreamDocument::do_get_value(Xapian::valueno slot) const
     } else {
 	vl = ret.first->second;
 	if (!vl) {
-	    AssertEqParanoid(string(), doc->get_value(slot));
 	    return string();
 	}
     }
@@ -80,30 +79,27 @@ ValueStreamDocument::do_get_value(Xapian::valueno slot) const
 	    delete vl;
 	    ret.first->second = NULL;
 	} else if (vl->get_docid() == did) {
-	    Assert(vl);
-	    string v = vl->get_value();
-	    AssertEq(v, doc->get_value(slot));
-	    return v;
+	    return vl->get_value();
 	}
     }
-    AssertEqParanoid(string(), doc->get_value(slot));
+
     return string();
 }
 
 void
-ValueStreamDocument::do_get_all_values(map<Xapian::valueno, string> & v) const
+ValueStreamDocument::fetch_all_values(map<Xapian::valueno, string> & v) const
 {
     if (!doc) {
 	doc = database->open_document(did, true);
     }
-    doc->do_get_all_values(v);
+    doc->fetch_all_values(v);
 }
 
 string
-ValueStreamDocument::do_get_data() const
+ValueStreamDocument::fetch_data() const
 {
     if (!doc) {
 	doc = database->open_document(did, true);
     }
-    return doc->do_get_data();
+    return doc->fetch_data();
 }

@@ -118,7 +118,7 @@ sub index_document {
 
 	# To allow date range searching and sorting by date.
 	if ($date =~ /^(\d{4})-(\d\d)-(\d\d)$/) {
-	    # DateValueRangeProcessor wants values in the form "YYYYMMDD".
+	    # DateRangeProcessor wants values in the form "YYYYMMDD".
 	    $doc->add_value($SLOT_DATE, "$1$2$3");
 	}
 

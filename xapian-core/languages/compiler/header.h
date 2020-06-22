@@ -1,3 +1,6 @@
+#include <stdio.h>
+
+#define SNOWBALL_VERSION "2.0.0"
 
 typedef unsigned char byte;
 typedef unsigned short symbol;
@@ -9,9 +12,8 @@ typedef unsigned short symbol;
 #define FREE check_free
 
 #define NEW(type, p) struct type * p = (struct type *) MALLOC(sizeof(struct type))
-#define NEWVEC(type, p, n) struct type * p = (struct type *) MALLOC(sizeof(struct type) * n)
+#define NEWVEC(type, p, n) struct type * p = (struct type *) MALLOC(sizeof(struct type) * (n))
 
-#define STARTSIZE   10
 #define SIZE(p)     ((int *)(p))[-1]
 #define CAPACITY(p) ((int *)(p))[-2]
 
@@ -47,6 +49,8 @@ extern int get_utf8(const symbol * p, int * slot);
 extern int put_utf8(int ch, symbol * p);
 extern void output_str(FILE * outfile, struct str * str);
 
+typedef enum { ENC_SINGLEBYTE, ENC_UTF8, ENC_WIDECHARS } enc;
+
 struct m_pair {
 
     struct m_pair * next;
@@ -62,6 +66,7 @@ struct input {
     symbol * p;
     int c;
     char * file;
+    int file_needs_freeing;
     int line_number;
 
 };
@@ -89,6 +94,12 @@ enum token_codes {
     NUM_TOKEN_CODES
 };
 
+enum uplus_modes {
+    UPLUS_NONE,
+    UPLUS_DEFINED,
+    UPLUS_UNICODE
+};
+
 /* struct input must be a prefix of struct tokeniser. */
 struct tokeniser {
 
@@ -96,6 +107,7 @@ struct tokeniser {
     symbol * p;
     int c;
     char * file;
+    int file_needs_freeing;
     int line_number;
     symbol * b;
     symbol * b2;
@@ -108,16 +120,22 @@ struct tokeniser {
     int token;
     int previous_token;
     byte token_held;
-    byte widechars;
-    byte utf8;
+    enc encoding;
 
     int omission;
     struct include * includes;
 
+    /* Mode in which U+ has been used:
+     * UPLUS_NONE - not used yet
+     * UPLUS_DEFINED - stringdef U+xxxx ....
+     * UPLUS_UNICODE - {U+xxxx} used with implicit meaning
+     */
+    int uplusmode;
+
     char token_disabled[NUM_TOKEN_CODES];
 };
 
-extern symbol * get_input(symbol * p, char ** p_file);
+extern symbol * get_input(const char * filename);
 extern struct tokeniser * create_tokeniser(symbol * b, char * file);
 extern int read_token(struct tokeniser * t);
 extern const char * name_of_token(int code);
@@ -142,8 +160,12 @@ struct name {
     struct grouping * grouping; /* for grouping names */
     byte referenced;
     byte used_in_among;         /* Function used in among? */
+    byte value_used;            /* (For variables) is its value ever used? */
+    byte initialised;           /* (For variables) is it ever initialised? */
+    byte used_in_definition;    /* (grouping) used in grouping definition? */
     struct node * used;         /* First use, or NULL if not used */
     struct name * local_to;     /* Local to one routine/external */
+    int declaration_line_number;/* Line number of declaration */
 
 };
 
@@ -158,9 +180,10 @@ struct amongvec {
 
     symbol * b;      /* the string giving the case */
     int size;        /* - and its size */
-    struct node * p; /* the corresponding node for this string */
+    struct node * action; /* the corresponding action */
     int i;           /* the amongvec index of the longest substring of b */
     int result;      /* the numeric result for the case */
+    int line_number; /* for diagnostics and stable sorting */
     struct name * function;
 
 };
@@ -172,19 +195,22 @@ struct among {
     int number;               /* amongs are numbered 0, 1, 2 ... */
     int literalstring_count;  /* in this among */
     int command_count;        /* in this among */
+    int nocommand_count;      /* number of "no command" entries in this among */
     int function_count;       /* in this among */
+    int amongvar_needed;      /* do we need to set among_var? */
     struct node * starter;    /* i.e. among( (starter) 'string' ... ) */
     struct node * substring;  /* i.e. substring ... among ( ... ) */
+    struct node ** commands;  /* array with command_count entries */
 };
 
 struct grouping {
 
     struct grouping * next;
-    int number;               /* groupings are numbered 0, 1, 2 ... */
     symbol * b;               /* the characters of this group */
     int largest_ch;           /* character with max code */
     int smallest_ch;          /* character with min code */
     struct name * name;       /* so g->name->grouping == g */
+    int line_number;
 };
 
 struct node {
@@ -243,7 +269,7 @@ struct analyser {
     struct grouping * groupings;
     struct grouping * groupings_end;
     struct node * substring;  /* pending 'substring' in current routine definition */
-    byte utf8;
+    enc encoding;
     byte int_limits_used;     /* are maxint or minint used? */
 };
 
@@ -278,7 +304,7 @@ struct generator {
      * if < 0, the negated keep_count for the limit to restore in case of
      * failure. */
     int failure_keep_count;
-#if !defined(DISABLE_JAVA) && !defined(DISABLE_JSX) && !defined(DISABLE_PYTHON)
+#if !defined(DISABLE_JAVA) && !defined(DISABLE_JS) && !defined(DISABLE_PYTHON) && !defined(DISABLE_CSHARP)
     struct str * failure_str;  /* This is used by some generators instead of failure_keep_count */
 #endif
 
@@ -300,6 +326,11 @@ struct generator {
                             about shadowed variables */
 };
 
+/* Special values for failure_label in struct generator. */
+enum special_labels {
+    x_return = -1
+};
+
 struct options {
 
     /* for the command line: */
@@ -309,18 +340,19 @@ struct options {
     FILE * output_src;
     FILE * output_h;
     byte syntax_tree;
-    byte widechars;
-    enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS, LANG_PYTHON, LANG_JSX } make_lang;
+    byte comments;
+    enc encoding;
+    enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS, LANG_CSHARP, LANG_PASCAL, LANG_PYTHON, LANG_JAVASCRIPT, LANG_RUST, LANG_GO } make_lang;
     const char * externals_prefix;
     const char * variables_prefix;
     const char * runtime_path;
     const char * parent_class_name;
     const char * package;
+    const char * go_snowball_runtime;
     const char * string_class;
     const char * among_class;
     struct include * includes;
     struct include * includes_end;
-    byte utf8;
 };
 
 /* Generator functions common to several backends. */
@@ -335,6 +367,15 @@ extern void write_int(struct generator * g, int i);
 extern void write_b(struct generator * g, symbol * b);
 extern void write_str(struct generator * g, struct str * str);
 
+extern void write_comment_content(struct generator * g, struct node * p);
+extern void write_generated_comment_content(struct generator * g);
+extern void write_start_comment(struct generator * g,
+                                const char * comment_start,
+                                const char * comment_end);
+
+extern int K_needed(struct generator * g, struct node * p);
+extern int repeat_restore(struct generator * g, struct node * p);
+
 /* Generator for C code. */
 extern void generate_program_c(struct generator * g);
 
@@ -343,11 +384,28 @@ extern void generate_program_c(struct generator * g);
 extern void generate_program_java(struct generator * g);
 #endif
 
+#ifndef DISABLE_CSHARP
+/* Generator for C# code. */
+extern void generate_program_csharp(struct generator * g);
+#endif
+
+#ifndef DISABLE_PASCAL
+extern void generate_program_pascal(struct generator * g);
+#endif
+
 #ifndef DISABLE_PYTHON
 /* Generator for Python code. */
 extern void generate_program_python(struct generator * g);
 #endif
 
-#ifndef DISABLE_JSX
-extern void generate_program_jsx(struct generator * g);
+#ifndef DISABLE_JS
+extern void generate_program_js(struct generator * g);
+#endif
+
+#ifndef DISABLE_RUST
+extern void generate_program_rust(struct generator * g);
+#endif
+
+#ifndef DISABLE_GO
+extern void generate_program_go(struct generator * g);
 #endif

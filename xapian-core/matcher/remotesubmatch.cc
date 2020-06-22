@@ -1,7 +1,7 @@
 /** @file remotesubmatch.cc
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2018,2019 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,52 +24,27 @@
 #include "remotesubmatch.h"
 
 #include "debuglog.h"
-#include "msetpostlist.h"
 #include "backends/remote/remote-database.h"
 #include "weight/weightinternal.h"
 
-RemoteSubMatch::RemoteSubMatch(RemoteDatabase *db_,
-			       bool decreasing_relevance_,
-			       const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies_)
-	: db(db_),
-	  decreasing_relevance(decreasing_relevance_),
-	  matchspies(matchspies_)
-{
-    LOGCALL_CTOR(MATCH, "RemoteSubMatch", db_ | decreasing_relevance_ | matchspies_);
-}
+using namespace std;
 
-bool
-RemoteSubMatch::prepare_match(bool nowait,
-			      Xapian::Weight::Internal & total_stats)
+void
+RemoteSubMatch::prepare_match(Xapian::Weight::Internal& total_stats)
 {
-    LOGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait | total_stats);
+    LOGCALL_VOID(MATCH, "RemoteSubMatch::prepare_match", total_stats);
     Xapian::Weight::Internal remote_stats;
-    if (!db->get_remote_stats(nowait, remote_stats)) RETURN(false);
+    db->get_remote_stats(remote_stats);
     total_stats += remote_stats;
-    RETURN(true);
 }
 
 void
 RemoteSubMatch::start_match(Xapian::doccount first,
 			    Xapian::doccount maxitems,
 			    Xapian::doccount check_at_least,
+			    const Xapian::KeyMaker* sorter,
 			    Xapian::Weight::Internal & total_stats)
 {
-    LOGCALL_VOID(MATCH, "RemoteSubMatch::start_match", first | maxitems | check_at_least | total_stats);
-    db->send_global_stats(first, maxitems, check_at_least, total_stats);
-}
-
-PostList *
-RemoteSubMatch::get_postlist(MultiMatch * matcher,
-			     Xapian::termcount * total_subqs_ptr)
-{
-    LOGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist", matcher | total_subqs_ptr);
-    (void)matcher;
-    Xapian::MSet mset;
-    db->get_mset(mset, matchspies);
-    percent_factor = mset.internal->percent_factor;
-    // For remote databases we report percent_factor rather than counting the
-    // number of subqueries.
-    (void)total_subqs_ptr;
-    RETURN(new MSetPostList(mset, decreasing_relevance));
+    LOGCALL_VOID(MATCH, "RemoteSubMatch::start_match", first | maxitems | check_at_least | sorter | total_stats);
+    db->send_global_stats(first, maxitems, check_at_least, sorter, total_stats);
 }

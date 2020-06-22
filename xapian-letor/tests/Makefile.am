@@ -10,7 +10,7 @@ endif
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
-AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
+AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 CLEANFILES =
 
@@ -36,7 +36,8 @@ check_SCRIPTS = runtest
 noinst_HEADERS = apitest.h
 
 collated_apitest_sources = \
- api_generated.cc
+ api_generated.cc \
+ api_letor.cc
 
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
@@ -48,7 +49,7 @@ BUILT_SOURCES =
 
 if MAINTAINER_MODE
 BUILT_SOURCES += api_all.h api_collated.h $(collated_apitest_sources:.cc=.h) \
- api_generated.cc
+ api_collated.stamp api_generated.cc
 
 api_all.h api_collated.h $(collated_apitest_sources:.cc=.h): api_collated.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
@@ -74,18 +75,62 @@ api_generated.cc: generate-api_generated
 endif
 
 EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
-	$(collated_apitest_sources:.cc=.h)
+	$(collated_apitest_sources:.cc=.h) api_collated.stamp
 
 ## Distribute test data:
 EXTRA_DIST +=\
 	runtest.in \
 	valgrind.supp \
-	testdata/apitest_rset.txt \
-	testdata/apitest_phrase.txt \
-	testdata/apitest_allterms4.txt
+	testdata/blank_space_before_query.txt \
+	testdata/empty_file.txt \
+	testdata/nosinglequotes.txt \
+	testdata/nospace.txt \
+	testdata/parse_query_empty_string.txt \
+	testdata/parse_query_noclosingquote.txt \
+	testdata/parse_query_noopenquote.txt \
+	testdata/parse_query_valid.txt \
+	testdata/qrel.txt \
+	testdata/qrelone.txt \
+	testdata/qrelthree_correct.txt \
+	testdata/query.txt \
+	testdata/queryone.txt \
+	testdata/querythree.txt \
+	testdata/score_qrel.txt \
+	testdata/training_data.txt \
+	testdata/training_data_ndcg.txt \
+	testdata/training_data_one_document.txt \
+	testdata/training_data_three_correct.txt \
+	testdata/unique_query_id.txt
+
+CLEANFILES +=\
+	err_output_listmle_1.txt \
+	err_output_listmle_2.txt \
+	err_output_listmle_3.txt \
+	err_output_listnet_1.txt \
+	err_output_listnet_2.txt \
+	err_output_listnet_3.txt \
+	err_output_svm_1.txt \
+	err_output_svm_2.txt \
+	err_output_svm_3.txt \
+	ndcg_output_listmle_1.txt \
+	ndcg_output_listmle_2.txt \
+	ndcg_output_listmle_3.txt \
+	ndcg_output_listnet_1.txt \
+	ndcg_output_listnet_2.txt \
+	ndcg_output_listnet_3.txt \
+	ndcg_output_svm_1.txt \
+	ndcg_output_svm_2.txt \
+	ndcg_output_svm_3.txt \
+	ndcg_score_output.txt \
+	ndcg_score_test.txt \
+	training_output_data_one_doc.txt \
+	training_output_empty.txt \
+	training_output_three_correct.txt \
+	training_output.txt \
+	training_output1.txt
 
 remove-cached-databases:
-	rm -rf .letor-db
+	rm -rf .glass .honey .multiglass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 
@@ -105,6 +150,8 @@ zlib-vg.so: zlib-vg.c
 endif
 
 .PHONY: check-syntax
+
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 check-syntax:
 	$(CXXCOMPILE) -fsyntax-only -gstabs+ $(CHK_SOURCES)

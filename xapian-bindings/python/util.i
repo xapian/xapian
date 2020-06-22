@@ -1,8 +1,6 @@
 %{
 /* python/util.i: custom Python typemaps for xapian-bindings
  *
- * Copyright (C) 1999,2000,2001 BrightStation PLC
- * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
  * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2017 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
@@ -71,12 +69,6 @@
 /* We replace the get_hit() method with one which returns an MSetitem. */
 %rename(_get_hit_internal) Xapian::MSet::get_hit;
 
-/* Force xapian.BAD_VALUENO to be handled as a constant rather than a
- * read-only variable (ticket#297).
- */
-%ignore Xapian::BAD_VALUENO;
-%constant Xapian::valueno BAD_VALUENO = Xapian::BAD_VALUENO;
-
 %{
 namespace Xapian {
     Query *get_py_query(PyObject *obj) {
@@ -93,81 +85,6 @@ namespace Xapian {
 	Py_DECREF(mythis);
 	return retval;
     }
-}
-%}
-
-%typedef PyObject *LangSpecificListType;
-
-%inline %{
-#define MSET_DID 0
-#define MSET_WT 1
-#define MSET_RANK 2
-#define MSET_PERCENT 3
-#define MSET_DOCUMENT 4
-
-#define ESET_TNAME 0
-#define ESET_WT 1
-%}
-
-%feature("nothread") Xapian::MSet::items;
-%{
-/* The GIL must be held when this is called. */
-PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
-{
-    PyObject *retval = PyList_New(mset->size());
-    if (retval == 0) {
-	return NULL;
-    }
-
-    Py_ssize_t idx = 0;
-    for (Xapian::MSetIterator i = mset->begin(); i != mset->end(); ++i) {
-	PyObject *t = PyTuple_New(4);
-	if (!t) {
-	    Py_DECREF(retval);
-	    return NULL;
-	}
-
-	PyList_SET_ITEM(retval, idx++, t);
-
-	PyTuple_SET_ITEM(t, MSET_DID, PyInt_FromLong(*i));
-	PyTuple_SET_ITEM(t, MSET_WT, PyFloat_FromDouble(i.get_weight()));
-	PyTuple_SET_ITEM(t, MSET_RANK, PyInt_FromLong(i.get_rank()));
-	PyTuple_SET_ITEM(t, MSET_PERCENT, PyInt_FromLong(i.get_percent()));
-    }
-    return retval;
-}
-%}
-
-%feature("nothread") Xapian::ESet::items;
-%{
-/* The GIL must be held when this is called. */
-PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
-{
-    PyObject *retval = PyList_New(eset->size());
-    if (retval == 0) {
-	return NULL;
-    }
-
-    Py_ssize_t idx = 0;
-    for (Xapian::ESetIterator i = eset->begin(); i != eset->end(); ++i) {
-	PyObject *t = PyTuple_New(2);
-	if (!t) {
-	    Py_DECREF(retval);
-	    return NULL;
-	}
-
-	PyList_SET_ITEM(retval, idx++, t);
-
-	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
-	if (str == 0) {
-	    Py_DECREF(retval);
-	    return NULL;
-	}
-
-	PyTuple_SET_ITEM(t, ESET_TNAME, str);
-	PyTuple_SET_ITEM(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
-    }
-    return retval;
 }
 %}
 
@@ -233,11 +150,6 @@ namespace Xapian {
     %rename(_ESetIterator) ESetIterator;
 
     %extend MSet {
-	%immutable;
-	// access to the items array
-	PyObject *items;
-	%mutable;
-
 	// for comparison
 	int __cmp__(const MSet &other) {
 	    if (self->get_max_possible() != other.get_max_possible()) {
@@ -257,14 +169,6 @@ namespace Xapian {
 	    }
 	    return 0;
 	}
-    }
-
-    //%apply LangSpecificListType items { PyObject *items }
-
-    %extend ESet {
-	%immutable;
-	PyObject *items;
-	%mutable;
     }
 }
 
@@ -320,10 +224,10 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 %typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string *(int res = SWIG_OLDOBJ) {
     std::string *ptr = (std::string *)0;
     if ($input != Py_None) {
-        res = XapianSWIG_anystring_as_ptr($input, &ptr);
-        if (!SWIG_IsOK(res)) {
-            %argument_fail(res, "$type", $symname, $argnum);
-        }
+	res = XapianSWIG_anystring_as_ptr($input, &ptr);
+	if (!SWIG_IsOK(res)) {
+	    %argument_fail(res, "$type", $symname, $argnum);
+	}
     }
     $1 = ptr;
 }
@@ -332,10 +236,10 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 }
 %typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string * {
     if ($input == Py_None) {
-        $1 = 1;
+	$1 = 1;
     } else {
-        int res = XapianSWIG_anystring_as_ptr($input, (std::string**)(0));
-        $1 = SWIG_CheckState(res);
+	int res = XapianSWIG_anystring_as_ptr($input, (std::string**)(0));
+	$1 = SWIG_CheckState(res);
     }
 }
 
@@ -357,100 +261,6 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     }
     $result = *swig_optr;
     if (SWIG_IsNewObj(swig_ores)) %delete(swig_optr);
-}
-
-/** This pair of typemaps implements conversion of the return value of
- *  ValueRangeProcessor subclasses implemented in Python from a tuple of
- *  (valueno, begin, end) to a return value of valueno, and assigning the new
- *  values of begin and end to the parameters.
- */
-%typemap(directorin,noblock=1) std::string & {
-    $input = SWIG_From_std_string(static_cast< std::string >($1_name));
-}
-%typemap(directorout,noblock=1) Xapian::valueno {
-    if (!PyTuple_Check($input)) {
-        %dirout_fail(SWIG_TypeError, "($type, std::string, std::string)");
-    }
-    if (PyTuple_Size($input) != 3) {
-        %dirout_fail(SWIG_IndexError, "($type, std::string, std::string)");
-    }
-
-    // Set the return value from the first item of the tuple.
-    unsigned int swig_val;
-    int swig_res = SWIG_AsVal_unsigned_SS_int(PyTuple_GET_ITEM((PyObject *)$input, 0), &swig_val);
-    if (!SWIG_IsOK(swig_res)) {
-        %dirout_fail(swig_res, "($type, std::string, std::string)");
-    }
-    c_result = static_cast< Xapian::valueno >(swig_val);
-
-    // Set "begin" from the second item of the tuple.
-    std::string *ptr = (std::string *)0;
-    swig_res = SWIG_AsPtr_std_string(PyTuple_GET_ITEM((PyObject *)$input, 1), &ptr);
-    if (!SWIG_IsOK(swig_res) || !ptr) {
-        delete ptr;
-        ptr = (std::string *)0;
-	%dirout_fail((ptr ? swig_res : SWIG_TypeError), "($type, std::string, std::string)");
-    }
-    begin = *ptr;
-    delete ptr;
-    ptr = (std::string *)0;
-
-    // Set "end" from the third item of the tuple.
-    swig_res = SWIG_AsPtr_std_string(PyTuple_GET_ITEM((PyObject *)$input, 2), &ptr);
-    if (!SWIG_IsOK(swig_res) || !ptr) {
-        delete ptr;
-        ptr = (std::string *)0;
-	%dirout_fail((ptr ? swig_res : SWIG_TypeError), "($type, std::string, std::string)");
-    }
-    end = *ptr;
-    delete ptr;
-    ptr = (std::string *)0;
-}
-
-/* These typemaps handle ValueRangeProcessors, which take non-const references
- * to std::string and modify the strings.
- */
-%typemap(in) std::string &begin (std::string temp),
-             std::string &end (std::string temp) {
-    std::string *ptr = (std::string *)0;
-    int res = SWIG_AsPtr_std_string($input, &ptr);
-    if (!SWIG_IsOK(res) || !ptr) {
-	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
-    }
-    temp = *ptr;
-    $1 = &temp;
-    if (SWIG_IsNewObj(res)) delete ptr;
-}
-%typemap(argout) (std::string &begin, std::string &end) {
-    PyObject * str;
-    PyObject * newresult;
-
-    // Put the existing result into the first item of a new 3-tuple.
-    newresult = PyTuple_New(3);
-    if (newresult == 0) {
-        Py_DECREF($result);
-        $result = NULL;
-        SWIG_fail;
-    }
-    PyTuple_SET_ITEM(newresult, 0, $result);
-    $result = newresult;
-
-    str = PyString_FromStringAndSize($1->data(), $1->size());
-    if (str == 0) {
-        Py_DECREF($result);
-        $result = NULL;
-        SWIG_fail;
-    }
-    PyTuple_SET_ITEM($result, 1, str);
-
-    str = PyString_FromStringAndSize($2->data(), $2->size());
-    if (str == 0) {
-        Py_DECREF($result);
-        $result = NULL;
-        SWIG_fail;
-    }
-
-    PyTuple_SET_ITEM($result, 2, str);
 }
 
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {

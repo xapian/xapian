@@ -29,14 +29,6 @@
 using namespace std;
 
 Xapian::termcount
-AllTermsList::get_approx_size() const
-{
-    // We should never use get_approx_size() on AllTermsList subclasses.
-    Assert(false);
-    return 0;
-}
-
-Xapian::termcount
 AllTermsList::get_wdf() const
 {
     throw Xapian::InvalidOperationError("AllTermsList::get_wdf() isn't meaningful");
@@ -48,7 +40,7 @@ AllTermsList::positionlist_count() const
     throw Xapian::InvalidOperationError("AllTermsList::positionlist_count() isn't meaningful");
 }
 
-Xapian::PositionIterator
+PositionList*
 AllTermsList::positionlist_begin() const
 {
     throw Xapian::InvalidOperationError("AllTermsList::positionlist_begin() isn't meaningful");

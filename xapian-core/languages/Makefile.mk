@@ -21,9 +21,13 @@ snowball_algorithms =\
 	languages/german2.sbl\
 	languages/german.sbl\
 	languages/hungarian.sbl\
+	languages/indonesian.sbl\
+	languages/irish.sbl\
 	languages/italian.sbl\
 	languages/kraaij_pohlmann.sbl\
+	languages/lithuanian.sbl\
 	languages/lovins.sbl\
+	languages/nepali.sbl\
 	languages/norwegian.sbl\
 	languages/porter.sbl\
 	languages/portuguese.sbl\
@@ -31,6 +35,7 @@ snowball_algorithms =\
 	languages/russian.sbl\
 	languages/spanish.sbl\
 	languages/swedish.sbl\
+	languages/tamil.sbl\
 	languages/turkish.sbl
 
 snowball_built_sources =\
@@ -51,6 +56,7 @@ snowball_headers =\
 
 EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources)\
 	languages/collate-sbl\
+	languages/allsnowballheaders.h\
 	languages/sbl-dispatch.h\
 	languages/Makefile
 
@@ -66,6 +72,7 @@ snowball_stopwords = \
 	languages/stopwords/french.txt\
 	languages/stopwords/german.txt\
 	languages/stopwords/hungarian.txt\
+	languages/stopwords/indonesian.txt\
 	languages/stopwords/italian.txt\
 	languages/stopwords/norwegian.txt\
 	languages/stopwords/portuguese.txt\
@@ -77,26 +84,34 @@ snowball_stopwords = \
 if VPATH_BUILD
 	$(MKDIR_P) languages/stopwords
 endif
-	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $< |sort|uniq > $@
+	$(PERL) -pe 's/\|.*//g;s/\s+/\n/g;s/^\n//' $< |LC_COLLATE=C sort|uniq > $@
 
 if MAINTAINER_MODE
 $(snowball_built_sources): languages/snowball $(snowball_algorithms)
 
 languages/snowball: $(snowball_sources) $(snowball_headers)
 	$(CC_FOR_BUILD) -o languages/snowball \
-	    -DDISABLE_JAVA -DDISABLE_JSX -DDISABLE_PYTHON \
+	    -DDISABLE_CSHARP -DDISABLE_GO -DDISABLE_JAVA -DDISABLE_JS -DDISABLE_PASCAL -DDISABLE_PYTHON -DDISABLE_RUST \
 	    `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
 
+# /bin/tr on Solaris doesn't follow POSIX and requires [ and ] around ranges.
+# With a POSIX-compliant tr, these are harmless as they mean replace [ with [
+# and ] with ].
 .sbl.cc:
-	languages/snowball $< -o `echo $@|sed 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
+	languages/snowball $< -o `echo $@|$(SED) 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr '[a-z]' '[A-Z]'``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
+# /bin/tr on Solaris doesn't follow POSIX and requires [ and ] around ranges.
+# With a POSIX-compliant tr, these are harmless as they mean replace [ with [
+# and ] with ].
 .sbl.h:
-	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
+	languages/snowball $< -o `echo $@|$(SED) 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|$(SED) 's!.*/\(.\).*!\1!'|tr '[a-z]' '[A-Z]'``echo $<|$(SED) 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
-languages/sbl-dispatch.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
+languages/allsnowballheaders.h: languages/sbl-dispatch.h
+languages/sbl-dispatch.h languages/allsnowballheaders.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/languages/collate-sbl' '$(srcdir)' $(snowball_algorithms)
 
 BUILT_SOURCES += $(snowball_built_sources)\
+	languages/allsnowballheaders.h\
 	languages/sbl-dispatch.h
 CLEANFILES += languages/snowball
 endif

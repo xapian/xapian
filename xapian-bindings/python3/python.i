@@ -1,9 +1,8 @@
-%module(directors="1", moduleimport="from . import _xapian
-from new import instancemethod as new_instancemethod") xapian
+%module(directors="1", moduleimport="from . import _xapian") xapian
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright (C) 2011,2012,2013,2014,2015,2016,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,9 +24,9 @@ from new import instancemethod as new_instancemethod") xapian
 %pythonbegin %{
 """
 Xapian is a highly adaptable toolkit which allows developers to easily
-add advanced indexing and search facilities to their own
-applications. It supports the Probabilistic Information Retrieval
-model and also supports a rich set of boolean query operators.
+add advanced indexing and search facilities to their own applications.
+It has built-in support for several families of weighting models
+and also supports a rich set of boolean query operators.
 
 In addition to the doc strings provided by this python library, you
 may wish to look at the library's overall documentation, either
@@ -43,7 +42,21 @@ development files, or again online at <https://xapian.org/docs/>.
 
 %begin %{
 #include <config.h>
+
+#ifdef __clang__
+// The Python 3.3 headers have several uses of the C register keyword, which
+// result in warnings from clang++ 6.  There's nothing we can really do about
+// them, so just suppress them.  This appears to have been addressed in Python
+// 3.4 and later.
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wdeprecated-register"
+#endif
+
 #include <Python.h>
+
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
 
 /* Override SWIG's standard GIL locking machinery - we want to avoid the
  * overhead of thread locking when the user's code isn't using threads,
@@ -259,9 +272,7 @@ class XapianSWIGQueryItor {
 
 	// Unicode object.
 	if (PyUnicode_Check(obj)) {
-	    PyObject *s = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj),
-					       PyUnicode_GET_SIZE(obj),
-					       "ignore");
+	    PyObject* s = PyUnicode_AsUTF8String(obj);
 	    if (!s) goto fail;
 	    Xapian::Query result = str_obj_to_query(s);
 	    Py_DECREF(s);
@@ -291,7 +302,7 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        return i - o.i;
+	return i - o.i;
     }
 };
 

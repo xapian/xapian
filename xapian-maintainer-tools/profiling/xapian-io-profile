@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+
+case $1 in
+  --log=*)
+    log_file=${1#*=}
+    shift
+    exec 9>"$log_file"
+    export XAPIAN_IO_PROFILE_LOG_FD=9
+    ;;
+esac
+
+# Extract the path to this script - we expect profiler.so to be in the same
+# directory.
+dir=.
+case $0 in
+  */*) dir=${0%/*} ;;
+esac
+
+LD_PRELOAD=$dir/profiler.so exec "$@"

@@ -24,8 +24,8 @@ reserved for standard meanings but currently unallocated).
 X starts a multi-capital letter user-defined prefix.  If you want a prefix for
 something without a standard prefix, you create your own starting with an X
 (e.g. XSHOESIZE).  The prefix ends with the first non-capital.  If the term
-you're prefixing starts with a capital, add a ":" between prefix and term to
-resolve ambiguity about where the prefix ends and the term begins.
+you're prefixing starts with a capital letter or ":", add a ":" between prefix
+and term to resolve ambiguity about where the prefix ends and the term begins.
 
 Here's the current allocation list:
 
@@ -82,8 +82,7 @@ Z
 
 Reserved but currently unallocated: CW
 
-There are two main uses for prefixes - boolean filters and probabilistic
-(i.e. free text) fields.
+There are two main uses for prefixes - boolean filters and free-text fields.
 
 Boolean Filters
 ===============
@@ -93,8 +92,8 @@ have a 'material' field, which records what each object is primarily made of.
 So a sundial might be 'material=Stone', a letter might be 'material=paper',
 etc.  There's no standard prefix for 'material', so you might allocate ``XM``.
 If you lowercase the field contents, you can avoid having to add a colon to
-seprated the prefix and content, so documents would be indexed by terms such as
-``XMstone``` or ``XMpaper``.
+separate the prefix and content, so documents would be indexed by terms such as
+``XMstone`` or ``XMpaper``.
 
 If you're indexing using scriptindex, and have a field in the input file
 such as "material=Stone", and then your index script would have a rule
@@ -184,8 +183,8 @@ to that used for filters specified by ``B`` CGI parameters, with terms with the
 same prefixed combined with ``OP_OR`` by default, or ``OP_AND`` specified by
 ``$setmap{nonexclusiveprefix,...}``.
 
-Probabilistic Fields
-====================
+Free-Text Fields
+================
 
 Say you want to index the title of the document such that the user can
 search within the title by specifying title:report (for example) in their
@@ -207,7 +206,7 @@ Or if you're writing your own search frontend, like this::
 
     Xapian::QueryParser qp;
     qp.add_prefix("subject", "S");
-    // And similar lines for other probabilistic prefixes...
+    // And similar lines for other free-text prefixes...
     // And any other QueryParser configuration (e.g. stemmer, stopper).
     Xapian::Query query = qp.parse_query(user_query_string);
 

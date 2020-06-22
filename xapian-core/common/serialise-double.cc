@@ -30,6 +30,8 @@
 
 #include "serialise-double.h"
 
+#include "wordaccess.h"
+
 #include <cfloat>
 #include <cmath>
 
@@ -38,175 +40,137 @@
 
 using namespace std;
 
-// The serialisation we use for doubles is inspired by a comp.lang.c post
-// by Jens Moeller:
-//
-// http://groups.google.com/group/comp.lang.c/browse_thread/thread/6558d4653f6dea8b/75a529ec03148c98
-//
-// The clever part is that the mantissa is encoded as a base-256 number which
-// means there's no rounding error provided both ends have FLT_RADIX as some
-// power of two.
-//
-// FLT_RADIX == 2 seems to be ubiquitous on modern UNIX platforms, while
-// some older platforms used FLT_RADIX == 16 (IBM machines for example).
-// FLT_RADIX == 10 seems to be very rare (the only instance Google finds
-// is for a cross-compiler to some TI calculators).
+#ifdef FOLLOWS_IEEE
 
-#if FLT_RADIX == 2
-# define MAX_MANTISSA_BYTES ((DBL_MANT_DIG + 7 + 7) / 8)
-# define MAX_EXP ((DBL_MAX_EXP + 1) / 8)
-# define MAX_MANTISSA (1 << (DBL_MAX_EXP & 7))
-#elif FLT_RADIX == 16
-# define MAX_MANTISSA_BYTES ((DBL_MANT_DIG + 1 + 1) / 2)
-# define MAX_EXP ((DBL_MAX_EXP + 1) / 2)
-# define MAX_MANTISSA (1 << ((DBL_MAX_EXP & 1) * 4))
-#else
-# error FLT_RADIX is a value not currently handled (not 2 or 16)
-// # define MAX_MANTISSA_BYTES (sizeof(double) + 1)
-#endif
-
-static int base256ify_double(double &v) {
-    int exp;
-    v = frexp(v, &exp);
-    // v is now in the range [0.5, 1.0)
-    --exp;
-#if FLT_RADIX == 2
-    v = scalbn(v, (exp & 7) + 1);
-#else
-    v = ldexp(v, (exp & 7) + 1);
-#endif
-    // v is now in the range [1.0, 256.0)
-    exp >>= 3;
-    return exp;
+string serialise_double(double v)
+{
+# ifdef WORDS_BIGENDIAN
+    uint64_t temp;
+    static_assert(sizeof(temp) == sizeof(v),
+		  "Check if size of double and 64 bit int is same");
+    memcpy(&temp, &v, sizeof(double));
+    temp = do_bswap(temp);
+    return string(reinterpret_cast<const char *>(&temp), sizeof(double));
+# else
+    return string(reinterpret_cast<const char *>(&v), sizeof(double));
+# endif
 }
 
-std::string serialise_double(double v)
+double unserialise_double(const char ** p, const char * end)
 {
-    /* First byte:
-     *  bit 7 Negative flag
-     *  bit 4..6 Mantissa length - 1
-     *  bit 0..3 --- 0-13 -> Exponent + 7
-     *            \- 14 -> Exponent given by next byte
-     *             - 15 -> Exponent given by next 2 bytes
-     *
-     * Then optional medium (1 byte) or large exponent (2 bytes, lsb first)
-     *
-     * Then mantissa (0 iff value is 0)
-     */
-
-    bool negative = (v < 0.0);
-
-    if (negative) v = -v;
-
-    int exp = base256ify_double(v);
-
-    string result;
-
-    if (exp <= 6 && exp >= -7) {
-	unsigned char b = static_cast<unsigned char>(exp + 7);
-	if (negative) b |= static_cast<unsigned char>(0x80);
-	result += char(b);
-    } else {
-	if (exp >= -128 && exp < 127) {
-	    result += negative ? char(0x8e) : char(0x0e);
-	    result += char(exp + 128);
-	} else {
-	    if (exp < -32768 || exp > 32767) {
-		throw Xapian::InternalError("Insane exponent in floating point number");
-	    }
-	    result += negative ? char(0x8f) : char(0x0f);
-	    result += char(unsigned(exp + 32768) & 0xff);
-	    result += char(unsigned(exp + 32768) >> 8);
-	}
+    if (end - *p < 8) {
+	throw Xapian::SerialisationError(
+	    "Bad encoded double: insufficient data");
     }
-
-    int maxbytes = min(MAX_MANTISSA_BYTES, 8);
-
-    size_t n = result.size();
-    do {
-	unsigned char byte = static_cast<unsigned char>(v);
-	result += char(byte);
-	v -= double(byte);
-	v *= 256.0;
-    } while (v != 0.0 && --maxbytes);
-
-    n = result.size() - n;
-    if (n > 1) {
-	Assert(n <= 8);
-	result[0] = static_cast<unsigned char>(result[0] | ((n - 1) << 4));
-    }
-
+    double result;
+# ifdef WORDS_BIGENDIAN
+    uint64_t temp;
+    static_assert(sizeof(temp) == sizeof(double),
+		  "Check if size of double and 64 bit int is same");
+    memcpy(&temp, *p, sizeof(double));
+    temp = do_bswap(temp);
+    memcpy(&result, &temp, sizeof(double));
+# else
+    memcpy(&result, *p, sizeof(double));
+# endif
+    *p += 8;
     return result;
 }
 
-double unserialise_double(const char ** p, const char *end)
-{
-    if (end - *p < 2) {
-	throw Xapian::SerialisationError("Bad encoded double: insufficient data");
-    }
-    unsigned char first = *(*p)++;
-    if (first == 0 && *(*p) == 0) {
-	++*p;
-	return 0.0;
-    }
-
-    bool negative = (first & 0x80) != 0;
-    size_t mantissa_len = ((first >> 4) & 0x07) + 1;
-
-    int exp = first & 0x0f;
-    if (exp >= 14) {
-	int bigexp = static_cast<unsigned char>(*(*p)++);
-	if (exp == 15) {
-	    if (*p == end) {
-		throw Xapian::SerialisationError("Bad encoded double: short large exponent");
-	    }
-	    exp = bigexp | (static_cast<unsigned char>(*(*p)++) << 8);
-	    exp -= 32768;
-	} else {
-	    exp = bigexp - 128;
-	}
-    } else {
-	exp -= 7;
-    }
-
-    if (size_t(end - *p) < mantissa_len) {
-	throw Xapian::SerialisationError("Bad encoded double: short mantissa");
-    }
-
-    double v = 0.0;
-
-    static double dbl_max_mantissa = DBL_MAX;
-    static int dbl_max_exp = base256ify_double(dbl_max_mantissa);
-    *p += mantissa_len;
-    if (exp > dbl_max_exp ||
-	(exp == dbl_max_exp &&
-	 double(static_cast<unsigned char>((*p)[-1])) > dbl_max_mantissa)) {
-	// The mantissa check should be precise provided that FLT_RADIX
-	// is a power of 2.
-	v = HUGE_VAL;
-    } else {
-	const char *q = *p;
-	while (mantissa_len--) {
-	    v *= 0.00390625; // 1/256
-	    v += double(static_cast<unsigned char>(*--q));
-	}
-
-#if FLT_RADIX == 2
-	if (exp) v = scalbn(v, exp * 8);
-#elif FLT_RADIX == 16
-	if (exp) v = scalbn(v, exp * 2);
 #else
-	if (exp) v = ldexp(v, exp * 8);
-#endif
 
-#if 0
-	if (v == 0.0) {
-	    // FIXME: handle underflow
-	}
-#endif
+string serialise_double(double v)
+{
+    /* First bit(msb) -> sign (1 means negative)
+     * next 11 bits -> exponent
+     * last 52 bits -> mantissa
+     *
+     * frexp gives fraction within the range [0.5, 1)
+     * We multiply it by 2 to change the range to [1.0, 2.0)
+     * and reduce exp by 1, since this is the way doubles
+     * are stored in IEEE-754.
+     *
+     * Conversion of mantissa to bits is done by
+     * multiplying the mantissa with 2^52, converting
+     * it to a 64 bit integer representation of the original
+     * double.
+     */
+
+    static_assert(uint64_t(1) << 52 < numeric_limits<double>::max(),
+		  "Check if 2^52 can be represented by a double");
+
+    uint64_t result = 0;
+
+    if (v == 0.0) {
+	result = 0;
+	return string(reinterpret_cast<const char *>(&result),
+		      sizeof(uint64_t));
     }
 
-    if (negative) v = -v;
+    bool negative = (v < 0.0);
+    if (negative) {
+	v = -v;
+	result |= uint64_t(1) << 63;
+    }
 
-    return v;
+    int exp;
+    v = frexp(v, &exp);
+    v *= 2.0;
+    v -= 1.0;
+    exp += 1022;
+
+    result |= uint64_t(exp) << 52;
+
+# if FLT_RADIX == 2
+    double scaled_v = scalbn(v, 52);
+# else
+    double scaled_v = ldexp(v, 52);
+# endif
+
+    uint64_t scaled_v_int = static_cast<uint64_t>(scaled_v);
+    result |= scaled_v_int;
+
+# ifdef WORDS_BIGENDIAN
+    result = do_bswap(result);
+# endif
+
+    return string(reinterpret_cast<const char *>(&result), sizeof(uint64_t));
 }
+
+double unserialise_double(const char ** p, const char * end) {
+    if (end - *p < 8) {
+	throw Xapian::SerialisationError(
+	    "Bad encoded double: insufficient data");
+    }
+    unsigned char first = *(*p + 7); // little-endian stored
+    unsigned char second = *(*p + 6);
+
+    bool negative = (first & (0x80)) != 0;
+
+    // bitwise operations to extract exponent
+    int exp = (first & (0x80 - 1));
+    exp <<= 4;
+    exp |= (second & (15 << 4)) >> 4;
+    exp -= 1023;
+
+    uint64_t mantissa_bp; // variable to store bit pattern of mantissa;
+    memcpy(&mantissa_bp, *p, sizeof(double));
+    mantissa_bp &= (uint64_t(1) << 52) - 1;
+
+    *p += 8;
+
+    if (exp + 1023 == 0 && mantissa_bp == 0) return 0.0;
+
+# if FLT_RADIX == 2
+    double result = scalbn(mantissa_bp, -52);
+    result = scalbn(result + 1.0, exp);
+# else
+    double result = ldexp(mantissa_bp, -52);
+    result = ldexp(result + 1.0, exp);
+# endif
+
+    if (negative) result = -result;
+    return result;
+}
+
+#endif

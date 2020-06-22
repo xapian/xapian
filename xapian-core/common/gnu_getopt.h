@@ -89,8 +89,8 @@ gnu_getopt_internal_(int, char *const *, const char *, const struct option *,
 inline int
 gnu_getopt(int argc_, char *const *argv_, const char *shortopts_) {
     return gnu_getopt_internal_(argc_, argv_, shortopts_,
-			    reinterpret_cast<const struct option *>(0),
-			    reinterpret_cast<int *>(0), 0);
+				reinterpret_cast<const struct option *>(0),
+				reinterpret_cast<int *>(0), 0);
 }
 
 inline int

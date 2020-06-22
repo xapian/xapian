@@ -42,9 +42,6 @@ GlassTermListTable::set_termlist(Xapian::docid did,
 {
     LOGCALL_VOID(DB, "GlassTermListTable::set_termlist", did | doc | doclen);
 
-    string tag;
-    pack_uint(tag, doclen);
-
     Xapian::doccount termlist_size = doc.termlist_count();
     if (termlist_size == 0) {
 	// doclen is sum(wdf) so should be zero if there are no terms.
@@ -54,12 +51,15 @@ GlassTermListTable::set_termlist(Xapian::docid did,
 	return;
     }
 
+    string tag;
+    pack_uint(tag, doclen);
+
     Xapian::TermIterator t = doc.termlist_begin();
     if (t != doc.termlist_end()) {
 	pack_uint(tag, termlist_size);
 	string prev_term = *t;
 
-	tag += prev_term.size();
+	tag += char(prev_term.size());
 	tag += prev_term;
 	pack_uint(tag, t.get_wdf());
 	--termlist_size;
@@ -104,6 +104,6 @@ GlassTermListTable::set_termlist(Xapian::docid did,
 	    --termlist_size;
 	}
     }
-    Assert(termlist_size == 0);
+    AssertEq(termlist_size, 0);
     add(make_key(did), tag);
 }

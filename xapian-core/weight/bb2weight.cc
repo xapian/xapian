@@ -2,7 +2,7 @@
  * @brief Xapian::BB2Weight class - the BB2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013,2014 Aarsh Shah
- * Copyright (C) 2014,2015,2016 Olly Betts
+ * Copyright (C) 2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,7 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include "weightinternal.h"
 
 #include "serialise-double.h"
 
@@ -40,7 +41,7 @@ static double stirling_value(double difference, double y, double stirling_consta
 BB2Weight::BB2Weight(double c) : param_c(c)
 {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter c is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
@@ -62,6 +63,12 @@ BB2Weight::clone() const
 void
 BB2Weight::init(double factor)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     double wdfn_upper = get_wdf_upper_bound();
 
     if (wdfn_upper == 0) {
@@ -114,6 +121,12 @@ string
 BB2Weight::name() const
 {
     return "Xapian::BB2Weight";
+}
+
+string
+BB2Weight::short_name() const
+{
+    return "bb2";
 }
 
 string
@@ -181,6 +194,25 @@ double
 BB2Weight::get_maxextra() const
 {
     return 0;
+}
+
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "bb2");
+}
+
+BB2Weight *
+BB2Weight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::BB2Weight();
+    double k = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	parameter_error("Parameter is invalid");
+    if (*p)
+	parameter_error("Extra data after parameter");
+    return new Xapian::BB2Weight(k);
 }
 
 }

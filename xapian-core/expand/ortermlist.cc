@@ -91,7 +91,7 @@ OrTermList::get_termfreq() const
 }
 
 // Helper function.
-inline void
+static inline void
 handle_prune(TermList *& old, TermList * result)
 {
     if (result) {
@@ -208,11 +208,11 @@ OrTermList::positionlist_count() const
     return 0;
 }
 
-Xapian::PositionIterator
+PositionList*
 OrTermList::positionlist_begin() const
 {
     Assert(false);
-    return Xapian::PositionIterator();
+    return NULL;
 }
 
 

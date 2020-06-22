@@ -134,7 +134,7 @@ TermIterator::positionlist_begin() const
 {
     LOGCALL(API, PositionIterator, "TermIterator::positionlist_begin", NO_ARGS);
     Assert(internal);
-    RETURN(internal->positionlist_begin());
+    RETURN(Xapian::PositionIterator(internal->positionlist_begin()));
 }
 
 void

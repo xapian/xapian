@@ -1,6 +1,7 @@
-/* freemem.cc: determine how much free physical memory there is.
- *
- * Copyright (C) 2007,2008,2009,2010 Olly Betts
+/** @file freemem.cc
+ * @brief determine how much free physical memory there is.
+ */
+/* Copyright (C) 2007,2008,2009,2010,2020 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,10 +24,12 @@
 #include "freemem.h"
 
 #include <sys/types.h>
-#include <climits>
 #include "safeunistd.h"
 #ifdef HAVE_SYS_SYSCTL_H
-# include <sys/sysctl.h>
+// Linux also has sys/sysctl.h but newer versions give a deprecation warning.
+# ifndef __linux__
+#  include <sys/sysctl.h>
+# endif
 #endif
 #ifdef HAVE_VM_VM_PARAM_H
 # include <vm/vm_param.h>
@@ -52,12 +55,12 @@
  * Linux, FreeBSD, IRIX, HP-UX, Microsoft Windows.
  */
 
-long
+long long
 get_free_physical_memory()
 {
 #ifndef __WIN32__
-    long pagesize = 1;
-    long pages = -1;
+    long long pagesize = 1;
+    long long pages = -1;
 #if defined(_SC_PAGESIZE) && defined(_SC_PHYS_PAGES)
     /* Linux:
      * _SC_AVPHYS_PAGES is "available memory", but that excludes memory being
@@ -85,7 +88,7 @@ get_free_physical_memory()
 #elif defined CTL_VM && (defined VM_TOTAL || defined VM_METER)
     /* FreeBSD: */
     struct vmtotal vm_info;
-    int mib[2] = {
+    static const int mib[2] = {
 	CTL_VM,
 #ifdef VM_TOTAL
 	VM_TOTAL
@@ -100,11 +103,7 @@ get_free_physical_memory()
     }
 #endif
     if (pagesize > 0 && pages > 0) {
-	long mem = LONG_MAX;
-	if (pages < LONG_MAX / pagesize) {
-	    mem = pages * pagesize;
-	}
-	return mem;
+	return pages * pagesize;
     }
     return -1;
 #else
@@ -119,12 +118,12 @@ get_free_physical_memory()
  * Linux, Microsoft Windows.
  */
 
-long
+long long
 get_total_physical_memory()
 {
 #ifndef __WIN32__
-    long pagesize = 1;
-    long pages = -1;
+    long long pagesize = 1;
+    long long pages = -1;
 #if defined(_SC_PAGESIZE) && defined(_SC_AVPHYS_PAGES)
     /* Linux: */
     pagesize = sysconf(_SC_PAGESIZE);
@@ -146,7 +145,7 @@ get_total_physical_memory()
 #elif defined CTL_VM && (defined VM_TOTAL || defined VM_METER)
     /* FreeBSD: */
     struct vmtotal vm_info;
-    int mib[2] = {
+    static const int mib[2] = {
 	CTL_VM,
 #ifdef VM_TOTAL
 	VM_TOTAL
@@ -161,11 +160,7 @@ get_total_physical_memory()
     }
 #endif
     if (pagesize > 0 && pages > 0) {
-	long mem = LONG_MAX;
-	if (pages < LONG_MAX / pagesize) {
-	    mem = pages * pagesize;
-	}
-	return mem;
+	return pages * pagesize;
     }
     return -1;
 #else

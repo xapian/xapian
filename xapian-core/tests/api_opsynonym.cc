@@ -55,7 +55,7 @@ struct synonym1_data_type {
 };
 
 #define NOQ Xapian::Query::MatchNothing
-static synonym1_data_type synonym1_data[] = {
+static const synonym1_data_type synonym1_data[] = {
     {
 	// Single term - all 33 results should be same weight.
 	33, 0, 1,
@@ -269,7 +269,6 @@ DEFINE_TESTCASE(synonym1, backend) {
 	    }
 	}
 
-
 	TEST_EQUAL(different_weight, data.diffweight_count);
 	TEST_EQUAL(same_weight, data.sameweight_count);
 
@@ -280,7 +279,6 @@ DEFINE_TESTCASE(synonym1, backend) {
 	TEST_EQUAL(mset_top.size(), 1);
 	TEST(mset_range_is_same(mset_top, 0, synmset, 0, 1));
     }
-    return true;
 }
 
 // Regression test - test a synonym search with a MultiAndPostlist.
@@ -313,8 +311,6 @@ DEFINE_TESTCASE(synonym2, backend) {
     double maxposs2 = mset.get_max_possible();
 
     TEST_EQUAL_DOUBLE(maxposs * 10.0, maxposs2);
-
-    return true;
 }
 
 static void
@@ -369,8 +365,6 @@ DEFINE_TESTCASE(synonym3, backend) {
 	TEST_NOT_EQUAL(mset_orig[i].get_weight(), 0.0);
 	TEST_EQUAL(mset_zero[i].get_weight(), 0.0);
     }
-
-    return true;
 }
 
 // Test synonym searches combined with various operators.
@@ -418,8 +412,6 @@ DEFINE_TESTCASE(synonym4, backend) {
 	}
 	check_msets_contain_same_docs(mset1, mset2);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(opmax1, backend) {
@@ -463,6 +455,4 @@ DEFINE_TESTCASE(opmax1, backend) {
 
     // Any document in mset1 or mset2 should also be in msetmax.
     TEST_EQUAL(expected_weights.size(), 0);
-
-    return true;
 }

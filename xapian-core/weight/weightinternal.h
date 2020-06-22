@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2013,2014,2015 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014,2015,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,12 +25,15 @@
 #include "xapian/weight.h"
 
 #include "xapian/database.h"
+#include "xapian/error.h"
 #include "xapian/query.h"
 
-#include "backends/database.h"
+#include "backends/databaseinternal.h"
 #include "internaltypes.h"
 #include "omassert.h"
 
+#include <cerrno>
+#include <cstdlib>
 #include <map>
 #include <string>
 
@@ -70,33 +73,30 @@ class RSet;
 class Weight::Internal {
 #ifdef XAPIAN_ASSERTIONS
     /** Number of sub-databases. */
-    size_t subdbs;
+    size_t subdbs = 0;
 
     /** True if we've finalised the stats.
      *
      *  Used for assertions.
      */
-    mutable bool finalised;
+    mutable bool finalised = false;
 #endif
 
   public:
     /** Total length of all documents in the collection. */
-    totlen_t total_length;
+    Xapian::totallength total_length = 0;
 
     /** Number of documents in the collection. */
-    Xapian::doccount collection_size;
+    Xapian::doccount collection_size = 0;
 
     /** Number of relevant documents in the collection. */
-    Xapian::doccount rset_size;
-
-    /** Number of terms in the collection. */
-    Xapian::termcount total_term_count;
+    Xapian::doccount rset_size = 0;
 
     /** Has max_part been set for any term?
      *
      *  If not, we can avoid having to serialise max_part.
      */
-    bool have_max_part;
+    bool have_max_part = false;
 
     /** Database to get the bounds on doclength and wdf from. */
     Xapian::Database db;
@@ -108,13 +108,7 @@ class Weight::Internal {
      *  collection. */
     std::map<std::string, TermFreqs> termfreqs;
 
-    Internal()
-	:
-#ifdef XAPIAN_ASSERTIONS
-	  subdbs(0), finalised(false),
-#endif
-	  total_length(0), collection_size(0), rset_size(0),
-	  total_term_count(0), have_max_part(false) { }
+    Internal() { }
 
     /** Add in the supplied statistics from a sub-database.
      *
@@ -122,6 +116,8 @@ class Weight::Internal {
      *  object, unserialise it, and add it to our total.
      */
     Internal & operator+=(const Internal & inc);
+
+    void merge(const Weight::Internal& o);
 
     void set_query(const Xapian::Query &query_) {
 	AssertEq(subdbs, 0);
@@ -245,6 +241,25 @@ class Weight::Internal {
 
     /// Return a std::string describing this object.
     std::string get_description() const;
+
+    static bool double_param(const char ** p, double * ptr_val) {
+	char *end;
+	errno = 0;
+	double v = strtod(*p, &end);
+	if (*p == end || errno) return false;
+	*p = end;
+	*ptr_val = v;
+	return true;
+    }
+
+    static void parameter_error(const char * msg,
+				const std::string & scheme) {
+	std::string m(msg);
+	m += ": '";
+	m += scheme;
+	m += "'";
+	throw InvalidArgumentError(m);
+    }
 };
 
 }

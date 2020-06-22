@@ -22,13 +22,13 @@
 
 #include <xapian/error.h>
 
-#include "safeerrno.h"
 #ifdef __WIN32__
 # include "safewindows.h"
 #else
 # include "safenetdb.h"
 #endif
 
+#include <cerrno>
 #include <cstdlib> // For abs().
 #include <cstring> // For memcmp().
 
@@ -41,7 +41,7 @@ using namespace std;
 Xapian::Error::Error(const std::string &msg_, const std::string &context_,
 		     const char * type_, const char * error_string_)
     : msg(msg_), context(context_), error_string(), type(type_),
-      my_errno(0), already_handled(false)
+      my_errno(0)
 {
     if (error_string_) error_string.assign(error_string_);
 }

@@ -22,6 +22,7 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include "weightinternal.h"
 
 #include "serialise-double.h"
 
@@ -33,7 +34,7 @@ namespace Xapian {
 
 IneB2Weight::IneB2Weight(double c) : param_c(c) {
     if (param_c <= 0)
-	throw Xapian::InvalidArgumentError("Parameter c is invalid.");
+	throw Xapian::InvalidArgumentError("Parameter c is invalid");
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
@@ -54,6 +55,12 @@ IneB2Weight::clone() const
 void
 IneB2Weight::init(double factor)
 {
+    if (factor == 0.0) {
+	// This object is for the term-independent contribution, and that's
+	// always zero for this scheme.
+	return;
+    }
+
     double wdfn_upper = get_wdf_upper_bound();
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
@@ -87,6 +94,12 @@ string
 IneB2Weight::name() const
 {
     return "Xapian::IneB2Weight";
+}
+
+string
+IneB2Weight::short_name() const
+{
+    return "ineb2";
 }
 
 string
@@ -136,6 +149,25 @@ double
 IneB2Weight::get_maxextra() const
 {
     return 0;
+}
+
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "ineb2");
+}
+
+IneB2Weight *
+IneB2Weight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::IneB2Weight();
+    double k = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	parameter_error("Parameter is invalid");
+    if (*p)
+	parameter_error("Extra data after parameter");
+    return new Xapian::IneB2Weight(k);
 }
 
 }

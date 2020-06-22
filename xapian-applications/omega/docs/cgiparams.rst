@@ -35,7 +35,7 @@ DEFAULTOP
 	If you want to implement "match any words", set ``DEFAULTOP=or``.
 
 P
-	probabilistic query (may occur multiple times - if so, each will be
+	query string to parse (may occur multiple times - if so, each will be
 	parsed and the results combined with ``OP_AND``).
 
 P.\ *PREFIX*
@@ -43,16 +43,17 @@ P.\ *PREFIX*
 	example, ``P.A`` will search the author by default.
 
 xP
-	terms from the previous probabilistic query - used to decide if
+	terms from the previous parsed query - used to decide if
 	this is a fresh query (in which case relevance judgements are
 	discarded and the first page of matches is shown), an extended query
 	(in which case the first page of matches is shown), or an unchanged
 	query.
 
 ADD
-	if present, any X parameters are added to the probabilistic
-	query (used for topterms support when JavaScript isn't
-	supported or is disabled).
+	if present, any ``X`` parameters are appended to the value of the first
+	non-empty ``P`` parameter, or used to build a query if there are no
+	non-empty ``P`` parameters (used for topterms support when JavaScript
+	isn't supported or is disabled).
 
 X
 	topterms to add to query (each term in a separate ``X`` parameter).  If
@@ -102,32 +103,74 @@ N
         multiple `B` and `N` parameters are handled.
 
 COLLAPSE
-	value number to use for removing duplicate documents.
+	value slot number to use for removing duplicate documents.
 	Additional documents in the MSet with the same value will be
 	removed from the MSet. $value{$cgi{COLLAPSE}} can be used to
 	access the actual value for each hit.
 
+
+START.\ *SLOT* END.\ *SLOT* SPAN.\ *SLOT*
+        One or more of these parameters can be specified for each *SLOT* to
+        perform value-based date range filtering.  A document must fall into
+        all of the specified ranges to match.
+
+        The values stored in the database in the specified *SLOT* need to be
+        be in one of these formats with the format detected by looking at
+        the length of the value bounds (each slot must use a single format,
+        but different slots can use different formats):
+
+        * YYYYMMDDHHMM (e.g. 200702142359)
+        * YYYYMMDD (e.g. 20070214)
+        * a raw 4 byte big-endian value representing a time_t (omindex adds
+          the last modified time in value slot 0 in this format).
+
+        `SPAN.`\ *SLOT* specifies the number of days either up to
+        `END.`\ *SLOT* (if set), after `START.`\ *SLOT* (if set) or before
+        today's date (if neither the start nor end are given) (if all three
+        parameters are specified for the same *SLOT* then `START.`\ *SLOT*
+        is ignored).
+
+        If `SPAN.`\ *SLOT* is not specified:
+
+        * `START.`\ *SLOT* specifies the start of the range in the
+          format YYYY, YYYYMM, YYYYMMDD or YYYYMMDDHHMM.  Default is the start
+          of time.
+        * `END.`\ *SLOT* specifies the end of the range in the
+          format YYYY, YYYYMM, YYYYMMDD or YYYYMMDDHHMM.  Default is the end of
+          time.
+
+        Added in Xapian 1.4.8 - older versions will just ignore these
+        parameters.
+
 DATEVALUE
-	value number to use for date range filtering.  If this isn't set then
-	date filtering will use the older approach based on D-, M-, and
-	Y-prefixed terms.  The values must be of the format YYYYMMDDHHMM
-        (e.g. 200702142359), YYYYMMDD (e.g. 20070214), or a raw 4 byte
-        big-endian value representing a time_t (omindex adds this as value 0
-	by default).
+        This is an older way to specify a value-based date range filter, which
+        only allows one date range filter to be applied to each query.
+        `DATEVALUE` specifies the value slot number to use.  The format of
+        the values stored in this slot in the database must be in one of the
+        formats described above (YYYYMMDDHHMM, YYYYMMDD or a raw 4 byte
+        big-endian time_t).
 
-SPAN
-	filter on this number of days up to END (if set), or after
-	START (if set), or before today's date (otherwise).
+        Don't mix `START.`\ *SLOT*, `END.`\ *SLOT* and/or `SPAN.`\ *SLOT* with
+        `DATEVALUE` on the same slot number.
 
-START
-	start of date range, in the format YYYYMMDD (defaults to 1st January
-	1970).  If value-based date ranges are used (see DATEVALUE parameter)
-	then the format YYYYMMDDHHMM is also valid.
+        If `DATEVALUE` isn't set then `START`, `END` and `SPAN` will perform
+        date filtering using an older approach based on D-, M-, and Y-prefixed
+        terms.  This approach can only filter to a granularity of one day, so
+        only the `YYYYMMDD` part of `START` and `END` are used.  Support for
+        `YYYY` and `YYYYMM` in `START` and `END` for term-based date filtering
+        was added in Xapian 1.4.8 - in earlier versions this failed with an
+        error.
 
-END
-	end of date range, in the format YYYYMMDD (defaults to today's date).
-	If value-based date ranges are used (see DATEVALUE parameter) then the
-	format YYYYMMDDHHMM is also valid.
+        Also instead of `START`/`END` defaulting to the start and end of time,
+        they instead default to 1st January 1970 and today's date respectively.
+        The term-based date range filtering also includes a special `Dlatest`
+        term, which allows flagging a document as always current.  There's no
+        equivalent to this for value-based date range filters.
+
+START END SPAN
+        like `START.`\ *SLOT*, `END.`\ *SLOT* and `SPAN.`\ *SLOT* but for value
+        slot `DATEVALUE`, or for term-based date range filtering if `DATEVALUE`
+        isn't set.
 
 xFILTERS
 	used to spot when the filters have changed from the previous search.
@@ -138,7 +181,7 @@ xFILTERS
 	1.3.3 they were always assumed to have changed in the situation, which
 	meant you couldn't ever go past page 1 if you failed to set xFILTERS
 	in your template.  Now failing to set it means that the first page
-	won't be forced some cases where it probably should be.
+	won't be forced in some cases where it probably should be.
 
 THRESHOLD
 	apply a percentage cut-off at the value given by this parameter

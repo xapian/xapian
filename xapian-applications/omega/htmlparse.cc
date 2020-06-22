@@ -1,8 +1,9 @@
-/* htmlparse.cc: simple HTML parser for omega indexer
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file htmlparse.cc
+ * @brief simple HTML parser for omega indexer
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +41,11 @@
 
 using namespace std;
 
-inline void
+// HTML5 legacy compatibility doctype.
+#define HTML5_LEGACY_COMPAT "about:legacy-compat"
+#define HTML5_LEGACY_COMPAT_LEN CONST_STRLEN(HTML5_LEGACY_COMPAT)
+
+static inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
@@ -48,20 +53,20 @@ lowercase_string(string &str)
     }
 }
 
-inline static bool
+static inline bool
 p_nottag(char c)
 {
     // ':' for XML namespaces.
     return !C_isalnum(c) && c != '.' && c != '-' && c != ':';
 }
 
-inline static bool
+static inline bool
 p_whitespacegt(char c)
 {
     return C_isspace(c) || c == '>';
 }
 
-inline static bool
+static inline bool
 p_whitespaceeqgt(char c)
 {
     return C_isspace(c) || c == '=' || c == '>';
@@ -148,10 +153,41 @@ HtmlParser::decode_entities(string &s)
 void
 HtmlParser::parse(const string &body)
 {
+    // Check for BOM.
+    string::const_iterator begin_after_bom = body.begin();
+    if (body.size() >= 3) {
+	switch (body[0]) {
+	  case '\xef':
+	    if (body[1] == '\xbb' && body[2] == '\xbf') {
+		charset = "utf-8";
+		begin_after_bom += 3;
+	    }
+	    break;
+	  case '\xfe':
+	    if (body[1] == '\xff') {
+		string utf8_body(body, 2);
+		convert_to_utf8(utf8_body, "utf-16le");
+		charset = "utf-8";
+		parse(utf8_body);
+		return;
+	    }
+	    break;
+	  case '\xff':
+	    if (body[1] == '\xfe') {
+		string utf8_body(body, 2);
+		convert_to_utf8(utf8_body, "utf-16be");
+		charset = "utf-8";
+		parse(utf8_body);
+		return;
+	    }
+	    break;
+	}
+    }
+
     in_script = false;
 
     parameters.clear();
-    string::const_iterator start = body.begin();
+    string::const_iterator start = begin_after_bom;
 
     while (true) {
 	// Skip through until we find an HTML tag, a comment, or the end of
@@ -169,8 +205,7 @@ HtmlParser::parse(const string &body)
 	    if (ch == '?') {
 		// PHP code or XML declaration.
 		// XML declaration is only valid at the start of the first line.
-		// FIXME: need to deal with BOMs...
-		if (p != body.begin() || body.size() < 20) break;
+		if (p != begin_after_bom || body.size() < 20) break;
 
 		// XML declaration looks something like this:
 		// <?xml version="1.0" encoding="UTF-8"?>
@@ -224,9 +259,11 @@ HtmlParser::parse(const string &body)
 
 	if (*start == '!') {
 	    if (++start == body.end()) break;
+
+	    // Comment, SGML declaration, or HTML5 DTD.
+	    char first_ch = *start;
 	    if (++start == body.end()) break;
-	    // comment or SGML declaration
-	    if (*(start - 1) == '-' && *start == '-') {
+	    if (first_ch == '-' && *start == '-') {
 		++start;
 		string::const_iterator close = find(start, body.end(), '>');
 		// An unterminated comment swallows rest of document
@@ -240,19 +277,25 @@ HtmlParser::parse(const string &body)
 
 		if (p != body.end()) {
 		    // Check for htdig's "ignore this bit" comments.
-		    if (p - start == 15 && string(start, p - 2) == "htdig_noindex") {
-			string::size_type i;
-			i = body.find("<!--/htdig_noindex-->", p + 1 - body.begin());
+		    if (p - start == CONST_STRLEN("htdig_noindex") + 2 &&
+			memcmp(&*start, "htdig_noindex",
+			       CONST_STRLEN("htdig_noindex")) == 0) {
+			auto i = body.find("<!--/htdig_noindex-->",
+					   p + 1 - body.begin());
 			if (i == string::npos) break;
-			start = body.begin() + i + 21;
+			start = body.begin() + i +
+			    CONST_STRLEN("<!--/htdig_noindex-->");
 			continue;
 		    }
 		    // Check for udmcomment (similar to htdig's)
-		    if (p - start == 12 && string(start, p - 2) == "UdmComment") {
-			string::size_type i;
-			i = body.find("<!--/UdmComment-->", p + 1 - body.begin());
+		    if (p - start == CONST_STRLEN("UdmComment") + 2 &&
+			memcmp(&*start, "UdmComment",
+			       CONST_STRLEN("UdmComment")) == 0) {
+			auto i = body.find("<!--/UdmComment-->",
+					   p + 1 - body.begin());
 			if (i == string::npos) break;
-			start = body.begin() + i + 18;
+			start = body.begin() + i +
+			    CONST_STRLEN("<!--/UdmComment-->");
 			continue;
 		    }
 		    // If we found --> skip to there.
@@ -261,8 +304,9 @@ HtmlParser::parse(const string &body)
 		    // Otherwise skip to the first > we found (as Netscape does).
 		    start = close;
 		}
-	    } else if (body.size() - (start - body.begin()) > 6 &&
-		       body.compare(start - body.begin() - 1, 7, "[CDATA[", 7) == 0) {
+	    } else if (first_ch == '[' &&
+		       body.size() - (start - body.begin()) > 6 &&
+		       body.compare(start - body.begin(), 6, "CDATA[", 6) == 0) {
 		start += 6;
 		string::size_type b = start - body.begin();
 		string::size_type i;
@@ -272,8 +316,71 @@ HtmlParser::parse(const string &body)
 		process_text(text);
 		if (i == string::npos) break;
 		start = body.begin() + i + 2;
+	    } else if (C_tolower(first_ch) == 'd' &&
+		       body.end() - start > 6 &&
+		       C_tolower(start[0]) == 'o' &&
+		       C_tolower(start[1]) == 'c' &&
+		       C_tolower(start[2]) == 't' &&
+		       C_tolower(start[3]) == 'y' &&
+		       C_tolower(start[4]) == 'p' &&
+		       C_tolower(start[5]) == 'e' &&
+		       C_isspace(start[6])) {
+		// DOCTYPE declaration.
+		start += 7;
+		while (start != body.end() && C_isspace(*start)) {
+		    ++start;
+		}
+		if (start == body.end()) break;
+		if (body.end() - start >= 5 &&
+		    C_tolower(start[0]) == 'h' &&
+		    C_tolower(start[1]) == 't' &&
+		    C_tolower(start[2]) == 'm' &&
+		    C_tolower(start[3]) == 'l' &&
+		    (start[4] == '>' || C_isspace(start[4]))) {
+		    start += 4;
+
+		    // HTML doctype.
+		    while (start != body.end() && C_isspace(*start)) {
+			++start;
+		    }
+		    if (start == body.end()) break;
+
+		    if (*start == '>') {
+			// <!DOCTYPE html>
+			// Default charset for HTML5 is UTF-8.
+			charset = "utf-8";
+		    }
+		} else if (body.end() - start >= 29 &&
+			   C_tolower(start[0]) == 's' &&
+			   C_tolower(start[1]) == 'y' &&
+			   C_tolower(start[2]) == 's' &&
+			   C_tolower(start[3]) == 't' &&
+			   C_tolower(start[4]) == 'e' &&
+			   C_tolower(start[5]) == 'm' &&
+			   C_isspace(start[6])) {
+		    start += 7;
+		    while (start != body.end() && C_isspace(*start)) {
+			++start;
+		    }
+		    size_t left = body.end() - start;
+		    if (left >= HTML5_LEGACY_COMPAT_LEN + 3 &&
+			(*start == '\'' || *start == '"') &&
+			start[HTML5_LEGACY_COMPAT_LEN + 1] == *start &&
+			body.compare(start - body.begin() + 1,
+				     HTML5_LEGACY_COMPAT_LEN,
+				     HTML5_LEGACY_COMPAT,
+				     HTML5_LEGACY_COMPAT_LEN) == 0) {
+			// HTML5 legacy compatibility doctype:
+			// <!DOCTYPE html SYSTEM "about:legacy-compat">
+			start += HTML5_LEGACY_COMPAT_LEN + 2;
+			// Default charset for HTML5 is UTF-8.
+			charset = "utf-8";
+		    }
+		}
+		start = find(start - 1, body.end(), '>');
+		if (start == body.end()) break;
 	    } else {
-		// just an SGML declaration, perhaps giving the DTD - ignore it
+		// Some other SGML declaration - ignore it.
 		start = find(start - 1, body.end(), '>');
 		if (start == body.end()) break;
 	    }
@@ -348,11 +455,15 @@ HtmlParser::parse(const string &body)
 			    p = find(start, body.end(), quote);
 			}
 
-			if (p == body.end()) {
+			if (p != body.end()) {
+			    // quoted
+			    value.assign(body, start - body.begin(), p - start);
+			    ++p;
+			} else {
 			    // unquoted or no closing quote
 			    p = find_if(start, body.end(), p_whitespacegt);
+			    value.assign(body, start - body.begin(), p - start);
 			}
-			value.assign(body, start - body.begin(), p - start);
 			start = find_if(p, body.end(), C_isnotspace);
 
 			if (!name.empty()) {
@@ -362,6 +473,12 @@ HtmlParser::parse(const string &body)
 			    // (as Netscape does)
 			    parameters.insert(make_pair(name, value));
 			}
+		    } else if (!name.empty()) {
+			// Boolean attribute - e.g. <input type=checkbox checked>
+
+			// convert parameter name to lowercase
+			lowercase_string(name);
+			parameters.insert(make_pair(name, string()));
 		    }
 		}
 #if 0

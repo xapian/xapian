@@ -30,7 +30,7 @@ my $srcdir = shift @ARGV;
 
 -d 'docs/inc' or mkdir 'docs/inc' or die $!;
 
-my $hdr = Tokeniseise->new('mimemap.h', 'Map extension to MIME Content-Type', $copyright, 'OMEGA_INCLUDED_MIMEMAP_H', 'mime_type');
+my $hdr = Tokeniseise->new('mimemap.h', 'Map extension to MIME Content-Type', $copyright, 'OMEGA_INCLUDED_MIMEMAP_H', 'mime_type', 2);
 $hdr->append('static const char * const default_mime_map[] = {');
 my $max_ext_len = 0;
 my $max_mimetype_len = 0;

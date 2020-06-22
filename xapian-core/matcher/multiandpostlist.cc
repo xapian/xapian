@@ -127,7 +127,9 @@ MultiAndPostList::get_termfreq_est_using_stats(
 	// If the collection is empty, freqest should be 0 already, so leave
 	// it alone.
 	freqest = (freqest * freqs.termfreq) / stats.collection_size;
-	collfreqest = (collfreqest * freqs.collfreq) / stats.total_term_count;
+	if (usual(stats.total_length != 0)) {
+	    collfreqest = (collfreqest * freqs.collfreq) / stats.total_length;
+	}
 
 	// If the rset is empty, relfreqest should be 0 already, so leave
 	// it alone.
@@ -140,47 +142,20 @@ MultiAndPostList::get_termfreq_est_using_stats(
 		     static_cast<Xapian::termcount>(collfreqest + 0.5)));
 }
 
-double
-MultiAndPostList::get_maxweight() const
-{
-    return max_total;
-}
-
 Xapian::docid
 MultiAndPostList::get_docid() const
 {
     return did;
 }
 
-Xapian::termcount
-MultiAndPostList::get_doclength() const
-{
-    Assert(did);
-    Xapian::termcount doclength = plist[0]->get_doclength();
-    for (size_t i = 1; i < n_kids; ++i) {
-	AssertEq(doclength, plist[i]->get_doclength());
-    }
-    return doclength;
-}
-
-Xapian::termcount
-MultiAndPostList::get_unique_terms() const
-{
-    Assert(did);
-    Xapian::termcount unique_terms = plist[0]->get_unique_terms();
-    for (size_t i = 1; i < n_kids; ++i) {
-	AssertEq(unique_terms, plist[i]->get_unique_terms());
-    }
-    return unique_terms;
-}
-
 double
-MultiAndPostList::get_weight() const
+MultiAndPostList::get_weight(Xapian::termcount doclen,
+			     Xapian::termcount unique_terms) const
 {
     Assert(did);
     double result = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	result += plist[i]->get_weight();
+	result += plist[i]->get_weight(doclen, unique_terms);
     }
     return result;
 }

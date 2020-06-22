@@ -49,7 +49,7 @@ while (<TMPDEPS>) {
 	    $_ = "$ENV{'stamp'}: \\\n";
 	}
     } else {
-        my $line = $_;
+	my $line = $_;
 	s/\\$//;
 	push @sources, split;
 	$_ = $line;

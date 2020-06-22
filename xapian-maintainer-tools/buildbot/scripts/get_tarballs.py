@@ -5,9 +5,10 @@ import re
 import shutil
 import subprocess
 import sys
+import types
 
 tarball_root = sys.argv[1]
-tarball_uncompressed_root = "http://oligarchy.co.uk/dexz/?"
+tarball_uncompressed_root = "https://oligarchy.co.uk/dexz/?"
 archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega')
 # FIXME: need 'win32msvc' if we get a win32 builder again.
 builddir = 'build'
@@ -108,12 +109,20 @@ def clear_build_dir(dir):
 
 clear_build_dir(builddir)
 
+devnull = open('/dev/null', 'rw')
+
 xz = None
 for try_xz in ['xz', 'xzdec', ('busybox', 'xz')]:
     print("Trying '%s' as xz unpacker" % str(try_xz))
     try:
-        try_xz = list(try_xz)
-        xz_proc = subprocess.Popen(try_xz + ['--help'], stdin=open('/dev/null', 'r'))
+        if type(try_xz) is types.TupleType:
+            try_xz = list(try_xz)
+        else:
+            try_xz = [try_xz ,]
+        xz_proc = subprocess.Popen(try_xz + ['--help'],
+                                   stdin=devnull,
+                                   stdout=devnull,
+                                   stderr=devnull)
         if xz_proc.wait() == 0:
             xz = try_xz
             break

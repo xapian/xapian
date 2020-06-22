@@ -1,10 +1,9 @@
 noinst_HEADERS +=\
-	net/length.h\
 	net/progclient.h\
 	net/remoteconnection.h\
+	net/remoteprotocol.h\
 	net/remoteserver.h\
 	net/remotetcpclient.h\
-	net/remotetcpserver.h\
 	net/replicatetcpclient.h\
 	net/replicatetcpserver.h\
 	net/resolver.h\
@@ -19,7 +18,6 @@ EXTRA_DIST +=\
 	net/Makefile
 
 lib_src +=\
-	net/length.cc\
 	net/serialise.cc
 
 if BUILD_BACKEND_REMOTE
@@ -28,7 +26,6 @@ lib_src +=\
 	net/remoteconnection.cc\
 	net/remoteserver.cc\
 	net/remotetcpclient.cc\
-	net/remotetcpserver.cc\
 	net/replicatetcpclient.cc\
 	net/replicatetcpserver.cc\
 	net/serialise-error.cc\

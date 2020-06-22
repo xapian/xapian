@@ -5,7 +5,7 @@
 //  Based on Boost's intrusive_ptr.hpp
 //
 //  Copyright (c) 2001, 2002 Peter Dimov
-//  Copyright (c) 2011,2013,2014,2015 Olly Betts
+//  Copyright (c) 2011,2013,2014,2015,2017 Olly Betts
 //
 // Distributed under the Boost Software License, Version 1.0.
 //
@@ -37,9 +37,10 @@
 //
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/intrusive_ptr.h> directly; include <xapian.h> instead."
+# error Never use <xapian/intrusive_ptr.h> directly; include <xapian.h> instead.
 #endif
 
+#include <xapian/attributes.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -112,6 +113,32 @@ public:
         if( px != 0 && --px->_refs == 0 ) delete px;
     }
 
+    intrusive_ptr(intrusive_ptr && rhs) : px( rhs.px )
+    {
+        rhs.px = 0;
+    }
+
+    intrusive_ptr & operator=(intrusive_ptr && rhs)
+    {
+        this_type( static_cast< intrusive_ptr && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
+    template<class U> friend class intrusive_ptr;
+
+    template<class U>
+    intrusive_ptr(intrusive_ptr<U> && rhs) : px( rhs.px )
+    {
+        rhs.px = 0;
+    }
+
+    template<class U>
+    intrusive_ptr & operator=(intrusive_ptr<U> && rhs)
+    {
+        this_type( static_cast< intrusive_ptr<U> && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
     intrusive_ptr & operator=(intrusive_ptr const & rhs)
     {
         this_type(rhs).swap(*this);
@@ -177,6 +204,138 @@ template<class T, class U> inline bool operator==(T * a, intrusive_ptr<U> const 
 }
 
 template<class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const & b)
+{
+    return a != b.get();
+}
+
+/** A normally non-NULL smart pointer using intrusive reference counting.
+ *
+ *  The only case where it can be NULL is when it's been moved-from.  Once
+ *  moved from, the only valid operations are to destroy the smart pointer,
+ *  or to assign or move assign to it (after which all operations are valid
+ *  again).
+ */
+template<class T> class intrusive_ptr_nonnull
+{
+private:
+
+    typedef intrusive_ptr_nonnull this_type;
+
+public:
+
+    intrusive_ptr_nonnull( T * p) XAPIAN_NONNULL() : px( p )
+    {
+        ++px->_refs;
+    }
+
+    template<class U>
+    intrusive_ptr_nonnull( intrusive_ptr_nonnull<U> const & rhs )
+    : px( rhs.get() )
+    {
+        ++px->_refs;
+    }
+
+    intrusive_ptr_nonnull(intrusive_ptr_nonnull const & rhs): px( rhs.px )
+    {
+        ++px->_refs;
+    }
+
+    ~intrusive_ptr_nonnull()
+    {
+        if( px && --px->_refs == 0 ) delete px;
+    }
+
+    intrusive_ptr_nonnull(intrusive_ptr_nonnull && rhs) : px( rhs.px )
+    {
+        rhs.px = 0;
+    }
+
+    intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull && rhs)
+    {
+        this_type( static_cast< intrusive_ptr_nonnull && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
+    template<class U> friend class intrusive_ptr_nonnull;
+
+    template<class U>
+    intrusive_ptr_nonnull(intrusive_ptr_nonnull<U> && rhs) : px( rhs.px )
+    {
+        rhs.px = 0;
+    }
+
+    template<class U>
+    intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull<U> && rhs)
+    {
+        this_type( static_cast< intrusive_ptr_nonnull<U> && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
+    intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull const & rhs)
+    {
+        this_type(rhs).swap(*this);
+        return *this;
+    }
+
+    intrusive_ptr_nonnull & operator=(T * rhs) XAPIAN_NONNULL()
+    {
+        this_type(rhs).swap(*this);
+        return *this;
+    }
+
+    T * get() const
+    {
+        return px;
+    }
+
+    T & operator*() const
+    {
+        return *px;
+    }
+
+    T * operator->() const
+    {
+        return px;
+    }
+
+    void swap(intrusive_ptr_nonnull & rhs)
+    {
+        T * tmp = px;
+        px = rhs.px;
+        rhs.px = tmp;
+    }
+
+private:
+
+    T * px;
+};
+
+template<class T, class U> inline bool operator==(intrusive_ptr_nonnull<T> const & a, intrusive_ptr_nonnull<U> const & b)
+{
+    return a.get() == b.get();
+}
+
+template<class T, class U> inline bool operator!=(intrusive_ptr_nonnull<T> const & a, intrusive_ptr_nonnull<U> const & b)
+{
+    return a.get() != b.get();
+}
+
+template<class T, class U> inline bool operator==(intrusive_ptr_nonnull<T> const & a, U * b)
+{
+    return a.get() == b;
+}
+
+template<class T, class U> inline bool operator!=(intrusive_ptr_nonnull<T> const & a, U * b)
+{
+    return a.get() != b;
+}
+
+template<class T, class U> inline bool operator==(T * a, intrusive_ptr_nonnull<U> const & b)
+{
+    return a == b.get();
+}
+
+template<class T, class U> inline bool operator!=(T * a, intrusive_ptr_nonnull<U> const & b)
 {
     return a != b.get();
 }
@@ -275,6 +434,36 @@ public:
     ~opt_intrusive_ptr()
     {
 	if( counting && --px->_refs == 1 ) delete px;
+    }
+
+    opt_intrusive_ptr(opt_intrusive_ptr && rhs)
+    : px( rhs.px ), counting( rhs.counting )
+    {
+        rhs.px = 0;
+	rhs.counting = 0;
+    }
+
+    opt_intrusive_ptr & operator=(opt_intrusive_ptr && rhs)
+    {
+        this_type( static_cast< opt_intrusive_ptr && >( rhs ) ).swap(*this);
+        return *this;
+    }
+
+    template<class U> friend class opt_intrusive_ptr;
+
+    template<class U>
+    opt_intrusive_ptr(opt_intrusive_ptr<U> && rhs)
+    : px( rhs.px ), counting( rhs.counting )
+    {
+        rhs.px = 0;
+	rhs.counting = 0;
+    }
+
+    template<class U>
+    opt_intrusive_ptr & operator=(opt_intrusive_ptr<U> && rhs)
+    {
+        this_type( static_cast< opt_intrusive_ptr<U> && >( rhs ) ).swap(*this);
+        return *this;
     }
 
     opt_intrusive_ptr & operator=(opt_intrusive_ptr const & rhs)

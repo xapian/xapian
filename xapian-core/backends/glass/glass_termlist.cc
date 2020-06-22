@@ -1,8 +1,9 @@
-/* glass_termlist.cc: Termlists in a glass database
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file glass_termlist.cc
+ * @brief Termlists in a glass database
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2014 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2014,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,14 +37,20 @@ using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 GlassTermList::GlassTermList(intrusive_ptr<const GlassDatabase> db_,
-			     Xapian::docid did_)
+			     Xapian::docid did_,
+			     bool throw_if_not_present)
 	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    LOGCALL_CTOR(DB, "GlassTermList", db_ | did_);
+    LOGCALL_CTOR(DB, "GlassTermList", db_ | did_ | throw_if_not_present);
 
     if (!db->termlist_table.get_exact_entry(GlassTermListTable::make_key(did),
-					    data))
+					    data)) {
+	if (!throw_if_not_present) {
+	    pos = NULL;
+	    return;
+	}
 	throw Xapian::DocNotFoundError("No termlist for document " + str(did));
+    }
 
     pos = data.data();
     end = pos + data.size();
@@ -82,6 +89,16 @@ GlassTermList::get_doclength() const
 {
     LOGCALL(DB, Xapian::termcount, "GlassTermList::get_doclength", NO_ARGS);
     RETURN(doclen);
+}
+
+Xapian::termcount
+GlassTermList::get_unique_terms() const
+{
+    LOGCALL(DB, Xapian::termcount, "GlassTermList::get_unique_terms", NO_ARGS);
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    RETURN(min(termlist_size, doclen));
 }
 
 Xapian::termcount
@@ -189,13 +206,16 @@ Xapian::termcount
 GlassTermList::positionlist_count() const
 {
     LOGCALL(DB, Xapian::termcount, "GlassTermList::positionlist_count", NO_ARGS);
-    RETURN(db->position_table.positionlist_count(did, current_term));
+    RETURN(db->positionlist_count(did, current_term));
 }
 
-Xapian::PositionIterator
+PositionList*
 GlassTermList::positionlist_begin() const
 {
-    LOGCALL(DB, Xapian::PositionIterator, "GlassTermList::positionlist_begin", NO_ARGS);
-    RETURN(Xapian::PositionIterator(
-	    new GlassPositionList(&db->position_table, did, current_term)));
+    LOGCALL(DB, PositionList*, "GlassTermList::positionlist_begin", NO_ARGS);
+    RETURN(db->open_position_list(did, current_term));
 }
+
+#ifdef DISABLE_GPL_LIBXAPIAN
+# error GPL source we cannot relicense included in libxapian
+#endif

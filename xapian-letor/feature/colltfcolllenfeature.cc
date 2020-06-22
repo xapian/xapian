@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2016 Ayush Tomar
+ * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,52 +23,67 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
-#include "feature_internal.h"
+#include "api/feature_internal.h"
 
 #include "debuglog.h"
+#include "stringutils.h"
 
 using namespace std;
 
 namespace Xapian {
 
-std::string
+string
 CollTfCollLenFeature::name() const
 {
     return "CollTfCollLenFeature";
 }
 
+/** A helper function for feature->get_value()
+ *
+ *  Checks if the term belongs to the title or is stemmed from the title.
+ */
+static inline bool
+is_title_term(const std::string& term)
+{
+    return startswith(term, 'S') || startswith(term, "ZS");
+}
+
 vector<double>
 CollTfCollLenFeature::get_values() const
 {
-    LOGCALL(API, std::vector<double>, "CollTfCollLenFeature::get_values", NO_ARGS);
-
-    Query query = Feature::internal->feature_query;
-    map<string, long int> coll_tf = Feature::internal->collection_termfreq();
-    map<string, long int> coll_len = Feature::internal->collection_length();
+    LOGCALL(API, vector<double>, "CollTfCollLenFeature::get_values", NO_ARGS);
 
     vector<double> values;
     double value = 0;
+    double coll_len = internal->get_collection_length("title");
 
-    for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
-	    value += log10(1 + ((double)coll_len["title"] / (double)(1 + coll_tf[*qt])));
-	else
-	    value += 0;
+    Xapian::Query feature_query = internal->get_query();
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
+	if (is_title_term((*qt))) {
+	    double tf = internal->get_collection_termfreq(*qt);
+	    value += log10(1 + (coll_len / (1 + tf)));
+	}
     }
     values.push_back(value);
     value = 0;
+    coll_len = internal->get_collection_length("body");
 
-    for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
-	    value += log10(1 + ((double)coll_len["body"] / (double)(1 + coll_tf[*qt])));
-	else
-	    value += 0;
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
+	if (!is_title_term((*qt))) {
+	    double tf = internal->get_collection_termfreq(*qt);
+	    value += log10(1 + (coll_len / (1 + tf)));
+	}
     }
     values.push_back(value);
     value = 0;
+    coll_len = internal->get_collection_length("whole");
 
-    for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	value += log10(1 + ((double)coll_len["whole"] / (double)(1 + coll_tf[*qt])));
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
+	double tf = internal->get_collection_termfreq(*qt);
+	value += log10(1 + (coll_len / (1 + tf)));
     }
     values.push_back(value);
 

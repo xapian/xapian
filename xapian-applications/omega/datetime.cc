@@ -1,7 +1,7 @@
 /** @file datetime.cc
- * @brief Parse date/time strings
+ * @brief Parse and format date/time strings
  */
-/* Copyright (c) 2013,2014,2015 Olly Betts
+/* Copyright (c) 2013,2014,2015,2016,2019 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -26,6 +26,7 @@
 
 #include "datetime.h"
 
+#include "stdclamp.h"
 #include "timegm.h"
 
 #include <cstdlib>
@@ -109,3 +110,30 @@ parse_datetime(const string & s)
     return timegm(&t);
 }
 
+// Write exactly w chars to buffer p representing integer v.
+//
+// The result is left padded with zeros if v < pow(10, w - 1).
+//
+// If v >= pow(10, w), then the output will show v % pow(10, w) (i.e. the
+// most significant digits are lost).
+static void
+format_int_fixed_width(char* p, int v, int w)
+{
+    while (--w >= 0) {
+	p[w] = '0' + (v % 10);
+	v /= 10;
+    }
+}
+
+string
+date_to_string(int year, int month, int day)
+{
+    year = STD_CLAMP(year, 0, 9999);
+    month = STD_CLAMP(month, 1, 12);
+    day = STD_CLAMP(day, 1, 31);
+    char buf[8];
+    format_int_fixed_width(buf, year, 4);
+    format_int_fixed_width(buf + 4, month, 2);
+    format_int_fixed_width(buf + 6, day, 2);
+    return string(buf, 8);
+}

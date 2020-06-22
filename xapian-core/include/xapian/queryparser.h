@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/queryparser.h> directly; include <xapian.h> instead."
+# error Never use <xapian/queryparser.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -45,10 +45,10 @@ class Stem;
 class XAPIAN_VISIBILITY_DEFAULT Stopper
     : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
-    void operator=(const Stopper &);
+    void operator=(const Stopper &) = delete;
 
     /// Don't allow copying.
-    Stopper(const Stopper &);
+    Stopper(const Stopper &) = delete;
 
   public:
     /// Default constructor.
@@ -108,7 +108,7 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
      * @endcode
      *
      */
-    template <class Iterator>
+    template<class Iterator>
     SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
 
     /// Add a single stop word.
@@ -204,7 +204,10 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *			by the user (empty string for no upper limit).
      *
      *  @return		An OP_VALUE_RANGE Query object (or if end.empty(), an
-     *			OP_VALUE_GE Query object).
+     *			OP_VALUE_GE Query object).  Or if the range isn't one
+     *			which this object can handle then
+     *			Xapian::Query(Xapian::Query::OP_INVALID) will be
+     *			returned.
      */
     virtual Xapian::Query
 	operator()(const std::string &begin, const std::string &end);
@@ -388,328 +391,46 @@ class XAPIAN_VISIBILITY_DEFAULT NumberRangeProcessor : public RangeProcessor {
     Xapian::Query operator()(const std::string& begin, const std::string& end);
 };
 
-/// Base class for value range processors.
-class XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor
-    : public Xapian::Internal::opt_intrusive_base {
-    /// Don't allow assignment.
-    void operator=(const ValueRangeProcessor &);
-
-    /// Don't allow copying.
-    ValueRangeProcessor(const ValueRangeProcessor &);
-
-  public:
-    /// Default constructor.
-    ValueRangeProcessor() { }
-
-    /// Destructor.
-    virtual ~ValueRangeProcessor();
-
-    /** Check for a valid range of this type.
-     *
-     *  @param[in,out] begin	The start of the range as specified in the query
-     *				string by the user.  This parameter is a
-     *				non-const reference so the ValueRangeProcessor
-     *				can modify it to return the value to start the
-     *				range with.
-     *  @param[in,out] end	The end of the range.  This is also a non-const
-     *				reference so it can be modified.
-     *
-     *  @return	If this ValueRangeProcessor recognises the range BEGIN..END it
-     *		returns the value slot number to range filter on.  Otherwise it
-     *		returns Xapian::BAD_VALUENO.
-     */
-    virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
-
-    /** Start reference counting this object.
-     *
-     *  You can hand ownership of a dynamically allocated ValueRangeProcessor
-     *  object to Xapian by calling release() and then passing the object to a
-     *  Xapian method.  Xapian will arrange to delete the object once it is no
-     *  longer required.
-     */
-    ValueRangeProcessor * release() {
-	opt_intrusive_base::release();
-	return this;
-    }
-
-    /** Start reference counting this object.
-     *
-     *  You can hand ownership of a dynamically allocated ValueRangeProcessor
-     *  object to Xapian by calling release() and then passing the object to a
-     *  Xapian method.  Xapian will arrange to delete the object once it is no
-     *  longer required.
-     */
-    const ValueRangeProcessor * release() const {
-	opt_intrusive_base::release();
-	return this;
-    }
-};
-
-/** Handle a string range.
- *
- *  The end points can be any strings.
- *
- *  @deprecated Use Xapian::RangeProcessor instead (added in 1.3.6).
- */
-class XAPIAN_DEPRECATED_CLASS_EX XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangeProcessor {
-  protected:
-    /** The value slot to process. */
-    Xapian::valueno valno;
-
-    /** Whether to look for @a str as a prefix or suffix. */
-    bool prefix;
-
-    /** The prefix (or suffix if prefix==false) string to look for. */
-    std::string str;
-
-  public:
-    /** Constructor.
-     *
-     *  @param slot_	The value number to return from operator().
-     */
-    explicit StringValueRangeProcessor(Xapian::valueno slot_)
-	: valno(slot_), str() { }
-
-    /** Constructor.
-     *
-     *  @param slot_	The value number to return from operator().
-     *  @param str_     A string to look for to recognise values as belonging
-     *                  to this range.
-     *  @param prefix_	Flag specifying whether to check for str_ as a prefix
-     *			or a suffix.
-     */
-    StringValueRangeProcessor(Xapian::valueno slot_, const std::string &str_,
-			      bool prefix_ = true)
-	: valno(slot_), prefix(prefix_), str(str_) { }
-
-    /** Check for a valid string range.
-     *
-     *  @param[in,out] begin	The start of the range as specified in the
-     *				query string by the user.  This parameter is a
-     *				non-const reference so the ValueRangeProcessor
-     *				can modify it to return the value to start the
-     *				range with.
-     *  @param[in,out] end	The end of the range.  This is also a non-const
-     *				reference so it can be modified.
-     *
-     *  @return	A StringValueRangeProcessor always accepts a range it is
-     *		offered, and returns the value of slot_ passed at construction
-     *		time.  It doesn't modify @a begin or @a end.
-     */
-    Xapian::valueno operator()(std::string &begin, std::string &end);
-};
-
-/** Handle a date range.
- *
- *  Begin and end must be dates in a recognised format.
- *
- *  @deprecated Use Xapian::DateRangeProcessor instead (added in 1.3.6).
- */
-class XAPIAN_DEPRECATED_CLASS_EX XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRangeProcessor {
-    bool prefer_mdy;
-    int epoch_year;
-
-  public:
-    /** Constructor.
-     *
-     *  @param slot_	    The value number to return from operator().
-     *  @param prefer_mdy_  Should ambiguous dates be interpreted as
-     *			    month/day/year rather than day/month/year?
-     *			    (default: false)
-     *  @param epoch_year_  Year to use as the epoch for dates with 2 digit
-     *			    years (default: 1970, so 1/1/69 is 2069 while
-     *			    1/1/70 is 1970).
-     */
-    DateValueRangeProcessor(Xapian::valueno slot_, bool prefer_mdy_ = false,
-			    int epoch_year_ = 1970)
-	: StringValueRangeProcessor(slot_),
-	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
-
-    /** Constructor.
-     *
-     *  @param slot_	    The value number to return from operator().
-     *
-     *  @param str_     A string to look for to recognise values as belonging
-     *                  to this date range.
-     *
-     *  @param prefix_  Whether to look for the string at the start or end of
-     *                  the values.  If true, the string is a prefix; if
-     *                  false, the string is a suffix (default: true).
-     *
-     *  @param prefer_mdy_  Should ambiguous dates be interpreted as
-     *			    month/day/year rather than day/month/year?
-     *			    (default: false)
-     *
-     *  @param epoch_year_  Year to use as the epoch for dates with 2 digit
-     *			    years (default: 1970, so 1/1/69 is 2069 while
-     *			    1/1/70 is 1970).
-     *
-     *  The string supplied in str_ is used by @a operator() to decide whether
-     *  the pair of strings supplied to it constitute a valid range.  If
-     *  prefix_ is true, the first value in a range must begin with str_ (and
-     *  the second value may optionally begin with str_);
-     *  if prefix_ is false, the second value in a range must end with str_
-     *  (and the first value may optionally end with str_).
-     *
-     *  If str_ is empty, the setting of prefix_ is irrelevant, and no special
-     *  strings are required at the start or end of the strings defining the
-     *  range.
-     *
-     *  The remainder of both strings defining the endpoints must be valid
-     *  dates.
-     *
-     *  For example, if str_ is "created:" and prefix_ is true, and the range
-     *  processor has been added to the queryparser, the queryparser will
-     *  accept "created:1/1/2000..31/12/2001".
-     */
-    DateValueRangeProcessor(Xapian::valueno slot_, const std::string &str_,
-			    bool prefix_ = true,
-			    bool prefer_mdy_ = false, int epoch_year_ = 1970)
-	: StringValueRangeProcessor(slot_, str_, prefix_),
-	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
-
-#ifndef SWIG
-    /** Constructor.
-     *
-     *  This is like the previous version, but with const char * instead of
-     *  std::string - we need this overload as otherwise
-     *  DateValueRangeProcessor(1, "date:") quietly interprets the second
-     *  argument as a boolean in preference to std::string.  If you want to
-     *  be compatible with 1.2.12 and earlier, then explicitly convert to
-     *  std::string, i.e.: DateValueRangeProcessor(1, std::string("date:"))
-     *
-     *  @param slot_	    The value number to return from operator().
-     *
-     *  @param str_     A string to look for to recognise values as belonging
-     *                  to this date range.
-     *
-     *  @param prefix_  Whether to look for the string at the start or end of
-     *                  the values.  If true, the string is a prefix; if
-     *                  false, the string is a suffix (default: true).
-     *
-     *  @param prefer_mdy_  Should ambiguous dates be interpreted as
-     *			    month/day/year rather than day/month/year?
-     *			    (default: false)
-     *
-     *  @param epoch_year_  Year to use as the epoch for dates with 2 digit
-     *			    years (default: 1970, so 1/1/69 is 2069 while
-     *			    1/1/70 is 1970).
-     *
-     *  The string supplied in str_ is used by @a operator() to decide whether
-     *  the pair of strings supplied to it constitute a valid range.  If
-     *  prefix_ is true, the first value in a range must begin with str_ (and
-     *  the second value may optionally begin with str_);
-     *  if prefix_ is false, the second value in a range must end with str_
-     *  (and the first value may optionally end with str_).
-     *
-     *  If str_ is empty, the setting of prefix_ is irrelevant, and no special
-     *  strings are required at the start or end of the strings defining the
-     *  range.
-     *
-     *  The remainder of both strings defining the endpoints must be valid
-     *  dates.
-     *
-     *  For example, if str_ is "created:" and prefix_ is true, and the range
-     *  processor has been added to the queryparser, the queryparser will
-     *  accept "created:1/1/2000..31/12/2001".
-     */
-    DateValueRangeProcessor(Xapian::valueno slot_, const char * str_,
-			    bool prefix_ = true,
-			    bool prefer_mdy_ = false, int epoch_year_ = 1970)
-	: StringValueRangeProcessor(slot_, str_, prefix_),
-	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
-#endif
-
-    /** Check for a valid date range.
-     *
-     *  @param[in,out] begin	The start of the range as specified in the
-     *				query string by the user.  This parameter is a
-     *				non-const reference so the ValueRangeProcessor
-     *				can modify it to return the value to start the
-     *				range with.
-     *  @param[in,out] end	The end of the range.  This is also a non-const
-     *				reference so it can be modified.
-     *
-     *  @return	If BEGIN..END is a sensible date range, this method modifies
-     *		them into the format YYYYMMDD and returns the value of slot_
-     *		passed at construction time.  Otherwise it returns
-     *		Xapian::BAD_VALUENO.
-     */
-    Xapian::valueno operator()(std::string &begin, std::string &end);
-};
-
-/** Handle a number range.
+/** Handle a byte unit range.
  *
  *  This class must be used on values which have been encoded using
  *  Xapian::sortable_serialise() which turns numbers into strings which
  *  will sort in the same order as the numbers (the same values can be
  *  used to implement a numeric sort).
- *
- *  @deprecated Use Xapian::NumberRangeProcessor instead (added in 1.3.6).
  */
-class XAPIAN_DEPRECATED_CLASS_EX XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRangeProcessor {
+class XAPIAN_VISIBILITY_DEFAULT UnitRangeProcessor : public RangeProcessor {
   public:
     /** Constructor.
      *
-     *  @param slot_   The value number to return from operator().
-     */
-    explicit NumberValueRangeProcessor(Xapian::valueno slot_)
-	: StringValueRangeProcessor(slot_) { }
-
-    /** Constructor.
-     *
-     *  @param slot_    The value number to return from operator().
+     *  @param slot_    The value slot number to query.
      *
      *  @param str_     A string to look for to recognise values as belonging
      *                  to this numeric range.
      *
-     *  @param prefix_  Whether to look for the string at the start or end of
-     *                  the values.  If true, the string is a prefix; if
-     *                  false, the string is a suffix (default: true).
+     *  The string supplied in str_ is the prefix plus ":" that defines the field
+     *  upon which the range query is performed.
      *
-     *  The string supplied in str_ is used by @a operator() to decide whether
-     *  the pair of strings supplied to it constitute a valid range.  If
-     *  prefix_ is true, the first value in a range must begin with str_ (and
-     *  the second value may optionally begin with str_);
-     *  if prefix_ is false, the second value in a range must end with str_
-     *  (and the first value may optionally end with str_).
-     *
-     *  If str_ is empty, the setting of prefix_ is irrelevant, and no special
-     *  strings are required at the start or end of the strings defining the
-     *  range.
-     *
-     *  The remainder of both strings defining the endpoints must be valid
-     *  floating point numbers. (FIXME: define format recognised).
-     *
-     *  For example, if str_ is "$" and prefix_ is true, and the range
+     *  For example, if str_ is "size:", and the range
      *  processor has been added to the queryparser, the queryparser will
-     *  accept "$10..50" or "$10..$50", but not "10..50" or "10..$50" as valid
-     *  ranges.  If str_ is "kg" and prefix_ is false, the queryparser will
-     *  accept "10..50kg" or "10kg..50kg", but not "10..50" or "10kg..50" as
-     *  valid ranges.
+     *  accept "size:3K..10K" as a valid range.
      */
-    NumberValueRangeProcessor(Xapian::valueno slot_, const std::string &str_,
-			      bool prefix_ = true)
-	: StringValueRangeProcessor(slot_, str_, prefix_) { }
+    UnitRangeProcessor(Xapian::valueno slot_,
+		       const std::string &str_ = std::string())
+	: RangeProcessor(slot_, str_) { }
 
-    /** Check for a valid numeric range.
+    /** Check for a valid byte value range.
      *
-     *  @param[in,out] begin	The start of the range as specified in the
-     *				query string by the user.  This parameter is a
-     *				non-const reference so the ValueRangeProcessor
-     *				can modify it to return the value to start the
-     *				range with.
-     *  @param[in,out] end	The end of the range.  This is also a non-const
-     *				reference so it can be modified.
+     *  If BEGIN..END is a valid numeric byte range with the specified prefix
+     *  the prefix is removed, the string converted to a number, unit
+     *  normalized and encoded with Xapian::sortable_serialise(),
+     *  and a value range query is built.
      *
-     *  @return	If BEGIN..END is a valid numeric range with the specified
-     *		prefix/suffix (if one was specified), this method modifies
-     *		them by removing the prefix/suffix, converting to a number,
-     *		and encoding with Xapian::sortable_serialise(), and returns the
-     *		value of slot_ passed at construction time.  Otherwise it
-     *		returns Xapian::BAD_VALUENO.
+     *  @param begin	The start of the range as specified in the query string
+     *			by the user.
+     *  @param end	The end of the range as specified in the query string
+     *			by the user.
      */
-    Xapian::valueno operator()(std::string &begin, std::string &end);
+    Xapian::Query operator()(const std::string& begin, const std::string& end);
 };
 
 /** Base class for field processors.
@@ -768,7 +489,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Class representing the queryparser internals.
     class Internal;
     /// @private @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
+    Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
 
     /// Enum of feature flags.
     typedef enum {
@@ -782,7 +503,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	FLAG_BOOLEAN_ANY_CASE = 8,
 	/** Support wildcards.
 	 *
-	 *  At present only right truncation (e.g. Xap*) is supported.
+	 *  This flag only enables support for right truncation (e.g. Xap*) -
+	 *  see FLAG_WILDCARD_MULTI, FLAG_WILDCARD_SINGLE and FLAG_WILDCARD_GLOB
+	 *  for extended wildcard support.
 	 *
 	 *  Currently you can't use wildcards with boolean filter prefixes,
 	 *  or in a phrase (either an explicitly quoted one, or one implicitly
@@ -866,30 +589,102 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *
 	 *  The corresponding option needs to have been used at index time.
 	 *
-	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  Flag added in Xapian 1.3.4 and 1.2.22.  This mode can be
 	 *  enabled in 1.2.8 and later by setting environment variable
-	 *  XAPIAN_CJK_NGRAM.
+	 *  XAPIAN_CJK_NGRAM to a non-empty value (but doing so was deprecated
+	 *  in 1.4.11).
 	 */
 	FLAG_CJK_NGRAM = 2048,
+
+	/** Enable generation of words from CJK text.
+	 *
+	 *  With this enabled, spans of CJK characters are split into CJK
+	 *  words using text boundary heuristics. Non-CJK characters are
+	 *  split into words as normal.
+	 *
+	 *  The corresponding option needs to have been used at index time.
+	 */
+	FLAG_CJK_WORDS = 4096,
+
+	/** Support extended wildcard '*'.
+	 *
+	 *  This flag enables support for wildcard '*' matching zero
+	 *  or more characters, which may be used anywhere in a word.
+	 *
+	 *  Such wildcards can be relatively expensive to expand and to match
+	 *  so benchmark your system carefully if you have a lot of documents
+	 *  and/or a high search load.
+	 *
+	 *  FLAG_WILDCARD is ignored if this flag is specified.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	FLAG_WILDCARD_MULTI = 8192,
+
+	/** Support extended wildcard '?'.
+	 *
+	 *  This flag enables support for wildcard '?' matching exactly one
+	 *  character, which may be use anywhere in a word.
+	 *
+	 *  Such wildcards can be relatively expensive to expand and to match
+	 *  so benchmark your system carefully if you have a lot of documents
+	 *  and/or a high search load.
+	 *
+	 *  FLAG_WILDCARD is ignored if this flag is specified.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	FLAG_WILDCARD_SINGLE = 16384,
+
+	/** Enable glob-style wildcarding.
+	 *
+	 *  This enables all supported glob-style wildcard pattern flags
+	 *  - currently that's FLAG_WILDCARD_MULTI and FLAG_WILDCARD_SINGLE.
+	 *
+	 *  FLAG_WILDCARD is ignored if this flag is specified.
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	FLAG_WILDCARD_GLOB = FLAG_WILDCARD_MULTI | FLAG_WILDCARD_SINGLE,
+
+	/** Support fuzzy matching.
+	 *
+	 *  E.g. "unserten~3" would expand to "uncertain" (and likely other
+	 *  terms).
+	 *
+	 *  foo~ uses edit distance of 2
+	 *  since~0.2 uses edit distance of length("since") * 0.2 = 5 * 0.2 = 1
+	 *
+	 *  @since Added in Xapian 1.5.0.
+	 */
+	FLAG_FUZZY = 32768,
 
 	/** The default flags.
 	 *
 	 *  Used if you don't explicitly pass any to @a parse_query().
 	 *  The default flags are FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE.
 	 *
-	 *  Added in Xapian 1.0.11.
+	 *  @since Added in Xapian 1.0.11.
 	 */
 	FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
     } feature_flag;
 
     /// Stemming strategies, for use with set_stemming_strategy().
-    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
+    typedef enum {
+	STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
+    } stem_strategy;
 
     /// Copy constructor.
     QueryParser(const QueryParser & o);
 
     /// Assignment.
     QueryParser & operator=(const QueryParser & o);
+
+    /// Move constructor.
+    QueryParser(QueryParser && o);
+
+    /// Move assignment operator.
+    QueryParser & operator=(QueryParser && o);
 
     /// Default constructor.
     QueryParser();
@@ -914,8 +709,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /** Set the stemming strategy.
      *
      *  This controls how the query parser will apply the stemming algorithm.
-     *  Note that the stemming algorithm is only applied to words in
-     *  probabilistic fields - boolean filter terms are never stemmed.
+     *  Note that the stemming algorithm is only applied to words in free-text
+     *  fields - boolean filter terms are never stemmed.
      *
      *  @param strategy	The strategy to use - possible values are:
      *   - STEM_NONE:	Don't perform any stemming.  (default in Xapian <=
@@ -926,6 +721,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			with operators which need positional information.
      *			Stemmed terms are prefixed with 'Z'.  (default in
      *			Xapian >= 1.3.1)
+     *   - STEM_SOME_FULL_POS:
+     *			Like STEM_SOME but also stems terms used with operators
+     *			which need positional information.  Added in Xapian
+     *			1.4.8.
      *   - STEM_ALL:	Stem all terms (note: no 'Z' prefix is added).
      *   - STEM_ALL_Z:	Stem all terms (note: 'Z' prefix is added).  (new in
      *			Xapian 1.2.11 and 1.3.1)
@@ -966,15 +765,16 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     void set_database(const Database &db);
 
-    /** Specify the maximum expansion of a wildcard and/or partial term.
+    /** Specify the maximum expansion of a wildcard and/or partial and/or
+     *  fuzzy term.
      *
-     *  Note: you must also set FLAG_WILDCARD and/or FLAG_PARTIAL in the flags
-     *  parameter to @a parse_query() for this setting to have anything to
-     *  affect.
+     *  Note: you must also set FLAG_WILDCARD and/or FLAG_PARTIAL and/or
+     *  FLAG_FUZZY in the flags parameter to @a parse_query() for this setting
+     *  to have anything to affect.
      *
      *  If you don't call this method, the default settings are no limit on
-     *  wildcard expansion, and partial terms expanding to the most frequent
-     *  100 terms - i.e. as if you'd called:
+     *  wildcard and fuzzy expansion, and partial terms expanding to the most
+     *  frequent 100 terms - i.e. as if you'd called:
      *
      *  set_max_expansion(0);
      *  set_max_expansion(100, Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT, Xapian::QueryParser::FLAG_PARTIAL);
@@ -987,26 +787,42 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *			@a Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT
      *			(default: Xapian::Query::WILDCARD_LIMIT_ERROR).
      *  @param flags	What to set the limit for (default:
-     *			FLAG_WILDCARD|FLAG_PARTIAL, setting the limit for both
-     *			wildcards and partial terms).
+     *			FLAG_WILDCARD|FLAG_PARTIAL|FLAG_FUZZY, setting the
+     *			limit for all types).
+     *
+     *  @since 1.3.3
      */
     void set_max_expansion(Xapian::termcount max_expansion,
 			   int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR,
-			   unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
+			   unsigned flags = FLAG_WILDCARD |
+					    FLAG_PARTIAL |
+					    FLAG_FUZZY);
 
-    /** Specify the maximum expansion of a wildcard.
+    /** Specify minimum length for fixed initial portion in wildcard patterns.
      *
-     *  If any wildcard expands to more than @a max_expansion terms, an
-     *  exception will be thrown.
+     *  It can be desirable for performance reasons to restrict use of
+     *  wildcards to patterns with a fixed initial portion, so this method
+     *  provides a way to specify a minimum length.  A wildcard pattern
+     *  with a shorter (or no) fixed initial portion will result in
+     *  Xapian::QueryParser being thrown.  The default minimum length is 0.
      *
-     *  This method is provided for API compatibility with Xapian 1.2.x and is
-     *  deprecated - replace it with:
+     *  It also provides a way to specify the minimum length of a word to
+     *  expand for partial matching (see @a FLAG_PARTIAL).  In this case
+     *  a shorter word at the end of the query simply result in no partial
+     *  matching.  The default minimum length for this case is 2 (since
+     *  1.5.0 - in earlier versions it was effectively 0).
      *
-     *  set_max_wildcard_expansion(max_expansion,
-     *				   Xapian::Query::WILDCARD_LIMIT_ERROR,
-     *				   Xapian::QueryParser::FLAG_WILDCARD);
+     *  @param min_prefix_len	Minimum length of fixed initial portion in
+     *			        Unicode characters.
+     *  @param flags		What to set the minimum length for
+     *				(default: FLAG_WILDCARD|FLAG_PARTIAL, setting
+     *				the limit for both wildcards and partial
+     *				terms).
+     *
+     *  @since Added in Xapian 1.5.0.
      */
-    XAPIAN_DEPRECATED(void set_max_wildcard_expansion(Xapian::termcount));
+    void set_min_wildcard_prefix(unsigned min_prefix_len,
+				 unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
 
     /** Parse a query.
      *
@@ -1035,7 +851,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 		      unsigned flags = FLAG_DEFAULT,
 		      const std::string &default_prefix = std::string());
 
-    /** Add a probabilistic term prefix.
+    /** Add a free-text field term prefix.
      *
      *  For example:
      *
@@ -1090,7 +906,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @endcode
      *
      *  This allows the user to restrict a search with site:xapian.org which
-     *  will be converted to Hxapian.org combined with any probabilistic
+     *  will be converted to Hxapian.org combined with any weighted
      *  query with @c Xapian::Query::OP_FILTER.
      *
      *  If multiple boolean filters are specified in a query for the same
@@ -1186,7 +1002,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     TermIterator stoplist_begin() const;
 
     /// End iterator over terms omitted from the query as stopwords.
-    TermIterator XAPIAN_NOTHROW(stoplist_end() const) {
+    TermIterator stoplist_end() const noexcept {
 	return TermIterator();
     }
 
@@ -1194,41 +1010,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     TermIterator unstem_begin(const std::string &term) const;
 
     /// End iterator over unstemmed forms of the given stemmed query term.
-    TermIterator XAPIAN_NOTHROW(unstem_end(const std::string &) const) {
+    TermIterator unstem_end(const std::string&) const noexcept {
 	return TermIterator();
     }
 
     /// Register a RangeProcessor.
     void add_rangeprocessor(Xapian::RangeProcessor * range_proc,
 			    const std::string* grouping = NULL);
-
-    /** Register a ValueRangeProcessor.
-     *
-     *  This method is provided for API compatibility with Xapian 1.2.x and is
-     *  deprecated - use @a add_rangeprocessor() with a RangeProcessor instead.
-     */
-    XAPIAN_DEPRECATED(void add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc)) {
-	/// Compatibility shim.
-	class ShimRangeProcessor : public RangeProcessor {
-	    Xapian::Internal::opt_intrusive_ptr<Xapian::ValueRangeProcessor> vrp;
-
-	  public:
-	    ShimRangeProcessor(Xapian::ValueRangeProcessor * vrp_)
-		: RangeProcessor(Xapian::BAD_VALUENO), vrp(vrp_) { }
-
-	    Xapian::Query
-	    operator()(const std::string &begin, const std::string &end)
-	    {
-		std::string b = begin, e = end;
-		slot = (*vrp)(b, e);
-		if (slot == Xapian::BAD_VALUENO)
-		    return Xapian::Query(Xapian::Query::OP_INVALID);
-		return RangeProcessor::operator()(b, e);
-	    }
-	};
-
-	add_rangeprocessor((new ShimRangeProcessor(vrproc))->release());
-    }
 
     /** Get the spelling-corrected query string.
      *
@@ -1243,17 +1031,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     std::string get_description() const;
 };
 
-inline void
-QueryParser::set_max_wildcard_expansion(Xapian::termcount max_expansion)
-{
-    set_max_expansion(max_expansion,
-		      Xapian::Query::WILDCARD_LIMIT_ERROR,
-		      FLAG_WILDCARD);
-}
-
 /// @private @internal Helper for sortable_serialise().
 XAPIAN_VISIBILITY_DEFAULT
-size_t XAPIAN_NOTHROW(sortable_serialise_(double value, char * buf));
+size_t sortable_serialise_(double value, char* buf) noexcept;
 
 /** Convert a floating point number to a string, preserving sort order.
  *
@@ -1301,7 +1081,7 @@ inline std::string sortable_serialise(double value) {
  *  @param serialised	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double XAPIAN_NOTHROW(sortable_unserialise(const std::string & serialised));
+double sortable_unserialise(const std::string& serialised) noexcept;
 
 }
 

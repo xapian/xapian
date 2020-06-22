@@ -1,0 +1,2 @@
+$httpheader{Status,302 Found}$httpheader{Location,$field{url,$cgi{DOCID}}}
+$if{$log{clicks.log,$csv{$cgi{QUERYID},1}$.$csv{$cgi{DOCID},1}}}

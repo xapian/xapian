@@ -1,7 +1,7 @@
 /** @file multixorpostlist.cc
  * @brief N-way XOR postlist
  */
-/* Copyright (C) 2007,2009,2010,2011,2012,2016 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012,2016,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@
 #include "multixorpostlist.h"
 
 #include "debuglog.h"
-#include "multimatch.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -150,31 +149,34 @@ MultiXorPostList::get_termfreq_est_using_stats(
     Assert(stats.collection_size);
     double scale = 1.0 / stats.collection_size;
     double P_est = freqs.termfreq * scale;
-    double Pr_est = freqs.reltermfreq * scale;
-    double Pc_est = freqs.collfreq * scale;
+    double rtf_scale = 0.0;
+    if (stats.rset_size != 0) {
+	rtf_scale = 1.0 / stats.rset_size;
+    }
+    double Pr_est = freqs.reltermfreq * rtf_scale;
+    // If total_length is 0, cf must always be 0 so cf_scale is irrelevant.
+    double cf_scale = 0.0;
+    if (usual(stats.total_length != 0)) {
+	cf_scale = 1.0 / stats.total_length;
+    }
+    double Pc_est = freqs.collfreq * cf_scale;
 
     for (size_t i = 1; i < n_kids; ++i) {
+	freqs = plist[i]->get_termfreq_est_using_stats(stats);
 	double P_i = freqs.termfreq * scale;
 	P_est += P_i - 2.0 * P_est * P_i;
-	double Pc_i = freqs.collfreq * scale;
+	double Pc_i = freqs.collfreq * cf_scale;
 	Pc_est += Pc_i - 2.0 * Pc_est * Pc_i;
 	// If the rset is empty, Pr_est should be 0 already, so leave
 	// it alone.
 	if (stats.rset_size != 0) {
-	    double Pr_i = freqs.reltermfreq / stats.rset_size;
+	    double Pr_i = freqs.reltermfreq * rtf_scale;
 	    Pr_est += Pr_i - 2.0 * Pr_est * Pr_i;
 	}
     }
     RETURN(TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
 		     Xapian::doccount(Pr_est * stats.rset_size + 0.5),
-		     Xapian::termcount(Pc_est * stats.total_term_count)));
-}
-
-double
-MultiXorPostList::get_maxweight() const
-{
-    LOGCALL(MATCH, double, "MultiXorPostList::get_maxweight", NO_ARGS);
-    RETURN(max_total);
+		     Xapian::termcount(Pc_est * stats.total_length + 0.5)));
 }
 
 Xapian::docid
@@ -183,54 +185,15 @@ MultiXorPostList::get_docid() const
     return did;
 }
 
-Xapian::termcount
-MultiXorPostList::get_doclength() const
-{
-    Assert(did);
-    Xapian::termcount doclength = 0;
-    bool doclength_set = false;
-    for (size_t i = 0; i < n_kids; ++i) {
-	if (plist[i]->get_docid() == did) {
-	    if (doclength_set) {
-		AssertEq(doclength, plist[i]->get_doclength());
-	    } else {
-		doclength = plist[i]->get_doclength();
-		doclength_set = true;
-	    }
-	}
-    }
-    Assert(doclength_set);
-    return doclength;
-}
-
-Xapian::termcount
-MultiXorPostList::get_unique_terms() const
-{
-    Assert(did);
-    Xapian::termcount unique_terms = 0;
-    bool unique_terms_set = false;
-    for (size_t i = 0; i < n_kids; ++i) {
-	if (plist[i]->get_docid() == did) {
-	    if (unique_terms_set) {
-		AssertEq(unique_terms, plist[i]->get_unique_terms());
-	    } else {
-		unique_terms = plist[i]->get_unique_terms();
-		unique_terms_set = true;
-	    }
-	}
-    }
-    Assert(unique_terms_set);
-    return unique_terms;
-}
-
 double
-MultiXorPostList::get_weight() const
+MultiXorPostList::get_weight(Xapian::termcount doclen,
+			     Xapian::termcount unique_terms) const
 {
     Assert(did);
     double result = 0;
     for (size_t i = 0; i < n_kids; ++i) {
 	if (plist[i]->get_docid() == did)
-	    result += plist[i]->get_weight();
+	    result += plist[i]->get_weight(doclen, unique_terms);
     }
     return result;
 }
@@ -245,7 +208,7 @@ double
 MultiXorPostList::recalc_maxweight()
 {
     LOGCALL(MATCH, double, "MultiXorPostList::recalc_maxweight", NO_ARGS);
-    max_total = plist[0]->recalc_maxweight();
+    double max_total = plist[0]->recalc_maxweight();
     double min_max = max_total;
     for (size_t i = 1; i < n_kids; ++i) {
 	double new_max = plist[i]->recalc_maxweight();
@@ -274,7 +237,7 @@ MultiXorPostList::next(double w_min)
 	    if (res) {
 		delete plist[i];
 		plist[i] = res;
-		matcher->recalc_maxweight();
+		matcher->force_recalc();
 	    }
 
 	    if (plist[i]->at_end()) {
@@ -323,7 +286,7 @@ MultiXorPostList::skip_to(Xapian::docid did_min, double w_min)
 	    if (res) {
 		delete plist[i];
 		plist[i] = res;
-		matcher->recalc_maxweight();
+		matcher->force_recalc();
 	    }
 
 	    if (plist[i]->at_end()) {

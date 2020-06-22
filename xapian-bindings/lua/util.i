@@ -1,7 +1,7 @@
 /* lua/util.i: custom lua typemaps for xapian-bindings
  *
  * Copyright (C) 2011 Xiaona Han
- * Copyright (C) 2011,2012 Olly Betts
+ * Copyright (C) 2011,2012,2017,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,19 @@
 
 %rename("__tostring") get_description;
 
+// On platforms where (sizeof(long) == 4), SWIG by default wraps
+// Xapian::BAD_VALUENO as a negative constant in Lua, which is then rejected by
+// a check which disallows passing negative values for unsigned C++ types.
+// This %apply wraps it as a double constant, and also eliminates the negative
+// value check.
+%apply double { Xapian::valueno };
+
 %{
 #if LUA_VERSION_NUM-0 >= 502
 // luaL_typerror was removed in Lua 5.2.
 int luaL_typerror (lua_State *L, int narg, const char *tname) {
   const char *msg = lua_pushfstring(L, "%s expected, got %s",
-                                    tname, luaL_typename(L, narg));
+				    tname, luaL_typename(L, narg));
   return luaL_argerror(L, narg, msg);
 }
 #endif
@@ -60,7 +67,7 @@ class lua##CLASS : public NS::CLASS {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	lua_pushlstring(L, (char *)term.c_str(), term.length());
+	lua_pushlstring(L, term.data(), term.length());
 	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
@@ -104,7 +111,7 @@ class luaMatchDecider : public Xapian::MatchDecider {
 	}
 
 	SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
-	if (lua_pcall(L, 1, 1, 0) != 0){
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isboolean(L, -1)) {
@@ -141,8 +148,8 @@ class luaStemImplementation : public Xapian::StemImplementation {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	lua_pushlstring(L, (char *)word.c_str(), word.length());
-	if (lua_pcall(L, 1, 1, 0) != 0){
+	lua_pushlstring(L, word.data(), word.length());
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isstring(L, -1)) {
@@ -156,23 +163,7 @@ class luaStemImplementation : public Xapian::StemImplementation {
     }
 
     std::string get_description() const {
-	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
-	if (!lua_isfunction(L, -1)) {
-	    luaL_typerror(L, -1, "function");
-	}
-
-	if (lua_pcall(L, 0, 1, 0) != 0){
-	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
-	}
-	if (!lua_isstring(L, -1)) {
-	    luaL_error(L, "function must return a string");
-	}
-
-	size_t len;
-	const char * p = lua_tolstring(L, -1, &len);
-	std::string result(p, len);
-	lua_pop(L, 1);
-	return result;
+	return "luaStemImplementation()";
     }
 };
 %}
@@ -202,7 +193,7 @@ class luaKeyMaker : public Xapian::KeyMaker {
 	}
 
 	SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
-	if (lua_pcall(L, 1, 1, 0) != 0){
+	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
 	if (!lua_isstring(L, -1)) {
@@ -218,12 +209,12 @@ class luaKeyMaker : public Xapian::KeyMaker {
 %}
 
 %{
-class luaValueRangeProcessor : public Xapian::ValueRangeProcessor {
+class luaRangeProcessor : public Xapian::RangeProcessor {
     int r;
     lua_State* L;
 
   public:
-    luaValueRangeProcessor(lua_State* S) {
+    luaRangeProcessor(lua_State* S) {
 	L = S;
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
@@ -231,28 +222,42 @@ class luaValueRangeProcessor : public Xapian::ValueRangeProcessor {
 	r = luaL_ref(L, LUA_REGISTRYINDEX);
     }
 
-    ~luaValueRangeProcessor() {
+    ~luaRangeProcessor() {
 	luaL_unref(L, LUA_REGISTRYINDEX, r);
     }
 
-    Xapian::valueno operator()(std::string &begin, std::string &end) {
+    Xapian::Query operator()(const std::string& begin, const std::string& end) {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, r);
 	if (!lua_isfunction(L, -1)) {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	lua_pushlstring(L, (char *)begin.c_str(), begin.length());
-	lua_pushlstring(L, (char *)end.c_str(), end.length());
+	lua_pushlstring(L, begin.data(), begin.length());
+	lua_pushlstring(L, end.data(), end.length());
 
-	if (lua_pcall(L, 2, 1, 0) != 0){
+	if (lua_pcall(L, 2, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
-	if (!lua_isnumber(L, -1)) {
-	    luaL_error(L, "function must return a number");
+
+	// Allow the function to return a string or Query object.
+	if (lua_isstring(L, -1)) {
+	    size_t len;
+	    const char * p = lua_tolstring(L, -1, &len);
+	    std::string result(p, len);
+	    lua_pop(L, 1);
+	    return Xapian::Query(result);
 	}
-	Xapian::valueno result(lua_tonumber(L, -1));
+
+	Xapian::Query *subq = 0;
+	if (!lua_isuserdata(L, -1) ||
+	    SWIG_ConvertPtr(L, -1, (void **)&subq,
+			    SWIGTYPE_p_Xapian__Query, 0) == -1) {
+	    lua_pop(L, 1);
+	    luaL_error(L, "function must return a string or Query object");
+	}
+
 	lua_pop(L, 1);
-	return result;
+	return *subq;
     }
 };
 %}
@@ -281,20 +286,20 @@ class luaFieldProcessor : public Xapian::FieldProcessor {
 	    luaL_typerror(L, -1, "function");
 	}
 
-	lua_pushlstring(L, (char *)str.c_str(), str.length());
+	lua_pushlstring(L, str.data(), str.length());
 
 	if (lua_pcall(L, 1, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
-        }
+	}
 
-        // Allow the function to return a string or Query object.
+	// Allow the function to return a string or Query object.
 	if (lua_isstring(L, -1)) {
-            size_t len;
-            const char * p = lua_tolstring(L, -1, &len);
-            std::string result(p, len);
-            lua_pop(L, 1);
-            return Xapian::Query(result);
-        }
+	    size_t len;
+	    const char * p = lua_tolstring(L, -1, &len);
+	    std::string result(p, len);
+	    lua_pop(L, 1);
+	    return Xapian::Query(result);
+	}
 
 	Xapian::Query *subq = 0;
 	if (!lua_isuserdata(L, -1) ||
@@ -336,7 +341,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
 
 	SWIG_NewPointerObj(L, &doc, SWIGTYPE_p_Xapian__Document, 0);
 	SWIG_NewPointerObj(L, &wt, SWIGTYPE_p_Xapian__Weight, 0);
-	if (lua_pcall(L, 2, 1, 0) != 0){
+	if (lua_pcall(L, 2, 1, 0) != 0) {
 	    luaL_error(L, "error running function: %s", lua_tostring(L, -1));
 	}
     }
@@ -357,7 +362,7 @@ class luaMatchSpy : public Xapian::MatchSpy {
     if (lua_isfunction(L, $input)) {
 	$1 = new lua##CLASS(L);
     } else {
-	if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, $descriptor(NS::CLASS *), 0))){
+	if (!SWIG_IsOK(SWIG_ConvertPtr(L, $input, (void**)&$1, $descriptor(NS::CLASS *), 0))) {
 	    SWIG_fail;
 	}
     }
@@ -369,8 +374,9 @@ SUB_CLASS_TYPEMAPS(Xapian, ExpandDecider)
 SUB_CLASS_TYPEMAPS(Xapian, Stopper)
 SUB_CLASS_TYPEMAPS(Xapian, StemImplementation)
 SUB_CLASS_TYPEMAPS(Xapian, KeyMaker)
-SUB_CLASS_TYPEMAPS(Xapian, ValueRangeProcessor)
+SUB_CLASS_TYPEMAPS(Xapian, RangeProcessor)
 SUB_CLASS_TYPEMAPS(Xapian, FieldProcessor)
+SUB_CLASS_TYPEMAPS(Xapian, MatchSpy)
 
 %luacode {
 function xapian.Iterator(begin, _end)
@@ -470,7 +476,7 @@ class XapianSWIGQueryItor {
     }
 
     difference_type operator-(const XapianSWIGQueryItor &o) const {
-        return i - o.i;
+	return i - o.i;
     }
 };
 

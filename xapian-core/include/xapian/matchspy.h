@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/matchspy.h> directly; include <xapian.h> instead."
+# error Never use <xapian/matchspy.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -50,14 +50,14 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
     : public Xapian::Internal::opt_intrusive_base {
   private:
     /// Don't allow assignment.
-    void operator=(const MatchSpy &);
+    void operator=(const MatchSpy &) = delete;
 
     /// Don't allow copying.
-    MatchSpy(const MatchSpy &);
+    MatchSpy(const MatchSpy &) = delete;
 
   public:
     /// Default constructor, needed by subclass constructors.
-    XAPIAN_NOTHROW(MatchSpy()) {}
+    MatchSpy() noexcept {}
 
     /** Virtual destructor, because we have virtual methods. */
     virtual ~MatchSpy();
@@ -238,7 +238,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 	    : internal(new Internal(slot_)) {}
 
     /** Return the total number of documents tallied. */
-    size_t XAPIAN_NOTHROW(get_total() const) {
+    size_t get_total() const noexcept {
 	return internal.get() ? internal->total : 0;
     }
 
@@ -252,7 +252,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator values_begin() const;
 
     /** End iterator corresponding to values_begin() */
-    TermIterator XAPIAN_NOTHROW(values_end() const) {
+    TermIterator values_end() const noexcept {
 	return TermIterator();
     }
 
@@ -269,7 +269,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator top_values_begin(size_t maxvalues) const;
 
     /** End iterator corresponding to top_values_begin() */
-    TermIterator XAPIAN_NOTHROW(top_values_end(size_t) const) {
+    TermIterator top_values_end(size_t) const noexcept {
 	return TermIterator();
     }
 

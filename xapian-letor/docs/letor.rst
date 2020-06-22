@@ -30,29 +30,30 @@ Learning the model
 As mentioned before, this process requires a training file in the above format. xapian-letor API empowers you to generate such training file. But for that you have to supply some information files like:
 
     1. Query file: This file has information of queries to be involved in
-    learning and its id. It should be formatted in such a way::
+    learning and its id. Here space is used as delimiter between query id and query string.
+    It should be formatted in such a way::
 
-    2010001 'landslide malaysia'
-    2010002 'search engine'
-    2010003 'Monuments of India'
-    2010004 'Indian food'
+      2010001 'landslide malaysia'
+      2010002 'search engine'
+      2010003 'Monuments of India'
+      2010004 'Indian food'
 
-    where 2010xxx being query-id followed by a comma separated query in
+    where 2010xxx being query-id followed by a space separated query in
     single-quotes.
 
     2. Qrel file: This is the file containing relevance judgements. It should
     be formatted in this way::
 
-    2010003 Q0 19243417 1
-    2010003 Q0 3256433 1
-    2010003 Q0 275014 1
-    2010003 Q0 298021 0
-    2010003 Q0 1456811 0
+      2010003 Q0 19243417 1
+      2010003 Q0 3256433 1
+      2010003 Q0 275014 1
+      2010003 Q0 298021 0
+      2010003 Q0 1456811 0
 
     where first column is query-id, third column is Document-id and fourth
     column being relevance label which is 0 for irrelevance and 1 for
     relevance. Second column is many times referred as 'iter' but doesn't
-    really important for us.  All the fields are whitespace delimited. This is
+    really important for us.  All the fields are delimited by space. This is
     the standard format of almost all the relevance judgement files. If you
     have little different relevance judgement file then you can easily convert
     it in such file using basic 'awk' command.
@@ -66,8 +67,8 @@ As mentioned before, this process requires a training file in the above format. 
 
 Provided such information, API is capable of creating the training file which is in the mentioned format and can be easily used for learning a model. In xapian-letor we support the following learning algorithms:
 
-    1. `ListNET <http://dl.acm.org/citation.cfm?id=1273513>`_
-    2. `Ranking-SVM <http://dl.acm.org/citation.cfm?id=775067>`_
+    1. `ListNET <https://dl.acm.org/citation.cfm?id=1273513>`_
+    2. `Ranking-SVM <https://dl.acm.org/citation.cfm?id=775067>`_
 
 Ranking
 -------
@@ -79,7 +80,7 @@ Features
 
 Features play a major role in the learning. In LTR, features are mainly of three types: query dependent, document dependent (pagerank, inLink/outLink number, number of children, etc) and query-document pair dependent (TF-IDF Score, BM25 Score, etc).
 
-Currently we have incorporated 19 features which are described below. These features are statistically tested in `Nallapati2004` <http://dl.acm.org/citation.cfm?id=1009006>_.
+Currently we have incorporated 19 features which are described below. These features are statistically tested in `Nallapati2004` <https://dl.acm.org/citation.cfm?id=1009006>_.
 
     Here c(w,D) means that count of term w in Document D. C represents the Collection. 'n' is the total number of terms in query.
     :math:`|.|` is size-of function and idf(.) is the inverse-document-frequency.

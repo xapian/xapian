@@ -1,7 +1,7 @@
 /** @file glass_spellingwordslist.cc
  * @brief Iterator for the spelling correction words in a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2017 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-
 #include <config.h>
 
 #include "glass_spellingwordslist.h"
@@ -28,6 +27,7 @@
 #include "xapian/types.h"
 
 #include "debuglog.h"
+#include "glass_database.h"
 #include "pack.h"
 #include "stringutils.h"
 
@@ -35,6 +35,14 @@ GlassSpellingWordsList::~GlassSpellingWordsList()
 {
     LOGCALL_DTOR(DB, "GlassSpellingWordsList");
     delete cursor;
+}
+
+Xapian::termcount
+GlassSpellingWordsList::get_approx_size() const
+{
+    // This is an over-estimate, but we only use this value to build a balanced
+    // or-tree, and it'll do a decent enough job for that.
+    return database->spelling_table.get_entry_count();
 }
 
 string
@@ -64,12 +72,6 @@ GlassSpellingWordsList::get_termfreq() const
 	throw Xapian::DatabaseCorruptError("Bad spelling word freq");
     }
     RETURN(freq);
-}
-
-Xapian::termcount
-GlassSpellingWordsList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("GlassSpellingWordsList::get_collection_freq() not meaningful");
 }
 
 TermList *

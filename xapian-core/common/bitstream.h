@@ -1,7 +1,7 @@
 /** @file bitstream.h
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2012,2013,2014 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2012,2013,2014,2017,2018 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,8 @@
 
 #include <xapian/types.h>
 
+#include "api/smallvector.h"
+
 #include <string>
 #include <vector>
 
@@ -33,7 +35,7 @@ namespace Xapian {
 class BitWriter {
     std::string buf;
     int n_bits;
-    unsigned int acc;
+    Xapian::termpos acc;
 
   public:
     /// Construct empty.
@@ -44,7 +46,7 @@ class BitWriter {
 	: buf(seed), n_bits(0), acc(0) { }
 
     /// Encode value, known to be less than outof.
-    void encode(size_t value, size_t outof);
+    void encode(Xapian::termpos value, Xapian::termpos outof);
 
     /// Finish encoding and return the encoded data as a std::string.
     std::string & freeze() {
@@ -57,17 +59,20 @@ class BitWriter {
     }
 
     /// Perform interpolative encoding of pos elements between j and k.
-    void encode_interpolative(const std::vector<Xapian::termpos> &pos, int j, int k);
+    void encode_interpolative(const Xapian::VecCOW<Xapian::termpos> &pos, int j, int k);
 };
 
 /// Read a stream created by BitWriter.
 class BitReader {
-    std::string buf;
-    size_t idx;
-    int n_bits;
-    unsigned int acc;
+    const char* p;
 
-    unsigned int read_bits(int count);
+    const char* end;
+
+    int n_bits;
+
+    Xapian::termpos acc;
+
+    Xapian::termpos read_bits(int count);
 
     struct DIStack {
 	int j, k;
@@ -106,7 +111,7 @@ class BitReader {
 	// Given pos[j] = pos_j and pos[k] = pos_k, how many possible position
 	// values are there for the value midway between?
 	Xapian::termpos outof() const {
-	    return pos_k - pos_j + j - k + 1;
+	    return pos_k - pos_j - Xapian::termpos(k - j) + 1;
 	}
     };
 
@@ -117,18 +122,14 @@ class BitReader {
     // Construct.
     BitReader() { }
 
-    // Construct with the contents of buf_.
-    explicit BitReader(const std::string &buf_)
-	: buf(buf_), idx(0), n_bits(0), acc(0) { }
+    // Construct and set data.
+    BitReader(const char* p_, const char* end_)
+	: p(p_), end(end_), n_bits(0), acc(0) { }
 
-    // Construct with the contents of buf_, skipping some bytes.
-    BitReader(const std::string &buf_, size_t skip)
-	: buf(buf_, skip), idx(0), n_bits(0), acc(0) { }
-
-    // Initialise from buf_, optionally skipping some bytes.
-    void init(const std::string &buf_, size_t skip = 0) {
-	buf.assign(buf_, skip, std::string::npos);
-	idx = 0;
+    // Initialise with fresh data.
+    void init(const char* p_, const char* end_) {
+	p = p_;
+	end = end_;
 	n_bits = 0;
 	acc = 0;
 	di_stack.clear();
@@ -143,7 +144,7 @@ class BitReader {
     // there's less than a byte left and that all remaining bits are
     // zero.
     bool check_all_gone() const {
-	return (idx == buf.size() && n_bits <= 7 && acc == 0);
+	return (p == end && n_bits <= 7 && acc == 0);
     }
 
     /// Perform interpolative decoding between elements between j and k.

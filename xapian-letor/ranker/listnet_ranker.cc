@@ -1,5 +1,11 @@
 /** @file listnet_ranker.cc
  *  @brief Implementation of ListNetRanker
+ *
+ *  ListNET is adapted from the paper:
+ *  Cao, Zhe, et al. "Learning to rank: from pairwise approach to listwise
+ *  approach."
+ *  Proceedings of the 24th international conference on Machine learning. ACM,
+ *  2007.
  */
 /* Copyright (C) 2014 Hanxiao Sun
  * Copyright (C) 2016 Ayush Tomar
@@ -20,11 +26,6 @@
  * USA
  */
 
-/*
-ListNET is adapted from the paper:
-Cao, Zhe, et al. "Learning to rank: from pairwise approach to listwise approach."
-Proceedings of the 24th international conference on Machine learning. ACM, 2007.
-*/
 #include <config.h>
 
 #include "xapian-letor/ranker.h"
@@ -45,15 +46,15 @@ using namespace std;
 using namespace Xapian;
 
 /// A vector holding ground truth and prediction score probability distribution vectors.
-typedef vector <vector <double> > prob_distrib_vector;
+typedef vector<vector<double>> prob_distrib_vector;
 
 ListNETRanker::~ListNETRanker() {
     LOGCALL_DTOR(API, "ListNETRanker");
 }
 
 static double
-calculateInnerProduct(const vector<double> &parameters, const vector<double> &fvals) {
-    LOGCALL_STATIC_VOID(API, "calculateInnerProduct", parameters | fvals);
+calculate_inner_product(const vector<double> &parameters, const vector<double> &fvals) {
+    LOGCALL_STATIC_VOID(API, "calculate_inner_product", parameters | fvals);
     double inner_product = 0.0;
     for (size_t i = 0; i < fvals.size(); ++i)
 	inner_product += parameters[i] * fvals[i];
@@ -62,8 +63,8 @@ calculateInnerProduct(const vector<double> &parameters, const vector<double> &fv
 
 // From Theorem (8) in Cao et al. "Learning to rank: from pairwise approach to listwise approach."
 static prob_distrib_vector
-initializeProbability(const vector<FeatureVector> &feature_vectors, const vector<double> &new_parameters) {
-    LOGCALL_STATIC_VOID(API, "initializeProbability", feature_vectors | new_parameters);
+init_probability(const vector<FeatureVector> &feature_vectors, const vector<double> &new_parameters) {
+    LOGCALL_STATIC_VOID(API, "init_probability", feature_vectors | new_parameters);
 
     // probability distribution, y is ground truth, while z is predict score
     vector<double> prob_y;
@@ -73,11 +74,11 @@ initializeProbability(const vector<FeatureVector> &feature_vectors, const vector
 
     for (auto&& v : feature_vectors) {
 	expsum_y += exp(v.get_label());
-	expsum_z += exp(calculateInnerProduct(new_parameters, v.get_fvals()));
+	expsum_z += exp(calculate_inner_product(new_parameters, v.get_fvals()));
     }
     for (auto&& v : feature_vectors) {
 	prob_y.push_back(exp(v.get_label()) / expsum_y);
-	prob_z.push_back(exp(calculateInnerProduct(new_parameters, v.get_fvals())) / expsum_z);
+	prob_z.push_back(exp(calculate_inner_product(new_parameters, v.get_fvals())) / expsum_z);
     }
     vector<vector<double>> prob;
     prob.push_back(prob_y);
@@ -87,8 +88,8 @@ initializeProbability(const vector<FeatureVector> &feature_vectors, const vector
 
 // Equation (6) in paper Cao et al. "Learning to rank: from pairwise approach to listwise approach."
 static vector<double>
-calculateGradient(const vector<FeatureVector> &feature_vectors, const prob_distrib_vector &prob) {
-    LOGCALL_STATIC_VOID(API, "calculateGradient", feature_vectors | prob);
+calculate_gradient(const vector<FeatureVector> &feature_vectors, const prob_distrib_vector &prob) {
+    LOGCALL_STATIC_VOID(API, "calculate_gradient", feature_vectors | prob);
 
     vector<double> gradient(feature_vectors[0].get_fcount(), 0);
 
@@ -111,16 +112,16 @@ calculateGradient(const vector<FeatureVector> &feature_vectors, const prob_distr
 }
 
 static void
-updateParameters(vector<double> &new_parameters, const vector<double> &gradient, double learning_rate) {
-    LOGCALL_STATIC_VOID(API, "updateParameters", new_parameters | gradient | learning_rate);
+update_parameters(vector<double> &new_parameters, const vector<double> &gradient, double learning_rate) {
+    LOGCALL_STATIC_VOID(API, "update_parameters", new_parameters | gradient | learning_rate);
     for (size_t i = 0; i < new_parameters.size(); ++i) {
 	new_parameters[i] -= gradient[i] * learning_rate;
     }
 }
 
 void
-ListNETRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data) {
-    LOGCALL_VOID(API, "ListNETRanker::train_model", training_data);
+ListNETRanker::train(const std::vector<Xapian::FeatureVector> & training_data) {
+    LOGCALL_VOID(API, "ListNETRanker::train", training_data);
     size_t fvv_len = training_data.size();
     int feature_cnt = -1;
     if (fvv_len != 0) {
@@ -132,13 +133,13 @@ ListNETRanker::train_model(const std::vector<Xapian::FeatureVector> & training_d
     vector<double> new_parameters(feature_cnt, 0.0);
 
     // iterations
-    for (int iter_num = 1; iter_num < iterations; ++iter_num) {
+    for (int iter_num = 1; iter_num <= iterations; ++iter_num) {
 	// initialize Probability distributions of y and z
-	prob_distrib_vector prob = initializeProbability(training_data, new_parameters);
+	prob_distrib_vector prob = init_probability(training_data, new_parameters);
 	// compute gradient
-	vector<double> gradient = calculateGradient(training_data, prob);
+	vector<double> gradient = calculate_gradient(training_data, prob);
 	// update parameters: w = w - gradient * learningRate
-	updateParameters(new_parameters, gradient, learning_rate);
+	update_parameters(new_parameters, gradient, learning_rate);
     }
     swap(parameters, new_parameters);
 }
@@ -193,6 +194,5 @@ ListNETRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
 	    listnet_score += fvals[j] * parameters[j];
 	testfvv[i].set_score(listnet_score);
     }
-    std::sort(testfvv.begin(), testfvv.end(), &Ranker::scorecomparer);
     return testfvv;
 }

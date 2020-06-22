@@ -23,6 +23,6 @@
 
 #include <string>
 
-void description_append(std::string & desc, const std::string &s);
+void description_append(std::string& desc, const std::string& s);
 
 #endif
