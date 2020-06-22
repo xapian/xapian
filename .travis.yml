@@ -145,7 +145,6 @@ matrix:
             - python
             - python2
             - tesseract
-            - libarchive
       before_install:
         - travis_retry pip2 install sphinx docutils
         - travis_retry pip3 install sphinx
