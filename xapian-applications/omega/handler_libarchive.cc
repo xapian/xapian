@@ -47,7 +47,7 @@ extract(const string& filename,
 	archive_read_support_filter_all(archive_obj);
 	archive_read_support_format_all(archive_obj);
 	int status_code = archive_read_open_filename(archive_obj,
-		                                     file, 10240);
+						    file, 10240);
 
 	if (status_code != ARCHIVE_OK) {
 	    error = "Libarchive failed to open the file " + filename;
@@ -61,17 +61,16 @@ extract(const string& filename,
 
 	// extracting data from content.xml and styles.xml
 	while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
-	    string pathname =  archive_entry_pathname(entry);
+	    string pathname = archive_entry_pathname(entry);
 	    if (pathname == "content.xml") {
 		total = archive_entry_size(entry);
-		//char buf[total];
 		auto i = s.size();
 		s.resize(i + total);
-		size = archive_read_data(archive_obj,  &s[i], total);
+		size = archive_read_data(archive_obj, &s[i], total);
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from "
-		            "content.xml";
+			    "content.xml";
 		    return false;
 		}
 
@@ -84,7 +83,7 @@ extract(const string& filename,
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from "
-		            "styles.xml";
+			    "styles.xml";
 		    return false;
 		}
 
