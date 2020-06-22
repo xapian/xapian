@@ -65,6 +65,8 @@ try {
     const char *dest = argv[argc - 1];
     Xapian::WritableDatabase db(dest, Xapian::DB_OPEN);
 
+    // Add common words and words from titles as spelling targets.
+
     // FIXME: Add this method?  Or some other name (clear_synonyms() clears
     // them for just one term; or maybe clear_synonyms() to clear them all?
     // db.clear_spellings();
@@ -74,7 +76,21 @@ try {
 	++spellword;
     }
 
+    // FIXME: git master now has get_total_length()
     double total_len = db.get_avlength() * db.get_doccount();
+
+    // The collection frequency of a term is the total number of number of
+    // occurrences of that term in all documents in the collection, so it
+    // will tend to be proportional to the number of documents in the
+    // collection.
+    //
+    // Since total_len is the sum of the collection frequency over all
+    // terms, it is also proportional to the number of documents in the
+    // collection.
+    //
+    // The factor used was chosen by experimentation.  There doesn't seem
+    // to be a clear cut-off so it was chosen so we err on the side of
+    // including more words.
     Xapian::termcount cf_threshold = Xapian::termcount(1e-6 * total_len);
     size_t c_added = 0, c_skipped = 0;
     for (auto t = db.allterms_begin(); t != db.allterms_end(); ++t) {
