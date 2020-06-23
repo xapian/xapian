@@ -106,6 +106,7 @@ my $want_tabs = -1;
 my $check_indent = 0;
 my $check_trailing = 0;
 my $check_space_tab = 0;
+my $check_end_new_line = 0;
 my $in_comment = 0;
 my $lang;
 my $header_guard_macro;
@@ -152,7 +153,13 @@ while (<>) {
 	$check_space_tab = 1;
 	$check_trailing = 1;
 	$doxygen_first_line = 1;
-	if ($ext eq 'cc') {
+	$check_end_new_line = 1;
+	if ($fnm =~ m!xapian-applications/omega/testfiles!) {
+	    $check_space_tab = 0;
+	    $check_trailing = 0;
+	    $doxygen_first_line = 0;
+	    $check_end_new_line = 0;
+	} elsif ($ext eq 'cc') {
 	    if ($fnm =~ m!\b(?:cdb|portability/mkdtemp)! ||
 		$fnm =~ m!\bcommon/getopt\.cc$! ||
 		$fnm =~ m!\bomega/md5\.cc$! ||
@@ -972,7 +979,7 @@ QUOTELOOP:  while (1) {
     } elsif ($first_char eq '\\') {
 	# "\ No newline at end of file" - if preceded by a "+" line, this means
 	# that the patch leaves the file missing a newline at the end.
-	if ($last_first_char eq '+') {
+	if ($check_end_new_line && $last_first_char eq '+') {
 	    diagnostic_last('error', 'No newline at end of file');
 	}
     }
