@@ -506,6 +506,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
      *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
      *     @li 'L': Log average wdfn=(1+log(wdf))/(1+log(doclen/unique_terms))
+     *     @li 'A': Augmented log    wdfn=0.2 +0.8*log(1+wdf)
+     *     @li 'S': Square root      wdfn=sqrt(wdf-0.5)+1
      *
      *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
      *     implemented.
@@ -521,6 +523,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'f': Freq    idfn=1/Termfreq
      *     @li 's': Squared idfn=log(N/Termfreq)^2
      *     @li 'P': Pivoted idfn=log((N+1)/Termfreq)
+     *     @li 'G': Global frequency IDF    idfn=Collfreq/Termfreq
+     *     @li 'l': Log-Global frequency IDF    idfn=log(Collfreq/Termfreq+1)
      *
      * @li The third and the final character indicates the normalization for
      *     the document weight.  The following normalizations are currently
