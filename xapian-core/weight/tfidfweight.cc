@@ -40,8 +40,8 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     : normalizations(normals), param_slope(0.2), param_delta(1.0)
 {
     if (normalizations.length() != 3 ||
-	!strchr("nbslPLaS", normalizations[0]) ||
-	!strchr("ntpfsPEGl", normalizations[1]) ||
+	!strchr("nbslPLAS", normalizations[0]) ||
+	!strchr("ntpfsPGl", normalizations[1]) ||
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (normalizations[1] != 'n') {
@@ -63,8 +63,8 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
     : normalizations(normals), param_slope(slope), param_delta(delta)
 {
     if (normalizations.length() != 3 ||
-	!strchr("nbslPLaS", normalizations[0]) ||
-	!strchr("ntpfsPEGl", normalizations[1]) ||
+	!strchr("nbslPLAS", normalizations[0]) ||
+	!strchr("ntpfsPGl", normalizations[1]) ||
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (param_slope <= 0)
@@ -89,7 +89,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(UNIQUE_TERMS);
     }
-    if (!strchr("ntpfsP", normalizations[1])) {
+    if (strchr("Gl", normalizations[1])) {
 	need_stat(COLLECTION_FREQ);
     }
 }
@@ -213,7 +213,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	    double den = 1 + log(wdf_avg);
 	    return num / den;
 	}
-	case 'a': {
+	case 'A': {
 	    if (wdf == 0) return 0;
 	    return (0.2 + 0.8 * log(1.0 + wdf));
 	}
@@ -233,9 +233,8 @@ TfIdfWeight::get_idfn(char c) const
     Xapian::doccount termfreq = 1;
     if (c != 'n') termfreq = get_termfreq();
     double N = 1.0;
-    if (c != 'n' && c != 'f') N = get_collection_size();
+    if (strchr("pstP", c)) N = get_collection_size();
     Xapian::termcount collfreq = 1;
-    if (c == 'E' || c == 'G' || c == 'l') collfreq = get_collection_freq();
     switch (c) {
 	case 'n':
 	    return 1.0;
@@ -249,10 +248,22 @@ TfIdfWeight::get_idfn(char c) const
 	    return pow(log(N / termfreq), 2.0);
 	case 'P':
 	    return log((N + 1) / termfreq);
-	case 'G':
+	case 'G': {
+	    collfreq = get_collection_freq();
 	    return (double(collfreq) / termfreq);
-	case 'l':
+	}
+	case 'l': {
+	    collfreq = get_collection_freq();
 	    return log(double(collfreq) / termfreq + 1);
+	}
+	case 'I': {
+	    collfreq = get_collection_freq();
+	    return (double(collfreq) / termfreq + 1);
+	}
+	case 'S': {
+	    collfreq = get_collection_freq();
+	    return sqrt(double(collfreq) / termfreq - 0.9);
+	}
 	default:
 	    AssertEq(c, 't');
 	    return (log(N / termfreq));
