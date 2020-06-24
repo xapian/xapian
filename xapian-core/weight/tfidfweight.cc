@@ -256,14 +256,6 @@ TfIdfWeight::get_idfn(char c) const
 	    collfreq = get_collection_freq();
 	    return log(double(collfreq) / termfreq + 1);
 	}
-	case 'I': {
-	    collfreq = get_collection_freq();
-	    return (double(collfreq) / termfreq + 1);
-	}
-	case 'S': {
-	    collfreq = get_collection_freq();
-	    return sqrt(double(collfreq) / termfreq - 0.9);
-	}
 	default:
 	    AssertEq(c, 't');
 	    return (log(N / termfreq));

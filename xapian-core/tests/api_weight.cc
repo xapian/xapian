@@ -914,7 +914,6 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * log(9.0 / 2 + 1));
     TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * log(9.0 / 2 + 1));
-
 }
 
 // Feature tests for pivoted normalization functions.
