@@ -20,22 +20,18 @@
  */
 #include <config.h>
 #include "worker.h"
+#include "stringutils.h"
 
-#include <xapian.h>
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <cstdlib>
-
-#include "gnu_getopt.h"
-#include "hashterm.h"
-#include "common/stringutils.h"
+#include <xapian.h>
 
 using namespace std;
 
 typedef vector<string> testcase;
 
-unordered_map<string, testcase> tests;
+static unordered_map<string, testcase> tests;
 
 static void
 index_test()
@@ -107,36 +103,24 @@ main(int argc, char** argv)
 {
     Xapian::Database db;
     bool succeed = true;
-    if (argc <= 2)
+    if (argc <= 1)
 	return 1;
-    db.add_database(Xapian::Database(argv[2]));
-    string url, current_dir(argv[1]);
+    db.add_database(Xapian::Database(argv[1]));
 
     index_test();
     for (auto t = db.allterms_begin("U"); t != db.allterms_end("U"); ++t) {
 	const string& term = *t;
+	string url(term, 2);
 	Xapian::PostingIterator p = db.postlist_begin(term);
 	if (p == db.postlist_end(term)) {
 	    continue;
 	}
 	Xapian::docid did = *p;
 	Xapian::Document doc = db.get_document(did);
-	auto data = doc.get_data();
-	size_t start;
-	if (startswith(data, "url=")) {
-	    start = CONST_STRLEN("url=");
-	} else {
-	    start = data.find("\nurl=");
-	    if (start == string::npos)
-		continue;
-	    start += CONST_STRLEN("\nurl=");
+	auto iter = tests.find(url);
+	if (iter != tests.end()) {
+	    succeed &= compare_test(iter->second, doc, url);
 	}
-	url.assign(data, start, data.find('\n', start) - start);
-	start = url.find(current_dir) + current_dir.length();
-	url = url.substr(start, url.length());
-	auto it = tests.find(url);
-	if (it != tests.end())
-	    succeed &= compare_test(it->second, doc, url);
     }
     return succeed ? 0 : 1;
 }
