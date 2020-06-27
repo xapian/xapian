@@ -467,6 +467,33 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        tfidf weight. */
     std::string normalizations;
 
+  public:
+    enum class WDF_NORM: int {
+	NONE = 1,
+	BOOLEAN = 2,
+	SQUARE = 3,
+	LOG = 4,
+	PIVOTED = 5,
+	LOG_AVERAGE = 6
+    };
+
+    enum class IDF_NORM: int {
+	NONE = 1,
+	TFIDF = 2,
+	SQUARE = 3,
+	FREQ = 4,
+	PROB = 5,
+	PIVOTED = 6
+    };
+
+    enum class WT_NORM: int {
+	NONE = 1
+    };
+  private:
+    WDF_NORM wdf_norm;
+    IDF_NORM idf_norm;
+    WT_NORM wt_norm;
+
     /// The factor to multiply with the weight.
     double wqf_factor;
 
@@ -484,9 +511,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        should be accessed by these functions. */
     double get_wdfn(Xapian::termcount wdf,
 		    Xapian::termcount len,
-		    Xapian::termcount uniqterms, char c) const;
-    double get_idfn(char c) const;
-    double get_wtn(double wt, char c) const;
+		    Xapian::termcount uniqterms,
+		    WDF_NORM wdf_norm_) const;
+    double get_idfn(IDF_NORM idf_norm_) const;
+    double get_wtn(double wt, WT_NORM wt_norm_) const;
 
   public:
     /** Construct a TfIdfWeight
@@ -578,9 +606,15 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      */
     TfIdfWeight(const std::string &normalizations, double slope, double delta);
 
+    TfIdfWeight(WDF_NORM wdf_norm, IDF_NORM idf_norm, WT_NORM wt_norm);
+
+    TfIdfWeight(WDF_NORM wdf_norm, IDF_NORM idf_norm,
+		WT_NORM wt_norm, double slope, double delta);
+
     /** Construct a TfIdfWeight using the default normalizations ("ntn"). */
     TfIdfWeight()
-	: normalizations("ntn"), param_slope(0.2), param_delta(1.0)
+	: normalizations("ntn"), wdf_norm(WDF_NORM::NONE), idf_norm(IDF_NORM::TFIDF),
+	  wt_norm(WT_NORM::NONE), param_slope(0.2), param_delta(1.0)
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);
