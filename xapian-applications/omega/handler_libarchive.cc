@@ -56,7 +56,7 @@ extract(const string& filename,
 
 	size_t total;
 	ssize_t size;
-	string s;
+	string s, s_content, s_styles;
 	struct archive_entry* entry;
 
 	// extracting data from content.xml and styles.xml
@@ -64,9 +64,8 @@ extract(const string& filename,
 	    string pathname = archive_entry_pathname(entry);
 	    if (pathname == "content.xml") {
 		total = archive_entry_size(entry);
-		auto i = s.size();
-		s.resize(i + total);
-		size = archive_read_data(archive_obj, &s[i], total);
+		s_content.resize(total);
+		size = archive_read_data(archive_obj, &s_content[0], total);
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from "
@@ -74,12 +73,11 @@ extract(const string& filename,
 		    return false;
 		}
 
-		s.resize(i + size);
+		s_content.resize(size);
 	    } else if (pathname == "styles.xml") {
 		total = archive_entry_size(entry);
-		auto i = s.size();
-		s.resize(i + total);
-		size = archive_read_data(archive_obj, &s[i], total);
+		s_styles.resize(total);
+		size = archive_read_data(archive_obj, &s_styles[0], total);
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from "
@@ -87,24 +85,22 @@ extract(const string& filename,
 		    return false;
 		}
 
-		s.resize(i + size);
+		s_styles.resize(size);
 	    } else if (pathname == "meta.xml") {
 		total = archive_entry_size(entry);
 		string s_meta;
-		auto i = s_meta.size();
-		s_meta.resize(i + total);
-		size = archive_read_data(archive_obj, &s_meta[i], total);
+		s_meta.resize(total);
+		size = archive_read_data(archive_obj, &s_meta[0], total);
 
-		if (size <= 0) {
+		if (size > 0) {
 		    // indexing file even if this fails
+		    s_meta.resize(size);
+		    MetaXmlParser metaxmlparser;
+		    metaxmlparser.parse(s_meta);
+		    title = metaxmlparser.title;
+		    keywords = metaxmlparser.keywords;
+		    author = metaxmlparser.author;
 		}
-
-		s_meta.resize(i + size);
-		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse(s_meta);
-		title = metaxmlparser.title;
-		keywords = metaxmlparser.keywords;
-		author = metaxmlparser.author;
 	    }
 	}
 	status_code = archive_read_free(archive_obj);
@@ -112,14 +108,14 @@ extract(const string& filename,
 	    error += archive_error_string(archive_obj);
 	    return false;
 	}
-
+	s = s_content + s_styles;
 	OpenDocParser parser;
 	parser.parse(s);
 	dump = parser.dump;
-	} catch (...) {
-	    error = "Libarchive threw an exception";
-	    return false;
-	}
+    } catch (...) {
+	error = "Libarchive threw an exception";
+	return false;
+    }
 
-	return true;
+    return true;
 }
