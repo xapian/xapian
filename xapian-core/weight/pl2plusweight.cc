@@ -167,7 +167,7 @@ PL2PlusWeight::unserialise(const string & s) const
 
 double
 PL2PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-			   Xapian::termcount) const
+			   Xapian::termcount, Xapian::termcount) const
 {
     if (wdf == 0 || mean < 1) return 0.0;
 
@@ -190,7 +190,9 @@ PL2PlusWeight::get_maxpart() const
 }
 
 double
-PL2PlusWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+PL2PlusWeight::get_sumextra(Xapian::termcount,
+			    Xapian::termcount,
+			    Xapian::termcount) const
 {
     return 0;
 }

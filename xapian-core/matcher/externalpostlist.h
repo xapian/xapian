@@ -66,7 +66,10 @@ class ExternalPostList : public PostList {
     Xapian::docid get_docid() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
+
+    Xapian::termcount get_wdfdocmax() const;
 
     double recalc_maxweight();
 

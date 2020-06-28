@@ -81,6 +81,7 @@ MultiPostList::get_wdf() const
 
 double
 MultiPostList::get_weight(Xapian::termcount,
+			  Xapian::termcount,
 			  Xapian::termcount) const
 {
     // MultiPostList is only used by PostingIterator which should never call

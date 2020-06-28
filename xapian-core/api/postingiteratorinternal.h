@@ -60,6 +60,10 @@ class PostingIterator::Internal {
 	return db.get_unique_terms(pl->get_docid());
     }
 
+    Xapian::termcount get_wdfdocmax() const {
+	return db.get_wdfdocmax(pl->get_docid());
+    }
+
     PositionList* open_position_list() const {
 	return pl->open_position_list();
     }

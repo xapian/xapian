@@ -560,6 +560,24 @@ RemoteDatabase::get_unique_terms(Xapian::docid did) const
     return doclen;
 }
 
+Xapian::termcount
+RemoteDatabase::get_wdfdocmax(Xapian::docid did) const
+{
+    Assert(did != 0);
+    string message;
+    pack_uint_last(message, did);
+    send_message(MSG_WDFDOCMAX, message);
+
+    get_message(message, REPLY_WDFDOCMAX);
+    const char* p = message.c_str();
+    const char* p_end = p + message.size();
+    Xapian::termcount wdfdocmax;
+    if (!unpack_uint_last(&p, p_end, &wdfdocmax)) {
+	throw Xapian::NetworkError("Bad REPLY_WDFDOCMAX", context);
+    }
+    return wdfdocmax;
+}
+
 reply_type
 RemoteDatabase::get_message(string &result,
 			    reply_type required_type,

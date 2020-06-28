@@ -34,6 +34,8 @@ class PostListTree {
 
     bool need_unique_terms;
 
+    bool need_wdfdocmax;
+
     double max_weight;
 
     /// The current shard.
@@ -67,6 +69,7 @@ class PostListTree {
 		 const Xapian::Weight& wtscheme)
 	: need_doclength(wtscheme.get_sumpart_needs_doclength_()),
 	  need_unique_terms(wtscheme.get_sumpart_needs_uniqueterms_()),
+	  need_wdfdocmax(wtscheme.get_sumpart_needs_wdfdocmax_()),
 	  vsdoc(vsdoc_),
 	  db(db_) {}
 
@@ -145,9 +148,9 @@ class PostListTree {
     }
 
     double get_weight() const {
-	Xapian::termcount doclen = 0, unique_terms = 0;
-	get_doc_stats(pl->get_docid(), doclen, unique_terms);
-	return pl->get_weight(doclen, unique_terms);
+	Xapian::termcount doclen = 0, unique_terms = 0, wdfdocmax = 0;
+	get_doc_stats(pl->get_docid(), doclen, unique_terms, wdfdocmax);
+	return pl->get_weight(doclen, unique_terms, wdfdocmax);
     }
 
     /// Return false if we're done.
@@ -195,14 +198,17 @@ class PostListTree {
 
     void get_doc_stats(Xapian::docid shard_did,
 		       Xapian::termcount& doclen,
-		       Xapian::termcount& unique_terms) const {
+		       Xapian::termcount& unique_terms,
+		       Xapian::termcount& wdfdocmax) const {
 	// Fetching the document length and number of unique terms is work we
 	// can avoid if the weighting scheme doesn't use them.
-	if (need_doclength || need_unique_terms) {
+	if (need_doclength || need_unique_terms || need_wdfdocmax) {
 	    if (need_doclength)
 		doclen = shard_db->get_doclength(shard_did);
 	    if (need_unique_terms)
 		unique_terms = shard_db->get_unique_terms(shard_did);
+	    if (need_wdfdocmax)
+		wdfdocmax = shard_db->get_wdfdocmax(shard_did);
 	}
     }
 
