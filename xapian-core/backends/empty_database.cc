@@ -182,6 +182,15 @@ EmptyDatabase::get_unique_terms(Xapian::docid did) const
     return 0;
 }
 
+Xapian::termcount
+EmptyDatabase::get_wdfdocmax(Xapian::docid did) const
+{
+    Assert(did != 0);
+    (void)did;
+    no_subdatabases();
+    return 0;
+}
+
 Xapian::Document::Internal*
 EmptyDatabase::open_document(Xapian::docid did, bool) const
 {

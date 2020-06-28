@@ -355,6 +355,15 @@ Database::get_unique_terms(Xapian::docid did) const
     return internal->get_unique_terms(did);
 }
 
+Xapian::termcount
+Database::get_wdfdocmax(Xapian::docid did) const
+{
+    if (did == 0)
+	docid_zero_invalid();
+
+    return internal->get_wdfdocmax(did);
+}
+
 Document
 Database::get_document(Xapian::docid did, unsigned flags) const
 {

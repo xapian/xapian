@@ -111,6 +111,9 @@ class HoneyDatabase : public Xapian::Database::Internal {
      */
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
+    // Return the max_wdf in the document
+    Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
+
     /** Returns frequencies for a term.
      *
      *  @param term		The term to get frequencies for

@@ -40,7 +40,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     : normalizations(normals), param_slope(0.2), param_delta(1.0)
 {
     if (normalizations.length() != 3 ||
-	!strchr("nbslPL", normalizations[0]) ||
+	!strchr("nbslPLm", normalizations[0]) ||
 	!strchr("ntpfsP", normalizations[1]) ||
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");

@@ -425,6 +425,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      */
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
+    Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
+
     /** Send a keep-alive message.
      *
      *  For remote databases, this method sends a message to the server to

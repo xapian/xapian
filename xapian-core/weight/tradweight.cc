@@ -155,7 +155,7 @@ TradWeight::unserialise(const string & s) const
 
 double
 TradWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-			Xapian::termcount) const
+			Xapian::termcount, Xapian::termcount) const
 {
     double wdf_double = wdf;
     return termweight * (wdf_double / (len * len_factor + wdf_double));
@@ -171,7 +171,9 @@ TradWeight::get_maxpart() const
 }
 
 double
-TradWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+TradWeight::get_sumextra(Xapian::termcount,
+			 Xapian::termcount,
+			 Xapian::termcount) const
 {
     return 0;
 }

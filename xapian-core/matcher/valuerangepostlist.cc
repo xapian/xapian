@@ -157,7 +157,15 @@ ValueRangePostList::get_docid() const
 
 double
 ValueRangePostList::get_weight(Xapian::termcount,
+			       Xapian::termcount,
 			       Xapian::termcount) const
+{
+    Assert(db);
+    return 0;
+}
+
+Xapian::termcount
+ValueRangePostList::get_wdfdocmax() const
 {
     Assert(db);
     return 0;

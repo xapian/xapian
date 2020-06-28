@@ -181,7 +181,7 @@ DLHWeight::unserialise(const string& s) const
 
 double
 DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		       Xapian::termcount) const
+		       Xapian::termcount, Xapian::termcount) const
 {
     if (wdf == 0 || wdf == len) return 0.0;
 
@@ -203,7 +203,9 @@ DLHWeight::get_maxpart() const
 }
 
 double
-DLHWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+DLHWeight::get_sumextra(Xapian::termcount,
+			Xapian::termcount,
+			Xapian::termcount) const
 {
     return 0;
 }

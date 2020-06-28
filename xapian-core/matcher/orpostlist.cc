@@ -92,14 +92,15 @@ OrPostList::get_docid() const
 
 double
 OrPostList::get_weight(Xapian::termcount doclen,
-		       Xapian::termcount unique_terms) const
+		       Xapian::termcount unique_terms,
+		       Xapian::termcount wdfdocmax) const
 {
     if (r_did == 0 || l_did < r_did)
-	return l->get_weight(doclen, unique_terms);
+	return l->get_weight(doclen, unique_terms, wdfdocmax);
     if (l_did == 0 || l_did > r_did)
-	return r->get_weight(doclen, unique_terms);
-    return l->get_weight(doclen, unique_terms) +
-	   r->get_weight(doclen, unique_terms);
+	return r->get_weight(doclen, unique_terms, wdfdocmax);
+    return l->get_weight(doclen, unique_terms, wdfdocmax) +
+	   r->get_weight(doclen, unique_terms, wdfdocmax);
 }
 
 double

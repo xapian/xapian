@@ -161,7 +161,7 @@ LMWeight::unserialise(const string & s) const
 
 double
 LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		      Xapian::termcount uniqterm) const
+		      Xapian::termcount uniqterm, Xapian::termcount) const
 {
     // Within Document Frequency of the term in document being considered.
     double wdf_double = wdf;
@@ -245,7 +245,9 @@ LMWeight::get_maxpart() const
  *	  |D| is total document length.
  */
 double
-LMWeight::get_sumextra(Xapian::termcount len, Xapian::termcount) const
+LMWeight::get_sumextra(Xapian::termcount len,
+		       Xapian::termcount,
+		       Xapian::termcount) const
 {
     if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
 	double extra_weight = param_smoothing1 / (len + param_smoothing1);

@@ -343,6 +343,17 @@ MultiDatabase::get_unique_terms(Xapian::docid did) const
     return shard->get_unique_terms(shard_did);
 }
 
+Xapian::termcount
+MultiDatabase::get_wdfdocmax(Xapian::docid did) const
+{
+    Assert(did != 0);
+
+    auto n_shards = shards.size();
+    auto shard = shards[shard_number(did, n_shards)];
+    auto shard_did = shard_docid(did, n_shards);
+    return shard->get_wdfdocmax(shard_did);
+}
+
 Xapian::Document::Internal*
 MultiDatabase::open_document(Xapian::docid did, bool lazy) const
 {

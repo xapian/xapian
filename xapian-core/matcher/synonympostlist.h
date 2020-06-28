@@ -81,7 +81,8 @@ class SynonymPostList : public WrapperPostList {
     PostList *skip_to(Xapian::docid did, double w_min);
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
     double recalc_maxweight();
 
     // Note - we don't need to implement get_termfreq_est_using_stats()
