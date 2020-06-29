@@ -37,66 +37,7 @@ using namespace std;
 namespace Xapian {
 
 TfIdfWeight::TfIdfWeight(const std::string &normals)
-    : normalizations(normals), param_slope(0.2), param_delta(1.0)
-{
-    if (normalizations.length() != 3 ||
-	!strchr("nbslPL", normalizations[0]) ||
-	!strchr("ntpfsP", normalizations[1]) ||
-	!strchr("n", normalizations[2]))
-	throw Xapian::InvalidArgumentError("Normalization string is invalid");
-    if (normalizations[1] != 'n') {
-	need_stat(TERMFREQ);
-	need_stat(COLLECTION_SIZE);
-    }
-    need_stat(WDF);
-    need_stat(WDF_MAX);
-    need_stat(WQF);
-    if (normalizations[0] == 'L') {
-	need_stat(DOC_LENGTH);
-	need_stat(DOC_LENGTH_MIN);
-	need_stat(DOC_LENGTH_MAX);
-	need_stat(UNIQUE_TERMS);
-    }
-    switch (normalizations[0]) {
-	case 'b':
-	    wdf_norm = WDF_NORM::BOOLEAN;
-	    break;
-	case 's':
-	    wdf_norm = WDF_NORM::SQUARE;
-	    break;
-	case 'l':
-	    wdf_norm = WDF_NORM::LOG;
-	    break;
-	case 'P':
-	    wdf_norm = WDF_NORM::PIVOTED;
-	    break;
-	case 'L':
-	    wdf_norm = WDF_NORM::LOG_AVERAGE;
-	    break;
-	default:
-	    wdf_norm = WDF_NORM::NONE;
-    }
-    switch (normalizations[1]) {
-	case 'n':
-	    idf_norm = IDF_NORM::NONE;
-	    break;
-	case 's':
-	    idf_norm = IDF_NORM::SQUARE;
-	    break;
-	case 'f':
-	    idf_norm = IDF_NORM::FREQ;
-	    break;
-	case 'P':
-	    idf_norm = IDF_NORM::PIVOTED;
-	    break;
-	case 'p':
-	    idf_norm = IDF_NORM::PROB;
-	    break;
-	default:
-	    idf_norm = IDF_NORM::TFIDF;
-    }
-    wt_norm = WT_NORM::NONE;
-}
+    : TfIdfWeight::TfIdfWeight(normals, 0.2, 1.0) {}
 
 TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
     : normalizations(normals), param_slope(slope), param_delta(delta)
@@ -172,58 +113,13 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 TfIdfWeight::TfIdfWeight(WDF_NORM wdf_norm_,
 			 IDF_NORM idf_norm_,
 			 WT_NORM wt_norm_)
-    : wdf_norm(wdf_norm_), idf_norm(idf_norm_), wt_norm(wt_norm_),
-      param_slope(0.2), param_delta(1.0)
-{
-    if (!((wdf_norm == WDF_NORM::NONE) || (wdf_norm == WDF_NORM::BOOLEAN) ||
-	(wdf_norm == WDF_NORM::LOG_AVERAGE) || (wdf_norm == WDF_NORM::LOG) ||
-	(wdf_norm == WDF_NORM::PIVOTED) || (wdf_norm == WDF_NORM::SQUARE)))
-	throw Xapian::InvalidArgumentError("WDF_NORM is invalid");
-    if (!((idf_norm == IDF_NORM::NONE) || (idf_norm == IDF_NORM::TFIDF) ||
-	(idf_norm == IDF_NORM::SQUARE) || (idf_norm == IDF_NORM::FREQ) ||
-	(idf_norm == IDF_NORM::PIVOTED) || (idf_norm == IDF_NORM::PROB)))
-	throw Xapian::InvalidArgumentError("IDF_NORM is invalid");
-    if (!(wt_norm == WT_NORM::NONE))
-	throw Xapian::InvalidArgumentError("WT_NORM is invalid");
-    if (param_slope <= 0)
-	throw Xapian::InvalidArgumentError("Parameter slope is invalid");
-    if (param_delta <= 0)
-	throw Xapian::InvalidArgumentError("Parameter delta is invalid");
-    if (idf_norm != IDF_NORM::NONE) {
-	need_stat(TERMFREQ);
-	need_stat(COLLECTION_SIZE);
-    }
-    need_stat(WDF);
-    need_stat(WDF_MAX);
-    need_stat(WQF);
-    if (wdf_norm == WDF_NORM::PIVOTED || idf_norm == IDF_NORM::PIVOTED) {
-	need_stat(AVERAGE_LENGTH);
-	need_stat(DOC_LENGTH);
-	need_stat(DOC_LENGTH_MIN);
-    }
-    if (wdf_norm == WDF_NORM::LOG_AVERAGE) {
-	need_stat(DOC_LENGTH);
-	need_stat(DOC_LENGTH_MIN);
-	need_stat(DOC_LENGTH_MAX);
-	need_stat(UNIQUE_TERMS);
-    }
-}
+    : TfIdfWeight::TfIdfWeight(wdf_norm_, idf_norm_, wt_norm_, 0.2, 1.0) {}
 
 TfIdfWeight::TfIdfWeight(WDF_NORM wdf_norm_, IDF_NORM idf_norm_,
 			 WT_NORM wt_norm_, double slope, double delta)
     : wdf_norm(wdf_norm_), idf_norm(idf_norm_), wt_norm(wt_norm_),
       param_slope(slope), param_delta(delta)
 {
-    if (!((wdf_norm == WDF_NORM::NONE) || (wdf_norm == WDF_NORM::BOOLEAN) ||
-	(wdf_norm == WDF_NORM::LOG_AVERAGE) || (wdf_norm == WDF_NORM::LOG) ||
-	(wdf_norm == WDF_NORM::PIVOTED) || (wdf_norm == WDF_NORM::SQUARE)))
-	throw Xapian::InvalidArgumentError("WDF_NORM is invalid");
-    if (!((idf_norm == IDF_NORM::NONE) || (idf_norm == IDF_NORM::TFIDF) ||
-	(idf_norm == IDF_NORM::SQUARE) || (idf_norm == IDF_NORM::FREQ) ||
-	(idf_norm == IDF_NORM::PIVOTED) || (idf_norm == IDF_NORM::PROB)))
-	throw Xapian::InvalidArgumentError("IDF_NORM is invalid");
-    if (!(wt_norm == WT_NORM::NONE))
-	throw Xapian::InvalidArgumentError("WT_NORM is invalid");
     if (param_slope <= 0)
 	throw Xapian::InvalidArgumentError("Parameter slope is invalid");
     if (param_delta <= 0)
@@ -372,7 +268,6 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	    return num / den;
 	}
 	default:
-	    AssertEq(wdf_norm_, WDF_NORM::NONE);
 	    return wdf;
     }
 }
@@ -400,7 +295,6 @@ TfIdfWeight::get_idfn(IDF_NORM idf_norm_) const
 	case IDF_NORM::PIVOTED:
 	    return log((N + 1) / termfreq);
 	default:
-	    AssertEq(idf_norm_, IDF_NORM::TFIDF);
 	    return (log(N / termfreq));
     }
 }
@@ -409,7 +303,6 @@ double
 TfIdfWeight::get_wtn(double wt, WT_NORM wt_norm_) const
 {
     (void)wt_norm_;
-    AssertEq(wt_norm_, WT_NORM::NONE);
     return wt;
 }
 

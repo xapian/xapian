@@ -467,6 +467,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        tfidf weight. */
     std::string normalizations;
 
+    /* These three enum class should use integers only upto 256 . Otherwise
+       during serialise(), the value may get truncated by static_cast() and
+       the desired result will not be achieved. */
   public:
     enum class WDF_NORM: int {
 	NONE = 1,
