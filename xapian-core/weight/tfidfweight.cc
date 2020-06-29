@@ -36,10 +36,10 @@ using namespace std;
 
 namespace Xapian {
 
-TfIdfWeight::TfIdfWeight(const std::string &normals)
+TfIdfWeight::TfIdfWeight(const std::string& normals)
     : TfIdfWeight::TfIdfWeight(normals, 0.2, 1.0) {}
 
-TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
+TfIdfWeight::TfIdfWeight(const std::string& normals, double slope, double delta)
     : normalizations(normals), param_slope(slope), param_delta(delta)
 {
     if (normalizations.length() != 3 ||
