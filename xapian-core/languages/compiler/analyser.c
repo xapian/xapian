@@ -49,8 +49,8 @@ static void print_node_(struct node * p, int n, const char * s) {
     printf("\n");
     if (p->AE) print_node_(p->AE, n+1, "# ");
     if (p->left) print_node_(p->left, n+1, "  ");
-    if (p->right) print_node_(p->right, n, "  ");
     if (p->aux) print_node_(p->aux, n+1, "@ ");
+    if (p->right) print_node_(p->right, n, "  ");
 }
 
 extern void print_program(struct analyser * a) {
@@ -287,17 +287,19 @@ handle_as_name:
                     p->b = copy_b(t->b);
                     p->type = type;
                     p->mode = -1; /* routines, externals */
-                    p->count = a->name_count[type];
+                    /* We defer assigning counts until after we've eliminated
+                     * variables whose values are never used. */
+                    p->count = -1;
                     p->referenced = false;
                     p->used_in_among = false;
                     p->used = 0;
                     p->value_used = false;
                     p->initialised = false;
+                    p->used_in_definition = false;
                     p->local_to = 0;
                     p->grouping = 0;
                     p->definition = 0;
                     p->declaration_line_number = t->line_number;
-                    a->name_count[type]++;
                     p->next = a->names;
                     a->names = p;
                     if (token != c_name) {
@@ -613,7 +615,7 @@ static void make_among(struct analyser * a, struct node * p, struct node * subst
     x->function_count = 0;
     x->starter = 0;
     x->nocommand_count = 0;
-    x->amongvar_needed = 0;
+    x->amongvar_needed = false;
 
     if (q->type == c_bra) { x->starter = q; q = q->right; }
 
@@ -1063,7 +1065,6 @@ static void read_define_grouping(struct analyser * a, struct name * q) {
         if (q) q->grouping = p;
         p->next = 0;
         p->name = q;
-        p->number = q ? q->count : 0;
         p->line_number = a->tokeniser->line_number;
         p->b = create_b(0);
         while (true) {
@@ -1074,6 +1075,7 @@ static void read_define_grouping(struct analyser * a, struct name * q) {
                         if (r) {
                             check_name_type(a, r, 'g');
                             p->b = alter_grouping(p->b, r->grouping->b, style, false);
+                            r->used_in_definition = true;
                         }
                     }
                     break;
@@ -1188,6 +1190,38 @@ static void read_program_(struct analyser * a, int terminator) {
     }
 }
 
+static void remove_dead_assignments(struct node * p, struct name * q) {
+    if (p->name == q) {
+        switch (p->type) {
+            case c_assignto:
+            case c_sliceto:
+            case c_mathassign:
+            case c_plusassign:
+            case c_minusassign:
+            case c_multiplyassign:
+            case c_divideassign:
+            case c_setmark:
+            case c_set:
+            case c_unset:
+            case c_dollar:
+                /* c_true is a no-op. */
+                p->type = c_true;
+                break;
+            default:
+                /* There are no read accesses to this variable, so any
+                 * references must be assignments.
+                 */
+                fprintf(stderr, "Unhandled type of dead assignment via %s\n",
+                        name_of_token(p->type));
+                exit(1);
+        }
+    }
+    if (p->AE) remove_dead_assignments(p->AE, q);
+    if (p->left) remove_dead_assignments(p->left, q);
+    if (p->aux) remove_dead_assignments(p->aux, q);
+    if (p->right) remove_dead_assignments(p->right, q);
+}
+
 extern void read_program(struct analyser * a) {
     read_program_(a, -1);
     {
@@ -1207,6 +1241,7 @@ extern void read_program(struct analyser * a) {
 
     if (a->tokeniser->error_count == 0) {
         struct name * q = a->names;
+        struct name ** ptr = &(a->names);
         while (q) {
             if (!q->referenced) {
                 fprintf(stderr, "%s:%d: warning: %s '",
@@ -1220,9 +1255,15 @@ extern void read_program(struct analyser * a) {
                     fprintf(stderr, "' declared but not defined\n");
                 } else {
                     fprintf(stderr, "' defined but not used\n");
+                    q = q->next;
+                    *ptr = q;
+                    continue;
                 }
             } else if (q->type == t_routine || q->type == t_grouping) {
-                if (!q->used) {
+                /* It's OK to define a grouping but only use it to define other
+                 * groupings.
+                 */
+                if (!q->used && !q->used_in_definition) {
                     int line_num;
                     if (q->type == t_routine) {
                         line_num = q->definition->line_number;
@@ -1252,8 +1293,24 @@ extern void read_program(struct analyser * a) {
                         name_of_name_type(q->type));
                 report_b(stderr, q->b);
                 fprintf(stderr, "' is set but never used\n");
+                remove_dead_assignments(a->program, q);
+                q = q->next;
+                *ptr = q;
+                continue;
             }
+            ptr = &(q->next);
             q = q->next;
+        }
+
+        {
+            /* Now we've eliminated variables whose values are never used we
+             * can number the variables, which is used by some generators.
+             */
+            int * name_count = a->name_count;
+            struct name * n;
+            for (n = a->names; n; n = n->next) {
+                n->count = name_count[n->type]++;
+            }
         }
     }
 }
@@ -1305,7 +1362,9 @@ extern void close_analyser(struct analyser * a) {
         struct among * q = a->amongs;
         while (q) {
             struct among * q_next = q->next;
-            FREE(q->b); FREE(q);
+            FREE(q->b);
+            FREE(q->commands);
+            FREE(q);
             q = q_next;
         }
     }
@@ -1319,4 +1378,3 @@ extern void close_analyser(struct analyser * a) {
     }
     FREE(a);
 }
-

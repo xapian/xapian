@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2015,2016,2019 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -149,7 +149,7 @@ class Key {
 	return p[0];
     }
     char operator[](size_t i) const {
-	AssertRel(i,<,(size_t)length());
+	AssertRel(i,<,size_t(length()));
 	return p[i + K1];
     }
 };
@@ -628,6 +628,8 @@ class GlassTable {
     bool del(const std::string &key);
 
     int get_flags() const { return flags; }
+
+    void set_flags(int new_flags) { flags = new_flags; }
 
     /** Create a new empty btree structure on disk and open it at the
      *  initial revision.

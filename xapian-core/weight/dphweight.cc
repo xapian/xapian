@@ -48,21 +48,20 @@ DPHWeight::init(double factor)
     }
 
     double F = get_collection_freq();
-    double N = get_collection_size();
     double wdf_lower = 1.0;
     double wdf_upper = get_wdf_upper_bound();
 
     double len_upper = get_doclength_upper_bound();
-
-    double min_wdf_to_len = wdf_lower / len_upper;
 
     if (wdf_upper == 0) {
 	upper_bound = 0.0;
 	return;
     }
 
+    double min_wdf_to_len = wdf_lower / len_upper;
+
     /* Calculate constant value to be used in get_sumpart(). */
-    log_constant = get_average_length() * N / F;
+    log_constant = get_total_length() / F;
     wqf_product_factor = get_wqf() * factor;
 
     // Calculate the upper bound on the weight.

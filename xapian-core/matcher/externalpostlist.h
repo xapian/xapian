@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_EXTERNALPOSTLIST_H
 #define XAPIAN_INCLUDED_EXTERNALPOSTLIST_H
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 
 namespace Xapian {
     class PostingSource;

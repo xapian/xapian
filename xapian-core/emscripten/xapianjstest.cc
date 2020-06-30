@@ -3,21 +3,20 @@
  */
 #include <emscripten.h>
 #include <xapian.h>
-#include <cstdlib>
 #include <iostream>
 
 using namespace std;
 
 int main() {
-    Xapian::WritableDatabase db;
-
-    EM_ASM_({
+#ifdef NODEFS
+    EM_ASM({
 	    FS.mkdir("/work");
 	    FS.mount(NODEFS, {root: '.'},"/work");
 	    FS.chdir("/work");
     });
+#endif
 
-    db = Xapian::WritableDatabase("testdb", Xapian::DB_CREATE_OR_OPEN);
+    Xapian::WritableDatabase db("testdb", Xapian::DB_CREATE_OR_OPEN);
 
     Xapian::TermGenerator termgenerator;
     Xapian::Document doc;

@@ -170,9 +170,9 @@ We recommend taking the following steps to avoid depending on deprecated
 features when writing your applications:
 
  - If at all possible, test compile your project using a compiler which
-   supports warnings about deprecated features (such as GCC 3.1 or later), and
-   check for such warnings.  Use the -Werror flag to GCC to ensure that you
-   don't miss any of them.
+   supports warnings about deprecated features (such as GCC), and check for
+   such warnings.  Pass the -Werror flag to GCC to ensure that you don't miss
+   any of them.
 
  - Check the NEWS file for each new release for details of any new features
    which are deprecated in the release.

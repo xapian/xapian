@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012,2014,2016,2017 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014,2016,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
 
 #include "api/smallvector.h"
 
-#include "xapian/cluster.h"
 #include "xapian/intrusive_ptr.h"
 #include "xapian/types.h"
 
@@ -279,10 +278,17 @@ operator<<(PrettyOStream<S> &ps, const Xapian::VecCOW<T>& v) {
 }
 
 namespace Xapian {
+    class Centroid;
+    class Cluster;
+    class ClusterSet;
     class ExpandDecider;
+    class KeyMaker;
     class LatLongMetric;
     class MatchDecider;
+    class Point;
+    class PointType;
     class Registry;
+    class TermListGroup;
     class Weight;
     namespace Internal {
 	class AndContext;
@@ -316,6 +322,7 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Centroid)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Cluster)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ClusterSet)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::KeyMaker)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::LatLongMetric)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Point)

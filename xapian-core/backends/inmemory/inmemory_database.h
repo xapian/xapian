@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2019 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,11 +25,11 @@
 #ifndef XAPIAN_INCLUDED_INMEMORY_DATABASE_H
 #define XAPIAN_INCLUDED_INMEMORY_DATABASE_H
 
-#include "api/leafpostlist.h"
 #include "api/smallvector.h"
 #include "api/termlist.h"
 #include "backends/backends.h"
 #include "backends/databaseinternal.h"
+#include "backends/leafpostlist.h"
 #include "backends/valuestats.h"
 #include <map>
 #include <vector>
@@ -372,6 +372,10 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	if (path) *path = string();
 	return BACKEND_INMEMORY;
     }
+
+    bool locked() const { return !closed; }
+
+    Xapian::Database::Internal* update_lock(int flags);
 
     std::string get_description() const;
 };

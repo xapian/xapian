@@ -35,13 +35,13 @@
 using namespace std;
 
 void
-HoneyAllTermsList::read_termfreq_and_collfreq() const
+HoneyAllTermsList::read_termfreq() const
 {
-    LOGCALL_VOID(DB, "HoneyAllTermsList::read_termfreq_and_collfreq", NO_ARGS);
+    LOGCALL_VOID(DB, "HoneyAllTermsList::read_termfreq", NO_ARGS);
     Assert(!at_end());
 
-    // Unpack the termfreq and collfreq from the tag.  Only do this if
-    // one or other is actually read.
+    // Unpack the termfreq from the tag.
+    Xapian::termcount collfreq;
     cursor->read_tag();
     const char* p = cursor->current_tag.data();
     const char* pend = p + cursor->current_tag.size();
@@ -50,6 +50,8 @@ HoneyAllTermsList::read_termfreq_and_collfreq() const
 	throw Xapian::DatabaseCorruptError("Postlist initial chunk header not "
 					   "as expected");
     }
+    // Not used.
+    (void)collfreq;
 }
 
 HoneyAllTermsList::~HoneyAllTermsList()
@@ -80,25 +82,16 @@ HoneyAllTermsList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "HoneyAllTermsList::get_termfreq", NO_ARGS);
     Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
+    if (termfreq == 0) read_termfreq();
     RETURN(termfreq);
-}
-
-Xapian::termcount
-HoneyAllTermsList::get_collection_freq() const
-{
-    LOGCALL(DB, Xapian::termcount, "HoneyAllTermsList::get_collection_freq", NO_ARGS);
-    Assert(!at_end());
-    if (termfreq == 0) read_termfreq_and_collfreq();
-    RETURN(collfreq);
 }
 
 TermList*
 HoneyAllTermsList::next()
 {
     LOGCALL(DB, TermList*, "HoneyAllTermsList::next", NO_ARGS);
-    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
-    // the current term.
+    // Set termfreq to 0 to indicate no termfreq has been read for the current
+    // term.
     termfreq = 0;
 
     if (rare(!cursor)) {
@@ -162,8 +155,8 @@ TermList*
 HoneyAllTermsList::skip_to(const string& term)
 {
     LOGCALL(DB, TermList*, "HoneyAllTermsList::skip_to", term);
-    // Set termfreq to 0 to indicate we've not read termfreq and collfreq for
-    // the current term.
+    // Set termfreq to 0 to indicate no termfreq has been read for the current
+    // term.
     termfreq = 0;
 
     if (rare(!cursor)) {

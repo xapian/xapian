@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2004,2005,2007,2008,2010,2012,2013,2014,2015,2016 Olly Betts
+# Copyright (C) 2004,2005,2007,2008,2010,2012,2013,2014,2015,2016,2020 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -120,5 +120,63 @@ echo "Adding to trac"
 # pages:
 ssh thyestes.tartarus.org bin/xapian-trac-new-release "$version"
 
+checksums=`cd "$RESULT" && sha256sum *.tar.*|grep -v '\.asc$'`
 echo "Checksums:"
-(cd "$RESULT" && sha256sum *.tar.*|grep -v '\.asc$')
+echo "$checksums"
+
+cat <<END > tmp.msg
+From: Olly Betts <olly@survex.com>
+To: xapian-discuss@lists.xapian.org
+Subject: Xapian $version released
+Reply-To: xapian-discuss@lists.xapian.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="=-=-=-=-=-=-=--"
+Content-Disposition: inline
+
+--=-=-=-=-=-=-=--
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+Xapian $version can now be downloaded from:
+
+https://xapian.org/download
+
+This release is mainly composed of
+optimisations,
+FIXME
+and
+bug fixes.
+
+The wiki has the usual summary of the most notable changes:
+
+https://trac.xapian.org/wiki/ReleaseOverview/$version
+
+A big thanks to
+FIXME
+for helping to make this release a reality.
+
+If I've missed anyone out, you can claim an extra big thankyou.
+
+As always, if you encounter problems, please report them here, or to
+the bug-tracker: https://xapian.org/bugs
+
+You can find detached GPG signatures for each of the release tarballs
+in a corresponding file with ".asc" appended.
+
+Here are the SHA256 checksums of the released files:
+
+$checksums
+
+Cheers,
+    Olly
+
+--=-=-=-=-=-=-=--
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+-----END PGP SIGNATURE-----
+
+--=-=-=-=-=-=-=--
+END
+mutt -E -H tmp.msg

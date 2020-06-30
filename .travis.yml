@@ -1,5 +1,6 @@
 dist: xenial
 language: cpp
+cache: ccache
 notifications:
   irc: "chat.freenode.net#xapian-devel"
 matrix:
@@ -31,6 +32,7 @@ matrix:
             - libe-book-dev
             - libetonyek-dev
             - libtesseract-dev
+            - libgmime-2.6-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
@@ -58,9 +60,11 @@ matrix:
             - libe-book-dev
             - libetonyek-dev
             - libtesseract-dev
+            - libgmime-2.6-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
+      name: "GCC 4.8"
       # Test with trusty as it has GCC 4.8 which is the oldest GCC we currently
       # aim to support.
       dist: trusty
@@ -86,6 +90,7 @@ matrix:
             - libpoppler-cpp-dev
             - libtesseract-dev
     - os: linux
+      name: "Emscripten"
       addons:
         apt:
           packages:
@@ -117,7 +122,9 @@ matrix:
         homebrew:
           update: true
           packages:
+            - ccache
             - doxygen
+            - gmime
             - graphviz
             - help2man
             - icu4c
@@ -139,10 +146,14 @@ matrix:
         - travis_retry pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
+      install:
+        # Enable use of ccache to speed up builds.
+        - export PATH=/usr/local/opt/ccache/libexec:$PATH
+      # The default macOS make behaves oddly when the -j option is used
+      # (probably rules get run in a single subshell) so use GNU make instead.
       env: PYTHON2=/usr/local/bin/python2 CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs='--prefix=/Users/travis/XapianInstall --with-libiconv-prefix=/usr/local/opt/libiconv' installcore='make -C xapian-core install'
-    - os: linux
-      # (Ab)use env to label this build:
-      env: dummy="Automated run of xapian-check-patch"
+    - name: "Automated run of xapian-check-patch"
+      os: linux
       # Override "before_script" to do nothing
       before_script:
       # Override "script" to run the style checking script
@@ -161,9 +172,9 @@ before_script:
   - travis_retry ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
 script:
-  - make
+  - make -j2
   - $installcore
-  - make check VERBOSE=1 AUTOMATED_TESTING=1
+  - make -j2 check VERBOSE=1 AUTOMATED_TESTING=1
   # grep '^' passes through all input while giving a non-zero exit status if
   # that input is empty.
   - git status --porcelain|grep '^' && { echo "The generated files listed above are not in .gitignore" ; exit 1; }; true

@@ -138,7 +138,7 @@ ValueRangePostList::get_termfreq_est_using_stats(
     // begin and end like above?
     RETURN(TermFreqs(stats.collection_size / 2,
 		     stats.rset_size / 2,
-		     stats.total_term_count / 2));
+		     stats.total_length / 2));
 }
 
 Xapian::doccount

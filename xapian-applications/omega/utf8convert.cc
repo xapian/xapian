@@ -1,7 +1,7 @@
 /** @file utf8convert.cc
  * @brief convert a string to UTF-8 encoding.
  */
-/* Copyright (C) 2006,2007,2008,2010,2013,2017 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2013,2017,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,8 @@ convert_to_utf8(string & text, const string & charset)
 	return;
     if (charset.size() == 4 && strcasecmp(charset.c_str(), "utf8") == 0)
 	return;
+    if (charset.size() == 8 && strcasecmp(charset.c_str(), "us-ascii") == 0)
+	return;
 
     // Nobody has told us what charset it's in, so do as little work as
     // possible!
@@ -52,7 +54,7 @@ convert_to_utf8(string & text, const string & charset)
     char buf[1024];
     string tmp;
 
-    /* Handle iso-8859-1/windows-1252/cp-1252, utf-16/ucs-2,
+    /* Handle iso-8859-1/iso-8859-15//windows-1252/cp-1252, utf-16/ucs-2,
      * utf-16be/ucs-2be, and utf-16le/ucs-2le. */
     const char * p = charset.c_str();
 
@@ -162,7 +164,9 @@ convert_to_utf8(string & text, const string & charset)
 	    if (strncmp(p, "8859", 4) != 0) goto try_iconv;
 	    p += 4;
 	    if (*p == '-' || *p == '_' || *p == ' ') ++p;
-	    if (strcmp(p, "1") != 0) goto try_iconv;
+	    if (*p != '1') goto try_iconv;
+	    if (strcmp(p + 1, "5") == 0) goto iso8859_15;
+	    if (p[1] != '\0') goto try_iconv;
 	}
 
 	// FIXME: pull this out as a standard "normalise utf-8" function?
@@ -213,6 +217,32 @@ try_iconv:
 #else
 	return;
 #endif
+    }
+
+    if (false) {
+iso8859_15:
+	tmp.reserve(text.size());
+
+	size_t start = 0;
+	for (string::const_iterator i = text.begin(); i != text.end(); ++i) {
+	    static const unsigned iso8859_15_to_unicode[] = {
+		0x20ac, 0x00a5, 0x0160, 0x00a7, 0x0161, 0x00a9, 0x00aa, 0x00ab,
+		0x00ac, 0x00ad, 0x00ae, 0x00af, 0x00b0, 0x00b1, 0x00b2, 0x00b3,
+		0x017d, 0x00b5, 0x00b6, 0x00b7, 0x017e, 0x00b9, 0x00ba, 0x00bb,
+		0x0152, 0x0153, 0x0178
+	    };
+	    const size_t ISO8859_15_TO_UNICODE_ENTRIES =
+		sizeof(iso8859_15_to_unicode) / sizeof(*iso8859_15_to_unicode);
+	    unsigned ch = static_cast<unsigned char>(*i);
+	    if (ch - 164 < ISO8859_15_TO_UNICODE_ENTRIES)
+		ch = iso8859_15_to_unicode[ch - 164];
+	    start += Xapian::Unicode::to_utf8(ch, buf + start);
+	    if (start >= sizeof(buf) - 4) {
+		tmp.append(buf, start);
+		start = 0;
+	    }
+	}
+	if (start) tmp.append(buf, start);
     }
 
     swap(text, tmp);

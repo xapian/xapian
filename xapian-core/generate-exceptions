@@ -45,7 +45,7 @@ print HDR <<'EOF';
 #define XAPIAN_INCLUDED_ERROR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/error.h> directly; include <xapian.h> instead."
+# error Never use <xapian/error.h> directly; include <xapian.h> instead.
 #endif
 
 #include <string>
@@ -116,13 +116,20 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
 	  my_errno(errno_) { }
 
   public:
+    /** Default copy constructor.
+     *
+     *  We explicitly specify this to avoid warnings from GCC 9 (from
+     *  -Wdeprecated-copy which is enabled by -Wextra).
+     */
+    Error(const Error&) = default;
+
     /// The type of this error (e.g. "DocNotFoundError".)
-    const char * XAPIAN_NOTHROW(get_type() const) {
+    const char* get_type() const noexcept {
 	return type + 1;
     }
 
     /// Message giving details of the error, intended for human consumption.
-    const std::string & XAPIAN_NOTHROW(get_msg() const) {
+    const std::string& get_msg() const noexcept {
 	return msg;
     }
 
@@ -132,7 +139,7 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  remote server an error came from), but it is typically a
      *  plain-text string, and so also fit for human consumption.
      */
-    const std::string & XAPIAN_NOTHROW(get_context() const) {
+    const std::string& get_context() const noexcept {
 	return context;
     }
 

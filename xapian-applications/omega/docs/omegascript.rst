@@ -289,11 +289,65 @@ $json{STRING}
 
         Added in Omega 1.3.1.
 
-$jsonarray{LIST}
-        encodes LIST (a string of tab-separated values) as a JSON array, e.g.
+$jsonarray{LIST[,FORMAT]}
+        encodes LIST (a string of tab-separated values) as a JSON array.  By
+        default the elements of the array are encoded as JSON strings, but
+        if ``FORMAT`` is specified it's evaluated for each element in turn
+        with ``$_`` set to the element value and the result used instead.
+
+        The default ``FORMAT`` is equivalent to ``"$json{$_}"``.
+
+        Examples:
+
         ``$jsonarray{$split{a "b" c:\}}`` gives ``["a","\"b\"","c:\\"]``
 
+        ``$jsonarray{$split{2 3 5 7},$mul{$_,$_}}`` gives ``[4,9,25,49]``
+
         Added in Omega 1.3.1, but buggy until 1.3.4.
+
+        Support for the second argument added in Omega 1.4.15.
+
+$jsonbool{COND}
+        returns a JSON bool value (i.e. ``true`` or ``false``) for OmegaScript
+        value ``COND``.
+
+        This is exactly equivalent to ``$if{COND,true,false}`` and is provided
+        just to allow more readable JSON-producing templates.  This means that
+        ``COND`` being empty is false and all non-empty values are true (so
+        note that ``$jsonbool{0}`` gives ``true`` - if you want a numeric test,
+        you can use ``$jsonbool{$ne{VALUE,0}}``
+
+        Added in Omega 1.4.15.
+
+$jsonobject{MAP[,KEYFORMAT[,VALUEFORMAT]]}
+        encodes OmegaScript map ``MAP`` (as set by ``$setmap``) as a JSON object.
+
+        ``KEYFORMAT`` provides a way to modify key values.  It's evaluated for
+        each key with ``$_`` set to the OmegaScript map key.  If omitted or
+        empty then the keys are used as-is (so it effectively defaults to
+        ``$_``).  For example ``$jsonobject{foo,$lower{$_}}`` forces keys to
+        lower case.
+
+        You probably want to avoid creating duplicate keys (RFC 2119 says they
+        ``SHOULD be unique``).  Note that the resulting value should be an
+        OmegaScript string - don't pass it though ``$json{}`` or wrap it in
+        double quotes.
+
+        ``VALUEFORMAT`` provides a way to specify how to encode values.  It's
+        evaluated for each value with ``$_`` set to the OmegaScript map value
+        and the result should be JSON to use as the JSON object value.  If
+        omitted or empty the value is encoded as a JSON string (so effectively
+        the default is ``"$json{$_}"``).  Note that (unlike ``KEYFORMAT``) this
+        does need to include ``$json{}`` and double quotes, because the value
+        doesn't have to be a JSON string.
+
+        Added in Omega 1.4.15.
+
+$keys{MAP}
+        returns a list containing the keys of MAP (as set by ``$setmap``).
+        The keys are in sorted order (by raw byte comparison).
+
+        Added in Omega 1.4.15.
 
 $last
         MSet index one beyond the end of the current page (so ``$hit`` runs
@@ -318,12 +372,22 @@ $list{LIST,...}
 	last two forms aren't redundant as it may at first appear).
 
 $log{LOGFILE[,ENTRY]}
-        write to the log file ``LOGFILE`` in directory ``log_dir`` (set in
-        ``omega.conf``).  ``ENTRY`` is the OmegaScript for the log entry, and a
-        linefeed is appended.  If ``LOGFILE`` cannot be opened for writing,
-        nothing is done (and ``ENTRY`` isn't evaluated).  ``ENTRY`` defaults to
-        a format similar to the Common Log Format used by webservers.
+        append to the log file ``LOGFILE``.  ``LOGFILE`` will be resolved as a
+        relative path starting from directory ``log_dir`` (as specified in
+        ``omega.conf``).  ``LOGFILE`` may not contain the substring ``..``.
+        
+        ``ENTRY`` is the OmegaScript for the log entry, which is evaluated and
+        a linefeed appended.  ``ENTRY`` defaults to a format similar to the
+        Common Log Format used by webservers.  If an error occurs when trying
+        to open the log file then ``ENTRY`` won't be evaluated.
 
+        If the logfile can't be opened or writing to it fails then ``$log``
+        returns an error message (since Omega 1.5.0), otherwise it returns
+        nothing.  If you want to ignore logging errors, you can ignore the
+        return value using ``$if`` with no action like so::
+
+         $if{$log{example.log}}
+ 
 $lookup{CDBFILE,KEY}
         Return the tag corresponding to key ``KEY`` in the CDB file
         ``CDBFILE``.  If the file doesn't exist, or ``KEY`` isn't a key in it,
@@ -945,9 +1009,14 @@ $cond{COND1,THEN1[,COND2,THEN2]...[,ELSE]}
 
         Added in Omega 1.4.6.
 
-$if{COND,THEN[,ELSE]}
+$if{COND[,THEN[,ELSE]]}
         if ``COND`` is non-empty, evaluates and returns ``THEN``; otherwise
-        evaluates and returns ``ELSE`` (if present, otherwise returns nothing).
+        evaluates and returns ``ELSE``.  If ``THEN`` and/or ``ELSE`` are omitted
+        then returns nothing.  You can use ``$if{COND}`` to evaluate ``COND``
+        but discard the result of that evaluation, which can be useful if
+        ``COND`` has side-effects.
+
+        The ability to omit ``THEN`` was added in Omega 1.4.15.
 
 $include{FILE}
 	include another OmegaScript file

@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_MATCHDECIDER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/matchdecider.h> directly; include <xapian.h> instead."
+# error Never use <xapian/matchdecider.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -44,7 +44,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
 
   public:
     /// Default constructor, needed by subclass constructors.
-    XAPIAN_NOTHROW(MatchDecider()) {}
+    MatchDecider() noexcept {}
 
     /** Virtual destructor, because we have virtual methods. */
     virtual ~MatchDecider() { }

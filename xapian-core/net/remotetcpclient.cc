@@ -58,5 +58,8 @@ RemoteTcpClient::get_tcpcontext(const string & hostname, int port)
 
 RemoteTcpClient::~RemoteTcpClient()
 {
-    do_close();
+    try {
+	do_close();
+    } catch (...) {
+    }
 }

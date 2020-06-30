@@ -21,11 +21,9 @@
 #ifndef XAPIAN_INCLUDED_REPLICATETCPSERVER_H
 #define XAPIAN_INCLUDED_REPLICATETCPSERVER_H
 
-#include "remoteconnection.h"
 #include "tcpserver.h"
 
 #include "xapian/visibility.h"
-#include "api/replication.h"
 
 class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpServer : public TcpServer {
     /// The path to pass to DatabaseMaster.

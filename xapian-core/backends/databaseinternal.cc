@@ -1,7 +1,7 @@
 /** @file databaseinternal.cc
  * @brief Virtual base class for Database internals
  */
-/* Copyright 2003,2004,2006,2007,2008,2009,2011,2014,2015,2017 Olly Betts
+/* Copyright 2003,2004,2006,2007,2008,2009,2011,2014,2015,2017,2019 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,12 @@
 
 #include "databaseinternal.h"
 
-#include "api/leafpostlist.h"
+#include "api/termlist.h"
+#include "heap.h"
 #include "omassert.h"
+#include "postlist.h"
 #include "slowvaluelist.h"
+#include "stringutils.h"
 #include "xapian/error.h"
 
 #include <algorithm>
@@ -411,6 +414,157 @@ bool
 Database::Internal::locked() const
 {
     return false;
+}
+
+Database::Internal*
+Database::Internal::update_lock(int flags)
+{
+    if (flags == Xapian::DB_READONLY_) return this;
+    throw Xapian::DatabaseLockError("Not possible to lock for writing");
+}
+
+namespace {
+    class Pos {
+	Xapian::termpos pos;
+
+	PositionList* p;
+
+	string term;
+
+      public:
+	Pos(string&& term_, PositionList* p_)
+	    : p(p_), term(term_) {
+	    pos = p->get_position();
+	}
+
+	~Pos() { delete p; }
+
+	Xapian::termpos get_pos() const { return pos; }
+
+	const string& get_term() const { return term; }
+
+	bool next() {
+	    if (!p->next()) {
+		return false;
+	    }
+	    pos = p->get_position();
+	    return true;
+	}
+    };
+}
+
+static void
+reconstruct_open_poslists(TermList* termlist,
+			  Xapian::termpos start_pos,
+			  Xapian::termpos end_pos,
+			  const string& end,
+			  vector<unique_ptr<Pos>>& heap,
+			  size_t prefix_size = 0)
+{
+    constexpr Xapian::termpos LAST_POS = Xapian::termpos(-1);
+    while (!termlist->at_end()) {
+	const string& term = termlist->get_termname();
+	if (!end.empty() && term >= end) {
+	    break;
+	}
+	PositionList* poslist = termlist->positionlist_begin();
+	if ((start_pos ? poslist->skip_to(start_pos) : poslist->next()) &&
+	    (end_pos == LAST_POS || poslist->get_position() <= end_pos)) {
+	    heap.emplace_back(new Pos(term.substr(prefix_size), poslist));
+	} else {
+	    delete poslist;
+	}
+	termlist->next();
+    }
+}
+
+string
+Database::Internal::reconstruct_text(Xapian::docid did,
+				     size_t length,
+				     const std::string& prefix,
+				     Xapian::termpos start_pos,
+				     Xapian::termpos end_pos) const
+{
+    if (end_pos == 0) {
+	// Wrap to largest possible value.
+	--end_pos;
+    }
+
+    if (length == 0) {
+	// Wrap to largest possible value.
+	--length;
+    }
+
+    struct PosCmp {
+	bool operator()(const unique_ptr<Pos>& a, const unique_ptr<Pos>& b) {
+	    if (a->get_pos() != b->get_pos()) {
+		return a->get_pos() > b->get_pos();
+	    }
+	    return a->get_term() > b->get_term();
+	}
+    };
+
+    vector<unique_ptr<Pos>> heap;
+
+    unique_ptr<TermList> termlist(open_term_list_direct(did));
+    if (usual(termlist.get())) {
+	if (prefix.empty()) {
+	    termlist->next();
+	    reconstruct_open_poslists(termlist.get(), start_pos, end_pos,
+				      "A", heap);
+	    termlist->skip_to("[");
+	    reconstruct_open_poslists(termlist.get(), start_pos, end_pos,
+				      prefix, heap);
+	} else {
+	    termlist->skip_to(prefix);
+	    if (!termlist->at_end()) {
+		// Calculate the first possible term without the specified
+		// prefix.
+		string term_ub = prefix;
+		size_t i = term_ub.find_last_not_of('\xff');
+		term_ub.resize(i + 1);
+		if (i != string::npos) {
+		    term_ub[i] = (unsigned char)term_ub[i] + 1;
+		}
+		reconstruct_open_poslists(termlist.get(), start_pos, end_pos,
+					  term_ub, heap, prefix.size());
+	    }
+	}
+
+	Heap::make(heap.begin(), heap.end(), PosCmp());
+    }
+
+    string result;
+
+    Xapian::termpos old_pos = start_pos - 1;
+    while (!heap.empty()) {
+	Pos* tip = heap.front().get();
+	Xapian::termpos pos = tip->get_pos();
+	if (pos > end_pos) break;
+
+	Xapian::termpos delta = pos - old_pos;
+	// Ignore additional terms at the same position.
+	if (delta) {
+	    if (usual(!result.empty())) {
+		// Insert newline for gap in used positions.
+		result += (delta == 1 ? ' ' : '\n');
+	    }
+	    result += tip->get_term();
+	}
+
+	if (result.size() >= length) break;
+
+	old_pos = pos;
+
+	if (tip->next()) {
+	    Heap::replace(heap.begin(), heap.end(), PosCmp());
+	} else {
+	    Heap::pop(heap.begin(), heap.end(), PosCmp());
+	    heap.resize(heap.size() - 1);
+	}
+    }
+
+    return result;
 }
 
 }

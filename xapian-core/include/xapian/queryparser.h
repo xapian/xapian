@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/queryparser.h> directly; include <xapian.h> instead."
+# error Never use <xapian/queryparser.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -664,7 +664,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  Used if you don't explicitly pass any to @a parse_query().
 	 *  The default flags are FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE.
 	 *
-	 *  Added in Xapian 1.0.11.
+	 *  @since Added in Xapian 1.0.11.
 	 */
 	FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
     } feature_flag;
@@ -819,7 +819,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *				the limit for both wildcards and partial
      *				terms).
      *
-     *  Added in Xapian 1.5.0.
+     *  @since Added in Xapian 1.5.0.
      */
     void set_min_wildcard_prefix(unsigned min_prefix_len,
 				 unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
@@ -1002,7 +1002,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     TermIterator stoplist_begin() const;
 
     /// End iterator over terms omitted from the query as stopwords.
-    TermIterator XAPIAN_NOTHROW(stoplist_end() const) {
+    TermIterator stoplist_end() const noexcept {
 	return TermIterator();
     }
 
@@ -1010,7 +1010,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     TermIterator unstem_begin(const std::string &term) const;
 
     /// End iterator over unstemmed forms of the given stemmed query term.
-    TermIterator XAPIAN_NOTHROW(unstem_end(const std::string &) const) {
+    TermIterator unstem_end(const std::string&) const noexcept {
 	return TermIterator();
     }
 
@@ -1033,7 +1033,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
 /// @private @internal Helper for sortable_serialise().
 XAPIAN_VISIBILITY_DEFAULT
-size_t XAPIAN_NOTHROW(sortable_serialise_(double value, char * buf));
+size_t sortable_serialise_(double value, char* buf) noexcept;
 
 /** Convert a floating point number to a string, preserving sort order.
  *
@@ -1081,7 +1081,7 @@ inline std::string sortable_serialise(double value) {
  *  @param serialised	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double XAPIAN_NOTHROW(sortable_unserialise(const std::string & serialised));
+double sortable_unserialise(const std::string& serialised) noexcept;
 
 }
 

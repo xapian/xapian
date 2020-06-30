@@ -245,7 +245,7 @@ groupings (  )
 
 // Normalizations
 define Normalize_pre as (
-    loop len (
+    do repeat (
         (
             [substring] among (
                 '{aan}' '{uun}' '{iin}' '{aa}' '{uu}' '{ii}' '{oo}' '{~}'( delete ) // strip vocalization

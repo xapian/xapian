@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2017,2018 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2017,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -81,9 +81,9 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 
 const char * action_names[] = {
     "bad", "new",
-    "boolean", "date", "field", "hash", "hextobin", "index", "indexnopos",
-    "load", "lower", "parsedate", "spell", "split", "truncate", "unhtml",
-    "unique", "value", "valuenumeric", "valuepacked", "weight"
+    "boolean", "date", "field", "gap", "hash", "hextobin", "index",
+    "indexnopos", "load", "lower", "parsedate", "spell", "split", "truncate",
+    "unhtml", "unique", "value", "valuenumeric", "valuepacked", "weight"
 };
 
 // For debugging:
@@ -93,20 +93,20 @@ class Action {
   public:
     typedef enum {
 	BAD, NEW,
-	BOOLEAN, DATE, FIELD, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD, LOWER,
-	PARSEDATE, SPELL, SPLIT, TRUNCATE, UNHTML, UNIQUE, VALUE,
+	BOOLEAN, DATE, FIELD, GAP, HASH, HEXTOBIN, INDEX, INDEXNOPOS, LOAD,
+	LOWER, PARSEDATE, SPELL, SPLIT, TRUNCATE, UNHTML, UNIQUE, VALUE,
 	VALUENUMERIC, VALUEPACKED, WEIGHT
     } type;
     enum { SPLIT_NONE, SPLIT_DEDUP, SPLIT_SORT, SPLIT_PREFIXES };
   private:
     type action;
-    int num_arg;
+    int num_arg = 0;
     string string_arg;
     // Offset into indexscript line.
     size_t pos;
   public:
     Action(type action_, size_t pos_)
-	: action(action_), num_arg(0), pos(pos_) { }
+	: action(action_), pos(pos_) { }
     Action(type action_, size_t pos_, const string & arg)
 	: action(action_), string_arg(arg), pos(pos_) {
 	num_arg = atoi(string_arg.c_str());
@@ -119,6 +119,21 @@ class Action {
     const string & get_string_arg() const { return string_arg; }
     size_t get_pos() const { return pos; }
 };
+
+// These allow searching for an Action with a particular Action::type using
+// std::find().
+
+inline bool
+operator==(const Action& a, Action::type t) { return a.get_action() == t; }
+
+inline bool
+operator==(Action::type t, const Action& a) { return a.get_action() == t; }
+
+inline bool
+operator!=(const Action& a, Action::type t) { return !(a == t); }
+
+inline bool
+operator!=(Action::type t, const Action& a) { return !(t == a); }
 
 enum diag_type { DIAG_ERROR, DIAG_WARN, DIAG_NOTE };
 
@@ -237,6 +252,13 @@ parse_index_script(const string &filename)
 			if (action == "field") {
 			    code = Action::FIELD;
 			    max_args = 1;
+			}
+			break;
+		    case 'g':
+			if (action == "gap") {
+			    code = Action::GAP;
+			    max_args = 1;
+			    takes_integer_argument = true;
 			}
 			break;
 		    case 'h':
@@ -587,6 +609,19 @@ bad_escaping:
 			    boolmap[val] = Action::UNIQUE;
 			actions.emplace_back(code, action_pos, val);
 			break;
+		    case Action::GAP: {
+			actions.emplace_back(code, action_pos, val);
+			auto& obj = actions.back();
+			auto gap_size = obj.get_num_arg();
+			if (gap_size <= 0) {
+			    report_location(DIAG_ERROR, filename, line_no,
+					    obj.get_pos() + 3 + 1);
+			    cerr << "Index action 'gap' takes a strictly "
+				    "positive integer argument" << endl;
+			    exit(1);
+			}
+			break;
+		    }
 		    case Action::HASH: {
 			actions.emplace_back(code, action_pos, val);
 			auto& obj = actions.back();
@@ -623,6 +658,8 @@ bad_escaping:
 		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
 		    useless_weight_pos = string::npos;
 		    actions.emplace_back(code, action_pos, "", weight);
+		} else if (code == Action::GAP) {
+		    actions.emplace_back(code, action_pos, "", 100);
 		} else if (code == Action::HASH) {
 		    actions.emplace_back(code, action_pos, "",
 					 MAX_SAFE_TERM_LENGTH - 1);
@@ -757,6 +794,9 @@ run_actions(vector<Action>::const_iterator action_it,
 		doc.add_boolean_term(term);
 		break;
 	    }
+	    case Action::GAP:
+		indexer.increase_termpos(action.get_num_arg());
+		break;
 	    case Action::HASH: {
 		unsigned int max_length = action.get_num_arg();
 		if (value.length() > max_length)
@@ -820,12 +860,8 @@ badhex:
 		indexer.set_flags(indexer.FLAG_SPELLING);
 		break;
 	    case Action::SPLIT: {
-		// Execute actions on the split up to the first NEW, if any.
-		vector<Action>::const_iterator split_end = action_it;
-		while (split_end != action_end &&
-		       split_end->get_action() != Action::NEW) {
-		    ++split_end;
-		}
+		// Find the end of the actions which split should execute.
+		auto split_end = find(action_it, action_end, Action::NEW);
 
 		int split_type = action.get_num_arg();
 		if (value.empty()) {

@@ -1,7 +1,7 @@
 /** @file queryparser_internal.h
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015,2016,2018 Olly Betts
+/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015,2016,2018,2019 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -46,10 +46,10 @@ struct FieldInfo {
     string grouping;
 
     /// Field prefix strings.
-    list<string> prefixes;
+    vector<string> prefixes;
 
-    /// Field processors.  Currently only one is supported.
-    list<Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor>> procs;
+    /// Field processor.  Currently only one is supported.
+    Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> proc;
 
     FieldInfo(filter_type type_, const string& prefix,
 	      const string& grouping_ = string())
@@ -58,11 +58,10 @@ struct FieldInfo {
 	prefixes.push_back(prefix);
     }
 
-    FieldInfo(filter_type type_, Xapian::FieldProcessor* proc,
+    FieldInfo(filter_type type_, Xapian::FieldProcessor* proc_,
 	      const string& grouping_ = string())
-	: type(type_), grouping(grouping_)
+	: type(type_), grouping(grouping_), proc(proc_)
     {
-	procs.push_back(proc);
     }
 };
 

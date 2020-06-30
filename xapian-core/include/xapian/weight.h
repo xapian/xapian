@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016,2017 Olly Betts
+/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016,2017,2019 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
  * Copyright (C) 2016,2017 Vivek Pal
@@ -64,7 +64,12 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	/// Sum of wdf over the whole collection for the current term.
 	COLLECTION_FREQ = 4096,
 	/// Number of unique terms in the current document.
-	UNIQUE_TERMS = 8192
+	UNIQUE_TERMS = 8192,
+	/** Sum of lengths of all documents in the collection.
+	 *
+	 *  This gives the total number of term occurrences.
+	 */
+	TOTAL_LENGTH = 16384
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -138,6 +143,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 
     /// An upper bound on the wdf of this term.
     Xapian::termcount wdf_upper_bound_;
+
+    /// Total length of all documents in the collection.
+    Xapian::totallength total_length_;
 
   public:
 
@@ -348,6 +356,15 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /** Return the short name of the weighting scheme. E.g. "bm25". */
     virtual std::string short_name() const;
 
+    /// @private @internal Test if this is a BoolWeight object.
+    bool is_bool_weight_() const {
+	// Checking the name isn't ideal, but (get_maxpart() == 0.0) isn't
+	// required to work without init() having been called.  We can at
+	// least avoid the virtual method call in most non-BoolWeight cases
+	// as most other classes will need at least some stats.
+	return stats_needed == 0 && short_name() == "bool";
+    }
+
   protected:
     /** Don't allow copying.
      *
@@ -405,6 +422,11 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     Xapian::termcount get_wdf_upper_bound() const {
 	return wdf_upper_bound_;
+    }
+
+    /// Total length of all documents in the collection.
+    Xapian::totallength get_total_length() const {
+	return total_length_;
     }
 };
 
@@ -1218,15 +1240,14 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
 
   public:
     DLHWeight() {
-	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(COLLECTION_SIZE);
 	need_stat(COLLECTION_FREQ);
 	need_stat(WDF);
 	need_stat(WQF);
 	need_stat(WDF_MAX);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
+	need_stat(TOTAL_LENGTH);
     }
 
     std::string name() const;
@@ -1443,15 +1464,14 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
   public:
     /** Construct a DPHWeight. */
     DPHWeight() {
-	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(COLLECTION_SIZE);
 	need_stat(COLLECTION_FREQ);
 	need_stat(WDF);
 	need_stat(WQF);
 	need_stat(WDF_MAX);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
+	need_stat(TOTAL_LENGTH);
     }
 
     std::string name() const;
@@ -1546,9 +1566,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	    else
 		param_smoothing2 = 0.05;
 	}
-	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(COLLECTION_SIZE);
 	need_stat(RSET_SIZE);
 	need_stat(TERMFREQ);
 	need_stat(RELTERMFREQ);
@@ -1556,6 +1574,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	need_stat(WDF);
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
+	need_stat(TOTAL_LENGTH);
 	if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING)
 	    need_stat(UNIQUE_TERMS);
 	if (select_smoothing == DIRICHLET_PLUS_SMOOTHING)

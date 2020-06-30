@@ -100,7 +100,7 @@ HoneyVersion::HoneyVersion(int fd_)
       uniq_terms_lbound(0), uniq_terms_ubound(0)
 {
     offset = lseek(fd, 0, SEEK_CUR);
-    if (rare(offset == off_t(-1))) {
+    if (rare(offset < 0)) {
 	string msg = "lseek failed on file descriptor ";
 	msg += str(fd);
 	throw Xapian::DatabaseOpeningError(msg, errno);
@@ -122,7 +122,7 @@ HoneyVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (single_file()) {
-	if (rare(lseek(fd, offset, SEEK_SET) == off_t(-1))) {
+	if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
 	    string msg = "Failed to rewind file descriptor ";
 	    msg += str(fd);
 	    throw Xapian::DatabaseOpeningError(msg, errno);
@@ -135,6 +135,9 @@ HoneyVersion::read()
 	if (rare(fd_in < 0)) {
 	    string msg = filename;
 	    msg += ": Failed to open honey revision file for reading";
+	    if (errno == ENOENT || errno == ENOTDIR) {
+		throw Xapian::DatabaseNotFoundError(msg, errno);
+	    }
 	    throw Xapian::DatabaseOpeningError(msg, errno);
 	}
 	close_fd = fd_in;
@@ -455,8 +458,14 @@ HoneyVersion::sync(const string& tmpfile,
     return true;
 }
 
-// Only try to compress tags longer than this many bytes.
-const size_t COMPRESS_MIN = 4;
+/* Only try to compress tags strictly longer than this many bytes.
+ *
+ * This can theoretically usefully be set as low as 4, but in practical terms
+ * zlib can't compress in very many cases for short inputs and even when it can
+ * the savings are small, so we default to a higher threshold to save CPU time
+ * for marginal size reductions.
+ */
+const size_t COMPRESS_MIN = 18;
 
 static const uint4 compress_min_tab[] = {
     0, // POSTLIST
@@ -522,6 +531,10 @@ RootInfo::unserialise(const char** p, const char* end)
     // continue to work.
     (void)dummy_val;
     (void)dummy_blocksize;
+    // Map old default to new default.
+    if (compress_min == 4) {
+	compress_min = COMPRESS_MIN;
+    }
     return true;
 }
 

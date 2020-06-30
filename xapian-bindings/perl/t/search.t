@@ -11,11 +11,8 @@ use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
-BEGIN { plan tests => 122 };
+BEGIN { plan tests => 129 };
 use Xapian qw(:ops);
-
-# FIXME: these tests pass in the XS version.
-my $disable_fixme = 1;
 
 #########################
 
@@ -98,6 +95,10 @@ ok( $doc->get_data(), "data retrievable" );
 
 ok( $match--, "match set iterator can decrement" );
 is( $match, $matches->begin(), "match set iterator decrements correctly" );
+$match->inc;
+isnt( $match, $matches->begin(), "match set iterator increments correctly" );
+$match->dec;
+is( $match, $matches->begin(), "match set iterator decrements correctly" );
 
 for (1 .. $matches->size()) { $match++; }
 is( $match, $matches->end(), "match set returns correct endpoint");
@@ -119,12 +120,18 @@ is( $matches3->size, $matches->size, "rset and check_at_least don't change mset 
 
 my $d;
 # This was generating a warning converting "0" to an RSet object:
-ok( $disable_fixme or
-    $matches3 = $enq->get_mset(0, 10,
+ok( $matches3 = $enq->get_mset(0, 10,
 			sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
 	"get_mset with matchdecider" );
-ok( $disable_fixme || defined $d, "matchdecider was called" );
-ok( $disable_fixme || $d == 1, "matchdecider got an argument" );
+ok( defined $d, "matchdecider was called" );
+ok( $d == 1, "matchdecider got an argument" );
+
+$d = undef;
+ok( $matches3 = $enq->get_mset(0, 10, 0, undef,
+			sub { $d = scalar @_; return $_[0]->get_value(0) ne ""; }),
+	"get_mset with matchdecider and full args list" );
+ok( defined $d, "matchdecider was called" );
+ok( $d == 1, "matchdecider got an argument" );
 
 sub mdecider {
     $d = scalar @_;
@@ -132,11 +139,10 @@ sub mdecider {
 }
 
 $d = undef;
-ok( $disable_fixme or
-    $matches3 = $enq->get_mset(0, 10, \&mdecider),
+ok( $matches3 = $enq->get_mset(0, 10, \&mdecider),
 	"get_mset with named matchdecider function" );
-ok( $disable_fixme || defined $d, "matchdecider was called" );
-ok( $disable_fixme || $d == 1, "matchdecider got an argument" );
+ok( defined $d, "matchdecider was called" );
+ok( $d == 1, "matchdecider got an argument" );
 
 my $eset;
 ok( $eset = $enq->get_eset( 10, $rset ), "can get expanded terms set" );
@@ -147,8 +153,13 @@ is( $eit->get_termname(), 'one', "expanded terms set contains correct terms");
 is( ++$eit, $eset->end(), "eset iterator reaches ESet::end() ok" );
 --$eit;
 is( $eit->get_termname(), 'one', "eset iterator decrement works ok" );
-ok( $disable_fixme or $eset = $enq->get_eset( 10, $rset, sub { $_[0] ne "one" } ), "expanded terms set with decider" );
-is( $disable_fixme ?0: $eset->size(), 0, "expanded terms decider filtered" );
+$eit->inc;
+is( $eit, $eset->end(), "ESetIterator::inc() ok" );
+$eit->dec;
+isnt( $eit, $eset->end(), "ESetIterator::dec() moved off end()" );
+is( $eit->get_termname(), 'one', "ESetIterator::dec() ok" );
+ok( $eset = $enq->get_eset( 10, $rset, sub { $_[0] ne "one" } ), "expanded terms set with decider" );
+is( $eset->size(), 0, "expanded terms decider filtered" );
 
 # try an empty mset - this was giving begin != end
 my ($noquery, $nomatches);
@@ -168,6 +179,15 @@ ok( $match eq $matches->back() );
 
 ok( $match->get_collapse_count() == 0 );
 
+# Test passing a sub as a matchspy.
+my @spy_values = ();
+$enq->add_matchspy(
+	sub { my $doc = shift; push @spy_values, $doc->get_value(0)}
+    );
+$enq->set_query(Xapian::Query::MatchAll);
+$matches = $enq->get_mset(1, 2);
+is( join("|", @spy_values), "one|two" );
+
 my $bm25;
 ok( $bm25 = Xapian::BM25Weight->new() );
 
@@ -179,27 +199,26 @@ ok( $tradweight = Xapian::TradWeight->new() );
 
 my $alltermit = $db->allterms_begin();
 ok( $alltermit != $db->allterms_end() );
-ok( $disable_fixme || "$alltermit" eq 'one' );
 ok( $alltermit->get_termname() eq 'one' );
 ok( ++$alltermit != $db->allterms_end() );
-ok( $disable_fixme || "$alltermit" eq 'test' );
 ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end() );
-ok( $disable_fixme || "$alltermit" eq 'two' );
 ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end() );
 
 $alltermit = $db->allterms_begin('t');
 ok( $alltermit != $db->allterms_end('t') );
-ok( $disable_fixme || "$alltermit" eq 'test' );
 ok( $alltermit->get_termname() eq 'test' );
 ok( ++$alltermit != $db->allterms_end('t') );
-ok( $disable_fixme || "$alltermit" eq 'two' );
 ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end('t') );
 
 # Check that non-string scalars get coerced.
 my $numberquery = Xapian::Query->new( OP_OR, (12, "34", .5) );
 is( $numberquery->get_description(), "Query((12 OR 34 OR 0.5))" );
+
+ok( defined(Xapian::ENQ_ASCENDING) );
+ok( defined(Xapian::ENQ_DESCENDING) );
+ok( defined(Xapian::ENQ_DONT_CARE) );
 
 1;

@@ -2,7 +2,7 @@
  * @brief Xapian::LMWeight class - the Unigram Language Modelling formula.
  */
 /* Copyright (C) 2012 Gaurav Arora
- * Copyright (C) 2016 Olly Betts
+ * Copyright (C) 2016,2019 Olly Betts
  * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,12 @@
 #include "debuglog.h"
 #include "omassert.h"
 #include "serialise-double.h"
+#include "stringutils.h"
 
 #include "xapian/error.h"
 
 #include <cerrno>
 #include <cmath>
-#include <cstdlib>
 
 using namespace std;
 
@@ -59,9 +59,9 @@ LMWeight::init(double factor_)
     AssertRel(collection_freq,>=,0);
     LOGVALUE(WTCALC, collection_freq);
 
-    // calculating approximate number of total terms in the collection to be
-    // accessed for smoothing of the document.
-    double total_collection_term = get_collection_size() * get_average_length();
+    // This is the total number of term occurrences in the collection, which we
+    // use for smoothing.
+    Xapian::totallength total_length = get_total_length();
 
     /* In case the within document frequency of term is zero smoothing will
      * be required and should be return instead of returning zero, as returning
@@ -69,16 +69,16 @@ LMWeight::init(double factor_)
      * of single term whole document is scored zero, hence apply collection
      * frequency smoothing.
      */
-    weight_collection = double(collection_freq) / total_collection_term;
-
-    // Total term should be greater than zero as there would be at least one
-    // document in collection.
-    AssertRel(total_collection_term,>,0);
-    LOGVALUE(WTCALC, total_collection_term);
+    if (rare(total_length == 0)) {
+	AssertEq(collection_freq, 0);
+	weight_collection = 0;
+    } else {
+	weight_collection = double(collection_freq) / total_length;
+    }
 
     // There can't be more relevant term in collection than total number of
     // term.
-    AssertRel(collection_freq,<=,total_collection_term);
+    AssertRel(weight_collection,<=,1.0);
 
     /* Setting default values of the param_log to handle negative value of log.
      * It is considered to be upperbound of document length.
@@ -267,12 +267,12 @@ LMWeight::get_maxextra() const
 static bool
 type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
 {
-    char *end;
-    errno = 0;
-    int v = strtol(*p, &end, 10);
-    if (*p == end || errno || v < 1 || v > 5)
+    const char* q = *p;
+    char ch = *q++;
+    if (ch < '1' || ch > '5' || C_isdigit(*q)) {
 	return false;
-    *p = end;
+    }
+    *p = q;
     static const Xapian::Weight::type_smoothing smooth_tab[5] = {
 	Xapian::Weight::TWO_STAGE_SMOOTHING,
 	Xapian::Weight::DIRICHLET_SMOOTHING,
@@ -280,7 +280,7 @@ type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
 	Xapian::Weight::JELINEK_MERCER_SMOOTHING,
 	Xapian::Weight::DIRICHLET_PLUS_SMOOTHING
     };
-    *ptr_val = smooth_tab[v - 1];
+    *ptr_val = smooth_tab[ch - '1'];
     return true;
 }
 

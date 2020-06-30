@@ -26,7 +26,6 @@
 #include <xapian.h>
 
 #include "apitest.h"
-#include "backendmanager_local.h"
 #include "str.h"
 #include "testutils.h"
 
@@ -65,7 +64,6 @@ DEFINE_TESTCASE(consistency3, backend) {
 	    }
 	}
     }
-    return true;
 }
 
 class MyPostingSource : public Xapian::PostingSource {
@@ -169,8 +167,6 @@ DEFINE_TESTCASE(pctcutoff4, backend && !remote && !multi) {
 	    percent = new_percent;
 	}
     }
-
-    return true;
 }
 
 /// Check we throw for a percentage cutoff while sorting primarily by value.
@@ -192,17 +188,11 @@ DEFINE_TESTCASE(pctcutoff5, backend) {
 
     enquire.set_sort_by_value_then_relevance(0, true);
     TEST_EXCEPTION(Xapian::UnimplementedError, mset = enquire.get_mset(0, 10));
-
-    return true;
 }
 
 // Regression test for bug fixed in 1.0.14.
-DEFINE_TESTCASE(topercent3, remote) {
-    BackendManagerLocal local_manager(test_driver::get_srcdir() + "/testdata/");
-    Xapian::Database db;
-    db.add_database(get_database("apitest_simpledata"));
-    db.add_database(local_manager.get_database("apitest_simpledata"));
-
+DEFINE_TESTCASE(topercent3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_sort_by_value(1, false);
 
@@ -216,8 +206,6 @@ DEFINE_TESTCASE(topercent3, remote) {
 	// We should never achieve 100%.
 	TEST_REL(i.get_percent(),<,100);
     }
-
-    return true;
 }
 
 // Regression test for bug introduced temporarily by the "percent without
@@ -237,8 +225,6 @@ DEFINE_TESTCASE(topercent4, backend) {
     // We should get 50% not 33%.
     TEST(!mset.empty());
     TEST_EQUAL(mset[0].get_percent(), 50);
-
-    return true;
 }
 
 /// Test that a search with a non-existent term doesn't get 100%.
@@ -254,7 +240,6 @@ DEFINE_TESTCASE(topercent5, backend) {
     // the top hit got 4% in this testcase.  In 1.2.x it gets 50%, which is
     // better, but >50% would be more natural.
     TEST_REL(mset[0].get_percent(), >=, 50);
-    return true;
 }
 
 /// Test that OP_FILTER doesn't affect percentages.
@@ -273,7 +258,6 @@ DEFINE_TESTCASE(topercent6, backend) {
     Xapian::MSet mset2 = enquire.get_mset(0, 10);
     TEST(!mset2.empty());
     TEST_EQUAL(mset[0].get_percent(), mset2[0].get_percent());
-    return true;
 }
 
 static void
@@ -305,7 +289,6 @@ DEFINE_TESTCASE(topercent7, generated) {
     Xapian::MSet m = enq.get_mset(0, 10);
     TEST(!m.empty());
     TEST_REL(m[0].get_percent(),>,60);
-    return true;
 }
 
 class ZWeight : public Xapian::Weight {
@@ -355,5 +338,4 @@ DEFINE_TESTCASE(checkzeromaxpartopt1, backend && !remote) {
     TEST(mset[0].get_percent() != 100);
     // Make sure the percentage score isn't 0 or 1 though.
     TEST_REL(mset[0].get_percent(), >, 1);
-    return true;
 }

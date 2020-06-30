@@ -33,10 +33,12 @@
 
 using namespace std;
 
+namespace {
 struct test {
     const char *query;
     const char *expect;
 };
+}
 
 /// Regression test for bug#407 fixed in 1.0.17 and 1.1.3.
 DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
@@ -143,6 +145,4 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	tout << "Query: " << p->query << '\n';
 	TEST_STRINGS_EQUAL(parsed, expect);
     }
-
-    return true;
 }

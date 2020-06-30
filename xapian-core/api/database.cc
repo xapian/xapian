@@ -498,10 +498,30 @@ Database::locked() const
     return internal->locked();
 }
 
+Xapian::WritableDatabase
+Database::lock(int flags) {
+    return Xapian::WritableDatabase(internal->update_lock(flags));
+}
+
+Xapian::Database
+Database::unlock() {
+    return Xapian::Database(internal->update_lock(Xapian::DB_READONLY_));
+}
+
 Xapian::rev
 Database::get_revision() const
 {
     return internal->get_revision();
+}
+
+string
+Database::reconstruct_text(Xapian::docid did,
+			   size_t length,
+			   const std::string& prefix,
+			   Xapian::termpos start_pos,
+			   Xapian::termpos end_pos) const
+{
+    return internal->reconstruct_text(did, length, prefix, start_pos, end_pos);
 }
 
 void

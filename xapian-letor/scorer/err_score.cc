@@ -78,7 +78,7 @@ ERRScore::score(const std::vector<FeatureVector> & fvv) const
 	* ((satisfaction probability * p) / rank).
 	* Expected Reciprocal Rank(err_score) is calculated in accordance with
 	* algorithm 2 in the paper http://olivier.chapelle.cc/pub/err.pdf
-	* The paper assumes discrete relevances but continous relevances can
+	* The paper assumes discrete relevances but continuous relevances can
 	* be scored using this scorer.
 	*/
 	err_score = err_score + (p * relevance_probability / rank);

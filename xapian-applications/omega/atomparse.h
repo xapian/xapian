@@ -1,7 +1,7 @@
 /** @file atomparse.h
  * @brief Extract text from an RSS atom file.
  */
-/* Copyright (C) 2010,2011,2012 Olly Betts
+/* Copyright (C) 2010,2011,2012,2019 Olly Betts
  * Copyright (C) 2012 Mihai Bivol
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,15 +25,16 @@
 #include "htmlparse.h"
 
 class AtomParser : public HtmlParser {
-    enum { OTHER, TITLE, AUTHOR, KEYWORDS, TEXT } state;
-    bool in_entry, is_ignored;
+    enum { OTHER, TITLE, AUTHOR, KEYWORDS, TEXT } state = OTHER;
+    bool in_entry = false;
+    bool is_ignored = false;
     string type;
 
   public:
-    AtomParser() : state(OTHER), in_entry(false), is_ignored(false) { }
-    void process_text(const string &text);
-    bool opening_tag(const string &tag);
-    bool closing_tag(const string &tag);
+    AtomParser() { }
+    void process_text(const string& text);
+    bool opening_tag(const string& tag);
+    bool closing_tag(const string& tag);
     string title, keywords, dump, author;
 };
 

@@ -1,7 +1,7 @@
 /** @file keymaker.h
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009,2011,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2014,2015,2016,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_KEYMAKER_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/keymaker.h> directly; include <xapian.h> instead."
+# error Never use <xapian/keymaker.h> directly; include <xapian.h> instead.
 #endif
 
 #include <string>
@@ -36,6 +36,7 @@
 namespace Xapian {
 
 class Document;
+class Registry;
 
 /** Virtual base class for key making functors. */
 class XAPIAN_VISIBILITY_DEFAULT KeyMaker
@@ -60,6 +61,56 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker
 
     /** Virtual destructor, because we have virtual methods. */
     virtual ~KeyMaker();
+
+    /** Return the name of this KeyMaker.
+     *
+     *  This name is used by the remote backend.  It is passed with the
+     *  serialised parameters to the remote server so that it knows which class
+     *  to create.
+     *
+     *  Return the full namespace-qualified name of your class here - if your
+     *  class is called MyApp::FooKeyMaker, return "MyApp::FooKeyMaker" from
+     *  this method.
+     *
+     *  If you don't want to support the remote backend in your KeyMaker, you
+     *  can use the default implementation which simply throws
+     *  Xapian::UnimplementedError.
+     */
+    virtual std::string name() const;
+
+    /** Return this object's parameters serialised as a single string.
+     *
+     *  If there are no parameters, just return an empty string.
+     *
+     *  If you don't want to support the remote backend in your KeyMaker, you
+     *  can use the default implementation which simply throws
+     *  Xapian::UnimplementedError.
+     */
+    virtual std::string serialise() const;
+
+    /** Unserialise parameters.
+     *
+     *  This method unserialises parameters serialised by the @a serialise()
+     *  method and allocates and returns a new object initialised with them.
+     *
+     *  If you don't want to support the remote backend in your KeyMaker, you
+     *  can use the default implementation which simply throws
+     *  Xapian::UnimplementedError.
+     *
+     *  Note that the returned object will be deallocated by Xapian after use
+     *  with "delete".  If you want to handle the deletion in a special way
+     *  (for example when wrapping the Xapian API for use from another
+     *  language) then you can define a static <code>operator delete</code>
+     *  method in your subclass as shown here:
+     *  https://trac.xapian.org/ticket/554#comment:1
+     *
+     *  @param serialised	A string containing the serialised results.
+     *  @param context	Registry object to use for unserialisation to permit
+     *			KeyMaker subclasses with sub-KeyMaker objects to be
+     *			implemented.
+     */
+    virtual KeyMaker* unserialise(const std::string& serialised,
+				  const Registry& context) const;
 
     /** Start reference counting this object.
      *
@@ -144,6 +195,13 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 		   const std::string & defvalue = std::string()) {
 	slots.push_back(KeySpec(slot, reverse, defvalue));
     }
+
+    std::string name() const;
+
+    std::string serialise() const;
+
+    KeyMaker* unserialise(const std::string& serialised,
+			  const Registry& context) const;
 };
 
 }

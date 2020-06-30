@@ -181,7 +181,11 @@ HoneyCursor::do_find(const string& key, bool greater_than)
     }
 #endif
 
-    Assert(!key.empty());
+    if (key.empty()) {
+	rewind();
+	do_next();
+	return false;
+    }
 
     bool use_index = true;
     if (!is_at_end && !last_key.empty() && last_key[0] == key[0]) {

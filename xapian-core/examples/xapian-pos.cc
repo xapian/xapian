@@ -1,7 +1,7 @@
 /** @file xapian-pos.cc
  * @brief Debug positional data
  */
-/* Copyright 2018 Olly Betts
+/* Copyright 2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 
 #include "gnu_getopt.h"
 #include "heap.h"
+#include "parseint.h"
 #include "stringutils.h"
 
 using namespace std;
@@ -47,11 +48,12 @@ show_usage()
 {
     cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE\n\n"
 "Options:\n"
-"  -d, --doc=DOCID  Show positions for document DOCID\n"
-"  -s, --start=POS  Specifies the first position to show\n"
-"  -e, --end=POS    Specifies the last position to show\n"
-"  --help           display this help and exit\n"
-"  --version        output version information and exit" << endl;
+"  -d, --doc=DOCID             show positions for document DOCID\n"
+"  -s, --start=POS             specifies the first position to show\n"
+"  -e, --end=POS               specifies the last position to show\n"
+"  -r, --reconstruct[=PREFIX]  reconstruct text for prefix PREFIX\n"
+"  --help                      display this help and exit\n"
+"  --version                   output version information and exit" << endl;
 }
 
 class Pos {
@@ -87,27 +89,6 @@ struct PosCmp {
     }
 };
 
-template<typename T>
-bool to_unsigned_int(const char* s, T& result)
-{
-    errno = 0;
-    char* e;
-    auto v = strtoull(s, &e, 0);
-    if (errno == 0) {
-	if (*e || e == s) {
-	    // Junk after or empty input.
-	    errno = EINVAL;
-	} else if (v > numeric_limits<T>::max()) {
-	    // Exceeds the type.
-	    errno = ERANGE;
-	} else {
-	    result = T(v);
-	    return true;
-	}
-    }
-    return false;
-}
-
 int
 main(int argc, char **argv)
 try {
@@ -115,6 +96,7 @@ try {
 	{"doc",		required_argument, 0, 'd'},
 	{"start",	required_argument, 0, 's'},
 	{"end",		required_argument, 0, 'e'},
+	{"reconstruct",	optional_argument, 0, 'r'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
 	{NULL,		0, 0, 0}
@@ -123,29 +105,33 @@ try {
     Xapian::docid did = 0;
     Xapian::termpos startpos = 0;
     Xapian::termpos endpos = numeric_limits<Xapian::termpos>::max();
+    bool reconstruct = false;
+    string reconstruct_prefix;
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "d:e:s:", long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, "d:e:s:r::", long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'd':
-		if (!to_unsigned_int(optarg, did) || did == 0) {
-		    if (errno == 0) errno = ERANGE;
-		    cerr << "Bad docid value '" << optarg << "': "
-			 << strerror(errno) << endl;
+		if (!parse_unsigned(optarg, did) || did == 0) {
+		    cerr << "Bad docid value '" << optarg << "'" << endl;
 		    exit(1);
 		}
 		break;
 	    case 's':
-		if (!to_unsigned_int(optarg, startpos)) {
-		    cerr << "Bad start position '" << optarg << "': "
-			 << strerror(errno) << endl;
+		if (!parse_unsigned(optarg, startpos)) {
+		    cerr << "Bad start position '" << optarg << "'" << endl;
 		    exit(1);
 		}
 		break;
 	    case 'e':
-		if (!to_unsigned_int(optarg, endpos)) {
-		    cerr << "Bad end position '" << optarg << "': "
-			 << strerror(errno) << endl;
+		if (!parse_unsigned(optarg, endpos)) {
+		    cerr << "Bad end position '" << optarg << "'" << endl;
 		    exit(1);
+		}
+		break;
+	    case 'r':
+		reconstruct = true;
+		if (optarg) {
+		    reconstruct_prefix = optarg;
 		}
 		break;
 	    case OPT_HELP:
@@ -172,12 +158,17 @@ try {
 	exit(1);
     }
 
-    vector<Pos*> heap;
-
     Xapian::Database db(argv[optind]);
 
-    std::vector<string> buf;
-    buf.reserve(db.get_doclength(did));
+    if (reconstruct) {
+	cout << db.reconstruct_text(did, 0, reconstruct_prefix,
+				    startpos, endpos)
+	     << endl;
+	exit(0);
+    }
+
+    vector<Pos*> heap;
+
     for (auto term_it = db.termlist_begin(did);
 	 term_it != db.termlist_end(did); ++term_it) {
 	const string& term = *term_it;

@@ -85,7 +85,7 @@ SynonymPostList::get_weight(Xapian::termcount doclen,
 	    // even if the weight object doesn't want it.
 	    if (doclen == 0) {
 		Xapian::termcount dummy;
-		pltree->get_doc_stats(doclen, dummy);
+		pltree->get_doc_stats(pl->get_docid(), doclen, dummy);
 	    }
 	    if (wdf > doclen) wdf = doclen;
 	}

@@ -1,7 +1,7 @@
 /** @file databaseinternal.h
  * @brief Virtual base class for Database internals
  */
-/* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017 Olly Betts
+/* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017,2019 Olly Betts
  * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -122,7 +122,7 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      */
     virtual ~Internal() {}
 
-    typedef size_t size_type;
+    typedef Xapian::doccount size_type;
 
     virtual size_type size() const;
 
@@ -474,6 +474,29 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      *  throw Xapian::UnimplementedError).
      */
     virtual bool locked() const;
+
+    /** Lock a read-only database for writing or unlock a writable database.
+     *
+     *  This is the internal method behind Database::lock() and
+     *  Database::unlock().
+     *
+     *  In the unlocking case, the writable database is closed.  In the
+     *  locking case, the read-only database is left open.
+     *
+     *  @param flags  Xapian::DB_READONLY_ to unlock, otherwise the flags
+     *		      to use when opening from writing.
+     *
+     *  @return  The new Database::Internal object (or the current object
+     *		 if no action is required - e.g. unlock on a read-only
+     *		 database).
+     */
+    virtual Internal* update_lock(int flags);
+
+    virtual std::string reconstruct_text(Xapian::docid did,
+					 size_t length,
+					 const std::string& prefix,
+					 Xapian::termpos start_pos,
+					 Xapian::termpos end_pos) const;
 
     /// Return a string describing this object.
     virtual std::string get_description() const = 0;

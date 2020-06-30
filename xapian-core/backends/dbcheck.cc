@@ -25,13 +25,16 @@
 #include "xapian/constants.h"
 #include "xapian/error.h"
 
+// We always need GLASS_TABLE_EXTENSION.
+#include "glass/glass_defs.h"
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 #include "glass/glass_changes.h"
 #include "glass/glass_dbcheck.h"
-#include "glass/glass_defs.h"
 #include "glass/glass_version.h"
 #endif
 
+// We always need HONEY_TABLE_EXTENSION.
+#include "honey/honey_defs.h"
 #ifdef XAPIAN_HAS_HONEY_BACKEND
 #include "honey/honey_dbcheck.h"
 #include "honey/honey_version.h"
@@ -454,6 +457,8 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 		backend = BACKEND_OLD;
 	    } else if (endswith(path, "." GLASS_TABLE_EXTENSION)) {
 		backend = BACKEND_GLASS;
+	    } else if (endswith(path, "." HONEY_TABLE_EXTENSION)) {
+		backend = BACKEND_HONEY;
 	    } else {
 		return check_stub(path, opts, out);
 	    }
@@ -479,6 +484,8 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 	backend = BACKEND_OLD;
     } else if (stat((filename + "." GLASS_TABLE_EXTENSION).c_str(), &sb) == 0) {
 	backend = BACKEND_GLASS;
+    } else if (stat((filename + "." HONEY_TABLE_EXTENSION).c_str(), &sb) == 0) {
+	backend = BACKEND_HONEY;
     } else {
 	auto msg = "Couldn't find Xapian database or table to check";
 	throw Xapian::DatabaseOpeningError(msg, ENOENT);

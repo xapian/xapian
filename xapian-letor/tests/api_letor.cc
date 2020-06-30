@@ -145,7 +145,7 @@ db_index_three_documents(Xapian::WritableDatabase& db, const string&)
     termgenerator.index_text("Document has nothing to do with score", 1, "S");
     termgenerator.index_text("This is just to check if score is given a higher "
 			     "score if it is in the subject or not. Nothing "
-			     "special, just juding scores by the look of it. "
+			     "special, just judging scores by the look of it. "
 			     "Some more scores but a bad qrel should be enough "
 			     "to make sure it is ranked down.", 1, "XD");
     termgenerator.index_text("Score might be something else too, but this para "
@@ -181,7 +181,7 @@ db_index_three_documents_no_common(Xapian::WritableDatabase& db, const string&)
     termgenerator.index_text("Document has nothing to do with score", 1, "S");
     termgenerator.index_text("This is just to check if score is given a higher "
 			     "score if it is in the subject or not. Nothing "
-			     "special, just juding scores by the look of it. "
+			     "special, just judging scores by the look of it. "
 			     "Some more scores but a bad qrel should be enough "
 			     "to make sure it is ranked down.", 1, "XD");
     termgenerator.index_text("Score might be something else too, but this para "
@@ -222,7 +222,6 @@ DEFINE_TESTCASE(createfeaturevector, generated)
     TEST_EQUAL(fv.size(), 2);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     TEST_EQUAL(fv[1].get_fcount(), 19);
-    return true;
 }
 
 DEFINE_TESTCASE(createfeaturevectoronevector, generated)
@@ -238,7 +237,6 @@ DEFINE_TESTCASE(createfeaturevectoronevector, generated)
     auto fv = fl.create_feature_vectors(mset, Xapian::Query("tigers"), db);
     TEST_EQUAL(fv.size(), 1);
     TEST_EQUAL(fv[0].get_fcount(), 19);
-    return true;
 }
 
 DEFINE_TESTCASE(createfeaturevectoronevector_wrongquery, generated)
@@ -253,7 +251,6 @@ DEFINE_TESTCASE(createfeaturevectoronevector_wrongquery, generated)
     TEST(mset.empty());
     auto fv = fl.create_feature_vectors(mset, Xapian::Query("llamas"), db);
     TEST_EQUAL(fv.size(), 0);
-    return true;
 }
 
 DEFINE_TESTCASE(createfeaturevectorthree, generated)
@@ -270,14 +267,12 @@ DEFINE_TESTCASE(createfeaturevectorthree, generated)
     TEST_EQUAL(fv.size(), 2);
     TEST_EQUAL(fv[0].get_fcount(), 19);
     TEST_EQUAL(fv[1].get_fcount(), 19);
-    return true;
 }
 
 DEFINE_TESTCASE(emptyfeaturelist, !backend)
 {
     vector<Xapian::Feature*> f;
     TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::FeatureList fl(f));
-    return true;
 }
 
 DEFINE_TESTCASE(bigfeaturelist, generated)
@@ -309,7 +304,6 @@ DEFINE_TESTCASE(bigfeaturelist, generated)
     // making total as 25.
     TEST_EQUAL(fv[0].get_fcount(), 25);
     TEST_EQUAL(fv[1].get_fcount(), 25);
-    return true;
 }
 
 DEFINE_TESTCASE(preparetrainingfileonedb, generated && path && writable)
@@ -356,7 +350,6 @@ DEFINE_TESTCASE(preparetrainingfileonedb, generated && path && writable)
     }
     TEST(!getline(if2, line2));
     unlink("training_output_data_one_doc.txt");
-    return true;
 }
 
 #define TEST_PARSE_EXCEPTION(TESTFILE) TEST_EXCEPTION(Xapian::LetorParseError,\
@@ -372,7 +365,6 @@ DEFINE_TESTCASE(unique_queryid, generated && path)
     string data_directory = test_driver::get_srcdir() + "/testdata/";
     string qrel = data_directory + "qrelone.txt";
     TEST_PARSE_EXCEPTION("unique_query_id.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(parse_querystring, generated && path)
@@ -393,7 +385,6 @@ DEFINE_TESTCASE(parse_querystring, generated && path)
     Xapian::prepare_training_file(db_path, data_directory +
 				  "parse_query_valid.txt", qrel, 10,
 				  "training_output.txt");
-    return true;
 }
 
 // Check stability for an empty qrel file
@@ -436,7 +427,6 @@ DEFINE_TESTCASE(preparetrainingfileonedb_empty_qrel, generated && path)
     }
     TEST(!getline(if2, line2));
     unlink("training_output_empty.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(preparetrainingfile_two_docs, generated && path)
@@ -479,7 +469,6 @@ DEFINE_TESTCASE(preparetrainingfile_two_docs, generated && path)
     }
     TEST(!getline(if2, line2));
     unlink("training_output1.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(preparetrainingfilethree, generated && path)
@@ -522,7 +511,6 @@ DEFINE_TESTCASE(preparetrainingfilethree, generated && path)
     }
     TEST(!getline(if2, line2));
     unlink("training_output_three_correct.txt");
-    return true;
 }
 
 // ListNet_Ranker check
@@ -572,7 +560,6 @@ DEFINE_TESTCASE(listnet_ranker, generated && path && writable)
 		 10, "ERRScore");
     TEST(file_exists("err_output_listnet_2.txt"));
     unlink("err_output_listnet_2.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(listnet_ranker_one_file, generated && path && writable)
@@ -618,7 +605,6 @@ DEFINE_TESTCASE(listnet_ranker_one_file, generated && path && writable)
 		 "ERRScore");
     TEST(file_exists("err_output_listnet_1.txt"));
     unlink("err_output_listnet_1.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(listnet_ranker_three_correct, generated && path && writable)
@@ -667,7 +653,6 @@ DEFINE_TESTCASE(listnet_ranker_three_correct, generated && path && writable)
 		 "ERRScore");
     TEST(file_exists("err_output_listnet_3.txt"));
     unlink("err_output_listnet_3.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(scorer, generated && path && writable)
@@ -706,7 +691,6 @@ DEFINE_TESTCASE(scorer, generated && path && writable)
     TEST_EQUAL(ndcg_score, 1.0);
 
     unlink("ndcg_score_output.txt");
-    return true;
 }
 
 /// SVM_ranker check
@@ -755,7 +739,6 @@ DEFINE_TESTCASE(svm_ranker, generated && path && writable)
 		 "ERRScore");
     TEST(file_exists("err_output_svm_2.txt"));
     unlink("err_output_svm_2.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(svm_ranker_one_file, generated && path && writable)
@@ -800,7 +783,6 @@ DEFINE_TESTCASE(svm_ranker_one_file, generated && path && writable)
 		 "ERRScore");
     TEST(file_exists("err_output_svm_1.txt"));
     unlink("err_output_svm_1.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(svm_ranker_three_correct, generated && path && writable)
@@ -848,7 +830,6 @@ DEFINE_TESTCASE(svm_ranker_three_correct, generated && path && writable)
 		 "ERRScore");
     TEST(file_exists("err_output_svm_3.txt"));
     unlink("err_output_svm_3.txt");
-    return true;
 }
 
 // ListMLE_Ranker check
@@ -898,7 +879,6 @@ DEFINE_TESTCASE(listmle_ranker, generated && path && writable)
 		 "ERRScore");
     TEST(file_exists("err_output_listmle_2.txt"));
     unlink("err_output_listmle_2.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(listmle_ranker_one_file, generated && path && writable)
@@ -944,7 +924,6 @@ DEFINE_TESTCASE(listmle_ranker_one_file, generated && path && writable)
 		 "ERRScore");
     TEST(file_exists("err_output_listmle_1.txt"));
     unlink("err_output_listmle_1.txt");
-    return true;
 }
 
 DEFINE_TESTCASE(listmle_ranker_three_correct, generated && path && writable)
@@ -993,7 +972,6 @@ DEFINE_TESTCASE(listmle_ranker_three_correct, generated && path && writable)
 		 "ERRScore");
     TEST(file_exists("err_output_listmle_3.txt"));
     unlink("err_output_listmle_3.txt");
-    return true;
 }
 
 // Featurename check
@@ -1011,8 +989,6 @@ DEFINE_TESTCASE(featurename, !backend)
     TEST_EQUAL(feature4.name(), "TfFeature");
     TEST_EQUAL(feature5.name(), "TfIdfDoclenFeature");
     TEST_EQUAL(feature6.name(), "CollTfCollLenFeature");
-
-    return true;
 }
 
 DEFINE_TESTCASE(err_scorer, !backend)
@@ -1034,8 +1010,6 @@ DEFINE_TESTCASE(err_scorer, !backend)
     double err_score = err.score(fvv);
 
     TEST(abs(err_score - 0.63) < 0.01);
-
-    return true;
 }
 
 DEFINE_TESTCASE(ndcg_score_test, generated && path && writable)
@@ -1058,7 +1032,6 @@ DEFINE_TESTCASE(ndcg_score_test, generated && path && writable)
     ranker.score(query, qrel, "ListNet_Ranker", "ndcg_score_test.txt", 10);
     TEST(file_exists("ndcg_score_test.txt"));
     unlink("ndcg_score_test.txt");
-    return true;
 }
 
 // Test createfeaturevector method for TfFeature
@@ -1136,8 +1109,6 @@ DEFINE_TESTCASE(createfeaturevector_tffeature, generated)
     // test for weight in normalized form
     TEST_EQUAL_DOUBLE(fvals_doc1[3], test_vals_doc1[3] / max_val[3]);
     TEST_EQUAL_DOUBLE(fvals_doc2[3], test_vals_doc2[3] / max_val[3]);
-
-    return true;
 }
 
 // Test createfeaturevector method for IdfFeature
@@ -1213,8 +1184,6 @@ DEFINE_TESTCASE(createfeaturevector_idffeature, generated)
     // test for weight in normalized form
     TEST_EQUAL_DOUBLE(fvals_doc1[3], test_vals_doc1[3] / max_weight);
     TEST_EQUAL_DOUBLE(fvals_doc2[3], test_vals_doc2[3] / max_weight);
-
-    return true;
 }
 
 // Test createfeaturevector method for TfDoclenFeature
@@ -1295,8 +1264,6 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclenfeature, generated)
     // test for weight in normalized form
     TEST_EQUAL_DOUBLE(fvals_doc1[3], test_vals_doc1[3] / max_val[3]);
     TEST_EQUAL_DOUBLE(fvals_doc2[3], test_vals_doc2[3] / max_val[3]);
-
-    return true;
 }
 
 // Test createfeaturevector method for CollTfCollLenFeature
@@ -1375,8 +1342,6 @@ DEFINE_TESTCASE(createfeaturevector_colltfcolllenfeature, generated)
     // test for weight in normalized form
     TEST_EQUAL_DOUBLE(fvals_doc1[3], test_vals_doc1[3] / max_val[3]);
     TEST_EQUAL_DOUBLE(fvals_doc2[3], test_vals_doc2[3] / max_val[3]);
-
-    return true;
 }
 
 // Test createfeaturevector method for TfIdfDoclenFeature
@@ -1453,8 +1418,6 @@ DEFINE_TESTCASE(createfeaturevector_tfidfdoclenfeature, generated)
     // test for weight in normalized form
     TEST_EQUAL_DOUBLE(fvals_doc1[3], test_vals_doc1[3] / max_weight);
     TEST_EQUAL_DOUBLE(fvals_doc2[3], test_vals_doc2[3] / max_weight);
-
-    return true;
 }
 
 // Test createfeaturevector method for TfDoclenCollTfCollLenFeature
@@ -1536,8 +1499,6 @@ DEFINE_TESTCASE(createfeaturevector_tfdoclencolllfcolllen, generated)
     // test for weight in normalized form
     TEST_EQUAL_DOUBLE(fvals_doc1[3], test_vals_doc1[3] / max_val[3]);
     TEST_EQUAL_DOUBLE(fvals_doc2[3], test_vals_doc2[3] / max_val[3]);
-
-    return true;
 }
 
 class CustomFeature : public Xapian::Feature {
@@ -1612,5 +1573,4 @@ DEFINE_TESTCASE(populatefeature, generated) {
     TEST_EQUAL(fv.size(), 1);
 
     custom_feature->test_stats();
-    return true;
 }

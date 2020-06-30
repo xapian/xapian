@@ -18,14 +18,14 @@ Xapian.  The zlib library is very widely used, so you'll probably have it
 installed already if you're using Linux, FreeBSD, or similar, but you may need
 to install a "zlib development" package to get the zlib library headers.
 
-We recommend using zlib 1.2.x as it apparently fixes a memory leak in
-deflateInit2 (which Xapian uses) and decompression is supposed to be about 20%
-faster than with 1.1.x, but it's pretty unlikely you'll have an older version
-installed these days.
+You'll need at least zlib 1.2.5.2 (released 2011-12-17 so it's unlikely you'll
+have an older version installed), but unless you're using a packaged version
+with backported patches for security fixes and serious bugs, you should
+probably use the latest upstream release.
 
-Xapian also requires a way to generate UUIDs.  On FreeBSD, NetBSD, and
-Microsoft Windows, Xapian makes use of built-in UUID APIs.  On Linux and
-Android, Xapian 1.4.2 and higher can read UUIDs from a special file under
+Xapian also requires a way to generate UUIDs.  On FreeBSD, NetBSD, OpenBSD,
+AIX and Microsoft Windows, Xapian makes use of built-in UUID APIs.  On Linux
+and Android, Xapian 1.4.2 and higher can read UUIDs from a special file under
 /proc.  Otherwise you need to install libuuid which you can find in
 util-linux (https://github.com/karelzak/util-linux).  On Debian and
 Ubuntu, the package to install is uuid-dev, while on Fedora, it is
@@ -80,8 +80,8 @@ And for MSVC 2015 32-bit use::
 
   "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 
-MSVC 2015 64-bit isn't currently supported, but would use the above command but with ``x64``
-instead of ``x86``.
+MSVC 2015 64-bit isn't currently supported, but would use the above command but
+with ``x64`` instead of ``x86``.
 
 Then from a bash shell run configure like so::
 
@@ -91,8 +91,8 @@ You'll need to have the zlib library available.  You can also specify
 ``CPPFLAGS=-I/path/to/zlib LDFLAGS=-L/path/to/zlib`` to tell MSVC where to
 find the zlib headers and library.
 
-We support 64-bit compilation with MSVS 2017.  With MSVS 2015 a 64-bit build
-fails to work - we haven't investigated why.
+We support 64-bit compilation with MSVS 2017 and 2019.  With MSVS 2015 a 64-bit
+build fails to work - we haven't investigated why.
 
 HP's aCC
 --------
@@ -101,10 +101,19 @@ When using HP's aCC, Xapian must be compiled with +std=c++11, which
 xapian-core's configure automatically detects and passes.  You don't have to
 pass this option when building code which uses Xapian, but you can.
 
+Sun C++ Compiler
+----------------
+
+With this compiler, shared library builds fail (tested most recently with
+version 12.6).  You can work around this problem by disabling shared libraries
+at configure time like so::
+
+  ./configure --disable-shared
+
 Multi-Arch
 ==========
 
-When using GCC on platforms which support multiple architecture, the simplest
+When using GCC on platforms which support multiple architectures, the simplest
 way to select a non-default architecture is to pass a CXX setting to configure
 which includes the appropriate -m option - e.g. to build for x86 on x86-64
 you would configure with:
@@ -145,9 +154,9 @@ _FORTIFY_SOURCE
 
 When compiling with GCC, by default Xapian will be built with _FORTIFY_SOURCE
 set to 2.  This enables some compile time and runtime checking of values passed
-to library functions when building with GCC >= 4.1 and glibc >= 2.34 (some
-Linux distros may have backported support to older GCC and/or glibc).  If you
-wish to disable this for any reason, you can just configure like so:
+to library functions when building with glibc >= 2.34 (some Linux distros may
+have backported support to older glibc versions).  If you wish to disable this
+for any reason, you can just configure like so:
 
 ./configure CPPFLAGS=-D_FORTIFY_SOURCE=0
 
@@ -179,10 +188,10 @@ us (via the bug tracker or mailing lists).
 -fvisibility
 ------------
 
-When compiling with GCC >= 4.0 for platforms which support symbol visibility,
-we automatically pass -fvisibility=hidden to g++ when building the library, and
-mark classes, methods, and functions which need exporting with attributes to
-make them visible.
+We automatically pass -fvisibility=hidden to the compiler when building the
+library when we detect that the compiler support this option and the platform
+supports symbol visibility.  We've mark classes, methods, and functions which
+need exporting with attributes to make them visible.
 
 Should you wish to disable this for some reason, you can configure like so:
 

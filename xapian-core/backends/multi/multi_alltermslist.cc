@@ -1,7 +1,7 @@
 /** @file multi_alltermslist.cc
  * @brief Class for merging AllTermsList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2017,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2018,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,10 +109,24 @@ MultiAllTermsList::next()
 	    delete termlists[--count];
 	Heap::make(termlists, termlists + count,
 		   CompareTermListsByTerm());
-    } else {
+    } else if (current_termfreq == 0 && count != 0) {
 	// Skip over current_term if we haven't already.
-	if (current_termfreq == 0)
-	    (void)get_termfreq();
+	while (true) {
+	    TermList* tl = termlists[0];
+	    if (tl->get_termname() != current_term)
+		break;
+	    tl->next();
+	    if (tl->at_end()) {
+		Heap::pop(termlists, termlists + count,
+			  CompareTermListsByTerm());
+		delete tl;
+		if (--count == 0)
+		    break;
+	    } else {
+		Heap::replace(termlists, termlists + count,
+			      CompareTermListsByTerm());
+	    }
+	}
     }
 
     current_termfreq = 0;

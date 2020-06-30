@@ -292,14 +292,19 @@ MSet::Internal::unshard_docids(Xapian::doccount shard,
 }
 
 void
-MSet::Internal::merge_stats(const Internal* o)
+MSet::Internal::merge_stats(const Internal* o, bool collapsing)
 {
     if (snippet_bg_relevance.empty()) {
 	snippet_bg_relevance = o->snippet_bg_relevance;
     } else {
 	Assert(snippet_bg_relevance == o->snippet_bg_relevance);
     }
-    matches_lower_bound += o->matches_lower_bound;
+    if (collapsing) {
+	matches_lower_bound = max(matches_lower_bound, o->matches_lower_bound);
+	// matches_estimated will get adjusted later in this case.
+    } else {
+	matches_lower_bound += o->matches_lower_bound;
+    }
     matches_estimated += o->matches_estimated;
     matches_upper_bound += o->matches_upper_bound;
     uncollapsed_lower_bound += o->uncollapsed_lower_bound;

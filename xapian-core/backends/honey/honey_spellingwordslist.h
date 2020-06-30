@@ -84,13 +84,6 @@ class HoneySpellingWordsList : public AllTermsList {
      */
     Xapian::doccount get_termfreq() const;
 
-    /** Returns the collection frequency of the current term.
-     *
-     *  Either next() or skip_to() must have been called before this
-     *  method can be called.
-     */
-    Xapian::termcount get_collection_freq() const;
-
     /// Advance to the next term in the list.
     TermList* next();
 

@@ -73,11 +73,7 @@ using namespace std;
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(const std::string & host, int port, bool tcp_nodelay,
 		     bool verbose_)
-    :
-#if defined __CYGWIN__ || defined __WIN32__
-      mutex(NULL),
-#endif
-      listen_socket(get_listening_socket(host, port, tcp_nodelay
+    : listen_socket(get_listening_socket(host, port, tcp_nodelay
 #if defined __CYGWIN__ || defined __WIN32__
 					 , mutex
 #endif

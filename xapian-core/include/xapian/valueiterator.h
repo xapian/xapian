@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_VALUEITERATOR_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/valueiterator.h> directly; include <xapian.h> instead."
+# error Never use <xapian/valueiterator.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -77,7 +77,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  Creates an uninitialised iterator, which can't be used before being
      *  assigned to, but is sometimes syntactically convenient.
      */
-    XAPIAN_NOTHROW(ValueIterator())
+    ValueIterator() noexcept
 	: internal(0) { }
 
     /// Destructor.
@@ -199,24 +199,18 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     // @}
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const ValueIterator &a, const ValueIterator &b));
-
 /// Equality test for ValueIterator objects.
 inline bool
-operator==(const ValueIterator &a, const ValueIterator &b) XAPIAN_NOEXCEPT
+operator==(const ValueIterator& a, const ValueIterator& b) noexcept
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
     return a.internal == b.internal;
 }
 
-bool
-XAPIAN_NOTHROW(operator!=(const ValueIterator &a, const ValueIterator &b));
-
 /// Inequality test for ValueIterator objects.
 inline bool
-operator!=(const ValueIterator &a, const ValueIterator &b) XAPIAN_NOEXCEPT
+operator!=(const ValueIterator& a, const ValueIterator& b) noexcept
 {
     return !(a == b);
 }

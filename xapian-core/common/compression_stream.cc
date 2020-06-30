@@ -1,7 +1,7 @@
 /** @file compression_stream.cc
  * @brief class wrapper around zlib
  */
-/* Copyright (C) 2007,2009,2012,2013,2014,2016 Olly Betts
+/* Copyright (C) 2007,2009,2012,2013,2014,2016,2019 Olly Betts
  * Copyright (C) 2009 Richard Boulton
  * Copyright (C) 2012 Dan Colish
  *
@@ -53,24 +53,30 @@ const char*
 CompressionStream::compress(const char* buf, size_t* p_size) {
     lazy_alloc_deflate_zstream();
     size_t size = *p_size;
-    if (!out || out_len < size - 1) {
-	out_len = size - 1;
+    if (!out || out_len < size) {
+	out_len = size;
 	delete [] out;
-	out = new char[out_len];
+	out = NULL;
+	out = new char[size];
     }
     deflate_zstream->avail_in = static_cast<uInt>(size);
-    deflate_zstream->next_in =
-	reinterpret_cast<Bytef*>(const_cast<char*>(buf));
+    deflate_zstream->next_in = reinterpret_cast<const Bytef*>(buf);
     deflate_zstream->next_out = reinterpret_cast<Bytef*>(out);
-    deflate_zstream->avail_out = static_cast<uInt>((size - 1));
+    // Specify the output buffer size as being the size of the input so zlib
+    // will give up once it discovers it can't compress (while it might seem
+    // we could pass a buffer one byte smaller, in fact that doesn't actually
+    // work and results in us rejecting cases that compress saving one byte).
+    deflate_zstream->avail_out = static_cast<uInt>(size);
     int zerr = deflate(deflate_zstream, Z_FINISH);
     if (zerr != Z_STREAM_END) {
 	// Deflate failed - presumably the data wasn't compressible.
 	return NULL;
     }
 
-    // If deflate succeeded, then the output was at least one byte smaller than
-    // the input.
+    if (deflate_zstream->total_out >= size) {
+	// It didn't get smaller.
+	return NULL;
+    }
 
     *p_size = deflate_zstream->total_out;
     return out;
@@ -81,8 +87,7 @@ CompressionStream::decompress_chunk(const char* p, int len, string & buf)
 {
     Bytef blk[8192];
 
-    inflate_zstream->next_in =
-	reinterpret_cast<Bytef*>(const_cast<char*>(p));
+    inflate_zstream->next_in = reinterpret_cast<const Bytef*>(p);
     inflate_zstream->avail_in = static_cast<uInt>(len);
 
     while (true) {

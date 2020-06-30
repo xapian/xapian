@@ -47,6 +47,12 @@ class BackendManagerRemote : public BackendManager {
     std::string get_writable_database_args(const std::string & name,
 					   const std::string & file);
 
+    /** Get the args for opening a writable remote database with the
+     *  specified timeout.
+     */
+    std::string get_writable_database_args(const std::string& path,
+					   unsigned int timeout);
+
     /// Get the args for opening a remote database with the specified timeout.
     std::string get_remote_database_args(const std::vector<std::string> & files,
 					 unsigned int timeout);

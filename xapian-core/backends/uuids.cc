@@ -39,7 +39,7 @@
 # include <exception>
 # include <uuid/uuid.h>
 #elif defined HAVE_UUID_H
-// UUID API on FreeBSD, NetBSD and AIX.
+// UUID API on FreeBSD, NetBSD, OpenBSD and AIX.
 # include <arpa/inet.h> // For htonl() and htons().
 # include <exception>
 # include <uuid.h>

@@ -1,7 +1,7 @@
 /** @file stem.cc
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008,2010,2011,2012,2015,2018 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011,2012,2015,2018,2019 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -37,23 +37,8 @@ using namespace std;
 
 namespace Xapian {
 
-Stem::Stem(const Stem & o) : internal(o.internal) { }
-
-Stem &
-Stem::operator=(const Stem & o)
+Stem::Stem(const std::string& language, bool fallback)
 {
-    internal = o.internal;
-    return *this;
-}
-
-Stem::Stem(Stem &&) = default;
-
-Stem &
-Stem::operator=(Stem &&) = default;
-
-Stem::Stem() { }
-
-Stem::Stem(const std::string &language) {
     int l = keyword2(tab, language.data(), language.size());
     if (l >= 0) {
 	switch (static_cast<sbl_code>(l)) {
@@ -148,14 +133,10 @@ Stem::Stem(const std::string &language) {
 		return;
 	}
     }
-    if (language.empty())
+    if (fallback || language.empty())
 	return;
     throw Xapian::InvalidArgumentError("Language code " + language + " unknown");
 }
-
-Stem::Stem(StemImplementation * p) : internal(p) { }
-
-Stem::~Stem() { }
 
 string
 Stem::operator()(const std::string &word) const

@@ -2,7 +2,7 @@
  * @brief tests of replication functionality
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright 2009,2010,2011,2012,2013,2014,2015,2016,2017,2020 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -325,9 +325,10 @@ DEFINE_TESTCASE(replicate1, replicas) {
 	// the temporary directory on Windows.
     }
 
+    TEST_EQUAL(Xapian::Database::check(masterpath), 0);
+
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 // Test replication from a replicated copy.
@@ -431,7 +432,6 @@ DEFINE_TESTCASE(replicate2, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -525,7 +525,6 @@ DEFINE_TESTCASE(replicate3, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 // Tests for max_changesets
@@ -624,7 +623,6 @@ DEFINE_TESTCASE(replicate4, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 // Tests for max_changesets
@@ -756,7 +754,6 @@ DEFINE_TESTCASE(replicate5, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 /// Test --full-copy option.
@@ -823,7 +820,6 @@ DEFINE_TESTCASE(replicate6, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }
 
 /// Test healing a corrupt replica (new in 1.3.5).
@@ -906,5 +902,4 @@ DEFINE_TESTCASE(replicate7, replicas) {
 
     rmtmpdir(tempdir);
 #endif
-    return true;
 }

@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015,2016,2017 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015,2016,2017,2019 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  * Copyright (C) 2016 Vivek Pal
  *
@@ -41,7 +41,6 @@ using namespace std;
 
 // always succeeds
 DEFINE_TESTCASE(trivial1, !backend) {
-    return true;
 }
 
 // tests that get_query_terms() returns the terms in the right order
@@ -69,7 +68,6 @@ DEFINE_TESTCASE(getqterms1, !backend) {
     TEST(list1 == answers_list);
     list<string> list2(myquery.get_terms_begin(), myquery.get_terms_end());
     TEST(list2 == answers_list);
-    return true;
 }
 
 // tests that get_query_terms() doesn't SEGV on an empty query
@@ -79,7 +77,6 @@ DEFINE_TESTCASE(getqterms2, !backend) {
     TEST_EQUAL(empty_query.get_terms_begin(), empty_query.get_terms_end());
     TEST_EQUAL(empty_query.get_unique_terms_begin(),
 	       empty_query.get_unique_terms_end());
-    return true;
 }
 
 // tests that empty queries work correctly
@@ -91,7 +88,6 @@ DEFINE_TESTCASE(emptyquery2, !backend) {
     vector<Xapian::Query> v;
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).empty());
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).get_length() == 0);
-    return true;
 }
 
 /// Regression test for behaviour for an empty query with AND_NOT.
@@ -115,8 +111,6 @@ DEFINE_TESTCASE(emptyquery3, !backend) {
 	Xapian::Query qcombine3(ops[i], empty, empty);
 	tout << qcombine3.get_description() << endl;
     }
-
-    return true;
 }
 
 // tests that query lengths are calculated correctly
@@ -134,7 +128,6 @@ DEFINE_TESTCASE(querylen1, !backend) {
 
     TEST_EQUAL(myquery.get_length(), 4);
     TEST(!myquery.empty());
-    return true;
 }
 
 // tests that query lengths are calculated correctly
@@ -179,15 +172,12 @@ DEFINE_TESTCASE(querylen2, !backend) {
     myquery = Xapian::Query(Xapian::Query::OP_OR, myq1, myq2);
     tout << "myquery=" << myquery << "\n";
     TEST_EQUAL(myquery.get_length(), 10);
-
-    return true;
 }
 
 // tests that queries validate correctly
 DEFINE_TESTCASE(queryvalid1, !backend) {
     Xapian::Query q2(Xapian::Query::OP_XOR, Xapian::Query("foo"), Xapian::Query("bar"));
     tout << "XOR (\"foo\", \"bar\") checked" << endl;
-    return true;
 }
 
 /** Check we no longer flatten subqueries combined with the same operator.
@@ -218,8 +208,6 @@ DEFINE_TESTCASE(dontflattensubqueries1, !backend) {
     Xapian::Query myquery2(Xapian::Query::OP_AND, vec2.begin(), vec2.end());
     TEST_EQUAL(myquery2.get_description(),
 	       "Query(((jelly AND belly) AND wibble AND wobble))");
-
-    return true;
 }
 
 // test behaviour when creating a query from an empty vector
@@ -230,7 +218,6 @@ DEFINE_TESTCASE(emptyquerypart1, !backend) {
     TEST(Xapian::Query(Xapian::Query::OP_AND, query, Xapian::Query("x")).get_length() == 0);
     TEST(!Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).empty());
     TEST(Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).get_length() == 1);
-    return true;
 }
 
 DEFINE_TESTCASE(stemlangs1, !backend) {
@@ -238,8 +225,9 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
     tout << "available languages '" << langs << "'" << endl;
     TEST(!langs.empty());
 
-    // Also test the language codes and none.
-    langs += " da nl en fi fr de hu it no pt ro ru es sv tr none";
+    // Also test the language codes.
+    langs += " ar hy eu ca da nl en fi fr de hu id ga it lt ne nb nn no pt ro"
+	     " ru es sv ta tr";
 
     string::size_type i = 0;
     while (true) {
@@ -253,6 +241,7 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	string language(langs, i, spc - i);
 	tout << "checking language code '" << language << "' works" << endl;
 	Xapian::Stem stemmer(language);
+	TEST(!stemmer.is_none());
 	if (language.size() > 2) {
 	    string expected("Xapian::Stem(");
 	    expected += language;
@@ -264,11 +253,19 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 	i = spc + 1;
     }
 
-    // Stem("") should give an object which doesn't change any input.
-    Xapian::Stem stem_nothing = Xapian::Stem("");
-    TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+    {
+	// Stem("none") should give a no-op stemmer.
+	Xapian::Stem stem_nothing = Xapian::Stem("none");
+	TEST(stem_nothing.is_none());
+	TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+    }
 
-    return true;
+    {
+	// Stem("") should be equivalent.
+	Xapian::Stem stem_nothing = Xapian::Stem("");
+	TEST(stem_nothing.is_none());
+	TEST_EQUAL(stem_nothing.get_description(), "Xapian::Stem(none)");
+    }
 }
 
 // Some simple tests of the built in weighting schemes.
@@ -422,8 +419,6 @@ DEFINE_TESTCASE(weight1, !backend) {
     wt = Xapian::DiceCoeffWeight().unserialise(dicecoeffweight.serialise());
     TEST_EQUAL(dicecoeffweight.serialise(), wt->serialise());
     delete wt;
-
-    return true;
 }
 
 // Regression test.
@@ -448,8 +443,6 @@ DEFINE_TESTCASE(nosuchdb1, !backend) {
 	TEST_STRINGS_EQUAL(e.get_msg(),
 			   "Couldn't find Xapian database or table to check");
     }
-
-    return true;
 }
 
 // Feature tests for value manipulations.
@@ -471,15 +464,12 @@ DEFINE_TESTCASE(addvalue1, !backend) {
     TEST_EQUAL(doc.get_value(2), "");
     TEST_EQUAL(doc.get_value(3), "free");
     TEST_EQUAL(doc.get_value(4), "");
-
-    return true;
 }
 
 // tests that the collapsing on termpos optimisation gives correct query length
 DEFINE_TESTCASE(poscollapse2, !backend) {
     Xapian::Query q(Xapian::Query::OP_OR, Xapian::Query("this", 1, 1), Xapian::Query("this", 1, 1));
     TEST_EQUAL(q.get_length(), 2);
-    return true;
 }
 
 // Regression test: query on an uninitialised database segfaulted with 1.0.0.
@@ -487,7 +477,6 @@ DEFINE_TESTCASE(poscollapse2, !backend) {
 DEFINE_TESTCASE(uninitdb1, !backend) {
     Xapian::Database db;
     Xapian::Enquire enq(db);
-    return true;
 }
 
 // Test a scaleweight query applied to a match nothing query
@@ -495,7 +484,6 @@ DEFINE_TESTCASE(scaleweight3, !backend) {
     Xapian::Query matchnothing(Xapian::Query::MatchNothing);
     Xapian::Query query(Xapian::Query::OP_SCALE_WEIGHT, matchnothing, 3.0);
     TEST_EQUAL(query.get_description(), "Query()");
-    return true;
 }
 
 // Regression test - before 1.1.0, you could add docid 0 to an RSet.
@@ -509,7 +497,6 @@ DEFINE_TESTCASE(rset3, !backend) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError, rset.add_document(0));
     TEST(!rset.empty());
     TEST_EQUAL(rset.size(), 2);
-    return true;
 }
 
 // Regression test - RSet::get_description() gave a malformed answer in 1.0.7.
@@ -521,7 +508,6 @@ DEFINE_TESTCASE(rset4, !backend) {
     TEST_STRINGS_EQUAL(rset.get_description(), "RSet(2)");
     rset.add_document(1);
     TEST_STRINGS_EQUAL(rset.get_description(), "RSet(1,2)");
-    return true;
 }
 
 // Direct test of ValueSetMatchDecider
@@ -557,8 +543,6 @@ DEFINE_TESTCASE(valuesetmatchdecider1, !backend) {
     TEST(vsmd1(doc));
     TEST(!vsmd2(doc));
     TEST(vsmd3(doc));
-
-    return true;
 }
 
 // Test that requesting termfreq or termweight on an empty mset returns 0.
@@ -568,7 +552,6 @@ DEFINE_TESTCASE(emptymset1, !backend) {
     Xapian::MSet emptymset;
     TEST_EQUAL(emptymset.get_termfreq("foo"), 0);
     TEST_EQUAL(emptymset.get_termweight("foo"), 0.0);
-    return true;
 }
 
 DEFINE_TESTCASE(expanddeciderfilterprefix1, !backend) {
@@ -581,6 +564,4 @@ DEFINE_TESTCASE(expanddeciderfilterprefix1, !backend) {
     TEST(decider("two"));
     TEST(decider("twitter"));
     TEST(decider(prefix));
-
-    return true;
 }

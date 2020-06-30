@@ -43,11 +43,12 @@ static void report_read_error(const char * position)
     if (position == 0) {
 	// data ran out
 	LOGLINE(DB, "GlassPostList data ran out");
-	throw Xapian::DatabaseCorruptError("Data ran out unexpectedly when reading posting list.");
+	throw Xapian::DatabaseCorruptError("Data ran out unexpectedly when "
+					   "reading posting list");
     }
     // overflow
     LOGLINE(DB, "GlassPostList value too large");
-    throw Xapian::RangeError("Value in posting list too large.");
+    throw Xapian::RangeError("Value in posting list too large");
 }
 
 static inline bool
@@ -404,7 +405,7 @@ write_start_of_chunk(string & chunk,
 		     Xapian::docid first_did_in_chunk,
 		     Xapian::docid last_did_in_chunk)
 {
-    Assert((size_t)(end_of_chunk_header - start_of_chunk_header) <= chunk.size());
+    Assert(size_t(end_of_chunk_header - start_of_chunk_header) <= chunk.size());
 
     chunk.replace(start_of_chunk_header,
 		  end_of_chunk_header - start_of_chunk_header,
@@ -1243,7 +1244,7 @@ GlassPostListTable::merge_changes(const string &term,
 	if (pos == end) {
 	    add(current_key, newhdr);
 	} else {
-	    Assert((size_t)(pos - tag.data()) <= tag.size());
+	    Assert(size_t(pos - tag.data()) <= tag.size());
 	    tag.replace(0, pos - tag.data(), newhdr);
 	    add(current_key, tag);
 	}

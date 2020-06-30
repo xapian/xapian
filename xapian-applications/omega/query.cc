@@ -122,8 +122,8 @@ static Xapian::Query query;
 Xapian::Query::op default_op = Xapian::Query::OP_AND; // default matching mode
 
 // Maintain an explicit date_filter_set flag - date_filter.empty() will also
-// be true if a date filter is specified which simplies to Query::MatchNothing
-// at construction time.
+// be true if a date filter is specified which simplifies to
+// Query::MatchNothing at construction time.
 static bool date_filter_set = false;
 static Xapian::Query date_filter;
 
@@ -982,6 +982,9 @@ CMD_if,
 CMD_include,
 CMD_json,
 CMD_jsonarray,
+CMD_jsonbool,
+CMD_jsonobject,
+CMD_keys,
 CMD_last,
 CMD_lastpage,
 CMD_le,
@@ -1121,10 +1124,13 @@ T(html,		   1, 1, N, 0), // html escape string (<>&")
 T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
 T(httpheader,	   2, 2, N, 0), // arbitrary HTTP header
 T(id,		   0, 0, N, 0), // docid of current doc
-T(if,		   2, 3, 1, 0), // conditional
+T(if,		   1, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
-T(jsonarray,	   1, 1, N, 0), // Format list as a JSON array of strings
+T(jsonarray,	   1, 2, 1, 0), // Format list as a JSON array
+T(jsonbool,	   1, 1, 1, 0), // Format list as a JSON bool
+T(jsonobject,	   1, 3, 1, 0), // Format map as JSON object
+T(keys,		   1, 1, N, 0), // list of keys from a map
 T(last,		   0, 0, N, M), // hit number one beyond end of current page
 T(lastpage,	   0, 0, N, M), // number of last hit page
 T(le,		   2, 2, N, 0), // test <=
@@ -1168,7 +1174,7 @@ T(score,	   0, 0, N, 0), // score (0-10) of current hit
 T(set,		   2, 2, N, 0), // set option value
 T(seterror,	   1, 1, N, 0), // set error_msg, setting it early stops query execution
 T(setmap,	   1, N, N, 0), // set map of option values
-T(setrelevant,	   0, 1, N, Q), // set rset
+T(setrelevant,	   1, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 6, N, M), // generate snippet from text
 T(sort,		   1, 2, N, 0), // alpha sort a list
@@ -1777,7 +1783,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(q0);
 		break;
 	    case CMD_if:
-		if (!args[0].empty())
+		if (args.size() > 1 && !args[0].empty())
 		    value = eval(args[1], param);
 		else if (args.size() > 2)
 		    value = eval(args[2], param);
@@ -1796,17 +1802,80 @@ eval(const string &fmt, const vector<string> &param)
 		    value = "[]";
 		    break;
 		}
-		value = "[\"";
+		vector<string> new_args(1);
+		value = "[";
 		while (true) {
 		    j = l.find('\t', i);
 		    string elt(l, i, j - i);
-		    json_escape(elt);
-		    value += elt;
+		    if (args.size() == 1) {
+			value += '"';
+			json_escape(elt);
+			value += elt;
+			value += '"';
+		    } else {
+			new_args[0] = std::move(elt);
+			value += eval(args[1], new_args);
+		    }
 		    if (j == string::npos) break;
-		    value += "\",\"";
+		    value += ',';
 		    i = j + 1;
 		}
-		value += "\"]";
+		value += ']';
+		break;
+	    }
+	    case CMD_jsonbool:
+		value = args[0].empty() ? "false" : "true";
+		break;
+	    case CMD_jsonobject: {
+		vector<string> new_args;
+		new_args.push_back(string());
+
+		class map_range {
+		    typedef map<string, string>::const_iterator iterator;
+		    iterator b, e;
+
+		  public:
+		    map_range(iterator b_, iterator e_) : b(b_), e(e_) {}
+
+		    iterator begin() const { return b; }
+		    iterator end() const { return e; }
+		};
+
+		string prefix = args[0] + ',';
+		auto b = option.lower_bound(prefix);
+		++prefix.back();
+		auto e = option.lower_bound(prefix);
+		value = to_json(map_range(b, e),
+				[&](const string& k) {
+				    string key(k, prefix.size());
+				    if (args.size() > 1 && !args[1].empty()) {
+					new_args[0] = std::move(key);
+					key = eval(args[1], new_args);
+				    }
+				    return key;
+				},
+				[&](const string& v) {
+				    if (args.size() > 2 && !args[2].empty()) {
+					new_args[0] = v;
+					return eval(args[2], new_args);
+				    }
+				    string r(1, '"');
+				    string elt = v;
+				    json_escape(elt);
+				    r += elt;
+				    r += '"';
+				    return r;
+				});
+		break;
+	    }
+	    case CMD_keys: {
+		string prefix = args[0] + ',';
+		auto i = option.lower_bound(prefix);
+		for (; i != option.end() && startswith(i->first, prefix); ++i) {
+		    const string& key = i->first;
+		    if (!value.empty()) value += '\t';
+		    value.append(key, prefix.size(), string::npos);
+		}
 		break;
 	    }
 	    case CMD_last:
@@ -1868,10 +1937,17 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_log: {
-		if (!vet_filename(args[0])) break;
+		if (!vet_filename(args[0])) {
+		    value = "filename can't contain \"..\"";
+		    break;
+		}
 		string logfile = log_dir + args[0];
 		int fd = open(logfile.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
-		if (fd == -1) break;
+		if (fd == -1) {
+		    value = "open failed: ";
+		    value += strerror(errno);
+		    break;
+		}
 		vector<string> noargs;
 		noargs.resize(1);
 		string line;
@@ -1882,7 +1958,10 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		line = eval(line, noargs);
 		line += '\n';
-		(void)write_all(fd, line.data(), line.length());
+		if (write_all(fd, line.data(), line.length()) < 0) {
+		    value = "write failed: ";
+		    value += strerror(errno);
+		}
 		close(fd);
 		break;
 	    }
@@ -1893,12 +1972,15 @@ eval(const string &fmt, const vector<string> &param)
 		if (fd == -1) break;
 
 		struct cdb cdb;
-		cdb_init(&cdb, fd);
+		if (cdb_init(&cdb, fd) < 0) {
+		    close(fd);
+		    break;
+		}
 
 		if (cdb_find(&cdb, args[1].data(), args[1].length()) > 0) {
 		    size_t datalen = cdb_datalen(&cdb);
 		    const void *dat = cdb_get(&cdb, datalen, cdb_datapos(&cdb));
-		    if (q) {
+		    if (dat) {
 			value.assign(static_cast<const char *>(dat), datalen);
 		    }
 		}
@@ -2486,7 +2568,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_truncate: {
 		unsigned int length;
 		if (!parse_unsigned(args[1].c_str(), length)) {
-		    throw "Length for truncate command must be >= 0 ";
+		    throw "Length for truncate command must be >= 0";
 		}
 		value = generate_sample(args[0],
 					length,
@@ -2687,12 +2769,6 @@ void
 parse_omegascript()
 {
     try {
-	const char * p = getenv("SERVER_PROTOCOL");
-	if (p && strcmp(p, "INCLUDED") == 0) {
-	    // We're being included in another page, so suppress headers.
-	    suppress_http_headers = true;
-	}
-
 	string output = eval_file(fmtname);
 	if (!set_content_type && !suppress_http_headers) {
 	    cout << "Content-Type: text/html" << endl;

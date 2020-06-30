@@ -407,10 +407,10 @@ OrPostList::get_termfreq_est_using_stats(
     }
 
     Xapian::termcount collfreqest = 0;
-    if (stats.total_term_count != 0) {
+    if (stats.total_length != 0) {
 	estimate_or_assuming_indep(l_freqs.collfreq,
 				   r_freqs.collfreq,
-				   stats.total_term_count,
+				   stats.total_length,
 				   collfreqest);
     }
 

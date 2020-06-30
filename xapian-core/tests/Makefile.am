@@ -118,6 +118,7 @@ collated_apitest_sources = \
  api_postingsource.cc \
  api_qpbackend.cc \
  api_query.cc \
+ api_queryopt.cc \
  api_queryparser.cc \
  api_replacedoc.cc \
  api_replicate.cc \
@@ -208,10 +209,12 @@ EXTRA_DIST +=\
 	testdata/apitest_declen.txt \
 	testdata/apitest_diversify.txt \
 	testdata/etext.txt \
+	testdata/phraseweightcheckbug1.txt \
 	testdata/snippet.txt
 
 remove-cached-databases:
-	rm -rf .glass .honey .multiglass .replicatmp .singlefileglass .stub
+	rm -rf .glass .honey .multiglass .multiglassremoteprog_glass \
+	       .multiremoteprog_glass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 

@@ -1,5 +1,5 @@
-voc.txt was generated from a dump of the Indonesian wikipedia, discarding
-rarely occurring words.
+voc.txt was generated from a dump of the Indonesian wikipedia by the script
+wikipedia-most-common-words.  The dump used was dated April 2nd 2018.
 
 output.txt was generated from voc.txt by running it through the stemmer.
 

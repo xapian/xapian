@@ -1,7 +1,7 @@
 /** @file weight.cc
  * @brief Xapian::Weight base class
  */
-/* Copyright (C) 2007,2008,2009,2014,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2014,2017,2019 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2017 Vivek Pal
  *
@@ -47,6 +47,8 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length)
 	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+    if (stats_needed & TOTAL_LENGTH)
+	total_length_ = stats.total_length;
     collectionfreq_ = 0;
     wdf_upper_bound_ = 0;
     termfreq_ = 0;
@@ -69,6 +71,8 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+    if (stats_needed & TOTAL_LENGTH)
+	total_length_ = stats.total_length;
     if (stats_needed & WDF_MAX)
 	wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
     if (stats_needed & (TERMFREQ | RELTERMFREQ | COLLECTION_FREQ)) {
@@ -106,6 +110,8 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     }
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+    if (stats_needed & TOTAL_LENGTH)
+	total_length_ = stats.total_length;
 
     termfreq_ = termfreq;
     reltermfreq_ = reltermfreq;

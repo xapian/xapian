@@ -25,7 +25,7 @@
 
 class XmlParser : public MyHtmlParser {
   public:
-    XmlParser() : MyHtmlParser() { }
+    XmlParser() { }
     bool opening_tag(const string &tag);
     bool closing_tag(const string &tag);
     void parse_xml(const string &text) {

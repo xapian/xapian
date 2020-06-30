@@ -12,3 +12,4 @@ The following documents are available:
  * `OmegaScript <omegascript.html>`_
  * `Term Prefixes <termprefixes.html>`_
  * `Log Data Postprocessing <postprocessing.html>`_
+ * `How to support a new file format <newformat.html>`_

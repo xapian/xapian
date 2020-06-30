@@ -42,12 +42,14 @@ printf '$querydescription' > "$TEST_TEMPLATE"
 
 TEST_INDEXSCRIPT=test-indexscript
 
+TEST_LOG=test-log
+
 OMEGA_CONFIG_FILE=test-omega.conf
 export OMEGA_CONFIG_FILE
 cat > "$OMEGA_CONFIG_FILE" <<__END__
 database_dir .
 template_dir .
-log_dir tmplog
+log_dir .
 default_template $TEST_TEMPLATE
 default_db $TEST_DB
 __END__
@@ -269,7 +271,7 @@ qtestcase '(VALUE_RANGE 0 201512 2015~ AND VALUE_LE 5 1974~)' START.0=20151201 E
 
 # Check .SLOT and old-style value date range filter on same slot.
 # (We don't promise anything for this case, but it shouldn't crash).
-qtestcase '(VALUE_RANGE 0 201512 2015~ AND VALUE_LE 0 1974~)' START.0=20151201 END.0=20151231 DATEVALUE=0 END=1974
+qtestcase 'VALUE_RANGE 0 201512 2015~' START.0=20151201 END.0=20151231 DATEVALUE=0 END=1974
 
 # Tests of term-based date range filtering:
 
@@ -430,6 +432,10 @@ qtestcase '((Hexample.org OR Hexample.com) AND XFOObar)' P=
 printf '$addfilter{Hexample.org}$addfilter{Hexample.com,N}$addfilter{Hexample.net,N}$querydescription' > "$TEST_TEMPLATE"
 qtestcase '(Hexample.org AND_NOT (Hexample.com OR Hexample.net))' P=
 
+# Feature tests for $if.
+printf '$if{$set{w,1}}$if{a,$set{x,1}}$if{b,$set{y,1},$set{y,2}}$if{,$set{x,0}}$if{,$set{z,2},$set{z,1}}$opt{w}$opt{x}$opt{y}$opt{z}' > "$TEST_TEMPLATE"
+testcase '1111'
+
 # Feature tests for $cond.
 printf '$cond{$cgi{one},1,$cgi{two},2,$cgi{three},3}' > "$TEST_TEMPLATE"
 testcase '1' one=true
@@ -530,6 +536,10 @@ testcase 'Exception: Unknown $sort option: x' input="b|c|b|1" opt=urx
 testcase 'Exception: Invalid $sort option combination: n#' input="b|c" opt='n#'
 testcase 'Exception: Invalid $sort option combination: #rn' input="b|1" opt='#rn'
 
+# Regression test to test suppression of Content-Type header for early
+# exception.
+testcase 'Exception: HITSPERPAGE parameter must be &gt;= 0' HITSPERPAGE=-1
+
 # Regression test for $sort bug fixed in 1.4.12.
 # Check $sort doesn't ensure_match (or ensure_query).
 printf '$sort{test} $addfilter{Test}$querydescription' > "$TEST_TEMPLATE"
@@ -551,6 +561,37 @@ testcase '1.8G' size=2000000000
 testcase 'Exception: Filesize must be an integer' size=foo
 testcase 'Exception: Filesize must be an integer' size=1a
 testcase 'Exception: Filesize must be an integer' size=1.1
+
+# Feature tests for $keys.
+printf '$setmap{x,bee,1,eel,6,dog,4,ant,2,fox,5,cat,3}/$list{$keys{x},|}/$keys{nosuch}/' > "$TEST_TEMPLATE"
+testcase '/ant|bee|cat|dog|eel|fox//'
+
+# Feature tests for $log.
+rm -f "$TEST_LOG"
+# Chop off any error message at ": " so the test output doesn't depend on
+# strerror() output, which can vary with platform and locale.
+printf '$slice{$split{: ,$log{$cgi{LOG},$log{'"$TEST_LOG"'}}},0}' > "$TEST_TEMPLATE"
+testcase 'filename can'\''t contain ".."' LOG=evil/parent/..
+if [ -f "$TEST_LOG" ] ; then
+    rm -f "$TEST_LOG"
+    echo "log entry not lazily evaluated for bad log file name"
+    failed=`expr $failed + 1`
+fi
+testcase 'open failed' LOG=open/should/fail ENTRY='$log{'"$TEST_LOG"'}'
+if [ -f "$TEST_LOG" ] ; then
+    rm -f "$TEST_LOG"
+    echo "log entry not lazily evaluated for open failure"
+    failed=`expr $failed + 1`
+fi
+printf '$log{'"$TEST_LOG"',$lower{TEST}}' > "$TEST_TEMPLATE"
+testcase ''
+if [ `cat "$TEST_LOG"` = "test" ] ; then
+    : # OK
+else
+    echo "log entry not written correctly"
+    failed=`expr $failed + 1`
+fi
+rm -f "$TEST_LOG"
 
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
@@ -705,6 +746,12 @@ testcase 'e2a3e68d23ce348b8f68b3079de3d4c9' text="test"
 
 printf '$hash{$cgi{text},invalidhash}' > "$TEST_TEMPLATE"
 testcase 'Exception: Unknown hash function: invalidhash' text="test"
+
+# Regression test: $setrelevant crashed with no argument list prior to 1.4.16.
+printf '$setrelevant$or{$error,No error}' > "$TEST_TEMPLATE"
+testcase 'Exception: too few arguments to $setrelevant' P=text
+printf '$setrelevant{}$or{$error,No error}' > "$TEST_TEMPLATE"
+testcase 'No error' P=text
 
 # Feature tests for $uniq and $unique{}.
 printf '$list{$uniq{$split{$cgi{text}}},:}|$list{$unique{$split{$cgi{text}}},:}' > "$TEST_TEMPLATE"
@@ -1063,6 +1110,45 @@ END
 printf '$json{$field{zer$chr{0}byte,1}}|$json{$field{field28$chr{2}$chr{8},1}}|$error' > "$TEST_TEMPLATE"
 testcase '4071004f3456|@q\u0000O4V|'
 
+# Feature tests for $jsonarray.
+printf '%s, %s, %s, %s, %s' \
+    '$jsonarray{}' \
+    '$jsonarray{,$upper{$_}}' \
+    '$jsonarray{$split{b4 k9},"$json{$upper{$_}}"}' \
+    '$jsonarray{$split{a "b" c:\}}' \
+    '$jsonarray{$split{2 3 5 7},$mul{$_,$_}}' > "$TEST_TEMPLATE"
+testcase '[], [], ["B4","K9"], ["a","\"b\"","c:\\"], [4,9,25,49]'
+
+# Feature tests for $jsonbool
+printf '%s' '$jsonbool{} $jsonbool{$eq{a,b}} $jsonbool{x} $jsonbool{0}' > "$TEST_TEMPLATE"
+testcase 'false false true true'
+
+# Feature tests for $jsonobject
+printf '%s' '$jsonobject{foo}' > "$TEST_TEMPLATE"
+testcase '{}'
+printf '%s' '$setmap{foo,Han,Solo}$jsonobject{foo}' > "$TEST_TEMPLATE"
+testcase '{
+ "Han": "Solo"
+}'
+printf '%s' '$setmap{foo,key 1,value1,key"2,value\2,key3,value3}$jsonobject{foo}' > "$TEST_TEMPLATE"
+testcase '{
+ "key 1": "value1",
+ "key\"2": "value\\2",
+ "key3": "value3"
+}'
+printf '%s' '$setmap{foo,key 1,1,key"2,$split{1 2},key3,$split{2 3 5}}$jsonobject{foo,,$jsonarray{$_,$add{$_,1}}}' > "$TEST_TEMPLATE"
+testcase '{
+ "key 1": [2],
+ "key\"2": [2,3],
+ "key3": [3,4,6]
+}'
+printf '%s' '$setmap{foo,key 1,,key"2,1,key3,0}$jsonobject{foo,$upper{$_},$jsonarray{$_,$add{$_}}}' > "$TEST_TEMPLATE"
+testcase '{
+ "KEY 1": [],
+ "KEY\"2": [1],
+ "KEY3": [0]
+}'
+
 # Feature tests of scriptindex.
 
 # Regression test: non-zero exit status for unknown option.
@@ -1321,6 +1407,17 @@ else
     echo "scriptindex didn't give expected warning for useless 'parsedate'"
     failed=`expr $failed + 1`
 fi
+
+# Test 'gap' action inserts a termpos gap.
+printf 'text : index gap=5' > "$TEST_INDEXSCRIPT"
+rm -rf "$TEST_DB"
+printf 'text=%s\n' foo bar baz|$SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null
+echo '|$hitlist{$id|}' > "$TEST_TEMPLATE"
+testcase '|' 'P="foo bar"'
+testcase '|' 'P=foo NEAR/5 bar'
+testcase '|' 'P=foo NEAR/11 baz'
+testcase '|1|' 'P=foo NEAR/6 bar'
+testcase '|1|' 'P=foo NEAR/12 baz'
 
 # The 'hash' action should require its argument is >= 6, so test 5 is rejected.
 printf 'url : hash=5 boolean=Q unique=Q' > "$TEST_INDEXSCRIPT"

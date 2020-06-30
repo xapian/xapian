@@ -13,15 +13,20 @@ environment:
   matrix:
   - TOOLCHAIN: mingw
     platform: x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: mingw64
     platform: x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: mingw64
     platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 # Fails trying to run apitest.exe etc for unknown reasons.
 #  - TOOLCHAIN: cygwin
+#    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 #    platform: x86
   - TOOLCHAIN: cygwin
     platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: msvc
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
@@ -40,6 +45,14 @@ environment:
     platform: x64
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
+  - TOOLCHAIN: msvc
+    platform: x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars32.bat\""
+  - TOOLCHAIN: msvc
+    platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
 matrix:
   allow_failures:
   # mingw build currently sometimes fails due to trying to delete open files.
@@ -91,10 +104,16 @@ install:
   - if "%TOOLCHAIN%"=="msvc" mkdir zlib
   - if "%TOOLCHAIN%"=="msvc" cd zlib
   - if "%TOOLCHAIN%"=="msvc" bash -c 'curl -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.11.tar.gz|tar --strip-components=1 -zxf -'
+  # Don't build zlib with -MD as it seems this flag needs to be used
+  # consistently across the build.
+  - if "%TOOLCHAIN%"=="msvc" sed -i 's/\(^CFLAGS  *= *-nologo \)-MD /\1/' win32/Makefile.msc
+  # Don't build zlib with a fixed base address on x64 as that gives linker
+  # warning LNK4281.
+  - if "%TOOLCHAIN%-%Platform%"=="msvc-x64" sed -i 's/-base:0x[0-9A-Fa-f]* //' win32/Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" nmake -nologo -f win32\Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" cd ..
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
-  - curl https://oligarchy.co.uk/xapian/patches/unicode-data12.cc > xapian-core\unicode\unicode-data.cc
+  - curl https://oligarchy.co.uk/xapian/patches/unicode-data13.cc > xapian-core\unicode\unicode-data.cc
   - ps: >-
       if ($env:TOOLCHAIN -eq "msvc") {
         $env:CC="cl -nologo"

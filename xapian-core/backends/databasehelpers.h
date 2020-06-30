@@ -1,7 +1,7 @@
 /** @file databasehelpers.h
  * @brief Helper functions for database handling
  */
-/* Copyright 2002-2019 Olly Betts
+/* Copyright 2002-2020 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,15 +24,30 @@
 #define XAPIAN_INCLUDED_DATABASEHELPERS_H
 
 #include <cerrno>
-#include <cstdlib>
 #include <fstream>
 #include <string>
 
 #include "fileutils.h"
+#include "parseint.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "str.h"
 #include "xapian/error.h"
+
+/** Probe if a file descriptor is a single-file database.
+ *
+ *  This function looks for a single-file database at the current file offset
+ *  of @a fd, restoring the file offset afterwards.
+ *
+ *  @param fd      The file descriptor to check
+ *
+ *  @return  A BACKEND_* constant from backends.h:
+ *           * BACKEND_UNKNOWN : unknown (could be a stub file)
+ *           * BACKEND_GLASS : glass single file
+ *           * BACKEND_HONEY : honey single file
+ */
+int
+test_if_single_file_db(int fd);
 
 /** Probe if a path is a single-file database.
  *
@@ -148,14 +163,17 @@ read_stub_file(const std::string& file,
 		// port number is required, so just leave that case to the
 		// error handling further below.
 		if (!(line[0] == '[' && line.back() == ']')) {
-		    unsigned int port = std::atoi(line.c_str() + colon + 1);
-		    line.erase(colon);
-		    if (line[0] == '[' && line.back() == ']') {
-			line.erase(line.size() - 1, 1);
-			line.erase(0, 1);
+		    unsigned int port;
+		    if (parse_unsigned(line.c_str() + colon + 1, port)) {
+			line.erase(colon);
+			if (line[0] == '[' && line.back() == ']') {
+			    line.erase(line.size() - 1, 1);
+			    line.erase(0, 1);
+			}
+			action_remote_tcp(line, port);
+			continue;
 		    }
-		    action_remote_tcp(line, port);
-		    continue;
+		    line.back() = ']';
 		}
 	    }
 #else

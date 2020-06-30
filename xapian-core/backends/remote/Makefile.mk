@@ -7,7 +7,7 @@ noinst_HEADERS +=\
 	backends/remote/remote_alltermslist.h\
 	backends/remote/remote-database.h\
 	backends/remote/remote-document.h\
-	backends/remote/remote_metadatatermlist.h\
+	backends/remote/remote_keylist.h\
 	backends/remote/remote_termlist.h
 
 lib_src +=\
@@ -15,7 +15,7 @@ lib_src +=\
 	backends/remote/remote_alltermslist.cc\
 	backends/remote/remote-database.cc\
 	backends/remote/remote-document.cc\
-	backends/remote/remote_metadatatermlist.cc\
+	backends/remote/remote_keylist.cc\
 	backends/remote/remote_termlist.cc
 
 endif

@@ -27,7 +27,7 @@
 
 #include <xapian/error.h>
 
-#include "remoteserver.h"
+#include "net/remoteserver.h"
 
 #include <iostream>
 
@@ -61,7 +61,3 @@ RemoteTcpServer::handle_one_connection(int socket)
 	// ignore other exceptions
     }
 }
-
-#ifdef DISABLE_GPL_LIBXAPIAN
-# error GPL source we cannot relicense included in libxapian
-#endif

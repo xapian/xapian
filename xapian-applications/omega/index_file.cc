@@ -184,6 +184,11 @@ index_add_default_libraries()
     index_library("image/x-portable-anymap", omindex_tesseract);
     index_library("image/x-portable-pixmap", omindex_tesseract);
 #endif
+#if defined HAVE_GMIME
+    Worker* omindex_gmime = new Worker("omindex_gmime");
+    index_library("message/rfc822", omindex_gmime);
+    index_library("message/news", omindex_gmime);
+#endif
 }
 
 void
@@ -216,7 +221,7 @@ index_add_default_filters()
     // Output is UTF-8 according to "man djvutxt".  Generally this seems to
     // be true, though some examples from djvu.org generate isolated byte
     // 0x95 in a context which suggests it might be intended to be a bullet
-    // (as it is in CP1250).
+    // (as it is in CP1252).
     index_command("image/vnd.djvu", Filter("djvutxt -", PIPE_IN));
     index_command("text/markdown",
 		  Filter("markdown", "text/html", PIPE_IN));
@@ -420,7 +425,7 @@ get_pdf_metainfo(int fd, string &author, string &title,
 	string pdfinfo;
 	run_filter(fd, "pdfinfo -enc UTF-8 -", false, &pdfinfo);
 	parse_pdf_metainfo(pdfinfo, author, title, keywords, topic, pages);
-    } catch (ReadError) {
+    } catch (const ReadError&) {
 	// It's probably best to index the document even if pdfinfo fails.
     }
 }
@@ -434,7 +439,7 @@ get_pdf_metainfo(const string& file, string &author, string &title,
 	append_filename_argument(cmd, file);
 	parse_pdf_metainfo(stdout_to_string(cmd, false),
 			   author, title, keywords, topic, pages);
-    } catch (ReadError) {
+    } catch (const ReadError&) {
 	// It's probably best to index the document even if pdfinfo fails.
     }
 }
@@ -814,7 +819,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			p.ignore_metarobots();
 			p.description_as_sample = description_as_sample;
 			p.parse_html(dump, newcharset, true);
-		    } catch (ReadError) {
+		    } catch (const ReadError&) {
 			skip_cmd_failed(urlterm, context, cmd,
 					d.get_size(), d.get_mtime());
 			return;
@@ -837,7 +842,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		} else if (!charset.empty()) {
 		    convert_to_utf8(dump, charset);
 		}
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -893,7 +898,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    const char* cmd = "pdftotext -enc UTF-8 - -";
 	    try {
 		run_filter(d.get_fd(), cmd, false, &dump);
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -925,7 +930,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		append_filename_argument(cmd, tmpfile);
 		cmd += " -";
 		run_filter(cmd, false, &dump);
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		unlink(tmpfile.c_str());
@@ -955,7 +960,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		OpenDocParser parser;
 		parser.parse(stdout_to_string(cmd, true));
 		dump = parser.dump;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -972,7 +977,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
@@ -996,7 +1001,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    XlsxParser parser;
 		    parser.parse(stdout_to_string(cmd, true));
 		    dump = parser.dump;
-		} catch (ReadError) {
+		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,
 				    d.get_size(), d.get_mtime());
 		    return;
@@ -1024,7 +1029,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // doesn't match anything in the zip file.
 		    xmlparser.parse_xml(stdout_to_string(cmd, false, 11));
 		    dump = xmlparser.dump;
-		} catch (ReadError) {
+		} catch (const ReadError&) {
 		    skip_cmd_failed(urlterm, context, cmd,
 				    d.get_size(), d.get_mtime());
 		    return;
@@ -1042,7 +1047,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (mimetype == "application/x-abiword") {
@@ -1074,7 +1079,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		}
 		xpsparser.parse(dump);
 		dump = xpsparser.dump;
-	    } catch (ReadError) {
+	    } catch (const ReadError&) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
 		return;
@@ -1346,10 +1351,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	newdocument.add_boolean_term(ext_term);
 
 	index_add_document(urlterm, last_altered, did, newdocument);
-    } catch (ReadError) {
+    } catch (const ReadError&) {
 	skip(urlterm, context, string("can't read file: ") + strerror(errno),
 	     d.get_size(), d.get_mtime());
-    } catch (NoSuchFilter) {
+    } catch (const NoSuchFilter&) {
 	string filter_entry;
 	if (cmd_it != commands.end()) {
 	    filter_entry = cmd_it->first;
@@ -1361,7 +1366,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	m += "\" not installed";
 	skip(urlterm, context, m, d.get_size(), d.get_mtime());
 	commands[filter_entry] = Filter();
-    } catch (FileNotFound) {
+    } catch (const FileNotFound&) {
 	skip(urlterm, context, "File removed during indexing",
 	     d.get_size(), d.get_mtime(),
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);

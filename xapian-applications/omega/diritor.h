@@ -1,7 +1,7 @@
 /** @file diritor.h
  * @brief Iterator through entries in a directory.
  */
-/* Copyright (C) 2007,2008,2010,2011,2012,2013,2014,2015,2018 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011,2012,2013,2014,2015,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,12 +71,12 @@ class DirectoryIterator {
     std::string path;
     std::string::size_type path_len;
 
-    DIR * dir;
+    DIR * dir = NULL;
     struct dirent *entry;
     struct stat statbuf;
     bool statbuf_valid;
     bool follow_symlinks;
-    int fd;
+    int fd = -1;
 
     void call_stat();
 
@@ -96,7 +96,7 @@ class DirectoryIterator {
   public:
 
     explicit DirectoryIterator(bool follow_symlinks_)
-	: dir(NULL), follow_symlinks(follow_symlinks_), fd(-1) { }
+	: follow_symlinks(follow_symlinks_) { }
 
     ~DirectoryIterator() {
 	if (dir) closedir(dir);

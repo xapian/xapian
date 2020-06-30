@@ -1,7 +1,7 @@
-/** @file remote_metadatatermlist.h
- * @brief Iterate metadata keys in a remote database.
+/** @file remote_keylist.h
+ * @brief Iterate keys in a remote database.
  */
-/* Copyright (C) 2007,2008,2011,2018 Olly Betts
+/* Copyright (C) 2007,2008,2011,2018,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,18 +18,18 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_REMOTE_METADATATERMLIST_H
-#define XAPIAN_INCLUDED_REMOTE_METADATATERMLIST_H
+#ifndef XAPIAN_INCLUDED_REMOTE_KEYLIST_H
+#define XAPIAN_INCLUDED_REMOTE_KEYLIST_H
 
 #include "backends/alltermslist.h"
 
-/// Iterate all terms in a remote database.
-class RemoteMetadataTermList : public AllTermsList {
+/// Iterate keys in a remote database.
+class RemoteKeyList : public AllTermsList {
     /// Don't allow assignment.
-    void operator=(const RemoteMetadataTermList &) = delete;
+    void operator=(const RemoteKeyList&) = delete;
 
     /// Don't allow copying.
-    RemoteMetadataTermList(const RemoteMetadataTermList &) = delete;
+    RemoteKeyList(const RemoteKeyList&) = delete;
 
     std::string current_term;
 
@@ -39,8 +39,7 @@ class RemoteMetadataTermList : public AllTermsList {
 
   public:
     /// Construct.
-    RemoteMetadataTermList(const std::string& prefix,
-		       std::string&& data_)
+    RemoteKeyList(const std::string& prefix, std::string&& data_)
 	: current_term(prefix),
 	  data(data_) {}
 
@@ -67,4 +66,4 @@ class RemoteMetadataTermList : public AllTermsList {
     bool at_end() const;
 };
 
-#endif // XAPIAN_INCLUDED_REMOTE_METADATATERMLIST_H
+#endif // XAPIAN_INCLUDED_REMOTE_KEYLIST_H

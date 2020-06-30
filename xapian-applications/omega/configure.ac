@@ -276,76 +276,41 @@ PKG_CHECK_MODULES([TESSERACT], [tesseract, lept], [
      AC_DEFINE(HAVE_TESSERACT, 1, [Define HAVE_TESSERACT if the library is available])
      OMINDEX_MODULES="$OMINDEX_MODULES omindex_tesseract"],[ ])
 
+dnl check if gmime is available.
+PKG_CHECK_MODULES([GMIME], [gmime-2.6, glib-2.0], [
+     AC_DEFINE(HAVE_GMIME, 1, [Define HAVE_GMIME if the library is available])
+     OMINDEX_MODULES="$OMINDEX_MODULES omindex_gmime"],[ ])
+
 AC_SUBST([OMINDEX_MODULES])
 
-dnl Check that snprintf actually works as it's meant to.
-dnl
-dnl Linux 'man snprintf' warns:
-dnl  Linux libc4.[45] does not have a snprintf, but provides a libbsd that
-dnl  contains an snprintf equivalent to sprintf, i.e., one that ignores the
-dnl  size argument.  Thus, the use of snprintf with early libc4 leads to
-dnl  serious security problems.
-dnl
-dnl It also warns that glibc < 2.0.6 (and presumably other pre-C99
-dnl implementations) return -1 when truncating so check that we get the
-dnl ISO C99 semantics for the returned length when truncating.  If we
-dnl have a working snprintf but with non-ISO return semantics, handle
-dnl that case separately as it may still be useful in many cases.
-dnl
 dnl mingw has _snprintf so check for that too.
-AC_MSG_CHECKING([for working ISO C99 conforming snprintf])
-ac_cv_func_snprintf_noniso=no
-for func in snprintf _snprintf ; do
-  AC_RUN_IFELSE([
-    AC_LANG_PROGRAM(
-      [[
+AC_MSG_CHECKING([for  snprintf])
+AC_CACHE_VAL([xo_cv_func_snprintf],
+  [
+  xo_cv_func_snprintf=no
+  for func in snprintf _snprintf ; do
+    AC_COMPILE_IFELSE([
+      AC_LANG_PROGRAM(
+	[[
 #include <cstdio>
-#include <cstring>
 using namespace std;
-      ]],
-      dnl Return different exit status for each error so we can see which
-      dnl check failed by consulting config.log.
-      [[
-	char buffer[4] = "abc";
-	int res1 = $func(buffer, 2, "%s", "XYZ");
-	if (memcmp(buffer, "X\0c", 4) != 0) return 2;
-	int res2 = $func(buffer, 2, "%x", 0x12);
-	if (memcmp(buffer, "1\0c", 4) != 0) return 3;
-	if (res1 == -1 && res2 == -1) return 15; /* Pre-ISO semantics. */
-	if (res1 != 3) return 4;
-	if (res2 != 2) return 5;
-      ]]
-    )],
-    [ac_cv_func_snprintf=$func;break],
-    [
-    if test 15no = "$?$ac_cv_func_snprintf_noniso" ; then
-      ac_cv_func_snprintf_noniso=$func
-    fi
-    ac_cv_func_snprintf=no
-    ],
-    [ac_cv_func_snprintf=unknown;break]
-  )
-done
-AC_MSG_RESULT([$ac_cv_func_snprintf])
-case $ac_cv_func_snprintf in
-  no)
-    AC_MSG_CHECKING([for working non-ISO C99 conforming snprintf])
-    AC_MSG_RESULT([$ac_cv_func_snprintf_noniso])
-    if test no != "$ac_cv_func_snprintf_noniso" ; then
-      AC_DEFINE_UNQUOTED([SNPRINTF], [$ac_cv_func_snprintf_noniso],
-	[Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
-    fi
-    ;;
-  unknown)
-    dnl be conservative when crosscompiling
-    ;;
-  *)
-    AC_DEFINE_UNQUOTED([SNPRINTF_ISO], [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf with ISO C99 semantics (if one exists)])
-    AC_DEFINE_UNQUOTED([SNPRINTF], [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
-    ;;
-esac
+	]],
+	[[
+	  char buffer[4] = "abc";
+	  int res = $func(buffer, 4, "%s", "XYZ");
+	  return res;
+	]]
+      )],
+      [xo_cv_func_snprintf=$func;break],
+      []
+    )
+  done
+  ])
+AC_MSG_RESULT([$xo_cv_func_snprintf])
+if test "$xo_cv_func_snprintf" != no ; then
+  AC_DEFINE_UNQUOTED([SNPRINTF], [$xo_cv_func_snprintf],
+     [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
+fi
 
 AC_CHECK_MEMBERS([struct tm.tm_gmtoff], [], [], [#include <time.h>])
 
@@ -478,21 +443,10 @@ if test yes = "$GXX"; then
       dnl
       dnl -Wdouble-promotion was added in GCC 4.6.
       dnl
-      dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
-      dnl warns for this case with -Wuninitialized (implied by -W).  We
-      dnl don't intend to use this idiom, so any instances are bugs we'd
-      dnl like to know about.
-      dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion"
 
       dnl FIXME:
-      dnl -Wconversion in older GCC versions is intended to help migration
-      dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
-      dnl to -Wtraditional-conversion and a new -Wconversion added which
-      dnl sounds useful but is a bit buggy currently.  So we should consider
-      dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
-      dnl
       dnl -Wold-style-cast is interesting, but triggers for macros from
       dnl system headers (e.g. FD_SET).  GCC 4.8 improved this by making
       dnl -ftrack-macro-expansion=2 the default, but we still see such

@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2018 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2018,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_UNICODE_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/unicode.h> directly; include <xapian.h> instead."
+# error Never use <xapian/unicode.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -40,7 +40,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     const unsigned char* end;
     mutable unsigned seqlen;
 
-    bool XAPIAN_NOTHROW(calculate_sequence_length() const);
+    bool calculate_sequence_length() const noexcept;
 
     unsigned get_char() const;
 
@@ -129,7 +129,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  This can be compared to another iterator to check if the other iterator
      *  has reached its end.
      */
-    XAPIAN_NOTHROW(Utf8Iterator())
+    Utf8Iterator() noexcept
 	: p(NULL), end(0), seqlen(0) { }
 
     /** Get the current Unicode character value pointed to by the iterator.
@@ -140,7 +140,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
-    unsigned XAPIAN_NOTHROW(operator*() const) XAPIAN_PURE_FUNCTION;
+    unsigned operator*() const noexcept XAPIAN_PURE_FUNCTION;
 
     /** @private @internal Get the current Unicode character
      *  value pointed to by the iterator.
@@ -152,7 +152,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
-    unsigned XAPIAN_NOTHROW(strict_deref() const) XAPIAN_PURE_FUNCTION;
+    unsigned strict_deref() const noexcept XAPIAN_PURE_FUNCTION;
 
     /** Move forward to the next Unicode character.
      *
@@ -186,7 +186,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators point to the same position.
      */
-    bool XAPIAN_NOTHROW(operator==(const Utf8Iterator& other) const) {
+    bool operator==(const Utf8Iterator& other) const noexcept {
 	return p == other.p;
     }
 
@@ -195,7 +195,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators do not point to the same position.
      */
-    bool XAPIAN_NOTHROW(operator!=(const Utf8Iterator& other) const) {
+    bool operator!=(const Utf8Iterator& other) const noexcept {
 	return p != other.p;
     }
 
@@ -258,7 +258,7 @@ namespace Internal {
      *  treated as UNASSIGNED with no case variants.
      */
     XAPIAN_VISIBILITY_DEFAULT
-    int XAPIAN_NOTHROW(get_character_info(unsigned ch)) XAPIAN_CONST_FUNCTION;
+    int get_character_info(unsigned ch) noexcept XAPIAN_CONST_FUNCTION;
 
     /** @private @internal Bit-masks for case conversion.
      *
@@ -285,18 +285,19 @@ namespace Internal {
 	 * most compilers implement.
 	 *
 	 * Some compilers are smart enough to spot common idioms for sign
-	 * extension, but not all (e.g. GCC < 7 doesn't spot the one used in
-	 * the else below), so check what the implementation defined behaviour
-	 * is with a constant conditional which should get optimised away.
+	 * extension, but not all (e.g. GCC < 7 doesn't spot the one used
+	 * below), so check what the implementation-defined behaviour is with
+	 * a constant conditional which should get optimised away.
+	 *
+	 * We use the ternary operator here to avoid various compiler
+	 * warnings which writing this as an `if` results in.
 	 */
-	if ((-1 >> 1) == -1) {
-	    // Right shift sign-extends.
-	    return info >> 8;
-	} else {
-	    // Right shift shifts in zeros, not before and after the shift for
-	    // negative values.
-	    return (info >= 0) ? (info >> 8) : (~(~info >> 8));
-	}
+	return ((-1 >> 1) == -1 ?
+		// Right shift sign-extends.
+		info >> 8 :
+		// Right shift shifts in zeros so bitwise-not before and after
+		// the shift for negative values.
+		(info >= 0) ? (info >> 8) : (~(~info >> 8)));
     }
 }
 

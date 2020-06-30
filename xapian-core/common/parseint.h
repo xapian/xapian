@@ -31,7 +31,7 @@ bool parse_unsigned(const char* p, T& res)
     do {
 	unsigned char digit = *p - '0';
 	if (digit > 9 ||
-	    mul_overflows(res, (unsigned int)10, res) ||
+	    mul_overflows(res, unsigned(10), res) ||
 	    add_overflows(res, digit, res)) {
 	    return false;
 	}

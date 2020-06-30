@@ -81,9 +81,6 @@ EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
 EXTRA_DIST +=\
 	runtest.in \
 	valgrind.supp \
-	testdata/apitest_allterms4.txt \
-	testdata/apitest_phrase.txt \
-	testdata/apitest_rset.txt \
 	testdata/blank_space_before_query.txt \
 	testdata/empty_file.txt \
 	testdata/nosinglequotes.txt \

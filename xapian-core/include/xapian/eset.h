@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_ESET_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/eset.h> directly; include <xapian.h> instead."
+# error Never use <xapian/eset.h> directly; include <xapian.h> instead.
 #endif
 
 #include <iterator>
@@ -267,62 +267,44 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     std::string get_description() const;
 };
 
-bool
-XAPIAN_NOTHROW(operator==(const ESetIterator &a, const ESetIterator &b));
-
 /// Equality test for ESetIterator objects.
 inline bool
-operator==(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator==(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return a.off_from_end == b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator!=(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator!=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator!=(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return !(a == b);
 }
 
-bool
-XAPIAN_NOTHROW(operator<(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator<(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator<(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return a.off_from_end > b.off_from_end;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator>(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator>(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return b < a;
 }
 
-inline bool
-XAPIAN_NOTHROW(operator>=(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator>=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator>=(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return !(a < b);
 }
 
-inline bool
-XAPIAN_NOTHROW(operator<=(const ESetIterator &a, const ESetIterator &b));
-
 /// Inequality test for ESetIterator objects.
 inline bool
-operator<=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+operator<=(const ESetIterator& a, const ESetIterator& b) noexcept
 {
     return !(b < a);
 }

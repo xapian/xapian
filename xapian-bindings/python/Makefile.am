@@ -23,23 +23,16 @@ RST_DOCS = \
 	docs/introduction.rst \
 	docs/xapian.rst
 
-# FIXME: replicationtest.py attempts to test performing replication whilst
-# modifications are in progress.  However, it sometimes fails due to a race
-# condition in it.  It also contains hard-coded paths to the replication
-# server and client, which assume the file layout in a repo checkout.
-# Therefore, we don't run it by default currently.
-# replicationtest.py
-
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
+	doccomments.i \
 	doxy2swig.py \
 	fixup-swig-py2-wrapper \
 	generate-python-exceptions \
 	run-python-test \
 	testsuite.py \
 	test_xapian_star.py \
-	replicationtest.py \
 	$(TESTS) $(BUILT_SOURCES) $(RST_DOCS)
 
 pkgpylibdir = @PYTHON2_LIB@/xapian

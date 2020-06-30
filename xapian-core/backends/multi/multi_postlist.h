@@ -1,7 +1,7 @@
 /** @file multi_postlist.h
  * @brief Class for merging PostList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2015,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2015,2017,2020 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 #include "backends/positionlist.h"
 
 /// Class for merging PostList objects from subdatabases.
@@ -35,24 +35,30 @@ class MultiPostList : public PostList {
     /// Don't allow copying.
     MultiPostList(const MultiPostList &) = delete;
 
-    /// Current subdatabase.
-    Xapian::doccount current;
-
     /// Number of PostList* entries in @a postlists.
-    size_t n_shards;
+    Xapian::doccount n_shards;
 
     /// Sub-postlists which we use as a heap.
     PostList** postlists;
 
     /// Number of entries in docids;
-    size_t docids_size;
+    Xapian::doccount docids_size = 0;
 
     /// Heap of docids from the current positions of the postlists.
-    Xapian::docid* docids;
+    Xapian::docid* docids = nullptr;
 
   public:
     /// Constructor.
-    MultiPostList(size_t n_shards_, PostList** postlists_);
+    MultiPostList(Xapian::doccount n_shards_, PostList** postlists_)
+	: n_shards(n_shards_), postlists(postlists_)
+    {
+	try {
+	    docids = new Xapian::docid[n_shards];
+	} catch (...) {
+	    delete [] postlists;
+	    throw;
+	}
+    }
 
     /// Destructor.
     ~MultiPostList();

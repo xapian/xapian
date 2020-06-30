@@ -77,8 +77,6 @@ using namespace std;
 #define XAPIAN_VISIBILITY_INTERNAL
 #define XAPIAN_CONST_FUNCTION
 #define XAPIAN_PURE_FUNCTION
-#define XAPIAN_NOEXCEPT
-#define XAPIAN_NOTHROW(D) D
 
 // This works around buggy behaviour in SWIG's preprocessor, and only works
 // because we currently only use XAPIAN_NONNULL() with an empty argument:

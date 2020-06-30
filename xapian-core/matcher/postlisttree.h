@@ -21,8 +21,8 @@
 #ifndef XAPIAN_INCLUDED_POSTLISTTREE_H
 #define XAPIAN_INCLUDED_POSTLISTTREE_H
 
-#include "api/postlist.h"
 #include "backends/multi.h"
+#include "backends/postlist.h"
 #include "valuestreamdocument.h"
 
 class PostListTree {
@@ -59,6 +59,8 @@ class PostListTree {
 
     Xapian::Database& db;
 
+    Xapian::Database::Internal* shard_db = nullptr;
+
   public:
     PostListTree(ValueStreamDocument& vsdoc_,
 		 Xapian::Database& db_,
@@ -87,6 +89,11 @@ class PostListTree {
 	    Assert(current_shard != n_shards);
 	}
 	pl = shard_pls[current_shard];
+	shard_db = db.internal.get();
+	if (n_shards > 1) {
+	    auto multidb = static_cast<const MultiDatabase*>(shard_db);
+	    shard_db = multidb->shards[current_shard];
+	}
 	if (current_shard > 0)
 	    vsdoc.new_shard(current_shard);
     }
@@ -139,7 +146,7 @@ class PostListTree {
 
     double get_weight() const {
 	Xapian::termcount doclen = 0, unique_terms = 0;
-	get_doc_stats(doclen, unique_terms);
+	get_doc_stats(pl->get_docid(), doclen, unique_terms);
 	return pl->get_weight(doclen, unique_terms);
     }
 
@@ -176,21 +183,26 @@ class PostListTree {
 		    return false;
 	    } while (shard_pls[current_shard] == NULL);
 	    pl = shard_pls[current_shard];
+	    shard_db = db.internal.get();
+	    if (n_shards > 1) {
+		auto multidb = static_cast<const MultiDatabase*>(shard_db);
+		shard_db = multidb->shards[current_shard];
+	    }
 	    vsdoc.new_shard(current_shard);
 	    use_cached_max_weight = false;
 	}
     }
 
-    void get_doc_stats(Xapian::termcount& doclen,
+    void get_doc_stats(Xapian::docid shard_did,
+		       Xapian::termcount& doclen,
 		       Xapian::termcount& unique_terms) const {
 	// Fetching the document length and number of unique terms is work we
 	// can avoid if the weighting scheme doesn't use them.
 	if (need_doclength || need_unique_terms) {
-	    Xapian::docid did = get_docid();
 	    if (need_doclength)
-		doclen = db.get_doclength(did);
+		doclen = shard_db->get_doclength(shard_did);
 	    if (need_unique_terms)
-		unique_terms = db.get_unique_terms(did);
+		unique_terms = shard_db->get_unique_terms(shard_did);
 	}
     }
 

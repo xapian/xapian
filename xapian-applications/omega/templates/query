@@ -25,7 +25,7 @@ function write_date(time_t) {
 var d=new Date();d.setTime(time_t*1000);
 var D=d.getFullYear()+"-"+f2(d.getMonth()+1)+"-"+f2(d.getDate());
 var T=f2(d.getHours())+":"+f2(d.getMinutes())+":"+f2(d.getSeconds());
-document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
+document.write("<time datetime=\"$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}Z\" title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></time>");
 }
 // -->
 </script>
@@ -68,7 +68,7 @@ $if{$map{$queryterms,$set{U,$unstem{$_}}$set{F_$opt{U},$add{$opt{F_$opt{U}},$fre
 <br><small>Search took $time seconds</small>
 <table>
 $if{$opt{clicklog},$set{queryid,$hash{md5,$transform{s/^\s+|\s+$$//g,\1,$query}}}}
-$if{$opt{clicklog},$log{search.log,$opt{queryid}$.$csv{$query,1}$.$csv{$hitlist{$id$if{$ne{$hit,$sub{$last,1}},$.}},1}$.$topdoc}}
+$if{$opt{clicklog},$if{$log{search.log,$opt{queryid}$.$csv{$query,1}$.$csv{$hitlist{$id$if{$ne{$hit,$sub{$last,1}},$.}},1}$.$topdoc}}}
 $hitlist{<tr><td valign=top>
 $set{clickurl,$if{$opt{clicklog},$or{$env{SCRIPT_NAME},omega.cgi}?FMT=clicklog&DB=$url{$dbname}&QUERYID=$opt{queryid}&DOCID=$url{$id}&URL=$url{$field{url}},$field{url}}}
 <div title="$percentage%" style='float:left;width:60px;height:10px;border:1px solid black;margin-top:4px;'>
@@ -78,8 +78,8 @@ $set{clickurl,$if{$opt{clicklog},$or{$env{SCRIPT_NAME},omega.cgi}?FMT=clicklog&D
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
-<span title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
-Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
+<time datetime="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}Z" title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
+Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></time>
 </noscript><br>
 }
 $if{$field{language},Language: <b>$html{$field{language}}</b><br>}
@@ -135,4 +135,4 @@ $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 <hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
-$log{query.log}
+$if{$log{query.log}}

@@ -341,17 +341,7 @@ test_driver::runtest(const test_desc *test)
 		    lseek(vg_log_fd, 0, SEEK_END);
 		}
 #endif
-		if (!test->run()) {
-		    out << ' ';
-		    if (expected_failure) {
-			out << col_yellow << "XFAIL (" << expected_failure << ")";
-		    } else {
-			out << col_red << "FAILED";
-		    }
-		    out << col_reset;
-		    write_and_clear_tout();
-		    return expected_failure ? XFAIL : FAIL;
-		}
+		test->run();
 		if (verbose > 1)
 		    write_and_clear_tout();
 #ifndef NO_LIBXAPIAN
@@ -478,10 +468,10 @@ test_driver::runtest(const test_desc *test)
 		    }
 		    if (vg_reachable > 0) {
 			// C++ STL implementations often "horde" released
-			// memory - for GCC 3.4 and newer the runtest script
-			// sets GLIBCXX_FORCE_NEW=1 which will disable this
-			// behaviour so we avoid this issue, but for older
-			// GCC and other compilers this may be an issue.
+			// memory - the runtest script sets GLIBCXX_FORCE_NEW=1
+			// which under GCC will disable this behaviour and so
+			// we avoid this issue, but for other compilers this
+			// may be an issue.
 			//
 			// See also:
 			// http://valgrind.org/docs/FAQ/#faq.reports
@@ -916,7 +906,7 @@ test_driver::parse_command_line(int argc, char **argv)
 	if (p && *p) {
 	    unsigned int temp;
 	    if (!parse_unsigned(p, temp)) {
-		throw "Verbose must be a non-negative integer";
+		throw "VERBOSE must be a non-negative integer";
 	    }
 	    verbose = temp;
 	}

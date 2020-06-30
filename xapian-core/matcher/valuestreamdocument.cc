@@ -44,7 +44,7 @@ ValueStreamDocument::~ValueStreamDocument()
 }
 
 void
-ValueStreamDocument::new_shard(size_t n)
+ValueStreamDocument::new_shard(Xapian::doccount n)
 {
     AssertRel(n,>,0);
     AssertRel(n,<,n_shards);

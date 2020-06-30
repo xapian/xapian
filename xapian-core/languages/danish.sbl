@@ -14,7 +14,7 @@ strings ( ch )
 
 integers ( p1 x )
 
-groupings ( v s_ending )
+groupings ( c v s_ending )
 
 stringescapes {}
 
@@ -23,6 +23,8 @@ stringescapes {}
 stringdef ae   '{U+00E6}'
 stringdef ao   '{U+00E5}'
 stringdef o/   '{U+00F8}'
+
+define c 'bcdfghjklmnpqrstvwxz'
 
 define v 'aeiouy{ae}{ao}{o/}'
 
@@ -75,7 +77,7 @@ backwardmode (
         )
     )
     define undouble as (
-        setlimit tomark p1 for ([non-v] ->ch)
+        setlimit tomark p1 for ([c] ->ch)
         ch
         delete
     )

@@ -1,7 +1,7 @@
 /** @file multi_postlist.cc
  * @brief Class for merging PostList objects from subdatabases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2017,2018 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2017,2018,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@
 
 #include <xapian/database.h>
 
-#include "api/leafpostlist.h"
 #include "backends/multi.h"
+#include "backends/postlist.h"
 #include "heap.h"
 #include "omassert.h"
 
@@ -31,18 +31,6 @@
 #include <functional>
 
 using namespace std;
-
-MultiPostList::MultiPostList(size_t n_shards_,
-			     PostList** postlists_)
-    : current(0), n_shards(n_shards_), postlists(postlists_), docids_size(0), docids(NULL)
-{
-    try {
-	docids = new Xapian::docid[n_shards];
-    } catch (...) {
-	delete [] postlists;
-	throw;
-    }
-}
 
 MultiPostList::~MultiPostList()
 {
@@ -119,7 +107,7 @@ MultiPostList::recalc_maxweight()
 PositionList*
 MultiPostList::open_position_list() const
 {
-    return postlists[current]->open_position_list();
+    return postlists[shard_number(docids[0], n_shards)]->open_position_list();
 }
 
 PostList*
@@ -128,8 +116,8 @@ MultiPostList::next(double w_min)
     if (docids_size == 0) {
 	// Make a heap of the mapped docids so that the smallest is at the top
 	// of the heap.
-	size_t j = 0;
-	for (size_t i = 0; i != n_shards; ++i) {
+	Xapian::doccount j = 0;
+	for (Xapian::doccount i = 0; i != n_shards; ++i) {
 	    PostList* pl = postlists[i];
 	    if (!pl) continue;
 	    pl->next(w_min);
@@ -145,7 +133,7 @@ MultiPostList::next(double w_min)
 		   std::greater<Xapian::docid>());
     } else {
 	Xapian::docid old_did = docids[0];
-	size_t shard = shard_number(old_did, n_shards);
+	Xapian::doccount shard = shard_number(old_did, n_shards);
 	PostList* pl = postlists[shard];
 	pl->next(w_min);
 	if (pl->at_end()) {
@@ -167,13 +155,13 @@ MultiPostList::next(double w_min)
 PostList*
 MultiPostList::skip_to(Xapian::docid did, double w_min)
 {
-    size_t j = 0;
+    Xapian::doccount j = 0;
     if (docids_size == 0) {
 	// Make a heap of the mapped docids so that the smallest is at the top
 	// of the heap.
 	Xapian::docid shard_did = shard_docid(did, n_shards);
 	Xapian::doccount shard = shard_number(did, n_shards);
-	for (size_t i = 0; i != n_shards; ++i) {
+	for (Xapian::doccount i = 0; i != n_shards; ++i) {
 	    PostList* pl = postlists[i];
 	    if (!pl) continue;
 	    pl->skip_to(shard_did + (i < shard), w_min);
@@ -194,10 +182,10 @@ MultiPostList::skip_to(Xapian::docid did, double w_min)
 	    return MultiPostList::next(w_min);
 	Xapian::docid shard_did = shard_docid(did, n_shards);
 	Xapian::doccount shard = shard_number(did, n_shards);
-	for (size_t i = 0; i != docids_size; ++i) {
+	for (Xapian::doccount i = 0; i != docids_size; ++i) {
 	    Xapian::docid old_did = docids[i];
 	    if (old_did < did) {
-		size_t old_shard = shard_number(old_did, n_shards);
+		Xapian::doccount old_shard = shard_number(old_did, n_shards);
 		PostList* pl = postlists[old_shard];
 		pl->skip_to(shard_did + (old_shard < shard), w_min);
 		if (pl->at_end()) {
@@ -221,7 +209,7 @@ std::string
 MultiPostList::get_description() const
 {
     string desc = "MultiPostList(";
-    for (size_t i = 0; i != n_shards; ++i) {
+    for (Xapian::doccount i = 0; i != n_shards; ++i) {
 	if (postlists[i]) {
 	    desc += postlists[i]->get_description();
 	    desc += ',';

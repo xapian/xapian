@@ -44,6 +44,10 @@ define prelude as repeat goto (
            ('y' ] <- 'Y')
     )
     or
+    (  [ '{e"}' ] <- 'He' )
+    or
+    (  [ '{i"}' ] <- 'Hi' )
+    or
     (  ['y'] v <- 'Y' )
     or
     (  'q' ['u'] <- 'U' )
@@ -80,6 +84,9 @@ define postlude as repeat (
         'I' (<- 'i')
         'U' (<- 'u')
         'Y' (<- 'y')
+        'He' (<- '{e"}')
+        'Hi' (<- '{i"}')
+        'H' (delete)
         ''  (next)
     )
 )
@@ -169,7 +176,7 @@ backwardmode (
             'irions' 'irons' 'iront' 'is' 'issaIent' 'issais' 'issait'
             'issant' 'issante' 'issantes' 'issants' 'isse' 'issent' 'isses'
             'issez' 'issiez' 'issions' 'issons' 'it'
-                (non-v delete)
+                (not 'H' non-v delete)
         )
     )
 
@@ -198,14 +205,13 @@ backwardmode (
     define keep_with_s 'aiou{e`}s'
 
     define residual_suffix as (
-        try(['s'] test non-keep_with_s delete)
+        try(['s'] test ('Hi' or non-keep_with_s) delete)
         setlimit tomark pV for (
             [substring] among(
                 'ion'           (R2 's' or 't' delete)
                 'ier' 'i{e`}re'
                 'Ier' 'I{e`}re' (<-'i')
                 'e'             (delete)
-                '{e"}'          ('gu' delete)
             )
         )
     )

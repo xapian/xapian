@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2018,2019 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017,2018,2019,2020 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@
 #include "net/serialise-error.h"
 #include "pack.h"
 #include "remote_alltermslist.h"
-#include "remote_metadatatermlist.h"
+#include "remote_keylist.h"
 #include "remote_termlist.h"
 #include "serialise-double.h"
 #include "str.h"
@@ -55,6 +55,23 @@
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
+/// Return true if further replies should be expected.
+static inline bool
+is_intermediate_reply(int reply_code)
+{
+    return reply_code == REPLY_DOCDATA ||
+	   reply_code == REPLY_VALUE ||
+	   reply_code == REPLY_TERMLISTHEADER ||
+	   reply_code == REPLY_POSTLISTHEADER;
+}
+
+[[noreturn]]
+static void
+throw_invalid_operation(const char* message)
+{
+    throw Xapian::InvalidOperationError(message);
+}
+
 [[noreturn]]
 static void
 throw_handshake_failed(const string & context)
@@ -71,7 +88,7 @@ throw_connection_closed_unexpectedly()
 }
 
 RemoteDatabase::RemoteDatabase(int fd, double timeout_,
-			       const string & context_, bool writable,
+			       const string& context_, bool writable,
 			       int flags)
     : Xapian::Database::Internal(writable ?
 				 TRANSACTION_NONE :
@@ -140,7 +157,7 @@ RemoteDatabase::open_metadata_keylist(const std::string& prefix) const
     send_message(MSG_METADATAKEYLIST, prefix);
     string message;
     get_message(message, REPLY_METADATAKEYLIST);
-    return new RemoteMetadataTermList(prefix, std::move(message));
+    return new RemoteKeyList(prefix, std::move(message));
 }
 
 TermList *
@@ -339,6 +356,8 @@ RemoteDatabase::update_stats(message_type msg_code, const string & body) const
 	    errmsg += "s ";
 	    errmsg += str(protocol_major);
 	    errmsg += ".0 to ";
+	} else {
+	    errmsg += ' ';
 	}
 	errmsg += str(protocol_major);
 	errmsg += '.';
@@ -548,6 +567,9 @@ RemoteDatabase::get_message(string &result,
 {
     double end_time = RealTime::end_time(timeout);
     int type = link.get_message(result, end_time);
+    if (pending_reply && !is_intermediate_reply(type)) {
+	pending_reply = false;
+    }
     if (type < 0)
 	throw_connection_closed_unexpectedly();
     if (rare(type) >= REPLY_MAX) {
@@ -579,18 +601,37 @@ void
 RemoteDatabase::send_message(message_type type, const string &message) const
 {
     double end_time = RealTime::end_time(timeout);
+    while (pending_reply) {
+	string dummy;
+	int reply_code = link.get_message(dummy, end_time);
+	if (reply_code < 0)
+	    throw_connection_closed_unexpectedly();
+	if (!is_intermediate_reply(reply_code)) {
+	    pending_reply = false;
+	}
+    }
     link.send_message(static_cast<unsigned char>(type), message, end_time);
+    pending_reply = true;
 }
 
 void
 RemoteDatabase::do_close()
 {
-    // The dtor hasn't really been called!  FIXME: This works, but means any
-    // exceptions from end_transaction()/commit() are swallowed, which is
-    // not entirely desirable.
-    dtor_called();
-
     if (!is_read_only()) {
+	try {
+	    if (transaction_active()) {
+		end_transaction(false);
+	    } else {
+		commit();
+	    }
+	} catch (...) {
+	    try {
+		link.do_close();
+	    } catch (...) {
+	    }
+	    throw;
+	}
+
 	// If we're writable, send a shutdown message to the server and wait
 	// for it to close its end of the connection so we know that changes
 	// have been written and flushed, and the database write lock released.
@@ -665,12 +706,23 @@ void
 RemoteDatabase::send_global_stats(Xapian::doccount first,
 				  Xapian::doccount maxitems,
 				  Xapian::doccount check_at_least,
+				  const Xapian::KeyMaker* sorter,
 				  const Xapian::Weight::Internal &stats) const
 {
     string message;
     pack_uint(message, first);
     pack_uint(message, maxitems);
     pack_uint(message, check_at_least);
+    if (!sorter) {
+	pack_string_empty(message);
+    } else {
+	const string& name = sorter->name();
+	if (name.empty()) {
+	    throw_invalid_operation("sorter reported empty name");
+	}
+	pack_string(message, name);
+	pack_string(message, sorter->serialise());
+    }
     message += serialise_stats(stats);
     send_message(MSG_GETMSET, message);
 }
@@ -698,22 +750,30 @@ RemoteDatabase::get_mset(const vector<opt_ptr_spy>& matchspies) const
 void
 RemoteDatabase::commit()
 {
+    if (!uncommitted_changes) return;
+
     send_message(MSG_COMMIT, string());
 
     // We need to wait for a response to ensure documents have been committed.
     string message;
     get_message(message, REPLY_DONE);
+
+    uncommitted_changes = false;
 }
 
 void
 RemoteDatabase::cancel()
 {
+    if (!uncommitted_changes) return;
+
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
 
     send_message(MSG_CANCEL, string());
     string dummy;
     get_message(dummy, REPLY_DONE);
+
+    uncommitted_changes = false;
 }
 
 Xapian::docid
@@ -721,6 +781,7 @@ RemoteDatabase::add_document(const Xapian::Document & doc)
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     send_message(MSG_ADDDOCUMENT, serialise_document(doc));
 
@@ -741,6 +802,7 @@ RemoteDatabase::delete_document(Xapian::docid did)
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     string message;
     pack_uint_last(message, did);
@@ -754,6 +816,7 @@ RemoteDatabase::delete_document(const std::string & unique_term)
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     send_message(MSG_DELETEDOCUMENTTERM, unique_term);
     string dummy;
@@ -766,6 +829,7 @@ RemoteDatabase::replace_document(Xapian::docid did,
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     string message;
     pack_uint(message, did);
@@ -782,6 +846,7 @@ RemoteDatabase::replace_document(const std::string & unique_term,
 {
     cached_stats_valid = false;
     mru_slot = Xapian::BAD_VALUENO;
+    uncommitted_changes = true;
 
     string message;
     pack_string(message, unique_term);
@@ -818,6 +883,8 @@ RemoteDatabase::get_metadata(const string & key) const
 void
 RemoteDatabase::set_metadata(const string & key, const string & value)
 {
+    uncommitted_changes = true;
+
     string message;
     pack_string(message, key);
     message += value;
@@ -830,6 +897,8 @@ void
 RemoteDatabase::add_spelling(const string & word,
 			     Xapian::termcount freqinc) const
 {
+    uncommitted_changes = true;
+
     string message;
     pack_uint(message, freqinc);
     message += word;
@@ -842,6 +911,8 @@ Xapian::termcount
 RemoteDatabase::remove_spelling(const string & word,
 				Xapian::termcount freqdec) const
 {
+    uncommitted_changes = true;
+
     string message;
     pack_uint(message, freqdec);
     message += word;
@@ -857,10 +928,81 @@ RemoteDatabase::remove_spelling(const string & word,
     return result;
 }
 
+TermList*
+RemoteDatabase::open_synonym_termlist(const string& word) const
+{
+    string message;
+    send_message(MSG_SYNONYMTERMLIST, word);
+    get_message(message, REPLY_SYNONYMTERMLIST);
+    return new RemoteKeyList(string(), std::move(message));
+}
+
+TermList*
+RemoteDatabase::open_synonym_keylist(const string& prefix) const
+{
+    string message;
+    send_message(MSG_SYNONYMKEYLIST, prefix);
+    get_message(message, REPLY_SYNONYMKEYLIST);
+    return new RemoteKeyList(string(), std::move(message));
+}
+
+void
+RemoteDatabase::add_synonym(const string& word, const string& synonym) const
+{
+    uncommitted_changes = true;
+
+    string message;
+    pack_string(message, word);
+    message += synonym;
+    send_message(MSG_ADDSYNONYM, message);
+    get_message(message, REPLY_DONE);
+}
+
+void
+RemoteDatabase::remove_synonym(const string& word, const string& synonym) const
+{
+    uncommitted_changes = true;
+
+    string message;
+    pack_string(message, word);
+    message += synonym;
+    send_message(MSG_REMOVESYNONYM, message);
+    get_message(message, REPLY_DONE);
+}
+
+void
+RemoteDatabase::clear_synonyms(const string& word) const
+{
+    uncommitted_changes = true;
+
+    string message;
+    send_message(MSG_CLEARSYNONYMS, word);
+    get_message(message, REPLY_DONE);
+}
+
 bool
 RemoteDatabase::locked() const
 {
     throw Xapian::UnimplementedError("Database::locked() not implemented for remote backend");
+}
+
+string
+RemoteDatabase::reconstruct_text(Xapian::docid did,
+				 size_t length,
+				 const string& prefix,
+				 Xapian::termpos start_pos,
+				 Xapian::termpos end_pos) const
+{
+    string message;
+    pack_uint(message, did);
+    pack_uint(message, length);
+    pack_uint(message, start_pos);
+    pack_uint(message, end_pos);
+    message += prefix;
+    send_message(MSG_RECONSTRUCTTEXT, message);
+
+    get_message(message, REPLY_RECONSTRUCTTEXT);
+    return message;
 }
 
 string

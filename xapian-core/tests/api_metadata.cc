@@ -66,8 +66,6 @@ DEFINE_TESTCASE(metadata1, writable) {
     TEST_EQUAL(db.get_metadata("foo"), "value of foo");
     TEST_EQUAL(db.get_metadata(string("foo\0bar", 7)), string(1, '\0'));
     TEST_EQUAL(db.get_metadata(string("foo\0", 4)), string("foo\0bar", 7));
-
-    return true;
 }
 
 // Test that metadata gets applied at same time as other changes.
@@ -104,8 +102,6 @@ DEFINE_TESTCASE(metadata2, metadata && !inmemory) {
     TEST_EQUAL(dbr.get_metadata("foo"), "");
 
     TEST_EQUAL(db.get_doccount(), 1);
-
-    return true;
 }
 
 // Test the empty metadata keys give an error correctly.
@@ -115,8 +111,6 @@ DEFINE_TESTCASE(metadata3, metadata) {
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.set_metadata("", "foo"));
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
-
-    return true;
 }
 
 // Regression test for adding a piece of metadata on its own before adding
@@ -132,8 +126,6 @@ DEFINE_TESTCASE(metadata4, metadata && !inmemory) {
     db.add_document(doc);
 
     Xapian::Database dbr(get_writable_database_as_database());
-
-    return true;
 }
 
 // Test metadata iterators.
@@ -263,8 +255,6 @@ DEFINE_TESTCASE(metadata5, writable) {
     // Check that skipping to a key after the last key works.
     iter.skip_to("zoo");
     TEST(iter == db.metadata_keys_end());
-
-    return true;
 }
 
 /// Regression test of reading after writing but not committing.
@@ -276,6 +266,4 @@ DEFINE_TESTCASE(writeread1, writable && metadata) {
 
     string readitem = db_w.get_metadata("2");
     TEST_EQUAL(readitem, longitem);
-
-    return true;
 }

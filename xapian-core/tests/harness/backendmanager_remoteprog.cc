@@ -60,6 +60,18 @@ BackendManagerRemoteProg::get_writable_database(const string & name,
     return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
 }
 
+Xapian::WritableDatabase
+BackendManagerRemoteProg::get_remote_writable_database(string args)
+{
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	args.insert(0, XAPIAN_PROGSRV" ");
+	return Xapian::Remote::open_writable("./runsrv", args);
+    }
+#endif
+    return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
+}
+
 Xapian::Database
 BackendManagerRemoteProg::get_remote_database(const vector<string> & files,
 					      unsigned int timeout)

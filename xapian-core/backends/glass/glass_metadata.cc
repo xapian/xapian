@@ -77,12 +77,6 @@ GlassMetadataTermList::get_termfreq() const
     throw Xapian::InvalidOperationError("GlassMetadataTermList::get_termfreq() not meaningful");
 }
 
-Xapian::termcount
-GlassMetadataTermList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("GlassMetadataTermList::get_collection_freq() not meaningful");
-}
-
 TermList *
 GlassMetadataTermList::next()
 {

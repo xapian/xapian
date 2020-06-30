@@ -39,7 +39,10 @@ SelectPostList::vet(double w_min)
     if (w_min <= 0.0) {
 	cached_weight = -HUGE_VAL;
     } else {
-	cached_weight = pltree->get_weight();
+	Xapian::termcount doclen = 0;
+	Xapian::termcount unique_terms = 0;
+	pltree->get_doc_stats(pl->get_docid(), doclen, unique_terms);
+	cached_weight = pl->get_weight(doclen, unique_terms);
 	if (cached_weight < w_min)
 	    return false;
     }

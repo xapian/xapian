@@ -320,6 +320,8 @@ class GlassDatabase : public Xapian::Database::Internal {
 
     bool locked() const;
 
+    Xapian::Database::Internal* update_lock(int flags);
+
     static void compact(Xapian::Compactor * compactor,
 			const char * destdir,
 			int fd,
@@ -367,7 +369,7 @@ class GlassWritableDatabase : public GlassDatabase {
     void check_flush_threshold();
 
     /// Flush any unflushed postlist changes, but don't commit them.
-    void flush_postlist_changes() const;
+    void flush_postlist_changes();
 
     /// Close all the tables permanently.
     void close();
@@ -461,6 +463,8 @@ class GlassWritableDatabase : public GlassDatabase {
 
     /** Return true if there are uncommitted changes. */
     bool has_uncommitted_changes() const;
+
+    Xapian::Database::Internal* update_lock(int flags);
 };
 
 #ifdef DISABLE_GPL_LIBXAPIAN

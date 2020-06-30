@@ -22,16 +22,23 @@
 #ifndef XAPIAN_INCLUDED_LOCALSUBMATCH_H
 #define XAPIAN_INCLUDED_LOCALSUBMATCH_H
 
-#include "backends/databaseinternal.h"
-#include "api/leafpostlist.h"
 #include "api/queryinternal.h"
+#include "backends/databaseinternal.h"
+#include "weight/weightinternal.h"
 #include "xapian/enquire.h"
 #include "xapian/weight.h"
 
 #include <map>
 
-class LeafPostList;
 class PostListTree;
+
+namespace Xapian {
+namespace Internal {
+class PostList;
+}
+}
+
+using Xapian::Internal::PostList;
 
 class LocalSubMatch {
     /// Don't allow assignment.
@@ -106,6 +113,7 @@ class LocalSubMatch {
      */
     PostList * make_synonym_postlist(PostListTree* pltree,
 				     PostList* or_pl,
+				     Xapian::Internal::QueryOptimiser* qopt,
 				     double factor,
 				     bool wdf_disjoint);
 
@@ -116,6 +124,10 @@ class LocalSubMatch {
 			      bool in_synonym,
 			      Xapian::Internal::QueryOptimiser* qopt,
 			      bool lazy_weight);
+
+    bool weight_needs_wdf() const {
+	return wt_factory.get_sumpart_needs_wdf_();
+    }
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

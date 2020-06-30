@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018,2019 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016,2018,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -153,10 +153,41 @@ HtmlParser::decode_entities(string &s)
 void
 HtmlParser::parse(const string &body)
 {
+    // Check for BOM.
+    string::const_iterator begin_after_bom = body.begin();
+    if (body.size() >= 3) {
+	switch (body[0]) {
+	  case '\xef':
+	    if (body[1] == '\xbb' && body[2] == '\xbf') {
+		charset = "utf-8";
+		begin_after_bom += 3;
+	    }
+	    break;
+	  case '\xfe':
+	    if (body[1] == '\xff') {
+		string utf8_body(body, 2);
+		convert_to_utf8(utf8_body, "utf-16le");
+		charset = "utf-8";
+		parse(utf8_body);
+		return;
+	    }
+	    break;
+	  case '\xff':
+	    if (body[1] == '\xfe') {
+		string utf8_body(body, 2);
+		convert_to_utf8(utf8_body, "utf-16be");
+		charset = "utf-8";
+		parse(utf8_body);
+		return;
+	    }
+	    break;
+	}
+    }
+
     in_script = false;
 
     parameters.clear();
-    string::const_iterator start = body.begin();
+    string::const_iterator start = begin_after_bom;
 
     while (true) {
 	// Skip through until we find an HTML tag, a comment, or the end of
@@ -174,8 +205,7 @@ HtmlParser::parse(const string &body)
 	    if (ch == '?') {
 		// PHP code or XML declaration.
 		// XML declaration is only valid at the start of the first line.
-		// FIXME: need to deal with BOMs...
-		if (p != body.begin() || body.size() < 20) break;
+		if (p != begin_after_bom || body.size() < 20) break;
 
 		// XML declaration looks something like this:
 		// <?xml version="1.0" encoding="UTF-8"?>
@@ -425,11 +455,15 @@ HtmlParser::parse(const string &body)
 			    p = find(start, body.end(), quote);
 			}
 
-			if (p == body.end()) {
+			if (p != body.end()) {
+			    // quoted
+			    value.assign(body, start - body.begin(), p - start);
+			    ++p;
+			} else {
 			    // unquoted or no closing quote
 			    p = find_if(start, body.end(), p_whitespacegt);
+			    value.assign(body, start - body.begin(), p - start);
 			}
-			value.assign(body, start - body.begin(), p - start);
 			start = find_if(p, body.end(), C_isnotspace);
 
 			if (!name.empty()) {

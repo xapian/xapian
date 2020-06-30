@@ -312,7 +312,7 @@ Point::Point(const TermListGroup &tlg, const Document &document_)
 	if (wdf < 1 || termfreq <= 1 || size == termfreq)
 	    continue;
 
-	double tf = 1 + log((double)wdf);
+	double tf = 1 + log(double(wdf));
 	double idf = log(size / termfreq);
 	double wt = tf * idf;
 

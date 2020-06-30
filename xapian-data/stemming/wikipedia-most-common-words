@@ -1,0 +1,73 @@
+#!/usr/bin/perl -CIO
+use strict;
+use warnings;
+
+# Minimum number of occurrence of a word.
+my $MIN_FREQ = 10;
+
+# Regex for letter (can be overridden to restrict to appropriate alphabet).
+my $LETTER_RE = '\w';
+
+if (@ARGV && $ARGV[0] !~ /^-/) {
+    if (@ARGV) {
+	$MIN_FREQ = shift @ARGV;
+    }
+
+    if (@ARGV) {
+	$LETTER_RE = shift @ARGV;
+	if ($LETTER_RE eq 'ascii') {
+	    $LETTER_RE = '[a-z]';
+	} elsif ($LETTER_RE eq 'devanagari') {
+	    $LETTER_RE = '[\x{900}-\x{97f}\x{a8e0}-\x{a8ff}]';
+	} elsif ($LETTER_RE eq 'greek') {
+	    $LETTER_RE = '[\x{370}-\x{3ff}\x{1f00}-\x{1fff}]';
+	} elsif ($LETTER_RE eq 'latin') {
+	    $LETTER_RE = '[a-z\x{c0}-\x{24f}\x{2c60}-\x{2c7f}\x{a720}-\x{a7ff}\x{ab30}-\x{ab6f}\x{1e00}-\x{1eff}]';
+	} elsif ($LETTER_RE eq 'latin1') {
+	    $LETTER_RE = '[a-z\x{c0}-\x{ff}]';
+	} elsif ($LETTER_RE eq 'tamil') {
+	    $LETTER_RE = '[\x{b80}-\x{bff}]';
+	} else {
+	    $LETTER_RE = "(?:$LETTER_RE)";
+	}
+    }
+}
+
+if (@ARGV) {
+    print <<"__END__";
+Usage: $0 [MIN_FREQ [SCRIPT]]
+
+MIN_FREQ is the minimum number of occurrences needed for a word to be
+included.  The default is 10.
+
+SCRIPT can be a regex for a letter in the script, or one of the literal
+values "ascii", "devanagari", "greek", "latin", "latin1" or "tamil".
+The default is the regex \\w.
+
+The script only considers words which match the regex \\b(?:\$SCRIPT)+\b and
+are not changed by the Perl "lc" function.
+
+For example:
+
+WikiExtractor.py XXwiki-latest-pages-articles.xml.bz2
+cat text/*/wiki_*|$0 42 ascii > voc.txt
+
+Extract a list of the most common words from a wikipedia dump.  In this
+example, XX is the ISO 639-1 language code.
+__END__
+    exit ($ARGV[0] eq '--help' ? 0 : 1);
+}
+
+my %f;
+while (<>) {
+    s!<[^>]*\btitle="([^"]*)"[^>]>! $1 !g;
+    s!<[^>]*>! !g;
+    s!&[^; ]*;! !g;
+    while (/\b$LETTER_RE+\b/go) {
+	++$f{$&} if lc($&) eq $&;
+    }
+}
+for (sort keys %f) {
+    print "$_\n" if $f{$_} >= $MIN_FREQ;
+    #print "$f{$_}\t$_\n" if $f{$_} >= $MIN_FREQ;
+}

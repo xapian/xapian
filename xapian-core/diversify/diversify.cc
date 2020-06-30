@@ -54,7 +54,7 @@ Diversify::Diversify(Xapian::doccount k_,
 {
     LOGCALL_CTOR(API, "Diversify", k_ | r_ | lambda_ | b_ | sigma_sqr_);
     if (r_ == 0)
-	throw InvalidArgumentError("Value of r should be greater than zero.");
+	throw InvalidArgumentError("Value of r should be greater than zero");
 }
 
 Diversify::~Diversify()

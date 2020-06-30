@@ -60,7 +60,7 @@ auto/Xapian/Xapian$(PERL_SO): Xapian.la
 	. ./libtoolconfig.tmp; cp "$$objdir/Xapian$(PERL_SO)" auto/Xapian
 	rm -f libtoolconfig.tmp
 
-EXTRA_DIST = perl.i except.i $(TESTS) \
+EXTRA_DIST = perl.i except.i extra.i $(TESTS) \
 	generate-perl-exceptions \
 	run-perl-test \
 	Xapian.pm xapian_wrap.cc \
@@ -123,7 +123,6 @@ nobase_dist_perllib_DATA = \
 	Xapian/MultiValueSorter.pm \
 	Xapian/NetworkError.pm \
 	Xapian/NetworkTimeoutError.pm \
-	Xapian/PerlStopper.pm \
 	Xapian/PositionIterator.pm \
 	Xapian/PostingIterator.pm \
 	Xapian/QueryParserError.pm \
@@ -165,6 +164,7 @@ $(stamp): except.i
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -perl -module Xapian -proxy -const \
+	    -DPERL_XAPIAN_VERSION='"$(PERL_XAPIAN_VERSION)"' \
 	    -o xapian_wrap.cc '$(srcdir)/'perl.i
 	$(multitarget_end)
 

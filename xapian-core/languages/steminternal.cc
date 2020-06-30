@@ -160,33 +160,51 @@ SnowballStemImplementation::operator()(const string & word)
 /* Code for character groupings: utf8 cases */
 
 int SnowballStemImplementation::get_utf8(int * slot) {
-    int b0, b1;
+    int b0, b1, b2;
     int tmp = c;
     if (tmp >= l) return 0;
     b0 = p[tmp++];
     if (b0 < 0xC0 || tmp == l) {   /* 1100 0000 */
-	* slot = b0; return 1;
+        *slot = b0;
+        return 1;
     }
-    b1 = p[tmp++];
+    b1 = p[tmp++] & 0x3F;
     if (b0 < 0xE0 || tmp == l) {   /* 1110 0000 */
-	* slot = (b0 & 0x1F) << 6 | (b1 & 0x3F); return 2;
+        *slot = (b0 & 0x1F) << 6 | b1;
+        return 2;
     }
-    * slot = (b0 & 0xF) << 12 | (b1 & 0x3F) << 6 | (p[tmp] & 0x3F); return 3;
+    b2 = p[tmp++] & 0x3F;
+    if (b0 < 0xF0 || tmp == l) {   /* 1111 0000 */
+        *slot = (b0 & 0xF) << 12 | b1 << 6 | b2;
+        return 3;
+    }
+    *slot = (b0 & 0xE) << 18 | b1 << 12 | b2 << 6 | (p[tmp] & 0x3F);
+    return 4;
 }
 
 int SnowballStemImplementation::get_b_utf8(int * slot) {
-    int b0, b1;
+    int a, b;
     int tmp = c;
     if (tmp <= lb) return 0;
-    b0 = p[--tmp];
-    if (b0 < 0x80 || tmp == lb) {   /* 1000 0000 */
-        * slot = b0; return 1;
+    b = p[--tmp];
+    if (b < 0x80 || tmp == lb) {   /* 1000 0000 */
+        *slot = b;
+        return 1;
     }
-    b1 = p[--tmp];
-    if (b1 >= 0xC0 || tmp == lb) {   /* 1100 0000 */
-        * slot = (b1 & 0x1F) << 6 | (b0 & 0x3F); return 2;
+    a = b & 0x3F;
+    b = p[--tmp];
+    if (b >= 0xC0 || tmp == lb) {   /* 1100 0000 */
+        *slot = (b & 0x1F) << 6 | a;
+        return 2;
     }
-    * slot = (p[tmp] & 0xF) << 12 | (b1 & 0x3F) << 6 | (b0 & 0x3F); return 3;
+    a |= (b & 0x3F) << 6;
+    b = p[--tmp];
+    if (b >= 0xE0 || tmp == lb) {   /* 1110 0000 */
+        *slot = (b & 0xF) << 12 | a;
+        return 3;
+    }
+    *slot = (p[--tmp] & 0xE) << 18 | (b & 0x3F) << 12 | a;
+    return 4;
 }
 
 int
@@ -194,12 +212,12 @@ SnowballStemImplementation::in_grouping_U(const unsigned char * s, int min,
 					  int max, int repeat)
 {
     do {
-	int ch;
-	int w = get_utf8(&ch);
-	if (!w) return -1;
-	if (ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0)
-	    return w;
-	c += w;
+        int ch;
+        int w = get_utf8(&ch);
+        if (!w) return -1;
+        if (ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0)
+            return w;
+        c += w;
     } while (repeat);
     return 0;
 }
@@ -209,12 +227,12 @@ SnowballStemImplementation::in_grouping_b_U(const unsigned char * s, int min,
 					    int max, int repeat)
 {
     do {
-	int ch;
-	int w = get_b_utf8(&ch);
-	if (!w) return -1;
-	if (ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0)
-	    return w;
-	c -= w;
+        int ch;
+        int w = get_b_utf8(&ch);
+        if (!w) return -1;
+        if (ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0)
+            return w;
+        c -= w;
     } while (repeat);
     return 0;
 }
@@ -224,12 +242,12 @@ SnowballStemImplementation::out_grouping_U(const unsigned char * s, int min,
 					   int max, int repeat)
 {
     do {
-	int ch;
-	int w = get_utf8(&ch);
-	if (!w) return -1;
-	if (!(ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0))
-	    /* FIXME: try adding this so gopast in generated code is simpler: if (repeat == 2) c += w; */ return w;
-	c += w;
+        int ch;
+        int w = get_utf8(&ch);
+        if (!w) return -1;
+        if (!(ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0))
+            /* FIXME: try adding this so gopast in generated code is simpler: if (repeat == 2) c += w; */ return w;
+        c += w;
     } while (repeat);
     return 0;
 }
@@ -239,26 +257,26 @@ SnowballStemImplementation::out_grouping_b_U(const unsigned char * s, int min,
 					     int max, int repeat)
 {
     do {
-	int ch;
-	int w = get_b_utf8(&ch);
-	if (!w) return -1;
-	if (!(ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0))
-	    return w;
-	c -= w;
+        int ch;
+        int w = get_b_utf8(&ch);
+        if (!w) return -1;
+        if (!(ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0))
+            return w;
+        c -= w;
     } while (repeat);
     return 0;
 }
 
 int SnowballStemImplementation::eq_s(int s_size, const symbol * s) {
     if (l - c < s_size || memcmp(p + c, s, s_size * sizeof(symbol)) != 0)
-	return 0;
+        return 0;
     c += s_size;
     return 1;
 }
 
 int SnowballStemImplementation::eq_s_b(int s_size, const symbol * s) {
     if (c - lb < s_size || memcmp(p + c - s_size, s, s_size * sizeof(symbol)) != 0)
-	return 0;
+        return 0;
     c -= s_size;
     return 1;
 }
@@ -285,14 +303,19 @@ SnowballStemImplementation::find_among(const symbol * pool,
         int diff = 0;
         int common = common_i < common_j ? common_i : common_j; /* smaller */
         const struct among * w = v + k;
-	for (int x = common; x < w->s_size; ++x) {
-	    if (c_orig + common == l) { diff = -1; break; }
-	    diff = q[common] - (pool + w->s)[x];
-	    if (diff != 0) break;
-	    ++common;
-	}
-        if (diff < 0) { j = k; common_j = common; }
-                 else { i = k; common_i = common; }
+        for (int x = common; x < w->s_size; ++x) {
+            if (c_orig + common == l) { diff = -1; break; }
+            diff = q[common] - (pool + w->s)[x];
+            if (diff != 0) break;
+            ++common;
+        }
+        if (diff < 0) {
+            j = k;
+            common_j = common;
+        } else {
+            i = k;
+            common_i = common;
+        }
         if (j - i <= 1) {
             if (i > 0) break; /* v->s has been inspected */
             if (j == i) break; /* only one item in v */
@@ -343,13 +366,13 @@ SnowballStemImplementation::find_among_b(const symbol * pool,
         int k = i + ((j - i) >> 1);
         int diff = 0;
         int common = common_i < common_j ? common_i : common_j;
-	const struct among * w = v + k;
-	for (int x = w->s_size - 1 - common; x >= 0; --x) {
-	    if (c_orig - common == lb) { diff = -1; break; }
-	    diff = q[- common] - (pool + w->s)[x];
-	    if (diff != 0) break;
-	    ++common;
-	}
+        const struct among * w = v + k;
+        for (int x = w->s_size - 1 - common; x >= 0; --x) {
+            if (c_orig - common == lb) { diff = -1; break; }
+            diff = q[- common] - (pool + w->s)[x];
+            if (diff != 0) break;
+            ++common;
+        }
         if (diff < 0) { j = k; common_j = common; }
                  else { i = k; common_i = common; }
         if (j - i <= 1) {
@@ -360,13 +383,13 @@ SnowballStemImplementation::find_among_b(const symbol * pool,
         }
     }
     while (1) {
-	const struct among * w = v + i;
+        const struct among * w = v + i;
         if (common_i >= w->s_size) {
             c = c_orig - w->s_size;
             if (!fnum || !fnum[i]) return w->result;
             {
                 int res = f[fnum[i] - 1](this);
-		c = c_orig - w->s_size;
+                c = c_orig - w->s_size;
                 if (res) return w->result;
             }
         }
@@ -395,11 +418,10 @@ SnowballStemImplementation::replace_s(int c_bra, int c_ket, int s_size,
         l += adjustment;
         if (c >= c_ket)
             c += adjustment;
-        else
-            if (c > c_bra)
-                c = c_bra;
+        else if (c > c_bra)
+            c = c_bra;
     }
-    if (s_size != 0) memmove(p + c_bra, s, s_size * sizeof(symbol));
+    if (s_size) memmove(p + c_bra, s, s_size * sizeof(symbol));
     return adjustment;
 }
 

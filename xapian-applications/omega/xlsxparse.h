@@ -1,7 +1,7 @@
 /** @file xlsxparse.h
  * @brief Extract fields from XLSX sheet*.xml.
  */
-/* Copyright (C) 2012,2013 Olly Betts
+/* Copyright (C) 2012,2013,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <set>
+#include <string>
 
 class XlsxParser : public HtmlParser {
     std::vector<std::string> sst;
@@ -41,10 +42,11 @@ class XlsxParser : public HtmlParser {
 	MODE_C_DATE,
 	MODE_V_DATE,
 	MODE_CELLXFS
-    } mode;
+    } mode = MODE_NONE;
 
-    bool date1904;
-    unsigned style_index;
+    bool date1904 = false;
+
+    unsigned style_index = 0;
 
     void append_field(const std::string &text) {
 	if (!text.empty()) {
@@ -56,8 +58,7 @@ class XlsxParser : public HtmlParser {
   public:
     std::string dump;
 
-    XlsxParser()
-	: HtmlParser(), mode(MODE_NONE), date1904(false), style_index(0) { }
+    XlsxParser() { }
     bool opening_tag(const std::string &tag);
     void process_text(const std::string &text);
 };

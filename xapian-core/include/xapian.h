@@ -1,7 +1,7 @@
 /** @file xapian.h
  *  @brief Public interfaces for the Xapian library.
  */
-// Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013,2015,2016 Olly Betts
+// Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013,2015,2016,2019 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,12 +27,12 @@
 // you can use 'no_keywords' to stop Qt polluting the global macro namespace,
 // as described here:
 //
-// http://qt-project.org/doc/qt-5.0/signalsandslots.html#using-qt-with-3rd-party-signals-and-slots
-#  error "Include <xapian.h> before Qt headers, or put 'CONFIG += no_keywords' in your .pro file and use Q_SLOTS instead of slots, etc"
+// https://doc.qt.io/qt-5/signalsandslots.html#using-qt-with-3rd-party-signals-and-slots
+#  error Include <xapian.h> before Qt headers, or put 'CONFIG += no_keywords' in your .pro file and use Q_SLOTS instead of slots, etc
 # endif
 # ifdef WT_API
 // Argh, copycat polluters!
-#  error "Include <xapian.h> before Wt headers, or define WT_NO_SLOT_MACROS to stop Wt from defining the macros 'slots' and 'SLOT()'"
+#  error Include <xapian.h> before Wt headers, or define WT_NO_SLOT_MACROS to stop Wt from defining the macros 'slots' and 'SLOT()'
 # endif
 #endif
 
@@ -119,7 +119,7 @@ namespace Xapian {
  * This may be different to the version compiled against (given by
  * XAPIAN_VERSION) if shared libraries are being used.
  */
-inline const char * version_string() {
+inline const char* version_string() {
     return Internal::get_constinfo_()->str;
 }
 

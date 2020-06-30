@@ -79,14 +79,6 @@ HoneySpellingWordsList::get_termfreq() const
     RETURN(freq);
 }
 
-Xapian::termcount
-HoneySpellingWordsList::get_collection_freq() const
-{
-    throw Xapian::InvalidOperationError("HoneySpellingWordsList::"
-					"get_collection_freq() "
-					"not meaningful");
-}
-
 TermList*
 HoneySpellingWordsList::next()
 {

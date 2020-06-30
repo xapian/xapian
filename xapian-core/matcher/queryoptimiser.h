@@ -23,8 +23,9 @@
 #define XAPIAN_INCLUDED_QUERYOPTIMISER_H
 
 #include "backends/databaseinternal.h"
+#include "backends/leafpostlist.h"
+#include "backends/postlist.h"
 #include "localsubmatch.h"
-#include "api/postlist.h"
 
 class LeafPostList;
 class PostListTree;
@@ -107,7 +108,7 @@ class QueryOptimiser {
     PostList * make_synonym_postlist(PostList * pl,
 				     double factor,
 				     bool wdf_disjoint) {
-	return localsubmatch.make_synonym_postlist(matcher, pl, factor,
+	return localsubmatch.make_synonym_postlist(matcher, pl, this, factor,
 						   wdf_disjoint);
     }
 
@@ -121,7 +122,25 @@ class QueryOptimiser {
 	hint = new_hint;
     }
 
-    void take_hint_ownership() { hint_owned = true; }
+    void destroy_postlist(PostList* pl) {
+	if (pl == static_cast<PostList*>(hint)) {
+	    hint_owned = true;
+	} else {
+	    if (!hint_owned) {
+		// The hint could be a subpostlist of pl, but we can't easily
+		// tell so we have to do the safe thing and reset it.
+		//
+		// This isn't ideal, but it's much better than use-after-free
+		// bugs.
+		hint = nullptr;
+	    }
+	    delete pl;
+	}
+    }
+
+    bool need_wdf_for_synonym() const {
+	return in_synonym && !localsubmatch.weight_needs_wdf();
+    }
 };
 
 }

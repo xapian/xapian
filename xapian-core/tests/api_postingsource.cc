@@ -110,8 +110,6 @@ DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
 
     mset = enq.get_mset(0, 10);
     mset_expect_order(mset, 5, 7, 11, 13, 9);
-
-    return true;
 }
 
 // Test that trying to use PostingSource with the remote backend throws
@@ -134,8 +132,6 @@ DEFINE_TESTCASE(externalsource2, remote) {
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
 		   Xapian::MSet mset = enq.get_mset(0, 10));
-
-    return true;
 }
 
 class MyOddWeightingPostingSource : public Xapian::PostingSource {
@@ -239,8 +235,6 @@ DEFINE_TESTCASE(externalsource3, backend && !remote && !multi) {
     mset_expect_order(mset, 1, 3, 5, 7, 9, 11, 13, 15, 17);
 
     TEST_EQUAL(mset.get_max_possible(), 2000);
-
-    return true;
 }
 
 class MyDontAskWeightPostingSource : public Xapian::PostingSource {
@@ -326,8 +320,6 @@ DEFINE_TESTCASE(externalsource4, backend && !remote) {
 
     // mset = enq.get_mset(0, 5);
     // mset_expect_order(mset, 1, 2, 3, 4, 5);
-
-    return true;
 }
 
 // Check that valueweightsource works correctly.
@@ -359,8 +351,6 @@ DEFINE_TESTCASE(valueweightsource1, backend) {
     enq.set_query(q);
     mset = enq.get_mset(0, 5);
     mset_expect_order(mset, 8, 14, 9, 13, 7);
-
-    return true;
 }
 
 // Check that valueweightsource gives the correct bounds for those databases
@@ -373,8 +363,6 @@ DEFINE_TESTCASE(valueweightsource2, valuestats) {
     TEST_EQUAL(src.get_termfreq_est(), 17);
     TEST_EQUAL(src.get_termfreq_max(), 17);
     TEST_EQUAL(src.get_maxweight(), 135);
-
-    return true;
 }
 
 // Check that valueweightsource skip_to() can stay in the same position.
@@ -390,8 +378,6 @@ DEFINE_TESTCASE(valueweightsource3, valuestats && !multi) {
     src.skip_to(8, 0.0);
     TEST(!src.at_end());
     TEST_EQUAL(src.get_docid(), 8);
-
-    return true;
 }
 
 // Check that fixedweightsource works correctly.
@@ -457,8 +443,6 @@ DEFINE_TESTCASE(fixedweightsource1, backend) {
 	src.skip_to(7, wt * 2);
 	TEST(src.at_end());
     }
-
-    return true;
 }
 
 // A posting source which changes the maximum weight.
@@ -544,8 +528,6 @@ DEFINE_TESTCASE(changemaxweightsource1, backend && !remote && !multi) {
 	    TEST_EQUAL_DOUBLE(i.get_weight(), 7.5 - *i);
 	}
     }
-
-    return true;
 }
 
 // Test using a valueweightpostingsource which has no entries.
@@ -602,8 +584,6 @@ DEFINE_TESTCASE(emptyvalwtsource1, backend && !remote && !multi) {
 	TEST_REL(mset.size(), >, 0.0);
 	TEST_EQUAL(mset.size(), size1);
     }
-
-    return true;
 }
 
 class SlowDecreasingValueWeightPostingSource
@@ -657,8 +637,6 @@ DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
     Xapian::MSet mset = enquire.get_mset(0, 1, 1000);
     TEST_EQUAL(mset.size(), 1);
     TEST_EQUAL(count, 2);
-
-    return true;
 }
 
 class CheckBoundsPostingSource
@@ -702,8 +680,6 @@ DEFINE_TESTCASE(postingsourcebounds1, backend && !remote)
 
     TEST_EQUAL(doclen_lb, db.get_doclength_lower_bound());
     TEST_EQUAL(doclen_ub, db.get_doclength_upper_bound());
-
-    return true;
 }
 
 // PostingSource which really just counts the clone() calls.
@@ -763,8 +739,6 @@ DEFINE_TESTCASE(postingsourceclone1, !backend)
 	Xapian::Query q(ps->release());
 	TEST_EQUAL(clones, 0);
     }
-
-    return true;
 }
 
 class OnlyTheFirstPostingSource : public Xapian::PostingSource {
@@ -818,7 +792,7 @@ class OnlyTheFirstPostingSource : public Xapian::PostingSource {
     string get_description() const { return "OnlyTheFirstPostingSource"; }
 };
 
-DEFINE_TESTCASE(postingsourceshardindex1, multi) {
+DEFINE_TESTCASE(postingsourceshardindex1, multi && !remote) {
     Xapian::Database db = get_database("apitest_simpledata");
 
     Xapian::Enquire enquire(db);
@@ -841,6 +815,81 @@ DEFINE_TESTCASE(postingsourceshardindex1, multi) {
 	TEST_EXCEPTION(Xapian::InvalidOperationError,
 		       auto m = enquire.get_mset(0, 10));
     }
+}
 
-    return true;
+/// PostingSource subclass for injecting tf bounds and estimate.
+class EstimatePS : public Xapian::PostingSource {
+    Xapian::doccount lb, est, ub;
+
+  public:
+    EstimatePS(Xapian::doccount lb_,
+	       Xapian::doccount est_,
+	       Xapian::doccount ub_)
+	: lb(lb_), est(est_), ub(ub_)
+    { }
+
+    PostingSource * clone() const { return new EstimatePS(lb, est, ub); }
+
+    void init(const Xapian::Database &) { }
+
+    Xapian::doccount get_termfreq_min() const { return lb; }
+
+    Xapian::doccount get_termfreq_est() const { return est; }
+
+    Xapian::doccount get_termfreq_max() const { return ub; }
+
+    void next(double) {
+	FAIL_TEST("EstimatePS::next() shouldn't be called");
+    }
+
+    void skip_to(Xapian::docid, double) {
+	FAIL_TEST("EstimatePS::skip_to() shouldn't be called");
+    }
+
+    bool at_end() const {
+	return false;
+    }
+
+    Xapian::docid get_docid() const {
+	FAIL_TEST("EstimatePS::get_docid() shouldn't be called");
+    }
+
+    string get_description() const { return "EstimatePS"; }
+};
+
+/// Check estimate is rounded to suitable number of S.F. - new in 1.4.3.
+DEFINE_TESTCASE(estimaterounding1, backend && !multi && !remote) {
+    Xapian::Database db = get_database("etext");
+    Xapian::Enquire enquire(db);
+    static const struct { Xapian::doccount lb, est, ub, exp; } testcases[] = {
+	// Test rounding down.
+	{411, 424, 439, 420},
+	{1, 312, 439, 300},
+	// Test rounding up.
+	{411, 426, 439, 430},
+	{123, 351, 439, 400},
+	// Rounding based on estimate size if smaller than range size.
+	{1, 12, 439, 10},
+	// Round "5" away from the nearer bound.
+	{1, 15, 439, 20},
+	{1, 350, 439, 300},
+	// Check we round up if rounding down would be out of range.
+	{411, 416, 439, 420},
+	{411, 412, 439, 420},
+	// Check we round down if rounding up would be out of range.
+	{111, 133, 138, 130},
+	{111, 137, 138, 130},
+	// Check we don't round if either way would be out of range.
+	{411, 415, 419, 415},
+	// Leave small estimates alone.
+	{1, 6, 439, 6},
+    };
+    for (auto& t : testcases) {
+	EstimatePS ps(t.lb, t.est, t.ub);
+	enquire.set_query(Xapian::Query(&ps));
+	Xapian::MSet mset = enquire.get_mset(0, 0);
+	// MSet::get_description() includes bounds and raw estimate.
+	tout << mset.get_description() << endl;
+	TEST_EQUAL(mset.get_matches_estimated(), t.exp);
+    }
 }

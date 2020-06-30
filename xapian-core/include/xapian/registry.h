@@ -2,7 +2,7 @@
  * @brief Class for looking up user subclasses during unserialisation.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2013,2014 Olly Betts
+ * Copyright 2009,2011,2013,2014,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_REGISTRY_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/registry.h> directly; include <xapian.h> instead."
+# error Never use <xapian/registry.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/intrusive_ptr.h>
@@ -34,6 +34,7 @@
 namespace Xapian {
 
 // Forward declarations.
+class KeyMaker;
 class LatLongMetric;
 class MatchSpy;
 class PostingSource;
@@ -154,6 +155,27 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
     const Xapian::LatLongMetric *
 	    get_lat_long_metric(const std::string & name) const;
 
+    /** Register a user-defined KeyMaker subclass.
+     *
+     *  @param keymaker	The KeyMaker subclass to register.  The clean up of
+     *		        this object is handled via Xapian's optional reference
+     *		        counting.  The simplest way to do so is to allocate it
+     *		        with <code>new</code> and call <code>release()</code>
+     *		        on it before passing it to this method to tell Xapian
+     *		        to manage its lifetime.  The alternative approach is
+     *		        for the caller to ensure the KeyMaker object remains
+     *		        valid for the lifetime of the Registry object.
+     */
+    void register_key_maker(Xapian::KeyMaker* keymaker);
+
+    /** Get a KeyMaker given a name.
+     *
+     *  @param name	The name of the KeyMaker to find.
+     *  @return		An object with the requested name, or NULL if the
+     *			KeyMaker could not be found.  The returned
+     *			object must <b>not</b> be deleted by the caller.
+     */
+    const Xapian::KeyMaker* get_key_maker(const std::string& name) const;
 };
 
 }

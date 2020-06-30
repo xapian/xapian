@@ -77,32 +77,32 @@ routines (
 	stem_suffix_chain_before_ki
 )
 
-stringescapes 	{ }
+stringescapes	{ }
 
 /* Special characters in Unicode Latin-1 and Latin Extended-A */
-stringdef c,   	'{U+00E7}'	// LATIN SMALL LETTER C WITH CEDILLA
-stringdef g~   	'{U+011F}'	// LATIN SMALL LETTER G WITH BREVE
-stringdef i'   	'{U+0131}'	// LATIN SMALL LETTER I WITHOUT DOT
-stringdef o"  	'{U+00F6}'	// LATIN SMALL LETTER O WITH DIAERESIS
+stringdef c,	'{U+00E7}'	// LATIN SMALL LETTER C WITH CEDILLA
+stringdef g~	'{U+011F}'	// LATIN SMALL LETTER G WITH BREVE
+stringdef i'	'{U+0131}'	// LATIN SMALL LETTER I WITHOUT DOT
+stringdef o"	'{U+00F6}'	// LATIN SMALL LETTER O WITH DIAERESIS
 stringdef s,	'{U+015F}'	// LATIN SMALL LETTER S WITH CEDILLA
-stringdef u"  	'{U+00FC}'	// LATIN SMALL LETTER U WITH DIAERESIS
+stringdef u"	'{U+00FC}'	// LATIN SMALL LETTER U WITH DIAERESIS
 
 booleans	( continue_stemming_noun_suffixes )
 
-groupings 	( vowel U vowel1 vowel2 vowel3 vowel4 vowel5 vowel6)
+groupings	( vowel U vowel1 vowel2 vowel3 vowel4 vowel5 vowel6)
 
-define vowel 	'ae{i'}io{o"}u{u"}'
+define vowel	'ae{i'}io{o"}u{u"}'
 define U	'{i'}iu{u"}'
 
 // the vowel grouping definitions below are used for checking vowel harmony
-define vowel1  	'a{i'}ou' 		// vowels that can end with suffixes containing 'a'
-define vowel2  	'ei{o"}{u"}' 		// vowels that can end with suffixes containing 'e'
-define vowel3  	'a{i'}' 		// vowels that can end with suffixes containing 'i''
-define vowel4  	'ei'	 		// vowels that can end with suffixes containing 'i'
-define vowel5  	'ou'	 		// vowels that can end with suffixes containing 'o' or 'u'
-define vowel6  	'{o"}{u"}' 		// vowels that can end with suffixes containing 'o"' or 'u"'
+define vowel1	'a{i'}ou'		// vowels that can end with suffixes containing 'a'
+define vowel2	'ei{o"}{u"}'		// vowels that can end with suffixes containing 'e'
+define vowel3	'a{i'}'			// vowels that can end with suffixes containing 'i''
+define vowel4	'ei'			// vowels that can end with suffixes containing 'i'
+define vowel5	'ou'			// vowels that can end with suffixes containing 'o' or 'u'
+define vowel6	'{o"}{u"}'		// vowels that can end with suffixes containing 'o"' or 'u"'
 
-externals 	( stem )
+externals	( stem )
 
 backwardmode (
 	// checks vowel harmony for possible suffixes,
@@ -373,24 +373,24 @@ backwardmode (
 		or
 		([(mark_ndA or mark_nA)
 			(
-		  		(mark_lArI] delete)
-		  		or
-		  		(mark_sU] delete try([mark_lAr] delete stem_suffix_chain_before_ki))
-		  		or
-		  		(stem_suffix_chain_before_ki)
-		  	)
+				(mark_lArI] delete)
+				or
+				(mark_sU] delete try([mark_lAr] delete stem_suffix_chain_before_ki))
+				or
+				(stem_suffix_chain_before_ki)
+			)
 		)
 		or
 		([(mark_ndAn or mark_nU) ((mark_sU ] delete try([mark_lAr] delete stem_suffix_chain_before_ki)) or (mark_lArI)))
 		or
 		( [mark_DAn] delete try ([
 			(
-		 		(mark_possessives ] delete try([mark_lAr] delete stem_suffix_chain_before_ki))
-		 		or
-		 		(mark_lAr] delete try(stem_suffix_chain_before_ki))
-		 		or
-		 		(stem_suffix_chain_before_ki)
-		 	))
+				(mark_possessives ] delete try([mark_lAr] delete stem_suffix_chain_before_ki))
+				or
+				(mark_lAr] delete try(stem_suffix_chain_before_ki))
+				or
+				(stem_suffix_chain_before_ki)
+			))
 		)
 		or
 		([mark_nUn or mark_ylA] delete
@@ -470,5 +470,3 @@ define stem as (
 	postlude
 	)
 )
-
-

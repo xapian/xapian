@@ -77,7 +77,7 @@ LeafPostList::get_termfreq_est_using_stats(
     if (term.empty()) {
 	RETURN(TermFreqs(stats.collection_size,
 			 stats.rset_size,
-			 stats.total_term_count));
+			 stats.total_length));
     }
     map<string, TermFreqs>::const_iterator i = stats.termfreqs.find(term);
     Assert(i != stats.termfreqs.end());

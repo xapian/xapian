@@ -100,45 +100,33 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
     /// Get collection_termfreq
     Xapian::termcount get_collection_termfreq(const std::string& term) const;
 
-    /** Sets the termfrequency that is going to be used for
-     *  Feature building.
-     */
-    void set_termfreq(std::map<std::string,
-				     Xapian::termcount>&& tf) {
+    /// Set the term frequency to use for Feature building.
+    void set_termfreq(std::map<std::string, Xapian::termcount>&& tf) {
 	termfreq = tf;
     }
 
-    /** Sets the inverse_doc_freq that is going to be used for
-     *  Feature building.
-     */
-    void set_inverse_doc_freq(std::map<std::string,
-					     double>&& idf) {
+    /// Set the inverse_doc_freq to use for Feature building.
+    void set_inverse_doc_freq(std::map<std::string, double>&& idf) {
 	inverse_doc_freq = idf;
     }
 
-    /** Sets the doc_length that is going to be used for Feature building.
+    /** Set the doc_length to use for Feature building.
+     *
      *  This is used by Feature::Internal while populating Statistics.
      */
-    void set_doc_length(std::map<std::string,
-				       Xapian::termcount>&& doc_len) {
+    void set_doc_length(std::map<std::string, Xapian::termcount>&& doc_len) {
 	doc_length = doc_len;
     }
 
-    /** Sets the collection_length that is going to be used for
-     *  Feature building.
-     */
+    /// Set the collection_length to use for Feature building.
     void set_collection_length(std::map<std::string,
-					      Xapian::termcount>&&
-					      collection_len) {
+					Xapian::termcount>&& collection_len) {
 	collection_length = collection_len;
     }
 
-    /** Sets the collection_termfreq that is going to be used
-     *  for Feature building.
-     */
+    /// Set the collection_termfreq to use for Feature building.
     void set_collection_termfreq(std::map<std::string,
-						Xapian::termcount>&&
-						collection_tf) {
+					  Xapian::termcount>&& collection_tf) {
 	collection_termfreq = collection_tf;
     }
 };

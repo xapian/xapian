@@ -33,7 +33,7 @@
 #include "xapian/constants.h"
 #include "xapian/error.h"
 #include "parseint.h"
-#include "net/remotetcpserver.h"
+#include "remotetcpserver.h"
 #include "net/remoteserver.h"
 #include "stringutils.h"
 

@@ -252,6 +252,24 @@ RemoteServer::run()
 		case MSG_POSITIONLISTCOUNT:
 		    msg_positionlistcount(message);
 		    continue;
+		case MSG_RECONSTRUCTTEXT:
+		    msg_reconstructtext(message);
+		    continue;
+		case MSG_SYNONYMTERMLIST:
+		    msg_synonymtermlist(message);
+		    continue;
+		case MSG_SYNONYMKEYLIST:
+		    msg_synonymkeylist(message);
+		    continue;
+		case MSG_ADDSYNONYM:
+		    msg_addsynonym(message);
+		    continue;
+		case MSG_REMOVESYNONYM:
+		    msg_removesynonym(message);
+		    continue;
+		case MSG_CLEARSYNONYMS:
+		    msg_clearsynonyms(message);
+		    continue;
 		default: {
 		    // MSG_GETMSET - used during a conversation.
 		    // MSG_SHUTDOWN - handled by get_message().
@@ -431,7 +449,7 @@ RemoteServer::msg_writeaccess(const string & msg)
     if (!writable)
 	throw_read_only();
 
-    int flags = Xapian::DB_OPEN;
+    int flags = 0;
     const char *p = msg.c_str();
     const char *p_end = p + msg.size();
     if (p != p_end) {
@@ -439,10 +457,10 @@ RemoteServer::msg_writeaccess(const string & msg)
 	if (!unpack_uint_last(&p, p_end, &flag_bits)) {
 	    throw Xapian::NetworkError("Bad flags in MSG_WRITEACCESS");
 	}
-	flags |= flag_bits &~ Xapian::DB_ACTION_MASK_;
+	flags = flag_bits &~ Xapian::DB_ACTION_MASK_;
     }
 
-    wdb = new Xapian::WritableDatabase(context, flags);
+    wdb = new Xapian::WritableDatabase(db->lock(flags));
     delete db;
     db = wdb;
     msg_update(msg);
@@ -597,7 +615,7 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::Weight::Internal local_stats;
     Matcher matcher(*db, full_db_has_positions,
 		    query, qlen, &rset, local_stats, *wt,
-		    false, false,
+		    false,
 		    collapse_key, collapse_max,
 		    percent_threshold, weight_threshold,
 		    order, sort_key, sort_by, sort_value_forward, time_limit,
@@ -613,10 +631,26 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::termcount first;
     Xapian::termcount maxitems;
     Xapian::termcount check_at_least;
+    string sorter_type;
     if (!unpack_uint(&p, p_end, &first) ||
 	!unpack_uint(&p, p_end, &maxitems) ||
-	!unpack_uint(&p, p_end, &check_at_least)) {
+	!unpack_uint(&p, p_end, &check_at_least) ||
+	!unpack_string(&p, p_end, sorter_type)) {
 	throw Xapian::NetworkError("Bad MSG_GETMSET");
+    }
+    unique_ptr<Xapian::KeyMaker> sorter;
+    if (!sorter_type.empty()) {
+	const Xapian::KeyMaker* sorterclass = reg.get_key_maker(sorter_type);
+	if (sorterclass == NULL) {
+	    throw Xapian::InvalidArgumentError("KeyMaker " + sorter_type +
+					       " not registered");
+	}
+
+	string serialised_sorter;
+	if (!unpack_string(&p, p_end, serialised_sorter)) {
+	    throw Xapian::NetworkError("Bad MSG_GETMSET");
+	}
+	sorter.reset(sorterclass->unserialise(serialised_sorter, reg));
     }
 
     message.erase(0, message.size() - (p_end - p));
@@ -625,7 +659,7 @@ RemoteServer::msg_query(const string &message_in)
     total_stats->set_bounds_from_db(*db);
 
     Xapian::MSet mset = matcher.get_mset(first, maxitems, check_at_least,
-					 *total_stats, *wt, 0, 0,
+					 *total_stats, *wt, 0, sorter.get(),
 					 collapse_key, collapse_max,
 					 percent_threshold, weight_threshold,
 					 order,
@@ -749,6 +783,25 @@ RemoteServer::msg_uniqueterms(const string &message)
     string reply;
     pack_uint_last(reply, db->get_unique_terms(did));
     send_message(REPLY_UNIQUETERMS, reply);
+}
+
+void
+RemoteServer::msg_reconstructtext(const string& message)
+{
+    const char* p = message.data();
+    const char* p_end = p + message.size();
+    Xapian::docid did;
+    size_t length;
+    Xapian::termpos start_pos, end_pos;
+    if (!unpack_uint(&p, p_end, &did) ||
+	!unpack_uint(&p, p_end, &length) ||
+	!unpack_uint(&p, p_end, &start_pos) ||
+	!unpack_uint(&p, p_end, &end_pos)) {
+	throw Xapian::NetworkError("Bad MSG_RECONSTRUCTTEXT");
+    }
+    send_message(REPLY_RECONSTRUCTTEXT,
+		 db->reconstruct_text(did, length, string(p, p_end),
+				      start_pos, end_pos));
 }
 
 void
@@ -929,4 +982,83 @@ RemoteServer::msg_removespelling(const string & message)
     string reply;
     pack_uint_last(reply, wdb->remove_spelling(string(p, p_end - p), freqdec));
     send_message(REPLY_REMOVESPELLING, reply);
+}
+
+void
+RemoteServer::msg_synonymtermlist(const string& message)
+{
+    Xapian::TermIterator t = db->synonyms_begin(message);
+    string reply, prev;
+    while (t != db->synonyms_end(message)) {
+	if (rare(prev.size() > 255))
+	    prev.resize(255);
+	const string& term = *t;
+	size_t reuse = common_prefix_length(prev, term);
+	reply.append(1, char(reuse));
+	pack_uint(reply, term.size() - reuse);
+	reply.append(term, reuse, string::npos);
+	prev = term;
+	++t;
+    }
+    send_message(REPLY_SYNONYMTERMLIST, reply);
+}
+
+void
+RemoteServer::msg_synonymkeylist(const string& message)
+{
+    Xapian::TermIterator t = db->synonym_keys_begin(message);
+    string reply, prev;
+    while (t != db->synonym_keys_end(message)) {
+	if (rare(prev.size() > 255))
+	    prev.resize(255);
+	const string& term = *t;
+	size_t reuse = common_prefix_length(prev, term);
+	reply.append(1, char(reuse));
+	pack_uint(reply, term.size() - reuse);
+	reply.append(term, reuse, string::npos);
+	prev = term;
+	++t;
+    }
+    send_message(REPLY_SYNONYMKEYLIST, reply);
+}
+
+void
+RemoteServer::msg_addsynonym(const string& message)
+{
+    if (!wdb)
+	throw_read_only();
+    const char* p = message.data();
+    const char* p_end = p + message.size();
+    // Get the term
+    string term;
+    if (!unpack_string(&p, p_end, term)) {
+	throw Xapian::NetworkError("Bad MSG_ADDSYNONYM");
+    }
+    wdb->add_synonym(term, string(p, p_end - p));
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_removesynonym(const string& message)
+{
+    if (!wdb)
+	throw_read_only();
+    const char* p = message.data();
+    const char* p_end = p + message.size();
+    // Get the term
+    string term;
+    if (!unpack_string(&p, p_end, term)) {
+	throw Xapian::NetworkError("Bad MSG_REMOVESYNONYM");
+    }
+    wdb->remove_synonym(term, string(p, p_end - p));
+    send_message(REPLY_DONE, string());
+}
+
+void
+RemoteServer::msg_clearsynonyms(const string& message)
+{
+    if (!wdb)
+	throw_read_only();
+    wdb->clear_synonyms(message);
+    send_message(REPLY_DONE, string());
 }

@@ -153,13 +153,13 @@ while (<>) {
 	$check_space_tab = 1;
 	$check_trailing = 1;
 	$doxygen_first_line = 1;
-        $check_end_new_line = 1;
-        if  ($fnm =~ m!xapian-applications/omega/testfiles!) {
+	$check_end_new_line = 1;
+	if ($fnm =~ m!xapian-applications/omega/testfiles!) {
 	    $check_space_tab = 0;
 	    $check_trailing = 0;
 	    $doxygen_first_line = 0;
 	    $check_end_new_line = 0;
-        } elsif ($ext eq 'cc') {
+	} elsif ($ext eq 'cc') {
 	    if ($fnm =~ m!\b(?:cdb|portability/mkdtemp)! ||
 		$fnm =~ m!\bcommon/getopt\.cc$! ||
 		$fnm =~ m!\bomega/md5\.cc$! ||
@@ -594,6 +594,9 @@ QUOTELOOP:  while (1) {
 	if (m!^\+.*?\b(?:enable_if|list|map|multimap|multiset|priority_queue|set|template|unordered_map|unordered_set|vector)\s+<!) {
 	    diagnostic('error', "Whitespace between template name and '<'");
 	}
+	if (/^\+.*?\bfor\s*\([^(]*([^:(]:[^:])/ && $1 ne ' : ') {
+	    diagnostic('error', "Missing spaces around ':' in 'for'");
+	}
 	if (m,^\+.*?[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
 	    my @pre = @-;
 	    my @post = @+;
@@ -773,6 +776,10 @@ QUOTELOOP:  while (1) {
 	    # Allow multiple spaces in "#  ifdef FOO".
 	    diagnostic('error', "Multiple spaces");
 	}
+	if (/^\+\s*#\s*include([<"])/) {
+	    # #include<foo.h> or #include"foo.h"
+	    diagnostic('error', "Missing space between #include and '$1'");
+	}
 	if (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
 	    diagnostic('error', "added/changed line has comment without whitespace before the text");
 	}
@@ -893,9 +900,9 @@ QUOTELOOP:  while (1) {
 	}
     }
     if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output2?)\.txt$!) {
-	if ($fullline =~ /^\+.*?(?:\b|_)(xapain|the the|initialsing|ipv5|outputing|intened|wull|extrac|if it possible|betweem)(?:\b|_)/i ||
+	if ($fullline =~ /^\+.*?(?:\b|_)(xapain|the the|initialsing|ipv5|outputing|intened|wull|extrac|if it possible|betweem|differen|auxiliar|wat(?:|ed|ing|s))(?:\b|_)/i ||
 	    # Cases which just need to be the prefix of a word
-	    $fullline =~ /^\+.*?(?:\b|_)((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit|openning|openned|appropirate|labrar|returm|interati)[a-z]*(?:\b|_))/i ||
+	    $fullline =~ /^\+.*?(?:\b|_)((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit|openning|openned|appropirate|labrar|returm|interati|termfrequenc|continous|juding|gradinet|clearling|clearled|retreiv|filedescriptor)[a-z]*(?:\b|_))/i ||
 	    # Case-sensitive cases
 	    $fullline =~ /^\+.*?\b(and and|dont|Dont)\b/) {
 	    diagnostic('error', "Typo '$1'");

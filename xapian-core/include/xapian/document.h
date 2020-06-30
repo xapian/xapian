@@ -24,7 +24,7 @@
 #define XAPIAN_INCLUDED_DOCUMENT_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/document.h> directly; include <xapian.h> instead."
+# error Never use <xapian/document.h> directly; include <xapian.h> instead.
 #endif
 
 #include <string>
@@ -132,9 +132,10 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
      *  It is exactly the same as add_term(term, 0) and is provided as a
      *  way to make a common operation more explicit.
      *
-     *  This method was added in Xapian 1.0.18.
-     *
      *  @param term		The term to add.
+     *
+     *  @since This method was added in Xapian 1.0.18.
+     *
      */
     void add_boolean_term(const std::string& term) { add_term(term, 0); }
 
@@ -204,7 +205,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     TermIterator termlist_begin() const;
 
     /// End iterator corresponding to @a termlist_begin().
-    TermIterator XAPIAN_NOTHROW(termlist_end() const) {
+    TermIterator termlist_end() const noexcept {
 	return TermIterator();
     }
 
@@ -244,7 +245,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
     ValueIterator values_begin() const;
 
     /// End iterator corresponding to @a values_begin().
-    ValueIterator XAPIAN_NOTHROW(values_end() const) {
+    ValueIterator values_end() const noexcept {
 	return ValueIterator();
     }
 

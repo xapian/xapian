@@ -1,7 +1,7 @@
 /** @file metaxmlparse.h
  * @brief subclass of HtmlParser for parsing OpenDocument's meta.xml.
  */
-/* Copyright (C) 2006,2009,2010,2011,2016 Olly Betts
+/* Copyright (C) 2006,2009,2010,2011,2016,2019 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,14 +26,14 @@
 #include <ctime>
 
 class MetaXmlParser : public HtmlParser {
-    enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR, TOPIC, CREATED } field;
+    enum { NONE, KEYWORDS, TITLE, SAMPLE, AUTHOR, TOPIC, CREATED } field = NONE;
   public:
-    MetaXmlParser() : field(NONE), created(time_t(-1)) { }
+    MetaXmlParser() { }
     void process_text(const string &text);
     bool opening_tag(const string &tag);
     bool closing_tag(const string &tag);
     string title, keywords, sample, author, topic;
-    time_t created;
+    time_t created = time_t(-1);
 };
 
 #endif // OMEGA_INCLUDED_METAXMLPARSE_H

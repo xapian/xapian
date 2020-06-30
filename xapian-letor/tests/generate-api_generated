@@ -91,7 +91,6 @@ for my $class (sort keys %uncopyableclasses) {
 }
 
 print <<'END';
-    return true;
 }
 
 /// Test that API classes have a copy ctor and assignment operator.
@@ -120,6 +119,5 @@ for my $class (sort keys %copyableclasses) {
 }
 
 print <<'END';
-    return true;
 }
 END

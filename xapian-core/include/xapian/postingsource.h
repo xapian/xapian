@@ -23,7 +23,7 @@
 #define XAPIAN_INCLUDED_POSTINGSOURCE_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/postingsource.h> directly; include <xapian.h> instead."
+# error Never use <xapian/postingsource.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -59,7 +59,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
 
   public:
     /// Allow subclasses to be instantiated.
-    XAPIAN_NOTHROW(PostingSource()) { }
+    PostingSource() noexcept { }
 
     /** @private @internal Set pointer to flag to clear on maxweight changes.
      *
@@ -130,7 +130,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
     }
 
     /// Return the currently set upper bound on what get_weight() can return.
-    double XAPIAN_NOTHROW(get_maxweight() const) { return max_weight_; }
+    double get_maxweight() const noexcept { return max_weight_; }
 
     /** Return the weight contribution for the current document.
      *
@@ -445,7 +445,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *
      *  @param slot_ The value slot to read values from.
      */
-    explicit XAPIAN_NOTHROW(ValuePostingSource(Xapian::valueno slot_))
+    explicit ValuePostingSource(Xapian::valueno slot_) noexcept
 	: slot(slot_) {}
 
     Xapian::doccount get_termfreq_min() const;
@@ -464,19 +464,19 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
 
     /** The database we're reading values from.
      *
-     *  Added in 1.2.23 and 1.3.5.
+     *  @since Added in 1.2.23 and 1.3.5.
      */
     Xapian::Database get_database() const { return db; }
 
     /** The slot we're reading values from.
      *
-     *  Added in 1.2.23 and 1.3.5.
+     *  @since Added in 1.2.23 and 1.3.5.
      */
     Xapian::valueno get_slot() const { return slot; }
 
     /** Read current value.
      *
-     *  Added in 1.2.23 and 1.3.5.
+     *  @since Added in 1.2.23 and 1.3.5.
      */
     std::string get_value() const { return *value_it; }
 
@@ -484,7 +484,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *
      *  Calls to at_end() will return true after calling this method.
      *
-     *  Added in 1.2.23 and 1.3.5.
+     *  @since Added in 1.2.23 and 1.3.5.
      */
     void done() {
 	value_it = db.valuestream_end(slot);
@@ -493,7 +493,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
 
     /** Flag indicating if we've started (true if we have).
      *
-     *  Added in 1.2.23 and 1.3.5.
+     *  @since Added in 1.2.23 and 1.3.5.
      */
     bool get_started() const { return started; }
 
@@ -502,7 +502,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  Subclasses should set this if they are overriding the next(), skip_to()
      *  or check() methods to return fewer documents.
      *
-     *  Added in 1.2.23 and 1.3.5.
+     *  @since Added in 1.2.23 and 1.3.5.
      */
     void set_termfreq_min(Xapian::doccount termfreq_min_) {
 	termfreq_min = termfreq_min_;
@@ -513,7 +513,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  Subclasses should set this if they are overriding the next(), skip_to()
      *  or check() methods.
      *
-     *  Added in 1.2.23 and 1.3.5.
+     *  @since Added in 1.2.23 and 1.3.5.
      */
     void set_termfreq_est(Xapian::doccount termfreq_est_) {
 	termfreq_est = termfreq_est_;
@@ -524,7 +524,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *  Subclasses should set this if they are overriding the next(), skip_to()
      *  or check() methods.
      *
-     *  Added in 1.2.23 and 1.3.5.
+     *  @since Added in 1.2.23 and 1.3.5.
      */
     void set_termfreq_max(Xapian::doccount termfreq_max_) {
 	termfreq_max = termfreq_max_;

@@ -1,7 +1,7 @@
 /** @file databasehelpers.cc
  * @brief Helper functions for database handling
  */
-/* Copyright 2002-2019 Olly Betts
+/* Copyright 2002-2020 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -42,6 +42,50 @@
 
 using namespace std;
 
+static int
+test_if_single_file_db_(int fd, off_t pos)
+{
+#if defined XAPIAN_HAS_GLASS_BACKEND || \
+    defined XAPIAN_HAS_HONEY_BACKEND
+    char magic_buf[14];
+    // FIXME: Don't duplicate magic check here...
+    if (io_read(fd, magic_buf, 14) == 14 &&
+	lseek(fd, pos, SEEK_SET) == pos &&
+	memcmp(magic_buf, "\x0f\x0dXapian ", 9) == 0) {
+	switch (magic_buf[9]) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	    case 'G':
+		if (memcmp(magic_buf + 10, "lass", 4) == 0) {
+		    return BACKEND_GLASS;
+		}
+		break;
+#endif
+#ifdef XAPIAN_HAS_HONEY_BACKEND
+	    case 'H':
+		if (memcmp(magic_buf + 10, "oney", 4) == 0) {
+		    return BACKEND_HONEY;
+		}
+		break;
+#endif
+	}
+	return BACKEND_UNKNOWN;
+    }
+#else
+    (void)fd;
+#endif
+    return BACKEND_UNKNOWN;
+}
+
+int
+test_if_single_file_db(int fd)
+{
+    off_t pos = lseek(fd, 0, SEEK_CUR);
+    if (pos < 0) {
+	return BACKEND_UNKNOWN;
+    }
+    return test_if_single_file_db_(fd, pos);
+}
+
 int
 test_if_single_file_db(const struct stat& sb,
 		       const string& path,
@@ -59,29 +103,13 @@ test_if_single_file_db(const struct stat& sb,
 	return BACKEND_UNKNOWN;
     int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
     if (fd != -1) {
-	char magic_buf[14];
-	// FIXME: Don't duplicate magic check here...
-	if (io_read(fd, magic_buf, 14) == 14 &&
-	    lseek(fd, 0, SEEK_SET) == 0 &&
-	    memcmp(magic_buf, "\x0f\x0dXapian ", 9) == 0) {
-	    switch (magic_buf[9]) {
-		case 'G':
-		    if (memcmp(magic_buf + 10, "lass", 4) == 0) {
-			*fd_ptr = fd;
-			return BACKEND_GLASS;
-		    }
-		    break;
-		case 'H':
-		    if (memcmp(magic_buf + 10, "oney", 4) == 0) {
-			*fd_ptr = fd;
-			return BACKEND_HONEY;
-		    }
-		    break;
-	    }
+	int result = test_if_single_file_db_(fd, off_t{0});
+	if (result != BACKEND_UNKNOWN) {
+	    *fd_ptr = fd;
+	} else {
 	    ::close(fd);
-	    return BACKEND_UNKNOWN;
 	}
-	::close(fd);
+	return result;
     }
 #else
     (void)sb;

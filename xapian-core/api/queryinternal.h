@@ -22,7 +22,6 @@
 #define XAPIAN_INCLUDED_QUERYINTERNAL_H
 
 #include "api/editdistance.h"
-#include "postlist.h"
 #include "queryvector.h"
 #include "stringutils.h"
 #include "xapian/intrusive_ptr.h"
@@ -34,6 +33,7 @@ const Xapian::termcount DEFAULT_ELITE_SET_SIZE = 10;
 namespace Xapian {
 namespace Internal {
 
+class PostList;
 class QueryOptimiser;
 
 class QueryTerm : public Query::Internal {
@@ -52,7 +52,7 @@ class QueryTerm : public Query::Internal {
 	      Xapian::termpos pos_)
 	: term(term_), wqf(wqf_), pos(pos_) { }
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
     const std::string & get_term() const { return term; }
 
@@ -62,7 +62,11 @@ class QueryTerm : public Query::Internal {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
-    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION {
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
+
+    termcount get_length() const noexcept XAPIAN_PURE_FUNCTION {
 	return wqf;
     }
 
@@ -83,7 +87,7 @@ class QueryPostingSource : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
     std::string get_description() const;
 };
@@ -98,14 +102,18 @@ class QueryScaleWeight : public Query::Internal {
 
     PostList* postlist(QueryOptimiser *qopt, double factor) const;
 
-    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION {
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
+
+    termcount get_length() const noexcept XAPIAN_PURE_FUNCTION {
 	return subquery.internal->get_length();
     }
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
-    size_t get_num_subqueries() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
+    size_t get_num_subqueries() const noexcept XAPIAN_PURE_FUNCTION;
     const Query get_subquery(size_t n) const;
 
     std::string get_description() const;
@@ -137,7 +145,7 @@ class QueryValueRange : public QueryValueBase {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
     std::string get_description() const;
 };
@@ -153,7 +161,7 @@ class QueryValueLE : public QueryValueBase {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
     std::string get_description() const;
 };
@@ -169,7 +177,7 @@ class QueryValueGE : public QueryValueBase {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
     std::string get_description() const;
 };
@@ -184,10 +192,20 @@ class QueryBranch : public Query::Internal {
 
     void serialise_(std::string & result, Xapian::termcount parameter = 0) const;
 
-    void do_bool_or_like(BoolOrContext& ctx, QueryOptimiser* qopt) const;
+    void do_bool_or_like(BoolOrContext& ctx,
+			 QueryOptimiser* qopt,
+			 size_t first = 0) const;
 
-    void do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
-		    Xapian::termcount elite_set_size = 0, size_t first = 0) const;
+    /** Process OR-like subqueries.
+     *
+     *  @param keep_zero_weight  By default zero-weight subqueries are kept,
+     *				 but in some situations (such as on the right
+     *				 side of OP_AND_MAYBE when not under
+     *				 OP_SYNONYM) they can be ignored.
+     */
+    void do_or_like(OrContext& ctx, QueryOptimiser* qopt, double factor,
+		    Xapian::termcount elite_set_size = 0, size_t first = 0,
+		    bool keep_zero_weight = true) const;
 
     PostList* do_synonym(QueryOptimiser * qopt, double factor) const;
 
@@ -197,7 +215,7 @@ class QueryBranch : public Query::Internal {
 					     Xapian::termcount window = 0) const;
 
   public:
-    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
 
     void serialise(std::string & result) const;
 
@@ -205,8 +223,8 @@ class QueryBranch : public Query::Internal {
 
     virtual void add_subquery(const Xapian::Query & subquery) = 0;
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
-    size_t get_num_subqueries() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
+    size_t get_num_subqueries() const noexcept XAPIAN_PURE_FUNCTION;
     const Query get_subquery(size_t n) const;
 
     virtual Query::Internal * done() = 0;
@@ -257,7 +275,11 @@ class QueryOr : public QueryOrLike {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
-    void postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor) const;
+    void postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt,
+			      double factor, bool keep_zero_weight) const;
+
+    void postlist_sub_bool_or_like(BoolOrContext& ctx,
+				   QueryOptimiser* qopt) const;
 
     std::string get_description() const;
 };
@@ -269,6 +291,10 @@ class QueryAndNot : public QueryBranch {
     explicit QueryAndNot(size_t n_subqueries) : QueryBranch(n_subqueries) { }
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
+
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
 
     void add_subquery(const Xapian::Query & subquery);
 
@@ -297,6 +323,10 @@ class QueryAndMaybe : public QueryBranch {
     explicit QueryAndMaybe(size_t n_subqueries) : QueryBranch(n_subqueries) { }
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
+
+    bool postlist_sub_and_like(AndContext& ctx,
+			       QueryOptimiser* qopt,
+			       double factor) const;
 
     void add_subquery(const Xapian::Query & subquery);
 
@@ -382,7 +412,8 @@ class QueryEliteSet : public QueryOrLike {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
-    void postlist_sub_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor) const;
+    void postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt,
+			      double factor, bool keep_zero_weight) const;
 
     std::string get_description() const;
 };
@@ -452,7 +483,7 @@ class QueryWildcard : public Query::Internal {
 	return startswith(candidate, prefix) && test_prefix_known(candidate);
     }
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
     std::string get_pattern() const { return pattern; }
 
@@ -468,7 +499,7 @@ class QueryWildcard : public Query::Internal {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
-    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
 
     void serialise(std::string & result) const;
 
@@ -531,7 +562,7 @@ class QueryEditDistance : public Query::Internal {
      */
     int test(const std::string& candidate) const;
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
     std::string get_pattern() const { return pattern; }
 
@@ -553,7 +584,7 @@ class QueryEditDistance : public Query::Internal {
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 
-    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
 
     void serialise(std::string & result) const;
 
@@ -583,7 +614,7 @@ class QueryInvalid : public Query::Internal {
   public:
     QueryInvalid() { }
 
-    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 
     PostList* postlist(QueryOptimiser * qopt, double factor) const;
 

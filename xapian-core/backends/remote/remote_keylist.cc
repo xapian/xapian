@@ -1,7 +1,7 @@
-/** @file remote_metadatatermlist.cc
- * @brief Iterate metadata keys in a remote database.
+/** @file remote_keylist.cc
+ * @brief Iterate keys in a remote database.
  */
-/* Copyright (C) 2007,2008,2018 Olly Betts
+/* Copyright (C) 2007,2008,2018,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "remote_metadatatermlist.h"
+#include "remote_keylist.h"
 
 #include "omassert.h"
 #include "pack.h"
@@ -28,29 +28,28 @@
 using namespace std;
 
 Xapian::termcount
-RemoteMetadataTermList::get_approx_size() const
+RemoteKeyList::get_approx_size() const
 {
-    // RemoteMetadataTermList is only used in a TermIterator wrapper and that
-    // never calls this method.
-    Assert(false);
-    return 0;
+    // Very approximate!  This is only used to build a balanced or tree, so
+    // at least we'll get an even tree by returning a constant answer.
+    return 1;
 }
 
 string
-RemoteMetadataTermList::get_termname() const
+RemoteKeyList::get_termname() const
 {
     return current_term;
 }
 
 Xapian::doccount
-RemoteMetadataTermList::get_termfreq() const
+RemoteKeyList::get_termfreq() const
 {
     // Not really meaningful.
     return 0;
 }
 
 TermList*
-RemoteMetadataTermList::next()
+RemoteKeyList::next()
 {
     if (!p) {
 	p = data.data();
@@ -68,19 +67,19 @@ RemoteMetadataTermList::next()
 }
 
 TermList*
-RemoteMetadataTermList::skip_to(const std::string& term)
+RemoteKeyList::skip_to(const std::string& term)
 {
     if (!p) {
-	RemoteMetadataTermList::next();
+	RemoteKeyList::next();
     }
-    while (!RemoteMetadataTermList::at_end() && current_term < term) {
-	RemoteMetadataTermList::next();
+    while (!RemoteKeyList::at_end() && current_term < term) {
+	RemoteKeyList::next();
     }
     return NULL;
 }
 
 bool
-RemoteMetadataTermList::at_end() const
+RemoteKeyList::at_end() const
 {
     return data.empty();
 }

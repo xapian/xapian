@@ -81,9 +81,9 @@ AndNotPostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal & st
     freqs.termfreq = stats.collection_size - freqs.termfreq;
     freqest = (freqest * freqs.termfreq) / stats.collection_size;
 
-    if (stats.total_term_count != 0) {
-	freqs.collfreq = stats.total_term_count - freqs.termfreq;
-	collfreqest = (collfreqest * freqs.collfreq) / stats.total_term_count;
+    if (stats.total_length != 0) {
+	freqs.collfreq = stats.total_length - freqs.collfreq;
+	collfreqest = (collfreqest * freqs.collfreq) / stats.total_length;
     }
 
     // If the rset is empty, relfreqest should be 0 already, so leave

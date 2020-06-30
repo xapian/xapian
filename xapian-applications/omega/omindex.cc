@@ -219,7 +219,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 		     d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
 	    }
 	}
-    } catch (FileNotFound) {
+    } catch (const FileNotFound&) {
 	if (verbose)
 	    cout << "Directory \"" << path.substr(root.size()) << "\" "
 		    "deleted during indexing" << endl;
@@ -416,7 +416,8 @@ main(int argc, char **argv)
 "BASEDIR is the directory corresponding to URL (default: DIRECTORY).\n"
 "\n"
 "Options:\n"
-"  -d, --duplicates          set duplicate handling ('ignore' or 'replace')\n"
+"  -d, --duplicates=ARG      set duplicate handling: ARG can be 'ignore' or\n"
+"                            'replace' (default: replace)\n"
 "  -p, --no-delete           skip the deletion of documents corresponding to\n"
 "                            deleted files\n"
 "  -e, --empty-docs=ARG      how to handle documents we extract no text from:\n"

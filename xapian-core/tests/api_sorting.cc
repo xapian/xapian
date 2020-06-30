@@ -1,7 +1,7 @@
 /** @file api_sorting.cc
  * @brief tests of MSet sorting
  */
-/* Copyright (C) 2007,2008,2009,2012,2017 Olly Betts
+/* Copyright (C) 2007,2008,2009,2012,2017,2019 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@
 
 using namespace std;
 
-DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
+DEFINE_TESTCASE(sortfunctor1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -113,12 +113,10 @@ DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
 	    TEST_EQUAL(m.get_sort_key(), exp);
 	}
     }
-
-    return true;
 }
 
 /// Test reverse sort functor.
-DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
+DEFINE_TESTCASE(sortfunctor2, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("foo");
@@ -187,12 +185,10 @@ DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5);
     }
-
-    return true;
 }
 
 // Test sort functor with some empty values.
-DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
+DEFINE_TESTCASE(sortfunctor3, backend && valuestats) {
     Xapian::Database db(get_database("apitest_sortrel"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("woman"));
@@ -248,8 +244,6 @@ DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
     }
-
-    return true;
 }
 
 class NeverUseMeKeyMaker : public Xapian::KeyMaker {
@@ -293,12 +287,10 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
 	FAIL_TEST("NeverUseMeKeyMaker::operator() didn't throw TestFail");
     } catch (const TestFail &) {
     }
-
-    return true;
 }
 
 /// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
-DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
+DEFINE_TESTCASE(sortfunctorempty1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -310,8 +302,6 @@ DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
 	Xapian::MSet mset = enquire.get_mset(0, 10);
 	mset_expect_order(mset, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
@@ -345,8 +335,6 @@ DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
     sorter.add_value(0, true, "hi");
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi"
 				   "\0\0\x97\x96\xff\xff", 27));
-
-    return true;
 }
 
 DEFINE_TESTCASE(sortfunctorremote1, remote) {
@@ -354,10 +342,10 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     NeverUseMeKeyMaker sorter;
     enquire.set_query(Xapian::Query("word"));
     enquire.set_sort_by_key(&sorter, true);
+    // NeverUseMeKeyMaker doesn't implemented serialise(), etc so should fail.
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	Xapian::MSet mset = enquire.get_mset(0, 10);
     );
-    return true;
 }
 
 DEFINE_TESTCASE(replace_weights1, backend) {
@@ -375,7 +363,6 @@ DEFINE_TESTCASE(replace_weights1, backend) {
     TEST_EQUAL_DOUBLE(i.get_weight(), new_weight);
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), new_weight);
     TEST_EQUAL_DOUBLE(mymset.get_max_possible(), old_max_possible);
-    return true;
 }
 
 DEFINE_TESTCASE(replace_weights2, backend) {
@@ -386,7 +373,6 @@ DEFINE_TESTCASE(replace_weights2, backend) {
     static const double weights[] = {1.0, 2.0};
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   mymset.replace_weights(begin(weights), end(weights)));
-    return true;
 }
 
 DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
@@ -409,5 +395,4 @@ DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
     // Test that setting larger weights is reflected in these methods.
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), weights[1]);
     TEST_EQUAL_DOUBLE(mymset.get_max_possible(), weights[1]);
-    return true;
 }
