@@ -467,6 +467,15 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        during serialise(), the value may get truncated by static_cast<> and
        the desired result will not be achieved. */
   public:
+    /* The WDF_NORM works like so:
+     *
+     *    NONE: None.      wdfn=wdf
+     *    BOOLEAN: Boolean    wdfn=1 if term in document else wdfn=0
+     *    SQUARE: Square     wdfn=wdf*wdf
+     *    LOG: Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *    PIVOTED: Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
+     *    LOG_AVERAGE: Log average wdfn=(1+log(wdf))/(1+log(doclen/unique_terms))
+     */
     enum class WDF_NORM: int {
 	NONE = 1,
 	BOOLEAN = 2,
@@ -476,6 +485,17 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	LOG_AVERAGE = 6
     };
 
+    /* The IDF_NORM works like so:
+     *
+     *    NONE: None    idfn=1
+     *    TFIDF: TfIdf   idfn=log(N/Termfreq) where N is the number of
+     *    documents in collection and Termfreq is the number of documents
+     *    which are indexed by the term t.
+     *    PROB: Prob    idfn=log((N-Termfreq)/Termfreq)
+     *    FREQ: Freq    idfn=1/Termfreq
+     *    SQUARE: Squared idfn=log(N/Termfreq)^2
+     *    PIVOTED: Pivoted idfn=log((N+1)/Termfreq)
+     */
     enum class IDF_NORM: int {
 	NONE = 1,
 	TFIDF = 2,
@@ -485,12 +505,19 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	PIVOTED = 6
     };
 
+    /* The WT_NORM works like so:
+     *
+     *    NONE: None wtn=tfn*idfn
+     */
     enum class WT_NORM: int {
 	NONE = 1
     };
   private:
+    /// The parameter for normalization for the wdf.
     WDF_NORM wdf_norm;
+    /// The parameter for normalization for the idf.
     IDF_NORM idf_norm;
+    /// The parameter for normalization for the document weight.
     WT_NORM wt_norm;
 
     /// The factor to multiply with the weight.
@@ -517,10 +544,6 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
   public:
     /** Construct a TfIdfWeight
-     *
-     *  @param normalizations	A three character string indicating the
-     *				normalizations to be used for the tf(wdf), idf
-     *				and document weight.  (default: "ntn")
      *
      * The @a normalizations string works like so:
      *
@@ -562,9 +585,6 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /** Construct a TfIdfWeight
      *
-     *  @param normalizations	A three character string indicating the
-     *				normalizations to be used for the tf(wdf), idf
-     *				and document weight.  (default: "ntn")
      *	@param slope		Extra parameter for "Pivoted" tf normalization.  (default: 0.2)
      *	@param delta		Extra parameter for "Pivoted" tf normalization.  (default: 1.0)
      *
@@ -605,8 +625,28 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      */
     TfIdfWeight(const std::string &normalizations, double slope, double delta);
 
+    /** Construct a TfIdfWeight
+     *
+     *	@param wdf_norm		The normalization for the wdf.
+     *	@param idf_norm		The normalization for the idf.
+     *	@param wt_norm		The normalization for the document weight.
+     *
+     * Implementing support for more normalizations of each type would require
+     * extending the backend to track more statistics.
+     */
     TfIdfWeight(WDF_NORM wdf_norm, IDF_NORM idf_norm, WT_NORM wt_norm);
 
+    /** Construct a TfIdfWeight
+     *
+     *	@param wdf_norm		The normalization for the wdf.
+     *	@param idf_norm		The normalization for the idf.
+     *	@param wt_norm		The normalization for the document weight.
+     *	@param slope		Extra parameter for "Pivoted" tf normalization.  (default: 0.2)
+     *	@param delta		Extra parameter for "Pivoted" tf normalization.  (default: 1.0)
+     *
+     * Implementing support for more normalizations of each type would require
+     * extending the backend to track more statistics.
+     */
     TfIdfWeight(WDF_NORM wdf_norm, IDF_NORM idf_norm,
 		WT_NORM wt_norm, double slope, double delta);
 
