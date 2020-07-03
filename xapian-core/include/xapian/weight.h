@@ -480,7 +480,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     /*  PIVOTED: Pivoted  wdfn=(1+log(1+log(wdf)))*
      *			       (1/(1-slope+(slope*doclen/avg_len)))+delta */
 	PIVOTED = 5,
-    /*  LOG_AVERAGE: Log average  wdfn=(1+log(wdf))/(1+log(doclen/unique_terms)) */
+    /*  LOG_AVERAGE: Log average  wdfn=(1+log(wdf))/
+     *				       (1+log(doclen/unique_terms)) */
 	LOG_AVERAGE = 6
     };
 
