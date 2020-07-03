@@ -24,9 +24,9 @@
 #include "localsubmatch.h"
 
 #include "backends/databaseinternal.h"
+#include "backends/leafpostlist.h"
 #include "debuglog.h"
 #include "extraweightpostlist.h"
-#include "api/leafpostlist.h"
 #include "omassert.h"
 #include "queryoptimiser.h"
 #include "synonympostlist.h"

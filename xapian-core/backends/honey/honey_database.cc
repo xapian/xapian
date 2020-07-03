@@ -29,8 +29,8 @@
 #include "honey_spellingwordslist.h"
 #include "honey_valuelist.h"
 
-#include "api/leafpostlist.h"
 #include "backends/backends.h"
+#include "backends/leafpostlist.h"
 #include "xapian/error.h"
 
 using namespace std;

@@ -25,7 +25,7 @@
 
 #include <string>
 
-#include "api/leafpostlist.h"
+#include "backends/leafpostlist.h"
 #include "omassert.h"
 #include "remote-database.h"
 

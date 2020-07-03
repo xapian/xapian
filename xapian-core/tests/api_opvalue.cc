@@ -66,7 +66,6 @@ DEFINE_TESTCASE(valuerange1, backend) {
 	    }
 	}
     }
-    return true;
 }
 
 // Regression test for Query::OP_VALUE_LE - used to return document IDs for
@@ -85,7 +84,6 @@ DEFINE_TESTCASE(valuerange2, writable) {
 
     TEST_EQUAL(mset.size(), 1);
     TEST_EQUAL(*(mset[0]), 5);
-    return true;
 }
 
 static void
@@ -118,8 +116,6 @@ DEFINE_TESTCASE(valuerange5, generated) {
     enq.set_query(query2);
     mset = enq.get_mset(0, 0);
     TEST_EQUAL(mset.get_matches_estimated(), 0);
-
-    return true;
 }
 
 static void
@@ -239,8 +235,6 @@ DEFINE_TESTCASE(valuerange6, generated) {
     TEST_EQUAL(mset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mset.get_matches_estimated(), 0);
     TEST_EQUAL(mset.get_matches_upper_bound(), 0);
-
-    return true;
 }
 
 static void
@@ -284,8 +278,6 @@ DEFINE_TESTCASE(valuerange7, generated) {
 	TEST_EQUAL(mset.get_matches_lower_bound(), 0);
 	TEST_EQUAL(mset.get_matches_upper_bound(), 2);
     }
-
-    return true;
 }
 
 // Feature test for Query::OP_VALUE_GE.
@@ -318,7 +310,6 @@ DEFINE_TESTCASE(valuege1, backend) {
 	    }
 	}
     }
-    return true;
 }
 
 // Regression test for Query::OP_VALUE_GE - used to segfault if check() got
@@ -331,7 +322,6 @@ DEFINE_TESTCASE(valuege2, backend) {
 			Xapian::Query(Xapian::Query::OP_VALUE_GE, 1, "aa"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 20);
-    return true;
 }
 
 // Feature test for Query::OP_VALUE_LE.
@@ -362,14 +352,12 @@ DEFINE_TESTCASE(valuele1, backend) {
 	    }
 	}
     }
-    return true;
 }
 
 // Check that Query(OP_VALUE_GE, 0, "") -> Query::MatchAll.
 DEFINE_TESTCASE(valuege3, !backend) {
     Xapian::Query query(Xapian::Query::OP_VALUE_GE, 0, "");
     TEST_STRINGS_EQUAL(query.get_description(), Xapian::Query::MatchAll.get_description());
-    return true;
 }
 
 // Test Query::OP_VALUE_GE in a query which causes its skip_to() to be used.
@@ -385,7 +373,6 @@ DEFINE_TESTCASE(valuege4, backend) {
 			Xapian::Query(Xapian::Query::OP_VALUE_GE, 1, "aa"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 20);
-    return true;
 }
 
 // Test Query::OP_VALUE_RANGE in a query which causes its check() to be used.
@@ -398,7 +385,6 @@ DEFINE_TESTCASE(valuerange3, backend) {
 				      "aa", "z"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 20);
-    return true;
 }
 
 // Test Query::OP_VALUE_RANGE in a query which causes its skip_to() to be used.
@@ -411,7 +397,6 @@ DEFINE_TESTCASE(valuerange4, backend) {
 				      "aa", "z"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 20);
-    return true;
 }
 
 /// Test improved upper bound and estimate in 1.4.3.
@@ -429,5 +414,4 @@ DEFINE_TESTCASE(valuerangematchesub1, backend) {
     // The estimate used to be db.size() / 2, now it's calculated
     // proportional to the possible range.
     TEST_REL(mset.get_matches_estimated(), <=, db.get_doccount() / 3);
-    return true;
 }

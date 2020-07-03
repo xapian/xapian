@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_WRAPPERPOSTLIST_H
 #define XAPIAN_INCLUDED_WRAPPERPOSTLIST_H
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 
 /** Base class for a PostList which wraps another PostList.
  *

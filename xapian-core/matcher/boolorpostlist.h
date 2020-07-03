@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_BOOLORPOSTLIST_H
 #define XAPIAN_INCLUDED_BOOLORPOSTLIST_H
 
-#include "api/postlist.h"
+#include "backends/postlist.h"
 
 /// PostList class implementing unweighted Query::OP_OR
 class BoolOrPostList : public PostList {

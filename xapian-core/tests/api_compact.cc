@@ -234,8 +234,6 @@ DEFINE_TESTCASE(compactnorenumber1, compact && generated && !multi) {
 	    db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER)
 	);
     }
-
-    return true;
 }
 
 // Test use of compact to merge two databases.
@@ -290,8 +288,6 @@ DEFINE_TESTCASE(compactmerge1, compact) {
 	    TEST_EQUAL(Xapian::Database::check(arg, 0, &tout), 0);
 	}
     }
-
-    return true;
 }
 
 static void
@@ -327,8 +323,6 @@ DEFINE_TESTCASE(compactmultichunks1, compact && generated) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting from a stub database directory.
@@ -356,8 +350,6 @@ DEFINE_TESTCASE(compactstub1, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting from a stub database file.
@@ -383,8 +375,6 @@ DEFINE_TESTCASE(compactstub2, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting a stub database file to itself.
@@ -408,8 +398,6 @@ DEFINE_TESTCASE(compactstub3, compact) {
 
     TEST_EQUAL(in_docs, outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting a stub database directory to itself.
@@ -435,8 +423,6 @@ DEFINE_TESTCASE(compactstub4, compact) {
 
     TEST_EQUAL(in_docs, outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 static void
@@ -485,8 +471,6 @@ DEFINE_TESTCASE(compactmissingtables1, compact && generated) {
 	// FIXME: arrange for input b to not have a termlist table.
 //	TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
     }
-
-    return true;
 }
 
 static void
@@ -547,8 +531,6 @@ DEFINE_TESTCASE(compactmergesynonym1, compact && generated) {
 	++i;
 	TEST_EQUAL(i, db.synonym_keys_end());
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(compactempty1, compact) {
@@ -578,8 +560,6 @@ DEFINE_TESTCASE(compactempty1, compact) {
 	TEST_EQUAL(outdb.get_doccount(), 0);
 	dbcheck(outdb, 0, 0);
     }
-
-    return true;
 }
 
 DEFINE_TESTCASE(compactmultipass1, compact && generated) {
@@ -606,8 +586,6 @@ DEFINE_TESTCASE(compactmultipass1, compact && generated) {
 
     Xapian::Database outdb(outdbpath);
     dbcheck(outdb, 29, 1041);
-
-    return true;
 }
 
 // Test compacting to an fd.
@@ -634,8 +612,6 @@ DEFINE_TESTCASE(compacttofd1, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Test compacting to an fd at at offset.
@@ -679,8 +655,6 @@ DEFINE_TESTCASE(compacttofd2, compact) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
-
-    return true;
 }
 
 // Regression test for bug fixed in 1.3.5.  If you compact a WritableDatabase
@@ -719,8 +693,6 @@ DEFINE_TESTCASE(compactsingle1, compact && writable) {
     TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
 
     TEST_EQUAL(Xapian::Database(output).get_doccount(), 3);
-
-    return true;
 }
 
 // Regression test for bug fixed in 1.4.6.  Same as above, except not with
@@ -754,6 +726,4 @@ DEFINE_TESTCASE(compact1, compact && writable) {
     TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
 
     TEST_EQUAL(Xapian::Database(output).get_doccount(), 3);
-
-    return true;
 }

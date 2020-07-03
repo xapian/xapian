@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "api/leafpostlist.h"
+#include "leafpostlist.h"
 
 /// A PostList iterating all docids when they form a contiguous range.
 class ContiguousAllDocsPostList : public LeafPostList {

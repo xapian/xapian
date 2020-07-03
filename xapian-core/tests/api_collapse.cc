@@ -78,8 +78,6 @@ DEFINE_TESTCASE(collapsekey5, backend) {
 	    }
 	}
     }
-
-    return true;
 }
 
 /// Test collapsing with a percentage cut-off.
@@ -105,6 +103,4 @@ DEFINE_TESTCASE(collapsekey6, backend) {
 	    }
 	}
     }
-
-    return true;
 }

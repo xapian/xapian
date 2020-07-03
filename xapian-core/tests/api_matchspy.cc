@@ -94,8 +94,6 @@ DEFINE_TESTCASE(matchspy1, backend && !remote) {
     for (; j != myspy.seen.end(); ++j, ++j2) {
 	TEST_EQUAL(*j, *j2);
     }
-
-    return true;
 }
 
 static string values_to_repr(const Xapian::ValueCountMatchSpy & spy) {
@@ -173,8 +171,6 @@ DEFINE_TESTCASE(matchspy2, generated)
     TEST_STRINGS_EQUAL(values_to_repr(spy0), results[0]);
     TEST_STRINGS_EQUAL(values_to_repr(spy1), results[1]);
     TEST_STRINGS_EQUAL(values_to_repr(spy3), results[2]);
-
-    return true;
 }
 
 DEFINE_TESTCASE(matchspy4, generated)
@@ -271,8 +267,6 @@ DEFINE_TESTCASE(matchspy4, generated)
 	    }
 	}
     }
-
-    return true;
 }
 
 // Test builtin match spies
@@ -311,8 +305,6 @@ DEFINE_TESTCASE(matchspy5, backend)
     TEST_EQUAL(i.get_termfreq(), 1);
     ++i;
     TEST(i == myspy2.values_end());
-
-    return true;
 }
 
 class MySpy : public Xapian::MatchSpy {
@@ -334,8 +326,6 @@ DEFINE_TESTCASE(matchspy6, !backend)
     TEST_EXCEPTION(Xapian::UnimplementedError,
 		   spy.merge_results(std::string()));
     TEST_EQUAL(spy.get_description(), "Xapian::MatchSpy()");
-
-    return true;
 }
 
 /// Regression test for bug fixed in 1.4.12.
@@ -348,6 +338,4 @@ DEFINE_TESTCASE(matchspy7, !backend)
     s += "xxxxxxxxx";
     // This merge_results() call used to enter an infinite loop.
     TEST_EXCEPTION(Xapian::SerialisationError, myspy.merge_results(s));
-
-    return true;
 }

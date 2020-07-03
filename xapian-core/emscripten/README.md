@@ -1,6 +1,11 @@
 Building for Emscripten
 =======================
 
+Emscripten < 1.39.10 has a bug in its `O_TRUNC` emulation which affects Xapian.
+We have a workaround in place for the use of `O_TRUNC` which is known to
+trigger this bug, but there are other uses of `O_TRUNC` in the code so using
+Emscripten >= 1.39.10 is recommended.
+
 Emscripten support has been tested with glass backend.
 
 Instructions below was tested on ubuntu 16.04, after doing a regular platform build.

@@ -211,7 +211,7 @@ const char * dummy[] = {
 "/// #endif",
 "/// @endcode",
 "///",
-"/// Added in Xapian 1.4.2.",
+"/// @since Added in Xapian 1.4.2.",
 "#define XAPIAN_AT_LEAST(A,B,C) \\",
 "    (XAPIAN_MAJOR_VERSION > (A) || \\",
 "     (XAPIAN_MAJOR_VERSION == (A) && \\",

@@ -87,14 +87,15 @@ dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
 
-check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test sdbntest urlenctest utf8converttest
-dist_check_SCRIPTS = omegatest sourcetest
+check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck
+dist_check_SCRIPTS = omegatest sourcetest omindextest
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	omegatest\
+	omindextest\
 	sdbntest$(EXEEXT)\
 	sourcetest\
 	urlenctest$(EXEEXT)\
@@ -242,6 +243,9 @@ sdbntest_LDADD = $(NO_INSTALL)
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
 jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+
+omindexcheck_SOURCES = omindexcheck.cc worker.cc worker_comms.cc common/closefrom.cc pkglibbindir.cc freemem.cc
+omindexcheck_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1 omindex-list.1

@@ -122,8 +122,8 @@ static Xapian::Query query;
 Xapian::Query::op default_op = Xapian::Query::OP_AND; // default matching mode
 
 // Maintain an explicit date_filter_set flag - date_filter.empty() will also
-// be true if a date filter is specified which simplies to Query::MatchNothing
-// at construction time.
+// be true if a date filter is specified which simplifies to
+// Query::MatchNothing at construction time.
 static bool date_filter_set = false;
 static Xapian::Query date_filter;
 
@@ -1174,7 +1174,7 @@ T(score,	   0, 0, N, 0), // score (0-10) of current hit
 T(set,		   2, 2, N, 0), // set option value
 T(seterror,	   1, 1, N, 0), // set error_msg, setting it early stops query execution
 T(setmap,	   1, N, N, 0), // set map of option values
-T(setrelevant,	   0, 1, N, Q), // set rset
+T(setrelevant,	   1, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 6, N, M), // generate snippet from text
 T(sort,		   1, 2, N, 0), // alpha sort a list
@@ -2568,7 +2568,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_truncate: {
 		unsigned int length;
 		if (!parse_unsigned(args[1].c_str(), length)) {
-		    throw "Length for truncate command must be >= 0 ";
+		    throw "Length for truncate command must be >= 0";
 		}
 		value = generate_sample(args[0],
 					length,
@@ -2769,12 +2769,6 @@ void
 parse_omegascript()
 {
     try {
-	const char * p = getenv("SERVER_PROTOCOL");
-	if (p && strcmp(p, "INCLUDED") == 0) {
-	    // We're being included in another page, so suppress headers.
-	    suppress_http_headers = true;
-	}
-
 	string output = eval_file(fmtname);
 	if (!set_content_type && !suppress_http_headers) {
 	    cout << "Content-Type: text/html" << endl;

@@ -109,7 +109,7 @@ typedef XAPIAN_REVISION_TYPE rev;
 
 /** The total length of all documents in a database.
  *
- *  Added in Xapian 1.4.5.
+ *  @since Added in Xapian 1.4.5.
  */
 typedef XAPIAN_TOTALLENGTH_TYPE totallength;
 
