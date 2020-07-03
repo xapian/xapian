@@ -467,51 +467,44 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        during serialise(), the value may get truncated by static_cast<> and
        the desired result will not be achieved. */
   public:
-    /* The WDF_NORM works like so:
-     *
-     *    NONE: None.		wdfn=wdf
-     *    BOOLEAN: Boolean	wdfn=1 if term in document else wdfn=0
-     *    SQUARE: Square	wdfn=wdf*wdf
-     *    LOG: Logarithmic	wdfn=1+log<sub>e</sub>(wdf)
-     *    PIVOTED: Pivoted	wdfn=(1+log(1+log(wdf)))*
-     *				(1/(1-slope+(slope*doclen/avg_len)))+delta
-     *    LOG_AVERAGE: Log average wdfn=(1+log(wdf))/
-     *				   (1+log(doclen/unique_terms))
-     */
+    /** Wdf normalizations. */
     enum class WDF_NORM: int {
+    /*  NONE: None.  wdfn=wdf */
 	NONE = 1,
+    /*  BOOLEAN: Boolean  wdfn=1 if term in document else wdfn=0 */
 	BOOLEAN = 2,
+    /*  SQUARE: Square  wdfn=wdf*wdf */
 	SQUARE = 3,
+    /*  LOG: Logarithmic  wdfn=1+log<sub>e</sub>(wdf) */
 	LOG = 4,
+    /*  PIVOTED: Pivoted  wdfn=(1+log(1+log(wdf)))*
+     *			       (1/(1-slope+(slope*doclen/avg_len)))+delta */
 	PIVOTED = 5,
+    /*  LOG_AVERAGE: Log average  wdfn=(1+log(wdf))/(1+log(doclen/unique_terms)) */
 	LOG_AVERAGE = 6
     };
 
-    /* The IDF_NORM works like so:
-     *
-     *    NONE: None		idfn=1
-     *    TFIDF: TfIdf		idfn=log(N/Termfreq) where N is the number of
-     *    documents in collection and Termfreq is the number of documents
-     *    which are indexed by the term t.
-     *    PROB: Prob		idfn=log((N-Termfreq)/Termfreq)
-     *    FREQ: Freq		idfn=1/Termfreq
-     *    SQUARE: Squared	idfn=log(N/Termfreq)^2
-     *    PIVOTED: Pivoted	idfn=log((N+1)/Termfreq)
-     */
+    /** Idf normalizations. */
     enum class IDF_NORM: int {
+    /*  NONE: None  idfn=1 */
 	NONE = 1,
+    /*  TFIDF: TfIdf  idfn=log(N/Termfreq) where N is the number of documents
+     *  in collection and Termfreq is the number of documents which are
+     *  indexed by the term t. */
 	TFIDF = 2,
+    /*  SQUARE: Squared	 idfn=log(N/Termfreq)^2 */
 	SQUARE = 3,
+    /*  FREQ: Freq  idfn=1/Termfreq */
 	FREQ = 4,
+    /*  PROB: Prob  idfn=log((N-Termfreq)/Termfreq) */
 	PROB = 5,
+    /*  PIVOTED: Pivoted  idfn=log((N+1)/Termfreq) */
 	PIVOTED = 6
     };
 
-    /* The WT_NORM works like so:
-     *
-     *    NONE: None	wtn=tfn*idfn
-     */
+    /** Weight normalizations. */
     enum class WT_NORM: int {
+    /*  NONE: None  wtn=tfn*idfn */
 	NONE = 1
     };
   private:
@@ -546,6 +539,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
   public:
     /** Construct a TfIdfWeight
+     *
+     *  @param normalizations	A three character string indicating the
+     *				normalizations to be used for the tf(wdf), idf
+     *				and document weight.  (default: "ntn")
      *
      * The @a normalizations string works like so:
      *
@@ -587,6 +584,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /** Construct a TfIdfWeight
      *
+     *  @param normalizations	A three character string indicating the
+     *				normalizations to be used for the tf(wdf), idf
+     *				and document weight.  (default: "ntn")
      *	@param slope		Extra parameter for "Pivoted" tf normalization.  (default: 0.2)
      *	@param delta		Extra parameter for "Pivoted" tf normalization.  (default: 1.0)
      *
