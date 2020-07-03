@@ -463,12 +463,8 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
 
 /// Xapian::Weight subclass implementing the tf-idf weighting scheme.
 class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
-    /* Three character string indicating the normalizations for tf(wdf), idf and
-       tfidf weight. */
-    std::string normalizations;
-
-    /* These three enum class should use integers only upto 256 . Otherwise
-       during serialise(), the value may get truncated by static_cast() and
+    /* These three enum classes should use integers only up to 255. Otherwise
+       during serialise(), the value may get truncated by static_cast<> and
        the desired result will not be achieved. */
   public:
     enum class WDF_NORM: int {
@@ -616,9 +612,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /** Construct a TfIdfWeight using the default normalizations ("ntn"). */
     TfIdfWeight()
-	: normalizations("ntn"), wdf_norm(WDF_NORM::NONE),
-	  idf_norm(IDF_NORM::TFIDF), wt_norm(WT_NORM::NONE),
-	  param_slope(0.2), param_delta(1.0)
+	: wdf_norm(WDF_NORM::NONE), idf_norm(IDF_NORM::TFIDF),
+	  wt_norm(WT_NORM::NONE), param_slope(0.2), param_delta(1.0)
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);

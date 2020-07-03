@@ -40,36 +40,36 @@ TfIdfWeight::TfIdfWeight(const std::string& normals)
     : TfIdfWeight::TfIdfWeight(normals, 0.2, 1.0) {}
 
 TfIdfWeight::TfIdfWeight(const std::string& normals, double slope, double delta)
-    : normalizations(normals), param_slope(slope), param_delta(delta)
+    : param_slope(slope), param_delta(delta)
 {
-    if (normalizations.length() != 3 ||
-	!strchr("nbslPL", normalizations[0]) ||
-	!strchr("ntpfsP", normalizations[1]) ||
-	!strchr("n", normalizations[2]))
+    if (normals.length() != 3 ||
+	!strchr("nbslPL", normals[0]) ||
+	!strchr("ntpfsP", normals[1]) ||
+	!strchr("n", normals[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (param_slope <= 0)
 	throw Xapian::InvalidArgumentError("Parameter slope is invalid");
     if (param_delta <= 0)
 	throw Xapian::InvalidArgumentError("Parameter delta is invalid");
-    if (normalizations[1] != 'n') {
+    if (normals[1] != 'n') {
 	need_stat(TERMFREQ);
 	need_stat(COLLECTION_SIZE);
     }
     need_stat(WDF);
     need_stat(WDF_MAX);
     need_stat(WQF);
-    if (normalizations[0] == 'P' || normalizations[1] == 'P') {
+    if (normals[0] == 'P' || normals[1] == 'P') {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
     }
-    if (normalizations[0] == 'L') {
+    if (normals[0] == 'L') {
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(UNIQUE_TERMS);
     }
-    switch (normalizations[0]) {
+    switch (normals[0]) {
 	case 'b':
 	    wdf_norm = WDF_NORM::BOOLEAN;
 	    break;
@@ -88,7 +88,7 @@ TfIdfWeight::TfIdfWeight(const std::string& normals, double slope, double delta)
 	default:
 	    wdf_norm = WDF_NORM::NONE;
     }
-    switch (normalizations[1]) {
+    switch (normals[1]) {
 	case 'n':
 	    idf_norm = IDF_NORM::NONE;
 	    break;
