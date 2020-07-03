@@ -469,12 +469,14 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
   public:
     /* The WDF_NORM works like so:
      *
-     *    NONE: None.      wdfn=wdf
-     *    BOOLEAN: Boolean    wdfn=1 if term in document else wdfn=0
-     *    SQUARE: Square     wdfn=wdf*wdf
-     *    LOG: Logarithmic wdfn=1+log<sub>e</sub>(wdf)
-     *    PIVOTED: Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
-     *    LOG_AVERAGE: Log average wdfn=(1+log(wdf))/(1+log(doclen/unique_terms))
+     *    NONE: None.		wdfn=wdf
+     *    BOOLEAN: Boolean	wdfn=1 if term in document else wdfn=0
+     *    SQUARE: Square	wdfn=wdf*wdf
+     *    LOG: Logarithmic	wdfn=1+log<sub>e</sub>(wdf)
+     *    PIVOTED: Pivoted	wdfn=(1+log(1+log(wdf)))*
+     *				(1/(1-slope+(slope*doclen/avg_len)))+delta
+     *    LOG_AVERAGE: Log average wdfn=(1+log(wdf))/
+     *				   (1+log(doclen/unique_terms))
      */
     enum class WDF_NORM: int {
 	NONE = 1,
@@ -487,14 +489,14 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /* The IDF_NORM works like so:
      *
-     *    NONE: None    idfn=1
-     *    TFIDF: TfIdf   idfn=log(N/Termfreq) where N is the number of
+     *    NONE: None		idfn=1
+     *    TFIDF: TfIdf		idfn=log(N/Termfreq) where N is the number of
      *    documents in collection and Termfreq is the number of documents
      *    which are indexed by the term t.
-     *    PROB: Prob    idfn=log((N-Termfreq)/Termfreq)
-     *    FREQ: Freq    idfn=1/Termfreq
-     *    SQUARE: Squared idfn=log(N/Termfreq)^2
-     *    PIVOTED: Pivoted idfn=log((N+1)/Termfreq)
+     *    PROB: Prob		idfn=log((N-Termfreq)/Termfreq)
+     *    FREQ: Freq		idfn=1/Termfreq
+     *    SQUARE: Squared	idfn=log(N/Termfreq)^2
+     *    PIVOTED: Pivoted	idfn=log((N+1)/Termfreq)
      */
     enum class IDF_NORM: int {
 	NONE = 1,
@@ -507,7 +509,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /* The WT_NORM works like so:
      *
-     *    NONE: None wtn=tfn*idfn
+     *    NONE: None	wtn=tfn*idfn
      */
     enum class WT_NORM: int {
 	NONE = 1
@@ -641,8 +643,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *	@param wdf_norm		The normalization for the wdf.
      *	@param idf_norm		The normalization for the idf.
      *	@param wt_norm		The normalization for the document weight.
-     *	@param slope		Extra parameter for "Pivoted" tf normalization.  (default: 0.2)
-     *	@param delta		Extra parameter for "Pivoted" tf normalization.  (default: 1.0)
+     *	@param slope		Extra parameter for "Pivoted" tf normalization.
+     *				(default: 0.2)
+     *	@param delta		Extra parameter for "Pivoted" tf normalization.
+     *				(default: 1.0)
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
