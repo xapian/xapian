@@ -135,8 +135,6 @@ index_test()
     // blank file
     tests.insert({"odf/blank.odt", {}});
     // corrupted file (ODP)
-    // "no text extracted from document body, but indexing metadata anyway"
-    // error on searching for any term - term not found
     // tests.insert({"corrupt_file.odp", {"ZSnatur"}});
 
     // ODF
