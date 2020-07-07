@@ -59,7 +59,7 @@ extract(const string& filename,
 	string s, s_content, s_styles;
 	struct archive_entry* entry;
 
-	// extracting data from content.xml and styles.xml
+	// extracting data from content.xml, styles.xml and meta.xml
 	while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
 	    string pathname = archive_entry_pathname(entry);
 	    if (pathname == "content.xml") {
