@@ -246,6 +246,20 @@ index_add_default_libraries()
 		  omindex_libarchive);
     index_library("application/vnd.sun.xml.writer.template",
 		  omindex_libarchive);
+    index_library("application/vnd.openxmlformats-officedocument."
+		  "wordprocessingml.document", omindex_libarchive);
+    index_library("application/vnd.openxmlformats-officedocument."
+		  "wordprocessingml.template", omindex_libarchive);
+    index_library("application/vnd.openxmlformats-officedocument."
+		  "spreadsheetml.sheet", omindex_libarchive);
+    index_library("application/vnd.openxmlformats-officedocument."
+		  "spreadsheetml.template", omindex_libarchive);
+    index_library("application/vnd.openxmlformats-officedocument."
+		  "presentationml.presentation", omindex_libarchive);
+    index_library("application/vnd.openxmlformats-officedocument."
+		  "presentationml.slideshow", omindex_libarchive);
+    index_library("application/vnd.openxmlformats-officedocument."
+		  "presentationml.template", omindex_libarchive);
 #endif
 }
 
