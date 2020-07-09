@@ -23,12 +23,11 @@
 
 #include "metaxmlparse.h"
 #include "opendocparse.h"
-#include "str.h"
 
 #include <archive.h>
 #include <archive_entry.h>
 
-#include <cstring>
+#define DEFAULT_BLOCK_SIZE 10240
 
 using namespace std;
 
@@ -44,10 +43,12 @@ extract(const string& filename,
     try {
 	const char* file = filename.c_str();
 	struct archive* archive_obj = archive_read_new();
-	archive_read_support_filter_all(archive_obj);
-	archive_read_support_format_all(archive_obj);
-	int status_code = archive_read_open_filename(archive_obj,
-						    file, 10240);
+	archive_read_support_format_zip(archive_obj);
+	// Block size will be determined by libarchive automatically for
+	// regular files. Specified block size will only be used for tape drives
+	// 10240 is chosen as default size (20 records - 512 bytes each)
+	int status_code = archive_read_open_filename(archive_obj, file,
+						     DEFAULT_BLOCK_SIZE);
 
 	if (status_code != ARCHIVE_OK) {
 	    error = "Libarchive failed to open the file " + filename;
@@ -105,7 +106,7 @@ extract(const string& filename,
 	}
 	status_code = archive_read_free(archive_obj);
 	if (status_code != ARCHIVE_OK) {
-	    error += archive_error_string(archive_obj);
+	    error = archive_error_string(archive_obj);
 	    return false;
 	}
 	s = s_content + s_styles;
