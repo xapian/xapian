@@ -468,44 +468,93 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        the desired result will not be achieved. */
   public:
     /** Wdf normalizations. */
-    enum class WDF_NORM: int {
-    /*  NONE: None.  wdfn=wdf */
+    enum class WDF_NORM : int {
+	/** None
+	 *
+	 *  wdfn=wdf
+	 */
 	NONE = 1,
-    /*  BOOLEAN: Boolean  wdfn=1 if term in document else wdfn=0 */
+
+	/** Boolean
+	 *
+	 *  wdfn=1 if term in document else wdfn=0
+	 */
 	BOOLEAN = 2,
-    /*  SQUARE: Square  wdfn=wdf*wdf */
+
+	/** Square
+	 *
+	 *  wdfn=wdf*wdf
+	 */
 	SQUARE = 3,
-    /*  LOG: Logarithmic  wdfn=1+log<sub>e</sub>(wdf) */
+
+	/** Logarithmic
+	 *
+	 *  wdfn=1+log<sub>e</sub>(wdf)
+	 */
 	LOG = 4,
-    /*  PIVOTED: Pivoted  wdfn=(1+log(1+log(wdf)))*
-     *			       (1/(1-slope+(slope*doclen/avg_len)))+delta */
+
+	/** Pivoted
+	 *
+	 *  wdfn=(1+log(1+log(wdf)))*
+	 *	 (1/(1-slope+(slope*doclen/avg_len)))+delta
+	 */
 	PIVOTED = 5,
-    /*  LOG_AVERAGE: Log average  wdfn=(1+log(wdf))/
-     *				       (1+log(doclen/unique_terms)) */
+
+	/** Log average
+	 *
+	 *  wdfn=(1+log(wdf))/
+	 *	 (1+log(doclen/unique_terms))
+	 */
 	LOG_AVERAGE = 6
     };
 
     /** Idf normalizations. */
-    enum class IDF_NORM: int {
-    /*  NONE: None  idfn=1 */
+    enum class IDF_NORM : int {
+	/** None
+	 *
+	 *  idfn=1
+	 */
 	NONE = 1,
-    /*  TFIDF: TfIdf  idfn=log(N/Termfreq) where N is the number of documents
-     *  in collection and Termfreq is the number of documents which are
-     *  indexed by the term t. */
+
+	/** TfIdf
+	 *
+	 *  idfn=log(N/Termfreq) where N is the number of documents
+	 *  in collection and Termfreq is the number of documents which are
+	 *  indexed by the term t.
+	 */
 	TFIDF = 2,
-    /*  SQUARE: Squared	 idfn=log(N/Termfreq)^2 */
+
+	/** Square
+	 *
+	 *  idfn=log(N/Termfreq)^2
+	 */
 	SQUARE = 3,
-    /*  FREQ: Freq  idfn=1/Termfreq */
+
+	/** Frequency
+	 *
+	 *  idfn=1/Termfreq
+	 */
 	FREQ = 4,
-    /*  PROB: Prob  idfn=log((N-Termfreq)/Termfreq) */
+
+	/** Probability
+	 *
+	 *  idfn=log((N-Termfreq)/Termfreq)
+	 */
 	PROB = 5,
-    /*  PIVOTED: Pivoted  idfn=log((N+1)/Termfreq) */
+
+	/** Pivoted
+	 *
+	 *  idfn=log((N+1)/Termfreq)
+	 */
 	PIVOTED = 6
     };
 
     /** Weight normalizations. */
-    enum class WT_NORM: int {
-    /*  NONE: None  wtn=tfn*idfn */
+    enum class WT_NORM : int {
+	/** None
+	 *
+	 *  wtn=tfn*idfn
+	 */
 	NONE = 1
     };
   private:
