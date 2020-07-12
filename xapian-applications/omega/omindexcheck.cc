@@ -168,6 +168,14 @@ index_test()
 		  "Zhello", "Zopenoffic", "Zimpress"}});
     tests.insert({"sof/libarchive_openoffice_presentation_template.sti",
 		 {"ZSproject", "ZSresearch", "Zhead", "Ztext"}});
+
+    // OpenXML formats
+    tests.insert({"ooxml/book.xlsx",
+		  {"Zmodi", "Zgood", "Zemploye"}});
+    tests.insert({"ooxml/doc.docx",
+		  {"Zедой", "Z喬伊不分享食物", "ZSbakeri"}});
+    tests.insert({"ooxml/nature.pptx",
+		  {"ZSnatur", "Zbeauti", "Zsampl"}});
 #endif
 }
 
