@@ -468,7 +468,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        the desired result will not be achieved. */
   public:
     /** Wdf normalizations. */
-    enum class WDF_NORM : int {
+    enum class wdfn_type : int {
 	/** None
 	 *
 	 *  wdfn=wdf
@@ -509,7 +509,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     };
 
     /** Idf normalizations. */
-    enum class IDF_NORM : int {
+    enum class idfn_type : int {
 	/** None
 	 *
 	 *  idfn=1
@@ -550,7 +550,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     };
 
     /** Weight normalizations. */
-    enum class WT_NORM : int {
+    enum class wtn_type : int {
 	/** None
 	 *
 	 *  wtn=tfn*idfn
@@ -559,11 +559,11 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     };
   private:
     /// The parameter for normalization for the wdf.
-    WDF_NORM wdf_norm;
+    wdfn_type wdf_norm;
     /// The parameter for normalization for the idf.
-    IDF_NORM idf_norm;
+    idfn_type idf_norm;
     /// The parameter for normalization for the document weight.
-    WT_NORM wt_norm;
+    wtn_type wt_norm;
 
     /// The factor to multiply with the weight.
     double wqf_factor;
@@ -583,9 +583,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     double get_wdfn(Xapian::termcount wdf,
 		    Xapian::termcount len,
 		    Xapian::termcount uniqterms,
-		    WDF_NORM wdf_norm_) const;
-    double get_idfn(IDF_NORM idf_norm_) const;
-    double get_wtn(double wt, WT_NORM wt_norm_) const;
+		    wdfn_type wdf_norm_) const;
+    double get_idfn(idfn_type idf_norm_) const;
+    double get_wtn(double wt, wtn_type wt_norm_) const;
 
   public:
     /** Construct a TfIdfWeight
@@ -686,7 +686,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
      */
-    TfIdfWeight(WDF_NORM wdf_norm, IDF_NORM idf_norm, WT_NORM wt_norm);
+    TfIdfWeight(wdfn_type wdf_norm, idfn_type idf_norm, wtn_type wt_norm);
 
     /** Construct a TfIdfWeight
      *
@@ -701,13 +701,13 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
      */
-    TfIdfWeight(WDF_NORM wdf_norm, IDF_NORM idf_norm,
-		WT_NORM wt_norm, double slope, double delta);
+    TfIdfWeight(wdfn_type wdf_norm, idfn_type idf_norm,
+		wtn_type wt_norm, double slope, double delta);
 
     /** Construct a TfIdfWeight using the default normalizations ("ntn"). */
     TfIdfWeight()
-	: wdf_norm(WDF_NORM::NONE), idf_norm(IDF_NORM::TFIDF),
-	  wt_norm(WT_NORM::NONE), param_slope(0.2), param_delta(1.0)
+	: wdf_norm(wdfn_type::NONE), idf_norm(idfn_type::TFIDF),
+	  wt_norm(wtn_type::NONE), param_slope(0.2), param_delta(1.0)
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);
