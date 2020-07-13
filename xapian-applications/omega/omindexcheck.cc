@@ -143,7 +143,7 @@ index_test()
 		  {"Zедой", "Z喬伊不分享食物"}});
     tests.insert({"odf/libarchive_text.odt",
 		  {"Stesttitle", "Atestauthor", "Zsampl", "Zhead", "Ztext",
- 		   "Zhello", "Zworld"}});
+		   "Zhello", "Zworld"}});
     tests.insert({"odf/libarchive_text_template.ott",
 		  {"Zjane", "Zdoe", "Zstructur"}});
     tests.insert({"odf/libarchive_presentation.odp",
