@@ -24,6 +24,8 @@
 #include "metaxmlparse.h"
 #include "msxmlparse.h"
 #include "opendocparse.h"
+#include "stringutils.h"
+#include "xlsxparse.h"
 
 #include <archive.h>
 #include <archive_entry.h>
