@@ -89,6 +89,7 @@ build_termlist_tree(const Xapian::Database &db, const RSet & rset)
 	    // throws.
 	    termlists.push_back(0);
 	    termlists.back() = db.internal[dbnumber]->open_term_list(realdid);
+	    termlists.back()->shard_index = dbnumber;
 	}
 
 	Assert(!termlists.empty());

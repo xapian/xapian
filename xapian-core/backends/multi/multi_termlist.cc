@@ -48,9 +48,6 @@ MultiTermList::get_approx_size() const
 void
 MultiTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    // For a multidb, every termlist access during expand will be through
-    // a MultiTermList, so it's safe to just set db_index like this.
-    stats.db_index = db_index;
     tl->accumulate_stats(stats);
 }
 

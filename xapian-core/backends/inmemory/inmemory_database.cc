@@ -237,7 +237,8 @@ InMemoryTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     Assert(started);
     Assert(!at_end());
-    stats.accumulate(InMemoryTermList::get_wdf(), document_length,
+    stats.accumulate(shard_index,
+		     InMemoryTermList::get_wdf(), document_length,
 		     InMemoryTermList::get_termfreq(),
 		     db->get_doccount());
 }

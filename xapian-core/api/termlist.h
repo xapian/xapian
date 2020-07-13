@@ -1,7 +1,7 @@
 /** @file termlist.h
  * @brief Abstract base class for termlists.
  */
-/* Copyright (C) 2007,2010,2013 Olly Betts
+/* Copyright (C) 2007,2010,2013,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -106,6 +106,12 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
 
     /// Return a PositionIterator for the current position.
     virtual Xapian::PositionIterator positionlist_begin() const = 0;
+
+    /** Which shard of a multidatabase this is from.
+     *
+     *  Used by Enquire::get_eset().
+     */
+    size_t shard_index = 0;
 };
 
 // In the external API headers, this class is Xapian::TermIterator::Internal,

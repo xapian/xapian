@@ -55,7 +55,8 @@ NetworkTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
     Assert(started);
     Assert(!at_end());
 
-    stats.accumulate(current_position->wdf,
+    stats.accumulate(shard_index,
+		     current_position->wdf,
 		     document_length,
 		     current_position->termfreq,
 		     database_size);

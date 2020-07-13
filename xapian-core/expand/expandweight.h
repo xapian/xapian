@@ -60,23 +60,21 @@ class ExpandStats {
     /// The multiplier to be used in TradWeight query expansion.
     double multiplier;
 
-    /// Keeps track of the index of the sub-database we're accumulating for.
-    size_t db_index;
-
     /// Constructor for expansion schemes which do not require the "expand_k"
     /// parameter.
     explicit ExpandStats(Xapian::doclength avlen_)
 	: avlen(avlen_), expand_k(0), dbsize(0), termfreq(0),
-	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
+	  rcollection_freq(0), rtermfreq(0), multiplier(0) {
     }
 
     /// Constructor for expansion schemes which require the "expand_k" parameter.
     ExpandStats(Xapian::doclength avlen_, double expand_k_)
 	: avlen(avlen_), expand_k(expand_k_), dbsize(0), termfreq(0),
-	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
+	  rcollection_freq(0), rtermfreq(0), multiplier(0) {
     }
 
-    void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
+    void accumulate(size_t shard_index,
+		    Xapian::termcount wdf, Xapian::termcount doclen,
 		    Xapian::doccount subtf, Xapian::doccount subdbsize)
     {
 	// Boolean terms may have wdf == 0, but treat that as 1 so such terms
@@ -89,9 +87,11 @@ class ExpandStats {
 
 	// If we've not seen this sub-database before, then update dbsize and
 	// termfreq and note that we have seen it.
-	if (db_index >= dbs_seen.size() || !dbs_seen[db_index]) {
-	    if (db_index >= dbs_seen.size()) dbs_seen.resize(db_index + 1);
-	    dbs_seen[db_index] = true;
+	if (shard_index >= dbs_seen.size() || !dbs_seen[shard_index]) {
+	    if (shard_index >= dbs_seen.size()) {
+		dbs_seen.resize(shard_index + 1);
+	    }
+	    dbs_seen[shard_index] = true;
 	    dbsize += subdbsize;
 	    termfreq += subtf;
 	}
@@ -107,7 +107,6 @@ class ExpandStats {
 	rcollection_freq = 0;
 	rtermfreq = 0;
 	multiplier = 0;
-	db_index = 0;
     }
 };
 
