@@ -744,7 +744,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    // Just use the worker process to extract the content
 	    Worker* wrk = wrk_it->second;
 	    if (!wrk ||
-		!wrk->extract(file, dump, title, keywords, author, pages)) {
+		!wrk->extract(file, mimetype, dump, title, keywords, author,
+			      pages)) {
 		string msg = wrk->get_error();
 		assert(!msg.empty());
 		skip(urlterm, context, msg, d.get_size(), d.get_mtime());
