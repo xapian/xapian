@@ -33,6 +33,7 @@ using namespace std;
 
 bool
 extract(const string& filename,
+	const string& mimetype,
 	string& dump,
 	string& title,
 	string& keywords,

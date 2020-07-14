@@ -43,6 +43,7 @@ clear_text(string& dump, const char* text)
 
 bool
 extract(const string& filename,
+	const string& mimetype,
 	string& dump,
 	string& title,
 	string& keywords,
