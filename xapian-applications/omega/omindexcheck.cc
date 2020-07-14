@@ -131,6 +131,7 @@ index_test()
     tests.insert({"sof/libarchive_openoffice_presentation_template.sti",
 		  {"ZSproject", "ZSresearch", "Zhead", "Ztext"}});
 #endif
+}
 
 static bool
 compare_test(testcase& test, const Xapian::Document& doc, const string& file)
