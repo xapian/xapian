@@ -71,72 +71,75 @@ TfIdfWeight::TfIdfWeight(const std::string& normals, double slope, double delta)
     }
     switch (normals[0]) {
 	case 'b':
-	    wdf_norm = wdfn_type::BOOLEAN;
+	    wdf_norm_ = wdf_norm::BOOLEAN;
 	    break;
 	case 's':
-	    wdf_norm = wdfn_type::SQUARE;
+	    wdf_norm_ = wdf_norm::SQUARE;
 	    break;
 	case 'l':
-	    wdf_norm = wdfn_type::LOG;
+	    wdf_norm_ = wdf_norm::LOG;
 	    break;
 	case 'P':
-	    wdf_norm = wdfn_type::PIVOTED;
+	    wdf_norm_ = wdf_norm::PIVOTED;
 	    break;
 	case 'L':
-	    wdf_norm = wdfn_type::LOG_AVERAGE;
+	    wdf_norm_ = wdf_norm::LOG_AVERAGE;
 	    break;
 	default:
-	    wdf_norm = wdfn_type::NONE;
+	    wdf_norm_ = wdf_norm::NONE;
     }
     switch (normals[1]) {
 	case 'n':
-	    idf_norm = idfn_type::NONE;
+	    idf_norm_ = idf_norm::NONE;
 	    break;
 	case 's':
-	    idf_norm = idfn_type::SQUARE;
+	    idf_norm_ = idf_norm::SQUARE;
 	    break;
 	case 'f':
-	    idf_norm = idfn_type::FREQ;
+	    idf_norm_ = idf_norm::FREQ;
 	    break;
 	case 'P':
-	    idf_norm = idfn_type::PIVOTED;
+	    idf_norm_ = idf_norm::PIVOTED;
 	    break;
 	case 'p':
-	    idf_norm = idfn_type::PROB;
+	    idf_norm_ = idf_norm::PROB;
 	    break;
 	default:
-	    idf_norm = idfn_type::TFIDF;
+	    idf_norm_ = idf_norm::TFIDF;
     }
-    wt_norm = wtn_type::NONE;
+    wt_norm_ = wt_norm::NONE;
 }
 
-TfIdfWeight::TfIdfWeight(wdfn_type wdf_norm_,
-			 idfn_type idf_norm_,
-			 wtn_type wt_norm_)
-    : TfIdfWeight::TfIdfWeight(wdf_norm_, idf_norm_, wt_norm_, 0.2, 1.0) {}
+TfIdfWeight::TfIdfWeight(wdf_norm wdf_normalization,
+			 idf_norm idf_normalization,
+			 wt_norm wt_normalization)
+    : TfIdfWeight::TfIdfWeight(wdf_normalization, idf_normalization,
+			       wt_normalization, 0.2, 1.0) {}
 
-TfIdfWeight::TfIdfWeight(wdfn_type wdf_norm_, idfn_type idf_norm_,
-			 wtn_type wt_norm_, double slope, double delta)
-    : wdf_norm(wdf_norm_), idf_norm(idf_norm_), wt_norm(wt_norm_),
-      param_slope(slope), param_delta(delta)
+TfIdfWeight::TfIdfWeight(wdf_norm wdf_normalization,
+			 idf_norm idf_normalization,
+			 wt_norm wt_normalization,
+			 double slope, double delta)
+    : wdf_norm_(wdf_normalization), idf_norm_(idf_normalization),
+      wt_norm_(wt_normalization), param_slope(slope), param_delta(delta)
 {
     if (param_slope <= 0)
 	throw Xapian::InvalidArgumentError("Parameter slope is invalid");
     if (param_delta <= 0)
 	throw Xapian::InvalidArgumentError("Parameter delta is invalid");
-    if (idf_norm != idfn_type::NONE) {
+    if (idf_norm_ != idf_norm::NONE) {
 	need_stat(TERMFREQ);
 	need_stat(COLLECTION_SIZE);
     }
     need_stat(WDF);
     need_stat(WDF_MAX);
     need_stat(WQF);
-    if (wdf_norm == wdfn_type::PIVOTED || idf_norm == idfn_type::PIVOTED) {
+    if (wdf_norm_ == wdf_norm::PIVOTED || idf_norm_ == idf_norm::PIVOTED) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
     }
-    if (wdf_norm == wdfn_type::LOG_AVERAGE) {
+    if (wdf_norm_ == wdf_norm::LOG_AVERAGE) {
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
@@ -147,7 +150,7 @@ TfIdfWeight::TfIdfWeight(wdfn_type wdf_norm_, idfn_type idf_norm_,
 TfIdfWeight *
 TfIdfWeight::clone() const
 {
-    return new TfIdfWeight(wdf_norm, idf_norm, wt_norm,
+    return new TfIdfWeight(wdf_norm_, idf_norm_, wt_norm_,
 			   param_slope, param_delta);
 }
 
@@ -161,7 +164,7 @@ TfIdfWeight::init(double factor_)
     }
 
     wqf_factor = get_wqf() * factor_;
-    idfn = get_idfn(idf_norm);
+    idfn = get_idfn(idf_norm_);
 }
 
 string
@@ -181,9 +184,9 @@ TfIdfWeight::serialise() const
 {
     string result = serialise_double(param_slope);
     result += serialise_double(param_delta);
-    result += static_cast<unsigned char>(wdf_norm);
-    result += static_cast<unsigned char>(idf_norm);
-    result += static_cast<unsigned char>(wt_norm);
+    result += static_cast<unsigned char>(wdf_norm_);
+    result += static_cast<unsigned char>(idf_norm_);
+    result += static_cast<unsigned char>(wt_norm_);
     return result;
 }
 
@@ -194,20 +197,21 @@ TfIdfWeight::unserialise(const string & s) const
     const char *end = ptr + s.size();
     double slope = unserialise_double(&ptr, end);
     double delta = unserialise_double(&ptr, end);
-    wdfn_type wdf_norm_ = static_cast<wdfn_type>(*(ptr)++);
-    idfn_type idf_norm_ = static_cast<idfn_type>(*(ptr)++);
-    wtn_type wt_norm_ = static_cast<wtn_type>(*(ptr)++);
+    wdf_norm wdf_normalization = static_cast<wdf_norm>(*(ptr)++);
+    idf_norm idf_normalization = static_cast<idf_norm>(*(ptr)++);
+    wt_norm wt_normalization = static_cast<wt_norm>(*(ptr)++);
     if (rare(ptr != end))
 	throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
-    return new TfIdfWeight(wdf_norm_, idf_norm_, wt_norm_, slope, delta);
+    return new TfIdfWeight(wdf_normalization, idf_normalization,
+			   wt_normalization, slope, delta);
 }
 
 double
 TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
 			 Xapian::termcount uniqterms) const
 {
-    double wdfn = get_wdfn(wdf, doclen, uniqterms, wdf_norm);
-    return get_wtn(wdfn * idfn, wt_norm) * wqf_factor;
+    double wdfn = get_wdfn(wdf, doclen, uniqterms, wdf_norm_);
+    return get_wtn(wdfn * idfn, wt_norm_) * wqf_factor;
 }
 
 // An upper bound can be calculated simply on the basis of wdf_max as termfreq
@@ -217,8 +221,8 @@ TfIdfWeight::get_maxpart() const
 {
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     Xapian::termcount len_min = get_doclength_lower_bound();
-    double wdfn = get_wdfn(wdf_max, len_min, len_min, wdf_norm);
-    return get_wtn(wdfn * idfn, wt_norm) * wqf_factor;
+    double wdfn = get_wdfn(wdf_max, len_min, len_min, wdf_norm_);
+    return get_wtn(wdfn * idfn, wt_norm_) * wqf_factor;
 }
 
 // There is no extra per document component in the TfIdfWeighting scheme.
@@ -237,24 +241,25 @@ TfIdfWeight::get_maxextra() const
 // Return normalized wdf, idf and weight depending on the normalization string.
 double
 TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
-		      Xapian::termcount uniqterms, wdfn_type wdf_norm_) const
+		      Xapian::termcount uniqterms,
+		      wdf_norm wdf_normalization) const
 {
-    switch (wdf_norm_) {
-	case wdfn_type::BOOLEAN:
+    switch (wdf_normalization) {
+	case wdf_norm::BOOLEAN:
 	    if (wdf == 0) return 0;
 	    return 1.0;
-	case wdfn_type::SQUARE:
+	case wdf_norm::SQUARE:
 	    return (wdf * wdf);
-	case wdfn_type::LOG:
+	case wdf_norm::LOG:
 	    if (wdf == 0) return 0;
 	    return (1 + log(double(wdf)));
-	case wdfn_type::PIVOTED: {
+	case wdf_norm::PIVOTED: {
 	    if (wdf == 0) return 0;
 	    double normlen = doclen / get_average_length();
 	    double norm_factor = 1 / (1 - param_slope + (param_slope * normlen));
 	    return ((1 + log(1 + log(double(wdf)))) * norm_factor + param_delta);
 	}
-	case wdfn_type::LOG_AVERAGE: {
+	case wdf_norm::LOG_AVERAGE: {
 	    if (wdf == 0) return 0;
 	    double uniqterm_double = uniqterms;
 	    double doclen_double = doclen;
@@ -273,26 +278,26 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 }
 
 double
-TfIdfWeight::get_idfn(idfn_type idf_norm_) const
+TfIdfWeight::get_idfn(idf_norm idf_normalization) const
 {
     Xapian::doccount termfreq = 1;
-    if (idf_norm_ != idfn_type::NONE) termfreq = get_termfreq();
+    if (idf_normalization != idf_norm::NONE) termfreq = get_termfreq();
     double N = 1.0;
-    if ((idf_norm_ == idfn_type::PROB) || (idf_norm_ == idfn_type::SQUARE) ||
-	(idf_norm_ == idfn_type::TFIDF) || (idf_norm_ == idfn_type::PIVOTED))
+    if (idf_normalization != idf_norm::NONE &&
+	idf_normalization != idf_norm::FREQ)
 	N = get_collection_size();
-    switch (idf_norm_) {
-	case idfn_type::NONE:
+    switch (idf_normalization) {
+	case idf_norm::NONE:
 	    return 1.0;
-	case idfn_type::PROB:
+	case idf_norm::PROB:
 	    // All documents are indexed by the term
 	    if (N == termfreq) return 0;
 	    return log((N - termfreq) / termfreq);
-	case idfn_type::FREQ:
+	case idf_norm::FREQ:
 	    return (1.0 / termfreq);
-	case idfn_type::SQUARE:
+	case idf_norm::SQUARE:
 	    return pow(log(N / termfreq), 2.0);
-	case idfn_type::PIVOTED:
+	case idf_norm::PIVOTED:
 	    return log((N + 1) / termfreq);
 	default:
 	    return (log(N / termfreq));
@@ -300,9 +305,9 @@ TfIdfWeight::get_idfn(idfn_type idf_norm_) const
 }
 
 double
-TfIdfWeight::get_wtn(double wt, wtn_type wt_norm_) const
+TfIdfWeight::get_wtn(double wt, wt_norm wt_normalization) const
 {
-    (void)wt_norm_;
+    (void)wt_normalization;
     return wt;
 }
 

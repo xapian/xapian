@@ -112,9 +112,9 @@
 %rename("weight") get_weight;
 
 // Name of constants should start wth upper_case
-%rename("Wdfn_type") wdfn_type;
-%rename("Idfn_type") idfn_type;
-%rename("Wtn_type") wtn_type;
+%rename("Wdf_norm") wdf_norm;
+%rename("Idf_norm") idf_norm;
+%rename("Wt_norm") wt_norm;
 
 // These are 'dangerous' methods; i.e. they can cause a segfault if used
 // improperly.  We prefix with _dangerous_ so that Ruby users will not use them

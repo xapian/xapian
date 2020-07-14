@@ -463,12 +463,9 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
 
 /// Xapian::Weight subclass implementing the tf-idf weighting scheme.
 class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
-    /* These three enum classes should use integers only up to 255. Otherwise
-       during serialise(), the value may get truncated by static_cast<> and
-       the desired result will not be achieved. */
   public:
     /** Wdf normalizations. */
-    enum class wdfn_type : int {
+    enum class wdf_norm : unsigned char {
 	/** None
 	 *
 	 *  wdfn=wdf
@@ -509,7 +506,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     };
 
     /** Idf normalizations. */
-    enum class idfn_type : int {
+    enum class idf_norm : unsigned char {
 	/** None
 	 *
 	 *  idfn=1
@@ -550,7 +547,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     };
 
     /** Weight normalizations. */
-    enum class wtn_type : int {
+    enum class wt_norm : unsigned char {
 	/** None
 	 *
 	 *  wtn=tfn*idfn
@@ -559,11 +556,11 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     };
   private:
     /// The parameter for normalization for the wdf.
-    wdfn_type wdf_norm;
+    wdf_norm wdf_norm_;
     /// The parameter for normalization for the idf.
-    idfn_type idf_norm;
+    idf_norm idf_norm_;
     /// The parameter for normalization for the document weight.
-    wtn_type wt_norm;
+    wt_norm wt_norm_;
 
     /// The factor to multiply with the weight.
     double wqf_factor;
@@ -583,9 +580,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     double get_wdfn(Xapian::termcount wdf,
 		    Xapian::termcount len,
 		    Xapian::termcount uniqterms,
-		    wdfn_type wdf_norm_) const;
-    double get_idfn(idfn_type idf_norm_) const;
-    double get_wtn(double wt, wtn_type wt_norm_) const;
+		    wdf_norm wdf_normalization) const;
+    double get_idfn(idf_norm idf_normalization) const;
+    double get_wtn(double wt, wt_norm wt_normalization) const;
 
   public:
     /** Construct a TfIdfWeight
@@ -679,20 +676,20 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /** Construct a TfIdfWeight
      *
-     *	@param wdf_norm		The normalization for the wdf.
-     *	@param idf_norm		The normalization for the idf.
-     *	@param wt_norm		The normalization for the document weight.
+     *	@param wdf_norm_	The normalization for the wdf.
+     *	@param idf_norm_	The normalization for the idf.
+     *	@param wt_norm_		The normalization for the document weight.
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
      */
-    TfIdfWeight(wdfn_type wdf_norm, idfn_type idf_norm, wtn_type wt_norm);
+    TfIdfWeight(wdf_norm wdf_norm_, idf_norm idf_norm_, wt_norm wt_norm_);
 
     /** Construct a TfIdfWeight
      *
-     *	@param wdf_norm		The normalization for the wdf.
-     *	@param idf_norm		The normalization for the idf.
-     *	@param wt_norm		The normalization for the document weight.
+     *	@param wdf_norm_	The normalization for the wdf.
+     *	@param idf_norm_	The normalization for the idf.
+     *	@param wt_norm_		The normalization for the document weight.
      *	@param slope		Extra parameter for "Pivoted" tf normalization.
      *				(default: 0.2)
      *	@param delta		Extra parameter for "Pivoted" tf normalization.
@@ -701,13 +698,13 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
      */
-    TfIdfWeight(wdfn_type wdf_norm, idfn_type idf_norm,
-		wtn_type wt_norm, double slope, double delta);
+    TfIdfWeight(wdf_norm wdf_norm_, idf_norm idf_norm_,
+		wt_norm wt_norm_, double slope, double delta);
 
     /** Construct a TfIdfWeight using the default normalizations ("ntn"). */
     TfIdfWeight()
-	: wdf_norm(wdfn_type::NONE), idf_norm(idfn_type::TFIDF),
-	  wt_norm(wtn_type::NONE), param_slope(0.2), param_delta(1.0)
+	: wdf_norm_(wdf_norm::NONE), idf_norm_(idf_norm::TFIDF),
+	  wt_norm_(wt_norm::NONE), param_slope(0.2), param_delta(1.0)
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);
