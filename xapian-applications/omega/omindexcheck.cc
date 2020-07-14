@@ -131,45 +131,6 @@ index_test()
     tests.insert({"sof/libarchive_openoffice_presentation_template.sti",
 		  {"ZSproject", "ZSresearch", "Zhead", "Ztext"}});
 #endif
-#if defined HAVE_LIBARCHIVE
-    // blank file
-    tests.insert({"odf/blank.odt", {}});
-    // corrupted file (ODP)
-    // tests.insert({"corrupt_file.odp", {"ZSnatur"}});
-
-    // ODF
-    tests.insert({"odf/test.odt", {"Zедой", "Z喬伊不分享食物"}});
-    tests.insert({"odf/libarchive_text.odt", {"Stesttitle", "Atestauthor",
-		  "Zsampl", "Zhead", "Ztext", "Zhello",
-		  "Zworld"}});
-    tests.insert({"odf/libarchive_text_template.ott", {"Zjane", "Zdoe",
-		  "Zstructur"}});
-    tests.insert({"odf/libarchive_presentation.odp", {"Zfascin", "Zfact",
-		  "Zpustak", "Zmahal", "Zmillion", "Zpeopl", "Zbirthday",
-		  "501"}});
-    tests.insert({"odf/libarchive_presentation_template.otp", {"ZSalizarin",
-		  "Zhead", "Zworld", "Ztext"}});
-    tests.insert({"odf/libarchive_spreadsheet.ods", {"Zhello", "Zworld",
-		  "Zsampl", "2"}});
-    tests.insert({"odf/libarchive_spreadsheet_template.ots", {"Zfood", "Zpasta",
-		  "Zpercentag", "40"}});
-    tests.insert({"odf/libarchive_draw.odg", {"Zparth", "Zkapadia"}});
-
-    // Apache OpenOffice
-    tests.insert({"sof/libarchive_openoffice_calc.sxc", {"Ztoy", "Zproduct",
-		  "Zcost", "Zquantiti", "Zcardboard"}});
-    tests.insert({"sof/libarchive_openoffice_calc_template.stc", {"ZSpurchas",
-		  "ZStemplat", "Zproduct", "Zquantiti", "Zsampl"}});
-    tests.insert({"sof/libarchive_openoffice_text.sxw", {"Zhello", "Zsampl",
-		  "Zopenoffic", "Zwriter"}});
-    tests.insert({"sof/libarchive_openoffice_text_template.stw", {"Zhello",
-		  "Zworld", "Zsampl", "Zhead", "ZStemplat", "ZStext"}});
-    tests.insert({"sof/libarchive_openoffice_presentation.sxi", {"Zhead",
-		  "Zhello", "Zopenoffic", "Zimpress"}});
-    tests.insert({"sof/libarchive_openoffice_presentation_template.sti",
-		 {"ZSproject", "ZSresearch", "Zhead", "Ztext"}});
-#endif
-}
 
 static bool
 compare_test(testcase& test, const Xapian::Document& doc, const string& file)
