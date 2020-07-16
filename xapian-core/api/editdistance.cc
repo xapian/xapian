@@ -85,15 +85,13 @@ class edist_state {
 	fkp_cols = maxdist + 2;
 	set_f_kp(0, -1, -1);
 	for (int k = 1; k <= maxdist; ++k) {
-	    for (int p = -1; p <= maxdist; ++p) {
-		if (p == k - 1) {
-		    set_f_kp(k, p, -1);
-		    set_f_kp(-k, p, k - 1);
-		} else if (p < k) {
-		    set_f_kp(k, p, INT_MIN);
-		    set_f_kp(-k, p, INT_MIN);
-		}
+	    for (int p = -1; p < k - 1; ++p) {
+		set_f_kp(k, p, INT_MIN);
+		set_f_kp(-k, p, INT_MIN);
 	    }
+
+	    set_f_kp(k, k - 1, -1);
+	    set_f_kp(-k, k - 1, k - 1);
 	}
     }
 
