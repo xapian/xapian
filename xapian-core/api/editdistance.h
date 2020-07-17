@@ -55,24 +55,34 @@ class EditDistanceCalculator {
 
     mutable int* array = nullptr;
 
-    // We sum the character frequency histogram absolute differences to compute
-    // a lower bound on the edit distance.  Rather than counting each Unicode
-    // code point uniquely, we use an array with VEC_SIZE elements and tally
-    // code points modulo VEC_SIZE which can only reduce the bound we
-    // calculate.
-    //
-    // There will be a trade-off between how good the bound is and how large
-    // and array is used (a larger array takes more time to clear and sum
-    // over).  The value 64 is somewhat arbitrary - it works as well as 128 for
-    // the testsuite but that may not reflect real world performance.
-    // FIXME: profile and tune.
-    static constexpr int VEC_SIZE = 64;
-
-    /** Frequency histogram for target sequence.
+    /** The type to use for the occurrence bitmaps.
      *
-     *  Note: C++ will default initialise all remaining elements.
+     *  There will be a trade-off between how good the bound is and how many
+     *  bits we use.  We currently use an unsigned long long, which is
+     *  typically 64 bits and seems to work pretty well (it makes sense it
+     *  does for English, as each letter maps to a different bit).
+     *
+     *  At least on x86-64 and English, a 32-bit type seems to give an
+     *  identical cycle count to a 64-bit type when profiled with cachegrind,
+     *  but a 64-bit type is likely to work better for languages which have
+     *  more than 32 commonly-used word characters.
+     *
+     *  FIXME: Profile other architectures and languages.
      */
-    int target_freqs[VEC_SIZE] = { 0 };
+    typedef unsigned long long freqs_bitmap;
+
+    /** Occurrence bitmap for target sequence.
+     *
+     *  We set the bit corresponding to each codepoint in the word and then
+     *  xor the bitmaps for the target and candidate and count the bits to
+     *  give to compute a lower bound on the edit distance.  Rather than
+     *  flagging each Unicode code point uniquely, we reduce the code points
+     *  modulo the number of available bits which can only reduce the bound we
+     *  calculate.
+     */
+    freqs_bitmap target_freqs = 0;
+
+    static constexpr unsigned FREQS_MASK = sizeof(target_freqs) * 8 - 1;
 
     /** Calculate edit distance.
      *
@@ -91,7 +101,7 @@ class EditDistanceCalculator {
 	for (Utf8Iterator it(target_); it != Utf8Iterator(); ++it) {
 	    unsigned ch = *it;
 	    target.push_back(ch);
-	    ++target_freqs[ch % VEC_SIZE];
+	    target_freqs |= freqs_bitmap(1) << (ch & FREQS_MASK);
 	}
     }
 

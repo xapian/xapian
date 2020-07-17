@@ -10,7 +10,7 @@
  *  http://berghel.net/publications/asm/asm.php
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007,2008,2009,2017,2019 Olly Betts
+ * Copyright (C) 2007,2008,2009,2017,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include "editdistance.h"
 
 #include "omassert.h"
+#include "popcount.h"
 
 #include <algorithm>
 #include <climits>
@@ -197,21 +198,16 @@ EditDistanceCalculator::calc(const unsigned* ptr, int len,
 {
     // Calculate a cheap lower bound on the edit distance by considering
     // frequency histograms.
-    int freqs[VEC_SIZE];
-    memcpy(freqs, target_freqs, sizeof(freqs));
+    freqs_bitmap freqs = 0;
     for (int i = 0; i != len; ++i) {
 	unsigned ch = ptr[i];
-	--freqs[ch % VEC_SIZE];
-    }
-    unsigned int total = 0;
-    for (int count : freqs) {
-	total += abs(count);
+	freqs |= freqs_bitmap(1) << (ch & FREQS_MASK);
     }
     // Each insertion or deletion adds at most 1 to total.  Each transposition
     // doesn't change it at all.  But each substitution can change it by 2 so
-    // we need to divide it by 2.  Rounding up is OK, since the odd change must
+    // we need to divide it by 2.  We round up since the unpaired change must
     // be due to an actual edit.
-    int ed_lower_bound = (total + 1) / 2;
+    int ed_lower_bound = (popcount(freqs ^ target_freqs) + 1) / 2;
     if (ed_lower_bound > max_distance) {
 	// It's OK to return any distance > max_distance if the true answer is
 	// > max_distance.
