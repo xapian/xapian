@@ -148,8 +148,6 @@ extract_open_xml(struct archive* archive_obj,
 		    // Ignore this as header/footer may not be present
 		    content.resize(i);
 		}
-
-
 	    } else if (pathname == "docProps/core.xml") {
 		// docProps/core.xml stores meta data
 		total = archive_entry_size(entry);
