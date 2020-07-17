@@ -35,13 +35,13 @@
 using namespace std;
 
 static void
-parse_metadata(string& s_meta,
+parse_metadata(string& metadata,
 	       string& title,
 	       string& keywords,
 	       string& author)
 {
     MetaXmlParser metaxmlparser;
-    metaxmlparser.parse(s_meta);
+    metaxmlparser.parse(metadata);
     title = metaxmlparser.title;
     keywords = metaxmlparser.keywords;
     author = metaxmlparser.author;
@@ -55,50 +55,50 @@ extract_odf(struct archive* archive_obj,
 	    string& author,
 	    string& error)
 {
-    string s_content, s_styles;
+    string content, styles;
     struct archive_entry* entry;
     size_t total;
     ssize_t size;
-    string s_meta;
 
     while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
 	string pathname = archive_entry_pathname(entry);
 	if (pathname == "content.xml") {
 	    total = archive_entry_size(entry);
-	    s_content.resize(total);
-	    size = archive_read_data(archive_obj, &s_content[0], total);
+	    content.resize(total);
+	    size = archive_read_data(archive_obj, &content[0], total);
 
 	    if (size <= 0) {
 		error = "Libarchive was not able to extract data from "
 			"content.xml";
 		return false;
 	    }
-	    s_content.resize(size);
+	    content.resize(size);
 	} else if (pathname == "styles.xml") {
 	    total = archive_entry_size(entry);
-	    s_styles.resize(total);
-	    size = archive_read_data(archive_obj, &s_styles[0], total);
+	    styles.resize(total);
+	    size = archive_read_data(archive_obj, &styles[0], total);
 
 	    if (size <= 0) {
 		error = "Libarchive was not able to extract data from "
 			"styles.xml";
 		return false;
 	    }
-	    s_styles.resize(size);
+	    styles.resize(size);
 	} else if (pathname == "meta.xml") {
-		total = archive_entry_size(entry);
-		s_meta.resize(total);
-		size = archive_read_data(archive_obj, &s_meta[0], total);
+	    string metadata;
+	    total = archive_entry_size(entry);
+	    metadata.resize(total);
+	    size = archive_read_data(archive_obj, &metadata[0], total);
 
-		if (size > 0) {
-		    // indexing file even if this fails
-		    parse_metadata(s_meta, title, keywords, author);
-		}
-	    s_meta.resize(size);
+	    if (size > 0) {
+		// indexing file even if this fails
+		metadata.resize(size);
+		parse_metadata(metadata, title, keywords, author);
+	    }
 	}
     }
     OpenDocParser parser;
-    parser.parse(s_content + s_styles);
+    parser.parse(content + styles);
     dump = parser.dump;
 
     return true;
@@ -116,7 +116,7 @@ extract_open_xml(struct archive* archive_obj,
     size_t total;
     ssize_t size;
     struct archive_entry* entry;
-    string s, s_meta;
+    string content, metadata;
     bool msxml = false, metaxml = false;
 
     if (startswith(tail, "wordprocessingml.")) {
@@ -124,36 +124,41 @@ extract_open_xml(struct archive* archive_obj,
 	while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
 	    string pathname = archive_entry_pathname(entry);
 	    if (pathname == "word/document.xml") {
-		auto i = s.size();
+		auto i = content.size();
 		total = archive_entry_size(entry);
-		s.resize(i + total);
-		size = archive_read_data(archive_obj, &s[i], total);
+		content.resize(i + total);
+		size = archive_read_data(archive_obj, &content[i], total);
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data "
 			    "from word/document.xml";
 		    return false;
 		}
-		s.resize(i + size);
+		content.resize(i + size);
 	    } else if (startswith(pathname, "word/header") ||
 		       startswith(pathname, "word/footer")) {
-		auto i = s.size();
+		auto i = content.size();
 		total = archive_entry_size(entry);
-		s.resize(i + total);
-		size = archive_read_data(archive_obj, &s[0], total);
+		content.resize(i + total);
+		size = archive_read_data(archive_obj, &content[i], total);
 
-		if (size <= 0) {
+		if (size > 0) {
+		    content.resize(i + size);
+		} else {
 		    // Ignore this as header/footer may not be present
+		    content.resize(i);
 		}
-		s.resize(i + size);
+
+
 	    } else if (pathname == "docProps/core.xml") {
 		// docProps/core.xml stores meta data
 		total = archive_entry_size(entry);
-		s_meta.resize(total);
-		size = archive_read_data(archive_obj, &s_meta[0], total);
-		if (size > 0)
+		metadata.resize(total);
+		size = archive_read_data(archive_obj, &metadata[0], total);
+		if (size > 0) {
 		    metaxml = true;
-		s_meta.resize(size);
+		    metadata.resize(size);
+		}
 	    }
 	}
     } else if (startswith(tail, "spreadsheetml.")) {
@@ -169,11 +174,10 @@ extract_open_xml(struct archive* archive_obj,
 		size = archive_read_data(archive_obj, &shared_strings[i],
 					 total);
 
-		if (size <= 0) {
-		    error = "Libarchive was not able to extract data from " +
-			    pathname;
-		}
-		shared_strings.resize(i + size);
+		if (size > 0)
+		    shared_strings.resize(i + size);
+		else
+		    shared_strings.resize(i);
 	    } else if (startswith(pathname, "xl/worksheets/sheet")) {
 		auto i = sheets.size();
 		total = archive_entry_size(entry);
@@ -183,18 +187,20 @@ extract_open_xml(struct archive* archive_obj,
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from " +
 			    pathname;
+		    return false;
 		}
 		sheets.resize(i + size);
 	    } else if (pathname == "docProps/core.xml") {
 		total = archive_entry_size(entry);
-		s_meta.resize(total);
-		size = archive_read_data(archive_obj, &s_meta[0], total);
-		if (size > 0)
+		metadata.resize(total);
+		size = archive_read_data(archive_obj, &metadata[0], total);
+		if (size > 0) {
 		    metaxml = true;
-		s_meta.resize(size);
+		    metadata.resize(size);
+		}
 	    }
 	}
-	s = shared_strings + sheets;
+	content = shared_strings + sheets;
     } else if (startswith(tail, "presentationml.")) {
 	msxml = true;
 	while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
@@ -202,24 +208,25 @@ extract_open_xml(struct archive* archive_obj,
 	    if (startswith(pathname, "ppt/slides/slide") ||
 		startswith(pathname, "ppt/notesSlides/notesSlide") ||
 		startswith(pathname, "ppt/comments/comment")) {
-		auto i = s.size();
+		auto i = content.size();
 		total = archive_entry_size(entry);
-		s.resize(i + total);
-		size = archive_read_data(archive_obj, &s[i], total);
+		content.resize(i + total);
+		size = archive_read_data(archive_obj, &content[i], total);
 
 		if (size <= 0) {
 		    error = "Libarchive was not able to extract data from " +
 			    pathname;
 		    return false;
 		}
-		s.resize(i + size);
+		content.resize(i + size);
 	    } else if (pathname == "docProps/core.xml") {
 		total = archive_entry_size(entry);
-		s_meta.resize(total);
-		size = archive_read_data(archive_obj, &s_meta[0], total);
-		if (size > 0)
+		metadata.resize(total);
+		size = archive_read_data(archive_obj, &metadata[0], total);
+		if (size > 0) {
 		    metaxml = true;
-		s_meta.resize(size);
+		    metadata.resize(size);
+		}
 	    }
 	}
     }
@@ -227,17 +234,17 @@ extract_open_xml(struct archive* archive_obj,
     // XlsxParser to parse .spreadsheetml
     if (msxml) {
 	MSXmlParser xmlparser;
-	xmlparser.parse_xml(s);
+	xmlparser.parse_xml(content);
 	dump = xmlparser.dump;
     } else {
 	XlsxParser parser;
-	parser.parse(s);
+	parser.parse(content);
 	dump = parser.dump;
     }
 
     // Parse if docProps/core.xml is found
     if (metaxml)
-	parse_metadata(s_meta, title, keywords, author);
+	parse_metadata(metadata, title, keywords, author);
     return true;
 }
 
