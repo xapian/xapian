@@ -80,16 +80,17 @@ class edist_state {
 	: seq1(ptr1, len1), seq2(ptr2, len2), fkp(fkp_), maxdist(len2) {
 	Assert(len2 >= len1);
 	// fkp is stored as a rectangular array, row by row.  Each entry
-	// represents a value of p, from -1 to maxdist or the special value
-	// INT_MIN.
+	// represents a value of p, from -1 to maxdist or a special value
+	// close-ish to INT_MIN.
 	fkp_cols = maxdist + 2;
+	// It's significantly faster to memset() than std::fill_n() with an int
+	// value, so fill with the msb of INT_MIN, which for 32-bit 2's
+	// complement int means -2139062144 instead of -2147483648, which is
+	// fine what we need here.
+	memset(fkp, unsigned(INT_MIN) >> (8 * (sizeof(int) - 1)),
+	       sizeof(int) * (calc_index(maxdist, maxdist - 2) + 1));
 	set_f_kp(0, -1, -1);
 	for (int k = 1; k <= maxdist; ++k) {
-	    for (int p = -1; p < k - 1; ++p) {
-		set_f_kp(k, p, INT_MIN);
-		set_f_kp(-k, p, INT_MIN);
-	    }
-
 	    set_f_kp(k, k - 1, -1);
 	    set_f_kp(-k, k - 1, k - 1);
 	}
