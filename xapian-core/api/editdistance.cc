@@ -64,14 +64,14 @@ class edist_state {
      * Where: d(i,j) = edit distance between substrings of length i and j.
      */
     int* fkp;
-    int fkp_cols;
+    int fkp_rows;
 
     /* Maximum possible edit distance (this is referred to as ZERO_K in
      * the algorithm description by Berghel and Roach). */
     int maxdist;
 
     int calc_index(int k, int p) const {
-	return (k + maxdist) * fkp_cols + p + 1;
+	return k + maxdist + fkp_rows * (p + 1);
     }
 
   public:
@@ -79,10 +79,10 @@ class edist_state {
 		int* fkp_)
 	: seq1(ptr1, len1), seq2(ptr2, len2), fkp(fkp_), maxdist(len2) {
 	Assert(len2 >= len1);
-	// fkp is stored as a rectangular array, row by row.  Each entry
+	// fkp is stored as a rectangular array, column by column.  Each entry
 	// represents a value of p, from -1 to maxdist or a special value
 	// close-ish to INT_MIN.
-	fkp_cols = maxdist + 2;
+	fkp_rows = maxdist + 1;
 	// It's significantly faster to memset() than std::fill_n() with an int
 	// value, so fill with the msb of INT_MIN, which for 32-bit 2's
 	// complement int means -2139062144 instead of -2147483648, which is
