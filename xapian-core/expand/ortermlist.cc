@@ -75,8 +75,9 @@ OrTermList::get_wdf() const
 {
     LOGCALL(EXPAND, Xapian::termcount, "OrTermList::get_wdf", NO_ARGS);
     check_started();
-    if (left_current < right_current) RETURN(left->get_wdf());
-    if (left_current > right_current) RETURN(right->get_wdf());
+    int cmp = left_current.compare(right_current);
+    if (cmp < 0) RETURN(left->get_wdf());
+    if (cmp > 0) RETURN(right->get_wdf());
     RETURN(left->get_wdf() + right->get_wdf());
 }
 
@@ -107,7 +108,8 @@ OrTermList::next()
     // If we've not started yet, both left_current and right_current will be
     // empty, so we'll take the third case below which is what we want to do to
     // get started.
-    if (left_current < right_current) {
+    int cmp = left_current.compare(right_current);
+    if (cmp < 0) {
 	handle_prune(left, left->next());
 	if (left->at_end()) {
 	    TermList *ret = right;
@@ -115,7 +117,7 @@ OrTermList::next()
 	    RETURN(ret);
 	}
 	left_current = left->get_termname();
-    } else if (left_current > right_current) {
+    } else if (cmp > 0) {
 	handle_prune(right, right->next());
 	if (right->at_end()) {
 	    TermList *ret = left;
@@ -152,7 +154,8 @@ OrTermList::skip_to(const string & term)
     // If we've not started yet, both left_current and right_current will be
     // empty, so we'll take the third case below which is what we want to do to
     // get started.
-    if (left_current < right_current) {
+    int cmp = left_current.compare(right_current);
+    if (cmp < 0) {
 	handle_prune(left, left->skip_to(term));
 	if (left->at_end()) {
 	    TermList *ret = right;
@@ -160,7 +163,7 @@ OrTermList::skip_to(const string & term)
 	    RETURN(ret);
 	}
 	left_current = left->get_termname();
-    } else if (left_current > right_current) {
+    } else if (cmp < 0) {
 	handle_prune(right, right->skip_to(term));
 	if (right->at_end()) {
 	    TermList *ret = left;
@@ -221,7 +224,8 @@ FreqAdderOrTermList::get_termfreq() const
 {
     LOGCALL(EXPAND, Xapian::doccount, "FreqAdderOrTermList::get_termfreq", NO_ARGS);
     check_started();
-    if (left_current < right_current) RETURN(left->get_termfreq());
-    if (left_current > right_current) RETURN(right->get_termfreq());
+    int cmp = left_current.compare(right_current);
+    if (cmp < 0) RETURN(left->get_termfreq());
+    if (cmp > 0) RETURN(right->get_termfreq());
     RETURN(left->get_termfreq() + right->get_termfreq());
 }
