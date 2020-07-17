@@ -272,9 +272,10 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	    double den = 1 + log(wdf_avg);
 	    return num / den;
 	}
-	default:
-	    return wdf;
+	case wdf_norm::NONE:
+	    break;
     }
+    return wdf;
 }
 
 double
@@ -299,9 +300,10 @@ TfIdfWeight::get_idfn(idf_norm idf_normalization) const
 	    return pow(log(N / termfreq), 2.0);
 	case idf_norm::PIVOTED:
 	    return log((N + 1) / termfreq);
-	default:
-	    return (log(N / termfreq));
+	case idf_norm::TFIDF:
+	    break;
     }
+    return (log(N / termfreq));
 }
 
 double
