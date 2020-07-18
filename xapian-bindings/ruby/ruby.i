@@ -111,7 +111,7 @@
 %rename("wdf") get_wdf;
 %rename("weight") get_weight;
 
-// Name of constants should start wth upper_case
+// Name of constants should start with upper case
 %rename("Wdf_norm") wdf_norm;
 %rename("Idf_norm") idf_norm;
 %rename("Wt_norm") wt_norm;
