@@ -630,7 +630,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
      */
-    explicit TfIdfWeight(const std::string &normalizations)
+    explicit TfIdfWeight(const std::string& normalizations)
 	: TfIdfWeight(normalizations, 0.2, 1.0) {}
 
     /** Construct a TfIdfWeight
