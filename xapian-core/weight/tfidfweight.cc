@@ -37,9 +37,11 @@ using namespace std;
 namespace Xapian {
 
 TfIdfWeight::wdf_norm
-TfIdfWeight::decode_wdf_norm(char c)
+TfIdfWeight::decode_wdf_norm(const string& normalizations)
 {
-    switch (c) {
+    if (normalizations.length() != 3)
+	throw Xapian::InvalidArgumentError("Normalization string is invalid");
+    switch (normalizations[0]) {
 	case 'b':
 	    return wdf_norm::BOOLEAN;
 	case 's':
@@ -52,16 +54,16 @@ TfIdfWeight::decode_wdf_norm(char c)
 	    return wdf_norm::LOG_AVERAGE;
 	case 'n':
 	    return wdf_norm::NONE;
-	default:
-	    throw Xapian::InvalidArgumentError
-		  ("Normalization string is invalid");
     }
+    throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
 
 TfIdfWeight::idf_norm
-TfIdfWeight::decode_idf_norm(char c)
+TfIdfWeight::decode_idf_norm(const string& normalizations)
 {
-    switch (c) {
+    if (normalizations.length() != 3)
+	throw Xapian::InvalidArgumentError("Normalization string is invalid");
+    switch (normalizations[1]) {
 	case 'n':
 	    return idf_norm::NONE;
 	case 's':
@@ -74,29 +76,27 @@ TfIdfWeight::decode_idf_norm(char c)
 	    return idf_norm::PROB;
 	case 't':
 	    return idf_norm::TFIDF;
-	default:
-	    throw Xapian::InvalidArgumentError
-		  ("Normalization string is invalid");
     }
+    throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
 
 TfIdfWeight::wt_norm
-TfIdfWeight::decode_wt_norm(char c)
+TfIdfWeight::decode_wt_norm(const string& normalizations)
 {
-    switch (c) {
+    if (normalizations.length() != 3)
+	throw Xapian::InvalidArgumentError("Normalization string is invalid");
+    switch (normalizations[2]) {
 	case 'n':
 	    return wt_norm::NONE;
-	default:
-	    throw Xapian::InvalidArgumentError
-		  ("Normalization string is invalid");
     }
+    throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
 
 TfIdfWeight::TfIdfWeight(const std::string& normals,
 			 double slope, double delta)
-    : TfIdfWeight::TfIdfWeight(decode_wdf_norm(normals[0]),
-			       decode_idf_norm(normals[1]),
-			       decode_wt_norm(normals[2]),
+    : TfIdfWeight::TfIdfWeight(decode_wdf_norm(normals),
+			       decode_idf_norm(normals),
+			       decode_wt_norm(normals),
 			       slope, delta) {}
 
 TfIdfWeight::TfIdfWeight(wdf_norm wdf_normalization,
@@ -182,7 +182,7 @@ TfIdfWeight::unserialise(const string & s) const
     double delta = unserialise_double(&ptr, end);
     if (rare(end - ptr != 3))
 	throw Xapian::SerialisationError
-	      ("Extra data in TfIdfWeight::unserialise()");
+	      ("Incorrect data in TfIdfWeight::unserialise()");
     wdf_norm wdf_normalization = static_cast<wdf_norm>(*(ptr)++);
     idf_norm idf_normalization = static_cast<idf_norm>(*(ptr)++);
     wt_norm wt_normalization = static_cast<wt_norm>(*(ptr)++);
