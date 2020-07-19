@@ -116,8 +116,8 @@ extract_open_xml(struct archive* archive_obj,
     size_t total;
     ssize_t size;
     struct archive_entry* entry;
-    string content, metadata;
-    bool msxml = false, metaxml = false;
+    string content;
+    bool msxml = false;
 
     if (startswith(tail, "wordprocessingml.")) {
 	msxml = true;
@@ -151,11 +151,11 @@ extract_open_xml(struct archive* archive_obj,
 	    } else if (pathname == "docProps/core.xml") {
 		// docProps/core.xml stores meta data
 		total = archive_entry_size(entry);
-		metadata.resize(total);
+		string metadata(total, ' ');
 		size = archive_read_data(archive_obj, &metadata[0], total);
 		if (size > 0) {
-		    metaxml = true;
 		    metadata.resize(size);
+		    parse_metadata(metadata, title, keywords, author);
 		}
 	    }
 	}
@@ -190,11 +190,11 @@ extract_open_xml(struct archive* archive_obj,
 		sheets.resize(i + size);
 	    } else if (pathname == "docProps/core.xml") {
 		total = archive_entry_size(entry);
-		metadata.resize(total);
+		string metadata(total, ' ');
 		size = archive_read_data(archive_obj, &metadata[0], total);
 		if (size > 0) {
-		    metaxml = true;
 		    metadata.resize(size);
+		    parse_metadata(metadata, title, keywords, author);
 		}
 	    }
 	}
@@ -219,11 +219,11 @@ extract_open_xml(struct archive* archive_obj,
 		content.resize(i + size);
 	    } else if (pathname == "docProps/core.xml") {
 		total = archive_entry_size(entry);
-		metadata.resize(total);
+		string metadata(total, ' ');
 		size = archive_read_data(archive_obj, &metadata[0], total);
 		if (size > 0) {
-		    metaxml = true;
 		    metadata.resize(size);
+		    parse_metadata(metadata, title, keywords, author);
 		}
 	    }
 	}
@@ -240,9 +240,6 @@ extract_open_xml(struct archive* archive_obj,
 	dump = parser.dump;
     }
 
-    // Parse if docProps/core.xml is found
-    if (metaxml)
-	parse_metadata(metadata, title, keywords, author);
     return true;
 }
 
