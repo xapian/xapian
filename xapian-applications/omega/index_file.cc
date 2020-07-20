@@ -269,6 +269,21 @@ index_add_default_libraries()
     Worker* omindex_libcdr = new Worker("omindex_libcdr");
     index_library("image/x-coreldraw", omindex_libcdr);
 #endif
+#if defined HAVE_LIBEXTRACTOR
+    Worker* omindex_libextractor = new Worker("omindex_libextractor");
+    index_library("video/mpeg", omindex_libextractor);
+    index_library("video/x-flv", omindex_libextractor);
+    index_library("video/x-msvideo", omindex_libextractor);
+    index_library("video/x-ms-asf", omindex_libextractor);
+    index_library("video/quicktime", omindex_libextractor);
+    index_library("video/ogg", omindex_libextractor);
+    index_library("audio/flac", omindex_libextractor);
+    index_library("audio/mpeg", omindex_libextractor);
+    index_library("audio/ogg", omindex_libextractor);
+    index_library("audio/x-wav", omindex_libextractor);
+    index_library("audio/x-mod", omindex_libextractor);
+    index_library("audio/x-s3m", omindex_libextractor);
+#endif
 }
 
 void

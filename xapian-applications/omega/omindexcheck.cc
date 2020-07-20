@@ -34,6 +34,8 @@ typedef vector<string> testcase;
 
 static unordered_map<string, testcase> tests;
 
+enum test_result { PASS, FAIL, SKIP };
+
 static void
 index_test()
 {
@@ -92,8 +94,8 @@ index_test()
 		  {"Zannual", "Zfed", "Zreturn", "Zwhile"}});
 #endif
 #if defined HAVE_LIBARCHIVE
-    // blank file
-    tests.insert({"odf/blank.odt", {}});
+    // blank file - will skip the test as no terms will be found.
+    // tests.insert({"odf/blank.odt", {}});
     // corrupted file (ODP)
     // tests.insert({"corrupt_file.odp", {"ZSnatur"}});
 
@@ -157,29 +159,54 @@ index_test()
     tests.insert({"cdr/test2.cdr",
 		  {"Zедой", "Z喬伊不分享食物", "Zdocument"}});
 #endif
+#if defined HAVE_LIBEXTRACTOR
+    tests.insert({"video/file_example_OGG_480_1_7mg.ogg",
+		  {"lavf58.29.100", "Zogg"}});
+    tests.insert({"video/file_example_AVI_480_750kB.avi",
+		  {"Zcodec", "Zh264", "480x270", "msvideo", "30", "fps"}});
+    tests.insert({"audio/file_example_OOG_1MG.ogg",
+		  {"Akevin", "Amacleod", "Simpact", "ZSmoderato", "Zlibrari",
+		   "Zcinemat"}});
+    tests.insert({"audio/file_example_WAV_1MG.wav",
+		  {"Zstereo", "wav", "Zms"}});
+#endif
 }
 
-static bool
+static test_result
 compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 {
+    // Skips if no term is found
+    // Passes if all terms are found
+    // Fails if only some terms are found
     sort(test.begin(), test.end());
     Xapian::TermIterator term_iterator = doc.termlist_begin();
+    bool term_found = false, exists = true;
     for (auto& t : test) {
 	term_iterator.skip_to(t);
 	if (term_iterator == doc.termlist_end() || *term_iterator != t) {
 	    cerr << "Error in " << file << ": Term " << t <<
 		 " does not belong to this file" << endl;
-	    return false;
+	    exists = false;
+	} else {
+	    term_found = true;
 	}
     }
-    return true;
+    if (term_found) {
+	if (exists)
+	    return PASS;
+	else
+	    return FAIL;
+    } else {
+	// no terms found
+	return SKIP;
+    }
 }
 
 int
 main(int argc, char** argv)
 {
     Xapian::Database db;
-    bool succeed = true;
+    test_result result = PASS;
     if (argc <= 1)
 	return 1;
     db.add_database(Xapian::Database(argv[1]));
@@ -196,8 +223,18 @@ main(int argc, char** argv)
 	Xapian::Document doc = db.get_document(did);
 	auto iter = tests.find(url);
 	if (iter != tests.end()) {
-	    succeed &= compare_test(iter->second, doc, url);
+	    test_result outcome = compare_test(iter->second, doc, url);
+	    if (outcome == FAIL)
+		result = FAIL;
+	    else if (result == PASS && outcome == SKIP)
+		result = SKIP;
 	}
     }
-    return succeed ? 0 : 1;
+    // exit status of 77 to denote a skipped test (standard for automake)
+    if (result == PASS)
+	return 0;
+    else if (result == FAIL)
+	return 1;
+    else
+	return 77;
 }
