@@ -217,6 +217,9 @@ webp		image/webp
 # Corel DRAW files:
 cdr		image/x-coreldraw
 
+# Video files:
+mpg		video/mpeg
+
 # Extensions to quietly ignore:
 a		ignore
 adm		ignore

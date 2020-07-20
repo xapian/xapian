@@ -269,6 +269,10 @@ index_add_default_libraries()
     Worker* omindex_libcdr = new Worker("omindex_libcdr");
     index_library("image/x-coreldraw", omindex_libcdr);
 #endif
+#if defined HAVE_LIBEXTRACTOR
+    Worker* omindex_libextractor = new Worker("omindex_libextractor");
+    index_library("video/mpeg", omindex_libextractor);
+#endif
 }
 
 void
