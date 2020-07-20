@@ -24,6 +24,7 @@ noinst_HEADERS +=\
 	common/overflow.h\
 	common/pack.h\
 	common/parseint.h\
+	common/popcount.h\
 	common/posixy_wrapper.h\
 	common/pretty.h\
 	common/realtime.h\
