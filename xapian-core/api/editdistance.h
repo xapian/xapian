@@ -82,7 +82,7 @@ class EditDistanceCalculator {
      */
     freqs_bitmap target_freqs = 0;
 
-    static constexpr unsigned FREQS_MASK = sizeof(target_freqs) * 8 - 1;
+    static constexpr unsigned FREQS_MASK = sizeof(freqs_bitmap) * 8 - 1;
 
     /** Calculate edit distance.
      *
