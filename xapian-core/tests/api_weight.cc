@@ -814,7 +814,11 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // check for "nsn" when termfreq != N
     enquire.set_query(query);
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("nsn"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::SQUARE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -822,7 +826,11 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for "bnn" and for both branches of 'b'.
     enquire.set_query(Xapian::Query("test"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("bnn"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::BOOLEAN,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
     mset_expect_order(mset, 1);
@@ -830,7 +838,11 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for "lnn" and for both branches of 'l'.
     enquire.set_query(Xapian::Query("word"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("lnn"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::LOG,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
