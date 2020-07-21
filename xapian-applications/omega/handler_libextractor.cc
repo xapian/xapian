@@ -29,15 +29,35 @@ using namespace std;
 
 string title, keywords, author, pages;
 
+/*
+* cls: passed as last parameter from EXTRACTOR_extract
+* plugin_name:	name of the plugin
+* type: mime-type of file according to libextractor
+* format: format information about data
+* data_mime_type: mimetype of data according to libextractor
+* data: actual meta-data found
+* data_len: number of bytes in data
+*/
 static int
-process_metadata (void *cls,
-	const char *plugin_name,
-	enum EXTRACTOR_MetaType type,
-	enum EXTRACTOR_MetaFormat format,
-	const char *data_mime_type,
-	const char *data,
-	size_t data_len)
+process_metadata(void* cls,
+		 const char* plugin_name,
+		 enum EXTRACTOR_MetaType type,
+		 enum EXTRACTOR_MetaFormat format,
+		 const char* data_mime_type,
+		 const char* data,
+		 size_t data_len)
 {
+    switch (format) {
+	case EXTRACTOR_METAFORMAT_UTF8:
+	    break;
+	default:
+	    // specific encoding unknown
+	    // EXTRACTOR_METAFORMAT_UNKNOWN
+	    // EXTRACTOR_METAFORMAT_BINARY
+	    // EXTRACTOR_METAFORMAT_C_STRING
+	    return 0;
+    }
+
     switch (type) {
 	case EXTRACTOR_METATYPE_TITLE:
 	case EXTRACTOR_METATYPE_BOOK_TITLE:
@@ -50,7 +70,7 @@ process_metadata (void *cls,
 	    break;
 
 	case EXTRACTOR_METATYPE_AUTHOR_NAME:
-	case  EXTRACTOR_METATYPE_CREATOR:
+	case EXTRACTOR_METATYPE_CREATOR:
 	    author = data;
 	    break;
 
@@ -72,16 +92,25 @@ extract(const string& filename,
 	string& error)
 {
     try {
-	struct EXTRACTOR_PluginList *plugins
-          = EXTRACTOR_plugin_add_defaults (EXTRACTOR_OPTION_DEFAULT_POLICY);
-	EXTRACTOR_extract (plugins, filename.c_str(),
-                           NULL, 0,
-        		   &process_metadata, NULL);
-	EXTRACTOR_plugin_remove_all (plugins);
+	// Add all default plugins
+	struct EXTRACTOR_PluginList* plugins
+	 = EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
+	EXTRACTOR_extract(plugins, filename.c_str(),
+			  NULL, 0,
+			  &process_metadata, NULL);
+	EXTRACTOR_plugin_remove_all(plugins);
+
+	// If plugin not found/ File format not recognised/ corrupt file
+	// Returns null and not error.
 	title = ::title;
 	author = ::author;
 	keywords = ::keywords;
 	pages = ::pages;
+
+	::keywords.resize(0);
+	::title.resize(0);
+	::author.resize(0);
+	::pages.resize(0);
     } catch (...) {
 	error = "Libextractor threw an exception";
 	return false;

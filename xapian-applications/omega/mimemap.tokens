@@ -217,8 +217,22 @@ webp		image/webp
 # Corel DRAW files:
 cdr		image/x-coreldraw
 
+# Audio files:
+flac		audio/flac
+mp3		audio/mpeg
+ogg		audio/ogg
+wav		audio/x-wav
+it		audio/x-mod
+xm		audio/x-mod
+s3m		audio/x-s3m
+
 # Video files:
 mpg		video/mpeg
+flv		video/x-flv
+avi		video/x-msvideo
+asf		video/x-ms-asf
+qt		video/quicktime
+mov		video/quicktime
 
 # Extensions to quietly ignore:
 a		ignore
