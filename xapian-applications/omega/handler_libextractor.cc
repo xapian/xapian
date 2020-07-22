@@ -27,13 +27,13 @@
 using namespace std;
 
 struct metadata {
-    string &title;
-    string &author;
-    string &keywords;
-    string &pages;
+    string& title;
+    string& author;
+    string& keywords;
+    string& pages;
 
-    metadata(string &t, string &a, string &k, string &p) :
-	    title(t), author(a), keywords(k), pages(p) {}
+    metadata(string& t, string& a, string& k, string& p)
+	    : title(t), author(a), keywords(k), pages(p) {}
 };
 
 /*
