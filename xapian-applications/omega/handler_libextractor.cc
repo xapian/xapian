@@ -22,16 +22,20 @@
 #include "handler.h"
 
 #include <extractor.h>
-
 #include <cstring>
 
 using namespace std;
 
-string title, keywords, author, pages;
+struct metadata {
+    string title;
+    string author;
+    string keywords;
+    string pages;
+};
 
 /*
 * cls: passed as last parameter from EXTRACTOR_extract
-* plugin_name:	name of the plugin
+* plugin_name: name of the plugin
 * type: mime-type of file according to libextractor
 * format: format information about data
 * data_mime_type: mimetype of data according to libextractor
@@ -47,9 +51,12 @@ process_metadata(void* cls,
 		 const char* data,
 		 size_t data_len)
 {
+    struct metadata* md = (struct metadata*)cls;
+
     switch (format) {
 	case EXTRACTOR_METAFORMAT_UTF8:
 	    break;
+
 	default:
 	    // specific encoding unknown
 	    // EXTRACTOR_METAFORMAT_UNKNOWN
@@ -62,21 +69,21 @@ process_metadata(void* cls,
 	case EXTRACTOR_METATYPE_TITLE:
 	case EXTRACTOR_METATYPE_BOOK_TITLE:
 	case EXTRACTOR_METATYPE_SUBJECT:
-	    title = data;
+	    md->title = string(data, data_len);
 	    break;
 
 	case EXTRACTOR_METATYPE_PAGE_COUNT:
-	    pages = data;
+	    md->pages = string(data, data_len);
 	    break;
 
 	case EXTRACTOR_METATYPE_AUTHOR_NAME:
 	case EXTRACTOR_METATYPE_CREATOR:
-	    author = data;
+	    md->author = string(data, data_len);
 	    break;
 
 	default:
-	    keywords += data;
-	    keywords += " ";
+	    md->keywords += string(data, data_len);
+	    md->keywords += " ";
     }
     return 0;
 }
@@ -92,25 +99,22 @@ extract(const string& filename,
 	string& error)
 {
     try {
+	struct metadata md;
 	// Add all default plugins
 	struct EXTRACTOR_PluginList* plugins
 	 = EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
 	EXTRACTOR_extract(plugins, filename.c_str(),
 			  NULL, 0,
-			  &process_metadata, NULL);
+			  &process_metadata, &md);
 	EXTRACTOR_plugin_remove_all(plugins);
 
 	// If plugin not found/ File format not recognised/ corrupt file
 	// Returns null and not error.
-	title = ::title;
-	author = ::author;
-	keywords = ::keywords;
-	pages = ::pages;
+	title = md.title;
+	author = md.author;
+	keywords = md.keywords;
+	pages = md.pages;
 
-	::keywords.resize(0);
-	::title.resize(0);
-	::author.resize(0);
-	::pages.resize(0);
     } catch (...) {
 	error = "Libextractor threw an exception";
 	return false;

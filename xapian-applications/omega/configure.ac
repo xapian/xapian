@@ -298,8 +298,8 @@ PKG_CHECK_MODULES([LIBCDR], [libcdr-0.1,librevenge-0.0,librevenge-generators-0.0
 
 dnl check if libextractor is available.
 PKG_CHECK_MODULES([LIBEXTRACTOR], [libextractor], [
-AC_DEFINE(HAVE_LIBEXTRACTOR, 1, [Define HAVE_LIBEXTRACTOR if the library is available])
-OMINDEX_MODULES="$OMINDEX_MODULES omindex_libextractor"],[ ])
+    AC_DEFINE(HAVE_LIBEXTRACTOR, 1, [Define HAVE_LIBEXTRACTOR if the library is available])
+    OMINDEX_MODULES="$OMINDEX_MODULES omindex_libextractor"],[ ])
 
 AC_SUBST([OMINDEX_MODULES])
 
