@@ -27,10 +27,13 @@
 using namespace std;
 
 struct metadata {
-    string title;
-    string author;
-    string keywords;
-    string pages;
+    string &title;
+    string &author;
+    string &keywords;
+    string &pages;
+
+    metadata(string &t, string &a, string &k, string &p) :
+	    title(t), author(a), keywords(k), pages(p) {}
 };
 
 /*
@@ -99,21 +102,18 @@ extract(const string& filename,
 	string& error)
 {
     try {
-	struct metadata md;
+	struct metadata md(title, author, keywords, pages);
+
 	// Add all default plugins
 	struct EXTRACTOR_PluginList* plugins
 	 = EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
+
+	// If plugin not found/ File format not recognised/ corrupt file
+	// Returns null and not error.
 	EXTRACTOR_extract(plugins, filename.c_str(),
 			  NULL, 0,
 			  &process_metadata, &md);
 	EXTRACTOR_plugin_remove_all(plugins);
-
-	// If plugin not found/ File format not recognised/ corrupt file
-	// Returns null and not error.
-	title = md.title;
-	author = md.author;
-	keywords = md.keywords;
-	pages = md.pages;
 
     } catch (...) {
 	error = "Libextractor threw an exception";
