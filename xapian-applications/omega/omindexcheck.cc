@@ -133,7 +133,7 @@ index_test()
     tests.insert({"sof/libarchive_openoffice_presentation_template.sti",
 		  {"ZSproject", "ZSresearch", "Zhead", "Ztext"}});
 
-    // OpenXML formats
+    // OOXML formats
     tests.insert({"ooxml/book.xlsx",
 		  {"Zmodi", "Zgood", "Zemploye"}});
     tests.insert({"ooxml/doc.docx",

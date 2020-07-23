@@ -57,10 +57,10 @@ extract_odf(struct archive* archive_obj,
 {
     string content, styles;
     struct archive_entry* entry;
-    size_t total;
-    ssize_t size;
 
     while (archive_read_next_header(archive_obj, &entry) == ARCHIVE_OK) {
+	size_t total;
+	ssize_t size;
 	string pathname = archive_entry_pathname(entry);
 	if (pathname == "content.xml") {
 	    total = archive_entry_size(entry);
@@ -275,8 +275,9 @@ extract(const string& filename,
 				  error);
 	    if (!succeed)
 		return false;
-	} else if (startswith(mimetype, "application/"
-					"vnd.openxmlformats-officedocument.")) {
+	} else if (startswith(mimetype,
+			      "application/vnd.openxmlformats-officedocument."))
+	{
 	    string tail(mimetype, 46);
 	    succeed = extract_open_xml(archive_obj, tail, dump, title, keywords,
 				       author, error);
