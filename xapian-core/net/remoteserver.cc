@@ -508,9 +508,8 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::termcount check_at_least;
     decode_length(&p, p_end, check_at_least);
 
-    message.erase(0, message.size() - (p_end - p));
     AutoPtr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
-    unserialise_stats(message, *(total_stats.get()));
+    unserialise_stats(p, p_end, *(total_stats.get()));
     total_stats->set_bounds_from_db(*db);
 
     Xapian::MSet mset;

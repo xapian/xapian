@@ -68,11 +68,9 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 }
 
 void
-unserialise_stats(const string &s, Xapian::Weight::Internal & stat)
+unserialise_stats(const char* p, const char* p_end,
+		  Xapian::Weight::Internal& stat)
 {
-    const char * p = s.data();
-    const char * p_end = p + s.size();
-
     Xapian::totallength dummy;
     decode_length(&p, p_end, stat.total_length);
     decode_length(&p, p_end, stat.collection_size);
@@ -197,7 +195,7 @@ unserialise_mset(const char * p, const char * p_end)
     AutoPtr<Xapian::Weight::Internal> stats;
     if (p != p_end) {
 	stats.reset(new Xapian::Weight::Internal());
-	unserialise_stats(string(p, p_end - p), *(stats.get()));
+	unserialise_stats(p, p_end, *(stats.get()));
     }
 
     Xapian::MSet mset;

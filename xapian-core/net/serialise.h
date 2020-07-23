@@ -42,11 +42,12 @@ std::string serialise_stats(const Xapian::Weight::Internal &stats);
 
 /** Unserialise a serialised stats object.
  *
- *  @param s		The string to unserialise.
- *
+ *  @param p		Pointer to data to unserialise.
+ *  @param p_end	End of data to unserialise.
  *  @param stats	The stats object to unserialise to.
  */
-void unserialise_stats(const std::string &s, Xapian::Weight::Internal &stats);
+void unserialise_stats(const char* p, const char* p_end,
+		       Xapian::Weight::Internal& stats);
 
 /** Serialise a Xapian::MSet object.
  *
