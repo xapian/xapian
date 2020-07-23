@@ -85,9 +85,8 @@ extract_odf(struct archive* archive_obj,
 	    }
 	    styles.resize(size);
 	} else if (pathname == "meta.xml") {
-	    string metadata;
 	    total = archive_entry_size(entry);
-	    metadata.resize(total);
+	    string metadata(total, '\0');
 	    size = archive_read_data(archive_obj, &metadata[0], total);
 
 	    if (size > 0) {
@@ -151,7 +150,7 @@ extract_open_xml(struct archive* archive_obj,
 	    } else if (pathname == "docProps/core.xml") {
 		// docProps/core.xml stores meta data
 		total = archive_entry_size(entry);
-		string metadata(total, ' ');
+		string metadata(total, '\0');
 		size = archive_read_data(archive_obj, &metadata[0], total);
 		if (size > 0) {
 		    metadata.resize(size);
@@ -190,7 +189,7 @@ extract_open_xml(struct archive* archive_obj,
 		sheets.resize(i + size);
 	    } else if (pathname == "docProps/core.xml") {
 		total = archive_entry_size(entry);
-		string metadata(total, ' ');
+		string metadata(total, '\0');
 		size = archive_read_data(archive_obj, &metadata[0], total);
 		if (size > 0) {
 		    metadata.resize(size);
@@ -219,7 +218,7 @@ extract_open_xml(struct archive* archive_obj,
 		content.resize(i + size);
 	    } else if (pathname == "docProps/core.xml") {
 		total = archive_entry_size(entry);
-		string metadata(total, ' ');
+		string metadata(total, '\0');
 		size = archive_read_data(archive_obj, &metadata[0], total);
 		if (size > 0) {
 		    metadata.resize(size);
@@ -268,20 +267,16 @@ extract(const string& filename,
 	    return false;
 	}
 
-	bool succeed;
 	if (startswith(mimetype, "application/vnd.sun.xml.") ||
 	    startswith(mimetype, "application/vnd.oasis.opendocument.")) {
-	    succeed = extract_odf(archive_obj, dump, title, keywords, author,
-				  error);
-	    if (!succeed)
+	    if (!extract_odf(archive_obj, dump, title, keywords, author, error))
 		return false;
 	} else if (startswith(mimetype,
 			      "application/vnd.openxmlformats-officedocument."))
 	{
 	    string tail(mimetype, 46);
-	    succeed = extract_open_xml(archive_obj, tail, dump, title, keywords,
-				       author, error);
-	    if (!succeed)
+	    if (!extract_open_xml(archive_obj, tail, dump, title, keywords,
+				  author, error))
 		return false;
 	}
 
