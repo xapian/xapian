@@ -394,7 +394,7 @@ MSet::Internal::unserialise(const char * p, const char * p_end)
 
     if (p != p_end) {
 	stats.reset(new Xapian::Weight::Internal());
-	unserialise_stats(string(p, p_end - p), *stats);
+	unserialise_stats(p, p_end, *stats);
     }
 }
 
