@@ -69,19 +69,28 @@ process_metadata(void* cls,
     }
 
     switch (type) {
-	case EXTRACTOR_METATYPE_TITLE:
 	case EXTRACTOR_METATYPE_BOOK_TITLE:
+	case EXTRACTOR_METATYPE_JOURNAL_NAME:
+	case EXTRACTOR_METATYPE_ORIGINAL_TITLE:
 	case EXTRACTOR_METATYPE_SUBJECT:
-	    md->title = string(data, data_len);
+	case EXTRACTOR_METATYPE_TITLE:
+	    md->title += string(data, data_len);
+	    md->title += " ";
 	    break;
 
 	case EXTRACTOR_METATYPE_PAGE_COUNT:
 	    md->pages = string(data, data_len);
 	    break;
 
+	case EXTRACTOR_METATYPE_ARTIST:
 	case EXTRACTOR_METATYPE_AUTHOR_NAME:
 	case EXTRACTOR_METATYPE_CREATOR:
-	    md->author = string(data, data_len);
+	case EXTRACTOR_METATYPE_MOVIE_DIRECTOR:
+	case EXTRACTOR_METATYPE_ORIGINAL_ARTIST:
+	case EXTRACTOR_METATYPE_ORIGINAL_WRITER:
+	case EXTRACTOR_METATYPE_PUBLISHER:
+	    md->author += string(data, data_len);
+	    md->author += " ";
 	    break;
 
 	default:

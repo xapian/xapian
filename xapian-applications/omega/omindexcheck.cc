@@ -157,6 +157,16 @@ index_test()
     tests.insert({"cdr/test2.cdr",
 		  {"Zедой", "Z喬伊不分享食物", "Zdocument"}});
 #endif
+#if defined HAVE_LIBEXTRACTOR
+    tests.insert({"video/file_example_OGG_480_1_7mg.ogg",
+		  {"lavf58.29.100", "Zogg"}});
+    tests.insert({"video/file_example_AVI_480_750kB.avi",
+		  {"Zcodec", "Zh264", "480x270", "msvideo", "30", "fps"}});
+    tests.insert({"audio/file_example_OOG_1MG.ogg",
+		  {"Simpact", "ZSmoderato", "Zlibrari", "Zcinemat"}});
+    tests.insert({"audio/file_example_WAV_1MG.wav",
+		  {"Zstereo", "wav", "Zms"}});
+#endif
 }
 
 static bool
@@ -179,7 +189,7 @@ int
 main(int argc, char** argv)
 {
     Xapian::Database db;
-    bool succeed = true;
+    bool succeed = true, skip = true;
     if (argc <= 1)
 	return 1;
     db.add_database(Xapian::Database(argv[1]));
@@ -196,8 +206,14 @@ main(int argc, char** argv)
 	Xapian::Document doc = db.get_document(did);
 	auto iter = tests.find(url);
 	if (iter != tests.end()) {
-	    succeed &= compare_test(iter->second, doc, url);
+	    if (startswith(iter->first, "audio") ||
+		startswith(iter->first, "video"))
+		skip &= compare_test(iter->second, doc, url);
+	    else
+		succeed &= compare_test(iter->second, doc, url);
 	}
     }
-    return succeed ? 0 : 1;
+    // skip(77) if term not present in audio/video files
+    // Appropriate plugin for libextractor may not be present.
+    return succeed ? skip ? 0 : 77 : 1;
 }
