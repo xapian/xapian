@@ -963,7 +963,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1 + log(8.0));
     TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1.0);
 
-    // Check for SQUARE, NONE , NONE.
+    // Check for SQUARE, NONE, NONE.
     enquire.set_query(Xapian::Query("paragraph"));
     enquire.set_weighting_scheme(
 	Xapian::TfIdfWeight(
@@ -978,7 +978,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for NONE, TFIDF, NONE when termfreq=N
     enquire.set_query(Xapian::Query("this"));
-    // N=termfreq and so idfn=0 for "t"
+    // N=termfreq and so idfn=0 for TFIDF
     enquire.set_weighting_scheme(
 	Xapian::TfIdfWeight(
 	    Xapian::TfIdfWeight::wdf_norm::NONE,
@@ -993,7 +993,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for NONE, PROB, NONE and for both branches of PROB
     enquire.set_query(Xapian::Query("this"));
-    // N=termfreq and so idfn=0 for "p"
+    // N=termfreq and so idfn=0 for PROB
     enquire.set_weighting_scheme(
 	Xapian::TfIdfWeight(
 	    Xapian::TfIdfWeight::wdf_norm::NONE,
@@ -1007,7 +1007,11 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     }
 
     enquire.set_query(Xapian::Query("word"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight("npn"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::PROB,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
