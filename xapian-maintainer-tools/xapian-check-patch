@@ -106,6 +106,7 @@ my $want_tabs = -1;
 my $check_indent = 0;
 my $check_trailing = 0;
 my $check_space_tab = 0;
+my $check_end_new_line = 0;
 my $in_comment = 0;
 my $lang;
 my $header_guard_macro;
@@ -152,7 +153,13 @@ while (<>) {
 	$check_space_tab = 1;
 	$check_trailing = 1;
 	$doxygen_first_line = 1;
-	if ($ext eq 'cc') {
+	$check_end_new_line = 1;
+	if ($fnm =~ m!xapian-applications/omega/testfiles!) {
+	    $check_space_tab = 0;
+	    $check_trailing = 0;
+	    $doxygen_first_line = 0;
+	    $check_end_new_line = 0;
+	} elsif ($ext eq 'cc') {
 	    if ($fnm =~ m!\b(?:cdb|portability/mkdtemp)! ||
 		$fnm =~ m!\bcommon/getopt\.cc$! ||
 		$fnm =~ m!\bomega/md5\.cc$! ||
@@ -769,6 +776,10 @@ QUOTELOOP:  while (1) {
 	    # Allow multiple spaces in "#  ifdef FOO".
 	    diagnostic('error', "Multiple spaces");
 	}
+	if (/^\+\s*#\s*include([<"])/) {
+	    # #include<foo.h> or #include"foo.h"
+	    diagnostic('error', "Missing space between #include and '$1'");
+	}
 	if (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
 	    diagnostic('error', "added/changed line has comment without whitespace before the text");
 	}
@@ -889,7 +900,7 @@ QUOTELOOP:  while (1) {
 	}
     }
     if (defined $fnm && $fnm !~ m!xapian-check-patch|ChangeLog|NEWS|stemming/.*/(?:voc2?|output2?)\.txt$!) {
-	if ($fullline =~ /^\+.*?(?:\b|_)(xapain|the the|initialsing|ipv5|outputing|intened|wull|extrac|if it possible|betweem|differen|auxiliar)(?:\b|_)/i ||
+	if ($fullline =~ /^\+.*?(?:\b|_)(xapain|the the|initialsing|ipv5|outputing|intened|wull|extrac|if it possible|betweem|differen|auxiliar|wat(?:|ed|ing|s)|wth|teh)(?:\b|_)/i ||
 	    # Cases which just need to be the prefix of a word
 	    $fullline =~ /^\+.*?(?:\b|_)((?:deafult|parm|peform|acessor|comptib|seach|seperat|seprat|separater|iteratat|calulat|delimitor|delimeter|charactor|databse|operatoar|implict|differnt|orignal|straterg|unecessar|comamnd|docuemnt|implment|initilias|capatil|reprensent|ommit|openning|openned|appropirate|labrar|returm|interati|termfrequenc|continous|juding|gradinet|clearling|clearled|retreiv|filedescriptor)[a-z]*(?:\b|_))/i ||
 	    # Case-sensitive cases
@@ -968,7 +979,7 @@ QUOTELOOP:  while (1) {
     } elsif ($first_char eq '\\') {
 	# "\ No newline at end of file" - if preceded by a "+" line, this means
 	# that the patch leaves the file missing a newline at the end.
-	if ($last_first_char eq '+') {
+	if ($check_end_new_line && $last_first_char eq '+') {
 	    diagnostic_last('error', 'No newline at end of file');
 	}
     }

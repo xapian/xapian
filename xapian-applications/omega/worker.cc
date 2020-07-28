@@ -136,6 +136,7 @@ Worker::start_worker_subprocess()
 
 bool
 Worker::extract(const std::string& filename,
+		const std::string& mimetype,
 		std::string& dump,
 		std::string& title,
 		std::string& keywords,
@@ -157,8 +158,9 @@ Worker::extract(const std::string& filename,
 
     string strpage, strstate;
     char state = MSG_FATAL_ERROR;
-    // Sending a filename and wating for the answer
-    if (write_string(sockt, filename) && read_string(sockt, strstate)) {
+    // Send a filename and wait for the reply.
+    if (write_string(sockt, filename) && write_string(sockt, mimetype) &&
+	read_string(sockt, strstate)) {
 	error.clear();
 	if (!strstate.empty())
 	    state = strstate[0];

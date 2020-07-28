@@ -44,7 +44,7 @@ BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
 
 MAINTAINERCLEANFILES = my-html-tok.h mimemap.h mimemap.stamp namedents.h
 
-EXTRA_PROGRAMS = omindex_poppler omindex_libebook omindex_libetonyek omindex_tesseract omindex_gmime
+EXTRA_PROGRAMS = omindex_poppler omindex_libebook omindex_libetonyek omindex_tesseract omindex_gmime omindex_libarchive
 
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
@@ -87,14 +87,15 @@ dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list generate-qrel-file
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega postprocess
 
-check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test sdbntest urlenctest utf8converttest
-dist_check_SCRIPTS = omegatest sourcetest
+check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck
+dist_check_SCRIPTS = omegatest sourcetest omindextest
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	omegatest\
+	omindextest\
 	sdbntest$(EXEEXT)\
 	sourcetest\
 	urlenctest$(EXEEXT)\
@@ -197,6 +198,10 @@ omindex_gmime_SOURCES = assistant.cc worker_comms.cc myhtmlparse.cc datetime.cc 
 omindex_gmime_LDADD = $(GMIME_LIBS) libutf8convert.la
 omindex_gmime_CXXFLAGS = $(GMIME_CFLAGS) $(XAPIAN_CXXFLAGS)
 
+omindex_libarchive_SOURCES = assistant.cc worker_comms.cc metaxmlparse.cc opendocparse.cc datetime.cc htmlparse.cc myhtmlparse.cc xmlparse.cc msxmlparse.cc xlsxparse.cc common/keyword.cc common/str.cc handler_libarchive.cc
+omindex_libarchive_LDADD = $(LIBARCHIVE_LIBS) libutf8convert.la
+omindex_libarchive_CXXFLAGS = $(LIBARCHIVE_CFLAGS) $(XAPIAN_CXXFLAGS)
+
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
  utf8truncate.cc\
@@ -238,6 +243,9 @@ sdbntest_LDADD = $(NO_INSTALL)
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
 jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
+
+omindexcheck_SOURCES = omindexcheck.cc worker.cc worker_comms.cc common/closefrom.cc pkglibbindir.cc freemem.cc
+omindexcheck_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1 omindex-list.1

@@ -113,7 +113,8 @@ GlassTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
     LOGCALL_VOID(DB, "GlassTermList::accumulate_stats", stats);
     Assert(!at_end());
-    stats.accumulate(current_wdf, doclen, get_termfreq(), db->get_doccount());
+    stats.accumulate(shard_index,
+		     current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
 
 string

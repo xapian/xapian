@@ -64,6 +64,7 @@ class Worker {
      *  if it is necessary.
      *
      *  @param filename		Path to the file.
+     *  @param mimetype		Mimetype of the file.
      *  @param dump		String where the dump will be saved.
      *  @param title		String which will hold the title of the file.
      *  @param keywords		String where the keywords will be stored.
@@ -78,6 +79,7 @@ class Worker {
      *  as an error.
      */
     bool extract(const std::string& filename,
+		 const std::string& mimetype,
 		 std::string& dump,
 		 std::string& title,
 		 std::string& keywords,
