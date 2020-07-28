@@ -306,6 +306,7 @@ TfIdfWeight::get_idfn(idf_norm idf_normalization) const
 	case idf_norm::LOG_GLOBAL_FREQ: {
 	    collfreq = get_collection_freq();
 	    return log(double(collfreq) / termfreq + 1);
+	}
 	case idf_norm::TFIDF:
 	    break;
     }
