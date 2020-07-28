@@ -363,9 +363,6 @@ class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
 
     /// Clear the terms and corresponding values of the centroid
     void clear();
-
-    /// Recalculate the magnitude of the centroid
-    void recalc_magnitude();
 };
 
 /** Class to represents a Cluster which contains Points and Centroid
