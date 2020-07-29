@@ -301,7 +301,7 @@ main(int argc, char **argv)
     HoneyVersion& version_file = *version_file_ptr;
 
     version_file.read();
-    Xapian::rev rev = version_file.get_revision();
+    honey_revision_number_t rev = version_file.get_revision();
 
     show_help();
     cout << endl;

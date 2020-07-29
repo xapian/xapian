@@ -38,7 +38,7 @@
 using namespace std;
 
 #define PROG_NAME "xapian-inspect"
-#define PROG_DESC "Inspect the contents of a glass table for development or debugging"
+#define PROG_DESC "Inspect a glass table for development or debugging"
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
@@ -352,6 +352,7 @@ open_different_table:
 	    cout << "No entries!" << endl;
 	    exit(0);
 	}
+
 	cout << "Table has " << table.get_entry_count() << " entries" << endl;
 
 	GlassCursor cursor(&table);
