@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE abiword PUBLIC "-//ABISOURCE//DTD AWML 1.0 Strict//EN" "http://www.abisource.com/awml.dtd">
+<abiword template="false" xmlns:ct="http://www.abisource.com/changetracking.dtd" xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:math="http://www.w3.org/1998/Math/MathML" xid-max="18" xmlns:dc="http://purl.org/dc/elements/1.1/" styles="unlocked" fileformat="1.0" xmlns:svg="http://www.w3.org/2000/svg" xmlns:awml="http://www.abisource.com/awml.dtd" xmlns="http://www.abisource.com/awml.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" version="0.99.2" xml:space="preserve" props="dom-dir:ltr; document-footnote-restart-section:0; document-endnote-type:numeric; document-endnote-place-enddoc:1; document-endnote-initial:1; lang:en-US; document-endnote-restart-section:0; document-footnote-restart-page:0; document-footnote-type:numeric; document-footnote-initial:1; document-endnote-place-endsection:0">
+<!-- ======================================================================== -->
+<!-- This file is an AbiWord document.                                        -->
+<!-- AbiWord is a free, Open Source word processor.                           -->
+<!-- More information about AbiWord is available at http://www.abisource.com/ -->
+<!-- You should not edit this file by hand.                                   -->
+<!-- ======================================================================== -->
+
+<metadata>
+<m key="abiword.date_last_changed">Fri Jul 31 00:18:04 2020
+</m>
+<m key="abiword.generator">AbiWord</m>
+<m key="abiword.keywords">Abiword Parth</m>
+<m key="dc.creator">PARTH KAPADIA</m>
+<m key="dc.date">Sun Jul 26 20:07:54 2020
+</m>
+<m key="dc.format">application/x-abiword</m>
+<m key="dc.subject">Abiword subject</m>
+<m key="dc.title">Abiword title</m>
+</metadata>
+<rdf>
+</rdf>
+<history version="7" edit-time="248" last-saved="1596134884" uid="82f3ac6a-cf4d-11ea-8ac8-d1b018f7f713">
+<version id="2" started="1595774274" uid="99fccb76-cf4d-11ea-8ac8-d1b018f7f713" auto="0" top-xid="2"/>
+<version id="3" started="1595864493" uid="a5de74bc-d01f-11ea-8b3a-ee58f3360004" auto="0" top-xid="12"/>
+<version id="4" started="1595864566" uid="d1a7033e-d01f-11ea-9327-c0ee3c8c50b4" auto="0" top-xid="18"/>
+<version id="5" started="1595864670" uid="0f6a3f24-d020-11ea-9ac4-817b55953029" auto="0" top-xid="18"/>
+<version id="6" started="1596134517" uid="58d0c388-d294-11ea-9584-adda9b84682c" auto="0" top-xid="18"/>
+<version id="7" started="1596134884" uid="3365fafe-d295-11ea-9dc0-875a150ad13c" auto="0" top-xid="18"/>
+</history>
+<styles>
+<s type="P" name="Normal" followedby="Current Settings" props="font-family:Times New Roman; margin-top:0pt; font-style:normal; margin-left:0pt; bgcolor:transparent; widows:2; font-variant:normal; text-indent:0in; text-position:normal; text-decoration:none; font-weight:normal; line-height:1.0; margin-bottom:0pt; font-size:12pt; margin-right:0pt; text-align:left; font-stretch:normal; color:000000"/>
+</styles>
+<pagesize pagetype="Letter" orientation="portrait" width="8.500000" height="11.000000" units="in" page-scale="1.000000"/>
+<section xid="1" props="page-margin-footer:0.5in; page-margin-header:0.5in">
+<p style="Normal" xid="2">Hello world !</p>
+<p style="Normal" xid="3"><c></c><c></c></p>
+<p style="Normal" xid="4">This is a Sample Abiword <c props="font-weight:bold">Document.</c></p>
+<p style="Normal" xid="5"><c></c><c></c></p>
+<p style="Normal" xid="14"><c></c></p>
+<p style="Normal" xid="17"><c></c><c></c></p>
+<p style="Normal" xid="18"><c></c></p>
+</section>
+</abiword>

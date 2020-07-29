@@ -141,6 +141,14 @@ index_test()
     tests.insert({"ooxml/nature.pptx",
 		  {"ZSnatur", "Zbeauti", "Zsampl"}});
 #endif
+#if defined HAVE_LIBABW
+    // Title term is not being tested here because some older versions of Libabw
+    // lack a bug fix for the title to be handled properly. (< libabw-0.1.2)
+    tests.insert({"abw/test.abw",
+		  {"ZAparth", "Zabiword", "Zsampl", "Zdocument"}});
+    tests.insert({"abw/test1.abw",
+		  {"Zедой", "Z喬伊不分享食物"}});
+#endif
 }
 
 static bool

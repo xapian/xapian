@@ -286,6 +286,11 @@ PKG_CHECK_MODULES([LIBARCHIVE], [libarchive], [
     AC_DEFINE(HAVE_LIBARCHIVE, 1, [Define HAVE_LIBARCHIVE if the library is available])
     OMINDEX_MODULES="$OMINDEX_MODULES omindex_libarchive"],[ ])
 
+dnl check if libabw is available.
+PKG_CHECK_MODULES([LIBABW], [libabw-0.1,librevenge-0.0,librevenge-generators-0.0,librevenge-stream-0.0], [
+    AC_DEFINE(HAVE_LIBABW, 1, [Define HAVE_LIBABW if the library is available])
+    OMINDEX_MODULES="$OMINDEX_MODULES omindex_libabw"],[ ])
+
 AC_SUBST([OMINDEX_MODULES])
 
 dnl mingw has _snprintf so check for that too.
