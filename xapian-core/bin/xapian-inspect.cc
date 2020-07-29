@@ -56,9 +56,7 @@ static void show_usage() {
 
 static void
 display_nicely(const string & data) {
-    string::const_iterator i;
-    for (i = data.begin(); i != data.end(); ++i) {
-	unsigned char ch = *i;
+    for (unsigned char ch : data) {
 	if (ch < 32 || ch >= 127) {
 	    switch (ch) {
 		case '\n': cout << "\\n"; break;
