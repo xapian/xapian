@@ -1512,12 +1512,6 @@ void QueryScaleWeight::serialise(string & result) const
     subquery.internal->serialise(result);
 }
 
-struct is_matchnothing {
-    bool operator()(const Xapian::Query & q) const {
-	return q.internal.get() == NULL;
-    }
-};
-
 void
 QueryAndLike::add_subquery(const Xapian::Query & subquery)
 {
