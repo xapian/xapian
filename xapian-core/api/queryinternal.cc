@@ -2122,9 +2122,8 @@ void QueryPostingSource::serialise(string & result) const
 void QueryScaleWeight::serialise(string & result) const
 {
     Assert(subquery.internal.get());
-    const string & s = serialise_double(scale_factor);
     result += '\x0d';
-    result += s;
+    result += serialise_double(scale_factor);
     subquery.internal->serialise(result);
 }
 
