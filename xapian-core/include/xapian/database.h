@@ -275,6 +275,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/// Get the average length of the documents in the database.
 	Xapian::doclength get_avlength() const;
 
+	/** New name for get_avlength().
+	 *
+	 *  Added for forward compatibility with the next release series.
+	 *
+	 *  @since 1.4.17.
+	 */
+	double get_average_length() const { return get_avlength(); }
+
 	/** Get the total length of all the documents in the database.
 	 *
 	 *  Added in Xapian 1.4.5.
