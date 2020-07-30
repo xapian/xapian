@@ -20,15 +20,94 @@
  */
 #include <config.h>
 #include "handler.h"
+#include "stringutils.h"
 
+#include <memory>
 #include <cstring>
 
 #include <librevenge-generators/librevenge-generators.h>
 #include <librevenge-stream/librevenge-stream.h>
 #include <libabw/libabw.h>
 
+#define PARSE_FIELD(START, END, FIELD, OUT) \
+   parse_metadata_field((START), (END), (FIELD), (CONST_STRLEN(FIELD)), (OUT))
+
 using namespace std;
 using namespace librevenge;
+
+static void
+parse_metadata_field(const char* start,
+		     const char* end,
+		     const char* field,
+		     size_t len,
+		     string& out)
+{
+    if (size_t(end - start) > len && memcmp(start, field, len) == 0) {
+	start += len;
+	while (start != end && isspace(*start)) start++;
+	if (start != end && (end[-1] != '\r' || --end != start)) {
+	    if (!out.empty())
+		out.push_back(' ');
+	    out.append(start, end - start);
+	}
+    }
+}
+
+static void
+parse_metadata(const char* data,
+	       size_t len,
+	       string& author,
+	       string& title,
+	       string& keywords)
+{
+    const char* p = data;
+    const char* end = p + len;
+
+    while (p != end) {
+	const char* start = p;
+	p = static_cast<const char*>(memchr(p, '\n', end - start));
+	const char* eol;
+	if (p)
+	    eol = p++;
+	else
+	    p = eol = end;
+	if ((end - start) > 5 && memcmp(start, "meta:", 5) == 0) {
+	    start += 5;
+	    switch (*start) {
+		case 'i': {
+		    if (author.empty())
+			PARSE_FIELD(start, eol, "initial-creator", author);
+		    break;
+		}
+		case 'k': {
+		    PARSE_FIELD(start, eol, "keyword", keywords);
+		    break;
+		}
+	    }
+	} else if ((end - start) > 3 && memcmp(start, "dc:", 3) == 0) {
+	    start += 3;
+	    switch (*start) {
+		case 'c': {
+		    if (!author.empty())
+			author.clear();
+		    PARSE_FIELD(start, eol, "creator", author);
+		    break;
+		}
+		case 's': {
+		    PARSE_FIELD(start, eol, "subject", keywords);
+		    break;
+		}
+		case 't': {
+		    PARSE_FIELD(start, eol, "title", title);
+		    break;
+		}
+	    }
+	} else if ((end - start) > 8 && memcmp(start, "dcterms:", 8) == 0) {
+	    start += 8;
+	    PARSE_FIELD(start, eol, "available", keywords);
+	}
+    }
+}
 
 static void
 clear_text(string& str, const char* text)
@@ -37,6 +116,7 @@ clear_text(string& str, const char* text)
 	for (int i = 0; text[i] != '\0'; ++i)
 	    if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
 		str.push_back(text[i]);
+	str.push_back('\n');
     }
 }
 
@@ -50,14 +130,39 @@ extract(const string& filename,
 	string& pages,
 	string& error)
 {
-    RVNGFileStream input(filename.c_str());
-    RVNGString metadata_dump, content_dump;
+    try {
+	librevenge::RVNGFileStream input(filename.c_str());
 
-    RVNGTextTextGenerator metadata(metadata_dump, true);
-    if (libabw::AbiDocument::parse(&input, &metadata))
-	cout<<metadata_dump.cstr();
+	if (!libabw::AbiDocument::isFileFormatSupported(&input)) {
+	    error = "Libabw Error: The format is not supported";
+	    return false;
+	}
 
-    RVNGTextTextGenerator content(content_dump, false);
-    if (libabw::AbiDocument::parse(&input, &content))
-	cout<<content_dump.cstr();
+	bool succeed = true;
+	RVNGString metadata_dump, content_dump;
+
+	RVNGTextTextGenerator metadata(metadata_dump, true);
+	if (libabw::AbiDocument::parse(&input, &metadata)) {
+	    const char* data = metadata_dump.cstr();
+	    size_t len = metadata_dump.size();
+	    parse_metadata(data, len, author, title, keywords);
+	    succeed = true;
+	} else {
+	    error = "Libabw Error: Fail to extract metadata";
+	}
+
+	RVNGTextTextGenerator content(content_dump, false);
+	if (libabw::AbiDocument::parse(&input, &content)) {
+	    clear_text(dump, content_dump.cstr());
+	    succeed = true;
+	} else {
+	    if (!error.empty())
+		error.push_back('\n');
+	    error += "Libabw Error: Fail to extract text";
+	}
+	return succeed;
+    } catch (...) {
+	error = "Libabw threw an exception";
+	return false;
+    }
 }

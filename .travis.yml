@@ -34,6 +34,7 @@ matrix:
             - libtesseract-dev
             - libgmime-2.6-dev
             - libarchive-dev
+            - libabw-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
@@ -63,6 +64,7 @@ matrix:
             - libtesseract-dev
             - libgmime-2.6-dev
             - libarchive-dev
+            - libabw-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
@@ -131,6 +133,7 @@ matrix:
             - graphviz
             - help2man
             - icu4c
+            - libabw
             - libarchive
             - libetonyek
             - libiconv

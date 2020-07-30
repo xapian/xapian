@@ -247,6 +247,11 @@ index_add_default_libraries()
     index_library("application/vnd.sun.xml.writer.template",
 		  omindex_libarchive);
 #endif
+#if defined HAVE_LIBABW
+    Worker* omindex_libabw = new Worker("omindex_libabw");
+    index_library("application/x-abiword", omindex_libabw);
+    index_library("application/x-abiword-compressed", omindex_libabw);
+#endif
 }
 
 void

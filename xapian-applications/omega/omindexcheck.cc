@@ -131,6 +131,12 @@ index_test()
     tests.insert({"sof/libarchive_openoffice_presentation_template.sti",
 		  {"ZSproject", "ZSresearch", "Zhead", "Ztext"}});
 #endif
+#if defined HAVE_LIBABW
+    tests.insert({"abw/test.abw",
+		  {"ZAparth", "ZSabiword", "Zsampl", "Zdocument"}});
+    tests.insert({"abw/test1.abw",
+		  {"Zедой", "Z喬伊不分享食物"}});
+#endif
 }
 
 static bool
