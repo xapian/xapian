@@ -74,12 +74,16 @@ process_metadata(void* cls,
 	case EXTRACTOR_METATYPE_ORIGINAL_TITLE:
 	case EXTRACTOR_METATYPE_SUBJECT:
 	case EXTRACTOR_METATYPE_TITLE:
-	    md->title += string(data, data_len);
-	    md->title += " ";
+	    if ((data != NULL) && (data[0] != '\0')) {
+		md->title.append(data, data_len);
+		md->title.append(" ");
+	    }
 	    break;
 
 	case EXTRACTOR_METATYPE_PAGE_COUNT:
-	    md->pages = string(data, data_len);
+	    if ((data != NULL) && (data[0] != '\0')) {
+		md->pages.append(data, data_len);
+	    }
 	    break;
 
 	case EXTRACTOR_METATYPE_ARTIST:
@@ -89,13 +93,17 @@ process_metadata(void* cls,
 	case EXTRACTOR_METATYPE_ORIGINAL_ARTIST:
 	case EXTRACTOR_METATYPE_ORIGINAL_WRITER:
 	case EXTRACTOR_METATYPE_PUBLISHER:
-	    md->author += string(data, data_len);
-	    md->author += " ";
+	    if ((data != NULL) && (data[0] != '\0')) {
+		md->author.append(data, data_len);
+		md->author.append(" ");
+	    }
 	    break;
 
 	default:
-	    md->keywords += string(data, data_len);
-	    md->keywords += " ";
+	    if ((data != NULL) && (data[0] != '\0')) {
+		md->keywords.append(data, data_len);
+		md->keywords.append(" ");
+	    }
     }
     return 0;
 }
