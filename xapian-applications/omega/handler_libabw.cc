@@ -131,7 +131,7 @@ extract(const string& filename,
 	string& error)
 {
     try {
-	librevenge::RVNGFileStream input(filename.c_str());
+	RVNGFileStream input(filename.c_str());
 
 	if (!libabw::AbiDocument::isFileFormatSupported(&input)) {
 	    error = "Libabw Error: The format is not supported";
