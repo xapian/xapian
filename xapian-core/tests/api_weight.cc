@@ -1032,6 +1032,54 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 		      (1 + log(8.0)) / (1 + log(81.0 / 56.0)));
     TEST_EQUAL_DOUBLE(mset[1].get_weight(),
 		      (1 + log(1.0)) / (1 + log(31.0 / 26.0)));
+
+    // Check for AUG_LOG, NONE, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::AUG_LOG,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.2 + 0.8 * log(1.0 + 8));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.2 + 0.8 * log(1.0 + 1));
+
+    // Check for NONE, GLOBAL_FREQ, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::GLOBAL_FREQ,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * (9.0 / 2));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * (9.0 / 2));
+
+    // Check for SQRT, NONE, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::SQRT,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), sqrt(8 - 0.5) + 1);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), sqrt(1 - 0.5) + 1);
+
+    // Check for NONE, LOG_GLOBAL_FREQ, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::LOG_GLOBAL_FREQ,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * log(9.0 / 2 + 1));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * log(9.0 / 2 + 1));
 }
 
 // Feature tests for pivoted normalization functions.
