@@ -514,7 +514,13 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	 *
 	 *  wdfn=sqrt(wdf-0.5)+1 if(wdf>0), else wdfn=0
 	 */
-	SQRT = 8
+	SQRT = 8,
+
+	/** Augmented average term frequency
+	 *
+	 *  wdfn=0.9+0.1*(wdf/(doclen/unique_terms)) if(wdf>0), else wdfn=0
+	 */
+	AUG_AVERAGE = 9
     };
 
     /** Idf normalizations. */
@@ -567,7 +573,19 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	 *
 	 *  idfn=log(Collfreq/Termfreq+1)
 	 */
-	LOG_GLOBAL_FREQ = 8
+	LOG_GLOBAL_FREQ = 8,
+
+	/** Incremented global frequency IDF
+	 *
+	 *  idfn=Collfreq/Termfreq+1
+	 */
+	INCREMENTED_GLOBAL_FREQ = 9,
+
+	/** Square root global frequency IDF
+	 *
+	 *  idfn=sqrt(Collfreq/Termfreq-0.9)
+	 */
+	SQRT_GLOBAL_FREQ = 10
     };
 
     /** Weight normalizations. */
