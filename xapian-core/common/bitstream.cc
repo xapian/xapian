@@ -152,7 +152,7 @@ BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
 }
 
 void
-BitWriter::encode_interpolative(const vector<Xapian::termpos> &pos, int j, int k)
+BitWriter::encode_interpolative(const vector<Xapian::termpos>& pos, int j, int k)
 {
     // "Interpolative code" - for an algorithm description, see "Managing
     // Gigabytes" - pages 126-127 in the second edition.  You can probably

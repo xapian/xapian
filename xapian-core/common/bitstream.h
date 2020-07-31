@@ -40,14 +40,14 @@ class BitWriter {
     BitWriter() : n_bits(0), acc(0) { }
 
     /// Construct with the contents of seed already in the stream.
-    explicit BitWriter(const std::string & seed)
+    explicit BitWriter(const std::string& seed)
 	: buf(seed), n_bits(0), acc(0) { }
 
     /// Encode value, known to be less than outof.
     void encode(Xapian::termpos value, Xapian::termpos outof);
 
     /// Finish encoding and return the encoded data as a std::string.
-    std::string & freeze() {
+    std::string& freeze() {
 	if (n_bits) {
 	    buf += char(acc);
 	    n_bits = 0;
@@ -57,7 +57,7 @@ class BitWriter {
     }
 
     /// Perform interpolative encoding of pos elements between j and k.
-    void encode_interpolative(const std::vector<Xapian::termpos> &pos, int j, int k);
+    void encode_interpolative(const std::vector<Xapian::termpos>& pos, int j, int k);
 };
 
 /// Read a stream created by BitWriter.
@@ -95,7 +95,7 @@ class BitReader {
 	    set_j(j_, pos_j_);
 	    set_k(k_, pos_k_);
 	}
-	void operator=(const DIStack & o) {
+	void operator=(const DIStack& o) {
 	    j = o.j;
 	    set_k(o.k, o.pos_k);
 	}

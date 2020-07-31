@@ -84,7 +84,7 @@ CompressionStream::compress(const char* buf, size_t* p_size) {
 }
 
 bool
-CompressionStream::decompress_chunk(const char* p, int len, string & buf)
+CompressionStream::decompress_chunk(const char* p, int len, string& buf)
 {
     Bytef blk[8192];
 
@@ -107,7 +107,7 @@ CompressionStream::decompress_chunk(const char* p, int len, string & buf)
 	    throw Xapian::DatabaseError(msg);
 	}
 
-	buf.append(reinterpret_cast<const char *>(blk),
+	buf.append(reinterpret_cast<const char*>(blk),
 		   inflate_zstream->next_out - blk);
 	if (err == Z_STREAM_END) return true;
 	if (inflate_zstream->avail_in == 0) return false;

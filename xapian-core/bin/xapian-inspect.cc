@@ -55,7 +55,8 @@ static void show_usage() {
 }
 
 static void
-display_nicely(const string & data) {
+display_nicely(const string& data)
+{
     for (unsigned char ch : data) {
 	if (ch < 32 || ch >= 127) {
 	    switch (ch) {
@@ -152,7 +153,7 @@ show_help()
 }
 
 static void
-show_entry(GlassCursor & cursor)
+show_entry(GlassCursor& cursor)
 {
     if (cursor.after_end()) {
 	cout << "After end" << endl;
@@ -172,7 +173,7 @@ show_entry(GlassCursor & cursor)
 }
 
 static void
-do_until(GlassCursor & cursor, const string & target)
+do_until(GlassCursor& cursor, const string& target)
 {
     if (cursor.after_end()) {
 	cout << "At end already." << endl;
@@ -214,7 +215,7 @@ do_until(GlassCursor & cursor, const string & target)
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
     static const struct option long_opts[] = {
 	{"table",	required_argument, 0, 't'},
@@ -427,7 +428,7 @@ wait_for_input:
 		goto wait_for_input;
 	    }
 	}
-    } catch (const Xapian::Error &error) {
+    } catch (const Xapian::Error& error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);
     }
