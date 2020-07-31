@@ -273,7 +273,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	}
 	case wdf_norm::AUG_AVERAGE: {
 	    if (wdf == 0) return 0;
-	    return 0.9 + 0.1*(double(wdf) / (double(doclen) / uniqterms));
+	    return 0.9 + 0.1 * (double(wdf) / (double(doclen) / uniqterms));
 	}
 	case wdf_norm::NONE:
 	    break;
