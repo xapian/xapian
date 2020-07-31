@@ -122,14 +122,17 @@ TfIdfWeight::TfIdfWeight(wdf_norm wdf_normalization,
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
     }
-    if (wdf_norm_ == wdf_norm::LOG_AVERAGE) {
+    if (wdf_norm_ == wdf_norm::LOG_AVERAGE ||
+	wdf_norm_ == wdf_norm::AUG_AVERAGE) {
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(UNIQUE_TERMS);
     }
     if (idf_norm_ == idf_norm::GLOBAL_FREQ ||
-	idf_norm_ == idf_norm::LOG_GLOBAL_FREQ) {
+	idf_norm_ == idf_norm::LOG_GLOBAL_FREQ ||
+	idf_norm_ == idf_norm::INCREMENTED_GLOBAL_FREQ ||
+	idf_norm_ == idf_norm::SQRT_GLOBAL_FREQ) {
 	need_stat(COLLECTION_FREQ);
     }
 }
@@ -268,6 +271,10 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	    if (wdf == 0) return 0;
 	    return (sqrt(wdf - 0.5) + 1);
 	}
+	case wdf_norm::AUG_AVERAGE: {
+	    if (wdf == 0) return 0;
+	    return 0.9 + 0.1*(double(wdf) / (double(doclen) / uniqterms));
+	}
 	case wdf_norm::NONE:
 	    break;
     }
@@ -306,6 +313,14 @@ TfIdfWeight::get_idfn(idf_norm idf_normalization) const
 	case idf_norm::LOG_GLOBAL_FREQ: {
 	    collfreq = get_collection_freq();
 	    return log(double(collfreq) / termfreq + 1);
+	}
+	case idf_norm::INCREMENTED_GLOBAL_FREQ: {
+	    collfreq = get_collection_freq();
+	    return (double(collfreq) / termfreq + 1);
+	}
+	case idf_norm::SQRT_GLOBAL_FREQ: {
+	    collfreq = get_collection_freq();
+	    return sqrt(double(collfreq) / termfreq - 0.9);
 	}
 	case idf_norm::TFIDF:
 	    break;
