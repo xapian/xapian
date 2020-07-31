@@ -66,7 +66,7 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 }
 
 void
-unserialise_stats(const char*p, const char* p_end,
+unserialise_stats(const char* p, const char* p_end,
 		  Xapian::Weight::Internal& stat)
 {
     size_t n;
