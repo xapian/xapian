@@ -1125,6 +1125,18 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.9 + 0.1 * (8.0 / (81.0 / 56.0)));
     TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.9 + 0.1 * (1.0 / (31.0 / 26.0)));
+
+    // Check for MAX, NONE, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::MAX,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset3 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset3.size(), 2);
+    mset_expect_order(mset3, 2, 4);
+    TEST_EQUAL_DOUBLE(mset3[0].get_weight(), 8.0 / 8.0);
+
 }
 
 // Feature tests for pivoted normalization functions.

@@ -123,8 +123,6 @@ TfIdfWeight::TfIdfWeight(wdf_norm wdf_normalization,
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
-    } else if (normalizations[0] == 'm') {
-	need_stat(WDF_DOC_MAX);
     }
     if (wdf_norm_ == wdf_norm::MAX) {
 	need_stat(WDF_DOC_MAX);

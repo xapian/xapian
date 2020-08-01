@@ -537,7 +537,13 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	 *
 	 *  wdfn=0.9+0.1*(wdf/(doclen/unique_terms)) if(wdf>0), else wdfn=0
 	 */
-	AUG_AVERAGE = 9
+	AUG_AVERAGE = 9,
+
+	/** Max
+	 *
+	 *  wdfn=wdf/wdfdocmax if(wdfdocmax>0), else wdfn=0
+	 */
+	MAX = 10,
     };
 
     /** Idf normalizations. */
