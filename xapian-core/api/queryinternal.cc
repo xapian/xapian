@@ -2122,17 +2122,10 @@ void QueryPostingSource::serialise(string & result) const
 void QueryScaleWeight::serialise(string & result) const
 {
     Assert(subquery.internal.get());
-    const string & s = serialise_double(scale_factor);
     result += '\x0d';
-    result += s;
+    result += serialise_double(scale_factor);
     subquery.internal->serialise(result);
 }
-
-struct is_matchnothing {
-    bool operator()(const Xapian::Query & q) const {
-	return q.internal.get() == NULL;
-    }
-};
 
 void
 QueryAndLike::add_subquery(const Xapian::Query & subquery)

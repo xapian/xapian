@@ -38,7 +38,7 @@
 using namespace std;
 
 #define PROG_NAME "xapian-inspect"
-#define PROG_DESC "Inspect the contents of a glass table for development or debugging"
+#define PROG_DESC "Inspect a glass table for development or debugging"
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
@@ -55,10 +55,9 @@ static void show_usage() {
 }
 
 static void
-display_nicely(const string & data) {
-    string::const_iterator i;
-    for (i = data.begin(); i != data.end(); ++i) {
-	unsigned char ch = *i;
+display_nicely(const string& data)
+{
+    for (unsigned char ch : data) {
 	if (ch < 32 || ch >= 127) {
 	    switch (ch) {
 		case '\n': cout << "\\n"; break;
@@ -154,7 +153,7 @@ show_help()
 }
 
 static void
-show_entry(GlassCursor & cursor)
+show_entry(GlassCursor& cursor)
 {
     if (cursor.after_end()) {
 	cout << "After end" << endl;
@@ -178,7 +177,7 @@ show_entry(GlassCursor & cursor)
 }
 
 static void
-do_until(GlassCursor & cursor, const string & target)
+do_until(GlassCursor& cursor, const string& target)
 {
     if (cursor.after_end()) {
 	cout << "At end already." << endl;
@@ -229,7 +228,7 @@ goto_last(GlassCursor& cursor)
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
     static const struct option long_opts[] = {
 	{"table",	required_argument, 0, 't'},
@@ -354,6 +353,7 @@ open_different_table:
 	    cout << "No entries!" << endl;
 	    exit(0);
 	}
+
 	cout << "Table has " << table.get_entry_count() << " entries" << endl;
 
 	GlassCursor cursor(&table);
@@ -443,7 +443,7 @@ wait_for_input:
 		goto wait_for_input;
 	    }
 	}
-    } catch (const Xapian::Error &error) {
+    } catch (const Xapian::Error& error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);
     }

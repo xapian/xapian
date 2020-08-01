@@ -37,7 +37,7 @@ CosineDistance::get_description() const
 }
 
 double
-CosineDistance::similarity(const PointType &a, const PointType &b) const
+CosineDistance::similarity(const PointType& a, const PointType& b) const
 {
     LOGCALL(API, double, "CosineDistance::similarity", a | b);
     double denom_a = a.get_magnitude();
@@ -48,7 +48,7 @@ CosineDistance::similarity(const PointType &a, const PointType &b) const
 	return 0.0;
 
     for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it) {
-	const string &term = *it;
+	const string& term = *it;
 	double a_weight = a.get_weight(term);
 	if (a_weight == 0)
 	    continue;

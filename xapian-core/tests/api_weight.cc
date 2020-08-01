@@ -891,6 +891,240 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * log((6.0 - 2) / 2));
     TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * log((6.0 - 2) / 2));
+
+    // Check for NONE, TFIDF, NONE when termfreq != N
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::TFIDF,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 * log(6.0 / 2));
+
+    // Check that wqf is taken into account.
+    enquire.set_query(Xapian::Query("word", 2));
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 2);
+    // wqf is 2, so weights should be doubled.
+    TEST_EQUAL_DOUBLE(mset[0].get_weight() * 2, mset2[0].get_weight());
+    TEST_EQUAL_DOUBLE(mset[1].get_weight() * 2, mset2[1].get_weight());
+
+    // Test with OP_SCALE_WEIGHT.
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+				    query, 15.0));
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 2);
+    // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
+    mset_expect_order(mset2, 2, 4);
+    TEST_NOT_EQUAL_DOUBLE(mset[0].get_weight(), 0.0);
+    TEST_EQUAL_DOUBLE(15 * mset[0].get_weight(), mset2[0].get_weight());
+
+    // check for NONE, FREQ, NONE when termfreq != N
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::FREQ,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 / 2);
+
+    // check for NONE, SQUARE, NONE when termfreq != N
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::SQUARE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 * pow(log(6.0 / 2), 2.0));
+
+    // Check for BOOLEAN, NONE, NONE and for both branches of BOOLEAN.
+    enquire.set_query(Xapian::Query("test"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::BOOLEAN,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 1);
+    mset_expect_order(mset, 1);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1.0);
+
+    // Check for LOG, NONE, NONE and for both branches of LOG.
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::LOG,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1 + log(8.0));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1.0);
+
+    // Check for SQUARE, NONE, NONE.
+    enquire.set_query(Xapian::Query("paragraph"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::SQUARE,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE)); // idf=1 and tfn=tf*tf
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    mset_expect_order(mset, 2, 1, 4, 3, 5);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 9.0);
+    TEST_EQUAL_DOUBLE(mset[4].get_weight(), 1.0);
+
+    // Check for NONE, TFIDF, NONE when termfreq=N
+    enquire.set_query(Xapian::Query("this"));
+    // N=termfreq and so idfn=0 for TFIDF
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::TFIDF,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 6);
+    mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
+    for (int i = 0; i < 6; ++i) {
+	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
+    }
+
+    // Check for NONE, PROB, NONE and for both branches of PROB
+    enquire.set_query(Xapian::Query("this"));
+    // N=termfreq and so idfn=0 for PROB
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::PROB,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 6);
+    mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
+    for (int i = 0; i < 6; ++i) {
+	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
+    }
+
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::PROB,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * log((6.0 - 2) / 2));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * log((6.0 - 2) / 2));
+
+    // Check for LOG_AVERAGE, NONE, NONE.
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::LOG_AVERAGE,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(),
+		      (1 + log(8.0)) / (1 + log(81.0 / 56.0)));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(),
+		      (1 + log(1.0)) / (1 + log(31.0 / 26.0)));
+
+    // Check for AUG_LOG, NONE, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::AUG_LOG,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.2 + 0.8 * log(1.0 + 8));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.2 + 0.8 * log(1.0 + 1));
+
+    // Check for NONE, GLOBAL_FREQ, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::GLOBAL_FREQ,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * (9.0 / 2));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * (9.0 / 2));
+
+    // Check for SQRT, NONE, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::SQRT,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), sqrt(8 - 0.5) + 1);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), sqrt(1 - 0.5) + 1);
+
+    // Check for NONE, LOG_GLOBAL_FREQ, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::LOG_GLOBAL_FREQ,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * log(9.0 / 2 + 1));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * log(9.0 / 2 + 1));
+
+    // Check for NONE, INCREMENTED_GLOBAL_FREQ, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::INCREMENTED_GLOBAL_FREQ,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * (9.0 / 2 + 1));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * (9.0 / 2 + 1));
+
+    // Check for NONE, SQRT_GLOBAL_FREQ, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::SQRT_GLOBAL_FREQ,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * sqrt(9.0 / 2 - 0.9));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * sqrt(9.0 / 2 - 0.9));
+
+    // Check for AUG_AVERAGE, NONE, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::AUG_AVERAGE,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.9 + 0.1 * (8.0 / (81.0 / 56.0)));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.9 + 0.1 * (1.0 / (31.0 / 26.0)));
 }
 
 // Feature tests for pivoted normalization functions.
@@ -929,6 +1163,51 @@ DEFINE_TESTCASE(tfidfweight4, backend) {
     // check for "Ptn" which represents "Pxx"
     enquire.set_query(Xapian::Query("word"));
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("Ptn", 0.2, 1.0));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    // Expect doc 2 with query "word" to have higher weight than doc 4.
+    mset_expect_order(mset, 2, 4);
+
+    // Check for PIVOTED, PIVOTED, NONE normalization string.
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::PIVOTED,
+	    Xapian::TfIdfWeight::idf_norm::PIVOTED,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    // Shorter docs should ranker higher if wqf is equal among all the docs.
+    TEST_REL(mset[0].get_weight(),>,mset[1].get_weight());
+    TEST_REL(mset[2].get_weight(),>,mset[3].get_weight());
+
+    // Check that wqf is taken into account.
+    enquire.set_query(Xapian::Query("paragraph", 2));
+    mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 5);
+    // wqf is 2, so weights should be doubled.
+    TEST_EQUAL_DOUBLE(mset[0].get_weight() * 2, mset2[0].get_weight());
+    TEST_EQUAL_DOUBLE(mset[1].get_weight() * 2, mset2[1].get_weight());
+
+    // check for NONE, PIVOTED, NONE
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::NONE,
+	    Xapian::TfIdfWeight::idf_norm::PIVOTED,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    // Expect doc 2 with query "word" to have higher weight than doc 4.
+    mset_expect_order(mset, 2, 4);
+
+    // check for PIVOTED, TFIDF, NONE
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::PIVOTED,
+	    Xapian::TfIdfWeight::idf_norm::TFIDF,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     // Expect doc 2 with query "word" to have higher weight than doc 4.

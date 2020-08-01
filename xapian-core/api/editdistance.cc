@@ -10,7 +10,7 @@
  *  http://berghel.net/publications/asm/asm.php
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007,2008,2009,2017,2019 Olly Betts
+ * Copyright (C) 2007,2008,2009,2017,2019,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include "editdistance.h"
 
 #include "omassert.h"
+#include "popcount.h"
 
 #include <algorithm>
 #include <climits>
@@ -64,14 +65,14 @@ class edist_state {
      * Where: d(i,j) = edit distance between substrings of length i and j.
      */
     int* fkp;
-    int fkp_cols;
+    int fkp_rows;
 
     /* Maximum possible edit distance (this is referred to as ZERO_K in
      * the algorithm description by Berghel and Roach). */
     int maxdist;
 
     int calc_index(int k, int p) const {
-	return (k + maxdist) * fkp_cols + p + 1;
+	return k + maxdist + fkp_rows * (p + 1);
     }
 
   public:
@@ -79,21 +80,20 @@ class edist_state {
 		int* fkp_)
 	: seq1(ptr1, len1), seq2(ptr2, len2), fkp(fkp_), maxdist(len2) {
 	Assert(len2 >= len1);
-	// fkp is stored as a rectangular array, row by row.  Each entry
-	// represents a value of p, from -1 to maxdist or the special value
-	// INT_MIN.
-	fkp_cols = maxdist + 2;
+	// fkp is stored as a rectangular array, column by column.  Each entry
+	// represents a value of p, from -1 to maxdist or a special value
+	// close-ish to INT_MIN.
+	fkp_rows = 2 * maxdist + 1;
+	// It's significantly faster to memset() than std::fill_n() with an int
+	// value, so fill with the msb of INT_MIN, which for 32-bit 2's
+	// complement int means -2139062144 instead of -2147483648, which is
+	// fine what we need here.
+	memset(fkp, unsigned(INT_MIN) >> (8 * (sizeof(int) - 1)),
+	       sizeof(int) * (calc_index(maxdist, maxdist - 2) + 1));
 	set_f_kp(0, -1, -1);
 	for (int k = 1; k <= maxdist; ++k) {
-	    for (int p = -1; p <= maxdist; ++p) {
-		if (p == k - 1) {
-		    set_f_kp(k, p, -1);
-		    set_f_kp(-k, p, k - 1);
-		} else if (p < k) {
-		    set_f_kp(k, p, INT_MIN);
-		    set_f_kp(-k, p, INT_MIN);
-		}
-	    }
+	    set_f_kp(k, k - 1, -1);
+	    set_f_kp(-k, k - 1, k - 1);
 	}
     }
 
@@ -198,21 +198,16 @@ EditDistanceCalculator::calc(const unsigned* ptr, int len,
 {
     // Calculate a cheap lower bound on the edit distance by considering
     // frequency histograms.
-    int freqs[VEC_SIZE];
-    memcpy(freqs, target_freqs, sizeof(freqs));
+    freqs_bitmap freqs = 0;
     for (int i = 0; i != len; ++i) {
 	unsigned ch = ptr[i];
-	--freqs[ch % VEC_SIZE];
-    }
-    unsigned int total = 0;
-    for (int count : freqs) {
-	total += abs(count);
+	freqs |= freqs_bitmap(1) << (ch & FREQS_MASK);
     }
     // Each insertion or deletion adds at most 1 to total.  Each transposition
     // doesn't change it at all.  But each substitution can change it by 2 so
-    // we need to divide it by 2.  Rounding up is OK, since the odd change must
+    // we need to divide it by 2.  We round up since the unpaired change must
     // be due to an actual edit.
-    int ed_lower_bound = (total + 1) / 2;
+    int ed_lower_bound = (popcount(freqs ^ target_freqs) + 1) / 2;
     if (ed_lower_bound > max_distance) {
 	// It's OK to return any distance > max_distance if the true answer is
 	// > max_distance.

@@ -717,7 +717,8 @@ RemoteDatabase::get_remote_stats(Xapian::Weight::Internal& out) const
 {
     string message;
     get_message(message, REPLY_STATS);
-    unserialise_stats(message, out);
+    const char* p = message.data();
+    unserialise_stats(p, p + message.size(), out);
 }
 
 void

@@ -121,6 +121,7 @@ clear_text(string& str, const char* text)
 
 bool
 extract(const string& filename,
+	const string& mimetype,
 	string& dump,
 	string& title,
 	string& keywords,

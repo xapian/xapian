@@ -1,7 +1,7 @@
 /** @file glass_spelling.cc
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015,2017 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015,2017,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@
 #include <xapian/types.h>
 
 #include "expand/expandweight.h"
+#include "expand/termlistmerger.h"
 #include "glass_spelling.h"
 #include "omassert.h"
-#include "expand/ortermlist.h"
 #include "pack.h"
 
 #include "../prefix_compressed_strings.h"
@@ -269,9 +269,7 @@ GlassSpellingTable::open_termlist(const string & word)
     // won't be switched live.
     if (!wordfreq_changes.empty()) merge_changes();
 
-    // Build a priority queue of TermList objects which returns those of
-    // greatest approximate size first.
-    priority_queue<TermList*, vector<TermList*>, TermListGreaterApproxSize> pq;
+    vector<TermList*> termlists;
     try {
 	string data;
 	fragment buf;
@@ -281,14 +279,14 @@ GlassSpellingTable::open_termlist(const string & word)
 	buf[1] = word[0];
 	buf[2] = word[1];
 	if (get_exact_entry(string(buf), data))
-	    pq.push(new GlassSpellingTermList(data));
+	    termlists.push_back(new GlassSpellingTermList(data));
 
 	// Tail:
 	buf[0] = 'T';
 	buf[1] = word[word.size() - 2];
 	buf[2] = word[word.size() - 1];
 	if (get_exact_entry(string(buf), data))
-	    pq.push(new GlassSpellingTermList(data));
+	    termlists.push_back(new GlassSpellingTermList(data));
 
 	if (word.size() <= 4) {
 	    // We also generate 'bookends' for two, three, and four character
@@ -300,7 +298,7 @@ GlassSpellingTable::open_termlist(const string & word)
 	    buf[1] = word[0];
 	    buf[3] = '\0';
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new GlassSpellingTermList(data));
+		termlists.push_back(new GlassSpellingTermList(data));
 	}
 	if (word.size() > 2) {
 	    // Middles:
@@ -308,7 +306,7 @@ GlassSpellingTable::open_termlist(const string & word)
 	    for (size_t start = 0; start <= word.size() - 3; ++start) {
 		memcpy(buf.data + 1, word.data() + start, 3);
 		if (get_exact_entry(string(buf), data))
-		    pq.push(new GlassSpellingTermList(data));
+		    termlists.push_back(new GlassSpellingTermList(data));
 	    }
 
 	    if (word.size() == 3) {
@@ -319,13 +317,13 @@ GlassSpellingTable::open_termlist(const string & word)
 		buf[1] = word[1];
 		buf[2] = word[0];
 		if (get_exact_entry(string(buf), data))
-		    pq.push(new GlassSpellingTermList(data));
+		    termlists.push_back(new GlassSpellingTermList(data));
 		// ABC -> ACB
 		buf[1] = word[0];
 		buf[2] = word[2];
 		buf[3] = word[1];
 		if (get_exact_entry(string(buf), data))
-		    pq.push(new GlassSpellingTermList(data));
+		    termlists.push_back(new GlassSpellingTermList(data));
 	    }
 	} else {
 	    Assert(word.size() == 2);
@@ -337,39 +335,18 @@ GlassSpellingTable::open_termlist(const string & word)
 	    buf[1] = word[1];
 	    buf[2] = word[0];
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new GlassSpellingTermList(data));
+		termlists.push_back(new GlassSpellingTermList(data));
 	    buf[0] = 'T';
 	    if (get_exact_entry(string(buf), data))
-		pq.push(new GlassSpellingTermList(data));
+		termlists.push_back(new GlassSpellingTermList(data));
 	}
 
-	if (pq.empty()) return NULL;
-
-	// Build up an OrTermList tree by combine leaves and/or branches in
-	// pairs.  The tree is balanced by the approximated sizes of the leaf
-	// GlassSpellingTermList objects - the way the tree is built are very
-	// similar to how an optimal Huffman code is often constructed.
-	//
-	// Balancing the tree like this should tend to minimise the amount of
-	// work done.
-	while (pq.size() > 1) {
-	    // Build the tree such that left is always >= right so that
-	    // OrTermList can rely on this when trying to minimise work.
-	    TermList * termlist = pq.top();
-	    pq.pop();
-
-	    termlist = new OrTermList(pq.top(), termlist);
-	    pq.pop();
-	    pq.push(termlist);
-	}
-
-	return pq.top();
+	return make_termlist_merger(termlists);
     } catch (...) {
 	// Make sure we delete all the TermList objects to avoid leaking
 	// memory.
-	while (!pq.empty()) {
-	    delete pq.top();
-	    pq.pop();
+	for (auto& t : termlists) {
+	    delete t;
 	}
 	throw;
     }

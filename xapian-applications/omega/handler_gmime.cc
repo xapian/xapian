@@ -140,6 +140,7 @@ parser_content(GMimeObject* me, string& dump)
 
 bool
 extract(const string& filename,
+	const string& mimetype,
 	string& dump,
 	string& title,
 	string& keywords,

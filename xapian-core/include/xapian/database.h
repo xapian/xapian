@@ -236,7 +236,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *
      *  @since This method was added in Xapian 1.1.0.
      */
-    virtual void close();
+    void close();
 
     /// Return a string describing this object.
     virtual std::string get_description() const;

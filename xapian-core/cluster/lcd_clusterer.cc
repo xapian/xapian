@@ -66,7 +66,7 @@ LCDClusterer::get_description() const
 }
 
 ClusterSet
-LCDClusterer::cluster(const MSet &mset)
+LCDClusterer::cluster(const MSet& mset)
 {
     LOGCALL(API, ClusterSet, "LCDClusterer::cluster", mset);
 

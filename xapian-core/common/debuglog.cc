@@ -49,7 +49,7 @@ void
 DebugLogger::initialise_categories_mask()
 {
     fd = -2;
-    const char * f = getenv("XAPIAN_DEBUG_LOG");
+    const char* f = getenv("XAPIAN_DEBUG_LOG");
     int flags = 0;
     if (f && *f) {
 	if (f[0] == '-' && f[1] == '\0') {
@@ -99,7 +99,7 @@ DebugLogger::initialise_categories_mask()
 	}
 
 	if (fd >= 0) {
-	    const char * v = getenv("XAPIAN_DEBUG_FLAGS");
+	    const char* v = getenv("XAPIAN_DEBUG_FLAGS");
 	    if (v) {
 		bool toggle = (*v == '-');
 		if (toggle) ++v;
@@ -116,7 +116,7 @@ DebugLogger::initialise_categories_mask()
 }
 
 void
-DebugLogger::log_line(debuglog_categories category, const string & msg)
+DebugLogger::log_line(debuglog_categories category, const string& msg)
 {
     if (fd < 0) return;
 
@@ -133,7 +133,7 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
     line += msg;
     line += '\n';
 
-    const char * p = line.data();
+    const char* p = line.data();
     size_t to_do = line.size();
     while (to_do) {
 	ssize_t n = write(fd, p, to_do);
