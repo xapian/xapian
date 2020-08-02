@@ -138,7 +138,7 @@ extract(const string& filename,
 	    return false;
 	}
 
-	bool succeed = true;
+	bool succeed = false;
 	RVNGString metadata_dump, content_dump;
 
 	RVNGTextTextGenerator metadata(metadata_dump, true);

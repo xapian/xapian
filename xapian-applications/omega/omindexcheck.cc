@@ -133,7 +133,7 @@ index_test()
 #endif
 #if defined HAVE_LIBABW
     tests.insert({"abw/test.abw",
-		  {"ZAparth", "ZSabiword", "Zsampl", "Zdocument"}});
+		  {"ZAparth", "Zabiword", "Zsampl", "Zdocument"}});
     tests.insert({"abw/test1.abw",
 		  {"Zедой", "Z喬伊不分享食物"}});
 #endif
