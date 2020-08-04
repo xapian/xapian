@@ -286,7 +286,7 @@ using namespace std;
 AC_MSG_RESULT([$xo_cv_func_snprintf])
 if test "$xo_cv_func_snprintf" != no ; then
   AC_DEFINE_UNQUOTED([SNPRINTF], [$xo_cv_func_snprintf],
-     [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
+    [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
 fi
 
 AC_CHECK_MEMBERS([struct tm.tm_gmtoff], [], [], [#include <time.h>])
