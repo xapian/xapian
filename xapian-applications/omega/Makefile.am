@@ -271,4 +271,8 @@ endif
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"
 
 installcheck-local:
-	$(MAKE) check SCRIPTINDEX='${bindir}/scriptindex' OMEGA='${pkglibbindir}/omega'
+	$(MAKE) check \
+	    OMEGA='${pkglibbindir}/omega' \
+	    OMINDEX='${bindir}/omindex' \
+	    SCRIPTINDEX='${bindir}/scriptindex' \
+	    XAPIAN_OMEGA_PKGLIBBINDIR='${pkglibbindir}'
