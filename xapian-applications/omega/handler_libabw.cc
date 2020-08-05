@@ -1,7 +1,8 @@
 /** @file handler_libabw.cc
- * @brief Extract text and metadata using libarchive.
+ * @brief Extract text and metadata using libabw.
  */
-/* Copyright (C) 2020 Parth Kapadia
+/* Copyright (C) 2019 Bruno Baruffaldi
+ * Copyright (C) 2020 Parth Kapadia
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,9 +22,6 @@
 #include <config.h>
 #include "handler.h"
 #include "stringutils.h"
-
-#include <memory>
-#include <cstring>
 
 #include <librevenge-generators/librevenge-generators.h>
 #include <librevenge-stream/librevenge-stream.h>
@@ -109,17 +107,6 @@ parse_metadata(const char* data,
     }
 }
 
-static void
-clear_text(string& str, const char* text)
-{
-    if (text) {
-	for (int i = 0; text[i] != '\0'; ++i)
-	    if (!isspace(text[i]) || (i && !isspace(text[i - 1])))
-		str.push_back(text[i]);
-	str.push_back('\n');
-    }
-}
-
 bool
 extract(const string& filename,
 	const string& mimetype,
@@ -138,7 +125,6 @@ extract(const string& filename,
 	    return false;
 	}
 
-	bool succeed = false;
 	RVNGString metadata_dump, content_dump;
 
 	RVNGTextTextGenerator metadata(metadata_dump, true);
@@ -146,21 +132,19 @@ extract(const string& filename,
 	    const char* data = metadata_dump.cstr();
 	    size_t len = metadata_dump.size();
 	    parse_metadata(data, len, author, title, keywords);
-	    succeed = true;
 	} else {
 	    error = "Libabw Error: Fail to extract metadata";
+	    return false;
 	}
 
 	RVNGTextTextGenerator content(content_dump, false);
 	if (libabw::AbiDocument::parse(&input, &content)) {
-	    clear_text(dump, content_dump.cstr());
-	    succeed = true;
+	    dump = content_dump.cstr();
 	} else {
-	    if (!error.empty())
-		error.push_back('\n');
-	    error += "Libabw Error: Fail to extract text";
+	    error = "Libabw Error: Fail to extract text";
+	    return false;
 	}
-	return succeed;
+	return true;
     } catch (...) {
 	error = "Libabw threw an exception";
 	return false;

@@ -132,6 +132,10 @@ index_test()
 		  {"ZSproject", "ZSresearch", "Zhead", "Ztext"}});
 #endif
 #if defined HAVE_LIBABW
+    // Title term is not being tested here because some older versions of Libabw
+    // lack a bug fix for the title to be handled properly. (< libabw-0.1.2)
+    // This was fixed in:
+    // https://github.com/LibreOffice/libabw/commit/254d9f55ca60e070c11f2c3f7ca196b0a6c5aceb
     tests.insert({"abw/test.abw",
 		  {"ZAparth", "Zabiword", "Zsampl", "Zdocument"}});
     tests.insert({"abw/test1.abw",
