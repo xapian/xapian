@@ -1,5 +1,5 @@
 /** @file handler_libextractor.cc
- * @brief Extract text and metadata using libarchive.
+ * @brief Extract metadata using libextractor.
  */
 /* Copyright (C) 2020 Parth Kapadia
  *
@@ -80,7 +80,7 @@ process_metadata(void* cls,
 	    break;
 
 	case EXTRACTOR_METATYPE_PAGE_COUNT:
-	    md->pages.append(data, data_len);
+	    md->pages.assign(data, data_len);
 	    break;
 
 	case EXTRACTOR_METATYPE_ARTIST:

@@ -220,7 +220,6 @@ cdr		image/x-coreldraw
 # Audio files:
 flac		audio/flac
 mp3		audio/mpeg
-ogg		audio/ogg
 wav		audio/x-wav
 it		audio/x-mod
 xm		audio/x-mod

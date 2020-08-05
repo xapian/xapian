@@ -276,6 +276,7 @@ index_add_default_libraries()
     index_library("video/x-msvideo", omindex_libextractor);
     index_library("video/x-ms-asf", omindex_libextractor);
     index_library("video/quicktime", omindex_libextractor);
+    index_library("video/ogg", omindex_libextractor);
     index_library("audio/flac", omindex_libextractor);
     index_library("audio/mpeg", omindex_libextractor);
     index_library("audio/ogg", omindex_libextractor);
