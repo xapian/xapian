@@ -1,7 +1,7 @@
 /** @file realtime.h
  *  @brief Functions for handling a time or time interval in a double.
  */
-/* Copyright (C) 2010,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2010,2011,2013,2014,2015,2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,18 +47,22 @@ namespace RealTime {
 
 /// Return the current time.
 inline double now() {
-#ifndef __WIN32__
-    // We prefer clock_gettime() over gettimeofday() over ftime().  This order
-    // favours functions which can return the time with a higher precision.
+#if defined HAVE_CLOCK_GETTIME
+    // We prefer functions which can return the time with a higher precision.
+    // On POSIX platforms that means we prefer clock_gettime() over
+    // gettimeofday() over ftime().
     //
-    // Also, POSIX.1-2008 stopped specifying ftime(), and marked gettimeofday()
-    // as obsolete, recommending clock_gettime() instead.
-# if defined HAVE_CLOCK_GETTIME
+    // (Also, POSIX.1-2008 stopped specifying ftime(), and marked gettimeofday()
+    // as obsolete, recommending clock_gettime() instead.)
+    //
+    // Modern mingw provides clock_gettime().  For older mingw and MSVC we fall
+    // back to _ftime64().
     struct timespec ts;
     if (usual(clock_gettime(CLOCK_REALTIME, &ts) == 0))
 	return ts.tv_sec + (ts.tv_nsec * 1e-9);
     return double(std::time(NULL));
-# elif defined HAVE_GETTIMEOFDAY
+#elif !defined __WIN32__
+# if defined HAVE_GETTIMEOFDAY
     struct timeval tv;
     if (usual(gettimeofday(&tv, NULL) == 0))
 	return tv.tv_sec + (tv.tv_usec * 1e-6);
@@ -76,6 +80,7 @@ inline double now() {
     return double(std::time(NULL));
 # endif
 #else
+    // For __WIN32__.
     struct __timeb64 tp;
     _ftime64(&tp);
     return tp.time + tp.millitm * 1e-3;
@@ -91,17 +96,17 @@ inline double end_time(double timeout) {
     return (timeout == 0.0 ? timeout : timeout + now());
 }
 
-#ifndef __WIN32__
-# if defined HAVE_NANOSLEEP || defined HAVE_TIMER_CREATE
+#if defined HAVE_NANOSLEEP || defined HAVE_TIMER_CREATE
 /// Fill in struct timespec from number of seconds in a double.
 inline void to_timespec(double t, struct timespec *ts) {
     double secs;
     ts->tv_nsec = long(std::modf(t, &secs) * 1e9);
     ts->tv_sec = long(secs);
 }
-# endif
+#endif
 
 /// Fill in struct timeval from number of seconds in a double.
+#ifndef __WIN32__
 inline void to_timeval(double t, struct timeval *tv) {
     double secs;
     tv->tv_usec = long(std::modf(t, &secs) * 1e6);
@@ -109,7 +114,8 @@ inline void to_timeval(double t, struct timeval *tv) {
 }
 #else
 // Use a macro to avoid having to pull in winsock2.h just for struct timeval.
-#define to_timeval(T, TV) to_timeval_((T), (TV)->tv_sec, (TV)->tv_usec)
+# define to_timeval(T, TV) to_timeval_((T), (TV)->tv_sec, (TV)->tv_usec)
+
 inline void to_timeval_(double t, long & tv_sec, long & tv_usec) {
     double secs;
     tv_usec = long(std::modf(t, &secs) * 1e6);
@@ -119,15 +125,15 @@ inline void to_timeval_(double t, long & tv_sec, long & tv_usec) {
 
 /// Sleep until the time represented by this object.
 inline void sleep(double t) {
-#ifndef __WIN32__
-# ifdef HAVE_NANOSLEEP
+#ifdef HAVE_NANOSLEEP
+    // Available on modern POSIX systems and under modern mingw.
     double delta = t - RealTime::now();
     if (delta <= 0.0)
 	return;
     struct timespec ts;
     to_timespec(delta, &ts);
     while (nanosleep(&ts, &ts) < 0 && errno == EINTR) { }
-# else
+#elif !defined __WIN32__
     double delta;
     struct timeval tv;
     do {
@@ -137,7 +143,6 @@ inline void sleep(double t) {
 	to_timeval(delta, &tv);
     } while (select(0, NULL, NULL, NULL, &tv) < 0 &&
 	     (errno == EINTR || errno == EAGAIN));
-# endif
 #else
     double delta = t - RealTime::now();
     if (delta <= 0.0)

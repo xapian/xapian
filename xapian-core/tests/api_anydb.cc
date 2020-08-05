@@ -313,19 +313,13 @@ DEFINE_TESTCASE(expandweights2, backend) {
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
     TEST_REL(eset.get_ebound(), >=, eset.size());
-    if (!startswith(get_dbtype(), "multi")) {
-	// For a single database, the weights should be the same with or
-	// without USE_EXACT_TERMFREQ.
-	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
-	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
-	TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
-    } else {
-	// For multiple databases, we expect that using USE_EXACT_TERMFREQ
-	// will result in different weights in some cases.
-	TEST_NOT_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
-	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
-	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
-    }
+    // With a multi backend, the top three terms all happen to occur in both
+    // shard so their termfreq is exactly known even without
+    // USE_EXACT_TERMFREQ and so the weights should be the same for all
+    // test harness backends.
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
 }
 
 DEFINE_TESTCASE(expandweights3, backend) {
@@ -339,24 +333,16 @@ DEFINE_TESTCASE(expandweights3, backend) {
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    // Set min_wt to 0.0
-    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 0.0);
-    TEST_EQUAL(eset.size(), 50);
+    // Set min_wt to 6.0
+    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 6.0);
+    TEST_EQUAL(eset.size(), 2);
     TEST_REL(eset.get_ebound(), >=, eset.size());
-    if (!startswith(get_dbtype(), "multi")) {
-	// For a single database, the weights should be the same with or
-	// without USE_EXACT_TERMFREQ.
-	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
-	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
-	TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
-    } else {
-	// For multiple databases, we expect that using USE_EXACT_TERMFREQ
-	// will result in different weights in some cases.
-	TEST_NOT_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
-	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
-	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
-    }
-    TEST_REL(eset.back().get_weight(),>=,0);
+    // With a multi backend, the top two terms all happen to occur in both
+    // shard so their termfreq is exactly known even without
+    // USE_EXACT_TERMFREQ and so the weights should be the same for all
+    // test harness backends.
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
 }
 
 // tests that negative weights are returned
@@ -446,19 +432,13 @@ DEFINE_TESTCASE(expandweights8, backend) {
     // Set expand_k to 1.0 and min_wt to 0
     enquire.set_expansion_scheme("trad", 1.0);
     Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 0);
-    if (!startswith(get_dbtype(), "multi")) {
-	// For a single database, the weights should be the same with or
-	// without USE_EXACT_TERMFREQ.
-	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
-	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
-	TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
-    } else {
-	// For multiple databases, we expect that using USE_EXACT_TERMFREQ
-	// will result in different weights in some cases.
-	TEST_NOT_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
-	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
-	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
-    }
+    // With a multi backend, the top three terms all happen to occur in both
+    // shard so their termfreq is exactly known even without
+    // USE_EXACT_TERMFREQ and so the weights should be the same for all
+    // test harness backends.
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
     TEST_REL(eset.back().get_weight(),>=,0);
 }
 

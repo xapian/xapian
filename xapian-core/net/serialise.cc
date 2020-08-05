@@ -66,11 +66,9 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 }
 
 void
-unserialise_stats(const string &s, Xapian::Weight::Internal & stat)
+unserialise_stats(const char* p, const char* p_end,
+		  Xapian::Weight::Internal& stat)
 {
-    const char * p = s.data();
-    const char * p_end = p + s.size();
-
     size_t n;
     // FIXME: Remove on next remote protocol bump.
     Xapian::totallength dummy;

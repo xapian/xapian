@@ -13,15 +13,20 @@ environment:
   matrix:
   - TOOLCHAIN: mingw
     platform: x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: mingw64
     platform: x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: mingw64
     platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 # Fails trying to run apitest.exe etc for unknown reasons.
 #  - TOOLCHAIN: cygwin
+#    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 #    platform: x86
   - TOOLCHAIN: cygwin
     platform: x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
   - TOOLCHAIN: msvc
     platform: x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
@@ -90,25 +95,28 @@ install:
         $env:CONFIGOPTS+=" --disable-backend-honey"
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
-  - if "%TOOLCHAIN%"=="mingw" bash -c 'mingw-get install libz-dev'
-  - if "%TOOLCHAIN%"=="mingw64" bash -c 'pacman -Sy --noconfirm mingw-w64-x86_64-doxygen doxygen swig zlib-devel'
+  - if "%TOOLCHAIN%"=="mingw" appveyor-retry bash -c 'mingw-get install libz-dev'
+  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -Sy --noconfirm zlib-devel'
   # Install cygwin git and patch packages since those installed in the image
   # want the 32-bit cygwin1.dll which means they fail to work if the 64-bit
   # cygwin1.dll is first on PATH.
-  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x64" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P zlib-devel -P git -P patch
-  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x86" C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P cygwin32-zlib -P cygwin32-gcc-core -P cygwin32-gcc-g++ -P git -P patch
-  - bash -c 'time ./bootstrap --fetch-url-command="curl -L" xapian-core $BINDINGS'
+  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x64" appveyor-retry C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P zlib-devel -P git -P patch
+  - if "%TOOLCHAIN%-%Platform%"=="cygwin-x86" appveyor-retry C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P cygwin32-zlib -P cygwin32-gcc-core -P cygwin32-gcc-g++ -P git -P patch
+  - bash -c 'time ./bootstrap --fetch-url-command="curl --retry 5 --retry-connrefused -L" xapian-core'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - if "%TOOLCHAIN%"=="msvc" mkdir zlib
   - if "%TOOLCHAIN%"=="msvc" cd zlib
-  - if "%TOOLCHAIN%"=="msvc" bash -c 'curl -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.11.tar.gz|tar --strip-components=1 -zxf -'
+  - if "%TOOLCHAIN%"=="msvc" bash -c 'curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.11.tar.gz|tar --strip-components=1 -zxf -'
   # Don't build zlib with -MD as it seems this flag needs to be used
   # consistently across the build.
   - if "%TOOLCHAIN%"=="msvc" sed -i 's/\(^CFLAGS  *= *-nologo \)-MD /\1/' win32/Makefile.msc
+  # Don't build zlib with a fixed base address on x64 as that gives linker
+  # warning LNK4281.
+  - if "%TOOLCHAIN%-%Platform%"=="msvc-x64" sed -i 's/-base:0x[0-9A-Fa-f]* //' win32/Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" nmake -nologo -f win32\Makefile.msc
   - if "%TOOLCHAIN%"=="msvc" cd ..
   # Fetch pre-built unicode-data.cc to avoid having to get working tclsh.
-  - curl https://oligarchy.co.uk/xapian/patches/unicode-data121a.cc > xapian-core\unicode\unicode-data.cc
+  - curl --retry 5 --retry-connrefused https://oligarchy.co.uk/xapian/patches/unicode-data13.cc > xapian-core\unicode\unicode-data.cc
   - ps: >-
       if ($env:TOOLCHAIN -eq "msvc") {
         $env:CC="cl -nologo"

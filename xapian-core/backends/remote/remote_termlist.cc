@@ -43,7 +43,8 @@ RemoteTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
     // Used for query expansion with remote databases.  FIXME: Rework that and
     // drop this?
     Assert(!at_end());
-    stats.accumulate(current_wdf, doclen, current_termfreq, db_size);
+    stats.accumulate(shard_index,
+		     current_wdf, doclen, current_termfreq, db_size);
 }
 
 string

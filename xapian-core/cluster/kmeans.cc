@@ -46,7 +46,8 @@ KMeans::KMeans(unsigned int k_, unsigned int max_iters_)
     LOGCALL_CTOR(API, "KMeans", k_ | max_iters_);
     max_iters = (max_iters_ == 0) ? MAX_ITERS : max_iters_;
     if (k_ == 0)
-	throw InvalidArgumentError("Number of required clusters should be greater than zero");
+	throw InvalidArgumentError("Number of required clusters should be "
+				   "greater than zero");
 }
 
 string
@@ -56,14 +57,14 @@ KMeans::get_description() const
 }
 
 void
-KMeans::set_stopper(const Stopper *stopper_)
+KMeans::set_stopper(const Stopper* stopper_)
 {
     LOGCALL_VOID(API, "KMeans::set_stopper", stopper_);
     stopper = stopper_;
 }
 
 void
-KMeans::initialise_clusters(ClusterSet &cset, doccount num_of_points)
+KMeans::initialise_clusters(ClusterSet& cset, doccount num_of_points)
 {
     LOGCALL_VOID(API, "KMeans::initialise_clusters", cset | num_of_points);
     // Initial centroids are selected by picking points at roughly even
@@ -76,7 +77,7 @@ KMeans::initialise_clusters(ClusterSet &cset, doccount num_of_points)
 }
 
 void
-KMeans::initialise_points(const MSet &source)
+KMeans::initialise_points(const MSet& source)
 {
     LOGCALL_VOID(API, "KMeans::initialise_points", source);
     TermListGroup tlg(source, stopper.get());
@@ -85,7 +86,7 @@ KMeans::initialise_points(const MSet &source)
 }
 
 ClusterSet
-KMeans::cluster(const MSet &mset)
+KMeans::cluster(const MSet& mset)
 {
     LOGCALL(API, ClusterSet, "KMeans::cluster", mset);
     doccount size = mset.size();

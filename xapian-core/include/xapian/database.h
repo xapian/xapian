@@ -236,7 +236,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *
      *  @since This method was added in Xapian 1.1.0.
      */
-    virtual void close();
+    void close();
 
     /// Return a string describing this object.
     virtual std::string get_description() const;
@@ -654,9 +654,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Produce a compact version of this database.
      *
-     *  New 1.3.4.  Various methods of the Compactor class were deprecated in
-     *  1.3.4.
-     *
      *  @param output	Path to write the compact version to.  This can be the
      *			same as an input if that input is a stub database (in
      *			which case the database(s) listed in the stub will be
@@ -698,6 +695,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *				must be a power of 2 between 2048 and 65536
      *				(inclusive), and the default (also used if an
      *				invalid value is passed) is 8192 bytes.
+     *
+     *  @since 1.3.4 This method was added to replace various methods of the
+     *		     Compactor class.
      */
     void compact(const std::string& output,
 		 unsigned flags = 0,
@@ -706,9 +706,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     }
 
     /** Produce a compact version of this database.
-     *
-     *  New 1.3.4.  Various methods of the Compactor class were deprecated in
-     *  1.3.4.
      *
      *  This variant writes a single-file database to the specified file
      *  descriptor.  Only the glass backend supports such databases, so
@@ -752,6 +749,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *				must be a power of 2 between 2048 and 65536
      *				(inclusive), and the default (also used if an
      *				invalid value is passed) is 8192 bytes.
+     *
+     *  @since 1.3.4 This method was added to replace various methods of the
+     *		     Compactor class.
      */
     void compact(int fd,
 		 unsigned flags = 0,
@@ -760,9 +760,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     }
 
     /** Produce a compact version of this database.
-     *
-     *  New 1.3.4.  Various methods of the Compactor class were deprecated
-     *  in 1.3.4.
      *
      *  The @a compactor functor allows handling progress output and
      *  specifying how user metadata is merged.
@@ -807,6 +804,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *				invalid value is passed) is 8192 bytes.
      *
      *  @param compactor Functor
+     *
+     *  @since 1.3.4 This method was added to replace various methods of the
+     *		     Compactor class.
      */
     void compact(const std::string& output,
 		 unsigned flags,
@@ -817,9 +817,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     }
 
     /** Produce a compact version of this database.
-     *
-     *  New 1.3.4.  Various methods of the Compactor class were deprecated in
-     *  1.3.4.
      *
      *  The @a compactor functor allows handling progress output and specifying
      *  how user metadata is merged.
@@ -868,6 +865,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *				invalid value is passed) is 8192 bytes.
      *
      *  @param compactor Functor
+     *
+     *  @since 1.3.4 This method was added to replace various methods of the
+     *		     Compactor class.
      */
     void compact(int fd,
 		 unsigned flags,

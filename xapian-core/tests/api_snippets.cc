@@ -551,3 +551,15 @@ DEFINE_TESTCASE(snippet_cjkwords, backend) {
 	    "~時[已經]有香港~");
 #undef DO_TEST
 }
+
+DEFINE_TESTCASE(snippet_empty_mset, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query());
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+    TEST_STRINGS_EQUAL(mset.snippet("foo", 3), "foo");
+}
+
+DEFINE_TESTCASE(snippet_empty_mset2, !backend) {
+    Xapian::MSet mset;
+    TEST_STRINGS_EQUAL(mset.snippet("foo", 3), "foo");
+}

@@ -56,10 +56,9 @@ static void show_usage() {
 }
 
 static void
-display_nicely(const string & data) {
-    string::const_iterator i;
-    for (i = data.begin(); i != data.end(); ++i) {
-	unsigned char ch = *i;
+display_nicely(const string& data)
+{
+    for (unsigned char ch : data) {
 	if (ch < 32 || ch >= 127) {
 	    switch (ch) {
 		case '\n': cout << "\\n"; break;
@@ -155,7 +154,7 @@ show_help()
 }
 
 static void
-show_entry(HoneyCursor & cursor)
+show_entry(HoneyCursor& cursor)
 {
     if (cursor.after_end()) {
 	cout << "After end" << endl;
@@ -179,7 +178,7 @@ show_entry(HoneyCursor & cursor)
 }
 
 static void
-do_until(HoneyCursor & cursor, const string & target)
+do_until(HoneyCursor& cursor, const string& target)
 {
     if (cursor.after_end()) {
 	cout << "At end already." << endl;
@@ -221,7 +220,7 @@ do_until(HoneyCursor & cursor, const string & target)
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
     static const struct option long_opts[] = {
 	{"table",	required_argument, 0, 't'},
@@ -303,7 +302,7 @@ main(int argc, char **argv)
     HoneyVersion& version_file = *version_file_ptr;
 
     version_file.read();
-    Xapian::rev rev = version_file.get_revision();
+    honey_revision_number_t rev = version_file.get_revision();
 
     show_help();
     cout << endl;
@@ -428,7 +427,7 @@ wait_for_input:
 		goto wait_for_input;
 	    }
 	}
-    } catch (const Xapian::Error &error) {
+    } catch (const Xapian::Error& error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);
     }

@@ -27,10 +27,10 @@
  */
 class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
     /// Copies are not allowed
-    Internal(const Internal &);
+    Internal(const Internal&);
 
     /// Assignment is not allowed
-    void operator=(const Internal &);
+    void operator=(const Internal&);
 
     /** A vector storing the clusters that are created by the
      *  clusterers
@@ -45,10 +45,10 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
     ~Internal() {}
 
     /// Add a cluster to the ClusterSet
-    void add_cluster(const Cluster &cluster);
+    void add_cluster(const Cluster& cluster);
 
     /// Add the point to the cluster at position 'index'
-    void add_to_cluster(const Point &point, unsigned int index);
+    void add_to_cluster(const Point& point, unsigned int index);
 
     /// Return the number of clusters
     Xapian::doccount size() const;
@@ -72,10 +72,10 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
  */
 class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
     /// Copies are not allowed
-    Internal(const Internal &);
+    Internal(const Internal&);
 
     /// Assignment is not allowed
-    void operator=(const Internal &);
+    void operator=(const Internal&);
 
     /// Documents (or Points in the vector space) within the cluster
     std::vector<Point> cluster_docs;
@@ -85,7 +85,7 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// Constructor that initialises cluster with centroid
-    explicit Internal(const Centroid &centroid_) : centroid(centroid_) {}
+    explicit Internal(const Centroid& centroid_) : centroid(centroid_) {}
 
     /// Constructor
     Internal() {}
@@ -97,7 +97,7 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
     Xapian::doccount size() const;
 
     /// Add a document to the cluster
-    void add_point(const Point &point);
+    void add_point(const Point& point);
 
     /// Clear the cluster values
     void clear();
@@ -115,11 +115,11 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
     const Centroid& get_centroid() const;
 
     /// Set the centroid of the Cluster to 'centroid'
-    void set_centroid(const Centroid &centroid);
+    void set_centroid(const Centroid& centroid);
 
     /** Recalculate the centroid of the Cluster after each iteration
-     *  of the KMeans algorithm by taking the mean of all document vectors (Points)
-     *  that belong to the Cluster
+     *  of the KMeans algorithm by taking the mean of all document vectors
+     *  (Points) that belong to the Cluster
      */
     void recalculate();
 };
@@ -128,10 +128,10 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
  */
 class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
     /// Copies are not allowed.
-    Internal(const Internal &);
+    Internal(const Internal&);
 
     /// Assignment is not allowed.
-    void operator=(const Internal &);
+    void operator=(const Internal&);
 
     /// Vector storing the documents for this DocumentSet
     std::vector<Xapian::Document> documents;
@@ -153,5 +153,5 @@ class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
     const Xapian::Document& get_document(Xapian::doccount i) const;
 
     /// Add a new Document to the DocumentSet
-    void add_document(const Xapian::Document &document);
+    void add_document(const Xapian::Document& document);
 };

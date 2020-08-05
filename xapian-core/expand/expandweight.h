@@ -60,9 +60,6 @@ class ExpandStats {
     /// The multiplier to be used in TradWeight query expansion.
     double multiplier;
 
-    /// Keeps track of the index of the sub-database we're accumulating for.
-    size_t db_index;
-
     /** Constructor.
      *
      *  @param avlen_	    Average document length
@@ -71,7 +68,8 @@ class ExpandStats {
     ExpandStats(Xapian::doclength avlen_, double expand_k_ = 0.0)
 	: avlen(avlen_), expand_k(expand_k_) { }
 
-    void accumulate(Xapian::termcount wdf, Xapian::termcount doclen,
+    void accumulate(size_t shard_index,
+		    Xapian::termcount wdf, Xapian::termcount doclen,
 		    Xapian::doccount subtf, Xapian::doccount subdbsize)
     {
 	// Boolean terms may have wdf == 0, but treat that as 1 so such terms
@@ -84,9 +82,11 @@ class ExpandStats {
 
 	// If we've not seen this sub-database before, then update dbsize and
 	// termfreq and note that we have seen it.
-	if (db_index >= dbs_seen.size() || !dbs_seen[db_index]) {
-	    if (db_index >= dbs_seen.size()) dbs_seen.resize(db_index + 1);
-	    dbs_seen[db_index] = true;
+	if (shard_index >= dbs_seen.size() || !dbs_seen[shard_index]) {
+	    if (shard_index >= dbs_seen.size()) {
+		dbs_seen.resize(shard_index + 1);
+	    }
+	    dbs_seen[shard_index] = true;
 	    dbsize += subdbsize;
 	    termfreq += subtf;
 	}
@@ -103,7 +103,6 @@ class ExpandStats {
 	rcollection_freq = 0;
 	rtermfreq = 0;
 	multiplier = 0;
-	db_index = 0;
     }
 };
 

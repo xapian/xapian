@@ -18,10 +18,13 @@ for parameter values enclosed in double quotes: ``\\``, ``\"``, ``\0``, ``\t``,
 The actions are applied in the specified order to each field listed, and
 a field can be listed in multiple lines.
 
+Comments are allowed on a line by themselves, introduced by a ``#``.
+
 Here's an example::
 
  desc1 : unhtml index truncate=200 field=sample
  desc2 desc3 desc4 : unhtml index
+ # This is a comment.
  name : field=caption weight=3 index
  ref : boolean=Q unique=Q
  type : boolean=XT

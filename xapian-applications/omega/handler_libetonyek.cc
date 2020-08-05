@@ -194,6 +194,7 @@ extract_pages(string& dump,
 
 bool
 extract(const string& filename,
+	const string& mimetype,
 	string& dump,
 	string& title,
 	string& keyword,

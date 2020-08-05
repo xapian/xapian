@@ -32,6 +32,7 @@
 #include "safeunistd.h"
 #include <sys/socket.h>
 #include <sys/wait.h>
+#include <utility>
 
 #include "closefrom.h"
 #include "freemem.h"
@@ -48,6 +49,14 @@ Worker::start_worker_subprocess()
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	throw string("socketpair failed: ") + strerror(errno);
+    }
+
+    if (filter_module.find('/') == string::npos) {
+	// Look for unqualified filters in pkglibbindir.
+	string full_path = get_pkglibbindir();
+	full_path += '/';
+	full_path += filter_module;
+	filter_module = std::move(full_path);
     }
 
     child = fork();
@@ -78,17 +87,6 @@ Worker::start_worker_subprocess()
 	// process could be chroot()-ed to a sandbox directory, which means
 	// we're reasonably protected from security bugs in the filter.
 
-	const char* mod;
-	if (filter_module.find('/') != string::npos) {
-	    // Look for unqualified filters in pkglibbindir.
-	    string full_path = get_pkglibbindir();
-	    full_path += '/';
-	    full_path += filter_module;
-	    mod = full_path.c_str();
-	} else {
-	    mod = filter_module.c_str();
-	}
-
 #ifdef HAVE_SETRLIMIT
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
 	// Set a memory limit if it is possible
@@ -113,6 +111,7 @@ Worker::start_worker_subprocess()
 #endif
 #endif
 	// Replacing the current process image with a new process image
+	const char* mod = filter_module.c_str();
 	execl(mod, mod, static_cast<void*>(NULL));
 	_exit(1);
     }
@@ -136,6 +135,7 @@ Worker::start_worker_subprocess()
 
 bool
 Worker::extract(const std::string& filename,
+		const std::string& mimetype,
 		std::string& dump,
 		std::string& title,
 		std::string& keywords,
@@ -157,8 +157,9 @@ Worker::extract(const std::string& filename,
 
     string strpage, strstate;
     char state = MSG_FATAL_ERROR;
-    // Sending a filename and wating for the answer
-    if (write_string(sockt, filename) && read_string(sockt, strstate)) {
+    // Send a filename and wait for the reply.
+    if (write_string(sockt, filename) && write_string(sockt, mimetype) &&
+	read_string(sockt, strstate)) {
 	error.clear();
 	if (!strstate.empty())
 	    state = strstate[0];

@@ -67,17 +67,19 @@ static void stop_timeout() { }
 
 int main()
 {
-    string filename;
+    string filename, mimetype;
     FILE* sockt = fdopen(FD, "r+");
 
     while (true) {
 	// Read filename.
 	if (!read_string(sockt, filename)) break;
+	if (!read_string(sockt, mimetype)) break;
 	string dump, title, keywords, author, pages, error;
 	// Setting a timeout for avoid infinity loops
 	set_timeout();
 	bool succeed =
-	    extract(filename, dump, title, keywords, author, pages, error);
+	    extract(filename, mimetype, dump, title, keywords, author, pages,
+		    error);
 	stop_timeout();
 	if (!succeed) {
 	    if (!write_string(sockt, string(1, MSG_NON_FATAL_ERROR) + error))

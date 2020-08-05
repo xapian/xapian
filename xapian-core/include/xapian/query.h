@@ -233,13 +233,13 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  is the maximum weight from any matching subquery (for OP_OR, it's
 	 *  the sum of the weights from the matching subqueries).
 	 *
-	 *  Added in Xapian 1.3.2.
+	 *  @since Added in Xapian 1.3.2.
 	 */
 	OP_MAX = 14,
 
 	/** Wildcard expansion.
 	 *
-	 *  Added in Xapian 1.3.3.
+	 *  @since Added in Xapian 1.3.3.
 	 */
 	OP_WILDCARD = 15,
 
@@ -313,7 +313,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	/** Support * which matches 0 or more characters.
 	 *
-	 *  @since Added in Xapian 1.5.0.
+	 *  @since Added in Xapian 1.5.0
 	 */
 	WILDCARD_PATTERN_MULTI = 0x10,
 

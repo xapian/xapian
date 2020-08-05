@@ -365,8 +365,9 @@ GlassDatabase::set_revision_number(int flags, glass_revision_number_t new_revisi
 	!spelling_table.sync() ||
 	!docdata_table.sync() ||
 	!version_file.sync(tmpfile, new_revision, flags)) {
+	int saved_errno = errno;
 	(void)unlink(tmpfile.c_str());
-	throw Xapian::DatabaseError("Commit failed", errno);
+	throw Xapian::DatabaseError("Commit failed", saved_errno);
     }
 
     changes.commit(new_revision, flags);
