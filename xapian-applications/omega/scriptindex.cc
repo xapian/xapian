@@ -199,7 +199,10 @@ parse_index_script(const string &filename)
 	string::const_iterator i, j;
 	const string &s = line;
 	i = find_if(s.begin(), s.end(), [](char ch) { return !C_isspace(ch); });
-	if (i == s.end() || *i == '#') continue;
+	if (i == s.end() || *i == '#') {
+	    // Blank line or comment.
+	    continue;
+	}
 	while (true) {
 	    if (!C_isalnum(*i)) {
 		report_location(DIAG_ERROR, filename, line_no, i - s.begin());
