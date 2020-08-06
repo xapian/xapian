@@ -187,13 +187,14 @@ MultiXorPostList::get_docid() const
 
 double
 MultiXorPostList::get_weight(Xapian::termcount doclen,
-			     Xapian::termcount unique_terms) const
+			     Xapian::termcount unique_terms,
+			     Xapian::termcount wdfdocmax) const
 {
     Assert(did);
     double result = 0;
     for (size_t i = 0; i < n_kids; ++i) {
 	if (plist[i]->get_docid() == did)
-	    result += plist[i]->get_weight(doclen, unique_terms);
+	    result += plist[i]->get_weight(doclen, unique_terms, wdfdocmax);
     }
     return result;
 }

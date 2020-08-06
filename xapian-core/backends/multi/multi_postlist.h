@@ -80,7 +80,8 @@ class MultiPostList : public PostList {
 
     /// Return the weight contribution for the current position.
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
 
     /// Return true if the current position is past the last entry in this list.
     bool at_end() const;

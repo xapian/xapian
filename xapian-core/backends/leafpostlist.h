@@ -100,7 +100,8 @@ class LeafPostList : public PostList {
     Xapian::doccount get_termfreq_est() const;
 
     double get_weight(Xapian::termcount doclen,
-		      Xapian::termcount unique_terms) const;
+		      Xapian::termcount unique_terms,
+		      Xapian::termcount wdfdocmax) const;
 
     double recalc_maxweight();
 

@@ -198,10 +198,12 @@ TfIdfWeight::unserialise(const string & s) const
 }
 
 double
-TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
-			 Xapian::termcount uniqterms) const
+TfIdfWeight::get_sumpart(Xapian::termcount wdf,
+			 Xapian::termcount doclen,
+			 Xapian::termcount uniqterms,
+			 Xapian::termcount wdfdocmax) const
 {
-    double wdfn = get_wdfn(wdf, doclen, uniqterms, wdf_norm_);
+    double wdfn = get_wdfn(wdf, doclen, uniqterms, wdfdocmax, wdf_norm_);
     return get_wtn(wdfn * idfn, wt_norm_) * wqf_factor;
 }
 
@@ -212,7 +214,7 @@ TfIdfWeight::get_maxpart() const
 {
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     Xapian::termcount len_min = get_doclength_lower_bound();
-    double wdfn = get_wdfn(wdf_max, len_min, len_min, wdf_norm_);
+    double wdfn = get_wdfn(wdf_max, len_min, len_min, wdf_max, wdf_norm_);
     return get_wtn(wdfn * idfn, wt_norm_) * wqf_factor;
 }
 
@@ -233,6 +235,7 @@ TfIdfWeight::get_maxextra() const
 double
 TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 		      Xapian::termcount uniqterms,
+		      Xapian::termcount wdfdocmax,
 		      wdf_norm wdf_normalization) const
 {
     switch (wdf_normalization) {

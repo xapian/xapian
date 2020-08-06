@@ -1229,7 +1229,7 @@ class CheckInitWeight : public Xapian::Weight {
     }
 
     double get_sumpart(Xapian::termcount, Xapian::termcount,
-		       Xapian::termcount) const {
+		       Xapian::termcount, Xapian::termcount) const {
 	return 1.0;
     }
 
@@ -1302,6 +1302,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(COLLECTION_FREQ);
 	need_stat(UNIQUE_TERMS);
 	need_stat(TOTAL_LENGTH);
+	need_stat(WDF_DOC_MAX);
     }
 
     CheckStatsWeight(const Xapian::Database & db_,
@@ -1330,7 +1331,7 @@ class CheckStatsWeight : public Xapian::Weight {
     }
 
     double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
-		       Xapian::termcount uniqueterms) const {
+		       Xapian::termcount uniqueterms, Xapian::termcount) const {
 	Xapian::doccount num_docs = db.get_doccount();
 	TEST_EQUAL(get_collection_size(), num_docs);
 	TEST_EQUAL(get_rset_size(), 0);

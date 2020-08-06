@@ -61,7 +61,8 @@ SynonymPostList::skip_to(Xapian::docid did, double w_min)
 
 double
 SynonymPostList::get_weight(Xapian::termcount doclen,
-			    Xapian::termcount unique_terms) const
+			    Xapian::termcount unique_terms,
+			    Xapian::termcount wdfdocmax) const
 {
     LOGCALL(MATCH, double, "SynonymPostList::get_weight", doclen | unique_terms);
     Xapian::termcount wdf = 0;
@@ -85,12 +86,12 @@ SynonymPostList::get_weight(Xapian::termcount doclen,
 	    // even if the weight object doesn't want it.
 	    if (doclen == 0) {
 		Xapian::termcount dummy;
-		pltree->get_doc_stats(pl->get_docid(), doclen, dummy);
+		pltree->get_doc_stats(pl->get_docid(), doclen, dummy, dummy);
 	    }
 	    if (wdf > doclen) wdf = doclen;
 	}
     }
-    RETURN(wt->get_sumpart(wdf, doclen, unique_terms));
+    RETURN(wt->get_sumpart(wdf, doclen, unique_terms, wdfdocmax));
 }
 
 double

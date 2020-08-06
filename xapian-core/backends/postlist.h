@@ -87,7 +87,8 @@ class PostList {
 
     /// Return the weight contribution for the current position.
     virtual double get_weight(Xapian::termcount doclen,
-			      Xapian::termcount unique_terms) const = 0;
+			      Xapian::termcount unique_terms,
+			      Xapian::termcount wdfdocmax) const = 0;
 
     /// Return true if the current position is past the last entry in this list.
     virtual bool at_end() const = 0;

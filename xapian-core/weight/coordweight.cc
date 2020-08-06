@@ -69,7 +69,7 @@ CoordWeight::unserialise(const string& s) const
 
 double
 CoordWeight::get_sumpart(Xapian::termcount, Xapian::termcount,
-			 Xapian::termcount) const
+			 Xapian::termcount, Xapian::termcount) const
 {
     return factor;
 }

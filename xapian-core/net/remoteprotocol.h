@@ -97,6 +97,7 @@ enum message_type {
     MSG_METADATAKEYLIST,	// Iterator for metadata keys
     MSG_FREQS,			// Get termfreq and collfreq
     MSG_UNIQUETERMS,		// Get number of unique terms in doc
+    MSG_WDFDOCMAX,		// Get the max_wdf in doc
     MSG_POSITIONLISTCOUNT,	// Get PositionList length
     MSG_RECONSTRUCTTEXT,	// Reconstruct document text
     MSG_SYNONYMTERMLIST,	// Get synonyms for a term
@@ -132,6 +133,7 @@ enum reply_type {
     REPLY_METADATAKEYLIST,	// Iterator for metadata keys
     REPLY_FREQS,		// Get termfreq and collfreq
     REPLY_UNIQUETERMS,		// Get number of unique terms in doc
+    REPLY_WDFDOCMAX,		// Get the max_wdf in doc
     REPLY_POSITIONLISTCOUNT,	// Get PositionList length
     REPLY_REMOVESPELLING,	// Remove a spelling
     REPLY_TERMLISTHEADER,	// Header for get termlist

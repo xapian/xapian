@@ -30,7 +30,8 @@ using namespace std;
 
 double
 ExtraWeightPostList::get_weight(Xapian::termcount doclen,
-				Xapian::termcount unique_terms) const
+				Xapian::termcount unique_terms,
+				Xapian ::termcount wdfdocmax) const
 {
     /* Weight::get_sumextra() takes two parameters (document length and number
      * of unique terms) but none of the currently implemented weighting schemes
@@ -38,9 +39,9 @@ ExtraWeightPostList::get_weight(Xapian::termcount doclen,
      * at some point, and so that we got all the incompatible changes needed to
      * add support for the number of unique terms over with in one go.
      */
-    double sum_extra = weight->get_sumextra(doclen, unique_terms);
+    double sum_extra = weight->get_sumextra(doclen, unique_terms, wdfdocmax);
     AssertRel(sum_extra,<=,max_extra);
-    return pl->get_weight(doclen, unique_terms) + sum_extra;
+    return pl->get_weight(doclen, unique_terms, wdfdocmax) + sum_extra;
 }
 
 double
