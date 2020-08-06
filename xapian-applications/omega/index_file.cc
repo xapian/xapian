@@ -105,7 +105,6 @@ static string site_term, host_term;
 static Failed failed;
 
 map<string, Filter> commands;
-map<string, Worker *> workers;
 
 static void
 mark_as_seen(Xapian::docid did)
@@ -737,7 +736,6 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     time_t created = time_t(-1);
     int pages = -1;
 
-    map<string, Worker *>::const_iterator wrk_it = workers.find(mimetype);
     map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
     if (cmd_it == commands.end()) {
 	size_t slash = mimetype.find('/');
@@ -754,11 +752,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
     }
     try {
-	if (wrk_it != workers.end()) {
-	    // Just use the worker process to extract the content
-	    Worker* wrk = wrk_it->second;
-	    if (!wrk ||
-		!wrk->extract(file, mimetype, dump, title, keywords, author,
+	if (cmd_it != commands.end() && cmd_it->second.worker) {
+	    // Use a worker process to extract the content.
+	    Worker* wrk = cmd_it->second.worker;
+	    if (!wrk->extract(file, mimetype, dump, title, keywords, author,
 			      pages)) {
 		string msg = wrk->get_error();
 		assert(!msg.empty());

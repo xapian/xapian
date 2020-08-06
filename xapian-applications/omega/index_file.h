@@ -57,6 +57,9 @@ struct Filter {
 	SEEK_DEV_STDIN = 8
     };
     unsigned flags = 0;
+    /** Set if this is a mapping for a worker sub-process. */
+    Worker* worker = nullptr;
+
     Filter() { }
     explicit Filter(const std::string & cmd_, unsigned flags_ = 0)
 	: cmd(cmd_), output_type(), flags(flags_) { }
@@ -68,6 +71,7 @@ struct Filter {
 	   unsigned flags_ = 0)
 	: cmd(cmd_), output_type(output_type_),
 	  output_charset(output_charset_), flags(flags_) { }
+    explicit Filter(Worker* worker_) : worker(worker_) { }
     bool use_shell() const { return flags & USE_SHELL; }
     bool input_on_stdin() const {
 #ifdef HAVE_DEV_STDIN
@@ -86,12 +90,11 @@ struct Filter {
 };
 
 extern std::map<std::string, Filter> commands;
-extern std::map<std::string, Worker *> workers;
 
 inline void
 index_library(const std::string& type, Worker* worker)
 {
-    workers[type] = worker;
+    commands[type] = Filter(worker);
 }
 
 inline void
