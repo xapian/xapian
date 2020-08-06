@@ -146,6 +146,12 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
      */
     virtual termcount get_unique_terms(docid did) const = 0;
 
+    /** Get the max wdf in document.
+     *
+     *  @param did  The document id of the document to return this value for.
+     */
+    virtual termcount get_wdfdocmax(docid did) const = 0;
+
     /** Returns frequencies for a term.
      *
      *  @param term		The term to get frequencies for

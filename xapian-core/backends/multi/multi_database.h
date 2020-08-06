@@ -109,6 +109,8 @@ class MultiDatabase : public Xapian::Database::Internal {
 
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
+    Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
+
     Xapian::Document::Internal* open_document(Xapian::docid did,
 					      bool lazy) const;
 

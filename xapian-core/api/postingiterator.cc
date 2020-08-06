@@ -120,6 +120,14 @@ PostingIterator::get_unique_terms() const
     RETURN(internal->get_unique_terms());
 }
 
+Xapian::termcount
+PostingIterator::get_wdfdocmax() const
+{
+    LOGCALL(API, Xapian::termcount, "PostingIterator::get_wdfdocmax", NO_ARGS);
+    Assert(internal);
+    RETURN(internal->get_wdfdocmax());
+}
+
 #if 0 // FIXME: TermIterator supports this, so PostingIterator really ought to.
 Xapian::termcount
 PostingIterator::positionlist_count() const

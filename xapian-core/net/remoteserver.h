@@ -206,6 +206,10 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     XAPIAN_VISIBILITY_INTERNAL
     void msg_uniqueterms(const std::string & message);
 
+    // get max_wdf
+    XAPIAN_VISIBILITY_INTERNAL
+    void msg_wdfdocmax(const std::string& message);
+
     // reconstruct document text
     XAPIAN_VISIBILITY_INTERNAL
     void msg_reconstructtext(const std::string& message);

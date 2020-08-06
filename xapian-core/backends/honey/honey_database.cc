@@ -164,6 +164,21 @@ HoneyDatabase::get_unique_terms(Xapian::docid did) const
     return HoneyTermList(this, did).get_unique_terms();
 }
 
+Xapian::termcount
+HoneyDatabase::get_wdfdocmax(Xapian::docid did) const
+{
+    Assert(did != 0);
+    HoneyTermList termlist(this, did);
+    Xapian::termcount max_wdf = 0;
+    termlist.next();
+    while (!termlist.at_end()) {
+	Xapian::termcount current_wdf = termlist.get_wdf();
+	if (current_wdf > max_wdf) max_wdf = current_wdf;
+	termlist.next();
+    }
+    return max_wdf;
+}
+
 void
 HoneyDatabase::get_freqs(const string& term,
 			 Xapian::doccount* termfreq_ptr,
