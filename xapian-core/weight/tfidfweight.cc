@@ -235,7 +235,7 @@ TfIdfWeight::get_maxextra() const
 double
 TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 		      Xapian::termcount uniqterms,
-		      Xapian::termcount wdfdocmax,
+		      Xapian::termcount,
 		      wdf_norm wdf_normalization) const
 {
     switch (wdf_normalization) {

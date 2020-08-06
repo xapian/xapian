@@ -39,7 +39,7 @@ ExtraWeightPostList::get_weight(Xapian::termcount doclen,
      * at some point, and so that we got all the incompatible changes needed to
      * add support for the number of unique terms over with in one go.
      */
-    double sum_extra = weight->get_sumextra(doclen, unique_terms, wdfdocmax);
+    double sum_extra = weight->get_sumextra(doclen, unique_terms);
     AssertRel(sum_extra,<=,max_extra);
     return pl->get_weight(doclen, unique_terms, wdfdocmax) + sum_extra;
 }

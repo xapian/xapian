@@ -1330,8 +1330,10 @@ class CheckStatsWeight : public Xapian::Weight {
 	return res;
     }
 
-    double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
-		       Xapian::termcount uniqueterms, Xapian::termcount) const {
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqueterms,
+		       Xapian::termcount wdfdocmax) const {
 	Xapian::doccount num_docs = db.get_doccount();
 	TEST_EQUAL(get_collection_size(), num_docs);
 	TEST_EQUAL(get_rset_size(), 0);
@@ -1393,6 +1395,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_REL(uniqueterms,>=,1);
 	TEST_REL(uniqueterms,<=,doclen);
 	TEST_REL(wdf,<=,wdf_upper);
+	TEST_REL(wdfdocmax,>=,1);
 	if (term2 != "_") {
 	    sum += wdf;
 	    sum_squares += wdf * wdf;
