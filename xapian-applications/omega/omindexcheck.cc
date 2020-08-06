@@ -163,7 +163,8 @@ index_test()
     tests.insert({"video/file_example_AVI_480_750kB.avi",
 		  {"Zcodec", "Zh264", "480x270", "msvideo", "30", "fps"}});
     tests.insert({"audio/file_example_OOG_1MG.ogg",
-		  {"Simpact", "ZSmoderato", "Zlibrari", "Zcinemat"}});
+		  {"Akevin", "Amacleod", "Simpact", "ZSmoderato", "Zlibrari",
+		   "Zcinemat"}});
     tests.insert({"audio/file_example_WAV_1MG.wav",
 		  {"Zstereo", "wav", "Zms"}});
 #endif
