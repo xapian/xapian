@@ -121,7 +121,7 @@ extract(const string& filename,
 	 = EXTRACTOR_plugin_add_defaults(EXTRACTOR_OPTION_DEFAULT_POLICY);
 
 	// If plugin not found/ File format not recognised/ corrupt file
-	// Returns null and not error.
+	// returns null and not an error.
 	EXTRACTOR_extract(plugins, filename.c_str(),
 			  NULL, 0,
 			  &process_metadata, &md);
