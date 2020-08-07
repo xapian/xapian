@@ -131,6 +131,12 @@ Unique Terms
 -  ``MSG_UNIQUETERMS L<document id>``
 -  ``REPLY_UNIQUETERMS L<number of unique terms>``
 
+Max wdf
+-------
+
+-  ``MSG_WDFDOCMAX L<document id>``
+-  ``REPLY_WDFDOCMAX L<max wdf in the document>``
+
 Value Stats
 -----------
 

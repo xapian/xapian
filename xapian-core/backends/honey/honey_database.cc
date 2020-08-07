@@ -177,7 +177,6 @@ HoneyDatabase::get_wdfdocmax(Xapian::docid did) const
 	termlist.next();
     }
     return max_wdf;
-
 }
 
 void

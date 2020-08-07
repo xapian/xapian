@@ -1396,6 +1396,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_REL(uniqueterms,<=,doclen);
 	TEST_REL(wdf,<=,wdf_upper);
 	TEST_REL(wdfdocmax,>=,1);
+	TEST_REL(wdfdocmax,<=,doclen);
 	if (term2 != "_") {
 	    sum += wdf;
 	    sum_squares += wdf * wdf;
