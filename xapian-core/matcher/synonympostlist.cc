@@ -90,6 +90,8 @@ SynonymPostList::get_weight(Xapian::termcount doclen,
 	    }
 	    if (wdf > doclen) wdf = doclen;
 	}
+	// Set wdfdocmax to doclen in case of a synonym.
+	wdfdocmax = doclen;
     }
     RETURN(wt->get_sumpart(wdf, doclen, unique_terms, wdfdocmax));
 }
