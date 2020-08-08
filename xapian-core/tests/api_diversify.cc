@@ -30,7 +30,7 @@
 #include "testutils.h"
 
 // Test that diversified document set is not empty
-DEFINE_TESTCASE(diversify1, generated)
+DEFINE_TESTCASE(diversify1, backend)
 {
     Xapian::Database db = get_database("apitest_diversify");
     Xapian::Enquire enq(db);
@@ -47,7 +47,7 @@ DEFINE_TESTCASE(diversify1, generated)
 /** LCD cluster Test
  *  Test that none of the returned clusters are empty
  */
-DEFINE_TESTCASE(lcdclusterer1, generated)
+DEFINE_TESTCASE(lcdclusterer1, backend)
 {
     Xapian::Database db = get_database("apitest_diversify");
     Xapian::Enquire enq(db);
