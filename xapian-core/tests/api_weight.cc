@@ -1637,6 +1637,76 @@ DEFINE_TESTCASE(checkstatsweight4, backend && !remote && !multi) {
     }
 }
 
+class CheckStatsWeight5 : public Xapian::Weight {
+  public:
+    mutable Xapian::docid did = 0;
+
+    double factor;
+
+    Xapian::Database db;
+
+    char stat_code;
+
+    explicit
+    CheckStatsWeight5(const Xapian::Database& db_, char stat_code_ = '\0')
+	: factor(-1.0), db(db_), stat_code(stat_code_)
+    {
+	switch (stat_code) {
+	    case 'w':
+		need_stat(WDF);
+		break;
+	    case 'd':
+		need_stat(DOC_LENGTH);
+		break;
+	}
+	need_stat(WDF_DOC_MAX);
+    }
+
+    void init(double factor_) {
+	factor = factor_;
+    }
+
+    Weight* clone() const {
+	return new CheckStatsWeight5(db, stat_code);
+    }
+
+    double get_sumpart(Xapian::termcount,
+		       Xapian::termcount,
+		       Xapian::termcount,
+		       Xapian::termcount wdfdocmax) const {
+	// The query is a synonym of all terms, so should match all documents.
+	++did;
+	TEST_REL(wdfdocmax,==,db.get_doclength(did));
+	return 1.0 / wdfdocmax;
+    }
+
+    double get_maxpart() const {
+	return 1.0;
+    }
+
+    double get_sumextra(Xapian::termcount, Xapian::termcount) const {
+	return 0.0;
+    }
+
+    double get_maxextra() const { return 0.0; }
+};
+
+/// Check wdfdocmax is clamped to doclen even if wdf and doclen aren't wanted.
+DEFINE_TESTCASE(checkstatsweight5, backend && !remote) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    Xapian::Query q{Xapian::Query::OP_SYNONYM,
+		    db.allterms_begin(),
+		    db.allterms_end()};
+    enquire.set_query(q);
+    enquire.set_weighting_scheme(CheckStatsWeight5(db));
+    Xapian::MSet mset1 = enquire.get_mset(0, db.get_doccount());
+    enquire.set_weighting_scheme(CheckStatsWeight5(db, 'w'));
+    Xapian::MSet mset2 = enquire.get_mset(0, db.get_doccount());
+    enquire.set_weighting_scheme(CheckStatsWeight5(db, 'd'));
+    Xapian::MSet mset3 = enquire.get_mset(0, db.get_doccount());
+}
+
 // Two stage should perform same as Jelinek mercer if smoothing parameter for mercer is kept 1 in both.
 DEFINE_TESTCASE(unigramlmweight4, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
