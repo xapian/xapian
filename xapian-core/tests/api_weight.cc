@@ -1692,7 +1692,7 @@ class CheckStatsWeight5 : public Xapian::Weight {
 };
 
 /// Check wdfdocmax is clamped to doclen even if wdf and doclen aren't wanted.
-DEFINE_TESTCASE(checkstatsweight5, backend && !remote) {
+DEFINE_TESTCASE(checkstatsweight5, backend && !multi && !remote) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     Xapian::Query q{Xapian::Query::OP_SYNONYM,
