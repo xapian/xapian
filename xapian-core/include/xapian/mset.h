@@ -110,7 +110,11 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /** Get the termfreq of a term.
      *
-     *  @return The number of documents @a term occurs in.
+     *  @return The number of documents which @a term occurs in.  This
+     *		considers all documents in the database being searched, so
+     *		gives the same answer as <code>db.get_termfreq(term)</code>
+     *		(but is more efficient for query terms as it returns a
+     *		value cached during the search.)
      */
     Xapian::doccount get_termfreq(const std::string & term) const;
 
