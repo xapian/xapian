@@ -147,6 +147,10 @@ class PostListTree {
 	return unshard(pl->get_docid(), current_shard, n_shards);
     }
 
+    Xapian::termcount get_doclength(Xapian::docid shard_did) const {
+	return shard_db->get_doclength(shard_did);
+    }
+
     double get_weight() const {
 	Xapian::termcount doclen = 0, unique_terms = 0, wdfdocmax = 0;
 	get_doc_stats(pl->get_docid(), doclen, unique_terms, wdfdocmax);

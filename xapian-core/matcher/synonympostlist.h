@@ -44,6 +44,9 @@ class SynonymPostList : public WrapperPostList {
     /// Flag indicating whether the weighting object needs the wdf.
     bool want_wdf;
 
+    /// Flag indicating whether the weighting object needs the wdfdocmax.
+    bool want_wdfdocmax;
+
     /** Are the subquery's wdf contributions disjoint?
      *
      *  This is true is each wdf from the document contributes at most itself
@@ -64,7 +67,7 @@ class SynonymPostList : public WrapperPostList {
 		    PostListTree* pltree_,
 		    bool wdf_disjoint_)
 	: WrapperPostList(subtree), wt(NULL), want_wdf(false),
-	  wdf_disjoint(wdf_disjoint_),
+	  want_wdfdocmax(false), wdf_disjoint(wdf_disjoint_),
 	  pltree(pltree_),
 	  doclen_lower_bound(db->get_doclength_lower_bound()) { }
 

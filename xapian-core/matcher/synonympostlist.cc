@@ -41,6 +41,7 @@ SynonymPostList::set_weight(const Xapian::Weight * wt_)
     delete wt;
     wt = wt_;
     want_wdf = wt->get_sumpart_needs_wdf_();
+    want_wdfdocmax = wt->get_sumpart_needs_wdfdocmax_();
 }
 
 PostList *
@@ -85,12 +86,15 @@ SynonymPostList::get_weight(Xapian::termcount doclen,
 	    // that this is true.  Note that this requires doclen to be fetched
 	    // even if the weight object doesn't want it.
 	    if (doclen == 0) {
-		Xapian::termcount dummy;
-		pltree->get_doc_stats(pl->get_docid(), doclen, dummy, dummy);
+		doclen = pltree->get_doclength(pl->get_docid());
 	    }
 	    if (wdf > doclen) wdf = doclen;
 	}
-	// Set wdfdocmax to doclen in case of a synonym.
+    }
+    if (want_wdfdocmax) {
+	if (doclen == 0) {
+	    doclen = pltree->get_doclength(pl->get_docid());
+	}
 	wdfdocmax = doclen;
     }
     RETURN(wt->get_sumpart(wdf, doclen, unique_terms, wdfdocmax));
