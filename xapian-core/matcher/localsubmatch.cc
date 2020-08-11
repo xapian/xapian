@@ -91,7 +91,8 @@ class LazyWeight : public Xapian::Weight {
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
-			Xapian::termcount uniqterms) const;
+			Xapian::termcount uniqterms,
+			Xapian::termcount wdfdocmax) const;
     double get_maxextra() const;
 };
 
@@ -144,10 +145,12 @@ LazyWeight::get_sumpart(Xapian::termcount wdf,
 
 double
 LazyWeight::get_sumextra(Xapian::termcount doclen,
-			 Xapian::termcount uniqterms) const
+			 Xapian::termcount uniqterms,
+			 Xapian::termcount wdfdocmax) const
 {
     (void)doclen;
     (void)uniqterms;
+    (void)wdfdocmax;
     throw Xapian::InvalidOperationError("LazyWeight::get_sumextra()");
 }
 

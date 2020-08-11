@@ -140,7 +140,9 @@ IneB2Weight::get_maxpart() const
 }
 
 double
-IneB2Weight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+IneB2Weight::get_sumextra(Xapian::termcount,
+			  Xapian::termcount,
+			  Xapian::termcount) const
 {
     return 0;
 }

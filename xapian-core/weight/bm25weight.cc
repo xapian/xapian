@@ -217,7 +217,9 @@ BM25Weight::get_maxpart() const
  * 2 * param_k2 * query_length / (1 + normlen)
  */
 double
-BM25Weight::get_sumextra(Xapian::termcount len, Xapian::termcount) const
+BM25Weight::get_sumextra(Xapian::termcount len,
+			 Xapian::termcount,
+			 Xapian::termcount) const
 {
     LOGCALL(WTCALC, double, "BM25Weight::get_sumextra", len);
     double num = (2.0 * param_k2 * get_query_length());

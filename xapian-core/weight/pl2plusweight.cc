@@ -190,7 +190,9 @@ PL2PlusWeight::get_maxpart() const
 }
 
 double
-PL2PlusWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+PL2PlusWeight::get_sumextra(Xapian::termcount,
+			    Xapian::termcount,
+			    Xapian::termcount) const
 {
     return 0;
 }
