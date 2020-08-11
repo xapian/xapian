@@ -220,7 +220,9 @@ TfIdfWeight::get_maxpart() const
 
 // There is no extra per document component in the TfIdfWeighting scheme.
 double
-TfIdfWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+TfIdfWeight::get_sumextra(Xapian::termcount,
+			  Xapian::termcount,
+			  Xapian::termcount) const
 {
     return 0;
 }

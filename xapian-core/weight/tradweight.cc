@@ -171,7 +171,9 @@ TradWeight::get_maxpart() const
 }
 
 double
-TradWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+TradWeight::get_sumextra(Xapian::termcount,
+			 Xapian::termcount,
+			 Xapian::termcount) const
 {
     return 0;
 }

@@ -101,7 +101,9 @@ DiceCoeffWeight::get_maxpart() const
 }
 
 double
-DiceCoeffWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+DiceCoeffWeight::get_sumextra(Xapian::termcount,
+			      Xapian::termcount,
+			      Xapian::termcount) const
 {
     return 0;
 }

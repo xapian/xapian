@@ -203,7 +203,9 @@ DLHWeight::get_maxpart() const
 }
 
 double
-DLHWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+DLHWeight::get_sumextra(Xapian::termcount,
+			Xapian::termcount,
+			Xapian::termcount) const
 {
     return 0;
 }

@@ -409,7 +409,11 @@ class ExceptionalWeight : public Xapian::Weight {
     }
     double get_maxpart() const { return 0; }
 
-    double get_sumextra(Xapian::termcount, Xapian::termcount) const { return 0; }
+    double get_sumextra(Xapian::termcount,
+			Xapian::termcount,
+			Xapian::termcount) const {
+	return 0;
+    }
     double get_maxextra() const { return 0; }
 };
 

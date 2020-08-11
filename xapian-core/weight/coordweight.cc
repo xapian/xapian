@@ -81,7 +81,9 @@ CoordWeight::get_maxpart() const
 }
 
 double
-CoordWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+CoordWeight::get_sumextra(Xapian::termcount,
+			  Xapian::termcount,
+			  Xapian::termcount) const
 {
     return 0;
 }

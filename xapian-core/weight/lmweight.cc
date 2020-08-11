@@ -245,7 +245,9 @@ LMWeight::get_maxpart() const
  *	  |D| is total document length.
  */
 double
-LMWeight::get_sumextra(Xapian::termcount len, Xapian::termcount) const
+LMWeight::get_sumextra(Xapian::termcount len,
+		       Xapian::termcount,
+		       Xapian::termcount) const
 {
     if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
 	double extra_weight = param_smoothing1 / (len + param_smoothing1);
