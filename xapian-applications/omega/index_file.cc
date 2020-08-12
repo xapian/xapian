@@ -265,6 +265,11 @@ index_add_default_libraries()
     index_library("application/x-abiword", omindex_libabw);
     index_library("application/x-abiword-compressed", omindex_libabw);
 #endif
+#if defined HAVE_LIBCDR
+    Worker* omindex_libcdr = new Worker("omindex_libcdr");
+    index_library("application/zip", omindex_libcdr);
+    index_library("application/octet-stream", omindex_libcdr);
+#endif
 }
 
 void
