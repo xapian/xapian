@@ -149,6 +149,14 @@ index_test()
     tests.insert({"abw/test1.abw",
 		  {"Zедой", "Z喬伊不分享食物"}});
 #endif
+#if defined HAVE_LIBCDR
+    // .cdr versions >= 16 are not included in the tests as they will work
+    // correctly only with libcdr >= 0.1.6
+    tests.insert({"cdr/test1.cdr",
+		  {"Zalgerian", "Zcalibri"}});
+    tests.insert({"cdr/test2.cdr",
+		  {"Zедой", "Z喬伊不分享食物", "Zdocument"}});
+#endif
 }
 
 static bool

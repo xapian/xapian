@@ -214,6 +214,9 @@ tif		image/tiff
 tiff		image/tiff
 webp		image/webp
 
+# Corel DRAW files:
+cdr		image/x-coreldraw
+
 # Extensions to quietly ignore:
 a		ignore
 adm		ignore
