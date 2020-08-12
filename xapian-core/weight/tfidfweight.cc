@@ -214,8 +214,7 @@ TfIdfWeight::get_maxpart() const
 {
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     Xapian::termcount len_min = get_doclength_lower_bound();
-    double wdfn = get_wdfn(wdf_max, len_min, len_min,
-			   wdf_max, wdf_norm_);
+    double wdfn = get_wdfn(wdf_max, len_min, len_min, wdf_max, wdf_norm_);
     return get_wtn(wdfn * idfn, wt_norm_) * wqf_factor;
 }
 
