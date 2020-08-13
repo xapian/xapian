@@ -2,6 +2,7 @@
  *  @brief LCD clustering API
  */
 /* Copyright (C) 2018 Uppinder Chugh
+ * Copyright (C) 2020 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,20 +29,14 @@
 #include "omassert.h"
 
 #include <algorithm>
-#include <set>
+#include <functional>
+#include <map>
 #include <vector>
 
 using namespace Xapian;
 using namespace std;
 
-struct pcompare {
-    bool operator()(const pair<Point, double>& a,
-		    const pair<Point, double>& b) const {
-	return a.second > b.second;
-    }
-};
-
-typedef set<pair<Point, double>, pcompare> PSet;
+typedef multimap<double, Point, std::greater<double>> PSet;
 
 struct dcompare {
     bool operator()(const pair<PSet::iterator, double>& a,
@@ -76,12 +71,12 @@ LCDClusterer::cluster(const MSet& mset)
 	k_ = size;
 
     // Store each document and its rel score from given mset
-    set<pair<Point, double>, pcompare> points;
+    PSet points;
 
     // Initialise points
     TermListGroup tlg(mset);
     for (MSetIterator it = mset.begin(); it != mset.end(); ++it)
-	points.emplace(Point(tlg, it.get_document()), it.get_weight());
+	points.emplace(it.get_weight(), Point(tlg, it.get_document()));
 
     // Container for holding the clusters
     ClusterSet cset;
@@ -120,7 +115,8 @@ LCDClusterer::cluster(const MSet& mset)
 	    if (it == cluster_center)
 		continue;
 
-	    double dist = distance.similarity(cluster_center->first, it->first);
+	    double dist = distance.similarity(cluster_center->second,
+					      it->second);
 	    dist_vector.push_back(make_pair(it, dist));
 	}
 
@@ -131,13 +127,13 @@ LCDClusterer::cluster(const MSet& mset)
 	for (unsigned int i = 0; i < num_points - 1; ++i) {
 	    auto piterator = dist_vector[i].first;
 	    // Add to cluster
-	    new_cluster.add_point(piterator->first);
+	    new_cluster.add_point(piterator->second);
 	    // Remove from 'points'
 	    points.erase(piterator);
 	}
 
 	// Add cluster_center to current cluster
-	new_cluster.add_point(cluster_center->first);
+	new_cluster.add_point(cluster_center->second);
 
 	// Add cluster to cset
 	cset.add_cluster(new_cluster);
