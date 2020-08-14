@@ -153,10 +153,8 @@ index_test()
     // .cdr versions >= 16 are not included in the tests as they will work
     // correctly only with libcdr >= 0.1.6
     tests.insert({"cdr/test1.cdr",
-		  {"Zhello", "Zsampl", "Zcorel"}});
-    tests.insert({"cdr/test2.cdr",
 		  {"Zalgerian", "Zcalibri"}});
-    tests.insert({"cdr/test3.cdr",
+    tests.insert({"cdr/test2.cdr",
 		  {"Zедой", "Z喬伊不分享食物", "Zdocument"}});
 #endif
 }
