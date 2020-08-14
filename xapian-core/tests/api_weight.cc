@@ -883,6 +883,24 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * log((6.0 - 2) / 2));
     TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * log((6.0 - 2) / 2));
 
+    // Check for "mnn".
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("mnn"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 / 8);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1.0 / 4);
+
+    // Check for "ann".
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("ann"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(),0.5 + 0.5 * 8.0 / 8);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(),0.5 + 0.5 * 1.0 / 4);
+
     // Check for NONE, TFIDF, NONE when termfreq != N
     enquire.set_query(query);
     enquire.set_weighting_scheme(
@@ -1116,6 +1134,30 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.9 + 0.1 * (8.0 / (81.0 / 56.0)));
     TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.9 + 0.1 * (1.0 / (31.0 / 26.0)));
+
+    // Check for MAX, NONE, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::MAX,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 / 8);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1.0 / 4);
+
+    // Check for AUG, NONE, NONE.
+    enquire.set_weighting_scheme(
+	Xapian::TfIdfWeight(
+	    Xapian::TfIdfWeight::wdf_norm::AUG,
+	    Xapian::TfIdfWeight::idf_norm::NONE,
+	    Xapian::TfIdfWeight::wt_norm::NONE));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(),0.5 + 0.5 * 8.0 / 8);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(),0.5 + 0.5 * 1.0 / 4);
 }
 
 // Feature tests for pivoted normalization functions.

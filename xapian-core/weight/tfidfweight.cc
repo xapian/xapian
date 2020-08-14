@@ -54,6 +54,10 @@ TfIdfWeight::decode_wdf_norm(const string& normalizations)
 	    return wdf_norm::LOG_AVERAGE;
 	case 'n':
 	    return wdf_norm::NONE;
+	case 'm':
+	    return wdf_norm::MAX;
+	case 'a':
+	    return wdf_norm::AUG;
     }
     throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
@@ -128,6 +132,9 @@ TfIdfWeight::TfIdfWeight(wdf_norm wdf_normalization,
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(UNIQUE_TERMS);
+    }
+    if (wdf_norm_ == wdf_norm::MAX || wdf_norm_ == wdf_norm::AUG) {
+	need_stat(WDF_DOC_MAX);
     }
     if (idf_norm_ == idf_norm::GLOBAL_FREQ ||
 	idf_norm_ == idf_norm::LOG_GLOBAL_FREQ ||
@@ -237,7 +244,7 @@ TfIdfWeight::get_maxextra() const
 double
 TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 		      Xapian::termcount uniqterms,
-		      Xapian::termcount,
+		      Xapian::termcount wdfdocmax,
 		      wdf_norm wdf_normalization) const
 {
     switch (wdf_normalization) {
@@ -279,6 +286,12 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	case wdf_norm::AUG_AVERAGE: {
 	    if (wdf == 0) return 0;
 	    return 0.9 + 0.1 * (double(wdf) / (double(doclen) / uniqterms));
+	}
+	case wdf_norm::MAX:
+	    return double(wdf) / wdfdocmax;
+	case wdf_norm::AUG: {
+	    if (wdf == 0) return 0;
+	    return 0.5 + 0.5 * (double(wdf) / wdfdocmax);
 	}
 	case wdf_norm::NONE:
 	    break;
