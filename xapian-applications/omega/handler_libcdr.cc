@@ -45,26 +45,21 @@ extract(const string& filename,
 
 	// check if cdr file supported
 	if (libcdr::CDRDocument::isSupported(&input)) {
-	    if (!libcdr::CDRDocument::parse(&input, &content)) {
+	    if (libcdr::CDRDocument::parse(&input, &content)) {
+
+		// parse the pages to get the content
+		pages = cdr_pages.size();
+		for (auto i = 0; i < cdr_pages.size(); ++i) {
+		    dump.append(cdr_pages[i].cstr());
+		}
+
+	    } else {
 		error = "Libcdr Error: Failed to parse the file";
 		return false;
 	    }
-	// check if cmx file is supported
-	// libcdr doesn't seem to extract any text from cmx files
-	}/* else if (libcdr::CMXDocument::isSupported(&input)) {
-	    if (!libcdr::CMXDocument::parse(&input, &content)) {
-		error = "Libcdr Error: Failed to parse the file";
-		return false;
-	    }
-	} */else {
+	} else {
 	    error = "Libcdr Error: The format is not supported";
 	    return false;
-	}
-
-	// parse the pages to get the content
-	pages = cdr_pages.size();
-	for (auto i=0; i<cdr_pages.size(); i++) {
-	    dump.append(cdr_pages[i].cstr());
 	}
 
 	return true;
