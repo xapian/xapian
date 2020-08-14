@@ -537,7 +537,19 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	 *
 	 *  wdfn=0.9+0.1*(wdf/(doclen/unique_terms)) if(wdf>0), else wdfn=0
 	 */
-	AUG_AVERAGE = 9
+	AUG_AVERAGE = 9,
+
+	/** Max wdf
+	 *
+	 *  wdfn=wdf/wdfdocmax
+	 */
+	MAX = 10,
+
+	/** Augmented max wdf
+	 *
+	 *  wdfn=0.5+0.5*wdf/wdfdocmax if(wdf>0), else wdfn=0
+	 */
+	AUG = 11
     };
 
     /** Idf normalizations. */
@@ -662,9 +674,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
      *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
      *     @li 'L': Log average wdfn=(1+log(wdf))/(1+log(doclen/unique_terms))
-     *
-     *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
-     *     implemented.
+     *     @li 'm': Max-wdf	wdfn=wdf/wdfdocmax
+     *     @li 'a': Augmented max-wdf  wdfn=0.5+0.5*wdf/wdfdocmax
      *
      * @li The second character indicates the normalization for the idf.  The
      *     following normalizations are currently supported:
@@ -708,9 +719,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 's': Square     wdfn=wdf*wdf
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
      *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
-     *
-     *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
-     *     implemented.
+     *     @li 'm': Max-wdf	wdfn=wdf/wdfdocmax
+     *     @li 'a': Augmented max-wdf  wdfn=0.5+0.5*wdf/wdfdocmax
      *
      * @li The second character indicates the normalization for the idf.  The
      *     following normalizations are currently supported:
