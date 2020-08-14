@@ -898,8 +898,8 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(),0.5 + 0.5 * 8.0 / 8);
-    TEST_EQUAL_DOUBLE(mset[1].get_weight(),0.5 + 0.5 * 1.0 / 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.5 + 0.5 * 8.0 / 8);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.5 + 0.5 * 1.0 / 4);
 
     // Check for NONE, TFIDF, NONE when termfreq != N
     enquire.set_query(query);
@@ -1156,8 +1156,8 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(),0.5 + 0.5 * 8.0 / 8);
-    TEST_EQUAL_DOUBLE(mset[1].get_weight(),0.5 + 0.5 * 1.0 / 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.5 + 0.5 * 8.0 / 8);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.5 + 0.5 * 1.0 / 4);
 }
 
 // Feature tests for pivoted normalization functions.
