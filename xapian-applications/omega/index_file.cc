@@ -267,8 +267,7 @@ index_add_default_libraries()
 #endif
 #if defined HAVE_LIBCDR
     Worker* omindex_libcdr = new Worker("omindex_libcdr");
-    index_library("application/zip", omindex_libcdr);
-    index_library("application/octet-stream", omindex_libcdr);
+    index_library("image/x-coreldraw", omindex_libcdr);
 #endif
 }
 

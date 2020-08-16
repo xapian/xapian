@@ -1,5 +1,5 @@
 /** @file handler_libcdr.cc
- * @brief Extract text and metadata using libcdr.
+ * @brief Extract text using libcdr.
  */
 /* Copyright (C) 2020 Parth Kapadia
  *
@@ -46,13 +46,11 @@ extract(const string& filename,
 	// check if cdr file supported
 	if (libcdr::CDRDocument::isSupported(&input)) {
 	    if (libcdr::CDRDocument::parse(&input, &content)) {
-
 		// parse the pages to get the content
 		pages = cdr_pages.size();
 		for (auto i = 0; i < cdr_pages.size(); ++i) {
 		    dump.append(cdr_pages[i].cstr());
 		}
-
 	    } else {
 		error = "Libcdr Error: Failed to parse the file";
 		return false;
@@ -61,11 +59,9 @@ extract(const string& filename,
 	    error = "Libcdr Error: The format is not supported";
 	    return false;
 	}
-
 	return true;
     } catch (...) {
 	error = "Libcdr threw an exception";
 	return false;
     }
-
 }
