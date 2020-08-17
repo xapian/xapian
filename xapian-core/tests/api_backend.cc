@@ -1736,3 +1736,22 @@ DEFINE_TESTCASE(allterms7, backend) {
 	TEST(db.postlist_begin(term) != db.postlist_end(term));
     }
 }
+
+/* Test searching for non-existent terms returns zero results.
+ *
+ * Regression test for GlassTable::readahead_key() throwing "Key too long"
+ * error if passed an oversized key.
+ */
+DEFINE_TESTCASE(nosuchterm, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire{db};
+    // Test up to a length longer than any backend supports.
+    const unsigned MAX_LEN = 300;
+    string term;
+    term.reserve(MAX_LEN);
+    while (term.size() < MAX_LEN) {
+	term += 'x';
+	enquire.set_query(Xapian::Query(term));
+	TEST_EQUAL(enquire.get_mset(0, 10).size(), 0);
+    }
+}

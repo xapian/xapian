@@ -1143,6 +1143,10 @@ ChertTable::readahead_key(const string &key) const
     LOGCALL(DB, bool, "ChertTable::readahead_key", key);
     Assert(!key.empty());
 
+    // An overlong key cannot be found.
+    if (key.size() > CHERT_BTREE_MAX_KEY_LEN)
+	RETURN(false);
+
     // Two cases:
     //
     // handle = -1:  Lazy table which isn't yet open
