@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include "api_backend.h"
+#include "backends/glass/glass_table.h"
 
 #include <xapian.h>
 
@@ -1863,4 +1864,14 @@ DEFINE_TESTCASE(positfrompostit1, positional) {
 	++p;
 	TEST_EQUAL(p, postit.positionlist_end());
     }
+}
+
+// Regression test for glass readahead_key throwing "Key too long" error
+DEFINE_TESTCASE(readaheadkeylong, glass) {
+	Xapian::Database db = get_database("apitest_simpledata");
+	std::string term(GLASS_BTREE_MAX_KEY_LEN + 1, 'x');
+	Xapian::Query q{term};
+	Xapian::Enquire enquire{db};
+	enquire.set_query(q);
+	enquire.get_mset(0, 10);
 }
