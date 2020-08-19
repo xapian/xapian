@@ -252,6 +252,18 @@ class Weight::Internal {
 	return true;
     }
 
+    static bool param_name(const char** p, std::string& name) {
+	const char* q = *p;
+	while (*q != ' ') {
+	    if (*q == '\0') break;
+	    name += *(q)++;
+	}
+	if (q == *p) return false;
+	if (*q == ' ') q++;
+	*p = q;
+	return true;
+    }
+
     static void parameter_error(const char * msg,
 				const std::string & scheme) {
 	std::string m(msg);

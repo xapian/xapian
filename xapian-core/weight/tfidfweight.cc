@@ -23,6 +23,10 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include "idf-norm-dispatch.h"
+#include "keyword.h"
+#include "wdf-norm-dispatch.h"
+#include "weightinternal.h"
 #include <cmath>
 #include <cstring>
 
@@ -353,12 +357,47 @@ TfIdfWeight::get_wtn(double wt, wt_norm wt_normalization) const
     return wt;
 }
 
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "tfidf");
+}
+
 TfIdfWeight *
 TfIdfWeight::create_from_parameters(const char * p) const
 {
     if (*p == '\0')
 	return new Xapian::TfIdfWeight();
-    return new Xapian::TfIdfWeight(p);
+    string wdf_normalisation, idf_normalisation, wt_normalisation;
+    if (!Xapian::Weight::Internal::param_name(&p, wdf_normalisation))
+	parameter_error("Parameter 1 (wdf_normalisation) is invalid");
+    if (!Xapian::Weight::Internal::param_name(&p, idf_normalisation))
+	parameter_error("Parameter 2 (idf_normalisation) is invalid");
+    if (!Xapian::Weight::Internal::param_name(&p, wt_normalisation))
+	parameter_error("Parameter 3 (wt_normalisation) is invalid");
+    if (*p)
+	parameter_error("Extra data after wt_normalisation");
+
+    int wdf_code = keyword(wdf_norm_tab, wdf_normalisation.data(),
+			   wdf_normalisation.size());
+    if (wdf_code < 0) {
+	parameter_error("Parameter 1 (wdf_normalisation) is invalid");
+    }
+    wdf_norm wdf_normalisation_ = static_cast<wdf_norm>(wdf_code);
+
+    int idf_code = keyword(idf_norm_tab, idf_normalisation.data(),
+			   idf_normalisation.size());
+    if (idf_code < 0) {
+	parameter_error("Parameter 2 (idf_normalisation) is invalid");
+    }
+    idf_norm idf_normalisation_ = static_cast<idf_norm>(idf_code);
+
+    if (wt_normalisation != "NONE") {
+	parameter_error("Parameter 3 (wt_normalisation) is invalid");
+    }
+    wt_norm wt_normalisation_ = wt_norm::NONE;
+    return new Xapian::TfIdfWeight(wdf_normalisation_, idf_normalisation_,
+				   wt_normalisation_);
 }
 
 }

@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+my $copyright = <<'EOF';
+/* Copyright (C) 2020 Dipanshu Garg
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ */
+EOF
+
+use Tokeniseise;
+
+my $hdr = Tokeniseise->new('weight/idf-norm-dispatch.h', 'Map string to idf normalisation code', $copyright, 'XAPIAN_INCLUDED_IDF_NORM_DISPATCH_H', 'idf_norm', 2, 'false');
+for my $enum (qw/
+    NONE
+    TFIDF
+    SQUARE
+    FREQ
+    PROB
+    PIVOTED
+    GLOBAL_FREQ
+    LOG_GLOBAL_FREQ
+    INCREMENTED_GLOBAL_FREQ
+    SQRT_GLOBAL_FREQ /)
+{
+    $hdr->add($enum, "static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::$enum)");
+}
+
+$hdr->write('false', 'idf_norm_tab');

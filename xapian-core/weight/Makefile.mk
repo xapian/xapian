@@ -2,6 +2,10 @@ noinst_HEADERS +=\
 	weight/weightinternal.h
 
 EXTRA_DIST +=\
+	weight/collate-idf-norm\
+	weight/collate-wdf-norm\
+	weight/idf-norm-dispatch.h\
+	weight/wdf-norm-dispatch.h\
 	weight/Makefile
 
 lib_src +=\
@@ -23,3 +27,13 @@ lib_src +=\
 	weight/tradweight.cc\
 	weight/weight.cc\
 	weight/weightinternal.cc
+
+weight/idf-norm-dispatch.h: weight/collate-idf-norm weight/Makefile.mk common/Tokeniseise.pm
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/weight/collate-idf-norm' '$(srcdir)'
+
+weight/wdf-norm-dispatch.h: weight/collate-wdf-norm weight/Makefile.mk common/Tokeniseise.pm
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/weight/collate-wdf-norm' '$(srcdir)'
+
+BUILT_SOURCES +=\
+	weight/idf-norm-dispatch.h\
+	weight/wdf-norm-dispatch.h

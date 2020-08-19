@@ -23,7 +23,7 @@ use strict;
 use warnings;
 
 sub new {
-    my ($class, $header, $desc, $copyright, $guard, $type, $width) = @_;
+    my ($class, $header, $desc, $copyright, $guard, $type, $width, $need_enum) = @_;
     my $fh;
     open $fh, '>', "$header~" or die $!;
     print $fh <<"EOF";
@@ -34,9 +34,14 @@ sub new {
 $copyright
 #ifndef $guard
 #define $guard
+EOF
+    $need_enum ||= 'true';
+    if ($need_enum eq 'true') {
+	print $fh <<"EOF";
 
 enum $type {
 EOF
+    }
     my $self = {
 	FH => $fh,
 	HEADER => $header,
@@ -65,10 +70,13 @@ sub append {
 }
 
 sub write {
-    my $self = shift;
+    my ($self, $need_enum, $tab_name) = @_;
     my $fh = $self->{FH};
-    print $fh join ",\n", map { "    $_ = $self->{ENUM_VALUES}{$_}" } sort {$self->{ENUM_VALUES}{$a} <=> $self->{ENUM_VALUES}{$b}} keys %{$self->{ENUM_VALUES}};
-    print $fh "\n};\n";
+    $need_enum ||= 'true';
+    if ($need_enum eq 'true') {
+	print $fh join ",\n", map { "    $_ = $self->{ENUM_VALUES}{$_}" } sort {$self->{ENUM_VALUES}{$a} <=> $self->{ENUM_VALUES}{$b}} keys %{$self->{ENUM_VALUES}};
+	print $fh "\n};\n";
+    }
 
     my $width = $self->{WIDTH};
     my $max = (1 << (8 * $width)) - 1;
@@ -108,7 +116,8 @@ sub write {
 	    push @r, "$v, " . join(",", map { my $o = ord $_; $o >= 32 && $o < 127 ? "'$_'" : $o } split //, $s) . ",";
 	}
     }
-    print $fh "\nstatic const unsigned char tab[] = {\n";
+    $tab_name ||= 'tab';
+    print $fh "\nstatic const unsigned char ",$tab_name,"[] = {\n";
     print $fh "    $max_len,\n";
     my $c = 0;
     for (@h) {
