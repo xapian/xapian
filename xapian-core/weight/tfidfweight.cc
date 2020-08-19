@@ -367,9 +367,9 @@ TfIdfWeight::create_from_parameters(const char * p) const
     if (*p == '\0')
 	return new Xapian::TfIdfWeight();
     string wdf_normalisation, idf_normalisation, wt_normalisation;
-    wdf_norm wdf_normalisation_;
-    idf_norm idf_normalisation_;
-    wt_norm wt_normalisation_;
+    wdf_norm wdf_normalisation_ = wdf_norm::NONE;
+    idf_norm idf_normalisation_ = idf_norm::TFIDF;
+    wt_norm wt_normalisation_ = wt_norm::NONE;
     if (!Xapian::Weight::Internal::param_name(&p, wdf_normalisation))
 	parameter_error("Parameter 1 (wdf_normalisation) is invalid");
     if (!Xapian::Weight::Internal::param_name(&p, idf_normalisation))
