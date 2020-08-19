@@ -23,8 +23,10 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include "weightinternal.h"
 #include <cmath>
 #include <cstring>
+#include <map>
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -353,12 +355,75 @@ TfIdfWeight::get_wtn(double wt, wt_norm wt_normalization) const
     return wt;
 }
 
+static inline void
+parameter_error(const char* message)
+{
+    Xapian::Weight::Internal::parameter_error(message, "tfidf");
+}
+
 TfIdfWeight *
 TfIdfWeight::create_from_parameters(const char * p) const
 {
     if (*p == '\0')
 	return new Xapian::TfIdfWeight();
-    return new Xapian::TfIdfWeight(p);
+    string wdf_normalisation, idf_normalisation, wt_normalisation;
+    wdf_norm wdf_normalisation_;
+    idf_norm idf_normalisation_;
+    wt_norm wt_normalisation_;
+    if (!Xapian::Weight::Internal::param_name(&p, wdf_normalisation))
+	parameter_error("Parameter 1 (wdf_normalisation) is invalid");
+    if (!Xapian::Weight::Internal::param_name(&p, idf_normalisation))
+	parameter_error("Parameter 2 (idf_normalisation) is invalid");
+    if (!Xapian::Weight::Internal::param_name(&p, wt_normalisation))
+	parameter_error("Parameter 3 (wt_normalisation) is invalid");
+    if (*p)
+	parameter_error("Extra data after wt_normalisation");
+    map<string, wdf_norm> wdfnorm {
+	{ "NONE", wdf_norm::NONE },
+	{ "BOOLEAN", wdf_norm::BOOLEAN },
+	{ "SQUARE", wdf_norm::SQUARE },
+	{ "LOG", wdf_norm::LOG },
+	{ "PIVOTED", wdf_norm::PIVOTED },
+	{ "LOG_AVERAGE", wdf_norm::LOG_AVERAGE },
+	{ "AUG_LOG", wdf_norm::AUG_LOG },
+	{ "SQRT", wdf_norm::SQRT },
+	{ "AUG_AVERAGE", wdf_norm::AUG_AVERAGE }
+    };
+    map<string, idf_norm> idfnorm {
+	{ "NONE", idf_norm::NONE },
+	{ "TFIDF", idf_norm::TFIDF },
+	{ "SQUARE", idf_norm::SQUARE },
+	{ "FREQ", idf_norm::FREQ },
+	{ "PROB", idf_norm::PROB },
+	{ "PIVOTED", idf_norm::PIVOTED },
+	{ "GLOBAL_FREQ", idf_norm::GLOBAL_FREQ },
+	{ "LOG_GLOBAL_FREQ", idf_norm::LOG_GLOBAL_FREQ },
+	{ "INCREMENTED_GLOBAL_FREQ", idf_norm::INCREMENTED_GLOBAL_FREQ },
+	{ "SQRT_GLOBAL_FREQ", idf_norm::SQRT_GLOBAL_FREQ }
+    };
+    map<string, wt_norm> wtnorm {
+	{ "NONE", wt_norm::NONE }
+    };
+    if (wdfnorm.find(wdf_normalisation) != wdfnorm.end()) {
+	wdf_normalisation_ = wdfnorm[wdf_normalisation];
+	wdfnorm.clear();
+    } else {
+	parameter_error("Parameter 1 (wdf_normalisation) is invalid");
+    }
+    if (idfnorm.find(idf_normalisation) != idfnorm.end()) {
+	idf_normalisation_ = idfnorm[idf_normalisation];
+	idfnorm.clear();
+    } else {
+	parameter_error("Parameter 2 (idf_normalisation) is invalid");
+    }
+    if (wtnorm.find(wt_normalisation) != wtnorm.end()) {
+	wt_normalisation_ = wtnorm[wt_normalisation];
+	wtnorm.clear();
+    } else {
+	parameter_error("Parameter 3 (wt_normalisation) is invalid");
+    }
+    return new Xapian::TfIdfWeight(wdf_normalisation_, idf_normalisation_,
+				   wt_normalisation_);
 }
 
 }
