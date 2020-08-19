@@ -2483,7 +2483,7 @@ eval(const string &fmt, const vector<string> &param)
     } catch (const Xapian::Error & e) {
 	// FIXME: this means we only see the most recent error in $error
 	// - is that the best approach?
-	error_msg = e.get_msg();
+	error_msg = e.get_description();
     }
 
     res.append(fmt, p, string::npos);
