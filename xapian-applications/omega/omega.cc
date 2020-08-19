@@ -665,7 +665,7 @@ try {
 } catch (const Xapian::Error &e) {
     if (!set_content_type && !suppress_http_headers)
 	cout << "Content-Type: text/html\n\n";
-    cout << "Exception: " << html_escape(e.get_msg()) << endl;
+    cout << "Exception: " << html_escape(e.get_description()) << endl;
 } catch (const std::exception &e) {
     if (!set_content_type && !suppress_http_headers)
 	cout << "Content-Type: text/html\n\n";

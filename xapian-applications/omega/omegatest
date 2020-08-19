@@ -1078,7 +1078,7 @@ dummy=
 END
 printf '$field{id,$cgi{id}}|$field{f,$cgi{id}}$error' > "$TEST_TEMPLATE"
 testcase '1|one' id=1
-testcase '|Document 2 not found' id=2
+testcase '|DocNotFoundError: Document 2 not found' id=2
 testcase '3|' id=3
 testcase '4|' id=4
 
