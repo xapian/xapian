@@ -636,9 +636,6 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /* When additional normalizations are implemented in the future, the additional statistics for them
        should be accessed by these functions. */
-    wdf_norm decode_wdf_norm(const std::string& normalizations);
-    idf_norm decode_idf_norm(const std::string& normalizations);
-    wt_norm decode_wt_norm(const std::string& normalizations);
     double get_wdfn(Xapian::termcount wdf,
 		    Xapian::termcount len,
 		    Xapian::termcount uniqterms,

@@ -36,58 +36,58 @@ using namespace std;
 
 namespace Xapian {
 
-TfIdfWeight::wdf_norm
-TfIdfWeight::decode_wdf_norm(const string& normalizations)
+static TfIdfWeight::wdf_norm
+decode_wdf_norm(const string& normalizations)
 {
     if (normalizations.length() != 3)
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     switch (normalizations[0]) {
 	case 'b':
-	    return wdf_norm::BOOLEAN;
+	    return TfIdfWeight::wdf_norm::BOOLEAN;
 	case 's':
-	    return wdf_norm::SQUARE;
+	    return TfIdfWeight::wdf_norm::SQUARE;
 	case 'l':
-	    return wdf_norm::LOG;
+	    return TfIdfWeight::wdf_norm::LOG;
 	case 'P':
-	    return wdf_norm::PIVOTED;
+	    return TfIdfWeight::wdf_norm::PIVOTED;
 	case 'L':
-	    return wdf_norm::LOG_AVERAGE;
+	    return TfIdfWeight::wdf_norm::LOG_AVERAGE;
 	case 'n':
-	    return wdf_norm::NONE;
+	    return TfIdfWeight::wdf_norm::NONE;
     }
     throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
 
-TfIdfWeight::idf_norm
-TfIdfWeight::decode_idf_norm(const string& normalizations)
+static TfIdfWeight::idf_norm
+decode_idf_norm(const string& normalizations)
 {
     if (normalizations.length() != 3)
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     switch (normalizations[1]) {
 	case 'n':
-	    return idf_norm::NONE;
+	    return TfIdfWeight::idf_norm::NONE;
 	case 's':
-	    return idf_norm::SQUARE;
+	    return TfIdfWeight::idf_norm::SQUARE;
 	case 'f':
-	    return idf_norm::FREQ;
+	    return TfIdfWeight::idf_norm::FREQ;
 	case 'P':
-	    return idf_norm::PIVOTED;
+	    return TfIdfWeight::idf_norm::PIVOTED;
 	case 'p':
-	    return idf_norm::PROB;
+	    return TfIdfWeight::idf_norm::PROB;
 	case 't':
-	    return idf_norm::TFIDF;
+	    return TfIdfWeight::idf_norm::TFIDF;
     }
     throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
 
-TfIdfWeight::wt_norm
-TfIdfWeight::decode_wt_norm(const string& normalizations)
+static TfIdfWeight::wt_norm
+decode_wt_norm(const string& normalizations)
 {
     if (normalizations.length() != 3)
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     switch (normalizations[2]) {
 	case 'n':
-	    return wt_norm::NONE;
+	    return TfIdfWeight::wt_norm::NONE;
     }
     throw Xapian::InvalidArgumentError("Normalization string is invalid");
 }
