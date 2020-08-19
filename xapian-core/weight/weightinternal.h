@@ -254,7 +254,7 @@ class Weight::Internal {
 
     static bool param_name(const char** p, std::string& name) {
 	const char* q = *p;
-	while (*q != ' '){
+	while (*q != ' ') {
 	    if (*q == '\0') break;
 	    name += *(q)++;
 	}

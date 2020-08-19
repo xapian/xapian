@@ -387,7 +387,9 @@ TfIdfWeight::create_from_parameters(const char * p) const
 	{ "LOG_AVERAGE", wdf_norm::LOG_AVERAGE },
 	{ "AUG_LOG", wdf_norm::AUG_LOG },
 	{ "SQRT", wdf_norm::SQRT },
-	{ "AUG_AVERAGE", wdf_norm::AUG_AVERAGE }
+	{ "AUG_AVERAGE", wdf_norm::AUG_AVERAGE },
+	{ "MAX", wdf_norm::MAX },
+	{ "AUG", wdf_norm::AUG }
     };
     map<string, idf_norm> idfnorm {
 	{ "NONE", idf_norm::NONE },
