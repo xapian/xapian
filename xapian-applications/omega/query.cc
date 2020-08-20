@@ -382,7 +382,7 @@ parse_queries(const string& oldp)
 	    qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
 	}
     }
-    qp.set_stopper(new MyStopper());
+    qp.set_stopper((new MyStopper())->release());
     qp.set_default_op(default_op);
     qp.set_database(db);
     // FIXME: provide a custom RP which handles size:10..20K, etc.
