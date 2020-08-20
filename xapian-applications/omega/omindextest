@@ -24,6 +24,11 @@ set -e
 : ${XAPIAN_OMEGA_PKGLIBBINDIR=.}
 export XAPIAN_OMEGA_PKGLIBBINDIR
 
+# Don't complain about memory left allocated on exit - the OS will reclaim
+# all memory at that point.
+LSAN_OPTIONS=leak_check_at_exit=0
+export LSAN_OPTIONS
+
 srcdir=`echo "$0"|sed 's!/*[^/]*$!!'`
 TEST_FILES="$srcdir/testfiles/"
 TEST_DB="testdatabase"
