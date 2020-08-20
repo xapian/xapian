@@ -27,8 +27,9 @@ set -e
 SERVER_PROTOCOL=INCLUDED
 export SERVER_PROTOCOL
 
-# Suppress leak reports for cached PCRE objects.
-LSAN_OPTIONS=print_suppressions=0,suppressions=lsan.supp
+# Don't complain about memory left allocated on exit - the OS will reclaim
+# all memory at that point.
+LSAN_OPTIONS=leak_check_at_exit=0
 export LSAN_OPTIONS
 
 # Set up an empty database.

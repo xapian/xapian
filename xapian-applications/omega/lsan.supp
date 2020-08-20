@@ -1,4 +1,0 @@
-# Suppressions for leak sanitiser:
-
-# Cached compiled pcre regular expressions:
-leak:pcre_compile2
