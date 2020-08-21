@@ -1,3 +1,35 @@
+Omega 1.4.17 (2020-08-21):
+
+documentation:
+
+* Document comment format supported by scriptindex index scripts.  We've
+  supported comments on a line by themselves and introduced with a # since
+  scriptindex was first added back in 2002, but it seems have never actually
+  been documented before now.
+
+omega:
+
+* Check for SERVER_PROTOCOL=INCLUDED before anything which might throw an
+  exception so that if it is set we suppress the Content-Type: when reporting
+  such exceptions.  Spotted by Gaurav Arora.
+
+* Report get_description() for Xapian::Error exceptions instead of get_msg().
+  This means we now report the exception's type, context (useful for network
+  errors), and errno information.
+
+* Avoid leaking MyStopper object.  The object essentially has the lifespan of
+  omega itself, but becomes unreachable when the QueryParser object is
+  destroyed.  To make it easier to use leak-checking tools, hand ownership of
+  this object to the QueryParser object.
+
+testsuite:
+
+* omegatest: Tell leak sanitizer not to report leaks for allocations which
+  aren't explicitly released on exit - the OS will reclaim all memory from the
+  process at this point and explicitly releasing everything just takes time for
+  no real benefit.  We will still see leaks of objects which become unreachable
+  during a run.
+
 Omega 1.4.16 (2020-06-08):
 
 indexers:

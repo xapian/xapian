@@ -1,3 +1,8 @@
+Xapian-bindings 1.4.17 (2020-08-21):
+
+* No user-visible change except for bumping the version to indicate
+  compatibility with Xapian-core 1.4.17.
+
 Xapian-bindings 1.4.16 (2020-06-08):
 
 General:

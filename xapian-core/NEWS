@@ -1,3 +1,36 @@
+Xapian-core 1.4.17 (2020-08-21):
+
+API:
+
+* Database::get_average_length(): Add this as an alias for Database::get_avlen().
+  In git master we've added this as a preferred new name - adding it to 1.4.x too
+  will make it easier for users to update to using this.
+
+* Database::get_spelling_suggestion(): Optimise edit distance initialisation
+  loop to significantly reduce the cost of a typical edit distance calculation.
+    
+* Fix query expansion on sharded databases.  The mechanism for passing in which
+  shard a TermList is from wasn't hooked up and as a result we'd always think
+  it's from the first shard, meaning the statistics would be wrong and that our
+  suggested terms may not have been as good as they should be in this
+  situation.
+    
+* Enquire::get_eset(): Use string::compare() to avoid 1/3 of the string compares
+  on average.
+
+documentation:
+
+* Update doxygen HTML headers and footers to resolve issues with some
+  interactive features of the API docs not working.  Reported by Enrico Zini.
+
+* Stop specifying obsolete doxygen settings PERL_PATH and MSCGEN_PATH.
+
+* Clarify API docs for MSet::get_termfreq() to make it clear that this
+  considers all documents in the database, not only those that matched the
+  searched (it would sometimes be useful to be able to report the number of
+  occurrences of a term in the matched documents, but it's not something we
+  currently keep track of).  Reported by Tadeusz Sośnierz and Peter Salomonsen.
+
 Xapian-core 1.4.16 (2020-06-08):
 
 API:
