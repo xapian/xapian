@@ -34,6 +34,8 @@ typedef vector<string> testcase;
 
 static unordered_map<string, testcase> tests;
 
+enum err_code { PASS, FAIL, SKIP };
+
 static void
 index_test()
 {
@@ -92,8 +94,8 @@ index_test()
 		  {"Zannual", "Zfed", "Zreturn", "Zwhile"}});
 #endif
 #if defined HAVE_LIBARCHIVE
-    // blank file
-    tests.insert({"odf/blank.odt", {}});
+    // blank file - will skip the test as no terms will be found.
+    // tests.insert({"odf/blank.odt", {}});
     // corrupted file (ODP)
     // tests.insert({"corrupt_file.odp", {"ZSnatur"}});
 
@@ -170,27 +172,41 @@ index_test()
 #endif
 }
 
-static bool
+static err_code
 compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 {
     sort(test.begin(), test.end());
     Xapian::TermIterator term_iterator = doc.termlist_begin();
+    bool term_found = false, exists = true;
     for (auto& t : test) {
 	term_iterator.skip_to(t);
 	if (term_iterator == doc.termlist_end() || *term_iterator != t) {
 	    cerr << "Error in " << file << ": Term " << t <<
 		 " does not belong to this file" << endl;
-	    return false;
+	    exists = false;
+	} else if (!term_found) {
+	    term_found = true;
 	}
     }
-    return true;
+    // Skips if no term is found
+    // Passes if all terms are found
+    // Fails if only some terms are found
+    if (term_found) {
+	if (exists)
+	    return PASS;
+	else
+	    return FAIL;
+    } else {
+	// no terms found
+	return SKIP;
+    }
 }
 
 int
 main(int argc, char** argv)
 {
     Xapian::Database db;
-    bool succeed = true, skip = true;
+    err_code succeed = PASS;
     if (argc <= 1)
 	return 1;
     db.add_database(Xapian::Database(argv[1]));
@@ -207,14 +223,17 @@ main(int argc, char** argv)
 	Xapian::Document doc = db.get_document(did);
 	auto iter = tests.find(url);
 	if (iter != tests.end()) {
-	    if (startswith(iter->first, "audio") ||
-		startswith(iter->first, "video"))
-		skip &= compare_test(iter->second, doc, url);
-	    else
-		succeed &= compare_test(iter->second, doc, url);
+	    err_code result = compare_test(iter->second, doc, url);
+	    if (result == FAIL)
+		succeed = FAIL;
+	    else if (succeed == PASS && result == SKIP)
+		succeed = SKIP;
 	}
     }
-    // skip(77) if term not present in audio/video files
-    // Appropriate plugin for libextractor may not be present.
-    return succeed ? skip ? 0 : 77 : 1;
+    if (succeed == PASS)
+	return 0;
+    else if (succeed == FAIL)
+	return 1;
+    else
+	return 77;
 }
