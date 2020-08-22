@@ -34,8 +34,12 @@ matrix:
             - libtesseract-dev
             - libgmime-2.6-dev
             - libarchive-dev
+<<<<<<< HEAD
             - libabw-dev
             - libcdr-dev
+=======
+            - libextractor-dev
+>>>>>>> fixup! Support audio/video formats using Libextractor
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
@@ -67,6 +71,7 @@ matrix:
             - libarchive-dev
             - libabw-dev
             - libcdr-dev
+            - libextractor-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
     - compiler: gcc
       os: linux
@@ -96,6 +101,7 @@ matrix:
             - libpoppler-cpp-dev
             - libtesseract-dev
             - libarchive-dev
+            - libextractor-dev
     - os: linux
       name: "Emscripten"
       addons:
@@ -139,6 +145,7 @@ matrix:
             - libarchive
             - libcdr
             - libetonyek
+            - libextractor
             - libiconv
             - libmagic
             - libsvm
