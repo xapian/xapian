@@ -34,12 +34,9 @@ matrix:
             - libtesseract-dev
             - libgmime-2.6-dev
             - libarchive-dev
-<<<<<<< HEAD
             - libabw-dev
             - libcdr-dev
-=======
             - libextractor-dev
->>>>>>> fixup! Support audio/video formats using Libextractor
       env: CPPFLAGS=-D_GLIBCXX_DEBUG
     - compiler: clang
       os: linux
