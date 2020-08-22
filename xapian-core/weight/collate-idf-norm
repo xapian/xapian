@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+my $copyright = <<'EOF';
+/* Copyright (C) 2020 Dipanshu Garg
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ */
+EOF
+
+use Tokeniseise;
+
+my $hdr = Tokeniseise->new('weight/idf-norm-dispatch.h', 'Map string to idf normalisation code', $copyright, 'XAPIAN_INCLUDED_IDF_NORM_DISPATCH_H', 'idf_norm', 2, 'false');
+$hdr->add('NONE', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::NONE)');
+$hdr->add('TFIDF', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::TFIDF)');
+$hdr->add('SQUARE', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::SQUARE)');
+$hdr->add('FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::FREQ)');
+$hdr->add('PROB', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::PROB)');
+$hdr->add('PIVOTED', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::PIVOTED)');
+$hdr->add('GLOBAL_FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::GLOBAL_FREQ)');
+$hdr->add('LOG_GLOBAL_FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::LOG_GLOBAL_FREQ)');
+$hdr->add('INCREMENTED_GLOBAL_FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::INCREMENTED_GLOBAL_FREQ)');
+$hdr->add('SQRT_GLOBAL_FREQ', 'static_cast<unsigned char>(Xapian::TfIdfWeight::idf_norm::SQRT_GLOBAL_FREQ)');
+
+$hdr->write('false', 'idf_norm_tab');

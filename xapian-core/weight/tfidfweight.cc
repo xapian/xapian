@@ -24,9 +24,11 @@
 
 #include "xapian/weight.h"
 #include "weightinternal.h"
+#include "wdf-norm-dispatch.h"
+#include "idf-norm-dispatch.h"
+#include "keyword.h"
 #include <cmath>
 #include <cstring>
-#include <map>
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -378,52 +380,25 @@ TfIdfWeight::create_from_parameters(const char * p) const
 	parameter_error("Parameter 3 (wt_normalisation) is invalid");
     if (*p)
 	parameter_error("Extra data after wt_normalisation");
-    map<string, wdf_norm> wdfnorm {
-	{ "NONE", wdf_norm::NONE },
-	{ "BOOLEAN", wdf_norm::BOOLEAN },
-	{ "SQUARE", wdf_norm::SQUARE },
-	{ "LOG", wdf_norm::LOG },
-	{ "PIVOTED", wdf_norm::PIVOTED },
-	{ "LOG_AVERAGE", wdf_norm::LOG_AVERAGE },
-	{ "AUG_LOG", wdf_norm::AUG_LOG },
-	{ "SQRT", wdf_norm::SQRT },
-	{ "AUG_AVERAGE", wdf_norm::AUG_AVERAGE },
-	{ "MAX", wdf_norm::MAX },
-	{ "AUG", wdf_norm::AUG }
-    };
-    map<string, idf_norm> idfnorm {
-	{ "NONE", idf_norm::NONE },
-	{ "TFIDF", idf_norm::TFIDF },
-	{ "SQUARE", idf_norm::SQUARE },
-	{ "FREQ", idf_norm::FREQ },
-	{ "PROB", idf_norm::PROB },
-	{ "PIVOTED", idf_norm::PIVOTED },
-	{ "GLOBAL_FREQ", idf_norm::GLOBAL_FREQ },
-	{ "LOG_GLOBAL_FREQ", idf_norm::LOG_GLOBAL_FREQ },
-	{ "INCREMENTED_GLOBAL_FREQ", idf_norm::INCREMENTED_GLOBAL_FREQ },
-	{ "SQRT_GLOBAL_FREQ", idf_norm::SQRT_GLOBAL_FREQ }
-    };
-    map<string, wt_norm> wtnorm {
-	{ "NONE", wt_norm::NONE }
-    };
-    if (wdfnorm.find(wdf_normalisation) != wdfnorm.end()) {
-	wdf_normalisation_ = wdfnorm[wdf_normalisation];
-	wdfnorm.clear();
-    } else {
+
+    int wdf_code = keyword(wdf_norm_tab, wdf_normalisation.data(),
+			   wdf_normalisation.size());
+    if (wdf_code < 0) {
 	parameter_error("Parameter 1 (wdf_normalisation) is invalid");
     }
-    if (idfnorm.find(idf_normalisation) != idfnorm.end()) {
-	idf_normalisation_ = idfnorm[idf_normalisation];
-	idfnorm.clear();
-    } else {
+    wdf_normalisation_ = static_cast<wdf_norm>(wdf_code);
+
+    int idf_code = keyword(idf_norm_tab, idf_normalisation.data(),
+			   idf_normalisation.size());
+    if (idf_code < 0) {
 	parameter_error("Parameter 2 (idf_normalisation) is invalid");
     }
-    if (wtnorm.find(wt_normalisation) != wtnorm.end()) {
-	wt_normalisation_ = wtnorm[wt_normalisation];
-	wtnorm.clear();
-    } else {
+    idf_normalisation_ = static_cast<idf_norm>(idf_code);
+
+    if (wt_normalisation != "NONE") {
 	parameter_error("Parameter 3 (wt_normalisation) is invalid");
     }
+    wt_normalisation_ = wt_norm::NONE;
     return new Xapian::TfIdfWeight(wdf_normalisation_, idf_normalisation_,
 				   wt_normalisation_);
 }
