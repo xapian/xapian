@@ -4,3 +4,5 @@
 /.deps
 /.libs
 /.dirstamp
+/wdf-norm-dispatch.h
+/idf-nor-dispatch.h
