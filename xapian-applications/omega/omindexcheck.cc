@@ -186,7 +186,7 @@ index_test()
     tests.insert({"apple_works/test_word.cwk",
 		  {"Zhello", "Zdocument"}});
     tests.insert({"apple_works/test_spreadsheet.cwk",
-		  {"Zpizza", "220", "Zcwk"}});
+		  {"Zpizza", "220"}});
     tests.insert({"apple_works/test_drawing.cwk",
 		  {"Zdraw", "Zsampl", "Zgraphic"}});
 #endif
