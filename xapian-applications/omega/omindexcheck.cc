@@ -34,7 +34,7 @@ typedef vector<string> testcase;
 
 static unordered_map<string, testcase> tests;
 
-enum err_code { PASS, FAIL, SKIP };
+enum test_result { PASS, FAIL, SKIP };
 
 static void
 index_test()
@@ -172,9 +172,12 @@ index_test()
 #endif
 }
 
-static err_code
+static test_result
 compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 {
+    // Skips if no term is found
+    // Passes if all terms are found
+    // Fails if only some terms are found
     sort(test.begin(), test.end());
     Xapian::TermIterator term_iterator = doc.termlist_begin();
     bool term_found = false, exists = true;
@@ -184,13 +187,10 @@ compare_test(testcase& test, const Xapian::Document& doc, const string& file)
 	    cerr << "Error in " << file << ": Term " << t <<
 		 " does not belong to this file" << endl;
 	    exists = false;
-	} else if (!term_found) {
+	} else {
 	    term_found = true;
 	}
     }
-    // Skips if no term is found
-    // Passes if all terms are found
-    // Fails if only some terms are found
     if (term_found) {
 	if (exists)
 	    return PASS;
@@ -206,7 +206,7 @@ int
 main(int argc, char** argv)
 {
     Xapian::Database db;
-    err_code succeed = PASS;
+    test_result result = PASS;
     if (argc <= 1)
 	return 1;
     db.add_database(Xapian::Database(argv[1]));
@@ -223,16 +223,17 @@ main(int argc, char** argv)
 	Xapian::Document doc = db.get_document(did);
 	auto iter = tests.find(url);
 	if (iter != tests.end()) {
-	    err_code result = compare_test(iter->second, doc, url);
-	    if (result == FAIL)
-		succeed = FAIL;
-	    else if (succeed == PASS && result == SKIP)
-		succeed = SKIP;
+	    test_result outcome = compare_test(iter->second, doc, url);
+	    if (outcome == FAIL)
+		result = FAIL;
+	    else if (result == PASS && outcome == SKIP)
+		result = SKIP;
 	}
     }
-    if (succeed == PASS)
+    // exit status of 77 to denote a skipped test (standard for automake)
+    if (result == PASS)
 	return 0;
-    else if (succeed == FAIL)
+    else if (result == FAIL)
 	return 1;
     else
 	return 77;

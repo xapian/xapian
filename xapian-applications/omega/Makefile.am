@@ -44,7 +44,16 @@ BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
 
 MAINTAINERCLEANFILES = my-html-tok.h mimemap.h mimemap.stamp namedents.h
 
-EXTRA_PROGRAMS = omindex_poppler omindex_libebook omindex_libetonyek omindex_tesseract omindex_gmime omindex_libarchive omindex_libabw omindex_libcdr omindex_libextractor
+EXTRA_PROGRAMS =\
+ 	omindex_poppler\
+ 	omindex_libebook\
+ 	omindex_libetonyek\
+ 	omindex_tesseract\
+ 	omindex_gmime\
+ 	omindex_libarchive\
+ 	omindex_libabw\
+ 	omindex_libcdr\
+ 	omindex_libextractor
 
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
