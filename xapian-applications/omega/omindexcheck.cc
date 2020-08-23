@@ -94,8 +94,6 @@ index_test()
 		  {"Zannual", "Zfed", "Zreturn", "Zwhile"}});
 #endif
 #if defined HAVE_LIBARCHIVE
-    // blank file - will skip the test as no terms will be found.
-    // tests.insert({"odf/blank.odt", {}});
     // corrupted file (ODP)
     // tests.insert({"corrupt_file.odp", {"ZSnatur"}});
 
