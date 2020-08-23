@@ -117,7 +117,7 @@ extract_word(string& dump,
 {
     RVNGString content_dump;
     RVNGTextTextGenerator content(content_dump, false);
-    if (MWAWDocument::parse(input, &content) == MWAWDocument::MWAW_R_OK ) {
+    if (MWAWDocument::parse(input, &content) == MWAWDocument::MWAW_R_OK) {
 	dump = content_dump.cstr();
     } else {
 	error = "Libmwaw Error: Failed to extract text";
@@ -126,7 +126,7 @@ extract_word(string& dump,
 
     RVNGString metadata_dump;
     RVNGTextTextGenerator metadata(metadata_dump, true);
-    if (MWAWDocument::parse(input, &metadata) == MWAWDocument::MWAW_R_OK ) {
+    if (MWAWDocument::parse(input, &metadata) == MWAWDocument::MWAW_R_OK) {
 	const char* data = metadata_dump.cstr();
 	size_t len = metadata_dump.size();
 	parse_metadata(data, len, author, title, keywords);
@@ -143,7 +143,7 @@ extract_spreadsheet(string& dump,
 		    string& keywords,
 		    string& author,
 		    string& error,
-	 	    string& pages,
+		    string& pages,
 		    RVNGFileStream* input)
 {
     RVNGStringVector pages_metadata;
@@ -154,7 +154,7 @@ extract_spreadsheet(string& dump,
 	return false;
     } else {
 	string meta_temp;
-	for (unsigned i=0; i < pages_metadata.size(); ++i) {
+	for (unsigned i = 0; i < pages_metadata.size(); ++i) {
 	    meta_temp.append(pages_metadata[i].cstr());
 	}
 	const char* data = meta_temp.c_str();
@@ -169,7 +169,7 @@ extract_spreadsheet(string& dump,
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
     } else {
-	for (unsigned i=0; i < pages_content.size(); ++i) {
+	for (unsigned i = 0; i < pages_content.size(); ++i) {
 	    dump.append(pages_content[i].cstr());
 	}
 	pages = pages_content.size();
@@ -190,7 +190,7 @@ extract_presentation(string& dump,
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
     } else {
-	for (unsigned i=0; i < pages_content.size(); ++i) {
+	for (unsigned i = 0; i < pages_content.size(); ++i) {
 	    dump.append(pages_content[i].cstr());
 	}
 	pages = pages_content.size();
@@ -211,7 +211,7 @@ extract_drawing(string& dump,
 	error = "Libmwaw Error: Failed to extract text";
 	return false;
     } else {
-	for (unsigned i=0; i < pages_content.size(); ++i) {
+	for (unsigned i = 0; i < pages_content.size(); ++i) {
 	    dump.append(pages_content[i].cstr());
 	}
 	pages = pages_content.size();
@@ -236,8 +236,8 @@ extract(const string& filename,
 	MWAWDocument::Confidence confidence;
 	RVNGFileStream input(filename.c_str());
 
-	confidence = MWAWDocument::isFileFormatSupported (&input, type, kind);
-  	if (confidence != MWAWDocument::MWAW_C_EXCELLENT) {
+	confidence = MWAWDocument::isFileFormatSupported(&input, type, kind);
+	if (confidence != MWAWDocument::MWAW_C_EXCELLENT) {
 	    error = "Libmwaw Error: File format not supported";
 	    return false;
 	}
@@ -245,7 +245,7 @@ extract(const string& filename,
 	switch (kind) {
 	    case MWAWDocument::MWAW_K_TEXT:
 		return extract_word(dump, title, keywords, author, error,
- 				    &input);
+				    &input);
 	    case MWAWDocument::MWAW_K_SPREADSHEET:
 	    case MWAWDocument::MWAW_K_DATABASE:
 		return extract_spreadsheet(dump, title, keywords, author, error,
