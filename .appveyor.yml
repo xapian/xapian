@@ -93,6 +93,11 @@ install:
       }
   - if "%TOOLCHAIN%"=="mingw" bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - if "%TOOLCHAIN%"=="mingw" appveyor-retry bash -c 'mingw-get install libz-dev'
+  # Workaround appveyor's container having old maintainer keys:
+  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz'
+  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig'
+  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman-key --verify msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig'
+  - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -U msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz'
   - if "%TOOLCHAIN%"=="mingw64" appveyor-retry bash -c 'pacman -Sy --noconfirm zlib-devel'
   # Install cygwin git and patch packages since those installed in the image
   # want the 32-bit cygwin1.dll which means they fail to work if the 64-bit
