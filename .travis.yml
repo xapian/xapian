@@ -36,6 +36,7 @@ matrix:
             - libarchive-dev
             - libabw-dev
             - libcdr-dev
+            - libmwaw-dev
             - libextractor-dev
       env: CPPFLAGS=-D_GLIBCXX_DEBUG LIBEXTRACTOR_PREFIX='/usr/lib/x86_64-linux-gnu/libextractor'
     - compiler: clang
@@ -68,8 +69,13 @@ matrix:
             - libarchive-dev
             - libabw-dev
             - libcdr-dev
+<<<<<<< HEAD
             - libextractor-dev
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' LIBEXTRACTOR_PREFIX='/usr/lib/x86_64-linux-gnu/libextractor'
+=======
+            - libmwaw-dev
+      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++'
+>>>>>>> Support Legacy Mac Documents using libmwaw
     - compiler: gcc
       os: linux
       name: "GCC 4.8"
@@ -98,8 +104,12 @@ matrix:
             - libpoppler-cpp-dev
             - libtesseract-dev
             - libarchive-dev
+<<<<<<< HEAD
             - libextractor-dev
       env: LIBEXTRACTOR_PREFIX='/usr/lib/x86_64-linux-gnu/libextractor'
+=======
+            - libmwaw-dev
+>>>>>>> Support Legacy Mac Documents using libmwaw
     - os: linux
       name: "Emscripten"
       addons:
@@ -146,6 +156,7 @@ matrix:
             - libextractor
             - libiconv
             - libmagic
+            - libmwaw
             - libsvm
             - lua
             - mono

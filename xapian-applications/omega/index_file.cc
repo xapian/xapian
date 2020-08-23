@@ -284,6 +284,10 @@ index_add_default_libraries()
     index_library("audio/x-mod", omindex_libextractor);
     index_library("audio/x-s3m", omindex_libextractor);
 #endif
+#if defined HAVE_LIBMWAW
+    Worker* omindex_libmwaw = new Worker("omindex_libmwaw");
+    index_library("application/clarisworks", omindex_libmwaw);
+#endif
 }
 
 void

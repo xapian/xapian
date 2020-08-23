@@ -182,6 +182,14 @@ index_test()
     tests.insert({"audio/file_example_WAV_1MG.wav",
 		  {{"Zstereo", "wav", "Zms"}, SKIP_IF_NO_TERMS}});
 #endif
+#if defined HAVE_LIBMWAW
+    tests.insert({"apple_works/test_word.cwk",
+		  {"Zhello", "Zdocument", "ZSappl"}});
+    tests.insert({"apple_works/test_spreadsheet.cwk",
+		  {"Zpizza", "220", "ZSwork", "Zcwk"}});
+    tests.insert({"apple_works/test_drawing.cwk",
+		  {"Zdraw", "Zsampl", "Zgraphic"}});
+#endif
 }
 
 static test_result

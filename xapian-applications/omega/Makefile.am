@@ -53,7 +53,8 @@ EXTRA_PROGRAMS =\
 	omindex_libarchive\
 	omindex_libabw\
 	omindex_libcdr\
-	omindex_libextractor
+	omindex_libextractor\
+	omindex_libmwaw
 
 EXTRA_DIST =\
 	clickmodel/testdata/test1.log\
@@ -218,9 +219,15 @@ omindex_libcdr_SOURCES = assistant.cc worker_comms.cc handler_libcdr.cc
 omindex_libcdr_LDADD = $(LIBCDR_LIBS)
 omindex_libcdr_CXXFLAGS = $(LIBCDR_CFLAGS) $(XAPIAN_CXXFLAGS)
 
+<<<<<<< HEAD
 omindex_libextractor_SOURCES = assistant.cc worker_comms.cc handler_libextractor.cc
 omindex_libextractor_LDADD = $(LIBEXTRACTOR_LIBS)
 omindex_libextractor_CXXFLAGS = $(LIBEXTRACTOR_CFLAGS)
+=======
+omindex_libmwaw_SOURCES = assistant.cc worker_comms.cc handler_libmwaw.cc
+omindex_libmwaw_LDADD = $(LIBMWAW_LIBS)
+omindex_libmwaw_CXXFLAGS = $(LIBMWAW_CFLAGS) $(XAPIAN_CXXFLAGS)
+>>>>>>> Support Legacy Mac Documents using libmwaw
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc common/str.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
